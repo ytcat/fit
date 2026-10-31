@@ -364,7 +364,8 @@
         this.initControls();
         document.getElementById('camBack').addEventListener('click', () => { if(this.activeModel) this.activeModel.rotation.y = Math.PI; });
         this.createTrainingBoxer();
-        // Keep the working animated trainer as default. Load custom GLB only on explicit user request.
+        // Start with a moving trainer, then restore the user's preferred local avatar if saved.
+        this.restoreSavedModel();
 
         this.clock = new THREE.Clock();
         this.animate = this.animate.bind(this);
@@ -456,6 +457,58 @@
         }
         hips.position.x=sequence[step]==='slip'?punch*.09:0;
         hips.position.z=sequence[step]==='jab'?punch*.05:0;
+      }
+
+      async saveModelFile(file) {
+        if (!window.indexedDB) return;
+        return new Promise((resolve,reject)=>{
+          const request=indexedDB.open('shadowbox-avatar',1);
+          request.onupgradeneeded=()=>{request.result.createObjectStore('files')};
+          request.onerror=()=>reject(request.error);
+          request.onsuccess=()=>{
+            const db=request.result,tx=db.transaction('files','readwrite');
+            tx.objectStore('files').put(file,'preferred-avatar');
+            tx.oncomplete=()=>{db.close();resolve()};
+            tx.onerror=()=>{db.close();reject(tx.error)};
+          };
+        });
+      }
+
+      async restoreSavedModel() {
+        if (!window.indexedDB) return;
+        try {
+          const file=await new Promise((resolve,reject)=>{
+            const req=indexedDB.open('shadowbox-avatar',1);
+            req.onupgradeneeded=()=>req.result.createObjectStore('files');
+            req.onerror=()=>reject(req.error);
+            req.onsuccess=()=>{
+              const db=req.result,tx=db.transaction('files','readonly');
+              const get=tx.objectStore('files').get('preferred-avatar');
+              get.onsuccess=()=>{resolve(get.result);db.close()};
+              get.onerror=()=>{reject(get.error);db.close()};
+            };
+          });
+          if (file) this.loadAvatarFile(file);
+        } catch(e) { console.warn('Saved avatar unavailable:',e); }
+      }
+
+      loadAvatarFile(file) {
+        const url=URL.createObjectURL(file);
+        const loader=new THREE.GLTFLoader();
+        loader.load(url,gltf=>{
+          this.bindSkeletalModel(gltf);
+          if(this.activeModel!==this.demoModel) {
+            const clips=gltf.animations||[];
+            document.getElementById('modelStatusText').innerText=clips.length
+              ? file.name+' · '+clips.length+' moves'
+              : file.name+' · rig only';
+          }
+          URL.revokeObjectURL(url);
+        },undefined,error=>{
+          console.warn('Avatar loading failed',error);
+          document.getElementById('modelStatusText').innerText='Could not load avatar';
+          URL.revokeObjectURL(url);
+        });
       }
 
       // Auto-scans repository's assets/models/ folder
@@ -808,13 +861,8 @@
         document.getElementById('modelFilePicker').onchange = (e) => {
           const file = e.target.files[0];
           if (file) {
-            const url = URL.createObjectURL(file);
-            const loader = new THREE.GLTFLoader();
-            loader.load(url, (gltf) => {
-              this.engine.bindSkeletalModel(gltf);
-              if (this.engine.activeModel !== this.engine.demoModel) document.getElementById('modelStatusText').innerText = `Animated: ${file.name}`;
-              URL.revokeObjectURL(url);
-            }, undefined, () => { document.getElementById('modelStatusText').innerText = 'Cannot read model file'; URL.revokeObjectURL(url); });
+            this.engine.loadAvatarFile(file);
+            this.engine.saveModelFile(file).catch(err=>console.warn('Avatar could not be saved for next visit',err));
           }
         };
       }
