@@ -67,3 +67,44 @@ for(const mesh of [coach.skin,coach.shorts]) {
 const expectedGold=new THREE.Color(0xd8b56c).convertSRGBToLinear();
 for(const key of ['r','g','b'])nearly(coach.gold.color[key],expectedGold[key],1e-7);
 console.log('PASS skinning transforms, normalized weights, matching shadows and shared material colors');
+
+// Regress the actual glove frame, not only hand positions. A reachable wrist
+// previously passed while the glove faced backwards or bent across the forearm.
+coach.root.rotation.set(0,0,0);
+const vec=a=>new THREE.Vector3(...a);
+for(const move of moves) {
+  let previous=null;
+  for(let i=0;i<=610;i++) {
+    const m=coach.update(i*1.22/610,move,'one_two');
+    const orientations=[];
+    for(const [index,side] of ['L','R'].entries()) {
+      const hand=coach.joints['hand'+side],elbow=coach.joints['elbow'+side];
+      const q=hand.getWorldQuaternion(new THREE.Quaternion());
+      const distal=new THREE.Vector3(0,-1,0).applyQuaternion(q);
+      const forearm=coach.point(hand).sub(coach.point(elbow)).normalize();
+      assert.ok(distal.dot(forearm)>.99999,move+' bent wrist');
+      const palm=new THREE.Vector3(0,0,1).applyQuaternion(q);
+      assert.ok(palm.dot(vec(m.gloves[index].palm))>.99999,move+' incorrect mesh palm');
+      assert.ok(Math.abs(palm.dot(distal))<1e-6,move+' nonorthogonal glove');
+      orientations.push(q);
+      if(previous)assert.ok(q.angleTo(previous[index])<.13,move+' glove flips between frames');
+    }
+    previous=orientations;
+    const gaze=new THREE.Vector3(0,0,1).applyQuaternion(coach.joints.head.getWorldQuaternion(new THREE.Quaternion()));
+    assert.ok(gaze.z>.97,move+' head turns away from opponent');
+  }
+}
+for(const [move,index] of [['jab',0],['cross',1],['hook',0],['rear_hook',1]]) {
+  const m=coach.update(.50*1.22,move,'one_two');
+  assert.ok(vec(m.gloves[index].palm).y<-.85,move+' palm must face down at contact');
+}
+for(const [move,index] of [['uppercut',0],['rear_uppercut',1]]) {
+  const m=coach.update(.47*1.22,move,'one_two');
+  assert.ok(vec(m.gloves[index].palm).z<-.85,move+' palm must face boxer at contact');
+  assert.ok(vec(m.gloves[index].distal).y>.75,move+' knuckles must strike upward');
+  const low=coach.update(.18*1.22,move,'one_two');
+  assert.ok(m.hips[1]>low.hips[1]+.025,move+' legs must rise out of loading dip');
+}
+const guard=coach.update(0,'jab','one_two');
+assert.ok(guard.gloves[0].palm[0]>.7&&guard.gloves[1].palm[0]<-.7,'guard palms face inward');
+console.log('PASS anatomical glove axes, straight wrists, contact palm orientation, continuous rotation and uppercut leg drive');

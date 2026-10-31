@@ -88,7 +88,8 @@
         hand.add(glove);glove.castShadow=true;
         const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.070,.071,.062,32),this.black);
         cuff.position.y=.014;hand.add(cuff);
-        this.addLabel(hand,'SB',V(0,-.001,.073),.065,.039);
+        // Branding belongs on the back of the glove, opposite its palm/thumb pad.
+        this.addLabel(hand,'SB',V(0,-.070,-.105),.065,.039).rotation.y=Math.PI;
         this.addBoot(this.joints['foot'+side]);
         // Satin side piping follows each thigh, rather than floating beside it.
         this.curve(this.joints['thigh'+side],[V(s*.125,.055,.075),V(s*.15,-.10,.08),V(s*.15,-.25,.08)],this.gold,.006);
@@ -215,7 +216,7 @@
       ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,128,32);
       const map=new THREE.CanvasTexture(c);map.encoding=THREE.sRGBEncoding;
       const label=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map,transparent:true,roughness:.7}));
-      label.position.copy(p);parent.add(label);
+      label.position.copy(p);parent.add(label);return label;
     }
     addBoot(foot) {
       const shape=new THREE.Shape();
@@ -315,6 +316,24 @@
       return reachable.distanceTo(target);
     }
 
+    orientGlove(side,turn,palmTarget) {
+      // Mesh anatomy: -Y is wrist-to-knuckles; +Z is palm, with a mirrored thumb.
+      // A direction-only quaternion leaves roll undefined (especially near 180°).
+      // Build the entire anatomical frame: wrist stays collinear with forearm,
+      // and pronation rotates about that forearm, never through the wrist joint.
+      const hand=this.joints['hand'+side],elbow=this.joints['elbow'+side];
+      const distal=this.point(hand).sub(this.point(elbow)).normalize();
+      const project=p=>p.clone().addScaledVector(distal,-p.dot(distal)).normalize();
+      const inward=V(side==='L'?1:-1,0,-.35);
+      const neutral=project(inward),target=project(palmTarget);
+      const angle=Math.atan2(distal.dot(neutral.clone().cross(target)),neutral.dot(target));
+      const palm=neutral.clone().applyAxisAngle(distal,angle*turn);
+      const y=distal.clone().negate(),x=y.clone().cross(palm).normalize();
+      const z=x.clone().cross(y).normalize();
+      this.orient(hand,new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z)));
+      return {distal:distal.toArray(),palm:z.toArray(),turn};
+    }
+
     update(t,technique,combo) {
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
       const beat=t/1.22, move=seq[Math.floor(beat)%seq.length],phase=beat%1;
@@ -324,12 +343,14 @@
         return p<.17?0:p<.40?smooth((p-.17)/.23):p<.43?1:1-smooth((p-.43)/.38);
       };
       const drive=envelope(phase,.0),twist=envelope(phase,.025),strike=envelope(phase,.055);
-      const load=phase<.17?Math.sin(Math.PI*phase/.17):0;
+      const load=phase<.08?0:phase<.18?smooth((phase-.08)/.10):1-smooth((phase-.18)/.20);
       const j=this.joints,hips=j.hips,chest=j.chest;
-      let hipYaw=0,chestYaw=0,crouch=.012*load,shift=0,forward=0,leadPivot=0,rearPivot=0;
+      let hipYaw=0,chestYaw=0,crouch=0,shift=0,forward=0,leadPivot=0,rearPivot=0;
       const lead=V(-.185,1.68,.31),rear=V(.18,1.68,.28);
-      let ldir=V(0,1,.35).normalize(),rdir=V(0,1,.35).normalize();
       let leadPole=V(-.6,-1,.1),rearPole=V(.6,-1,.1);
+      let leadTurn=0,rearTurn=0;
+      const palmTarget=V(0,-1,0);
+      const lateTurn=smooth((strike-.35)/.65);
       const stepState=s=>{
         const out=clamp((phase-(s===-1?.08:.28))/.16);
         const back=clamp((phase-(s===-1?.78:.58))/.16);
@@ -338,28 +359,31 @@
       switch(move) {
         case 'jab':
           hipYaw=.12*drive;chestYaw=.11*twist;forward=.025*drive;
-          lead.lerp(V(-.10,1.72,.65),strike);ldir.lerp(V(0,0,1),strike).normalize();
+          lead.lerp(V(-.10,1.72,.65),strike);leadTurn=lateTurn;
           break;
         case 'cross':
           hipYaw=-.35*drive;chestYaw=-.24*twist;shift=-.027*drive;forward=.025*drive;
-          rear.lerp(V(.005,1.72,.67),strike);rdir.lerp(V(0,0,1),strike).normalize();rearPivot=-.58*drive;
+          rear.lerp(V(.005,1.72,.67),strike);rearTurn=lateTurn;rearPivot=-.58*drive;
           break;
         case 'hook': case 'rear_hook': {
           const s=move==='hook'?-1:1;
           crouch+=.015*drive;
           hipYaw=-s*.32*drive;chestYaw=-s*.23*twist;
+          shift=s*.018*drive;
           const target=V(s*.27*Math.cos(strike*1.8),1.70,.31+.20*Math.sin(strike*Math.PI*.65));
-          if(s===-1){lead.lerp(target,strike);ldir.lerp(V(1,0,.15).normalize(),strike).normalize();leadPole=V(-1,.15,.05);leadPivot=.48*drive;}
-          else {rear.lerp(target,strike);rdir.lerp(V(-1,0,.15).normalize(),strike).normalize();rearPole=V(1,.15,.05);rearPivot=-.48*drive;}
+          if(s===-1){lead.lerp(target,strike);leadTurn=lateTurn;leadPole.lerp(V(-1,.15,.05),strike);leadPivot=.48*drive;}
+          else {rear.lerp(target,strike);rearTurn=lateTurn;rearPole.lerp(V(1,.15,.05),strike);rearPivot=-.48*drive;}
           break;
         }
         case 'uppercut': case 'rear_uppercut': {
           const s=move==='uppercut'?-1:1;
           hipYaw=-s*.19*drive;chestYaw=-s*.11*twist;
-          crouch=.045*load+.025*envelope(phase-.1);forward=.015*drive;
+          crouch=.045*load;forward=.015*drive;shift=-s*.012*drive;
+          palmTarget.set(0,0,-1);
           const target=V(s*.12,1.47+.29*strike,.31+.15*strike);
-          if(s===-1){lead.lerp(target,Math.max(strike,load*.7));ldir=V(.05,1,.18).normalize();leadPivot=.23*drive;}
-          else {rear.lerp(target,Math.max(strike,load*.7));rdir=V(-.05,1,.18).normalize();rearPivot=-.23*drive;}
+          const scoop=clamp(strike+load*.65*(1-strike));
+          if(s===-1){lead.lerp(target,scoop);leadTurn=scoop;leadPole.lerp(V(0,-1,.2),scoop);leadPivot=.23*drive;}
+          else {rear.lerp(target,scoop);rearTurn=scoop;rearPole.lerp(V(0,-1,.2),scoop);rearPivot=-.23*drive;}
           break;
         }
         case 'slip': shift=.075*drive;crouch=.043*drive;hipYaw=-.08*drive;chestYaw=-.12*twist;break;
@@ -367,7 +391,7 @@
           const q=smooth(clamp((phase-.12)/.72));
           shift=.075*Math.sin(q*Math.PI*2);crouch=.09*Math.sin(q*Math.PI);break;
         }
-        case 'step': forward=(stepState(-1).z+stepState(1).z)/2;crouch+=.020;break;
+        case 'step': forward=(stepState(-1).z+stepState(1).z)/2;crouch=.020*smooth(phase/.08)*(1-smooth((phase-.94)/.06));break;
       }
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,0);
@@ -375,7 +399,12 @@
       chest.rotation.set(.025,chestYaw,move==='slip'?-.055*twist:0);
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
-      j.head.rotation.set(.07,-(hipYaw+chestYaw)*.72,move==='slip'?.035*drive:0);
+      j.head.rotation.set(.07,-(hipYaw+chestYaw),move==='slip'?.035*drive:0);
+      // Scapular elevation/protraction of the striking shoulder protects the chin.
+      const leftStrike=['jab','hook','uppercut'].includes(move)?strike:0;
+      const rightStrike=['cross','rear_hook','rear_uppercut'].includes(move)?strike:0;
+      j.armL.position.set(-.30,.26+.025*leftStrike,.018*leftStrike);
+      j.armR.position.set(.30,.26+.025*rightStrike,.018*rightStrike);
       this.tail.rotation.y= -.16*hipYaw+Math.sin(t*2.2)*.025;
       const footTargets=[];
       for(const s of [-1,1]) {
@@ -387,16 +416,27 @@
         const contact=V(s*.235,.015,(s===-1?.24:-.20)+.12+step.z);
         const ankle=contact.clone().add(V(0,.102,-.12).applyQuaternion(footQ));
         ankle.y+=step.lift;
-        const err=this.solve(j['thigh'+side],j['knee'+side],j['foot'+side],ankle,V(s*.07,0,1));
+        const kneePole=V(s*.07,0,1).applyAxisAngle(V(0,1,0),pivot*.65);
+        const err=this.solve(j['thigh'+side],j['knee'+side],j['foot'+side],ankle,kneePole);
         this.orient(j['foot'+side],footQ);footTargets.push({side,error:err,ankle:ankle.toArray(),pivot});
       }
       // Guard follows the head during defensive movement; strike endpoints stay in opponent space.
-      const guardShift=V(shift,(hips.position.y-.935),forward);
+      const guardShift=V(shift+(move==='slip'?.055*drive:0),(hips.position.y-.935),forward);
       lead.add(guardShift);rear.add(guardShift);
+      // Straight punches use almost the full arm reach after torso rotation.
+      // A fixed short wrist endpoint left the elbow folded and knuckles pointing
+      // upward even at impact. Keep a small bend rather than locking the joint.
+      if(move==='jab'||move==='cross') {
+        const side=move==='jab'?'L':'R',hand=side==='L'?lead:rear;
+        const shoulder=this.point(j['arm'+side]);
+        const direction=V(side==='L'?-.08:.02,1.70,shoulder.z+.66).sub(shoulder).normalize();
+        const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.018;
+        const target=shoulder.addScaledVector(direction,reach);
+        hand.copy((side==='L'?V(-.185,1.68,.31):V(.18,1.68,.28)).add(guardShift)).lerp(target,strike);
+      }
       const le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       const re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
-      this.orient(j.handL,new THREE.Quaternion().setFromUnitVectors(V(0,-1,0),ldir));
-      this.orient(j.handR,new THREE.Quaternion().setFromUnitVectors(V(0,-1,0),rdir));
+      const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
       this.root.updateMatrixWorld(true);
       this.skeleton.update();
       const mat=new THREE.Matrix4(),q=new THREE.Quaternion(),tr=new THREE.Quaternion();
@@ -406,7 +446,7 @@
         this.dqReal[i].set(q.x,q.y,q.z,q.w);
         this.dqDual[i].set(tr.x*.5,tr.y*.5,tr.z*.5,tr.w*.5);
       }
-      this.metrics={move,phase,strike,footTargets,handErrors:[le,re],
+      this.metrics={move,phase,strike,gloves,footTargets,handErrors:[le,re],
         hands:[this.point(j.handL).toArray(),this.point(j.handR).toArray()],
         head:this.point(j.head).toArray(),hips:this.point(hips).toArray()};
       return this.metrics;
