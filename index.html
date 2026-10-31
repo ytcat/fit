@@ -71,6 +71,7 @@
     <!-- Camera Presets -->
     <div class="absolute top-3 right-3 flex flex-col space-y-1.5 z-10">
       <button id="camFront" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Front</button>
+      <button id="camBack" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Back</button>
       <button id="camSide" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Profile</button>
     </div>
 
@@ -310,6 +311,8 @@
         this.bones = {};
         this.activeModel = null;
         this.mixer = null;
+        this.actions = {};
+        this.activeAction = null;
 
         this.init();
       }
@@ -357,6 +360,7 @@
         this.scene.add(warmBack);
 
         this.initControls();
+        document.getElementById('camBack').addEventListener('click', () => { if(this.activeModel) this.activeModel.rotation.y = Math.PI; });
         this.discoverAndLoadModel();
 
         this.clock = new THREE.Clock();
@@ -379,7 +383,7 @@
             const files = await res.json();
             if (Array.isArray(files)) {
               // Find first .glb or .gltf in assets/models
-              const found = files.find(f => f.name.toLowerCase().endsWith('.glb') || f.name.toLowerCase().endsWith('.gltf'));
+              const found = files.find(f => f.name === 'lion_boxer_animated.glb') || files.find(f => f.name.toLowerCase().endsWith('.glb') || f.name.toLowerCase().endsWith('.gltf'));
               if (found) {
                 modelUrl = found.download_url || `./assets/models/${found.name}`;
                 statusText.innerText = `Loaded: assets/models/${found.name}`;
@@ -392,6 +396,7 @@
 
         // Fallbacks if GitHub API is rate-limited:
         const candidateUrls = [
+          './assets/models/lion_boxer_animated.glb',
           modelUrl,
           './assets/models/lion.glb',
           './assets/models/model.glb',
@@ -401,12 +406,12 @@
         ].filter(Boolean);
 
         const tryLoad = (idx) => {
-          if (idx >= candidateUrls.length) return;
+          if (idx >= candidateUrls.length) { statusText.innerText = 'No 3D model found — upload a GLB to assets/models'; statusDot.className = 'w-1.5 h-1.5 rounded-full bg-red-400'; return; }
           const url = candidateUrls[idx];
           loader.load(url, (gltf) => {
             this.bindSkeletalModel(gltf);
             statusDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400";
-            if (!modelUrl) statusText.innerText = "3D Rig: Active";
+            statusText.innerText = `3D model: ${url.split('/').pop()}`;
           }, undefined, () => {
             tryLoad(idx + 1); // Try next candidate
           });
@@ -417,6 +422,8 @@
 
       bindSkeletalModel(gltf) {
         if (this.activeModel) this.scene.remove(this.activeModel);
+        if (this.mixer) this.mixer.stopAllAction();
+        this.mixer = null; this.actions = {}; this.activeAction = null;
         this.activeModel = gltf.scene;
 
         // Auto-Center & Auto-Scale Model to Ring Dimensions
@@ -459,10 +466,25 @@
         // If the model came with embedded boxing clips, activate mixer
         if (gltf.animations && gltf.animations.length > 0) {
           this.mixer = new THREE.AnimationMixer(this.activeModel);
-          this.mixer.clipAction(gltf.animations[0]).play();
+          this.actions = {};
+          gltf.animations.forEach(clip => { this.actions[clip.name] = this.mixer.clipAction(clip); });
+          this.playClipForDrill();
         }
 
         this.scene.add(this.activeModel);
+      }
+
+      playClipForDrill() {
+        if (!this.mixer) return;
+        const map = {one_two:['Jab','Cross'],one_two_hook:['Jab','Cross','Lead_Hook'],slip_cross:['Slip_Right','Cross'],uppercut_flow:['Uppercut','Lead_Hook','Cross']};
+        const clips = map[this.currentAnim] || ['Idle_Guard'];
+        const name = clips[Math.floor(this.animTime / 1.08) % clips.length];
+        const next = this.actions[name] || this.actions.Idle_Guard || Object.values(this.actions)[0];
+        if (next && next !== this.activeAction) {
+          if (this.activeAction) this.activeAction.fadeOut(.15);
+          next.reset().fadeIn(.15).play();
+          this.activeAction = next;
+        }
       }
 
       initControls() {
@@ -495,11 +517,11 @@
 
         // If embedded animations exist:
         if (this.mixer) {
-          this.mixer.update(delta * this.speed);
+          if (this.isPlaying) { this.playClipForDrill(); this.mixer.update(delta * this.speed); }
         }
 
         // Active procedural kinetic boxing movements:
-        if (this.isPlaying) this.animTime += 0.045 * this.speed;
+        if (this.isPlaying) this.animTime += delta * this.speed;
         const t = this.animTime;
         const b = this.bones;
 
@@ -805,6 +827,7 @@
 
         this.engine.currentAnim = d.anim;
         this.engine.animTime = 0;
+        if (this.engine.playClipForDrill) this.engine.playClipForDrill();
       }
 
       updateHUD() {
