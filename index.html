@@ -523,7 +523,7 @@
         // Active procedural kinetic boxing movements:
         if (this.isPlaying) this.animTime += delta * this.speed;
         const t = this.animTime;
-        const b = this.bones;
+        const b = this.mixer ? {} : this.bones; // Do not overwrite imported animation tracks
 
         // Reset Guard (Arms shielding chin)
         if (b.lArm) b.lArm.rotation.set(0.95, 0.20, 0.45);
