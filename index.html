@@ -320,11 +320,12 @@
       init() {
         const rect = this.stage.getBoundingClientRect();
         const w = rect.width || window.innerWidth;
-        const h = Math.max(rect.height, 350);
+        const h = Math.max(rect.height, 1);
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
-        this.camera.position.set(0, 1.35, 3.4);
+        this.camera.position.set(0, 1.25, 5.8);
+        this.camera.lookAt(0, 1.0, 0);
 
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
         this.renderer.setSize(w, h, false);
@@ -333,10 +334,11 @@
         const resize = () => {
           const r = this.stage.getBoundingClientRect();
           const nw = r.width || window.innerWidth;
-          const nh = Math.max(r.height, 350);
+          const nh = Math.max(r.height, 1);
           this.camera.aspect = nw / nh;
           this.camera.updateProjectionMatrix();
           this.renderer.setSize(nw, nh, false);
+          if (this.activeModel) this.fitCameraToModel(this.activeModel);
         };
         window.addEventListener('resize', resize);
         window.addEventListener('orientationchange', () => setTimeout(resize, 200));
@@ -412,7 +414,22 @@
         this.demoModel=group;this.activeModel=group;
         group.rotation.y=-.28;
         this.scene.add(group);
+        this.fitCameraToModel(group);
         document.getElementById('modelStatusText').innerText='Animated training boxer (built-in)';
+      }
+
+      fitCameraToModel(model) {
+        const box = new THREE.Box3().setFromObject(model);
+        if (box.isEmpty()) return;
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const fov = THREE.MathUtils.degToRad(this.camera.fov);
+        const aspect = Math.max(.25, this.camera.aspect);
+        const verticalDistance = (size.y * .5) / Math.tan(fov * .5);
+        const horizontalDistance = (size.x * .5) / (Math.tan(fov * .5) * aspect);
+        const distance = Math.max(verticalDistance, horizontalDistance, size.z * 2, 2.5) * 1.38;
+        this.camera.position.set(center.x, center.y + .1, center.z + distance);
+        this.camera.lookAt(center);
       }
 
       animateTrainingBoxer(t) {
@@ -544,6 +561,14 @@
         }
 
         this.scene.add(this.activeModel);
+        this.fitCameraToModel(this.activeModel);
+        if (!this.mixer && !Object.keys(this.bones).length) {
+          document.getElementById('modelStatusText').innerText = 'Static model: no rig or animations — using moving trainer';
+          this.scene.remove(this.activeModel);
+          this.activeModel = this.demoModel;
+          this.scene.add(this.demoModel);
+          this.fitCameraToModel(this.demoModel);
+        }
       }
 
       playClipForDrill() {
@@ -551,7 +576,10 @@
         const map = {one_two:['Jab','Cross'],one_two_hook:['Jab','Cross','Lead_Hook'],slip_cross:['Slip_Right','Cross'],uppercut_flow:['Uppercut','Lead_Hook','Cross']};
         const clips = map[this.currentAnim] || ['Idle_Guard'];
         const name = clips[Math.floor(this.animTime / 1.08) % clips.length];
-        const next = this.actions[name] || this.actions.Idle_Guard || Object.values(this.actions)[0];
+        const normalized = v => v.toLowerCase().replace(/[^a-z0-9]/g,'');
+        const matching = Object.keys(this.actions).find(k => normalized(k) === normalized(name))
+          || Object.keys(this.actions).find(k => normalized(k).includes(normalized(name)));
+        const next = this.actions[matching] || this.actions.Idle_Guard || Object.values(this.actions)[0];
         if (next && next !== this.activeAction) {
           if (this.activeAction) this.activeAction.fadeOut(.15);
           next.reset().fadeIn(.15).play();
@@ -783,8 +811,9 @@
             const loader = new THREE.GLTFLoader();
             loader.load(url, (gltf) => {
               this.engine.bindSkeletalModel(gltf);
-              document.getElementById('modelStatusText').innerText = `Loaded: ${file.name}`;
-            });
+              if (this.engine.activeModel !== this.engine.demoModel) document.getElementById('modelStatusText').innerText = `Animated: ${file.name}`;
+              URL.revokeObjectURL(url);
+            }, undefined, () => { document.getElementById('modelStatusText').innerText = 'Cannot read model file'; URL.revokeObjectURL(url); });
           }
         };
       }
