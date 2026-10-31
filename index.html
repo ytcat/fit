@@ -474,19 +474,20 @@
         torso.rotation.set(.06,0,0);
         head.rotation.set(-.035,0,0);
         ll.rotation.set(0,0,0);rl.rotation.set(0,0,0);
-        const lead={x:-.22,y:.62,z:.40}, rear={x:.22,y:.62,z:.40};
+        // Fists in front of cheekbones; torso-local y is measured from the chest pivot.
+        const lead={x:-.21,y:.78,z:.42}, rear={x:.21,y:.78,z:.42};
         const L={...lead}, R={...rear};
         // Hands remain near cheeks when not striking; the opposite hand stays in guard.
         switch(move){
           case 'jab':
-            L.x-=.06*stroke;L.y+=.015*stroke;L.z+=.66*stroke;
+            L.x-=.04*stroke;L.y-=.045*stroke;L.z+=.63*stroke;
             torso.rotation.y=.16*stroke-.05*preload;
             hips.rotation.y=.11*stroke;
             hips.position.z+=.045*stroke;
             ll.rotation.x=-.10*stroke;
             break;
           case 'cross':
-            R.x-=.22*stroke;R.y+=.01*stroke;R.z+=.68*stroke;
+            R.x-=.17*stroke;R.y-=.045*stroke;R.z+=.63*stroke;
             torso.rotation.y=-.50*stroke+.09*preload;
             hips.rotation.y=-.40*stroke;
             rl.rotation.y=-.27*stroke;rl.rotation.x=-.10*stroke;
@@ -494,7 +495,7 @@
             break;
           case 'hook':
             // Bent elbow, fist sweeps horizontally across the target.
-            L.x=-.40+.49*stroke;L.y=.56;L.z=.38+.29*stroke;
+            L.x=-.34+.42*stroke;L.y=.70;L.z=.44+.25*stroke;
             torso.rotation.y=.49*stroke-.12*preload;
             hips.rotation.y=.42*stroke;
             ll.rotation.y=.23*stroke;
@@ -502,7 +503,7 @@
             break;
           case 'uppercut':
             // Drive upward with legs and torso, rather than swinging the glove from the shoulder.
-            L.x=-.23+.07*stroke;L.y=.48+.31*stroke;L.z=.42+.20*stroke;
+            L.x=-.23+.07*stroke;L.y=.57+.24*stroke;L.z=.42+.20*stroke;
             hips.position.y-=.065*(1-stroke)*preload;
             hips.position.y+=.035*stroke;
             torso.rotation.x=.10-.13*stroke;
@@ -523,22 +524,26 @@
         // use those actual bone-space directions, not an assumed vertical limb axis.
         const shoulderToFist=(arm,elbow,target,side)=>{
           const shoulder=arm.position.clone();
+          // Shoulder lives in torso coordinates. Guard targets are also torso-local.
+          // Prevent impossible reaches and use a stable bend plane.
           const desired=new THREE.Vector3(target.x,target.y,target.z);
-          const delta=desired.sub(shoulder);
+          const delta=desired.clone().sub(shoulder);
           const upper=elbow.position.length();
           const lower=new THREE.Vector3(0,-.40,.08).length();
-          const reach=Math.min(delta.length(),upper+lower-.015);
+          const reach=Math.max(Math.abs(upper-lower)+.025,Math.min(delta.length(),upper+lower-.015));
           const dir=delta.clone().normalize();
           const along=(upper*upper-lower*lower+reach*reach)/(2*reach);
           const perpendicular=Math.sqrt(Math.max(0,upper*upper-along*along));
           // Keep elbows below the fists and slightly outside the torso.
-          const bend=new THREE.Vector3(side*.55,-1,-.30);
+          const bend=new THREE.Vector3(side*.65,-1,-.12);
           bend.addScaledVector(dir,-bend.dot(dir)).normalize();
           const elbowPoint=shoulder.clone().addScaledVector(dir,along).addScaledVector(bend,perpendicular);
           const upperDir=elbowPoint.clone().sub(shoulder).normalize();
           const upperRest=elbow.position.clone().normalize();
           arm.quaternion.setFromUnitVectors(upperRest,upperDir);
-          const lowerDir=new THREE.Vector3(target.x,target.y,target.z).sub(elbowPoint).normalize();
+          // For unreachable targets, solve toward the clamped reachable point.
+          const reachable=shoulder.clone().addScaledVector(dir,reach);
+          const lowerDir=reachable.sub(elbowPoint).normalize();
           const lowerRest=new THREE.Vector3(0,-.40,.08).normalize();
           const worldForearm=new THREE.Quaternion().setFromUnitVectors(lowerRest,lowerDir);
           elbow.quaternion.copy(arm.quaternion).invert().multiply(worldForearm);
