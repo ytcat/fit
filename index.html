@@ -456,28 +456,90 @@
 
       animateTrainingBoxer(t) {
         if (!this.demoModel || this.activeModel !== this.demoModel) return;
-        const l=this.demoLeftArm,r=this.demoRightArm,le=this.demoLeftElbow,re=this.demoRightElbow;
-        const torso=this.demoTorso, hips=this.demoHips;
-        l.rotation.set(-.85,0,-.25);r.rotation.set(-.85,0,.25);
-        le.rotation.set(-1.35,0,0);re.rotation.set(-1.35,0,0);
-        torso.rotation.set(0,0,0);hips.position.y=1.02+Math.sin(t*7)*.018;
-        this.demoLeftLeg.rotation.y=0;this.demoRightLeg.rotation.y=0;
-        this.demoHead.rotation.z=0;
+        // Two-link inverse kinematics: place the fists in boxing-space and solve both elbows.
+        // Unlike independent arm rotations, each punch follows a coordinated target path.
+        const hips=this.demoHips, torso=this.demoTorso, head=this.demoHead;
+        const left=this.demoLeftArm, right=this.demoRightArm;
+        const le=this.demoLeftElbow, re=this.demoRightElbow;
+        const ll=this.demoLeftLeg, rl=this.demoRightLeg;
         const names={one_two:['jab','cross'],one_two_hook:['jab','cross','hook'],slip_cross:['slip','cross'],uppercut_flow:['uppercut','hook','cross']};
-        const sequence=this.technique==='combo' ? (names[this.currentAnim]||names.one_two) : [this.technique];
-        const beat=t*1.0;
-        const step=Math.floor(beat)%sequence.length;
-        const phase=beat-Math.floor(beat);
-        const punch=Math.pow(Math.sin(Math.PI*phase),1.6);
-        switch(sequence[step]){
-          case 'jab':l.rotation.x=-.85-punch*1.05;le.rotation.x=-1.35+punch*1.3;torso.rotation.y=punch*.16;hips.position.z=punch*.05;break;
-          case 'cross':r.rotation.x=-.85-punch*1.1;re.rotation.x=-1.35+punch*1.3;torso.rotation.y=-punch*.45;this.demoRightLeg.rotation.y=punch*.3;break;
-          case 'hook':l.rotation.x=-.85-punch*.25;l.rotation.y=-punch*.95;le.rotation.x=-1.35+punch*.55;torso.rotation.y=punch*.52;break;
-          case 'uppercut':l.rotation.x=-.85+punch*.6;le.rotation.x=-1.35-punch*.45;torso.rotation.y=punch*.22;hips.position.y-=punch*.08;break;
-          case 'slip':torso.rotation.z=-punch*.28;this.demoHead.rotation.z=punch*.08;hips.position.x=punch*.09;break;
+        const seq=this.technique==='combo'?(names[this.currentAnim]||names.one_two):[this.technique];
+        const beat=t*.85, move=seq[Math.floor(beat)%seq.length], phase=beat%1;
+        const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
+        const stroke=phase<.12?0:phase<.39?smooth((phase-.12)/.27):phase<.46?1:phase<.76?1-smooth((phase-.46)/.30):0;
+        const preload=phase<.12?Math.sin(Math.PI*phase/.12)*.15:0;
+        const idle=Math.sin(t*2.2)*.008;
+        hips.position.set(0,1.02+idle,0);
+        hips.rotation.set(0,0,0);
+        torso.rotation.set(.06,0,0);
+        head.rotation.set(-.035,0,0);
+        ll.rotation.set(0,0,0);rl.rotation.set(0,0,0);
+        const lead={x:-.22,y:.62,z:.40}, rear={x:.22,y:.62,z:.40};
+        const L={...lead}, R={...rear};
+        // Hands remain near cheeks when not striking; the opposite hand stays in guard.
+        switch(move){
+          case 'jab':
+            L.x-=.06*stroke;L.y+=.015*stroke;L.z+=.66*stroke;
+            torso.rotation.y=.16*stroke-.05*preload;
+            hips.rotation.y=.11*stroke;
+            hips.position.z+=.045*stroke;
+            ll.rotation.x=-.10*stroke;
+            break;
+          case 'cross':
+            R.x-=.22*stroke;R.y+=.01*stroke;R.z+=.68*stroke;
+            torso.rotation.y=-.50*stroke+.09*preload;
+            hips.rotation.y=-.40*stroke;
+            rl.rotation.y=-.27*stroke;rl.rotation.x=-.10*stroke;
+            hips.position.z+=.025*stroke;
+            break;
+          case 'hook':
+            // Bent elbow, fist sweeps horizontally across the target.
+            L.x=-.40+.49*stroke;L.y=.56;L.z=.38+.29*stroke;
+            torso.rotation.y=.49*stroke-.12*preload;
+            hips.rotation.y=.42*stroke;
+            ll.rotation.y=.23*stroke;
+            head.rotation.y=-.10*stroke;
+            break;
+          case 'uppercut':
+            // Drive upward with legs and torso, rather than swinging the glove from the shoulder.
+            L.x=-.23+.07*stroke;L.y=.48+.31*stroke;L.z=.42+.20*stroke;
+            hips.position.y-=.065*(1-stroke)*preload;
+            hips.position.y+=.035*stroke;
+            torso.rotation.x=.10-.13*stroke;
+            torso.rotation.y=.20*stroke;
+            ll.rotation.x=.10*stroke;rl.rotation.x=.08*stroke;
+            break;
+          case 'slip':
+            // Small knee bend and trunk angle; head follows torso instead of swinging independently.
+            torso.rotation.z=-.20*stroke;
+            hips.position.x=.08*stroke;
+            hips.position.y-=.06*stroke;
+            head.rotation.z=.04*stroke;
+            ll.rotation.x=.11*stroke;rl.rotation.x=.11*stroke;
+            break;
         }
-        hips.position.x=sequence[step]==='slip'?punch*.09:0;
-        hips.position.z=sequence[step]==='jab'?punch*.05:0;
+        const up=new THREE.Vector3(0,-1,0), q=new THREE.Quaternion();
+        const shoulderToFist=(arm,elbow,target,side)=>{
+          const shoulder=arm.position.clone();
+          const dest=new THREE.Vector3(target.x,target.y,target.z);
+          const delta=dest.sub(shoulder);
+          const len=Math.max(.001,delta.length()), upper=.40,lower=.43;
+          const dir=delta.clone().normalize();
+          const reach=Math.min(len,upper+lower-.012);
+          const along=(upper*upper-lower*lower+reach*reach)/(2*reach);
+          const sideways=Math.sqrt(Math.max(0,upper*upper-along*along));
+          // Elbow points down and outward, preserving a plausible bent guard.
+          const bend=new THREE.Vector3(side*.65,-.8,-.25);
+          bend.addScaledVector(dir,-bend.dot(dir)).normalize();
+          const elbowPoint=shoulder.clone().addScaledVector(dir,along).addScaledVector(bend,sideways);
+          const upperDir=elbowPoint.clone().sub(shoulder).normalize();
+          arm.quaternion.setFromUnitVectors(up,upperDir);
+          const foreDir=dest.clone().sub(elbowPoint).normalize();
+          q.setFromUnitVectors(up,foreDir);
+          elbow.quaternion.copy(arm.quaternion).invert().multiply(q);
+        };
+        shoulderToFist(left,le,L,-1);
+        shoulderToFist(right,re,R,1);
       }
 
       async saveModelFile(file) {
