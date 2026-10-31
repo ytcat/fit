@@ -160,3 +160,27 @@ for(const [move,side,index] of [['jab','L',0],['cross','R',1]]) {
   assert.ok(vec(reset.hands[index]).distanceTo(vec(rest.hands[index]))<.002,move+' exercise reset');
 }
 console.log('PASS body-led reach, back rotation, rear-foot drive and deliberate repetition reset');
+
+for(const [move,side,index] of [['uppercut','L',0],['rear_uppercut','R',1]]) {
+  const low=coach.update(.22*1.22,move,'one_two');
+  const lowTorso=coach.joints.chest.getWorldQuaternion(new THREE.Quaternion());
+  const shoulders=['L','R'].map(s=>coach.point(coach.joints['arm'+s]));
+  assert.ok(Math.abs(shoulders[0].y-shoulders[1].y)>.045,move+' loading shoulders cannot remain level');
+  assert.ok(shoulders[index].y<shoulders[1-index].y,move+' punching shoulder must lower into load');
+  const high=coach.update(.47*1.22,move,'one_two');
+  assert.ok(Math.abs(high.head[0]-low.head[0])>.07,move+' head path cannot be only vertical');
+  assert.ok(lowTorso.angleTo(coach.joints.chest.getWorldQuaternion(new THREE.Quaternion()))>.4,move+' torso must unwind');
+}
+for(const move of moves) {
+  const guardSides=['jab','hook','uppercut'].includes(move)?['R']:['cross','rear_hook','rear_uppercut'].includes(move)?['L']:['L','R'];
+  const start=coach.update(0,move,'one_two');
+  const offsets=guardSides.map(s=>coach.point(coach.joints['hand'+s]).sub(vec(start.head)));
+  for(let i=0;i<120;i++) {
+    const m=coach.update(i*.01,move,'one_two');
+    guardSides.forEach((s,k)=>assert.ok(coach.point(coach.joints['hand'+s]).sub(vec(m.head)).distanceTo(offsets[k])<1e-5,move+' defending glove must follow cheek'));
+  }
+}
+const manePositions=coach.mane.geometry.attributes.position;
+let backHair=0;for(let i=0;i<manePositions.count;i++)if(Math.abs(manePositions.getX(i))<.12&&manePositions.getZ(i)<-.22)backHair++;
+assert.ok(backHair>1000,'mane must cover central rear skull, not only perimeter');
+console.log('PASS asymmetric uppercut load/unwind, nonvertical head travel, cheek-following guard and rear mane coverage');

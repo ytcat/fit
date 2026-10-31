@@ -71,7 +71,7 @@
         bumpMap:fur,bumpScale:.0025,skinning:true});
       const cloth=new THREE.MeshStandardMaterial({color:0x152635,roughness:.61,
         bumpMap:grain,bumpScale:.0015,skinning:true});
-      this.skin=this.skinned(meshFrom(data.body),skin,true);
+      this.skin=this.skinned(this.sculptBody(meshFrom(data.body)),skin,true);
       this.shorts=this.skinned(meshFrom(data.shorts),cloth,false);
       this.gold=new THREE.MeshStandardMaterial({color:0xd8b56c,metalness:.38,roughness:.43});
       this.leather=new THREE.MeshStandardMaterial({color:0xad2529,roughness:.42,
@@ -90,6 +90,8 @@
         cuff.position.y=.014;hand.add(cuff);
         // Branding belongs on the back of the glove, opposite its palm/thumb pad.
         this.addLabel(hand,'SB',V(0,-.070,-.105),.065,.039).rotation.y=Math.PI;
+        this.curve(hand,[V(-.065,-.035,-.074),V(0,-.025,-.105),V(.065,-.035,-.074)],this.cream,.0015);
+        this.curve(hand,[V(-.065,.035,0),V(0,.038,-.069),V(.065,.035,0)],this.gold,.0018);
         this.addBoot(this.joints['foot'+side]);
         // Satin side piping follows each thigh, rather than floating beside it.
         this.curve(this.joints['thigh'+side],[V(s*.125,.055,.075),V(s*.15,-.10,.08),V(s*.15,-.25,.08)],this.gold,.006);
@@ -108,6 +110,27 @@
         n.castShadow=true;n.receiveShadow=true;
       }});
       this.update(0,'combo','one_two');
+    }
+
+    sculptBody(g) {
+      // Small continuous anatomical contours in the existing rest surface, so
+      // pectorals, abdomen, obliques and shoulder blades deform with the skin.
+      const p=g.attributes.position;
+      const bell=(v,c,r)=>Math.exp(-(((v-c)/r)**2));
+      for(let i=0;i<p.count;i++) {
+        let x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+        if(Math.abs(x)<.30&&y>1.12&&y<1.70) {
+          const edge=bell(x,0,.27),front=smooth((z-.04)/.09),back=smooth((-z-.04)/.08);
+          const abs=(bell(x,.070,.045)+bell(x,-.070,.045))*(bell(y,1.22,.045)+bell(y,1.32,.045)+bell(y,1.41,.042));
+          const pec=(bell(x,.14,.095)+bell(x,-.14,.095))*bell(y,1.54,.075);
+          const blades=(bell(x,.15,.07)+bell(x,-.15,.07))*bell(y,1.53,.12);
+          z+=front*(.010*abs+.018*pec-.005*bell(x,0,.018)*bell(y,1.40,.25))*edge;
+          z-=back*(.014*blades-.007*bell(x,0,.025)*bell(y,1.45,.24))*edge;
+          x+=Math.sign(x)*.008*bell(Math.abs(x),.19,.06)*bell(y,1.28,.15);
+        }
+        p.setXYZ(i,x,y,z);
+      }
+      p.needsUpdate=true;g.computeVertexNormals();return g;
     }
 
     skinned(g,material,colour) {
@@ -143,9 +166,10 @@
         if(colour) {
           const face=p.y>1.82 && p.z>.175;
           const muzzle=face && p.y<1.954 ? smooth((p.z-.18)*14) : 0;
-          const bib=p.z>.10 && p.y>1.32 && p.y<1.68 ? .25*(1-clamp(Math.abs(p.x)*4)) : 0;
+          const bib=p.z>.08&&p.y>1.13&&p.y<1.70 ? .48*Math.exp(-((p.x/.16)**2))*smooth((p.y-1.13)/.12)*smooth((1.70-p.y)/.10) : 0;
           const c=tawny.clone().lerp(light,Math.max(muzzle,bib));
           c.multiplyScalar(1+.04*Math.sin(p.y*110+p.x*56)*Math.sin(p.z*143));
+          c.multiplyScalar(1-.13*smooth((-p.z-.03)/.15));
           colors.push(c.r,c.g,c.b);
         }
       }
@@ -243,6 +267,9 @@
         this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xfff5df}),V(s*.085,.177,.208),V(.003,.003,.002));
         this.curve(head,[V(s*.053,.18,.191),V(s*.09,.195,.190),V(s*.127,.177,.174)],wet,.004);
         this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x705037,roughness:1}),V(s*.164,.265,.025),V(.044,.050,.014));
+        this.ellipsoid(head,this.black,V(s*.164,.265,-.044),V(.048,.053,.011));
+        this.curve(head,[V(s*.058,.154,.196),V(s*.092,.151,.203),V(s*.119,.159,.184)],wet,.0025);
+        this.curve(head,[V(s*.055,.218,.175),V(s*.090,.225,.167),V(s*.127,.205,.149)],this.cream,.004);
         this.curve(head,[V(0,.051,.300),V(s*.035,.015,.287),V(s*.094,.024,.269)],wet,.003);
         for(let i=0;i<7;i++) {
           const y=.044+(i%3)*.016,x=s*(.052+Math.floor(i/3)*.017);
@@ -267,15 +294,17 @@
         surface.setXYZ(i,x*r,y*r,z*r);
       }
       surface.needsUpdate=true;undercoat.geometry.computeVertexNormals();
-      // Tapered, curved hair clusters, not a ring of spherical tufts.
+      // Distribute roots over the whole ellipsoid, including the occiput.
+      // The previous cylindrical ring left a bare oval on the rear of the skull.
       for(let i=0;i<3200;i++) {
-        const a=random()*Math.PI*2, z=-.16+random()*.27;
-        const front=clamp((z+.05)*5),r=.205+random()*.025;
-        const center=V(Math.cos(a)*r,.10+Math.sin(a)*r*1.18,z);
-        const length=.055+random()*.065 + Math.max(0,-Math.sin(a))*.065;
-        const width=.005+random()*.006;
-        const outward=V(Math.cos(a),Math.sin(a)*1.1,-.3-front*.3).normalize();
-        const across=V(-Math.sin(a),Math.cos(a),0).multiplyScalar(width);
+        const a=i*2.399963229728653,nz=-1+1.70*(i+.5)/3200,r=Math.sqrt(1-nz*nz);
+        const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz);
+        const center=V(normal.x*.247,.085+normal.y*.303,-.065+normal.z*.182);
+        if(center.z>.025&&Math.abs(center.x)<.165&&center.y>-.03&&center.y<.29)continue;
+        const length=.040+random()*.045+Math.max(0,-normal.y)*.035;
+        const width=.004+random()*.004;
+        const outward=normal.clone().multiplyScalar(.65).add(V(normal.x*.12,-.65,-.15)).normalize();
+        const across=outward.clone().cross(Math.abs(outward.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
         const colour=new THREE.Color().setHSL(.083+random()*.025,.38+random()*.12,.13+random()*.15);
         for(let j=0;j<3;j++) {
           const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.027*t*t,-.018*t*t));
@@ -353,6 +382,7 @@
       const recover=smooth((phase-.50)/.32);
       const j=this.joints,hips=j.hips,chest=j.chest;
       let hipYaw=0,chestYaw=0,crouch=0,shift=0,forward=0,leadPivot=0,rearPivot=0;
+      let trunkPitch=0,trunkRoll=0,pelvisRoll=0,shoulderLoad=0,shoulderSide=0;
       const lead=V(-.185,1.68,.31),rear=V(.18,1.68,.28);
       let leadPole=V(-.6,-1,.1),rearPole=V(.6,-1,.1);
       let leadTurn=0,rearTurn=0;
@@ -367,11 +397,13 @@
         case 'jab':
           hipYaw=.20*drive;chestYaw=.20*twist;forward=.070*drive;crouch=.018*drive;
           rearPivot=-.12*drive;
+          trunkRoll=.018*twist;
           lead.lerp(V(-.10,1.72,.65),strike);leadTurn=lateTurn;
           break;
         case 'cross':
           hipYaw=-.43*drive;chestYaw=-.32*twist;shift=-.035*drive;forward=.085*drive;crouch=.022*drive;
           rear.lerp(V(.005,1.72,.67),strike);rearTurn=lateTurn;rearPivot=-.58*drive;
+          pelvisRoll=-.015*drive;trunkRoll=-.025*twist;
           break;
         case 'hook': case 'rear_hook': {
           const s=move==='hook'?-1:1;
@@ -380,6 +412,8 @@
           crouch=.012*active;
           hipYaw=-s*.37*rotation;chestYaw=-s*.25*rotation;
           shift=s*.018*rotation;
+          pelvisRoll=-s*.025*rotation;trunkRoll=-s*.045*rotation;
+          trunkPitch=.018*active;
           // Raise the bent elbow while moving forward, then sweep across the
           // target horizontally. Recover directly rather than reverse the arc.
           const arc=V(s*(.30-.40*swing),1.70,.42+.12*Math.sin(swing*Math.PI));
@@ -392,8 +426,14 @@
         case 'uppercut': case 'rear_uppercut': {
           const s=move==='uppercut'?-1:1;
           const active=prepare*(1-recover),up=rise*(1-recover);
-          hipYaw=-s*.24*up;chestYaw=-s*.15*up;
-          crouch=.080*prepare*(1-rise)*(1-recover);forward=.020*up;shift=-s*.018*up;
+          const loaded=prepare*(1-rise)*(1-recover);
+          hipYaw=s*.09*loaded-s*.30*up;chestYaw=s*.07*loaded-s*.21*up;
+          crouch=.080*loaded;forward=-.012*loaded+.030*up;
+          shift=s*.035*loaded-s*.025*up;
+          pelvisRoll=-s*.035*loaded+s*.020*up;
+          trunkPitch=.070*loaded;
+          trunkRoll=-s*.105*loaded+s*.045*up;
+          shoulderLoad=loaded;shoulderSide=s;
           palmTarget.set(0,0,-1);
           // Three distinct phases: settle under the target, drive upward with
           // extending legs, then recover to cheek without a second scoop.
@@ -403,27 +443,37 @@
           else {rearTurn=active;rearPole.lerp(V(0,-1,.2),active);rearPivot=-.30*up;}
           break;
         }
-        case 'slip': shift=.075*drive;crouch=.043*drive;hipYaw=-.08*drive;chestYaw=-.12*twist;break;
+        case 'slip': shift=.060*drive;crouch=.043*drive;hipYaw=-.10*drive;chestYaw=-.16*twist;
+          trunkRoll=-.12*drive;pelvisRoll=-.025*drive;forward=-.018*drive;break;
         case 'roll': {
           const q=smooth(clamp((phase-.12)/.72));
-          shift=.075*Math.sin(q*Math.PI*2);crouch=.09*Math.sin(q*Math.PI);break;
+          const travel=Math.sin(q*Math.PI*2);
+          shift=.075*travel;crouch=.09*Math.sin(q*Math.PI);
+          hipYaw=-.12*travel;chestYaw=-.16*travel;
+          trunkRoll=-.085*travel;pelvisRoll=-.025*travel;trunkPitch=.020*Math.sin(q*Math.PI);break;
         }
-        case 'step': forward=(stepState(-1).z+stepState(1).z)/2;crouch=.020*smooth(phase/.08)*(1-smooth((phase-.94)/.06));break;
+        case 'step': {
+          const l=stepState(-1),r=stepState(1),transfer=(l.lift-r.lift)/.024;
+          forward=(l.z+r.z)/2;crouch=.020*smooth(phase/.08)*(1-smooth((phase-.94)/.06));
+          shift=.012*transfer;pelvisRoll=-.018*transfer;trunkRoll=.012*transfer;
+          hipYaw=.035*transfer;chestYaw=-.025*transfer;break;
+        }
       }
       hips.position.set(shift,.935-crouch,forward);
-      hips.rotation.set(0,hipYaw,0);
+      hips.rotation.set(0,hipYaw,pelvisRoll);
       // Spread the thoracic turn over the back instead of rotating a rigid chest.
-      j.spine.rotation.set(.045,chestYaw*.30,move==='slip'?-.10*drive:0);
-      chest.rotation.set(.025,chestYaw*.70,move==='slip'?-.055*twist:0);
+      j.spine.rotation.set(.045+trunkPitch*.55,chestYaw*.30,trunkRoll*.60);
+      chest.rotation.set(.025+trunkPitch*.45,chestYaw*.70,trunkRoll*.40);
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
-      j.head.rotation.set(.07,-(hipYaw+chestYaw),move==='slip'?.035*drive:0);
+      j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
       // Scapular elevation/protraction of the striking shoulder protects the chin.
       const leftStrike=['jab','hook','uppercut'].includes(move)?strike:0;
       const rightStrike=['cross','rear_hook','rear_uppercut'].includes(move)?strike:0;
       const reachShoulder=straight?.065:.045;
       j.armL.position.set(-.30+.012*leftStrike,.26+.035*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
       j.armR.position.set(.30-.012*rightStrike,.26+.035*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
+      if(shoulderSide)j[shoulderSide===-1?'armL':'armR'].position.y-=.024*shoulderLoad;
       this.tail.rotation.y= -.16*hipYaw+Math.sin(t*2.2)*.025;
       const footTargets=[];
       for(const s of [-1,1]) {
@@ -440,8 +490,15 @@
         this.orient(j['foot'+side],footQ);footTargets.push({side,error:err,ankle:ankle.toArray(),pivot});
       }
       // Guard follows the head during defensive movement; strike endpoints stay in opponent space.
-      const guardShift=V(shift+(move==='slip'?.055*drive:0),(hips.position.y-.935),forward);
+      const guardShift=V(shift,(hips.position.y-.935),forward);
       lead.add(guardShift);rear.add(guardShift);
+      this.root.updateMatrixWorld(true);
+      const headPosition=this.point(j.head);
+      if(!this.guardHead)this.guardHead=headPosition.clone();
+      const headShift=headPosition.clone().sub(this.guardHead);
+      // The defending hand follows the moving cheek, not just pelvis height.
+      if(!['jab','hook','uppercut'].includes(move))lead.copy(V(-.185,1.68,.31).add(headShift));
+      if(!['cross','rear_hook','rear_uppercut'].includes(move))rear.copy(V(.18,1.68,.28).add(headShift));
       // Straight punches use almost the full arm reach after torso rotation.
       // A fixed short wrist endpoint left the elbow folded and knuckles pointing
       // upward even at impact. Keep a small bend rather than locking the joint.

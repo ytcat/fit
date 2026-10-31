@@ -50,3 +50,42 @@ The jab retains a smaller pivot than the cross. Limb lengths remain unchanged.
 Tests check shoulder-driven reach, body-before-arm sequencing, foot participation
 and recovery to guard. Forward pelvis placement is a geometric balance proxy;
 this is still not a force-based balance simulation or measured motion capture.
+
+## Follow-up: articulated body motion and lion anatomy
+
+The [Boxing Scotland defence guidance](https://www.boxingscotlandtoolkit.org/session-delivery/defence-use-trunk-defence-if-no-use-of-lower-body-etc/)
+describes knee flexion, torso rotation and lateral transfer for slips and rolls.
+The [Dinu and Louis study](https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.598861/full)
+reports distinct segment contributions for crosses, hooks and uppercuts. Neither
+source specifies this model's joint angles: the animation parameters are authored.
+
+| Technique | New articulation |
+| --- | --- |
+| Jab | Small thoracic side bend while the shoulder drives forward; rear glove follows the cheek. |
+| Cross | Pelvis and torso roll combine with distributed back rotation; opposite guard tracks the head. |
+| Both hooks | Foot pivot, pelvis roll, chest turn and slight torso pitch support the horizontal arm arc. |
+| Both uppercuts | Load over the punching side with lowered shoulder, flexed knees, lateral pelvis transfer and a tilted/turned trunk; unwind upward across the body, counter-adjusting the head to retain gaze. |
+| Slip | Knee bend, rearward/lateral transfer and trunk rotation/tilt move the head off line. |
+| Roll | Knee lowering accompanies lateral transfer, pelvis and thoracic rotation, and a compact moving guard. |
+| Footwork | Pelvis shifts and rolls toward support while the torso counterbalances ordered steps. |
+
+Added continuous rest-surface contours for chest, abdomen, obliques and shoulder
+blades, a lighter chest bib and darker back, eyelid/brow details, ear backs and glove
+seams. Mane hair roots now cover the full rear ellipsoid instead of a cylindrical
+ring that exposed the back of the skull.
+
+Geometry QA is available without WebGL:
+
+```sh
+node qa/render-model.cjs /tmp/poses.json
+python3 qa/render-model.py /tmp/poses.json /tmp/poses.png
+# Optional third argument selects any technique for three phase snapshots:
+node qa/render-model.cjs /tmp/uppercut.json uppercut
+```
+
+This CPU diagnostic applies the same dual-quaternion deformation to actual scene
+triangles. It uses simple flat lighting and painter sorting; it does not reproduce
+browser textures, shadows, antialiasing or all occlusion. Front/rear morphology and
+uppercut load/contact poses were inspected this way. Live WebGL remains unverified.
+Regression checks additionally cover loading-shoulder asymmetry, lateral head travel,
+torso unwinding, cheek-following guard and hair coverage at the rear skull.
