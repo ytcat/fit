@@ -1,40 +1,3 @@
-The reason you only saw a static picture is that Apple Safari on iPhones
-automatically blocks external video links from playing, which caused the video
-player to freeze on the fallback photo.
-
-Furthermore, you shouldn't have to upload anything or rely on external video
-links that can break.
-
-To give you an exact, realistic character that you can mirror from any angle
-without uploading a single file, the solution is an interactive 3D Biomechanical
-Boxing Engine powered directly inside the browser using WebGL / Three.js.
-
-What this gives you:
-
-1.  Full 3D Anatomical Boxer: A complete human figure with realistic boxing
-    proportions, head guard, muscular torso, rotating joints, and leather
-    gloves.
-2.  Exact Biomechanical Movement:
-      - Jab: Lead shoulder rises to shield the chin, lead fist pronates
-        (knuckles flat), rear hand stays glued to the cheek.
-      - Cross: Rear heel pops off the floor, rear hip torques 45 degrees
-        forward, full kinetic drive.
-      - Hook: Elbow locks at an exact 90-degree horizontal angle, lead foot
-        pivots like extinguishing a cigarette.
-      - Slips & Rolls: Realistic head movement off the centerline with knee
-        flexion.
-3.  360° Touch Orbit: You can swipe with your finger on your iPhone screen to
-    rotate around the boxer to inspect the punch from the front, side profile,
-    or rear.
-4.  Slow Motion (1.0x, 0.5x, 0.25x): Slow down the boxer to study the exact
-    kinetic chain.
-5.  Zero Uploads, 100% Built-in: Everything runs locally inside the code with no
-    external video dependencies.
-
-Step 1: Copy the 3D Engine Code
-
-Tap Copy on the top right of this code block:
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,15 +51,12 @@ Tap Copy on the top right of this code block:
 
   <!-- 3D INTERACTIVE VIEWPORT -->
   <main class="relative flex-1 w-full bg-gradient-to-b from-[#090b10] to-[#040507] overflow-hidden">
-    <!-- WebGL Canvas Mount -->
     <div id="canvasContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
 
-    <!-- 360° Touch Hint -->
     <div class="absolute bottom-3 left-4 pointer-events-none text-[10px] font-semibold text-slate-500 uppercase tracking-widest flex items-center space-x-1">
       <span>✋ Swipe to rotate 360° view</span>
     </div>
 
-    <!-- Active Combination Heads-Up Tape -->
     <div class="absolute top-4 inset-x-4 flex flex-col items-center pointer-events-none z-10">
       <div class="hud-glass px-6 py-2.5 rounded-2xl shadow-2xl text-center">
         <span id="drillTitle" class="text-[10px] text-cyan-400 font-black uppercase tracking-widest">KINETIC 1-2 SEQUENCE</span>
@@ -105,19 +65,16 @@ Tap Copy on the top right of this code block:
       </div>
     </div>
 
-    <!-- Camera Quick-Angle Reset Buttons -->
     <div class="absolute top-4 right-4 flex flex-col space-y-1.5 z-10">
       <button id="camFront" class="px-2 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300">Front</button>
       <button id="camSide" class="px-2 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300">Side 90°</button>
     </div>
 
-    <!-- Form Mechanics Card Overlay -->
     <div id="kineticCard" class="absolute bottom-3 right-4 max-w-[210px] p-2.5 rounded-xl hud-glass text-left pointer-events-none hidden sm:block">
       <span class="text-[9px] font-black uppercase text-amber-400 block mb-0.5">Key Form Check</span>
       <p id="formCheckNote" class="text-[11px] text-slate-300 leading-tight">Rotate rear hip 45°. Keep left glove on cheek.</p>
     </div>
 
-    <!-- Rest Phase Modal -->
     <div id="restModal" class="hidden absolute inset-0 bg-slate-950/95 hud-blur flex flex-col items-center justify-center p-6 text-center z-20">
       <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Active Recovery</span>
       <h2 id="restClock" class="text-7xl font-mono font-black text-white my-3">00:50</h2>
@@ -150,16 +107,12 @@ Tap Copy on the top right of this code block:
     </div>
 
     <div class="flex justify-between items-center text-xs text-slate-400 pt-1 px-1">
-      <button id="levelSwitchBtn" class="hover:text-white underline font-semibold">Change Level (Novice ➔ Elite)</button>
-      <button id="techniqueDetailsBtn" class="hover:text-white underline font-semibold">Read Biomechanics</button>
+      <button id="levelSwitchBtn" class="hover:text-white underline font-semibold">Change Level</button>
+      <span class="text-slate-500">Rotate fighter by dragging</span>
     </div>
   </footer>
 
-  <!-- SCRIPT: THREE.JS 3D BOXER RIG & SIMULATION -->
   <script>
-    /* =========================================================================
-       1. CURRICULUM WITH EXACT BIOMECHANICS
-       ========================================================================= */
     const CURRICULUM = {
       novice: {
         name: "NOVICE",
@@ -202,21 +155,11 @@ Tap Copy on the top right of this code block:
             cues: "Jab ➔ Cross ➔ Lead Hook",
             anim: "one_two_hook",
             note: "Pivot lead heel 90°. Lock elbow at 90° parallel to the canvas."
-          },
-          {
-            title: "Slip & Counter",
-            codes: "Slip R - 2 - 3",
-            cues: "Slip Right ➔ Cross ➔ Lead Hook",
-            anim: "slip_counter",
-            note: "Load weight onto your rear thigh, then explode up with the cross."
           }
         ]
       }
     };
 
-    /* =========================================================================
-       2. REALISTIC 3D ANATOMICAL BOXER RIG (THREE.JS)
-       ========================================================================= */
     class Boxer3DEngine {
       constructor(containerId) {
         this.container = document.getElementById(containerId);
@@ -234,8 +177,8 @@ Tap Copy on the top right of this code block:
       }
 
       initScene() {
-        const w = this.container.clientWidth;
-        const h = this.container.clientHeight;
+        const w = this.container.clientWidth || window.innerWidth;
+        const h = this.container.clientHeight || window.innerHeight * 0.6;
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
@@ -244,7 +187,6 @@ Tap Copy on the top right of this code block:
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(w, h);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.shadowMap.enabled = true;
         this.container.appendChild(this.renderer.domElement);
 
         window.addEventListener('resize', () => {
@@ -255,468 +197,47 @@ Tap Copy on the top right of this code block:
           this.renderer.setSize(nw, nh);
         });
 
-        // Elevated Boxing Ring Floor Grid
         const grid = new THREE.GridHelper(8, 16, 0x00f2fe, 0x1f2438);
         grid.position.y = 0;
         this.scene.add(grid);
       }
 
       initLighting() {
-        const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-        this.scene.add(ambient);
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        const key = new THREE.DirectionalLight(0xffffff, 1.2);
+        key.position.set(2, 4, 3);
+        this.scene.add(key);
 
-        const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        keyLight.position.set(2, 4, 3);
-        this.scene.add(keyLight);
+        const cyan = new THREE.PointLight(0x00f2fe, 2.5, 8);
+        cyan.position.set(-2.5, 2.5, -1.5);
+        this.scene.add(cyan);
 
-        // Neon Studio Rim Lights (Creates the high-end fitness gym look)
-        const cyanRim = new THREE.PointLight(0x00f2fe, 2.5, 8);
-        cyanRim.position.set(-2.5, 2.5, -1.5);
-        this.scene.add(cyanRim);
-
-        const amberRim = new THREE.PointLight(0xf59e0b, 2.0, 8);
-        amberRim.position.set(2.5, 2, -1.5);
-        this.scene.add(amberRim);
+        const amber = new THREE.PointLight(0xf59e0b, 2.0, 8);
+        amber.position.set(2.5, 2, -1.5);
+        this.scene.add(amber);
       }
 
       buildHumanoidBoxer() {
         this.boxerGroup = new THREE.Group();
 
-        // High-end athletic materials
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xc89673, roughness: 0.6, metalness: 0.1 });
-        const athleticMat = new THREE.MeshStandardMaterial({ color: 0x181a24, roughness: 0.5, metalness: 0.3 });
-        const gloveMat = new THREE.MeshStandardMaterial({ color: 0xd92b2b, roughness: 0.3, metalness: 0.2 }); // Red leather
-        const jointMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x008b99, roughness: 0.3 });
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xd29d78, roughness: 0.5 });
+        const gearMat = new THREE.MeshStandardMaterial({ color: 0x181a24, roughness: 0.4, metalness: 0.3 });
+        const gloveMat = new THREE.MeshStandardMaterial({ color: 0xdd2c2c, roughness: 0.25, metalness: 0.2 });
 
-        // --- Pelvis / Hips ---
         this.pelvis = new THREE.Group();
         this.pelvis.position.y = 0.95;
         this.boxerGroup.add(this.pelvis);
+        this.pelvis.add(new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.15, 16), gearMat));
 
-        const hipMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.15, 16), athleticMat);
-        this.pelvis.add(hipMesh);
-
-        // --- Torso / Spine ---
         this.torso = new THREE.Group();
         this.torso.position.y = 0.12;
         this.pelvis.add(this.torso);
 
-        const chestMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.18, 0.38, 16), athleticMat);
-        chestMesh.position.y = 0.2;
-        this.torso.add(chestMesh);
+        const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.18, 0.38, 16), gearMat);
+        chest.position.y = 0.2;
+        this.torso.add(chest);
 
-        // --- Head & Guard ---
         this.head = new THREE.Group();
         this.head.position.y = 0.48;
         this.torso.add(this.head);
-
-        const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), skinMat);
-        this.head.add(headMesh);
-
-        const guardHelmet = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.13, 0.12, 16), athleticMat);
-        guardHelmet.position.y = 0.05;
-        this.head.add(guardHelmet);
-
-        // --- Left Arm (Lead Arm) ---
-        this.leftShoulder = new THREE.Group();
-        this.leftShoulder.position.set(-0.24, 0.32, 0);
-        this.torso.add(this.leftShoulder);
-
-        const lUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.28, 12), skinMat);
-        lUpperArm.position.y = -0.14;
-        this.leftShoulder.add(lUpperArm);
-
-        this.leftElbow = new THREE.Group();
-        this.leftElbow.position.y = -0.28;
-        this.leftShoulder.add(this.leftElbow);
-
-        const lForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.26, 12), skinMat);
-        lForearm.position.y = -0.13;
-        this.leftElbow.add(lForearm);
-
-        // Left Glove
-        this.leftGlove = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), gloveMat);
-        this.leftGlove.position.y = -0.26;
-        this.leftElbow.add(this.leftGlove);
-
-        // --- Right Arm (Rear Power Arm) ---
-        this.rightShoulder = new THREE.Group();
-        this.rightShoulder.position.set(0.24, 0.32, 0);
-        this.torso.add(this.rightShoulder);
-
-        const rUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.28, 12), skinMat);
-        rUpperArm.position.y = -0.14;
-        this.rightShoulder.add(rUpperArm);
-
-        this.rightElbow = new THREE.Group();
-        this.rightElbow.position.y = -0.28;
-        this.rightShoulder.add(this.rightElbow);
-
-        const rForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.26, 12), skinMat);
-        rForearm.position.y = -0.13;
-        this.rightElbow.add(rForearm);
-
-        // Right Glove
-        this.rightGlove = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), gloveMat);
-        this.rightGlove.position.y = -0.26;
-        this.rightElbow.add(this.rightGlove);
-
-        // --- Legs & Stance (Orthodox Boxing Stance) ---
-        // Left Leg (Lead)
-        this.leftLeg = new THREE.Group();
-        this.leftLeg.position.set(-0.14, 0, 0.08);
-        this.pelvis.add(this.leftLeg);
-        const lThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.065, 0.45, 12), athleticMat);
-        lThigh.position.y = -0.22;
-        this.leftLeg.add(lThigh);
-
-        const lShin = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.45, 12), skinMat);
-        lShin.position.set(0, -0.65, 0.05);
-        this.leftLeg.add(lShin);
-
-        // Right Leg (Rear Power Foot - Angled)
-        this.rightLeg = new THREE.Group();
-        this.rightLeg.position.set(0.18, 0, -0.22);
-        this.pelvis.add(this.rightLeg);
-        const rThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.065, 0.45, 12), athleticMat);
-        rThigh.position.y = -0.22;
-        this.rightLeg.add(rThigh);
-
-        const rShin = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.45, 12), skinMat);
-        rShin.position.set(0, -0.65, -0.05);
-        this.rightLeg.add(rShin);
-
-        // Stance angle
-        this.boxerGroup.rotation.y = -0.42; // Authentic 45° boxing stagger
-        this.scene.add(this.boxerGroup);
-      }
-
-      initTouchControls() {
-        let isDown = false;
-        let prevX = 0;
-
-        const onStart = (x) => { isDown = true; prevX = x; };
-        const onMove = (x) => {
-          if (!isDown) return;
-          const delta = x - prevX;
-          this.boxerGroup.rotation.y += delta * 0.009;
-          prevX = x;
-        };
-        const onEnd = () => { isDown = false; };
-
-        this.container.addEventListener('mousedown', (e) => onStart(e.clientX));
-        window.addEventListener('mousemove', (e) => onMove(e.clientX));
-        window.addEventListener('mouseup', onEnd);
-
-        this.container.addEventListener('touchstart', (e) => onStart(e.touches[0].clientX), { passive: true });
-        window.addEventListener('touchmove', (e) => onMove(e.touches[0].clientX), { passive: true });
-        window.addEventListener('touchend', onEnd);
-      }
-
-      setAnimation(animName) {
-        this.currentAnim = animName;
-        this.animTime = 0;
-      }
-
-      setSpeed(spd) {
-        this.speed = spd;
-      }
-
-      animate() {
-        requestAnimationFrame(this.animate);
-        if (this.isPlaying) {
-          this.animTime += 0.045 * this.speed;
-        }
-
-        const t = this.animTime;
-        const bounce = Math.sin(t * 3) * 0.025;
-        this.pelvis.position.y = 0.95 + bounce;
-
-        // Reset to Tight High Guard
-        this.leftShoulder.rotation.set(0.9, 0.2, 0.5);
-        this.leftElbow.rotation.set(-2.0, 0, 0);
-
-        this.rightShoulder.rotation.set(0.9, -0.2, -0.5);
-        this.rightElbow.rotation.set(-2.0, 0, 0);
-
-        this.torso.rotation.set(0, 0, 0);
-        this.head.rotation.set(0.1, 0, 0); // Chin tucked
-
-        // Exact Biomechanical Keyframes
-        if (this.currentAnim === "one_two") {
-          const cycle = (t * 1.6) % (Math.PI * 2);
-
-          if (cycle < Math.PI) {
-            // PHASE 1: LEAD JAB
-            const jabProgress = Math.sin(cycle);
-            this.leftShoulder.rotation.x = 0.9 + jabProgress * 0.65;
-            this.leftElbow.rotation.x = -2.0 + jabProgress * 1.95; // Full extension
-            this.torso.rotation.y = jabProgress * 0.25; // Slight shoulder pop
-          } else {
-            // PHASE 2: REAR CROSS
-            const crossProgress = Math.sin(cycle - Math.PI);
-            this.rightShoulder.rotation.x = 0.9 + crossProgress * 0.75;
-            this.rightElbow.rotation.x = -2.0 + crossProgress * 2.0; // Straight down pipe
-            this.torso.rotation.y = -crossProgress * 0.65; // 45° Hip & Torso Rotation
-            this.rightLeg.rotation.y = crossProgress * 0.45; // Heel pivot off floor
-          }
-        } 
-        else if (this.currentAnim === "one_two_hook") {
-          const cycle = (t * 1.4) % (Math.PI * 3);
-
-          if (cycle < Math.PI) {
-            // JAB
-            const p = Math.sin(cycle);
-            this.leftShoulder.rotation.x = 0.9 + p * 0.65;
-            this.leftElbow.rotation.x = -2.0 + p * 1.9;
-          } else if (cycle < Math.PI * 2) {
-            // CROSS
-            const p = Math.sin(cycle - Math.PI);
-            this.rightShoulder.rotation.x = 0.9 + p * 0.75;
-            this.rightElbow.rotation.x = -2.0 + p * 2.0;
-            this.torso.rotation.y = -p * 0.65;
-          } else {
-            // LEAD HOOK
-            const p = Math.sin(cycle - Math.PI * 2);
-            this.leftShoulder.rotation.set(1.5, 0.4, 0.8);
-            this.leftElbow.rotation.set(-1.57, 0, 0); // Strict 90° elbow
-            this.torso.rotation.y = p * 0.85; // Violent rotational torque
-          }
-        } 
-        else if (this.currentAnim === "jab_slip") {
-          const cycle = (t * 1.5) % (Math.PI * 2);
-          if (cycle < Math.PI) {
-            const p = Math.sin(cycle);
-            this.leftShoulder.rotation.x = 0.9 + p * 0.65;
-            this.leftElbow.rotation.x = -2.0 + p * 1.9;
-          } else {
-            const p = Math.sin(cycle - Math.PI);
-            this.torso.rotation.z = -p * 0.28; // Slip off centerline
-            this.torso.position.x = p * 0.08;
-          }
-        }
-
-        this.renderer.render(this.scene, this.camera);
-      }
-    }
-
-    /* =========================================================================
-       3. SYNTHESIZED GYM AUDIO
-       ========================================================================= */
-    class GymAudio {
-      constructor() { this.ctx = null; this.muted = false; }
-      init() {
-        if (!this.ctx) {
-          const AC = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AC();
-        }
-        if (this.ctx.state === 'suspended') this.ctx.resume();
-      }
-      bell() {
-        if (this.muted) return;
-        this.init();
-        const t = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(620, t);
-        osc.frequency.exponentialRampToValueAtTime(110, t + 1.3);
-        gain.gain.setValueAtTime(0.8, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(t);
-        osc.stop(t + 1.3);
-      }
-      speak(text) {
-        if (this.muted || !('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.rate = 1.15;
-        window.speechSynthesis.speak(u);
-      }
-    }
-
-    /* =========================================================================
-       4. CONTROLLER & TIMER APP
-       ========================================================================= */
-    class StudioApp {
-      constructor() {
-        this.engine = new Boxer3DEngine('canvasContainer');
-        this.audio = new GymAudio();
-        this.tierKey = 'novice';
-        this.drillIdx = 0;
-        this.currentRound = 1;
-        this.isActive = false;
-        this.isRest = false;
-        this.clock = CURRICULUM.novice.roundDuration;
-        this.speeds = [1.0, 0.5, 0.25];
-        this.speedIdx = 0;
-        this.wakeLock = null;
-
-        this.cacheDOM();
-        this.bindEvents();
-        this.loadCurrentDrill();
-      }
-
-      cacheDOM() {
-        this.playBtn = document.getElementById('playBtn');
-        this.speedBtn = document.getElementById('speedBtn');
-        this.timerClock = document.getElementById('timerClock');
-        this.roundCounter = document.getElementById('roundCounter');
-        this.levelBadge = document.getElementById('levelBadge');
-        this.drillTitle = document.getElementById('drillTitle');
-        this.comboCodes = document.getElementById('comboCodes');
-        this.comboCues = document.getElementById('comboCues');
-        this.formCheckNote = document.getElementById('formCheckNote');
-        this.restModal = document.getElementById('restModal');
-        this.restClock = document.getElementById('restClock');
-      }
-
-      bindEvents() {
-        this.playBtn.onclick = () => this.toggleSession();
-        document.getElementById('prevBtn').onclick = () => this.shiftDrill(-1);
-        document.getElementById('nextBtn').onclick = () => this.shiftDrill(1);
-        document.getElementById('levelSwitchBtn').onclick = () => this.switchTier();
-        document.getElementById('skipRestBtn').onclick = () => { if (this.isRest) this.clock = 1; };
-
-        // Camera Quick Switches
-        document.getElementById('camFront').onclick = () => {
-          this.engine.boxerGroup.rotation.y = -0.42;
-        };
-        document.getElementById('camSide').onclick = () => {
-          this.engine.boxerGroup.rotation.y = 1.15; // Profile angle
-        };
-
-        // Speed Controller
-        this.speedBtn.onclick = () => {
-          this.speedIdx = (this.speedIdx + 1) % this.speeds.length;
-          const s = this.speeds[this.speedIdx];
-          this.engine.setSpeed(s);
-          this.speedBtn.innerText = s.toFixed(2) + 'x';
-        };
-
-        // Sound Toggle
-        document.getElementById('soundBtn').onclick = (e) => {
-          this.audio.muted = !this.audio.muted;
-          e.target.innerText = this.audio.muted ? '🔇 MUTED' : '🔊 SOUND';
-        };
-      }
-
-      async toggleSession() {
-        this.audio.init();
-        if (this.isActive || this.isRest) {
-          this.isActive = false;
-          clearInterval(this.timer);
-          this.playBtn.innerText = "RESUME";
-          this.engine.isPlaying = false;
-          if (this.wakeLock) { this.wakeLock.release(); this.wakeLock = null; }
-        } else {
-          this.isActive = true;
-          this.playBtn.innerText = "PAUSE";
-          this.engine.isPlaying = true;
-          this.audio.bell();
-          if ('wakeLock' in navigator) this.wakeLock = await navigator.wakeLock.request('screen').catch(() => {});
-          this.audio.speak(CURRICULUM[this.tierKey].combos[this.drillIdx].cues);
-          this.timer = setInterval(() => this.tick(), 1000);
-        }
-      }
-
-      tick() {
-        if (this.clock > 0) {
-          this.clock--;
-          this.updateHUD();
-          if (!this.isRest && this.clock % 20 === 0) this.shiftDrill(1, true);
-        } else {
-          clearInterval(this.timer);
-          const tier = CURRICULUM[this.tierKey];
-          if (!this.isRest) {
-            this.audio.bell();
-            if (this.currentRound >= tier.rounds) {
-              alert("Session Complete! Outstanding discipline.");
-              this.toggleSession();
-              return;
-            }
-            this.isRest = true;
-            this.clock = tier.restDuration;
-            this.restModal.classList.remove('hidden');
-            this.audio.speak("Rest interval. Recover.");
-          } else {
-            this.isRest = false;
-            this.restModal.classList.add('hidden');
-            this.currentRound++;
-            this.clock = tier.roundDuration;
-            this.audio.bell();
-            this.audio.speak(`Round ${this.currentRound}`);
-          }
-          this.timer = setInterval(() => this.tick(), 1000);
-          this.updateHUD();
-        }
-      }
-
-      shiftDrill(dir, auto = false) {
-        const drills = CURRICULUM[this.tierKey].combos;
-        this.drillIdx = (this.drillIdx + dir + drills.length) % drills.length;
-        this.loadCurrentDrill();
-        if (this.isActive && !this.isRest && !auto) {
-          this.audio.speak(drills[this.drillIdx].cues);
-        }
-      }
-
-      switchTier() {
-        const keys = Object.keys(CURRICULUM);
-        this.tierKey = keys[(keys.indexOf(this.tierKey) + 1) % keys.length];
-        this.drillIdx = 0;
-        this.currentRound = 1;
-        this.clock = CURRICULUM[this.tierKey].roundDuration;
-        this.loadCurrentDrill();
-        this.updateHUD();
-      }
-
-      loadCurrentDrill() {
-        const d = CURRICULUM[this.tierKey].combos[this.drillIdx];
-        this.drillTitle.innerText = d.title;
-        this.comboCodes.innerText = d.codes;
-        this.comboCues.innerText = d.cues;
-        this.formCheckNote.innerText = d.note;
-        this.levelBadge.innerText = CURRICULUM[this.tierKey].name;
-        this.engine.setAnimation(d.anim);
-      }
-
-      updateHUD() {
-        const m = Math.floor(this.clock / 60).toString().padStart(2, '0');
-        const s = (this.clock % 60).toString().padStart(2, '0');
-        this.timerClock.innerText = `${m}:${s}`;
-        this.restClock.innerText = `${m}:${s}`;
-        this.roundCounter.innerText = `${this.currentRound} / ${CURRICULUM[this.tierKey].rounds}`;
-      }
-    }
-
-    window.onload = () => { window.app = new StudioApp(); };
-  </script>
-</body>
-</html>
-
-Step 2: Update Your File on GitHub
-
-1.  Open this link on your phone:
-    👉 https://github.com/ytcat/fit/edit/main/index.html
-2.  Tap inside the box, select all, and delete the old code.
-3.  Paste the new code.
-4.  Scroll to the bottom and tap Commit changes... ➔ Commit changes.
-
-Step 3: Open Your App
-
-Wait 30 seconds for GitHub to update, then open:
-👉 https://ytcat.github.io/fit/
-
-What you will see:
-
-  - No static picture, no broken video link: A fully animated, anatomical 3D
-    boxer in an illuminated ring.
-  - Touch 360° Control: Drag your finger across your phone screen to rotate
-    around the fighter to see the exact degree of the hip turn and elbow from
-    any perspective.
-  - Slow-Motion Button (1.0x / 0.5x / 0.25x): Tap the speed button at the top
-    right to slow the punch down to a crawl so you can study every inch of the
-    kinetic chain.
+        this.head.add(new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), skinMat));
