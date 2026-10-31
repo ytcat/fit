@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#060709" />
-  <title>ShadowBox 3D | Biomechanical Trainer</title>
+  <meta name="theme-color" content="#080a10" />
+  <title>ShadowBox 3D Studio</title>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Three.js 3D WebGL Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
@@ -16,26 +14,26 @@
       height: 100%;
       height: 100dvh;
       overflow: hidden;
-      background-color: #060709;
+      background-color: #080a10;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       user-select: none;
       -webkit-user-select: none;
     }
     .hud-glass {
-      background: rgba(14, 17, 26, 0.82);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(0, 242, 254, 0.18);
+      background: rgba(13, 16, 24, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(0, 242, 254, 0.25);
     }
-    .glow-amber {
-      text-shadow: 0 0 16px rgba(245, 158, 11, 0.65);
+    .glow-gold {
+      text-shadow: 0 0 16px rgba(245, 158, 11, 0.8);
     }
   </style>
 </head>
-<body class="text-slate-100 flex flex-col justify-between">
+<body class="text-slate-100 flex flex-col h-full w-full justify-between overflow-hidden">
 
   <!-- TOP BAR -->
-  <header class="h-14 px-4 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/80 hud-glass z-20">
+  <header class="h-14 px-4 flex-shrink-0 flex items-center justify-between border-b border-slate-800 bg-slate-950/90 hud-glass z-20">
     <div class="flex items-center space-x-2">
       <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></div>
       <div>
@@ -49,43 +47,42 @@
     </div>
   </header>
 
-  <!-- 3D INTERACTIVE VIEWPORT -->
-  <main class="relative flex-1 w-full bg-gradient-to-b from-[#090b10] to-[#040507] overflow-hidden">
-    <div id="canvasContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+  <!-- 3D VIEWPORT STAGE -->
+  <main id="stageContainer" class="relative flex-1 w-full min-h-0 overflow-hidden bg-gradient-to-b from-[#090c14] to-[#040507]">
+    <!-- Direct WebGL Canvas (Prevents 0-height flex collapse on iOS) -->
+    <canvas id="boxerCanvas" class="absolute inset-0 w-full h-full block z-0"></canvas>
 
-    <div class="absolute bottom-3 left-4 pointer-events-none text-[10px] font-semibold text-slate-500 uppercase tracking-widest flex items-center space-x-1">
-      <span>✋ Swipe to rotate 360° view</span>
-    </div>
-
+    <!-- Active Combo HUD -->
     <div class="absolute top-4 inset-x-4 flex flex-col items-center pointer-events-none z-10">
       <div class="hud-glass px-6 py-2.5 rounded-2xl shadow-2xl text-center">
         <span id="drillTitle" class="text-[10px] text-cyan-400 font-black uppercase tracking-widest">KINETIC 1-2 SEQUENCE</span>
-        <div id="comboCodes" class="text-3xl sm:text-4xl font-black text-amber-400 tracking-wider glow-amber my-0.5">1 - 2</div>
+        <div id="comboCodes" class="text-3xl font-black text-amber-400 tracking-wider glow-gold my-0.5">1 - 2</div>
         <div id="comboCues" class="text-xs font-semibold text-slate-300">Lead Jab ➔ Rear Power Cross</div>
       </div>
     </div>
 
+    <!-- Camera Angles & Hints -->
     <div class="absolute top-4 right-4 flex flex-col space-y-1.5 z-10">
-      <button id="camFront" class="px-2 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300">Front</button>
-      <button id="camSide" class="px-2 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300">Side 90°</button>
+      <button id="camFront" class="px-2 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Front</button>
+      <button id="camSide" class="px-2 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Side 90°</button>
     </div>
 
-    <div id="kineticCard" class="absolute bottom-3 right-4 max-w-[210px] p-2.5 rounded-xl hud-glass text-left pointer-events-none hidden sm:block">
-      <span class="text-[9px] font-black uppercase text-amber-400 block mb-0.5">Key Form Check</span>
-      <p id="formCheckNote" class="text-[11px] text-slate-300 leading-tight">Rotate rear hip 45°. Keep left glove on cheek.</p>
+    <div class="absolute bottom-3 left-4 pointer-events-none text-[10px] font-semibold text-slate-400 uppercase tracking-widest z-10">
+      ✋ Drag screen to rotate 360°
     </div>
 
-    <div id="restModal" class="hidden absolute inset-0 bg-slate-950/95 hud-blur flex flex-col items-center justify-center p-6 text-center z-20">
+    <!-- Rest Phase Modal -->
+    <div id="restModal" class="hidden absolute inset-0 bg-slate-950/95 hud-glass flex flex-col items-center justify-center p-6 text-center z-20">
       <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Active Recovery</span>
       <h2 id="restClock" class="text-7xl font-mono font-black text-white my-3">00:50</h2>
-      <p class="text-slate-400 text-sm max-w-xs">Breathe deep, reset your stance, and hydrate.</p>
+      <p class="text-slate-400 text-sm max-w-xs">Breathe deep and reset your guard.</p>
       <button id="skipRestBtn" class="mt-6 px-6 py-2 rounded-xl bg-slate-800 border border-slate-700 font-bold active:scale-95 text-xs">Skip Rest</button>
     </div>
   </main>
 
   <!-- CONTROLS FOOTER -->
-  <footer class="bg-slate-950/90 border-t border-slate-800/80 p-4 pb-6 flex flex-col space-y-3 hud-glass z-20">
-    <div class="grid grid-cols-3 items-center bg-slate-900/90 p-3 rounded-2xl border border-slate-800 text-center">
+  <footer class="bg-slate-950/95 border-t border-slate-800 p-4 pb-6 flex-shrink-0 flex flex-col space-y-3 hud-glass z-20">
+    <div class="grid grid-cols-3 items-center bg-slate-900 p-3 rounded-2xl border border-slate-800 text-center">
       <div>
         <span class="text-[10px] text-slate-500 uppercase font-black block">Round</span>
         <span id="roundCounter" class="text-xl font-black text-white">1 / 4</span>
@@ -108,136 +105,407 @@
 
     <div class="flex justify-between items-center text-xs text-slate-400 pt-1 px-1">
       <button id="levelSwitchBtn" class="hover:text-white underline font-semibold">Change Level</button>
-      <span class="text-slate-500">Rotate fighter by dragging</span>
+      <span class="text-slate-500">Interactive 3D Engine</span>
     </div>
   </footer>
 
+  <!-- 3D ENGINE & CONTROLLER -->
   <script>
-    const CURRICULUM = {
-      novice: {
-        name: "NOVICE",
-        rounds: 4,
-        roundDuration: 180,
-        restDuration: 60,
-        combos: [
-          {
-            title: "Lead Hand Range Finder",
-            codes: "1 - 1",
-            cues: "Step Jab ➔ Double Jab",
-            anim: "jab_double",
-            note: "Push off rear toe. Pop the jab straight and pull it back to the cheek twice as fast."
-          },
-          {
-            title: "The Golden Standard 1-2",
-            codes: "1 - 2",
-            cues: "Lead Jab ➔ Rear Power Cross",
-            anim: "one_two",
-            note: "Pivot rear foot 45°. Drive rear hip forward. Keep left glove glued to your cheek."
-          },
-          {
-            title: "Jab & Slip Defense",
-            codes: "1 - Slip R",
-            cues: "Jab ➔ Slip Outside Right",
-            anim: "jab_slip",
-            note: "Dip your right shoulder 2 inches to evade the counter-cross. Don't look at the floor."
-          }
-        ]
+    const DRILLS = [
+      {
+        title: "The Golden Standard 1-2",
+        codes: "1 - 2",
+        cues: "Lead Jab ➔ Rear Power Cross",
+        anim: "one_two"
       },
-      contender: {
-        name: "CONTENDER",
-        rounds: 5,
-        roundDuration: 180,
-        restDuration: 50,
-        combos: [
-          {
-            title: "Inside Kinetic Hook",
-            codes: "1 - 2 - 3",
-            cues: "Jab ➔ Cross ➔ Lead Hook",
-            anim: "one_two_hook",
-            note: "Pivot lead heel 90°. Lock elbow at 90° parallel to the canvas."
-          }
-        ]
+      {
+        title: "Kinetic Hook Sequence",
+        codes: "1 - 2 - 3",
+        cues: "Jab ➔ Cross ➔ Lead Hook",
+        anim: "one_two_hook"
+      },
+      {
+        title: "Slip & Counter",
+        codes: "1 - Slip R",
+        cues: "Jab ➔ Slip Outside Right",
+        anim: "jab_slip"
       }
-    };
+    ];
 
     class Boxer3DEngine {
-      constructor(containerId) {
-        this.container = document.getElementById(containerId);
+      constructor(canvasId, stageId) {
+        this.canvas = document.getElementById(canvasId);
+        this.stage = document.getElementById(stageId);
         this.animTime = 0;
-        this.currentAnim = "one_two";
         this.speed = 1.0;
+        this.currentAnim = "one_two";
         this.isPlaying = true;
 
-        this.initScene();
-        this.buildHumanoidBoxer();
-        this.initLighting();
-        this.initTouchControls();
+        this.init();
+      }
+
+      init() {
+        const rect = this.stage.getBoundingClientRect();
+        const w = rect.width || window.innerWidth;
+        const h = Math.max(rect.height, 320);
+
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(42, w / h, 0.1, 100);
+        this.camera.position.set(0, 1.35, 3.2);
+
+        this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
+        this.renderer.setSize(w, h, false);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const resize = () => {
+          const r = this.stage.getBoundingClientRect();
+          const nw = r.width || window.innerWidth;
+          const nh = Math.max(r.height, 320);
+          this.camera.aspect = nw / nh;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setSize(nw, nh, false);
+        };
+        window.addEventListener('resize', resize);
+        window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+
+        // Ring Grid
+        const grid = new THREE.GridHelper(7, 14, 0x00f2fe, 0x222a3d);
+        this.scene.add(grid);
+
+        // High-Contrast Studio Lighting
+        const amb = new THREE.AmbientLight(0xffffff, 0.9);
+        this.scene.add(amb);
+
+        const key = new THREE.DirectionalLight(0xffffff, 1.5);
+        key.position.set(2, 4, 3);
+        this.scene.add(key);
+
+        const fill = new THREE.PointLight(0x00f2fe, 3.0, 10);
+        fill.position.set(-2, 2.5, 2);
+        this.scene.add(fill);
+
+        const back = new THREE.PointLight(0xf59e0b, 2.5, 10);
+        back.position.set(2, 2, -2);
+        this.scene.add(back);
+
+        this.buildFighter();
+        this.initControls();
+
         this.animate = this.animate.bind(this);
         requestAnimationFrame(this.animate);
       }
 
-      initScene() {
-        const w = this.container.clientWidth || window.innerWidth;
-        const h = this.container.clientHeight || window.innerHeight * 0.6;
+      buildFighter() {
+        this.boxer = new THREE.Group();
+        this.boxer.rotation.y = -0.42;
 
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
-        this.camera.position.set(0, 1.45, 3.8);
+        const skin = new THREE.MeshStandardMaterial({ color: 0xe0a885, roughness: 0.5 });
+        const athletic = new THREE.MeshStandardMaterial({ color: 0x1f2433, roughness: 0.4, metalness: 0.2 });
+        const glove = new THREE.MeshStandardMaterial({ color: 0xff2222, roughness: 0.2, metalness: 0.3 }); // Vibrant red leather
 
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setSize(w, h);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.container.appendChild(this.renderer.domElement);
-
-        window.addEventListener('resize', () => {
-          const nw = this.container.clientWidth;
-          const nh = this.container.clientHeight;
-          this.camera.aspect = nw / nh;
-          this.camera.updateProjectionMatrix();
-          this.renderer.setSize(nw, nh);
-        });
-
-        const grid = new THREE.GridHelper(8, 16, 0x00f2fe, 0x1f2438);
-        grid.position.y = 0;
-        this.scene.add(grid);
-      }
-
-      initLighting() {
-        this.scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-        const key = new THREE.DirectionalLight(0xffffff, 1.2);
-        key.position.set(2, 4, 3);
-        this.scene.add(key);
-
-        const cyan = new THREE.PointLight(0x00f2fe, 2.5, 8);
-        cyan.position.set(-2.5, 2.5, -1.5);
-        this.scene.add(cyan);
-
-        const amber = new THREE.PointLight(0xf59e0b, 2.0, 8);
-        amber.position.set(2.5, 2, -1.5);
-        this.scene.add(amber);
-      }
-
-      buildHumanoidBoxer() {
-        this.boxerGroup = new THREE.Group();
-
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xd29d78, roughness: 0.5 });
-        const gearMat = new THREE.MeshStandardMaterial({ color: 0x181a24, roughness: 0.4, metalness: 0.3 });
-        const gloveMat = new THREE.MeshStandardMaterial({ color: 0xdd2c2c, roughness: 0.25, metalness: 0.2 });
-
+        // Pelvis & Hips
         this.pelvis = new THREE.Group();
         this.pelvis.position.y = 0.95;
-        this.boxerGroup.add(this.pelvis);
-        this.pelvis.add(new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.15, 16), gearMat));
+        this.boxer.add(this.pelvis);
+        this.pelvis.add(new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.15, 16), athletic));
 
+        // Torso
         this.torso = new THREE.Group();
         this.torso.position.y = 0.12;
         this.pelvis.add(this.torso);
-
-        const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.18, 0.38, 16), gearMat);
+        const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.18, 0.38, 16), athletic);
         chest.position.y = 0.2;
         this.torso.add(chest);
 
+        // Head
         this.head = new THREE.Group();
         this.head.position.y = 0.48;
         this.torso.add(this.head);
-        this.head.add(new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), skinMat));
+        this.head.add(new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), skin));
+
+        // Left Arm (Lead)
+        this.lShoulder = new THREE.Group();
+        this.lShoulder.position.set(-0.25, 0.32, 0);
+        this.torso.add(this.lShoulder);
+        const lArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.28, 12), skin);
+        lArm.position.y = -0.14;
+        this.lShoulder.add(lArm);
+
+        this.lElbow = new THREE.Group();
+        this.lElbow.position.y = -0.28;
+        this.lShoulder.add(this.lElbow);
+        const lFore = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.26, 12), skin);
+        lFore.position.y = -0.13;
+        this.lElbow.add(lFore);
+        this.lGlove = new THREE.Mesh(new THREE.SphereGeometry(0.10, 16, 16), glove);
+        this.lGlove.position.y = -0.26;
+        this.lElbow.add(this.lGlove);
+
+        // Right Arm (Rear)
+        this.rShoulder = new THREE.Group();
+        this.rShoulder.position.set(0.25, 0.32, 0);
+        this.torso.add(this.rShoulder);
+        const rArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.28, 12), skin);
+        rArm.position.y = -0.14;
+        this.rShoulder.add(rArm);
+
+        this.rElbow = new THREE.Group();
+        this.rElbow.position.y = -0.28;
+        this.rShoulder.add(this.rElbow);
+        const rFore = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.26, 12), skin);
+        rFore.position.y = -0.13;
+        this.rElbow.add(rFore);
+        this.rGlove = new THREE.Mesh(new THREE.SphereGeometry(0.10, 16, 16), glove);
+        this.rGlove.position.y = -0.26;
+        this.rElbow.add(this.rGlove);
+
+        // Legs
+        const lLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.06, 0.9, 12), athletic);
+        lLeg.position.set(-0.14, -0.45, 0.08);
+        this.pelvis.add(lLeg);
+
+        this.rLeg = new THREE.Group();
+        this.rLeg.position.set(0.18, 0, -0.22);
+        this.pelvis.add(this.rLeg);
+        const rMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.06, 0.9, 12), athletic);
+        rMesh.position.y = -0.45;
+        this.rLeg.add(rMesh);
+
+        this.scene.add(this.boxer);
+      }
+
+      initControls() {
+        let isDown = false, lastX = 0;
+        const start = (x) => { isDown = true; lastX = x; };
+        const move = (x) => {
+          if (!isDown) return;
+          this.boxer.rotation.y += (x - lastX) * 0.01;
+          lastX = x;
+        };
+        const end = () => { isDown = false; };
+
+        this.stage.addEventListener('mousedown', (e) => start(e.clientX));
+        window.addEventListener('mousemove', (e) => move(e.clientX));
+        window.addEventListener('mouseup', end);
+
+        this.stage.addEventListener('touchstart', (e) => start(e.touches[0].clientX), { passive: true });
+        window.addEventListener('touchmove', (e) => move(e.touches[0].clientX), { passive: true });
+        window.addEventListener('touchend', end);
+      }
+
+      animate() {
+        requestAnimationFrame(this.animate);
+        if (this.isPlaying) this.animTime += 0.045 * this.speed;
+
+        const t = this.animTime;
+        this.pelvis.position.y = 0.95 + Math.sin(t * 3) * 0.025;
+
+        // Reset Guard
+        this.lShoulder.rotation.set(0.9, 0.2, 0.5);
+        this.lElbow.rotation.set(-2.0, 0, 0);
+        this.rShoulder.rotation.set(0.9, -0.2, -0.5);
+        this.rElbow.rotation.set(-2.0, 0, 0);
+        this.torso.rotation.set(0, 0, 0);
+        this.torso.position.set(0, 0.12, 0);
+
+        if (this.currentAnim === "one_two") {
+          const c = (t * 1.6) % (Math.PI * 2);
+          if (c < Math.PI) {
+            const p = Math.sin(c);
+            this.lShoulder.rotation.x = 0.9 + p * 0.7;
+            this.lElbow.rotation.x = -2.0 + p * 2.0;
+            this.torso.rotation.y = p * 0.25;
+          } else {
+            const p = Math.sin(c - Math.PI);
+            this.rShoulder.rotation.x = 0.9 + p * 0.8;
+            this.rElbow.rotation.x = -2.0 + p * 2.1;
+            this.torso.rotation.y = -p * 0.7;
+            this.rLeg.rotation.y = p * 0.5;
+          }
+        } else if (this.currentAnim === "one_two_hook") {
+          const c = (t * 1.4) % (Math.PI * 3);
+          if (c < Math.PI) {
+            const p = Math.sin(c);
+            this.lShoulder.rotation.x = 0.9 + p * 0.7;
+            this.lElbow.rotation.x = -2.0 + p * 2.0;
+          } else if (c < Math.PI * 2) {
+            const p = Math.sin(c - Math.PI);
+            this.rShoulder.rotation.x = 0.9 + p * 0.8;
+            this.rElbow.rotation.x = -2.0 + p * 2.1;
+            this.torso.rotation.y = -p * 0.7;
+          } else {
+            const p = Math.sin(c - Math.PI * 2);
+            this.lShoulder.rotation.set(1.5, 0.4, 0.8);
+            this.lElbow.rotation.set(-1.57, 0, 0);
+            this.torso.rotation.y = p * 0.85;
+          }
+        } else if (this.currentAnim === "jab_slip") {
+          const c = (t * 1.5) % (Math.PI * 2);
+          if (c < Math.PI) {
+            const p = Math.sin(c);
+            this.lShoulder.rotation.x = 0.9 + p * 0.7;
+            this.lElbow.rotation.x = -2.0 + p * 2.0;
+          } else {
+            const p = Math.sin(c - Math.PI);
+            this.torso.rotation.z = -p * 0.3;
+            this.torso.position.x = p * 0.09;
+          }
+        }
+
+        this.renderer.render(this.scene, this.camera);
+      }
+    }
+
+    class AudioEngine {
+      constructor() { this.ctx = null; this.muted = false; }
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AC();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      bell() {
+        if (this.muted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(620, t);
+        osc.frequency.exponentialRampToValueAtTime(110, t + 1.3);
+        gain.gain.setValueAtTime(0.8, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 1.3);
+      }
+      speak(t) {
+        if (this.muted || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(t);
+        u.rate = 1.15;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    class App {
+      constructor() {
+        this.engine = new Boxer3DEngine('boxerCanvas', 'stageContainer');
+        this.audio = new AudioEngine();
+        this.drillIdx = 0;
+        this.round = 1;
+        this.clock = 180;
+        this.isActive = false;
+        this.isRest = false;
+        this.speeds = [1.0, 0.5, 0.25];
+        this.spIdx = 0;
+
+        this.initDOM();
+        this.render();
+      }
+
+      initDOM() {
+        this.playBtn = document.getElementById('playBtn');
+        this.playBtn.onclick = () => this.toggle();
+        document.getElementById('prevBtn').onclick = () => this.shift(-1);
+        document.getElementById('nextBtn').onclick = () => this.shift(1);
+        document.getElementById('skipRestBtn').onclick = () => { if (this.isRest) this.clock = 1; };
+
+        document.getElementById('camFront').onclick = () => { this.engine.boxer.rotation.y = -0.42; };
+        document.getElementById('camSide').onclick = () => { this.engine.boxer.rotation.y = 1.15; };
+
+        document.getElementById('speedBtn').onclick = (e) => {
+          this.spIdx = (this.spIdx + 1) % this.speeds.length;
+          const s = this.speeds[this.spIdx];
+          this.engine.speed = s;
+          e.target.innerText = s.toFixed(2) + 'x';
+        };
+
+        document.getElementById('soundBtn').onclick = (e) => {
+          this.audio.muted = !this.audio.muted;
+          e.target.innerText = this.audio.muted ? '🔇 MUTED' : '🔊 SOUND';
+        };
+      }
+
+      async toggle() {
+        this.audio.init();
+        if (this.isActive || this.isRest) {
+          this.isActive = false;
+          clearInterval(this.timer);
+          this.playBtn.innerText = "RESUME";
+          this.engine.isPlaying = false;
+        } else {
+          this.isActive = true;
+          this.playBtn.innerText = "PAUSE";
+          this.engine.isPlaying = true;
+          this.audio.bell();
+          if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(() => {});
+          this.audio.speak(DRILLS[this.drillIdx].cues);
+          this.timer = setInterval(() => this.tick(), 1000);
+        }
+      }
+
+      tick() {
+        if (this.clock > 0) {
+          this.clock--;
+          this.updateHUD();
+          if (!this.isRest && this.clock % 20 === 0) this.shift(1, true);
+        } else {
+          clearInterval(this.timer);
+          if (!this.isRest) {
+            this.audio.bell();
+            if (this.round >= 4) { alert("Session complete!"); return; }
+            this.isRest = true;
+            this.clock = 50;
+            document.getElementById('restModal').classList.remove('hidden');
+            this.audio.speak("Rest");
+          } else {
+            this.isRest = false;
+            document.getElementById('restModal').classList.add('hidden');
+            this.round++;
+            this.clock = 180;
+            this.audio.bell();
+            this.audio.speak(`Round ${this.round}`);
+          }
+          this.timer = setInterval(() => this.tick(), 1000);
+          this.updateHUD();
+        }
+      }
+
+      shift(d, auto = false) {
+        this.drillIdx = (this.drillIdx + d + DRILLS.length) % DRILLS.length;
+        this.render();
+        if (this.isActive && !this.isRest && !auto) {
+          this.audio.speak(DRILLS[this.drillIdx].cues);
+        }
+      }
+
+      render() {
+        const d = DRILLS[this.drillIdx];
+        document.getElementById('drillTitle').innerText = d.title;
+        document.getElementById('comboCodes').innerText = d.codes;
+        document.getElementById('comboCues').innerText = d.cues;
+        this.engine.currentAnim = d.anim;
+        this.engine.animTime = 0;
+      }
+
+      updateHUD() {
+        const m = Math.floor(this.clock / 60).toString().padStart(2, '0');
+        const s = (this.clock % 60).toString().padStart(2, '0');
+        document.getElementById('timerClock').innerText = `${m}:${s}`;
+        document.getElementById('restClock').innerText = `${m}:${s}`;
+        document.getElementById('roundCounter').innerText = `${this.round} / 4`;
+      }
+    }
+
+    // Direct instantiation (bypasses window.onload delays)
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => { window.app = new App(); });
+    } else {
+      window.app = new App();
+    }
+  </script>
+</body>
+</html>
