@@ -37,3 +37,16 @@ Hooks sweep across a horizontal arc with a bent elbow and return directly to gua
 These distances are animation choices for this model, not prescriptions from the
 handbooks. New regression checks measure extension, monotonic leg/hand rise,
 recovery without a second scoop, horizontal hook travel and elbow angle.
+
+## Follow-up: committed exercise repetitions
+
+[Boxing Canada, Instruction Beginners Reference Manual (2024)](https://boxingcanada.org/wp-content/uploads/2025/01/Instruction-Beginners-Reference-Manual-EN.pdf),
+pp. 49–52 and 57, describes hip/shoulder initiation before arm extension, rear-leg
+drive for the cross, forward transfer and quick recovery. This iteration increases
+controlled pelvis transfer, distributes torso rotation through spine and chest,
+and adds striking-shoulder protraction with opposite-shoulder retraction. Punch
+delivery accelerates before full reach; the glove recoils before the torso settles.
+The jab retains a smaller pivot than the cross. Limb lengths remain unchanged.
+Tests check shoulder-driven reach, body-before-arm sequencing, foot participation
+and recovery to guard. Forward pelvis placement is a geometric balance proxy;
+this is still not a force-based balance simulation or measured motion capture.

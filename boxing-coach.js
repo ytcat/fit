@@ -342,7 +342,13 @@
         p-=delay;
         return p<.17?0:p<.40?smooth((p-.17)/.23):p<.46?1:1-smooth((p-.46)/.36);
       };
-      const drive=envelope(phase,.0),twist=envelope(phase,.025),strike=envelope(phase,.055);
+      const straight=move==='jab'||move==='cross';
+      const drive=envelope(phase,.0),twist=envelope(phase,.025);
+      // Exercise cadence: hips start first, relaxed hand accelerates into reach,
+      // then a quicker recoil leaves a readable reset before the next repetition.
+      const handPhase=phase-.055;
+      const strike=straight?(handPhase<.17?0:handPhase<.40?smooth(clamp((handPhase-.17)/.23)**1.35):
+        handPhase<.46?1:1-smooth((handPhase-.46)/.27)):envelope(phase,.055);
       const prepare=smooth((phase-.06)/.16),rise=smooth((phase-.22)/.24);
       const recover=smooth((phase-.50)/.32);
       const j=this.joints,hips=j.hips,chest=j.chest;
@@ -359,11 +365,12 @@
       };
       switch(move) {
         case 'jab':
-          hipYaw=.18*drive;chestYaw=.16*twist;forward=.035*drive;
+          hipYaw=.20*drive;chestYaw=.20*twist;forward=.070*drive;crouch=.018*drive;
+          rearPivot=-.12*drive;
           lead.lerp(V(-.10,1.72,.65),strike);leadTurn=lateTurn;
           break;
         case 'cross':
-          hipYaw=-.40*drive;chestYaw=-.28*twist;shift=-.027*drive;forward=.035*drive;
+          hipYaw=-.43*drive;chestYaw=-.32*twist;shift=-.035*drive;forward=.085*drive;crouch=.022*drive;
           rear.lerp(V(.005,1.72,.67),strike);rearTurn=lateTurn;rearPivot=-.58*drive;
           break;
         case 'hook': case 'rear_hook': {
@@ -405,16 +412,18 @@
       }
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,0);
-      j.spine.rotation.set(.045,0,move==='slip'?-.10*drive:0);
-      chest.rotation.set(.025,chestYaw,move==='slip'?-.055*twist:0);
+      // Spread the thoracic turn over the back instead of rotating a rigid chest.
+      j.spine.rotation.set(.045,chestYaw*.30,move==='slip'?-.10*drive:0);
+      chest.rotation.set(.025,chestYaw*.70,move==='slip'?-.055*twist:0);
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07,-(hipYaw+chestYaw),move==='slip'?.035*drive:0);
       // Scapular elevation/protraction of the striking shoulder protects the chin.
       const leftStrike=['jab','hook','uppercut'].includes(move)?strike:0;
       const rightStrike=['cross','rear_hook','rear_uppercut'].includes(move)?strike:0;
-      j.armL.position.set(-.30,.26+.035*leftStrike,.045*leftStrike);
-      j.armR.position.set(.30,.26+.035*rightStrike,.045*rightStrike);
+      const reachShoulder=straight?.065:.045;
+      j.armL.position.set(-.30+.012*leftStrike,.26+.035*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
+      j.armR.position.set(.30-.012*rightStrike,.26+.035*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
       this.tail.rotation.y= -.16*hipYaw+Math.sin(t*2.2)*.025;
       const footTargets=[];
       for(const s of [-1,1]) {

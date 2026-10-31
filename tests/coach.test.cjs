@@ -143,3 +143,20 @@ for(const [move,side,index] of [['hook','L',0],['rear_hook','R',1]]) {
   assert.ok(angle>65&&angle<120,move+' must retain bent elbow: '+angle);
 }
 console.log('PASS full straight extension, distinct dip/rise/recovery and horizontal bent-arm hooks');
+
+for(const [move,side,index] of [['jab','L',0],['cross','R',1]]) {
+  const rest=coach.update(0,move,'one_two');
+  const restShoulder=coach.point(coach.joints['arm'+side]);
+  const early=coach.update(.21*1.22,move,'one_two');
+  assert.ok(early.hips[2]>.004&&early.strike===0,move+' body must initiate before arm extension');
+  const full=coach.update(.48*1.22,move,'one_two');
+  assert.ok(full.hips[2]>.065&&full.hips[2]<.12,move+' controlled forward body transfer');
+  assert.ok(coach.point(coach.joints['arm'+side]).z-restShoulder.z>.22,move+' shoulder must carry reach');
+  assert.ok(full.hands[index][2]>(move==='jab'?.88:.97),move+' missing whole-body reach');
+  assert.ok(Math.abs(coach.joints.spine.rotation.y)>.04,move+' back must contribute to rotation');
+  assert.ok(full.footTargets[1].pivot<-.10,move+' rear foot must participate');
+  const reset=coach.update(.80*1.22,move,'one_two');
+  assert.equal(reset.strike,0,move+' hand must recoil before body settles');
+  assert.ok(vec(reset.hands[index]).distanceTo(vec(rest.hands[index]))<.002,move+' exercise reset');
+}
+console.log('PASS body-led reach, back rotation, rear-foot drive and deliberate repetition reset');
