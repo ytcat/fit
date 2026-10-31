@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#06070a" />
+  <title>ShadowBox 3D Pro | Auto-Model Engine</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #06070a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .hud-glass {
+      background: rgba(10, 14, 22, 0.90);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+    .glow-gold {
+      text-shadow: 0 0 16px rgba(245, 158, 11, 0.85);
+    }
+  </style>
+</head>
+<body class="text-slate-100 flex flex-col h-full w-full justify-between overflow-hidden">
+
+  <!-- TOP BAR -->
+  <header class="h-14 px-4 flex-shrink-0 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/90 hud-glass z-20">
+    <div class="flex items-center space-x-2">
+      <div class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></div>
+      <div>
+        <h1 id="appTitle" class="text-xs font-black tracking-widest text-amber-400">SHADOWBOX 3D</h1>
+        <p id="appSubtitle" class="text-[9px] text-slate-400 font-semibold tracking-wider">ASSETS / MODELS ENGINE</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center space-x-2">
+      <!-- Trilingual Language Switcher -->
+      <div class="flex rounded-lg border border-slate-700 bg-slate-900 p-0.5 text-xs font-bold">
+        <button id="langEN" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950">EN</button>
+        <button id="langHE" class="px-2 py-0.5 rounded text-slate-300">עב</button>
+        <button id="langRU" class="px-2 py-0.5 rounded text-slate-300">РУ</button>
+      </div>
+      <button id="speedBtn" class="px-2 py-1 text-xs font-mono font-bold rounded bg-slate-800 text-amber-300 border border-slate-700 active:scale-95">1.0x</button>
+      <button id="soundBtn" class="px-2 py-1 text-xs font-bold rounded bg-slate-800 text-slate-200 border border-slate-700 active:scale-95">🔊</button>
+    </div>
+  </header>
+
+  <!-- 3D INTERACTIVE ARENA -->
+  <main id="stageContainer" class="relative flex-1 w-full min-h-0 overflow-hidden bg-gradient-to-b from-[#0e0c08] via-[#080705] to-[#030302]">
+    <canvas id="boxerCanvas" class="absolute inset-0 w-full h-full block z-0 cursor-grab active:cursor-grabbing"></canvas>
+
+    <!-- Floating Combo HUD -->
+    <div class="absolute top-3 inset-x-4 flex flex-col items-center pointer-events-none z-10">
+      <div class="hud-glass px-5 py-2.5 rounded-2xl shadow-2xl text-center border border-amber-500/30 max-w-sm">
+        <span id="drillTier" class="text-[9px] text-amber-400 font-black uppercase tracking-widest block">ROUND DRILL</span>
+        <div id="comboCodes" class="text-3xl font-black text-amber-400 tracking-wider glow-gold my-0.5">1 - 2</div>
+        <div id="comboCues" class="text-xs font-semibold text-slate-300">Lead Snap Jab ➔ Rear Power Cross</div>
+      </div>
+    </div>
+
+    <!-- Camera Presets -->
+    <div class="absolute top-3 right-3 flex flex-col space-y-1.5 z-10">
+      <button id="camFront" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Front</button>
+      <button id="camSide" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Profile</button>
+    </div>
+
+    <!-- Active 3D Model Status Indicator -->
+    <div class="absolute top-3 left-3 z-10">
+      <div id="modelStatusBadge" class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] font-bold shadow-lg flex items-center space-x-1.5">
+        <div id="modelStatusDot" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></div>
+        <span id="modelStatusText">Connecting assets/models...</span>
+      </div>
+    </div>
+
+    <!-- Biomechanics Form Card -->
+    <div class="absolute bottom-3 inset-x-4 pointer-events-none z-10 flex justify-center">
+      <div class="hud-glass px-4 py-2 rounded-xl text-left max-w-sm w-full border-amber-500/20">
+        <span id="biomechanicsLabel" class="text-[9px] text-amber-400 font-black uppercase block mb-0.5">Full-Body Kinetic Chain:</span>
+        <p id="exerciseNotes" class="text-xs text-slate-300 leading-snug">
+          Feet step and pivot ➔ Hips torque ➔ Spine flexes ➔ Shoulder shields chin ➔ Glove lands palm-down.
+        </p>
+      </div>
+    </div>
+
+    <!-- Rest Phase Modal -->
+    <div id="restModal" class="hidden absolute inset-0 bg-slate-950/95 hud-glass flex flex-col items-center justify-center p-6 text-center z-20">
+      <span id="restLabel" class="text-xs font-bold text-amber-400 uppercase tracking-widest">Active Recovery</span>
+      <h2 id="restClock" class="text-7xl font-mono font-black text-white my-3">00:50</h2>
+      <p id="restTip" class="text-slate-400 text-sm max-w-xs">Breathe deep, reset your stance, and shake out your shoulders.</p>
+      <button id="skipRestBtn" class="mt-6 px-6 py-2 rounded-xl bg-slate-800 border border-slate-700 font-bold active:scale-95 text-xs text-amber-300">Skip Rest</button>
+    </div>
+  </main>
+
+  <!-- CONTROLS FOOTER -->
+  <footer class="bg-slate-950/95 border-t border-slate-800 p-4 pb-6 flex-shrink-0 flex flex-col space-y-3 hud-glass z-20">
+    <div class="grid grid-cols-3 items-center bg-slate-900/90 p-3 rounded-2xl border border-slate-800 text-center">
+      <div>
+        <span id="lblRound" class="text-[10px] text-slate-500 uppercase font-black block">Round</span>
+        <span id="roundCounter" class="text-xl font-black text-white">1 / 4</span>
+      </div>
+      <div>
+        <span id="lblTimer" class="text-[10px] text-slate-500 uppercase font-black block">Timer</span>
+        <span id="timerClock" class="text-3xl font-mono font-black text-amber-400">03:00</span>
+      </div>
+      <div>
+        <span id="lblLevel" class="text-[10px] text-slate-500 uppercase font-black block">Level</span>
+        <span id="levelBadge" class="text-xs font-bold text-amber-400">APEX PREDATOR</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-2">
+      <button id="prevBtn" class="py-3 bg-slate-800 rounded-xl font-bold text-sm active:scale-95">◀ Prev</button>
+      <button id="playBtn" class="col-span-2 py-3 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black rounded-xl text-base tracking-wider active:scale-95 shadow-lg shadow-amber-500/20">START TRAINING</button>
+      <button id="nextBtn" class="py-3 bg-slate-800 rounded-xl font-bold text-sm active:scale-95">Next ▶</button>
+    </div>
+
+    <div class="flex justify-between items-center text-[10px] text-slate-400 pt-0.5 px-1">
+      <span id="orbitHint">✋ Drag canvas to rotate 360°</span>
+      <label class="text-amber-400 hover:text-white cursor-pointer underline font-semibold">
+        <span>Load Local File</span>
+        <input type="file" id="modelFilePicker" accept=".glb,.gltf" class="hidden" />
+      </label>
+    </div>
+  </footer>
+
+  <script>
+    /* TRILINGUAL DICTIONARY */
+    const I18N = {
+      en: {
+        dir: 'ltr',
+        title: "SHADOWBOX 3D",
+        subtitle: "ASSETS / MODELS ENGINE",
+        round: "Round",
+        timer: "Timer",
+        level: "Level",
+        levelName: "APEX PREDATOR",
+        start: "START TRAINING",
+        pause: "PAUSE",
+        resume: "RESUME",
+        prev: "◀ Prev",
+        next: "Next ▶",
+        orbit: "✋ Drag canvas to rotate 360°",
+        mechanicsLabel: "Full-Body Kinetic Chain:",
+        restTitle: "Active Recovery",
+        restTip: "Breathe through your nose, shake your shoulders loose.",
+        skipRest: "Skip Rest",
+        drills: [
+          {
+            title: "ROUND 1: LEAD JAB & POWER CROSS",
+            codes: "1 - 2",
+            cues: "Step Lead Jab ➔ Rear Power Cross",
+            voice: "One Two",
+            notes: "Lead foot steps forward. Rear heel pivots 45° off ground; hips torque forward into cross. Left glove shields cheek.",
+            anim: "one_two"
+          },
+          {
+            title: "ROUND 2: HEAVY HOOK ROTATION",
+            codes: "1 - 2 - 3",
+            cues: "Jab ➔ Cross ➔ Horizontal Lead Hook",
+            voice: "One Two Three",
+            notes: "Lead heel twists 90° into the canvas. Hips whip horizontally; lead elbow locks at 90° parallel to floor.",
+            anim: "one_two_hook"
+          },
+          {
+            title: "ROUND 3: SLIP DEFENSE & COUNTER",
+            codes: "Slip R - 2",
+            cues: "Slip Right ➔ Explosive Cross Counter",
+            voice: "Slip Two",
+            notes: "Knees flex, core crunches right, head moves off centerline. Spring off rear leg directly with the cross.",
+            anim: "slip_cross"
+          },
+          {
+            title: "ROUND 4: UPPERCUT & HOOK FLURRY",
+            codes: "5 - 3 - 2",
+            cues: "Lead Uppercut ➔ Hook ➔ Straight Right",
+            voice: "Five Three Two",
+            notes: "Sink hips into a crouch. Drive lead uppercut straight up through the legs, then whip the hook.",
+            anim: "uppercut_flow"
+          }
+        ]
+      },
+      he: {
+        dir: 'rtl',
+        title: "שאדובוקס 3D",
+        subtitle: "מנוע מודלים אוטומטי",
+        round: "סיבוב",
+        timer: "שעון",
+        level: "רמה",
+        levelName: "טורף על",
+        start: "התחל אימון",
+        pause: "השהה",
+        resume: "המשך",
+        prev: "◀ הקודם",
+        next: "הבא ▶",
+        orbit: "✋ גרור באצבע לסיבוב 360°",
+        mechanicsLabel: "שרשרת קינטית מלאה:",
+        restTitle: "התאוששות פעילה",
+        restTip: "נשום עמוק דרך האף ושחרר את שרירי הכתפיים.",
+        skipRest: "דלג על מנוחה",
+        drills: [
+          {
+            title: "סיבוב 1: ג'אב וקרוס מתפרץ",
+            codes: "1 - 2",
+            cues: "ג'אב שמאל קדמי ➔ קרוס ימין עוצמתי",
+            voice: "אחת שתיים",
+            notes: "צעד קדימה עם הרגל הקדמית. עקב אחורי מסתובב 45 מעלות; אגן וגב מסתובבים לתוך הקרוס. כפפה שמאלית על הלחי.",
+            anim: "one_two"
+          },
+          {
+            title: "סיבוב 2: סיבוב אגן והוק שמאלי",
+            codes: "1 - 2 - 3",
+            cues: "ג'אב ➔ קרוס ➔ הוק שמאל אופקי",
+            voice: "אחת שתיים שלוש",
+            notes: "עקב קדמי מסתובב ב-90 מעלות. אגן מצליף אופקית; מרפק קדמי ננעל ב-90 מעלות מקביל לרצפה.",
+            anim: "one_two_hook"
+          },
+          {
+            title: "סיבוב 3: התחמקות וקרוס נגדי",
+            codes: "Slip R - 2",
+            cues: "התחמקות ימינה ➔ קרוס מתפרץ",
+            voice: "התחמקות שתיים",
+            notes: "ברכיים מתכופפות, הגב נוטה ימינה, הראש זז מקו המכה. פוצץ קרוס מתוך דחיפת הרגל האחורית.",
+            anim: "slip_cross"
+          },
+          {
+            title: "סיבוב 4: אפרקאט מתפרץ והוק",
+            codes: "5 - 3 - 2",
+            cues: "אפרקאט שמאל ➔ הוק ➔ קרוס ימין",
+            voice: "חמש שלוש שתיים",
+            notes: "שקע בעזרת הרגליים. פוצץ את האפרקאט ישר למעלה מתוך הרגליים והמשך בהוק מהיר.",
+            anim: "uppercut_flow"
+          }
+        ]
+      },
+      ru: {
+        dir: 'ltr',
+        title: "ШЭДОУБОКС 3D",
+        subtitle: "ДВИЖОК ASSETS / MODELS",
+        round: "Раунд",
+        timer: "Таймер",
+        level: "Уровень",
+        levelName: "ВЫСШИЙ ХИЩНИК",
+        start: "НАЧАТЬ ТРЕНИРОВКУ",
+        pause: "ПАУЗА",
+        resume: "ПРОДОЛЖИТЬ",
+        prev: "◀ Назад",
+        next: "Вперёд ▶",
+        orbit: "✋ Вращайте арену пальцем на 360°",
+        mechanicsLabel: "Полная кинетическая цепь:",
+        restTitle: "Активный отдых",
+        restTip: "Глубоко дышите носом и расслабьте плечевой пояс.",
+        skipRest: "Пропустить отдых",
+        drills: [
+          {
+            title: "РАУНД 1: ДЖЕБ И СИЛОВОЙ КРОСС",
+            codes: "1 - 2",
+            cues: "Прямой джеб ➔ Силовой прямой кросс",
+            voice: "Один Два",
+            notes: "Шаг вперёд передней ногой. Задняя пятка разворачивается на 45°; таз вкладывается в удар. Левая перчатка у челюсти.",
+            anim: "one_two"
+          },
+          {
+            title: "РАУНД 2: ВРАЩЕНИЕ ТАЗА И ХУК",
+            codes: "1 - 2 - 3",
+            cues: "Джеб ➔ Кросс ➔ Горизонтальный хук",
+            voice: "Один Два Три",
+            notes: "Передняя пятка разворачивается на 90°. Таз резко доворачивается; локоть фиксируется под 90° параллельно полу.",
+            anim: "one_two_hook"
+          },
+          {
+            title: "РАУНД 3: УКЛОН И ВСТРЕЧНЫЙ КРОСС",
+            codes: "Slip R - 2",
+            cues: "Уклон вправо ➔ Встречный кросс",
+            voice: "Уклон Два",
+            notes: "Сгибание коленей, смещение корпуса вправо, голова уходит с линии удара. Взрывной толчок задней ногой в кросс.",
+            anim: "slip_cross"
+          },
+          {
+            title: "РАУНД 4: СИЛОВОЙ АППЕРКОТ В КОРПУС",
+            codes: "5 - 3 - 2",
+            cues: "Левый апперкот ➔ Хук ➔ Прямой кросс",
+            voice: "Пять Три Два",
+            notes: "Присед в ногах. Выталкивание апперкота снизу вверх силой разгибания ног, затем быстрый хук.",
+            anim: "uppercut_flow"
+          }
+        ]
+      }
+    };
+
+    /* ACTIVE SKELETAL ENGINE WITH AUTO-DISCOVERY IN ASSETS/MODELS */
+    class AutoModelEngine {
+      constructor(canvasId, stageId) {
+        this.canvas = document.getElementById(canvasId);
+        this.stage = document.getElementById(stageId);
+        this.animTime = 0;
+        this.speed = 1.0;
+        this.currentAnim = "one_two";
+        this.isPlaying = true;
+        
+        this.bones = {};
+        this.activeModel = null;
+        this.mixer = null;
+
+        this.init();
+      }
+
+      init() {
+        const rect = this.stage.getBoundingClientRect();
+        const w = rect.width || window.innerWidth;
+        const h = Math.max(rect.height, 350);
+
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
+        this.camera.position.set(0, 1.35, 3.4);
+
+        this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
+        this.renderer.setSize(w, h, false);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const resize = () => {
+          const r = this.stage.getBoundingClientRect();
+          const nw = r.width || window.innerWidth;
+          const nh = Math.max(r.height, 350);
+          this.camera.aspect = nw / nh;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setSize(nw, nh, false);
+        };
+        window.addEventListener('resize', resize);
+        window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+
+        // Arena Ring Grid
+        const grid = new THREE.GridHelper(8, 16, 0xf59e0b, 0x241806);
+        this.scene.add(grid);
+
+        // Lighting
+        this.scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+        const key = new THREE.DirectionalLight(0xfffaed, 1.6);
+        key.position.set(2, 4, 3);
+        this.scene.add(key);
+
+        const goldRim = new THREE.PointLight(0xf59e0b, 3.5, 10);
+        goldRim.position.set(-2.5, 2.5, -2);
+        this.scene.add(goldRim);
+
+        const warmBack = new THREE.PointLight(0xd97706, 2.8, 10);
+        warmBack.position.set(2.5, 2, -2);
+        this.scene.add(warmBack);
+
+        this.initControls();
+        this.discoverAndLoadModel();
+
+        this.clock = new THREE.Clock();
+        this.animate = this.animate.bind(this);
+        requestAnimationFrame(this.animate);
+      }
+
+      // Auto-scans repository's assets/models/ folder
+      async discoverAndLoadModel() {
+        const statusText = document.getElementById('modelStatusText');
+        const statusDot = document.getElementById('modelStatusDot');
+        const loader = new THREE.GLTFLoader();
+
+        let modelUrl = null;
+
+        try {
+          // GitHub REST API: check contents of assets/models in ytcat/fit
+          const res = await fetch('https://api.github.com/repos/ytcat/fit/contents/assets/models');
+          if (res.ok) {
+            const files = await res.json();
+            if (Array.isArray(files)) {
+              // Find first .glb or .gltf in assets/models
+              const found = files.find(f => f.name.toLowerCase().endsWith('.glb') || f.name.toLowerCase().endsWith('.gltf'));
+              if (found) {
+                modelUrl = found.download_url || `./assets/models/${found.name}`;
+                statusText.innerText = `Loaded: assets/models/${found.name}`;
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Auto-scan fallback:', e);
+        }
+
+        // Fallbacks if GitHub API is rate-limited:
+        const candidateUrls = [
+          modelUrl,
+          './assets/models/lion.glb',
+          './assets/models/model.glb',
+          './assets/models/scene.gltf',
+          './lion.glb',
+          'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Xbot.glb'
+        ].filter(Boolean);
+
+        const tryLoad = (idx) => {
+          if (idx >= candidateUrls.length) return;
+          const url = candidateUrls[idx];
+          loader.load(url, (gltf) => {
+            this.bindSkeletalModel(gltf);
+            statusDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400";
+            if (!modelUrl) statusText.innerText = "3D Rig: Active";
+          }, undefined, () => {
+            tryLoad(idx + 1); // Try next candidate
+          });
+        };
+
+        tryLoad(0);
+      }
+
+      bindSkeletalModel(gltf) {
+        if (this.activeModel) this.scene.remove(this.activeModel);
+        this.activeModel = gltf.scene;
+
+        // Auto-Center & Auto-Scale Model to Ring Dimensions
+        const box = new THREE.Box3().setFromObject(this.activeModel);
+        const size = box.getSize(new THREE.Vector3());
+        const maxAxis = Math.max(size.x, size.y, size.z);
+        if (maxAxis > 0) {
+          const targetScale = 1.85 / maxAxis; // Standard boxing ring human height: 1.85m
+          this.activeModel.scale.setScalar(targetScale);
+        }
+
+        const centeredBox = new THREE.Box3().setFromObject(this.activeModel);
+        this.activeModel.position.y = -centeredBox.min.y; // Pin feet directly onto canvas floor
+        this.activeModel.rotation.y = -0.32; // Orthodox bladed fighting stance
+
+        // Map all skeleton bones
+        this.bones = {};
+        this.activeModel.traverse((node) => {
+          if (node.isBone) {
+            const name = node.name.toLowerCase();
+            if (name.includes('hips') || name.includes('pelvis')) this.bones.hips = node;
+            if (name.includes('spine1') || name.includes('chest')) this.bones.chest = node;
+            else if (name.includes('spine')) this.bones.spine = node;
+            if (name.includes('neck') || name.includes('head')) this.bones.head = node;
+
+            if (name.includes('left') && (name.includes('arm') || name.includes('shoulder')) && !name.includes('fore')) this.bones.lArm = node;
+            if (name.includes('left') && (name.includes('forearm') || name.includes('elbow'))) this.bones.lForeArm = node;
+            if (name.includes('left') && name.includes('hand')) this.bones.lHand = node;
+
+            if (name.includes('right') && (name.includes('arm') || name.includes('shoulder')) && !name.includes('fore')) this.bones.rArm = node;
+            if (name.includes('right') && (name.includes('forearm') || name.includes('elbow'))) this.bones.rForeArm = node;
+            if (name.includes('right') && name.includes('hand')) this.bones.rHand = node;
+
+            if (name.includes('right') && (name.includes('leg') || name.includes('thigh') || name.includes('upleg'))) this.bones.rLeg = node;
+            if (name.includes('right') && name.includes('foot')) this.bones.rFoot = node;
+            if (name.includes('left') && (name.includes('leg') || name.includes('thigh') || name.includes('upleg'))) this.bones.lLeg = node;
+          }
+        });
+
+        // If the model came with embedded boxing clips, activate mixer
+        if (gltf.animations && gltf.animations.length > 0) {
+          this.mixer = new THREE.AnimationMixer(this.activeModel);
+          this.mixer.clipAction(gltf.animations[0]).play();
+        }
+
+        this.scene.add(this.activeModel);
+      }
+
+      initControls() {
+        let isDown = false, lastX = 0;
+        const start = (x) => { isDown = true; lastX = x; };
+        const move = (x) => {
+          if (!isDown || !this.activeModel) return;
+          this.activeModel.rotation.y += (x - lastX) * 0.01;
+          lastX = x;
+        };
+        const end = () => { isDown = false; };
+
+        this.stage.addEventListener('mousedown', (e) => start(e.clientX));
+        window.addEventListener('mousemove', (e) => move(e.clientX));
+        window.addEventListener('mouseup', end);
+
+        this.stage.addEventListener('touchstart', (e) => start(e.touches[0].clientX), { passive: true });
+        window.addEventListener('touchmove', (e) => move(e.touches[0].clientX), { passive: true });
+        window.addEventListener('touchend', end);
+      }
+
+      animate() {
+        requestAnimationFrame(this.animate);
+        const delta = this.clock.getDelta();
+
+        if (!this.activeModel) {
+          this.renderer.render(this.scene, this.camera);
+          return;
+        }
+
+        // If embedded animations exist:
+        if (this.mixer) {
+          this.mixer.update(delta * this.speed);
+        }
+
+        // Active procedural kinetic boxing movements:
+        if (this.isPlaying) this.animTime += 0.045 * this.speed;
+        const t = this.animTime;
+        const b = this.bones;
+
+        // Reset Guard (Arms shielding chin)
+        if (b.lArm) b.lArm.rotation.set(0.95, 0.20, 0.45);
+        if (b.lForeArm) b.lForeArm.rotation.set(1.95, 0.10, 0.20);
+        if (b.rArm) b.rArm.rotation.set(0.95, -0.20, -0.45);
+        if (b.rForeArm) b.rForeArm.rotation.set(1.95, -0.10, -0.20);
+
+        if (b.spine) b.spine.rotation.set(0.08, 0, 0);
+        if (b.head) b.head.rotation.set(0.12, 0, 0); // Chin tucked
+        if (b.rLeg) b.rLeg.rotation.set(0, 0, 0);
+
+        // Stance Bounce
+        if (b.hips) {
+          b.hips.position.y = Math.sin(t * 3.2) * 0.035;
+        }
+
+        // Whole-Body Strikes
+        if (this.currentAnim === "one_two") {
+          const c = (t * 1.6) % (Math.PI * 2);
+          if (c < Math.PI) {
+            // JAB: Left arm extends straight forward, spine turns
+            const p = Math.sin(c);
+            if (b.lArm) b.lArm.rotation.x = 0.95 + p * 0.75;
+            if (b.lForeArm) b.lForeArm.rotation.x = 1.95 - p * 1.85;
+            if (b.spine) b.spine.rotation.y = p * 0.25;
+            if (b.hips) b.hips.position.z = p * 0.08;
+          } else {
+            // CROSS: Rear heel pivots, hips torque 45°, right arm fires
+            const p = Math.sin(c - Math.PI);
+            if (b.rArm) b.rArm.rotation.x = 0.95 + p * 0.85;
+            if (b.rForeArm) b.rForeArm.rotation.x = 1.95 - p * 1.90;
+            if (b.spine) b.spine.rotation.y = -p * 0.70;
+            if (b.rLeg) b.rLeg.rotation.y = p * 0.65;
+          }
+        } 
+        else if (this.currentAnim === "one_two_hook") {
+          const c = (t * 1.4) % (Math.PI * 3);
+          if (c < Math.PI) {
+            const p = Math.sin(c);
+            if (b.lArm) b.lArm.rotation.x = 0.95 + p * 0.75;
+            if (b.lForeArm) b.lForeArm.rotation.x = 1.95 - p * 1.85;
+            if (b.spine) b.spine.rotation.y = p * 0.25;
+          } else if (c < Math.PI * 2) {
+            const p = Math.sin(c - Math.PI);
+            if (b.rArm) b.rArm.rotation.x = 0.95 + p * 0.85;
+            if (b.rForeArm) b.rForeArm.rotation.x = 1.95 - p * 1.90;
+            if (b.spine) b.spine.rotation.y = -p * 0.70;
+            if (b.rLeg) b.rLeg.rotation.y = p * 0.65;
+          } else {
+            // LEAD HOOK: 90° horizontal elbow arc
+            const p = Math.sin(c - Math.PI * 2);
+            if (b.lArm) b.lArm.rotation.set(1.55, 0.45, 0.85);
+            if (b.lForeArm) b.lForeArm.rotation.set(1.57, 0, 0);
+            if (b.spine) b.spine.rotation.y = p * 0.90;
+            if (b.lLeg) b.lLeg.rotation.y = p * 0.60;
+          }
+        } 
+        else if (this.currentAnim === "slip_cross") {
+          const c = (t * 1.5) % (Math.PI * 2);
+          if (c < Math.PI) {
+            // SLIP RIGHT
+            const p = Math.sin(c);
+            if (b.spine) b.spine.rotation.z = -p * 0.35;
+            if (b.hips) b.hips.position.x = p * 0.14;
+          } else {
+            // COUNTER CROSS
+            const p = Math.sin(c - Math.PI);
+            if (b.rArm) b.rArm.rotation.x = 0.95 + p * 0.85;
+            if (b.rForeArm) b.rForeArm.rotation.x = 1.95 - p * 1.90;
+            if (b.spine) b.spine.rotation.y = -p * 0.70;
+            if (b.rLeg) b.rLeg.rotation.y = p * 0.65;
+          }
+        } 
+        else if (this.currentAnim === "uppercut_flow") {
+          const c = (t * 1.4) % (Math.PI * 2);
+          if (c < Math.PI) {
+            // UPPERCUT
+            const p = Math.sin(c);
+            if (b.lArm) b.lArm.rotation.set(1.20, 0.15, 0.25);
+            if (b.lForeArm) b.lForeArm.rotation.x = 1.95 - p * 1.10;
+            if (b.spine) b.spine.rotation.y = p * 0.35;
+          } else {
+            const p = Math.sin(c - Math.PI);
+            if (b.rArm) b.rArm.rotation.x = 0.95 + p * 0.85;
+            if (b.rForeArm) b.rForeArm.rotation.x = 1.95 - p * 1.90;
+            if (b.spine) b.spine.rotation.y = -p * 0.70;
+          }
+        }
+
+        this.renderer.render(this.scene, this.camera);
+      }
+    }
+
+    /* TRILINGUAL AUDIO ENGINE */
+    class AudioEngine {
+      constructor() { this.ctx = null; this.muted = false; }
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AC();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      bell() {
+        if (this.muted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(640, t);
+        osc.frequency.exponentialRampToValueAtTime(110, t + 1.3);
+        gain.gain.setValueAtTime(0.85, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 1.3);
+      }
+      speak(phrase, lang) {
+        if (this.muted || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(phrase);
+        u.lang = lang === 'he' ? 'he-IL' : (lang === 'ru' ? 'ru-RU' : 'en-US');
+        u.rate = 1.1;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    /* MASTER APPLICATION CONTROLLER */
+    class MasterApp {
+      constructor() {
+        this.lang = 'en';
+        this.engine = new AutoModelEngine('boxerCanvas', 'stageContainer');
+        this.audio = new AudioEngine();
+        this.drillIdx = 0;
+        this.round = 1;
+        this.clock = 180;
+        this.isActive = false;
+        this.isRest = false;
+        this.speeds = [1.0, 0.5, 0.25];
+        this.speedIdx = 0;
+
+        this.initUI();
+        this.setLanguage('en');
+      }
+
+      initUI() {
+        this.playBtn = document.getElementById('playBtn');
+        this.playBtn.onclick = () => this.toggle();
+        document.getElementById('prevBtn').onclick = () => this.shift(-1);
+        document.getElementById('nextBtn').onclick = () => this.shift(1);
+        document.getElementById('skipRestBtn').onclick = () => { if (this.isRest) this.clock = 1; };
+
+        // Language Buttons
+        document.getElementById('langEN').onclick = () => this.setLanguage('en');
+        document.getElementById('langHE').onclick = () => this.setLanguage('he');
+        document.getElementById('langRU').onclick = () => this.setLanguage('ru');
+
+        document.getElementById('camFront').onclick = () => {
+          if (this.engine.activeModel) this.engine.activeModel.rotation.y = -0.32;
+        };
+        document.getElementById('camSide').onclick = () => {
+          if (this.engine.activeModel) this.engine.activeModel.rotation.y = 1.15;
+        };
+
+        document.getElementById('speedBtn').onclick = (e) => {
+          this.speedIdx = (this.speedIdx + 1) % this.speeds.length;
+          const s = this.speeds[this.speedIdx];
+          this.engine.speed = s;
+          e.target.innerText = s.toFixed(2) + 'x';
+        };
+
+        document.getElementById('soundBtn').onclick = (e) => {
+          this.audio.muted = !this.audio.muted;
+          e.target.innerText = this.audio.muted ? '🔇' : '🔊';
+        };
+
+        // File input for manual override
+        document.getElementById('modelFilePicker').onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const url = URL.createObjectURL(file);
+            const loader = new THREE.GLTFLoader();
+            loader.load(url, (gltf) => {
+              this.engine.bindSkeletalModel(gltf);
+              document.getElementById('modelStatusText').innerText = `Loaded: ${file.name}`;
+            });
+          }
+        };
+      }
+
+      setLanguage(langCode) {
+        this.lang = langCode;
+        const dict = I18N[langCode];
+
+        document.documentElement.dir = dict.dir;
+
+        document.getElementById('appTitle').innerText = dict.title;
+        document.getElementById('appSubtitle').innerText = dict.subtitle;
+        document.getElementById('lblRound').innerText = dict.round;
+        document.getElementById('lblTimer').innerText = dict.timer;
+        document.getElementById('lblLevel').innerText = dict.level;
+        document.getElementById('levelBadge').innerText = dict.levelName;
+        document.getElementById('prevBtn').innerText = dict.prev;
+        document.getElementById('nextBtn').innerText = dict.next;
+        document.getElementById('orbitHint').innerText = dict.orbit;
+        document.getElementById('biomechanicsLabel').innerText = dict.mechanicsLabel;
+        document.getElementById('restLabel').innerText = dict.restTitle;
+        document.getElementById('restTip').innerText = dict.restTip;
+        document.getElementById('skipRestBtn').innerText = dict.skipRest;
+
+        ['EN', 'HE', 'RU'].forEach(l => {
+          const btn = document.getElementById('lang' + l);
+          if (l.toLowerCase() === langCode) {
+            btn.className = "px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold";
+          } else {
+            btn.className = "px-2 py-0.5 rounded text-slate-300 font-bold";
+          }
+        });
+
+        this.updatePlayBtnText();
+        this.renderDrill();
+      }
+
+      updatePlayBtnText() {
+        const dict = I18N[this.lang];
+        if (this.isActive || this.isRest) {
+          this.playBtn.innerText = dict.pause;
+        } else if (this.clock < 180) {
+          this.playBtn.innerText = dict.resume;
+        } else {
+          this.playBtn.innerText = dict.start;
+        }
+      }
+
+      async toggle() {
+        this.audio.init();
+        const dict = I18N[this.lang];
+        if (this.isActive || this.isRest) {
+          this.isActive = false;
+          clearInterval(this.timer);
+          this.engine.isPlaying = false;
+        } else {
+          this.isActive = true;
+          this.engine.isPlaying = true;
+          this.audio.bell();
+          if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(() => {});
+          this.audio.speak(dict.drills[this.drillIdx].voice, this.lang);
+          this.timer = setInterval(() => this.tick(), 1000);
+        }
+        this.updatePlayBtnText();
+      }
+
+      tick() {
+        if (this.clock > 0) {
+          this.clock--;
+          this.updateHUD();
+          if (!this.isRest && this.clock % 25 === 0) this.shift(1, true);
+        } else {
+          clearInterval(this.timer);
+          const dict = I18N[this.lang];
+          if (!this.isRest) {
+            this.audio.bell();
+            if (this.round >= dict.drills.length) {
+              alert(this.lang === 'he' ? "אימון אליפות הושלם בהצלחה!" : (this.lang === 'ru' ? "Чемпионская тренировка завершена!" : "Championship Workout Complete!"));
+              return;
+            }
+            this.isRest = true;
+            this.clock = 50;
+            document.getElementById('restModal').classList.remove('hidden');
+            this.audio.speak(dict.restTitle, this.lang);
+          } else {
+            this.isRest = false;
+            document.getElementById('restModal').classList.add('hidden');
+            this.round++;
+            this.clock = 180;
+            this.audio.bell();
+            this.audio.speak(`${dict.round} ${this.round}`, this.lang);
+          }
+          this.timer = setInterval(() => this.tick(), 1000);
+          this.updateHUD();
+        }
+      }
+
+      shift(dir, auto = false) {
+        const drills = I18N[this.lang].drills;
+        this.drillIdx = (this.drillIdx + dir + drills.length) % drills.length;
+        this.renderDrill();
+        if (this.isActive && !this.isRest && !auto) {
+          this.audio.speak(drills[this.drillIdx].voice, this.lang);
+        }
+      }
+
+      renderDrill() {
+        const d = I18N[this.lang].drills[this.drillIdx];
+        document.getElementById('drillTier').innerText = d.title;
+        document.getElementById('comboCodes').innerText = d.codes;
+        document.getElementById('comboCues').innerText = d.cues;
+        document.getElementById('exerciseNotes').innerText = d.notes;
+
+        this.engine.currentAnim = d.anim;
+        this.engine.animTime = 0;
+      }
+
+      updateHUD() {
+        const m = Math.floor(this.clock / 60).toString().padStart(2, '0');
+        const s = (this.clock % 60).toString().padStart(2, '0');
+        document.getElementById('timerClock').innerText = `${m}:${s}`;
+        document.getElementById('restClock').innerText = `${m}:${s}`;
+        document.getElementById('roundCounter').innerText = `${this.drillIdx + 1} / ${I18N[this.lang].drills.length}`;
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => { window.app = new MasterApp(); });
+    } else {
+      window.app = new MasterApp();
+    }
+  </script>
+</body>
+</html>
