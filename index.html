@@ -361,11 +361,84 @@
 
         this.initControls();
         document.getElementById('camBack').addEventListener('click', () => { if(this.activeModel) this.activeModel.rotation.y = Math.PI; });
+        this.createTrainingBoxer();
         this.discoverAndLoadModel();
 
         this.clock = new THREE.Clock();
         this.animate = this.animate.bind(this);
         requestAnimationFrame(this.animate);
+      }
+
+      // Always-available animated instructor. No external model download required.
+      createTrainingBoxer() {
+        const skin = new THREE.MeshStandardMaterial({color:0xa76b43,roughness:.75});
+        const shorts = new THREE.MeshStandardMaterial({color:0x263b58,roughness:.85});
+        const glove = new THREE.MeshStandardMaterial({color:0xdc2626,roughness:.35,metalness:.08});
+        const dark = new THREE.MeshStandardMaterial({color:0x1a202c,roughness:.8});
+        const mane = new THREE.MeshStandardMaterial({color:0x9b5b20,roughness:1});
+        const group = new THREE.Group();
+        const part = (parent, material, sx,sy,sz, x,y,z) => {
+          const mesh = new THREE.Mesh(new THREE.SphereGeometry(1,16,12),material);
+          mesh.scale.set(sx,sy,sz); mesh.position.set(x,y,z); parent.add(mesh); return mesh;
+        };
+        const joint=(parent,x,y,z)=>{const o=new THREE.Group();o.position.set(x,y,z);parent.add(o);return o;};
+        const hips=joint(group,0,1.02,0);
+        part(hips,shorts,.31,.23,.21,0,0,0);
+        const torso=joint(hips,0,.24,0);
+        part(torso,skin,.37,.49,.23,0,.34,0);
+        part(torso,dark,.25,.08,.23,0,.12,0);
+        const head=joint(torso,0,.79,0);
+        part(head,mane,.27,.31,.25,0,.12,0);
+        part(head,skin,.19,.21,.19,0,.13,.14);
+        part(head,skin,.13,.095,.12,0,.045,.30);
+        part(head,dark,.055,.035,.025,0,.06,.41);
+        for(const side of [-1,1]){
+          part(head,dark,.023,.028,.016,side*.09,.19,.305);
+          const arm=joint(torso,side*.34,.67,0);
+          part(arm,skin,.13,.25,.14,side*.06,-.19,.025);
+          const elbow=joint(arm,side*.08,-.39,.035);
+          part(elbow,skin,.12,.22,.12,0,-.18,.035);
+          part(elbow,glove,.155,.155,.18,0,-.40,.08);
+          const leg=joint(hips,side*.18,-.13,0);
+          part(leg,shorts,.17,.23,.17,0,-.10,0);
+          part(leg,skin,.14,.29,.14,0,-.40,0);
+          const knee=joint(leg,0,-.63,0);
+          part(knee,skin,.12,.28,.12,0,-.21,0);
+          part(knee,dark,.14,.095,.23,0,-.48,.12);
+          if(side===-1){this.demoLeftArm=arm;this.demoLeftElbow=elbow;this.demoLeftLeg=leg;}
+          else {this.demoRightArm=arm;this.demoRightElbow=elbow;this.demoRightLeg=leg;}
+        }
+        this.demoTorso=torso;this.demoHips=hips;this.demoHead=head;
+        this.demoModel=group;this.activeModel=group;
+        group.rotation.y=-.28;
+        this.scene.add(group);
+        document.getElementById('modelStatusText').innerText='Animated training boxer (built-in)';
+      }
+
+      animateTrainingBoxer(t) {
+        if (!this.demoModel || this.activeModel !== this.demoModel) return;
+        const l=this.demoLeftArm,r=this.demoRightArm,le=this.demoLeftElbow,re=this.demoRightElbow;
+        const torso=this.demoTorso, hips=this.demoHips;
+        l.rotation.set(-.85,0,-.25);r.rotation.set(-.85,0,.25);
+        le.rotation.set(-1.35,0,0);re.rotation.set(-1.35,0,0);
+        torso.rotation.set(0,0,0);hips.position.y=1.02+Math.sin(t*7)*.018;
+        this.demoLeftLeg.rotation.y=0;this.demoRightLeg.rotation.y=0;
+        this.demoHead.rotation.z=0;
+        const names={one_two:['jab','cross'],one_two_hook:['jab','cross','hook'],slip_cross:['slip','cross'],uppercut_flow:['uppercut','hook','cross']};
+        const sequence=names[this.currentAnim]||names.one_two;
+        const beat=t*1.25;
+        const step=Math.floor(beat)%sequence.length;
+        const phase=beat-Math.floor(beat);
+        const punch=Math.pow(Math.sin(Math.PI*phase),2);
+        switch(sequence[step]){
+          case 'jab':l.rotation.x=-.85-punch*1.05;le.rotation.x=-1.35+punch*1.3;torso.rotation.y=punch*.16;hips.position.z=punch*.05;break;
+          case 'cross':r.rotation.x=-.85-punch*1.1;re.rotation.x=-1.35+punch*1.3;torso.rotation.y=-punch*.45;this.demoRightLeg.rotation.y=punch*.3;break;
+          case 'hook':l.rotation.x=-.85-punch*.25;l.rotation.y=-punch*.95;le.rotation.x=-1.35+punch*.55;torso.rotation.y=punch*.52;break;
+          case 'uppercut':l.rotation.x=-.85+punch*.6;le.rotation.x=-1.35-punch*.45;torso.rotation.y=punch*.22;hips.position.y-=punch*.08;break;
+          case 'slip':torso.rotation.z=-punch*.28;this.demoHead.rotation.z=punch*.08;hips.position.x=punch*.09;break;
+        }
+        hips.position.x=sequence[step]==='slip'?punch*.09:0;
+        hips.position.z=sequence[step]==='jab'?punch*.05:0;
       }
 
       // Auto-scans repository's assets/models/ folder
@@ -401,12 +474,11 @@
           './assets/models/lion.glb',
           './assets/models/model.glb',
           './assets/models/scene.gltf',
-          './lion.glb',
-          'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Xbot.glb'
+          './lion.glb'
         ].filter(Boolean);
 
         const tryLoad = (idx) => {
-          if (idx >= candidateUrls.length) { statusText.innerText = 'No 3D model found — upload a GLB to assets/models'; statusDot.className = 'w-1.5 h-1.5 rounded-full bg-red-400'; return; }
+          if (idx >= candidateUrls.length) { statusText.innerText = 'Animated training boxer (built-in)'; statusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400'; return; }
           const url = candidateUrls[idx];
           loader.load(url, (gltf) => {
             this.bindSkeletalModel(gltf);
@@ -523,7 +595,8 @@
         // Active procedural kinetic boxing movements:
         if (this.isPlaying) this.animTime += delta * this.speed;
         const t = this.animTime;
-        const b = this.mixer ? {} : this.bones; // Do not overwrite imported animation tracks
+        this.animateTrainingBoxer(t);
+        const b = (this.mixer || this.activeModel === this.demoModel) ? {} : this.bones; // Do not overwrite imported animation tracks
 
         // Reset Guard (Arms shielding chin)
         if (b.lArm) b.lArm.rotation.set(0.95, 0.20, 0.45);
