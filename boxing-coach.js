@@ -306,7 +306,7 @@
       // Analytic two-bone IK. Clamp reach before computing a stable bend plane.
       this.root.updateMatrixWorld(true);
       const start=this.point(a), l1=b.position.length(),l2=end.position.length();
-      const delta=target.clone().sub(start),d=clamp(delta.length(),Math.abs(l1-l2)+.004,l1+l2-.008);
+      const delta=target.clone().sub(start),d=clamp(delta.length(),Math.abs(l1-l2)+.004,l1+l2-.001);
       const dir=delta.normalize(),along=(l1*l1-l2*l2+d*d)/(2*d);
       const bend=pole.clone().addScaledVector(dir,-pole.dot(dir)).normalize();
       const mid=start.clone().addScaledVector(dir,along).addScaledVector(bend,Math.sqrt(Math.max(0,l1*l1-along*along)));
@@ -340,10 +340,11 @@
       // Pelvis leads thorax; arm follows. No hand can travel through the back.
       const envelope=(p,delay=0)=>{
         p-=delay;
-        return p<.17?0:p<.40?smooth((p-.17)/.23):p<.43?1:1-smooth((p-.43)/.38);
+        return p<.17?0:p<.40?smooth((p-.17)/.23):p<.46?1:1-smooth((p-.46)/.36);
       };
       const drive=envelope(phase,.0),twist=envelope(phase,.025),strike=envelope(phase,.055);
-      const load=phase<.08?0:phase<.18?smooth((phase-.08)/.10):1-smooth((phase-.18)/.20);
+      const prepare=smooth((phase-.06)/.16),rise=smooth((phase-.22)/.24);
+      const recover=smooth((phase-.50)/.32);
       const j=this.joints,hips=j.hips,chest=j.chest;
       let hipYaw=0,chestYaw=0,crouch=0,shift=0,forward=0,leadPivot=0,rearPivot=0;
       const lead=V(-.185,1.68,.31),rear=V(.18,1.68,.28);
@@ -358,32 +359,41 @@
       };
       switch(move) {
         case 'jab':
-          hipYaw=.12*drive;chestYaw=.11*twist;forward=.025*drive;
+          hipYaw=.18*drive;chestYaw=.16*twist;forward=.035*drive;
           lead.lerp(V(-.10,1.72,.65),strike);leadTurn=lateTurn;
           break;
         case 'cross':
-          hipYaw=-.35*drive;chestYaw=-.24*twist;shift=-.027*drive;forward=.025*drive;
+          hipYaw=-.40*drive;chestYaw=-.28*twist;shift=-.027*drive;forward=.035*drive;
           rear.lerp(V(.005,1.72,.67),strike);rearTurn=lateTurn;rearPivot=-.58*drive;
           break;
         case 'hook': case 'rear_hook': {
           const s=move==='hook'?-1:1;
-          crouch+=.015*drive;
-          hipYaw=-s*.32*drive;chestYaw=-s*.23*twist;
-          shift=s*.018*drive;
-          const target=V(s*.27*Math.cos(strike*1.8),1.70,.31+.20*Math.sin(strike*Math.PI*.65));
-          if(s===-1){lead.lerp(target,strike);leadTurn=lateTurn;leadPole.lerp(V(-1,.15,.05),strike);leadPivot=.48*drive;}
-          else {rear.lerp(target,strike);rearTurn=lateTurn;rearPole.lerp(V(1,.15,.05),strike);rearPivot=-.48*drive;}
+          const swing=smooth((phase-.20)/.28),active=prepare*(1-recover);
+          const rotation=smooth((phase-.16)/.30)*(1-recover);
+          crouch=.012*active;
+          hipYaw=-s*.37*rotation;chestYaw=-s*.25*rotation;
+          shift=s*.018*rotation;
+          // Raise the bent elbow while moving forward, then sweep across the
+          // target horizontally. Recover directly rather than reverse the arc.
+          const arc=V(s*(.30-.40*swing),1.70,.42+.12*Math.sin(swing*Math.PI));
+          const hand=s===-1?lead:rear,guard=hand.clone();
+          hand.lerp(arc,prepare).lerp(guard,recover);
+          if(s===-1){leadTurn=active;leadPole.lerp(V(-1,.10,.05),active);leadPivot=.52*rotation;}
+          else {rearTurn=active;rearPole.lerp(V(1,.10,.05),active);rearPivot=-.52*rotation;}
           break;
         }
         case 'uppercut': case 'rear_uppercut': {
           const s=move==='uppercut'?-1:1;
-          hipYaw=-s*.19*drive;chestYaw=-s*.11*twist;
-          crouch=.045*load;forward=.015*drive;shift=-s*.012*drive;
+          const active=prepare*(1-recover),up=rise*(1-recover);
+          hipYaw=-s*.24*up;chestYaw=-s*.15*up;
+          crouch=.080*prepare*(1-rise)*(1-recover);forward=.020*up;shift=-s*.018*up;
           palmTarget.set(0,0,-1);
-          const target=V(s*.12,1.47+.29*strike,.31+.15*strike);
-          const scoop=clamp(strike+load*.65*(1-strike));
-          if(s===-1){lead.lerp(target,scoop);leadTurn=scoop;leadPole.lerp(V(0,-1,.2),scoop);leadPivot=.23*drive;}
-          else {rear.lerp(target,scoop);rearTurn=scoop;rearPole.lerp(V(0,-1,.2),scoop);rearPivot=-.23*drive;}
+          // Three distinct phases: settle under the target, drive upward with
+          // extending legs, then recover to cheek without a second scoop.
+          const hand=s===-1?lead:rear,guard=hand.clone();
+          hand.lerp(V(s*.18,1.44,.32),prepare).lerp(V(s*.13,1.78,.46),rise).lerp(guard,recover);
+          if(s===-1){leadTurn=active;leadPole.lerp(V(0,-1,.2),active);leadPivot=.30*up;}
+          else {rearTurn=active;rearPole.lerp(V(0,-1,.2),active);rearPivot=-.30*up;}
           break;
         }
         case 'slip': shift=.075*drive;crouch=.043*drive;hipYaw=-.08*drive;chestYaw=-.12*twist;break;
@@ -403,8 +413,8 @@
       // Scapular elevation/protraction of the striking shoulder protects the chin.
       const leftStrike=['jab','hook','uppercut'].includes(move)?strike:0;
       const rightStrike=['cross','rear_hook','rear_uppercut'].includes(move)?strike:0;
-      j.armL.position.set(-.30,.26+.025*leftStrike,.018*leftStrike);
-      j.armR.position.set(.30,.26+.025*rightStrike,.018*rightStrike);
+      j.armL.position.set(-.30,.26+.035*leftStrike,.045*leftStrike);
+      j.armR.position.set(.30,.26+.035*rightStrike,.045*rightStrike);
       this.tail.rotation.y= -.16*hipYaw+Math.sin(t*2.2)*.025;
       const footTargets=[];
       for(const s of [-1,1]) {
@@ -430,7 +440,7 @@
         const side=move==='jab'?'L':'R',hand=side==='L'?lead:rear;
         const shoulder=this.point(j['arm'+side]);
         const direction=V(side==='L'?-.08:.02,1.70,shoulder.z+.66).sub(shoulder).normalize();
-        const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.018;
+        const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.0015;
         const target=shoulder.addScaledVector(direction,reach);
         hand.copy((side==='L'?V(-.185,1.68,.31):V(.18,1.68,.28)).add(guardShift)).lerp(target,strike);
       }

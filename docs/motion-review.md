@@ -26,3 +26,14 @@ These are authored animation approximations. Tests establish geometric constrain
 not coaching certification, dynamic balance or exact human biomechanics. The cloud
 browser cannot initialize WebGL, so rendered-motion inspection remains unverified.
 Uploaded GLB animation clips are independent and are not rewritten by these changes.
+
+## Follow-up: range and punch readability
+
+Straight punches now reach a measured elbow angle above 170 degrees while retaining
+a small bend. Shoulder protraction and torso rotation contribute to that reach.
+Uppercuts have separate preparation, upward drive and direct guard recovery phases:
+the pelvis lowers 8 cm and the wrist rises more than 38 cm from the low position.
+Hooks sweep across a horizontal arc with a bent elbow and return directly to guard.
+These distances are animation choices for this model, not prescriptions from the
+handbooks. New regression checks measure extension, monotonic leg/hand rise,
+recovery without a second scoop, horizontal hook travel and elbow angle.

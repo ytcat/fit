@@ -108,3 +108,38 @@ for(const [move,index] of [['uppercut',0],['rear_uppercut',1]]) {
 const guard=coach.update(0,'jab','one_two');
 assert.ok(guard.gloves[0].palm[0]>.7&&guard.gloves[1].palm[0]<-.7,'guard palms face inward');
 console.log('PASS anatomical glove axes, straight wrists, contact palm orientation, continuous rotation and uppercut leg drive');
+
+const elbowAngle=side=>{
+  const e=coach.point(coach.joints['elbow'+side]);
+  return coach.point(coach.joints['arm'+side]).sub(e).angleTo(coach.point(coach.joints['hand'+side]).sub(e))*180/Math.PI;
+};
+for(const [move,side] of [['jab','L'],['cross','R']]) {
+  coach.update(.48*1.22,move,'one_two');
+  const angle=elbowAngle(side);
+  assert.ok(angle>170&&angle<179,move+' must visibly extend without a locked elbow: '+angle);
+}
+for(const [move,index] of [['uppercut',0],['rear_uppercut',1]]) {
+  const low=coach.update(.22*1.22,move,'one_two');
+  const high=coach.update(.47*1.22,move,'one_two');
+  assert.ok(high.hips[1]-low.hips[1]>.075,move+' missing visible body dip');
+  assert.ok(high.hands[index][1]-low.hands[index][1]>.38,move+' missing bottom-to-top stroke');
+  let prior=low;
+  for(let p=.23;p<=.46;p+=.01) {
+    const m=coach.update(p*1.22,move,'one_two');
+    assert.ok(m.hips[1]>=prior.hips[1]-1e-5&&m.hands[index][1]>prior.hands[index][1],move+' rise must be coordinated');
+    prior=m;
+  }
+  for(let p=.51;p<.82;p+=.01) {
+    const m=coach.update(p*1.22,move,'one_two');
+    assert.ok(m.hands[index][1]>=1.67,move+' recovery must not scoop down again');
+  }
+}
+for(const [move,side,index] of [['hook','L',0],['rear_hook','R',1]]) {
+  const start=coach.update(.23*1.22,move,'one_two');
+  const end=coach.update(.48*1.22,move,'one_two');
+  assert.ok(Math.abs(end.hands[index][0]-start.hands[index][0])>.35,move+' arc too small');
+  assert.ok(Math.abs(end.hands[index][1]-start.hands[index][1])<.04,move+' must sweep horizontally');
+  const angle=elbowAngle(side);
+  assert.ok(angle>65&&angle<120,move+' must retain bent elbow: '+angle);
+}
+console.log('PASS full straight extension, distinct dip/rise/recovery and horizontal bent-arm hooks');
