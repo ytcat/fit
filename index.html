@@ -4,10 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#06070a" />
-  <title>ShadowBox Lion | Biomechanical Beast</title>
+  <title>ShadowBox Studio Pro | Full Kinetic Biomechanics</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GLTF Loader for real custom 3D character models -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
   <style>
     html, body {
@@ -23,7 +25,7 @@
       background: rgba(10, 14, 22, 0.90);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(0, 242, 254, 0.22);
+      border: 1px solid rgba(245, 158, 11, 0.25);
     }
     .glow-gold {
       text-shadow: 0 0 16px rgba(245, 158, 11, 0.85);
@@ -37,8 +39,8 @@
     <div class="flex items-center space-x-2">
       <div class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></div>
       <div>
-        <h1 id="appTitle" class="text-xs font-black tracking-widest text-amber-400">LION BOXER 3D</h1>
-        <p id="appSubtitle" class="text-[9px] text-slate-400 font-semibold tracking-wider">BEAST BIOMECHANICS</p>
+        <h1 id="appTitle" class="text-xs font-black tracking-widest text-amber-400">LION KINETIC 3D</h1>
+        <p id="appSubtitle" class="text-[9px] text-slate-400 font-semibold tracking-wider">FULL BODY BIOMECHANICS</p>
       </div>
     </div>
     
@@ -54,7 +56,7 @@
     </div>
   </header>
 
-  <!-- 3D LION ARENA -->
+  <!-- 3D INTERACTIVE ARENA -->
   <main id="stageContainer" class="relative flex-1 w-full min-h-0 overflow-hidden bg-gradient-to-b from-[#0e0c08] via-[#080705] to-[#030302]">
     <canvas id="boxerCanvas" class="absolute inset-0 w-full h-full block z-0 cursor-grab active:cursor-grabbing"></canvas>
 
@@ -73,12 +75,12 @@
       <button id="camSide" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Profile</button>
     </div>
 
-    <!-- Biomechanics Form Card -->
+    <!-- Whole-Body Biomechanics Form Card -->
     <div class="absolute bottom-3 inset-x-4 pointer-events-none z-10 flex justify-center">
       <div class="hud-glass px-4 py-2 rounded-xl text-left max-w-sm w-full border-amber-500/20">
-        <span id="biomechanicsLabel" class="text-[9px] text-amber-400 font-black uppercase block mb-0.5">Exact Movement Mechanics:</span>
+        <span id="biomechanicsLabel" class="text-[9px] text-amber-400 font-black uppercase block mb-0.5">Full-Body Kinetic Chain:</span>
         <p id="exerciseNotes" class="text-xs text-slate-300 leading-snug">
-          Drive the jab straight forward. Pivot rear foot 45° and rotate right hip into cross. Left glove stays glued to cheek.
+          Feet step and pivot ➔ Hips torque ➔ Spine flexes ➔ Shoulder shields chin ➔ Glove lands palm-down.
         </p>
       </div>
     </div>
@@ -87,7 +89,7 @@
     <div id="restModal" class="hidden absolute inset-0 bg-slate-950/95 hud-glass flex flex-col items-center justify-center p-6 text-center z-20">
       <span id="restLabel" class="text-xs font-bold text-amber-400 uppercase tracking-widest">Active Recovery</span>
       <h2 id="restClock" class="text-7xl font-mono font-black text-white my-3">00:50</h2>
-      <p id="restTip" class="text-slate-400 text-sm max-w-xs">Breathe through your nose, shake your shoulders loose.</p>
+      <p id="restTip" class="text-slate-400 text-sm max-w-xs">Breathe deep, reset your stance, and shake out your shoulders.</p>
       <button id="skipRestBtn" class="mt-6 px-6 py-2 rounded-xl bg-slate-800 border border-slate-700 font-bold active:scale-95 text-xs text-amber-300">Skip Rest</button>
     </div>
   </main>
@@ -117,21 +119,21 @@
 
     <div class="flex justify-between items-center text-[10px] text-slate-400 pt-0.5 px-1">
       <span id="orbitHint">✋ Drag canvas to rotate 360°</span>
-      <label class="text-amber-400 hover:text-white cursor-pointer underline">
-        <span>Upload Lion File (.glb/.mp4)</span>
-        <input type="file" id="customAssetLoader" accept=".glb,.gltf,.mp4" class="hidden" />
+      <label class="text-amber-400 hover:text-white cursor-pointer underline font-semibold">
+        <span>Load Custom 3D Model (.glb)</span>
+        <input type="file" id="modelFilePicker" accept=".glb,.gltf" class="hidden" />
       </label>
     </div>
   </footer>
 
-  <!-- SCRIPT ENGINE: LION AVATAR & VECTOR IK RIG -->
+  <!-- SCRIPT ENGINE: WHOLE-BODY BIOMECHANICS & PBR SHADERS -->
   <script>
-    /* TRILINGUAL CURRICULUM DICTIONARY (EN, HE, RU) */
+    /* TRILINGUAL DICTIONARY */
     const I18N = {
       en: {
         dir: 'ltr',
-        title: "LION BOXER 3D",
-        subtitle: "BEAST BIOMECHANICS",
+        title: "LION KINETIC 3D",
+        subtitle: "FULL BODY BIOMECHANICS",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -142,49 +144,49 @@
         prev: "◀ Prev",
         next: "Next ▶",
         orbit: "✋ Drag canvas to rotate 360°",
-        mechanicsLabel: "Exact Movement Mechanics:",
+        mechanicsLabel: "Full-Body Kinetic Chain:",
         restTitle: "Active Recovery",
         restTip: "Breathe through your nose, shake your shoulders loose.",
         skipRest: "Skip Rest",
         drills: [
           {
-            title: "ROUND 1: LION JAB & POWER CROSS",
+            title: "ROUND 1: LEAD JAB & POWER CROSS",
             codes: "1 - 2",
-            cues: "Lead Snap Jab ➔ Rear Power Cross",
+            cues: "Step Lead Jab ➔ Rear Power Cross",
             voice: "One Two",
-            notes: "Drive the jab straight forward. Pivot rear foot 45° and rotate right hip into cross. Left glove stays glued to cheek.",
+            notes: "Lead foot steps forward. Rear heel pivots 45° off ground; hips torque forward into cross. Left glove shields cheek.",
             anim: "one_two"
           },
           {
-            title: "ROUND 2: HEAVY HOOK & HEEL PIVOT",
+            title: "ROUND 2: HEAVY HOOK ROTATION",
             codes: "1 - 2 - 3",
             cues: "Jab ➔ Cross ➔ Horizontal Lead Hook",
             voice: "One Two Three",
-            notes: "On the hook, lock elbow at 90° parallel to canvas. Pivot lead heel into the floor like crushing a cigarette.",
+            notes: "Lead heel twists 90° into the canvas. Hips whip horizontally; lead elbow locks at 90° parallel to floor.",
             anim: "one_two_hook"
           },
           {
-            title: "ROUND 3: SLIP DEFENSE & COUNTER CROSS",
+            title: "ROUND 3: SLIP DEFENSE & COUNTER",
             codes: "Slip R - 2",
             cues: "Slip Right ➔ Explosive Cross Counter",
             voice: "Slip Two",
-            notes: "Flex knees and dip right shoulder 2 inches off centerline. Spring off rear leg directly with the cross.",
+            notes: "Knees flex, core crunches right, head moves off centerline. Spring off rear leg directly with the cross.",
             anim: "slip_cross"
           },
           {
-            title: "ROUND 4: PREDATOR UPPERCUT & HOOK",
+            title: "ROUND 4: UPPERCUT & HOOK FLURRY",
             codes: "5 - 3 - 2",
             cues: "Lead Uppercut ➔ Hook ➔ Straight Right",
             voice: "Five Three Two",
-            notes: "Sink hips into crouch. Drive lead uppercut straight up through the legs, then whip the hook.",
+            notes: "Sink hips into a crouch. Drive lead uppercut straight up through the legs, then whip the hook.",
             anim: "uppercut_flow"
           }
         ]
       },
       he: {
         dir: 'rtl',
-        title: "אריה מתאגרף 3D",
-        subtitle: "ביומכניקת טורף מקצועית",
+        title: "אריה ביומכני 3D",
+        subtitle: "מנוע תנועה מלא לכל הגוף",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -195,17 +197,17 @@
         prev: "◀ הקודם",
         next: "הבא ▶",
         orbit: "✋ גרור באצבע לסיבוב 360°",
-        mechanicsLabel: "מכניקת תנועה מדויקת:",
+        mechanicsLabel: "שרשרת קינטית מלאה:",
         restTitle: "התאוששות פעילה",
         restTip: "נשום עמוק דרך האף ושחרר את שרירי הכתפיים.",
         skipRest: "דלג על מנוחה",
         drills: [
           {
-            title: "סיבוב 1: ג'אב וקרוס עוצמתי",
+            title: "סיבוב 1: ג'אב וקרוס מתפרץ",
             codes: "1 - 2",
             cues: "ג'אב שמאל קדמי ➔ קרוס ימין עוצמתי",
             voice: "אחת שתיים",
-            notes: "שלח את הג'אב ישר קדימה. סובב עקב אחורי ב-45 מעלות ודחוף את האגן לתוך הקרוס. כפפה שמאלית צמודה ללחי.",
+            notes: "צעד קדימה עם הרגל הקדמית. עקב אחורי מסתובב 45 מעלות; אגן וגב מסתובבים לתוך הקרוס. כפפה שמאלית על הלחי.",
             anim: "one_two"
           },
           {
@@ -213,7 +215,7 @@
             codes: "1 - 2 - 3",
             cues: "ג'אב ➔ קרוס ➔ הוק שמאל אופקי",
             voice: "אחת שתיים שלוש",
-            notes: "בהוק, נעל את המרפק ב-90 מעלות מקביל לקרקע. סובב את העקב הקדמי ברצפה.",
+            notes: "עקב קדמי מסתובב ב-90 מעלות. אגן מצליף אופקית; מרפק קדמי ננעל ב-90 מעלות מקביל לרצפה.",
             anim: "one_two_hook"
           },
           {
@@ -221,7 +223,7 @@
             codes: "Slip R - 2",
             cues: "התחמקות ימינה ➔ קרוס מתפרץ",
             voice: "התחמקות שתיים",
-            notes: "כופף ברכיים והורד כתף ימנית 5 ס\"מ מחוץ לקו המרכזי. פוצץ את הקרוס באמצעות דחיפה מהרגל האחורית.",
+            notes: "ברכיים מתכופפות, הגב נוטה ימינה, הראש זז מקו המכה. פוצץ קרוס מתוך דחיפת הרגל האחורית.",
             anim: "slip_cross"
           },
           {
@@ -229,7 +231,7 @@
             codes: "5 - 3 - 2",
             cues: "אפרקאט שמאל ➔ הוק ➔ קרוס ימין",
             voice: "חמש שלוש שתיים",
-            notes: "שקע מעט בברכיים. פוצץ את האפרקאט כלפי מעלה בעזרת כוח הרגליים, ומיד עקוב עם הוק מהיר.",
+            notes: "שקע בעזרת הרגליים. פוצץ את האפרקאט ישר למעלה מתוך הרגליים והמשך בהוק מהיר.",
             anim: "uppercut_flow"
           }
         ]
@@ -237,7 +239,7 @@
       ru: {
         dir: 'ltr',
         title: "ЛЕВ БОКСЕР 3D",
-        subtitle: "БИОМЕХАНИКА ХИЩНИКА",
+        subtitle: "БИОМЕХАНИКА ВСЕГО ТЕЛА",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -248,25 +250,25 @@
         prev: "◀ Назад",
         next: "Вперёд ▶",
         orbit: "✋ Вращайте арену пальцем на 360°",
-        mechanicsLabel: "Точная механика движений:",
+        mechanicsLabel: "Полная кинетическая цепь:",
         restTitle: "Активный отдых",
         restTip: "Глубоко дышите носом и расслабьте плечевой пояс.",
         skipRest: "Пропустить отдых",
         drills: [
           {
-            title: "РАУНД 1: ДЖЕБ ЛЬВА И СИЛОВОЙ КРОСС",
+            title: "РАУНД 1: ДЖЕБ И СИЛОВОЙ КРОСС",
             codes: "1 - 2",
             cues: "Прямой джеб ➔ Силовой прямой кросс",
             voice: "Один Два",
-            notes: "Выбивайте джеб строго вперёд. Разверните заднюю пятку на 45° и вложите бедро в кросс. Левая перчатка у скулы.",
+            notes: "Шаг вперёд передней ногой. Задняя пятка разворачивается на 45°; таз вкладывается в удар. Левая перчатка у челюсти.",
             anim: "one_two"
           },
           {
-            title: "РАУНД 2: ДВОЙКА И МОЩНЫЙ ХУК",
+            title: "РАУНД 2: ВРАЩЕНИЕ ТАЗА И ХУК",
             codes: "1 - 2 - 3",
             cues: "Джеб ➔ Кросс ➔ Горизонтальный хук",
             voice: "Один Два Три",
-            notes: "На хуке зафиксируйте локоть под углом 90° параллельно полу. Разверните переднюю пятку вокруг носка.",
+            notes: "Передняя пятка разворачивается на 90°. Таз резко доворачивается; локоть фиксируется под 90° параллельно полу.",
             anim: "one_two_hook"
           },
           {
@@ -274,23 +276,23 @@
             codes: "Slip R - 2",
             cues: "Уклон вправо ➔ Встречный кросс",
             voice: "Уклон Два",
-            notes: "Согните колени и сместите правое плечо с линии удара. Вытолкнитесь задней ногой во встречный кросс строго вперёд.",
+            notes: "Сгибание коленей, смещение корпуса вправо, голова уходит с линии удара. Взрывной толчок задней ногой в кросс.",
             anim: "slip_cross"
           },
           {
-            title: "РАУНД 4: АППЕРКОТ СНИЗУ И ДОБИВАНИЕ",
+            title: "РАУНД 4: СИЛОВОЙ АППЕРКОТ В КОРПУС",
             codes: "5 - 3 - 2",
             cues: "Левый апперкот ➔ Хук ➔ Прямой кросс",
             voice: "Пять Три Два",
-            notes: "Опустите центр тяжести. Вытолкните апперкот снизу вверх разгибанием ног, затем нанесите хук.",
+            notes: "Присед в ногах. Выталкивание апперкота снизу вверх силой разгибания ног, затем быстрый хук.",
             anim: "uppercut_flow"
           }
         ]
       }
     };
 
-    /* 3D LION AVATAR & VECTOR IK RIG (THREE.JS) */
-    class LionBoxerRig {
+    /* REAL BIOMECHANICAL FIGHTER ENGINE */
+    class FullBiomechanicalEngine {
       constructor(canvasId, stageId) {
         this.canvas = document.getElementById(canvasId);
         this.stage = document.getElementById(stageId);
@@ -298,6 +300,8 @@
         this.speed = 1.0;
         this.currentAnim = "one_two";
         this.isPlaying = true;
+        this.customModel = null;
+        this.mixer = null;
 
         this.init();
       }
@@ -308,8 +312,8 @@
         const h = Math.max(rect.height, 350);
 
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
-        this.camera.position.set(0, 1.35, 3.3);
+        this.camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
+        this.camera.position.set(0, 1.35, 3.4);
 
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
         this.renderer.setSize(w, h, false);
@@ -327,31 +331,73 @@
         window.addEventListener('orientationchange', () => setTimeout(resize, 200));
 
         // Arena Grid
-        const grid = new THREE.GridHelper(8, 16, 0xf59e0b, 0x221808);
+        const grid = new THREE.GridHelper(8, 16, 0xf59e0b, 0x241806);
         this.scene.add(grid);
 
-        // Warm Lion Studio Lighting
+        // Studio Lighting
         this.scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-        const key = new THREE.DirectionalLight(0xffeedd, 1.4);
+        const key = new THREE.DirectionalLight(0xfffaed, 1.5);
         key.position.set(2, 4, 3);
         this.scene.add(key);
 
-        const goldRim = new THREE.PointLight(0xf59e0b, 3.0, 10);
+        const goldRim = new THREE.PointLight(0xf59e0b, 3.2, 10);
         goldRim.position.set(-2.5, 2.5, -2);
         this.scene.add(goldRim);
 
-        const warmBack = new THREE.PointLight(0xd97706, 2.5, 10);
+        const warmBack = new THREE.PointLight(0xd97706, 2.6, 10);
         warmBack.position.set(2.5, 2, -2);
         this.scene.add(warmBack);
 
-        this.buildLionBoxer();
-        this.initTouchControls();
+        this.buildOrganicLion();
+        this.initControls();
+        this.checkRepoForLionModel();
 
+        this.clock = new THREE.Clock();
         this.animate = this.animate.bind(this);
         requestAnimationFrame(this.animate);
       }
 
-      positionLimbSegment(mesh, pA, pB) {
+      // Check if user dropped lion.glb into ytcat/fit repository
+      checkRepoForLionModel() {
+        const loader = new THREE.GLTFLoader();
+        loader.load('./lion.glb', (gltf) => {
+          this.loadCustomModel(gltf);
+        }, undefined, () => {
+          // If no custom model in repo yet, default organic rig runs smoothly
+        });
+      }
+
+      loadCustomModel(gltf) {
+        if (this.customModel) this.scene.remove(this.customModel);
+        this.root.visible = false;
+        this.customModel = gltf.scene;
+        this.customModel.scale.set(1.1, 1.1, 1.1);
+        this.scene.add(this.customModel);
+
+        if (gltf.animations && gltf.animations.length) {
+          this.mixer = new THREE.AnimationMixer(this.customModel);
+          const action = this.mixer.clipAction(gltf.animations[0]);
+          action.play();
+        }
+      }
+
+      createNoiseBumpTexture() {
+        const c = document.createElement('canvas');
+        c.width = 128; c.height = 128;
+        const ctx = c.getContext('2d');
+        const img = ctx.createImageData(128, 128);
+        for (let i = 0; i < img.data.length; i += 4) {
+          const v = Math.floor(Math.random() * 255);
+          img.data[i] = v; img.data[i+1] = v; img.data[i+2] = v; img.data[i+3] = 255;
+        }
+        ctx.putImageData(img, 0, 0);
+        const tex = new THREE.CanvasTexture(c);
+        tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+        tex.repeat.set(4, 4);
+        return tex;
+      }
+
+      positionLimb(mesh, pA, pB) {
         const dir = new THREE.Vector3().subVectors(pB, pA);
         const len = dir.length();
         mesh.position.copy(pA).addScaledVector(dir, 0.5);
@@ -359,94 +405,83 @@
         mesh.scale.set(1, len, 1);
       }
 
-      buildLionBoxer() {
+      buildOrganicLion() {
         this.root = new THREE.Group();
-        this.root.rotation.y = -0.35; // Orthodox bladed stance
+        this.root.rotation.y = -0.32; // Orthodox bladed stance
 
-        // Lion Materials
-        const furMat = new THREE.MeshStandardMaterial({ color: 0xd49b42, roughness: 0.6 }); // Golden lion fur
-        const maneMat = new THREE.MeshStandardMaterial({ color: 0x6e3612, roughness: 0.8 }); // Dark rich lion mane
-        const snoutMat = new THREE.MeshStandardMaterial({ color: 0xdfb068, roughness: 0.5 });
-        const blackMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3 });
-        const eyeMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xb45309, roughness: 0.2 });
-        const trunksMat = new THREE.MeshStandardMaterial({ color: 0x14161f, roughness: 0.4 });
-        const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.5 });
-        const gloveMat = new THREE.MeshStandardMaterial({ color: 0xd92424, roughness: 0.25, metalness: 0.2 });
+        const bumpTex = this.createNoiseBumpTexture();
 
-        // --- Pelvis & Boxing Trunks ---
+        // Realistic PBR Materials with Fur Bump-Mapping
+        const furMat = new THREE.MeshStandardMaterial({ 
+          color: 0xd6993a, roughness: 0.65, bumpMap: bumpTex, bumpScale: 0.015 
+        });
+        const maneMat = new THREE.MeshStandardMaterial({ 
+          color: 0x5a2d0c, roughness: 0.85, bumpMap: bumpTex, bumpScale: 0.035 
+        });
+        const trunksMat = new THREE.MeshStandardMaterial({ color: 0x11131c, roughness: 0.4 });
+        const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.4 });
+        const gloveMat = new THREE.MeshStandardMaterial({ color: 0xd92020, roughness: 0.25, metalness: 0.15 });
+
+        // Pelvis & Trunks
         this.pelvis = new THREE.Group();
         this.pelvis.position.y = 0.95;
         this.root.add(this.pelvis);
 
-        const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.19, 0.10, 16), goldMat);
+        const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.19, 0.10, 20), goldMat);
         this.pelvis.add(belt);
 
-        const trunks = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.23, 0.22, 16), trunksMat);
+        const trunks = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.23, 0.22, 20), trunksMat);
         trunks.position.y = -0.12;
         this.pelvis.add(trunks);
 
-        // --- Lion Tail ---
+        // Lion Tail
         this.tail = new THREE.Group();
         this.tail.position.set(0, -0.05, -0.18);
         this.pelvis.add(this.tail);
+        const tailMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.02, 0.45, 8), furMat);
+        tailMesh.position.set(0, -0.15, -0.10);
+        tailMesh.rotation.x = -0.6;
+        this.tail.add(tailMesh);
+        const tuft = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), maneMat);
+        tuft.position.set(0, -0.32, -0.22);
+        this.tail.add(tuft);
 
-        const tailSegment = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.02, 0.45, 8), furMat);
-        tailSegment.position.set(0, -0.15, -0.10);
-        tailSegment.rotation.x = -0.6;
-        this.tail.add(tailSegment);
-
-        const tailTuft = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), maneMat);
-        tailTuft.position.set(0, -0.32, -0.22);
-        this.tail.add(tailTuft);
-
-        // --- Muscular Lion Torso ---
+        // Muscular Contoured Torso
         this.torso = new THREE.Group();
         this.torso.position.y = 0.10;
         this.pelvis.add(this.torso);
 
-        const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.18, 0.38, 16), furMat);
+        const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.18, 0.38, 20), furMat);
         chest.position.y = 0.20;
         this.torso.add(chest);
 
-        // --- LION HEAD WITH FULL MANE, SNOUT & EARS ---
+        // Lion Head with Full Flowing Mane
         this.head = new THREE.Group();
         this.head.position.set(0, 0.52, 0.06);
         this.torso.add(this.head);
 
-        // Head Base
-        const headSkull = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), furMat);
-        this.head.add(headSkull);
+        const skull = new THREE.Mesh(new THREE.SphereGeometry(0.13, 18, 18), furMat);
+        this.head.add(skull);
 
-        // THE MAJESTIC LION MANE (Layered surrounding head and shoulders)
-        const maneOuter = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.10, 12, 18), maneMat);
-        maneOuter.position.set(0, -0.02, -0.04);
-        maneOuter.rotation.x = 0.3;
-        this.head.add(maneOuter);
+        // Surrounding Flowing Mane
+        const maneTorus = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.11, 14, 20), maneMat);
+        maneTorus.position.set(0, -0.02, -0.04);
+        maneTorus.rotation.x = 0.3;
+        this.head.add(maneTorus);
 
-        const maneBack = new THREE.Mesh(new THREE.SphereGeometry(0.19, 14, 14), maneMat);
+        const maneBack = new THREE.Mesh(new THREE.SphereGeometry(0.19, 16, 16), maneMat);
         maneBack.position.set(0, -0.04, -0.08);
         this.head.add(maneBack);
 
-        // Lion Snout / Muzzle
-        const snout = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.08, 0.12), snoutMat);
+        // Snout, Nose & Ears
+        const snout = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.08, 0.12), furMat);
         snout.position.set(0, -0.02, 0.12);
         this.head.add(snout);
 
-        // Nose
-        const nose = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.025, 0.03), blackMat);
+        const nose = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.025, 0.03), new THREE.MeshStandardMaterial({ color: 0x111111 }));
         nose.position.set(0, 0.02, 0.18);
         this.head.add(nose);
 
-        // Lion Eyes (Glowing Amber)
-        const lEye = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), eyeMat);
-        lEye.position.set(-0.045, 0.04, 0.11);
-        this.head.add(lEye);
-
-        const rEye = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), eyeMat);
-        rEye.position.set(0.045, 0.04, 0.11);
-        this.head.add(rEye);
-
-        // Feline Rounded Ears
         const lEar = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), furMat);
         lEar.position.set(-0.11, 0.12, -0.02);
         this.head.add(lEar);
@@ -455,58 +490,59 @@
         rEar.position.set(0.11, 0.12, -0.02);
         this.head.add(rEar);
 
-        // --- Deltoid Shoulders ---
-        this.lShoulderMesh = new THREE.Mesh(new THREE.SphereGeometry(0.085, 14, 14), furMat);
-        this.lShoulderMesh.position.set(-0.25, 0.32, 0);
-        this.torso.add(this.lShoulderMesh);
-
-        this.rShoulderMesh = new THREE.Mesh(new THREE.SphereGeometry(0.085, 14, 14), furMat);
-        this.rShoulderMesh.position.set(0.25, 0.32, 0);
-        this.torso.add(this.rShoulderMesh);
-
-        // --- Limbs Pinned via Vector IK ---
-        const limbGeom = new THREE.CylinderGeometry(0.055, 0.05, 1, 12);
-
-        this.lUpperArm = new THREE.Mesh(limbGeom, furMat);
-        this.lForearm = new THREE.Mesh(limbGeom, furMat);
+        // Organic Limbs Pinned via IK
+        const armGeom = new THREE.CylinderGeometry(0.055, 0.05, 1, 14);
+        this.lUpperArm = new THREE.Mesh(armGeom, furMat);
+        this.lForearm = new THREE.Mesh(armGeom, furMat);
         this.root.add(this.lUpperArm);
         this.root.add(this.lForearm);
 
-        this.rUpperArm = new THREE.Mesh(limbGeom, furMat);
-        this.rForearm = new THREE.Mesh(limbGeom, furMat);
+        this.rUpperArm = new THREE.Mesh(armGeom, furMat);
+        this.rForearm = new THREE.Mesh(armGeom, furMat);
         this.root.add(this.rUpperArm);
         this.root.add(this.rForearm);
 
-        // Boxing Gloves
         this.lGlove = new THREE.Mesh(new THREE.SphereGeometry(0.10, 16, 16), gloveMat);
         this.root.add(this.lGlove);
 
         this.rGlove = new THREE.Mesh(new THREE.SphereGeometry(0.10, 16, 16), gloveMat);
         this.root.add(this.rGlove);
 
-        // Legs
-        const legGeom = new THREE.CylinderGeometry(0.075, 0.06, 0.9, 12);
-        const lLeg = new THREE.Mesh(legGeom, trunksMat);
-        lLeg.position.set(-0.14, -0.45, 0.10);
-        this.pelvis.add(lLeg);
+        // Fully Articulated Legs (Hips, Knees & Feet)
+        const legGeom = new THREE.CylinderGeometry(0.075, 0.06, 0.45, 14);
+        
+        // Lead Leg (Forward Left)
+        this.lThigh = new THREE.Mesh(legGeom, trunksMat);
+        this.lThigh.position.set(-0.14, -0.20, 0.10);
+        this.pelvis.add(this.lThigh);
 
-        this.rLeg = new THREE.Group();
-        this.rLeg.position.set(0.16, 0, -0.22);
-        this.pelvis.add(this.rLeg);
+        this.lCalf = new THREE.Mesh(legGeom, furMat);
+        this.lCalf.position.set(-0.14, -0.62, 0.12);
+        this.pelvis.add(this.lCalf);
 
-        const rMesh = new THREE.Mesh(legGeom, trunksMat);
-        rMesh.position.y = -0.45;
-        this.rLeg.add(rMesh);
+        // Rear Leg (Articulated with Pivot Rotation)
+        this.rLegGroup = new THREE.Group();
+        this.rLegGroup.position.set(0.16, 0, -0.22);
+        this.pelvis.add(this.rLegGroup);
+
+        this.rThigh = new THREE.Mesh(legGeom, trunksMat);
+        this.rThigh.position.y = -0.20;
+        this.rLegGroup.add(this.rThigh);
+
+        this.rCalf = new THREE.Mesh(legGeom, furMat);
+        this.rCalf.position.y = -0.62;
+        this.rLegGroup.add(this.rCalf);
 
         this.scene.add(this.root);
       }
 
-      initTouchControls() {
+      initControls() {
         let isDown = false, lastX = 0;
         const start = (x) => { isDown = true; lastX = x; };
         const move = (x) => {
           if (!isDown) return;
-          this.root.rotation.y += (x - lastX) * 0.01;
+          const target = this.customModel || this.root;
+          target.rotation.y += (x - lastX) * 0.01;
           lastX = x;
         };
         const end = () => { isDown = false; };
@@ -522,44 +558,58 @@
 
       animate() {
         requestAnimationFrame(this.animate);
-        if (this.isPlaying) this.animTime += 0.045 * this.speed;
+        const delta = this.clock.getDelta();
 
+        if (this.mixer) {
+          this.mixer.update(delta * this.speed);
+          this.renderer.render(this.scene, this.camera);
+          return;
+        }
+
+        if (this.isPlaying) this.animTime += 0.045 * this.speed;
         const t = this.animTime;
+
+        // Whole-Body Weight Shift & Bounce
         const bounce = Math.sin(t * 3.2) * 0.025;
         const pelvisY = 0.95 + bounce;
         this.pelvis.position.y = pelvisY;
-
-        // Tail swish with natural cadence
         this.tail.rotation.y = Math.sin(t * 3.2) * 0.35;
 
-        // Reset Torso
+        // Reset Skeleton
         this.torso.rotation.set(0, 0, 0);
         this.torso.position.set(0, 0.10, 0);
-        this.rLeg.rotation.y = 0;
+        this.head.rotation.set(0.12, 0, 0); // Chin tucked to sternum
+        this.rLegGroup.rotation.y = 0;
+        this.lThigh.rotation.x = 0;
 
         const torsoY = pelvisY + 0.10;
 
-        // Guard Anchors
+        // High Guard Anchors (Protecting Jaw)
         const lShoulder = new THREE.Vector3(-0.24, torsoY + 0.32, 0);
         const rShoulder = new THREE.Vector3(0.24, torsoY + 0.32, 0);
 
         const lGlovePos = new THREE.Vector3(-0.14, torsoY + 0.38, 0.35);
         const rGlovePos = new THREE.Vector3(0.14, torsoY + 0.38, 0.30);
 
-        // Vector Kinematics Calculations for Forward Punches
+        // --- FULL-BODY BIOMECHANICAL STRIKE COORDINATION ---
         if (this.currentAnim === "one_two") {
           const c = (t * 1.6) % (Math.PI * 2);
           if (c < Math.PI) {
-            // JAB: Forward along +Z
+            // JAB: Lead foot steps forward, pelvis shifts, lead shoulder shrugs to chin
             const p = Math.sin(c);
+            this.pelvis.position.z = p * 0.08;
+            this.lThigh.position.z = 0.10 + p * 0.06;
+            this.torso.rotation.y = p * 0.22;
+            this.head.rotation.y = -p * 0.10; // Eyes stay locked forward
             lGlovePos.set(-0.14 * (1 - p), torsoY + 0.38, 0.35 + p * 1.05);
-            this.torso.rotation.y = p * 0.20;
           } else {
-            // CROSS: Forward along +Z with 45° hip rotation
+            // CROSS: Rear heel pivots 45°, rear knee turns inward, hips torque 45°
             const p = Math.sin(c - Math.PI);
+            this.rLegGroup.rotation.y = p * 0.65; // Heel pivots outward
+            this.rLegGroup.position.y = p * 0.04; // Heel elevates off floor
+            this.torso.rotation.y = -p * 0.68; // 45° Torso rotation
+            this.head.rotation.y = p * 0.20; // Head stays aligned
             rGlovePos.set(0.14 * (1 - p), torsoY + 0.38, 0.30 + p * 1.20);
-            this.torso.rotation.y = -p * 0.65;
-            this.rLeg.rotation.y = p * 0.50; // Rear heel lifts
           }
         } 
         else if (this.currentAnim === "one_two_hook") {
@@ -567,51 +617,59 @@
           if (c < Math.PI) {
             const p = Math.sin(c);
             lGlovePos.set(-0.14 * (1 - p), torsoY + 0.38, 0.35 + p * 1.05);
-            this.torso.rotation.y = p * 0.20;
+            this.torso.rotation.y = p * 0.22;
           } else if (c < Math.PI * 2) {
             const p = Math.sin(c - Math.PI);
+            this.rLegGroup.rotation.y = p * 0.65;
+            this.torso.rotation.y = -p * 0.68;
             rGlovePos.set(0.14 * (1 - p), torsoY + 0.38, 0.30 + p * 1.20);
-            this.torso.rotation.y = -p * 0.65;
-            this.rLeg.rotation.y = p * 0.50;
           } else {
-            // LEAD HOOK: 90° horizontal whip
+            // LEAD HOOK: Lead heel pivots 90°, hips whip horizontally, elbow locks at 90°
             const p = Math.sin(c - Math.PI * 2);
+            this.lThigh.rotation.y = p * 0.70; // Lead foot pivots
+            this.torso.rotation.y = p * 0.88; // Hip torque
             lGlovePos.set(-0.25 + Math.cos(p * Math.PI) * 0.35, torsoY + 0.40, 0.40 + Math.sin(p * Math.PI) * 0.45);
-            this.torso.rotation.y = p * 0.85;
           }
         } 
         else if (this.currentAnim === "slip_cross") {
           const c = (t * 1.5) % (Math.PI * 2);
           if (c < Math.PI) {
+            // SLIP RIGHT: Knees flex 3 inches, core crunches right, head moves off centerline
             const p = Math.sin(c);
-            this.torso.rotation.z = -p * 0.30;
-            this.torso.position.x = p * 0.12;
+            this.pelvis.position.y = pelvisY - p * 0.08; // Knees absorb
+            this.torso.rotation.z = -p * 0.32;
+            this.torso.position.x = p * 0.14;
           } else {
+            // COUNTER CROSS: Spring off rear leg
             const p = Math.sin(c - Math.PI);
+            this.rLegGroup.rotation.y = p * 0.65;
+            this.torso.rotation.y = -p * 0.68;
             rGlovePos.set(0.14 * (1 - p), torsoY + 0.38, 0.30 + p * 1.20);
-            this.torso.rotation.y = -p * 0.65;
-            this.rLeg.rotation.y = p * 0.50;
           }
         } 
         else if (this.currentAnim === "uppercut_flow") {
           const c = (t * 1.4) % (Math.PI * 2);
           if (c < Math.PI) {
+            // UPPERCUT: Vertical upward drive through legs
             const p = Math.sin(c);
-            lGlovePos.set(-0.08, torsoY + 0.20 + p * 0.45, 0.40 + p * 0.30);
+            this.pelvis.position.y = pelvisY - 0.06 + p * 0.08;
+            lGlovePos.set(-0.08, torsoY + 0.20 + p * 0.48, 0.40 + p * 0.28);
             this.torso.rotation.y = p * 0.30;
           } else {
             const p = Math.sin(c - Math.PI);
             rGlovePos.set(0.14 * (1 - p), torsoY + 0.38, 0.30 + p * 1.20);
-            this.torso.rotation.y = -p * 0.65;
+            this.torso.rotation.y = -p * 0.68;
           }
         }
 
+        // Apply Torso Rotations to Shoulder Anchors
         lShoulder.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.torso.rotation.y);
         rShoulder.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.torso.rotation.y);
 
         this.lGlove.position.copy(lGlovePos);
         this.rGlove.position.copy(rGlovePos);
 
+        // Anatomical Elbows (Folded down in guard, opening forward during strikes)
         const lElbow = lShoulder.clone().lerp(lGlovePos, 0.5);
         lElbow.y -= 0.14 * (1 - (lGlovePos.z - 0.35));
         lElbow.x -= 0.10;
@@ -620,18 +678,18 @@
         rElbow.y -= 0.14 * (1 - (rGlovePos.z - 0.30));
         rElbow.x += 0.10;
 
-        this.positionLimbSegment(this.lUpperArm, lShoulder, lElbow);
-        this.positionLimbSegment(this.lForearm, lElbow, lGlovePos);
-
-        this.positionLimbSegment(this.rUpperArm, rShoulder, rElbow);
-        this.positionLimbSegment(this.rForearm, rElbow, rGlovePos);
+        // Pin Limbs Continuously (No gaps between joints)
+        this.positionLimb(this.lUpperArm, lShoulder, lElbow);
+        this.positionLimb(this.lForearm, lElbow, lGlovePos);
+        this.positionLimb(this.rUpperArm, rShoulder, rElbow);
+        this.positionLimb(this.rForearm, rElbow, rGlovePos);
 
         this.renderer.render(this.scene, this.camera);
       }
     }
 
-    /* TRILINGUAL AUDIO SYNTHESIZER & SPEECH COACH */
-    class TrilingualAudioCoach {
+    /* TRILINGUAL AUDIO ENGINE */
+    class AudioEngine {
       constructor() { this.ctx = null; this.muted = false; }
       init() {
         if (!this.ctx) {
@@ -670,8 +728,8 @@
     class MasterApp {
       constructor() {
         this.lang = 'en';
-        this.engine = new LionBoxerRig('boxerCanvas', 'stageContainer');
-        this.audio = new TrilingualAudioCoach();
+        this.engine = new FullBiomechanicalEngine('boxerCanvas', 'stageContainer');
+        this.audio = new AudioEngine();
         this.drillIdx = 0;
         this.round = 1;
         this.clock = 180;
@@ -697,8 +755,14 @@
         document.getElementById('langRU').onclick = () => this.setLanguage('ru');
 
         // Camera Switches
-        document.getElementById('camFront').onclick = () => { this.engine.root.rotation.y = -0.35; };
-        document.getElementById('camSide').onclick = () => { this.engine.root.rotation.y = 1.15; };
+        document.getElementById('camFront').onclick = () => {
+          const target = this.engine.customModel || this.engine.root;
+          target.rotation.y = -0.32;
+        };
+        document.getElementById('camSide').onclick = () => {
+          const target = this.engine.customModel || this.engine.root;
+          target.rotation.y = 1.15;
+        };
 
         // Speed Controller
         document.getElementById('speedBtn').onclick = (e) => {
@@ -714,11 +778,15 @@
           e.target.innerText = this.audio.muted ? '🔇' : '🔊';
         };
 
-        // Custom Asset Loader (if user has actual .glb or .mp4 of that character)
-        document.getElementById('customAssetLoader').onchange = (e) => {
+        // Local Model Picker (.glb)
+        document.getElementById('modelFilePicker').onchange = (e) => {
           const file = e.target.files[0];
           if (file) {
-            alert(`Loaded custom file: ${file.name}. Initializing asset...`);
+            const url = URL.createObjectURL(file);
+            const loader = new THREE.GLTFLoader();
+            loader.load(url, (gltf) => {
+              this.engine.loadCustomModel(gltf);
+            });
           }
         };
       }
