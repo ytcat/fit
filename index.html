@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#06070a" />
-  <title>ShadowBox 3D Studio</title>
+  <title>ShadowBox 3D Pro | Biomechanical Human Rig</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -38,12 +38,12 @@
       <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></div>
       <div>
         <h1 id="appTitle" class="text-xs font-black tracking-widest text-cyan-400">SHADOWBOX 3D</h1>
-        <p id="appSubtitle" class="text-[9px] text-slate-400 font-semibold tracking-wider">BIOMECHANICAL ENGINE</p>
+        <p id="appSubtitle" class="text-[9px] text-slate-400 font-semibold tracking-wider">HUMAN BIOMECHANICS</p>
       </div>
     </div>
     
     <div class="flex items-center space-x-2">
-      <!-- Language Switcher -->
+      <!-- Trilingual Language Switcher -->
       <div class="flex rounded-lg border border-slate-700 bg-slate-900 p-0.5 text-xs font-bold">
         <button id="langEN" class="px-2 py-0.5 rounded bg-cyan-500 text-slate-950">EN</button>
         <button id="langHE" class="px-2 py-0.5 rounded text-slate-300">עב</button>
@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <!-- Camera Quick-Angles -->
+    <!-- Camera Presets -->
     <div class="absolute top-3 right-3 flex flex-col space-y-1.5 z-10">
       <button id="camFront" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Front</button>
       <button id="camSide" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Profile</button>
@@ -78,7 +78,7 @@
       <div class="hud-glass px-4 py-2 rounded-xl text-left max-w-sm w-full">
         <span id="biomechanicsLabel" class="text-[9px] text-cyan-400 font-black uppercase block mb-0.5">Exact Movement Mechanics:</span>
         <p id="exerciseNotes" class="text-xs text-slate-300 leading-snug">
-          Step forward with lead foot. Rotate rear hip 45° and elevate rear heel off canvas. Left glove stays glued to cheek.
+          Drive the jab straight forward. Pivot rear foot 45° and rotate right hip into cross. Left glove stays glued to cheek.
         </p>
       </div>
     </div>
@@ -117,20 +117,18 @@
 
     <div class="flex justify-between items-center text-[10px] text-slate-400 pt-0.5 px-1">
       <span id="orbitHint">✋ Drag canvas to rotate 360°</span>
-      <span class="text-cyan-400">60 FPS Biomechanics</span>
+      <span class="text-cyan-400">Forward Vector IK</span>
     </div>
   </footer>
 
-  <!-- SCRIPT ENGINE: TRILINGUAL DICTIONARY & 3D ARTICULATED RIG -->
+  <!-- SCRIPT ENGINE: VECTOR IK HUMAN RIG & TRILINGUAL VOCALS -->
   <script>
-    /* =========================================================================
-       1. TRILINGUAL CURRICULUM DICTIONARY (EN, HE, RU)
-       ========================================================================= */
+    /* TRILINGUAL CURRICULUM DICTIONARY (EN, HE, RU) */
     const I18N = {
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "BIOMECHANICAL ENGINE",
+        subtitle: "HUMAN BIOMECHANICS",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -151,7 +149,7 @@
             codes: "1 - 2",
             cues: "Lead Snap Jab ➔ Rear Power Cross",
             voice: "One Two",
-            notes: "Step forward with lead foot. Pivot rear foot 45° and rotate right hip into the cross. Keep left glove glued to your cheek.",
+            notes: "Drive the jab straight forward. Pivot rear foot 45° and rotate right hip into cross. Left glove stays glued to cheek.",
             anim: "one_two"
           },
           {
@@ -159,7 +157,7 @@
             codes: "1 - 2 - 3",
             cues: "Jab ➔ Cross ➔ Horizontal Lead Hook",
             voice: "One Two Three",
-            notes: "On the hook, lock elbow at 90° parallel to the canvas. Pivot your lead heel into the floor like crushing a cigarette.",
+            notes: "On the hook, lock elbow at 90° parallel to canvas. Pivot lead heel into the floor like crushing a cigarette.",
             anim: "one_two_hook"
           },
           {
@@ -167,7 +165,7 @@
             codes: "Slip R - 2",
             cues: "Slip Right ➔ Explosive Cross Counter",
             voice: "Slip Two",
-            notes: "Flex knees and dip right shoulder 2 inches off centerline. Spring off the rear leg with the cross.",
+            notes: "Flex knees and dip right shoulder 2 inches off centerline. Spring off rear leg directly with the cross.",
             anim: "slip_cross"
           },
           {
@@ -175,7 +173,7 @@
             codes: "5 - 3 - 2",
             cues: "Lead Uppercut ➔ Hook ➔ Straight Right",
             voice: "Five Three Two",
-            notes: "Sink hips into an athletic crouch. Drive the lead uppercut straight up through the legs, then whip the hook.",
+            notes: "Sink hips into crouch. Drive lead uppercut straight up through the legs, then whip the hook.",
             anim: "uppercut_flow"
           }
         ]
@@ -183,7 +181,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מנוע ביומכני מקצועי",
+        subtitle: "ביומכניקה אנושית מתקדמת",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -204,7 +202,7 @@
             codes: "1 - 2",
             cues: "ג'אב שמאל קדמי ➔ קרוס ימין עוצמתי",
             voice: "אחת שתיים",
-            notes: "צעד קדימה עם הרגל הקדמית. סובב את העקב האחורי ב-45 מעלות ודחוף את האגן לתוך הקרוס. כפפה שמאלית מגנה על הלחי.",
+            notes: "שלח את הג'אב ישר קדימה. סובב עקב אחורי ב-45 מעלות ודחוף את האגן לתוך הקרוס. כפפה שמאלית צמודה ללחי.",
             anim: "one_two"
           },
           {
@@ -212,7 +210,7 @@
             codes: "1 - 2 - 3",
             cues: "ג'אב ➔ קרוס ➔ הוק שמאל אופקי",
             voice: "אחת שתיים שלוש",
-            notes: "בהוק, נעל את המרפק ב-90 מעלות מקביל לקרקע. סובב את העקב הקדמי כאילו אתה מוחץ סיגריה ברצפה.",
+            notes: "בהוק, נעל את המרפק ב-90 מעלות מקביל לקרקע. סובב את העקב הקדמי ברצפה.",
             anim: "one_two_hook"
           },
           {
@@ -236,7 +234,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "БИОМЕХАНИЧЕСКИЙ ДВИЖОК",
+        subtitle: "АНАТОМИЧЕСКАЯ БИОМЕХАНИКА",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -255,9 +253,9 @@
           {
             title: "РАУНД 1: КЛАССИЧЕСКАЯ ДВОЙКА 1-2",
             codes: "1 - 2",
-            cues: "Хлёсткий джеб ➔ Силовой прямой кросс",
+            cues: "Прямой джеб ➔ Силовой прямой кросс",
             voice: "Один Два",
-            notes: "Шаг вперёд передней ногой. Разверните заднюю пятку на 45° и вложите бедро в кросс. Левая перчатка у скулы.",
+            notes: "Выбивайте джеб строго вперёд. Разверните заднюю пятку на 45° и вложите бедро в кросс. Левая перчатка у скулы.",
             anim: "one_two"
           },
           {
@@ -273,7 +271,7 @@
             codes: "Slip R - 2",
             cues: "Уклон вправо ➔ Встречный кросс",
             voice: "Уклон Два",
-            notes: "Согните колени и сместите правое плечо на 5 см с линии удара. Вытолкнитесь задней ногой во встречный кросс.",
+            notes: "Согните колени и сместите правое плечо с линии удара. Вытолкнитесь задней ногой во встречный кросс строго вперёд.",
             anim: "slip_cross"
           },
           {
@@ -281,17 +279,15 @@
             codes: "5 - 3 - 2",
             cues: "Левый апперкот ➔ Хук ➔ Прямой кросс",
             voice: "Пять Три Два",
-            notes: "Опустите центр тяжести. Вытолкните апперкот снизу вверх силой разгибания ног, затем нанесите хук.",
+            notes: "Опустите центр тяжести. Вытолкните апперкот снизу вверх разгибанием ног, затем нанесите хук.",
             anim: "uppercut_flow"
           }
         ]
       }
     };
 
-    /* =========================================================================
-       2. ARTICULATED 3D HUMAN BOXER RIG (THREE.JS)
-       ========================================================================= */
-    class ArticulatedBoxer3D {
+    /* VECTOR INVERSE-KINEMATICS HUMAN RIG (THREE.JS) */
+    class HumanBoxerRig {
       constructor(canvasId, stageId) {
         this.canvas = document.getElementById(canvasId);
         this.stage = document.getElementById(stageId);
@@ -310,7 +306,7 @@
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
-        this.camera.position.set(0, 1.4, 3.4);
+        this.camera.position.set(0, 1.35, 3.3);
 
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
         this.renderer.setSize(w, h, false);
@@ -331,12 +327,11 @@
         const grid = new THREE.GridHelper(8, 16, 0x00f2fe, 0x1f2638);
         this.scene.add(grid);
 
-        // Cinematic 3-Point Lighting
+        // Studio Lighting
         this.scene.add(new THREE.AmbientLight(0xffffff, 0.85));
-        
-        const keyLight = new THREE.DirectionalLight(0xffffff, 1.3);
-        keyLight.position.set(2, 4, 3);
-        this.scene.add(keyLight);
+        const key = new THREE.DirectionalLight(0xffffff, 1.3);
+        key.position.set(2, 4, 3);
+        this.scene.add(key);
 
         const cyanRim = new THREE.PointLight(0x00f2fe, 2.5, 10);
         cyanRim.position.set(-2.5, 2.5, -2);
@@ -346,138 +341,108 @@
         amberRim.position.set(2.5, 2, -2);
         this.scene.add(amberRim);
 
-        this.buildHumanBoxer();
+        this.buildAnatomicalFighter();
         this.initTouchControls();
 
         this.animate = this.animate.bind(this);
         requestAnimationFrame(this.animate);
       }
 
-      buildHumanBoxer() {
-        this.boxer = new THREE.Group();
-        this.boxer.rotation.y = -0.45; // 45° Orthodox bladed stance
+      positionLimbSegment(mesh, pA, pB) {
+        const dir = new THREE.Vector3().subVectors(pB, pA);
+        const len = dir.length();
+        mesh.position.copy(pA).addScaledVector(dir, 0.5);
+        mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+        mesh.scale.set(1, len, 1);
+      }
 
-        // Athletic Anatomical Materials
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xd69b76, roughness: 0.5, metalness: 0.1 });
-        const shortsMat = new THREE.MeshStandardMaterial({ color: 0x121622, roughness: 0.4, metalness: 0.2 });
-        const trimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.3 }); // Gold trim
-        const gloveMat = new THREE.MeshStandardMaterial({ color: 0xdd2424, roughness: 0.25, metalness: 0.2 }); // Pro Red leather
+      buildAnatomicalFighter() {
+        this.root = new THREE.Group();
+        this.root.rotation.y = -0.35; // 35° Orthodox stance towards camera
 
-        // --- Pelvis & Hips ---
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xd69b76, roughness: 0.5 });
+        const deltoidMat = new THREE.MeshStandardMaterial({ color: 0xcf936f, roughness: 0.5 });
+        const trunksMat = new THREE.MeshStandardMaterial({ color: 0x121622, roughness: 0.4 });
+        const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.4 });
+        const gloveMat = new THREE.MeshStandardMaterial({ color: 0xdd2424, roughness: 0.25, metalness: 0.2 });
+
+        // Pelvis & Trunks
         this.pelvis = new THREE.Group();
         this.pelvis.position.y = 0.95;
-        this.boxer.add(this.pelvis);
+        this.root.add(this.pelvis);
 
-        // Shorts Waistband & Groin Guard
-        const waistband = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.19, 0.10, 16), trimMat);
-        this.pelvis.add(waistband);
-        const shortsBody = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.23, 0.22, 16), shortsMat);
-        shortsBody.position.y = -0.12;
-        this.pelvis.add(shortsBody);
+        const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.19, 0.10, 16), goldMat);
+        this.pelvis.add(belt);
 
-        // --- Torso & Spine ---
+        const trunks = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.23, 0.22, 16), trunksMat);
+        trunks.position.y = -0.12;
+        this.pelvis.add(trunks);
+
+        // Torso
         this.torso = new THREE.Group();
         this.torso.position.y = 0.10;
         this.pelvis.add(this.torso);
 
-        // Muscular V-Taper (Pectorals & Ribs)
         const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.18, 0.38, 16), skinMat);
         chest.position.y = 0.20;
         this.torso.add(chest);
 
-        // --- Neck & Head ---
-        this.neck = new THREE.Group();
-        this.neck.position.y = 0.40;
-        this.torso.add(this.neck);
-
+        // Head & Chin Tuck
         this.head = new THREE.Group();
-        this.head.position.y = 0.12;
-        this.neck.add(this.head);
+        this.head.position.set(0, 0.50, 0.05);
+        this.torso.add(this.head);
 
         const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), skinMat);
         this.head.add(headMesh);
 
-        // Headgear / Hair Contour
-        const headgear = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.125, 0.12, 16), shortsMat);
-        headgear.position.y = 0.04;
-        this.head.add(headgear);
+        const headguard = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.125, 0.12, 16), trunksMat);
+        headguard.position.y = 0.04;
+        this.head.add(headguard);
 
-        // --- Left Arm (Lead Arm) ---
-        this.lShoulder = new THREE.Group();
-        this.lShoulder.position.set(-0.26, 0.32, 0.02);
-        this.torso.add(this.lShoulder);
+        // Deltoids
+        this.lShoulderMesh = new THREE.Mesh(new THREE.SphereGeometry(0.08, 14, 14), deltoidMat);
+        this.lShoulderMesh.position.set(-0.25, 0.32, 0);
+        this.torso.add(this.lShoulderMesh);
 
-        const lUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.28, 12), skinMat);
-        lUpperArm.position.y = -0.14;
-        this.lShoulder.add(lUpperArm);
+        this.rShoulderMesh = new THREE.Mesh(new THREE.SphereGeometry(0.08, 14, 14), deltoidMat);
+        this.rShoulderMesh.position.set(0.25, 0.32, 0);
+        this.torso.add(this.rShoulderMesh);
 
-        this.lElbow = new THREE.Group();
-        this.lElbow.position.y = -0.28;
-        this.lShoulder.add(this.lElbow);
+        // IK Limbs (Cylinders pinned between world vectors)
+        const limbGeom = new THREE.CylinderGeometry(0.055, 0.05, 1, 12);
 
-        const lForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.26, 12), skinMat);
-        lForearm.position.y = -0.13;
-        this.lElbow.add(lForearm);
+        this.lUpperArm = new THREE.Mesh(limbGeom, skinMat);
+        this.lForearm = new THREE.Mesh(limbGeom, skinMat);
+        this.root.add(this.lUpperArm);
+        this.root.add(this.lForearm);
 
-        // Left Boxing Glove
-        this.lGlove = new THREE.Mesh(new THREE.SphereGeometry(0.10, 16, 16), gloveMat);
-        this.lGlove.position.y = -0.26;
-        this.lElbow.add(this.lGlove);
+        this.rUpperArm = new THREE.Mesh(limbGeom, skinMat);
+        this.rForearm = new THREE.Mesh(limbGeom, skinMat);
+        this.root.add(this.rUpperArm);
+        this.root.add(this.rForearm);
 
-        // --- Right Arm (Rear Power Arm) ---
-        this.rShoulder = new THREE.Group();
-        this.rShoulder.position.set(0.26, 0.32, -0.02);
-        this.torso.add(this.rShoulder);
+        // Boxing Gloves
+        this.lGlove = new THREE.Mesh(new THREE.SphereGeometry(0.095, 16, 16), gloveMat);
+        this.root.add(this.lGlove);
 
-        const rUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.28, 12), skinMat);
-        rUpperArm.position.y = -0.14;
-        this.rShoulder.add(rUpperArm);
+        this.rGlove = new THREE.Mesh(new THREE.SphereGeometry(0.095, 16, 16), gloveMat);
+        this.root.add(this.rGlove);
 
-        this.rElbow = new THREE.Group();
-        this.rElbow.position.y = -0.28;
-        this.rShoulder.add(this.rElbow);
+        // Legs
+        const legGeom = new THREE.CylinderGeometry(0.075, 0.06, 0.9, 12);
+        const lLeg = new THREE.Mesh(legGeom, trunksMat);
+        lLeg.position.set(-0.14, -0.45, 0.10);
+        this.pelvis.add(lLeg);
 
-        const rForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.26, 12), skinMat);
-        rForearm.position.y = -0.13;
-        this.rElbow.add(rForearm);
-
-        // Right Boxing Glove
-        this.rGlove = new THREE.Mesh(new THREE.SphereGeometry(0.10, 16, 16), gloveMat);
-        this.rGlove.position.y = -0.26;
-        this.rElbow.add(this.rGlove);
-
-        // --- Legs & Boxing Boots ---
-        // Left Leg (Lead)
-        this.lLeg = new THREE.Group();
-        this.lLeg.position.set(-0.14, -0.20, 0.10);
-        this.pelvis.add(this.lLeg);
-
-        const lThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.065, 0.40, 12), skinMat);
-        lThigh.position.y = -0.18;
-        this.lLeg.add(lThigh);
-
-        const lShin = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.45, 12), skinMat);
-        lShin.position.set(0, -0.55, 0.05);
-        this.lLeg.add(lShin);
-
-        // Right Leg (Rear Power Leg - Angled Back)
         this.rLeg = new THREE.Group();
-        this.rLeg.position.set(0.16, -0.20, -0.22);
+        this.rLeg.position.set(0.16, 0, -0.22);
         this.pelvis.add(this.rLeg);
 
-        const rThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.065, 0.40, 12), skinMat);
-        rThigh.position.y = -0.18;
-        this.rLeg.add(rThigh);
+        const rMesh = new THREE.Mesh(legGeom, trunksMat);
+        rMesh.position.y = -0.45;
+        this.rLeg.add(rMesh);
 
-        this.rShin = new THREE.Group();
-        this.rShin.position.set(0, -0.38, 0);
-        this.rLeg.add(this.rShin);
-
-        const rShinMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.45, 12), skinMat);
-        rShinMesh.position.set(0, -0.18, -0.05);
-        this.rShin.add(rShinMesh);
-
-        this.scene.add(this.boxer);
+        this.scene.add(this.root);
       }
 
       initTouchControls() {
@@ -485,7 +450,7 @@
         const start = (x) => { isDown = true; lastX = x; };
         const move = (x) => {
           if (!isDown) return;
-          this.boxer.rotation.y += (x - lastX) * 0.01;
+          this.root.rotation.y += (x - lastX) * 0.01;
           lastX = x;
         };
         const end = () => { isDown = false; };
@@ -504,97 +469,118 @@
         if (this.isPlaying) this.animTime += 0.045 * this.speed;
 
         const t = this.animTime;
-        // Rhythm bounce in orthodox stance
-        this.pelvis.position.y = 0.95 + Math.sin(t * 3.2) * 0.025;
+        const bounce = Math.sin(t * 3.2) * 0.025;
+        const pelvisY = 0.95 + bounce;
+        this.pelvis.position.y = pelvisY;
 
-        // Reset to Tight High Guard (Shielding cheekbones)
-        this.lShoulder.rotation.set(0.95, 0.15, 0.45);
-        this.lElbow.rotation.set(-2.05, 0, 0);
-        this.rShoulder.rotation.set(0.95, -0.15, -0.45);
-        this.rElbow.rotation.set(-2.05, 0, 0);
+        // Reset Torso
         this.torso.rotation.set(0, 0, 0);
         this.torso.position.set(0, 0.10, 0);
-        this.head.rotation.set(0.12, 0, 0); // Chin tucked to chest
         this.rLeg.rotation.y = 0;
 
-        // --- EXACT BIOMECHANICAL STRIKE ROTATIONS ---
+        const torsoY = pelvisY + 0.10;
+
+        // Base Guard Positions in front of chin (+Z axis)
+        const lShoulder = new THREE.Vector3(-0.24, torsoY + 0.32, 0);
+        const rShoulder = new THREE.Vector3(0.24, torsoY + 0.32, 0);
+
+        const lGlovePos = new THREE.Vector3(-0.14, torsoY + 0.38, 0.35);
+        const rGlovePos = new THREE.Vector3(0.14, torsoY + 0.38, 0.30);
+
+        // Vector Kinematics Calculations for Punches
         if (this.currentAnim === "one_two") {
           const c = (t * 1.6) % (Math.PI * 2);
           if (c < Math.PI) {
-            // JAB: Lead shoulder elevates, lead arm fires straight with pronation
+            // JAB: Left hand shoots straight forward (+Z)
             const p = Math.sin(c);
-            this.lShoulder.rotation.x = 0.95 + p * 0.72;
-            this.lElbow.rotation.x = -2.05 + p * 2.05;
-            this.torso.rotation.y = p * 0.22;
+            lGlovePos.set(-0.14 * (1 - p), torsoY + 0.38, 0.35 + p * 1.05);
+            this.torso.rotation.y = p * 0.20;
           } else {
-            // CROSS: Rear heel pivots, hips torque 45°, rear shoulder snaps through
+            // CROSS: Right hand drives straight forward (+Z), hips torque 45°
             const p = Math.sin(c - Math.PI);
-            this.rShoulder.rotation.x = 0.95 + p * 0.82;
-            this.rElbow.rotation.x = -2.05 + p * 2.15;
-            this.torso.rotation.y = -p * 0.72; // Full 45° torque
-            this.rLeg.rotation.y = p * 0.55; // Rear heel elevates
+            rGlovePos.set(0.14 * (1 - p), torsoY + 0.38, 0.30 + p * 1.20);
+            this.torso.rotation.y = -p * 0.65;
+            this.rLeg.rotation.y = p * 0.50; // Rear heel elevates
           }
         } 
         else if (this.currentAnim === "one_two_hook") {
           const c = (t * 1.4) % (Math.PI * 3);
           if (c < Math.PI) {
+            // JAB
             const p = Math.sin(c);
-            this.lShoulder.rotation.x = 0.95 + p * 0.72;
-            this.lElbow.rotation.x = -2.05 + p * 2.05;
+            lGlovePos.set(-0.14 * (1 - p), torsoY + 0.38, 0.35 + p * 1.05);
+            this.torso.rotation.y = p * 0.20;
           } else if (c < Math.PI * 2) {
+            // CROSS
             const p = Math.sin(c - Math.PI);
-            this.rShoulder.rotation.x = 0.95 + p * 0.82;
-            this.rElbow.rotation.x = -2.05 + p * 2.15;
-            this.torso.rotation.y = -p * 0.72;
-            this.rLeg.rotation.y = p * 0.55;
+            rGlovePos.set(0.14 * (1 - p), torsoY + 0.38, 0.30 + p * 1.20);
+            this.torso.rotation.y = -p * 0.65;
+            this.rLeg.rotation.y = p * 0.50;
           } else {
-            // LEAD HOOK: Strict 90° horizontal elbow arc, hips whip through
+            // LEAD HOOK: Loops in 90° horizontal arc across the center
             const p = Math.sin(c - Math.PI * 2);
-            this.lShoulder.rotation.set(1.52, 0.35, 0.75);
-            this.lElbow.rotation.set(-1.57, 0, 0); // Exact 90° angle
-            this.torso.rotation.y = p * 0.88;
+            lGlovePos.set(-0.25 + Math.cos(p * Math.PI) * 0.35, torsoY + 0.40, 0.40 + Math.sin(p * Math.PI) * 0.45);
+            this.torso.rotation.y = p * 0.85;
           }
         } 
         else if (this.currentAnim === "slip_cross") {
           const c = (t * 1.5) % (Math.PI * 2);
           if (c < Math.PI) {
-            // SLIP RIGHT: Core and knees flex, head glides off center
+            // SLIP RIGHT
             const p = Math.sin(c);
-            this.torso.rotation.z = -p * 0.32;
-            this.torso.position.x = p * 0.10;
+            this.torso.rotation.z = -p * 0.30;
+            this.torso.position.x = p * 0.12;
           } else {
-            // COUNTER CROSS: Spring off rear leg
+            // COUNTER CROSS
             const p = Math.sin(c - Math.PI);
-            this.rShoulder.rotation.x = 0.95 + p * 0.82;
-            this.rElbow.rotation.x = -2.05 + p * 2.15;
-            this.torso.rotation.y = -p * 0.72;
-            this.rLeg.rotation.y = p * 0.55;
+            rGlovePos.set(0.14 * (1 - p), torsoY + 0.38, 0.30 + p * 1.20);
+            this.torso.rotation.y = -p * 0.65;
+            this.rLeg.rotation.y = p * 0.50;
           }
         } 
         else if (this.currentAnim === "uppercut_flow") {
           const c = (t * 1.4) % (Math.PI * 2);
           if (c < Math.PI) {
-            // UPPERCUT: Leg drive, glove explodes vertically
+            // UPPERCUT: Vertical upward drive from hip
             const p = Math.sin(c);
-            this.lShoulder.rotation.set(1.2, 0.1, 0.2);
-            this.lElbow.rotation.set(-1.2 + p * 0.8, 0, 0);
-            this.torso.rotation.y = p * 0.35;
-            this.pelvis.position.y = 0.90 + p * 0.08;
+            lGlovePos.set(-0.08, torsoY + 0.20 + p * 0.45, 0.40 + p * 0.30);
+            this.torso.rotation.y = p * 0.30;
           } else {
             const p = Math.sin(c - Math.PI);
-            this.rShoulder.rotation.x = 0.95 + p * 0.82;
-            this.rElbow.rotation.x = -2.05 + p * 2.15;
-            this.torso.rotation.y = -p * 0.72;
+            rGlovePos.set(0.14 * (1 - p), torsoY + 0.38, 0.30 + p * 1.20);
+            this.torso.rotation.y = -p * 0.65;
           }
         }
+
+        // Apply Torso Rotations to Shoulder Anchors
+        lShoulder.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.torso.rotation.y);
+        rShoulder.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.torso.rotation.y);
+
+        // Position Gloves
+        this.lGlove.position.copy(lGlovePos);
+        this.rGlove.position.copy(rGlovePos);
+
+        // Calculate Anatomical Elbow Positions (Tucked down in guard, unfolding forward on punch)
+        const lElbow = lShoulder.clone().lerp(lGlovePos, 0.5);
+        lElbow.y -= 0.14 * (1 - (lGlovePos.z - 0.35));
+        lElbow.x -= 0.10;
+
+        const rElbow = rShoulder.clone().lerp(rGlovePos, 0.5);
+        rElbow.y -= 0.14 * (1 - (rGlovePos.z - 0.30));
+        rElbow.x += 0.10;
+
+        // Pin Upper Arm and Forearm Meshes Directly Between Points
+        this.positionLimbSegment(this.lUpperArm, lShoulder, lElbow);
+        this.positionLimbSegment(this.lForearm, lElbow, lGlovePos);
+
+        this.positionLimbSegment(this.rUpperArm, rShoulder, rElbow);
+        this.positionLimbSegment(this.rForearm, rElbow, rGlovePos);
 
         this.renderer.render(this.scene, this.camera);
       }
     }
 
-    /* =========================================================================
-       3. TRILINGUAL AUDIO SYNTHESIZER & SPEECH COACH
-       ========================================================================= */
+    /* TRILINGUAL AUDIO SYNTHESIZER & SPEECH COACH */
     class TrilingualAudioCoach {
       constructor() { this.ctx = null; this.muted = false; }
       init() {
@@ -630,13 +616,11 @@
       }
     }
 
-    /* =========================================================================
-       4. MASTER APPLICATION CONTROLLER
-       ========================================================================= */
+    /* MASTER APPLICATION CONTROLLER */
     class MasterApp {
       constructor() {
         this.lang = 'en';
-        this.engine = new ArticulatedBoxer3D('boxerCanvas', 'stageContainer');
+        this.engine = new HumanBoxerRig('boxerCanvas', 'stageContainer');
         this.audio = new TrilingualAudioCoach();
         this.drillIdx = 0;
         this.round = 1;
@@ -663,8 +647,8 @@
         document.getElementById('langRU').onclick = () => this.setLanguage('ru');
 
         // Camera Switches
-        document.getElementById('camFront').onclick = () => { this.engine.boxer.rotation.y = -0.45; };
-        document.getElementById('camSide').onclick = () => { this.engine.boxer.rotation.y = 1.12; };
+        document.getElementById('camFront').onclick = () => { this.engine.root.rotation.y = -0.35; };
+        document.getElementById('camSide').onclick = () => { this.engine.root.rotation.y = 1.15; };
 
         // Speed Controller
         document.getElementById('speedBtn').onclick = (e) => {
@@ -685,10 +669,8 @@
         this.lang = langCode;
         const dict = I18N[langCode];
 
-        // Set Document Text Direction (RTL for Hebrew, LTR for English/Russian)
         document.documentElement.dir = dict.dir;
 
-        // Update Header & General Labels
         document.getElementById('appTitle').innerText = dict.title;
         document.getElementById('appSubtitle').innerText = dict.subtitle;
         document.getElementById('lblRound').innerText = dict.round;
@@ -703,7 +685,6 @@
         document.getElementById('restTip').innerText = dict.restTip;
         document.getElementById('skipRestBtn').innerText = dict.skipRest;
 
-        // Highlight Active Language Button
         ['EN', 'HE', 'RU'].forEach(l => {
           const btn = document.getElementById('lang' + l);
           if (l.toLowerCase() === langCode) {
