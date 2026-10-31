@@ -68,6 +68,16 @@
       </div>
     </div>
 
+    <!-- Technique practice: always available without an uploaded model -->
+    <div class="absolute bottom-[73px] left-2 right-2 z-10 flex gap-1 overflow-x-auto pb-1" id="techniqueBar">
+      <button data-technique="jab" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Jab</button>
+      <button data-technique="cross" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Cross</button>
+      <button data-technique="hook" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Hook</button>
+      <button data-technique="uppercut" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Uppercut</button>
+      <button data-technique="slip" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Slip</button>
+      <button data-technique="combo" class="technique-btn bg-amber-500 text-slate-950 px-3 py-2 rounded-lg text-xs font-bold shrink-0">Combination</button>
+    </div>
+
     <!-- Camera Presets -->
     <div class="absolute top-2 right-2 flex flex-col space-y-1 z-10">
       <button id="camFront" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Front</button>
@@ -306,6 +316,7 @@
         this.animTime = 0;
         this.speed = 1.0;
         this.currentAnim = "one_two";
+        this.technique = 'combo';
         this.isPlaying = true;
         
         this.bones = {};
@@ -395,6 +406,16 @@
         part(head,skin,.19,.21,.19,0,.13,.14);
         part(head,skin,.13,.095,.12,0,.045,.30);
         part(head,dark,.055,.035,.025,0,.06,.41);
+        // Layered mane and pointed ears give the built-in coach a recognizable lion silhouette.
+        const fur = new THREE.MeshStandardMaterial({color:0xb77927,roughness:.95});
+        for(let i=0;i<14;i++){
+          const a=i*Math.PI*2/14;
+          part(head,fur,.085,.16,.09,Math.cos(a)*.22,.11+Math.sin(a)*.23,-.015);
+        }
+        for(const side of [-1,1]){
+          const ear=part(head,mane,.10,.12,.08,side*.19,.36,.03);
+          ear.rotation.z=-side*.3;
+        }
         for(const side of [-1,1]){
           part(head,dark,.023,.028,.016,side*.09,.19,.305);
           const arm=joint(torso,side*.34,.67,0);
@@ -428,7 +449,7 @@
         const aspect = Math.max(.25, this.camera.aspect);
         const verticalDistance = (size.y * .5) / Math.tan(fov * .5);
         const horizontalDistance = (size.x * .5) / (Math.tan(fov * .5) * aspect);
-        const distance = Math.max(verticalDistance, horizontalDistance, size.z * 2, 2.5) * 3.15;
+        const distance = Math.max(verticalDistance, horizontalDistance, size.z * 2, 2.5) * 2.6;
         this.camera.position.set(center.x, center.y + .1, center.z + distance);
         this.camera.lookAt(center);
       }
@@ -443,11 +464,11 @@
         this.demoLeftLeg.rotation.y=0;this.demoRightLeg.rotation.y=0;
         this.demoHead.rotation.z=0;
         const names={one_two:['jab','cross'],one_two_hook:['jab','cross','hook'],slip_cross:['slip','cross'],uppercut_flow:['uppercut','hook','cross']};
-        const sequence=names[this.currentAnim]||names.one_two;
-        const beat=t*1.25;
+        const sequence=this.technique==='combo' ? (names[this.currentAnim]||names.one_two) : [this.technique];
+        const beat=t*1.0;
         const step=Math.floor(beat)%sequence.length;
         const phase=beat-Math.floor(beat);
-        const punch=Math.pow(Math.sin(Math.PI*phase),2);
+        const punch=Math.pow(Math.sin(Math.PI*phase),1.6);
         switch(sequence[step]){
           case 'jab':l.rotation.x=-.85-punch*1.05;le.rotation.x=-1.35+punch*1.3;torso.rotation.y=punch*.16;hips.position.z=punch*.05;break;
           case 'cross':r.rotation.x=-.85-punch*1.1;re.rotation.x=-1.35+punch*1.3;torso.rotation.y=-punch*.45;this.demoRightLeg.rotation.y=punch*.3;break;
@@ -628,7 +649,8 @@
       playClipForDrill() {
         if (!this.mixer) return;
         const map = {one_two:['Jab','Cross'],one_two_hook:['Jab','Cross','Lead_Hook'],slip_cross:['Slip_Right','Cross'],uppercut_flow:['Uppercut','Lead_Hook','Cross']};
-        const clips = map[this.currentAnim] || ['Idle_Guard'];
+        const single={jab:'Jab',cross:'Cross',hook:'Lead_Hook',uppercut:'Uppercut',slip:'Slip_Right'};
+        const clips = this.technique==='combo' ? (map[this.currentAnim]||['Jab','Cross']) : [single[this.technique]||'Jab'];
         const name = clips[Math.floor(this.animTime / 1.08) % clips.length];
         const normalized = v => v.toLowerCase().replace(/[^a-z0-9]/g,'');
         const matching = Object.keys(this.actions).find(k => normalized(k) === normalized(name))
@@ -824,6 +846,7 @@
 
         this.initUI();
         this.setLanguage('en');
+        this.engine.isPlaying = true; // Technique preview runs without starting the round timer.
       }
 
       initUI() {
@@ -832,6 +855,23 @@
         document.getElementById('prevBtn').onclick = () => this.shift(-1);
         document.getElementById('nextBtn').onclick = () => this.shift(1);
         document.getElementById('skipRestBtn').onclick = () => { if (this.isRest) this.clock = 1; };
+        document.querySelectorAll('[data-technique]').forEach(button=>{
+          button.addEventListener('click',()=>{
+            this.engine.technique=button.dataset.technique;
+            this.engine.animTime=0;
+            this.engine.activeAction=null;
+            if(this.engine.mixer) this.engine.mixer.stopAllAction();
+            this.engine.isPlaying=true;
+            document.querySelectorAll('[data-technique]').forEach(b=>{
+              const selected=b===button;
+              b.classList.toggle('bg-amber-500',selected);
+              b.classList.toggle('text-slate-950',selected);
+              b.classList.toggle('bg-slate-800',!selected);
+              b.classList.toggle('text-white',!selected);
+            });
+            document.getElementById('modelStatusText').innerText='Demonstrating: '+button.textContent.trim();
+          });
+        });
 
         // Language Buttons
         document.getElementById('langEN').onclick = () => this.setLanguage('en');
@@ -917,7 +957,7 @@
         if (this.isActive || this.isRest) {
           this.isActive = false;
           clearInterval(this.timer);
-          this.engine.isPlaying = false;
+          this.engine.isPlaying = true; // Keep instructor demonstrating even when round timer is paused.
         } else {
           this.isActive = true;
           this.engine.isPlaying = true;
