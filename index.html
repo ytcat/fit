@@ -4,11 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#06070a" />
-  <title>ShadowBox 3D Pro | Auto-Model Engine</title>
+  <title>ShadowBox 3D | Lion Boxing Coach</title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <link rel="stylesheet" href="./assets/app.css?v=2" />
+  <script src="./assets/vendor/three.min.js"></script>
+  <script src="./assets/vendor/GLTFLoader.js"></script>
+
+  <script src="./boxing-coach.js?v=3"></script>
 
   <style>
     html, body {
@@ -39,7 +41,7 @@
       <div class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></div>
       <div>
         <h1 id="appTitle" class="text-xs font-black tracking-widest text-amber-400">SHADOWBOX 3D</h1>
-        <p id="appSubtitle" class="text-[9px] text-slate-400 font-semibold tracking-wider">ASSETS / MODELS ENGINE</p>
+        <p id="appSubtitle" class="text-[9px] text-slate-400 font-semibold tracking-wider">LION BOXING COACH</p>
       </div>
     </div>
     
@@ -75,9 +77,18 @@
       <button data-technique="hook" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Hook</button>
       <button data-technique="uppercut" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Uppercut</button>
       <button data-technique="slip" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Slip</button>
+      <button data-technique="rear_hook" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Rear hook</button>
+      <button data-technique="rear_uppercut" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Rear uppercut</button>
+      <button data-technique="roll" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Roll</button>
+      <button data-technique="step" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Footwork</button>
       <button data-technique="combo" class="technique-btn bg-amber-500 text-slate-950 px-3 py-2 rounded-lg text-xs font-bold shrink-0">Combination</button>
     </div>
 
+    <div class="absolute top-[112px] right-2 z-10 flex flex-col gap-1">
+      <button id="defaultCoach" class="px-2 py-1 text-[10px] rounded bg-amber-500 text-slate-950 font-bold">Lion coach</button>
+      <button id="savedCoach" class="px-2 py-1 text-[10px] rounded bg-slate-900 border border-slate-700">Saved avatar</button>
+      <button id="motionPause" class="px-2 py-1 text-[10px] rounded bg-slate-900 border border-slate-700">Freeze motion</button>
+    </div>
     <!-- Camera Presets -->
     <div class="absolute top-2 right-2 flex flex-col space-y-1 z-10">
       <button id="camFront" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-900/90 border border-slate-700 text-slate-300 active:scale-95">Front</button>
@@ -139,7 +150,7 @@
       <span id="orbitHint">✋ Drag canvas to rotate 360°</span>
       <label class="text-amber-400 hover:text-white cursor-pointer underline font-semibold">
         <span>Load Local File</span>
-        <input type="file" id="modelFilePicker" accept=".glb,.gltf" class="hidden" />
+        <input type="file" id="modelFilePicker" accept=".glb" class="hidden" />
       </label>
     </div>
   </footer>
@@ -150,7 +161,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "ASSETS / MODELS ENGINE",
+        subtitle: "LION BOXING COACH",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -339,6 +350,12 @@
         this.camera.lookAt(0, 1.0, 0);
 
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
+        this.renderer.physicallyCorrectLights = true;
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 1.05;
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.setSize(w, h, false);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -356,88 +373,71 @@
 
         // Arena Ring Grid
         const grid = new THREE.GridHelper(8, 16, 0xf59e0b, 0x241806);
+        grid.position.y=-.014;grid.material.transparent=true;grid.material.opacity=.15;
         this.scene.add(grid);
+        const floor=new THREE.Mesh(new THREE.CircleGeometry(4,96),new THREE.MeshStandardMaterial({color:0x19202b,roughness:.86}));
+        floor.rotation.x=-Math.PI/2;floor.position.y=-.018;floor.receiveShadow=true;this.scene.add(floor);
+        const ring=new THREE.Mesh(new THREE.RingGeometry(1.55,1.565,96),new THREE.MeshBasicMaterial({color:0x947348,side:THREE.DoubleSide}));
+        ring.rotation.x=-Math.PI/2;ring.position.y=-.016;this.scene.add(ring);
 
         // Lighting
-        this.scene.add(new THREE.AmbientLight(0xffffff, 1.0));
-        const key = new THREE.DirectionalLight(0xfffaed, 1.6);
+        this.scene.add(new THREE.HemisphereLight(0xdbeaff, 0x403022, .65));
+        const key = new THREE.DirectionalLight(0xfffaed, 2.8);
         key.position.set(2, 4, 3);
+        key.castShadow=true;key.shadow.mapSize.set(1024,1024);
+        key.shadow.camera.left=-2;key.shadow.camera.right=2;key.shadow.camera.top=3;key.shadow.camera.bottom=-1;
+        key.shadow.bias=-.0003;key.shadow.normalBias=.018;
         this.scene.add(key);
+        const fill=new THREE.DirectionalLight(0xa6c9ff,1.0);fill.position.set(-3,2,2);this.scene.add(fill);
 
-        const goldRim = new THREE.PointLight(0xf59e0b, 3.5, 10);
+        const goldRim = new THREE.PointLight(0xf59e0b, 5, 10);
         goldRim.position.set(-2.5, 2.5, -2);
         this.scene.add(goldRim);
 
-        const warmBack = new THREE.PointLight(0xd97706, 2.8, 10);
+        const warmBack = new THREE.PointLight(0xd97706, 4, 10);
         warmBack.position.set(2.5, 2, -2);
         this.scene.add(warmBack);
 
+        this.scene.traverse(n=>{if(n.isMesh && n.material.color)n.material.color.convertSRGBToLinear();});
         this.initControls();
         document.getElementById('camBack').addEventListener('click', () => { if(this.activeModel) this.activeModel.rotation.y = Math.PI; });
         this.createTrainingBoxer();
-        // Start with a moving trainer, then restore the user's preferred local avatar if saved.
-        this.restoreSavedModel();
+        document.getElementById('defaultCoach').onclick=()=>this.useDefaultCoach();
+        document.getElementById('savedCoach').onclick=()=>this.restoreSavedModel();
+        document.getElementById('motionPause').onclick=()=>{
+          this.isPlaying=!this.isPlaying;
+          document.getElementById('motionPause').textContent=this.isPlaying?'Freeze motion':'Play motion';
+        };
 
         this.clock = new THREE.Clock();
         this.animate = this.animate.bind(this);
         requestAnimationFrame(this.animate);
       }
 
-      // Always-available animated instructor. No external model download required.
-      createTrainingBoxer() {
-        const skin = new THREE.MeshStandardMaterial({color:0xa76b43,roughness:.75});
-        const shorts = new THREE.MeshStandardMaterial({color:0x263b58,roughness:.85});
-        const glove = new THREE.MeshStandardMaterial({color:0xdc2626,roughness:.35,metalness:.08});
-        const dark = new THREE.MeshStandardMaterial({color:0x1a202c,roughness:.8});
-        const mane = new THREE.MeshStandardMaterial({color:0x9b5b20,roughness:1});
-        const group = new THREE.Group();
-        const part = (parent, material, sx,sy,sz, x,y,z) => {
-          const mesh = new THREE.Mesh(new THREE.SphereGeometry(1,16,12),material);
-          mesh.scale.set(sx,sy,sz); mesh.position.set(x,y,z); parent.add(mesh); return mesh;
-        };
-        const joint=(parent,x,y,z)=>{const o=new THREE.Group();o.position.set(x,y,z);parent.add(o);return o;};
-        const hips=joint(group,0,1.02,0);
-        part(hips,shorts,.31,.23,.21,0,0,0);
-        const torso=joint(hips,0,.24,0);
-        part(torso,skin,.37,.49,.23,0,.34,0);
-        part(torso,dark,.25,.08,.23,0,.12,0);
-        const head=joint(torso,0,.79,0);
-        part(head,mane,.27,.31,.25,0,.12,0);
-        part(head,skin,.19,.21,.19,0,.13,.14);
-        part(head,skin,.13,.095,.12,0,.045,.30);
-        part(head,dark,.055,.035,.025,0,.06,.41);
-        // Layered mane and pointed ears give the built-in coach a recognizable lion silhouette.
-        const fur = new THREE.MeshStandardMaterial({color:0xb77927,roughness:.95});
-        for(let i=0;i<14;i++){
-          const a=i*Math.PI*2/14;
-          part(head,fur,.085,.16,.09,Math.cos(a)*.22,.11+Math.sin(a)*.23,-.015);
+      async createTrainingBoxer() {
+        try {
+          const response=await fetch('./assets/models/coach-surface.json?v=3');
+          if(!response.ok)throw new Error('Coach surface unavailable');
+          this.coach=new LionCoach(await response.json());
+          this.demoModel=this.coach.root;
+          this.useDefaultCoach();
+        } catch(error) {
+          console.error(error);
+          document.getElementById('modelStatusText').textContent='Coach could not load. Please reload.';
         }
-        for(const side of [-1,1]){
-          const ear=part(head,mane,.10,.12,.08,side*.19,.36,.03);
-          ear.rotation.z=-side*.3;
-        }
-        for(const side of [-1,1]){
-          part(head,dark,.023,.028,.016,side*.09,.19,.305);
-          const arm=joint(torso,side*.34,.67,0);
-          part(arm,skin,.13,.25,.14,side*.06,-.19,.025);
-          const elbow=joint(arm,side*.08,-.39,.035);
-          part(elbow,skin,.12,.22,.12,0,-.18,.035);
-          part(elbow,glove,.155,.155,.18,0,-.40,.08);
-          const leg=joint(hips,side*.18,-.13,0);
-          part(leg,shorts,.17,.23,.17,0,-.10,0);
-          part(leg,skin,.14,.29,.14,0,-.40,0);
-          const knee=joint(leg,0,-.63,0);
-          part(knee,skin,.12,.28,.12,0,-.21,0);
-          part(knee,dark,.14,.095,.23,0,-.48,.12);
-          if(side===-1){this.demoLeftArm=arm;this.demoLeftElbow=elbow;this.demoLeftLeg=leg;}
-          else {this.demoRightArm=arm;this.demoRightElbow=elbow;this.demoRightLeg=leg;}
-        }
-        this.demoTorso=torso;this.demoHips=hips;this.demoHead=head;
-        this.demoModel=group;this.activeModel=group;
-        group.rotation.y=-.28;
-        this.scene.add(group);
-        this.fitCameraToModel(group);
-        document.getElementById('modelStatusText').innerText='Animated training boxer (built-in)';
+      }
+
+      useDefaultCoach() {
+        if(!this.demoModel)return;
+        if(this.activeModel)this.scene.remove(this.activeModel);
+        if(this.mixer)this.mixer.stopAllAction();
+        this.mixer=null;this.actions={};this.activeAction=null;this.bones={};
+        this.activeModel=this.demoModel;this.activeModel.rotation.y=-.32;
+        this.scene.add(this.demoModel);this.animTime=0;
+        this.coach.update(0,this.technique,this.currentAnim);
+        this.fitCameraToModel(this.demoModel);
+        document.getElementById('modelStatusText').textContent='Lion coach · connected body & full-body motion';
+        document.getElementById('modelStatusDot').className='w-1.5 h-1.5 rounded-full bg-emerald-400';
       }
 
       fitCameraToModel(model) {
@@ -449,107 +449,9 @@
         const aspect = Math.max(.25, this.camera.aspect);
         const verticalDistance = (size.y * .5) / Math.tan(fov * .5);
         const horizontalDistance = (size.x * .5) / (Math.tan(fov * .5) * aspect);
-        const distance = Math.max(verticalDistance, horizontalDistance, size.z * 2, 2.5) * 2.6;
+        const distance = Math.max(verticalDistance, horizontalDistance, size.z * 1.4, 2.5) * 1.55;
         this.camera.position.set(center.x, center.y + .1, center.z + distance);
         this.camera.lookAt(center);
-      }
-
-      animateTrainingBoxer(t) {
-        if (!this.demoModel || this.activeModel !== this.demoModel) return;
-        // Two-link inverse kinematics: place the fists in boxing-space and solve both elbows.
-        // Unlike independent arm rotations, each punch follows a coordinated target path.
-        const hips=this.demoHips, torso=this.demoTorso, head=this.demoHead;
-        const left=this.demoLeftArm, right=this.demoRightArm;
-        const le=this.demoLeftElbow, re=this.demoRightElbow;
-        const ll=this.demoLeftLeg, rl=this.demoRightLeg;
-        const names={one_two:['jab','cross'],one_two_hook:['jab','cross','hook'],slip_cross:['slip','cross'],uppercut_flow:['uppercut','hook','cross']};
-        const seq=this.technique==='combo'?(names[this.currentAnim]||names.one_two):[this.technique];
-        const beat=t*.85, move=seq[Math.floor(beat)%seq.length], phase=beat%1;
-        const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
-        const stroke=phase<.12?0:phase<.39?smooth((phase-.12)/.27):phase<.46?1:phase<.76?1-smooth((phase-.46)/.30):0;
-        const preload=phase<.12?Math.sin(Math.PI*phase/.12)*.15:0;
-        const idle=Math.sin(t*2.2)*.008;
-        hips.position.set(0,1.02+idle,0);
-        hips.rotation.set(0,0,0);
-        torso.rotation.set(.06,0,0);
-        head.rotation.set(-.035,0,0);
-        ll.rotation.set(0,0,0);rl.rotation.set(0,0,0);
-        // Fists in front of cheekbones; torso-local y is measured from the chest pivot.
-        const lead={x:-.21,y:.78,z:.42}, rear={x:.21,y:.78,z:.42};
-        const L={...lead}, R={...rear};
-        // Hands remain near cheeks when not striking; the opposite hand stays in guard.
-        switch(move){
-          case 'jab':
-            L.x-=.04*stroke;L.y-=.045*stroke;L.z+=.63*stroke;
-            torso.rotation.y=.16*stroke-.05*preload;
-            hips.rotation.y=.11*stroke;
-            hips.position.z+=.045*stroke;
-            ll.rotation.x=-.10*stroke;
-            break;
-          case 'cross':
-            R.x-=.17*stroke;R.y-=.045*stroke;R.z+=.63*stroke;
-            torso.rotation.y=-.50*stroke+.09*preload;
-            hips.rotation.y=-.40*stroke;
-            rl.rotation.y=-.27*stroke;rl.rotation.x=-.10*stroke;
-            hips.position.z+=.025*stroke;
-            break;
-          case 'hook':
-            // Bent elbow, fist sweeps horizontally across the target.
-            L.x=-.34+.42*stroke;L.y=.70;L.z=.44+.25*stroke;
-            torso.rotation.y=.49*stroke-.12*preload;
-            hips.rotation.y=.42*stroke;
-            ll.rotation.y=.23*stroke;
-            head.rotation.y=-.10*stroke;
-            break;
-          case 'uppercut':
-            // Drive upward with legs and torso, rather than swinging the glove from the shoulder.
-            L.x=-.23+.07*stroke;L.y=.57+.24*stroke;L.z=.42+.20*stroke;
-            hips.position.y-=.065*(1-stroke)*preload;
-            hips.position.y+=.035*stroke;
-            torso.rotation.x=.10-.13*stroke;
-            torso.rotation.y=.20*stroke;
-            ll.rotation.x=.10*stroke;rl.rotation.x=.08*stroke;
-            break;
-          case 'slip':
-            // Small knee bend and trunk angle; head follows torso instead of swinging independently.
-            torso.rotation.z=-.20*stroke;
-            hips.position.x=.08*stroke;
-            hips.position.y-=.06*stroke;
-            head.rotation.z=.04*stroke;
-            ll.rotation.x=.11*stroke;rl.rotation.x=.11*stroke;
-            break;
-        }
-        // Model faces +Z. Both fists must travel toward +Z, never toward its back.
-        // The authored elbow pivot has an X offset, and the glove has a forward offset:
-        // use those actual bone-space directions, not an assumed vertical limb axis.
-        const shoulderToFist=(arm,elbow,target,side)=>{
-          const shoulder=arm.position.clone();
-          // Shoulder lives in torso coordinates. Guard targets are also torso-local.
-          // Prevent impossible reaches and use a stable bend plane.
-          const desired=new THREE.Vector3(target.x,target.y,target.z);
-          const delta=desired.clone().sub(shoulder);
-          const upper=elbow.position.length();
-          const lower=new THREE.Vector3(0,-.40,.08).length();
-          const reach=Math.max(Math.abs(upper-lower)+.025,Math.min(delta.length(),upper+lower-.015));
-          const dir=delta.clone().normalize();
-          const along=(upper*upper-lower*lower+reach*reach)/(2*reach);
-          const perpendicular=Math.sqrt(Math.max(0,upper*upper-along*along));
-          // Keep elbows below the fists and slightly outside the torso.
-          const bend=new THREE.Vector3(side*.65,-1,-.12);
-          bend.addScaledVector(dir,-bend.dot(dir)).normalize();
-          const elbowPoint=shoulder.clone().addScaledVector(dir,along).addScaledVector(bend,perpendicular);
-          const upperDir=elbowPoint.clone().sub(shoulder).normalize();
-          const upperRest=elbow.position.clone().normalize();
-          arm.quaternion.setFromUnitVectors(upperRest,upperDir);
-          // For unreachable targets, solve toward the clamped reachable point.
-          const reachable=shoulder.clone().addScaledVector(dir,reach);
-          const lowerDir=reachable.sub(elbowPoint).normalize();
-          const lowerRest=new THREE.Vector3(0,-.40,.08).normalize();
-          const worldForearm=new THREE.Quaternion().setFromUnitVectors(lowerRest,lowerDir);
-          elbow.quaternion.copy(arm.quaternion).invert().multiply(worldForearm);
-        };
-        shoulderToFist(left,le,L,-1);
-        shoulderToFist(right,re,R,1);
       }
 
       async saveModelFile(file) {
@@ -582,10 +484,14 @@
             };
           });
           if (file) this.loadAvatarFile(file);
+          else document.getElementById('modelStatusText').textContent='No saved avatar on this device · using lion coach';
         } catch(e) { console.warn('Saved avatar unavailable:',e); }
       }
 
       loadAvatarFile(file) {
+        if(!file.name.toLowerCase().endsWith('.glb')) {
+          document.getElementById('modelStatusText').textContent='Use a self-contained .glb file';return;
+        }
         const url=URL.createObjectURL(file);
         const loader=new THREE.GLTFLoader();
         loader.load(url,gltf=>{
@@ -661,10 +567,10 @@
         this.mixer = null; this.actions = {}; this.activeAction = null;
         this.activeModel = gltf.scene;
 
-        // Auto-Center & Auto-Scale Model to Ring Dimensions
+        // Preserve proportions; set standing height independent of arm span.
         const box = new THREE.Box3().setFromObject(this.activeModel);
         const size = box.getSize(new THREE.Vector3());
-        const maxAxis = Math.max(size.x, size.y, size.z);
+        const maxAxis = size.y;
         if (maxAxis > 0) {
           const targetScale = 1.85 / maxAxis; // Standard boxing ring human height: 1.85m
           this.activeModel.scale.setScalar(targetScale);
@@ -675,30 +581,9 @@
         this.activeModel.position.set(-center.x, -centeredBox.min.y, -center.z); // Center model horizontally and pin feet to floor
         this.activeModel.rotation.y = -0.32; // Orthodox bladed fighting stance
 
-        // Map all skeleton bones
+        // Unknown rigs need rest-pose/axis calibration. Never apply arbitrary Euler
+        // angles or zero their root position; that can invert limbs or bury feet.
         this.bones = {};
-        this.activeModel.traverse((node) => {
-          if (node.isBone) {
-            const name = node.name.toLowerCase();
-            if (name.includes('hips') || name.includes('pelvis')) this.bones.hips = node;
-            if (name.includes('spine1') || name.includes('chest')) this.bones.chest = node;
-            else if (name.includes('spine')) this.bones.spine = node;
-            if (name.includes('neck') || name.includes('head')) this.bones.head = node;
-
-            if (name.includes('left') && (name.includes('arm') || name.includes('shoulder')) && !name.includes('fore')) this.bones.lArm = node;
-            if (name.includes('left') && (name.includes('forearm') || name.includes('elbow'))) this.bones.lForeArm = node;
-            if (name.includes('left') && name.includes('hand')) this.bones.lHand = node;
-
-            if (name.includes('right') && (name.includes('arm') || name.includes('shoulder')) && !name.includes('fore')) this.bones.rArm = node;
-            if (name.includes('right') && (name.includes('forearm') || name.includes('elbow'))) this.bones.rForeArm = node;
-            if (name.includes('right') && name.includes('hand')) this.bones.rHand = node;
-
-            if (name.includes('right') && (name.includes('leg') || name.includes('thigh') || name.includes('upleg'))) this.bones.rLeg = node;
-            if (name.includes('right') && name.includes('foot')) this.bones.rFoot = node;
-            if (name.includes('left') && (name.includes('leg') || name.includes('thigh') || name.includes('upleg'))) this.bones.lLeg = node;
-          }
-        });
-
         // If the model came with embedded boxing clips, activate mixer
         if (gltf.animations && gltf.animations.length > 0) {
           this.mixer = new THREE.AnimationMixer(this.activeModel);
@@ -709,8 +594,8 @@
 
         this.scene.add(this.activeModel);
         this.fitCameraToModel(this.activeModel);
-        if (!this.mixer && !Object.keys(this.bones).length) {
-          document.getElementById('modelStatusText').innerText = 'Static model: no rig or animations — using moving trainer';
+        if (!this.mixer) {
+          document.getElementById('modelStatusText').innerText = 'Avatar needs authored clips · using lion coach';
           this.scene.remove(this.activeModel);
           this.activeModel = this.demoModel;
           this.scene.add(this.demoModel);
@@ -721,16 +606,23 @@
       playClipForDrill() {
         if (!this.mixer) return;
         const map = {one_two:['Jab','Cross'],one_two_hook:['Jab','Cross','Lead_Hook'],slip_cross:['Slip_Right','Cross'],uppercut_flow:['Uppercut','Lead_Hook','Cross']};
-        const single={jab:'Jab',cross:'Cross',hook:'Lead_Hook',uppercut:'Uppercut',slip:'Slip_Right'};
+        const single={jab:'Jab',cross:'Cross',hook:'Lead_Hook',uppercut:'Uppercut',slip:'Slip_Right',rear_hook:'Rear_Hook',rear_uppercut:'Rear_Uppercut',roll:'Roll',step:'Footwork'};
         const clips = this.technique==='combo' ? (map[this.currentAnim]||['Jab','Cross']) : [single[this.technique]||'Jab'];
-        const name = clips[Math.floor(this.animTime / 1.08) % clips.length];
+        const beat=Math.floor(this.animTime / 1.22);
+        const name = clips[beat % clips.length];
         const normalized = v => v.toLowerCase().replace(/[^a-z0-9]/g,'');
-        const matching = Object.keys(this.actions).find(k => normalized(k) === normalized(name))
-          || Object.keys(this.actions).find(k => normalized(k).includes(normalized(name)));
-        const next = this.actions[matching] || this.actions.Idle_Guard || Object.values(this.actions)[0];
-        if (next && next !== this.activeAction) {
+        // Exact normalized names only: Rear_Uppercut is not a lead Uppercut.
+        const matching = Object.keys(this.actions).find(k => normalized(k) === normalized(name));
+        const next = this.actions[matching] || this.actions.Idle_Guard;
+        document.getElementById('modelStatusText').textContent=matching
+          ? 'Uploaded avatar · '+matching : 'Avatar has no '+name+' clip';
+        if(!next) {if(this.activeAction)this.activeAction.stop();this.activeAction=null;return;}
+        if (next && (next !== this.activeAction || beat!==this.clipBeat)) {
+          this.clipBeat=beat;
           if (this.activeAction) this.activeAction.fadeOut(.15);
-          next.reset().fadeIn(.15).play();
+          next.reset().setLoop(THREE.LoopOnce,1);
+          next.clampWhenFinished=true;
+          next.setEffectiveTimeScale(next.getClip().duration/1.22).fadeIn(.12).play();
           this.activeAction = next;
         }
       }
@@ -763,103 +655,15 @@
           return;
         }
 
-        // If embedded animations exist:
-        if (this.mixer) {
-          if (this.isPlaying) { this.playClipForDrill(); this.mixer.update(delta * this.speed); }
-        }
-
-        // Active procedural kinetic boxing movements:
-        if (this.isPlaying) this.animTime += delta * this.speed;
-        const t = this.animTime;
-        this.animateTrainingBoxer(t);
-        const b = (this.mixer || this.activeModel === this.demoModel) ? {} : this.bones; // Do not overwrite imported animation tracks
-
-        // Reset Guard (Arms shielding chin)
-        if (b.lArm) b.lArm.rotation.set(0.95, 0.20, 0.45);
-        if (b.lForeArm) b.lForeArm.rotation.set(1.95, 0.10, 0.20);
-        if (b.rArm) b.rArm.rotation.set(0.95, -0.20, -0.45);
-        if (b.rForeArm) b.rForeArm.rotation.set(1.95, -0.10, -0.20);
-
-        if (b.spine) b.spine.rotation.set(0.08, 0, 0);
-        if (b.head) b.head.rotation.set(0.12, 0, 0); // Chin tucked
-        if (b.rLeg) b.rLeg.rotation.set(0, 0, 0);
-
-        // Stance Bounce
-        if (b.hips) {
-          b.hips.position.y = Math.sin(t * 3.2) * 0.035;
-        }
-
-        // Whole-Body Strikes
-        if (this.currentAnim === "one_two") {
-          const c = (t * 1.6) % (Math.PI * 2);
-          if (c < Math.PI) {
-            // JAB: Left arm extends straight forward, spine turns
-            const p = Math.sin(c);
-            if (b.lArm) b.lArm.rotation.x = 0.95 + p * 0.75;
-            if (b.lForeArm) b.lForeArm.rotation.x = 1.95 - p * 1.85;
-            if (b.spine) b.spine.rotation.y = p * 0.25;
-            if (b.hips) b.hips.position.z = p * 0.08;
-          } else {
-            // CROSS: Rear heel pivots, hips torque 45°, right arm fires
-            const p = Math.sin(c - Math.PI);
-            if (b.rArm) b.rArm.rotation.x = 0.95 + p * 0.85;
-            if (b.rForeArm) b.rForeArm.rotation.x = 1.95 - p * 1.90;
-            if (b.spine) b.spine.rotation.y = -p * 0.70;
-            if (b.rLeg) b.rLeg.rotation.y = p * 0.65;
-          }
-        } 
-        else if (this.currentAnim === "one_two_hook") {
-          const c = (t * 1.4) % (Math.PI * 3);
-          if (c < Math.PI) {
-            const p = Math.sin(c);
-            if (b.lArm) b.lArm.rotation.x = 0.95 + p * 0.75;
-            if (b.lForeArm) b.lForeArm.rotation.x = 1.95 - p * 1.85;
-            if (b.spine) b.spine.rotation.y = p * 0.25;
-          } else if (c < Math.PI * 2) {
-            const p = Math.sin(c - Math.PI);
-            if (b.rArm) b.rArm.rotation.x = 0.95 + p * 0.85;
-            if (b.rForeArm) b.rForeArm.rotation.x = 1.95 - p * 1.90;
-            if (b.spine) b.spine.rotation.y = -p * 0.70;
-            if (b.rLeg) b.rLeg.rotation.y = p * 0.65;
-          } else {
-            // LEAD HOOK: 90° horizontal elbow arc
-            const p = Math.sin(c - Math.PI * 2);
-            if (b.lArm) b.lArm.rotation.set(1.55, 0.45, 0.85);
-            if (b.lForeArm) b.lForeArm.rotation.set(1.57, 0, 0);
-            if (b.spine) b.spine.rotation.y = p * 0.90;
-            if (b.lLeg) b.lLeg.rotation.y = p * 0.60;
-          }
-        } 
-        else if (this.currentAnim === "slip_cross") {
-          const c = (t * 1.5) % (Math.PI * 2);
-          if (c < Math.PI) {
-            // SLIP RIGHT
-            const p = Math.sin(c);
-            if (b.spine) b.spine.rotation.z = -p * 0.35;
-            if (b.hips) b.hips.position.x = p * 0.14;
-          } else {
-            // COUNTER CROSS
-            const p = Math.sin(c - Math.PI);
-            if (b.rArm) b.rArm.rotation.x = 0.95 + p * 0.85;
-            if (b.rForeArm) b.rForeArm.rotation.x = 1.95 - p * 1.90;
-            if (b.spine) b.spine.rotation.y = -p * 0.70;
-            if (b.rLeg) b.rLeg.rotation.y = p * 0.65;
-          }
-        } 
-        else if (this.currentAnim === "uppercut_flow") {
-          const c = (t * 1.4) % (Math.PI * 2);
-          if (c < Math.PI) {
-            // UPPERCUT
-            const p = Math.sin(c);
-            if (b.lArm) b.lArm.rotation.set(1.20, 0.15, 0.25);
-            if (b.lForeArm) b.lForeArm.rotation.x = 1.95 - p * 1.10;
-            if (b.spine) b.spine.rotation.y = p * 0.35;
-          } else {
-            const p = Math.sin(c - Math.PI);
-            if (b.rArm) b.rArm.rotation.x = 0.95 + p * 0.85;
-            if (b.rForeArm) b.rForeArm.rotation.x = 1.95 - p * 1.90;
-            if (b.spine) b.spine.rotation.y = -p * 0.70;
-          }
+        const stamp=[this.activeModel.uuid,this.activeModel.rotation.y,this.animTime,this.technique,this.currentAnim,this.camera.aspect].join('|');
+        if(!this.isPlaying && this.lastRenderStamp===stamp)return;
+        this.lastRenderStamp=stamp;
+        const dt=Math.min(delta,.05);
+        if (this.isPlaying) this.animTime += dt * this.speed;
+        if (this.coach && this.activeModel===this.demoModel) {
+          this.coach.update(this.animTime,this.technique,this.currentAnim);
+        } else if(this.mixer && this.isPlaying) {
+          this.playClipForDrill();this.mixer.update(dt*this.speed);
         }
 
         this.renderer.render(this.scene, this.camera);
@@ -941,7 +745,8 @@
               b.classList.toggle('bg-slate-800',!selected);
               b.classList.toggle('text-white',!selected);
             });
-            document.getElementById('modelStatusText').innerText='Demonstrating: '+button.textContent.trim();
+            this.renderTechnique();
+            document.getElementById('motionPause').textContent='Freeze motion';
           });
         });
 
@@ -1009,7 +814,23 @@
         });
 
         this.updatePlayBtnText();
-        this.renderDrill();
+        this.renderDrill(false);
+        if(this.engine.technique!=='combo')this.renderTechnique();
+        const offset={en:1,he:3,ru:5}[this.lang];
+        document.querySelectorAll('[data-technique]').forEach(b=>{
+          const info=COACH_TECHNIQUES[b.dataset.technique];
+          b.textContent=info?info[offset]:({en:'Combination',he:'שילוב',ru:'Комбинация'}[this.lang]);
+        });
+      }
+
+      renderTechnique() {
+        const info=COACH_TECHNIQUES[this.engine.technique];
+        if(!info) { this.renderDrill();return; }
+        const offset={en:1,he:3,ru:5}[this.lang];
+        document.getElementById('comboCodes').textContent=info[0];
+        document.getElementById('comboCues').textContent=info[offset];
+        document.getElementById('exerciseNotes').textContent=info[offset+1];
+        document.getElementById('modelStatusText').textContent=info[offset];
       }
 
       updatePlayBtnText() {
@@ -1081,15 +902,22 @@
         }
       }
 
-      renderDrill() {
+      renderDrill(resetMotion=true) {
         const d = I18N[this.lang].drills[this.drillIdx];
         document.getElementById('drillTier').innerText = d.title;
         document.getElementById('comboCodes').innerText = d.codes;
         document.getElementById('comboCues').innerText = d.cues;
         document.getElementById('exerciseNotes').innerText = d.notes;
 
+        if(!resetMotion)return;
         this.engine.currentAnim = d.anim;
         this.engine.animTime = 0;
+        this.engine.technique='combo';
+        document.querySelectorAll('[data-technique]').forEach(b=>{
+          const active=b.dataset.technique==='combo';
+          b.classList.toggle('bg-amber-500',active);b.classList.toggle('text-slate-950',active);
+          b.classList.toggle('bg-slate-800',!active);b.classList.toggle('text-white',!active);
+        });
         if (this.engine.playClipForDrill) this.engine.playClipForDrill();
       }
 
