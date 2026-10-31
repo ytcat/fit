@@ -518,25 +518,30 @@
             ll.rotation.x=.11*stroke;rl.rotation.x=.11*stroke;
             break;
         }
-        const up=new THREE.Vector3(0,-1,0), q=new THREE.Quaternion();
+        // Model faces +Z. Both fists must travel toward +Z, never toward its back.
+        // The authored elbow pivot has an X offset, and the glove has a forward offset:
+        // use those actual bone-space directions, not an assumed vertical limb axis.
         const shoulderToFist=(arm,elbow,target,side)=>{
           const shoulder=arm.position.clone();
-          const dest=new THREE.Vector3(target.x,target.y,target.z);
-          const delta=dest.sub(shoulder);
-          const len=Math.max(.001,delta.length()), upper=.40,lower=.43;
+          const desired=new THREE.Vector3(target.x,target.y,target.z);
+          const delta=desired.sub(shoulder);
+          const upper=elbow.position.length();
+          const lower=new THREE.Vector3(0,-.40,.08).length();
+          const reach=Math.min(delta.length(),upper+lower-.015);
           const dir=delta.clone().normalize();
-          const reach=Math.min(len,upper+lower-.012);
           const along=(upper*upper-lower*lower+reach*reach)/(2*reach);
-          const sideways=Math.sqrt(Math.max(0,upper*upper-along*along));
-          // Elbow points down and outward, preserving a plausible bent guard.
-          const bend=new THREE.Vector3(side*.65,-.8,-.25);
+          const perpendicular=Math.sqrt(Math.max(0,upper*upper-along*along));
+          // Keep elbows below the fists and slightly outside the torso.
+          const bend=new THREE.Vector3(side*.55,-1,-.30);
           bend.addScaledVector(dir,-bend.dot(dir)).normalize();
-          const elbowPoint=shoulder.clone().addScaledVector(dir,along).addScaledVector(bend,sideways);
+          const elbowPoint=shoulder.clone().addScaledVector(dir,along).addScaledVector(bend,perpendicular);
           const upperDir=elbowPoint.clone().sub(shoulder).normalize();
-          arm.quaternion.setFromUnitVectors(up,upperDir);
-          const foreDir=dest.clone().sub(elbowPoint).normalize();
-          q.setFromUnitVectors(up,foreDir);
-          elbow.quaternion.copy(arm.quaternion).invert().multiply(q);
+          const upperRest=elbow.position.clone().normalize();
+          arm.quaternion.setFromUnitVectors(upperRest,upperDir);
+          const lowerDir=new THREE.Vector3(target.x,target.y,target.z).sub(elbowPoint).normalize();
+          const lowerRest=new THREE.Vector3(0,-.40,.08).normalize();
+          const worldForearm=new THREE.Quaternion().setFromUnitVectors(lowerRest,lowerDir);
+          elbow.quaternion.copy(arm.quaternion).invert().multiply(worldForearm);
         };
         shoulderToFist(left,le,L,-1);
         shoulderToFist(right,re,R,1);
