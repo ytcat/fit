@@ -364,7 +364,7 @@
         this.initControls();
         document.getElementById('camBack').addEventListener('click', () => { if(this.activeModel) this.activeModel.rotation.y = Math.PI; });
         this.createTrainingBoxer();
-        this.discoverAndLoadModel();
+        // Keep the working animated trainer as default. Load custom GLB only on explicit user request.
 
         this.clock = new THREE.Clock();
         this.animate = this.animate.bind(this);
@@ -427,7 +427,7 @@
         const aspect = Math.max(.25, this.camera.aspect);
         const verticalDistance = (size.y * .5) / Math.tan(fov * .5);
         const horizontalDistance = (size.x * .5) / (Math.tan(fov * .5) * aspect);
-        const distance = Math.max(verticalDistance, horizontalDistance, size.z * 2, 2.5) * 1.38;
+        const distance = Math.max(verticalDistance, horizontalDistance, size.z * 2, 2.5) * 2.0;
         this.camera.position.set(center.x, center.y + .1, center.z + distance);
         this.camera.lookAt(center);
       }
@@ -525,7 +525,8 @@
         }
 
         const centeredBox = new THREE.Box3().setFromObject(this.activeModel);
-        this.activeModel.position.y = -centeredBox.min.y; // Pin feet directly onto canvas floor
+        const center = centeredBox.getCenter(new THREE.Vector3());
+        this.activeModel.position.set(-center.x, -centeredBox.min.y, -center.z); // Center model horizontally and pin feet to floor
         this.activeModel.rotation.y = -0.32; // Orthodox bladed fighting stance
 
         // Map all skeleton bones
