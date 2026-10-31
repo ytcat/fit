@@ -1,0 +1,347 @@
+Here is the fastest way to create it directly from your iPhone without
+installing any tools, along with the full, complete code (which was cut off in
+the previous message).
+
+Method: The 60-Second Setup in Safari
+
+1.  Tap the Copy button on the top-right of the code block below.
+2.  Tap this link on your phone:
+    👉 Create index.html on ytcat/fit
+3.  Paste the code into the text box.
+4.  Scroll to the bottom and tap Commit changes.
+5.  Go to Settings → Pages, set the branch to main, and hit Save.
+
+Your app will be live at: https://ytcat.github.io/fit/
+
+Complete Code (index.html)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090a0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>ShadowBox Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#00f2fe',
+            accent: '#4facfe',
+            cardDark: '#12141c',
+            borderDark: '#1f2433'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: #090a0f;
+    }
+    .neon-glow { box-shadow: 0 0 25px rgba(0, 242, 254, 0.35); }
+    .punch-glow { text-shadow: 0 0 15px rgba(245, 158, 11, 0.7); }
+  </style>
+</head>
+<body class="text-slate-100 font-sans flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="h-14 border-b border-borderDark px-4 flex items-center justify-between bg-cardDark/80 backdrop-blur z-20">
+    <div class="flex items-center space-x-2">
+      <div id="statusDot" class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+      <span class="font-black text-sm tracking-widest bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">SHADOWBOX PRO</span>
+    </div>
+    <div class="flex items-center space-x-2 text-xs font-semibold">
+      <span id="levelBadge" class="px-2.5 py-1 rounded-full bg-cyan-950 text-brand border border-cyan-800/40">LVL 1</span>
+      <button id="audioToggleBtn" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">🔊 SOUND</button>
+    </div>
+  </header>
+
+  <!-- Viewport -->
+  <main class="relative flex-1 flex flex-col justify-center items-center overflow-hidden bg-black">
+    <canvas id="boxerCanvas" class="w-full h-full object-contain block"></canvas>
+    <video id="customVideo" class="hidden absolute inset-0 w-full h-full object-cover" loop muted playsinline></video>
+
+    <!-- Floating Combo HUD -->
+    <div class="absolute top-4 left-4 right-4 flex flex-col items-center pointer-events-none">
+      <div class="bg-cardDark/90 backdrop-blur-md border border-cyan-500/30 px-5 py-2 rounded-2xl shadow-2xl text-center">
+        <div id="strikeSequence" class="text-3xl font-black text-amber-400 tracking-wider punch-glow">1 - 2</div>
+        <div id="cueText" class="text-xs font-semibold text-cyan-300 uppercase mt-0.5">Jab — Rear Cross</div>
+      </div>
+    </div>
+
+    <!-- Rest Overlay -->
+    <div id="restModal" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-10">
+      <span class="text-emerald-400 font-bold tracking-widest text-sm uppercase">Rest Period</span>
+      <h2 id="restClock" class="text-7xl font-mono font-black text-white my-3">00:60</h2>
+      <p class="text-slate-400 text-sm">Breathe deep and recover.</p>
+      <button id="skipRestBtn" class="mt-6 px-6 py-2 rounded-xl bg-slate-800 border border-slate-700 font-bold active:scale-95">Skip Rest</button>
+    </div>
+  </main>
+
+  <!-- Footer Controls -->
+  <footer class="bg-cardDark border-t border-borderDark p-4 pb-6 flex flex-col space-y-3 z-20">
+    <div class="grid grid-cols-3 items-center bg-slate-950/70 p-3 rounded-2xl border border-borderDark text-center">
+      <div>
+        <span class="text-[10px] text-slate-500 uppercase font-black block">Round</span>
+        <span id="roundCounter" class="text-xl font-black text-white">1 / 4</span>
+      </div>
+      <div>
+        <span class="text-[10px] text-slate-500 uppercase font-black block">Clock</span>
+        <span id="timerClock" class="text-3xl font-mono font-black text-brand">03:00</span>
+      </div>
+      <div>
+        <span class="text-[10px] text-slate-500 uppercase font-black block">Pace</span>
+        <span class="text-sm font-bold text-emerald-400">Moderate</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-2">
+      <button id="prevBtn" class="py-3 bg-slate-800 rounded-xl font-bold text-sm active:scale-95">◀ Prev</button>
+      <button id="playBtn" class="col-span-2 py-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black rounded-xl text-base tracking-wider neon-glow active:scale-95">START</button>
+      <button id="nextBtn" class="py-3 bg-slate-800 rounded-xl font-bold text-sm active:scale-95">Next ▶</button>
+    </div>
+
+    <div class="flex justify-between items-center text-xs text-slate-400 pt-1">
+      <button id="levelSelectBtn" class="hover:text-white underline">Change Level (1–4)</button>
+      <label class="hover:text-white cursor-pointer">
+        <span>Load Video</span>
+        <input type="file" id="videoFileInput" accept="video/mp4,video/webm" class="hidden" />
+      </label>
+    </div>
+  </footer>
+
+  <script>
+    const CURRICULUM = {
+      level1: { name: "LVL 1: NOVICE", rounds: 4, roundDuration: 180, restDuration: 60, combos: [
+        { code: "1", cue: "Lead Jab", punchType: 'jab' },
+        { code: "1 - 2", cue: "Jab - Rear Cross", punchType: 'cross' },
+        { code: "1 - 1 - 2", cue: "Double Jab - Cross", punchType: 'cross' },
+        { code: "1 - 2 - Slip R", cue: "1-2 - Slip Right", punchType: 'slip' }
+      ]},
+      level2: { name: "LVL 2: CONTENDER", rounds: 5, roundDuration: 180, restDuration: 50, combos: [
+        { code: "1 - 2 - 3", cue: "Jab - Cross - Lead Hook", punchType: 'hook' },
+        { code: "2 - 3 - 2", cue: "Cross - Hook - Cross", punchType: 'cross' },
+        { code: "Slip L - 3 - 2", cue: "Slip - Hook - Cross", punchType: 'hook' },
+        { code: "1 - 2 - Roll R", cue: "1-2 - Bob & Weave", punchType: 'roll' }
+      ]},
+      level3: { name: "LVL 3: CHAMPION", rounds: 6, roundDuration: 180, restDuration: 45, combos: [
+        { code: "1 - 2b - 3", cue: "Jab - Body Cross - Head Hook", punchType: 'cross' },
+        { code: "Slip L - 5 - 2", cue: "Slip - Uppercut - Cross", punchType: 'uppercut' },
+        { code: "1 - 2 - Pivot - 3", cue: "1-2 - Pivot - Check Hook", punchType: 'hook' }
+      ]},
+      level4: { name: "LVL 4: P4P ELITE", rounds: 8, roundDuration: 180, restDuration: 30, combos: [
+        { code: "1 - 2 - 3 - 2 - Slip - 2", cue: "6-Beat Sequence", punchType: 'cross' },
+        { code: "5 - 3 - 2 - Roll - 2", cue: "Inside Destruction", punchType: 'uppercut' },
+        { code: "FLURRY 1-2-1-2", cue: "Sprint Burnout", punchType: 'cross' }
+      ]}
+    };
+
+    class AudioEngine {
+      constructor() { this.ctx = null; this.isMuted = false; }
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AC();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playBell() {
+        if (this.isMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(640, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 1.2);
+        gain.gain.setValueAtTime(0.8, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.2);
+      }
+      speak(phrase) {
+        if (this.isMuted || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(phrase);
+        u.rate = 1.15;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    class BoxerRenderer {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.phase = 0;
+        this.punchType = 'jab';
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        requestAnimationFrame(() => this.render());
+      }
+      resize() {
+        this.canvas.width = this.canvas.parentElement.clientWidth * window.devicePixelRatio;
+        this.canvas.height = this.canvas.parentElement.clientHeight * window.devicePixelRatio;
+      }
+      setPunch(type) { this.punchType = type; this.phase = 0; }
+      render() {
+        const ctx = this.ctx, w = this.canvas.width, h = this.canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        this.phase += 0.055;
+        const cycle = Math.sin(this.phase);
+        const cx = w * 0.5, headY = h * 0.38 + Math.cos(this.phase * 2) * 5;
+        const sy = headY + 50 * window.devicePixelRatio;
+
+        let lhX = cx - 60 * window.devicePixelRatio, lhY = headY + 30 * window.devicePixelRatio;
+        let rhX = cx + 60 * window.devicePixelRatio, rhY = headY + 30 * window.devicePixelRatio;
+
+        if (this.punchType === 'jab') lhX -= Math.abs(cycle) * 110 * window.devicePixelRatio;
+        else if (this.punchType === 'cross') rhX -= Math.abs(cycle) * 140 * window.devicePixelRatio;
+        else if (this.punchType === 'hook') { lhX += Math.sin(this.phase) * 80 * window.devicePixelRatio; lhY -= Math.abs(cycle) * 35 * window.devicePixelRatio; }
+
+        ctx.strokeStyle = '#00f2fe'; ctx.lineWidth = 4 * window.devicePixelRatio;
+        ctx.beginPath(); ctx.arc(lhX, lhY, 16 * window.devicePixelRatio, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = '#f59e0b';
+        ctx.beginPath(); ctx.arc(rhX, rhY, 16 * window.devicePixelRatio, 0, Math.PI * 2); ctx.stroke();
+
+        ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3 * window.devicePixelRatio;
+        ctx.beginPath(); ctx.arc(cx, headY, 24 * window.devicePixelRatio, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx, sy); ctx.lineTo(cx, sy + 100 * window.devicePixelRatio); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx, sy); ctx.lineTo(lhX, lhY); ctx.moveTo(cx, sy); ctx.lineTo(rhX, rhY); ctx.stroke();
+        requestAnimationFrame(() => this.render());
+      }
+    }
+
+    class App {
+      constructor() {
+        this.audio = new AudioEngine();
+        this.boxer = new BoxerRenderer('boxerCanvas');
+        this.currentLevelKey = 'level1';
+        this.currentComboIdx = 0;
+        this.currentRound = 1;
+        this.isWorking = false;
+        this.isResting = false;
+        this.timeRemaining = CURRICULUM.level1.roundDuration;
+        this.timer = null;
+        this.wakeLock = null;
+        this.initDOM();
+      }
+      initDOM() {
+        this.playBtn = document.getElementById('playBtn');
+        this.timerClock = document.getElementById('timerClock');
+        this.roundCounter = document.getElementById('roundCounter');
+        this.comboBanner = document.getElementById('strikeSequence');
+        this.cueText = document.getElementById('cueText');
+        this.restModal = document.getElementById('restModal');
+        this.restClock = document.getElementById('restClock');
+        this.levelBadge = document.getElementById('levelBadge');
+
+        this.playBtn.onclick = () => this.toggle();
+        document.getElementById('prevBtn').onclick = () => this.shiftCombo(-1);
+        document.getElementById('nextBtn').onclick = () => this.shiftCombo(1);
+        document.getElementById('skipRestBtn').onclick = () => { if (this.isResting) this.timeRemaining = 1; };
+        document.getElementById('levelSelectBtn').onclick = () => this.nextLevel();
+        document.getElementById('audioToggleBtn').onclick = (e) => {
+          this.audio.isMuted = !this.audio.isMuted;
+          e.target.innerText = this.audio.isMuted ? '🔇 MUTED' : '🔊 SOUND';
+        };
+
+        document.getElementById('videoFileInput').onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const v = document.getElementById('customVideo');
+            v.src = URL.createObjectURL(file);
+            v.classList.remove('hidden');
+            document.getElementById('boxerCanvas').classList.add('hidden');
+            v.play();
+          }
+        };
+        this.update();
+      }
+      async toggle() {
+        this.audio.init();
+        if (this.isWorking || this.isResting) {
+          this.isWorking = false;
+          clearInterval(this.timer);
+          this.playBtn.innerText = "RESUME";
+          if (this.wakeLock) { this.wakeLock.release(); this.wakeLock = null; }
+        } else {
+          this.isWorking = true;
+          this.playBtn.innerText = "PAUSE";
+          this.audio.playBell();
+          if ('wakeLock' in navigator) this.wakeLock = await navigator.wakeLock.request('screen').catch(() => {});
+          this.audio.speak(CURRICULUM[this.currentLevelKey].combos[this.currentComboIdx].cue);
+          this.timer = setInterval(() => this.tick(), 1000);
+        }
+      }
+      tick() {
+        if (this.timeRemaining > 0) {
+          this.timeRemaining--;
+          this.update();
+          if (!this.isResting && this.timeRemaining % 15 === 0) this.shiftCombo(1, true);
+        } else {
+          clearInterval(this.timer);
+          const p = CURRICULUM[this.currentLevelKey];
+          if (!this.isResting) {
+            this.audio.playBell();
+            if (this.currentRound >= p.rounds) { alert("Session complete!"); return; }
+            this.isResting = true;
+            this.timeRemaining = p.restDuration;
+            this.restModal.classList.remove('hidden');
+            this.audio.speak("Rest");
+          } else {
+            this.isResting = false;
+            this.restModal.classList.add('hidden');
+            this.currentRound++;
+            this.timeRemaining = p.roundDuration;
+            this.audio.playBell();
+            this.audio.speak(`Round ${this.currentRound}`);
+          }
+          this.timer = setInterval(() => this.tick(), 1000);
+          this.update();
+        }
+      }
+      shiftCombo(dir, auto = false) {
+        const c = CURRICULUM[this.currentLevelKey].combos;
+        this.currentComboIdx = (this.currentComboIdx + dir + c.length) % c.length;
+        this.boxer.setPunch(c[this.currentComboIdx].punchType);
+        if (this.isWorking && !this.isResting && !auto) this.audio.speak(c[this.currentComboIdx].cue);
+        this.update();
+      }
+      nextLevel() {
+        const keys = Object.keys(CURRICULUM);
+        this.currentLevelKey = keys[(keys.indexOf(this.currentLevelKey) + 1) % keys.length];
+        this.currentComboIdx = 0;
+        this.currentRound = 1;
+        this.timeRemaining = CURRICULUM[this.currentLevelKey].roundDuration;
+        this.update();
+      }
+      update() {
+        const p = CURRICULUM[this.currentLevelKey];
+        const c = p.combos[this.currentComboIdx];
+        this.levelBadge.innerText = p.name.split(':')[0];
+        this.comboBanner.innerText = c.code;
+        this.cueText.innerText = c.cue;
+        this.roundCounter.innerText = `${this.currentRound} / ${p.rounds}`;
+        const m = Math.floor(this.timeRemaining / 60).toString().padStart(2, '0');
+        const s = (this.timeRemaining % 60).toString().padStart(2, '0');
+        this.timerClock.innerText = `${m}:${s}`;
+        this.restClock.innerText = `${m}:${s}`;
+      }
+    }
+
+    window.onload = () => { window.app = new App(); };
+  </script>
+</body>
+</html>
