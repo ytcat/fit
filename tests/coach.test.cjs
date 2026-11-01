@@ -21,10 +21,10 @@ for(const move of moves) {
       // Ball contact is invariant even as the heel lifts and turns.
       const bone=coach.joints['foot'+f.side];
       const ball=coach.root.worldToLocal(bone.localToWorld(new THREE.Vector3(0,-.102,.12)));
-      if(move!=='step')nearly(ball.y,.015);
+      nearly(ball.y,.015+f.lift);
     }
     const guardHand=['cross','rear_hook','rear_uppercut'].includes(move)?m.hands[0]:m.hands[1];
-    if(move!=='roll'&&move!=='slip'&&move!=='step')assert.ok(guardHand[1]>1.58,move+' opposite guard drops');
+    if(move!=='roll'&&move!=='slip'&&move!=='step')assert.ok(guardHand[1]>m.head[1]-.15,move+' opposite guard drops below moving cheek');
   }
   const start=coach.update(0,move,'one_two');
   const end=coach.update(1.219999,move,'one_two');
@@ -160,7 +160,7 @@ for(const [move,side,index] of [['jab','L',0],['cross','R',1]]) {
   assert.ok(full.hands[index][2]>(move==='jab'?.88:.97),move+' missing whole-body reach');
   assert.ok(Math.abs(coach.joints.spine.rotation.y)>.04,move+' back must contribute to rotation');
   assert.ok(full.footTargets[1].pivot<-.10,move+' rear foot must participate');
-  const reset=coach.update(.80*1.22,move,'one_two');
+  const reset=coach.update(.94*1.22,move,'one_two');
   assert.equal(reset.strike,0,move+' hand must recoil before body settles');
   assert.ok(vec(reset.hands[index]).distanceTo(vec(rest.hands[index]))<.002,move+' exercise reset');
 }
@@ -218,3 +218,17 @@ for(const combo of ['one_two','one_two_hook','slip_cross','uppercut_flow']) {
   }
 }
 console.log('PASS connected combination cadence without joint-position jumps');
+
+for(const move of moves.filter(m=>m!=='step')) {
+  const rest=coach.update(0,move,'one_two');
+  const planted=coach.update(.38*1.22,move,'one_two');
+  assert.ok(planted.footTargets.some((f,i)=>vec(f.contact).distanceTo(vec(rest.footTargets[i].contact))>.04),move+' needs actual foot placement change');
+  for(let p=0;p<=1;p+=.01){const m=coach.update(p*1.22,move,'one_two');assert.ok(m.footTargets.some(f=>f.lift<1e-6),move+' must retain a supporting foot');}
+}
+for(const [move,index,side] of [['uppercut',0,'L'],['rear_uppercut',1,'R']]) {
+  for(let p=.32;p<.48;p+=.01){const m=coach.update(p*1.22,move,'one_two');
+    const knuckleY=m.hands[index][1]+m.gloves[index].distal[1]*.19;
+    assert.ok(knuckleY-coach.point(coach.joints['elbow'+side]).y>.25,move+' glove must lead above elbow');
+  }
+}
+console.log('PASS travelling footwork in each drill, support contact and fist-led uppercuts');

@@ -446,6 +446,19 @@
         // ankle velocity change caused by a half-sine clamped at each end.
         return {z:.16*(smooth(out)-smooth(back)),lift:.028*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
       };
+      const drillStep=s=>{
+        if(move==='step')return {...stepState(s),x:0};
+        const lateralMove=['hook','rear_hook','slip','roll'].includes(move);
+        const firstSide=move==='rear_hook'||move==='slip'?1:-1;
+        const first=s===firstSide;
+        const out=clamp((phase-(first?.04:.20))/.14);
+        const back=clamp((phase-(first?.72:.56))/.14);
+        const transfer=smooth(out)-smooth(back);
+        const direction=move==='hook'?-1:move==='rear_hook'||move==='slip'?1:-1;
+        const length=move==='jab'?.085:move==='cross'?.045:move.includes('uppercut')?.055:.025;
+        return {z:length*transfer,x:lateralMove?direction*.045*transfer:0,
+          lift:.018*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
+      };
       switch(move) {
         case 'jab':
           hipYaw=.22*drive;chestYaw=.22*twist;forward=.085*drive;crouch=.022*drive;
@@ -489,7 +502,7 @@
           // Three distinct phases: settle under the target, drive upward with
           // extending legs, then recover to cheek without a second scoop.
           const hand=s===-1?lead:rear,guard=hand.clone();
-          hand.lerp(V(s*.18,1.44,.32),prepare).lerp(V(s*.13,1.84,.60),rise).lerp(guard,recover);
+          hand.lerp(V(s*.18,1.40,.32),prepare).lerp(V(s*.13,1.94,.62),rise).lerp(guard,recover);
           if(s===-1){leadTurn=active;leadPole.lerp(V(0,-1,.2),active);leadPivot=.36*up;}
           else {rearTurn=active;rearPole.lerp(V(0,-1,.2),active);rearPivot=-.36*up;}
           break;
@@ -514,6 +527,7 @@
       // look like an isolated arm demonstration instead of boxing footwork.
       const settling=Math.sin(Math.PI*phase/(technique==='combo'?.86:1))**2;
       crouch+=.004*settling*(1-drive);
+      if(move!=='step')crouch+=.016*smooth(phase/.04)*(1-smooth((phase-.72)/.14));
       hipYaw+=.12;chestYaw+=.08;
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
@@ -537,13 +551,13 @@
         const lift=Math.abs(pivot)*.35;
         const footQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(lift,pivot,0,'YXZ'));
         // Pivot about ball of foot. Heel can rise; toe contact stays on the floor.
-        const step=move==='step'?stepState(s):{z:0,lift:0};
-        const contact=V(s*.235,.015,(s===-1?.24:-.20)+.12+step.z);
+        const step=drillStep(s);
+        const contact=V(s*.235+step.x,.015,(s===-1?.24:-.20)+.12+step.z);
         const ankle=contact.clone().add(V(0,.102,-.12).applyQuaternion(footQ));
         ankle.y+=step.lift;
         const kneePole=V(s*.07,0,1).applyAxisAngle(V(0,1,0),pivot*.65);
         const err=this.solve(j['thigh'+side],j['knee'+side],j['foot'+side],ankle,kneePole);
-        this.orient(j['foot'+side],footQ);footTargets.push({side,error:err,ankle:ankle.toArray(),pivot});
+        this.orient(j['foot'+side],footQ);footTargets.push({side,error:err,ankle:ankle.toArray(),pivot,lift:step.lift,contact:contact.toArray()});
       }
       // Guard follows the head during defensive movement; strike endpoints stay in opponent space.
       const guardShift=V(shift,(hips.position.y-.935),forward);
