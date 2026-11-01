@@ -5,7 +5,7 @@
   'use strict';
   const V = (x=0,y=0,z=0) => new THREE.Vector3(x,y,z);
   const clamp = (x,a=0,b=1) => Math.max(a,Math.min(b,x));
-  const smooth = x => { x=clamp(x); return x*x*(3-2*x); };
+  const smooth = x => { x=clamp(x); return x*x*x*(x*(x*6-15)+10); };
   const lerp = (a,b,t) => a+(b-a)*t;
   const sequences = {one_two:['jab','cross'],one_two_hook:['jab','cross','hook'],
     slip_cross:['slip','cross'],uppercut_flow:['uppercut','hook','cross']};
@@ -25,7 +25,24 @@
     t.repeat.set(kind==='fur'?4:6,kind==='fur'?4:6);return t;
   }
 
-  function meshFrom(data) {
+  function meshFrom(data,refine=false) {
+    if(refine&&data.normal) {
+      // Phong subdivision projects edge midpoints onto the two endpoint tangent
+      // planes. Smooth silhouettes without subdividing a faceted linear surface.
+      const p=data.position.slice(),n=data.normal.slice(),indices=[],edges=new Map();
+      const midpoint=(a,b)=>{
+        const key=Math.min(a,b)+':'+Math.max(a,b);if(edges.has(key))return edges.get(key);
+        const va=V(...p.slice(a*3,a*3+3)),vb=V(...p.slice(b*3,b*3+3));
+        const na=V(...n.slice(a*3,a*3+3)),nb=V(...n.slice(b*3,b*3+3));
+        const m=va.clone().add(vb).multiplyScalar(.5);
+        const pa=m.clone().addScaledVector(na,-m.clone().sub(va).dot(na));
+        const pb=m.clone().addScaledVector(nb,-m.clone().sub(vb).dot(nb));
+        m.lerp(pa.add(pb).multiplyScalar(.5),.75);
+        const id=p.length/3;p.push(m.x,m.y,m.z);const normal=na.add(nb).normalize();n.push(normal.x,normal.y,normal.z);edges.set(key,id);return id;
+      };
+      for(let i=0;i<data.index.length;i+=3){const [a,b,c]=data.index.slice(i,i+3),ab=midpoint(a,b),bc=midpoint(b,c),ca=midpoint(c,a);indices.push(a,ab,ca,ab,b,bc,ca,bc,c,ab,bc,ca);}
+      data={position:p,normal:n,index:indices};
+    }
     const g=new THREE.BufferGeometry();
     g.setAttribute('position',new THREE.Float32BufferAttribute(data.position,3));g.setIndex(data.index);
     if(data.normal)g.setAttribute('normal',new THREE.Float32BufferAttribute(data.normal,3));
@@ -71,8 +88,8 @@
         bumpMap:fur,bumpScale:.0025,skinning:true});
       const cloth=new THREE.MeshStandardMaterial({color:0x152635,roughness:.61,
         bumpMap:grain,bumpScale:.0015,skinning:true});
-      this.skin=this.skinned(this.sculptBody(meshFrom(data.body)),skin,true);
-      this.shorts=this.skinned(meshFrom(data.shorts),cloth,false);
+      this.skin=this.skinned(this.sculptBody(meshFrom(data.body,true)),skin,true);
+      this.shorts=this.skinned(meshFrom(data.shorts,true),cloth,false);
       this.gold=new THREE.MeshStandardMaterial({color:0xd8b56c,metalness:.38,roughness:.43});
       this.leather=new THREE.MeshStandardMaterial({color:0xad2529,roughness:.42,
         bumpMap:grain,bumpScale:.001,metalness:.05});
@@ -83,7 +100,7 @@
       this.addLabel(hips,'SHADOW',V(0,.098,.184),.19,.043);
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',hand=this.joints['hand'+side];
-        const glove=new THREE.Mesh(meshFrom(data.glove),this.leather);
+        const glove=new THREE.Mesh(meshFrom(data.glove,true),this.leather);
         if(s===1) glove.scale.x=-1;
         hand.add(glove);glove.castShadow=true;
         const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.070,.071,.062,32),this.black);
@@ -124,9 +141,18 @@
           const abs=(bell(x,.070,.045)+bell(x,-.070,.045))*(bell(y,1.22,.045)+bell(y,1.32,.045)+bell(y,1.41,.042));
           const pec=(bell(x,.14,.095)+bell(x,-.14,.095))*bell(y,1.54,.075);
           const blades=(bell(x,.15,.07)+bell(x,-.15,.07))*bell(y,1.53,.12);
-          z+=front*(.010*abs+.018*pec-.005*bell(x,0,.018)*bell(y,1.40,.25))*edge;
-          z-=back*(.014*blades-.007*bell(x,0,.025)*bell(y,1.45,.24))*edge;
+          z+=front*(.020*abs+.032*pec-.008*bell(x,0,.018)*bell(y,1.40,.25))*edge;
+          z-=back*(.024*blades-.010*bell(x,0,.025)*bell(y,1.45,.24))*edge;
           x+=Math.sign(x)*.008*bell(Math.abs(x),.19,.06)*bell(y,1.28,.15);
+        }
+        // Rounded quadriceps and calf bellies, tapered at the knee and ankle.
+        if(y<.95&&y>.20&&Math.abs(x)>.08&&Math.abs(x)<.32) {
+          z+=.012*bell(y,.78,.13)*smooth((z+.015)/.08);
+          z-=.010*bell(y,.40,.10)*smooth((-z+.005)/.06);
+        }
+        if(Math.abs(x)>.33&&y>1.20&&y<1.60) {
+          z+=.010*bell(y,1.46,.09)*smooth((z+.025)/.08);
+          z-=.008*bell(y,1.43,.10)*smooth((-z+.025)/.08);
         }
         p.setXYZ(i,x,y,z);
       }
@@ -355,10 +381,16 @@
       const hand=this.joints['hand'+side],elbow=this.joints['elbow'+side];
       const distal=this.point(hand).sub(this.point(elbow)).normalize();
       const project=p=>p.clone().addScaledVector(distal,-p.dot(distal)).normalize();
-      const inward=V(side==='L'?1:-1,0,-.35);
-      const neutral=project(inward),target=project(palmTarget);
+      const inward=V(side==='L'?1:-1,0,-.35-.50*turn);
+      // Transport the complete guard frame with the forearm before pronation.
+      // A fixed world-space inward vector becomes singular as a hook passes it.
+      this.handFrames=this.handFrames||{};
+      if(!this.handFrames[side])this.handFrames[side]={distal:distal.clone(),palm:project(inward)};
+      const frame=this.handFrames[side];
+      const transport=new THREE.Quaternion().setFromUnitVectors(frame.distal,distal);
+      const neutral=frame.palm.clone().applyQuaternion(transport),target=project(palmTarget);
       const angle=Math.atan2(distal.dot(neutral.clone().cross(target)),neutral.dot(target));
-      const palm=neutral.clone().applyAxisAngle(distal,angle*turn);
+      const palm=neutral.applyAxisAngle(distal,angle*turn);
       const y=distal.clone().negate(),x=y.clone().cross(palm).normalize();
       const z=x.clone().cross(y).normalize();
       this.orient(hand,new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z)));
@@ -403,8 +435,8 @@
           lead.lerp(V(-.10,1.72,.65),strike);leadTurn=lateTurn;
           break;
         case 'cross':
-          hipYaw=-.43*drive;chestYaw=-.32*twist;shift=-.035*drive;forward=.085*drive;crouch=.022*drive;
-          rear.lerp(V(.005,1.72,.67),strike);rearTurn=lateTurn;rearPivot=-.58*drive;
+          hipYaw=-.53*drive;chestYaw=-.38*twist;shift=-.035*drive;forward=.085*drive;crouch=.022*drive;
+          rear.lerp(V(.005,1.72,.67),strike);rearTurn=lateTurn;rearPivot=-.68*drive;
           pelvisRoll=-.015*drive;trunkRoll=-.025*twist;
           break;
         case 'hook': case 'rear_hook': {
@@ -418,7 +450,7 @@
           trunkPitch=.018*active;
           // Raise the bent elbow while moving forward, then sweep across the
           // target horizontally. Recover directly rather than reverse the arc.
-          const arc=V(s*(.30-.40*swing),1.70,.42+.12*Math.sin(swing*Math.PI));
+          const arc=V(s*(.30-.40*swing),1.70,.50+.10*Math.sin(swing*Math.PI));
           const hand=s===-1?lead:rear,guard=hand.clone();
           hand.lerp(arc,prepare).lerp(guard,recover);
           if(s===-1){leadTurn=active;leadPole.lerp(V(-1,.10,.05),active);leadPivot=.52*rotation;}
@@ -461,6 +493,9 @@
           hipYaw=.035*transfer;chestYaw=-.025*transfer;break;
         }
       }
+      // Orthodox guard is slightly bladed. Starting square made every punch
+      // look like an isolated arm demonstration instead of boxing footwork.
+      hipYaw+=.12;chestYaw+=.08;
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
       // Spread the thoracic turn over the back instead of rotating a rigid chest.

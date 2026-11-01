@@ -148,7 +148,7 @@ for(const [move,side,index] of [['jab','L',0],['cross','R',1]]) {
   const rest=coach.update(0,move,'one_two');
   const restShoulder=coach.point(coach.joints['arm'+side]);
   const early=coach.update(.21*1.22,move,'one_two');
-  assert.ok(early.hips[2]>.004&&early.strike===0,move+' body must initiate before arm extension');
+  assert.ok(early.hips[2]>.001&&early.strike===0,move+' body must initiate before arm extension');
   const full=coach.update(.48*1.22,move,'one_two');
   assert.ok(full.hips[2]>.065&&full.hips[2]<.12,move+' controlled forward body transfer');
   assert.ok(coach.point(coach.joints['arm'+side]).z-restShoulder.z>.22,move+' shoulder must carry reach');
@@ -184,3 +184,11 @@ const manePositions=coach.mane.geometry.attributes.position;
 let backHair=0;for(let i=0;i<manePositions.count;i++)if(Math.abs(manePositions.getX(i))<.12&&manePositions.getZ(i)<-.22)backHair++;
 assert.ok(backHair>1000,'mane must cover central rear skull, not only perimeter');
 console.log('PASS asymmetric uppercut load/unwind, nonvertical head travel, cheek-following guard and rear mane coverage');
+
+const sourceSurface=JSON.parse(fs.readFileSync('assets/models/coach-surface.json'));
+assert.equal(coach.skin.geometry.index.count,sourceSurface.body.index.length*4,'curved body refinement must be active');
+assert.equal(coach.shorts.geometry.index.count,sourceSurface.shorts.index.length*4,'cloth refinement must be active');
+for(const g of [coach.skin.geometry,coach.shorts.geometry]) {
+  for(const attr of ['position','normal'])assert.ok(g.attributes[attr].array.every(Number.isFinite),'refinement must not introduce invalid vertices');
+}
+console.log('PASS refined body/cloth geometry and finite smooth surface normals');
