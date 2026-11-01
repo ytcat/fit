@@ -123,6 +123,9 @@ for(const [move,index] of [['uppercut',0],['rear_uppercut',1]]) {
   const high=coach.update(.47*1.22,move,'one_two');
   assert.ok(high.hips[1]-low.hips[1]>.075,move+' missing visible body dip');
   assert.ok(high.hands[index][1]-low.hands[index][1]>.38,move+' missing bottom-to-top stroke');
+  assert.ok(high.hands[index][1]-low.hands[index][1]>.45,move+' longer uppercut stroke must be visible');
+  const contactElbow=elbowAngle(index===0?'L':'R');
+  assert.ok(contactElbow>70&&contactElbow<145,move+' must strike with the fist on a bent arm');
   let prior=low;
   for(let p=.23;p<=.46;p+=.01) {
     const m=coach.update(p*1.22,move,'one_two');
@@ -194,3 +197,13 @@ for(const g of [coach.skin.geometry,coach.shorts.geometry]) {
   for(const attr of ['position','normal'])assert.ok(g.attributes[attr].array.every(Number.isFinite),'refinement must not introduce invalid vertices');
 }
 console.log('PASS refined body/cloth geometry and finite smooth surface normals');
+
+const stepRest=coach.update(0,'step','one_two');
+const stepForward=coach.update(.46*1.22,'step','one_two');
+assert.ok(stepForward.footTargets[0].ankle[2]-stepRest.footTargets[0].ankle[2]>.155,'longer footwork stride');
+// Test take-off on both sides of the timing boundary, where the prior half-sine
+// foot lift had nonzero velocity and visibly snapped off the ground.
+const takeoffA=coach.update(.08*1.22,'step','one_two').footTargets[0].ankle[1];
+const takeoffB=coach.update(.081*1.22,'step','one_two').footTargets[0].ankle[1];
+assert.ok(Math.abs(takeoffB-takeoffA)/(.001*1.22)<.05,'foot take-off must begin smoothly');
+console.log('PASS extended uppercut/stride and smooth foot take-off');

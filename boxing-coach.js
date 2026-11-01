@@ -428,17 +428,19 @@
       const stepState=s=>{
         const out=clamp((phase-(s===-1?.08:.28))/.16);
         const back=clamp((phase-(s===-1?.78:.58))/.16);
-        return {z:.12*(smooth(out)-smooth(back)),lift:.024*(Math.sin(Math.PI*out)+Math.sin(Math.PI*back))};
+        // A smooth zero-velocity lift at take-off/landing avoids the old sharp
+        // ankle velocity change caused by a half-sine clamped at each end.
+        return {z:.16*(smooth(out)-smooth(back)),lift:.028*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
       };
       switch(move) {
         case 'jab':
-          hipYaw=.20*drive;chestYaw=.20*twist;forward=.070*drive;crouch=.018*drive;
+          hipYaw=.22*drive;chestYaw=.22*twist;forward=.085*drive;crouch=.022*drive;
           rearPivot=-.12*drive;
           trunkRoll=.018*twist;
           lead.lerp(V(-.10,1.72,.65),strike);leadTurn=lateTurn;
           break;
         case 'cross':
-          hipYaw=-.53*drive;chestYaw=-.38*twist;shift=-.035*drive;forward=.085*drive;crouch=.022*drive;
+          hipYaw=-.53*drive;chestYaw=-.38*twist;shift=-.035*drive;forward=.100*drive;crouch=.026*drive;
           rear.lerp(V(.005,1.72,.67),strike);rearTurn=lateTurn;rearPivot=-.68*drive;
           pelvisRoll=-.015*drive;trunkRoll=-.025*twist;
           break;
@@ -462,8 +464,8 @@
           const s=move==='uppercut'?-1:1;
           const active=prepare*(1-recover),up=rise*(1-recover);
           const loaded=prepare*(1-rise)*(1-recover);
-          hipYaw=s*.09*loaded-s*.30*up;chestYaw=s*.07*loaded-s*.21*up;
-          crouch=.080*loaded;forward=-.012*loaded+.030*up;
+          hipYaw=s*.09*loaded-s*.36*up;chestYaw=s*.07*loaded-s*.25*up;
+          crouch=.080*loaded;forward=-.012*loaded+.040*up;
           shift=s*.035*loaded-s*.025*up;
           pelvisRoll=-s*.035*loaded+s*.020*up;
           trunkPitch=.070*loaded;
@@ -473,23 +475,23 @@
           // Three distinct phases: settle under the target, drive upward with
           // extending legs, then recover to cheek without a second scoop.
           const hand=s===-1?lead:rear,guard=hand.clone();
-          hand.lerp(V(s*.18,1.44,.32),prepare).lerp(V(s*.13,1.78,.46),rise).lerp(guard,recover);
-          if(s===-1){leadTurn=active;leadPole.lerp(V(0,-1,.2),active);leadPivot=.30*up;}
-          else {rearTurn=active;rearPole.lerp(V(0,-1,.2),active);rearPivot=-.30*up;}
+          hand.lerp(V(s*.18,1.44,.32),prepare).lerp(V(s*.13,1.84,.60),rise).lerp(guard,recover);
+          if(s===-1){leadTurn=active;leadPole.lerp(V(0,-1,.2),active);leadPivot=.36*up;}
+          else {rearTurn=active;rearPole.lerp(V(0,-1,.2),active);rearPivot=-.36*up;}
           break;
         }
-        case 'slip': shift=.060*drive;crouch=.043*drive;hipYaw=-.10*drive;chestYaw=-.16*twist;
-          trunkRoll=-.12*drive;pelvisRoll=-.025*drive;forward=-.018*drive;break;
+        case 'slip': shift=.085*drive;crouch=.048*drive;hipYaw=-.12*drive;chestYaw=-.18*twist;
+          trunkRoll=-.15*drive;pelvisRoll=-.030*drive;forward=-.022*drive;break;
         case 'roll': {
           const q=smooth(clamp((phase-.12)/.72));
           const travel=Math.sin(q*Math.PI*2);
-          shift=.075*travel;crouch=.09*Math.sin(q*Math.PI);
+          shift=.100*travel;crouch=.11*Math.sin(q*Math.PI);
           hipYaw=-.12*travel;chestYaw=-.16*travel;
           trunkRoll=-.085*travel;pelvisRoll=-.025*travel;trunkPitch=.020*Math.sin(q*Math.PI);break;
         }
         case 'step': {
-          const l=stepState(-1),r=stepState(1),transfer=(l.lift-r.lift)/.024;
-          forward=(l.z+r.z)/2;crouch=.020*smooth(phase/.08)*(1-smooth((phase-.94)/.06));
+          const l=stepState(-1),r=stepState(1),transfer=(l.lift-r.lift)/.028;
+          forward=(l.z+r.z)/2;crouch=.030*smooth(phase/.08)*(1-smooth((phase-.94)/.06));
           shift=.012*transfer;pelvisRoll=-.018*transfer;trunkRoll=.012*transfer;
           hipYaw=.035*transfer;chestYaw=-.025*transfer;break;
         }
@@ -508,7 +510,7 @@
       // Scapular elevation/protraction of the striking shoulder protects the chin.
       const leftStrike=move==='hook'?hookState.rotation:['jab','uppercut'].includes(move)?strike:0;
       const rightStrike=move==='rear_hook'?hookState.rotation:['cross','rear_uppercut'].includes(move)?strike:0;
-      const reachShoulder=straight?.065:hookState?.080:.045;
+      const reachShoulder=straight?.075:hookState?.085:.045;
       j.armL.position.set(-.30+.012*leftStrike,.26+.035*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
       j.armR.position.set(.30-.012*rightStrike,.26+.035*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
       if(shoulderSide)j[shoulderSide===-1?'armL':'armR'].position.y-=.024*shoulderLoad;
@@ -553,7 +555,7 @@
         const shoulder=this.point(j['arm'+side]);
         // Longer-range hook: carry the fist around with the rotating shoulder,
         // opening the elbow progressively while preserving a bent-arm contact.
-        const radius=lerp(.43,.59,swing),height=1.70-crouch;
+        const radius=lerp(.43,.615,swing),height=1.70-crouch;
         const direction=V(-s*(.10+.65*swing),0,1-.35*swing).normalize();
         const dy=height-shoulder.y;
         const target=shoulder.addScaledVector(direction,Math.sqrt(Math.max(.01,radius*radius-dy*dy)));
