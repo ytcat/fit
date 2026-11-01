@@ -13,5 +13,26 @@
    }
   }
  }
- window.ContactSpring=ContactSpring;
+ class HangingBag extends ContactSpring {
+  constructor({mass=30,radius=.235,height=1.15,offset=.94,damping=.20}={}){
+   const transverse=mass*(offset*offset+height*height/12+radius*radius/4);
+   super(Math.sqrt(mass*9.81*offset/transverse),damping);
+   this.mass=mass;this.radius=radius;this.height=height;this.offset=offset;
+   this.inertia=new THREE.Vector3(transverse,mass*radius*radius/2,transverse);
+   this.gloveStiffness=8000;this.bagStiffness=12000;
+   this.contactStiffness=1/(1/this.gloveStiffness+1/this.bagStiffness);
+  }
+  contact(point,normal,fistVelocity,penetration,dt){
+   const surfaceVelocity=this.velocity.clone().cross(point),relative=fistVelocity.clone().sub(surfaceVelocity);
+   const closing=-relative.dot(normal),depth=Math.max(0,penetration);
+   const normalForce=Math.max(0,Math.min(1200,this.contactStiffness*depth+45*closing));
+   const tangent=relative.clone().addScaledVector(normal,closing),speed=tangent.length();
+   const force=normal.clone().multiplyScalar(-normalForce);
+   if(speed>1e-8)force.addScaledVector(tangent,Math.min(.30*normalForce,20*speed)/speed);
+   const impulse=force.multiplyScalar(Math.max(0,dt));
+   this.velocity.add(point.clone().cross(impulse).divide(this.inertia));
+   return {normalForce,impulse:normalForce*Math.max(0,dt),closing,gloveDepth:depth*this.bagStiffness/(this.gloveStiffness+this.bagStiffness),bagDepth:depth*this.gloveStiffness/(this.gloveStiffness+this.bagStiffness)};
+  }
+ }
+ window.ContactSpring=ContactSpring;window.HangingBag=HangingBag;
 })();

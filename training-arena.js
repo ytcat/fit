@@ -8,11 +8,12 @@
   constructor(engine,data){
    this.engine=engine;this.data=data;this.mode='none';this.group=new THREE.Group();this.group.name='Training pair';
    this.models={};this.previousTime=0;this.metrics={};
-   this.springs={heavy:new ContactSpring(4.2,.30),dummy:new ContactSpring(9,.54),speed:new ContactSpring(28,.14)};
+   this.springs={heavy:new HangingBag(),dummy:new ContactSpring(9,.54),speed:new ContactSpring(28,.14)};
    this.recoil={lion:new ContactSpring(10,1),rabbit:new ContactSpring(10,1)};
    this.pressures={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.previousFists={};this.seen=new Set();this.hasFrame=false;
    this.dark=material({color:0x1b2532,roughness:.64,metalness:.3});
    this.leather=material({color:0x813432,roughness:.57});
+   this.heavyLeather=material({color:0x24313e,roughness:.57,bumpMap:engine.coach.leather.bumpMap,bumpScale:.0015});
    this.accent=material({color:0xe2bc76,roughness:.56,metalness:.15});
   }
   mesh(parent,geometry,material,p=V()){
@@ -33,8 +34,8 @@
    this.rod(root,V(-.48,2.55,-.12),V(.48,2.55,-.12),.030);
    this.rod(root,V(0,2.55,-.12),V(0,2.48,0),.014,this.accent);
    const swing=new THREE.Group();swing.position.y=2.48;root.add(swing);root.userData.swing=swing;
-   const body=this.mesh(swing,new THREE.CylinderGeometry(.235,.235,1.15,64),this.leather,V(0,-.94,0));body.name='Heavy bag leather';root.userData.soft=body;
-   this.mesh(swing,new THREE.SphereGeometry(.235,48,20),this.leather,V(0,-1.515,0)).scale.y=.24;
+   const body=this.mesh(swing,new THREE.CylinderGeometry(.235,.235,1.15,64),this.heavyLeather,V(0,-.94,0));body.name='Heavy bag leather';root.userData.soft=body;
+   this.mesh(swing,new THREE.SphereGeometry(.235,48,20),this.heavyLeather,V(0,-1.515,0)).scale.y=.24;
    this.mesh(swing,new THREE.CylinderGeometry(.239,.239,.10,64),this.dark,V(0,-.40,0));
    for(let i=0;i<4;i++){
     const a=i*Math.PI/2;this.rod(swing,V(0,-.06,0),V(Math.cos(a)*.16,-.36,Math.sin(a)*.16),.009,this.accent);
@@ -82,14 +83,14 @@
    if(mode==='none'){
     e.scene.remove(this.group);e.scene.add(e.coach.root);e.coach.root.position.set(0,0,0);e.coach.root.rotation.y=-.32;
    }else{
-    e.scene.add(this.group);this.group.add(e.coach.root);this.group.rotation.y=1.02;
+    e.scene.add(this.group);this.group.add(e.coach.root);this.group.rotation.y=mode==='heavy'?1.88:1.02;
     e.coach.root.position.set(0,0,mode==='speed'?-.40:-.61);e.coach.root.rotation.y=0;
     if(!this.models[mode]){
      if(mode==='rabbit'){
       this.rabbit=new LionCoach(this.data,{species:'rabbit'});this.models.rabbit=this.rabbit.root;this.rabbit.root.name='Rabbit sparring partner';
      }else this.models[mode]=this[mode]();
     }
-    const target=this.models[mode];this.group.add(target);target.position.set(0,0,mode==='speed'?.40:mode==='dummy'?.73:mode==='rabbit'?.79:.82);
+    const target=this.models[mode];this.group.add(target);target.position.set(0,0,mode==='speed'?.37:mode==='dummy'?.70:mode==='rabbit'?.79:.82);
     if(mode==='rabbit')target.rotation.y=Math.PI;
    }
    this.group.updateMatrixWorld(true);e.lastRenderStamp=null;
@@ -109,11 +110,49 @@
    if(!punches.includes(move))return null;
    const s=['cross','rear_hook','rear_uppercut'].includes(move)?1:-1;
    if(move.includes('uppercut'))return null;
-   if(move.includes('hook'))return [s*.19,this.mode==='rabbit'?1.88:1.80,.86];
+   if(move.includes('hook'))return [s*.19,this.mode==='rabbit'?1.88:this.mode==='dummy'?1.76:1.80,this.mode==='dummy'?.90:.86];
    return null;
   }
+  heavyTarget(move,coach,shoulder){
+   const body=this.models.heavy.userData.soft,s=['cross','rear_hook','rear_uppercut'].includes(move)?1:-1;
+   let x=move.includes('hook')?s*.16:move.includes('uppercut')?s*.045:s*.025;
+   const y=move.includes('uppercut')?.02:move.includes('hook')?-.025:0;
+   let z=-Math.sqrt(.235*.235-x*x);
+   if(shoulder&&move.includes('hook')){
+    // Intersect the upper-arm reach circle with the elbow positions that keep
+    // the forearm normal to the cylindrical bag. Do not bend the wrist to aim.
+    const side=s<0?'L':'R',p=body.worldToLocal(coach.root.localToWorld(shoulder.clone()));
+    const upper=coach.joints['elbow'+side].position.length(),forearm=coach.joints['hand'+side].position.length();
+    const radius=.235-.022+.204+forearm,dy=p.y-(y-.026),reach2=Math.max(.001,upper*upper-dy*dy);
+    const v=V(-p.x,0,-p.z),distance=v.length();v.normalize();
+    const cosine=Math.max(-1,Math.min(1,(distance*distance+radius*radius-reach2)/(2*radius*Math.max(.001,distance))));
+    const direction=v.clone().multiplyScalar(cosine).addScaledVector(V(v.z,0,-v.x),-s*Math.sqrt(1-cosine*cosine));
+    x=-.235*direction.x;z=-.235*direction.z;
+   }
+   const normal=V(x,0,z).normalize();
+   // The leading knuckle face enters the foam by 22 mm at maximum drive.
+   const point=V(x,y,z).addScaledVector(normal,-.022);
+   const target=coach.root.worldToLocal(body.localToWorld(point));
+   const outward=normal.applyQuaternion(body.getWorldQuaternion(new THREE.Quaternion())).applyQuaternion(coach.root.getWorldQuaternion(new THREE.Quaternion()).invert());
+   return {point:target,direction:outward.negate()};
+  }
+  solveHeavyContact(previous,current,velocity,dt){
+   const bag=this.springs.heavy,swing=this.models.heavy.userData.swing,loads=[];
+   if(!(dt>0))return {loads};
+   const count=Math.max(1,Math.ceil(dt*240-1e-7)),step=dt/count;
+   for(let i=1;i<=count;i++){
+    bag.step(step);this.applyDynamics();
+    const centre=this.group.localToWorld(previous.clone().lerp(current,i/count)),contact=this.collision(centre,'heavy');
+    if(contact.penetration<=0)continue;
+    const inverse=swing.getWorldQuaternion(new THREE.Quaternion()).invert();
+    const localPoint=swing.worldToLocal(contact.point.clone()),normal=contact.normal.clone().applyQuaternion(inverse),speed=velocity.clone().applyQuaternion(inverse);
+    const load=bag.contact(localPoint,normal,speed,contact.penetration,step);
+    if(load.normalForce>0)loads.push({...load,point:contact.point.toArray(),normal:contact.normal.toArray()});
+   }
+   this.applyDynamics();return {loads};
+  }
   resetResponse(time=0){
-   this.previousTime=time;this.previousFists={};this.seen.clear();this.hasFrame=false;
+   this.previousTime=time;this.previousFists={};this.seen.clear();this.hasFrame=false;this.followBeat=-1;this.followAdvance=0;
    for(const spring of [...Object.values(this.springs),...Object.values(this.recoil)])spring.reset();
    for(const [actor,coach] of [['lion',this.engine.coach],['rabbit',this.rabbit]]){
     this.pressures[actor]={L:0,R:0};if(coach)for(const side of ['L','R'])coach.deformGlove(side,0);
@@ -126,23 +165,24 @@
   applyDynamics(){
    const target=this.models[this.mode],swing=target?.userData.swing;
    if(swing){const p=this.springs[this.mode].position,limit=this.mode==='heavy'?.27:this.mode==='dummy'?.14:.90;
-    swing.rotation.set(limit*Math.tanh(p.x/limit),.18*Math.tanh(p.y/.18),limit*Math.tanh(p.z/limit));
+    if(this.mode==='heavy')swing.rotation.set(p.x,p.y,p.z);
+    else swing.rotation.set(limit*Math.tanh(p.x/limit),.18*Math.tanh(p.y/.18),limit*Math.tanh(p.z/limit));
    }
    this.group.updateMatrixWorld(true);
   }
-  closest(centre,object,shape){
+  closest(centre,object,shape,radius=.064){
    object.updateWorldMatrix(true,false);const p=object.worldToLocal(centre.clone());let point,normal,distance;
    if(shape.type==='cylinder'){
     const radial=Math.hypot(p.x,p.z)||1e-8,side=V(p.x/radial,0,p.z/radial);
     point=V(side.x*shape.radius,Math.max(-shape.halfHeight,Math.min(shape.halfHeight,p.y)),side.z*shape.radius);
     distance=p.distanceTo(point)*(radial<shape.radius&&Math.abs(p.y)<shape.halfHeight?-1:1);normal=side;
    }else{
-    const c=V(...shape.centre),r=V(...shape.radius),q=p.clone().sub(c),unit=V(q.x/r.x,q.y/r.y,q.z/r.z),length=unit.length()||1e-8;
+    const c=V(...shape.centre),r=V(...shape.radius),q=p.clone().sub(c),unit=V(q.x/r.x,q.y/r.y,q.z/r.z),power=shape.power||2,length=Math.pow(Math.pow(Math.abs(unit.x),power)+Math.pow(Math.abs(unit.y),power)+Math.pow(Math.abs(unit.z),power),1/power)||1e-8;
     point=c.clone().add(V(unit.x/length*r.x,unit.y/length*r.y,unit.z/length*r.z));
-    distance=p.distanceTo(point)*(length<1?-1:1);normal=point.clone().sub(c).divide(V(r.x*r.x,r.y*r.y,r.z*r.z)).normalize();
+    distance=p.distanceTo(point)*(length<1?-1:1);normal=V(Math.sign(unit.x)*Math.pow(Math.abs(unit.x),power-1)/r.x,Math.sign(unit.y)*Math.pow(Math.abs(unit.y),power-1)/r.y,Math.sign(unit.z)*Math.pow(Math.abs(unit.z),power-1)/r.z).normalize();
    }
    const worldPoint=object.localToWorld(point),worldNormal=normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(object.matrixWorld)).normalize();
-   return {point:worldPoint,normal:worldNormal,distance,penetration:.083-distance};
+   return {point:worldPoint,normal:worldNormal,distance,penetration:radius-distance};
   }
   collision(centre,receiver){
    if(receiver==='heavy')return {...this.closest(centre,this.models.heavy.userData.soft,{type:'cylinder',radius:.235,halfHeight:.575}),kind:'bag',receiver};
@@ -151,7 +191,7 @@
     return {...shapes.map(shape=>this.closest(centre,soft,shape)).sort((a,b)=>a.distance-b.distance)[0],kind:'bag',receiver};
    }
    const coach=receiver==='lion'?this.engine.coach:this.rabbit,candidates=[];
-   for(const side of ['L','R'])candidates.push({...this.closest(centre,coach.joints['hand'+side],{centre:[0,-.125,0],radius:[.085,.085,.085]}),kind:'glove',side,receiver});
+   for(const side of ['L','R'])candidates.push({...this.closest(centre,coach.joints['hand'+side],{centre:[side==='L'?-.008:.008,-.135,-.026],radius:[.094,.069,.074],power:3.2}),kind:'glove',side,receiver});
    const guard=candidates.filter(c=>c.penetration>0).sort((a,b)=>a.distance-b.distance)[0];if(guard)return guard;
    candidates.push({...this.closest(centre,coach.joints.head,{centre:[0,.17,.08],radius:[.145,.18,.14]}),kind:'head',receiver});
    candidates.push({...this.closest(centre,coach.joints.chest,{centre:[0,.15,.05],radius:[.25,.28,.16]}),kind:'body',receiver});
@@ -177,10 +217,20 @@
    p.needsUpdate=n.needsUpdate=true;mesh.userData.dentAmount=amount;
   }
   update(time,technique,combo){
+   const context=[this.mode,technique,combo,this.engine.randomSeed].join('|'),elapsed=time-this.previousTime;
+   if(this.mode==='heavy'&&context===this.context&&elapsed>1/120+1e-8&&elapsed<=.25){
+    const begin=this.previousTime,count=Math.ceil(elapsed*120-1e-7),contacts=[],loads=[];let result;
+    for(let i=1;i<=count;i++){result=this.step(begin+elapsed*i/count,technique,combo);contacts.push(...result.contacts);loads.push(...result.loads);}
+    result.contacts=contacts;result.loads=loads;return result;
+   }
+   return this.step(time,technique,combo);
+  }
+  step(time,technique,combo){
    const e=this.engine,mode=this.mode,context=[mode,technique,combo,e.randomSeed].join('|');
    if(context!==this.context||time<this.previousTime){this.resetResponse(time);this.context=context;}
    const dt=Math.max(0,time-this.previousTime);this.previousTime=time;
-   for(const spring of [...Object.values(this.springs),...Object.values(this.recoil)])spring.step(dt);
+   for(const [key,spring] of Object.entries(this.springs))if(key!=='heavy'||mode!=='heavy')spring.step(dt);
+   for(const spring of Object.values(this.recoil))spring.step(dt);
    this.applyDynamics();
    let frame=BOXING_ROUTINES.frame(time,mode==='speed'?'speedbag':technique,combo),heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)},counter=BOXING_ROUTINES.opponent(frame),random=null;
    if(technique==='random'&&mode==='rabbit'){
@@ -188,43 +238,59 @@
     random=this.randomSession.frame(time);heroSpec=random.lion;counter=random.rabbit;
     frame={...frame,move:heroSpec.move,phase:heroSpec.phase,index:random.index,random:true};
    }
+   if(mode==='heavy'&&!heroSpec.attack){this.springs.heavy.step(dt);this.applyDynamics();}
+   if(mode==='heavy'&&this.followBeat!==frame.index){
+    const centre=e.coach.root.worldToLocal(this.models.heavy.userData.soft.getWorldPosition(V()));
+    const rest=this.models.heavy.position.z-e.coach.root.position.z;
+    this.followAdvance=Math.max(0,Math.min(.16,centre.z-rest));this.followBeat=frame.index;
+   }
    const active=mode!=='none'&&mode!=='speed';
    const pose=(coach,spec,actor,isHero)=>{
-    const advance=active&&spec.attack?(spec.move.includes('uppercut')?.40:spec.move.includes('hook')?.16:0):0;
+    const advance=active&&spec.attack?(spec.move.includes('uppercut')?.40:spec.move.includes('hook')?.16:0)+(mode==='heavy'?this.followAdvance:0):0;
     const options={defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
-    if(isHero)options.target=active?this.aim(spec.move):null;
+    if(isHero){options.target=active?this.aim(spec.move):null;
+     if(mode==='dummy'&&spec.attack){options.strikeHeight=1.76;options.levelChange=.025;options.upperWristHeight=1.64;}
+     if(mode==='heavy'&&spec.attack){
+      const target=this.heavyTarget(spec.move,coach);options.target=null;options.knuckleTarget=target.point.toArray();options.strikeDirection=target.direction.toArray();
+      options.knucklePlanner=shoulder=>this.heavyTarget(spec.move,coach,shoulder);
+      options.strikeHeight=target.point.y-.026;options.levelChange=.065;options.upperLoadHeight=1.18;options.upperWristHeight=1.41;
+     }
+    }
     else if(spec.attack){options.target=spec.move.includes('uppercut')?null:spec.move.includes('hook')?[-.02,1.86,.91]:[0,1.82,1.01];options.advance=spec.move.includes('hook')?.15:advance;}
     const motionTime=mode==='speed'?time*1.8:random||!isHero?spec.phase*1.22:time;
     return coach.update(motionTime,mode==='speed'?'speedbag':random||!isHero?spec.move:technique,combo,options);
    };
    const hero=pose(e.coach,heroSpec,'lion',true);let partner=mode==='rabbit'?pose(this.rabbit,counter,'rabbit',false):null;
    this.group.updateMatrixWorld(true);
-   const desired={lion:{L:0,R:0},rabbit:{L:0,R:0}},contacts=[];let dent=null;
+   const desired={lion:{L:0,R:0},rabbit:{L:0,R:0}},contacts=[],loads=[];let dent=null;
    const examine=(actor,coach,metrics,spec,receiver)=>{
     const indices=mode==='speed'?[0,1]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
     for(const index of [0,1]){
-     const side=index?'R':'L',centre=V(...metrics.hands[index]).addScaledVector(V(...metrics.gloves[index].distal),.145);coach.root.localToWorld(centre);
+     const side=index?'R':'L',centre=coach.root.localToWorld(V(...metrics.gloves[index].knuckles));
      // Camera orbit rotates the whole scene; measure speed in the arena frame
      // so changing the view cannot add energy to a punch.
      const key=actor+side,localCentre=this.group.worldToLocal(centre.clone()),previous=this.previousFists[key];
      const velocity=previous&&dt>0?localCentre.clone().sub(previous).divideScalar(dt).applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion())):V(...metrics.gloves[index].distal).transformDirection(coach.root.matrixWorld).multiplyScalar(1.8);
      if(!indices.includes(index)){this.previousFists[key]=localCentre;continue;}
+     if(receiver==='heavy'){
+      const result=this.solveHeavyContact(previous||localCentre,localCentre,velocity,dt);loads.push(...result.loads);
+     }
      let current=this.collision(centre,receiver),entry=current;
      if(current.penetration<=0&&previous&&dt>0){const count=Math.min(16,Math.ceil(previous.distanceTo(localCentre)/.025));for(let i=1;i<count;i++){const c=this.collision(this.group.localToWorld(previous.clone().lerp(localCentre,i/count)),receiver);if(c.penetration>0){entry=c;break;}}}
-     const pressure=smooth(Math.max(0,Math.min(1,current.penetration/.065)));
+     const pressure=receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.6/.02856)):smooth(Math.max(0,Math.min(1,current.penetration/.065)));
      desired[actor][side]=Math.max(desired[actor][side],pressure);
      if(current.kind==='glove'&&pressure>0)desired[receiver][current.side]=Math.max(desired[receiver][current.side],pressure*.85);
-     if(current.kind==='bag'&&pressure>0&&(!dent||pressure>dent.pressure))dent={...current,pressure};
+     if(current.kind==='bag'&&pressure>0&&(!dent||pressure>dent.pressure))dent={...current,pressure:receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.4/.022)):pressure};
      if(entry.penetration>0){
       const beat=mode==='speed'?Math.floor(time*1.8/1.22*2):frame.index,event=actor+side+':'+beat;
       const closing=Math.max(0,-velocity.dot(entry.normal));
       if(!this.seen.has(event)&&closing>.02){
        this.seen.add(event);if(this.seen.size>64)this.seen.delete(this.seen.values().next().value);const magnitude=Math.max(.30,Math.min(1.3,.30+closing*.16));
        const force=velocity.clone().normalize().multiplyScalar(.45).addScaledVector(entry.normal,-.55).normalize().multiplyScalar(magnitude);
-       if(entry.kind==='bag'){
+       if(entry.kind==='bag'&&receiver!=='heavy'){
         const target=this.models[receiver],swing=target.userData.swing,localPoint=swing.worldToLocal(entry.point.clone()),localForce=force.clone().transformDirection(new THREE.Matrix4().copy(swing.matrixWorld).invert()).multiplyScalar(magnitude);
         const torque=localPoint.cross(localForce).multiplyScalar(receiver==='heavy'?1.35:receiver==='dummy'?.85:95);this.springs[receiver].impulse(torque);
-       }else this.recoil[receiver].impulse(V(0,0,magnitude*.45));
+       }else if(entry.kind!=='bag')this.recoil[receiver].impulse(V(0,0,magnitude*.45));
        contacts.push({actor,side,receiver,kind:entry.kind,impulse:magnitude,point:entry.point.toArray(),normal:entry.normal.toArray(),penetration:Math.max(0,current.penetration)});
       }
      }
@@ -245,7 +311,7 @@
     if(amount>.0001||old>.0001)this.deformSurface(soft,soft.userData.dent,amount>.0001?amount:0);
    }
    this.hasFrame=true;this.group.updateMatrixWorld(true);
-   this.metrics={frame,counter,hero,partner,random,contacts,hit:desired.lion.L>0||desired.lion.R>0,mode,
+   this.metrics={frame,counter,hero,partner,random,contacts,loads,hit:desired.lion.L>0||desired.lion.R>0,mode,
     compression:{lion:{...this.pressures.lion},rabbit:{...this.pressures.rabbit}},reaction:mode in this.springs?this.springs[mode].position.toArray():null};return this.metrics;
   }
  }

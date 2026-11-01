@@ -57,8 +57,9 @@
   function leatherSurface(volumes,lo,hi,step=.012) {
     const field=p=>{
       let d=10;
-      for(const [c,r] of volumes){
-        const b=(Math.hypot((p.x-c[0])/r[0],(p.y-c[1])/r[1],(p.z-c[2])/r[2])-1)*Math.min(...r);
+      for(const [c,r,power=2] of volumes){
+        const length=power===2?Math.hypot((p.x-c[0])/r[0],(p.y-c[1])/r[1],(p.z-c[2])/r[2]):Math.pow(Math.pow(Math.abs((p.x-c[0])/r[0]),power)+Math.pow(Math.abs((p.y-c[1])/r[1]),power)+Math.pow(Math.abs((p.z-c[2])/r[2]),power),1/power);
+        const b=(length-1)*Math.min(...r);
         const h=Math.max(.018-Math.abs(d-b),0)/.018;
         d=Math.min(d,b)-h*h*.018*.25;
       }return d;
@@ -140,10 +141,11 @@
       waistband.scale.z=.73;waistband.position.y=.098;hips.add(waistband);
       this.addLabel(hips,'SHADOW',V(0,.098,.184),.19,.043);
       const gloveGeometry=leatherSurface([
-        [[0,-.122,-.010],[.093,.103,.079]], // padded knuckles, flatter palm
-        [[0,-.058,-.006],[.082,.074,.066]],
-        [[-.069,-.087,.049],[.034,.055,.038]], // tucked attached thumb
-        [[0,.009,0],[.063,.052,.058]]
+        [[-.008,-.135,-.026],[.094,.069,.074],3.2], // broad MCP knuckle face
+        [[0,-.126,.041],[.079,.051,.040]], // fingers curl behind the striking pad
+        [[0,-.065,.008],[.076,.069,.056]],
+        [[-.072,-.085,.045],[.029,.047,.032]], // attached, tucked thumb
+        [[0,-.010,0],[.063,.043,.058]]
       ],[-.115,-.24,-.10],[.105,.07,.105],.010);
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',hand=this.joints['hand'+side];
@@ -155,7 +157,7 @@
         const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.070,.071,.062,32),this.black);
         cuff.position.y=.014;hand.add(cuff);
         // Branding belongs on the back of the glove, opposite its palm/thumb pad.
-        this.addLabel(hand,'SB',V(0,-.090,-.087),.055,.032).rotation.y=Math.PI;
+        this.addLabel(hand,'SB',V(0,-.090,-.095),.055,.032).rotation.y=Math.PI;
         this.curve(hand,[V(-.059,-.035,-.048),V(0,-.027,-.069),V(.059,-.035,-.048)],this.cream,.0012);
         this.curve(glove,[V(-.079,-.039,.047),V(-.093,-.073,.063),V(-.073,-.125,.073)],this.leather,.0018);
         this.curve(hand,[V(-.065,.035,0),V(0,.038,-.069),V(.065,.035,0)],this.gold,.0018);
@@ -496,7 +498,9 @@
       const y=distal.clone().negate(),x=y.clone().cross(palm).normalize();
       const z=x.clone().cross(y).normalize();
       this.orient(hand,new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z)));
-      return {distal:distal.toArray(),palm:z.toArray(),turn};
+      const centre=V(side==='L'?-.018:.018,-.140,-.026),face=V(side==='L'?-.018:.018,-.204,-.026);
+      const knuckles=this.root.worldToLocal(hand.localToWorld(centre)),strikePoint=this.root.worldToLocal(hand.localToWorld(face));
+      return {distal:distal.toArray(),palm:z.toArray(),turn,knuckles:knuckles.toArray(),strikePoint:strikePoint.toArray(),radius:.064};
     }
 
     deformGlove(side,pressure=0) {
@@ -609,7 +613,7 @@
           const hand=s===-1?lead:rear,guard=hand.clone();
           // Fist comes from below the target, not from an elbow raised beside
           // the head. Wrist finishes in front of the chin, with elbow below it.
-          hand.lerp(V(s*.21,1.34,.36),prepare).lerp(V(s*.12,1.72,.64),rise).lerp(guard,recover);
+          hand.lerp(V(s*.21,options.upperLoadHeight??1.34,.36),prepare).lerp(V(s*.12,options.upperWristHeight??1.72,.64),rise).lerp(guard,recover);
           if(s===-1){leadTurn=active;leadPole.lerp(V(0,-1,.2),active);leadPivot=.36*up;}
           else {rearTurn=active;rearPole.lerp(V(0,-1,.2),active);rearPivot=-.36*up;}
           break;
@@ -652,6 +656,7 @@
         approach=(l.z+r.z)*.5*options.advance/length;
         forward+=approach;crouch+=Math.abs(l.z-r.z)*.21;
       }
+      crouch+=(options.levelChange||0)*drive;
       const through=(options.contactDrive||0)*strike;
       forward+=through;crouch+=through*.32;
       const brace=(options.brace||0)*drive,recoil=options.recoil||0;
@@ -710,7 +715,7 @@
       if(move==='jab'||move==='cross') {
         const side=move==='jab'?'L':'R',hand=side==='L'?lead:rear;
         const shoulder=this.point(j['arm'+side]);
-        const direction=V(side==='L'?-.08:.02,1.82,shoulder.z+.66).sub(shoulder).normalize();
+        const direction=V(side==='L'?-.08:.02,options.strikeHeight??1.82,shoulder.z+.66).sub(shoulder).normalize();
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.0015;
         const target=shoulder.addScaledVector(direction,reach);
         hand.copy((side==='L'?V(-.185,1.68,.31):V(.18,1.68,.28)).add(guardShift)).lerp(target,strike);
@@ -720,7 +725,7 @@
         const shoulder=this.point(j['arm'+side]);
         // Longer-range hook: carry the fist around with the rotating shoulder,
         // opening the elbow progressively while preserving a bent-arm contact.
-        const radius=lerp(.43,.615,swing),height=1.81-crouch;
+        const radius=lerp(.43,.615,swing),height=options.strikeHeight??(1.81-crouch);
         const direction=V(-s*(.10+.65*swing),0,1-.35*swing).normalize();
         const dy=height-shoulder.y;
         const target=shoulder.addScaledVector(direction,Math.sqrt(Math.max(.01,radius*radius-dy*dy)));
@@ -738,9 +743,26 @@
         const amount=straight?strike:hookState?hookState.rotation:rise*(1-recover);
         hand.lerp(endpoint,amount);
       }
-      const le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
-      const re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
+      if(options.knucklePlanner&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
+        const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L',plan=options.knucklePlanner(this.point(j['arm'+side]));
+        options.knuckleTarget=plan.point.toArray();options.strikeDirection=plan.direction.toArray();
+      }
+      let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
+      let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
+      if(options.knuckleTarget&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
+        const index=['cross','rear_hook','rear_uppercut'].includes(move)?1:0,side=index?'R':'L',hand=index?rear:lead,pole=index?rearPole:leadPole;
+        const amount=straight?strike:hookState?hookState.rotation:rise*(1-recover),weight=1-Math.pow(1-amount,1/3);
+        for(let iteration=0;iteration<3;iteration++){
+          hand.addScaledVector(V(...options.knuckleTarget).sub(V(...gloves[index].strikePoint)),weight);
+          const shoulder=this.point(j['arm'+side]),reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;
+          hand.copy(shoulder.clone().add(hand.clone().sub(shoulder).clampLength(0,reach)));
+          let preferred=pole;
+          if(options.strikeDirection&&!move.includes('uppercut')){const desired=hand.clone().addScaledVector(V(...options.strikeDirection),-j['hand'+side].position.length()).sub(shoulder).normalize();preferred=pole.clone().lerp(desired,amount);}
+          const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,preferred);if(index)re=error;else le=error;
+          gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
+        }
+      }
       // Root-anchored hair tips respond to the repetition's turn and recovery.
       // Stateless deformation keeps freeze, scrubbing and slow playback stable.
       const hairResponse=Math.sin(phase*Math.PI*2)*(Math.abs(hipYaw-.12)+Math.abs(trunkRoll)+crouch)*.018;
