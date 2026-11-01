@@ -25,6 +25,9 @@ for(const move of moves) {
       const sole=bone.children.find(m=>m.name==='Boxing boot sole');
       const p=sole.geometry.attributes.position;
       for(let v=0;v<p.count;v+=3){const point=coach.root.worldToLocal(sole.localToWorld(new THREE.Vector3().fromBufferAttribute(p,v)));assert.ok(point.y>=.005+f.lift,move+' boot sole must not pierce the floor during pivots');}
+      const shin=bone.parent.getWorldPosition(new THREE.Vector3()).sub(bone.getWorldPosition(new THREE.Vector3())).normalize();
+      const collarUp=new THREE.Vector3(0,1,0).applyQuaternion(bone.userData.bootAnkle.getWorldQuaternion(new THREE.Quaternion()));
+      assert.ok(collarUp.dot(shin)>.99999,move+' boot collar must follow the shin instead of cutting through the calf');
     }
     const guardHand=['cross','rear_hook','rear_uppercut'].includes(move)?m.hands[0]:m.hands[1];
     if(move!=='roll'&&move!=='slip'&&move!=='step')assert.ok(guardHand[1]>m.head[1]-.15,move+' opposite guard drops below moving cheek');

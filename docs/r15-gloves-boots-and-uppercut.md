@@ -23,7 +23,9 @@ engine was added.
 
 Replace the pointed ellipsoid shoes with wider rounded boxing boots, joined
 instep/heel volumes, taller ankle shafts, crossed laces, eyelets and thin flat
-outsoles. Forward outsole contact now anchors heel pivots. The old mid-foot
+outsoles. The ankle collar follows the shin independently of the pivoting sole,
+keeping the calf inside the leather during knee bends. Forward outsole contact
+now anchors heel pivots. The old mid-foot
 anchor allowed the rigid toe to enter the floor. Tests sample the actual sole
 mesh throughout every action, in addition to checking foot IK and contact.
 

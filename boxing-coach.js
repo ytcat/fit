@@ -341,20 +341,22 @@
         [[0,-.033,.091],[.084,.053,.123]],
         [[0,-.027,-.042],[.067,.060,.070]],
         [[0,.016,.023],[.068,.086,.078]],
-        [[0,.085,-.025],[.062,.112,.061]]
+        [[0,.025,-.025],[.067,.070,.065]]
       ],[-.10,-.10,-.13],[.10,.22,.23]);
       const upper=new THREE.Mesh(this.bootGeometry,this.black);upper.name='Boxing boot upper';foot.add(upper);
-      const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.084,.067,.19,40,1,true),this.black);
-      shaft.name='Boxing boot ankle';shaft.position.set(0,.095,-.020);shaft.scale.z=.94;foot.add(shaft);
-      this.curve(foot,[V(-.074,.19,-.020),V(0,.19,.059),V(.074,.19,-.020)],this.black,.004);
+      const ankle=new THREE.Group();foot.add(ankle);foot.userData.bootAnkle=ankle;
+      const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.094,.074,.19,40,1,true),this.black);
+      shaft.name='Boxing boot ankle';shaft.position.set(0,.095,-.014);shaft.scale.z=1.05;ankle.add(shaft);
+      this.curve(ankle,[V(-.094,.19,-.014),V(0,.19,.085),V(.094,.19,-.014)],this.black,.004);
       // Tongue and crossed laces follow the sloping instep and ankle shaft.
       for(let i=0;i<8;i++) {
-        const y=-.007+i*.023,z=i<3?.137-i*.029:.065+(i-3)*.002;
-        this.curve(foot,[V(-.032,y,z),V(.032,y+.016,z-.006)],this.cream,.0020);
-        this.curve(foot,[V(.032,y,z),V(-.032,y+.016,z-.006)],this.cream,.0020);
-        for(const s of [-1,1])this.ellipsoid(foot,this.gold,V(s*.033,y,z),V(.004,.004,.002));
+        const y=-.007+i*.023,z=i<3?.137-i*.029:.070+(i-3)*.002;
+        const parent=i<3?foot:ankle;
+        this.curve(parent,[V(-.032,y,z),V(.032,y+.016,z-.006)],this.cream,.0020);
+        this.curve(parent,[V(.032,y,z),V(-.032,y+.016,z-.006)],this.cream,.0020);
+        for(const s of [-1,1])this.ellipsoid(parent,this.gold,V(s*.033,y,z),V(.004,.004,.002));
       }
-      for(const s of [-1,1])this.curve(foot,[V(s*.057,.145,-.032),V(s*.067,.050,.005),V(s*.069,-.020,.070)],this.black,.003);
+      for(const s of [-1,1])this.curve(ankle,[V(s*.088,.17,-.014),V(s*.079,.08,.005),V(s*.074,.01,.035)],this.black,.003);
     }
     addFace() {
       const head=this.joints.head;
@@ -621,7 +623,12 @@
         ankle.y+=step.lift;
         const kneePole=V(s*.07,0,1).applyAxisAngle(V(0,1,0),pivot*.65);
         const err=this.solve(j['thigh'+side],j['knee'+side],j['foot'+side],ankle,kneePole);
-        this.orient(j['foot'+side],footQ);footTargets.push({side,error:err,ankle:ankle.toArray(),pivot,lift:step.lift,contact:contact.toArray()});
+        this.orient(j['foot'+side],footQ);
+        // The sole follows the foot, while the boot collar follows the shin.
+        // A rigid upright collar let the animated calf pass through the leather.
+        const shin=this.point(j['knee'+side]).sub(ankle).normalize().applyQuaternion(footQ.clone().invert());
+        j['foot'+side].userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);
+        footTargets.push({side,error:err,ankle:ankle.toArray(),pivot,lift:step.lift,contact:contact.toArray()});
       }
       // Guard follows the head during defensive movement; strike endpoints stay in opponent space.
       const guardShift=V(shift,(hips.position.y-.935),forward);
