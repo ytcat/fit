@@ -22,9 +22,40 @@
   return {move:moves[index%moves.length],phase:fraction*(technique==='combo'?.86:1),index,slot:index%moves.length,moves,duration};
  }
  function opponent(frame){
-  if(frame.move==='slip')return {move:'jab',phase:Math.min(1,frame.phase+.055),attack:true};
-  if(frame.move==='roll')return {move:'hook',phase:Math.max(0,frame.phase-.01),attack:true};
-  return {move:'guard',phase:frame.phase,attack:false};
+  const p=frame.phase,clamp=n=>Math.max(0,Math.min(1,n));
+  const ease=n=>{n=clamp(n);return n*n*n*(n*(n*6-15)+10);};
+  const phase=delta=>clamp(p+delta*ease(p/.14)*(1-ease((p-.62)/.20)));
+  if(frame.move==='slip')return {move:'jab',phase:Math.min(1,p+.055),attack:true};
+  if(frame.move==='roll')return {move:'hook',phase:Math.max(0,p-.01),attack:true};
+  if(['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(frame.move)){
+   // Mix evasions with guarded contact. Never duck down into an uppercut.
+   if(frame.index%3===1)return {move:'guard',phase:p,attack:false,defend:true,brace:1};
+   const rear=['cross','rear_hook','rear_uppercut'].includes(frame.move),side=rear?1:-1;
+   if(frame.move.includes('hook')){
+    const rollPhase=p<.40?.45*ease(p/.40):p<.60?.45+.06*ease((p-.40)/.20):.51+.49*ease((p-.60)/.40);
+    return {move:'roll',phase:rollPhase,attack:false,defend:true,defenceSide:side};
+   }
+   return {move:'slip',phase:phase(frame.move.includes('uppercut')?-.07:-.055),attack:false,defend:true,defenceSide:side};
+  }
+  return {move:'guard',phase:p,attack:false};
  }
- window.BOXING_ROUTINES={list,sequences,frame,opponent,speeds:[.5,.75,1,1.25,1.5,2,2.5,3]};
+
+ class RandomSparring {
+  constructor(seed=1){this.seed=seed>>>0;this.state=this.seed;this.timeline=[];this.end=0;this.turn=0;}
+  random(){this.state=(Math.imul(this.state,1664525)+1013904223)>>>0;return this.state/4294967296;}
+  append(){
+   const combinations=[['jab','cross'],['jab','jab','cross'],['jab','cross','hook'],['uppercut','rear_hook'],['cross','hook','rear_uppercut'],['jab','rear_uppercut','hook']];
+   const moves=combinations[Math.floor(this.random()*combinations.length)],attacker=this.turn%2===0?'lion':'rabbit';
+   for(const move of moves){const duration=move.includes('uppercut')?1.22:1.02+this.random()*.16;this.timeline.push({start:this.end,end:this.end+duration,duration,move,attacker,index:this.timeline.length});this.end+=duration;}
+   this.turn++;
+  }
+  frame(time){
+   time=Math.max(0,time);while(this.end<=time)this.append();
+   let lo=0,hi=this.timeline.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(this.timeline[mid].end<=time)lo=mid+1;else hi=mid;}
+   const beat=this.timeline[lo],phase=(time-beat.start)/beat.duration;
+   const attack={move:beat.move,phase,attack:true},defence=opponent({move:beat.move,phase,index:beat.index});
+   return {...beat,phase,lion:beat.attacker==='lion'?attack:defence,rabbit:beat.attacker==='rabbit'?attack:defence};
+  }
+ }
+ window.BOXING_ROUTINES={list,sequences,frame,opponent,RandomSparring,speeds:[.5,.75,1,1.25,1.5,2,2.5,3]};
 })();

@@ -14,10 +14,11 @@
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-routines.js?v=1"></script>
-  <script src="./boxing-coach.js?v=16"></script>
-  <script src="./training-arena.js?v=1"></script>
-  <script src="./training-controls.js?v=1" defer></script>
+  <script src="./boxing-routines.js?v=2"></script>
+  <script src="./boxing-coach.js?v=17"></script>
+  <script src="./contact-response.js?v=1"></script>
+  <script src="./training-arena.js?v=2"></script>
+  <script src="./training-controls.js?v=2" defer></script>
 
   <style>
     html, body {
@@ -164,7 +165,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R16",
+        subtitle: "LION BOXING COACH · R17",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -217,7 +218,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R16",
+        subtitle: "מאמן אגרוף אריה · R17",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -270,7 +271,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R16",
+        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R17",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -836,6 +837,7 @@
       }
 
       renderTechnique() {
+        if(this.engine.technique==='random')return;
         const info=COACH_TECHNIQUES[this.engine.technique];
         if(!info) { this.renderDrill();return; }
         const offset={en:1,he:3,ru:5}[this.lang];

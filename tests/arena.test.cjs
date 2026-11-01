@@ -2,7 +2,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
 global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
-for(const f of ['boxing-routines.js','boxing-coach.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+for(const f of ['boxing-routines.js','boxing-coach.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const data=JSON.parse(fs.readFileSync('assets/models/coach-surface.json'));
 const e={scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,320/640,.1,100),coach:new LionCoach(data),animTime:0,technique:'combo',currentAnim:'sparring_flow',fitCameraToModel(){}};
 e.demoModel=e.coach.root;e.scene.add(e.demoModel);const arena=e.arena=new TrainingArena(e,data);

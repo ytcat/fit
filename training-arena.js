@@ -7,7 +7,10 @@
  class TrainingArena {
   constructor(engine,data){
    this.engine=engine;this.data=data;this.mode='none';this.group=new THREE.Group();this.group.name='Training pair';
-   this.models={};this.lastHit=-1;this.impactAt=-100;this.previousTime=0;this.metrics={};
+   this.models={};this.previousTime=0;this.metrics={};
+   this.springs={heavy:new ContactSpring(4.2,.30),dummy:new ContactSpring(9,.54),speed:new ContactSpring(28,.14)};
+   this.recoil={lion:new ContactSpring(10,1),rabbit:new ContactSpring(10,1)};
+   this.pressures={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.previousFists={};this.seen=new Set();this.hasFrame=false;
    this.dark=material({color:0x1b2532,roughness:.64,metalness:.3});
    this.leather=material({color:0x813432,roughness:.57});
    this.accent=material({color:0xe2bc76,roughness:.56,metalness:.15});
@@ -28,8 +31,9 @@
     this.rod(root,V(s*.48,.035,-.45),V(s*.48,.035,.48),.035);
    }
    this.rod(root,V(-.48,2.55,-.12),V(.48,2.55,-.12),.030);
+   this.rod(root,V(0,2.55,-.12),V(0,2.48,0),.014,this.accent);
    const swing=new THREE.Group();swing.position.y=2.48;root.add(swing);root.userData.swing=swing;
-   const body=this.mesh(swing,new THREE.CylinderGeometry(.235,.235,1.15,64),this.leather,V(0,-.94,0));body.name='Heavy bag leather';
+   const body=this.mesh(swing,new THREE.CylinderGeometry(.235,.235,1.15,64),this.leather,V(0,-.94,0));body.name='Heavy bag leather';root.userData.soft=body;
    this.mesh(swing,new THREE.SphereGeometry(.235,48,20),this.leather,V(0,-1.515,0)).scale.y=.24;
    this.mesh(swing,new THREE.CylinderGeometry(.239,.239,.10,64),this.dark,V(0,-.40,0));
    for(let i=0;i<4;i++){
@@ -48,7 +52,7 @@
    const swing=new THREE.Group();swing.position.y=.74;root.add(swing);root.userData.swing=swing;
    const skin=material({color:0xab7960,roughness:.90});
    const volumes=[[[0,.45,0],[.255,.39,.145]],[[0,.66,0],[.315,.17,.16]],[[0,.85,0],[.095,.14,.095]],[[0,1.06,0],[.14,.18,.135]],[[0,.96,.035],[.12,.10,.13]]];
-   const torso=this.mesh(swing,CoachSurface(volumes,[-.36,.03,-.20],[.36,1.27,.20],.020),skin);torso.name='Joined head and torso';
+   const torso=this.mesh(swing,CoachSurface(volumes,[-.36,.03,-.20],[.36,1.27,.20],.020),skin);torso.name='Joined head and torso';root.userData.soft=torso;
    for(const s of [-1,1]){
     this.ellipsoid(swing,skin,V(s*.12,.65,-.135),V(.12,.095,.035));
     this.ellipsoid(swing,material({color:0x704f44,roughness:1}),V(s*.050,1.095,-.126),V(.028,.010,.009));
@@ -68,12 +72,12 @@
    this.mesh(root,new THREE.CylinderGeometry(.38,.38,.055,64),wood,V(0,2.27,0));
    this.mesh(root,new THREE.SphereGeometry(.027,16,12),this.accent,V(0,2.205,0));
    const swing=new THREE.Group();swing.position.y=2.20;root.add(swing);root.userData.swing=swing;
-   const bag=this.mesh(swing,CoachSurface([[[0,-.17,0],[.115,.14,.115]],[[0,-.055,0],[.047,.085,.047]]],[-.15,-.34,-.15],[.15,.04,.15],.013),this.leather);bag.name='Pear-shaped speed bag';
+   const bag=this.mesh(swing,CoachSurface([[[0,-.17,0],[.115,.14,.115]],[[0,-.055,0],[.047,.085,.047]]],[-.15,-.34,-.15],[.15,.04,.15],.013),this.leather);bag.name='Pear-shaped speed bag';root.userData.soft=bag;
    this.rod(swing,V(0,0,0),V(0,-.03,0),.011,this.accent);return root;
   }
   setTarget(mode){
    if(!['none','heavy','dummy','speed','rabbit'].includes(mode))mode='none';
-   const e=this.engine;this.mode=mode;this.lastHit=-1;this.impactAt=-100;
+   const e=this.engine;this.mode=mode;this.resetResponse(e.animTime);
    for(const child of [...this.group.children])if(child!==e.coach.root)this.group.remove(child);
    if(mode==='none'){
     e.scene.remove(this.group);e.scene.add(e.coach.root);e.coach.root.position.set(0,0,0);e.coach.root.rotation.y=-.32;
@@ -105,45 +109,144 @@
    if(!punches.includes(move))return null;
    const s=['cross','rear_hook','rear_uppercut'].includes(move)?1:-1;
    if(move.includes('uppercut'))return null;
-   if(move.includes('hook'))return [s*.19,1.80,.86];
+   if(move.includes('hook'))return [s*.19,this.mode==='rabbit'?1.88:1.80,.86];
    return null;
   }
-  update(time,technique,combo){
-   const e=this.engine,mode=this.mode;
-   if(time<this.previousTime){this.lastHit=-1;this.impactAt=-100;}this.previousTime=time;
-   const frame=BOXING_ROUTINES.frame(time,mode==='speed'?'speedbag':technique,combo);
-   const active=mode!=='none'&&mode!=='speed';
-   const advance=active?(frame.move.includes('uppercut')?.38:frame.move.includes('hook')?.16:0):0;
-   const hero=e.coach.update(mode==='speed'?time*1.8:time,mode==='speed'?'speedbag':technique,combo,{target:active?this.aim(frame.move):null,advance});
-   const counter=BOXING_ROUTINES.opponent(frame);let partner=null;
-   if(mode==='rabbit'){
-    partner=this.rabbit.update(counter.phase*1.22,counter.move,combo,counter.attack?{target:counter.move==='hook'?[-.02,1.86,.91]:[0,1.82,1.01],advance:counter.move==='hook'?.15:0}:{});
+  resetResponse(time=0){
+   this.previousTime=time;this.previousFists={};this.seen.clear();this.hasFrame=false;
+   for(const spring of [...Object.values(this.springs),...Object.values(this.recoil)])spring.reset();
+   for(const [actor,coach] of [['lion',this.engine.coach],['rabbit',this.rabbit]]){
+    this.pressures[actor]={L:0,R:0};if(coach)for(const side of ['L','R'])coach.deformGlove(side,0);
    }
-   let hit=false;
-   if(mode!=='none'&&mode!=='rabbit'){
-    const index=['cross','rear_hook','rear_uppercut'].includes(frame.move)?1:0;
-    const fist=V(...hero.hands[index]).addScaledVector(V(...hero.gloves[index].distal),.20);
-    e.coach.root.updateWorldMatrix(true,true);e.coach.root.localToWorld(fist);this.group.worldToLocal(fist);
-    const target=this.models[mode];
-    if(mode==='speed')hit=true;
-    else if(punches.includes(frame.move)){
-     const radial=Math.hypot(fist.x,fist.z-target.position.z);
-     hit=radial<(mode==='heavy'?.235:.19)+.11&&fist.y>1.1&&fist.y<2.07;
-    }
-    if(hit&&(frame.index!==this.lastHit||mode==='speed'&&time-this.impactAt>.24)){
-     this.lastHit=frame.index;this.impactAt=time;
-    }
-    const elapsed=Math.max(0,time-this.impactAt),swing=target.userData.swing;
-    if(mode==='speed'){
-     const rhythm=time*1.8/1.22*Math.PI*2;
-     swing.rotation.x=.54*Math.sin((rhythm-Math.PI/2)*3);swing.rotation.z=.10*Math.sin(rhythm*3+1.2);
-    }else{
-     swing.rotation.x=-(mode==='heavy'?.12:.055)*Math.exp(-elapsed*4.5)*Math.sin(elapsed*11);
-     swing.rotation.z=frame.move.includes('hook')?.035*Math.exp(-elapsed*5)*Math.sin(elapsed*11):0;
-    }
+   for(const model of Object.values(this.models)){
+    const swing=model.userData.swing;if(swing)swing.rotation.set(0,0,0);
+    const soft=model.userData.soft;if(soft?.userData.softRest)this.deformSurface(soft,null,0);
+   }
+  }
+  applyDynamics(){
+   const target=this.models[this.mode],swing=target?.userData.swing;
+   if(swing){const p=this.springs[this.mode].position,limit=this.mode==='heavy'?.27:this.mode==='dummy'?.14:.90;
+    swing.rotation.set(limit*Math.tanh(p.x/limit),.18*Math.tanh(p.y/.18),limit*Math.tanh(p.z/limit));
    }
    this.group.updateMatrixWorld(true);
-   this.metrics={frame,counter,hero,partner,hit,mode};return this.metrics;
+  }
+  closest(centre,object,shape){
+   object.updateWorldMatrix(true,false);const p=object.worldToLocal(centre.clone());let point,normal,distance;
+   if(shape.type==='cylinder'){
+    const radial=Math.hypot(p.x,p.z)||1e-8,side=V(p.x/radial,0,p.z/radial);
+    point=V(side.x*shape.radius,Math.max(-shape.halfHeight,Math.min(shape.halfHeight,p.y)),side.z*shape.radius);
+    distance=p.distanceTo(point)*(radial<shape.radius&&Math.abs(p.y)<shape.halfHeight?-1:1);normal=side;
+   }else{
+    const c=V(...shape.centre),r=V(...shape.radius),q=p.clone().sub(c),unit=V(q.x/r.x,q.y/r.y,q.z/r.z),length=unit.length()||1e-8;
+    point=c.clone().add(V(unit.x/length*r.x,unit.y/length*r.y,unit.z/length*r.z));
+    distance=p.distanceTo(point)*(length<1?-1:1);normal=point.clone().sub(c).divide(V(r.x*r.x,r.y*r.y,r.z*r.z)).normalize();
+   }
+   const worldPoint=object.localToWorld(point),worldNormal=normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(object.matrixWorld)).normalize();
+   return {point:worldPoint,normal:worldNormal,distance,penetration:.083-distance};
+  }
+  collision(centre,receiver){
+   if(receiver==='heavy')return {...this.closest(centre,this.models.heavy.userData.soft,{type:'cylinder',radius:.235,halfHeight:.575}),kind:'bag',receiver};
+   if(receiver==='dummy'||receiver==='speed'){
+    const soft=this.models[receiver].userData.soft,shapes=receiver==='speed'?[{centre:[0,-.17,0],radius:[.115,.14,.115]}]:[{centre:[0,1.06,0],radius:[.145,.18,.145]},{centre:[0,.52,0],radius:[.285,.37,.17]}];
+    return {...shapes.map(shape=>this.closest(centre,soft,shape)).sort((a,b)=>a.distance-b.distance)[0],kind:'bag',receiver};
+   }
+   const coach=receiver==='lion'?this.engine.coach:this.rabbit,candidates=[];
+   for(const side of ['L','R'])candidates.push({...this.closest(centre,coach.joints['hand'+side],{centre:[0,-.125,0],radius:[.085,.085,.085]}),kind:'glove',side,receiver});
+   const guard=candidates.filter(c=>c.penetration>0).sort((a,b)=>a.distance-b.distance)[0];if(guard)return guard;
+   candidates.push({...this.closest(centre,coach.joints.head,{centre:[0,.17,.08],radius:[.145,.18,.14]}),kind:'head',receiver});
+   candidates.push({...this.closest(centre,coach.joints.chest,{centre:[0,.15,.05],radius:[.25,.28,.16]}),kind:'body',receiver});
+   return candidates.sort((a,b)=>a.distance-b.distance)[0];
+  }
+  deformSurface(mesh,contact,amount){
+   const g=mesh.geometry,p=g.attributes.position,n=g.attributes.normal;
+   if(!mesh.userData.softRest){mesh.userData.softRest=new Float32Array(p.array);mesh.userData.normalRest=new Float32Array(n.array);}
+   const rest=mesh.userData.softRest,norm=mesh.userData.normalRest;
+   const depth=(this.mode==='heavy'?.022:this.mode==='dummy'?.014:.009)*amount;
+   for(let i=0;i<p.count;i++){
+    let x=rest[i*3],y=rest[i*3+1],z=rest[i*3+2],nx=norm[i*3],ny=norm[i*3+1],nz=norm[i*3+2];
+    if(contact&&amount>0){
+     const dx=x-contact.point.x,dy=y-contact.point.y,dz=z-contact.point.z,radius2=.115*.115;
+     const falloff=Math.exp(-(dx*dx+dy*dy+dz*dz)/radius2),dent=depth*falloff;
+     x-=contact.normal.x*dent;y-=contact.normal.y*dent;z-=contact.normal.z*dent;
+     const dot=dx*nx+dy*ny+dz*nz,k=2*dent/radius2;
+     const tx=dx-nx*dot,ty=dy-ny*dot,tz=dz-nz*dot;
+     nx-=k*tx;ny-=k*ty;nz-=k*tz;const length=Math.hypot(nx,ny,nz)||1;nx/=length;ny/=length;nz/=length;
+    }
+    p.setXYZ(i,x,y,z);n.setXYZ(i,nx,ny,nz);
+   }
+   p.needsUpdate=n.needsUpdate=true;mesh.userData.dentAmount=amount;
+  }
+  update(time,technique,combo){
+   const e=this.engine,mode=this.mode,context=[mode,technique,combo,e.randomSeed].join('|');
+   if(context!==this.context||time<this.previousTime){this.resetResponse(time);this.context=context;}
+   const dt=Math.max(0,time-this.previousTime);this.previousTime=time;
+   for(const spring of [...Object.values(this.springs),...Object.values(this.recoil)])spring.step(dt);
+   this.applyDynamics();
+   let frame=BOXING_ROUTINES.frame(time,mode==='speed'?'speedbag':technique,combo),heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)},counter=BOXING_ROUTINES.opponent(frame),random=null;
+   if(technique==='random'&&mode==='rabbit'){
+    const seed=e.randomSeed??1;if(!this.randomSession||this.randomSession.seed!==seed)this.randomSession=new BOXING_ROUTINES.RandomSparring(seed);
+    random=this.randomSession.frame(time);heroSpec=random.lion;counter=random.rabbit;
+    frame={...frame,move:heroSpec.move,phase:heroSpec.phase,index:random.index,random:true};
+   }
+   const active=mode!=='none'&&mode!=='speed';
+   const pose=(coach,spec,actor,isHero)=>{
+    const advance=active&&spec.attack?(spec.move.includes('uppercut')?.40:spec.move.includes('hook')?.16:0):0;
+    const options={defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
+    if(isHero)options.target=active?this.aim(spec.move):null;
+    else if(spec.attack){options.target=spec.move.includes('uppercut')?null:spec.move.includes('hook')?[-.02,1.86,.91]:[0,1.82,1.01];options.advance=spec.move.includes('hook')?.15:advance;}
+    const motionTime=mode==='speed'?time*1.8:random||!isHero?spec.phase*1.22:time;
+    return coach.update(motionTime,mode==='speed'?'speedbag':random||!isHero?spec.move:technique,combo,options);
+   };
+   const hero=pose(e.coach,heroSpec,'lion',true);let partner=mode==='rabbit'?pose(this.rabbit,counter,'rabbit',false):null;
+   this.group.updateMatrixWorld(true);
+   const desired={lion:{L:0,R:0},rabbit:{L:0,R:0}},contacts=[];let dent=null;
+   const examine=(actor,coach,metrics,spec,receiver)=>{
+    const indices=mode==='speed'?[0,1]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
+    for(const index of [0,1]){
+     const side=index?'R':'L',centre=V(...metrics.hands[index]).addScaledVector(V(...metrics.gloves[index].distal),.145);coach.root.localToWorld(centre);
+     // Camera orbit rotates the whole scene; measure speed in the arena frame
+     // so changing the view cannot add energy to a punch.
+     const key=actor+side,localCentre=this.group.worldToLocal(centre.clone()),previous=this.previousFists[key];
+     const velocity=previous&&dt>0?localCentre.clone().sub(previous).divideScalar(dt).applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion())):V(...metrics.gloves[index].distal).transformDirection(coach.root.matrixWorld).multiplyScalar(1.8);
+     if(!indices.includes(index)){this.previousFists[key]=localCentre;continue;}
+     let current=this.collision(centre,receiver),entry=current;
+     if(current.penetration<=0&&previous&&dt>0){const count=Math.min(16,Math.ceil(previous.distanceTo(localCentre)/.025));for(let i=1;i<count;i++){const c=this.collision(this.group.localToWorld(previous.clone().lerp(localCentre,i/count)),receiver);if(c.penetration>0){entry=c;break;}}}
+     const pressure=smooth(Math.max(0,Math.min(1,current.penetration/.065)));
+     desired[actor][side]=Math.max(desired[actor][side],pressure);
+     if(current.kind==='glove'&&pressure>0)desired[receiver][current.side]=Math.max(desired[receiver][current.side],pressure*.85);
+     if(current.kind==='bag'&&pressure>0&&(!dent||pressure>dent.pressure))dent={...current,pressure};
+     if(entry.penetration>0){
+      const beat=mode==='speed'?Math.floor(time*1.8/1.22*2):frame.index,event=actor+side+':'+beat;
+      const closing=Math.max(0,-velocity.dot(entry.normal));
+      if(!this.seen.has(event)&&closing>.02){
+       this.seen.add(event);if(this.seen.size>64)this.seen.delete(this.seen.values().next().value);const magnitude=Math.max(.30,Math.min(1.3,.30+closing*.16));
+       const force=velocity.clone().normalize().multiplyScalar(.45).addScaledVector(entry.normal,-.55).normalize().multiplyScalar(magnitude);
+       if(entry.kind==='bag'){
+        const target=this.models[receiver],swing=target.userData.swing,localPoint=swing.worldToLocal(entry.point.clone()),localForce=force.clone().transformDirection(new THREE.Matrix4().copy(swing.matrixWorld).invert()).multiplyScalar(magnitude);
+        const torque=localPoint.cross(localForce).multiplyScalar(receiver==='heavy'?1.35:receiver==='dummy'?.85:95);this.springs[receiver].impulse(torque);
+       }else this.recoil[receiver].impulse(V(0,0,magnitude*.45));
+       contacts.push({actor,side,receiver,kind:entry.kind,impulse:magnitude,point:entry.point.toArray(),normal:entry.normal.toArray(),penetration:Math.max(0,current.penetration)});
+      }
+     }
+     this.previousFists[key]=localCentre;
+    }
+   };
+   if(mode!=='none')examine('lion',e.coach,hero,heroSpec,mode);
+   if(mode==='rabbit')examine('rabbit',this.rabbit,partner,counter,'lion');
+   for(const [actor,coach] of [['lion',e.coach],['rabbit',this.rabbit]])if(coach)for(const side of ['L','R']){
+    const old=this.pressures[actor][side],goal=desired[actor][side],rate=goal>old?38:17;
+    const amount=!this.hasFrame?goal:old+(goal-old)*(1-Math.exp(-rate*dt));
+    this.pressures[actor][side]=amount<.0001?0:amount;coach.deformGlove(side,this.pressures[actor][side]);
+   }
+   const soft=this.models[mode]?.userData.soft;
+   if(soft){
+    if(dent){soft.userData.dent={point:soft.worldToLocal(dent.point.clone()),normal:dent.normal.clone().applyMatrix3(new THREE.Matrix3().getNormalMatrix(soft.matrixWorld).invert()).normalize()};}
+    const old=soft.userData.dentAmount||0,goal=dent?.pressure||0,amount=!this.hasFrame?goal:old+(goal-old)*(1-Math.exp(-28*dt));
+    if(amount>.0001||old>.0001)this.deformSurface(soft,soft.userData.dent,amount>.0001?amount:0);
+   }
+   this.hasFrame=true;this.group.updateMatrixWorld(true);
+   this.metrics={frame,counter,hero,partner,random,contacts,hit:desired.lion.L>0||desired.lion.R>0,mode,
+    compression:{lion:{...this.pressures.lion},rabbit:{...this.pressures.rabbit}},reaction:mode in this.springs?this.springs[mode].position.toArray():null};return this.metrics;
   }
  }
  window.TrainingArena=TrainingArena;

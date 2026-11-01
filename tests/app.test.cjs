@@ -37,6 +37,7 @@ app.toggle();assert.equal(app.engine.isPlaying,true);assert.equal(app.clock,180,
 assert.ok(BOXING_ROUTINES.speeds.includes(3),'fast playback must be available');
 assert.ok(!html.includes('>START TRAINING</button>'),'start-exercise entry must be replaced');
 console.log('PASS continuous pause/resume without starting a timed exercise');
+app.engine.technique='random';app.setLanguage('ru');assert.equal(app.engine.technique,'random','language must preserve random sparring');
 
 const engine=Object.create(TestEngine.prototype);let stopped=false;
 Object.assign(engine,{mixer:{},technique:'uppercut',animTime:0,actions:{Rear_Uppercut:{}},

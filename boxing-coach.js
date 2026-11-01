@@ -96,7 +96,7 @@
     constructor(data,options={}) {
       this.species=options.species||'lion';
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
-      this.bones=[];this.joints={};this.metrics={};
+      this.bones=[];this.joints={};this.metrics={};this.gloveMeshes={};
       const joint=(name,parent,p)=>{
         const b=new THREE.Bone();b.name=name;b.position.copy(p);parent.add(b);
         this.bones.push(b);this.joints[name]=b;return b;
@@ -147,9 +147,11 @@
       ],[-.115,-.24,-.10],[.105,.07,.105],.010);
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',hand=this.joints['hand'+side];
-        const glove=new THREE.Mesh(gloveGeometry,this.leather);glove.name='Boxing glove';
+        const glove=new THREE.Mesh(gloveGeometry.clone(),this.leather);glove.name='Boxing glove';
         if(s===1) glove.scale.x=-1;
         hand.add(glove);glove.castShadow=true;
+        this.gloveMeshes[side]=glove;glove.userData.restPosition=new Float32Array(glove.geometry.attributes.position.array);
+        glove.userData.restNormal=new Float32Array(glove.geometry.attributes.normal.array);glove.userData.pressure=0;
         const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.070,.071,.062,32),this.black);
         cuff.position.y=.014;hand.add(cuff);
         // Branding belongs on the back of the glove, opposite its palm/thumb pad.
@@ -497,6 +499,21 @@
       return {distal:distal.toArray(),palm:z.toArray(),turn};
     }
 
+    deformGlove(side,pressure=0) {
+      const mesh=this.gloveMeshes[side],amount=clamp(pressure);
+      if(Math.abs((mesh.userData.pressure||0)-amount)<.0001)return;
+      const rest=mesh.userData.restPosition,norm=mesh.userData.restNormal;
+      const p=mesh.geometry.attributes.position,n=mesh.geometry.attributes.normal;
+      for(let i=0;i<p.count;i++){
+        const x=rest[i*3],y=rest[i*3+1],z=rest[i*3+2];
+        const pad=smooth((-y-.025)/.10),thumb=x<-.06&&z>.025?.55:1;
+        const squash=amount*pad*thumb,sx=1+.055*squash,sy=1-.14*squash,sz=1+.045*squash;
+        p.setXYZ(i,x*sx,y*sy,z*sz);
+        const nx=norm[i*3]/sx,ny=norm[i*3+1]/sy,nz=norm[i*3+2]/sz,length=Math.hypot(nx,ny,nz)||1;
+        n.setXYZ(i,nx/length,ny/length,nz/length);
+      }
+      p.needsUpdate=n.needsUpdate=true;mesh.userData.pressure=amount;
+    }
     update(t,technique,combo,options={}) {
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
       const beat=t/(technique==='combo'?1.0:1.22),move=seq[Math.floor(beat)%seq.length];
@@ -536,12 +553,12 @@
       const drillStep=s=>{
         if(move==='step')return {...stepState(s),x:0};
         const lateralMove=['hook','rear_hook','slip','roll'].includes(move);
-        const firstSide=move==='rear_hook'||move==='slip'?1:-1;
+        const firstSide=move==='slip'?(options.defenceSide||1):move==='rear_hook'?1:-1;
         const first=s===firstSide;
         const out=clamp((phase-(first?.04:.20))/.14);
         const back=clamp((phase-(first?.72:.56))/.14);
         const transfer=smooth(out)-smooth(back);
-        const direction=move==='hook'?-1:move==='rear_hook'||move==='slip'?1:-1;
+        const direction=move==='slip'?(options.defenceSide||1):move==='hook'?-1:move==='rear_hook'?1:-1;
         const length=(move==='jab'?.085:move==='cross'?.045:move.includes('uppercut')?.055:.025)+(options.advance||0);
         return {z:length*transfer,x:lateralMove?direction*.045*transfer:0,
           lift:.018*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
@@ -603,12 +620,14 @@
           leadTurn=.35;rearTurn=.35;hipYaw=.045*circle;chestYaw=.075*circle;forward=.025;
           crouch=.012*(1-lift);rearPivot=-.06*(1-circle);break;
         }
-        case 'slip': shift=.11*drive;crouch=.048*drive;hipYaw=-.12*drive;chestYaw=-.18*twist;
-          trunkRoll=-.15*drive;pelvisRoll=-.030*drive;forward=-.022*drive;break;
+        case 'slip': {
+          const side=options.defenceSide||1;shift=side*.11*drive;crouch=.048*drive;hipYaw=-side*.12*drive;chestYaw=-side*.18*twist;
+          trunkRoll=-side*.15*drive;pelvisRoll=-side*.030*drive;forward=-.022*drive;break;
+        }
         case 'roll': {
           const q=smooth(clamp((phase-.12)/.72));
-          const travel=Math.sin(q*Math.PI*2);
-          shift=.100*travel;crouch=.22*Math.sin(q*Math.PI);
+          const travel=Math.sin(q*Math.PI*2)*(options.defenceSide||1);
+          shift=.100*travel;crouch=(options.duckDepth||.22)*Math.sin(q*Math.PI);
           hipYaw=-.12*travel;chestYaw=-.16*travel;
           trunkRoll=-.085*travel;pelvisRoll=-.025*travel;trunkPitch=.020*Math.sin(q*Math.PI);break;
         }
@@ -631,8 +650,12 @@
         const l=drillStep(-1),r=drillStep(1);
         const length=(move.includes('uppercut')?.055:.025)+options.advance;
         approach=(l.z+r.z)*.5*options.advance/length;
-        forward+=approach;crouch+=Math.abs(l.z-r.z)*.19;
+        forward+=approach;crouch+=Math.abs(l.z-r.z)*.21;
       }
+      const through=(options.contactDrive||0)*strike;
+      forward+=through;crouch+=through*.32;
+      const brace=(options.brace||0)*drive,recoil=options.recoil||0;
+      crouch+=brace*.022+recoil*.38;forward-=brace*.014+recoil;trunkPitch+=brace*.020-recoil*.8;
       hipYaw+=.12;chestYaw+=.08;
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
@@ -680,6 +703,7 @@
       // The defending hand follows the moving cheek, not just pelvis height.
       if(!['jab','hook','uppercut','speedbag'].includes(move))lead.copy(V(-.185,1.68,.31).add(headShift));
       if(!['cross','rear_hook','rear_uppercut','speedbag'].includes(move))rear.copy(V(.18,1.68,.28).add(headShift));
+      if(brace){lead.add(V(.035*brace,.105*brace,-.015*brace));rear.add(V(-.035*brace,.105*brace,-.015*brace));}
       // Straight punches use almost the full arm reach after torso rotation.
       // A fixed short wrist endpoint left the elbow folded and knuckles pointing
       // upward even at impact. Keep a small bend rather than locking the joint.
@@ -708,7 +732,7 @@
       if(options.target&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L';
         const hand=side==='L'?lead:rear,shoulder=this.point(j['arm'+side]);
-        const aim=V(...options.target).add(V(0,0,approach)),delta=aim.sub(shoulder);
+        const aim=V(...options.target).add(V(0,0,approach+through)),delta=aim.sub(shoulder);
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;
         const endpoint=shoulder.add(delta.clampLength(0,reach));
         const amount=straight?strike:hookState?hookState.rotation:rise*(1-recover);

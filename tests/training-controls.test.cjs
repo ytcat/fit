@@ -21,7 +21,9 @@ assert.equal(bar.id,'trainingBar');assert.equal(target.textContent,'Shadowboxing
 speed.click();let rates=body.children.at(-1);assert.equal(rates.children[1].children.length,8);rates.children[1].children[7].click();assert.equal(e.speed,3);assert.equal(speed.textContent,'3×');
 target.click();let d=body.children.at(-1);assert.equal(d.children[1].children.length,5);d.children[1].children[4].click();
 assert.equal(e.targetMode,'rabbit');assert.equal(e.arena.mode,'rabbit');assert.equal(e.currentAnim,'sparring_flow');assert.equal(d.parentElement,null);
-combo.click();d=body.children.at(-1);assert.equal(d.children[1].children.length,12);d.children[1].children[5].click();assert.equal(e.currentAnim,'jab_slip_counter');
+combo.click();d=body.children.at(-1);assert.equal(d.children[1].children.length,13);d.children[1].children[5].click();assert.equal(e.currentAnim,'jab_slip_counter');
+combo.click();d=body.children.at(-1);assert.equal(d.children[1].children[12].dataset.routine,'random');d.children[1].children[12].click();assert.equal(e.technique,'random');assert.equal(e.targetMode,'rabbit');assert.ok(Number.isInteger(e.randomSeed));ctx.pulse();assert.equal(get('comboCodes').textContent,'↔');
+app.setLanguage('he');assert.equal(e.technique,'random');assert.equal(combo.textContent,'קרב אקראי');app.setLanguage('en');
 ctx.trainingControls.chooseTarget('speed');assert.equal(e.technique,'speedbag');assert.ok(combo.disabled);assert.ok(techniques.every(b=>b.disabled));ctx.pulse();assert.match(get('comboCues').textContent,/speed-bag/);
 ctx.trainingControls.chooseTarget('none');assert.ok(!combo.disabled&&techniques.every(b=>!b.disabled));assert.equal(e.technique,'combo');
 get('motionPause').click();assert.equal(e.isPlaying,false);assert.equal(get('playBtn').textContent,'Resume');

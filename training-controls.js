@@ -5,6 +5,9 @@
   he:{target:'מטרה',none:'אגרוף צל',heavy:'שק כבד',dummy:'בובת גוף',speed:'שק מהירות',rabbit:'ארנב מתאגרף',combos:'שילובים',close:'סגירה',title:'בחירת שותף לאימון',routine:'בחירת שילוב',next:'הבא',incoming:'מכה נכנסת',rhythm:'קצב שק מהירות בידיים לסירוגין',hints:{none:'תרגול חופשי ללא מטרה.',heavy:'שק עור תלוי עם תנודה נחלשת.',dummy:'ראש וגו על מוט מתכוונן ובסיס כבד.',speed:'שק בצורת אגס, ציר ומשטח החזרה. תרגול קצב.',rabbit:'תרגול זוגי: התחמקות מג׳אב, מעבר מתחת להוק ותגובת נגד.'}},
   ru:{target:'Цель',none:'Бой с тенью',heavy:'Тяжёлый мешок',dummy:'Манекен',speed:'Скоростная груша',rabbit:'Кролик-боксёр',combos:'Комбинации',close:'Закрыть',title:'Выберите партнёра',routine:'Выберите комбинацию',next:'Далее',incoming:'Атака',rhythm:'Ритм на скоростной груше',hints:{none:'Свободная практика без цели.',heavy:'Подвесной мешок с затухающим раскачиванием.',dummy:'Голова и торс на стойке с утяжелённым основанием.',speed:'Груша на шарнире под отбойной платформой. Ритм.',rabbit:'Парная работа: уклон от джеба, нырок под хук и ответ.'}}
  };
+ Object.assign(text.en,{slip:'Slip',random:'Random sparring',randomHint:'Both fighters take turns attacking and defending. New exchanges each session.',lion:'Lion',guard:'Guard'});
+ Object.assign(text.he,{slip:'התחמקות',random:'קרב אקראי',randomHint:'שני הלוחמים תוקפים ומתגוננים בתיאום. רצף חדש בכל אימון.',lion:'אריה',guard:'הגנה'});
+ Object.assign(text.ru,{slip:'Уклон',random:'Случайный спарринг',randomHint:'Оба бойца по очереди атакуют и защищаются. Новые серии каждый раз.',lion:'Лев',guard:'Защита'});
  const icons={none:'<path d="M8 30l4-13 8-5 7 8 7-6M12 17l-5-6m13 1 1-8m-4 20-7 12m14-14 7 14"/>',heavy:'<path d="M20 2v6m-9 4 9-5 9 5"/><rect x="10" y="12" width="20" height="25" rx="6"/><path d="M10 20h20m-20 10h20"/>',dummy:'<ellipse cx="20" cy="9" rx="6" ry="7"/><path d="M15 16 8 20l3 11h18l3-11-7-4M20 31v5m-9 2h18"/>',speed:'<path d="M5 5h30M20 5v6m0 0c-3 8-8 9-8 16a8 8 0 0016 0c0-7-5-8-8-16z"/>',rabbit:'<ellipse cx="14" cy="10" rx="3" ry="9"/><ellipse cx="25" cy="10" rx="3" ry="9"/><path d="M10 23a10 10 0 1020 0M10 32l-6 5m26-5 6 5"/><circle cx="16" cy="24" r="1"/><circle cx="24" cy="24" r="1"/>'};
  function boot(){
   const app=window.app;if(!app)return;const e=app.engine,w=()=>text[app.lang]||text.en;
@@ -16,7 +19,7 @@
   const words=()=>{const n={en:1,he:3,ru:5}[app.lang];return m=>COACH_TECHNIQUES[m]?.[n]||m;};
   function paint(){
    const mode=e.targetMode||'none';target.textContent=w()[mode];target.setAttribute('aria-label',w().target+': '+w()[mode]);
-   target.setAttribute('aria-haspopup','dialog');combo.textContent=w().combos;combo.disabled=mode==='speed';
+   target.setAttribute('aria-haspopup','dialog');combo.textContent=e.technique==='random'?w().random:w().combos;combo.disabled=mode==='speed';
    speed.setAttribute('aria-label',({en:'Playback speed',he:'מהירות תנועה',ru:'Скорость'}[app.lang])+': '+e.speed+'×');
    document.querySelectorAll('[data-technique]').forEach(b=>{b.disabled=mode==='speed';});app.updatePlayBtnText();
   }
@@ -27,16 +30,20 @@
   }
   function chooseTarget(mode){
    e.targetMode=mode;
+   if(mode!=='rabbit'&&e.technique==='random'){app.drillIdx=0;app.renderDrill();}
    if(mode==='speed'){
     e.technique='speedbag';e.animTime=0;e.isPlaying=true;
    }else if(e.technique==='speedbag'){
     app.drillIdx=0;app.renderDrill();
    }
-   const hasDefence=e.technique==='combo'?BOXING_ROUTINES.sequences[e.currentAnim]?.some(m=>m==='slip'||m==='roll'):['slip','roll'].includes(e.technique);
+   const hasDefence=e.technique==='random'||(e.technique==='combo'?BOXING_ROUTINES.sequences[e.currentAnim]?.some(m=>m==='slip'||m==='roll'):['slip','roll'].includes(e.technique));
    if(mode==='rabbit'&&!hasDefence){
     app.drillIdx=BOXING_ROUTINES.list.findIndex(r=>r.id==='sparring_flow');app.renderDrill();
    }
    e.arena?.setTarget(mode);paint();
+  }
+  function activateRandom(){
+   chooseTarget('rabbit');e.randomSeed=Math.floor(Math.random()*4294967295);e.technique='random';e.animTime=0;e.isPlaying=true;paint();
   }
   target.onclick=()=>{
    const d=dialog(w().title),grid=make('div','equipment-grid');
@@ -52,7 +59,10 @@
     const b=make('button','routine-choice');b.type='button';b.dataset.routine=r.id;b.setAttribute('aria-pressed',String(e.technique==='combo'&&e.currentAnim===r.id));
     b.append(make('strong','',r.names[{en:0,he:1,ru:2}[app.lang]]),make('span','',r.moves.map(words()).join(' → ')));
     b.onclick=()=>{app.drillIdx=index;app.renderDrill();e.isPlaying=true;paint();d.close();};grid.append(b);
-   });d.append(grid);d.showModal();
+   });
+   const random=make('button','routine-choice');random.type='button';random.dataset.routine='random';random.setAttribute('aria-pressed',String(e.technique==='random'));
+   random.append(make('strong','',w().random),make('span','',w().randomHint));random.onclick=()=>{activateRandom();d.close();};grid.append(random);
+   d.append(grid);d.showModal();
   };
   speed.onclick=()=>{
    const d=dialog({en:'Playback speed',he:'מהירות תנועה',ru:'Скорость'}[app.lang]),grid=make('div','speed-grid');
@@ -75,12 +85,16 @@
    const mode=e.targetMode||'none';if(mode==='speed'){
     document.getElementById('comboCodes').textContent='↻';document.getElementById('comboCues').textContent=w().rhythm;return;
    }
+   if(e.technique==='random'){
+    const exchange=e.arena?.metrics?.random,label=words(),name=move=>move==='slip'?w().slip:label(move);document.getElementById('comboCodes').textContent='↔';
+    document.getElementById('comboCues').textContent=exchange?w().lion+': '+(exchange.lion.move==='guard'?w().guard:name(exchange.lion.move))+' · '+w().rabbit+': '+(exchange.rabbit.move==='guard'?w().guard:name(exchange.rabbit.move)):w().random;return;
+   }
    const f=BOXING_ROUTINES.frame(e.animTime,e.technique,e.currentAnim),counter=BOXING_ROUTINES.opponent(f),name=words();
    const incoming=mode==='rabbit'&&counter.attack?w().incoming+' '+name(counter.move)+' → ':'';
    const next=f.moves[(f.slot+1)%f.moves.length];
    document.getElementById('comboCues').textContent=incoming+name(f.move)+(f.moves.length>1?' · '+w().next+': '+name(next):'');
   },120);
-  window.trainingControls={chooseTarget};paint();
+  window.trainingControls={chooseTarget,activateRandom};paint();
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
