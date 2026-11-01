@@ -8,8 +8,8 @@ python3 -m http.server 8080
 
 The default lion loads from the repository on every device. No model upload or
 external styling/3D CDN is required. Choose a technique, rotate the view, use
-0.5×/0.25× playback, or freeze the motion to inspect a pose. The workout timer
-and the motion freeze control are independent.
+0.5×–3× playback, or freeze the motion to inspect a pose. The workout timer
+and the motion freeze control are independent. Continuous practice uses pause/resume.
 
 The original continuous body and clothing surfaces are built with marching
 tetrahedra and attached to a shared skeleton. The face has recessed eyes and
@@ -21,7 +21,7 @@ and shadow passes share the same deformation, and shared material colors are
 converted to linear space once.
 
 The motion controller covers jab, cross, both hooks, both uppercuts, right slip,
-roll, forward/backward footwork, and the four existing combinations. Analytic
+roll, forward/backward footwork, 12 combinations and seeded two-way random sparring. Analytic
 two-bone IK keeps wrist targets reachable and foot placement fixed while hips,
 spine, shoulders, head and gloves follow coordinated trajectories. Heel turns
 pivot around the ball of the foot. Each action recovers to guard.
@@ -31,17 +31,25 @@ curriculum, or a dynamic balance/contact simulation. Joint and foot constraints
 improve consistency but do not establish exact human biomechanics or
 photorealism. Device performance still depends on WebGL hardware.
 
-**Uploaded avatars:** use a self-contained `.glb` with named boxing clips. Unknown
-rigs are not driven with guessed Euler angles. An avatar without clips falls
-back to the lion coach; a missing technique clip is reported rather than silently
-playing an unrelated action. Existing device-local uploads remain available
-through **Saved avatar**; **Lion coach** returns to the new default.
+The default UI focuses on the lion. Target selection offers a heavy bag, body
+dummy, speed bag or rabbit partner. The old saved-avatar switch is removed.
+Equipment punches commit the whole body, transfer a contact impulse, compress
+padding briefly and return to guard while the target carries the momentum.
+See [R19 impact model and validation](docs/r19-power-and-heavy-impact.md).
 
 ### Validation
 
 ```sh
 node tests/coach.test.cjs
 node tests/app.test.cjs
+node tests/workout.test.cjs
+node tests/layout.test.cjs
+node tests/arena.test.cjs
+node tests/training-controls.test.cjs
+node tests/contact.test.cjs
+node tests/random-sparring.test.cjs
+node tests/bag-mechanics.test.cjs
+node tests/power-impact.test.cjs
 npm install --no-save playwright@1.51.1
 npx playwright install chromium --only-shell
 node tests/browser.cjs

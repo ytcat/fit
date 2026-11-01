@@ -14,13 +14,23 @@
   }
  }
  class HangingBag extends ContactSpring {
-  constructor({mass=30,radius=.235,height=1.15,offset=.94,damping=.20}={}){
+  constructor({mass=45,radius=.235,height=1.15,offset=.94,damping=.20}={}){
    const transverse=mass*(offset*offset+height*height/12+radius*radius/4);
    super(Math.sqrt(mass*9.81*offset/transverse),damping);
    this.mass=mass;this.radius=radius;this.height=height;this.offset=offset;
    this.inertia=new THREE.Vector3(transverse,mass*radius*radius/2,transverse);
    this.gloveStiffness=8000;this.bagStiffness=12000;
    this.contactStiffness=1/(1/this.gloveStiffness+1/this.bagStiffness);
+  }
+  // One-shot collision impulse at the suspension pivot. Effective striking mass
+  // is an animation parameter, not a claimed measurement of a human boxer.
+  impact(point,normal,fistVelocity,strikingMass=5){
+   const relative=fistVelocity.clone().sub(this.velocity.clone().cross(point));
+   const closing=Math.max(0,-relative.dot(normal)),lever=point.clone().cross(normal);
+   const inverseMass=1/strikingMass+lever.x**2/this.inertia.x+lever.y**2/this.inertia.y+lever.z**2/this.inertia.z;
+   const impulse=1.05*closing/inverseMass;
+   this.velocity.add(lever.multiplyScalar(-impulse).divide(this.inertia));
+   return {impulse,closing};
   }
   contact(point,normal,fistVelocity,penetration,dt){
    const surfaceVelocity=this.velocity.clone().cross(point),relative=fistVelocity.clone().sub(surfaceVelocity);

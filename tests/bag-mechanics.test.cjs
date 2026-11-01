@@ -1,10 +1,10 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};for(const f of ['boxing-routines.js','boxing-coach.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const near=(a,b,tol=1e-9)=>assert.ok(Math.abs(a-b)<tol,`${a} != ${b}`);
-const bag=new HangingBag(),inertia=30*(.94*.94+1.15*1.15/12+.235*.235/4);near(bag.inertia.x,inertia);near(bag.frequency,Math.sqrt(30*9.81*.94/inertia));
+const bag=new HangingBag(),inertia=45*(.94*.94+1.15*1.15/12+.235*.235/4);near(bag.inertia.x,inertia);near(bag.frequency,Math.sqrt(45*9.81*.94/inertia));
 const point=new THREE.Vector3(0,-.94,-.235),normal=new THREE.Vector3(0,0,-1),velocity=new THREE.Vector3(0,0,2),dt=1/240;
 const load=bag.contact(point,normal,velocity,.02,dt);near(load.normalForce,4800*.02+45*2);near(bag.velocity.x,-.94*load.impulse/inertia);near(bag.velocity.y,0);near(bag.velocity.z,0);near(load.gloveDepth+load.bagDepth,.02);
 bag.step(.05);assert.ok(bag.position.x<0,'a front strike must swing the hanging bag away from the fist');
-const heavier=new HangingBag({mass:60});heavier.contact(point,normal,velocity,.02,dt);near(heavier.velocity.x*2,-.94*load.impulse/inertia);
+const heavier=new HangingBag({mass:90});heavier.contact(point,normal,velocity,.02,dt);near(heavier.velocity.x*2,-.94*load.impulse/inertia);
 const data=JSON.parse(fs.readFileSync('assets/models/coach-surface.json')),coach=new LionCoach(data);
 const glove=coach.gloveMeshes.L.geometry.attributes.position;let front=0;
 for(let i=0;i<glove.count;i++)if(glove.getY(i)<-.198){front++;assert.ok(glove.getZ(i)<.035,'curled finger roll must remain behind the leading knuckle pad');}
@@ -21,7 +21,7 @@ for(const move of ['jab','cross','hook','rear_hook','uppercut','rear_uppercut'])
  assert.ok(count>1&&peakForce>10&&maxSwing>.005,'contact must drive the bag throughout the strike');assert.ok(heightMin>1.30&&heightMax<1.72,'strikes must hit the bag body rather than its top');if(!move.includes('uppercut'))assert.ok(alignment>.70,'knuckles must lead into the bag, not the curled fingers');
 }
 function sample(rate){arena.setTarget('heavy');for(let i=0;i<=rate;i++)arena.update(i/rate,'cross','one_two');return arena.springs.heavy.position.clone();}
-const slow=sample(30),normalRate=sample(60),fine=sample(120);console.log('frame-rate difference',slow.distanceTo(normalRate),normalRate.distanceTo(fine));assert.ok(slow.distanceTo(normalRate)<.001&&normalRate.distanceTo(fine)<.02,'contact dynamics must converge across playback frame rates');
+const slow=sample(30),normalRate=sample(60),fine=sample(120);for(const rate of [90,144,165])assert.ok(sample(rate).distanceTo(fine)<1e-8,'equipment response must also agree on high-refresh displays');console.log('frame-rate difference',slow.distanceTo(normalRate),normalRate.distanceTo(fine));assert.ok(slow.distanceTo(normalRate)<.001&&normalRate.distanceTo(fine)<.02,'contact dynamics must converge across playback frame rates');
 arena.setTarget('heavy');for(let i=0;i<=60;i++){const m=arena.update(i/60,'guard','one_two');assert.equal(m.loads.length,0);}assert.ok(arena.springs.heavy.position.length()<1e-12,'the bag must not move without a contact force');
 console.log('PASS knuckle-first contact, lower moving targets, mass/inertia, sustained force and frame-rate convergence');
 

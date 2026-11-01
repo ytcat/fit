@@ -656,6 +656,10 @@
         approach=(l.z+r.z)*.5*options.advance/length;
         forward+=approach;crouch+=Math.abs(l.z-r.z)*.21;
       }
+      // Equipment punches commit the pelvis and back before shoulder extension.
+      const power=options.power||1;
+      hipYaw*=power;chestYaw*=power;forward*=power;
+      trunkPitch+=(power-1)*.14*drive;
       crouch+=(options.levelChange||0)*drive;
       const through=(options.contactDrive||0)*strike;
       forward+=through;crouch+=through*.32;

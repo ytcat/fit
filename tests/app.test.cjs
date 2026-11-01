@@ -84,3 +84,11 @@ assert.equal(element('modelStatusText').textContent,'WebGL unavailable');
 assert.equal(fallbackEngine.isPlaying,true);
 global.THREE=realThree;
 console.log('PASS graceful WebGL startup failure with usable application controls');
+// Impacts must stay silent before a user gesture and while muted.
+audio.hit({receiver:'heavy',closingSpeed:6}); // no AudioContext: no creation or throw
+let audioStarts=0;const parameter={setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}};
+const audioNode=()=>({connect(){},start(){audioStarts++;},stop(){},frequency:{...parameter},gain:{...parameter}});
+audio.ctx={state:'running',currentTime:0,sampleRate:8000,destination:{},createOscillator:audioNode,createGain:audioNode,createBufferSource:audioNode,createBiquadFilter:audioNode,createBuffer:(_,length)=>({getChannelData:()=>new Float32Array(length)})};
+audio.muted=true;audio.hit({receiver:'heavy',closingSpeed:6});assert.equal(audioStarts,0);
+audio.muted=false;audio.hit({receiver:'heavy',closingSpeed:6});assert.equal(audioStarts,2,'an actual impact synthesizes a local thud and padding transient');
+console.log('PASS gesture-gated local impact synthesis and mute');
