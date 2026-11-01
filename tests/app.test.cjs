@@ -15,7 +15,7 @@ global.document={readyState:'loading',documentElement:{},addEventListener(){},
 vm.runInThisContext(fs.readFileSync('boxing-coach.js','utf8'));
 const html=fs.readFileSync('index.html','utf8');
 const source=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
-vm.runInThisContext(source+'\nglobal.TestApp=MasterApp;global.TestEngine=AutoModelEngine;');
+vm.runInThisContext(source+'\nglobal.TestApp=MasterApp;global.TestEngine=AutoModelEngine;global.TestAudio=AudioEngine;');
 const app=Object.create(TestApp.prototype);
 Object.assign(app,{engine:{technique:'cross',currentAnim:'one_two',animTime:.57,isPlaying:false},
   drillIdx:0,clock:180,isActive:false,isRest:false,playBtn:element('playBtn')});
@@ -43,3 +43,16 @@ for(const method of ['reset','setLoop','setEffectiveTimeScale','fadeIn','play'])
 engine.actions={'Lead Hook':action};engine.technique='hook';engine.playClipForDrill();
 assert.equal(engine.activeAction,action,'normalized exact clip name should play');
 console.log('PASS uploaded avatars never substitute a rear punch for a missing lead punch');
+
+// The app must not fall back to network-backed browser speech.
+let spoken=0;
+window.speechSynthesis={cancel(){},getVoices:()=>[{lang:'en-US',localService:false}],speak(){spoken++}};
+global.SpeechSynthesisUtterance=function(text){this.text=text};
+const audio=new TestAudio();audio.speak('Jab','en');assert.equal(spoken,0);
+window.speechSynthesis.getVoices=()=>[{lang:'en-US',localService:true}];
+audio.speak('Jab','en');assert.equal(spoken,1);
+audio.speak('Jab','he');assert.equal(spoken,1,'no remote fallback for missing local language');
+assert.ok(html.includes("connect-src 'self' blob: data:"),'same-origin runtime policy');
+for(const match of html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)="([^"]+)"/g))assert.ok(match[1].startsWith('./'),'runtime dependencies must be bundled');
+assert.ok(!html.includes('https://api.github.com'),'no GitHub API model discovery');
+console.log('PASS bundled dependencies, same-origin connection policy and local-only speech');

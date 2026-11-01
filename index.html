@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; img-src 'self' blob: data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'" />
   <meta name="theme-color" content="#06070a" />
   <title>ShadowBox 3D | Lion Boxing Coach</title>
 
@@ -163,7 +164,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R11",
+        subtitle: "LION BOXING COACH · R12",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -216,7 +217,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R11",
+        subtitle: "מאמן אגרוף אריה · R12",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -269,7 +270,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R11",
+        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R12",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -518,35 +519,14 @@
         const statusDot = document.getElementById('modelStatusDot');
         const loader = new THREE.GLTFLoader();
 
-        let modelUrl = null;
-
-        try {
-          // GitHub REST API: check contents of assets/models in ytcat/fit
-          const res = await fetch('https://api.github.com/repos/ytcat/fit/contents/assets/models');
-          if (res.ok) {
-            const files = await res.json();
-            if (Array.isArray(files)) {
-              // Find first .glb or .gltf in assets/models
-              const found = files.find(f => f.name === 'lion_boxer_animated.glb') || files.find(f => f.name.toLowerCase().endsWith('.glb') || f.name.toLowerCase().endsWith('.gltf'));
-              if (found) {
-                modelUrl = found.download_url || `./assets/models/${found.name}`;
-                statusText.innerText = `Loaded: assets/models/${found.name}`;
-              }
-            }
-          }
-        } catch (e) {
-          console.warn('Auto-scan fallback:', e);
-        }
-
-        // Fallbacks if GitHub API is rate-limited:
+        // All character files are served from this app's own deployment.
         const candidateUrls = [
           './assets/models/lion_boxer_animated.glb',
-          modelUrl,
           './assets/models/lion.glb',
           './assets/models/model.glb',
           './assets/models/scene.gltf',
           './lion.glb'
-        ].filter(Boolean);
+        ];
 
         const tryLoad = (idx) => {
           if (idx >= candidateUrls.length) { statusText.innerText = 'Animated training boxer (built-in)'; statusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400'; return; }
@@ -704,6 +684,11 @@
         const u = new SpeechSynthesisUtterance(phrase);
         u.lang = lang === 'he' ? 'he-IL' : (lang === 'ru' ? 'ru-RU' : 'en-US');
         u.rate = 1.1;
+        // Use only an explicitly device-local voice. Never fall back to a
+        // network-backed speech service when a matching local voice is absent.
+        const voice=window.speechSynthesis.getVoices().find(v=>v.localService===true&&v.lang.toLowerCase().startsWith(lang.toLowerCase()));
+        if(!voice)return;
+        u.voice=voice;
         window.speechSynthesis.speak(u);
       }
     }
