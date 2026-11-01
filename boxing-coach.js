@@ -5,7 +5,7 @@
   'use strict';
   const V = (x=0,y=0,z=0) => new THREE.Vector3(x,y,z);
   const clamp = (x,a=0,b=1) => Math.max(a,Math.min(b,x));
-  const smooth = x => { x=clamp(x); return x*x*x*(x*(x*6-15)+10); };
+  const smooth = x => { x=clamp(x); return clamp(x*x*x*(x*(x*6-15)+10)); };
   const lerp = (a,b,t) => a+(b-a)*t;
   const sequences = window.BOXING_ROUTINES?.sequences || {one_two:['jab','cross'],one_two_hook:['jab','cross','hook'],
     slip_cross:['slip','cross'],uppercut_flow:['uppercut','hook','cross']};
@@ -55,7 +55,7 @@
   // Joined, smooth leather volumes. Build once per coach; no external assets or
   // engines. The small thumb is joined to the palm instead of a separate finger.
   function leatherSurface(volumes,lo,hi,step=.012) {
-    const field=p=>{
+    const field=typeof volumes==='function'?volumes:p=>{
       let d=10;
       for(const [c,r,power=2] of volumes){
         const length=power===2?Math.hypot((p.x-c[0])/r[0],(p.y-c[1])/r[1],(p.z-c[2])/r[2]):Math.pow(Math.pow(Math.abs((p.x-c[0])/r[0]),power)+Math.pow(Math.abs((p.y-c[1])/r[1]),power)+Math.pow(Math.abs((p.z-c[2])/r[2]),power),1/power);
@@ -129,9 +129,33 @@
       const skin=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.94,
         bumpMap:fur,bumpScale:.0025,skinning:true});
       const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.61,
-        bumpMap:grain,bumpScale:.0015,skinning:true});
+        bumpMap:grain,bumpScale:.0015,skinning:true,side:THREE.DoubleSide});
       this.skin=this.skinned(this.sculptBody(meshFrom(data.body,true)),skin,true);
-      this.shorts=this.skinned(meshFrom(data.shorts,true),cloth,false);
+      // A continuous saddle at the crotch with two separate, open leg hems.
+      // The previous solid ellipsoid bridge stretched into a flap between legs.
+      if(!LionCoach.shortsGeometry){
+        const field=p=>{
+          const hip=(Math.hypot(p.x/.260,(p.y-1.025)/.185,p.z/.194)-1)*.185;
+          let d=hip;
+          for(const side of [-1,1]){
+            const t=clamp((1.02-p.y)/.29),x=side*(.150+(1.0-p.y)*.07),rx=lerp(.173,.155,t),rz=lerp(.185,.172,t);
+            const leg=Math.max((Math.hypot((p.x-x)/rx,p.z/rz)-1)*Math.min(rx,rz),p.y-1.04);
+            const h=Math.max(.025-Math.abs(d-leg),0)/.025;d=Math.min(d,leg)-h*h*.025*.25;
+          }
+          return Math.max(d,.735-p.y,p.y-1.085);
+        };
+        const source=leatherSurface(field,[-.34,.715,-.21],[.34,1.105,.21],.009),p=source.attributes.position,n=source.attributes.normal,uv=source.attributes.uv,positions=[],normals=[],uvs=[];
+        for(let i=0;i<p.count;i+=3){
+          const flat=y=>[0,1,2].every(k=>Math.abs(p.getY(i+k)-y)<.00001);
+          if(flat(.735)||flat(1.085))continue;
+          for(let k=0;k<3;k++){positions.push(p.getX(i+k),p.getY(i+k),p.getZ(i+k));normals.push(n.getX(i+k),n.getY(i+k),n.getZ(i+k));uvs.push(uv.getX(i+k),uv.getY(i+k));}
+        }
+        LionCoach.shortsGeometry=new THREE.BufferGeometry();
+        LionCoach.shortsGeometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+        LionCoach.shortsGeometry.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+        LionCoach.shortsGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+      }
+      this.shorts=this.skinned(LionCoach.shortsGeometry.clone(),cloth,false);
       this.gold=new THREE.MeshStandardMaterial({color:0xd8b56c,metalness:.38,roughness:.43});
       this.leather=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x2758c1:0xad2529,roughness:.42,
         bumpMap:grain,bumpScale:.001,metalness:.05});
@@ -140,27 +164,98 @@
       const waistband=new THREE.Mesh(new THREE.CylinderGeometry(.244,.249,.061,64,1,true),this.gold);
       waistband.scale.z=.73;waistband.position.y=.098;hips.add(waistband);
       this.addLabel(hips,'SHADOW',V(0,.098,.184),.19,.043);
-      const gloveGeometry=leatherSurface([
-        [[-.008,-.135,-.026],[.094,.069,.074],3.2], // broad MCP knuckle face
-        [[0,-.126,.041],[.079,.051,.040]], // fingers curl behind the striking pad
-        [[0,-.065,.008],[.076,.069,.056]],
-        [[-.072,-.085,.045],[.029,.047,.032]], // attached, tucked thumb
-        [[0,-.010,0],[.063,.043,.058]]
-      ],[-.115,-.24,-.10],[.105,.07,.105],.010);
+      // A closed mitt: rounded knuckle crown, tapered dorsum, curled finger
+      // pocket and one continuous hooked thumb across the palm. No finger bars.
+      const blend=(a,b,k=.010)=>{const h=Math.max(k-Math.abs(a-b),0)/k;return Math.min(a,b)-h*h*k*.25;};
+      const ell=(p,c,r)=> (Math.hypot((p.x-c[0])/r[0],(p.y-c[1])/r[1],(p.z-c[2])/r[2])-1)*Math.min(...r);
+      const profile=[[-.137,.091,.068,-.026],[-.103,.086,.073,-.025],[-.065,.070,.064,-.015],[-.025,.056,.052,0],[.040,.052,.047,.002]];
+      const thumbPath=new THREE.CubicBezierCurve3(V(-.054,-.038,.024),V(-.115,-.069,.060),V(-.094,-.137,.092),V(-.034,-.146,.065)).getPoints(12);
+      const gloveField=p=>{
+        let rx,rz,cz;
+        if(p.y<-.137){const q=(p.y+.137)/.067,arc=Math.sqrt(Math.max(.00001,1-q*q));rx=.091*arc;rz=.068*arc;cz=-.026;}
+        else {
+          let i=1;while(i<profile.length-1&&p.y>profile[i][0])i++;
+          const a=profile[i-1],b=profile[i],t=clamp((p.y-a[0])/(b[0]-a[0]));
+          const value=c=>{
+            const slope=k=>{if(k===0||k===profile.length-1)return 0;const l=(profile[k][c]-profile[k-1][c])/(profile[k][0]-profile[k-1][0]),r=(profile[k+1][c]-profile[k][c])/(profile[k+1][0]-profile[k][0]);return l*r>0?2*l*r/(l+r):0;};
+            const t2=t*t,t3=t2*t,h=b[0]-a[0];return (2*t3-3*t2+1)*a[c]+(t3-2*t2+t)*h*slope(i-1)+(-2*t3+3*t2)*b[c]+(t3-t2)*h*slope(i);
+          };
+          rx=value(1);rz=value(2);cz=value(3);
+        }
+        let d=(Math.hypot(p.x/rx,(p.z-cz)/rz)-1)*Math.min(rx,rz);
+        d=Math.max(d,-.204-p.y,p.y-.040);
+        d=blend(d,ell(p,[.007,-.139,.035],[.073,.040,.043]));
+        // Recess the centre of the palm; the curled pocket remains distal.
+        d=Math.max(d,-ell(p,[.019,-.070,.087],[.045,.033,.046]));
+        for(let i=1;i<thumbPath.length;i++){
+          const a=thumbPath[i-1],b=thumbPath[i],dx=b.x-a.x,dy=b.y-a.y,dz=b.z-a.z;
+          const t=clamp(((p.x-a.x)*dx+(p.y-a.y)*dy+(p.z-a.z)*dz)/(dx*dx+dy*dy+dz*dz));
+          const r=lerp(.025,.020,(i-1+t)/12);
+          d=blend(d,Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy,p.z-a.z-t*dz)-r,.009);
+        }
+        return d;
+      };
+      const gloveGeometry=LionCoach.gloveGeometry||(LionCoach.gloveGeometry=leatherSurface(gloveField,[-.125,-.218,-.115],[.105,.05,.125],.006));
+      const colour=[];const gp=gloveGeometry.attributes.position;
+      for(let i=0;i<gp.count;i++){
+        const x=gp.getX(i),y=gp.getY(i),z=gp.getZ(i);
+        const palm=smooth((z-.016)/.045),fold=Math.exp(-(((y+.129)/.008)**2))*smooth((z-.045)/.025)*smooth((x+.012)/.025);
+        const shade=1-.19*palm-.11*fold;colour.push(shade,shade,shade);
+      }
+      gloveGeometry.setAttribute('color',new THREE.Float32BufferAttribute(colour,3));
+      const gloveMaterial=this.leather.clone();gloveMaterial.vertexColors=true;gloveMaterial.roughness=.37;
+      const seamMaterial=new THREE.MeshStandardMaterial({color:0x6d171d,roughness:.65});
+      const palmMaterial=new THREE.MeshStandardMaterial({color:0x381e20,roughness:.88});
+      // Project every stitch onto the sculpt instead of floating seam tubes.
+      const surface=(x,y,front=true)=>{
+        let outside=front?.15:-.14,inside=outside;
+        for(let z=outside;front?z>-.14:z<.15;z+=front?-.002:.002)if(gloveField(V(x,y,z))<=0){inside=z;break;}else outside=z;
+        for(let k=0;k<12;k++){const mid=(outside+inside)/2;if(gloveField(V(x,y,mid))>0)outside=mid;else inside=mid;}
+        return V(x,y,(inside+outside)/2+(front?.0007:-.0007));
+      };
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',hand=this.joints['hand'+side];
-        const glove=new THREE.Mesh(gloveGeometry.clone(),this.leather);glove.name='Boxing glove';
+        const glove=new THREE.Mesh(gloveGeometry.clone(),gloveMaterial);glove.name='Boxing glove';
         if(s===1) glove.scale.x=-1;
         hand.add(glove);glove.castShadow=true;
         this.gloveMeshes[side]=glove;glove.userData.restPosition=new Float32Array(glove.geometry.attributes.position.array);
         glove.userData.restNormal=new Float32Array(glove.geometry.attributes.normal.array);glove.userData.pressure=0;
-        const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.070,.071,.062,32),this.black);
-        cuff.position.y=.014;hand.add(cuff);
-        // Branding belongs on the back of the glove, opposite its palm/thumb pad.
-        this.addLabel(hand,'SB',V(0,-.090,-.095),.055,.032).rotation.y=Math.PI;
-        this.curve(hand,[V(-.059,-.035,-.048),V(0,-.027,-.069),V(.059,-.035,-.048)],this.cream,.0012);
-        this.curve(glove,[V(-.079,-.039,.047),V(-.093,-.073,.063),V(-.073,-.125,.073)],this.leather,.0018);
-        this.curve(hand,[V(-.065,.035,0),V(0,.038,-.069),V(.065,.035,0)],this.gold,.0018);
+        // A flattened oval cuff wraps the wrist; it is not a cylinder handle.
+        const cuffGeometry=new THREE.CylinderGeometry(.058,.061,.068,48,12,true);
+        cuffGeometry.scale(1,1,.86);
+        const cuff=new THREE.Mesh(cuffGeometry,this.black);cuff.name='Oval wrist strap';
+        cuff.position.y=.013;hand.add(cuff);
+        for(const y of [-.020,.046]){
+          const points=[];for(let i=0;i<=64;i++){const a=i/64*Math.PI*2;points.push(V(Math.cos(a)*.060,y,Math.sin(a)*.052));}
+          this.curve(hand,points,this.leather,.0015).name='Cuff rolled binding';
+        }
+        const details=[];
+        const seam=(name,xy,material=seamMaterial,r=.0010)=>{
+          const part=this.curve(glove,xy.map(([x,y])=>surface(x,y)),material,r);part.name=name;details.push(part);return part;
+        };
+        seam('Curled finger pocket seam',[[-.014,-.155],[.010,-.152],[.043,-.142],[.064,-.122],[.070,-.098]]);
+        seam('Attached curved thumb seam',[[-.058,-.037],[-.083,-.064],[-.090,-.094],[-.075,-.125],[-.050,-.146]],seamMaterial,.0012);
+        // Paired stitches follow the finger-pocket seam, never individual fingers.
+        for(let i=0;i<14;i++){
+          const t=i/13,x=lerp(-.008,.063,t),y=-.155+.030*t*t;
+          seam('Pocket stitch',[[x-.001,y-.0018],[x+.001,y+.0018]],this.cream,.00045);
+        }
+        // One draw call for all stitches on a glove, including shadow passes.
+        const stitches=details.filter(part=>part.name==='Pocket stitch'),stitchPosition=[],stitchNormal=[];
+        for(const part of stitches){
+          const g=part.geometry.toNonIndexed();stitchPosition.push(...g.attributes.position.array);stitchNormal.push(...g.attributes.normal.array);
+          glove.remove(part);part.geometry.dispose();g.dispose();
+        }
+        for(let i=details.length-1;i>=0;i--)if(stitches.includes(details[i]))details.splice(i,1);
+        const stitching=new THREE.BufferGeometry();stitching.setAttribute('position',new THREE.Float32BufferAttribute(stitchPosition,3));stitching.setAttribute('normal',new THREE.Float32BufferAttribute(stitchNormal,3));
+        const stitchMesh=new THREE.Mesh(stitching,this.cream);stitchMesh.name='Pocket stitching';glove.add(stitchMesh);details.push(stitchMesh);
+        for(const [x,y] of [[.016,-.071],[.031,-.074],[.045,-.080]]){
+          const dot=new THREE.Mesh(new THREE.SphereGeometry(1,10,6),palmMaterial);dot.position.copy(surface(x,y));dot.scale.set(.0017,.0021,.0008);glove.add(dot);dot.name='Palm ventilation eyelet';
+        }
+        this.addLabel(hand,'SB',V(0,.013,-.054),.041,.023).rotation.y=Math.PI;
+        // All surface details share the foam deformation and mirrored thumb frame.
+        glove.userData.deformParts=[glove,...details];
+        for(const part of details){part.userData.restPosition=new Float32Array(part.geometry.attributes.position.array);part.userData.restNormal=new Float32Array(part.geometry.attributes.normal.array);}
         this.addBoot(this.joints['foot'+side]);
         // Satin side piping follows each thigh, rather than floating beside it.
         this.curve(this.joints['thigh'+side],[V(s*.125,.055,.075),V(s*.15,-.10,.08),V(s*.15,-.25,.08)],this.gold,.006);
@@ -183,6 +278,25 @@
         n.castShadow=true;n.receiveShadow=true;
       }});
       this.update(0,'combo','one_two');
+    }
+
+    // CPU equivalent of the actual hybrid vertex/shadow shader, for pose QA.
+    skinPoint(mesh,index,target=V()) {
+      const g=mesh.geometry,ids=g.attributes.skinIndex,w=g.attributes.skinWeight;
+      const p=V().fromBufferAttribute(g.attributes.position,index).applyMatrix4(mesh.bindMatrix);
+      const q0=this.dqReal[ids.getX(index)],q=new THREE.Vector4(),d=new THREE.Vector4(),linear=V();
+      q.set(0,0,0,0);d.set(0,0,0,0);
+      for(let k=0;k<4;k++){
+        const id=ids.array[index*4+k],weight=w.array[index*4+k],r=this.dqReal[id],dual=this.dqDual[id],sign=q0.dot(r)<0?-1:1;
+        q.addScaledVector(r,weight*sign);d.addScaledVector(dual,weight*sign);
+        const rotation=new THREE.Quaternion(r.x,r.y,r.z,r.w),translation=new THREE.Quaternion(dual.x,dual.y,dual.z,dual.w).multiply(rotation.clone().conjugate());
+        linear.addScaledVector(p.clone().applyQuaternion(rotation).add(V(translation.x*2,translation.y*2,translation.z*2)),weight);
+      }
+      const length=q.length();q.divideScalar(length);d.divideScalar(length);d.addScaledVector(q,-q.dot(d));
+      const rotation=new THREE.Quaternion(q.x,q.y,q.z,q.w),translation=new THREE.Quaternion(d.x,d.y,d.z,d.w).multiply(rotation.clone().conjugate());
+      const influence=g.attributes.coachLinear.getX(index);
+      target.copy(p).applyQuaternion(rotation).add(V(translation.x*2,translation.y*2,translation.z*2)).lerp(linear,influence);
+      return target.applyMatrix4(mesh.bindMatrixInverse);
     }
 
     sculptBody(g) {
@@ -221,22 +335,34 @@
     }
 
     skinned(g,material,colour) {
-      const positions=g.attributes.position, ids=[],weights=[],colors=[];
+      const positions=g.attributes.position, ids=[],weights=[],colors=[],linear=[];
       const tawny=new THREE.Color(this.species==='rabbit'?'#939ba7':'#b98143').convertSRGBToLinear(), light=new THREE.Color(this.species==='rabbit'?'#f0e9df':'#e1cda1').convertSRGBToLinear();
       for(let i=0;i<positions.count;i++) {
         const p=V().fromBufferAttribute(positions,i);
+        const u=Math.abs(p.x);
+        // Blend linear skinning into the axillary fold to reduce DQ bulging;
+        // the shoulder cap and arm bellies retain their volume.
+        linear.push(colour?.9*smooth((u-.23)/.08)*(1-smooth((u-.38)/.12))*smooth((p.y-1.30)/.12)*(1-smooth((p.y-1.53)/.10)):0);
         const influences=new Map();
         const put=(name,w)=>influences.set(this.bones.indexOf(this.joints[name]),w);
         const mix=(a,b,t,w=1)=>{put(a,(1-t)*w);put(b,t*w);};
         if(p.y>1.76) {
           mix('neck','head',smooth((p.y-1.76)/.12));
-        } else if(p.y<1.06 && Math.abs(p.x)<.32) {
-          const side=p.x<0?'L':'R',thigh=smooth((1.06-p.y)/.14);
-          if(p.y>.64)mix('hips','thigh'+side,thigh);
+        } else if(!colour||(p.y<1.06&&Math.abs(p.x)<.32)) {
+          const side=p.x<0?'L':'R';
+          if(p.y>.64){
+            // Keep the groin under the pelvis and blend both legs continuously
+            // across the centre seam. An x<0 switch tears the crotch in a stride.
+            const medial=1-smooth(Math.abs(p.x)/.13);
+            const thigh=smooth((1.06-p.y)/.17)*(1-.90*medial*smooth((p.y-.68)/.14));
+            const right=smooth((p.x+.055)/.11);
+            put('hips',1-thigh);put('thighL',thigh*(1-right));put('thighR',thigh*right);
+          }
           else if(p.y>.24)mix('thigh'+side,'knee'+side,smooth((.65-p.y)/.16));
           else mix('knee'+side,'foot'+side,smooth((.24-p.y)/.13));
         } else {
-          const arm=smooth((Math.abs(p.x)-.235)/.115)*smooth((1.79-p.y)/.14);
+          // Keep lower lateral ribs on the trunk while the upper arm lifts.
+          const arm=smooth((Math.abs(p.x)-.235)/.115)*smooth((1.79-p.y)/.14)*(1-smooth((1.49-p.y)/.11)*(1-smooth((Math.abs(p.x)-.34)/.09)));
           if(p.y<1.28)mix('hips','spine',smooth((p.y-1.06)/.18),1-arm);
           else if(p.y<1.67)mix('spine','chest',smooth((p.y-1.28)/.22),1-arm);
           else mix('chest','neck',smooth((p.y-1.67)/.12),1-arm);
@@ -266,6 +392,7 @@
           colors.push(c.r,c.g,c.b);
         }
       }
+      g.setAttribute('coachLinear',new THREE.Float32BufferAttribute(linear,1));
       g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(ids,4));
       g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(weights,4));
       if(colour)g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
@@ -278,6 +405,7 @@
         shader.vertexShader=shader.vertexShader.replace('#include <common>',`#include <common>
           uniform vec4 coachReal[${this.bones.length}];
           uniform vec4 coachDual[${this.bones.length}];
+          attribute float coachLinear;
           vec4 coachQ, coachD;
           vec4 qmul(vec4 a, vec4 b) {
             return vec4(a.w*b.xyz+b.w*a.xyz+cross(a.xyz,b.xyz),a.w*b.w-dot(a.xyz,b.xyz));
@@ -298,17 +426,24 @@
         // Run before both normal and position transforms, including shadow passes.
         shader.vertexShader=shader.vertexShader.replace('#include <skinbase_vertex>','coachBlend();');
         shader.vertexShader=shader.vertexShader.replace('#include <skinnormal_vertex>',`
-          objectNormal=(bindMatrixInverse*vec4(qrotate(coachQ,(bindMatrix*vec4(objectNormal,0.0)).xyz),0.0)).xyz;
+          vec3 coachN=(bindMatrix*vec4(objectNormal,0.0)).xyz,coachLN=vec3(0.0);
+          for(int k=0;k<4;k++)coachLN+=skinWeight[k]*qrotate(coachReal[int(skinIndex[k])],coachN);
+          objectNormal=(bindMatrixInverse*vec4(mix(qrotate(coachQ,coachN),coachLN,coachLinear),0.0)).xyz;
           #ifdef USE_TANGENT
             objectTangent=(bindMatrixInverse*vec4(qrotate(coachQ,(bindMatrix*vec4(objectTangent,0.0)).xyz),0.0)).xyz;
           #endif`);
         shader.vertexShader=shader.vertexShader.replace('#include <skinning_vertex>',`
           vec3 coachP=(bindMatrix*vec4(transformed,1.0)).xyz;
           vec3 coachT=2.0*qmul(coachD,vec4(-coachQ.xyz,coachQ.w)).xyz;
-          transformed=(bindMatrixInverse*vec4(qrotate(coachQ,coachP)+coachT,1.0)).xyz;`);
+          vec3 coachLP=vec3(0.0);
+          for(int k=0;k<4;k++){
+            int i=int(skinIndex[k]);vec4 q=coachReal[i],d=coachDual[i];
+            coachLP+=skinWeight[k]*(qrotate(q,coachP)+2.0*qmul(d,vec4(-q.xyz,q.w)).xyz);
+          }
+          transformed=(bindMatrixInverse*vec4(mix(qrotate(coachQ,coachP)+coachT,coachLP,coachLinear),1.0)).xyz;`);
       };
       material.onBeforeCompile=skinShader;
-      material.customProgramCacheKey=()=>`lion-dq-${this.bones.length}`;
+      material.customProgramCacheKey=()=>`lion-hybrid-${this.bones.length}`;
       m.customDepthMaterial=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,skinning:true});
       m.customDistanceMaterial=new THREE.MeshDistanceMaterial({skinning:true});
       for(const shadowMaterial of [m.customDepthMaterial,m.customDistanceMaterial]) {
@@ -506,18 +641,22 @@
     deformGlove(side,pressure=0) {
       const mesh=this.gloveMeshes[side],amount=clamp(pressure);
       if(Math.abs((mesh.userData.pressure||0)-amount)<.0001)return;
-      const rest=mesh.userData.restPosition,norm=mesh.userData.restNormal;
-      const p=mesh.geometry.attributes.position,n=mesh.geometry.attributes.normal;
-      for(let i=0;i<p.count;i++){
-        const x=rest[i*3],y=rest[i*3+1],z=rest[i*3+2];
-        const pad=smooth((-y-.025)/.10),thumb=x<-.06&&z>.025?.55:1;
-        const squash=amount*pad*thumb,sx=1+.055*squash,sy=1-.14*squash,sz=1+.045*squash;
-        p.setXYZ(i,x*sx,y*sy,z*sz);
-        const nx=norm[i*3]/sx,ny=norm[i*3+1]/sy,nz=norm[i*3+2]/sz,length=Math.hypot(nx,ny,nz)||1;
-        n.setXYZ(i,nx/length,ny/length,nz/length);
+      for(const part of mesh.userData.deformParts||[mesh]){
+        const rest=part.userData.restPosition,norm=part.userData.restNormal;
+        const p=part.geometry.attributes.position,n=part.geometry.attributes.normal;
+        for(let i=0;i<p.count;i++){
+          const x=rest[i*3],y=rest[i*3+1],z=rest[i*3+2];
+          const pad=smooth((-y-.065)/.075),thumb=x<-.060&&z>.025?.35:1;
+          const squash=amount*pad*thumb,sx=1+.10*squash,sy=1-.28*squash,sz=1+.085*squash;
+          p.setXYZ(i,x*sx,y+(-.075-y)*(1-sy),z*sz);
+          const nx=norm[i*3]/sx,ny=norm[i*3+1]/sy,nz=norm[i*3+2]/sz,length=Math.hypot(nx,ny,nz)||1;
+          n.setXYZ(i,nx/length,ny/length,nz/length);
+        }
+        p.needsUpdate=n.needsUpdate=true;
       }
-      p.needsUpdate=n.needsUpdate=true;mesh.userData.pressure=amount;
+      mesh.userData.pressure=amount;
     }
+
     update(t,technique,combo,options={}) {
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
       const beat=t/(technique==='combo'?1.0:1.22),move=seq[Math.floor(beat)%seq.length];
@@ -756,7 +895,7 @@
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
       if(options.knuckleTarget&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
         const index=['cross','rear_hook','rear_uppercut'].includes(move)?1:0,side=index?'R':'L',hand=index?rear:lead,pole=index?rearPole:leadPole;
-        const amount=straight?strike:hookState?hookState.rotation:rise*(1-recover),weight=1-Math.pow(1-amount,1/3);
+        const amount=clamp(straight?strike:hookState?hookState.rotation:rise*(1-recover)),weight=1-Math.cbrt(1-amount);
         for(let iteration=0;iteration<3;iteration++){
           hand.addScaledVector(V(...options.knuckleTarget).sub(V(...gloves[index].strikePoint)),weight);
           const shoulder=this.point(j['arm'+side]),reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;

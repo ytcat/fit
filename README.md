@@ -16,7 +16,8 @@ tetrahedra and attached to a shared skeleton. The face has recessed eyes and
 muzzle detail; the mane uses an undercoat and tapered hair clusters. Materials
 include fur grain, leather, satin, stitching and boot laces.
 
-Dual-quaternion skinning preserves arm volume in the bent-elbow guard. Surface
+Dual-quaternion skinning preserves arm volume in the bent-elbow guard, with a
+local linear blend at the underarm fold. Surface
 and shadow passes share the same deformation, and shared material colors are
 converted to linear space once.
 
@@ -35,7 +36,8 @@ The default UI focuses on the lion. Target selection offers a heavy bag, body
 dummy, speed bag or rabbit partner. The old saved-avatar switch is removed.
 Equipment punches commit the whole body, transfer a contact impulse, compress
 padding briefly and return to guard while the target carries the momentum.
-See [R19 impact model and validation](docs/r19-power-and-heavy-impact.md).
+See [R20 glove, garment and timing fixes](docs/r20-gloves-tailoring-and-smooth-contact.md)
+and the [impact model](docs/r19-power-and-heavy-impact.md).
 
 ### Validation
 
@@ -50,6 +52,7 @@ node tests/contact.test.cjs
 node tests/random-sparring.test.cjs
 node tests/bag-mechanics.test.cjs
 node tests/power-impact.test.cjs
+node tests/avatar-surface.test.cjs
 npm install --no-save playwright@1.51.1
 npx playwright install chromium --only-shell
 node tests/browser.cjs

@@ -1,14 +1,12 @@
 /* Local training equipment and shared-clock partner choreography. */
 (() => {
  const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
- const smooth=n=>{n=Math.max(0,Math.min(1,n));return n*n*n*(n*(n*6-15)+10);};
+ const smooth=n=>{n=Math.max(0,Math.min(1,n));return Math.max(0,Math.min(1,n*n*n*(n*(n*6-15)+10)));};
  // Body-led acceleration, very brief extension, then a fast guard recovery.
  // The whole skeleton shares this clock; the hand is never sped up in isolation.
- const powerPhase=p=>{
-  const knots=[[0,0],[.18,.22],[.33,.46],[.36,.52],[.52,.86],[1,1]];
-  for(let i=1;i<knots.length;i++)if(p<=knots[i][0]){const [a,x]=knots[i-1],[b,y]=knots[i];return x+(y-x)*smooth((p-a)/(b-a));}
-  return 1;
- };
+ // Continuous timing preserves the authored pelvis/shoulder/hand lag. The
+ // previous per-segment easing repeatedly stopped and rushed the entire body.
+ const powerPhase=p=>p+.025*(1-Math.cos(2*Math.PI*p));
  const strikingMass=move=>move==='jab'?2.5:move.includes('hook')?5:5.5;
  const punches=['jab','cross','hook','rear_hook','uppercut','rear_uppercut'];
  const material=p=>{const m=new THREE.MeshStandardMaterial(p);m.color.convertSRGBToLinear();return m;};
@@ -133,15 +131,15 @@
     // the forearm normal to the cylindrical bag. Do not bend the wrist to aim.
     const side=s<0?'L':'R',p=toLocal(coach.root.localToWorld(shoulder.clone()));
     const upper=coach.joints['elbow'+side].position.length(),forearm=coach.joints['hand'+side].position.length();
-    const radius=.235-.045+.204+forearm,dy=p.y-(y-.026),reach2=Math.max(.001,upper*upper-dy*dy);
+    const radius=.235-.070+.204+forearm,dy=p.y-(y-.026),reach2=Math.max(.001,upper*upper-dy*dy);
     const v=V(-p.x,0,-p.z),distance=v.length();v.normalize();
     const cosine=Math.max(-1,Math.min(1,(distance*distance+radius*radius-reach2)/(2*radius*Math.max(.001,distance))));
     const direction=v.clone().multiplyScalar(cosine).addScaledVector(V(v.z,0,-v.x),-s*Math.sqrt(1-cosine*cosine));
     x=-.235*direction.x;z=-.235*direction.z;
    }
    const normal=V(x,0,z).normalize();
-   // The leading knuckle face enters the foam by up to 45 mm at maximum drive; aim is committed before impact.
-   const point=V(x,y,z).addScaledVector(normal,-.045);
+   // The leading knuckle face enters the foam by up to 70 mm at maximum drive; aim is committed before impact.
+   const point=V(x,y,z).addScaledVector(normal,-.070);
    const target=coach.root.worldToLocal(point.applyMatrix4(matrix));
    const outward=normal.transformDirection(matrix).applyQuaternion(coach.root.getWorldQuaternion(new THREE.Quaternion()).invert());
    return {point:target,direction:outward.negate()};
@@ -208,7 +206,7 @@
     return {...shapes.map(shape=>this.closest(centre,soft,shape)).sort((a,b)=>a.distance-b.distance)[0],kind:'bag',receiver};
    }
    const coach=receiver==='lion'?this.engine.coach:this.rabbit,candidates=[];
-   for(const side of ['L','R'])candidates.push({...this.closest(centre,coach.joints['hand'+side],{centre:[side==='L'?-.008:.008,-.135,-.026],radius:[.094,.069,.074],power:3.2}),kind:'glove',side,receiver});
+   for(const side of ['L','R'])candidates.push({...this.closest(centre,coach.joints['hand'+side],{centre:[0,-.137,-.026],radius:[.091,.067,.068]}),kind:'glove',side,receiver});
    const guard=candidates.filter(c=>c.penetration>0).sort((a,b)=>a.distance-b.distance)[0];if(guard)return guard;
    candidates.push({...this.closest(centre,coach.joints.head,{centre:[0,.17,.08],radius:[.145,.18,.14]}),kind:'head',receiver});
    candidates.push({...this.closest(centre,coach.joints.chest,{centre:[0,.15,.05],radius:[.25,.28,.16]}),kind:'body',receiver});
@@ -218,7 +216,7 @@
    const g=mesh.geometry,p=g.attributes.position,n=g.attributes.normal;
    if(!mesh.userData.softRest){mesh.userData.softRest=new Float32Array(p.array);mesh.userData.normalRest=new Float32Array(n.array);}
    const rest=mesh.userData.softRest,norm=mesh.userData.normalRest;
-   const depth=(this.mode==='heavy'?.022:this.mode==='dummy'?.014:.009)*amount;
+   const depth=(this.mode==='heavy'?.040:this.mode==='dummy'?.014:.009)*amount;
    for(let i=0;i<p.count;i++){
     let x=rest[i*3],y=rest[i*3+1],z=rest[i*3+2],nx=norm[i*3],ny=norm[i*3+1],nz=norm[i*3+2];
     if(contact&&amount>0){
@@ -307,10 +305,10 @@
      }
      let current=this.collision(centre,receiver),entry=heavyEntry||current;
      if(current.penetration<=0&&previous&&dt>0){const count=Math.min(16,Math.ceil(previous.distanceTo(localCentre)/.025));for(let i=1;i<count;i++){const c=this.collision(this.group.localToWorld(previous.clone().lerp(localCentre,i/count)),receiver);if(c.penetration>0){entry=c;break;}}}
-     const pressure=receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.6/.02856)):smooth(Math.max(0,Math.min(1,current.penetration/.065)));
+     const pressure=receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.6/.03612)):smooth(Math.max(0,Math.min(1,current.penetration/.065)));
      desired[actor][side]=Math.max(desired[actor][side],pressure);
      if(current.kind==='glove'&&pressure>0)desired[receiver][current.side]=Math.max(desired[receiver][current.side],pressure*.85);
-     if(current.kind==='bag'&&pressure>0&&(!dent||pressure>dent.pressure))dent={...current,pressure:receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.4/.022)):pressure};
+     if(current.kind==='bag'&&pressure>0&&(!dent||pressure>dent.pressure))dent={...current,pressure:receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.4/.040)):pressure};
      if(entry.penetration>0){
       const closing=Math.max(0,-velocity.dot(entry.normal));
       if(!this.seen.has(event)&&closing>.02){
@@ -322,17 +320,18 @@
        }else if(entry.kind!=='bag')this.recoil[receiver].impulse(V(0,0,magnitude*.45));
        const transferred=receiver==='heavy'?loads.reduce((sum,l)=>sum+(l.impactImpulse||0),0):magnitude;
        if(entry.kind==='bag'){
-        this.impactPulse[key]={time,amount:Math.min(1,.25+closing*.12),contact:entry};
+        this.impactPulse[key]={time,amount:pressure,contact:entry};
         if(receiver!=='speed')this.recoil[actor].impulse(V(0,0,Math.min(.7,closing*.065)));
        }
        contacts.push({actor,side,receiver,kind:entry.kind,closingSpeed:closing,impulse:transferred,point:entry.point.toArray(),normal:entry.normal.toArray(),penetration:Math.max(0,current.penetration)});
       }
      }
      const pulse=this.impactPulse[key];
+     if(pulse&&current.penetration>0){pulse.amount=Math.max(pulse.amount,pressure);pulse.contact=current;}
      if(pulse){
       const amount=pulse.amount*Math.exp(-(time-pulse.time)/.055);
       if(amount<.001)delete this.impactPulse[key];
-      else {desired[actor][side]=Math.max(desired[actor][side],amount);if(!dent||amount>dent.pressure)dent={...pulse.contact,pressure:amount};}
+      else {desired[actor][side]=Math.max(desired[actor][side],amount);if(!dent||amount*.55>dent.pressure)dent={...pulse.contact,pressure:amount*.55};}
      }
      this.previousFists[key]=localCentre;
     }
