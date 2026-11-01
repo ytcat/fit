@@ -8,13 +8,16 @@
   <title>ShadowBox 3D | Lion Boxing Coach</title>
 
   <link rel="stylesheet" href="./assets/app.css?v=2" />
-  <link rel="stylesheet" href="./workout-experience.css?v=3" />
+  <link rel="stylesheet" href="./workout-experience.css?v=4" />
   <script src="./workout-experience.js?v=1" defer></script>
-  <script src="./practice-layout.js?v=2" defer></script>
+  <script src="./practice-layout.js?v=3" defer></script>
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-coach.js?v=15.1"></script>
+  <script src="./boxing-routines.js?v=1"></script>
+  <script src="./boxing-coach.js?v=16"></script>
+  <script src="./training-arena.js?v=1"></script>
+  <script src="./training-controls.js?v=1" defer></script>
 
   <style>
     html, body {
@@ -145,7 +148,7 @@
 
     <div class="grid grid-cols-4 gap-2">
       <button id="prevBtn" class="py-2 bg-slate-800 rounded-xl font-bold text-sm active:scale-95">◀ Prev</button>
-      <button id="playBtn" class="col-span-2 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black rounded-xl text-base tracking-wider active:scale-95 shadow-lg shadow-amber-500/20">START TRAINING</button>
+      <button id="playBtn" class="col-span-2 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black rounded-xl text-base tracking-wider active:scale-95 shadow-lg shadow-amber-500/20">Pause</button>
       <button id="nextBtn" class="py-3 bg-slate-800 rounded-xl font-bold text-sm active:scale-95">Next ▶</button>
     </div>
 
@@ -161,7 +164,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R15",
+        subtitle: "LION BOXING COACH · R16",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -214,7 +217,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R15",
+        subtitle: "מאמן אגרוף אריה · R16",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -267,7 +270,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R15",
+        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R16",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -320,6 +323,15 @@
     };
 
     /* ACTIVE SKELETAL ENGINE WITH AUTO-DISCOVERY IN ASSETS/MODELS */
+    for(const [language,dict] of Object.entries(I18N)){
+      const nameIndex={en:0,he:1,ru:2}[language],offset={en:1,he:3,ru:5}[language];
+      dict.drills=BOXING_ROUTINES.list.map(r=>{
+        const names=r.moves.map(m=>COACH_TECHNIQUES[m]?.[offset]||m);
+        return {title:r.names[nameIndex],codes:r.moves.map(m=>COACH_TECHNIQUES[m]?.[0]||m).join(' · '),
+          cues:names.join(' → '),notes:r.moves.map(m=>COACH_TECHNIQUES[m]?.[offset+1]||m).join(' '),voice:names.join(', '),anim:r.id};
+      });
+    }
+
     class AutoModelEngine {
       constructor(canvasId, stageId) {
         this.canvas = document.getElementById(canvasId);
@@ -349,7 +361,17 @@
         this.camera.position.set(0, 1.25, 5.8);
         this.camera.lookAt(0, 1.0, 0);
 
-        this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
+        try {
+          this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
+        } catch(error) {
+          // Keep the controls usable instead of aborting application startup.
+          const notice=document.createElement('p');notice.id='renderingNotice';notice.className='rendering-notice';
+          notice.textContent='3D rendering is unavailable in this browser. Open this app in a browser with WebGL enabled.';
+          this.stage.append(notice);
+          document.getElementById('modelStatusText').textContent='WebGL unavailable';
+          this.initControls();
+          return;
+        }
         this.renderer.physicallyCorrectLights = true;
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -401,7 +423,10 @@
 
         this.scene.traverse(n=>{if(n.isMesh && n.material.color)n.material.color.convertSRGBToLinear();});
         this.initControls();
-        document.getElementById('camBack').addEventListener('click', () => { if(this.activeModel){this.activeModel.rotation.y=Math.PI;this.fitCameraToModel(this.activeModel);} });
+        document.getElementById('camBack').addEventListener('click', () => {
+          if(this.arena&&this.arena.mode!=='none'){this.arena.group.rotation.y=Math.PI+.78;this.arena.fitCamera(this.camera);}
+          else if(this.activeModel){this.activeModel.rotation.y=Math.PI;this.fitCameraToModel(this.activeModel);}
+        });
         this.createTrainingBoxer();
         document.getElementById('defaultCoach').onclick=()=>this.useDefaultCoach();
         document.getElementById('motionPause').onclick=()=>{
@@ -418,9 +443,12 @@
         try {
           const response=await fetch('./assets/models/coach-surface.json?v=3');
           if(!response.ok)throw new Error('Coach surface unavailable');
-          this.coach=new LionCoach(await response.json());
+          const surface=await response.json();
+          this.coach=new LionCoach(surface);
           this.demoModel=this.coach.root;
           this.useDefaultCoach();
+          this.arena=new TrainingArena(this,surface);
+          this.arena.setTarget(this.targetMode||'none');
         } catch(error) {
           console.error(error);
           document.getElementById('modelStatusText').textContent='Coach could not load. Please reload.';
@@ -435,12 +463,14 @@
         this.activeModel=this.demoModel;this.activeModel.rotation.y=-.32;
         this.scene.add(this.demoModel);this.animTime=0;
         this.coach.update(0,this.technique,this.currentAnim);
+        if(this.arena&&this.arena.mode!=='none'){this.arena.setTarget(this.arena.mode);return;}
         this.fitCameraToModel(this.demoModel);
         document.getElementById('modelStatusText').textContent='Lion coach · connected body & full-body motion';
         document.getElementById('modelStatusDot').className='w-1.5 h-1.5 rounded-full bg-emerald-400';
       }
 
       fitCameraToModel(model) {
+        if(this.arena&&this.arena.mode!=='none'){this.arena.fitCamera(this.camera);return;}
         const box = new THREE.Box3().setFromObject(model);
         if (box.isEmpty()) return;
         const size = box.getSize(new THREE.Vector3());
@@ -614,16 +644,17 @@
         const start = (x) => { isDown = true; lastX = x; };
         const move = (x) => {
           if (!isDown || !this.activeModel) return;
-          this.activeModel.rotation.y += (x - lastX) * 0.01;
+          const target=this.arena&&this.arena.mode!=='none'?this.arena.group:this.activeModel;
+          target.rotation.y += (x - lastX) * 0.01;
           lastX = x;
         };
         const end = () => { isDown = false; };
 
-        this.stage.addEventListener('mousedown', (e) => start(e.clientX));
+        this.stage.addEventListener('mousedown', (e) => {if(e.target===this.canvas)start(e.clientX);});
         window.addEventListener('mousemove', (e) => move(e.clientX));
         window.addEventListener('mouseup', end);
 
-        this.stage.addEventListener('touchstart', (e) => start(e.touches[0].clientX), { passive: true });
+        this.stage.addEventListener('touchstart', (e) => {if(e.target===this.canvas)start(e.touches[0].clientX);}, { passive: true });
         window.addEventListener('touchmove', (e) => move(e.touches[0].clientX), { passive: true });
         window.addEventListener('touchend', end);
       }
@@ -637,13 +668,14 @@
           return;
         }
 
-        const stamp=[this.activeModel.uuid,this.activeModel.rotation.y,this.animTime,this.technique,this.currentAnim,this.camera.aspect].join('|');
+        const stamp=[this.activeModel.uuid,this.arena?.mode!=='none'&&this.arena?this.arena.group.rotation.y:this.activeModel.rotation.y,this.animTime,this.technique,this.currentAnim,this.camera.aspect,this.arena?.mode].join('|');
         if(!this.isPlaying && this.lastRenderStamp===stamp)return;
         this.lastRenderStamp=stamp;
         const dt=Math.min(delta,.05);
         if (this.isPlaying) this.animTime += dt * this.speed;
         if (this.coach && this.activeModel===this.demoModel) {
-          this.coach.update(this.animTime,this.technique,this.currentAnim);
+          if(this.arena)this.arena.update(this.animTime,this.technique,this.currentAnim);
+          else this.coach.update(this.animTime,this.technique,this.currentAnim);
         } else if(this.mixer && this.isPlaying) {
           this.playClipForDrill();this.mixer.update(dt*this.speed);
         }
@@ -704,8 +736,8 @@
         this.clock = 180;
         this.isActive = false;
         this.isRest = false;
-        this.speeds = [1.0, 0.5, 0.25];
-        this.speedIdx = 0;
+        this.speeds = BOXING_ROUTINES.speeds;
+        this.speedIdx = this.speeds.indexOf(1);
 
         this.initUI();
         this.setLanguage('en');
@@ -814,32 +846,15 @@
       }
 
       updatePlayBtnText() {
-        const dict = I18N[this.lang];
-        if (this.isActive) {
-          this.playBtn.innerText = dict.pause;
-        } else if (this.clock < 180) {
-          this.playBtn.innerText = dict.resume;
-        } else {
-          this.playBtn.innerText = dict.start;
-        }
+        const dict=I18N[this.lang];
+        this.playBtn.innerText=this.engine.isPlaying?dict.pause:dict.resume;
       }
 
       async toggle() {
-        this.audio.init();
-        const dict = I18N[this.lang];
-        if (this.isActive) {
-          this.isActive = false;
-          clearInterval(this.timer);
-          this.engine.isPlaying = true; // Keep instructor demonstrating even when round timer is paused.
-        } else {
-          this.isActive = true;
-          this.engine.isPlaying = true;
-          this.audio.bell();
-          if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(() => {});
-          this.audio.speak(dict.drills[this.drillIdx].voice, this.lang);
-          this.timer = setInterval(() => this.tick(), 1000);
-        }
+        this.engine.isPlaying=!this.engine.isPlaying;
+        this.isActive=false;
         this.updatePlayBtnText();
+        document.getElementById('motionPause').textContent=this.engine.isPlaying?'Freeze motion':'Play motion';
       }
 
       tick() {

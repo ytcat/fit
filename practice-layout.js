@@ -17,7 +17,7 @@
   addSection(document.getElementById('modelStatusBadge').parentElement);
   const navigation=document.createElement('div');navigation.append(document.getElementById('prevBtn'),document.getElementById('nextBtn'));addSection(navigation);
   const tools=document.querySelector('.workout-tools');if(tools){const plan=tools.firstElementChild;addSection(plan);tools.remove();}
-  const stats=document.getElementById('lblRound').parentElement.parentElement;stats.className='practice-stats';
+  const stats=document.getElementById('lblRound').parentElement.parentElement;stats.className='practice-stats';stats.hidden=true;
   document.getElementById('lblLevel').parentElement.hidden=true;
   const actions=document.getElementById('playBtn').parentElement;actions.className='practice-actions';
   const open=document.createElement('button');open.id='openPracticeControls';open.type='button';open.className='workout-tool';open.onclick=()=>dialog.showModal();actions.append(open);

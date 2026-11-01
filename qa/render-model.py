@@ -9,9 +9,17 @@ for k,f in enumerate(frames):
  t=np.concatenate(tris);color=np.concatenate(cs);n=np.cross(t[:,1]-t[:,0],t[:,2]-t[:,0]);n/=np.maximum(np.linalg.norm(n,axis=1,keepdims=True),1e-10)
  light=np.array([-.4,.7,1]);light/=np.linalg.norm(light);shade=.38+.62*np.maximum(n@light,0)
  color=np.clip(color*shade[:,None],0,1)**(1/2.2);color=(color*255).astype('uint8')
- xy=t[:,:,:2].copy();xy[:,:,0]=xy[:,:,0]*260+280;xy[:,:,1]=660-xy[:,:,1]*260
+ if 'camera' in f:
+  matrix=np.array(f['camera']).reshape(4,4).T
+  clip=np.concatenate([t,np.ones(t.shape[:-1]+(1,))],axis=-1)@matrix.T
+  projected=clip[...,:3]/clip[...,3:4]
+  xy=projected[...,:2].copy();xy[:,:,0]=xy[:,:,0]*280+280;xy[:,:,1]=350-xy[:,:,1]*350
+  order=np.argsort(-projected[:,:,2].mean(1))
+ else:
+  xy=t[:,:,:2].copy();xy[:,:,0]=xy[:,:,0]*260+280;xy[:,:,1]=660-xy[:,:,1]*260
+  order=np.argsort(t[:,:,2].mean(1))
  im=Image.new('RGB',(560,700),'#131a24');draw=ImageDraw.Draw(im)
- for i in np.argsort(t[:,:,2].mean(1)):
+ for i in order:
   draw.polygon([tuple(v) for v in xy[i]],fill=tuple(color[i]))
  draw.text((15,15),f['name'],fill='white');out.paste(im,(k*560,0))
 out.save(sys.argv[2])

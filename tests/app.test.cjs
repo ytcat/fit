@@ -12,6 +12,7 @@ const buttons=['jab','cross','hook','uppercut','slip','rear_hook','rear_uppercut
 global.document={readyState:'loading',documentElement:{},addEventListener(){},
   getElementById:element,querySelectorAll:()=>buttons,
   createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+vm.runInThisContext(fs.readFileSync('boxing-routines.js','utf8'));
 vm.runInThisContext(fs.readFileSync('boxing-coach.js','utf8'));
 const html=fs.readFileSync('index.html','utf8');
 const source=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
@@ -31,6 +32,11 @@ app.engine.technique='combo';app.setLanguage('he');
 assert.equal(app.engine.technique,'combo');assert.equal(app.engine.animTime,.57);
 assert.equal(document.documentElement.dir,'rtl');
 console.log('PASS language changes preserve technique, frozen pose and combination time');
+app.engine.isPlaying=true;app.toggle();assert.equal(app.engine.isPlaying,false);assert.equal(app.isActive,false);
+app.toggle();assert.equal(app.engine.isPlaying,true);assert.equal(app.clock,180,'continuous play must not start a round timer');
+assert.ok(BOXING_ROUTINES.speeds.includes(3),'fast playback must be available');
+assert.ok(!html.includes('>START TRAINING</button>'),'start-exercise entry must be replaced');
+console.log('PASS continuous pause/resume without starting a timed exercise');
 
 const engine=Object.create(TestEngine.prototype);let stopped=false;
 Object.assign(engine,{mixer:{},technique:'uppercut',animTime:0,actions:{Rear_Uppercut:{}},
@@ -66,3 +72,14 @@ framingEngine.fitCameraToModel(framingModel);const frontDistance=framingEngine.c
 framingModel.rotation.y=1.15;framingEngine.fitCameraToModel(framingModel);
 assert.ok(framingEngine.camera.position.z>frontDistance,'profile framing must allow full reach');
 console.log('PASS view-aware portrait framing');
+// A missing WebGL context must not abort MasterApp and leave a stale loader.
+const realThree=global.THREE,appended=[];
+for(const id of ['fallbackCanvas','fallbackStage'])Object.assign(element(id),{getBoundingClientRect:()=>({width:320,height:640}),addEventListener(){},append:n=>appended.push(n)});
+global.THREE={...realThree,WebGLRenderer:class {constructor(){throw new Error('WebGL unavailable');}}};
+window.addEventListener=()=>{};
+const fallbackEngine=new TestEngine('fallbackCanvas','fallbackStage');
+assert.ok(appended.some(n=>n.id==='renderingNotice'),'renderer failure must show a useful message');
+assert.equal(element('modelStatusText').textContent,'WebGL unavailable');
+assert.equal(fallbackEngine.isPlaying,true);
+global.THREE=realThree;
+console.log('PASS graceful WebGL startup failure with usable application controls');

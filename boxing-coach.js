@@ -7,7 +7,7 @@
   const clamp = (x,a=0,b=1) => Math.max(a,Math.min(b,x));
   const smooth = x => { x=clamp(x); return x*x*x*(x*(x*6-15)+10); };
   const lerp = (a,b,t) => a+(b-a)*t;
-  const sequences = {one_two:['jab','cross'],one_two_hook:['jab','cross','hook'],
+  const sequences = window.BOXING_ROUTINES?.sequences || {one_two:['jab','cross'],one_two_hook:['jab','cross','hook'],
     slip_cross:['slip','cross'],uppercut_flow:['uppercut','hook','cross']};
   let seed=48271;
   const random=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
@@ -93,7 +93,8 @@
   }
 
   class LionCoach {
-    constructor(data) {
+    constructor(data,options={}) {
+      this.species=options.species||'lion';
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
       this.bones=[];this.joints={};this.metrics={};
       const joint=(name,parent,p)=>{
@@ -126,12 +127,12 @@
       const fur=texture('fur'), grain=texture('leather');
       const skin=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.94,
         bumpMap:fur,bumpScale:.0025,skinning:true});
-      const cloth=new THREE.MeshStandardMaterial({color:0x152635,roughness:.61,
+      const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.61,
         bumpMap:grain,bumpScale:.0015,skinning:true});
       this.skin=this.skinned(this.sculptBody(meshFrom(data.body,true)),skin,true);
       this.shorts=this.skinned(meshFrom(data.shorts,true),cloth,false);
       this.gold=new THREE.MeshStandardMaterial({color:0xd8b56c,metalness:.38,roughness:.43});
-      this.leather=new THREE.MeshStandardMaterial({color:0xad2529,roughness:.42,
+      this.leather=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x2758c1:0xad2529,roughness:.42,
         bumpMap:grain,bumpScale:.001,metalness:.05});
       this.black=new THREE.MeshStandardMaterial({color:0x131518,roughness:.44});
       this.cream=new THREE.MeshStandardMaterial({color:0xc9b491,roughness:.9});
@@ -160,15 +161,16 @@
         // Satin side piping follows each thigh, rather than floating beside it.
         this.curve(this.joints['thigh'+side],[V(s*.125,.055,.075),V(s*.15,-.10,.08),V(s*.15,-.25,.08)],this.gold,.006);
       }
-      this.addFace();this.addMane();
+      if(this.species==='rabbit')this.addRabbitFace();else {this.addFace();this.addMane();}
       // Adult athletic proportions: reduce skull/face size consistently with the
       // sculpted skin while retaining a broad lion mane around the neck.
       this.joints.head.children.forEach(part=>{part.position.multiplyScalar(.90);part.scale.multiplyScalar(.90);});
       this.tail=new THREE.Group();hips.add(this.tail);
-      this.curve(this.tail,[V(0,-.02,-.16),V(.1,-.2,-.32),V(.16,-.45,-.40),V(.23,-.54,-.29)],
+      if(this.species!=='rabbit')this.curve(this.tail,[V(0,-.02,-.16),V(.1,-.2,-.32),V(.16,-.45,-.40),V(.23,-.54,-.29)],
         new THREE.MeshStandardMaterial({color:0x9d713f,roughness:1}),.022);
       const tip=this.ellipsoid(this.tail,new THREE.MeshStandardMaterial({color:0x44301d,roughness:1}),V(.23,-.54,-.29),V(.04,.075,.04));
       tip.rotation.z=-.6;
+      if(this.species==='rabbit'){this.tail.clear();this.ellipsoid(this.tail,this.cream,V(0,-.11,-.18),V(.085,.085,.08));}
       const convertedMaterials=new Set();
       this.root.traverse(n=>{if(n.isMesh){
         if(n.material.color&&!convertedMaterials.has(n.material)) {
@@ -208,6 +210,7 @@
           z-=.012*bell(y,1.43,.10)*smooth((-z+.025)/.08);
         }
         if(y>1.76){const amount=.10*smooth((y-1.76)/.10);x*=1-amount;z*=1-amount;y=1.84+(y-1.84)*(1-amount);}
+        if(this.species==='rabbit'&&y>1.78){const a=smooth((y-1.78)/.10);x*=1-.13*a;z*=1-.24*a; if(y>2.075&&Math.abs(x)>.12)y-=.06*smooth((Math.abs(x)-.12)/.03);}
         p.setXYZ(i,x,y,z);
       }
       p.needsUpdate=true;g.computeVertexNormals();return g;
@@ -215,7 +218,7 @@
 
     skinned(g,material,colour) {
       const positions=g.attributes.position, ids=[],weights=[],colors=[];
-      const tawny=new THREE.Color('#b98143').convertSRGBToLinear(), light=new THREE.Color('#e1cda1').convertSRGBToLinear();
+      const tawny=new THREE.Color(this.species==='rabbit'?'#939ba7':'#b98143').convertSRGBToLinear(), light=new THREE.Color(this.species==='rabbit'?'#f0e9df':'#e1cda1').convertSRGBToLinear();
       for(let i=0;i<positions.count;i++) {
         const p=V().fromBufferAttribute(positions,i);
         const influences=new Map();
@@ -358,6 +361,27 @@
       }
       for(const s of [-1,1])this.curve(ankle,[V(s*.088,.17,-.014),V(s*.079,.08,.005),V(s*.074,.01,.035)],this.black,.003);
     }
+    addRabbitFace() {
+      const head=this.joints.head,white=new THREE.MeshStandardMaterial({color:0xe6e2dc,roughness:.9,bumpMap:this.skin.material.bumpMap,bumpScale:.0015});
+      const grey=new THREE.MeshStandardMaterial({color:0x939ba7,roughness:.94,bumpMap:this.skin.material.bumpMap,bumpScale:.0015});
+      const pink=new THREE.MeshStandardMaterial({color:0xbb8186,roughness:.85});
+      const eye=new THREE.MeshPhysicalMaterial({color:0x201715,roughness:.20,clearcoat:.65});
+      this.rabbitEars=[];
+      for(const s of [-1,1]){
+        const ear=new THREE.Group();ear.position.set(s*.085,.235,-.012);head.add(ear);this.rabbitEars.push(ear);
+        this.ellipsoid(ear,grey,V(0,.20,0),V(.064,.255,.042));
+        this.ellipsoid(ear,pink,V(0,.205,.034),V(.036,.207,.013));
+        this.ellipsoid(head,eye,V(s*.079,.17,.147),V(.030,.025,.021));
+        this.ellipsoid(head,white,V(s*.073,.093,.213),V(.081,.065,.068));
+        this.ellipsoid(head,white,V(s*.019,.035,.249),V(.016,.025,.010));
+        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xffffff}),V(s*.075,.18,.165),V(.006,.006,.003));
+        this.curve(head,[V(s*.048,.208,.143),V(s*.085,.216,.139),V(s*.114,.195,.124)],grey,.008);
+        for(let i=0;i<3;i++)this.curve(head,[V(s*.057,.095-i*.017,.271),V(s*.16,.10-i*.017,.29),V(s*.23,.12-i*.025,.27)],white,.0009);
+      }
+      this.ellipsoid(head,pink,V(0,.112,.273),V(.029,.020,.019));
+      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([],3));
+      this.mane=new THREE.Mesh(g,grey);this.maneRest=[];this.maneFlex=[];
+    }
     addFace() {
       const head=this.joints.head;
       const wet=new THREE.MeshPhysicalMaterial({color:0x231c18,roughness:.24,clearcoat:.7});
@@ -473,7 +497,7 @@
       return {distal:distal.toArray(),palm:z.toArray(),turn};
     }
 
-    update(t,technique,combo) {
+    update(t,technique,combo,options={}) {
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
       const beat=t/(technique==='combo'?1.0:1.22),move=seq[Math.floor(beat)%seq.length];
       // Trim the dead guard tail between combination punches. Individual drills
@@ -501,7 +525,7 @@
       let leadPole=V(-.6,-1,.1),rearPole=V(.6,-1,.1);
       let leadTurn=0,rearTurn=0;
       const palmTarget=V(0,-1,0);
-      const lateTurn=smooth((strike-.35)/.65);
+      const lateTurn=smooth((strike-.50)/.50);
       const stepState=s=>{
         const out=clamp((phase-(s===-1?.08:.28))/.16);
         const back=clamp((phase-(s===-1?.78:.58))/.16);
@@ -518,21 +542,22 @@
         const back=clamp((phase-(first?.72:.56))/.14);
         const transfer=smooth(out)-smooth(back);
         const direction=move==='hook'?-1:move==='rear_hook'||move==='slip'?1:-1;
-        const length=move==='jab'?.085:move==='cross'?.045:move.includes('uppercut')?.055:.025;
+        const length=(move==='jab'?.085:move==='cross'?.045:move.includes('uppercut')?.055:.025)+(options.advance||0);
         return {z:length*transfer,x:lateralMove?direction*.045*transfer:0,
           lift:.018*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
       };
       switch(move) {
         case 'jab':
-          hipYaw=.22*drive;chestYaw=.22*twist;forward=.085*drive;crouch=.022*drive;
+          hipYaw=.28*drive;chestYaw=.27*twist;forward=.100*drive;crouch=.025*drive;
+          shift=-.018*drive;trunkPitch=.025*drive;pelvisRoll=.010*drive;
           rearPivot=-.12*drive;
-          trunkRoll=.018*twist;
+          trunkRoll=.030*twist;
           lead.lerp(V(-.10,1.72,.65),strike);leadTurn=lateTurn;
           break;
         case 'cross':
-          hipYaw=-.53*drive;chestYaw=-.38*twist;shift=-.035*drive;forward=.100*drive;crouch=.026*drive;
+          hipYaw=-.60*drive;chestYaw=-.44*twist;shift=-.045*drive;forward=.105*drive;crouch=.030*drive;trunkPitch=.035*drive;
           rear.lerp(V(.005,1.72,.67),strike);rearTurn=lateTurn;rearPivot=-.68*drive;
-          pelvisRoll=-.015*drive;trunkRoll=-.025*twist;
+          pelvisRoll=-.020*drive;trunkRoll=-.040*twist;
           break;
         case 'hook': case 'rear_hook': {
           const s=move==='hook'?-1:1;
@@ -572,12 +597,18 @@
           else {rearTurn=active;rearPole.lerp(V(0,-1,.2),active);rearPivot=-.36*up;}
           break;
         }
-        case 'slip': shift=.085*drive;crouch=.048*drive;hipYaw=-.12*drive;chestYaw=-.18*twist;
+        case 'speedbag': {
+          const circle=Math.sin(phase*Math.PI*2),lift=Math.cos(phase*Math.PI*2);
+          lead.set(-.14,1.76+.075*lift,.58+.075*circle);rear.set(.14,1.76-.075*lift,.58-.075*circle);
+          leadTurn=.35;rearTurn=.35;hipYaw=.045*circle;chestYaw=.075*circle;forward=.025;
+          crouch=.012*(1-lift);rearPivot=-.06*(1-circle);break;
+        }
+        case 'slip': shift=.11*drive;crouch=.048*drive;hipYaw=-.12*drive;chestYaw=-.18*twist;
           trunkRoll=-.15*drive;pelvisRoll=-.030*drive;forward=-.022*drive;break;
         case 'roll': {
           const q=smooth(clamp((phase-.12)/.72));
           const travel=Math.sin(q*Math.PI*2);
-          shift=.100*travel;crouch=.11*Math.sin(q*Math.PI);
+          shift=.100*travel;crouch=.22*Math.sin(q*Math.PI);
           hipYaw=-.12*travel;chestYaw=-.16*travel;
           trunkRoll=-.085*travel;pelvisRoll=-.025*travel;trunkPitch=.020*Math.sin(q*Math.PI);break;
         }
@@ -593,6 +624,15 @@
       const settling=Math.sin(Math.PI*phase/(technique==='combo'?.86:1))**2;
       crouch+=.004*settling*(1-drive);
       if(move!=='step')crouch+=.016*smooth(phase/.04)*(1-smooth((phase-.72)/.14));
+      // Close distance for bent-arm work by stepping the feet in sequence.
+      // The pelvis follows the support midpoint instead of sliding the root.
+      let approach=0;
+      if(options.advance){
+        const l=drillStep(-1),r=drillStep(1);
+        const length=(move.includes('uppercut')?.055:.025)+options.advance;
+        approach=(l.z+r.z)*.5*options.advance/length;
+        forward+=approach;crouch+=Math.abs(l.z-r.z)*.19;
+      }
       hipYaw+=.12;chestYaw+=.08;
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
@@ -603,9 +643,9 @@
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
       // Scapular elevation/protraction of the striking shoulder protects the chin.
-      const leftStrike=move==='hook'?hookState.rotation:['jab','uppercut'].includes(move)?strike:0;
-      const rightStrike=move==='rear_hook'?hookState.rotation:['cross','rear_uppercut'].includes(move)?strike:0;
-      const reachShoulder=straight?.075:hookState?.085:.045;
+      const leftStrike=move==='hook'?hookState.rotation:move==='jab'?twist:move==='uppercut'?strike:0;
+      const rightStrike=move==='rear_hook'?hookState.rotation:move==='cross'?twist:move==='rear_uppercut'?strike:0;
+      const reachShoulder=straight?.095:hookState?.085:.045;
       j.armL.position.set(-.30+.012*leftStrike,.26+.035*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
       j.armR.position.set(.30-.012*rightStrike,.26+.035*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
       if(shoulderSide)j[shoulderSide===-1?'armL':'armR'].position.y-=.024*shoulderLoad;
@@ -638,15 +678,15 @@
       if(!this.guardHead)this.guardHead=headPosition.clone();
       const headShift=headPosition.clone().sub(this.guardHead);
       // The defending hand follows the moving cheek, not just pelvis height.
-      if(!['jab','hook','uppercut'].includes(move))lead.copy(V(-.185,1.68,.31).add(headShift));
-      if(!['cross','rear_hook','rear_uppercut'].includes(move))rear.copy(V(.18,1.68,.28).add(headShift));
+      if(!['jab','hook','uppercut','speedbag'].includes(move))lead.copy(V(-.185,1.68,.31).add(headShift));
+      if(!['cross','rear_hook','rear_uppercut','speedbag'].includes(move))rear.copy(V(.18,1.68,.28).add(headShift));
       // Straight punches use almost the full arm reach after torso rotation.
       // A fixed short wrist endpoint left the elbow folded and knuckles pointing
       // upward even at impact. Keep a small bend rather than locking the joint.
       if(move==='jab'||move==='cross') {
         const side=move==='jab'?'L':'R',hand=side==='L'?lead:rear;
         const shoulder=this.point(j['arm'+side]);
-        const direction=V(side==='L'?-.08:.02,1.70,shoulder.z+.66).sub(shoulder).normalize();
+        const direction=V(side==='L'?-.08:.02,1.82,shoulder.z+.66).sub(shoulder).normalize();
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.0015;
         const target=shoulder.addScaledVector(direction,reach);
         hand.copy((side==='L'?V(-.185,1.68,.31):V(.18,1.68,.28)).add(guardShift)).lerp(target,strike);
@@ -656,12 +696,23 @@
         const shoulder=this.point(j['arm'+side]);
         // Longer-range hook: carry the fist around with the rotating shoulder,
         // opening the elbow progressively while preserving a bent-arm contact.
-        const radius=lerp(.43,.615,swing),height=1.70-crouch;
+        const radius=lerp(.43,.615,swing),height=1.81-crouch;
         const direction=V(-s*(.10+.65*swing),0,1-.35*swing).normalize();
         const dy=height-shoulder.y;
         const target=shoulder.addScaledVector(direction,Math.sqrt(Math.max(.01,radius*radius-dy*dy)));
         target.y=height;
         hand.lerp(target,active);
+      }
+      // Target practice adapts reach to the physical target. Keep the existing
+      // loading, footwork and body drive; constrain the wrist to arm length.
+      if(options.target&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
+        const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L';
+        const hand=side==='L'?lead:rear,shoulder=this.point(j['arm'+side]);
+        const aim=V(...options.target).add(V(0,0,approach)),delta=aim.sub(shoulder);
+        const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;
+        const endpoint=shoulder.add(delta.clampLength(0,reach));
+        const amount=straight?strike:hookState?hookState.rotation:rise*(1-recover);
+        hand.lerp(endpoint,amount);
       }
       const le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       const re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
@@ -676,6 +727,7 @@
           this.maneRest[i*3+1],this.maneRest[i*3+2]+hairResponse*.45*flex);
       }
       hair.needsUpdate=true;
+      if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
       this.root.updateMatrixWorld(true);
       this.skeleton.update();
       const mat=new THREE.Matrix4(),q=new THREE.Quaternion(),tr=new THREE.Quaternion();
@@ -691,7 +743,7 @@
       return this.metrics;
     }
   }
-  window.LionCoach=LionCoach;
+  window.LionCoach=LionCoach;window.CoachSurface=leatherSurface;
   window.COACH_TECHNIQUES={
     jab:['1','Jab','Keep the rear glove at the cheek. Extend forward, lift the lead shoulder, then return to guard.',
       'ג׳אב','היד האחורית מגינה על הלחי. שלחו את היד הקדמית קדימה, הרימו כתף וחזרו להגנה.',

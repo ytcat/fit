@@ -4,6 +4,7 @@ const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 process.chdir(path.join(__dirname,'..'));
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
 global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+vm.runInThisContext(fs.readFileSync('boxing-routines.js','utf8'));
 vm.runInThisContext(fs.readFileSync('boxing-coach.js','utf8'));
 const coach=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface.json')));
 const moves=['jab','cross','hook','uppercut','slip','rear_hook','rear_uppercut','roll','step'];

@@ -11,3 +11,19 @@
 .practice-techniques button{flex-shrink:0;white-space:normal;overflow-wrap:anywhere;min-height:36px;padding:7px 3px;font-size:11px;line-height:1.15;border:1px solid #394354;border-radius:9px}
 .practice-techniques button:focus-visible{outline:2px solid #fbbf24;outline-offset:1px}
 @media(max-width:500px){.practice-clear #stageContainer{--technique-rail:76px}.practice-techniques{right:3px;width:70px;gap:4px}.practice-techniques button{font-size:10px;min-height:34px;padding:6px 2px}}
+/* Continuous training controls stay outside the full-body arena. */
+.practice-clear .practice-stats[hidden]{display:none!important}
+.training-bar{display:flex;gap:7px;width:100%;align-items:stretch}
+.training-bar>button{flex:1;min-width:0;min-height:39px;padding:7px 9px;font-size:12px;line-height:1.2}
+.training-bar .training-speed{flex:0 0 68px;color:#f5c467;font-variant-numeric:tabular-nums}
+.training-dialog{margin:auto;width:min(94vw,640px);max-height:88dvh;overflow:auto;padding:18px;background:#101925;color:#e2e8f0;border:1px solid #66512b;border-radius:20px}
+.training-dialog::backdrop{background:#02050dde;backdrop-filter:blur(7px)}
+.equipment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.equipment-choice{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px;border:1px solid #344155;border-radius:14px;text-align:start;background:#172130}
+.equipment-choice[aria-pressed=true],.routine-choice[aria-pressed=true]{border-color:#e5b45e;background:#31291e}
+.equipment-choice strong{font-size:14px}.equipment-hint{font-size:12px;line-height:1.45;color:#aebccc}.equipment-icon{width:42px;height:42px;color:#e7bd74}.equipment-icon svg{width:100%;height:100%}
+.routine-grid{display:grid;gap:8px}.routine-choice{display:flex;flex-direction:column;gap:6px;padding:13px;text-align:start;background:#172130;border:1px solid #344155;border-radius:12px}.routine-choice strong{font-size:14px}.routine-choice span{font-size:12px;line-height:1.4;color:#bac7d6}
+.training-dialog button:focus-visible,.training-bar button:focus-visible{outline:2px solid #fbbf24;outline-offset:2px}.training-bar button:disabled,.practice-techniques button:disabled{opacity:.4;cursor:default}
+.practice-current #comboCodes{font-size:13px;max-width:42%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.practice-current #comboCues{max-width:70%;font-size:11px}.practice-actions #playBtn{background:#273244;color:#edf2f7;box-shadow:none;letter-spacing:0}
+@media(max-height:650px){.training-bar>button{min-height:32px}.practice-clear .practice-actions #playBtn,.practice-clear .practice-actions #openPracticeControls{padding:7px}.training-bar{gap:5px}}
+.speed-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.speed-grid button{padding:16px 8px;font-size:16px}.speed-grid button[aria-pressed=true]{background:#f4bb55;color:#15110a}
+.rendering-notice{position:absolute;top:40%;left:8%;width:calc(84% - var(--technique-rail,0px));font-size:14px;line-height:1.6;text-align:center;color:#bec8d8}
