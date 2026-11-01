@@ -7,10 +7,12 @@
   <title>ShadowBox 3D | Lion Boxing Coach</title>
 
   <link rel="stylesheet" href="./assets/app.css?v=2" />
+  <link rel="stylesheet" href="./workout-experience.css?v=1" />
+  <script src="./workout-experience.js?v=1" defer></script>
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-coach.js?v=7"></script>
+  <script src="./boxing-coach.js?v=8"></script>
 
   <style>
     html, body {
@@ -835,7 +837,7 @@
 
       updatePlayBtnText() {
         const dict = I18N[this.lang];
-        if (this.isActive || this.isRest) {
+        if (this.isActive) {
           this.playBtn.innerText = dict.pause;
         } else if (this.clock < 180) {
           this.playBtn.innerText = dict.resume;
@@ -847,7 +849,7 @@
       async toggle() {
         this.audio.init();
         const dict = I18N[this.lang];
-        if (this.isActive || this.isRest) {
+        if (this.isActive) {
           this.isActive = false;
           clearInterval(this.timer);
           this.engine.isPlaying = true; // Keep instructor demonstrating even when round timer is paused.
@@ -873,6 +875,11 @@
           if (!this.isRest) {
             this.audio.bell();
             if (this.round >= dict.drills.length) {
+              this.isActive=false;
+              this.updatePlayBtnText();
+              window.dispatchEvent(new CustomEvent('shadowbox-workout-complete'));
+              this.round=1;this.clock=180;this.drillIdx=0;
+              this.renderDrill();this.updateHUD();this.updatePlayBtnText();
               alert(this.lang === 'he' ? "אימון אליפות הושלם בהצלחה!" : (this.lang === 'ru' ? "Чемпионская тренировка завершена!" : "Championship Workout Complete!"));
               return;
             }
@@ -926,7 +933,7 @@
         const s = (this.clock % 60).toString().padStart(2, '0');
         document.getElementById('timerClock').innerText = `${m}:${s}`;
         document.getElementById('restClock').innerText = `${m}:${s}`;
-        document.getElementById('roundCounter').innerText = `${this.drillIdx + 1} / ${I18N[this.lang].drills.length}`;
+        document.getElementById('roundCounter').innerText = `${this.round} / ${I18N[this.lang].drills.length}`;
       }
     }
 

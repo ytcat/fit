@@ -284,7 +284,7 @@
       this.curve(head,[V(0,.08,.312),V(0,.051,.301)],wet,.003);
     }
     addMane() {
-      const positions=[],colors=[],head=this.joints.head;
+      const positions=[],colors=[],flex=[],head=this.joints.head;
       const undercoat=this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x51351e,roughness:1,
         bumpMap:texture('fur'),bumpScale:.003}),V(0,.085,-.065),V(.247,.303,.182));
       const surface=undercoat.geometry.attributes.position;
@@ -311,6 +311,7 @@
           const t0=j/3,t1=(j+1)/3,p=point(t0),q=point(t1);
           const p0=p.clone().addScaledVector(across,1-t0),p1=p.clone().addScaledVector(across,-(1-t0));
           const q0=q.clone().addScaledVector(across,1-t1),q1=q.clone().addScaledVector(across,-(1-t1));
+          flex.push(t0,t0,t1,t0,t1,t1);
           for(const v of [p0,p1,q0,p1,q1,q0]) {
             positions.push(v.x,v.y,v.z);const linear=colour.clone().convertSRGBToLinear();colors.push(linear.r,linear.g,linear.b);
           }
@@ -320,6 +321,7 @@
       g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeVertexNormals();
       const mane=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:1}));
       head.add(mane);this.mane=mane;
+      this.maneRest=new Float32Array(positions);this.maneFlex=new Float32Array(flex);
     }
 
     point(bone) { return this.root.worldToLocal(bone.getWorldPosition(V())); }
@@ -513,6 +515,16 @@
       const le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       const re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
+      // Root-anchored hair tips respond to the repetition's turn and recovery.
+      // Stateless deformation keeps freeze, scrubbing and slow playback stable.
+      const hairResponse=Math.sin(phase*Math.PI*2)*(Math.abs(hipYaw)+Math.abs(trunkRoll)+crouch)*.018;
+      const hair=this.mane.geometry.attributes.position;
+      for(let i=0;i<hair.count;i++) {
+        const flex=this.maneFlex[i]**2;
+        hair.setXYZ(i,this.maneRest[i*3]+hairResponse*flex,
+          this.maneRest[i*3+1],this.maneRest[i*3+2]+hairResponse*.45*flex);
+      }
+      hair.needsUpdate=true;
       this.root.updateMatrixWorld(true);
       this.skeleton.update();
       const mat=new THREE.Matrix4(),q=new THREE.Quaternion(),tr=new THREE.Quaternion();
