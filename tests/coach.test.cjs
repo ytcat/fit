@@ -140,7 +140,9 @@ for(const [move,side,index] of [['hook','L',0],['rear_hook','R',1]]) {
   assert.ok(Math.abs(end.hands[index][0]-start.hands[index][0])>.35,move+' arc too small');
   assert.ok(Math.abs(end.hands[index][1]-start.hands[index][1])<.04,move+' must sweep horizontally');
   const angle=elbowAngle(side);
-  assert.ok(angle>65&&angle<120,move+' must retain bent elbow: '+angle);
+  assert.ok(angle>110&&angle<145,move+' long hook must open the elbow while remaining bent: '+angle);
+  assert.ok(Math.abs(end.footTargets[index].pivot)>.65,move+' driving foot must pivot');
+  assert.ok(Math.abs(coach.joints.spine.rotation.y+coach.joints.chest.rotation.y)>.25,move+' shoulders/back must drive the arc');
 }
 console.log('PASS full straight extension, distinct dip/rise/recovery and horizontal bent-arm hooks');
 

@@ -141,18 +141,20 @@
           const abs=(bell(x,.070,.045)+bell(x,-.070,.045))*(bell(y,1.22,.045)+bell(y,1.32,.045)+bell(y,1.41,.042));
           const pec=(bell(x,.14,.095)+bell(x,-.14,.095))*bell(y,1.54,.075);
           const blades=(bell(x,.15,.07)+bell(x,-.15,.07))*bell(y,1.53,.12);
-          z+=front*(.020*abs+.032*pec-.008*bell(x,0,.018)*bell(y,1.40,.25))*edge;
+          const serratus=bell(Math.abs(x),.225,.038)*(bell(y,1.37,.022)+bell(y,1.435,.022)+bell(y,1.495,.020));
+          z+=front*(.020*abs+.032*pec+.009*serratus-.008*bell(x,0,.018)*bell(y,1.40,.25))*edge;
           z-=back*(.024*blades-.010*bell(x,0,.025)*bell(y,1.45,.24))*edge;
           x+=Math.sign(x)*.008*bell(Math.abs(x),.19,.06)*bell(y,1.28,.15);
         }
         // Rounded quadriceps and calf bellies, tapered at the knee and ankle.
         if(y<.95&&y>.20&&Math.abs(x)>.08&&Math.abs(x)<.32) {
-          z+=.012*bell(y,.78,.13)*smooth((z+.015)/.08);
+          const quad=.012*bell(y,.78,.13)+.006*bell(y,.68,.055)*bell(Math.abs(x),.15,.04);
+          z+=quad*smooth((z+.015)/.08);
           z-=.010*bell(y,.40,.10)*smooth((-z+.005)/.06);
         }
         if(Math.abs(x)>.33&&y>1.20&&y<1.60) {
-          z+=.010*bell(y,1.46,.09)*smooth((z+.025)/.08);
-          z-=.008*bell(y,1.43,.10)*smooth((-z+.025)/.08);
+          z+=.016*bell(y,1.46,.09)*smooth((z+.025)/.08);
+          z-=.012*bell(y,1.43,.10)*smooth((-z+.025)/.08);
         }
         p.setXYZ(i,x,y,z);
       }
@@ -417,6 +419,7 @@
       const j=this.joints,hips=j.hips,chest=j.chest;
       let hipYaw=0,chestYaw=0,crouch=0,shift=0,forward=0,leadPivot=0,rearPivot=0;
       let trunkPitch=0,trunkRoll=0,pelvisRoll=0,shoulderLoad=0,shoulderSide=0;
+      let hookState=null;
       const lead=V(-.185,1.68,.31),rear=V(.18,1.68,.28);
       let leadPole=V(-.6,-1,.1),rearPole=V(.6,-1,.1);
       let leadTurn=0,rearTurn=0;
@@ -443,18 +446,16 @@
           const s=move==='hook'?-1:1;
           const swing=smooth((phase-.20)/.28),active=prepare*(1-recover);
           const rotation=smooth((phase-.16)/.30)*(1-recover);
-          crouch=.012*active;
-          hipYaw=-s*.37*rotation;chestYaw=-s*.25*rotation;
-          shift=s*.018*rotation;
+          crouch=.030*prepare*(1-swing)*(1-recover)+.012*active;
+          hipYaw=-s*.46*rotation;chestYaw=-s*.34*rotation;
+          shift=-s*.040*rotation;forward=s*.025*rotation;
           pelvisRoll=-s*.025*rotation;trunkRoll=-s*.045*rotation;
           trunkPitch=.018*active;
           // Raise the bent elbow while moving forward, then sweep across the
           // target horizontally. Recover directly rather than reverse the arc.
-          const arc=V(s*(.30-.40*swing),1.70,.50+.10*Math.sin(swing*Math.PI));
-          const hand=s===-1?lead:rear,guard=hand.clone();
-          hand.lerp(arc,prepare).lerp(guard,recover);
-          if(s===-1){leadTurn=active;leadPole.lerp(V(-1,.10,.05),active);leadPivot=.52*rotation;}
-          else {rearTurn=active;rearPole.lerp(V(1,.10,.05),active);rearPivot=-.52*rotation;}
+          hookState={s,swing,active,rotation};
+          if(s===-1){leadTurn=active;leadPole.lerp(V(-1,.10,.05),active);leadPivot=.70*rotation;rearPivot=.10*rotation;}
+          else {rearTurn=active;rearPole.lerp(V(1,.10,.05),active);rearPivot=-.70*rotation;leadPivot=-.10*rotation;}
           break;
         }
         case 'uppercut': case 'rear_uppercut': {
@@ -505,9 +506,9 @@
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
       // Scapular elevation/protraction of the striking shoulder protects the chin.
-      const leftStrike=['jab','hook','uppercut'].includes(move)?strike:0;
-      const rightStrike=['cross','rear_hook','rear_uppercut'].includes(move)?strike:0;
-      const reachShoulder=straight?.065:.045;
+      const leftStrike=move==='hook'?hookState.rotation:['jab','uppercut'].includes(move)?strike:0;
+      const rightStrike=move==='rear_hook'?hookState.rotation:['cross','rear_uppercut'].includes(move)?strike:0;
+      const reachShoulder=straight?.065:hookState?.080:.045;
       j.armL.position.set(-.30+.012*leftStrike,.26+.035*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
       j.armR.position.set(.30-.012*rightStrike,.26+.035*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
       if(shoulderSide)j[shoulderSide===-1?'armL':'armR'].position.y-=.024*shoulderLoad;
@@ -547,6 +548,18 @@
         const target=shoulder.addScaledVector(direction,reach);
         hand.copy((side==='L'?V(-.185,1.68,.31):V(.18,1.68,.28)).add(guardShift)).lerp(target,strike);
       }
+      if(hookState) {
+        const {s,swing,active}=hookState,side=s===-1?'L':'R',hand=s===-1?lead:rear;
+        const shoulder=this.point(j['arm'+side]);
+        // Longer-range hook: carry the fist around with the rotating shoulder,
+        // opening the elbow progressively while preserving a bent-arm contact.
+        const radius=lerp(.43,.59,swing),height=1.70-crouch;
+        const direction=V(-s*(.10+.65*swing),0,1-.35*swing).normalize();
+        const dy=height-shoulder.y;
+        const target=shoulder.addScaledVector(direction,Math.sqrt(Math.max(.01,radius*radius-dy*dy)));
+        target.y=height;
+        hand.lerp(target,active);
+      }
       const le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       const re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
@@ -583,10 +596,10 @@
     cross:['2','Cross','Turn from the rear foot through the hip and chest. Keep the lead glove up and recover your stance.',
       'קרוס','סובבו את כף הרגל האחורית, האגן והחזה. שמרו את היד הקדמית בהגנה וחזרו לעמידת המוצא.',
       'Кросс','Разворот задней стопы, таза и груди. Передняя рука в защите; вернитесь в стойку.'],
-    hook:['3','Lead hook','Pivot the lead foot and turn the hip and chest together. Sweep across with a bent elbow; rear hand stays up.',
+    hook:['3','Lead hook','Drive from the lead foot, turn the hip and shoulder, and sweep a longer arc with a bent arm. Keep the rear glove at the cheek.',
       'הוק קדמי','סובבו את כף הרגל הקדמית, האגן והחזה. הזרוע נעה בקשת עם מרפק כפוף והיד האחורית מגינה.',
       'Передний хук','Разворот передней стопы, таза и груди. Дуга согнутой рукой; задняя перчатка в защите.'],
-    rear_hook:['4','Rear hook','Turn on the ball of the rear foot. The bent arm follows the body turn; keep the lead hand at the cheek.',
+    rear_hook:['4','Rear hook','Drive from the rear foot through the hip and shoulder. Reach around in a long bent-arm arc while the lead glove protects the cheek.',
       'הוק אחורי','סובבו את הרגל האחורית על כרית כף הרגל. הזרוע הכפופה עוקבת אחר הגוף והיד הקדמית מגינה.',
       'Задний хук','Разворот на подушечке задней стопы. Согнутая рука следует за корпусом; передняя у щеки.'],
     uppercut:['5','Lead uppercut','Load with a small knee bend. Drive up through the legs and hip with a compact bent arm, then recover guard.',
