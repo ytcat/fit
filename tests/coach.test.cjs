@@ -207,3 +207,14 @@ const takeoffA=coach.update(.08*1.22,'step','one_two').footTargets[0].ankle[1];
 const takeoffB=coach.update(.081*1.22,'step','one_two').footTargets[0].ankle[1];
 assert.ok(Math.abs(takeoffB-takeoffA)/(.001*1.22)<.05,'foot take-off must begin smoothly');
 console.log('PASS extended uppercut/stride and smooth foot take-off');
+
+for(const combo of ['one_two','one_two_hook','slip_cross','uppercut_flow']) {
+  const names=['hips','head','armL','armR','handL','handR','footL','footR'];
+  for(const boundary of [1,2,3]) {
+    coach.update(boundary-.0001,'combo',combo);
+    const before=names.map(n=>coach.point(coach.joints[n]));
+    coach.update(boundary+.0001,'combo',combo);
+    names.forEach((n,i)=>assert.ok(before[i].distanceTo(coach.point(coach.joints[n]))<.001,combo+' jump at punch transition: '+n));
+  }
+}
+console.log('PASS connected combination cadence without joint-position jumps');

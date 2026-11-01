@@ -114,6 +114,9 @@
         this.curve(this.joints['thigh'+side],[V(s*.125,.055,.075),V(s*.15,-.10,.08),V(s*.15,-.25,.08)],this.gold,.006);
       }
       this.addFace();this.addMane();
+      // Adult athletic proportions: reduce skull/face size consistently with the
+      // sculpted skin while retaining a broad lion mane around the neck.
+      this.joints.head.children.forEach(part=>{part.position.multiplyScalar(.90);part.scale.multiplyScalar(.90);});
       this.tail=new THREE.Group();hips.add(this.tail);
       this.curve(this.tail,[V(0,-.02,-.16),V(.1,-.2,-.32),V(.16,-.45,-.40),V(.23,-.54,-.29)],
         new THREE.MeshStandardMaterial({color:0x9d713f,roughness:1}),.022);
@@ -145,6 +148,7 @@
           z+=front*(.020*abs+.032*pec+.009*serratus-.008*bell(x,0,.018)*bell(y,1.40,.25))*edge;
           z-=back*(.024*blades-.010*bell(x,0,.025)*bell(y,1.45,.24))*edge;
           x+=Math.sign(x)*.008*bell(Math.abs(x),.19,.06)*bell(y,1.28,.15);
+          x*=1+.070*bell(y,1.56,.14)-.035*bell(y,1.22,.12);
         }
         // Rounded quadriceps and calf bellies, tapered at the knee and ankle.
         if(y<.95&&y>.20&&Math.abs(x)>.08&&Math.abs(x)<.32) {
@@ -156,6 +160,7 @@
           z+=.016*bell(y,1.46,.09)*smooth((z+.025)/.08);
           z-=.012*bell(y,1.43,.10)*smooth((-z+.025)/.08);
         }
+        if(y>1.76){const amount=.10*smooth((y-1.76)/.10);x*=1-amount;z*=1-amount;y=1.84+(y-1.84)*(1-amount);}
         p.setXYZ(i,x,y,z);
       }
       p.needsUpdate=true;g.computeVertexNormals();return g;
@@ -163,7 +168,7 @@
 
     skinned(g,material,colour) {
       const positions=g.attributes.position, ids=[],weights=[],colors=[];
-      const tawny=new THREE.Color('#a87842').convertSRGBToLinear(), light=new THREE.Color('#d0b78a').convertSRGBToLinear();
+      const tawny=new THREE.Color('#b98143').convertSRGBToLinear(), light=new THREE.Color('#e1cda1').convertSRGBToLinear();
       for(let i=0;i<positions.count;i++) {
         const p=V().fromBufferAttribute(positions,i);
         const influences=new Map();
@@ -198,6 +203,12 @@
           const c=tawny.clone().lerp(light,Math.max(muzzle,bib));
           c.multiplyScalar(1+.04*Math.sin(p.y*110+p.x*56)*Math.sin(p.z*143));
           c.multiplyScalar(1-.13*smooth((-p.z-.03)/.15));
+          // Tonal separation at real sculpted muscle boundaries, following the
+          // skinned surface rather than floating linework on top of the body.
+          if(p.z>.09&&p.y>1.15&&p.y<1.66&&Math.abs(p.x)<.28){
+            const groove=Math.exp(-(((p.y-1.465)/.018)**2))*Math.exp(-(((Math.abs(p.x)-.13)/.14)**2));
+            c.multiplyScalar(1-.12*groove);
+          }
           colors.push(c.r,c.g,c.b);
         }
       }
@@ -297,7 +308,7 @@
         this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x705037,roughness:1}),V(s*.164,.265,.025),V(.044,.050,.014));
         this.ellipsoid(head,this.black,V(s*.164,.265,-.044),V(.048,.053,.011));
         this.curve(head,[V(s*.058,.154,.196),V(s*.092,.151,.203),V(s*.119,.159,.184)],wet,.0025);
-        this.curve(head,[V(s*.055,.218,.175),V(s*.090,.225,.167),V(s*.127,.205,.149)],this.cream,.004);
+        this.curve(head,[V(s*.055,.218,.175),V(s*.090,.225,.167),V(s*.127,.205,.149)],wet,.004);
         this.curve(head,[V(0,.051,.300),V(s*.035,.015,.287),V(s*.094,.024,.269)],wet,.003);
         for(let i=0;i<7;i++) {
           const y=.044+(i%3)*.016,x=s*(.052+Math.floor(i/3)*.017);
@@ -314,7 +325,7 @@
     addMane() {
       const positions=[],colors=[],flex=[],head=this.joints.head;
       const undercoat=this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x51351e,roughness:1,
-        bumpMap:texture('fur'),bumpScale:.003}),V(0,.085,-.065),V(.247,.303,.182));
+        bumpMap:texture('fur'),bumpScale:.003}),V(0,.065,-.065),V(.295,.355,.210));
       const surface=undercoat.geometry.attributes.position;
       for(let i=0;i<surface.count;i++) {
         const x=surface.getX(i),y=surface.getY(i),z=surface.getZ(i);
@@ -327,13 +338,13 @@
       for(let i=0;i<3200;i++) {
         const a=i*2.399963229728653,nz=-1+1.70*(i+.5)/3200,r=Math.sqrt(1-nz*nz);
         const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz);
-        const center=V(normal.x*.247,.085+normal.y*.303,-.065+normal.z*.182);
+        const center=V(normal.x*.295,.065+normal.y*.355,-.065+normal.z*.210);
         if(center.z>.025&&Math.abs(center.x)<.165&&center.y>-.03&&center.y<.29)continue;
-        const length=.040+random()*.045+Math.max(0,-normal.y)*.035;
+        const length=.055+random()*.055+Math.max(0,-normal.y)*.065;
         const width=.004+random()*.004;
-        const outward=normal.clone().multiplyScalar(.65).add(V(normal.x*.12,-.65,-.15)).normalize();
+        const outward=normal.clone().multiplyScalar(.85).add(V(normal.x*.18,-.40,-.12)).normalize();
         const across=outward.clone().cross(Math.abs(outward.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
-        const colour=new THREE.Color().setHSL(.083+random()*.025,.38+random()*.12,.13+random()*.15);
+        const colour=new THREE.Color().setHSL(.070+random()*.035,.42+random()*.18,.10+random()*.19);
         for(let j=0;j<3;j++) {
           const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.027*t*t,-.018*t*t));
           const t0=j/3,t1=(j+1)/3,p=point(t0),q=point(t1);
@@ -401,7 +412,10 @@
 
     update(t,technique,combo) {
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
-      const beat=t/1.22, move=seq[Math.floor(beat)%seq.length],phase=beat%1;
+      const beat=t/(technique==='combo'?1.0:1.22),move=seq[Math.floor(beat)%seq.length];
+      // Trim the dead guard tail between combination punches. Individual drills
+      // keep their deliberate full reset; combinations retain continuous cadence.
+      const phase=(beat%1)*(technique==='combo'?.86:1);
       // Pelvis leads thorax; arm follows. No hand can travel through the back.
       const envelope=(p,delay=0)=>{
         p-=delay;
@@ -498,6 +512,8 @@
       }
       // Orthodox guard is slightly bladed. Starting square made every punch
       // look like an isolated arm demonstration instead of boxing footwork.
+      const settling=Math.sin(Math.PI*phase/(technique==='combo'?.86:1))**2;
+      crouch+=.004*settling*(1-drive);
       hipYaw+=.12;chestYaw+=.08;
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
@@ -567,7 +583,7 @@
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
       // Root-anchored hair tips respond to the repetition's turn and recovery.
       // Stateless deformation keeps freeze, scrubbing and slow playback stable.
-      const hairResponse=Math.sin(phase*Math.PI*2)*(Math.abs(hipYaw)+Math.abs(trunkRoll)+crouch)*.018;
+      const hairResponse=Math.sin(phase*Math.PI*2)*(Math.abs(hipYaw-.12)+Math.abs(trunkRoll)+crouch)*.018;
       const hair=this.mane.geometry.attributes.position;
       for(let i=0;i<hair.count;i++) {
         const flex=this.maneFlex[i]**2;

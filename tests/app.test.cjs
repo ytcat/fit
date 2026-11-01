@@ -56,3 +56,13 @@ assert.ok(html.includes("connect-src 'self' blob: data:"),'same-origin runtime p
 for(const match of html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)="([^"]+)"/g))assert.ok(match[1].startsWith('./'),'runtime dependencies must be bundled');
 assert.ok(!html.includes('https://api.github.com'),'no GitHub API model discovery');
 console.log('PASS bundled dependencies, same-origin connection policy and local-only speech');
+assert.ok(!html.includes('id="savedCoach"'),'saved-avatar switch must be removed');
+assert.ok(!html.includes('id="modelFilePicker"'),'alternate-avatar upload must not appear in coach UI');
+// Portrait framing must use the posed instructor envelope, not spread rest arms.
+const framingEngine=Object.create(TestEngine.prototype);
+const framingModel=new THREE.Group();framingModel.add(new THREE.Mesh(new THREE.BoxGeometry(1.6,2.3,.6),new THREE.MeshBasicMaterial()));
+framingEngine.demoModel=framingModel;framingEngine.camera=new THREE.PerspectiveCamera(38,393/800,.1,100);
+framingEngine.fitCameraToModel(framingModel);const frontDistance=framingEngine.camera.position.z;
+framingModel.rotation.y=1.15;framingEngine.fitCameraToModel(framingModel);
+assert.ok(framingEngine.camera.position.z>frontDistance,'profile framing must allow full reach');
+console.log('PASS view-aware portrait framing');

@@ -13,7 +13,7 @@
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-coach.js?v=11"></script>
+  <script src="./boxing-coach.js?v=13"></script>
 
   <style>
     html, body {
@@ -89,7 +89,6 @@
 
     <div class="absolute top-[112px] right-2 z-10 flex flex-col gap-1">
       <button id="defaultCoach" class="px-2 py-1 text-[10px] rounded bg-amber-500 text-slate-950 font-bold">Lion coach</button>
-      <button id="savedCoach" class="px-2 py-1 text-[10px] rounded bg-slate-900 border border-slate-700">Saved avatar</button>
       <button id="motionPause" class="px-2 py-1 text-[10px] rounded bg-slate-900 border border-slate-700">Freeze motion</button>
     </div>
     <!-- Camera Presets -->
@@ -151,10 +150,7 @@
 
     <div class="flex justify-between items-center text-[10px] text-slate-400 pt-0.5 px-1">
       <span id="orbitHint">✋ Drag canvas to rotate 360°</span>
-      <label class="text-amber-400 hover:text-white cursor-pointer underline font-semibold">
-        <span>Load Local File</span>
-        <input type="file" id="modelFilePicker" accept=".glb" class="hidden" />
-      </label>
+
     </div>
   </footer>
 
@@ -164,7 +160,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R12",
+        subtitle: "LION BOXING COACH · R13",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -217,7 +213,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R12",
+        subtitle: "מאמן אגרוף אריה · R13",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -270,7 +266,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R12",
+        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R13",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -403,10 +399,9 @@
 
         this.scene.traverse(n=>{if(n.isMesh && n.material.color)n.material.color.convertSRGBToLinear();});
         this.initControls();
-        document.getElementById('camBack').addEventListener('click', () => { if(this.activeModel) this.activeModel.rotation.y = Math.PI; });
+        document.getElementById('camBack').addEventListener('click', () => { if(this.activeModel){this.activeModel.rotation.y=Math.PI;this.fitCameraToModel(this.activeModel);} });
         this.createTrainingBoxer();
         document.getElementById('defaultCoach').onclick=()=>this.useDefaultCoach();
-        document.getElementById('savedCoach').onclick=()=>this.restoreSavedModel();
         document.getElementById('motionPause').onclick=()=>{
           this.isPlaying=!this.isPlaying;
           document.getElementById('motionPause').textContent=this.isPlaying?'Freeze motion':'Play motion';
@@ -451,8 +446,11 @@
         const fov = THREE.MathUtils.degToRad(this.camera.fov);
         const aspect = Math.max(.25, this.camera.aspect);
         const verticalDistance = (size.y * .5) / Math.tan(fov * .5);
-        const horizontalDistance = (size.x * .5) / (Math.tan(fov * .5) * aspect);
-        const distance = Math.max(verticalDistance, horizontalDistance, size.z * 1.4, 2.5) * 1.55;
+        // r128 Box3 uses rest-pose skin vertices; their spread arms needlessly
+        // shrink the posed instructor. Use a view-aware motion envelope instead.
+        const framingWidth=model===this.demoModel?.92+.58*Math.abs(Math.sin(model.rotation.y)):size.x;
+        const horizontalDistance = (framingWidth * .5) / (Math.tan(fov * .5) * aspect);
+        const distance = Math.max(verticalDistance, horizontalDistance, size.z * 1.4, 2.5) * 1.30;
         this.camera.position.set(center.x, center.y + .1, center.z + distance);
         this.camera.lookAt(center);
       }
@@ -743,10 +741,10 @@
         document.getElementById('langRU').onclick = () => this.setLanguage('ru');
 
         document.getElementById('camFront').onclick = () => {
-          if (this.engine.activeModel) this.engine.activeModel.rotation.y = -0.32;
+          if (this.engine.activeModel){this.engine.activeModel.rotation.y=-0.32;this.engine.fitCameraToModel(this.engine.activeModel);}
         };
         document.getElementById('camSide').onclick = () => {
-          if (this.engine.activeModel) this.engine.activeModel.rotation.y = 1.15;
+          if (this.engine.activeModel){this.engine.activeModel.rotation.y=1.15;this.engine.fitCameraToModel(this.engine.activeModel);}
         };
 
         document.getElementById('speedBtn').onclick = (e) => {
@@ -761,14 +759,7 @@
           e.target.innerText = this.audio.muted ? '🔇' : '🔊';
         };
 
-        // File input for manual override
-        document.getElementById('modelFilePicker').onchange = (e) => {
-          const file = e.target.files[0];
-          if (file) {
-            this.engine.loadAvatarFile(file);
-            this.engine.saveModelFile(file).catch(err=>console.warn('Avatar could not be saved for next visit',err));
-          }
-        };
+
       }
 
       setLanguage(langCode) {
