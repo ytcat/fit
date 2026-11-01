@@ -52,6 +52,46 @@
     g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));return g;
   }
 
+  // Joined, smooth leather volumes. Build once per coach; no external assets or
+  // engines. The small thumb is joined to the palm instead of a separate finger.
+  function leatherSurface(volumes,lo,hi,step=.012) {
+    const field=p=>{
+      let d=10;
+      for(const [c,r] of volumes){
+        const b=(Math.hypot((p.x-c[0])/r[0],(p.y-c[1])/r[1],(p.z-c[2])/r[2])-1)*Math.min(...r);
+        const h=Math.max(.018-Math.abs(d-b),0)/.018;
+        d=Math.min(d,b)-h*h*.018*.25;
+      }return d;
+    };
+    const corners=[[0,0,0],[1,0,0],[1,1,0],[0,1,0],[0,0,1],[1,0,1],[1,1,1],[0,1,1]];
+    const tetra=[[0,5,1,6],[0,1,2,6],[0,2,3,6],[0,3,7,6],[0,7,4,6],[0,4,5,6]];
+    const counts=hi.map((n,i)=>Math.ceil((n-lo[i])/step));
+    const points=[],values=[],id=(x,y,z)=>(x*(counts[1]+1)+y)*(counts[2]+1)+z;
+    for(let x=0;x<=counts[0];x++)for(let y=0;y<=counts[1];y++)for(let z=0;z<=counts[2];z++){
+      const p=V(lo[0]+x*step,lo[1]+y*step,lo[2]+z*step);points.push(p);values.push(field(p));
+    }
+    const positions=[],normals=[];
+    const normal=p=>{const e=.0001;return V(field(p.clone().add(V(e,0,0)))-field(p.clone().sub(V(e,0,0))),field(p.clone().add(V(0,e,0)))-field(p.clone().sub(V(0,e,0))),field(p.clone().add(V(0,0,e)))-field(p.clone().sub(V(0,0,e)))).normalize();};
+    const triangle=(a,b,c)=>{
+      if(b.clone().sub(a).cross(c.clone().sub(a)).dot(normal(a.clone().add(b).add(c).divideScalar(3)))<0)[b,c]=[c,b];
+      for(const p of [a,b,c]){positions.push(...p.toArray());normals.push(...normal(p).toArray());}
+    };
+    for(let x=0;x<counts[0];x++)for(let y=0;y<counts[1];y++)for(let z=0;z<counts[2];z++){
+      const ids=corners.map(c=>id(x+c[0],y+c[1],z+c[2]));
+      if(ids.every(i=>values[i]>=0)||ids.every(i=>values[i]<0))continue;
+      for(const t of tetra){
+        const inside=t.filter(i=>values[ids[i]]<0),outside=t.filter(i=>values[ids[i]]>=0);
+        const edge=(a,b)=>{a=ids[a];b=ids[b];return points[a].clone().lerp(points[b],values[a]/(values[a]-values[b]));};
+        if(inside.length===1)triangle(...outside.map(b=>edge(inside[0],b)));
+        else if(inside.length===3)triangle(...inside.map(b=>edge(outside[0],b)));
+        else if(inside.length===2){const [a,b]=inside,[c,d]=outside,ac=edge(a,c),ad=edge(a,d),bc=edge(b,c),bd=edge(b,d);triangle(ac,ad,bc);triangle(ad,bd,bc);}
+      }
+    }
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(positions.flatMap((v,i)=>i%3===2?[]:[v*3]),2));
+    g.computeBoundingBox();return g;
+  }
+
   class LionCoach {
     constructor(data) {
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
@@ -98,16 +138,23 @@
       const waistband=new THREE.Mesh(new THREE.CylinderGeometry(.244,.249,.061,64,1,true),this.gold);
       waistband.scale.z=.73;waistband.position.y=.098;hips.add(waistband);
       this.addLabel(hips,'SHADOW',V(0,.098,.184),.19,.043);
+      const gloveGeometry=leatherSurface([
+        [[0,-.122,-.010],[.093,.103,.079]], // padded knuckles, flatter palm
+        [[0,-.058,-.006],[.082,.074,.066]],
+        [[-.069,-.087,.049],[.034,.055,.038]], // tucked attached thumb
+        [[0,.009,0],[.063,.052,.058]]
+      ],[-.115,-.24,-.10],[.105,.07,.105],.010);
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',hand=this.joints['hand'+side];
-        const glove=new THREE.Mesh(meshFrom(data.glove,true),this.leather);
+        const glove=new THREE.Mesh(gloveGeometry,this.leather);glove.name='Boxing glove';
         if(s===1) glove.scale.x=-1;
         hand.add(glove);glove.castShadow=true;
         const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.070,.071,.062,32),this.black);
         cuff.position.y=.014;hand.add(cuff);
         // Branding belongs on the back of the glove, opposite its palm/thumb pad.
-        this.addLabel(hand,'SB',V(0,-.070,-.105),.065,.039).rotation.y=Math.PI;
-        this.curve(hand,[V(-.065,-.035,-.074),V(0,-.025,-.105),V(.065,-.035,-.074)],this.cream,.0015);
+        this.addLabel(hand,'SB',V(0,-.090,-.087),.055,.032).rotation.y=Math.PI;
+        this.curve(hand,[V(-.059,-.035,-.048),V(0,-.027,-.069),V(.059,-.035,-.048)],this.cream,.0012);
+        this.curve(glove,[V(-.079,-.039,.047),V(-.093,-.073,.063),V(-.073,-.125,.073)],this.leather,.0018);
         this.curve(hand,[V(-.065,.035,0),V(0,.038,-.069),V(.065,.035,0)],this.gold,.0018);
         this.addBoot(this.joints['foot'+side]);
         // Satin side piping follows each thigh, rather than floating beside it.
@@ -283,17 +330,31 @@
     }
     addBoot(foot) {
       const shape=new THREE.Shape();
-      shape.moveTo(-.075,-.13);shape.quadraticCurveTo(-.09,.20,0,.235);
-      shape.quadraticCurveTo(.09,.20,.075,-.13);shape.quadraticCurveTo(0,-.16,-.075,-.13);
-      const sole=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.027,bevelEnabled:true,bevelSize:.009,bevelThickness:.006,bevelSegments:3,steps:1}),this.cream);
-      sole.rotation.x=Math.PI/2;sole.position.y=-.089;foot.add(sole);
-      this.ellipsoid(foot,this.black,V(0,-.044,.048),V(.079,.062,.171));
-      const upper=new THREE.Mesh(new THREE.CylinderGeometry(.064,.073,.18,32),this.black);
-      upper.position.set(0,.035,-.014);foot.add(upper);
-      for(let i=0;i<6;i++) {
-        const y=-.015+i*.022;
-        this.curve(foot,[V(-.044,y,.058),V(0,y+.014,.070),V(.044,y,.058)],this.cream,.0025);
+      shape.moveTo(-.062,-.108);shape.lineTo(-.078,.055);
+      shape.quadraticCurveTo(-.097,.177,-.061,.205);
+      shape.quadraticCurveTo(0,.229,.061,.205);
+      shape.quadraticCurveTo(.097,.177,.078,.055);shape.lineTo(.062,-.108);
+      shape.quadraticCurveTo(0,-.126,-.062,-.108);
+      const sole=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.018,bevelEnabled:true,bevelSize:.004,bevelThickness:.004,bevelSegments:3,steps:1}),this.cream);
+      sole.name='Boxing boot sole';sole.rotation.x=Math.PI/2;sole.position.y=-.080;foot.add(sole);
+      if(!this.bootGeometry)this.bootGeometry=leatherSurface([
+        [[0,-.033,.091],[.084,.053,.123]],
+        [[0,-.027,-.042],[.067,.060,.070]],
+        [[0,.016,.023],[.068,.086,.078]],
+        [[0,.085,-.025],[.062,.112,.061]]
+      ],[-.10,-.10,-.13],[.10,.22,.23]);
+      const upper=new THREE.Mesh(this.bootGeometry,this.black);upper.name='Boxing boot upper';foot.add(upper);
+      const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.084,.067,.19,40,1,true),this.black);
+      shaft.name='Boxing boot ankle';shaft.position.set(0,.095,-.020);shaft.scale.z=.94;foot.add(shaft);
+      this.curve(foot,[V(-.074,.19,-.020),V(0,.19,.059),V(.074,.19,-.020)],this.black,.004);
+      // Tongue and crossed laces follow the sloping instep and ankle shaft.
+      for(let i=0;i<8;i++) {
+        const y=-.007+i*.023,z=i<3?.137-i*.029:.065+(i-3)*.002;
+        this.curve(foot,[V(-.032,y,z),V(.032,y+.016,z-.006)],this.cream,.0020);
+        this.curve(foot,[V(.032,y,z),V(-.032,y+.016,z-.006)],this.cream,.0020);
+        for(const s of [-1,1])this.ellipsoid(foot,this.gold,V(s*.033,y,z),V(.004,.004,.002));
       }
+      for(const s of [-1,1])this.curve(foot,[V(s*.057,.145,-.032),V(s*.067,.050,.005),V(s*.069,-.020,.070)],this.black,.003);
     }
     addFace() {
       const head=this.joints.head;
@@ -502,7 +563,9 @@
           // Three distinct phases: settle under the target, drive upward with
           // extending legs, then recover to cheek without a second scoop.
           const hand=s===-1?lead:rear,guard=hand.clone();
-          hand.lerp(V(s*.18,1.40,.32),prepare).lerp(V(s*.13,1.94,.62),rise).lerp(guard,recover);
+          // Fist comes from below the target, not from an elbow raised beside
+          // the head. Wrist finishes in front of the chin, with elbow below it.
+          hand.lerp(V(s*.21,1.34,.36),prepare).lerp(V(s*.12,1.72,.64),rise).lerp(guard,recover);
           if(s===-1){leadTurn=active;leadPole.lerp(V(0,-1,.2),active);leadPivot=.36*up;}
           else {rearTurn=active;rearPole.lerp(V(0,-1,.2),active);rearPivot=-.36*up;}
           break;
@@ -550,10 +613,11 @@
         const side=s===-1?'L':'R',pivot=s===-1?leadPivot:rearPivot;
         const lift=Math.abs(pivot)*.35;
         const footQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(lift,pivot,0,'YXZ'));
-        // Pivot about ball of foot. Heel can rise; toe contact stays on the floor.
+        // A rigid boot pivots at the forward sole contact. Using the mid-foot
+        // here drove the long toe through the floor whenever the heel rose.
         const step=drillStep(s);
-        const contact=V(s*.235+step.x,.015,(s===-1?.24:-.20)+.12+step.z);
-        const ankle=contact.clone().add(V(0,.102,-.12).applyQuaternion(footQ));
+        const contact=V(s*.235+step.x,.015,(s===-1?.24:-.20)+.215+step.z);
+        const ankle=contact.clone().add(V(0,.102,-.215).applyQuaternion(footQ));
         ankle.y+=step.lift;
         const kneePole=V(s*.07,0,1).applyAxisAngle(V(0,1,0),pivot*.65);
         const err=this.solve(j['thigh'+side],j['knee'+side],j['foot'+side],ankle,kneePole);

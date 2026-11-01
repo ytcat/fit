@@ -8,13 +8,13 @@
   <title>ShadowBox 3D | Lion Boxing Coach</title>
 
   <link rel="stylesheet" href="./assets/app.css?v=2" />
-  <link rel="stylesheet" href="./workout-experience.css?v=2" />
+  <link rel="stylesheet" href="./workout-experience.css?v=3" />
   <script src="./workout-experience.js?v=1" defer></script>
-  <script src="./practice-layout.js?v=1" defer></script>
+  <script src="./practice-layout.js?v=2" defer></script>
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-coach.js?v=14"></script>
+  <script src="./boxing-coach.js?v=15"></script>
 
   <style>
     html, body {
@@ -161,7 +161,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R14",
+        subtitle: "LION BOXING COACH · R15",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -214,7 +214,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R14",
+        subtitle: "מאמן אגרוף אריה · R15",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -267,7 +267,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R14",
+        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R15",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -341,7 +341,7 @@
 
       init() {
         const rect = this.stage.getBoundingClientRect();
-        const w = rect.width || window.innerWidth;
+        const w = this.canvas.getBoundingClientRect().width || rect.width || window.innerWidth;
         const h = Math.max(rect.height, 1);
 
         this.scene = new THREE.Scene();
@@ -361,7 +361,7 @@
 
         const resize = () => {
           const r = this.stage.getBoundingClientRect();
-          const nw = r.width || window.innerWidth;
+          const nw = this.canvas.getBoundingClientRect().width || r.width || window.innerWidth;
           const nh = Math.max(r.height, 1);
           this.camera.aspect = nw / nh;
           this.camera.updateProjectionMatrix();
@@ -369,6 +369,7 @@
           if (this.activeModel) this.fitCameraToModel(this.activeModel);
         };
         window.addEventListener('resize', resize);
+        if (window.ResizeObserver) new ResizeObserver(resize).observe(this.canvas);
         window.addEventListener('orientationchange', () => setTimeout(resize, 200));
 
         // Arena Ring Grid

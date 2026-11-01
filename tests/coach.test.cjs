@@ -18,10 +18,13 @@ for(const move of moves) {
       const actual=coach.point(coach.joints['foot'+f.side]);
       maxFoot=Math.max(maxFoot,actual.distanceTo(new THREE.Vector3(...f.ankle)));
       assert.ok(actual.distanceTo(new THREE.Vector3(...f.ankle))<.001,move+' unplanted ankle');
-      // Ball contact is invariant even as the heel lifts and turns.
+      // Forward outsole contact is invariant as the heel lifts and turns.
       const bone=coach.joints['foot'+f.side];
-      const ball=coach.root.worldToLocal(bone.localToWorld(new THREE.Vector3(0,-.102,.12)));
+      const ball=coach.root.worldToLocal(bone.localToWorld(new THREE.Vector3(0,-.102,.215)));
       nearly(ball.y,.015+f.lift);
+      const sole=bone.children.find(m=>m.name==='Boxing boot sole');
+      const p=sole.geometry.attributes.position;
+      for(let v=0;v<p.count;v+=3){const point=coach.root.worldToLocal(sole.localToWorld(new THREE.Vector3().fromBufferAttribute(p,v)));assert.ok(point.y>=.005+f.lift,move+' boot sole must not pierce the floor during pivots');}
     }
     const guardHand=['cross','rear_hook','rear_uppercut'].includes(move)?m.hands[0]:m.hands[1];
     if(move!=='roll'&&move!=='slip'&&move!=='step')assert.ok(guardHand[1]>m.head[1]-.15,move+' opposite guard drops below moving cheek');
@@ -124,6 +127,9 @@ for(const [move,index] of [['uppercut',0],['rear_uppercut',1]]) {
   assert.ok(high.hips[1]-low.hips[1]>.075,move+' missing visible body dip');
   assert.ok(high.hands[index][1]-low.hands[index][1]>.38,move+' missing bottom-to-top stroke');
   assert.ok(high.hands[index][1]-low.hands[index][1]>.45,move+' longer uppercut stroke must be visible');
+  const knuckles=vec(high.hands[index]).addScaledVector(vec(high.gloves[index].distal),.20);
+  assert.ok(knuckles.y<high.head[1]+.16,move+' must finish at a face-height target, never overhead');
+  assert.ok(high.hands[index][2]>low.hands[index][2]+.25,move+' fist must enter the target in front of the body');
   const contactElbow=elbowAngle(index===0?'L':'R');
   assert.ok(contactElbow>70&&contactElbow<145,move+' must strike with the fist on a bent arm');
   let prior=low;
@@ -134,7 +140,7 @@ for(const [move,index] of [['uppercut',0],['rear_uppercut',1]]) {
   }
   for(let p=.51;p<.82;p+=.01) {
     const m=coach.update(p*1.22,move,'one_two');
-    assert.ok(m.hands[index][1]>=1.67,move+' recovery must not scoop down again');
+    assert.ok(m.hands[index][1]>=m.head[1]-.15,move+' recovery must return beside the moving cheek, not scoop down again');
   }
 }
 for(const [move,side,index] of [['hook','L',0],['rear_hook','R',1]]) {
