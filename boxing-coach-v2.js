@@ -718,6 +718,9 @@
       const safeNeutral=neutral.lengthSq()>1e-8?neutral:fallback;
       const safeDown=downward.lengthSq()>1e-8?downward:safeNeutral;
       const angle=Math.atan2(distal.dot(safeNeutral.clone().cross(safeDown)),safeNeutral.dot(safeDown));
+      // Uppercuts finish with the knuckles over the forearm, never with a
+      // sideways-flared glove. Preserve the anatomical wrist axis and roll
+      // the thumb toward the torso during the upward drive.
       const palm=safeNeutral.clone().applyAxisAngle(distal,angle*clamp(turn));
       const y=distal.clone().negate(),x=y.clone().cross(palm).normalize();
       const z=x.clone().cross(y).normalize();
@@ -872,8 +875,8 @@
           hand.lerp(V(s*.16,options.upperLoadHeight??1.23,.27),prepare)
             .lerp(V(s*.075,options.upperWristHeight??1.70,.49),rise)
             .lerp(guard,recover);
-          if(s===-1){leadTurn=.48*up;leadPole.lerp(V(-.32,-1,.12),active);leadPivot=.36*up;}
-          else {rearTurn=.48*up;rearPole.lerp(V(.32,-1,.12),active);rearPivot=-.36*up;}
+          if(s===-1){leadTurn=.82*up;leadPole.lerp(V(-.48,-1,.08),active);leadPivot=.36*up;}
+          else {rearTurn=.82*up;rearPole.lerp(V(.48,-1,.08),active);rearPivot=-.36*up;}
           break;
         }
         case 'speedbag': {
