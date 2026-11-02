@@ -17,7 +17,7 @@
    this.springs={heavy:new HangingBag(),dummy:new ContactSpring(7,.48),speed:new ContactSpring(28,.14)};
    this.recoil={lion:new ContactSpring(10,1),rabbit:new ContactSpring(10,1)};
    this.pushback={heavy:new ContactSpring(7,.48),dummy:new ContactSpring(9,.65),rabbit:new ContactSpring(9,.7)};
-   this.pressures={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.previousFists={};this.seen=new Set();this.hasFrame=false;
+   this.pressures={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.rabbitHit=null;this.previousFists={};this.seen=new Set();this.hasFrame=false;
    this.dark=material({color:0x1b2532,roughness:.64,metalness:.3});
    this.leather=material({color:0x813432,roughness:.57});
    this.heavyLeather=material({color:0x24313e,roughness:.57,bumpMap:engine.coach.leather.bumpMap,bumpScale:.0015});
@@ -164,7 +164,10 @@
      impact=bag.impact(localPoint,normal,speed,strikingMass(move));
      if(rising>.1){const impulse=Math.min(2.4,rising*.34);bag.impulse(V(impulse,0,-localPoint.x*impulse*.35));impact.impulse+=impulse;impact.closing=Math.max(impact.closing,rising*.70);}
      const forward=Math.max(0,speed.z);
-     if(forward>.1)this.pushback.heavy.impulse(V(0,0,Math.min(4.5,forward*.8)));
+     // Uppercuts have a large upward component; use contact penetration
+     // and rising speed to move the bag away even with little forward speed.
+     const drive=Math.max(forward,move.includes('uppercut')?rising*.9:0);
+     this.pushback.heavy.impulse(V(0,0,Math.min(7,Math.max(1.3,drive*1.35))));
      this.impacts.add(event);
      if(this.impacts.size>64)this.impacts.delete(this.impacts.values().next().value);
      entry=contact;
@@ -176,7 +179,7 @@
    this.applyDynamics();return {loads,entry};
   }
   resetResponse(time=0){
-   this.previousTime=time;this.previousFists={};this.seen.clear();this.hasFrame=false;this.followBeat=-1;this.followAdvance=0;this.committedAim=null;this.aimBeat=-1;this.impacts=new Set();this.impactPulse={};for(const spring of Object.values(this.pushback))spring.reset();
+   this.previousTime=time;this.previousFists={};this.seen.clear();this.hasFrame=false;this.followBeat=-1;this.followAdvance=0;this.committedAim=null;this.aimBeat=-1;this.impacts=new Set();this.impactPulse={};this.rabbitHit=null;for(const spring of Object.values(this.pushback))spring.reset();
    for(const spring of [...Object.values(this.springs),...Object.values(this.recoil)])spring.reset();
    for(const [actor,coach] of [['lion',this.engine.coach],['rabbit',this.rabbit]]){
     this.pressures[actor]={L:0,R:0};if(coach)for(const side of ['L','R'])coach.deformGlove(side,0);
@@ -285,7 +288,7 @@
    const active=mode!=='none'&&mode!=='speed';
    const pose=(coach,spec,actor,isHero)=>{
     const advance=active&&spec.attack?(spec.move.includes('uppercut')?(mode==='heavy'?.46:.40):spec.move.includes('hook')?(mode==='heavy'?.22:.16):0)+(mode==='heavy'?this.followAdvance:0):0;
-    const options={simulationTime:time,power:powered&&spec.attack?1.12:1,defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
+    const options={simulationTime:time,hitReaction:actor==='rabbit'&&this.rabbitHit?{part:this.rabbitHit.part,move:this.rabbitHit.move,side:this.rabbitHit.side,amount:this.rabbitHit.strength*Math.exp(-(time-this.rabbitHit.time)/.25)}:null,power:powered&&spec.attack?1.12:1,defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
     if(mode==='heavy'){
      const straight=spec.move==='jab'||spec.move==='cross';
      options.guardTightness=1;options.stanceWidth=.54;options.stanceDepth=.55;options.stanceDrop=.015;
@@ -372,6 +375,7 @@
        }else if(entry.kind!=='bag'){
         this.recoil[receiver].impulse(V(0,0,magnitude*.45));
         if(receiver==='rabbit'){
+         this.rabbitHit={time,part:entry.kind==='head'?'head':entry.kind==='body'?'body':'shoulder',move:spec.move,side:side==='L'?-1:1,strength:Math.min(1.3,.45+closing*.16)};
          const drive=velocity.clone().applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion()).invert());
          this.pushback.rabbit.impulse(V(0,0,Math.min(4,Math.max(0,drive.z)*.95)));
         }
