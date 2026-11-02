@@ -867,9 +867,13 @@
           const hand=s===-1?lead:rear,guard=hand.clone();
           // Fist comes from below the target, not from an elbow raised beside
           // the head. Wrist finishes in front of the chin, with elbow below it.
-          hand.lerp(V(s*.20,options.upperLoadHeight??1.23,.29),prepare).lerp(V(s*.12,options.upperWristHeight??1.74,.64),rise).lerp(guard,recover);
-          if(s===-1){leadTurn=.65*up;leadPole.lerp(V(-.18,-1,.22),active);leadPivot=.36*up;}
-          else {rearTurn=.65*up;rearPole.lerp(V(.18,-1,.22),active);rearPivot=-.36*up;}
+          // Keep the upper arm compact: the wrist rises inside the shoulder
+          // line instead of opening away from the body at the top.
+          hand.lerp(V(s*.16,options.upperLoadHeight??1.23,.27),prepare)
+            .lerp(V(s*.075,options.upperWristHeight??1.70,.49),rise)
+            .lerp(guard,recover);
+          if(s===-1){leadTurn=.48*up;leadPole.lerp(V(-.32,-1,.12),active);leadPivot=.36*up;}
+          else {rearTurn=.48*up;rearPole.lerp(V(.32,-1,.12),active);rearPivot=-.36*up;}
           break;
         }
         case 'speedbag': {
