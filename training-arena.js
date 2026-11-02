@@ -332,7 +332,10 @@
      if(current.kind==='glove'&&pressure>0)desired[receiver][current.side]=Math.max(desired[receiver][current.side],pressure*.85);
      if(current.kind==='bag'&&pressure>0&&(!dent||pressure>dent.pressure))dent={...current,pressure:receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.4/.060)):pressure};
      if(entry.penetration>0){
-      const closing=Math.max(0,-velocity.dot(entry.normal));
+      const uppercut=spec.move.includes('uppercut');
+      // A rising fist can enter under the chin while moving nearly tangent to
+      // the front surface: normal-only closing speed misses that impact.
+      const closing=Math.max(0,-velocity.dot(entry.normal),uppercut?Math.max(0,velocity.y)*.70:0);
       if(!this.seen.has(event)&&closing>.02){
        this.seen.add(event);if(this.seen.size>64)this.seen.delete(this.seen.values().next().value);const magnitude=Math.max(.30,Math.min(1.3,.30+closing*.16));
        const force=velocity.clone().normalize().multiplyScalar(.45).addScaledVector(entry.normal,-.55).normalize().multiplyScalar(magnitude);
@@ -348,7 +351,12 @@
          const incoming=Math.max(0,-relative.dot(normal));
          const impulse=.65*incoming/(1/.65+lever.lengthSq()/inertia);
          spring.impulse(lever.multiplyScalar(-impulse/inertia));
-        }else {const upper=spec.move.includes('uppercut');const rising=upper?V(0,Math.max(.35,closing)*.65,0):V();const torque=localPoint.clone().cross(localForce.clone().add(rising)).multiplyScalar(upper?2.5:1.8);this.springs[receiver].impulse(torque);if(upper&&receiver==='dummy')this.springs[receiver].impulse(V(-.24*magnitude,0,.16*magnitude));}
+        }else {const upper=uppercut;
+         // Uppercut lifts the head/upper section and rocks the target away
+         // from the boxer; a pure torque cross-product at its center can vanish.
+         const torque=localPoint.clone().cross(localForce).multiplyScalar(1.8);
+         if(upper){torque.x+=1.6*magnitude;torque.z+=(-localPoint.x)*.65*magnitude;}
+         this.springs[receiver].impulse(torque);}
        }else if(entry.kind!=='bag')this.recoil[receiver].impulse(V(0,0,magnitude*.45));
        const transferred=receiver==='heavy'?loads.reduce((sum,l)=>sum+(l.impactImpulse||0),0):magnitude;
        if(entry.kind==='bag'){
