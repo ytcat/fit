@@ -30,13 +30,13 @@
   }
   function chooseTarget(mode){
    e.targetMode=mode;
-   if(mode!=='rabbit'&&e.technique==='random'){app.drillIdx=0;app.renderDrill();}
+   if(mode!=='rabbit'&&['random','fight'].includes(e.technique)){app.drillIdx=0;app.renderDrill();}
    if(mode==='speed'){
     e.technique='speedbag';e.animTime=0;e.isPlaying=true;
    }else if(e.technique==='speedbag'){
     app.drillIdx=0;app.renderDrill();
    }
-   const hasDefence=e.technique==='random'||(e.technique==='combo'?BOXING_ROUTINES.sequences[e.currentAnim]?.some(m=>m==='slip'||m==='roll'):['slip','roll'].includes(e.technique));
+   const hasDefence=['random','fight'].includes(e.technique)||(e.technique==='combo'?BOXING_ROUTINES.sequences[e.currentAnim]?.some(m=>m==='slip'||m==='roll'):['slip','roll'].includes(e.technique));
    if(mode==='rabbit'&&!hasDefence){
     app.drillIdx=BOXING_ROUTINES.list.findIndex(r=>r.id==='sparring_flow');app.renderDrill();
    }
@@ -98,3 +98,4 @@
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
+

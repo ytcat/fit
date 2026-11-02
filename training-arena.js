@@ -84,7 +84,7 @@
   }
   setTarget(mode){
    if(!['none','heavy','dummy','speed','rabbit'].includes(mode))mode='none';
-   const e=this.engine;this.mode=mode;this.resetResponse(e.animTime);
+   const e=this.engine;this.mode=mode;this.fightSession=null;this.resetResponse(e.animTime);
    for(const child of [...this.group.children])if(child!==e.coach.root)this.group.remove(child);
    if(mode==='none'){
     e.scene.remove(this.group);e.scene.add(e.coach.root);e.coach.root.position.set(0,0,0);e.coach.root.rotation.y=-.32;
@@ -210,6 +210,7 @@
    const guard=candidates.filter(c=>c.penetration>0).sort((a,b)=>a.distance-b.distance)[0];if(guard)return guard;
    candidates.push({...this.closest(centre,coach.joints.head,{centre:[0,.17,.08],radius:[.145,.18,.14]}),kind:'head',receiver});
    candidates.push({...this.closest(centre,coach.joints.chest,{centre:[0,.15,.05],radius:[.25,.28,.16]}),kind:'body',receiver});
+   if(this.fightSession)for(const side of ['L','R'])candidates.push({...this.closest(centre,coach.joints['arm'+side],{centre:[0,-.035,0],radius:[.11,.12,.12]}),kind:'shoulder',receiver});
    return candidates.sort((a,b)=>a.distance-b.distance)[0];
   }
   deformSurface(mesh,contact,amount){
@@ -232,6 +233,19 @@
    p.needsUpdate=n.needsUpdate=true;mesh.userData.dentAmount=amount;
   }
   update(time,technique,combo){
+   if(technique==='fight'&&this.mode==='rabbit'&&window.FightSession){
+    const target=Math.floor((time+1e-9)*60)/60;
+    if(!this.fightSession||this.fightSession.seed!==(this.engine.randomSeed>>>0)||target<this.fightTime-1e-7){
+     this.fightSession=new FightSession(this.engine.randomSeed,this.engine.fightConfig);this.fightTime=0;this.resetResponse(0);this.context=null;
+    }
+    let result=this.metrics,contacts=[];
+    while(this.fightTime+1/60<=target+1e-8){
+     this.fightTime+=1/60;result=this.step(this.fightTime,technique,combo);contacts.push(...result.contacts);
+    }
+    if(!result.fight)result=this.step(this.fightTime,technique,combo);
+    return {...result,contacts};
+   }
+   if(this.fightSession){this.fightSession=null;this.setTarget(this.mode);}
    const context=[this.mode,technique,combo,this.engine.randomSeed].join('|');
    const equipment=['heavy','dummy','speed'].includes(this.mode);
    // Fixed pose/contact ticks make a 90/144 Hz display transfer the same
@@ -253,7 +267,19 @@
    for(const spring of Object.values(this.recoil))spring.step(dt);
    this.applyDynamics();
    let frame=BOXING_ROUTINES.frame(time,mode==='speed'?'speedbag':technique,combo),heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)},counter=BOXING_ROUTINES.opponent(frame),random=null;
-   if(technique==='random'&&mode==='rabbit'){
+   const fighting=technique==='fight'&&mode==='rabbit'&&this.fightSession;
+   let fight=null;
+   if(fighting){
+    random=this.fightSession.frame(time);fight=this.fightSession.snapshot(time);
+    heroSpec=random.lion;counter=random.rabbit;
+    frame={...frame,move:heroSpec.move,phase:heroSpec.phase,index:random.index,random:true};
+    const ceremony=['decision','ceremony'].includes(fight.phase),formation=ceremony?(fight.phase==='ceremony'?1:smooth(fight.elapsed/2)):0;
+    for(const [actor,coach] of [['lion',e.coach],['rabbit',this.rabbit]]){
+     coach.root.position.set((actor==='lion'?-.66:.66)*formation,0,(actor==='lion'?-.56:.56)*(1-formation));
+     coach.root.rotation.y=actor==='lion'?0:Math.PI*(1-formation);
+    }
+    this.group.updateMatrixWorld(true);
+   }else if(technique==='random'&&mode==='rabbit'){
     const seed=e.randomSeed??1;if(!this.randomSession||this.randomSession.seed!==seed)this.randomSession=new BOXING_ROUTINES.RandomSparring(seed);
     random=this.randomSession.frame(time);heroSpec=random.lion;counter=random.rabbit;
     frame={...frame,move:heroSpec.move,phase:heroSpec.phase,index:random.index,random:true};
@@ -283,6 +309,20 @@
      }
     }
     else if(spec.attack){options.target=spec.move.includes('uppercut')?null:spec.move.includes('hook')?[-.02,1.86,.91]:[0,1.82,1.01];options.advance=spec.move.includes('hook')?.15:advance;}
+    if(fighting){
+     options.hitReaction=this.fightSession.reaction(actor,time);
+     if(spec.attack){
+      const receiver=isHero?this.rabbit:e.coach;
+      const point=V(spec.target==='shoulder'?(frame.index%2?.28:-.28):spec.accuracy||0,spec.target==='body'?1.39:spec.target==='shoulder'?1.59:1.91,.10);
+      receiver.root.localToWorld(point);coach.root.worldToLocal(point);
+      options.target=null;options.knuckleTarget=point.toArray();options.strikeHeight=point.y-.04;options.upperWristHeight=point.y-.10;
+      options.levelChange=spec.target==='body'?.09:0;options.advance=spec.move.includes('uppercut')?.26:.025;
+     }
+     if(fight.phase==='rest'){options.rest=true;options.hitReaction=null;}
+     if(fight.phase==='decision'||fight.phase==='ceremony'){
+      options.result=fight.winner===actor?'winner':fight.winner?'loser':'draw';options.celebrate=fight.phase==='ceremony'?smooth(fight.elapsed/1.5):0;options.ceremonyTime=fight.elapsed;
+     }
+    }
     const motionTime=mode==='speed'?time*1.8:powered&&spec.attack?powerPhase(beatPhase)*1.22:random||!isHero?spec.phase*1.22:time;
     return coach.update(motionTime,mode==='speed'?'speedbag':(powered&&spec.attack)||random||!isHero?spec.move:technique,combo,options);
    };
@@ -336,8 +376,12 @@
      this.previousFists[key]=localCentre;
     }
    };
-   if(mode!=='none')examine('lion',e.coach,hero,heroSpec,mode);
-   if(mode==='rabbit')examine('rabbit',this.rabbit,partner,counter,'lion');
+   if(mode!=='none'&&(!fighting||fight.phase==='round'))examine('lion',e.coach,hero,heroSpec,mode);
+   if(mode==='rabbit'&&(!fighting||fight.phase==='round'))examine('rabbit',this.rabbit,partner,counter,'lion');
+   if(fighting){
+    for(const hit of contacts){const receiver=hit.receiver==='lion'?e.coach:this.rabbit;hit.localSide=Math.sign(receiver.root.worldToLocal(V(...hit.point)).x)||1;this.fightSession.record(hit,time);}
+    fight=this.fightSession.snapshot(time);this.fightVisual?.update(fight,time);
+   }
    for(const [actor,coach] of [['lion',e.coach],['rabbit',this.rabbit]])if(coach)for(const side of ['L','R']){
     const old=this.pressures[actor][side],goal=desired[actor][side],rate=goal>old?100:23;
     const amount=!this.hasFrame?goal:old+(goal-old)*(1-Math.exp(-rate*dt));
@@ -350,10 +394,11 @@
     if(amount>.0001||old>.0001)this.deformSurface(soft,soft.userData.dent,amount>.0001?amount:0);
    }
    this.hasFrame=true;this.group.updateMatrixWorld(true);
-   this.metrics={frame,counter,hero,partner,random,contacts,loads,hit:desired.lion.L>0||desired.lion.R>0,mode,
+   this.metrics={frame,counter,hero,partner,random,fight,contacts,loads,hit:desired.lion.L>0||desired.lion.R>0,mode,
     compression:{lion:{...this.pressures.lion},rabbit:{...this.pressures.rabbit}},reaction:mode in this.springs?this.springs[mode].position.toArray():null};return this.metrics;
   }
  }
  TrainingArena.powerPhase=powerPhase;
  window.TrainingArena=TrainingArena;
 })();
+

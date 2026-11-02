@@ -39,6 +39,14 @@ padding briefly and return to guard while the target carries the momentum.
 See [R20 glove, garment and timing fixes](docs/r20-gloves-tailoring-and-smooth-contact.md)
 and the [impact model](docs/r19-power-and-heavy-impact.md).
 
+The **Fight** button starts a new randomized exhibition bout: three three-minute
+rounds with one-minute rests. Clean head/body contacts determine three independent
+simulated judge cards; blocked and shoulder contacts do not score. The cards
+appear before the announcement, followed by a rhino referee raising the winner's
+glove, celebration, a lowered-head loser reaction and local synthesized applause.
+An exactly tied bout remains a draw. Playback speed and pause apply to the whole
+bout. See [R21 bout implementation](docs/r21-fighting-mode.md).
+
 ### Validation
 
 ```sh
@@ -53,6 +61,7 @@ node tests/random-sparring.test.cjs
 node tests/bag-mechanics.test.cjs
 node tests/power-impact.test.cjs
 node tests/avatar-surface.test.cjs
+node tests/fight.test.cjs
 npm install --no-save playwright@1.51.1
 npx playwright install chromium --only-shell
 node tests/browser.cjs
@@ -80,3 +89,4 @@ npm exec --yes --package=tailwindcss@3.4.17 -- tailwindcss --content ./index.htm
 ```
 
 Three.js r128 and its GLTFLoader are distributed under the included MIT license.
+

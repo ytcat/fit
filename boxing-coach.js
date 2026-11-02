@@ -694,6 +694,7 @@
         return {z:.16*(smooth(out)-smooth(back)),lift:.028*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
       };
       const drillStep=s=>{
+        if(options.result||options.rest)return {z:0,x:0,lift:0};
         if(move==='step')return {...stepState(s),x:0};
         const lateralMove=['hook','rear_hook','slip','roll'].includes(move);
         const firstSide=move==='slip'?(options.defenceSide||1):move==='rear_hook'?1:-1;
@@ -804,6 +805,11 @@
       forward+=through;crouch+=through*.32;
       const brace=(options.brace||0)*drive,recoil=options.recoil||0;
       crouch+=brace*.022+recoil*.38;forward-=brace*.014+recoil;trunkPitch+=brace*.020-recoil*.8;
+      const reaction=options.hitReaction||{};
+      crouch+=reaction.crouch||0;forward-=reaction.back||0;
+      trunkPitch+=reaction.pitch||0;chestYaw+=reaction.yaw||0;trunkRoll+=reaction.roll||0;
+      if(options.rest){crouch+=.014*Math.sin(t*3)**2;trunkPitch+=.07;}
+      if(options.result==='loser')trunkPitch+=.10;
       hipYaw+=.12;chestYaw+=.08;
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
@@ -813,6 +819,9 @@
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
+      j.head.rotation.x+=reaction.headPitch||0;j.head.rotation.y+=reaction.headYaw||0;
+      if(options.result==='loser')j.head.rotation.x+=.35;
+      if(options.result==='winner')j.head.rotation.y+=Math.sin((options.ceremonyTime||0)*2.8)*.23*(options.celebrate||0);
       // Scapular elevation/protraction of the striking shoulder protects the chin.
       const leftStrike=move==='hook'?hookState.rotation:move==='jab'?twist:move==='uppercut'?strike:0;
       const rightStrike=move==='rear_hook'?hookState.rotation:move==='cross'?twist:move==='rear_uppercut'?strike:0;
@@ -890,6 +899,14 @@
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L',plan=options.knucklePlanner(this.point(j['arm'+side]));
         options.knuckleTarget=plan.point.toArray();options.strikeDirection=plan.direction.toArray();
       }
+      if(options.rest||options.result){
+        lead.lerp(V(-.25,1.14,.25),.85);rear.lerp(V(.25,1.14,.25),.85);
+        if(options.result==='winner'){
+          const amount=options.celebrate||0;
+          lead.lerp(V(-.38,2.13,.17),amount);rear.lerp(V(.38,2.13,.17),amount);
+          leadPole.set(-1,.2,0);rearPole.set(1,.2,0);
+        }
+      }
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
@@ -963,3 +980,4 @@
       'Работа ног','Вперёд — сначала передняя стопа. Назад — сначала задняя. Сохраняйте ширину стойки и не скрещивайте ноги.']
   };
 })();
+
