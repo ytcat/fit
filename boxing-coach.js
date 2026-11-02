@@ -264,6 +264,9 @@
       // Adult athletic proportions: reduce skull/face size consistently with the
       // sculpted skin while retaining a broad lion mane around the neck.
       this.joints.head.children.forEach(part=>{part.position.multiplyScalar(.90);part.scale.multiplyScalar(.90);});
+      const smileZ=this.species==='rabbit'?.249:.284;
+      this.celebrationSmile=this.curve(this.joints.head,[V(-.053,.039,smileZ-.013),V(-.027,.013,smileZ),V(0,.008,smileZ+.003),V(.027,.013,smileZ),V(.053,.039,smileZ-.013)],this.black,.0027);
+      this.celebrationSmile.visible=false;
       this.tail=new THREE.Group();hips.add(this.tail);
       if(this.species!=='rabbit')this.curve(this.tail,[V(0,-.02,-.16),V(.1,-.2,-.32),V(.16,-.45,-.40),V(.23,-.54,-.29)],
         new THREE.MeshStandardMaterial({color:0x9d713f,roughness:1}),.022);
@@ -694,7 +697,6 @@
         return {z:.16*(smooth(out)-smooth(back)),lift:.028*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
       };
       const drillStep=s=>{
-        if(options.result||options.rest)return {z:0,x:0,lift:0};
         if(move==='step')return {...stepState(s),x:0};
         const lateralMove=['hook','rear_hook','slip','roll'].includes(move);
         const firstSide=move==='slip'?(options.defenceSide||1):move==='rear_hook'?1:-1;
@@ -803,13 +805,16 @@
       crouch+=(options.levelChange||0)*drive;
       const through=(options.contactDrive||0)*strike;
       forward+=through;crouch+=through*.32;
-      const brace=(options.brace||0)*drive,recoil=options.recoil||0;
+      const brace=(options.brace||0)*drive+(options.hitReaction?.part==='guard'?(options.hitReaction.amount||0)*.30:0),recoil=options.recoil||0;
       crouch+=brace*.022+recoil*.38;forward-=brace*.014+recoil;trunkPitch+=brace*.020-recoil*.8;
-      const reaction=options.hitReaction||{};
-      crouch+=reaction.crouch||0;forward-=reaction.back||0;
-      trunkPitch+=reaction.pitch||0;chestYaw+=reaction.yaw||0;trunkRoll+=reaction.roll||0;
-      if(options.rest){crouch+=.014*Math.sin(t*3)**2;trunkPitch+=.07;}
-      if(options.result==='loser')trunkPitch+=.10;
+      const hit=options.hitReaction||{},hurt=hit.amount||0;
+      if(hit.part==='body'){crouch+=.065*hurt;trunkPitch+=.25*hurt;forward-=.055*hurt;}
+      else if(hit.part==='head'){trunkPitch-=.055*hurt;forward-=.045*hurt;trunkRoll+=(hit.side||1)*.045*hurt;}
+      else if((hit.part==='shoulder'||hit.part==='arm')){chestYaw+=(hit.side||1)*.13*hurt;forward-=.025*hurt;}
+      const presentation=options.presentation;
+      this.celebrationSmile.visible=presentation?.mode==='winner';
+      if(presentation?.mode==='loser'){crouch+=.025;trunkPitch+=.08;}
+      if(options.down){crouch+=.40*options.down;trunkPitch+=.20*options.down;forward-=.04*options.down;}
       hipYaw+=.12;chestYaw+=.08;
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
@@ -819,26 +824,31 @@
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
-      j.head.rotation.x+=reaction.headPitch||0;j.head.rotation.y+=reaction.headYaw||0;
-      if(options.result==='loser')j.head.rotation.x+=.35;
-      if(options.result==='winner')j.head.rotation.y+=Math.sin((options.ceremonyTime||0)*2.8)*.23*(options.celebrate||0);
+      if(hit.part==='head'){j.head.rotation.x-=.28*hurt;j.head.rotation.y-=(hit.side||1)*.24*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
+      if(hit.part==='body')j.head.rotation.x+=.10*hurt;
+      j.head.rotation.x+=(options.down||0)*.25;
+      if(presentation){
+        if(presentation.mode==='loser')j.head.rotation.x+=.40;
+        else if(presentation.mode==='winner'){j.head.rotation.y+=Math.sin(t*3.8)*.18;j.head.rotation.x-=.05+.035*Math.sin(t*5);}
+      }
       // Scapular elevation/protraction of the striking shoulder protects the chin.
       const leftStrike=move==='hook'?hookState.rotation:move==='jab'?twist:move==='uppercut'?strike:0;
       const rightStrike=move==='rear_hook'?hookState.rotation:move==='cross'?twist:move==='rear_uppercut'?strike:0;
       const reachShoulder=straight?.095:hookState?.085:.045;
       j.armL.position.set(-.30+.012*leftStrike,.26+.035*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
       j.armR.position.set(.30-.012*rightStrike,.26+.035*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
+      if((hit.part==='shoulder'||hit.part==='arm'))j[hit.side<0?'armL':'armR'].position.y-=.055*hurt;
       if(shoulderSide)j[shoulderSide===-1?'armL':'armR'].position.y-=.024*shoulderLoad;
       this.tail.rotation.y= -.16*hipYaw+Math.sin(t*2.2)*.025;
       const footTargets=[];
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',pivot=s===-1?leadPivot:rearPivot;
-        const lift=Math.abs(pivot)*.35;
+        const lift=Math.abs(pivot)*.35+(side==='R'?(options.down||0)*.30:0);
         const footQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(lift,pivot,0,'YXZ'));
         // A rigid boot pivots at the forward sole contact. Using the mid-foot
         // here drove the long toe through the floor whenever the heel rose.
         const step=drillStep(s);
-        const contact=V(s*.235+step.x,.015,(s===-1?.24:-.20)+.215+step.z);
+        const contact=V(s*.235+step.x,.015,(s===-1?.24:-.20)+.215+step.z-(side==='R'?(options.down||0)*.40:0));
         const ankle=contact.clone().add(V(0,.102,-.215).applyQuaternion(footQ));
         ankle.y+=step.lift;
         const kneePole=V(s*.07,0,1).applyAxisAngle(V(0,1,0),pivot*.65);
@@ -899,13 +909,11 @@
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L',plan=options.knucklePlanner(this.point(j['arm'+side]));
         options.knuckleTarget=plan.point.toArray();options.strikeDirection=plan.direction.toArray();
       }
-      if(options.rest||options.result){
-        lead.lerp(V(-.25,1.14,.25),.85);rear.lerp(V(.25,1.14,.25),.85);
-        if(options.result==='winner'){
-          const amount=options.celebrate||0;
-          lead.lerp(V(-.38,2.13,.17),amount);rear.lerp(V(.38,2.13,.17),amount);
-          leadPole.set(-1,.2,0);rearPole.set(1,.2,0);
-        }
+      if(presentation){
+        lead.copy(V(-.22,1.10,.18).add(guardShift));rear.copy(V(.22,1.10,.18).add(guardShift));
+        const lift=presentation.raise||0,side=presentation.side||'R',hand=side==='L'?lead:rear;
+        hand.lerp(V(side==='L'?-.27:.27,2.08,.03).add(guardShift),lift);
+        leadTurn=rearTurn=.35;
       }
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
@@ -933,7 +941,7 @@
           this.maneRest[i*3+1],this.maneRest[i*3+2]+hairResponse*.45*flex);
       }
       hair.needsUpdate=true;
-      if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
+      if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.x=presentation?.mode==='loser'?.25:0;ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
       this.root.updateMatrixWorld(true);
       this.skeleton.update();
       const mat=new THREE.Matrix4(),q=new THREE.Quaternion(),tr=new THREE.Quaternion();
@@ -980,4 +988,3 @@
       'Работа ног','Вперёд — сначала передняя стопа. Назад — сначала задняя. Сохраняйте ширину стойки и не скрещивайте ноги.']
   };
 })();
-

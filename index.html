@@ -8,20 +8,21 @@
   <title>ShadowBox 3D | Lion Boxing Coach</title>
 
   <link rel="stylesheet" href="./assets/app.css?v=2" />
-  <link rel="stylesheet" href="./workout-experience.css?v=4" />
+  <link rel="stylesheet" href="./workout-experience.css?v=6" />
   <script src="./workout-experience.js?v=1" defer></script>
   <script src="./practice-layout.js?v=3" defer></script>
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
   <script src="./boxing-routines.js?v=2"></script>
-  <script src="./boxing-coach.js?v=21"></script>
-  <script src="./fight-session.js?v=21"></script>
+  <script src="./boxing-coach.js?v=22"></script>
   <script src="./contact-response.js?v=3"></script>
-  <script src="./training-arena.js?v=21"></script>
-  <script src="./fight-experience.js?v=21" defer></script>
-  <link rel="stylesheet" href="./fight-experience.css?v=21" />
-  <script src="./training-controls.js?v=21" defer></script>
+  <script src="./training-arena.js?v=22"></script>
+  <script src="./boxing-fight.js?v=22"></script>
+  <script src="./fight-referee.js?v=22"></script>
+  <script src="./fight-arena.js?v=22"></script>
+  <script src="./fight-ui.js?v=22" defer></script>
+  <script src="./training-controls.js?v=22" defer></script>
 
   <style>
     html, body {
@@ -168,7 +169,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R21",
+        subtitle: "LION BOXING COACH · R22",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -221,7 +222,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R21",
+        subtitle: "מאמן אגרוף אריה · R22",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -274,7 +275,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R21",
+        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R22",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -718,6 +719,12 @@
         noise.buffer=buffer;filter.type='lowpass';filter.frequency.value=heavy?850:1600;snap.gain.value=strength*.12;
         noise.connect(filter);filter.connect(snap);snap.connect(ctx.destination);noise.start(t);noise.stop(t+.06);
       }
+      applause() {
+        if(this.muted||!this.ctx||this.ctx.state!=='running')return;
+        const ctx=this.ctx,duration=4,buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*duration),ctx.sampleRate),data=buffer.getChannelData(0);
+        for(let clap=0;clap<110;clap++){const at=Math.floor(Math.random()*(duration-.1)*ctx.sampleRate),length=Math.floor(.055*ctx.sampleRate);for(let i=0;i<length;i++)data[at+i]+=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*.010))*.12;}
+        const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;gain.gain.value=.24;source.connect(gain);gain.connect(ctx.destination);source.start();this.crowdGain=gain;source.stop(ctx.currentTime+duration);
+      }
       bell() {
         if (this.muted) return;
         this.init();
@@ -817,6 +824,7 @@
 
         document.getElementById('soundBtn').onclick = (e) => {
           this.audio.muted = !this.audio.muted;
+          if(this.audio.muted&&this.audio.crowdGain)this.audio.crowdGain.gain.setTargetAtTime(0,this.audio.ctx.currentTime,.01);
           if(!this.audio.muted)this.audio.init();
           e.target.innerText = this.audio.muted ? '🔇' : '🔊';
         };
@@ -864,7 +872,7 @@
       }
 
       renderTechnique() {
-        if(this.engine.technique==='random')return;
+        if(this.engine.technique==='random'||this.engine.technique==='fight')return;
         const info=COACH_TECHNIQUES[this.engine.technique];
         if(!info) { this.renderDrill();return; }
         const offset={en:1,he:3,ru:5}[this.lang];
@@ -932,6 +940,7 @@
       }
 
       renderDrill(resetMotion=true) {
+        if(this.engine.targetMode==='fight')return;
         const d = I18N[this.lang].drills[this.drillIdx];
         document.getElementById('drillTier').innerText = d.title;
         document.getElementById('comboCodes').innerText = d.codes;
@@ -967,4 +976,3 @@
   </script>
 </body>
 </html>
-

@@ -27,3 +27,11 @@
 @media(max-height:650px){.training-bar>button{min-height:32px}.practice-clear .practice-actions #playBtn,.practice-clear .practice-actions #openPracticeControls{padding:7px}.training-bar{gap:5px}}
 .speed-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.speed-grid button{padding:16px 8px;font-size:16px}.speed-grid button[aria-pressed=true]{background:#f4bb55;color:#15110a}
 .rendering-notice{position:absolute;top:40%;left:8%;width:calc(84% - var(--technique-rail,0px));font-size:14px;line-height:1.6;text-align:center;color:#bec8d8}
+/* Autonomous fight mode keeps the full ring visible. */
+.fight-active .practice-techniques{display:none!important}.fight-active #stageContainer{--technique-rail:0px}
+.fight-hud{position:absolute;top:12px;left:50%;transform:translateX(-50%);max-width:94%;padding:8px 13px;border:1px solid #67522e;border-radius:10px;background:#0b1323e8;color:#f3d394;font-size:12px;font-weight:700;text-align:center;pointer-events:none}
+.fight-results{padding:9px 0 10px;border-bottom:1px solid #344155}.fight-result-title{display:block;text-align:center;font-size:13px;color:#f4ca7a;margin-bottom:7px}.fight-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.fight-card{display:grid;gap:3px;padding:7px;background:#121e30;border:1px solid #35465e;border-radius:8px;text-align:center}.fight-card span{font-size:10px;color:#b8c3d3}.fight-card strong{font-size:17px;color:#f4d397;font-variant-numeric:tabular-nums}.fight-result-actions{display:flex;justify-content:center;gap:8px;margin-top:7px}.fight-result-actions button{font-size:11px;padding:7px 10px;min-height:28px}.fight-note{font-size:12px;line-height:1.6;color:#b9c5d5}.fight-score-table{width:100%;border-collapse:collapse;margin:14px 0;font-variant-numeric:tabular-nums}.fight-score-table td,.fight-score-table th{padding:9px 4px;text-align:center;border-bottom:1px solid #354156;font-size:12px}
+[hidden].fight-hud,[hidden].fight-results{display:none!important}
+@media(max-height:740px){.fight-results{padding:5px 0}.fight-card{padding:4px}.fight-result-actions{margin-top:4px}.fight-card strong{font-size:15px}}
+.fight-card-order{margin:0 0 5px;text-align:center;font-size:10px;color:#b6c1d1}
+.training-bar>.fight-launch{flex:0 0 54px;color:#f4c26e;border-color:#72562b}

@@ -92,3 +92,6 @@ audio.ctx={state:'running',currentTime:0,sampleRate:8000,destination:{},createOs
 audio.muted=true;audio.hit({receiver:'heavy',closingSpeed:6});assert.equal(audioStarts,0);
 audio.muted=false;audio.hit({receiver:'heavy',closingSpeed:6});assert.equal(audioStarts,2,'an actual impact synthesizes a local thud and padding transient');
 console.log('PASS gesture-gated local impact synthesis and mute');
+
+app.engine.targetMode='fight';app.engine.technique='fight';app.engine.animTime=13.2;app.setLanguage('he');assert.equal(app.engine.technique,'fight');assert.equal(app.engine.animTime,13.2,'language changes must not rewind a live fight');delete app.engine.targetMode;
+console.log('PASS live fight clock and mode survive language changes');

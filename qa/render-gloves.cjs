@@ -10,7 +10,7 @@ for(const [name,side,eye,up,pressure] of [
  c.deformGlove(side,pressure);const hand=c.joints['hand'+side];hand.position.set(0,0,0);hand.quaternion.identity();const group=new THREE.Group();
  // Detach this hand for a canonical inspection of the actual attached meshes.
  group.add(hand);group.updateMatrixWorld(true);const meshes=[];
- hand.traverse(m=>{if(!m.isMesh||m.material.map)return;const p=m.geometry.attributes.position,col=m.geometry.attributes.color,positions=[],colors=[];
+ hand.traverse(m=>{if(!m.visible||!m.isMesh||m.material.map)return;const p=m.geometry.attributes.position,col=m.geometry.attributes.color,positions=[],colors=[];
   for(let i=0;i<p.count;i++){const v=new THREE.Vector3().fromBufferAttribute(p,i).applyMatrix4(m.matrixWorld);positions.push(...v.toArray().map(n=>Math.round(n*1e5)/1e5));const color=m.material.color.clone();if(col)color.multiply(new THREE.Color(col.getX(i),col.getY(i),col.getZ(i)));colors.push(...[color.r,color.g,color.b].map(n=>Math.round(n*1e4)/1e4));}
   meshes.push({positions,colors,index:m.geometry.index?Array.from(m.geometry.index.array):Array.from({length:p.count},(_,i)=>i)});
  });

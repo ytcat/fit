@@ -7,7 +7,7 @@ const requested=process.argv[3];
 const poses=requested==='tailoring'?[['hook',.47,0],['hook',.47,Math.PI/2],['hook',.47,Math.PI],['uppercut',.46,0],['step',.45,0],['step',.45,Math.PI]]:requested?[0,.22,.47].map(p=>[requested,p,.65]): [['jab',0,0],['jab',0,Math.PI],['uppercut',.22,.65],['uppercut',.47,.65]];
 for(const [move,phase,view] of poses){
 c.root.rotation.y=view;c.update(phase*1.22,move,'one_two');const meshes=[];
-c.root.traverse(m=>{if(!m.isMesh||m.material.map)return;const g=m.geometry,p=g.attributes.position,w=g.attributes.skinWeight,ids=g.attributes.skinIndex,col=g.attributes.color,positions=[],colors=[];
+c.root.traverse(m=>{if(!m.visible||!m.isMesh||m.material.map)return;const g=m.geometry,p=g.attributes.position,w=g.attributes.skinWeight,ids=g.attributes.skinIndex,col=g.attributes.color,positions=[],colors=[];
 for(let i=0;i<p.count;i++){const v=new THREE.Vector3().fromBufferAttribute(p,i);
 if(m.isSkinnedMesh)c.skinPoint(m,i,v);
 v.applyMatrix4(m.matrixWorld);positions.push(...v.toArray().map(n=>Math.round(n*1e5)/1e5));const color=m.material.color.clone();if(col)color.multiply(new THREE.Color(col.getX(i),col.getY(i),col.getZ(i)));colors.push(...[color.r,color.g,color.b].map(n=>Math.round(n*1e4)/1e4));}

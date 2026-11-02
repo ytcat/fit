@@ -1,43 +1,20 @@
-const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-global.THREE=require('../assets/vendor/three.min.js');global.window=global;
-global.document={readyState:'loading',addEventListener(){},createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
-for(const file of ['boxing-routines.js','boxing-coach.js','contact-response.js','fight-session.js','training-arena.js','fight-experience.js'])vm.runInThisContext(fs.readFileSync(file,'utf8'));
-
-// Timing uses the requested exhibition format and scores are immutable after a round.
-const match=new FightSession(33);match.frame(2.99);assert.equal(match.phase,'countdown');match.frame(3);assert.equal(match.phase,'round');
-const attack=match.exchange.attacker,receiver=attack==='lion'?'rabbit':'lion';
-const hit={actor:attack,receiver,kind:'head',closingSpeed:4,localSide:-1};
-match.record(hit,3.4);match.record(hit,3.4);assert.equal(match.total[attack].head,1,'one scoring event per punch');
-const reaction=match.reaction(receiver,3.46);assert.ok(reaction.headPitch<-.1&&reaction.headYaw<0,'head responds in the impact direction');
-match.frame(183);assert.equal(match.phase,'rest');const original=JSON.stringify(match.cards);assert.equal(match.cards.length,3);assert.ok(match.cards.every(c=>c[0][attack]===10&&c[0][receiver]===9));
-match.record({...hit,kind:'body'},184);assert.equal(JSON.stringify(match.cards),original,'rest cannot change the completed score');
-match.frame(243);assert.equal(match.round,2);assert.equal(match.phase,'round');
-match.record({...hit,kind:'glove'},243.4);assert.equal(match.stats[attack].quality,0,'blocked shots earn no points');
-match.frame(663);assert.equal(match.phase,'decision');assert.ok(match.cards.every(c=>c.length===3));match.frame(671);assert.equal(match.phase,'ceremony');
-
-// Equal performance is an honest draw; no random judge numbers or forced winner.
-const equal=new FightSession(5,{rounds:1,roundSeconds:1});equal.frame(4);assert.equal(equal.winner,null);assert.equal(equal.decision,'draw');
-const body=new FightSession(7);body.frame(3);body.record({actor:body.exchange.attacker,receiver:body.exchange.attacker==='lion'?'rabbit':'lion',kind:'body',closingSpeed:4},3.2);
-const br=body.reaction(body.exchange.attacker==='lion'?'rabbit':'lion',3.28);assert.ok(br.pitch>0&&br.crouch>0&&br.headYaw===0,'body hit folds torso through the knees');
-
-const data=JSON.parse(fs.readFileSync('assets/models/coach-surface.json'));
-function run(seed,hz){
- const e={scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,.6,.1,100),coach:new LionCoach(data),animTime:0,technique:'fight',currentAnim:'one_two',randomSeed:seed,fightConfig:{rounds:3,roundSeconds:7,restSeconds:2},fitCameraToModel(){}};
- e.demoModel=e.coach.root;e.scene.add(e.demoModel);const arena=e.arena=new TrainingArena(e,data);arena.setTarget('rabbit');arena.fightVisual=new FightVisual(arena);
- let clean=0,blocks=0;
- for(let i=0;i<=39*hz;i++){
-  const m=arena.update(i/hz,'fight','one_two');
-  clean+=m.contacts.filter(h=>['head','body'].includes(h.kind)).length;blocks+=m.contacts.filter(h=>h.kind==='glove').length;
-  if(m.fight.phase!=='round')assert.equal(m.contacts.length,0,'no punches score during rest or ceremony');
-  for(const pose of [m.hero,m.partner]){assert.ok(pose.hands.flat().every(Number.isFinite));assert.ok(pose.handErrors.every(x=>x<.001));assert.ok(pose.footTargets.every(x=>x.error<.001));}
- }
- assert.equal(arena.fightSession.phase,'ceremony');assert.ok(arena.fightVisual.root.visible);assert.ok(clean>0&&blocks>0,'bout must contain real hits and guarded contacts');
- const before=JSON.stringify(arena.fightSession.total);const frozen=arena.update(39,'fight','one_two');assert.equal(frozen.contacts.length,0);assert.equal(JSON.stringify(arena.fightSession.total),before);
- const winner=arena.fightSession.winner;
- if(winner){const c=winner==='lion'?e.coach:arena.rabbit;assert.ok(c.point(c.joints.handL).y>1.9&&c.point(c.joints.handR).y>1.9,'winner raises both gloves');}
- return {winner,total:arena.fightSession.total,cards:arena.fightSession.cards};
-}
-const low=run(42,30),high=run(42,90);assert.deepEqual(low,high,'refresh rate cannot change contact scores or the winner');
-const outcomes=new Set([low.winner]);for(const seed of [11,91,112])outcomes.add(run(seed,30).winner);
-assert.ok(outcomes.has('lion')&&outcomes.has('rabbit'),'either fighter can win based on the simulated fight');
-console.log('PASS bout clocks, real contact scoring, blocked-shot exclusion, body/head reactions, pause, independent judges, refresh-rate agreement, both possible winners and ceremony');
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');global.window=global;vm.runInThisContext(fs.readFileSync('boxing-fight.js','utf8'));
+assert.deepEqual(BoxingFight.presets.club,{rounds:4,roundSeconds:180,restSeconds:60});assert.equal(BoxingFight.presets.title.rounds,12);assert.deepEqual(BoxingFight.presets.three,{rounds:3,roundSeconds:180,restSeconds:60});
+const scoreFixture=(winningActor)=>{
+ const m=new BoxingFight({seed:22,rounds:1,roundSeconds:10});m.phase='round';
+ for(let i=0;i<5;i++){const a=m.attack(winningActor,'cross','head');const hit=m.contact({actor:winningActor,action:a.id,part:i%2?'body':'head',speed:3,point:[0,1.8,0]});assert.ok(hit.legal);assert.equal(m.contact({actor:winningActor,action:a.id,part:'head',speed:9}),null,'one contact per punch');}
+ m.finish(null,'points');return m;
+};
+for(const actor of ['lion','rabbit']){const m=scoreFixture(actor);assert.equal(m.result.winner,actor,'winner must follow observed performance, not character identity');for(const card of m.result.cards){assert.ok(card.totals[actor==='lion'?0:1]>card.totals[actor==='lion'?1:0]);assert.deepEqual(card.totals,card.rounds.reduce((sum,r)=>[sum[0]+r.scores[0],sum[1]+r.scores[1]],[0,0]));}}
+const m=new BoxingFight({seed:2,rounds:1,roundSeconds:2});m.phase='round';for(const part of ['glove','shoulder']){const a=m.attack('lion','jab','head');m.contact({actor:'lion',action:a.id,part,speed:4});}assert.equal(m.totals.lion.landed,0);assert.equal(m.totals.lion.quality,0);assert.equal(m.totals.rabbit.blocked,1);assert.equal(m.fighters.rabbit.reaction.part,'shoulder');
+const missed=new BoxingFight({seed:2});missed.phase='round';const a=missed.attack('lion','cross','head');assert.equal(missed.totals.lion.landed,0,'choosing an attack must not manufacture a hit');missed.advance(a.duration+.001);assert.equal(missed.totals.lion.landed,0);
+const empty=new BoxingFight({rounds:1,roundSeconds:.1});empty.phase='round';empty.advance(.2);assert.equal(empty.result.winner,null,'a tied fight cannot invent a winner');assert.ok(empty.result.cards.every(c=>c.totals[0]===10&&c.totals[1]===10));
+const round=new BoxingFight({rounds:2,roundSeconds:1,restSeconds:.5});round.advance(3);assert.equal(round.phase,'round');round.advance(1);assert.equal(round.phase,'rest');assert.equal(round.cards[0].rounds.length,1);round.advance(.5);assert.equal(round.round,2);assert.equal(round.phase,'round');round.advance(1);assert.equal(round.phase,'scoring');assert.equal(round.snapshot().cardsShown,0);round.advance(1.1);assert.equal(round.snapshot().cardsShown,1);round.advance(5);assert.equal(round.snapshot().cardsShown,3);assert.equal(round.phase,'scoring');round.advance(4);assert.equal(round.phase,'ceremony');
+const ko=scoreFixture('lion');ko.result=null;ko.phase='round';ko.fighters.rabbit.condition=0;ko.advance(.01);assert.equal(ko.result.method,'TKO');assert.equal(ko.result.winner,'lion');
+const x=new BoxingFight({seed:91}),y=new BoxingFight({seed:91});for(let i=0;i<1200;i++){x.advance(1/60);y.advance(1/60);}assert.deepEqual(x.totals,y.totals);assert.deepEqual(x.fighters,y.fighters,'the same seed and observations must replay deterministically');
+console.log('PASS real round presets, contact-only scoring, all three judge cards, both winners, ties, rest timing, ordered reveal, TKO and seeded decisions');
+const close=new BoxingFight({rounds:1});close.phase='round';Object.assign(close.roundStats.lion,{quality:10,power:4,thrown:15,landed:8});Object.assign(close.roundStats.rabbit,{quality:9.3,power:10,thrown:14,landed:7});close.finish(null,'points');assert.deepEqual(close.result.votes,['lion','rabbit','lion']);assert.equal(close.result.decision,'split');
+console.log('PASS independent judge priorities can produce a performance-based split decision');
+const full=new BoxingFight({seed:12,preset:'club'});const transitions=[];let previous=full.phase;for(let i=0;i<60*920;i++){full.advance(1/60);if(full.phase!==previous){transitions.push({phase:full.phase,time:full.time,round:full.round});previous=full.phase;}if(full.phase==='ceremony')break;}
+assert.equal(full.cards[0].rounds.length,4);const starts=transitions.filter(t=>t.phase==='round'),ends=transitions.filter(t=>t.phase==='rest'||t.phase==='scoring');for(let i=0;i<4;i++)assert.ok(Math.abs(ends[i].time-starts[i].time-180)<.04,'full round must run for three minutes of active fight time');for(let i=0;i<3;i++)assert.ok(Math.abs(starts[i+1].time-ends[i].time-60)<.04,'full corner break must last a minute');
+console.log('PASS complete four-round clock with three-minute rounds and one-minute breaks');
