@@ -809,7 +809,7 @@
         const back=clamp((phase-(first?.72:.56))/.14);
         const transfer=smooth(out)-smooth(back);
         const direction=move==='slip'?(options.defenceSide||1):move==='hook'?-1:move==='rear_hook'?1:-1;
-        const length=(move==='jab'?.085:move==='cross'?.045:move.includes('uppercut')?.115:.025)+(options.advance||0);
+        const length=(move==='jab'?.085:move==='cross'?.045:move.includes('uppercut')?.17:.025)+(options.advance||0);
         return {z:length*transfer,x:lateralMove?direction*.045*transfer:0,
           lift:.018*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
       };
@@ -872,8 +872,8 @@
           // the head. Wrist finishes in front of the chin, with elbow below it.
           // Keep the upper arm compact: the wrist rises inside the shoulder
           // line instead of opening away from the body at the top.
-          hand.lerp(V(s*.18,options.upperLoadHeight??1.27,.19),prepare)
-            .lerp(V(s*.11,options.upperWristHeight??1.70,.61),rise)
+          hand.lerp(V(s*.19,options.upperLoadHeight??1.24,.13),prepare)
+            .lerp(V(s*.15,options.upperWristHeight??1.76,.88),rise)
             .lerp(guard,recover);
           if(s===-1){leadTurn=up;leadPole.lerp(V(-.30,-1,.02),active);leadPivot=.36*up;}
           else {rearTurn=up;rearPole.lerp(V(.30,-1,.02),active);rearPivot=-.36*up;}
