@@ -857,12 +857,12 @@
           const s=move==='uppercut'?-1:1;
           const active=prepare*(1-recover),up=rise*(1-recover);
           const loaded=prepare*(1-rise)*(1-recover);
-          hipYaw=s*.09*loaded-s*.36*up;chestYaw=s*.07*loaded-s*.25*up;
-          crouch=.115*loaded;forward=-.045*loaded+.085*up;
+          hipYaw=s*.38*loaded-s*.52*up;chestYaw=s*.48*loaded-s*.58*up;
+          crouch=.19*loaded+.035*up;forward=-.095*loaded+.11*up;
           shift=s*.035*loaded-s*.025*up;
           pelvisRoll=-s*.035*loaded+s*.020*up;
-          trunkPitch=.070*loaded;
-          trunkRoll=-s*.105*loaded+s*.045*up;
+          trunkPitch=.16*loaded-.085*up;
+          trunkRoll=-s*.19*loaded+s*.13*up;
           shoulderLoad=loaded;shoulderSide=s;
           palmTarget.set(0,0,-1);
           // Three distinct phases: settle under the target, drive upward with
@@ -872,8 +872,8 @@
           // the head. Wrist finishes in front of the chin, with elbow below it.
           // Keep the upper arm compact: the wrist rises inside the shoulder
           // line instead of opening away from the body at the top.
-          hand.lerp(V(s*.19,options.upperLoadHeight??1.24,.13),prepare)
-            .lerp(V(s*.15,options.upperWristHeight??1.76,.88),rise)
+          hand.lerp(V(s*.23,options.upperLoadHeight??1.18,.08),prepare)
+            .lerp(V(s*.13,options.upperWristHeight??1.76,.72),rise)
             .lerp(guard,recover);
           if(s===-1){leadTurn=up;leadPole.lerp(V(-.30,-1,.02),active);leadPivot=.36*up;}
           else {rearTurn=up;rearPole.lerp(V(.30,-1,.02),active);rearPivot=-.36*up;}
@@ -1025,7 +1025,7 @@
         const shoulder=this.point(j['arm'+side]);
         const extension=smooth((phase-.30)/.19)*(1-smooth((phase-.69)/.16));
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length();
-        const target=shoulder.clone().add(V(side==='L'?-.06:.06,.10,Math.min(.68,reach*.83)));
+        const target=shoulder.clone().add(V(side==='L'?-.10:.10,.27,Math.min(.56,reach*.70)));
         hand.lerp(target,extension);
       }
       // Straight punches use almost the full arm reach after torso rotation.
