@@ -189,7 +189,7 @@
    if(swing){const p=this.springs[this.mode].position,limit=this.mode==='heavy'?.27:this.mode==='dummy'?.14:.90;
     if(this.mode==='heavy')swing.rotation.set(p.x,p.y,p.z);
     else swing.rotation.set(limit*Math.tanh(p.x/limit),.18*Math.tanh(p.y/.18),limit*Math.tanh(p.z/limit));
-    if(this.mode==='heavy'||this.mode==='dummy')swing.position.z=(this.mode==='dummy'?.74:0)+Math.min(this.mode==='heavy'?.28:.16,Math.max(0,this.pushback[this.mode].position.z));
+    if(this.mode==='heavy'||this.mode==='dummy')swing.position.z=Math.min(this.mode==='heavy'?.28:.16,Math.max(0,this.pushback[this.mode].position.z));
    }
    if(this.mode==='rabbit'&&this.rabbit)this.rabbit.root.position.z=.79+Math.min(.30,Math.max(0,this.pushback.rabbit.position.z));
    this.group.updateMatrixWorld(true);
