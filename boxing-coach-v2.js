@@ -877,11 +877,12 @@
           // the head. Wrist finishes in front of the chin, with elbow below it.
           // Keep the upper arm compact: the wrist rises inside the shoulder
           // line instead of opening away from the body at the top.
-          // Sagittal-plane uppercut: fist dips then rises FORWARD and UP.
-          // No lateral sweep; keep the original R32 elbow pole and glove roll.
-          const verticalArc=Math.sin(Math.PI*rise);
+          // Preserve R32's full arm mechanics and striking endpoint.
+          // Just before the upward drive, the fist makes a small forward
+          // scoop in the vertical (Y/Z) plane, never sweeping sideways.
+          const scoop=Math.sin(Math.PI*rise)*.045;
           hand.lerp(V(s*.23,options.upperLoadHeight??1.18,.08),prepare)
-            .lerp(V(s*.13,(options.upperWristHeight??1.76)-.055*verticalArc,.72-.045*verticalArc),rise)
+            .lerp(V(s*.13,options.upperWristHeight??1.76,.72+scoop),rise)
             .lerp(guard,recover);
           if(s===-1){leadTurn=up;leadPole.lerp(V(-.30,-1,.02),active);leadPivot=.36*up;}
           else {rearTurn=up;rearPole.lerp(V(.30,-1,.02),active);rearPivot=-.36*up;}
