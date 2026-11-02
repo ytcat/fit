@@ -316,7 +316,6 @@
       if(spec.move.includes('uppercut')){
        // Use the same moving physical bag target as the jab, but keep
        // the uppercut's rising wrist path and single IK solve.
-       const shoulder=coach.point(coach.joints['arm'+(spec.move==='uppercut'?'L':'R')]);
        const wrist=target.point.clone().addScaledVector(target.direction,-.12);
        options.uppercutBagTarget=wrist.toArray();
       }
