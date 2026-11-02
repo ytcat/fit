@@ -30,5 +30,10 @@ Updated: 2026-11-02
 - Inspected the coach skeleton definition: `hips`, `spine`, `chest`, `neck`, `head`, paired `arm`, `elbow`, `hand`, `scapula`, `thigh`, `knee`, `foot` bones. The rig is custom, so third-party mocap would require retargeting rather than direct playback.
 - No jab prototype, full-body visual check, or device frame-rate benchmark is complete yet.
 
+## Jab milestone — incremental implementation
+- Committed `5bf13f6`: add a small jab-phase chin tuck and raise the rear cheek guard during lead-hand extension.
+- Scope: targeted guard/head biomechanics only; full jab mechanics, shoulder deformation and glove orientation still require rendered visual regression checks.
+- JavaScript syntax and GitHub Actions outcome for this commit have not yet been confirmed.
+
 ## Next action
 Inspect rig joint names and animation update paths, identify a free licensed boxing jab clip, and test retargeting on a separate branch before altering main.
