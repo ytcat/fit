@@ -572,6 +572,26 @@
           if(i<4) this.curve(head,[V(x,y,.294),V(s*.16,y+.005,.31),V(s*(.23+i*.012),y+.02-i*.013,.31)],this.cream,.0007);
         }
       }
+      // Sculpted cheek pads and brow ridges break the spherical-mask silhouette.
+      // All additions are parented to the existing head bone, so punch IK and
+      // facial hit reactions remain untouched.
+      const muzzleFur=new THREE.MeshStandardMaterial({color:0xc7a16b,roughness:.98,
+        bumpMap:this.skin.material.bumpMap,bumpScale:.0027});
+      const cheekFur=new THREE.MeshStandardMaterial({color:0x9a7043,roughness:1,
+        bumpMap:this.skin.material.bumpMap,bumpScale:.0032});
+      for(const side of [-1,1]){
+        this.ellipsoid(head,muzzleFur,V(side*.068,.078,.237),V(.079,.067,.074));
+        this.ellipsoid(head,cheekFur,V(side*.154,.091,.125),V(.075,.084,.073));
+        const brow=this.ellipsoid(head,cheekFur,V(side*.091,.210,.170),V(.084,.026,.043));
+        brow.rotation.z=-side*.13;
+        // Small tapered cheek-fur clumps soften the transition into the mane.
+        for(let k=0;k<6;k++){
+          const t=k/5;
+          const tuft=this.ellipsoid(head,cheekFur,V(side*(.175+t*.035),.13-t*.115,.115-t*.018),
+            V(.019,.045-t*.013,.020));
+          tuft.rotation.z=side*(.30+t*.24);
+        }
+      }
       const nose=this.ellipsoid(head,wet,V(0,.103,.291),V(.061,.031,.025));
       const a=nose.geometry.attributes.position;
       for(let i=0;i<a.count;i++)a.setX(i,a.getX(i)*(.6+.4*(a.getY(i)+1)/2));
