@@ -572,40 +572,6 @@
           if(i<4) this.curve(head,[V(x,y,.294),V(s*.16,y+.005,.31),V(s*(.23+i*.012),y+.02-i*.013,.31)],this.cream,.0007);
         }
       }
-      // Sculpted cheek pads and brow ridges break the spherical-mask silhouette.
-      // All additions are parented to the existing head bone, so punch IK and
-      // facial hit reactions remain untouched.
-      const muzzleFur=new THREE.MeshStandardMaterial({color:0xc7a16b,roughness:.98,
-        bumpMap:this.skin.material.bumpMap,bumpScale:.0027});
-      const cheekFur=new THREE.MeshStandardMaterial({color:0x9a7043,roughness:1,
-        bumpMap:this.skin.material.bumpMap,bumpScale:.0032});
-      for(const side of [-1,1]){
-        this.ellipsoid(head,muzzleFur,V(side*.068,.078,.237),V(.079,.067,.074));
-        this.ellipsoid(head,cheekFur,V(side*.154,.091,.125),V(.075,.084,.073));
-        const brow=this.ellipsoid(head,cheekFur,V(side*.091,.210,.170),V(.084,.026,.043));
-        brow.rotation.z=-side*.13;
-        // Small tapered cheek-fur clumps soften the transition into the mane.
-        for(let k=0;k<6;k++){
-          const t=k/5;
-          const tuft=this.ellipsoid(head,cheekFur,V(side*(.175+t*.035),.13-t*.115,.115-t*.018),
-            V(.019,.045-t*.013,.020));
-          tuft.rotation.z=side*(.30+t*.24);
-        }
-      }
-      // Broad continuous jaw and muzzle volumes make the lion profile
-      // visibly different at normal camera distance, not just in closeups.
-      const jawMat=new THREE.MeshStandardMaterial({color:0xb58a55,roughness:.96,
-        bumpMap:this.skin.material.bumpMap,bumpScale:.003});
-      const chin=this.ellipsoid(head,jawMat,V(0,-.013,.166),V(.139,.088,.132));
-      chin.rotation.x=-.12;
-      const bridge=this.ellipsoid(head,jawMat,V(0,.139,.202),V(.069,.102,.083));
-      bridge.rotation.x=.15;
-      for(const side of [-1,1]){
-        const upper=this.ellipsoid(head,muzzleFur,V(side*.065,.048,.271),V(.076,.049,.074));
-        upper.rotation.z=side*.12;
-        const cheek=this.ellipsoid(head,jawMat,V(side*.128,.045,.168),V(.082,.097,.099));
-        cheek.rotation.z=side*.18;
-      }
       const nose=this.ellipsoid(head,wet,V(0,.103,.291),V(.061,.031,.025));
       const a=nose.geometry.attributes.position;
       for(let i=0;i<a.count;i++)a.setX(i,a.getX(i)*(.6+.4*(a.getY(i)+1)/2));
@@ -615,7 +581,7 @@
     addMane() {
       const positions=[],colors=[],flex=[],guideIds=[],head=this.joints.head;
       const undercoat=this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x51351e,roughness:1,
-        bumpMap:texture('fur'),bumpScale:.003}),V(0,.065,-.065),V(.340,.395,.235));
+        bumpMap:texture('fur'),bumpScale:.003}),V(0,.065,-.065),V(.295,.355,.210));
       const surface=undercoat.geometry.attributes.position;
       for(let i=0;i<surface.count;i++) {
         const x=surface.getX(i),y=surface.getY(i),z=surface.getZ(i);
@@ -628,13 +594,13 @@
       for(let i=0;i<3200;i++) {
         const a=i*2.399963229728653,nz=-1+1.70*(i+.5)/3200,r=Math.sqrt(1-nz*nz);
         const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz);
-        const center=V(normal.x*.340,.065+normal.y*.395,-.065+normal.z*.235);
+        const center=V(normal.x*.295,.065+normal.y*.355,-.065+normal.z*.210);
         if(center.z>.025&&Math.abs(center.x)<.165&&center.y>-.03&&center.y<.29)continue;
-        const length=.052+random()*.070+Math.max(0,-normal.y)*.090;
+        const length=.040+random()*.050+Math.max(0,-normal.y)*.070;
         const width=.003+random()*.004;
         const outward=normal.clone().multiplyScalar(.80).add(V(normal.x*.12,-.52,-.12)).normalize();
         const across=outward.clone().cross(Math.abs(outward.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
-        const colour=new THREE.Color().setHSL(.068+random()*.045,.40+random()*.22,.105+random()*.22);
+        const colour=new THREE.Color().setHSL(.070+random()*.035,.42+random()*.18,.10+random()*.19);
         for(let j=0;j<3;j++) {
           const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.045*t*t,-.023*t*t));
           const t0=j/3,t1=(j+1)/3,p=point(t0),q=point(t1);
@@ -655,7 +621,7 @@
       this.maneRest=new Float32Array(positions);this.maneFlex=new Float32Array(flex);this.maneGuideIds=new Uint8Array(guideIds);
       this.maneGuides=Array.from({length:24},(_,i)=>{
         const y=-.75+Math.floor(i/6)*.5,a=-Math.PI+(i%6+.5)*Math.PI/3,r=Math.sqrt(1-y*y),normal=V(Math.cos(a)*r,y,Math.sin(a)*r);
-        return {rest:V(normal.x*.40,.065+normal.y*.48,-.065+normal.z*.32),position:V(),velocity:V(),offset:V(),normal};
+        return {rest:V(normal.x*.36,.065+normal.y*.44,-.065+normal.z*.29),position:V(),velocity:V(),offset:V(),normal};
       });
     }
 
