@@ -1047,9 +1047,16 @@
         const side=move==='uppercut'?'L':'R';
         const hand=side==='L'?lead:rear;
         const shoulder=this.point(j['arm'+side]);
-        const extension=smooth((phase-.30)/.19)*(1-smooth((phase-.69)/.16));
+        const extension=smooth((phase-.30)/.25)*(1-smooth((phase-.73)/.13));
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length();
         const target=shoulder.clone().add(V(side==='L'?-.10:.10,.27,Math.min(.56,reach*.70)));
+        // A compact upward-curving fist path, without changing the R32
+        // shoulder, elbow pole, glove roll or final striking position.
+        // The curve is a small offset around the original R32 IK target.
+        const arcTime=smooth((phase-.30)/.25);
+        const arcOffset=4*arcTime*(1-arcTime);
+        target.y-=.095*arcOffset;
+        target.z-=.105*arcOffset;
         hand.lerp(target,extension);
       }
       // Straight punches use almost the full arm reach after torso rotation.
