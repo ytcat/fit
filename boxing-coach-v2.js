@@ -791,6 +791,9 @@
         // planted as the driving support. Moving both feet forward together
         // removed the visible weight transfer and made the stance skate.
         if(move==='jab'&&s===1)return {z:0,x:0,lift:0};
+        // Rear cross rotates over a planted lead leg. The rear foot pivots
+        // with the hip; neither foot should translate forward during the hit.
+        if(move==='cross')return {z:0,x:0,lift:0};
         const lateralMove=['hook','rear_hook','slip','roll'].includes(move);
         const firstSide=move==='slip'?(options.defenceSide||1):move==='rear_hook'?1:-1;
         const first=s===firstSide;
@@ -813,6 +816,9 @@
         case 'cross':
           hipYaw=-.60*drive;chestYaw=-.44*twist;shift=-.045*drive;forward=.105*drive;crouch=.030*drive;trunkPitch=.035*drive;
           rear.lerp(V(.005,1.72,.67),strike);rearTurn=lateTurn;rearPivot=-.68*drive;
+          // Keep the lead glove at the cheek as the rear shoulder drives
+          // forward; chin stays protected behind the lead glove.
+          leadGuard.y+=.025*strike;
           pelvisRoll=-.020*drive;trunkRoll=-.040*twist;
           break;
         case 'hook': case 'rear_hook': {
@@ -919,7 +925,7 @@
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
       // Keep the chin behind the lead shoulder through jab extension.
-      j.head.rotation.x+=((options.chinTuck||0)*drive+(move==='jab'?.045*strike:0));
+      j.head.rotation.x+=((options.chinTuck||0)*drive+(straight?.045*strike:0));
       if(hit.part==='head'){j.head.rotation.x-=.28*hurt;j.head.rotation.y-=(hit.side||1)*.24*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
       if(hit.part==='body')j.head.rotation.x+=.10*hurt;
       j.head.rotation.x+=(options.down||0)*.25;
