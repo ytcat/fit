@@ -708,15 +708,17 @@
       const distal=this.point(hand).sub(this.point(elbow)).normalize();
       const project=p=>p.clone().addScaledVector(distal,-p.dot(distal)).normalize();
       const inward=V(side==='L'?1:-1,0,-.35-.50*turn);
-      // Transport the complete guard frame with the forearm before pronation.
-      // A fixed world-space inward vector becomes singular as a hook passes it.
-      this.handFrames=this.handFrames||{};
-      if(!this.handFrames[side])this.handFrames[side]={distal:distal.clone(),palm:project(inward)};
-      const frame=this.handFrames[side];
-      const transport=new THREE.Quaternion().setFromUnitVectors(frame.distal,distal);
-      const neutral=frame.palm.clone().applyQuaternion(transport),target=project(palmTarget);
-      const angle=Math.atan2(distal.dot(neutral.clone().cross(target)),neutral.dot(target));
-      const palm=neutral.applyAxisAngle(distal,angle*turn);
+      // Rebuild the palm reference from the CURRENT forearm on every frame.
+      // Transporting a frame captured on the first animation frame produced
+      // incorrect glove roll after large torso/arm rotations. The wrist axis
+      // always remains exactly collinear with the elbow-to-hand direction.
+      const neutral=project(inward);
+      const downward=project(palmTarget);
+      const fallback=project(V(0,0,1));
+      const safeNeutral=neutral.lengthSq()>1e-8?neutral:fallback;
+      const safeDown=downward.lengthSq()>1e-8?downward:safeNeutral;
+      const angle=Math.atan2(distal.dot(safeNeutral.clone().cross(safeDown)),safeNeutral.dot(safeDown));
+      const palm=safeNeutral.clone().applyAxisAngle(distal,angle*clamp(turn));
       const y=distal.clone().negate(),x=y.clone().cross(palm).normalize();
       const z=x.clone().cross(y).normalize();
       this.orient(hand,new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z)));
