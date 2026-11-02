@@ -53,12 +53,12 @@
    // Keep spectators outside the ropes so rotation never reveals an empty arena.
    for(let i=0;i<72;i++){
     const row=Math.floor((i%18)/9),slot=i%9,side=Math.floor(i/18);
-    const lateral=(slot-4)*.39,depth=1.96+row*.38,y=row*.16;
+    const lateral=(slot-4)*.39,depth=2.75+row*.38,y=row*.16;
     const x=side===0||side===2?lateral:(side===1?depth:-depth);
     const z=side===0?-depth:side===2?depth:lateral;
-    const h=new THREE.Mesh(head,material);h.position.set(x,1.05+y,z);this.root.add(h);
-    const b=new THREE.Mesh(body,material);b.scale.set(.12,.23,.10);b.position.set(x,.76+y,z);this.root.add(b);
-    const pair=[];for(const s of [-1,1]){const p=new THREE.Mesh(palm,material);p.position.set(x+s*.1,.92+y,z+.15);this.root.add(p);pair.push(p);}this.hands.push({pair,x,y,z});
+    const h=new THREE.Mesh(head,material);h.position.set(x,1.05+y,z);h.userData.audienceSide=side;this.root.add(h);
+    const b=new THREE.Mesh(body,material);b.scale.set(.10,.19,.09);b.position.set(x,.76+y,z);b.userData.audienceSide=side;this.root.add(b);
+    const pair=[];for(const s of [-1,1]){const p=new THREE.Mesh(palm,material);p.position.set(x+s*.1,.92+y,z+.15);p.userData.audienceSide=side;this.root.add(p);pair.push(p);}this.hands.push({pair,x,y,z});
    }
   }
   update(t,applaud){for(const [i,h] of this.hands.entries())for(const [j,p] of h.pair.entries()){const spread=applaud?.025+.055*(.5+.5*Math.sin(t*15+i)): .10;p.position.set(h.x+(j?1:-1)*spread,(applaud?1.08:.92)+h.y,h.z+.15);}}
