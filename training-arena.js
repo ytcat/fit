@@ -157,8 +157,12 @@
     const inverse=swing.getWorldQuaternion(new THREE.Quaternion()).invert();
     const localPoint=swing.worldToLocal(contact.point.clone()),normal=contact.normal.clone().applyQuaternion(inverse),speed=velocity.clone().applyQuaternion(inverse);
     let impact={impulse:0,closing:0};
-    if(!this.impacts.has(event)&&-speed.clone().sub(bag.velocity.clone().cross(localPoint)).dot(normal)>.1){
-     impact=bag.impact(localPoint,normal,speed,strikingMass(move));this.impacts.add(event);
+    const relative=speed.clone().sub(bag.velocity.clone().cross(localPoint));
+    const rising=move.includes('uppercut')?Math.max(0,relative.y):0;
+    if(!this.impacts.has(event)&&Math.max(-relative.dot(normal),rising*.70)>.1){
+     impact=bag.impact(localPoint,normal,speed,strikingMass(move));
+     if(rising>.1){const impulse=Math.min(2.4,rising*.34);bag.impulse(V(impulse,0,-localPoint.x*impulse*.35));impact.impulse+=impulse;impact.closing=Math.max(impact.closing,rising*.70);}
+     this.impacts.add(event);
      if(this.impacts.size>64)this.impacts.delete(this.impacts.values().next().value);
      entry=contact;
     }
