@@ -862,16 +862,12 @@
           const active=smooth((phase-.10)/.23)*(1-smooth((phase-.70)/.18));
           hipYaw=-s*.32*loaded+s*.48*up;
           chestYaw=-s*.44*loaded+s*.68*up;
-          crouch=.245*loaded+.045*up+.038*Math.sin(Math.PI*smooth((phase-.08)/.51));
+          crouch=.245*loaded+.045*up;
           forward=-.105*loaded+.125*up;
-          // The torso follows a rounded U-shaped roll: outward/down first,
-          // sweep underneath, then inward/up into the strike.
-          const arc=smooth((phase-.09)/.48);
-          const circularSide=Math.sin(Math.PI*arc)*(1-smooth((phase-.68)/.15));
-          shift=s*(.115*loaded-.085*up+.045*circularSide);
+          shift=s*.115*loaded-s*.085*up;
           pelvisRoll=-s*.095*loaded+s*.055*up;
           trunkPitch=.24*loaded-.14*up;
-          trunkRoll=-s*.25*loaded+s*.15*up-s*.065*Math.sin(Math.PI*smooth((phase-.10)/.47));
+          trunkRoll=-s*.25*loaded+s*.15*up;
           shoulderLoad=loaded;shoulderSide=s;
           palmTarget.set(0,0,-1);
           // Three distinct phases: settle under the target, drive upward with
@@ -881,9 +877,11 @@
           // the head. Wrist finishes in front of the chin, with elbow below it.
           // Keep the upper arm compact: the wrist rises inside the shoulder
           // line instead of opening away from the body at the top.
-          hand.lerp(V(s*.23,options.upperLoadHeight??1.18,.08),prepare)
-            .lerp(V(s*.13,options.upperWristHeight??1.65,.72),rise)
-            .lerp(guard,recover);
+          const circleT=smooth((phase-.08)/.57);
+          const angle=-.30+Math.PI*1.20*circleT;
+          const circleWeight=smooth((phase-.06)/.12)*(1-smooth((phase-.71)/.16));
+          const fistArc=V(s*(.20+.10*Math.cos(angle)),1.42-.25*Math.sin(angle),.30-.20*Math.cos(angle)+.30*circleT);
+          hand.lerp(fistArc,circleWeight).lerp(guard,recover);
           if(s===-1){leadTurn=up;leadPole.lerp(V(-.30,-1,.02),active);leadPivot=.36*up;}
           else {rearTurn=up;rearPole.lerp(V(.30,-1,.02),active);rearPivot=-.36*up;}
           break;
@@ -1044,18 +1042,6 @@
       // The free glove stays at cheek level during the lead jab, not at chest height.
       if(move==='jab')rear.y+=.035*strike;
       if(brace){lead.add(V(.035*brace,.105*brace,-.015*brace));rear.add(V(-.035*brace,.105*brace,-.015*brace));}
-      // Uppercut endpoint is measured from the LIVE striking shoulder,
-      // not a fixed world-space coordinate near the lion's own chin.
-      // Keep the glove in front of the face through the rising impact phase.
-      if(move==='uppercut'||move==='rear_uppercut'){
-        const side=move==='uppercut'?'L':'R';
-        const hand=side==='L'?lead:rear;
-        const shoulder=this.point(j['arm'+side]);
-        const extension=smooth((phase-.30)/.19)*(1-smooth((phase-.69)/.16));
-        const reach=j['elbow'+side].position.length()+j['hand'+side].position.length();
-        const target=shoulder.clone().add(V(side==='L'?-.10:.10,.27,Math.min(.56,reach*.70)));
-        hand.lerp(target,extension);
-      }
       // Straight punches use almost the full arm reach after torso rotation.
       // A fixed short wrist endpoint left the elbow folded and knuckles pointing
       // upward even at impact. Keep a small bend rather than locking the joint.
