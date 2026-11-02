@@ -163,6 +163,8 @@
     if(!this.impacts.has(event)&&Math.max(-relative.dot(normal),rising*.70)>.1){
      impact=bag.impact(localPoint,normal,speed,strikingMass(move));
      if(rising>.1){const impulse=Math.min(2.4,rising*.34);bag.impulse(V(impulse,0,-localPoint.x*impulse*.35));impact.impulse+=impulse;impact.closing=Math.max(impact.closing,rising*.70);}
+     const forward=Math.max(0,speed.z);
+     if(forward>.1)this.pushback.heavy.impulse(V(0,0,Math.min(4.5,forward*.8)));
      this.impacts.add(event);
      if(this.impacts.size>64)this.impacts.delete(this.impacts.values().next().value);
      entry=contact;
@@ -365,10 +367,14 @@
          const torque=localPoint.clone().cross(localForce).multiplyScalar(1.8);
          if(upper){torque.x+=1.6*magnitude;torque.z+=(-localPoint.x)*.65*magnitude;}
          this.springs[receiver].impulse(torque);
-         this.pushback[receiver].impulse(V(0,0,Math.min(4.5,closing*(upper?1.2:.85))));}
+         const drive=velocity.clone().transformDirection(new THREE.Matrix4().copy(this.group.matrixWorld).invert());
+         this.pushback[receiver].impulse(V(0,0,Math.min(4.5,Math.max(0,drive.z)*.9)));}
        }else if(entry.kind!=='bag'){
         this.recoil[receiver].impulse(V(0,0,magnitude*.45));
-        if(receiver==='rabbit')this.pushback.rabbit.impulse(V(0,0,Math.min(4,closing*.95)));
+        if(receiver==='rabbit'){
+         const drive=velocity.clone().transformDirection(new THREE.Matrix4().copy(this.group.matrixWorld).invert());
+         this.pushback.rabbit.impulse(V(0,0,Math.min(4,Math.max(0,drive.z)*.95)));
+        }
        }
        const transferred=receiver==='heavy'?loads.reduce((sum,l)=>sum+(l.impactImpulse||0),0):magnitude;
        if(entry.kind==='bag'){
