@@ -1045,7 +1045,7 @@
         const extension=smooth((phase-.30)/.19)*(1-smooth((phase-.69)/.16));
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length();
         const noseHeight=this.point(j.head).y+.103;
-        const target=shoulder.clone().add(V(side==='L'?-.10:.10,noseHeight-.10-shoulder.y,Math.min(.56,reach*.70)));
+        const target=options.uppercutBagTarget?V(...options.uppercutBagTarget):shoulder.clone().add(V(side==='L'?-.10:.10,noseHeight-.10-shoulder.y,Math.min(.56,reach*.70)));
         hand.lerp(target,extension);
       }
       // Straight punches use almost the full arm reach after torso rotation.
