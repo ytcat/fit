@@ -855,19 +855,14 @@
         }
         case 'uppercut': case 'rear_uppercut': {
           const s=move==='uppercut'?-1:1;
-          // One-sided roll into the active shoulder, then a distinct
-          // rising rotational drive. The opposite shoulder advances.
-          const loaded=smooth((phase-.055)/.19)*(1-smooth((phase-.32)/.17));
-          const up=smooth((phase-.34)/.20)*(1-smooth((phase-.66)/.18));
-          const active=smooth((phase-.10)/.23)*(1-smooth((phase-.70)/.18));
-          hipYaw=-s*.32*loaded+s*.48*up;
-          chestYaw=-s*.44*loaded+s*.68*up;
-          crouch=.245*loaded+.045*up;
-          forward=-.105*loaded+.125*up;
-          shift=s*.105*loaded-s*.070*up;
-          pelvisRoll=-s*.095*loaded+s*.055*up;
-          trunkPitch=.24*loaded-.14*up;
-          trunkRoll=-s*.25*loaded+s*.15*up;
+          const active=prepare*(1-recover),up=rise*(1-recover);
+          const loaded=prepare*(1-rise)*(1-recover);
+          hipYaw=s*.38*loaded-s*.52*up;chestYaw=s*.48*loaded-s*.58*up;
+          crouch=.19*loaded+.035*up;forward=-.095*loaded+.11*up;
+          shift=s*.035*loaded-s*.025*up;
+          pelvisRoll=-s*.035*loaded+s*.020*up;
+          trunkPitch=.16*loaded-.085*up;
+          trunkRoll=-s*.19*loaded+s*.13*up;
           shoulderLoad=loaded;shoulderSide=s;
           palmTarget.set(0,0,-1);
           // Three distinct phases: settle under the target, drive upward with
@@ -956,12 +951,12 @@
       if(move==='uppercut'||move==='rear_uppercut'){
         // Head travels with the loading shoulder and rising spine; do not
         // counter-rotate away the entire upper-body wind-up.
-        const coil=smooth((phase-.055)/.19)*(1-smooth((phase-.32)/.17));
-        const launch=smooth((phase-.34)/.20)*(1-smooth((phase-.66)/.18));
+        const coil=prepare*(1-rise)*(1-recover);
+        const launch=rise*(1-recover);
         const side=move==='uppercut'?-1:1;
         j.neck.rotation.set(.12*coil-.09*launch,side*.09*coil-side*.07*launch,side*.08*coil);
         j.head.rotation.x+=.15*coil-.12*launch;
-        j.head.rotation.y+=(hipYaw+chestYaw)*.78;
+        j.head.rotation.y+=(hipYaw+chestYaw)*.52;
         j.head.rotation.z+=side*.085*coil-side*.07*launch;
       }
       // Keep the chin behind the lead shoulder through jab extension.
