@@ -1,0 +1,9 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const html=fs.readFileSync('index.html','utf8'),src=html.slice(html.indexOf('    class AudioEngine'),html.indexOf('    /* MASTER APPLICATION CONTROLLER'));
+const ctx={window:{}};vm.runInNewContext(src+'\nglobalThis.TestAudio=AudioEngine;',ctx);
+const oscillators=[],buffers=[],parameter=()=>({value:0,setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}}),node=()=>({connect(){},start(){},stop(){},gain:parameter(),frequency:parameter(),Q:parameter()});
+const audio=new ctx.TestAudio();audio.ctx={state:'running',currentTime:0,sampleRate:12000,destination:{},createGain:node,createBiquadFilter:node,createOscillator(){const n=node();oscillators.push(n);return n;},createBufferSource:node,createBuffer(channels,length){const data=Array.from({length:channels},()=>new Float32Array(length));const b={data,getChannelData:i=>data[i]};buffers.push(b);return b;}};
+audio.bell();assert.equal(oscillators.length,5);assert.deepEqual(oscillators.map(n=>n.frequency.value),[540,797,1115,1507,2130]);assert.ok(oscillators.every(n=>n.type==='sine'),'bell uses inharmonic metal modes');
+audio.applause();const b=buffers.at(-1);assert.equal(b.data.length,2);let peak=0,difference=0;for(let i=0;i<b.data[0].length;i++){for(const ch of b.data){assert.ok(Number.isFinite(ch[i]));peak=Math.max(peak,Math.abs(ch[i]));}difference+=Math.abs(b.data[0][i]-b.data[1][i]);}assert.ok(peak>.01&&peak<=.651,'overlapping claps must remain below clipping');assert.ok(difference>1,'crowd has stereo spread');
+audio.pain({kind:'head',receiver:'lion',severity:1});assert.equal(oscillators.length,6);audio.muted=true;audio.bell();audio.applause();audio.pain({kind:'body'});assert.equal(oscillators.length,6);assert.equal(buffers.length,1);
+console.log('PASS stable bell resonances, stereo applause without clipping, contact vocalization and mute');

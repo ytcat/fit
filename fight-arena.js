@@ -39,15 +39,20 @@
     if(ceremony){coach.root.position.copy(this.lineupStart[actor].position).lerp(V(index?.72:-.72,0,.05),ease);coach.root.rotation.y=this.lineupStart[actor].yaw*(1-ease);}
     else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;coach.root.position.set(.055*Math.sin(m.time*.62+index*2),0,direction*(-.55-corner-.025*Math.sin(m.time*.73+index)));coach.root.rotation.y=index?Math.PI:0;}
    }
+   for(const actor of ['lion','rabbit']){
+    const f=m.fighters[actor],coach=this.coaches[actor],fall=f.down?(m.result?clamp(m.phaseTime/.5):Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4))):0;
+    coach.root.rotation.x=-1.38*fall;coach.root.position.y=.10*fall;
+   }
    a.group.updateMatrixWorld(true);
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
-    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],options={defenceSide:spec.defenceSide,brace:spec.brace,hitReaction:this.reaction(actor),down:f.down?Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4)):0,duckDepth:.28};
+    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],options={simulationTime:m.time,defenceSide:spec.defenceSide,brace:spec.brace,hitReaction:this.reaction(actor),down:f.down?(m.result?1:Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4))):0,duckDepth:.28};
     if(spec.attack){
      let target=this.target(actor,spec);if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(V(...f.action.aim)));
-     options.knuckleTarget=target.toArray();options.strikeHeight=target.y-.035;
+     const through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(.035);
+     options.knuckleTarget=target.add(through).toArray();options.strikeHeight=target.y-.035;
      options.advance=spec.move.includes('uppercut')?.23:spec.move.includes('hook')?.10:.025;
-     options.contactDrive=.025;options.levelChange=spec.target==='body'?.065:.015;
+     options.contactDrive=.055;options.levelChange=spec.target==='body'?.065:.015;
      if(spec.move.includes('uppercut')){options.upperLoadHeight=spec.target==='body'?1.02:1.28;options.upperWristHeight=target.y-.16;}
     }
     if(ceremony){options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'R':'L',raise:!m.result.winner||m.result.winner===actor?raise:0};}

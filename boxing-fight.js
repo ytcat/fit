@@ -4,7 +4,7 @@
  const other=a=>a==='lion'?'rabbit':'lion';
  const moves=['jab','cross','hook','rear_hook','uppercut','rear_uppercut'];
  const empty=()=>({thrown:0,landed:0,head:0,body:0,shoulder:0,blocked:0,evaded:0,missed:0,quality:0,power:0,control:0,knockdowns:0});
- const presets={three:{rounds:3,roundSeconds:180,restSeconds:60},club:{rounds:4,roundSeconds:180,restSeconds:60},six:{rounds:6,roundSeconds:180,restSeconds:60},title:{rounds:12,roundSeconds:180,restSeconds:60},exhibition:{rounds:3,roundSeconds:60,restSeconds:15}};
+ const presets={three:{rounds:3,roundSeconds:180,restSeconds:60},club:{rounds:4,roundSeconds:180,restSeconds:60},six:{rounds:6,roundSeconds:180,restSeconds:60},title:{rounds:12,roundSeconds:180,restSeconds:60},exhibition:{rounds:3,roundSeconds:60,restSeconds:15},quick:{rounds:1,roundSeconds:60,restSeconds:0}};
  class BoxingFight {
   constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds}={}){
    this.seed=seed>>>0;this.state=this.seed;this.preset=preset;Object.assign(this,presets[preset]||presets.club);
@@ -17,6 +17,7 @@
   random(){this.state=(Math.imul(this.state,1664525)+1013904223)>>>0;return this.state/4294967296;}
   emit(type,data={}){const event={id:++this.eventId,type,time:this.time,round:this.round,...data};this.events.push(event);if(this.events.length>300)this.events.shift();return event;}
   attack(actor,move,target){
+   if(this.phase!=='round'||this.result)return null;
    const f=this.fighters[actor],duration=(move.includes('uppercut')?1.30:1.12)*(1+(1-f.stamina)*.3)/f.tempo;
    f.action={id:++this.actionId,actor,move,target,start:this.time,duration,attack:true,recorded:false,aim:null};f.stamina=clamp(f.stamina-.045-(move==='jab'?0:.025));
    this.roundStats[actor].thrown++;this.totals[actor].thrown++;this.emit('punch',{actor,move,target,action:f.action.id});
@@ -47,14 +48,14 @@
      if(f.condition<8)this.finish(other(this.downActor),'TKO');else {this.phase='round';this.phaseTime=0;if(this.roundTime>=this.roundSeconds)this.endRound();}}
     return;
    }
-   const stopped=actors.filter(a=>this.fighters[a].condition<=0);if(stopped.length){this.finish(stopped.length===1?other(stopped[0]):null,'TKO');return;}
+   const stopped=actors.filter(a=>this.fighters[a].condition<=0);if(stopped.length){for(const actor of stopped)this.fighters[actor].down=1;this.finish(stopped.length===1?other(stopped[0]):null,'KO');return;}
    const fallen=actors.filter(a=>this.fighters[a].pendingDown);
    if(fallen.length){this.downActor=fallen.sort((a,b)=>this.fighters[b].stun-this.fighters[a].stun)[0];for(const actor of fallen)this.fighters[actor].pendingDown=false;const f=this.fighters[this.downActor];f.down=1;for(const actor of actors){this.fighters[actor].action=null;this.fighters[actor].next=this.time+8.2;}this.phase='count';this.phaseTime=0;this.emit('knockdown',{actor:this.downActor});return;}
    this.roundTime+=dt;
    if(this.roundTime>=this.roundSeconds){this.endRound();return;}
    for(const actor of this.order){
     const f=this.fighters[actor];
-    if(f.action&&this.time-f.action.start>=f.action.duration){
+    if(f.action&&this.time-f.action.start>=f.action.duration+(f.action.contactTime!=null?.045:0)){
      if(f.action.attack&&!f.action.recorded){this.roundStats[actor].missed++;this.totals[actor].missed++;if(f.action.facedDefence){this.roundStats[other(actor)].evaded++;this.totals[other(actor)].evaded++;}this.emit('miss',{actor,action:f.action.id});}
      f.action=null;f.next=this.time+.10+this.random()*.30+(1-f.stamina)*.6;
     }
@@ -64,12 +65,12 @@
   spec(actor){
    const f=this.fighters[actor],a=f.action;
    if(this.phase!=='round'||!a)return {move:'guard',phase:.35,attack:false,id:0};
-   return {...a,phase:clamp((this.time-a.start)/a.duration),brace:a.move==='guard'?1:0};
+   return {...a,phase:clamp((this.time-a.start-(a.contactTime!=null?Math.min(.045,Math.max(0,this.time-a.contactTime)*.70):0))/a.duration),brace:a.move==='guard'?1:0};
   }
   contact({actor,action,part,speed=1,point,side}){
    if(this.phase!=='round')return null;const f=this.fighters[actor],a=f.action,receiver=other(actor),victim=this.fighters[receiver];
    if(!a?.attack||a.id!==action||a.recorded||this.seen.has(action)||!(speed>.12))return null;
-   a.recorded=true;this.seen.add(action);const stats=this.roundStats[actor],total=this.totals[actor];
+   a.recorded=true;a.contactTime=this.time;this.seen.add(action);const stats=this.roundStats[actor],total=this.totals[actor];
    const blocked=part==='glove'||part==='arm',legal=part==='head'||part==='body';
    const quality=clamp(speed/3,.35,1.6)*f.power*(.65+.35*f.stamina);
    if(blocked){this.roundStats[receiver].blocked++;this.totals[receiver].blocked++;}
@@ -77,7 +78,7 @@
    else if(part==='shoulder'){stats.shoulder++;total.shoulder++;}
    const severity=quality*(blocked?.14:part==='shoulder'?.30:1);
    victim.reaction={time:this.time,part:part==='glove'?'guard':part,severity,side:side||1};
-   if(legal){victim.condition=Math.max(0,victim.condition-severity*(part==='head'?1.5:1.1));victim.stamina=clamp(victim.stamina-severity*.025);victim.stun+=severity*(part==='head'?5:3);f.stamina=clamp(f.stamina+.012);}
+   if(legal){victim.condition=Math.max(0,victim.condition-severity*(this.preset==='quick'?(part==='head'?12:9):(part==='head'?3:2.2)));victim.stamina=clamp(victim.stamina-severity*.025);victim.stun+=severity*(part==='head'?5:3);f.stamina=clamp(f.stamina+.012);}
    const event=this.emit('contact',{actor,receiver,action,part,legal,blocked,speed,quality,severity,point});
    if(legal&&victim.stun>18){if(!victim.pendingDown){victim.pendingDown=true;this.roundStats[receiver].knockdowns++;this.totals[receiver].knockdowns++;}}
    return event;
@@ -92,16 +93,16 @@
    this.history.push({round:this.round,stats});
   }
   endRound(){this.scoreRound();if(this.round<this.rounds)this.emit('bell',{kind:'end'});for(const a of actors)this.fighters[a].action=null;
-   if(this.round>=this.rounds)this.finish(null,'points',false);else {this.phase='rest';this.phaseTime=0;}}
+   if(this.round>=this.rounds){if(this.preset==='quick'){const delta=this.fighters.lion.condition-this.fighters.rabbit.condition;this.finish(Math.abs(delta)<=2?null:delta>0?'lion':'rabbit','health',false);}else this.finish(null,'points',false);}else {this.phase='rest';this.phaseTime=0;}}
   finish(winner,method='points',scorePartial=true){
    if(this.result)return;if(scorePartial&&this.roundStats.lion.thrown+this.roundStats.rabbit.thrown>0)this.scoreRound();
    const cards=this.cards.map(c=>({name:c.name,totals:c.rounds.reduce((t,r)=>[t[0]+r.scores[0],t[1]+r.scores[1]],[0,0]),rounds:c.rounds}));
    const votes=cards.map(c=>c.totals[0]===c.totals[1]?null:c.totals[0]>c.totals[1]?'lion':'rabbit');
    if(method==='points'){const l=votes.filter(v=>v==='lion').length,r=votes.filter(v=>v==='rabbit').length;winner=l>=2?'lion':r>=2?'rabbit':null;}
-   this.result={winner,method:winner?method:'draw',decision:method!=='points'?method:!winner?'draw':votes.every(v=>v===winner)?'unanimous':votes.includes(null)?'majority':'split',cards,votes,totals:JSON.parse(JSON.stringify(this.totals))};
-   this.phase='scoring';this.phaseTime=0;for(const a of actors)this.fighters[a].action=null;this.emit('final-bell',{result:this.result});
+   this.result={winner,stoppage:method,method:winner?method:'draw',decision:method!=='points'?method:!winner?'draw':votes.every(v=>v===winner)?'unanimous':votes.includes(null)?'majority':'split',cards,votes,totals:JSON.parse(JSON.stringify(this.totals))};
+   this.phase=this.preset==='quick'?'ceremony':'scoring';this.phaseTime=0;for(const a of actors)this.fighters[a].action=null;this.emit('final-bell',{result:this.result});if(this.preset==='quick')this.emit('announcement',{result:this.result});
   }
-  snapshot(){return {phase:this.phase,round:this.round,rounds:this.rounds,remaining:Math.max(0,this.roundSeconds-this.roundTime),restRemaining:Math.max(0,this.restSeconds-this.phaseTime),count:this.phase==='count'?Math.min(8,Math.floor(this.phaseTime)+1):0,cardsShown:this.phase==='scoring'?(this.phaseTime<1?0:Math.min(3,Math.floor((this.phaseTime-1)/2.5)+1)):this.phase==='ceremony'?3:0,result:this.result,totals:this.totals};}
+  snapshot(){return {phase:this.phase,round:this.round,rounds:this.rounds,remaining:Math.max(0,this.roundSeconds-this.roundTime),restRemaining:Math.max(0,this.restSeconds-this.phaseTime),count:this.phase==='count'?Math.min(8,Math.floor(this.phaseTime)+1):0,cardsShown:this.phase==='scoring'?(this.phaseTime<1?0:Math.min(3,Math.floor((this.phaseTime-1)/2.5)+1)):this.phase==='ceremony'?3:0,health:{lion:this.fighters.lion.condition,rabbit:this.fighters.rabbit.condition},result:this.result,totals:this.totals};}
  }
  BoxingFight.presets=presets;window.BoxingFight=BoxingFight;
 })();

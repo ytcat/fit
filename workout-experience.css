@@ -35,3 +35,12 @@
 @media(max-height:740px){.fight-results{padding:5px 0}.fight-card{padding:4px}.fight-result-actions{margin-top:4px}.fight-card strong{font-size:15px}}
 .fight-card-order{margin:0 0 5px;text-align:center;font-size:10px;color:#b6c1d1}
 .training-bar>.fight-launch{flex:0 0 54px;color:#f4c26e;border-color:#72562b}
+
+/* Damage HUD remains inside safe areas and clears the central action. */
+.fight-health{position:absolute;top:50px;left:12px;right:12px;z-index:12;display:flex;gap:20px;pointer-events:none;direction:ltr}
+.fight-health[hidden],.fight-knockout[hidden]{display:none}
+.fight-health-player{flex:1;min-width:0}.fight-health-player:last-child{text-align:right}
+.fight-health-label{font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 3px #000}
+.fight-health-track{height:12px;margin-top:3px;border:1px solid #ffffff60;border-radius:5px;background:#101827e6;overflow:hidden}
+.fight-health-fill{height:100%;transition:width 100ms linear,background 150ms linear}
+.fight-knockout{position:absolute;top:43%;left:8px;right:8px;z-index:15;text-align:center;font-size:clamp(20px,6vw,42px);font-weight:900;color:#fbbf24;text-shadow:0 3px 8px #000;pointer-events:none}

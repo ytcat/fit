@@ -20,11 +20,18 @@ assert.equal(openings,3,'shorts need exactly one waist and two leg openings');
 assert.ok(centre>20);assert.equal(coach.shorts.material.side,THREE.DoubleSide,'the inside of the garment must remain visible through its leg openings');
 for(const side of ['L','R']){
  const glove=coach.gloveMeshes[side],p=glove.geometry.attributes.position,rest=new Float32Array(p.array);let thumb=0,face=0;
- for(let i=0;i<p.count;i++){if(p.getX(i)<-.075&&p.getZ(i)>.045&&p.getY(i)<-.06&&p.getY(i)>-.17)thumb++;if(p.getY(i)<-.198){face++;assert.ok(p.getZ(i)<.035,'thumb/finger pocket must stay behind the knuckle crown');}}
- assert.ok(thumb>50&&face>50,'a tucked curved thumb and separate rounded crown are required');assert.equal(glove.scale.x,side==='L'?1:-1,'thumbs must be mirrored');
+ for(let i=0;i<p.count;i++){if(p.getX(i)*(side==='L'?1:-1)<-.075&&p.getZ(i)>.045&&p.getY(i)<-.06&&p.getY(i)>-.17)thumb++;if(p.getY(i)<-.198){face++;assert.ok(p.getZ(i)<.035,'thumb/finger pocket must stay behind the knuckle crown');}}
+ assert.ok(thumb>50&&face>50,'a tucked curved thumb and separate rounded crown are required');assert.ok(glove.matrixWorld.determinant()>0,'handedness must preserve a proper glove transform');
  coach.deformGlove(side,1);let shortening=0;for(let i=0;i<p.count;i++){shortening=Math.max(shortening,p.getY(i)-rest[i*3+1]);if(rest[i*3+1]>-.06)assert.equal(p.getY(i),rest[i*3+1],'the wrist must remain fixed while foam compresses');}
  assert.ok(shortening>.03&&shortening<.04,'impact should flatten the foam rather than shorten the entire hand');coach.deformGlove(side,0);assert.deepEqual(p.array,rest);
 }
+// Compare the actual asymmetrical shapes, independent of triangle winding/order.
+const gloveCoordinates=(side,mirror)=>{
+ const p=coach.gloveMeshes[side].geometry.attributes.position,points=[];
+ for(let i=0;i<p.count;i++)points.push([p.getX(i)*mirror,p.getY(i),p.getZ(i)].map(n=>Math.round(n*1e6)).join(','));
+ return points.sort();
+};
+assert.deepEqual(gloveCoordinates('L',1),gloveCoordinates('R',-1),'right thumb and padded surface must be a baked mirror of the left geometry');
 // Shoulder correction is the same in the normal/depth shaders and CPU QA.
 const shader={uniforms:{},vertexShader:'#include <common>\n#include <skinbase_vertex>\n#include <skinnormal_vertex>\n#include <skinning_vertex>'};coach.skin.material.onBeforeCompile(shader);
 assert.ok(shader.vertexShader.includes('coachLP,coachLinear)')&&shader.vertexShader.includes('coachLN,coachLinear)'));

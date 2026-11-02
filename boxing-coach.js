@@ -218,10 +218,8 @@
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',hand=this.joints['hand'+side];
         const glove=new THREE.Mesh(gloveGeometry.clone(),gloveMaterial);glove.name='Boxing glove';
-        if(s===1) glove.scale.x=-1;
         hand.add(glove);glove.castShadow=true;
-        this.gloveMeshes[side]=glove;glove.userData.restPosition=new Float32Array(glove.geometry.attributes.position.array);
-        glove.userData.restNormal=new Float32Array(glove.geometry.attributes.normal.array);glove.userData.pressure=0;
+        this.gloveMeshes[side]=glove;glove.userData.pressure=0;
         // A flattened oval cuff wraps the wrist; it is not a cylinder handle.
         const cuffGeometry=new THREE.CylinderGeometry(.058,.061,.068,48,12,true);
         cuffGeometry.scale(1,1,.86);
@@ -257,8 +255,19 @@
         this.addLabel(hand,'SB',V(0,.013,-.054),.041,.023).rotation.y=Math.PI;
         this.addLabel(hand,'SB',V(0,-.096,-.100),.044,.026).rotation.y=Math.PI;
         // All surface details share the foam deformation and mirrored thumb frame.
+        // Bake handedness into vertices and winding, so the wrist's local basis
+        // remains a proper rotation on both sides (also in shadow passes).
+        if(s===1)glove.traverse(part=>{
+          part.position.x*=-1;if(!part.geometry)return;
+          const g=part.geometry;g.scale(-1,1,1);
+          if(g.index){const a=g.index.array;for(let i=0;i<a.length;i+=3){const v=a[i+1];a[i+1]=a[i+2];a[i+2]=v;}}
+          else for(const attr of Object.values(g.attributes))for(let i=0;i<attr.count;i+=3)for(let k=0;k<attr.itemSize;k++){
+            const a=(i+1)*attr.itemSize+k,b=(i+2)*attr.itemSize+k,v=attr.array[a];attr.array[a]=attr.array[b];attr.array[b]=v;
+          }
+          g.computeBoundingSphere();
+        });
         glove.userData.deformParts=[glove,...details];
-        for(const part of details){part.userData.restPosition=new Float32Array(part.geometry.attributes.position.array);part.userData.restNormal=new Float32Array(part.geometry.attributes.normal.array);}
+        for(const part of glove.userData.deformParts){part.userData.restPosition=new Float32Array(part.geometry.attributes.position.array);part.userData.restNormal=new Float32Array(part.geometry.attributes.normal.array);}
         this.addBoot(this.joints['foot'+side]);
         // Satin side piping follows each thigh, rather than floating beside it.
         this.curve(this.joints['thigh'+side],[V(s*.125,.055,.075),V(s*.15,-.10,.08),V(s*.15,-.25,.08)],this.gold,.006);
@@ -270,6 +279,10 @@
       const smileZ=this.species==='rabbit'?.249:.284;
       this.celebrationSmile=this.curve(this.joints.head,[V(-.053,.039,smileZ-.013),V(-.027,.013,smileZ),V(0,.008,smileZ+.003),V(.027,.013,smileZ),V(.053,.039,smileZ-.013)],this.black,.0027);
       this.celebrationSmile.visible=false;
+      const mouthZ=this.species==='rabbit'?.255:.295;
+      this.painMouth=this.curve(this.joints.head,[V(-.047,.018,mouthZ),V(-.020,.034,mouthZ+.005),V(.018,.030,mouthZ+.005),V(.043,.008,mouthZ)],this.black,.0033);
+      this.painMouth.visible=false;
+      this.facialRest=this.joints.head.children.filter(part=>part!==this.mane&&part!==this.celebrationSmile&&part!==this.painMouth&&part.position.z>.10).map(part=>({part,z:part.position.z,sy:part.scale.y,eye:part.position.y>.13&&part.position.y<.20}));
       this.tail=new THREE.Group();hips.add(this.tail);
       if(this.species!=='rabbit')this.curve(this.tail,[V(0,-.02,-.16),V(.1,-.2,-.32),V(.16,-.45,-.40),V(.23,-.54,-.29)],
         new THREE.MeshStandardMaterial({color:0x9d713f,roughness:1}),.022);
@@ -576,7 +589,7 @@
       this.curve(head,[V(0,.08,.312),V(0,.051,.301)],wet,.003);
     }
     addMane() {
-      const positions=[],colors=[],flex=[],head=this.joints.head;
+      const positions=[],colors=[],flex=[],guideIds=[],head=this.joints.head;
       const undercoat=this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x51351e,roughness:1,
         bumpMap:texture('fur'),bumpScale:.003}),V(0,.065,-.065),V(.295,.355,.210));
       const surface=undercoat.geometry.attributes.position;
@@ -604,6 +617,8 @@
           const p0=p.clone().addScaledVector(across,1-t0),p1=p.clone().addScaledVector(across,-(1-t0));
           const q0=q.clone().addScaledVector(across,1-t1),q1=q.clone().addScaledVector(across,-(1-t1));
           flex.push(t0,t0,t1,t0,t1,t1);
+          const sector=Math.min(5,Math.floor(((Math.atan2(normal.z,normal.x)+Math.PI)/(2*Math.PI))*6)),band=Math.min(3,Math.floor((normal.y+1)*2));
+          for(let k=0;k<6;k++)guideIds.push(band*6+sector);
           for(const v of [p0,p1,q0,p1,q1,q0]) {
             positions.push(v.x,v.y,v.z);const linear=colour.clone().convertSRGBToLinear();colors.push(linear.r,linear.g,linear.b);
           }
@@ -613,7 +628,43 @@
       g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeVertexNormals();
       const mane=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:1}));
       head.add(mane);this.mane=mane;
-      this.maneRest=new Float32Array(positions);this.maneFlex=new Float32Array(flex);
+      this.maneRest=new Float32Array(positions);this.maneFlex=new Float32Array(flex);this.maneGuideIds=new Uint8Array(guideIds);
+      this.maneGuides=Array.from({length:24},(_,i)=>{
+        const y=-.75+Math.floor(i/6)*.5,a=-Math.PI+(i%6+.5)*Math.PI/3,r=Math.sqrt(1-y*y),normal=V(Math.cos(a)*r,y,Math.sin(a)*r);
+        return {rest:V(normal.x*.36,.065+normal.y*.44,-.065+normal.z*.29),position:V(),velocity:V(),offset:V(),normal};
+      });
+    }
+
+    updateMane(time) {
+      if(!this.maneGuides)return;
+      this.root.updateMatrixWorld(true);
+      const dt=this.maneTime==null?0:time-this.maneTime;
+      this.maneTime=time;
+      const frame=this.root.parent||this.root;
+      const reset=dt<0||dt>.25||!this.maneInitialized||this.maneFrame!==frame.uuid;this.maneFrame=frame.uuid;
+      const step=Math.min(.05,Math.max(0,dt)),count=Math.max(1,Math.ceil(step*120)),h=step/count;
+      for(const [i,guide] of this.maneGuides.entries()){
+        const target=frame.worldToLocal(this.mane.localToWorld(guide.rest.clone()));
+        if(reset){guide.position.copy(target);guide.velocity.set(0,0,0);}
+        else for(let k=0;k<count;k++){
+          const stiffness=110+(i%6)*8,damping=19+(Math.floor(i/6))*1.2;
+          guide.velocity.addScaledVector(target.clone().sub(guide.position),stiffness*h).multiplyScalar(Math.exp(-damping*h));
+          guide.position.addScaledVector(guide.velocity,h);
+          const displacement=guide.position.clone().sub(target);
+          if(displacement.lengthSq()>.055*.055){displacement.clampLength(0,.055);guide.position.copy(target).add(displacement);guide.velocity.multiplyScalar(.6);}
+        }
+        guide.offset.copy(this.mane.worldToLocal(frame.localToWorld(guide.position.clone()))).sub(guide.rest);
+        // Broad groom collision: prevent tips folding into their rooted coat.
+        const inward=guide.offset.dot(guide.normal);
+        if(inward<-.018)guide.offset.addScaledVector(guide.normal,-.018-inward);
+      }
+      this.maneInitialized=true;
+      const hair=this.mane.geometry.attributes.position;
+      for(let i=0;i<hair.count;i++){
+        const f=this.maneFlex[i]**2,offset=this.maneGuides[this.maneGuideIds[i]].offset;
+        hair.setXYZ(i,this.maneRest[i*3]+offset.x*f,this.maneRest[i*3+1]+offset.y*f,this.maneRest[i*3+2]+offset.z*f);
+      }
+      hair.needsUpdate=true;
     }
 
     point(bone) { return this.root.worldToLocal(bone.getWorldPosition(V())); }
@@ -673,7 +724,7 @@
         const p=part.geometry.attributes.position,n=part.geometry.attributes.normal;
         for(let i=0;i<p.count;i++){
           const x=rest[i*3],y=rest[i*3+1],z=rest[i*3+2];
-          const pad=smooth((-y-.065)/.075),thumb=x<-.060&&z>.025?.35:1;
+          const pad=smooth((-y-.065)/.075),thumb=(side==='L'?x:-x)<-.060&&z>.025?.35:1;
           const squash=amount*pad*thumb,sx=1+.10*squash,sy=1-.28*squash,sz=1+.085*squash;
           p.setXYZ(i,x*sx,y+(-.075-y)*(1-sy),z*sz);
           const nx=norm[i*3]/sx,ny=norm[i*3+1]/sy,nz=norm[i*3+2]/sz,length=Math.hypot(nx,ny,nz)||1;
@@ -939,6 +990,10 @@
         hand.lerp(V(side==='L'?-.27:.27,2.08,.03).add(guardShift),lift);
         leadTurn=rearTurn=.35;
       }
+      if(move==='speedbag'&&options.speedBagTargets){
+        if(options.speedBagTargets.L)lead.copy(V(...options.speedBagTargets.L));
+        if(options.speedBagTargets.R)rear.copy(V(...options.speedBagTargets.R));
+      }
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
@@ -955,16 +1010,15 @@
           gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
         }
       }
-      // Root-anchored hair tips respond to the repetition's turn and recovery.
-      // Stateless deformation keeps freeze, scrubbing and slow playback stable.
-      const hairResponse=Math.sin(phase*Math.PI*2)*(Math.abs(hipYaw-.12)+Math.abs(trunkRoll)+crouch)*.018;
-      const hair=this.mane.geometry.attributes.position;
-      for(let i=0;i<hair.count;i++) {
-        const flex=this.maneFlex[i]**2;
-        hair.setXYZ(i,this.maneRest[i*3]+hairResponse*flex,
-          this.maneRest[i*3+1],this.maneRest[i*3+2]+hairResponse*.45*flex);
+      // Arena-space spring guides retain inertia under head/root acceleration; orbit adds no force.
+      // Seek/teleport resets avoid integrating stale state or a whole hidden tab.
+      this.updateMane(options.simulationTime??t);
+      this.painMouth.visible=hurt>.12&&(hit.part==='head'||hit.part==='body');
+      for(const face of this.facialRest){
+        face.part.position.z=face.z-(hit.part==='head'?.012*Math.min(1,hurt):0);
+        const blinkPhase=(options.simulationTime??t)%4.6,blink=blinkPhase>4.40?Math.sin((blinkPhase-4.40)/.20*Math.PI)**2:0;
+        face.part.scale.y=face.sy*(face.eye?(1-.60*Math.min(1,hurt))*(1-.92*blink):1);
       }
-      hair.needsUpdate=true;
       if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.x=presentation?.mode==='loser'?.25:0;ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
       for(const side of ['L','R']){
         const amount=side==='L'?leftStrike:rightStrike,s=side==='L'?-1:1;

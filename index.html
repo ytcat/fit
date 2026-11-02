@@ -8,20 +8,20 @@
   <title>ShadowBox 3D | Lion Boxing Coach</title>
 
   <link rel="stylesheet" href="./assets/app.css?v=2" />
-  <link rel="stylesheet" href="./workout-experience.css?v=6" />
+  <link rel="stylesheet" href="./workout-experience.css?v=24" />
   <script src="./workout-experience.js?v=1" defer></script>
   <script src="./practice-layout.js?v=3" defer></script>
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
   <script src="./boxing-routines.js?v=2"></script>
-  <script src="./boxing-coach.js?v=23"></script>
+  <script src="./boxing-coach.js?v=24"></script>
   <script src="./contact-response.js?v=3"></script>
-  <script src="./training-arena.js?v=23"></script>
-  <script src="./boxing-fight.js?v=22"></script>
+  <script src="./training-arena.js?v=24"></script>
+  <script src="./boxing-fight.js?v=24"></script>
   <script src="./fight-referee.js?v=22"></script>
-  <script src="./fight-arena.js?v=23"></script>
-  <script src="./fight-ui.js?v=22" defer></script>
+  <script src="./fight-arena.js?v=24"></script>
+  <script src="./fight-ui.js?v=24" defer></script>
   <script src="./training-controls.js?v=22" defer></script>
 
   <style>
@@ -169,7 +169,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R23",
+        subtitle: "LION BOXING COACH · R24",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -222,7 +222,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R23",
+        subtitle: "מאמן אגרוף אריה · R24",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -275,7 +275,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R23",
+        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R24",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -384,7 +384,8 @@
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.setSize(w, h, false);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.qualityTier=1;this.frameSamples=[];this.qualityElapsed=0;this.qualityDwell=0;
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 1.5));
 
         const resize = () => {
           const r = this.stage.getBoundingClientRect();
@@ -666,9 +667,25 @@
         window.addEventListener('touchend', end);
       }
 
+      updateQuality(delta) {
+        if(!(delta>0)||delta>.12)return;
+        this.frameSamples.push(delta);this.qualityElapsed+=delta;this.qualityDwell+=delta;
+        if(this.qualityElapsed<3)return;
+        const samples=this.frameSamples.sort((a,b)=>a-b),p90=samples[Math.floor(samples.length*.9)];
+        this.frameSamples=[];this.qualityElapsed=0;
+        if(this.qualityDwell<12)return;
+        const next=p90>.032?Math.max(0,this.qualityTier-1):p90<.019?Math.min(2,this.qualityTier+1):this.qualityTier;
+        if(next===this.qualityTier)return;this.qualityTier=next;this.qualityDwell=0;
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,[1,1.5,2][next]));
+        // Adapt pixel work first. Preserve the same rig, motion and contact clocks.
+        this.renderer.shadowMap.enabled=next>0;this.lastRenderStamp=null;
+      }
+
       animate() {
         requestAnimationFrame(this.animate);
         const delta = this.clock.getDelta();
+        if(document.hidden)return;
+        if(this.isPlaying)this.updateQuality(delta);
 
         if (!this.activeModel) {
           this.renderer.render(this.scene, this.camera);
@@ -721,28 +738,52 @@
         noise.buffer=buffer;filter.type='lowpass';filter.frequency.value=heavy?850:1600;snap.gain.value=strength*.12;
         noise.connect(filter);filter.connect(snap);snap.connect(ctx.destination);noise.start(t);noise.stop(t+.06);
       }
+      pain(impact) {
+        if(this.muted||!this.ctx||this.ctx.state!=='running'||!['head','body'].includes(impact.kind))return;
+        const ctx=this.ctx,t=ctx.currentTime,level=Math.min(.08,.025+(impact.severity||.5)*.025);
+        // Short voiced exhalation with formants; no text-to-speech or remote audio.
+        const source=ctx.createOscillator(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+        source.type='sawtooth';source.frequency.setValueAtTime(impact.receiver==='rabbit'?165:105,t);source.frequency.exponentialRampToValueAtTime(impact.receiver==='rabbit'?115:72,t+.20);
+        filter.type='bandpass';filter.frequency.value=impact.kind==='head'?750:480;filter.Q.value=1.1;
+        gain.gain.setValueAtTime(.001,t);gain.gain.linearRampToValueAtTime(level,t+.018);gain.gain.exponentialRampToValueAtTime(.001,t+.23);
+        source.connect(filter);filter.connect(gain);gain.connect(ctx.destination);source.start(t);source.stop(t+.25);
+      }
       applause() {
         if(this.muted||!this.ctx||this.ctx.state!=='running')return;
-        const ctx=this.ctx,duration=4,buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*duration),ctx.sampleRate),data=buffer.getChannelData(0);
-        for(let clap=0;clap<110;clap++){const at=Math.floor(Math.random()*(duration-.1)*ctx.sampleRate),length=Math.floor(.055*ctx.sampleRate);for(let i=0;i<length;i++)data[at+i]+=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*.010))*.12;}
-        const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;gain.gain.value=.24;source.connect(gain);gain.connect(ctx.destination);source.start();this.crowdGain=gain;source.stop(ctx.currentTime+duration);
+        const ctx=this.ctx,duration=3.8,rate=ctx.sampleRate,buffer=ctx.createBuffer(2,Math.ceil(rate*duration),rate);
+        // Individual people clap in slightly irregular pairs; each clap combines
+        // a palm transient, a hollow resonance and quieter room reflections.
+        for(let person=0;person<18;person++){
+          const pan=person/17,period=.24+Math.random()*.16,offset=Math.random()*.30;
+          for(let at=offset;at<duration-.14;at+=period*(.9+Math.random()*.2)){
+            const power=.12+Math.random()*.10,centre=900+Math.random()*1200;
+            for(let ch=0;ch<2;ch++){
+              const samples=buffer.getChannelData(ch),balance=ch?(.3+.7*pan):(1-.7*pan),begin=Math.floor((at+ch*.0002)*rate);
+              for(let i=0;i<rate*.07&&begin+i<samples.length;i++){
+                const age=i/rate,attack=Math.min(1,age/.0008),decay=Math.exp(-age/ .009),noise=Math.random()*2-1;
+                const clap=(noise*.7+Math.sin(2*Math.PI*centre*age)*.3)*attack*decay*power*balance;
+                samples[begin+i]+=clap;
+                const reflection=begin+i+Math.floor(rate*.031);if(reflection<samples.length)samples[reflection]+=clap*.13;
+              }
+            }
+          }
+        }
+        let peak=0;for(let ch=0;ch<2;ch++)for(const sample of buffer.getChannelData(ch))peak=Math.max(peak,Math.abs(sample));
+        const scale=.65/Math.max(.65,peak);for(let ch=0;ch<2;ch++){const data=buffer.getChannelData(ch);for(let i=0;i<data.length;i++)data[i]*=scale;}
+        const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;
+        gain.gain.setValueAtTime(.001,ctx.currentTime);gain.gain.linearRampToValueAtTime(.45,ctx.currentTime+.12);gain.gain.setValueAtTime(.45,ctx.currentTime+duration-.6);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+duration);
+        source.connect(gain);gain.connect(ctx.destination);source.start();this.crowdGain=gain;source.stop(ctx.currentTime+duration);
       }
       bell() {
-        if (this.muted) return;
-        this.init();
-        if(!this.ctx)return;
-        const t = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(640, t);
-        osc.frequency.exponentialRampToValueAtTime(110, t + 1.3);
-        gain.gain.setValueAtTime(0.85, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(t);
-        osc.stop(t + 1.3);
+        if(this.muted)return;this.init();if(!this.ctx)return;
+        const ctx=this.ctx,t=ctx.currentTime,master=ctx.createGain();master.gain.value=.35;master.connect(ctx.destination);
+        // Inharmonic modes of struck metal: stable frequencies with independent
+        // decays, unlike the old descending electronic triangle sweep.
+        for(const [frequency,amplitude,decay] of [[540,.48,2.1],[797,.25,1.5],[1115,.16,1.0],[1507,.10,.65],[2130,.055,.34]]){
+          const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=frequency;
+          gain.gain.setValueAtTime(.001,t);gain.gain.linearRampToValueAtTime(amplitude,t+.0015);gain.gain.exponentialRampToValueAtTime(.001,t+decay);
+          osc.connect(gain);gain.connect(master);osc.start(t);osc.stop(t+decay+.02);
+        }
       }
       speak(phrase, lang) {
         if (this.muted || !('speechSynthesis' in window)) return;
@@ -765,7 +806,7 @@
         this.lang = 'en';
         this.engine = new AutoModelEngine('boxerCanvas', 'stageContainer');
         this.audio = new AudioEngine();
-        this.engine.onImpact=hit=>this.audio.hit(hit);
+        this.engine.onImpact=hit=>{this.audio.hit(hit);if(!hit.blocked)this.audio.pain(hit);};
         document.addEventListener('pointerdown',()=>{if(!this.audio.muted)this.audio.init();},{once:true});
         this.drillIdx = 0;
         this.round = 1;

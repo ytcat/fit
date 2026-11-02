@@ -40,7 +40,7 @@
    this.rod(root,V(-.48,2.55,-.12),V(.48,2.55,-.12),.030);
    this.rod(root,V(0,2.55,-.12),V(0,2.48,0),.014,this.accent);
    const swing=new THREE.Group();swing.position.y=2.48;root.add(swing);root.userData.swing=swing;
-   const body=this.mesh(swing,new THREE.CylinderGeometry(.235,.235,1.15,64),this.heavyLeather,V(0,-.94,0));body.name='Heavy bag leather';root.userData.soft=body;
+   const body=this.mesh(swing,new THREE.CylinderGeometry(.235,.235,1.15,64,32),this.heavyLeather,V(0,-.94,0));body.name='Heavy bag leather';root.userData.soft=body;
    this.mesh(swing,new THREE.SphereGeometry(.235,48,20),this.heavyLeather,V(0,-1.515,0)).scale.y=.24;
    this.mesh(swing,new THREE.CylinderGeometry(.239,.239,.10,64),this.dark,V(0,-.40,0));
    for(let i=0;i<4;i++){
@@ -96,7 +96,7 @@
       this.rabbit=new LionCoach(this.data,{species:'rabbit'});this.models.rabbit=this.rabbit.root;this.rabbit.root.name='Rabbit sparring partner';
      }else this.models[mode]=this[mode]();
     }
-    const target=this.models[mode];this.group.add(target);target.position.set(0,0,mode==='speed'?.37:mode==='dummy'?.70:mode==='rabbit'?.79:.82);
+    const target=this.models[mode];this.group.add(target);target.position.set(0,0,mode==='speed'?.27:mode==='dummy'?.70:mode==='rabbit'?.79:.82);
     if(mode==='rabbit')target.rotation.y=Math.PI;
    }
    this.group.updateMatrixWorld(true);e.lastRenderStamp=null;
@@ -216,11 +216,11 @@
    const g=mesh.geometry,p=g.attributes.position,n=g.attributes.normal;
    if(!mesh.userData.softRest){mesh.userData.softRest=new Float32Array(p.array);mesh.userData.normalRest=new Float32Array(n.array);}
    const rest=mesh.userData.softRest,norm=mesh.userData.normalRest;
-   const depth=(this.mode==='heavy'?.040:this.mode==='dummy'?.014:.009)*amount;
+   const depth=(this.mode==='heavy'?.040:this.mode==='dummy'?.014:.018)*amount;
    for(let i=0;i<p.count;i++){
     let x=rest[i*3],y=rest[i*3+1],z=rest[i*3+2],nx=norm[i*3],ny=norm[i*3+1],nz=norm[i*3+2];
     if(contact&&amount>0){
-     const dx=x-contact.point.x,dy=y-contact.point.y,dz=z-contact.point.z,radius2=.115*.115;
+     const dx=x-contact.point.x,dy=y-contact.point.y,dz=z-contact.point.z,radius2=this.mode==='speed'?.080*.080:.115*.115;
      const falloff=Math.exp(-(dx*dx+dy*dy+dz*dz)/radius2),dent=depth*falloff;
      x-=contact.normal.x*dent;y-=contact.normal.y*dent;z-=contact.normal.z*dent;
      const dot=dx*nx+dy*ny+dz*nz,k=2*dent/radius2;
@@ -273,7 +273,17 @@
    const active=mode!=='none'&&mode!=='speed';
    const pose=(coach,spec,actor,isHero)=>{
     const advance=active&&spec.attack?(spec.move.includes('uppercut')?.40:spec.move.includes('hook')?.16:0)+(mode==='heavy'?this.followAdvance:0):0;
-    const options={power:powered&&spec.attack?1.12:1,defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
+    const options={simulationTime:time,power:powered&&spec.attack?1.12:1,defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
+    if(mode==='speed'){
+     // Closed wrist circles pass through the bag's lower striking lobe. Opposite
+     // phases let one hand recover underneath while the other delivers.
+     const angle=time*1.8/1.22*Math.PI*2;
+     options.speedBagTargets={};
+     for(const [side,offset] of [['L',0],['R',Math.PI]]){
+      const q=angle+offset;
+      options.speedBagTargets[side]=[side==='L'?-.10:.10,1.84+.035*Math.sin(q),.46-.060*Math.cos(q)];
+     }
+    }
     if(isHero){options.target=active?this.aim(spec.move):null;
      if(mode==='dummy'&&spec.attack){options.strikeHeight=1.76;options.levelChange=.025;options.upperWristHeight=1.64;}
      if(mode==='heavy'&&spec.attack){
@@ -297,7 +307,7 @@
      // so changing the view cannot add energy to a punch.
      const key=actor+side,localCentre=this.group.worldToLocal(centre.clone()),previous=this.previousFists[key];
      const velocity=previous&&dt>0?localCentre.clone().sub(previous).divideScalar(dt).applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion())):V(...metrics.gloves[index].distal).transformDirection(coach.root.matrixWorld).multiplyScalar(1.8);
-     if(!indices.includes(index)){this.previousFists[key]=localCentre;continue;}
+     if(!indices.includes(index)||!previous||!(dt>0)){this.previousFists[key]=localCentre;continue;}
      const beat=mode==='speed'?Math.floor(time*1.8/1.22*2):frame.index,event=actor+side+':'+beat;
      let heavyEntry=null;
      if(receiver==='heavy'){
@@ -316,7 +326,17 @@
        const force=velocity.clone().normalize().multiplyScalar(.45).addScaledVector(entry.normal,-.55).normalize().multiplyScalar(magnitude);
        if(entry.kind==='bag'&&receiver!=='heavy'){
         const target=this.models[receiver],swing=target.userData.swing,localPoint=swing.worldToLocal(entry.point.clone()),localForce=force.clone().transformDirection(new THREE.Matrix4().copy(swing.matrixWorld).invert()).multiplyScalar(magnitude);
-        const torque=localPoint.cross(localForce).multiplyScalar(receiver==='dummy'?1.8:115);this.springs[receiver].impulse(torque);
+        if(receiver==='speed'){
+         // Effective angular mass at the swivel: a shallow touch cannot send
+         // the bag flying, and a separating fist cannot add energy.
+         const normal=entry.normal.clone().transformDirection(new THREE.Matrix4().copy(swing.matrixWorld).invert());
+         const fistVelocity=velocity.clone().applyQuaternion(swing.getWorldQuaternion(new THREE.Quaternion()).invert());
+         const spring=this.springs.speed,inertia=.012,lever=localPoint.clone().cross(normal);
+         const surface=spring.velocity.clone().cross(localPoint),relative=fistVelocity.sub(surface);
+         const incoming=Math.max(0,-relative.dot(normal));
+         const impulse=.65*incoming/(1/.65+lever.lengthSq()/inertia);
+         spring.impulse(lever.multiplyScalar(-impulse/inertia));
+        }else {const torque=localPoint.cross(localForce).multiplyScalar(1.8);this.springs[receiver].impulse(torque);}
        }else if(entry.kind!=='bag')this.recoil[receiver].impulse(V(0,0,magnitude*.45));
        const transferred=receiver==='heavy'?loads.reduce((sum,l)=>sum+(l.impactImpulse||0),0):magnitude;
        if(entry.kind==='bag'){
