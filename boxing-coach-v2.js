@@ -935,7 +935,7 @@
       this.celebrationSmile.visible=presentation?.mode==='winner';
       if(presentation?.mode==='loser'){crouch+=.025;trunkPitch+=.08;}
       if(options.down){crouch+=.40*options.down;trunkPitch+=.20*options.down;forward-=.04*options.down;}
-      if(['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)) {
+      if(['jab','cross','hook','rear_hook'].includes(move)) {
         forward-=.020*kineticLoad*kineticPower;
         crouch+=.015*kineticLoad*kineticPower;
       }
@@ -1075,7 +1075,7 @@
       }
       // Target practice adapts reach to the physical target. Keep the existing
       // loading, footwork and body drive; constrain the wrist to arm length.
-      if(options.target&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
+      if(options.target&&['jab','cross','hook','rear_hook'].includes(move)){
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L';
         const hand=side==='L'?lead:rear,shoulder=this.point(j['arm'+side]);
         const aim=V(...options.target).add(V(0,0,approach+through)),delta=aim.sub(shoulder);
@@ -1084,7 +1084,7 @@
         const amount=straight?strike:hookState?hookState.rotation:rise*(1-recover);
         hand.lerp(endpoint,amount);
       }
-      if(options.knucklePlanner&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
+      if(options.knucklePlanner&&['jab','cross','hook','rear_hook'].includes(move)){
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L',plan=options.knucklePlanner(this.point(j['arm'+side]));
         options.knuckleTarget=plan.point.toArray();options.strikeDirection=plan.direction.toArray();
       }
@@ -1101,7 +1101,7 @@
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
-      if(options.knuckleTarget&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
+      if(options.knuckleTarget&&['jab','cross','hook','rear_hook'].includes(move)){
         const index=['cross','rear_hook','rear_uppercut'].includes(move)?1:0,side=index?'R':'L',hand=index?rear:lead,pole=index?rearPole:leadPole;
         const amount=clamp(straight?strike:hookState?hookState.rotation:rise*(1-recover));
         const planStraight=straight&&options.planStraight;
