@@ -855,7 +855,7 @@
           const active=prepare*(1-recover),up=rise*(1-recover);
           const loaded=prepare*(1-rise)*(1-recover);
           hipYaw=s*.09*loaded-s*.36*up;chestYaw=s*.07*loaded-s*.25*up;
-          crouch=.080*loaded;forward=-.012*loaded+.040*up;
+          crouch=.115*loaded;forward=-.030*loaded+.055*up;
           shift=s*.035*loaded-s*.025*up;
           pelvisRoll=-s*.035*loaded+s*.020*up;
           trunkPitch=.070*loaded;
@@ -867,9 +867,9 @@
           const hand=s===-1?lead:rear,guard=hand.clone();
           // Fist comes from below the target, not from an elbow raised beside
           // the head. Wrist finishes in front of the chin, with elbow below it.
-          hand.lerp(V(s*.21,options.upperLoadHeight??1.34,.36),prepare).lerp(V(s*.12,options.upperWristHeight??1.72,.64),rise).lerp(guard,recover);
-          if(s===-1){leadTurn=active;leadPole.lerp(V(0,-1,.2),active);leadPivot=.36*up;}
-          else {rearTurn=active;rearPole.lerp(V(0,-1,.2),active);rearPivot=-.36*up;}
+          hand.lerp(V(s*.20,options.upperLoadHeight??1.23,.29),prepare).lerp(V(s*.12,options.upperWristHeight??1.74,.64),rise).lerp(guard,recover);
+          if(s===-1){leadTurn=.65*up;leadPole.lerp(V(-.18,-1,.22),active);leadPivot=.36*up;}
+          else {rearTurn=.65*up;rearPole.lerp(V(.18,-1,.22),active);rearPivot=-.36*up;}
           break;
         }
         case 'speedbag': {
