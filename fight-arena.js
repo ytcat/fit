@@ -8,6 +8,11 @@
    this.coaches={lion:this.engine.coach,rabbit:arena.rabbit};
    this.referee=new RhinoReferee();arena.group.add(this.referee.root);this.audience=new FightAudience(arena.group);
    this.ring=new THREE.Group();arena.group.add(this.ring);
+   // Raised canvas and apron make the ring a complete visible platform.
+   const canvas=new THREE.Mesh(new THREE.BoxGeometry(3.48,.16,3.48),new THREE.MeshStandardMaterial({color:0x263449,roughness:.92,side:THREE.DoubleSide}));
+   canvas.position.y=-.10;canvas.receiveShadow=true;this.ring.add(canvas);
+   const apron=new THREE.Mesh(new THREE.BoxGeometry(3.65,.14,3.65),new THREE.MeshStandardMaterial({color:0x141c2a,roughness:.8,side:THREE.DoubleSide}));
+   apron.position.y=-.24;apron.receiveShadow=true;this.ring.add(apron);
    for(const s of [-1,1])for(const z of [-1.65,1.65]){
     arena.rod(this.ring,V(s*1.65,.02,z),V(s*1.65,1.30,z),.035).userData.ringPost=true;
     const pad=arena.mesh(this.ring,new THREE.SphereGeometry(1,20,12),arena.leather,V(s*1.65,1.05,z));pad.scale.set(.065,.23,.065);pad.userData.ringPost=true;
@@ -74,6 +79,14 @@
    if(reveal&&!m.result.winner)grip={'-1':this.coaches.lion.joints.handR.getWorldPosition(V()),'1':this.coaches.rabbit.joints.handL.getWorldPosition(V())};
    if(m.phase==='count'){grip=this.referee.root.localToWorld(V(.32,1.76,.27));side=1;}
    this.referee.update(m.time,grip,side);this.audience.update(m.time,reveal);
+   // Hide only the near-side spectator section; otherwise it obscures the
+   // fighters when the camera or the arena rotates.
+   const eye=a.group.worldToLocal(this.engine.camera.getWorldPosition(V()));
+   const normals=[V(0,0,-1),V(1,0,0),V(0,0,1),V(-1,0,0)];
+   for(const spectator of this.audience.root.children){
+    const side=spectator.userData.audienceSide;
+    if(side!==undefined)spectator.visible=normals[side].dot(eye)>0?false:true;
+   }
    // Ring posts and ropes are physical geometry: keep all four sides visible
    // regardless of camera rotation. Camera-facing culling hid entire sides.
    for(const part of this.ring.children)part.visible=true;
