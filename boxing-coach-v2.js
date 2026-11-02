@@ -785,6 +785,10 @@
       };
       const drillStep=s=>{
         if(move==='step')return {...stepState(s),x:0};
+        // A lead jab steps with the lead foot while the rear foot remains
+        // planted as the driving support. Moving both feet forward together
+        // removed the visible weight transfer and made the stance skate.
+        if(move==='jab'&&s===1)return {z:0,x:0,lift:0};
         const lateralMove=['hook','rear_hook','slip','roll'].includes(move);
         const firstSide=move==='slip'?(options.defenceSide||1):move==='rear_hook'?1:-1;
         const first=s===firstSide;
