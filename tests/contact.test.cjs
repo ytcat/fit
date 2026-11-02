@@ -1,10 +1,10 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
-for(const f of ['boxing-routines.js','boxing-coach.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const a=new ContactSpring(4.2,.3),b=new ContactSpring(4.2,.3);a.impulse(new THREE.Vector3(1,.5,-.3));b.impulse(new THREE.Vector3(1,.5,-.3));a.step(.75);for(let i=0;i<75;i++)b.step(.01);assert.ok(a.position.distanceTo(b.position)<1e-12&&a.velocity.distanceTo(b.velocity)<1e-12,'spring response must not depend on frame rate');
 const position=a.position.clone();a.impulse(new THREE.Vector3(.5,0,0));assert.ok(a.position.equals(position),'a new hit must add momentum without resetting position');a.step(12);assert.ok(a.position.length()<1e-5&&a.velocity.length()<1e-5,'motion must decay to rest');
 const critical=new ContactSpring(10,1);critical.impulse(new THREE.Vector3(0,0,1));for(let i=0;i<100;i++){critical.step(.02);assert.ok(critical.position.z>=0,'body recovery must not overshoot backwards');}
-const data=JSON.parse(fs.readFileSync('assets/models/coach-surface.json')),coach=new LionCoach(data);
+const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')),coach=new LionCoach(data);
 const left=coach.gloveMeshes.L,right=coach.gloveMeshes.R,rest=new Float32Array(left.geometry.attributes.position.array);
 assert.notEqual(left.geometry,right.geometry,'each glove needs independent deformation');coach.deformGlove('L',1);
 const p=left.geometry.attributes.position,n=left.geometry.attributes.normal;let shortening=0,bulge=0;

@@ -1,5 +1,9 @@
 # R24 implementation audit — 2 November 2026
 
+For the current rig, shoulder topology and arm-motion changes, see
+[R25 shoulder and elbow fixes](r25-shoulder-and-elbow.md). The audit below
+records the preceding R24 implementation and its verification limits.
+
 Repository: `ytcat/fit`, branch `main`. Baseline: `021444c299697c9195ae2537b713efddbe099ea1` (R23), initially clean. No AGENTS.md or package manifest is present. This is a static app: `python3 -m http.server 8080`. Established release route is main → GitHub Pages, at https://ytcat.github.io/fit/. The live browser was opened and displayed R23 before this release.
 
 ## Existing implementation

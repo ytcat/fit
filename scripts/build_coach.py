@@ -1,4 +1,4 @@
-"""Build the coach's continuous implicit surfaces. Requires Python + NumPy.
+"""Build the coach's continuous implicit surfaces. Requires Python + NumPy + SciPy.
 
 No downloaded or generated third-party character assets. Coordinates are metres,
 Y up, +Z forward. Marching tetrahedra joins anatomical volumes before skinning.
@@ -94,16 +94,15 @@ for s in [-1,1]:
 def anatomy(p):
     d=field(p,body)
     for s in [-1,1]:
-        for a,b,r0,r1,bulge in [((s*.30,1.62,0),(s*.54,1.36,0),.103,.061,.013),
-                                 ((s*.54,1.36,0),(s*.65,1.07,0),.061,.047,.012)]:
+        for a,b,r0,r1,bulge in [((s*.30,1.62,0),(s*.6538361203,1.62,0),.103,.061,.013),
+                                 ((s*.6538361203,1.62,0),(s*.9639973687,1.62,0),.061,.047,.012)]:
             a,b=np.array(a),np.array(b);ab=b-a
             t=np.clip(np.sum((p-a)*ab,axis=-1)/np.dot(ab,ab),0,1)
             radius=r0+(r1-r0)*t+bulge*np.sin(np.pi*t)
             limb=np.linalg.norm(p-a-t[...,None]*ab,axis=-1)-radius
             d=union(d,limb,.03)
-        # A recessed axillary saddle separates the lateral ribs from the
-        # underside of the upper arm; the old smooth union left a broad web.
-        d=np.maximum(d,-ellipsoid(p,(s*.325,1.405,-.005),(.080,.135,.180)))
+        # T-pose arms meet only at the rounded shoulder; there is no carved
+        # diagonal web below the axilla to stretch during elevation.
         # Eye sockets and the muzzle cleft are actual surface recesses.
         d=np.maximum(d,-ellipsoid(p,(s*.091,2.011,.175),(.047,.032,.041)))
     return d
@@ -124,10 +123,13 @@ def glove(p):
 
 if __name__=='__main__':
     result={
-        'body':surface(anatomy,[-.76,.06,-.25],[.76,2.25,.34],.023),
+        'body':surface(anatomy,[-1.05,.06,-.25],[1.05,2.25,.34],.023),
         'shorts':surface(cloth,[-.34,.70,-.23],[.34,1.15,.23],.024),
+        'rigVersion':2,
         'glove':surface(glove,[-.16,-.26,-.13],[.13,.10,.14],.015),
     }
-    out=Path(__file__).resolve().parents[1]/'assets/models/coach-surface.json'
+    from build_arm_weights import assign_arm_weights
+    assign_arm_weights(result['body'])
+    out=Path(__file__).resolve().parents[1]/'assets/models/coach-surface-v2.json'
     out.write_text(json.dumps(result,separators=(',',':')))
     print(out, out.stat().st_size)

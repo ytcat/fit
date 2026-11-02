@@ -2,8 +2,8 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
 global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
-for(const f of ['boxing-routines.js','boxing-coach.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
-const data=JSON.parse(fs.readFileSync('assets/models/coach-surface.json'));
+for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'));
 const coach=new LionCoach(data),e={coach,scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,.5,.1,100),animTime:0,fitCameraToModel(){}};
 e.demoModel=coach.root;const arena=new TrainingArena(e,data);
 arena.setTarget('speed');

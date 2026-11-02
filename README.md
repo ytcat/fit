@@ -16,6 +16,8 @@ tetrahedra and attached to a shared skeleton. The face has recessed eyes and
 muzzle detail; the mane uses an undercoat and tapered hair clusters. Materials
 include fur grain, leather, satin, stitching and boot laces.
 
+A connected T-pose shoulder and baked harmonic arm/chest weights replace the old diagonal armpit web. Both arm segments keep their original lengths; a shared elbow plane controls upper-arm roll. Solo hooks use a compact bent-arm arc. See [R25 shoulder and arm fixes](docs/r25-shoulder-and-elbow.md).
+
 Dual-quaternion skinning preserves arm volume in the bent-elbow guard, with a
 local linear blend at the underarm fold. Surface
 and shadow passes share the same deformation, and shared material colors are
@@ -48,20 +50,16 @@ use fresh decisions and can have either winner or a draw. See the
 ### Validation
 
 ```sh
-node tests/coach.test.cjs
-node tests/app.test.cjs
-node tests/workout.test.cjs
-node tests/layout.test.cjs
-node tests/arena.test.cjs
-node tests/training-controls.test.cjs
-node tests/contact.test.cjs
-node tests/random-sparring.test.cjs
-node tests/bag-mechanics.test.cjs
-node tests/power-impact.test.cjs
-node tests/avatar-surface.test.cjs
-node tests/fight.test.cjs
-node tests/fight-arena.test.cjs
-node tests/fight-ui.test.cjs
+for test in tests/*.test.cjs; do node "$test" || exit 1; done
+```
+
+The shoulder regressions cover all six punches solo and on both heavy bag and
+dummy, fixed bone lengths, continuous elbow/shoulder motion, chest attachment,
+and compatible controller/model pairs for new and cached pages.
+
+Browser checks on a machine with WebGL:
+
+```sh
 npm install --no-save playwright@1.51.1
 npx playwright install chromium --only-shell
 node tests/browser.cjs
@@ -76,7 +74,7 @@ Set `BROWSER_EXECUTABLE` to use an existing Chromium executable.
 Controller regressions also verify that changing languages preserves a frozen
 technique and that a missing uploaded-avatar clip cannot select the opposite hand.
 
-To rebuild the original mesh data (Python + NumPy):
+To rebuild the current T-pose mesh and topology-based arm weights (Python + NumPy + SciPy):
 
 ```sh
 python3 scripts/build_coach.py

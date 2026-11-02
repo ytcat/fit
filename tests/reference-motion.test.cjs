@@ -2,10 +2,10 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
 global.document={readyState:'loading',addEventListener(){},createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
-for(const f of ['boxing-routines.js','boxing-coach.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+for(const f of ['boxing-routines.js','boxing-coach-v2.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const html=fs.readFileSync('index.html','utf8');
 vm.runInThisContext([...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n')+'\nglobal.ReferenceEngine=AutoModelEngine;');
-const coach=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface.json'))),g=coach.skin.geometry,p=g.attributes.position,ids=g.index.array;
+const coach=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'))),g=coach.skin.geometry,p=g.attributes.position,ids=g.index.array;
 const moves=['jab','cross','hook','rear_hook','uppercut','rear_uppercut'];
 const rest=i=>new THREE.Vector3().fromBufferAttribute(p,i);
 const inside=i=>Math.abs(p.getX(i))>.22&&Math.abs(p.getX(i))<.48&&p.getY(i)>1.30&&p.getY(i)<1.65;
@@ -19,9 +19,10 @@ for(const move of moves){
   if(!move.includes('uppercut'))assert.ok(m.hands[index][1]<1.76,'straight and hook wrists must not rise above their face-height target');
   const cache=new Map(),posed=i=>{if(!cache.has(i))cache.set(i,coach.skinPoint(coach.skin,i));return cache.get(i);};
   const ratios=edges.map(e=>posed(e.a).distanceTo(posed(e.b))/e.length).sort((a,b)=>a-b);
-  // R22 exceeded 3.45 at p95 and 5.38 at p99: its axilla became a broad flap.
-  assert.ok(ratios[Math.floor(ratios.length*.95)]<2.30,move+' excessive widespread underarm stretching');
-  assert.ok(ratios[Math.floor(ratios.length*.99)]<3.35,move+' excessive local underarm stretching');
+  // R24 reached 2.16 at p95 and 3.10 at p99. The rebuilt rest topology
+  // must stay below the stricter R25 shoulder strain envelope.
+  assert.ok(ratios[Math.floor(ratios.length*.95)]<1.95,move+' excessive widespread underarm stretching');
+  assert.ok(ratios[Math.floor(ratios.length*.99)]<2.20,move+' excessive local underarm stretching');
   const side=index?'R':'L',blade=coach.joints['scapula'+side];
   assert.ok(blade.position.z>-.035,move+' shoulder blade must protract during the punch');
 }

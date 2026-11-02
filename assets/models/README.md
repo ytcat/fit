@@ -1,8 +1,12 @@
 # Character assets
 
-`coach-surface.json` contains the original connected body, shorts and glove
-surfaces. Rebuild it with `python3 scripts/build_coach.py` from the repository
-root. The default coach uses `boxing-coach.js` for skinning and motion.
+`coach-surface-v2.json` contains the current connected T-pose body, baked
+topology-based arm weights, shorts and glove surfaces. Rebuild it with
+`python3 scripts/build_coach.py` from the repository root (Python, NumPy and
+SciPy). The default coach uses `boxing-coach-v2.js` for skinning and motion.
+
+Keep `coach-surface.json` and `boxing-coach.js` together as the legacy pair for
+cached R24 pages. The version 2 model requires the version 2 controller.
 
 Self-contained GLB avatars can be selected with **Load Local File**. Supported
 clip names are `Jab`, `Cross`, `Lead_Hook`, `Rear_Hook`, `Uppercut`,

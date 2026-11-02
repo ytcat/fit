@@ -15,7 +15,7 @@
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
   <script src="./boxing-routines.js?v=2"></script>
-  <script src="./boxing-coach.js?v=24"></script>
+  <script src="./boxing-coach-v2.js?v=25"></script>
   <script src="./contact-response.js?v=3"></script>
   <script src="./training-arena.js?v=24"></script>
   <script src="./boxing-fight.js?v=24"></script>
@@ -169,7 +169,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R24",
+        subtitle: "LION BOXING COACH · R25",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -222,7 +222,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R24",
+        subtitle: "מאמן אגרוף אריה · R25",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -275,7 +275,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R24",
+        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R25",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -447,7 +447,7 @@
 
       async createTrainingBoxer() {
         try {
-          const response=await fetch('./assets/models/coach-surface.json?v=4');
+          const response=await fetch('./assets/models/coach-surface-v2.json?v=1');
           if(!response.ok)throw new Error('Coach surface unavailable');
           const surface=await response.json();
           this.coach=new LionCoach(surface);

@@ -2,7 +2,7 @@
 // a heavy target coasting. These are animation-model parameters, not force claims.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
-for(const f of ['boxing-routines.js','boxing-coach.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const V=(...x)=>new THREE.Vector3(...x),point=V(0,-.94,-.235),normal=V(0,0,-1),velocity=V(0,0,6);
 const light=new HangingBag(),heavy=new HangingBag({mass:90});
 const first=light.impact(point,normal,velocity,5.5),second=heavy.impact(point,normal,velocity,5.5);
@@ -11,7 +11,7 @@ assert.ok(Math.abs(first.impulse-1.05*6*effective)<1e-10,'collision impulse must
 assert.ok(Math.abs(heavy.velocity.x)<Math.abs(light.velocity.x)&&second.impulse>first.impulse,'more mass must resist acceleration rather than fly farther');
 const outgoing=new HangingBag();assert.equal(outgoing.impact(point,normal,V(0,0,-6),5.5).impulse,0,'a separating glove cannot inject an impact');
 for(let i=0,last=0;i<=1000;i++){const phase=TrainingArena.powerPhase(i/1000);assert.ok(phase>=last&&phase<=1,'the body clock must advance without reversing');last=phase;}
-const data=JSON.parse(fs.readFileSync('assets/models/coach-surface.json')),coach=new LionCoach(data);
+const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')),coach=new LionCoach(data);
 const e={scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,.5,.1,100),coach,animTime:0,fitCameraToModel(){}};e.demoModel=coach.root;e.scene.add(coach.root);
 const arena=e.arena=new TrainingArena(e,data);
 for(const move of ['jab','cross','hook','rear_hook','uppercut','rear_uppercut']){

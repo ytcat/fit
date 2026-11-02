@@ -16,7 +16,7 @@ const e={technique:'combo',currentAnim:'one_two',animTime:0,speed:1,isPlaying:tr
 const app={lang:'en',engine:e,drillIdx:0,setLanguage(l){this.lang=l;},updatePlayBtnText(){get('playBtn').textContent=e.isPlaying?'Pause':'Resume';},renderDrill(){e.technique='combo';e.currentAnim=ctx.BOXING_ROUTINES.list[this.drillIdx].id;e.animTime=0;}};
 get('motionPause').onclick=()=>e.isPlaying=!e.isPlaying;
 const ctx={THREE:require('../assets/vendor/three.min.js'),app,document:{body,readyState:'complete',createElement:t=>new El(t),getElementById:get,querySelector:s=>s==='footer'?footer:null,querySelectorAll:()=>techniques},setInterval:f=>ctx.pulse=f};ctx.window=ctx;
-for(const f of ['boxing-routines.js','boxing-coach.js','boxing-fight.js','fight-ui.js','training-controls.js'])vm.runInNewContext(fs.readFileSync(f,'utf8'),ctx);
+for(const f of ['boxing-routines.js','boxing-coach-v2.js','boxing-fight.js','fight-ui.js','training-controls.js'])vm.runInNewContext(fs.readFileSync(f,'utf8'),ctx);
 
 const ui=ctx.fightUI,mainFight=footer.children.find(n=>n.id==='trainingBar').children[3];assert.equal(mainFight.id,'fightBtn');mainFight.click();let d=body.children.at(-1);assert.equal(d.children[1].children.length,6);d.children[1].children[0].click();assert.equal(e.targetMode,'fight');assert.equal(e.fightOptions.preset,'club');assert.equal(e.speed,1);assert.ok(techniques.every(b=>b.disabled));assert.ok(get('speedBtn').disabled);assert.equal(get('speedBtn').textContent,'1×');assert.ok(get('prevBtn').disabled);
 const m=new ctx.BoxingFight({rounds:1});m.phase='round';const attack=m.attack('rabbit','cross','head');m.contact({actor:'rabbit',action:attack.id,part:'head',speed:3});m.finish(null,'points');const view={match:m};e.arena.fightView=view;

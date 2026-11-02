@@ -15,7 +15,7 @@ const e={technique:'combo',currentAnim:'one_two',animTime:0,speed:1,isPlaying:tr
 const app={lang:'en',engine:e,drillIdx:0,setLanguage(l){this.lang=l;},updatePlayBtnText(){get('playBtn').textContent=e.isPlaying?'Pause':'Resume';},renderDrill(){e.technique='combo';e.currentAnim=ctx.BOXING_ROUTINES.list[this.drillIdx].id;e.animTime=0;}};
 get('motionPause').onclick=()=>e.isPlaying=!e.isPlaying;
 const ctx={THREE:require('../assets/vendor/three.min.js'),app,document:{body,readyState:'complete',createElement:t=>new El(t),getElementById:get,querySelector:s=>s==='footer'?footer:null,querySelectorAll:()=>techniques},setInterval:f=>ctx.pulse=f};ctx.window=ctx;
-for(const f of ['boxing-routines.js','boxing-coach.js','training-controls.js'])vm.runInNewContext(fs.readFileSync(f,'utf8'),ctx);
+for(const f of ['boxing-routines.js','boxing-coach-v2.js','training-controls.js'])vm.runInNewContext(fs.readFileSync(f,'utf8'),ctx);
 const bar=footer.children[0],[target,combo,speed]=bar.children;
 assert.equal(bar.id,'trainingBar');assert.equal(target.textContent,'Shadowboxing');assert.equal(speed.id,'speedBtn');
 speed.click();let rates=body.children.at(-1);assert.equal(rates.children[1].children.length,8);rates.children[1].children[7].click();assert.equal(e.speed,3);assert.equal(speed.textContent,'3×');

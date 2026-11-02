@@ -1,6 +1,6 @@
 // Regress visible anatomy defects, not merely reachable joint targets.
-const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};for(const f of ['boxing-routines.js','boxing-coach.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
-const data=JSON.parse(fs.readFileSync('assets/models/coach-surface.json')),coach=new LionCoach(data),g=coach.shorts.geometry;
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')),coach=new LionCoach(data),g=coach.shorts.geometry;
 let centre=0;
 for(let i=0;i<g.attributes.position.count;i++){
  const p=g.attributes.position,w=g.attributes.skinWeight,ids=g.attributes.skinIndex;

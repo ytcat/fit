@@ -13,7 +13,7 @@ global.document={readyState:'loading',documentElement:{},addEventListener(){},
   getElementById:element,querySelectorAll:()=>buttons,
   createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
 vm.runInThisContext(fs.readFileSync('boxing-routines.js','utf8'));
-vm.runInThisContext(fs.readFileSync('boxing-coach.js','utf8'));
+vm.runInThisContext(fs.readFileSync('boxing-coach-v2.js','utf8'));
 const html=fs.readFileSync('index.html','utf8');
 const source=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
 vm.runInThisContext(source+'\nglobal.TestApp=MasterApp;global.TestEngine=AutoModelEngine;global.TestAudio=AudioEngine;');

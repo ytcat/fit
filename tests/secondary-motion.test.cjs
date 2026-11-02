@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
-for(const f of ['boxing-routines.js','boxing-coach.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
-const c=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface.json'))),arena=new THREE.Group();arena.add(c.root);c.update(0,'guard');
+for(const f of ['boxing-routines.js','boxing-coach-v2.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+const c=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'))),arena=new THREE.Group();arena.add(c.root);c.update(0,'guard');
 c.root.position.x=.04;c.update(1/60,'guard');
 const max=()=>Math.max(...c.maneGuides.map(g=>g.offset.length()));
 assert.ok(max()>.02,'mane tips must lag body acceleration with no artificial wind');

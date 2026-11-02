@@ -5,8 +5,8 @@ process.chdir(path.join(__dirname,'..'));
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
 global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
 vm.runInThisContext(fs.readFileSync('boxing-routines.js','utf8'));
-vm.runInThisContext(fs.readFileSync('boxing-coach.js','utf8'));
-const coach=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface.json')));
+vm.runInThisContext(fs.readFileSync('boxing-coach-v2.js','utf8'));
+const coach=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')));
 const moves=['jab','cross','hook','uppercut','slip','rear_hook','rear_uppercut','roll','step'];
 const nearly=(a,b,tol=1e-5)=>assert.ok(Math.abs(a-b)<tol,`${a} != ${b}`);
 for(const move of moves) {
@@ -153,7 +153,7 @@ for(const [move,side,index] of [['hook','L',0],['rear_hook','R',1]]) {
   assert.ok(Math.abs(end.hands[index][0]-start.hands[index][0])>.35,move+' arc too small');
   assert.ok(Math.abs(end.hands[index][1]-start.hands[index][1])<.04,move+' must sweep horizontally');
   const angle=elbowAngle(side);
-  assert.ok(angle>110&&angle<145,move+' long hook must open the elbow while remaining bent: '+angle);
+  assert.ok(angle>80&&angle<110,move+' compact hook must retain its bent-arm structure: '+angle);
   assert.ok(Math.abs(end.footTargets[index].pivot)>.65,move+' driving foot must pivot');
   assert.ok(Math.abs(coach.joints.spine.rotation.y+coach.joints.chest.rotation.y)>.25,move+' shoulders/back must drive the arc');
 }
@@ -200,7 +200,7 @@ let backHair=0;for(let i=0;i<manePositions.count;i++)if(Math.abs(manePositions.g
 assert.ok(backHair>1000,'mane must cover central rear skull, not only perimeter');
 console.log('PASS asymmetric uppercut load/unwind, nonvertical head travel, cheek-following guard and rear mane coverage');
 
-const sourceSurface=JSON.parse(fs.readFileSync('assets/models/coach-surface.json'));
+const sourceSurface=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'));
 assert.equal(coach.skin.geometry.index.count,sourceSurface.body.index.length*4,'curved body refinement must be active');
 // The rebuilt garment's waist/leg boundaries are checked in avatar-surface.test.cjs.
 for(const g of [coach.skin.geometry,coach.shorts.geometry]) {
