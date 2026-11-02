@@ -79,13 +79,17 @@
    if(reveal&&!m.result.winner)grip={'-1':this.coaches.lion.joints.handR.getWorldPosition(V()),'1':this.coaches.rabbit.joints.handL.getWorldPosition(V())};
    if(m.phase==='count'){grip=this.referee.root.localToWorld(V(.32,1.76,.27));side=1;}
    this.referee.update(m.time,grip,side);this.audience.update(m.time,reveal);
-   // Hide only the near-side spectator section; otherwise it obscures the
-   // fighters when the camera or the arena rotates.
-   const eye=a.group.worldToLocal(this.engine.camera.getWorldPosition(V()));
-   const normals=[V(0,0,-1),V(1,0,0),V(0,0,1),V(-1,0,0)];
+   // Crowd occlusion is determined in WORLD space, not by fixed side IDs.
+   // Hide every spectator in the camera-facing half of the arena, including
+   // diagonal near-side seats, so no crowd meshes cover the fighters.
+   a.group.updateMatrixWorld(true);
+   const ringCentre=this.ring.getWorldPosition(V());
+   const cameraVector=this.engine.camera.getWorldPosition(V()).sub(ringCentre);
+   cameraVector.y=0;cameraVector.normalize();
    for(const spectator of this.audience.root.children){
-    const side=spectator.userData.audienceSide;
-    if(side!==undefined)spectator.visible=normals[side].dot(eye)>0?false:true;
+    if(spectator.userData.audienceSide===undefined)continue;
+    const offset=spectator.getWorldPosition(V()).sub(ringCentre);offset.y=0;
+    spectator.visible=offset.dot(cameraVector)<-.15;
    }
    // Ring posts and ropes are physical geometry: keep all four sides visible
    // regardless of camera rotation. Camera-facing culling hid entire sides.
