@@ -884,8 +884,8 @@
           hand.lerp(V(s*(.23+arc),options.upperLoadHeight??1.18,.08),prepare)
             .lerp(V(s*.13,options.upperWristHeight??1.76,.72),rise)
             .lerp(guard,recover);
-          if(s===-1){leadTurn=up;leadPole.lerp(V(-.30,-1,.02),active);leadPivot=.36*up;}
-          else {rearTurn=up;rearPole.lerp(V(.30,-1,.02),active);rearPivot=-.36*up;}
+          if(s===-1){leadTurn=up*.28;leadPole.lerp(V(-.50,-.75,.22),active);leadPivot=.36*up;}
+          else {rearTurn=up*.28;rearPole.lerp(V(.50,-.75,.22),active);rearPivot=-.36*up;}
           break;
         }
         case 'speedbag': {
@@ -1072,7 +1072,7 @@
       }
       // Target practice adapts reach to the physical target. Keep the existing
       // loading, footwork and body drive; constrain the wrist to arm length.
-      if(options.target&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
+      if(options.target&&['jab','cross','hook','rear_hook'].includes(move)){
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L';
         const hand=side==='L'?lead:rear,shoulder=this.point(j['arm'+side]);
         const aim=V(...options.target).add(V(0,0,approach+through)),delta=aim.sub(shoulder);
@@ -1081,7 +1081,7 @@
         const amount=straight?strike:hookState?hookState.rotation:rise*(1-recover);
         hand.lerp(endpoint,amount);
       }
-      if(options.knucklePlanner&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
+      if(options.knucklePlanner&&['jab','cross','hook','rear_hook'].includes(move)){
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L',plan=options.knucklePlanner(this.point(j['arm'+side]));
         options.knuckleTarget=plan.point.toArray();options.strikeDirection=plan.direction.toArray();
       }
@@ -1098,7 +1098,7 @@
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
-      if(options.knuckleTarget&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
+      if(options.knuckleTarget&&['jab','cross','hook','rear_hook'].includes(move)){
         const index=['cross','rear_hook','rear_uppercut'].includes(move)?1:0,side=index?'R':'L',hand=index?rear:lead,pole=index?rearPole:leadPole;
         const amount=clamp(straight?strike:hookState?hookState.rotation:rise*(1-recover));
         const planStraight=straight&&options.planStraight;
