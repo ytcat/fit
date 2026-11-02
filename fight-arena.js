@@ -74,8 +74,9 @@
    if(reveal&&!m.result.winner)grip={'-1':this.coaches.lion.joints.handR.getWorldPosition(V()),'1':this.coaches.rabbit.joints.handL.getWorldPosition(V())};
    if(m.phase==='count'){grip=this.referee.root.localToWorld(V(.32,1.76,.27));side=1;}
    this.referee.update(m.time,grip,side);this.audience.update(m.time,reveal);
-   const rotation=a.group.getWorldQuaternion(new THREE.Quaternion());
-   for(const part of this.ring.children){if(part.userData.ringNormal)part.visible=part.userData.ringNormal.clone().applyQuaternion(rotation).z<.05;else if(part.userData.ringPost)part.visible=part.getWorldPosition(V()).z<.65;}
+   // Ring posts and ropes are physical geometry: keep all four sides visible
+   // regardless of camera rotation. Camera-facing culling hid entire sides.
+   for(const part of this.ring.children)part.visible=true;
    this.metrics=metrics;this.specs=specs;
    return metrics;
   }
