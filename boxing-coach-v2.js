@@ -1016,6 +1016,18 @@
       // The free glove stays at cheek level during the lead jab, not at chest height.
       if(move==='jab')rear.y+=.035*strike;
       if(brace){lead.add(V(.035*brace,.105*brace,-.015*brace));rear.add(V(-.035*brace,.105*brace,-.015*brace));}
+      // Uppercut endpoint is measured from the LIVE striking shoulder,
+      // not a fixed world-space coordinate near the lion's own chin.
+      // Keep the glove in front of the face through the rising impact phase.
+      if(move==='uppercut'||move==='rear_uppercut'){
+        const side=move==='uppercut'?'L':'R';
+        const hand=side==='L'?lead:rear;
+        const shoulder=this.point(j['arm'+side]);
+        const extension=smooth((phase-.30)/.19)*(1-smooth((phase-.69)/.16));
+        const reach=j['elbow'+side].position.length()+j['hand'+side].position.length();
+        const target=shoulder.clone().add(V(side==='L'?-.06:.06,.10,Math.min(.68,reach*.83)));
+        hand.lerp(target,extension);
+      }
       // Straight punches use almost the full arm reach after torso rotation.
       // A fixed short wrist endpoint left the elbow folded and knuckles pointing
       // upward even at impact. Keep a small bend rather than locking the joint.
