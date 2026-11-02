@@ -218,7 +218,7 @@
    const g=mesh.geometry,p=g.attributes.position,n=g.attributes.normal;
    if(!mesh.userData.softRest){mesh.userData.softRest=new Float32Array(p.array);mesh.userData.normalRest=new Float32Array(n.array);}
    const rest=mesh.userData.softRest,norm=mesh.userData.normalRest;
-   const depth=(this.mode==='heavy'?.060:this.mode==='dummy'?.014:.018)*amount;
+   const depth=(this.mode==='heavy'?.060:this.mode==='dummy'?.030:.018)*amount;
    for(let i=0;i<p.count;i++){
     let x=rest[i*3],y=rest[i*3+1],z=rest[i*3+2],nx=norm[i*3],ny=norm[i*3+1],nz=norm[i*3+2];
     if(contact&&amount>0){
@@ -348,7 +348,7 @@
          const incoming=Math.max(0,-relative.dot(normal));
          const impulse=.65*incoming/(1/.65+lever.lengthSq()/inertia);
          spring.impulse(lever.multiplyScalar(-impulse/inertia));
-        }else {const torque=localPoint.cross(localForce).multiplyScalar(1.8);this.springs[receiver].impulse(torque);}
+        }else {const upper=spec.move.includes('uppercut');const rising=upper?V(0,Math.max(.35,closing)*.65,0):V();const torque=localPoint.clone().cross(localForce.clone().add(rising)).multiplyScalar(upper?2.5:1.8);this.springs[receiver].impulse(torque);if(upper&&receiver==='dummy')this.springs[receiver].impulse(V(-.24*magnitude,0,.16*magnitude));}
        }else if(entry.kind!=='bag')this.recoil[receiver].impulse(V(0,0,magnitude*.45));
        const transferred=receiver==='heavy'?loads.reduce((sum,l)=>sum+(l.impactImpulse||0),0):magnitude;
        if(entry.kind==='bag'){
