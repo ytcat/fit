@@ -765,6 +765,11 @@
       const strike=straight?(handPhase<.17?0:handPhase<.40?smooth(clamp((handPhase-.17)/.23)**1.35):
         handPhase<.46?1:1-smooth((handPhase-.46)/(options.straightRecovery??.27))):envelope(phase,.055);
       const prepare=smooth((phase-.06)/(options.loadDuration??.16)),rise=smooth((phase-.22)/(options.riseDuration??.24));
+      // Shared compact kinetic loading: coil before extension, never pull
+      // the fist far behind the shoulder. A jab loads less than a cross.
+      const kineticLoad=smooth((phase-.045)/.14)*(1-smooth((phase-.23)/.14));
+      const kineticPower=move==='jab'?.35:move==='cross'?.75:1;
+
       const recover=smooth((phase-.50)/.32);
       const j=this.joints,hips=j.hips,chest=j.chest;
       let hipYaw=0,chestYaw=0,crouch=0,shift=0,forward=0,leadPivot=0,rearPivot=0;
@@ -923,6 +928,10 @@
       this.celebrationSmile.visible=presentation?.mode==='winner';
       if(presentation?.mode==='loser'){crouch+=.025;trunkPitch+=.08;}
       if(options.down){crouch+=.40*options.down;trunkPitch+=.20*options.down;forward-=.04*options.down;}
+      if(['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)) {
+        forward-=.020*kineticLoad*kineticPower;
+        crouch+=.015*kineticLoad*kineticPower;
+      }
       hipYaw+=.12;chestYaw+=.08;
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
