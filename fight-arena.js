@@ -15,6 +15,12 @@
    for(const y of [.48,.82,1.16]){arena.rod(this.ring,V(-1.65,y,-1.65),V(1.65,y,-1.65),.012,arena.accent).userData.ringNormal=V(0,0,-1);for(const s of [-1,1])arena.rod(this.ring,V(s*1.65,y,-1.65),V(s*1.65,y,1.65),.012,arena.accent).userData.ringNormal=V(s,0,0);}
    arena.group.rotation.y=.90;this.pose();
   }
+  dispose(){
+   const materials=new Set();for(const root of [this.referee.root,this.audience.root,this.ring]){
+    root.traverse(node=>{if(!node.isMesh)return;node.geometry.dispose();if(root!==this.ring)for(const material of (Array.isArray(node.material)?node.material:[node.material]))materials.add(material);});
+    root.parent?.remove(root);
+   }for(const material of materials)material.dispose();
+  }
   reaction(actor){
    const r=this.match.fighters[actor].reaction;if(!r)return null;const age=this.match.time-r.time;
    return {...r,amount:clamp(r.severity*1.5*(1-Math.exp(-age/.018))*Math.exp(-age/.25),0,1.4)};
@@ -124,6 +130,7 @@
  }
  const setTarget=TrainingArena.prototype.setTarget,update=TrainingArena.prototype.update,fit=TrainingArena.prototype.fitCamera;
  TrainingArena.prototype.setTarget=function(mode){
+  this.fightView?.dispose();
   if(mode!=='fight'){this.fightView=null;return setTarget.call(this,mode);}
   this.engine.technique='guard';setTarget.call(this,'rabbit');this.mode='fight';this.engine.targetMode='fight';this.engine.technique='fight';this.engine.animTime=0;this.engine.speed=1;this.engine.isPlaying=true;
   this.fightView=new FightArena(this,this.engine.fightOptions||{seed:Date.now()>>>0});this.fitCamera(this.engine.camera);this.fightView.update(0);
