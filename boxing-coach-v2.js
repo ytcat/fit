@@ -1049,12 +1049,7 @@
         const shoulder=this.point(j['arm'+side]);
         const extension=smooth((phase-.30)/.19)*(1-smooth((phase-.69)/.16));
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length();
-        const target=shoulder.clone().add(V(side==='L'?-.10:.10,.27,Math.min(.56,reach*.70)));
-        // R32 pose and timing are unchanged. During the existing rising strike
-        // only, bow the fist forward by 2 cm, returning to the exact R32
-        // endpoint at impact. No change to loading, side position or elbow.
-        const tinyArc=.02*Math.sin(Math.PI*smooth((phase-.30)/.19));
-        target.z+=tinyArc;
+        const target=shoulder.clone().add(V(side==='L'?-.10:.10,.37,Math.min(.56,reach*.70)));
         hand.lerp(target,extension);
       }
       // Straight punches use almost the full arm reach after torso rotation.
