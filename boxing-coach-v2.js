@@ -751,7 +751,7 @@
 
     update(t,technique,combo,options={}) {
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
-      const beat=t/(technique==='combo'?1.0:(technique==='uppercut'||technique==='rear_uppercut'?1.42:1.22)),move=seq[Math.floor(beat)%seq.length];
+      const beat=t/(technique==='combo'?1.0:1.22),move=seq[Math.floor(beat)%seq.length];
       // Trim the dead guard tail between combination punches. Individual drills
       // keep their deliberate full reset; combinations retain continuous cadence.
       const phase=(beat%1)*(technique==='combo'?.86:1);
@@ -864,7 +864,7 @@
           chestYaw=-s*.44*loaded+s*.68*up;
           crouch=.245*loaded+.045*up;
           forward=-.105*loaded+.125*up;
-          shift=s*.115*loaded-s*.085*up;
+          shift=s*.105*loaded-s*.070*up;
           pelvisRoll=-s*.095*loaded+s*.055*up;
           trunkPitch=.24*loaded-.14*up;
           trunkRoll=-s*.25*loaded+s*.15*up;
@@ -877,15 +877,11 @@
           // the head. Wrist finishes in front of the chin, with elbow below it.
           // Keep the upper arm compact: the wrist rises inside the shoulder
           // line instead of opening away from the body at the top.
-          // Restore anatomically stable R32 arm path; a shallow forward
-          // arc is added without crossing the shoulder or reversing the wrist.
-          const sweep=smooth((phase-.12)/.43);
-          const arc=Math.sin(Math.PI*sweep)*.065;
-          hand.lerp(V(s*(.23+arc),options.upperLoadHeight??1.18,.08),prepare)
+          hand.lerp(V(s*.23,options.upperLoadHeight??1.18,.08),prepare)
             .lerp(V(s*.13,options.upperWristHeight??1.76,.72),rise)
             .lerp(guard,recover);
-          if(s===-1){leadTurn=up*.28;leadPole.lerp(V(-.50,-.75,.22),active);leadPivot=.36*up;}
-          else {rearTurn=up*.28;rearPole.lerp(V(.50,-.75,.22),active);rearPivot=-.36*up;}
+          if(s===-1){leadTurn=up;leadPole.lerp(V(-.30,-1,.02),active);leadPivot=.36*up;}
+          else {rearTurn=up;rearPole.lerp(V(.30,-1,.02),active);rearPivot=-.36*up;}
           break;
         }
         case 'speedbag': {
@@ -1044,6 +1040,18 @@
       // The free glove stays at cheek level during the lead jab, not at chest height.
       if(move==='jab')rear.y+=.035*strike;
       if(brace){lead.add(V(.035*brace,.105*brace,-.015*brace));rear.add(V(-.035*brace,.105*brace,-.015*brace));}
+      // Uppercut endpoint is measured from the LIVE striking shoulder,
+      // not a fixed world-space coordinate near the lion's own chin.
+      // Keep the glove in front of the face through the rising impact phase.
+      if(move==='uppercut'||move==='rear_uppercut'){
+        const side=move==='uppercut'?'L':'R';
+        const hand=side==='L'?lead:rear;
+        const shoulder=this.point(j['arm'+side]);
+        const extension=smooth((phase-.30)/.19)*(1-smooth((phase-.69)/.16));
+        const reach=j['elbow'+side].position.length()+j['hand'+side].position.length();
+        const target=shoulder.clone().add(V(side==='L'?-.10:.10,.27,Math.min(.56,reach*.70)));
+        hand.lerp(target,extension);
+      }
       // Straight punches use almost the full arm reach after torso rotation.
       // A fixed short wrist endpoint left the elbow folded and knuckles pointing
       // upward even at impact. Keep a small bend rather than locking the joint.
@@ -1072,7 +1080,7 @@
       }
       // Target practice adapts reach to the physical target. Keep the existing
       // loading, footwork and body drive; constrain the wrist to arm length.
-      if(options.target&&['jab','cross','hook','rear_hook'].includes(move)){
+      if(options.target&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L';
         const hand=side==='L'?lead:rear,shoulder=this.point(j['arm'+side]);
         const aim=V(...options.target).add(V(0,0,approach+through)),delta=aim.sub(shoulder);
@@ -1081,7 +1089,7 @@
         const amount=straight?strike:hookState?hookState.rotation:rise*(1-recover);
         hand.lerp(endpoint,amount);
       }
-      if(options.knucklePlanner&&['jab','cross','hook','rear_hook'].includes(move)){
+      if(options.knucklePlanner&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L',plan=options.knucklePlanner(this.point(j['arm'+side]));
         options.knuckleTarget=plan.point.toArray();options.strikeDirection=plan.direction.toArray();
       }
@@ -1098,7 +1106,7 @@
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
-      if(options.knuckleTarget&&['jab','cross','hook','rear_hook'].includes(move)){
+      if(options.knuckleTarget&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
         const index=['cross','rear_hook','rear_uppercut'].includes(move)?1:0,side=index?'R':'L',hand=index?rear:lead,pole=index?rearPole:leadPole;
         const amount=clamp(straight?strike:hookState?hookState.rotation:rise*(1-recover));
         const planStraight=straight&&options.planStraight;
