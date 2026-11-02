@@ -1,0 +1,38 @@
+name: Lion app validation
+on:
+  push:
+    branches: [main, 'lion/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lion-validation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify core assets and local script references
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('index.html').read_text(encoding='utf-8')
+          required = ['boxing-coach-v2.js','training-arena.js','boxing-routines.js']
+          for name in required:
+              assert Path(name).is_file(), f'Missing core module: {name}'
+              assert name in html, f'Not referenced by index.html: {name}'
+          missing = []
+          for src in re.findall(r'<script\\b[^>]*\\bsrc=["\\']([^"\\']+)', html, re.I):
+              src = src.split('?')[0].split('#')[0]
+              if not src.startswith(('http:', 'https:', '//', 'data:')) and not Path(src).is_file():
+                  missing.append(src)
+          assert not missing, f'Missing local scripts: {missing}'
+          print('Core assets and local script references OK')
+          PY
+      - name: JavaScript syntax check
+        run: |
+          find . -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 -r -n1 node --check
