@@ -39,7 +39,11 @@
     this.rod(root,V(s*.48,.035,-.45),V(s*.48,.035,.48),.035);
    }
    this.rod(root,V(-.48,2.55,-.12),V(.48,2.55,-.12),.030);
-   this.rod(root,V(0,2.55,-.12),V(0,2.48,0),.014,this.accent);
+   // The crossbar sits behind the bag: a forward cantilever must reach
+   // the actual suspension pivot or the bag appears to float beside it.
+   this.rod(root,V(0,2.55,-.12),V(0,2.55,0),.035);
+   this.rod(root,V(0,2.55,0),V(0,2.48,0),.014,this.accent);
+   this.mesh(root,new THREE.SphereGeometry(.039,16,12),this.dark,V(0,2.55,0));
    const swing=new THREE.Group();swing.position.y=2.48;root.add(swing);root.userData.swing=swing;
    const body=this.mesh(swing,new THREE.CylinderGeometry(.235,.235,1.15,64,32),this.heavyLeather,V(0,-.94,0));body.name='Heavy bag leather';root.userData.soft=body;
    this.mesh(swing,new THREE.SphereGeometry(.235,48,20),this.heavyLeather,V(0,-1.515,0)).scale.y=.24;
@@ -185,7 +189,7 @@
     this.pressures[actor]={L:0,R:0};if(coach)for(const side of ['L','R'])coach.deformGlove(side,0);
    }
    for(const model of Object.values(this.models)){
-    const swing=model.userData.swing;if(swing)swing.rotation.set(0,0,0);
+    const swing=model.userData.swing;if(swing){swing.rotation.set(0,0,0);if(model===this.models.heavy)swing.position.z=0;}
     const soft=model.userData.soft;if(soft?.userData.softRest)this.deformSurface(soft,null,0);
    }
   }
