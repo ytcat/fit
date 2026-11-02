@@ -174,7 +174,8 @@
     const rising=move.includes('uppercut')?Math.max(0,relative.y):0;
     if(!this.impacts.has(event)&&Math.max(-relative.dot(normal),rising*.70)>.1){
      impact=bag.impact(localPoint,normal,speed,strikingMass(move));
-     if(rising>.1){const impulse=Math.min(2.4,rising*.34);bag.impulse(V(impulse,0,-localPoint.x*impulse*.35));impact.impulse+=impulse;impact.closing=Math.max(impact.closing,rising*.70);}
+     if(rising>.1){const impulse=Math.min(2.4,rising*.34);bag.impulse(V(impulse,0,-localPoint.x*impulse*.35));impact.impulse+=impulse;impact.closing=Math.max(impact.closing,rising*.70); // Upward glove force produces a brief, bounded rocking swing around the fixed hanger.
+      bag.impulse(V(Math.min(.85,rising*.12),0,-Math.sign(localPoint.x)*Math.min(.35,rising*.05)));}
      const forward=Math.max(0,speed.z);
      // Uppercuts have a large upward component; use contact penetration
      // and rising speed to move the bag away even with little forward speed.
@@ -391,16 +392,17 @@
          // Uppercut lifts the head/upper section and rocks the target away
          // from the boxer; a pure torque cross-product at its center can vanish.
          const torque=localPoint.clone().cross(localForce).multiplyScalar(1.8);
-         if(upper){torque.x+=1.6*magnitude;torque.z+=(-localPoint.x)*.65*magnitude;}
+         if(upper){ // Lift and tip the dummy's upper torso, not its fixed base.
+          torque.x+=Math.min(1.8,1.1+Math.max(0,velocity.y)*.16)*magnitude;torque.z+=(-localPoint.x)*.45*magnitude;}
          this.springs[receiver].impulse(torque);
          const drive=velocity.clone().applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion()).invert());
          this.pushback[receiver].impulse(V(0,0,Math.min(4.5,Math.max(0,drive.z)*.9)));}
        }else if(entry.kind!=='bag'){
         this.recoil[receiver].impulse(V(0,0,magnitude*.45));
         if(receiver==='rabbit'){
-         this.rabbitHit={time,part:entry.kind==='head'?'head':entry.kind==='body'?'body':'shoulder',move:spec.move,side:side==='L'?-1:1,strength:Math.min(1.3,.45+closing*.16)};
+         this.rabbitHit={time,part:entry.kind==='head'?'head':entry.kind==='body'?'body':'shoulder',move:spec.move,side:side==='L'?-1:1,strength:Math.min(1.3,(uppercut?.70:.45)+closing*(uppercut?.20:.16))};
          const drive=velocity.clone().applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion()).invert());
-         this.pushback.rabbit.impulse(V(0,0,Math.min(4,Math.max(0,drive.z)*.95)));
+         this.pushback.rabbit.impulse(V(0,0,Math.min(4,Math.max(0,drive.z)*.95+(uppercut?Math.max(0,velocity.y)*.32:0))));
         }
        }
        const transferred=receiver==='heavy'?loads.reduce((sum,l)=>sum+(l.impactImpulse||0),0):magnitude;
