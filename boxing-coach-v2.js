@@ -872,11 +872,11 @@
           // the head. Wrist finishes in front of the chin, with elbow below it.
           // Keep the upper arm compact: the wrist rises inside the shoulder
           // line instead of opening away from the body at the top.
-          hand.lerp(V(s*.16,options.upperLoadHeight??1.23,.27),prepare)
-            .lerp(V(s*.075,options.upperWristHeight??1.70,.49),rise)
+          hand.lerp(V(s*.16,options.upperLoadHeight??1.30,.29),prepare)
+            .lerp(V(s*.085,options.upperWristHeight??1.70,.40),rise)
             .lerp(guard,recover);
-          if(s===-1){leadTurn=.82*up;leadPole.lerp(V(-.48,-1,.08),active);leadPivot=.36*up;}
-          else {rearTurn=.82*up;rearPole.lerp(V(.48,-1,.08),active);rearPivot=-.36*up;}
+          if(s===-1){leadTurn=up;leadPole.lerp(V(-.30,-1,.02),active);leadPivot=.36*up;}
+          else {rearTurn=up;rearPole.lerp(V(.30,-1,.02),active);rearPivot=-.36*up;}
           break;
         }
         case 'speedbag': {
