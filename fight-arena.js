@@ -17,7 +17,11 @@
     arena.rod(this.ring,V(s*1.65,.02,z),V(s*1.65,1.30,z),.035).userData.ringPost=true;
     const pad=arena.mesh(this.ring,new THREE.SphereGeometry(1,20,12),arena.leather,V(s*1.65,1.05,z));pad.scale.set(.065,.23,.065);pad.userData.ringPost=true;
    }
-   for(const y of [.48,.82,1.16]){arena.rod(this.ring,V(-1.65,y,-1.65),V(1.65,y,-1.65),.012,arena.accent).userData.ringNormal=V(0,0,-1);for(const s of [-1,1])arena.rod(this.ring,V(s*1.65,y,-1.65),V(s*1.65,y,1.65),.012,arena.accent).userData.ringNormal=V(s,0,0);}
+   for(const y of [.48,.82,1.16]){
+    // All four complete sides, at identical heights, with shared corner posts.
+    for(const z of [-1.65,1.65])arena.rod(this.ring,V(-1.65,y,z),V(1.65,y,z),.012,arena.accent);
+    for(const x of [-1.65,1.65])arena.rod(this.ring,V(x,y,-1.65),V(x,y,1.65),.012,arena.accent);
+   }
    arena.group.rotation.y=.90;this.pose();
   }
   dispose(){
