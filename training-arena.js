@@ -191,7 +191,7 @@
     this.pressures[actor]={L:0,R:0};if(coach)for(const side of ['L','R'])coach.deformGlove(side,0);
    }
    for(const model of Object.values(this.models)){
-    const swing=model.userData.swing;if(swing){swing.rotation.set(0,0,0);if(model===this.models.heavy)swing.position.z=0;}
+    const swing=model.userData.swing;if(swing){swing.rotation.set(0,0,0);if(model===this.models.heavy||model===this.models.dummy)swing.position.z=0;}
     const soft=model.userData.soft;if(soft?.userData.softRest)this.deformSurface(soft,null,0);
    }
   }
@@ -200,7 +200,7 @@
    if(swing){const p=this.springs[this.mode].position,limit=this.mode==='heavy'?.27:this.mode==='dummy'?.14:.90;
     if(this.mode==='heavy')swing.rotation.set(p.x,p.y,p.z);
     else swing.rotation.set(limit*Math.tanh(p.x/limit),.18*Math.tanh(p.y/.18),limit*Math.tanh(p.z/limit));
-    if(this.mode==='dummy')swing.position.z=Math.min(.16,Math.max(0,this.pushback.dummy.position.z));
+    if(this.mode==='dummy')swing.position.z=0; // Keep torso connected to its fixed stand pivot.
     // Keep the heavy bag's suspension pivot attached to the frame. Punch
     // impulse is expressed by angular swing and soft-surface deformation;
     // translating the pivot detached the chains from the hanger.
