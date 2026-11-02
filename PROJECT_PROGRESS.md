@@ -23,5 +23,12 @@ Updated: 2026-11-02
 - `index.html`: local Three.js and separate coach/arena/fight scripts.
 - Actual frame-time measurements, live browser visual tests and motion-capture retargeting are NOT yet completed.
 
+## Verification update (2026-11-02)
+- Confirmed that `index.html`, `boxing-coach-v2.js`, `training-arena.js`, and `boxing-routines.js` are present in the default branch.
+- Corrected a malformed Python regex in `.github/workflows/lion-ci.yml` (commit `3d613f3`). This is a source-level fix, not a confirmed passing Actions run.
+- GitHub's combined commit-status endpoint returned no reported statuses for the previous workflow commit. GitHub Actions job outcome remains unverified.
+- Inspected the coach skeleton definition: `hips`, `spine`, `chest`, `neck`, `head`, paired `arm`, `elbow`, `hand`, `scapula`, `thigh`, `knee`, `foot` bones. The rig is custom, so third-party mocap would require retargeting rather than direct playback.
+- No jab prototype, full-body visual check, or device frame-rate benchmark is complete yet.
+
 ## Next action
 Inspect rig joint names and animation update paths, identify a free licensed boxing jab clip, and test retargeting on a separate branch before altering main.
