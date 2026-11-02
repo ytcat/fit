@@ -49,8 +49,13 @@
    this.root=new THREE.Group();parent.add(this.root);this.hands=[];
    const material=new THREE.MeshStandardMaterial({color:0x57617a,roughness:.9});material.color.convertSRGBToLinear();
    const head=new THREE.SphereGeometry(.09,10,8),body=new THREE.SphereGeometry(1,10,8),palm=new THREE.SphereGeometry(.035,8,6);
-   for(let i=0;i<18;i++){
-    const x=(i%9-4)*.39,z=-1.9-Math.floor(i/9)*.36,y=Math.floor(i/9)*.14;
+   // Populate all four sides of the ring, not only the back bleachers.
+   // Keep spectators outside the ropes so rotation never reveals an empty arena.
+   for(let i=0;i<72;i++){
+    const row=Math.floor((i%18)/9),slot=i%9,side=Math.floor(i/18);
+    const lateral=(slot-4)*.39,depth=1.96+row*.38,y=row*.16;
+    const x=side===0||side===2?lateral:(side===1?depth:-depth);
+    const z=side===0?-depth:side===2?depth:lateral;
     const h=new THREE.Mesh(head,material);h.position.set(x,1.05+y,z);this.root.add(h);
     const b=new THREE.Mesh(body,material);b.scale.set(.12,.23,.10);b.position.set(x,.76+y,z);this.root.add(b);
     const pair=[];for(const s of [-1,1]){const p=new THREE.Mesh(palm,material);p.position.set(x+s*.1,.92+y,z+.15);this.root.add(p);pair.push(p);}this.hands.push({pair,x,y,z});
