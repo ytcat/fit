@@ -36,6 +36,6 @@ for(let i=0;i<p.count;i++){
  const d=Math.hypot(p.getX(i)-rest[i*3],p.getY(i)-rest[i*3+1],p.getZ(i)-rest[i*3+2]);
  maximum=Math.max(maximum,d);if(Math.abs(rest[i*3+1])<.02)centre=Math.max(centre,d);if(Math.abs(rest[i*3+1])>.5)end=Math.max(end,d);
 }
-assert.ok(maximum>.035&&maximum<.041&&centre>.035&&end<.001,'padding dents locally at body height rather than moving the whole cylinder');
+assert.ok(maximum>.055&&maximum<.061&&centre>.055&&end<.001,'deeper padding dents locally at body height rather than moving the whole cylinder');
 arena.deformSurface(mesh,null,0);assert.deepEqual(p.array,rest,'the fabric must recover its exact rest shape');
 console.log('PASS contact-only speed-bag momentum, alternating reachable fists, bounded rebound and localized heavy-bag indentation', {contacts,left,right,peakSwing:peakSwing.toFixed(3),dent:dent.toFixed(3)});

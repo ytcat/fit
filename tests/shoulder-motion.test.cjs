@@ -7,7 +7,7 @@ assert.throws(()=>new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-
 // A cached R24 page can still request the original controller URL. Query-string
 // bumps alone cannot protect it if that script was evicted from the cache.
 const html=fs.readFileSync('index.html','utf8');
-assert.ok(html.includes('./boxing-coach-v2.js?v=25'),'the new page must use the versioned rig controller');
+assert.ok(html.includes('./boxing-coach-v2.js?v=26'),'the new page must use the versioned rig controller');
 assert.ok(html.includes('./assets/models/coach-surface-v2.json?v=1'),'the new page must load the matching model');
 const legacyContext={THREE,document};legacyContext.window=legacyContext;
 vm.runInNewContext(fs.readFileSync('boxing-coach.js','utf8'),legacyContext);

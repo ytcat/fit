@@ -761,14 +761,17 @@
       // then a quicker recoil leaves a readable reset before the next repetition.
       const handPhase=phase-.055;
       const strike=straight?(handPhase<.17?0:handPhase<.40?smooth(clamp((handPhase-.17)/.23)**1.35):
-        handPhase<.46?1:1-smooth((handPhase-.46)/.27)):envelope(phase,.055);
-      const prepare=smooth((phase-.06)/.16),rise=smooth((phase-.22)/.24);
+        handPhase<.46?1:1-smooth((handPhase-.46)/(options.straightRecovery??.27))):envelope(phase,.055);
+      const prepare=smooth((phase-.06)/(options.loadDuration??.16)),rise=smooth((phase-.22)/(options.riseDuration??.24));
       const recover=smooth((phase-.50)/.32);
       const j=this.joints,hips=j.hips,chest=j.chest;
       let hipYaw=0,chestYaw=0,crouch=0,shift=0,forward=0,leadPivot=0,rearPivot=0;
       let trunkPitch=0,trunkRoll=0,pelvisRoll=0,shoulderLoad=0,shoulderSide=0;
       let hookState=null;
-      const lead=V(-.185,1.68,.31),rear=V(.18,1.68,.28);
+      const guardTightness=clamp(options.guardTightness||0);
+      const leadGuard=V(lerp(-.185,-.15,guardTightness),lerp(1.68,1.70,guardTightness),lerp(.31,.265,guardTightness));
+      const rearGuard=V(lerp(.18,.15,guardTightness),lerp(1.68,1.70,guardTightness),lerp(.28,.255,guardTightness));
+      const lead=leadGuard.clone(),rear=rearGuard.clone();
       let leadPole=V(-.6,-1,.1),rearPole=V(.6,-1,.1);
       let leadTurn=0,rearTurn=0;
       const palmTarget=V(0,-1,0);
@@ -885,6 +888,7 @@
       // Equipment punches commit the pelvis and back before shoulder extension.
       const power=options.power||1;
       hipYaw*=power;chestYaw*=power;forward*=power;
+      crouch+=options.stanceDrop||0;
       trunkPitch+=(power-1)*.14*drive;
       crouch+=(options.levelChange||0)*drive;
       const through=(options.contactDrive||0)*strike;
@@ -908,6 +912,7 @@
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
+      j.head.rotation.x+=(options.chinTuck||0)*drive;
       if(hit.part==='head'){j.head.rotation.x-=.28*hurt;j.head.rotation.y-=(hit.side||1)*.24*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
       if(hit.part==='body')j.head.rotation.x+=.10*hurt;
       j.head.rotation.x+=(options.down||0)*.25;
@@ -919,12 +924,13 @@
       const leftStrike=move==='hook'?hookState.rotation:move==='jab'?twist:move==='uppercut'?strike:0;
       const rightStrike=move==='rear_hook'?hookState.rotation:move==='cross'?twist:move==='rear_uppercut'?strike:0;
       const reachShoulder=straight?.095:hookState?.085:.045;
-      j.armL.position.set(-.30+.012*leftStrike,.26+.055*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
-      j.armR.position.set(.30-.012*rightStrike,.26+.055*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
+      const shoulderCover=.055+(options.shoulderCover||0);
+      j.armL.position.set(-.30+.012*leftStrike,.26+shoulderCover*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
+      j.armR.position.set(.30-.012*rightStrike,.26+shoulderCover*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
       if((hit.part==='shoulder'||hit.part==='arm'))j[hit.side<0?'armL':'armR'].position.y-=.055*hurt;
       if(shoulderSide)j[shoulderSide===-1?'armL':'armR'].position.y-=.024*shoulderLoad;
       this.tail.rotation.y= -.16*hipYaw+Math.sin(t*2.2)*.025;
-      const footTargets=[];
+      const footTargets=[],footPlans=[];
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',pivot=s===-1?leadPivot:rearPivot;
         const lift=Math.abs(pivot)*.35+(side==='R'?(options.down||0)*.30:0);
@@ -932,10 +938,26 @@
         // A rigid boot pivots at the forward sole contact. Using the mid-foot
         // here drove the long toe through the floor whenever the heel rose.
         const step=drillStep(s);
-        const contact=V(s*.235+step.x,.015,(s===-1?.24:-.20)+.215+step.z-(side==='R'?(options.down||0)*.40:0));
+        const width=options.stanceWidth??.47,depth=options.stanceDepth??.44;
+        const contact=V(s*width/2+step.x,.015,(s===-1?.24:-.20)+(s===-1?1:-1)*(depth-.44)/2+.215+step.z-(side==='R'?(options.down||0)*.40:0));
         const ankle=contact.clone().add(V(0,.102,-.215).applyQuaternion(footQ));
         ankle.y+=step.lift;
         const kneePole=V(s*.07,0,1).applyAxisAngle(V(0,1,0),pivot*.65);
+        footPlans.push({side,pivot,footQ,step,contact,ankle,kneePole});
+      }
+      if(options.stanceWidth){
+        // A wider planted stance needs a little more knee flexion when a foot
+        // steps ahead of the hips. Find support for both feet before solving
+        // either leg; moving the pelvis after the first solve causes skating.
+        this.root.updateMatrixWorld(true);let supportedY=hips.position.y;
+        for(const {side,ankle} of footPlans){
+          const start=this.point(j['thigh'+side]),reach=j['knee'+side].position.length()+j['foot'+side].position.length()-.002;
+          const dx=start.x-ankle.x,dz=start.z-ankle.z,vertical=Math.sqrt(Math.max(.001,reach*reach-dx*dx-dz*dz));
+          supportedY=Math.min(supportedY,hips.position.y+ankle.y+vertical-start.y);
+        }
+        hips.position.y=supportedY;this.root.updateMatrixWorld(true);
+      }
+      for(const {side,pivot,footQ,step,contact,ankle,kneePole} of footPlans){
         const err=this.solve(j['thigh'+side],j['knee'+side],j['foot'+side],ankle,kneePole);
         this.orient(j['foot'+side],footQ);
         // The sole follows the foot, while the boot collar follows the shin.
@@ -952,8 +974,8 @@
       if(!this.guardHead)this.guardHead=headPosition.clone();
       const headShift=headPosition.clone().sub(this.guardHead);
       // The defending hand follows the moving cheek, not just pelvis height.
-      if(!['jab','hook','uppercut','speedbag'].includes(move))lead.copy(V(-.185,1.68,.31).add(headShift));
-      if(!['cross','rear_hook','rear_uppercut','speedbag'].includes(move))rear.copy(V(.18,1.68,.28).add(headShift));
+      if(!['jab','hook','uppercut','speedbag'].includes(move))lead.copy(leadGuard.clone().add(headShift));
+      if(!['cross','rear_hook','rear_uppercut','speedbag'].includes(move))rear.copy(rearGuard.clone().add(headShift));
       if(brace){lead.add(V(.035*brace,.105*brace,-.015*brace));rear.add(V(-.035*brace,.105*brace,-.015*brace));}
       // Straight punches use almost the full arm reach after torso rotation.
       // A fixed short wrist endpoint left the elbow folded and knuckles pointing
@@ -964,7 +986,7 @@
         const direction=V(side==='L'?-.08:.02,options.strikeHeight??1.74,shoulder.z+.66).sub(shoulder).normalize();
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.0015;
         const target=shoulder.addScaledVector(direction,reach);
-        hand.copy((side==='L'?V(-.185,1.68,.31):V(.18,1.68,.28)).add(guardShift)).lerp(target,strike);
+        hand.copy((side==='L'?leadGuard:rearGuard).clone().add(guardShift)).lerp(target,strike);
       }
       if(hookState) {
         const {s,swing,active}=hookState,side=s===-1?'L':'R',hand=s===-1?lead:rear;
@@ -984,7 +1006,7 @@
         const side=['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L';
         const hand=side==='L'?lead:rear,shoulder=this.point(j['arm'+side]);
         const aim=V(...options.target).add(V(0,0,approach+through)),delta=aim.sub(shoulder);
-        const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;
+        const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-(options.armReachMargin??.002);
         const endpoint=shoulder.add(delta.clampLength(0,reach));
         const amount=straight?strike:hookState?hookState.rotation:rise*(1-recover);
         hand.lerp(endpoint,amount);
@@ -1008,16 +1030,22 @@
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
       if(options.knuckleTarget&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(move)){
         const index=['cross','rear_hook','rear_uppercut'].includes(move)?1:0,side=index?'R':'L',hand=index?rear:lead,pole=index?rearPole:leadPole;
-        const amount=clamp(straight?strike:hookState?hookState.rotation:rise*(1-recover)),weight=1-Math.cbrt(1-amount);
+        const amount=clamp(straight?strike:hookState?hookState.rotation:rise*(1-recover));
+        const planStraight=straight&&options.planStraight;
+        // Solve the complete striking pose first, then interpolate the wrist
+        // from guard. Blending three feedback corrections during extension
+        // made a straight punch wind its elbow around the shoulder.
+        const targetHand=planStraight?V(...options.knuckleTarget).addScaledVector(V(...options.knuckleTarget).sub(this.point(j['arm'+side])).normalize(),-.204):hand;
+        const weight=planStraight?1:1-Math.cbrt(1-amount);
         for(let iteration=0;iteration<3;iteration++){
-          hand.addScaledVector(V(...options.knuckleTarget).sub(V(...gloves[index].strikePoint)),weight);
-          const shoulder=this.point(j['arm'+side]),reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;
-          hand.copy(shoulder.clone().add(hand.clone().sub(shoulder).clampLength(0,reach)));
+          if(!planStraight||iteration)targetHand.addScaledVector(V(...options.knuckleTarget).sub(V(...gloves[index].strikePoint)),weight);
+          const shoulder=this.point(j['arm'+side]),reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-(options.armReachMargin??.002);
+          targetHand.copy(shoulder.clone().add(targetHand.clone().sub(shoulder).clampLength(0,reach)));
           let preferred=pole;
           if(options.strikeDirection&&hookState){
-            const axis=hand.clone().sub(shoulder).normalize();
+            const axis=targetHand.clone().sub(shoulder).normalize();
             const authored=pole.clone().addScaledVector(axis,-pole.dot(axis)).normalize();
-            const desired=hand.clone().addScaledVector(V(...options.strikeDirection),-j['hand'+side].position.length()).sub(shoulder).normalize();
+            const desired=targetHand.clone().addScaledVector(V(...options.strikeDirection),-j['hand'+side].position.length()).sub(shoulder).normalize();
             desired.addScaledVector(axis,-desired.dot(axis));
             const confidence=smooth((desired.length()-.06)/.30);
             if(desired.lengthSq()>1e-8){desired.normalize();
@@ -1027,7 +1055,16 @@
               preferred=authored.lerp(desired,amount*.85*confidence*anatomical).normalize();
             }
           }
-          const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,preferred);if(index)re=error;else le=error;
+          const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],targetHand,preferred);if(index)re=error;else le=error;
+          gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
+        }
+        if(planStraight){
+          const ready=(index?rearGuard:leadGuard).clone().add(guardShift),shoulder=this.point(j['arm'+side]);
+          // Keep the loaded fist in front of the protracting shoulder. Passing
+          // behind it makes the elbow orbit a near-vertical IK axis at launch.
+          ready.z=Math.max(ready.z,shoulder.z+.12);
+          hand.copy(ready).lerp(targetHand,amount);
+          const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,pole);if(index)re=error;else le=error;
           gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
         }
       }

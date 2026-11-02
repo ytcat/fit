@@ -18,6 +18,11 @@ include fur grain, leather, satin, stitching and boot laces.
 
 A connected T-pose shoulder and baked harmonic arm/chest weights replace the old diagonal armpit web. Both arm segments keep their original lengths; a shared elbow plane controls upper-arm roll. Solo hooks use a compact bent-arm arc. See [R25 shoulder and arm fixes](docs/r25-shoulder-and-elbow.md).
 
+Bag punches now extend through the pad with a closer cheek guard, raised striking
+shoulder, tucked chin and wider supported stance. The configured heavy bag is
+110 kg; stronger contact impulses move it with greater resistance. Speed-bag
+impacts follow the alternating forward fist. See [R26 reference and impact checks](docs/r26-bag-reference-and-power.md).
+
 Dual-quaternion skinning preserves arm volume in the bent-elbow guard, with a
 local linear blend at the underarm fold. Surface
 and shadow passes share the same deformation, and shared material colors are

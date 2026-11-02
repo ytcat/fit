@@ -7,7 +7,7 @@
  // Continuous timing preserves the authored pelvis/shoulder/hand lag. The
  // previous per-segment easing repeatedly stopped and rushed the entire body.
  const powerPhase=p=>p+.025*(1-Math.cos(2*Math.PI*p));
- const strikingMass=move=>move==='jab'?2.5:move.includes('hook')?5:5.5;
+ const strikingMass=move=>move==='jab'?5.25:move.includes('hook')?9:10;
  const punches=['jab','cross','hook','rear_hook','uppercut','rear_uppercut'];
  const material=p=>{const m=new THREE.MeshStandardMaterial(p);m.color.convertSRGBToLinear();return m;};
  class TrainingArena {
@@ -90,7 +90,7 @@
     e.scene.remove(this.group);e.scene.add(e.coach.root);e.coach.root.position.set(0,0,0);e.coach.root.rotation.y=-.32;
    }else{
     e.scene.add(this.group);this.group.add(e.coach.root);this.group.rotation.y=mode==='heavy'?1.88:1.02;
-    e.coach.root.position.set(0,0,mode==='speed'?-.40:-.61);e.coach.root.rotation.y=0;
+    e.coach.root.position.set(0,0,mode==='speed'?-.40:mode==='heavy'?-.675:-.61);e.coach.root.rotation.y=0;
     if(!this.models[mode]){
      if(mode==='rabbit'){
       this.rabbit=new LionCoach(this.data,{species:'rabbit'});this.models.rabbit=this.rabbit.root;this.rabbit.root.name='Rabbit sparring partner';
@@ -124,22 +124,24 @@
    const matrix=this.committedAim?new THREE.Matrix4().multiplyMatrices(this.group.matrixWorld,this.committedAim):body.matrixWorld;
    const toLocal=p=>p.applyMatrix4(new THREE.Matrix4().copy(matrix).invert());
    let x=move.includes('hook')?s*.16:move.includes('uppercut')?s*.045:s*.025;
-   const y=move.includes('uppercut')?.02:move.includes('hook')?-.025:0;
+   const y=move.includes('uppercut')?.02:move.includes('hook')?-.025:.14;
    let z=-Math.sqrt(.235*.235-x*x);
    if(shoulder&&move.includes('hook')){
     // Intersect the upper-arm reach circle with the elbow positions that keep
     // the forearm normal to the cylindrical bag. Do not bend the wrist to aim.
     const side=s<0?'L':'R',p=toLocal(coach.root.localToWorld(shoulder.clone()));
     const upper=coach.joints['elbow'+side].position.length(),forearm=coach.joints['hand'+side].position.length();
-    const radius=.235-.070+.204+forearm,dy=p.y-(y-.026),reach2=Math.max(.001,upper*upper-dy*dy);
+    const radius=.235-.105+.204+forearm,dy=p.y-(y-.026),reach2=Math.max(.001,upper*upper-dy*dy);
     const v=V(-p.x,0,-p.z),distance=v.length();v.normalize();
     const cosine=Math.max(-1,Math.min(1,(distance*distance+radius*radius-reach2)/(2*radius*Math.max(.001,distance))));
     const direction=v.clone().multiplyScalar(cosine).addScaledVector(V(v.z,0,-v.x),-s*Math.sqrt(1-cosine*cosine));
     x=-.235*direction.x;z=-.235*direction.z;
    }
    const normal=V(x,0,z).normalize();
-   // The leading knuckle face enters the foam by up to 70 mm at maximum drive; aim is committed before impact.
-   const point=V(x,y,z).addScaledVector(normal,-.070);
+   // Commit beyond the resting leather so foam receives the follow-through.
+   // Limb lengths stay fixed; the bag takes momentum after the glove releases.
+   const through=move==='jab'||move==='cross'?.145:.105;
+   const point=V(x,y,z).addScaledVector(normal,-through);
    const target=coach.root.worldToLocal(point.applyMatrix4(matrix));
    const outward=normal.transformDirection(matrix).applyQuaternion(coach.root.getWorldQuaternion(new THREE.Quaternion()).invert());
    return {point:target,direction:outward.negate()};
@@ -216,7 +218,7 @@
    const g=mesh.geometry,p=g.attributes.position,n=g.attributes.normal;
    if(!mesh.userData.softRest){mesh.userData.softRest=new Float32Array(p.array);mesh.userData.normalRest=new Float32Array(n.array);}
    const rest=mesh.userData.softRest,norm=mesh.userData.normalRest;
-   const depth=(this.mode==='heavy'?.040:this.mode==='dummy'?.014:.018)*amount;
+   const depth=(this.mode==='heavy'?.060:this.mode==='dummy'?.014:.018)*amount;
    for(let i=0;i<p.count;i++){
     let x=rest[i*3],y=rest[i*3+1],z=rest[i*3+2],nx=norm[i*3],ny=norm[i*3+1],nz=norm[i*3+2];
     if(contact&&amount>0){
@@ -272,8 +274,16 @@
    }
    const active=mode!=='none'&&mode!=='speed';
    const pose=(coach,spec,actor,isHero)=>{
-    const advance=active&&spec.attack?(spec.move.includes('uppercut')?.40:spec.move.includes('hook')?.16:0)+(mode==='heavy'?this.followAdvance:0):0;
+    const advance=active&&spec.attack?(spec.move.includes('uppercut')?(mode==='heavy'?.46:.40):spec.move.includes('hook')?(mode==='heavy'?.22:.16):0)+(mode==='heavy'?this.followAdvance:0):0;
     const options={simulationTime:time,power:powered&&spec.attack?1.12:1,defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
+    if(mode==='heavy'){
+     const straight=spec.move==='jab'||spec.move==='cross';
+     options.guardTightness=1;options.stanceWidth=.54;options.stanceDepth=.55;options.stanceDrop=.015;
+     options.power=spec.attack?(straight?1.16:1.12):1;options.shoulderCover=straight?.055:0;options.armReachMargin=straight?.001:.002;options.chinTuck=.035;
+     options.planStraight=true;
+     if(straight){options.contactDrive=.065;options.straightRecovery=.22;}
+     if(spec.move.includes('uppercut')){options.loadDuration=.19;options.riseDuration=.27;}
+    }
     if(mode==='speed'){
      // Closed wrist circles pass through the bag's lower striking lobe. Opposite
      // phases let one hand recover underneath while the other delivers.
@@ -289,7 +299,7 @@
      if(mode==='heavy'&&spec.attack){
       const target=this.heavyTarget(spec.move,coach);options.target=null;options.knuckleTarget=target.point.toArray();options.strikeDirection=target.direction.toArray();
       options.knucklePlanner=shoulder=>this.heavyTarget(spec.move,coach,shoulder);
-      options.strikeHeight=target.point.y-.026;options.levelChange=.065;options.upperLoadHeight=1.18;options.upperWristHeight=1.41;
+      options.strikeHeight=target.point.y-.026;options.levelChange=spec.move==='jab'||spec.move==='cross'?.018:.065;options.upperLoadHeight=1.18;options.upperWristHeight=1.41;
      }
     }
     else if(spec.attack){options.target=spec.move.includes('uppercut')?null:spec.move.includes('hook')?[-.02,1.86,.91]:[0,1.82,1.01];options.advance=spec.move.includes('hook')?.15:advance;}
@@ -300,7 +310,9 @@
    this.group.updateMatrixWorld(true);
    const desired={lion:{L:0,R:0},rabbit:{L:0,R:0}},contacts=[],loads=[];let dent=null;
    const examine=(actor,coach,metrics,spec,receiver)=>{
-    const indices=mode==='speed'?[0,1]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
+    // Only the fist rolling forward can initiate a speed-bag strike. The
+    // recovering fist passes underneath while the swivel rebounds freely.
+    const indices=mode==='speed'?[Math.floor(time*1.8/1.22*2)%2]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
     for(const index of [0,1]){
      const side=index?'R':'L',centre=coach.root.localToWorld(V(...metrics.gloves[index].knuckles));
      // Camera orbit rotates the whole scene; measure speed in the arena frame
@@ -318,7 +330,7 @@
      const pressure=receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.6/.03612)):smooth(Math.max(0,Math.min(1,current.penetration/.065)));
      desired[actor][side]=Math.max(desired[actor][side],pressure);
      if(current.kind==='glove'&&pressure>0)desired[receiver][current.side]=Math.max(desired[receiver][current.side],pressure*.85);
-     if(current.kind==='bag'&&pressure>0&&(!dent||pressure>dent.pressure))dent={...current,pressure:receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.4/.040)):pressure};
+     if(current.kind==='bag'&&pressure>0&&(!dent||pressure>dent.pressure))dent={...current,pressure:receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.4/.060)):pressure};
      if(entry.penetration>0){
       const closing=Math.max(0,-velocity.dot(entry.normal));
       if(!this.seen.has(event)&&closing>.02){

@@ -14,7 +14,7 @@
   }
  }
  class HangingBag extends ContactSpring {
-  constructor({mass=45,radius=.235,height=1.15,offset=.94,damping=.20}={}){
+  constructor({mass=110,radius=.235,height=1.15,offset=.94,damping=.26}={}){
    const transverse=mass*(offset*offset+height*height/12+radius*radius/4);
    super(Math.sqrt(mass*9.81*offset/transverse),damping);
    this.mass=mass;this.radius=radius;this.height=height;this.offset=offset;
