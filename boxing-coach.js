@@ -112,6 +112,8 @@
         const arm=joint('arm'+side,chest,V(s*.30,.26,0));
         const elbow=joint('elbow'+side,arm,V(s*.24,-.26,0));
         joint('hand'+side,elbow,V(s*.11,-.29,0));
+        joint('axilla'+side,chest,V(s*.30,.26,0));
+        joint('scapula'+side,chest,V(s*.17,.17,-.06));
         const thigh=joint('thigh'+side,hips,V(s*.15,0,0));
         const knee=joint('knee'+side,thigh,V(s*.03,-.43,0));
         joint('foot'+side,knee,V(s*.01,-.44,0));
@@ -127,7 +129,7 @@
       this.dqDual=this.bones.map(()=>new THREE.Vector4(0,0,0,0));
       const fur=texture('fur'), grain=texture('leather');
       const skin=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.94,
-        bumpMap:fur,bumpScale:.0025,skinning:true});
+        bumpMap:fur,bumpScale:.0018,skinning:true});
       const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.61,
         bumpMap:grain,bumpScale:.0015,skinning:true,side:THREE.DoubleSide});
       this.skin=this.skinned(this.sculptBody(meshFrom(data.body,true)),skin,true);
@@ -169,7 +171,7 @@
       const blend=(a,b,k=.010)=>{const h=Math.max(k-Math.abs(a-b),0)/k;return Math.min(a,b)-h*h*k*.25;};
       const ell=(p,c,r)=> (Math.hypot((p.x-c[0])/r[0],(p.y-c[1])/r[1],(p.z-c[2])/r[2])-1)*Math.min(...r);
       const profile=[[-.137,.091,.068,-.026],[-.103,.086,.073,-.025],[-.065,.070,.064,-.015],[-.025,.056,.052,0],[.040,.052,.047,.002]];
-      const thumbPath=new THREE.CubicBezierCurve3(V(-.054,-.038,.024),V(-.115,-.069,.060),V(-.094,-.137,.092),V(-.034,-.146,.065)).getPoints(12);
+      const thumbPath=new THREE.CubicBezierCurve3(V(-.054,-.038,.024),V(-.102,-.073,.050),V(-.087,-.130,.074),V(-.036,-.147,.058)).getPoints(12);
       const gloveField=p=>{
         let rx,rz,cz;
         if(p.y<-.137){const q=(p.y+.137)/.067,arc=Math.sqrt(Math.max(.00001,1-q*q));rx=.091*arc;rz=.068*arc;cz=-.026;}
@@ -184,13 +186,13 @@
         }
         let d=(Math.hypot(p.x/rx,(p.z-cz)/rz)-1)*Math.min(rx,rz);
         d=Math.max(d,-.204-p.y,p.y-.040);
-        d=blend(d,ell(p,[.007,-.139,.035],[.073,.040,.043]));
+        d=blend(d,ell(p,[.007,-.139,.025],[.072,.037,.036]));
         // Recess the centre of the palm; the curled pocket remains distal.
         d=Math.max(d,-ell(p,[.019,-.070,.087],[.045,.033,.046]));
         for(let i=1;i<thumbPath.length;i++){
           const a=thumbPath[i-1],b=thumbPath[i],dx=b.x-a.x,dy=b.y-a.y,dz=b.z-a.z;
           const t=clamp(((p.x-a.x)*dx+(p.y-a.y)*dy+(p.z-a.z)*dz)/(dx*dx+dy*dy+dz*dz));
-          const r=lerp(.025,.020,(i-1+t)/12);
+          const r=lerp(.023,.018,(i-1+t)/12);
           d=blend(d,Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy,p.z-a.z-t*dz)-r,.009);
         }
         return d;
@@ -200,7 +202,7 @@
       for(let i=0;i<gp.count;i++){
         const x=gp.getX(i),y=gp.getY(i),z=gp.getZ(i);
         const palm=smooth((z-.016)/.045),fold=Math.exp(-(((y+.129)/.008)**2))*smooth((z-.045)/.025)*smooth((x+.012)/.025);
-        const shade=1-.19*palm-.11*fold;colour.push(shade,shade,shade);
+        const shade=1-.48*palm-.08*fold;colour.push(shade,shade*(1-.08*palm),shade*(1-.12*palm));
       }
       gloveGeometry.setAttribute('color',new THREE.Float32BufferAttribute(colour,3));
       const gloveMaterial=this.leather.clone();gloveMaterial.vertexColors=true;gloveMaterial.roughness=.37;
@@ -253,6 +255,7 @@
           const dot=new THREE.Mesh(new THREE.SphereGeometry(1,10,6),palmMaterial);dot.position.copy(surface(x,y));dot.scale.set(.0017,.0021,.0008);glove.add(dot);dot.name='Palm ventilation eyelet';
         }
         this.addLabel(hand,'SB',V(0,.013,-.054),.041,.023).rotation.y=Math.PI;
+        this.addLabel(hand,'SB',V(0,-.096,-.100),.044,.026).rotation.y=Math.PI;
         // All surface details share the foam deformation and mirrored thumb frame.
         glove.userData.deformParts=[glove,...details];
         for(const part of details){part.userData.restPosition=new Float32Array(part.geometry.attributes.position.array);part.userData.restNormal=new Float32Array(part.geometry.attributes.normal.array);}
@@ -345,7 +348,7 @@
         const u=Math.abs(p.x);
         // Blend linear skinning into the axillary fold to reduce DQ bulging;
         // the shoulder cap and arm bellies retain their volume.
-        linear.push(colour?.9*smooth((u-.23)/.08)*(1-smooth((u-.38)/.12))*smooth((p.y-1.30)/.12)*(1-smooth((p.y-1.53)/.10)):0);
+        linear.push(colour?.30*smooth((u-.23)/.08)*(1-smooth((u-.38)/.12))*smooth((p.y-1.30)/.12)*(1-smooth((p.y-1.53)/.10)):0);
         const influences=new Map();
         const put=(name,w)=>influences.set(this.bones.indexOf(this.joints[name]),w);
         const mix=(a,b,t,w=1)=>{put(a,(1-t)*w);put(b,t*w);};
@@ -365,7 +368,13 @@
           else mix('knee'+side,'foot'+side,smooth((.24-p.y)/.13));
         } else {
           // Keep lower lateral ribs on the trunk while the upper arm lifts.
-          const arm=smooth((Math.abs(p.x)-.235)/.115)*smooth((1.79-p.y)/.14)*(1-smooth((1.49-p.y)/.11)*(1-smooth((Math.abs(p.x)-.34)/.09)));
+          // Partition the joined surface by anatomical volumes, rather than
+          // an X threshold that dragged the underside of the biceps onto ribs.
+          const torso=(Math.hypot(p.x/.31,(p.y-1.49)/.245,(p.z+.018)/.19)-1)*.19;
+          const segment=V(.24,-.26,0),relative=V(Math.abs(p.x)-.30,p.y-1.62,p.z);
+          const alongArm=clamp(relative.dot(segment)/segment.lengthSq());
+          const armDistance=relative.addScaledVector(segment,-alongArm).length()-(.103-.042*alongArm+.013*Math.sin(Math.PI*alongArm));
+          const arm=smooth((torso-armDistance+.110)/.220)*smooth((1.79-p.y)/.14);
           if(p.y<1.28)mix('hips','spine',smooth((p.y-1.06)/.18),1-arm);
           else if(p.y<1.67)mix('spine','chest',smooth((p.y-1.28)/.22),1-arm);
           else mix('chest','neck',smooth((p.y-1.67)/.12),1-arm);
@@ -376,7 +385,22 @@
             mix('arm'+side,'elbow'+side,smooth((along+.055)/.11),arm);
           }
         }
-        const entries=[...influences].filter(([,w])=>w>0);
+        if(colour&&p.y>1.30&&p.y<1.68&&Math.abs(p.x)>.22&&Math.abs(p.x)<.48){
+          const armWeight=influences.get(this.bones.indexOf(this.joints['arm'+(p.x<0?'L':'R')]))||0;
+          const axilla=4*armWeight*(1-armWeight)*smooth((p.y-1.30)/.12)*(1-smooth((p.y-1.58)/.10));
+          const amount=.72*axilla;
+          for(const [id,weight] of influences)influences.set(id,weight*(1-amount));
+          put('axilla'+(p.x<0?'L':'R'),amount);
+        }
+        // Shoulder blades glide around the rib cage as the shoulder reaches.
+        // Keep the medial spine fixed while the outer back follows the scapula.
+        if(colour&&p.y>1.36&&p.y<1.73&&p.z<-.04){
+          const amount=.52*Math.exp(-(((Math.abs(p.x)-.18)/.095)**2))*smooth((p.y-1.36)/.13)*(1-smooth((p.y-1.64)/.09))*smooth((-p.z-.04)/.07);
+          for(const [id,weight] of influences)influences.set(id,weight*(1-amount));
+          put('scapula'+(p.x<0?'L':'R'),amount);
+        }
+        const entries=[...influences].filter(([,w])=>w>0).sort((a,b)=>b[1]-a[1]).slice(0,4);
+        const total=entries.reduce((sum,entry)=>sum+entry[1],0)||1;for(const entry of entries)entry[1]/=total;
         while(entries.length<4)entries.push([0,0]);
         ids.push(...entries.map(([i])=>i));weights.push(...entries.map(([,w])=>w));
         if(colour) {
@@ -531,13 +555,13 @@
       for(const s of [-1,1]) {
         this.ellipsoid(head,wet,V(s*.091,.171,.176),V(.035,.022,.025));
         this.ellipsoid(head,amber,V(s*.091,.171,.195),V(.022,.015,.010));
-        this.ellipsoid(head,this.black,V(s*.091,.171,.204),V(.009,.013,.004));
+        this.ellipsoid(head,this.black,V(s*.091,.171,.204),V(.010,.010,.004));
         this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xfff5df}),V(s*.085,.177,.208),V(.003,.003,.002));
         this.curve(head,[V(s*.053,.18,.191),V(s*.09,.195,.190),V(s*.127,.177,.174)],wet,.004);
         this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x705037,roughness:1}),V(s*.164,.265,.025),V(.044,.050,.014));
-        this.ellipsoid(head,this.black,V(s*.164,.265,-.044),V(.048,.053,.011));
+        this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x604325,roughness:1}),V(s*.164,.265,-.044),V(.048,.053,.011));
         this.curve(head,[V(s*.058,.154,.196),V(s*.092,.151,.203),V(s*.119,.159,.184)],wet,.0025);
-        this.curve(head,[V(s*.055,.218,.175),V(s*.090,.225,.167),V(s*.127,.205,.149)],wet,.004);
+        this.curve(head,[V(s*.055,.213,.174),V(s*.090,.218,.168),V(s*.127,.201,.149)],new THREE.MeshStandardMaterial({color:0x79532e,roughness:.95}),.005);
         this.curve(head,[V(0,.051,.300),V(s*.035,.015,.287),V(s*.094,.024,.269)],wet,.003);
         for(let i=0;i<7;i++) {
           const y=.044+(i%3)*.016,x=s*(.052+Math.floor(i/3)*.017);
@@ -545,7 +569,7 @@
           if(i<4) this.curve(head,[V(x,y,.294),V(s*.16,y+.005,.31),V(s*(.23+i*.012),y+.02-i*.013,.31)],this.cream,.0007);
         }
       }
-      const nose=this.ellipsoid(head,wet,V(0,.103,.291),V(.057,.033,.026));
+      const nose=this.ellipsoid(head,wet,V(0,.103,.291),V(.061,.031,.025));
       const a=nose.geometry.attributes.position;
       for(let i=0;i<a.count;i++)a.setX(i,a.getX(i)*(.6+.4*(a.getY(i)+1)/2));
       a.needsUpdate=true;nose.geometry.computeVertexNormals();
@@ -569,13 +593,13 @@
         const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz);
         const center=V(normal.x*.295,.065+normal.y*.355,-.065+normal.z*.210);
         if(center.z>.025&&Math.abs(center.x)<.165&&center.y>-.03&&center.y<.29)continue;
-        const length=.055+random()*.055+Math.max(0,-normal.y)*.065;
-        const width=.004+random()*.004;
-        const outward=normal.clone().multiplyScalar(.85).add(V(normal.x*.18,-.40,-.12)).normalize();
+        const length=.040+random()*.050+Math.max(0,-normal.y)*.070;
+        const width=.003+random()*.004;
+        const outward=normal.clone().multiplyScalar(.80).add(V(normal.x*.12,-.52,-.12)).normalize();
         const across=outward.clone().cross(Math.abs(outward.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
         const colour=new THREE.Color().setHSL(.070+random()*.035,.42+random()*.18,.10+random()*.19);
         for(let j=0;j<3;j++) {
-          const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.027*t*t,-.018*t*t));
+          const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.045*t*t,-.023*t*t));
           const t0=j/3,t1=(j+1)/3,p=point(t0),q=point(t1);
           const p0=p.clone().addScaledVector(across,1-t0),p1=p.clone().addScaledVector(across,-(1-t0));
           const q0=q.clone().addScaledVector(across,1-t1),q1=q.clone().addScaledVector(across,-(1-t1));
@@ -688,7 +712,7 @@
       let leadPole=V(-.6,-1,.1),rearPole=V(.6,-1,.1);
       let leadTurn=0,rearTurn=0;
       const palmTarget=V(0,-1,0);
-      const lateTurn=smooth((strike-.50)/.50);
+      const lateTurn=smooth((strike-.35)/.60);
       const stepState=s=>{
         const out=clamp((phase-(s===-1?.08:.28))/.16);
         const back=clamp((phase-(s===-1?.78:.58))/.16);
@@ -835,8 +859,8 @@
       const leftStrike=move==='hook'?hookState.rotation:move==='jab'?twist:move==='uppercut'?strike:0;
       const rightStrike=move==='rear_hook'?hookState.rotation:move==='cross'?twist:move==='rear_uppercut'?strike:0;
       const reachShoulder=straight?.095:hookState?.085:.045;
-      j.armL.position.set(-.30+.012*leftStrike,.26+.035*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
-      j.armR.position.set(.30-.012*rightStrike,.26+.035*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
+      j.armL.position.set(-.30+.012*leftStrike,.26+.055*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
+      j.armR.position.set(.30-.012*rightStrike,.26+.055*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
       if((hit.part==='shoulder'||hit.part==='arm'))j[hit.side<0?'armL':'armR'].position.y-=.055*hurt;
       if(shoulderSide)j[shoulderSide===-1?'armL':'armR'].position.y-=.024*shoulderLoad;
       this.tail.rotation.y= -.16*hipYaw+Math.sin(t*2.2)*.025;
@@ -877,7 +901,7 @@
       if(move==='jab'||move==='cross') {
         const side=move==='jab'?'L':'R',hand=side==='L'?lead:rear;
         const shoulder=this.point(j['arm'+side]);
-        const direction=V(side==='L'?-.08:.02,options.strikeHeight??1.82,shoulder.z+.66).sub(shoulder).normalize();
+        const direction=V(side==='L'?-.08:.02,options.strikeHeight??1.74,shoulder.z+.66).sub(shoulder).normalize();
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.0015;
         const target=shoulder.addScaledVector(direction,reach);
         hand.copy((side==='L'?V(-.185,1.68,.31):V(.18,1.68,.28)).add(guardShift)).lerp(target,strike);
@@ -887,7 +911,7 @@
         const shoulder=this.point(j['arm'+side]);
         // Longer-range hook: carry the fist around with the rotating shoulder,
         // opening the elbow progressively while preserving a bent-arm contact.
-        const radius=lerp(.43,.615,swing),height=options.strikeHeight??(1.81-crouch);
+        const radius=lerp(.43,.615,swing),height=options.strikeHeight??(1.75-crouch);
         const direction=V(-s*(.10+.65*swing),0,1-.35*swing).normalize();
         const dy=height-shoulder.y;
         const target=shoulder.addScaledVector(direction,Math.sqrt(Math.max(.01,radius*radius-dy*dy)));
@@ -942,6 +966,13 @@
       }
       hair.needsUpdate=true;
       if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.x=presentation?.mode==='loser'?.25:0;ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
+      for(const side of ['L','R']){
+        const amount=side==='L'?leftStrike:rightStrike,s=side==='L'?-1:1;
+        j['scapula'+side].position.set(s*(.17+.020*amount),.17+.015*amount,-.06+.040*amount);
+        j['scapula'+side].rotation.y=-s*.14*amount;
+        j['axilla'+side].position.copy(j['arm'+side].position);
+        j['axilla'+side].quaternion.identity().slerp(j['arm'+side].quaternion,.42);
+      }
       this.root.updateMatrixWorld(true);
       this.skeleton.update();
       const mat=new THREE.Matrix4(),q=new THREE.Quaternion(),tr=new THREE.Quaternion();

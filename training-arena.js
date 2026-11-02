@@ -110,7 +110,7 @@
    const fov=THREE.MathUtils.degToRad(camera.fov);
    const nearDepth=.65*Math.abs(Math.cos(this.group.rotation.y))+.40;
    const distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))*1.12+nearDepth;
-   camera.position.set(0,height*.53,distance);camera.lookAt(0,height*.49,0);
+   camera.position.set(0,1.78,distance);camera.lookAt(0,height*.49,0);
   }
   aim(move){
    if(!punches.includes(move))return null;

@@ -15,12 +15,12 @@
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
   <script src="./boxing-routines.js?v=2"></script>
-  <script src="./boxing-coach.js?v=22"></script>
+  <script src="./boxing-coach.js?v=23"></script>
   <script src="./contact-response.js?v=3"></script>
-  <script src="./training-arena.js?v=22"></script>
+  <script src="./training-arena.js?v=23"></script>
   <script src="./boxing-fight.js?v=22"></script>
   <script src="./fight-referee.js?v=22"></script>
-  <script src="./fight-arena.js?v=22"></script>
+  <script src="./fight-arena.js?v=23"></script>
   <script src="./fight-ui.js?v=22" defer></script>
   <script src="./training-controls.js?v=22" defer></script>
 
@@ -169,7 +169,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R22",
+        subtitle: "LION BOXING COACH · R23",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -222,7 +222,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R22",
+        subtitle: "מאמן אגרוף אריה · R23",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -275,7 +275,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R22",
+        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R23",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -446,7 +446,7 @@
 
       async createTrainingBoxer() {
         try {
-          const response=await fetch('./assets/models/coach-surface.json?v=3');
+          const response=await fetch('./assets/models/coach-surface.json?v=4');
           if(!response.ok)throw new Error('Coach surface unavailable');
           const surface=await response.json();
           this.coach=new LionCoach(surface);
@@ -480,15 +480,17 @@
         if (box.isEmpty()) return;
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
+        // Bias the view toward the reach envelope so a profile punch stays in frame.
+        if(model===this.demoModel){center.x+=.28*Math.sin(model.rotation.y);center.z+=.28*Math.cos(model.rotation.y);}
         const fov = THREE.MathUtils.degToRad(this.camera.fov);
         const aspect = Math.max(.25, this.camera.aspect);
         const verticalDistance = (size.y * .5) / Math.tan(fov * .5);
         // r128 Box3 uses rest-pose skin vertices; their spread arms needlessly
         // shrink the posed instructor. Use a view-aware motion envelope instead.
-        const framingWidth=model===this.demoModel?.92+.58*Math.abs(Math.sin(model.rotation.y)):size.x;
+        const framingWidth=model===this.demoModel?.92+.70*Math.abs(Math.sin(model.rotation.y)):size.x;
         const horizontalDistance = (framingWidth * .5) / (Math.tan(fov * .5) * aspect);
         const distance = Math.max(verticalDistance, horizontalDistance, size.z * 1.4, 2.5) * 1.30;
-        this.camera.position.set(center.x, center.y + .1, center.z + distance);
+        this.camera.position.set(center.x, model===this.demoModel?1.78:center.y+.1, center.z + distance);
         this.camera.lookAt(center);
       }
 

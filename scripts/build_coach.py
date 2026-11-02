@@ -101,6 +101,9 @@ def anatomy(p):
             radius=r0+(r1-r0)*t+bulge*np.sin(np.pi*t)
             limb=np.linalg.norm(p-a-t[...,None]*ab,axis=-1)-radius
             d=union(d,limb,.03)
+        # A recessed axillary saddle separates the lateral ribs from the
+        # underside of the upper arm; the old smooth union left a broad web.
+        d=np.maximum(d,-ellipsoid(p,(s*.325,1.405,-.005),(.080,.135,.180)))
         # Eye sockets and the muzzle cleft are actual surface recesses.
         d=np.maximum(d,-ellipsoid(p,(s*.091,2.011,.175),(.047,.032,.041)))
     return d

@@ -126,7 +126,7 @@
  TrainingArena.prototype.update=function(time,technique,combo){return this.mode==='fight'&&this.fightView?this.fightView.update(time):update.call(this,time,technique,combo);};
  TrainingArena.prototype.fitCamera=function(camera){
   if(this.mode!=='fight')return fit.call(this,camera);const fov=THREE.MathUtils.degToRad(camera.fov),distance=Math.max(2.75/(2*Math.tan(fov/2)),3.1/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+1.1;
-  camera.position.set(0,1.52,distance);camera.lookAt(0,1.30,0);
+  camera.position.set(0,1.82,distance);camera.lookAt(0,1.30,0);
  };
  window.FightArena=FightArena;
 })();
