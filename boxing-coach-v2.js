@@ -823,20 +823,24 @@
           break;
         case 'hook': case 'rear_hook': {
           const s=move==='hook'?-1:1;
-          const swing=smooth((phase-.20)/.28),active=prepare*(1-recover);
-          const rotation=smooth((phase-.16)/.30)*(1-recover);
-          crouch=.030*prepare*(1-swing)*(1-recover)+.012*active;
-          hipYaw=-s*.46*rotation;chestYaw=-s*.34*rotation;
-          shift=-s*.040*rotation;forward=s*.025*rotation;
-          pelvisRoll=-s*.025*rotation;trunkRoll=-s*.045*rotation;
-          trunkPitch=.018*active;
-          // Raise the bent elbow while moving forward, then sweep across the
-          // target horizontally. Recover directly rather than reverse the arc.
-          hookState={s,swing,active,rotation};
-          if(s===-1){leadTurn=active;leadPole.lerp(V(-1,.10,.05),active);leadPivot=.70*rotation;rearPivot=.10*rotation;}
-          else {rearTurn=active;rearPole.lerp(V(1,.10,.05),active);rearPivot=-.70*rotation;leadPivot=-.10*rotation;}
-          // The non-striking glove must stay close to the opposite cheek
-          // through the torso turn, rather than dropping during the hook.
+          // Coil the hips and ribs BEFORE driving the strike. The glove
+          // follows the body through a forward arc; it is never first parked
+          // at 90 degrees and then spun around a stationary shoulder.
+          const load=smooth((phase-.06)/.16)*(1-smooth((phase-.24)/.14));
+          const driveHook=smooth((phase-.23)/.24)*(1-smooth((phase-.57)/.22));
+          const swing=smooth((phase-.19)/.32);
+          const active=smooth((phase-.12)/.24)*(1-smooth((phase-.57)/.24));
+          const rotation=driveHook-.28*load;
+          crouch=.035*load+.016*driveHook;
+          hipYaw=-s*(.48*driveHook-.18*load);
+          chestYaw=-s*(.38*driveHook-.22*load);
+          shift=-s*(.047*driveHook-.018*load);
+          forward=-.025*load+.075*driveHook;
+          pelvisRoll=-s*.028*rotation;trunkRoll=-s*.050*rotation;
+          trunkPitch=.035*load+.020*driveHook;
+          hookState={s,swing,active,rotation:driveHook,load};
+          if(s===-1){leadTurn=active;leadPole.lerp(V(-1,-.35,.30),active);leadPivot=.62*driveHook-.10*load;rearPivot=.08*driveHook;}
+          else {rearTurn=active;rearPole.lerp(V(1,-.35,.30),active);rearPivot=-.62*driveHook+.10*load;leadPivot=-.08*driveHook;}
           if(s===-1)rearGuard.y+=.025*active;
           else leadGuard.y+=.025*active;
           break;
@@ -1008,16 +1012,19 @@
         hand.copy((side==='L'?leadGuard:rearGuard).clone().add(guardShift)).lerp(target,strike);
       }
       if(hookState) {
-        const {s,swing,active}=hookState,side=s===-1?'L':'R',hand=s===-1?lead:rear;
+        const {s,swing,active,load}=hookState,side=s===-1?'L':'R',hand=s===-1?lead:rear;
         const shoulder=this.point(j['arm'+side]);
-        // Compact hook: the torso carries a bent-arm arc. Keep the elbow
-        // close to a right angle instead of unfolding into another straight.
-        const radius=lerp(.42,.48,swing),height=options.strikeHeight??(1.75-crouch);
-        const direction=V(-s*(.10+.65*swing),0,1-.35*swing).normalize();
-        const dy=height-shoulder.y;
+        // Short pre-load behind the shoulder line, then a continuous forward
+        // and across-body arc driven by the rotating hips and rib cage.
+        // Elbow flexion evolves with the swing instead of snapping to 90°.
+        const radius=lerp(.34,.47,swing);
+        const direction=V(s*(.58-.95*swing),-.10+.14*swing,.65+.40*swing).normalize();
+        const height=lerp(1.61,options.strikeHeight??1.75,swing);
+        const dy=clamp(height-shoulder.y,-radius*.75,radius*.75);
         const target=shoulder.addScaledVector(direction,Math.sqrt(Math.max(.01,radius*radius-dy*dy)));
-        target.y=height;
-        hand.lerp(target,active);
+        target.y=shoulder.y+dy;
+        const chamber=hand.clone().add(V(s*.045,-.045,-.065));
+        hand.lerp(chamber,load).lerp(target,active);
       }
       // Target practice adapts reach to the physical target. Keep the existing
       // loading, footwork and body drive; constrain the wrist to arm length.
