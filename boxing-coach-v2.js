@@ -912,7 +912,8 @@
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
-      j.head.rotation.x+=(options.chinTuck||0)*drive;
+      // Keep the chin behind the lead shoulder through jab extension.
+      j.head.rotation.x+=((options.chinTuck||0)*drive+(move==='jab'?.045*strike:0));
       if(hit.part==='head'){j.head.rotation.x-=.28*hurt;j.head.rotation.y-=(hit.side||1)*.24*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
       if(hit.part==='body')j.head.rotation.x+=.10*hurt;
       j.head.rotation.x+=(options.down||0)*.25;
@@ -976,6 +977,8 @@
       // The defending hand follows the moving cheek, not just pelvis height.
       if(!['jab','hook','uppercut','speedbag'].includes(move))lead.copy(leadGuard.clone().add(headShift));
       if(!['cross','rear_hook','rear_uppercut','speedbag'].includes(move))rear.copy(rearGuard.clone().add(headShift));
+      // The free glove stays at cheek level during the lead jab, not at chest height.
+      if(move==='jab')rear.y+=.035*strike;
       if(brace){lead.add(V(.035*brace,.105*brace,-.015*brace));rear.add(V(-.035*brace,.105*brace,-.015*brace));}
       // Straight punches use almost the full arm reach after torso rotation.
       // A fixed short wrist endpoint left the elbow folded and knuckles pointing
