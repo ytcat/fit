@@ -77,7 +77,7 @@
    else if(legal){for(const s of [stats,total]){s.landed++;s[part]++;s.quality+=quality;s.power+=quality*quality;}}
    else if(part==='shoulder'){stats.shoulder++;total.shoulder++;}
    const severity=quality*(blocked?.14:part==='shoulder'?.30:1);
-   victim.reaction={time:this.time,part:part==='glove'?'guard':part,severity,side:side||1};
+   victim.reaction={time:this.time,part:part==='glove'?'guard':part,severity,side:side||1,move:a.move};
    if(legal){victim.condition=Math.max(0,victim.condition-severity*(this.preset==='quick'?(part==='head'?12:9):(part==='head'?3:2.2)));victim.stamina=clamp(victim.stamina-severity*.025);victim.stun+=severity*(part==='head'?5:3);f.stamina=clamp(f.stamina+.012);}
    const event=this.emit('contact',{actor,receiver,action,part,legal,blocked,speed,quality,severity,point});
    if(legal&&victim.stun>18){if(!victim.pendingDown){victim.pendingDown=true;this.roundStats[receiver].knockdowns++;this.totals[receiver].knockdowns++;}}
