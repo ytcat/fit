@@ -313,6 +313,13 @@
       const target=this.heavyTarget(spec.move,coach);options.target=null;options.knuckleTarget=target.point.toArray();options.strikeDirection=target.direction.toArray();
       options.knucklePlanner=shoulder=>this.heavyTarget(spec.move,coach,shoulder);
       options.strikeHeight=target.point.y-.026;options.levelChange=spec.move==='jab'||spec.move==='cross'?.018:.065;options.upperLoadHeight=1.18;options.upperWristHeight=1.76;
+      if(spec.move.includes('uppercut')){
+       // Use the same moving physical bag target as the jab, but keep
+       // the uppercut's rising wrist path and single IK solve.
+       const shoulder=coach.point(coach.joints['arm'+(spec.move==='uppercut'?'L':'R')]);
+       const wrist=target.point.clone().addScaledVector(target.direction,-.12);
+       options.uppercutBagTarget=wrist.toArray();
+      }
      }
     }
     else if(spec.attack){options.target=spec.move.includes('uppercut')?null:spec.move.includes('hook')?[-.02,1.86,.91]:[0,1.82,1.01];options.advance=spec.move.includes('hook')?.15:advance;}
