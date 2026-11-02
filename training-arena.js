@@ -367,12 +367,12 @@
          const torque=localPoint.clone().cross(localForce).multiplyScalar(1.8);
          if(upper){torque.x+=1.6*magnitude;torque.z+=(-localPoint.x)*.65*magnitude;}
          this.springs[receiver].impulse(torque);
-         const drive=velocity.clone().transformDirection(new THREE.Matrix4().copy(this.group.matrixWorld).invert());
+         const drive=velocity.clone().applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion()).invert());
          this.pushback[receiver].impulse(V(0,0,Math.min(4.5,Math.max(0,drive.z)*.9)));}
        }else if(entry.kind!=='bag'){
         this.recoil[receiver].impulse(V(0,0,magnitude*.45));
         if(receiver==='rabbit'){
-         const drive=velocity.clone().transformDirection(new THREE.Matrix4().copy(this.group.matrixWorld).invert());
+         const drive=velocity.clone().applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion()).invert());
          this.pushback.rabbit.impulse(V(0,0,Math.min(4,Math.max(0,drive.z)*.95)));
         }
        }
