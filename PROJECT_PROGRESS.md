@@ -35,5 +35,9 @@ Updated: 2026-11-02
 - Scope: targeted guard/head biomechanics only; full jab mechanics, shoulder deformation and glove orientation still require rendered visual regression checks.
 - JavaScript syntax and GitHub Actions outcome for this commit have not yet been confirmed.
 
+## Jab footwork milestone
+- Committed `3d71265`: lead jab advances the lead foot while keeping the rear foot planted as support. Other movements retain their previous footwork behavior.
+- This is a code-level change only. No measured foot-skating, visual joint deformation, or browser performance result is available yet.
+
 ## Next action
 Inspect rig joint names and animation update paths, identify a free licensed boxing jab clip, and test retargeting on a separate branch before altering main.
