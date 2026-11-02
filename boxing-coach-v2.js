@@ -751,7 +751,7 @@
 
     update(t,technique,combo,options={}) {
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
-      const beat=t/(technique==='combo'?1.0:1.22),move=seq[Math.floor(beat)%seq.length];
+      const beat=t/(technique==='combo'?1.0:(technique==='uppercut'||technique==='rear_uppercut'?1.42:1.22)),move=seq[Math.floor(beat)%seq.length];
       // Trim the dead guard tail between combination punches. Individual drills
       // keep their deliberate full reset; combinations retain continuous cadence.
       const phase=(beat%1)*(technique==='combo'?.86:1);
