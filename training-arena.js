@@ -63,7 +63,13 @@
    this.mesh(root,new THREE.CylinderGeometry(.066,.078,.71,32),this.dark,V(0,.55,0));
    this.mesh(root,new THREE.CylinderGeometry(.083,.083,.06,32),this.accent,V(0,.64,0));
    for(let y=.35;y<.70;y+=.07)this.mesh(root,new THREE.SphereGeometry(.009,8,6),this.accent,V(0,y,.069));
+   // Flexible captive joint: the torso rotates around the top of the post,
+   // never around a point floating above the mount.
    const swing=new THREE.Group();swing.position.y=.74;root.add(swing);root.userData.swing=swing;
+   const socket=this.mesh(root,new THREE.SphereGeometry(.092,24,16),this.dark,V(0,.74,0));
+   socket.name='Dummy captive pivot';
+   const collar=this.mesh(swing,new THREE.CylinderGeometry(.105,.095,.18,24),this.dark,V(0,.025,0));
+   collar.name='Dummy joint collar';
    const skin=material({color:0xab7960,roughness:.90});
    const volumes=[[[0,.45,0],[.255,.39,.145]],[[0,.66,0],[.315,.17,.16]],[[0,.85,0],[.095,.14,.095]],[[0,1.06,0],[.14,.18,.135]],[[0,.96,.035],[.12,.10,.13]]];
    const torso=this.mesh(swing,CoachSurface(volumes,[-.36,.03,-.20],[.36,1.27,.20],.020),skin);torso.name='Joined head and torso';root.userData.soft=torso;
@@ -199,6 +205,7 @@
    const target=this.models[this.mode],swing=target?.userData.swing;
    if(swing){const p=this.springs[this.mode].position,limit=this.mode==='heavy'?.27:this.mode==='dummy'?.14:.90;
     if(this.mode==='heavy')swing.rotation.set(p.x,p.y,p.z);
+    else if(this.mode==='dummy')swing.rotation.set(.075*Math.tanh(p.x/.14),.035*Math.tanh(p.y/.18),.075*Math.tanh(p.z/.14));
     else swing.rotation.set(limit*Math.tanh(p.x/limit),.18*Math.tanh(p.y/.18),limit*Math.tanh(p.z/limit));
     if(this.mode==='dummy')swing.position.z=0; // Keep torso connected to its fixed stand pivot.
     // Keep the heavy bag's suspension pivot attached to the frame. Punch
