@@ -198,7 +198,11 @@
    if(swing){const p=this.springs[this.mode].position,limit=this.mode==='heavy'?.27:this.mode==='dummy'?.14:.90;
     if(this.mode==='heavy')swing.rotation.set(p.x,p.y,p.z);
     else swing.rotation.set(limit*Math.tanh(p.x/limit),.18*Math.tanh(p.y/.18),limit*Math.tanh(p.z/limit));
-    if(this.mode==='heavy'||this.mode==='dummy')swing.position.z=Math.min(this.mode==='heavy'?.28:.16,Math.max(0,this.pushback[this.mode].position.z));
+    if(this.mode==='dummy')swing.position.z=Math.min(.16,Math.max(0,this.pushback.dummy.position.z));
+    // Keep the heavy bag's suspension pivot attached to the frame. Punch
+    // impulse is expressed by angular swing and soft-surface deformation;
+    // translating the pivot detached the chains from the hanger.
+    if(this.mode==='heavy')swing.position.z=0;
    }
    if(this.mode==='rabbit'&&this.rabbit)this.rabbit.root.position.z=.79+Math.min(.30,Math.max(0,this.pushback.rabbit.position.z));
    this.group.updateMatrixWorld(true);
