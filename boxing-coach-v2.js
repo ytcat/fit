@@ -928,8 +928,8 @@
       const brace=(options.brace||0)*drive+(options.hitReaction?.part==='guard'?(options.hitReaction.amount||0)*.30:0),recoil=options.recoil||0;
       crouch+=brace*.022+recoil*.38;forward-=brace*.014+recoil;trunkPitch+=brace*.020-recoil*.8;
       const hit=options.hitReaction||{},hurt=hit.amount||0;
-      if(hit.part==='body'){crouch+=.065*hurt;trunkPitch+=.25*hurt;forward-=.055*hurt;}
-      else if(hit.part==='head'){trunkPitch-=.055*hurt;forward-=.045*hurt;trunkRoll+=(hit.side||1)*.045*hurt;}
+      if(hit.part==='body'){crouch+=.065*hurt;trunkPitch+=.25*hurt;forward-=.055*hurt;if(hit.move?.includes('uppercut')){crouch+=.035*hurt;trunkPitch-=.16*hurt;forward-=.075*hurt;}}
+      else if(hit.part==='head'){trunkPitch-=.055*hurt;forward-=.045*hurt;trunkRoll+=(hit.side||1)*.045*hurt;if(hit.move?.includes('uppercut')){trunkPitch-=.23*hurt;forward-=.10*hurt;}}
       else if((hit.part==='shoulder'||hit.part==='arm')){chestYaw+=(hit.side||1)*.13*hurt;forward-=.025*hurt;}
       const presentation=options.presentation;
       this.celebrationSmile.visible=presentation?.mode==='winner';
@@ -961,7 +961,7 @@
       }
       // Keep the chin behind the lead shoulder through jab extension.
       j.head.rotation.x+=((options.chinTuck||0)*drive+(straight?.045*strike:0));
-      if(hit.part==='head'){j.head.rotation.x-=.28*hurt;j.head.rotation.y-=(hit.side||1)*.24*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
+      if(hit.part==='head'){j.head.rotation.x-=(hit.move?.includes('uppercut')?.53:.28)*hurt;j.head.rotation.y-=(hit.side||1)*.24*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
       if(hit.part==='body')j.head.rotation.x+=.10*hurt;
       j.head.rotation.x+=(options.down||0)*.25;
       if(presentation){
