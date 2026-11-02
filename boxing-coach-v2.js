@@ -835,6 +835,10 @@
           hookState={s,swing,active,rotation};
           if(s===-1){leadTurn=active;leadPole.lerp(V(-1,.10,.05),active);leadPivot=.70*rotation;rearPivot=.10*rotation;}
           else {rearTurn=active;rearPole.lerp(V(1,.10,.05),active);rearPivot=-.70*rotation;leadPivot=-.10*rotation;}
+          // The non-striking glove must stay close to the opposite cheek
+          // through the torso turn, rather than dropping during the hook.
+          if(s===-1)rearGuard.y+=.025*active;
+          else leadGuard.y+=.025*active;
           break;
         }
         case 'uppercut': case 'rear_uppercut': {
