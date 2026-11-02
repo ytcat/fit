@@ -616,11 +616,11 @@
         const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz);
         const center=V(normal.x*.295,.065+normal.y*.355,-.065+normal.z*.210);
         if(center.z>.025&&Math.abs(center.x)<.165&&center.y>-.03&&center.y<.29)continue;
-        const length=.040+random()*.050+Math.max(0,-normal.y)*.070;
+        const length=.052+random()*.070+Math.max(0,-normal.y)*.090;
         const width=.003+random()*.004;
         const outward=normal.clone().multiplyScalar(.80).add(V(normal.x*.12,-.52,-.12)).normalize();
         const across=outward.clone().cross(Math.abs(outward.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
-        const colour=new THREE.Color().setHSL(.070+random()*.035,.42+random()*.18,.10+random()*.19);
+        const colour=new THREE.Color().setHSL(.068+random()*.045,.40+random()*.22,.105+random()*.22);
         for(let j=0;j<3;j++) {
           const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.045*t*t,-.023*t*t));
           const t0=j/3,t1=(j+1)/3,p=point(t0),q=point(t1);
