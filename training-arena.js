@@ -39,11 +39,13 @@
     this.rod(root,V(s*.48,.035,-.45),V(s*.48,.035,.48),.035);
    }
    this.rod(root,V(-.48,2.55,-.12),V(.48,2.55,-.12),.030);
-   // The crossbar sits behind the bag: a forward cantilever must reach
-   // the actual suspension pivot or the bag appears to float beside it.
-   this.rod(root,V(0,2.55,-.12),V(0,2.55,0),.035);
-   this.rod(root,V(0,2.55,0),V(0,2.48,0),.014,this.accent);
-   this.mesh(root,new THREE.SphereGeometry(.039,16,12),this.dark,V(0,2.55,0));
+   // Triangulated overhead mount: both uprights connect directly to the
+   // suspension point. No free-floating hanger, including in side views.
+   const pivot=V(0,2.48,0);
+   this.rod(root,V(-.48,2.55,-.12),pivot,.026);
+   this.rod(root,V(.48,2.55,-.12),pivot,.026);
+   this.rod(root,V(0,2.55,-.12),pivot,.035);
+   this.mesh(root,new THREE.SphereGeometry(.045,20,12),this.dark,pivot);
    const swing=new THREE.Group();swing.position.y=2.48;root.add(swing);root.userData.swing=swing;
    const body=this.mesh(swing,new THREE.CylinderGeometry(.235,.235,1.15,64,32),this.heavyLeather,V(0,-.94,0));body.name='Heavy bag leather';root.userData.soft=body;
    this.mesh(swing,new THREE.SphereGeometry(.235,48,20),this.heavyLeather,V(0,-1.515,0)).scale.y=.24;
