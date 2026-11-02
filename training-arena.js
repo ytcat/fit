@@ -16,6 +16,7 @@
    this.models={};this.previousTime=0;this.metrics={};
    this.springs={heavy:new HangingBag(),dummy:new ContactSpring(7,.48),speed:new ContactSpring(28,.14)};
    this.recoil={lion:new ContactSpring(10,1),rabbit:new ContactSpring(10,1)};
+   this.pushback={heavy:new ContactSpring(7,.48),dummy:new ContactSpring(9,.65),rabbit:new ContactSpring(9,.7)};
    this.pressures={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.previousFists={};this.seen=new Set();this.hasFrame=false;
    this.dark=material({color:0x1b2532,roughness:.64,metalness:.3});
    this.leather=material({color:0x813432,roughness:.57});
@@ -173,7 +174,7 @@
    this.applyDynamics();return {loads,entry};
   }
   resetResponse(time=0){
-   this.previousTime=time;this.previousFists={};this.seen.clear();this.hasFrame=false;this.followBeat=-1;this.followAdvance=0;this.committedAim=null;this.aimBeat=-1;this.impacts=new Set();this.impactPulse={};
+   this.previousTime=time;this.previousFists={};this.seen.clear();this.hasFrame=false;this.followBeat=-1;this.followAdvance=0;this.committedAim=null;this.aimBeat=-1;this.impacts=new Set();this.impactPulse={};for(const spring of Object.values(this.pushback))spring.reset();
    for(const spring of [...Object.values(this.springs),...Object.values(this.recoil)])spring.reset();
    for(const [actor,coach] of [['lion',this.engine.coach],['rabbit',this.rabbit]]){
     this.pressures[actor]={L:0,R:0};if(coach)for(const side of ['L','R'])coach.deformGlove(side,0);
@@ -188,7 +189,9 @@
    if(swing){const p=this.springs[this.mode].position,limit=this.mode==='heavy'?.27:this.mode==='dummy'?.14:.90;
     if(this.mode==='heavy')swing.rotation.set(p.x,p.y,p.z);
     else swing.rotation.set(limit*Math.tanh(p.x/limit),.18*Math.tanh(p.y/.18),limit*Math.tanh(p.z/limit));
+    if(this.mode==='heavy'||this.mode==='dummy')swing.position.z=(this.mode==='dummy'?.74:0)+Math.min(this.mode==='heavy'?.28:.16,Math.max(0,this.pushback[this.mode].position.z));
    }
+   if(this.mode==='rabbit'&&this.rabbit)this.rabbit.root.position.z=.79+Math.min(.30,Math.max(0,this.pushback.rabbit.position.z));
    this.group.updateMatrixWorld(true);
   }
   closest(centre,object,shape,radius=.064){
@@ -257,6 +260,7 @@
    const dt=Math.max(0,time-this.previousTime);this.previousTime=time;
    for(const [key,spring] of Object.entries(this.springs))if(key!=='heavy'||mode!=='heavy')spring.step(dt);
    for(const spring of Object.values(this.recoil))spring.step(dt);
+   for(const spring of Object.values(this.pushback))spring.step(dt);
    this.applyDynamics();
    let frame=BOXING_ROUTINES.frame(time,mode==='speed'?'speedbag':technique,combo),heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)},counter=BOXING_ROUTINES.opponent(frame),random=null;
    if(technique==='random'&&mode==='rabbit'){
@@ -360,8 +364,12 @@
          // from the boxer; a pure torque cross-product at its center can vanish.
          const torque=localPoint.clone().cross(localForce).multiplyScalar(1.8);
          if(upper){torque.x+=1.6*magnitude;torque.z+=(-localPoint.x)*.65*magnitude;}
-         this.springs[receiver].impulse(torque);}
-       }else if(entry.kind!=='bag')this.recoil[receiver].impulse(V(0,0,magnitude*.45));
+         this.springs[receiver].impulse(torque);
+         this.pushback[receiver].impulse(V(0,0,Math.min(4.5,closing*(upper?1.2:.85))));}
+       }else if(entry.kind!=='bag'){
+        this.recoil[receiver].impulse(V(0,0,magnitude*.45));
+        if(receiver==='rabbit')this.pushback.rabbit.impulse(V(0,0,Math.min(4,closing*.95)));
+       }
        const transferred=receiver==='heavy'?loads.reduce((sum,l)=>sum+(l.impactImpulse||0),0):magnitude;
        if(entry.kind==='bag'){
         this.impactPulse[key]={time,amount:pressure,contact:entry};
