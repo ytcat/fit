@@ -948,6 +948,17 @@
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
+      if(move==='uppercut'||move==='rear_uppercut'){
+        // Head travels with the loading shoulder and rising spine; do not
+        // counter-rotate away the entire upper-body wind-up.
+        const coil=prepare*(1-rise)*(1-recover);
+        const launch=rise*(1-recover);
+        const side=move==='uppercut'?-1:1;
+        j.neck.rotation.set(.12*coil-.09*launch,side*.09*coil-side*.07*launch,side*.08*coil);
+        j.head.rotation.x+=.15*coil-.12*launch;
+        j.head.rotation.y+=(hipYaw+chestYaw)*.52;
+        j.head.rotation.z+=side*.085*coil-side*.07*launch;
+      }
       // Keep the chin behind the lead shoulder through jab extension.
       j.head.rotation.x+=((options.chinTuck||0)*drive+(straight?.045*strike:0));
       if(hit.part==='head'){j.head.rotation.x-=.28*hurt;j.head.rotation.y-=(hit.side||1)*.24*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
@@ -960,12 +971,20 @@
       // Scapular elevation/protraction of the striking shoulder protects the chin.
       const leftStrike=move==='hook'?hookState.rotation:move==='jab'?twist:move==='uppercut'?strike:0;
       const rightStrike=move==='rear_hook'?hookState.rotation:move==='cross'?twist:move==='rear_uppercut'?strike:0;
-      const reachShoulder=straight?.095:hookState?.085:.045;
+      const reachShoulder=straight?.095:hookState?.085:(move==='uppercut'||move==='rear_uppercut')?.12:.045;
       const shoulderCover=.055+(options.shoulderCover||0);
       j.armL.position.set(-.30+.012*leftStrike,.26+shoulderCover*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
       j.armR.position.set(.30-.012*rightStrike,.26+shoulderCover*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
       if((hit.part==='shoulder'||hit.part==='arm'))j[hit.side<0?'armL':'armR'].position.y-=.055*hurt;
-      if(shoulderSide)j[shoulderSide===-1?'armL':'armR'].position.y-=.024*shoulderLoad;
+      if(shoulderSide){
+        const striking=j[shoulderSide===-1?'armL':'armR'];
+        const coil=prepare*(1-rise)*(1-recover);
+        const launch=rise*(1-recover);
+        striking.position.y-=.065*coil;
+        striking.position.z-=.065*coil;
+        striking.position.y+=.065*launch;
+        striking.position.z+=.055*launch;
+      }
       this.tail.rotation.y= -.16*hipYaw+Math.sin(t*2.2)*.025;
       const footTargets=[],footPlans=[];
       for(const s of [-1,1]) {
