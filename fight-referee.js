@@ -75,8 +75,8 @@
     // Palm faces toward the referee's forward direction (-Z); the fingers
     // point toward the grip rather than following the forearm's Y axis.
     arm.wrist.position.copy(end);
-    const wristForward=V(0,0,-1),wristUp=V(0,1,0);
-    if(held){const reach=target.clone().sub(elbow).normalize();wristUp.copy(reach).multiplyScalar(-1);if(Math.abs(wristUp.dot(wristForward))>.92)wristUp.set(0,1,0);}
+    const wristForward=V(0,0,1),wristUp=V(0,1,0);
+    if(held){const reach=target.clone().sub(elbow).normalize();wristUp.copy(reach);if(Math.abs(wristUp.dot(wristForward))>.92)wristUp.set(0,1,0);}
     const wristRight=new THREE.Vector3().crossVectors(wristUp,wristForward).normalize();
     const correctedUp=new THREE.Vector3().crossVectors(wristForward,wristRight).normalize();
     arm.wrist.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(wristRight,correctedUp,wristForward));
