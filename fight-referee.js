@@ -26,21 +26,20 @@
    }
    const horn=this.mesh(new THREE.ConeGeometry(.056,.28,24),ivory,V(0,.15,.37),this.head);horn.rotation.x=.42;
    this.mesh(new THREE.ConeGeometry(.033,.10,20),ivory,V(0,.17,.23),this.head).rotation.x=.18;
-   // Sculpted facial planes, heavy brows, nostrils and folds give the referee
-   // a recognizable rhinoceros face from the front and from three-quarter views.
-   const crease=mat(0x56616a),innerEar=mat(0x9d7779),eye=mat(0x15171c,.24),iris=mat(0x705e47,.30),highlight=mat(0xf5f2e7,.16);
-   this.ell(V(0,.065,.285),V(.18,.12,.13),this.grey,this.head);
-   this.ell(V(0,-.035,.31),V(.145,.065,.115),this.grey,this.head);
+   // A continuous muzzle silhouette; remove the floating lips, cheeks and
+   // protruding eye spheres from the previous version.
+   const crease=mat(0x56616a),innerEar=mat(0x977b7c),eye=mat(0x15171c,.26),iris=mat(0x665c4d,.32);
+   this.ell(V(0,.045,.275),V(.195,.132,.155),this.grey,this.head);
+   this.ell(V(0,-.040,.305),V(.158,.067,.128),this.grey,this.head);
    for(const side of [-1,1]){
-    const brow=this.ell(V(side*.145,.225,.183),V(.108,.052,.068),this.grey,this.head);brow.rotation.z=-side*.17;
-    this.ell(V(side*.145,.18,.226),V(.041,.031,.017),eye,this.head);
-    this.ell(V(side*.14,.183,.241),V(.018,.020,.008),iris,this.head);
-    this.ell(V(side*.135,.191,.249),V(.007,.008,.004),highlight,this.head);
-    this.ell(V(side*.18,.315,.006),V(.040,.075,.016),innerEar,this.head).rotation.z=-side*.35;
-    this.ell(V(side*.118,.007,.392),V(.037,.022,.013),crease,this.head);
-    const fold=this.ell(V(side*.205,.035,.205),V(.055,.035,.027),crease,this.head);fold.rotation.z=side*.28;
+    const brow=this.ell(V(side*.129,.204,.172),V(.088,.034,.042),this.grey,this.head);
+    brow.rotation.z=-side*.12;
+    this.ell(V(side*.128,.165,.205),V(.031,.022,.012),eye,this.head);
+    this.ell(V(side*.124,.169,.215),V(.011,.012,.004),iris,this.head);
+    this.ell(V(side*.18,.310,.006),V(.036,.068,.014),innerEar,this.head).rotation.z=-side*.35;
+    this.ell(V(side*.115,.014,.413),V(.030,.017,.007),crease,this.head);
    }
-   this.ell(V(0,-.092,.330),V(.085,.012,.019),crease,this.head);
+   this.ell(V(0,-.082,.392),V(.093,.008,.009),crease,this.head);
    // Collar, waistband, belt buckle, trouser seams and ankle details.
    this.ell(V(0,1.57,0),V(.17,.055,.145),white);
    this.ell(V(0,.83,-.162),V(.085,.047,.013),this.dark);
@@ -52,6 +51,9 @@
    }
    this.arms={};for(const side of [-1,1]){
     const upper=this.ell(V(),V(.075,.20,.075),white),fore=this.ell(V(),V(.065,.21,.065),this.grey),hand=this.ell(V(),V(.066,.075,.040),this.grey);
+    // Shoulder cap and elbow joint stay attached to the moving arm.
+    const shoulder=this.ell(V(side*.29,1.50,0),V(.092,.10,.088),white);
+    const elbowJoint=this.ell(V(),V(.068,.075,.068),this.grey);
     // A separate palm and thumb group is oriented toward the grip target;
     // do not inherit the forearm quaternion, which turned the hands backward.
     const wrist=new THREE.Group();this.root.add(wrist);
@@ -60,7 +62,7 @@
     thumb.rotation.z=side*.32;
     for(let finger=0;finger<3;finger++)this.ell(V((finger-1)*.032,-.073,.027),V(.019,.035,.026),this.grey,wrist);
     hand.visible=false;
-    this.arms[side]={upper,fore,hand,wrist};
+    this.arms[side]={upper,fore,hand,wrist,elbowJoint};
    }
    this.update(0);
   }
@@ -68,10 +70,10 @@
    this.head.rotation.y=Math.sin(time*.7)*.10;
    for(const s of [-1,1]){
     const held=grip?.isVector3?(s===side?grip:null):grip?.[s];
-    const a=V(s*.29,1.50,0),target=held?this.root.worldToLocal(held.clone()):V(s*.34,1.0,.09);
+    const a=V(s*.29,1.50,0),target=held?this.root.worldToLocal(held.clone()):V(s*.36,1.08,.08);
     const delta=target.clone().sub(a),distance=Math.min(.805,Math.max(.05,delta.length())),dir=delta.normalize(),l1=.40,l2=.42,along=(l1*l1-l2*l2+distance*distance)/(2*distance);
-    const pole=V(s*.9,-.06,.34).addScaledVector(dir,-V(s*.9,-.06,.34).dot(dir)).normalize(),elbow=a.clone().addScaledVector(dir,along).addScaledVector(pole,Math.sqrt(Math.max(0,l1*l1-along*along))),end=a.clone().addScaledVector(dir,distance);
-    const arm=this.arms[s];for(const [mesh,p,q,width] of [[arm.upper,a,elbow,.075],[arm.fore,elbow,end,.065]]){mesh.position.copy(p).add(q).multiplyScalar(.5);mesh.scale.set(width,p.distanceTo(q)/2,width);mesh.quaternion.setFromUnitVectors(V(0,1,0),q.clone().sub(p).normalize());}arm.hand.position.copy(end);
+    const pole=V(s*.55,-.12,.22).addScaledVector(dir,-V(s*.9,-.06,.34).dot(dir)).normalize(),elbow=a.clone().addScaledVector(dir,along).addScaledVector(pole,Math.sqrt(Math.max(0,l1*l1-along*along))),end=a.clone().addScaledVector(dir,distance);
+    const arm=this.arms[s];for(const [mesh,p,q,width] of [[arm.upper,a,elbow,.075],[arm.fore,elbow,end,.065]]){mesh.position.copy(p).add(q).multiplyScalar(.5);mesh.scale.set(width,p.distanceTo(q)/2,width);mesh.quaternion.setFromUnitVectors(V(0,1,0),q.clone().sub(p).normalize());}arm.hand.position.copy(end);arm.elbowJoint.position.copy(elbow);
     // Palm faces toward the referee's forward direction (-Z); the fingers
     // point toward the grip rather than following the forearm's Y axis.
     arm.wrist.position.copy(end);
