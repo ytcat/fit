@@ -70,7 +70,7 @@
     const held=grip?.isVector3?(s===side?grip:null):grip?.[s];
     const a=V(s*.29,1.50,0),target=held?this.root.worldToLocal(held.clone()):V(s*.34,1.0,.09);
     const delta=target.clone().sub(a),distance=Math.min(.805,Math.max(.05,delta.length())),dir=delta.normalize(),l1=.40,l2=.42,along=(l1*l1-l2*l2+distance*distance)/(2*distance);
-    const pole=V(s*.4,0,.7).addScaledVector(dir,-V(s*.4,0,.7).dot(dir)).normalize(),elbow=a.clone().addScaledVector(dir,along).addScaledVector(pole,Math.sqrt(Math.max(0,l1*l1-along*along))),end=a.clone().addScaledVector(dir,distance);
+    const pole=V(s*.9,-.06,.34).addScaledVector(dir,-V(s*.9,-.06,.34).dot(dir)).normalize(),elbow=a.clone().addScaledVector(dir,along).addScaledVector(pole,Math.sqrt(Math.max(0,l1*l1-along*along))),end=a.clone().addScaledVector(dir,distance);
     const arm=this.arms[s];for(const [mesh,p,q,width] of [[arm.upper,a,elbow,.075],[arm.fore,elbow,end,.065]]){mesh.position.copy(p).add(q).multiplyScalar(.5);mesh.scale.set(width,p.distanceTo(q)/2,width);mesh.quaternion.setFromUnitVectors(V(0,1,0),q.clone().sub(p).normalize());}arm.hand.position.copy(end);
     // Palm faces toward the referee's forward direction (-Z); the fingers
     // point toward the grip rather than following the forearm's Y axis.
