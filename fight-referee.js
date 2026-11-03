@@ -9,8 +9,34 @@
    const add=(parent,geometry,material,p=V())=>{const m=new THREE.Mesh(geometry,material);m.position.copy(p);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
    const ell=(parent,p,r,m)=>{const mesh=add(parent,new THREE.SphereGeometry(1,32,20),m,p);mesh.scale.copy(r);return mesh;};
    const rod=(parent,a,b,r,m)=>{const d=b.clone().sub(a),mesh=add(parent,new THREE.CylinderGeometry(r,r,d.length(),14),m,a.clone().add(b).multiplyScalar(.5));mesh.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());return mesh;};
+   // Real bump relief under physically based lighting, not floating decorative
+   // blobs. Uses only an in-app texture and no network-dependent resources.
+   const rhinoCanvas=document.createElement('canvas');rhinoCanvas.width=rhinoCanvas.height=512;
+   const rhinoCtx=rhinoCanvas.getContext('2d');rhinoCtx.fillStyle='#888';rhinoCtx.fillRect(0,0,512,512);
+   let seed=91811;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+   for(let i=0;i<27000;i++){
+    const v=105+Math.floor(rand()*78),x=rand()*512,y=rand()*512,r=.4+rand()*1.5;
+    rhinoCtx.fillStyle='rgb('+v+','+v+','+v+')';rhinoCtx.beginPath();rhinoCtx.arc(x,y,r,0,Math.PI*2);rhinoCtx.fill();
+   }
+   for(let i=0;i<410;i++){
+    const x=rand()*512,y=rand()*512;
+    rhinoCtx.strokeStyle=rand()>.5?'rgba(60,60,60,.26)':'rgba(218,218,218,.22)';
+    rhinoCtx.lineWidth=.45+rand()*.9;rhinoCtx.beginPath();rhinoCtx.moveTo(x,y);
+    rhinoCtx.bezierCurveTo(x+8,y+3,x+21,y-5,x+26+rand()*12,y+2);rhinoCtx.stroke();
+   }
+   const rhinoDetail=new THREE.CanvasTexture(rhinoCanvas);rhinoDetail.wrapS=rhinoDetail.wrapT=THREE.RepeatWrapping;
+   rhinoDetail.repeat.set(4,4);rhinoDetail.anisotropy=4;
+   skin.bumpMap=shade.bumpMap=rhinoDetail;skin.bumpScale=.0045;shade.bumpScale=.003;
+   skin.needsUpdate=shade.needsUpdate=true;
    // Broad but anatomically continuous torso, neck, hips and legs.
-   ell(this.root,V(0,1.24,0),V(.325,.405,.205),shirt);
+   // Merge the torso and shoulder volumes into one continuous jersey mesh.
+   const jersey=CoachSurface([
+    [[0,1.24,0],[.325,.405,.205]],
+    [[-.255,1.46,0],[.14,.145,.142]],
+    [[.255,1.46,0],[.14,.145,.142]],
+    [[0,1.56,0],[.18,.12,.165]]
+   ],[-.44,.805,-.245],[.44,1.675,.245],.016);
+   add(this.root,jersey,shirt);
    ell(this.root,V(0,.89,0),V(.265,.14,.185),pants);
    ell(this.root,V(0,1.59,0),V(.15,.135,.145),skin);
    for(const x of [-.225,-.112,0,.112,.225]){
@@ -25,14 +51,21 @@
     ell(this.root,V(side*.145,.16,.045),V(.13,.13,.19),dark);
     ell(this.root,V(side*.14,.20,-.005),V(.105,.07,.11),pants);
    }
-   // The head is built from overlapping organic masses with one consistent
-   // facial axis (+Z); no isolated eye stalks or floating mouth pieces.
+   // Coherent rhinoceros anatomy: blend the large forehead, wide cheeks,
+   // long tapered nasal bridge, broad muzzle and jaw into one implicit surface.
+   // Both horns sit above the nasal bridge, preserving the unmistakable profile.
    this.head=new THREE.Group();this.head.position.set(0,1.72,.025);this.root.add(this.head);
-   ell(this.head,V(0,.125,-.035),V(.232,.245,.207),skin);
-   ell(this.head,V(0,.025,.136),V(.208,.159,.215),skin);
-   ell(this.head,V(0,-.060,.245),V(.187,.098,.17),skin);
-   ell(this.head,V(0,-.108,.205),V(.148,.041,.12),shade);
-   ell(this.head,V(0,.065,.267),V(.158,.078,.10),skin);
+   const headShape=CoachSurface([
+    [[0,.125,-.040],[.226,.244,.203]],
+    [[0,.060,.122],[.198,.170,.209]],
+    [[0,-.022,.257],[.173,.115,.186]],
+    [[0,-.080,.280],[.166,.067,.145]],
+    [[0,.095,.283],[.115,.094,.116]],
+    [[-.155,.052,.124],[.096,.10,.115]],
+    [[.155,.052,.124],[.096,.10,.115]]
+   ],[-.28,-.145,-.26],[.28,.405,.465],.011);
+   const skull=add(this.head,headShape,skin);
+   skull.name='Unified rhinoceros skull and muzzle';
    for(const side of [-1,1]){
     const ear=ell(this.head,V(side*.202,.31,-.068),V(.076,.125,.053),skin);ear.rotation.z=-side*.26;
     const inner=ell(this.head,V(side*.205,.321,-.019),V(.043,.078,.013),earPink);inner.rotation.z=-side*.26;
@@ -40,7 +73,7 @@
     ell(this.head,V(side*.128,.171,.196),V(.030,.027,.015),eye);
     ell(this.head,V(side*.123,.177,.210),V(.007,.008,.005),shine);
     ell(this.head,V(side*.123,-.012,.370),V(.034,.020,.011),shade);
-    ell(this.head,V(side*.185,.005,.18),V(.038,.042,.039),skin);
+    // Cheeks are already part of the continuous skull.
    }
    const horn=add(this.head,new THREE.ConeGeometry(.075,.285,32),ivory,V(0,.112,.342));horn.rotation.x=.29;
    const second=add(this.head,new THREE.ConeGeometry(.038,.115,24),ivory,V(0,.205,.177));second.rotation.x=.17;
@@ -53,7 +86,10 @@
      const k=i*(sides+1)+j;indices.push(k,k+sides+1,k+1,k+1,k+sides+1,k+sides+2);
     }
     geo.setAttribute('position',new THREE.BufferAttribute(vertices,3));geo.setIndex(indices);
-    const mesh=add(parent,geo,material);
+    // Two contiguous material regions: jersey sleeves then textured skin.
+    geo.addGroup(0,7*sides*6,0);
+    geo.addGroup(7*sides*6,(rings-7)*sides*6,1);
+    const mesh=add(parent,geo,[shirt,material]);
     mesh.userData.rebuild=(shoulder,elbow,wrist,radius)=>{
      const axisA=elbow.clone().sub(shoulder),axisB=wrist.clone().sub(elbow);
      const along=axisA.clone().add(axisB).normalize(),normal=V(0,0,1);
@@ -77,7 +113,7 @@
    // Shoulder sockets and sleeves are integrated into the arm chain.
    this.arms={};
    for(const side of [-1,1]){
-    const shoulder=ell(this.root,V(side*.295,1.47,0),V(.10,.11,.105),shirt);
+    // Shoulder is inside the continuous jersey surface, not a sphere.
     const upper=loft(this.root,skin);
     const elbow=null;
     const fore=null;
