@@ -44,13 +44,43 @@
    }
    const horn=add(this.head,new THREE.ConeGeometry(.075,.285,32),ivory,V(0,.112,.342));horn.rotation.x=.29;
    const second=add(this.head,new THREE.ConeGeometry(.038,.115,24),ivory,V(0,.205,.177));second.rotation.x=.17;
+   // Skin-like lofted shoulder-to-wrist surfaces replace the exposed
+   // spherical joints and separate cylinder/ellipsoid segments.
+   const loft=(parent,material)=>{
+    const geo=new THREE.BufferGeometry(),rings=20,sides=16;
+    const vertices=new Float32Array((rings+1)*(sides+1)*3),indices=[];
+    for(let i=0;i<rings;i++)for(let j=0;j<sides;j++){
+     const k=i*(sides+1)+j;indices.push(k,k+sides+1,k+1,k+1,k+sides+1,k+sides+2);
+    }
+    geo.setAttribute('position',new THREE.BufferAttribute(vertices,3));geo.setIndex(indices);
+    const mesh=add(parent,geo,material);
+    mesh.userData.rebuild=(shoulder,elbow,wrist,radius)=>{
+     const axisA=elbow.clone().sub(shoulder),axisB=wrist.clone().sub(elbow);
+     const along=axisA.clone().add(axisB).normalize(),normal=V(0,0,1);
+     const side=new THREE.Vector3().crossVectors(along,normal).normalize();
+     const back=new THREE.Vector3().crossVectors(side,along).normalize();
+     for(let i=0;i<=rings;i++){
+      const t=i/rings,first=t<.50,local=first?t*2:(t-.5)*2;
+      const center=first?shoulder.clone().lerp(elbow,local):elbow.clone().lerp(wrist,local);
+      const profile=first?(1.12-.16*local):(.96-.23*local);
+      const r=radius*profile;
+      for(let j=0;j<=sides;j++){
+       const theta=j/sides*Math.PI*2,idx=(i*(sides+1)+j)*3;
+       const p=center.clone().addScaledVector(side,Math.cos(theta)*r).addScaledVector(back,Math.sin(theta)*r);
+       vertices[idx]=p.x;vertices[idx+1]=p.y;vertices[idx+2]=p.z;
+      }
+     }
+     geo.attributes.position.needsUpdate=true;geo.computeVertexNormals();geo.computeBoundingSphere();
+    };
+    return mesh;
+   };
    // Shoulder sockets and sleeves are integrated into the arm chain.
    this.arms={};
    for(const side of [-1,1]){
-    const shoulder=ell(this.root,V(side*.295,1.47,0),V(.12,.132,.12),shirt);
-    const upper=ell(this.root,V(),V(1,1,1),shirt);
-    const elbow=ell(this.root,V(),V(.072,.078,.073),skin);
-    const fore=ell(this.root,V(),V(1,1,1),skin);
+    const shoulder=ell(this.root,V(side*.295,1.47,0),V(.10,.11,.105),shirt);
+    const upper=loft(this.root,skin);
+    const elbow=null;
+    const fore=null;
     const wrist=new THREE.Group();this.root.add(wrist);
     ell(wrist,V(0,0,.015),V(.063,.075,.047),skin);
     ell(wrist,V(-side*.055,-.018,.034),V(.027,.046,.030),skin);
@@ -71,7 +101,7 @@
     const pole=V(s*.78,-.12,.24);pole.addScaledVector(dir,-pole.dot(dir)).normalize();
     const elbow=shoulder.clone().addScaledVector(dir,along).addScaledVector(pole,Math.sqrt(Math.max(0,a*a-along*along)));
     const wrist=shoulder.clone().addScaledVector(dir,len);
-    const arm=this.arms[s];place(arm.upper,shoulder,elbow,.086);place(arm.fore,elbow,wrist,.067);arm.elbow.position.copy(elbow);
+    const arm=this.arms[s];arm.upper.userData.rebuild(shoulder,elbow,wrist,.075);
     arm.wrist.position.copy(wrist);
     const up=held?wrist.clone().sub(elbow).normalize():V(0,1,0);
     const forward=V(0,0,1);if(Math.abs(up.dot(forward))>.94)up.set(0,1,0);
