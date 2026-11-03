@@ -69,7 +69,7 @@
      [[-.162,.047,.130],[.087,.105,.120]],
      [[.162,.047,.130],[.087,.105,.120]],
      [[0,-.100,.214],[.139,.058,.151]]
-   ],[-.28,-.15,-.26],[.28,.39,.48],.013);
+   ],[-.28,-.15,-.26],[.28,.39,.48],.016);
    make(this.head,skull,skin).name='Connected rhino skull, jaw and muzzle';
    // Recessed expression, natural ears, nostrils and muscular facial folds.
    for(const side of [-1,1]){
@@ -121,7 +121,7 @@
      [[.249,1.49,0],[.147,.128,.141]],
      [[0,1.62,0],[.147,.104,.145]],
      [[0,1.035,0],[.258,.153,.184]]
-   ],[-.435,.84,-.245],[.435,1.72,.245],.017);
+   ],[-.435,.84,-.245],[.435,1.72,.245],.021);
    make(this.root,torso,jersey).name='Continuous referee jersey and shoulders';
    // Four black fabric stripes follow the shirt's curved front/back surface.
    for(const x of [-.217,-.108,0,.108,.217]){
@@ -148,7 +148,7 @@
      [[.145,.565,0],[.116,.313,.125]],
      [[-.145,.295,0],[.11,.190,.118]],
      [[.145,.295,0],[.11,.190,.118]]
-   ],[-.30,.11,-.20],[.30,.98,.20],.022);
+   ],[-.30,.11,-.20],[.30,.98,.20],.026);
    make(this.root,lower,pants).name='Continuous trouser silhouette';
    for(const side of [-1,1]){
      const shoe=ell(this.root,V(side*.148,.135,.072),V(.128,.104,.194),boot);
