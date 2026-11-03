@@ -63,20 +63,20 @@
     [[0,.095,.283],[.115,.094,.116]],
     [[-.155,.052,.124],[.096,.10,.115]],
     [[.155,.052,.124],[.096,.10,.115]]
-   ],[-.28,-.145,-.26],[.28,.405,.465],.011);
+   ],[-.28,-.145,-.26],[.28,.405,.465],.016);
    const skull=add(this.head,headShape,skin);
    skull.name='Unified rhinoceros skull and muzzle';
    for(const side of [-1,1]){
     const ear=ell(this.head,V(side*.202,.31,-.068),V(.076,.125,.053),skin);ear.rotation.z=-side*.26;
     const inner=ell(this.head,V(side*.205,.321,-.019),V(.043,.078,.013),earPink);inner.rotation.z=-side*.26;
-    const brow=ell(this.head,V(side*.128,.207,.142),V(.091,.045,.068),skin);brow.rotation.z=-side*.12;
-    ell(this.head,V(side*.128,.171,.196),V(.030,.027,.015),eye);
-    ell(this.head,V(side*.123,.177,.210),V(.007,.008,.005),shine);
-    ell(this.head,V(side*.123,-.012,.370),V(.034,.020,.011),shade);
+    const brow=ell(this.head,V(side*.125,.211,.223),V(.080,.030,.046),skin);brow.rotation.z=-side*.12;
+    ell(this.head,V(side*.125,.169,.258),V(.029,.021,.013),eye);
+    ell(this.head,V(side*.12,.175,.269),V(.006,.006,.003),shine);
+    ell(this.head,V(side*.110,-.030,.421),V(.029,.017,.008),shade);
     // Cheeks are already part of the continuous skull.
    }
-   const horn=add(this.head,new THREE.ConeGeometry(.075,.285,32),ivory,V(0,.112,.342));horn.rotation.x=.29;
-   const second=add(this.head,new THREE.ConeGeometry(.038,.115,24),ivory,V(0,.205,.177));second.rotation.x=.17;
+   const horn=add(this.head,new THREE.ConeGeometry(.077,.300,32),ivory,V(0,.177,.402));horn.rotation.x=.29;
+   const second=add(this.head,new THREE.ConeGeometry(.040,.145,24),ivory,V(0,.274,.246));second.rotation.x=.17;
    // Skin-like lofted shoulder-to-wrist surfaces replace the exposed
    // spherical joints and separate cylinder/ellipsoid segments.
    const loft=(parent,material)=>{
@@ -118,9 +118,9 @@
     const elbow=null;
     const fore=null;
     const wrist=new THREE.Group();this.root.add(wrist);
-    ell(wrist,V(0,0,.015),V(.063,.075,.047),skin);
-    ell(wrist,V(-side*.055,-.018,.034),V(.027,.046,.030),skin);
-    for(let i=0;i<4;i++)ell(wrist,V((i-1.5)*.028,-.075,.032),V(.016,.029,.024),skin);
+    ell(wrist,V(0,0,.015),V(.071,.080,.050),dark);
+    ell(wrist,V(-side*.061,-.021,.034),V(.029,.048,.032),dark);
+    for(let i=0;i<4;i++)ell(wrist,V((i-1.5)*.031,-.083,.032),V(.018,.034,.025),dark);
     this.arms[side]={upper,elbow,fore,wrist};
    }
    this.update(0);
