@@ -25,6 +25,34 @@
     t.repeat.set(kind==='fur'?4:6,kind==='fur'?4:6);return t;
   }
 
+  // Fine-scale, repeatable fiber/pores in material normals. Unlike enlarged
+  // geometric decorations this remains attached to the actual character skin
+  // through animation and responds to the arena lights.
+  function detailMap(kind) {
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=512;
+    const ctx=canvas.getContext('2d'),pixels=ctx.createImageData(512,512);
+    let state=kind==='fur'?17323:89923;
+    const rnd=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+    const field=new Float32Array(512*512);
+    for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+      const i=y*512+x,coarse=Math.sin(x*.072+y*.041)*2.8+Math.sin(x*.14-y*.095)*1.4;
+      field[i]=128+coarse+(rnd()-.5)*(kind==='fur'?48:26);
+    }
+    if(kind==='fur')for(let i=0;i<30000;i++){
+      const x=Math.floor(rnd()*512),y=Math.floor(rnd()*512),length=3+Math.floor(rnd()*11);
+      for(let j=0;j<length;j++){
+       const xx=(x+Math.floor(j*.20))%512,yy=(y+j)%512,idx=yy*512+xx;
+       field[idx]=Math.min(246,field[idx]+23*(1-j/length));
+      }
+    }
+    for(let i=0;i<field.length;i++){
+      const value=Math.max(0,Math.min(255,field[i]));pixels.data[i*4]=pixels.data[i*4+1]=pixels.data[i*4+2]=value;pixels.data[i*4+3]=255;
+    }
+    ctx.putImageData(pixels,0,0);
+    const t=new THREE.CanvasTexture(canvas);t.wrapS=t.wrapT=THREE.RepeatWrapping;
+    t.repeat.set(kind==='fur'?6:4,kind==='fur'?6:4);
+    t.anisotropy=4;return t;
+  }
   function meshFrom(data,refine=false) {
     let armBlend=data.armBlend?.slice();
     if(refine&&data.normal) {
@@ -129,11 +157,11 @@
       this.skeleton=new THREE.Skeleton(this.bones);
       this.dqReal=this.bones.map(()=>new THREE.Vector4(0,0,0,1));
       this.dqDual=this.bones.map(()=>new THREE.Vector4(0,0,0,0));
-      const fur=texture('fur'), grain=texture('leather');
+      const fur=detailMap('fur'), grain=detailMap('leather');
       const skin=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.94,
-        bumpMap:fur,bumpScale:.0018,skinning:true});
+        bumpMap:fur,bumpScale:this.species==='rabbit'?.0043:.0035,skinning:true});
       const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.61,
-        bumpMap:grain,bumpScale:.0015,skinning:true,side:THREE.DoubleSide});
+        bumpMap:grain,bumpScale:.0028,skinning:true,side:THREE.DoubleSide});
       this.skin=this.skinned(this.sculptBody(meshFrom(data.body,true)),skin,true);
       // A continuous saddle at the crotch with two separate, open leg hems.
       // The previous solid ellipsoid bridge stretched into a flap between legs.
@@ -162,7 +190,7 @@
       this.shorts=this.skinned(LionCoach.shortsGeometry.clone(),cloth,false);
       this.gold=new THREE.MeshStandardMaterial({color:0xd8b56c,metalness:.38,roughness:.43});
       this.leather=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x2758c1:0xad2529,roughness:.42,
-        bumpMap:grain,bumpScale:.001,metalness:.05});
+        bumpMap:grain,bumpScale:.0024,metalness:.05});
       this.black=new THREE.MeshStandardMaterial({color:0x131518,roughness:.44});
       this.cream=new THREE.MeshStandardMaterial({color:0xc9b491,roughness:.9});
       const waistband=new THREE.Mesh(new THREE.CylinderGeometry(.244,.249,.061,64,1,true),this.gold);
@@ -531,8 +559,8 @@
       for(const s of [-1,1])this.curve(ankle,[V(s*.088,.17,-.014),V(s*.079,.08,.005),V(s*.074,.01,.035)],this.black,.003);
     }
     addRabbitFace() {
-      const head=this.joints.head,white=new THREE.MeshStandardMaterial({color:0xe6e2dc,roughness:.9,bumpMap:this.skin.material.bumpMap,bumpScale:.0015});
-      const grey=new THREE.MeshStandardMaterial({color:0x939ba7,roughness:.94,bumpMap:this.skin.material.bumpMap,bumpScale:.0015});
+      const head=this.joints.head,white=new THREE.MeshStandardMaterial({color:0xe6e2dc,roughness:.9,bumpMap:this.skin.material.bumpMap,bumpScale:.004});
+      const grey=new THREE.MeshStandardMaterial({color:0x939ba7,roughness:.94,bumpMap:this.skin.material.bumpMap,bumpScale:.004});
       const pink=new THREE.MeshStandardMaterial({color:0xbb8186,roughness:.85});
       const eye=new THREE.MeshPhysicalMaterial({color:0x201715,roughness:.20,clearcoat:.65});
       this.rabbitEars=[];
@@ -581,7 +609,7 @@
     addMane() {
       const positions=[],colors=[],flex=[],guideIds=[],head=this.joints.head;
       const undercoat=this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x51351e,roughness:1,
-        bumpMap:texture('fur'),bumpScale:.003}),V(0,.065,-.065),V(.295,.355,.210));
+        bumpMap:detailMap('fur'),bumpScale:.004}),V(0,.065,-.065),V(.295,.355,.210));
       const surface=undercoat.geometry.attributes.position;
       for(let i=0;i<surface.count;i++) {
         const x=surface.getX(i),y=surface.getY(i),z=surface.getZ(i);
