@@ -103,7 +103,7 @@
        const y=base.y+height*t,z=base.z-lean*t*t;
        for(let j=0;j<=radial;j++){
          const a=j/radial*Math.PI*2;pos.push(Math.cos(a)*r,y, z+Math.sin(a)*r);
-         if(i<sections&&j<radial){const k=i*(radial+1)+j;index.push(k,k+1,k+radial+1,k+1,k+radial+2,k+radial+1);}
+         if(i<sections&&j<radial){const k=i*(radial+1)+j;index.push(k,k+radial+1,k+1,k+1,k+radial+1,k+radial+2);}
        }
      }
      const g=new THREE.BufferGeometry();
