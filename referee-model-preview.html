@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Rhino GLB Candidate — Isolated Test</title><style>body{margin:0;background:#101822;color:white;font:15px system-ui}#help{position:absolute;top:15px;left:15px;background:#101822d9;padding:12px;border-radius:8px}canvas{display:block;width:100vw;height:100vh}</style></head>
+<body><div id="help">Experimental CC0 rigged rhino GLB — NOT the game referee.<p id="status">Loading model…</p>Drag horizontally to rotate · scroll to zoom</div><canvas id="view"></canvas>
+<script src="./assets/vendor/three.min.js"></script><script src="./assets/vendor/GLTFLoader.js"></script>
+<script>
+(function(){
+'use strict';
+const canvas=document.getElementById('view'),status=document.getElementById('status');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x101822);
+const camera=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,.05,100);camera.position.set(3,2,5);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.setSize(innerWidth,innerHeight);
+scene.add(new THREE.HemisphereLight(0xd9ebff,0x1b1814,1.5));
+const light=new THREE.DirectionalLight(0xffedcd,2);light.position.set(2,5,4);scene.add(light);
+const stand=new THREE.GridHelper(8,16,0x777777,0x334455);scene.add(stand);
+const pivot=new THREE.Group();scene.add(pivot);
+let distance=4,angle=.6,model=null,mixer=null,last=performance.now();
+new THREE.GLTFLoader().load('./assets/models/rhino-candidate-gobkit.glb',gltf=>{
+ model=gltf.scene;pivot.add(model);
+ let bounds=new THREE.Box3().setFromObject(model);const size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
+ model.position.sub(center);model.position.y+=size.y/2;
+ const scale=2/Math.max(size.x,size.y,size.z);model.scale.multiplyScalar(scale);
+ if(gltf.animations.length){mixer=new THREE.AnimationMixer(model);const idle=THREE.AnimationClip.findByName(gltf.animations,'idle')||gltf.animations[0];mixer.clipAction(idle).play();}
+ status.textContent='Loaded — '+Math.round(size.y*100)/100+'m height, '+gltf.animations.length+' clips. Quadruped; not approved for referee use.';
+},undefined,e=>status.textContent='Load failed: '+e.message);
+let down=false,previous=0;canvas.addEventListener('pointerdown',e=>{down=true;previous=e.clientX;canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{if(down){angle+=(e.clientX-previous)*.008;previous=e.clientX}});
+canvas.addEventListener('pointerup',()=>down=false);canvas.addEventListener('wheel',e=>{distance=Math.max(2,Math.min(8,distance+e.deltaY*.003))},{passive:true});
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+function frame(now){requestAnimationFrame(frame);if(mixer)mixer.update(Math.min(.05,(now-last)/1000));last=now;camera.position.set(Math.sin(angle)*distance,1.6,Math.cos(angle)*distance);camera.lookAt(0,.9,0);renderer.render(scene,camera);}
+requestAnimationFrame(frame);
+})();
+</script></body></html>
