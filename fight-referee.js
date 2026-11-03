@@ -25,42 +25,25 @@
     ell(this.root,V(side*.145,.16,.045),V(.13,.13,.19),dark);
     ell(this.root,V(side*.14,.20,-.005),V(.105,.07,.11),pants);
    }
-   // Single watertight, smoothly shaded head-and-muzzle surface. The muzzle
-   // projects from the same topology as the skull, rather than intersecting
-   // ellipsoids. Ring radii and the forward bulge vary continuously by height.
+   // The head is built from overlapping organic masses with one consistent
+   // facial axis (+Z); no isolated eye stalks or floating mouth pieces.
    this.head=new THREE.Group();this.head.position.set(0,1.72,.025);this.root.add(this.head);
-   const headGeometry=new THREE.BufferGeometry(),headVerts=[],headIndices=[];
-   const levels=36,segments=48;
-   const smooth=(a,b,t)=>{const q=Math.max(0,Math.min(1,(t-a)/(b-a)));return q*q*(3-2*q);};
-   for(let i=0;i<=levels;i++){
-    const y=-.19+i/levels*.59;
-    const cap=Math.pow(Math.max(.0001,1-Math.pow((y-.105)/.305,2)),.43);
-    const width=.231*cap*(1+.08*Math.exp(-Math.pow((y+.025)/.09,2)));
-    const depth=.204*cap;
-    const muzzle=Math.exp(-Math.pow((y+.040)/.125,2));
-    for(let j=0;j<=segments;j++){
-     const angle=j/segments*Math.PI*2,side=Math.sin(angle),front=Math.cos(angle);
-     const forward=Math.pow(Math.max(0,front),3);
-     const z=-.025+depth*front + .215*muzzle*forward;
-     const x=width*side*(1-.14*muzzle*forward);
-     headVerts.push(x,y,z);
-     if(i<levels&&j<segments){const k=i*(segments+1)+j;headIndices.push(k,k+1,k+segments+1,k+1,k+segments+2,k+segments+1);}
-    }
-   }
-   headGeometry.setAttribute('position',new THREE.Float32BufferAttribute(headVerts,3));
-   headGeometry.setIndex(headIndices);headGeometry.computeVertexNormals();
-   add(this.head,headGeometry,skin);
+   ell(this.head,V(0,.125,-.035),V(.232,.245,.207),skin);
+   ell(this.head,V(0,.025,.136),V(.208,.159,.215),skin);
+   ell(this.head,V(0,-.060,.245),V(.187,.098,.17),skin);
+   ell(this.head,V(0,-.108,.205),V(.148,.041,.12),shade);
+   ell(this.head,V(0,.065,.267),V(.158,.078,.10),skin);
    for(const side of [-1,1]){
-    const ear=ell(this.head,V(side*.193,.318,-.071),V(.067,.11,.039),skin);ear.rotation.z=-side*.26;
-    const inner=ell(this.head,V(side*.195,.325,-.034),V(.037,.073,.009),earPink);inner.rotation.z=-side*.26;
-    const brow=ell(this.head,V(side*.113,.204,.156),V(.070,.023,.025),skin);brow.rotation.z=-side*.15;
-    ell(this.head,V(side*.113,.168,.173),V(.023,.018,.010),eye);
-    ell(this.head,V(side*.109,.173,.181),V(.005,.005,.003),shine);
-    ell(this.head,V(side*.111,-.032,.363),V(.027,.012,.006),shade);
+    const ear=ell(this.head,V(side*.202,.31,-.068),V(.076,.125,.053),skin);ear.rotation.z=-side*.26;
+    const inner=ell(this.head,V(side*.205,.321,-.019),V(.043,.078,.013),earPink);inner.rotation.z=-side*.26;
+    const brow=ell(this.head,V(side*.128,.207,.142),V(.091,.045,.068),skin);brow.rotation.z=-side*.12;
+    ell(this.head,V(side*.128,.171,.196),V(.030,.027,.015),eye);
+    ell(this.head,V(side*.123,.177,.210),V(.007,.008,.005),shine);
+    ell(this.head,V(side*.123,-.012,.370),V(.034,.020,.011),shade);
+    ell(this.head,V(side*.185,.005,.18),V(.038,.042,.039),skin);
    }
-   // Tapered horns are the only intentionally distinct facial structures.
-   const horn=add(this.head,new THREE.ConeGeometry(.063,.225,32),ivory,V(0,.100,.343));horn.rotation.x=.30;
-   const second=add(this.head,new THREE.ConeGeometry(.030,.092,24),ivory,V(0,.222,.180));second.rotation.x=.18;
+   const horn=add(this.head,new THREE.ConeGeometry(.075,.285,32),ivory,V(0,.112,.342));horn.rotation.x=.29;
+   const second=add(this.head,new THREE.ConeGeometry(.038,.115,24),ivory,V(0,.205,.177));second.rotation.x=.17;
    // Skin-like lofted shoulder-to-wrist surfaces replace the exposed
    // spherical joints and separate cylinder/ellipsoid segments.
    const loft=(parent,material)=>{
@@ -94,7 +77,7 @@
    // Shoulder sockets and sleeves are integrated into the arm chain.
    this.arms={};
    for(const side of [-1,1]){
-    // The arm loft begins inside the torso, eliminating exposed ball shoulders.
+    const shoulder=ell(this.root,V(side*.295,1.47,0),V(.10,.11,.105),shirt);
     const upper=loft(this.root,skin);
     const elbow=null;
     const fore=null;
