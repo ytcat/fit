@@ -44,7 +44,7 @@
      const z=-.025+depth*front + .215*muzzle*forward;
      const x=width*side*(1-.14*muzzle*forward);
      headVerts.push(x,y,z);
-     if(i<levels&&j<segments){const k=i*(segments+1)+j;headIndices.push(k,k+segments+1,k+1,k+1,k+segments+1,k+segments+2);}
+     if(i<levels&&j<segments){const k=i*(segments+1)+j;headIndices.push(k,k+1,k+segments+1,k+1,k+segments+2,k+segments+1);}
     }
    }
    headGeometry.setAttribute('position',new THREE.Float32BufferAttribute(headVerts,3));
