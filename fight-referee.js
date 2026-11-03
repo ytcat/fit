@@ -1,87 +1,82 @@
-/* Original rhino referee and ringside audience. All geometry stays in the app. */
+/* Rebuilt rhinoceros referee. All geometry and animation remain local. */
 (() => {
  const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
  class RhinoReferee {
   constructor(){
-   this.root=new THREE.Group();this.root.name='Rhino referee';
-   const mat=(c,r=.7)=>{const m=new THREE.MeshStandardMaterial({color:c,roughness:r});m.color.convertSRGBToLinear();return m;};
-   this.grey=mat(0x7e8992);this.dark=mat(0x151b25);const ivory=mat(0xd4c6ab),white=mat(0xdce1e3),black=mat(0x121820);
-   this.mesh=(g,m,p=V(),parent=this.root)=>{const x=new THREE.Mesh(g,m);x.position.copy(p);x.castShadow=x.receiveShadow=true;parent.add(x);return x;};
-   this.ell=(p,r,m,parent=this.root)=>{const x=this.mesh(new THREE.SphereGeometry(1,24,16),m,p,parent);x.scale.copy(r);return x;};
-   this.mesh(CoachSurface([[[0,1.22,0],[.30,.38,.18]],[[0,1.46,0],[.34,.18,.18]]],[-.38,.80,-.24],[.38,1.68,.24],.025),white);
-   // Stripes follow the shirt's curved front and back instead of flat boards.
-   for(const x of [-.23,-.115,0,.115,.23])for(const side of [-1,1]){
-    const points=[];for(let i=0;i<=12;i++){const y=.97+i*.045,rx=.30*Math.sqrt(Math.max(.10,1-((y-1.22)/.43)**2));if(Math.abs(x)>rx)continue;points.push(V(x,y,side*.184*Math.sqrt(Math.max(.02,1-(x/rx)**2))));}
-    if(points.length>1)this.mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),18,.013,5),black);
+   this.root=new THREE.Group();this.root.name='Rhino referee rebuilt';
+   const mat=(color,roughness=.83)=>{const m=new THREE.MeshStandardMaterial({color,roughness,metalness:0});m.color.convertSRGBToLinear();return m;};
+   const skin=mat(0x828d91),shade=mat(0x657278),dark=mat(0x252c33),shirt=mat(0xe7e7e1),stripe=mat(0x202329),pants=mat(0x242a32),ivory=mat(0xe1d3b3,.56),earPink=mat(0x9d777b),eye=mat(0x171a1c,.27),shine=mat(0xece7da,.3);
+   const add=(parent,geometry,material,p=V())=>{const m=new THREE.Mesh(geometry,material);m.position.copy(p);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
+   const ell=(parent,p,r,m)=>{const mesh=add(parent,new THREE.SphereGeometry(1,32,20),m,p);mesh.scale.copy(r);return mesh;};
+   const rod=(parent,a,b,r,m)=>{const d=b.clone().sub(a),mesh=add(parent,new THREE.CylinderGeometry(r,r,d.length(),14),m,a.clone().add(b).multiplyScalar(.5));mesh.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());return mesh;};
+   // Broad but anatomically continuous torso, neck, hips and legs.
+   ell(this.root,V(0,1.24,0),V(.325,.405,.205),shirt);
+   ell(this.root,V(0,.89,0),V(.265,.14,.185),pants);
+   ell(this.root,V(0,1.59,0),V(.15,.135,.145),skin);
+   for(const x of [-.225,-.112,0,.112,.225]){
+    const points=[];
+    for(let k=0;k<=18;k++){const y=.96+k*.029,dy=(y-1.24)/.405,rx=.325*Math.sqrt(Math.max(.03,1-dy*dy));if(Math.abs(x)>rx)continue;const z=.205*Math.sqrt(Math.max(.02,1-x*x/(rx*rx)));points.push(V(x,y,z+.005));}
+    if(points.length>1)add(this.root,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),30,.010,6,false),stripe);
    }
-   this.ell(V(0,.87,0),V(.25,.20,.16),black);
-   for(const s of [-1,1]){this.ell(V(s*.14,.50,0),V(.105,.36,.11),black);this.ell(V(s*.15,.13,.065),V(.115,.11,.19),this.dark);}
-   this.head=new THREE.Group();this.head.position.y=1.70;this.root.add(this.head);
-   this.mesh(CoachSurface([[[0,.15,0],[.215,.24,.19]],[[0,.035,.15],[.21,.125,.18]],[[0,.03,.29],[.15,.085,.12]]],[-.26,-.12,-.23],[.26,.43,.44],.016),this.grey,V(),this.head);
-   for(const s of [-1,1]){
-    const ear=this.ell(V(s*.192,.32,-.025),V(.072,.11,.042),this.grey,this.head);ear.rotation.z=-s*.38;
-    const ep=ear.geometry.attributes.position;for(let i=0;i<ep.count;i++){const taper=1-.65*Math.max(0,ep.getY(i));ep.setX(i,ep.getX(i)*taper);}ep.needsUpdate=true;ear.geometry.computeVertexNormals();
-    this.ell(V(s*.169,.18,.12),V(.027,.020,.012),ivory,this.head);this.ell(V(s*.171,.18,.132),V(.011,.014,.007),black,this.head);
-    this.ell(V(s*.088,.035,.382),V(.021,.012,.008),this.dark,this.head);
-   }
-   const horn=this.mesh(new THREE.ConeGeometry(.056,.28,24),ivory,V(0,.15,.37),this.head);horn.rotation.x=.42;
-   this.mesh(new THREE.ConeGeometry(.033,.10,20),ivory,V(0,.17,.23),this.head).rotation.x=.18;
-   // A continuous muzzle silhouette; remove the floating lips, cheeks and
-   // protruding eye spheres from the previous version.
-   const crease=mat(0x56616a),innerEar=mat(0x977b7c),eye=mat(0x15171c,.26),iris=mat(0x665c4d,.32);
-   this.ell(V(0,.045,.275),V(.195,.132,.155),this.grey,this.head);
-   this.ell(V(0,-.040,.305),V(.158,.067,.128),this.grey,this.head);
+   ell(this.root,V(0,.91,.18),V(.245,.035,.026),dark);
+   ell(this.root,V(0,.92,.211),V(.055,.033,.012),ivory);
    for(const side of [-1,1]){
-    const brow=this.ell(V(side*.129,.204,.172),V(.088,.034,.042),this.grey,this.head);
-    brow.rotation.z=-side*.12;
-    this.ell(V(side*.128,.165,.205),V(.031,.022,.012),eye,this.head);
-    this.ell(V(side*.124,.169,.215),V(.011,.012,.004),iris,this.head);
-    this.ell(V(side*.18,.310,.006),V(.036,.068,.014),innerEar,this.head).rotation.z=-side*.35;
-    this.ell(V(side*.115,.014,.413),V(.030,.017,.007),crease,this.head);
+    ell(this.root,V(side*.14,.49,0),V(.118,.36,.126),pants);
+    ell(this.root,V(side*.145,.16,.045),V(.13,.13,.19),dark);
+    ell(this.root,V(side*.14,.20,-.005),V(.105,.07,.11),pants);
    }
-   this.ell(V(0,-.082,.392),V(.093,.008,.009),crease,this.head);
-   // Collar, waistband, belt buckle, trouser seams and ankle details.
-   this.ell(V(0,1.57,0),V(.17,.055,.145),white);
-   this.ell(V(0,.83,-.162),V(.085,.047,.013),this.dark);
-   const buckle=mat(0xb3a47f,.35);
-   this.ell(V(0,.83,-.176),V(.043,.031,.011),buckle);
+   // The head is built from overlapping organic masses with one consistent
+   // facial axis (+Z); no isolated eye stalks or floating mouth pieces.
+   this.head=new THREE.Group();this.head.position.set(0,1.72,.025);this.root.add(this.head);
+   ell(this.head,V(0,.125,-.035),V(.232,.245,.207),skin);
+   ell(this.head,V(0,.025,.136),V(.208,.159,.215),skin);
+   ell(this.head,V(0,-.060,.245),V(.187,.098,.17),skin);
+   ell(this.head,V(0,-.108,.205),V(.148,.041,.12),shade);
+   ell(this.head,V(0,.065,.267),V(.158,.078,.10),skin);
    for(const side of [-1,1]){
-    this.ell(V(side*.14,.36,-.105),V(.012,.28,.008),crease);
-    this.ell(V(side*.15,.14,-.08),V(.12,.05,.13),this.dark);
+    const ear=ell(this.head,V(side*.202,.31,-.068),V(.076,.125,.053),skin);ear.rotation.z=-side*.26;
+    const inner=ell(this.head,V(side*.205,.321,-.019),V(.043,.078,.013),earPink);inner.rotation.z=-side*.26;
+    const brow=ell(this.head,V(side*.128,.207,.142),V(.091,.045,.068),skin);brow.rotation.z=-side*.12;
+    ell(this.head,V(side*.128,.171,.196),V(.030,.027,.015),eye);
+    ell(this.head,V(side*.123,.177,.210),V(.007,.008,.005),shine);
+    ell(this.head,V(side*.123,-.012,.370),V(.034,.020,.011),shade);
+    ell(this.head,V(side*.185,.005,.18),V(.038,.042,.039),skin);
    }
-   this.arms={};for(const side of [-1,1]){
-    const upper=this.ell(V(),V(.075,.20,.075),white),fore=this.ell(V(),V(.065,.21,.065),this.grey),hand=this.ell(V(),V(.066,.075,.040),this.grey);
-    // Shoulder cap and elbow joint stay attached to the moving arm.
-    const shoulder=this.ell(V(side*.29,1.50,0),V(.092,.10,.088),white);
-    const elbowJoint=this.ell(V(),V(.068,.075,.068),this.grey);
-    // A separate palm and thumb group is oriented toward the grip target;
-    // do not inherit the forearm quaternion, which turned the hands backward.
+   const horn=add(this.head,new THREE.ConeGeometry(.075,.285,32),ivory,V(0,.112,.342));horn.rotation.x=.29;
+   const second=add(this.head,new THREE.ConeGeometry(.038,.115,24),ivory,V(0,.205,.177));second.rotation.x=.17;
+   // Shoulder sockets and sleeves are integrated into the arm chain.
+   this.arms={};
+   for(const side of [-1,1]){
+    const shoulder=ell(this.root,V(side*.295,1.47,0),V(.12,.132,.12),shirt);
+    const upper=ell(this.root,V(),V(1,1,1),shirt);
+    const elbow=ell(this.root,V(),V(.072,.078,.073),skin);
+    const fore=ell(this.root,V(),V(1,1,1),skin);
     const wrist=new THREE.Group();this.root.add(wrist);
-    const palm=this.ell(V(0,0,.012),V(.070,.083,.038),this.grey,wrist);
-    const thumb=this.ell(V(-side*.057,-.025,.035),V(.029,.049,.029),this.grey,wrist);
-    thumb.rotation.z=side*.32;
-    for(let finger=0;finger<3;finger++)this.ell(V((finger-1)*.032,-.073,.027),V(.019,.035,.026),this.grey,wrist);
-    hand.visible=false;
-    this.arms[side]={upper,fore,hand,wrist,elbowJoint};
+    ell(wrist,V(0,0,.015),V(.063,.075,.047),skin);
+    ell(wrist,V(-side*.055,-.018,.034),V(.027,.046,.030),skin);
+    for(let i=0;i<4;i++)ell(wrist,V((i-1.5)*.028,-.075,.032),V(.016,.029,.024),skin);
+    this.arms[side]={upper,elbow,fore,wrist};
    }
    this.update(0);
   }
   update(time,grip=null,side=1){
-   this.head.rotation.y=Math.sin(time*.7)*.10;
+   this.head.rotation.y=Math.sin(time*.65)*.075;
+   this.root.updateMatrixWorld(true);
+   const place=(mesh,a,b,width)=>{const d=b.clone().sub(a);mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.scale.set(width,d.length()*.5+width*.22,width);mesh.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());};
    for(const s of [-1,1]){
     const held=grip?.isVector3?(s===side?grip:null):grip?.[s];
-    const a=V(s*.29,1.50,0),target=held?this.root.worldToLocal(held.clone()):V(s*.36,1.08,.08);
-    const delta=target.clone().sub(a),distance=Math.min(.805,Math.max(.05,delta.length())),dir=delta.normalize(),l1=.40,l2=.42,along=(l1*l1-l2*l2+distance*distance)/(2*distance);
-    const pole=V(s*.55,-.12,.22).addScaledVector(dir,-V(s*.9,-.06,.34).dot(dir)).normalize(),elbow=a.clone().addScaledVector(dir,along).addScaledVector(pole,Math.sqrt(Math.max(0,l1*l1-along*along))),end=a.clone().addScaledVector(dir,distance);
-    const arm=this.arms[s];for(const [mesh,p,q,width] of [[arm.upper,a,elbow,.075],[arm.fore,elbow,end,.065]]){mesh.position.copy(p).add(q).multiplyScalar(.5);mesh.scale.set(width,p.distanceTo(q)/2,width);mesh.quaternion.setFromUnitVectors(V(0,1,0),q.clone().sub(p).normalize());}arm.hand.position.copy(end);arm.elbowJoint.position.copy(elbow);
-    // Palm faces toward the referee's forward direction (-Z); the fingers
-    // point toward the grip rather than following the forearm's Y axis.
-    arm.wrist.position.copy(end);
-    const wristForward=V(0,0,1),wristUp=V(0,1,0);
-    if(held){const reach=target.clone().sub(elbow).normalize();wristUp.copy(reach);if(Math.abs(wristUp.dot(wristForward))>.92)wristUp.set(0,1,0);}
-    const wristRight=new THREE.Vector3().crossVectors(wristUp,wristForward).normalize();
-    const correctedUp=new THREE.Vector3().crossVectors(wristForward,wristRight).normalize();
-    arm.wrist.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(wristRight,correctedUp,wristForward));
+    const shoulder=V(s*.315,1.47,0),goal=held?this.root.worldToLocal(held.clone()):V(s*.39,1.045,.13);
+    const reach=goal.clone().sub(shoulder),len=Math.min(.76,Math.max(.12,reach.length())),dir=reach.normalize(),a=.385,b=.405;
+    const along=(a*a-b*b+len*len)/(2*len);
+    const pole=V(s*.78,-.12,.24);pole.addScaledVector(dir,-pole.dot(dir)).normalize();
+    const elbow=shoulder.clone().addScaledVector(dir,along).addScaledVector(pole,Math.sqrt(Math.max(0,a*a-along*along)));
+    const wrist=shoulder.clone().addScaledVector(dir,len);
+    const arm=this.arms[s];place(arm.upper,shoulder,elbow,.086);place(arm.fore,elbow,wrist,.067);arm.elbow.position.copy(elbow);
+    arm.wrist.position.copy(wrist);
+    const up=held?wrist.clone().sub(elbow).normalize():V(0,1,0);
+    const forward=V(0,0,1);if(Math.abs(up.dot(forward))>.94)up.set(0,1,0);
+    const right=new THREE.Vector3().crossVectors(up,forward).normalize();
+    arm.wrist.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right,new THREE.Vector3().crossVectors(forward,right).normalize(),forward));
    }
    this.root.updateMatrixWorld(true);
   }
