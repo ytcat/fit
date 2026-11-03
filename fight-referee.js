@@ -123,20 +123,21 @@
      [[0,1.035,0],[.258,.153,.184]]
    ],[-.435,.84,-.245],[.435,1.72,.245],.029);
    make(this.root,torso,jersey).name='Continuous referee jersey and shoulders';
-   // Four black fabric stripes follow the shirt's curved front/back surface.
-   for(const x of [-.217,-.108,0,.108,.217]){
-     for(const zSign of [-1,1]){
-       const pts=[];
-       for(let i=0;i<=24;i++){
-         const y=.965+i*.024,profile=Math.pow(Math.max(.06,1-Math.pow((y-1.29)/.46,2)),.5);
-         const rx=.319*profile;
-         if(Math.abs(x)>rx)continue;
-         const rz=.210*Math.sqrt(Math.max(.03,1-x*x/(rx*rx)));
-         pts.push(V(x,y,zSign*(rz+.009)));
-       }
-       if(pts.length>1)curve(this.root,pts,black,.010);
-     }
-   }
+   // Black stripes are printed IN the jersey material. Earlier floating
+   // tube stripes looked detached from the referee's curved chest.
+   const clothCanvas=document.createElement('canvas');clothCanvas.width=clothCanvas.height=512;
+   const clothCtx=clothCanvas.getContext('2d');
+   clothCtx.fillStyle='#f4f3ee';clothCtx.fillRect(0,0,512,512);
+   clothCtx.fillStyle='#202329';
+   for(let i=0;i<3;i++)clothCtx.fillRect(Math.floor((i+.34)*512/3),0,Math.floor(512*.085),512);
+   const clothTexture=new THREE.CanvasTexture(clothCanvas);
+   clothTexture.wrapS=clothTexture.wrapT=THREE.RepeatWrapping;clothTexture.anisotropy=4;
+   const stripedJersey=jersey.clone();stripedJersey.map=clothTexture;
+   stripedJersey.color.set(0xffffff);stripedJersey.needsUpdate=true;
+   // Jersey surface is constructed above. Apply the printed pattern without
+   // affecting the untextured sleeves' separate UV requirements.
+   const shirtMesh=this.root.children.find(n=>n.name==='Continuous referee jersey and shoulders');
+   if(shirtMesh)shirtMesh.material=stripedJersey;
    ell(this.root,V(0,1.62,.058),V(.15,.047,.105),trim);
    ell(this.root,V(0,.93,0),V(.263,.055,.184),black);
    const buckle=mat(0xb29d76,.38,{metalness:.45});
