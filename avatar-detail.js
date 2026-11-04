@@ -86,7 +86,9 @@
    }
    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
    g.setAttribute('coachArmBlend',new THREE.Float32BufferAttribute(attachments,1));g.setAttribute('avatarFurFlex',new THREE.Float32BufferAttribute(flex,1));g.setAttribute('uv',new THREE.Float32BufferAttribute(positions.flatMap((v,i)=>i%3===2?[]:[v*3]),2));
-   const material=new THREE.MeshStandardMaterial({color:0xd6c5ac,vertexColors:true,roughness:1,side:THREE.DoubleSide,skinning:true});
+   // Vertex colors already contain each species' coat; a warm multiplier
+   // stains grey rabbit fur brown wherever fibers catch rim/bounce light.
+   const material=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:1,side:THREE.DoubleSide,skinning:true});
    coach.bodyFur=coach.skinned(g,material,true);coach.bodyFur.name='Bone-attached short animal coat';coach.bodyFur.castShadow=false;
   },
   dent(p,coach){const d=coach.surfaceUniforms?.dent.value;if(d?.w){const distance=(p.x-d.x)**2+(p.y-d.y)**2+(p.z-d.z)**2;p.addScaledVector(coach.surfaceUniforms.dentNormal.value,-d.w*Math.exp(-distance/.012));}return p;},

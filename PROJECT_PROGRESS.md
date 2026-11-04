@@ -97,3 +97,15 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - Detailed findings, free model/material research and limits are recorded in
   docs/r76-contact-avatar-review.md. Mocap and physical-device benchmarks remain
   separate open work; no photorealism or full soft-body simulation is claimed.
+
+## R77 coat color correction
+- Reproduced the reported brown rabbit underarm in the raised lead-hook pose.
+  The short coat used a beige material multiplier on top of species vertex colors,
+  and both amber rim lights plus brown ground bounce exaggerated the color cast.
+- Made the fur multiplier neutral and replaced colored rims/ground bounce with
+  neutral studio lighting. Rabbit underarm shading now stays grey; the lion's
+  tawny color still comes from its own coat colors.
+- Inspected matched before/after closeups and a fresh 393×852 browser render of
+  the source-level fix; no page or shader errors. Existing avatar-detail and app
+  regression suites, syntax and whitespace checks passed. Physical-phone testing
+  is not claimed.
