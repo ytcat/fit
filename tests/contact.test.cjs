@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const a=new ContactSpring(4.2,.3),b=new ContactSpring(4.2,.3);a.impulse(new THREE.Vector3(1,.5,-.3));b.impulse(new THREE.Vector3(1,.5,-.3));a.step(.75);for(let i=0;i<75;i++)b.step(.01);assert.ok(a.position.distanceTo(b.position)<1e-12&&a.velocity.distanceTo(b.velocity)<1e-12,'spring response must not depend on frame rate');
 const position=a.position.clone();a.impulse(new THREE.Vector3(.5,0,0));assert.ok(a.position.equals(position),'a new hit must add momentum without resetting position');a.step(12);assert.ok(a.position.length()<1e-5&&a.velocity.length()<1e-5,'motion must decay to rest');

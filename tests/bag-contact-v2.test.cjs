@@ -1,7 +1,7 @@
 // Regress phantom first-frame impulses, speed-bag energy and visible padding.
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
-global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'));
 const coach=new LionCoach(data),e={coach,scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,.5,.1,100),animTime:0,fitCameraToModel(){}};

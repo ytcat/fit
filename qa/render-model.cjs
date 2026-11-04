@@ -1,4 +1,4 @@
-const fs=require('fs'),vm=require('vm');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};vm.runInThisContext(fs.readFileSync('boxing-routines.js','utf8'));vm.runInThisContext(fs.readFileSync('boxing-coach-v2.js','utf8'));
+const fs=require('fs'),vm=require('vm');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};vm.runInThisContext(fs.readFileSync('boxing-routines.js','utf8'));vm.runInThisContext(fs.readFileSync('boxing-coach-v2.js','utf8'));
 const c=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')));
 // CPU diagnostic: actual scene geometry and dual-quaternion skinning.
 // Canvas textures, shadows and physically-based shading are not reproduced.

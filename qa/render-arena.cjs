@@ -1,5 +1,5 @@
 // CPU pose diagnostics for actual arena geometry; omits PBR, textures and shadows.
-const fs=require('fs'),vm=require('vm');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+const fs=require('fs'),vm=require('vm');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'));
 const e={scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,560/700,.1,100),coach:new LionCoach(data),animTime:0,technique:'jab',currentAnim:'sparring_flow',fitCameraToModel(){}};e.demoModel=e.coach.root;e.scene.add(e.demoModel);

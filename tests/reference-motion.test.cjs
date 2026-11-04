@@ -1,7 +1,7 @@
 // Regress the screenshot defects using the real skinned surface and app camera.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
-global.document={readyState:'loading',addEventListener(){},createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+global.document={readyState:'loading',addEventListener(){},createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 for(const f of ['boxing-routines.js','boxing-coach-v2.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const html=fs.readFileSync('index.html','utf8');
 vm.runInThisContext([...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n')+'\nglobal.ReferenceEngine=AutoModelEngine;');

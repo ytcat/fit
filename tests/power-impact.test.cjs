@@ -1,7 +1,7 @@
 // A committed strike must transfer momentum once, release quickly and leave
 // a heavy target coasting. These are animation-model parameters, not force claims.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const V=(...x)=>new THREE.Vector3(...x),point=V(0,-.94,-.235),normal=V(0,0,-1),velocity=V(0,0,6);
 const light=new HangingBag({mass:45}),heavy=new HangingBag();

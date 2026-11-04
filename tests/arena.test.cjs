@@ -1,7 +1,7 @@
 // Physical scene, target reach and shared-clock partner regressions.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
-global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'));
 const e={scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,320/640,.1,100),coach:new LionCoach(data),animTime:0,technique:'combo',currentAnim:'sparring_flow',fitCameraToModel(){}};
@@ -63,3 +63,13 @@ const a=arena.update(.10,'combo','one_two').hero.hands,b=arena.update(.35,'combo
 assert.ok(new THREE.Vector3(...a[0]).distanceTo(new THREE.Vector3(...b[0]))>.09,'speed-bag hands must circle, not stay in guard');
 arena.setTarget('none');assert.equal(e.coach.root.parent,e.scene);assert.equal(arena.group.parent,null);
 console.log('PASS full-body framing, speed-bag mode and clean target removal');
+
+// Pausing must retain the filtered contact pose, not jump to an unfiltered aim.
+arena.setTarget('heavy');
+for(let i=0;i<=42;i++)arena.update(i/120,'hook','one_two');
+const frozenHands=arena.metrics.hero.hands.map(p=>p.slice());
+for(let i=0;i<3;i++){
+ const held=arena.update(42/120,'hook','one_two');
+ held.hero.hands.forEach((p,k)=>assert.ok(new THREE.Vector3(...p).distanceTo(new THREE.Vector3(...frozenHands[k]))<1e-8,'frozen targeting must preserve its actual wrist pose'));
+}
+console.log('PASS contact aiming remains frozen across repeated same-time updates');

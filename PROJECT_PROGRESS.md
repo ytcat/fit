@@ -41,3 +41,28 @@ Updated: 2026-11-02
 
 ## Next action
 Inspect rig joint names and animation update paths, identify a free licensed boxing jab clip, and test retargeting on a separate branch before altering main.
+
+## Review and contact repair — 2026-11-04
+- Started the architecture/contact/regression milestones with a review of the
+  current procedural rig and target response paths.
+- Removed duplicate uppercut bag kicks and dummy torque boosts; added bounded
+  lever-arm lift response, reachable uppercut wrists and earlier release.
+- Reduced uppercut side sway and head recoil, applied planted-leg support to
+  solo uppercuts, moved their load chamber forward and ramped rabbit reactions.
+- Corrected a hook shoulder-vector mutation, softened its chamber and widened
+  its swing timing.
+- Refined dummy/referee detail, ring corners/ropes and transient material cleanup.
+- Repaired CPU canvas mocks, obsolete referee assertions and browser harness.
+- Evidence and limitations: docs/review-2026-11-04.md. Mocap sourcing, retargeting
+  and measured device performance remain open; this does not complete the roadmap.
+
+## R73 completion pass
+- Completed the pending rig/contact repair from this review: compact uppercut
+  load/rise/recovery, stable elbow planes and gaze, consistent closing footwork,
+  live dummy chin targeting, coupled bag/dummy recoil and pause-safe aiming.
+- Corrected continuity checks to use anatomical shoulder references and
+  distinguish whole-body travel from a discontinuous IK correction.
+- Preserved contact-derived fight scoring and added bounded seeded outcome
+  coverage, equipment browser checks and complete CPU suites in CI.
+- Mocap sourcing/retargeting and measured device-performance milestones remain
+  separate pending work; no completion or benchmark is claimed for those.

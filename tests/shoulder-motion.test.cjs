@@ -1,13 +1,13 @@
 // Regress the reported arm twisting and skin pulled across the armpit.
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
-global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 for(const f of ['boxing-routines.js','boxing-coach-v2.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'));
 assert.throws(()=>new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface.json'))),/version mismatch/,'an old model must not silently bind to the new arm rig');
 // A cached R24 page can still request the original controller URL. Query-string
 // bumps alone cannot protect it if that script was evicted from the cache.
 const html=fs.readFileSync('index.html','utf8');
-assert.ok(html.includes('./boxing-coach-v2.js?v=26'),'the new page must use the versioned rig controller');
+assert.ok(/\.\/boxing-coach-v2\.js\?v=\d+/.test(html),'the new page must use the versioned rig controller');
 assert.ok(html.includes('./assets/models/coach-surface-v2.json?v=1'),'the new page must load the matching model');
 const legacyContext={THREE,document};legacyContext.window=legacyContext;
 vm.runInNewContext(fs.readFileSync('boxing-coach.js','utf8'),legacyContext);
@@ -29,7 +29,9 @@ for(const move of ['jab','cross','hook','rear_hook','uppercut','rear_uppercut'])
    const shoulder=c.point(c.joints['arm'+side]),elbow=c.point(c.joints['elbow'+side]),wrist=c.point(c.joints['hand'+side]);
    assert.ok(Math.abs(shoulder.distanceTo(elbow)-Math.hypot(.24,.26))<1e-6,'upper arm cannot stretch');
    assert.ok(Math.abs(elbow.distanceTo(wrist)-Math.hypot(.11,.29))<1e-6,'forearm cannot stretch');
-   assert.ok(elbow.z>.05&&elbow.y<m.head[1]+.01,'elbow must stay forward and below the head joint');
+   // During a loaded uppercut the shoulder coils behind the root plane.
+   // Judge a tucked elbow against that live shoulder, not a fixed world plane.
+   assert.ok(elbow.z>Math.min(.05,shoulder.z)&&elbow.y<m.head[1]+.01,'elbow must stay in front of the loading shoulder and below the head joint');
    return {elbow,q:c.joints['arm'+side].getWorldQuaternion(new THREE.Quaternion())};
   });
   if(previous)for(let k=0;k<2;k++){
@@ -48,7 +50,9 @@ for(const mode of ['heavy','dummy'])for(const move of ['jab','cross','hook','rea
  arena.setTarget(mode);let previous;
  for(let i=0;i<=144;i++){
   arena.update(i/120,move,'one_two');
-  const current=['L','R'].map(side=>({p:c.point(c.joints['elbow'+side]),q:c.joints['arm'+side].quaternion.clone()}));
+  // Closing steps translate the torso. Measure the elbow relative to its
+  // live shoulder so this detects an IK jump, not intended whole-body travel.
+  const current=['L','R'].map(side=>({p:c.point(c.joints['elbow'+side]).sub(c.point(c.joints['arm'+side])),q:c.joints['arm'+side].quaternion.clone()}));
   if(previous)for(let k=0;k<2;k++){
    assert.ok(current[k].q.angleTo(previous[k].q)<.20,mode+' '+move+' target correction flips the elbow plane');
    assert.ok(current[k].p.distanceTo(previous[k].p)<.055,mode+' '+move+' elbow teleports while aiming');

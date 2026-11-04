@@ -50,10 +50,10 @@
    const iris=mat(0x775a3d,.32);
    const pupil=mat(0x16181c,.25);
    const glint=mat(0xf7f2e9,.18);
-   const jersey=mat(0xe3e2dc,.78);
+   const jersey=mat(0xe3e2dc,.84,{bumpMap:detail,bumpScale:.00065});
    const black=mat(0x20252a,.75);
    const trim=mat(0x292d33,.87);
-   const pants=mat(0x232731,.83);
+   const pants=mat(0x232731,.83,{bumpMap:detail,bumpScale:.0008});
    const gloves=mat(0x171b23,.55,{metalness:.04});
    const boot=mat(0x161a21,.62,{metalness:.045});
    const seam=mat(0x495257,.94);
@@ -138,6 +138,12 @@
    // affecting the untextured sleeves' separate UV requirements.
    const shirtMesh=this.root.children.find(n=>n.name==='Continuous referee jersey and shoulders');
    if(shirtMesh)shirtMesh.material=stripedJersey;
+   // Tailored chest pocket, stitched edge, buttons and a brass official badge.
+   const pocket=make(this.root,new THREE.BoxGeometry(.10,.105,.008),jersey,V(-.13,1.37,.183));
+   pocket.name='Tailored referee pocket';
+   curve(this.root,[V(-.18,1.42,.190),V(-.18,1.32,.190),V(-.08,1.32,.190),V(-.08,1.42,.190)],seam,.0015);
+   for(const y of [1.19,1.29,1.39,1.49])ell(this.root,V(0,y,.204),V(.006,.006,.004),black);
+   ell(this.root,V(-.13,1.39,.198),V(.023,.027,.004),ivory);
    ell(this.root,V(0,1.62,.058),V(.15,.047,.105),trim);
    ell(this.root,V(0,.93,0),V(.263,.055,.184),black);
    const buckle=mat(0xb29d76,.38,{metalness:.45});

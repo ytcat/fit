@@ -10,23 +10,30 @@
    this.ring=new THREE.Group();arena.group.add(this.ring);
    // Raised canvas and apron make the ring a complete visible platform.
    const canvas=new THREE.Mesh(new THREE.BoxGeometry(3.48,.16,3.48),new THREE.MeshStandardMaterial({color:0x263449,roughness:.92,side:THREE.DoubleSide}));
-   canvas.position.y=-.10;canvas.receiveShadow=true;this.ring.add(canvas);
+   canvas.position.y=-.08;canvas.receiveShadow=true;this.ring.add(canvas);
    const apron=new THREE.Mesh(new THREE.BoxGeometry(3.65,.14,3.65),new THREE.MeshStandardMaterial({color:0x141c2a,roughness:.8,side:THREE.DoubleSide}));
    apron.position.y=-.24;apron.receiveShadow=true;this.ring.add(apron);
    for(const s of [-1,1])for(const z of [-1.65,1.65]){
     arena.rod(this.ring,V(s*1.65,.02,z),V(s*1.65,1.30,z),.035).userData.ringPost=true;
     const pad=arena.mesh(this.ring,new THREE.SphereGeometry(1,20,12),arena.leather,V(s*1.65,1.05,z));pad.scale.set(.065,.23,.065);pad.userData.ringPost=true;
    }
-   for(const y of [.48,.82,1.16]){
+   for(const y of [.36,.65,.94,1.23]){
     // All four complete sides, at identical heights, with shared corner posts.
     for(const z of [-1.65,1.65])arena.rod(this.ring,V(-1.65,y,z),V(1.65,y,z),.012,arena.accent);
     for(const x of [-1.65,1.65])arena.rod(this.ring,V(x,y,-1.65),V(x,y,1.65),.012,arena.accent);
+   }
+   for(const x of [-1.65,1.65])for(const z of [-1.65,1.65]){
+    const corner=new THREE.MeshStandardMaterial({color:z<0?0x973d38:0x315d91,roughness:.55});
+    for(const y of [.36,.65,.94,1.23]){
+     const pad=arena.mesh(this.ring,new THREE.BoxGeometry(.13,.10,.13),corner,V(x,y,z));
+     pad.rotation.y=Math.PI/4;
+    }
    }
    arena.group.rotation.y=.90;this.pose();
   }
   dispose(){
    const materials=new Set();for(const root of [this.referee.root,this.audience.root,this.ring]){
-    root.traverse(node=>{if(!node.isMesh)return;node.geometry.dispose();if(root!==this.ring)for(const material of (Array.isArray(node.material)?node.material:[node.material]))materials.add(material);});
+    root.traverse(node=>{if(!node.isMesh)return;node.geometry.dispose();for(const material of (Array.isArray(node.material)?node.material:[node.material])){if(root!==this.ring||![this.arena.dark,this.arena.leather,this.arena.accent].includes(material))materials.add(material);}});
     root.parent?.remove(root);
    }for(const material of materials)material.dispose();
   }
@@ -52,7 +59,7 @@
    for(const [actor,index] of [['lion',0],['rabbit',1]]){
     const coach=this.coaches[actor],f=m.fighters[actor];
     if(ceremony){coach.root.position.copy(this.lineupStart[actor].position).lerp(V(index?.72:-.72,0,.05),ease);coach.root.rotation.y=this.lineupStart[actor].yaw*(1-ease);}
-    else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.move?.includes('uppercut')?Math.min(.26,(reaction.amount||0)*.20):Math.min(.10,(reaction?.amount||0)*.07);
+    else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.move?.includes('uppercut')?Math.min(.12,(reaction.amount||0)*.10):Math.min(.10,(reaction?.amount||0)*.07);
      coach.root.position.set(.055*Math.sin(m.time*.62+index*2),0,direction*(-.55-corner-.025*Math.sin(m.time*.73+index)+push));coach.root.rotation.y=index?Math.PI:0;}
    }
    for(const actor of ['lion','rabbit']){

@@ -12,9 +12,12 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - name: Verify core assets and local script references
         run: |
           python3 - <<'PY'
@@ -36,3 +39,8 @@ jobs:
       - name: JavaScript syntax check
         run: |
           find . -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 -r -n1 node --check
+      - name: Motion, contact and application regressions
+        run: |
+          for test in tests/*.test.cjs; do
+            node "$test" || exit 1
+          done

@@ -14,7 +14,7 @@
   constructor(engine,data){
    this.engine=engine;this.data=data;this.mode='none';this.group=new THREE.Group();this.group.name='Training pair';
    this.models={};this.previousTime=0;this.metrics={};
-   this.springs={heavy:new HangingBag(),dummy:new ContactSpring(7,.48),speed:new ContactSpring(28,.14)};
+   this.springs={heavy:new HangingBag(),dummy:new ContactSpring(8,.62),speed:new ContactSpring(28,.14)};
    this.recoil={lion:new ContactSpring(10,1),rabbit:new ContactSpring(10,1)};
    this.pushback={heavy:new ContactSpring(7,.48),dummy:new ContactSpring(9,.65),rabbit:new ContactSpring(9,.7)};
    this.pressures={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.rabbitHit=null;this.previousFists={};this.seen=new Set();this.hasFrame=false;
@@ -70,13 +70,25 @@
    socket.name='Dummy captive pivot';
    const collar=this.mesh(swing,new THREE.CylinderGeometry(.105,.095,.18,24),this.dark,V(0,.025,0));
    collar.name='Dummy joint collar';
-   const skin=material({color:0xab7960,roughness:.90});
-   const volumes=[[[0,.45,0],[.255,.39,.145]],[[0,.66,0],[.315,.17,.16]],[[0,.85,0],[.095,.14,.095]],[[0,1.06,0],[.14,.18,.135]],[[0,.96,.035],[.12,.10,.13]]];
-   const torso=this.mesh(swing,CoachSurface(volumes,[-.36,.03,-.20],[.36,1.27,.20],.020),skin);torso.name='Joined head and torso';root.userData.soft=torso;
+   const skin=material({color:0xa87c60,roughness:.72,bumpMap:this.engine.coach.leather?.bumpMap,bumpScale:.0012});
+   const volumes=[[[0,.45,0],[.255,.39,.145]],[[0,.66,0],[.315,.17,.16]],[[0,.85,0],[.095,.14,.095]],[[0,1.06,0],[.14,.18,.135]],[[0,.96,-.025],[.12,.10,.13]],[[0,1.105,-.10],[.105,.055,.066]],[[0,1.025,-.09],[.10,.075,.075]]];
+   const torso=this.mesh(swing,CoachSurface(volumes,[-.36,.03,-.20],[.36,1.27,.20],.012),skin);torso.name='Joined head and torso';root.userData.soft=torso;
    for(const s of [-1,1]){
     this.ellipsoid(swing,skin,V(s*.12,.65,-.135),V(.12,.095,.035));
     this.ellipsoid(swing,material({color:0x704f44,roughness:1}),V(s*.050,1.095,-.126),V(.028,.010,.009));
     this.ellipsoid(swing,skin,V(s*.14,1.07,0),V(.025,.042,.027));
+   }
+   const rubber=material({color:0x43362f,roughness:.82});
+   const eye=material({color:0x261f1b,roughness:.45});
+   for(const side of [-1,1]){
+    this.ellipsoid(swing,eye,V(side*.050,1.095,-.135),V(.017,.008,.005));
+    this.ellipsoid(swing,skin,V(side*.052,1.12,-.13),V(.045,.016,.016));
+   }
+   // Molded waist cuff and fine embossed scoring zones share the leather finish.
+   this.mesh(swing,new THREE.CylinderGeometry(.16,.115,.12,48),rubber,V(0,.13,0));
+   for(const y of [.37,.52,.65]){
+    const zone=this.mesh(swing,new THREE.TorusGeometry(.035,.002,6,40),this.accent,V(0,y,-.162));
+    zone.name='Embossed target zone';
    }
    this.ellipsoid(swing,skin,V(0,1.045,-.14),V(.026,.037,.032));
    this.rod(swing,V(-.04,.995,-.135),V(.04,.995,-.135),.004,material({color:0x6b493e}));
@@ -146,7 +158,7 @@
     const upper=coach.joints['elbow'+side].position.length(),forearm=coach.joints['hand'+side].position.length();
     const radius=.235-.105+.204+forearm,dy=p.y-(y-.026),reach2=Math.max(.001,upper*upper-dy*dy);
     const v=V(-p.x,0,-p.z),distance=v.length();v.normalize();
-    const cosine=Math.max(-1,Math.min(1,(distance*distance+radius*radius-reach2)/(2*radius*Math.max(.001,distance))));
+    const cosine=Math.max(-.995,Math.min(.995,(distance*distance+radius*radius-reach2)/(2*radius*Math.max(.001,distance))));
     const direction=v.clone().multiplyScalar(cosine).addScaledVector(V(v.z,0,-v.x),-s*Math.sqrt(1-cosine*cosine));
     x=-.235*direction.x;z=-.235*direction.z;
    }
@@ -174,13 +186,13 @@
     const rising=move.includes('uppercut')?Math.max(0,relative.y):0;
     if(!this.impacts.has(event)&&Math.max(-relative.dot(normal),rising*.70)>.1){
      impact=bag.impact(localPoint,normal,speed,strikingMass(move));
-     if(rising>.1){const impulse=Math.min(2.4,rising*.34);bag.impulse(V(impulse,0,-localPoint.x*impulse*.35));impact.impulse+=impulse;impact.closing=Math.max(impact.closing,rising*.70); // Upward glove force produces a brief, bounded rocking swing around the fixed hanger.
-      bag.impulse(V(Math.min(.85,rising*.12),0,-Math.sign(localPoint.x)*Math.min(.35,rising*.05)));}
-     const forward=Math.max(0,speed.z);
-     // Uppercuts have a large upward component; use contact penetration
-     // and rising speed to move the bag away even with little forward speed.
-     const drive=Math.max(forward,move.includes('uppercut')?rising*.9:0);
-     this.pushback.heavy.impulse(V(0,0,Math.min(7,Math.max(1.3,drive*1.35))));
+     // Tangential lift transfers only friction-limited momentum. Torque comes
+     // from the contact lever arm and mass, never a second arbitrary kick.
+     if(rising>.1){
+      const lift=Math.min(impact.impulse*.30,rising*strikingMass(move)*.20);
+      bag.velocity.add(localPoint.clone().cross(V(0,lift,0)).divide(bag.inertia));
+      impact.closing=Math.max(impact.closing,rising*.30);
+     }
      this.impacts.add(event);
      if(this.impacts.size>64)this.impacts.delete(this.impacts.values().next().value);
      entry=contact;
@@ -195,7 +207,7 @@
    this.previousTime=time;this.previousFists={};this.seen.clear();this.hasFrame=false;this.followBeat=-1;this.followAdvance=0;this.committedAim=null;this.aimBeat=-1;this.impacts=new Set();this.impactPulse={};this.rabbitHit=null;for(const spring of Object.values(this.pushback))spring.reset();
    for(const spring of [...Object.values(this.springs),...Object.values(this.recoil)])spring.reset();
    for(const [actor,coach] of [['lion',this.engine.coach],['rabbit',this.rabbit]]){
-    this.pressures[actor]={L:0,R:0};if(coach)for(const side of ['L','R'])coach.deformGlove(side,0);
+    this.pressures[actor]={L:0,R:0};if(coach){coach.aimWristGuide=null;for(const side of ['L','R'])coach.deformGlove(side,0);}
    }
    for(const model of Object.values(this.models)){
     const swing=model.userData.swing;if(swing){swing.rotation.set(0,0,0);if(model===this.models.heavy||model===this.models.dummy)swing.position.z=0;}
@@ -206,7 +218,7 @@
    const target=this.models[this.mode],swing=target?.userData.swing;
    if(swing){const p=this.springs[this.mode].position,limit=this.mode==='heavy'?.27:this.mode==='dummy'?.14:.90;
     if(this.mode==='heavy')swing.rotation.set(p.x,p.y,p.z);
-    else if(this.mode==='dummy')swing.rotation.set(.075*Math.tanh(p.x/.14),.035*Math.tanh(p.y/.18),.075*Math.tanh(p.z/.14));
+    else if(this.mode==='dummy')swing.rotation.set(.18*Math.tanh(p.x/.18),.055*Math.tanh(p.y/.18),.14*Math.tanh(p.z/.14));
     else swing.rotation.set(limit*Math.tanh(p.x/limit),.18*Math.tanh(p.y/.18),limit*Math.tanh(p.z/limit));
     if(this.mode==='dummy')swing.position.z=0; // Keep torso connected to its fixed stand pivot.
     // Keep the heavy bag's suspension pivot attached to the frame. Punch
@@ -305,15 +317,15 @@
    }
    const active=mode!=='none'&&mode!=='speed';
    const pose=(coach,spec,actor,isHero)=>{
-    const advance=active&&spec.attack?(spec.move.includes('uppercut')?(mode==='heavy'?.46:.40):spec.move.includes('hook')?(mode==='heavy'?.22:.16):0)+(mode==='heavy'?this.followAdvance:0):0;
-    const options={simulationTime:time,hitReaction:actor==='rabbit'&&this.rabbitHit?{part:this.rabbitHit.part,move:this.rabbitHit.move,side:this.rabbitHit.side,amount:this.rabbitHit.strength*Math.exp(-(time-this.rabbitHit.time)/.25)}:null,power:powered&&spec.attack?1.12:1,defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
+    const advance=active&&spec.attack?(spec.move.includes('uppercut')?(mode==='heavy'?.28:.24):spec.move.includes('hook')?(mode==='heavy'?.22:.16):0)+(mode==='heavy'?this.followAdvance:0):0;
+    const options={simulationTime:time,hitReaction:actor==='rabbit'&&this.rabbitHit?{part:this.rabbitHit.part,move:this.rabbitHit.move,side:this.rabbitHit.side,amount:this.rabbitHit.strength*(1-Math.exp(-Math.max(0,time-this.rabbitHit.time)/.025))*Math.exp(-Math.max(0,time-this.rabbitHit.time)/.25)}:null,power:powered&&spec.attack?1.12:1,defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
     if(mode==='heavy'){
      const straight=spec.move==='jab'||spec.move==='cross';
-     options.guardTightness=1;options.stanceWidth=.54;options.stanceDepth=.55;options.stanceDrop=.015;
+     options.guardTightness=1;options.stanceWidth=spec.move.includes('uppercut')?.48:.54;options.stanceDepth=spec.move.includes('uppercut')?.44:.55;options.stanceDrop=.015;
      options.power=spec.attack?(straight?1.16:1.12):1;options.shoulderCover=straight?.055:0;options.armReachMargin=straight?.001:.002;options.chinTuck=.035;
      options.planStraight=true;
      if(straight){options.contactDrive=.065;options.straightRecovery=.22;}
-     if(spec.move.includes('uppercut')){options.loadDuration=.19;options.riseDuration=.27;}
+     if(spec.move.includes('uppercut')){options.loadDuration=.22;options.riseDuration=.27;}
     }
     if(mode==='speed'){
      // Closed wrist circles pass through the bag's lower striking lobe. Opposite
@@ -326,7 +338,16 @@
      }
     }
     if(isHero){options.target=active?this.aim(spec.move):null;
-     if(mode==='dummy'&&spec.attack){options.strikeHeight=1.76;options.levelChange=.025;options.upperWristHeight=1.64;}
+     if(mode==='dummy'&&spec.attack){
+      options.strikeHeight=1.76;options.levelChange=.025;options.upperWristHeight=1.64;
+      if(spec.move.includes('uppercut')){
+       options.loadDuration=.22;
+       // Aim below the live chin instead of extending beside the head.
+       const side=spec.move==='uppercut'?-1:1;
+       const wrist=this.models.dummy.userData.swing.localToWorld(V(side*.035,.90,-.18));
+       options.uppercutBagTarget=coach.root.worldToLocal(wrist).toArray();
+      }
+     }
      if(mode==='heavy'&&spec.attack){
       const target=this.heavyTarget(spec.move,coach);options.target=null;options.knuckleTarget=target.point.toArray();options.strikeDirection=target.direction.toArray();
       options.knucklePlanner=shoulder=>this.heavyTarget(spec.move,coach,shoulder);
@@ -388,12 +409,10 @@
          const incoming=Math.max(0,-relative.dot(normal));
          const impulse=.65*incoming/(1/.65+lever.lengthSq()/inertia);
          spring.impulse(lever.multiplyScalar(-impulse/inertia));
-        }else {const upper=uppercut;
-         // Uppercut lifts the head/upper section and rocks the target away
-         // from the boxer; a pure torque cross-product at its center can vanish.
-         const torque=localPoint.clone().cross(localForce).multiplyScalar(1.8);
-         if(upper){ // Lift and tip the dummy's upper torso, not its fixed base.
-          torque.x+=Math.min(1.8,1.1+Math.max(0,velocity.y)*.16)*magnitude;torque.z+=(-localPoint.x)*.45*magnitude;}
+        }else {
+         // Torque is computed about the captive joint. Upward force at the
+         // front of the face naturally tips it away without lifting its base.
+         const torque=localPoint.clone().cross(localForce).multiplyScalar(1.25);
          this.springs[receiver].impulse(torque);
          const drive=velocity.clone().applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion()).invert());
          this.pushback[receiver].impulse(V(0,0,Math.min(4.5,Math.max(0,drive.z)*.9)));}

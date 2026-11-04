@@ -11,7 +11,7 @@ const buttons=['jab','cross','hook','uppercut','slip','rear_hook','rear_uppercut
   .map(technique=>({...element(technique),dataset:{technique}}));
 global.document={readyState:'loading',documentElement:{},addEventListener(){},
   getElementById:element,querySelectorAll:()=>buttons,
-  createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+  createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 vm.runInThisContext(fs.readFileSync('boxing-routines.js','utf8'));
 vm.runInThisContext(fs.readFileSync('boxing-coach-v2.js','utf8'));
 const html=fs.readFileSync('index.html','utf8');

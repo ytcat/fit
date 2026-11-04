@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 process.chdir(path.join(__dirname,'..'));
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
-global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 vm.runInThisContext(fs.readFileSync('boxing-routines.js','utf8'));
 vm.runInThisContext(fs.readFileSync('boxing-coach-v2.js','utf8'));
 const coach=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')));
@@ -232,7 +232,12 @@ console.log('PASS connected combination cadence without joint-position jumps');
 for(const move of moves.filter(m=>m!=='step')) {
   const rest=coach.update(0,move,'one_two');
   const planted=coach.update(.38*1.22,move,'one_two');
-  assert.ok(planted.footTargets.some((f,i)=>vec(f.contact).distanceTo(vec(rest.footTargets[i].contact))>.04),move+' needs actual foot placement change');
+  if(move==='cross'){
+    // The cross transfers weight through a rear-foot pivot around a planted
+    // lead leg; forcing a step here contradicts its authored support stance.
+    assert.ok(planted.footTargets.every((f,i)=>vec(f.contact).distanceTo(vec(rest.footTargets[i].contact))<1e-6),'cross must retain its planted support');
+    assert.ok(planted.footTargets[1].pivot<-.10,'cross rear foot must drive the rotation');
+  }else assert.ok(planted.footTargets.some((f,i)=>vec(f.contact).distanceTo(vec(rest.footTargets[i].contact))>.04),move+' needs actual foot placement change');
   for(let p=0;p<=1;p+=.01){const m=coach.update(p*1.22,move,'one_two');assert.ok(m.footTargets.some(f=>f.lift<1e-6),move+' must retain a supporting foot');}
 }
 for(const [move,index,side] of [['uppercut',0,'L'],['rear_uppercut',1,'R']]) {

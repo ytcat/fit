@@ -1,5 +1,5 @@
 // Actual glove geometry, palm/back/side/impact views. No PBR or canvas textures.
-const fs=require('fs'),vm=require('vm');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:()=>()=>{}})})};
+const fs=require('fs'),vm=require('vm');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 vm.runInThisContext(fs.readFileSync('boxing-coach-v2.js','utf8'));
 const c=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'))),frames=[];
 for(const [name,side,eye,up,pressure] of [

@@ -13,7 +13,7 @@ const server=http.createServer((req,res)=>{
     args:['--no-sandbox','--enable-unsafe-swiftshader']});
   try {
     for(const [width,height] of [[1100,950],[393,852]]) {
-      const page=await browser.newPage({viewport:{width,height}}),errors=[];
+      const page=await browser.newPage({viewport:{width,height},bypassCSP:true}),errors=[];
       page.setDefaultTimeout(10000);
       page.on('pageerror',e=>errors.push(e.message));
       page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
@@ -37,6 +37,15 @@ const server=http.createServer((req,res)=>{
       assert.equal(await page.evaluate(()=>app.engine.animTime),before,'motion freeze');
       await page.evaluate(()=>document.getElementById('langHE').click());assert.equal(await page.locator('html').getAttribute('dir'),'rtl');
       await page.evaluate(()=>{document.getElementById('langRU').click();document.getElementById('langEN').click()});
+      for(const mode of ['heavy','dummy','rabbit','fight']){
+        const result=await page.evaluate(mode=>{
+          const e=app.engine;e.isPlaying=false;e.animTime=0;e.arena.setTarget(mode);
+          for(const time of [0,.1,.2,.3,.4,.5])e.arena.update(time,'uppercut','one_two');
+          const metrics=e.arena.metrics;
+          return {mode:metrics.mode,finite:(metrics.hero?.hands||[]).flat().every(Number.isFinite)};
+        },mode);
+        assert.equal(result.mode,mode);assert.ok(result.finite,mode+' finite rendered pose');
+      }
       assert.deepEqual(errors,[]);
       console.log('PASS browser',width+'x'+height,'all techniques and camera views, motion freeze, three languages');
       await page.close();
