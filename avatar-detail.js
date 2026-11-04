@@ -74,7 +74,13 @@
    const source=coach.skin.geometry,p=source.attributes.position,n=source.attributes.normal,a=source.attributes.coachArmBlend;
    const positions=[],normals=[],attachments=[],flex=[];let seed=17831;
    const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
-   const count=coach.species==='rabbit'?32000:24000;
+   // Mobile GPUs pay per transparent/overlapping fur triangle. Keep the
+   // silhouette and body shader, while limiting short-coat microgeometry.
+   const compact = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+     (navigator.maxTouchPoints > 1 && Math.min(screen.width,screen.height) < 900);
+   const count=coach.species==='rabbit'
+     ? (compact ? 9000 : 32000)
+     : (compact ? 7000 : 24000);
    for(let hair=0;hair<count;hair++){
     const i=Math.floor(rand()*p.count),root=V().fromBufferAttribute(p,i),normal=V().fromBufferAttribute(n,i);
     if((root.y>.70&&root.y<1.09)||Math.abs(root.x)>.86)continue;
