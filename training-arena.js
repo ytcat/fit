@@ -313,7 +313,7 @@
    p.needsUpdate=n.needsUpdate=true;mesh.userData.dentAmount=amount;
   }
   update(time,technique,combo){
-   const context=[this.mode,technique,combo,this.engine.randomSeed,this.engine.practiceTiming,this.engine.practiceSeed].join('|');
+   const context=[this.mode,technique,combo,this.engine.randomSeed,this.engine.practiceTiming,this.engine.practiceSeed,this.engine.speedDrill].join('|');
    const equipment=['heavy','dummy','speed'].includes(this.mode);
    // Fixed pose/contact ticks make a 90/144 Hz display transfer the same
    // momentum as a 60 Hz display. At most 8.3 ms of display latency.
@@ -327,7 +327,7 @@
    return this.step(target,technique,combo);
   }
   step(time,technique,combo){
-   const e=this.engine,mode=this.mode,context=[mode,technique,combo,e.randomSeed,e.practiceTiming,e.practiceSeed].join('|');
+   const e=this.engine,mode=this.mode,context=[mode,technique,combo,e.randomSeed,e.practiceTiming,e.practiceSeed,e.speedDrill].join('|');
    if(context!==this.context||time<this.previousTime){this.resetResponse(time);this.context=context;}
    const dt=Math.max(0,time-this.previousTime);this.previousTime=time;
    for(const [key,spring] of Object.entries(this.springs))if(key!=='heavy'||mode!=='heavy')spring.step(dt);
@@ -354,6 +354,8 @@
     const rest=this.models.heavy.position.z-e.coach.root.position.z;
     this.followAdvance=Math.max(0,Math.min(.16,centre.z-rest));this.followBeat=frame.index;
    }
+   const speedMotion=mode==='speed'?BOXING_ROUTINES.speedFrame(varied?(frame.index+frame.phase)*.678:time,e.speedDrill):null;
+   const mapped=varied||frame.authoredTempo;
    const powered=mode==='heavy'||mode==='dummy';
    const beatPhase=frame.phase/(technique==='combo'?.86:1);
    if(this.aimBeat!==frame.index){this.committedAim=null;this.aimBeat=frame.index;}
@@ -375,13 +377,14 @@
     if(mode==='speed'&&!frame.rest){
      // Closed wrist circles pass through the bag's lower striking lobe. Opposite
      // phases let one hand recover underneath while the other delivers.
-     const speedTime=varied?(frame.index+frame.phase)*1.22:time*1.8;
-     const angle=speedTime/1.22*Math.PI*2;
+     const angle=speedMotion.clock*Math.PI*2;options.limitSpeedReach=!speedMotion.legacy;
      if(varied)options.speedBagWeight=smooth(frame.phase/.12)*(1-smooth((frame.phase-.84)/.16));
      options.speedBagTargets={};
      for(const [side,offset] of [['L',0],['R',Math.PI]]){
-      const q=angle+offset;
-      options.speedBagTargets[side]=[side==='L'?-.10:.10,1.84+.035*Math.sin(q),.37-.15*Math.cos(q)];
+      const q=speedMotion.legacy?angle+offset:speedMotion.phase*Math.PI*2;
+      const on=speedMotion.legacy||speedMotion.side===side,blend=speedMotion.legacy?1:smooth(speedMotion.phase/.16)*(1-smooth((speedMotion.phase-.82)/.18));
+      const guard=V(side==='L'?-.185:.18,1.68,side==='L'?.31:.28),target=V(side==='L'?-.10:.10,1.84+.035*Math.sin(q),.37-.15*Math.cos(q));
+      options.speedBagTargets[side]=guard.lerp(target,on?blend:0).toArray();
      }
     }
     if(isHero){options.target=active?this.aim(spec.move):null;
@@ -408,8 +411,8 @@
      }
     }
     else if(spec.attack){options.target=spec.move.includes('uppercut')?null:spec.move.includes('hook')?[-.02,1.86,.91]:[0,1.82,1.01];options.advance=spec.move.includes('hook')?.15:advance;}
-    const motionTime=varied?(frame.rest?time:mode==='speed'?(frame.index+frame.phase)*1.22:powered&&spec.attack?powerPhase(beatPhase)*1.22:spec.phase*1.22):mode==='speed'?time*1.8:powered&&spec.attack?powerPhase(beatPhase)*1.22:random||!isHero?spec.phase*1.22:time;
-    return coach.update(motionTime,varied?(frame.rest?'guard':mode==='speed'?'speedbag':spec.move):mode==='speed'?'speedbag':(powered&&spec.attack)||random||!isHero?spec.move:technique,combo,options);
+    const motionTime=mapped?(frame.rest?time:mode==='speed'?(frame.index+frame.phase)*1.22:powered&&spec.attack?powerPhase(beatPhase)*1.22:spec.phase*1.22):mode==='speed'?time*1.8:powered&&spec.attack?powerPhase(beatPhase)*1.22:random||!isHero?spec.phase*1.22:time;
+    return coach.update(motionTime,mapped?(frame.rest?'guard':mode==='speed'?'speedbag':spec.move):mode==='speed'?'speedbag':(powered&&spec.attack)||random||!isHero?spec.move:technique,combo,options);
    };
    const hero=pose(e.coach,heroSpec,'lion',true);let partner=mode==='rabbit'?pose(this.rabbit,counter,'rabbit',false):null;
    this.group.updateMatrixWorld(true);
@@ -422,7 +425,7 @@
     }
     // Only the fist rolling forward can initiate a speed-bag strike. The
     // recovering fist passes underneath while the swivel rebounds freely.
-    const indices=frame.rest?[]:mode==='speed'?[Math.floor((varied?(frame.index+frame.phase)*1.22:time*1.8)/1.22*2)%2]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
+    const indices=frame.rest?[]:mode==='speed'?[speedMotion.legacy?speedMotion.index%2:speedMotion.side==='L'?0:1]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
     for(const index of [0,1]){
      const side=index?'R':'L',centre=coach.root.localToWorld(V(...metrics.gloves[index].knuckles));
      // Camera orbit rotates the whole scene; measure speed in the arena frame
@@ -430,7 +433,7 @@
      const key=actor+side,localCentre=this.group.worldToLocal(centre.clone()),previous=this.previousFists[key];
      const velocity=previous&&dt>0?localCentre.clone().sub(previous).divideScalar(dt).applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion())):V(...metrics.gloves[index].distal).transformDirection(coach.root.matrixWorld).multiplyScalar(1.8);
      if(!indices.includes(index)||!previous||!(dt>0)){this.previousFists[key]=localCentre;continue;}
-     const beat=mode==='speed'?Math.floor((varied?(frame.index+frame.phase)*1.22:time*1.8)/1.22*2):frame.index,event=actor+side+':'+beat;
+     const beat=mode==='speed'?speedMotion.index:frame.index,event=actor+side+':'+beat;
      let heavyEntry=null;
      if(receiver==='heavy'){
       const result=this.solveHeavyContact(previous||localCentre,localCentre,velocity,dt,event,spec.move);loads.push(...result.loads);heavyEntry=result.entry;
@@ -509,7 +512,7 @@
    }
    this.hasFrame=true;this.group.updateMatrixWorld(true);
    const platformContacts=mode==='speed'?this.springs.speed.takeBounces().map(b=>({receiver:'platform',kind:'platform',closingSpeed:b.angularSpeed*.17,impulse:b.angularSpeed*.0085})):[];
-   this.metrics={frame,counter,hero,partner,random,swings,platformContacts,practice:varied?frame:null,contacts,loads,hit:desired.lion.L>0||desired.lion.R>0,mode,
+   this.metrics={frame,counter,hero,partner,random,swings,platformContacts,speedDrill:speedMotion,practice:mapped?frame:null,contacts,loads,hit:desired.lion.L>0||desired.lion.R>0,mode,
     compression:{lion:{...this.pressures.lion},rabbit:{...this.pressures.rabbit}},reaction:mode in this.springs?this.springs[mode].position.toArray():null};return this.metrics;
   }
  }

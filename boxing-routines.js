@@ -12,11 +12,39 @@
   ['defence_flow',['slip','cross','roll','uppercut','rear_hook'],['Read, defend & counter','קריאה, הגנה ותגובה','Чтение, защита, ответ']],
   ['jab_exit',['jab','cross','step','jab','slip','cross'],['Attack, step out, return','התקפה, יציאה וחזרה','Атака, отход, возврат']],
   ['body_to_head',['jab','rear_uppercut','hook','roll','cross'],['Uppercut–hook counter','אפרקאט–הוק ותגובה','Апперкот–хук и ответ']],
-  ['sparring_flow',['jab','cross','slip','cross','hook','roll','uppercut','cross'],['Partner flow','רצף עם יריב','Серия с партнёром']]
+  ['sparring_flow',['jab','cross','slip','cross','hook','roll','uppercut','cross'],['Partner flow','רצף עם יריב','Серия с партнёром']],
+  ['fast_jabs_upper',['jab','jab','rear_uppercut','cross'],['Fast double jab, measured uppercut','ג׳אב כפול מהיר ואפרקאט איטי','Быстрые джебы, медленный апперкот']],
+  ['burst_exit',['jab','cross','hook','step','cross'],['Fast burst, reset, cross','רצף מהיר, יציאה וקרוס','Быстрая серия, отход, кросс']],
+  ['read_upper',['slip','slip','rear_uppercut','hook','step'],['Read twice, uppercut counter','שתי התחמקויות ואפרקאט נגד','Два уклона, ответ апперкотом']],
+  ['change_gears',['jab','jab','cross','roll','rear_uppercut','cross'],['Change gears','שינויי קצב','Смена темпа']]
  ].map(([id,moves,names])=>({id,moves,names}));
  const sequences=Object.fromEntries(list.map(r=>[r.id,r.moves]));
+ const timings={fast_jabs_upper:[.48,.48,1.30,.78],burst_exit:[.52,.60,.70,1.18,.76],read_upper:[.72,.92,1.20,.65,1.15],change_gears:[.46,.50,.68,.98,1.36,.65]};
+ const speedDrills=[
+  {id:'alternating',names:['Alternating speed-bag rhythm','קצב לסירוגין','Чередование рук']},
+  {id:'lead',names:['Lead hand control','שליטה ביד קדמית','Передняя рука']},
+  {id:'rear',names:['Rear hand control','שליטה ביד אחורית','Задняя рука']},
+  {id:'doubles',names:['Double lead, double rear','כפול קדמי, כפול אחורי','Два передней, два задней']},
+  {id:'triples',names:['Triple-hand bursts','רצפים של שלוש','Тройки каждой рукой']},
+  {id:'intervals',names:['Build speed, recover','האצה והתאוששות','Ускорение и восстановление']}
+ ];
+ function speedFrame(time,id='alternating'){
+  time=Math.max(0,time);
+  if(id==='alternating')return {clock:time*1.8/1.22,index:Math.floor(time*1.8/1.22*2),legacy:true};
+  const sides=id==='lead'?['L']:id==='rear'?['R']:id==='triples'?['L','L','L','R','R','R']:['L','L','R','R'];
+  const durations=id==='intervals'?[.48,.42,.36,.30,.30,.36,.42,.55]:id==='triples'?[.32,.32,.48,.32,.32,.48]:sides.map(()=>.46);
+  const total=durations.reduce((a,b)=>a+b,0),cycle=Math.floor(time/total);let age=time-cycle*total,slot=0;
+  while(slot<durations.length-1&&age>=durations[slot])age-=durations[slot++];
+  const phase=age/durations[slot],side=id==='intervals'?(slot%2?'R':'L'):sides[slot%sides.length];
+  return {index:cycle*durations.length+slot,phase,side,clock:cycle+slot/durations.length,legacy:false,tempo:60/durations[slot]};
+ }
  function frame(time,technique='combo',combo='one_two'){
   const moves=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
+  if(technique==='combo'&&timings[combo]){
+   const ds=timings[combo],total=ds.reduce((a,b)=>a+b,0),cycle=Math.floor(Math.max(0,time)/total);let age=Math.max(0,time)-cycle*total,slot=0;
+   while(slot<ds.length-1&&age>=ds[slot])age-=ds[slot++];
+   return {move:moves[slot],phase:age/ds[slot]*.86,index:cycle*moves.length+slot,slot,moves,duration:ds[slot],authoredTempo:true};
+  }
   const duration=technique==='combo'?1:1.22,beat=Math.max(0,time)/duration;
   const index=Math.floor(beat),fraction=beat-index;
   return {move:moves[index%moves.length],phase:fraction*(technique==='combo'?.86:1),index,slot:index%moves.length,moves,duration};
@@ -52,7 +80,7 @@
    time=Math.max(0,time);
    while(this.end<=time){
     const index=this.events.length,move=moves[index%moves.length];
-    const duration=(move.includes('uppercut')?.96:.76)+this.random()*.46;
+    const duration=technique==='combo'&&timings[combo]?timings[combo][index%moves.length]*(.82+this.random()*.36):(move.includes('uppercut')?.96:.76)+this.random()*.46;
     const gap=this.random()<.42?0:.14+this.random()*.92;
     this.events.push({start:this.end,activeEnd:this.end+duration,end:this.end+duration+gap,duration,gap,index,move});
     this.end+=duration+gap;
@@ -84,5 +112,5 @@
    return {...beat,phase,lion:beat.attacker==='lion'?attack:defence,rabbit:beat.attacker==='rabbit'?attack:defence};
   }
  }
- window.BOXING_ROUTINES={list,sequences,frame,opponent,PracticeTimeline,RandomSparring,speeds:[.5,.75,1,1.25,1.5,2,2.5,3]};
+ window.BOXING_ROUTINES={list,sequences,timings,speedDrills,speedFrame,frame,opponent,PracticeTimeline,RandomSparring,speeds:[.5,.75,1,1.25,1.5,2,2.5,3]};
 })();

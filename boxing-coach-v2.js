@@ -1170,7 +1170,7 @@
       }
       // Targets beyond the moving shoulder's reach must stay on the arm's
       // reachable sphere; never stretch the elbow to follow a swinging bag.
-      if(move.includes('uppercut')||hurt>0)for(const [side,hand] of [['L',lead],['R',rear]]){
+      if(move.includes('uppercut')||(move==='speedbag'&&options.limitSpeedReach)||hurt>0)for(const [side,hand] of [['L',lead],['R',rear]]){
         const shoulder=this.point(j['arm'+side]);
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;
         hand.copy(shoulder.clone().add(hand.clone().sub(shoulder).clampLength(Math.abs(j['elbow'+side].position.length()-j['hand'+side].position.length())+.005,reach)));

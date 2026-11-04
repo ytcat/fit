@@ -27,9 +27,11 @@
   function paint(){
    fight.textContent=({en:'Fight',he:'קרב',ru:'Бой'})[app.lang]||'Fight';fight.setAttribute('aria-label',w().fight);
    const mode=e.targetMode||'none';target.textContent=w()[mode];target.setAttribute('aria-label',w().target+': '+w()[mode]);
-   target.setAttribute('aria-haspopup','dialog');combo.textContent=e.technique==='random'?w().random:w().combos;combo.disabled=mode==='speed';if(mode==='fight')combo.textContent=window.fightUI?.words().cards||'Scorecards';speed.disabled=mode==='fight';if(mode==='fight')speed.textContent='1×';for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=mode==='fight';document.body.classList.toggle('fight-active',mode==='fight');if(mode!=='fight')window.fightUI?.hide();
+   target.setAttribute('aria-haspopup','dialog');combo.textContent=e.technique==='random'?w().random:w().combos;combo.disabled=false;if(mode==='fight')combo.textContent=window.fightUI?.words().cards||'Scorecards';speed.disabled=mode==='fight';if(mode==='fight')speed.textContent='1×';for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=mode==='fight';document.body.classList.toggle('fight-active',mode==='fight');if(mode!=='fight')window.fightUI?.hide();
    timing.disabled=mode==='fight';timing.textContent=mode==='fight'?w().fightRhythm:e.practiceTiming==='random'?w().variableLabel:w().steadyLabel;
    timing.setAttribute('aria-label',w().timing+': '+(e.practiceTiming==='random'?w().variable:w().sync));
+   if(mode==='speed')combo.textContent=({en:'Speed-bag drills',he:'תרגילי שק מהירות',ru:'Упражнения на груше'})[app.lang]||'Speed-bag drills';
+   app.audio?.onState?.();
    speed.setAttribute('aria-label',({en:'Playback speed',he:'מהירות תנועה',ru:'Скорость'}[app.lang])+': '+e.speed+'×');
    document.querySelectorAll('[data-technique]').forEach(b=>{b.disabled=mode==='speed'||mode==='fight';});app.updatePlayBtnText();
   }
@@ -65,6 +67,14 @@
    }d.append(grid);d.showModal();
   };
   combo.onclick=()=>{
+   if(e.targetMode==='speed'){
+    const d=dialog(({en:'Speed-bag drills',he:'תרגילי שק מהירות',ru:'Упражнения на груше'})[app.lang]),grid=make('div','routine-grid');
+    for(const drill of BOXING_ROUTINES.speedDrills){
+     const b=make('button','routine-choice');b.type='button';b.dataset.speedDrill=drill.id;b.setAttribute('aria-pressed',String((e.speedDrill||'alternating')===drill.id));
+     b.append(make('strong','',drill.names[{en:0,he:1,ru:2}[app.lang]]));
+     b.onclick=()=>{e.speedDrill=drill.id;e.animTime=0;e.arena?.setTarget('speed');e.isPlaying=true;paint();d.close();};grid.append(b);
+    }d.append(grid);d.showModal();return;
+   }
    if(e.targetMode==='fight'){window.fightUI?.detail();return;}
    const d=dialog(w().routine),grid=make('div','routine-grid');
    BOXING_ROUTINES.list.forEach((r,index)=>{
@@ -107,7 +117,7 @@
   const language=app.setLanguage.bind(app);app.setLanguage=lang=>{language(lang);paint();};
   setInterval(()=>{
    const mode=e.targetMode||'none';if(mode==='fight'){document.getElementById('comboCodes').textContent='VS';document.getElementById('comboCues').textContent=w().fight;return;}if(mode==='speed'){
-    document.getElementById('comboCodes').textContent='↻';document.getElementById('comboCues').textContent=w().rhythm;return;
+    document.getElementById('comboCodes').textContent='↻';const drill=BOXING_ROUTINES.speedDrills.find(d=>d.id===(e.speedDrill||'alternating'));document.getElementById('comboCues').textContent=drill.names[{en:0,he:1,ru:2}[app.lang]];return;
    }
    if(e.technique==='random'){
     const exchange=e.arena?.metrics?.random,label=words(),name=move=>move==='slip'?w().slip:label(move);document.getElementById('comboCodes').textContent='↔';

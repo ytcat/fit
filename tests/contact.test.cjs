@@ -16,7 +16,7 @@ for(const mode of ['heavy','dummy','speed']){
  const duration=mode==='speed'?3:1.18;
  for(let t=0;t<duration;t+=1/90){const m=arena.update(t,mode==='speed'?'speedbag':'cross','one_two');impulses+=m.contacts.length;peak=Math.max(peak,m.compression.lion.L,m.compression.lion.R);dent=Math.max(dent,arena.models[mode].userData.soft.userData.dentAmount||0);travel=Math.max(travel,arena.springs[mode].position.length());if(m.contacts.length&&!firstHit)firstHit=t;}
  console.log(mode,{impulses,peak:peak.toFixed(3),dent:dent.toFixed(3),travel:travel.toFixed(3)});
- assert.ok(impulses>0&&peak>.02&&dent>.01&&travel>.005,mode+' needs contact-driven compression, indentation and motion');if(mode!=='speed')assert.equal(impulses,1,mode+' one impulse per punch');
+ assert.ok(impulses>0&&peak>.02&&dent>(mode==='speed'?.005:.01)&&travel>(mode==='speed'?.35:.005),mode+' needs contact-driven compression, indentation and motion');if(mode!=='speed')assert.equal(impulses,1,mode+' one impulse per punch');
  const now=arena.previousTime;
  const before=arena.springs[mode].position.clone(),v=arena.springs[mode].velocity.clone();arena.update(now,mode==='speed'?'speedbag':'cross','one_two');assert.ok(arena.springs[mode].position.equals(before)&&arena.springs[mode].velocity.equals(v),'pause must freeze response without repeated impulses');
 }
