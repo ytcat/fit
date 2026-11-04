@@ -721,19 +721,31 @@
         this.rawSounds=window.fetch?Promise.all(names.map(async name=>{
           const r=await window.fetch('./assets/audio/'+name+'.wav');if(!r.ok)throw new Error('Sound unavailable');
           return [name,await r.arrayBuffer()];
-        })).catch(()=>[]):null;
+        }).map(p=>p.catch(()=>null))).then(files=>files.filter(Boolean)):null;
       }
-      init() {
+      init(fromGesture=false) {
+        // Safari can remain interrupted after a phone call/backgrounding, and
+        // pointer-down alone is not a reliable media activation gesture on iOS.
+        if(fromGesture){try{if(window.navigator?.audioSession)window.navigator.audioSession.type='playback';}catch{}}
+        if(this.ctx?.state==='closed')this.ctx=null;
         if (!this.ctx) {
           const AC = window.AudioContext || window.webkitAudioContext;
           if(!AC)return;
-          this.ctx = new AC();
+          this.ctx = new AC();this.output=null;this.ctx.onstatechange=()=>this.onState?.();
           if(this.rawSounds&&this.ctx.decodeAudioData)this.loading=this.rawSounds.then(async files=>{
-            for(const [name,data] of files)this.samples.set(name,await this.ctx.decodeAudioData(data.slice(0)));
+            for(const [name,data] of files){
+              try{const buffer=await new Promise((resolve,reject)=>{const p=this.ctx.decodeAudioData(data.slice(0),resolve,reject);p?.then?.(resolve,reject);});this.samples.set(name,buffer);}catch{}
+            }
           }).catch(()=>{});
 
         }
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        if(fromGesture&&(!this.unlocked||this.ctx.state!=='running')){
+          // Start a real buffer inside the trusted tap, before any await/fetch.
+          const source=this.ctx.createBufferSource();source.buffer=this.ctx.createBuffer(1,1,this.ctx.sampleRate);
+          source.connect(this.ctx.destination);source.onended=()=>source.disconnect();source.start(0);this.unlocked=true;
+        }
+        if (['suspended','interrupted'].includes(this.ctx.state)) this.ctx.resume()?.catch?.(()=>{});
+        this.onState?.();
       }
       playSample(name,level=.3,rate=1,delay=0,cutoff=0) {
         const ctx=this.ctx,buffer=typeof name==='string'?this.samples.get(name):name;
@@ -886,7 +898,9 @@
         this.audio = new AudioEngine();
         this.engine.onImpact=hit=>{this.audio.hit(hit);if(!hit.blocked)this.audio.pain(hit);};
         this.engine.onSwing=swing=>this.audio.swing(swing);
-        document.addEventListener('pointerdown',()=>{if(!this.audio.muted)this.audio.init();},{once:true});
+        const activateSound=event=>{if(['stageSound','soundBtn'].includes(event.target?.id))return;if(!this.audio.muted)this.audio.init(true);};
+        for(const type of ['pointerup','touchend','click'])document.addEventListener(type,activateSound,{passive:true});
+        document.addEventListener('visibilitychange',()=>{if(!document.hidden&&this.audio.unlocked&&!this.audio.muted)this.audio.init();});
         this.drillIdx = 0;
         this.round = 1;
         this.clock = 180;
@@ -945,12 +959,27 @@
         };
 
         document.getElementById('soundBtn').onclick = (e) => {
-          this.audio.muted = !this.audio.muted;
+          this.audio.muted = !this.audio.muted&&this.audio.ctx?.state==='running';
           if(this.audio.output)this.audio.output.gain.setTargetAtTime(this.audio.muted?0:.82,this.audio.ctx.currentTime,.01);
           if(this.audio.muted&&this.audio.crowdGain)this.audio.crowdGain.gain.setTargetAtTime(0,this.audio.ctx.currentTime,.01);
-          if(!this.audio.muted)this.audio.init();
+          if(!this.audio.muted)this.audio.init(true);
           e.target.innerText = this.audio.muted ? '🔇' : '🔊';
+          this.audio.onState?.();
         };
+        const sound=document.createElement('button');sound.id='stageSound';sound.type='button';sound.className='stage-sound';
+        document.getElementById('stageContainer').append(sound);
+        this.audio.onState=()=>{
+          const ready=this.audio.ctx?.state==='running'&&!this.audio.muted;
+          const words={en:['Tap for sound','Sound on','Sound off'],he:['הפעלת צליל','צליל פועל','צליל כבוי'],ru:['Включить звук','Звук включён','Звук выключен']}[this.lang]||['Tap for sound','Sound on','Sound off'];
+          sound.textContent=this.audio.muted?words[2]:ready?words[1]:words[0];sound.setAttribute('aria-pressed',String(ready));
+        };
+        sound.onclick=()=>{
+          if(!this.audio.ctx||this.audio.ctx.state!=='running'){this.audio.muted=false;this.audio.init(true);}
+          else document.getElementById('soundBtn').click();
+          if(this.audio.output)this.audio.output.gain.setTargetAtTime(this.audio.muted?0:.82,this.audio.ctx.currentTime,.01);
+          this.audio.onState();
+        };
+        this.audio.onState();
 
 
       }
