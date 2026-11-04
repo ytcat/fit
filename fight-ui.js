@@ -44,7 +44,7 @@
    const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;actions.append(details,again);panel.append(actions);
   }
   function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=true;last='';}
-  e.onFightEvent=event=>{if(event.type==='announcement')app.audio.applause?.();else app.audio.bell();};
+  e.onFightEvent=event=>{if(event.type==='announcement')app.audio.applause?.();else app.audio.bell(event.type==='final-bell'?'final':event.kind||'start');};
   window.fightUI={configure,detail,render,hide,words:()=>w()};
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

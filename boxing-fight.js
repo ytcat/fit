@@ -18,7 +18,7 @@
   emit(type,data={}){const event={id:++this.eventId,type,time:this.time,round:this.round,...data};this.events.push(event);if(this.events.length>300)this.events.shift();return event;}
   attack(actor,move,target){
    if(this.phase!=='round'||this.result)return null;
-   const f=this.fighters[actor],duration=(move.includes('uppercut')?1.30:1.12)*(1+(1-f.stamina)*.3)/f.tempo;
+   const f=this.fighters[actor],duration=(move.includes('uppercut')?1.12:.96)*(1+(1-f.stamina)*.3)/f.tempo;
    f.action={id:++this.actionId,actor,move,target,start:this.time,duration,attack:true,recorded:false,aim:null};f.stamina=clamp(f.stamina-.045-(move==='jab'?0:.025));
    this.roundStats[actor].thrown++;this.totals[actor].thrown++;this.emit('punch',{actor,move,target,action:f.action.id});
    return f.action;
@@ -29,6 +29,10 @@
     const punch=op.action.move,choice=this.random();let move=choice<.36?'guard':punch.includes('hook')?'roll':punch.includes('uppercut')?'slip':choice<.8?'slip':'guard';
     if(op.action.target==='body'&&move==='roll')move='guard';
     f.action={id:++this.actionId,actor,move,start:this.time,duration:Math.max(.75,op.action.duration-(this.time-op.action.start)+.1),attack:false,defend:true,defenceSide:this.random()<.5?-1:1};
+   }else if(!incoming&&this.random()<.22){
+    // Read and reset instead of attacking on every decision. Repeated reads
+    // and defensive actions are allowed; there is no turn-taking fight clock.
+    f.action={id:++this.actionId,actor,move:this.random()<.7?'guard':'step',start:this.time,duration:.20+this.random()*.60,attack:false};
    }else if(f.stamina<.28&&this.random()<.72){f.action={id:++this.actionId,actor,move:'step',start:this.time,duration:1.0,attack:false};}
    else {
     const selection=this.random(),move=selection<.28?'jab':selection<.50?'cross':moves[2+Math.floor(this.random()*4)];
@@ -57,7 +61,7 @@
     const f=this.fighters[actor];
     if(f.action&&this.time-f.action.start>=f.action.duration+(f.action.contactTime!=null?.045:0)){
      if(f.action.attack&&!f.action.recorded){this.roundStats[actor].missed++;this.totals[actor].missed++;if(f.action.facedDefence){this.roundStats[other(actor)].evaded++;this.totals[other(actor)].evaded++;}this.emit('miss',{actor,action:f.action.id});}
-     f.action=null;f.next=this.time+.10+this.random()*.30+(1-f.stamina)*.6;
+     f.action=null;f.next=this.time+.06+this.random()*.48+(1-f.stamina)*.6;
     }
     if(!f.action&&this.time>=f.next)this.decide(actor);
    }
@@ -67,7 +71,7 @@
    if(this.phase!=='round'||!a)return {move:'guard',phase:.35,attack:false,id:0};
    return {...a,phase:clamp((this.time-a.start-(a.contactTime!=null?Math.min(.045,Math.max(0,this.time-a.contactTime)*.70):0))/a.duration),brace:a.move==='guard'?1:0};
   }
-  contact({actor,action,part,speed=1,point,side}){
+  contact({actor,action,part,speed=1,point,side,direction}){
    if(this.phase!=='round')return null;const f=this.fighters[actor],a=f.action,receiver=other(actor),victim=this.fighters[receiver];
    if(!a?.attack||a.id!==action||a.recorded||this.seen.has(action)||!(speed>.12))return null;
    a.recorded=true;a.contactTime=this.time;this.seen.add(action);const stats=this.roundStats[actor],total=this.totals[actor];
@@ -77,9 +81,9 @@
    else if(legal){for(const s of [stats,total]){s.landed++;s[part]++;s.quality+=quality;s.power+=quality*quality;}}
    else if(part==='shoulder'){stats.shoulder++;total.shoulder++;}
    const severity=quality*(blocked?.14:part==='shoulder'?.30:1);
-   victim.reaction={time:this.time,part:part==='glove'?'guard':part,severity,side:side||1,move:a.move};
+   victim.reaction={time:this.time,part:part==='glove'?'guard':part,severity,side:side||1,move:a.move,direction:direction||[0,a.move.includes('uppercut')?.8:0,-1]};
    if(legal){victim.condition=Math.max(0,victim.condition-severity*(this.preset==='quick'?(part==='head'?12:9):(part==='head'?3:2.2)));victim.stamina=clamp(victim.stamina-severity*.025);victim.stun+=severity*(part==='head'?5:3);f.stamina=clamp(f.stamina+.012);}
-   const event=this.emit('contact',{actor,receiver,action,part,legal,blocked,speed,quality,severity,point});
+   const event=this.emit('contact',{actor,receiver,action,part,legal,blocked,speed,quality,severity,point,move:a.move,direction});
    if(legal&&victim.stun>18){if(!victim.pendingDown){victim.pendingDown=true;this.roundStats[receiver].knockdowns++;this.totals[receiver].knockdowns++;}}
    return event;
   }

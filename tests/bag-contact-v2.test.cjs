@@ -22,8 +22,8 @@ for(let i=1;i<=360;i++){
  }
 }
 assert.ok(contacts>=6&&contacts<=14&&left>=2&&right>=2,'both circling fists must strike repeatedly');
-assert.ok(peakSwing>.01&&peakSwing<.20,'speed bag must rebound visibly without a grazing touch launching it');
-assert.ok(dent>.1,'speed-bag padding must visibly compress under the knuckles');
+assert.ok(peakSwing>.35&&peakSwing<=arena.springs.speed.limit+.001,'speed bag must rebound visibly within its platform constraint');
+assert.ok(dent>.005&&dent<.15,'light speed-bag padding must compress locally under actual contacts');
 arena.setTarget('speed');arena.models.speed.position.z+=2;
 for(let i=0;i<=180;i++)assert.equal(arena.update(i/120,'speedbag','one_two').contacts.length,0,'an unreachable speed bag cannot receive fake hits');
 assert.equal(arena.springs.speed.position.length(),0,'speed-bag movement must require contact');

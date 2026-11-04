@@ -40,22 +40,49 @@
   return {move:'guard',phase:p,attack:false};
  }
 
+ // Seeded rehearsal clock: vary active tempos and guard gaps without ever
+ // skipping a technique or using wall-clock randomness during playback.
+ class PracticeTimeline {
+  constructor(seed=1){this.seed=seed>>>0;this.state=this.seed;this.events=[];this.end=0;this.key='';}
+  random(){this.state=(Math.imul(this.state,1664525)+1013904223)>>>0;return this.state/4294967296;}
+  frame(time,technique='combo',combo='one_two'){
+   const key=technique+'|'+combo;
+   if(key!==this.key){this.key=key;this.events=[];this.end=0;this.state=this.seed;}
+   const moves=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
+   time=Math.max(0,time);
+   while(this.end<=time){
+    const index=this.events.length,move=moves[index%moves.length];
+    const duration=(move.includes('uppercut')?.96:.76)+this.random()*.46;
+    const gap=this.random()<.42?0:.14+this.random()*.92;
+    this.events.push({start:this.end,activeEnd:this.end+duration,end:this.end+duration+gap,duration,gap,index,move});
+    this.end+=duration+gap;
+   }
+   let lo=0,hi=this.events.length-1;
+   while(lo<hi){const mid=(lo+hi)>>1;if(this.events[mid].end<=time)lo=mid+1;else hi=mid;}
+   const event=this.events[lo],rest=time>=event.activeEnd;
+   return {...event,move:rest?'guard':event.move,phase:rest?0:(time-event.start)/event.duration*(technique==='combo'?.86:1),rest,slot:event.index%moves.length,moves};
+  }
+ }
  class RandomSparring {
-  constructor(seed=1){this.seed=seed>>>0;this.state=this.seed;this.timeline=[];this.end=0;this.turn=0;}
+  constructor(seed=1,timing='sync'){this.seed=seed>>>0;this.state=this.seed;this.timing=timing;this.timeline=[];this.end=0;this.turn=0;}
   random(){this.state=(Math.imul(this.state,1664525)+1013904223)>>>0;return this.state/4294967296;}
   append(){
    const combinations=[['jab','cross'],['jab','jab','cross'],['jab','cross','hook'],['uppercut','rear_hook'],['cross','hook','rear_uppercut'],['jab','rear_uppercut','hook']];
-   const moves=combinations[Math.floor(this.random()*combinations.length)],attacker=this.turn%2===0?'lion':'rabbit';
-   for(const move of moves){const duration=move.includes('uppercut')?1.22:1.02+this.random()*.16;this.timeline.push({start:this.end,end:this.end+duration,duration,move,attacker,index:this.timeline.length});this.end+=duration;}
+   const moves=combinations[Math.floor(this.random()*combinations.length)],attacker=this.timing==='random'?(this.random()<.5?'lion':'rabbit'):this.turn%2===0?'lion':'rabbit';
+   for(const move of moves){const duration=this.timing==='random'?(move.includes('uppercut')?.96:.76)+this.random()*.46:move.includes('uppercut')?1.22:1.02+this.random()*.16;this.timeline.push({start:this.end,end:this.end+duration,duration,move,attacker,index:this.timeline.length});this.end+=duration;}
+   if(this.timing==='random'){
+    const duration=.12+this.random()*.95;
+    this.timeline.push({start:this.end,end:this.end+duration,duration,move:'guard',attacker:null,index:this.timeline.length});this.end+=duration;
+   }
    this.turn++;
   }
   frame(time){
    time=Math.max(0,time);while(this.end<=time)this.append();
    let lo=0,hi=this.timeline.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(this.timeline[mid].end<=time)lo=mid+1;else hi=mid;}
    const beat=this.timeline[lo],phase=(time-beat.start)/beat.duration;
-   const attack={move:beat.move,phase,attack:true},defence=opponent({move:beat.move,phase,index:beat.index});
+   const attack={move:beat.move,phase,attack:beat.move!=='guard'},defence=opponent({move:beat.move,phase,index:beat.index});
    return {...beat,phase,lion:beat.attacker==='lion'?attack:defence,rabbit:beat.attacker==='rabbit'?attack:defence};
   }
  }
- window.BOXING_ROUTINES={list,sequences,frame,opponent,RandomSparring,speeds:[.5,.75,1,1.25,1.5,2,2.5,3]};
+ window.BOXING_ROUTINES={list,sequences,frame,opponent,PracticeTimeline,RandomSparring,speeds:[.5,.75,1,1.25,1.5,2,2.5,3]};
 })();

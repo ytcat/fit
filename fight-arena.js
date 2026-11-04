@@ -4,7 +4,7 @@
  const other=a=>a==='lion'?'rabbit':'lion',rear=move=>['cross','rear_hook','rear_uppercut'].includes(move);
  class FightArena {
   constructor(arena,options){
-   this.arena=arena;this.engine=arena.engine;this.match=new BoxingFight(options);this.tick=0;this.previous={};this.compressions={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.contacts=[];this.eventCursor=0;
+   this.arena=arena;this.engine=arena.engine;this.match=new BoxingFight(options);this.tick=0;this.previous={};this.compressions={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.contacts=[];this.eventCursor=0;this.pendingSwings=[];
    this.coaches={lion:this.engine.coach,rabbit:arena.rabbit};
    this.referee=new RhinoReferee();arena.group.add(this.referee.root);this.audience=new FightAudience(arena.group);
    this.ring=new THREE.Group();arena.group.add(this.ring);
@@ -35,7 +35,7 @@
    const materials=new Set();for(const root of [this.referee.root,this.audience.root,this.ring]){
     root.traverse(node=>{if(!node.isMesh)return;node.geometry.dispose();for(const material of (Array.isArray(node.material)?node.material:[node.material])){if(root!==this.ring||![this.arena.dark,this.arena.leather,this.arena.accent].includes(material))materials.add(material);}});
     root.parent?.remove(root);
-   }for(const material of materials)material.dispose();
+   }const textures=new Set();for(const material of materials){for(const key of ['map','bumpMap','normalMap','roughnessMap'])if(material[key])textures.add(material[key]);material.dispose();}for(const texture of textures)texture.dispose();
   }
   reaction(actor){
    const r=this.match.fighters[actor].reaction;if(!r)return null;const age=this.match.time-r.time;
@@ -59,7 +59,7 @@
    for(const [actor,index] of [['lion',0],['rabbit',1]]){
     const coach=this.coaches[actor],f=m.fighters[actor];
     if(ceremony){coach.root.position.copy(this.lineupStart[actor].position).lerp(V(index?.72:-.72,0,.05),ease);coach.root.rotation.y=this.lineupStart[actor].yaw*(1-ease);}
-    else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.move?.includes('uppercut')?Math.min(.12,(reaction.amount||0)*.10):Math.min(.10,(reaction?.amount||0)*.07);
+    else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.move?.includes('uppercut')?Math.min(.035,(reaction.amount||0)*.025):Math.min(.025,(reaction?.amount||0)*.02);
      coach.root.position.set(.055*Math.sin(m.time*.62+index*2),0,direction*(-.55-corner-.025*Math.sin(m.time*.73+index)+push));coach.root.rotation.y=index?Math.PI:0;}
    }
    for(const actor of ['lion','rabbit']){
@@ -127,14 +127,18 @@
    const dt=1/60,m=this.match;m.advance(dt);this.pose();this.contacts=[];
    const goals={lion:{L:0,R:0},rabbit:{L:0,R:0}};
    // Capture both fists before resolving either actor so simultaneous trades are fair.
-   const samples=[];for(const actor of ['lion','rabbit']){const action=m.fighters[actor].action;if(action?.attack&&this.specs[actor].phase>.22&&this.specs[actor].phase<.65&&this.specs[other(actor)].defend)action.facedDefence=true;}
+   const samples=[];for(const actor of ['lion','rabbit']){
+    const action=m.fighters[actor].action,spec=this.specs[actor];
+    if(action?.attack&&!action.swingPlayed&&spec.phase>=.22&&spec.phase<.65){action.swingPlayed=true;this.pendingSwings.push({actor,move:spec.move});}
+   }
+   for(const actor of ['lion','rabbit']){const action=m.fighters[actor].action;if(action?.attack&&this.specs[actor].phase>.22&&this.specs[actor].phase<.65&&this.specs[other(actor)].defend)action.facedDefence=true;}
    for(const actor of ['lion','rabbit'])for(const [index,side] of ['L','R'].entries()){
     const coach=this.coaches[actor],spec=this.specs[actor],key=actor+side,world=coach.root.localToWorld(V(...this.metrics[actor].gloves[index].knuckles));
     const current=this.arena.group.worldToLocal(world.clone()),previous=this.previous[key]||current,velocity=current.clone().sub(previous).divideScalar(dt);
     if(spec.attack&&side===(rear(spec.move)?'R':'L')&&spec.phase>.18&&spec.phase<.78&&!m.fighters[actor].action?.recorded){
      const count=Math.max(1,Math.ceil(previous.distanceTo(current)/.018));let contact=null;
      for(let i=1;i<=count;i++){const hit=this.collision(this.arena.group.localToWorld(previous.clone().lerp(current,i/count)),other(actor));if(hit.penetration>0){contact=hit;break;}}
-     if(contact){const normal=contact.normal.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion()).invert()),speed=Math.max(0,-velocity.dot(normal));samples.push({actor,action:spec.id,part:contact.part,speed,point:contact.point.toArray(),side:contact.side==='L'?-1:contact.side==='R'?1:(this.coaches[other(actor)].root.worldToLocal(contact.point.clone()).x<0?-1:1),hand:side,receiver:other(actor)});}
+     if(contact){const normal=contact.normal.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion()).invert()),speed=Math.max(0,-velocity.dot(normal),spec.move.includes('uppercut')?Math.max(0,velocity.y)*.70:0);const direction=velocity.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion())).applyQuaternion(this.coaches[other(actor)].root.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize().toArray();samples.push({direction,actor,action:spec.id,part:contact.part,speed,point:contact.point.toArray(),side:contact.side==='L'?-1:contact.side==='R'?1:(this.coaches[other(actor)].root.worldToLocal(contact.point.clone()).x<0?-1:1),hand:side,receiver:other(actor)});}
     }
     this.previous[key]=current;
     if(spec.attack&&spec.phase>.15&&spec.phase<.7&&m.phase==='round'){m.roundStats[actor].control+=dt;m.totals[actor].control+=dt;}
@@ -148,7 +152,7 @@
    if(target<this.tick)return this.arena.metrics;
    while(this.tick<target){contacts.push(...this.step());this.tick++;}
    const m=this.match,snapshot=m.snapshot();
-   this.arena.metrics={mode:'fight',fight:snapshot,hero:this.metrics.lion,partner:this.metrics.rabbit,contacts,loads:[]};
+   this.arena.metrics={mode:'fight',fight:snapshot,hero:this.metrics.lion,partner:this.metrics.rabbit,contacts,swings:this.pendingSwings.splice(0),loads:[]};
    for(const event of m.events.filter(e=>e.id>this.eventCursor)){
     if(event.type==='bell'||event.type==='final-bell')this.engine.onFightEvent?.(event);
     if(event.type==='announcement')this.engine.onFightEvent?.(event);

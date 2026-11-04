@@ -8,6 +8,9 @@
  Object.assign(text.en,{slip:'Slip',random:'Random sparring',randomHint:'Both fighters take turns attacking and defending. New exchanges each session.',lion:'Lion',guard:'Guard'});
  Object.assign(text.he,{slip:'התחמקות',random:'קרב אקראי',randomHint:'שני הלוחמים תוקפים ומתגוננים בתיאום. רצף חדש בכל אימון.',lion:'אריה',guard:'הגנה'});
  Object.assign(text.ru,{slip:'Уклон',random:'Случайный спарринг',randomHint:'Оба бойца по очереди атакуют и защищаются. Новые серии каждый раз.',lion:'Лев',guard:'Защита'});
+ Object.assign(text.en,{timing:'Practice rhythm',sync:'Synchronized',variable:'Variable',steadyLabel:'Steady rhythm',variableLabel:'Variable rhythm',fightRhythm:'Fight pacing',syncHelp:'Evenly paced repetitions and partner drills.',variableHelp:'Quick combinations, slower reads and unpredictable guard pauses.',read:'Read and reset'});
+ Object.assign(text.he,{timing:'קצב תרגול',sync:'קבוע ומתואם',variable:'משתנה',steadyLabel:'קצב קבוע',variableLabel:'קצב משתנה',fightRhythm:'קצב קרב',syncHelp:'חזרות ותרגול זוגי בקצב קבוע.',variableHelp:'שילובים מהירים, קריאת היריב והפסקות הגנה משתנות.',read:'קריאה וחזרה להגנה'});
+ Object.assign(text.ru,{timing:'Ритм тренировки',sync:'Равномерный',variable:'Переменный',steadyLabel:'Ровный ритм',variableLabel:'Свободный ритм',fightRhythm:'Ритм боя',syncHelp:'Равномерные повторения и упражнения с партнёром.',variableHelp:'Быстрые серии, чтение соперника и разные паузы в защите.',read:'Чтение и возврат в защиту'});
  text.en.fight='Fight mode';text.he.fight='מצב קרב';text.ru.fight='Режим боя';
  for(const lang of ['en','he','ru'])text[lang].hints.fight=({en:'Live rounds, real contacts, three scorecards and a rhino referee.',he:'סיבובים חיים, פגיעות, שלושה כרטיסי ניקוד ושופט קרנף.',ru:'Раунды, попадания, три судейские записки и рефери-носорог.'})[lang];
  const icons={none:'<path d="M8 30l4-13 8-5 7 8 7-6M12 17l-5-6m13 1 1-8m-4 20-7 12m14-14 7 14"/>',heavy:'<path d="M20 2v6m-9 4 9-5 9 5"/><rect x="10" y="12" width="20" height="25" rx="6"/><path d="M10 20h20m-20 10h20"/>',dummy:'<ellipse cx="20" cy="9" rx="6" ry="7"/><path d="M15 16 8 20l3 11h18l3-11-7-4M20 31v5m-9 2h18"/>',speed:'<path d="M5 5h30M20 5v6m0 0c-3 8-8 9-8 16a8 8 0 0016 0c0-7-5-8-8-16z"/>',rabbit:'<ellipse cx="14" cy="10" rx="3" ry="9"/><ellipse cx="25" cy="10" rx="3" ry="9"/><path d="M10 23a10 10 0 1020 0M10 32l-6 5m26-5 6 5"/><circle cx="16" cy="24" r="1"/><circle cx="24" cy="24" r="1"/>'};
@@ -17,13 +20,16 @@
   const make=(tag,cls,label)=>{const n=document.createElement(tag);n.className=cls;if(label)n.textContent=label;return n;};
   const footer=document.querySelector('footer'),bar=make('div','training-bar');bar.id='trainingBar';
   const target=make('button','workout-tool'),combo=make('button','workout-tool'),fight=make('button','workout-tool fight-launch');fight.id='fightBtn';fight.type='button';fight.onclick=()=>window.fightUI?.configure();target.id='equipmentBtn';combo.id='combinationBtn';target.type=combo.type='button';
+  const timing=make('button','workout-tool training-timing');timing.id='timingBtn';timing.type='button';
   const speed=document.getElementById('speedBtn');speed.className='workout-tool training-speed';
-  bar.append(target,combo,speed,fight);footer.prepend(bar);
+  bar.append(target,combo,speed,fight,timing);footer.prepend(bar);
   const words=()=>{const n={en:1,he:3,ru:5}[app.lang];return m=>COACH_TECHNIQUES[m]?.[n]||m;};
   function paint(){
    fight.textContent=({en:'Fight',he:'קרב',ru:'Бой'})[app.lang]||'Fight';fight.setAttribute('aria-label',w().fight);
    const mode=e.targetMode||'none';target.textContent=w()[mode];target.setAttribute('aria-label',w().target+': '+w()[mode]);
    target.setAttribute('aria-haspopup','dialog');combo.textContent=e.technique==='random'?w().random:w().combos;combo.disabled=mode==='speed';if(mode==='fight')combo.textContent=window.fightUI?.words().cards||'Scorecards';speed.disabled=mode==='fight';if(mode==='fight')speed.textContent='1×';for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=mode==='fight';document.body.classList.toggle('fight-active',mode==='fight');if(mode!=='fight')window.fightUI?.hide();
+   timing.disabled=mode==='fight';timing.textContent=mode==='fight'?w().fightRhythm:e.practiceTiming==='random'?w().variableLabel:w().steadyLabel;
+   timing.setAttribute('aria-label',w().timing+': '+(e.practiceTiming==='random'?w().variable:w().sync));
    speed.setAttribute('aria-label',({en:'Playback speed',he:'מהירות תנועה',ru:'Скорость'}[app.lang])+': '+e.speed+'×');
    document.querySelectorAll('[data-technique]').forEach(b=>{b.disabled=mode==='speed'||mode==='fight';});app.updatePlayBtnText();
   }
@@ -70,6 +76,18 @@
    random.append(make('strong','',w().random),make('span','',w().randomHint));random.onclick=()=>{activateRandom();d.close();};grid.append(random);
    d.append(grid);d.showModal();
   };
+  timing.onclick=()=>{
+   if(e.targetMode==='fight')return;
+   const d=dialog(w().timing),grid=make('div','routine-grid');
+   for(const value of ['sync','random']){
+    const b=make('button','routine-choice');b.type='button';b.dataset.timing=value;
+    b.setAttribute('aria-pressed',String((e.practiceTiming||'sync')===value));
+    b.append(make('strong','',value==='sync'?w().sync:w().variable),make('span','',value==='sync'?w().syncHelp:w().variableHelp));
+    b.onclick=()=>{e.practiceTiming=value;e.practiceSeed=Math.floor(Math.random()*4294967295);e.animTime=0;e.arena?.setTarget(e.targetMode||'none');paint();d.close();};grid.append(b);
+   }
+   const credits=make('a','audio-credits','Audio credits');credits.href='./assets/audio/ATTRIBUTION.md';credits.target='_blank';credits.rel='noopener';
+   d.append(grid,credits);d.showModal();
+  };
   speed.onclick=()=>{
    const d=dialog({en:'Playback speed',he:'מהירות תנועה',ru:'Скорость'}[app.lang]),grid=make('div','speed-grid');
    for(const rate of BOXING_ROUTINES.speeds){
@@ -85,7 +103,7 @@
    if(e.arena&&e.arena.mode!=='none'){e.arena.group.rotation.y=yaw;e.arena.fitCamera(e.camera);}
    else if(e.activeModel){e.activeModel.rotation.y=solo;e.fitCameraToModel(e.activeModel);}
   };};
-  camera('camFront',.78,-.32);camera('camSide',Math.PI/2,1.15);camera('camBack',Math.PI+.78,Math.PI);
+  camera('camFront',.78,0);camera('camSide',Math.PI/2,1.15);camera('camBack',Math.PI+.78,Math.PI);
   const language=app.setLanguage.bind(app);app.setLanguage=lang=>{language(lang);paint();};
   setInterval(()=>{
    const mode=e.targetMode||'none';if(mode==='fight'){document.getElementById('comboCodes').textContent='VS';document.getElementById('comboCues').textContent=w().fight;return;}if(mode==='speed'){
@@ -95,10 +113,10 @@
     const exchange=e.arena?.metrics?.random,label=words(),name=move=>move==='slip'?w().slip:label(move);document.getElementById('comboCodes').textContent='↔';
     document.getElementById('comboCues').textContent=exchange?w().lion+': '+(exchange.lion.move==='guard'?w().guard:name(exchange.lion.move))+' · '+w().rabbit+': '+(exchange.rabbit.move==='guard'?w().guard:name(exchange.rabbit.move)):w().random;return;
    }
-   const f=BOXING_ROUTINES.frame(e.animTime,e.technique,e.currentAnim),counter=BOXING_ROUTINES.opponent(f),name=words();
+   const f=e.arena?.metrics?.practice||BOXING_ROUTINES.frame(e.animTime,e.technique,e.currentAnim),counter=BOXING_ROUTINES.opponent(f),name=words();
    const incoming=mode==='rabbit'&&counter.attack?w().incoming+' '+name(counter.move)+' → ':'';
    const next=f.moves[(f.slot+1)%f.moves.length];
-   document.getElementById('comboCues').textContent=incoming+name(f.move)+(f.moves.length>1?' · '+w().next+': '+name(next):'');
+   document.getElementById('comboCues').textContent=f.rest?w().read:incoming+name(f.move)+(f.moves.length>1?' · '+w().next+': '+name(next):'');
   },120);
   window.trainingControls={chooseTarget,activateRandom};paint();
  }

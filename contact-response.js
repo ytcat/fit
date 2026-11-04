@@ -44,5 +44,31 @@
    return {normalForce,impulse:normalForce*Math.max(0,dt),closing,gloveDepth:depth*this.bagStiffness/(this.gloveStiffness+this.bagStiffness),bagDepth:depth*this.gloveStiffness/(this.gloveStiffness+this.bagStiffness)};
   }
  }
+ // Swivel-mounted speed bag with a real platform stop, rather than a
+ // high-frequency spring that could only wobble a few degrees.
+ class SpeedBagPendulum extends ContactSpring {
+  constructor(){super(Math.sqrt(9.81/.17),.07);this.inertia=.0085;this.limit=1.10;this.bounces=[];}
+  reset(){super.reset();this.bounces=[];}
+  impact(point,normal,velocity,strikingMass=2.5){
+   const incoming=Math.max(0,-velocity.clone().sub(this.velocity.clone().cross(point)).dot(normal));
+   const lever=point.clone().cross(normal),impulse=1.50*incoming/(1/strikingMass+lever.lengthSq()/this.inertia);
+   this.impulse(lever.multiplyScalar(-impulse/this.inertia));
+   return {incoming,impulse};
+  }
+  step(dt){
+   if(!(dt>0))return;
+   const count=Math.max(1,Math.ceil(dt*240)),h=dt/count;
+   for(let i=0;i<count;i++){
+    super.step(h);const a=Math.hypot(this.position.x,this.position.z);
+    if(a>this.limit){
+     const x=this.position.x/a,z=this.position.z/a,v=this.velocity.x*x+this.velocity.z*z;
+     this.position.x=x*this.limit;this.position.z=z*this.limit;
+     if(v>0){this.velocity.x-=1.72*v*x;this.velocity.z-=1.72*v*z;this.bounces.push({angularSpeed:v});}
+    }
+   }
+  }
+  takeBounces(){return this.bounces.splice(0);}
+ }
+ window.SpeedBagPendulum=SpeedBagPendulum;
  window.ContactSpring=ContactSpring;window.HangingBag=HangingBag;
 })();

@@ -66,3 +66,21 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   coverage, equipment browser checks and complete CPU suites in CI.
 - Mocap sourcing/retargeting and measured device-performance milestones remain
   separate pending work; no completion or benchmark is claimed for those.
+
+## R75 practice and contact experience
+- Added synchronized/variable practice pacing, seeded bursts and guard pauses for
+  every practice target; live bouts keep independent stamina/read/defence decisions.
+- Preserved centered uppercuts and neutral glove/forearm alignment. Rising contact
+  now carries direction into the receiving fighter, with bounded upward head/neck
+  response, rearward torso recoil and planted leg support; body/block reactions
+  and contact-derived scoring stay distinct.
+- Reworked speed-bag pendulum/platform rebound, actual contact-event aggregation,
+  swing events and dummy response. Misses cannot add bag momentum or scored hits.
+- Rebuilt anatomical dummy and detailed rhino/referee clothing and surfaces. Added
+  a reproducible geometry bake to remove procedural sculpture work on selection.
+- Bundled licensed local impact, air-swing, vocal, clap and struck-metal recordings;
+  added contact gating, voice cleanup, limiting, mute and accessible source credits.
+- Browser validation covered desktop/phone layouts, practice controls, all target
+  modes, fight, languages, pause and actual Web Audio rendering. The reference,
+  measurement and remaining realism/device-performance limits are documented in
+  docs/r75-reference-and-design.md. Imported mocap/retargeting remain pending.

@@ -149,6 +149,7 @@
         joint('foot'+side,knee,V(s*.01,-.44,0));
       }
       this.root.updateMatrixWorld(true);
+      this.neckRest=this.joints.neck.position.clone();
       this.rest=this.bones.map(b=>b.getWorldPosition(V()));
       const endpoint={hips:V(0,1.13,0),spine:V(0,1.36,0),chest:V(0,1.69,0),
         neck:V(0,1.84,0),head:V(0,2.21,.04)};
@@ -978,9 +979,10 @@
       forward+=through;crouch+=through*.32;
       const brace=(options.brace||0)*drive+(options.hitReaction?.part==='guard'?(options.hitReaction.amount||0)*.30:0),recoil=options.recoil||0;
       crouch+=brace*.022+recoil*.38;forward-=brace*.014+recoil;trunkPitch+=brace*.020-recoil*.8;
-      const hit=options.hitReaction||{},hurt=hit.amount||0;
+      const hit=options.hitReaction||{},hurt=Math.max(0,Math.min(1,hit.amount||0));
+      const risingHit=hit.part==='head'?Math.max(0,hit.direction?.[1]??(hit.move?.includes('uppercut')?.8:0)):0;
       if(hit.part==='body'){crouch+=.065*hurt;trunkPitch+=.25*hurt;forward-=.055*hurt;if(hit.move?.includes('uppercut')){crouch+=.035*hurt;trunkPitch-=.16*hurt;forward-=.075*hurt;}}
-      else if(hit.part==='head'){trunkPitch-=.055*hurt;forward-=.045*hurt;trunkRoll+=(hit.side||1)*.045*hurt;if(hit.move?.includes('uppercut')){trunkPitch-=.12*hurt;forward-=.10*hurt;}}
+      else if(hit.part==='head'){trunkPitch-=.055*hurt;forward-=.045*hurt;trunkRoll+=(hit.side||1)*.045*hurt;if(hit.move?.includes('uppercut')){trunkPitch-=.12*hurt;forward-=.06*hurt;}}
       else if((hit.part==='shoulder'||hit.part==='arm')){chestYaw+=(hit.side||1)*.13*hurt;forward-=.025*hurt;}
       const presentation=options.presentation;
       this.celebrationSmile.visible=presentation?.mode==='winner';
@@ -996,6 +998,7 @@
       // Spread the thoracic turn over the back instead of rotating a rigid chest.
       j.spine.rotation.set(.045+trunkPitch*.55,chestYaw*.30,trunkRoll*.60);
       chest.rotation.set(.025+trunkPitch*.45,chestYaw*.70,trunkRoll*.40);
+      j.neck.position.copy(this.neckRest).add(V(0,Math.min(.045,.055*risingHit*hurt),0));
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
       j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
@@ -1012,7 +1015,7 @@
       }
       // Keep the chin behind the lead shoulder through jab extension.
       j.head.rotation.x+=((options.chinTuck||0)*drive+(straight?.045*strike:0));
-      if(hit.part==='head'){j.head.rotation.x-=(hit.move?.includes('uppercut')?.32:.28)*hurt;j.head.rotation.y-=(hit.side||1)*.24*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
+      if(hit.part==='head'){j.head.rotation.x-=(hit.move?.includes('uppercut')?.32:.28)*hurt;j.head.rotation.y-=(hit.side||1)*(hit.move?.includes('uppercut')?.07:.24)*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
       if(hit.part==='body')j.head.rotation.x+=.10*hurt;
       j.head.rotation.x+=(options.down||0)*.25;
       if(presentation){
@@ -1058,7 +1061,7 @@
         const kneePole=V(s*.07,0,1).applyAxisAngle(V(0,1,0),pivot*.65);
         footPlans.push({side,pivot,footQ,step,contact,ankle,kneePole});
       }
-      if(options.stanceWidth||move.includes('uppercut')){
+      if(options.stanceWidth||move.includes('uppercut')||hurt>0){
         // A wider planted stance needs a little more knee flexion when a foot
         // steps ahead of the hips. Find support for both feet before solving
         // either leg; moving the pelvis after the first solve causes skating.
@@ -1162,12 +1165,12 @@
         leadTurn=rearTurn=.35;
       }
       if(move==='speedbag'&&options.speedBagTargets){
-        if(options.speedBagTargets.L)lead.copy(V(...options.speedBagTargets.L));
-        if(options.speedBagTargets.R)rear.copy(V(...options.speedBagTargets.R));
+        if(options.speedBagTargets.L)lead.copy(leadGuard.clone().add(headShift)).lerp(V(...options.speedBagTargets.L),options.speedBagWeight??1);
+        if(options.speedBagTargets.R)rear.copy(rearGuard.clone().add(headShift)).lerp(V(...options.speedBagTargets.R),options.speedBagWeight??1);
       }
       // Targets beyond the moving shoulder's reach must stay on the arm's
       // reachable sphere; never stretch the elbow to follow a swinging bag.
-      if(move.includes('uppercut'))for(const [side,hand] of [['L',lead],['R',rear]]){
+      if(move.includes('uppercut')||hurt>0)for(const [side,hand] of [['L',lead],['R',rear]]){
         const shoulder=this.point(j['arm'+side]);
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;
         hand.copy(shoulder.clone().add(hand.clone().sub(shoulder).clampLength(Math.abs(j['elbow'+side].position.length()-j['hand'+side].position.length())+.005,reach)));
@@ -1268,6 +1271,13 @@
       return this.metrics;
     }
   }
+  leatherSurface.fromPacked=data=>{
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position',new THREE.Float32BufferAttribute(data.position,3));
+    g.setAttribute('normal',new THREE.Float32BufferAttribute(data.normal,3));
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(data.uv,2));
+    g.setIndex(data.index);g.computeBoundingBox();return g;
+  };
   window.LionCoach=LionCoach;window.CoachSurface=leatherSurface;
   window.COACH_TECHNIQUES={
     jab:['1','Jab','Keep the rear glove at the cheek. Extend forward, lift the lead shoulder, then return to guard.',
