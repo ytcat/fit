@@ -77,8 +77,10 @@
    const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
    // Mobile GPUs pay per transparent/overlapping fur triangle. Keep the
    // silhouette and body shader, while limiting short-coat microgeometry.
-   const compact = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-     (navigator.maxTouchPoints > 1 && Math.min(screen.width,screen.height) < 900);
+   const nav=typeof navigator==='undefined'?{}:navigator;
+   const display=typeof screen==='undefined'?{width:Infinity,height:Infinity}:screen;
+   const compact = /Android|iPhone|iPad|iPod/i.test(nav.userAgent||'') ||
+     (nav.maxTouchPoints > 1 && Math.min(display.width,display.height) < 900);
    const count=coach.species==='rabbit'
      ? (compact ? 9000 : 32000)
      : (compact ? 7000 : 24000);

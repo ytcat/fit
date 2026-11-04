@@ -4,7 +4,7 @@ const root=path.join(__dirname,'..');
 const server=http.createServer((req,res)=>{let f=path.join(root,decodeURIComponent(req.url.split('?')[0]));if(f.endsWith('/'))f+='index.html';try{res.end(fs.readFileSync(f));}catch{res.statusCode=404;res.end();}}).listen(0,'127.0.0.1');
 (async()=>{const b=await chromium.launch({executablePath:process.env.BROWSER_EXECUTABLE,args:['--no-sandbox','--enable-unsafe-swiftshader']});try{
 for(const [width,height] of [[1100,950],[393,852]]){
- const p=await b.newPage({viewport:{width,height},hasTouch:true,bypassCSP:true}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+ const p=await b.newPage({viewport:{width,height},hasTouch:true,userAgent:width<600?'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1':undefined,bypassCSP:true}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
  await p.goto(`http://127.0.0.1:${server.address().port}`);await p.waitForFunction(()=>window.app?.engine?.coach?.anatomy);await p.evaluate(()=>{app.engine.isPlaying=false;});
  await p.locator('#stageSound').tap();await p.waitForFunction(()=>app.audio.ctx?.state==='running'&&app.audio.samples.size===10);
  const audio=await p.evaluate(()=>({breath1:app.audio.samples.get('effort-1').duration,breath2:app.audio.samples.get('effort-2').duration,pad:app.audio.samples.get('pad').duration}));assert.ok(audio.breath1>.24&&audio.breath1<.26&&audio.breath2>.31&&audio.breath2<.33&&audio.pad<.17,'current playback must use new dry Foley, not old game voices');

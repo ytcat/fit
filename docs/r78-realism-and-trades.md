@@ -95,3 +95,12 @@ and whitespace checks passed. The final focused controls check also passed after
 adding a generated-phrase indicator. These checks cover authored geometry and
 playback behavior; they do not establish biological accuracy or physical-device
 performance.
+
+A concurrent upstream mobile-fur optimization was integrated rather than
+replaced. The new anatomy and material pipeline retains its smaller short-coat
+microgeometry tier on phones. Browser-global guards keep authoring/headless
+checks working without `navigator` or `screen`. Focused avatar/anatomy tests,
+including a run with Node's global navigator disabled, passed after integration.
+The desktop and phone-size browser suite passed again, with an iPhone user agent
+exercising the compact-coat path. This is still Chromium testing, not physical
+Safari testing.
