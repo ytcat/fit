@@ -16,12 +16,12 @@
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
   <script src="./boxing-routines.js?v=2"></script>
-  <script src="./boxing-coach-v2.js?v=20261104"></script>
+  <script src="./boxing-coach-v2.js?v=2026110402"></script>
   <script src="./contact-response.js?v=4"></script>
-  <script src="./training-arena.js?v=20261104"></script>
+  <script src="./training-arena.js?v=2026110402"></script>
   <script src="./boxing-fight.js?v=44"></script>
   <script src="./fight-referee.js?v=20261104"></script>
-  <script src="./fight-arena.js?v=20261104"></script>
+  <script src="./fight-arena.js?v=2026110402"></script>
   <script src="./fight-ui.js?v=24" defer></script>
   <script src="./training-controls.js?v=22" defer></script>
 
@@ -170,7 +170,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R73",
+        subtitle: "LION BOXING COACH · R74",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -467,7 +467,7 @@
         if(this.activeModel)this.scene.remove(this.activeModel);
         if(this.mixer)this.mixer.stopAllAction();
         this.mixer=null;this.actions={};this.activeAction=null;this.bones={};
-        this.activeModel=this.demoModel;this.activeModel.rotation.y=-.32;
+        this.activeModel=this.demoModel;this.activeModel.rotation.y=0;
         this.scene.add(this.demoModel);this.animTime=0;
         this.coach.update(0,this.technique,this.currentAnim);
         if(this.arena&&this.arena.mode!=='none'){this.arena.setTarget(this.arena.mode);return;}
@@ -853,7 +853,7 @@
         document.getElementById('langRU').onclick = () => this.setLanguage('ru');
 
         document.getElementById('camFront').onclick = () => {
-          if (this.engine.activeModel){this.engine.activeModel.rotation.y=-0.32;this.engine.fitCameraToModel(this.engine.activeModel);}
+          if (this.engine.activeModel){this.engine.activeModel.rotation.y=0;this.engine.fitCameraToModel(this.engine.activeModel);}
         };
         document.getElementById('camSide').onclick = () => {
           if (this.engine.activeModel){this.engine.activeModel.rotation.y=1.15;this.engine.fitCameraToModel(this.engine.activeModel);}

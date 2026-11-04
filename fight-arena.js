@@ -110,7 +110,7 @@
   }
   collision(point,receiver){
    const a=this.arena,c=this.coaches[receiver],candidates=[];
-   for(const side of ['L','R'])candidates.push({...a.closest(point,c.joints['hand'+side],{centre:[0,-.137,-.026],radius:[.091,.067,.068]}),part:'glove',side});
+   for(const side of ['L','R'])candidates.push({...a.closest(point,c.joints['hand'+side],{centre:[0,-.137,0],radius:[.091,.067,.068]}),part:'glove',side});
    const guard=candidates.filter(h=>h.penetration>0).sort((x,y)=>x.distance-y.distance)[0];if(guard)return guard;
    candidates.length=0;
    for(const side of ['L','R'])for(const [from,to,radius] of [['arm','elbow',.092],['elbow','hand',.063]]){

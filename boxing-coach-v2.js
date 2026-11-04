@@ -200,11 +200,14 @@
       // pocket and one continuous hooked thumb across the palm. No finger bars.
       const blend=(a,b,k=.010)=>{const h=Math.max(k-Math.abs(a-b),0)/k;return Math.min(a,b)-h*h*k*.25;};
       const ell=(p,c,r)=> (Math.hypot((p.x-c[0])/r[0],(p.y-c[1])/r[1],(p.z-c[2])/r[2])-1)*Math.min(...r);
-      const profile=[[-.137,.091,.068,-.026],[-.103,.086,.073,-.025],[-.065,.070,.064,-.015],[-.025,.056,.052,0],[.040,.052,.047,.002]];
+      // Keep the padded striking crown on the forearm axis. Offsetting the
+      // crown toward the dorsum made the visible mitt look cocked even though
+      // the hand bone itself was mathematically straight.
+      const profile=[[-.137,.091,.068,0],[-.103,.086,.073,0],[-.065,.070,.064,0],[-.025,.056,.052,0],[.040,.052,.047,.002]];
       const thumbPath=new THREE.CubicBezierCurve3(V(-.054,-.038,.024),V(-.102,-.073,.050),V(-.087,-.130,.074),V(-.036,-.147,.058)).getPoints(12);
       const gloveField=p=>{
         let rx,rz,cz;
-        if(p.y<-.137){const q=(p.y+.137)/.067,arc=Math.sqrt(Math.max(.00001,1-q*q));rx=.091*arc;rz=.068*arc;cz=-.026;}
+        if(p.y<-.137){const q=(p.y+.137)/.067,arc=Math.sqrt(Math.max(.00001,1-q*q));rx=.091*arc;rz=.068*arc;cz=0;}
         else {
           let i=1;while(i<profile.length-1&&p.y>profile[i][0])i++;
           const a=profile[i-1],b=profile[i],t=clamp((p.y-a[0])/(b[0]-a[0]));
@@ -283,7 +286,7 @@
           const dot=new THREE.Mesh(new THREE.SphereGeometry(1,10,6),palmMaterial);dot.position.copy(surface(x,y));dot.scale.set(.0017,.0021,.0008);glove.add(dot);dot.name='Palm ventilation eyelet';
         }
         this.addLabel(hand,'SB',V(0,.013,-.054),.041,.023).rotation.y=Math.PI;
-        this.addLabel(hand,'SB',V(0,-.096,-.100),.044,.026).rotation.y=Math.PI;
+        this.addLabel(hand,'SB',surface(0,-.096,false),.044,.026).rotation.y=Math.PI;
         // All surface details share the foam deformation and mirrored thumb frame.
         // Bake handedness into vertices and winding, so the wrist's local basis
         // remains a proper rotation on both sides (also in shadow passes).
@@ -774,7 +777,7 @@
       const y=distal.clone().negate(),x=y.clone().cross(palm).normalize();
       const z=x.clone().cross(y).normalize();
       this.orient(hand,new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z)));
-      const centre=V(side==='L'?-.018:.018,-.140,-.026),face=V(side==='L'?-.018:.018,-.204,-.026);
+      const centre=V(0,-.140,0),face=V(0,-.204,0);
       const knuckles=this.root.worldToLocal(hand.localToWorld(centre)),strikePoint=this.root.worldToLocal(hand.localToWorld(face));
       return {distal:distal.toArray(),palm:z.toArray(),turn,knuckles:knuckles.toArray(),strikePoint:strikePoint.toArray(),radius:.064};
     }
@@ -1098,7 +1101,7 @@
         const shoulder=this.point(j['arm'+side]);
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length();
         const noseHeight=this.point(j.head).y+.103;
-        const target=options.uppercutBagTarget?V(...options.uppercutBagTarget):V(side==='L'?-.13:.13,noseHeight-(side==='L'?.16:.135),shoulder.z+Math.min(.40,reach*(side==='L'?.50:.56)));
+        const target=options.uppercutBagTarget?V(...options.uppercutBagTarget):V(side==='L'?-.035:.035,noseHeight-(side==='L'?.16:.135),shoulder.z+Math.min(.40,reach*(side==='L'?.55:.58)));
         const guard=(side==='L'?leadGuard:rearGuard).clone().add(headShift);
         const load=V(side==='L'?-.23:.23,options.upperLoadHeight??1.18,options.uppercutBagTarget?.08:.40).add(guardShift);
         const release=options.uppercutBagTarget?smooth((phase-.49)/.25):recover;

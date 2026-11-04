@@ -112,7 +112,7 @@
    const e=this.engine;this.mode=mode;this.resetResponse(e.animTime);
    for(const child of [...this.group.children])if(child!==e.coach.root)this.group.remove(child);
    if(mode==='none'){
-    e.scene.remove(this.group);e.scene.add(e.coach.root);e.coach.root.position.set(0,0,0);e.coach.root.rotation.y=-.32;
+    e.scene.remove(this.group);e.scene.add(e.coach.root);e.coach.root.position.set(0,0,0);e.coach.root.rotation.y=0;
    }else{
     e.scene.add(this.group);this.group.add(e.coach.root);this.group.rotation.y=mode==='heavy'?1.88:1.02;
     e.coach.root.position.set(0,0,mode==='speed'?-.40:mode==='heavy'?-.675:-.61);e.coach.root.rotation.y=0;
@@ -250,7 +250,7 @@
     return {...shapes.map(shape=>this.closest(centre,soft,shape)).sort((a,b)=>a.distance-b.distance)[0],kind:'bag',receiver};
    }
    const coach=receiver==='lion'?this.engine.coach:this.rabbit,candidates=[];
-   for(const side of ['L','R'])candidates.push({...this.closest(centre,coach.joints['hand'+side],{centre:[0,-.137,-.026],radius:[.091,.067,.068]}),kind:'glove',side,receiver});
+   for(const side of ['L','R'])candidates.push({...this.closest(centre,coach.joints['hand'+side],{centre:[0,-.137,0],radius:[.091,.067,.068]}),kind:'glove',side,receiver});
    const guard=candidates.filter(c=>c.penetration>0).sort((a,b)=>a.distance-b.distance)[0];if(guard)return guard;
    candidates.push({...this.closest(centre,coach.joints.head,{centre:[0,.17,.08],radius:[.145,.18,.14]}),kind:'head',receiver});
    candidates.push({...this.closest(centre,coach.joints.chest,{centre:[0,.15,.05],radius:[.25,.28,.16]}),kind:'body',receiver});
