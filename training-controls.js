@@ -11,6 +11,9 @@
  Object.assign(text.en,{timing:'Practice rhythm',sync:'Synchronized',variable:'Variable',steadyLabel:'Steady rhythm',variableLabel:'Variable rhythm',fightRhythm:'Fight pacing',syncHelp:'Evenly paced repetitions and partner drills.',variableHelp:'Quick combinations, slower reads and unpredictable guard pauses.',read:'Read and reset'});
  Object.assign(text.he,{timing:'קצב תרגול',sync:'קבוע ומתואם',variable:'משתנה',steadyLabel:'קצב קבוע',variableLabel:'קצב משתנה',fightRhythm:'קצב קרב',syncHelp:'חזרות ותרגול זוגי בקצב קבוע.',variableHelp:'שילובים מהירים, קריאת היריב והפסקות הגנה משתנות.',read:'קריאה וחזרה להגנה'});
  Object.assign(text.ru,{timing:'Ритм тренировки',sync:'Равномерный',variable:'Переменный',steadyLabel:'Ровный ритм',variableLabel:'Свободный ритм',fightRhythm:'Ритм боя',syncHelp:'Равномерные повторения и упражнения с партнёром.',variableHelp:'Быстрые серии, чтение соперника и разные паузы в защите.',read:'Чтение и возврат в защиту'});
+ Object.assign(text.en,{freestyle:'Random combinations',freestyleHint:'Fresh attack, defence and exit sequences. Choose steady or variable timing.'});
+ Object.assign(text.he,{freestyle:'שילובים אקראיים',freestyleHint:'רצפי התקפה, הגנה ויציאה חדשים. קצב קבוע או משתנה.'});
+ Object.assign(text.ru,{freestyle:'Случайные комбинации',freestyleHint:'Новые серии атак, защиты и отходов. Ровный или переменный ритм.'});
  text.en.fight='Fight mode';text.he.fight='מצב קרב';text.ru.fight='Режим боя';
  for(const lang of ['en','he','ru'])text[lang].hints.fight=({en:'Live rounds, real contacts, three scorecards and a rhino referee.',he:'סיבובים חיים, פגיעות, שלושה כרטיסי ניקוד ושופט קרנף.',ru:'Раунды, попадания, три судейские записки и рефери-носорог.'})[lang];
  const icons={none:'<path d="M8 30l4-13 8-5 7 8 7-6M12 17l-5-6m13 1 1-8m-4 20-7 12m14-14 7 14"/>',heavy:'<path d="M20 2v6m-9 4 9-5 9 5"/><rect x="10" y="12" width="20" height="25" rx="6"/><path d="M10 20h20m-20 10h20"/>',dummy:'<ellipse cx="20" cy="9" rx="6" ry="7"/><path d="M15 16 8 20l3 11h18l3-11-7-4M20 31v5m-9 2h18"/>',speed:'<path d="M5 5h30M20 5v6m0 0c-3 8-8 9-8 16a8 8 0 0016 0c0-7-5-8-8-16z"/>',rabbit:'<ellipse cx="14" cy="10" rx="3" ry="9"/><ellipse cx="25" cy="10" rx="3" ry="9"/><path d="M10 23a10 10 0 1020 0M10 32l-6 5m26-5 6 5"/><circle cx="16" cy="24" r="1"/><circle cx="24" cy="24" r="1"/>'};
@@ -27,7 +30,7 @@
   function paint(){
    fight.textContent=({en:'Fight',he:'קרב',ru:'Бой'})[app.lang]||'Fight';fight.setAttribute('aria-label',w().fight);
    const mode=e.targetMode||'none';target.textContent=w()[mode];target.setAttribute('aria-label',w().target+': '+w()[mode]);
-   target.setAttribute('aria-haspopup','dialog');combo.textContent=e.technique==='random'?w().random:w().combos;combo.disabled=false;if(mode==='fight')combo.textContent=window.fightUI?.words().cards||'Scorecards';speed.disabled=mode==='fight';if(mode==='fight')speed.textContent='1×';for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=mode==='fight';document.body.classList.toggle('fight-active',mode==='fight');if(mode!=='fight')window.fightUI?.hide();
+   target.setAttribute('aria-haspopup','dialog');combo.textContent=e.technique==='freestyle'?w().freestyle:e.technique==='random'?w().random:w().combos;combo.disabled=false;if(mode==='fight')combo.textContent=window.fightUI?.words().cards||'Scorecards';speed.disabled=mode==='fight';if(mode==='fight')speed.textContent='1×';for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=mode==='fight';document.body.classList.toggle('fight-active',mode==='fight');if(mode!=='fight')window.fightUI?.hide();
    timing.disabled=mode==='fight';timing.textContent=mode==='fight'?w().fightRhythm:e.practiceTiming==='random'?w().variableLabel:w().steadyLabel;
    timing.setAttribute('aria-label',w().timing+': '+(e.practiceTiming==='random'?w().variable:w().sync));
    if(mode==='speed')combo.textContent=({en:'Speed-bag drills',he:'תרגילי שק מהירות',ru:'Упражнения на груше'})[app.lang]||'Speed-bag drills';
@@ -49,7 +52,7 @@
    }else if(e.technique==='speedbag'){
     app.drillIdx=0;app.renderDrill();
    }
-   const hasDefence=e.technique==='random'||(e.technique==='combo'?BOXING_ROUTINES.sequences[e.currentAnim]?.some(m=>m==='slip'||m==='roll'):['slip','roll'].includes(e.technique));
+   const hasDefence=e.technique==='random'||e.technique==='freestyle'||(e.technique==='combo'?BOXING_ROUTINES.sequences[e.currentAnim]?.some(m=>m==='slip'||m==='roll'):['slip','roll'].includes(e.technique));
    if(mode==='rabbit'&&!hasDefence){
     app.drillIdx=BOXING_ROUTINES.list.findIndex(r=>r.id==='sparring_flow');app.renderDrill();
    }
@@ -84,6 +87,8 @@
    });
    const random=make('button','routine-choice');random.type='button';random.dataset.routine='random';random.setAttribute('aria-pressed',String(e.technique==='random'));
    random.append(make('strong','',w().random),make('span','',w().randomHint));random.onclick=()=>{activateRandom();d.close();};grid.append(random);
+   const deck=make('button','routine-choice');deck.type='button';deck.dataset.routine='freestyle';deck.setAttribute('aria-pressed',String(e.technique==='freestyle'));
+   deck.append(make('strong','',w().freestyle),make('span','',w().freestyleHint));deck.onclick=()=>{e.technique='freestyle';e.randomSeed=Math.floor(Math.random()*4294967295);e.animTime=0;e.isPlaying=true;e.arena?.setTarget(e.targetMode||'none');paint();d.close();};grid.append(deck);
    d.append(grid);d.showModal();
   };
   timing.onclick=()=>{

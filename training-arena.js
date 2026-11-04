@@ -335,7 +335,12 @@
    for(const spring of Object.values(this.pushback))spring.step(dt);
    this.applyDynamics();
    let frame=BOXING_ROUTINES.frame(time,mode==='speed'?'speedbag':technique,combo),heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)},counter=BOXING_ROUTINES.opponent(frame),random=null;
-   const varied=e.practiceTiming==='random'&&technique!=='random';
+   const generated=technique==='freestyle'&&mode!=='speed';
+   if(generated){
+    const seed=e.randomSeed??1,timing=e.practiceTiming||'sync';if(!this.routineDeck||this.routineDeck.seed!==seed||this.routineDeck.timing!==timing)this.routineDeck=new BOXING_ROUTINES.RoutineDeck(seed,timing);
+    frame=this.routineDeck.frame(time);heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)};counter=frame.rest?{move:'guard',phase:0,attack:false}:BOXING_ROUTINES.opponent(frame);
+   }
+   const varied=e.practiceTiming==='random'&&technique!=='random'&&!generated;
    if(varied){
     const seed=e.practiceSeed??1;
     if(!this.practiceClock||this.practiceClock.seed!==seed)this.practiceClock=new BOXING_ROUTINES.PracticeTimeline(seed);

@@ -1030,7 +1030,7 @@
       }
 
       renderTechnique() {
-        if(this.engine.technique==='random'||this.engine.technique==='fight')return;
+        if(this.engine.technique==='random'||this.engine.technique==='freestyle'||this.engine.technique==='fight')return;
         const info=COACH_TECHNIQUES[this.engine.technique];
         if(!info) { this.renderDrill();return; }
         const offset={en:1,he:3,ru:5}[this.lang];
