@@ -29,7 +29,7 @@
      pad.rotation.y=Math.PI/4;
     }
    }
-   arena.group.rotation.y=.90;this.pose();
+   window.GymDetails?.ring(this.ring);arena.group.rotation.y=.90;this.pose();
   }
   dispose(){
    const materials=new Set();for(const root of [this.referee.root,this.audience.root,this.ring]){
@@ -69,12 +69,12 @@
    a.group.updateMatrixWorld(true);
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
-    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],options={simulationTime:m.time,defenceSide:spec.defenceSide,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,down:f.down?(m.result?1:Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4))):0,duckDepth:.28};
+    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],options={simulationTime:m.time,defenceSide:spec.defenceSide,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:f.down?(m.result?1:Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4))):0,duckDepth:.28};
     if(spec.attack){
      let target=this.target(actor,spec);if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(V(...f.action.aim)));
      const through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(.035);
      options.knuckleTarget=target.add(through).toArray();options.strikeHeight=target.y-.035;
-     options.advance=spec.move.includes('uppercut')?.23:spec.move.includes('hook')?.10:.025;
+     options.advance=spec.move.includes('uppercut')?.08:spec.move.includes('hook')?.065:.025;
      options.power=1.25;options.contactDrive=.065;options.levelChange=spec.target==='body'?.065:.015;
      if(spec.move.includes('uppercut')){
       options.upperLoadHeight=spec.target==='body'?1.02:1.28;
@@ -88,13 +88,15 @@
     metrics[actor]=coach.update(time,ceremony?(ease<1?'step':'guard'):spec.move,'one_two',options);
    }
    a.group.updateMatrixWorld(true);
+   if(m.phase==='round')this.separateTorso();
    this.referee.root.position.set(ceremony?1.13*(1-ease):1.13,0,ceremony?-.83+.71*ease:-.83);this.referee.root.rotation.y=ceremony?-.55*(1-ease):-.55;
    a.group.updateMatrixWorld(true);
    let grip=null,side=1;
    if(reveal&&m.result.winner){const winner=m.result.winner,coach=this.coaches[winner],hand=coach.joints[winner==='lion'?'handR':'handL'];grip=hand.getWorldPosition(V());side=winner==='lion'?-1:1;}
    if(reveal&&!m.result.winner)grip={'-1':this.coaches.lion.joints.handR.getWorldPosition(V()),'1':this.coaches.rabbit.joints.handL.getWorldPosition(V())};
    if(m.phase==='count'){grip=this.referee.root.localToWorld(V(.32,1.76,.27));side=1;}
-   this.referee.update(m.time,grip,side);this.audience.update(m.time,reveal);
+   const leftReaction=this.reaction('lion')?.amount||0,rightReaction=this.reaction('rabbit')?.amount||0;
+   this.referee.update(m.time,grip,side,{lookAt:ceremony?null:this.coaches[leftReaction>rightReaction?'lion':'rabbit'].joints.head.getWorldPosition(V()),alert:Math.max(leftReaction,rightReaction)});this.audience.update(m.time,reveal);
    // Crowd occlusion is determined in WORLD space, not by fixed side IDs.
    // Hide every spectator in the camera-facing half of the arena, including
    // diagonal near-side seats, so no crowd meshes cover the fighters.
@@ -113,20 +115,38 @@
    this.metrics=metrics;this.specs=specs;
    return metrics;
   }
-  collision(point,receiver){
+  separateTorso(){
+   const a=this.coaches.lion,b=this.coaches.rabbit;
+   const ca=a.joints.chest.getWorldPosition(V()),cb=b.joints.chest.getWorldPosition(V()),axis=cb.clone().sub(ca);axis.y=0;
+   const distance=axis.length();if(distance>=.60)return;
+   if(distance>.001)axis.divideScalar(distance);else axis.copy(b.root.getWorldPosition(V()).sub(a.root.getWorldPosition(V()))).setY(0).normalize();
+   const amount=(.60-distance)*.5;
+   for(const [coach,sign] of [[a,-1],[b,1]]){
+    const world=coach.root.getWorldPosition(V()).addScaledVector(axis,amount*sign);coach.root.position.copy(coach.root.parent.worldToLocal(world));coach.syncSkin();
+   }
+  }
+  collision(point,receiver,options={}){
    const a=this.arena,c=this.coaches[receiver],candidates=[];
-   for(const side of ['L','R'])candidates.push({...a.closest(point,c.joints['hand'+side],{centre:[0,-.137,0],radius:[.091,.067,.068]}),part:'glove',side});
+   if(!options.bodyOnly)for(const side of ['L','R'])candidates.push({...a.closest(point,c.joints['hand'+side],{centre:[0,-.137,0],radius:[.091,.067,.068]}),part:'glove',side});
    const guard=candidates.filter(h=>h.penetration>0).sort((x,y)=>x.distance-y.distance)[0];if(guard)return guard;
    candidates.length=0;
-   for(const side of ['L','R'])for(const [from,to,radius] of [['arm','elbow',.092],['elbow','hand',.063]]){
+   if(!options.bodyOnly)for(const side of ['L','R'])for(const [from,to,radius] of [['arm','elbow',.092],['elbow','hand',.063]]){
     const start=c.joints[from+side].getWorldPosition(V()),end=c.joints[to+side].getWorldPosition(V()),axis=end.clone().sub(start),t=clamp(point.clone().sub(start).dot(axis)/axis.lengthSq());
     const centre=start.addScaledVector(axis,t),delta=point.clone().sub(centre),length=delta.length(),normal=length>1e-8?delta.divideScalar(length):V(0,0,1),distance=length-radius;
     candidates.push({point:centre.addScaledVector(normal,radius),normal,distance,penetration:.064-distance,part:'arm',side});
    }
-   candidates.push({...a.closest(point,c.joints.head,{centre:[0,.16,.08],radius:[.145,.18,.14]}),part:'head'});
-   candidates.push({...a.closest(point,c.joints.chest,{centre:[0,.10,.045],radius:[.23,.24,.16]}),part:'body'});
-   for(const side of ['L','R'])candidates.push({...a.closest(point,c.joints['arm'+side],{centre:[0,-.025,.015],radius:[.115,.135,.115]}),part:'shoulder',side});
+   const radius=options.radius??.064;
+   candidates.push(...a.bodyContacts(point,c,radius).map(hit=>({...hit,part:hit.kind})));
    return candidates.sort((x,y)=>x.distance-y.distance)[0];
+  }
+  solidContact(point,receiver,actor,radius=.064){return this.arena.solidContact(point,this.coaches[receiver],this.coaches[actor],radius);}
+  resolveTrades(){
+   // Body constraints are independent of the other fighter's moving guard.
+   // Repeat the coupled solve, then finish on the solid torso/head constraint.
+   for(let pass=0;pass<3;pass++){
+    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainGlove(side,p=>this.collision(p,other(actor)),.014);
+    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012);
+   }
   }
   step(){
    const dt=1/60,m=this.match;m.advance(dt);this.pose();this.contacts=[];
@@ -157,9 +177,8 @@
    // Always constrain the rendered glove, including follow-through/recovery
    // after an action has already scored. Previously a.recorded skipped the
    // only collision path and let the animation continue through the opponent.
-   for(const actor of ['lion','rabbit'])for(const side of ['L','R']){
-    this.coaches[actor].constrainGlove(side,p=>this.collision(p,other(actor)),.018);
-   }
+   this.resolveTrades();
+   for(const actor of ['lion','rabbit'])for(const [i,side] of ['L','R'].entries())this.previous[actor+side]=this.arena.group.worldToLocal(this.coaches[actor].root.localToWorld(V(...this.coaches[actor].metrics.gloves[i].knuckles)));
    for(const actor of ['lion','rabbit'])for(const side of ['L','R']){const old=this.compressions[actor][side],goal=goals[actor][side],value=goal>old?goal:old*Math.exp(-dt/ .08);this.compressions[actor][side]=value;this.coaches[actor].deformGlove(side,value);}
    return this.contacts;
   }

@@ -109,3 +109,15 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   the source-level fix; no page or shader errors. Existing avatar-detail and app
   regression suites, syntax and whitespace checks passed. Physical-phone testing
   is not claimed.
+
+## R78 professional presentation and simultaneous exchanges
+- Reproduced an offset two-uppercut failure with overlapping torsos and added
+  torso separation plus coupled glove/wrist/forearm constraints for both fighters.
+- Added pose-driven continuous muscle/normal deformation, coordinated facial
+  acting, reactive referee gaze, a native rabbit head/body surface and detailed
+  boxing canvas, ropes and stitched equipment.
+- Expanded to 24 presets and seeded generated attack/defence/exit combinations.
+- Removed game-character vocals from active playback and replaced them with dry
+  local leather/air Foley and unvoiced exhalations; retained licensing for legacy
+  files and added reproducible original-asset build scripts.
+- Evidence, measurements and realism limits: docs/r78-realism-and-trades.md.

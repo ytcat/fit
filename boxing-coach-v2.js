@@ -125,7 +125,7 @@
 
   class LionCoach {
     constructor(data,options={}) {
-      this.species=options.species||'lion';
+      this.species=options.species||'lion';this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
       if(data.rigVersion!==2||!data.body.armBlend)throw new Error('Lion rig/model version mismatch');
       this.bones=[];this.joints={};this.metrics={};this.gloveMeshes={};
@@ -163,7 +163,7 @@
         bumpMap:fur,bumpScale:this.species==='rabbit'?.0043:.0035,skinning:true});
       const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.61,
         bumpMap:grain,bumpScale:.0028,skinning:true,side:THREE.DoubleSide});
-      this.skin=this.skinned(this.sculptBody(meshFrom(data.body,true)),skin,true);
+      this.skin=this.skinned(this.sculptBody(meshFrom(this.species==='rabbit'&&data.rabbitBody?data.rabbitBody:data.body,true)),skin,true);
       // A continuous saddle at the crotch with two separate, open leg hems.
       // The previous solid ellipsoid bridge stretched into a flap between legs.
       if(!LionCoach.shortsGeometry){
@@ -347,7 +347,7 @@
     // CPU equivalent of the actual hybrid vertex/shadow shader, for pose QA.
     skinPoint(mesh,index,target=V()) {
       const g=mesh.geometry,ids=g.attributes.skinIndex,w=g.attributes.skinWeight;
-      const p=V().fromBufferAttribute(g.attributes.position,index);window.AvatarSurface?.dent(p,this);p.applyMatrix4(mesh.bindMatrix);
+      const p=V().fromBufferAttribute(g.attributes.position,index);window.AvatarAnatomy?.deform(p,this,index,g);window.AvatarSurface?.dent(p,this);p.applyMatrix4(mesh.bindMatrix);
       const q0=this.dqReal[ids.getX(index)],q=new THREE.Vector4(),d=new THREE.Vector4(),linear=V();
       q.set(0,0,0,0);d.set(0,0,0,0);
       for(let k=0;k<4;k++){
@@ -377,7 +377,7 @@
           const blades=(bell(x,.15,.07)+bell(x,-.15,.07))*bell(y,1.53,.12);
           const serratus=bell(Math.abs(x),.225,.038)*(bell(y,1.37,.022)+bell(y,1.435,.022)+bell(y,1.495,.020));
           z+=front*(.020*abs+.032*pec+.009*serratus-.008*bell(x,0,.018)*bell(y,1.40,.25))*edge;
-          z-=back*(.024*blades-.010*bell(x,0,.025)*bell(y,1.45,.24))*edge;
+          z-=back*(.028*blades+.012*bell(Math.abs(x),.22,.055)*bell(y,1.42,.13)-.010*bell(x,0,.025)*bell(y,1.45,.24))*edge;
           x+=Math.sign(x)*.008*bell(Math.abs(x),.19,.06)*bell(y,1.28,.15);
           x*=1+.070*bell(y,1.56,.14)-.035*bell(y,1.22,.12);
         }
@@ -387,12 +387,12 @@
           z+=quad*smooth((z+.015)/.08);
           z-=.010*bell(y,.40,.10)*smooth((-z+.005)/.06);
         }
-        if(Math.abs(x)>.33&&y>1.20&&y<1.60) {
-          z+=.016*bell(y,1.46,.09)*smooth((z+.025)/.08);
+        if(Math.abs(x)>.33&&y>1.20&&y<1.80) {
+          z+=(.024*bell(y,1.60,.10)*bell(Math.abs(x),.48,.15)+.016*bell(y,1.46,.09))*smooth((z+.025)/.08);
           z-=.012*bell(y,1.43,.10)*smooth((-z+.025)/.08);
         }
         if(y>1.76){const amount=.10*smooth((y-1.76)/.10);x*=1-amount;z*=1-amount;y=1.84+(y-1.84)*(1-amount);}
-        if(this.species==='rabbit'&&y>1.78){const a=smooth((y-1.78)/.10);x*=1-.13*a;z*=1-.24*a; if(y>2.075&&Math.abs(x)>.12)y-=.06*smooth((Math.abs(x)-.12)/.03);}
+        if(this.species==='rabbit'&&y>1.78){const a=smooth((y-1.78)/.10);x*=1-.13*a;z*=1-.24*a; if(!this.nativeRabbit)y-=.065*smooth((y-2.015)/.11)*smooth((Math.abs(x)-.10)/.065);}
         p.setXYZ(i,x,y,z);
       }
       p.needsUpdate=true;g.computeVertexNormals();return g;
@@ -819,6 +819,28 @@
       this.metrics.hands[index]=this.point(j['hand'+side]).toArray();
       if(maximum>0)this.syncSkin();
       return maximum;
+    }
+
+    constrainArm(side,collide,allowance=.012){
+      const j=this.joints,index=side==='R'?1:0;
+      let glove=this.metrics.gloves[index],changed=false;
+      const pole=this.point(j['elbow'+side]).sub(this.point(j['arm'+side])).normalize();
+      for(let iteration=0;iteration<10;iteration++){
+        const elbow=j['elbow'+side].getWorldPosition(V()),wrist=j['hand'+side].getWorldPosition(V());
+        const centre=this.root.localToWorld(V(...glove.knuckles));
+        const samples=[{p:centre,r:.078,t:1},{p:wrist,r:.050,t:1},...[.35,.65].map(t=>({p:elbow.clone().lerp(wrist,t),r:.052,t}))];
+        let worst=null;
+        for(const sample of samples){const hit=collide(sample.p,sample.r);if(hit.penetration>allowance+.0003&&(!worst||hit.penetration>worst.hit.penetration))worst={sample,hit};}
+        if(!worst)break;
+        const {sample,hit}=worst,normal=hit.normal.clone(),correction=normal.multiplyScalar(Math.min(.16,(hit.penetration-allowance+.001)/Math.max(.55,sample.t)));
+        const target=this.root.worldToLocal(wrist.add(correction));
+        const localNormal=hit.normal.clone().applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
+        pole.addScaledVector(localNormal,.08).normalize();
+        this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],target,pole);
+        glove=this.orientGlove(side,glove.turn,V(0,-1,0));changed=true;
+      }
+      this.metrics.gloves[index]=glove;this.metrics.hands[index]=this.point(j['hand'+side]).toArray();
+      if(changed)this.syncSkin();
     }
 
     syncSkin(){
@@ -1294,16 +1316,18 @@
       }
       // Arena-space spring guides retain inertia under head/root acceleration; orbit adds no force.
       // Seek/teleport resets avoid integrating stale state or a whole hidden tab.
+      this.motionState={left:leftStrike,right:rightStrike,strike,hurt};
       this.updateMane(options.simulationTime??t);
-      this.painMouth.visible=hurt>.12&&(hit.part==='head'||hit.part==='body');
+      const acted=window.AvatarAnatomy?.express(this,{move,strike,hurt,hit,presentation,time:options.simulationTime??t,stamina:options.stamina});
+      this.painMouth.visible=!acted&&hurt>.12&&(hit.part==='head'||hit.part==='body');
       for(const {side,mark} of this.damageMarks){const amount=clamp((options.damage?.[side<0?'left':'right']||0)/6);mark.visible=amount>.025;mark.material.opacity=.60*amount;mark.scale.y=.024*(1+amount*.35);}
-      for(const part of this.joints.head.children)if(part.userData.tooth)part.visible=hurt>.3;
-      for(const face of this.facialRest){
+      if(!acted)for(const part of this.joints.head.children)if(part.userData.tooth)part.visible=hurt>.3;
+      if(!acted)for(const face of this.facialRest){
         face.part.position.z=face.z;
         const blinkPhase=(options.simulationTime??t)%4.6,blink=blinkPhase>4.40?Math.sin((blinkPhase-4.40)/.20*Math.PI)**2:0;
         face.part.scale.y=face.sy*(face.eye?(1-.60*Math.min(1,hurt))*(1-.92*blink):1);
       }
-      if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.x=presentation?.mode==='loser'?.25:0;ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
+      if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.x=(presentation?.mode==='loser'?.25:0)+(hit.part==='head'?.14*hurt:0);ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
       for(const side of ['L','R']){
         const amount=side==='L'?leftStrike:rightStrike,s=side==='L'?-1:1;
         j['scapula'+side].position.set(s*(.17+.020*amount),.17+.015*amount,-.06+.040*amount);

@@ -54,7 +54,7 @@
     const a=i*Math.PI/2;this.rod(swing,V(0,-.06,0),V(Math.cos(a)*.16,-.36,Math.sin(a)*.16),.009,this.accent);
    }
    for(const y of [-.68,-1.10])this.mesh(swing,new THREE.TorusGeometry(.236,.004,6,64),this.accent,V(0,y,0)).rotation.x=Math.PI/2;
-   return root;
+   window.GymDetails?.heavy(root);return root;
   }
   dummy(){
    const root=new THREE.Group();root.name='Freestanding anatomical training dummy';
@@ -142,7 +142,7 @@
    this.mesh(root,new THREE.SphereGeometry(.027,16,12),this.accent,V(0,2.205,0));
    const swing=new THREE.Group();swing.position.y=2.20;root.add(swing);root.userData.swing=swing;
    const bag=this.mesh(swing,CoachSurface([[[0,-.17,0],[.115,.14,.115]],[[0,-.055,0],[.047,.085,.047]]],[-.15,-.34,-.15],[.15,.04,.15],.013),this.leather);bag.name='Pear-shaped speed bag';root.userData.soft=bag;
-   this.rod(swing,V(0,0,0),V(0,-.03,0),.011,this.accent);return root;
+   this.rod(swing,V(0,0,0),V(0,-.03,0),.011,this.accent);window.GymDetails?.speed(root);return root;
   }
   setTarget(mode){
    if(!['none','heavy','dummy','speed','rabbit'].includes(mode))mode='none';
@@ -280,6 +280,25 @@
    const worldPoint=object.localToWorld(point),worldNormal=normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(object.matrixWorld)).normalize();
    return {point:worldPoint,normal:worldNormal,distance,penetration:radius-distance};
   }
+  bodyContacts(point,coach,radius=.064){
+   const shapes=[
+    [coach.joints.head,{centre:[0,.13,.03],radius:[.17,.20,.17]},'head'],
+    [coach.joints.head,{centre:[0,.065,.195],radius:[.135,.105,.125]},'head'],
+    [coach.joints.chest,{centre:[0,.13,0],radius:[.315,.25,.27]},'body'],
+    [coach.joints.spine,{centre:[0,.10,.015],radius:[.24,.23,.19]},'body'],
+    ...['L','R'].map(side=>[coach.joints['arm'+side],{centre:[0,-.025,.015],radius:[.135,.145,.135]},'shoulder',side])
+   ];
+   return shapes.map(([bone,shape,kind,side])=>({...this.closest(point,bone,shape,radius),kind,side}));
+  }
+  bodyCollision(point,coach,radius=.064){return this.bodyContacts(point,coach,radius).sort((a,b)=>a.distance-b.distance)[0];}
+  solidContact(point,receiver,actor,radius=.064){
+   const hit=this.bodyCollision(point,receiver,radius);if(hit.penetration<=.012)return hit;
+   const outward=actor.root.getWorldPosition(V()).sub(receiver.root.getWorldPosition(V()));outward.y=0;outward.normalize();
+   if(hit.normal.dot(outward)<-.15){
+    let lo=0,hi=.8;for(let k=0;k<12;k++){const mid=(lo+hi)/2;if(this.bodyCollision(point.clone().addScaledVector(outward,mid),receiver,radius).penetration>.012)lo=mid;else hi=mid;}
+    return {...hit,normal:outward,penetration:hi+.012};
+   }return hit;
+  }
   collision(centre,receiver){
    if(receiver==='heavy')return {...this.closest(centre,this.models.heavy.userData.soft,{type:'cylinder',radius:.235,halfHeight:.575}),kind:'bag',receiver};
    if(receiver==='dummy'||receiver==='speed'){
@@ -289,8 +308,7 @@
    const coach=receiver==='lion'?this.engine.coach:this.rabbit,candidates=[];
    for(const side of ['L','R'])candidates.push({...this.closest(centre,coach.joints['hand'+side],{centre:[0,-.137,0],radius:[.091,.067,.068]}),kind:'glove',side,receiver});
    const guard=candidates.filter(c=>c.penetration>0).sort((a,b)=>a.distance-b.distance)[0];if(guard)return guard;
-   candidates.push({...this.closest(centre,coach.joints.head,{centre:[0,.17,.08],radius:[.145,.18,.14]}),kind:'head',receiver});
-   candidates.push({...this.closest(centre,coach.joints.chest,{centre:[0,.15,.05],radius:[.25,.28,.16]}),kind:'body',receiver});
+   candidates.push(...this.bodyContacts(centre,coach).map(hit=>({...hit,receiver})));
    return candidates.sort((a,b)=>a.distance-b.distance)[0];
   }
   deformSurface(mesh,contact,amount){
@@ -505,7 +523,10 @@
    }
    if(mode==='rabbit'){
     examine('rabbit',this.rabbit,partner,counter,'lion');
-    for(const [coach,receiver] of [[e.coach,'rabbit'],[this.rabbit,'lion']])for(const side of ['L','R'])coach.constrainGlove(side,p=>this.collision(p,receiver),.018);
+    for(let pass=0;pass<3;pass++){
+     for(const [coach,receiver] of [[e.coach,'rabbit'],[this.rabbit,'lion']])for(const side of ['L','R'])coach.constrainGlove(side,p=>this.collision(p,receiver),.014);
+     for(const [coach,receiver] of [[e.coach,this.rabbit],[this.rabbit,e.coach]])for(const side of ['L','R'])coach.constrainArm(side,(p,r)=>this.solidContact(p,receiver,coach,r),.012);
+    }
    }
    for(const [actor,coach] of [['lion',e.coach],['rabbit',this.rabbit]])if(coach)for(const side of ['L','R']){
     const old=this.pressures[actor][side],goal=desired[actor][side],rate=goal>old?100:23;

@@ -49,11 +49,12 @@
      shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvec3 dentDelta=transformed-avatarDent.xyz;transformed-=avatarDentNormal*avatarDent.w*exp(-dot(dentDelta,dentDelta)/.012);');
      shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`vec3 avatarN=normalize(qrotate(coachQ,normal));transformed=avatarCorrect(transformed,avatarN);\n${mesh.geometry.attributes.avatarFurFlex?'vec3 furDrift=vec3(0.0);for(int k=0;k<4;k++)furDrift+=skinWeight[k]*avatarFurDrift[int(skinIndex[k])];transformed+=furDrift*avatarFurFlex*avatarFurFlex;':''}\n${material===mesh.material?'#ifndef FLAT_SHADED\nif(avatarAxilla>.001)vNormal=normalize(normalMatrix*normalize(mix(objectNormal,avatarN,avatarAxilla)));\n#endif':''}\n#include <project_vertex>`);
     };
-    material.customProgramCacheKey=()=>`animal-connected-r76-${coach.bones.length}-${body}`;
+    material.customProgramCacheKey=()=>`animal-connected-r78-${coach.bones.length}-${body}-${Boolean(mesh.geometry.attributes.avatarFurFlex)}`;
    }
+   window.AvatarAnatomy?.install(mesh,coach,body);
   },
   update(coach){
-   const u=coach.surfaceUniforms;if(!u)return;
+   const u=coach.surfaceUniforms;if(!u)return;window.AvatarAnatomy?.update(coach);
    const dent=coach.surfaceDent;u.dent.value.set(dent?.point?.[0]||0,dent?.point?.[1]||0,dent?.point?.[2]||0,dent?.depth||0);if(dent?.normal)u.dentNormal.value.fromArray(dent.normal).normalize();
    const inverseRoot=coach.root.matrixWorld.clone().invert();
    u.chest.value.multiplyMatrices(inverseRoot,coach.joints.chest.matrixWorld).invert();

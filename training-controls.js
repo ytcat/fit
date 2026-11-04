@@ -129,6 +129,7 @@
     document.getElementById('comboCues').textContent=exchange?w().lion+': '+(exchange.lion.move==='guard'?w().guard:name(exchange.lion.move))+' · '+w().rabbit+': '+(exchange.rabbit.move==='guard'?w().guard:name(exchange.rabbit.move)):w().random;return;
    }
    const f=e.arena?.metrics?.practice||BOXING_ROUTINES.frame(e.animTime,e.technique,e.currentAnim),counter=BOXING_ROUTINES.opponent(f),name=words();
+   if(e.technique==='freestyle')document.getElementById('comboCodes').textContent='↻ '+((f.packet||0)+1);
    const incoming=mode==='rabbit'&&counter.attack?w().incoming+' '+name(counter.move)+' → ':'';
    const next=f.moves[(f.slot+1)%f.moves.length];
    document.getElementById('comboCues').textContent=f.rest?w().read:incoming+name(f.move)+(f.moves.length>1?' · '+w().next+': '+name(next):'');

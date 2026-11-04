@@ -81,6 +81,8 @@
    make(this.head,skull,skin).name='Connected rhino skull, jaw and muzzle';
    const surface=new THREE.Mesh(skull,skin),frontCache=new Map();
    this.headFront=(x,y)=>{const key=x+','+y;if(!frontCache.has(key)){const hit=new THREE.Raycaster(V(x,y,1),V(0,0,-1)).intersectObject(surface,false)[0];frontCache.set(key,hit?.point.z||0);}return frontCache.get(key);};
+   this.eyeParts=[];this.browParts=[];
+   const eye=(...args)=>{const part=ell(...args);this.eyeParts.push({part,sy:part.scale.y});return part;};
    // Recessed expression, natural ears, nostrils and muscular facial folds.
    for(const side of [-1,1]){
      const ear=ell(this.head,V(side*.186,.294,-.068),V(.064,.106,.043),skin);
@@ -88,12 +90,12 @@
      const cavity=ell(this.head,V(side*.188,.305,-.029),V(.035,.073,.012),innerEar);
      cavity.rotation.z=-side*.25;
      const eyeZ=this.headFront(side*.182,.151);
-     ell(this.head,V(side*.182,.151,eyeZ-.002),V(.022,.016,.010),eyeWhite);
-     ell(this.head,V(side*.183,.151,eyeZ+.008),V(.013,.013,.005),iris);
-     ell(this.head,V(side*.184,.151,eyeZ+.012),V(.006,.009,.003),pupil);
-     ell(this.head,V(side*.181,.156,eyeZ+.015),V(.002,.002,.002),glint);
+     eye(this.head,V(side*.182,.151,eyeZ-.002),V(.022,.016,.010),eyeWhite);
+     eye(this.head,V(side*.183,.151,eyeZ+.008),V(.013,.013,.005),iris);
+     eye(this.head,V(side*.184,.151,eyeZ+.012),V(.006,.009,.003),pupil);
+     eye(this.head,V(side*.181,.156,eyeZ+.015),V(.002,.002,.002),glint);
      const brow=ell(this.head,V(side*.173,.177,this.headFront(side*.173,.177)-.009),V(.048,.018,.018),skin);
-     brow.rotation.z=-side*.21;
+     brow.rotation.z=-side*.21;this.browParts.push({part:brow,y:brow.position.y});
      // Nostrils are inset into the broad distal muzzle.
      const nostril=ell(this.head,V(side*.148,.008,this.headFront(side*.148,.008)+.001),V(.018,.013,.004),mat(0x253034,.95));
      nostril.rotation.y=side*.6;nostril.rotation.z=side*.18;
@@ -260,8 +262,16 @@
    this.validation={head:skull,torso,lower,gloveGeometry};
    this.update(0);
   }
-  update(time,grip=null,side=1){
-   this.head.rotation.y=Math.sin(time*.64)*.065;
+  update(time,grip=null,side=1,context={}){
+   const dt=time-(this.faceTime??time);this.faceTime=time;
+   let desired=Math.sin(time*.64)*.045;
+   if(context.lookAt){const p=this.root.worldToLocal(context.lookAt.clone()).sub(this.head.position);desired=clamp(Math.atan2(p.x,p.z),-.30,.30);}
+   this.gaze=this.gaze??desired;if(dt>0&&dt<.2)this.gaze+=(desired-this.gaze)*(1-Math.exp(-dt*8));else if(dt<0||dt>=.2)this.gaze=desired;
+   this.head.rotation.y=this.gaze;
+   const phase=time%5.2,blink=phase>5.04?Math.sin((phase-5.04)/.16*Math.PI)**2:0,alert=Math.min(1,Math.max(0,context.alert||0));
+   for(const eye of this.eyeParts)eye.part.scale.y=eye.sy*Math.max(.12,1-blink-alert*.12);
+   for(const brow of this.browParts)brow.part.position.y=brow.y+.003*alert;
+   this.expression={blink,alert,gaze:this.gaze};
    this.head.rotation.x=Math.sin(time*.47)*.015;
    this.root.updateMatrixWorld(true);
    for(const s of [-1,1]){
