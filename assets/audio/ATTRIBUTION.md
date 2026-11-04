@@ -5,6 +5,20 @@ is used. The recordings were converted to mono 24 kHz PCM WAV, leading quiet
 trimmed, gently low-pass filtered and peak-normalized to 0.78. Playback adds small
 rate/level variations and mixes the recorded handclaps into stereo applause.
 
+## R78 active air and glove Foley — original CC0 sound design
+
+The current application replaces the previous game-character effort voices with
+`breath-1.wav` and `breath-2.wav`: dry, unvoiced pressure-release exhalations.
+`leather-hit.wav` replaces the hammer-derived pad sound, and `air-swing.wav`
+replaces the former swing sample. These four clips are original deterministic
+sound designs built by `scripts/build_boxing_audio.py`, dedicated under CC0 1.0
+([full text](CC0-1.0.txt)). They contain no animal or game-character recordings
+and no pitched vocal sweep. They are not recordings of a person in pain.
+
+The older `effort-*.wav`, `pad.wav` and `swing.wav` files remain for cached old
+versions but are not selected by the current audio engine. Recorded body thuds,
+handclaps and the metal bell retain their source notices below.
+
 ## Teeworlds — CC BY-SA 3.0
 
 Source: https://github.com/teeworlds/teeworlds/tree/master/datasrc/audio

@@ -4,69 +4,111 @@
     "file": "body-1.wav",
     "source": "foley_body_impact-01.wv",
     "duration": 0.17179166666666668,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": true
   },
   {
     "name": "body-2",
     "file": "body-2.wav",
     "source": "foley_body_impact-02.wv",
     "duration": 0.13395833333333335,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": true
   },
   {
     "name": "pad",
     "file": "pad.wav",
     "source": "wp_hammer_hit-01.wv",
     "duration": 0.32,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": false
   },
   {
     "name": "swing",
     "file": "swing.wav",
     "source": "wp_hammer_swing-01.wv",
     "duration": 0.32,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": false
   },
   {
     "name": "effort-1",
     "file": "effort-1.wav",
     "source": "vo_teefault_pain_short-01.wv",
     "duration": 0.13954166666666667,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": false
   },
   {
     "name": "effort-2",
     "file": "effort-2.wav",
     "source": "vo_teefault_pain_short-02.wv",
     "duration": 0.18904166666666666,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": false
   },
   {
     "name": "clap-1",
     "file": "clap-1.wav",
     "source": "clap1.wav",
     "duration": 0.45,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": true
   },
   {
     "name": "clap-2",
     "file": "clap-2.wav",
     "source": "clap2.wav",
     "duration": 0.45,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": true
   },
   {
     "name": "clap-3",
     "file": "clap-3.wav",
     "source": "clap3.wav",
     "duration": 0.45,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": true
   },
   {
     "name": "bell",
     "file": "bell.wav",
     "source": "bell1.wav",
     "duration": 0.9305833333333333,
-    "peak": 0.7799920651875363
+    "peak": 0.7799920651875363,
+    "active": true
+  },
+  {
+    "name": "breath-1",
+    "file": "breath-1.wav",
+    "source": "Original sound design; scripts/build_boxing_audio.py",
+    "duration": 0.25,
+    "license": "CC0-1.0",
+    "active": true
+  },
+  {
+    "name": "breath-2",
+    "file": "breath-2.wav",
+    "source": "Original sound design; scripts/build_boxing_audio.py",
+    "duration": 0.32,
+    "license": "CC0-1.0",
+    "active": true
+  },
+  {
+    "name": "leather-hit",
+    "file": "leather-hit.wav",
+    "source": "Original sound design; scripts/build_boxing_audio.py",
+    "duration": 0.16,
+    "license": "CC0-1.0",
+    "active": true
+  },
+  {
+    "name": "air-swing",
+    "file": "air-swing.wav",
+    "source": "Original sound design; scripts/build_boxing_audio.py",
+    "duration": 0.19,
+    "license": "CC0-1.0",
+    "active": true
   }
 ]

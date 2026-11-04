@@ -720,8 +720,9 @@
       constructor() {
         this.ctx=null;this.muted=false;this.samples=new Map();this.voices=new Set();this.soundSerial=0;this.lastPain=new Map();
         const names=['body-1','body-2','pad','swing','effort-1','effort-2','clap-1','clap-2','clap-3','bell'];
+        const files={pad:'leather-hit',swing:'air-swing','effort-1':'breath-1','effort-2':'breath-2'};
         this.rawSounds=window.fetch?Promise.all(names.map(async name=>{
-          const r=await window.fetch('./assets/audio/'+name+'.wav');if(!r.ok)throw new Error('Sound unavailable');
+          const r=await window.fetch('./assets/audio/'+(files[name]||name)+'.wav?v=78');if(!r.ok)throw new Error('Sound unavailable');
           return [name,await r.arrayBuffer()];
         }).map(p=>p.catch(()=>null))).then(files=>files.filter(Boolean)):null;
       }
@@ -772,7 +773,7 @@
       }
       swing(event) {
         if(!this.samples.has('swing'))return;
-        this.playSample('swing',event.move?.includes('hook')?.12:.08,event.move?.includes('uppercut')?.92:1.05,0,5500);
+        this.playSample('swing',event.move?.includes('hook')?.12:.08,event.move?.includes('uppercut')?.96:1.02,0,5500);
       }
       sampledApplause() {
         if(!this.samples.has('clap-1'))return false;
@@ -825,15 +826,18 @@
           if(impact.blocked||!['lion','rabbit'].includes(impact.receiver)||(impact.closingSpeed!=null&&impact.closingSpeed<.75))return;
           const last=this.lastPain.get(impact.receiver)??-1;if(t-last<.24)return;this.lastPain.set(impact.receiver,t);
           const strength=Math.min(1,impact.severity??(impact.closingSpeed||3)/6);
-          this.playSample('effort-'+(1+this.soundSerial++%2),.16+strength*.16,impact.receiver==='lion'?.82:1.02,0,5000);return;
+          this.playSample('effort-'+(1+this.soundSerial++%2),.16+strength*.16,1+(this.soundSerial%3-1)*.015,0,5000);return;
         }
-        // Short voiced exhalation with formants; no text-to-speech or remote audio.
-        const source=ctx.createOscillator(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
-        source.type='sawtooth';source.frequency.setValueAtTime(impact.receiver==='rabbit'?165:105,t);source.frequency.exponentialRampToValueAtTime(impact.receiver==='rabbit'?115:72,t+.20);
-        filter.type='bandpass';filter.frequency.value=impact.kind==='head'?750:480;filter.Q.value=1.1;
-        gain.gain.setValueAtTime(.001,t);gain.gain.linearRampToValueAtTime(level,t+.018);gain.gain.exponentialRampToValueAtTime(.001,t+.23);
-        source.connect(filter);filter.connect(gain);gain.connect(ctx.destination);source.start(t);source.stop(t+.25);
+        // Air-only fallback while local Foley loads. Never substitute a
+        // game-character voice or a swept sawtooth vocal oscillator.
+        if(impact.blocked||!['lion','rabbit'].includes(impact.receiver))return;
+        const buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*.22),ctx.sampleRate),data=buffer.getChannelData(0);
+        for(let i=0;i<data.length;i++){const age=i/ctx.sampleRate;data[i]=(Math.random()*2-1)*(1-Math.exp(-age/.012))*Math.exp(-age/.065);}
+        const source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();source.buffer=buffer;
+        filter.type='bandpass';filter.frequency.value=1050;filter.Q.value=.65;gain.gain.value=.16;
+        source.connect(filter);filter.connect(gain);gain.connect(ctx.destination);source.start(t);source.stop(t+.23);
       }
+
       applause() {
         if(this.muted||!this.ctx||this.ctx.state!=='running')return;
         if(this.sampledApplause())return;
