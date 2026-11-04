@@ -1,4 +1,4 @@
-/* Rhinoceros referee v75. Continuous-surface geometry with articulated arms.
+/* Rhinoceros referee v76. Continuous-surface geometry with articulated arms.
  * THREE r128, metres, positive Z is forward. No external models or services.
  */
 (() => {
@@ -23,6 +23,7 @@
     mesh.scale.copy(scale);return mesh;
    };
    const curve=(parent,points,color,radius=.004)=>{
+    if(parent===this.head&&this.headFront)points=points.map(p=>V(p.x,p.y,this.headFront(p.x,p.y)+.0015));
     return make(parent,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),Math.max(16,points.length*8),radius,6,false),color);
    };
    const sculpt=(key,volumes,lo,hi,step)=>{
@@ -50,9 +51,9 @@
    const skin=mat(0x849197,.89,{bumpMap:detail,bumpScale:.0032});
    const shadowSkin=mat(0x58666c,.93,{bumpMap:detail,bumpScale:.0024});
    const innerEar=mat(0x9f8183,.93);
-   const ivory=mat(0xe1d6bb,.59);
-   const eyeWhite=mat(0x9e9d90,.48);
-   const iris=mat(0x775a3d,.32);
+   const ivory=mat(0xb6a68a,.77);
+   const eyeWhite=mat(0x392e23,.38);
+   const iris=mat(0x6b5135,.30);
    const pupil=mat(0x16181c,.25);
    const glint=mat(0xf7f2e9,.18);
    const jersey=mat(0xe3e2dc,.84,{bumpMap:detail,bumpScale:.00065});
@@ -66,31 +67,36 @@
    // and lower jaw blend together without visible primitive intersections.
    this.head=new THREE.Group();this.head.position.set(0,1.735,.015);this.root.add(this.head);
    const skull=sculpt('head',[
-     [[0,.115,-.035],[.227,.245,.205]],
-     [[0,.055,.112],[.210,.173,.211]],
-     [[0,-.004,.239],[.176,.131,.204]],
-     [[0,-.064,.302],[.173,.081,.148]],
-     [[0,.096,.243],[.120,.123,.130]],
+     [[0,.115,-.055],[.211,.232,.201]],
+     [[0,.060,.105],[.189,.163,.213]],
+     [[0,.012,.257],[.165,.128,.235],3],
+     [[0,-.068,.330],[.173,.070,.158],3],
+     [[0,.119,.275],[.134,.109,.158]],
      [[-.162,.047,.130],[.087,.105,.120]],
      [[.162,.047,.130],[.087,.105,.120]],
-     [[0,-.100,.214],[.139,.058,.151]]
-   ],[-.28,-.15,-.26],[.28,.39,.48],.016);
+     [[0,-.100,.214],[.139,.058,.151]],
+     [[-.165,.143,.126],[.064,.076,.083]],
+     [[.165,.143,.126],[.064,.076,.083]]
+   ],[-.28,-.15,-.26],[.28,.39,.52],.013);
    make(this.head,skull,skin).name='Connected rhino skull, jaw and muzzle';
+   const surface=new THREE.Mesh(skull,skin),frontCache=new Map();
+   this.headFront=(x,y)=>{const key=x+','+y;if(!frontCache.has(key)){const hit=new THREE.Raycaster(V(x,y,1),V(0,0,-1)).intersectObject(surface,false)[0];frontCache.set(key,hit?.point.z||0);}return frontCache.get(key);};
    // Recessed expression, natural ears, nostrils and muscular facial folds.
    for(const side of [-1,1]){
-     const ear=ell(this.head,V(side*.207,.31,-.050),V(.078,.122,.046),skin);
+     const ear=ell(this.head,V(side*.186,.294,-.068),V(.064,.106,.043),skin);
      ear.rotation.z=-side*.25;
-     const cavity=ell(this.head,V(side*.205,.322,-.005),V(.044,.086,.011),innerEar);
+     const cavity=ell(this.head,V(side*.188,.305,-.029),V(.035,.073,.012),innerEar);
      cavity.rotation.z=-side*.25;
-     ell(this.head,V(side*.122,.181,.221),V(.032,.023,.016),eyeWhite);
-     ell(this.head,V(side*.123,.182,.236),V(.019,.019,.008),iris);
-     ell(this.head,V(side*.126,.182,.242),V(.010,.014,.005),pupil);
-     ell(this.head,V(side*.120,.189,.247),V(.004,.004,.003),glint);
-     const brow=ell(this.head,V(side*.126,.213,.199),V(.089,.034,.061),skin);
+     const eyeZ=this.headFront(side*.182,.151);
+     ell(this.head,V(side*.182,.151,eyeZ-.002),V(.022,.016,.010),eyeWhite);
+     ell(this.head,V(side*.183,.151,eyeZ+.008),V(.013,.013,.005),iris);
+     ell(this.head,V(side*.184,.151,eyeZ+.012),V(.006,.009,.003),pupil);
+     ell(this.head,V(side*.181,.156,eyeZ+.015),V(.002,.002,.002),glint);
+     const brow=ell(this.head,V(side*.173,.177,this.headFront(side*.173,.177)-.009),V(.048,.018,.018),skin);
      brow.rotation.z=-side*.21;
      // Nostrils are inset into the broad distal muzzle.
-     const nostril=ell(this.head,V(side*.112,-.023,.437),V(.035,.021,.007),shadowSkin);
-     nostril.rotation.z=side*.18;
+     const nostril=ell(this.head,V(side*.148,.008,this.headFront(side*.148,.008)+.001),V(.018,.013,.004),mat(0x253034,.95));
+     nostril.rotation.y=side*.6;nostril.rotation.z=side*.18;
      curve(this.head,[V(side*.196,.065,.242),V(side*.194,.005,.277),V(side*.175,-.044,.299)],seam,.0029);
      curve(this.head,[V(side*.144,-.079,.404),V(side*.083,-.111,.422),V(0,-.118,.420)],shadowSkin,.0025);
      for(let fold=0;fold<3;fold++){
@@ -102,7 +108,7 @@
     for(let i=0;i<3;i++)curve(this.head,[V(side*(.172+i*.008),.11-i*.016,.19),V(side*(.19+i*.007),.085-i*.016,.215)],shadowSkin,.0014);
     curve(this.head,[V(side*.08,-.105,.388),V(side*.03,-.114,.418),V(0,-.113,.42)],skin,.0034);
    }
-   this.root.userData.artRevision=75;
+   this.root.userData.artRevision=76;
    // Two tapered curved horns, aligned along the upper bridge (not stuck
    // through the middle of the nose).
    const horn=(base,height,radius,lean)=>{
@@ -120,8 +126,8 @@
      g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(index);g.computeVertexNormals();
      return make(this.head,g,ivory);
    };
-   horn(V(0,.105,.406),.285,.083,-.045);
-   horn(V(0,.239,.249),.128,.044,-.015);
+   horn(V(0,.123,.421),.302,.066,.065);
+   horn(V(0,.227,.270),.136,.042,.025);
    curve(this.head,[V(-.136,-.099,.361),V(0,-.117,.431),V(.136,-.099,.361)],shadowSkin,.0028);
    // One continuous referee jersey from collar through shoulders and waist.
    const torso=sculpt('shirt',[

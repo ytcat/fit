@@ -84,3 +84,16 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   modes, fight, languages, pause and actual Web Audio rendering. The reference,
   measurement and remaining realism/device-performance limits are documented in
   docs/r75-reference-and-design.md. Imported mocap/retargeting remain pending.
+
+## R76 follow-up — physical contacts and animal surfaces
+- Fixed rendered glove pass-through after a scored contact, corrected the sign of
+  root recoil and fitted uppercuts to the supplied wrist target. Added compliant
+  local skin response, stronger visible recoil and contact-side facial damage.
+- Added a bounded connected shoulder correction, dense skeleton-attached short
+  coat with inertial tips, stable face attachments and revised animal features.
+- Restored persistent phone audio activation with a visible stage sound control,
+  interrupted-context recovery and callback-compatible/partial asset decoding.
+- Added six speed-bag drill patterns and four combinations with per-move tempos.
+- Detailed findings, free model/material research and limits are recorded in
+  docs/r76-contact-avatar-review.md. Mocap and physical-device benchmarks remain
+  separate open work; no photorealism or full soft-body simulation is claimed.

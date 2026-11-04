@@ -11,7 +11,7 @@
    if(rounds!=null)this.rounds=rounds;if(roundSeconds!=null)this.roundSeconds=roundSeconds;if(restSeconds!=null)this.restSeconds=restSeconds;
    this.time=0;this.phase='intro';this.phaseTime=0;this.round=1;this.roundTime=0;this.eventId=0;this.actionId=0;this.events=[];this.history=[];this.roundStats={lion:empty(),rabbit:empty()};this.totals={lion:empty(),rabbit:empty()};this.seen=new Set();this.result=null;
    this.cards=[{name:'Judge 1',weights:[1,.08,.18,.003],rounds:[]},{name:'Judge 2',weights:[1.04,.16,.09,.002],rounds:[]},{name:'Judge 3',weights:[.98,.05,.25,.005],rounds:[]}];
-   this.fighters={};for(const actor of actors)this.fighters[actor]={actor,condition:100,stamina:1,stun:0,down:0,action:null,next:0,skill:.78+this.random()*.18,power:.85+this.random()*.3,tempo:.85+this.random()*.3,reaction:null};
+   this.fighters={};for(const actor of actors)this.fighters[actor]={actor,condition:100,stamina:1,stun:0,down:0,action:null,next:0,skill:.78+this.random()*.18,power:.85+this.random()*.3,tempo:.85+this.random()*.3,reaction:null,damage:{left:0,right:0,body:0}};
    this.order=this.random()<.5?['lion','rabbit']:['rabbit','lion'];
   }
   random(){this.state=(Math.imul(this.state,1664525)+1013904223)>>>0;return this.state/4294967296;}
@@ -71,7 +71,7 @@
    if(this.phase!=='round'||!a)return {move:'guard',phase:.35,attack:false,id:0};
    return {...a,phase:clamp((this.time-a.start-(a.contactTime!=null?Math.min(.045,Math.max(0,this.time-a.contactTime)*.70):0))/a.duration),brace:a.move==='guard'?1:0};
   }
-  contact({actor,action,part,speed=1,point,side,direction}){
+  contact({actor,action,part,speed=1,point,side,direction,surfacePoint,surfaceNormal}){
    if(this.phase!=='round')return null;const f=this.fighters[actor],a=f.action,receiver=other(actor),victim=this.fighters[receiver];
    if(!a?.attack||a.id!==action||a.recorded||this.seen.has(action)||!(speed>.12))return null;
    a.recorded=true;a.contactTime=this.time;this.seen.add(action);const stats=this.roundStats[actor],total=this.totals[actor];
@@ -81,8 +81,8 @@
    else if(legal){for(const s of [stats,total]){s.landed++;s[part]++;s.quality+=quality;s.power+=quality*quality;}}
    else if(part==='shoulder'){stats.shoulder++;total.shoulder++;}
    const severity=quality*(blocked?.14:part==='shoulder'?.30:1);
-   victim.reaction={time:this.time,part:part==='glove'?'guard':part,severity,side:side||1,move:a.move,direction:direction||[0,a.move.includes('uppercut')?.8:0,-1]};
-   if(legal){victim.condition=Math.max(0,victim.condition-severity*(this.preset==='quick'?(part==='head'?12:9):(part==='head'?3:2.2)));victim.stamina=clamp(victim.stamina-severity*.025);victim.stun+=severity*(part==='head'?5:3);f.stamina=clamp(f.stamina+.012);}
+   victim.reaction={time:this.time,part:part==='glove'?'guard':part,severity,side:side||1,move:a.move,surfacePoint,surfaceNormal,direction:direction||[0,a.move.includes('uppercut')?.8:0,-1]};
+   if(legal){const zone=part==='body'?'body':(side||1)<0?'left':'right';victim.damage[zone]+=severity;victim.condition=Math.max(0,victim.condition-severity*(this.preset==='quick'?(part==='head'?12:9):(part==='head'?3:2.2)));victim.stamina=clamp(victim.stamina-severity*.025);victim.stun+=severity*(part==='head'?5:3);f.stamina=clamp(f.stamina+.012);}
    const event=this.emit('contact',{actor,receiver,action,part,legal,blocked,speed,quality,severity,point,move:a.move,direction});
    if(legal&&victim.stun>18){if(!victim.pendingDown){victim.pendingDown=true;this.roundStats[receiver].knockdowns++;this.totals[receiver].knockdowns++;}}
    return event;

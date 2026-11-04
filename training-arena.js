@@ -498,7 +498,10 @@
    else if(heroSpec.attack&&heroSpec.phase>=.22&&heroSpec.phase<.60&&dt>0&&dt<.1){
     const key='solo:'+frame.index;if(!this.swingSeen.has(key)){this.swingSeen.add(key);if(this.swingSeen.size>64)this.swingSeen.delete(this.swingSeen.values().next().value);swings.push({actor:'lion',move:heroSpec.move});}
    }
-   if(mode==='rabbit')examine('rabbit',this.rabbit,partner,counter,'lion');
+   if(mode==='rabbit'){
+    examine('rabbit',this.rabbit,partner,counter,'lion');
+    for(const [coach,receiver] of [[e.coach,'rabbit'],[this.rabbit,'lion']])for(const side of ['L','R'])coach.constrainGlove(side,p=>this.collision(p,receiver),.018);
+   }
    for(const [actor,coach] of [['lion',e.coach],['rabbit',this.rabbit]])if(coach)for(const side of ['L','R']){
     const old=this.pressures[actor][side],goal=desired[actor][side],rate=goal>old?100:23;
     const amount=!this.hasFrame?goal:old+(goal-old)*(1-Math.exp(-rate*dt));

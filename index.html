@@ -9,21 +9,22 @@
   <title>ShadowBox 3D | Lion Boxing Coach</title>
 
   <link rel="stylesheet" href="./assets/app.css?v=2" />
-  <link rel="stylesheet" href="./workout-experience.css?v=2026110403" />
+  <link rel="stylesheet" href="./workout-experience.css?v=2026110404" />
   <script src="./workout-experience.js?v=1" defer></script>
   <script src="./practice-layout.js?v=3" defer></script>
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-routines.js?v=2026110403"></script>
-  <script src="./boxing-coach-v2.js?v=2026110403"></script>
-  <script src="./contact-response.js?v=2026110403"></script>
-  <script src="./training-arena.js?v=2026110403"></script>
-  <script src="./boxing-fight.js?v=2026110403"></script>
-  <script src="./fight-referee.js?v=2026110403"></script>
-  <script src="./fight-arena.js?v=2026110403"></script>
-  <script src="./fight-ui.js?v=2026110403" defer></script>
-  <script src="./training-controls.js?v=2026110403" defer></script>
+  <script src="./boxing-routines.js?v=2026110404"></script>
+  <script src="./avatar-detail.js?v=2026110404"></script>
+  <script src="./boxing-coach-v2.js?v=2026110404"></script>
+  <script src="./contact-response.js?v=2026110404"></script>
+  <script src="./training-arena.js?v=2026110404"></script>
+  <script src="./boxing-fight.js?v=2026110404"></script>
+  <script src="./fight-referee.js?v=2026110404"></script>
+  <script src="./fight-arena.js?v=2026110404"></script>
+  <script src="./fight-ui.js?v=2026110404" defer></script>
+  <script src="./training-controls.js?v=2026110404" defer></script>
 
   <style>
     html, body {
@@ -170,7 +171,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R75",
+        subtitle: "LION BOXING COACH · R76",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -448,7 +449,7 @@
 
       async createTrainingBoxer() {
         try {
-          const [response,equipment]=await Promise.all([fetch('./assets/models/coach-surface-v2.json?v=1'),fetch('./assets/models/equipment-surfaces-r75.json')]);
+          const [response,equipment]=await Promise.all([fetch('./assets/models/coach-surface-v2.json?v=1'),fetch('./assets/models/equipment-surfaces-r76.json')]);
           if(!equipment.ok)throw new Error('Equipment surfaces unavailable');
           window.EQUIPMENT_SURFACES=await equipment.json();
           if(!response.ok)throw new Error('Coach surface unavailable');
@@ -799,7 +800,7 @@
           if(impact.kind==='platform'){this.playSample('pad',.10+strength*.12,1.7+variation,0,5000);return;}
           if(speed){this.playSample('pad',.13+strength*.16,1.35+variation,0,4200);return;}
           const body=heavy||impact.receiver==='dummy'||impact.kind==='body';
-          this.playSample(body?'body-'+(1+this.soundSerial%2):'pad',.18+strength*.35,(heavy?.78:body?.92:1.02)+variation,0,heavy?1800:body?3000:6000);
+          this.playSample(body?'body-'+(1+this.soundSerial%2):'pad',.26+strength*.42,(heavy?.78:body?.92:1.02)+variation,0,heavy?1800:body?3000:6000);
           if(!body&&!impact.blocked&&['head','body'].includes(impact.kind))this.playSample('body-1',strength*.17,.96+variation,0,1600);
           return;
         }

@@ -39,7 +39,7 @@
   }
   reaction(actor){
    const r=this.match.fighters[actor].reaction;if(!r)return null;const age=this.match.time-r.time;
-   return {...r,amount:clamp(r.severity*1.5*(1-Math.exp(-age/.018))*Math.exp(-age/.25),0,1.4)};
+   return {...r,amount:clamp(r.severity*2.1*(1-Math.exp(-age/.012))*Math.exp(-age/.34),0,1.25)};
   }
   target(actor,spec){
    const receiver=this.coaches[other(actor)],coach=this.coaches[actor],action=this.match.fighters[actor].action;
@@ -60,7 +60,7 @@
     const coach=this.coaches[actor],f=m.fighters[actor];
     if(ceremony){coach.root.position.copy(this.lineupStart[actor].position).lerp(V(index?.72:-.72,0,.05),ease);coach.root.rotation.y=this.lineupStart[actor].yaw*(1-ease);}
     else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.move?.includes('uppercut')?Math.min(.035,(reaction.amount||0)*.025):Math.min(.025,(reaction?.amount||0)*.02);
-     coach.root.position.set(.055*Math.sin(m.time*.62+index*2),0,direction*(-.55-corner-.025*Math.sin(m.time*.73+index)+push));coach.root.rotation.y=index?Math.PI:0;}
+     coach.root.position.set(.055*Math.sin(m.time*.62+index*2),0,direction*(-.55-corner-.025*Math.sin(m.time*.73+index)-push));coach.root.rotation.y=index?Math.PI:0;}
    }
    for(const actor of ['lion','rabbit']){
     const f=m.fighters[actor],coach=this.coaches[actor],fall=f.down?(m.result?clamp(m.phaseTime/.5):Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4))):0;
@@ -69,14 +69,19 @@
    a.group.updateMatrixWorld(true);
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
-    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],options={simulationTime:m.time,defenceSide:spec.defenceSide,brace:spec.brace,hitReaction:this.reaction(actor),down:f.down?(m.result?1:Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4))):0,duckDepth:.28};
+    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],options={simulationTime:m.time,defenceSide:spec.defenceSide,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,down:f.down?(m.result?1:Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4))):0,duckDepth:.28};
     if(spec.attack){
      let target=this.target(actor,spec);if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(V(...f.action.aim)));
      const through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(.035);
      options.knuckleTarget=target.add(through).toArray();options.strikeHeight=target.y-.035;
      options.advance=spec.move.includes('uppercut')?.23:spec.move.includes('hook')?.10:.025;
-     options.contactDrive=.055;options.levelChange=spec.target==='body'?.065:.015;
-     if(spec.move.includes('uppercut')){options.upperLoadHeight=spec.target==='body'?1.02:1.28;options.upperWristHeight=target.y-.16;}
+     options.power=1.25;options.contactDrive=.065;options.levelChange=spec.target==='body'?.065:.015;
+     if(spec.move.includes('uppercut')){
+      options.upperLoadHeight=spec.target==='body'?1.02:1.28;
+      // The wrist chamber stays on the striker's side of the torso. Drive the
+      // knuckle crown up under the target instead of sweeping through ribs.
+      options.uppercutBagTarget=[target.x,target.y-.19,target.z-.08];
+     }
     }
     if(ceremony){options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'R':'L',raise:!m.result.winner||m.result.winner===actor?raise:0};}
     const time=ceremony||(!spec.attack&&!spec.defend)?m.time:spec.phase*1.22;
@@ -138,12 +143,23 @@
     if(spec.attack&&side===(rear(spec.move)?'R':'L')&&spec.phase>.18&&spec.phase<.78&&!m.fighters[actor].action?.recorded){
      const count=Math.max(1,Math.ceil(previous.distanceTo(current)/.018));let contact=null;
      for(let i=1;i<=count;i++){const hit=this.collision(this.arena.group.localToWorld(previous.clone().lerp(current,i/count)),other(actor));if(hit.penetration>0){contact=hit;break;}}
-     if(contact){const normal=contact.normal.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion()).invert()),speed=Math.max(0,-velocity.dot(normal),spec.move.includes('uppercut')?Math.max(0,velocity.y)*.70:0);const direction=velocity.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion())).applyQuaternion(this.coaches[other(actor)].root.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize().toArray();samples.push({direction,actor,action:spec.id,part:contact.part,speed,point:contact.point.toArray(),side:contact.side==='L'?-1:contact.side==='R'?1:(this.coaches[other(actor)].root.worldToLocal(contact.point.clone()).x<0?-1:1),hand:side,receiver:other(actor)});}
+     if(contact){const normal=contact.normal.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion()).invert()),speed=Math.max(0,-velocity.dot(normal),spec.move.includes('uppercut')?Math.max(0,velocity.y)*.70:0);const direction=velocity.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion())).applyQuaternion(this.coaches[other(actor)].root.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize().toArray();samples.push({normal:contact.normal.toArray(),direction,actor,action:spec.id,part:contact.part,speed,point:contact.point.toArray(),side:contact.side==='L'?-1:contact.side==='R'?1:(this.coaches[other(actor)].root.worldToLocal(contact.point.clone()).x<0?-1:1),hand:side,receiver:other(actor)});}
     }
     this.previous[key]=current;
     if(spec.attack&&spec.phase>.15&&spec.phase<.7&&m.phase==='round'){m.roundStats[actor].control+=dt;m.totals[actor].control+=dt;}
    }
-   for(const sample of samples){const event=m.contact(sample);if(event){this.contacts.push({...event,kind:sample.part,impulse:event.severity,closingSpeed:sample.speed});goals[sample.actor][sample.hand]=clamp(.3+event.severity*.45);if(sample.part==='glove')goals[sample.receiver][sample.side<0?'L':'R']=.5;}}
+   for(const sample of samples){
+    const receiver=this.coaches[sample.receiver],bone=receiver.joints[sample.part==='head'?'head':'chest'];
+    const bind=receiver.skeleton.boneInverses[receiver.bones.indexOf(bone)].clone().invert();
+    sample.surfacePoint=bone.worldToLocal(V(...sample.point)).applyMatrix4(bind).toArray();
+    sample.surfaceNormal=V(...sample.normal).applyQuaternion(bone.getWorldQuaternion(new THREE.Quaternion()).invert()).applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(bind)).toArray();
+    const event=m.contact(sample);if(event){this.contacts.push({...event,kind:sample.part,impulse:event.severity,closingSpeed:sample.speed});goals[sample.actor][sample.hand]=clamp(.3+event.severity*.45);if(sample.part==='glove')goals[sample.receiver][sample.side<0?'L':'R']=.5;}}
+   // Always constrain the rendered glove, including follow-through/recovery
+   // after an action has already scored. Previously a.recorded skipped the
+   // only collision path and let the animation continue through the opponent.
+   for(const actor of ['lion','rabbit'])for(const side of ['L','R']){
+    this.coaches[actor].constrainGlove(side,p=>this.collision(p,other(actor)),.018);
+   }
    for(const actor of ['lion','rabbit'])for(const side of ['L','R']){const old=this.compressions[actor][side],goal=goals[actor][side],value=goal>old?goal:old*Math.exp(-dt/ .08);this.compressions[actor][side]=value;this.coaches[actor].deformGlove(side,value);}
    return this.contacts;
   }
@@ -171,7 +187,7 @@
  };
  TrainingArena.prototype.update=function(time,technique,combo){return this.mode==='fight'&&this.fightView?this.fightView.update(time):update.call(this,time,technique,combo);};
  TrainingArena.prototype.fitCamera=function(camera){
-  if(this.mode!=='fight')return fit.call(this,camera);const fov=THREE.MathUtils.degToRad(camera.fov),distance=Math.max(2.75/(2*Math.tan(fov/2)),3.1/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+1.1;
+  if(this.mode!=='fight')return fit.call(this,camera);const fov=THREE.MathUtils.degToRad(camera.fov),distance=Math.max(2.65/(2*Math.tan(fov/2)),2.25/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+.45;
   camera.position.set(0,1.82,distance);camera.lookAt(0,1.30,0);
  };
  window.FightArena=FightArena;

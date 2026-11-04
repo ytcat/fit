@@ -316,13 +316,24 @@
       const mouthZ=this.species==='rabbit'?.255:.295;
       this.painMouth=this.curve(this.joints.head,[V(-.047,.018,mouthZ),V(-.020,.034,mouthZ+.005),V(.018,.030,mouthZ+.005),V(.043,.008,mouthZ)],this.black,.0033);
       this.painMouth.visible=false;
-      this.facialRest=this.joints.head.children.filter(part=>part!==this.mane&&part!==this.celebrationSmile&&part!==this.painMouth&&part.position.z>.10).map(part=>({part,z:part.position.z,sy:part.scale.y,eye:part.position.y>.13&&part.position.y<.20}));
+      this.damageMarks=[];
+      for(const side of [-1,1]){
+        const material=new THREE.MeshStandardMaterial({color:0x57334a,roughness:.96,transparent:true,opacity:0,depthWrite:false});
+        // Place the bruise on the actual rest head surface, not a guessed
+        // depth that can bury it underneath the muzzle.
+        const positions=this.skin.geometry.attributes.position,inv=this.skeleton.boneInverses[this.bones.indexOf(this.joints.head)];let faceZ=-Infinity;
+        for(let i=0;i<positions.count;i++){const p=V().fromBufferAttribute(positions,i).applyMatrix4(inv);if(Math.abs(p.x-side*.103)<.018&&Math.abs(p.y-.128)<.018)faceZ=Math.max(faceZ,p.z);}
+        if(!Number.isFinite(faceZ))faceZ=this.species==='rabbit'?.156:.187;
+        const mark=this.ellipsoid(this.joints.head,material,V(side*.103,.128,faceZ-.003),V(.039,.024,.008));mark.name='Contact-side bruising';mark.visible=false;this.damageMarks.push({side,mark});
+      }
+      this.facialRest=this.joints.head.children.filter(part=>part!==this.mane&&part!==this.celebrationSmile&&part!==this.painMouth&&part.position.z>.10).map(part=>({part,z:part.position.z,sy:part.scale.y,eye:part.userData.eye===true}));
       this.tail=new THREE.Group();hips.add(this.tail);
       if(this.species!=='rabbit')this.curve(this.tail,[V(0,-.02,-.16),V(.1,-.2,-.32),V(.16,-.45,-.40),V(.23,-.54,-.29)],
         new THREE.MeshStandardMaterial({color:0x9d713f,roughness:1}),.022);
       const tip=this.ellipsoid(this.tail,new THREE.MeshStandardMaterial({color:0x44301d,roughness:1}),V(.23,-.54,-.29),V(.04,.075,.04));
       tip.rotation.z=-.6;
       if(this.species==='rabbit'){this.tail.clear();this.ellipsoid(this.tail,this.cream,V(0,-.11,-.18),V(.085,.085,.08));}
+      window.AvatarSurface?.addFur(this);
       const convertedMaterials=new Set();
       this.root.traverse(n=>{if(n.isMesh){
         if(n.material.color&&!convertedMaterials.has(n.material)) {
@@ -336,7 +347,7 @@
     // CPU equivalent of the actual hybrid vertex/shadow shader, for pose QA.
     skinPoint(mesh,index,target=V()) {
       const g=mesh.geometry,ids=g.attributes.skinIndex,w=g.attributes.skinWeight;
-      const p=V().fromBufferAttribute(g.attributes.position,index).applyMatrix4(mesh.bindMatrix);
+      const p=V().fromBufferAttribute(g.attributes.position,index);window.AvatarSurface?.dent(p,this);p.applyMatrix4(mesh.bindMatrix);
       const q0=this.dqReal[ids.getX(index)],q=new THREE.Vector4(),d=new THREE.Vector4(),linear=V();
       q.set(0,0,0,0);d.set(0,0,0,0);
       for(let k=0;k<4;k++){
@@ -349,7 +360,7 @@
       const rotation=new THREE.Quaternion(q.x,q.y,q.z,q.w),translation=new THREE.Quaternion(d.x,d.y,d.z,d.w).multiply(rotation.clone().conjugate());
       const influence=g.attributes.coachLinear.getX(index);
       target.copy(p).applyQuaternion(rotation).add(V(translation.x*2,translation.y*2,translation.z*2)).lerp(linear,influence);
-      return target.applyMatrix4(mesh.bindMatrixInverse);
+      target.applyMatrix4(mesh.bindMatrixInverse);return window.AvatarSurface?.correct(target,this,index,g)||target;
     }
 
     sculptBody(g) {
@@ -512,6 +523,7 @@
         shadowMaterial.onBeforeCompile=skinShader;
         shadowMaterial.customProgramCacheKey=material.customProgramCacheKey;
       }
+      window.AvatarSurface?.install(m,this,colour);
       // Pose changes extend beyond the rest-pose bounding sphere.
       m.frustumCulled=false;return m;
     }
@@ -572,14 +584,17 @@
         const ear=new THREE.Group();ear.position.set(s*.085,.235,-.012);head.add(ear);this.rabbitEars.push(ear);
         this.ellipsoid(ear,grey,V(0,.20,0),V(.064,.255,.042));
         this.ellipsoid(ear,pink,V(0,.205,.034),V(.036,.207,.013));
-        this.ellipsoid(head,eye,V(s*.079,.17,.147),V(.030,.025,.021));
-        this.ellipsoid(head,white,V(s*.073,.093,.213),V(.081,.065,.068));
-        this.ellipsoid(head,white,V(s*.019,.035,.249),V(.016,.025,.010));
-        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xffffff}),V(s*.075,.18,.165),V(.006,.006,.003));
+        this.ellipsoid(head,eye,V(s*.079,.17,.147),V(.030,.025,.021)).userData.eye=true;
+        this.ellipsoid(head,white,V(s*.064,.087,.207),V(.068,.052,.059));
+        const tooth=this.ellipsoid(head,white,V(s*.014,.035,.244),V(.011,.019,.008));tooth.userData.tooth=true;tooth.visible=false;
+        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xffffff}),V(s*.075,.18,.165),V(.006,.006,.003)).userData.eye=true;
         this.curve(head,[V(s*.048,.208,.143),V(s*.085,.216,.139),V(s*.114,.195,.124)],grey,.008);
         for(let i=0;i<3;i++)this.curve(head,[V(s*.057,.095-i*.017,.271),V(s*.16,.10-i*.017,.29),V(s*.23,.12-i*.025,.27)],white,.0009);
       }
-      this.ellipsoid(head,pink,V(0,.112,.273),V(.029,.020,.019));
+      const noseShape=new THREE.Shape();noseShape.moveTo(-.025,.012);noseShape.quadraticCurveTo(0,.020,.025,.012);noseShape.quadraticCurveTo(.018,-.002,0,-.015);noseShape.quadraticCurveTo(-.018,-.002,-.025,.012);
+      const nose=new THREE.Mesh(new THREE.ExtrudeGeometry(noseShape,{depth:.009,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.003,bevelThickness:.003}),pink);nose.position.set(0,.112,.261);head.add(nose);
+      this.curve(head,[V(0,.103,.273),V(0,.065,.264),V(-.032,.047,.247)],this.black,.0016);
+      this.curve(head,[V(0,.065,.264),V(.032,.047,.247)],this.black,.0016);
       const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([],3));
       this.mane=new THREE.Mesh(g,grey);this.maneRest=[];this.maneFlex=[];
     }
@@ -588,10 +603,10 @@
       const wet=new THREE.MeshPhysicalMaterial({color:0x231c18,roughness:.24,clearcoat:.7});
       const amber=new THREE.MeshPhysicalMaterial({color:0xb58b39,roughness:.19,clearcoat:1});
       for(const s of [-1,1]) {
-        this.ellipsoid(head,wet,V(s*.091,.171,.176),V(.035,.022,.025));
-        this.ellipsoid(head,amber,V(s*.091,.171,.195),V(.022,.015,.010));
-        this.ellipsoid(head,this.black,V(s*.091,.171,.204),V(.010,.010,.004));
-        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xfff5df}),V(s*.085,.177,.208),V(.003,.003,.002));
+        this.ellipsoid(head,wet,V(s*.091,.171,.176),V(.029,.019,.022)).userData.eye=true;
+        this.ellipsoid(head,amber,V(s*.091,.171,.195),V(.019,.013,.010)).userData.eye=true;
+        this.ellipsoid(head,this.black,V(s*.091,.171,.204),V(.009,.011,.004)).userData.eye=true;
+        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xfff5df}),V(s*.085,.177,.208),V(.003,.003,.002)).userData.eye=true;
         this.curve(head,[V(s*.053,.18,.191),V(s*.09,.195,.190),V(s*.127,.177,.174)],wet,.004);
         this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x705037,roughness:1}),V(s*.164,.265,.025),V(.044,.050,.014));
         this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x604325,roughness:1}),V(s*.164,.265,-.044),V(.048,.053,.011));
@@ -604,10 +619,11 @@
           if(i<4) this.curve(head,[V(x,y,.294),V(s*.16,y+.005,.31),V(s*(.23+i*.012),y+.02-i*.013,.31)],this.cream,.0007);
         }
       }
-      const nose=this.ellipsoid(head,wet,V(0,.103,.291),V(.061,.031,.025));
-      const a=nose.geometry.attributes.position;
-      for(let i=0;i<a.count;i++)a.setX(i,a.getX(i)*(.6+.4*(a.getY(i)+1)/2));
-      a.needsUpdate=true;nose.geometry.computeVertexNormals();
+      // A broad, tapered feline nose leather, not a round human nose ball.
+      const shape=new THREE.Shape();shape.moveTo(-.052,.018);shape.quadraticCurveTo(-.054,.032,-.035,.033);shape.quadraticCurveTo(0,.027,.035,.033);shape.quadraticCurveTo(.054,.032,.052,.018);shape.quadraticCurveTo(.039,-.004,.013,-.021);shape.quadraticCurveTo(0,-.029,-.013,-.021);shape.quadraticCurveTo(-.039,-.004,-.052,.018);
+      const nose=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.015,bevelEnabled:true,bevelSize:.005,bevelThickness:.005,bevelSegments:4,steps:1}),wet);
+      nose.position.set(0,.101,.291);head.add(nose);
+      for(const side of [-1,1])this.ellipsoid(head,this.black,V(side*.036,.104,.311),V(.011,.006,.002));
       this.curve(head,[V(0,.08,.312),V(0,.051,.301)],wet,.003);
     }
     addMane() {
@@ -783,6 +799,39 @@
       return {distal:distal.toArray(),palm:z.toArray(),turn,knuckles:knuckles.toArray(),strikePoint:strikePoint.toArray(),radius:.064};
     }
 
+    // Resolve padding against a moving receiving surface after BOTH characters
+    // have posed. This constrains the rendered fist, not just the score event.
+    constrainGlove(side,collide,allowance=.018) {
+      const index=side==='R'?1:0,j=this.joints;
+      let glove=this.metrics.gloves[index],maximum=0;
+      const pole=this.point(j['elbow'+side]).sub(this.point(j['arm'+side])).normalize();
+      for(let k=0;k<7;k++){
+        const world=this.root.localToWorld(V(...glove.knuckles)),hit=collide(world);
+        if(!(hit.penetration>allowance+.0002))break;
+        maximum=Math.max(maximum,hit.penetration);
+        const correction=hit.normal.clone().multiplyScalar(hit.penetration-allowance+.0005);
+        const wrist=this.point(j['hand'+side]);
+        const target=this.root.worldToLocal(this.root.localToWorld(wrist.clone()).add(correction));
+        this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],target,pole);
+        glove=this.orientGlove(side,glove.turn,V(0,-1,0));
+      }
+      this.metrics.gloves[index]=glove;
+      this.metrics.hands[index]=this.point(j['hand'+side]).toArray();
+      if(maximum>0)this.syncSkin();
+      return maximum;
+    }
+
+    syncSkin(){
+      this.root.updateMatrixWorld(true);this.skeleton.update();window.AvatarSurface?.update(this);
+      const mat=new THREE.Matrix4(),q=new THREE.Quaternion(),tr=new THREE.Quaternion();
+      for(let i=0;i<this.bones.length;i++) {
+        mat.fromArray(this.skeleton.boneMatrices,i*16);q.setFromRotationMatrix(mat);
+        const e=mat.elements;tr.set(e[12],e[13],e[14],0).multiply(q);
+        this.dqReal[i].set(q.x,q.y,q.z,q.w);
+        this.dqDual[i].set(tr.x*.5,tr.y*.5,tr.z*.5,tr.w*.5);
+      }
+    }
+
     deformGlove(side,pressure=0) {
       const mesh=this.gloveMeshes[side],amount=clamp(pressure);
       if(Math.abs((mesh.userData.pressure||0)-amount)<.0001)return;
@@ -803,6 +852,7 @@
     }
 
     update(t,technique,combo,options={}) {
+      this.renderTime=options.simulationTime??t;
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
       const beat=t/(technique==='combo'?1.0:1.22),move=seq[Math.floor(beat)%seq.length];
       // Trim the dead guard tail between combination punches. Individual drills
@@ -980,9 +1030,10 @@
       const brace=(options.brace||0)*drive+(options.hitReaction?.part==='guard'?(options.hitReaction.amount||0)*.30:0),recoil=options.recoil||0;
       crouch+=brace*.022+recoil*.38;forward-=brace*.014+recoil;trunkPitch+=brace*.020-recoil*.8;
       const hit=options.hitReaction||{},hurt=Math.max(0,Math.min(1,hit.amount||0));
+      this.surfaceDent=hit.surfacePoint?{point:hit.surfacePoint,normal:hit.surfaceNormal,depth:(hit.part==='body'?.025:.014)*hurt}:null;
       const risingHit=hit.part==='head'?Math.max(0,hit.direction?.[1]??(hit.move?.includes('uppercut')?.8:0)):0;
       if(hit.part==='body'){crouch+=.065*hurt;trunkPitch+=.25*hurt;forward-=.055*hurt;if(hit.move?.includes('uppercut')){crouch+=.035*hurt;trunkPitch-=.16*hurt;forward-=.075*hurt;}}
-      else if(hit.part==='head'){trunkPitch-=.055*hurt;forward-=.045*hurt;trunkRoll+=(hit.side||1)*.045*hurt;if(hit.move?.includes('uppercut')){trunkPitch-=.12*hurt;forward-=.06*hurt;}}
+      else if(hit.part==='head'){trunkPitch-=.085*hurt;forward-=.075*hurt;trunkRoll+=(hit.side||1)*.045*hurt;if(hit.move?.includes('uppercut')){trunkPitch-=.09*hurt;forward-=.03*hurt;}}
       else if((hit.part==='shoulder'||hit.part==='arm')){chestYaw+=(hit.side||1)*.13*hurt;forward-=.025*hurt;}
       const presentation=options.presentation;
       this.celebrationSmile.visible=presentation?.mode==='winner';
@@ -1245,8 +1296,10 @@
       // Seek/teleport resets avoid integrating stale state or a whole hidden tab.
       this.updateMane(options.simulationTime??t);
       this.painMouth.visible=hurt>.12&&(hit.part==='head'||hit.part==='body');
+      for(const {side,mark} of this.damageMarks){const amount=clamp((options.damage?.[side<0?'left':'right']||0)/6);mark.visible=amount>.025;mark.material.opacity=.60*amount;mark.scale.y=.024*(1+amount*.35);}
+      for(const part of this.joints.head.children)if(part.userData.tooth)part.visible=hurt>.3;
       for(const face of this.facialRest){
-        face.part.position.z=face.z-(hit.part==='head'?.012*Math.min(1,hurt):0);
+        face.part.position.z=face.z;
         const blinkPhase=(options.simulationTime??t)%4.6,blink=blinkPhase>4.40?Math.sin((blinkPhase-4.40)/.20*Math.PI)**2:0;
         face.part.scale.y=face.sy*(face.eye?(1-.60*Math.min(1,hurt))*(1-.92*blink):1);
       }
@@ -1256,15 +1309,7 @@
         j['scapula'+side].position.set(s*(.17+.020*amount),.17+.015*amount,-.06+.040*amount);
         j['scapula'+side].rotation.y=-s*.14*amount;
       }
-      this.root.updateMatrixWorld(true);
-      this.skeleton.update();
-      const mat=new THREE.Matrix4(),q=new THREE.Quaternion(),tr=new THREE.Quaternion();
-      for(let i=0;i<this.bones.length;i++) {
-        mat.fromArray(this.skeleton.boneMatrices,i*16);q.setFromRotationMatrix(mat);
-        const e=mat.elements;tr.set(e[12],e[13],e[14],0).multiply(q);
-        this.dqReal[i].set(q.x,q.y,q.z,q.w);
-        this.dqDual[i].set(tr.x*.5,tr.y*.5,tr.z*.5,tr.w*.5);
-      }
+      this.syncSkin();
       this.metrics={move,phase,strike,gloves,footTargets,handErrors:[le,re],
         hands:[this.point(j.handL).toArray(),this.point(j.handR).toArray()],
         head:this.point(j.head).toArray(),hips:this.point(hips).toArray()};

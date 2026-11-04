@@ -18,8 +18,8 @@ function pack(g){
  }
  return {position,normal,uv,index};
 }
-const result={revision:75,dummy:pack(TrainingArena.dummySculpt)};
+const result={revision:76,dummy:pack(TrainingArena.dummySculpt)};
 for(const [name,geometry] of RhinoReferee.sculpts)result['referee-'+name]=pack(geometry);
-const path='assets/models/equipment-surfaces-r75.json';fs.writeFileSync(path,JSON.stringify(result));
+const path='assets/models/equipment-surfaces-r76.json';fs.writeFileSync(path,JSON.stringify(result));
 console.log(path,fs.statSync(path).size,'bytes');
 for(const [name,g] of Object.entries(result))if(g.position)console.log(name,g.position.length/3,'vertices',g.index.length/3,'triangles');
