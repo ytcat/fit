@@ -134,3 +134,16 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - Implementation, reproducible QA and limitations: docs/r79-motion-speedbag-knockdown-audio.md.
 - This release does not claim completion of the separate authored face/mane
   realism overhaul or sustained performance verification on physical phones.
+
+## RingFighter R81 — direct play and contained mobile layout (2026-11-05)
+- Renamed the header, document and rendered club/ring branding to RingFighter.
+- Replaced the overflowing phone page with a viewport-sized arena and contained
+  transport, compact setup, safe-area handling and short-screen controls.
+- Added Watch / Play and left/right move controls for both selectable boxers in
+  every practice target, sparring and fights, with independent opponents and
+  real-contact scoring/audio. Speed bag uses relevant taps/doubles/triples.
+- Reproduced the simultaneous-contact upper-arm reversal and added stable elbow
+  references, suitable striking range and coordinated contact-driven recovery.
+- Validation and limitations: docs/r81-ringfighter-interactive-controls.md.
+- Physical-device performance and the separate face/mane realism overhaul remain
+  unverified/incomplete; this release does not claim photorealism.
