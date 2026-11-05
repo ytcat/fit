@@ -146,7 +146,7 @@
   }
   setTarget(mode){
    if(!['none','heavy','dummy','speed','rabbit'].includes(mode))mode='none';
-   const e=this.engine;this.mode=mode;
+   const e=this.engine;this.mode=mode;e.player?.reset();
    if(mode==='rabbit'){
     const species=e.coach.species==='rabbit'?'lion':'rabbit';
     if(!this.rabbit||this.rabbit.species!==species){this.rabbit=e.roster?.get(species)||new LionCoach(this.data,{species});this.models.rabbit=this.rabbit.root;this.rabbit.root.name=species+' sparring partner';}
@@ -381,16 +381,24 @@
     random=this.randomSession.frame(practiceTime);heroSpec=random.lion;counter=random.rabbit;
     frame={...frame,move:heroSpec.move,phase:heroSpec.phase,index:random.index,random:true};
    }
+   const manual=e.player?.frame(time);
+   if(manual){
+    heroSpec=manual;frame={...manual,moves:[manual.move],slot:0};
+    if(mode==='rabbit'){
+     if(!this.manualPartner)this.manualPartner=new BOXING_ROUTINES.RandomSparring(e.practiceSeed??81,'random');
+     const exchange=this.manualPartner.frame(practiceTime);counter={...exchange.rabbit,index:exchange.index};
+    }else counter={move:'guard',phase:.35,attack:false};
+   }
    if(mode==='heavy'&&!heroSpec.attack){this.springs.heavy.step(dt);this.applyDynamics();}
    if(mode==='heavy'&&this.followBeat!==frame.index){
     const centre=e.coach.root.worldToLocal(this.models.heavy.userData.soft.getWorldPosition(V()));
     const rest=this.models.heavy.position.z-e.coach.root.position.z;
     this.followAdvance=Math.max(0,Math.min(.16,centre.z-rest));this.followBeat=frame.index;
    }
-   const speedMotion=mode==='speed'?BOXING_ROUTINES.speedFrame(varied?(frame.index+frame.phase)*.678:time,e.speedDrill):null;
-   const mapped=varied||frame.authoredTempo||mode!=='speed';
+   const speedMotion=mode==='speed'?(manual?{index:manual.index,phase:manual.phase,side:manual.side,legacy:false,clock:0,defenceMove:manual.move==='speedbag'?null:manual.move}:BOXING_ROUTINES.speedFrame(varied?(frame.index+frame.phase)*.678:time,e.speedDrill)):null;
+   const mapped=!!manual||varied||frame.authoredTempo||mode!=='speed';
    const powered=mode==='heavy'||mode==='dummy';
-   const beatPhase=frame.phase/(technique==='combo'?.86:1);
+   const beatPhase=frame.phase/(!manual&&technique==='combo'?.86:1);
    if(this.aimBeat!==frame.index){this.committedAim=null;this.aimBeat=frame.index;}
    if(mode==='heavy'&&heroSpec.attack&&beatPhase>=.18&&!this.committedAim){
     this.committedAim=new THREE.Matrix4().multiplyMatrices(new THREE.Matrix4().copy(this.group.matrixWorld).invert(),this.models.heavy.userData.soft.matrixWorld);
@@ -398,7 +406,7 @@
    const active=mode!=='none'&&mode!=='speed';
    const pose=(coach,spec,actor,isHero)=>{
     const advance=active&&spec.attack?(spec.move.includes('uppercut')?(mode==='heavy'?.28:.24):spec.move.includes('hook')?(mode==='heavy'?.22:.16):0)+(mode==='heavy'?this.followAdvance:0):0;
-    const options={simulationTime:time,hitReaction:actor==='rabbit'&&this.rabbitHit?{part:this.rabbitHit.part,move:this.rabbitHit.move,direction:this.rabbitHit.direction,side:this.rabbitHit.side,amount:this.rabbitHit.strength*(1-Math.exp(-Math.max(0,time-this.rabbitHit.time)/.025))*Math.exp(-Math.max(0,time-this.rabbitHit.time)/.25)}:null,power:powered&&spec.attack?1.12:1,defenceSide:spec.defenceSide,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
+    const options={simulationTime:time,hitReaction:actor==='rabbit'&&this.rabbitHit?{part:this.rabbitHit.part,move:this.rabbitHit.move,direction:this.rabbitHit.direction,side:this.rabbitHit.side,amount:this.rabbitHit.strength*(1-Math.exp(-Math.max(0,time-this.rabbitHit.time)/.025))*Math.exp(-Math.max(0,time-this.rabbitHit.time)/.25)}:null,power:powered&&spec.attack?1.12:1,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
     if(mode==='heavy'){
      const straight=spec.move==='jab'||spec.move==='cross';
      options.guardTightness=1;options.stanceWidth=spec.move.includes('uppercut')?.48:.54;options.stanceDepth=spec.move.includes('uppercut')?.44:.55;options.stanceDrop=.015;
@@ -445,22 +453,25 @@
      }
     }
     else if(spec.attack){options.target=spec.move.includes('uppercut')?null:spec.move.includes('hook')?[-.02,1.86,.91]:[0,1.82,1.01];options.advance=spec.move.includes('hook')?.15:advance;}
-    const motionTime=mapped?(frame.rest?time:mode==='speed'?(frame.index+frame.phase)*1.22:powered&&spec.attack?powerPhase(beatPhase)*1.22:spec.phase*1.22):mode==='speed'?time*1.8:powered&&spec.attack?powerPhase(beatPhase)*1.22:random||!isHero?spec.phase*1.22:time;
+    const poseRest=manual&&!isHero?!!spec.rest:frame.rest;
+    const motionTime=mapped?(poseRest?time:mode==='speed'?(frame.index+frame.phase)*1.22:powered&&spec.attack?powerPhase(beatPhase)*1.22:spec.phase*1.22):mode==='speed'?time*1.8:powered&&spec.attack?powerPhase(beatPhase)*1.22:random||!isHero?spec.phase*1.22:time;
     if(mode==='speed'&&speedMotion.defenceMove){options.defenceSide=speedMotion.index%2?1:-1;return coach.update(speedMotion.phase*1.22,speedMotion.defenceMove,combo,options);}
-    return coach.update(motionTime,mapped?(frame.rest?'guard':mode==='speed'?'speedbag':spec.move):mode==='speed'?'speedbag':(powered&&spec.attack)||random||!isHero?spec.move:technique,combo,options);
+    return coach.update(motionTime,mapped?(poseRest?'guard':mode==='speed'?'speedbag':spec.move):mode==='speed'?'speedbag':(powered&&spec.attack)||random||!isHero?spec.move:technique,combo,options);
    };
    const hero=pose(e.coach,heroSpec,'lion',true);let partner=mode==='rabbit'?pose(this.rabbit,counter,'rabbit',false):null;
    this.group.updateMatrixWorld(true);
    const desired={lion:{L:0,R:0},rabbit:{L:0,R:0}},contacts=[],loads=[],swings=[];let dent=null;
    const examine=(actor,coach,metrics,spec,receiver)=>{
-    const swingKey=actor+':'+frame.index+':'+spec.move;
+    const actorBeat=manual&&actor==='rabbit'?counter.index:frame.index;
+    const actorRest=manual&&actor==='rabbit'?!!spec.rest:frame.rest;
+    const swingKey=actor+':'+actorBeat+':'+spec.move;
     if(mode!=='speed'&&spec.attack&&spec.phase>=.22&&spec.phase<.60&&dt>0&&dt<.1&&!this.swingSeen.has(swingKey)){
      this.swingSeen.add(swingKey);if(this.swingSeen.size>64)this.swingSeen.delete(this.swingSeen.values().next().value);
      swings.push({actor,move:spec.move});
     }
     // Only the fist rolling forward can initiate a speed-bag strike. The
     // recovering fist passes underneath while the swivel rebounds freely.
-    const indices=frame.rest||speedMotion?.defenceMove?[]:mode==='speed'?[speedMotion.legacy?speedMotion.index%2:speedMotion.side==='L'?0:1]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
+    const indices=actorRest||speedMotion?.defenceMove?[]:mode==='speed'?[speedMotion.legacy?speedMotion.index%2:speedMotion.side==='L'?0:1]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
     for(const index of [0,1]){
      const side=index?'R':'L',centre=coach.root.localToWorld(V(...metrics.gloves[index].knuckles));
      // Camera orbit rotates the whole scene; measure speed in the arena frame
@@ -468,7 +479,7 @@
      const key=actor+side,localCentre=this.group.worldToLocal(centre.clone()),previous=this.previousFists[key];
      const velocity=previous&&dt>0?localCentre.clone().sub(previous).divideScalar(dt).applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion())):V(...metrics.gloves[index].distal).transformDirection(coach.root.matrixWorld).multiplyScalar(1.8);
      if(!indices.includes(index)||!previous||!(dt>0)){this.previousFists[key]=localCentre;continue;}
-     const beat=mode==='speed'?speedMotion.index:frame.index,event=actor+side+':'+beat;
+     const beat=mode==='speed'?speedMotion.index:actorBeat,event=actor+side+':'+beat;
      let heavyEntry=null;
      if(receiver==='heavy'){
       const result=this.solveHeavyContact(previous||localCentre,localCentre,velocity,dt,event,spec.move);loads.push(...result.loads);heavyEntry=result.entry;

@@ -16,6 +16,23 @@
    this.order=this.random()<.5?['lion','rabbit']:['rabbit','lion'];
   }
   random(){this.state=(Math.imul(this.state,1664525)+1013904223)>>>0;return this.state/4294967296;}
+  setPlayer(actor){
+   actor=actors.includes(actor)?actor:null;if(this.playerActor===actor)return;
+   const old=this.playerActor;this.playerActor=actor;this.playerQueue=[];
+   if(old)this.fighters[old].next=this.time+.15;
+  }
+  requestPlayerMove(command){
+   const actor=this.playerActor,f=this.fighters[actor];
+   if(!f||this.phase!=='round'||this.result||f.down||!moves.concat(['guard','slip','roll','step']).includes(command.move))return false;
+   if(!f.action){this.startPlayerMove(command);return true;}
+   if(this.playerQueue.length>=2)return false;this.playerQueue.push({...command});return true;
+  }
+  startPlayerMove(command){
+   const actor=this.playerActor,f=this.fighters[actor];
+   if(moves.includes(command.move)){
+    const action=this.attack(actor,command.move,command.target||'head');if(action)action.input=command.input;
+   }else f.action={...command,id:++this.actionId,actor,start:this.time,duration:command.duration||.65,attack:false};
+  }
   emit(type,data={}){const event={id:++this.eventId,type,time:this.time,round:this.round,...data};this.events.push(event);if(this.events.length>300)this.events.shift();return event;}
   attack(actor,move,target){
    if(this.phase!=='round'||this.result)return null;
@@ -42,6 +59,7 @@
   }
   advance(dt){
    if(!(dt>0))return;this.time+=dt;this.phaseTime+=dt;
+   if(this.phase!=='round')this.playerQueue=[];
    for(const a of actors){const f=this.fighters[a];f.stamina=clamp(f.stamina+dt*(this.phase==='rest'?.025:.018));f.stun=Math.max(0,f.stun-dt*2.2);}
    if(this.phase==='intro'){if(this.phaseTime>=3){this.phase='round';this.phaseTime=0;this.emit('bell',{kind:'start'});}return;}
    if(this.phase==='rest'){if(this.phaseTime>=this.restSeconds){this.round++;this.roundTime=0;this.roundStats={lion:empty(),rabbit:empty()};for(const a of actors){this.fighters[a].action=null;this.fighters[a].next=this.time+.15+this.random()*.2;this.fighters[a].condition=Math.min(100,this.fighters[a].condition+4);}this.phase='round';this.phaseTime=0;this.emit('bell',{kind:'start'});}return;}
@@ -64,12 +82,13 @@
      if(f.action.attack&&!f.action.recorded){this.roundStats[actor].missed++;this.totals[actor].missed++;if(f.action.facedDefence){this.roundStats[other(actor)].evaded++;this.totals[other(actor)].evaded++;}this.emit('miss',{actor,action:f.action.id});}
      f.action=null;f.next=this.time+.06+this.random()*.48+(1-f.stamina)*.6;
     }
-    if(!f.action&&this.time>=f.next)this.decide(actor);
+    if(!f.action&&actor===this.playerActor){if(this.playerQueue.length)this.startPlayerMove(this.playerQueue.shift());}
+    else if(!f.action&&this.time>=f.next)this.decide(actor);
    }
   }
   spec(actor){
    const f=this.fighters[actor],a=f.action;
-   if(this.phase!=='round'||!a)return {move:'guard',phase:.35,attack:false,id:0};
+   if(this.phase!=='round'||!a){const idle={move:'guard',phase:.35,attack:false,id:0};if(this.phase==='round'&&actor===this.playerActor)Object.assign(idle,{defend:true,brace:1});return idle;}
    return {...a,phase:clamp((this.time-a.start-(a.contactTime!=null?Math.min(.045,Math.max(0,this.time-a.contactTime)*.70):0))/a.duration),brace:a.move==='guard'?1:0};
   }
   contact({actor,action,part,speed=1,point,side,direction,surfacePoint,surfaceNormal}){

@@ -47,6 +47,7 @@
   constructor(arena,options){
    this.arena=arena;this.engine=arena.engine;this.match=new BoxingFight(options);this.tick=0;this.previous={};this.compressions={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.contacts=[];this.eventCursor=0;this.pendingSwings=[];
    this.coaches=this.engine.coach.species==='rabbit'?{lion:arena.rabbit,rabbit:this.engine.coach}:{lion:this.engine.coach,rabbit:arena.rabbit};
+   if(this.engine.player?.enabled)this.match.setPlayer(this.engine.player.actor());
    this.referee=new RhinoReferee();arena.group.add(this.referee.root);this.audience=new FightAudience(arena.group);
    this.ring=new THREE.Group();arena.group.add(this.ring);
    // Raised canvas and apron make the ring a complete visible platform.
@@ -108,9 +109,12 @@
     coach.root.quaternion.setFromEuler(new THREE.Euler(state.tilt,yaw,0,'YXZ'));coach.root.position.y=0;
    }
    a.group.updateMatrixWorld(true);
+   // Establish boxing range before committing wrist/impact targets. Moving
+   // roots only after IK moved a latched contact point twice on the next frame.
+   if(m.phase==='round')this.separateTorso(false);
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
-    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={simulationTime:m.time,defenceSide:spec.defenceSide,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28};
+    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28};
     if(spec.attack){
      let target=this.target(actor,spec);if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(V(...f.action.aim)));
      const through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(.035);
@@ -122,6 +126,11 @@
       // The wrist chamber stays on the striker's side of the torso. Drive the
       // knuckle crown up under the target instead of sweeping through ribs.
       options.uppercutBagTarget=[target.x,target.y-.19,target.z-.08];
+     }
+     if(f.action?.returnHand){
+      const returned=f.action.returnHand,t=clamp((m.time-f.action.contactTime-.025)/.21),blend=t*t*(3-2*t);
+      options.contactReturn={...returned,point:coach.root.worldToLocal(a.group.localToWorld(V(...returned.point))).toArray(),blend,guide:returned};
+      options.advance*=1-blend;options.contactDrive*=1-blend;
      }
     }
     if(ceremony){options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'R':'L',raise:!m.result.winner||m.result.winner===actor?raise:0};}
@@ -157,14 +166,14 @@
    this.metrics=metrics;this.specs=specs;
    return metrics;
   }
-  separateTorso(){
+  separateTorso(sync=true){
    const a=this.coaches.lion,b=this.coaches.rabbit;
    const ca=a.joints.chest.getWorldPosition(V()),cb=b.joints.chest.getWorldPosition(V()),axis=cb.clone().sub(ca);axis.y=0;
-   const distance=axis.length();if(distance>=.60)return;
+   const distance=axis.length();if(distance>=1.02)return;
    if(distance>.001)axis.divideScalar(distance);else axis.copy(b.root.getWorldPosition(V()).sub(a.root.getWorldPosition(V()))).setY(0).normalize();
-   const amount=(.60-distance)*.5;
+   const amount=(1.02-distance)*.5;
    for(const [coach,sign] of [[a,-1],[b,1]]){
-    const world=coach.root.getWorldPosition(V()).addScaledVector(axis,amount*sign);coach.root.position.copy(coach.root.parent.worldToLocal(world));coach.syncSkin();
+    const world=coach.root.getWorldPosition(V()).addScaledVector(axis,amount*sign);coach.root.position.copy(coach.root.parent.worldToLocal(world));if(sync)coach.syncSkin();else coach.root.updateMatrixWorld(true);
    }
   }
   collision(point,receiver,options={}){
@@ -185,9 +194,10 @@
   resolveTrades(){
    // Body constraints are independent of the other fighter's moving guard.
    // Repeat the coupled solve, then finish on the solid torso/head constraint.
+   const poles={};for(const actor of ['lion','rabbit'])for(const side of ['L','R'])poles[actor+side]=this.coaches[actor].armBendReference(side);
    for(let pass=0;pass<3;pass++){
-    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainGlove(side,p=>this.collision(p,other(actor)),.014);
-    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012);
+    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainGlove(side,p=>this.collision(p,other(actor)),.014,poles[actor+side]);
+    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012,poles[actor+side]);
    }
   }
   step(){
@@ -215,11 +225,17 @@
     const bind=receiver.skeleton.boneInverses[receiver.bones.indexOf(bone)].clone().invert();
     sample.surfacePoint=bone.worldToLocal(V(...sample.point)).applyMatrix4(bind).toArray();
     sample.surfaceNormal=V(...sample.normal).applyQuaternion(bone.getWorldQuaternion(new THREE.Quaternion()).invert()).applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(bind)).toArray();
-    const event=m.contact(sample);if(event){this.contacts.push({...event,kind:sample.part,impulse:event.severity,closingSpeed:sample.speed});goals[sample.actor][sample.hand]=clamp(.3+event.severity*.45);if(sample.part==='glove')goals[sample.receiver][sample.side<0?'L':'R']=.5;}}
+    const event=m.contact(sample);if(event){
+     this.contacts.push({...event,kind:sample.part,impulse:event.severity,closingSpeed:sample.speed});goals[sample.actor][sample.hand]=clamp(.3+event.severity*.45);if(sample.part==='glove')goals[sample.receiver][sample.side<0?'L':'R']=.5;}}
    // Always constrain the rendered glove, including follow-through/recovery
    // after an action has already scored. Previously a.recorded skipped the
    // only collision path and let the animation continue through the opponent.
    this.resolveTrades();
+   for(const event of this.contacts){
+    const action=m.fighters[event.actor].action;if(!action||action.returnHand)continue;
+    const coach=this.coaches[event.actor],side=rear(action.move)?'R':'L',reference=coach.armBendReference(side),glove=coach.metrics.gloves[side==='R'?1:0];
+    action.returnHand={side,point:this.arena.group.worldToLocal(coach.joints['hand'+side].getWorldPosition(V())).toArray(),axis:reference.axis.toArray(),bend:reference.bend.toArray(),palm:glove.palmTarget||[0,-1,0],turn:glove.turn};
+   }
    for(const actor of ['lion','rabbit'])for(const [i,side] of ['L','R'].entries())this.previous[actor+side]=this.arena.group.worldToLocal(this.coaches[actor].root.localToWorld(V(...this.coaches[actor].metrics.gloves[i].knuckles)));
    for(const actor of ['lion','rabbit'])for(const side of ['L','R']){const old=this.compressions[actor][side],goal=goals[actor][side],value=goal>old?goal:old*Math.exp(-dt/ .08);this.compressions[actor][side]=value;this.coaches[actor].deformGlove(side,value);}
    return this.contacts;
