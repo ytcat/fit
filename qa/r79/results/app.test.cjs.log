@@ -1,0 +1,8 @@
+PASS language changes preserve technique, frozen pose and combination time
+PASS continuous pause/resume without starting a timed exercise
+PASS uploaded avatars never substitute a rear punch for a missing lead punch
+PASS bundled dependencies, same-origin connection policy and local-only speech
+PASS view-aware portrait framing
+PASS graceful WebGL startup failure with usable application controls
+PASS gesture-gated local impact synthesis and mute
+PASS live fight clock and mode survive language changes

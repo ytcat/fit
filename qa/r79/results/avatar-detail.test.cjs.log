@@ -1,0 +1,11 @@
+avatar lion {
+  maxEdge: 0.0681626584402762,
+  lag: 0.005994557761411796,
+  hairs: 19191
+}
+avatar rabbit {
+  maxEdge: 0.0681626584402762,
+  lag: 0.009984488795103249,
+  hairs: 25606
+}
+PASS connected shoulder triangles, bone-attached dense short coat, bounded inertia/pause, and local impact skin deformation for both avatars

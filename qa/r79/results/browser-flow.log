@@ -1,0 +1,30 @@
+sound layout 1100 { x: 10, y: 84, width: 96.578125, height: 36 }
+PASS R79 controls/audio {
+  width: 1100,
+  height: 950,
+  defence: { slips: 74, hits: 4 },
+  audio: {
+    peak: 0.574242889881134,
+    rms: 0.03926654819116489,
+    samples: 11,
+    bellSeconds: 2.9983219954648526,
+    applauseSeconds: 4.599977324263039
+  },
+  errors: [],
+  physicalPhone: false
+}
+sound layout 393 { x: 10, y: 84, width: 96.578125, height: 36 }
+PASS R79 controls/audio {
+  width: 393,
+  height: 852,
+  defence: { slips: 74, hits: 4 },
+  audio: {
+    peak: 0.574242889881134,
+    rms: 0.03926654819116489,
+    samples: 11,
+    bellSeconds: 2.9983219954648526,
+    applauseSeconds: 4.599977324263039
+  },
+  errors: [],
+  physicalPhone: false
+}

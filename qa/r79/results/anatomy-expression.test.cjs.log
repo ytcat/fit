@@ -1,0 +1,11 @@
+anatomy/face lion {
+  visible: 23655,
+  guardBiceps: 0.8281773924827576,
+  extendedBiceps: 0.34384605288505554
+}
+anatomy/face rabbit {
+  visible: 23416,
+  guardBiceps: 0.8281773924827576,
+  extendedBiceps: 0.34384605288505554
+}
+PASS bone-length-preserving muscle recruitment, real skin displacement, valid normals and coordinated side-specific face/jaw recovery

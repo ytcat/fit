@@ -1,0 +1,32 @@
+PASS R78 browser 1100 {
+  audio: {
+    breath1: 0.24997732426303854,
+    breath2: 0.31997732426303854,
+    pad: 0.33997732426303856
+  },
+  trade: {
+    max: 0.012276848739503132,
+    thrown: 2,
+    woven: true,
+    ropes: 16,
+    native: true,
+    muscles: 14
+  },
+  rendered: { peak: 0.6259936094284058, rms: 0.060776887303443494, voices: 0 }
+}
+PASS R78 browser 393 {
+  audio: {
+    breath1: 0.24997732426303854,
+    breath2: 0.31997732426303854,
+    pad: 0.33997732426303856
+  },
+  trade: {
+    max: 0.012276848739503132,
+    thrown: 2,
+    woven: true,
+    ropes: 16,
+    native: true,
+    muscles: 14
+  },
+  rendered: { peak: 0.6259936094284058, rms: 0.06077688731078001, voices: 0 }
+}

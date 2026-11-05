@@ -1,0 +1,13 @@
+observed bout 11 {
+  winner: 'rabbit',
+  head: 13,
+  body: 3,
+  cards: [ [ 9, 10 ], [ 9, 10 ], [ 9, 10 ] ]
+}
+observed bout 999 {
+  winner: 'lion',
+  head: 8,
+  body: 7,
+  cards: [ [ 10, 8 ], [ 10, 8 ], [ 10, 8 ] ]
+}
+PASS actual randomized wins for both fighters, contact-derived cards, connected referee grip, loser pose, localized reactions, pause, frame invariance and exit

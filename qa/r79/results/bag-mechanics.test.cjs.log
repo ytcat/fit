@@ -1,0 +1,50 @@
+jab {
+  count: 13,
+  heightMin: '1.673',
+  heightMax: '1.738',
+  peakForce: '474.3',
+  maxSwing: '0.126',
+  alignment: '0.807'
+}
+cross {
+  count: 13,
+  heightMin: '1.677',
+  heightMax: '1.741',
+  peakForce: '584.7',
+  maxSwing: '0.205',
+  alignment: '0.816'
+}
+hook {
+  count: 23,
+  heightMin: '1.524',
+  heightMax: '1.540',
+  peakForce: '344.9',
+  maxSwing: '0.156',
+  alignment: '0.874'
+}
+rear_hook {
+  count: 21,
+  heightMin: '1.524',
+  heightMax: '1.533',
+  peakForce: '354.6',
+  maxSwing: '0.169',
+  alignment: '0.906'
+}
+uppercut {
+  count: 11,
+  heightMin: '1.665',
+  heightMax: '1.720',
+  peakForce: '509.2',
+  maxSwing: '0.142',
+  alignment: '1.000'
+}
+rear_uppercut {
+  count: 13,
+  heightMin: '1.621',
+  heightMax: '1.677',
+  peakForce: '610.5',
+  maxSwing: '0.185',
+  alignment: '1.000'
+}
+frame-rate difference 0 0
+PASS knuckle-first contact, lower moving targets, mass/inertia, sustained force and frame-rate convergence

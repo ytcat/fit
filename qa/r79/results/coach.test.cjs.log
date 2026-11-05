@@ -1,0 +1,19 @@
+PASS jab ankle error 0.000000
+PASS cross ankle error 0.000000
+PASS hook ankle error 0.000000
+PASS uppercut ankle error 0.000000
+PASS slip ankle error 0.000000
+PASS rear_hook ankle error 0.000000
+PASS rear_uppercut ankle error 0.000000
+PASS roll ankle error 0.000000
+PASS step ankle error 0.000000
+PASS all four combinations, forward punches and guard recovery
+PASS skinning transforms, normalized weights, matching shadows and shared material colors
+PASS anatomical glove axes, straight wrists, contact palm orientation, continuous rotation and uppercut leg drive
+PASS full straight extension, distinct dip/rise/recovery and horizontal bent-arm hooks
+PASS body-led reach, back rotation, rear-foot drive and deliberate repetition reset
+PASS asymmetric uppercut load/unwind, nonvertical head travel, cheek-following guard and rear mane coverage
+PASS refined body/cloth geometry and finite smooth surface normals
+PASS extended uppercut/stride and smooth foot take-off
+PASS connected combination cadence without joint-position jumps
+PASS travelling footwork in each drill, support contact and fist-led uppercuts
