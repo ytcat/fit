@@ -1,0 +1,13 @@
+{
+  maximum: 0.018524265863930023,
+  worst: {
+    offset: 0.08,
+    lead: 'rear_uppercut',
+    rear: 'rear_uppercut',
+    actor: 'lion',
+    side: 'R',
+    frame: 38,
+    part: 'head'
+  },
+  failures: 0
+}

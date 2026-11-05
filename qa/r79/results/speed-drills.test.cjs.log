@@ -1,0 +1,11 @@
+speed drill alternating { contacts: 11, left: 6, right: 5 }
+speed drill lead { contacts: 8, left: 8, right: 0 }
+speed drill rear { contacts: 8, left: 0, right: 8 }
+speed drill doubles { contacts: 6, left: 5, right: 1 }
+speed drill triples { contacts: 14, left: 8, right: 6 }
+speed drill intervals { contacts: 9, left: 5, right: 4 }
+speed drill burst_slip { contacts: 9, left: 7, right: 2 }
+speed drill burst_roll { contacts: 11, left: 6, right: 5 }
+speed drill double_cover { contacts: 11, left: 7, right: 4 }
+speed drill step_reset { contacts: 7, left: 4, right: 3 }
+PASS ten contact-driven speed-bag drills, both/single hand patterns, interval pacing and authored mixed-speed boxing combinations

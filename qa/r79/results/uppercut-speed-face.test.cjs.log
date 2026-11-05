@@ -1,0 +1,11 @@
+lion {
+  maximumFinishLeanDegrees: 9.091425170937189,
+  minActualGloveHeadNormalizedDistance: 1.2449548691795305,
+  defenceFrames: 260
+}
+rabbit {
+  maximumFinishLeanDegrees: 9.091425170937189,
+  minActualGloveHeadNormalizedDistance: 1.2449548691795305,
+  defenceFrames: 260
+}
+PASS stacked uppercuts on both hands and actual glove/face clearance in all ten speed-bag patterns, including defence

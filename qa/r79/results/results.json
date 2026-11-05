@@ -1,0 +1,224 @@
+[
+  {
+    "test": "tests/anatomy-expression.test.cjs",
+    "exitCode": 0,
+    "seconds": 44.08509580600003,
+    "log": "anatomy-expression.test.cjs.log"
+  },
+  {
+    "test": "tests/app.test.cjs",
+    "exitCode": 0,
+    "seconds": 2.69648546299959,
+    "log": "app.test.cjs.log"
+  },
+  {
+    "test": "tests/arena.test.cjs",
+    "exitCode": 0,
+    "seconds": 279.906604752,
+    "log": "arena.test.cjs.log"
+  },
+  {
+    "test": "tests/audio.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.7304557610004849,
+    "log": "audio.test.cjs.log"
+  },
+  {
+    "test": "tests/avatar-detail.test.cjs",
+    "exitCode": 0,
+    "seconds": 12.202639782000006,
+    "log": "avatar-detail.test.cjs.log"
+  },
+  {
+    "test": "tests/avatar-normal-frame.test.cjs",
+    "exitCode": 0,
+    "seconds": 36.74311887799922,
+    "log": "avatar-normal-frame.test.cjs.log"
+  },
+  {
+    "test": "tests/avatar-surface.test.cjs",
+    "exitCode": 0,
+    "seconds": 48.981355814999915,
+    "log": "avatar-surface.test.cjs.log"
+  },
+  {
+    "test": "tests/bag-contact-v2.test.cjs",
+    "exitCode": 0,
+    "seconds": 25.041104691999863,
+    "log": "bag-contact-v2.test.cjs.log"
+  },
+  {
+    "test": "tests/bag-mechanics.test.cjs",
+    "exitCode": 0,
+    "seconds": 31.40704385800018,
+    "log": "bag-mechanics.test.cjs.log"
+  },
+  {
+    "test": "tests/boxing-foley.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.13547991599989473,
+    "log": "boxing-foley.test.cjs.log"
+  },
+  {
+    "test": "tests/coach.test.cjs",
+    "exitCode": 0,
+    "seconds": 23.232912006000333,
+    "log": "coach.test.cjs.log"
+  },
+  {
+    "test": "tests/contact.test.cjs",
+    "exitCode": 0,
+    "seconds": 34.4190397680004,
+    "log": "contact.test.cjs.log"
+  },
+  {
+    "test": "tests/fight-arena.test.cjs",
+    "exitCode": 0,
+    "seconds": 163.82417005800016,
+    "log": "fight-arena.test.cjs.log"
+  },
+  {
+    "test": "tests/fight-contact-stop.test.cjs",
+    "exitCode": 0,
+    "seconds": 29.61829615500028,
+    "log": "fight-contact-stop.test.cjs.log"
+  },
+  {
+    "test": "tests/fight-lifecycle.test.cjs",
+    "exitCode": 0,
+    "seconds": 36.87175467599991,
+    "log": "fight-lifecycle.test.cjs.log"
+  },
+  {
+    "test": "tests/fight-ui.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.8160531149997041,
+    "log": "fight-ui.test.cjs.log"
+  },
+  {
+    "test": "tests/fight.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.8044848030003777,
+    "log": "fight.test.cjs.log"
+  },
+  {
+    "test": "tests/generated-training.test.cjs",
+    "exitCode": 0,
+    "seconds": 52.46570787499968,
+    "log": "generated-training.test.cjs.log"
+  },
+  {
+    "test": "tests/heavy-reference.test.cjs",
+    "exitCode": 0,
+    "seconds": 15.6744491190002,
+    "log": "heavy-reference.test.cjs.log"
+  },
+  {
+    "test": "tests/knockdown-floor.test.cjs",
+    "exitCode": 0,
+    "seconds": 9.317099330999554,
+    "log": "knockdown-floor.test.cjs.log"
+  },
+  {
+    "test": "tests/layout.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.05878538799970556,
+    "log": "layout.test.cjs.log"
+  },
+  {
+    "test": "tests/mobile-audio.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.07758163099970261,
+    "log": "mobile-audio.test.cjs.log"
+  },
+  {
+    "test": "tests/power-impact.test.cjs",
+    "exitCode": 0,
+    "seconds": 11.667755308999403,
+    "log": "power-impact.test.cjs.log"
+  },
+  {
+    "test": "tests/practice-impact.test.cjs",
+    "exitCode": 0,
+    "seconds": 45.868394121000165,
+    "log": "practice-impact.test.cjs.log"
+  },
+  {
+    "test": "tests/quick-fight.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.0708604599994942,
+    "log": "quick-fight.test.cjs.log"
+  },
+  {
+    "test": "tests/random-sparring.test.cjs",
+    "exitCode": 0,
+    "seconds": 10.509336922999864,
+    "log": "random-sparring.test.cjs.log"
+  },
+  {
+    "test": "tests/recorded-audio.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.4002585950001958,
+    "log": "recorded-audio.test.cjs.log"
+  },
+  {
+    "test": "tests/reference-motion.test.cjs",
+    "exitCode": 0,
+    "seconds": 6.611932630999945,
+    "log": "reference-motion.test.cjs.log"
+  },
+  {
+    "test": "tests/secondary-motion.test.cjs",
+    "exitCode": 0,
+    "seconds": 7.782532289000301,
+    "log": "secondary-motion.test.cjs.log"
+  },
+  {
+    "test": "tests/shoulder-corrective.test.cjs",
+    "exitCode": 0,
+    "seconds": 30.43145148199983,
+    "log": "shoulder-corrective.test.cjs.log"
+  },
+  {
+    "test": "tests/shoulder-motion.test.cjs",
+    "exitCode": 0,
+    "seconds": 119.34109913799966,
+    "log": "shoulder-motion.test.cjs.log"
+  },
+  {
+    "test": "tests/simultaneous-contact.test.cjs",
+    "exitCode": 0,
+    "seconds": 248.9910733050001,
+    "log": "simultaneous-contact.test.cjs.log"
+  },
+  {
+    "test": "tests/speed-drills.test.cjs",
+    "exitCode": 0,
+    "seconds": 97.42628854599934,
+    "log": "speed-drills.test.cjs.log"
+  },
+  {
+    "test": "tests/strike-alignment.test.cjs",
+    "exitCode": 0,
+    "seconds": 12.094414420999783,
+    "log": "strike-alignment.test.cjs.log"
+  },
+  {
+    "test": "tests/training-controls.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.13698679499975697,
+    "log": "training-controls.test.cjs.log"
+  },
+  {
+    "test": "tests/uppercut-speed-face.test.cjs",
+    "exitCode": 0,
+    "seconds": 92.13597223700071,
+    "log": "uppercut-speed-face.test.cjs.log"
+  },
+  {
+    "test": "tests/workout.test.cjs",
+    "exitCode": 0,
+    "seconds": 0.11775739499989868,
+    "log": "workout.test.cjs.log"
+  }
+]

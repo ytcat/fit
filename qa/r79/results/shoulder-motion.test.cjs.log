@@ -1,0 +1,3 @@
+PASS new and cached pages load compatible controller/model pairs
+PASS compatible rig/model pair, anatomical surface attachment, constant arm lengths and continuous elbow/shoulder paths
+PASS target-aiming continuity for all six punches on heavy bag and dummy
