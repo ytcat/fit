@@ -1,0 +1,75 @@
+/* A viewport-sized RingFighter workspace; scenery never pushes controls off-screen. */
+body.club-app{height:var(--app-height,100dvh);min-height:0;overflow:hidden}
+.club-app .club-workspace,.club-app .club-studio{min-height:0}
+.club-app #stageContainer{min-height:0}
+.input-mode-switch{display:flex;gap:3px;padding:3px;border:1px solid #e2bd7b35;border-radius:9px;flex:none;background:#121c1e}
+.input-mode-switch button{min-height:34px;min-width:59px;padding:6px 10px;border:0;border-radius:6px;background:transparent;color:#bec9c6;font:650 11px system-ui}
+.input-mode-switch [aria-pressed=true]{background:#e2bd7b;color:#211b12}
+.manual-controls{position:absolute;inset:0;z-index:14;pointer-events:none;direction:ltr}
+.manual-controls[hidden]{display:none}
+.manual-rail{position:absolute;top:50%;transform:translateY(-50%);left:8px;width:86px;display:grid;gap:6px;pointer-events:auto;max-height:calc(100% - 72px);overflow-y:auto;scrollbar-width:thin;overscroll-behavior:contain}
+.manual-rail[data-side=rear]{left:auto;right:8px}
+.manual-side-label{font:700 9px system-ui;text-align:center;color:#dfc28b;letter-spacing:.3px}
+.manual-move{min-height:46px;width:100%;padding:7px 4px;line-height:1.15;font:650 11px system-ui;white-space:normal;border:1px solid #c6a86b56;border-radius:10px;background:#14242bed;color:#f1e5cc;box-shadow:0 3px 10px #0003;touch-action:manipulation}
+.manual-rail[data-side=rear] .manual-move{border-color:#78aac170;background:#152737ed}
+.manual-move:hover{background:#35443d}.manual-move[data-active=true]{background:#e2bd7b;color:#241c12;border-color:#ffe3a2}
+.manual-move:disabled{opacity:.4}
+.manual-status{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 20px);text-align:center;border-radius:7px;background:#0b151de8;color:#e7d8b8;padding:6px 10px;font:600 10px system-ui;line-height:1.3;pointer-events:none}
+.manual-active #stageContainer{--technique-rail:0px}
+.manual-active .practice-techniques,.manual-active .club-rail-label{display:none!important}
+.manual-active #boxerCanvas{width:100%!important;height:100%!important}
+.manual-active .club-loading{width:100%;height:100%}
+@media(max-width:800px){
+ body.club-app{height:var(--app-height,100dvh);min-height:0;overflow:hidden}
+ .club-app .club-header{height:calc(50px + env(safe-area-inset-top));min-height:calc(50px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 10px 0;gap:7px}
+ .club-brand{gap:7px}.club-brand #appTitle{font-size:14px;letter-spacing:.4px}.club-brand #appSubtitle{font-size:6px;letter-spacing:1.3px}.club-mark{width:28px;height:30px}.club-mark svg{width:20px;height:20px}
+ .club-app .stage-sound,.club-app #openPracticeControls{min-height:34px;padding:6px 8px}
+ .club-navigation{top:calc(50px + env(safe-area-inset-top));height:36px;gap:36px}.club-navigation button{font-size:11px}.club-navigation svg{height:16px;width:16px}
+ .club-workspace{flex:1;min-height:0;padding:42px 8px max(6px,env(safe-area-inset-bottom));gap:7px;overflow:hidden;margin:0}
+ .club-sidebar,.club-app[data-scene=arena] .club-sidebar{display:grid;grid-template-columns:120px minmax(0,1fr);grid-template-rows:auto auto;gap:5px;min-height:0;flex:none;padding:0;overflow:visible}
+ .club-intro,.club-app[data-scene=arena] .club-intro,.club-tip,.club-fight-info,.club-app[data-scene=arena] .club-fight-info{display:none}
+ .club-character-section{grid-column:1;grid-row:1}.club-character-section h3,.club-equipment-section h3,.club-session h3{display:none}
+ .club-character-grid{gap:4px}.club-character{min-height:34px;padding:5px 4px;justify-content:center;border-radius:8px;gap:0}.club-character img,.club-character .club-check,.club-character-caption{display:none}.club-character strong{font-size:10px;line-height:1.2}
+ .club-session{grid-column:2;grid-row:1;min-width:0}.club-app .training-bar{grid-template-columns:minmax(0,1fr) 72px 40px;gap:4px}
+ .club-app .training-bar #combinationBtn,.club-app .training-bar #timingBtn,.club-app .training-bar #speedBtn{min-height:34px;padding:5px 4px;font-size:9px;line-height:1.2}.club-app #combinationBtn:after{display:none}
+ .club-equipment-section{grid-column:1/-1;grid-row:2}.club-equipment-grid{gap:4px}.club-equipment{min-height:35px;padding:4px 2px;gap:2px;font-size:8px;flex-direction:row;border-radius:7px}.club-equipment svg{height:16px;width:16px}
+ .club-studio{flex:1;min-height:0;overflow:hidden;border-radius:11px}
+ .club-stage-heading{min-height:40px;max-height:48px;padding:5px 9px;gap:5px;flex:none}.club-stage-heading .club-section-label{display:none}.club-stage-heading h2{font-size:11px;line-height:1.2}.club-status{display:none}
+ .input-mode-switch{margin-inline-start:auto;padding:2px}.input-mode-switch button{min-height:30px;min-width:53px;padding:4px 7px;font-size:10px}
+ .club-app #stageContainer,.club-app[data-scene=arena] #stageContainer{height:auto;min-height:0;flex:1;overflow:hidden}
+ .club-app #boxerCanvas{height:calc(100% - 50px)!important}
+ .club-app .practice-techniques{height:50px;min-height:0;padding:5px 6px;gap:4px}.club-app .practice-techniques button{min-height:38px;padding:6px 9px;font-size:9px;max-width:120px}
+ .club-app .club-view-tools{min-height:34px;height:34px;flex:none;padding:3px 8px;gap:6px}.club-view-label,.club-keyboard{display:none}.club-camera-group{padding:1px}.club-camera-group button{min-height:26px;padding:4px 10px;font-size:9px}.club-stance{font-size:7px}
+ .club-app .club-current{min-height:31px;max-height:42px;flex:none}.club-app .club-current>div{padding:4px 8px;gap:6px}.club-app .club-current #comboCodes{font-size:11px;min-width:25px;padding:3px 5px}.club-app .club-current #comboCues{font-size:9px;line-height:1.25;max-height:28px;overflow:hidden}
+ .club-app footer.club-transport{position:static;flex:none;padding:5px 8px 7px;min-height:0;box-shadow:none;gap:0}.club-app .practice-actions{grid-template-columns:56px 1fr 56px;gap:6px}.club-app .practice-actions #playBtn,.club-app .practice-actions #prevBtn,.club-app .practice-actions #nextBtn{min-height:37px;padding:6px;font-size:9px}
+ .club-app[data-scene=arena] .club-sidebar{display:none}.club-app[data-scene=arena] #boxerCanvas{height:100%!important}
+ .club-app .fight-hud{top:7px;font-size:8px;padding:5px 8px;max-width:95%}.club-app .fight-health{top:38px;left:10px;right:10px;gap:30px}.club-app .fight-health-label{font-size:8px}
+ .manual-rail{left:5px;width:69px;gap:5px;max-height:calc(100% - 62px)}.manual-rail[data-side=rear]{right:5px}.manual-move{min-height:43px;font-size:10px;padding:6px 3px;border-radius:8px}.manual-side-label{font-size:8px}.manual-status{font-size:9px;padding:5px 7px}
+ .club-app dialog{max-height:calc(var(--app-height,100dvh) - 20px);overflow-y:auto}
+}
+@media(max-height:560px) and (min-width:600px){
+ .club-app .club-header{height:46px;min-height:46px;padding:0 10px;flex-wrap:nowrap}.club-brand{flex:none;min-width:155px}.club-brand #appSubtitle{display:none}.club-navigation{position:static;top:auto;height:46px;order:0;gap:18px;background:none;border:0;flex:1}.club-navigation button{font-size:10px}.club-head-tools{margin-inline-start:auto}
+ .club-workspace{display:grid;grid-template-columns:158px minmax(0,1fr);gap:7px;padding:6px max(7px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left))}
+ .club-sidebar{display:flex;flex-direction:column;gap:8px;overflow-y:auto}.club-character-section,.club-session,.club-equipment-section{width:100%}.club-equipment-grid{grid-template-columns:1fr 1fr}.club-equipment:last-child{grid-column:1/-1}.club-app .training-bar{grid-template-columns:1fr 45px}.club-app .training-bar #combinationBtn{grid-column:1/-1;grid-row:1}.club-app .training-bar #timingBtn{grid-column:1;grid-row:2}.club-app .training-bar #speedBtn{grid-column:2;grid-row:2}
+ .club-app[data-scene=arena] .club-workspace{grid-template-columns:minmax(0,1fr)}
+ .club-stage-heading{min-height:34px;max-height:34px}.input-mode-switch button{min-height:25px}.club-app .club-view-tools{min-height:29px;height:29px}.club-app .club-current{display:none}.club-app footer.club-transport{padding:4px 8px}.club-app .practice-actions #playBtn,.club-app .practice-actions #prevBtn,.club-app .practice-actions #nextBtn{min-height:32px}
+ .manual-rail{width:118px;grid-template-columns:1fr 1fr;top:52%;gap:4px;max-height:calc(100% - 38px)}.manual-side-label{grid-column:1/-1}.manual-move{min-height:36px;font-size:9px}.manual-status{font-size:8px;bottom:3px;padding:3px 6px}
+}
+@media(max-width:360px){.club-sidebar{grid-template-columns:100px minmax(0,1fr)}.club-brand #appTitle{font-size:12px}.club-app .training-bar{grid-template-columns:minmax(0,1fr) 61px 34px}.club-app .training-bar #timingBtn{font-size:8px}.manual-rail{width:62px}.manual-move{font-size:9px}}
+@media(max-width:800px){.club-app.manual-active #boxerCanvas{height:100%!important}.manual-active .club-current,.manual-active .club-view-tools{display:none}}
+@media(max-height:650px) and (max-width:599px){
+ .manual-active .club-sidebar{grid-template-columns:1fr;grid-template-rows:auto}.manual-active .club-character-section,.manual-active .club-session{display:none}.manual-active .club-equipment-section{grid-row:1}
+ .manual-rail{gap:4px;max-height:calc(100% - 44px)}.manual-move{min-height:37px;font-size:9px}
+}
+@media(max-height:600px) and (max-width:599px){.manual-rail{width:96px;grid-template-columns:1fr 1fr}.manual-side-label{grid-column:1/-1}.manual-move{min-height:38px}}
+@media(max-height:560px) and (min-width:600px){.manual-move{height:38px;min-height:38px;padding:3px 2px;font-size:9px;line-height:1.1;overflow:hidden}.manual-side-label{line-height:1.1}}
+@media(max-height:560px) and (min-width:600px){
+ .club-app[data-scene=arena] .club-sidebar{display:none}
+ .club-intro,.club-tip,.club-character img,.club-character-caption,.club-character .club-check,.club-sidebar h3{display:none}
+ .club-character{min-height:34px;padding:5px}.club-character strong{font-size:11px}.club-equipment{min-height:34px;padding:6px 4px;font-size:9px}
+ .manual-active .club-view-tools{display:none}
+}
+@media(max-height:560px) and (min-width:600px){
+ .manual-active .fight-hud{top:6px;padding:5px 8px;font-size:9px}
+ .manual-active .fight-health{top:37px;left:138px;right:138px;gap:28px}
+}

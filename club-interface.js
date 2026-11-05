@@ -54,7 +54,7 @@
    if(previousMode!==undefined&&previousMode!==mode)selectedCamera(mode==='none'?'camFront':'');
    if(!fight)lastPractice=mode;
    body.dataset.scene=fight?'arena':'gym';body.dataset.character=species;
-   byId('appSubtitle').textContent=t.club;byId('appTitle').textContent='SHADOWBOX';
+   byId('appSubtitle').textContent=t.club;byId('appTitle').textContent='RingFighter';
    gymNav.innerHTML=icon('gym')+'<span>'+t.gym+'</span>';fightNav.innerHTML=icon('fight')+'<span>'+t.fight+'</span>';gymNav.setAttribute('aria-pressed',String(!fight));fightNav.setAttribute('aria-pressed',String(fight));
    byId('openPracticeControls').innerHTML=icon('settings')+'<span>'+t.settings+'</span>';byId('openPracticeControls').setAttribute('aria-label',t.settings);byId('openPracticeControls').setAttribute('aria-haspopup','dialog');
    eyebrow.textContent=fight?t.arenaEyebrow:t.eyebrow;title.textContent=fight?t.arenaTitle:t.title;intro.textContent=fight?t.arenaIntro:t.intro;
@@ -66,7 +66,7 @@
    railLabel.textContent=t.skills;viewLabel.textContent=t.view;stance.textContent=fight?'LION  /  RABBIT':t.stance;keyboard.textContent=t.space;keyboard.title=t.keyHelp;
    byId('camFront').textContent=t.front;byId('camSide').textContent=t.side;byId('camBack').textContent=t.back;
    byId('playBtn').setAttribute('aria-pressed',String(e.isPlaying));byId('playBtn').dataset.playing=String(e.isPlaying);byId('motionPause').textContent=e.isPlaying?t.freeze:t.play;
-   byId('defaultCoach').textContent=t.lion;returnButton.textContent=t.return;fightInfoText.textContent=t.fightNote;fightInfo.hidden=!fight;
+   byId('defaultCoach').textContent=t.lion;returnButton.textContent=t.return;fightInfoText.textContent=e.player?.enabled?({en:'You control your selected boxer. The opponent attacks and defends independently.',he:'אתם שולטים במתאגרף שבחרתם. היריב תוקף ומתגונן באופן עצמאי.',ru:'Вы управляете выбранным боксёром. Противник атакует и защищается самостоятельно.'}[app.lang]):t.fightNote;fightInfo.hidden=!fight;
    loading.hidden=!!e.coach||!!byId('renderingNotice');loading.querySelector('p').textContent=e.loadError?({en:'The boxer could not load. Reload to try again.',he:'טעינת המתאגרף נכשלה. טענו מחדש כדי לנסות שוב.',ru:'Боксёр не загрузился. Обновите страницу.'}[app.lang]):t.loading;
    loading.classList.toggle('has-error',!!e.loadError);
    if(byId('renderingNotice'))byId('renderingNotice').textContent=t.error;
@@ -82,7 +82,7 @@
    if(event.code==='Space'){event.preventDefault();app.toggle();paint();}
    else if(event.key.toLowerCase()==='g')returnToGym();
    else if(event.key.toLowerCase()==='f')fightNav.click();
-   else if(!['fight','speed'].includes(e.targetMode)){const move={'1':'jab','2':'cross','3':'hook','4':'rear_hook','5':'uppercut','6':'rear_uppercut'}[event.key];if(move)rail.querySelector('[data-technique="'+move+'"]')?.click();}
+   else if(!e.player?.enabled&&!['fight','speed'].includes(e.targetMode)){const move={'1':'jab','2':'cross','3':'hook','4':'rear_hook','5':'uppercut','6':'rear_uppercut'}[event.key];if(move)rail.querySelector('[data-technique="'+move+'"]')?.click();}
   });
   // Persist only preferences. A refresh never resumes a stale fight or hidden timer.
   for(const id of ['langEN','langHE','langRU'])byId(id).addEventListener('click',()=>{try{localStorage.setItem('shadowbox-language',app.lang);}catch(_){}});

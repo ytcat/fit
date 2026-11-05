@@ -37,7 +37,7 @@
     mesh(root,new THREE.BoxGeometry(.016,.001,2.96),tape,V(side*1.48,.002,0));mesh(root,new THREE.BoxGeometry(2.96,.001,.016),tape,V(0,.002,side*1.48));
     for(let i=0;i<62;i++){const a=-1.42+i*.046;points.push(V(side*1.46,.003,a),V(a,.003,side*1.46));}
    }stitches(root,points,0x6c7e8a);
-   const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d');x.clearRect(0,0,1024,512);x.textAlign='center';x.fillStyle='rgba(205,220,231,.18)';x.font='900 112px sans-serif';x.fillText('SHADOWBOX',512,245);x.font='600 30px sans-serif';x.fillText('TRAIN  •  MOVE  •  BOX',512,305);
+   const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d');x.clearRect(0,0,1024,512);x.textAlign='center';x.fillStyle='rgba(205,220,231,.18)';x.font='900 112px sans-serif';x.fillText('RINGFIGHTER',512,245);x.font='600 30px sans-serif';x.fillText('TRAIN  •  MOVE  •  BOX',512,305);
    const print=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false,opacity:.8});const label=mesh(root,new THREE.PlaneGeometry(1.9,.95),print,V(0,.004,0));label.rotation.x=-Math.PI/2;label.castShadow=false;label.name='Printed canvas mark';
   },
   heavy(root){

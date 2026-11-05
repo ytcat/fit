@@ -1,4 +1,4 @@
-# ShadowBox 3D — Lion Boxing Coach
+# RingFighter — 3D Boxing
 
 A static, three-language boxing practice app. Open it through an HTTP server:
 

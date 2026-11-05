@@ -17,7 +17,7 @@
   label(root,{name='Club signage',title,subtitle='',width=2,height=1,x=0,y=2,z=-3,color='#dfc291',background='#202b31',accent='#ba6b43',poster=false}){
    const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=Math.round(1024*height/width);const c=canvas.getContext('2d'),h=canvas.height;
    c.fillStyle=background;c.fillRect(0,0,1024,h);c.strokeStyle=color;c.lineWidth=3;c.strokeRect(20,20,984,h-40);
-   c.fillStyle=accent;c.fillRect(44,42,75,7);c.font='600 22px sans-serif';c.textAlign='left';c.fillStyle=color;c.fillText('SHADOWBOX  /  BOXING CLUB',44,80);
+   c.fillStyle=accent;c.fillRect(44,42,75,7);c.font='600 22px sans-serif';c.textAlign='left';c.fillStyle=color;c.fillText('RINGFIGHTER  /  BOXING CLUB',44,80);
    if(poster){
     c.save();c.translate(512,h*.44);c.rotate(-.24);c.fillStyle=accent;
     c.beginPath();(c.roundRect||c.rect).call(c,-198,-124,175,208,55);c.fill();c.beginPath();(c.roundRect||c.rect).call(c,23,-124,175,208,55);c.fill();
@@ -82,7 +82,7 @@
    this.box(r,'Dumbbell shelf',[3.25,.06,.46],[0,.62,-4.55],m.dark);
    for(let x=-1.25;x<=1.3;x+=.5){this.rod(r,V(x-.16,.77,-4.55),V(x+.16,.77,-4.55),.026,m.steel);for(const dx of [-.14,.14]){const n=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.10,8),m.dark);n.rotation.z=Math.PI/2;n.position.set(x+dx,.77,-4.55);n.name='Rubber hex dumbbell';r.add(n);}}
    for(let i=0;i<4;i++){const x=7.3+i*.46;this.box(r,'Vented steel locker',[.43,1.85,.50],[x,.925,-4.6],m.blue);this.box(r,'Locker handle',[.025,.16,.04],[x+.12,1.06,-4.32],m.gold);for(let y=1.55;y<1.8;y+=.065)this.box(r,'Locker vent',[.25,.012,.01],[x,y,-4.34],m.dark);}
-   this.label(r,{name:'Floor training mark',title:'SHADOWBOX',subtitle:'THE TRAINING ROOM',width:2.2,height:.7,y:-.018,z:1.7,background:'#303c41',color:'#536268'}).rotation.x=-Math.PI/2;
+   this.label(r,{name:'Floor training mark',title:'RINGFIGHTER',subtitle:'THE TRAINING ROOM',width:2.2,height:.7,y:-.018,z:1.7,background:'#303c41',color:'#536268'}).rotation.x=-Math.PI/2;
   }
   buildArena(){
    const r=this.arena,m=this.materials;
@@ -95,8 +95,8 @@
     this.box(r,'Grandstand tier',[17,.45,.70],[0,y-.1,z],stands);
     for(let j=-11;j<=11;j++){this.box(r,'Grandstand seat',[.48,.34,.14],[j*.68,y+.39,z],seats[(j+row+24)%3]);this.box(r,'Seat cushion',[.48,.08,.43],[j*.68,y+.2,z-side*.18],seats[(j+row+24)%3]);}
    }
-   this.label(r,{name:'Arena scoreboard',title:'FIGHT NIGHT',subtitle:'LION   /   RABBIT     •     SHADOWBOX CHAMPIONSHIP',width:6,height:1.7,y:4.1,z:-7.2,background:'#111d2b',color:'#e7d1a4',accent:'#a73e46'});
-   for(const x of [-6.4,6.4])this.label(r,{name:'Championship banner',title:'EARN|YOUR|CORNER',subtitle:'SHADOWBOX',width:1.5,height:3.5,x,y:3.2,z:-7.1,background:x<0?'#512c31':'#24455d',color:'#e7d9bb'});
+   this.label(r,{name:'Arena scoreboard',title:'FIGHT NIGHT',subtitle:'LION   /   RABBIT     •     RINGFIGHTER CHAMPIONSHIP',width:6,height:1.7,y:4.1,z:-7.2,background:'#111d2b',color:'#e7d1a4',accent:'#a73e46'});
+   for(const x of [-6.4,6.4])this.label(r,{name:'Championship banner',title:'EARN|YOUR|CORNER',subtitle:'RINGFIGHTER',width:1.5,height:3.5,x,y:3.2,z:-7.1,background:x<0?'#512c31':'#24455d',color:'#e7d9bb'});
    const lights=[new THREE.MeshBasicMaterial({color:0xe5776f}),new THREE.MeshBasicMaterial({color:0x82bde3}),new THREE.MeshBasicMaterial({color:0xffe8c1})];
    for(const z of [-3.6,3.6]){
     for(const y of [4.35,4.62])this.rod(r,V(-5.5,y,z),V(5.5,y,z),.035,m.steel);
@@ -105,7 +105,7 @@
    }
    const red=new THREE.PointLight(0xd55d55,1.3,12);red.position.set(-4,3.5,-3);r.add(red);
    const blue=new THREE.PointLight(0x668edb,1.5,12);blue.position.set(4,3.5,-3);r.add(blue);
-   this.label(r,{name:'Ringside sponsor board',title:'SHADOWBOX  /  FIGHT NIGHT',subtitle:'',width:5.5,height:.65,y:.3,z:-3.5,background:'#151f2a',color:'#9eafbf'});
+   this.label(r,{name:'Ringside sponsor board',title:'RINGFIGHTER  /  FIGHT NIGHT',subtitle:'',width:5.5,height:.65,y:.3,z:-3.5,background:'#151f2a',color:'#9eafbf'});
   }
   update(time,mode){
    if(this.mode===mode)return;this.mode=mode;const fight=mode==='fight';this.gym.visible=!fight;this.arena.visible=fight;

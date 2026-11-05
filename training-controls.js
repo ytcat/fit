@@ -44,6 +44,7 @@
    timing.disabled=mode==='fight';timing.textContent=mode==='fight'?w().fightRhythm:e.practiceTiming==='random'?w().variableLabel:w().steadyLabel;
    timing.setAttribute('aria-label',w().timing+': '+(e.practiceTiming==='random'?w().variable:w().sync));
    if(mode==='speed'){combo.textContent=({en:'Next drill',he:'התרגיל הבא',ru:'Следующее'})[app.lang];document.getElementById('drillTier').textContent=w().speed;document.getElementById('exerciseNotes').textContent=({en:'Keep compact circles in front of the face. Finish the burst, defend, then return to rhythm.',he:'מעגלים קצרים לפני הפנים. סיימו רצף, הגנו וחזרו לקצב.',ru:'Короткие круги перед лицом. Завершите серию, выполните защиту и вернитесь к ритму.'})[app.lang];}
+   if(e.player?.enabled){combo.disabled=true;timing.disabled=true;for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=true;}
    app.audio?.onState?.();
    speed.setAttribute('aria-label',({en:'Playback speed',he:'מהירות תנועה',ru:'Скорость'}[app.lang])+': '+e.speed+'×');
    document.querySelectorAll('[data-technique]').forEach(b=>{b.disabled=mode==='fight';});app.updatePlayBtnText();
@@ -126,7 +127,7 @@
   camera('camFront',.78,0);camera('camSide',Math.PI/2,1.15);camera('camBack',Math.PI+.78,Math.PI);
   const language=app.setLanguage.bind(app);app.setLanguage=lang=>{language(lang);paint();};
   setInterval(()=>{
-   const mode=e.targetMode||'none';if(mode==='fight'){document.getElementById('comboCodes').textContent='VS';document.getElementById('comboCues').textContent=w().fight;return;}if(mode==='speed'){
+   const mode=e.targetMode||'none';if(e.player?.enabled)return;if(mode==='fight'){document.getElementById('comboCodes').textContent='VS';document.getElementById('comboCues').textContent=w().fight;return;}if(mode==='speed'){
     document.getElementById('comboCodes').textContent='↻';const drill=BOXING_ROUTINES.speedDrills.find(d=>d.id===(e.speedDrill||'alternating'));document.getElementById('comboCues').textContent=drill.names[{en:0,he:1,ru:2}[app.lang]];return;
    }
    if(e.technique==='random'){
