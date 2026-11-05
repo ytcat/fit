@@ -46,7 +46,7 @@
   }
   constructor(arena,options){
    this.arena=arena;this.engine=arena.engine;this.match=new BoxingFight(options);this.tick=0;this.previous={};this.compressions={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.contacts=[];this.eventCursor=0;this.pendingSwings=[];
-   this.coaches={lion:this.engine.coach,rabbit:arena.rabbit};
+   this.coaches=this.engine.coach.species==='rabbit'?{lion:arena.rabbit,rabbit:this.engine.coach}:{lion:this.engine.coach,rabbit:arena.rabbit};
    this.referee=new RhinoReferee();arena.group.add(this.referee.root);this.audience=new FightAudience(arena.group);
    this.ring=new THREE.Group();arena.group.add(this.ring);
    // Raised canvas and apron make the ring a complete visible platform.

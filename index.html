@@ -3,10 +3,11 @@
 <head>
     <link rel="icon" href="./assets/favicon.svg">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; img-src 'self' blob: data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'" />
   <meta name="theme-color" content="#06070a" />
-  <title>ShadowBox 3D | Lion Boxing Coach</title>
+  <title>ShadowBox — Boxing Club</title>
+  <meta name="description" content="Your 3D boxing club. Train with a lion or rabbit, master combinations in the gym, and watch fight night in the arena." />
 
   <link rel="stylesheet" href="./assets/app.css?v=2" />
   <link rel="stylesheet" href="./workout-experience.css?v=2026110406" />
@@ -22,12 +23,16 @@
   <script src="./boxing-coach-v2.js?v=2026110504"></script>
   <script src="./contact-response.js?v=2026110406"></script>
   <script src="./gym-details.js?v=2026110406"></script>
-  <script src="./training-arena.js?v=2026110504"></script>
+  <script src="./training-arena.js?v=2026110505"></script>
   <script src="./boxing-fight.js?v=2026110504"></script>
   <script src="./fight-referee.js?v=2026110406"></script>
-  <script src="./fight-arena.js?v=2026110504"></script>
+  <script src="./fight-arena.js?v=2026110505"></script>
   <script src="./fight-ui.js?v=2026110406" defer></script>
-  <script src="./training-controls.js?v=2026110504" defer></script>
+  <script src="./training-controls.js?v=2026110505" defer></script>
+  <script src="./character-roster.js?v=2026110505"></script>
+  <script src="./club-world.js?v=2026110505"></script>
+  <link rel="stylesheet" href="./club-interface.css?v=2026110505" />
+  <script src="./club-interface.js?v=2026110505" defer></script>
 
   <style>
     html, body {
@@ -98,6 +103,7 @@
       <button data-technique="rear_uppercut" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Rear uppercut</button>
       <button data-technique="roll" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Roll</button>
       <button data-technique="step" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Footwork</button>
+      <button data-technique="guard" class="technique-btn bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold shrink-0">Stance</button>
       <button data-technique="combo" class="technique-btn bg-amber-500 text-slate-950 px-3 py-2 rounded-lg text-xs font-bold shrink-0">Combination</button>
     </div>
 
@@ -364,7 +370,7 @@
       init() {
         const rect = this.stage.getBoundingClientRect();
         const w = this.canvas.getBoundingClientRect().width || rect.width || window.innerWidth;
-        const h = Math.max(rect.height, 1);
+        const h = Math.max(this.canvas.getBoundingClientRect().height || rect.height, 1);
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
@@ -395,7 +401,7 @@
         const resize = () => {
           const r = this.stage.getBoundingClientRect();
           const nw = this.canvas.getBoundingClientRect().width || r.width || window.innerWidth;
-          const nh = Math.max(r.height, 1);
+          const nh = Math.max(this.canvas.getBoundingClientRect().height || r.height, 1);
           this.camera.aspect = nw / nh;
           this.camera.updateProjectionMatrix();
           this.renderer.setSize(nw, nh, false);
@@ -404,15 +410,6 @@
         window.addEventListener('resize', resize);
         if (window.ResizeObserver) new ResizeObserver(resize).observe(this.canvas);
         window.addEventListener('orientationchange', () => setTimeout(resize, 200));
-
-        // Arena Ring Grid
-        const grid = new THREE.GridHelper(8, 16, 0xf59e0b, 0x241806);
-        grid.position.y=-.014;grid.material.transparent=true;grid.material.opacity=.15;
-        this.scene.add(grid);
-        const floor=new THREE.Mesh(new THREE.CircleGeometry(4,96),new THREE.MeshStandardMaterial({color:0x19202b,roughness:.86}));
-        floor.rotation.x=-Math.PI/2;floor.position.y=-.018;floor.receiveShadow=true;this.scene.add(floor);
-        const ring=new THREE.Mesh(new THREE.RingGeometry(1.55,1.565,96),new THREE.MeshBasicMaterial({color:0x947348,side:THREE.DoubleSide}));
-        ring.rotation.x=-Math.PI/2;ring.position.y=-.016;this.scene.add(ring);
 
         // Lighting
         this.scene.add(new THREE.HemisphereLight(0xdbeaff, 0x404040, .48));
@@ -434,13 +431,14 @@
         this.scene.add(rightRim);
 
         this.scene.traverse(n=>{if(n.isMesh && n.material.color)n.material.color.convertSRGBToLinear();});
+        this.world=new ClubWorld(this);
         this.initControls();
         document.getElementById('camBack').addEventListener('click', () => {
           if(this.arena&&this.arena.mode!=='none'){this.arena.group.rotation.y=Math.PI+.78;this.arena.fitCamera(this.camera);}
           else if(this.activeModel){this.activeModel.rotation.y=Math.PI;this.fitCameraToModel(this.activeModel);}
         });
         this.createTrainingBoxer();
-        document.getElementById('defaultCoach').onclick=()=>this.useDefaultCoach();
+        document.getElementById('defaultCoach').onclick=()=>this.roster?.select('lion');
         document.getElementById('motionPause').onclick=()=>{
           this.isPlaying=!this.isPlaying;
           document.getElementById('motionPause').textContent=this.isPlaying?'Freeze motion':'Play motion';
@@ -462,14 +460,18 @@
           if(new URLSearchParams(location.search).get('shoulderSurface')!=='v1'){
             try{const r=await fetch('./assets/models/shoulder-correctives-v1.json?v=1');if(r.ok){const corrective=await r.json();if(corrective.version===1&&corrective.species?.lion&&corrective.species?.rabbit)surface.shoulderCorrectives=corrective;}}catch(error){console.warn('Shoulder detail unavailable; using original surface.');}
           }
-          this.coach=new LionCoach(surface);
+          this.coach=new LionCoach(surface,{species:CoachRoster.preferred()});
+          this.roster=new CoachRoster(this,surface);
           this.demoModel=this.coach.root;
           this.useDefaultCoach();
           this.arena=new TrainingArena(this,surface);
           this.arena.setTarget(this.targetMode||'none');
+          window.dispatchEvent(new CustomEvent('shadowbox-ready'));
         } catch(error) {
           console.error(error);
+          this.loadError=true;
           document.getElementById('modelStatusText').textContent='Coach could not load. Please reload.';
+          window.dispatchEvent(new CustomEvent('shadowbox-load-error'));
         }
       }
 
@@ -483,7 +485,7 @@
         this.coach.update(0,this.technique,this.currentAnim);
         if(this.arena&&this.arena.mode!=='none'){this.arena.setTarget(this.arena.mode);return;}
         this.fitCameraToModel(this.demoModel);
-        document.getElementById('modelStatusText').textContent='Lion coach · connected body & full-body motion';
+        document.getElementById('modelStatusText').textContent=(this.coach.species==='rabbit'?'Rabbit':'Lion')+' · ready to train';
         document.getElementById('modelStatusDot').className='w-1.5 h-1.5 rounded-full bg-emerald-400';
       }
 
@@ -718,6 +720,7 @@
           this.playClipForDrill();this.mixer.update(dt*this.speed);
         }
 
+        this.world?.update(this.animTime,this.arena?.mode||'none');
         this.renderer.render(this.scene, this.camera);
       }
     }
@@ -1004,6 +1007,7 @@
         const dict = I18N[langCode];
 
         document.documentElement.dir = dict.dir;
+        document.documentElement.lang = langCode;
 
         document.getElementById('appTitle').innerText = dict.title;
         document.getElementById('appSubtitle').innerText = dict.subtitle;

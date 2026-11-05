@@ -39,7 +39,7 @@
   function paint(){
    paintRail(e.targetMode||'none');
    fight.textContent=({en:'Fight',he:'קרב',ru:'Бой'})[app.lang]||'Fight';fight.setAttribute('aria-label',w().fight);
-   const mode=e.targetMode||'none';target.textContent=w()[mode];target.setAttribute('aria-label',w().target+': '+w()[mode]);
+   const mode=e.targetMode||'none';target.textContent=mode==='rabbit'&&e.coach?.species==='rabbit'?w().lion:w()[mode];target.setAttribute('aria-label',w().target+': '+w()[mode]);
    target.setAttribute('aria-haspopup','dialog');combo.textContent=e.technique==='freestyle'?w().freestyle:e.technique==='random'?w().random:w().combos;combo.disabled=false;if(mode==='fight')combo.textContent=window.fightUI?.words().cards||'Scorecards';speed.disabled=mode==='fight';if(mode==='fight')speed.textContent='1×';for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=mode==='fight'||mode==='speed';document.body.classList.toggle('fight-active',mode==='fight');if(mode!=='fight')window.fightUI?.hide();
    timing.disabled=mode==='fight';timing.textContent=mode==='fight'?w().fightRhythm:e.practiceTiming==='random'?w().variableLabel:w().steadyLabel;
    timing.setAttribute('aria-label',w().timing+': '+(e.practiceTiming==='random'?w().variable:w().sync));
@@ -139,7 +139,7 @@
    const next=f.moves[(f.slot+1)%f.moves.length];
    document.getElementById('comboCues').textContent=f.rest?w().read:incoming+name(f.move)+(f.moves.length>1?' · '+w().next+': '+name(next):'');
   },120);
-  window.trainingControls={chooseTarget,activateRandom};paint();
+  window.trainingControls={chooseTarget,activateRandom,refresh:paint};paint();
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

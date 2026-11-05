@@ -146,7 +146,16 @@
   }
   setTarget(mode){
    if(!['none','heavy','dummy','speed','rabbit'].includes(mode))mode='none';
-   const e=this.engine;this.mode=mode;this.resetResponse(e.animTime);
+   const e=this.engine;this.mode=mode;
+   if(mode==='rabbit'){
+    const species=e.coach.species==='rabbit'?'lion':'rabbit';
+    if(!this.rabbit||this.rabbit.species!==species){this.rabbit=e.roster?.get(species)||new LionCoach(this.data,{species});this.models.rabbit=this.rabbit.root;this.rabbit.root.name=species+' sparring partner';}
+   }
+   // A bout can end while a fighter is tilted on the canvas. Practice always
+   // starts upright, including the cached partner and both selectable species.
+   e.coach.root.rotation.set(0,0,0);
+   if(this.rabbit)this.rabbit.root.rotation.set(0,0,0);
+   this.resetResponse(e.animTime);
    for(const child of [...this.group.children])if(child!==e.coach.root)this.group.remove(child);
    if(mode==='none'){
     e.scene.remove(this.group);e.scene.add(e.coach.root);e.coach.root.position.set(0,0,0);e.coach.root.rotation.y=0;
