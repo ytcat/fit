@@ -1,0 +1,481 @@
+{
+  "sourceSHA": "280775eef9cb80903eaf258cb43f7900cd0d61a4",
+  "environment": {
+    "threeRevision": "128",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "devicePixelRatio": 1,
+    "viewport": {
+      "width": 1100,
+      "height": 950
+    },
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "vendor": "Google Inc. (Google)",
+    "maxVertexAttributes": 16,
+    "maxVertexUniformVectors": 4096,
+    "gpuTimerExtension": false,
+    "toneMapping": 4,
+    "exposure": 1.05,
+    "outputEncoding": 3001,
+    "physicallyCorrectLights": true
+  },
+  "approvedReference": null,
+  "candidate": null,
+  "note": "Eight slots / nine actual app captures. Uppercut nominal strike phase is not a registered collision. No score assigned.",
+  "slots": [
+    {
+      "title": "Front face",
+      "images": [
+        {
+          "id": "textured-neutral-face-front",
+          "style": "textured",
+          "lighting": "neutral",
+          "crop": "face",
+          "view": "front",
+          "yaw": 0,
+          "move": "guard",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0.005543107699320524,
+              1.89359179986044,
+              1.5685653385302056
+            ],
+            "target": [
+              0.005543107699320524,
+              1.89359179986044,
+              0.06856533853020552
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 36,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 108,
+            "calls": 234,
+            "triangles": 1042770,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 7.499145427796545e-16,
+          "file": "baseline/textured-neutral-face-front.png",
+          "sha256": "e9c065381f4292cd7f1e086faa9f982db5ba56b39e86517e51702695a2a8f41b"
+        }
+      ]
+    },
+    {
+      "title": "Three-quarter bust",
+      "images": [
+        {
+          "id": "textured-neutral-face-left-45",
+          "style": "textured",
+          "lighting": "neutral",
+          "crop": "face",
+          "view": "left-45",
+          "yaw": 0.7853981633974483,
+          "move": "guard",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0.034724915342432806,
+              1.89359179986044,
+              1.551885777256359
+            ],
+            "target": [
+              0.034724915342432806,
+              1.89359179986044,
+              0.051885777256358984
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 36,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 109,
+            "calls": 234,
+            "triangles": 1042770,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.008257629199242e-16,
+          "file": "baseline/textured-neutral-face-left-45.png",
+          "sha256": "08eb7b03044f43268c11bf3d49c942b84ae34046aef6dd6262006c5031d0bb0e"
+        }
+      ]
+    },
+    {
+      "title": "Profile",
+      "images": [
+        {
+          "id": "textured-neutral-face-left",
+          "style": "textured",
+          "lighting": "neutral",
+          "crop": "face",
+          "view": "left",
+          "yaw": 1.5707963267948966,
+          "move": "guard",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0.043565338530205514,
+              1.89359179986044,
+              1.5194568923006795
+            ],
+            "target": [
+              0.043565338530205514,
+              1.89359179986044,
+              0.019456892300679488
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 36,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 110,
+            "calls": 234,
+            "triangles": 1042770,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.280861043983426e-16,
+          "file": "baseline/textured-neutral-face-left.png",
+          "sha256": "33aa5aac333ec7a012b498f1f8871cc35037547d12764aa947958bc984f3f1d8"
+        }
+      ]
+    },
+    {
+      "title": "Full body front",
+      "images": [
+        {
+          "id": "textured-neutral-body-front",
+          "style": "textured",
+          "lighting": "neutral",
+          "crop": "body",
+          "view": "front",
+          "yaw": 0,
+          "move": "guard",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.35,
+              4.35
+            ],
+            "target": [
+              0,
+              1.25,
+              0
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 38,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 100,
+            "calls": 322,
+            "triangles": 1122348,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 7.499145427796545e-16,
+          "file": "baseline/textured-neutral-body-front.png",
+          "sha256": "4395234fe674c18f706ed101fe32a768c8709c87b47e3c448f98766e41a0f879"
+        }
+      ]
+    },
+    {
+      "title": "Rear",
+      "images": [
+        {
+          "id": "textured-neutral-body-rear",
+          "style": "textured",
+          "lighting": "neutral",
+          "crop": "body",
+          "view": "rear",
+          "yaw": 3.141592653589793,
+          "move": "guard",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.35,
+              4.35
+            ],
+            "target": [
+              0,
+              1.25,
+              0
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 38,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 104,
+            "calls": 322,
+            "triangles": 1122348,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.008257629199242e-16,
+          "file": "baseline/textured-neutral-body-rear.png",
+          "sha256": "ec84a353a571e825c14f0b17e40f87778da51f0b041adbd72a27763c34529088"
+        }
+      ]
+    },
+    {
+      "title": "Jab extension",
+      "images": [
+        {
+          "id": "textured-neutral-motion-jab-0.5-three-quarter",
+          "style": "textured",
+          "lighting": "neutral",
+          "move": "jab",
+          "phase": 0.5,
+          "yaw": -0.65,
+          "crop": "body",
+          "view": "three-quarter",
+          "time": 0.61,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.35,
+              4.35
+            ],
+            "target": [
+              0,
+              1.25,
+              0
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 38,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 119,
+            "calls": 323,
+            "triangles": 1123308,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.302695275805846e-16,
+          "file": "baseline/textured-neutral-motion-jab-0.5-three-quarter.png",
+          "sha256": "a42a12602953a7dbecea05357334c6e2d57af32867b4a8abebf01a6129886384"
+        }
+      ]
+    },
+    {
+      "title": "Hook rotated shoulder",
+      "images": [
+        {
+          "id": "textured-neutral-motion-hook-0.47-three-quarter",
+          "style": "textured",
+          "lighting": "neutral",
+          "move": "hook",
+          "phase": 0.47,
+          "yaw": -0.65,
+          "crop": "body",
+          "view": "three-quarter",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.35,
+              4.35
+            ],
+            "target": [
+              0,
+              1.25,
+              0
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 38,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 131,
+            "calls": 323,
+            "triangles": 1123308,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 6.758924343478424e-16,
+          "file": "baseline/textured-neutral-motion-hook-0.47-three-quarter.png",
+          "sha256": "b2bb01d307f0daff7ff776b420ee3bdbf00ddeb98ddb51f1b6c3fc26bea843fe"
+        }
+      ]
+    },
+    {
+      "title": "Uppercut load / nominal strike",
+      "images": [
+        {
+          "id": "textured-neutral-motion-uppercut-0.22-three-quarter",
+          "style": "textured",
+          "lighting": "neutral",
+          "move": "uppercut",
+          "phase": 0.22,
+          "yaw": -0.65,
+          "crop": "body",
+          "view": "three-quarter",
+          "time": 0.26839999999999997,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.35,
+              4.35
+            ],
+            "target": [
+              0,
+              1.25,
+              0
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 38,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 141,
+            "calls": 322,
+            "triangles": 1122348,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 4.477826539354387e-16,
+          "file": "baseline/textured-neutral-motion-uppercut-0.22-three-quarter.png",
+          "sha256": "83fde257efe19b14811715f5cd3721913e12b7d1ed66f61c21a81546382a8739"
+        },
+        {
+          "id": "textured-neutral-motion-uppercut-0.47-three-quarter",
+          "style": "textured",
+          "lighting": "neutral",
+          "move": "uppercut",
+          "phase": 0.47,
+          "yaw": -0.65,
+          "crop": "body",
+          "view": "three-quarter",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.35,
+              4.35
+            ],
+            "target": [
+              0,
+              1.25,
+              0
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 38,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 145,
+            "calls": 323,
+            "triangles": 1123308,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 1.0030482555430182e-15,
+          "file": "baseline/textured-neutral-motion-uppercut-0.47-three-quarter.png",
+          "sha256": "cf0b997d41a8f3cfe4eb15f8ce367e5aa2e9f72268002ce125843c572014c68d"
+        }
+      ]
+    }
+  ]
+}

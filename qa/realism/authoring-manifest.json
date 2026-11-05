@@ -1,0 +1,23 @@
+{
+  "blender": "4.3.2",
+  "sourceAppSHA": "280775eef9cb80903eaf258cb43f7900cd0d61a4",
+  "sourceModelSHA256": "24b326936dba4f05012ec085e4038373111b43a3f54706a438adf7b1de0ba2f4",
+  "sourceHeadBounds": {
+    "min": [
+      -0.2139749974012375,
+      -0.04999467372894273,
+      -0.14835599064826965
+    ],
+    "max": [
+      0.21512383222579956,
+      0.31182828903198256,
+      0.2735474407672882
+    ]
+  },
+  "authoringScene": "lion-head-authoring-template.blend",
+  "roundtripAsset": "baseline-head-roundtrip.glb",
+  "shapeKeys": "five empty authoring slots, not a finished face rig",
+  "artworkClaim": "none \u2014 baseline geometry only",
+  "approvedReference": "missing",
+  "transform": "runtime XYZ -> Blender (X,-Z,Y); glTF Y-up export -> runtime XYZ; head-local origin"
+}

@@ -1,0 +1,170 @@
+{
+  "three": "128",
+  "environment": {
+    "threeRevision": "128",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "devicePixelRatio": 1,
+    "viewport": {
+      "width": 1100,
+      "height": 950
+    },
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "vendor": "Google Inc. (Google)",
+    "maxVertexAttributes": 16,
+    "maxVertexUniformVectors": 4096,
+    "gpuTimerExtension": false,
+    "toneMapping": 4,
+    "exposure": 1.05,
+    "outputEncoding": 3001,
+    "physicallyCorrectLights": true
+  },
+  "bounds": {
+    "min": [
+      -0.2139749974012375,
+      -0.04999467357993126,
+      -0.14835600554943085
+    ],
+    "max": [
+      0.21512383222579956,
+      0.31182828545570374,
+      0.2735474407672882
+    ]
+  },
+  "expectedBounds": {
+    "min": [
+      -0.2139749974012375,
+      -0.04999467372894273,
+      -0.14835599064826965
+    ],
+    "max": [
+      0.21512383222579956,
+      0.31182828903198256,
+      0.2735474407672882
+    ]
+  },
+  "meshes": [
+    {
+      "vertices": 20762,
+      "triangles": 41233,
+      "attributes": [
+        "_runtime_source_id",
+        "position",
+        "normal",
+        "uv"
+      ],
+      "morphPositionCount": 5,
+      "morphNormalCount": 5,
+      "morphNames": [
+        "blink_left",
+        "blink_right",
+        "jaw_open",
+        "snarl",
+        "pain"
+      ],
+      "materialType": "MeshStandardMaterial"
+    }
+  ],
+  "maxPositionError": 2.421438694000244e-8,
+  "coveredSourceVertices": 20710,
+  "expectedSourceVertices": 20710,
+  "unknownIds": 0,
+  "rendered": {
+    "frame": 8,
+    "calls": 1,
+    "triangles": 41233,
+    "points": 0,
+    "lines": 0
+  },
+  "programs": [
+    {
+      "id": 0,
+      "linked": true,
+      "attributes": 2
+    },
+    {
+      "id": 1,
+      "linked": true,
+      "attributes": 1
+    },
+    {
+      "id": 2,
+      "linked": true,
+      "attributes": 2
+    },
+    {
+      "id": 3,
+      "linked": true,
+      "attributes": 1
+    },
+    {
+      "id": 4,
+      "linked": true,
+      "attributes": 7
+    },
+    {
+      "id": 5,
+      "linked": true,
+      "attributes": 7
+    },
+    {
+      "id": 6,
+      "linked": true,
+      "attributes": 8
+    },
+    {
+      "id": 7,
+      "linked": true,
+      "attributes": 10
+    },
+    {
+      "id": 8,
+      "linked": true,
+      "attributes": 9
+    },
+    {
+      "id": 9,
+      "linked": true,
+      "attributes": 3
+    },
+    {
+      "id": 10,
+      "linked": true,
+      "attributes": 4
+    },
+    {
+      "id": 11,
+      "linked": true,
+      "attributes": 2
+    },
+    {
+      "id": 12,
+      "linked": true,
+      "attributes": 1
+    },
+    {
+      "id": 13,
+      "linked": true,
+      "attributes": 3
+    },
+    {
+      "id": 14,
+      "linked": true,
+      "attributes": 10
+    },
+    {
+      "id": 15,
+      "linked": true,
+      "attributes": 3
+    },
+    {
+      "id": 16,
+      "linked": true,
+      "attributes": 10
+    }
+  ],
+  "claim": "Baseline geometry interchange only; no sculpt, new expressions, seam validation, physical-phone or appearance improvement claim.",
+  "errors": [],
+  "sourceAppSHA": "280775eef9cb80903eaf258cb43f7900cd0d61a4",
+  "browser": "155.0.8059.79"
+}

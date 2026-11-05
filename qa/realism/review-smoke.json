@@ -1,0 +1,17 @@
+{
+  "views": 8,
+  "referenceAbsent": true,
+  "candidateAbsent": true,
+  "uppercutPhaseSwitch": true,
+  "weightedScoreAndMissingValues": true,
+  "desktop": [
+    1400,
+    1100
+  ],
+  "phoneViewport": [
+    393,
+    852
+  ],
+  "physicalPhone": false,
+  "errors": []
+}
