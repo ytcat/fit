@@ -1,0 +1,779 @@
+{
+  "root": "/workspace/fit-release-20261105",
+  "files": {
+    "boxing-coach-v2.js": "19719845d47e7c3ad8d7cf1d3243fe60852b24095cfcaa510e7d64137b3a979c",
+    "training-arena.js": "8a7479bf0aa698f7df37be3b9cca92306ed954daa59fac5196fabe0e005ea539",
+    "boxing-fight.js": "b720597b2dd3fbbfc6294da44663aa54243ca258afdd2ecdf2ff4982226b5166",
+    "fight-arena.js": "80c9f7ab178c96d57434bde67cfc2f16be23349aa1d3c2af49372fb1de8bfe2d",
+    "boxing-routines.js": "4324bbab9521e47cda5a5b5bd0ae8c64c58b93b37e5fb7a52afaf4d3b4767e18",
+    "training-controls.js": "246bf435fe84cf17ee05ecf80331f979d30d7cad0e63cec5dbbdac82d1468147",
+    "index.html": "c7572a73089098c4572bbd11aea440be5cd0c7e209550ed14858129937bcb1ab"
+  },
+  "environment": {
+    "threeRevision": "128",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "devicePixelRatio": 1,
+    "viewport": {
+      "width": 720,
+      "height": 900
+    },
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "vendor": "Google Inc. (Google)",
+    "maxVertexAttributes": 16,
+    "maxVertexUniformVectors": 4096,
+    "gpuTimerExtension": false,
+    "toneMapping": 4,
+    "exposure": 1.05,
+    "outputEncoding": 3001,
+    "physicallyCorrectLights": true
+  },
+  "images": [
+    {
+      "id": "uppercut-0.47-front",
+      "move": "uppercut",
+      "phase": 0.47,
+      "time": 0.5733999999999999,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 13,
+        "calls": 319,
+        "triangles": 1123522,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 3.88628096791244e-16,
+      "distal": [
+        0.01445211997361186,
+        0.8608223568181959,
+        0.5087003108218383
+      ]
+    },
+    {
+      "id": "uppercut-0.47-profile",
+      "move": "uppercut",
+      "phase": 0.47,
+      "time": 0.5733999999999999,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 14,
+        "calls": 319,
+        "triangles": 1123522,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 6.13768602261588e-16,
+      "distal": [
+        0.014452119973611972,
+        0.8608223568181959,
+        0.5087003108218383
+      ]
+    },
+    {
+      "id": "uppercut-0.47-three-quarter",
+      "move": "uppercut",
+      "phase": 0.47,
+      "time": 0.5733999999999999,
+      "yaw": -0.65,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 15,
+        "calls": 319,
+        "triangles": 1123522,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 1.0030482555430182e-15,
+      "distal": [
+        0.014452119973611522,
+        0.8608223568181957,
+        0.5087003108218386
+      ]
+    },
+    {
+      "id": "uppercut-0.72-front",
+      "move": "uppercut",
+      "phase": 0.72,
+      "time": 0.8784,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 16,
+        "calls": 318,
+        "triangles": 1122562,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 2.3263411494723067e-16,
+      "distal": [
+        0.38761823904767273,
+        0.7582830439633854,
+        -0.5241745186435562
+      ]
+    },
+    {
+      "id": "uppercut-0.72-profile",
+      "move": "uppercut",
+      "phase": 0.72,
+      "time": 0.8784,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 17,
+        "calls": 318,
+        "triangles": 1122562,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 2.435541875787129e-16,
+      "distal": [
+        0.3876182390476723,
+        0.7582830439633851,
+        -0.5241745186435567
+      ]
+    },
+    {
+      "id": "uppercut-0.72-three-quarter",
+      "move": "uppercut",
+      "phase": 0.72,
+      "time": 0.8784,
+      "yaw": -0.65,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 18,
+        "calls": 318,
+        "triangles": 1122562,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 5.582684061009224e-16,
+      "distal": [
+        0.3876182390476723,
+        0.758283043963385,
+        -0.524174518643557
+      ]
+    },
+    {
+      "id": "rear_uppercut-0.47-front",
+      "move": "rear_uppercut",
+      "phase": 0.47,
+      "time": 0.5733999999999999,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 19,
+        "calls": 319,
+        "triangles": 1123522,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 8.514223576271388e-16,
+      "distal": [
+        -0.23357038433660882,
+        0.8767193334909092,
+        0.42048553583221454
+      ]
+    },
+    {
+      "id": "rear_uppercut-0.47-profile",
+      "move": "rear_uppercut",
+      "phase": 0.47,
+      "time": 0.5733999999999999,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 20,
+        "calls": 319,
+        "triangles": 1123522,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 6.684787919945168e-16,
+      "distal": [
+        -0.23357038433660882,
+        0.8767193334909092,
+        0.42048553583221454
+      ]
+    },
+    {
+      "id": "rear_uppercut-0.47-three-quarter",
+      "move": "rear_uppercut",
+      "phase": 0.47,
+      "time": 0.5733999999999999,
+      "yaw": -0.65,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 21,
+        "calls": 319,
+        "triangles": 1123522,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 6.754508075918179e-16,
+      "distal": [
+        -0.2335703843366085,
+        0.8767193334909096,
+        0.4204855358322143
+      ]
+    },
+    {
+      "id": "rear_uppercut-0.72-front",
+      "move": "rear_uppercut",
+      "phase": 0.72,
+      "time": 0.8784,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 22,
+        "calls": 318,
+        "triangles": 1122562,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 4.20934145542537e-16,
+      "distal": [
+        -0.492350649395227,
+        0.8283737848057459,
+        -0.2671847875285984
+      ]
+    },
+    {
+      "id": "rear_uppercut-0.72-profile",
+      "move": "rear_uppercut",
+      "phase": 0.72,
+      "time": 0.8784,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 23,
+        "calls": 318,
+        "triangles": 1122562,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 4.311058334485492e-16,
+      "distal": [
+        -0.4923506493952268,
+        0.8283737848057457,
+        -0.26718478752859853
+      ]
+    },
+    {
+      "id": "rear_uppercut-0.72-three-quarter",
+      "move": "rear_uppercut",
+      "phase": 0.72,
+      "time": 0.8784,
+      "yaw": -0.65,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        720,
+        900
+      ],
+      "counts": {
+        "frame": 24,
+        "calls": 318,
+        "triangles": 1122562,
+        "points": 0,
+        "lines": 34
+      },
+      "maneOffsetMax": 5.640599496620651e-16,
+      "distal": [
+        -0.4923506493952266,
+        0.8283737848057461,
+        -0.2671847875285985
+      ]
+    },
+    {
+      "id": "speed-0.17",
+      "time": 0.17,
+      "gloves": [
+        {
+          "distal": [
+            0.497958463323195,
+            0.7775039634277296,
+            -0.38408977551996104
+          ],
+          "palm": [
+            0.6970019612185808,
+            -0.6223541308456395,
+            -0.3561791710316882
+          ],
+          "turn": 0.35,
+          "knuckles": [
+            -0.0302858151347526,
+            1.983838951242883,
+            0.31236524437895724
+          ],
+          "strikePoint": [
+            0.0015835265179318686,
+            2.0335992049022575,
+            0.28778349874567977
+          ],
+          "radius": 0.064
+        },
+        {
+          "distal": [
+            -0.5178127451981064,
+            0.8313971109735873,
+            0.20161548743877178
+          ],
+          "palm": [
+            -0.8422834217649688,
+            -0.4542001815654214,
+            -0.29027716494039646
+          ],
+          "turn": 0.35,
+          "knuckles": [
+            0.02750621567226512,
+            1.9214071991733017,
+            0.4020883552896766
+          ],
+          "strikePoint": [
+            -0.005633800020413662,
+            1.9746166142756112,
+            0.41499174648575804
+          ],
+          "radius": 0.064
+        }
+      ]
+    },
+    {
+      "id": "speed-0.34",
+      "time": 0.34,
+      "gloves": [
+        {
+          "distal": [
+            0.5050684515255262,
+            0.8409549218557794,
+            0.19416662607190588
+          ],
+          "palm": [
+            0.8492959149313525,
+            -0.4442170394809353,
+            -0.2852501896856692
+          ],
+          "turn": 0.35,
+          "knuckles": [
+            -0.029290416786426503,
+            1.9568325120818844,
+            0.5471335977772136
+          ],
+          "strikePoint": [
+            0.0030339641112071764,
+            2.010653627080654,
+            0.5595602618458155
+          ],
+          "radius": 0.064
+        },
+        {
+          "distal": [
+            -0.46854701296492124,
+            0.7975140086957531,
+            -0.38004618479295377
+          ],
+          "palm": [
+            -0.7119482790540822,
+            -0.5955731770054916,
+            -0.37205139266439513
+          ],
+          "turn": 0.35,
+          "knuckles": [
+            0.03440341818491075,
+            1.95255313819533,
+            0.16684326400183946
+          ],
+          "strikePoint": [
+            0.004416409355155774,
+            2.0035940347518584,
+            0.14252030817509043
+          ],
+          "radius": 0.064
+        }
+      ]
+    },
+    {
+      "id": "speed-0.51",
+      "time": 0.51,
+      "gloves": [
+        {
+          "distal": [
+            0.4968051901839556,
+            0.8470544814058201,
+            -0.18890026081665684
+          ],
+          "palm": [
+            0.7557583822952513,
+            -0.5292589894816396,
+            -0.3856347879060432
+          ],
+          "turn": 0.35,
+          "knuckles": [
+            -0.0304472733742462,
+            1.923587627396815,
+            0.343553963485668
+          ],
+          "strikePoint": [
+            0.001348258797526951,
+            1.9777991142067874,
+            0.331464346793402
+          ],
+          "radius": 0.064
+        },
+        {
+          "distal": [
+            -0.514091263103392,
+            0.8576786164392062,
+            -0.009877454312107974
+          ],
+          "palm": [
+            -0.8009596777598974,
+            -0.48415040806565124,
+            -0.35222432762747263
+          ],
+          "turn": 0.35,
+          "knuckles": [
+            0.028027223165524924,
+            1.995075006301489,
+            0.3686171563963047
+          ],
+          "strikePoint": [
+            -0.004874617673092156,
+            2.049966437753598,
+            0.36798499932032974
+          ],
+          "radius": 0.064
+        }
+      ]
+    },
+    {
+      "id": "knockdown-0.3",
+      "time": 0.3,
+      "bootMin": -0.5227299852489171
+    },
+    {
+      "id": "knockdown-0.65",
+      "time": 0.65,
+      "bootMin": -0.5455460783839678
+    },
+    {
+      "id": "knockdown-1.4",
+      "time": 1.4,
+      "bootMin": -0.5700924166432768
+    },
+    {
+      "id": "knockdown-2.25",
+      "time": 2.25,
+      "bootMin": -0.5700924166432766
+    },
+    {
+      "id": "knockdown-3.1",
+      "time": 3.1,
+      "bootMin": -0.545546078383968
+    },
+    {
+      "id": "knockdown-3.85",
+      "time": 3.85,
+      "bootMin": -0.5700924166432766
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}
