@@ -14,7 +14,7 @@ vm.runInNewContext(source+';globalThis.Audio=AudioEngine;',context);
 (async()=>{
  const a=new context.Audio();a.init(true);assert.equal(starts,1,'a buffer must start synchronously inside the user gesture');assert.equal(a.ctx.state,'suspended');
  a.init(true);assert.equal(a.ctx.state,'running','later taps must retry unlock, not consume a once-only listener');assert.equal(starts,2);
- await a.loading;assert.equal(a.samples.size,9,'one failed asset must not discard every other sound');assert.equal(decoded,9,'callback-only decoders must be awaited');assert.equal(context.window.navigator.audioSession.type,'playback','Safari playback session must not use ambient silent-switch behavior');
+ await a.loading;assert.equal(a.samples.size,10,'one failed asset must not discard every other sound');assert.equal(decoded,10,'callback-only decoders must be awaited');assert.equal(context.window.navigator.audioSession.type,'playback','Safari playback session must not use ambient silent-switch behavior');
  a.init(true);assert.equal(starts,2,'an already running context needs no repeated unlock buffer');
  a.ctx.state='interrupted';a.init(true);assert.equal(a.ctx.state,'running');assert.equal(starts,3,'returning from a phone interruption must re-unlock');
  a.ctx.state='closed';a.output={old:true};a.init(true);assert.equal(constructed,2);assert.equal(a.output,null,'a new context must not reconnect through the old output graph');

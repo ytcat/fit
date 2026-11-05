@@ -54,8 +54,10 @@ for(const mode of ['heavy','dummy'])for(const move of ['jab','cross','hook','rea
   // live shoulder so this detects an IK jump, not intended whole-body travel.
   const current=['L','R'].map(side=>({p:c.point(c.joints['elbow'+side]).sub(c.point(c.joints['arm'+side])),q:c.joints['arm'+side].quaternion.clone()}));
   if(previous)for(let k=0;k<2;k++){
-   assert.ok(current[k].q.angleTo(previous[k].q)<.20,mode+' '+move+' target correction flips the elbow plane');
-   assert.ok(current[k].p.distanceTo(previous[k].p)<.055,mode+' '+move+' elbow teleports while aiming');
+   // Target practice now runs 12% faster: keep the same angular/spatial
+   // velocity envelope per authored phase, with real 120 Hz sampling.
+   assert.ok(current[k].q.angleTo(previous[k].q)<.20*1.12,mode+' '+move+' target correction flips the elbow plane');
+   assert.ok(current[k].p.distanceTo(previous[k].p)<.055*1.12,mode+' '+move+' elbow teleports while aiming');
   }
   previous=current;
  }

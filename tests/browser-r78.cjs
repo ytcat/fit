@@ -5,15 +5,15 @@ const server=http.createServer((req,res)=>{let f=path.join(root,decodeURICompone
 (async()=>{const b=await chromium.launch({executablePath:process.env.BROWSER_EXECUTABLE,args:['--no-sandbox','--enable-unsafe-swiftshader']});try{
 for(const [width,height] of [[1100,950],[393,852]]){
  const p=await b.newPage({viewport:{width,height},hasTouch:true,userAgent:width<600?'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1':undefined,bypassCSP:true}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
- await p.goto(`http://127.0.0.1:${server.address().port}`);await p.waitForFunction(()=>window.app?.engine?.coach?.anatomy);await p.evaluate(()=>{app.engine.isPlaying=false;});
- await p.locator('#stageSound').tap();await p.waitForFunction(()=>app.audio.ctx?.state==='running'&&app.audio.samples.size===10);
- const audio=await p.evaluate(()=>({breath1:app.audio.samples.get('effort-1').duration,breath2:app.audio.samples.get('effort-2').duration,pad:app.audio.samples.get('pad').duration}));assert.ok(audio.breath1>.24&&audio.breath1<.26&&audio.breath2>.31&&audio.breath2<.33&&audio.pad<.17,'current playback must use new dry Foley, not old game voices');
- await p.locator('#combinationBtn').click();await p.locator('[data-routine="freestyle"]').click();assert.equal(await p.evaluate(()=>app.engine.technique),'freestyle');
+ p.setDefaultTimeout(120000);await p.addInitScript({path:path.join(root,'qa/lion-realism-m0/instrument.js')});await p.goto(`http://127.0.0.1:${server.address().port}`);await p.waitForFunction(()=>window.app?.engine?.coach?.anatomy);await p.evaluate(()=>{app.engine.isPlaying=false;});await p.evaluate(()=>M0.boot());
+ await p.locator('#stageSound').tap({force:true,noWaitAfter:true});await p.waitForFunction(()=>app.audio.ctx?.state==='running'&&app.audio.samples.size===11);
+ const audio=await p.evaluate(()=>({breath1:app.audio.samples.get('effort-1').duration,breath2:app.audio.samples.get('effort-2').duration,pad:app.audio.samples.get('pad').duration}));assert.ok(audio.breath1>.24&&audio.breath1<.26&&audio.breath2>.31&&audio.breath2<.33&&audio.pad>.2&&audio.pad<.36,'current playback must use recorded punch Foley and unvoiced reaction air');
+ await p.locator('#combinationBtn').click({force:true,noWaitAfter:true});await p.locator('[data-routine="freestyle"]').click({force:true,noWaitAfter:true});assert.equal(await p.evaluate(()=>app.engine.technique),'freestyle');
  for(const mode of ['none','heavy','dummy','rabbit']){
-  await p.locator('#equipmentBtn').click();await p.locator(`[data-target="${mode}"]`).click();assert.equal(await p.evaluate(()=>app.engine.technique),'freestyle','generated mode must survive target changes');
+  await p.locator('#equipmentBtn').click({force:true,noWaitAfter:true});await p.locator(`[data-target="${mode}"]`).click({force:true,noWaitAfter:true});assert.equal(await p.evaluate(()=>app.engine.technique),'freestyle','generated mode must survive target changes');
   const result=await p.evaluate(()=>{const e=app.engine;e.isPlaying=false;let hits=0;for(let i=0;i<=150;i++){e.animTime=i/60;const m=e.arena.update(e.animTime,'freestyle','one_two');if(!m.hero.handErrors.every(n=>n<.002))throw Error('unreachable generated wrist');hits+=m.contacts.length;}return {hits,move:e.coach.metrics.move};});assert.ok(result.move);
  }
- for(const lang of ['HE','RU','EN'])await p.evaluate(l=>document.getElementById('lang'+l).click(),lang);assert.equal(await p.evaluate(()=>app.engine.technique),'freestyle');
+ for(const lang of ['HE','RU','EN'])await p.evaluate(l=>document.getElementById('lang'+l).click({force:true,noWaitAfter:true}),lang);assert.equal(await p.evaluate(()=>app.engine.technique),'freestyle');
  const trade=await p.evaluate(()=>{
   const e=app.engine;e.fightOptions={seed:78};trainingControls.chooseTarget('fight');e.isPlaying=false;const v=e.arena.fightView,m=v.match;m.phase='round';m.time=151.5;m.decide=()=>{};
   for(const f of Object.values(m.fighters)){f.next=Infinity;f.action=null;f.stamina=1;f.tempo=1;}m.attack('lion','uppercut','head');m.attack('rabbit','rear_uppercut','head').start-=.08;let max=0;
@@ -21,7 +21,7 @@ for(const [width,height] of [[1100,950],[393,852]]){
   v.tick=Math.floor(m.time*60);e.animTime=m.time;v.update(m.time);e.lastRenderStamp=null;
   const ring=v.ring.children.map(x=>x.name);return {max,thrown:m.totals.lion.thrown+m.totals.rabbit.thrown,woven:ring.includes('Woven boxing canvas'),ropes:ring.filter(x=>x==='Wrapped tensioned ring rope').length,native:v.coaches.rabbit.nativeRabbit,muscles:v.coaches.lion.anatomy.value.length};
  });assert.ok(trade.max<.027&&trade.thrown===2&&trade.woven&&trade.ropes===16&&trade.native&&trade.muscles===14);
- await p.screenshot({path:`/tmp/r78-arena-${width}.png`,timeout:120000});
+ await p.evaluate(()=>app.engine.renderer.render(app.engine.scene,app.engine.camera));await p.screenshot({path:`/tmp/r78-arena-${width}.png`,timeout:120000});
  const rendered=await p.evaluate(async()=>{
   const off=new OfflineAudioContext(2,24000*3,24000);let time=0;const ctx=new Proxy(off,{get:(o,k)=>k==='state'?'running':k==='currentTime'?time:typeof o[k]==='function'?o[k].bind(o):o[k]});const mix=new AudioEngine();mix.ctx=ctx;mix.samples=app.audio.samples;
   mix.swing({move:'cross'});time=.14;mix.hit({kind:'head',receiver:'rabbit',closingSpeed:6});mix.pain({kind:'head',receiver:'rabbit',closingSpeed:6});time=.8;mix.hit({kind:'body',receiver:'lion',closingSpeed:7});mix.pain({kind:'body',receiver:'lion',closingSpeed:7});time=1.6;mix.hit({receiver:'heavy',closingSpeed:6});

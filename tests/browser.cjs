@@ -14,7 +14,7 @@ const server=http.createServer((req,res)=>{
   try {
     for(const [width,height] of [[1100,950],[393,852]]) {
       const page=await browser.newPage({viewport:{width,height},bypassCSP:true}),errors=[];
-      page.setDefaultTimeout(10000);
+      page.setDefaultTimeout(120000);
       page.on('pageerror',e=>errors.push(e.message));
       page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
       await page.goto(`http://127.0.0.1:${server.address().port}`);

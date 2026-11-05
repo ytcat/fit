@@ -121,3 +121,16 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   local leather/air Foley and unvoiced exhalations; retained licensing for legacy
   files and added reproducible original-asset build scripts.
 - Evidence, measurements and realism limits: docs/r78-realism-and-trades.md.
+
+## R79 motion, recovery and recorded-sound release (2026-11-05)
+- Corrected uppercut forearm stacking and loading continuity; collision
+  repositioning preserves the intended palm orientation.
+- Added bounded speed-bag self-face clearance and replaced the existing technique
+  rail with ten relevant drills, including bursts followed by defence.
+- Added articulated canvas support, staged faster recovery, bounded shock shake
+  and persistent final-KO behavior for both fighters; increased practice/fight pace.
+- Replaced active punch/bell samples with licensed CC0 recordings and authored a
+  stereo crowd mix from recorded claps; retained mobile audio unlocking/fallback.
+- Implementation, reproducible QA and limitations: docs/r79-motion-speedbag-knockdown-audio.md.
+- This release does not claim completion of the separate authored face/mane
+  realism overhaul or sustained performance verification on physical phones.

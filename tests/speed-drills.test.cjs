@@ -20,4 +20,4 @@ for(const routine of Object.keys(BOXING_ROUTINES.timings)){
  assert.equal(BOXING_ROUTINES.frame(at+.01,'combo',routine).move,moves[0]);
 }
 const durations=BOXING_ROUTINES.timings.fast_jabs_upper;assert.ok(durations[0]<durations[2]*.5&&durations[1]<durations[2]*.5,'double jabs must be substantially faster than the following uppercut');
-console.log('PASS six contact-driven speed-bag drills, both/single hand patterns, interval pacing and authored mixed-speed boxing combinations');
+console.log('PASS ten contact-driven speed-bag drills, both/single hand patterns, interval pacing and authored mixed-speed boxing combinations');
