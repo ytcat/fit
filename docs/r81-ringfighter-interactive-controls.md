@@ -73,7 +73,7 @@ separate authored face/mane overhaul or a 75/100 realism score.
 
 ## Evidence and validation
 
-- 41 Node regression suites pass, including the complete prior suite and new
+- The frozen candidate at `23d2d67` passed 41 Node regression suites, including the complete prior suite and new
   command/real-contact integration tests. The real-markup UI test now exercises
   Watch/Play, direct punches and speed-bag input as well as previous controls.
 - All JS/CJS syntax checks pass. Per-suite results, hashes and raw logs are in
@@ -100,3 +100,14 @@ separate authored face/mane overhaul or a 75/100 realism score.
 Chromium 155 / software WebGL is the browser environment. **Physical iPhone and
 Android performance, audio behavior and thermal testing remain unverified.**
 Viewport emulation and CPU test timing do not establish sustained device FPS.
+
+### Final Watch/Play handoff regression
+
+Final review found numeric autoplay and manual command IDs could collide after
+watching a drill, suppressing the first manual contact. Manual aim, swing and
+contact IDs now have their own namespace; bag momentum is preserved. The
+player-arena, player-input and club-interface suites pass after this fix, as
+does the real-browser Watch-to-Play dummy impact check at 393×650.
+`qa/r81/results/` records the frozen candidate run, not a fresh local full-suite
+run after this last fix. The final commit is additionally gated by the complete
+GitHub Actions validation workflow before publication.
