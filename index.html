@@ -17,8 +17,9 @@
 
   <script src="./boxing-routines.js?v=2026110406"></script>
   <script src="./avatar-anatomy.js?v=2026110406"></script>
-  <script src="./avatar-detail.js?v=2026110406"></script>
-  <script src="./boxing-coach-v2.js?v=2026110406"></script>
+  <script src="./avatar-detail.js?v=2026110502"></script>
+  <script src="./avatar-shoulder.js?v=2026110502"></script>
+  <script src="./boxing-coach-v2.js?v=2026110502"></script>
   <script src="./contact-response.js?v=2026110406"></script>
   <script src="./gym-details.js?v=2026110406"></script>
   <script src="./training-arena.js?v=2026110406"></script>
@@ -458,6 +459,9 @@
           if(!response.ok)throw new Error('Coach surface unavailable');
           const surface=await response.json();
           if(!rabbit.ok)throw new Error('Rabbit surface unavailable');surface.rabbitBody=(await rabbit.json()).body;
+          if(new URLSearchParams(location.search).get('shoulderSurface')!=='v1'){
+            try{const r=await fetch('./assets/models/shoulder-correctives-v1.json?v=1');if(r.ok){const corrective=await r.json();if(corrective.version===1&&corrective.species?.lion&&corrective.species?.rabbit)surface.shoulderCorrectives=corrective;}}catch(error){console.warn('Shoulder detail unavailable; using original surface.');}
+          }
           this.coach=new LionCoach(surface);
           this.demoModel=this.coach.root;
           this.useDefaultCoach();

@@ -1,0 +1,15 @@
+{
+  "result": {
+    "species": "lion",
+    "correction": true,
+    "audioState": "running",
+    "soundSamples": 10,
+    "three": "128"
+  },
+  "network": [
+    "http://127.0.0.1:34687/review.html"
+  ],
+  "errors": [],
+  "physicalPhone": false,
+  "directFileURL": "Not verified: managed Chromium blocks file navigation; the standalone artifact was tested over local HTTP."
+}

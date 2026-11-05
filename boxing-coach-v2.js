@@ -125,7 +125,7 @@
 
   class LionCoach {
     constructor(data,options={}) {
-      this.species=options.species||'lion';this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
+      this.species=options.species||'lion';this.shoulderData=data.shoulderCorrectives?.species?.[this.species]||null;this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
       if(data.rigVersion!==2||!data.body.armBlend)throw new Error('Lion rig/model version mismatch');
       this.bones=[];this.joints={};this.metrics={};this.gloveMeshes={};
@@ -388,8 +388,13 @@
           z-=.010*bell(y,.40,.10)*smooth((-z+.005)/.06);
         }
         if(Math.abs(x)>.33&&y>1.20&&y<1.80) {
-          z+=(.024*bell(y,1.60,.10)*bell(Math.abs(x),.48,.15)+.016*bell(y,1.46,.09))*smooth((z+.025)/.08);
-          z-=.012*bell(y,1.43,.10)*smooth((-z+.025)/.08);
+          // A hard x>.33 branch used to introduce a 10–16 mm step in
+          // adjoining vertices. Raised arms turned that step into a folded
+          // strip at the rear deltoid. Ease the connected contour in/out.
+          const armContour=smooth((Math.abs(x)-.33)/.10)*
+            smooth((y-1.20)/.10)*(1-smooth((y-1.70)/.10));
+          z+=armContour*(.024*bell(y,1.60,.10)*bell(Math.abs(x),.48,.15)+.016*bell(y,1.46,.09))*smooth((z+.025)/.08);
+          z-=armContour*.012*bell(y,1.43,.10)*smooth((-z+.025)/.08);
         }
         if(y>1.76){const amount=.10*smooth((y-1.76)/.10);x*=1-amount;z*=1-amount;y=1.84+(y-1.84)*(1-amount);}
         if(this.species==='rabbit'&&y>1.78){const a=smooth((y-1.78)/.10);x*=1-.13*a;z*=1-.24*a; if(!this.nativeRabbit)y-=.065*smooth((y-2.015)/.11)*smooth((Math.abs(x)-.10)/.065);}

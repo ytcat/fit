@@ -32,7 +32,8 @@
  vec3 avatarCorrect(vec3 p,inout vec3 n){if(avatarAxilla>.001){vec3 original=p;for(int k=0;k<3;k++)p-=avatarGradient(p)*clamp(avatarField(p),-.04,.04);vec3 delta=p-original;delta*=min(1.0,.035/max(length(delta),.00001));p=original+delta;n=normalize(mix(n,avatarGradient(p),.4));return original+delta*avatarAxilla;}return p;}
 
  `;
- const api={
+ const normalFrame='(bindMatrixInverse*vec4(qrotate(coachQ,(bindMatrix*vec4(normal,0.0)).xyz),0.0)).xyz';
+ const api={normalFrameShader:normalFrame,
   install(mesh,coach,body){
    const p=mesh.geometry.attributes.position,mask=[];
    for(let i=0;i<p.count;i++){
@@ -47,11 +48,11 @@
      previous(shader);shader.uniforms.avatarChest=coach.surfaceUniforms.chest;shader.uniforms.avatarShoulder=coach.surfaceUniforms.shoulder;shader.uniforms.avatarElbow=coach.surfaceUniforms.elbow;shader.uniforms.avatarFurDrift=coach.surfaceUniforms.fur;shader.uniforms.avatarDent=coach.surfaceUniforms.dent;shader.uniforms.avatarDentNormal=coach.surfaceUniforms.dentNormal;
      shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\n'+glsl+(mesh.geometry.attributes.avatarFurFlex?`\nuniform vec3 avatarFurDrift[${coach.bones.length}];attribute float avatarFurFlex;`:''));
      shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvec3 dentDelta=transformed-avatarDent.xyz;transformed-=avatarDentNormal*avatarDent.w*exp(-dot(dentDelta,dentDelta)/.012);');
-     shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`vec3 avatarN=normalize(qrotate(coachQ,normal));transformed=avatarCorrect(transformed,avatarN);\n${mesh.geometry.attributes.avatarFurFlex?'vec3 furDrift=vec3(0.0);for(int k=0;k<4;k++)furDrift+=skinWeight[k]*avatarFurDrift[int(skinIndex[k])];transformed+=furDrift*avatarFurFlex*avatarFurFlex;':''}\n${material===mesh.material?'#ifndef FLAT_SHADED\nif(avatarAxilla>.001)vNormal=normalize(normalMatrix*normalize(mix(objectNormal,avatarN,avatarAxilla)));\n#endif':''}\n#include <project_vertex>`);
+     shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`vec3 avatarN=normalize(${normalFrame});transformed=avatarCorrect(transformed,avatarN);\n${mesh.geometry.attributes.avatarFurFlex?'vec3 furDrift=vec3(0.0);for(int k=0;k<4;k++)furDrift+=skinWeight[k]*avatarFurDrift[int(skinIndex[k])];transformed+=furDrift*avatarFurFlex*avatarFurFlex;':''}\n${material===mesh.material?'#ifndef FLAT_SHADED\nif(avatarAxilla>.001)vNormal=normalize(normalMatrix*normalize(mix(objectNormal,avatarN,avatarAxilla)));\n#endif':''}\n#include <project_vertex>`);
     };
-    material.customProgramCacheKey=()=>`animal-connected-r78-${coach.bones.length}-${body}-${Boolean(mesh.geometry.attributes.avatarFurFlex)}`;
+    material.customProgramCacheKey=()=>`animal-connected-r79-frame-${coach.bones.length}-${body}-${Boolean(mesh.geometry.attributes.avatarFurFlex)}`;
    }
-   window.AvatarAnatomy?.install(mesh,coach,body);
+   window.AvatarAnatomy?.install(mesh,coach,body);window.ShoulderCorrective?.install(mesh,coach,body);
   },
   update(coach){
    const u=coach.surfaceUniforms;if(!u)return;window.AvatarAnatomy?.update(coach);
@@ -69,11 +70,11 @@
      }coach.furPrevious[i].copy(pos);
     }coach.furTime=t;
    }
-   ['L','R'].forEach((s,i)=>{u.shoulder.value[i].copy(coach.point(coach.joints['arm'+s]));u.elbow.value[i].copy(coach.point(coach.joints['elbow'+s]));});
+   ['L','R'].forEach((s,i)=>{u.shoulder.value[i].copy(coach.point(coach.joints['arm'+s]));u.elbow.value[i].copy(coach.point(coach.joints['elbow'+s]));});window.ShoulderCorrective?.update(coach);
   },
   addFur(coach){
    const source=coach.skin.geometry,p=source.attributes.position,n=source.attributes.normal,a=source.attributes.coachArmBlend;
-   const positions=[],normals=[],attachments=[],flex=[];let seed=17831;
+   const positions=[],normals=[],attachments=[],flex=[],shoulderRoots=[];let seed=17831;
    const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
    // Mobile GPUs pay per transparent/overlapping fur triangle. Keep the
    // silhouette and body shader, while limiting short-coat microgeometry.
@@ -91,12 +92,13 @@
     const across=normal.clone().cross(Math.abs(normal.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
     const tip=root.clone().addScaledVector(normal,length).add(V(0,-length*.30,0));
     const points=[root.clone().add(across),root.clone().sub(across),tip];
-    for(let k=0;k<3;k++){positions.push(...points[k].toArray());normals.push(...normal.toArray());attachments.push(a.getX(i));flex.push(k===2?1:0);}
+    for(let k=0;k<3;k++){positions.push(...points[k].toArray());normals.push(...normal.toArray());attachments.push(a.getX(i));flex.push(k===2?1:0);if(coach.shoulderData)shoulderRoots.push(i);}
    }
    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
    g.setAttribute('coachArmBlend',new THREE.Float32BufferAttribute(attachments,1));g.setAttribute('avatarFurFlex',new THREE.Float32BufferAttribute(flex,1));g.setAttribute('uv',new THREE.Float32BufferAttribute(positions.flatMap((v,i)=>i%3===2?[]:[v*3]),2));
    // Vertex colors already contain each species' coat; a warm multiplier
    // stains grey rabbit fur brown wherever fibers catch rim/bounce light.
+   if(coach.shoulderData)g.userData.shoulderRoots=new Uint32Array(shoulderRoots);
    const material=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:1,side:THREE.DoubleSide,skinning:true});
    coach.bodyFur=coach.skinned(g,material,true);coach.bodyFur.name='Bone-attached short animal coat';coach.bodyFur.castShadow=false;
   },
@@ -107,7 +109,7 @@
 
    const flex=g.attributes.avatarFurFlex?.getX(index)||0;
    if(flex){const ids=g.attributes.skinIndex,weights=g.attributes.skinWeight;for(let k=0;k<4;k++)p.addScaledVector(coach.surfaceUniforms.fur.value[ids.array[index*4+k]],weights.array[index*4+k]*flex*flex);}
-   return p;
+   return window.ShoulderCorrective?.correct(p,coach,index,g)||p;
   }
  };
  window.AvatarSurface=api;

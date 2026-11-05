@@ -1,0 +1,925 @@
+{
+  "beforeAppSHA": "280775eef9cb80903eaf258cb43f7900cd0d61a4",
+  "afterBranch": "feature/lion-authored-appearance-v2",
+  "claim": "Shoulder fix only; no completed face/mane overhaul or 75/100 claim.",
+  "sets": {
+    "before": {
+      "sourceFiles": {
+        "avatar-detail.js": "dfb0d3f7d44853e32319b82b34579b5eff35d5c4929a6b8d40e3a871419b643d",
+        "boxing-coach-v2.js": "f7a13406d0861b3255071bb469e750eb180802e560fcb50339841feb8c310c2e",
+        "index.html": "6ab27a6d4ef06a1412b77c64387643699bf42e967175077330a4ba80c99bd581"
+      },
+      "environment": {
+        "threeRevision": "128",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+        "devicePixelRatio": 1,
+        "viewport": {
+          "width": 720,
+          "height": 900
+        },
+        "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "vendor": "Google Inc. (Google)",
+        "maxVertexAttributes": 16,
+        "maxVertexUniformVectors": 4096,
+        "gpuTimerExtension": false,
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "outputEncoding": 3001,
+        "physicallyCorrectLights": true
+      },
+      "images": [
+        {
+          "id": "guard-rear",
+          "move": "guard",
+          "yaw": 3.141592653589793,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 9,
+            "calls": 239,
+            "triangles": 1043620,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.008257629199242e-16,
+          "file": "before/textured-guard-rear.png",
+          "sha256": "cc777d1ee33fc2131e71c5de96d1ef6e6c3ae2a89c4380eab3308f8bfde260ea"
+        },
+        {
+          "id": "guard-rear-quarter",
+          "move": "guard",
+          "yaw": 2.35,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 10,
+            "calls": 239,
+            "triangles": 1043620,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 7.259024953699689e-16,
+          "file": "before/textured-guard-rear-quarter.png",
+          "sha256": "7bd7769241ea7cc6bb328aad6d29f48daa2157c073e946978276f64b268204e3"
+        },
+        {
+          "id": "guard-other-rear-quarter",
+          "move": "guard",
+          "yaw": -2.35,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 11,
+            "calls": 239,
+            "triangles": 1043620,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.881301029635769e-16,
+          "file": "before/textured-guard-other-rear-quarter.png",
+          "sha256": "47046cd9ebd31012e66751e1040c79a9a3cb770b455ec5be53875d8fe45813b3"
+        },
+        {
+          "id": "hook-rear-quarter",
+          "move": "hook",
+          "phase": 0.47,
+          "yaw": 2.35,
+          "crop": "axilla",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 12,
+            "calls": 240,
+            "triangles": 1044580,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 4.660953740672398e-16,
+          "file": "before/textured-hook-rear-quarter.png",
+          "sha256": "6e1f6e72aa98607bb8d7a8d250322c68e7df4fedd42ce912aa9ea3a2d1fd1f99"
+        },
+        {
+          "id": "uppercut-rear-quarter",
+          "move": "uppercut",
+          "phase": 0.47,
+          "yaw": 2.35,
+          "crop": "axilla",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 13,
+            "calls": 240,
+            "triangles": 1044580,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 4.585973723508303e-16,
+          "file": "before/textured-uppercut-rear-quarter.png",
+          "sha256": "ccbd7e76b2da27eaad4bec94ed4cb0c24914596e3fc53b41c6cd3f74cda2b06c"
+        },
+        {
+          "id": "guard-rear",
+          "move": "guard",
+          "yaw": 3.141592653589793,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 14,
+            "calls": 233,
+            "triangles": 964098,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.008257629199242e-16,
+          "file": "before/clay-guard-rear.png",
+          "sha256": "80ffdf4641381352867f3f9178e01122b89506d843e0a2016b4d38b679de926a"
+        },
+        {
+          "id": "guard-rear-quarter",
+          "move": "guard",
+          "yaw": 2.35,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 15,
+            "calls": 233,
+            "triangles": 964098,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 7.259024953699689e-16,
+          "file": "before/clay-guard-rear-quarter.png",
+          "sha256": "5a6cb76403aa678a108e607e13e07358a640b720ea17b108e5f01582a2d5f8c0"
+        },
+        {
+          "id": "guard-other-rear-quarter",
+          "move": "guard",
+          "yaw": -2.35,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 16,
+            "calls": 233,
+            "triangles": 964098,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.881301029635769e-16,
+          "file": "before/clay-guard-other-rear-quarter.png",
+          "sha256": "0f04da187e22143a704566927455692b22ea53ff4a9ec89b0a0bed9689fbb733"
+        },
+        {
+          "id": "hook-rear-quarter",
+          "move": "hook",
+          "phase": 0.47,
+          "yaw": 2.35,
+          "crop": "axilla",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 17,
+            "calls": 234,
+            "triangles": 965058,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 4.660953740672398e-16,
+          "file": "before/clay-hook-rear-quarter.png",
+          "sha256": "c589652b9ae75dfe094762c68f69fc9bccae7d30a378a578e74c79a1ad531696"
+        },
+        {
+          "id": "uppercut-rear-quarter",
+          "move": "uppercut",
+          "phase": 0.47,
+          "yaw": 2.35,
+          "crop": "axilla",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 18,
+            "calls": 234,
+            "triangles": 965058,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 4.585973723508303e-16,
+          "file": "before/clay-uppercut-rear-quarter.png",
+          "sha256": "f1d383aaca0b316b978555025c78676858816e7fafc3f9aa0446c297cfa5fd2c"
+        }
+      ]
+    },
+    "after": {
+      "sourceFiles": {
+        "avatar-detail.js": "289724b946cab5f1d0ed25e620c44ff7866d74b654a11e7747a64489cac63e3c",
+        "avatar-shoulder.js": "7889adbf893c893720405ce67fe7ac991a5ebe39461287d1c2c9a6e8d50c5f4b",
+        "boxing-coach-v2.js": "19719845d47e7c3ad8d7cf1d3243fe60852b24095cfcaa510e7d64137b3a979c",
+        "index.html": "c7572a73089098c4572bbd11aea440be5cd0c7e209550ed14858129937bcb1ab",
+        "assets/models/shoulder-correctives-v1.json": "6268e1bab77a7dfd012ce01f181a66a35e84ef27c9e8a8159e455dc94ec9bedb"
+      },
+      "environment": {
+        "threeRevision": "128",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+        "devicePixelRatio": 1,
+        "viewport": {
+          "width": 720,
+          "height": 900
+        },
+        "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "vendor": "Google Inc. (Google)",
+        "maxVertexAttributes": 16,
+        "maxVertexUniformVectors": 4096,
+        "gpuTimerExtension": false,
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "outputEncoding": 3001,
+        "physicallyCorrectLights": true
+      },
+      "images": [
+        {
+          "id": "guard-rear",
+          "move": "guard",
+          "yaw": 3.141592653589793,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 12,
+            "calls": 239,
+            "triangles": 1043620,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.008257629199242e-16,
+          "file": "after/textured-guard-rear.png",
+          "sha256": "759a1ecb7a067e6f0a953473c79619618ae34681799a67f8d07ab82840dd499e"
+        },
+        {
+          "id": "guard-rear-quarter",
+          "move": "guard",
+          "yaw": 2.35,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 13,
+            "calls": 239,
+            "triangles": 1043620,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 7.259024953699689e-16,
+          "file": "after/textured-guard-rear-quarter.png",
+          "sha256": "c1b2497f768c0eaa19b5807518c4b86d7864468faded44f253a0db49a96aea61"
+        },
+        {
+          "id": "guard-other-rear-quarter",
+          "move": "guard",
+          "yaw": -2.35,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 14,
+            "calls": 239,
+            "triangles": 1043620,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.881301029635769e-16,
+          "file": "after/textured-guard-other-rear-quarter.png",
+          "sha256": "dc5d0dce5022892047fe9af8f509e045d43b9e7ebb50e6b15aee9738a5a6f5d7"
+        },
+        {
+          "id": "hook-rear-quarter",
+          "move": "hook",
+          "phase": 0.47,
+          "yaw": 2.35,
+          "crop": "axilla",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 15,
+            "calls": 240,
+            "triangles": 1044580,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 4.660953740672398e-16,
+          "file": "after/textured-hook-rear-quarter.png",
+          "sha256": "1014f81a5f016f2b1c55e36a53ec696a52e6098590ce909699cdb87e331ce924"
+        },
+        {
+          "id": "uppercut-rear-quarter",
+          "move": "uppercut",
+          "phase": 0.47,
+          "yaw": 2.35,
+          "crop": "axilla",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 16,
+            "calls": 240,
+            "triangles": 1044580,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 4.585973723508303e-16,
+          "file": "after/textured-uppercut-rear-quarter.png",
+          "sha256": "8c3d4a45e69b50db3fba554868ae4296e0e7099411103073a306d70a1162706d"
+        },
+        {
+          "id": "guard-rear",
+          "move": "guard",
+          "yaw": 3.141592653589793,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 17,
+            "calls": 233,
+            "triangles": 964098,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.008257629199242e-16,
+          "file": "after/clay-guard-rear.png",
+          "sha256": "3e4280cef7f7ca4b109f9f11ce2d645074addd9a8ac178422eb8ff555eb69737"
+        },
+        {
+          "id": "guard-rear-quarter",
+          "move": "guard",
+          "yaw": 2.35,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 18,
+            "calls": 233,
+            "triangles": 964098,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 7.259024953699689e-16,
+          "file": "after/clay-guard-rear-quarter.png",
+          "sha256": "8243d2f2958bf2b091c7d579b43118c341655966b59691d92016a5009f3aac2e"
+        },
+        {
+          "id": "guard-other-rear-quarter",
+          "move": "guard",
+          "yaw": -2.35,
+          "crop": "axilla",
+          "phase": 0,
+          "time": 0,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 19,
+            "calls": 233,
+            "triangles": 964098,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 5.881301029635769e-16,
+          "file": "after/clay-guard-other-rear-quarter.png",
+          "sha256": "46032ca572d2d565f623a4373281a9ced734d6a637017e0c7dbab3fb4aed47d7"
+        },
+        {
+          "id": "hook-rear-quarter",
+          "move": "hook",
+          "phase": 0.47,
+          "yaw": 2.35,
+          "crop": "axilla",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 20,
+            "calls": 234,
+            "triangles": 965058,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 4.660953740672398e-16,
+          "file": "after/clay-hook-rear-quarter.png",
+          "sha256": "3ea131c107a57b32a143e7631c4512caaa33ce1fe3d93fdad45d9f16057bf2bd"
+        },
+        {
+          "id": "uppercut-rear-quarter",
+          "move": "uppercut",
+          "phase": 0.47,
+          "yaw": 2.35,
+          "crop": "axilla",
+          "time": 0.5733999999999999,
+          "hit": null,
+          "presentation": null,
+          "camera": {
+            "position": [
+              0,
+              1.57,
+              2.45
+            ],
+            "target": [
+              0,
+              1.48,
+              0.02
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "fov": 32,
+            "aspect": 0.8
+          },
+          "canvas": [
+            720,
+            900
+          ],
+          "counts": {
+            "frame": 21,
+            "calls": 234,
+            "triangles": 965058,
+            "points": 0,
+            "lines": 0
+          },
+          "maneOffsetMax": 4.585973723508303e-16,
+          "file": "after/clay-uppercut-rear-quarter.png",
+          "sha256": "7e6484759592b2ffe4789911e9105f5a3ca6e380a382cb221e5ae0557dc3086d"
+        }
+      ]
+    }
+  }
+}
