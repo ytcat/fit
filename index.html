@@ -15,19 +15,19 @@
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-routines.js?v=2026110406"></script>
+  <script src="./boxing-routines.js?v=2026110504"></script>
   <script src="./avatar-anatomy.js?v=2026110406"></script>
-  <script src="./avatar-detail.js?v=2026110502"></script>
-  <script src="./avatar-shoulder.js?v=2026110502"></script>
-  <script src="./boxing-coach-v2.js?v=2026110502"></script>
+  <script src="./avatar-detail.js?v=2026110504"></script>
+  <script src="./avatar-shoulder.js?v=2026110504"></script>
+  <script src="./boxing-coach-v2.js?v=2026110504"></script>
   <script src="./contact-response.js?v=2026110406"></script>
   <script src="./gym-details.js?v=2026110406"></script>
-  <script src="./training-arena.js?v=2026110406"></script>
-  <script src="./boxing-fight.js?v=2026110406"></script>
+  <script src="./training-arena.js?v=2026110504"></script>
+  <script src="./boxing-fight.js?v=2026110504"></script>
   <script src="./fight-referee.js?v=2026110406"></script>
-  <script src="./fight-arena.js?v=2026110406"></script>
+  <script src="./fight-arena.js?v=2026110504"></script>
   <script src="./fight-ui.js?v=2026110406" defer></script>
-  <script src="./training-controls.js?v=2026110406" defer></script>
+  <script src="./training-controls.js?v=2026110504" defer></script>
 
   <style>
     html, body {
@@ -174,7 +174,7 @@
       en: {
         dir: 'ltr',
         title: "SHADOWBOX 3D",
-        subtitle: "LION BOXING COACH · R78",
+        subtitle: "LION BOXING COACH · R79",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -726,10 +726,10 @@
     class AudioEngine {
       constructor() {
         this.ctx=null;this.muted=false;this.samples=new Map();this.voices=new Set();this.soundSerial=0;this.lastPain=new Map();
-        const names=['body-1','body-2','pad','swing','effort-1','effort-2','clap-1','clap-2','clap-3','bell'];
-        const files={pad:'leather-hit',swing:'air-swing','effort-1':'breath-1','effort-2':'breath-2'};
+        const names=['body-1','body-2','pad','swing','effort-1','effort-2','clap-1','clap-2','clap-3','bell','applause'];
+        const files={'body-1':'punch-body-1-v3','body-2':'punch-body-2-v3',pad:'punch-head-v3',swing:'air-swing','effort-1':'breath-1','effort-2':'breath-2',bell:'ring-bell-v3',applause:'applause-room-v3'};
         this.rawSounds=window.fetch?Promise.all(names.map(async name=>{
-          const r=await window.fetch('./assets/audio/'+(files[name]||name)+'.wav?v=78');if(!r.ok)throw new Error('Sound unavailable');
+          const r=await window.fetch('./assets/audio/'+(files[name]||name)+'.wav?v=79');if(!r.ok)throw new Error('Sound unavailable');
           return [name,await r.arrayBuffer()];
         }).map(p=>p.catch(()=>null))).then(files=>files.filter(Boolean)):null;
       }
@@ -763,7 +763,7 @@
         if(!this.output){
           this.output=ctx.createGain();this.output.gain.value=.82;
           if(ctx.createDynamicsCompressor){
-            const limiter=ctx.createDynamicsCompressor();limiter.threshold.value=-12;limiter.knee.value=8;limiter.ratio.value=8;limiter.attack.value=.003;limiter.release.value=.15;
+            const limiter=ctx.createDynamicsCompressor();limiter.threshold.value=-6;limiter.knee.value=4;limiter.ratio.value=4;limiter.attack.value=.003;limiter.release.value=.15;
             this.output.connect(limiter);limiter.connect(ctx.destination);
           }else this.output.connect(ctx.destination);
         }
@@ -783,6 +783,7 @@
         this.playSample('swing',event.move?.includes('hook')?.12:.08,event.move?.includes('uppercut')?.96:1.02,0,5500);
       }
       sampledApplause() {
+        if(this.samples.has('applause')){this.crowdGain=this.playSample('applause',.50,1);return true;}
         if(!this.samples.has('clap-1'))return false;
         const ctx=this.ctx,rate=ctx.sampleRate,duration=3.8,buffer=ctx.createBuffer(2,Math.ceil(rate*duration),rate);
         for(let person=0;person<18;person++){
@@ -806,10 +807,11 @@
         const ctx=this.ctx,t=ctx.currentTime,heavy=impact.receiver==='heavy',speed=impact.receiver==='speed';
         if(this.samples.has('pad')){
           const strength=Math.min(1,Math.max(.1,(impact.closingSpeed||1)/7)),variation=(this.soundSerial++%5-2)*.008;
-          if(impact.kind==='platform'){this.playSample('pad',.10+strength*.12,1.7+variation,0,5000);return;}
-          if(speed){this.playSample('pad',.13+strength*.16,1.35+variation,0,4200);return;}
+          if(impact.kind==='platform'){this.playSample('pad',.10+strength*.12,1.03+variation,0,5000);return;}
+          if(speed){this.playSample('pad',.13+strength*.16,1.02+variation,0,4200);return;}
           const body=heavy||impact.receiver==='dummy'||impact.kind==='body';
-          this.playSample(body?'body-'+(1+this.soundSerial%2):'pad',.26+strength*.42,(heavy?.78:body?.92:1.02)+variation,0,heavy?1800:body?3000:6000);
+          const selected=body?'body-'+(1+this.soundSerial%2):'pad',sample=this.samples.has(selected)?selected:this.samples.has('body-1')?'body-1':'pad';
+          this.playSample(sample,.26+strength*.42,(heavy?.97:body?.99:1.01)+variation,0,heavy?1800:body?3000:6000);
           if(!body&&!impact.blocked&&['head','body'].includes(impact.kind))this.playSample('body-1',strength*.17,.96+variation,0,1600);
           return;
         }
@@ -833,7 +835,7 @@
           if(impact.blocked||!['lion','rabbit'].includes(impact.receiver)||(impact.closingSpeed!=null&&impact.closingSpeed<.75))return;
           const last=this.lastPain.get(impact.receiver)??-1;if(t-last<.24)return;this.lastPain.set(impact.receiver,t);
           const strength=Math.min(1,impact.severity??(impact.closingSpeed||3)/6);
-          this.playSample('effort-'+(1+this.soundSerial++%2),.16+strength*.16,1+(this.soundSerial%3-1)*.015,0,5000);return;
+          this.playSample('effort-'+(1+this.soundSerial++%2),.065+strength*.07,1,0,5000);return;
         }
         // Air-only fallback while local Foley loads. Never substitute a
         // game-character voice or a swept sawtooth vocal oscillator.
@@ -875,7 +877,7 @@
       bell(kind='start') {
         if(this.muted)return;this.init();if(!this.ctx)return;
         if(this.samples.has('bell')){
-          for(let i=0;i<(kind==='end'||kind==='final'?3:1);i++)this.playSample('bell',.42,.96,i*.20);
+          for(let i=0;i<(kind==='end'||kind==='final'?3:1);i++)this.playSample('bell',kind==='start'?.40:.31,1,i*.28);
           return;
         }
         if(this.loading){this.loading.then(()=>{this.loading=null;this.bell(kind);});return;}
@@ -1037,7 +1039,7 @@
       }
 
       renderTechnique() {
-        if(this.engine.technique==='random'||this.engine.technique==='freestyle'||this.engine.technique==='fight')return;
+        if(['random','freestyle','fight','speedbag'].includes(this.engine.technique))return;
         const info=COACH_TECHNIQUES[this.engine.technique];
         if(!info) { this.renderDrill();return; }
         const offset={en:1,he:3,ru:5}[this.lang];

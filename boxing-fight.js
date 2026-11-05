@@ -9,6 +9,7 @@
   constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds}={}){
    this.seed=seed>>>0;this.state=this.seed;this.preset=preset;Object.assign(this,presets[preset]||presets.club);
    if(rounds!=null)this.rounds=rounds;if(roundSeconds!=null)this.roundSeconds=roundSeconds;if(restSeconds!=null)this.restSeconds=restSeconds;
+   this.knockdownSeconds=5.6;
    this.time=0;this.phase='intro';this.phaseTime=0;this.round=1;this.roundTime=0;this.eventId=0;this.actionId=0;this.events=[];this.history=[];this.roundStats={lion:empty(),rabbit:empty()};this.totals={lion:empty(),rabbit:empty()};this.seen=new Set();this.result=null;
    this.cards=[{name:'Judge 1',weights:[1,.08,.18,.003],rounds:[]},{name:'Judge 2',weights:[1.04,.16,.09,.002],rounds:[]},{name:'Judge 3',weights:[.98,.05,.25,.005],rounds:[]}];
    this.fighters={};for(const actor of actors)this.fighters[actor]={actor,condition:100,stamina:1,stun:0,down:0,action:null,next:0,skill:.78+this.random()*.18,power:.85+this.random()*.3,tempo:.85+this.random()*.3,reaction:null,damage:{left:0,right:0,body:0}};
@@ -18,7 +19,7 @@
   emit(type,data={}){const event={id:++this.eventId,type,time:this.time,round:this.round,...data};this.events.push(event);if(this.events.length>300)this.events.shift();return event;}
   attack(actor,move,target){
    if(this.phase!=='round'||this.result)return null;
-   const f=this.fighters[actor],duration=(move.includes('uppercut')?1.12:.96)*(1+(1-f.stamina)*.3)/f.tempo;
+   const f=this.fighters[actor],duration=(move.includes('uppercut')?.98:.85)*(1+(1-f.stamina)*.3)/f.tempo;
    f.action={id:++this.actionId,actor,move,target,start:this.time,duration,attack:true,recorded:false,aim:null};f.stamina=clamp(f.stamina-.045-(move==='jab'?0:.025));
    this.roundStats[actor].thrown++;this.totals[actor].thrown++;this.emit('punch',{actor,move,target,action:f.action.id});
    return f.action;
@@ -48,7 +49,7 @@
    if(this.phase==='ceremony')return;
    if(this.phase==='count'){
     this.roundTime+=dt;
-    if(this.phaseTime>=8){const f=this.fighters[this.downActor];f.down=0;f.stun=0;f.action=null;f.next=this.time+.6;
+    if(this.phaseTime>=this.knockdownSeconds){const f=this.fighters[this.downActor];f.down=0;f.stun=0;f.action=null;f.next=this.time+.25;this.fighters[other(this.downActor)].next=this.time+.45;
      if(f.condition<8)this.finish(other(this.downActor),'TKO');else {this.phase='round';this.phaseTime=0;if(this.roundTime>=this.roundSeconds)this.endRound();}}
     return;
    }
@@ -106,7 +107,7 @@
    this.result={winner,stoppage:method,method:winner?method:'draw',decision:method!=='points'?method:!winner?'draw':votes.every(v=>v===winner)?'unanimous':votes.includes(null)?'majority':'split',cards,votes,totals:JSON.parse(JSON.stringify(this.totals))};
    this.phase=this.preset==='quick'?'ceremony':'scoring';this.phaseTime=0;for(const a of actors)this.fighters[a].action=null;this.emit('final-bell',{result:this.result});if(this.preset==='quick')this.emit('announcement',{result:this.result});
   }
-  snapshot(){return {phase:this.phase,round:this.round,rounds:this.rounds,remaining:Math.max(0,this.roundSeconds-this.roundTime),restRemaining:Math.max(0,this.restSeconds-this.phaseTime),count:this.phase==='count'?Math.min(8,Math.floor(this.phaseTime)+1):0,cardsShown:this.phase==='scoring'?(this.phaseTime<1?0:Math.min(3,Math.floor((this.phaseTime-1)/2.5)+1)):this.phase==='ceremony'?3:0,health:{lion:this.fighters.lion.condition,rabbit:this.fighters.rabbit.condition},result:this.result,totals:this.totals};}
+  snapshot(){return {phase:this.phase,round:this.round,rounds:this.rounds,remaining:Math.max(0,this.roundSeconds-this.roundTime),restRemaining:Math.max(0,this.restSeconds-this.phaseTime),count:this.phase==='count'?Math.min(8,Math.floor(this.phaseTime/(this.knockdownSeconds/8))+1):0,cardsShown:this.phase==='scoring'?(this.phaseTime<1?0:Math.min(3,Math.floor((this.phaseTime-1)/2.5)+1)):this.phase==='ceremony'?3:0,health:{lion:this.fighters.lion.condition,rabbit:this.fighters.rabbit.condition},result:this.result,totals:this.totals};}
  }
  BoxingFight.presets=presets;window.BoxingFight=BoxingFight;
 })();

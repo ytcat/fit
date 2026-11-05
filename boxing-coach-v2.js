@@ -801,7 +801,41 @@
       this.orient(hand,new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z)));
       const centre=V(0,-.140,0),face=V(0,-.204,0);
       const knuckles=this.root.worldToLocal(hand.localToWorld(centre)),strikePoint=this.root.worldToLocal(hand.localToWorld(face));
-      return {distal:distal.toArray(),palm:z.toArray(),turn,knuckles:knuckles.toArray(),strikePoint:strikePoint.toArray(),radius:.064};
+      return {distal:distal.toArray(),palm:z.toArray(),palmTarget:palmTarget.toArray(),turn,knuckles:knuckles.toArray(),strikePoint:strikePoint.toArray(),radius:.064};
+    }
+
+    // A conservative padded-glove envelope against the skull and muzzle.
+    // Move the speed-bag recovery in front of the head, never through it.
+    clearOwnFace(side,glove,palmTarget,pole) {
+      const j=this.joints,hand=j['hand'+side],head=j.head;
+      const sign=side==='L'?-1:1;
+      const samples=[[0,.015,0,.077],[0,-.07,0,.089],[0,-.145,0,.099],[0,-.195,0,.068],[sign*.075,-.10,.05,.067]];
+      const shapes=[[0,.13,.03,.17,.20,.17],[0,.065,.195,.135,.105,.125]];
+      let error=0;
+      for(let iteration=0;iteration<8;iteration++){
+        const toHead=new THREE.Matrix4().multiplyMatrices(head.matrixWorld.clone().invert(),hand.matrixWorld);
+        let forward=0;
+        for(const [x,y,z,r] of samples){
+          const p=V(x,y,z).applyMatrix4(toHead);
+          for(const [cx,cy,cz,rx,ry,rz] of shapes){
+            // A tight outer ellipsoid contains skull + padding (support-function
+            // Cauchy bound); using the smallest radius over-inflated the muzzle.
+            const pad=r+.006,beta=pad/Math.cbrt(rx*ry*rz);
+            const extent=a=>Math.sqrt((1+beta)*a*a+(1+1/beta)*pad*pad);
+            const radial=((p.x-cx)/extent(rx))**2+((p.y-cy)/extent(ry))**2;
+            if(radial<1)forward=Math.max(forward,cz+extent(rz)*Math.sqrt(1-radial)-p.z);
+          }
+        }
+        if(forward<.0002)break;
+        const direction=V(0,0,1).applyQuaternion(head.getWorldQuaternion(new THREE.Quaternion()))
+          .applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
+        const shoulder=this.point(j['arm'+side]),target=this.point(hand).addScaledVector(direction,Math.min(.15,forward+.001));
+        const upper=j['elbow'+side].position.length(),lower=hand.position.length();
+        target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(Math.abs(upper-lower)+.005,upper+lower-.002)));
+        error=this.solve(j['arm'+side],j['elbow'+side],hand,target,pole);
+        glove=this.orientGlove(side,glove.turn,palmTarget);
+      }
+      return {glove,error};
     }
 
     // Resolve padding against a moving receiving surface after BOTH characters
@@ -818,7 +852,7 @@
         const wrist=this.point(j['hand'+side]);
         const target=this.root.worldToLocal(this.root.localToWorld(wrist.clone()).add(correction));
         this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],target,pole);
-        glove=this.orientGlove(side,glove.turn,V(0,-1,0));
+        glove=this.orientGlove(side,glove.turn,V(...(glove.palmTarget||[0,-1,0])));
       }
       this.metrics.gloves[index]=glove;
       this.metrics.hands[index]=this.point(j['hand'+side]).toArray();
@@ -842,7 +876,7 @@
         const localNormal=hit.normal.clone().applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
         pole.addScaledVector(localNormal,.08).normalize();
         this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],target,pole);
-        glove=this.orientGlove(side,glove.turn,V(0,-1,0));changed=true;
+        glove=this.orientGlove(side,glove.turn,V(...(glove.palmTarget||[0,-1,0])));changed=true;
       }
       this.metrics.gloves[index]=glove;this.metrics.hands[index]=this.point(j['hand'+side]).toArray();
       if(changed)this.syncSkin();
@@ -990,7 +1024,7 @@
           const s=move==='uppercut'?-1:1;
           const active=prepare*(1-recover),up=rise*(1-recover);
           const loaded=prepare*(1-rise)*(1-recover);
-          hipYaw=s*(soloUpper?.30:.14)*loaded-s*(soloUpper?.46:.22)*up;chestYaw=s*(soloUpper?.40:.20)*loaded-s*(soloUpper?.52:.25)*up;
+          hipYaw=s*(soloUpper?.13:.14)*loaded-s*(soloUpper?.22:.22)*up;chestYaw=s*(soloUpper?.18:.20)*loaded-s*(soloUpper?.24:.25)*up;
           crouch=.19*loaded+.035*up;forward=-.095*loaded+.11*up;
           shift=s*.035*loaded-s*.025*up;
           pelvisRoll=-s*.035*loaded+s*.020*up;
@@ -1002,8 +1036,8 @@
           // extending legs, then recover to cheek without a second scoop.
           // Wrist trajectory is resolved once, below, after the live shoulder
           // and moving cheek positions are available.
-          if(s===-1){leadTurn=up;leadPole.lerp(V(soloUpper?-.30:-.8,soloUpper?0:-1,soloUpper?1:.10),active);leadPivot=.36*up;}
-          else {rearTurn=up;rearPole.lerp(V(soloUpper?.30:.8,soloUpper?0:-1,soloUpper?1:.10),active);rearPivot=-.36*up;}
+          if(s===-1){leadTurn=up;leadPole.lerp(V(soloUpper?-.65:-.8,soloUpper?-.30:-1,soloUpper?.65:.10),active);leadPivot=.36*up;}
+          else {rearTurn=up;rearPole.lerp(V(soloUpper?.65:.8,soloUpper?-.30:-1,soloUpper?.65:.10),active);rearPivot=-.36*up;}
           break;
         }
         case 'speedbag': {
@@ -1109,8 +1143,8 @@
       // Scapular elevation/protraction of the striking shoulder protects the chin.
       const leftStrike=move==='hook'?hookState.rotation:move==='jab'?twist:move==='uppercut'?strike:0;
       const rightStrike=move==='rear_hook'?hookState.rotation:move==='cross'?twist:move==='rear_uppercut'?strike:0;
-      const reachShoulder=straight?.095:hookState?.085:(move==='uppercut'||move==='rear_uppercut')?.12:.045;
-      const shoulderCover=.055+(options.shoulderCover||0);
+      const reachShoulder=straight?.095:hookState?.085:move.includes('uppercut')?.055:.045;
+      const shoulderCover=(move.includes('uppercut')?.005:.055)+(options.shoulderCover||0);
       j.armL.position.set(-.30+.012*leftStrike,.26+shoulderCover*leftStrike,reachShoulder*leftStrike-.012*rightStrike);
       j.armR.position.set(.30-.012*rightStrike,.26+shoulderCover*rightStrike,reachShoulder*rightStrike-.012*leftStrike);
       if((hit.part==='shoulder'||hit.part==='arm'))j[hit.side<0?'armL':'armR'].position.y-=.055*hurt;
@@ -1120,8 +1154,7 @@
         const launch=rise*(1-recover);
         striking.position.y-=.065*coil;
         striking.position.z-=.065*coil;
-        striking.position.y+=.065*launch;
-        striking.position.z+=.055*launch;
+        striking.position.z+=.015*launch;
       }
       this.tail.rotation.y= -.16*hipYaw+Math.sin(t*2.2)*.025;
       const footTargets=[],footPlans=[];
@@ -1182,9 +1215,18 @@
         const shoulder=this.point(j['arm'+side]);
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length();
         const noseHeight=this.point(j.head).y+.103;
-        const target=options.uppercutBagTarget?V(...options.uppercutBagTarget):V(side==='L'?-.035:.035,noseHeight-(side==='L'?.16:.135),shoulder.z+Math.min(.40,reach*(side==='L'?.55:.58)));
+        const target=options.uppercutBagTarget?V(...options.uppercutBagTarget):V(side==='L'?-.035:.035,noseHeight-(side==='L'?.148:.143),shoulder.z+Math.min(.40,reach*(side==='L'?.55:.58)));
+        if(soloUpper){
+          // Solve the endpoint for a nearly upright forearm. A long forward
+          // endpoint plus a tucked elbow made the finish look bent sideways
+          // from oblique cameras even though the wrist bone was straight.
+          const axis=V(side==='L'?.055:-.055,.988,.14).normalize();
+          const lower=j['hand'+side].position.length(),upper=j['elbow'+side].position.length();
+          const dx=target.x-axis.x*lower-shoulder.x,dy=target.y-axis.y*lower-shoulder.y;
+          target.z=shoulder.z+axis.z*lower+Math.sqrt(Math.max(.0036,upper*upper-dx*dx-dy*dy));
+        }
         const guard=(side==='L'?leadGuard:rearGuard).clone().add(headShift);
-        const load=V(side==='L'?-.23:.23,options.upperLoadHeight??1.18,options.uppercutBagTarget?.08:.40).add(guardShift);
+        const load=V(side==='L'?-.23:.23,options.upperLoadHeight??1.18,options.uppercutBagTarget?.08:.36).add(guardShift);
         const release=options.uppercutBagTarget?smooth((phase-.49)/.25):recover;
         // One continuous load/rise/recovery path. A second endpoint blend
         // pulled the wrist in opposite directions during guard recovery.
@@ -1253,14 +1295,15 @@
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;
         hand.copy(shoulder.clone().add(hand.clone().sub(shoulder).clampLength(Math.abs(j['elbow'+side].position.length()-j['hand'+side].position.length())+.005,reach)));
       }
-      if(soloUpper){
+      if(move.includes('uppercut')){
         const side=move==='uppercut'?'L':'R',hand=side==='L'?lead:rear;
         const shoulder=this.point(j['arm'+side]);
         // Aim the bend plane below the fist and slightly ahead of it. A
         // fixed world pole flipped the forearm as the wrist crossed its axis.
-        const pole=hand.clone().add(V(side==='L'?-.08:.08,-.25,lerp(.15,.04,rise))).sub(shoulder);
+        const axis=V(side==='L'?.055:-.055,.988,.14).normalize();
+        const pole=hand.clone().addScaledVector(axis,-j['hand'+side].position.length()).sub(shoulder);
         pole.normalize();
-        if(side==='L')leadPole.normalize().lerp(pole,prepare*(1-recover)).normalize();else rearPole.normalize().lerp(pole,prepare*(1-recover)).normalize();
+        if(side==='L')leadPole.normalize().lerp(pole,rise*(1-recover)).normalize();else rearPole.normalize().lerp(pole,rise*(1-recover)).normalize();
       }
       if(move.includes('uppercut')&&Number.isFinite(options.simulationTime)){
         const side=move==='uppercut'?'L':'R',hand=side==='L'?lead:rear,pole=side==='L'?leadPole:rearPole;
@@ -1318,6 +1361,10 @@
           const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,pole);if(index)re=error;else le=error;
           gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
         }
+      }
+      if(move==='speedbag'||options.keepFaceClear)for(const [index,side,pole] of [[0,'L',leadPole],[1,'R',rearPole]]){
+        const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole);gloves[index]=safe.glove;
+        if(index)re=safe.error;else le=safe.error;
       }
       // Arena-space spring guides retain inertia under head/root acceleration; orbit adds no force.
       // Seek/teleport resets avoid integrating stale state or a whole hidden tab.

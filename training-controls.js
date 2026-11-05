@@ -27,16 +27,26 @@
   const speed=document.getElementById('speedBtn');speed.className='workout-tool training-speed';
   bar.append(target,combo,speed,fight,timing);footer.prepend(bar);
   const words=()=>{const n={en:1,he:3,ru:5}[app.lang];return m=>COACH_TECHNIQUES[m]?.[n]||m;};
+  const rail=document.getElementById('techniqueBar'),normalButtons=[...rail.children];let speedRail=false;
+  function chooseSpeedDrill(id){e.speedDrill=id;e.technique='speedbag';e.animTime=0;e.arena?.setTarget('speed');e.isPlaying=true;paint();}
+  function paintRail(mode){
+   if(mode==='speed'&&!speedRail){
+    rail.replaceChildren(...BOXING_ROUTINES.speedDrills.map(drill=>{const b=make('button','technique-btn px-3 py-2 rounded-lg text-xs font-bold shrink-0');b.type='button';b.dataset.speedDrill=drill.id;b.onclick=()=>chooseSpeedDrill(drill.id);return b;}));speedRail=true;
+   }else if(mode!=='speed'&&speedRail){rail.replaceChildren(...normalButtons);speedRail=false;}
+   if(speedRail)for(const b of rail.children){const drill=BOXING_ROUTINES.speedDrills.find(d=>d.id===b.dataset.speedDrill),selected=drill.id===(e.speedDrill||'alternating');b.textContent=drill.names[{en:0,he:1,ru:2}[app.lang]];b.setAttribute('aria-pressed',String(selected));b.classList.toggle('bg-amber-500',selected);b.classList.toggle('text-slate-950',selected);b.classList.toggle('bg-slate-800',!selected);b.classList.toggle('text-white',!selected);}
+   else for(const b of normalButtons){const selected=b.dataset.technique===e.technique||b.dataset.technique==='combo'&&['random','freestyle'].includes(e.technique);b.classList.toggle('bg-amber-500',selected);b.classList.toggle('text-slate-950',selected);b.classList.toggle('bg-slate-800',!selected);b.classList.toggle('text-white',!selected);b.disabled=mode==='fight';b.textContent=words()(b.dataset.technique==='combo'?'combo':b.dataset.technique);if(b.dataset.technique==='combo')b.textContent=({en:'Combination',he:'שילוב',ru:'Комбинация'})[app.lang];}
+  }
   function paint(){
+   paintRail(e.targetMode||'none');
    fight.textContent=({en:'Fight',he:'קרב',ru:'Бой'})[app.lang]||'Fight';fight.setAttribute('aria-label',w().fight);
    const mode=e.targetMode||'none';target.textContent=w()[mode];target.setAttribute('aria-label',w().target+': '+w()[mode]);
-   target.setAttribute('aria-haspopup','dialog');combo.textContent=e.technique==='freestyle'?w().freestyle:e.technique==='random'?w().random:w().combos;combo.disabled=false;if(mode==='fight')combo.textContent=window.fightUI?.words().cards||'Scorecards';speed.disabled=mode==='fight';if(mode==='fight')speed.textContent='1×';for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=mode==='fight';document.body.classList.toggle('fight-active',mode==='fight');if(mode!=='fight')window.fightUI?.hide();
+   target.setAttribute('aria-haspopup','dialog');combo.textContent=e.technique==='freestyle'?w().freestyle:e.technique==='random'?w().random:w().combos;combo.disabled=false;if(mode==='fight')combo.textContent=window.fightUI?.words().cards||'Scorecards';speed.disabled=mode==='fight';if(mode==='fight')speed.textContent='1×';for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=mode==='fight'||mode==='speed';document.body.classList.toggle('fight-active',mode==='fight');if(mode!=='fight')window.fightUI?.hide();
    timing.disabled=mode==='fight';timing.textContent=mode==='fight'?w().fightRhythm:e.practiceTiming==='random'?w().variableLabel:w().steadyLabel;
    timing.setAttribute('aria-label',w().timing+': '+(e.practiceTiming==='random'?w().variable:w().sync));
-   if(mode==='speed')combo.textContent=({en:'Speed-bag drills',he:'תרגילי שק מהירות',ru:'Упражнения на груше'})[app.lang]||'Speed-bag drills';
+   if(mode==='speed'){combo.textContent=({en:'Next drill',he:'התרגיל הבא',ru:'Следующее'})[app.lang];document.getElementById('drillTier').textContent=w().speed;document.getElementById('exerciseNotes').textContent=({en:'Keep compact circles in front of the face. Finish the burst, defend, then return to rhythm.',he:'מעגלים קצרים לפני הפנים. סיימו רצף, הגנו וחזרו לקצב.',ru:'Короткие круги перед лицом. Завершите серию, выполните защиту и вернитесь к ритму.'})[app.lang];}
    app.audio?.onState?.();
    speed.setAttribute('aria-label',({en:'Playback speed',he:'מהירות תנועה',ru:'Скорость'}[app.lang])+': '+e.speed+'×');
-   document.querySelectorAll('[data-technique]').forEach(b=>{b.disabled=mode==='speed'||mode==='fight';});app.updatePlayBtnText();
+   document.querySelectorAll('[data-technique]').forEach(b=>{b.disabled=mode==='fight';});app.updatePlayBtnText();
   }
   function dialog(title){
    const d=make('dialog','training-dialog');const head=make('div','practice-control-heading');head.append(make('h2','',title));
@@ -71,12 +81,7 @@
   };
   combo.onclick=()=>{
    if(e.targetMode==='speed'){
-    const d=dialog(({en:'Speed-bag drills',he:'תרגילי שק מהירות',ru:'Упражнения на груше'})[app.lang]),grid=make('div','routine-grid');
-    for(const drill of BOXING_ROUTINES.speedDrills){
-     const b=make('button','routine-choice');b.type='button';b.dataset.speedDrill=drill.id;b.setAttribute('aria-pressed',String((e.speedDrill||'alternating')===drill.id));
-     b.append(make('strong','',drill.names[{en:0,he:1,ru:2}[app.lang]]));
-     b.onclick=()=>{e.speedDrill=drill.id;e.animTime=0;e.arena?.setTarget('speed');e.isPlaying=true;paint();d.close();};grid.append(b);
-    }d.append(grid);d.showModal();return;
+    const drills=BOXING_ROUTINES.speedDrills,index=drills.findIndex(d=>d.id===(e.speedDrill||'alternating'));chooseSpeedDrill(drills[(index+1)%drills.length].id);return;
    }
    if(e.targetMode==='fight'){window.fightUI?.detail();return;}
    const d=dialog(w().routine),grid=make('div','routine-grid');

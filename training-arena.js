@@ -7,7 +7,7 @@
  // Continuous timing preserves the authored pelvis/shoulder/hand lag. The
  // previous per-segment easing repeatedly stopped and rushed the entire body.
  const powerPhase=p=>p+.025*(1-Math.cos(2*Math.PI*p));
- const strikingMass=move=>move==='jab'?5.25:move.includes('hook')?9:10;
+ const strikingMass=move=>move==='jab'?5.8:move.includes('hook')?10:11.2;
  const punches=['jab','cross','hook','rear_hook','uppercut','rear_uppercut'];
  const material=p=>{const m=new THREE.MeshStandardMaterial(p);m.color.convertSRGBToLinear();return m;};
  class TrainingArena {
@@ -152,7 +152,7 @@
     e.scene.remove(this.group);e.scene.add(e.coach.root);e.coach.root.position.set(0,0,0);e.coach.root.rotation.y=0;
    }else{
     e.scene.add(this.group);this.group.add(e.coach.root);this.group.rotation.y=mode==='heavy'?1.88:1.02;
-    e.coach.root.position.set(0,0,mode==='speed'?-.40:mode==='heavy'?-.675:-.61);e.coach.root.rotation.y=0;
+    e.coach.root.position.set(0,0,mode==='speed'?-.50:mode==='heavy'?-.675:-.61);e.coach.root.rotation.y=0;
     if(!this.models[mode]){
      if(mode==='rabbit'){
       this.rabbit=new LionCoach(this.data,{species:'rabbit'});this.models.rabbit=this.rabbit.root;this.rabbit.root.name='Rabbit sparring partner';
@@ -352,23 +352,24 @@
    for(const spring of Object.values(this.recoil))spring.step(dt);
    for(const spring of Object.values(this.pushback))spring.step(dt);
    this.applyDynamics();
-   let frame=BOXING_ROUTINES.frame(time,mode==='speed'?'speedbag':technique,combo),heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)},counter=BOXING_ROUTINES.opponent(frame),random=null;
+   const practiceTime=mode==='speed'?time:time*1.12;
+   let frame=BOXING_ROUTINES.frame(practiceTime,mode==='speed'?'speedbag':technique,combo),heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)},counter=BOXING_ROUTINES.opponent(frame),random=null;
    const generated=technique==='freestyle'&&mode!=='speed';
    if(generated){
     const seed=e.randomSeed??1,timing=e.practiceTiming||'sync';if(!this.routineDeck||this.routineDeck.seed!==seed||this.routineDeck.timing!==timing)this.routineDeck=new BOXING_ROUTINES.RoutineDeck(seed,timing);
-    frame=this.routineDeck.frame(time);heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)};counter=frame.rest?{move:'guard',phase:0,attack:false}:BOXING_ROUTINES.opponent(frame);
+    frame=this.routineDeck.frame(practiceTime);heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)};counter=frame.rest?{move:'guard',phase:0,attack:false}:BOXING_ROUTINES.opponent(frame);
    }
    const varied=e.practiceTiming==='random'&&technique!=='random'&&!generated;
    if(varied){
     const seed=e.practiceSeed??1;
     if(!this.practiceClock||this.practiceClock.seed!==seed)this.practiceClock=new BOXING_ROUTINES.PracticeTimeline(seed);
-    frame=this.practiceClock.frame(time,mode==='speed'?'speedbag':technique,combo);
+    frame=this.practiceClock.frame(practiceTime,mode==='speed'?'speedbag':technique,combo);
     heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move),rest:frame.rest};
     counter=frame.rest?{move:'guard',phase:0,attack:false}:BOXING_ROUTINES.opponent(frame);
    }
    if(technique==='random'&&mode==='rabbit'){
     const seed=e.randomSeed??1;if(!this.randomSession||this.randomSession.seed!==seed||this.randomSession.timing!==(e.practiceTiming||'sync'))this.randomSession=new BOXING_ROUTINES.RandomSparring(seed,e.practiceTiming||'sync');
-    random=this.randomSession.frame(time);heroSpec=random.lion;counter=random.rabbit;
+    random=this.randomSession.frame(practiceTime);heroSpec=random.lion;counter=random.rabbit;
     frame={...frame,move:heroSpec.move,phase:heroSpec.phase,index:random.index,random:true};
    }
    if(mode==='heavy'&&!heroSpec.attack){this.springs.heavy.step(dt);this.applyDynamics();}
@@ -378,7 +379,7 @@
     this.followAdvance=Math.max(0,Math.min(.16,centre.z-rest));this.followBeat=frame.index;
    }
    const speedMotion=mode==='speed'?BOXING_ROUTINES.speedFrame(varied?(frame.index+frame.phase)*.678:time,e.speedDrill):null;
-   const mapped=varied||frame.authoredTempo;
+   const mapped=varied||frame.authoredTempo||mode!=='speed';
    const powered=mode==='heavy'||mode==='dummy';
    const beatPhase=frame.phase/(technique==='combo'?.86:1);
    if(this.aimBeat!==frame.index){this.committedAim=null;this.aimBeat=frame.index;}
@@ -397,7 +398,8 @@
      if(straight){options.contactDrive=.065;options.straightRecovery=.22;}
      if(spec.move.includes('uppercut')){options.loadDuration=.22;options.riseDuration=.27;}
     }
-    if(mode==='speed'&&!frame.rest){
+    if(mode==='speed')options.keepFaceClear=true;
+    if(mode==='speed'&&!frame.rest&&!speedMotion.defenceMove){
      // Closed wrist circles pass through the bag's lower striking lobe. Opposite
      // phases let one hand recover underneath while the other delivers.
      const angle=speedMotion.clock*Math.PI*2;options.limitSpeedReach=!speedMotion.legacy;
@@ -406,7 +408,7 @@
      for(const [side,offset] of [['L',0],['R',Math.PI]]){
       const q=speedMotion.legacy?angle+offset:speedMotion.phase*Math.PI*2;
       const on=speedMotion.legacy||speedMotion.side===side,blend=speedMotion.legacy?1:smooth(speedMotion.phase/.16)*(1-smooth((speedMotion.phase-.82)/.18));
-      const guard=V(side==='L'?-.185:.18,1.68,side==='L'?.31:.28),target=V(side==='L'?-.10:.10,1.84+.035*Math.sin(q),.37-.15*Math.cos(q));
+      const guard=V(side==='L'?-.185:.18,1.68,side==='L'?.31:.28),target=V(side==='L'?-.10:.10,1.84+.055*Math.sin(q),.50-.10*Math.cos(q));
       options.speedBagTargets[side]=guard.lerp(target,on?blend:0).toArray();
      }
     }
@@ -435,6 +437,7 @@
     }
     else if(spec.attack){options.target=spec.move.includes('uppercut')?null:spec.move.includes('hook')?[-.02,1.86,.91]:[0,1.82,1.01];options.advance=spec.move.includes('hook')?.15:advance;}
     const motionTime=mapped?(frame.rest?time:mode==='speed'?(frame.index+frame.phase)*1.22:powered&&spec.attack?powerPhase(beatPhase)*1.22:spec.phase*1.22):mode==='speed'?time*1.8:powered&&spec.attack?powerPhase(beatPhase)*1.22:random||!isHero?spec.phase*1.22:time;
+    if(mode==='speed'&&speedMotion.defenceMove){options.defenceSide=speedMotion.index%2?1:-1;return coach.update(speedMotion.phase*1.22,speedMotion.defenceMove,combo,options);}
     return coach.update(motionTime,mapped?(frame.rest?'guard':mode==='speed'?'speedbag':spec.move):mode==='speed'?'speedbag':(powered&&spec.attack)||random||!isHero?spec.move:technique,combo,options);
    };
    const hero=pose(e.coach,heroSpec,'lion',true);let partner=mode==='rabbit'?pose(this.rabbit,counter,'rabbit',false):null;
@@ -448,7 +451,7 @@
     }
     // Only the fist rolling forward can initiate a speed-bag strike. The
     // recovering fist passes underneath while the swivel rebounds freely.
-    const indices=frame.rest?[]:mode==='speed'?[speedMotion.legacy?speedMotion.index%2:speedMotion.side==='L'?0:1]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
+    const indices=frame.rest||speedMotion?.defenceMove?[]:mode==='speed'?[speedMotion.legacy?speedMotion.index%2:speedMotion.side==='L'?0:1]:spec.attack?[['cross','rear_hook','rear_uppercut'].includes(spec.move)?1:0]:[];
     for(const index of [0,1]){
      const side=index?'R':'L',centre=coach.root.localToWorld(V(...metrics.gloves[index].knuckles));
      // Camera orbit rotates the whole scene; measure speed in the arena frame
@@ -463,7 +466,9 @@
      }
      let current=this.collision(centre,receiver),entry=heavyEntry||current;
      if(current.penetration<=0&&previous&&dt>0){const count=Math.min(16,Math.ceil(previous.distanceTo(localCentre)/.025));for(let i=1;i<count;i++){const c=this.collision(this.group.localToWorld(previous.clone().lerp(localCentre,i/count)),receiver);if(c.penetration>0){entry=c;break;}}}
-     const pressure=receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.6/.03612)):smooth(Math.max(0,Math.min(1,current.penetration/.065)));
+     // The light speed bag yields at its swivel; leather compression stays
+     // small rather than collapsing like a heavy foam target.
+     const pressure=receiver==='speed'?Math.min(.12,smooth(Math.max(0,Math.min(1,current.penetration/.065)))):receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.6/.03612)):smooth(Math.max(0,Math.min(1,current.penetration/.065)));
      desired[actor][side]=Math.max(desired[actor][side],pressure);
      if(current.kind==='glove'&&pressure>0)desired[receiver][current.side]=Math.max(desired[receiver][current.side],pressure*.85);
      if(current.kind==='bag'&&pressure>0&&(!dent||pressure>dent.pressure))dent={...current,pressure:receiver==='heavy'?Math.max(0,Math.min(1,current.penetration*.4/.060)):pressure};

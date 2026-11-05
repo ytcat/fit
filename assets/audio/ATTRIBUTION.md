@@ -58,3 +58,33 @@ License: [CC0-1.0.txt](CC0-1.0.txt).
 
 The bell is an acoustic struck-metal recording, rather than a synthesized tone
 or a claim to be a recording from a particular boxing venue.
+
+## R79 recorded impacts, resonant bell and handclap room mix — CC0
+
+The active impact aliases now select `punch-head-v3.wav`, `punch-body-1-v3.wav`
+and `punch-body-2-v3.wav`. Sources are Kenney's Impact Sounds, redistributed by
+Boyquotes under CC0 1.0:
+https://github.com/Boyquotes/kenney-impact-sounds-for-godot/tree/999dd1684873f8b020a3aa5b26e713da21688924
+Original files: `impact_punch_medium_000.ogg`, `impact_punch_heavy_000.ogg`,
+`impact_punch_heavy_002.ogg` in `addons/kenney impact sounds/`.
+The source repository's license was checked against CC0 before import.
+
+`ring-bell-v3.wav` uses VCSL's acoustic Nepalese handbell `HB_1.wav`, preserving
+its resonant tail rather than the former cowbell timbre:
+https://github.com/sgossner/VCSL/blob/c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e/Idiophones/Struck%20Idiophones/Hand%20Bells%2C%20Nepalese/HB_1.wav
+This is a recorded handbell, not a claim of a recording from a boxing venue.
+
+`applause-room-v3.wav` is an original stereo arrangement of the existing CC0
+VCSL handclaps, with irregular individual timing and short room reflections.
+It uses no pitched resampling or synthetic clap oscillators. It is an assembled
+crowd effect, not a field recording of spectators. The arrangement is CC0 too.
+
+All new clips are 48 kHz PCM. The original impact recordings were onset-trimmed
+and gently faded; the bell's natural decay was retained. Playback uses near-native
+rates. Quiet, unvoiced reaction air remains original sound design; there are no
+animal/game-character voice clips in the active map.
+
+Rebuild: `python scripts/build_recorded_boxing_audio.py SOURCE_DIRECTORY`.
+Exact source revisions, original hashes, output hashes and processing metadata:
+[recorded-v3-manifest.json](recorded-v3-manifest.json). Legacy files and their
+licenses remain for cached clients. Full CC0 license: [CC0-1.0.txt](CC0-1.0.txt).

@@ -34,11 +34,22 @@
   {id:'rear',names:['Rear hand control','שליטה ביד אחורית','Задняя рука']},
   {id:'doubles',names:['Double lead, double rear','כפול קדמי, כפול אחורי','Два передней, два задней']},
   {id:'triples',names:['Triple-hand bursts','רצפים של שלוש','Тройки каждой рукой']},
-  {id:'intervals',names:['Build speed, recover','האצה והתאוששות','Ускорение и восстановление']}
+  {id:'intervals',names:['Build speed, recover','האצה והתאוששות','Ускорение и восстановление']},
+  {id:'burst_slip',names:['Fast three + slip','שלוש מהירות והתחמקות','Быстрая тройка + уклон']},
+  {id:'burst_roll',names:['Fast four + roll','ארבע מהירות וגלגול','Четыре + нырок']},
+  {id:'double_cover',names:['Doubles + cover','כפולות והגנה','Двойки + защита']},
+  {id:'step_reset',names:['Four + step away','ארבע וצעד החוצה','Четыре + отход']}
  ];
+ const speedBursts={burst_slip:[['L',.22],['R',.22],['L',.25],['slip',.60]],burst_roll:[['L',.24],['R',.24],['L',.24],['R',.24],['roll',.72]],double_cover:[['L',.20],['L',.20],['R',.20],['R',.20],['guard',.45]],step_reset:[['L',.23],['R',.23],['L',.23],['R',.23],['step',.65]]};
  function speedFrame(time,id='alternating'){
   time=Math.max(0,time);
   if(id==='alternating')return {clock:time*1.8/1.22,index:Math.floor(time*1.8/1.22*2),legacy:true};
+  if(speedBursts[id]){
+   const sequence=speedBursts[id],total=sequence.reduce((n,s)=>n+s[1],0),cycle=Math.floor(time/total);let age=time-cycle*total,slot=0;
+   while(slot<sequence.length-1&&age>=sequence[slot][1])age-=sequence[slot++][1];
+   const [action,duration]=sequence[slot],defenceMove=['L','R'].includes(action)?null:action;
+   return {index:cycle*sequence.length+slot,phase:age/duration,side:defenceMove?null:action,clock:cycle+slot/sequence.length,legacy:false,tempo:60/duration,defenceMove};
+  }
   const sides=id==='lead'?['L']:id==='rear'?['R']:id==='triples'?['L','L','L','R','R','R']:['L','L','R','R'];
   const durations=id==='intervals'?[.48,.42,.36,.30,.30,.36,.42,.55]:id==='triples'?[.32,.32,.48,.32,.32,.48]:sides.map(()=>.46);
   const total=durations.reduce((a,b)=>a+b,0),cycle=Math.floor(time/total);let age=time-cycle*total,slot=0;

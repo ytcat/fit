@@ -3,6 +3,47 @@
  const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z),clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
  const other=a=>a==='lion'?'rabbit':'lion',rear=move=>['cross','rear_hook','rear_uppercut'].includes(move);
  class FightArena {
+  recoveryState(actor){
+   const m=this.match,f=m.fighters[actor];this.downStarts=this.downStarts||{};
+   if(!f.down){delete this.downStarts[actor];return {tilt:0,down:0,sit:0,kneel:0,stand:0,shake:0};}
+   if(this.downStarts[actor]==null)this.downStarts[actor]=m.time-m.phaseTime;
+   const t=Math.max(0,m.time-this.downStarts[actor]),smooth=(a,b)=>{const v=clamp((t-a)/(b-a));return v*v*(3-2*v);};
+   const fall=smooth(0,.65),sit=m.result?0:smooth(1.05,1.80),kneel=m.result?0:smooth(1.80,2.55),stand=m.result?0:smooth(2.55,3.60);
+   const shock=m.result?0:clamp((t-3.60)/.85),shake=Math.sin(shock*Math.PI*4)*Math.sin(shock*Math.PI)*.075;
+   return {tilt:-1.43*fall*(1-.48*sit)*(1-.85*kneel)*(1-stand),down:fall*(1+.25*kneel)*(1-stand),sit,kneel,stand,shake};
+  }
+  downPose(coach,state){
+   const j=coach.joints,weight=state.down;
+   if(weight>.001){
+    for(const [side,s] of [['L',-1],['R',1]]){
+     const foot=j['foot'+side],current=coach.point(foot),lying=V(s*.19,.105,side==='L'?.04:-.015),kneeling=V(s*.20,.105,side==='L'?.32:-.20);
+     const target=lying.lerp(kneeling,state.kneel).lerp(current,state.stand);
+     current.lerp(target,clamp(weight*1.4));
+     coach.solve(j['thigh'+side],j['knee'+side],foot,current,V(s*.10,.05,1));
+     const footQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(-.12*weight,0,0));coach.orient(foot,footQ);
+     const shin=coach.point(j['knee'+side]).sub(coach.point(foot)).normalize().applyQuaternion(footQ.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);
+    }
+   }
+   const brace=state.sit*(1-state.stand);
+   if(brace>.001){
+    const shoulder=coach.point(j.armR),target=coach.point(j.handR).lerp(V(.29,.55,.20),brace),reach=j.elbowR.position.length()+j.handR.position.length()-.002;
+    target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(.05,reach)));
+    coach.solve(j.armR,j.elbowR,j.handR,target,V(.4,-.6,.2));
+    coach.metrics.gloves[1]=coach.orientGlove('R',0,V(0,-1,0));coach.metrics.hands[1]=coach.point(j.handR).toArray();
+   }
+   j.head.rotation.y+=state.shake;j.chest.rotation.z+=state.shake*.12;coach.syncSkin();
+   // World-space support follows the articulated limbs, not a fixed root lift.
+   // Ellipsoid supports cover body volume; boot/glove boxes cover their mesh.
+   let low=Infinity;
+   const ell=(bone,centre,r)=>{const p=bone.localToWorld(V(...centre)),a=bone.matrixWorld.elements;low=Math.min(low,p.y-Math.hypot(a[1]*r[0],a[5]*r[1],a[9]*r[2]));};
+   ell(j.hips,[0,.06,0],[.25,.23,.19]);ell(j.spine,[0,.10,0],[.25,.23,.19]);ell(j.chest,[0,.13,-.018],[.34,.27,.22]);ell(j.head,[0,.13,.03],[.19,.22,.20]);
+   for(const side of ['L','R']){
+    ell(j['thigh'+side],[0,-.20,.01],[.14,.24,.15]);ell(j['knee'+side],[0,-.18,-.01],[.10,.22,.11]);
+    const sign=side==='L'?-1:1;ell(j['arm'+side],[sign*.17,0,0],[.20,.13,.13]);ell(j['elbow'+side],[sign*.15,0,0],[.18,.075,.08]);
+    for(const root of [j['foot'+side],coach.gloveMeshes[side]])root.traverse(part=>{if(!part.isMesh)return;const g=part.geometry;if(!g.boundingBox)g.computeBoundingBox();const b=g.boundingBox;for(const x of [b.min.x,b.max.x])for(const y of [b.min.y,b.max.y])for(const z of [b.min.z,b.max.z])low=Math.min(low,V(x,y,z).applyMatrix4(part.matrixWorld).y);});
+   }
+   if(low<.004){coach.root.position.y+=.004-low;coach.syncSkin();}
+  }
   constructor(arena,options){
    this.arena=arena;this.engine=arena.engine;this.match=new BoxingFight(options);this.tick=0;this.previous={};this.compressions={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.contacts=[];this.eventCursor=0;this.pendingSwings=[];
    this.coaches={lion:this.engine.coach,rabbit:arena.rabbit};
@@ -59,23 +100,23 @@
    for(const [actor,index] of [['lion',0],['rabbit',1]]){
     const coach=this.coaches[actor],f=m.fighters[actor];
     if(ceremony){coach.root.position.copy(this.lineupStart[actor].position).lerp(V(index?.72:-.72,0,.05),ease);coach.root.rotation.y=this.lineupStart[actor].yaw*(1-ease);}
-    else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.move?.includes('uppercut')?Math.min(.035,(reaction.amount||0)*.025):Math.min(.025,(reaction?.amount||0)*.02);
+    else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.move?.includes('uppercut')?Math.min(.06,(reaction.amount||0)*.04):Math.min(.045,(reaction?.amount||0)*.032);
      coach.root.position.set(.055*Math.sin(m.time*.62+index*2),0,direction*(-.55-corner-.025*Math.sin(m.time*.73+index)-push));coach.root.rotation.y=index?Math.PI:0;}
    }
    for(const actor of ['lion','rabbit']){
-    const f=m.fighters[actor],coach=this.coaches[actor],fall=f.down?(m.result?clamp(m.phaseTime/.5):Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4))):0;
-    coach.root.rotation.x=-1.38*fall;coach.root.position.y=.10*fall;
+    const coach=this.coaches[actor],state=this.recoveryState(actor),yaw=coach.root.rotation.y;
+    coach.root.quaternion.setFromEuler(new THREE.Euler(state.tilt,yaw,0,'YXZ'));coach.root.position.y=0;
    }
    a.group.updateMatrixWorld(true);
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
-    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],options={simulationTime:m.time,defenceSide:spec.defenceSide,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:f.down?(m.result?1:Math.sin(clamp(m.phaseTime/.4)*Math.PI/2)*(1-clamp((m.phaseTime-6.4)/1.4))):0,duckDepth:.28};
+    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={simulationTime:m.time,defenceSide:spec.defenceSide,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28};
     if(spec.attack){
      let target=this.target(actor,spec);if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(V(...f.action.aim)));
      const through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(.035);
      options.knuckleTarget=target.add(through).toArray();options.strikeHeight=target.y-.035;
      options.advance=spec.move.includes('uppercut')?.08:spec.move.includes('hook')?.065:.025;
-     options.power=1.25;options.contactDrive=.065;options.levelChange=spec.target==='body'?.065:.015;
+     options.power=1.32;options.contactDrive=.075;options.levelChange=spec.target==='body'?.065:.015;
      if(spec.move.includes('uppercut')){
       options.upperLoadHeight=spec.target==='body'?1.02:1.28;
       // The wrist chamber stays on the striker's side of the torso. Drive the
@@ -86,6 +127,7 @@
     if(ceremony){options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'R':'L',raise:!m.result.winner||m.result.winner===actor?raise:0};}
     const time=ceremony||(!spec.attack&&!spec.defend)?m.time:spec.phase*1.22;
     metrics[actor]=coach.update(time,ceremony?(ease<1?'step':'guard'):spec.move,'one_two',options);
+    if(f.down)this.downPose(coach,state);
    }
    a.group.updateMatrixWorld(true);
    if(m.phase==='round')this.separateTorso();
