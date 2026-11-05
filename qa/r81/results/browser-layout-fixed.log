@@ -1,0 +1,30 @@
+PASS RingFighter browser 844 390 {
+  modes: [
+    { mode: 'none', hits: 0, move: 'guard', enabled: true },
+    { mode: 'heavy', hits: 1, move: 'guard', enabled: true },
+    { mode: 'dummy', hits: 1, move: 'guard', enabled: true },
+    { mode: 'speed', hits: 1, move: 'guard', enabled: true },
+    { mode: 'rabbit', hits: 1, move: 'guard', enabled: true }
+  ],
+  fight: { player: 'lion', thrown: 1, opponent: 1, phase: 'round' }
+}
+PASS RingFighter browser 393 568 {
+  modes: [
+    { mode: 'none', hits: 0, move: 'guard', enabled: true },
+    { mode: 'heavy', hits: 1, move: 'guard', enabled: true },
+    { mode: 'dummy', hits: 1, move: 'guard', enabled: true },
+    { mode: 'speed', hits: 1, move: 'guard', enabled: true },
+    { mode: 'rabbit', hits: 1, move: 'guard', enabled: true }
+  ],
+  fight: { player: 'lion', thrown: 1, opponent: 1, phase: 'round' }
+}
+PASS RingFighter browser 1100 950 {
+  modes: [
+    { mode: 'none', hits: 0, move: 'guard', enabled: true },
+    { mode: 'heavy', hits: 1, move: 'guard', enabled: true },
+    { mode: 'dummy', hits: 1, move: 'guard', enabled: true },
+    { mode: 'speed', hits: 1, move: 'guard', enabled: true },
+    { mode: 'rabbit', hits: 1, move: 'guard', enabled: true }
+  ],
+  fight: { player: 'lion', thrown: 1, opponent: 2, phase: 'round' }
+}

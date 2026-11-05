@@ -1,0 +1,11 @@
+lion {
+  vertices: 128,
+  correctedMaxError: 4.196371279547955e-8,
+  oldMaxError: 1.9999837664087416
+}
+rabbit {
+  vertices: 128,
+  correctedMaxError: 4.196371279547955e-8,
+  oldMaxError: 1.9999837664087416
+}
+PASS consistent local-space underarm normals under fighter/root rotation for both species

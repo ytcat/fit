@@ -1,0 +1,4 @@
+heavy { impulses: 1, peak: '1.000', dent: '0.587', travel: '0.205' }
+dummy { impulses: 1, peak: '0.977', dent: '0.720', travel: '0.140' }
+speed { impulses: 6, peak: '0.119', dent: '0.095', travel: '1.100' }
+PASS independent padded gloves, local dents, directional momentum, guarded blocks and opponent ducking

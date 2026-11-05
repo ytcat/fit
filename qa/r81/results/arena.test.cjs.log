@@ -1,0 +1,7 @@
+PASS heavy all six punches reach the target
+PASS dummy all six punches reach the target
+slip head/fist separation 0.313 head [ -0.3193693446133015, 1.872024260653954, -0.47211974700185144 ] fist [ -0.3667101058605645, 1.906544153191684, -0.16508786535405662 ]
+roll head/fist separation 0.269 head [ -0.46499608431481704, 1.7283582641525643, -0.14668231103210563 ] fist [ -0.4121792665532854, 1.9910907876867106, -0.16666476813443787 ]
+PASS all combinations share one clock, with punches only on defensive beats
+PASS full-body framing, speed-bag mode and clean target removal
+PASS contact aiming remains frozen across repeated same-time updates
