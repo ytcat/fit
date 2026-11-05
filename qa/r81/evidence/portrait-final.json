@@ -1,0 +1,134 @@
+[
+  {
+    "width": 393,
+    "height": 650,
+    "gym": {
+      "viewport": {
+        "width": 393,
+        "height": 650,
+        "visual": 650
+      },
+      "scrollHeight": 650,
+      "bodyScrollHeight": 650,
+      "rails": [
+        {
+          "rect": {
+            "id": "manual-rail",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "rows": "none",
+          "transform": "none"
+        },
+        {
+          "rect": {
+            "id": "manual-rail",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "rows": "none",
+          "transform": "none"
+        }
+      ],
+      "stage": {
+        "id": "stageContainer",
+        "x": 9,
+        "y": 221,
+        "width": 375,
+        "height": 305.375,
+        "right": 384,
+        "bottom": 526.375
+      },
+      "canvas": {
+        "id": "boxerCanvas",
+        "x": 9,
+        "y": 221,
+        "width": 375,
+        "height": 255.375,
+        "right": 384,
+        "bottom": 476.375
+      },
+      "controls": [
+        {
+          "id": "playBtn",
+          "x": 79,
+          "y": 597.375,
+          "width": 235,
+          "height": 38.625,
+          "right": 314,
+          "bottom": 636
+        },
+        {
+          "id": "",
+          "x": 84.859375,
+          "y": 50,
+          "width": 99.46875,
+          "height": 35,
+          "right": 184.328125,
+          "bottom": 85
+        },
+        {
+          "id": "",
+          "x": 220.328125,
+          "y": 50,
+          "width": 87.8125,
+          "height": 35,
+          "right": 308.140625,
+          "bottom": 85
+        }
+      ]
+    },
+    "modes": [
+      {
+        "mode": "none",
+        "hits": 0,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "heavy",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "dummy",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "speed",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "rabbit",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      }
+    ],
+    "fight": {
+      "player": "lion",
+      "thrown": 1,
+      "opponent": 1,
+      "phase": "round"
+    },
+    "errors": [],
+    "physicalPhone": false
+  }
+]

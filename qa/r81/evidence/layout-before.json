@@ -1,0 +1,62 @@
+[
+  {
+    "width": 393,
+    "height": 650,
+    "layout": {
+      "viewport": {
+        "width": 393,
+        "height": 650,
+        "visual": 650
+      },
+      "scrollHeight": 948,
+      "bodyScrollHeight": 948,
+      "stage": {
+        "id": "stageContainer",
+        "x": 15,
+        "y": 370.890625,
+        "width": 363,
+        "height": 430,
+        "right": 378,
+        "bottom": 800.890625
+      },
+      "canvas": {
+        "id": "boxerCanvas",
+        "x": 15,
+        "y": 370.890625,
+        "width": 363,
+        "height": 430,
+        "right": 378,
+        "bottom": 800.890625
+      },
+      "controls": [
+        {
+          "id": "playBtn",
+          "x": 99,
+          "y": 866.890625,
+          "width": 195,
+          "height": 50.359375,
+          "right": 294,
+          "bottom": 917.25
+        },
+        {
+          "id": "",
+          "x": 72.65625,
+          "y": 66,
+          "width": 107.6875,
+          "height": 48,
+          "right": 180.34375,
+          "bottom": 114
+        },
+        {
+          "id": "",
+          "x": 225.34375,
+          "y": 66,
+          "width": 94.984375,
+          "height": 48,
+          "right": 320.328125,
+          "bottom": 114
+        }
+      ]
+    }
+  }
+]
