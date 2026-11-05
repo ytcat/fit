@@ -1,0 +1,5 @@
+manual target none { contacts: 0, attacks: 0 }
+manual target heavy { contacts: 1, attacks: 0 }
+manual target dummy { contacts: 1, attacks: 0 }
+manual target speed { contacts: 1, attacks: 0 }
+PASS actual manual contact with all equipment, left/right speed taps, defence, independent sparring, character switching and player-vs-AI fight

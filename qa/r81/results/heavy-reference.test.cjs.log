@@ -1,0 +1,15 @@
+PASS reference jab {
+  extension: '173.7',
+  impulse: '31.62',
+  force: '474.3',
+  visibleDepth: '0.057',
+  guard: '0.166'
+}
+PASS reference cross {
+  extension: '173.7',
+  impulse: '69.03',
+  force: '584.7',
+  visibleDepth: '0.079',
+  guard: '0.195'
+}
+PASS heavier resistance, padded full extension, chin/shoulder/guard coordination, wider support and alternating speed-bag contacts

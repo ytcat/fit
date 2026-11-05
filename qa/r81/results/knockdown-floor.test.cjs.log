@@ -1,0 +1,9 @@
+lion {
+  minimumActualLegAndBootHeight: 0.004770320207024087,
+  shake: 0.06945232672460362
+}
+rabbit {
+  minimumActualLegAndBootHeight: 0.004770320207024087,
+  shake: 0.06945232672460362
+}
+PASS both fighters: real boot/leg floor support, staged faster rise, bounded shock shake, persistent KO and prompt return to boxing

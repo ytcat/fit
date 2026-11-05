@@ -1,0 +1,6 @@
+practice none { contacts: 0, guards: 159, swings: 8 }
+practice heavy { contacts: 8, guards: 159, swings: 8 }
+practice dummy { contacts: 8, guards: 159, swings: 8 }
+practice speed { contacts: 10, guards: 174, swings: 0 }
+practice rabbit { contacts: 5, guards: 159, swings: 8 }
+PASS seeded variable practice, independent exchanges, contact-driven platform rebound, reachable wrists, uppercut lift/recoil and baked sculpture integrity
