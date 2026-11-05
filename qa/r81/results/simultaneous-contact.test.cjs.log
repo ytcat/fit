@@ -1,0 +1,15 @@
+{
+  maximum: 0.012284830637374886,
+  worst: {
+    offset: 0.08,
+    lead: 'uppercut',
+    rear: 'cross',
+    actor: 'rabbit',
+    side: 'R',
+    frame: 21,
+    part: 'head'
+  },
+  failures: 0,
+  largestTurn: 0.9393929041933046,
+  worstTurn: { offset: 0.08, lead: 'hook', rear: 'cross', frame: 19, index: 3 }
+}

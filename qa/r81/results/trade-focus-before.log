@@ -1,0 +1,27 @@
+{
+  lead: 'rear_hook',
+  rear: 'uppercut',
+  offset: 0.08,
+  rawMax: 0.5026370713412845,
+  postMax: 3.0227533261514217,
+  rawRow: { k: 1, frame: 37, angle: 0.5026370713412845 },
+  postRow: { k: 2, frame: 30, angle: 3.0227533261514217 }
+}
+{
+  lead: 'jab',
+  rear: 'rear_hook',
+  offset: 0.08,
+  rawMax: 0.4229373106806282,
+  postMax: 2.5051522042215058,
+  rawRow: { k: 3, frame: 41, angle: 0.4229373106806282 },
+  postRow: { k: 0, frame: 30, angle: 2.5051522042215058 }
+}
+{
+  lead: 'cross',
+  rear: 'rear_uppercut',
+  offset: 0,
+  rawMax: 0.421112136802914,
+  postMax: 2.9023533263428853,
+  rawRow: { k: 1, frame: 15, angle: 0.421112136802914 },
+  postRow: { k: 1, frame: 24, angle: 2.9023533263428853 }
+}

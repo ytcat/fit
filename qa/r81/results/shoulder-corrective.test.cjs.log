@@ -1,0 +1,11 @@
+lion {
+  maximum: 0.02500049839884508,
+  visible: 0.009021652694014639,
+  samples: 120
+}
+rabbit {
+  maximum: 0.02500049839884508,
+  visible: 0.009021652694014639,
+  samples: 120
+}
+PASS bounded real shoulder deformation, unchanged topology/rig/contacts, all actions/root turns, freeze, fur/shadow matching, contour continuity and safe fallback

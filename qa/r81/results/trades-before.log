@@ -1,0 +1,22 @@
+{
+  maximum: 0.017468732878579488,
+  worst: {
+    offset: 0,
+    lead: 'jab',
+    rear: 'jab',
+    actor: 'lion',
+    side: 'R',
+    frame: 30,
+    part: 'shoulder'
+  },
+  failures: 0,
+  turn: 3.13775140261678,
+  twistCase: {
+    lead: 'rear_hook',
+    rear: 'uppercut',
+    offset: 0.08,
+    frame: 39,
+    k: 1,
+    angle: 3.13775140261678
+  }
+}
