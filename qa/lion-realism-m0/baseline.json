@@ -1,0 +1,156 @@
+{
+  "sourceSHA": "280775eef9cb80903eaf258cb43f7900cd0d61a4",
+  "utc": "2026-11-05T05:26:59.087016+00:00",
+  "repository": "https://github.com/ytcat/fit",
+  "auditBranch": "audit/lion-realism-m0-20261105",
+  "worktree": "/workspace/fit-realism-m0",
+  "applicationSourceChanges": false,
+  "planSource": "Full user-provided brief in conversation; LION_REALISM_UPGRADE_CODEX_PLAN.md absent at baseline",
+  "scope": "M0 baseline and evidence-backed M1 plan only",
+  "scriptOrder": [
+    "./workout-experience.js?v=1",
+    "./practice-layout.js?v=3",
+    "./assets/vendor/three.min.js",
+    "./assets/vendor/GLTFLoader.js",
+    "./boxing-routines.js?v=2026110406",
+    "./avatar-anatomy.js?v=2026110406",
+    "./avatar-detail.js?v=2026110406",
+    "./boxing-coach-v2.js?v=2026110406",
+    "./contact-response.js?v=2026110406",
+    "./gym-details.js?v=2026110406",
+    "./training-arena.js?v=2026110406",
+    "./boxing-fight.js?v=2026110406",
+    "./fight-referee.js?v=2026110406",
+    "./fight-arena.js?v=2026110406",
+    "./fight-ui.js?v=2026110406",
+    "./training-controls.js?v=2026110406"
+  ],
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 62573,
+      "sha256": "6ab27a6d4ef06a1412b77c64387643699bf42e967175077330a4ba80c99bd581"
+    },
+    {
+      "path": "boxing-coach-v2.js",
+      "bytes": 95223,
+      "sha256": "f7a13406d0861b3255071bb469e750eb180802e560fcb50339841feb8c310c2e"
+    },
+    {
+      "path": "avatar-detail.js",
+      "bytes": 9456,
+      "sha256": "dfb0d3f7d44853e32319b82b34579b5eff35d5c4929a6b8d40e3a871419b643d"
+    },
+    {
+      "path": "avatar-anatomy.js",
+      "bytes": 7445,
+      "sha256": "d4a56691686ac4a2708339cbfadf3425043fb61efa8bfb6c84068d71c7bb7789"
+    },
+    {
+      "path": "boxing-routines.js",
+      "bytes": 12766,
+      "sha256": "4324bbab9521e47cda5a5b5bd0ae8c64c58b93b37e5fb7a52afaf4d3b4767e18"
+    },
+    {
+      "path": "training-arena.js",
+      "bytes": 41269,
+      "sha256": "8a7479bf0aa698f7df37be3b9cca92306ed954daa59fac5196fabe0e005ea539"
+    },
+    {
+      "path": "fight-arena.js",
+      "bytes": 17819,
+      "sha256": "80c9f7ab178c96d57434bde67cfc2f16be23349aa1d3c2af49372fb1de8bfe2d"
+    },
+    {
+      "path": "fight-referee.js",
+      "bytes": 19078,
+      "sha256": "bf4b421f0c7e5a912c4f08911b96aa71dd7cdb553b5e8a599e958925e1a6c604"
+    },
+    {
+      "path": "assets/models/coach-surface-v2.json",
+      "bytes": 3421587,
+      "sha256": "24b326936dba4f05012ec085e4038373111b43a3f54706a438adf7b1de0ba2f4"
+    },
+    {
+      "path": "assets/models/rabbit-surface-r78.json",
+      "bytes": 2585398,
+      "sha256": "8d3750d77fec5556ef0341697d24d9a7dabeb6d1b50996150bbf38928b3e449e"
+    },
+    {
+      "path": "assets/models/equipment-surfaces-r76.json",
+      "bytes": 11126724,
+      "sha256": "b878281c6de967ce450981cd600e88a793978b4c488526f3e2855f2e4347251b"
+    },
+    {
+      "path": "assets/vendor/three.min.js",
+      "bytes": 603445,
+      "sha256": "9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2"
+    },
+    {
+      "path": "boxing-coach.js",
+      "bytes": 73558,
+      "sha256": "d7b3b3d7a361b3a8a364ba33c0aca98d55db271e587ae7a31f595f7380a2d6ad"
+    },
+    {
+      "path": "assets/models/coach-surface.json",
+      "bytes": 3283838,
+      "sha256": "9034ef055b84570aef1e1ff06926ca8ee0b5788ecab2cabf7ae313b273ecf12f"
+    }
+  ],
+  "physicalDevices": {
+    "iPhoneSafari": "NOT AVAILABLE / NOT VERIFIED",
+    "Android": "NOT AVAILABLE / NOT VERIFIED"
+  },
+  "evidenceRoot": "/workspace/lion-realism-evidence/280775e",
+  "openPullRequests": {
+    "observedCount": 0,
+    "method": "public GitHub PR page Open counter; link scan empty",
+    "checkedUTC": "2026-11-05T05:26:59.088701+00:00"
+  },
+  "collaboration": {
+    "threadAgents": [
+      "/root"
+    ],
+    "otherAgentOwnership": "Unknown outside this thread; isolated QA-only branch, no app edits or merges"
+  },
+  "applicationHashRecheck": {
+    "utc": "2026-11-05T06:01:29.285548+00:00",
+    "mismatches": []
+  },
+  "remoteMainRecheck": {
+    "sha": "280775eef9cb80903eaf258cb43f7900cd0d61a4",
+    "method": "git ls-remote --heads origin main",
+    "originalWorktree": "clean at recheck"
+  },
+  "qaRuntime": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "pillow": "13.0.0",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "node": "24.22.1",
+    "playwright": "1.51.1",
+    "chromium": "155"
+  },
+  "artifactChecks": {
+    "fixedPosePNGs": 196,
+    "imageHashesDimensionsAndIDs": "PASS",
+    "exactClayTexturedCameraPairs": 85,
+    "browserStudioScreenshots": 16,
+    "pixelIdenticalBrowserReadbackPairs": 16,
+    "profileScenarios": 12,
+    "physicalPhone": "NOT VERIFIED",
+    "motionRecording": {
+      "renderedUpdates": 17,
+      "moves": 10,
+      "timestampValidation": "PASS",
+      "pageErrors": 0,
+      "codec": "VP9",
+      "size": [
+        720,
+        900
+      ],
+      "encodedSeconds": 17.929898,
+      "fluidityClaim": false
+    }
+  },
+  "completedUTC": "2026-11-05T06:12:33.463062+00:00"
+}
