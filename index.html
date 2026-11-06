@@ -16,27 +16,27 @@
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-routines.js?v=2026110602"></script>
-  <script src="./boxing-input.js?v=2026110602"></script>
+  <script src="./boxing-routines.js?v=2026110603"></script>
+  <script src="./boxing-input.js?v=2026110603"></script>
   <script src="./avatar-anatomy.js?v=2026110406"></script>
   <script src="./avatar-detail.js?v=2026110504"></script>
   <script src="./avatar-shoulder.js?v=2026110504"></script>
-  <script src="./boxing-coach-v2.js?v=2026110602"></script>
+  <script src="./boxing-coach-v2.js?v=2026110603"></script>
   <script src="./contact-response.js?v=2026110406"></script>
-  <script src="./gym-details.js?v=2026110602"></script>
-  <script src="./training-arena.js?v=2026110602"></script>
-  <script src="./boxing-fight.js?v=2026110602"></script>
+  <script src="./gym-details.js?v=2026110603"></script>
+  <script src="./training-arena.js?v=2026110603"></script>
+  <script src="./boxing-fight.js?v=2026110603"></script>
   <script src="./fight-referee.js?v=2026110406"></script>
-  <script src="./fight-arena.js?v=2026110602"></script>
+  <script src="./fight-arena.js?v=2026110603"></script>
   <script src="./fight-ui.js?v=2026110406" defer></script>
-  <script src="./training-controls.js?v=2026110602" defer></script>
-  <script src="./character-roster.js?v=2026110602"></script>
-  <script src="./ring-camera.js?v=2026110602"></script>
-  <script src="./club-world.js?v=2026110602"></script>
-  <link rel="stylesheet" href="./club-interface.css?v=2026110602" />
-  <script src="./club-interface.js?v=2026110602" defer></script>
-  <link rel="stylesheet" href="./ringfighter-controls.css?v=2026110602" />
-  <script src="./ringfighter-controls.js?v=2026110602" defer></script>
+  <script src="./training-controls.js?v=2026110603" defer></script>
+  <script src="./character-roster.js?v=2026110603"></script>
+  <script src="./ring-camera.js?v=2026110603"></script>
+  <script src="./club-world.js?v=2026110603"></script>
+  <link rel="stylesheet" href="./club-interface.css?v=2026110603" />
+  <script src="./club-interface.js?v=2026110603" defer></script>
+  <link rel="stylesheet" href="./ringfighter-controls.css?v=2026110603" />
+  <script src="./ringfighter-controls.js?v=2026110603" defer></script>
 
   <style>
     html, body {
@@ -463,7 +463,7 @@
           const surface=await response.json();
           if(!rabbit.ok)throw new Error('Rabbit surface unavailable');surface.rabbitBody=(await rabbit.json()).body;
           if(new URLSearchParams(location.search).get('shoulderSurface')!=='v1'){
-            try{const r=await fetch('./assets/models/shoulder-correctives-v1.json?v=1');if(r.ok){const corrective=await r.json();if(corrective.version===1&&corrective.species?.lion&&corrective.species?.rabbit)surface.shoulderCorrectives=corrective;}}catch(error){console.warn('Shoulder detail unavailable; using original surface.');}
+            try{const r=await fetch('./assets/models/shoulder-correctives-v2.json?v=1');if(r.ok){const corrective=await r.json();if(corrective.version===2&&corrective.armHingeFrame==='posterior-z'&&corrective.species?.lion&&corrective.species?.rabbit)surface.shoulderCorrectives=corrective;}}catch(error){console.warn('Shoulder detail unavailable; using original surface.');}
           }
           this.coach=new LionCoach(surface,{species:CoachRoster.preferred()});
           this.roster=new CoachRoster(this,surface);

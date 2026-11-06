@@ -13,3 +13,14 @@ clip names are `Jab`, `Cross`, `Lead_Hook`, `Rear_Hook`, `Uppercut`,
 `Rear_Uppercut`, `Slip_Right`, `Roll`, `Footwork` and optionally `Idle_Guard`.
 Each clip should begin and finish in guard. Native clips are preserved; unknown
 rest poses and bone axes are never assigned guessed joint rotations.
+
+The current arm solver uses the authored +Z arm front and a -Z outer elbow
+fold (`posterior-z`). `shoulder-correctives-v2.json` is baked for that frame;
+v1 remains available for older clients. A new controller ignores a shoulder
+corrective with an incompatible hinge frame and uses the continuous surface.
+Rebuild v2 offline with:
+
+```sh
+node scripts/authoring/export_shoulder_pose.cjs /tmp/shoulder-pose.json
+python3 scripts/authoring/build_shoulder_correctives.py /tmp/shoulder-pose.json assets/models/shoulder-correctives-v2.json
+```

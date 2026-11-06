@@ -125,7 +125,7 @@
 
   class LionCoach {
     constructor(data,options={}) {
-      this.species=options.species||'lion';this.shoulderData=data.shoulderCorrectives?.species?.[this.species]||null;this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
+      this.species=options.species||'lion';this.shoulderData=data.shoulderCorrectives?.armHingeFrame==='posterior-z'?(data.shoulderCorrectives.species?.[this.species]||null):null;this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
       if(data.rigVersion!==2||!data.body.armBlend)throw new Error('Lion rig/model version mismatch');
       this.bones=[];this.joints={};this.metrics={};this.gloveMeshes={};
@@ -757,7 +757,9 @@
         const plane=dir.clone().cross(bend).normalize();
         const align=(bone,restAxis,axis)=>{
           restAxis.normalize();axis.normalize();
-          const restBend=V(0,-1,0).addScaledVector(restAxis,restAxis.y).normalize();
+          // The authored arm faces +Z. Its outer elbow fold is -Z;
+          // using -Y here adds a spurious quarter-turn to the entire limb.
+          const restBend=V(0,0,-1).addScaledVector(restAxis,restAxis.z).normalize();
           const restNormal=restAxis.clone().cross(restBend).normalize();
           const targetBend=plane.clone().cross(axis).normalize();
           const restBasis=new THREE.Matrix4().makeBasis(restAxis,restBend,restNormal);

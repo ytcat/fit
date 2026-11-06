@@ -5,7 +5,7 @@ import json,sys,hashlib,struct,base64
 from pathlib import Path
 import numpy as np
 from scipy.sparse import coo_matrix,diags
-source=Path(sys.argv[1]);data=json.loads(source.read_text());result={'version':1,'authoring':'bounded, masked Taubin relaxation of existing guard shoulder surface','inputSHA256':hashlib.sha256(source.read_bytes()).hexdigest(),'species':{}}
+source=Path(sys.argv[1]);data=json.loads(source.read_text());result={'version':2,'armHingeFrame':data['armHingeFrame'],'controllerSHA256':data['controllerSHA256'],'authoring':'bounded, masked Taubin relaxation of existing guard shoulder surface','inputSHA256':hashlib.sha256(source.read_bytes()).hexdigest(),'species':{}}
 def smooth(x):
  x=np.clip(x,0,1);return x*x*(3-2*x)
 for species,pose in data['poses'].items():
@@ -26,4 +26,4 @@ for species,pose in data['poses'].items():
  packed=b''.join(struct.pack('<IhhhhhhB',row[0],*(int(round(x*1000000)) for x in row[1:4]),*(int(np.clip(round(x*32767),-32767,32767)) for x in row[4:7]),int(round(row[7]*255))) for row in rows)
  result['species'][species]={'restFNV32':pose['restFNV32'],'encoding':'u32-i16x6-u8-le','deltaScale':1000000,'normalScale':32767,'packed':base64.b64encode(packed).decode(),'vertexCount':count,'restSHA256':pose['restSHA256'],'shoulderQuaternions':pose['shoulderQuaternions'],'rowCount':len(rows),'maxDisplacementMetres':float(np.linalg.norm(delta,axis=1).max()),'affectedVertices':len(rows),'iterations':50,'positionLimitMetres':.025}
  print(species, len(rows),'vertices; maximum displacement',np.linalg.norm(delta,axis=1).max())
-out=Path(sys.argv[2] if len(sys.argv)>2 else 'assets/models/shoulder-correctives-v1.json');out.write_text(json.dumps(result,separators=(',',':'))+'\n');print(out,out.stat().st_size)
+out=Path(sys.argv[2] if len(sys.argv)>2 else 'assets/models/shoulder-correctives-v2.json');out.write_text(json.dumps(result,separators=(',',':'))+'\n');print(out,out.stat().st_size)
