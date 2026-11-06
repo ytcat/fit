@@ -658,17 +658,18 @@
       for(let i=0;i<3200;i++) {
         const a=i*2.399963229728653,nz=-1+1.70*(i+.5)/3200,r=Math.sqrt(1-nz*nz);
         const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz);
-        const center=V(normal.x*.295,.065+normal.y*.355,-.065+normal.z*.210);
+        const rootRadius=1+.025*Math.sin(normal.x*17+normal.y*11)*Math.sin(normal.z*13-normal.y*9);
+        const center=V(normal.x*.295*rootRadius,.065+normal.y*.355*rootRadius,-.065+normal.z*.210*rootRadius);
         if(center.z>.025&&Math.abs(center.x)<.165&&center.y>-.03&&center.y<.29)continue;
         const length=.045+random()*.035+Math.max(0,-normal.y)*.055;
         const width=.003+random()*.004;
         // Crown flows back; cheek locks fan down; nape trails the neck.
         const crown=smooth((normal.y-.05)/.70),cheek=smooth((Math.abs(normal.x)-.25)/.60);
-        const outward=normal.clone().multiplyScalar(.44).add(V(normal.x*.24*cheek,-.64*(1-crown)-.12,-.20-.62*crown)).normalize();
+        const outward=normal.clone().multiplyScalar(.66).add(V(normal.x*.24*cheek,-.64*(1-crown)-.12,-.20-.62*crown)).normalize();
         const across=outward.clone().cross(Math.abs(outward.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
         const colour=new THREE.Color().setHSL(.076+random()*.018,.46+random()*.10,.12+random()*.12);
         for(let j=0;j<3;j++) {
-          const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.045*t*t,-.023*t*t));
+          const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.045*(1-.88*crown)*t*t,-.023*t*t));
           const t0=j/3,t1=(j+1)/3,p=point(t0),q=point(t1);
           const p0=p.clone().addScaledVector(across,1-t0),p1=p.clone().addScaledVector(across,-(1-t0));
           const q0=q.clone().addScaledVector(across,1-t1),q1=q.clone().addScaledVector(across,-(1-t1));
