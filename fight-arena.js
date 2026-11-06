@@ -250,11 +250,12 @@
    for(const coach of Object.values(this.coaches))coach.syncSkin();
   }
   resolveTrades(){
+   // Leave padding margin for the subsequent arm/own-face projections.
    // Body constraints are independent of the other fighter's moving guard.
    // Repeat the coupled solve, then finish on the solid torso/head constraint.
    const poles={};for(const actor of ['lion','rabbit'])for(const side of ['L','R'])poles[actor+side]=this.coaches[actor].armBendReference(side);
    for(let pass=0;pass<3;pass++){
-    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainGlove(side,p=>this.collision(p,other(actor)),.014,poles[actor+side]);
+    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainGlove(side,p=>this.collision(p,other(actor)),.008,poles[actor+side]);
     for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012,poles[actor+side]);
    }
    // Contact correction can change the reach axis again. Retain continuity
@@ -262,7 +263,7 @@
    this.stabilizeBends();
    for(const actor of ['lion','rabbit'])for(const side of ['L','R']){
     const coach=this.coaches[actor],pole=coach.armBendReference(side);
-    coach.constrainGlove(side,p=>this.collision(p,other(actor)),.014,pole);
+    coach.constrainGlove(side,p=>this.collision(p,other(actor)),.008,pole);
     coach.constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012,pole);
    }
    this.clearOwnFaces();
