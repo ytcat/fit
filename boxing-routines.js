@@ -27,7 +27,7 @@
   ['step_one_two_exit',['step','jab','cross','step'],['Step in, one–two, step out','צעד, ג׳אב–קרוס ויציאה','Шаг, двойка, отход']],
   ['circle_counter',['step','slip','cross','hook','step'],['Circle, defend and counter','תנועה, הגנה ותגובה','Сместиться, защита, ответ']],
   ['moving_double_jab',['step','jab','jab','step','cross'],['Moving double jab','ג׳אב כפול בתנועה','Двойной джеб в движении']],
-  ['reset_reenter',['jab','cross','step','guard','step','jab'],['Exit, reset and re-enter','יציאה, איפוס וכניסה','Отход, перестройка, вход']],
+  ['reset_reenter',['jab','cross','step','slip','step','jab'],['Exit, reset and re-enter','יציאה, איפוס וכניסה','Отход, перестройка, вход']],
   ['long_exchange',['jab','jab','cross','hook','roll','cross','rear_hook','step'],['Long exchange','חילופי מכות ארוכים','Длинный обмен']]
  ].map(([id,moves,names])=>({id,moves,names}));
  const sequences=Object.fromEntries(list.map(r=>[r.id,r.moves]));
