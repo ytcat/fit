@@ -214,7 +214,7 @@
    // push the same glove or forearm into its owner's skull on the next pass.
    const head=this.coaches[actor].joints.head;
    for(const shape of [{centre:[0,.13,.03],radius:[.17,.20,.17]},{centre:[0,.065,.195],radius:[.135,.105,.125]}]){
-    const own=this.arena.closest(point,head,shape,radius+.027);if(own.penetration>hit.penetration)hit=own;
+    const own=this.arena.closest(point,head,shape,radius+.040);if(own.penetration>hit.penetration)hit=own;
    }
    return hit;
   }
