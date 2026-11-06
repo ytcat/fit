@@ -147,3 +147,13 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - Validation and limitations: docs/r81-ringfighter-interactive-controls.md.
 - Physical-device performance and the separate face/mane realism overhaul remain
   unverified/incomplete; this release does not claim photorealism.
+
+## RingFighter R82 — ring travel and camera gestures (2026-11-06)
+- Added a glove-first fight guard, stable elbow transitions and continued real
+  contact constraints; retained the prior simultaneous-punch regression gates.
+- Added bounded between-exchange ring movement, supported alternating steps and
+  smooth settling into punch footwork; expanded presets to 28 with more steps.
+- Made gym/arena surroundings follow rotation, completed side/end scenery and
+  cut away near walls; widened fight framing and added pinch/wheel zoom.
+- Review, validation provenance and device limitations:
+  docs/r82-ring-movement-camera.md. Physical phone testing remains unverified.
