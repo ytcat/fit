@@ -1,0 +1,16 @@
+{
+  "bag": {
+    "accepted": true,
+    "contacts": 1,
+    "enabled": true
+  },
+  "fight": {
+    "accepted": true,
+    "actor": "lion",
+    "thrown": 1,
+    "opponentThrown": 1,
+    "ceremonyStable": true
+  },
+  "errors": [],
+  "physicalPhone": false
+}
