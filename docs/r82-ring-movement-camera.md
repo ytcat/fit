@@ -29,8 +29,10 @@ published main were retained during testing.
 ## Validation and evidence
 
 The final runtime source is `afd763a`. The full validation workflow is
-https://github.com/ytcat/fit/actions/runs/42168536778 . Its status must be checked
-before publishing. The same runtime remains in subsequent evidence-only commits.
+https://github.com/ytcat/fit/actions/runs/42168536778 passed JavaScript syntax,
+local-asset validation and all 42 Node regression suites (8m 5s). The same
+runtime remains in subsequent evidence-only commits; no application or test
+sources changed after that validated commit.
 
 - The existing 108 simultaneous move/offset cases pass without relaxing their
   penetration or temporal limits: maximum sampled intrusion 0.012298 m versus a
