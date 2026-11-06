@@ -295,7 +295,9 @@
     [coach.joints.head,{centre:[0,.065,.195],radius:[.135,.105,.125]},'head'],
     [coach.joints.chest,{centre:[0,.13,0],radius:[.315,.25,.27]},'body'],
     [coach.joints.spine,{centre:[0,.10,.015],radius:[.24,.23,.19]},'body'],
-    ...['L','R'].map(side=>[coach.joints['arm'+side],{centre:[0,-.025,.015],radius:[.135,.145,.135]},'shoulder',side])
+    // Convert the legacy shoulder volume by +90° around its local X.
+    // New anatomical arm frames must not rotate an established hit volume.
+    ...['L','R'].map(side=>[coach.joints['arm'+side],coach.armHingeFrame==='posterior-z'?{centre:[0,-.015,-.025],radius:[.135,.135,.145]}:{centre:[0,-.025,.015],radius:[.135,.145,.135]},'shoulder',side])
    ];
    return shapes.map(([bone,shape,kind,side])=>({...this.closest(point,bone,shape,radius),kind,side}));
   }

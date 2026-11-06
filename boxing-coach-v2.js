@@ -125,7 +125,7 @@
 
   class LionCoach {
     constructor(data,options={}) {
-      this.species=options.species||'lion';this.shoulderData=data.shoulderCorrectives?.armHingeFrame==='posterior-z'?(data.shoulderCorrectives.species?.[this.species]||null):null;this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
+      this.species=options.species||'lion';this.armHingeFrame='posterior-z';this.shoulderData=data.shoulderCorrectives?.armHingeFrame==='posterior-z'?(data.shoulderCorrectives.species?.[this.species]||null):null;this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
       if(data.rigVersion!==2||!data.body.armBlend)throw new Error('Lion rig/model version mismatch');
       this.bones=[];this.joints={};this.metrics={};this.gloveMeshes={};

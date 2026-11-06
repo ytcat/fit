@@ -1,5 +1,5 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,k)=>k==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
-for(const f of ['boxing-routines.js','boxing-coach-v2.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const c=new LionCoach(JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'))),V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z),Q=()=>new THREE.Quaternion();let maximum=0;
 for(const rootYaw of [0,1.4])for(const chestTurn of [0,.35])for(const side of ['L','R']){
  const sign=side==='L'?-1:1;for(const b of c.bones)b.quaternion.identity();c.root.rotation.set(0,rootYaw,0);c.joints.chest.rotation.set(.12,chestTurn,-.08);c.root.updateMatrixWorld(true);
@@ -19,5 +19,13 @@ for(const side of ['L','R']){
  c.solve(a,b,h,start.add(V(sign*b.position.length(),0,h.position.length())),V(sign,0,0));c.orientGlove(side,0,V(0,-1,0));
  const front=V(0,0,1).applyQuaternion(b.getWorldQuaternion(Q())),mesh=c.gloveMeshes[side],palm=mesh.localToWorld(V(0,0,1)).sub(mesh.localToWorld(V())).normalize();
  assert.ok(front.dot(palm)>.999999,'neutral glove palm must agree with the forearm front instead of carrying a quarter-turn mismatch');
+}
+const arena=Object.create(TrainingArena.prototype);
+for(const side of ['L','R']){
+ const arm=c.joints['arm'+side],proxy=new THREE.Object3D();proxy.position.copy(arm.getWorldPosition(V()));proxy.quaternion.copy(arm.getWorldQuaternion(Q())).multiply(new THREE.Quaternion().setFromAxisAngle(V(1,0,0),Math.PI/2));proxy.updateMatrixWorld(true);
+ for(const offset of [V(.12,.11,.17),V(-.12,-.13,.08),V(.03,.02,-.09)]){
+  const point=arm.getWorldPosition(V()).add(offset),old=arena.closest(point,proxy,{centre:[0,-.025,.015],radius:[.135,.145,.135]}),actual=arena.bodyContacts(point,c).find(h=>h.kind==='shoulder'&&h.side===side);
+  assert.ok(Math.abs(old.distance-actual.distance)<1e-6&&old.normal.distanceTo(actual.normal)<1e-6,'shoulder hit geometry must remain unchanged in world space after hinge-frame conversion');
+ }
 }
 console.log('PASS isolated elbow flexion preserves humeral roll and biceps facing under torso/root rotation',{maximum});
