@@ -53,8 +53,9 @@ These envelopes are conservative collision proxies, not a claim of anatomical
 soft-body simulation.
 
 Full release validation workflow:
-https://github.com/ytcat/fit/actions/runs/42172474960 . Confirm success before
-publishing. Subsequent evidence-only commits retain identical runtime sources.
+https://github.com/ytcat/fit/actions/runs/42172474960 passed JavaScript syntax,
+local asset validation and all 43 Node suites (10m 1s). Subsequent
+evidence-only commits retain identical runtime and test sources.
 
 Physical iPhone Safari/Android performance remains unverified. Browser captures
 use software WebGL and do not establish device FPS. The correction adds CPU
