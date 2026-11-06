@@ -1,0 +1,15 @@
+{
+  "baseline": "7949bd8efe78ea0b973823cee69623341aab2d79",
+  "runtime": "140369702bdd7a0d6df2811d306d9467c8c3d5c7",
+  "workflow": "https://github.com/ytcat/fit/actions/runs/42172474960",
+  "sourceSha256": {
+    "boxing-coach-v2.js": "5fb0be4a486778dcb1172e70870e34ee9cfffbd976e61b56ce9403470236d221",
+    "fight-arena.js": "1f765279113123e9f790eef6e1a3f3ecbfcbe2b36b6e048c591b3b6e23842827",
+    "index.html": "1e0c2837f20a82f06969de78962728fe5d2a6d5938edf176ab6bfaddbcbcdc86",
+    "tests/fight-arena.test.cjs": "f0c33c7c6216722db47efa0b4a1b5d3ae11ce0285a834f80846795e2c3f388f7",
+    "tests/fight-guard.test.cjs": "5f0e09b9767da6c3e50b1842fa63350fb857035e6779106122ad2c42f0b64928"
+  },
+  "render": "Chromium software WebGL, 588x1000 viewport, DPR .75, shadows off, zoom 1.65; actual app canvas renders",
+  "physicalPhoneVerified": false,
+  "contactSweepProvenance": "Node process began 2026-11-06 06:07:48 UTC, after runtime commit 1403697 at 06:07:35 UTC; runtime remained unchanged throughout this sweep."
+}

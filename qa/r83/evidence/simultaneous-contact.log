@@ -1,0 +1,21 @@
+{
+  maximum: 0.012270550075328207,
+  worst: {
+    offset: 0,
+    lead: 'rear_uppercut',
+    rear: 'rear_uppercut',
+    actor: 'lion',
+    side: 'R',
+    frame: 27,
+    part: 'body'
+  },
+  failures: 0,
+  largestTurn: 0.8112647013134079,
+  worstTurn: {
+    offset: 0.08,
+    lead: 'uppercut',
+    rear: 'uppercut',
+    frame: 25,
+    index: 2
+  }
+}
