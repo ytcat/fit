@@ -1,0 +1,12 @@
+{
+  "runtime": "57344edf6a13633208e81999cece0c89f5bbc10c",
+  "workflow": "https://github.com/ytcat/fit/actions/runs/42180856741",
+  "status": "Success",
+  "duration": "6m 52s",
+  "nodeSuites": 44,
+  "syntax": "passed",
+  "localAssetReferences": "passed",
+  "runtimeAndTestsUnchangedAfterValidation": true,
+  "physicalPhoneVerified": false,
+  "verifiedAt": "2026-11-06T07:45:09.915182+00:00"
+}

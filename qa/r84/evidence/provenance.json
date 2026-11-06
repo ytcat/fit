@@ -1,0 +1,14 @@
+{
+  "baseline": "b569fa06add43fbaa3c421784ad45a685ba799d4",
+  "runtime": "57344edf6a13633208e81999cece0c89f5bbc10c",
+  "workflow": "https://github.com/ytcat/fit/actions/runs/42180856741",
+  "sourceSha256": {
+    "boxing-coach-v2.js": "3566c275d2f43039ff7abce1a59c594075fac4520a83da9f1acc5c660f778543",
+    "training-arena.js": "ae9b5af4d47de5af8c9d3d502c7d79d930f688056f0238db483faf45269ba666",
+    "index.html": "8354d77d1b464754609ff119d72afda3af902b4f71293f219da9cf2b382ea1ff",
+    "assets/models/shoulder-correctives-v2.json": "7bd2732ef1ef904ef684bd79a2cfc3f47e0e84d2b578db86dcf7f721fbae240d",
+    "tests/elbow-hinge-frame.test.cjs": "1f7c059c27aba5d745659c2766e9ee344c1908dde2fbc6da2109d0cd7d337e38"
+  },
+  "physicalPhoneVerified": false,
+  "localDuplicateSweep": "Stopped after identical full CI passed; no local pass or numeric sweep maximum claimed."
+}
