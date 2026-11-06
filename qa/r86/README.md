@@ -53,7 +53,7 @@ QA_OUT=/tmp/r86-after NODE_PATH=/tmp/fit-tools/node_modules node qa/r86/visual.c
 APP_ROOT=/path/to/baseline QA_OUT=/tmp/r86-before NODE_PATH=/tmp/fit-tools/node_modules node qa/r86/visual.cjs
 QA_OUT=/tmp/r86-combos NODE_PATH=/tmp/fit-tools/node_modules node qa/r86/combos.cjs
 QA_VIEWPORTS='[[393,650]]' QA_OUT=/tmp/r86-camera NODE_PATH=/tmp/fit-tools/node_modules node qa/r85/browser.cjs
-QA_OUT=/tmp/r86-play NODE_PATH=/tmp/fit-tools/node_modules node qa/r85/play.cjs
+QA_OUT=/tmp/r86-play NODE_PATH=/tmp/fit-tools/node_modules node qa/r86/play.cjs
 for test in tests/*.test.cjs; do node "$test" || exit 1; done
 ```
 
@@ -61,3 +61,8 @@ for test in tests/*.test.cjs; do node "$test" || exit 1; done
 using the existing M0 instrumentation and bypass CSP solely for Playwright's
 evaluation. Production CSP is unchanged. The contact check advances actual
 arena simulation; it does not add hits from button clicks.
+
+The R86 capture harness waits for the responsive layout to finish resizing
+before rendering its final fight/control screenshots. Pausing RAF for QA had
+otherwise allowed a post-render resize to clear the captured canvas. This is a
+harness correction; production layout and animation behavior are unchanged.
