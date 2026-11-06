@@ -814,7 +814,7 @@
       let error=0;
       for(let iteration=0;iteration<8;iteration++){
         const toHead=new THREE.Matrix4().multiplyMatrices(head.matrixWorld.clone().invert(),hand.matrixWorld);
-        let forward=0;
+        let forward=0,lateral=0;
         for(const [x,y,z,r] of samples){
           const p=V(x,y,z).applyMatrix4(toHead);
           for(const [cx,cy,cz,rx,ry,rz] of shapes){
@@ -824,12 +824,14 @@
             const extent=a=>Math.sqrt((1+beta)*a*a+(1+1/beta)*pad*pad);
             const radial=((p.x-cx)/extent(rx))**2+((p.y-cy)/extent(ry))**2;
             if(radial<1)forward=Math.max(forward,cz+extent(rz)*Math.sqrt(1-radial)-p.z);
+            if(reference?.lateral){const sideRadial=((p.y-cy)/extent(ry))**2+((p.z-cz)/extent(rz))**2;if(sideRadial<1)lateral=Math.max(lateral,sign*(cx+sign*extent(rx)*Math.sqrt(1-sideRadial)-p.x));}
           }
         }
-        if(forward<.0002)break;
-        const direction=V(0,0,1).applyQuaternion(head.getWorldQuaternion(new THREE.Quaternion()))
+        const clearance=reference?.lateral?lateral:forward;
+        if(clearance<.0002)break;
+        const direction=V(reference?.lateral?sign:0,0,reference?.lateral?0:1).applyQuaternion(head.getWorldQuaternion(new THREE.Quaternion()))
           .applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
-        const shoulder=this.point(j['arm'+side]),target=this.point(hand).addScaledVector(direction,Math.min(.15,forward+.001));
+        const shoulder=this.point(j['arm'+side]),target=this.point(hand).addScaledVector(direction,Math.min(.15,clearance+.001));
         const upper=j['elbow'+side].position.length(),lower=hand.position.length();
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(Math.abs(upper-lower)+.005,upper+lower-.002)));
         error=this.solve(j['arm'+side],j['elbow'+side],hand,target,reference?this.contactBendPole(side,target,reference):pole);

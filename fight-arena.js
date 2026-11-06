@@ -208,12 +208,21 @@
    candidates.push(...a.bodyContacts(point,c,radius).map(hit=>({...hit,part:hit.kind})));
    return candidates.sort((x,y)=>x.distance-y.distance)[0];
   }
-  solidContact(point,receiver,actor,radius=.064){return this.arena.solidContact(point,this.coaches[receiver],this.coaches[actor],radius);}
+  solidContact(point,receiver,actor,radius=.064){
+   let hit=this.arena.solidContact(point,this.coaches[receiver],this.coaches[actor],radius);
+   // Solve both contact constraints together. An opponent correction must not
+   // push the same glove or forearm into its owner's skull on the next pass.
+   const head=this.coaches[actor].joints.head;
+   for(const shape of [{centre:[0,.13,.03],radius:[.17,.20,.17]},{centre:[0,.065,.195],radius:[.135,.105,.125]}]){
+    const own=this.arena.closest(point,head,shape,radius+.027);if(own.penetration>hit.penetration)hit=own;
+   }
+   return hit;
+  }
   clearOwnFaces(){
    for(const coach of Object.values(this.coaches)){
     for(const side of ['L','R']){
      const i=side==='L'?0:1,reference=coach.armBendReference(side),glove=coach.metrics.gloves[i];
-     const safe=coach.clearOwnFace(side,glove,V(...glove.palmTarget),reference.bend,reference);
+     const safe=coach.clearOwnFace(side,glove,V(...glove.palmTarget),reference.bend,{...reference,lateral:true});
      coach.metrics.gloves[i]=safe.glove;coach.metrics.hands[i]=coach.point(coach.joints['hand'+side]).toArray();coach.metrics.handErrors[i]=safe.error;
     }
     coach.syncSkin();
