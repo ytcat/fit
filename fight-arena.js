@@ -216,7 +216,7 @@
     if(old&&dt>0&&dt<.1){
      const previous=coach.contactBendPole(side,coach.point(coach.joints['hand'+side]),old);
      const angle=Math.atan2(now.axis.dot(previous.clone().cross(now.bend)),previous.dot(now.bend));
-     const pole=previous.applyAxisAngle(now.axis,clamp(angle,-dt*20,dt*20));
+     const pole=previous.applyAxisAngle(now.axis,clamp(angle,-dt*12,dt*12));
      coach.solve(coach.joints['arm'+side],coach.joints['elbow'+side],coach.joints['hand'+side],coach.point(coach.joints['hand'+side]),pole);
      const i=side==='R'?1:0,glove=coach.metrics.gloves[i];coach.metrics.gloves[i]=coach.orientGlove(side,glove.turn,V(...glove.palmTarget));
     }
@@ -230,6 +230,14 @@
    for(let pass=0;pass<3;pass++){
     for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainGlove(side,p=>this.collision(p,other(actor)),.014,poles[actor+side]);
     for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012,poles[actor+side]);
+   }
+   // Contact correction can change the reach axis again. Retain continuity
+   // after the coupled solve, then recheck the surfaces with that elbow plane.
+   this.stabilizeBends();
+   for(const actor of ['lion','rabbit'])for(const side of ['L','R']){
+    const coach=this.coaches[actor],pole=coach.armBendReference(side);
+    coach.constrainGlove(side,p=>this.collision(p,other(actor)),.014,pole);
+    coach.constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012,pole);
    }
    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.bendFrames[actor+side]={...this.coaches[actor].armBendReference(side),time:this.match.time};
   }
