@@ -157,3 +157,11 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   cut away near walls; widened fight framing and added pinch/wheel zoom.
 - Review, validation provenance and device limitations:
   docs/r82-ring-movement-camera.md. Physical phone testing remains unverified.
+
+## RingFighter R83 — folded guard correction (2026-11-06)
+- Reproduced the R82 elbow pole projecting the guard elbows into the chest.
+- Corrected the pole and cheek-side wrist spacing; added own-face clearance
+  after pose stabilization and final fight contact correction.
+- Replaced the incorrect wrist-forward guard criterion with anatomical guard
+  checks; added actual glove-mesh clearance tests for both fighters.
+- Matched app-rendered evidence and validation: docs/r83-fight-hand-correction.md.
