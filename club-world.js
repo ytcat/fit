@@ -7,7 +7,7 @@
    this.engine=engine;this.mode='';this.gym=new THREE.Group();this.arena=new THREE.Group();
    this.gym.name='Foundry boxing gym';this.arena.name='Championship arena';
    this.materials={wall:mat(0x434748),dark:mat(0x1c2328),steel:mat(0x68757b,{metalness:.65,roughness:.4}),gold:mat(0xcea46a,{metalness:.3}),wood:mat(0x876c50),leather:mat(0x855044),blue:mat(0x315875),floor:mat(0x303c41),white:mat(0xd9d5c9)};
-   this.boxGeometry=new THREE.BoxGeometry(1,1,1);this.cylinderGeometry=new THREE.CylinderGeometry(1,1,1,12);
+   this.boxGeometry=new THREE.BoxGeometry(1,1,1);this.cylinderGeometry=new THREE.CylinderGeometry(1,1,1,12);this.sphereGeometry=new THREE.SphereGeometry(1,18,12);
    engine.scene.add(this.gym,this.arena);engine.scene.background=new THREE.Color(0x171c22);
    engine.scene.fog=new THREE.Fog(0x171c22,10,27);
    this.buildGym();this.enclose(this.gym,false);this.furnishGym();this.buildArena();this.enclose(this.arena,true);this.batch(this.gym);this.batch(this.arena);this.wallNodes=[];for(const root of [this.gym,this.arena])root.traverse(n=>{if(n.userData.wallZone)this.wallNodes.push(n);});this.update(0,'none');
@@ -33,7 +33,7 @@
    // Static set dressing uses instancing so hundreds of seats and brick joints
    // cost a few material batches, rather than hundreds of draw calls per frame.
    root.updateMatrixWorld(true);const batches=new Map();
-   root.traverse(n=>{if(!n.isMesh||![this.boxGeometry,this.cylinderGeometry].includes(n.geometry))return;if(/^(Back wall|Wall kick|Mortar|Brick|Structural column|Column base|Foundry gym identity|Technique poster|Training poster|Frosted|Window|Arena back wall|Arena scoreboard|Championship banner)/.test(n.name))n.userData.wallZone='back';const key=(n.userData.wallZone||'')+':'+n.geometry.uuid+':'+n.material.uuid;if(!batches.has(key))batches.set(key,[]);batches.get(key).push(n);});
+   root.traverse(n=>{if(!n.isMesh||![this.boxGeometry,this.cylinderGeometry,this.sphereGeometry].includes(n.geometry))return;if(/^(Back wall|Wall kick|Mortar|Brick|Structural column|Column base|Foundry gym identity|Technique poster|Training poster|Frosted|Window|Arena back wall|Arena scoreboard|Championship banner)/.test(n.name))n.userData.wallZone='back';const key=(n.userData.wallZone||'')+':'+n.geometry.uuid+':'+n.material.uuid;if(!batches.has(key))batches.set(key,[]);batches.get(key).push(n);});
    for(const nodes of batches.values()){
     if(nodes.length<2)continue;const merged=new THREE.InstancedMesh(nodes[0].geometry,nodes[0].material,nodes.length);merged.name='Instanced club fixtures';merged.userData.wallZone=nodes[0].userData.wallZone;merged.receiveShadow=true;
     nodes.forEach((node,index)=>{merged.setMatrixAt(index,node.matrixWorld);node.parent.remove(node);});merged.instanceMatrix.needsUpdate=true;root.add(merged);
@@ -120,7 +120,7 @@
    for(const x of [-2.7,-1.4])this.box(right,'Wall bar upright',[.09,2.5,.12],[x,1.3,.18],m.wood);
    for(let y=.35;y<2.55;y+=.28)this.rod(right,V(-2.7,y,.20),V(-1.4,y,.20),.026,m.wood);
    bench(right,1.5);rack(right,3.2);
-   const sphere=new THREE.SphereGeometry(1,18,12);
+   const sphere=this.sphereGeometry;
    for(const [i,x] of [-.65,0,.65,1.3].entries()){
     const ball=new THREE.Mesh(sphere,i%2?m.blue:m.leather);ball.name='Medicine ball';ball.scale.setScalar(.18);ball.position.set(x,.19,.55);right.add(ball);
    }
@@ -128,7 +128,7 @@
    this.label(right,{name:'Studio mobility poster',title:'STAY LIGHT.|STAY READY.',subtitle:'BREATHE / MOVE / RECOVER',width:1.65,height:1.55,x:.35,y:2.1,z:.08,resolution:512,poster:true});
    for(const [side,g] of Object.entries(this.gymWallGroups))g.traverse(n=>{n.userData.wallZone=side;});
    // Roof panels and the existing suspended fixtures give the wide view depth.
-   const ceiling=new THREE.Mesh(new THREE.PlaneGeometry(18,10.2),m.dark);ceiling.name='Studio ceiling';ceiling.rotation.x=Math.PI/2;ceiling.position.y=5.35;r.add(ceiling);
+   this.box(r,'Studio ceiling',[18,.05,10.2],[0,5.35,0],m.dark);
    for(const x of [-8.5,-4.25,0,4.25,8.5])this.box(r,'Roof cross member',[.12,.12,10.2],[x,5.25,0],m.steel);
   }
   buildArena(){
