@@ -16,6 +16,8 @@ equipment drills, sparring or Fight night. **Watch** restores automatic play.
 Drag to orbit, pinch or use **− / + / Fit** to zoom. The consolidated
 [game-mode requirements and implementation](docs/game-mode.md) describe the
 side controls, speed-bag substitutions, independent opponents and scoring.
+The Combinations chooser includes twelve advanced **Super** chains with mixed
+rhythms and exits. Speed bag has fourteen drills, including four Super patterns.
 
 The original continuous body and clothing surfaces are built with marching
 tetrahedra and attached to a shared skeleton. The face has recessed eyes and
@@ -35,7 +37,7 @@ and shadow passes share the same deformation, and shared material colors are
 converted to linear space once.
 
 The motion controller covers jab, cross, both hooks, both uppercuts, right slip,
-roll, forward/backward footwork, 12 combinations and seeded two-way random sparring. Analytic
+roll, directional footwork, 40 combinations and seeded two-way random sparring. Analytic
 two-bone IK keeps wrist targets reachable and foot placement fixed while hips,
 spine, shoulders, head and gloves follow coordinated trajectories. Heel turns
 pivot around the ball of the foot. Each action recovers to guard.

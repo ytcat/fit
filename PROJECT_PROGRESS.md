@@ -188,3 +188,16 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   in six modes and three layouts, plus real Play contact and fight checks.
 - Evidence: docs/r85-studio-camera.md and qa/r85/comparison.html. Physical-phone
   gesture/performance checks remain unverified.
+
+## RingFighter R86 — Super combinations and groom/material polish (2026-11-06)
+- Added twelve mixed-tempo advanced chains (40 presets total), directional
+  exits, longer seeded freestyle phrases and four Super speed-bag drills (14 total).
+- Corrected truncated footwork recovery so the trailing foot plants before the
+  next combo beat; standalone and arena playback share authored timing.
+- Improved directional short coat, mane root/crown grooming, leather/fabric
+  detail and material contrast with shared deterministic maps.
+- Complete 46-suite exact-runtime CI passed, plus matched actual renders for
+  both boxers, all advanced selections in EN/HE/RU, real fast-combo bag contacts,
+  camera recovery and manual player-versus-AI browser checks.
+- Evidence: docs/r86-combo-groom-polish.md and qa/r86/comparison.html. Authored
+  facial reconstruction and sustained physical-phone benchmarks remain open.

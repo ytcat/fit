@@ -1,0 +1,36 @@
+{
+  "baseline": "7a7b7389d171af2317427bd3d2ff37b5de2ce07f",
+  "runtime": "88227e373e05344e5d123079670f0c5ce87ae059",
+  "fullRegression": {
+    "suites": 46,
+    "status": "success",
+    "duration": "6m 17s",
+    "run": "https://github.com/ytcat/fit/actions/runs/42211316025"
+  },
+  "visual": {
+    "viewsPerSpecies": 6,
+    "species": [
+      "lion",
+      "rabbit"
+    ],
+    "beforeAndAfter": true,
+    "errors": [],
+    "shadows": true
+  },
+  "ui": {
+    "advancedCombos": 12,
+    "totalCombos": 40,
+    "speedDrills": 14,
+    "advancedSpeedDrills": 4,
+    "languages": [
+      "en",
+      "he",
+      "ru"
+    ],
+    "realBagContacts": 5,
+    "cameraModes": 6
+  },
+  "manualFightAndBag": "passed",
+  "physicalPhone": false,
+  "hardwareFrameTime": "unverified"
+}

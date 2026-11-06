@@ -1,0 +1,152 @@
+{
+  "shots": [
+    {
+      "species": "lion",
+      "label": "front",
+      "angle": 0,
+      "close": false,
+      "move": "guard",
+      "phase": 0,
+      "calls": 194,
+      "triangles": 567727,
+      "textures": 15,
+      "geometries": 177
+    },
+    {
+      "species": "lion",
+      "label": "profile",
+      "angle": 1.5707963267948966,
+      "close": true,
+      "move": "guard",
+      "phase": 0,
+      "calls": 96,
+      "triangles": 485855,
+      "textures": 17,
+      "geometries": 180
+    },
+    {
+      "species": "lion",
+      "label": "face",
+      "angle": 0.4,
+      "close": true,
+      "move": "guard",
+      "phase": 0,
+      "calls": 104,
+      "triangles": 486169,
+      "textures": 17,
+      "geometries": 181
+    },
+    {
+      "species": "lion",
+      "label": "rear",
+      "angle": 3.141592653589793,
+      "close": false,
+      "move": "guard",
+      "phase": 0,
+      "calls": 185,
+      "triangles": 566037,
+      "textures": 19,
+      "geometries": 184
+    },
+    {
+      "species": "lion",
+      "label": "jab",
+      "angle": 0.55,
+      "close": false,
+      "move": "jab",
+      "phase": 0.5,
+      "calls": 192,
+      "triangles": 566721,
+      "textures": 20,
+      "geometries": 186
+    },
+    {
+      "species": "lion",
+      "label": "uppercut",
+      "angle": 0.55,
+      "close": false,
+      "move": "uppercut",
+      "phase": 0.48,
+      "calls": 192,
+      "triangles": 566721,
+      "textures": 20,
+      "geometries": 186
+    },
+    {
+      "species": "rabbit",
+      "label": "front",
+      "angle": 0,
+      "close": false,
+      "move": "guard",
+      "phase": 0,
+      "calls": 168,
+      "triangles": 520826,
+      "textures": 25,
+      "geometries": 315
+    },
+    {
+      "species": "rabbit",
+      "label": "profile",
+      "angle": 1.5707963267948966,
+      "close": true,
+      "move": "guard",
+      "phase": 0,
+      "calls": 69,
+      "triangles": 439170,
+      "textures": 25,
+      "geometries": 315
+    },
+    {
+      "species": "rabbit",
+      "label": "face",
+      "angle": 0.4,
+      "close": true,
+      "move": "guard",
+      "phase": 0,
+      "calls": 77,
+      "triangles": 439484,
+      "textures": 25,
+      "geometries": 315
+    },
+    {
+      "species": "rabbit",
+      "label": "rear",
+      "angle": 3.141592653589793,
+      "close": false,
+      "move": "guard",
+      "phase": 0,
+      "calls": 157,
+      "triangles": 519112,
+      "textures": 25,
+      "geometries": 315
+    },
+    {
+      "species": "rabbit",
+      "label": "jab",
+      "angle": 0.55,
+      "close": false,
+      "move": "jab",
+      "phase": 0.5,
+      "calls": 164,
+      "triangles": 519796,
+      "textures": 25,
+      "geometries": 316
+    },
+    {
+      "species": "rabbit",
+      "label": "uppercut",
+      "angle": 0.55,
+      "close": false,
+      "move": "uppercut",
+      "phase": 0.48,
+      "calls": 165,
+      "triangles": 519828,
+      "textures": 25,
+      "geometries": 316
+    }
+  ],
+  "errors": [],
+  "browser": "155.0.8059.79",
+  "softwareWebGL": true,
+  "physicalPhone": false
+}

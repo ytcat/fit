@@ -1,0 +1,154 @@
+{
+  "choices": [
+    {
+      "lang": "EN",
+      "id": "super_blitz"
+    },
+    {
+      "lang": "EN",
+      "id": "super_angle"
+    },
+    {
+      "lang": "EN",
+      "id": "super_inside"
+    },
+    {
+      "lang": "EN",
+      "id": "super_gears"
+    },
+    {
+      "lang": "EN",
+      "id": "super_defence"
+    },
+    {
+      "lang": "EN",
+      "id": "super_ten"
+    },
+    {
+      "lang": "EN",
+      "id": "super_double_wave"
+    },
+    {
+      "lang": "EN",
+      "id": "super_upper_ladder"
+    },
+    {
+      "lang": "EN",
+      "id": "super_checkmate"
+    },
+    {
+      "lang": "EN",
+      "id": "super_ringcraft"
+    },
+    {
+      "lang": "EN",
+      "id": "super_comeback"
+    },
+    {
+      "lang": "EN",
+      "id": "super_marathon"
+    },
+    {
+      "lang": "HE",
+      "id": "super_blitz"
+    },
+    {
+      "lang": "HE",
+      "id": "super_angle"
+    },
+    {
+      "lang": "HE",
+      "id": "super_inside"
+    },
+    {
+      "lang": "HE",
+      "id": "super_gears"
+    },
+    {
+      "lang": "HE",
+      "id": "super_defence"
+    },
+    {
+      "lang": "HE",
+      "id": "super_ten"
+    },
+    {
+      "lang": "HE",
+      "id": "super_double_wave"
+    },
+    {
+      "lang": "HE",
+      "id": "super_upper_ladder"
+    },
+    {
+      "lang": "HE",
+      "id": "super_checkmate"
+    },
+    {
+      "lang": "HE",
+      "id": "super_ringcraft"
+    },
+    {
+      "lang": "HE",
+      "id": "super_comeback"
+    },
+    {
+      "lang": "HE",
+      "id": "super_marathon"
+    },
+    {
+      "lang": "RU",
+      "id": "super_blitz"
+    },
+    {
+      "lang": "RU",
+      "id": "super_angle"
+    },
+    {
+      "lang": "RU",
+      "id": "super_inside"
+    },
+    {
+      "lang": "RU",
+      "id": "super_gears"
+    },
+    {
+      "lang": "RU",
+      "id": "super_defence"
+    },
+    {
+      "lang": "RU",
+      "id": "super_ten"
+    },
+    {
+      "lang": "RU",
+      "id": "super_double_wave"
+    },
+    {
+      "lang": "RU",
+      "id": "super_upper_ladder"
+    },
+    {
+      "lang": "RU",
+      "id": "super_checkmate"
+    },
+    {
+      "lang": "RU",
+      "id": "super_ringcraft"
+    },
+    {
+      "lang": "RU",
+      "id": "super_comeback"
+    },
+    {
+      "lang": "RU",
+      "id": "super_marathon"
+    }
+  ],
+  "contact": {
+    "contacts": 5,
+    "combo": "super_blitz"
+  },
+  "errors": [],
+  "physicalPhone": false
+}
