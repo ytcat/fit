@@ -1,7 +1,7 @@
 # R83 — correct the folded fight guard
 
 Baseline: `7949bd8efe78ea0b973823cee69623341aab2d79` (published R82).
-Runtime candidate: `5fae0fc`, developed in the isolated `lion/r83-arm-anatomy`
+Runtime candidate: `1403697`, developed in the isolated `lion/r83-arm-anatomy`
 worktree. No character assets, skeleton dimensions, game UI, camera controls,
 room, scoring rules or sounds were replaced.
 
@@ -30,6 +30,11 @@ and frame-continuity limits are retained.
 - Transport the elbow reference when clearing a glove from the face; retain
   the neutral forearm-to-glove axis. Contact scoring remains driven by the real
   glove sweep rather than any synthetic hit.
+- The coupled arm solver now treats the owner's head and the opponent as
+  simultaneous constraints. Final face clearance favors the cheek side, so a
+  correction need not push the glove back into the opponent. The original
+  108-case sweep passes: maximum sampled opponent intrusion 12.271 mm
+  (27 mm gate), maximum upper-arm frame change 0.811265 rad (pi/3 gate).
 - Version the cached scripts. No external dependency or new geometry is added.
 
 ## Evidence and checks
@@ -42,13 +47,13 @@ Raw joint coordinates, sampled glove geometry and source hashes are retained.
 The corrected initial elbows sit 0.104 m / 0.088 m outward of their shoulders.
 The new real-mesh guard test passes through idle and simultaneous jab, cross,
 hook and uppercut exchanges for both species. It samples actual glove vertices
-against skull/muzzle envelopes: minimum normalized distance 1.228, with 1.0 the
+against skull/muzzle envelopes: minimum normalized distance 1.229, with 1.0 the
 surface. It also checks guard elbow position, forearm rise and fixed bone lengths.
 These envelopes are conservative collision proxies, not a claim of anatomical
 soft-body simulation.
 
 Full release validation workflow:
-https://github.com/ytcat/fit/actions/runs/42171506893 . Confirm success before
+https://github.com/ytcat/fit/actions/runs/42172474960 . Confirm success before
 publishing. Subsequent evidence-only commits retain identical runtime sources.
 
 Physical iPhone Safari/Android performance remains unverified. Browser captures
