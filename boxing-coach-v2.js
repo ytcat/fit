@@ -7,6 +7,9 @@
   const clamp = (x,a=0,b=1) => Math.max(a,Math.min(b,x));
   const smooth = x => { x=clamp(x); return clamp(x*x*x*(x*(x*6-15)+10)); };
   const lerp = (a,b,t) => a+(b-a)*t;
+  // A padded boxing arm cannot fold until wrist and shoulder coincide.
+  // Keep at least a 30-degree internal elbow angle (150-degree flexion).
+  const foldedArmReach=(upper,lower)=>Math.sqrt(upper*upper+lower*lower-2*upper*lower*Math.cos(Math.PI/6));
   const sequences = window.BOXING_ROUTINES?.sequences || {one_two:['jab','cross'],one_two_hook:['jab','cross','hook'],
     slip_cross:['slip','cross'],uppercut_flow:['uppercut','hook','cross']};
   let seed=48271;
@@ -743,22 +746,34 @@
           const response=.035;
           const blend=1-Math.exp(-(time-old.time)/response);
           target.copy(old.position.clone().lerp(target,blend));
-          bend.copy(old.pole).lerp(pole.clone().normalize(),blend).normalize();
         }
       }
       // The shoulder moves during weight transfer. Recheck both IK limits
       // after smoothing so a retained wrist can neither stretch nor fold past it.
       const shoulder=this.point(this.joints['arm'+side]);
       const upper=this.joints['elbow'+side].position.length(),lower=this.joints['hand'+side].position.length();
-      target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(Math.abs(upper-lower)+.005,upper+lower-.003)));
-      if(Number.isFinite(time))this.aimWristGuide={key,time,position:target.clone(),pole:bend.clone()};
+      target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.003)));
+      // Filter the actual elbow plane, perpendicular to the CURRENT reach
+      // axis. Interpolating unprojected world poles can cross the reach axis
+      // and spin the arm even though the wrist trajectory is smooth.
+      const axis=target.clone().sub(shoulder).normalize();
+      bend.addScaledVector(axis,-bend.dot(axis));
+      if(bend.lengthSq()<1e-8){bend.set(side==='L'?-.6:.6,-1,.1);bend.addScaledVector(axis,-bend.dot(axis));}
+      bend.normalize();
+      if(old?.key===key&&old.axis&&time>old.time&&time-old.time<.1){
+        const previous=old.pole.clone().applyQuaternion(new THREE.Quaternion().setFromUnitVectors(old.axis,axis));
+        const angle=Math.atan2(axis.dot(previous.clone().cross(bend)),previous.dot(bend));
+        const dt=time-old.time,blend=1-Math.exp(-dt/.035);
+        bend=previous.applyAxisAngle(axis,clamp(angle*blend,-dt*12,dt*12)).normalize();
+      }
+      if(Number.isFinite(time))this.aimWristGuide={key,time,position:target.clone(),pole:bend.clone(),axis};
       return bend;
     }
     solve(a,b,end,target,pole) {
       // Analytic two-bone IK. Clamp reach before computing a stable bend plane.
       this.root.updateMatrixWorld(true);
       const start=this.point(a), l1=b.position.length(),l2=end.position.length();
-      const delta=target.clone().sub(start),d=clamp(delta.length(),Math.abs(l1-l2)+.004,l1+l2-.001);
+      const delta=target.clone().sub(start),d=clamp(delta.length(),a.name.startsWith('arm')?foldedArmReach(l1,l2):Math.abs(l1-l2)+.004,l1+l2-.001);
       const dir=delta.normalize(),along=(l1*l1-l2*l2+d*d)/(2*d);
       let bend=pole.clone().addScaledVector(dir,-pole.dot(dir));
       if(bend.lengthSq()<1e-8){const fallback=Math.abs(dir.y)<.90?V(0,-1,0):V(1,0,0);bend=fallback.addScaledVector(dir,-fallback.dot(dir));}
@@ -849,7 +864,7 @@
           .applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
         const shoulder=this.point(j['arm'+side]),target=this.point(hand).addScaledVector(direction,Math.min(.15,clearance+.001));
         const upper=j['elbow'+side].position.length(),lower=hand.position.length();
-        target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(Math.abs(upper-lower)+.005,upper+lower-.002)));
+        target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
         error=this.solve(j['arm'+side],j['elbow'+side],hand,target,reference?this.contactBendPole(side,target,reference):pole);
         glove=this.orientGlove(side,glove.turn,palmTarget);
       }
@@ -1356,7 +1371,7 @@
       if(move.includes('uppercut')||(move==='speedbag'&&options.limitSpeedReach)||hurt>0)for(const [side,hand] of [['L',lead],['R',rear]]){
         const shoulder=this.point(j['arm'+side]);
         const reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.002;
-        hand.copy(shoulder.clone().add(hand.clone().sub(shoulder).clampLength(Math.abs(j['elbow'+side].position.length()-j['hand'+side].position.length())+.005,reach)));
+        hand.copy(shoulder.clone().add(hand.clone().sub(shoulder).clampLength(foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length()),reach)));
       }
       if(move.includes('uppercut')){
         const side=move==='uppercut'?'L':'R',hand=side==='L'?lead:rear;
@@ -1429,7 +1444,7 @@
         const returned=options.contactReturn,{side,blend}=returned,index=side==='R'?1:0;
         const ready=(side==='L'?leadGuard:rearGuard).clone().add(headShift),target=V(...returned.point).lerp(ready,blend);
         const shoulder=this.point(j['arm'+side]),upper=j['elbow'+side].position.length(),lower=j['hand'+side].position.length();
-        target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(Math.abs(upper-lower)+.005,upper+lower-.002)));
+        target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
         const reference={axis:V(...returned.axis),bend:V(...returned.bend)};
         const direction=target.clone().sub(this.point(j['arm'+side])).normalize(),pole=this.contactBendPole(side,target,reference);
         const guardPole=V(side==='L'?-.6:.6,-1,guardElbowZ);guardPole.addScaledVector(direction,-guardPole.dot(direction)).normalize();
