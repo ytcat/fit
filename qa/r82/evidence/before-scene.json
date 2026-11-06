@@ -1,0 +1,112 @@
+{
+  "root": "/workspace/fit-ringfighter",
+  "rows": [
+    {
+      "mode": "none",
+      "metrics": {
+        "updateMs": {
+          "p50": 2.100000001490116,
+          "p95": 12.199999995529652
+        },
+        "render": {
+          "frame": 1,
+          "calls": 190,
+          "triangles": 566521,
+          "points": 0,
+          "lines": 0
+        },
+        "resources": {
+          "geometries": 179,
+          "textures": 12
+        },
+        "pixelRatio": 0.75,
+        "canvas": {
+          "width": 281,
+          "height": 191
+        },
+        "camera": {
+          "z": 4.498448893432385,
+          "zoom": 1
+        },
+        "agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36"
+      },
+      "views": [
+        {
+          "angle": 0,
+          "roomAngle": 0,
+          "blocked": []
+        },
+        {
+          "angle": 1.5707963267948966,
+          "roomAngle": 0,
+          "blocked": []
+        },
+        {
+          "angle": 3.141592653589793,
+          "roomAngle": 0,
+          "blocked": []
+        },
+        {
+          "angle": 4.71238898038469,
+          "roomAngle": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "mode": "fight",
+      "metrics": {
+        "updateMs": {
+          "p50": 16,
+          "p95": 26.100000001490116
+        },
+        "render": {
+          "frame": 6,
+          "calls": 556,
+          "triangles": 1310121,
+          "points": 0,
+          "lines": 0
+        },
+        "resources": {
+          "geometries": 446,
+          "textures": 28
+        },
+        "pixelRatio": 0.75,
+        "canvas": {
+          "width": 281,
+          "height": 191
+        },
+        "camera": {
+          "z": 4.2980794129204645,
+          "zoom": 1
+        },
+        "agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36"
+      },
+      "views": [
+        {
+          "angle": 0,
+          "roomAngle": 0,
+          "blocked": []
+        },
+        {
+          "angle": 1.5707963267948966,
+          "roomAngle": 0,
+          "blocked": []
+        },
+        {
+          "angle": 3.141592653589793,
+          "roomAngle": 0,
+          "blocked": []
+        },
+        {
+          "angle": 4.71238898038469,
+          "roomAngle": 0,
+          "blocked": []
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false,
+  "note": "Chromium software WebGL. CPU update timings and submitted scene counts only; not physical device FPS, GPU timing or memory bytes."
+}

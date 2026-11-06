@@ -1,0 +1,467 @@
+[
+  {
+    "width": 393,
+    "height": 650,
+    "gym": {
+      "viewport": {
+        "width": 393,
+        "height": 650,
+        "visual": 650
+      },
+      "scrollHeight": 650,
+      "bodyScrollHeight": 650,
+      "rails": [
+        {
+          "rect": {
+            "isMove": false,
+            "id": "manual-rail",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "rows": "none",
+          "transform": "none"
+        },
+        {
+          "rect": {
+            "isMove": false,
+            "id": "manual-rail",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "rows": "none",
+          "transform": "none"
+        }
+      ],
+      "stage": {
+        "isMove": false,
+        "id": "stageContainer",
+        "x": 9,
+        "y": 221,
+        "width": 375,
+        "height": 305.375,
+        "right": 384,
+        "bottom": 526.375
+      },
+      "canvas": {
+        "isMove": false,
+        "id": "boxerCanvas",
+        "x": 9,
+        "y": 221,
+        "width": 375,
+        "height": 255.375,
+        "right": 384,
+        "bottom": 476.375
+      },
+      "health": {
+        "isMove": false,
+        "id": "fightHealth",
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "controls": [
+        {
+          "isMove": false,
+          "id": "playBtn",
+          "x": 79,
+          "y": 597.375,
+          "width": 235,
+          "height": 38.625,
+          "right": 314,
+          "bottom": 636
+        },
+        {
+          "isMove": false,
+          "id": "",
+          "x": 84.859375,
+          "y": 50,
+          "width": 99.46875,
+          "height": 35,
+          "right": 184.328125,
+          "bottom": 85
+        },
+        {
+          "isMove": false,
+          "id": "",
+          "x": 220.328125,
+          "y": 50,
+          "width": 87.8125,
+          "height": 35,
+          "right": 308.140625,
+          "bottom": 85
+        }
+      ]
+    },
+    "modes": [
+      {
+        "mode": "none",
+        "hits": 0,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "heavy",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "dummy",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "speed",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "rabbit",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      }
+    ],
+    "fight": {
+      "player": "lion",
+      "thrown": 1,
+      "opponent": 0,
+      "phase": "round"
+    },
+    "gestures": {
+      "roomYaw": 1.2,
+      "zoom": 0.9999999999999999,
+      "distance": 5.927342005668519,
+      "points": 0
+    },
+    "errors": [],
+    "physicalPhone": false
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "gym": {
+      "viewport": {
+        "width": 844,
+        "height": 390,
+        "visual": 390
+      },
+      "scrollHeight": 390,
+      "bodyScrollHeight": 390,
+      "rails": [
+        {
+          "rect": {
+            "isMove": false,
+            "id": "manual-rail",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "rows": "none",
+          "transform": "none"
+        },
+        {
+          "rect": {
+            "isMove": false,
+            "id": "manual-rail",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "rows": "none",
+          "transform": "none"
+        }
+      ],
+      "stage": {
+        "isMove": false,
+        "id": "stageContainer",
+        "x": 173,
+        "y": 87,
+        "width": 663,
+        "height": 206.90625,
+        "right": 836,
+        "bottom": 293.90625
+      },
+      "canvas": {
+        "isMove": false,
+        "id": "boxerCanvas",
+        "x": 173,
+        "y": 87,
+        "width": 538,
+        "height": 206.90625,
+        "right": 711,
+        "bottom": 293.90625
+      },
+      "health": {
+        "isMove": false,
+        "id": "fightHealth",
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "controls": [
+        {
+          "isMove": false,
+          "id": "playBtn",
+          "x": 261,
+          "y": 327.90625,
+          "width": 487,
+          "height": 51.09375,
+          "right": 748,
+          "bottom": 379
+        },
+        {
+          "isMove": false,
+          "id": "",
+          "x": 199.390625,
+          "y": 0,
+          "width": 95.234375,
+          "height": 46,
+          "right": 294.625,
+          "bottom": 46
+        },
+        {
+          "isMove": false,
+          "id": "",
+          "x": 312.625,
+          "y": 0,
+          "width": 84.65625,
+          "height": 46,
+          "right": 397.28125,
+          "bottom": 46
+        }
+      ]
+    },
+    "modes": [
+      {
+        "mode": "none",
+        "hits": 0,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "heavy",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "dummy",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "speed",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "rabbit",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      }
+    ],
+    "fight": {
+      "player": "lion",
+      "thrown": 1,
+      "opponent": 1,
+      "phase": "round"
+    },
+    "gestures": {
+      "roomYaw": 1.2,
+      "zoom": 0.9999999999999999,
+      "distance": 5.437750464086536,
+      "points": 0
+    },
+    "errors": [],
+    "physicalPhone": false
+  },
+  {
+    "width": 1100,
+    "height": 950,
+    "gym": {
+      "viewport": {
+        "width": 1100,
+        "height": 950,
+        "visual": 950
+      },
+      "scrollHeight": 950,
+      "bodyScrollHeight": 950,
+      "rails": [
+        {
+          "rect": {
+            "isMove": false,
+            "id": "manual-rail",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "rows": "none",
+          "transform": "none"
+        },
+        {
+          "rect": {
+            "isMove": false,
+            "id": "manual-rail",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "scrollHeight": 0,
+          "clientHeight": 0,
+          "rows": "none",
+          "transform": "none"
+        }
+      ],
+      "stage": {
+        "isMove": false,
+        "id": "stageContainer",
+        "x": 287,
+        "y": 166,
+        "width": 794,
+        "height": 583.90625,
+        "right": 1081,
+        "bottom": 749.90625
+      },
+      "canvas": {
+        "isMove": false,
+        "id": "boxerCanvas",
+        "x": 287,
+        "y": 166,
+        "width": 669,
+        "height": 583.90625,
+        "right": 956,
+        "bottom": 749.90625
+      },
+      "health": {
+        "isMove": false,
+        "id": "fightHealth",
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "controls": [
+        {
+          "isMove": false,
+          "id": "playBtn",
+          "x": 382,
+          "y": 867.90625,
+          "width": 604,
+          "height": 51.09375,
+          "right": 986,
+          "bottom": 919
+        },
+        {
+          "isMove": false,
+          "id": "",
+          "x": 262,
+          "y": 0,
+          "width": 113.90625,
+          "height": 69,
+          "right": 375.90625,
+          "bottom": 69
+        },
+        {
+          "isMove": false,
+          "id": "",
+          "x": 395.90625,
+          "y": 0,
+          "width": 100.140625,
+          "height": 69,
+          "right": 496.046875,
+          "bottom": 69
+        }
+      ]
+    },
+    "modes": [
+      {
+        "mode": "none",
+        "hits": 0,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "heavy",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "dummy",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "speed",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      },
+      {
+        "mode": "rabbit",
+        "hits": 1,
+        "move": "guard",
+        "enabled": true
+      }
+    ],
+    "fight": {
+      "player": "lion",
+      "thrown": 1,
+      "opponent": 1,
+      "phase": "round"
+    },
+    "gestures": {
+      "roomYaw": 1.2,
+      "zoom": 0.9999999999999999,
+      "distance": 5.437750464086536,
+      "points": 0
+    },
+    "errors": [],
+    "physicalPhone": false
+  }
+]

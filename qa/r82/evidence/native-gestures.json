@@ -1,0 +1,40 @@
+{
+  "before": {
+    "yaw": 0.9,
+    "room": 0.9,
+    "zoom": 1,
+    "points": 0,
+    "time": 0
+  },
+  "mouse": {
+    "yaw": 1.1,
+    "room": 1.1,
+    "zoom": 1,
+    "points": 0,
+    "time": 0
+  },
+  "pinch": {
+    "yaw": 1.1,
+    "room": 1.1,
+    "zoom": 1.5714285714285716,
+    "points": 0,
+    "time": 0
+  },
+  "touch": {
+    "yaw": 1.3,
+    "room": 1.3,
+    "zoom": 1.5714285714285716,
+    "points": 0,
+    "time": 0
+  },
+  "wheel": {
+    "yaw": 1.3,
+    "room": 1.3,
+    "zoom": 1.4218873711993651,
+    "points": 0,
+    "time": 0
+  },
+  "errors": [],
+  "physicalPhone": false,
+  "note": "Native Chromium mouse/pointer capture and CDP-emulated multi-touch; not a physical Safari/Android test."
+}

@@ -1,0 +1,15 @@
+{
+  maximum: 0.012297402360930347,
+  worst: {
+    offset: 0,
+    lead: 'cross',
+    rear: 'hook',
+    actor: 'lion',
+    side: 'R',
+    frame: 21,
+    part: 'shoulder'
+  },
+  failures: 0,
+  largestTurn: 0.9971032415180208,
+  worstTurn: { offset: 0.08, lead: 'jab', rear: 'hook', frame: 26, index: 0 }
+}

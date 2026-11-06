@@ -1,0 +1,21 @@
+{
+  "baseline": "74176e0290420a77a592513ab7571fe9b967ce02",
+  "finalRuntime": "afd763a07879d36878bbd33713e0c92310a08b28",
+  "layoutInputSource": "88fbd95 (same UI; before final arm/foot refinements)",
+  "sceneSource": "afd763a",
+  "nativeGesturesSource": "afd763a",
+  "contactMatrixSource": "afd763a",
+  "validationRun": "https://github.com/ytcat/fit/actions/runs/42168536778",
+  "sourceSha256": {
+    "index.html": "82f0a2c188edb1dd56afc48b07609e49f3d37e4e0b510bc233491b682fced241",
+    "boxing-coach-v2.js": "8bcb0b7d6608797d16435fcb5c5d800742b52234926d904459e23cc5c47154d4",
+    "boxing-routines.js": "c3772af5edb01b48a054b0e1e2817d3e42bbf64fad5a9c0b6b7f7a388bd029c0",
+    "club-world.js": "63064d31b9184e41fc1f231200464a3d45ec03bbdb9892379b3227400345ed36",
+    "fight-arena.js": "38b82a53fcbdeafd8092951be0032eb2d62c7808afa2192df3649299d8d11a6e",
+    "training-arena.js": "fe7fb57289268b19138edb4e21708f085880456940c35e24b3c544d7a5166d1a",
+    "ring-camera.js": "1d3c44c22ef4202bbcd77db947012ffc4af74918c6e01fd2a8294f3945b3ad5d"
+  },
+  "physicalPhone": false,
+  "motionBaselineSource": "Prior R81 diagnostic captures; fight rendering sources match 74176e0. The later Watch/Play contact-ID fix does not affect these fight poses.",
+  "motionAfterSource": "afd763a"
+}
