@@ -12,7 +12,7 @@ for(const move of ['jab','cross','hook','rear_hook','uppercut','rear_uppercut'])
   for(const actor of ['lion','rabbit'])for(let k=0;k<2;k++){
    const c=v.coaches[actor],hit=v.collision(c.root.localToWorld(new THREE.Vector3(...c.metrics.gloves[k].knuckles)),actor==='lion'?'rabbit':'lion');
    largest=Math.max(largest,hit.penetration);
-   assert.ok(hit.penetration<=.021,move+' '+target+' rendered fist must stop in padding through the complete follow-through and recovery');
+   assert.ok(hit.penetration<=.021,move+' '+target+' rendered fist must stop in padding through the complete follow-through and recovery '+JSON.stringify({i,actor,k,penetration:hit.penetration,part:hit.part,time:m.time,travel:v.travelTime}));
    assert.ok(c.metrics.hands[k].every(Number.isFinite));
   }
  }

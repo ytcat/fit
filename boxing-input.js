@@ -5,24 +5,44 @@
  const definitions={};
  for(const move of punches)definitions[move]={move,attack:true};
  Object.assign(definitions,{slip_left:{move:'slip',defend:true,defenceSide:-1},slip_right:{move:'slip',defend:true,defenceSide:1},roll:{move:'roll',defend:true},guard:{move:'guard',defend:true,brace:1},step_left:{move:'step',defenceSide:-1,stepDirection:-1},step_right:{move:'step',defenceSide:1,stepDirection:1}});
+ Object.assign(definitions,{high_guard:{move:'guard',defend:true,brace:1,guardStyle:'high'},body_guard:{move:'guard',defend:true,brace:1,guardStyle:'body'},block_left:{move:'guard',defend:true,brace:1,guardStyle:'left'},block_right:{move:'guard',defend:true,brace:1,guardStyle:'right'},parry:{move:'guard',defend:true,brace:1,guardStyle:'parry'},step_forward:{move:'step',stepAdvance:1},step_back:{move:'step',stepAdvance:-1}});
  for(const [suffix,side] of [['lead','L'],['rear','R']])for(const [prefix,count] of [['tap',1],['double',2],['triple',3]])definitions[prefix+'_'+suffix]={move:'speedbag',side,attack:true,count};
+ const combos={
+  combo_one_two:['jab','cross'],combo_three:['jab','cross','hook'],combo_upper:['uppercut','rear_hook','cross'],
+  combo_counter:['slip_right','cross','hook'],combo_roll:['roll','rear_uppercut','hook','cross'],combo_super:['jab','cross','hook','roll','rear_uppercut','hook'],
+  combo_speed_alternate:['tap_lead','tap_rear','tap_lead','tap_rear'],combo_speed_doubles:['tap_lead','tap_lead','tap_rear','tap_rear'],combo_speed_triples:['tap_lead','tap_lead','tap_lead','tap_rear','tap_rear','tap_rear'],
+  combo_speed_slip:['tap_lead','tap_rear','tap_lead','slip_left'],combo_speed_roll:['tap_lead','tap_rear','tap_lead','tap_rear','roll'],combo_speed_cover:['tap_lead','tap_lead','tap_rear','tap_rear','high_guard']
+ };
  class BoxingInput {
   constructor(engine){this.engine=engine;this.enabled=false;this.serial=0;this.reset();}
   actor(){return this.engine.coach?.species==='rabbit'?'rabbit':'lion';}
   now(){return this.engine.arena?.mode==='fight'?this.engine.arena.fightView?.match.time||0:this.engine.arena?.previousTime??this.engine.animTime??0;}
   key(){return (this.engine.targetMode||this.engine.arena?.mode||'none')+'|'+this.actor();}
-  reset(){this.current=null;this.queue=[];this.lastTime=null;this.context=this.key();this.engine.onInputState?.();}
+  reset(){this.current=null;this.queue=[];this.combo=null;this.lastTime=null;this.context=this.key();this.engine.onInputState?.();}
   setEnabled(enabled){
    this.enabled=!!enabled;this.reset();
    this.engine.arena?.fightView?.match.setPlayer(this.enabled?this.actor():null);
    this.engine.lastRenderStamp=null;this.engine.isPlaying=true;this.engine.onInputState?.();
   }
   canAct(){
-   if(!this.enabled||!this.engine.coach)return false;
+   if(!this.enabled||!this.engine.coach||this.engine.targetMode==='rope')return false;
    const match=this.engine.arena?.fightView?.match;
    return !match||(match.phase==='round'&&!match.result&&!match.fighters[this.actor()].down);
   }
+  sequence(){const m=this.engine.arena?.fightView?.match;return m?m.playerCombo:this.combo;}
+  canCombo(){const match=this.engine.arena?.fightView?.match,a=match?match.fighters[this.actor()]?.action:(this.context===this.key()?this.current:null);return this.canAct()&&(!match||typeof match.requestPlayerCombo==='function')&&!this.sequence()&&!(match?.playerQueue||this.queue).length&&(!a||a.move==='guard');}
+  pressCombo(id){
+   if(this.context!==this.key())this.reset();
+   const ids=combos[id],speed=(this.engine.targetMode||this.engine.arena?.mode)==='speed';
+   if(!ids||!this.canCombo()||speed!==id.startsWith('combo_speed_'))return false;
+   const commands=ids.map((input,i)=>{const d=definitions[input],duration=d.move==='speedbag'?.27:d.move==='jab'?.54:d.move==='cross'?.64:durations[d.move];return {...d,input,duration,combo:{id,step:i+1,total:ids.length}};});
+   const match=this.engine.arena?.fightView?.match;let accepted;
+   if(match){match.setPlayer(this.actor());accepted=match.requestPlayerCombo(commands,id);}
+   else{this.current=null;this.queue=commands;this.combo={id,step:1,total:commands.length};this.frame(this.now());accepted=true;}
+   if(accepted){this.engine.isPlaying=true;this.engine.lastRenderStamp=null;this.engine.onInputState?.();}return accepted;
+  }
   press(id){
+   if(combos[id])return this.pressCombo(id);
    const definition=definitions[id];if(!definition||!this.canAct())return false;
    const speed=(this.engine.targetMode||this.engine.arena?.mode)==='speed';
    if(definition.attack&&(speed!==(definition.move==='speedbag')))return false;
@@ -32,6 +52,7 @@
    if(match){match.setPlayer(this.actor());accepted=match.requestPlayerMove(command);}
    else {
     if(this.context!==this.key())this.reset();
+    if(this.combo){this.combo=null;this.queue=[];}
     const count=definition.count||1,capacity=3-(this.current?1:0)-this.queue.length;
     if(count>capacity)return false;
     for(let i=0;i<count;i++)this.queue.push({...command,duration:count>1?.27:command.duration});
@@ -49,9 +70,11 @@
     if(this.queue.length)this.current={...this.queue.shift(),start:end,id:++this.serial};
    }
    if(!this.current&&this.queue.length)this.current={...this.queue.shift(),start:time,id:++this.serial};
+   if(this.current?.combo&&this.combo)this.combo.step=this.current.combo.step;
+   if(!this.current&&!this.queue.length)this.combo=null;
    if(!this.current)return {move:'guard',phase:.35,attack:false,defend:true,brace:1,rest:true,index:this.serial,manual:true};
    const a=this.current;return {...a,phase:Math.max(0,Math.min(1,(time-a.start)/a.duration)),index:a.id,manual:true};
   }
  }
- BoxingInput.definitions=definitions;BoxingInput.durations=durations;window.BoxingInput=BoxingInput;
+ BoxingInput.definitions=definitions;BoxingInput.durations=durations;BoxingInput.combos=combos;window.BoxingInput=BoxingInput;
 })();

@@ -54,10 +54,10 @@
     const extension=clamp(elbow.clone().sub(shoulder).normalize().dot(hand.clone().sub(elbow).normalize())*.5+.5);
     const active=(side==='L'?m.left:m.right)||0;
     a[i]=clamp(.16+.80*(1-extension)+.18*active);a[4+i]=clamp(.1+.85*extension+.15*active);
-    a[2+i]=clamp(.12+.78*active+.20*Math.abs(j.chest.rotation.y));
+    a[2+i]=clamp(.12+.78*active+.20*Math.abs(j.chest.rotation.y)+.10*(m.load||0));
     const hip=coach.point(j['thigh'+side]),knee=coach.point(j['knee'+side]),foot=coach.point(j['foot'+side]);
     const kneeLoad=1-clamp(knee.clone().sub(hip).normalize().dot(foot.clone().sub(knee).normalize())*.5+.5);
-    a[6+i]=clamp(.14+kneeLoad*1.2+(m.strike||0)*.45);a[8+i]=clamp(.12+Math.abs(j['foot'+side].rotation.x)*1.8+(m.strike||0)*.35);
+    a[6+i]=clamp(.14+kneeLoad*1.2+(m.strike||0)*.30+(m.load||0)*.18+(m.drive||0)*.12);a[8+i]=clamp(.12+Math.abs(j['foot'+side].rotation.x)*1.8+(m.strike||0)*.20+(m.drive||0)*.15);
    }
    const breath=.5+.5*Math.sin((coach.renderTime||0)*2.2);
    a[10]=clamp(.17+Math.abs(j.chest.rotation.y)*.55+(m.hurt||0)*.5+breath*.13);

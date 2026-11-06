@@ -1,0 +1,32 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,k)=>k==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
+for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js','boxing-fight.js','fight-referee.js','fight-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'));data.rabbitBody=JSON.parse(fs.readFileSync('assets/models/rabbit-surface-r78.json')).body;
+for(const species of ['lion','rabbit']){
+ const c=new LionCoach(data,{species}),positions={};
+ for(const style of ['high','body','left','right','parry']){
+  for(const phase of [0,.15,.35,.75,.99]){const m=c.update(phase*1.22,'guard','one_two',{brace:1,guardWidth:.24,guardHeight:1.72,guardElbowBack:.55,keepFaceClear:true,guardStyle:style});assert.ok(m.handErrors.every(x=>x<.002));assert.ok(m.footTargets.every(f=>f.lift===0),'a held guard cannot perform an unrelated shuffle');for(const side of ['L','R']){const a=c.point(c.joints['arm'+side]),b=c.point(c.joints['elbow'+side]),d=c.point(c.joints['hand'+side]);assert.ok(Math.abs(a.distanceTo(b)-c.joints['elbow'+side].position.length())<1e-6);assert.ok(Math.abs(b.distanceTo(d)-c.joints['hand'+side].position.length())<1e-6);}}
+  c.update(.35*1.22,'guard','one_two',{brace:1,guardWidth:.24,guardHeight:1.72,guardElbowBack:.55,keepFaceClear:true,guardStyle:style});positions[style]=['L','R'].map(s=>c.point(c.joints['hand'+s]));
+ }
+ assert.ok(positions.high[0].y>positions.body[0].y+.20&&positions.high[1].y>positions.body[1].y+.20,'head and body coverage must be visibly different actual poses');assert.ok(positions.parry[1].x<positions.high[1].x-.035&&positions.parry[1].distanceTo(positions.high[1])<.13,'catch hand must close the centre line without reaching like a punch');
+}
+const c=new LionCoach(data),e={coach:c,demoModel:c.root,scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,.6,.1,100),animTime:0,fitCameraToModel(){}};e.scene.add(c.root);const a=e.arena=new TrainingArena(e,data);e.fightOptions={seed:87};a.setTarget('fight');const v=a.fightView,m=v.match;m.phase='round';m.decide=()=>{};for(const f of Object.values(m.fighters)){f.next=Infinity;f.action=null;}
+let previous={},maxPlant=0,maxStep=0,plantEvent;for(let i=0;i<150;i++){v.step();for(const [actor,c] of Object.entries(v.coaches)){for(const f of v.metrics[actor].footTargets){assert.ok(f.error<.002);const p=c.joints['foot'+f.side].localToWorld(new THREE.Vector3(0,-.102,.215)),key=actor+f.side;const old=previous[key];if(old&&f.lift<1e-7&&old.lift<1e-7&&p.distanceTo(old.p)>maxPlant){maxPlant=p.distanceTo(old.p);plantEvent={i,actor,side:f.side,now:p.toArray(),old:old.p.toArray(),root:c.root.position.toArray(),phase:v.ringTravel().phase,lift:f.lift,contact:f.contact,delta:c.ringDelta.toArray(),yaw:c.root.rotation.y,rootScale:c.root.scale.toArray()};}previous[key]={p,lift:f.lift};}assert.ok(Math.abs(c.root.position.x)<1.4&&Math.abs(c.root.position.z)<1.4);}maxStep=Math.max(maxStep,v.ringTravel().delta.length());}
+assert.ok(maxStep>.30,'ring steps must exceed the old short shuffles');assert.ok(maxPlant<.002,'stance contacts must stay planted under root translation and turn: '+JSON.stringify({maxPlant,plantEvent}));
+m.attack('lion','cross','head');for(let i=0;i<25;i++)v.step();const stopped=v.ringTravel();assert.ok(Math.min(stopped.phase,Math.abs(stopped.phase-.5),1-stopped.phase)<1e-6,'attack preparation must settle to double support');
+const blocks={};
+for(const actor of ['lion','rabbit'])for(const [style,y,axis] of [['high',1.90,'z'],['body',1.37,'z'],['left',1.90,'left'],['right',1.90,'right'],['parry',1.90,'z']]){
+ m.fighters[actor].action={id:900,actor,move:'guard',guardStyle:style,start:m.time-.35,duration:1,attack:false,defend:true};v.pose();const c=v.coaches[actor];
+ for(let t=0;t<=1;t+=.01){const point=axis==='z'?new THREE.Vector3(0,y,.95-t*.85):new THREE.Vector3((axis==='left'?-1:1)*(.75-t*.75),y,.16);const hit=v.collision(c.root.localToWorld(point),actor);if(hit.penetration>0){blocks[actor+'.'+style]=hit.part;break;}}
+}
+console.log('coverage',blocks);for(const [style,part] of Object.entries(blocks))assert.ok(['glove','arm'].includes(part),style+' must intercept its incoming path before the head/body');assert.equal(Object.keys(blocks).length,10);
+// The wider path must leave room for the existing stationary official.
+for(const f of Object.values(m.fighters))f.action=null;v.travelLast=m.time;
+let officialClearance=Infinity;
+for(let n=0;n<180;n++){v.travelTime=n*.16;const tr=v.ringTravel();for(const sign of [-1,1]){const from=tr.from.clone().addScaledVector(new THREE.Vector3(Math.sin(tr.angleFrom),0,Math.cos(tr.angleFrom)),sign*tr.rangeFrom/2),to=tr.to.clone().addScaledVector(new THREE.Vector3(Math.sin(tr.angleTo),0,Math.cos(tr.angleTo)),sign*tr.rangeTo/2);for(const q of [0,.25,.5,.75,1]){const p=from.clone().lerp(to,q);officialClearance=Math.min(officialClearance,Math.hypot(p.x-1.13,p.z+.83));}}}
+assert.ok(officialClearance>.74,'ring travel must not take fighters through the fixed referee');
+// Braking must remain monotonic and reach rest without a velocity cliff.
+m.fighters.lion.action={move:'jab',attack:true};v.travelTime=.11;v.travelStop=null;v.travelLast=m.time;
+let lastCentre=v.ringTravel().centre.clone(),lastTravel=v.travelTime,brakingSpeed=Infinity,peakBrakingSpeed=0;
+for(let i=0;i<43;i++){m.time+=.005;const tr=v.ringTravel();assert.ok(v.travelTime>=lastTravel,'settling clock cannot rewind');brakingSpeed=tr.centre.distanceTo(lastCentre)/.005;peakBrakingSpeed=Math.max(peakBrakingSpeed,brakingSpeed);lastTravel=v.travelTime;lastCentre=tr.centre.clone();if(i===40)assert.ok(brakingSpeed<peakBrakingSpeed*.25,'root must decelerate before the final planted frame');}
+assert.equal(brakingSpeed,0);
+console.log('PASS sustained distinct guards, fixed arm lengths, real direction-led ring steps, planted canvas contacts and landing before contact',{maxPlant,maxStep,officialClearance});
