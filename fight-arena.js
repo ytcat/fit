@@ -100,8 +100,11 @@
    const stride=.64,half=stride*.5;
    if(mobile){this.travelStop=null;this.travelTime+=dt;}
    else {
-    if(this.travelStop==null)this.travelStop=Math.max(this.travelTime,Math.ceil((this.travelTime-1e-8)/half)*half);
-    this.travelTime=Math.min(this.travelStop,this.travelTime+dt);
+    if(this.travelStop==null){this.travelStart=this.travelTime;this.travelAge=0;this.travelStop=Math.max(this.travelTime,Math.ceil((this.travelTime-1e-8)/half)*half);}
+    const duration=this.travelStop-this.travelStart;this.travelAge+=dt;
+    const q=duration>1e-8?Math.min(1,this.travelAge/duration):1;
+    // Match incoming velocity, finish with zero velocity at double support.
+    this.travelTime=q===1?this.travelStop:this.travelStart+duration*(q+q*q-q*q*q);
    }
    // Keep the planted stride offset while stopped; fading it caused foot slide.
    this.gaitWeight=m.phase==='round'?1:0;

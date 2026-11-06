@@ -23,7 +23,7 @@
   const controls=make('div','manual-controls');controls.id='manualControls';const rails=[];
   for(let side=0;side<2;side++){const rail=make('div','manual-rail');rail.dataset.side=side?'rear':'lead';const title=make('span','manual-side-label');rail.append(title);controls.append(rail);rails.push({rail,title,buttons:[]});}
   const status=make('div','manual-status');status.id='manualStatus';status.setAttribute('aria-live','polite');controls.append(status);document.getElementById('stageContainer').append(controls);
-  let page='combos';const pages=make('div','manual-pages');pages.setAttribute('role','group');const pageButtons=[];
+  const supportsCombos=typeof input.canCombo==='function'&&typeof input.sequence==='function';let page=supportsCombos?'combos':'moves';const pages=make('div','manual-pages');pages.setAttribute('role','group');const pageButtons=[];
   for(const id of ['moves','combos','defence']){const b=make('button','');b.type='button';b.dataset.inputPage=id;b.onclick=()=>{page=id;paint(true);};pages.append(b);pageButtons.push(b);}
   document.querySelector('.club-view-tools')?.append(pages);
   let lastKey='',lastLayout;
@@ -31,7 +31,7 @@
   const press=id=>{if(input.press(id)){app.updatePlayBtnText();paint(true);window.clubInterface?.paint();}};
   function paint(force=false){
    const match=e.arena?.fightView?.match,action=match?match.fighters[input.actor()]?.action:input.current,queue=match?.playerQueue||input.queue;
-   const sequence=input.sequence();
+   const sequence=input.sequence?.();
    const key=[page,sequence?.id,sequence?.step,app.lang,input.enabled,e.targetMode,e.coach?.species,e.isPlaying,action?.id,queue?.map(a=>a.input).join(','),match?.phase,match?.fighters[input.actor()]?.down,!!match?.result].join('|');
    if(!force&&key===lastKey)return;lastKey=key;
    const isSpeed=e.targetMode==='speed';
@@ -40,10 +40,10 @@
     rails.forEach(({rail,title,buttons},side)=>{buttons.length=0;rail.replaceChildren(title);for(const id of layout[side]){const b=make('button','manual-move');b.type='button';b.dataset.inputMove=id;b.onclick=()=>press(id);rail.append(b);buttons.push(b);}});lastLayout=page+'|'+isSpeed;
    }
    document.body.classList.toggle('manual-active',input.enabled);controls.hidden=!input.enabled;
-   pages.hidden=!input.enabled;pages.setAttribute('aria-label',w().group);for(const b of pageButtons){b.textContent=w()[b.dataset.inputPage];b.setAttribute('aria-pressed',String(page===b.dataset.inputPage));}
+   pages.hidden=!input.enabled||!supportsCombos;pages.setAttribute('aria-label',w().group);for(const b of pageButtons){b.textContent=w()[b.dataset.inputPage];b.setAttribute('aria-pressed',String(page===b.dataset.inputPage));}
    toggle.setAttribute('aria-label',w().group);auto.textContent=w().auto;manual.textContent=w().manual;
    auto.setAttribute('aria-pressed',String(!input.enabled));manual.setAttribute('aria-pressed',String(input.enabled));manual.disabled=!e.coach;
-   rails.forEach(({title,buttons},side)=>{title.textContent=side?w().rear:w().lead;for(const b of buttons){b.textContent=name(b.dataset.inputMove);b.setAttribute('aria-label',name(b.dataset.inputMove));b.disabled=b.dataset.inputMove.startsWith('combo_')?!input.canCombo():!input.canAct();b.dataset.active=String(action?.input===b.dataset.inputMove||sequence?.id===b.dataset.inputMove);}});
+   rails.forEach(({title,buttons},side)=>{title.textContent=side?w().rear:w().lead;for(const b of buttons){b.textContent=name(b.dataset.inputMove);b.setAttribute('aria-label',name(b.dataset.inputMove));b.disabled=b.dataset.inputMove.startsWith('combo_')?!input.canCombo?.():!input.canAct();b.dataset.active=String(action?.input===b.dataset.inputMove||sequence?.id===b.dataset.inputMove);}});
    const actor=({en:{lion:'Lion',rabbit:'Rabbit'},he:{lion:'אריה',rabbit:'ארנב'},ru:{lion:'Лев',rabbit:'Кролик'}}[app.lang]||{lion:'Lion',rabbit:'Rabbit'})[input.actor()];
    const state=match?.result?w().finished:match?.phase==='count'?w().recover:match&&match.phase!=='round'?w().bell:action?name(action.input||action.move):w().ready;
    status.textContent=w().you+' '+actor+' · '+(sequence?name(sequence.id)+' '+sequence.step+'/'+sequence.total+' · ':'')+state+(queue?.length?' · '+w().next+': '+name(queue[0].input||queue[0].move):'');

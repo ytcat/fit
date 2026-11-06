@@ -30,7 +30,7 @@
    return !match||(match.phase==='round'&&!match.result&&!match.fighters[this.actor()].down);
   }
   sequence(){const m=this.engine.arena?.fightView?.match;return m?m.playerCombo:this.combo;}
-  canCombo(){const match=this.engine.arena?.fightView?.match,a=match?match.fighters[this.actor()]?.action:(this.context===this.key()?this.current:null);return this.canAct()&&!this.sequence()&&!(match?.playerQueue||this.queue).length&&(!a||a.move==='guard');}
+  canCombo(){const match=this.engine.arena?.fightView?.match,a=match?match.fighters[this.actor()]?.action:(this.context===this.key()?this.current:null);return this.canAct()&&(!match||typeof match.requestPlayerCombo==='function')&&!this.sequence()&&!(match?.playerQueue||this.queue).length&&(!a||a.move==='guard');}
   pressCombo(id){
    if(this.context!==this.key())this.reset();
    const ids=combos[id],speed=(this.engine.targetMode||this.engine.arena?.mode)==='speed';
