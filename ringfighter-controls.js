@@ -30,7 +30,7 @@
    }
    document.body.classList.toggle('manual-active',input.enabled);controls.hidden=!input.enabled;
    toggle.setAttribute('aria-label',w().group);auto.textContent=w().auto;manual.textContent=w().manual;
-   auto.setAttribute('aria-pressed',String(!input.enabled));manual.setAttribute('aria-pressed',String(input.enabled));manual.disabled=!e.coach;
+   auto.setAttribute('aria-pressed',String(!input.enabled));manual.setAttribute('aria-pressed',String(input.enabled));manual.disabled=!e.coach||e.targetMode==='rope';
    rails.forEach(({title,buttons},side)=>{title.textContent=side?w().rear:w().lead;for(const b of buttons){b.textContent=name(b.dataset.inputMove);b.setAttribute('aria-label',name(b.dataset.inputMove));b.disabled=!input.canAct();b.dataset.active=String(action?.input===b.dataset.inputMove);}});
    const actor=({en:{lion:'Lion',rabbit:'Rabbit'},he:{lion:'אריה',rabbit:'ארנב'},ru:{lion:'Лев',rabbit:'Кролик'}}[app.lang]||{lion:'Lion',rabbit:'Rabbit'})[input.actor()];
    const state=match?.result?w().finished:match?.phase==='count'?w().recover:match&&match.phase!=='round'?w().bell:action?name(action.input||action.move):w().ready;

@@ -21,22 +21,28 @@
   <script src="./avatar-anatomy.js?v=2026110406"></script>
   <script src="./avatar-detail.js?v=2026110605"></script>
   <script src="./avatar-shoulder.js?v=2026110504"></script>
-  <script src="./boxing-coach-v2.js?v=2026110605"></script>
+  <script src="./boxing-footwear.js?v=2026110607"></script>
+  <script src="./boxing-coach-v2.js?v=2026110607"></script>
   <script src="./contact-response.js?v=2026110406"></script>
   <script src="./gym-details.js?v=2026110604"></script>
   <script src="./training-arena.js?v=2026110605"></script>
-  <script src="./boxing-fight.js?v=2026110604"></script>
-  <script src="./fight-referee.js?v=2026110406"></script>
-  <script src="./fight-arena.js?v=2026110604"></script>
+  <script src="./boxing-fight.js?v=2026110607"></script>
+  <script src="./fight-referee.js?v=2026110607"></script>
+  <script src="./fight-arena.js?v=2026110607"></script>
+  <script src="./career-drills.js?v=2026110607"></script>
+  <script src="./career-progress.js?v=2026110607"></script>
   <script src="./fight-ui.js?v=2026110406" defer></script>
-  <script src="./training-controls.js?v=2026110605" defer></script>
-  <script src="./character-roster.js?v=2026110604"></script>
+  <script src="./training-controls.js?v=2026110607" defer></script>
+  <script src="./character-roster.js?v=2026110607"></script>
   <script src="./ring-camera.js?v=2026110604"></script>
   <script src="./club-world.js?v=2026110604"></script>
   <link rel="stylesheet" href="./club-interface.css?v=2026110604" />
-  <script src="./club-interface.js?v=2026110604" defer></script>
+  <script src="./club-interface.js?v=2026110607" defer></script>
   <link rel="stylesheet" href="./ringfighter-controls.css?v=2026110604" />
-  <script src="./ringfighter-controls.js?v=2026110604" defer></script>
+  <script src="./ringfighter-controls.js?v=2026110607" defer></script>
+  <link rel="stylesheet" href="./career-interface.css?v=2026110607">
+  <script src="./career-interface.js?v=2026110607" defer></script>
+  <script src="./fight-presentation.js?v=2026110607" defer></script>
 
   <style>
     html, body {
@@ -704,6 +710,7 @@
         if (this.isPlaying) this.animTime += dt * this.speed;
         if (this.coach && this.activeModel===this.demoModel) {
           if(this.arena){const frame=this.arena.update(this.animTime,this.technique,this.currentAnim);
+            this.career?.onFrame(frame,this.isPlaying?dt:0);
             if(this.isPlaying){for(const swing of frame.swings||[])this.onSwing?.(swing);for(const hit of [...frame.contacts,...(frame.platformContacts||[])])this.onImpact?.(hit);}
           }
           else this.coach.update(this.animTime,this.technique,this.currentAnim);
@@ -718,6 +725,10 @@
 
     /* TRILINGUAL AUDIO ENGINE */
     class AudioEngine {
+      countdown(second) {
+        const ctx=this.ctx;if(this.muted||!this.unlocked||!ctx||ctx.state!=='running')return;
+        const voice=ctx.createOscillator(),gain=ctx.createGain(),t=ctx.currentTime;voice.type='sine';voice.frequency.value=second<=3?1046:784;gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.13,t+.008);gain.gain.exponentialRampToValueAtTime(.001,t+.13);voice.connect(gain);gain.connect(this.output||ctx.destination);voice.onended=()=>{voice.disconnect();gain.disconnect();};voice.start(t);voice.stop(t+.15);
+      }
       constructor() {
         this.ctx=null;this.muted=false;this.samples=new Map();this.voices=new Set();this.soundSerial=0;this.lastPain=new Map();
         const names=['body-1','body-2','pad','swing','effort-1','effort-2','clap-1','clap-2','clap-3','bell','applause'];

@@ -6,13 +6,14 @@
  const empty=()=>({thrown:0,landed:0,head:0,body:0,shoulder:0,blocked:0,evaded:0,missed:0,quality:0,power:0,control:0,knockdowns:0});
  const presets={three:{rounds:3,roundSeconds:180,restSeconds:60},club:{rounds:4,roundSeconds:180,restSeconds:60},six:{rounds:6,roundSeconds:180,restSeconds:60},title:{rounds:12,roundSeconds:180,restSeconds:60},exhibition:{rounds:3,roundSeconds:60,restSeconds:15},quick:{rounds:1,roundSeconds:60,restSeconds:0}};
  class BoxingFight {
-  constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds}={}){
+  constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor}={}){
    this.seed=seed>>>0;this.state=this.seed;this.preset=preset;Object.assign(this,presets[preset]||presets.club);
    if(rounds!=null)this.rounds=rounds;if(roundSeconds!=null)this.roundSeconds=roundSeconds;if(restSeconds!=null)this.restSeconds=restSeconds;
    this.knockdownSeconds=5.6;
    this.time=0;this.phase='intro';this.phaseTime=0;this.round=1;this.roundTime=0;this.eventId=0;this.actionId=0;this.events=[];this.history=[];this.roundStats={lion:empty(),rabbit:empty()};this.totals={lion:empty(),rabbit:empty()};this.seen=new Set();this.result=null;
    this.cards=[{name:'Judge 1',weights:[1,.08,.18,.003],rounds:[]},{name:'Judge 2',weights:[1.04,.16,.09,.002],rounds:[]},{name:'Judge 3',weights:[.98,.05,.25,.005],rounds:[]}];
    this.fighters={};for(const actor of actors)this.fighters[actor]={actor,condition:100,stamina:1,stun:0,down:0,action:null,next:0,skill:.78+this.random()*.18,power:.85+this.random()*.3,tempo:.85+this.random()*.3,reaction:null,damage:{left:0,right:0,body:0}};
+   if(actors.includes(careerActor)&&careerStats){const f=this.fighters[careerActor],n=k=>clamp((Number(careerStats[k]||20)-20)/79);f.power*=1+n('power')*.55;f.tempo*=1+n('speed')*.38;f.skill=Math.min(.99,f.skill+n('defence')*.18);f.footwork=1+n('footwork')*.40;f.recovery=1+n('stamina')*.65;f.economy=1-n('stamina')*.28;f.accuracy=n('accuracy');}
    this.order=this.random()<.5?['lion','rabbit']:['rabbit','lion'];
   }
   random(){this.state=(Math.imul(this.state,1664525)+1013904223)>>>0;return this.state/4294967296;}
@@ -31,13 +32,13 @@
    const actor=this.playerActor,f=this.fighters[actor];
    if(moves.includes(command.move)){
     const action=this.attack(actor,command.move,command.target||'head');if(action)action.input=command.input;
-   }else f.action={...command,id:++this.actionId,actor,start:this.time,duration:command.duration||.65,attack:false};
+   }else f.action={...command,id:++this.actionId,actor,start:this.time,duration:(command.duration||.65)/(command.move==='step'?(f.footwork||1):1),attack:false};
   }
   emit(type,data={}){const event={id:++this.eventId,type,time:this.time,round:this.round,...data};this.events.push(event);if(this.events.length>300)this.events.shift();return event;}
   attack(actor,move,target){
    if(this.phase!=='round'||this.result)return null;
    const f=this.fighters[actor],duration=(move.includes('uppercut')?.98:.85)*(1+(1-f.stamina)*.3)/f.tempo;
-   f.action={id:++this.actionId,actor,move,target,start:this.time,duration,attack:true,recorded:false,aim:null};f.stamina=clamp(f.stamina-.045-(move==='jab'?0:.025));
+   f.action={id:++this.actionId,actor,move,target,start:this.time,duration,attack:true,recorded:false,aim:null};f.stamina=clamp(f.stamina-(.045+(move==='jab'?0:.025))*(f.economy||1));
    this.roundStats[actor].thrown++;this.totals[actor].thrown++;this.emit('punch',{actor,move,target,action:f.action.id});
    return f.action;
   }
@@ -60,7 +61,7 @@
   advance(dt){
    if(!(dt>0))return;this.time+=dt;this.phaseTime+=dt;
    if(this.phase!=='round')this.playerQueue=[];
-   for(const a of actors){const f=this.fighters[a];f.stamina=clamp(f.stamina+dt*(this.phase==='rest'?.025:.018));f.stun=Math.max(0,f.stun-dt*2.2);}
+   for(const a of actors){const f=this.fighters[a];f.stamina=clamp(f.stamina+dt*(this.phase==='rest'?.025:.018)*(f.recovery||1));f.stun=Math.max(0,f.stun-dt*2.2);}
    if(this.phase==='intro'){if(this.phaseTime>=3){this.phase='round';this.phaseTime=0;this.emit('bell',{kind:'start'});}return;}
    if(this.phase==='rest'){if(this.phaseTime>=this.restSeconds){this.round++;this.roundTime=0;this.roundStats={lion:empty(),rabbit:empty()};for(const a of actors){this.fighters[a].action=null;this.fighters[a].next=this.time+.15+this.random()*.2;this.fighters[a].condition=Math.min(100,this.fighters[a].condition+4);}this.phase='round';this.phaseTime=0;this.emit('bell',{kind:'start'});}return;}
    if(this.phase==='scoring'){if(this.phaseTime>=10){this.phase='ceremony';this.phaseTime=0;this.emit('announcement',{result:this.result});}return;}
@@ -80,7 +81,7 @@
     const f=this.fighters[actor];
     if(f.action&&this.time-f.action.start>=f.action.duration+(f.action.contactTime!=null?.045:0)){
      if(f.action.attack&&!f.action.recorded){this.roundStats[actor].missed++;this.totals[actor].missed++;if(f.action.facedDefence){this.roundStats[other(actor)].evaded++;this.totals[other(actor)].evaded++;}this.emit('miss',{actor,action:f.action.id});}
-     f.action=null;f.next=this.time+.06+this.random()*.48+(1-f.stamina)*.6;
+     f.action=null;f.next=this.time+(.06+this.random()*.48+(1-f.stamina)*.6)/(f.footwork||1);
     }
     if(!f.action&&actor===this.playerActor){if(this.playerQueue.length)this.startPlayerMove(this.playerQueue.shift());}
     else if(!f.action&&this.time>=f.next)this.decide(actor);

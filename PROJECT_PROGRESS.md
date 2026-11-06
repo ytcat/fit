@@ -201,3 +201,18 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   camera recovery and manual player-versus-AI browser checks.
 - Evidence: docs/r86-combo-groom-polish.md and qa/r86/comparison.html. Authored
   facial reconstruction and sustained physical-phone benchmarks remain open.
+
+## RingFighter R87 — training careers, footwear and fight announcements (2026-11-06)
+- Added scored training sessions, six attributes, independent Lion/Rabbit careers,
+  seven ranks, completed-bout rewards and actual fight parameter improvements.
+- Added jump rope and responsive focus mitt drills with measured contacts and
+  hook/duck clearance, plus compact progress controls and player profiles.
+- Rebuilt articulated boxing boots for both species and low-top referee shoes.
+- Added versus, Fight, Break and winner announcements, an urgent final-ten-second
+  clock and gesture/mute-aware second sounds.
+- All 48 regression suites pass, including new geometry, persistence, interface,
+  rewards and countdown checks; final targeted UI/scoring checks also pass.
+- Cross-device accounts remain blocked on an unconfigured account backend.
+  Current named/guest saves are device-local, with portable backup files.
+- Live GPU/browser visual QA is unavailable in this environment. Details and
+  the implementation plan: docs/r87-career-training-and-fight-presentation.md.

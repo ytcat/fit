@@ -189,6 +189,7 @@
    ],[-.30,.11,-.20],[.30,.98,.20],.022);
    make(this.root,lower,pants).name='Continuous trouser silhouette';
    for(const side of [-1,1]){
+     if(window.BoxingFootwear){const foot=new THREE.Group();foot.position.set(side*.148,.102,.015);foot.scale.set(1.28,1,1.12);this.root.add(foot);window.BoxingFootwear.attach(foot,{referee:true});continue;}
      const shoe=ell(this.root,V(side*.148,.135,.072),V(.128,.104,.194),boot);
      ell(this.root,V(side*.148,.026,.072),V(.131,.026,.20),black).name='Grounded rubber shoe sole';
      const upper=(x,z)=>V(side*.148+x,.135+.104*Math.sqrt(Math.max(0,1-(x/.128)**2-((z-.072)/.194)**2))+.002,z);

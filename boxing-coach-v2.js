@@ -561,6 +561,7 @@
       label.position.copy(p);parent.add(label);return label;
     }
     addBoot(foot) {
+      if(window.BoxingFootwear)return window.BoxingFootwear.attach(foot,{species:this.species});
       const shape=new THREE.Shape();
       shape.moveTo(-.062,-.108);shape.lineTo(-.078,.055);
       shape.quadraticCurveTo(-.097,.177,-.061,.205);

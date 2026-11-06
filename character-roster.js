@@ -7,6 +7,7 @@
   get(species) { return this.coaches[species]||(this.coaches[species]=new LionCoach(this.data,{species})); }
   select(species) {
    if(!['lion','rabbit'].includes(species)||this.engine.targetMode==='fight')return false;
+   this.engine.career?.finish();
    const e=this.engine,playing=e.isPlaying,mode=e.targetMode||'none';
    e.coach.root.parent?.remove(e.coach.root);
    e.coach=this.get(species);e.demoModel=e.activeModel=e.coach.root;

@@ -45,7 +45,9 @@
    if(low<.004){coach.root.position.y+=.004-low;coach.syncSkin();}
   }
   constructor(arena,options){
+   options={...options,...arena.engine.career?.fightOptions()};
    this.arena=arena;this.engine=arena.engine;this.match=new BoxingFight(options);this.tick=0;this.previous={};this.compressions={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.contacts=[];this.eventCursor=0;this.pendingSwings=[];this.travelTime=0;this.travelLast=null;
+   this.careerEntry=options.careerEntry;
    this.coaches=this.engine.coach.species==='rabbit'?{lion:arena.rabbit,rabbit:this.engine.coach}:{lion:this.engine.coach,rabbit:arena.rabbit};
    if(this.engine.player?.enabled)this.match.setPlayer(this.engine.player.actor());
    this.referee=new RhinoReferee();arena.group.add(this.referee.root);this.audience=new FightAudience(arena.group);
@@ -88,6 +90,7 @@
    if(action.aim)return V(...action.aim);
    const side=rear(spec.move)?1:-1;
    const point=spec.target==='body'?V(side*.055,1.37,.155):spec.target==='shoulder'?V(side*.29,1.59,.08):V(spec.move.includes('hook')?side*.085:side*.012,1.90,.19);
+   const accuracy=this.match.fighters[actor].accuracy;if(accuracy!=null){const spread=.085*(1-accuracy);point.x+=Math.sin(action.id*12.9898+this.match.seed)*spread;point.y+=Math.cos(action.id*7.233+this.match.seed)*spread;}
    const world=receiver.root.localToWorld(point),local=coach.root.worldToLocal(world.clone());
    // Commit to the target's arena position; a late slip can actually miss.
    if(spec.phase>=.18){action.aim=this.arena.group.worldToLocal(world.clone()).toArray();action.aimInArena=true;}
@@ -129,7 +132,7 @@
    if(m.phase==='round')this.separateTorso(false);
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
-    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={guardElbowBack:.55,guardWidth:.24,keepFaceClear:true,simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28};
+    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={guardElbowBack:.55,guardWidth:.24,keepFaceClear:true,simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28*(f.footwork||1)};
     if(m.phase==='round'&&travel.weight>.001&&!ceremony){const yaw=coach.root.rotation.y;options.ringStep={phase:travel.phase,ease:travel.ease,weight:travel.weight,delta:travel.delta.clone().applyAxisAngle(V(0,1,0),-yaw).toArray()};}
     if(spec.attack){
      options.planStraight=true;options.strikeDirection=[0,0,1];
@@ -313,6 +316,7 @@
     this.eventCursor=event.id;
    }
    window.fightUI?.render(this);
+   this.engine.career?.onFight(this);
    return this.arena.metrics;
   }
  }

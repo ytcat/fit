@@ -21,7 +21,7 @@ for(const f of ['boxing-routines.js','boxing-coach-v2.js','training-controls.js'
 const bar=footer.children[0],[target,combo,speed]=bar.children;
 assert.equal(bar.id,'trainingBar');assert.equal(target.textContent,'Shadowboxing');assert.equal(speed.id,'speedBtn');
 speed.click();let rates=body.children.at(-1);assert.equal(rates.children[1].children.length,8);rates.children[1].children[7].click();assert.equal(e.speed,3);assert.equal(speed.textContent,'3×');
-target.click();let d=body.children.at(-1);assert.equal(d.children[1].children.length,6);d.children[1].children[4].click();
+target.click();let d=body.children.at(-1);assert.equal(d.children[1].children.length,8);d.children[1].children[6].click();
 assert.equal(e.targetMode,'rabbit');assert.equal(e.arena.mode,'rabbit');assert.equal(e.currentAnim,'sparring_flow');assert.equal(d.parentElement,null);
 combo.click();d=body.children.at(-1);assert.equal(d.children[1].children.length,ctx.BOXING_ROUTINES.list.length+2);d.children[1].children[5].click();assert.equal(e.currentAnim,'jab_slip_counter');
 combo.click();d=body.children.at(-1);assert.equal(d.children[1].children[ctx.BOXING_ROUTINES.list.length].dataset.routine,'random');d.children[1].children[ctx.BOXING_ROUTINES.list.length].click();assert.equal(e.technique,'random');assert.equal(e.targetMode,'rabbit');assert.ok(Number.isInteger(e.randomSeed));ctx.pulse();assert.equal(get('comboCodes').textContent,'↔');

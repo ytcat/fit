@@ -16,7 +16,9 @@
  Object.assign(text.ru,{freestyle:'Случайные комбинации',freestyleHint:'Новые серии атак, защиты и отходов. Ровный или переменный ритм.'});
  text.en.fight='Fight mode';text.he.fight='מצב קרב';text.ru.fight='Режим боя';
  for(const lang of ['en','he','ru'])text[lang].hints.fight=({en:'Live rounds, real contacts, three scorecards and a rhino referee.',he:'סיבובים חיים, פגיעות, שלושה כרטיסי ניקוד ושופט קרנף.',ru:'Раунды, попадания, три судейские записки и рефери-носорог.'})[lang];
+ for(const [lang,labels] of Object.entries({en:['Jump rope','Coach mitts','Light, rhythmic jumps build speed, footwork and stamina.','Jab, cross, roll under the trainer’s hook, and counter.'],he:['קפיצה בחבל','אימון כפפות','קפיצות קלות לשיפור עבודת רגליים וסיבולת.','ג׳אב, קרוס, התחמקות מהוק ומכת נגד.'],ru:['Скакалка','Лапы тренера','Ритм, скорость ног и выносливость.','Джеб, кросс, нырок под хук и ответ.']})){text[lang].rope=labels[0];text[lang].pads=labels[1];text[lang].hints.rope=labels[2];text[lang].hints.pads=labels[3];}
  const icons={none:'<path d="M8 30l4-13 8-5 7 8 7-6M12 17l-5-6m13 1 1-8m-4 20-7 12m14-14 7 14"/>',heavy:'<path d="M20 2v6m-9 4 9-5 9 5"/><rect x="10" y="12" width="20" height="25" rx="6"/><path d="M10 20h20m-20 10h20"/>',dummy:'<ellipse cx="20" cy="9" rx="6" ry="7"/><path d="M15 16 8 20l3 11h18l3-11-7-4M20 31v5m-9 2h18"/>',speed:'<path d="M5 5h30M20 5v6m0 0c-3 8-8 9-8 16a8 8 0 0016 0c0-7-5-8-8-16z"/>',rabbit:'<ellipse cx="14" cy="10" rx="3" ry="9"/><ellipse cx="25" cy="10" rx="3" ry="9"/><path d="M10 23a10 10 0 1020 0M10 32l-6 5m26-5 6 5"/><circle cx="16" cy="24" r="1"/><circle cx="24" cy="24" r="1"/>'};
+ icons.rope='<path d="M8 8v12a12 12 0 0024 0V8M5 2h6v9H5zM29 2h6v9h-6z"/>';icons.pads='<ellipse cx="11" cy="20" rx="8" ry="14"/><ellipse cx="29" cy="20" rx="8" ry="14"/><circle cx="11" cy="20" r="4"/><circle cx="29" cy="20" r="4"/>';
  icons.fight='<path d="M4 12h32v23H4zM4 19h32M4 27h32M10 7l7 4-2 10-7-3zM30 7l-7 4 2 10 7-3z"/>';
  function boot(){
   const app=window.app;if(!app)return;const e=app.engine,w=()=>text[app.lang]||text.en;
@@ -44,6 +46,7 @@
    timing.disabled=mode==='fight';timing.textContent=mode==='fight'?w().fightRhythm:e.practiceTiming==='random'?w().variableLabel:w().steadyLabel;
    timing.setAttribute('aria-label',w().timing+': '+(e.practiceTiming==='random'?w().variable:w().sync));
    if(mode==='speed'){combo.textContent=({en:'Next drill',he:'התרגיל הבא',ru:'Следующее'})[app.lang];document.getElementById('drillTier').textContent=w().speed;document.getElementById('exerciseNotes').textContent=({en:'Keep compact circles in front of the face. Finish the burst, defend, then return to rhythm.',he:'מעגלים קצרים לפני הפנים. סיימו רצף, הגנו וחזרו לקצב.',ru:'Короткие круги перед лицом. Завершите серию, выполните защиту и вернитесь к ритму.'})[app.lang];}
+   if(['rope','pads'].includes(mode)){combo.disabled=true;timing.disabled=true;document.getElementById('drillTier').textContent=w()[mode];document.getElementById('exerciseNotes').textContent=w().hints[mode];for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=true;}
    if(e.player?.enabled){combo.disabled=true;timing.disabled=true;for(const id of ['prevBtn','nextBtn'])document.getElementById(id).disabled=true;}
    app.audio?.onState?.();
    speed.setAttribute('aria-label',({en:'Playback speed',he:'מהירות תנועה',ru:'Скорость'}[app.lang])+': '+e.speed+'×');
@@ -55,7 +58,10 @@
    d.addEventListener('close',()=>d.remove(),{once:true});document.body.append(d);return d;
   }
   function chooseTarget(mode){
+   if(e.targetMode!==mode)e.career?.finish();
    e.targetMode=mode;
+   if(['rope','pads'].includes(mode)){e.animTime=0;e.isPlaying=true;e.technique='guard';if(mode==='rope')e.player?.setEnabled(false);}
+
    if(mode!=='fight'&&e.technique==='fight'){app.drillIdx=0;app.renderDrill();}
    if(mode!=='rabbit'&&e.technique==='random'){app.drillIdx=0;app.renderDrill();}
    if(mode==='speed'){
@@ -67,14 +73,14 @@
    if(mode==='rabbit'&&!hasDefence){
     app.drillIdx=BOXING_ROUTINES.list.findIndex(r=>r.id==='sparring_flow');app.renderDrill();
    }
-   e.arena?.setTarget(mode);paint();window.dispatchEvent?.(new Event('resize'));
+   e.arena?.setTarget(mode);paint();window.manualControls?.paint(true);window.dispatchEvent?.(new Event('resize'));
   }
   function activateRandom(){
    chooseTarget('rabbit');e.randomSeed=Math.floor(Math.random()*4294967295);e.technique='random';e.animTime=0;e.isPlaying=true;paint();
   }
   target.onclick=()=>{
    const d=dialog(w().title),grid=make('div','equipment-grid');
-   for(const mode of ['none','heavy','dummy','speed','rabbit','fight']){
+   for(const mode of ['none','heavy','dummy','speed','rope','pads','rabbit','fight']){
     const b=make('button','equipment-choice');b.type='button';b.dataset.target=mode;b.setAttribute('aria-pressed',String((e.targetMode||'none')===mode));
     const icon=make('span','equipment-icon');icon.innerHTML='<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">'+icons[mode]+'</svg>';
     b.append(icon,make('strong','',w()[mode]),make('span','equipment-hint',w().hints[mode]));b.onclick=()=>{d.close();if(mode==='fight')window.fightUI?.configure();else chooseTarget(mode);};grid.append(b);

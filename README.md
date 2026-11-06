@@ -1,5 +1,10 @@
 # RingFighter — 3D Boxing
 
+R87 adds scored training sessions, jump rope, coach mitts, boxer development,
+new footwear and match announcements. See the [change plan and verification](docs/r87-career-training-and-fight-presentation.md).
+Named profiles and guests save on this device; authenticated cross-device saving
+still needs a connected backend.
+
 A static, three-language boxing practice app. Open it through an HTTP server:
 
 ```sh
