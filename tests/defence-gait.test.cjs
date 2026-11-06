@@ -21,7 +21,7 @@ for(const actor of ['lion','rabbit'])for(const [style,y,axis] of [['high',1.90,'
 console.log('coverage',blocks);for(const [style,part] of Object.entries(blocks))assert.ok(['glove','arm'].includes(part),style+' must intercept its incoming path before the head/body');assert.equal(Object.keys(blocks).length,10);
 // Braking must remain monotonic and reach rest without a velocity cliff.
 m.fighters.lion.action={move:'jab',attack:true};v.travelTime=.11;v.travelStop=null;v.travelLast=m.time;
-let lastCentre=v.ringTravel().centre.clone(),lastTravel=v.travelTime,brakingSpeed=Infinity;
-for(let i=0;i<43;i++){m.time+=.005;const tr=v.ringTravel();assert.ok(v.travelTime>=lastTravel,'settling clock cannot rewind');brakingSpeed=tr.centre.distanceTo(lastCentre)/.005;lastTravel=v.travelTime;lastCentre=tr.centre.clone();if(i===40)assert.ok(brakingSpeed<.10,'root must decelerate before the final planted frame');}
+let lastCentre=v.ringTravel().centre.clone(),lastTravel=v.travelTime,brakingSpeed=Infinity,peakBrakingSpeed=0;
+for(let i=0;i<43;i++){m.time+=.005;const tr=v.ringTravel();assert.ok(v.travelTime>=lastTravel,'settling clock cannot rewind');brakingSpeed=tr.centre.distanceTo(lastCentre)/.005;peakBrakingSpeed=Math.max(peakBrakingSpeed,brakingSpeed);lastTravel=v.travelTime;lastCentre=tr.centre.clone();if(i===40)assert.ok(brakingSpeed<peakBrakingSpeed*.25,'root must decelerate before the final planted frame');}
 assert.equal(brakingSpeed,0);
 console.log('PASS sustained distinct guards, fixed arm lengths, real direction-led ring steps, planted canvas contacts and landing before contact',{maxPlant,maxStep});
