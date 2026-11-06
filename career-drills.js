@@ -46,7 +46,7 @@
     }
     trainer.syncSkin();this.arena.group.updateMatrixWorld(true);
     const targetIndex=rear(spec.move)?0:1,pad=this.mitts[targetIndex],target=hero.root.worldToLocal(pad.localToWorld(V(0,0,.062)));
-    const options={simulationTime:time,duckDepth:.36,guardElbowBack:.5,keepFaceClear:true,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,advance:.025,power:1.05};
+    const options={simulationTime:time,duckDepth:.36,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,advance:.025,power:1.05};
     hero.update(spec.phase*1.22,spec.move,'one_two',options);this.arena.group.updateMatrixWorld(true);
     if(spec.attack){
      if(spec.phase>.2&&this.once('swing'+spec.index))swings.push({actor:'lion',move:spec.move});

@@ -14,6 +14,7 @@ for(const species of ['lion','rabbit']){
  for(let i=1;i<=270;i++){const f=e.arena.update(i/30);hits+=f.contacts.length;defences+=f.defences;assert.ok(f.hero.hands.flat().every(Number.isFinite));}
  console.log(species,{jumps,hits,defences});assert.ok(hits>=4,'punches must actually meet the moving mitts');assert.ok(defences>=2,'roll must clear the trainer hook');
  e.player.setEnabled(true);e.animTime=0;e.arena.setTarget('pads');let idleHits=0,idleDefences=0;for(let i=1;i<=135;i++){const f=e.arena.update(i/30);idleHits+=f.contacts.length;idleDefences+=f.defences;}assert.equal(idleHits,0);assert.equal(idleDefences,0,'manual idle cannot earn duck credit');e.player.setEnabled(false);
+ e.player.setEnabled(true);const covers={};for(const id of ['high_guard','body_guard']){e.animTime=0;e.arena.setTarget('pads');e.player.reset();assert.ok(e.player.press(id));covers[id]=e.arena.update(.20).hero.hands.map(p=>p[1]);}for(let i=0;i<2;i++)assert.ok(covers.high_guard[i]-covers.body_guard[i]>.20,'manual mitt training must preserve distinct head/body coverage');e.player.setEnabled(false);
  const trainer=e.arena.careerDrill.trainer;const original=trainer.root.children.length;e.targetMode='none';e.arena.setTarget('none');assert.equal(trainer.root.children.length,original-2,'dispose mitt geometry without leaking cached props');assert.equal(e.coach.root.position.y,0);
 }
 const ref=new RhinoReferee();let soles=0;ref.root.traverse(n=>{if(n.name==='Boxing boot sole')soles++;});assert.equal(soles,2);
