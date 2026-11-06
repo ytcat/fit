@@ -1204,7 +1204,7 @@
         const kneePole=V(s*.07,0,1).applyAxisAngle(V(0,1,0),pivot*.65);
         footPlans.push({side,pivot,footQ,step,contact,ankle,kneePole});
       }
-      if(options.stanceWidth||move.includes('uppercut')||hurt>0){
+      if(options.stanceWidth||options.ringStep||move.includes('uppercut')||hurt>0){
         // A wider planted stance needs a little more knee flexion when a foot
         // steps ahead of the hips. Find support for both feet before solving
         // either leg; moving the pelvis after the first solve causes skating.

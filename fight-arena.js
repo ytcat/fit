@@ -154,6 +154,7 @@
     metrics[actor]=coach.update(time,ceremony?(ease<1?'step':'guard'):spec.move,'one_two',options);
     if(f.down)this.downPose(coach,state);
    }
+   if(m.phase==='round')this.stabilizeBends();
    a.group.updateMatrixWorld(true);
    if(m.phase==='round')this.separateTorso();
    this.referee.root.position.set(ceremony?1.13*(1-ease):1.13,0,ceremony?-.83+.71*ease:-.83);this.referee.root.rotation.y=ceremony?-.55*(1-ease):-.55;
@@ -207,6 +208,20 @@
    return candidates.sort((x,y)=>x.distance-y.distance)[0];
   }
   solidContact(point,receiver,actor,radius=.064){return this.arena.solidContact(point,this.coaches[receiver],this.coaches[actor],radius);}
+  stabilizeBends(){
+   this.bendFrames=this.bendFrames||{};
+   for(const actor of ['lion','rabbit'])for(const side of ['L','R']){
+    const coach=this.coaches[actor],key=actor+side,old=this.bendFrames[key],now=coach.armBendReference(side),dt=this.match.time-(old?.time??-1);
+    if(old&&dt>0&&dt<.1){
+     const previous=coach.contactBendPole(side,coach.point(coach.joints['hand'+side]),old);
+     const angle=Math.atan2(now.axis.dot(previous.clone().cross(now.bend)),previous.dot(now.bend));
+     const pole=previous.applyAxisAngle(now.axis,clamp(angle,-dt*20,dt*20));
+     coach.solve(coach.joints['arm'+side],coach.joints['elbow'+side],coach.joints['hand'+side],coach.point(coach.joints['hand'+side]),pole);
+     const i=side==='R'?1:0,glove=coach.metrics.gloves[i];coach.metrics.gloves[i]=coach.orientGlove(side,glove.turn,V(...glove.palmTarget));
+    }
+   }
+   for(const coach of Object.values(this.coaches))coach.syncSkin();
+  }
   resolveTrades(){
    // Body constraints are independent of the other fighter's moving guard.
    // Repeat the coupled solve, then finish on the solid torso/head constraint.
@@ -215,6 +230,7 @@
     for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainGlove(side,p=>this.collision(p,other(actor)),.014,poles[actor+side]);
     for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.coaches[actor].constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012,poles[actor+side]);
    }
+   for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.bendFrames[actor+side]={...this.coaches[actor].armBendReference(side),time:this.match.time};
   }
   step(){
    const dt=1/60,m=this.match;m.advance(dt);this.pose();this.contacts=[];

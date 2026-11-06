@@ -6,7 +6,7 @@ for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js',
 const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'));
 const e={scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,320/640,.1,100),coach:new LionCoach(data),animTime:0,technique:'combo',currentAnim:'sparring_flow',fitCameraToModel(){}};
 e.demoModel=e.coach.root;e.scene.add(e.demoModel);const arena=e.arena=new TrainingArena(e,data);
-assert.equal(BOXING_ROUTINES.list.length,24);assert.equal(new Set(BOXING_ROUTINES.list.map(r=>r.id)).size,24);
+assert.equal(BOXING_ROUTINES.list.length,28);assert.equal(new Set(BOXING_ROUTINES.list.map(r=>r.id)).size,28);
 for(const r of BOXING_ROUTINES.list)for(const m of r.moves)assert.ok(COACH_TECHNIQUES[m],r.id+' unknown move '+m);
 const attack=['jab','cross','hook','rear_hook','uppercut','rear_uppercut'];
 for(const mode of ['heavy','dummy']){
