@@ -806,7 +806,7 @@
 
     // A conservative padded-glove envelope against the skull and muzzle.
     // Move the speed-bag recovery in front of the head, never through it.
-    clearOwnFace(side,glove,palmTarget,pole) {
+    clearOwnFace(side,glove,palmTarget,pole,reference=null) {
       const j=this.joints,hand=j['hand'+side],head=j.head;
       const sign=side==='L'?-1:1;
       const samples=[[0,.015,0,.077],[0,-.07,0,.089],[0,-.145,0,.099],[0,-.195,0,.068],[sign*.075,-.10,.05,.067]];
@@ -832,7 +832,7 @@
         const shoulder=this.point(j['arm'+side]),target=this.point(hand).addScaledVector(direction,Math.min(.15,forward+.001));
         const upper=j['elbow'+side].position.length(),lower=hand.position.length();
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(Math.abs(upper-lower)+.005,upper+lower-.002)));
-        error=this.solve(j['arm'+side],j['elbow'+side],hand,target,pole);
+        error=this.solve(j['arm'+side],j['elbow'+side],hand,target,reference?this.contactBendPole(side,target,reference):pole);
         glove=this.orientGlove(side,glove.turn,palmTarget);
       }
       return {glove,error};
@@ -961,8 +961,8 @@
       let trunkPitch=0,trunkRoll=0,pelvisRoll=0,shoulderLoad=0,shoulderSide=0;
       let hookState=null;
       const guardTightness=clamp(options.guardTightness||0);
-      const leadGuard=V(lerp(-.185,-.15,guardTightness),lerp(1.68,1.70,guardTightness),lerp(.31,.265,guardTightness));
-      const rearGuard=V(lerp(.18,.15,guardTightness),lerp(1.68,1.70,guardTightness),lerp(.28,.255,guardTightness));
+      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(1.68,1.70,guardTightness),lerp(.31,.265,guardTightness));
+      const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(1.68,1.70,guardTightness),lerp(.28,.255,guardTightness));
       const lead=leadGuard.clone(),rear=rearGuard.clone();
       const guardElbowZ=options.guardElbowBack!=null?-options.guardElbowBack:.1;
       let leadPole=V(-.6,-1,guardElbowZ),rearPole=V(.6,-1,guardElbowZ);
