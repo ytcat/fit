@@ -73,3 +73,9 @@ body.club-app{height:var(--app-height,100dvh);min-height:0;overflow:hidden}
  .manual-active .fight-hud{top:6px;padding:5px 8px;font-size:9px}
  .manual-active .fight-health{top:37px;left:138px;right:138px;gap:28px}
 }
+
+.club-zoom-group{display:flex;gap:4px;flex:none}.club-zoom-group button{min-width:32px;min-height:30px;padding:4px 7px;border:1px solid #bfa76a4d;border-radius:6px;background:#182a2d;color:#e8d6ae;font:700 12px system-ui}.club-zoom-group button:first-child,.club-zoom-group button:nth-child(2){font-size:18px;line-height:1}
+.club-app #stageContainer{touch-action:none}.club-app .practice-techniques{touch-action:pan-x}.manual-rail{touch-action:pan-y}
+@media(max-width:800px){.club-app .club-view-tools{gap:5px;padding:5px 8px}.club-app .club-view-tools .club-stance{display:none}.club-app .club-camera-group button{padding:5px 8px}.club-zoom-group{margin-left:auto}}
+.club-app.manual-active .club-view-tools{display:flex;min-height:34px;height:34px;padding:2px 8px}.manual-active .club-view-label,.manual-active .club-stance,.manual-active .club-keyboard{display:none}
+@media(max-height:560px){.club-app .club-view-tools{min-height:34px;height:34px;padding:2px 8px}}

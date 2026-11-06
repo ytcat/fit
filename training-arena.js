@@ -177,11 +177,11 @@
    if(this.mode==='none'){this.engine.fitCameraToModel(this.engine.demoModel);return;}
    const height=this.mode==='rabbit'?2.65:this.mode==='heavy'?2.65:2.42;
    // Conservative swept envelope for both fighters, bag hardware and full reach.
-   const width=1.9+Math.abs(Math.sin(this.group.rotation.y))*.45;
+   const width=1.9+Math.abs(Math.sin(this.group.rotation.y-(this.engine.viewControls?.yaw||0)))*.45;
    const fov=THREE.MathUtils.degToRad(camera.fov);
-   const nearDepth=.65*Math.abs(Math.cos(this.group.rotation.y))+.40;
+   const nearDepth=.65*Math.abs(Math.cos(this.group.rotation.y-(this.engine.viewControls?.yaw||0)))+.40;
    const distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))*1.12+nearDepth;
-   camera.position.set(0,1.78,distance);camera.lookAt(0,height*.49,0);
+   camera.position.set(0,1.78,distance);camera.lookAt(0,height*.49,0);this.engine.viewControls?.refit(V(0,height*.49,0));
   }
   aim(move){
    if(!punches.includes(move))return null;

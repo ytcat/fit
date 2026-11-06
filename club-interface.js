@@ -38,7 +38,9 @@
   const railLabel=el('div','club-rail-label');stage.append(railLabel);
   const viewTools=el('div','club-view-tools'),viewLabel=el('span','club-view-label'),cameraGroup=el('div','club-camera-group');
   for(const id of ['camFront','camSide','camBack'])cameraGroup.append(byId(id));
-  const stance=el('span','club-stance'),keyboard=el('span','club-keyboard');viewTools.append(viewLabel,cameraGroup,stance,keyboard);studio.append(viewTools);
+  const zoomGroup=el('div','club-zoom-group'),zoomOut=el('button','','−'),zoomIn=el('button','','+'),zoomFit=el('button','','Fit');zoomOut.id='zoomOut';zoomIn.id='zoomIn';zoomFit.id='zoomFit';
+  for(const b of [zoomOut,zoomIn,zoomFit]){b.type='button';zoomGroup.append(b);}zoomOut.onclick=()=>e.viewControls?.zoom(1/1.2);zoomIn.onclick=()=>e.viewControls?.zoom(1.2);zoomFit.onclick=()=>e.viewControls?.fit();
+  const stance=el('span','club-stance'),keyboard=el('span','club-keyboard');viewTools.append(viewLabel,cameraGroup,zoomGroup,stance,keyboard);studio.append(viewTools);
   const current=document.querySelector('.practice-current');current.classList.add('club-current');studio.append(current,footer);
   footer.classList.add('club-transport');const controls=byId('playBtn').parentElement;controls.prepend(byId('prevBtn'));controls.append(byId('nextBtn'));
   const loading=el('div','club-loading');loading.setAttribute('role','status');loading.innerHTML='<span class="club-loader"></span><p></p>';stage.append(loading);
@@ -51,7 +53,7 @@
   let previousMode,previousState;
   function paint(){
    const t=w(),mode=e.targetMode||'none',fight=mode==='fight',species=e.coach?.species||CoachRoster.preferred();
-   if(previousMode!==undefined&&previousMode!==mode)selectedCamera(mode==='none'?'camFront':'');
+   if(previousMode!==undefined&&previousMode!==mode)selectedCamera(mode==='none'&&!e.viewControls?.yaw?'camFront':'');
    if(!fight)lastPractice=mode;
    body.dataset.scene=fight?'arena':'gym';body.dataset.character=species;
    byId('appSubtitle').textContent=t.club;byId('appTitle').textContent='RingFighter';
@@ -65,6 +67,7 @@
    status.textContent=!e.coach?t.loading:e.isPlaying?t.live:t.paused;status.dataset.playing=String(!!e.coach&&e.isPlaying);status.setAttribute('aria-label',status.textContent);
    railLabel.textContent=t.skills;viewLabel.textContent=t.view;stance.textContent=fight?'LION  /  RABBIT':t.stance;keyboard.textContent=t.space;keyboard.title=t.keyHelp;
    byId('camFront').textContent=t.front;byId('camSide').textContent=t.side;byId('camBack').textContent=t.back;
+   const z=({en:['Zoom out','Zoom in','Fit view','Fit'],he:['הרחקה','קירוב','התאמת תצוגה','התאם'],ru:['Отдалить','Приблизить','Вписать вид','Вписать']})[app.lang]||['Zoom out','Zoom in','Fit view','Fit'];for(const [i,b] of [zoomOut,zoomIn,zoomFit].entries()){b.title=z[i];b.setAttribute('aria-label',z[i]);}zoomFit.textContent=z[3];
    byId('playBtn').setAttribute('aria-pressed',String(e.isPlaying));byId('playBtn').dataset.playing=String(e.isPlaying);byId('motionPause').textContent=e.isPlaying?t.freeze:t.play;
    byId('defaultCoach').textContent=t.lion;returnButton.textContent=t.return;fightInfoText.textContent=e.player?.enabled?({en:'You control your selected boxer. The opponent attacks and defends independently.',he:'אתם שולטים במתאגרף שבחרתם. היריב תוקף ומתגונן באופן עצמאי.',ru:'Вы управляете выбранным боксёром. Противник атакует и защищается самостоятельно.'}[app.lang]):t.fightNote;fightInfo.hidden=!fight;
    loading.hidden=!!e.coach||!!byId('renderingNotice');loading.querySelector('p').textContent=e.loadError?({en:'The boxer could not load. Reload to try again.',he:'טעינת המתאגרף נכשלה. טענו מחדש כדי לנסות שוב.',ru:'Боксёр не загрузился. Обновите страницу.'}[app.lang]):t.loading;

@@ -16,27 +16,27 @@
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-routines.js?v=2026110603"></script>
-  <script src="./boxing-input.js?v=2026110603"></script>
+  <script src="./boxing-routines.js?v=2026110604"></script>
+  <script src="./boxing-input.js?v=2026110604"></script>
   <script src="./avatar-anatomy.js?v=2026110406"></script>
   <script src="./avatar-detail.js?v=2026110504"></script>
   <script src="./avatar-shoulder.js?v=2026110504"></script>
-  <script src="./boxing-coach-v2.js?v=2026110603"></script>
+  <script src="./boxing-coach-v2.js?v=2026110604"></script>
   <script src="./contact-response.js?v=2026110406"></script>
-  <script src="./gym-details.js?v=2026110603"></script>
-  <script src="./training-arena.js?v=2026110603"></script>
-  <script src="./boxing-fight.js?v=2026110603"></script>
+  <script src="./gym-details.js?v=2026110604"></script>
+  <script src="./training-arena.js?v=2026110604"></script>
+  <script src="./boxing-fight.js?v=2026110604"></script>
   <script src="./fight-referee.js?v=2026110406"></script>
-  <script src="./fight-arena.js?v=2026110603"></script>
+  <script src="./fight-arena.js?v=2026110604"></script>
   <script src="./fight-ui.js?v=2026110406" defer></script>
-  <script src="./training-controls.js?v=2026110603" defer></script>
-  <script src="./character-roster.js?v=2026110603"></script>
-  <script src="./ring-camera.js?v=2026110603"></script>
-  <script src="./club-world.js?v=2026110603"></script>
-  <link rel="stylesheet" href="./club-interface.css?v=2026110603" />
-  <script src="./club-interface.js?v=2026110603" defer></script>
-  <link rel="stylesheet" href="./ringfighter-controls.css?v=2026110603" />
-  <script src="./ringfighter-controls.js?v=2026110603" defer></script>
+  <script src="./training-controls.js?v=2026110604" defer></script>
+  <script src="./character-roster.js?v=2026110604"></script>
+  <script src="./ring-camera.js?v=2026110604"></script>
+  <script src="./club-world.js?v=2026110604"></script>
+  <link rel="stylesheet" href="./club-interface.css?v=2026110604" />
+  <script src="./club-interface.js?v=2026110604" defer></script>
+  <link rel="stylesheet" href="./ringfighter-controls.css?v=2026110604" />
+  <script src="./ringfighter-controls.js?v=2026110604" defer></script>
 
   <style>
     html, body {
@@ -380,7 +380,7 @@
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
         this.camera.position.set(0, 1.25, 5.8);
-        this.camera.lookAt(0, 1.0, 0);
+        this.camera.lookAt(0, 1.0, 0);this.camera.userData.orbitTarget=new THREE.Vector3(0,1,0);
 
         try {
           this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
@@ -439,6 +439,7 @@
         this.world=new ClubWorld(this);
         this.initControls();
         document.getElementById('camBack').addEventListener('click', () => {
+          if(this.viewControls?.preset){this.viewControls.preset(Math.PI+.78,Math.PI);return;}
           if(this.arena&&this.arena.mode!=='none'){this.arena.group.rotation.y=Math.PI+.78;this.arena.fitCamera(this.camera);}
           else if(this.activeModel){this.activeModel.rotation.y=Math.PI;this.fitCameraToModel(this.activeModel);}
         });
@@ -507,11 +508,12 @@
         const verticalDistance = (size.y * .5) / Math.tan(fov * .5);
         // r128 Box3 uses rest-pose skin vertices; their spread arms needlessly
         // shrink the posed instructor. Use a view-aware motion envelope instead.
-        const framingWidth=model===this.demoModel?.92+.70*Math.abs(Math.sin(model.rotation.y)):size.x;
+        const viewYaw=model.rotation.y-(this.viewControls?.yaw||0);
+        const framingWidth=model===this.demoModel ? .92+.70*Math.abs(Math.sin(viewYaw)) : size.x;
         const horizontalDistance = (framingWidth * .5) / (Math.tan(fov * .5) * aspect);
         const distance = Math.max(verticalDistance, horizontalDistance, size.z * 1.4, 2.5) * 1.30;
         this.camera.position.set(center.x, model===this.demoModel?1.78:center.y+.1, center.z + distance);
-        this.camera.lookAt(center);
+        this.camera.lookAt(center);this.viewControls?.refit(center);
       }
 
       async saveModelFile(file) {
@@ -695,7 +697,7 @@
           return;
         }
 
-        const stamp=[this.activeModel.uuid,this.arena?.mode!=='none'&&this.arena?this.arena.group.rotation.y:this.activeModel.rotation.y,this.animTime,this.technique,this.currentAnim,this.camera.aspect,this.camera.zoom,this.arena?.mode].join('|');
+        const stamp=[this.activeModel.uuid,this.arena?.mode!=='none'&&this.arena?this.arena.group.rotation.y:this.activeModel.rotation.y,this.animTime,this.technique,this.currentAnim,this.camera.aspect,this.camera.zoom,this.viewControls?.yaw,this.arena?.mode].join('|');
         if(!this.isPlaying && this.lastRenderStamp===stamp)return;
         this.lastRenderStamp=stamp;
         const dt=Math.min(delta,.05);
@@ -952,9 +954,11 @@
         document.getElementById('langRU').onclick = () => this.setLanguage('ru');
 
         document.getElementById('camFront').onclick = () => {
+          if(this.engine.viewControls?.preset){this.engine.viewControls.preset(.78,0);return;}
           if (this.engine.activeModel){this.engine.activeModel.rotation.y=0;this.engine.fitCameraToModel(this.engine.activeModel);}
         };
         document.getElementById('camSide').onclick = () => {
+          if(this.engine.viewControls?.preset){this.engine.viewControls.preset(Math.PI/2,1.15);return;}
           if (this.engine.activeModel){this.engine.activeModel.rotation.y=1.15;this.engine.fitCameraToModel(this.engine.activeModel);}
         };
 

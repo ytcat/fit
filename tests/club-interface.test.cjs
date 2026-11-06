@@ -51,3 +51,4 @@ document.querySelector('.club-primary').click();assert.equal(e.targetMode,'none'
 assert.equal(get('prevBtn').parentElement,get('playBtn').parentElement);assert.equal(get('nextBtn').parentElement,get('playBtn').parentElement);
 const ids=body.querySelectorAll('[id]').map(n=>n.id);assert.equal(new Set(ids).size,ids.length,'redesign must move controls rather than duplicate their IDs');
 console.log('PASS real-markup UI integration: character/equipment selection, 11 techniques, speed rail, pause, EN/HE/RU, settings, quick-fight setup, return to gym, transport and unique IDs');
+const zoomCalls=[];e.viewControls={zoom:r=>zoomCalls.push(r),fit:()=>zoomCalls.push('fit')};get('zoomOut').click();get('zoomIn').click();get('zoomFit').click();assert.deepEqual(zoomCalls,[1/1.2,1.2,'fit']);assert.ok(get('zoomOut').getAttribute('aria-label'));delete e.viewControls;

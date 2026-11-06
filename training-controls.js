@@ -121,6 +121,7 @@
   pause.onclick=()=>{freeze?.();paint();};
   document.querySelectorAll('[data-technique]').forEach(b=>b.addEventListener('click',paint));
   const camera=(id,yaw,solo)=>{document.getElementById(id).onclick=()=>{
+   if(e.viewControls?.preset){e.viewControls.preset(yaw,solo);return;}
    if(e.arena&&e.arena.mode!=='none'){e.arena.group.rotation.y=yaw;e.arena.fitCamera(e.camera);}
    else if(e.activeModel){e.activeModel.rotation.y=solo;e.fitCameraToModel(e.activeModel);}
   };};

@@ -10,12 +10,12 @@
    this.boxGeometry=new THREE.BoxGeometry(1,1,1);this.cylinderGeometry=new THREE.CylinderGeometry(1,1,1,12);
    engine.scene.add(this.gym,this.arena);engine.scene.background=new THREE.Color(0x171c22);
    engine.scene.fog=new THREE.Fog(0x171c22,10,27);
-   this.buildGym();this.enclose(this.gym,false);this.buildArena();this.enclose(this.arena,true);this.batch(this.gym);this.batch(this.arena);this.update(0,'none');
+   this.buildGym();this.enclose(this.gym,false);this.furnishGym();this.buildArena();this.enclose(this.arena,true);this.batch(this.gym);this.batch(this.arena);this.wallNodes=[];for(const root of [this.gym,this.arena])root.traverse(n=>{if(n.userData.wallZone)this.wallNodes.push(n);});this.update(0,'none');
   }
   box(root,name,size,at,material){const n=new THREE.Mesh(this.boxGeometry,material||this.materials.dark);n.name=name;n.scale.set(...size);n.position.set(...at);n.receiveShadow=true;root.add(n);return n;}
   rod(root,a,b,r,material){const d=b.clone().sub(a),n=new THREE.Mesh(this.cylinderGeometry,material||this.materials.steel);n.position.copy(a).add(b).multiplyScalar(.5);n.scale.set(r,d.length(),r);n.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());root.add(n);return n;}
-  label(root,{name='Club signage',title,subtitle='',width=2,height=1,x=0,y=2,z=-3,color='#dfc291',background='#202b31',accent='#ba6b43',poster=false}){
-   const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=Math.round(1024*height/width);const c=canvas.getContext('2d'),h=canvas.height;
+  label(root,{name='Club signage',title,subtitle='',width=2,height=1,x=0,y=2,z=-3,color='#dfc291',background='#202b31',accent='#ba6b43',poster=false,resolution=1024}){
+   const canvas=document.createElement('canvas');canvas.width=resolution;canvas.height=Math.round(resolution*height/width);const c=canvas.getContext('2d'),h=Math.round(1024*height/width);c.scale(resolution/1024,resolution/1024);
    c.fillStyle=background;c.fillRect(0,0,1024,h);c.strokeStyle=color;c.lineWidth=3;c.strokeRect(20,20,984,h-40);
    c.fillStyle=accent;c.fillRect(44,42,75,7);c.font='600 22px sans-serif';c.textAlign='left';c.fillStyle=color;c.fillText('RINGFIGHTER  /  BOXING CLUB',44,80);
    if(poster){
@@ -84,6 +84,53 @@
    for(let i=0;i<4;i++){const x=7.3+i*.46;this.box(r,'Vented steel locker',[.43,1.85,.50],[x,.925,-4.6],m.blue);this.box(r,'Locker handle',[.025,.16,.04],[x+.12,1.06,-4.32],m.gold);for(let y=1.55;y<1.8;y+=.065)this.box(r,'Locker vent',[.25,.012,.01],[x,y,-4.34],m.dark);}
    this.label(r,{name:'Floor training mark',title:'RINGFIGHTER',subtitle:'THE TRAINING ROOM',width:2.2,height:.7,y:-.018,z:1.7,background:'#303c41',color:'#536268'}).rotation.x=-Math.PI/2;
   }
+  furnishGym(){
+   const r=this.gym,m=this.materials;
+   this.gymWallGroups={};
+   const zone=(name,x,z,yaw)=>{const g=new THREE.Group();g.name='Studio '+name+' wall furnishings';g.position.set(x,0,z);g.rotation.y=yaw;r.add(g);this.gymWallGroups[name]=g;return g;};
+   const front=zone('front',0,4.98,Math.PI),left=zone('left',-8.88,0,Math.PI/2),right=zone('right',8.88,0,-Math.PI/2);
+   const sign=(g,title,subtitle,x,y,width=2.4)=>this.label(g,{name:'Studio wall sign',title,subtitle,x,y,z:.10,width,height:.65,resolution:512,background:'#1c2d32',color:'#dfc291'});
+   const bench=(g,x)=>{this.box(g,'Studio oak bench',[2.25,.10,.46],[x,.48,.72],m.wood);for(const dx of [-.9,.9])this.box(g,'Studio bench leg',[.08,.48,.38],[x+dx,.2,.72],m.steel);};
+   const rack=(g,x)=>{for(const dx of [-.7,.7])this.box(g,'Storage upright',[.07,1.35,.43],[x+dx,.64,.35],m.steel);for(const y of [.22,.76,1.25])this.box(g,'Storage shelf',[1.55,.055,.46],[x,y,.35],m.dark);};
+   // A complete entrance/reception wall faces the original decorated back wall.
+   for(const x of [-.60,.60]){
+    this.box(front,'Entrance door',[1.12,2.4,.09],[x,1.2,.04],m.blue);
+    this.box(front,'Door glass',[.88,1.3,.025],[x,1.6,.10],m.wall);
+    this.box(front,'Door lower panel',[.88,.62,.025],[x,.46,.10],m.dark);
+    this.box(front,'Door handle',[.035,.30,.05],[x+(x<0?.40:-.40),1.1,.15],m.gold);
+   }
+   for(const x of [-1.23,0,1.23])this.box(front,'Door frame',[.065,2.5,.14],[x,1.25,.08],m.steel);
+   this.box(front,'Door header',[2.55,.08,.14],[0,2.48,.08],m.steel);sign(front,'RINGFIGHTER','WELCOME TO THE FOUNDRY',0,3.05,3.2);
+   bench(front,-3.0);rack(front,3.2);
+   for(let i=0;i<4;i++){
+    const x=-4.7+i*.47;this.box(front,'Front locker',[.44,1.95,.48],[x,.975,.27],m.blue);this.box(front,'Front locker handle',[.025,.15,.035],[x+.13,1.0,.53],m.gold);
+    for(let y=1.65;y<1.87;y+=.065)this.box(front,'Front locker vent',[.28,.012,.012],[x,y,.52],m.dark);
+   }
+   sign(front,'READY FOR ANOTHER ROUND?','TRAIN / RESET / RETURN',-3.3,2.7,3.3);
+   for(let i=0;i<3;i++){const n=new THREE.Mesh(this.cylinderGeometry,m.leather);n.scale.set(.11,.65,.11);n.rotation.z=Math.PI/2;n.position.set(3.2+(i-1)*.36,1.39,.36);n.name='Rolled training mat';front.add(n);}
+   // Side wall stations stay outside the swept fighter/equipment envelope.
+   sign(left,'POWER & PRECISION','BAG STATIONS',0,3.3,3.4);
+   for(const x of [-2.6,2.6]){
+    this.box(left,'Bag station bracket',[1,.08,.70],[x,3.8,.32],m.steel);this.rod(left,V(x,3.8,.7),V(x,2.75,.7),.012,m.steel);
+    const bag=new THREE.Mesh(this.cylinderGeometry,x<0?m.leather:m.blue);bag.name='Side wall hanging bag';bag.position.set(x,2.0,.7);bag.scale.set(.27,1.40,.27);bag.castShadow=true;left.add(bag);
+    for(const y of [1.38,2.62])this.box(left,'Side bag band',[.56,.07,.56],[x,y,.7],m.dark);
+   }
+   rack(left,0);bench(left,0);this.label(left,{name:'Studio rules poster',title:'HANDS UP.|MOVE YOUR FEET.',subtitle:'CONTROL BEFORE POWER',width:1.65,height:1.5,x:0,y:2.05,z:.08,resolution:512,poster:true});
+   sign(right,'MOVE & RECOVER','FOOTWORK / MOBILITY / CONDITIONING',0,3.35,4.2);
+   for(const x of [-2.7,-1.4])this.box(right,'Wall bar upright',[.09,2.5,.12],[x,1.3,.18],m.wood);
+   for(let y=.35;y<2.55;y+=.28)this.rod(right,V(-2.7,y,.20),V(-1.4,y,.20),.026,m.wood);
+   bench(right,1.5);rack(right,3.2);
+   const sphere=new THREE.SphereGeometry(1,18,12);
+   for(const [i,x] of [-.65,0,.65,1.3].entries()){
+    const ball=new THREE.Mesh(sphere,i%2?m.blue:m.leather);ball.name='Medicine ball';ball.scale.setScalar(.18);ball.position.set(x,.19,.55);right.add(ball);
+   }
+   for(let i=0;i<4;i++){const roller=new THREE.Mesh(this.cylinderGeometry,m.white);roller.name='Recovery foam roller';roller.scale.set(.095,.5,.095);roller.position.set(3+(i%2)*.25,.50+Math.floor(i/2)*.53,.36);right.add(roller);}
+   this.label(right,{name:'Studio mobility poster',title:'STAY LIGHT.|STAY READY.',subtitle:'BREATHE / MOVE / RECOVER',width:1.65,height:1.55,x:.35,y:2.1,z:.08,resolution:512,poster:true});
+   for(const [side,g] of Object.entries(this.gymWallGroups))g.traverse(n=>{n.userData.wallZone=side;});
+   // Roof panels and the existing suspended fixtures give the wide view depth.
+   const ceiling=new THREE.Mesh(new THREE.PlaneGeometry(18,10.2),m.dark);ceiling.name='Studio ceiling';ceiling.rotation.x=Math.PI/2;ceiling.position.y=5.35;r.add(ceiling);
+   for(const x of [-8.5,-4.25,0,4.25,8.5])this.box(r,'Roof cross member',[.12,.12,10.2],[x,5.25,0],m.steel);
+  }
   buildArena(){
    const r=this.arena,m=this.materials;
    this.box(r,'Arena floor',[40,.1,40],[0,-.36,0],m.dark);
@@ -108,7 +155,7 @@
    this.label(r,{name:'Ringside sponsor board',title:'RINGFIGHTER  /  FIGHT NIGHT',subtitle:'',width:5.5,height:.65,y:.3,z:-3.5,background:'#151f2a',color:'#9eafbf'});
   }
   enclose(root,fight){
-   const m=this.materials,span=fight?20:14,depth=fight?20:10,height=fight?8:6;
+   const m=this.materials,span=fight?20:18,depth=fight?20:10.2,height=fight?8:6;
    // Inward-facing walls: outside faces are culled for a usable dollhouse view.
    const wallMaterial=(fight?m.dark:m.wall).clone();wallMaterial.side=THREE.FrontSide;
    for(const [x,z,yaw,width] of [[0,depth/2,Math.PI,span],[-span/2,0,Math.PI/2,depth],[span/2,0,-Math.PI/2,depth]]){
@@ -126,8 +173,12 @@
   update(time,mode){
    const yaw=mode==='none'?(this.engine.activeModel?.rotation.y||0):(this.engine.arena?.group.rotation.y||0);
    this.gym.rotation.y=yaw;this.arena.rotation.y=yaw;
-   const view=(this.engine.camera?.position||V(0,0,6)).clone().applyAxisAngle(V(0,1,0),-yaw);
-   for(const root of [this.gym,this.arena])root.traverse(n=>{const zone=n.userData.wallZone;if(zone)n.visible=zone==='back'?view.z>=0:zone==='front'?view.z<=0:zone==='left'?view.x>=0:view.x<=0;});
+   const camera=this.engine.camera?.position||V(0,0,6);
+   if(this.viewYaw!==yaw||this.viewX!==camera.x||this.viewZ!==camera.z){
+    this.viewYaw=yaw;this.viewX=camera.x;this.viewZ=camera.z;
+    const view=camera.clone().applyAxisAngle(V(0,1,0),-yaw),mask=(view.z>=0?1:0)|(view.x>=0?2:0);
+    if(this.wallMask!==mask){this.wallMask=mask;for(const n of this.wallNodes){const zone=n.userData.wallZone;n.visible=zone==='back'?view.z>=0:zone==='front'?view.z<=0:zone==='left'?view.x>=0:view.x<=0;}}
+   }
    if(this.mode===mode)return;this.mode=mode;const fight=mode==='fight';this.gym.visible=!fight;this.arena.visible=fight;
    this.engine.scene.background.setHex(fight?0x111925:0x252b2d);
    this.engine.scene.fog.color.copy(this.engine.scene.background);this.engine.lastRenderStamp=null;
