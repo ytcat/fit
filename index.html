@@ -16,26 +16,27 @@
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
-  <script src="./boxing-routines.js?v=2026110504"></script>
-  <script src="./boxing-input.js?v=2026110506"></script>
+  <script src="./boxing-routines.js?v=2026110601"></script>
+  <script src="./boxing-input.js?v=2026110601"></script>
   <script src="./avatar-anatomy.js?v=2026110406"></script>
   <script src="./avatar-detail.js?v=2026110504"></script>
   <script src="./avatar-shoulder.js?v=2026110504"></script>
-  <script src="./boxing-coach-v2.js?v=2026110506"></script>
+  <script src="./boxing-coach-v2.js?v=2026110601"></script>
   <script src="./contact-response.js?v=2026110406"></script>
-  <script src="./gym-details.js?v=2026110506"></script>
-  <script src="./training-arena.js?v=2026110506"></script>
-  <script src="./boxing-fight.js?v=2026110506"></script>
+  <script src="./gym-details.js?v=2026110601"></script>
+  <script src="./training-arena.js?v=2026110601"></script>
+  <script src="./boxing-fight.js?v=2026110601"></script>
   <script src="./fight-referee.js?v=2026110406"></script>
-  <script src="./fight-arena.js?v=2026110506"></script>
+  <script src="./fight-arena.js?v=2026110601"></script>
   <script src="./fight-ui.js?v=2026110406" defer></script>
-  <script src="./training-controls.js?v=2026110506" defer></script>
-  <script src="./character-roster.js?v=2026110506"></script>
-  <script src="./club-world.js?v=2026110506"></script>
-  <link rel="stylesheet" href="./club-interface.css?v=2026110506" />
-  <script src="./club-interface.js?v=2026110506" defer></script>
-  <link rel="stylesheet" href="./ringfighter-controls.css?v=2026110506" />
-  <script src="./ringfighter-controls.js?v=2026110506" defer></script>
+  <script src="./training-controls.js?v=2026110601" defer></script>
+  <script src="./character-roster.js?v=2026110601"></script>
+  <script src="./ring-camera.js?v=2026110601"></script>
+  <script src="./club-world.js?v=2026110601"></script>
+  <link rel="stylesheet" href="./club-interface.css?v=2026110601" />
+  <script src="./club-interface.js?v=2026110601" defer></script>
+  <link rel="stylesheet" href="./ringfighter-controls.css?v=2026110601" />
+  <script src="./ringfighter-controls.js?v=2026110601" defer></script>
 
   <style>
     html, body {
@@ -666,23 +667,7 @@
       }
 
       initControls() {
-        let isDown = false, lastX = 0;
-        const start = (x) => { isDown = true; lastX = x; };
-        const move = (x) => {
-          if (!isDown || !this.activeModel) return;
-          const target=this.arena&&this.arena.mode!=='none'?this.arena.group:this.activeModel;
-          target.rotation.y += (x - lastX) * 0.01;
-          lastX = x;
-        };
-        const end = () => { isDown = false; };
-
-        this.stage.addEventListener('mousedown', (e) => {if(e.target===this.canvas)start(e.clientX);});
-        window.addEventListener('mousemove', (e) => move(e.clientX));
-        window.addEventListener('mouseup', end);
-
-        this.stage.addEventListener('touchstart', (e) => {if(e.target===this.canvas)start(e.touches[0].clientX);}, { passive: true });
-        window.addEventListener('touchmove', (e) => move(e.touches[0].clientX), { passive: true });
-        window.addEventListener('touchend', end);
+        this.viewControls=new RingCamera(this);
       }
 
       updateQuality(delta) {
@@ -710,7 +695,7 @@
           return;
         }
 
-        const stamp=[this.activeModel.uuid,this.arena?.mode!=='none'&&this.arena?this.arena.group.rotation.y:this.activeModel.rotation.y,this.animTime,this.technique,this.currentAnim,this.camera.aspect,this.arena?.mode].join('|');
+        const stamp=[this.activeModel.uuid,this.arena?.mode!=='none'&&this.arena?this.arena.group.rotation.y:this.activeModel.rotation.y,this.animTime,this.technique,this.currentAnim,this.camera.aspect,this.camera.zoom,this.arena?.mode].join('|');
         if(!this.isPlaying && this.lastRenderStamp===stamp)return;
         this.lastRenderStamp=stamp;
         const dt=Math.min(delta,.05);

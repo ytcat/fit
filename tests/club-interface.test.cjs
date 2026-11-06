@@ -34,7 +34,7 @@ get('playBtn').onclick=()=>app.toggle();get('motionPause').onclick=()=>app.toggl
 for(const b of document.querySelectorAll('[data-technique]'))b.addEventListener('click',()=>{e.technique=b.dataset.technique;e.isPlaying=true;});
 for(const lang of ['EN','HE','RU'])get('lang'+lang).onclick=()=>app.setLanguage(lang.toLowerCase());
 const ctx={THREE:require('../assets/vendor/three.min.js'),document,app,console,localStorage:{getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v)},setTimeout:()=>1,clearTimeout(){},setInterval:fn=>intervals.push(fn),clearInterval(){},CustomEvent:class{},Event:class{},CoachRoster:{preferred:()=> 'lion'},addEventListener:(k,fn)=>(events[k]||=[]).push(fn),dispatchEvent(){},I18N:{}};ctx.window=ctx;
-for(const f of ['boxing-routines.js','boxing-input.js','boxing-coach-v2.js','character-roster.js'])vm.runInNewContext(fs.readFileSync(f,'utf8'),ctx);
+for(const f of ['boxing-routines.js','boxing-input.js','ring-camera.js','boxing-coach-v2.js','character-roster.js'])vm.runInNewContext(fs.readFileSync(f,'utf8'),ctx);
 for(const lang of ['en','he','ru'])ctx.I18N[lang]={drills:ctx.BOXING_ROUTINES.list.map(x=>({codes:x.id}))};
 for(const f of ['workout-experience.js','practice-layout.js','fight-ui.js','training-controls.js','club-interface.js','ringfighter-controls.js'])vm.runInNewContext(fs.readFileSync(f,'utf8'),ctx,{filename:f});
 assert.equal(get('appTitle').textContent,'RingFighter');get('playMode').click();assert.ok(e.player.enabled);assert.equal(document.querySelectorAll('[data-input-move]').length,12);document.querySelector('[data-input-move="jab"]').click();assert.equal(e.player.current.move,'jab');get('watchMode').click();assert.equal(e.player.enabled,false);assert.equal(get('manualControls').hidden,true);

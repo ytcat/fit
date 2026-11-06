@@ -45,7 +45,7 @@
    if(low<.004){coach.root.position.y+=.004-low;coach.syncSkin();}
   }
   constructor(arena,options){
-   this.arena=arena;this.engine=arena.engine;this.match=new BoxingFight(options);this.tick=0;this.previous={};this.compressions={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.contacts=[];this.eventCursor=0;this.pendingSwings=[];
+   this.arena=arena;this.engine=arena.engine;this.match=new BoxingFight(options);this.tick=0;this.previous={};this.compressions={lion:{L:0,R:0},rabbit:{L:0,R:0}};this.contacts=[];this.eventCursor=0;this.pendingSwings=[];this.travelTime=0;this.travelLast=null;
    this.coaches=this.engine.coach.species==='rabbit'?{lion:arena.rabbit,rabbit:this.engine.coach}:{lion:this.engine.coach,rabbit:arena.rabbit};
    if(this.engine.player?.enabled)this.match.setPlayer(this.engine.player.actor());
    this.referee=new RhinoReferee();arena.group.add(this.referee.root);this.audience=new FightAudience(arena.group);
@@ -93,16 +93,30 @@
    if(spec.phase>=.18){action.aim=this.arena.group.worldToLocal(world.clone()).toArray();action.aimInArena=true;}
    return local;
   }
+  ringTravel(){
+   const m=this.match,dt=this.travelLast==null?0:clamp(m.time-this.travelLast,0,.05);this.travelLast=m.time;
+   // Translate between exchanges, never drag a planted punch through its target.
+   const mobile=m.phase==='round'&&!Object.values(m.fighters).some(f=>f.down||f.action?.attack);
+   if(mobile)this.travelTime+=dt;
+   const t=this.travelTime,beat=Math.floor(t/.72),phase=(t/.72)%1;
+   const anchor=n=>V(.58*Math.sin(n*.27),0,.42*Math.sin(n*.39));
+   const from=anchor(beat),to=anchor(beat+1),ease=phase*phase*(3-2*phase);
+   const centre=from.clone().lerp(to,ease),delta=to.clone().sub(from);
+   // Circle through both sides of the ring, with measured changes in range.
+   const angle=.65*Math.sin(t*.35),range=1.16+.06*Math.sin(t*.55);
+   return {centre,delta,phase,ease,angle,range,mobile};
+  }
   pose(){
    const m=this.match,a=this.arena,ceremony=m.phase==='scoring'||m.phase==='ceremony',reveal=m.phase==='ceremony',raise=reveal?clamp((m.phaseTime-.4)/1.5):0;
    if(ceremony&&!this.lineupStart)this.lineupStart=Object.fromEntries(['lion','rabbit'].map(actor=>[actor,{position:this.coaches[actor].root.position.clone(),yaw:this.coaches[actor].root.rotation.y}]));
+   const travel=this.ringTravel();
    const lineup=ceremony?clamp((reveal?10:m.phaseTime)/2):0,ease=lineup*lineup*(3-2*lineup);
    if(ceremony&&this.lineupEase!==1)a.group.rotation.y=.90*(1-ease);this.lineupEase=ease;
    for(const [actor,index] of [['lion',0],['rabbit',1]]){
     const coach=this.coaches[actor],f=m.fighters[actor];
     if(ceremony){coach.root.position.copy(this.lineupStart[actor].position).lerp(V(index?.72:-.72,0,.05),ease);coach.root.rotation.y=this.lineupStart[actor].yaw*(1-ease);}
     else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.move?.includes('uppercut')?Math.min(.06,(reaction.amount||0)*.04):Math.min(.045,(reaction?.amount||0)*.032);
-     coach.root.position.set(.055*Math.sin(m.time*.62+index*2),0,direction*(-.55-corner-.025*Math.sin(m.time*.73+index)-push));coach.root.rotation.y=index?Math.PI:0;}
+     const axis=V(Math.sin(travel.angle),0,Math.cos(travel.angle));coach.root.position.copy(travel.centre).addScaledVector(axis,direction*(-travel.range/2-corner-push));coach.root.rotation.y=travel.angle+(index?Math.PI:0);}
    }
    for(const actor of ['lion','rabbit']){
     const coach=this.coaches[actor],state=this.recoveryState(actor),yaw=coach.root.rotation.y;
@@ -114,8 +128,10 @@
    if(m.phase==='round')this.separateTorso(false);
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
-    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28};
+    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={guardElbowBack:2.0,simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28};
+    if(travel.mobile&&!ceremony){const yaw=coach.root.rotation.y;options.ringStep={phase:travel.phase,ease:travel.ease,delta:travel.delta.clone().applyAxisAngle(V(0,1,0),-yaw).toArray()};}
     if(spec.attack){
+     options.planStraight=true;options.strikeDirection=[0,0,1];
      let target=this.target(actor,spec);if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(V(...f.action.aim)));
      const through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(.035);
      options.knuckleTarget=target.add(through).toArray();options.strikeHeight=target.y-.035;
@@ -264,7 +280,7 @@
  };
  TrainingArena.prototype.update=function(time,technique,combo){return this.mode==='fight'&&this.fightView?this.fightView.update(time):update.call(this,time,technique,combo);};
  TrainingArena.prototype.fitCamera=function(camera){
-  if(this.mode!=='fight')return fit.call(this,camera);const fov=THREE.MathUtils.degToRad(camera.fov),distance=Math.max(2.65/(2*Math.tan(fov/2)),2.25/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+.45;
+  if(this.mode!=='fight')return fit.call(this,camera);const fov=THREE.MathUtils.degToRad(camera.fov),distance=Math.max(3.15/(2*Math.tan(fov/2)),3.15/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+.55;
   camera.position.set(0,1.82,distance);camera.lookAt(0,1.30,0);
  };
  window.FightArena=FightArena;

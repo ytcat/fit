@@ -1,0 +1,11 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+global.THREE=require('../assets/vendor/three.min.js');global.window=global;const globalEvents={};window.addEventListener=(t,f)=>globalEvents[t]=f;
+vm.runInThisContext(fs.readFileSync('ring-camera.js','utf8'));
+const events={},canvas={style:{},addEventListener:(t,f)=>events[t]=f,setPointerCapture(){}},camera=new THREE.PerspectiveCamera(38,.6,.1,100),engine={canvas,camera,activeModel:new THREE.Group(),animTime:0,world:{update(){this.updated=true;}}},controls=new RingCamera(engine);
+const fire=(type,id,x,y)=>events[type]({pointerId:id,clientX:x,clientY:y,button:0});
+fire('pointerdown',1,100,200);fire('pointermove',1,140,200);assert.equal(engine.activeModel.rotation.y,.4);fire('pointerup',1,140,200);
+engine.arena={mode:'fight',group:new THREE.Group()};engine.lastRenderStamp='paused';fire('pointerdown',1,100,200);fire('pointerdown',2,200,200);fire('pointermove',2,250,200);assert.equal(camera.zoom,1.5);assert.equal(engine.arena.group.rotation.y,0);assert.equal(engine.lastRenderStamp,null,'paused zoom invalidates render');
+fire('pointercancel',2,250,200);fire('pointermove',1,110,200);assert.equal(engine.arena.group.rotation.y,.1,'lifting one finger resumes orbit without a jump');globalEvents.blur();assert.equal(controls.points.size,0);
+controls.zoom(.001);assert.equal(camera.zoom,.65);controls.zoom(100);assert.equal(camera.zoom,1.85);controls.zoom(NaN);assert.equal(camera.zoom,1.85);
+let prevented=false;events.wheel({deltaY:100,preventDefault(){prevented=true;}});assert.ok(prevented&&camera.zoom<1.85);assert.equal(canvas.style.touchAction,'none');
+console.log('PASS one-finger orbit, two-finger zoom, cancellation, pause invalidation, wheel and bounded zoom');

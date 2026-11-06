@@ -28,5 +28,14 @@ m.fighters.lion.reaction=null;view.pose();const neutral=coach.joints.head.quater
 m.fighters.lion.reaction={time:m.time-.05,part:'head',severity:1,side:-1};view.pose();assert.ok(neutral.angleTo(coach.joints.head.quaternion)>.15,'head contact must rotate the face away');
 m.fighters.lion.reaction={time:m.time-.05,part:'body',severity:1,side:-1};view.pose();assert.ok(coach.joints.spine.rotation.x>spine+.08,'body contact must fold the trunk and knees');
 m.fighters.lion.reaction={time:m.time-.05,part:'shoulder',severity:1,side:-1};view.pose();assert.ok(coach.joints.armL.position.y<.23,'shoulder contact must recoil the receiving shoulder');
+// Actual posed movement: ring travel remains bounded, repeatable and frozen
+// during a committed punch; both guards lead with fists rather than elbows.
+m.result=null;m.phase='round';m.decide=()=>{};
+for(const f of Object.values(m.fighters)){f.action=null;f.down=0;f.reaction=null;f.next=Infinity;}
+const points=[];for(let i=0;i<320;i++){m.time+=.05;view.pose();points.push(coach.root.position.clone());for(const c of Object.values(view.coaches)){assert.ok(Math.abs(c.root.position.x)<1.25&&Math.abs(c.root.position.z)<1.25,'travel stays inside the ropes');assert.ok(c.metrics.footTargets.every(f=>f.error<.002),'moving feet remain reachable');}}
+assert.ok(Math.max(...points.map(p=>p.x))-Math.min(...points.map(p=>p.x))>.45,'fighters traverse the ring laterally');
+for(const c of Object.values(view.coaches))for(const side of ['L','R'])assert.ok(c.point(c.joints['hand'+side]).z-c.point(c.joints['elbow'+side]).z>.025,'guard keeps the glove in front of its elbow');
+const travelled=view.travelTime,position=coach.root.position.clone();view.pose();assert.equal(view.travelTime,travelled);assert.ok(position.distanceTo(coach.root.position)<1e-8,'paused pose does not travel');
+m.attack('lion','jab','head');m.time+=.05;view.pose();assert.equal(view.travelTime,travelled,'planted attack freezes ring travel');
 arena.setTarget('none');assert.equal(arena.fightView,null);assert.equal(coach.root.parent,e.scene);
 console.log('PASS actual randomized wins for both fighters, contact-derived cards, connected referee grip, loser pose, localized reactions, pause, frame invariance and exit');

@@ -10,7 +10,7 @@
    this.boxGeometry=new THREE.BoxGeometry(1,1,1);this.cylinderGeometry=new THREE.CylinderGeometry(1,1,1,12);
    engine.scene.add(this.gym,this.arena);engine.scene.background=new THREE.Color(0x171c22);
    engine.scene.fog=new THREE.Fog(0x171c22,10,27);
-   this.buildGym();this.buildArena();this.batch(this.gym);this.batch(this.arena);this.update(0,'none');
+   this.buildGym();this.enclose(this.gym,false);this.buildArena();this.enclose(this.arena,true);this.batch(this.gym);this.batch(this.arena);this.update(0,'none');
   }
   box(root,name,size,at,material){const n=new THREE.Mesh(this.boxGeometry,material||this.materials.dark);n.name=name;n.scale.set(...size);n.position.set(...at);n.receiveShadow=true;root.add(n);return n;}
   rod(root,a,b,r,material){const d=b.clone().sub(a),n=new THREE.Mesh(this.cylinderGeometry,material||this.materials.steel);n.position.copy(a).add(b).multiplyScalar(.5);n.scale.set(r,d.length(),r);n.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());root.add(n);return n;}
@@ -33,9 +33,9 @@
    // Static set dressing uses instancing so hundreds of seats and brick joints
    // cost a few material batches, rather than hundreds of draw calls per frame.
    root.updateMatrixWorld(true);const batches=new Map();
-   root.traverse(n=>{if(!n.isMesh||![this.boxGeometry,this.cylinderGeometry].includes(n.geometry))return;const key=n.geometry.uuid+':'+n.material.uuid;if(!batches.has(key))batches.set(key,[]);batches.get(key).push(n);});
+   root.traverse(n=>{if(!n.isMesh||![this.boxGeometry,this.cylinderGeometry].includes(n.geometry))return;if(/^(Back wall|Wall kick|Mortar|Brick|Structural column|Column base|Foundry gym identity|Technique poster|Training poster|Frosted|Window|Arena back wall|Arena scoreboard|Championship banner)/.test(n.name))n.userData.wallZone='back';const key=(n.userData.wallZone||'')+':'+n.geometry.uuid+':'+n.material.uuid;if(!batches.has(key))batches.set(key,[]);batches.get(key).push(n);});
    for(const nodes of batches.values()){
-    if(nodes.length<2)continue;const merged=new THREE.InstancedMesh(nodes[0].geometry,nodes[0].material,nodes.length);merged.name='Instanced club fixtures';merged.receiveShadow=true;
+    if(nodes.length<2)continue;const merged=new THREE.InstancedMesh(nodes[0].geometry,nodes[0].material,nodes.length);merged.name='Instanced club fixtures';merged.userData.wallZone=nodes[0].userData.wallZone;merged.receiveShadow=true;
     nodes.forEach((node,index)=>{merged.setMatrixAt(index,node.matrixWorld);node.parent.remove(node);});merged.instanceMatrix.needsUpdate=true;root.add(merged);
    }
   }
@@ -107,7 +107,27 @@
    const blue=new THREE.PointLight(0x668edb,1.5,12);blue.position.set(4,3.5,-3);r.add(blue);
    this.label(r,{name:'Ringside sponsor board',title:'RINGFIGHTER  /  FIGHT NIGHT',subtitle:'',width:5.5,height:.65,y:.3,z:-3.5,background:'#151f2a',color:'#9eafbf'});
   }
+  enclose(root,fight){
+   const m=this.materials,span=fight?20:14,depth=fight?20:10,height=fight?8:6;
+   // Inward-facing walls: outside faces are culled for a usable dollhouse view.
+   const wallMaterial=(fight?m.dark:m.wall).clone();wallMaterial.side=THREE.FrontSide;
+   for(const [x,z,yaw,width] of [[0,depth/2,Math.PI,span],[-span/2,0,Math.PI/2,depth],[span/2,0,-Math.PI/2,depth]]){
+    const wall=new THREE.Mesh(new THREE.PlaneGeometry(width,height),wallMaterial);wall.name='Room interior wall';wall.position.set(x,height/2-.05,z);wall.rotation.y=yaw;wall.userData.wallZone=x<0?'left':x>0?'right':'front';root.add(wall);
+    for(const y of [.35,2.9,4.8]){
+     const beam=this.box(root,'Perimeter wall rail',x?[.05,.045,depth]:[span,.045,.05],[x,y,z],m.steel);beam.castShadow=false;beam.userData.wallZone=wall.userData.wallZone;
+    }
+   }
+   if(fight)for(const side of [-1,1])for(let row=0;row<3;row++){
+    const x=side*(4.1+row*.72),y=row*.38;
+    this.box(root,'Side grandstand tier',[.70,.45,13],[x,y-.1,0],m.dark);
+    for(let j=-8;j<=8;j++)this.box(root,'Side grandstand seat',[.14,.34,.48],[x,y+.39,j*.68],m.blue);
+   }
+  }
   update(time,mode){
+   const yaw=mode==='none'?(this.engine.activeModel?.rotation.y||0):(this.engine.arena?.group.rotation.y||0);
+   this.gym.rotation.y=yaw;this.arena.rotation.y=yaw;
+   const view=(this.engine.camera?.position||V(0,0,6)).clone().applyAxisAngle(V(0,1,0),-yaw);
+   for(const root of [this.gym,this.arena])root.traverse(n=>{const zone=n.userData.wallZone;if(zone)n.visible=zone==='back'?view.z>=0:zone==='front'?view.z<=0:zone==='left'?view.x>=0:view.x<=0;});
    if(this.mode===mode)return;this.mode=mode;const fight=mode==='fight';this.gym.visible=!fight;this.arena.visible=fight;
    this.engine.scene.background.setHex(fight?0x111925:0x252b2d);
    this.engine.scene.fog.color.copy(this.engine.scene.background);this.engine.lastRenderStamp=null;

@@ -24,6 +24,10 @@
   ['rear_upper_return',['jab','rear_uppercut','hook','cross','roll'],['Set up the rear uppercut','הכנה לאפרקאט אחורי','Подготовка заднего апперкота']],
   ['pressure_reset',['jab','cross','jab','cross','step','jab'],['Pressure and reset','לחץ וחזרה לעמדה','Давление и перестройка']],
   ['counterburst',['roll','rear_uppercut','hook','cross','slip','cross'],['Counter burst','רצף תגובה','Ответная серия']],
+  ['step_one_two_exit',['step','jab','cross','step'],['Step in, one–two, step out','צעד, ג׳אב–קרוס ויציאה','Шаг, двойка, отход']],
+  ['circle_counter',['step','slip','cross','hook','step'],['Circle, defend and counter','תנועה, הגנה ותגובה','Сместиться, защита, ответ']],
+  ['moving_double_jab',['step','jab','jab','step','cross'],['Moving double jab','ג׳אב כפול בתנועה','Двойной джеб в движении']],
+  ['reset_reenter',['jab','cross','step','guard','step','jab'],['Exit, reset and re-enter','יציאה, איפוס וכניסה','Отход, перестройка, вход']],
   ['long_exchange',['jab','jab','cross','hook','roll','cross','rear_hook','step'],['Long exchange','חילופי מכות ארוכים','Длинный обмен']]
  ].map(([id,moves,names])=>({id,moves,names}));
  const sequences=Object.fromEntries(list.map(r=>[r.id,r.moves]));
@@ -118,7 +122,7 @@
    const last=moves.at(-1),choices=['jab','hook','uppercut'].includes(last)?['cross','rear_hook','rear_uppercut']:['jab','hook','uppercut'];
    moves.push(choices[Math.floor(random()*choices.length)]);
   }
-  if(defence){if(random()<.45)moves.splice(2,0,random()<.5?'slip':'roll');moves.push(random()<.5?'step':random()<.5?'slip':'roll');}
+  if(defence){if(random()<.35)moves.unshift('step');if(random()<.45)moves.splice(2,0,random()<.5?'slip':'roll');moves.push(random()<.5?'step':random()<.5?'slip':'roll');}
   return moves;
  }
  class RoutineDeck {

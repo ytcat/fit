@@ -964,7 +964,8 @@
       const leadGuard=V(lerp(-.185,-.15,guardTightness),lerp(1.68,1.70,guardTightness),lerp(.31,.265,guardTightness));
       const rearGuard=V(lerp(.18,.15,guardTightness),lerp(1.68,1.70,guardTightness),lerp(.28,.255,guardTightness));
       const lead=leadGuard.clone(),rear=rearGuard.clone();
-      let leadPole=V(-.6,-1,.1),rearPole=V(.6,-1,.1);
+      const guardElbowZ=options.guardElbowBack!=null?-options.guardElbowBack:.1;
+      let leadPole=V(-.6,-1,guardElbowZ),rearPole=V(.6,-1,guardElbowZ);
       let leadTurn=0,rearTurn=0;
       const palmTarget=V(0,-1,0);
       const lateTurn=smooth((strike-.35)/.60);
@@ -1188,6 +1189,14 @@
         // A rigid boot pivots at the forward sole contact. Using the mid-foot
         // here drove the long toe through the floor whenever the heel rose.
         const step=drillStep(s);
+        if(options.ringStep){
+          const {phase:p,ease,delta}=options.ringStep;
+          // One foot transfers at a time. Root displacement is cancelled for
+          // the supporting foot, so the canvas contact remains planted.
+          const q=clamp((p-(s===-1?0:.5))/.5),swing=smooth(q);
+          step.x=delta[0]*(swing-ease);step.z=delta[2]*(swing-ease);
+          step.lift=.035*Math.sin(Math.PI*q)**2;
+        }
         const width=options.stanceWidth??.47,depth=options.stanceDepth??.44;
         const contact=V(s*width/2+step.x,.015,(s===-1?.24:-.20)+(s===-1?1:-1)*(depth-.44)/2+.215+step.z-(side==='R'?(options.down||0)*.40:0));
         const ankle=contact.clone().add(V(0,.102,-.215).applyQuaternion(footQ));
@@ -1392,7 +1401,7 @@
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(Math.abs(upper-lower)+.005,upper+lower-.002)));
         const reference={axis:V(...returned.axis),bend:V(...returned.bend)};
         const direction=target.clone().sub(this.point(j['arm'+side])).normalize(),pole=this.contactBendPole(side,target,reference);
-        const guardPole=V(side==='L'?-.6:.6,-1,.1);guardPole.addScaledVector(direction,-guardPole.dot(direction)).normalize();
+        const guardPole=V(side==='L'?-.6:.6,-1,guardElbowZ);guardPole.addScaledVector(direction,-guardPole.dot(direction)).normalize();
         let angle=Math.atan2(direction.dot(pole.clone().cross(guardPole)),pole.dot(guardPole));
         const guide=returned.guide;
         if(guide?.angle!=null){while(angle-guide.angle>Math.PI)angle-=Math.PI*2;while(angle-guide.angle< -Math.PI)angle+=Math.PI*2;}
