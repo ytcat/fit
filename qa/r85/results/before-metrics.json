@@ -1,0 +1,20 @@
+[
+  {
+    "name": "front",
+    "angle": 0,
+    "calls": 193,
+    "triangles": 565599
+  },
+  {
+    "name": "side",
+    "angle": 1.5707963267948966,
+    "calls": 175,
+    "triangles": 565043
+  },
+  {
+    "name": "back",
+    "angle": 3.141592653589793,
+    "calls": 172,
+    "triangles": 563017
+  }
+]

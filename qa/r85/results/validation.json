@@ -1,0 +1,46 @@
+{
+  "baseline": "eb3c50ad829580ecb5fa09b67dca2398d0273cbd",
+  "runtime": "b9fe5000fbf5846e7885cad8fd31dccaf10aab32",
+  "fullRegression": {
+    "suites": 45,
+    "status": "success",
+    "provider": "GitHub Actions",
+    "run": "https://github.com/ytcat/fit/actions/runs/42202094217",
+    "duration": "5m 17s"
+  },
+  "browser": {
+    "status": "passed",
+    "viewports": [
+      [
+        393,
+        650
+      ],
+      [
+        844,
+        390
+      ],
+      [
+        1100,
+        950
+      ]
+    ],
+    "modes": [
+      "none",
+      "heavy",
+      "dummy",
+      "speed",
+      "rabbit",
+      "fight"
+    ],
+    "errors": []
+  },
+  "manualContactAndFight": "passed",
+  "syntax": "passed",
+  "physicalPhone": false,
+  "firstCandidate": {
+    "revision": "9de3ad70cb41131dbe69329023c934f758e35956",
+    "status": "failed existing gym mesh budget at 67",
+    "resolution": "batch recovery balls and ceiling; retained threshold, final count 64"
+  },
+  "localFullSuite": "Partial duplicate run stopped after complete committed-runtime CI passed; no local full-suite completion claim."
+}

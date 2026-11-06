@@ -11,6 +11,12 @@ external styling/3D CDN is required. Choose a technique, rotate the view, use
 0.5×–3× playback, or freeze the motion to inspect a pose. The workout timer
 and the motion freeze control are independent. Continuous practice uses pause/resume.
 
+Choose **Play** above the arena to control the selected boxer in training,
+equipment drills, sparring or Fight night. **Watch** restores automatic play.
+Drag to orbit, pinch or use **− / + / Fit** to zoom. The consolidated
+[game-mode requirements and implementation](docs/game-mode.md) describe the
+side controls, speed-bag substitutions, independent opponents and scoring.
+
 The original continuous body and clothing surfaces are built with marching
 tetrahedra and attached to a shared skeleton. The face has recessed eyes and
 muzzle detail; the mane uses an undercoat and tapered hair clusters. Materials

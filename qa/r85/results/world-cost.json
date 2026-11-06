@@ -1,0 +1,26 @@
+[
+  {
+    "revision": "baseline",
+    "scene": "Foundry boxing gym",
+    "meshes": 41,
+    "triangles": 4422
+  },
+  {
+    "revision": "baseline",
+    "scene": "Championship arena",
+    "meshes": 20,
+    "triangles": 8546
+  },
+  {
+    "revision": "candidate",
+    "scene": "Foundry boxing gym",
+    "meshes": 64,
+    "triangles": 7818
+  },
+  {
+    "revision": "candidate",
+    "scene": "Championship arena",
+    "meshes": 20,
+    "triangles": 8546
+  }
+]

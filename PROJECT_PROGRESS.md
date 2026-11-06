@@ -175,3 +175,16 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   incompatible-data fallback. Repeated authoring output is byte-identical.
 - Actual normal/clay motion comparisons and limitations:
   docs/r84-arm-hinge-frame.md and qa/r84/comparison.html.
+
+## RingFighter R85 — studio, camera recovery and game-mode review (2026-11-06)
+- Furnished all gym walls, retained directional cutaways and batched fixtures
+  within the existing mesh budget.
+- Camera-only orbit preserves paused skin/pose caches, recovers interrupted
+  gestures and keeps user-selected views through fight ceremonies.
+- Extended zoom to 0.30 and added − / + / Fit to Watch and Play.
+- Consolidated prior direct-control game-mode requirements in docs/game-mode.md;
+  preserved existing player-versus-AI/contact behavior and R84 arm assets.
+- Complete 45-suite committed-runtime CI passed; native browser checks passed
+  in six modes and three layouts, plus real Play contact and fight checks.
+- Evidence: docs/r85-studio-camera.md and qa/r85/comparison.html. Physical-phone
+  gesture/performance checks remain unverified.
