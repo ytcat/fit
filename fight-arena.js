@@ -98,13 +98,14 @@
    // Translate between exchanges, never drag a planted punch through its target.
    const mobile=m.phase==='round'&&!Object.values(m.fighters).some(f=>f.down||f.action?.attack);
    if(mobile)this.travelTime+=dt;
+   this.gaitWeight=(this.gaitWeight||0)+((mobile?1:0)-(this.gaitWeight||0))*(1-Math.exp(-dt/.06));
    const t=this.travelTime,beat=Math.floor(t/.72),phase=(t/.72)%1;
    const anchor=n=>V(.58*Math.sin(n*.27),0,.42*Math.sin(n*.39));
    const from=anchor(beat),to=anchor(beat+1),ease=phase*phase*(3-2*phase);
    const centre=from.clone().lerp(to,ease),delta=to.clone().sub(from);
    // Circle through both sides of the ring, with measured changes in range.
    const angle=.65*Math.sin(t*.35),range=1.16+.06*Math.sin(t*.55);
-   return {centre,delta,phase,ease,angle,range,mobile};
+   return {centre,delta,phase,ease,angle,range,mobile,weight:this.gaitWeight};
   }
   pose(){
    const m=this.match,a=this.arena,ceremony=m.phase==='scoring'||m.phase==='ceremony',reveal=m.phase==='ceremony',raise=reveal?clamp((m.phaseTime-.4)/1.5):0;
@@ -129,7 +130,7 @@
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
     const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={guardElbowBack:2.0,simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28};
-    if(travel.mobile&&!ceremony){const yaw=coach.root.rotation.y;options.ringStep={phase:travel.phase,ease:travel.ease,delta:travel.delta.clone().applyAxisAngle(V(0,1,0),-yaw).toArray()};}
+    if(m.phase==='round'&&travel.weight>.001&&!ceremony){const yaw=coach.root.rotation.y;options.ringStep={phase:travel.phase,ease:travel.ease,weight:travel.weight,delta:travel.delta.clone().applyAxisAngle(V(0,1,0),-yaw).toArray()};}
     if(spec.attack){
      options.planStraight=true;options.strikeDirection=[0,0,1];
      let target=this.target(actor,spec);if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(V(...f.action.aim)));

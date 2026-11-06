@@ -1190,12 +1190,12 @@
         // here drove the long toe through the floor whenever the heel rose.
         const step=drillStep(s);
         if(options.ringStep){
-          const {phase:p,ease,delta}=options.ringStep;
+          const {phase:p,ease,delta,weight=1}=options.ringStep;
           // One foot transfers at a time. Root displacement is cancelled for
           // the supporting foot, so the canvas contact remains planted.
           const q=clamp((p-(s===-1?0:.5))/.5),swing=smooth(q);
-          step.x=delta[0]*(swing-ease);step.z=delta[2]*(swing-ease);
-          step.lift=.035*Math.sin(Math.PI*q)**2;
+          step.x+=delta[0]*(swing-ease)*weight;step.z+=delta[2]*(swing-ease)*weight;
+          step.lift=Math.max(step.lift,.035*Math.sin(Math.PI*q)**2*weight);
         }
         const width=options.stanceWidth??.47,depth=options.stanceDepth??.44;
         const contact=V(s*width/2+step.x,.015,(s===-1?.24:-.20)+(s===-1?1:-1)*(depth-.44)/2+.215+step.z-(side==='R'?(options.down||0)*.40:0));
