@@ -100,7 +100,7 @@
    const stride=.64,half=stride*.5;
    if(mobile){this.travelStop=null;this.travelTime+=dt;}
    else {
-    if(this.travelStop==null)this.travelStop=Math.ceil((this.travelTime-1e-8)/half)*half;
+    if(this.travelStop==null)this.travelStop=Math.max(this.travelTime,Math.ceil((this.travelTime-1e-8)/half)*half);
     this.travelTime=Math.min(this.travelStop,this.travelTime+dt);
    }
    // Keep the planted stride offset while stopped; fading it caused foot slide.
