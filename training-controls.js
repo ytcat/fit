@@ -89,6 +89,7 @@
    BOXING_ROUTINES.list.forEach((r,index)=>{
     const b=make('button','routine-choice');b.type='button';b.dataset.routine=r.id;b.setAttribute('aria-pressed',String(e.technique==='combo'&&e.currentAnim===r.id));
     b.append(make('strong','',r.names[{en:0,he:1,ru:2}[app.lang]]),make('span','',r.moves.map(words()).join(' → ')));
+    if(r.advanced)b.append(make('small','',({en:'Advanced · ',he:'מתקדם · ',ru:'Продвинутый · '}[app.lang])+r.moves.length+({en:' moves',he:' תנועות',ru:' движений'}[app.lang])));
     b.onclick=()=>{app.drillIdx=index;app.renderDrill();e.isPlaying=true;paint();d.close();};grid.append(b);
    });
    const random=make('button','routine-choice');random.type='button';random.dataset.routine='random';random.setAttribute('aria-pressed',String(e.technique==='random'));

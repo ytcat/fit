@@ -391,6 +391,7 @@
      const exchange=this.manualPartner.frame(practiceTime);counter={...exchange.rabbit,index:exchange.index};
     }else counter={move:'guard',phase:.35,attack:false};
    }
+   if(!manual&&!random){heroSpec.stepDirection=frame.stepDirection;heroSpec.defenceSide=frame.defenceSide;}
    if(mode==='heavy'&&!heroSpec.attack){this.springs.heavy.step(dt);this.applyDynamics();}
    const aimIndex=manual?'manual:'+frame.index:frame.index;
    if(mode==='heavy'&&this.followBeat!==aimIndex){

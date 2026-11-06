@@ -16,8 +16,8 @@ for(const drill of BOXING_ROUTINES.speedDrills){
 const interval=new Set();for(let t=0;t<8;t+=.02)interval.add(BOXING_ROUTINES.speedFrame(t,'intervals').tempo.toFixed(1));assert.ok(interval.size>=5,'intervals must actually change stroke tempo');
 for(const routine of Object.keys(BOXING_ROUTINES.timings)){
  const durations=BOXING_ROUTINES.timings[routine],moves=BOXING_ROUTINES.sequences[routine];let at=0;
- for(let i=0;i<moves.length;i++){const f=BOXING_ROUTINES.frame(at+durations[i]*.5,'combo',routine);assert.equal(f.move,moves[i]);assert.ok(Math.abs(f.phase-.43)<1e-8);at+=durations[i];}
+ for(let i=0;i<moves.length;i++){const f=BOXING_ROUTINES.frame(at+durations[i]*.5,'combo',routine);assert.equal(f.move,moves[i]);assert.ok(Math.abs(f.phase-(moves[i]==='step'?.5:.43))<1e-8);at+=durations[i];}
  assert.equal(BOXING_ROUTINES.frame(at+.01,'combo',routine).move,moves[0]);
 }
 const durations=BOXING_ROUTINES.timings.fast_jabs_upper;assert.ok(durations[0]<durations[2]*.5&&durations[1]<durations[2]*.5,'double jabs must be substantially faster than the following uppercut');
-console.log('PASS ten contact-driven speed-bag drills, both/single hand patterns, interval pacing and authored mixed-speed boxing combinations');
+console.log('PASS fourteen contact-driven speed-bag drills, both/single hand patterns, interval pacing and authored mixed-speed boxing combinations');

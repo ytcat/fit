@@ -29,6 +29,7 @@
   // geometric decorations this remains attached to the actual character skin
   // through animation and responds to the arena lights.
   function detailMap(kind) {
+    detailMap.cache=detailMap.cache||new Map();if(detailMap.cache.has(kind))return detailMap.cache.get(kind);
     const canvas=document.createElement('canvas');canvas.width=canvas.height=512;
     const ctx=canvas.getContext('2d'),pixels=ctx.createImageData(512,512);
     let state=kind==='fur'?17323:89923;
@@ -36,7 +37,7 @@
     const field=new Float32Array(512*512);
     for(let y=0;y<512;y++)for(let x=0;x<512;x++){
       const i=y*512+x,coarse=Math.sin(x*.072+y*.041)*2.8+Math.sin(x*.14-y*.095)*1.4;
-      field[i]=128+coarse+(rnd()-.5)*(kind==='fur'?48:26);
+      field[i]=kind==='cloth'?128+7*Math.sin(x*Math.PI/2)+5*Math.sin(y*Math.PI/2)+coarse*.25+(rnd()-.5)*5:128+coarse+(rnd()-.5)*(kind==='fur'?26:18);
     }
     if(kind==='fur')for(let i=0;i<30000;i++){
       const x=Math.floor(rnd()*512),y=Math.floor(rnd()*512),length=3+Math.floor(rnd()*11);
@@ -50,8 +51,18 @@
     }
     ctx.putImageData(pixels,0,0);
     const t=new THREE.CanvasTexture(canvas);t.wrapS=t.wrapT=THREE.RepeatWrapping;
-    t.repeat.set(kind==='fur'?6:4,kind==='fur'?6:4);
-    t.anisotropy=4;return t;
+    t.repeat.set(kind==='fur'?6:kind==='cloth'?8:4,kind==='fur'?6:kind==='cloth'?8:4);
+    t.anisotropy=4;detailMap.cache.set(kind,t);return t;
+  }
+  // Data textures stay linear. Reuse maps across cached boxers and their gear.
+  function roughnessMap(kind) {
+    roughnessMap.cache=roughnessMap.cache||new Map();if(roughnessMap.cache.has(kind))return roughnessMap.cache.get(kind);
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d'),pixels=ctx.createImageData(128,128);
+    for(let y=0;y<128;y++)for(let x=0;x<128;x++){
+      const v=Math.round(224+12*Math.sin(x*.147+y*.049)*Math.sin(y*.196-x*.049)+(kind==='cloth'?5*Math.sin(x*Math.PI/2)*Math.sin(y*Math.PI/2):3*Math.sin(x*1.717+y*2.271))),i=(y*128+x)*4;
+      pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=v;pixels.data[i+3]=255;
+    }
+    ctx.putImageData(pixels,0,0);const map=new THREE.CanvasTexture(canvas);map.wrapS=map.wrapT=THREE.RepeatWrapping;map.repeat.set(4,4);map.anisotropy=4;roughnessMap.cache.set(kind,map);return map;
   }
   function meshFrom(data,refine=false) {
     let armBlend=data.armBlend?.slice();
@@ -161,8 +172,8 @@
       const fur=detailMap('fur'), grain=detailMap('leather');
       const skin=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.94,
         bumpMap:fur,bumpScale:this.species==='rabbit'?.0043:.0035,skinning:true});
-      const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.61,
-        bumpMap:grain,bumpScale:.0028,skinning:true,side:THREE.DoubleSide});
+      const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.72,roughnessMap:roughnessMap('cloth'),
+        bumpMap:detailMap('cloth'),bumpScale:.00065,skinning:true,side:THREE.DoubleSide});
       this.skin=this.skinned(this.sculptBody(meshFrom(this.species==='rabbit'&&data.rabbitBody?data.rabbitBody:data.body,true)),skin,true);
       // A continuous saddle at the crotch with two separate, open leg hems.
       // The previous solid ellipsoid bridge stretched into a flap between legs.
@@ -190,9 +201,9 @@
       }
       this.shorts=this.skinned(LionCoach.shortsGeometry.clone(),cloth,false);
       this.gold=new THREE.MeshStandardMaterial({color:0xd8b56c,metalness:.38,roughness:.43});
-      this.leather=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x2758c1:0xad2529,roughness:.42,
-        bumpMap:grain,bumpScale:.0024,metalness:.05});
-      this.black=new THREE.MeshStandardMaterial({color:0x131518,roughness:.44});
+      this.leather=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x2758c1:0xad2529,roughness:.54,roughnessMap:roughnessMap('leather'),
+        bumpMap:grain,bumpScale:.0011,metalness:0});
+      this.black=new THREE.MeshStandardMaterial({color:0x131518,roughness:.64,bumpMap:grain,bumpScale:.0007,roughnessMap:roughnessMap('leather')});
       this.cream=new THREE.MeshStandardMaterial({color:0xc9b491,roughness:.9});
       const waistband=new THREE.Mesh(new THREE.CylinderGeometry(.244,.249,.061,64,1,true),this.gold);
       waistband.scale.z=.73;waistband.position.y=.098;hips.add(waistband);
@@ -239,7 +250,7 @@
         const shade=1-.48*palm-.08*fold;colour.push(shade,shade*(1-.08*palm),shade*(1-.12*palm));
       }
       gloveGeometry.setAttribute('color',new THREE.Float32BufferAttribute(colour,3));
-      const gloveMaterial=this.leather.clone();gloveMaterial.vertexColors=true;gloveMaterial.roughness=.37;
+      const gloveMaterial=this.leather.clone();gloveMaterial.vertexColors=true;gloveMaterial.roughness=.54;
       const seamMaterial=new THREE.MeshStandardMaterial({color:0x6d171d,roughness:.65});
       const palmMaterial=new THREE.MeshStandardMaterial({color:0x381e20,roughness:.88});
       // Project every stitch onto the sculpt instead of floating seam tubes.
@@ -583,7 +594,7 @@
       const head=this.joints.head,white=new THREE.MeshStandardMaterial({color:0xe6e2dc,roughness:.9,bumpMap:this.skin.material.bumpMap,bumpScale:.004});
       const grey=new THREE.MeshStandardMaterial({color:0x939ba7,roughness:.94,bumpMap:this.skin.material.bumpMap,bumpScale:.004});
       const pink=new THREE.MeshStandardMaterial({color:0xbb8186,roughness:.85});
-      const eye=new THREE.MeshPhysicalMaterial({color:0x201715,roughness:.20,clearcoat:.65});
+      const eye=new THREE.MeshPhysicalMaterial({color:0x201715,roughness:.28,clearcoat:.35});
       this.rabbitEars=[];
       for(const s of [-1,1]){
         const ear=new THREE.Group();ear.position.set(s*.085,.235,-.012);head.add(ear);this.rabbitEars.push(ear);
@@ -592,7 +603,7 @@
         this.ellipsoid(head,eye,V(s*.079,.17,.147),V(.030,.025,.021)).userData.eye=true;
         this.ellipsoid(head,white,V(s*.064,.087,.207),V(.068,.052,.059));
         const tooth=this.ellipsoid(head,white,V(s*.014,.035,.244),V(.011,.019,.008));tooth.userData.tooth=true;tooth.visible=false;
-        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xffffff}),V(s*.075,.18,.165),V(.006,.006,.003)).userData.eye=true;
+        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xffffff}),V(s*.075,.18,.165),V(.0025,.0025,.0015)).userData.eye=true;
         this.curve(head,[V(s*.048,.208,.143),V(s*.085,.216,.139),V(s*.114,.195,.124)],grey,.008);
         for(let i=0;i<3;i++)this.curve(head,[V(s*.057,.095-i*.017,.271),V(s*.16,.10-i*.017,.29),V(s*.23,.12-i*.025,.27)],white,.0009);
       }
@@ -605,13 +616,13 @@
     }
     addFace() {
       const head=this.joints.head;
-      const wet=new THREE.MeshPhysicalMaterial({color:0x231c18,roughness:.24,clearcoat:.7});
-      const amber=new THREE.MeshPhysicalMaterial({color:0xb58b39,roughness:.19,clearcoat:1});
+      const wet=new THREE.MeshPhysicalMaterial({color:0x231c18,roughness:.34,clearcoat:.3,bumpMap:detailMap('leather'),bumpScale:.00045});
+      const amber=new THREE.MeshPhysicalMaterial({color:0xb58b39,roughness:.28,clearcoat:.45});
       for(const s of [-1,1]) {
         this.ellipsoid(head,wet,V(s*.091,.171,.176),V(.029,.019,.022)).userData.eye=true;
         this.ellipsoid(head,amber,V(s*.091,.171,.195),V(.019,.013,.010)).userData.eye=true;
         this.ellipsoid(head,this.black,V(s*.091,.171,.204),V(.009,.011,.004)).userData.eye=true;
-        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xfff5df}),V(s*.085,.177,.208),V(.003,.003,.002)).userData.eye=true;
+        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xfff5df}),V(s*.085,.177,.208),V(.0016,.0016,.001)).userData.eye=true;
         this.curve(head,[V(s*.053,.18,.191),V(s*.09,.195,.190),V(s*.127,.177,.174)],wet,.004);
         this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x705037,roughness:1}),V(s*.164,.265,.025),V(.044,.050,.014));
         this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x604325,roughness:1}),V(s*.164,.265,-.044),V(.048,.053,.011));
@@ -649,11 +660,13 @@
         const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz);
         const center=V(normal.x*.295,.065+normal.y*.355,-.065+normal.z*.210);
         if(center.z>.025&&Math.abs(center.x)<.165&&center.y>-.03&&center.y<.29)continue;
-        const length=.040+random()*.050+Math.max(0,-normal.y)*.070;
+        const length=.045+random()*.035+Math.max(0,-normal.y)*.055;
         const width=.003+random()*.004;
-        const outward=normal.clone().multiplyScalar(.80).add(V(normal.x*.12,-.52,-.12)).normalize();
+        // Crown flows back; cheek locks fan down; nape trails the neck.
+        const crown=smooth((normal.y-.05)/.70),cheek=smooth((Math.abs(normal.x)-.25)/.60);
+        const outward=normal.clone().multiplyScalar(.44).add(V(normal.x*.24*cheek,-.64*(1-crown)-.12,-.20-.62*crown)).normalize();
         const across=outward.clone().cross(Math.abs(outward.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
-        const colour=new THREE.Color().setHSL(.070+random()*.035,.42+random()*.18,.10+random()*.19);
+        const colour=new THREE.Color().setHSL(.076+random()*.018,.46+random()*.10,.12+random()*.12);
         for(let j=0;j<3;j++) {
           const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.045*t*t,-.023*t*t));
           const t0=j/3,t1=(j+1)/3,p=point(t0),q=point(t1);
@@ -662,8 +675,8 @@
           flex.push(t0,t0,t1,t0,t1,t1);
           const sector=Math.min(5,Math.floor(((Math.atan2(normal.z,normal.x)+Math.PI)/(2*Math.PI))*6)),band=Math.min(3,Math.floor((normal.y+1)*2));
           for(let k=0;k<6;k++)guideIds.push(band*6+sector);
-          for(const v of [p0,p1,q0,p1,q1,q0]) {
-            positions.push(v.x,v.y,v.z);const linear=colour.clone().convertSRGBToLinear();colors.push(linear.r,linear.g,linear.b);
+          for(const [k,v] of [p0,p1,q0,p1,q1,q0].entries()) {
+            positions.push(v.x,v.y,v.z);const linear=colour.clone().multiplyScalar(.80+.28*(k===2||k===4||k===5?t1:t0)).convertSRGBToLinear();colors.push(linear.r,linear.g,linear.b);
           }
         }
       }
@@ -935,10 +948,10 @@
     update(t,technique,combo,options={}) {
       this.renderTime=options.simulationTime??t;
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
-      const beat=t/(technique==='combo'?1.0:1.22),move=seq[Math.floor(beat)%seq.length];
+      const beat=t/(technique==='combo'?1.0:1.22),authored=technique==='combo'?window.BOXING_ROUTINES?.frame(t,technique,combo):null,move=authored?.move||seq[Math.floor(beat)%seq.length];
       // Trim the dead guard tail between combination punches. Individual drills
       // keep their deliberate full reset; combinations retain continuous cadence.
-      const phase=(beat%1)*(technique==='combo'?.86:1);
+      const phase=authored?.phase??(beat%1)*(technique==='combo'?.86:1);
       // Pelvis leads thorax; arm follows. No hand can travel through the back.
       const envelope=(p,delay=0)=>{
         p-=delay;

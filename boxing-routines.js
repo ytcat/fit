@@ -29,9 +29,41 @@
   ['moving_double_jab',['step','jab','jab','step','cross'],['Moving double jab','ג׳אב כפול בתנועה','Двойной джеб в движении']],
   ['reset_reenter',['jab','cross','step','slip','step','jab'],['Exit, reset and re-enter','יציאה, איפוס וכניסה','Отход, перестройка, вход']],
   ['long_exchange',['jab','jab','cross','hook','roll','cross','rear_hook','step'],['Long exchange','חילופי מכות ארוכים','Длинный обмен']]
+,
+  ['super_blitz',['jab','jab','cross','hook','roll','rear_uppercut','hook','cross','step'],['Super · Lightning counter','סופר · תגובת ברק','Супер · Молниеносный ответ']],
+  ['super_angle',['step','jab','cross','slip','cross','hook','step','jab'],['Super · Angle hunter','סופר · שינוי זווית','Супер · Охотник за углом']],
+  ['super_inside',['jab','rear_uppercut','hook','roll','uppercut','rear_hook','slip','cross','step'],['Super · Inside storm','סופר · סערה מקרוב','Супер · Ближний шторм']],
+  ['super_gears',['jab','jab','cross','slip','rear_uppercut','hook','cross','roll','step'],['Super · Change gears','סופר · החלפת הילוך','Супер · Смена передач']],
+  ['super_defence',['slip','roll','cross','hook','slip','rear_uppercut','hook','cross','step'],['Super · Read and punish','סופר · לקרוא ולהגיב','Супер · Прочитать и ответить']],
+  ['super_ten',['jab','cross','hook','rear_uppercut','hook','cross','roll','uppercut','rear_hook','cross','step'],['Super · Power engine','סופר · מנוע התקפה','Супер · Двигатель атаки']],
+  ['super_double_wave',['jab','cross','hook','step','jab','jab','cross','roll','rear_uppercut','hook','step'],['Super · Double wave','סופר · גל כפול','Супер · Двойная волна']],
+  ['super_upper_ladder',['jab','rear_uppercut','hook','cross','roll','uppercut','rear_hook','cross','step'],['Super · Uppercut ladder','סופר · סולם אפרקאטים','Супер · Лестница апперкотов']],
+  ['super_checkmate',['jab','slip','cross','hook','roll','rear_uppercut','hook','step','cross'],['Super · Counter checkmate','סופר · רצף הכרעה','Супер · Мат контратакой']],
+  ['super_ringcraft',['step','jab','cross','step','slip','cross','hook','roll','step','jab'],['Super · Ring commander','סופר · שליטה בזירה','Супер · Хозяин ринга']],
+  ['super_comeback',['roll','uppercut','rear_hook','slip','cross','hook','rear_uppercut','step'],['Super · Comeback burst','סופר · חזרה למתקפה','Супер · Ответный прорыв']],
+  ['super_marathon',['jab','jab','cross','hook','roll','cross','rear_uppercut','hook','step','jab','cross','slip'],['Super · Championship chain','סופר · שרשרת אליפות','Супер · Чемпионская цепь']]
  ].map(([id,moves,names])=>({id,moves,names}));
  const sequences=Object.fromEntries(list.map(r=>[r.id,r.moves]));
  const timings={fast_jabs_upper:[.48,.48,1.30,.78],burst_exit:[.52,.60,.70,1.18,.76],read_upper:[.72,.92,1.20,.65,1.15],change_gears:[.46,.50,.68,.98,1.36,.65]};
+ // Short straight bursts, deliberate uppercuts, and enough time to plant exits.
+ Object.assign(timings,{
+  super_blitz:[.44,.48,.60,.64,.78,.94,.66,.62,.96],
+  super_angle:[.94,.52,.64,.72,.62,.68,.98,.56],
+  super_inside:[.54,.96,.68,.82,.98,.72,.76,.66,.98],
+  super_gears:[.44,.48,.72,.78,1.10,.64,.58,.84,.98],
+  super_defence:[.72,.84,.62,.68,.74,1.02,.66,.64,.98],
+  super_ten:[.48,.58,.64,.94,.66,.60,.82,.98,.72,.62,1.02],
+  super_double_wave:[.48,.60,.66,.96,.44,.48,.62,.82,1.02,.68,1.00],
+  super_upper_ladder:[.54,1.00,.68,.62,.84,1.04,.72,.64,.98],
+  super_checkmate:[.54,.74,.62,.68,.84,1.00,.68,.98,.66],
+  super_ringcraft:[.98,.52,.64,.98,.76,.62,.68,.84,1.00,.56],
+  super_comeback:[.84,1.02,.72,.76,.64,.68,1.04,1.00],
+  super_marathon:[.46,.50,.62,.68,.84,.64,1.02,.70,1.02,.50,.62,.80]
+ });
+ const cues={super_blitz:{8:{stepDirection:-1}},super_angle:{0:{stepDirection:-1},3:{defenceSide:-1},6:{stepDirection:1}},super_inside:{8:{stepDirection:1}},super_gears:{8:{stepDirection:-1}},super_defence:{0:{defenceSide:-1},4:{defenceSide:1},8:{stepDirection:1}},super_ten:{10:{stepDirection:-1}},super_double_wave:{3:{stepDirection:1},10:{stepDirection:-1}},super_upper_ladder:{8:{stepDirection:1}},super_checkmate:{7:{stepDirection:-1}},super_ringcraft:{0:{stepDirection:-1},3:{stepDirection:1},8:{stepDirection:-1}},super_comeback:{3:{defenceSide:-1},7:{stepDirection:1}},super_marathon:{8:{stepDirection:1}}};
+ for(const r of list)if(r.id.startsWith('super_'))r.advanced=true;
+ // Footwork must finish its full plant; attack-only tail trimming caused a hop.
+ const phaseScale=move=>move==='step'?1:.86;
  const speedDrills=[
   {id:'alternating',names:['Alternating speed-bag rhythm','קצב לסירוגין','Чередование рук']},
   {id:'lead',names:['Lead hand control','שליטה ביד קדמית','Передняя рука']},
@@ -43,8 +75,19 @@
   {id:'burst_roll',names:['Fast four + roll','ארבע מהירות וגלגול','Четыре + нырок']},
   {id:'double_cover',names:['Doubles + cover','כפולות והגנה','Двойки + защита']},
   {id:'step_reset',names:['Four + step away','ארבע וצעד החוצה','Четыре + отход']}
+,
+  {id:'super_pyramid',names:['Super · Pyramid sprint','סופר · פירמידת מהירות','Супер · Пирамида скорости']},
+  {id:'super_switch',names:['Super · Switch hands + slip','סופר · החלפת יד והתחמקות','Супер · Смена рук + уклон']},
+  {id:'super_endurance',names:['Super · Eight + cover','סופר · שמונה והגנה','Супер · Восемь + защита']},
+  {id:'super_gears',names:['Super · Fast / slow / roll','סופר · מהר, לאט וגלגול','Супер · Быстро / медленно / нырок']}
  ];
  const speedBursts={burst_slip:[['L',.22],['R',.22],['L',.25],['slip',.60]],burst_roll:[['L',.24],['R',.24],['L',.24],['R',.24],['roll',.72]],double_cover:[['L',.20],['L',.20],['R',.20],['R',.20],['guard',.45]],step_reset:[['L',.23],['R',.23],['L',.23],['R',.23],['step',.65]]};
+ Object.assign(speedBursts,{
+  super_pyramid:[['L',.32],['R',.29],['L',.26],['R',.23],['L',.22],['R',.24],['L',.29],['R',.34],['guard',.52]],
+  super_switch:[['L',.24],['L',.24],['R',.24],['R',.24],['L',.22],['R',.22],['slip',.64]],
+  super_endurance:[['L',.24],['R',.24],['L',.24],['R',.24],['L',.24],['R',.24],['L',.24],['R',.24],['guard',.56]],
+  super_gears:[['L',.22],['R',.22],['L',.24],['R',.24],['L',.42],['R',.42],['roll',.76]]
+ });
  function speedFrame(time,id='alternating'){
   time=Math.max(0,time);
   if(id==='alternating')return {clock:time*1.8/1.22,index:Math.floor(time*1.8/1.22*2),legacy:true};
@@ -66,11 +109,11 @@
   if(technique==='combo'&&timings[combo]){
    const ds=timings[combo],total=ds.reduce((a,b)=>a+b,0),cycle=Math.floor(Math.max(0,time)/total);let age=Math.max(0,time)-cycle*total,slot=0;
    while(slot<ds.length-1&&age>=ds[slot])age-=ds[slot++];
-   return {move:moves[slot],phase:age/ds[slot]*.86,index:cycle*moves.length+slot,slot,moves,duration:ds[slot],authoredTempo:true};
+   return {move:moves[slot],...cues[combo]?.[slot],phase:age/ds[slot]*phaseScale(moves[slot]),index:cycle*moves.length+slot,slot,moves,duration:ds[slot],authoredTempo:true};
   }
   const duration=technique==='combo'?1:1.22,beat=Math.max(0,time)/duration;
   const index=Math.floor(beat),fraction=beat-index;
-  return {move:moves[index%moves.length],phase:fraction*(technique==='combo'?.86:1),index,slot:index%moves.length,moves,duration};
+  return {move:moves[index%moves.length],phase:fraction*(technique==='combo'?phaseScale(moves[index%moves.length]):1),index,slot:index%moves.length,moves,duration};
  }
  function opponent(frame){
   const p=frame.phase,clamp=n=>Math.max(0,Math.min(1,n));
@@ -111,13 +154,13 @@
    let lo=0,hi=this.events.length-1;
    while(lo<hi){const mid=(lo+hi)>>1;if(this.events[mid].end<=time)lo=mid+1;else hi=mid;}
    const event=this.events[lo],rest=time>=event.activeEnd;
-   return {...event,move:rest?'guard':event.move,phase:rest?0:(time-event.start)/event.duration*(technique==='combo'?.86:1),rest,slot:event.index%moves.length,moves};
+   return {...event,...cues[combo]?.[event.index%moves.length],move:rest?'guard':event.move,phase:rest?0:(time-event.start)/event.duration*(technique==='combo'?phaseScale(event.move):1),rest,slot:event.index%moves.length,moves};
   }
  }
  // Boxing grammar provides many phrases, not a random pick from six loops.
  function phrase(random,defence=true){
   const open=[['jab'],['jab','jab'],['jab','cross'],['cross','hook']];
-  const moves=open[Math.floor(random()*open.length)].slice(),length=3+Math.floor(random()*4);
+  const moves=open[Math.floor(random()*open.length)].slice(),length=3+Math.floor(random()*4)+(defence&&random()<.30?3:0);
   while(moves.length<length){
    const last=moves.at(-1),choices=['jab','hook','uppercut'].includes(last)?['cross','rear_hook','rear_uppercut']:['jab','hook','uppercut'];
    moves.push(choices[Math.floor(random()*choices.length)]);

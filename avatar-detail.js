@@ -90,7 +90,10 @@
     if((root.y>.70&&root.y<1.09)||Math.abs(root.x)>.86)continue;
     const face=root.y>1.79&&root.z>.12;const length=((coach.species==='rabbit'?.006:.003)+rand()*.005)*(face?.35:1),width=.0004+rand()*.0004;
     const across=normal.clone().cross(Math.abs(normal.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
-    const tip=root.clone().addScaledVector(normal,length).add(V(0,-length*.30,0));
+    // Fur follows the resting anatomy, then existing bone/DQ deformation.
+    const growth=Math.abs(root.x)>.32&&root.y>1.44?V(Math.sign(root.x),-.16,0):V(root.x*.12,-1,-.10);
+    growth.addScaledVector(normal,-growth.dot(normal)).normalize();
+    const tip=root.clone().addScaledVector(normal,length*.82).addScaledVector(growth,length*.56);
     const points=[root.clone().add(across),root.clone().sub(across),tip];
     for(let k=0;k<3;k++){positions.push(...points[k].toArray());normals.push(...normal.toArray());attachments.push(a.getX(i));flex.push(k===2?1:0);if(coach.shoulderData)shoulderRoots.push(i);}
    }
