@@ -109,7 +109,13 @@
    // Keep the planted stride offset while stopped; fading it caused foot slide.
    this.gaitWeight=m.phase==='round'?1:0;
    const t=this.travelTime,beat=Math.floor(t/stride),phase=(t/stride)%1;
-   const anchor=n=>V(.70*Math.sin(n*.52),0,.64*Math.sin(n*.58));
+   const anchor=n=>{
+    const p=V(.70*Math.sin(n*.52),0,.64*Math.sin(n*.58)),heading=.48*Math.sin(n*stride*.30),spacing=1.20+.02*Math.sin(n*stride*.55);
+    // Reserve the fixed official's corner. Linear root paths stay inside this
+    // convex half-plane, including between the stride endpoints.
+    const limit=.86-Math.abs(Math.sin(heading)-Math.cos(heading))*spacing*.5,spill=Math.max(0,p.x-p.z-limit)*.5;
+    p.x-=spill;p.z+=spill;return p;
+   };
    const from=anchor(beat),to=anchor(beat+1),ease=phase*phase*(3-2*phase);
    const centre=from.clone().lerp(to,ease),delta=to.clone().sub(from);
    const angleFrom=.48*Math.sin(beat*stride*.30),angleTo=.48*Math.sin((beat+1)*stride*.30),angle=angleFrom+(angleTo-angleFrom)*ease;

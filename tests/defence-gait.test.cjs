@@ -19,9 +19,14 @@ for(const actor of ['lion','rabbit'])for(const [style,y,axis] of [['high',1.90,'
  for(let t=0;t<=1;t+=.01){const point=axis==='z'?new THREE.Vector3(0,y,.95-t*.85):new THREE.Vector3((axis==='left'?-1:1)*(.75-t*.75),y,.16);const hit=v.collision(c.root.localToWorld(point),actor);if(hit.penetration>0){blocks[actor+'.'+style]=hit.part;break;}}
 }
 console.log('coverage',blocks);for(const [style,part] of Object.entries(blocks))assert.ok(['glove','arm'].includes(part),style+' must intercept its incoming path before the head/body');assert.equal(Object.keys(blocks).length,10);
+// The wider path must leave room for the existing stationary official.
+for(const f of Object.values(m.fighters))f.action=null;v.travelLast=m.time;
+let officialClearance=Infinity;
+for(let n=0;n<180;n++){v.travelTime=n*.16;const tr=v.ringTravel();for(const sign of [-1,1]){const from=tr.from.clone().addScaledVector(new THREE.Vector3(Math.sin(tr.angleFrom),0,Math.cos(tr.angleFrom)),sign*tr.rangeFrom/2),to=tr.to.clone().addScaledVector(new THREE.Vector3(Math.sin(tr.angleTo),0,Math.cos(tr.angleTo)),sign*tr.rangeTo/2);for(const q of [0,.25,.5,.75,1]){const p=from.clone().lerp(to,q);officialClearance=Math.min(officialClearance,Math.hypot(p.x-1.13,p.z+.83));}}}
+assert.ok(officialClearance>.74,'ring travel must not take fighters through the fixed referee');
 // Braking must remain monotonic and reach rest without a velocity cliff.
 m.fighters.lion.action={move:'jab',attack:true};v.travelTime=.11;v.travelStop=null;v.travelLast=m.time;
 let lastCentre=v.ringTravel().centre.clone(),lastTravel=v.travelTime,brakingSpeed=Infinity,peakBrakingSpeed=0;
 for(let i=0;i<43;i++){m.time+=.005;const tr=v.ringTravel();assert.ok(v.travelTime>=lastTravel,'settling clock cannot rewind');brakingSpeed=tr.centre.distanceTo(lastCentre)/.005;peakBrakingSpeed=Math.max(peakBrakingSpeed,brakingSpeed);lastTravel=v.travelTime;lastCentre=tr.centre.clone();if(i===40)assert.ok(brakingSpeed<peakBrakingSpeed*.25,'root must decelerate before the final planted frame');}
 assert.equal(brakingSpeed,0);
-console.log('PASS sustained distinct guards, fixed arm lengths, real direction-led ring steps, planted canvas contacts and landing before contact',{maxPlant,maxStep});
+console.log('PASS sustained distinct guards, fixed arm lengths, real direction-led ring steps, planted canvas contacts and landing before contact',{maxPlant,maxStep,officialClearance});
