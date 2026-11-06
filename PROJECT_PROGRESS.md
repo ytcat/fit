@@ -165,3 +165,13 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - Replaced the incorrect wrist-forward guard criterion with anatomical guard
   checks; added actual glove-mesh clearance tests for both fighters.
 - Matched app-rendered evidence and validation: docs/r83-fight-hand-correction.md.
+
+## RingFighter R84 — arm hinge frame (2026-11-06)
+- Reproduced a 90° upper-arm roll during isolated elbow flexion, despite correct
+  joint endpoints. Corrected the model's bind-space elbow fold to -Z.
+- Added humeral-roll, actual palm/forearm alignment and world-space hit-volume
+  compatibility tests. The complete 44-suite validation passes.
+- Rebuilt the versioned shoulder corrective for the new frame; retained v1 and
+  incompatible-data fallback. Repeated authoring output is byte-identical.
+- Actual normal/clay motion comparisons and limitations:
+  docs/r84-arm-hinge-frame.md and qa/r84/comparison.html.
