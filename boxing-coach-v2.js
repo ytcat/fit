@@ -1447,6 +1447,22 @@
           gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
         }
       }
+      if(options.planUppercut&&options.knuckleTarget&&move.includes('uppercut')){
+        // Fit only the compact rising finish; never bend or roll the wrist.
+        const index=move==='rear_uppercut'?1:0,side=index?'R':'L',pole=index?rearPole:leadPole;
+        const release=smooth((phase-.49)/.25),weight=smooth((rise-.75)/.25)*Math.pow(1-release,4);
+        if(weight>0){
+          const s=this.mittAimScratch||(this.mittAimScratch={wrist:V(),target:V(),delta:V(),glove:V(),shoulder:V(),direction:V()}),{wrist,target,delta,glove,shoulder,direction}=s;
+          this.root.worldToLocal(j['hand'+side].getWorldPosition(wrist));target.fromArray(options.knuckleTarget);
+          const upper=j['elbow'+side].position.length(),lower=j['hand'+side].position.length(),reach=upper+lower-.002;
+          for(let iteration=0;iteration<3;iteration++){
+            delta.copy(target).sub(glove.fromArray(gloves[index].strikePoint)).clampLength(0,.035);wrist.addScaledVector(delta,weight);
+            this.root.worldToLocal(j['arm'+side].getWorldPosition(shoulder));direction.copy(wrist).sub(shoulder).clampLength(foldedArmReach(upper,lower),reach);wrist.copy(shoulder).add(direction);
+            const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],wrist,pole);if(index)re=error;else le=error;
+            gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
+          }
+        }
+      }
       if(options.contactReturn){
         const returned=options.contactReturn,{side,blend}=returned,index=side==='R'?1:0;
         const ready=(side==='L'?leadGuard:rearGuard).clone().add(headShift),target=V(...returned.point).lerp(ready,blend);

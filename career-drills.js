@@ -77,8 +77,8 @@
   dispose(){this.engine.coach.root.position.y=0;for(const prop of this.grips||this.mitts||[])TrainingGear.dispose(prop);if(this.trainer)this.trainer.root.parent?.remove(this.trainer.root);this.root.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material)n.material.dispose();});this.root.parent?.remove(this.root);}
   once(key){if(this.seen.has(key))return false;this.seen.add(key);if(this.seen.size>80)this.seen.delete(this.seen.values().next().value);return true;}
   face(pad){return this.trainer.root.worldToLocal(pad.localToWorld(pad.userData.face.clone()));}
-  placeMitt(side,goal,palm=V(0,0,1)){
-   const coach=this.trainer,j=coach.joints,pad=this.mitts[side==='L'?0:1],pole=V((side==='L'?-1:1)*(.7+.4*palm.y),-.45-1.8*palm.y,-.12);let error=0;
+  placeMitt(side,goal,palm=V(0,0,1),catchingUpper=false){
+   const coach=this.trainer,j=coach.joints,pad=this.mitts[side==='L'?0:1],pole=V((side==='L'?-1:1)*(.7+.4*palm.y),catchingUpper?-.45:-.45-1.8*palm.y,-.12);let error=0;
    // Solve the actual catching face, not the hand origin. Pronation follows
    // the forearm, so even a palm-down sweep retains a straight wrist.
    for(let i=0;i<5;i++){
@@ -100,11 +100,13 @@
    j.hips.position.z+=.035*sweep;j.spine.rotation.x+=.11*sweep-.020*shock;j.chest.rotation.x+=.09*sweep-.035*shock;
    j.spine.rotation.y-=sign*.10*sweep;j.chest.rotation.y-=sign*(.13*sweep-.055*catchPulse);
    j.chest.rotation.x+=.025*catchPulse;j.neck.rotation.y+=sign*.06*sweep;j.head.rotation.y+=sign*.08*sweep;
-   const palms=[],errors=[];
+   const palms=[],errors=[],upper=this.padPose.move.includes('uppercut'),ready=upper?smooth(this.padPose.heroPhase/.18)*(1-smooth((this.padPose.heroPhase-.72)/.25)):0;
    for(const [i,side] of ['L','R'].entries()){
     const pad=this.mitts[i],age=this.padPose.t-(pad.userData.hitAt??-100),recoil=age>=0?.065*(pad.userData.hitForce??1)*(1-Math.exp(-age/.022))*Math.exp(-age/.15):0;
     const goal=V(i?.20:-.20,1.82+.010*Math.sin(this.padPose.t*2.3+i),.43-recoil),palm=V(0,0,1);
-    if(this.padPose.move.includes('uppercut')&&side===(rear(this.padPose.move)?'R':'L')){const ready=smooth(this.padPose.heroPhase/.18)*(1-smooth((this.padPose.heroPhase-.72)/.25));goal.lerp(V(i?.20:-.20,1.72,.49),ready);palm.set(0,-Math.sin(ready*Math.PI/2),Math.cos(ready*Math.PI/2));}
+    const catchingUpper=upper&&side===(rear(this.padPose.move)?'R':'L');
+    if(catchingUpper){goal.lerp(V(0,1.86+recoil,.60-recoil*.3),ready);palm.set(0,-Math.sin(ready*Math.PI/2),Math.cos(ready*Math.PI/2));}
+    else if(upper)goal.lerp(V(i?.24:-.24,1.96,.43),ready);
     if(hook&&side!==sweepSide)goal.lerp(V(i?.22:-.22,1.74,.29),sweep);
     if(hook&&side===sweepSide){
      // Round sweep over the ducking boxer: chamber to the outside, pronate,
@@ -114,7 +116,7 @@
      goal.lerp(V(x,y,z),sweep);const roll=sweep*Math.PI/2;palm.set(0,-Math.sin(roll),Math.cos(roll));
     }
     j['arm'+side].position.z+=.035*sweep+.012*catchPulse;j['arm'+side].position.y+=.045*sweep;
-    errors.push(this.placeMitt(side,goal,palm));palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-Math.min(.18,recoil*4);
+    errors.push(this.placeMitt(side,goal,palm,catchingUpper));palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-Math.min(.18,recoil*4);
    }
    const footTargets=[];for(const {side,ankle,q} of feet){
     const foot=j['foot'+side],error=coach.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(side==='L'?-.08:.08,.1,1));coach.orient(foot,q);
@@ -214,7 +216,7 @@
    trainer.update(0,'guard','one_two',{simulationTime:time,deferVisuals:this.deferVisuals,guardElbowBack:.5,guardWidth:.22,keepFaceClear:true,poseOverlay:this.finalizeTrainer});
    this.arena.group.updateMatrixWorld(true);
    const targetIndex=rear(spec.move)?1:0,pad=this.mitts[targetIndex],worldTarget=pad.localToWorld(pad.userData.face.clone()),target=hero.root.worldToLocal(worldTarget.clone());
-   hero.update(spec.phase*1.22,spec.move,'one_two',{simulationTime:time,deferVisuals:this.deferVisuals,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,uppercutBagTarget:spec.move.includes('uppercut')?[target.x,target.y-.20,target.z-.04]:undefined,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,advance:(spec.move==='jab'||spec.move==='cross')?.065:.025,contactDrive:(spec.move==='jab'||spec.move==='cross')?.045:0,shoulderCover:(spec.move==='jab'||spec.move==='cross')?.055:0,guardTightness:1,power:1.15,straightRecovery:.25,poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
+   hero.update(spec.phase*1.22,spec.move,'one_two',{simulationTime:time,deferVisuals:this.deferVisuals,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,planUppercut:spec.move.includes('uppercut'),uppercutBagTarget:spec.move.includes('uppercut')?[target.x,target.y-.18,target.z-.02]:undefined,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,advance:(spec.move==='jab'||spec.move==='cross')?.065:spec.move.includes('uppercut')?.08:.025,contactDrive:(spec.move==='jab'||spec.move==='cross')?.045:spec.move.includes('uppercut')?.025:0,shoulderCover:(spec.move==='jab'||spec.move==='cross')?.055:0,guardTightness:1,power:1.15,straightRecovery:.25,poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
    const dt=this.last<0?0:t-this.last;
    if(spec.attack){
     if(spec.phase>.2&&this.once('swing'+spec.index))frame.swings.push({actor:'lion',move:spec.move});

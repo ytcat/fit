@@ -4,7 +4,8 @@ const rows=[];
 function perform(move,hz,rate,delay){
  e.animTime=0;e.arena.setTarget('pads');e.player.reset();e.animTime=delay;e.arena.update(delay);assert.ok(e.player.press(move));const d=e.arena.careerDrill,events=[];
  for(let i=1;i<=Math.ceil(1.25*hz/rate);i++){
-  e.animTime=delay+i*rate/hz;const f=e.arena.update(e.animTime);for(const hit of f.contacts){
+  e.animTime=delay+i*rate/hz;const f=e.arena.update(e.animTime);if(move.includes('uppercut')&&f.hero.phase>=.45&&f.hero.phase<=.53){const c=e.coach,side=move==='uppercut'?'L':'R',hand=c.joints['hand'+side],elbow=c.joints['elbow'+side],axis=hand.getWorldPosition(V()).sub(elbow.getWorldPosition(V())).normalize(),glove=V(0,-1,0).applyQuaternion(hand.getWorldQuaternion(new THREE.Quaternion())),strike=c.root.worldToLocal(V(0,-.204,0).applyMatrix4(hand.matrixWorld));assert.ok(axis.y>.8,'uppercuts rise with the elbow below the glove');assert.ok(axis.dot(glove)>1-1e-9,'uppercut wrists stay aligned with the forearm');assert.ok(Math.abs(strike.x)<.14,'uppercut finishes stay near the centreline');}
+  for(const hit of f.contacts){
    events.push(hit);const normal=V(...hit.normal),velocity=V(...hit.relativeVelocity),local=V(...hit.localPoint),centre=d.mitts[hit.hand==='R'?1:0].userData.face;
    assert.ok(Math.abs(normal.length()-1)<1e-10);assert.ok(velocity.dot(normal)<-.12,'retreating hands cannot score');assert.ok(Math.abs(hit.closingSpeed-Math.min(5,-velocity.dot(normal)))<1e-9);
    assert.ok(Math.abs(local.z-centre.z)<=.035+1e-8,'swept point must meet the narrow pad band');assert.ok(((local.x-centre.x)/.125)**2+((local.y-centre.y)/.145)**2<=1+1e-9,'contact must be on the oval pad');
