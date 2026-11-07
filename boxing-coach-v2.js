@@ -1146,9 +1146,8 @@
         if(!move.includes('uppercut'))crouch+=Math.abs(l.z-r.z)*.21;
       }
       // Equipment punches commit the pelvis and back before shoulder extension.
-      // Extra whole-body drive for punches; contact/reach limits remain authoritative.
-      const authoredPower=options.power||1;
-      const power=authoredPower*(authoredPower<1.16&&(straight||move.includes('hook')||move.includes('uppercut'))?1.12:1);
+      // Modes author body drive alongside their calibrated contact targets.
+      const power=options.power||1;
       hipYaw*=power;chestYaw*=power;forward*=power;
       crouch+=options.stanceDrop||0;
       trunkPitch+=(power-1)*.14*drive;

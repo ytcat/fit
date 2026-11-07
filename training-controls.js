@@ -91,7 +91,7 @@
     const drills=BOXING_ROUTINES.speedDrills,index=drills.findIndex(d=>d.id===(e.speedDrill||'alternating'));chooseSpeedDrill(drills[(index+1)%drills.length].id);return;
    }
    if(e.targetMode==='fight'){window.fightUI?.detail();return;}
-   const d=dialog(w().routine),grid=make('div','routine-grid');d.classList.add('routine-picker');
+   const d=dialog(w().routine),grid=make('div','routine-grid');d.className+=' routine-picker';
    const finish=()=>{d.close();if(window.ringsideLayout?.drawer.open)window.ringsideLayout.drawer.close();};
    BOXING_ROUTINES.list.forEach((r,index)=>{
     const b=make('button','routine-choice');b.type='button';b.dataset.routine=r.id;b.setAttribute('aria-pressed',String(e.technique==='combo'&&e.currentAnim===r.id));
