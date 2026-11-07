@@ -1,5 +1,8 @@
 # RingFighter — 3D Boxing
 
+R93 brings skipping hands beside the hips, tucks the elbows and reduces arm
+circles while retaining wrist turns. [Comparison and checks](docs/r93-compact-skipping.md).
+
 R92 gives the coach and trainee 30 cm more space while preserving mitt contacts
 and the overhead roll. [Spacing comparison and checks](docs/r92-mitt-spacing.md).
 

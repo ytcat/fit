@@ -1,0 +1,139 @@
+{
+  "root": "/workspace/fit-r93",
+  "shots": [
+    {
+      "name": "overhead",
+      "phase": 0,
+      "yaw": 0.65,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.30469201598477025,
+          "elbowFromHip": 0.3148606103377107
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.32769201598477005,
+          "elbowFromHip": 0.3097870420445672
+        }
+      ],
+      "ropeLowest": 1.0995561645271081,
+      "calls": 169,
+      "triangles": 433667,
+      "programsLinked": true
+    },
+    {
+      "name": "turn",
+      "phase": 0.25,
+      "yaw": 0.65,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.30098787254930714,
+          "elbowFromHip": 0.31464058031892383
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31725132851659776,
+          "elbowFromHip": 0.3114990904781354
+        }
+      ],
+      "ropeLowest": 1.1753788458946468,
+      "calls": 169,
+      "triangles": 433667,
+      "programsLinked": true
+    },
+    {
+      "name": "underfoot",
+      "phase": 0.5,
+      "yaw": 0.65,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.3138079840152295,
+          "elbowFromHip": 0.3011749862386029
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31380798401522947,
+          "elbowFromHip": 0.3169178846634329
+        }
+      ],
+      "ropeLowest": 0.09499999999999997,
+      "calls": 169,
+      "triangles": 433667,
+      "programsLinked": true
+    },
+    {
+      "name": "side",
+      "phase": 0.25,
+      "yaw": 2.1,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.30098787254930714,
+          "elbowFromHip": 0.31464058031892383
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31725132851659776,
+          "elbowFromHip": 0.3114990904781354
+        }
+      ],
+      "ropeLowest": 1.1753788458946468,
+      "calls": 159,
+      "triangles": 432057,
+      "programsLinked": true
+    },
+    {
+      "name": "rear",
+      "phase": 0.25,
+      "yaw": 3.2,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.30098787254930714,
+          "elbowFromHip": 0.31464058031892383
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31725132851659776,
+          "elbowFromHip": 0.3114990904781354
+        }
+      ],
+      "ropeLowest": 1.1753788458946468,
+      "calls": 157,
+      "triangles": 431867,
+      "programsLinked": true
+    },
+    {
+      "name": "mobile",
+      "phase": 0.25,
+      "yaw": 0.65,
+      "mobile": true,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.30098787254930714,
+          "elbowFromHip": 0.31464058031892383
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31725132851659776,
+          "elbowFromHip": 0.3114990904781354
+        }
+      ],
+      "ropeLowest": 1.1753788458946468,
+      "calls": 161,
+      "triangles": 433457,
+      "programsLinked": true
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}

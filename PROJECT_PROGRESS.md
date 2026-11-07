@@ -277,3 +277,12 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - All 55 regression suites passed on `b064eac`; matching desktop/phone-sized
   browser renders passed. Proof: qa/r92/results/validation.json.
 - Details and comparison: docs/r92-mitt-spacing.md and qa/r92/review.html.
+
+## R93 — compact skipping posture (2026-11-07)
+- Moved each rope hand target inward 12 cm, tucked elbow guides and reduced
+  arm circles/shoulder pulse while retaining wrist turns and full-body motion.
+- Bounded the cable bow to preserve head/shoulder clearance and tube continuity.
+- Both-species/four-pattern targeted checks and six-view browser captures pass.
+  Exact full-suite proof: qa/r93/results/validation.json.
+- Human-reference observations, unavailable coaching source and limits are
+  documented in docs/r93-compact-skipping.md; no external asset is imported.
