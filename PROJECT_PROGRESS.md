@@ -282,7 +282,7 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - Moved each rope hand target inward 12 cm, tucked elbow guides and reduced
   arm circles/shoulder pulse while retaining wrist turns and full-body motion.
 - Bounded the cable bow to preserve head/shoulder clearance and tube continuity.
-- Both-species/four-pattern targeted checks and six-view browser captures pass.
-  Exact full-suite proof: qa/r93/results/validation.json.
+- All 55 regression suites passed on `43f3191`, with six-view lion and extra
+  rabbit renders. Exact proof: qa/r93/results/validation.json.
 - Human-reference observations, unavailable coaching source and limits are
   documented in docs/r93-compact-skipping.md; no external asset is imported.

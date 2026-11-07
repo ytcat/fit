@@ -50,6 +50,7 @@ Both species, all four exercises pass the original overhead/underfoot/sole,
 attachment, wrist-flex and continuity gates. New checks require wrists within
 37 cm and elbows within 40 cm laterally of the hips through the sampled motion,
 and a basic cable loop that does not fold back on itself near either handle.
+All **55 regression suites passed** on exact runtime `43f3191`: [CI run](https://github.com/ytcat/fit/actions/runs/42383322542).
 Observed maxima: wrist 35.42 cm, elbow 35.77 cm. These bounds suit the current
 muscular rig; they are not universal human proportions. The existing bilateral
 mitt checks also pass. Exact full-suite result is in

@@ -1,0 +1,47 @@
+{
+  "baselineSHA": "013b4774eb247cd67ed025cfe48880d218547120",
+  "runtimeSHA": "43f3191ed66d2427d5593c9eca2a237696162eec",
+  "ci": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42383322542",
+    "status": "Success",
+    "duration": "8m 38s",
+    "suiteCount": 55,
+    "method": "Exact-runtime public Actions status; unchanged workflow checks JS and every tests/*.test.cjs. Detailed hosted logs require login."
+  },
+  "posture": {
+    "handTargetBefore": 0.435,
+    "handTargetAfter": 0.315,
+    "units": "metres either side of model centreline",
+    "sampledMaxWristFromHip": 0.3541970134059145,
+    "sampledMaxElbowFromHip": 0.35760638365445
+  },
+  "checks": [
+    "Both species and four rope patterns retain floor/overhead clearance and attached cable ends",
+    "Small rope-specific wrist flex remains bounded; arms/head/back/ankles still articulate",
+    "Basic cable loop stays monotonic across handles, preserving tube frame continuity",
+    "Existing bilateral mitt, reach and planted-foot checks pass"
+  ],
+  "browser": {
+    "lionViews": [
+      "front",
+      "side",
+      "rear",
+      "overhead",
+      "underfoot",
+      "mobile"
+    ],
+    "rabbitViews": [
+      "front",
+      "side"
+    ],
+    "allProgramsLinked": true,
+    "errors": [],
+    "physicalPhoneVerified": false
+  },
+  "referenceLimits": "Public human-skipping still inspected, not an expert biomechanical standard. Crossrope guide blocked by environment; exact human joint angles not claimed. No reference assets/code imported.",
+  "hashes": {
+    "career-drills.js": "e9f610afa49b54026f14800b5c8b0855725a01e7a27687929686628916339b95",
+    "index.html": "f1fd88591e4bfbed3c400eb9ef09e0c310042579d31d47e85cd56767a46817bc",
+    "tests/training-motion.test.cjs": "c8ff7b1e426f32d0e2fa009599aec170c11eefeca858bcb4bca89b86b0ef4393"
+  }
+}
