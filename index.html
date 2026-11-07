@@ -22,20 +22,21 @@
   <script src="./avatar-detail.js?v=2026110605"></script>
   <script src="./avatar-shoulder.js?v=2026110504"></script>
   <script src="./boxing-footwear.js?v=2026110607"></script>
-  <script src="./boxing-coach-v2.js?v=2026110608"></script>
+  <script src="./padding-deformation.js?v=2026110703"></script>
+  <script src="./boxing-coach-v2.js?v=2026110703"></script>
   <script src="./contact-response.js?v=2026110406"></script>
   <script src="./gym-details.js?v=2026110604"></script>
-  <script src="./training-arena.js?v=2026110701"></script>
+  <script src="./training-arena.js?v=2026110703"></script>
   <script src="./boxing-fight.js?v=2026110701"></script>
   <script src="./fight-referee.js?v=2026110607"></script>
   <script src="./fight-arena.js?v=2026110608"></script>
-  <script src="./training-gear.js?v=2026110702"></script>
-  <script src="./career-drills.js?v=2026110702"></script>
+  <script src="./training-gear.js?v=2026110703"></script>
+  <script src="./career-drills.js?v=2026110703"></script>
   <script src="./career-progress.js?v=2026110607"></script>
   <script src="./fight-ui.js?v=2026110406" defer></script>
   <script src="./training-controls.js?v=2026110607" defer></script>
   <script src="./character-roster.js?v=2026110607"></script>
-  <script src="./ring-camera.js?v=2026110604"></script>
+  <script src="./ring-camera.js?v=2026110703"></script>
   <script src="./club-world.js?v=2026110604"></script>
   <link rel="stylesheet" href="./club-interface.css?v=2026110604" />
   <script src="./club-interface.js?v=2026110607" defer></script>
@@ -402,6 +403,7 @@
           this.initControls();
           return;
         }
+        window.BoxingPadding?.enable();
         this.renderer.physicallyCorrectLights = true;
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -682,12 +684,13 @@
       }
 
       updateQuality(delta) {
-        if(!(delta>0)||delta>.12)return;
-        this.frameSamples.push(delta);this.qualityElapsed+=delta;this.qualityDwell+=delta;
+        if(!(delta>0))return;
+        const elapsed=Math.min(delta,1);delta=Math.min(delta,.25);
+        this.frameSamples.push(delta);this.qualityElapsed+=elapsed;this.qualityDwell+=elapsed;
         if(this.qualityElapsed<3)return;
         const samples=this.frameSamples.sort((a,b)=>a-b),p90=samples[Math.floor(samples.length*.9)];
         this.frameSamples=[];this.qualityElapsed=0;
-        if(this.qualityDwell<12)return;
+        if(this.qualityDwell<(p90>.032?3:12))return;
         const next=p90>.032?Math.max(0,this.qualityTier-1):p90<.019?Math.min(2,this.qualityTier+1):this.qualityTier;
         if(next===this.qualityTier)return;this.qualityTier=next;this.qualityDwell=0;
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,[1,1.5,2][next]));
@@ -711,7 +714,9 @@
         this.lastRenderStamp=stamp;
         const dt=Math.min(delta,.05);
         if (this.isPlaying) this.animTime += dt * this.speed;
-        if (this.coach && this.activeModel===this.demoModel) {
+        const poseStamp=[this.activeModel.uuid,this.animTime,this.technique,this.currentAnim,this.arena?.mode,this.player?.enabled,this.practiceTiming,this.practiceSeed,this.randomSeed,this.speedDrill].join('|');
+        if (this.coach && this.activeModel===this.demoModel && (this.isPlaying||this.lastPoseStamp!==poseStamp)) {
+          this.lastPoseStamp=poseStamp;
           if(this.arena){const frame=this.arena.update(this.animTime,this.technique,this.currentAnim);
             this.career?.onFrame(frame,this.isPlaying?dt:0);
             if(this.isPlaying){for(const swing of frame.swings||[])this.onSwing?.(swing);for(const hit of [...frame.contacts,...(frame.platformContacts||[])])this.onImpact?.(hit);}

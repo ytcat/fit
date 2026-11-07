@@ -330,6 +330,7 @@
    return candidates.sort((a,b)=>a.distance-b.distance)[0];
   }
   deformSurface(mesh,contact,amount){
+   if(window.BoxingPadding?.surface(mesh,contact,amount,this.mode))return;
    const g=mesh.geometry,p=g.attributes.position,n=g.attributes.normal;
    if(!mesh.userData.softRest){mesh.userData.softRest=new Float32Array(p.array);mesh.userData.normalRest=new Float32Array(n.array);}
    const rest=mesh.userData.softRest,norm=mesh.userData.normalRest;

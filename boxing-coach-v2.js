@@ -704,26 +704,30 @@
       const frame=this.root.parent||this.root;
       const reset=dt<0||dt>.25||!this.maneInitialized||this.maneFrame!==frame.uuid;this.maneFrame=frame.uuid;
       const step=Math.min(.05,Math.max(0,dt)),count=Math.max(1,Math.ceil(step*120)),h=step/count;
+      const toFrame=this.maneToFrame||(this.maneToFrame=new THREE.Matrix4()),toMane=this.frameToMane||(this.frameToMane=new THREE.Matrix4());
+      toFrame.copy(frame.matrixWorld).invert().multiply(this.mane.matrixWorld);toMane.copy(this.mane.matrixWorld).invert().multiply(frame.matrixWorld);
+      const target=this.maneTarget||(this.maneTarget=V()),force=this.maneForce||(this.maneForce=V()),displacement=this.maneDisplacement||(this.maneDisplacement=V());
       for(const [i,guide] of this.maneGuides.entries()){
-        const target=frame.worldToLocal(this.mane.localToWorld(guide.rest.clone()));
+        target.copy(guide.rest).applyMatrix4(toFrame);
         if(reset){guide.position.copy(target);guide.velocity.set(0,0,0);}
         else for(let k=0;k<count;k++){
           const stiffness=110+(i%6)*8,damping=19+(Math.floor(i/6))*1.2;
-          guide.velocity.addScaledVector(target.clone().sub(guide.position),stiffness*h).multiplyScalar(Math.exp(-damping*h));
+          guide.velocity.addScaledVector(force.copy(target).sub(guide.position),stiffness*h).multiplyScalar(Math.exp(-damping*h));
           guide.position.addScaledVector(guide.velocity,h);
-          const displacement=guide.position.clone().sub(target);
+          displacement.copy(guide.position).sub(target);
           if(displacement.lengthSq()>.055*.055){displacement.clampLength(0,.055);guide.position.copy(target).add(displacement);guide.velocity.multiplyScalar(.6);}
         }
-        guide.offset.copy(this.mane.worldToLocal(frame.localToWorld(guide.position.clone()))).sub(guide.rest);
+        guide.offset.copy(guide.position).applyMatrix4(toMane).sub(guide.rest);
         // Broad groom collision: prevent tips folding into their rooted coat.
         const inward=guide.offset.dot(guide.normal);
         if(inward<-.018)guide.offset.addScaledVector(guide.normal,-.018-inward);
       }
       this.maneInitialized=true;
       const hair=this.mane.geometry.attributes.position;
+      const vertices=hair.array;
       for(let i=0;i<hair.count;i++){
-        const f=this.maneFlex[i]**2,offset=this.maneGuides[this.maneGuideIds[i]].offset;
-        hair.setXYZ(i,this.maneRest[i*3]+offset.x*f,this.maneRest[i*3+1]+offset.y*f,this.maneRest[i*3+2]+offset.z*f);
+        const f=this.maneFlex[i]**2,offset=this.maneGuides[this.maneGuideIds[i]].offset,k=i*3;
+        vertices[k]=this.maneRest[k]+offset.x*f;vertices[k+1]=this.maneRest[k+1]+offset.y*f;vertices[k+2]=this.maneRest[k+2]+offset.z*f;
       }
       hair.needsUpdate=true;
     }
@@ -945,6 +949,7 @@
 
     deformGlove(side,pressure=0) {
       const mesh=this.gloveMeshes[side],amount=clamp(pressure);
+      if(window.BoxingPadding?.glove(this,side,amount))return;
       if(Math.abs((mesh.userData.pressure||0)-amount)<.0001)return;
       for(const part of mesh.userData.deformParts||[mesh]){
         const rest=part.userData.restPosition,norm=part.userData.restNormal;
@@ -1464,7 +1469,11 @@
       }
       // Arena-space spring guides retain inertia under head/root acceleration; orbit adds no force.
       // Seek/teleport resets avoid integrating stale state or a whole hidden tab.
-      this.motionState={left:leftStrike,right:rightStrike,strike,hurt,load:move.includes('uppercut')?prepare*(1-bodyRise)*(1-recover):(['jab','cross','hook','rear_hook'].includes(move)?kineticLoad*kineticPower:0),drive:move.includes('uppercut')?bodyRise*(1-recover):drive};
+      const overlay=options.poseOverlay?.(this);
+      if(overlay?.gloves)gloves.splice(0,2,...overlay.gloves);
+      if(overlay?.footTargets)footTargets.splice(0,footTargets.length,...overlay.footTargets);
+      if(overlay?.handErrors){le=overlay.handErrors[0];re=overlay.handErrors[1];}
+      this.motionState={left:leftStrike,right:rightStrike,strike,hurt,load:move.includes('uppercut')?prepare*(1-bodyRise)*(1-recover):(['jab','cross','hook','rear_hook'].includes(move)?kineticLoad*kineticPower:0),drive:move.includes('uppercut')?bodyRise*(1-recover):drive,...overlay?.motionState};
       this.updateMane(options.simulationTime??t);
       const acted=window.AvatarAnatomy?.express(this,{move,strike:Math.max(strike,move.includes('uppercut')?this.motionState.load*.35:0),hurt,hit,presentation,time:options.simulationTime??t,stamina:options.stamina});
       this.painMouth.visible=!acted&&hurt>.12&&(hit.part==='head'||hit.part==='body');

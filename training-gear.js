@@ -4,14 +4,14 @@
  let grain;
  function leatherGrain(){if(grain)return grain;const c=document.createElement('canvas');c.width=c.height=128;const ctx=c.getContext('2d');if(!ctx?.createImageData)return null;const pixels=ctx.createImageData(128,128);if(!pixels?.data)return null;let seed=519;
   for(let i=0;i<pixels.data.length;i+=4){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const v=155+(seed>>>27);pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=v;pixels.data[i+3]=255;}ctx.putImageData(pixels,0,0);grain=new THREE.CanvasTexture(c);grain.wrapS=grain.wrapT=THREE.RepeatWrapping;grain.repeat.set(3,3);return grain;}
- const material=(color,roughness=.72)=>new THREE.MeshStandardMaterial({color,roughness,bumpMap:leatherGrain(),bumpScale:.00075});
+ const material=(color,roughness=.72)=>{const m=new THREE.MeshStandardMaterial({color,roughness,bumpMap:leatherGrain(),bumpScale:.00075});m.color.convertSRGBToLinear();return m;};
  function mesh(parent,g,m,name){const n=new THREE.Mesh(g,m);n.name=name;n.castShadow=n.receiveShadow=true;parent.add(n);return n;}
  function seam(parent,points,m,r=.0018,closed=false){return mesh(parent,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points,closed),Math.max(16,points.length*2),r,5,closed),m,'Raised leather binding');}
  function combine(parts,parent,mat,name){const attributes={position:[],normal:[],uv:[]};for(const part of parts){part.updateMatrix();const g=part.geometry.index?part.geometry.toNonIndexed():part.geometry.clone();g.applyMatrix4(part.matrix);for(const key of Object.keys(attributes))attributes[key].push(...g.attributes[key].array);g.dispose();part.geometry.dispose();part.parent.remove(part);}const g=new THREE.BufferGeometry();for(const [key,values] of Object.entries(attributes))g.setAttribute(key,new THREE.Float32BufferAttribute(values,key==='uv'?2:3));return mesh(parent,g,mat,name);}
  function mount(coach,side,root){const hand=coach.joints['hand'+side],hidden=hand.children.filter(n=>!n.isBone).map(n=>[n,n.visible]);for(const [n] of hidden)n.visible=false;hand.add(root);root.userData.restore=()=>{for(const [n,visible] of hidden)n.visible=visible;};root.userData.hand=hand;return root;}
  function mitt(coach,side){
   const root=new THREE.Group();root.name='Professional focus mitt '+side;
-  const leather=material(0x202a31,.65),edge=material(0x121b22,.86),face=material(0x947246,.84),thread=material(0xd6c3a2,.95),target=material(0xe3d4b5,.87);
+  const leather=material(0x5f1e19,.65),edge=material(0x161719,.86),face=material(0x8d2d25,.72),thread=material(0xd4b28a,.95),target=material(0xe8cfaa,.87);
   const cushion=new THREE.Group();cushion.name='Compressible mitt padding';root.add(cushion);root.userData.cushion=cushion;root.userData.face=V(0,-.120,.066);
   // A cupped pear-shaped striking surface: broad fingers, fitted heel and wrist.
   const steps=48,rings=14,p=[],uv=[],index=[];
@@ -41,10 +41,16 @@
   const sign=side==='L'?-1:1,thumb=mesh(root,new THREE.SphereGeometry(1,16,12),skin,'Wrapped grip thumb');thumb.position.set(sign*.045,-.071,.034);thumb.scale.set(.020,.037,.020);thumb.rotation.z=-sign*.35;
   const handle=new THREE.Group();handle.name='Knurled skipping handle';handle.position.set(0,-.091,.025);handle.rotation.z=Math.PI/2;root.add(handle);
   mesh(handle,new THREE.CylinderGeometry(.016,.018,.155,20),rubber,'Rubber rope handle');
-  for(const y of [-.064,-.039,-.014,.011,.036,.061]){const band=mesh(handle,new THREE.TorusGeometry(.017,.0012,5,20),metal,'Handle grip ring');band.rotation.x=Math.PI/2;band.position.y=y;}
+  const metalParts=[];
+  for(const y of [-.064,-.039,-.014,.011,.036,.061]){const band=mesh(handle,new THREE.TorusGeometry(.017,.0012,5,20),metal,'Handle grip ring');band.rotation.x=Math.PI/2;band.position.y=y;metalParts.push(band);}
   const swivel=mesh(handle,new THREE.SphereGeometry(.018,16,12),metal,'Ball-bearing rope swivel');swivel.position.y=side==='L'?.084:-.084;
-  root.userData.exit=swivel;return mount(coach,side,root);
+  const gripParts=[];for(let i=0;i<8;i++){const ring=mesh(handle,new THREE.TorusGeometry(.018,.0016,5,20),rubber,'Rubber grip channel');ring.position.y=-.055+i*.016;ring.rotation.x=Math.PI/2;gripParts.push(ring);}combine(gripParts,handle,rubber,'Contoured non-slip grip');
+  const cap=mesh(handle,new THREE.CylinderGeometry(.020,.020,.012,20),material(0x8d2d25,.58),'Oxblood handle end cap');cap.position.y=side==='L'?-.079:.079;
+  const exit=new THREE.Object3D();exit.name='Bearing cable exit';exit.position.copy(swivel.position);handle.add(exit);metalParts.push(swivel);combine(metalParts,handle,metal,'Bearing and grip rings');
+  root.userData.exit=exit;return mount(coach,side,root);
  }
+ let cord;
+ function cordMaterial(){if(!cord){const c=document.createElement('canvas');c.width=c.height=64;const ctx=c.getContext('2d'),p=ctx.createImageData(64,64);if(p?.data){for(let y=0;y<64;y++)for(let x=0;x<64;x++){const i=(y*64+x)*4,v=150+22*Math.sin((x+y)*Math.PI/8)+12*Math.sin((x-y)*Math.PI/8);p.data[i]=p.data[i+1]=p.data[i+2]=v;p.data[i+3]=255;}ctx.putImageData(p,0,0);}cord=new THREE.CanvasTexture(c);cord.wrapS=cord.wrapT=THREE.RepeatWrapping;}const m=material(0xcaa16b,.74);m.bumpMap=cord;m.bumpScale=.00035;return m;}
  function dispose(root){root.userData.restore?.();root.parent?.remove(root);const materials=new Set();root.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material)materials.add(n.material);});for(const m of materials)m.dispose();}
- window.TrainingGear={mitt,ropeGrip,dispose};
+ window.TrainingGear={mitt,ropeGrip,cordMaterial,dispose};
 })();

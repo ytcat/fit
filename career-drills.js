@@ -8,7 +8,7 @@
    if(mode==='rope'){
     this.exercise=ropeDrills[this.engine.ropeDrill]?this.engine.ropeDrill:'two_feet';this.grips=['L','R'].map(side=>TrainingGear.ropeGrip(this.engine.coach,side));
     const segments=96,sides=6,p=new Float32Array((segments+1)*sides*3),index=[];for(let i=0;i<segments;i++)for(let j=0;j<sides;j++){const a=i*sides+j,b=i*sides+(j+1)%sides;index.push(a,b,a+sides,b,b+sides,a+sides);}
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setIndex(index);this.rope=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0xdba85b,roughness:.63,metalness:.08}));this.rope.name='Round woven skipping cable';this.rope.frustumCulled=false;this.rope.castShadow=true;this.root.add(this.rope);this.ropePoints=[];
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));const uv=[];for(let i=0;i<=segments;i++)for(let k=0;k<sides;k++)uv.push(i/segments*24,k/sides*2);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(index);this.rope=new THREE.Mesh(g,TrainingGear.cordMaterial());this.rope.name='Round woven skipping cable';this.rope.frustumCulled=false;this.rope.castShadow=true;this.root.add(this.rope);this.ropePoints=Array.from({length:97},()=>V());this.ropeFrame={tangent:V(),normal:V(),binormal:V()};this.finalizeRope=coach=>this.poseRope(coach);this.rope.geometry.setAttribute('normal',new THREE.Float32BufferAttribute(new Float32Array(p.length),3));this.rope.geometry.attributes.position.setUsage(THREE.DynamicDrawUsage);this.rope.geometry.attributes.normal.setUsage(THREE.DynamicDrawUsage);
    }else{
     const species=this.engine.coach.species==='lion'?'rabbit':'lion';arena.padTrainers=arena.padTrainers||{};this.trainer=arena.padTrainers[species]||(arena.padTrainers[species]=new LionCoach(arena.data,{species}));this.root.add(this.trainer.root);this.trainer.root.position.set(0,0,.60);this.trainer.root.rotation.set(0,Math.PI,0);this.mitts=['L','R'].map(side=>TrainingGear.mitt(this.trainer,side));this.previousFist={};
    }
@@ -20,22 +20,40 @@
    for(let i=0;i<3;i++){const delta=goal.clone().sub(this.face(pad)).multiplyScalar(weight),wrist=coach.point(j['hand'+side]).add(delta);error=coach.solve(j['arm'+side],j['elbow'+side],j['hand'+side],wrist,pole);coach.orientGlove(side,1,V(0,0,1));}
    return error;
   }
-  updateRope(t,time,frame){
-   const hero=this.engine.coach,j=hero.joints,exercise=ropeDrills[this.exercise],clock=t*exercise.cadence,phase=clock%1,cycle=Math.floor(clock),jump=exercise.height*Math.sin(phase*Math.PI)**2;
-   const alternating=this.exercise==='alternating',single=this.exercise.endsWith('_leg'),support=this.exercise==='left_leg'?-1:1,transfer=alternating?Math.sin(Math.PI*(clock-.5)):single?support:0;
-   hero.root.position.set(0,jump,0);hero.root.rotation.set(0,0,0);hero.update(0,'guard','one_two',{simulationTime:time});j.hips.position.y-=.045*(1-jump/exercise.height);j.hips.position.x+=transfer*.038;j.hips.rotation.z=-transfer*.018;j.chest.rotation.z+=transfer*.012;
-   const handY=hero.species==='rabbit'?1.29:1.13,footLifts=[];
+  poseRope(hero){
+   const {phase,jump,transfer,single,support,alternating}=this.ropePose,j=hero.joints,angle=2*Math.PI*(phase-.5);
+   // Grounded loading/landing bend the legs; the torso counterbalances while
+   // the head stays directed forward. Hands turn beside the hips, not in guard.
+   const load=Math.cos(Math.PI*phase)**4,landing=Math.exp(-(((phase-.90)/.11)**2)),coil=Math.max(load,landing),lean=.035+.025*coil;
+   j.hips.position.y-=.043*coil;j.hips.position.x+=transfer*.038;j.hips.rotation.z=-transfer*.022;
+   j.spine.rotation.x+=lean*.45;j.chest.rotation.x+=lean*.55;j.chest.rotation.z+=transfer*.015;
+   j.neck.rotation.x-=lean*.45;j.head.rotation.x-=lean*.55-.012*Math.sin(angle-.35);
+   const handY=hero.species==='rabbit'?1.29:1.13,footLifts=[],footTargets=[],gloves=[],handErrors=[];
    for(const [i,side] of ['L','R'].entries()){
     const sign=i?1:-1,lift=single?(sign===support?0:.21):alternating?.18*Math.max(0,-sign*transfer)**2:0,foot=j['foot'+side];footLifts.push(lift);
-    hero.solve(j['thigh'+side],j['knee'+side],foot,V(sign*.115,.117+lift,-.025-lift*.55),V(sign*.08,.1,1));const q=Q().setFromEuler(new THREE.Euler(-lift*.6,0,0));hero.orient(foot,q);const shin=hero.point(j['knee'+side]).sub(hero.point(foot)).normalize().applyQuaternion(q.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);
-    const wristOrbit=.018,angle=2*Math.PI*(phase-.5);hero.solve(j['arm'+side],j['elbow'+side],j['hand'+side],V(sign*.37,handY+wristOrbit*Math.cos(angle),.16-wristOrbit*Math.sin(angle)),V(sign*.65,-.7,-.15));hero.orientGlove(side,.25,V(0,-1,0));
+    const heel=.10*Math.sin(Math.PI*phase)**2+.065*Math.abs(Math.sin(2*Math.PI*phase)),q=Q().setFromEuler(new THREE.Euler(heel*(1-Math.min(1,lift/.21))-lift*.6,0,0));
+    const contact=V(sign*.115,.015+lift,.19-lift*.55),ankle=contact.clone().sub(V(0,-.102,.215).applyQuaternion(q));
+    const error=hero.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(sign*.08,.1,1));hero.orient(foot,q);const shin=hero.point(j['knee'+side]).sub(hero.point(foot)).normalize().applyQuaternion(q.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);footTargets.push({side,contact:contact.toArray(),lift:jump+lift,error});
+    j['arm'+side].position.y+=.012*Math.cos(angle-.25);j['arm'+side].position.z+=.010*coil;
+    const hand=V(sign*(.42+.007*Math.sin(angle)),handY+.030*Math.cos(angle)-.018*coil,.16-.035*Math.sin(angle));
+    handErrors.push(hero.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,V(sign*.70,-.9,-.10)));
+    gloves.push(hero.orientGlove(side,.25,V(0,-1,0)));
+    // Rope-specific wrist flex/deviation; boxing strikes retain neutral wrists.
+    j['hand'+side].quaternion.multiply(Q().setFromEuler(new THREE.Euler(.075*Math.sin(angle),sign*.035*Math.cos(angle),sign*.045*Math.sin(angle-.3))));
    }
-   hero.syncSkin();this.arena.group.updateMatrixWorld(true);
-   const ends=this.grips.map(g=>this.root.worldToLocal(g.userData.exit.getWorldPosition(V()))),height=(ends[0].y+ends[1].y)/2-jump,radius=height+.055,angle=2*Math.PI*(phase-.5),points=[];
-   for(let i=0;i<=96;i++){const u=i/96,a=u*Math.PI,rad=radius*Math.pow(Math.sin(a),.55),point=ends[0].clone().lerp(ends[1],u);point.y-=rad*Math.cos(angle);point.z-=rad*Math.sin(angle);points.push(point);}
-   const p=this.rope.geometry.attributes.position;for(let i=0;i<points.length;i++){const tangent=points[Math.min(96,i+1)].clone().sub(points[Math.max(0,i-1)]).normalize(),normal=V(0,1,0).cross(tangent).normalize();if(normal.lengthSq()<.01)normal.set(0,0,1);const binormal=tangent.clone().cross(normal).normalize();for(let k=0;k<6;k++){const a=k/6*Math.PI*2,q=points[i].clone().addScaledVector(normal,.0038*Math.cos(a)).addScaledVector(binormal,.0038*Math.sin(a));p.setXYZ(i*6+k,q.x,q.y,q.z);}}p.needsUpdate=true;this.rope.geometry.computeVertexNormals();this.ropePoints=points;
+   this.ropePose.footLifts=footLifts;
+   return {gloves,handErrors,footTargets,motionState:{load:coil,drive:Math.max(0,Math.sin(2*Math.PI*phase))}};
+  }
+  updateRope(t,time,frame){
+   const hero=this.engine.coach,exercise=ropeDrills[this.exercise],clock=t*exercise.cadence,phase=clock%1,cycle=Math.floor(clock),flight=clamp((phase-.12)/.76),jump=exercise.height*Math.sin(flight*Math.PI)**2;
+   const alternating=this.exercise==='alternating',single=this.exercise.endsWith('_leg'),support=this.exercise==='left_leg'?-1:1,transfer=alternating?Math.sin(Math.PI*(clock-.5)):single?support:0;
+   this.ropePose={phase,jump,transfer,single,support,alternating};hero.root.position.set(0,jump,0);hero.root.rotation.set(0,0,0);hero.update(0,'guard','one_two',{simulationTime:time,poseOverlay:this.finalizeRope});this.arena.group.updateMatrixWorld(true);
+   const ends=this.grips.map(g=>this.root.worldToLocal(g.userData.exit.getWorldPosition(V()))),height=(ends[0].y+ends[1].y)/2-jump,radius=height+.055,angle=2*Math.PI*(phase-.5),points=this.ropePoints;
+   for(let i=0;i<=96;i++){const u=i/96,a=u*Math.PI,rad=radius*Math.pow(Math.sin(a),.55),point=points[i].copy(ends[0]).lerp(ends[1],u);point.y-=rad*Math.cos(angle);point.z-=rad*Math.sin(angle);}
+   const p=this.rope.geometry.attributes.position,n=this.rope.geometry.attributes.normal,{tangent,normal,binormal}=this.ropeFrame;
+   for(let i=0;i<points.length;i++){tangent.copy(points[Math.min(96,i+1)]).sub(points[Math.max(0,i-1)]).normalize();normal.set(0,1,0).cross(tangent).normalize();if(normal.lengthSq()<.01)normal.set(0,0,1);binormal.copy(tangent).cross(normal).normalize();for(let k=0;k<6;k++){const a=k/6*Math.PI*2,c=Math.cos(a),s=Math.sin(a),x=normal.x*c+binormal.x*s,y=normal.y*c+binormal.y*s,z=normal.z*c+binormal.z*s;p.setXYZ(i*6+k,points[i].x+.0045*x,points[i].y+.0045*y,points[i].z+.0045*z);n.setXYZ(i*6+k,x,y,z);}}p.needsUpdate=n.needsUpdate=true;
    if(phase>.54&&this.once('jump'+cycle))frame.jumps=1;
-   frame.cue=exercise.name+' · soft landings, small wrist turns';frame.hero=hero.metrics;frame.rope={exercise:this.exercise,phase,jump,footLifts,ends:ends.map(v=>v.toArray()),lowest:Math.min(...points.map(v=>v.y)),centre:points[48].toArray()};
+   frame.cue=exercise.name+' · soft landings, relaxed shoulders, wrist turns';frame.hero=hero.metrics;frame.rope={exercise:this.exercise,phase,jump,footLifts:this.ropePose.footLifts,ends:ends.map(v=>v.toArray()),lowest:Math.min(...points.map(v=>v.y)),centre:points[48].toArray()};
   }
   updatePads(t,time,frame){
    const hero=this.engine.coach,trainer=this.trainer,beat=Math.floor(t/1.20),part=beat%4,phase=(t/1.20)%1,hook=part===2,manual=this.engine.player?.frame(time),spec=manual||{move:hook?'roll':part===1?'cross':'jab',phase,attack:!hook,index:beat};
