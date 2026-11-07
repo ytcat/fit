@@ -1,0 +1,48 @@
+{
+  "baselineSHA": "d18dad244cd0aff88cf97185a59a49f3fe83167a",
+  "runtimeSHA": "1b7c32c9e934ac430a9e1736d409feba6eef9b05",
+  "ci": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42379151686",
+    "status": "Success",
+    "suiteCount": 55,
+    "method": "Exact-runtime Actions status; workflow checks JS and all tests/*.test.cjs; detailed hosted logs require login.",
+    "duration": "10m 38s"
+  },
+  "targeted": [
+    "training-motion.test.cjs PASS",
+    "career-drills.test.cjs PASS",
+    "fluid-drills.test.cjs PASS",
+    "anatomy-expression.test.cjs PASS"
+  ],
+  "browser": {
+    "webgl1": "PASS all linked programs; no errors",
+    "webgl2": "PASS all linked programs; no errors",
+    "webgl1PaddingPixelMaxDelta": 0,
+    "nativeInput": "PASS pinch, touch cancel/recovery, mouse drag after blur",
+    "physicalPhoneVerified": false
+  },
+  "performance": {
+    "diagnostic": "Node fake canvas, 12 warmup +120 samples; both shader-padding; no renderer; not sustained FPS",
+    "ropeSubmitted": {
+      "beforeCalls": 169,
+      "afterCalls": 169,
+      "beforeTriangles": 433667,
+      "afterTriangles": 433667
+    },
+    "mittSubmitted": {
+      "beforeCalls": 268,
+      "afterCalls": 268,
+      "beforeTriangles": 891931,
+      "afterTriangles": 891931
+    },
+    "phoneFPS": "unverified"
+  },
+  "authoredHeadComplete": false,
+  "sourceHashes": {
+    "career-drills.js": "cebee841b72e7310a397d91b169d7c883101f2fe5e033c4792092a5ca859bb24",
+    "avatar-anatomy.js": "0391eb2b9ed206dfe24d4c65c6a5e7fd20fa15b3b67ebe37a8a93e1b634ba9aa",
+    "boxing-coach-v2.js": "5d3cfad6eb200b34f165c02bb1038548697556292aadee29d0b25a0493a76b13",
+    "index.html": "2f6521b48fb14daee0bb6f73ed991b65c18d206585ad37611ab45fe9a95f077e",
+    "tests/fluid-drills.test.cjs": "0b5bff0e3db838e565eecee1db8d21be73a58e4648807105ad6f6f1dadfe1bca"
+  }
+}

@@ -264,8 +264,8 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   feet, contact-led recoil, paired mitt targets and shallower defensive rolls.
 - Strengthened existing continuous muscle correctives; no detached muscle meshes,
   rig replacement, paid tool, external asset or runtime dependency.
-- Original targeted suites and new bilateral sweep/anatomy checks pass. Exact
-  full-suite status is recorded in qa/r91/results/validation.json.
+- All 55 regression suites passed on `1b7c32c`, including the new bilateral
+  sweep/anatomy checks. Exact proof: qa/r91/results/validation.json.
 - Actual motion/clay evidence, timing costs and physical-phone gaps:
   docs/r91-fluid-rope-and-mitts.md and qa/r91/review.html.
 - The separately planned authored head/mane asset remains unfinished.

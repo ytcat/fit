@@ -41,6 +41,8 @@ It is pose-driven surface deformation, not simulated muscles or motion capture.
 
 ## Evidence and limits
 
+All **55 regression suites passed** on exact runtime `1b7c32c`:
+[CI run](https://github.com/ytcat/fit/actions/runs/42379151686).
 Exact CI status, SHA and suite count are in
 [validation.json](../qa/r91/results/validation.json).
 Targeted original rope/mitt suites pass for both species, all four rope patterns,
