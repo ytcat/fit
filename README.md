@@ -1,5 +1,8 @@
 # RingFighter — 3D Boxing
 
+R94 corrects coaching mitt assignments: right hand to the coach’s right mitt,
+and left to left. [Scene checks](docs/r94-mitt-hand-mapping.md).
+
 R93 brings skipping hands beside the hips, tucks the elbows and reduces arm
 circles while retaining wrist turns. [Comparison and checks](docs/r93-compact-skipping.md).
 

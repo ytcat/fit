@@ -286,3 +286,11 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   rabbit renders. Exact proof: qa/r93/results/validation.json.
 - Human-reference observations, unavailable coaching source and limits are
   documented in docs/r93-compact-skipping.md; no external asset is imported.
+
+## R94 — same-hand coaching mitt assignments (2026-11-07)
+- Corrected anatomical routing to left-to-left and right-to-right, independently
+  of camera orientation. Actual contact/recoil receiver is checked for both boxers.
+- Retained partner spacing and compact rope posture. Targeted suites and real
+  desktop/phone-sized scene checks pass; manual jab/cross/hooks still land.
+- Full-suite proof: qa/r94/results/validation.json; visual report:
+  docs/r94-mitt-hand-mapping.md and qa/r94/review.html.

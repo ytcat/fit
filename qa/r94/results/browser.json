@@ -1,0 +1,55 @@
+{
+  "root": "/workspace/fit-r94",
+  "shots": [
+    {
+      "name": "left",
+      "t": 0.45,
+      "mobile": false,
+      "punchSide": "L",
+      "mittSide": "L",
+      "rootSeparation": 1.2,
+      "chestSeparation": 1.0765616661694908,
+      "calls": 268,
+      "triangles": 891931,
+      "programsLinked": true,
+      "handErrors": [
+        0,
+        5.551115123125783e-17
+      ]
+    },
+    {
+      "name": "right",
+      "t": 1.55,
+      "mobile": false,
+      "punchSide": "R",
+      "mittSide": "R",
+      "rootSeparation": 1.2,
+      "chestSeparation": 1.1266463845380896,
+      "calls": 268,
+      "triangles": 891931,
+      "programsLinked": true,
+      "handErrors": [
+        0,
+        5.551115123125783e-17
+      ]
+    },
+    {
+      "name": "mobile-right",
+      "t": 1.55,
+      "mobile": true,
+      "punchSide": "R",
+      "mittSide": "R",
+      "rootSeparation": 1.2,
+      "chestSeparation": 1.1266463845380896,
+      "calls": 264,
+      "triangles": 891867,
+      "programsLinked": true,
+      "handErrors": [
+        0,
+        5.551115123125783e-17
+      ]
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}
