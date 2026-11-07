@@ -1,5 +1,9 @@
 # RingFighter — 3D Boxing
 
+R88 adds sustained defensive covers, supported ring steps and one-press player
+combinations. See the [movement report](docs/r88-defence-footwork-combos.md) and
+[actual app comparisons](qa/r88/comparison.html).
+
 R87 adds scored training sessions, jump rope, coach mitts, boxer development,
 new footwear and match announcements. See the [change plan and verification](docs/r87-career-training-and-fight-presentation.md).
 Named profiles and guests save on this device; authenticated cross-device saving
@@ -17,7 +21,11 @@ external styling/3D CDN is required. Choose a technique, rotate the view, use
 and the motion freeze control are independent. Continuous practice uses pause/resume.
 
 Choose **Play** above the arena to control the selected boxer in training,
-equipment drills, sparring or Fight night. **Watch** restores automatic play.
+equipment drills, sparring or Fight night. Play opens **Combos**: one press
+executes a complete chain. **Moves** keeps individual punches; **Defence** offers
+head/body/side covers, a catch, evasions and step in/out. A defensive command
+cancels the remaining chain after the active strike recovers. **Watch** restores
+automatic play. Rope keeps its automatic rhythm.
 Drag to orbit, pinch or use **− / + / Fit** to zoom. The consolidated
 [game-mode requirements and implementation](docs/game-mode.md) describe the
 side controls, speed-bag substitutions, independent opponents and scoring.

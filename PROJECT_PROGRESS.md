@@ -216,3 +216,18 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   Current named/guest saves are device-local, with portable backup files.
 - Live GPU/browser visual QA is unavailable in this environment. Details and
   the implementation plan: docs/r87-career-training-and-fight-presentation.md.
+
+## RingFighter R88 — defence, supported steps and player combinations (2026-11-07)
+- Added sustained high/body/side covers and a catch, with real collider coverage,
+  direction-led ring steps, planted support and gradual settling into rest.
+- Play now offers one-press combinations, speed-bag patterns and defensive
+  interruption, preserving independent opponents, scoring, clocks and audio.
+- Fixed unstable aimed elbow planes and collapsed close-contact arms; original
+  collision/continuity thresholds remain unchanged. Cached exact collision
+  transforms reduce repeated CPU work without changing surface geometry.
+- Retained the concurrently published R87 career/drill/footwear/presentation work;
+  manual mitts receive the new covers/steps and rope retains automatic rhythm.
+- Exact validation, actual matched renders, native input checks, CPU profiling
+  and limitations: docs/r88-defence-footwork-combos.md and qa/r88/comparison.html.
+- Authored realistic heads/mane and sustained physical-phone FPS remain open;
+  docs/realism/next-steps-2026-11-06.md records the unfinished art milestones.
