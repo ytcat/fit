@@ -3,12 +3,65 @@
  const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z),Q=()=>new THREE.Quaternion();
  const clamp=n=>Math.max(0,Math.min(1,n)),smooth=n=>{n=clamp(n);return n*n*(3-2*n);},rear=m=>['cross','rear_hook','rear_uppercut'].includes(m);
  const ropeDrills={two_feet:{name:'Two feet',height:.15,cadence:1.72},alternating:{name:'Alternating feet',height:.135,cadence:1.90},left_leg:{name:'Left leg',height:.15,cadence:1.60},right_leg:{name:'Right leg',height:.15,cadence:1.60}};
+ // Conservative posed exclusion volumes; only the rope is routed around them.
+ // The render mesh, IK, jump clock and close hand targets remain authoritative.
+ class RopeBodyClearance {
+  constructor(coach,root){
+   this.coach=coach;this.root=root;this.volumes=[];this.a=V();this.b=V();this.axis=V();this.mid=V();this.rotation=Q();this.up=V(0,1,0);this.unit=V(1,1,1);this.maxCorrection=0;
+   const j=coach.joints,add=(name,node,c,r)=>this.volumes.push({name,node,c:V(...c),base:V(...r),r:V(),local:new THREE.Matrix4(),world:new THREE.Matrix4(),inverse:new THREE.Matrix4()});
+   add('chest',j.chest,[0,.10,0],[.32,.26,.255]);add('abdomen',j.spine,[0,.07,.01],[.255,.25,.21]);add('shorts',j.hips,[0,-.045,0],[.28,.23,.225]);
+   add('skull',j.head,[0,.12,.015],[.205,.24,.195]);add('muzzle',j.head,[0,.055,.20],[.17,.13,.16]);
+   if(coach.species==='lion')add('mane',j.head,[0,.065,-.065],[.36,.38,.28]);
+   for(const [i,ear] of (coach.rabbitEars||[]).entries())add('ear'+i,ear,[0,.20,0],[.068,.26,.048]);
+   for(const side of ['L','R']){
+    for(const [name,start,end,radius] of [['upper-arm','arm','elbow',.145],['forearm','elbow','hand',.095],['thigh','thigh','knee',.16],['calf','knee','foot',.105]]){
+     add(name+side,null,[0,0,0],[radius,1,radius]);const v=this.volumes[this.volumes.length-1];v.start=j[start+side];v.end=j[end+side];v.cap=radius;
+    }
+    add('boot'+side,j['foot'+side],[0,.055,.045],[.105,.15,.225]);
+   }
+   if(coach.species==='rabbit')add('tail',coach.tail,[0,-.11,-.18],[.09,.09,.085]);
+   else for(const [i,c] of [[0,[.045,-.10,-.235]],[1,[.12,-.31,-.37]],[2,[.20,-.49,-.35]],[3,[.23,-.54,-.29]]])add('tail'+i,coach.tail,c,i===3?[.055,.09,.055]:[.065,.14,.075]);
+  }
+  update(){
+   this.root.updateWorldMatrix(true,false);this.coach.root.updateMatrixWorld(true);
+   for(const v of this.volumes){
+    if(v.node){v.r.copy(v.base).addScalar(.030);v.local.compose(v.c,this.rotation.identity(),v.r);v.world.multiplyMatrices(v.node.matrixWorld,v.local);}
+    else{
+     v.start.getWorldPosition(this.a);v.end.getWorldPosition(this.b);this.mid.copy(this.a).add(this.b).multiplyScalar(.5);this.axis.copy(this.b).sub(this.a);const length=this.axis.length();this.rotation.setFromUnitVectors(this.up,this.axis.normalize());
+     v.base.y=length*.5+v.cap;v.r.copy(v.base).addScalar(.030);v.world.compose(this.mid,this.rotation,v.r);
+    }
+    v.inverse.copy(v.world).invert().multiply(this.root.matrixWorld);
+   }
+  }
+  route(points){
+   this.maxCorrection=0;
+   for(let i=1;i<points.length-1;i++){
+    const p=points[i],original=p.x,side=i<(points.length-1)/2?-1:1;let next=original;
+    for(const v of this.volumes){
+     const m=v.inverse.elements,x=m[4]*p.y+m[8]*p.z+m[12],y=m[5]*p.y+m[9]*p.z+m[13],z=m[6]*p.y+m[10]*p.z+m[14];
+     const A=m[0]*m[0]+m[1]*m[1]+m[2]*m[2],B=m[0]*x+m[1]*y+m[2]*z,h=1-(x*x+y*y+z*z-B*B/A);
+     if(h<=-.35)continue;
+     // Fade in outside the protected shell before a moving branch reaches it.
+     const weight=smooth((h+.35)/.35),bound=-B/A+side*Math.sqrt((Math.max(0,h)+.04)/A),candidate=original+(bound-original)*weight;
+     next=side<0?Math.min(next,candidate):Math.max(next,candidate);
+    }
+    p.x=next;this.maxCorrection=Math.max(this.maxCorrection,Math.abs(next-original));
+   }
+  }
+  // Diagnostic API uses a smaller shell than routing, leaving room for the
+  // cable radius, interpolation, coat fibres and a visible air gap.
+  clearance(point,margin=.012){let minimum=Infinity,part='';
+   for(const v of this.volumes){const e=v.inverse.elements,x=(e[0]*point.x+e[4]*point.y+e[8]*point.z+e[12])*v.r.x/(v.base.x+margin),y=(e[1]*point.x+e[5]*point.y+e[9]*point.z+e[13])*v.r.y/(v.base.y+margin),z=(e[2]*point.x+e[6]*point.y+e[10]*point.z+e[14])*v.r.z/(v.base.z+margin),d=Math.sqrt(x*x+y*y+z*z)-1;if(d<minimum){minimum=d;part=v.name;}}
+   return {minimum,part};
+  }
+ }
+
  class CareerDrill {
   constructor(arena,mode){this.arena=arena;this.engine=arena.engine;this.mode=mode;this.start=this.engine.animTime;this.last=-1;this.seen=new Set();this.root=new THREE.Group();this.root.name=mode==='rope'?'Jump rope station':'Focus mitt station';arena.group.add(this.root);
    if(mode==='rope'){
     this.exercise=ropeDrills[this.engine.ropeDrill]?this.engine.ropeDrill:'two_feet';this.grips=['L','R'].map(side=>TrainingGear.ropeGrip(this.engine.coach,side));
     const segments=96,sides=6,p=new Float32Array((segments+1)*sides*3),index=[];for(let i=0;i<segments;i++)for(let j=0;j<sides;j++){const a=i*sides+j,b=i*sides+(j+1)%sides;index.push(a,b,a+sides,b,b+sides,a+sides);}
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));const uv=[];for(let i=0;i<=segments;i++)for(let k=0;k<sides;k++)uv.push(i/segments*24,k/sides*2);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(index);this.rope=new THREE.Mesh(g,TrainingGear.cordMaterial());this.rope.name='Round woven skipping cable';this.rope.frustumCulled=false;this.rope.castShadow=true;this.root.add(this.rope);this.ropePoints=Array.from({length:97},()=>V());this.ropeFrame={tangent:V(),normal:V(),binormal:V()};this.finalizeRope=coach=>this.poseRope(coach);this.rope.geometry.setAttribute('normal',new THREE.Float32BufferAttribute(new Float32Array(p.length),3));this.rope.geometry.attributes.position.setUsage(THREE.DynamicDrawUsage);this.rope.geometry.attributes.normal.setUsage(THREE.DynamicDrawUsage);
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));const uv=[];for(let i=0;i<=segments;i++)for(let k=0;k<sides;k++)uv.push(i/segments*24,k/sides*2);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(index);this.rope=new THREE.Mesh(g,TrainingGear.cordMaterial());this.rope.name='Round woven skipping cable';this.rope.frustumCulled=false;this.rope.castShadow=true;this.root.add(this.rope);this.ropePoints=Array.from({length:97},()=>V());this.ropeFrame={tangent:V(),normal:V(),binormal:V()};this.ropeClearance=new RopeBodyClearance(this.engine.coach,this.root);this.finalizeRope=coach=>this.poseRope(coach);this.rope.geometry.setAttribute('normal',new THREE.Float32BufferAttribute(new Float32Array(p.length),3));this.rope.geometry.attributes.position.setUsage(THREE.DynamicDrawUsage);this.rope.geometry.attributes.normal.setUsage(THREE.DynamicDrawUsage);
    }else{
     const species=this.engine.coach.species==='lion'?'rabbit':'lion';arena.padTrainers=arena.padTrainers||{};this.trainer=arena.padTrainers[species]||(arena.padTrainers[species]=new LionCoach(arena.data,{species}));this.root.add(this.trainer.root);this.trainer.root.position.set(0,0,.60);this.trainer.root.rotation.set(0,Math.PI,0);this.mitts=['L','R'].map(side=>TrainingGear.mitt(this.trainer,side));this.previousFist={};this.finalizeTrainer=coach=>this.poseTrainer(coach);this.finalizeBoxer=coach=>this.poseBoxer(coach);
    }
@@ -97,7 +150,7 @@
     j['arm'+side].position.y+=.008*Math.cos(angle-.25);j['arm'+side].position.z+=.018*coil+sign*.009*sway;
     const hand=V(sign*(.315+.006*Math.sin(angle-.2))+sway*.010,handY+.018*Math.cos(angle)-.025*coil,.16-.025*Math.sin(angle)+sign*.012*sway);
     handErrors.push(hero.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,V(sign*.045,-.85,-.40)));
-    gloves.push(hero.orientGlove(side,.25,V(0,-1,0)));
+    gloves.push(hero.orientGlove(side,1,V(0,-1,0)));
     // Rope-specific wrist flex/deviation; boxing strikes retain neutral wrists.
     j['hand'+side].quaternion.multiply(Q().setFromEuler(new THREE.Euler(.075*Math.sin(angle),sign*.035*Math.cos(angle),sign*.045*Math.sin(angle-.3))));
    }
@@ -113,13 +166,21 @@
     // A taut loop with small phase lag toward its centre, asymmetric shoulders
     // and a traveling bend. Zero lag at overhead/underfoot preserves clearance.
     const lag=.12*Math.sin(angle)*bow,turn=angle+lag,overhead=Math.max(0,-Math.cos(turn));
-    const rad=(radius+.035*overhead)*Math.pow(envelope,.55),point=points[i].copy(ends[0]).lerp(ends[1],u);
+    const rad=(radius+.12*overhead)*Math.pow(envelope,.55),point=points[i].copy(ends[0]).lerp(ends[1],u);
     point.y-=rad*Math.cos(turn);point.z-=rad*Math.sin(turn);
     // The loop bows outside the shoulders even with hands tucked at the
     // hips; narrowing the grips must not pull the cable through the mane.
     point.x-=Math.min(.14,Math.abs(ends[1].x-ends[0].x)*.11)*Math.sin(2*a);point.x+=.018*Math.sin(angle)*Math.sin(2*a)*envelope;}
+   this.ropeClearance.update();this.ropeClearance.route(points);
    const p=this.rope.geometry.attributes.position,n=this.rope.geometry.attributes.normal,{tangent,normal,binormal}=this.ropeFrame;
-   for(let i=0;i<points.length;i++){tangent.copy(points[Math.min(96,i+1)]).sub(points[Math.max(0,i-1)]).normalize();normal.set(0,1,0).cross(tangent).normalize();if(normal.lengthSq()<.01)normal.set(0,0,1);binormal.copy(tangent).cross(normal).normalize();for(let k=0;k<6;k++){const a=k/6*Math.PI*2,c=Math.cos(a),s=Math.sin(a),x=normal.x*c+binormal.x*s,y=normal.y*c+binormal.y*s,z=normal.z*c+binormal.z*s;p.setXYZ(i*6+k,points[i].x+.0045*x,points[i].y+.0045*y,points[i].z+.0045*z);n.setXYZ(i*6+k,x,y,z);}}p.needsUpdate=n.needsUpdate=true;
+   normal.set(1,0,0);
+   for(let i=0;i<points.length;i++){
+    tangent.copy(points[Math.min(96,i+1)]).sub(points[Math.max(0,i-1)]).normalize();
+    // Transport the frame along the curve; world-up cross products flip when
+    // a branch bows past its handle to clear a shoulder or arm.
+    normal.addScaledVector(tangent,-normal.dot(tangent));if(normal.lengthSq()<1e-8)normal.set(0,0,1).addScaledVector(tangent,-tangent.z);normal.normalize();binormal.copy(tangent).cross(normal).normalize();
+    for(let k=0;k<6;k++){const a=k/6*Math.PI*2,c=Math.cos(a),s=Math.sin(a),x=normal.x*c+binormal.x*s,y=normal.y*c+binormal.y*s,z=normal.z*c+binormal.z*s;p.setXYZ(i*6+k,points[i].x+.0045*x,points[i].y+.0045*y,points[i].z+.0045*z);n.setXYZ(i*6+k,x,y,z);}
+   }p.needsUpdate=n.needsUpdate=true;
    if(phase>.54&&this.once('jump'+cycle))frame.jumps=1;
    frame.cue=exercise.name+' · soft landings, relaxed shoulders, wrist turns';frame.hero=hero.metrics;frame.rope={exercise:this.exercise,phase,jump,footLifts:this.ropePose.footLifts,ends:ends.map(v=>v.toArray()),lowest:Math.min(...points.map(v=>v.y)),centre:points[48].toArray()};
   }
