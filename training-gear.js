@@ -43,7 +43,9 @@
   mesh(handle,new THREE.CylinderGeometry(.016,.018,.155,20),rubber,'Rubber rope handle');
   const metalParts=[];
   for(const y of [-.064,-.039,-.014,.011,.036,.061]){const band=mesh(handle,new THREE.TorusGeometry(.017,.0012,5,20),metal,'Handle grip ring');band.rotation.x=Math.PI/2;band.position.y=y;metalParts.push(band);}
-  const swivel=mesh(handle,new THREE.SphereGeometry(.018,16,12),metal,'Ball-bearing rope swivel');swivel.position.y=side==='L'?.084:-.084;
+  const swivel=mesh(handle,new THREE.SphereGeometry(.018,16,12),metal,'Ball-bearing rope swivel');swivel.position.y=side==='L'?.108:-.108;
+  // A connected bearing neck clears the thumb with the palm facing up.
+  const neck=mesh(handle,new THREE.CylinderGeometry(.010,.012,.034,16),metal,'Extended bearing neck');neck.position.y=side==='L'?.091:-.091;metalParts.push(neck);
   const gripParts=[];for(let i=0;i<8;i++){const ring=mesh(handle,new THREE.TorusGeometry(.018,.0016,5,20),rubber,'Rubber grip channel');ring.position.y=-.055+i*.016;ring.rotation.x=Math.PI/2;gripParts.push(ring);}combine(gripParts,handle,rubber,'Contoured non-slip grip');
   const cap=mesh(handle,new THREE.CylinderGeometry(.020,.020,.012,20),material(0x8d2d25,.58),'Oxblood handle end cap');cap.position.y=side==='L'?-.079:.079;
   const exit=new THREE.Object3D();exit.name='Bearing cable exit';exit.position.copy(swivel.position);handle.add(exit);metalParts.push(swivel);combine(metalParts,handle,metal,'Bearing and grip rings');
