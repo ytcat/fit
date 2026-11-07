@@ -1,0 +1,350 @@
+{
+  "root": "/workspace/fit-r91",
+  "kind": "gpu",
+  "softwareWebGL": true,
+  "physicalPhone": false,
+  "results": [
+    {
+      "mode": "cpu",
+      "stats": {
+        "rows": [
+          {
+            "updateMs": 221.19999998807907,
+            "bufferBytes": 6596784,
+            "bufferCalls": 19
+          },
+          {
+            "updateMs": 19.80000001192093,
+            "bufferBytes": 4027248,
+            "bufferCalls": 11
+          },
+          {
+            "updateMs": 19.900000005960464,
+            "bufferBytes": 4027248,
+            "bufferCalls": 11
+          },
+          {
+            "updateMs": 20.099999994039536,
+            "bufferBytes": 4027248,
+            "bufferCalls": 11
+          },
+          {
+            "updateMs": 30,
+            "bufferBytes": 4027248,
+            "bufferCalls": 11
+          },
+          {
+            "updateMs": 32.599999994039536,
+            "bufferBytes": 4027248,
+            "bufferCalls": 11
+          },
+          {
+            "updateMs": 27,
+            "bufferBytes": 4027248,
+            "bufferCalls": 11
+          },
+          {
+            "updateMs": 25.69999998807907,
+            "bufferBytes": 6596784,
+            "bufferCalls": 19
+          },
+          {
+            "updateMs": 26.599999994039536,
+            "bufferBytes": 6596784,
+            "bufferCalls": 19
+          },
+          {
+            "updateMs": 25.900000005960464,
+            "bufferBytes": 6596784,
+            "bufferCalls": 19
+          },
+          {
+            "updateMs": 9.100000023841858,
+            "bufferBytes": 1457712,
+            "bufferCalls": 3
+          },
+          {
+            "updateMs": 24.599999994039536,
+            "bufferBytes": 6596784,
+            "bufferCalls": 19
+          }
+        ],
+        "gloveVersion": 34,
+        "softVersion": 42,
+        "gpuUniforms": false
+      }
+    },
+    {
+      "mode": "cpu",
+      "shots": [
+        {
+          "name": "cpu-padding",
+          "camera": [
+            2.123946365947029,
+            1.78,
+            4.3969032044742
+          ],
+          "calls": 189,
+          "triangles": 512017,
+          "geometries": 172,
+          "textures": 16,
+          "webgl": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        }
+      ],
+      "errors": []
+    },
+    {
+      "mode": "gpu",
+      "stats": {
+        "rows": [
+          {
+            "updateMs": 71.59999999403954,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 4,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 8.400000005960464,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 2.2999999821186066,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 2.7000000178813934,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 4.5,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 29.19999998807907,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 4.800000011920929,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 7.299999982118607,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 5.0999999940395355,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 2.9000000059604645,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          },
+          {
+            "updateMs": 2.2000000178813934,
+            "bufferBytes": 687312,
+            "bufferCalls": 1
+          }
+        ],
+        "gloveVersion": 0,
+        "softVersion": 0,
+        "gpuUniforms": true
+      }
+    },
+    {
+      "mode": "gpu",
+      "shots": [
+        {
+          "name": "gpu-padding",
+          "camera": [
+            2.123946365947029,
+            1.78,
+            4.3969032044742
+          ],
+          "calls": 189,
+          "triangles": 512017,
+          "geometries": 172,
+          "textures": 16,
+          "webgl": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

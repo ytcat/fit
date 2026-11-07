@@ -1,0 +1,26 @@
+[
+  {
+    "path": "images/body-clay.jpg",
+    "sha256": "b40ed20e269e9c775e0c5146fa391cbb80866e38c09319dc9a983706f16add59",
+    "bytes": 95857,
+    "frames": 1
+  },
+  {
+    "path": "images/mitt-sweep.gif",
+    "sha256": "8f81857c1c263573c4232febd71dde14d96b56b6971932e5666a99282bb5b0e2",
+    "bytes": 1240514,
+    "frames": 10
+  },
+  {
+    "path": "images/mitt-targets.jpg",
+    "sha256": "95af165e49619c32a2e618b5343153c286f7d9d1dc904e6348b172c8742a6330",
+    "bytes": 140000,
+    "frames": 1
+  },
+  {
+    "path": "images/rope-comparison.gif",
+    "sha256": "04649dfb5ce59731c12590d11429baf1d32e86300656f7fe29141e326f8cafe7",
+    "bytes": 1781626,
+    "frames": 16
+  }
+]

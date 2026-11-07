@@ -1,0 +1,39 @@
+{
+  "shots": [
+    {
+      "name": "guard",
+      "move": "guard",
+      "t": 0,
+      "yaw": 0.55,
+      "calls": 158,
+      "triangles": 477254
+    },
+    {
+      "name": "jab",
+      "move": "jab",
+      "t": 0.5,
+      "yaw": 0.55,
+      "calls": 157,
+      "triangles": 478134
+    },
+    {
+      "name": "uppercut",
+      "move": "uppercut",
+      "t": 0.58,
+      "yaw": 0.55,
+      "calls": 157,
+      "triangles": 478134
+    },
+    {
+      "name": "back",
+      "move": "guard",
+      "t": 0,
+      "yaw": 2.65,
+      "calls": 153,
+      "triangles": 475738
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false,
+  "note": "Actual body clay material, coat hidden; existing arena lights; not a photorealism score"
+}

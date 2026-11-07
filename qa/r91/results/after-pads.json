@@ -1,0 +1,1202 @@
+{
+  "root": "/workspace/fit-r91",
+  "kind": "motion",
+  "softwareWebGL": true,
+  "physicalPhone": false,
+  "results": [
+    {
+      "mode": "motion",
+      "shots": [
+        {
+          "name": "mitt-30",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 252,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-150",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 252,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-240",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 252,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-252",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 252,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-264",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 252,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-276",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 252,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-288",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 269,
+          "triangles": 892891,
+          "geometries": 253,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-300",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 269,
+          "triangles": 892891,
+          "geometries": 253,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-312",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 269,
+          "triangles": 892891,
+          "geometries": 253,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-324",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 253,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-336",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 253,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-348",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 253,
+          "textures": 19,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        }
+      ],
+      "errors": []
+    }
+  ]
+}
