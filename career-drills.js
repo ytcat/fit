@@ -117,7 +117,7 @@
     point.y-=rad*Math.cos(turn);point.z-=rad*Math.sin(turn);
     // The loop bows outside the shoulders even with hands tucked at the
     // hips; narrowing the grips must not pull the cable through the mane.
-    point.x-=.14*Math.sin(2*a);point.x+=.018*Math.sin(angle)*Math.sin(2*a)*envelope;}
+    point.x-=Math.min(.14,Math.abs(ends[1].x-ends[0].x)*.11)*Math.sin(2*a);point.x+=.018*Math.sin(angle)*Math.sin(2*a)*envelope;}
    const p=this.rope.geometry.attributes.position,n=this.rope.geometry.attributes.normal,{tangent,normal,binormal}=this.ropeFrame;
    for(let i=0;i<points.length;i++){tangent.copy(points[Math.min(96,i+1)]).sub(points[Math.max(0,i-1)]).normalize();normal.set(0,1,0).cross(tangent).normalize();if(normal.lengthSq()<.01)normal.set(0,0,1);binormal.copy(tangent).cross(normal).normalize();for(let k=0;k<6;k++){const a=k/6*Math.PI*2,c=Math.cos(a),s=Math.sin(a),x=normal.x*c+binormal.x*s,y=normal.y*c+binormal.y*s,z=normal.z*c+binormal.z*s;p.setXYZ(i*6+k,points[i].x+.0045*x,points[i].y+.0045*y,points[i].z+.0045*z);n.setXYZ(i*6+k,x,y,z);}}p.needsUpdate=n.needsUpdate=true;
    if(phase>.54&&this.once('jump'+cycle))frame.jumps=1;
