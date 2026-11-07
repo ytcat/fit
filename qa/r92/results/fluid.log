@@ -1,0 +1,35 @@
+sweep diagnostics lion {
+  palmDown: 0.8535796634594524,
+  maxError: 0.0036114585559506415,
+  minFloor: 0.022000001192092333
+}
+lion {
+  ranges: {
+    back: 0.33603885769844055,
+    chest: 0.04300746274160582,
+    hips: 0.043,
+    ankle: 0.13583494266475485
+  },
+  nonplanar: 0.05842963511783518,
+  palmDown: 0.8535796634594524,
+  maxError: 0.0036114585559506415,
+  minFloor: 0.022000001192092333
+}
+sweep diagnostics rabbit {
+  palmDown: 0.8535796634594524,
+  maxError: 0.0036114585559506415,
+  minFloor: 0.022000001192092333
+}
+rabbit {
+  ranges: {
+    back: 0.33603885769844055,
+    chest: 0.04300746274160582,
+    hips: 0.043,
+    ankle: 0.13583494266475485
+  },
+  nonplanar: 0.06868867643495942,
+  palmDown: 0.8535796634594524,
+  maxError: 0.0036114585559506415,
+  minFloor: 0.022000001192092333
+}
+PASS coupled rope anatomy, traveling cable, opposite-facing mitt mapping, bilateral palm-down arcs, straight wrists, arm reach and grounded partners

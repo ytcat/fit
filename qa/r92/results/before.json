@@ -1,0 +1,63 @@
+{
+  "root": "/workspace/fit-r91",
+  "shots": [
+    {
+      "name": "guard",
+      "t": 0,
+      "mobile": false,
+      "rootSeparation": 0.8999999999999999,
+      "chestSeparation": 0.8794592853726584,
+      "calls": 268,
+      "triangles": 891931,
+      "programsLinked": true,
+      "handErrors": [
+        5.551115123125783e-17,
+        5.551115123125783e-17
+      ]
+    },
+    {
+      "name": "jab",
+      "t": 0.5,
+      "mobile": false,
+      "rootSeparation": 0.8999999999999999,
+      "chestSeparation": 0.7753346993133106,
+      "calls": 269,
+      "triangles": 892891,
+      "programsLinked": true,
+      "handErrors": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "sweep",
+      "t": 3,
+      "mobile": false,
+      "rootSeparation": 0.8999999999999999,
+      "chestSeparation": 0.867461582374162,
+      "calls": 269,
+      "triangles": 892891,
+      "programsLinked": true,
+      "handErrors": [
+        5.551115123125783e-17,
+        2.7755575615628914e-17
+      ]
+    },
+    {
+      "name": "mobile",
+      "t": 0.5,
+      "mobile": true,
+      "rootSeparation": 0.8999999999999999,
+      "chestSeparation": 0.7753346993133106,
+      "calls": 265,
+      "triangles": 892827,
+      "programsLinked": true,
+      "handErrors": [
+        0,
+        0
+      ]
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}

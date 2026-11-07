@@ -1,5 +1,8 @@
 # RingFighter — 3D Boxing
 
+R92 gives the coach and trainee 30 cm more space while preserving mitt contacts
+and the overhead roll. [Spacing comparison and checks](docs/r92-mitt-spacing.md).
+
 R91 adds coupled skipping, traveling cable motion, planted palm-down mitt sweeps,
 shallower rolls and stronger pose-driven muscle definition.
 [Actual before/after views and verification](docs/r91-fluid-rope-and-mitts.md).

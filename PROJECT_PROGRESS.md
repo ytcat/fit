@@ -269,3 +269,11 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - Actual motion/clay evidence, timing costs and physical-phone gaps:
   docs/r91-fluid-rope-and-mitts.md and qa/r91/review.html.
 - The separately planned authored head/mane asset remains unfinished.
+
+## R92 — mitt partner spacing (2026-11-07)
+- Restored 1.2 m partner root spacing, 30 cm more than R91.
+- Preserved real mitt contacts and sweep clearance with planted hip hinges,
+  shoulder glide and a roll-only overlay that respects manual action timing.
+- Both-species targeted suites and matching desktop/phone-sized browser renders
+  pass. Full-suite proof: qa/r92/results/validation.json.
+- Details and comparison: docs/r92-mitt-spacing.md and qa/r92/review.html.
