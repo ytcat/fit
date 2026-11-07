@@ -232,3 +232,16 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   and limitations: docs/r88-defence-footwork-combos.md and qa/r88/comparison.html.
 - Authored realistic heads/mane and sustained physical-phone FPS remain open;
   docs/realism/next-steps-2026-11-06.md records the unfinished art milestones.
+
+
+## RingFighter R89 — connected training gear and larger play area (2026-11-07)
+- Replaced scene-positioned trainer targets with articulated, hand-mounted
+  professional mitts; added detailed leather, padding, straps and stitching.
+- Trainer hooks now use a full kinetic chain and smooth mitt/guard transitions.
+- Corrected rope rotation, attached handles, added round cable/wrapped hands,
+  and implemented two-foot, alternating-foot, left-leg and right-leg exercises.
+- Moved secondary controls into one Training drawer. Preserved playback state,
+  camera gestures, saved scores and optional full manual controls.
+- Thirteen targeted suites pass; actual Chromium rendering and interaction checks
+  are included in tests/browser-r89.cjs. Phone canvas is 377 × 694 at 393 × 844.
+- Full details and verification limits: docs/r89-mitts-rope-and-larger-ring.md.
