@@ -1484,7 +1484,7 @@
         const blinkPhase=(options.simulationTime??t)%4.6,blink=blinkPhase>4.40?Math.sin((blinkPhase-4.40)/.20*Math.PI)**2:0;
         face.part.scale.y=face.sy*(face.eye?(1-.60*Math.min(1,hurt))*(1-.92*blink):1);
       }
-      if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.x=(presentation?.mode==='loser'?.25:0)+(hit.part==='head'?.14*hurt:0);ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
+      if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.x=(presentation?.mode==='loser'?.25:0)+(hit.part==='head'?.14*hurt:0)-clamp(options.earFold||0,0,.65);ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
       for(const side of ['L','R']){
         const amount=side==='L'?leftStrike:rightStrike,s=side==='L'?-1:1;
         j['scapula'+side].position.set(s*(.17+.020*amount),.17+.015*amount,-.06+.040*amount);

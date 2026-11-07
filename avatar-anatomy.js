@@ -14,17 +14,17 @@
      if(u>.32&&u<.68&&y>1.44&&y<1.79){
       channel=z>=0?side:4+side;
       const belly=bell(u,.48,.12)*bell(y,1.62,.10),front=z>=0?1:-1;
-      delta.set(0,(y-1.62)*.055*belly,front*.017*belly*Math.min(1,Math.abs(z)/.045));
+      delta.set(Math.sign(x)*.0035*belly,(y-1.62)*.065*belly,front*.021*belly*Math.min(1,Math.abs(z)/.045));
      }else if(u<.29&&y>1.44&&y<1.70&&z>.04){
-      channel=2+side;delta.z=.015*bell(u,.13,.10)*bell(y,1.555,.075)*clamp((z-.04)/.07);
+      channel=2+side;delta.z=.019*bell(u,.13,.10)*bell(y,1.555,.075)*clamp((z-.04)/.07);
      }else if(u>.08&&u<.32&&y>.57&&y<.96){
-      channel=6+side;delta.z=.013*bell(y,.77,.13)*clamp((z+.03)/.09);delta.x=Math.sign(x)*.005*bell(y,.76,.13);
+      channel=6+side;delta.z=.016*bell(y,.77,.13)*clamp((z+.03)/.09);delta.x=Math.sign(x)*.005*bell(y,.76,.13);
      }else if(u>.10&&u<.30&&y>.22&&y<.53){
-      channel=8+side;delta.z=-.011*bell(y,.38,.09)*clamp((.02-z)/.07);
+      channel=8+side;delta.z=-.014*bell(y,.38,.09)*clamp((.02-z)/.07);
      }else if(u<.28&&y>1.1&&y<1.47&&z>.04){
-      channel=10;delta.z=.009*bell(x,0,.20)*bell(y,1.30,.18)*clamp((z-.04)/.06);
+      channel=10;delta.z=.0115*bell(x,0,.20)*bell(y,1.30,.18)*clamp((z-.04)/.06);
      }else if(u<.30&&y>1.28&&y<1.72&&z<-.035){
-      channel=11;delta.z=-.012*bell(u,.17,.10)*bell(y,1.50,.15)*clamp((-z-.035)/.06);
+      channel=11;delta.z=-.016*bell(u,.17,.10)*bell(y,1.50,.15)*clamp((-z-.035)/.06);
      }else if(y>1.80&&y<2.00&&z>.13&&u<.145){
       channel=12;delta.y=-.020*bell(x,0,.11)*bell(y,1.88,.055)*clamp((z-.13)/.08)*clamp((y-1.80)/.04)*clamp((2-y)/.06);
      }
@@ -61,7 +61,7 @@
    }
    const breath=.5+.5*Math.sin((coach.renderTime||0)*2.2);
    a[10]=clamp(.17+Math.abs(j.chest.rotation.y)*.55+(m.hurt||0)*.5+breath*.13);
-   a[11]=clamp(.16+Math.abs(j.chest.rotation.y)*.55+(m.strike||0)*.32);
+   a[11]=clamp(.16+Math.abs(j.chest.rotation.y)*.55+Math.abs(j.spine.rotation.x)*.8+(m.strike||0)*.32+(m.rope||0)*(.28*(m.load||0)+.12*(m.drive||0)));
    a[12]=expression.jaw||0;a[13]=0;
   },
   deform(p,coach,index,g){const m=g.attributes.avatarMuscle;if(m&&coach.anatomy){const strength=coach.anatomy.value[m.getW(index)];p.x+=m.getX(index)*strength;p.y+=m.getY(index)*strength;p.z+=m.getZ(index)*strength;}return p;},
