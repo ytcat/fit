@@ -1,7 +1,7 @@
 # R96 — palm-up rope grip, phone controls and punch drive
 
 Baseline: R95 `e7abc7cbe2255a42912d08b8fd8306a77064e39a`.
-Final runtime: `7b770a88eae4fce68625b1e50fd324e53f690ec6`.
+Final runtime: `e18bd08708083d9fcc7d0b6fac3b7de78596ccab`.
 Isolated worktree `/workspace/fit-r96`; no other worktree edited.
 [Actual app captures and raw results](../qa/r96/review.html).
 
@@ -22,10 +22,15 @@ Isolated worktree `/workspace/fit-r96`; no other worktree edited.
   inherited button text/pseudo-elements. Back to game is a full-width centred
   footer button instead of inheriting the 40-pixel close-button dimensions.
 - Straight-punch extension is 0.19 rather than 0.23 normalized phase units,
-  retaining smooth endpoint easing. Ordinary punch hip/chest drive rises 12%.
-  Existing stronger authored poses (power >=1.32, including fights) retain their
-  original body-drive limit. An initial uncapped trial failed the existing fight
-  intrusion test; it was corrected without relaxing any collision threshold.
+  retaining smooth endpoint easing. Free practice and sparring use 12% more body drive.
+  Heavy bag, dummy and fight retain their calibrated body-drive values. An initial uncapped trial failed the existing fight
+  intrusion test; it was corrected without relaxing any collision threshold. A further regression found
+  the heavy-bag cross too bent at contact (163.8°); preserving its calibrated
+  drive restores 173.7° extension, within the unchanged 170–178° acceptance range.
+  Applying extra body drive to hooks also failed the existing elbow-continuity
+  gate; mode-specific power retains those authored target trajectories. The menu
+  class assignment uses the existing className interface, compatible with the
+  project’s minimal DOM test harness; the real-browser class is unchanged.
 - Mitt power changes from .90 to 1.15, recovery from .31 to .25 normalized units.
   Registered contacts derive impulse and bounded pad recoil from incoming speed.
   Cushion compression remains capped. Same-hand mitt mapping and 1.2-metre
@@ -58,8 +63,8 @@ GPU or physical-rope proof. The existing 18-mm sample threshold is unchanged.
 
 All six heavy-bag punches still produce exactly one registered impact, release
 promptly and leave the target coasting. In the same fixture, jab incoming speed
-changes 5.36 → 7.93 and impulse 31.62 → 57.71; cross 6.22 → 6.68 and
-69.03 → 87.70. These are simulation outputs, not human force measurements.
+changes 5.36 → 6.21 and impulse 31.62 → 45.20; cross 6.22 → 7.92 and
+69.03 → 104.03. These are simulation outputs, not human force measurements.
 Automatic first-mitt contact occurs at .408 s versus .483 s in R95. Side/angle
 captures link all shaders without page errors. Existing fight intrusion coverage
 passes 12 strike/target cases (largest penetration 19.81 mm, existing limit21 mm).
@@ -94,10 +99,10 @@ substantial; these numbers do not establish a game-FPS improvement or phone gate
 
 |Mode|R95 P50/P95 ms|R96 P50/P95 ms|
 |---|---:|---:|
-|none|2.19 / 5.60|0.97 / 2.58|
-|speed|2.42 / 4.85|2.10 / 3.62|
-|rope|1.50 / 3.23|1.32 / 2.71|
-|pads|2.94 / 6.02|2.83 / 4.75|
+|none|2.03 / 4.75|2.16 / 6.12|
+|speed|4.63 / 8.07|2.59 / 8.40|
+|rope|3.04 / 6.91|1.34 / 2.53|
+|pads|6.57 / 10.54|2.67 / 4.77|
 
 [Raw repeated timings](../qa/r96/results/performance.json). Browser shaders and
 resource counts are measured separately in the render reports; no GPU frame

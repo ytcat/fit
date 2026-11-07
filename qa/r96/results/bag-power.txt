@@ -1,43 +1,43 @@
 jab {
   impulses: 1,
-  impulse: '57.71',
-  speed: '7.93',
-  contactFrames: 17,
-  swing: '0.18'
+  impulse: '45.20',
+  speed: '6.21',
+  contactFrames: 16,
+  swing: '0.14'
 }
 cross {
   impulses: 1,
-  impulse: '87.70',
-  speed: '6.68',
-  contactFrames: 18,
+  impulse: '104.03',
+  speed: '7.92',
+  contactFrames: 16,
   swing: '0.25'
 }
 hook {
   impulses: 1,
-  impulse: '40.00',
-  speed: '3.49',
-  contactFrames: 27,
+  impulse: '33.82',
+  speed: '2.95',
+  contactFrames: 29,
   swing: '0.16'
 }
 rear_hook {
   impulses: 1,
-  impulse: '35.37',
-  speed: '3.08',
-  contactFrames: 28,
+  impulse: '41.80',
+  speed: '3.65',
+  contactFrames: 27,
   swing: '0.17'
 }
 uppercut {
   impulses: 1,
-  impulse: '38.39',
-  speed: '2.97',
-  contactFrames: 15,
-  swing: '0.13'
+  impulse: '47.96',
+  speed: '3.73',
+  contactFrames: 16,
+  swing: '0.16'
 }
 rear_uppercut {
   impulses: 1,
-  impulse: '47.02',
-  speed: '3.66',
+  impulse: '50.02',
+  speed: '3.91',
   contactFrames: 17,
-  swing: '0.17'
+  swing: '0.20'
 }
 PASS committed full-body timing, one-shot effective-mass impulse, quick release, heavy coasting and misses

@@ -316,7 +316,7 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - Faster straight extension, more ordinary body drive, stronger contact-driven
   mitt recoil and higher heavy-bag striking-mass parameters. Existing fight
   body-drive limits and glove-penetration thresholds preserved.
-- Runtime source: `7b770a88eae4fce68625b1e50fd324e53f690ec6`.
+- Runtime source: `e18bd08708083d9fcc7d0b6fac3b7de78596ccab`.
 - Evidence, limitations and exact validation outcome: `docs/r96-controls-grip-power.md`,
   `qa/r96/review.html`, `qa/r96/results/validation.json`.
 - Physical-phone sustained FPS/thermals remain unverified. Existing manual
