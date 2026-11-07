@@ -34,6 +34,12 @@ node tests/fluid-drills.test.cjs
 node tests/training-motion.test.cjs
 ```
 
+The separate manual diagnostic (`node qa/r92/manual.cjs`, with `APP_ROOT` for
+R91) records one actual contact for jab, cross and both hooks in each version.
+Both uppercuts record zero contacts at both distances: a pre-existing mitt
+contact-scoring gap, not resolved by this spacing correction. Raw before/after
+logs are retained; these diagnostics are not reported as six passing hit tests.
+
 Exact complete-suite status: [validation.json](../qa/r92/results/validation.json).
 These are authored poses and Chromium compatibility/visual checks, not measured
 human biomechanics or physical-phone performance. No new mesh, texture, library,
