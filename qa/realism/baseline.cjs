@@ -1,0 +1,21 @@
+// Actual app captures and upload/shader checks. Software browser != physical phone.
+const fs=require('fs'),path=require('path'),http=require('http'),assert=require('node:assert/strict'),{chromium}=require('playwright');
+const root=process.env.APP_ROOT||path.resolve(__dirname,'../..'),out=process.env.QA_OUT||'/tmp/r90-browser',kind=process.env.QA_KIND||'motion';fs.mkdirSync(out,{recursive:true});
+const server=http.createServer((req,res)=>{let f=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]));if(f===root)f+='/index.html';if(!f.startsWith(root+path.sep))return res.writeHead(403).end();try{res.setHeader('Content-Type',({'.js':'text/javascript','.html':'text/html','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.wav':'audio/wav'})[path.extname(f)]||'application/octet-stream');res.end(fs.readFileSync(f));}catch{res.writeHead(404).end();}}).listen(0,'127.0.0.1');
+(async()=>{const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox','--enable-unsafe-swiftshader']});try{
+ const p=await b.newPage({viewport:{width:1100,height:950},hasTouch:true,bypassCSP:true});p.setDefaultTimeout(120000);const errors=[];p.on('pageerror',e=>errors.push(e.message));if(process.env.QA_WEBGL1)await p.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...args){return kind==='webgl2'?null:get.call(this,kind,...args);};});await p.addInitScript({path:path.join(__dirname,'../lion-realism-m0/instrument.js')});await p.addInitScript(()=>M0.paused=true);await p.goto(`http://127.0.0.1:${server.address().port}`);await p.waitForFunction(()=>window.app?.engine?.coach?.anatomy&&window.ringsideLayout);if(await p.getByRole('button',{name:'Play as guest',exact:true}).count())await p.getByRole('button',{name:'Play as guest',exact:true}).click();await p.evaluate(async()=>{await M0.boot();app.engine.isPlaying=false;});
+ const baseline={sha:require('child_process').execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),browser:b.version(),setup:await p.evaluate(()=>({environment:M0.environment,startup:M0.startup})),scenes:[],poses:[],errors};
+ for(const mode of (process.env.QA_SPECIES||process.env.QA_SKIP_PROFILE)?[]:['idle','training','fight']){
+  await p.evaluate(mode=>M0.configure(mode,'low'),mode);const metrics=await p.evaluate(async()=>({inventory:M0.inventory(app.engine.scene).summary,sample:await M0.sample(12,3)}));baseline.scenes.push({mode,...metrics});
+ }
+ await p.addScriptTag({path:path.join(__dirname,'../lion-realism-m0/studio.js')});
+ const cases=[['guard',0],['jab',.42],['cross',.42],['hook',.43],['rear_hook',.43],['uppercut',.20],['uppercut',.46],['rear_uppercut',.20],['rear_uppercut',.46],['slip',.45],['roll',.45],['step',.45],['combo',.40],['head-hit',.35],['body-hit',.35],['guard-hit',.35]];
+ for(const species of process.env.QA_SPECIES?[process.env.QA_SPECIES]:['lion','rabbit']){
+  await p.evaluate(({species,style})=>{const e=app.engine;e.targetMode='none';e.arena.setTarget('none');e.roster.select(species);if(e.coach.species!==species)throw new Error('Incorrect capture species');M0.studio();M0.preview=false;e.renderer.setPixelRatio(.5);M0.style(style,'neutral')},{species,style:process.env.QA_STYLE||'textured'});
+  for(const [name,phase] of (process.env.QA_SHORT?cases.filter(([name])=>['guard','uppercut','rear_uppercut'].includes(name)):cases))for(const [view,yaw] of [['front',0],['profile',Math.PI/2],['back',Math.PI],['quarter',Math.PI/4]]){
+   const spec={move:name.endsWith('-hit')?'guard':name,phase,yaw,simulationTime:phase*1.22};if(name.endsWith('-hit'))spec.hit={part:name.split('-')[0],move:'cross',direction:[0,0,-1],amount:.8,side:1};
+   const row=await p.evaluate(spec=>M0.pose(spec),spec);const file=species+'-'+name+'-'+phase+'-'+view+'.png';await p.locator('#boxerCanvas').screenshot({path:path.join(out,file)});baseline.poses.push({species,name,file,...row});
+  }
+ }
+ assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'baseline.json'),JSON.stringify(baseline,null,2));console.log('PASS frozen baseline: '+baseline.poses.length+' actual pose/view frames; '+baseline.scenes.length+' sampled scenes. Software renderer, no phone-FPS claim.');
+ }finally{await b.close();server.close();}})().catch(e=>{console.error(e);server.close();process.exitCode=1;});
