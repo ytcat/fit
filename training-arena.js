@@ -276,7 +276,14 @@
    this.group.updateMatrixWorld(true);
   }
   closest(centre,object,shape,radius=.064){
-   object.updateWorldMatrix(true,false);const p=object.worldToLocal(centre.clone());let point,normal,distance;
+   object.updateWorldMatrix(true,false);
+   // Hundreds of contact samples can share a posed head/torso transform.
+   // Cache by the exact world matrix, including moving parents and scale;
+   // arm/guard edits invalidate it immediately, not just on a frame boundary.
+   const frames=this.contactTransforms||(this.contactTransforms=new WeakMap());let frame=frames.get(object);
+   if(!frame){frame={world:new THREE.Matrix4(),inverse:new THREE.Matrix4(),normal:new THREE.Matrix3()};frames.set(object,frame);frame.world.copy(object.matrixWorld);frame.inverse.copy(object.matrixWorld).invert();frame.normal.getNormalMatrix(object.matrixWorld);}
+   else if(!frame.world.equals(object.matrixWorld)){frame.world.copy(object.matrixWorld);frame.inverse.copy(object.matrixWorld).invert();frame.normal.getNormalMatrix(object.matrixWorld);}
+   const p=centre.clone().applyMatrix4(frame.inverse);let point,normal,distance;
    if(shape.type==='cylinder'){
     const radial=Math.hypot(p.x,p.z)||1e-8,side=V(p.x/radial,0,p.z/radial);
     point=V(side.x*shape.radius,Math.max(-shape.halfHeight,Math.min(shape.halfHeight,p.y)),side.z*shape.radius);
@@ -286,7 +293,7 @@
     point=c.clone().add(V(unit.x/length*r.x,unit.y/length*r.y,unit.z/length*r.z));
     distance=p.distanceTo(point)*(length<1?-1:1);normal=V(Math.sign(unit.x)*Math.pow(Math.abs(unit.x),power-1)/r.x,Math.sign(unit.y)*Math.pow(Math.abs(unit.y),power-1)/r.y,Math.sign(unit.z)*Math.pow(Math.abs(unit.z),power-1)/r.z).normalize();
    }
-   const worldPoint=object.localToWorld(point),worldNormal=normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(object.matrixWorld)).normalize();
+   const worldPoint=point.applyMatrix4(object.matrixWorld),worldNormal=normal.applyMatrix3(frame.normal).normalize();
    return {point:worldPoint,normal:worldNormal,distance,penetration:radius-distance};
   }
   bodyContacts(point,coach,radius=.064){
