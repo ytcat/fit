@@ -34,7 +34,7 @@ for(const species of ['lion','rabbit']){
  }
  console.log('sweep diagnostics',species,{palmDown,maxError,minFloor});assert.ok(palmDown>.8,'the catching palm faces down during the overhead pass');assert.ok(maxError<.03,'the sweep stays within real arm reach');assert.ok(minFloor>=.004,'both partners keep their soles above the floor');
  for(const p of roots)assert.deepEqual(p,[0,0,.60],'trainer weight shifts must not slide the complete character across the floor');
- for(const [t,index] of [[.35,1],[1.55,0]]){const f=e.arena.update(t);assert.equal(f.padPhase.targetIndex,index,'lead/rear fists meet the corresponding same-screen-side mitt of a facing partner');}
+ for(const [t,index] of [[.35,0],[1.55,1]]){const f=e.arena.update(t);assert.equal(f.padPhase.targetIndex,index,'left/right fists meet the trainer’s anatomical left/right mitt as requested');}
  console.log(species,{ranges,nonplanar,palmDown,maxError,minFloor});
 }
-console.log('PASS coupled rope anatomy, traveling cable, opposite-facing mitt mapping, bilateral palm-down arcs, straight wrists, arm reach and grounded partners');
+console.log('PASS coupled rope anatomy, traveling cable, anatomical same-hand mitt mapping, bilateral palm-down arcs, straight wrists, arm reach and grounded partners');
