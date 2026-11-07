@@ -257,7 +257,7 @@
    }
    for(const model of Object.values(this.models)){
     const swing=model.userData.swing;if(swing){swing.rotation.set(0,0,0);if(model===this.models.heavy||model===this.models.dummy)swing.position.z=0;}
-    const soft=model.userData.soft;if(soft?.userData.softRest)this.deformSurface(soft,null,0);
+    const soft=model.userData.soft;if(soft&&(soft.userData.softRest||window.BoxingPadding?.state(soft)))this.deformSurface(soft,null,0);
    }
   }
   applyDynamics(){
