@@ -292,5 +292,5 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   of camera orientation. Actual contact/recoil receiver is checked for both boxers.
 - Retained partner spacing and compact rope posture. Targeted suites and real
   desktop/phone-sized scene checks pass; manual jab/cross/hooks still land.
-- Full-suite proof: qa/r94/results/validation.json; visual report:
+- All 55 regression suites passed on `41d0ebc`. Proof: qa/r94/results/validation.json; visual report:
   docs/r94-mitt-hand-mapping.md and qa/r94/review.html.

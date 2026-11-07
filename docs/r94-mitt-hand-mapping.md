@@ -37,6 +37,7 @@ NODE_PATH=/tmp/fit-tools/node_modules QA_OUT=/tmp/r94 node qa/r94/hands.cjs
 node qa/r92/manual.cjs
 ```
 
+All **55 regression suites passed** on exact runtime `41d0ebc`: [CI run](https://github.com/ytcat/fit/actions/runs/42386288337).
 Exact full-suite result: [validation.json](../qa/r94/results/validation.json).
 Runtime scope: one target-selector change in `career-drills.js` and its versioned
 reference in `index.html`. No new runtime dependency, asset or geometry. R93 is

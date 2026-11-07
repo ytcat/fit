@@ -1,0 +1,47 @@
+{
+  "baselineSHA": "057a82ae0d333a36028850cf0e2dac79fe36ad5b",
+  "runtimeSHA": "41d0ebcf5c8d93de20f0fdfc4b94ea6a61bdd1a0",
+  "ci": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42386288337",
+    "status": "Success",
+    "duration": "10m 25s",
+    "suiteCount": 55,
+    "method": "Exact-runtime public Actions status; unchanged workflow checks JS and every tests/*.test.cjs. Detailed hosted logs require login."
+  },
+  "mapping": {
+    "traineeLeft": "coachLeft",
+    "traineeRight": "coachRight",
+    "basis": "Anatomical hand bones, independent of camera or facing direction"
+  },
+  "checks": [
+    "Both characters register six real automatic mitt hits and two ducks",
+    "Receiving mitt parent bone and its actual contact/recoil timestamp match the punching hand",
+    "Existing floor, reach, wrist, pose continuity and compact-rope gates pass"
+  ],
+  "browser": {
+    "cases": [
+      "left-to-left desktop",
+      "right-to-right desktop",
+      "right-to-right phone-sized"
+    ],
+    "actualTargetParentVerified": true,
+    "allProgramsLinked": true,
+    "errors": [],
+    "physicalPhoneVerified": false
+  },
+  "manualContacts": {
+    "jab": 1,
+    "cross": 1,
+    "hook": 1,
+    "rear_hook": 1,
+    "uppercut": 0,
+    "rear_uppercut": 0,
+    "note": "Pre-existing manual uppercut scoring gap remains; no claim that all six manual hit tests pass."
+  },
+  "hashes": {
+    "career-drills.js": "375b3cf65ad58db37a9f43c343179e453bd670e8776f176f9f2a1ae3433b1a1b",
+    "index.html": "ac8807e585303c2d590fd28a7aa67b028d0a4c820935830cc7574c75df23a89e",
+    "tests/career-drills.test.cjs": "d7641b39e4da1b905d4445ce8b5e9274e9a2c1210823d1f2417b65738a84996f",
+    "tests/fluid-drills.test.cjs": "648495dc428a34e7926a36f9f261bd1dae34bcaef0f98199992214d3092b0a26"
+  }
+}
