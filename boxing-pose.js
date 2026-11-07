@@ -13,7 +13,7 @@
    this.jointNames=Object.freeze(Object.keys(coach.joints));this.joints={};this.jointPositions={};this.jointScales={};
    for(const name of this.jointNames){this.joints[name]=new Float64Array(4);this.jointPositions[name]=new Float64Array(3);this.jointScales[name]=new Float64Array(3);}
    this.rootTransform={space:'world',position:new Float64Array(3),quaternion:new Float64Array(4),scale:new Float64Array(3)};
-   this.jointSpace='parent';this.targetSpace='world';this.targetKind='observed';
+   this.jointSpace='parent';this.targetSpace='world';this.targetKind='observedRigControlPoint';
    this.leftFootTarget=new Float64Array(3);this.rightFootTarget=new Float64Array(3);this.leftHandTarget=new Float64Array(3);this.rightHandTarget=new Float64Array(3);
    this.contactFlags={leftFootPlantedIntent:false,rightFootPlantedIntent:false};this.expression={};for(const k of expressionKeys)this.expression[k]=0;
    this.muscleActivation=new Float32Array(14);this.expressionAvailable=false;this.musclesAvailable=false;this.targetsValid=false;this.move='guard';
@@ -29,8 +29,8 @@
    if(this.targetsValid){
     for(let i=0;i<2;i++){
      const foot=i?this.rightFootTarget:this.leftFootTarget,hand=i?this.rightHandTarget:this.leftHandTarget;
-     this.scratch.fromArray(m.footTargets[i].contact).applyMatrix4(coach.root.matrixWorld);vector(foot,this.scratch);
-     this.scratch.fromArray(m.gloves[i].strikePoint).applyMatrix4(coach.root.matrixWorld);vector(hand,this.scratch);
+     const side=i?'R':'L';this.scratch.set(0,-.102,.215).applyMatrix4(coach.joints['foot'+side].matrixWorld);vector(foot,this.scratch);
+     this.scratch.set(0,-.204,0).applyMatrix4(coach.joints['hand'+side].matrixWorld);vector(hand,this.scratch);
     }
    }
    // These are authored support intents, not newly invented ground collisions.
@@ -71,7 +71,7 @@
  class PoseAudit {
   constructor(){this.buffers=new WeakMap();this.actors={hero:null,partner:null,trainer:null};}
   record(coach,time){if(!coach)return null;let frame=this.buffers.get(coach);if(!frame){frame=new PoseFrame(coach);this.buffers.set(coach,frame);}return frame.capture(coach,time);}
-  capture(engine){const a=engine.arena;this.actors.hero=this.record(engine.coach,engine.animTime);this.actors.partner=this.record(a?.mode==='fight'?(a.fightView?.coaches.lion===engine.coach?a.fightView.coaches.rabbit:a.fightView?.coaches.lion):a?.mode==='rabbit'?a.rabbit:null,engine.animTime);this.actors.trainer=this.record(a?.careerDrill?.mode==='pads'?a.careerDrill.trainer:null,engine.animTime);return this.actors;}
+  capture(engine){const a=engine.arena,time=a?.metrics?.poseTime??engine.animTime;this.actors.hero=this.record(engine.coach,time);this.actors.partner=this.record(a?.mode==='fight'?(a.fightView?.coaches.lion===engine.coach?a.fightView.coaches.rabbit:a.fightView?.coaches.lion):a?.mode==='rabbit'?a.rabbit:null,time);this.actors.trainer=this.record(a?.careerDrill?.mode==='pads'?a.careerDrill.trainer:null,time);return this.actors;}
  }
  window.BoxingPose={PoseFrame,FixedStepClock,PoseAudit,enabled:typeof location!=='undefined'&&new URLSearchParams(location.search).get('poseAudit')==='1'};
 })();

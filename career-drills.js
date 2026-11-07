@@ -2,6 +2,13 @@
 (() => {
  const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z),Q=()=>new THREE.Quaternion();
  const clamp=n=>Math.max(0,Math.min(1,n)),smooth=n=>{n=clamp(n);return n*n*(3-2*n);},rear=m=>['cross','rear_hook','rear_uppercut'].includes(m);
+ let stationSequence=0;
+ const mittSequence=['jab','cross','roll','uppercut','rear_hook','rear_uppercut','roll','hook'];
+ const mittCues={};
+ for(const [lang,column,meet,up,roll] of [['en',1,'meet the mitt and recover guard','drive up into the mitt and recover','Roll under the hook'],['he',3,'פגעו בכפפה וחזרו להגנה','עלו אל הכפפה וחזרו להגנה','התכופפו מתחת להוק'],['ru',5,'попадите в лапу и вернитесь в защиту','удар снизу в лапу и возврат в защиту','Нырок под хук']]){
+  const cues=mittCues[lang]={roll,guard:window.COACH_TECHNIQUES?.guard?.[column]||'Guard'};
+  for(const move of mittSequence)if(move!=='roll')cues[move]=(window.COACH_TECHNIQUES?.[move]?.[column]||move)+' · '+(move.includes('uppercut')?up:meet);
+ }
  const ropeDrills={two_feet:{name:'Two feet',height:.15,cadence:1.72},alternating:{name:'Alternating feet',height:.135,cadence:1.90},left_leg:{name:'Left leg',height:.15,cadence:1.60},right_leg:{name:'Right leg',height:.15,cadence:1.60}};
  // Conservative posed exclusion volumes; only the rope is routed around them.
  // The render mesh, IK, jump clock and close hand targets remain authoritative.
@@ -57,13 +64,14 @@
  }
 
  class CareerDrill {
-  constructor(arena,mode){this.arena=arena;this.engine=arena.engine;this.mode=mode;this.start=this.engine.animTime;this.last=-1;this.seen=new Set();this.root=new THREE.Group();this.root.name=mode==='rope'?'Jump rope station':'Focus mitt station';arena.group.add(this.root);
+  constructor(arena,mode){this.arena=arena;this.engine=arena.engine;this.mode=mode;this.sessionId=++stationSequence;this.start=this.engine.animTime;this.last=-1;this.seen=new Set();this.deferVisuals=false;this.root=new THREE.Group();this.root.name=mode==='rope'?'Jump rope station':'Focus mitt station';arena.group.add(this.root);
    if(mode==='rope'){
     this.exercise=ropeDrills[this.engine.ropeDrill]?this.engine.ropeDrill:'two_feet';this.grips=['L','R'].map(side=>TrainingGear.ropeGrip(this.engine.coach,side));
     const segments=96,sides=6,p=new Float32Array((segments+1)*sides*3),index=[];for(let i=0;i<segments;i++)for(let j=0;j<sides;j++){const a=i*sides+j,b=i*sides+(j+1)%sides;index.push(a,b,a+sides,b,b+sides,a+sides);}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));const uv=[];for(let i=0;i<=segments;i++)for(let k=0;k<sides;k++)uv.push(i/segments*24,k/sides*2);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(index);this.rope=new THREE.Mesh(g,TrainingGear.cordMaterial());this.rope.name='Round woven skipping cable';this.rope.frustumCulled=false;this.rope.castShadow=true;this.root.add(this.rope);this.ropePoints=Array.from({length:97},()=>V());this.ropeFrame={tangent:V(),normal:V(),binormal:V()};this.ropeClearance=new RopeBodyClearance(this.engine.coach,this.root);this.finalizeRope=coach=>this.poseRope(coach);this.rope.geometry.setAttribute('normal',new THREE.Float32BufferAttribute(new Float32Array(p.length),3));this.rope.geometry.attributes.position.setUsage(THREE.DynamicDrawUsage);this.rope.geometry.attributes.normal.setUsage(THREE.DynamicDrawUsage);
    }else{
-    const species=this.engine.coach.species==='lion'?'rabbit':'lion';arena.padTrainers=arena.padTrainers||{};this.trainer=arena.padTrainers[species]||(arena.padTrainers[species]=new LionCoach(arena.data,{species}));this.root.add(this.trainer.root);this.trainer.root.position.set(0,0,.60);this.trainer.root.rotation.set(0,Math.PI,0);this.mitts=['L','R'].map(side=>TrainingGear.mitt(this.trainer,side));this.previousFist={};this.finalizeTrainer=coach=>this.poseTrainer(coach);this.finalizeBoxer=coach=>this.poseBoxer(coach);
+    const species=this.engine.coach.species==='lion'?'rabbit':'lion';arena.padTrainers=arena.padTrainers||{};this.trainer=arena.padTrainers[species]||(arena.padTrainers[species]=new LionCoach(arena.data,{species}));this.root.add(this.trainer.root);this.trainer.root.position.set(0,0,.60);this.trainer.root.rotation.set(0,Math.PI,0);this.mitts=['L','R'].map(side=>TrainingGear.mitt(this.trainer,side));this.previousFist={};this.previousPadFace={};this.padNormal=new THREE.Vector3();this.padNormalMatrix=new THREE.Matrix3();this.padVelocity=new THREE.Vector3();this.padLocal=new THREE.Vector3();this.padBeforeLocal=new THREE.Vector3();this.padContactLocal=new THREE.Vector3();this.padWorldContact=new THREE.Vector3();this.finalizeTrainer=coach=>this.poseTrainer(coach);this.finalizeBoxer=coach=>this.poseBoxer(coach);
+    this.padClock=window.BoxingPose&&(typeof location==='undefined'||new URLSearchParams(location.search).get('padClock')!=='legacy')?new BoxingPose.FixedStepClock({step:1/120,maxSteps:24}):null;this.padClock?.reset(this.start);this.padRequestedTime=this.start;this.padFrame=null;this.padStep=time=>{this.deferVisuals=this.padClock.tick<this.padRenderTick;const frame=this.update(time);this.padContacts.push(...frame.contacts);this.padSwings.push(...frame.swings);this.padDefences+=frame.defences||0;this.padFrame=frame;};
    }
   }
   dispose(){this.engine.coach.root.position.y=0;for(const prop of this.grips||this.mitts||[])TrainingGear.dispose(prop);if(this.trainer)this.trainer.root.parent?.remove(this.trainer.root);this.root.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material)n.material.dispose();});this.root.parent?.remove(this.root);}
@@ -96,6 +104,7 @@
    for(const [i,side] of ['L','R'].entries()){
     const pad=this.mitts[i],age=this.padPose.t-(pad.userData.hitAt??-100),recoil=age>=0?.065*(pad.userData.hitForce??1)*(1-Math.exp(-age/.022))*Math.exp(-age/.15):0;
     const goal=V(i?.20:-.20,1.82+.010*Math.sin(this.padPose.t*2.3+i),.43-recoil),palm=V(0,0,1);
+    if(this.padPose.move.includes('uppercut')&&side===(rear(this.padPose.move)?'R':'L')){const ready=smooth(this.padPose.heroPhase/.18)*(1-smooth((this.padPose.heroPhase-.72)/.25));goal.lerp(V(i?.20:-.20,1.72,.49),ready);palm.set(0,-Math.sin(ready*Math.PI/2),Math.cos(ready*Math.PI/2));}
     if(hook&&side!==sweepSide)goal.lerp(V(i?.22:-.22,1.74,.29),sweep);
     if(hook&&side===sweepSide){
      // Round sweep over the ducking boxer: chamber to the outside, pronate,
@@ -184,33 +193,55 @@
    if(phase>.54&&this.once('jump'+cycle))frame.jumps=1;
    frame.cue=exercise.name+' · soft landings, relaxed shoulders, wrist turns';frame.hero=hero.metrics;frame.rope={exercise:this.exercise,phase,jump,footLifts:this.ropePose.footLifts,ends:ends.map(v=>v.toArray()),lowest:Math.min(...points.map(v=>v.y)),centre:points[48].toArray()};
   }
+  contactWithMitt(pad,fist,before,face,previousFace,dt){
+   this.padClosingSpeed=0;if(!before||!previousFace||!(dt>0&&dt<=.20))return false;
+   this.padNormalMatrix.getNormalMatrix(pad.matrixWorld);this.padNormal.set(0,0,1).applyMatrix3(this.padNormalMatrix).normalize();
+   this.padVelocity.copy(fist).sub(before).sub(face).add(previousFace).multiplyScalar(1/dt);this.padClosingSpeed=Math.max(0,Math.min(5,-this.padVelocity.dot(this.padNormal)));
+   if(this.padClosingSpeed<=.12)return false;
+   pad.worldToLocal(this.padLocal.copy(fist));pad.worldToLocal(this.padBeforeLocal.copy(before).add(face).sub(previousFace));
+   const centre=pad.userData.face,a=this.padBeforeLocal.z-centre.z,b=this.padLocal.z-centre.z;
+   if(a<-.035||b>.035)return false;
+   this.padContactFraction=Math.max(0,Math.min(1,a/(a-b||1)));this.padContactLocal.copy(this.padBeforeLocal).lerp(this.padLocal,this.padContactFraction);
+   return ((this.padContactLocal.x-centre.x)/.125)**2+((this.padContactLocal.y-centre.y)/.145)**2<=1;
+  }
   updatePads(t,time,frame){
-   const hero=this.engine.coach,trainer=this.trainer,beat=Math.floor(t/1.20),part=beat%4,phase=(t/1.20)%1,hook=part===2,manual=this.engine.player?.frame(time),spec=manual||{move:hook?'roll':part===1?'cross':'jab',phase,attack:!hook,index:beat};
+   const hero=this.engine.coach,trainer=this.trainer,beat=Math.floor(t/1.20),part=beat%8,autoPhase=(t/1.20)%1,autoMove=mittSequence[part],autoHook=autoMove==='roll',manual=this.engine.player?.frame(time),spec=manual||{move:autoMove,phase:autoPhase,attack:!autoHook,index:beat},phase=manual?spec.phase:autoPhase,hook=manual?spec.move==='roll':autoHook;
    hero.root.position.set(0,0,-.60);hero.root.rotation.set(0,0,0);
    const sweepSide=Math.floor(beat/4)%2?'R':'L';
    this.padPose={t,phase,hook,move:spec.move,heroPhase:spec.phase,sweepSide,sweepHeight:1.96};
    // Boxing distance gives the trainee room to extend each punch.
    trainer.root.position.set(0,0,.60);
-   trainer.update(0,'guard','one_two',{simulationTime:time,guardElbowBack:.5,guardWidth:.22,keepFaceClear:true,poseOverlay:this.finalizeTrainer});
+   trainer.update(0,'guard','one_two',{simulationTime:time,deferVisuals:this.deferVisuals,guardElbowBack:.5,guardWidth:.22,keepFaceClear:true,poseOverlay:this.finalizeTrainer});
    this.arena.group.updateMatrixWorld(true);
    const targetIndex=rear(spec.move)?1:0,pad=this.mitts[targetIndex],worldTarget=pad.localToWorld(pad.userData.face.clone()),target=hero.root.worldToLocal(worldTarget.clone());
-   hero.update(spec.phase*1.22,spec.move,'one_two',{simulationTime:time,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,advance:.025,power:1.15,straightRecovery:.25,poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
+   hero.update(spec.phase*1.22,spec.move,'one_two',{simulationTime:time,deferVisuals:this.deferVisuals,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,uppercutBagTarget:spec.move.includes('uppercut')?[target.x,target.y-.20,target.z-.04]:undefined,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,advance:(spec.move==='jab'||spec.move==='cross')?.065:.025,contactDrive:(spec.move==='jab'||spec.move==='cross')?.045:0,shoulderCover:(spec.move==='jab'||spec.move==='cross')?.055:0,guardTightness:1,power:1.15,straightRecovery:.25,poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
    const dt=this.last<0?0:t-this.last;
    if(spec.attack){
     if(spec.phase>.2&&this.once('swing'+spec.index))frame.swings.push({actor:'lion',move:spec.move});
-    const fist=hero.root.localToWorld(V(...hero.metrics.gloves[rear(spec.move)?1:0].strikePoint)),local=pad.worldToLocal(fist.clone()),before=this.previousFist[targetIndex],speed=before&&dt>0?Math.min(5,fist.distanceTo(before)/dt):0;
-    if(!hook&&spec.phase>.25&&spec.phase<.80&&Math.abs(local.x)<.125&&Math.abs(local.y+.12)<.145&&Math.abs(local.z-.07)<.09&&speed>.12&&this.once('hit'+spec.index)){
-     frame.contacts.push({actor:'lion',receiver:'pads',part:'glove',kind:'pad',move:spec.move,blocked:false,closingSpeed:speed,impulse:speed*(rear(spec.move)?7.2:5.8),point:fist.toArray()});pad.userData.hitAt=t;pad.userData.hitForce=Math.max(.65,Math.min(1.25,speed/2.4));
-    }this.previousFist[targetIndex]=fist;
+    const fist=hero.root.localToWorld(V(...hero.metrics.gloves[targetIndex].strikePoint)),incoming=this.contactWithMitt(pad,fist,this.previousFist[targetIndex],worldTarget,this.previousPadFace[targetIndex],dt),speed=this.padClosingSpeed;
+    if(!hook&&spec.phase>.25&&spec.phase<.80&&incoming&&this.once('hit'+spec.index)){
+     frame.contacts.push({actor:'lion',receiver:'pads',part:'glove',kind:'pad',move:spec.move,blocked:false,closingSpeed:speed,impulse:speed*(rear(spec.move)?7.2:5.8),point:pad.localToWorld(this.padWorldContact.copy(this.padContactLocal)).toArray(),normal:this.padNormal.toArray(),relativeVelocity:this.padVelocity.toArray(),localPoint:this.padContactLocal.toArray(),hand:targetIndex?'R':'L',actionId:'pads:'+this.sessionId+':'+spec.index,attacker:'hero',defender:'trainer',targetRegion:'mitt',outcome:'clean',sampleTime:time,time:time-dt*(1-this.padContactFraction),contactFraction:this.padContactFraction});pad.userData.hitAt=t;pad.userData.hitForce=Math.max(.65,Math.min(1.25,speed/2.4));
+    }this.previousFist[targetIndex]=fist;this.previousPadFace[targetIndex]=worldTarget;
    }
-   if(hook&&phase>.40&&phase<.72){const head=hero.root.localToWorld(V(...hero.metrics.head)),mitt=this.mitts[sweepSide==='L'?0:1].localToWorld(this.mitts[0].userData.face.clone());if(spec.move==='roll'&&head.y+.29<mitt.y&&Math.hypot(head.x-mitt.x,head.z-mitt.z)<.32&&this.once('defence'+beat))frame.defences=1;}
-   frame.cue=hook?'Roll under the hook':part===1?'Cross · turn the hip, then recover':'Jab · meet the mitt and return to guard';frame.hero=hero.metrics;frame.partner=trainer.metrics;frame.padPhase={hook,phase,sweepSide,targetIndex};
+   if(hook&&phase>.40&&phase<.72){const head=hero.root.localToWorld(V(...hero.metrics.head)),mitt=this.mitts[sweepSide==='L'?0:1].localToWorld(this.mitts[0].userData.face.clone());if(spec.move==='roll'&&head.y+.29<mitt.y&&Math.hypot(head.x-mitt.x,head.z-mitt.z)<.32&&this.once('defence'+(manual?spec.index:beat)))frame.defences=1;}
+   const cues=mittCues[window.app?.lang]||mittCues.en;frame.cue=cues[hook?'roll':spec.move]||cues.guard;frame.hero=hero.metrics;frame.partner=trainer.metrics;frame.padPhase={hook,phase,sweepSide,targetIndex};
+  }
+  advance(time){
+   if(this.mode!=='pads'||!this.padClock)return this.update(time);
+   let delta=time-this.padRequestedTime;
+   if(delta< -1e-8||delta>.20){this.padClock.reset(time);this.padFrame=null;this.last=-1;this.previousFist={};this.previousPadFace={};delta=0;}
+   this.padRequestedTime=time;
+   const count=Math.floor((Math.min(this.padClock.accumulator+Math.max(0,delta),this.padClock.step*this.padClock.maxSteps)+1e-12)/this.padClock.step);
+   if(!count){this.padClock.advance(Math.max(0,delta),this.padStep);if(!this.padFrame)this.padFrame=this.update(this.padClock.time);const frame={...this.padFrame,contacts:[],swings:[],defences:0,jumps:0};frame.poseTime=this.padClock.time;this.arena.metrics=frame;return frame;}
+   this.padContacts=[];this.padSwings=[];this.padDefences=0;this.padRenderTick=this.padClock.tick+count;
+   this.padClock.advance(Math.max(0,delta),this.padStep);this.deferVisuals=false;
+   const frame=this.padFrame;frame.contacts=this.padContacts;frame.swings=this.padSwings;frame.defences=this.padDefences;frame.poseTime=this.padClock.time;this.arena.metrics=frame;return frame;
   }
   update(time){const t=Math.max(0,time-this.start),frame={mode:this.mode,contacts:[],swings:[],loads:[],jumps:0,defences:0};this.arena.previousTime=time;if(this.mode==='rope')this.updateRope(t,time,frame);else this.updatePads(t,time,frame);this.last=t;this.arena.metrics=frame;return frame;}
  }
  const set=TrainingArena.prototype.setTarget,update=TrainingArena.prototype.update,fit=TrainingArena.prototype.fitCamera;
  TrainingArena.prototype.setTarget=function(mode){this.careerDrill?.dispose();this.careerDrill=null;if(!['rope','pads'].includes(mode))return set.call(this,mode);set.call(this,'none');this.mode=mode;this.engine.targetMode=mode;this.engine.scene.add(this.group);this.group.add(this.engine.coach.root);this.group.rotation.y=mode==='pads'?.95:.38;this.careerDrill=new CareerDrill(this,mode);this.update(this.engine.animTime);this.fitCamera(this.engine.camera);};
- TrainingArena.prototype.update=function(time,technique,combo){return this.careerDrill?this.careerDrill.update(time):update.call(this,time,technique,combo);};
+ TrainingArena.prototype.update=function(time,technique,combo){return this.careerDrill?this.careerDrill.advance(time):update.call(this,time,technique,combo);};
  TrainingArena.prototype.fitCamera=function(camera){if(!this.careerDrill)return fit.call(this,camera);const height=this.mode==='rope'?(this.engine.coach.species==='rabbit'?3.12:2.86):2.55,width=this.mode==='rope'?1.8:2.35,fov=THREE.MathUtils.degToRad(camera.fov);camera.position.set(0,1.70,Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+.35);camera.lookAt(0,height*.48,0);this.engine.viewControls?.refit(V(0,height*.48,0));};
  CareerDrill.ropeDrills=ropeDrills;window.CareerDrill=CareerDrill;
 })();

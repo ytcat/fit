@@ -58,7 +58,7 @@ not replace existing choreography or silently apply interpolated bones.
 - `joints`: parent-relative quaternion by existing joint name; jointPositions
   and jointScales preserve the rest of the authored transform.
 - left/right hand/foot targets: observed world-space strike/sole points.
-  These are explicitly `targetKind: observed`, not unexposed requested IK goals.
+  These are explicitly `targetKind: observedRigControlPoint`, not unexposed requested IK goals. They are read from final joint matrices, including station wrist flex and post-contact corrections; they are not the compressed leather surface.
 - contactFlags: authored planted-foot **intent**, not a new physical ground
   collision. A raised root or knockdown requires separate ground verification.
 - expression: actual jaw/focus/flinch/side parameters when available.

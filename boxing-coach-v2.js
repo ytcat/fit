@@ -1475,6 +1475,8 @@
       if(overlay?.footTargets)footTargets.splice(0,footTargets.length,...overlay.footTargets);
       if(overlay?.handErrors){le=overlay.handErrors[0];re=overlay.handErrors[1];}
       this.motionState={left:leftStrike,right:rightStrike,strike,hurt,load:move.includes('uppercut')?prepare*(1-bodyRise)*(1-recover):(['jab','cross','hook','rear_hook'].includes(move)?kineticLoad*kineticPower:0),drive:move.includes('uppercut')?bodyRise*(1-recover):drive,...overlay?.motionState};
+      // Fixed station substeps keep bones authoritative; upload cosmetic detail once.
+      if(!options.deferVisuals){
       this.updateMane(options.simulationTime??t);
       const acted=window.AvatarAnatomy?.express(this,{move,strike:Math.max(strike,move.includes('uppercut')?this.motionState.load*.35:0),hurt,hit,presentation,time:options.simulationTime??t,stamina:options.stamina});
       this.painMouth.visible=!acted&&hurt>.12&&(hit.part==='head'||hit.part==='body');
@@ -1486,12 +1488,13 @@
         face.part.scale.y=face.sy*(face.eye?(1-.60*Math.min(1,hurt))*(1-.92*blink):1);
       }
       if(this.rabbitEars)this.rabbitEars.forEach((ear,i)=>{ear.rotation.x=(presentation?.mode==='loser'?.25:0)+(hit.part==='head'?.14*hurt:0)-clamp(options.earFold||0,0,.65);ear.rotation.z=(i?-.10:.10)+Math.sin(phase*Math.PI*2+i*.8)*.025*(Math.abs(hipYaw)+crouch);});
+      }
       for(const side of ['L','R']){
         const amount=side==='L'?leftStrike:rightStrike,s=side==='L'?-1:1;
         j['scapula'+side].position.set(s*(.17+.020*amount),.17+.015*amount,-.06+.040*amount);
         j['scapula'+side].rotation.y=-s*.14*amount;
       }
-      this.syncSkin();
+      if(options.deferVisuals)this.root.updateMatrixWorld(true);else this.syncSkin();
       this.metrics={move,phase,strike,gloves,footTargets,handErrors:[le,re],
         hands:[this.point(j.handL).toArray(),this.point(j.handR).toArray()],
         head:this.point(j.head).toArray(),hips:this.point(hips).toArray()};

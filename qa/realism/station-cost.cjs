@@ -1,0 +1,6 @@
+// Node CPU only, fake canvas. Compare clock paths of the same candidate.
+const fileSystem=require('fs'),vm2=require('vm'),path=require('path');process.chdir(process.env.APP_ROOT||path.resolve(__dirname,'../..'));global.require=require('module').createRequire(process.cwd()+'/tests/training-motion.test.cjs');global.location={search:process.env.QA_LEGACY?'?padClock=legacy':''};const prefix=fileSystem.readFileSync('tests/training-motion.test.cjs','utf8').split("for(const species of ['lion','rabbit']){\n")[0];
+vm2.runInThisContext(prefix+`
+const results=[];for(const rate of [1,3]){e.player.setEnabled(false);e.animTime=0;e.arena.setTarget('pads');const times=[];for(let i=1;i<=270;i++){e.animTime=i/60*rate;const t=performance.now();e.arena.update(e.animTime);if(i>30)times.push(performance.now()-t);}times.sort((a,b)=>a-b);results.push({rate,samples:times.length,p50:times[120],p95:times[228],heap:process.memoryUsage().heapUsed});}
+fs.writeFileSync(process.env.QA_OUT||'/tmp/realism-station-cost.json',JSON.stringify({method:'Same source, 60-Hz requested updates; 30 warmup +240 samples; fake canvas CPU only, not renderer/GPU/physical-phone FPS.',path:process.env.QA_LEGACY?'legacy-variable':'fixed-120-final-detail-only',results},null,2));console.log(JSON.stringify(results));
+`);
