@@ -8,7 +8,7 @@ const server=http.createServer((req,res)=>{let f=path.resolve(root,'.'+decodeURI
  for(const viewport of [{width:320,height:568},{width:393,height:640},{width:393,height:844},{width:844,height:390},{width:1100,height:950}]){
   await p.setViewportSize(viewport);
   for(const lang of ['en','he','ru']){
-   await p.evaluate(lang=>{app.lang=lang;app.engine.isPlaying=false;trainingControls.chooseTarget('none');clubInterface.paint();ringsideLayout.paint();},lang);
+   await p.evaluate(lang=>{app.setLanguage(lang);app.engine.isPlaying=false;trainingControls.chooseTarget('none');clubInterface.paint();ringsideLayout.paint();},lang);
    await p.locator('#openTrainingDrawer').click();
    for(const panel of ['practice','moves','settings']){
     await p.evaluate(panel=>ringsideLayout.setPanel(panel),panel);
@@ -22,5 +22,18 @@ const server=http.createServer((req,res)=>{let f=path.resolve(root,'.'+decodeURI
    await p.locator('.routine-picker .routine-pager button').last().click();await p.locator('.routine-picker .routine-choice:not([hidden])').first().click();assert.equal(await p.locator('dialog[open]').count(),0);
   }
  }
+ const manual=[];
+ for(const viewport of [{width:320,height:568},{width:393,height:640},{width:393,height:844},{width:844,height:390}]){
+  await p.setViewportSize(viewport);
+  for(const mode of ['none','pads','speed','fight']){
+   await p.evaluate(mode=>{trainingControls.chooseTarget(mode);app.engine.player.setEnabled(true);app.engine.isPlaying=false;manualControls.paint(true);clubInterface.paint();ringsideLayout.paint();},mode);
+   for(const page of ['moves','combos','defence']){
+    await p.evaluate(page=>manualControls.setPage(page),page);
+    const row=await p.evaluate(()=>{const r=document.querySelector('#stageContainer').getBoundingClientRect(),buttons=[...document.querySelectorAll('.manual-move,.manual-pages button')].filter(n=>n.getClientRects().length&&!n.closest('[hidden]'));return {count:buttons.length,clipped:buttons.filter(n=>{const b=n.getBoundingClientRect();return b.top<r.top-1||b.bottom>r.bottom+1||b.left<r.left-1||b.right>r.right+1||b.top<0||b.bottom>innerHeight}).map(n=>n.textContent),scroll:[...document.querySelectorAll('.manual-rail')].map(n=>n.scrollHeight-n.clientHeight),separated:(()=>{const [a,b]=[...document.querySelectorAll('.manual-rail')].map(n=>n.getBoundingClientRect());return a.right<b.left})()};});manual.push({viewport,mode,page,...row});assert.deepEqual(row.clipped,[],JSON.stringify(manual.at(-1)));assert.ok(row.scroll.every(x=>x<=1),JSON.stringify(manual.at(-1)));assert.equal(row.count,15);assert.ok(row.separated,'left/right rails must not overlap: '+JSON.stringify(manual.at(-1)));
+    if(viewport.width===393&&viewport.height===844&&mode==='none'&&page==='moves')await p.evaluate(()=>{const e=app.engine;e.arena.update(e.animTime);e.viewControls.fit();e.renderer.render(e.scene,e.camera)}),await p.screenshot({path:path.join(out,'manual.png')});
+   }
+  }
+ }
+ fs.writeFileSync(path.join(out,'manual.json'),JSON.stringify(manual,null,2));
  assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'ui.json'),JSON.stringify({results,errors,physicalPhone:false},null,2));console.log('PASS five viewports × three languages: three panels, six skills, 11 techniques, paginated combinations; no scrolling or clipped controls');
  }finally{await b.close();server.close();}})().catch(e=>{console.error(e);server.close();process.exitCode=1;});
