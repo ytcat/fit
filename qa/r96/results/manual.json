@@ -1,0 +1,722 @@
+[
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "none",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "none",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "none",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "pads",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "pads",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "pads",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "speed",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "speed",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "speed",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "fight",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "fight",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "mode": "fight",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "none",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "none",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "none",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "pads",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "pads",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "pads",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "speed",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "speed",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "speed",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "fight",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "fight",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 640
+    },
+    "mode": "fight",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "none",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "none",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "none",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "pads",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "pads",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "pads",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "speed",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "speed",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "speed",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "fight",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "fight",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 393,
+      "height": 844
+    },
+    "mode": "fight",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "none",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "none",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "none",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "pads",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "pads",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "pads",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "speed",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "speed",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "speed",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "fight",
+    "page": "moves",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "fight",
+    "page": "combos",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "mode": "fight",
+    "page": "defence",
+    "count": 15,
+    "clipped": [],
+    "scroll": [
+      0,
+      0
+    ],
+    "separated": true
+  }
+]

@@ -80,3 +80,27 @@ The default deployed asset/controller pair remains intact; all modified runtime
 references use cache version `2026110710`. R95 is the release rollback baseline.
 Reproduction tools are same-origin/free Node, Playwright, NumPy/SciPy and Pillow
 for QA only; there are no new game runtime dependencies or imported art assets.
+
+## Performance observations
+
+Rope draws remain 169 in the matched front view (159 side/back); submitted
+triangles change 433,667 → 433,795, +128 for the two connected bearing necks.
+No extra material/draw call is introduced by those merged metal parts.
+
+CPU-only comparison below uses three interleaved fresh Node runs per revision,
+GPU-padding path enabled in both, 12 warmup +120 sampled updates per mode.
+Cells are medians of each run’s P50/P95 milliseconds. Shared-host/JIT noise is
+substantial; these numbers do not establish a game-FPS improvement or phone gate.
+
+|Mode|R95 P50/P95 ms|R96 P50/P95 ms|
+|---|---:|---:|
+|none|2.19 / 5.60|0.97 / 2.58|
+|speed|2.42 / 4.85|2.10 / 3.62|
+|rope|1.50 / 3.23|1.32 / 2.71|
+|pads|2.94 / 6.02|2.83 / 4.75|
+
+[Raw repeated timings](../qa/r96/results/performance.json). Browser shaders and
+resource counts are measured separately in the render reports; no GPU frame
+time, GPU-memory peak, full-fight sustained FPS or physical-device thermal result
+was obtained. Initial single-run timings were noisy and are retained externally,
+not used as proof of an optimization.

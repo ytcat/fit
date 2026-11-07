@@ -1,0 +1,113 @@
+{
+  "method": "Actual tests/power-impact.test.cjs with frozen R95 and R96; simulation parameters, not measured human force; no collision thresholds changed.",
+  "rows": [
+    {
+      "version": "before",
+      "move": "jab",
+      "impulses": 1,
+      "impulse": 31.62,
+      "speed": 5.36,
+      "contactFrames": 17,
+      "swing": 0.13
+    },
+    {
+      "version": "before",
+      "move": "cross",
+      "impulses": 1,
+      "impulse": 69.03,
+      "speed": 6.22,
+      "contactFrames": 18,
+      "swing": 0.2
+    },
+    {
+      "version": "before",
+      "move": "hook",
+      "impulses": 1,
+      "impulse": 28.61,
+      "speed": 2.95,
+      "contactFrames": 31,
+      "swing": 0.16
+    },
+    {
+      "version": "before",
+      "move": "rear_hook",
+      "impulses": 1,
+      "impulse": 35.36,
+      "speed": 3.65,
+      "contactFrames": 28,
+      "swing": 0.17
+    },
+    {
+      "version": "before",
+      "move": "uppercut",
+      "impulses": 1,
+      "impulse": 40.67,
+      "speed": 3.73,
+      "contactFrames": 16,
+      "swing": 0.15
+    },
+    {
+      "version": "before",
+      "move": "rear_uppercut",
+      "impulses": 1,
+      "impulse": 42.45,
+      "speed": 3.91,
+      "contactFrames": 17,
+      "swing": 0.19
+    },
+    {
+      "version": "after",
+      "move": "jab",
+      "impulses": 1,
+      "impulse": 57.71,
+      "speed": 7.93,
+      "contactFrames": 17,
+      "swing": 0.18
+    },
+    {
+      "version": "after",
+      "move": "cross",
+      "impulses": 1,
+      "impulse": 87.7,
+      "speed": 6.68,
+      "contactFrames": 18,
+      "swing": 0.25
+    },
+    {
+      "version": "after",
+      "move": "hook",
+      "impulses": 1,
+      "impulse": 40.0,
+      "speed": 3.49,
+      "contactFrames": 27,
+      "swing": 0.16
+    },
+    {
+      "version": "after",
+      "move": "rear_hook",
+      "impulses": 1,
+      "impulse": 35.37,
+      "speed": 3.08,
+      "contactFrames": 28,
+      "swing": 0.17
+    },
+    {
+      "version": "after",
+      "move": "uppercut",
+      "impulses": 1,
+      "impulse": 38.39,
+      "speed": 2.97,
+      "contactFrames": 15,
+      "swing": 0.13
+    },
+    {
+      "version": "after",
+      "move": "rear_uppercut",
+      "impulses": 1,
+      "impulse": 47.02,
+      "speed": 3.66,
+      "contactFrames": 17,
+      "swing": 0.17
+    }
+  ]
+}

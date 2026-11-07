@@ -1,0 +1,1 @@
+PASS bounded rendered glove intrusion across 12 strikes/targets and recovery, real hits, contact-side damage, and head recoil { events: 12, body: 4, largest: 0.019812127304150016 }

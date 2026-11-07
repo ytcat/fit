@@ -1,0 +1,43 @@
+jab {
+  impulses: 1,
+  impulse: '57.71',
+  speed: '7.93',
+  contactFrames: 17,
+  swing: '0.18'
+}
+cross {
+  impulses: 1,
+  impulse: '87.70',
+  speed: '6.68',
+  contactFrames: 18,
+  swing: '0.25'
+}
+hook {
+  impulses: 1,
+  impulse: '40.00',
+  speed: '3.49',
+  contactFrames: 27,
+  swing: '0.16'
+}
+rear_hook {
+  impulses: 1,
+  impulse: '35.37',
+  speed: '3.08',
+  contactFrames: 28,
+  swing: '0.17'
+}
+uppercut {
+  impulses: 1,
+  impulse: '38.39',
+  speed: '2.97',
+  contactFrames: 15,
+  swing: '0.13'
+}
+rear_uppercut {
+  impulses: 1,
+  impulse: '47.02',
+  speed: '3.66',
+  contactFrames: 17,
+  swing: '0.17'
+}
+PASS committed full-body timing, one-shot effective-mass impulse, quick release, heavy coasting and misses

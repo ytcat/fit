@@ -1,0 +1,87 @@
+{
+  "method": "All exported visible triangles; samples <=5 mm apart. Cable radius 4.5 mm. Minimum sample threshold 18 mm gives at least 15.5 mm centreline clearance by distance Lipschitz bound. Handles/bearings excluded as intended attachment; wraps/fingers included.",
+  "species": "lion",
+  "frames": [
+    {
+      "phase": 0,
+      "samples": 636,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.04239194667441378,
+      "continuousLowerBound": 0.03989194667441378,
+      "closestMesh": "SkinnedMesh",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.125,
+      "samples": 632,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.046994279097700854,
+      "continuousLowerBound": 0.04449427909770085,
+      "closestMesh": "Wrapped grip thumb",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.25,
+      "samples": 616,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.04699424047823448,
+      "continuousLowerBound": 0.04449424047823448,
+      "closestMesh": "Wrapped grip thumb",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.375,
+      "samples": 618,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.04699427165412126,
+      "continuousLowerBound": 0.04449427165412126,
+      "closestMesh": "Wrapped grip thumb",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.5,
+      "samples": 608,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.0469942875365451,
+      "continuousLowerBound": 0.0444942875365451,
+      "closestMesh": "Wrapped grip thumb",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.625,
+      "samples": 598,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.04699427278032938,
+      "continuousLowerBound": 0.04449427278032938,
+      "closestMesh": "Wrapped grip thumb",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.75,
+      "samples": 601,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.04549708004205511,
+      "continuousLowerBound": 0.04299708004205511,
+      "closestMesh": "Wrapped grip thumb",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.875,
+      "samples": 642,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.0397924362805387,
+      "continuousLowerBound": 0.037292436280538695,
+      "closestMesh": "Wrapped grip thumb",
+      "violations": 0,
+      "examples": []
+    }
+  ],
+  "pass": true
+}

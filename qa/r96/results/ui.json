@@ -1,0 +1,861 @@
+{
+  "results": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "en",
+      "panel": "practice",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 558,
+        "right": 310,
+        "scroll": 546,
+        "client": 546
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "en",
+      "panel": "moves",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 558,
+        "right": 310,
+        "scroll": 546,
+        "client": 546
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "en",
+      "panel": "settings",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 558,
+        "right": 310,
+        "scroll": 546,
+        "client": 546
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "he",
+      "panel": "practice",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 558,
+        "right": 310,
+        "scroll": 546,
+        "client": 546
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "he",
+      "panel": "moves",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 558,
+        "right": 310,
+        "scroll": 546,
+        "client": 546
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "he",
+      "panel": "settings",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 558,
+        "right": 310,
+        "scroll": 546,
+        "client": 546
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "ru",
+      "panel": "practice",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 558,
+        "right": 310,
+        "scroll": 546,
+        "client": 546
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "ru",
+      "panel": "moves",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 558,
+        "right": 310,
+        "scroll": 546,
+        "client": 546
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "ru",
+      "panel": "settings",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 558,
+        "right": 310,
+        "scroll": 546,
+        "client": 546
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 640
+      },
+      "lang": "en",
+      "panel": "practice",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 630,
+        "right": 383,
+        "scroll": 618,
+        "client": 618
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 640
+      },
+      "lang": "en",
+      "panel": "moves",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 630,
+        "right": 383,
+        "scroll": 618,
+        "client": 618
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 640
+      },
+      "lang": "en",
+      "panel": "settings",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 630,
+        "right": 383,
+        "scroll": 618,
+        "client": 618
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 640
+      },
+      "lang": "he",
+      "panel": "practice",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 630,
+        "right": 383,
+        "scroll": 618,
+        "client": 618
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 640
+      },
+      "lang": "he",
+      "panel": "moves",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 630,
+        "right": 383,
+        "scroll": 618,
+        "client": 618
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 640
+      },
+      "lang": "he",
+      "panel": "settings",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 630,
+        "right": 383,
+        "scroll": 618,
+        "client": 618
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 640
+      },
+      "lang": "ru",
+      "panel": "practice",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 630,
+        "right": 383,
+        "scroll": 618,
+        "client": 618
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 640
+      },
+      "lang": "ru",
+      "panel": "moves",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 630,
+        "right": 383,
+        "scroll": 618,
+        "client": 618
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 640
+      },
+      "lang": "ru",
+      "panel": "settings",
+      "dialog": {
+        "x": 10,
+        "y": 10,
+        "bottom": 630,
+        "right": 383,
+        "scroll": 618,
+        "client": 618
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 844
+      },
+      "lang": "en",
+      "panel": "practice",
+      "dialog": {
+        "x": 10,
+        "y": 92,
+        "bottom": 752,
+        "right": 383,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 844
+      },
+      "lang": "en",
+      "panel": "moves",
+      "dialog": {
+        "x": 10,
+        "y": 92,
+        "bottom": 752,
+        "right": 383,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 844
+      },
+      "lang": "en",
+      "panel": "settings",
+      "dialog": {
+        "x": 10,
+        "y": 92,
+        "bottom": 752,
+        "right": 383,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 844
+      },
+      "lang": "he",
+      "panel": "practice",
+      "dialog": {
+        "x": 10,
+        "y": 92,
+        "bottom": 752,
+        "right": 383,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 844
+      },
+      "lang": "he",
+      "panel": "moves",
+      "dialog": {
+        "x": 10,
+        "y": 92,
+        "bottom": 752,
+        "right": 383,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 844
+      },
+      "lang": "he",
+      "panel": "settings",
+      "dialog": {
+        "x": 10,
+        "y": 92,
+        "bottom": 752,
+        "right": 383,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 844
+      },
+      "lang": "ru",
+      "panel": "practice",
+      "dialog": {
+        "x": 10,
+        "y": 92,
+        "bottom": 752,
+        "right": 383,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 844
+      },
+      "lang": "ru",
+      "panel": "moves",
+      "dialog": {
+        "x": 10,
+        "y": 92,
+        "bottom": 752,
+        "right": 383,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 844
+      },
+      "lang": "ru",
+      "panel": "settings",
+      "dialog": {
+        "x": 10,
+        "y": 92,
+        "bottom": 752,
+        "right": 383,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "en",
+      "panel": "practice",
+      "dialog": {
+        "x": 32,
+        "y": 7,
+        "bottom": 383,
+        "right": 812,
+        "scroll": 374,
+        "client": 374
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "en",
+      "panel": "moves",
+      "dialog": {
+        "x": 32,
+        "y": 7,
+        "bottom": 383,
+        "right": 812,
+        "scroll": 374,
+        "client": 374
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "en",
+      "panel": "settings",
+      "dialog": {
+        "x": 32,
+        "y": 7,
+        "bottom": 383,
+        "right": 812,
+        "scroll": 374,
+        "client": 374
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "he",
+      "panel": "practice",
+      "dialog": {
+        "x": 32,
+        "y": 7,
+        "bottom": 383,
+        "right": 812,
+        "scroll": 374,
+        "client": 374
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "he",
+      "panel": "moves",
+      "dialog": {
+        "x": 32,
+        "y": 7,
+        "bottom": 383,
+        "right": 812,
+        "scroll": 374,
+        "client": 374
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "he",
+      "panel": "settings",
+      "dialog": {
+        "x": 32,
+        "y": 7,
+        "bottom": 383,
+        "right": 812,
+        "scroll": 374,
+        "client": 374
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "ru",
+      "panel": "practice",
+      "dialog": {
+        "x": 32,
+        "y": 7,
+        "bottom": 383,
+        "right": 812,
+        "scroll": 374,
+        "client": 374
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "ru",
+      "panel": "moves",
+      "dialog": {
+        "x": 32,
+        "y": 7,
+        "bottom": 383,
+        "right": 812,
+        "scroll": 374,
+        "client": 374
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "ru",
+      "panel": "settings",
+      "dialog": {
+        "x": 32,
+        "y": 7,
+        "bottom": 383,
+        "right": 812,
+        "scroll": 374,
+        "client": 374
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "en",
+      "panel": "practice",
+      "dialog": {
+        "x": 260,
+        "y": 145,
+        "bottom": 805,
+        "right": 840,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "en",
+      "panel": "moves",
+      "dialog": {
+        "x": 260,
+        "y": 145,
+        "bottom": 805,
+        "right": 840,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "en",
+      "panel": "settings",
+      "dialog": {
+        "x": 260,
+        "y": 145,
+        "bottom": 805,
+        "right": 840,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "he",
+      "panel": "practice",
+      "dialog": {
+        "x": 260,
+        "y": 145,
+        "bottom": 805,
+        "right": 840,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "he",
+      "panel": "moves",
+      "dialog": {
+        "x": 260,
+        "y": 145,
+        "bottom": 805,
+        "right": 840,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "he",
+      "panel": "settings",
+      "dialog": {
+        "x": 260,
+        "y": 145,
+        "bottom": 805,
+        "right": 840,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "ru",
+      "panel": "practice",
+      "dialog": {
+        "x": 260,
+        "y": 145,
+        "bottom": 805,
+        "right": 840,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "ru",
+      "panel": "moves",
+      "dialog": {
+        "x": 260,
+        "y": 145,
+        "bottom": 805,
+        "right": 840,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 6
+    },
+    {
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "ru",
+      "panel": "settings",
+      "dialog": {
+        "x": 260,
+        "y": 145,
+        "bottom": 805,
+        "right": 840,
+        "scroll": 658,
+        "client": 658
+      },
+      "panelOverflow": 0,
+      "clipped": [],
+      "stats": 0
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}

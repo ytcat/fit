@@ -305,3 +305,19 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - All 56 regression suites passed on `ddc111c`, plus WebGL1/2 checks.
   Proof: qa/r95/results/validation.json.
 - Details and limits: docs/r95-rope-body-clearance.md and qa/r95/review.html.
+
+## R96 — compact controls, palm-up rope and punch drive (2026-11-07)
+
+- Rope palms face up with tucked arms, paired outward handles and connected
+  bearing necks. Independent actual-mesh and swept-volume checks retain clearance.
+- Phone training uses three no-scroll panels; all techniques and skill ratings
+  fit together. Combination cards have pages; all manual controls remain visible
+  on opposite sides. Pause and Back to game alignment corrected.
+- Faster straight extension, more ordinary body drive, stronger contact-driven
+  mitt recoil and higher heavy-bag striking-mass parameters. Existing fight
+  body-drive limits and glove-penetration thresholds preserved.
+- Runtime source: `7b770a88eae4fce68625b1e50fd324e53f690ec6`.
+- Evidence, limitations and exact validation outcome: `docs/r96-controls-grip-power.md`,
+  `qa/r96/review.html`, `qa/r96/results/validation.json`.
+- Physical-phone sustained FPS/thermals remain unverified. Existing manual
+  uppercut-to-mitt scoring gap remains documented; no fake contacts added.

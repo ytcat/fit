@@ -1,0 +1,7 @@
+jab { hits: 1, reach: 1.1102230246251565e-16 }
+cross { hits: 1, reach: 1.1102230246251565e-16 }
+hook { hits: 1, reach: 1.1102230246251565e-16 }
+rear_hook { hits: 1, reach: 1.1102230246251565e-16 }
+uppercut { hits: 0, reach: 1.1102230246251565e-16 }
+rear_uppercut { hits: 0, reach: 2.7755575615628914e-17 }
+Diagnostic completed; compare each real contact count against baseline.

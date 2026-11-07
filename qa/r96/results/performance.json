@@ -1,0 +1,557 @@
+{
+  "method": "Interleaved separate Node processes, GPU padding enabled in both revisions; fake canvas. Three runs per revision, each 12 warmup +120 samples per mode. Shared-host CPU timing; not browser FPS or physical-device performance.",
+  "runs": [
+    {
+      "trial": 0,
+      "version": "after",
+      "method": "Node CPU only, fake canvas, 12 warmup + 120 60-Hz samples; inclusive method counters, not GPU/FPS",
+      "results": [
+        {
+          "mode": "none",
+          "p50": 0.9745439999996961,
+          "p95": 2.7425100000000384,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 71.12106600000243
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 17.289683000007244
+            },
+            "deformGlove": {
+              "calls": 240,
+              "ms": 0.6126200000053359
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 98600968
+        },
+        {
+          "mode": "speed",
+          "p50": 2.09132099999988,
+          "p95": 3.6216739999999845,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 108.67996200000016
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 33.717195000000174
+            },
+            "closest": {
+              "calls": 241,
+              "ms": 5.612729999990734
+            },
+            "deformGlove": {
+              "calls": 480,
+              "ms": 0.9576610000021901
+            },
+            "deformSurface": {
+              "calls": 78,
+              "ms": 1.1919090000064898
+            }
+          },
+          "maneVertices": 57276,
+          "equipmentVertices": 32100,
+          "heap": 92835992
+        },
+        {
+          "mode": "rope",
+          "p50": 1.3278449999997974,
+          "p95": 2.7274630000001707,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 59.74461099999917
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 17.08694999999625
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 77270040
+        },
+        {
+          "mode": "pads",
+          "p50": 2.5691060000008292,
+          "p95": 4.7450039999985165,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 60.55967599999349
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 31.67157299998871
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 68770600
+        }
+      ]
+    },
+    {
+      "trial": 0,
+      "version": "before",
+      "method": "Node CPU only, fake canvas, 12 warmup + 120 60-Hz samples; inclusive method counters, not GPU/FPS",
+      "results": [
+        {
+          "mode": "none",
+          "p50": 2.2983540000004723,
+          "p95": 5.600370000000112,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 147.64755999998852
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 40.29138900000362
+            },
+            "deformGlove": {
+              "calls": 240,
+              "ms": 1.4734469999948487
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 198844160
+        },
+        {
+          "mode": "speed",
+          "p50": 2.420661000000109,
+          "p95": 4.8527759999997215,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 122.50922400001036
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 42.52576399999998
+            },
+            "closest": {
+              "calls": 241,
+              "ms": 5.001160000005257
+            },
+            "deformGlove": {
+              "calls": 480,
+              "ms": 1.4024660000086442
+            },
+            "deformSurface": {
+              "calls": 78,
+              "ms": 1.4046650000072987
+            }
+          },
+          "maneVertices": 57276,
+          "equipmentVertices": 32100,
+          "heap": 184390144
+        },
+        {
+          "mode": "rope",
+          "p50": 1.5014809999993304,
+          "p95": 3.2294699999984005,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 63.184431000001496
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 20.581694999998945
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 167084104
+        },
+        {
+          "mode": "pads",
+          "p50": 2.791468999999779,
+          "p95": 6.0200239999994665,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 57.907014000000345
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 35.24325200000749
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 78042912
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "version": "before",
+      "method": "Node CPU only, fake canvas, 12 warmup + 120 60-Hz samples; inclusive method counters, not GPU/FPS",
+      "results": [
+        {
+          "mode": "none",
+          "p50": 2.1914820000001782,
+          "p95": 6.407455000000482,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 145.35006799999883
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 40.848892000006344
+            },
+            "deformGlove": {
+              "calls": 240,
+              "ms": 0.5502049999895462
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 148807312
+        },
+        {
+          "mode": "speed",
+          "p50": 4.708051999999952,
+          "p95": 10.56358999999975,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 244.42909999999847
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 65.98505299996941
+            },
+            "closest": {
+              "calls": 241,
+              "ms": 4.54135299999416
+            },
+            "deformGlove": {
+              "calls": 480,
+              "ms": 0.6004840000032345
+            },
+            "deformSurface": {
+              "calls": 78,
+              "ms": 2.0166589999998905
+            }
+          },
+          "maneVertices": 57276,
+          "equipmentVertices": 32100,
+          "heap": 207083784
+        },
+        {
+          "mode": "rope",
+          "p50": 2.6068320000013046,
+          "p95": 8.331577000000834,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 112.23578099999213
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 38.420227999993585
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 192591024
+        },
+        {
+          "mode": "pads",
+          "p50": 6.30212599999868,
+          "p95": 12.196416000000681,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 135.7945110000055
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 72.90252900001542
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 134523200
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "version": "after",
+      "method": "Node CPU only, fake canvas, 12 warmup + 120 60-Hz samples; inclusive method counters, not GPU/FPS",
+      "results": [
+        {
+          "mode": "none",
+          "p50": 0.976875000000291,
+          "p95": 2.5839340000002267,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 70.25434700000915
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 18.31227200000194
+            },
+            "deformGlove": {
+              "calls": 240,
+              "ms": 0.8864620000103969
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 207600896
+        },
+        {
+          "mode": "speed",
+          "p50": 2.0965719999985595,
+          "p95": 3.6248080000004848,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 109.2143479999886
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 29.594110999991244
+            },
+            "closest": {
+              "calls": 241,
+              "ms": 3.5569479999885516
+            },
+            "deformGlove": {
+              "calls": 480,
+              "ms": 0.5244399999737652
+            },
+            "deformSurface": {
+              "calls": 78,
+              "ms": 1.4989029999978811
+            }
+          },
+          "maneVertices": 57276,
+          "equipmentVertices": 32100,
+          "heap": 190686080
+        },
+        {
+          "mode": "rope",
+          "p50": 1.3108050000009825,
+          "p95": 2.7134690000002593,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 52.48074399998586
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 15.721184000010908
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 174177208
+        },
+        {
+          "mode": "pads",
+          "p50": 2.8343709999990097,
+          "p95": 4.581770999999208,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 56.096645000001445
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 31.682736000013392
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 109154752
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "version": "after",
+      "method": "Node CPU only, fake canvas, 12 warmup + 120 60-Hz samples; inclusive method counters, not GPU/FPS",
+      "results": [
+        {
+          "mode": "none",
+          "p50": 0.9408370000001014,
+          "p95": 1.7462560000003577,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 61.73362699999325
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 15.898253000005752
+            },
+            "deformGlove": {
+              "calls": 240,
+              "ms": 0.7745140000051833
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 198831544
+        },
+        {
+          "mode": "speed",
+          "p50": 2.262790999999197,
+          "p95": 4.928270000000339,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 118.18007699999725
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 31.922865000003185
+            },
+            "closest": {
+              "calls": 241,
+              "ms": 3.08202999999412
+            },
+            "deformGlove": {
+              "calls": 480,
+              "ms": 1.5642900000148074
+            },
+            "deformSurface": {
+              "calls": 78,
+              "ms": 1.4277470000033645
+            }
+          },
+          "maneVertices": 57276,
+          "equipmentVertices": 32100,
+          "heap": 50484792
+        },
+        {
+          "mode": "rope",
+          "p50": 1.3206260000006296,
+          "p95": 2.25543800000014,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 48.53593099999671
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 16.18542599999546
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 37029624
+        },
+        {
+          "mode": "pads",
+          "p50": 2.850948999999673,
+          "p95": 5.3674059999993915,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 59.590531000005285
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 31.057710999995834
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 123454648
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "version": "before",
+      "method": "Node CPU only, fake canvas, 12 warmup + 120 60-Hz samples; inclusive method counters, not GPU/FPS",
+      "results": [
+        {
+          "mode": "none",
+          "p50": 1.0025909999994838,
+          "p95": 1.8958110000003217,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 65.10398600000462
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 18.375746000010622
+            },
+            "deformGlove": {
+              "calls": 240,
+              "ms": 0.7681829999928595
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 184980272
+        },
+        {
+          "mode": "speed",
+          "p50": 2.1411520000001474,
+          "p95": 3.9798369999998613,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 101.64459699998952
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 31.451693000006344
+            },
+            "closest": {
+              "calls": 241,
+              "ms": 3.1390559999981633
+            },
+            "deformGlove": {
+              "calls": 480,
+              "ms": 0.8190839999915625
+            },
+            "deformSurface": {
+              "calls": 78,
+              "ms": 1.7175609999976587
+            }
+          },
+          "maneVertices": 57276,
+          "equipmentVertices": 32100,
+          "heap": 45841784
+        },
+        {
+          "mode": "rope",
+          "p50": 1.3604089999998905,
+          "p95": 2.2035500000001775,
+          "costs": {
+            "updateMane": {
+              "calls": 120,
+              "ms": 49.10929899999155
+            },
+            "syncSkin": {
+              "calls": 120,
+              "ms": 15.461245000002236
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 34873640
+        },
+        {
+          "mode": "pads",
+          "p50": 2.939471000001504,
+          "p95": 4.65146199999981,
+          "costs": {
+            "updateMane": {
+              "calls": 240,
+              "ms": 59.37362899998334
+            },
+            "syncSkin": {
+              "calls": 240,
+              "ms": 33.76306500000646
+            }
+          },
+          "maneVertices": 57276,
+          "heap": 107300712
+        }
+      ]
+    }
+  ]
+}

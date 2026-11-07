@@ -1,0 +1,32 @@
+{
+  "root": "/workspace/fit-r95",
+  "contacts": [
+    {
+      "time": 0.48333333333333334,
+      "speed": 3.038732335179578,
+      "impulse": 0.1
+    }
+  ],
+  "shots": [
+    {
+      "time": 0.36,
+      "calls": 282,
+      "triangles": 894293,
+      "programsLinked": true
+    },
+    {
+      "time": 0.48,
+      "calls": 283,
+      "triangles": 895253,
+      "programsLinked": true
+    },
+    {
+      "time": 0.56,
+      "calls": 283,
+      "triangles": 895253,
+      "programsLinked": true
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}

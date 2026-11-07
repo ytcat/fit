@@ -1,0 +1,32 @@
+{
+  "root": "/workspace/fit-r96",
+  "contacts": [
+    {
+      "time": 0.4083333333333333,
+      "speed": 3.2845391212624646,
+      "impulse": 19.050326903322294
+    }
+  ],
+  "shots": [
+    {
+      "time": 0.36,
+      "calls": 282,
+      "triangles": 894293,
+      "programsLinked": true
+    },
+    {
+      "time": 0.48,
+      "calls": 283,
+      "triangles": 895253,
+      "programsLinked": true
+    },
+    {
+      "time": 0.56,
+      "calls": 283,
+      "triangles": 895253,
+      "programsLinked": true
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}
