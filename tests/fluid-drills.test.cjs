@@ -21,7 +21,7 @@ for(const species of ['lion','rabbit']){
   const arc=[];for(let i=0;i<=12;i++){
    const phase=i/12,f=e.arena.update(base+phase*1.2),drill=e.arena.careerDrill;
    const side=base<3?'L':'R',pad=drill.mitts[side==='L'?0:1],p=drill.face(pad);arc.push(p);
-   roots.push(trainer.root.position.toArray());
+   roots.push(trainer.root.position.toArray());assert.ok(e.coach.root.position.distanceTo(trainer.root.position)>=1.15,'partners need room for full punches without standing chest to chest');
    if(phase>=.35&&phase<=.65){
     const normal=V(0,0,1).applyQuaternion(pad.getWorldQuaternion(new THREE.Quaternion()));palmDown=Math.min(palmDown,-normal.y);
     maxError=Math.max(maxError,...trainer.metrics.handErrors);
@@ -33,7 +33,7 @@ for(const species of ['lion','rabbit']){
   const xs=arc.map(p=>p.x),ys=arc.map(p=>p.y);assert.ok(Math.max(...xs)-Math.min(...xs)>.28&&Math.max(...ys)-Math.min(...ys)>.10,'the mitt sweeps in a round arc and returns, rather than teleporting sideways');
  }
  console.log('sweep diagnostics',species,{palmDown,maxError,minFloor});assert.ok(palmDown>.8,'the catching palm faces down during the overhead pass');assert.ok(maxError<.03,'the sweep stays within real arm reach');assert.ok(minFloor>=.004,'both partners keep their soles above the floor');
- for(const p of roots)assert.deepEqual(p,[0,0,.30],'trainer weight shifts must not slide the complete character across the floor');
+ for(const p of roots)assert.deepEqual(p,[0,0,.60],'trainer weight shifts must not slide the complete character across the floor');
  for(const [t,index] of [[.35,1],[1.55,0]]){const f=e.arena.update(t);assert.equal(f.padPhase.targetIndex,index,'lead/rear fists meet the corresponding same-screen-side mitt of a facing partner');}
  console.log(species,{ranges,nonplanar,palmDown,maxError,minFloor});
 }

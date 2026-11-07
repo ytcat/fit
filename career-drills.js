@@ -34,7 +34,9 @@
    const catchPulse=hook?0:Math.sin(Math.PI*smooth((phase-.16)/.65))**2;
    let shock=0;for(const pad of this.mitts){const age=this.padPose.t-(pad.userData.hitAt??-100);if(age>=0)shock=Math.max(shock,(1-Math.exp(-age/.025))*Math.exp(-age/.15));}
    j.hips.position.y-=.035*(sweep+catchPulse);j.hips.position.x+=.010*Math.sin(this.padPose.t*1.3);j.hips.rotation.y-=sign*.08*sweep;
-   j.spine.rotation.x-=.020*shock;j.chest.rotation.x-=.035*shock;
+   // Reach over the roll through a small hip hinge and shoulder glide;
+   // keep the partners' feet a full mitt-work distance apart.
+   j.hips.position.z+=.035*sweep;j.spine.rotation.x+=.11*sweep-.020*shock;j.chest.rotation.x+=.09*sweep-.035*shock;
    j.spine.rotation.y-=sign*.10*sweep;j.chest.rotation.y-=sign*(.13*sweep-.055*catchPulse);
    j.chest.rotation.x+=.025*catchPulse;j.neck.rotation.y+=sign*.06*sweep;j.head.rotation.y+=sign*.08*sweep;
    const palms=[],errors=[];
@@ -46,10 +48,10 @@
      // Round sweep over the ducking boxer: chamber to the outside, pronate,
      // pass across the crown and fold back. The 90-degree turn is about the
      // forearm, never an artificial bend of the hand.
-     const arc=Math.PI*travel,x=sign*(.14+.24*Math.cos(arc)),y=this.padPose.sweepHeight+.07*Math.sin(arc),z=.48+.10*Math.sin(arc);
+     const arc=Math.PI*travel,x=sign*(.14+.24*Math.cos(arc)),y=this.padPose.sweepHeight+.07*Math.sin(arc),z=.60+.12*Math.sin(arc);
      goal.lerp(V(x,y,z),sweep);const roll=sweep*Math.PI/2;palm.set(0,-Math.sin(roll),Math.cos(roll));
     }
-    j['arm'+side].position.z+=.012*(sweep+catchPulse);j['arm'+side].position.y+=.008*sweep;
+    j['arm'+side].position.z+=.035*sweep+.012*catchPulse;j['arm'+side].position.y+=.045*sweep;
     errors.push(this.placeMitt(side,goal,palm));palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-recoil*3;
    }
    const footTargets=[];for(const {side,ankle,q} of feet){
@@ -60,12 +62,20 @@
    return {gloves:palms,handErrors:errors,footTargets,motionState:{load:.35*sweep+.25*catchPulse,drive:catchPulse*.4,left:hook&&sweepSide==='L'?sweep:0,right:hook&&sweepSide==='R'?sweep:0,rope:0}};
   }
   poseBoxer(coach){
-   // Keep the gaze on the trainer while the knees/hips carry the roll. Extra
-   // arm posing is unnecessary: the existing punch and cover IK stays in charge.
-   const {hook,phase}=this.padPose;if(!hook)return;
+   const {hook,move,heroPhase:phase}=this.padPose;if(!hook||move!=='roll')return;
    const q=smooth(phase),dip=Math.sin(q*Math.PI),j=coach.joints;
-   j.neck.rotation.x-=.035*dip;j.head.rotation.x-=.045*dip;
-   return {motionState:{load:dip*.8,drive:Math.max(0,-Math.cos(q*Math.PI))*.45}};
+   const rootQ=coach.root.getWorldQuaternion(Q()).invert(),feet=['L','R'].map(side=>({side,ankle:coach.point(j['foot'+side]),q:j['foot'+side].getWorldQuaternion(Q()).premultiply(rootQ)}));
+   // Roll into the passing arc through a hip hinge, keeping both soles planted.
+   // Normal punches retain the wider stance separation and full reach.
+   j.hips.position.z+=.075*dip;j.spine.rotation.x+=.08*dip;j.chest.rotation.x+=.06*dip;
+   j.neck.rotation.x-=.095*dip;j.head.rotation.x-=.125*dip;
+   const footTargets=[];for(const {side,ankle,q} of feet){
+    const foot=j['foot'+side],error=coach.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(side==='L'?-.08:.08,.1,1));coach.orient(foot,q);
+    const shin=coach.point(j['knee'+side]).sub(coach.point(foot)).normalize().applyQuaternion(q.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);
+    footTargets.push({side,contact:ankle.clone().add(V(0,-.102,.215).applyQuaternion(q)).toArray(),lift:0,error});
+   }
+   const gloves=['L','R'].map(side=>coach.orientGlove(side,0,V(0,-1,0)));
+   return {gloves,footTargets,motionState:{load:dip*.8,drive:Math.max(0,-Math.cos(q*Math.PI))*.45}};
   }
   poseRope(hero){
    const {phase,jump,transfer,single,support,alternating,clock}=this.ropePose,j=hero.joints,angle=2*Math.PI*(phase-.5);
@@ -115,9 +125,9 @@
    const hero=this.engine.coach,trainer=this.trainer,beat=Math.floor(t/1.20),part=beat%4,phase=(t/1.20)%1,hook=part===2,manual=this.engine.player?.frame(time),spec=manual||{move:hook?'roll':part===1?'cross':'jab',phase,attack:!hook,index:beat};
    hero.root.position.set(0,0,-.60);hero.root.rotation.set(0,0,0);
    const sweepSide=Math.floor(beat/4)%2?'R':'L';
-   this.padPose={t,phase,hook,sweepSide,sweepHeight:1.96};
-   // A close mitt-work stance; weight shifts above planted feet, never slides.
-   trainer.root.position.set(0,0,.30);
+   this.padPose={t,phase,hook,move:spec.move,heroPhase:spec.phase,sweepSide,sweepHeight:1.96};
+   // Boxing distance gives the trainee room to extend each punch.
+   trainer.root.position.set(0,0,.60);
    trainer.update(0,'guard','one_two',{simulationTime:time,guardElbowBack:.5,guardWidth:.22,keepFaceClear:true,poseOverlay:this.finalizeTrainer});
    this.arena.group.updateMatrixWorld(true);
    const targetIndex=rear(spec.move)?0:1,pad=this.mitts[targetIndex],worldTarget=pad.localToWorld(pad.userData.face.clone()),target=hero.root.worldToLocal(worldTarget.clone());
