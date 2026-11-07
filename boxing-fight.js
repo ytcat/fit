@@ -31,7 +31,7 @@
   }
   requestPlayerCombo(commands,id){
    const f=this.fighters[this.playerActor];
-   if(!f||this.phase!=='round'||this.result||f.down||this.playerCombo||this.playerQueue.length||f.action&&f.action.move!=='guard'||!commands.length||commands.length>8||commands.some(c=>!moves.concat(['guard','slip','roll','step']).includes(c.move)||!(c.duration>=.25&&c.duration<=1.3)))return false;
+   if(!f||this.phase!=='round'||this.result||f.down||this.playerCombo||this.playerQueue.length||f.action&&(f.action.move!=='guard'||f.action.guardStyle&&f.action.guardStyle!=='high')||!commands.length||commands.length>8||commands.some(c=>!moves.concat(['guard','slip','roll','step']).includes(c.move)||!(c.duration>=.25&&c.duration<=1.3)))return false;
    this.playerCombo={id,step:1,total:commands.length};this.playerQueue=commands.map(c=>({...c}));f.action=null;this.startPlayerMove(this.playerQueue.shift());return true;
   }
   startPlayerMove(command){
