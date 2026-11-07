@@ -1,0 +1,36 @@
+{
+  "baselineSHA": "368c2eacfe81452c3bb821a7f99e4d006cb6de77",
+  "runtimeSHA": "ae7dbf1b10afe62f5b5ecfb9fcc731bf1c55b6e2",
+  "ci": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42362890585",
+    "status": "Success",
+    "duration": "8m8s",
+    "suites": 54,
+    "method": "Public Actions status at exact runtime SHA; workflow loops over all test suites. Detailed hosted logs require login."
+  },
+  "physicalPhoneVerified": false,
+  "authoredHeadComplete": false,
+  "webgl1And2PixelDifference": 0,
+  "bufferSample": {
+    "cpuBytes": 58605120,
+    "gpuBytes": 8247744,
+    "frames": 12,
+    "note": "Includes initial catch-up; excludes uniform traffic; not steady FPS"
+  },
+  "fallback": "?padding=cpu",
+  "checks": [
+    "Both species, all four rope drills; original floor/rope clearance limits retained",
+    "Independent glove uniforms and shader dent reset",
+    "Native Chromium touch pinch/cancel/drag and mouse blur recovery",
+    "Stable observed geometry/texture/program counts over three mode cycles"
+  ],
+  "runtimeHashes": {
+    "index.html": "96e4538b5f46e00bc4b057aa019af407bc1902f26e547d23a7649194e7e9e490",
+    "boxing-coach-v2.js": "cd1dc4181ff11d772953e5b301387c9e78dabb3b0bd89594aedef73a191b4dca",
+    "career-drills.js": "30d15cfe8ebe05c447cc7eb6b7f33949b8e7f4b642a5ab785c5567ca66f5652d",
+    "training-arena.js": "82576ddadca6d921b066df7c6fc228df8493f97b2925da278ae0a1fc4967d5a6",
+    "training-gear.js": "8260377d709f41271ace0225d8b3f40e39597ef02a7de9d3dccd79e1ef092ad2",
+    "padding-deformation.js": "28b064ae048814df8d872cf4f874b43968163440f113114a0f1a849493910dc3",
+    "ring-camera.js": "9f427e9447809fd11cac5dc7009eb25796e883edfe219d1292ad9e7375b49d64"
+  }
+}

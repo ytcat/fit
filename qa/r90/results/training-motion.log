@@ -1,0 +1,21 @@
+lion mitt motion {
+  maxStep: 0.03834181587634392,
+  maxTurn: 0.04982202854718566,
+  hits: 3,
+  ducks: 1
+}
+lion two_feet { headTop: 2.169880144045103, ropeTop: 2.208592225415531 }
+lion alternating { headTop: 2.1698778809268306, ropeTop: 2.21538059969975 }
+lion left_leg { headTop: 2.1698778809268306, ropeTop: 2.21538059969975 }
+lion right_leg { headTop: 2.1696549521378223, ropeTop: 2.205368437343882 }
+rabbit mitt motion {
+  maxStep: 0.03834181587634392,
+  maxTurn: 0.04982202854718566,
+  hits: 3,
+  ducks: 1
+}
+rabbit two_feet { headTop: 2.3537856956792704, ropeTop: 2.615826975957484 }
+rabbit alternating { headTop: 2.3530055631756843, ropeTop: 2.6252681133047915 }
+rabbit left_leg { headTop: 2.3530055631756843, ropeTop: 2.6252681133047915 }
+rabbit right_leg { headTop: 2.35433662595708, ropeTop: 2.6266676964612703 }
+PASS attached full-size mitts, continuous motion, live target contacts, forward rope, handle attachment, four footwork exercises and grounded boots

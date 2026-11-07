@@ -1,0 +1,932 @@
+{
+  "root": "/workspace/fit-r90",
+  "kind": "motion",
+  "softwareWebGL": true,
+  "physicalPhone": false,
+  "results": [
+    {
+      "mode": "motion",
+      "shots": [
+        {
+          "name": "rope-0",
+          "camera": [
+            2.725167429868614,
+            1.7,
+            3.5847825045135178
+          ],
+          "calls": 169,
+          "triangles": 433667,
+          "geometries": 155,
+          "textures": 14,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "rope-1",
+          "camera": [
+            2.725167429868614,
+            1.7,
+            3.5847825045135178
+          ],
+          "calls": 169,
+          "triangles": 433667,
+          "geometries": 155,
+          "textures": 14,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "rope-2",
+          "camera": [
+            2.725167429868614,
+            1.7,
+            3.5847825045135178
+          ],
+          "calls": 169,
+          "triangles": 433667,
+          "geometries": 155,
+          "textures": 14,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "rope-3",
+          "camera": [
+            2.725167429868614,
+            1.7,
+            3.5847825045135178
+          ],
+          "calls": 169,
+          "triangles": 433667,
+          "geometries": 155,
+          "textures": 14,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "rope-4",
+          "camera": [
+            2.725167429868614,
+            1.7,
+            3.5847825045135178
+          ],
+          "calls": 169,
+          "triangles": 433667,
+          "geometries": 155,
+          "textures": 14,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "rope-5",
+          "camera": [
+            2.725167429868614,
+            1.7,
+            3.5847825045135178
+          ],
+          "calls": 169,
+          "triangles": 433667,
+          "geometries": 155,
+          "textures": 14,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "rope-6",
+          "camera": [
+            2.725167429868614,
+            1.7,
+            3.5847825045135178
+          ],
+          "calls": 169,
+          "triangles": 433667,
+          "geometries": 155,
+          "textures": 14,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "rope-7",
+          "camera": [
+            2.725167429868614,
+            1.7,
+            3.5847825045135178
+          ],
+          "calls": 169,
+          "triangles": 433667,
+          "geometries": 155,
+          "textures": 14,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-30",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 268,
+          "triangles": 891931,
+          "geometries": 266,
+          "textures": 21,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        },
+        {
+          "name": "mitt-290",
+          "camera": [
+            3.498474369552084,
+            1.7,
+            -2.046075060987195
+          ],
+          "calls": 270,
+          "triangles": 893851,
+          "geometries": 268,
+          "textures": 21,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

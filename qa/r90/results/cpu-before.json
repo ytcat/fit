@@ -1,0 +1,90 @@
+{
+  "method": "Node CPU only, fake canvas, 12 warmup + 120 60-Hz samples; inclusive method counters, not GPU/FPS",
+  "results": [
+    {
+      "mode": "none",
+      "p50": 0.8686100000004444,
+      "p95": 2.45523299999968,
+      "costs": {
+        "updateMane": {
+          "calls": 120,
+          "ms": 72.33276100000148
+        },
+        "syncSkin": {
+          "calls": 120,
+          "ms": 12.638709000001654
+        },
+        "deformGlove": {
+          "calls": 240,
+          "ms": 0.28793400000267866
+        }
+      },
+      "maneVertices": 57276,
+      "heap": 159968968
+    },
+    {
+      "mode": "speed",
+      "p50": 7.154570000000604,
+      "p95": 68.9289660000004,
+      "costs": {
+        "updateMane": {
+          "calls": 240,
+          "ms": 200.33673199999703
+        },
+        "syncSkin": {
+          "calls": 240,
+          "ms": 33.51719399999274
+        },
+        "closest": {
+          "calls": 241,
+          "ms": 5.041033999992578
+        },
+        "deformGlove": {
+          "calls": 480,
+          "ms": 1169.1276919999991
+        },
+        "deformSurface": {
+          "calls": 78,
+          "ms": 300.6762619999963
+        }
+      },
+      "maneVertices": 57276,
+      "equipmentVertices": 32100,
+      "heap": 197096344
+    },
+    {
+      "mode": "rope",
+      "p50": 1.2659979999989446,
+      "p95": 2.4530500000000757,
+      "costs": {
+        "updateMane": {
+          "calls": 120,
+          "ms": 51.80680599999869
+        },
+        "syncSkin": {
+          "calls": 240,
+          "ms": 23.200163999990764
+        }
+      },
+      "maneVertices": 57276,
+      "heap": 180728056
+    },
+    {
+      "mode": "pads",
+      "p50": 2.173439000000144,
+      "p95": 3.7279180000005,
+      "costs": {
+        "updateMane": {
+          "calls": 240,
+          "ms": 66.41392899998391
+        },
+        "syncSkin": {
+          "calls": 360,
+          "ms": 29.63554999997723
+        }
+      },
+      "maneVertices": 57276,
+      "heap": 111964728
+    }
+  ]
+}

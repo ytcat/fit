@@ -1,0 +1,17 @@
+{
+  "nativePinch": {
+    "before": 1,
+    "after": 1.6666666666666665
+  },
+  "nativeTouchDrag": {
+    "before": 0,
+    "after": -0.35000000000000003
+  },
+  "interruptedDesktopDrag": {
+    "yaw": -1.2499999999999996,
+    "pointers": 0,
+    "time": 0
+  },
+  "errors": [],
+  "physicalPhone": false
+}

@@ -1,0 +1,90 @@
+{
+  "method": "Node CPU only, fake canvas, 12 warmup + 120 60-Hz samples; inclusive method counters, not GPU/FPS",
+  "results": [
+    {
+      "mode": "none",
+      "p50": 0.9966830000003029,
+      "p95": 2.3158900000003086,
+      "costs": {
+        "updateMane": {
+          "calls": 120,
+          "ms": 67.36781199999905
+        },
+        "syncSkin": {
+          "calls": 120,
+          "ms": 16.677499999999327
+        },
+        "deformGlove": {
+          "calls": 240,
+          "ms": 0.4919929999987289
+        }
+      },
+      "maneVertices": 57276,
+      "heap": 166788480
+    },
+    {
+      "mode": "speed",
+      "p50": 2.077925000000505,
+      "p95": 3.4674269999995886,
+      "costs": {
+        "updateMane": {
+          "calls": 240,
+          "ms": 106.54552899999999
+        },
+        "syncSkin": {
+          "calls": 240,
+          "ms": 28.2695670000071
+        },
+        "closest": {
+          "calls": 241,
+          "ms": 2.975083000005725
+        },
+        "deformGlove": {
+          "calls": 480,
+          "ms": 0.5970249999950283
+        },
+        "deformSurface": {
+          "calls": 78,
+          "ms": 1.0831679999978405
+        }
+      },
+      "maneVertices": 57276,
+      "equipmentVertices": 32100,
+      "heap": 228832360
+    },
+    {
+      "mode": "rope",
+      "p50": 1.0781839999999647,
+      "p95": 1.7079560000001948,
+      "costs": {
+        "updateMane": {
+          "calls": 120,
+          "ms": 44.86536700000397
+        },
+        "syncSkin": {
+          "calls": 120,
+          "ms": 12.882648000004338
+        }
+      },
+      "maneVertices": 57276,
+      "heap": 45402208
+    },
+    {
+      "mode": "pads",
+      "p50": 2.6192119999996066,
+      "p95": 9.364078000000518,
+      "costs": {
+        "updateMane": {
+          "calls": 240,
+          "ms": 75.36711800000285
+        },
+        "syncSkin": {
+          "calls": 360,
+          "ms": 75.48528100000658
+        }
+      },
+      "maneVertices": 57276,
+      "heap": 107835160
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "root": "/workspace/fit-r90",
+  "kind": "interaction",
+  "softwareWebGL": true,
+  "physicalPhone": false,
+  "results": [
+    {
+      "interaction": {
+        "eventMs": 50.099999994039536,
+        "eventWorlds": 0,
+        "poseUpdatesDuringPausedOrbit": 0,
+        "remainingPointers": 0
+      },
+      "memory": [
+        {
+          "cycle": 0,
+          "geometries": 365,
+          "textures": 29,
+          "programs": 41
+        },
+        {
+          "cycle": 1,
+          "geometries": 365,
+          "textures": 29,
+          "programs": 41
+        },
+        {
+          "cycle": 2,
+          "geometries": 365,
+          "textures": 29,
+          "programs": 41
+        }
+      ]
+    },
+    {
+      "mode": "motion",
+      "shots": [
+        {
+          "name": "interaction",
+          "camera": [
+            -1.5975647129142332,
+            1.7800000000000002,
+            4.1734644560752
+          ],
+          "calls": 164,
+          "triangles": 498529,
+          "geometries": 365,
+          "textures": 29,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "programs": [
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshDepthMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshPhysicalMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshBasicMaterial",
+              "linked": true
+            },
+            {
+              "name": "MeshStandardMaterial",
+              "linked": true
+            }
+          ]
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

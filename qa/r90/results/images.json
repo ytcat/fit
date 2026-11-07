@@ -1,0 +1,52 @@
+[
+  {
+    "path": "images/gear-detail.jpg",
+    "sha256": "0e972db524dcd92b82e4a14c232a3883189f092faa9285c0573869bda1b766d9",
+    "bytes": 31636,
+    "dimensions": [
+      840,
+      370
+    ],
+    "frames": 1
+  },
+  {
+    "path": "images/mitts-comparison.jpg",
+    "sha256": "164fec7c92687130cefe67d9cd52f25750f819aa2137a50ddf435c52af177b28",
+    "bytes": 115468,
+    "dimensions": [
+      840,
+      740
+    ],
+    "frames": 1
+  },
+  {
+    "path": "images/padding-parity.jpg",
+    "sha256": "28ca93898b7a4c047bf87f20668cd92e9db4ff4a494f8e615901760b69996f27",
+    "bytes": 49055,
+    "dimensions": [
+      840,
+      370
+    ],
+    "frames": 1
+  },
+  {
+    "path": "images/rope-comparison.gif",
+    "sha256": "356d7a84023d59030928da1fc2ce90e5ef80a38a7b5f86664aa2b29efd9f49f9",
+    "bytes": 755579,
+    "dimensions": [
+      840,
+      370
+    ],
+    "frames": 8
+  },
+  {
+    "path": "images/rope-poses.jpg",
+    "sha256": "4d343504f414e2dfb20c9baf23ac23e5a62731f8a56e4fc7351185d70911ff8a",
+    "bytes": 142390,
+    "dimensions": [
+      1240,
+      580
+    ],
+    "frames": 1
+  }
+]
