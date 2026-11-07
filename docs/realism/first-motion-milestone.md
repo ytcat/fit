@@ -42,8 +42,11 @@ Final compact uppercut changes passed the pose contract, six-punch mitt controll
 career drill and fluid/training-motion tests locally. New gates exercise both
 species, long manual waits, misses/separating motion, duplicate rejection,
 30/144-Hz pacing, neutral wrists, near-vertical centreline uppercuts and one final
-detail update per display sample. Final full-suite CI is recorded separately in
-`qa/realism/results/validation.json` once complete.
+detail update per display sample. Final runtime `50cf997` passed all 58 suites in
+[CI](https://github.com/ytcat/fit/actions/runs/42426315067), including JavaScript
+syntax and local asset checks. Exact provenance is recorded in
+`qa/realism/results/validation.json`. Release documentation/assets leave runtime
+and tests identical to that tested commit.
 
 The same-source fake-canvas CPU station diagnostic (240 samples after 30 warmup,
 60-Hz requested calls) measured fixed-step P50/P95 5.08/12.14 ms at 1x and

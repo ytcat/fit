@@ -1,0 +1,15 @@
+{
+  "url": "https://github.com/ytcat/fit/actions/runs/42426315067",
+  "sha": "50cf99760b03e02eadbadab6fd2716cd239e8b05",
+  "status": "Success",
+  "suites": 58,
+  "baselineSha": "a7fe5a4376cbe08a3237ae7d6f1355117b6b6282",
+  "browserCaptureSha": "ad2d2491f5c40df5c91689c3d34e519061149957",
+  "browserFrames": 24,
+  "browserErrors": [],
+  "finalPosePointError": 0,
+  "physicalPhone": "NOT VERIFIED",
+  "prCreated": false,
+  "prBlocker": "Post https://api.github.com/graphql: Forbidden",
+  "runtimeEqualsRelease": true
+}

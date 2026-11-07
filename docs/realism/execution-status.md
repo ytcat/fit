@@ -28,9 +28,10 @@ Source brief: [FIT_REALISM_CODEX_MASTER_INSTRUCTIONS.md](../FIT_REALISM_CODEX_MA
   baseline and first tested milestone, not completion of the complete brief.
 
 PR access: `gh pr list --repo ytcat/fit --state open` is blocked by the environment's
-network policy at `https://api.github.com/graphql` (Forbidden). Prepare the exact
-review branch/body and retry PR creation after completing the tested milestone;
-never report a compare URL as an existing PR. Git transport and public GitHub
+network policy at `https://api.github.com/graphql` (Forbidden). The tested review branch is `release/realism-master-first`. A concrete
+`gh pr create --base main --head release/realism-master-first --body-file ...`
+attempt also returned `Post https://api.github.com/graphql: Forbidden`.
+No PR was created; a branch/compare link is not an existing PR. Git transport and public GitHub
 Actions pages are accessible. YouTube reference frames are also blocked (403).
 
 Next migration order: profile extreme-rate mitt catch-up cost, establish explicit
