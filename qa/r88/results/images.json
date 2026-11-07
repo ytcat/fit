@@ -1,0 +1,58 @@
+[
+  {
+    "path": "images/arm-details.jpg",
+    "sha256": "feac63a7052ed32b9659acda5bd127b185862920808eefd8a97ae673fd936cb5",
+    "bytes": 157681,
+    "width": 1280,
+    "height": 600,
+    "frames": 1
+  },
+  {
+    "path": "images/contact-recovery.gif",
+    "sha256": "cae60233461f88000efe93b1b9857eb0c6d57bfe17295adebbccf884e30032bf",
+    "bytes": 438750,
+    "width": 800,
+    "height": 350,
+    "frames": 4
+  },
+  {
+    "path": "images/defence-grid.jpg",
+    "sha256": "4f40e39ed2d2b7abe319e0a3111e671aed190090dd219ae6c16feab9cdf868ff",
+    "bytes": 131999,
+    "width": 1350,
+    "height": 540,
+    "frames": 1
+  },
+  {
+    "path": "images/play-combos.jpg",
+    "sha256": "230b71cf4605aad5a19fd049363bb3f63b726cff223ec37fcde6ec534b539786",
+    "bytes": 50447,
+    "width": 393,
+    "height": 650,
+    "frames": 1
+  },
+  {
+    "path": "images/player-fight.jpg",
+    "sha256": "36cedb3ec503540b8ae85120aca7f504dedf56f1bd8c7b7060da18dff3c0b2b7",
+    "bytes": 56012,
+    "width": 393,
+    "height": 650,
+    "frames": 1
+  },
+  {
+    "path": "images/uppercut-comparison.jpg",
+    "sha256": "4a81bd2b1d6fea867325aa58541e67e0d12f45b822f721751c61dcf2a7f78637",
+    "bytes": 132781,
+    "width": 1380,
+    "height": 500,
+    "frames": 1
+  },
+  {
+    "path": "images/walk-comparison.gif",
+    "sha256": "4fd81a4599fea351874a8fbc79fbedb2dc000e575fa01f971597eecebefa74e7",
+    "bytes": 795196,
+    "width": 800,
+    "height": 350,
+    "frames": 8
+  }
+]

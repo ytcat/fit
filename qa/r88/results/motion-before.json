@@ -1,0 +1,625 @@
+{
+  "frames": [
+    {
+      "track": "ring",
+      "i": 0,
+      "captured": true,
+      "time": 0.03333333333333333,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 1,
+      "captured": false,
+      "time": 0.06666666666666667,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 2,
+      "captured": false,
+      "time": 0.09999999999999999,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 3,
+      "captured": false,
+      "time": 0.13333333333333333,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 4,
+      "captured": false,
+      "time": 0.16666666666666666,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 5,
+      "captured": false,
+      "time": 0.19999999999999998,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 6,
+      "captured": false,
+      "time": 0.2333333333333333,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 7,
+      "captured": true,
+      "time": 0.26666666666666666,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 8,
+      "captured": false,
+      "time": 0.3,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 9,
+      "captured": false,
+      "time": 0.3333333333333333,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 10,
+      "captured": false,
+      "time": 0.36666666666666664,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 11,
+      "captured": false,
+      "time": 0.39999999999999997,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 12,
+      "captured": false,
+      "time": 0.4333333333333333,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 13,
+      "captured": true,
+      "time": 0.4666666666666666,
+      "calls": 509,
+      "triangles": 1160247
+    },
+    {
+      "track": "ring",
+      "i": 14,
+      "captured": false,
+      "time": 0.49999999999999994,
+      "calls": 509,
+      "triangles": 1160247
+    },
+    {
+      "track": "ring",
+      "i": 15,
+      "captured": false,
+      "time": 0.5333333333333333,
+      "calls": 509,
+      "triangles": 1160247
+    },
+    {
+      "track": "ring",
+      "i": 16,
+      "captured": false,
+      "time": 0.5666666666666668,
+      "calls": 509,
+      "triangles": 1160247
+    },
+    {
+      "track": "ring",
+      "i": 17,
+      "captured": true,
+      "time": 0.6000000000000002,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 18,
+      "captured": false,
+      "time": 0.6333333333333336,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 19,
+      "captured": false,
+      "time": 0.6666666666666671,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 20,
+      "captured": false,
+      "time": 0.7000000000000005,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 21,
+      "captured": true,
+      "time": 0.733333333333334,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 22,
+      "captured": false,
+      "time": 0.7666666666666674,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 23,
+      "captured": false,
+      "time": 0.8000000000000008,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 24,
+      "captured": false,
+      "time": 0.8333333333333343,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 25,
+      "captured": false,
+      "time": 0.8666666666666677,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 26,
+      "captured": false,
+      "time": 0.9000000000000011,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 27,
+      "captured": true,
+      "time": 0.9333333333333346,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 28,
+      "captured": false,
+      "time": 0.966666666666668,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 29,
+      "captured": false,
+      "time": 1.0000000000000013,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 30,
+      "captured": false,
+      "time": 1.0333333333333345,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 31,
+      "captured": false,
+      "time": 1.0666666666666678,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 32,
+      "captured": false,
+      "time": 1.100000000000001,
+      "calls": 508,
+      "triangles": 1159287
+    },
+    {
+      "track": "ring",
+      "i": 33,
+      "captured": true,
+      "time": 1.1333333333333342,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 34,
+      "captured": false,
+      "time": 1.1666666666666674,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 35,
+      "captured": false,
+      "time": 1.2000000000000006,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 36,
+      "captured": false,
+      "time": 1.2333333333333338,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 37,
+      "captured": false,
+      "time": 1.266666666666667,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 38,
+      "captured": false,
+      "time": 1.3000000000000003,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "ring",
+      "i": 39,
+      "captured": true,
+      "time": 1.3333333333333335,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "upper",
+      "i": 0,
+      "captured": false,
+      "time": 0,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "upper",
+      "i": 1,
+      "captured": false,
+      "time": 0.03333333333333333,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "upper",
+      "i": 2,
+      "captured": false,
+      "time": 0.06666666666666667,
+      "calls": 507,
+      "triangles": 1158327
+    },
+    {
+      "track": "upper",
+      "i": 3,
+      "captured": true,
+      "time": 0.1,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 4,
+      "captured": false,
+      "time": 0.13333333333333333,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 5,
+      "captured": false,
+      "time": 0.16666666666666666,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 6,
+      "captured": false,
+      "time": 0.2,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 7,
+      "captured": false,
+      "time": 0.23333333333333334,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 8,
+      "captured": true,
+      "time": 0.26666666666666666,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 9,
+      "captured": false,
+      "time": 0.3,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 10,
+      "captured": false,
+      "time": 0.3333333333333333,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 11,
+      "captured": false,
+      "time": 0.36666666666666664,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 12,
+      "captured": true,
+      "time": 0.4,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 13,
+      "captured": false,
+      "time": 0.43333333333333335,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 14,
+      "captured": false,
+      "time": 0.4666666666666667,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 15,
+      "captured": false,
+      "time": 0.5,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 16,
+      "captured": false,
+      "time": 0.5333333333333333,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 17,
+      "captured": true,
+      "time": 0.5666666666666667,
+      "calls": 166,
+      "triangles": 497593
+    },
+    {
+      "track": "upper",
+      "i": 18,
+      "captured": false,
+      "time": 0.6,
+      "calls": 166,
+      "triangles": 497593
+    },
+    {
+      "track": "upper",
+      "i": 19,
+      "captured": false,
+      "time": 0.6333333333333333,
+      "calls": 166,
+      "triangles": 497593
+    },
+    {
+      "track": "upper",
+      "i": 20,
+      "captured": false,
+      "time": 0.6666666666666666,
+      "calls": 166,
+      "triangles": 497593
+    },
+    {
+      "track": "upper",
+      "i": 21,
+      "captured": false,
+      "time": 0.7,
+      "calls": 166,
+      "triangles": 497593
+    },
+    {
+      "track": "upper",
+      "i": 22,
+      "captured": false,
+      "time": 0.7333333333333333,
+      "calls": 166,
+      "triangles": 497593
+    },
+    {
+      "track": "upper",
+      "i": 23,
+      "captured": false,
+      "time": 0.7666666666666667,
+      "calls": 166,
+      "triangles": 497593
+    },
+    {
+      "track": "upper",
+      "i": 24,
+      "captured": false,
+      "time": 0.8,
+      "calls": 166,
+      "triangles": 497593
+    },
+    {
+      "track": "upper",
+      "i": 25,
+      "captured": true,
+      "time": 0.8333333333333334,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 26,
+      "captured": false,
+      "time": 0.8666666666666667,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 27,
+      "captured": false,
+      "time": 0.9,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 28,
+      "captured": false,
+      "time": 0.9333333333333333,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 29,
+      "captured": false,
+      "time": 0.9666666666666667,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 30,
+      "captured": false,
+      "time": 1,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 31,
+      "captured": false,
+      "time": 1.0333333333333334,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 32,
+      "captured": false,
+      "time": 1.0666666666666667,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 33,
+      "captured": false,
+      "time": 1.1,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 34,
+      "captured": true,
+      "time": 1.1333333333333333,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 35,
+      "captured": false,
+      "time": 1.1666666666666667,
+      "calls": 165,
+      "triangles": 496633
+    },
+    {
+      "track": "upper",
+      "i": 36,
+      "captured": false,
+      "time": 1.2,
+      "calls": 165,
+      "triangles": 496633
+    }
+  ],
+  "errors": [],
+  "simulationSampleHz": 30,
+  "renderedKeyframes": true,
+  "hardwareFPS": false,
+  "physicalPhone": false
+}

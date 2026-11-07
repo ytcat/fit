@@ -1,0 +1,290 @@
+[
+  {
+    "width": 393,
+    "height": 650,
+    "modes": [
+      {
+        "mode": "none",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "heavy",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "dummy",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "speed",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_speed_alternate"
+      },
+      {
+        "mode": "pads",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "rabbit",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "fight",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      }
+    ],
+    "realContacts": 3,
+    "errors": [],
+    "physicalPhone": false
+  },
+  {
+    "width": 393,
+    "height": 568,
+    "modes": [
+      {
+        "mode": "none",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "heavy",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "dummy",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "speed",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_speed_alternate"
+      },
+      {
+        "mode": "pads",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "rabbit",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "fight",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      }
+    ],
+    "realContacts": 3,
+    "errors": [],
+    "physicalPhone": false
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "modes": [
+      {
+        "mode": "none",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "heavy",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "dummy",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "speed",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_speed_alternate"
+      },
+      {
+        "mode": "pads",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "rabbit",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "fight",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      }
+    ],
+    "realContacts": 3,
+    "errors": [],
+    "physicalPhone": false
+  },
+  {
+    "width": 1100,
+    "height": 950,
+    "modes": [
+      {
+        "mode": "none",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "heavy",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "dummy",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "speed",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_speed_alternate"
+      },
+      {
+        "mode": "pads",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "rabbit",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      },
+      {
+        "mode": "fight",
+        "pages": [
+          "moves",
+          "combos",
+          "defence"
+        ],
+        "combo": "combo_one_two"
+      }
+    ],
+    "realContacts": 3,
+    "errors": [],
+    "physicalPhone": false
+  }
+]

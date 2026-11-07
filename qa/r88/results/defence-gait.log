@@ -1,0 +1,17 @@
+coverage {
+  'lion.high': 'glove',
+  'lion.body': 'glove',
+  'lion.left': 'arm',
+  'lion.right': 'arm',
+  'lion.parry': 'glove',
+  'rabbit.high': 'glove',
+  'rabbit.body': 'glove',
+  'rabbit.left': 'arm',
+  'rabbit.right': 'arm',
+  'rabbit.parry': 'glove'
+}
+PASS sustained distinct guards, fixed arm lengths, real direction-led ring steps, planted canvas contacts and landing before contact {
+  maxPlant: 9.945640348601413e-16,
+  maxStep: 0.4939547563852023,
+  officialClearance: 0.7779208885229824
+}

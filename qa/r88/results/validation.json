@@ -1,0 +1,223 @@
+{
+  "runtimeSHA": "3efa994a41b679dbb1c61c9c446aa13fdc455502",
+  "integrationBaseSHA": "de93d1170d879fb1574cfabf2dbc20895cf5cfc3",
+  "movementBaseSHA": "f7a96738611bf2ceaec940a31b44798972134bc5",
+  "preFixCandidate": "9258a05",
+  "poseCaptureSHA": "53eb060ad3038dbfe587b96af5e89e5ac18c899c",
+  "validationRun": "https://github.com/ytcat/fit/actions/runs/42335029882",
+  "validationStatus": "success",
+  "suites": 51,
+  "isolated48SuiteRun": "https://github.com/ytcat/fit/actions/runs/42302034121",
+  "preCache50SuiteRun": "https://github.com/ytcat/fit/actions/runs/42303833827",
+  "changedFiles": [
+    "avatar-anatomy.js",
+    "boxing-coach-v2.js",
+    "boxing-fight.js",
+    "boxing-input.js",
+    "career-drills.js",
+    "docs/research/r88-movement-notes.md",
+    "fight-arena.js",
+    "index.html",
+    "ringfighter-controls.css",
+    "ringfighter-controls.js",
+    "tests/career-drills.test.cjs",
+    "tests/club-interface.test.cjs",
+    "tests/contact-transform.test.cjs",
+    "tests/defence-gait.test.cjs",
+    "tests/fight-contact-stop.test.cjs",
+    "tests/player-combo.test.cjs",
+    "training-arena.js"
+  ],
+  "poseEquivalence": {
+    "frames": 60,
+    "actors": 2,
+    "armsPerActor": 2,
+    "properties": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "arm quaternion"
+    ],
+    "maximumComponentDelta": 0,
+    "tolerance": 1e-12
+  },
+  "followThrough": {
+    "gateMetres": 0.021,
+    "maximumMetres": 0.019812127304150016,
+    "events": 12,
+    "bodyEvents": 4,
+    "log": "r88-contact.log"
+  },
+  "simultaneousStress": {
+    "source": "0874c048afc7758c941205386fe4a46342a73d22",
+    "gateMetres": 0.027,
+    "maximumMetres": 0.012262137025407849,
+    "gateArmRadians": 1.0471975511965976,
+    "maximumArmRadians": 0.9377346293560603,
+    "note": "Isolated full grid measurement; final integrated grid is required to pass the same gates in CI."
+  },
+  "gait": {
+    "supportContactMaximumMetres": 9.945640348601413e-16,
+    "stepDeltaMaximumMetres": 0.4939547563852023,
+    "sampledOfficialRootClearanceMetres": 0.7779208885229824
+  },
+  "browser": {
+    "version": "155.0.8059.79",
+    "softwareWebGL": true,
+    "nativeInputViewports": [
+      [
+        393,
+        650
+      ],
+      [
+        393,
+        568
+      ],
+      [
+        844,
+        390
+      ],
+      [
+        1100,
+        950
+      ]
+    ],
+    "playModes": [
+      "none",
+      "heavy",
+      "dummy",
+      "speed",
+      "pads",
+      "rabbit",
+      "fight"
+    ],
+    "rope": "automatic rhythm retained; Play disabled",
+    "languages": [
+      "EN",
+      "HE",
+      "RU"
+    ],
+    "errors": []
+  },
+  "performance": {
+    "method": "Actual browser FightArena.step only; 30 warmup + 180 samples, seeded AI active, RAF paused, no drawing during measurement; short cloud diagnostic, not GPU time, sustained FPS or a physical-device gate.",
+    "baseline": {
+      "p50UpdateMs": 8.900000005960464,
+      "p95UpdateMs": 20.700000002980232
+    },
+    "preCache": {
+      "p50UpdateMs": 9.299999997019768,
+      "p95UpdateMs": 42.20000000298023
+    },
+    "final": {
+      "p50UpdateMs": 6,
+      "p95UpdateMs": 24.5
+    },
+    "rendererInfo": "normally reset main-pass counters; extra shadow submission excluded; texture count is allocation count, not VRAM bytes"
+  },
+  "physicalPhone": false,
+  "Safari": false,
+  "hardwareFPS": "unverified",
+  "gpuMemory": "unverified",
+  "thermalBehavior": "unverified",
+  "newAuthoredHead": "not implemented",
+  "realism75Score": "not established",
+  "runtimeHashes": {
+    "index.html": "aaa5aa3307943555b4332d1dea4c60915fdea9b07df7898d62374267d47d37c1",
+    "assets/app.css": "c5f249966366f1195b414be5f6edfb9f86e520f8babe83012b2fc52145c191ca",
+    "workout-experience.css": "6d92dced1c5107508cbeecf62b71939d1b0833d129ac81dfb9f5b400a0a5ecb1",
+    "workout-experience.js": "1e6019ef731f45b035b1833f09f72b422dcf181677812c5e737857d16e6a0cb3",
+    "practice-layout.js": "7414a2e4ce313b251976378a60d3cbddd19370d6be6aeb8e8d9d00a8a8a7dceb",
+    "assets/vendor/three.min.js": "9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2",
+    "assets/vendor/GLTFLoader.js": "5c15967ba830918a9caea6338712c994c354bccd4edc4569bde411c3ec06a3e6",
+    "boxing-routines.js": "1f0166fc0629d88baafe33cdfb501f05d038319c8757bafcb5f46860cc7bb9b9",
+    "boxing-input.js": "16c28efddd392c1c0bad51866a7eafa4f87befce574e5fe940c5c44e16b465dc",
+    "avatar-anatomy.js": "576fa4e654db95262a1fbbf6156dba1b20256dde76bdf6834ff89070d47e6a99",
+    "avatar-detail.js": "a1503a3bca62366e8b6e4c6a4c77014e8dd3e0c42b2c660be8f630fbf9e55a13",
+    "avatar-shoulder.js": "7889adbf893c893720405ce67fe7ac991a5ebe39461287d1c2c9a6e8d50c5f4b",
+    "boxing-footwear.js": "4be36d7e599dcaa9949df0030e36758e0623c0f51f9043ca99a7bf8cd5b7a556",
+    "boxing-coach-v2.js": "e3cd6f4246ced01e36a3d263cba37089cfd97957d95e9c42d35f3685cfa411a9",
+    "contact-response.js": "3608d8984eb7fe830f809ae884e49ddf98b9e54f784976efb49973057774bc56",
+    "gym-details.js": "c84e83c59a20eb19c64f5cd22068a89549ebc58779f544d62206bc72f92f47ef",
+    "training-arena.js": "a49a7753bb5aaa0166c71ec6e8a649a88044cdffbc3e9d8d941b3b2aa1b2cf3e",
+    "boxing-fight.js": "dfc3e981c9295e8396a40cab023511426ebad97789847376e53adaa83d04e2cc",
+    "fight-referee.js": "7a3555cd1fa45b1f9e89de6174a5e26c34b23fe5c40b2b674e68023401002c43",
+    "fight-arena.js": "0d0ef44d3f655e5b64a7aa97aba27b2d062c9234cbf92db3bcc09e00f939217e",
+    "career-drills.js": "99132ce4ce098743a8a74b0f7f5798edee66e45de723ae38d10c86075ab1370e",
+    "career-progress.js": "69209822a0cea0b14fa5b5ce6a373bb543ed322b94842f6ec99e4a6068527424",
+    "fight-ui.js": "16b4e137f1e3a08c38b54954489779c831f8fbe6b56b3d7bb71978c43ee0abf6",
+    "training-controls.js": "eb9909c1f562824349a13ba375f6909452927c86b4af6fdbdc58c181743302ba",
+    "character-roster.js": "415f73502f81f1e2b5122c0c156ce676a808dfd998641ad80be61d6502506b14",
+    "ring-camera.js": "b932c384411572f57e26120b4480b8ecf85a3c8c72c8b883836d8be8360984ed",
+    "club-world.js": "c00f00a855337544a9308a871cbb74db3160ad156acbb5c8750e877e892c984b",
+    "club-interface.css": "a2fdb7b31b1e1294f183d5de65d50af240cba40457d20fbf4eab3a75b28e9dab",
+    "club-interface.js": "f3ffd9aba8c81e582de82e18cfa7b5a92bc11dcdbaa6a90383108ce6bcffbb9a",
+    "ringfighter-controls.css": "180cde7f33825d4a4eb1f0bc4dfc55068f6164c3e7c0985c59b062efc283ac6b",
+    "ringfighter-controls.js": "fc7668fe3dd4c05efc99280db37abbfe27ddaaacaae0cafd5be4d1a4db56fa64",
+    "career-interface.css": "47377ad477a878f86e1ca9727096b83ef061cc9483e3686c4ce83f9206da79aa",
+    "career-interface.js": "77342fe795fed0921443c25cf9694786002a7195df4bfb12374b2db2b2ada6e1",
+    "fight-presentation.js": "b5e515b2ac612c24b821e745dddce6714df5849c94f7d64e0e6bc72bb7a3335a"
+  },
+  "sourceReview": {
+    "concurrentMainRetained": true,
+    "externalCommit": "de93d1170d879fb1574cfabf2dbc20895cf5cfc3",
+    "openPRsObserved": [],
+    "strategy": "Own changes manually ported into isolated worktree rooted at latest published main; no external commit overwritten, cherry-picked, reset or auto-merged."
+  },
+  "transformCacheRun": "https://github.com/ytcat/fit/actions/runs/42334611492",
+  "transformCacheRunStatus": "cancelled after ready-guard fix",
+  "readyGuardGate": "Low/side/parry cover must finish before macro acceptance; neutral/high ready guard remains available.",
+  "testHashes": {
+    "tests/advanced-combos.test.cjs": "865eedaffc48004e1ed31edfdd424ec9f0a3df5f4aeea8f1cf1aab13254939fb",
+    "tests/anatomy-expression.test.cjs": "c5fd6b77511d315eb49d748d8eb958b730d47289a1ee9b6d5930cdf195ee7770",
+    "tests/app.test.cjs": "e9ab91a12988dfda25b8917ad937366017571d9152144c9b7224b1a347c6d647",
+    "tests/arena.test.cjs": "a56e8e4108ba584006ca0531acec66afbcf9e20a16fcb71ebc4c94ef564c12d9",
+    "tests/audio.test.cjs": "3be697628b5f53598f4bf98855e8cac8995a3dee23b2d411783ce5f47e491a18",
+    "tests/avatar-detail.test.cjs": "93790b00c3fe92830087dccdaed2becfb16fe85efc071a75894ec5681e7e6eef",
+    "tests/avatar-normal-frame.test.cjs": "e8d3cb176f4f957c31461a7d0d36a9e0f790b01a3e2b3307e469b5ea41b0216e",
+    "tests/avatar-surface.test.cjs": "687d58ed2c727bc75d90d410217c0788a303e4156d320599836e41bb4e3dfab3",
+    "tests/bag-contact-v2.test.cjs": "71e8482944913469d2647f3965c3ee7f2e5ee95bdf420049675c438ac9a97e20",
+    "tests/bag-mechanics.test.cjs": "1175245f7fd4741d826c463fd4dde56bdd074bb290e183ad28b1f8a3ae53b661",
+    "tests/boxing-foley.test.cjs": "fb350b00dd84eab01ddf22e6725351e598b570c67efc515b8fb084da5b1da405",
+    "tests/career-drills.test.cjs": "8250827e2f401ea80b717cc5cf50ec8c3f6a2dcea6e8fc722b7674a0895a7e71",
+    "tests/career-progress.test.cjs": "4a44979868f60f658be6d7ca7ca19fd1c88d76234081cce95c2c2fed12bf17a3",
+    "tests/character-selection.test.cjs": "20960da0e51f54b2c2d49a453f40bbfd225d979cac6c4c4480d04c38c2d54865",
+    "tests/club-interface.test.cjs": "fc50755aba2ad281ce60496f2ed37067ee6e9b1257fbb77904ddc24041660485",
+    "tests/club-world.test.cjs": "906cc63c0d2cfd9b0c161b044c16f4a29796b34fda9755c01de4fdff24be3926",
+    "tests/coach.test.cjs": "6f8e3d5c9b23497105d3a392dfeae12bc31336dfda6e4fc62da6c42ef2712b9a",
+    "tests/contact-transform.test.cjs": "0244a52917306597e5f08f3b773a31da21807d97968aa0abdb86a406d8724351",
+    "tests/contact.test.cjs": "368000abc3ec565f43b5d6756f074ddcf76e62d50d8bef16d872efdcd423efc9",
+    "tests/defence-gait.test.cjs": "9547dab71ed33a637f1c242bedfad3772579edd51563f24e45bec38b712de013",
+    "tests/elbow-hinge-frame.test.cjs": "1f7c059c27aba5d745659c2766e9ee344c1908dde2fbc6da2109d0cd7d337e38",
+    "tests/fight-arena.test.cjs": "f0c33c7c6216722db47efa0b4a1b5d3ae11ce0285a834f80846795e2c3f388f7",
+    "tests/fight-contact-stop.test.cjs": "b36fa20040be659839666c109584d3caf3d3a5a63fa3447b071af9e7f4ae9b08",
+    "tests/fight-guard.test.cjs": "5f0e09b9767da6c3e50b1842fa63350fb857035e6779106122ad2c42f0b64928",
+    "tests/fight-lifecycle.test.cjs": "e2b8a1c7ecafc92da2833397e8ed6ac4dadd4d47a823984c5e4346f91e3874c1",
+    "tests/fight-ui.test.cjs": "eaf8f3fda2e1473725ee6f6b90b802794261a077c80b3aa92eb65989d3565234",
+    "tests/fight.test.cjs": "15c13350867debfa73fb376bc3ceef339d007981585411500442a7339c33dd88",
+    "tests/generated-training.test.cjs": "dc8cc65fa92ede8c3ea7bcba74c2be6cf3a7495aa392ad327e26087ca9a86139",
+    "tests/heavy-reference.test.cjs": "695b1b0d37a24da3198df070b0c3d2329f382d9c439fb5b5672ac5dbdaf3e4c0",
+    "tests/knockdown-floor.test.cjs": "ee67ea321df17b99f742141739d05825959ddaf6709d65cf343e005daef44723",
+    "tests/layout.test.cjs": "a0e0337bf1112d6438c6f5d151a455e02fdc32edc57d27ad265623386bdcdb80",
+    "tests/mobile-audio.test.cjs": "59063b0a9da680dee80f50bf8c8d189eefee576aaeff58d39d5b6febd330e845",
+    "tests/player-arena.test.cjs": "f480cfe0f81ea560020c466c75d49b3f61739378ab3bf7a16f9f1e37b5eb9c2c",
+    "tests/player-combo.test.cjs": "ee13b3371b412f7d4dc7a035edc08743b3c3c3d5510901d19480d4748e9e0552",
+    "tests/player-input.test.cjs": "9537945803fdc069d8a0a97bdd715542b8c9c688a4cda25e7d580dbb940b0709",
+    "tests/power-impact.test.cjs": "445746ddecbee59b97b506424e28eedab6a30284c4cb215dc048227500477ad2",
+    "tests/practice-impact.test.cjs": "217c8d2ff6f011c4ee1f6f7d02b15496d6b4abc767ad234e1db9bb0567d8eb8a",
+    "tests/quick-fight.test.cjs": "e4a966d4ae8e1e349fc4a40f064c4ef00179edfcdb545d34f1f511e32940059a",
+    "tests/random-sparring.test.cjs": "a70019aa48ca399f956ae1187e5a0721fcc7d8cee0c7332391e7e5a82d8cf370",
+    "tests/recorded-audio.test.cjs": "eda73c1da46068ad78dc96fe112e71a9faa0afe6ea4223e96c65fea7dfa0fe37",
+    "tests/reference-motion.test.cjs": "fc4c1ad6e459a82f904823186d59810d7357188c28a6c75778610d46b5d835e3",
+    "tests/ring-camera.test.cjs": "4c1a0ba9bd85fe13dbbdec1f33616ac0474d7c1813217d0874ff24a83727d7d8",
+    "tests/secondary-motion.test.cjs": "68d451e9424fd66cb1c471925a1a1448b898fbb7fd858f652749ac9bcf9f96a4",
+    "tests/shoulder-corrective.test.cjs": "313fde9e913a1a9112a31fd92e929ede0c8dde678ed5945fc257292dc7edff9a",
+    "tests/shoulder-motion.test.cjs": "1679679aa3b7e797c03c2d59251d03d2b5db655bd308a77c2cdecab3a1f705bd",
+    "tests/simultaneous-contact.test.cjs": "ddf8fb3efa644ad9e093a5f0a44d87963449cde4026ba4ea4ef5a0ecb34c6a97",
+    "tests/speed-drills.test.cjs": "c1b778dabb1459861af285cf40e8fe6bdbc9564e2f74a5aae018f5278ee55d3c",
+    "tests/strike-alignment.test.cjs": "98b86a9e670284757e9c97efa993c94551c6b1ee46af57311601a9ed058c01b1",
+    "tests/training-controls.test.cjs": "6ded16f72d65aa6002b666258182550886ac7a73a4c647b925362b9f93d2f873",
+    "tests/uppercut-speed-face.test.cjs": "41b88873a2399ec029ffab894231da9fca2c916c4c4288e3dd0ec028fded632c",
+    "tests/workout.test.cjs": "40e1fd466c1e003f332ff8673d190b22d9045eabfa559f9f2cf8e4f2e49ae738"
+  }
+}

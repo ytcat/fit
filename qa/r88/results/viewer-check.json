@@ -1,0 +1,40 @@
+{
+  "images": [
+    {
+      "src": "images/defence-grid.jpg",
+      "width": 1350,
+      "height": 540
+    },
+    {
+      "src": "images/walk-comparison.gif",
+      "width": 800,
+      "height": 350
+    },
+    {
+      "src": "images/uppercut-comparison.jpg",
+      "width": 1380,
+      "height": 500
+    },
+    {
+      "src": "images/contact-recovery.gif",
+      "width": 800,
+      "height": 350
+    },
+    {
+      "src": "images/arm-details.jpg",
+      "width": 1280,
+      "height": 600
+    },
+    {
+      "src": "images/play-combos.jpg",
+      "width": 393,
+      "height": 650
+    },
+    {
+      "src": "images/player-fight.jpg",
+      "width": 393,
+      "height": 650
+    }
+  ],
+  "errors": []
+}

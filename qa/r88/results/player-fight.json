@@ -1,0 +1,19 @@
+{
+  "start": {
+    "id": "combo_super",
+    "step": 1,
+    "total": 6
+  },
+  "events": 3,
+  "largest": 0.021201202836072658,
+  "thrown": 3,
+  "opponentThrown": 1,
+  "sequence": {
+    "id": "combo_super",
+    "step": 3,
+    "total": 6
+  },
+  "coverRecoveryGate": true,
+  "errors": [],
+  "physicalPhone": false
+}

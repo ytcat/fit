@@ -1,0 +1,12 @@
+{
+  "sourceSHA": "3efa994a41b679dbb1c61c9c446aa13fdc455502",
+  "run": "https://github.com/ytcat/fit/actions/runs/42335029882",
+  "status": "Success",
+  "duration": "8m 19s",
+  "method": "Public GitHub Actions run HTML and exact source SHA; workflow exits on first failure in tests/*.test.cjs loop. 51 suite paths checked against the validated commit. Detailed job stdout requires sign-in and was not retrieved.",
+  "testCount": 51,
+  "command": "for test in tests/*.test.cjs; do node \"$test\" || exit 1; done",
+  "syntax": "JavaScript syntax stage passed",
+  "assetReferences": "Local script/core asset stage passed",
+  "observedUTC": "2026-11-07T08:14:21.191341+00:00"
+}
