@@ -984,8 +984,8 @@
       // Exercise cadence: hips start first, relaxed hand accelerates into reach,
       // then a quicker recoil leaves a readable reset before the next repetition.
       const handPhase=phase-.055;
-      const strike=straight?(handPhase<.17?0:handPhase<.40?smooth(clamp((handPhase-.17)/.23)**1.35):
-        handPhase<.46?1:1-smooth((handPhase-.46)/(options.straightRecovery??.27))):envelope(phase,.055);
+      const strike=straight?(handPhase<.17?0:handPhase<.36?smooth(clamp((handPhase-.17)/.19)**1.35):
+        handPhase<.42?1:1-smooth((handPhase-.42)/(options.straightRecovery??.27))):envelope(phase,.055);
       const soloUpper=move.includes('uppercut')&&!options.uppercutBagTarget&&!options.upperWristHeight&&!options.advance;
       const prepare=smooth((phase-(soloUpper?.02:.06))/(options.loadDuration??(soloUpper?.20:.16)));
       const riseStart=soloUpper?.12:.22,riseDuration=options.riseDuration??(soloUpper?.36:.24);
@@ -1146,7 +1146,8 @@
         if(!move.includes('uppercut'))crouch+=Math.abs(l.z-r.z)*.21;
       }
       // Equipment punches commit the pelvis and back before shoulder extension.
-      const power=options.power||1;
+      // Extra whole-body drive for punches; contact/reach limits remain authoritative.
+      const power=(options.power||1)*((straight||move.includes('hook')||move.includes('uppercut'))?1.12:1);
       hipYaw*=power;chestYaw*=power;forward*=power;
       crouch+=options.stanceDrop||0;
       trunkPitch+=(power-1)*.14*drive;

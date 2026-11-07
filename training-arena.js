@@ -7,7 +7,7 @@
  // Continuous timing preserves the authored pelvis/shoulder/hand lag. The
  // previous per-segment easing repeatedly stopped and rushed the entire body.
  const powerPhase=p=>p+.025*(1-Math.cos(2*Math.PI*p));
- const strikingMass=move=>move==='jab'?5.8:move.includes('hook')?10:11.2;
+ const strikingMass=move=>move==='jab'?7.2:move.includes('hook')?12:13.4;
  const punches=['jab','cross','hook','rear_hook','uppercut','rear_uppercut'];
  const material=p=>{const m=new THREE.MeshStandardMaterial(p);m.color.convertSRGBToLinear();return m;};
  class TrainingArena {

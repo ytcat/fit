@@ -94,7 +94,7 @@
    j.chest.rotation.x+=.025*catchPulse;j.neck.rotation.y+=sign*.06*sweep;j.head.rotation.y+=sign*.08*sweep;
    const palms=[],errors=[];
    for(const [i,side] of ['L','R'].entries()){
-    const pad=this.mitts[i],age=this.padPose.t-(pad.userData.hitAt??-100),recoil=age>=0?.035*(1-Math.exp(-age/.022))*Math.exp(-age/.15):0;
+    const pad=this.mitts[i],age=this.padPose.t-(pad.userData.hitAt??-100),recoil=age>=0?.065*(pad.userData.hitForce??1)*(1-Math.exp(-age/.022))*Math.exp(-age/.15):0;
     const goal=V(i?.20:-.20,1.82+.010*Math.sin(this.padPose.t*2.3+i),.43-recoil),palm=V(0,0,1);
     if(hook&&side!==sweepSide)goal.lerp(V(i?.22:-.22,1.74,.29),sweep);
     if(hook&&side===sweepSide){
@@ -105,7 +105,7 @@
      goal.lerp(V(x,y,z),sweep);const roll=sweep*Math.PI/2;palm.set(0,-Math.sin(roll),Math.cos(roll));
     }
     j['arm'+side].position.z+=.035*sweep+.012*catchPulse;j['arm'+side].position.y+=.045*sweep;
-    errors.push(this.placeMitt(side,goal,palm));palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-recoil*3;
+    errors.push(this.placeMitt(side,goal,palm));palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-Math.min(.18,recoil*4);
    }
    const footTargets=[];for(const {side,ankle,q} of feet){
     const foot=j['foot'+side],error=coach.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(side==='L'?-.08:.08,.1,1));coach.orient(foot,q);
@@ -150,7 +150,7 @@
     j['arm'+side].position.y+=.008*Math.cos(angle-.25);j['arm'+side].position.z+=.018*coil+sign*.009*sway;
     const hand=V(sign*(.315+.006*Math.sin(angle-.2))+sway*.010,handY+.018*Math.cos(angle)-.025*coil,.16-.025*Math.sin(angle)+sign*.012*sway);
     handErrors.push(hero.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,V(sign*.045,-.85,-.40)));
-    gloves.push(hero.orientGlove(side,1,V(0,-1,0)));
+    gloves.push(hero.orientGlove(side,1,V(0,1,0)));
     // Rope-specific wrist flex/deviation; boxing strikes retain neutral wrists.
     j['hand'+side].quaternion.multiply(Q().setFromEuler(new THREE.Euler(.075*Math.sin(angle),sign*.035*Math.cos(angle),sign*.045*Math.sin(angle-.3))));
    }
@@ -194,13 +194,13 @@
    trainer.update(0,'guard','one_two',{simulationTime:time,guardElbowBack:.5,guardWidth:.22,keepFaceClear:true,poseOverlay:this.finalizeTrainer});
    this.arena.group.updateMatrixWorld(true);
    const targetIndex=rear(spec.move)?1:0,pad=this.mitts[targetIndex],worldTarget=pad.localToWorld(pad.userData.face.clone()),target=hero.root.worldToLocal(worldTarget.clone());
-   hero.update(spec.phase*1.22,spec.move,'one_two',{simulationTime:time,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,advance:.025,power:.90,straightRecovery:.31,poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
+   hero.update(spec.phase*1.22,spec.move,'one_two',{simulationTime:time,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,advance:.025,power:1.15,straightRecovery:.25,poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
    const dt=this.last<0?0:t-this.last;
    if(spec.attack){
     if(spec.phase>.2&&this.once('swing'+spec.index))frame.swings.push({actor:'lion',move:spec.move});
     const fist=hero.root.localToWorld(V(...hero.metrics.gloves[rear(spec.move)?1:0].strikePoint)),local=pad.worldToLocal(fist.clone()),before=this.previousFist[targetIndex],speed=before&&dt>0?Math.min(5,fist.distanceTo(before)/dt):0;
     if(!hook&&spec.phase>.25&&spec.phase<.80&&Math.abs(local.x)<.125&&Math.abs(local.y+.12)<.145&&Math.abs(local.z-.07)<.09&&speed>.12&&this.once('hit'+spec.index)){
-     frame.contacts.push({actor:'lion',receiver:'pads',part:'glove',kind:'pad',move:spec.move,blocked:false,closingSpeed:speed,impulse:.10,point:fist.toArray()});pad.userData.hitAt=t;
+     frame.contacts.push({actor:'lion',receiver:'pads',part:'glove',kind:'pad',move:spec.move,blocked:false,closingSpeed:speed,impulse:speed*(rear(spec.move)?7.2:5.8),point:fist.toArray()});pad.userData.hitAt=t;pad.userData.hitForce=Math.max(.65,Math.min(1.25,speed/2.4));
     }this.previousFist[targetIndex]=fist;
    }
    if(hook&&phase>.40&&phase<.72){const head=hero.root.localToWorld(V(...hero.metrics.head)),mitt=this.mitts[sweepSide==='L'?0:1].localToWorld(this.mitts[0].userData.face.clone());if(spec.move==='roll'&&head.y+.29<mitt.y&&Math.hypot(head.x-mitt.x,head.z-mitt.z)<.32&&this.once('defence'+beat))frame.defences=1;}

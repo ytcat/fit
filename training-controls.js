@@ -91,18 +91,20 @@
     const drills=BOXING_ROUTINES.speedDrills,index=drills.findIndex(d=>d.id===(e.speedDrill||'alternating'));chooseSpeedDrill(drills[(index+1)%drills.length].id);return;
    }
    if(e.targetMode==='fight'){window.fightUI?.detail();return;}
-   const d=dialog(w().routine),grid=make('div','routine-grid');
+   const d=dialog(w().routine),grid=make('div','routine-grid');d.classList.add('routine-picker');
+   const finish=()=>{d.close();if(window.ringsideLayout?.drawer.open)window.ringsideLayout.drawer.close();};
    BOXING_ROUTINES.list.forEach((r,index)=>{
     const b=make('button','routine-choice');b.type='button';b.dataset.routine=r.id;b.setAttribute('aria-pressed',String(e.technique==='combo'&&e.currentAnim===r.id));
     b.append(make('strong','',r.names[{en:0,he:1,ru:2}[app.lang]]),make('span','',r.moves.map(words()).join(' → ')));
     if(r.advanced)b.append(make('small','',({en:'Advanced · ',he:'מתקדם · ',ru:'Продвинутый · '}[app.lang])+r.moves.length+({en:' moves',he:' תנועות',ru:' движений'}[app.lang])));
-    b.onclick=()=>{app.drillIdx=index;app.renderDrill();e.isPlaying=true;paint();d.close();};grid.append(b);
+    b.onclick=()=>{app.drillIdx=index;app.renderDrill();e.isPlaying=true;paint();finish();};grid.append(b);
    });
    const random=make('button','routine-choice');random.type='button';random.dataset.routine='random';random.setAttribute('aria-pressed',String(e.technique==='random'));
-   random.append(make('strong','',w().random),make('span','',w().randomHint));random.onclick=()=>{activateRandom();d.close();};grid.append(random);
+   random.append(make('strong','',w().random),make('span','',w().randomHint));random.onclick=()=>{activateRandom();finish();};grid.append(random);
    const deck=make('button','routine-choice');deck.type='button';deck.dataset.routine='freestyle';deck.setAttribute('aria-pressed',String(e.technique==='freestyle'));
-   deck.append(make('strong','',w().freestyle),make('span','',w().freestyleHint));deck.onclick=()=>{e.technique='freestyle';e.randomSeed=Math.floor(Math.random()*4294967295);e.animTime=0;e.isPlaying=true;e.arena?.setTarget(e.targetMode||'none');paint();d.close();};grid.append(deck);
-   d.append(grid);d.showModal();
+   deck.append(make('strong','',w().freestyle),make('span','',w().freestyleHint));deck.onclick=()=>{e.technique='freestyle';e.randomSeed=Math.floor(Math.random()*4294967295);e.animTime=0;e.isPlaying=true;e.arena?.setTarget(e.targetMode||'none');paint();finish();};grid.append(deck);
+   const pager=make('nav','routine-pager'),previous=make('button','', '◀'),next=make('button','', '▶'),status=make('output');previous.type=next.type='button';previous.setAttribute('aria-label',({en:'Previous combinations',he:'שילובים קודמים',ru:'Предыдущие комбинации'})[app.lang]);next.setAttribute('aria-label',({en:'Next combinations',he:'שילובים הבאים',ru:'Следующие комбинации'})[app.lang]);
+   let page=0;const cards=[...grid.children],pageSize=12,total=Math.ceil(cards.length/pageSize);function showPage(){cards.forEach((card,i)=>card.hidden=Math.floor(i/pageSize)!==page);previous.disabled=page===0;next.disabled=page===total-1;status.textContent=(page+1)+' / '+total;}previous.onclick=()=>{page--;showPage();};next.onclick=()=>{page++;showPage();};pager.append(previous,status,next);showPage();d.append(grid,pager);d.showModal();
   };
   timing.onclick=()=>{
    if(e.targetMode==='fight')return;

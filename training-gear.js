@@ -39,7 +39,7 @@
   const wrist=mesh(root,new THREE.CylinderGeometry(.048,.043,.062,24),wrap,'Training hand wrap');wrist.position.y=.007;wrist.scale.z=.83;
   for(let i=0;i<4;i++){const finger=mesh(root,new THREE.SphereGeometry(1,16,12),skin,'Curled finger');finger.position.set((i-1.5)*.022,-.110,.027);finger.scale.set(.014,.034,.018);}
   const sign=side==='L'?-1:1,thumb=mesh(root,new THREE.SphereGeometry(1,16,12),skin,'Wrapped grip thumb');thumb.position.set(sign*.045,-.071,.034);thumb.scale.set(.020,.037,.020);thumb.rotation.z=-sign*.35;
-  const handle=new THREE.Group();handle.name='Knurled skipping handle';handle.position.set(0,-.091,.025);handle.rotation.z=-Math.PI/2;root.add(handle);
+  const handle=new THREE.Group();handle.name='Knurled skipping handle';handle.position.set(0,-.091,.025);handle.rotation.z=Math.PI/2;root.add(handle);
   mesh(handle,new THREE.CylinderGeometry(.016,.018,.155,20),rubber,'Rubber rope handle');
   const metalParts=[];
   for(const y of [-.064,-.039,-.014,.011,.036,.061]){const band=mesh(handle,new THREE.TorusGeometry(.017,.0012,5,20),metal,'Handle grip ring');band.rotation.x=Math.PI/2;band.position.y=y;metalParts.push(band);}
