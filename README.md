@@ -1,5 +1,9 @@
 # RingFighter — 3D Boxing
 
+R91 adds coupled skipping, traveling cable motion, planted palm-down mitt sweeps,
+shallower rolls and stronger pose-driven muscle definition.
+[Actual before/after views and verification](docs/r91-fluid-rope-and-mitts.md).
+
 R90 coordinates rope skipping across the body, improves leather mitts/rope handles,
 and reduces training deformation and camera-event work.
 [Changes, comparisons and verification](docs/r90-rope-performance.md).

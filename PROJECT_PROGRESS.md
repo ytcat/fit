@@ -256,3 +256,16 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - All 54 suites passed on `ae7dbf1`; native gesture/recovery and resource-cycle
   checks passed. Physical-phone sustained FPS and authored heads remain open.
 - Evidence and limitations: docs/r90-rope-performance.md and qa/r90/review.html.
+
+## RingFighter R91 — coupled skipping and rounded mitt work (2026-11-07)
+- Added two-beat weight transfer, back/shoulder/ankle articulation and traveling
+  cable bends while retaining four rope patterns and original clearance gates.
+- Added bilateral palm-down arc sweeps with straight wrists, planted trainer
+  feet, contact-led recoil, paired mitt targets and shallower defensive rolls.
+- Strengthened existing continuous muscle correctives; no detached muscle meshes,
+  rig replacement, paid tool, external asset or runtime dependency.
+- Original targeted suites and new bilateral sweep/anatomy checks pass. Exact
+  full-suite status is recorded in qa/r91/results/validation.json.
+- Actual motion/clay evidence, timing costs and physical-phone gaps:
+  docs/r91-fluid-rope-and-mitts.md and qa/r91/review.html.
+- The separately planned authored head/mane asset remains unfinished.
