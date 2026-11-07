@@ -14,7 +14,7 @@
    if(coach.species==='lion')add('mane',j.head,[0,.065,-.065],[.36,.38,.28]);
    for(const [i,ear] of (coach.rabbitEars||[]).entries())add('ear'+i,ear,[0,.20,0],[.068,.26,.048]);
    for(const side of ['L','R']){
-    for(const [name,start,end,radius] of [['upper-arm','arm','elbow',.145],['forearm','elbow','hand',.095],['thigh','thigh','knee',.16],['calf','knee','foot',.105]]){
+    for(const [name,start,end,radius] of [['upper-arm','arm','elbow',.175],['forearm','elbow','hand',.095],['thigh','thigh','knee',.16],['calf','knee','foot',.105]]){
      add(name+side,null,[0,0,0],[radius,1,radius]);const v=this.volumes[this.volumes.length-1];v.start=j[start+side];v.end=j[end+side];v.cap=radius;
     }
     add('boot'+side,j['foot'+side],[0,.055,.045],[.105,.15,.225]);
