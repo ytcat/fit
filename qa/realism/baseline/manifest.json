@@ -1,0 +1,6201 @@
+{
+  "sha": "a7fe5a4376cbe08a3237ae7d6f1355117b6b6282",
+  "browser": "155.0.8059.79",
+  "setup": {
+    "environment": {
+      "threeRevision": "128",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "devicePixelRatio": 1,
+      "viewport": {
+        "width": 1100,
+        "height": 950
+      },
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "vendor": "Google Inc. (Google)",
+      "maxVertexAttributes": 16,
+      "maxVertexUniformVectors": 4096,
+      "gpuTimerExtension": false,
+      "toneMapping": 4,
+      "exposure": 1.05,
+      "outputEncoding": 3001,
+      "physicallyCorrectLights": true
+    },
+    "startup": {
+      "coachReadyObservedMs": 11912.09999999404,
+      "firstModelDrawMs": null,
+      "jsonReads": [
+        {
+          "url": "./assets/models/equipment-surfaces-r76.json",
+          "elapsedMs": 378.5,
+          "note": "response body read plus JSON parse, not isolated parse"
+        },
+        {
+          "url": "./assets/models/coach-surface-v2.json?v=1",
+          "elapsedMs": 56.19999998807907,
+          "note": "response body read plus JSON parse, not isolated parse"
+        },
+        {
+          "url": "./assets/models/rabbit-surface-r78.json",
+          "elapsedMs": 21.400000005960464,
+          "note": "response body read plus JSON parse, not isolated parse"
+        },
+        {
+          "url": "./assets/models/shoulder-correctives-v2.json?v=1",
+          "elapsedMs": 72.30000001192093,
+          "note": "response body read plus JSON parse, not isolated parse"
+        }
+      ],
+      "constructs": [
+        {
+          "species": "lion",
+          "elapsedMs": 8524.59999999404
+        }
+      ],
+      "heap": {
+        "used": 105752092,
+        "total": 179383388,
+        "limit": 4395630592
+      },
+      "resources": [
+        {
+          "name": "app.css?v=2",
+          "duration": 15.699999988079071,
+          "encodedBodySize": 12824,
+          "decodedBodySize": 12824,
+          "transferSize": 13124
+        },
+        {
+          "name": "workout-experience.css?v=2026110406",
+          "duration": 15.300000011920929,
+          "encodedBodySize": 11018,
+          "decodedBodySize": 11018,
+          "transferSize": 11318
+        },
+        {
+          "name": "workout-experience.js?v=1",
+          "duration": 31.400000005960464,
+          "encodedBodySize": 6065,
+          "decodedBodySize": 6065,
+          "transferSize": 6365
+        },
+        {
+          "name": "practice-layout.js?v=3",
+          "duration": 104.40000000596046,
+          "encodedBodySize": 3265,
+          "decodedBodySize": 3265,
+          "transferSize": 3565
+        },
+        {
+          "name": "three.min.js",
+          "duration": 29.69999998807907,
+          "encodedBodySize": 603445,
+          "decodedBodySize": 603445,
+          "transferSize": 603745
+        },
+        {
+          "name": "GLTFLoader.js",
+          "duration": 3.800000011920929,
+          "encodedBodySize": 96550,
+          "decodedBodySize": 96550,
+          "transferSize": 96850
+        },
+        {
+          "name": "boxing-routines.js?v=2026110605",
+          "duration": 4.299999982118607,
+          "encodedBodySize": 20098,
+          "decodedBodySize": 20098,
+          "transferSize": 20398
+        },
+        {
+          "name": "boxing-input.js?v=2026110701",
+          "duration": 3.5999999940395355,
+          "encodedBodySize": 6521,
+          "decodedBodySize": 6521,
+          "transferSize": 6821
+        },
+        {
+          "name": "avatar-anatomy.js?v=2026110704",
+          "duration": 3.9000000059604645,
+          "encodedBodySize": 7614,
+          "decodedBodySize": 7614,
+          "transferSize": 7914
+        },
+        {
+          "name": "avatar-detail.js?v=2026110605",
+          "duration": 6.5999999940395355,
+          "encodedBodySize": 10139,
+          "decodedBodySize": 10139,
+          "transferSize": 10439
+        },
+        {
+          "name": "avatar-shoulder.js?v=2026110504",
+          "duration": 2.4000000059604645,
+          "encodedBodySize": 4824,
+          "decodedBodySize": 4824,
+          "transferSize": 5124
+        },
+        {
+          "name": "boxing-footwear.js?v=2026110607",
+          "duration": 9.199999988079071,
+          "encodedBodySize": 3746,
+          "decodedBodySize": 3746,
+          "transferSize": 4046
+        },
+        {
+          "name": "padding-deformation.js?v=2026110703",
+          "duration": 8.799999982118607,
+          "encodedBodySize": 3456,
+          "decodedBodySize": 3456,
+          "transferSize": 3756
+        },
+        {
+          "name": "boxing-coach-v2.js?v=2026110710",
+          "duration": 4.4000000059604645,
+          "encodedBodySize": 109374,
+          "decodedBodySize": 109374,
+          "transferSize": 109674
+        },
+        {
+          "name": "contact-response.js?v=2026110406",
+          "duration": 3.2999999821186066,
+          "encodedBodySize": 4292,
+          "decodedBodySize": 4292,
+          "transferSize": 4592
+        },
+        {
+          "name": "gym-details.js?v=2026110604",
+          "duration": 7.700000017881393,
+          "encodedBodySize": 4925,
+          "decodedBodySize": 4925,
+          "transferSize": 5225
+        },
+        {
+          "name": "training-arena.js?v=2026110710",
+          "duration": 3.5999999940395355,
+          "encodedBodySize": 45037,
+          "decodedBodySize": 45037,
+          "transferSize": 45337
+        },
+        {
+          "name": "boxing-fight.js?v=2026110701",
+          "duration": 3,
+          "encodedBodySize": 14636,
+          "decodedBodySize": 14636,
+          "transferSize": 14936
+        },
+        {
+          "name": "fight-referee.js?v=2026110607",
+          "duration": 2.7000000178813934,
+          "encodedBodySize": 19286,
+          "decodedBodySize": 19286,
+          "transferSize": 19586
+        },
+        {
+          "name": "fight-arena.js?v=2026110608",
+          "duration": 2,
+          "encodedBodySize": 28923,
+          "decodedBodySize": 28923,
+          "transferSize": 29223
+        },
+        {
+          "name": "training-gear.js?v=2026110710",
+          "duration": 7.5999999940395355,
+          "encodedBodySize": 8843,
+          "decodedBodySize": 8843,
+          "transferSize": 9143
+        },
+        {
+          "name": "career-drills.js?v=2026110710",
+          "duration": 3.9000000059604645,
+          "encodedBodySize": 22713,
+          "decodedBodySize": 22713,
+          "transferSize": 23013
+        },
+        {
+          "name": "career-progress.js?v=2026110607",
+          "duration": 1.9000000059604645,
+          "encodedBodySize": 5491,
+          "decodedBodySize": 5491,
+          "transferSize": 5791
+        },
+        {
+          "name": "fight-ui.js?v=2026110406",
+          "duration": 7.800000011920929,
+          "encodedBodySize": 10388,
+          "decodedBodySize": 10388,
+          "transferSize": 10688
+        },
+        {
+          "name": "training-controls.js?v=2026110710",
+          "duration": 7.5,
+          "encodedBodySize": 21102,
+          "decodedBodySize": 21102,
+          "transferSize": 21402
+        },
+        {
+          "name": "character-roster.js?v=2026110607",
+          "duration": 7.100000023841858,
+          "encodedBodySize": 1653,
+          "decodedBodySize": 1653,
+          "transferSize": 1953
+        },
+        {
+          "name": "ring-camera.js?v=2026110703",
+          "duration": 2.300000011920929,
+          "encodedBodySize": 4442,
+          "decodedBodySize": 4442,
+          "transferSize": 4742
+        },
+        {
+          "name": "club-world.js?v=2026110604",
+          "duration": 1.699999988079071,
+          "encodedBodySize": 17512,
+          "decodedBodySize": 17512,
+          "transferSize": 17812
+        },
+        {
+          "name": "club-interface.css?v=2026110604",
+          "duration": 13.300000011920929,
+          "encodedBodySize": 25644,
+          "decodedBodySize": 25644,
+          "transferSize": 25944
+        },
+        {
+          "name": "club-interface.js?v=2026110607",
+          "duration": 25.5,
+          "encodedBodySize": 18135,
+          "decodedBodySize": 18135,
+          "transferSize": 18435
+        },
+        {
+          "name": "ringfighter-controls.css?v=2026110608",
+          "duration": 24.19999998807907,
+          "encodedBodySize": 12060,
+          "decodedBodySize": 12060,
+          "transferSize": 12360
+        },
+        {
+          "name": "ringfighter-controls.js?v=2026110608",
+          "duration": 41,
+          "encodedBodySize": 11491,
+          "decodedBodySize": 11491,
+          "transferSize": 11791
+        },
+        {
+          "name": "career-interface.css?v=2026110607",
+          "duration": 24.099999994039536,
+          "encodedBodySize": 7091,
+          "decodedBodySize": 7091,
+          "transferSize": 7391
+        },
+        {
+          "name": "career-interface.js?v=2026110702",
+          "duration": 31.69999998807907,
+          "encodedBodySize": 10521,
+          "decodedBodySize": 10521,
+          "transferSize": 10821
+        },
+        {
+          "name": "fight-presentation.js?v=2026110607",
+          "duration": 21.899999976158142,
+          "encodedBodySize": 2758,
+          "decodedBodySize": 2758,
+          "transferSize": 3058
+        },
+        {
+          "name": "ringside-layout.css?v=2026110710",
+          "duration": 10.5,
+          "encodedBodySize": 21464,
+          "decodedBodySize": 21464,
+          "transferSize": 21764
+        },
+        {
+          "name": "ringside-layout.js?v=2026110710",
+          "duration": 28.400000005960464,
+          "encodedBodySize": 8696,
+          "decodedBodySize": 8696,
+          "transferSize": 8996
+        },
+        {
+          "name": "coach-surface-v2.json?v=1",
+          "duration": 1280.0999999940395,
+          "encodedBodySize": 3421587,
+          "decodedBodySize": 3421587,
+          "transferSize": 3421887
+        },
+        {
+          "name": "equipment-surfaces-r76.json",
+          "duration": 1062,
+          "encodedBodySize": 11126724,
+          "decodedBodySize": 11126724,
+          "transferSize": 11127024
+        },
+        {
+          "name": "rabbit-surface-r78.json",
+          "duration": 1301.9000000059605,
+          "encodedBodySize": 2585398,
+          "decodedBodySize": 2585398,
+          "transferSize": 2585698
+        },
+        {
+          "name": "punch-body-1-v3.wav?v=79",
+          "duration": 192,
+          "encodedBodySize": 32684,
+          "decodedBodySize": 32684,
+          "transferSize": 32984
+        },
+        {
+          "name": "punch-body-2-v3.wav?v=79",
+          "duration": 192.10000002384186,
+          "encodedBodySize": 32684,
+          "decodedBodySize": 32684,
+          "transferSize": 32984
+        },
+        {
+          "name": "punch-head-v3.wav?v=79",
+          "duration": 199.2999999821186,
+          "encodedBodySize": 32684,
+          "decodedBodySize": 32684,
+          "transferSize": 32984
+        },
+        {
+          "name": "air-swing.wav?v=79",
+          "duration": 204,
+          "encodedBodySize": 9164,
+          "decodedBodySize": 9164,
+          "transferSize": 9464
+        },
+        {
+          "name": "breath-1.wav?v=79",
+          "duration": 202.7000000178814,
+          "encodedBodySize": 12044,
+          "decodedBodySize": 12044,
+          "transferSize": 12344
+        },
+        {
+          "name": "breath-2.wav?v=79",
+          "duration": 208.2999999821186,
+          "encodedBodySize": 15404,
+          "decodedBodySize": 15404,
+          "transferSize": 15704
+        },
+        {
+          "name": "clap-1.wav?v=79",
+          "duration": 224.7000000178814,
+          "encodedBodySize": 21644,
+          "decodedBodySize": 21644,
+          "transferSize": 21944
+        },
+        {
+          "name": "clap-2.wav?v=79",
+          "duration": 218,
+          "encodedBodySize": 21644,
+          "decodedBodySize": 21644,
+          "transferSize": 21944
+        },
+        {
+          "name": "clap-3.wav?v=79",
+          "duration": 218,
+          "encodedBodySize": 21644,
+          "decodedBodySize": 21644,
+          "transferSize": 21944
+        },
+        {
+          "name": "ring-bell-v3.wav?v=79",
+          "duration": 232.5,
+          "encodedBodySize": 287884,
+          "decodedBodySize": 287884,
+          "transferSize": 288184
+        },
+        {
+          "name": "applause-room-v3.wav?v=79",
+          "duration": 258.2999999821186,
+          "encodedBodySize": 883240,
+          "decodedBodySize": 883240,
+          "transferSize": 883540
+        },
+        {
+          "name": "lion.svg",
+          "duration": 208.59999999403954,
+          "encodedBodySize": 2236,
+          "decodedBodySize": 2236,
+          "transferSize": 2536
+        },
+        {
+          "name": "rabbit.svg",
+          "duration": 209.30000001192093,
+          "encodedBodySize": 2112,
+          "decodedBodySize": 2112,
+          "transferSize": 2412
+        },
+        {
+          "name": "favicon.svg",
+          "duration": 16,
+          "encodedBodySize": 178,
+          "decodedBodySize": 178,
+          "transferSize": 478
+        },
+        {
+          "name": "shoulder-correctives-v2.json?v=1",
+          "duration": 67,
+          "encodedBodySize": 1003415,
+          "decodedBodySize": 1003415,
+          "transferSize": 1003715
+        }
+      ]
+    }
+  },
+  "poses": [
+    {
+      "species": "lion",
+      "name": "guard",
+      "file": "lion-guard-0-front.png",
+      "move": "guard",
+      "phase": 0,
+      "time": 0,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 46,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 7.499145427796545e-16
+    },
+    {
+      "species": "lion",
+      "name": "guard",
+      "file": "lion-guard-0-profile.png",
+      "move": "guard",
+      "phase": 0,
+      "time": 0,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 47,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.280861043983426e-16
+    },
+    {
+      "species": "lion",
+      "name": "guard",
+      "file": "lion-guard-0-back.png",
+      "move": "guard",
+      "phase": 0,
+      "time": 0,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 48,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.008257629199242e-16
+    },
+    {
+      "species": "lion",
+      "name": "guard",
+      "file": "lion-guard-0-quarter.png",
+      "move": "guard",
+      "phase": 0,
+      "time": 0,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 49,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.008257629199242e-16
+    },
+    {
+      "species": "lion",
+      "name": "jab",
+      "file": "lion-jab-0.42-front.png",
+      "move": "jab",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 50,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.236704743275018e-16
+    },
+    {
+      "species": "lion",
+      "name": "jab",
+      "file": "lion-jab-0.42-profile.png",
+      "move": "jab",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 51,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.1910000110727263e-16
+    },
+    {
+      "species": "lion",
+      "name": "jab",
+      "file": "lion-jab-0.42-back.png",
+      "move": "jab",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 52,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.2056002537076006e-16
+    },
+    {
+      "species": "lion",
+      "name": "jab",
+      "file": "lion-jab-0.42-quarter.png",
+      "move": "jab",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 53,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.593023969348752e-16
+    },
+    {
+      "species": "lion",
+      "name": "cross",
+      "file": "lion-cross-0.42-front.png",
+      "move": "cross",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 54,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.563768190296064e-16
+    },
+    {
+      "species": "lion",
+      "name": "cross",
+      "file": "lion-cross-0.42-profile.png",
+      "move": "cross",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 55,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.451945521142416e-16
+    },
+    {
+      "species": "lion",
+      "name": "cross",
+      "file": "lion-cross-0.42-back.png",
+      "move": "cross",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 56,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.353541660708338e-16
+    },
+    {
+      "species": "lion",
+      "name": "cross",
+      "file": "lion-cross-0.42-quarter.png",
+      "move": "cross",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 57,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.736090074350496e-16
+    },
+    {
+      "species": "lion",
+      "name": "hook",
+      "file": "lion-hook-0.43-front.png",
+      "move": "hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 58,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.71891344611886e-16
+    },
+    {
+      "species": "lion",
+      "name": "hook",
+      "file": "lion-hook-0.43-profile.png",
+      "move": "hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 59,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.585973723508303e-16
+    },
+    {
+      "species": "lion",
+      "name": "hook",
+      "file": "lion-hook-0.43-back.png",
+      "move": "hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 60,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.593796540010889e-16
+    },
+    {
+      "species": "lion",
+      "name": "hook",
+      "file": "lion-hook-0.43-quarter.png",
+      "move": "hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 61,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.125396027766235e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_hook",
+      "file": "lion-rear_hook-0.43-front.png",
+      "move": "rear_hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 62,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 8.622116668970984e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_hook",
+      "file": "lion-rear_hook-0.43-profile.png",
+      "move": "rear_hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 63,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.484050470211362e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_hook",
+      "file": "lion-rear_hook-0.43-back.png",
+      "move": "rear_hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 64,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.027259209292748e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_hook",
+      "file": "lion-rear_hook-0.43-quarter.png",
+      "move": "rear_hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 65,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 9.999714131543225e-16
+    },
+    {
+      "species": "lion",
+      "name": "uppercut",
+      "file": "lion-uppercut-0.2-front.png",
+      "move": "uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 66,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.484050470211362e-16
+    },
+    {
+      "species": "lion",
+      "name": "uppercut",
+      "file": "lion-uppercut-0.2-profile.png",
+      "move": "uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 67,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 3.9166777128734765e-16
+    },
+    {
+      "species": "lion",
+      "name": "uppercut",
+      "file": "lion-uppercut-0.2-back.png",
+      "move": "uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 68,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.2006701311113314e-16
+    },
+    {
+      "species": "lion",
+      "name": "uppercut",
+      "file": "lion-uppercut-0.2-quarter.png",
+      "move": "uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 69,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.013290863191787e-16
+    },
+    {
+      "species": "lion",
+      "name": "uppercut",
+      "file": "lion-uppercut-0.46-front.png",
+      "move": "uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 70,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 8.89045358334726e-16
+    },
+    {
+      "species": "lion",
+      "name": "uppercut",
+      "file": "lion-uppercut-0.46-profile.png",
+      "move": "uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 71,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 7.519661107204848e-16
+    },
+    {
+      "species": "lion",
+      "name": "uppercut",
+      "file": "lion-uppercut-0.46-back.png",
+      "move": "uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 72,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 1.224080674111502e-15
+    },
+    {
+      "species": "lion",
+      "name": "uppercut",
+      "file": "lion-uppercut-0.46-quarter.png",
+      "move": "uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 73,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 3.983674527587667e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_uppercut",
+      "file": "lion-rear_uppercut-0.2-front.png",
+      "move": "rear_uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 74,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 3.927938218711837e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_uppercut",
+      "file": "lion-rear_uppercut-0.2-profile.png",
+      "move": "rear_uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 75,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.13768602261588e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_uppercut",
+      "file": "lion-rear_uppercut-0.2-back.png",
+      "move": "rear_uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 76,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.753015700338289e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_uppercut",
+      "file": "lion-rear_uppercut-0.2-quarter.png",
+      "move": "rear_uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 77,
+        "calls": 274,
+        "triangles": 984208,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 3.7341307954279784e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_uppercut",
+      "file": "lion-rear_uppercut-0.46-front.png",
+      "move": "rear_uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 78,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.261943282059023e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_uppercut",
+      "file": "lion-rear_uppercut-0.46-profile.png",
+      "move": "rear_uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 79,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.206339361333501e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_uppercut",
+      "file": "lion-rear_uppercut-0.46-back.png",
+      "move": "rear_uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 80,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.484050470211362e-16
+    },
+    {
+      "species": "lion",
+      "name": "rear_uppercut",
+      "file": "lion-rear_uppercut-0.46-quarter.png",
+      "move": "rear_uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 81,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.595829590473649e-16
+    },
+    {
+      "species": "lion",
+      "name": "slip",
+      "file": "lion-slip-0.45-front.png",
+      "move": "slip",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 82,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 7.962815368579682e-16
+    },
+    {
+      "species": "lion",
+      "name": "slip",
+      "file": "lion-slip-0.45-profile.png",
+      "move": "slip",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 83,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 8.886119947416683e-16
+    },
+    {
+      "species": "lion",
+      "name": "slip",
+      "file": "lion-slip-0.45-back.png",
+      "move": "slip",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 84,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 8.89586765947378e-16
+    },
+    {
+      "species": "lion",
+      "name": "slip",
+      "file": "lion-slip-0.45-quarter.png",
+      "move": "slip",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 85,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.56723570823358e-16
+    },
+    {
+      "species": "lion",
+      "name": "roll",
+      "file": "lion-roll-0.45-front.png",
+      "move": "roll",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 86,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.119616356906191e-16
+    },
+    {
+      "species": "lion",
+      "name": "roll",
+      "file": "lion-roll-0.45-profile.png",
+      "move": "roll",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 87,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 3.342804793598314e-16
+    },
+    {
+      "species": "lion",
+      "name": "roll",
+      "file": "lion-roll-0.45-back.png",
+      "move": "roll",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 88,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.122323930313737e-16
+    },
+    {
+      "species": "lion",
+      "name": "roll",
+      "file": "lion-roll-0.45-quarter.png",
+      "move": "roll",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 89,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 7.816349062114876e-16
+    },
+    {
+      "species": "lion",
+      "name": "step",
+      "file": "lion-step-0.45-front.png",
+      "move": "step",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 90,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 7.784251465316585e-16
+    },
+    {
+      "species": "lion",
+      "name": "step",
+      "file": "lion-step-0.45-profile.png",
+      "move": "step",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 91,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.644119504969763e-16
+    },
+    {
+      "species": "lion",
+      "name": "step",
+      "file": "lion-step-0.45-back.png",
+      "move": "step",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 92,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 8.888557877610145e-16
+    },
+    {
+      "species": "lion",
+      "name": "step",
+      "file": "lion-step-0.45-quarter.png",
+      "move": "step",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 93,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.670367046887758e-16
+    },
+    {
+      "species": "lion",
+      "name": "combo",
+      "file": "lion-combo-0.4-front.png",
+      "move": "combo",
+      "phase": 0.4,
+      "time": 0.488,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 94,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 8.622116668970984e-16
+    },
+    {
+      "species": "lion",
+      "name": "combo",
+      "file": "lion-combo-0.4-profile.png",
+      "move": "combo",
+      "phase": 0.4,
+      "time": 0.488,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 95,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.20773365668171e-16
+    },
+    {
+      "species": "lion",
+      "name": "combo",
+      "file": "lion-combo-0.4-back.png",
+      "move": "combo",
+      "phase": 0.4,
+      "time": 0.488,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 96,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 8.951873767601015e-16
+    },
+    {
+      "species": "lion",
+      "name": "combo",
+      "file": "lion-combo-0.4-quarter.png",
+      "move": "combo",
+      "phase": 0.4,
+      "time": 0.488,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 97,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.736579197075821e-16
+    },
+    {
+      "species": "lion",
+      "name": "head-hit",
+      "file": "lion-head-hit-0.35-front.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0,
+      "crop": "body",
+      "hit": {
+        "part": "head",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 98,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.593796540010889e-16
+    },
+    {
+      "species": "lion",
+      "name": "head-hit",
+      "file": "lion-head-hit-0.35-profile.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": {
+        "part": "head",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 99,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 1.335264529627489e-15
+    },
+    {
+      "species": "lion",
+      "name": "head-hit",
+      "file": "lion-head-hit-0.35-back.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": {
+        "part": "head",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 100,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 1.0000972084646052e-15
+    },
+    {
+      "species": "lion",
+      "name": "head-hit",
+      "file": "lion-head-hit-0.35-quarter.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": {
+        "part": "head",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 101,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 8.886119947416683e-16
+    },
+    {
+      "species": "lion",
+      "name": "body-hit",
+      "file": "lion-body-hit-0.35-front.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0,
+      "crop": "body",
+      "hit": {
+        "part": "body",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 102,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.684427777288335e-16
+    },
+    {
+      "species": "lion",
+      "name": "body-hit",
+      "file": "lion-body-hit-0.35-profile.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": {
+        "part": "body",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 103,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 7.796303550071736e-16
+    },
+    {
+      "species": "lion",
+      "name": "body-hit",
+      "file": "lion-body-hit-0.35-back.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": {
+        "part": "body",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 104,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 6.690187733356917e-16
+    },
+    {
+      "species": "lion",
+      "name": "body-hit",
+      "file": "lion-body-hit-0.35-quarter.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": {
+        "part": "body",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 105,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 7.710919024869534e-16
+    },
+    {
+      "species": "lion",
+      "name": "guard-hit",
+      "file": "lion-guard-hit-0.35-front.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0,
+      "crop": "body",
+      "hit": {
+        "part": "guard",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 106,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 3.925844416168177e-16
+    },
+    {
+      "species": "lion",
+      "name": "guard-hit",
+      "file": "lion-guard-hit-0.35-profile.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": {
+        "part": "guard",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 107,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 3.976416080268664e-16
+    },
+    {
+      "species": "lion",
+      "name": "guard-hit",
+      "file": "lion-guard-hit-0.35-back.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": {
+        "part": "guard",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 108,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 4.041272810440265e-16
+    },
+    {
+      "species": "lion",
+      "name": "guard-hit",
+      "file": "lion-guard-hit-0.35-quarter.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": {
+        "part": "guard",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 109,
+        "calls": 275,
+        "triangles": 985168,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 5.640599496620651e-16
+    },
+    {
+      "species": "rabbit",
+      "name": "guard",
+      "file": "rabbit-guard-0-front.png",
+      "move": "guard",
+      "phase": 0,
+      "time": 0,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 1,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "guard",
+      "file": "rabbit-guard-0-profile.png",
+      "move": "guard",
+      "phase": 0,
+      "time": 0,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 2,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "guard",
+      "file": "rabbit-guard-0-back.png",
+      "move": "guard",
+      "phase": 0,
+      "time": 0,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 3,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "guard",
+      "file": "rabbit-guard-0-quarter.png",
+      "move": "guard",
+      "phase": 0,
+      "time": 0,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 4,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "jab",
+      "file": "rabbit-jab-0.42-front.png",
+      "move": "jab",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 5,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "jab",
+      "file": "rabbit-jab-0.42-profile.png",
+      "move": "jab",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 6,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "jab",
+      "file": "rabbit-jab-0.42-back.png",
+      "move": "jab",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 7,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "jab",
+      "file": "rabbit-jab-0.42-quarter.png",
+      "move": "jab",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 8,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "cross",
+      "file": "rabbit-cross-0.42-front.png",
+      "move": "cross",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 9,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "cross",
+      "file": "rabbit-cross-0.42-profile.png",
+      "move": "cross",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 10,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "cross",
+      "file": "rabbit-cross-0.42-back.png",
+      "move": "cross",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 11,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "cross",
+      "file": "rabbit-cross-0.42-quarter.png",
+      "move": "cross",
+      "phase": 0.42,
+      "time": 0.5124,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 12,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "hook",
+      "file": "rabbit-hook-0.43-front.png",
+      "move": "hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 13,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "hook",
+      "file": "rabbit-hook-0.43-profile.png",
+      "move": "hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 14,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "hook",
+      "file": "rabbit-hook-0.43-back.png",
+      "move": "hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 15,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "hook",
+      "file": "rabbit-hook-0.43-quarter.png",
+      "move": "hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 16,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_hook",
+      "file": "rabbit-rear_hook-0.43-front.png",
+      "move": "rear_hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 17,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_hook",
+      "file": "rabbit-rear_hook-0.43-profile.png",
+      "move": "rear_hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 18,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_hook",
+      "file": "rabbit-rear_hook-0.43-back.png",
+      "move": "rear_hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 19,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_hook",
+      "file": "rabbit-rear_hook-0.43-quarter.png",
+      "move": "rear_hook",
+      "phase": 0.43,
+      "time": 0.5246,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 20,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "uppercut",
+      "file": "rabbit-uppercut-0.2-front.png",
+      "move": "uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 21,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "uppercut",
+      "file": "rabbit-uppercut-0.2-profile.png",
+      "move": "uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 22,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "uppercut",
+      "file": "rabbit-uppercut-0.2-back.png",
+      "move": "uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 23,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "uppercut",
+      "file": "rabbit-uppercut-0.2-quarter.png",
+      "move": "uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 24,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "uppercut",
+      "file": "rabbit-uppercut-0.46-front.png",
+      "move": "uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 25,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "uppercut",
+      "file": "rabbit-uppercut-0.46-profile.png",
+      "move": "uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 26,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "uppercut",
+      "file": "rabbit-uppercut-0.46-back.png",
+      "move": "uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 27,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "uppercut",
+      "file": "rabbit-uppercut-0.46-quarter.png",
+      "move": "uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 28,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_uppercut",
+      "file": "rabbit-rear_uppercut-0.2-front.png",
+      "move": "rear_uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 29,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_uppercut",
+      "file": "rabbit-rear_uppercut-0.2-profile.png",
+      "move": "rear_uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 30,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_uppercut",
+      "file": "rabbit-rear_uppercut-0.2-back.png",
+      "move": "rear_uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 31,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_uppercut",
+      "file": "rabbit-rear_uppercut-0.2-quarter.png",
+      "move": "rear_uppercut",
+      "phase": 0.2,
+      "time": 0.244,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 32,
+        "calls": 218,
+        "triangles": 890358,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_uppercut",
+      "file": "rabbit-rear_uppercut-0.46-front.png",
+      "move": "rear_uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 33,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_uppercut",
+      "file": "rabbit-rear_uppercut-0.46-profile.png",
+      "move": "rear_uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 34,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_uppercut",
+      "file": "rabbit-rear_uppercut-0.46-back.png",
+      "move": "rear_uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 35,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "rear_uppercut",
+      "file": "rabbit-rear_uppercut-0.46-quarter.png",
+      "move": "rear_uppercut",
+      "phase": 0.46,
+      "time": 0.5612,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 36,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "slip",
+      "file": "rabbit-slip-0.45-front.png",
+      "move": "slip",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 37,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "slip",
+      "file": "rabbit-slip-0.45-profile.png",
+      "move": "slip",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 38,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "slip",
+      "file": "rabbit-slip-0.45-back.png",
+      "move": "slip",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 39,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "slip",
+      "file": "rabbit-slip-0.45-quarter.png",
+      "move": "slip",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 40,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "roll",
+      "file": "rabbit-roll-0.45-front.png",
+      "move": "roll",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 41,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "roll",
+      "file": "rabbit-roll-0.45-profile.png",
+      "move": "roll",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 42,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "roll",
+      "file": "rabbit-roll-0.45-back.png",
+      "move": "roll",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 43,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "roll",
+      "file": "rabbit-roll-0.45-quarter.png",
+      "move": "roll",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 44,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "step",
+      "file": "rabbit-step-0.45-front.png",
+      "move": "step",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 45,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "step",
+      "file": "rabbit-step-0.45-profile.png",
+      "move": "step",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 46,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "step",
+      "file": "rabbit-step-0.45-back.png",
+      "move": "step",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 47,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "step",
+      "file": "rabbit-step-0.45-quarter.png",
+      "move": "step",
+      "phase": 0.45,
+      "time": 0.549,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 48,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "combo",
+      "file": "rabbit-combo-0.4-front.png",
+      "move": "combo",
+      "phase": 0.4,
+      "time": 0.488,
+      "yaw": 0,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 49,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "combo",
+      "file": "rabbit-combo-0.4-profile.png",
+      "move": "combo",
+      "phase": 0.4,
+      "time": 0.488,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 50,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "combo",
+      "file": "rabbit-combo-0.4-back.png",
+      "move": "combo",
+      "phase": 0.4,
+      "time": 0.488,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 51,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "combo",
+      "file": "rabbit-combo-0.4-quarter.png",
+      "move": "combo",
+      "phase": 0.4,
+      "time": 0.488,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": null,
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 52,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "head-hit",
+      "file": "rabbit-head-hit-0.35-front.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0,
+      "crop": "body",
+      "hit": {
+        "part": "head",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 53,
+        "calls": 223,
+        "triangles": 897206,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "head-hit",
+      "file": "rabbit-head-hit-0.35-profile.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": {
+        "part": "head",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 54,
+        "calls": 223,
+        "triangles": 897206,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "head-hit",
+      "file": "rabbit-head-hit-0.35-back.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": {
+        "part": "head",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 55,
+        "calls": 223,
+        "triangles": 897206,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "head-hit",
+      "file": "rabbit-head-hit-0.35-quarter.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": {
+        "part": "head",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 56,
+        "calls": 223,
+        "triangles": 897206,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "body-hit",
+      "file": "rabbit-body-hit-0.35-front.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0,
+      "crop": "body",
+      "hit": {
+        "part": "body",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 57,
+        "calls": 223,
+        "triangles": 897206,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "body-hit",
+      "file": "rabbit-body-hit-0.35-profile.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": {
+        "part": "body",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 58,
+        "calls": 223,
+        "triangles": 897206,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "body-hit",
+      "file": "rabbit-body-hit-0.35-back.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": {
+        "part": "body",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 59,
+        "calls": 223,
+        "triangles": 897206,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "body-hit",
+      "file": "rabbit-body-hit-0.35-quarter.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": {
+        "part": "body",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 60,
+        "calls": 223,
+        "triangles": 897206,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "guard-hit",
+      "file": "rabbit-guard-hit-0.35-front.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0,
+      "crop": "body",
+      "hit": {
+        "part": "guard",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 61,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "guard-hit",
+      "file": "rabbit-guard-hit-0.35-profile.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 1.5707963267948966,
+      "crop": "body",
+      "hit": {
+        "part": "guard",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 62,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "guard-hit",
+      "file": "rabbit-guard-hit-0.35-back.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 3.141592653589793,
+      "crop": "body",
+      "hit": {
+        "part": "guard",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 63,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    },
+    {
+      "species": "rabbit",
+      "name": "guard-hit",
+      "file": "rabbit-guard-hit-0.35-quarter.png",
+      "move": "guard",
+      "phase": 0.35,
+      "time": 0.427,
+      "yaw": 0.7853981633974483,
+      "crop": "body",
+      "hit": {
+        "part": "guard",
+        "move": "cross",
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "amount": 0.8,
+        "side": 1
+      },
+      "presentation": null,
+      "camera": {
+        "position": [
+          0,
+          1.35,
+          4.35
+        ],
+        "target": [
+          0,
+          1.25,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 38,
+        "aspect": 0.8
+      },
+      "canvas": [
+        360,
+        450
+      ],
+      "counts": {
+        "frame": 64,
+        "calls": 219,
+        "triangles": 891318,
+        "points": 0,
+        "lines": 0
+      },
+      "maneOffsetMax": 0
+    }
+  ],
+  "errors": [],
+  "captureCorrections": "Initial rabbit capture was discarded because selection was blocked by fight target mode. All 64 rabbit views were recaptured after switching to none and asserting the actual coach species.",
+  "referenceAccess": "YouTube Shorts frames unavailable: HTTPS proxy returned 403 Forbidden. No video-derived measurements claimed.",
+  "physicalPhone": false,
+  "profileReference": "profile.json",
+  "samplingNote": "Pose captures and scene profiling are separate. Final profile includes world.update; superseded arena-only preliminary measurements are not used."
+}

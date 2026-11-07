@@ -1,0 +1,7 @@
+{
+  "sourceSha": "a7fe5a4376cbe08a3237ae7d6f1355117b6b6282",
+  "workflow": "https://github.com/ytcat/fit/actions/runs/42405586595",
+  "status": "Success",
+  "suiteCount": 56,
+  "method": "Exact-SHA public Actions summary; workflow runs every tests/*.test.cjs and exits on first failure. Detailed CI logs not downloaded."
+}
