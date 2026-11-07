@@ -294,3 +294,13 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   desktop/phone-sized scene checks pass; manual jab/cross/hooks still land.
 - All 55 regression suites passed on `41d0ebc`. Proof: qa/r94/results/validation.json; visual report:
   docs/r94-mitt-hand-mapping.md and qa/r94/review.html.
+
+## R95 — rope/body clearance (2026-11-07)
+- Corrected handle outlets and added posed exclusion routing for the full body,
+  limbs, head/mane/ears, boots and tail while retaining compact hand targets.
+- Added a transported tube frame and full-cycle clearance regressions; separate
+  exact swept-segment checks pass both characters and four drills.
+- Reproduced baseline mesh overlap. Independent triangle checks measured final
+  lion/rabbit centreline lower bounds of 30.00/31.84 mm in sampled poses.
+- Browser WebGL1/2 checks pass. Full-suite proof: qa/r95/results/validation.json.
+- Details and limits: docs/r95-rope-body-clearance.md and qa/r95/review.html.

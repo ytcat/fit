@@ -1,5 +1,8 @@
 # RingFighter — 3D Boxing
 
+R95 routes the skipping rope around the posed body, with outward handle outlets
+and a protected gap. [Mesh clearance evidence](docs/r95-rope-body-clearance.md).
+
 R94 corrects coaching mitt assignments: right hand to the coach’s right mitt,
 and left to left. [Scene checks](docs/r94-mitt-hand-mapping.md).
 
