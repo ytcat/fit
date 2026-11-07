@@ -245,3 +245,14 @@ Inspect rig joint names and animation update paths, identify a free licensed box
 - Thirteen targeted suites pass; actual Chromium rendering and interaction checks
   are included in tests/browser-r89.cjs. Phone canvas is 377 × 694 at 393 × 844.
 - Full details and verification limits: docs/r89-mitts-rope-and-larger-ring.md.
+
+## RingFighter R90 — coordinated rope and smoother training (2026-11-07)
+- Coordinated wrist/shoulder/trunk/head/ankle skipping across all four exercises.
+- Added oxblood/black mitt materials, rubber handle channels and woven round cord.
+- Moved exact padding deformation to optional local shaders; sampled vertex uploads
+  fell 86%, with pixel-identical CPU/GPU renders in WebGL1 and WebGL2.
+- Removed pointer-event world updates, reused paused poses and mane transforms,
+  and allowed severe stalls to trigger adaptive quality.
+- All 54 suites passed on `ae7dbf1`; native gesture/recovery and resource-cycle
+  checks passed. Physical-phone sustained FPS and authored heads remain open.
+- Evidence and limitations: docs/r90-rope-performance.md and qa/r90/review.html.

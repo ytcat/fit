@@ -1,5 +1,9 @@
 # RingFighter — 3D Boxing
 
+R90 coordinates rope skipping across the body, improves leather mitts/rope handles,
+and reduces training deformation and camera-event work.
+[Changes, comparisons and verification](docs/r90-rope-performance.md).
+
 R89 fixes detached trainer mitts, improves training gear and movement, adds four
 forward-skipping exercises, and moves secondary controls into one menu for a
 larger game view. [Changes and verification](docs/r89-mitts-rope-and-larger-ring.md).
