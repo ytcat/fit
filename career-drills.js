@@ -94,9 +94,9 @@
     const heel=.18*Math.sin(Math.PI*phase)**2+.055*Math.sin(2*Math.PI*phase)**2,q=Q().setFromEuler(new THREE.Euler(heel*(1-Math.min(1,lift/.21))-lift*.6,0,0));
     const contact=V(sign*.115+sway*.008,.015+lift,.19-lift*.55+sway*sign*.008),ankle=contact.clone().sub(V(0,-.102,.215).applyQuaternion(q));
     const error=hero.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(sign*.08,.1,1));hero.orient(foot,q);const shin=hero.point(j['knee'+side]).sub(hero.point(foot)).normalize().applyQuaternion(q.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);footTargets.push({side,contact:contact.toArray(),lift:jump+lift,error});
-    j['arm'+side].position.y+=.020*Math.cos(angle-.25);j['arm'+side].position.z+=.018*coil+sign*.009*sway;
-    const hand=V(sign*(.435+.014*Math.sin(angle-.2))+sway*.010,handY+.048*Math.cos(angle)-.025*coil,.16-.052*Math.sin(angle)+sign*.012*sway);
-    handErrors.push(hero.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,V(sign*.70,-.9,-.10)));
+    j['arm'+side].position.y+=.008*Math.cos(angle-.25);j['arm'+side].position.z+=.018*coil+sign*.009*sway;
+    const hand=V(sign*(.315+.006*Math.sin(angle-.2))+sway*.010,handY+.018*Math.cos(angle)-.025*coil,.16-.025*Math.sin(angle)+sign*.012*sway);
+    handErrors.push(hero.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,V(sign*.045,-.85,-.40)));
     gloves.push(hero.orientGlove(side,.25,V(0,-1,0)));
     // Rope-specific wrist flex/deviation; boxing strikes retain neutral wrists.
     j['hand'+side].quaternion.multiply(Q().setFromEuler(new THREE.Euler(.075*Math.sin(angle),sign*.035*Math.cos(angle),sign*.045*Math.sin(angle-.3))));
@@ -115,7 +115,9 @@
     const lag=.12*Math.sin(angle)*bow,turn=angle+lag,overhead=Math.max(0,-Math.cos(turn));
     const rad=(radius+.035*overhead)*Math.pow(envelope,.55),point=points[i].copy(ends[0]).lerp(ends[1],u);
     point.y-=rad*Math.cos(turn);point.z-=rad*Math.sin(turn);
-    point.x+=.018*Math.sin(angle)*Math.sin(2*a)*envelope;}
+    // The loop bows outside the shoulders even with hands tucked at the
+    // hips; narrowing the grips must not pull the cable through the mane.
+    point.x-=.14*Math.sin(2*a);point.x+=.018*Math.sin(angle)*Math.sin(2*a)*envelope;}
    const p=this.rope.geometry.attributes.position,n=this.rope.geometry.attributes.normal,{tangent,normal,binormal}=this.ropeFrame;
    for(let i=0;i<points.length;i++){tangent.copy(points[Math.min(96,i+1)]).sub(points[Math.max(0,i-1)]).normalize();normal.set(0,1,0).cross(tangent).normalize();if(normal.lengthSq()<.01)normal.set(0,0,1);binormal.copy(tangent).cross(normal).normalize();for(let k=0;k<6;k++){const a=k/6*Math.PI*2,c=Math.cos(a),s=Math.sin(a),x=normal.x*c+binormal.x*s,y=normal.y*c+binormal.y*s,z=normal.z*c+binormal.z*s;p.setXYZ(i*6+k,points[i].x+.0045*x,points[i].y+.0045*y,points[i].z+.0045*z);n.setXYZ(i*6+k,x,y,z);}}p.needsUpdate=n.needsUpdate=true;
    if(phase>.54&&this.once('jump'+cycle))frame.jumps=1;
