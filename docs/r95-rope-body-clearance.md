@@ -63,6 +63,7 @@ compact raw metrics and reproducible scripts are in `qa/r95`.
 Matching browser views cover overhead/front/side/rear/backward/underfoot and a
 393×844 viewport. WebGL2 and a WebGL1 subset link their shaders without page errors.
 These are Chromium/SwiftShader checks, not physical iPhone/Android benchmarks.
+All **56 regression suites passed** on exact runtime `ddc111c`: [CI run](https://github.com/ytcat/fit/actions/runs/42395869416).
 Exact complete-suite status: [validation.json](../qa/r95/results/validation.json).
 
 Node CPU diagnostics (fake canvas, both using shader padding) measured rope

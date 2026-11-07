@@ -302,5 +302,6 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   exact swept-segment checks pass both characters and four drills.
 - Reproduced baseline mesh overlap. Independent triangle checks measured final
   lion/rabbit centreline lower bounds of 30.00/31.84 mm in sampled poses.
-- Browser WebGL1/2 checks pass. Full-suite proof: qa/r95/results/validation.json.
+- All 56 regression suites passed on `ddc111c`, plus WebGL1/2 checks.
+  Proof: qa/r95/results/validation.json.
 - Details and limits: docs/r95-rope-body-clearance.md and qa/r95/review.html.

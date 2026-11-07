@@ -1,0 +1,45 @@
+{
+  "baselineSHA": "4384f553de61c90f18c8346fcc084bc813df2c63",
+  "runtimeSHA": "ddc111c066dee090281af3e8061f980ec4d683cc",
+  "ci": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42395869416",
+    "status": "Success",
+    "duration": "10m 53s",
+    "suiteCount": 56,
+    "method": "Exact-runtime public Actions status; unchanged workflow checks JS and every tests/*.test.cjs. Detailed hosted logs require login."
+  },
+  "clearance": {
+    "outlets": "outward",
+    "compactHandTargetsRetained": true,
+    "poseVolumeGap": 0.03,
+    "diagnosticShell": 0.012,
+    "cableRadius": 0.0045,
+    "fullCycleCases": 8,
+    "exactSegmentCheck": "PASS 121 sampled times/two revolutions, both species/four drills"
+  },
+  "mesh": {
+    "method": "Independent triangle-distance test using CPU-exported visible render meshes, including coat, skin, mane, wraps and clothing. Handles/bearings excluded as intentional attachment. Samples <=5 mm apart. Not GPU readback.",
+    "baselineBackwardMinimum": 4.303403133643459e-05,
+    "lionPoses": 8,
+    "lionTrianglesPerPose": 421331,
+    "lionMinimumSampled": 0.03250467815271305,
+    "lionContinuousSpatialLowerBound": 0.030004678152713054,
+    "rabbitPoses": 2,
+    "rabbitTrianglesPerPose": 374406,
+    "rabbitContinuousSpatialLowerBound": 0.031835688851492794,
+    "allFinalChecksPass": true
+  },
+  "browser": {
+    "webgl1Subset": "PASS",
+    "webgl2Views": "PASS front/side/rear/overhead/backward/underfoot/mobile",
+    "physicalPhoneVerified": false
+  },
+  "limits": "Actual-mesh checks are sampled poses, complemented by full-cycle conservative-volume checks; not an exhaustive continuous-time mesh proof or physical rope simulation.",
+  "hashes": {
+    "career-drills.js": "44d87924ec280c8d8db4a8977947c6cf0b299672e554c345d28fd86f40fc68bd",
+    "training-gear.js": "187ca66a55e5be4e135d9e9723d963b1c6824a2208a3ab31885bd4bba48c2728",
+    "index.html": "c10a49270d190b76bb96f4cc80b5ad11337873a5828e530177d83d63c79c8977",
+    "tests/training-motion.test.cjs": "3dc3bfa8743b6eac951dfb1d5b75906d7f7d37a7082b379723a7b675f18246af",
+    "tests/rope-clearance.test.cjs": "3a7657fdfd7d90cd4cc85bfb221c650a09bd910d2fdc4fa0b4517b5b99a249b4"
+  }
+}
