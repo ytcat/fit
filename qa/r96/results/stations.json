@@ -1,0 +1,197 @@
+{
+  "rows": [
+    {
+      "mode": "none",
+      "panel": "practice",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "none",
+      "panel": "moves",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "none",
+      "panel": "settings",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "heavy",
+      "panel": "practice",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "heavy",
+      "panel": "moves",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "heavy",
+      "panel": "settings",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "dummy",
+      "panel": "practice",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "dummy",
+      "panel": "moves",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "dummy",
+      "panel": "settings",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "speed",
+      "panel": "practice",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "speed",
+      "panel": "moves",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "speed",
+      "panel": "settings",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "rabbit",
+      "panel": "practice",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "rabbit",
+      "panel": "moves",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "rabbit",
+      "panel": "settings",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "rope",
+      "panel": "practice",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "rope",
+      "panel": "moves",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "rope",
+      "panel": "settings",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "pads",
+      "panel": "practice",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "pads",
+      "panel": "moves",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "pads",
+      "panel": "settings",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "fight",
+      "panel": "practice",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "fight",
+      "panel": "moves",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    },
+    {
+      "mode": "fight",
+      "panel": "settings",
+      "overflow": 0,
+      "panelOverflow": 0,
+      "textOverflow": [],
+      "clipped": []
+    }
+  ],
+  "errors": []
+}

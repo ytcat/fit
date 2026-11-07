@@ -1,7 +1,7 @@
 # R96 — palm-up rope grip, phone controls and punch drive
 
 Baseline: R95 `e7abc7cbe2255a42912d08b8fd8306a77064e39a`.
-Final runtime: `e18bd08708083d9fcc7d0b6fac3b7de78596ccab`.
+Final runtime: `40ceee6440f3e63db3c043ba20783da2e7fa4a14`.
 Isolated worktree `/workspace/fit-r96`; no other worktree edited.
 [Actual app captures and raw results](../qa/r96/review.html).
 
@@ -44,6 +44,9 @@ English/Hebrew/Russian, all three panels and combination paging. It measures
 control rectangles and scroll extents. Another 48 cases cover four phone
 viewports × shadow/mitts/speed-bag/fight × Moves/Combos/Defence: all 15 page/action
 buttons stay within the stage, with separate rails and no rail scrolling.
+All eight stations also pass all three drawer panels on 320×568 with Russian
+labels, including the 14 speed-bag drills and extra rope selector. Speed-bag
+techniques use four rows on short phones, with a more compact skill-card margin.
 Pause/resume clicks pass; the pause glyph has equal horizontal margins (14 px)
 and vertical margins (13 px). These are Chromium viewport checks, not physical
 phone validation.
@@ -109,3 +112,15 @@ resource counts are measured separately in the render reports; no GPU frame
 time, GPU-memory peak, full-fight sustained FPS or physical-device thermal result
 was obtained. Initial single-run timings were noisy and are retained externally,
 not used as proof of an optimization.
+
+## Release verification
+
+All 56 Node suites, asset-reference checks and JavaScript syntax checks passed
+on `e18bd08708083d9fcc7d0b6fac3b7de78596ccab`:
+https://github.com/ytcat/fit/actions/runs/42404515307 .
+The final runtime JavaScript, index, assets, tests and workflow are byte-identical
+to that successful source (verified with git diff). The subsequent runtime change
+is solely the small-screen speed-bag CSS. Final CSS passed layout, club-interface,
+training-controls and real-browser station/panel/text-overflow checks. A full
+workflow for the final CSS commit was started, but its result is not claimed as
+release evidence; code-suite and final-style checks are recorded separately.

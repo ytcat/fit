@@ -1,0 +1,46 @@
+{
+  "baselineSha": "e7abc7cbe2255a42912d08b8fd8306a77064e39a",
+  "finalRuntimeSha": "40ceee6440f3e63db3c043ba20783da2e7fa4a14",
+  "fullSuite": {
+    "sourceSha": "e18bd08708083d9fcc7d0b6fac3b7de78596ccab",
+    "url": "https://github.com/ytcat/fit/actions/runs/42404515307",
+    "observedStatus": "Success",
+    "suiteCount": 56,
+    "method": "Public successful exact-SHA Actions summary; workflow performs asset and JS-syntax checks and runs each tests/*.test.cjs, exiting on failure. Detailed individual CI logs require sign-in and were not downloaded."
+  },
+  "followup": {
+    "scope": "CSS-only runtime changes after the successful 56-suite JavaScript source; QA and documentation also added. No JavaScript, asset, index, test or workflow differences from the validated source.",
+    "fullJavaScriptEqualityVerified": true,
+    "targetedChecks": [
+      "node tests/layout.test.cjs",
+      "node tests/club-interface.test.cjs",
+      "node tests/training-controls.test.cjs",
+      "node --check qa/r96/stations.cjs",
+      "git diff --check",
+      "Actual Chromium: all eight stations \u00d7 three panels at 320\u00d7568 in Russian, including button text overflow; PASS."
+    ],
+    "finalCssFullSuiteRun": "A new workflow was started for the final CSS commit; its outcome is not claimed here. The release evidence is the successful identical-JavaScript full suite plus final-CSS targeted checks."
+  },
+  "browser": {
+    "menuCases": 45,
+    "manualLayoutCases": 48,
+    "allStationPanelCases": 24,
+    "pauseResume": "PASS; centred glyph margins equal",
+    "pageErrors": [],
+    "physicalPhone": false
+  },
+  "geometry": {
+    "lionActualMeshFrames": 8,
+    "rabbitActualMeshFrames": 3,
+    "meshThresholdUnchanged": true,
+    "protectedSweptCases": 8,
+    "ropePalmNormalYMinimumGate": 0.65,
+    "palmAndTuckChecks": "PASS both species, all four patterns"
+  },
+  "limitations": [
+    "Physical iPhone/Android sustained FPS, thermals and audio not verified.",
+    "Manual uppercut-to-mitt contact/scoring gap remains; no invented contacts.",
+    "CPU-deformed mesh at discrete times is not exhaustive continuous GPU validation.",
+    "Shared-host CPU timing is not browser FPS or GPU timing."
+  ]
+}
