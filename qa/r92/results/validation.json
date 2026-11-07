@@ -1,0 +1,40 @@
+{
+  "baselineSHA": "c4d5cb0df3649b8f04d93a39d7f30431dcc1b668",
+  "runtimeSHA": "b064eac4bc83670e4c06fab12a82713ab07b1193",
+  "ci": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42380680622",
+    "status": "Success",
+    "duration": "8m 14s",
+    "suiteCount": 55,
+    "method": "Exact-runtime public Actions status; unchanged workflow checks JS and every tests/*.test.cjs. Detailed hosted logs require login."
+  },
+  "spacing": {
+    "before": 0.9,
+    "after": 1.2,
+    "units": "metres between character roots",
+    "guardChestBefore": 0.8794583979755873,
+    "guardChestAfter": 1.1794583979755873
+  },
+  "targeted": [
+    "career-drills PASS both species, real hits and duck credit",
+    "fluid-drills PASS bilateral sweeps, minimum separation, wrists/reach and grounded soles",
+    "training-motion PASS original continuity and clearance gates"
+  ],
+  "browser": {
+    "actualMatchingViews": [
+      "guard",
+      "jab",
+      "sweep",
+      "mobile"
+    ],
+    "errors": [],
+    "allProgramsLinked": true,
+    "physicalPhoneVerified": false
+  },
+  "knownBaselineIssue": "Manual uppercuts record zero mitt contacts at both old and new spacing; not resolved by this spacing fix. Jab, cross and both hooks record one contact in each version.",
+  "hashes": {
+    "career-drills.js": "e6cf5dc3a316f5bd94dd695109c1f930ee95a3b15a62e19f4f636eca66aff07f",
+    "index.html": "d0dac25f2379ff928d98bbb2b769ff8c04ed011b985447704f3ada795924064f",
+    "tests/fluid-drills.test.cjs": "8762e89f44c7ec04f73ba7b91a692fd89ca13d5e493b6959e7d95beb9aa7f833"
+  }
+}

@@ -40,6 +40,7 @@ Both uppercuts record zero contacts at both distances: a pre-existing mitt
 contact-scoring gap, not resolved by this spacing correction. Raw before/after
 logs are retained; these diagnostics are not reported as six passing hit tests.
 
+All **55 regression suites passed** on exact runtime `b064eac`: [CI run](https://github.com/ytcat/fit/actions/runs/42380680622).
 Exact complete-suite status: [validation.json](../qa/r92/results/validation.json).
 These are authored poses and Chromium compatibility/visual checks, not measured
 human biomechanics or physical-phone performance. No new mesh, texture, library,
