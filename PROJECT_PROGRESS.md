@@ -1,3 +1,12 @@
+## 2026-11-07 — Master-brief first motion milestone
+
+Final-pose audit and capped clock contracts added; mitt station pilots 120-Hz
+contact, all six punches, centreline uppercuts and down-facing catches. Existing
+rig, modes, same-hand mapping and standing distance retained.
+[Evidence, CPU cost and limitations](docs/realism/first-motion-milestone.md).
+[Unfinished phases](docs/realism/execution-status.md). No new realism score or
+physical-phone performance claim. Whole-game clock/layer migration remains open.
+
 # Lion app development checkpoints
 
 Updated: 2026-11-02

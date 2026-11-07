@@ -9,10 +9,13 @@ Source brief: [FIT_REALISM_CODEX_MASTER_INSTRUCTIONS.md](../FIT_REALISM_CODEX_MA
   cover every action's complete animated timeline.
 - Phase 1 foundation: structured final-pose contract, explicit coordinate spaces,
   reusable buffers, quaternion interpolation and tested capped clock utility.
-  Whole-game layer ownership, render interpolation and clock migration are not
-  complete. The legacy controller remains the source of authoritative poses.
-- Baseline repair under development: manual mitt uppercut targeting, receiving
-  palm posture, actual incoming/swept contact and arbitrary player wait timing.
+  A 120-Hz mitt-station pilot now solves both characters, aggregates real
+  contacts and uploads skin/face/mane detail once per displayed update. Whole-game
+  layer ownership, render interpolation and remaining clock migrations are not complete. The legacy controller remains the source of authoritative poses.
+- First motion pilot implemented: all six mitt punches, centred compact uppercut
+  targeting, down-facing catches, upward mitt recoil, incoming swept contact and
+  arbitrary player wait timing. Same-hand assignments and 1.2-metre standing
+  separation remain. Both species pass targeted tests at normal and extreme pacing.
 - Phases 2–3: complete data-driven action families, all defensive reactions,
   unified impact event across every mode, bounded stagger/recovery with support
   steps and comprehensive interruptions remain to be implemented/validated.
@@ -30,8 +33,9 @@ review branch/body and retry PR creation after completing the tested milestone;
 never report a compare URL as an existing PR. Git transport and public GitHub
 Actions pages are accessible. YouTube reference frames are also blocked (403).
 
-Next migration order: first make mitt contacts geometrically valid, then pilot
-bounded fixed-step station updates without nested clocks; measure full-body
-update cost and keep a legacy fallback. Capture the final post-contact pose once,
-validate all existing modes and only then move other controllers to explicit
-layers. Do not fix pose continuity by relaxing elbow/wrist/foot collision tests.
+Next migration order: profile extreme-rate mitt catch-up cost, establish explicit
+layer ownership and render interpolation, then migrate other controllers without
+nested clocks. Capture the final post-contact pose once. Do not relax elbow,
+wrist or foot collision tests to make motion gates pass.
+
+[First milestone evidence and limitations](first-motion-milestone.md).

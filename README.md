@@ -1,5 +1,9 @@
 # RingFighter — 3D Boxing
 
+Master-brief first milestone: final-pose contracts, rate-independent mitt training,
+all six punches and compact uppercut catches.
+[Actual comparisons, validation and remaining work](docs/realism/first-motion-milestone.md).
+
 R95 routes the skipping rope around the posed body, with outward handle outlets
 and a protected gap. [Mesh clearance evidence](docs/r95-rope-body-clearance.md).
 
