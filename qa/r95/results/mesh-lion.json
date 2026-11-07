@@ -1,0 +1,87 @@
+{
+  "method": "All exported visible triangles; samples <=5 mm apart. Cable radius 4.5 mm. Minimum sample threshold 18 mm gives at least 15.5 mm centreline clearance by distance Lipschitz bound. Handles/bearings excluded as intended attachment; wraps/fingers included.",
+  "species": "lion",
+  "frames": [
+    {
+      "phase": 0,
+      "samples": 608,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.03250467815271305,
+      "continuousLowerBound": 0.030004678152713054,
+      "closestMesh": "Wrapped palm",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.125,
+      "samples": 603,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.034582803126998414,
+      "continuousLowerBound": 0.03208280312699841,
+      "closestMesh": "Wrapped palm",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.25,
+      "samples": 595,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.036580254314741836,
+      "continuousLowerBound": 0.034080254314741834,
+      "closestMesh": "Curled finger",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.375,
+      "samples": 580,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.03653172577429534,
+      "continuousLowerBound": 0.034031725774295335,
+      "closestMesh": "Curled finger",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.5,
+      "samples": 573,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.03770951144068066,
+      "continuousLowerBound": 0.03520951144068066,
+      "closestMesh": "Wrapped palm",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.625,
+      "samples": 573,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.037709535729499435,
+      "continuousLowerBound": 0.03520953572949943,
+      "closestMesh": "Wrapped palm",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.75,
+      "samples": 582,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.03770953689878386,
+      "continuousLowerBound": 0.03520953689878386,
+      "closestMesh": "Wrapped palm",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.875,
+      "samples": 620,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.03555263610030693,
+      "continuousLowerBound": 0.033052636100306926,
+      "closestMesh": "Wrapped palm",
+      "violations": 0,
+      "examples": []
+    }
+  ],
+  "pass": true
+}

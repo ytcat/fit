@@ -1,0 +1,55 @@
+{
+  "method": "All exported visible triangles; samples <=5 mm apart. Cable radius 4.5 mm. Minimum sample threshold 18 mm gives at least 15.5 mm centreline clearance by distance Lipschitz bound. Handles/bearings excluded as intended attachment; wraps/fingers included.",
+  "species": "lion",
+  "frames": [
+    {
+      "phase": 0.25,
+      "samples": 573,
+      "triangles": 421331,
+      "minimumSampledDistance": 0.025114671543391906,
+      "continuousLowerBound": 0.022614671543391907,
+      "closestMesh": "Wrapped grip thumb",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.75,
+      "samples": 568,
+      "triangles": 421331,
+      "minimumSampledDistance": 4.303403133643459e-05,
+      "continuousLowerBound": -0.0024569659686635653,
+      "closestMesh": "SkinnedMesh",
+      "violations": 106,
+      "examples": [
+        {
+          "point": [
+            -0.26751537178013773,
+            1.1605100116214238,
+            0.23422527736103213
+          ],
+          "distance": 0.017139697721979166,
+          "mesh": "Wrapped grip thumb"
+        },
+        {
+          "point": [
+            -0.2674679168172785,
+            1.160521668356818,
+            0.2292990598928284
+          ],
+          "distance": 0.013520884836738647,
+          "mesh": "Wrapped grip thumb"
+        },
+        {
+          "point": [
+            -0.2674204618544192,
+            1.1605333250922125,
+            0.22437284242462469
+          ],
+          "distance": 0.009907620887087345,
+          "mesh": "Wrapped grip thumb"
+        }
+      ]
+    }
+  ],
+  "pass": false
+}

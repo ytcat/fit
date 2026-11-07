@@ -1,0 +1,29 @@
+lion mitt motion {
+  maxStep: 0.017098119607736172,
+  maxTurn: 0.13410269462829522,
+  hits: 3,
+  ducks: 1
+}
+lion two_feet { headTop: 2.1481009856408364, ropeTop: 2.2369203008723684 }
+lion two_feet compact arms { hand: 0.3307045675470658, elbow: 0.31595931154619566 }
+lion alternating { headTop: 2.1479481564149285, ropeTop: 2.23782818693869 }
+lion alternating compact arms { hand: 0.3517923168056011, elbow: 0.3398267048415628 }
+lion left_leg { headTop: 2.1479481564149285, ropeTop: 2.23782818693869 }
+lion left_leg compact arms { hand: 0.2941970134059144, elbow: 0.340902005288157 }
+lion right_leg { headTop: 2.1480741275472064, ropeTop: 2.2390445160829646 }
+lion right_leg compact arms { hand: 0.35419701340591425, elbow: 0.29268790257867483 }
+rabbit mitt motion {
+  maxStep: 0.017098119607736172,
+  maxTurn: 0.13410269462829522,
+  hits: 3,
+  ducks: 1
+}
+rabbit two_feet { headTop: 2.3273159554743215, ropeTop: 2.6357123425501126 }
+rabbit two_feet compact arms { hand: 0.3307045675470659, elbow: 0.3144844084863912 }
+rabbit alternating { headTop: 2.327799707155026, ropeTop: 2.6376351969675706 }
+rabbit alternating compact arms { hand: 0.3517923168056009, elbow: 0.35441076537494753 }
+rabbit left_leg { headTop: 2.327799707155026, ropeTop: 2.6376351969675706 }
+rabbit left_leg compact arms { hand: 0.2941970134059145, elbow: 0.35760638365445 }
+rabbit right_leg { headTop: 2.326978048227968, ropeTop: 2.6414395605385588 }
+rabbit right_leg compact arms { hand: 0.3541970134059145, elbow: 0.2808122306807282 }
+PASS attached full-size mitts, continuous motion, live target contacts, forward rope, handle attachment, four footwork exercises and grounded boots

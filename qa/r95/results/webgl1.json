@@ -1,0 +1,73 @@
+{
+  "root": "/workspace/fit-r95",
+  "shots": [
+    {
+      "name": "turn",
+      "phase": 0.25,
+      "yaw": 0.65,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.30098787254930714,
+          "elbowFromHip": 0.31464058031892383
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31725132851659776,
+          "elbowFromHip": 0.3114990904781354
+        }
+      ],
+      "ropeLowest": 1.1001454764534142,
+      "calls": 169,
+      "triangles": 433667,
+      "programsLinked": true
+    },
+    {
+      "name": "rear-pass",
+      "phase": 0.75,
+      "yaw": 2.1,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.3290121274506925,
+          "elbowFromHip": 0.27329295541203763
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31274867148340213,
+          "elbowFromHip": 0.3263958827008049
+        }
+      ],
+      "ropeLowest": 1.0952040651466,
+      "calls": 159,
+      "triangles": 432057,
+      "programsLinked": true
+    },
+    {
+      "name": "side",
+      "phase": 0.25,
+      "yaw": 2.1,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.30098787254930714,
+          "elbowFromHip": 0.31464058031892383
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31725132851659776,
+          "elbowFromHip": 0.3114990904781354
+        }
+      ],
+      "ropeLowest": 1.1001454764534142,
+      "calls": 159,
+      "triangles": 432057,
+      "programsLinked": true
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}

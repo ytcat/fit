@@ -1,0 +1,27 @@
+{
+  "method": "All exported visible triangles; samples <=5 mm apart. Cable radius 4.5 mm. Minimum sample threshold 18 mm gives at least 15.5 mm centreline clearance by distance Lipschitz bound. Handles/bearings excluded as intended attachment; wraps/fingers included.",
+  "species": "rabbit",
+  "frames": [
+    {
+      "phase": 0,
+      "samples": 676,
+      "triangles": 374406,
+      "minimumSampledDistance": 0.034335688851492796,
+      "continuousLowerBound": 0.031835688851492794,
+      "closestMesh": "Wrapped palm",
+      "violations": 0,
+      "examples": []
+    },
+    {
+      "phase": 0.75,
+      "samples": 669,
+      "triangles": 374406,
+      "minimumSampledDistance": 0.03770952019243589,
+      "continuousLowerBound": 0.03520952019243589,
+      "closestMesh": "Wrapped palm",
+      "violations": 0,
+      "examples": []
+    }
+  ],
+  "pass": true
+}

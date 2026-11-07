@@ -1,0 +1,41 @@
+lion two_feet {
+  worst: 0.04857096178774034,
+  worstPart: 'forearmR',
+  maxCorrection: 0.16630474089655217
+}
+lion alternating {
+  worst: 0.044005255581138325,
+  worstPart: 'forearmR',
+  maxCorrection: 0.2033541197289926
+}
+lion left_leg {
+  worst: 0.045077504483917785,
+  worstPart: 'forearmL',
+  maxCorrection: 0.19366934989867207
+}
+lion right_leg {
+  worst: 0.04362133691087111,
+  worstPart: 'forearmR',
+  maxCorrection: 0.20799660165434752
+}
+rabbit two_feet {
+  worst: 0.06382632365781382,
+  worstPart: 'upper-armR',
+  maxCorrection: 0.14959442294843978
+}
+rabbit alternating {
+  worst: 0.057852306916215124,
+  worstPart: 'upper-armL',
+  maxCorrection: 0.18572054211634326
+}
+rabbit left_leg {
+  worst: 0.057686874207510286,
+  worstPart: 'upper-armL',
+  maxCorrection: 0.20064485530549175
+}
+rabbit right_leg {
+  worst: 0.060765056010439356,
+  worstPart: 'upper-armR',
+  maxCorrection: 0.19354937280791568
+}
+PASS full-cycle rope segments clear the posed body, limbs, equipment, ears/mane and tail with a protected gap

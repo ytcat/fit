@@ -1,0 +1,54 @@
+{
+  "method": "Exact minimum over each continuous cable segment against posed diagnostic ellipsoids expanded 12 mm; 121 time samples over two revolutions, both species and four drills. Not a physical rope simulation.",
+  "pass": true,
+  "rows": [
+    {
+      "species": "lion",
+      "exercise": "two_feet",
+      "minimumNormalizedClearance": 0.04710830116684983,
+      "part": "forearmR"
+    },
+    {
+      "species": "lion",
+      "exercise": "alternating",
+      "minimumNormalizedClearance": 0.04256266655060115,
+      "part": "forearmR"
+    },
+    {
+      "species": "lion",
+      "exercise": "left_leg",
+      "minimumNormalizedClearance": 0.04351369565108065,
+      "part": "forearmL"
+    },
+    {
+      "species": "lion",
+      "exercise": "right_leg",
+      "minimumNormalizedClearance": 0.04218044386610931,
+      "part": "forearmR"
+    },
+    {
+      "species": "rabbit",
+      "exercise": "two_feet",
+      "minimumNormalizedClearance": 0.06350521056049718,
+      "part": "upper-armR"
+    },
+    {
+      "species": "rabbit",
+      "exercise": "alternating",
+      "minimumNormalizedClearance": 0.05783258114664003,
+      "part": "upper-armL"
+    },
+    {
+      "species": "rabbit",
+      "exercise": "left_leg",
+      "minimumNormalizedClearance": 0.057666568010452224,
+      "part": "upper-armL"
+    },
+    {
+      "species": "rabbit",
+      "exercise": "right_leg",
+      "minimumNormalizedClearance": 0.06046731744445544,
+      "part": "upper-armR"
+    }
+  ]
+}
