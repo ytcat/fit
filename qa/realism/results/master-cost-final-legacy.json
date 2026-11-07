@@ -1,0 +1,20 @@
+{
+  "method": "Same source, 60-Hz requested updates; 30 warmup +240 samples; fake canvas CPU only, not renderer/GPU/physical-phone FPS.",
+  "path": "legacy-variable",
+  "results": [
+    {
+      "rate": 1,
+      "samples": 240,
+      "p50": 2.617447999999058,
+      "p95": 5.875694999999723,
+      "heap": 85593544
+    },
+    {
+      "rate": 3,
+      "samples": 240,
+      "p50": 2.179388000000472,
+      "p95": 3.7276089999995747,
+      "heap": 99897896
+    }
+  ]
+}

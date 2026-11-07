@@ -1,0 +1,200 @@
+PASS all six same-hand mitt punches for both species after waiting, uppercuts at 30 Hz/3× and 144 Hz/0.5×, incoming swept contact, no duplicate/teleport/miss hits, and one final detail pass [
+  {
+    species: 'lion',
+    move: 'jab',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.2583333333333333,
+    speed: 0.5468639180006143
+  },
+  {
+    species: 'lion',
+    move: 'cross',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.2333333333333334,
+    speed: 0.258825510907858
+  },
+  {
+    species: 'lion',
+    move: 'hook',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.35,
+    speed: 0.7755048303849905
+  },
+  {
+    species: 'lion',
+    move: 'rear_hook',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.4,
+    speed: 0.31038117198198034
+  },
+  {
+    species: 'lion',
+    move: 'uppercut',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.533333333333333,
+    speed: 0.8932843482563624
+  },
+  {
+    species: 'lion',
+    move: 'rear_uppercut',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.3497347866794867,
+    speed: 4.069277116795807
+  },
+  {
+    species: 'lion',
+    move: 'uppercut',
+    hz: 30,
+    rate: 3,
+    delay: 0,
+    time: 0.5333333333333333,
+    speed: 0.9071199916666921
+  },
+  {
+    species: 'lion',
+    move: 'uppercut',
+    hz: 144,
+    rate: 0.5,
+    delay: 0,
+    time: 0.5333333333333333,
+    speed: 0.9071199916666921
+  },
+  {
+    species: 'lion',
+    move: 'rear_uppercut',
+    hz: 30,
+    rate: 3,
+    delay: 0,
+    time: 0.35,
+    speed: 4.1158463835489325
+  },
+  {
+    species: 'lion',
+    move: 'rear_uppercut',
+    hz: 144,
+    rate: 0.5,
+    delay: 0,
+    time: 0.35,
+    speed: 4.1158463835489325
+  },
+  {
+    species: 'lion',
+    move: 'uppercut',
+    hz: 60,
+    rate: 1,
+    delay: 3,
+    time: 3.533333333333333,
+    speed: 0.8932843482563624
+  },
+  {
+    species: 'rabbit',
+    move: 'jab',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.2583333333333333,
+    speed: 0.5468639180006143
+  },
+  {
+    species: 'rabbit',
+    move: 'cross',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.2333333333333334,
+    speed: 0.258825510907858
+  },
+  {
+    species: 'rabbit',
+    move: 'hook',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.35,
+    speed: 0.7755048303849905
+  },
+  {
+    species: 'rabbit',
+    move: 'rear_hook',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.4,
+    speed: 0.31038117198198034
+  },
+  {
+    species: 'rabbit',
+    move: 'uppercut',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.533333333333333,
+    speed: 0.8932843482563624
+  },
+  {
+    species: 'rabbit',
+    move: 'rear_uppercut',
+    hz: 120,
+    rate: 1,
+    delay: 3,
+    time: 3.3497347866794867,
+    speed: 4.069277116795807
+  },
+  {
+    species: 'rabbit',
+    move: 'uppercut',
+    hz: 30,
+    rate: 3,
+    delay: 0,
+    time: 0.5333333333333333,
+    speed: 0.9071199916666921
+  },
+  {
+    species: 'rabbit',
+    move: 'uppercut',
+    hz: 144,
+    rate: 0.5,
+    delay: 0,
+    time: 0.5333333333333333,
+    speed: 0.9071199916666921
+  },
+  {
+    species: 'rabbit',
+    move: 'rear_uppercut',
+    hz: 30,
+    rate: 3,
+    delay: 0,
+    time: 0.35,
+    speed: 4.1158463835489325
+  },
+  {
+    species: 'rabbit',
+    move: 'rear_uppercut',
+    hz: 144,
+    rate: 0.5,
+    delay: 0,
+    time: 0.35,
+    speed: 4.1158463835489325
+  },
+  {
+    species: 'rabbit',
+    move: 'uppercut',
+    hz: 60,
+    rate: 1,
+    delay: 3,
+    time: 3.533333333333333,
+    speed: 0.8932843482563624
+  }
+]
