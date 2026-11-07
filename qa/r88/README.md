@@ -78,9 +78,13 @@ software rendering is retained separately and is not used as the performance
 comparison. `renderer.info` capture counters describe the main pass; they do not
 include the total extra shadow-pass cost or measure texture memory bytes.
 
-Pose sheets and sampled motion were captured on `53eb060`. Final `8345741`
+Pose sheets and sampled motion were captured on `53eb060`. Transform optimization `8345741`
 changes only closest-contact transform reuse, its regression test and the asset
 version. A fresh actual-app arm trace is compared against the captured pose
 trace, and a fresh native player-fight run is retained after optimization. Exact
 trace delta and final CI results are in validation.json. No material, mesh,
 shader, light or choreography changed after those pose captures.
+
+Final validated source `3efa994` also prevents a low/side/parry cover from being
+replaced mid-pose by a macro. Its full 51-suite run passed. Native Play checking
+includes the disabled-during-cover and enabled-after-recovery handoff.

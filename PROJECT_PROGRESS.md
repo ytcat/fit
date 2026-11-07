@@ -227,7 +227,8 @@ Inspect rig joint names and animation update paths, identify a free licensed box
   transforms reduce repeated CPU work without changing surface geometry.
 - Retained the concurrently published R87 career/drill/footwear/presentation work;
   manual mitts receive the new covers/steps and rope retains automatic rhythm.
-- Exact validation, actual matched renders, native input checks, CPU profiling
+- All 51 regression suites passed on exact final source `3efa994`; actual
+  matched renders, native input checks, CPU profiling
   and limitations: docs/r88-defence-footwork-combos.md and qa/r88/comparison.html.
 - Authored realistic heads/mane and sustained physical-phone FPS remain open;
   docs/realism/next-steps-2026-11-06.md records the unfinished art milestones.

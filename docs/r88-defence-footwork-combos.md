@@ -90,7 +90,8 @@ Each chain advances on the existing simulation clock, with varied move durations
 fatigue, real targets, collision, stamina, scoring and audio. Only the selected
 boxer is player-controlled; the opponent continues deciding independently.
 Progress is visible as e.g. `Super burst 3/6`. Repeated taps cannot queue long
-macros. A new primitive/defensive command cancels the remaining chain, allowing
+macros. A new macro waits for a low/side/catch cover to return to ready guard,
+avoiding a snapped glove. A new primitive/defensive command cancels the remaining chain, allowing
 the active strike to recover without teleporting the arm. Seek, mode changes,
 counts, bells/results and Watch/Play handoff clear pending commands as appropriate.
 
