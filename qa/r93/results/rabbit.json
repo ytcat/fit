@@ -1,0 +1,51 @@
+{
+  "root": "/workspace/fit-r93",
+  "shots": [
+    {
+      "name": "turn",
+      "phase": 0.25,
+      "yaw": 0.65,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.3009878725493069,
+          "elbowFromHip": 0.3135561429860016
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31725132851659765,
+          "elbowFromHip": 0.3120823918454543
+        }
+      ],
+      "ropeLowest": 1.39044914597379,
+      "calls": 141,
+      "triangles": 386742,
+      "programsLinked": true
+    },
+    {
+      "name": "side",
+      "phase": 0.25,
+      "yaw": 2.1,
+      "mobile": false,
+      "arms": [
+        {
+          "side": "L",
+          "wristFromHip": 0.3009878725493069,
+          "elbowFromHip": 0.3135561429860016
+        },
+        {
+          "side": "R",
+          "wristFromHip": 0.31725132851659765,
+          "elbowFromHip": 0.3120823918454543
+        }
+      ],
+      "ropeLowest": 1.39044914597379,
+      "calls": 132,
+      "triangles": 385134,
+      "programsLinked": true
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}

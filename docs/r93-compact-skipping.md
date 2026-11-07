@@ -56,13 +56,15 @@ mitt checks also pass. Exact full-suite result is in
 [validation.json](../qa/r93/results/validation.json).
 
 Matching front, side, rear, overhead, underfoot and 393×844 phone-sized captures
-pass with linked shaders and no page errors. Baseline and final runtime captures
+pass with linked shaders and no page errors. Additional rabbit front/side
+captures also pass; its shared compact pose was checked separately. Baseline and final runtime captures
 are separate, outside the live app; only labeled comparison sheets are packaged.
 Physical iPhone/Android sustained FPS remains unverified.
 
 ```sh
 node tests/training-motion.test.cjs
 node tests/fluid-drills.test.cjs
+QA_SPECIES=rabbit QA_SHORT=1 NODE_PATH=/tmp/fit-tools/node_modules QA_OUT=/tmp/r93-rabbit node qa/r93/compact.cjs
 NODE_PATH=/tmp/fit-tools/node_modules QA_OUT=/tmp/r93-after node qa/r93/compact.cjs
 APP_ROOT=/path/to/frozen-r92 NODE_PATH=/tmp/fit-tools/node_modules QA_OUT=/tmp/r93-before node qa/r93/compact.cjs
 ```
