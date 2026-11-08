@@ -80,3 +80,10 @@ infrastructure stays deferred under both PRDs. Do not label the complete game do
 
 Rollback: `?game=classic` restores prior UI. Keep an exported save before rolling
 back source; older code is not guaranteed to preserve newer learning/world fields.
+
+## Completed release validation
+
+All 66 `tests/*.test.cjs` suites passed sequentially on the integrated runtime;
+41 top-level JavaScript modules passed syntax checks. Both actual-app browser
+journeys, all18 variant checks, three locales, reload, and the final76-resource
+offline pack passed. External CI is independently available on the release commit.
