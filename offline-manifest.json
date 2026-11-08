@@ -1,5 +1,5 @@
 {
-  "version": "foundation-20261108a",
+  "version": "foundation-20261108b",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -51,7 +51,9 @@
     "./game-world-ui.js?v=2026110801",
     "./fight-iq-demo.js?v=2026110801",
     "./fight-iq-ui.js?v=2026110801",
-    "./game-shell.js?v=2026110804",
+    "./game-resume.js?v=2026110801",
+    "./game-resume-ui.js?v=2026110801",
+    "./game-shell.js?v=2026110805",
     "./assets/models/coach-surface-v2.json?v=1",
     "./assets/models/equipment-surfaces-r76.json",
     "./assets/models/rabbit-surface-r78.json",
