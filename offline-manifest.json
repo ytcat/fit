@@ -1,5 +1,5 @@
 {
-  "version": "r2-20261108c",
+  "version": "foundation-20261108a",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -29,7 +29,7 @@
     "./career-drills.js?v=2026110720",
     "./game-world.js?v=2026110801",
     "./fight-iq.js?v=2026110801",
-    "./game-domain.js?v=2026110803",
+    "./game-domain.js?v=2026110804",
     "./career-progress.js?v=2026110802",
     "./game-presentation.js?v=2026110801",
     "./fight-ui.js?v=2026110801",
@@ -51,7 +51,7 @@
     "./game-world-ui.js?v=2026110801",
     "./fight-iq-demo.js?v=2026110801",
     "./fight-iq-ui.js?v=2026110801",
-    "./game-shell.js?v=2026110803",
+    "./game-shell.js?v=2026110804",
     "./assets/models/coach-surface-v2.json?v=1",
     "./assets/models/equipment-surfaces-r76.json",
     "./assets/models/rabbit-surface-r78.json",

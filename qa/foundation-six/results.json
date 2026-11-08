@@ -1,0 +1,24 @@
+{
+  "profile": "Seeded valid completed-activity fixtures for library UI; not claimed as real played matches.",
+  "owned": [
+    "first_rhythm",
+    "counter_chain",
+    "rolling_return",
+    "school_signature",
+    "thunder_arc",
+    "corner_turn"
+  ],
+  "errors": [],
+  "executed": [
+    {
+      "id": "combo_roll",
+      "accepted": true,
+      "finite": true
+    },
+    {
+      "id": "combo_super",
+      "accepted": true,
+      "finite": true
+    }
+  ]
+}
