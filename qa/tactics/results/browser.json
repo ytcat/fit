@@ -1,9 +1,10 @@
 {
-  "sourceSha": "5eddfdb3056f9b9099d15d9f98f7770dd9e44c49",
+  "sourceSha": "6e91033ee79c65141df224fcc8d517e1f47694aa",
   "shots": [
     "guard.png",
     "paw.png",
     "rope.png",
+    "heavy.png",
     "fight.png"
   ],
   "metrics": [
@@ -57,6 +58,23 @@
       ],
       "calls": 161,
       "triangles": 432979
+    },
+    {
+      "kind": "heavy",
+      "hands": [
+        [
+          -0.20928295516911585,
+          1.5893911294810645,
+          0.47266086610246405
+        ],
+        [
+          0.017114334320419478,
+          1.634149172404655,
+          1.1829506973557171
+        ]
+      ],
+      "calls": 179,
+      "triangles": 507259
     },
     {
       "kind": "fight",

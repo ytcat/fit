@@ -5,7 +5,7 @@ const server=http.createServer((req,res)=>{let f=path.resolve(root,'.'+decodeURI
 (async()=>{const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox','--enable-unsafe-swiftshader']});try{
  const p=await b.newPage({viewport:{width:1100,height:950},hasTouch:true,bypassCSP:true});p.setDefaultTimeout(120000);const errors=[];p.on('pageerror',e=>errors.push(e.message));await p.addInitScript({path:path.join(__dirname,'../lion-realism-m0/instrument.js')});await p.addInitScript(()=>M0.paused=true);await p.goto(`http://127.0.0.1:${server.address().port}`);await p.waitForFunction(()=>window.app?.engine?.coach?.anatomy&&window.ringsideLayout);if(await p.getByRole('button',{name:'Play as guest',exact:true}).count())await p.getByRole('button',{name:'Play as guest',exact:true}).click();await p.evaluate(async()=>{await M0.boot();app.engine.isPlaying=false;});
  const shots=[],metrics=[];
- for(const kind of ['guard','paw','rope','fight']){
+ for(const kind of ['guard','paw','rope','heavy','fight']){
   metrics.push(await p.evaluate(kind=>{
    const e=app.engine;e.renderer.setPixelRatio(.75);e.renderer.shadowMap.enabled=false;e.camera.near=.01;e.camera.zoom=1;
    if(kind==='guard'){
@@ -15,6 +15,9 @@ const server=http.createServer((req,res)=>{let f=path.resolve(root,'.'+decodeURI
     trainingControls.chooseTarget('rope');e.animTime=.1;e.arena.update(.1,e.technique,e.currentAnim);
     const prop=e.arena.careerDrill.grips[0],target=prop.localToWorld(new THREE.Vector3(0,-.09,.025));
     e.camera.position.copy(kind==='paw'?target.clone().add(new THREE.Vector3(-.38,-.05,.25)):new THREE.Vector3(2.6,1.6,3.8));e.camera.lookAt(kind==='paw'?target:new THREE.Vector3(0,1.2,0));
+   }else if(kind==='heavy'){
+    trainingControls.chooseTarget('heavy');e.technique='cross';for(let i=0;i<56;i++){e.animTime=i/120;e.arena.update(e.animTime,'cross','one_two');}
+    e.camera.position.copy(e.arena.group.localToWorld(new THREE.Vector3(3.5,1.8,1.5)));e.camera.lookAt(e.arena.group.localToWorld(new THREE.Vector3(0,1.35,.4)));
    }else{
     e.fightOptions={seed:82};trainingControls.chooseTarget('fight');const v=e.arena.fightView;v.match.phase='round';
     for(let i=0;i<120;i++)v.step();e.animTime=v.match.time;window.fightUI?.render(v);e.camera.position.copy(e.arena.group.localToWorld(new THREE.Vector3(-4.2,2.1,1.2)));e.camera.lookAt(e.arena.group.localToWorld(new THREE.Vector3(0,1.25,0)));

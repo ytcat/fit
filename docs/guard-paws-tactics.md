@@ -1,7 +1,7 @@
 # Staggered guards, skipping paws and independent fight tactics
 
 Baseline: `76e2c2422daba30576840d16ea7020939757c02e`.
-Runtime candidate: `5eddfdb3056f9b9099d15d9f98f7770dd9e44c49`.
+Runtime candidate: `6e91033ee79c65141df224fcc8d517e1f47694aa`.
 
 ## Player-visible changes
 
@@ -18,7 +18,8 @@ Runtime candidate: `5eddfdb3056f9b9099d15d9f98f7770dd9e44c49`.
   finishes a half-step and plants for their own strike; the opponent can continue
   stepping. Facing follows the actual opponent. Paths remain inside the ropes
   and exclude the official's corner. A sole-contact anchor in ring coordinates
-  prevents planted feet sliding while the torso tracks an independently moving
+  feeds planted contacts into the existing pelvis reach solver and prevents
+  sliding while the torso tracks an independently moving
   opponent; orbiting the scene preserves those floor-relative anchors. Pause
   does not advance either clock.
 - AI combines pressure, outside boxing, counters and angle changes. Twelve short
@@ -39,7 +40,11 @@ arm/glove projections. The controller now performs bounded coupled corrections,
 with an early exit when faces and knuckles are clear. Face corrections upload
 skin only when they actually change a hand. The original strict collision and
 own-face tests retain their thresholds; the preset-count assertions now expect
-44 because the product intentionally adds four combinations.
+44 because the product intentionally adds four combinations. The cached shoulder
+sculpt retains its original angle-dependent blend; its full-activation test now
+poses the baked reference explicitly, since the new neutral guard deliberately
+has a different shoulder orientation. Surface displacement limits, visible guard
+correction, topology, rig, fur/shadow matching and frozen-pose checks remain.
 
 The gait regression now reads each actor's path instead of the retired shared
 path, and its braking window derives from that actor's stride duration. The
