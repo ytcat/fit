@@ -33,25 +33,32 @@
   function paint(force=false){const species=e.coach?.species||'lion',p=store.current(),r=store.rank(species),values=store.ratings(species),mode=e.targetMode||'none',fight=mode==='fight';const key=[p?.id,species,r.xp,mode,!!e.coach,e.compactLayout,active?.id,Math.floor(active?.seconds||0),e.isPlaying,recap,store.error,e.account?.status].join('|');if(!force&&key===lastPaint)return;lastPaint=key;
    profileButton.textContent=p?.name||'Choose player';rank.textContent=r.name;xp.textContent=r.xp+' XP';bar.value=r.next?(r.xp-r.floor)/(r.next-r.floor):1;for(const k of CareerProgress.attrs){statNodes[k].value.textContent=String(values[k]);statNodes[k].meter.value=values[k];}
    const boxer=p?.boxers[species];record.textContent=(species==='lion'?'Lion':'Rabbit')+' · '+(boxer?.wins||0)+' W / '+(boxer?.losses||0)+' L / '+(boxer?.draws||0)+' D';hint.textContent=fight?'Your training ratings are active in this bout.':focus[mode]||'';
-   start.hidden=fight;start.disabled=!e.coach;start.textContent=active?(e.compactLayout?'Finish · '+Math.ceil(60-active.seconds)+'s':'Finish session'):(e.compactLayout?'Train 60s':'Train · 60 seconds');session.textContent=active?(e.isPlaying?'Training':'Paused')+' · '+Math.ceil(60-active.seconds)+'s · '+active.hits+' clean hits · '+active.jumps+' jumps':fight?'Complete the bout to earn XP.':'Start a session to earn XP. Preview is free.';result.textContent=store.error||recap;
+   start.hidden=fight;start.disabled=!e.coach;start.textContent=active?(e.compactLayout?'Finish · '+Math.ceil((active.duration||60)-active.seconds)+'s':'Finish session'):(e.compactLayout?'Train 60s':'Train · 60 seconds');session.textContent=active?(e.isPlaying?'Training':'Paused')+' · '+Math.ceil((active.duration||60)-active.seconds)+'s · '+active.hits+' clean hits · '+active.jumps+' jumps':fight?'Complete the bout to earn XP.':'Start a session to earn XP. Preview is free.';result.textContent=store.error||recap;
   }
   function finish(){if(!active)return;const a=active;active=null;const award=submitAward(a);if(award){recap='+'+award.xp+' XP · '+award.quality+'% work rate · '+award.accuracy+'% contact accuracy';if(a.mode==='rope')recap='+'+award.xp+' XP · '+a.jumps+' jumps · Footwork + speed';}else recap=pending.has(a.id)?'Reward pending in this session. Retry after browser storage recovers.':a.seconds<10?'Session too short. Train for at least 10 seconds.':'No completed reps yet. Land punches or complete jumps to earn XP.';paint(true);return award;}
-  function startSession(){if(active){finish();return;}if(!store.current()){profileDialog();return;}const mode=e.targetMode||'none';if(mode==='fight'||!e.coach)return;trackControls();active={id:CareerProgress.id(),profileId:store.current().id,species:e.coach.species,mode,control:e.player?.enabled?'play':'coach',seconds:0,hits:0,attempts:0,defences:0,jumps:0,pendingSwings:{},speedAttemptKey:null};recap='';e.isPlaying=true;e.speed=1;lastSave=0;paint(true);return active;}
+  function opportunityEvidence(mode){const op=store.game()?.world?.opportunity,rules=window.GameWorld;if(!op||!rules)return {};let rivalId,eventId;
+   if(op.kind==='rival'&&mode==='fight')rivalId=op.id;
+   if(op.kind==='event'){const event=rules.events.find(x=>x.eventId===op.id);if(!event||((op.id==='E02')!==(mode==='fight')))return {};eventId=op.id;rivalId=event.opponentId||undefined;}
+   const rival=rules.rivals.find(r=>r.id===rivalId);if(rival&&rival.species===e.coach.species)return {};
+   return {...(eventId?{eventId}:{}),...(rivalId?{rivalId}:{})};
+  }
+  function startSession(options={}){if(active){finish();return;}if(!store.current()){profileDialog();return;}const mode=e.targetMode||'none';if(mode==='fight'||!e.coach)return;trackControls();active={id:CareerProgress.id(),profileId:store.current().id,species:e.coach.species,mode,control:e.player?.enabled?'play':'coach',seconds:0,hits:0,attempts:0,defences:0,jumps:0,pendingSwings:{},speedAttemptKey:null,duration:Number.isFinite(options.duration)?Math.max(10,Math.min(60,options.duration)):60,evidence:{...opportunityEvidence(mode),playerName:identity(store.current().name)||'Player'},chainStep:0,chainDeadline:0};recap='';e.isPlaying=true;e.speed=1;lastSave=0;paint(true);return active;}
   function onFrame(frame,dt){const custom=['rope','pads'].includes(e.targetMode);cue.hidden=!custom;if(custom)cue.textContent=frame.cue||'';
    if(!active||!(dt>0))return;if(active.mode!==(e.targetMode||'none')||active.species!==e.coach.species){finish();return;}
    if(!e.player?.enabled)active.control='coach';
-   active.seconds+=Math.min(dt,.05);
+   active.seconds=Math.min(active.duration||60,active.seconds+Math.min(dt,.05));
    // Speed-bag strokes have their own authored clock, not boxing swing events.
    const speed=frame.speedDrill;
    if(active.mode==='speed'&&speed&&!speed.defenceMove&&Number.isFinite(speed.index)&&active.speedAttemptKey!==speed.index){active.speedAttemptKey=speed.index;active.attempts++;active.pendingSwings.speedbag=(active.pendingSwings.speedbag||0)+1;}
-   for(const swing of (frame.swings||[]).filter(h=>h.actor==='lion')){const key=swing.move||'unknown';active.attempts++;active.pendingSwings[key]=(active.pendingSwings[key]||0)+1;}
-   for(const hit of (frame.contacts||[]).filter(h=>h.actor==='lion'&&!h.blocked&&(active.mode==='pads'||!['glove','arm','shoulder'].includes(h.kind)))){const key=hit.move||'unknown';if(active.pendingSwings[key]>0){active.pendingSwings[key]--;active.hits++;}}
+   for(const swing of (frame.swings||[]).filter(h=>h.actor==='lion')){const key=swing.move||'unknown';if(active.chainStep&&(active.seconds>active.chainDeadline||key!==['jab','cross','hook'][active.chainStep]))active.chainStep=0;active.attempts++;active.pendingSwings[key]=(active.pendingSwings[key]||0)+1;}
+   for(const hit of (frame.contacts||[]).filter(h=>h.actor==='lion'&&!h.blocked&&(active.mode==='pads'||!['glove','arm','shoulder'].includes(h.kind)))){const key=hit.move||'unknown';if(active.pendingSwings[key]>0){active.pendingSwings[key]--;active.hits++;if(active.evidence.eventId==='E01'){if(active.seconds>active.chainDeadline)active.chainStep=0;if(key===['jab','cross','hook'][active.chainStep]){if(!active.chainStep)active.chainDeadline=active.seconds+3;active.chainStep++;if(active.chainStep===3){active.evidence.cleanChains=(active.evidence.cleanChains||0)+1;active.chainStep=0;}}else active.chainStep=key==='jab'?1:0;}}}
    active.jumps+=frame.jumps||0;active.defences+=(frame.defences||0)+(active.mode==='rabbit'?(frame.contacts||[]).filter(h=>h.actor==='rabbit'&&['glove','arm'].includes(h.kind)).length:0);
-   if(active.seconds>=60)finish();else if(active.seconds-lastSave>=1){lastSave=active.seconds;paint(true);}
+   if(active.seconds>=(active.duration||60))finish();else if(active.seconds-lastSave>=1){lastSave=active.seconds;paint(true);}
   }
   function fightOptions(){
    if(active)finish();trackControls();const species=e.coach.species;let p=store.current();if(!p)try{p=store.guest();}catch{return {careerActor:species,careerStats:store.ratings(species),careerEntry:null};}
-   return {careerActor:species,careerStats:store.ratings(species,p),careerEntry:{id:CareerProgress.id(),profileId:p.id,species,playerName:identity(p.name)||'Player',opponentName:species==='lion'?'Shadow':'Ember',watchSeen:!e.player?.enabled,moveCounts:Object.fromEntries(punchMoves.map(move=>[move,0])),eventCursor:0}};
+   const activityEvidence=opportunityEvidence('fight'),rival=window.GameWorld?.rivals.find(r=>r.id===activityEvidence.rivalId);
+   return {careerActor:species,careerStats:store.ratings(species,p),careerEntry:{id:CareerProgress.id(),profileId:p.id,species,playerName:identity(p.name)||'Player',opponentName:rival?.names.en||(species==='lion'?'Shadow':'Ember'),activityEvidence,watchSeen:!e.player?.enabled,moveCounts:Object.fromEntries(punchMoves.map(move=>[move,0])),eventCursor:0}};
   }
   function onFight(view){
    if(!view?.match||view.careerAwarded||view.careerRewardAttempted||!view.careerEntry)return;
@@ -61,7 +68,7 @@
    for(const event of m.events||[]){if(event.id<=entry.eventCursor)continue;if(event.type==='punch'&&event.actor===entry.species&&punchMoves.includes(event.move))entry.moveCounts[event.move]++;entry.eventCursor=Math.max(entry.eventCursor,event.id);}
    if(!m.result)return;view.careerRewardAttempted=true;
    const totals=m.result.totals||m.totals,t=totals[entry.species];
-   const evidence={seed:m.seed,rounds:m.rounds,method:m.result.method,decision:m.result.decision,playerName:entry.playerName,opponentName:entry.opponentName,stats:Object.fromEntries(['lion','rabbit'].map(actor=>[actor,{landed:totals[actor].landed,thrown:totals[actor].thrown}])),cardTotals:m.result.cards.map(card=>card.totals.slice()),moveCounts:{...entry.moveCounts}};
+   const evidence={...entry.activityEvidence,seed:m.seed,rounds:m.rounds,method:m.result.method,decision:m.result.decision,playerName:entry.playerName,opponentName:entry.opponentName,stats:Object.fromEntries(['lion','rabbit'].map(actor=>[actor,{landed:totals[actor].landed,thrown:totals[actor].thrown}])),cardTotals:m.result.cards.map(card=>card.totals.slice()),moveCounts:{...entry.moveCounts}};
    const data={id:entry.id,profileId:entry.profileId,species:entry.species,mode:'fight',control:entry.watchSeen?'watch':'play',seconds:(m.round-1)*m.roundSeconds+Math.min(m.roundSeconds,m.roundTime),hits:t.landed,attempts:t.thrown,defences:t.blocked+t.evaded,jumps:0,result:m.result.winner?(m.result.winner===entry.species?'win':'loss'):'draw',evidence};
    const award=submitAward(data,view);if(award){recap='Bout complete · +'+award.xp+' XP · '+award.rank;}else if(pending.has(data.id))recap='Reward pending in this session. Retry after browser storage recovers.';paint(true);
   }

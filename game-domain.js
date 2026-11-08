@@ -1,5 +1,7 @@
 /* Offline R1 rules. All coins are earned in play; cosmetics confer no combat stats. */
 (() => {
+ const worldRules=typeof module!=='undefined'?require('./game-world.js'):window.GameWorld;
+ const iqRules=typeof module!=='undefined'?require('./fight-iq.js'):window.FightIQ;
  const slots=['gloves','shorts','boots','belt'],species=['lion','rabbit'];
  const palette=[['default',0,0xc53d32],['midnight',25,0x27334c],['jade',75,0x208675],['sunrise',150,0xe8a341]];
  const catalog=slots.flatMap(slot=>palette.map(([variant,price,color])=>({id:slot+'_'+variant,slot,variant,price,color:variant==='default'?{gloves:0xc53d32,shorts:0x202535,boots:0x202535,belt:0xd8ad4a}[slot]:color,species:[...species],name:(slot==='belt'?'Cosmetic band':slot[0].toUpperCase()+slot.slice(1))+' · '+variant,names:{en:(slot==='belt'?'Cosmetic band':slot)+' · '+variant,he:({gloves:'כפפות',shorts:'מכנסיים',boots:'נעליים',belt:'חגורה קוסמטית'}[slot])+' · '+({default:'בסיס',midnight:'חצות',jade:'ירקן',sunrise:'זריחה'}[variant]),ru:({gloves:'Перчатки',shorts:'Шорты',boots:'Ботинки',belt:'Декоративный пояс'}[slot])+' · '+({default:'базовый',midnight:'полночь',jade:'нефрит',sunrise:'рассвет'}[variant])}})));
@@ -11,7 +13,7 @@
  ].map(c=>({...c,species:[...species],allowedModes:['training','fight'],slotCost:1}));
  const quests=[...combos.map(c=>({id:c.id,name:c.name,key:c.key,target:c.target,comboId:c.id})),{id:'steady_school',name:'Five completed activities',key:'completed',target:5},{id:'first_bout',name:'Complete an active fight',key:'fights',target:1},{id:'straight_work',name:'Land 100 contacts',key:'hits',target:100},{id:'school_minutes',name:'Complete ten active minutes',key:'seconds',target:600}];
  const cleanName=name=>String(name||'').replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,'').trim();
- const fresh=p=>({version:1,school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[]});
+ const fresh=p=>({version:1,school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{})});
  const wallet=g=>({coins:g.ledger.reduce((n,t)=>n+t.coins,0),xp:g.ledger.reduce((n,t)=>n+t.xp,0),transactions:g.ledger.length});
  const fail=message=>{throw Error(message);};
  const integer=(n,max=1e9)=>Number.isSafeInteger(n)&&n>=0&&n<=max;
@@ -22,10 +24,12 @@
  // Compact, local runtime observations. This is schema validation, not server verification.
  function evidence(value){
   if(value===undefined)return undefined;
-  if(!exactKeys(value,['seed','rounds','method','decision','opponentName','playerName','stats','cardTotals','moveCounts']))fail('Invalid match evidence.');
+  if(!exactKeys(value,['seed','rounds','method','decision','opponentName','playerName','stats','cardTotals','moveCounts','rivalId','eventId','cleanChains']))fail('Invalid match evidence.');
   const out={};
   for(const key of Object.keys(value)){
    const v=value[key];
+   if(key==='cleanChains'&&!integer(v,100))fail('Invalid verified chain count.');
+   if(key==='rivalId'&&(!worldRules||!worldRules.rivals.some(r=>r.id===v))||key==='eventId'&&(!worldRules||!worldRules.events.some(e=>e.eventId===v)))fail('Unknown activity opportunity.');
    if(key==='seed'&&!integer(v,0xffffffff)||key==='rounds'&&(!integer(v,12)||v<1))fail('Invalid match metadata.');
    if(key==='method'&&!['points','health','KO','TKO','ko','tko','draw'].includes(v)||key==='decision'&&!['unanimous','majority','split','draw','points','health','KO','TKO','ko','tko'].includes(v))fail('Invalid match decision.');
    if(['opponentName','playerName'].includes(key)&&(typeof v!=='string'||!v.length||v.length>48||cleanName(v)!==v||/[<>]/.test(v)))fail('Invalid match identity.');
@@ -46,7 +50,7 @@
    if(!exactKeys(record,['id','transactionId','mode','species','control','seconds','hits','attempts','defences','jumps','result','xp','coins','evidence'])||typeof record.id!=='string'||!record.id.length||record.id.length>120||seen.has(record.id)||record.transactionId!=='reward:'+record.id||!g.processed.includes(record.id)||!modes.includes(record.mode)||!species.includes(record.species)||!controls.includes(record.control)||!Number.isFinite(record.seconds)||record.seconds<(record.mode==='fight'?1:10)||record.seconds>(record.mode==='fight'?2160:60)||!['hits','attempts','defences','jumps','xp','coins'].every(k=>integer(record[k],1e6))||record.hits>record.attempts||!(record.mode==='fight'?['win','loss','draw'].includes(record.result):record.result===null))fail('Invalid local activity record.');
    const tx=g.ledger.find(t=>t.id===record.transactionId);
    if(!tx||tx.type!=='earn'||tx.activityId!==record.id||tx.species!==record.species||tx.xp!==record.xp||tx.coins!==record.coins||record.control==='watch'&&(record.coins!==0||record.xp>10))fail('Local activity does not match ledger.');
-   evidence(record.evidence);seen.add(record.id);
+   evidence(record.evidence);if(record.evidence?.cleanChains>Math.floor(record.hits/3))fail('Verified chains exceed actual contacts.');seen.add(record.id);
   }
  }
  function validate(g,p){
@@ -64,10 +68,14 @@
   for(const event of g.processed)if(!seen.has('reward:'+event))fail('Missing reward transaction.');
   for(const c of combos)if(g.combos.owned.includes(c.id)&&g.activity[c.key]<c.target)fail('Invalid combo unlock.');
   validateHistory(g);
+  if(worldRules){if(g.world===undefined)g.world=worldRules.fresh(p.id);worldRules.validate(g.world,g);}
+  if(iqRules){if(g.learning===undefined)g.learning=iqRules.fresh();iqRules.validate(g.learning,g.ledger);}
   return g;
  }
- function action(g,a){
+ function action(g,a,p){
   if(!a||typeof a!=='object')fail('Invalid action.');
+  if(a.type==='iq'){if(!iqRules||!p||!species.includes(a.species))fail('Learning is unavailable.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');if(!g.learning)g.learning=iqRules.fresh();const result=iqRules.apply(g.learning,{...a,type:a.iqAction,usernameProfileId:p.id});if(result.transaction){g.ledger.push({...result.transaction,species:a.species});p.boxers[a.species].xp+=result.earnedXP;}return result;}
+  if(a.type==='world'){if(!worldRules)fail('World rules are unavailable.');return worldRules.action(g,a);}
   if(a.type==='buy'){const item=catalog.find(c=>c.id===a.itemId);if(!item||!item.price)fail('Choose a shop item.');if(g.inventory.includes(item.id))fail('Already owned.');if(wallet(g).coins<item.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');g.ledger.push({id:'purchase:'+item.id,type:'spend',coins:-item.price,xp:0,itemId:item.id,rule:'shop-v1'});g.inventory.push(item.id);return {itemId:item.id,transactionId:'purchase:'+item.id};}
   if(a.type==='equip'){const item=catalog.find(c=>c.id===a.itemId);if(!slots.includes(a.slot)||item?.slot!==a.slot||!g.inventory.includes(a.itemId))fail('Own a compatible item for this slot first.');g.equipment[a.slot]=a.itemId;return {itemId:a.itemId};}
   if(a.type==='combo'){const c=combos.find(c=>c.id===a.comboId);if(!c||!g.combos.owned.includes(c.id)||!c.allowedModes.includes(a.mode)||typeof a.enabled!=='boolean'||(a.species&&!c.species.includes(a.species)))fail('Combo is locked or incompatible.');const load=g.combos[a.mode],index=load.indexOf(c.id);if(a.enabled&&index<0){if(load.length>=(a.mode==='fight'?3:5))fail('All combo slots are full.');load.push(c.id);}else if(!a.enabled&&index>=0)load.splice(index,1);return {comboId:c.id};}
@@ -80,6 +88,7 @@
   const record={id:event.id,transactionId,mode:event.mode,species:event.species,control:event.control||'play',seconds:event.seconds,hits:event.hits,attempts:event.attempts,defences:event.defences,jumps:event.jumps,result:event.mode==='fight'?event.result:null,xp,coins};if(event.evidence!==undefined)record.evidence=evidence(event.evidence);g.history.push(record);g.history=g.history.slice(-50);
   const unlocks=[];
   if(active){const a=g.activity;a.completed++;a.seconds+=Math.floor(event.seconds);a.hits+=event.hits;a.defences+=event.defences;if(event.mode==='rope')a.rope++;if(event.mode==='fight')a.fights++;for(const c of combos)if(a[c.key]>=c.target&&!g.combos.owned.includes(c.id)){g.combos.owned.push(c.id);unlocks.push(c.id);}for(const q of quests)if(a[q.key]>=q.target&&!g.quests.includes(q.id))g.quests.push(q.id);}
+  if(worldRules)worldRules.record(g,record);
   return {coins,unlocks,activityId:event.id,transactionId,record};
  }
  const api={catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;

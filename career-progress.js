@@ -35,7 +35,7 @@
   transaction(change){const before=this.data;this.data=clone(before);try{const result=change();if(!this.save())throw Error(this.error);return result;}catch(e){this.data=before;throw e;}}
   game(profile=this.current()){return this.data.profiles.find(p=>p.id===profile?.id)?.game||null;}
   wallet(profile=this.current()){const g=this.game(profile);return g?domain.wallet(g):{coins:0,xp:0,transactions:0};}
-  gameAction(action){try{return this.transaction(()=>{const p=this.current();if(!p)throw Error('Choose a player first.');return {ok:true,...domain.action(p.game,action)};});}catch(e){return {ok:false,error:e.message};}}
+  gameAction(action){try{return this.transaction(()=>{const p=this.current();if(!p)throw Error('Choose a player first.');return {ok:true,...domain.action(p.game,action,p)};});}catch(e){return {ok:false,error:e.message};}}
   current(){return this.data.profiles.find(p=>p.id===this.data.active)||null;}
   create(name,guest=false){
    name=domain.cleanName(name).slice(0,32).trim();if(!name)throw Error('Enter a player name.');if(this.data.profiles.length>=30)throw Error('This device already has 30 players.');if(this.data.profiles.some(p=>p.name.toLowerCase()===name.toLowerCase()))throw Error('That name already exists. Choose it from saved players.');

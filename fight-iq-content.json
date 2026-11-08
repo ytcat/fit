@@ -1,0 +1,1385 @@
+{
+  "version": 1,
+  "scope": "Local in-game decision knowledge; not physical-skill certification",
+  "safetyNote": {
+    "en": "Game demonstration, not personal technique assessment. Optional physical exercise: choose a comfortable pace and stop for pain. No sparring is required; every challenge works with buttons.",
+    "he": "הדגמת משחק, לא הערכת טכניקה אישית. בפעילות גופנית אופציונלית בחרו קצב נוח והפסיקו בכאב. אין צורך בקרבות אימון; כל האתגרים זמינים בכפתורים.",
+    "ru": "Игровая демонстрация, не оценка личной техники. Для необязательных упражнений выбирайте комфортный темп и остановитесь при боли. Спарринг не нужен; все задания доступны кнопками."
+  },
+  "tips": [
+    {
+      "id": "IQ-GUARD-01",
+      "version": 1,
+      "tier": "Rookie",
+      "skillTags": [
+        "guard"
+      ],
+      "localizationKey": "tips.guard",
+      "principle": {
+        "en": "Keep the free hand near the cheek during the game jab.",
+        "he": "שמרו את היד החופשית ליד הלחי בזמן הישירה במשחק.",
+        "ru": "Во время игрового джеба держите свободную руку у щеки."
+      },
+      "evidenceRules": [
+        {
+          "kind": "jab_received",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-01",
+      "optionalChallengeId": "IQ-C01",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "DOCUMENTED_REPOSITORY_REFERENCE",
+      "sourceRefs": [
+        "england-boxing-repository-review"
+      ]
+    },
+    {
+      "id": "IQ-STANCE-01",
+      "version": 1,
+      "tier": "Rookie",
+      "skillTags": [
+        "stance"
+      ],
+      "localizationKey": "tips.stance",
+      "principle": {
+        "en": "A balanced stance gives the avatar a stable base.",
+        "he": "עמידה מאוזנת נותנת לדמות בסיס יציב.",
+        "ru": "Сбалансированная стойка даёт аватару устойчивую опору."
+      },
+      "evidenceRules": [
+        {
+          "kind": "defensive_input",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-02",
+      "optionalChallengeId": "IQ-C02",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "GAME_DEMONSTRATION_REVIEW_PENDING",
+      "sourceRefs": []
+    },
+    {
+      "id": "IQ-JAB-01",
+      "version": 1,
+      "tier": "Rookie",
+      "skillTags": [
+        "jab"
+      ],
+      "localizationKey": "tips.jab",
+      "principle": {
+        "en": "The game jab extends and returns on a direct path.",
+        "he": "הישירה הקדמית במשחק יוצאת וחוזרת במסלול ישיר.",
+        "ru": "Игровой джеб выходит и возвращается по прямой траектории."
+      },
+      "evidenceRules": [
+        {
+          "kind": "miss",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-03",
+      "optionalChallengeId": "IQ-C03",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "DOCUMENTED_REPOSITORY_REFERENCE",
+      "sourceRefs": [
+        "england-boxing-repository-review"
+      ]
+    },
+    {
+      "id": "IQ-CROSS-01",
+      "version": 1,
+      "tier": "Apprentice",
+      "skillTags": [
+        "cross"
+      ],
+      "localizationKey": "tips.cross",
+      "principle": {
+        "en": "The rear foot and hip turn together in the game cross.",
+        "he": "הרגל האחורית והאגן מסתובבים יחד בישירה האחורית במשחק.",
+        "ru": "В игровом прямом задняя стопа и таз поворачиваются вместе."
+      },
+      "evidenceRules": [
+        {
+          "kind": "blocked",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-03",
+      "optionalChallengeId": "IQ-C03",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "DOCUMENTED_REPOSITORY_REFERENCE",
+      "sourceRefs": [
+        "england-boxing-repository-review"
+      ]
+    },
+    {
+      "id": "IQ-RECOVERY-01",
+      "version": 1,
+      "tier": "Apprentice",
+      "skillTags": [
+        "recovery"
+      ],
+      "localizationKey": "tips.recovery",
+      "principle": {
+        "en": "Return the avatar to guard after a punch.",
+        "he": "החזירו את הדמות להגנה אחרי מכה.",
+        "ru": "После удара верните аватара в защиту."
+      },
+      "evidenceRules": [
+        {
+          "kind": "miss",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-01",
+      "optionalChallengeId": "IQ-C01",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "DOCUMENTED_REPOSITORY_REFERENCE",
+      "sourceRefs": [
+        "england-boxing-repository-review"
+      ]
+    },
+    {
+      "id": "IQ-DISTANCE-01",
+      "version": 1,
+      "tier": "Apprentice",
+      "skillTags": [
+        "distance"
+      ],
+      "localizationKey": "tips.distance",
+      "principle": {
+        "en": "A punch can land only when the target is within its game reach.",
+        "he": "מכה יכולה לפגוע רק כשהמטרה בטווח שלה במשחק.",
+        "ru": "Удар попадёт, только если цель находится в его игровом радиусе."
+      },
+      "evidenceRules": [
+        {
+          "kind": "range_miss",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-02",
+      "optionalChallengeId": "IQ-C02",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "GAME_DEMONSTRATION_REVIEW_PENDING",
+      "sourceRefs": []
+    },
+    {
+      "id": "IQ-SLIP-01",
+      "version": 1,
+      "tier": "Contender",
+      "skillTags": [
+        "slip"
+      ],
+      "localizationKey": "tips.slip",
+      "principle": {
+        "en": "A game slip is a small movement that preserves balance.",
+        "he": "התחמקות במשחק היא תנועה קטנה השומרת על איזון.",
+        "ru": "Игровой уклон — небольшое движение с сохранением равновесия."
+      },
+      "evidenceRules": [
+        {
+          "kind": "jab_received",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-04",
+      "optionalChallengeId": "IQ-C04",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "GAME_DEMONSTRATION_REVIEW_PENDING",
+      "sourceRefs": []
+    },
+    {
+      "id": "IQ-BLOCK-01",
+      "version": 1,
+      "tier": "Contender",
+      "skillTags": [
+        "block"
+      ],
+      "localizationKey": "tips.block",
+      "principle": {
+        "en": "Match the game guard to the incoming target line.",
+        "he": "התאימו את ההגנה במשחק לקו המכה הנכנסת.",
+        "ru": "Подберите игровую защиту под направление входящего удара."
+      },
+      "evidenceRules": [
+        {
+          "kind": "jab_received",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-04",
+      "optionalChallengeId": "IQ-C04",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "GAME_DEMONSTRATION_REVIEW_PENDING",
+      "sourceRefs": []
+    },
+    {
+      "id": "IQ-ANGLE-01",
+      "version": 1,
+      "tier": "Specialist",
+      "skillTags": [
+        "angle"
+      ],
+      "localizationKey": "tips.angle",
+      "principle": {
+        "en": "A controlled turn or step can change the game attack angle.",
+        "he": "סיבוב או צעד מבוקר יכולים לשנות את זווית ההתקפה במשחק.",
+        "ru": "Контролируемый поворот или шаг меняет угол атаки в игре."
+      },
+      "evidenceRules": [
+        {
+          "kind": "blocked",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-06",
+      "optionalChallengeId": "IQ-C06",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "GAME_DEMONSTRATION_REVIEW_PENDING",
+      "sourceRefs": []
+    },
+    {
+      "id": "IQ-FEINT-01",
+      "version": 1,
+      "tier": "Specialist",
+      "skillTags": [
+        "feint"
+      ],
+      "localizationKey": "tips.feint",
+      "principle": {
+        "en": "A game feint tests a reaction; an opening is not guaranteed.",
+        "he": "הטעיה במשחק בודקת תגובה; פתח להתקפה אינו מובטח.",
+        "ru": "Игровой финт проверяет реакцию, но не гарантирует открытие."
+      },
+      "evidenceRules": [
+        {
+          "kind": "defensive_input",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-05",
+      "optionalChallengeId": "IQ-C05",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "GAME_DEMONSTRATION_REVIEW_PENDING",
+      "sourceRefs": []
+    },
+    {
+      "id": "IQ-BODY-01",
+      "version": 1,
+      "tier": "Contender",
+      "skillTags": [
+        "body"
+      ],
+      "localizationKey": "tips.body",
+      "principle": {
+        "en": "Protect the avatar torso as well as the head.",
+        "he": "הגנו על גוף הדמות וגם על הראש.",
+        "ru": "Защищайте корпус аватара так же, как голову."
+      },
+      "evidenceRules": [
+        {
+          "kind": "blocked",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-05",
+      "optionalChallengeId": "IQ-C05",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "GAME_DEMONSTRATION_REVIEW_PENDING",
+      "sourceRefs": []
+    },
+    {
+      "id": "IQ-PACING-01",
+      "version": 1,
+      "tier": "Champion",
+      "skillTags": [
+        "pacing"
+      ],
+      "localizationKey": "tips.pacing",
+      "principle": {
+        "en": "Choose a manageable game pace instead of swinging continuously.",
+        "he": "בחרו קצב נוח במשחק במקום להכות ללא הפסקה.",
+        "ru": "Выбирайте посильный игровой темп вместо непрерывных ударов."
+      },
+      "evidenceRules": [
+        {
+          "kind": "stamina_low",
+          "minCount": 3
+        }
+      ],
+      "triggerContext": [
+        "pre-round",
+        "between-round",
+        "post-round",
+        "drill-pause",
+        "completion"
+      ],
+      "demoId": "IQ-DEMO-06",
+      "optionalChallengeId": "IQ-C06",
+      "cooldownSessions": 2,
+      "safetyReviewStatus": "GAME_DEMONSTRATION_REVIEW_PENDING",
+      "sourceRefs": []
+    }
+  ],
+  "challenges": [
+    {
+      "id": "IQ-C01",
+      "version": 1,
+      "tier": "Rookie",
+      "scenarioId": "scenario-01",
+      "conceptIds": [
+        "IQ-GUARD-01",
+        "IQ-RECOVERY-01"
+      ],
+      "demoId": "IQ-DEMO-01",
+      "choices": [
+        {
+          "id": "guard",
+          "command": "guard_rear",
+          "label": {
+            "en": "Keep the free hand at the cheek",
+            "he": "יד חופשית ליד הלחי",
+            "ru": "Свободная рука у щеки"
+          }
+        },
+        {
+          "id": "recover",
+          "command": "recover_guard",
+          "label": {
+            "en": "Return to the starting guard",
+            "he": "חזרה להגנת המוצא",
+            "ru": "Вернуться в исходную защиту"
+          }
+        },
+        {
+          "id": "drop",
+          "command": "drop_guard",
+          "label": {
+            "en": "Drop both hands",
+            "he": "הורדת שתי הידיים",
+            "ru": "Опустить обе руки"
+          }
+        }
+      ],
+      "timeLimitSec": 45,
+      "conditionSet": [
+        "Exact authored scenario state",
+        "Explicit in-game choice command",
+        "No measurement of the player body"
+      ],
+      "rewardRuleId": "fight-iq-v1",
+      "variants": [
+        {
+          "id": "IQ-C01-V1",
+          "state": {
+            "phase": "jab-extension",
+            "threat": "head",
+            "freeHand": "rear"
+          },
+          "prompt": {
+            "en": "The avatar is extending a jab. What protects the open side?",
+            "he": "הדמות מוציאה ישירה קדמית. מה מגן על הצד הפתוח?",
+            "ru": "Аватар выбрасывает джеб. Что прикроет открытую сторону?"
+          },
+          "assumptions": {
+            "en": "The jab hand is occupied; the rear hand is free.",
+            "he": "היד הקדמית עסוקה; היד האחורית חופשית.",
+            "ru": "Передняя рука занята; задняя свободна."
+          },
+          "validOutcomes": [
+            "guard"
+          ],
+          "rationales": {
+            "guard": {
+              "en": "The free hand covers the head while the jab is out.",
+              "he": "היד החופשית מכסה את הראש בזמן הישירה.",
+              "ru": "Свободная рука прикрывает голову во время джеба."
+            },
+            "recover": {
+              "en": "This phase needs the free hand covering the cheek, without dropping the guard.",
+              "he": "בשלב זה היד החופשית צריכה לכסות את הלחי בלי להוריד הגנה.",
+              "ru": "В этой фазе свободная рука должна прикрывать щёку, не опуская защиту."
+            },
+            "drop": {
+              "en": "This phase needs the free hand covering the cheek, without dropping the guard.",
+              "he": "בשלב זה היד החופשית צריכה לכסות את הלחי בלי להוריד הגנה.",
+              "ru": "В этой фазе свободная рука должна прикрывать щёку, не опуская защиту."
+            }
+          }
+        },
+        {
+          "id": "IQ-C01-V2",
+          "state": {
+            "phase": "jab-finished",
+            "threat": "none",
+            "freeHand": "rear"
+          },
+          "prompt": {
+            "en": "The jab has finished. What comes next?",
+            "he": "הישירה הסתיימה. מה עכשיו?",
+            "ru": "Джеб завершён. Что дальше?"
+          },
+          "assumptions": {
+            "en": "No follow-up opening has been shown.",
+            "he": "לא הוצג פתח להמשך התקפה.",
+            "ru": "Открытие для продолжения не показано."
+          },
+          "validOutcomes": [
+            "recover"
+          ],
+          "rationales": {
+            "guard": {
+              "en": "With the punch finished, recover the complete starting guard.",
+              "he": "לאחר סיום המכה חוזרים להגנת המוצא המלאה.",
+              "ru": "После завершения удара вернитесь в полную исходную защиту."
+            },
+            "recover": {
+              "en": "Recovering guard prepares the avatar for the next exchange.",
+              "he": "חזרה להגנה מכינה את הדמות לחילוף הבא.",
+              "ru": "Возврат в защиту готовит аватара к следующему обмену."
+            },
+            "drop": {
+              "en": "With the punch finished, recover the complete starting guard.",
+              "he": "לאחר סיום המכה חוזרים להגנת המוצא המלאה.",
+              "ru": "После завершения удара вернитесь в полную исходную защиту."
+            }
+          }
+        },
+        {
+          "id": "IQ-C01-V3",
+          "state": {
+            "phase": "jab-extension",
+            "threat": "counter",
+            "freeHand": "rear"
+          },
+          "prompt": {
+            "en": "A counter is possible while your game jab is extended.",
+            "he": "מכת נגד אפשרית כשהישירה במשחק מתוחה.",
+            "ru": "Пока игровой джеб вытянут, возможна контратака."
+          },
+          "assumptions": {
+            "en": "The current jab has not finished yet.",
+            "he": "הישירה הנוכחית טרם הסתיימה.",
+            "ru": "Текущий джеб ещё не завершён."
+          },
+          "validOutcomes": [
+            "guard"
+          ],
+          "rationales": {
+            "guard": {
+              "en": "Keep the free hand protecting the cheek through the punch.",
+              "he": "שמרו את היד החופשית ליד הלחי לאורך המכה.",
+              "ru": "Свободная рука защищает щёку на протяжении удара."
+            },
+            "recover": {
+              "en": "Dropping protection or treating the unfinished punch as recovered leaves the stated threat unanswered.",
+              "he": "הורדת הגנה או התייחסות למכה כגמורה משאירה את האיום ללא מענה.",
+              "ru": "Опускание защиты или преждевременный возврат не отвечают указанной угрозе."
+            },
+            "drop": {
+              "en": "Dropping protection or treating the unfinished punch as recovered leaves the stated threat unanswered.",
+              "he": "הורדת הגנה או התייחסות למכה כגמורה משאירה את האיום ללא מענה.",
+              "ru": "Опускание защиты или преждевременный возврат не отвечают указанной угрозе."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "IQ-C02",
+      "version": 1,
+      "tier": "Rookie",
+      "scenarioId": "scenario-02",
+      "conceptIds": [
+        "IQ-STANCE-01",
+        "IQ-DISTANCE-01"
+      ],
+      "demoId": "IQ-DEMO-02",
+      "choices": [
+        {
+          "id": "step",
+          "command": "step_forward",
+          "label": {
+            "en": "Take a balanced step closer",
+            "he": "צעד מאוזן קדימה",
+            "ru": "Сбалансированный шаг ближе"
+          }
+        },
+        {
+          "id": "jab",
+          "command": "jab",
+          "label": {
+            "en": "Jab from the current position",
+            "he": "ישירה מהמיקום הנוכחי",
+            "ru": "Джеб с текущей позиции"
+          }
+        },
+        {
+          "id": "reset",
+          "command": "guard",
+          "label": {
+            "en": "Reset and keep guard",
+            "he": "התארגנות והגנה",
+            "ru": "Восстановить позицию и защиту"
+          }
+        }
+      ],
+      "timeLimitSec": 45,
+      "conditionSet": [
+        "Exact authored scenario state",
+        "Explicit in-game choice command",
+        "No measurement of the player body"
+      ],
+      "rewardRuleId": "fight-iq-v1",
+      "variants": [
+        {
+          "id": "IQ-C02-V1",
+          "state": {
+            "inRange": false,
+            "clearStep": true
+          },
+          "prompt": {
+            "en": "The target is beyond jab reach.",
+            "he": "המטרה מעבר לטווח הישירה.",
+            "ru": "Цель вне досягаемости джеба."
+          },
+          "assumptions": {
+            "en": "There is clear space for one controlled step.",
+            "he": "יש מקום פנוי לצעד מבוקר אחד.",
+            "ru": "Есть место для одного контролируемого шага."
+          },
+          "validOutcomes": [
+            "step"
+          ],
+          "rationales": {
+            "step": {
+              "en": "Close the stated distance without overreaching.",
+              "he": "סגרו את המרחק הנתון בלי להימתח מעבר לאיזון.",
+              "ru": "Сократите указанную дистанцию без потери равновесия."
+            },
+            "jab": {
+              "en": "A punch cannot reach this target yet; use the available balanced step.",
+              "he": "המכה עדיין אינה מגיעה; השתמשו בצעד המאוזן הזמין.",
+              "ru": "Удар пока не достаёт; используйте доступный сбалансированный шаг."
+            },
+            "reset": {
+              "en": "A punch cannot reach this target yet; use the available balanced step.",
+              "he": "המכה עדיין אינה מגיעה; השתמשו בצעד המאוזן הזמין.",
+              "ru": "Удар пока не достаёт; используйте доступный сбалансированный шаг."
+            }
+          }
+        },
+        {
+          "id": "IQ-C02-V2",
+          "state": {
+            "inRange": true,
+            "clearStep": true
+          },
+          "prompt": {
+            "en": "The target is already in jab reach.",
+            "he": "המטרה כבר בטווח הישירה.",
+            "ru": "Цель уже в пределах джеба."
+          },
+          "assumptions": {
+            "en": "The avatar is balanced and the target is available.",
+            "he": "הדמות מאוזנת והמטרה זמינה.",
+            "ru": "Аватар сбалансирован, цель доступна."
+          },
+          "validOutcomes": [
+            "jab"
+          ],
+          "rationales": {
+            "step": {
+              "en": "An extra step is unnecessary for the stated in-range target.",
+              "he": "אין צורך בצעד נוסף למטרה שכבר בטווח.",
+              "ru": "Дополнительный шаг не нужен для цели в досягаемости."
+            },
+            "jab": {
+              "en": "Use the current reach instead of crowding the target.",
+              "he": "השתמשו בטווח הקיים במקום להתקרב יתר על המידה.",
+              "ru": "Используйте текущую дистанцию, не сближаясь чрезмерно."
+            },
+            "reset": {
+              "en": "An extra step is unnecessary for the stated in-range target.",
+              "he": "אין צורך בצעד נוסף למטרה שכבר בטווח.",
+              "ru": "Дополнительный шаг не нужен для цели в досягаемости."
+            }
+          }
+        },
+        {
+          "id": "IQ-C02-V3",
+          "state": {
+            "inRange": false,
+            "clearStep": false
+          },
+          "prompt": {
+            "en": "The target is far away and the forward lane is blocked.",
+            "he": "המטרה רחוקה והנתיב קדימה חסום.",
+            "ru": "Цель далеко, а путь вперёд перекрыт."
+          },
+          "assumptions": {
+            "en": "This scenario offers no safe forward step.",
+            "he": "בתרחיש אין צעד פנוי קדימה.",
+            "ru": "В этом сценарии нет свободного шага вперёд."
+          },
+          "validOutcomes": [
+            "reset"
+          ],
+          "rationales": {
+            "step": {
+              "en": "The stated distance and blocked lane rule out both an immediate jab and forward step.",
+              "he": "המרחק והנתיב החסום שוללים ישירה מיידית וצעד קדימה.",
+              "ru": "Указанные дистанция и перекрытый путь исключают немедленный джеб и шаг вперёд."
+            },
+            "jab": {
+              "en": "The stated distance and blocked lane rule out both an immediate jab and forward step.",
+              "he": "המרחק והנתיב החסום שוללים ישירה מיידית וצעד קדימה.",
+              "ru": "Указанные дистанция и перекрытый путь исключают немедленный джеб и шаг вперёд."
+            },
+            "reset": {
+              "en": "Reset rather than reach or step into the blocked lane.",
+              "he": "התארגנו מחדש במקום להימתח או להיכנס לנתיב חסום.",
+              "ru": "Восстановите позицию вместо вытягивания или шага в перекрытый путь."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "IQ-C03",
+      "version": 1,
+      "tier": "Rookie",
+      "scenarioId": "scenario-03",
+      "conceptIds": [
+        "IQ-CROSS-01",
+        "IQ-JAB-01"
+      ],
+      "demoId": "IQ-DEMO-03",
+      "choices": [
+        {
+          "id": "rotate",
+          "command": "cross",
+          "label": {
+            "en": "Turn rear foot and hip together",
+            "he": "סיבוב רגל אחורית ואגן יחד",
+            "ru": "Повернуть заднюю стопу и таз вместе"
+          }
+        },
+        {
+          "id": "arm",
+          "command": "arm_only",
+          "label": {
+            "en": "Use only the arm",
+            "he": "שימוש ביד בלבד",
+            "ru": "Использовать только руку"
+          }
+        },
+        {
+          "id": "reset",
+          "command": "guard",
+          "label": {
+            "en": "Reset the feet first",
+            "he": "ארגון הרגליים תחילה",
+            "ru": "Сначала восстановить положение ног"
+          }
+        }
+      ],
+      "timeLimitSec": 45,
+      "conditionSet": [
+        "Exact authored scenario state",
+        "Explicit in-game choice command",
+        "No measurement of the player body"
+      ],
+      "rewardRuleId": "fight-iq-v1",
+      "variants": [
+        {
+          "id": "IQ-C03-V1",
+          "state": {
+            "footFree": true,
+            "hipFree": true,
+            "stance": "orthodox"
+          },
+          "prompt": {
+            "en": "Choose the next game cross action.",
+            "he": "בחרו את פעולת הישירה האחורית הבאה במשחק.",
+            "ru": "Выберите следующее действие игрового прямого."
+          },
+          "assumptions": {
+            "en": "Both rear foot and hip are free to turn.",
+            "he": "הרגל האחורית והאגן פנויים לסיבוב.",
+            "ru": "Задняя стопа и таз свободны для поворота."
+          },
+          "validOutcomes": [
+            "rotate"
+          ],
+          "rationales": {
+            "rotate": {
+              "en": "Use the whole-body game motion from a balanced base.",
+              "he": "השתמשו בתנועת גוף שלמה מבסיס מאוזן.",
+              "ru": "Используйте движение всего тела из устойчивой стойки."
+            },
+            "arm": {
+              "en": "Arm-only movement misses the concept; an unstable stance needs resetting first.",
+              "he": "תנועת יד בלבד מחמיצה את העיקרון; עמידה לא יציבה דורשת התארגנות.",
+              "ru": "Движение только рукой упускает принцип; неустойчивую стойку сначала восстанавливают."
+            },
+            "reset": {
+              "en": "Arm-only movement misses the concept; an unstable stance needs resetting first.",
+              "he": "תנועת יד בלבד מחמיצה את העיקרון; עמידה לא יציבה דורשת התארגנות.",
+              "ru": "Движение только рукой упускает принцип; неустойчивую стойку сначала восстанавливают."
+            }
+          }
+        },
+        {
+          "id": "IQ-C03-V2",
+          "state": {
+            "footFree": false,
+            "hipFree": false,
+            "stance": "crossed"
+          },
+          "prompt": {
+            "en": "Choose the next game cross action.",
+            "he": "בחרו את פעולת הישירה האחורית הבאה במשחק.",
+            "ru": "Выберите следующее действие игрового прямого."
+          },
+          "assumptions": {
+            "en": "The avatar stance is crossed; reset before turning.",
+            "he": "רגלי הדמות מוצלבות; התארגנו לפני סיבוב.",
+            "ru": "Ноги аватара скрещены; сначала восстановите стойку."
+          },
+          "validOutcomes": [
+            "reset"
+          ],
+          "rationales": {
+            "rotate": {
+              "en": "Arm-only movement misses the concept; an unstable stance needs resetting first.",
+              "he": "תנועת יד בלבד מחמיצה את העיקרון; עמידה לא יציבה דורשת התארגנות.",
+              "ru": "Движение только рукой упускает принцип; неустойчивую стойку сначала восстанавливают."
+            },
+            "arm": {
+              "en": "Arm-only movement misses the concept; an unstable stance needs resetting first.",
+              "he": "תנועת יד בלבד מחמיצה את העיקרון; עמידה לא יציבה דורשת התארגנות.",
+              "ru": "Движение только рукой упускает принцип; неустойчивую стойку сначала восстанавливают."
+            },
+            "reset": {
+              "en": "Restore the base before attempting the turn.",
+              "he": "החזירו בסיס יציב לפני הסיבוב.",
+              "ru": "Восстановите опору перед поворотом."
+            }
+          }
+        },
+        {
+          "id": "IQ-C03-V3",
+          "state": {
+            "footFree": true,
+            "hipFree": true,
+            "stance": "orthodox",
+            "phase": "after-guard-recovery"
+          },
+          "prompt": {
+            "en": "Choose the next game cross action.",
+            "he": "בחרו את פעולת הישירה האחורית הבאה במשחק.",
+            "ru": "Выберите следующее действие игрового прямого."
+          },
+          "assumptions": {
+            "en": "Both rear foot and hip are free to turn.",
+            "he": "הרגל האחורית והאגן פנויים לסיבוב.",
+            "ru": "Задняя стопа и таз свободны для поворота."
+          },
+          "validOutcomes": [
+            "rotate"
+          ],
+          "rationales": {
+            "rotate": {
+              "en": "Use the whole-body game motion from a balanced base.",
+              "he": "השתמשו בתנועת גוף שלמה מבסיס מאוזן.",
+              "ru": "Используйте движение всего тела из устойчивой стойки."
+            },
+            "arm": {
+              "en": "Arm-only movement misses the concept; an unstable stance needs resetting first.",
+              "he": "תנועת יד בלבד מחמיצה את העיקרון; עמידה לא יציבה דורשת התארגנות.",
+              "ru": "Движение только рукой упускает принцип; неустойчивую стойку сначала восстанавливают."
+            },
+            "reset": {
+              "en": "Arm-only movement misses the concept; an unstable stance needs resetting first.",
+              "he": "תנועת יד בלבד מחמיצה את העיקרון; עמידה לא יציבה דורשת התארגנות.",
+              "ru": "Движение только рукой упускает принцип; неустойчивую стойку сначала восстанавливают."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "IQ-C04",
+      "version": 1,
+      "tier": "Contender",
+      "scenarioId": "scenario-04",
+      "conceptIds": [
+        "IQ-SLIP-01",
+        "IQ-BLOCK-01"
+      ],
+      "demoId": "IQ-DEMO-04",
+      "choices": [
+        {
+          "id": "slip",
+          "command": "slip_right",
+          "label": {
+            "en": "Small balanced slip",
+            "he": "התחמקות קטנה ומאוזנת",
+            "ru": "Небольшой сбалансированный уклон"
+          }
+        },
+        {
+          "id": "block",
+          "command": "guard",
+          "label": {
+            "en": "Guard the target line",
+            "he": "הגנה על קו המטרה",
+            "ru": "Защитить линию цели"
+          }
+        },
+        {
+          "id": "counter",
+          "command": "cross",
+          "label": {
+            "en": "Counter immediately",
+            "he": "מכת נגד מיד",
+            "ru": "Сразу контратаковать"
+          }
+        }
+      ],
+      "timeLimitSec": 45,
+      "conditionSet": [
+        "Exact authored scenario state",
+        "Explicit in-game choice command",
+        "No measurement of the player body"
+      ],
+      "rewardRuleId": "fight-iq-v1",
+      "variants": [
+        {
+          "id": "IQ-C04-V1",
+          "state": {
+            "target": "head",
+            "balanced": true,
+            "opening": false
+          },
+          "prompt": {
+            "en": "An incoming jab needs a defensive choice.",
+            "he": "ישירה נכנסת דורשת בחירת הגנה.",
+            "ru": "Входящий джеб требует выбора защиты."
+          },
+          "assumptions": {
+            "en": "Head line; balanced avatar. Both slip and guard are valid.",
+            "he": "קו ראש ודמות מאוזנת. התחמקות והגנה תקפות.",
+            "ru": "Линия головы, аватар в равновесии. Уклон и защита допустимы."
+          },
+          "validOutcomes": [
+            "slip",
+            "block"
+          ],
+          "rationales": {
+            "slip": {
+              "en": "The chosen defense fits the stated target and balance.",
+              "he": "ההגנה שנבחרה מתאימה למטרה ולאיזון הנתונים.",
+              "ru": "Выбранная защита соответствует цели и равновесию."
+            },
+            "block": {
+              "en": "The chosen defense fits the stated target and balance.",
+              "he": "ההגנה שנבחרה מתאימה למטרה ולאיזון הנתונים.",
+              "ru": "Выбранная защита соответствует цели и равновесию."
+            },
+            "counter": {
+              "en": "No counter opening is given; a head slip does not solve every target or balance state.",
+              "he": "לא ניתן פתח למכת נגד; התחמקות ראש אינה מתאימה לכל מטרה או מצב איזון.",
+              "ru": "Открытие для контратаки не задано; уклон головы подходит не для каждой цели и стойки."
+            }
+          }
+        },
+        {
+          "id": "IQ-C04-V2",
+          "state": {
+            "target": "body",
+            "balanced": true,
+            "opening": false
+          },
+          "prompt": {
+            "en": "An incoming jab needs a defensive choice.",
+            "he": "ישירה נכנסת דורשת בחירת הגנה.",
+            "ru": "Входящий джеб требует выбора защиты."
+          },
+          "assumptions": {
+            "en": "Protect the body line.",
+            "he": "הגנו על קו הגוף.",
+            "ru": "Защитите линию корпуса."
+          },
+          "validOutcomes": [
+            "block"
+          ],
+          "rationales": {
+            "slip": {
+              "en": "No counter opening is given; a head slip does not solve every target or balance state.",
+              "he": "לא ניתן פתח למכת נגד; התחמקות ראש אינה מתאימה לכל מטרה או מצב איזון.",
+              "ru": "Открытие для контратаки не задано; уклон головы подходит не для каждой цели и стойки."
+            },
+            "block": {
+              "en": "The chosen defense fits the stated target and balance.",
+              "he": "ההגנה שנבחרה מתאימה למטרה ולאיזון הנתונים.",
+              "ru": "Выбранная защита соответствует цели и равновесию."
+            },
+            "counter": {
+              "en": "No counter opening is given; a head slip does not solve every target or balance state.",
+              "he": "לא ניתן פתח למכת נגד; התחמקות ראש אינה מתאימה לכל מטרה או מצב איזון.",
+              "ru": "Открытие для контратаки не задано; уклон головы подходит не для каждой цели и стойки."
+            }
+          }
+        },
+        {
+          "id": "IQ-C04-V3",
+          "state": {
+            "target": "head",
+            "balanced": false,
+            "opening": false
+          },
+          "prompt": {
+            "en": "An incoming jab needs a defensive choice.",
+            "he": "ישירה נכנסת דורשת בחירת הגנה.",
+            "ru": "Входящий джеб требует выбора защиты."
+          },
+          "assumptions": {
+            "en": "The avatar is off balance; choose the stationary guard.",
+            "he": "הדמות לא מאוזנת; בחרו הגנה במקום.",
+            "ru": "Аватар не в равновесии; выберите защиту на месте."
+          },
+          "validOutcomes": [
+            "block"
+          ],
+          "rationales": {
+            "slip": {
+              "en": "No counter opening is given; a head slip does not solve every target or balance state.",
+              "he": "לא ניתן פתח למכת נגד; התחמקות ראש אינה מתאימה לכל מטרה או מצב איזון.",
+              "ru": "Открытие для контратаки не задано; уклон головы подходит не для каждой цели и стойки."
+            },
+            "block": {
+              "en": "The chosen defense fits the stated target and balance.",
+              "he": "ההגנה שנבחרה מתאימה למטרה ולאיזון הנתונים.",
+              "ru": "Выбранная защита соответствует цели и равновесию."
+            },
+            "counter": {
+              "en": "No counter opening is given; a head slip does not solve every target or balance state.",
+              "he": "לא ניתן פתח למכת נגד; התחמקות ראש אינה מתאימה לכל מטרה או מצב איזון.",
+              "ru": "Открытие для контратаки не задано; уклон головы подходит не для каждой цели и стойки."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "IQ-C05",
+      "version": 1,
+      "tier": "Contender",
+      "scenarioId": "scenario-05",
+      "conceptIds": [
+        "IQ-FEINT-01",
+        "IQ-BODY-01"
+      ],
+      "demoId": "IQ-DEMO-05",
+      "choices": [
+        {
+          "id": "counter",
+          "command": "cross",
+          "label": {
+            "en": "Counter into the opening",
+            "he": "מכת נגד לפתח",
+            "ru": "Контратака в открытие"
+          }
+        },
+        {
+          "id": "guard",
+          "command": "guard",
+          "label": {
+            "en": "Keep head and body protected",
+            "he": "הגנה על ראש וגוף",
+            "ru": "Прикрыть голову и корпус"
+          }
+        },
+        {
+          "id": "step",
+          "command": "step_forward",
+          "label": {
+            "en": "Adjust range with a balanced step",
+            "he": "התאמת טווח בצעד מאוזן",
+            "ru": "Настроить дистанцию сбалансированным шагом"
+          }
+        }
+      ],
+      "timeLimitSec": 45,
+      "conditionSet": [
+        "Exact authored scenario state",
+        "Explicit in-game choice command",
+        "No measurement of the player body"
+      ],
+      "rewardRuleId": "fight-iq-v1",
+      "variants": [
+        {
+          "id": "IQ-C05-V1",
+          "state": {
+            "opening": true,
+            "inRange": true
+          },
+          "prompt": {
+            "en": "Read the opponent’s guard and the stated range. What now?",
+            "he": "בחנו את הגנת היריב ואת הטווח הנתון. מה עכשיו?",
+            "ru": "Оцените защиту соперника и указанную дистанцию. Что дальше?"
+          },
+          "assumptions": {
+            "en": "A clear opening exists within reach.",
+            "he": "קיים פתח ברור בטווח.",
+            "ru": "В пределах досягаемости есть явное открытие."
+          },
+          "validOutcomes": [
+            "counter"
+          ],
+          "rationales": {
+            "counter": {
+              "en": "The decision follows the actual opening and range, not the feint alone.",
+              "he": "הבחירה מתבססת על הפתח והמרחק, לא על ההטעיה לבדה.",
+              "ru": "Решение учитывает реальное открытие и дистанцию, а не сам финт."
+            },
+            "guard": {
+              "en": "A feint does not guarantee a reachable opening. Protect or adjust range when the state requires it.",
+              "he": "הטעיה אינה מבטיחה פתח בטווח. הגנו או התאימו מרחק לפי המצב.",
+              "ru": "Финт не гарантирует доступного открытия. Защищайтесь или меняйте дистанцию по ситуации."
+            },
+            "step": {
+              "en": "A feint does not guarantee a reachable opening. Protect or adjust range when the state requires it.",
+              "he": "הטעיה אינה מבטיחה פתח בטווח. הגנו או התאימו מרחק לפי המצב.",
+              "ru": "Финт не гарантирует доступного открытия. Защищайтесь или меняйте дистанцию по ситуации."
+            }
+          }
+        },
+        {
+          "id": "IQ-C05-V2",
+          "state": {
+            "opening": false,
+            "inRange": true
+          },
+          "prompt": {
+            "en": "Read the opponent’s guard and the stated range. What now?",
+            "he": "בחנו את הגנת היריב ואת הטווח הנתון. מה עכשיו?",
+            "ru": "Оцените защиту соперника и указанную дистанцию. Что дальше?"
+          },
+          "assumptions": {
+            "en": "The opponent recovered guard; no opening exists.",
+            "he": "היריב חזר להגנה; אין פתח.",
+            "ru": "Соперник восстановил защиту; открытия нет."
+          },
+          "validOutcomes": [
+            "guard"
+          ],
+          "rationales": {
+            "counter": {
+              "en": "A feint does not guarantee a reachable opening. Protect or adjust range when the state requires it.",
+              "he": "הטעיה אינה מבטיחה פתח בטווח. הגנו או התאימו מרחק לפי המצב.",
+              "ru": "Финт не гарантирует доступного открытия. Защищайтесь или меняйте дистанцию по ситуации."
+            },
+            "guard": {
+              "en": "The decision follows the actual opening and range, not the feint alone.",
+              "he": "הבחירה מתבססת על הפתח והמרחק, לא על ההטעיה לבדה.",
+              "ru": "Решение учитывает реальное открытие и дистанцию, а не сам финт."
+            },
+            "step": {
+              "en": "A feint does not guarantee a reachable opening. Protect or adjust range when the state requires it.",
+              "he": "הטעיה אינה מבטיחה פתח בטווח. הגנו או התאימו מרחק לפי המצב.",
+              "ru": "Финт не гарантирует доступного открытия. Защищайтесь или меняйте дистанцию по ситуации."
+            }
+          }
+        },
+        {
+          "id": "IQ-C05-V3",
+          "state": {
+            "opening": true,
+            "inRange": false
+          },
+          "prompt": {
+            "en": "Read the opponent’s guard and the stated range. What now?",
+            "he": "בחנו את הגנת היריב ואת הטווח הנתון. מה עכשיו?",
+            "ru": "Оцените защиту соперника и указанную дистанцию. Что дальше?"
+          },
+          "assumptions": {
+            "en": "An opening exists, but is outside reach.",
+            "he": "קיים פתח, אך הוא מחוץ לטווח.",
+            "ru": "Открытие есть, но оно вне досягаемости."
+          },
+          "validOutcomes": [
+            "step"
+          ],
+          "rationales": {
+            "counter": {
+              "en": "A feint does not guarantee a reachable opening. Protect or adjust range when the state requires it.",
+              "he": "הטעיה אינה מבטיחה פתח בטווח. הגנו או התאימו מרחק לפי המצב.",
+              "ru": "Финт не гарантирует доступного открытия. Защищайтесь или меняйте дистанцию по ситуации."
+            },
+            "guard": {
+              "en": "A feint does not guarantee a reachable opening. Protect or adjust range when the state requires it.",
+              "he": "הטעיה אינה מבטיחה פתח בטווח. הגנו או התאימו מרחק לפי המצב.",
+              "ru": "Финт не гарантирует доступного открытия. Защищайтесь или меняйте дистанцию по ситуации."
+            },
+            "step": {
+              "en": "The decision follows the actual opening and range, not the feint alone.",
+              "he": "הבחירה מתבססת על הפתח והמרחק, לא על ההטעיה לבדה.",
+              "ru": "Решение учитывает реальное открытие и дистанцию, а не сам финт."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "IQ-C06",
+      "version": 1,
+      "tier": "Contender",
+      "scenarioId": "scenario-06",
+      "conceptIds": [
+        "IQ-ANGLE-01",
+        "IQ-PACING-01"
+      ],
+      "demoId": "IQ-DEMO-06",
+      "choices": [
+        {
+          "id": "left",
+          "command": "step_left",
+          "label": {
+            "en": "Balanced exit left",
+            "he": "יציאה מאוזנת שמאלה",
+            "ru": "Сбалансированный выход влево"
+          }
+        },
+        {
+          "id": "right",
+          "command": "step_right",
+          "label": {
+            "en": "Balanced exit right",
+            "he": "יציאה מאוזנת ימינה",
+            "ru": "Сбалансированный выход вправо"
+          }
+        },
+        {
+          "id": "guard",
+          "command": "guard",
+          "label": {
+            "en": "Guard and recover",
+            "he": "הגנה והתאוששות",
+            "ru": "Защита и восстановление"
+          }
+        }
+      ],
+      "timeLimitSec": 45,
+      "conditionSet": [
+        "Exact authored scenario state",
+        "Explicit in-game choice command",
+        "No measurement of the player body"
+      ],
+      "rewardRuleId": "fight-iq-v1",
+      "variants": [
+        {
+          "id": "IQ-C06-V1",
+          "state": {
+            "exitLane": "left",
+            "energy": "low"
+          },
+          "prompt": {
+            "en": "Choose the avatar next position after the exchange.",
+            "he": "בחרו את מיקום הדמות הבא אחרי חילוף המכות.",
+            "ru": "Выберите следующую позицию аватара после обмена."
+          },
+          "assumptions": {
+            "en": "Only the left lane is clear.",
+            "he": "רק הנתיב השמאלי פנוי.",
+            "ru": "Свободен только левый путь."
+          },
+          "validOutcomes": [
+            "left"
+          ],
+          "rationales": {
+            "left": {
+              "en": "Use the clear lane without crossing the feet, or recover when none is available.",
+              "he": "השתמשו בנתיב הפנוי בלי להצליב רגליים, או התאוששו כשאין נתיב.",
+              "ru": "Используйте свободный путь, не скрещивая ноги, или восстанавливайтесь при его отсутствии."
+            },
+            "right": {
+              "en": "Do not step into the blocked lane or force another attack when a balanced exit is the objective.",
+              "he": "אל תיכנסו לנתיב החסום ואל תכפו התקפה כשהמטרה היא יציאה מאוזנת.",
+              "ru": "Не шагайте в перекрытый путь и не навязывайте атаку, когда цель — сбалансированный выход."
+            },
+            "guard": {
+              "en": "Do not step into the blocked lane or force another attack when a balanced exit is the objective.",
+              "he": "אל תיכנסו לנתיב החסום ואל תכפו התקפה כשהמטרה היא יציאה מאוזנת.",
+              "ru": "Не шагайте в перекрытый путь и не навязывайте атаку, когда цель — сбалансированный выход."
+            }
+          }
+        },
+        {
+          "id": "IQ-C06-V2",
+          "state": {
+            "exitLane": "right",
+            "energy": "ready"
+          },
+          "prompt": {
+            "en": "Choose the avatar next position after the exchange.",
+            "he": "בחרו את מיקום הדמות הבא אחרי חילוף המכות.",
+            "ru": "Выберите следующую позицию аватара после обмена."
+          },
+          "assumptions": {
+            "en": "Only the right lane is clear.",
+            "he": "רק הנתיב הימני פנוי.",
+            "ru": "Свободен только правый путь."
+          },
+          "validOutcomes": [
+            "right"
+          ],
+          "rationales": {
+            "left": {
+              "en": "Do not step into the blocked lane or force another attack when a balanced exit is the objective.",
+              "he": "אל תיכנסו לנתיב החסום ואל תכפו התקפה כשהמטרה היא יציאה מאוזנת.",
+              "ru": "Не шагайте в перекрытый путь и не навязывайте атаку, когда цель — сбалансированный выход."
+            },
+            "right": {
+              "en": "Use the clear lane without crossing the feet, or recover when none is available.",
+              "he": "השתמשו בנתיב הפנוי בלי להצליב רגליים, או התאוששו כשאין נתיב.",
+              "ru": "Используйте свободный путь, не скрещивая ноги, или восстанавливайтесь при его отсутствии."
+            },
+            "guard": {
+              "en": "Do not step into the blocked lane or force another attack when a balanced exit is the objective.",
+              "he": "אל תיכנסו לנתיב החסום ואל תכפו התקפה כשהמטרה היא יציאה מאוזנת.",
+              "ru": "Не шагайте в перекрытый путь и не навязывайте атаку, когда цель — сбалансированный выход."
+            }
+          }
+        },
+        {
+          "id": "IQ-C06-V3",
+          "state": {
+            "exitLane": "none",
+            "energy": "low"
+          },
+          "prompt": {
+            "en": "Choose the avatar next position after the exchange.",
+            "he": "בחרו את מיקום הדמות הבא אחרי חילוף המכות.",
+            "ru": "Выберите следующую позицию аватара после обмена."
+          },
+          "assumptions": {
+            "en": "Both exit lanes are blocked; recover in guard.",
+            "he": "שני נתיבי היציאה חסומים; התאוששו בהגנה.",
+            "ru": "Оба выхода перекрыты; восстанавливайтесь в защите."
+          },
+          "validOutcomes": [
+            "guard"
+          ],
+          "rationales": {
+            "left": {
+              "en": "Do not step into the blocked lane or force another attack when a balanced exit is the objective.",
+              "he": "אל תיכנסו לנתיב החסום ואל תכפו התקפה כשהמטרה היא יציאה מאוזנת.",
+              "ru": "Не шагайте в перекрытый путь и не навязывайте атаку, когда цель — сбалансированный выход."
+            },
+            "right": {
+              "en": "Do not step into the blocked lane or force another attack when a balanced exit is the objective.",
+              "he": "אל תיכנסו לנתיב החסום ואל תכפו התקפה כשהמטרה היא יציאה מאוזנת.",
+              "ru": "Не шагайте в перекрытый путь и не навязывайте атаку, когда цель — сбалансированный выход."
+            },
+            "guard": {
+              "en": "Use the clear lane without crossing the feet, or recover when none is available.",
+              "he": "השתמשו בנתיב הפנוי בלי להצליב רגליים, או התאוששו כשאין נתיב.",
+              "ru": "Используйте свободный путь, не скрещивая ноги, или восстанавливайтесь при его отсутствии."
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "england-boxing-repository-review",
+      "title": "England Boxing coaching handbooks — prior repository reference review",
+      "url": "https://www.englandboxing.org/wp-content/uploads/2022/03/EB_Boxing-Coaching-Handbook-Part-1_v8-002.pdf",
+      "repositoryReference": "docs/r75-reference-and-design.md; docs/r16-training-partners-and-continuous-practice.md",
+      "reviewNote": "Prior repository review documents opposite-cheek guard, straight trajectories, foot/hip drive and recovery. This release did not independently retrieve the handbook; no instructor certification is claimed."
+    }
+  ]
+}
