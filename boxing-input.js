@@ -25,7 +25,7 @@
    this.engine.lastRenderStamp=null;this.engine.isPlaying=true;this.engine.onInputState?.();
   }
   canAct(){
-   if(!this.enabled||!this.engine.coach||this.engine.targetMode==='rope')return false;
+   if(window.ringfighterGame?.isModalOpen||!this.enabled||!this.engine.coach||this.engine.targetMode==='rope')return false;
    const match=this.engine.arena?.fightView?.match;
    return !match||(match.phase==='round'&&!match.result&&!match.fighters[this.actor()].down);
   }
@@ -33,6 +33,7 @@
   canCombo(){const match=this.engine.arena?.fightView?.match,a=match?match.fighters[this.actor()]?.action:(this.context===this.key()?this.current:null),ready=!a||a.move==='guard'&&(!a.guardStyle||a.guardStyle==='high');return this.canAct()&&(!match||typeof match.requestPlayerCombo==='function')&&!this.sequence()&&!(match?.playerQueue||this.queue).length&&ready;}
   pressCombo(id){
    if(this.context!==this.key())this.reset();
+   const unlock=window.ringfighterGame&&window.GameDomain?.combos.find(c=>c.controllerId===id),game=this.engine.career?.store.game(),mode=this.engine.targetMode==='fight'?'fight':'training';if(unlock&&(!game?.combos.owned.includes(unlock.id)||!game.combos[mode].includes(unlock.id)))return false;
    const ids=combos[id],speed=(this.engine.targetMode||this.engine.arena?.mode)==='speed';
    if(!ids||!this.canCombo()||speed!==id.startsWith('combo_speed_'))return false;
    const commands=ids.map((input,i)=>{const d=definitions[input],duration=d.move==='speedbag'?.27:d.move==='jab'?.54:d.move==='cross'?.64:durations[d.move];return {...d,input,duration,combo:{id,step:i+1,total:ids.length}};});

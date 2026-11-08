@@ -20,25 +20,26 @@
    const d=dialog(w().choose),grid=make('div','routine-grid');
    for(const preset of ['club','quick','three','six','title','exhibition']){const b=make('button','routine-choice');b.type='button';b.dataset.fightPreset=preset;b.append(make('strong','',preset==='quick'?w().quickfight:w()[preset]),make('span','',preset==='quick'?w().quickhelp:preset==='exhibition'?w().quick:w().real));b.onclick=()=>{e.fightOptions={preset,seed:Math.floor(Math.random()*4294967296)};e.animTime=0;e.targetMode='fight';e.technique='fight';e.speed=1;e.isPlaying=true;window.trainingControls.chooseTarget('fight');d.close();};grid.append(b);}d.append(grid);
   }
+  const labels=view=>window.GameIdentity?.labels(view)||w();
   function detail(view=e.arena?.fightView){
-   if(!view)return;const m=view.match,d=dialog(w().cards);d.append(make('p','fight-note',w().lion+' — '+w().rabbit));d.append(make('p','fight-note',w().scoring));
+   if(!view)return;const m=view.match,d=dialog(w().cards);d.append(make('p','fight-note',labels(view).lion+' — '+labels(view).rabbit));d.append(make('p','fight-note',w().scoring));
    const table=make('table','fight-score-table'),head=make('tr');for(const t of [w().round,w().judge+' 1',w().judge+' 2',w().judge+' 3'])head.append(make('th','',t));table.append(head);
    for(let i=0;i<m.cards[0].rounds.length;i++){const row=make('tr');row.append(make('th','',String(i+1)));for(const card of m.cards)row.append(make('td','',card.rounds[i].scores.join(' – ')));table.append(row);}d.append(table);
-   for(const actor of ['lion','rabbit']){const t=m.totals[actor];d.append(make('p','fight-note',w()[actor]+': '+t.head+' / '+t.body+' · '+t.blocked+' · '+t.thrown));}d.append(make('p','fight-note',w().stats));
+   for(const actor of ['lion','rabbit']){const t=m.totals[actor];d.append(make('p','fight-note',labels(view)[actor]+': '+t.head+' / '+t.body+' · '+t.blocked+' · '+t.thrown));}d.append(make('p','fight-note',w().stats));
   }
   let last='';
   function render(view){
-   const m=view.match,s=m.snapshot(),key=[app.lang,s.phase,s.round,Math.ceil(s.remaining),Math.ceil(s.restRemaining),s.count,s.cardsShown,s.totals.lion.landed,s.totals.rabbit.landed,s.health?.lion,s.health?.rabbit].join('|');if(last===key)return;last=key;
+   const m=view.match,s=m.snapshot(),key=[labels(view).lion,labels(view).rabbit,app.lang,s.phase,s.round,Math.ceil(s.remaining),Math.ceil(s.restRemaining),s.count,s.cardsShown,s.totals.lion.landed,s.totals.rabbit.landed,s.health?.lion,s.health?.rabbit].join('|');if(last===key)return;last=key;
    hud.hidden=false;health.hidden=false;health.replaceChildren();
-   for(const actor of ['lion','rabbit']){const value=Math.max(0,Math.min(100,s.health?.[actor]??100)),column=make('div','fight-health-player'),label=make('span','fight-health-label',w()[actor]+' · '+Math.ceil(value)),track=make('div','fight-health-track'),fill=make('div','fight-health-fill');
-    track.setAttribute('role','progressbar');track.setAttribute('aria-label',w()[actor]);track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',String(Math.round(value)));
+   for(const actor of ['lion','rabbit']){const value=Math.max(0,Math.min(100,s.health?.[actor]??100)),column=make('div','fight-health-player'),label=make('span','fight-health-label',labels(view)[actor]+' · '+Math.ceil(value)),track=make('div','fight-health-track'),fill=make('div','fight-health-fill');
+    track.setAttribute('role','progressbar');track.setAttribute('aria-label',labels(view)[actor]);track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',String(Math.round(value)));
     const color=value>75?'#38bdf8':value>50?'#34d399':value>25?'#facc15':'#f87171';fill.setAttribute('style','width:'+value+'%;background:'+color);track.append(fill);column.append(label,track);health.append(column);}
-   banner.hidden=!(s.result?.stoppage==='KO');banner.textContent=s.result?.winner?w().KO.toUpperCase()+' · '+w()[s.result.winner]+' '+w().winner:w().KO.toUpperCase()+' · '+w().draw;
+   banner.hidden=!(s.result?.stoppage==='KO');banner.textContent=s.result?.winner?w().KO.toUpperCase()+' · '+labels(view)[s.result.winner]+' '+w().winner:w().KO.toUpperCase()+' · '+w().draw;
    const status=s.phase==='round'?w().round+' '+s.round+'/'+s.rounds+' · '+clock(s.remaining):s.phase==='rest'?w().rest+' · '+clock(s.restRemaining):s.phase==='count'?w().count+' · '+s.count:s.phase==='intro'?w().intro:s.phase==='scoring'?w().pending:'';
-   hud.textContent=status+(s.phase==='round'?'  |  '+w().lion+' '+s.totals.lion.landed+' · '+w().rabbit+' '+s.totals.rabbit.landed:'');
+   hud.textContent=status+(s.phase==='round'?'  |  '+labels(view).lion+' '+s.totals.lion.landed+' · '+labels(view).rabbit+' '+s.totals.rabbit.landed:'');
    const before=panel.hidden;panel.hidden=!s.result;if(before!==panel.hidden)window.dispatchEvent?.(new Event('resize'));if(!s.result)return;panel.replaceChildren();
-   const title=s.phase==='ceremony'?(s.result.winner?w()[s.result.winner]+' '+w().winner+' · '+w()[s.result.decision]:w().draw):w().waiting;
-   panel.append(make('strong','fight-result-title',title),make('p','fight-card-order',w().lion+' — '+w().rabbit));const cards=make('div','fight-card-grid');
+   const title=s.phase==='ceremony'?(s.result.winner?labels(view)[s.result.winner]+' '+w().winner+' · '+w()[s.result.decision]:w().draw):w().waiting;
+   panel.append(make('strong','fight-result-title',title),make('p','fight-card-order',labels(view).lion+' — '+labels(view).rabbit));const cards=make('div','fight-card-grid');
    for(const [i,card] of s.result.cards.entries()){const cell=make('div','fight-card');cell.append(make('span','',w().judge+' '+(i+1)),make('strong','',i<s.cardsShown?card.totals.join(' – '):'•• – ••'));cards.append(cell);}panel.append(cards);
    if(s.result.method==='TKO')panel.append(make('p','fight-note',w().stoppage));
    const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;actions.append(details,again);panel.append(actions);

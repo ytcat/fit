@@ -6,8 +6,8 @@ const loaded=new CareerStore(storage);assert.equal(loaded.current().boxers.lion.
 assert.equal(s.award({...event,id:'short',seconds:4}),null);assert.equal(s.award({...event,id:'idle',jumps:0}),null);
 const second=s.create('Jamie');s.award({...event,id:'bag-1',mode:'heavy',seconds:60,hits:40,attempts:50});assert.equal(second.boxers.lion.xp,0,'reward stays with the player captured at session start');
 const source=s.export(),count=s.import(source);assert.equal(count,2);assert.equal(s.data.profiles.length,4);assert.throws(()=>s.import('{"version":1,"profiles":[{}]}'));assert.equal(s.data.profiles.length,4);
-const bad=JSON.parse(source);bad.profiles[0].boxers.lion.points.power=-100;assert.throws(()=>s.import(JSON.stringify(bad)));assert.equal(s.data.profiles.length,4);
-const noStorage=new CareerStore({getItem(){throw Error();},setItem(){throw Error();}});noStorage.guest();assert.match(noStorage.error,/Export a backup/);
+const bad=JSON.parse(source).data;bad.profiles[0].boxers.lion.points.power=-100;assert.throws(()=>s.import(JSON.stringify(bad)));assert.equal(s.data.profiles.length,4);
+const noStorage=new CareerStore({getItem(){throw Error();},setItem(){throw Error();}});assert.throws(()=>noStorage.guest());assert.equal(noStorage.current(),null);assert.match(noStorage.error,/Export a backup/);
 global.window=global;vm.runInThisContext(fs.readFileSync('boxing-fight.js','utf8'));
 const low=new BoxingFight({seed:13,careerActor:'lion',careerStats:Object.fromEntries(attrs.map(k=>[k,20]))}),high=new BoxingFight({seed:13,careerActor:'lion',careerStats:Object.fromEntries(attrs.map(k=>[k,99]))});
 for(const m of [low,high])m.phase='round';const lo=low.attack('lion','cross','head'),hi=high.attack('lion','cross','head');assert.ok(hi.duration<lo.duration);assert.ok(high.fighters.lion.stamina>low.fighters.lion.stamina);assert.ok(high.fighters.lion.power>low.fighters.lion.power);assert.ok(high.fighters.lion.skill>low.fighters.lion.skill);assert.ok(high.fighters.lion.footwork>low.fighters.lion.footwork);assert.equal(high.fighters.lion.accuracy,1);assert.deepEqual(high.fighters.rabbit,low.fighters.rabbit,'training must not secretly strengthen the opponent');

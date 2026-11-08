@@ -16,7 +16,7 @@
  if(typeof document==='undefined')return;
  function boot(){if(!window.fightUI||!window.app)return;const app=window.app,e=app.engine,clock=new Clock(),node=document.createElement('div'),title=document.createElement('strong'),sub=document.createElement('span');node.className='bout-announcement';node.hidden=true;node.setAttribute('role','status');node.setAttribute('aria-live','polite');node.append(title,sub);document.getElementById('stageContainer').append(node);
   const oldRender=window.fightUI.render,oldHide=window.fightUI.hide;let key='';
-  window.fightUI.render=view=>{oldRender(view);const p=state(view.match),next=p.kind+'|'+p.text+'|'+p.sub;const tick=clock.tick(view.match,e.isPlaying);if(tick!=null)app.audio.countdown?.(tick);
+  window.fightUI.render=view=>{oldRender(view);const p=state(view.match),names=window.GameIdentity?.labels(view);if(names){if(p.kind==='versus')p.text=names.lion+' vs '+names.rabbit;if(p.kind==='winner'&&view.match.result?.winner)p.text=names[view.match.result.winner]+' · '+(window.fightUI.words().winner||'wins');}const next=p.kind+'|'+p.text+'|'+p.sub;const tick=clock.tick(view.match,e.isPlaying);if(tick!=null)app.audio.countdown?.(tick);
    if(next===key)return;key=next;node.hidden=!p.kind;node.dataset.kind=p.kind;title.textContent=p.text;sub.textContent=p.sub;node.setAttribute('aria-live',p.kind==='countdown'?'off':'polite');document.getElementById('fightHud').classList.toggle('fight-clock-urgent',p.kind==='countdown');
    // The result announcement replaces the old KO-only overlay.
    if(p.kind==='winner')document.getElementById('fightKnockout').hidden=true;
