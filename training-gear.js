@@ -35,10 +35,23 @@
  }
  function ropeGrip(coach,side){
   const root=new THREE.Group();root.name='Wrapped rope grip '+side;const wrap=material(0xd7c9ad,.98),skin=material(coach.species==='rabbit'?0x9da6ab:0xb78b49,.95),rubber=material(0x18232a,.76),metal=new THREE.MeshStandardMaterial({color:0xa7afae,metalness:.72,roughness:.36});
-  const palm=mesh(root,new THREE.SphereGeometry(1,24,16),wrap,'Wrapped palm');palm.position.set(0,-.075,0);palm.scale.set(.052,.066,.042);
-  const wrist=mesh(root,new THREE.CylinderGeometry(.048,.043,.062,24),wrap,'Training hand wrap');wrist.position.y=.007;wrist.scale.z=.83;
-  for(let i=0;i<4;i++){const finger=mesh(root,new THREE.SphereGeometry(1,16,12),skin,'Curled finger');finger.position.set((i-1.5)*.022,-.110,.027);finger.scale.set(.014,.034,.018);}
-  const sign=side==='L'?-1:1,thumb=mesh(root,new THREE.SphereGeometry(1,16,12),skin,'Wrapped grip thumb');thumb.position.set(sign*.045,-.071,.034);thumb.scale.set(.020,.037,.020);thumb.rotation.z=-sign*.35;
+  const lion=coach.species!=='rabbit';
+  // One continuous curled paw surface: broad metacarpals and four knuckle
+  // ridges, rather than four tiny human fingers pasted onto a wrapped ball.
+  const pawGeometry=new THREE.SphereGeometry(1,32,24),positions=pawGeometry.attributes.position;
+  const colors=[];const coat=new THREE.Color(lion?0xb78b49:0x9da6ab).convertSRGBToLinear(),pad=new THREE.Color(lion?0x4d382d:0x686d71).convertSRGBToLinear();
+  for(let i=0;i<positions.count;i++){
+   const x=positions.getX(i),y=positions.getY(i),z=positions.getZ(i);
+   const knuckle=Math.exp(-(((y+.42)/.34)**2))*Math.max(0,z)*(.5+.5*Math.cos(x*Math.PI*3.5));
+   positions.setXYZ(i,x*(lion?.080:.065),y*(lion?.082:.074)-.082,z*(lion?.055:.048)+knuckle*.008);
+   const patch=Math.max(0,1-Math.hypot(x/.78,(y+.20)/.65))*Math.max(0,(z-.45)/.55);
+   const c=coat.clone().lerp(pad,Math.min(1,patch*2.5));colors.push(c.r,c.g,c.b);
+  }
+  pawGeometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));pawGeometry.computeVertexNormals();
+  const pawMaterial=material(0xffffff,.96);pawMaterial.vertexColors=true;
+  mesh(root,pawGeometry,pawMaterial,lion?'Connected lion gripping paw':'Connected rabbit gripping paw');
+  const wrist=mesh(root,new THREE.CylinderGeometry(lion?.057:.051,lion?.052:.046,.062,24),wrap,'Training hand wrap');wrist.position.y=.007;wrist.scale.z=.88;
+  const sign=side==='L'?-1:1,thumb=mesh(root,new THREE.SphereGeometry(1,20,16),skin,'Curled anatomical grip thumb');thumb.position.set(sign*(lion?.062:.052),-.071,.032);thumb.scale.set(lion?.027:.023,.043,.025);thumb.rotation.z=-sign*.40;
   const handle=new THREE.Group();handle.name='Knurled skipping handle';handle.position.set(0,-.091,.025);handle.rotation.z=Math.PI/2;root.add(handle);
   mesh(handle,new THREE.CylinderGeometry(.016,.018,.155,20),rubber,'Rubber rope handle');
   const metalParts=[];

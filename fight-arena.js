@@ -98,32 +98,26 @@
   }
   ringTravel(){
    const m=this.match,dt=this.travelLast==null?0:clamp(m.time-this.travelLast,0,.05);this.travelLast=m.time;
-   // Finish the current half-step during preparation instead of freezing midair.
-   const mobile=m.phase==='round'&&!Object.values(m.fighters).some(f=>f.down||f.action?.attack);
-   const stride=.64,half=stride*.5;
-   if(mobile){this.travelStop=null;this.travelTime+=dt;}
-   else {
-    if(this.travelStop==null){this.travelStart=this.travelTime;this.travelAge=0;this.travelStop=Math.max(this.travelTime,Math.ceil((this.travelTime-1e-8)/half)*half);}
-    const duration=this.travelStop-this.travelStart;this.travelAge+=dt;
-    const q=duration>1e-8?Math.min(1,this.travelAge/duration):1;
-    // Match incoming velocity, finish with zero velocity at double support.
-    this.travelTime=q===1?this.travelStop:this.travelStart+duration*(q+q*q-q*q*q);
+   if(!this.walkers)this.walkers={lion:{time:0,stride:.72},rabbit:{time:0,stride:.86}};
+   const paths={};
+   for(const [actor,index] of [['lion',0],['rabbit',1]]){
+    const w=this.walkers[actor],f=m.fighters[actor],mobile=m.phase==='round'&&!f.down&&!f.action?.attack,half=w.stride/2;
+    if(mobile){w.stop=null;w.time+=dt;}
+    else{
+     if(w.stop==null){w.start=w.time;w.age=0;w.stop=Math.max(w.time,Math.ceil((w.time-1e-8)/half)*half);}
+     const duration=w.stop-w.start;w.age+=dt;const q=duration>1e-8?Math.min(1,w.age/duration):1;
+     w.time=q===1?w.stop:w.start+duration*(q+q*q-q*q*q);
+    }
+    const beat=Math.floor(w.time/w.stride),phase=(w.time/w.stride)%1,ease=phase*phase*(3-2*phase),sign=index?1:-1;
+    const anchor=n=>{
+     // Independent bounded waypoints: neither fighter is translated by the
+     // opponent's clock. Convex corner exclusion also holds between anchors.
+     const offset=index?1.7:0,p=V(.48*(Math.sin(n*.48+offset)-Math.sin(offset)),0,sign*(.60+.08*Math.sin(n*.71+offset))+.20*(Math.sin(n*.35+offset)-Math.sin(offset)));
+     p.x=clamp(p.x,-.88,.88);p.z=clamp(p.z,-.96,.96);const spill=Math.max(0,p.x-p.z-.78)*.5;p.x-=spill;p.z+=spill;return p;
+    };
+    paths[actor]={from:anchor(beat),to:anchor(beat+1),phase,ease,mobile,weight:m.phase==='round'?1:0};
    }
-   // Keep the planted stride offset while stopped; fading it caused foot slide.
-   this.gaitWeight=m.phase==='round'?1:0;
-   const t=this.travelTime,beat=Math.floor(t/stride),phase=(t/stride)%1;
-   const anchor=n=>{
-    const p=V(.70*Math.sin(n*.52),0,.64*Math.sin(n*.58)),heading=.48*Math.sin(n*stride*.30),spacing=1.20+.02*Math.sin(n*stride*.55);
-    // Reserve the fixed official's corner. Linear root paths stay inside this
-    // convex half-plane, including between the stride endpoints.
-    const limit=.86-Math.abs(Math.sin(heading)-Math.cos(heading))*spacing*.5,spill=Math.max(0,p.x-p.z-limit)*.5;
-    p.x-=spill;p.z+=spill;return p;
-   };
-   const from=anchor(beat),to=anchor(beat+1),ease=phase*phase*(3-2*phase);
-   const centre=from.clone().lerp(to,ease),delta=to.clone().sub(from);
-   const angleFrom=.48*Math.sin(beat*stride*.30),angleTo=.48*Math.sin((beat+1)*stride*.30),angle=angleFrom+(angleTo-angleFrom)*ease;
-   const rangeFrom=1.20+.02*Math.sin(beat*stride*.55),rangeTo=1.20+.02*Math.sin((beat+1)*stride*.55),range=rangeFrom+(rangeTo-rangeFrom)*ease;
-   return {centre,from,to,delta,phase,ease,angle,angleFrom,angleTo,range,rangeFrom,rangeTo,mobile,weight:this.gaitWeight};
+   this.travelTime=this.walkers.lion.time;return paths;
   }
 
   pose(){
@@ -136,8 +130,10 @@
     const coach=this.coaches[actor],f=m.fighters[actor];
     if(ceremony){coach.root.position.copy(this.lineupStart[actor].position).lerp(V(index?.72:-.72,0,.05),ease);coach.ringYaw=this.lineupStart[actor].yaw*(1-ease);}
     else {const direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.move?.includes('uppercut')?Math.min(.06,(reaction.amount||0)*.04):Math.min(.045,(reaction?.amount||0)*.032);
-     const from=travel.from.clone().addScaledVector(V(Math.sin(travel.angleFrom),0,Math.cos(travel.angleFrom)),-direction*travel.rangeFrom/2),to=travel.to.clone().addScaledVector(V(Math.sin(travel.angleTo),0,Math.cos(travel.angleTo)),-direction*travel.rangeTo/2);coach.root.position.copy(from).lerp(to,travel.ease).addScaledVector(V(Math.sin(travel.angle),0,Math.cos(travel.angle)),-direction*(corner+push));coach.ringYaw=travel.angle+(index?Math.PI:0);coach.ringDelta=to.sub(from);}
+     const path=travel[actor];coach.root.position.copy(path.from).lerp(path.to,path.ease);coach.ringDelta=path.to.clone().sub(path.from);coach.root.position.z-=direction*(corner+push);}
    }
+   if(!ceremony){for(const actor of ['lion','rabbit']){const c=this.coaches[actor],op=this.coaches[other(actor)];const d=op.root.position.clone().sub(c.root.position);c.ringYaw=Math.atan2(d.x,d.z);}}
+
    for(const actor of ['lion','rabbit']){
     const coach=this.coaches[actor],state=this.recoveryState(actor),yaw=coach.ringYaw;
     coach.root.quaternion.setFromEuler(new THREE.Euler(state.tilt,yaw,0,'YXZ'));coach.root.position.y=0;
@@ -149,7 +145,8 @@
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
     const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={guardElbowBack:.55,guardWidth:.24,guardHeight:1.72,guardCover:1,keepFaceClear:true,simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,guardStyle:spec.guardStyle,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28*(f.footwork||1)};
-    if(m.phase==='round'&&travel.weight>.001&&!ceremony){const yaw=coach.ringYaw,startDelta=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-(travel.angleFrom+(actor==='rabbit'?Math.PI:0))),first=Math.abs(startDelta.z)>=Math.abs(startDelta.x)?(startDelta.z>=0?-1:1):(startDelta.x>=0?1:-1);options.ringStep={first,phase:travel.phase,ease:travel.ease,weight:travel.weight,turn:travel.angleTo-travel.angleFrom,delta:coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw).toArray()};}
+    const path=travel[actor];
+    if(m.phase==='round'&&path.weight>.001&&!ceremony){const yaw=coach.ringYaw,local=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw),first=Math.abs(local.z)>=Math.abs(local.x)?(local.z>=0?-1:1):(local.x>=0?1:-1);options.ringStep={first,phase:path.phase,ease:path.ease,weight:path.weight,turn:0,delta:local.toArray()};}
     if(spec.attack){
      options.planStraight=true;options.strikeDirection=[0,0,1];
      let target=this.target(actor,spec);if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(V(...f.action.aim)));
@@ -279,6 +276,16 @@
     coach.constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012,pole);
    }
    this.clearOwnFaces();
+   // Clearing a muzzle or forearm can move the padded knuckles back into
+   // the opponent's arm. Finish on the coupled glove/face constraints too.
+   for(let pass=0;pass<2;pass++){
+    for(const actor of ['lion','rabbit'])for(const side of ['L','R']){
+     const coach=this.coaches[actor];coach.constrainGlove(side,p=>{
+      const opponent=this.collision(p,other(actor)),solid=this.solidContact(p,other(actor),actor);
+      return solid.penetration>opponent.penetration?solid:opponent;
+     },.008,coach.armBendReference(side));
+    }
+   }
    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.bendFrames[actor+side]={...this.coaches[actor].armBendReference(side),time:this.match.time};
   }
   step(){

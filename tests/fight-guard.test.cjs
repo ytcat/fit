@@ -15,6 +15,8 @@ function inspectFace(c){for(const side of ['L','R']){
 }}
 for(const f of Object.values(m.fighters)){f.action=null;f.next=Infinity;f.reaction=null;}m.phase='round';
 for(let i=0;i<90;i++){v.step();for(const c of Object.values(v.coaches)){inspectGuard(c);inspectFace(c);}}
+for(const c of Object.values(v.coaches)){const lead=c.point(c.joints.handL),rear=c.point(c.joints.handR);assert.ok(lead.z-rear.z>.035,'contact-adjusted guard retains forward lead-hand depth');c.update(.35,'guard','one_two');assert.ok(c.point(c.joints.handL).z-c.point(c.joints.handR).z>.10,'normal stance has distinct lead and rear depth');}
+v.pose();
 for(const move of ['jab','cross','hook','rear_hook','uppercut','rear_uppercut']){
  for(const f of Object.values(m.fighters)){f.action=null;f.next=Infinity;f.reaction=null;f.condition=100;f.stamina=1;f.stun=0;f.down=0;f.pendingDown=false;}m.result=null;m.phase='round';m.attack('lion',move,'head');m.attack('rabbit',move==='jab'?'cross':'jab','head');
  for(let i=0;i<70;i++){v.step();if(i%3===0)for(const c of Object.values(v.coaches))inspectFace(c);}

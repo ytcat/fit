@@ -28,6 +28,10 @@
   ['circle_counter',['step','slip','cross','hook','step'],['Circle, defend and counter','תנועה, הגנה ותגובה','Сместиться, защита, ответ']],
   ['moving_double_jab',['step','jab','jab','step','cross'],['Moving double jab','ג׳אב כפול בתנועה','Двойной джеб в движении']],
   ['reset_reenter',['jab','cross','step','slip','step','jab'],['Exit, reset and re-enter','יציאה, איפוס וכניסה','Отход, перестройка, вход']],
+  ['level_change',['jab','cross','hook','slip','rear_uppercut','step'],['Body–head switch and exit','גוף–ראש ויציאה','Смена уровней и отход']],
+  ['check_hook_exit',['jab','step','hook','cross','roll','step'],['Angle step, hook and reset','צעד זווית, הוק ואיפוס','Смещение, хук и перестройка']],
+  ['double_counter_return',['slip','cross','hook','roll','rear_uppercut','hook','step'],['Two reads, two counters','שתי קריאות ושתי תגובות','Две защиты, два ответа']],
+  ['pressure_break',['jab','jab','cross','hook','step','cross'],['Pressure burst and re-entry','רצף לחץ וכניסה מחדש','Натиск и повторный вход']],
   ['long_exchange',['jab','jab','cross','hook','roll','cross','rear_hook','step'],['Long exchange','חילופי מכות ארוכים','Длинный обмен']]
 ,
   ['super_blitz',['jab','jab','cross','hook','roll','rear_uppercut','hook','cross','step'],['Super · Lightning counter','סופר · תגובת ברק','Супер · Молниеносный ответ']],
@@ -47,6 +51,10 @@
  const timings={fast_jabs_upper:[.48,.48,1.30,.78],burst_exit:[.52,.60,.70,1.18,.76],read_upper:[.72,.92,1.20,.65,1.15],change_gears:[.46,.50,.68,.98,1.36,.65]};
  // Short straight bursts, deliberate uppercuts, and enough time to plant exits.
  Object.assign(timings,{
+  level_change:[.54,.70,.74,.82,1.08,1.02],
+  check_hook_exit:[.54,1.02,.76,.68,.88,1.02],
+  double_counter_return:[.78,.66,.72,.88,1.10,.70,1.02],
+  pressure_break:[.48,.50,.66,.72,1.02,.68],
   super_blitz:[.44,.48,.60,.64,.78,.94,.66,.62,.96],
   super_angle:[.94,.52,.64,.72,.62,.68,.98,.56],
   super_inside:[.54,.96,.68,.82,.98,.72,.76,.66,.98],
@@ -60,7 +68,7 @@
   super_comeback:[.84,1.02,.72,.76,.64,.68,1.04,1.00],
   super_marathon:[.46,.50,.62,.68,.84,.64,1.02,.70,1.02,.50,.62,.80]
  });
- const cues={super_blitz:{8:{stepDirection:-1}},super_angle:{0:{stepDirection:-1},3:{defenceSide:-1},6:{stepDirection:1}},super_inside:{8:{stepDirection:1}},super_gears:{8:{stepDirection:-1}},super_defence:{0:{defenceSide:-1},4:{defenceSide:1},8:{stepDirection:1}},super_ten:{10:{stepDirection:-1}},super_double_wave:{3:{stepDirection:1},10:{stepDirection:-1}},super_upper_ladder:{8:{stepDirection:1}},super_checkmate:{7:{stepDirection:-1}},super_ringcraft:{0:{stepDirection:-1},3:{stepDirection:1},8:{stepDirection:-1}},super_comeback:{3:{defenceSide:-1},7:{stepDirection:1}},super_marathon:{8:{stepDirection:1}}};
+ const cues={level_change:{5:{stepDirection:-1}},check_hook_exit:{1:{stepDirection:1},5:{stepDirection:-1}},double_counter_return:{0:{defenceSide:-1},6:{stepDirection:1}},pressure_break:{4:{stepDirection:-1}},super_blitz:{8:{stepDirection:-1}},super_angle:{0:{stepDirection:-1},3:{defenceSide:-1},6:{stepDirection:1}},super_inside:{8:{stepDirection:1}},super_gears:{8:{stepDirection:-1}},super_defence:{0:{defenceSide:-1},4:{defenceSide:1},8:{stepDirection:1}},super_ten:{10:{stepDirection:-1}},super_double_wave:{3:{stepDirection:1},10:{stepDirection:-1}},super_upper_ladder:{8:{stepDirection:1}},super_checkmate:{7:{stepDirection:-1}},super_ringcraft:{0:{stepDirection:-1},3:{stepDirection:1},8:{stepDirection:-1}},super_comeback:{3:{defenceSide:-1},7:{stepDirection:1}},super_marathon:{8:{stepDirection:1}}};
  for(const r of list)if(r.id.startsWith('super_'))r.advanced=true;
  // Footwork must finish its full plant; attack-only tail trimming caused a hop.
  const phaseScale=move=>move==='step'?1:.86;
@@ -159,8 +167,9 @@
  }
  // Boxing grammar provides many phrases, not a random pick from six loops.
  function phrase(random,defence=true){
-  const open=[['jab'],['jab','jab'],['jab','cross'],['cross','hook']];
-  const moves=open[Math.floor(random()*open.length)].slice(),length=3+Math.floor(random()*4)+(defence&&random()<.30?3:0);
+  const open=[['jab'],['jab','jab'],['jab','cross'],['cross','hook'],['jab','rear_uppercut','hook'],['jab','cross','hook','roll','cross'],['jab','jab','cross','step','jab'],['slip','cross','hook'],['roll','uppercut','rear_hook']];
+  const choicesOpen=defence?open:open.filter(p=>p.every(m=>!['slip','roll','step'].includes(m)));
+  const moves=choicesOpen[Math.floor(random()*choicesOpen.length)].slice(),length=3+Math.floor(random()*4)+(defence&&random()<.30?3:0);
   while(moves.length<length){
    const last=moves.at(-1),choices=['jab','hook','uppercut'].includes(last)?['cross','rear_hook','rear_uppercut']:['jab','hook','uppercut'];
    moves.push(choices[Math.floor(random()*choices.length)]);

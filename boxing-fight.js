@@ -3,6 +3,14 @@
  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),actors=['lion','rabbit'];
  const other=a=>a==='lion'?'rabbit':'lion';
  const moves=['jab','cross','hook','rear_hook','uppercut','rear_uppercut'];
+ // Short tactical phrases permit defensive reads between strikes. Targets are
+ // authored independently of contacts; scoring still requires observed hits.
+ const tactics={
+  pressure:[[['jab','head'],['cross','body'],['hook','head']], [['jab','head'],['jab','head'],['rear_uppercut','body'],['hook','head']], [['uppercut','body'],['rear_hook','head'],['hook','head']]],
+  outside:[[['jab','head'],['cross','head'],['step']], [['jab','head'],['jab','body'],['cross','head'],['step']], [['jab','body'],['cross','head'],['slip']]],
+  counter:[[['slip'],['cross','head'],['hook','body']], [['roll'],['rear_uppercut','head'],['hook','head'],['step']], [['jab','head'],['roll'],['cross','body'],['hook','head']]],
+  angle:[[['step'],['jab','head'],['cross','body'],['hook','head']], [['jab','body'],['rear_uppercut','head'],['hook','head'],['step']], [['cross','head'],['hook','body'],['slip'],['cross','head']]]
+ };
  const empty=()=>({thrown:0,landed:0,head:0,body:0,shoulder:0,blocked:0,evaded:0,missed:0,quality:0,power:0,control:0,knockdowns:0});
  const presets={three:{rounds:3,roundSeconds:180,restSeconds:60},club:{rounds:4,roundSeconds:180,restSeconds:60},six:{rounds:6,roundSeconds:180,restSeconds:60},title:{rounds:12,roundSeconds:180,restSeconds:60},exhibition:{rounds:3,roundSeconds:60,restSeconds:15},quick:{rounds:1,roundSeconds:60,restSeconds:0}};
  class BoxingFight {
@@ -12,14 +20,14 @@
    this.knockdownSeconds=5.6;
    this.time=0;this.phase='intro';this.phaseTime=0;this.round=1;this.roundTime=0;this.eventId=0;this.actionId=0;this.events=[];this.history=[];this.roundStats={lion:empty(),rabbit:empty()};this.totals={lion:empty(),rabbit:empty()};this.seen=new Set();this.result=null;
    this.cards=[{name:'Judge 1',weights:[1,.08,.18,.003],rounds:[]},{name:'Judge 2',weights:[1.04,.16,.09,.002],rounds:[]},{name:'Judge 3',weights:[.98,.05,.25,.005],rounds:[]}];
-   this.fighters={};for(const actor of actors)this.fighters[actor]={actor,condition:100,stamina:1,stun:0,down:0,action:null,next:0,skill:.78+this.random()*.18,power:.85+this.random()*.3,tempo:.85+this.random()*.3,reaction:null,damage:{left:0,right:0,body:0}};
+   this.fighters={};for(const actor of actors)this.fighters[actor]={actor,condition:100,stamina:1,stun:0,down:0,action:null,next:0,plan:[],tactic:actor==='lion'?'pressure':'outside',skill:.78+this.random()*.18,power:.85+this.random()*.3,tempo:.85+this.random()*.3,reaction:null,damage:{left:0,right:0,body:0}};
    if(actors.includes(careerActor)&&careerStats){const f=this.fighters[careerActor],n=k=>clamp((Number(careerStats[k]||20)-20)/79);f.power*=1+n('power')*.55;f.tempo*=1+n('speed')*.38;f.skill=Math.min(.99,f.skill+n('defence')*.18);f.footwork=1+n('footwork')*.40;f.recovery=1+n('stamina')*.65;f.economy=1-n('stamina')*.28;f.accuracy=n('accuracy');}
    this.order=this.random()<.5?['lion','rabbit']:['rabbit','lion'];
   }
   random(){this.state=(Math.imul(this.state,1664525)+1013904223)>>>0;return this.state/4294967296;}
   setPlayer(actor){
    actor=actors.includes(actor)?actor:null;if(this.playerActor===actor)return;
-   const old=this.playerActor;this.playerActor=actor;this.playerQueue=[];this.playerCombo=null;
+   const old=this.playerActor;this.playerActor=actor;if(actor)this.fighters[actor].plan=[];this.playerQueue=[];this.playerCombo=null;
    if(old)this.fighters[old].next=this.time+.15;
   }
   requestPlayerMove(command){
@@ -62,8 +70,16 @@
     f.action={id:++this.actionId,actor,move:this.random()<.7?'guard':'step',start:this.time,duration:.20+this.random()*.60,attack:false};
    }else if(f.stamina<.28&&this.random()<.72){f.action={id:++this.actionId,actor,move:'step',start:this.time,duration:1.0,attack:false};}
    else {
-    const selection=this.random(),move=selection<.28?'jab':selection<.50?'cross':moves[2+Math.floor(this.random()*4)];
-    const target=this.random()<.56?'head':this.random()<.82?'body':'shoulder';this.attack(actor,move,target);
+    if(!f.plan.length){
+     const styles=['pressure','outside','counter','angle'],index=actors.indexOf(actor);
+     f.tactic=f.stamina<.42||f.condition<32?'outside':styles[(Math.floor(this.roundTime/(6.5+index*1.3))+index+this.round)%styles.length];
+     const library=tactics[f.tactic],selection=Math.floor(this.random()*library.length);
+     f.plan=library[selection].map(([move,target])=>({move,target}));
+     this.emit('combination',{actor,tactic:f.tactic,length:f.plan.length});
+    }
+    const next=f.plan.shift();
+    if(moves.includes(next.move))this.attack(actor,next.move,next.target);
+    else f.action={id:++this.actionId,actor,move:next.move,start:this.time,duration:.45+this.random()*.28,attack:false,defend:next.move!=='step',defenceSide:this.random()<.5?-1:1,stepDirection:this.random()<.5?-1:1,stepAdvance:f.tactic==='outside'?-.35:.25};
    }
   }
   advance(dt){
@@ -71,7 +87,7 @@
    if(this.phase!=='round'){this.playerQueue=[];this.playerCombo=null;}
    for(const a of actors){const f=this.fighters[a];f.stamina=clamp(f.stamina+dt*(this.phase==='rest'?.025:.018)*(f.recovery||1));f.stun=Math.max(0,f.stun-dt*2.2);}
    if(this.phase==='intro'){if(this.phaseTime>=3){this.phase='round';this.phaseTime=0;this.emit('bell',{kind:'start'});}return;}
-   if(this.phase==='rest'){if(this.phaseTime>=this.restSeconds){this.round++;this.roundTime=0;this.roundStats={lion:empty(),rabbit:empty()};for(const a of actors){this.fighters[a].action=null;this.fighters[a].next=this.time+.15+this.random()*.2;this.fighters[a].condition=Math.min(100,this.fighters[a].condition+4);}this.phase='round';this.phaseTime=0;this.emit('bell',{kind:'start'});}return;}
+   if(this.phase==='rest'){if(this.phaseTime>=this.restSeconds){this.round++;this.roundTime=0;this.roundStats={lion:empty(),rabbit:empty()};for(const a of actors){this.fighters[a].action=null;this.fighters[a].plan=[];this.fighters[a].next=this.time+.15+this.random()*.2;this.fighters[a].condition=Math.min(100,this.fighters[a].condition+4);}this.phase='round';this.phaseTime=0;this.emit('bell',{kind:'start'});}return;}
    if(this.phase==='scoring'){if(this.phaseTime>=10){this.phase='ceremony';this.phaseTime=0;this.emit('announcement',{result:this.result});}return;}
    if(this.phase==='ceremony')return;
    if(this.phase==='count'){
@@ -82,14 +98,14 @@
    }
    const stopped=actors.filter(a=>this.fighters[a].condition<=0);if(stopped.length){for(const actor of stopped)this.fighters[actor].down=1;this.finish(stopped.length===1?other(stopped[0]):null,'KO');return;}
    const fallen=actors.filter(a=>this.fighters[a].pendingDown);
-   if(fallen.length){this.downActor=fallen.sort((a,b)=>this.fighters[b].stun-this.fighters[a].stun)[0];for(const actor of fallen)this.fighters[actor].pendingDown=false;const f=this.fighters[this.downActor];f.down=1;for(const actor of actors){this.fighters[actor].action=null;this.fighters[actor].next=this.time+8.2;}this.phase='count';this.phaseTime=0;this.emit('knockdown',{actor:this.downActor});return;}
+   if(fallen.length){this.downActor=fallen.sort((a,b)=>this.fighters[b].stun-this.fighters[a].stun)[0];for(const actor of fallen)this.fighters[actor].pendingDown=false;const f=this.fighters[this.downActor];f.down=1;for(const actor of actors){this.fighters[actor].action=null;this.fighters[actor].plan=[];this.fighters[actor].next=this.time+8.2;}this.phase='count';this.phaseTime=0;this.emit('knockdown',{actor:this.downActor});return;}
    this.roundTime+=dt;
    if(this.roundTime>=this.roundSeconds){this.endRound();return;}
    for(const actor of this.order){
     const f=this.fighters[actor];
     if(f.action&&this.time-f.action.start>=f.action.duration+(f.action.contactTime!=null?.045:0)){
      if(f.action.attack&&!f.action.recorded){this.roundStats[actor].missed++;this.totals[actor].missed++;if(f.action.facedDefence){this.roundStats[other(actor)].evaded++;this.totals[other(actor)].evaded++;}this.emit('miss',{actor,action:f.action.id});}
-     f.action=null;f.next=this.time+(.06+this.random()*.48+(1-f.stamina)*.6)/(f.footwork||1);
+     f.action=null;f.next=this.time+(f.plan.length&&f.stamina>.30?.045+this.random()*.12:.10+this.random()*.52+(1-f.stamina)*.6)/(f.footwork||1);
     }
     if(!f.action&&actor===this.playerActor){if(this.playerQueue.length)this.startPlayerMove(this.playerQueue.shift());else this.playerCombo=null;}
     else if(!f.action&&this.time>=f.next)this.decide(actor);
