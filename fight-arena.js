@@ -171,6 +171,9 @@
    const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
     const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={guardElbowBack:.55,guardWidth:.24,guardHeight:1.72,guardCover:1,keepFaceClear:true,simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,guardStyle:spec.guardStyle,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28*(f.footwork||1)};
+    if(m.phase==='round'&&this.footPlants){
+     options.plantedContacts={};for(const side of ['L','R']){const anchor=this.footPlants[actor+side];if(anchor)options.plantedContacts[side]=coach.root.worldToLocal(coach.root.parent.localToWorld(anchor.clone())).toArray();}
+    }
     const path=travel[actor];
     if(m.phase==='round'&&path.weight>.001&&!ceremony){const yaw=coach.ringYaw,local=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw),first=Math.abs(local.z)>=Math.abs(local.x)?(local.z>=0?-1:1):(local.x>=0?1:-1);options.ringStep={first,phase:path.phase,ease:path.ease,weight:path.weight,turn:0,delta:local.toArray()};}
     if(spec.attack){

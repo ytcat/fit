@@ -1245,6 +1245,10 @@
         const width=options.stanceWidth??.47,depth=options.stanceDepth??.44;
         const contact=V(s*width/2+step.x,.015,(s===-1?.24:-.20)+(s===-1?1:-1)*(depth-.44)/2+.215+step.z-(side==='R'?(options.down||0)*.40:0));
         if(footTurn){contact.sub(ringCorrection).applyAxisAngle(V(0,1,0),footTurn).add(ringCorrection);footQ.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0,1,0),footTurn));}
+        // Fight support anchors participate in the existing pelvis reach
+        // calculation below; correcting a planted ankle only after posing
+        // can demand a leg longer than its fixed bones.
+        if(options.plantedContacts?.[side]&&step.lift<1e-7)contact.fromArray(options.plantedContacts[side]);
         const ankle=contact.clone().add(V(0,.102,-.215).applyQuaternion(footQ));
         ankle.y+=step.lift;
         const kneePole=V(s*.07,0,1).applyAxisAngle(V(0,1,0),pivot*.65);
