@@ -1,7 +1,7 @@
 # Staggered guards, skipping paws and independent fight tactics
 
 Baseline: `76e2c2422daba30576840d16ea7020939757c02e`.
-Runtime candidate: `6e91033ee79c65141df224fcc8d517e1f47694aa`.
+Runtime candidate: `9131377d8fe4abdb9efc797bda961d32f76c6d80`.
 
 ## Player-visible changes
 
@@ -37,7 +37,9 @@ Runtime candidate: `6e91033ee79c65141df224fcc8d517e1f47694aa`.
 
 Independent spacing exposed interaction between muzzle-clearance and opponent
 arm/glove projections. The controller now performs bounded coupled corrections,
-with an early exit when faces and knuckles are clear. Face corrections upload
+including forearm and wrist samples, with an early exit when all tested surfaces
+are clear. The final pass retains a fixed elbow reference to avoid accumulating
+roll during repeated corrections. Face corrections upload
 skin only when they actually change a hand. The original strict collision and
 own-face tests retain their thresholds; the preset-count assertions now expect
 44 because the product intentionally adds four combinations. The cached shoulder
@@ -69,3 +71,13 @@ sustained thermal performance. No new face/mane asset or realism score is claime
 
 Rollback: revert this isolated release's application commits together; no model,
 save schema, paid service or runtime dependency migration is involved.
+
+
+## Reproducing the visual review
+
+Run `NODE_PATH=/path/to/playwright/node_modules QA_OUT=/tmp/candidate node
+qa/tactics/preview.cjs` against this checkout. Set `APP_ROOT` to a separate frozen
+baseline checkout for the before capture. The harness renders five static views
+and 24 motion frames in local Chromium; it does not modify the game assets.
+Then run `python qa/tactics/prepare.py /tmp/baseline /tmp/candidate` (Pillow) to
+produce the labeled review media. Capture metadata records the runtime source SHA.
