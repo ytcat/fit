@@ -12,5 +12,5 @@ urls=list(dict.fromkeys(urls))
 for url in urls:
     if not (root/url.split('?')[0]).is_file():
         raise SystemExit('Missing offline asset: '+url)
-(root/'offline-manifest.json').write_text(json.dumps({'version':'r1-20261108a','urls':urls},indent=2)+'\n')
+(root/'offline-manifest.json').write_text(json.dumps({'version':'r1-20261108b','urls':urls},indent=2)+'\n')
 print(len(urls),'offline assets',sum((root/x.split('?')[0]).stat().st_size for x in urls),'bytes')

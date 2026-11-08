@@ -79,3 +79,10 @@ and 498,663 triangles at the same portrait view. No added geometry, body/rig
 changes or additional renderer. These counts are not a sustained FPS measurement.
 Physical iPhone/Android performance, thermal behavior and new visual-realism
 art quality remain unverified. See `qa/career-r1/review.html`.
+
+A follow-up real-arena check found that speed-bag strokes use their own clock,
+not normal punch swing events. The reward adapter now counts those actual stroke
+indices and matches boxing contacts to attempts that began during the session.
+Starting midway through a punch cannot create an unmatched hit. Real 120 Hz arena
+runs now earn valid rewards in heavy bag, dummy, speed bag, mitts, rope and sparring.
+The matching interface tests and optional offline pack version are updated.

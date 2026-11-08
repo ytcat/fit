@@ -36,11 +36,17 @@
    start.hidden=fight;start.disabled=!e.coach;start.textContent=active?(e.compactLayout?'Finish · '+Math.ceil(60-active.seconds)+'s':'Finish session'):(e.compactLayout?'Train 60s':'Train · 60 seconds');session.textContent=active?(e.isPlaying?'Training':'Paused')+' · '+Math.ceil(60-active.seconds)+'s · '+active.hits+' clean hits · '+active.jumps+' jumps':fight?'Complete the bout to earn XP.':'Start a session to earn XP. Preview is free.';result.textContent=store.error||recap;
   }
   function finish(){if(!active)return;const a=active;active=null;const award=submitAward(a);if(award){recap='+'+award.xp+' XP · '+award.quality+'% work rate · '+award.accuracy+'% contact accuracy';if(a.mode==='rope')recap='+'+award.xp+' XP · '+a.jumps+' jumps · Footwork + speed';}else recap=pending.has(a.id)?'Reward pending in this session. Retry after browser storage recovers.':a.seconds<10?'Session too short. Train for at least 10 seconds.':'No completed reps yet. Land punches or complete jumps to earn XP.';paint(true);return award;}
-  function startSession(){if(active){finish();return;}if(!store.current()){profileDialog();return;}const mode=e.targetMode||'none';if(mode==='fight'||!e.coach)return;trackControls();active={id:CareerProgress.id(),profileId:store.current().id,species:e.coach.species,mode,control:e.player?.enabled?'play':'coach',seconds:0,hits:0,attempts:0,defences:0,jumps:0};recap='';e.isPlaying=true;e.speed=1;lastSave=0;paint(true);return active;}
+  function startSession(){if(active){finish();return;}if(!store.current()){profileDialog();return;}const mode=e.targetMode||'none';if(mode==='fight'||!e.coach)return;trackControls();active={id:CareerProgress.id(),profileId:store.current().id,species:e.coach.species,mode,control:e.player?.enabled?'play':'coach',seconds:0,hits:0,attempts:0,defences:0,jumps:0,pendingSwings:{},speedAttemptKey:null};recap='';e.isPlaying=true;e.speed=1;lastSave=0;paint(true);return active;}
   function onFrame(frame,dt){const custom=['rope','pads'].includes(e.targetMode);cue.hidden=!custom;if(custom)cue.textContent=frame.cue||'';
    if(!active||!(dt>0))return;if(active.mode!==(e.targetMode||'none')||active.species!==e.coach.species){finish();return;}
    if(!e.player?.enabled)active.control='coach';
-   active.seconds+=Math.min(dt,.05);active.hits+=(frame.contacts||[]).filter(h=>h.actor==='lion'&&!h.blocked&&(active.mode==='pads'||!['glove','arm','shoulder'].includes(h.kind))).length;active.attempts+=(frame.swings||[]).filter(h=>h.actor==='lion').length;active.jumps+=frame.jumps||0;active.defences+=(frame.defences||0)+(active.mode==='rabbit'?(frame.contacts||[]).filter(h=>h.actor==='rabbit'&&['glove','arm'].includes(h.kind)).length:0);
+   active.seconds+=Math.min(dt,.05);
+   // Speed-bag strokes have their own authored clock, not boxing swing events.
+   const speed=frame.speedDrill;
+   if(active.mode==='speed'&&speed&&!speed.defenceMove&&Number.isFinite(speed.index)&&active.speedAttemptKey!==speed.index){active.speedAttemptKey=speed.index;active.attempts++;active.pendingSwings.speedbag=(active.pendingSwings.speedbag||0)+1;}
+   for(const swing of (frame.swings||[]).filter(h=>h.actor==='lion')){const key=swing.move||'unknown';active.attempts++;active.pendingSwings[key]=(active.pendingSwings[key]||0)+1;}
+   for(const hit of (frame.contacts||[]).filter(h=>h.actor==='lion'&&!h.blocked&&(active.mode==='pads'||!['glove','arm','shoulder'].includes(h.kind)))){const key=hit.move||'unknown';if(active.pendingSwings[key]>0){active.pendingSwings[key]--;active.hits++;}}
+   active.jumps+=frame.jumps||0;active.defences+=(frame.defences||0)+(active.mode==='rabbit'?(frame.contacts||[]).filter(h=>h.actor==='rabbit'&&['glove','arm'].includes(h.kind)).length:0);
    if(active.seconds>=60)finish();else if(active.seconds-lastSave>=1){lastSave=active.seconds;paint(true);}
   }
   function fightOptions(){

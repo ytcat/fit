@@ -1,0 +1,322 @@
+[
+  {
+    "mode": "heavy",
+    "award": {
+      "xp": 26,
+      "gains": {
+        "power": 12.5,
+        "speed": 2.1,
+        "accuracy": 7.3,
+        "footwork": 1,
+        "defence": 0.5,
+        "stamina": 2.6
+      },
+      "before": {
+        "power": 20,
+        "speed": 20,
+        "accuracy": 20,
+        "footwork": 20,
+        "defence": 20,
+        "stamina": 20
+      },
+      "after": {
+        "power": 29,
+        "speed": 23,
+        "accuracy": 27,
+        "footwork": 22,
+        "defence": 21,
+        "stamina": 24
+      },
+      "quality": 100,
+      "accuracy": 100,
+      "rank": "Rookie",
+      "coins": 9,
+      "unlocks": [
+        "first_rhythm"
+      ],
+      "activityId": "mw7qcuja-n5d1mmoo",
+      "transactionId": "reward:mw7qcuja-n5d1mmoo",
+      "record": {
+        "id": "mw7qcuja-n5d1mmoo",
+        "transactionId": "reward:mw7qcuja-n5d1mmoo",
+        "mode": "heavy",
+        "species": "lion",
+        "control": "coach",
+        "seconds": 15.000000000000325,
+        "hits": 14,
+        "attempts": 14,
+        "defences": 0,
+        "jumps": 0,
+        "result": null,
+        "xp": 26,
+        "coins": 9
+      }
+    },
+    "error": ""
+  },
+  {
+    "mode": "dummy",
+    "award": {
+      "xp": 26,
+      "gains": {
+        "power": 7.8,
+        "speed": 2.6,
+        "accuracy": 10.4,
+        "footwork": 1,
+        "defence": 2.1,
+        "stamina": 2.1
+      },
+      "before": {
+        "power": 29,
+        "speed": 23,
+        "accuracy": 27,
+        "footwork": 22,
+        "defence": 21,
+        "stamina": 24
+      },
+      "after": {
+        "power": 31,
+        "speed": 25,
+        "accuracy": 30,
+        "footwork": 23,
+        "defence": 24,
+        "stamina": 25
+      },
+      "quality": 100,
+      "accuracy": 100,
+      "rank": "Rookie",
+      "coins": 9,
+      "unlocks": [],
+      "activityId": "mw7qcwal-xqu7vhwx",
+      "transactionId": "reward:mw7qcwal-xqu7vhwx",
+      "record": {
+        "id": "mw7qcwal-xqu7vhwx",
+        "transactionId": "reward:mw7qcwal-xqu7vhwx",
+        "mode": "dummy",
+        "species": "lion",
+        "control": "coach",
+        "seconds": 15.000000000000325,
+        "hits": 14,
+        "attempts": 14,
+        "defences": 0,
+        "jumps": 0,
+        "result": null,
+        "xp": 26,
+        "coins": 9
+      }
+    },
+    "error": ""
+  },
+  {
+    "mode": "speed",
+    "award": {
+      "xp": 24,
+      "gains": {
+        "power": 1.2,
+        "speed": 11.5,
+        "accuracy": 6.7,
+        "footwork": 1,
+        "defence": 0.7,
+        "stamina": 2.9
+      },
+      "before": {
+        "power": 31,
+        "speed": 25,
+        "accuracy": 30,
+        "footwork": 23,
+        "defence": 24,
+        "stamina": 25
+      },
+      "after": {
+        "power": 32,
+        "speed": 30,
+        "accuracy": 32,
+        "footwork": 24,
+        "defence": 24,
+        "stamina": 27
+      },
+      "quality": 100,
+      "accuracy": 60,
+      "rank": "Rookie",
+      "coins": 9,
+      "unlocks": [],
+      "activityId": "mw7qcxqh-t3u2hno0",
+      "transactionId": "reward:mw7qcxqh-t3u2hno0",
+      "record": {
+        "id": "mw7qcxqh-t3u2hno0",
+        "transactionId": "reward:mw7qcxqh-t3u2hno0",
+        "mode": "speed",
+        "species": "lion",
+        "control": "coach",
+        "seconds": 15.000000000000325,
+        "hits": 27,
+        "attempts": 45,
+        "defences": 0,
+        "jumps": 0,
+        "result": null,
+        "xp": 24,
+        "coins": 9
+      }
+    },
+    "error": ""
+  },
+  {
+    "mode": "pads",
+    "award": {
+      "xp": 26,
+      "gains": {
+        "power": 2.6,
+        "speed": 4.7,
+        "accuracy": 6.8,
+        "footwork": 4.2,
+        "defence": 6.2,
+        "stamina": 1.6
+      },
+      "before": {
+        "power": 32,
+        "speed": 30,
+        "accuracy": 32,
+        "footwork": 24,
+        "defence": 24,
+        "stamina": 27
+      },
+      "after": {
+        "power": 32,
+        "speed": 31,
+        "accuracy": 34,
+        "footwork": 27,
+        "defence": 28,
+        "stamina": 27
+      },
+      "quality": 100,
+      "accuracy": 100,
+      "rank": "Rookie",
+      "coins": 9,
+      "unlocks": [],
+      "activityId": "mw7qd0fo-smblswgt",
+      "transactionId": "reward:mw7qd0fo-smblswgt",
+      "record": {
+        "id": "mw7qd0fo-smblswgt",
+        "transactionId": "reward:mw7qd0fo-smblswgt",
+        "mode": "pads",
+        "species": "lion",
+        "control": "coach",
+        "seconds": 15.000000000000325,
+        "hits": 10,
+        "attempts": 10,
+        "defences": 3,
+        "jumps": 0,
+        "result": null,
+        "xp": 26,
+        "coins": 9
+      }
+    },
+    "error": ""
+  },
+  {
+    "mode": "rope",
+    "award": {
+      "xp": 21,
+      "gains": {
+        "power": 0,
+        "speed": 6.3,
+        "accuracy": 0,
+        "footwork": 9.5,
+        "defence": 0,
+        "stamina": 5.3
+      },
+      "before": {
+        "power": 32,
+        "speed": 31,
+        "accuracy": 34,
+        "footwork": 27,
+        "defence": 28,
+        "stamina": 27
+      },
+      "after": {
+        "power": 32,
+        "speed": 33,
+        "accuracy": 34,
+        "footwork": 30,
+        "defence": 28,
+        "stamina": 29
+      },
+      "quality": 100,
+      "accuracy": 0,
+      "rank": "Rookie",
+      "coins": 9,
+      "unlocks": [],
+      "activityId": "mw7qd45n-r6dlorax",
+      "transactionId": "reward:mw7qd45n-r6dlorax",
+      "record": {
+        "id": "mw7qd45n-r6dlorax",
+        "transactionId": "reward:mw7qd45n-r6dlorax",
+        "mode": "rope",
+        "species": "lion",
+        "control": "coach",
+        "seconds": 15.000000000000325,
+        "hits": 0,
+        "attempts": 0,
+        "defences": 0,
+        "jumps": 26,
+        "result": null,
+        "xp": 21,
+        "coins": 9
+      }
+    },
+    "error": ""
+  },
+  {
+    "mode": "rabbit",
+    "award": {
+      "xp": 13,
+      "gains": {
+        "power": 1.8,
+        "speed": 2.1,
+        "accuracy": 2.3,
+        "footwork": 2.3,
+        "defence": 2.6,
+        "stamina": 1.8
+      },
+      "before": {
+        "power": 32,
+        "speed": 33,
+        "accuracy": 34,
+        "footwork": 30,
+        "defence": 28,
+        "stamina": 29
+      },
+      "after": {
+        "power": 33,
+        "speed": 34,
+        "accuracy": 34,
+        "footwork": 31,
+        "defence": 29,
+        "stamina": 30
+      },
+      "quality": 30,
+      "accuracy": 12,
+      "rank": "Rookie",
+      "coins": 7,
+      "unlocks": [],
+      "activityId": "mw7qd6bl-dusvkkrc",
+      "transactionId": "reward:mw7qd6bl-dusvkkrc",
+      "record": {
+        "id": "mw7qd6bl-dusvkkrc",
+        "transactionId": "reward:mw7qd6bl-dusvkkrc",
+        "mode": "rabbit",
+        "species": "lion",
+        "control": "coach",
+        "seconds": 15.000000000000325,
+        "hits": 2,
+        "attempts": 17,
+        "defences": 0,
+        "jumps": 0,
+        "result": null,
+        "xp": 13,
+        "coins": 7
+      }
+    },
+    "error": ""
+  }
+]

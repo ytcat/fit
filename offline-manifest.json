@@ -1,5 +1,5 @@
 {
-  "version": "r1-20261108a",
+  "version": "r1-20261108b",
   "urls": [
     "./index.html",
     "./assets/favicon.svg",
@@ -39,7 +39,7 @@
     "./ringfighter-controls.css?v=2026110608",
     "./ringfighter-controls.js?v=2026110608",
     "./career-interface.css?v=2026110607",
-    "./career-interface.js?v=2026110801",
+    "./career-interface.js?v=2026110802",
     "./fight-presentation.js?v=2026110801",
     "./ringside-layout.css?v=2026110710",
     "./ringside-layout.js?v=2026110710",
