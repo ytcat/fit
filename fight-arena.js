@@ -235,14 +235,16 @@
    return hit;
   }
   clearOwnFaces(){
-   for(const coach of Object.values(this.coaches)){
+   let anyChanged=false;
+   for(const coach of Object.values(this.coaches)){let changed=false;
     for(const side of ['L','R']){
-     const i=side==='L'?0:1,reference=coach.armBendReference(side),glove=coach.metrics.gloves[i];
+     const before=coach.point(coach.joints['hand'+side]),i=side==='L'?0:1,reference=coach.armBendReference(side),glove=coach.metrics.gloves[i];
      const safe=coach.clearOwnFace(side,glove,V(...glove.palmTarget),reference.bend,{...reference,lateral:true});
-     coach.metrics.gloves[i]=safe.glove;coach.metrics.hands[i]=coach.point(coach.joints['hand'+side]).toArray();coach.metrics.handErrors[i]=safe.error;
+     coach.metrics.gloves[i]=safe.glove;coach.metrics.hands[i]=coach.point(coach.joints['hand'+side]).toArray();coach.metrics.handErrors[i]=safe.error;changed=changed||before.distanceToSquared(coach.point(coach.joints['hand'+side]))>1e-12;
     }
-    coach.syncSkin();
+    if(changed){coach.syncSkin();anyChanged=true;}
    }
+   return anyChanged;
   }
   stabilizeBends(){
    this.bendFrames=this.bendFrames||{};
@@ -278,7 +280,13 @@
    this.clearOwnFaces();
    // Clearing a muzzle or forearm can move the padded knuckles back into
    // the opponent's arm. Finish on the coupled glove/face constraints too.
-   for(let pass=0;pass<2;pass++){
+   for(let pass=0;pass<4;pass++){
+    const faceChanged=this.clearOwnFaces();let overlap=false;
+    for(const actor of ['lion','rabbit'])for(const [i,side] of ['L','R'].entries()){
+     const coach=this.coaches[actor],p=coach.root.localToWorld(V(...coach.metrics.gloves[i].knuckles));
+     if(this.collision(p,other(actor)).penetration>.010)overlap=true;
+    }
+    if(!faceChanged&&!overlap)break;
     for(const actor of ['lion','rabbit'])for(const side of ['L','R']){
      const coach=this.coaches[actor];coach.constrainGlove(side,p=>{
       const opponent=this.collision(p,other(actor)),solid=this.solidContact(p,other(actor),actor);
@@ -286,6 +294,7 @@
      },.008,coach.armBendReference(side));
     }
    }
+   this.clearOwnFaces();
    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.bendFrames[actor+side]={...this.coaches[actor].armBendReference(side),time:this.match.time};
   }
   step(){
