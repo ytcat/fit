@@ -1,0 +1,277 @@
+{
+  "errors": [],
+  "results": {
+    "training": {
+      "id": "mw7pq41l-096kkvz1",
+      "transactionId": "reward:mw7pq41l-096kkvz1",
+      "mode": "heavy",
+      "species": "lion",
+      "control": "coach",
+      "seconds": 60,
+      "hits": 55,
+      "attempts": 55,
+      "defences": 0,
+      "jumps": 0,
+      "result": null,
+      "xp": 102,
+      "coins": 35
+    },
+    "quick": {
+      "duration": 120,
+      "result": {
+        "winner": null,
+        "stoppage": "health",
+        "method": "draw",
+        "decision": "health",
+        "cards": [
+          {
+            "name": "Judge 1",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 3,
+                    "landed": 0,
+                    "head": 0,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 0,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0,
+                    "power": 0,
+                    "control": 2.33333333333333,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 0,
+                    "landed": 0,
+                    "head": 0,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 2,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0,
+                    "power": 0,
+                    "control": 0,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  0.00699999999999999,
+                  0.36
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 2",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 3,
+                    "landed": 0,
+                    "head": 0,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 0,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0,
+                    "power": 0,
+                    "control": 2.33333333333333,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 0,
+                    "landed": 0,
+                    "head": 0,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 2,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0,
+                    "power": 0,
+                    "control": 0,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  0.00466666666666666,
+                  0.18
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 3",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 3,
+                    "landed": 0,
+                    "head": 0,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 0,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0,
+                    "power": 0,
+                    "control": 2.33333333333333,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 0,
+                    "landed": 0,
+                    "head": 0,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 2,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0,
+                    "power": 0,
+                    "control": 0,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  0.01166666666666665,
+                  0.5
+                ]
+              }
+            ]
+          }
+        ],
+        "votes": [
+          "rabbit",
+          "rabbit",
+          "rabbit"
+        ],
+        "totals": {
+          "lion": {
+            "thrown": 3,
+            "landed": 0,
+            "head": 0,
+            "body": 0,
+            "shoulder": 0,
+            "blocked": 0,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 0,
+            "power": 0,
+            "control": 2.33333333333333,
+            "knockdowns": 0
+          },
+          "rabbit": {
+            "thrown": 0,
+            "landed": 0,
+            "head": 0,
+            "body": 0,
+            "shoulder": 0,
+            "blocked": 2,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 0,
+            "power": 0,
+            "control": 0,
+            "knockdowns": 0
+          }
+        }
+      },
+      "history": {
+        "id": "mw7pr206-shvau3ah",
+        "transactionId": "reward:mw7pr206-shvau3ah",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 120,
+        "hits": 0,
+        "attempts": 3,
+        "defences": 0,
+        "jumps": 0,
+        "result": "draw",
+        "xp": 97,
+        "coins": 43,
+        "evidence": {
+          "seed": 98084038,
+          "rounds": 1,
+          "method": "draw",
+          "decision": "health",
+          "playerName": "Guest",
+          "opponentName": "Shadow",
+          "stats": {
+            "lion": {
+              "landed": 0,
+              "thrown": 3
+            },
+            "rabbit": {
+              "landed": 0,
+              "thrown": 0
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 3,
+            "cross": 0,
+            "hook": 0,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 0
+          }
+        }
+      }
+    }
+  },
+  "browser": "155.0.8059.79",
+  "physicalPhone": false,
+  "clock": "Training uses real 120Hz arena contacts with accelerated deterministic stepping; quick bout end clock is shortened for UI integration, not a performance benchmark.",
+  "runtimeSha": "2cfd435b1f845833dbb482b4ea16fc8c03046cf0",
+  "layoutSha": "7f5e074",
+  "layoutCheck": "Real camera restored; portrait/landscape rendered explicitly because harness suspends main animation; exact save restored on browser reload."
+}
