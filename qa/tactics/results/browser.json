@@ -1,0 +1,801 @@
+{
+  "sourceSha": "5eddfdb3056f9b9099d15d9f98f7770dd9e44c49",
+  "shots": [
+    "guard.png",
+    "paw.png",
+    "rope.png",
+    "fight.png"
+  ],
+  "metrics": [
+    {
+      "kind": "guard",
+      "hands": [
+        [
+          -0.1850000000000001,
+          1.6628081032653979,
+          0.3949999999999999
+        ],
+        [
+          0.18000000000000008,
+          1.6628081032653979,
+          0.255
+        ]
+      ],
+      "calls": 144,
+      "triangles": 493125
+    },
+    {
+      "kind": "paw",
+      "hands": [
+        [
+          -0.3189481283154629,
+          1.1080087663704827,
+          0.19234760053519767
+        ],
+        [
+          0.30179759519159005,
+          1.108008766370483,
+          0.17176696078655024
+        ]
+      ],
+      "calls": 47,
+      "triangles": 376511
+    },
+    {
+      "kind": "rope",
+      "hands": [
+        [
+          -0.3189481283154629,
+          1.1080087663704827,
+          0.19234760053519767
+        ],
+        [
+          0.30179759519159005,
+          1.108008766370483,
+          0.17176696078655024
+        ]
+      ],
+      "calls": 161,
+      "triangles": 432979
+    },
+    {
+      "kind": "fight",
+      "hands": [
+        [
+          -0.09489473471757381,
+          1.4216445463187986,
+          0.4698645065790942
+        ],
+        [
+          0.09510526528242325,
+          1.4216445463187986,
+          0.3298645065790944
+        ]
+      ],
+      "calls": 487,
+      "triangles": 1156665
+    }
+  ],
+  "motion": [
+    {
+      "mode": "autonomous",
+      "file": "autonomous-0.png",
+      "time": 2.166666666666664,
+      "walkers": {
+        "lion": {
+          "time": 1.3666666666666631,
+          "stride": 0.72,
+          "start": 0,
+          "age": 0.8000000000000008,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 1.29,
+          "stride": 0.86,
+          "start": 0.943333333333333,
+          "age": 0.6166666666666645,
+          "stop": 1.29
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "guard",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "hook",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-1.png",
+      "time": 2.33333333333333,
+      "walkers": {
+        "lion": {
+          "time": 1.5333333333333292,
+          "stride": 0.72,
+          "start": 0,
+          "age": 0.8000000000000008,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 1.29,
+          "stride": 0.86,
+          "start": 0.943333333333333,
+          "age": 0.7833333333333306,
+          "stop": 1.29
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "guard",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "hook",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-2.png",
+      "time": 2.499999999999996,
+      "walkers": {
+        "lion": {
+          "time": 1.6999999999999953,
+          "stride": 0.72,
+          "start": 0,
+          "age": 0.8000000000000008,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 1.423333333333333,
+          "stride": 0.86,
+          "start": 0.943333333333333,
+          "age": 0.8166666666666638,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "guard",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-3.png",
+      "time": 2.666666666666662,
+      "walkers": {
+        "lion": {
+          "time": 1.8666666666666614,
+          "stride": 0.72,
+          "start": 0,
+          "age": 0.8000000000000008,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 1.6049382361390394,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.06666666666666643,
+          "stop": 1.72
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "slip",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "jab",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-4.png",
+      "time": 2.833333333333328,
+      "walkers": {
+        "lion": {
+          "time": 2.0333333333333274,
+          "stride": 0.72,
+          "start": 0,
+          "age": 0.8000000000000008,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 1.72,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.2333333333333325,
+          "stop": 1.72
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "slip",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "jab",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-5.png",
+      "time": 2.9999999999999942,
+      "walkers": {
+        "lion": {
+          "time": 2.1999999999999935,
+          "stride": 0.72,
+          "start": 0,
+          "age": 0.8000000000000008,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 1.72,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.3999999999999986,
+          "stop": 1.72
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "slip",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "jab",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-6.png",
+      "time": 3.1666666666666603,
+      "walkers": {
+        "lion": {
+          "time": 2.3666666666666596,
+          "stride": 0.72,
+          "start": 0,
+          "age": 0.8000000000000008,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 1.72,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.5666666666666647,
+          "stop": 1.72
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "slip",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "jab",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-7.png",
+      "time": 3.3333333333333264,
+      "walkers": {
+        "lion": {
+          "time": 2.5333333333333257,
+          "stride": 0.72,
+          "start": 0,
+          "age": 0.8000000000000008,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 1.72,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.7333333333333307,
+          "stop": 1.72
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "slip",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "jab",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-8.png",
+      "time": 3.4999999999999925,
+      "walkers": {
+        "lion": {
+          "time": 2.6999999999999917,
+          "stride": 0.72,
+          "start": 0,
+          "age": 0.8000000000000008,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 1.7866666666666664,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-9.png",
+      "time": 3.6666666666666585,
+      "walkers": {
+        "lion": {
+          "time": 2.8759259259259213,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.06666666666666643,
+          "stop": 2.88
+        },
+        "rabbit": {
+          "time": 1.9533333333333325,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "cross",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "roll",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-10.png",
+      "time": 3.8333333333333246,
+      "walkers": {
+        "lion": {
+          "time": 2.88,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.2333333333333325,
+          "stop": 2.88
+        },
+        "rabbit": {
+          "time": 2.1199999999999983,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "cross",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "roll",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "autonomous",
+      "file": "autonomous-11.png",
+      "time": 3.9999999999999907,
+      "walkers": {
+        "lion": {
+          "time": 2.88,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": 2.88
+        },
+        "rabbit": {
+          "time": 2.2866666666666644,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "move": "cross",
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "move": "roll",
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-0.png",
+      "time": 4.166666666666657,
+      "walkers": {
+        "lion": {
+          "time": 3.0466666666666664,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 2.453333333333331,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-1.png",
+      "time": 4.333333333333323,
+      "walkers": {
+        "lion": {
+          "time": 3.2133333333333325,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 2.619999999999997,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-2.png",
+      "time": 4.499999999999989,
+      "walkers": {
+        "lion": {
+          "time": 3.3799999999999986,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 2.786666666666663,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-3.png",
+      "time": 4.666666666666655,
+      "walkers": {
+        "lion": {
+          "time": 3.5466666666666646,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 2.953333333333329,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-4.png",
+      "time": 4.8333333333333215,
+      "walkers": {
+        "lion": {
+          "time": 3.7133333333333307,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 3.119999999999995,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-5.png",
+      "time": 4.999999999999988,
+      "walkers": {
+        "lion": {
+          "time": 3.879999999999997,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 3.2866666666666613,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-6.png",
+      "time": 5.166666666666654,
+      "walkers": {
+        "lion": {
+          "time": 4.046666666666663,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 3.4533333333333274,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-7.png",
+      "time": 5.33333333333332,
+      "walkers": {
+        "lion": {
+          "time": 4.213333333333329,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 3.6199999999999934,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-8.png",
+      "time": 5.499999999999986,
+      "walkers": {
+        "lion": {
+          "time": 4.3799999999999955,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 3.7866666666666595,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-9.png",
+      "time": 5.666666666666652,
+      "walkers": {
+        "lion": {
+          "time": 4.5466666666666615,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 3.9533333333333256,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-10.png",
+      "time": 5.833333333333318,
+      "walkers": {
+        "lion": {
+          "time": 4.713333333333328,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 4.119999999999991,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    },
+    {
+      "mode": "footwork",
+      "file": "footwork-11.png",
+      "time": 5.999999999999984,
+      "walkers": {
+        "lion": {
+          "time": 4.879999999999994,
+          "stride": 0.72,
+          "start": 2.7999999999999914,
+          "age": 0.3999999999999986,
+          "stop": null
+        },
+        "rabbit": {
+          "time": 4.286666666666657,
+          "stride": 0.86,
+          "start": 1.5233333333333325,
+          "age": 0.8333333333333304,
+          "stop": null
+        }
+      },
+      "actions": {
+        "lion": {
+          "tactic": "outside"
+        },
+        "rabbit": {
+          "tactic": "counter"
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false,
+  "browser": "155.0.8059.79"
+}

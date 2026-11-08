@@ -17,13 +17,21 @@ const server=http.createServer((req,res)=>{let f=path.resolve(root,'.'+decodeURI
     e.camera.position.copy(kind==='paw'?target.clone().add(new THREE.Vector3(-.38,-.05,.25)):new THREE.Vector3(2.6,1.6,3.8));e.camera.lookAt(kind==='paw'?target:new THREE.Vector3(0,1.2,0));
    }else{
     e.fightOptions={seed:82};trainingControls.chooseTarget('fight');const v=e.arena.fightView;v.match.phase='round';
-    for(let i=0;i<120;i++)v.step();e.animTime=v.match.time;e.camera.position.set(3.1,2.1,4.1);e.camera.lookAt(0,1.25,0);
+    for(let i=0;i<120;i++)v.step();e.animTime=v.match.time;window.fightUI?.render(v);e.camera.position.copy(e.arena.group.localToWorld(new THREE.Vector3(-4.2,2.1,1.2)));e.camera.lookAt(e.arena.group.localToWorld(new THREE.Vector3(0,1.25,0)));
    }
    e.isPlaying=false;e.camera.updateProjectionMatrix();e.world.update(e.animTime,e.arena.mode);e.renderer.render(e.scene,e.camera);
    const c=e.coach;return {kind,hands:['L','R'].map(s=>c.point(c.joints['hand'+s]).toArray()),calls:e.renderer.info.render.calls,triangles:e.renderer.info.render.triangles};
   },kind));
   const file=kind+'.png';await p.locator('#boxerCanvas').screenshot({path:path.join(out,file)});shots.push(file);
  }
+ const motion=[];
+ for(const mode of ['autonomous','footwork']){
+  if(mode==='footwork')await p.evaluate(()=>{const v=app.engine.arena.fightView;v.match.phase='round';v.match.result=null;v.match.decide=()=>{};for(const f of Object.values(v.match.fighters)){f.action=null;f.down=0;f.reaction=null;f.next=Infinity;}});
+  for(let n=0;n<12;n++){
+   const sample=await p.evaluate(()=>{const e=app.engine,v=e.arena.fightView;for(let k=0;k<10;k++)v.step();e.animTime=v.match.time;window.fightUI?.render(v);e.renderer.render(e.scene,e.camera);return {time:v.match.time,walkers:v.walkers,actions:Object.fromEntries(Object.entries(v.match.fighters).map(([a,f])=>[a,{move:f.action?.move,tactic:f.tactic}]))}});
+   const file=mode+'-'+n+'.png';await p.locator('#boxerCanvas').screenshot({path:path.join(out,file)});motion.push({mode,file,...sample});
+  }
+ }
  assert.deepEqual(errors,[]);assert.ok(await p.evaluate(()=>app.engine.renderer.info.programs.every(x=>app.engine.renderer.getContext().getProgramParameter(x.program,app.engine.renderer.getContext().LINK_STATUS))));
- fs.writeFileSync(path.join(out,'review.json'),JSON.stringify({sourceSha:require('child_process').execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),shots,metrics,errors,physicalPhone:false,browser:b.version()},null,2));console.log('PASS actual guard, paw, rope and fight app captures, no console/shader errors');
+ fs.writeFileSync(path.join(out,'review.json'),JSON.stringify({sourceSha:require('child_process').execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),shots,metrics,motion,errors,physicalPhone:false,browser:b.version()},null,2));console.log('PASS actual guard, paw, rope and fight app captures, no console/shader errors');
  }finally{await b.close();server.close();}})().catch(e=>{console.error(e);server.close();process.exitCode=1;});
