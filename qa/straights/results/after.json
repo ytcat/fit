@@ -1,0 +1,2888 @@
+{
+  "sourceSha": "4f2bf71e16d0bb726f553aeb0f9fc5e3d039756d",
+  "frames": [
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.19999999999999998,
+      "angle": 91.01218440305114,
+      "roots": {
+        "lion": [
+          0.001328496102173482,
+          0,
+          -0.6814936168403788
+        ],
+        "rabbit": [
+          -0.020623742400788982,
+          0,
+          0.7544177237284585
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "lion-jab-body-0.2-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.35,
+      "angle": 171.08437224435156,
+      "roots": {
+        "lion": [
+          0.002865590776193394,
+          0,
+          -0.7602780304568715
+        ],
+        "rabbit": [
+          -0.04339089332124031,
+          0,
+          0.8807928869788584
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.300734779480081,
+          "quality": 1.8104551451874298,
+          "severity": 1.8104551451874298,
+          "point": [
+            0.4290096932433714,
+            1.4307211875139272,
+            0.3312960725527872
+          ],
+          "move": "jab",
+          "direction": [
+            -0.16033058301332198,
+            -0.6592776279170572,
+            -0.7346067747296281
+          ],
+          "kind": "body",
+          "impulse": 1.8104551451874298,
+          "closingSpeed": 6.300734779480081
+        }
+      ],
+      "view": "profile",
+      "file": "lion-jab-body-0.35-profile.png",
+      "calls": 483,
+      "triangles": 1160061
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.35,
+      "angle": 171.08437224435156,
+      "roots": {
+        "lion": [
+          0.002865590776193394,
+          0,
+          -0.7602780304568715
+        ],
+        "rabbit": [
+          -0.04339089332124031,
+          0,
+          0.8807928869788584
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.300734779480081,
+          "quality": 1.8104551451874298,
+          "severity": 1.8104551451874298,
+          "point": [
+            0.4290096932433714,
+            1.4307211875139272,
+            0.3312960725527872
+          ],
+          "move": "jab",
+          "direction": [
+            -0.16033058301332198,
+            -0.6592776279170572,
+            -0.7346067747296281
+          ],
+          "kind": "body",
+          "impulse": 1.8104551451874298,
+          "closingSpeed": 6.300734779480081
+        }
+      ],
+      "view": "quarter",
+      "file": "lion-jab-body-0.35-quarter.png",
+      "calls": 516,
+      "triangles": 1163379
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.41666666666666663,
+      "angle": 149.99564416902612,
+      "roots": {
+        "lion": [
+          0.004450461953599919,
+          0,
+          -0.7481646708330166
+        ],
+        "rabbit": [
+          -0.05679829511922633,
+          0,
+          0.8873620090277692
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.300734779480081,
+          "quality": 1.8104551451874298,
+          "severity": 1.8104551451874298,
+          "point": [
+            0.4290096932433714,
+            1.4307211875139272,
+            0.3312960725527872
+          ],
+          "move": "jab",
+          "direction": [
+            -0.16033058301332198,
+            -0.6592776279170572,
+            -0.7346067747296281
+          ],
+          "kind": "body",
+          "impulse": 1.8104551451874298,
+          "closingSpeed": 6.300734779480081
+        }
+      ],
+      "view": "profile",
+      "file": "lion-jab-body-0.42-profile.png",
+      "calls": 483,
+      "triangles": 1160061
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.6500000000000004,
+      "angle": 93.52429743525992,
+      "roots": {
+        "lion": [
+          0.003946604357361363,
+          0,
+          -0.6440857196833831
+        ],
+        "rabbit": [
+          -0.11638544426775192,
+          0,
+          0.7239175912348903
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.300734779480081,
+          "quality": 1.8104551451874298,
+          "severity": 1.8104551451874298,
+          "point": [
+            0.4290096932433714,
+            1.4307211875139272,
+            0.3312960725527872
+          ],
+          "move": "jab",
+          "direction": [
+            -0.16033058301332198,
+            -0.6592776279170572,
+            -0.7346067747296281
+          ],
+          "kind": "body",
+          "impulse": 1.8104551451874298,
+          "closingSpeed": 6.300734779480081
+        }
+      ],
+      "view": "profile",
+      "file": "lion-jab-body-0.65-profile.png",
+      "calls": 482,
+      "triangles": 1159101
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.19999999999999998,
+      "angle": 91.01247024825398,
+      "roots": {
+        "lion": [
+          0.001328496102173482,
+          0,
+          -0.6814936168403788
+        ],
+        "rabbit": [
+          -0.020623742400788982,
+          0,
+          0.7544177237284585
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "lion-jab-open_head-0.2-profile.png",
+      "calls": 480,
+      "triangles": 1156157
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.35,
+      "angle": 171.08437224435238,
+      "roots": {
+        "lion": [
+          0.003708779407481004,
+          0,
+          -0.7601947913233502
+        ],
+        "rabbit": [
+          -0.05121544056564448,
+          0,
+          0.881538000614917
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 4.711572665480491,
+          "quality": 1.7771022862799182,
+          "severity": 1.7771022862799182,
+          "point": [
+            0.35848806205546824,
+            1.8247429838400313,
+            0.32018189311831924
+          ],
+          "move": "jab",
+          "direction": [
+            -0.09419336133045866,
+            -0.17004978681104604,
+            -0.9809233816597439
+          ],
+          "kind": "head",
+          "impulse": 1.7771022862799182,
+          "closingSpeed": 4.711572665480491
+        }
+      ],
+      "view": "profile",
+      "file": "lion-jab-open_head-0.35-profile.png",
+      "calls": 484,
+      "triangles": 1161533
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.35,
+      "angle": 171.08437224435238,
+      "roots": {
+        "lion": [
+          0.003708779407481004,
+          0,
+          -0.7601947913233502
+        ],
+        "rabbit": [
+          -0.05121544056564448,
+          0,
+          0.881538000614917
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 4.711572665480491,
+          "quality": 1.7771022862799182,
+          "severity": 1.7771022862799182,
+          "point": [
+            0.35848806205546824,
+            1.8247429838400313,
+            0.32018189311831924
+          ],
+          "move": "jab",
+          "direction": [
+            -0.09419336133045866,
+            -0.17004978681104604,
+            -0.9809233816597439
+          ],
+          "kind": "head",
+          "impulse": 1.7771022862799182,
+          "closingSpeed": 4.711572665480491
+        }
+      ],
+      "view": "quarter",
+      "file": "lion-jab-open_head-0.35-quarter.png",
+      "calls": 517,
+      "triangles": 1164851
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.41666666666666663,
+      "angle": 139.93820338089972,
+      "roots": {
+        "lion": [
+          0.004519900828884203,
+          0,
+          -0.7166952055250784
+        ],
+        "rabbit": [
+          -0.06673777075809882,
+          0,
+          0.8570636441806514
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 4.711572665480491,
+          "quality": 1.7771022862799182,
+          "severity": 1.7771022862799182,
+          "point": [
+            0.35848806205546824,
+            1.8247429838400313,
+            0.32018189311831924
+          ],
+          "move": "jab",
+          "direction": [
+            -0.09419336133045866,
+            -0.17004978681104604,
+            -0.9809233816597439
+          ],
+          "kind": "head",
+          "impulse": 1.7771022862799182,
+          "closingSpeed": 4.711572665480491
+        }
+      ],
+      "view": "profile",
+      "file": "lion-jab-open_head-0.42-profile.png",
+      "calls": 484,
+      "triangles": 1161533
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.6500000000000004,
+      "angle": 93.52429743525995,
+      "roots": {
+        "lion": [
+          0.0012062067236348775,
+          0,
+          -0.6128318241293773
+        ],
+        "rabbit": [
+          -0.11848043801837822,
+          0,
+          0.6932374249601261
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 4.711572665480491,
+          "quality": 1.7771022862799182,
+          "severity": 1.7771022862799182,
+          "point": [
+            0.35848806205546824,
+            1.8247429838400313,
+            0.32018189311831924
+          ],
+          "move": "jab",
+          "direction": [
+            -0.09419336133045866,
+            -0.17004978681104604,
+            -0.9809233816597439
+          ],
+          "kind": "head",
+          "impulse": 1.7771022862799182,
+          "closingSpeed": 4.711572665480491
+        }
+      ],
+      "view": "profile",
+      "file": "lion-jab-open_head-0.65-profile.png",
+      "calls": 483,
+      "triangles": 1160573
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.19999999999999998,
+      "angle": 91.01247024825398,
+      "roots": {
+        "lion": [
+          0.001328496102173482,
+          0,
+          -0.6814936168403788
+        ],
+        "rabbit": [
+          -0.020623742400788982,
+          0,
+          0.7544177237284585
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "lion-jab-blocked_head-0.2-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.35,
+      "angle": 134.09042553386942,
+      "roots": {
+        "lion": [
+          0.004052838020697538,
+          0,
+          -0.7588662913215097
+        ],
+        "rabbit": [
+          -0.05332468587804663,
+          0,
+          0.8349118597948599
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 3.9570126609172354,
+          "quality": 1.492339854641106,
+          "severity": 0.20892757964975486,
+          "point": [
+            0.23177417980833295,
+            1.8799415481079056,
+            0.1676354843749818
+          ],
+          "move": "jab",
+          "direction": [
+            -0.15654348793334422,
+            -0.03091016401192852,
+            -0.9871872659968921
+          ],
+          "kind": "glove",
+          "impulse": 0.20892757964975486,
+          "closingSpeed": 3.9570126609172354
+        }
+      ],
+      "view": "profile",
+      "file": "lion-jab-blocked_head-0.35-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.35,
+      "angle": 134.09042553386942,
+      "roots": {
+        "lion": [
+          0.004052838020697538,
+          0,
+          -0.7588662913215097
+        ],
+        "rabbit": [
+          -0.05332468587804663,
+          0,
+          0.8349118597948599
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 3.9570126609172354,
+          "quality": 1.492339854641106,
+          "severity": 0.20892757964975486,
+          "point": [
+            0.23177417980833295,
+            1.8799415481079056,
+            0.1676354843749818
+          ],
+          "move": "jab",
+          "direction": [
+            -0.15654348793334422,
+            -0.03091016401192852,
+            -0.9871872659968921
+          ],
+          "kind": "glove",
+          "impulse": 0.20892757964975486,
+          "closingSpeed": 3.9570126609172354
+        }
+      ],
+      "view": "quarter",
+      "file": "lion-jab-blocked_head-0.35-quarter.png",
+      "calls": 514,
+      "triangles": 1160435
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.41666666666666663,
+      "angle": 117.09689853741519,
+      "roots": {
+        "lion": [
+          0.00599903460433816,
+          0,
+          -0.7577840367634164
+        ],
+        "rabbit": [
+          -0.07142059541881249,
+          0,
+          0.828390224260654
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 3.9570126609172354,
+          "quality": 1.492339854641106,
+          "severity": 0.20892757964975486,
+          "point": [
+            0.23177417980833295,
+            1.8799415481079056,
+            0.1676354843749818
+          ],
+          "move": "jab",
+          "direction": [
+            -0.15654348793334422,
+            -0.03091016401192852,
+            -0.9871872659968921
+          ],
+          "kind": "glove",
+          "impulse": 0.20892757964975486,
+          "closingSpeed": 3.9570126609172354
+        }
+      ],
+      "view": "profile",
+      "file": "lion-jab-blocked_head-0.42-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.6500000000000004,
+      "angle": 93.52429743526007,
+      "roots": {
+        "lion": [
+          0.005428635042712735,
+          0,
+          -0.6577740681166053
+        ],
+        "rabbit": [
+          -0.12427963018835925,
+          0,
+          0.7039440844684318
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 3.9570126609172354,
+          "quality": 1.492339854641106,
+          "severity": 0.20892757964975486,
+          "point": [
+            0.23177417980833295,
+            1.8799415481079056,
+            0.1676354843749818
+          ],
+          "move": "jab",
+          "direction": [
+            -0.15654348793334422,
+            -0.03091016401192852,
+            -0.9871872659968921
+          ],
+          "kind": "glove",
+          "impulse": 0.20892757964975486,
+          "closingSpeed": 3.9570126609172354
+        }
+      ],
+      "view": "profile",
+      "file": "lion-jab-blocked_head-0.65-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.19999999999999998,
+      "angle": 102.87934280868387,
+      "roots": {
+        "lion": [
+          0.00139230981479522,
+          0,
+          -0.6932192588232039
+        ],
+        "rabbit": [
+          -0.020687556113410718,
+          0,
+          0.7661433657112836
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "lion-cross-body-0.2-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.35,
+      "angle": 171.08437224435232,
+      "roots": {
+        "lion": [
+          0.00006241044181907021,
+          0,
+          -0.776490496731555
+        ],
+        "rabbit": [
+          -0.05571618064180388,
+          0,
+          0.8977478815583716
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.080767804159159,
+          "quality": 1.7943944339587683,
+          "severity": 1.7943944339587683,
+          "point": [
+            0.39676895673926543,
+            1.4286944211619186,
+            0.39828266301382037
+          ],
+          "move": "cross",
+          "direction": [
+            0.030653031640872543,
+            -0.6903863562579124,
+            -0.7227911667585224
+          ],
+          "kind": "body",
+          "impulse": 1.7943944339587683,
+          "closingSpeed": 6.080767804159159
+        }
+      ],
+      "view": "profile",
+      "file": "lion-cross-body-0.35-profile.png",
+      "calls": 483,
+      "triangles": 1160061
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.35,
+      "angle": 171.08437224435232,
+      "roots": {
+        "lion": [
+          0.00006241044181907021,
+          0,
+          -0.776490496731555
+        ],
+        "rabbit": [
+          -0.05571618064180388,
+          0,
+          0.8977478815583716
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.080767804159159,
+          "quality": 1.7943944339587683,
+          "severity": 1.7943944339587683,
+          "point": [
+            0.39676895673926543,
+            1.4286944211619186,
+            0.39828266301382037
+          ],
+          "move": "cross",
+          "direction": [
+            0.030653031640872543,
+            -0.6903863562579124,
+            -0.7227911667585224
+          ],
+          "kind": "body",
+          "impulse": 1.7943944339587683,
+          "closingSpeed": 6.080767804159159
+        }
+      ],
+      "view": "quarter",
+      "file": "lion-cross-body-0.35-quarter.png",
+      "calls": 516,
+      "triangles": 1163379
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.41666666666666663,
+      "angle": 145.64412523136792,
+      "roots": {
+        "lion": [
+          0.0030233312639943175,
+          0,
+          -0.7644847294069249
+        ],
+        "rabbit": [
+          -0.07675934117367922,
+          0,
+          0.9047318319917925
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.080767804159159,
+          "quality": 1.7943944339587683,
+          "severity": 1.7943944339587683,
+          "point": [
+            0.39676895673926543,
+            1.4286944211619186,
+            0.39828266301382037
+          ],
+          "move": "cross",
+          "direction": [
+            0.030653031640872543,
+            -0.6903863562579124,
+            -0.7227911667585224
+          ],
+          "kind": "body",
+          "impulse": 1.7943944339587683,
+          "closingSpeed": 6.080767804159159
+        }
+      ],
+      "view": "profile",
+      "file": "lion-cross-body-0.42-profile.png",
+      "calls": 483,
+      "triangles": 1160061
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.6500000000000004,
+      "angle": 106.62300918119094,
+      "roots": {
+        "lion": [
+          0.005715990602264633,
+          0,
+          -0.6617647802433925
+        ],
+        "rabbit": [
+          -0.12863302912856767,
+          0,
+          0.7421109377909041
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.080767804159159,
+          "quality": 1.7943944339587683,
+          "severity": 1.7943944339587683,
+          "point": [
+            0.39676895673926543,
+            1.4286944211619186,
+            0.39828266301382037
+          ],
+          "move": "cross",
+          "direction": [
+            0.030653031640872543,
+            -0.6903863562579124,
+            -0.7227911667585224
+          ],
+          "kind": "body",
+          "impulse": 1.7943944339587683,
+          "closingSpeed": 6.080767804159159
+        }
+      ],
+      "view": "profile",
+      "file": "lion-cross-body-0.65-profile.png",
+      "calls": 482,
+      "triangles": 1159101
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.19999999999999998,
+      "angle": 102.87822063229936,
+      "roots": {
+        "lion": [
+          0.00139230981479522,
+          0,
+          -0.6932192588232039
+        ],
+        "rabbit": [
+          -0.020687556113410718,
+          0,
+          0.7661433657112836
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "lion-cross-open_head-0.2-profile.png",
+      "calls": 480,
+      "triangles": 1156157
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.35,
+      "angle": 171.08437224435238,
+      "roots": {
+        "lion": [
+          -0.0007249350649412738,
+          0,
+          -0.7766078350144854
+        ],
+        "rabbit": [
+          -0.04903833124294114,
+          0,
+          0.8980399921796438
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 4.328260478345529,
+          "quality": 1.6180430231389442,
+          "severity": 1.6180430231389442,
+          "point": [
+            0.36655531635637095,
+            1.8234669044229639,
+            0.3417383222546083
+          ],
+          "move": "cross",
+          "direction": [
+            -0.05609693988651887,
+            -0.21536622991572515,
+            -0.974920776446607
+          ],
+          "kind": "head",
+          "impulse": 1.6180430231389442,
+          "closingSpeed": 4.328260478345529
+        }
+      ],
+      "view": "profile",
+      "file": "lion-cross-open_head-0.35-profile.png",
+      "calls": 484,
+      "triangles": 1161533
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.35,
+      "angle": 171.08437224435238,
+      "roots": {
+        "lion": [
+          -0.0007249350649412738,
+          0,
+          -0.7766078350144854
+        ],
+        "rabbit": [
+          -0.04903833124294114,
+          0,
+          0.8980399921796438
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 4.328260478345529,
+          "quality": 1.6180430231389442,
+          "severity": 1.6180430231389442,
+          "point": [
+            0.36655531635637095,
+            1.8234669044229639,
+            0.3417383222546083
+          ],
+          "move": "cross",
+          "direction": [
+            -0.05609693988651887,
+            -0.21536622991572515,
+            -0.974920776446607
+          ],
+          "kind": "head",
+          "impulse": 1.6180430231389442,
+          "closingSpeed": 4.328260478345529
+        }
+      ],
+      "view": "quarter",
+      "file": "lion-cross-open_head-0.35-quarter.png",
+      "calls": 517,
+      "triangles": 1164851
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.41666666666666663,
+      "angle": 136.04480311093369,
+      "roots": {
+        "lion": [
+          0.0006594132651783485,
+          0,
+          -0.7340002699541927
+        ],
+        "rabbit": [
+          -0.0660676043085071,
+          0,
+          0.8744944604628138
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 4.328260478345529,
+          "quality": 1.6180430231389442,
+          "severity": 1.6180430231389442,
+          "point": [
+            0.36655531635637095,
+            1.8234669044229639,
+            0.3417383222546083
+          ],
+          "move": "cross",
+          "direction": [
+            -0.05609693988651887,
+            -0.21536622991572515,
+            -0.974920776446607
+          ],
+          "kind": "head",
+          "impulse": 1.6180430231389442,
+          "closingSpeed": 4.328260478345529
+        }
+      ],
+      "view": "profile",
+      "file": "lion-cross-open_head-0.42-profile.png",
+      "calls": 484,
+      "triangles": 1161533
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.6500000000000004,
+      "angle": 106.62300918119108,
+      "roots": {
+        "lion": [
+          0.002552633813655824,
+          0,
+          -0.631444884920271
+        ],
+        "rabbit": [
+          -0.12138982293702817,
+          0,
+          0.7119120923530377
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 4.328260478345529,
+          "quality": 1.6180430231389442,
+          "severity": 1.6180430231389442,
+          "point": [
+            0.36655531635637095,
+            1.8234669044229639,
+            0.3417383222546083
+          ],
+          "move": "cross",
+          "direction": [
+            -0.05609693988651887,
+            -0.21536622991572515,
+            -0.974920776446607
+          ],
+          "kind": "head",
+          "impulse": 1.6180430231389442,
+          "closingSpeed": 4.328260478345529
+        }
+      ],
+      "view": "profile",
+      "file": "lion-cross-open_head-0.65-profile.png",
+      "calls": 483,
+      "triangles": 1160573
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.19999999999999998,
+      "angle": 102.87822063229936,
+      "roots": {
+        "lion": [
+          0.00139230981479522,
+          0,
+          -0.6932192588232039
+        ],
+        "rabbit": [
+          -0.020687556113410718,
+          0,
+          0.7661433657112836
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "lion-cross-blocked_head-0.2-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.35,
+      "angle": 139.84679963833355,
+      "roots": {
+        "lion": [
+          -0.0004699284527380052,
+          0,
+          -0.7754643061273139
+        ],
+        "rabbit": [
+          -0.05111123885847491,
+          0,
+          0.8461471258843942
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 2.411076481572377,
+          "quality": 0.9012411531551907,
+          "severity": 0.1261737614417267,
+          "point": [
+            0.24771026992434247,
+            1.881329615217127,
+            0.17407616808920356
+          ],
+          "move": "cross",
+          "direction": [
+            0.04069335539305496,
+            -0.0692980361297536,
+            -0.9967656861145522
+          ],
+          "kind": "glove",
+          "impulse": 0.1261737614417267,
+          "closingSpeed": 2.411076481572377
+        }
+      ],
+      "view": "profile",
+      "file": "lion-cross-blocked_head-0.35-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.35,
+      "angle": 139.84679963833355,
+      "roots": {
+        "lion": [
+          -0.0004699284527380052,
+          0,
+          -0.7754643061273139
+        ],
+        "rabbit": [
+          -0.05111123885847491,
+          0,
+          0.8461471258843942
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 2.411076481572377,
+          "quality": 0.9012411531551907,
+          "severity": 0.1261737614417267,
+          "point": [
+            0.24771026992434247,
+            1.881329615217127,
+            0.17407616808920356
+          ],
+          "move": "cross",
+          "direction": [
+            0.04069335539305496,
+            -0.0692980361297536,
+            -0.9967656861145522
+          ],
+          "kind": "glove",
+          "impulse": 0.1261737614417267,
+          "closingSpeed": 2.411076481572377
+        }
+      ],
+      "view": "quarter",
+      "file": "lion-cross-blocked_head-0.35-quarter.png",
+      "calls": 514,
+      "triangles": 1160435
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.41666666666666663,
+      "angle": 117.96138056130292,
+      "roots": {
+        "lion": [
+          0.001845118503590185,
+          0,
+          -0.7746297068381555
+        ],
+        "rabbit": [
+          -0.06956273479106738,
+          0,
+          0.8399039475058935
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 2.411076481572377,
+          "quality": 0.9012411531551907,
+          "severity": 0.1261737614417267,
+          "point": [
+            0.24771026992434247,
+            1.881329615217127,
+            0.17407616808920356
+          ],
+          "move": "cross",
+          "direction": [
+            0.04069335539305496,
+            -0.0692980361297536,
+            -0.9967656861145522
+          ],
+          "kind": "glove",
+          "impulse": 0.1261737614417267,
+          "closingSpeed": 2.411076481572377
+        }
+      ],
+      "view": "profile",
+      "file": "lion-cross-blocked_head-0.42-profile.png",
+      "calls": 480,
+      "triangles": 1156157
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.6500000000000004,
+      "angle": 106.62300918119118,
+      "roots": {
+        "lion": [
+          0.00677907588867068,
+          0,
+          -0.6756114100031598
+        ],
+        "rabbit": [
+          -0.1267449955056317,
+          0,
+          0.7191923260175357
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "lion",
+          "receiver": "rabbit",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 2.411076481572377,
+          "quality": 0.9012411531551907,
+          "severity": 0.1261737614417267,
+          "point": [
+            0.24771026992434247,
+            1.881329615217127,
+            0.17407616808920356
+          ],
+          "move": "cross",
+          "direction": [
+            0.04069335539305496,
+            -0.0692980361297536,
+            -0.9967656861145522
+          ],
+          "kind": "glove",
+          "impulse": 0.1261737614417267,
+          "closingSpeed": 2.411076481572377
+        }
+      ],
+      "view": "profile",
+      "file": "lion-cross-blocked_head-0.65-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.19999999999999998,
+      "angle": 91.01225871733396,
+      "roots": {
+        "lion": [
+          0.05413522033610573,
+          0,
+          -0.6694759414851629
+        ],
+        "rabbit": [
+          -0.0035495525440441666,
+          0,
+          0.7654441768294712
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "rabbit-jab-body-0.2-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.35,
+      "angle": 171.08437224435178,
+      "roots": {
+        "lion": [
+          0.12834885960665215,
+          0,
+          -0.7516511403933479
+        ],
+        "rabbit": [
+          -0.015834636541067697,
+          0,
+          0.8828548301048268
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 5.833943328697049,
+          "quality": 1.6740713068457858,
+          "severity": 1.6740713068457858,
+          "point": [
+            -0.34745441837925306,
+            1.4122386020396802,
+            -0.3019277745240775
+          ],
+          "move": "jab",
+          "direction": [
+            -0.20631917211530093,
+            -0.6613825556639915,
+            -0.7211140785486192
+          ],
+          "kind": "body",
+          "impulse": 1.6740713068457858,
+          "closingSpeed": 5.833943328697049
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-jab-body-0.35-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.35,
+      "angle": 171.08437224435178,
+      "roots": {
+        "lion": [
+          0.12834885960665215,
+          0,
+          -0.7516511403933479
+        ],
+        "rabbit": [
+          -0.015834636541067697,
+          0,
+          0.8828548301048268
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 5.833943328697049,
+          "quality": 1.6740713068457858,
+          "severity": 1.6740713068457858,
+          "point": [
+            -0.34745441837925306,
+            1.4122386020396802,
+            -0.3019277745240775
+          ],
+          "move": "jab",
+          "direction": [
+            -0.20631917211530093,
+            -0.6613825556639915,
+            -0.7211140785486192
+          ],
+          "kind": "body",
+          "impulse": 1.6740713068457858,
+          "closingSpeed": 5.833943328697049
+        }
+      ],
+      "view": "quarter",
+      "file": "rabbit-jab-body-0.35-quarter.png",
+      "calls": 514,
+      "triangles": 1160435
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.41666666666666663,
+      "angle": 171.08437224435102,
+      "roots": {
+        "lion": [
+          0.16007444176304172,
+          0,
+          -0.7199255582369583
+        ],
+        "rabbit": [
+          -0.023816628061344113,
+          0,
+          0.9047254523205367
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 5.833943328697049,
+          "quality": 1.6740713068457858,
+          "severity": 1.6740713068457858,
+          "point": [
+            -0.34745441837925306,
+            1.4122386020396802,
+            -0.3019277745240775
+          ],
+          "move": "jab",
+          "direction": [
+            -0.20631917211530093,
+            -0.6613825556639915,
+            -0.7211140785486192
+          ],
+          "kind": "body",
+          "impulse": 1.6740713068457858,
+          "closingSpeed": 5.833943328697049
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-jab-body-0.42-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "body",
+      "time": 0.6500000000000004,
+      "angle": 93.5242974352599,
+      "roots": {
+        "lion": [
+          0.2650419386865484,
+          0,
+          -0.6092904851110681
+        ],
+        "rabbit": [
+          -0.01139219142583246,
+          0,
+          0.7342718433703828
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 5.833943328697049,
+          "quality": 1.6740713068457858,
+          "severity": 1.6740713068457858,
+          "point": [
+            -0.34745441837925306,
+            1.4122386020396802,
+            -0.3019277745240775
+          ],
+          "move": "jab",
+          "direction": [
+            -0.20631917211530093,
+            -0.6613825556639915,
+            -0.7211140785486192
+          ],
+          "kind": "body",
+          "impulse": 1.6740713068457858,
+          "closingSpeed": 5.833943328697049
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-jab-body-0.65-profile.png",
+      "calls": 480,
+      "triangles": 1156157
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.19999999999999998,
+      "angle": 91.01254034312518,
+      "roots": {
+        "lion": [
+          0.05413522033610573,
+          0,
+          -0.6694759414851629
+        ],
+        "rabbit": [
+          -0.0035495525440441666,
+          0,
+          0.7654441768294712
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "rabbit-jab-open_head-0.2-profile.png",
+      "calls": 480,
+      "triangles": 1156157
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.35,
+      "angle": 164.35562809995093,
+      "roots": {
+        "lion": [
+          0.14379423319238807,
+          0,
+          -0.7275430798996834
+        ],
+        "rabbit": [
+          -0.015282206422356732,
+          0,
+          0.8491373269997393
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.35,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 1.6994902437186847,
+          "quality": 0.5927855665672276,
+          "severity": 0.5927855665672276,
+          "point": [
+            -0.2725833052923592,
+            1.8123537907638476,
+            -0.3037955497459419
+          ],
+          "move": "jab",
+          "direction": [
+            0.04327007696373813,
+            -0.43481326581448676,
+            -0.8994804746692907
+          ],
+          "kind": "head",
+          "impulse": 0.5927855665672276,
+          "closingSpeed": 1.6994902437186847
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-jab-open_head-0.35-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.35,
+      "angle": 164.35562809995093,
+      "roots": {
+        "lion": [
+          0.14379423319238807,
+          0,
+          -0.7275430798996834
+        ],
+        "rabbit": [
+          -0.015282206422356732,
+          0,
+          0.8491373269997393
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.35,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 1.6994902437186847,
+          "quality": 0.5927855665672276,
+          "severity": 0.5927855665672276,
+          "point": [
+            -0.2725833052923592,
+            1.8123537907638476,
+            -0.3037955497459419
+          ],
+          "move": "jab",
+          "direction": [
+            0.04327007696373813,
+            -0.43481326581448676,
+            -0.8994804746692907
+          ],
+          "kind": "head",
+          "impulse": 0.5927855665672276,
+          "closingSpeed": 1.6994902437186847
+        }
+      ],
+      "view": "quarter",
+      "file": "rabbit-jab-open_head-0.35-quarter.png",
+      "calls": 514,
+      "triangles": 1160435
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.41666666666666663,
+      "angle": 151.79768161290212,
+      "roots": {
+        "lion": [
+          0.1855203910954869,
+          0,
+          -0.6944796089045131
+        ],
+        "rabbit": [
+          -0.01896856823150861,
+          0,
+          0.8281728562330233
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.35,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 1.6994902437186847,
+          "quality": 0.5927855665672276,
+          "severity": 0.5927855665672276,
+          "point": [
+            -0.2725833052923592,
+            1.8123537907638476,
+            -0.3037955497459419
+          ],
+          "move": "jab",
+          "direction": [
+            0.04327007696373813,
+            -0.43481326581448676,
+            -0.8994804746692907
+          ],
+          "kind": "head",
+          "impulse": 0.5927855665672276,
+          "closingSpeed": 1.6994902437186847
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-jab-open_head-0.42-profile.png",
+      "calls": 482,
+      "triangles": 1158589
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "open_head",
+      "time": 0.6500000000000004,
+      "angle": 93.52429743525998,
+      "roots": {
+        "lion": [
+          0.2742136305187773,
+          0,
+          -0.5804617154171563
+        ],
+        "rabbit": [
+          -0.009975002010106,
+          0,
+          0.7249992160789502
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.35,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 1.6994902437186847,
+          "quality": 0.5927855665672276,
+          "severity": 0.5927855665672276,
+          "point": [
+            -0.2725833052923592,
+            1.8123537907638476,
+            -0.3037955497459419
+          ],
+          "move": "jab",
+          "direction": [
+            0.04327007696373813,
+            -0.43481326581448676,
+            -0.8994804746692907
+          ],
+          "kind": "head",
+          "impulse": 0.5927855665672276,
+          "closingSpeed": 1.6994902437186847
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-jab-open_head-0.65-profile.png",
+      "calls": 481,
+      "triangles": 1157629
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.19999999999999998,
+      "angle": 91.01254034312518,
+      "roots": {
+        "lion": [
+          0.05413522033610573,
+          0,
+          -0.6694759414851629
+        ],
+        "rabbit": [
+          -0.0035495525440441666,
+          0,
+          0.7654441768294712
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "rabbit-jab-blocked_head-0.2-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.35,
+      "angle": 128.01509149097717,
+      "roots": {
+        "lion": [
+          0.14126460079075184,
+          0,
+          -0.7387353992092481
+        ],
+        "rabbit": [
+          -0.014956145389543938,
+          0,
+          0.8497567993047597
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 6.60690214649488,
+          "quality": 1.6738930967913235,
+          "severity": 0.23434503355078531,
+          "point": [
+            -0.1256522309621762,
+            1.8754355562059934,
+            -0.12720185486601093
+          ],
+          "move": "jab",
+          "direction": [
+            -0.20293244273995126,
+            -0.03764708201148029,
+            -0.9784687633744971
+          ],
+          "kind": "glove",
+          "impulse": 0.23434503355078531,
+          "closingSpeed": 6.60690214649488
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-jab-blocked_head-0.35-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.35,
+      "angle": 128.01509149097717,
+      "roots": {
+        "lion": [
+          0.14126460079075184,
+          0,
+          -0.7387353992092481
+        ],
+        "rabbit": [
+          -0.014956145389543938,
+          0,
+          0.8497567993047597
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 6.60690214649488,
+          "quality": 1.6738930967913235,
+          "severity": 0.23434503355078531,
+          "point": [
+            -0.1256522309621762,
+            1.8754355562059934,
+            -0.12720185486601093
+          ],
+          "move": "jab",
+          "direction": [
+            -0.20293244273995126,
+            -0.03764708201148029,
+            -0.9784687633744971
+          ],
+          "kind": "glove",
+          "impulse": 0.23434503355078531,
+          "closingSpeed": 6.60690214649488
+        }
+      ],
+      "view": "quarter",
+      "file": "rabbit-jab-blocked_head-0.35-quarter.png",
+      "calls": 514,
+      "triangles": 1160435
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.41666666666666663,
+      "angle": 129.3352724602866,
+      "roots": {
+        "lion": [
+          0.1801432161616922,
+          0,
+          -0.6998567838383078
+        ],
+        "rabbit": [
+          -0.023273999896635495,
+          0,
+          0.8764088719695143
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 6.60690214649488,
+          "quality": 1.6738930967913235,
+          "severity": 0.23434503355078531,
+          "point": [
+            -0.1256522309621762,
+            1.8754355562059934,
+            -0.12720185486601093
+          ],
+          "move": "jab",
+          "direction": [
+            -0.20293244273995126,
+            -0.03764708201148029,
+            -0.9784687633744971
+          ],
+          "kind": "glove",
+          "impulse": 0.23434503355078531,
+          "closingSpeed": 6.60690214649488
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-jab-blocked_head-0.42-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "blocked_head",
+      "time": 0.6500000000000004,
+      "angle": 93.52429743525994,
+      "roots": {
+        "lion": [
+          0.27490955802882366,
+          0,
+          -0.5897901724518996
+        ],
+        "rabbit": [
+          -0.014688880967475542,
+          0,
+          0.7475884468915834
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.31666666666666665,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 6.60690214649488,
+          "quality": 1.6738930967913235,
+          "severity": 0.23434503355078531,
+          "point": [
+            -0.1256522309621762,
+            1.8754355562059934,
+            -0.12720185486601093
+          ],
+          "move": "jab",
+          "direction": [
+            -0.20293244273995126,
+            -0.03764708201148029,
+            -0.9784687633744971
+          ],
+          "kind": "glove",
+          "impulse": 0.23434503355078531,
+          "closingSpeed": 6.60690214649488
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-jab-blocked_head-0.65-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.19999999999999998,
+      "angle": 102.87925847638854,
+      "roots": {
+        "lion": [
+          0.05448400420174157,
+          0,
+          -0.6811966365539771
+        ],
+        "rabbit": [
+          -0.0038983364096800118,
+          0,
+          0.7771648718982855
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "rabbit-cross-body-0.2-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.35,
+      "angle": 171.08437224435184,
+      "roots": {
+        "lion": [
+          0.14036998083384497,
+          0,
+          -0.739630019166155
+        ],
+        "rabbit": [
+          -0.014913131691024584,
+          0,
+          0.9284661754063404
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.11372041257032,
+          "quality": 1.6592204689739343,
+          "severity": 1.6592204689739343,
+          "point": [
+            -0.3043615030072689,
+            1.4262919997941883,
+            -0.3679846352502417
+          ],
+          "move": "cross",
+          "direction": [
+            -0.014038536139586813,
+            -0.6998869879488312,
+            -0.7141156234133029
+          ],
+          "kind": "body",
+          "impulse": 1.6592204689739343,
+          "closingSpeed": 6.11372041257032
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-cross-body-0.35-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.35,
+      "angle": 171.08437224435184,
+      "roots": {
+        "lion": [
+          0.14036998083384497,
+          0,
+          -0.739630019166155
+        ],
+        "rabbit": [
+          -0.014913131691024584,
+          0,
+          0.9284661754063404
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.11372041257032,
+          "quality": 1.6592204689739343,
+          "severity": 1.6592204689739343,
+          "point": [
+            -0.3043615030072689,
+            1.4262919997941883,
+            -0.3679846352502417
+          ],
+          "move": "cross",
+          "direction": [
+            -0.014038536139586813,
+            -0.6998869879488312,
+            -0.7141156234133029
+          ],
+          "kind": "body",
+          "impulse": 1.6592204689739343,
+          "closingSpeed": 6.11372041257032
+        }
+      ],
+      "view": "quarter",
+      "file": "rabbit-cross-body-0.35-quarter.png",
+      "calls": 514,
+      "triangles": 1160435
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.41666666666666663,
+      "angle": 171.08437224435184,
+      "roots": {
+        "lion": [
+          0.17864196520312034,
+          0,
+          -0.7013580347968796
+        ],
+        "rabbit": [
+          -0.026013370860275345,
+          0,
+          0.9572978282186366
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.11372041257032,
+          "quality": 1.6592204689739343,
+          "severity": 1.6592204689739343,
+          "point": [
+            -0.3043615030072689,
+            1.4262919997941883,
+            -0.3679846352502417
+          ],
+          "move": "cross",
+          "direction": [
+            -0.014038536139586813,
+            -0.6998869879488312,
+            -0.7141156234133029
+          ],
+          "kind": "body",
+          "impulse": 1.6592204689739343,
+          "closingSpeed": 6.11372041257032
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-cross-body-0.42-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "body",
+      "time": 0.6500000000000004,
+      "angle": 106.62300918119107,
+      "roots": {
+        "lion": [
+          0.27478057076761353,
+          0,
+          -0.6052194292323865
+        ],
+        "rabbit": [
+          -0.019833647825971024,
+          0,
+          0.7735976986584825
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3333333333333333,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "body",
+          "legal": true,
+          "blocked": false,
+          "speed": 6.11372041257032,
+          "quality": 1.6592204689739343,
+          "severity": 1.6592204689739343,
+          "point": [
+            -0.3043615030072689,
+            1.4262919997941883,
+            -0.3679846352502417
+          ],
+          "move": "cross",
+          "direction": [
+            -0.014038536139586813,
+            -0.6998869879488312,
+            -0.7141156234133029
+          ],
+          "kind": "body",
+          "impulse": 1.6592204689739343,
+          "closingSpeed": 6.11372041257032
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-cross-body-0.65-profile.png",
+      "calls": 480,
+      "triangles": 1156157
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.19999999999999998,
+      "angle": 102.87813904402884,
+      "roots": {
+        "lion": [
+          0.05448400420174157,
+          0,
+          -0.6811966365539771
+        ],
+        "rabbit": [
+          -0.0038983364096800118,
+          0,
+          0.7771648718982855
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "rabbit-cross-open_head-0.2-profile.png",
+      "calls": 480,
+      "triangles": 1156157
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.35,
+      "angle": 163.2080664800159,
+      "roots": {
+        "lion": [
+          0.13925461801779374,
+          0,
+          -0.7407453819822063
+        ],
+        "rabbit": [
+          -0.011155329026674899,
+          0,
+          0.8693708646022186
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.35,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 1.2413775106740124,
+          "quality": 0.42915420862250314,
+          "severity": 0.42915420862250314,
+          "point": [
+            -0.27548886173821086,
+            1.8117099152218796,
+            -0.31809067582799344
+          ],
+          "move": "cross",
+          "direction": [
+            -0.37839312266777014,
+            -0.5501186588294403,
+            -0.7444381142347775
+          ],
+          "kind": "head",
+          "impulse": 0.42915420862250314,
+          "closingSpeed": 1.2413775106740124
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-cross-open_head-0.35-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.35,
+      "angle": 163.2080664800159,
+      "roots": {
+        "lion": [
+          0.13925461801779374,
+          0,
+          -0.7407453819822063
+        ],
+        "rabbit": [
+          -0.011155329026674899,
+          0,
+          0.8693708646022186
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.35,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 1.2413775106740124,
+          "quality": 0.42915420862250314,
+          "severity": 0.42915420862250314,
+          "point": [
+            -0.27548886173821086,
+            1.8117099152218796,
+            -0.31809067582799344
+          ],
+          "move": "cross",
+          "direction": [
+            -0.37839312266777014,
+            -0.5501186588294403,
+            -0.7444381142347775
+          ],
+          "kind": "head",
+          "impulse": 0.42915420862250314,
+          "closingSpeed": 1.2413775106740124
+        }
+      ],
+      "view": "quarter",
+      "file": "rabbit-cross-open_head-0.35-quarter.png",
+      "calls": 514,
+      "triangles": 1160435
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.41666666666666663,
+      "angle": 148.68259678350358,
+      "roots": {
+        "lion": [
+          0.16651813248280795,
+          0,
+          -0.7134818675171921
+        ],
+        "rabbit": [
+          -0.014732475215018017,
+          0,
+          0.852785953295201
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.35,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 1.2413775106740124,
+          "quality": 0.42915420862250314,
+          "severity": 0.42915420862250314,
+          "point": [
+            -0.27548886173821086,
+            1.8117099152218796,
+            -0.31809067582799344
+          ],
+          "move": "cross",
+          "direction": [
+            -0.37839312266777014,
+            -0.5501186588294403,
+            -0.7444381142347775
+          ],
+          "kind": "head",
+          "impulse": 0.42915420862250314,
+          "closingSpeed": 1.2413775106740124
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-cross-open_head-0.42-profile.png",
+      "calls": 482,
+      "triangles": 1158589
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "open_head",
+      "time": 0.6500000000000004,
+      "angle": 106.62300918119091,
+      "roots": {
+        "lion": [
+          0.2700026471939087,
+          0,
+          -0.5977473790376091
+        ],
+        "rabbit": [
+          -0.014342465232876576,
+          0,
+          0.7488182790325507
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.35,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "head",
+          "legal": true,
+          "blocked": false,
+          "speed": 1.2413775106740124,
+          "quality": 0.42915420862250314,
+          "severity": 0.42915420862250314,
+          "point": [
+            -0.27548886173821086,
+            1.8117099152218796,
+            -0.31809067582799344
+          ],
+          "move": "cross",
+          "direction": [
+            -0.37839312266777014,
+            -0.5501186588294403,
+            -0.7444381142347775
+          ],
+          "kind": "head",
+          "impulse": 0.42915420862250314,
+          "closingSpeed": 1.2413775106740124
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-cross-open_head-0.65-profile.png",
+      "calls": 481,
+      "triangles": 1157629
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.19999999999999998,
+      "angle": 102.87813904402884,
+      "roots": {
+        "lion": [
+          0.05448400420174157,
+          0,
+          -0.6811966365539771
+        ],
+        "rabbit": [
+          -0.0038983364096800118,
+          0,
+          0.7771648718982855
+        ]
+      },
+      "events": [],
+      "view": "profile",
+      "file": "rabbit-cross-blocked_head-0.2-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.35,
+      "angle": 105.3107627299264,
+      "roots": {
+        "lion": [
+          0.14029965649752893,
+          0,
+          -0.739700343502471
+        ],
+        "rabbit": [
+          -0.012178116098311069,
+          0,
+          0.8782390864817696
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 5.563306691487576,
+          "quality": 1.6588640488650097,
+          "severity": 0.23224096684110138,
+          "point": [
+            -0.14235364231380485,
+            1.8803202356345816,
+            -0.13025677110301143
+          ],
+          "move": "cross",
+          "direction": [
+            0.0196383852897627,
+            0.021797474757323552,
+            -0.9995695092975848
+          ],
+          "kind": "glove",
+          "impulse": 0.23224096684110138,
+          "closingSpeed": 5.563306691487576
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-cross-blocked_head-0.35-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.35,
+      "angle": 105.3107627299264,
+      "roots": {
+        "lion": [
+          0.14029965649752893,
+          0,
+          -0.739700343502471
+        ],
+        "rabbit": [
+          -0.012178116098311069,
+          0,
+          0.8782390864817696
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 5.563306691487576,
+          "quality": 1.6588640488650097,
+          "severity": 0.23224096684110138,
+          "point": [
+            -0.14235364231380485,
+            1.8803202356345816,
+            -0.13025677110301143
+          ],
+          "move": "cross",
+          "direction": [
+            0.0196383852897627,
+            0.021797474757323552,
+            -0.9995695092975848
+          ],
+          "kind": "glove",
+          "impulse": 0.23224096684110138,
+          "closingSpeed": 5.563306691487576
+        }
+      ],
+      "view": "quarter",
+      "file": "rabbit-cross-blocked_head-0.35-quarter.png",
+      "calls": 514,
+      "triangles": 1160435
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.41666666666666663,
+      "angle": 95.60193113894694,
+      "roots": {
+        "lion": [
+          0.1798273355219119,
+          0,
+          -0.7001726644780881
+        ],
+        "rabbit": [
+          -0.020022843305258886,
+          0,
+          0.897315742721178
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 5.563306691487576,
+          "quality": 1.6588640488650097,
+          "severity": 0.23224096684110138,
+          "point": [
+            -0.14235364231380485,
+            1.8803202356345816,
+            -0.13025677110301143
+          ],
+          "move": "cross",
+          "direction": [
+            0.0196383852897627,
+            0.021797474757323552,
+            -0.9995695092975848
+          ],
+          "kind": "glove",
+          "impulse": 0.23224096684110138,
+          "closingSpeed": 5.563306691487576
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-cross-blocked_head-0.42-profile.png",
+      "calls": 481,
+      "triangles": 1157117
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "blocked_head",
+      "time": 0.6500000000000004,
+      "angle": 106.6230091811908,
+      "roots": {
+        "lion": [
+          0.2786982629791057,
+          0,
+          -0.6013017370208943
+        ],
+        "rabbit": [
+          -0.01924385054713487,
+          0,
+          0.7705805355699451
+        ]
+      },
+      "events": [
+        {
+          "id": 2,
+          "type": "contact",
+          "time": 0.3,
+          "round": 1,
+          "actor": "rabbit",
+          "receiver": "lion",
+          "action": 1,
+          "part": "glove",
+          "legal": false,
+          "blocked": true,
+          "speed": 5.563306691487576,
+          "quality": 1.6588640488650097,
+          "severity": 0.23224096684110138,
+          "point": [
+            -0.14235364231380485,
+            1.8803202356345816,
+            -0.13025677110301143
+          ],
+          "move": "cross",
+          "direction": [
+            0.0196383852897627,
+            0.021797474757323552,
+            -0.9995695092975848
+          ],
+          "kind": "glove",
+          "impulse": 0.23224096684110138,
+          "closingSpeed": 5.563306691487576
+        }
+      ],
+      "view": "profile",
+      "file": "rabbit-cross-blocked_head-0.65-profile.png",
+      "calls": 479,
+      "triangles": 1155197
+    }
+  ],
+  "errors": [],
+  "browser": "155.0.8059.79",
+  "physicalPhone": false
+}

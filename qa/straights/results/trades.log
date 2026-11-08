@@ -1,0 +1,21 @@
+{
+  maximum: 0.013380757486711192,
+  worst: {
+    offset: 0.08,
+    lead: 'rear_hook',
+    rear: 'rear_hook',
+    actor: 'lion',
+    side: 'R',
+    frame: 25,
+    part: 'head'
+  },
+  failures: 0,
+  largestTurn: 0.7762215351013991,
+  worstTurn: {
+    offset: -0.08,
+    lead: 'rear_uppercut',
+    rear: 'rear_uppercut',
+    frame: 10,
+    index: 1
+  }
+}

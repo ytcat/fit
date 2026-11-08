@@ -1,0 +1,137 @@
+{
+  "summaries": [
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "body",
+      "peak": 171.08437224435184,
+      "peakAt": 0.35,
+      "contactAt": 0.3333333333333333,
+      "span": 0.9969879398710336,
+      "push": 0.0863647738021678,
+      "maxFoot": 1.7554167342883506e-16
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "open_head",
+      "peak": 171.08437224435178,
+      "peakAt": 0.35,
+      "contactAt": 0.3333333333333333,
+      "span": 0.9969879398710333,
+      "push": 0.0863647738021678,
+      "maxFoot": 1.8619006149354548e-16
+    },
+    {
+      "actor": "lion",
+      "move": "jab",
+      "situation": "blocked_head",
+      "peak": 134.11035794174765,
+      "peakAt": 0.36666666666666664,
+      "contactAt": 0.31666666666666665,
+      "span": 0.9212376624070878,
+      "push": 0.014763258947033517,
+      "maxFoot": 1.7554167342883506e-16
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "body",
+      "peak": 171.08437224435232,
+      "peakAt": 0.35,
+      "contactAt": 0.3333333333333333,
+      "span": 0.9969879398710337,
+      "push": 0.08636477380216781,
+      "maxFoot": 1.760893866893587e-16
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "open_head",
+      "peak": 171.08437224435193,
+      "peakAt": 0.35,
+      "contactAt": 0.3333333333333333,
+      "span": 0.9969879398710336,
+      "push": 0.08636477380216781,
+      "maxFoot": 1.8619006149354548e-16
+    },
+    {
+      "actor": "lion",
+      "move": "cross",
+      "situation": "blocked_head",
+      "peak": 140.97373855091115,
+      "peakAt": 0.36666666666666664,
+      "contactAt": 0.31666666666666665,
+      "span": 0.9428209915672721,
+      "push": 0.008915701390922947,
+      "maxFoot": 1.7554167342883506e-16
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "body",
+      "peak": 171.08437224435184,
+      "peakAt": 0.3833333333333333,
+      "contactAt": 0.3333333333333333,
+      "span": 0.9969879398710341,
+      "push": 0.08636477380216778,
+      "maxFoot": 1.7554167342883506e-16
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "open_head",
+      "peak": 171.08437224435247,
+      "peakAt": 0.36666666666666664,
+      "contactAt": 0.35,
+      "span": 0.9969879398710343,
+      "push": 0.04188746566617444,
+      "maxFoot": 1.7554167342883506e-16
+    },
+    {
+      "actor": "rabbit",
+      "move": "jab",
+      "situation": "blocked_head",
+      "peak": 131.80192832471005,
+      "peakAt": 0.39999999999999997,
+      "contactAt": 0.31666666666666665,
+      "span": 0.913236053173702,
+      "push": 0.01655930930258863,
+      "maxFoot": 1.7554167342883506e-16
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "body",
+      "peak": 171.08437224435238,
+      "peakAt": 0.41666666666666663,
+      "contactAt": 0.3333333333333333,
+      "span": 0.9969879398710343,
+      "push": 0.0863647738021678,
+      "maxFoot": 1.8619006149354548e-16
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "open_head",
+      "peak": 171.08437224435187,
+      "peakAt": 0.36666666666666664,
+      "contactAt": 0.35,
+      "span": 0.9969879398710333,
+      "push": 0.03032493230776107,
+      "maxFoot": 1.7772239894833365e-16
+    },
+    {
+      "actor": "rabbit",
+      "move": "cross",
+      "situation": "blocked_head",
+      "peak": 109.32516332621712,
+      "peakAt": 0.5333333333333333,
+      "contactAt": 0.3,
+      "span": 0.8166466669793864,
+      "push": 0.016410631556314205,
+      "maxFoot": 1.7772239894833365e-16
+    }
+  ],
+  "minOfficial": 0.7730280678913568
+}
