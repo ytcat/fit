@@ -1,0 +1,46 @@
+{
+  "before": {
+    "render": {
+      "frame": 1,
+      "calls": 170,
+      "triangles": 498663,
+      "points": 0,
+      "lines": 0
+    },
+    "position": [
+      -5.0067901611328125e-06,
+      1.78,
+      4.514054335234747
+    ],
+    "quaternion": [
+      -0.0760833122102478,
+      0,
+      0,
+      0.9971014640462212
+    ]
+  },
+  "after": {
+    "render": {
+      "frame": 2,
+      "calls": 170,
+      "triangles": 498663,
+      "points": 0,
+      "lines": 0
+    },
+    "position": [
+      -5.0067901611328125e-06,
+      1.78,
+      4.514054335234747
+    ],
+    "quaternion": [
+      -0.0760833122102478,
+      0,
+      0,
+      0.9971014640462212
+    ]
+  },
+  "refresh": true,
+  "physicalPhone": false,
+  "sourceSha": "7f5e074",
+  "method": "Real WebGL scene counts before and after temporary locker preview at identical camera/pose; not a sustained FPS benchmark."
+}

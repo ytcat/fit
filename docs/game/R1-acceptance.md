@@ -64,3 +64,18 @@ remain separate unverified goals; this release does not claim a 75/100 visual sc
 
 Rollback: use `?game=classic` for interface rollback. Keep a pre-upgrade exported save;
 older application code cannot interpret new ledger state as full career data.
+
+## Verified R1 checkpoint
+
+All 64 current regression suites pass: the full 62-suite sequential run plus the
+two material/loadout suites added during review. Browser integration, portrait /
+landscape rendering, exact save reload, camera restoration and optional offline
+reload pass. The bag run produced 55 contacts / 55 attempts, 102 XP and 35 Coins;
+the first material variant costs 25. The controlled quick-bout test produces a
+real engine result, stored evidence and Play reward. No console errors.
+
+The actual scene before/after temporary locker preview submits 170 draw calls
+and 498,663 triangles at the same portrait view. No added geometry, body/rig
+changes or additional renderer. These counts are not a sustained FPS measurement.
+Physical iPhone/Android performance, thermal behavior and new visual-realism
+art quality remain unverified. See `qa/career-r1/review.html`.

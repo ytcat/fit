@@ -1,0 +1,13 @@
+{
+  "runtimeSha": "7f5e074",
+  "suites": 64,
+  "fullSequentialRun": 62,
+  "separatelyAddedSuites": [
+    "game-presentation.test.cjs",
+    "game-loadout.test.cjs"
+  ],
+  "result": "pass",
+  "browser": "actual Chromium software WebGL",
+  "offline": "69 cached resources; disconnected reload passed",
+  "physicalPhone": false
+}
