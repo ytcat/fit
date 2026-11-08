@@ -9,7 +9,7 @@
 
 ## Verified links
 - [Source repository](https://github.com/ytcat/fit)
-- Live web app: not yet verified. Do not fabricate URL.
+- Live web app: https://ytcat.github.io/fit/?build=28f959b — R2 deployment verified; full V2 backlog is not implemented.
 
 ## Mandatory requirement for every future PRD
 End with `VERSION HANDOFF`: public title, source repo, **verified** app link, achieved feature checklist with evidence, remaining work, test results, exact branch/commit, next PRD relative link, migration and rollback information. If a next PRD doesn't exist, say so and request creation. Never silently skip to a nonexistent document.

@@ -374,6 +374,6 @@ The first 10 minutes produce a satisfying reward and personalized fight. By the 
 ---
 ## VERSION HANDOFF — V1 → V2
 **Public working title:** Glory of the Ring. **Repo:** https://github.com/ytcat/fit
-**Live app:** Not yet verified; inspect deployment configuration before providing URL.
+**Live app:** https://ytcat.github.io/fit/?build=28f959b — verified R2 deployment, not completion of this specification.
 **Next PRD:** [V2 — Full living-world master PRD](../V2/FIT_MASTER_PRD_V2.md).
 **Implementation:** This is a proposed specification, not proof of implementation. Read V2, its expansion, and [Codex execution contract](../V2/CODEX_START_HERE.md) before coding. Track exact commits, tests, screenshots and unmet acceptance criteria. Retain compatibility with current FIT identifiers.

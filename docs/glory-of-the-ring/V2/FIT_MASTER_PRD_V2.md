@@ -779,6 +779,6 @@ Each chart is a product flow, not a screenshot of code already implemented. The 
 ## VERSION HANDOFF — V2
 **Current title:** Glory of the Ring. **Canonical source:** `FIT_MASTER_PRD_V2.md`.
 **Game source (confirmed repository):** https://github.com/ytcat/fit
-**Live app:** Not verified; obtain the deployment URL from the repository's publishing configuration and add it here before sharing the handoff. Do not invent an app link.
+**Live app:** https://ytcat.github.io/fit/?build=28f959b — verified R2 Pages run 42498491497, runtime 8395988, published commit 28f959b. See [R2 acceptance](../../game/R2-acceptance.md). Remaining Release A–E items are pending.
 **Next specification:** Version 3 — not created yet. Create `../V3/GLORY_OF_THE_RING_PRD_V3.md` only after reviewing V2 gaps and current code, then replace this text with a working relative link.
 **Execution handoff:** Preserve all validated features and existing character/motion quality; report exactly what was implemented, what is only proposed, the commit/PR, tests, screenshots, and next executable milestone. Continue via the linked next PRD only after current milestone acceptance. Never imply incomplete features are live.

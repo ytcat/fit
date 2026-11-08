@@ -37,7 +37,7 @@ A milestone PR is done only when its user journeys are demonstrable, tests/scree
 - **Technical name:** FIT / `ytcat/fit` remains unchanged. Do not rename source identifiers.
 - **Trademark:** Formal clearance pending; avoid claiming a registered or conflict-free title.
 - **Game source:** https://github.com/ytcat/fit
-- **Live app:** Unverified. Read repository's actual publishing configuration before linking it.
+- **Live app:** https://ytcat.github.io/fit/?build=28f959b — R2, verified Pages run 42498491497. Full V2 implementation remains pending.
 - **Current PRD:** [V2 master](FIT_MASTER_PRD_V2.md) + [V2 expansion](EXPANSION_V2.md).
 - **Next PRD:** V3 does not exist; when V2 milestones are independently verified, create `../V3/GLORY_OF_THE_RING_PRD_V3.md` with acceptance evidence, implementation gap analysis and next milestones; then link it here and in the root index.
 - End all future PRDs with a VERIFIED VERSION HANDOFF (app URL, commit SHA/branch, QA, implemented vs pending, next relative link and rollback).

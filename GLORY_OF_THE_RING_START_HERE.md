@@ -25,4 +25,4 @@
 ## VERSION HANDOFF
 Current authoritative version: [V2](docs/glory-of-the-ring/V2/FIT_MASTER_PRD_V2.md). Future V3: `docs/glory-of-the-ring/V3/GLORY_OF_THE_RING_PRD_V3.md` **does not exist yet**. Continue next work by reading V2 and the execution contract; generate a V3 spec after evaluating actual build progress, then add the link here.
 Repo: https://github.com/ytcat/fit
-Live application: not yet verified (read deployment config).
+Live application: https://ytcat.github.io/fit/?build=28f959b (R2, verified Pages run 42498491497; remaining V2 features are pending).
