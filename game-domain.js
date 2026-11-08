@@ -9,7 +9,9 @@
   {id:'first_rhythm',name:'First Rhythm',controllerId:'combo_one_two',sequence:['jab','cross'],requirement:'Complete one active activity',key:'completed',target:1},
   {id:'corner_turn',name:'Corner Turn',controllerId:'combo_three',sequence:['jab','cross','hook'],requirement:'Complete two rope drills',key:'rope',target:2},
   {id:'counter_chain',name:'Counter Chain',controllerId:'combo_counter',sequence:['slip_right','cross','hook'],requirement:'Record 12 defences in completed active activities',key:'defences',target:12},
-  {id:'thunder_arc',name:'Thunder Arc',controllerId:'combo_upper',sequence:['uppercut','rear_hook','cross'],requirement:'Complete three active fights',key:'fights',target:3}
+  {id:'thunder_arc',name:'Thunder Arc',controllerId:'combo_upper',sequence:['uppercut','rear_hook','cross'],requirement:'Complete three active fights',key:'fights',target:3},
+  {id:'rolling_return',name:'Rolling Return',controllerId:'combo_roll',sequence:['roll','rear_uppercut','hook','cross'],requirement:'Record 24 defences in completed active activities',key:'defences',target:24},
+  {id:'school_signature',name:'School Signature',controllerId:'combo_super',sequence:['jab','cross','hook','roll','rear_uppercut','hook'],requirement:'Land 150 contacts in completed active activities',key:'hits',target:150}
  ].map(c=>({...c,species:[...species],allowedModes:['training','fight'],slotCost:1}));
  const quests=[...combos.map(c=>({id:c.id,name:c.name,key:c.key,target:c.target,comboId:c.id})),{id:'steady_school',name:'Five completed activities',key:'completed',target:5},{id:'first_bout',name:'Complete an active fight',key:'fights',target:1},{id:'straight_work',name:'Land 100 contacts',key:'hits',target:100},{id:'school_minutes',name:'Complete ten active minutes',key:'seconds',target:600}];
  const cleanName=name=>String(name||'').replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,'').trim();
@@ -58,9 +60,9 @@
   if(!g||g.version!==1||!g.school||typeof g.school.name!=='string'||!g.school.name.trim()||cleanName(g.school.name)!==g.school.name||g.school.name.length>48||!['sun','paw','shield','star'].includes(g.school.crest)||!['balance','precision','courage','patience'].includes(g.school.philosophy))fail('Invalid school.');
   const list=(a,max,predicate)=>Array.isArray(a)&&a.length<=max&&new Set(a).size===a.length&&a.every(predicate);
   if(!list(g.inventory,16,x=>catalog.some(c=>c.id===x))||slots.some(s=>!g.inventory.includes(g.equipment?.[s])||!catalog.some(c=>c.id===g.equipment[s]&&c.slot===s)))fail('Invalid inventory.');
-  if(!g.combos||!list(g.combos.owned,4,x=>combos.some(c=>c.id===x))||!list(g.combos.training,5,x=>g.combos.owned.includes(x))||!list(g.combos.fight,3,x=>g.combos.owned.includes(x)))fail('Invalid combo loadout.');
+  if(!g.combos||!list(g.combos.owned,combos.length,x=>combos.some(c=>c.id===x))||!list(g.combos.training,5,x=>g.combos.owned.includes(x))||!list(g.combos.fight,3,x=>g.combos.owned.includes(x)))fail('Invalid combo loadout.');
   if(!g.activity||!['completed','rope','fights','defences','hits','seconds'].every(k=>integer(g.activity[k])))fail('Invalid activity counters.');
-  if(!list(g.processed,20000,x=>typeof x==='string'&&x.length>0&&x.length<=120)||!list(g.quests,8,x=>quests.some(q=>q.id===x)))fail('Invalid activity history.');
+  if(!list(g.processed,20000,x=>typeof x==='string'&&x.length>0&&x.length<=120)||!list(g.quests,quests.length,x=>quests.some(q=>q.id===x)))fail('Invalid activity history.');
   if(!Array.isArray(g.ledger)||g.ledger.length>20020)fail('Invalid ledger.');
   const seen=new Set();let coins=0,xp=0;
   for(const t of g.ledger){if(!t||typeof t.id!=='string'||t.id.length>240||seen.has(t.id)||!['baseline','earn','spend'].includes(t.type)||!Number.isSafeInteger(t.coins)||Math.abs(t.coins)>1e6||!integer(t.xp,1e8)||typeof t.rule!=='string'||(t.type==='spend'?(t.coins>=0||t.xp!==0):t.coins<0)||(t.type==='baseline'&&t.coins!==0))fail('Invalid ledger transaction.');seen.add(t.id);coins+=t.coins;xp+=t.xp;if(coins<0)fail('Negative coin balance.');}

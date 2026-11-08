@@ -35,10 +35,10 @@ function grant(s,id,more){const result=s.award(event(s,id,more));assert.ok(resul
  const {s}=setup();const watch=grant(s,'watch',{mode:'fight',result:'win',control:'watch',attempts:40,hits:30,defences:20});assert.equal(watch.coins,0);assert.ok(watch.xp<=10);assert.equal(s.game().activity.completed,0);assert.deepEqual(s.game().combos.owned,[]);assert.equal(s.current().boxers.lion.wins,0);
  grant(s,'rope-a',{mode:'rope',jumps:40,hits:0,attempts:0});grant(s,'rope-b',{mode:'rope',jumps:40,hits:0,attempts:0});assert.ok(s.game().combos.owned.includes('corner_turn'));
  grant(s,'defence',{mode:'pads',defences:12});assert.ok(s.game().combos.owned.includes('counter_chain'));
- for(let i=0;i<3;i++)grant(s,'fight-'+i,{mode:'fight',result:i?'loss':'win'});assert.deepEqual(new Set(s.game().combos.owned),new Set(D.combos.map(c=>c.id)));
+ for(let i=0;i<3;i++)grant(s,'fight-'+i,{mode:'fight',result:i?'loss':'win'});assert.deepEqual(new Set(s.game().combos.owned),new Set(D.combos.slice(0,4).map(c=>c.id)));
  for(const c of D.combos.slice(0,3))assert.equal(s.gameAction({type:'combo',comboId:c.id,mode:'fight',enabled:true}).ok,true);
  assert.equal(s.gameAction({type:'combo',comboId:'thunder_arc',mode:'fight',enabled:true}).ok,false);
- for(const c of D.combos)assert.equal(s.gameAction({type:'combo',comboId:c.id,mode:'training',enabled:true}).ok,true);
+ for(const c of D.combos.slice(0,4))assert.equal(s.gameAction({type:'combo',comboId:c.id,mode:'training',enabled:true}).ok,true);
  assert.equal(s.award(event(s,'fake',{hits:-1})),null);assert.equal(s.award(event(s,'fake',{hits:40,attempts:2})),null);assert.equal(s.award(event(s,'fake',{mode:'fight',result:'cancelled'})),null);
  for(let i=0;i<205;i++)grant(s,'long-'+i);assert.equal(s.current().boxers.lion.awards.includes('rope-a'),false);assert.equal(s.award(event(s,'rope-a',{mode:'rope',jumps:40,hits:0,attempts:0})),null,'idempotence outlives 200 award window');
 }
