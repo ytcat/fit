@@ -1,0 +1,266 @@
+{
+  "rows": [
+    {
+      "id": "IQ-C01",
+      "seed": 0,
+      "state": {
+        "phase": "jab-extension",
+        "threat": "head",
+        "freeHand": "rear"
+      },
+      "moves": [
+        "guard",
+        "jab"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.6653345369377348e-16
+    },
+    {
+      "id": "IQ-C01",
+      "seed": 1,
+      "state": {
+        "phase": "jab-finished",
+        "threat": "none",
+        "freeHand": "rear"
+      },
+      "moves": [
+        "guard",
+        "jab"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.6653345369377348e-16
+    },
+    {
+      "id": "IQ-C01",
+      "seed": 2,
+      "state": {
+        "phase": "jab-extension",
+        "threat": "counter",
+        "freeHand": "rear"
+      },
+      "moves": [
+        "guard",
+        "jab"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.6653345369377348e-16
+    },
+    {
+      "id": "IQ-C02",
+      "seed": 0,
+      "state": {
+        "inRange": false,
+        "clearStep": true
+      },
+      "moves": [
+        "jab",
+        "guard",
+        "step"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.6883057536160649e-16
+    },
+    {
+      "id": "IQ-C02",
+      "seed": 1,
+      "state": {
+        "inRange": true,
+        "clearStep": true
+      },
+      "moves": [
+        "guard",
+        "jab"
+      ],
+      "maxHand": 6.206335383118183e-17,
+      "maxFoot": 1.5515838457795457e-16
+    },
+    {
+      "id": "IQ-C02",
+      "seed": 2,
+      "state": {
+        "inRange": false,
+        "clearStep": false
+      },
+      "moves": [
+        "guard"
+      ],
+      "maxHand": 5.551115123125783e-17,
+      "maxFoot": 2.7755575615628914e-17
+    },
+    {
+      "id": "IQ-C03",
+      "seed": 0,
+      "state": {
+        "footFree": true,
+        "hipFree": true,
+        "stance": "orthodox"
+      },
+      "moves": [
+        "guard",
+        "cross"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.8410966031475738e-16
+    },
+    {
+      "id": "IQ-C03",
+      "seed": 1,
+      "state": {
+        "footFree": false,
+        "hipFree": false,
+        "stance": "crossed"
+      },
+      "moves": [
+        "guard"
+      ],
+      "maxHand": 5.551115123125783e-17,
+      "maxFoot": 2.7755575615628914e-17
+    },
+    {
+      "id": "IQ-C03",
+      "seed": 2,
+      "state": {
+        "footFree": true,
+        "hipFree": true,
+        "stance": "orthodox",
+        "phase": "after-guard-recovery"
+      },
+      "moves": [
+        "guard",
+        "cross"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.8410966031475738e-16
+    },
+    {
+      "id": "IQ-C04",
+      "seed": 0,
+      "state": {
+        "target": "head",
+        "balanced": true,
+        "opening": false
+      },
+      "moves": [
+        "guard",
+        "slip"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.6883057536160649e-16
+    },
+    {
+      "id": "IQ-C04",
+      "seed": 1,
+      "state": {
+        "target": "body",
+        "balanced": true,
+        "opening": false
+      },
+      "moves": [
+        "guard"
+      ],
+      "maxHand": 5.551115123125783e-17,
+      "maxFoot": 1.1443916996305594e-16
+    },
+    {
+      "id": "IQ-C04",
+      "seed": 2,
+      "state": {
+        "target": "head",
+        "balanced": false,
+        "opening": false
+      },
+      "moves": [
+        "guard"
+      ],
+      "maxHand": 5.551115123125783e-17,
+      "maxFoot": 1.1443916996305594e-16
+    },
+    {
+      "id": "IQ-C05",
+      "seed": 0,
+      "state": {
+        "opening": true,
+        "inRange": true
+      },
+      "moves": [
+        "guard",
+        "slip",
+        "cross"
+      ],
+      "maxHand": 5.551115123125783e-17,
+      "maxFoot": 1.6883057536160649e-16
+    },
+    {
+      "id": "IQ-C05",
+      "seed": 1,
+      "state": {
+        "opening": false,
+        "inRange": true
+      },
+      "moves": [
+        "guard"
+      ],
+      "maxHand": 5.551115123125783e-17,
+      "maxFoot": 2.7755575615628914e-17
+    },
+    {
+      "id": "IQ-C05",
+      "seed": 2,
+      "state": {
+        "opening": true,
+        "inRange": false
+      },
+      "moves": [
+        "guard",
+        "step"
+      ],
+      "maxHand": 5.551115123125783e-17,
+      "maxFoot": 1.6653345369377348e-16
+    },
+    {
+      "id": "IQ-C06",
+      "seed": 0,
+      "state": {
+        "exitLane": "left",
+        "energy": "low"
+      },
+      "moves": [
+        "cross",
+        "guard",
+        "step"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.6711069443220838e-16
+    },
+    {
+      "id": "IQ-C06",
+      "seed": 1,
+      "state": {
+        "exitLane": "right",
+        "energy": "ready"
+      },
+      "moves": [
+        "cross",
+        "guard",
+        "step"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.6653345369377348e-16
+    },
+    {
+      "id": "IQ-C06",
+      "seed": 2,
+      "state": {
+        "exitLane": "none",
+        "energy": "low"
+      },
+      "moves": [
+        "cross",
+        "guard"
+      ],
+      "maxHand": 1.1102230246251565e-16,
+      "maxFoot": 1.5265566588595902e-16
+    }
+  ],
+  "failureRestored": true
+}

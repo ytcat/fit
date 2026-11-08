@@ -1,0 +1,637 @@
+{
+  "return": {
+    "world": {
+      "version": 1,
+      "seed": 632343340,
+      "tutorial": {
+        "status": "new",
+        "steps": []
+      },
+      "facilities": [],
+      "rivals": {
+        "shadow": {
+          "simulatedPractice": 10,
+          "encounters": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "lastActivityId": null
+        },
+        "ember": {
+          "simulatedPractice": 11,
+          "encounters": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "lastActivityId": null
+        },
+        "circuit": {
+          "simulatedPractice": 10,
+          "encounters": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "lastActivityId": null
+        }
+      },
+      "events": {
+        "E01": {
+          "attempts": 0,
+          "completed": 0,
+          "lastActivityId": null
+        },
+        "E02": {
+          "attempts": 0,
+          "completed": 0,
+          "lastActivityId": null
+        }
+      },
+      "progress": {
+        "activities": 0,
+        "training": 0,
+        "fights": 0,
+        "hits": 0
+      },
+      "processed": [],
+      "lastTickUTCday": 20765,
+      "digest": [
+        {
+          "id": "practice:20765",
+          "type": "simulation",
+          "cause": {
+            "fromDay": 20758,
+            "toDay": 20765,
+            "days": 7,
+            "gains": [
+              {
+                "id": "shadow",
+                "before": 0,
+                "after": 10
+              },
+              {
+                "id": "ember",
+                "before": 0,
+                "after": 11
+              },
+              {
+                "id": "circuit",
+                "before": 0,
+                "after": 10
+              }
+            ]
+          },
+          "text": {
+            "en": "7 simulated practice days for rival schools. No player matches were played; your resources are unchanged.",
+            "he": "7 ימי תרגול מדומים לבתי ספר יריבים. לא נערכו קרבות שחקן והמשאבים שלכם לא השתנו.",
+            "ru": "7 дней моделируемой практики школ-соперников. Бои игрока не проводились; ваши ресурсы не изменились."
+          }
+        },
+        {
+          "id": "tutorial:20765",
+          "type": "tutorial",
+          "cause": {
+            "tutorialStatus": "new"
+          },
+          "text": {
+            "en": "Your optional introduction has unfinished practice steps. Continue or skip any time.",
+            "he": "למבוא האופציונלי נותרו משימות תרגול. אפשר להמשיך או לדלג בכל עת.",
+            "ru": "Во вводном обучении остались задания. Продолжите или пропустите в любой момент."
+          }
+        },
+        {
+          "id": "event:E02:20765",
+          "type": "opportunity",
+          "cause": {
+            "eventId": "E02"
+          },
+          "opportunity": {
+            "kind": "event",
+            "id": "E02"
+          },
+          "text": {
+            "en": "An original offline event is available: AI Coach Invitational",
+            "he": "אירוע אופליין מקורי זמין: הזמנת מאמן הבינה",
+            "ru": "Доступно оригинальное событие без сети: Приглашение ИИ-тренера"
+          }
+        }
+      ],
+      "opportunity": null
+    },
+    "wallet": {
+      "coins": 0,
+      "xp": 0,
+      "transactions": 1
+    }
+  },
+  "session0": {
+    "id": "mw80pia4-f38bqb7l",
+    "transactionId": "reward:mw80pia4-f38bqb7l",
+    "mode": "heavy",
+    "species": "lion",
+    "control": "coach",
+    "seconds": 45,
+    "hits": 41,
+    "attempts": 42,
+    "defences": 0,
+    "jumps": 0,
+    "result": null,
+    "xp": 76,
+    "coins": 26,
+    "evidence": {
+      "playerName": "School Runner"
+    }
+  },
+  "session1": {
+    "id": "mw80pn86-85tu2bub",
+    "transactionId": "reward:mw80pn86-85tu2bub",
+    "mode": "heavy",
+    "species": "lion",
+    "control": "coach",
+    "seconds": 45,
+    "hits": 42,
+    "attempts": 42,
+    "defences": 0,
+    "jumps": 0,
+    "result": null,
+    "xp": 77,
+    "coins": 26,
+    "evidence": {
+      "playerName": "School Runner"
+    }
+  },
+  "chain": {
+    "activity": {
+      "id": "mw80ps73-6u9a9nzx",
+      "profileId": "mw80pbph-4aw8drcu",
+      "species": "lion",
+      "mode": "heavy",
+      "control": "play",
+      "seconds": 12.616666666666873,
+      "hits": 3,
+      "attempts": 3,
+      "defences": 0,
+      "jumps": 0,
+      "pendingSwings": {
+        "jab": 0,
+        "cross": 0,
+        "hook": 0
+      },
+      "speedAttemptKey": null,
+      "duration": 60,
+      "evidence": {
+        "eventId": "E01",
+        "playerName": "School Runner",
+        "cleanChains": 1
+      },
+      "chainStep": 0,
+      "chainDeadline": 3.216666666666667
+    },
+    "event": {
+      "attempts": 1,
+      "completed": 1,
+      "lastActivityId": "mw80ps73-6u9a9nzx"
+    },
+    "history": {
+      "id": "mw80ps73-6u9a9nzx",
+      "transactionId": "reward:mw80ps73-6u9a9nzx",
+      "mode": "heavy",
+      "species": "lion",
+      "control": "play",
+      "seconds": 12.616666666666873,
+      "hits": 3,
+      "attempts": 3,
+      "defences": 0,
+      "jumps": 0,
+      "result": null,
+      "xp": 17,
+      "coins": 6,
+      "evidence": {
+        "eventId": "E01",
+        "playerName": "School Runner",
+        "cleanChains": 1
+      }
+    }
+  },
+  "rival": {
+    "entry": {
+      "id": "mw80pvlm-y8gzcbfe",
+      "profileId": "mw80pbph-4aw8drcu",
+      "species": "lion",
+      "playerName": "School Runner",
+      "opponentName": "Circuit",
+      "activityEvidence": {
+        "eventId": "E02",
+        "rivalId": "circuit"
+      },
+      "watchSeen": false,
+      "moveCounts": {
+        "jab": 1,
+        "cross": 0,
+        "hook": 0,
+        "rear_hook": 0,
+        "uppercut": 0,
+        "rear_uppercut": 0
+      },
+      "eventCursor": 5
+    },
+    "opening": [
+      {
+        "move": "step",
+        "target": "head"
+      },
+      {
+        "move": "jab",
+        "target": "head"
+      },
+      {
+        "move": "cross",
+        "target": "head"
+      }
+    ],
+    "result": {
+      "winner": null,
+      "stoppage": "health",
+      "method": "draw",
+      "decision": "health",
+      "cards": [
+        {
+          "name": "Judge 1",
+          "totals": [
+            9,
+            10
+          ],
+          "rounds": [
+            {
+              "round": 1,
+              "scores": [
+                9,
+                10
+              ],
+              "stats": {
+                "lion": {
+                  "thrown": 1,
+                  "landed": 0,
+                  "head": 0,
+                  "body": 0,
+                  "shoulder": 0,
+                  "blocked": 0,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 0,
+                  "power": 0,
+                  "control": 1.0666666666666678,
+                  "knockdowns": 0
+                },
+                "rabbit": {
+                  "thrown": 0,
+                  "landed": 0,
+                  "head": 0,
+                  "body": 0,
+                  "shoulder": 0,
+                  "blocked": 1,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 0,
+                  "power": 0,
+                  "control": 0,
+                  "knockdowns": 0
+                }
+              },
+              "merit": [
+                0.003200000000000003,
+                0.18
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Judge 2",
+          "totals": [
+            9,
+            10
+          ],
+          "rounds": [
+            {
+              "round": 1,
+              "scores": [
+                9,
+                10
+              ],
+              "stats": {
+                "lion": {
+                  "thrown": 1,
+                  "landed": 0,
+                  "head": 0,
+                  "body": 0,
+                  "shoulder": 0,
+                  "blocked": 0,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 0,
+                  "power": 0,
+                  "control": 1.0666666666666678,
+                  "knockdowns": 0
+                },
+                "rabbit": {
+                  "thrown": 0,
+                  "landed": 0,
+                  "head": 0,
+                  "body": 0,
+                  "shoulder": 0,
+                  "blocked": 1,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 0,
+                  "power": 0,
+                  "control": 0,
+                  "knockdowns": 0
+                }
+              },
+              "merit": [
+                0.0021333333333333356,
+                0.09
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Judge 3",
+          "totals": [
+            9,
+            10
+          ],
+          "rounds": [
+            {
+              "round": 1,
+              "scores": [
+                9,
+                10
+              ],
+              "stats": {
+                "lion": {
+                  "thrown": 1,
+                  "landed": 0,
+                  "head": 0,
+                  "body": 0,
+                  "shoulder": 0,
+                  "blocked": 0,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 0,
+                  "power": 0,
+                  "control": 1.0666666666666678,
+                  "knockdowns": 0
+                },
+                "rabbit": {
+                  "thrown": 0,
+                  "landed": 0,
+                  "head": 0,
+                  "body": 0,
+                  "shoulder": 0,
+                  "blocked": 1,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 0,
+                  "power": 0,
+                  "control": 0,
+                  "knockdowns": 0
+                }
+              },
+              "merit": [
+                0.005333333333333339,
+                0.25
+              ]
+            }
+          ]
+        }
+      ],
+      "votes": [
+        "rabbit",
+        "rabbit",
+        "rabbit"
+      ],
+      "totals": {
+        "lion": {
+          "thrown": 1,
+          "landed": 0,
+          "head": 0,
+          "body": 0,
+          "shoulder": 0,
+          "blocked": 0,
+          "evaded": 0,
+          "missed": 0,
+          "quality": 0,
+          "power": 0,
+          "control": 1.0666666666666678,
+          "knockdowns": 0
+        },
+        "rabbit": {
+          "thrown": 0,
+          "landed": 0,
+          "head": 0,
+          "body": 0,
+          "shoulder": 0,
+          "blocked": 1,
+          "evaded": 0,
+          "missed": 0,
+          "quality": 0,
+          "power": 0,
+          "control": 0,
+          "knockdowns": 0
+        }
+      }
+    },
+    "record": {
+      "id": "mw80pvlm-y8gzcbfe",
+      "transactionId": "reward:mw80pvlm-y8gzcbfe",
+      "mode": "fight",
+      "species": "lion",
+      "control": "play",
+      "seconds": 120,
+      "hits": 0,
+      "attempts": 1,
+      "defences": 0,
+      "jumps": 0,
+      "result": "draw",
+      "xp": 94,
+      "coins": 42,
+      "evidence": {
+        "eventId": "E02",
+        "rivalId": "circuit",
+        "seed": 4213056598,
+        "rounds": 1,
+        "method": "draw",
+        "decision": "health",
+        "playerName": "School Runner",
+        "opponentName": "Circuit",
+        "stats": {
+          "lion": {
+            "landed": 0,
+            "thrown": 1
+          },
+          "rabbit": {
+            "landed": 0,
+            "thrown": 0
+          }
+        },
+        "cardTotals": [
+          [
+            9,
+            10
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            9,
+            10
+          ]
+        ],
+        "moveCounts": {
+          "jab": 1,
+          "cross": 0,
+          "hook": 0,
+          "rear_hook": 0,
+          "uppercut": 0,
+          "rear_uppercut": 0
+        }
+      }
+    },
+    "world": {
+      "version": 1,
+      "seed": 632343340,
+      "tutorial": {
+        "status": "new",
+        "steps": [
+          "practice",
+          "contacts",
+          "bout"
+        ]
+      },
+      "facilities": [
+        "canvas_marks"
+      ],
+      "rivals": {
+        "shadow": {
+          "simulatedPractice": 10,
+          "encounters": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "lastActivityId": null
+        },
+        "ember": {
+          "simulatedPractice": 11,
+          "encounters": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "lastActivityId": null
+        },
+        "circuit": {
+          "simulatedPractice": 10,
+          "encounters": 1,
+          "wins": 0,
+          "losses": 0,
+          "draws": 1,
+          "lastActivityId": "mw80pvlm-y8gzcbfe"
+        }
+      },
+      "events": {
+        "E01": {
+          "attempts": 1,
+          "completed": 1,
+          "lastActivityId": "mw80ps73-6u9a9nzx"
+        },
+        "E02": {
+          "attempts": 1,
+          "completed": 0,
+          "lastActivityId": "mw80pvlm-y8gzcbfe"
+        }
+      },
+      "progress": {
+        "activities": 4,
+        "training": 3,
+        "fights": 1,
+        "hits": 86
+      },
+      "processed": [
+        "mw80pia4-f38bqb7l",
+        "mw80pn86-85tu2bub",
+        "mw80ps73-6u9a9nzx",
+        "mw80pvlm-y8gzcbfe"
+      ],
+      "lastTickUTCday": 20765,
+      "digest": [
+        {
+          "id": "practice:20765",
+          "type": "simulation",
+          "cause": {
+            "fromDay": 20758,
+            "toDay": 20765,
+            "days": 7,
+            "gains": [
+              {
+                "id": "shadow",
+                "before": 0,
+                "after": 10
+              },
+              {
+                "id": "ember",
+                "before": 0,
+                "after": 11
+              },
+              {
+                "id": "circuit",
+                "before": 0,
+                "after": 10
+              }
+            ]
+          },
+          "text": {
+            "en": "7 simulated practice days for rival schools. No player matches were played; your resources are unchanged.",
+            "he": "7 ימי תרגול מדומים לבתי ספר יריבים. לא נערכו קרבות שחקן והמשאבים שלכם לא השתנו.",
+            "ru": "7 дней моделируемой практики школ-соперников. Бои игрока не проводились; ваши ресурсы не изменились."
+          }
+        },
+        {
+          "id": "tutorial:20765",
+          "type": "tutorial",
+          "cause": {
+            "tutorialStatus": "new"
+          },
+          "text": {
+            "en": "Your optional introduction has unfinished practice steps. Continue or skip any time.",
+            "he": "למבוא האופציונלי נותרו משימות תרגול. אפשר להמשיך או לדלג בכל עת.",
+            "ru": "Во вводном обучении остались задания. Продолжите или пропустите в любой момент."
+          }
+        },
+        {
+          "id": "event:E02:20765",
+          "type": "opportunity",
+          "cause": {
+            "eventId": "E02"
+          },
+          "opportunity": {
+            "kind": "event",
+            "id": "E02"
+          },
+          "text": {
+            "en": "An original offline event is available: AI Coach Invitational",
+            "he": "אירוע אופליין מקורי זמין: הזמנת מאמן הבינה",
+            "ru": "Доступно оригинальное событие без сети: Приглашение ИИ-тренера"
+          }
+        }
+      ],
+      "opportunity": {
+        "kind": "event",
+        "id": "E02"
+      }
+    }
+  },
+  "errors": [],
+  "browser": "155.0.8059.79",
+  "physicalPhone": false,
+  "clock": "Training uses real arena contacts and accelerated stepping; rival clock shortened near end for UI integration."
+}

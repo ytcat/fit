@@ -1,0 +1,94 @@
+{
+  "browser": "155.0.8059.79",
+  "physicalPhone": false,
+  "errors": [],
+  "isolation": {
+    "unchanged": {
+      "match": true,
+      "bones": true,
+      "camera": true
+    }
+  },
+  "sourceBaseline": "eec73c500951b61ea73eb382acd9a8325891e6b9",
+  "method": "480 deterministic 60Hz pose samples per clip; actual renderer screenshots at selected times. Pose sampling skips render submission between screenshots. Not a hardware FPS benchmark.",
+  "lessons": [
+    {
+      "id": "IQ-C01",
+      "calls": 136,
+      "triangles": 492189,
+      "memory": {
+        "geometries": 136,
+        "textures": 10
+      },
+      "samples": 481,
+      "maxHandErrorM": 6.206335383118183e-17,
+      "maxFootErrorM": 1.7554167342883506e-16,
+      "maxBoundaryWristJumpM": 0.00015445061637331392
+    },
+    {
+      "id": "IQ-C02",
+      "calls": 137,
+      "triangles": 492189,
+      "memory": {
+        "geometries": 138,
+        "textures": 10
+      },
+      "samples": 481,
+      "maxHandErrorM": 1.1102230246251565e-16,
+      "maxFootErrorM": 1.7772239894833365e-16,
+      "maxBoundaryWristJumpM": 3.982849292549773e-05
+    },
+    {
+      "id": "IQ-C03",
+      "calls": 136,
+      "triangles": 492189,
+      "memory": {
+        "geometries": 138,
+        "textures": 10
+      },
+      "samples": 481,
+      "maxHandErrorM": 1.1102230246251565e-16,
+      "maxFootErrorM": 1.8619006149354548e-16,
+      "maxBoundaryWristJumpM": 9.197769088409302e-05
+    },
+    {
+      "id": "IQ-C04",
+      "calls": 136,
+      "triangles": 492189,
+      "memory": {
+        "geometries": 138,
+        "textures": 10
+      },
+      "samples": 481,
+      "maxHandErrorM": 1.1102230246251565e-16,
+      "maxFootErrorM": 1.7554167342883506e-16,
+      "maxBoundaryWristJumpM": 0.00047778303927392685
+    },
+    {
+      "id": "IQ-C05",
+      "calls": 242,
+      "triangles": 937451,
+      "memory": {
+        "geometries": 244,
+        "textures": 15
+      },
+      "samples": 481,
+      "maxHandErrorM": 5.551115123125783e-17,
+      "maxFootErrorM": 1.8619006149354548e-16,
+      "maxBoundaryWristJumpM": 0.0007256187701438765
+    },
+    {
+      "id": "IQ-C06",
+      "calls": 136,
+      "triangles": 492189,
+      "memory": {
+        "geometries": 244,
+        "textures": 15
+      },
+      "samples": 481,
+      "maxHandErrorM": 1.1102230246251565e-16,
+      "maxFootErrorM": 1.6883057536160649e-16,
+      "maxBoundaryWristJumpM": 1.2085006055873038e-05
+    }
+  ]
+}

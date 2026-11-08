@@ -1,6 +1,6 @@
 # FIT: RISE OF THE CHAMPIONS
 ## Epic Product Requirements Document | Product vision + end-to-end player journey + full game systems
-**Status:** Proposed master design, not implemented; includes November 2026 V2 expansion. **Version:** 2.0 | **Date:** 8 November 2026 | **Platforms:** Mobile web and desktop web | **Repository:** `ytcat/fit`
+**Status:** Proposed master design, not implemented; includes November 2026 V2 expansion. **Version:** 2.1 (Phase 2 Fight IQ update) | **Date:** 8 November 2026 | **Platforms:** Mobile web and desktop web | **Repository:** `ytcat/fit`
 
 > **North star:** A living boxing universe where players train, invent tactics, evolve fighters, collect rewards, influence rivalries, run a gym, and eventually become architects of an enduring fighting legacy. Boxing is the expressive engine; decisions and progression are the game.
 
@@ -329,13 +329,14 @@ Inventory current mode/function behavior, list enabled features, screenshot base
 - 2 venues (starter and underground) if visuals meet frame budgets.
 **Acceptance:** New player reaches an earned unlock and a match result within ~10 min; progress survives refresh; all existing test suites pass; no duplicated reward grants; portrait mobile fully operable.
 
-### Milestone M2 — adaptive game depth
-- Coach mode with between-round strategy.
-- Tactical rules editor with 6 vetted blocks and sandbox test.
-- Rival memory from actual last 3–10 match records; clear counters/feedback.
-- 5 distinct challenge types; 2 rivals with tailored styles and scripted introduction.
+### Milestone M2 — adaptive game depth and Fight IQ (guided discovery)
+- Coach mode with between-round strategy and short, optional, context-aware practical boxing observations.
+- Tactical rules editor with 6 vetted blocks and sandbox test; learned principles can be tried as explainable counters.
+- Rival memory from actual last 3–10 match records; clear counters/feedback and coach advice grounded in observed behavior.
+- 5 distinct challenge types, including Fight IQ's 30–90-second tactical-choice puzzle; 2 rivals with tailored styles and scripted introduction.
 - Equipment/gym tier 1–2; rewards and previews.
-**Acceptance:** 3 replayable rematches demonstrate explainable different tactics; each has a viable counter; no cheating/no hidden perfect foresight.
+- Extend the R2 introductory Fight IQ lesson loop into personalized coach tips, relevant instant replay, and progressive tactical puzzle tiers. Review lessons for safe technique, precise animated demonstrations and accurate reward detection; do not claim to evaluate the player's real-world biomechanics without sensors.
+**Acceptance:** 3 replayable rematches demonstrate explainable different tactics, each with viable counterplay; a player can see a <=12-second optional context-based tip, apply its in-game decision to a short challenge and get truthful feedback; no cheating/no hidden perfect foresight; no intrusive mandatory tutorial.
 
 ### Milestone M3 — world and collection
 - Expand 4 fully animated fighters, 4 more arenas, 2 tournaments, 2 gym upgrades.
@@ -688,7 +689,7 @@ Local simulated leagues, NPC rival memory, event rotation, single-player academy
 ## 25. Release plan with concrete scope and exit gates
 **R1 — Playable economy and identity (small release; do first):** username; school name/crest; persistent profile; XP + Coins ledger; 12 purchasable/equip cosmetic items (simple material variants first), 4 combo unlocks, 4 equipment slots, 2-minute quick challenge, wallet/shop, real match result and reward screen; save/migration. **Exit:** complete first purchase in <=10 minutes, profile survives refresh, no duplicate coin grant, existing game unbroken, mobile usable.
 
-**R2 — School and short-session loop:** School hub, first facilities, tutorial, 3-minute challenge deck, gym art states, 3 rival profile screens, first world director digest, 2 original themed events from E01/E02. **Exit:** a player can play <3 min, earn and equip; after simulated 7-day absence catch-up is accurate and optional.
+**R2 — School, short-session loop and Fight IQ foundations:** School hub, first facilities, optional micro-onboarding (not a blocking tutorial), 3-minute challenge deck, gym art states, 3 rival profile screens, first world director digest, 2 original themed events from E01/E02. Add the first 12 curated real-boxing insight cards, 6 visually verified demonstrations, 6 short decision challenges (30–90 seconds), and a one-tip contextual coach surface. A valid challenge rewards modest XP/mastery for correct *in-game* decisions/timing, with anti-repeat caps. Keep TRAIN / FIGHT / WORLD prominent, with Learn/Fight IQ accessible inside them rather than a fourth mandatory main-mode control. **Exit:** a player can play <3 min, learn one relevant concept, earn and equip; tips are skippable/disableable, accurate and not repeated excessively; 7-day catch-up is accurate and optional; real-world technique is never asserted as measured without suitable sensing.
 
 **R3 — Strategy and evolving opponents:** Tactical rule editor, Coach mode, rival AI observation with bounded counteradaptation, named signatures, 4 branches of story arcs and first multi-stage school tournament. **Exit:** rival rematch differs for evidence-based reason and can still be won with counter-strategy.
 
@@ -699,6 +700,62 @@ Local simulated leagues, NPC rival memory, event rotation, single-player academy
 **R6 — Optional online expansion (separate architecture approval):** accounts, synced saves, signed match verification, public ladders, public UGC/multi-player challenge sharing, moderation and privacy. **Exit:** real server-authoritative verification and maintenance budget; otherwise explicitly defer.
 
 **Milestone discipline:** Each release should be a functional vertical slice. Code agents should not move to a higher release if lower-release acceptance fails or current main changed incompatibly. Use feature flags and reversible migrations. One master PRD, one implementation task per release, one acceptance matrix per PR; never let separate agents edit same core file simultaneously without integration ownership.
+
+## 25A. Phase-two educational gameplay — Fight IQ / Learn Without Stopping (authoritative scope)
+
+### 25A.1 Product intent and non-negotiable UX
+Fight IQ is NOT a textbook, obligatory tutorial tree, generic trivia feed, chatbot, or separate complex new menu. It is an integrated game mechanic: notice a real boxing principle -> see it in the existing 3D fighter -> make one easy decision -> try it in gameplay -> earn understandable feedback and a bounded reward. Keep the main entry points TRAIN, FIGHT and WORLD; use one-tap contextual "Try this" entry and a small optional Fight IQ collection under TRAIN. Never show more than one instructional prompt at a time. Every prompt dismissible in one tap; explicit 'Tips: Off / Occasional / On' preferences are persistent. Do not pause action unexpectedly or cover essential health/combat controls.
+
+### 25A.2 Four modes of contextual teaching
+1. **Training micro-tip:** During guard/jab/cross/hook/uppercut, display a 5–12-second optional visual example with one sentence (e.g., "Keep your free hand near your cheek while punching"). Use actual rig animation and frozen 3/4 + side angle when useful; show animated shoulders, feet and torso, not arm-only demonstration. Tooltip overlays only in safe UI area, never during high-input moments.
+2. **Fight coaching:** At natural breaks (before fight, between rounds, after repeated *verified* mistakes) suggest a specific response: "Their jab is predictable. Try slipping outside and countering." It must reference real fight events; no invented observations.
+3. **Post-fight micro-replay:** Optional 3–8-second replay of a valid recorded event, with a single observation about guard, range, pivot or counter. If replay data aren't available, use an explicitly labeled illustrated demonstration rather than presenting synthetic animation as an actual replay.
+4. **Fight IQ micro-challenge:** 30–90-second "What would you do?" scenario using 2–3 visually clear choices (slip/block/step/counter), followed by 3D demonstration, an immediately usable takeaway, and optional practice. A decision can be more than one right answer depending on context; the scenario's assumptions, success rules and rationale must be explicit.
+
+### 25A.3 Learning path and content catalog
+Six progressive tiers; allow early optional browsing, but don't overload onboarding:
+- Rookie: stance, hand guard, chin position, jab/cross balance, safe foot positioning.
+- Apprentice: straight punch recovery, lead/rear distinction, controlled pivots, range management.
+- Contender: slips, blocks, parries, defensive angle changes, counter timing.
+- Specialist: hooks/uppercuts driven by trunk/legs, combinations with safe exits, feints.
+- Champion: opponent pattern recognition, stamina/pacing, tactical adaptation, tempo control.
+- Mentor: teach tactics to academy fighters, compare coaching plans and explain trade-offs.
+
+Initial 12 reviewable lessons (IDs/one-line truths): `IQ-GUARD-01` free hand protects cheek; `IQ-STANCE-01` stance creates stable base; `IQ-JAB-01` jab travels and returns straight; `IQ-CROSS-01` rear-foot/hip pivot adds whole-body drive; `IQ-RECOVERY-01` recover guard after a punch; `IQ-DISTANCE-01` distance affects whether punches can land; `IQ-SLIP-01` slip is small balanced movement; `IQ-BLOCK-01` guard position follows target; `IQ-ANGLE-01` pivot can change attack angle; `IQ-FEINT-01` a feint draws a reaction; `IQ-BODY-01` protect your torso while defending; `IQ-PACING-01` conserve energy rather than always swinging at maximum force. Educational claims require editorial review by an appropriate boxing instructor or reliable technical source before publicly displaying them as authoritative coaching. No unsupervised real-world sparring advice; avoid injuries or dangerous impact drills. Offer a safety note for physical exercise and accessible nonphysical alternatives.
+
+Initial six playable challenges: `IQ-C01` guard during jab; `IQ-C02` choose reach vs step; `IQ-C03` identify cross hip/foot rotation; `IQ-C04` slip vs high jab; `IQ-C05` counter only when opening exists; `IQ-C06` choose a balanced exit. Challenge grading uses game state, commands, hit/avoid events, and optionally pose states of the *rendered avatar*, NEVER fabricated player-body tracking. Reward for correct choices/timing, capped repeated farming; no penalty for wrong answer beyond a friendly replay/try-again.
+
+### 25A.4 Coaching trigger rules / presentation
+- Source signals: valid landed/blocked/missed hit records, defensive input, repeatable distance error, fighter stamina, drill results and skill-unlock milestones.
+- Show proactive tips only at a calm moment: pre-round, between-round, post-round, drill pause, completion/reward screen; never on every punch.
+- At most one spontaneous tip per short session and one per fight unless player actively requests more; cooldown per tip ID across sessions; no duplicate reward for replaying an already-credited tip.
+- Personalize using local rolling history and an evidence threshold (e.g., >=3 similar recorded events); with sparse data show a general lesson, not an unfounded diagnosis.
+- One-line tip (ideally <=100 characters English), optional 5–12 s demo, buttons "Try", "Later", "Don't show tips"; RTL Hebrew and Russian localization. In-game teaching always visually represents authentic stance, whole-body sequence and opposing-hand protection.
+- Support reduced motion, sound off, text scale and no flashing effects; hints cannot obstruct essential game controls.
+
+### 25A.5 Learning, progression and economy contracts
+Achievement of `discovered -> viewed -> practiced -> mastered` must be logged separately. Viewing a clip alone does not certify skill. `Practiced` requires a valid challenge result; `mastered` requires a bounded number of varied successful scenarios over time, not identical tapping. Awards are virtual XP, small coin bonuses and approved technique fragments/unlocks; use existing immutable wallet ledger and idempotency keys. Player chooses whether unlocked combo is equipped in Training, Fight, both, or neither; rewards should emphasize mastery/utility, not pay-to-win power. Watch/Coach experience remains valid, but should not credit physical-execution mastery merely for watching. Tips-off users can complete equivalent challenges and earn all gameplay rewards.
+
+### 25A.6 Data schemas (logical contracts)
+`FightIQTip {id, tier, skillTags[], localizationKey, principle, evidenceRules, triggerContext[], demoId, optionalChallengeId, cooldownSessions, safetyReviewStatus, version}`.
+`FightIQChallenge {id, tier, scenarioId, choices[], validOutcomes[], explanationKey, timeLimitSec, conditionSet, rewardRuleId, version}`.
+`FightIQEvent {idempotencyKey, usernameProfileId, tipId, triggerSourceIds[], action:shown|dismissed|tried|completed|mastered, timestamp, outcome?, simulationSeed?, contentVersion}`.
+`LearningProfile {tipPreference, knownConceptIds[], practicedConceptIds[], masteredConceptIds[], perTipLastShown, perSkillRecentEvidence, schemaVersion}`.
+All content is locally bundled JSON with schema validation, a localization dictionary, and deterministic event/seed replay. Never place authoritative rewards inside untrusted downloaded event packs; current offline progress is local-device only until R6 backend exists.
+
+### 25A.7 Complete micro-journey examples
+**New player (<3 minutes):** Select username + Lion -> 15-second skippable moving guard example -> one jab/guard interactive choice -> "Guard the chin" one-line observation -> practice 2 correct in-game guard reactions -> modest XP + unlock progress -> player may continue FIGHT or exit; resume exactly where saved.
+**Returning player (2 minutes):** World shows "Your last rival landed three jabs" ONLY if verified; tap 45-second "Slip or Block?" scenario -> pick slip -> lion demonstrates small grounded head/body displacement with rear hand covering -> choose next Fight/Train step -> claim bounded reward -> exit.
+**Long session (30+ minutes):** Tackle evolving rival -> see two different defensive openings -> choose between-round coaching and Fight IQ short tip -> try a new counter strategy in fight -> review real replay -> progress toward a new signature combo -> decide if it belongs to Training/Fight.
+**Failure:** Wrong answer -> show why the chosen option didn't work in the simulation -> 3-second alternative preview -> free replay; no shaming, no artificial time pressure, no monetary purchase.
+
+### 25A.8 Engineering integration and scope controls
+Extend existing training, combat events and reward modules; no new physics engine, camera motion capture, paid AI subscription, cloud service or invasive sensor required. Implement structured local lesson registry and validation, an observational rules engine, composable one-tip UI, an animation/demo adapter that reuses existing named motion clips, persistent preference and progress, and a six-challenge evaluator. Do NOT alter fight outcomes to force a lesson. If an animation is not correct, flag its lesson unavailable instead of displaying false technical guidance. Keep fallback mode if fancy replay is too expensive; prioritize 60 FPS modern phone where attainable and 30 FPS fallback tested on lower tiers. New isolated modules should not overwrite actively developed motion systems.
+
+### 25A.9 Tests and release gates
+Automate: contextual tip only fires on sufficient real evidence; no unsolicited overlays mid-action; no duplicate learning rewards; pause/resume; tips off; deterministic seeded scenarios; localization EN/HE/RU (RTL and font scaling); reduced-motion fallback; all 12 content cards validate; all 6 challenges have accessible solvable outcomes; existing R1/M1 ledger and match history remain intact. Manual: demo matches actual biomechanical visual intent (guard wrist/foot/head/hip), player can dismiss any tip in <=1 tap, short challenge is complete in <=90 seconds, screen works at narrow mobile sizes. Capture front/side video or frames showing all six educational demonstrations and correct/incorrect outcome explanations. **R2 exit gate:** six playable Fight IQ challenges + 12 validated cards + correct rewards and suppression. **M2 exit gate:** coaching advice driven by actual observation and changed rival tactics; avoid unproven claims about physical technique.
+
+---
 
 ## 26. Actual Codex work order — no second brainstorming or research required
 > Open repository `ytcat/fit` at current `main`; read current file tree and active PRs. This PRD is the approved **target design**, not evidence of implemented behavior. Work on a new isolated branch/worktree. Implement **R1 end-to-end first**, not 200 unfinished stubs. Reuse the existing Three.js combat, animations, fight result, gym and career modules. Create an event/ledger adapter and storage compatibility layer, then username/school profile, store/inventory, combo equip, result/reward, quick action, regression tests and screenshots. Do not modify concurrent agents' branches. Keep free-currency-only, offline capability, existing EN/HE/RU translations and phone support. Publish a PR with working app link if deployment is available, actual before/after captures, passing test evidence, exact unfinished items and rollback. Continue to R2 only after R1 tests and integration pass. Stop on genuine unresolved repository conflict, security/privacy blocker or impossible engine dependency and report it precisely; otherwise make bounded decisions from the spec without seeking approval for every implementation detail.
