@@ -58,8 +58,12 @@ motion capture or a claim of complete physical simulation.
 Targeted checks cover all six punches to head/body, follow-through and recovery,
 simultaneous attacks, fixed arm lengths, own-face clearance, real mitt contacts,
 full-cycle rope clearance, cable outlets, species paw size, glove restoration,
-seed replay, manual takeover, pause and independent planted footwork. Final full
-CI evidence is recorded in `qa/tactics/results/validation.json` after completion.
+seed replay, manual takeover, pause and independent planted footwork. All 59 suites passed on runtime commit `9131377` in
+[full CI](https://github.com/ytcat/fit/actions/runs/42451073229), including syntax and
+local-asset checks. This includes the 108 simultaneous-punch cases, the stricter
+12-strike contact fixture and the final guard/shoulder checks. Exact provenance
+is recorded in `qa/tactics/results/validation.json`; current local guard/contact/
+gait logs are alongside it.
 
 [Actual app comparison and movement captures](../qa/tactics/review.html).
 The harness uses local Chromium and the existing app renderer. Matched skipping close-ups submitted 47 draw calls / 376,511 triangles after,

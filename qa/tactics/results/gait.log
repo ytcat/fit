@@ -11,7 +11,7 @@ coverage {
   'rabbit.parry': 'glove'
 }
 PASS sustained distinct guards, fixed arm lengths, real direction-led ring steps, planted canvas contacts and landing before contact {
-  maxPlant: 6.690187733356917e-16,
+  maxPlant: 5.446037196307369e-16,
   maxStep: 0.37054380732917025,
   officialClearance: 0.8358439120430132
 }

@@ -1,0 +1,13 @@
+{
+  "url": "https://github.com/ytcat/fit/actions/runs/42451073229",
+  "sha": "9131377d8fe4abdb9efc797bda961d32f76c6d80",
+  "status": "Success",
+  "suites": 59,
+  "baselineSha": "76e2c2422daba30576840d16ea7020939757c02e",
+  "browserSourceSha": "9131377d8fe4abdb9efc797bda961d32f76c6d80",
+  "browserStaticFrames": 5,
+  "browserMotionFrames": 24,
+  "browserErrors": [],
+  "physicalPhone": "NOT VERIFIED",
+  "runtimeAndTestsUnchangedInRelease": true
+}
