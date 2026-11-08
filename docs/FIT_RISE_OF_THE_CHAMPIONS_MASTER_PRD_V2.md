@@ -1,12 +1,14 @@
 # FIT: RISE OF THE CHAMPIONS
 ## Epic Product Requirements Document | Product vision + end-to-end player journey + full game systems
-**Status:** Proposed master design, not implemented; includes November 2026 V2 expansion. **Version:** 2.1 (Phase 2 Fight IQ update) | **Date:** 8 November 2026 | **Platforms:** Mobile web and desktop web | **Repository:** `ytcat/fit`
+**Status:** Proposed master design, not implemented; includes November 2026 V2 expansion. **Version:** 2.2 (Phase 2 Fight IQ update) | **Date:** 8 November 2026 | **Platforms:** Mobile web and desktop web | **Repository:** `ytcat/fit`
 
 > **North star:** A living boxing universe where players train, invent tactics, evolve fighters, collect rewards, influence rivalries, run a gym, and eventually become architects of an enduring fighting legacy. Boxing is the expressive engine; decisions and progression are the game.
 
 ![Concept storyboard (illustrative, not actual built UI)](assets/vision_storyboard.png)
 
 ## 0. Reading guide and decisions
+
+> **V2.2 terminology and usability decision:** The player-facing organization is a **Boxing Club** (short label: **Club**), never a "School". The advanced coaching institution unlocked later may be called an **Academy**. Preserve the legacy persisted `game.school` data key and old quest IDs for save compatibility until a separately tested migration exists; never expose those internal names in UI, localization, player-facing copy or analytics labels.
 This document defines a *future product*, not current features. The screenshots in this report are generated concept illustrations, **not screenshots of implemented software**. The product specification and diagrams below are authoritative where a generated picture differs in labels, numbers or UI.
 
 **Player identity** is the profile username, never merely the fighter species. Fight introductions: **Yossi (Lion) vs Shadow (Rabbit)**, not just Lion vs Rabbit. Each fighter is an avatar under a named owner (human or in-world NPC). The owner username appears in result, scoreboard, achievements, tournaments, replay and history. Avoid suggesting the game is only about boxing; preserve the core fitness training use case and offer four play modes: Play, Coach, Architect and Watch.
@@ -754,6 +756,72 @@ Extend existing training, combat events and reward modules; no new physics engin
 
 ### 25A.9 Tests and release gates
 Automate: contextual tip only fires on sufficient real evidence; no unsolicited overlays mid-action; no duplicate learning rewards; pause/resume; tips off; deterministic seeded scenarios; localization EN/HE/RU (RTL and font scaling); reduced-motion fallback; all 12 content cards validate; all 6 challenges have accessible solvable outcomes; existing R1/M1 ledger and match history remain intact. Manual: demo matches actual biomechanical visual intent (guard wrist/foot/head/hip), player can dismiss any tip in <=1 tap, short challenge is complete in <=90 seconds, screen works at narrow mobile sizes. Capture front/side video or frames showing all six educational demonstrations and correct/incorrect outcome explanations. **R2 exit gate:** six playable Fight IQ challenges + 12 validated cards + correct rewards and suppression. **M2 exit gate:** coaching advice driven by actual observation and changed rival tactics; avoid unproven claims about physical technique.
+
+---
+
+## 25B. Player feedback upgrade — Boxing Club terminology, intuitive controls and immediate combat input
+
+### 25B.1 Terminology correction (all player-facing surfaces)
+- Replace every visible use of **School / Your school / School name / Save school / school hub / build your school** with **Boxing Club / Your Boxing Club / Club name / Save club / Boxing Club hub / build your club**. Use "Club" where a short nav label is required; use "Boxing Club" in headings and explanatory copy. The advanced institution later in progression is an **Academy**, not a school.
+- Hebrew examples: "מועדון האגרוף שלך", "שם המועדון", "שמירת המועדון", "בנו את מועדון האגרוף שלכם". Russian equivalents must be professionally localized (e.g. "Боксёрский клуб", "Название клуба").
+- Audit EN/HE/RU, profile creation, rename form, default generated name, world hub, menu labels, reward/quest titles, tooltips, export/import, settings, onboarding and all empty/error states. No mixed old/new terminology.
+- Keep `game.school` as a backward-compatible internal storage key and retain existing IDs such as `steady_school` / `school_minutes` until an explicit schema migration is separately approved and tested. For legacy auto-generated names ending exactly in " School", offer a safe display/migration to " Boxing Club"; never rewrite a player-customized club name. Add migration tests.
+
+### 25B.2 Navigation and menu information architecture
+- Simplify the primary navigation to: **World | Train | Fight | Combos | Boxing Club** (translated). Replace vague "Lab" with "Combos" or "Moves & Combos" based on available width. "Club" may be used in the compact nav; the full page title is Boxing Club.
+- Keep only primary destinations in the main nav. Place Shop, Locker, Equipment, Player profile, Activity history, Settings and Academy under the relevant World/Club pages with clear section names; avoid duplicate entry points and ambiguous icons without labels.
+- Each screen must answer: "Where am I?", "What can I do here?", "What is the primary action?", "How do I return?" Use consistent selected states, clear page titles, short labels, visible back/close controls and no hidden critical action.
+- Preserve classic interface fallback until the new navigation passes mobile and desktop usability checks.
+
+### 25B.3 Manual Play controls — visible dropdown lists of actual buttons
+- Current implementation has manual controls split into left/right vertical rails and a three-page selector. This is too hard to discover. Replace the default with a simple touch-first action dock containing two prominent, persistent controls: **Moves ▾** and **Combos ▾**; optional third **Defense ▾** if it reduces clutter rather than adding it.
+- Tapping a control opens a non-modal dropdown/popover anchored to that control, containing a clear grid/list of large labeled buttons. Do not use a native select for actions: each move/combo must be an actual button, visible and tappable. The list must not pause the fight, set `ringfighterGame.isModalOpen`, or block `canAct()`.
+- Moves list: Jab, Cross, Lead Hook, Rear Hook, Lead Uppercut, Rear Uppercut. Defense/footwork list: High Guard, Body Guard, Parry, Slip Left, Slip Right, Roll, Step In, Step Back, Left/Right Step. Group and label logically; do not force the player to infer moves from "lead/rear" side rails.
+- Combos list: show all owned combos equipped for the current mode first, with name and sequence preview (e.g. "1–2 · Jab → Cross"); tapping a button executes it. Locked/unowned combos may appear below with unlock progress, but must be visibly disabled and must never masquerade as usable. Keep mode-specific Training/Fight equip status clear. Add a direct link to Combo Loadouts when needed.
+- On touch, all buttons target >=44 CSS px, have clear pressed/queued/active states, support RTL and safe areas, and do not cover the fighter's hands/feet or essential HUD. Close popover with outside tap, Escape, or selecting an action; maintain keyboard shortcuts.
+- Keep the old advanced split layout only as an optional "Advanced controls" preference, not the default. Ensure the first-time player can find Moves and Combos without opening Settings or reading a tutorial.
+
+### 25B.4 Input responsiveness and FIFO action queue (critical gameplay requirement)
+**Observed current failure in source:** `BoxingInput.canCombo()` rejects input while a combo/current queue exists; `BoxingFight.requestPlayerCombo()` rejects if `playerCombo` or `playerQueue` is non-empty; `requestPlayerMove()` clears the active combo and queue. This explains why rapid taps are rejected or interrupt sequences. Fix the shared input + fight controller as one tested change, not a UI-only workaround.
+- Implement a unified bounded FIFO of **action groups** (single move or complete combo). A combo is atomic: all its component moves execute contiguously; a later combo/move cannot interleave midway.
+- If fighter is idle and the match is accepting input, start the first command synchronously in the same input event / simulation tick. Do not wait for the 120 ms UI polling timer, a later user click, or the next combo completion to accept the command. The first visible pose must begin on the next render frame (target <=50 ms at 60 FPS; measure on real devices).
+- If an action/combo is already running, accept subsequent inputs into FIFO order. At minimum: current action + **three complete queued combo groups**. Also allow a small bounded number of queued single moves. A rapid sequence of three combo taps must accept all three, start the first immediately and execute the second and third in exact tap order after each prior combo completes.
+- A single move tapped during a combo is queued after the complete combo, never clears or interrupts it. A combo tapped during a single move is queued after that move. Do not silently drop accepted commands.
+- Use unique queue-group IDs; expose active group, active step, queued group count and next queued label to the UI. Show clear visual feedback ("Playing 1–2, next: Counter Chain · 2 queued"). If capacity is reached, show a clear non-blocking "Queue full" state and let player clear waiting groups. Provide **Clear queue** for pending groups only; do not cancel an active strike unless an explicit cancel action is designed and tested.
+- Define phase rules: reject new actions before bell, after final result, during count/knockdown, when player is down or manual control disabled; clear pending groups safely on round end, KO, mode/target/character change, player disable or match disposal. Never execute stale queued commands in a later fight.
+- Maintain correct current combo metadata when one group finishes and next begins; do not display stale combo name/step. Preserve contact timing and genuine collision-based scoring. The queue must not create free hits or bypass defensive windows.
+- UI must not disable all combo buttons just because a move is active. Enable them when queue capacity and phase allow. Acceptance is based on successful enqueue, not "can start immediately".
+
+### 25B.5 Combat range and biomechanical quality
+- User feedback: opponents are currently too close; straight punches look insufficiently extended; whole-body rotation, rear-leg drive and opposite-hand defense need to read more clearly.
+- Baseline current positions and the existing dynamic range correction in `fight-arena.js` (`separateTorso()`, currently with a 1.02 m base clearance plus jab/cross preparation). Do not blindly overwrite this solver. Measure shoulder-to-target distance, glove reach, torso clearance and ring-edge capacity first.
+- Increase default starting separation modestly (initial target: 10–15% beyond current measured spacing, then calibrate) so the jab/cross can extend convincingly while still reaching the opponent without teleporting or whiffing. Keep dynamic range adjustment for long straights; preserve collision clearance and foot planting. Do not push fighters into ropes/referee or outside ring bounds.
+- At valid jab/cross contact, target a near-full but safe elbow extension (roughly 10–20 degrees of flexion, not a locked/hyperextended elbow); wrist/knuckles aligned with forearm; glove orientation correct; shoulder protraction; head remains protected and balanced. Actual impact point must still be reached by the rendered glove, not a fake distance score.
+- Rear cross: visible rear-foot pivot/heel release, rear hip rotation, pelvis and thorax rotation, shoulder drive and weight transfer. Jab: lead-side extension and shoulder protraction with controlled lead-foot support/step as appropriate. Maintain the non-punching glove close to cheek/temple throughout straight punches and return the punching glove to guard after contact. Hooks/uppercuts retain their distinct mechanics; do not straighten all punches.
+- Add whole-body motion checks: head movement, shoulder girdle/scapula, chest/spine, hips, knees, feet, both gloves and counterbalance. No arm-only movement, frozen feet, foot sliding, armpit distortion, wrist collapse or opposite hand dropping.
+- Opponent spacing must adapt naturally during attack, retreat, slip, recoil and ring-edge movement. Never simply increase a fixed root offset and cause missed punches. Measure both lion and rabbit proportions.
+
+### 25B.6 Required acceptance tests / evidence
+1. **Terminology:** search all UI/localization for "School"/"בית הספר"/Russian "школа"; no user-facing legacy label remains; old saves load and custom names remain unchanged.
+2. **Discoverability:** fresh user finds Moves and Combos from manual Play in <=2 taps; each dropdown shows actual labeled buttons; can close it without pausing fight; mobile portrait and desktop pass.
+3. **Rapid input:** while idle tap combo A, B and C within 300 ms. A starts immediately; B/C both accepted and execute in order. Repeat while first combo is active. Repeat move -> combo -> move. Test queue full, clear queue, round transition, KO, mode switch, player switch, refresh and disposal. No lost or duplicated actions.
+4. **Latency:** timestamp pointer event, accepted enqueue, first pose change and first action tick; target <=50 ms event-to-visible motion on 60 FPS device; report measured p50/p95, do not claim without device evidence. Do not use a 120 ms polling loop for action start.
+5. **Fight realism:** record jab/cross at front, side, rear 3/4 views for both fighters. Verify safe near-full extension, wrist alignment, opposite glove guard, rear-foot pivot/hip rotation, body weight transfer, contact and recoil. Verify starting separation and dynamic spacing without whiffs, overlap or ring-boundary violations.
+6. Existing tests, EN/HE/RU, mobile touch, save/ledger/reward tests, performance and existing training/fight modes all pass. Capture before/after videos and state exact tested devices.
+
+### 25B.7 Files to inspect first (do not assume these are the only files)
+- Terminology/state: `game-shell.js` (currently user-facing "Your school"/"School name" in EN and "בית הספר שלך"/"שם בית הספר" in HE), `game-domain.js` (legacy persisted `g.school`, default generated name and old quest IDs), `club-interface.js`, `career-interface.js`, localization and profile/import/export paths.
+- Controls: `ringfighter-controls.js`, `ringfighter-controls.css`, `ringside-layout.js`, `training-controls.js`, `game-shell.js`.
+- Queue: `boxing-input.js` and `boxing-fight.js` must be changed and tested together. Current match API has a short `playerQueue` and a single `playerCombo`; do not patch only the front-end.
+- Biomechanics/range: `boxing-coach-v2.js`, `fight-arena.js` (especially `separateTorso()`), `boxing-fight.js`, `contact-response.js`, plus current pose and collision QA.
+- Inspect the current branch and uncommitted/concurrent agent work before editing. Work in a dedicated branch/worktree, avoid overlapping edits with the active PRD implementation, preserve current features and run the full existing regression suite.
+
+### 25B.8 Implementation order
+1. Inventory current UI and record short screen-capture baseline; apply terminology/localization and compatibility tests.
+2. Simplify navigation and implement the Moves/Combos button dropdowns; test usability on phone and desktop.
+3. Implement unified FIFO queue in input + match state machine; write tests before changing combat timing.
+4. Tune opponent spacing and full-body straight-punch biomechanics with multi-angle evidence.
+5. Integrate, run full regression/performance tests, publish PR and provide before/after evidence. Do not mark a phase complete from source inspection alone.
 
 ---
 
