@@ -30,3 +30,14 @@ Real-world flavor comes from original fictional seasonal events, never unlicense
 
 ## Output contract
 A milestone PR is done only when its user journeys are demonstrable, tests/screenshots exist, save migrations pass and prior modes work. Commit completed work with a changelog and exact next milestone. Do not merely write a plan; implement the agreed phase systematically. Do not force merge concurrent branches.
+
+---
+## Branding, legal scope, and version handoff
+- **Working player-facing game title:** Glory of the Ring.
+- **Technical name:** FIT / `ytcat/fit` remains unchanged. Do not rename source identifiers.
+- **Trademark:** Formal clearance pending; avoid claiming a registered or conflict-free title.
+- **Game source:** https://github.com/ytcat/fit
+- **Live app:** Unverified. Read repository's actual publishing configuration before linking it.
+- **Current PRD:** [V2 master](FIT_MASTER_PRD_V2.md) + [V2 expansion](EXPANSION_V2.md).
+- **Next PRD:** V3 does not exist; when V2 milestones are independently verified, create `../V3/GLORY_OF_THE_RING_PRD_V3.md` with acceptance evidence, implementation gap analysis and next milestones; then link it here and in the root index.
+- End all future PRDs with a VERIFIED VERSION HANDOFF (app URL, commit SHA/branch, QA, implemented vs pending, next relative link and rollback).
