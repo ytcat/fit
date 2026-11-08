@@ -8,7 +8,7 @@ const server=http.createServer((req,res)=>{let f=path.resolve(root,'.'+decodeURI
  for(const actor of ['lion','rabbit'])for(const move of ['jab','cross'])for(const situation of ['body','open_head','blocked_head'])for(const time of [.20,.35,.42,.65]){
   const state=await p.evaluate(({actor,move,situation,time})=>{
    const e=app.engine,career=e.career;e.career=null;e.fightOptions={seed:74};trainingControls.chooseTarget('fight');e.career=career;e.isPlaying=false;
-   const v=e.arena.fightView,m=v.match;m.phase='round';m.decide=()=>{};for(const f of Object.values(m.fighters)){f.action=null;f.next=Infinity;f.tempo=1;}
+   const v=e.arena.fightView,m=v.match;m.phase='round';m.roundTime=2;m.decide=()=>{};for(const f of Object.values(m.fighters)){f.action=null;f.next=Infinity;f.tempo=1;}
    const receiver=actor==='lion'?'rabbit':'lion';if(situation==='open_head')m.fighters[receiver].action={id:900,actor:receiver,move:'guard',guardStyle:'body',start:-1.75,duration:5,attack:false,defend:true};
    m.attack(actor,move,situation==='body'?'body':'head');const events=[];for(let i=0;i<Math.round(time*60);i++)events.push(...v.step());
    const c=v.coaches[actor],side=move==='jab'?'L':'R',a=c.point(c.joints['arm'+side]),b=c.point(c.joints['elbow'+side]),d=c.point(c.joints['hand'+side]);

@@ -34,3 +34,8 @@ and produced numerical/browser evidence. Physical-phone performance is not
 verified. This is a visually plausible animation/contact upgrade, not a new
 full-body physics simulation. Existing model, audio, other training modes and
 skeleton are preserved. Rollback: revert the isolated application commit.
+
+Capture provenance: fixed seed 74, elapsed strike frames .20/.35/.42/.65 s,
+round clock starts at 2 s to clear the round-opening HUD announcement in both
+versions. The candidate capture source is `7070223`; its application runtime is
+identical to `4f2bf71`. Render resolution and camera are matched.
