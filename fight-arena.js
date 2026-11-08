@@ -112,12 +112,38 @@
     const anchor=n=>{
      // Independent bounded waypoints: neither fighter is translated by the
      // opponent's clock. Convex corner exclusion also holds between anchors.
-     const offset=index?1.7:0,p=V(.48*(Math.sin(n*.48+offset)-Math.sin(offset)),0,sign*(.60+.08*Math.sin(n*.71+offset))+.20*(Math.sin(n*.35+offset)-Math.sin(offset)));
+     const offset=index?1.7:0,p=V(.64*(Math.sin(n*.56+offset)-Math.sin(offset)),0,sign*(.60+.08*Math.sin(n*.71+offset))+.20*(Math.sin(n*.35+offset)-Math.sin(offset)));
      p.x=clamp(p.x,-.88,.88);p.z=clamp(p.z,-.96,.96);const spill=Math.max(0,p.x-p.z-.78)*.5;p.x-=spill;p.z+=spill;return p;
     };
-    paths[actor]={from:anchor(beat),to:anchor(beat+1),phase,ease,mobile,weight:m.phase==='round'?1:0};
+    const from=anchor(beat),to=anchor(beat+1);paths[actor]={from,to,centre:from.clone().lerp(to,ease),delta:to.clone().sub(from),phase,ease,mobile,weight:m.phase==='round'?1:0};
    }
    this.travelTime=this.walkers.lion.time;return paths;
+  }
+
+  plantFeet(){
+   if(this.match.phase!=='round'){this.footPlants={};return;}
+   this.footPlants=this.footPlants||{};
+   for(const actor of ['lion','rabbit']){
+    const coach=this.coaches[actor],parent=coach.root.parent;
+    if(this.match.fighters[actor].down){delete this.footPlants[actor+'L'];delete this.footPlants[actor+'R'];continue;}
+    let changed=false;
+    for(const plan of coach.metrics.footTargets){
+     const side=plan.side,key=actor+side,foot=coach.joints['foot'+side];
+     if(plan.lift>1e-7){delete this.footPlants[key];continue;}
+     const sole=foot.localToWorld(V(0,-.102,.215)),current=parent.worldToLocal(sole.clone());
+     if(!this.footPlants[key]){this.footPlants[key]=current;continue;}
+     // Anchor in ring coordinates, so orbiting the whole scene does not drag
+     // the feet. Keep the authored heel pivot around this forward sole point.
+     const delta=parent.localToWorld(this.footPlants[key].clone()).sub(sole);
+     if(delta.lengthSq()<1e-14)continue;
+     const worldQ=foot.getWorldQuaternion(new THREE.Quaternion()),localQ=coach.root.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(worldQ);
+     const target=coach.root.worldToLocal(foot.getWorldPosition(V()).add(delta));
+     plan.error=coach.solve(coach.joints['thigh'+side],coach.joints['knee'+side],foot,target,V(side==='L'?-.07:.07,0,1));coach.orient(foot,localQ);
+     const shin=coach.point(coach.joints['knee'+side]).sub(coach.point(foot)).normalize().applyQuaternion(localQ.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);
+     plan.ankle=coach.point(foot).toArray();plan.contact=coach.root.worldToLocal(parent.localToWorld(this.footPlants[key].clone())).toArray();changed=true;
+    }
+    if(changed)coach.syncSkin();
+   }
   }
 
   pose(){
@@ -174,6 +200,7 @@
    if(m.phase==='round'){this.stabilizeBends();this.clearOwnFaces();}
    a.group.updateMatrixWorld(true);
    if(m.phase==='round')this.separateTorso();
+   this.plantFeet();
    this.referee.root.position.set(ceremony?1.13*(1-ease):1.13,0,ceremony?-.83+.71*ease:-.83);this.referee.root.rotation.y=ceremony?-.55*(1-ease):-.55;
    a.group.updateMatrixWorld(true);
    let grip=null,side=1;
