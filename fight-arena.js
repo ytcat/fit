@@ -310,19 +310,24 @@
    this.clearOwnFaces();
    // Clearing a muzzle or forearm can move the padded knuckles back into
    // the opponent's arm. Finish on the coupled glove/face constraints too.
-   for(let pass=0;pass<4;pass++){
-    const faceChanged=this.clearOwnFaces();let overlap=false;
+   const finishPoles={};for(const actor of ['lion','rabbit'])for(const side of ['L','R'])finishPoles[actor+side]=this.coaches[actor].armBendReference(side);
+   for(let pass=0;pass<6;pass++){
+    const faceChanged=this.clearOwnFaces();let overlap=false;const armOverlaps=[];
     for(const actor of ['lion','rabbit'])for(const [i,side] of ['L','R'].entries()){
      const coach=this.coaches[actor],p=coach.root.localToWorld(V(...coach.metrics.gloves[i].knuckles));
      if(this.collision(p,other(actor)).penetration>.010)overlap=true;
+     const elbow=coach.joints['elbow'+side].getWorldPosition(V()),wrist=coach.joints['hand'+side].getWorldPosition(V());
+     const samples=[{p,r:.078},{p:wrist,r:.05},... [.35,.65].map(t=>({p:elbow.clone().lerp(wrist,t),r:.052}))];
+     if(samples.some(s=>this.solidContact(s.p,other(actor),actor,s.r).penetration>.014)){armOverlaps.push([actor,side]);overlap=true;}
     }
     if(!faceChanged&&!overlap)break;
     for(const actor of ['lion','rabbit'])for(const side of ['L','R']){
      const coach=this.coaches[actor];coach.constrainGlove(side,p=>{
       const opponent=this.collision(p,other(actor)),solid=this.solidContact(p,other(actor),actor);
       return solid.penetration>opponent.penetration?solid:opponent;
-     },.008,coach.armBendReference(side));
+     },.008,finishPoles[actor+side]);
     }
+    for(const [actor,side] of armOverlaps)this.coaches[actor].constrainArm(side,(p,r)=>this.solidContact(p,other(actor),actor,r),.012,finishPoles[actor+side]);
    }
    this.clearOwnFaces();
    for(const actor of ['lion','rabbit'])for(const side of ['L','R'])this.bendFrames[actor+side]={...this.coaches[actor].armBendReference(side),time:this.match.time};
