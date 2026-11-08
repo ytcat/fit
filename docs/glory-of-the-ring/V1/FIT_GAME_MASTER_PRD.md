@@ -370,3 +370,10 @@ Activation: onboarding completion, first valid punch, first reward claim, first 
 The first 10 minutes produce a satisfying reward and personalized fight. By the first week, the player has discovered a signature tactic and an opponent who reacts to it. By the first month, there are real choices about style, equipment, gym and competition. By the long-term endgame, the player owns a named legacy of fighters, combos, trophies and stories—not just a large number next to an XP bar. Every world change must be visible, earned, and grounded in verified gameplay events.
 
 **END OF SPECIFICATION**
+
+---
+## VERSION HANDOFF — V1 → V2
+**Public working title:** Glory of the Ring. **Repo:** https://github.com/ytcat/fit
+**Live app:** Not yet verified; inspect deployment configuration before providing URL.
+**Next PRD:** [V2 — Full living-world master PRD](../V2/FIT_MASTER_PRD_V2.md).
+**Implementation:** This is a proposed specification, not proof of implementation. Read V2, its expansion, and [Codex execution contract](../V2/CODEX_START_HERE.md) before coding. Track exact commits, tests, screenshots and unmet acceptance criteria. Retain compatibility with current FIT identifiers.
