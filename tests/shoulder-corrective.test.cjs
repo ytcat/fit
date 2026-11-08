@@ -12,7 +12,13 @@ for(const species of ['lion','rabbit']){
    for(const i of selected){const p=c.skinPoint(c.skin,i),original=legacy.skinPoint(legacy.skin,i);assert.ok(p.toArray().every(Number.isFinite));assert.ok(p.distanceTo(original)<=.025003,'correction stays bounded after pose/root rotation');}
   }
  }
- c.root.rotation.y=0;c.update(0,'guard','one_two',{simulationTime:0});legacy.root.rotation.y=0;legacy.update(0,'guard','one_two',{simulationTime:0});assert.ok(c.shoulderUniforms.weight.value.x>.9999&&c.shoulderUniforms.weight.value.y>.9999);let visible=0;for(const i of selected)visible=Math.max(visible,c.skinPoint(c.skin,i).distanceTo(legacy.skinPoint(legacy.skin,i)));assert.ok(visible>.003,'guard correction must affect the real rendered surface');
+ // Full activation belongs to the baked reference pose. The newly staggered
+ // guard is deliberately different and should blend rather than force a cached
+ // sculpt to full weight at an unrelated shoulder angle.
+ const chestFrame=c.root.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(c.joints.chest.getWorldQuaternion(new THREE.Quaternion()));
+ for(const [i,side] of ['L','R'].entries())c.orient(c.joints['arm'+side],chestFrame.clone().multiply(new THREE.Quaternion().fromArray(c.shoulderData.shoulderQuaternions[i])));
+ c.syncSkin();assert.ok(c.shoulderUniforms.weight.value.x>.9999&&c.shoulderUniforms.weight.value.y>.9999,'baked reference must still fully activate');
+ c.root.rotation.y=0;c.update(0,'guard','one_two',{simulationTime:0});legacy.root.rotation.y=0;legacy.update(0,'guard','one_two',{simulationTime:0});let visible=0;for(const i of selected)visible=Math.max(visible,c.skinPoint(c.skin,i).distanceTo(legacy.skinPoint(legacy.skin,i)));assert.ok(visible>.003,'guard correction must affect the real rendered surface');
  const points=selected.map(i=>c.skinPoint(c.skin,i).toArray()),weights=c.shoulderUniforms.weight.value.toArray();c.update(0,'guard','one_two',{simulationTime:0});assert.deepEqual(c.shoulderUniforms.weight.value.toArray(),weights);assert.deepEqual(selected.map(i=>c.skinPoint(c.skin,i).toArray()),points,'freeze must not drift');assert.deepEqual(c.joints.elbowL.position,start,'no stretched arm bones');
  const fur=c.bodyFur.geometry,fd=fur.attributes.shoulderDelta;assert.ok(fd&&fd.count===fur.attributes.position.count);for(let i=0;i<fd.count;i+=3)for(let k=1;k<3;k++)for(let j=0;j<4;j++)assert.equal(fd.array[(i+k)*4+j],fd.array[i*4+j],'fur roots and tips must follow one continuous surface correction');
  for(const mat of [c.skin.material,c.skin.customDepthMaterial,c.skin.customDistanceMaterial]){const shader={uniforms:{},vertexShader:'#include <common>\n#include <begin_vertex>\n#include <project_vertex>'};mat.onBeforeCompile(shader);assert.ok(shader.vertexShader.includes('transformed+=(shoulderFrame*vec4(shoulderDelta.xyz,0.0)).xyz*shoulderAmount;'),'color and shadow positions must match');}
