@@ -1261,7 +1261,7 @@
         // either leg; moving the pelvis after the first solve causes skating.
         this.root.updateMatrixWorld(true);let supportedY=hips.position.y;
         for(const {side,ankle} of footPlans){
-          const start=this.point(j['thigh'+side]),reach=j['knee'+side].position.length()+j['foot'+side].position.length()-.002;
+          const start=this.point(j['thigh'+side]),reach=j['knee'+side].position.length()+j['foot'+side].position.length()-(options.legReachMargin??.002);
           const dx=start.x-ankle.x,dz=start.z-ankle.z,vertical=Math.sqrt(Math.max(.001,reach*reach-dx*dx-dz*dz));
           supportedY=Math.min(supportedY,hips.position.y+ankle.y+vertical-start.y);
         }
@@ -1419,6 +1419,9 @@
           if(!planStraight||iteration)targetHand.addScaledVector(V(...options.knuckleTarget).sub(V(...gloves[index].strikePoint)),weight);
           const shoulder=this.point(j['arm'+side]),reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-(hookState?Math.max(.04,options.armReachMargin??.002):(options.armReachMargin??.002));
           targetHand.copy(shoulder.clone().add(targetHand.clone().sub(shoulder).clampLength(0,reach)));
+          // Fight intent reaches along the aim ray; actual contact still stops
+          // the glove in the arena solver. Keep a small unlocked elbow margin.
+          if(planStraight&&options.extendStraight)targetHand.copy(shoulder.clone().add(targetHand.clone().sub(shoulder).normalize().multiplyScalar(reach)));
           let preferred=pole;
           if(options.strikeDirection&&hookState){
             const axis=targetHand.clone().sub(shoulder).normalize();
