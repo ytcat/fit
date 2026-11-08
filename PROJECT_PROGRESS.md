@@ -1,3 +1,10 @@
+## 2026-11-08 — Guards, paws and independent tactics
+
+Normal defense now staggers glove depth; skipping uses broader species paws.
+Separate ring walkers plant for their own attacks. AI uses four tactical families
+and 12 short phrases; training adds four presets (44 total) and generated openings.
+[Implementation and verification](docs/guard-paws-tactics.md).
+
 ## 2026-11-07 — Master-brief first motion milestone
 
 Final-pose audit and capped clock contracts added; mitt station pilots 120-Hz

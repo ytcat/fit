@@ -1,5 +1,9 @@
 # RingFighter — 3D Boxing
 
+Staggered guards, larger species-specific skipping paws, independent ring footwork,
+12 AI tactical phrases and 44 training presets.
+[Changes and actual app captures](docs/guard-paws-tactics.md).
+
 Master-brief first milestone: final-pose contracts, rate-independent mitt training,
 all six punches and compact uppercut catches.
 [Actual comparisons, validation and remaining work](docs/realism/first-motion-milestone.md).
