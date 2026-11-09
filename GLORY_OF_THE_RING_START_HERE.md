@@ -26,3 +26,7 @@
 Current authoritative version: [V2](docs/glory-of-the-ring/V2/FIT_MASTER_PRD_V2.md). Future V3: `docs/glory-of-the-ring/V3/GLORY_OF_THE_RING_PRD_V3.md` **does not exist yet**. Continue next work by reading V2 and the execution contract; generate a V3 spec after evaluating actual build progress, then add the link here.
 Repo: https://github.com/ytcat/fit
 Live application: not yet verified (read deployment config).
+
+## Live feedback & fixes — read on EVERY coding session
+
+**FIRST ACTION:** Open [the permanent feedback backlog](docs/glory-of-the-ring/FEEDBACK_BACKLOG.md), triage all open items and reconcile with concurrent agent work. When the user reports a new bug or improvement, append it there with a stable ID, priority, expected behavior and acceptance criteria. Do not create a new PRD for every user report. At handoff update each item's status, tests, commit/PR and remaining work. Read [AGENTS.md](AGENTS.md) and follow its instructions. A document update does not implement a fix; implementation and verification must follow.
