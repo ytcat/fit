@@ -1,3 +1,20 @@
+## 2026-11-09 — Short sessions, compact store and safe station return
+
+[RingFighter app](https://ytcat.github.io/fit/). Bug release `2e855e7` fixes closed
+boot shafts, moving directional shadows, queued punch combinations, 15-second
+training, short fights, name-only results and KO presentation; it adds a compact
+pictured store with fitted accessories. [Evidence and limits](docs/game/short-session-bugfix.md).
+
+F-006 (implementation `372241c`) adds per-profile **Return to station** in World:
+restore the fighter/station/routine paused, then start a fresh 15-second workout.
+Reload cannot overwrite the saved station with startup defaults. Career rewards,
+wallet, live bouts and clocks are not restored. [Contract and checks](docs/game/F006-station-resume.md).
+
+Remaining work stays isolated: unsafe crossover, venue/tournament integration,
+and later PRD/realism gates. Do not call the entire roadmap complete or reapply
+old branches over this version. End work at a verified published milestone and
+provide its versioned app link; account token allowance is not observable here.
+
 ## 2026-11-08 — Guards, paws and independent tactics
 
 Normal defense now staggers glove depth; skipping uses broader species paws.

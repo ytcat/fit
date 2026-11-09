@@ -1,0 +1,21 @@
+{
+  "baselineSha": "2e855e72c6caf7c05f38afb8f718eebba4f6c9cf",
+  "implementationSha": "372241c",
+  "fullSuiteGate": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42603403158",
+    "suites": 71,
+    "requirement": "Must succeed before publication"
+  },
+  "targetedChecks": "passed: resume, real markup UI, career, domain, loadout, input, syntax",
+  "browser": {
+    "status": "pass",
+    "flow": "saved rabbit/dummy/uppercut survives untouched reload/pagehide; explicit paused return; unchanged wallet/history; fresh 15 seconds; active-fight guard; EN/HE/RU layouts"
+  },
+  "offline": {
+    "status": "pass",
+    "assets": 79,
+    "cache": "ringfighter-offline-station-20261109a"
+  },
+  "physicalPhones": "NOT VERIFIED",
+  "renderChanges": "None; DOM and optional local navigation metadata only"
+}
