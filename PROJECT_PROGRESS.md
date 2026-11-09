@@ -1,3 +1,14 @@
+## 2026-11-09 — Selectable arena styles (F-008)
+
+World → **Arena styles** offers Neighborhood Hall, Neon Strip and Harbor Dome.
+Selection saves per player without charges or combat changes; ring replacement
+reapplies it synchronously. The gallery fits portrait/landscape in EN/HE/RU.
+[Contract, actual render comparisons and resource limits](docs/game/F008-arena-styles.md).
+
+Next: F-009 three-bout local cup integration. A pure rules/test draft is isolated
+in `lion/foundation-cup-rules`; no tournament behavior is claimed in this release.
+The earlier unsafe crossover remains withheld pending actual arm/torso clearance.
+
 ## 2026-11-09 — Short sessions, compact store and safe station return
 
 [RingFighter app](https://ytcat.github.io/fit/). Bug release `2e855e7` fixes closed

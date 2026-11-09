@@ -1,0 +1,127 @@
+{
+  "fixture": "Two local test profiles, no earned activity fixtures",
+  "before": {
+    "camera": [
+      0,
+      1.82,
+      8.970285675977609,
+      -0.028948138026872194,
+      0,
+      0,
+      0.9995809148362013,
+      1
+    ],
+    "input": true,
+    "wallet": {
+      "coins": 0,
+      "xp": 0,
+      "transactions": 1
+    }
+  },
+  "after": {
+    "sameMatch": true,
+    "sameEntry": true,
+    "sameState": true,
+    "camera": [
+      0,
+      1.82,
+      8.970285675977609,
+      -0.028948138026872194,
+      0,
+      0,
+      0.9995809148362013,
+      1
+    ],
+    "input": true,
+    "wallet": {
+      "coins": 0,
+      "xp": 0,
+      "transactions": 1
+    }
+  },
+  "layouts": [
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "en",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "he",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "ru",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "en",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "he",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "ru",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "en",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "he",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "ru",
+      "overflow": 0,
+      "bad": []
+    }
+  ],
+  "errors": [],
+  "physicalPhone": false
+}

@@ -1,0 +1,29 @@
+{
+  "baselineSha": "831a519fed1a52416453b36e98f69b2f0e4e20aa",
+  "implementationSha": "f361f04b38f17cc1669f9f71242ba39c33425cc7",
+  "ciGate": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42609345775",
+    "suiteCount": 73,
+    "requirement": "Success required before publication"
+  },
+  "gallery": "pass nine localized layouts, zero overflow, persisted reload/profile choice, unchanged actual fight/match/entry/camera/control/pause/wallet",
+  "renderer": "pass 18 matched-camera renders, unchanged counts per style, zero steady uploads, linked shaders, no errors, pixel-exact default restore",
+  "resourceStress": {
+    "warmTextures": 35,
+    "cycleTextures": [
+      30,
+      28
+    ],
+    "disposedTextures": 25,
+    "geometries": 391,
+    "programs": 25
+  },
+  "offline": {
+    "status": "pass",
+    "assets": 84,
+    "cache": "ringfighter-offline-venues-20261109a"
+  },
+  "physicalPhones": "NOT VERIFIED",
+  "newRigGeometryOrLights": false,
+  "review": "Sol reviewed domain/UI; missing-renderer fallback corrected and tested. Astra reviewed renderer/lifecycle and actual screenshots."
+}
