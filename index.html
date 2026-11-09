@@ -17,28 +17,29 @@
   <script src="./assets/vendor/GLTFLoader.js"></script>
 
   <script src="./boxing-routines.js?v=2026110801"></script>
-  <script src="./boxing-input.js?v=2026110801"></script>
+  <script src="./boxing-input.js?v=2026110901"></script>
   <script src="./avatar-anatomy.js?v=2026110704"></script>
   <script src="./avatar-detail.js?v=2026110605"></script>
   <script src="./avatar-shoulder.js?v=2026110504"></script>
-  <script src="./boxing-footwear.js?v=2026110607"></script>
+  <script src="./boxing-footwear.js?v=2026110901"></script>
   <script src="./padding-deformation.js?v=2026110703"></script>
   <script src="./boxing-pose.js?v=2026110720"></script>
-  <script src="./boxing-coach-v2.js?v=2026110802"></script>
+  <script src="./boxing-coach-v2.js?v=2026110901"></script>
   <script src="./contact-response.js?v=2026110406"></script>
   <script src="./gym-details.js?v=2026110604"></script>
   <script src="./training-arena.js?v=2026110710"></script>
-  <script src="./boxing-fight.js?v=2026110801"></script>
+  <script src="./boxing-fight.js?v=2026110901"></script>
   <script src="./fight-referee.js?v=2026110607"></script>
   <script src="./fight-arena.js?v=2026110802"></script>
   <script src="./training-gear.js?v=2026110801"></script>
-  <script src="./career-drills.js?v=2026110720"></script>
-  <script src="./game-world.js?v=2026110801"></script>
+  <script src="./career-drills.js?v=2026110901"></script>
+  <script src="./game-world.js?v=2026110901"></script>
   <script src="./fight-iq.js?v=2026110801"></script>
-  <script src="./game-domain.js?v=2026110804"></script>
+  <script src="./game-accessories.js?v=2026110901"></script>
+  <script src="./game-domain.js?v=2026110901"></script>
   <script src="./career-progress.js?v=2026110802"></script>
-  <script src="./game-presentation.js?v=2026110801"></script>
-  <script src="./fight-ui.js?v=2026110801" defer></script>
+  <script src="./game-presentation.js?v=2026110901"></script>
+  <script src="./fight-ui.js?v=2026110901" defer></script>
   <script src="./training-controls.js?v=2026110710" defer></script>
   <script src="./character-roster.js?v=2026110607"></script>
   <script src="./ring-camera.js?v=2026110703"></script>
@@ -46,18 +47,18 @@
   <link rel="stylesheet" href="./club-interface.css?v=2026110604" />
   <script src="./club-interface.js?v=2026110607" defer></script>
   <link rel="stylesheet" href="./ringfighter-controls.css?v=2026110608" />
-  <script src="./ringfighter-controls.js?v=2026110608" defer></script>
+  <script src="./ringfighter-controls.js?v=2026110901" defer></script>
   <link rel="stylesheet" href="./career-interface.css?v=2026110607">
-  <script src="./career-interface.js?v=2026110803" defer></script>
-  <script src="./fight-presentation.js?v=2026110801" defer></script>
+  <script src="./career-interface.js?v=2026110901" defer></script>
+  <script src="./fight-presentation.js?v=2026110901" defer></script>
   <link rel="stylesheet" href="./ringside-layout.css?v=2026110710">
-  <script src="./ringside-layout.js?v=2026110710" defer></script>
-  <link rel="stylesheet" href="./game-shell.css?v=2026110803">
+  <script src="./ringside-layout.js?v=2026110901" defer></script>
+  <link rel="stylesheet" href="./game-shell.css?v=2026110901">
   <script src="./game-world-art.js?v=2026110801" defer></script>
-  <script src="./game-world-ui.js?v=2026110801" defer></script>
+  <script src="./game-world-ui.js?v=2026110901" defer></script>
   <script src="./fight-iq-demo.js?v=2026110801" defer></script>
-  <script src="./fight-iq-ui.js?v=2026110801" defer></script>
-  <script src="./game-shell.js?v=2026110804" defer></script>
+  <script src="./fight-iq-ui.js?v=2026110901" defer></script>
+  <script src="./game-shell.js?v=2026110901" defer></script>
 
   <style>
     html, body {
@@ -421,7 +422,7 @@
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1.05;
         this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;this.renderer.shadowMap.autoUpdate=true;
         this.renderer.setSize(w, h, false);
         this.qualityTier=1;this.frameSamples=[];this.qualityElapsed=0;this.qualityDwell=0;
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 1.5));
@@ -444,8 +445,8 @@
         const key = new THREE.DirectionalLight(0xfffaed, 2.8);
         key.position.set(2, 4, 3);
         key.castShadow=true;key.shadow.mapSize.set(1024,1024);
-        key.shadow.camera.left=-2;key.shadow.camera.right=2;key.shadow.camera.top=3;key.shadow.camera.bottom=-1;
-        key.shadow.bias=-.0003;key.shadow.normalBias=.018;
+        key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;
+        key.shadow.camera.near=.5;key.shadow.camera.far=18;key.shadow.bias=-.00015;key.shadow.normalBias=.006;
         this.scene.add(key);
         const fill=new THREE.DirectionalLight(0xa6c9ff,.65);fill.position.set(-3,2,2);this.scene.add(fill);
 
