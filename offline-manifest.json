@@ -1,5 +1,5 @@
 {
-  "version": "menu-20261109a",
+  "version": "shorts-20261109a",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -18,7 +18,7 @@
     "./boxing-footwear.js?v=2026110901",
     "./padding-deformation.js?v=2026110703",
     "./boxing-pose.js?v=2026110720",
-    "./boxing-coach-v2.js?v=2026110901",
+    "./boxing-coach-v2.js?v=2026110906",
     "./contact-response.js?v=2026110406",
     "./gym-details.js?v=2026110905",
     "./training-arena.js?v=2026110710",

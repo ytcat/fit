@@ -1,0 +1,194 @@
+[
+  {
+    "species": "lion",
+    "pose": "guard",
+    "view": "front",
+    "calls": 49,
+    "trianglesBefore": 366587,
+    "trianglesAfter": 362091
+  },
+  {
+    "species": "lion",
+    "pose": "guard",
+    "view": "side",
+    "calls": 37,
+    "trianglesBefore": 366969,
+    "trianglesAfter": 362473
+  },
+  {
+    "species": "lion",
+    "pose": "guard",
+    "view": "quarter",
+    "calls": 44,
+    "trianglesBefore": 366867,
+    "trianglesAfter": 362371
+  },
+  {
+    "species": "lion",
+    "pose": "guard",
+    "view": "rear",
+    "calls": 42,
+    "trianglesBefore": 367677,
+    "trianglesAfter": 363181
+  },
+  {
+    "species": "lion",
+    "pose": "squat",
+    "view": "front",
+    "calls": 57,
+    "trianglesBefore": 435723,
+    "trianglesAfter": 431227
+  },
+  {
+    "species": "lion",
+    "pose": "squat",
+    "view": "side",
+    "calls": 68,
+    "trianglesBefore": 445775,
+    "trianglesAfter": 441279
+  },
+  {
+    "species": "lion",
+    "pose": "squat",
+    "view": "quarter",
+    "calls": 50,
+    "trianglesBefore": 434133,
+    "trianglesAfter": 429637
+  },
+  {
+    "species": "lion",
+    "pose": "squat",
+    "view": "rear",
+    "calls": 93,
+    "trianglesBefore": 472273,
+    "trianglesAfter": 467777
+  },
+  {
+    "species": "lion",
+    "pose": "punch",
+    "view": "front",
+    "calls": 49,
+    "trianglesBefore": 366587,
+    "trianglesAfter": 362091
+  },
+  {
+    "species": "lion",
+    "pose": "punch",
+    "view": "side",
+    "calls": 45,
+    "trianglesBefore": 369361,
+    "trianglesAfter": 364865
+  },
+  {
+    "species": "lion",
+    "pose": "punch",
+    "view": "quarter",
+    "calls": 45,
+    "trianglesBefore": 366923,
+    "trianglesAfter": 362427
+  },
+  {
+    "species": "lion",
+    "pose": "punch",
+    "view": "rear",
+    "calls": 65,
+    "trianglesBefore": 440859,
+    "trianglesAfter": 436363
+  },
+  {
+    "species": "rabbit",
+    "pose": "guard",
+    "view": "front",
+    "calls": 47,
+    "trianglesBefore": 350174,
+    "trianglesAfter": 345678
+  },
+  {
+    "species": "rabbit",
+    "pose": "guard",
+    "view": "side",
+    "calls": 35,
+    "trianglesBefore": 350556,
+    "trianglesAfter": 346060
+  },
+  {
+    "species": "rabbit",
+    "pose": "guard",
+    "view": "quarter",
+    "calls": 42,
+    "trianglesBefore": 350454,
+    "trianglesAfter": 345958
+  },
+  {
+    "species": "rabbit",
+    "pose": "guard",
+    "view": "rear",
+    "calls": 41,
+    "trianglesBefore": 352736,
+    "trianglesAfter": 348240
+  },
+  {
+    "species": "rabbit",
+    "pose": "squat",
+    "view": "front",
+    "calls": 54,
+    "trianglesBefore": 417838,
+    "trianglesAfter": 413342
+  },
+  {
+    "species": "rabbit",
+    "pose": "squat",
+    "view": "side",
+    "calls": 61,
+    "trianglesBefore": 428162,
+    "trianglesAfter": 423666
+  },
+  {
+    "species": "rabbit",
+    "pose": "squat",
+    "view": "quarter",
+    "calls": 48,
+    "trianglesBefore": 417720,
+    "trianglesAfter": 413224
+  },
+  {
+    "species": "rabbit",
+    "pose": "squat",
+    "view": "rear",
+    "calls": 74,
+    "trianglesBefore": 433668,
+    "trianglesAfter": 429172
+  },
+  {
+    "species": "rabbit",
+    "pose": "punch",
+    "view": "front",
+    "calls": 47,
+    "trianglesBefore": 350174,
+    "trianglesAfter": 345678
+  },
+  {
+    "species": "rabbit",
+    "pose": "punch",
+    "view": "side",
+    "calls": 42,
+    "trianglesBefore": 351476,
+    "trianglesAfter": 346980
+  },
+  {
+    "species": "rabbit",
+    "pose": "punch",
+    "view": "quarter",
+    "calls": 43,
+    "trianglesBefore": 350510,
+    "trianglesAfter": 346014
+  },
+  {
+    "species": "rabbit",
+    "pose": "punch",
+    "view": "rear",
+    "calls": 63,
+    "trianglesBefore": 424446,
+    "trianglesAfter": 419950
+  }
+]

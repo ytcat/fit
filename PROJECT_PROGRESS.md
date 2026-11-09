@@ -1,3 +1,13 @@
+## 2026-11-09 — Rounded upper shorts (GOTR-0011)
+
+Removed the exposed square upper leg caps by rounding them into the existing hip
+shell. Both species pass24 matched before/after pose/angle comparisons; lower
+hems/weights are byte-identical and garment triangles decrease4,496 with no added
+draw calls. Focused regressions pass. This addresses the upper shelf; existing hem
+and stripe polish and real-phone performance remain open.
+[Evidence](docs/glory-of-the-ring/rounded-shorts-release.md) ·
+[Remaining tasks and rough effort](docs/glory-of-the-ring/remaining-small-releases.md).
+
 ## 2026-11-09 — Compact training menu and public title
 
 Fixed stretched Training/Moves/View tabs by assigning their intended grid row.

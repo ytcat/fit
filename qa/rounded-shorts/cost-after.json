@@ -1,0 +1,18 @@
+{
+  "stage": "after",
+  "upperWidth": 0.26376107335090637,
+  "vertices": 212550,
+  "triangles": 70850,
+  "attributesBytes": 12753000,
+  "meshes": 160,
+  "regions": {
+    "hem": {
+      "count": 1533,
+      "sha256": "f8e4514e4bd9503b8c75300ba7046d750827486123812828010657ee6fb45913"
+    },
+    "lower": {
+      "count": 103470,
+      "sha256": "8fe24c888a751c603791553193d2ddca9bae77878e4498653f29088dc1af7aec"
+    }
+  }
+}

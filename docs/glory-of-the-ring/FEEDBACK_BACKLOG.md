@@ -163,12 +163,12 @@ These nine reports were recorded from the user's latest message. **None is marke
 
 ### GOTR-0011 — Remove square upper edge from boxer shorts
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Area:** 3D clothing
 - **Reported behavior / request:** Pants look square at the top and strange.
-- **Implementation:** Isolated `lion/rounded-shorts-repair`; runtime cap geometry confirmed as the cause. Not yet merged or published.
-- **Evidence:** Matched pose/angle QA in progress; preserve both species, garment weights and hems.
+- **Implementation:** `c5a2311` rounds the existing garment upper caps into its hip shell. No rig/contact/weight algorithm changes; versioned release integration preserves the menu update.
+- **Evidence:** [24 matched views per version, both species, geometry/weight counters and five focused tests](rounded-shorts-release.md). Full integration/deployment recorded after publication. Existing jagged hems/stripes remain separate polish.
 
 ### GOTR-0012 — Correct coach/opponent spacing for straight jabs
 - **Reported:** 2026-11-09

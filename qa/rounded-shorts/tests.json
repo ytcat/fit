@@ -1,0 +1,27 @@
+[
+  {
+    "test": "avatar-surface",
+    "exitCode": 0,
+    "seconds": 12.51
+  },
+  {
+    "test": "avatar-normal-frame",
+    "exitCode": 0,
+    "seconds": 12.45
+  },
+  {
+    "test": "coach",
+    "exitCode": 0,
+    "seconds": 19.2
+  },
+  {
+    "test": "character-selection",
+    "exitCode": 0,
+    "seconds": 40.1
+  },
+  {
+    "test": "contact-transform",
+    "exitCode": 0,
+    "seconds": 0.09
+  }
+]
