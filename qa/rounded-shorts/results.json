@@ -1,0 +1,75 @@
+{
+  "baseline": "37255d5",
+  "sourceSha256": "7e761d2aa431b52a3cb992113e3c1591f9f9775e9b8f442ce7b3736c89402f42",
+  "before": {
+    "stage": "before",
+    "upperWidth": 0.3183329403400421,
+    "vertices": 226038,
+    "triangles": 75346,
+    "attributesBytes": 13562280,
+    "meshes": 160,
+    "regions": {
+      "hem": {
+        "count": 1533,
+        "sha256": "f8e4514e4bd9503b8c75300ba7046d750827486123812828010657ee6fb45913"
+      },
+      "lower": {
+        "count": 103470,
+        "sha256": "8fe24c888a751c603791553193d2ddca9bae77878e4498653f29088dc1af7aec"
+      }
+    }
+  },
+  "after": {
+    "stage": "after",
+    "upperWidth": 0.26376107335090637,
+    "vertices": 212550,
+    "triangles": 70850,
+    "attributesBytes": 12753000,
+    "meshes": 160,
+    "regions": {
+      "hem": {
+        "count": 1533,
+        "sha256": "f8e4514e4bd9503b8c75300ba7046d750827486123812828010657ee6fb45913"
+      },
+      "lower": {
+        "count": 103470,
+        "sha256": "8fe24c888a751c603791553193d2ddca9bae77878e4498653f29088dc1af7aec"
+      }
+    }
+  },
+  "render": {
+    "matchedViews": 24,
+    "unchangedDrawCalls": true,
+    "submittedTriangleDeltaEachView": -4496,
+    "shadows": false,
+    "pixelRatio": 1
+  },
+  "tests": [
+    {
+      "test": "avatar-surface",
+      "exitCode": 0,
+      "seconds": 12.51
+    },
+    {
+      "test": "avatar-normal-frame",
+      "exitCode": 0,
+      "seconds": 12.45
+    },
+    {
+      "test": "coach",
+      "exitCode": 0,
+      "seconds": 19.2
+    },
+    {
+      "test": "character-selection",
+      "exitCode": 0,
+      "seconds": 40.1
+    },
+    {
+      "test": "contact-transform",
+      "exitCode": 0,
+      "seconds": 0.09
+    }
+  ],
+  "review": "Matched front, profile, quarter, rear guard, roll crouch, hook for both species. Original upper shelf removed; no new visible holes, penetration, or detached panels in sampled poses. Static poses do not establish all-motion realism or device performance."
+}
