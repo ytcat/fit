@@ -73,7 +73,7 @@
    else {
     if(!f.plan.length){
      const styles=['pressure','outside','counter','angle'],index=actors.indexOf(actor);
-     f.tactic=f.stamina<.42||f.condition<32?'outside':styles[(Math.floor(this.roundTime/(6.5+index*1.3))+index+this.round)%styles.length];
+     f.tactic=f.stamina<.42||f.condition<32?'outside':f.cupTactic||styles[(Math.floor(this.roundTime/(6.5+index*1.3))+index+this.round)%styles.length];
      const library=tactics[f.tactic],selection=Math.floor(this.random()*library.length);
      f.plan=library[selection].map(([move,target])=>({move,target}));
      this.emit('combination',{actor,tactic:f.tactic,length:f.plan.length});

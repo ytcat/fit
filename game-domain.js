@@ -1,5 +1,6 @@
 /* Offline R1 rules. All coins are earned in play; cosmetics confer no combat stats. */
 (() => {
+ const cupRules=typeof module!=='undefined'?require('./game-tournament.js'):window.GameTournament;
  const worldRules=typeof module!=='undefined'?require('./game-world.js'):window.GameWorld;
  const iqRules=typeof module!=='undefined'?require('./fight-iq.js'):window.FightIQ;
  const accessories=typeof module!=='undefined'?require('./game-accessories.js'):window.GameAccessories;
@@ -17,7 +18,7 @@
  ].map(c=>({...c,species:[...species],allowedModes:['training','fight'],slotCost:1}));
  const quests=[...combos.map(c=>({id:c.id,name:c.name,key:c.key,target:c.target,comboId:c.id})),{id:'steady_school',name:'Five completed activities',key:'completed',target:5},{id:'first_bout',name:'Complete an active fight',key:'fights',target:1},{id:'straight_work',name:'Land 100 contacts',key:'hits',target:100},{id:'school_minutes',name:'Complete ten active minutes',key:'seconds',target:600}];
  const cleanName=name=>String(name||'').replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,'').trim();
- const fresh=p=>({version:1,venue:'default',school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{})});
+ const fresh=p=>({version:1,venue:'default',school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(cupRules?{cup:cupRules.fresh()}:{}),...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{})});
  const wallet=g=>({coins:g.ledger.reduce((n,t)=>n+t.coins,0),xp:g.ledger.reduce((n,t)=>n+t.xp,0),transactions:g.ledger.length});
  const fail=message=>{throw Error(message);};
  const integer=(n,max=1e9)=>Number.isSafeInteger(n)&&n>=0&&n<=max;
@@ -28,7 +29,9 @@
  // Compact, local runtime observations. This is schema validation, not server verification.
  function evidence(value){
   if(value===undefined)return undefined;
-  if(!exactKeys(value,['seed','rounds','method','decision','opponentName','playerName','stats','cardTotals','moveCounts','rivalId','eventId','cleanChains']))fail('Invalid match evidence.');
+  if(!exactKeys(value,['seed','rounds','method','decision','opponentName','playerName','stats','cardTotals','moveCounts','rivalId','eventId','cleanChains','cupId','cupStage','cupOpponentId']))fail('Invalid match evidence.');
+  const cupKeys=['cupId','cupStage','cupOpponentId'];
+  if(cupKeys.some(key=>key in value)&&(cupKeys.some(key=>!(key in value))||!cupRules||!/^school-cup:[1-9]\d{0,8}$/.test(value.cupId)||!integer(value.cupStage,2)||!Object.values(cupRules.rosters).some(rows=>rows[value.cupStage]?.id===value.cupOpponentId)||'rivalId' in value||'eventId' in value))fail('Invalid cup evidence.');
   const out={};
   for(const key of Object.keys(value)){
    const v=value[key];
@@ -75,10 +78,13 @@
   validateHistory(g);if(accessories){if(!g.accessories)g.accessories=accessories.fresh();accessories.validate(g.accessories,g.ledger);}
   if(worldRules){if(g.world===undefined)g.world=worldRules.fresh(p.id);worldRules.validate(g.world,g);}
   if(iqRules){if(g.learning===undefined)g.learning=iqRules.fresh();iqRules.validate(g.learning,g.ledger);}
+  if(g.cup!==undefined&&!cupRules)fail('Local cup rules are unavailable. Saved progress is preserved.');
+  if(cupRules){if(g.cup===undefined)g.cup=cupRules.fresh();cupRules.validate(g.cup,{history:g.history,ledger:g.ledger});}
   return g;
  }
  function action(g,a,p){
   if(!a||typeof a!=='object')fail('Invalid action.');
+  if(a.type==='cup'){if(!cupRules||!p)fail('Local cups are unavailable.');if(!['start','resume','bind','abandon'].includes(a.cupAction))fail('Unknown cup action.');if(!g.cup)g.cup=cupRules.fresh();const result=cupRules.action(g.cup,{...a,type:a.cupAction},{profileId:p.id,history:g.history,ledger:g.ledger});if(a.cupAction==='bind'&&g.world)g.world.opportunity=null;return result;}
   if(a.type==='iq'){if(!iqRules||!p||!species.includes(a.species))fail('Learning is unavailable.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');if(!g.learning)g.learning=iqRules.fresh();const result=iqRules.apply(g.learning,{...a,type:a.iqAction,usernameProfileId:p.id});if(result.transaction){g.ledger.push({...result.transaction,species:a.species});p.boxers[a.species].xp+=result.earnedXP;}return result;}
   if(a.type==='venue'){if(!venueIds.includes(a.venueId))fail('Unknown arena style.');g.venue=a.venueId;return {venueId:g.venue};}
   if(a.type==='accessory'){if(!accessories)fail('Accessories unavailable.');return accessories.action(g,a);}
@@ -89,14 +95,15 @@
   if(a.type==='school'){g.school={name:cleanName(a.name),crest:a.crest,philosophy:a.philosophy};return {school:g.school};}
   fail('Unknown game action.');
  }
- function reward(g,event,xp,quality){
+ function reward(g,event,xp,quality,profileId){
   const active=event.control!=='watch',coins=active?Math.max(1,Math.round(Math.min(event.mode==='fight'?100:60,event.seconds)*(.42+.16*quality))):0;
   const transactionId='reward:'+event.id;g.ledger.push({id:transactionId,type:'earn',coins,xp,species:event.species,activityId:event.id,rule:active?'activity-v1':'watch-v1'});g.processed.push(event.id);
   const record={id:event.id,transactionId,mode:event.mode,species:event.species,control:event.control||'play',seconds:event.seconds,hits:event.hits,attempts:event.attempts,defences:event.defences,jumps:event.jumps,result:event.mode==='fight'?event.result:null,xp,coins};if(event.evidence!==undefined)record.evidence=evidence(event.evidence);g.history.push(record);g.history=g.history.slice(-50);
   const unlocks=[];
   if(active){const a=g.activity;a.completed++;a.seconds+=Math.floor(event.seconds);a.hits+=event.hits;a.defences+=event.defences;if(event.mode==='rope')a.rope++;if(event.mode==='fight')a.fights++;for(const c of combos)if(a[c.key]>=c.target&&!g.combos.owned.includes(c.id)){g.combos.owned.push(c.id);unlocks.push(c.id);}for(const q of quests)if(a[q.key]>=q.target&&!g.quests.includes(q.id))g.quests.push(q.id);}
   if(worldRules)worldRules.record(g,record);
-  return {coins,unlocks,activityId:event.id,transactionId,record};
+  const cup=cupRules&&g.cup?cupRules.action(g.cup,{type:'record',matchId:event.id},{profileId,history:g.history,ledger:g.ledger}):undefined;
+  return {coins,unlocks,activityId:event.id,transactionId,record,...(cup&&!cup.ignored?{cup}:{})};
  }
  const api={venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
 })();

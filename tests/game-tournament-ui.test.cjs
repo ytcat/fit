@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{CareerStore}=require('../career-progress.js'),T=require('../game-tournament.js');
+class El{constructor(tag,cls='',text){this.tagName=tag.toUpperCase();this.className=cls;this.children=[];this.textContent=text??'';this.dataset={};this.classList={add:n=>this.className+=' '+n};}append(...nodes){this.children.push(...nodes);}replaceChildren(...nodes){this.children=nodes;}setAttribute(k,v){this[k]=v;}}
+const load=context=>{context.window=context;vm.runInNewContext(fs.readFileSync('game-tournament-ui.js','utf8'),context);return context.GameTournamentUI;};
+assert.equal(load({}).render({}),null,'missing core keeps World usable');
+assert.equal(load({GameTournament:T}).render({e:{coach:null}}),null,'World remains usable while the model is loading');
+const disk={getItem(){return null;},setItem(){}},store=new CareerStore(disk);store.create('UI cup');const e={coach:{species:'lion'},targetMode:'heavy',career:{pendingAwards:[],retryAwards(){}}},calls=[],notices=[];
+const UI=load({GameTournament:T,CareerProgress:require('../career-progress.js'),Math});
+const c={store,e,app:{lang:'en'},el:(...a)=>new El(...a),button:(text,fn)=>{const n=new El('button','',text);n.onclick=fn;return n;},section:text=>new El('section','',text),notify:x=>notices.push(x),refresh(){},startFight:options=>{const pending=store.game().cup.active.pending;assert.equal(options.cupEntry.matchId,pending.matchId,'bound before fight creation');assert.equal(options.cupEntry.profileId,pending.profileId);assert.equal(options.seed,options.cupEntry.seed);calls.push(options);}};
+const all=n=>[n,...n.children.flatMap(all)],action=(panel,id)=>all(panel).find(n=>n.dataset.cupAction===id);
+let panel=UI.render(c);assert.equal(all(panel).filter(n=>'cupStage' in n.dataset).length,3);action(panel,'start').onclick();assert.equal(calls.length,1);assert.ok(store.game().cup.active.pending);assert.equal(calls[0].species,'lion');assert.equal(calls[0].cupEntry.opponent.id,'shadow');
+// Rendered buttons and callable handler both protect the live bout's exact binding.
+e.targetMode='fight';e.arena={fightView:{match:{result:null}}};panel=UI.render(c);const before=store.export();for(const id of ['continue','watch','abandon'])assert.equal(action(panel,id).disabled,true);action(panel,'continue').onclick();action(panel,'watch').onclick();assert.equal(store.export(),before);assert.equal(calls.length,1);assert.match(notices.at(-1),/Finish/);
+e.arena.fightView.match.result={};e.career.pendingAwards=[{id:store.game().cup.active.pending.matchId}];panel=UI.render(c);assert.equal(action(panel,'continue').disabled,true);assert.ok(action(panel,'save'));e.career.pendingAwards=[];
+panel=UI.render(c);action(panel,'watch').onclick();assert.equal(calls.at(-1).watch,true);assert.equal(store.game().cup.active.stage,0);assert.notEqual(calls[0].cupEntry.matchId,calls[1].cupEntry.matchId);
+for(const lang of ['he','ru']){c.app.lang=lang;panel=UI.render(c);assert.notEqual(panel.textContent,'Local School Cup');assert.equal(all(panel).filter(n=>'cupStage' in n.dataset).length,3);}
+console.log('PASS compact localized cup cards, missing-core fallback, pre-fight saved binding, live-bout protection, pending-save controls and distinct Watch entry');

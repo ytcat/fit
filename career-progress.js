@@ -64,7 +64,7 @@
     const player=this.data.profiles.find(p=>p.id===profileId),boxer=player.boxers[species],before=this.ratings(species,player),gains={};
     attrs.forEach((k,i)=>{gains[k]=Math.round(xp*weights[mode][i]*10)/10;boxer.points[k]+=gains[k];});boxer.xp+=xp;boxer.sessions++;boxer.awards.push(awardId);boxer.awards=boxer.awards.slice(-200);
     if(mode==='fight'&&control!=='watch')boxer[{win:'wins',loss:'losses',draw:'draws'}[result]]++;
-    const rewards=domain.reward(player.game,{id:awardId,species,mode,seconds,hits,attempts,defences,jumps,result,control,evidence:event.evidence},xp,quality);
+    const rewards=domain.reward(player.game,{id:awardId,species,mode,seconds,hits,attempts,defences,jumps,result,control,evidence:event.evidence},xp,quality,profileId);
     return {xp,gains,before,after:this.ratings(species,player),quality:Math.round(quality*100),accuracy:Math.round(accuracy*100),rank:this.rank(species,player).name,...rewards};
    });}catch(e){if(this.error&&e.message===this.error)this.lastAwardError=e.message;return null;}
   }

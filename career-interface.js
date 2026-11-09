@@ -56,9 +56,16 @@
    if(active.seconds>=(active.duration||60)){e.isPlaying=false;finish();}else if(active.seconds-lastSave>=1){lastSave=active.seconds;paint(true);}
   }
   function fightOptions(){
-   if(active)finish();trackControls();const species=e.coach.species;let p=store.current();if(!p)try{p=store.guest();}catch{return {careerActor:species,careerStats:store.ratings(species),careerEntry:null};}
-   const activityEvidence=opportunityEvidence('fight'),rival=window.GameWorld?.rivals.find(r=>r.id===activityEvidence.rivalId);
-   return {careerActor:species,careerStats:store.ratings(species,p),careerEntry:{id:CareerProgress.id(),profileId:p.id,species,playerName:identity(p.name)||'Player',opponentName:rival?.names.en||(species==='lion'?'Shadow':'Ember'),activityEvidence,watchSeen:!e.player?.enabled,moveCounts:Object.fromEntries(punchMoves.map(move=>[move,0])),eventCursor:0}};
+   if(active)finish();trackControls();const species=e.coach.species,requested=e.fightOptions?.cupEntry;
+   // Entry permission belongs to this construction only. Keep the caller's local
+   // descriptor for its NPC setup, while later legacy bouts receive ordinary options.
+   if(requested){const {cupEntry,...options}=e.fightOptions;e.fightOptions=options;}
+   let p=store.current();if(!p)try{p=store.guest();}catch{return {careerActor:species,careerStats:store.ratings(species),careerEntry:null};}
+   const cup=store.game(p)?.cup,activeCup=cup?.active,pendingCup=activeCup?.pending;
+   if(requested&&(!window.GameTournament||!pendingCup||requested.matchId!==pendingCup.matchId||requested.profileId!==p.id||pendingCup.profileId!==p.id||requested.cupId!==activeCup.id||requested.stage!==activeCup.stage||requested.species!==species||activeCup.species!==species||requested.seed!==((activeCup.seed+activeCup.stage)>>>0)||e.fightOptions.seed!==requested.seed||requested.opponent?.id!==GameTournament.roster(species)[activeCup.stage].id))throw Error('Cup entry no longer matches the saved checkpoint.');
+   const opponent=requested?GameTournament.roster(species)[activeCup.stage]:null;
+   const activityEvidence=requested?{cupId:activeCup.id,cupStage:activeCup.stage,cupOpponentId:opponent.id}:opportunityEvidence('fight'),rival=window.GameWorld?.rivals.find(r=>r.id===activityEvidence.rivalId);
+   return {careerActor:species,careerStats:store.ratings(species,p),careerEntry:{id:requested?pendingCup.matchId:CareerProgress.id(),profileId:p.id,species,playerName:identity(p.name)||'Player',opponentName:opponent?.names.en||rival?.names.en||(species==='lion'?'Shadow':'Ember'),activityEvidence,watchSeen:!e.player?.enabled,moveCounts:Object.fromEntries(punchMoves.map(move=>[move,0])),eventCursor:0}};
   }
   function onFight(view){
    if(!view?.match||view.careerAwarded||view.careerRewardAttempted||!view.careerEntry)return;
