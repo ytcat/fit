@@ -58,7 +58,7 @@
    if(previousMode!==undefined&&previousMode!==mode)selectedCamera(mode==='none'&&!e.viewControls?.yaw?'camFront':'');
    if(!fight)lastPractice=mode;
    body.dataset.scene=fight?'arena':'gym';body.dataset.training=mode;body.dataset.character=species;
-   byId('appSubtitle').textContent=t.club;byId('appTitle').textContent='RingFighter';
+   byId('appSubtitle').textContent=t.club;byId('appTitle').textContent='Glory of the Ring';
    gymNav.innerHTML=icon('gym')+'<span>'+t.gym+'</span>';fightNav.innerHTML=icon('fight')+'<span>'+t.fight+'</span>';gymNav.setAttribute('aria-pressed',String(!fight));fightNav.setAttribute('aria-pressed',String(fight));
    byId('openPracticeControls').innerHTML=icon('settings')+'<span>'+t.settings+'</span>';byId('openPracticeControls').setAttribute('aria-label',t.settings);byId('openPracticeControls').setAttribute('aria-haspopup','dialog');
    eyebrow.textContent=fight?t.arenaEyebrow:t.eyebrow;title.textContent=fight?t.arenaTitle:t.title;intro.textContent=fight?t.arenaIntro:t.intro;

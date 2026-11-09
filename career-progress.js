@@ -13,7 +13,7 @@
  const id=()=>Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
  function validate(data){
   if(data&&data.version!==1)throw Error('Incompatible career version.');
-  if(!data||data.version!==1||!Array.isArray(data.profiles)||data.profiles.length>30)throw Error('This is not a RingFighter backup.');
+  if(!data||data.version!==1||!Array.isArray(data.profiles)||data.profiles.length>30)throw Error('This is not a Glory of the Ring backup.');
   const seen=new Set();
   for(const p of data.profiles){
    if(typeof p.name==='string')p.name=domain.cleanName(p.name);

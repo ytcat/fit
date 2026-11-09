@@ -59,7 +59,7 @@
   while(lines.some(line=>c.measureText(line).width>w*.77)&&size>14)c.font=`800 ${--size}px sans-serif`;
   lines.forEach((line,i)=>c.fillText(line,w/2,h*.43+(i-(lines.length-1)/2)*size*1.25,w*.8));
   c.font=`600 ${Math.max(12,Math.min(w*.025,h*.10))}px sans-serif`;
-  c.fillText(sponsor?'RINGFIGHTER':({en:'RINGFIGHTER • BOXING',he:'RINGFIGHTER • אגרוף',ru:'RINGFIGHTER • БОКС'})[lang],w/2,h*.66,w*.77);
+  c.fillText(sponsor?'GLORY OF THE RING':({en:'GLORY OF THE RING • BOXING',he:'GLORY OF THE RING • אגרוף',ru:'GLORY OF THE RING • БОКС'})[lang],w/2,h*.66,w*.77);
   const map=new THREE.CanvasTexture(canvas);map.encoding=THREE.sRGBEncoding;map.anisotropy=2;return map;
  }
  function theme(o,id,lang){

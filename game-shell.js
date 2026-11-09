@@ -5,7 +5,7 @@
  const el=(tag,cls,value)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=value;return n;};
  function boot(){if(new URLSearchParams(location.search).get('game')==='classic')return;const app=window.app,e=app?.engine,store=e?.career?.store;if(!store||!window.GamePresentation)return;document.body.classList.add('game-enabled');
   const t=(key,fallback=key)=>localized[app.lang]?.[key]||fallback,w=()=>text[app.lang]||text.en,game=()=>store.game(),current=()=>store.current();let modal=null,preview=null,last='',page='train',pausedBefore=false,transitioning=false,worldTickKey='';
-  const nav=el('nav','game-nav');nav.setAttribute('aria-label','RingFighter');const oldNav=document.querySelector('.club-navigation'),legacy=[...oldNav.children];oldNav.hidden=true;oldNav.after(nav);
+  const nav=el('nav','game-nav');nav.setAttribute('aria-label','Glory of the Ring');const oldNav=document.querySelector('.club-navigation'),legacy=[...oldNav.children];oldNav.hidden=true;oldNav.after(nav);
   const wallet=el('button','game-wallet');wallet.type='button';wallet.onclick=()=>open('club');document.querySelector('.club-head-tools').prepend(wallet);
   const loadout=el('div','game-loadout');document.getElementById('stageContainer').append(loadout);
   function button(label,action,cls='game-button'){const b=el('button',cls,label);b.type='button';b.onclick=action;return b;}
