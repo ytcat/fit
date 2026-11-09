@@ -1,0 +1,331 @@
+{
+  "method": "Title layout fixture replays the captured real Play match records through actual CareerStore in an isolated profile; no new match is claimed.",
+  "layouts": [
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "en",
+      "height": 455,
+      "children": [
+        {
+          "cls": "game-dialog-head",
+          "height": 38,
+          "top": 11,
+          "bottom": 49
+        },
+        {
+          "cls": "world-tabs",
+          "height": 33,
+          "top": 57,
+          "bottom": 90
+        },
+        {
+          "cls": "game-section game-cup",
+          "height": 295.6875,
+          "top": 98,
+          "bottom": 393.6875
+        },
+        {
+          "cls": "game-button game-primary",
+          "height": 46,
+          "top": 399.6875,
+          "bottom": 445.6875
+        }
+      ],
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "he",
+      "height": 455,
+      "children": [
+        {
+          "cls": "game-dialog-head",
+          "height": 38,
+          "top": 11,
+          "bottom": 49
+        },
+        {
+          "cls": "world-tabs",
+          "height": 33,
+          "top": 57,
+          "bottom": 90
+        },
+        {
+          "cls": "game-section game-cup",
+          "height": 295.6875,
+          "top": 98,
+          "bottom": 393.6875
+        },
+        {
+          "cls": "game-button game-primary",
+          "height": 46,
+          "top": 399.6875,
+          "bottom": 445.6875
+        }
+      ],
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "ru",
+      "height": 504,
+      "children": [
+        {
+          "cls": "game-dialog-head",
+          "height": 38,
+          "top": 11,
+          "bottom": 49
+        },
+        {
+          "cls": "world-tabs",
+          "height": 33,
+          "top": 57,
+          "bottom": 90
+        },
+        {
+          "cls": "game-section game-cup",
+          "height": 344.53125,
+          "top": 98,
+          "bottom": 442.53125
+        },
+        {
+          "cls": "game-button game-primary",
+          "height": 46,
+          "top": 448.53125,
+          "bottom": 494.53125
+        }
+      ],
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "en",
+      "height": 533,
+      "children": [
+        {
+          "cls": "game-dialog-head",
+          "height": 38,
+          "top": 11,
+          "bottom": 49
+        },
+        {
+          "cls": "world-tabs",
+          "height": 48,
+          "top": 57,
+          "bottom": 105
+        },
+        {
+          "cls": "game-section game-cup",
+          "height": 359.375,
+          "top": 113,
+          "bottom": 472.375
+        },
+        {
+          "cls": "game-button game-primary",
+          "height": 46,
+          "top": 478.375,
+          "bottom": 524.375
+        }
+      ],
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "he",
+      "height": 520,
+      "children": [
+        {
+          "cls": "game-dialog-head",
+          "height": 38,
+          "top": 11,
+          "bottom": 49
+        },
+        {
+          "cls": "world-tabs",
+          "height": 48,
+          "top": 57,
+          "bottom": 105
+        },
+        {
+          "cls": "game-section game-cup",
+          "height": 346.375,
+          "top": 113,
+          "bottom": 459.375
+        },
+        {
+          "cls": "game-button game-primary",
+          "height": 46,
+          "top": 465.375,
+          "bottom": 511.375
+        }
+      ],
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "ru",
+      "height": 518,
+      "children": [
+        {
+          "cls": "game-dialog-head",
+          "height": 38,
+          "top": 11,
+          "bottom": 49
+        },
+        {
+          "cls": "world-tabs",
+          "height": 33,
+          "top": 57,
+          "bottom": 90
+        },
+        {
+          "cls": "game-section game-cup",
+          "height": 359.375,
+          "top": 98,
+          "bottom": 457.375
+        },
+        {
+          "cls": "game-button game-primary",
+          "height": 46,
+          "top": 463.375,
+          "bottom": 509.375
+        }
+      ],
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "en",
+      "height": 368,
+      "children": [
+        {
+          "cls": "game-dialog-head",
+          "height": 38,
+          "top": 11,
+          "bottom": 49
+        },
+        {
+          "cls": "world-tabs",
+          "height": 27,
+          "top": 53,
+          "bottom": 80
+        },
+        {
+          "cls": "game-section game-cup",
+          "height": 234.84375,
+          "top": 84,
+          "bottom": 318.84375
+        },
+        {
+          "cls": "game-button game-primary",
+          "height": 36,
+          "top": 322.84375,
+          "bottom": 358.84375
+        }
+      ],
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "he",
+      "height": 368,
+      "children": [
+        {
+          "cls": "game-dialog-head",
+          "height": 38,
+          "top": 11,
+          "bottom": 49
+        },
+        {
+          "cls": "world-tabs",
+          "height": 27,
+          "top": 53,
+          "bottom": 80
+        },
+        {
+          "cls": "game-section game-cup",
+          "height": 234.84375,
+          "top": 84,
+          "bottom": 318.84375
+        },
+        {
+          "cls": "game-button game-primary",
+          "height": 36,
+          "top": 322.84375,
+          "bottom": 358.84375
+        }
+      ],
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "ru",
+      "height": 368,
+      "children": [
+        {
+          "cls": "game-dialog-head",
+          "height": 38,
+          "top": 11,
+          "bottom": 49
+        },
+        {
+          "cls": "world-tabs",
+          "height": 27,
+          "top": 53,
+          "bottom": 80
+        },
+        {
+          "cls": "game-section game-cup",
+          "height": 234.84375,
+          "top": 84,
+          "bottom": 318.84375
+        },
+        {
+          "cls": "game-button game-primary",
+          "height": 36,
+          "top": 322.84375,
+          "bottom": 358.84375
+        }
+      ],
+      "overflow": 0,
+      "bad": []
+    }
+  ],
+  "errors": [],
+  "physicalPhones": false
+}

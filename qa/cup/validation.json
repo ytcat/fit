@@ -1,0 +1,37 @@
+{
+  "baselineSha": "417ba187a2b09bc8857db7b57e9247e94fc67873",
+  "sourceSha": "4c60aa21f73438ce65c4ea2cdaeff8fe9fe29f40",
+  "ciGate": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42656712360",
+    "suites": 76,
+    "requirement": "success before main publication"
+  },
+  "actualPlaythrough": {
+    "seed": 74,
+    "bouts": 6,
+    "results": [
+      "win",
+      "loss",
+      "loss",
+      "loss",
+      "win",
+      "win"
+    ],
+    "wins": 3,
+    "titles": 1,
+    "wallet": {
+      "coins": 72,
+      "xp": 353,
+      "transactions": 7
+    },
+    "method": "Production Play commands, collision/contact update and canonical career award. Unmodified opponents; no health or outcome injection. Scripted, not human-played."
+  },
+  "browser": "PASS entry/title nine localized layouts, saved binding/live guards, contact-derived result/reload, direct punches and a distinct legacy entry",
+  "offline": {
+    "assets": 86,
+    "cache": "ringfighter-offline-cup-20261109a",
+    "status": "pass"
+  },
+  "physicalPhones": "NOT VERIFIED",
+  "targetedChecks": "PASS rules, canonical integration, UI and factory tests, model/core fallback, one-shot legacy capture and rolling52-cup archive"
+}

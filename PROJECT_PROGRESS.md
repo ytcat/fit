@@ -1,3 +1,17 @@
+## 2026-11-09 — Three-bout Local School Cup (F-009)
+
+World → **Local cup** provides three20-second Play wins, checkpoint recovery,
+loss/draw retries, distinct NPC tactics and a real earned title. Standard match
+records/ledger atomically control progression; Watch never advances the cup.
+The live-entry descriptor is one-shot so legacy Fight navigation remains safe.
+[Contract and actual six-bout evidence](docs/game/F009-local-school-cup.md).
+
+The scripted production-contact run earned one title after three wins and three
+losses; it inserted neither health nor results. Title archives retain the latest50
+while cups remain replayable. Phone-sized EN/HE/RU entry and title layouts pass;
+physical-device performance is unverified. All work ends at a tested published
+checkpoint. Later PRD tasks and the unsafe crossover remain separate.
+
 ## 2026-11-09 — Selectable arena styles (F-008)
 
 World → **Arena styles** offers Neighborhood Hall, Neon Strip and Harbor Dome.
