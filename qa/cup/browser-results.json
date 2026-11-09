@@ -1,0 +1,435 @@
+{
+  "ownerId": "mw9hkdwt-1gwukt56",
+  "layouts": [
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "en",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "he",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "ru",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "en",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "he",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "ru",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "en",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "he",
+      "overflow": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "ru",
+      "overflow": 0,
+      "bad": []
+    }
+  ],
+  "entry": {
+    "pending": {
+      "matchId": "mw9hmw5v-j22ak7ht",
+      "stage": 0,
+      "profileId": "mw9hkdwt-1gwukt56"
+    },
+    "entry": {
+      "id": "mw9hmw5v-j22ak7ht",
+      "profileId": "mw9hkdwt-1gwukt56",
+      "species": "lion",
+      "playerName": "Yossi",
+      "opponentName": "Shadow",
+      "activityEvidence": {
+        "cupId": "school-cup:1",
+        "cupStage": 0,
+        "cupOpponentId": "shadow"
+      },
+      "watchSeen": false,
+      "moveCounts": {
+        "jab": 0,
+        "cross": 0,
+        "hook": 0,
+        "rear_hook": 0,
+        "uppercut": 0,
+        "rear_uppercut": 0
+      },
+      "eventCursor": 0
+    },
+    "seed": 2879889618,
+    "tactic": "counter",
+    "cupTactic": "counter",
+    "roundSeconds": 20,
+    "playing": true,
+    "staleDescriptor": false
+  },
+  "bout": {
+    "result": {
+      "winner": null,
+      "stoppage": "health",
+      "method": "draw",
+      "decision": "health",
+      "cards": [
+        {
+          "name": "Judge 1",
+          "totals": [
+            9,
+            10
+          ],
+          "rounds": [
+            {
+              "round": 1,
+              "scores": [
+                9,
+                10
+              ],
+              "stats": {
+                "lion": {
+                  "thrown": 20,
+                  "landed": 2,
+                  "head": 2,
+                  "body": 0,
+                  "shoulder": 0,
+                  "blocked": 6,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 3.006219318496692,
+                  "power": 4.55687775545646,
+                  "control": 22.133333333333358,
+                  "knockdowns": 0
+                },
+                "rabbit": {
+                  "thrown": 9,
+                  "landed": 3,
+                  "head": 1,
+                  "body": 2,
+                  "shoulder": 0,
+                  "blocked": 18,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 3.612873631232352,
+                  "power": 4.654785755304361,
+                  "control": 11.433333333333481,
+                  "knockdowns": 0
+                }
+              },
+              "merit": [
+                4.517169538933208,
+                7.259556491656701
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Judge 2",
+          "totals": [
+            9,
+            10
+          ],
+          "rounds": [
+            {
+              "round": 1,
+              "scores": [
+                9,
+                10
+              ],
+              "stats": {
+                "lion": {
+                  "thrown": 20,
+                  "landed": 2,
+                  "head": 2,
+                  "body": 0,
+                  "shoulder": 0,
+                  "blocked": 6,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 3.006219318496692,
+                  "power": 4.55687775545646,
+                  "control": 22.133333333333358,
+                  "knockdowns": 0
+                },
+                "rabbit": {
+                  "thrown": 9,
+                  "landed": 3,
+                  "head": 1,
+                  "body": 2,
+                  "shoulder": 0,
+                  "blocked": 18,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 3.612873631232352,
+                  "power": 4.654785755304361,
+                  "control": 11.433333333333481,
+                  "knockdowns": 0
+                }
+              },
+              "merit": [
+                4.43983519877626,
+                6.145020963997012
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Judge 3",
+          "totals": [
+            9,
+            10
+          ],
+          "rounds": [
+            {
+              "round": 1,
+              "scores": [
+                9,
+                10
+              ],
+              "stats": {
+                "lion": {
+                  "thrown": 20,
+                  "landed": 2,
+                  "head": 2,
+                  "body": 0,
+                  "shoulder": 0,
+                  "blocked": 6,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 3.006219318496692,
+                  "power": 4.55687775545646,
+                  "control": 22.133333333333358,
+                  "knockdowns": 0
+                },
+                "rabbit": {
+                  "thrown": 9,
+                  "landed": 3,
+                  "head": 1,
+                  "body": 2,
+                  "shoulder": 0,
+                  "blocked": 18,
+                  "evaded": 0,
+                  "missed": 0,
+                  "quality": 3.612873631232352,
+                  "power": 4.654785755304361,
+                  "control": 11.433333333333481,
+                  "knockdowns": 0
+                }
+              },
+              "merit": [
+                4.784605486566248,
+                8.33052211303959
+              ]
+            }
+          ]
+        }
+      ],
+      "votes": [
+        "rabbit",
+        "rabbit",
+        "rabbit"
+      ],
+      "totals": {
+        "lion": {
+          "thrown": 20,
+          "landed": 2,
+          "head": 2,
+          "body": 0,
+          "shoulder": 0,
+          "blocked": 6,
+          "evaded": 0,
+          "missed": 0,
+          "quality": 3.006219318496692,
+          "power": 4.55687775545646,
+          "control": 22.133333333333358,
+          "knockdowns": 0
+        },
+        "rabbit": {
+          "thrown": 9,
+          "landed": 3,
+          "head": 1,
+          "body": 2,
+          "shoulder": 0,
+          "blocked": 18,
+          "evaded": 0,
+          "missed": 0,
+          "quality": 3.612873631232352,
+          "power": 4.654785755304361,
+          "control": 11.433333333333481,
+          "knockdowns": 0
+        }
+      }
+    },
+    "history": [
+      {
+        "id": "mw9hmw5v-j22ak7ht",
+        "transactionId": "reward:mw9hmw5v-j22ak7ht",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 2,
+        "attempts": 20,
+        "defences": 6,
+        "jumps": 0,
+        "result": "draw",
+        "xp": 49,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 0,
+          "cupOpponentId": "shadow",
+          "seed": 2879889618,
+          "rounds": 1,
+          "method": "draw",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Shadow",
+          "stats": {
+            "lion": {
+              "landed": 2,
+              "thrown": 20
+            },
+            "rabbit": {
+              "landed": 3,
+              "thrown": 9
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 7,
+            "cross": 5,
+            "hook": 5,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 3
+          }
+        }
+      }
+    ],
+    "active": {
+      "id": "school-cup:1",
+      "seed": 2879889618,
+      "species": "lion",
+      "stage": 0,
+      "wins": [],
+      "attempts": [
+        {
+          "id": "mw9hmw5v-j22ak7ht",
+          "transactionId": "reward:mw9hmw5v-j22ak7ht",
+          "cupId": "school-cup:1",
+          "stage": 0,
+          "opponentId": "shadow",
+          "species": "lion",
+          "control": "play",
+          "result": "draw",
+          "seconds": 20,
+          "xp": 49,
+          "coins": 12,
+          "seed": 2879889618,
+          "method": "draw",
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ]
+        }
+      ],
+      "pending": null
+    },
+    "walletBefore": {
+      "coins": 0,
+      "xp": 0,
+      "transactions": 1
+    },
+    "walletAfter": {
+      "coins": 12,
+      "xp": 49,
+      "transactions": 2
+    },
+    "events": 58,
+    "fixture": "Unmodified seeded opponent and production Play input/contact loop; no result/health manipulation"
+  },
+  "legacy": {
+    "entryId": "mw9ho2g2-ohk66rvm",
+    "oldEntryId": "mw9hmw5v-j22ak7ht",
+    "cupEvidence": null,
+    "stage": 0
+  },
+  "errors": [],
+  "physicalPhones": false
+}

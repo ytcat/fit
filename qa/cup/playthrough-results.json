@@ -1,0 +1,2215 @@
+{
+  "method": "Actual production Play input + collision/contact simulation with unmodified NPCs. Fixed cup seed74, no health/results injected. Deterministic local test profile; not human-played.",
+  "start": {
+    "coins": 0,
+    "xp": 0,
+    "transactions": 1
+  },
+  "bouts": [
+    {
+      "entry": {
+        "id": "mw9h0kyi-cf2gnuzx",
+        "profileId": "mw9h0dff-hdgn9z5u",
+        "species": "lion",
+        "playerName": "Yossi",
+        "opponentName": "Shadow",
+        "activityEvidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 0,
+          "cupOpponentId": "shadow"
+        },
+        "watchSeen": false,
+        "moveCounts": {
+          "jab": 0,
+          "cross": 0,
+          "hook": 0,
+          "rear_hook": 0,
+          "uppercut": 0,
+          "rear_uppercut": 0
+        },
+        "eventCursor": 0
+      },
+      "hadStaleDescriptor": false,
+      "result": {
+        "winner": "lion",
+        "stoppage": "health",
+        "method": "health",
+        "decision": "health",
+        "cards": [
+          {
+            "name": "Judge 1",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 18,
+                    "landed": 2,
+                    "head": 2,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 4,
+                    "evaded": 0,
+                    "missed": 1,
+                    "quality": 3.1867283771997412,
+                    "power": 5.087936921118128,
+                    "control": 20.83333333333343,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 8,
+                    "landed": 2,
+                    "head": 0,
+                    "body": 2,
+                    "shoulder": 0,
+                    "blocked": 15,
+                    "evaded": 0,
+                    "missed": 1,
+                    "quality": 2.0010723379628526,
+                    "power": 2.7410291146971035,
+                    "control": 6.733333333333315,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  4.376263330889191,
+                  4.9405546671386205
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 2",
+            "totals": [
+              10,
+              9
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  10,
+                  9
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 18,
+                    "landed": 2,
+                    "head": 2,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 4,
+                    "evaded": 0,
+                    "missed": 1,
+                    "quality": 3.1867283771997412,
+                    "power": 5.087936921118128,
+                    "control": 20.83333333333343,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 8,
+                    "landed": 2,
+                    "head": 0,
+                    "body": 2,
+                    "shoulder": 0,
+                    "blocked": 15,
+                    "evaded": 0,
+                    "missed": 1,
+                    "quality": 2.0010723379628526,
+                    "power": 2.7410291146971035,
+                    "control": 6.733333333333315,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  4.529934086333299,
+                  3.8831465564995695
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 3",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 18,
+                    "landed": 2,
+                    "head": 2,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 4,
+                    "evaded": 0,
+                    "missed": 1,
+                    "quality": 3.1867283771997412,
+                    "power": 5.087936921118128,
+                    "control": 20.83333333333343,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 8,
+                    "landed": 2,
+                    "head": 0,
+                    "body": 2,
+                    "shoulder": 0,
+                    "blocked": 15,
+                    "evaded": 0,
+                    "missed": 1,
+                    "quality": 2.0010723379628526,
+                    "power": 2.7410291146971035,
+                    "control": 6.733333333333315,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  4.481557322378319,
+                  5.881769013605117
+                ]
+              }
+            ]
+          }
+        ],
+        "votes": [
+          "rabbit",
+          "lion",
+          "rabbit"
+        ],
+        "totals": {
+          "lion": {
+            "thrown": 18,
+            "landed": 2,
+            "head": 2,
+            "body": 0,
+            "shoulder": 0,
+            "blocked": 4,
+            "evaded": 0,
+            "missed": 1,
+            "quality": 3.1867283771997412,
+            "power": 5.087936921118128,
+            "control": 20.83333333333343,
+            "knockdowns": 0
+          },
+          "rabbit": {
+            "thrown": 8,
+            "landed": 2,
+            "head": 0,
+            "body": 2,
+            "shoulder": 0,
+            "blocked": 15,
+            "evaded": 0,
+            "missed": 1,
+            "quality": 2.0010723379628526,
+            "power": 2.7410291146971035,
+            "control": 6.733333333333315,
+            "knockdowns": 0
+          }
+        }
+      },
+      "record": {
+        "id": "mw9h0kyi-cf2gnuzx",
+        "transactionId": "reward:mw9h0kyi-cf2gnuzx",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 2,
+        "attempts": 18,
+        "defences": 4,
+        "jumps": 0,
+        "result": "win",
+        "xp": 69,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 0,
+          "cupOpponentId": "shadow",
+          "seed": 74,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Shadow",
+          "stats": {
+            "lion": {
+              "landed": 2,
+              "thrown": 18
+            },
+            "rabbit": {
+              "landed": 2,
+              "thrown": 8
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              10,
+              9
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 6,
+            "cross": 6,
+            "hook": 3,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 3
+          }
+        }
+      },
+      "stage": 1,
+      "titles": 0
+    },
+    {
+      "entry": {
+        "id": "mw9h0xvg-v8h8se4d",
+        "profileId": "mw9h0dff-hdgn9z5u",
+        "species": "lion",
+        "playerName": "Yossi",
+        "opponentName": "Circuit",
+        "activityEvidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit"
+        },
+        "watchSeen": false,
+        "moveCounts": {
+          "jab": 0,
+          "cross": 0,
+          "hook": 0,
+          "rear_hook": 0,
+          "uppercut": 0,
+          "rear_uppercut": 0
+        },
+        "eventCursor": 0
+      },
+      "hadStaleDescriptor": false,
+      "result": {
+        "winner": "rabbit",
+        "stoppage": "health",
+        "method": "health",
+        "decision": "health",
+        "cards": [
+          {
+            "name": "Judge 1",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 19,
+                    "landed": 3,
+                    "head": 3,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 2,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.8243156645516394,
+                    "power": 1.31328211898634,
+                    "control": 21.900000000000038,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 2,
+                    "head": 1,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 15,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 3.0185480512446414,
+                    "power": 4.555906620034689,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  2.3550782340705467,
+                  6.094620580847415
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 2",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 19,
+                    "landed": 3,
+                    "head": 3,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 2,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.8243156645516394,
+                    "power": 1.31328211898634,
+                    "control": 21.900000000000038,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 2,
+                    "head": 1,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 15,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 3.0185480512446414,
+                    "power": 4.555906620034689,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  2.3312134301715197,
+                  5.22596836583331
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 3",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 19,
+                    "landed": 3,
+                    "head": 3,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 2,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.8243156645516394,
+                    "power": 1.31328211898634,
+                    "control": 21.900000000000038,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 2,
+                    "head": 1,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 15,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 3.0185480512446414,
+                    "power": 4.555906620034689,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  2.4629934572099237,
+                  6.955305754554816
+                ]
+              }
+            ]
+          }
+        ],
+        "votes": [
+          "rabbit",
+          "rabbit",
+          "rabbit"
+        ],
+        "totals": {
+          "lion": {
+            "thrown": 19,
+            "landed": 3,
+            "head": 3,
+            "body": 0,
+            "shoulder": 0,
+            "blocked": 2,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 1.8243156645516394,
+            "power": 1.31328211898634,
+            "control": 21.900000000000038,
+            "knockdowns": 0
+          },
+          "rabbit": {
+            "thrown": 4,
+            "landed": 2,
+            "head": 1,
+            "body": 1,
+            "shoulder": 0,
+            "blocked": 15,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 3.0185480512446414,
+            "power": 4.555906620034689,
+            "control": 3.866666666666658,
+            "knockdowns": 0
+          }
+        }
+      },
+      "record": {
+        "id": "mw9h0xvg-v8h8se4d",
+        "transactionId": "reward:mw9h0xvg-v8h8se4d",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 3,
+        "attempts": 19,
+        "defences": 2,
+        "jumps": 0,
+        "result": "loss",
+        "xp": 49,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit",
+          "seed": 75,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Circuit",
+          "stats": {
+            "lion": {
+              "landed": 3,
+              "thrown": 19
+            },
+            "rabbit": {
+              "landed": 2,
+              "thrown": 4
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 7,
+            "cross": 8,
+            "hook": 3,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 1
+          }
+        }
+      },
+      "stage": 1,
+      "titles": 0
+    },
+    {
+      "entry": {
+        "id": "mw9h14j3-ayk2qvsv",
+        "profileId": "mw9h0dff-hdgn9z5u",
+        "species": "lion",
+        "playerName": "Yossi",
+        "opponentName": "Circuit",
+        "activityEvidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit"
+        },
+        "watchSeen": false,
+        "moveCounts": {
+          "jab": 0,
+          "cross": 0,
+          "hook": 0,
+          "rear_hook": 0,
+          "uppercut": 0,
+          "rear_uppercut": 0
+        },
+        "eventCursor": 0
+      },
+      "hadStaleDescriptor": false,
+      "result": {
+        "winner": "rabbit",
+        "stoppage": "health",
+        "method": "health",
+        "decision": "health",
+        "cards": [
+          {
+            "name": "Judge 1",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 19,
+                    "landed": 2,
+                    "head": 2,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 3,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0.8121976018282309,
+                    "power": 0.33073948116675717,
+                    "control": 22.333333333333346,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 1,
+                    "head": 0,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 17,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.5159990236995586,
+                    "power": 2.298253039858015,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  1.4456567603215713,
+                  4.7714592668882
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 2",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 19,
+                    "landed": 2,
+                    "head": 2,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 3,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0.8121976018282309,
+                    "power": 0.33073948116675717,
+                    "control": 22.333333333333346,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 1,
+                    "head": 0,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 17,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.5159990236995586,
+                    "power": 2.298253039858015,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  1.212270489554708,
+                  3.4820928043581567
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 3",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 19,
+                    "landed": 2,
+                    "head": 2,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 3,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0.8121976018282309,
+                    "power": 0.33073948116675717,
+                    "control": 22.333333333333346,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 1,
+                    "head": 0,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 17,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.5159990236995586,
+                    "power": 2.298253039858015,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  1.6741572905166708,
+                  5.869925028551801
+                ]
+              }
+            ]
+          }
+        ],
+        "votes": [
+          "rabbit",
+          "rabbit",
+          "rabbit"
+        ],
+        "totals": {
+          "lion": {
+            "thrown": 19,
+            "landed": 2,
+            "head": 2,
+            "body": 0,
+            "shoulder": 0,
+            "blocked": 3,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 0.8121976018282309,
+            "power": 0.33073948116675717,
+            "control": 22.333333333333346,
+            "knockdowns": 0
+          },
+          "rabbit": {
+            "thrown": 4,
+            "landed": 1,
+            "head": 0,
+            "body": 1,
+            "shoulder": 0,
+            "blocked": 17,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 1.5159990236995586,
+            "power": 2.298253039858015,
+            "control": 3.866666666666658,
+            "knockdowns": 0
+          }
+        }
+      },
+      "record": {
+        "id": "mw9h14j3-ayk2qvsv",
+        "transactionId": "reward:mw9h14j3-ayk2qvsv",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 2,
+        "attempts": 19,
+        "defences": 3,
+        "jumps": 0,
+        "result": "loss",
+        "xp": 49,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit",
+          "seed": 75,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Circuit",
+          "stats": {
+            "lion": {
+              "landed": 2,
+              "thrown": 19
+            },
+            "rabbit": {
+              "landed": 1,
+              "thrown": 4
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 8,
+            "cross": 7,
+            "hook": 4,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 0
+          }
+        }
+      },
+      "stage": 1,
+      "titles": 0
+    },
+    {
+      "entry": {
+        "id": "mw9h1at5-76dc7dp1",
+        "profileId": "mw9h0dff-hdgn9z5u",
+        "species": "lion",
+        "playerName": "Yossi",
+        "opponentName": "Circuit",
+        "activityEvidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit"
+        },
+        "watchSeen": false,
+        "moveCounts": {
+          "jab": 0,
+          "cross": 0,
+          "hook": 0,
+          "rear_hook": 0,
+          "uppercut": 0,
+          "rear_uppercut": 0
+        },
+        "eventCursor": 0
+      },
+      "hadStaleDescriptor": false,
+      "result": {
+        "winner": "rabbit",
+        "stoppage": "health",
+        "method": "health",
+        "decision": "health",
+        "cards": [
+          {
+            "name": "Judge 1",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 19,
+                    "landed": 1,
+                    "head": 1,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 3,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0.32024066160656844,
+                    "power": 0.10255408134621267,
+                    "control": 22.266666666666683,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 1,
+                    "head": 0,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 18,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.5159990236995586,
+                    "power": 2.298253039858015,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  0.9352449881142656,
+                  4.951459266888199
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 2",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 19,
+                    "landed": 1,
+                    "head": 1,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 3,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0.32024066160656844,
+                    "power": 0.10255408134621267,
+                    "control": 22.266666666666683,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 1,
+                    "head": 0,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 18,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.5159990236995586,
+                    "power": 2.298253039858015,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  0.6639922744195585,
+                  3.5720928043581566
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 3",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 19,
+                    "landed": 1,
+                    "head": 1,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 3,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 0.32024066160656844,
+                    "power": 0.10255408134621267,
+                    "control": 22.266666666666683,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 1,
+                    "head": 0,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 18,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.5159990236995586,
+                    "power": 2.298253039858015,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  1.180296885775081,
+                  6.119925028551801
+                ]
+              }
+            ]
+          }
+        ],
+        "votes": [
+          "rabbit",
+          "rabbit",
+          "rabbit"
+        ],
+        "totals": {
+          "lion": {
+            "thrown": 19,
+            "landed": 1,
+            "head": 1,
+            "body": 0,
+            "shoulder": 0,
+            "blocked": 3,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 0.32024066160656844,
+            "power": 0.10255408134621267,
+            "control": 22.266666666666683,
+            "knockdowns": 0
+          },
+          "rabbit": {
+            "thrown": 4,
+            "landed": 1,
+            "head": 0,
+            "body": 1,
+            "shoulder": 0,
+            "blocked": 18,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 1.5159990236995586,
+            "power": 2.298253039858015,
+            "control": 3.866666666666658,
+            "knockdowns": 0
+          }
+        }
+      },
+      "record": {
+        "id": "mw9h1at5-76dc7dp1",
+        "transactionId": "reward:mw9h1at5-76dc7dp1",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 1,
+        "attempts": 19,
+        "defences": 3,
+        "jumps": 0,
+        "result": "loss",
+        "xp": 48,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit",
+          "seed": 75,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Circuit",
+          "stats": {
+            "lion": {
+              "landed": 1,
+              "thrown": 19
+            },
+            "rabbit": {
+              "landed": 1,
+              "thrown": 4
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 8,
+            "cross": 6,
+            "hook": 4,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 1
+          }
+        }
+      },
+      "stage": 1,
+      "titles": 0
+    },
+    {
+      "entry": {
+        "id": "mw9h1gxu-wuhnq63x",
+        "profileId": "mw9h0dff-hdgn9z5u",
+        "species": "lion",
+        "playerName": "Yossi",
+        "opponentName": "Circuit",
+        "activityEvidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit"
+        },
+        "watchSeen": false,
+        "moveCounts": {
+          "jab": 0,
+          "cross": 0,
+          "hook": 0,
+          "rear_hook": 0,
+          "uppercut": 0,
+          "rear_uppercut": 0
+        },
+        "eventCursor": 0
+      },
+      "hadStaleDescriptor": false,
+      "result": {
+        "winner": "lion",
+        "stoppage": "health",
+        "method": "health",
+        "decision": "health",
+        "cards": [
+          {
+            "name": "Judge 1",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 20,
+                    "landed": 3,
+                    "head": 3,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 3,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 2.764720458837804,
+                    "power": 3.139596850613667,
+                    "control": 22.63333333333333,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 1,
+                    "head": 0,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 17,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.51437338058393,
+                    "power": 2.2933267358212004,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  3.623788206886897,
+                  4.769439519449626
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 2",
+            "totals": [
+              10,
+              9
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  10,
+                  9
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 20,
+                    "landed": 3,
+                    "head": 3,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 3,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 2.764720458837804,
+                    "power": 3.139596850613667,
+                    "control": 22.63333333333333,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 1,
+                    "head": 0,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 17,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.51437338058393,
+                    "power": 2.2933267358212004,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  3.6929114399561693,
+                  3.4796139268720125
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 3",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 20,
+                    "landed": 3,
+                    "head": 3,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 3,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 2.764720458837804,
+                    "power": 3.139596850613667,
+                    "control": 22.63333333333333,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 4,
+                    "landed": 1,
+                    "head": 0,
+                    "body": 1,
+                    "shoulder": 0,
+                    "blocked": 17,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 1.51437338058393,
+                    "power": 2.2933267358212004,
+                    "control": 3.866666666666658,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  3.729572558858398,
+                  5.8680855830966445
+                ]
+              }
+            ]
+          }
+        ],
+        "votes": [
+          "rabbit",
+          "lion",
+          "rabbit"
+        ],
+        "totals": {
+          "lion": {
+            "thrown": 20,
+            "landed": 3,
+            "head": 3,
+            "body": 0,
+            "shoulder": 0,
+            "blocked": 3,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 2.764720458837804,
+            "power": 3.139596850613667,
+            "control": 22.63333333333333,
+            "knockdowns": 0
+          },
+          "rabbit": {
+            "thrown": 4,
+            "landed": 1,
+            "head": 0,
+            "body": 1,
+            "shoulder": 0,
+            "blocked": 17,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 1.51437338058393,
+            "power": 2.2933267358212004,
+            "control": 3.866666666666658,
+            "knockdowns": 0
+          }
+        }
+      },
+      "record": {
+        "id": "mw9h1gxu-wuhnq63x",
+        "transactionId": "reward:mw9h1gxu-wuhnq63x",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 3,
+        "attempts": 20,
+        "defences": 3,
+        "jumps": 0,
+        "result": "win",
+        "xp": 69,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit",
+          "seed": 75,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Circuit",
+          "stats": {
+            "lion": {
+              "landed": 3,
+              "thrown": 20
+            },
+            "rabbit": {
+              "landed": 1,
+              "thrown": 4
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              10,
+              9
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 8,
+            "cross": 6,
+            "hook": 5,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 1
+          }
+        }
+      },
+      "stage": 2,
+      "titles": 0
+    },
+    {
+      "entry": {
+        "id": "mw9h1mxr-kd7nh9ss",
+        "profileId": "mw9h0dff-hdgn9z5u",
+        "species": "lion",
+        "playerName": "Yossi",
+        "opponentName": "Swift",
+        "activityEvidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 2,
+          "cupOpponentId": "swift"
+        },
+        "watchSeen": false,
+        "moveCounts": {
+          "jab": 0,
+          "cross": 0,
+          "hook": 0,
+          "rear_hook": 0,
+          "uppercut": 0,
+          "rear_uppercut": 0
+        },
+        "eventCursor": 0
+      },
+      "hadStaleDescriptor": false,
+      "result": {
+        "winner": "lion",
+        "stoppage": "health",
+        "method": "health",
+        "decision": "health",
+        "cards": [
+          {
+            "name": "Judge 1",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 21,
+                    "landed": 5,
+                    "head": 5,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 7,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 3.1770943642860012,
+                    "power": 2.397186197416077,
+                    "control": 20.10000000000014,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 10,
+                    "landed": 3,
+                    "head": 0,
+                    "body": 3,
+                    "shoulder": 0,
+                    "blocked": 15,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 3.767378262769637,
+                    "power": 4.746146051845111,
+                    "control": 10.966666666666791,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  4.6891692600792885,
+                  6.879969946917247
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 2",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 21,
+                    "landed": 5,
+                    "head": 5,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 7,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 3.1770943642860012,
+                    "power": 2.397186197416077,
+                    "control": 20.10000000000014,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 10,
+                    "landed": 3,
+                    "head": 0,
+                    "body": 3,
+                    "shoulder": 0,
+                    "blocked": 15,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 3.767378262769637,
+                    "power": 4.746146051845111,
+                    "control": 10.966666666666791,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  4.357927930444014,
+                  6.049390094908974
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Judge 3",
+            "totals": [
+              9,
+              10
+            ],
+            "rounds": [
+              {
+                "round": 1,
+                "scores": [
+                  9,
+                  10
+                ],
+                "stats": {
+                  "lion": {
+                    "thrown": 21,
+                    "landed": 5,
+                    "head": 5,
+                    "body": 0,
+                    "shoulder": 0,
+                    "blocked": 7,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 3.1770943642860012,
+                    "power": 2.397186197416077,
+                    "control": 20.10000000000014,
+                    "knockdowns": 0
+                  },
+                  "rabbit": {
+                    "thrown": 10,
+                    "landed": 3,
+                    "head": 0,
+                    "body": 3,
+                    "shoulder": 0,
+                    "blocked": 15,
+                    "evaded": 0,
+                    "missed": 0,
+                    "quality": 3.767378262769637,
+                    "power": 4.746146051845111,
+                    "control": 10.966666666666791,
+                    "knockdowns": 0
+                  }
+                },
+                "merit": [
+                  5.083911786871086,
+                  7.734171333439833
+                ]
+              }
+            ]
+          }
+        ],
+        "votes": [
+          "rabbit",
+          "rabbit",
+          "rabbit"
+        ],
+        "totals": {
+          "lion": {
+            "thrown": 21,
+            "landed": 5,
+            "head": 5,
+            "body": 0,
+            "shoulder": 0,
+            "blocked": 7,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 3.1770943642860012,
+            "power": 2.397186197416077,
+            "control": 20.10000000000014,
+            "knockdowns": 0
+          },
+          "rabbit": {
+            "thrown": 10,
+            "landed": 3,
+            "head": 0,
+            "body": 3,
+            "shoulder": 0,
+            "blocked": 15,
+            "evaded": 0,
+            "missed": 0,
+            "quality": 3.767378262769637,
+            "power": 4.746146051845111,
+            "control": 10.966666666666791,
+            "knockdowns": 0
+          }
+        }
+      },
+      "record": {
+        "id": "mw9h1mxr-kd7nh9ss",
+        "transactionId": "reward:mw9h1mxr-kd7nh9ss",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 5,
+        "attempts": 21,
+        "defences": 7,
+        "jumps": 0,
+        "result": "win",
+        "xp": 69,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 2,
+          "cupOpponentId": "swift",
+          "seed": 76,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Swift",
+          "stats": {
+            "lion": {
+              "landed": 5,
+              "thrown": 21
+            },
+            "rabbit": {
+              "landed": 3,
+              "thrown": 10
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 8,
+            "cross": 6,
+            "hook": 2,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 5
+          }
+        }
+      },
+      "titles": 1
+    }
+  ],
+  "final": {
+    "cup": {
+      "version": 1,
+      "nextCup": 2,
+      "active": null,
+      "titles": [
+        {
+          "id": "school-cup:1",
+          "kind": "local-school-cup-champion",
+          "cupId": "school-cup:1",
+          "seed": 74,
+          "species": "lion",
+          "sourceIds": [
+            "mw9h0kyi-cf2gnuzx",
+            "mw9h1gxu-wuhnq63x",
+            "mw9h1mxr-kd7nh9ss"
+          ],
+          "wins": [
+            {
+              "id": "mw9h0kyi-cf2gnuzx",
+              "transactionId": "reward:mw9h0kyi-cf2gnuzx",
+              "cupId": "school-cup:1",
+              "stage": 0,
+              "opponentId": "shadow",
+              "species": "lion",
+              "control": "play",
+              "result": "win",
+              "seconds": 20,
+              "xp": 69,
+              "coins": 12,
+              "seed": 74,
+              "method": "health",
+              "cardTotals": [
+                [
+                  9,
+                  10
+                ],
+                [
+                  10,
+                  9
+                ],
+                [
+                  9,
+                  10
+                ]
+              ]
+            },
+            {
+              "id": "mw9h1gxu-wuhnq63x",
+              "transactionId": "reward:mw9h1gxu-wuhnq63x",
+              "cupId": "school-cup:1",
+              "stage": 1,
+              "opponentId": "circuit",
+              "species": "lion",
+              "control": "play",
+              "result": "win",
+              "seconds": 20,
+              "xp": 69,
+              "coins": 12,
+              "seed": 75,
+              "method": "health",
+              "cardTotals": [
+                [
+                  9,
+                  10
+                ],
+                [
+                  10,
+                  9
+                ],
+                [
+                  9,
+                  10
+                ]
+              ]
+            },
+            {
+              "id": "mw9h1mxr-kd7nh9ss",
+              "transactionId": "reward:mw9h1mxr-kd7nh9ss",
+              "cupId": "school-cup:1",
+              "stage": 2,
+              "opponentId": "swift",
+              "species": "lion",
+              "control": "play",
+              "result": "win",
+              "seconds": 20,
+              "xp": 69,
+              "coins": 12,
+              "seed": 76,
+              "method": "health",
+              "cardTotals": [
+                [
+                  9,
+                  10
+                ],
+                [
+                  9,
+                  10
+                ],
+                [
+                  9,
+                  10
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "processed": [
+        "mw9h0kyi-cf2gnuzx",
+        "mw9h0xvg-v8h8se4d",
+        "mw9h14j3-ayk2qvsv",
+        "mw9h1at5-76dc7dp1",
+        "mw9h1gxu-wuhnq63x",
+        "mw9h1mxr-kd7nh9ss"
+      ]
+    },
+    "wallet": {
+      "coins": 72,
+      "xp": 353,
+      "transactions": 7
+    },
+    "ledger": [
+      {
+        "id": "baseline:mw9h0dff-hdgn9z5u",
+        "type": "baseline",
+        "coins": 0,
+        "xp": 0,
+        "rule": "migration-v1"
+      },
+      {
+        "id": "reward:mw9h0kyi-cf2gnuzx",
+        "type": "earn",
+        "coins": 12,
+        "xp": 69,
+        "species": "lion",
+        "activityId": "mw9h0kyi-cf2gnuzx",
+        "rule": "activity-v1"
+      },
+      {
+        "id": "reward:mw9h0xvg-v8h8se4d",
+        "type": "earn",
+        "coins": 12,
+        "xp": 49,
+        "species": "lion",
+        "activityId": "mw9h0xvg-v8h8se4d",
+        "rule": "activity-v1"
+      },
+      {
+        "id": "reward:mw9h14j3-ayk2qvsv",
+        "type": "earn",
+        "coins": 12,
+        "xp": 49,
+        "species": "lion",
+        "activityId": "mw9h14j3-ayk2qvsv",
+        "rule": "activity-v1"
+      },
+      {
+        "id": "reward:mw9h1at5-76dc7dp1",
+        "type": "earn",
+        "coins": 12,
+        "xp": 48,
+        "species": "lion",
+        "activityId": "mw9h1at5-76dc7dp1",
+        "rule": "activity-v1"
+      },
+      {
+        "id": "reward:mw9h1gxu-wuhnq63x",
+        "type": "earn",
+        "coins": 12,
+        "xp": 69,
+        "species": "lion",
+        "activityId": "mw9h1gxu-wuhnq63x",
+        "rule": "activity-v1"
+      },
+      {
+        "id": "reward:mw9h1mxr-kd7nh9ss",
+        "type": "earn",
+        "coins": 12,
+        "xp": 69,
+        "species": "lion",
+        "activityId": "mw9h1mxr-kd7nh9ss",
+        "rule": "activity-v1"
+      }
+    ],
+    "history": [
+      {
+        "id": "mw9h0kyi-cf2gnuzx",
+        "transactionId": "reward:mw9h0kyi-cf2gnuzx",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 2,
+        "attempts": 18,
+        "defences": 4,
+        "jumps": 0,
+        "result": "win",
+        "xp": 69,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 0,
+          "cupOpponentId": "shadow",
+          "seed": 74,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Shadow",
+          "stats": {
+            "lion": {
+              "landed": 2,
+              "thrown": 18
+            },
+            "rabbit": {
+              "landed": 2,
+              "thrown": 8
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              10,
+              9
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 6,
+            "cross": 6,
+            "hook": 3,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 3
+          }
+        }
+      },
+      {
+        "id": "mw9h0xvg-v8h8se4d",
+        "transactionId": "reward:mw9h0xvg-v8h8se4d",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 3,
+        "attempts": 19,
+        "defences": 2,
+        "jumps": 0,
+        "result": "loss",
+        "xp": 49,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit",
+          "seed": 75,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Circuit",
+          "stats": {
+            "lion": {
+              "landed": 3,
+              "thrown": 19
+            },
+            "rabbit": {
+              "landed": 2,
+              "thrown": 4
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 7,
+            "cross": 8,
+            "hook": 3,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 1
+          }
+        }
+      },
+      {
+        "id": "mw9h14j3-ayk2qvsv",
+        "transactionId": "reward:mw9h14j3-ayk2qvsv",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 2,
+        "attempts": 19,
+        "defences": 3,
+        "jumps": 0,
+        "result": "loss",
+        "xp": 49,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit",
+          "seed": 75,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Circuit",
+          "stats": {
+            "lion": {
+              "landed": 2,
+              "thrown": 19
+            },
+            "rabbit": {
+              "landed": 1,
+              "thrown": 4
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 8,
+            "cross": 7,
+            "hook": 4,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 0
+          }
+        }
+      },
+      {
+        "id": "mw9h1at5-76dc7dp1",
+        "transactionId": "reward:mw9h1at5-76dc7dp1",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 1,
+        "attempts": 19,
+        "defences": 3,
+        "jumps": 0,
+        "result": "loss",
+        "xp": 48,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit",
+          "seed": 75,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Circuit",
+          "stats": {
+            "lion": {
+              "landed": 1,
+              "thrown": 19
+            },
+            "rabbit": {
+              "landed": 1,
+              "thrown": 4
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 8,
+            "cross": 6,
+            "hook": 4,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 1
+          }
+        }
+      },
+      {
+        "id": "mw9h1gxu-wuhnq63x",
+        "transactionId": "reward:mw9h1gxu-wuhnq63x",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 3,
+        "attempts": 20,
+        "defences": 3,
+        "jumps": 0,
+        "result": "win",
+        "xp": 69,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 1,
+          "cupOpponentId": "circuit",
+          "seed": 75,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Circuit",
+          "stats": {
+            "lion": {
+              "landed": 3,
+              "thrown": 20
+            },
+            "rabbit": {
+              "landed": 1,
+              "thrown": 4
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              10,
+              9
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 8,
+            "cross": 6,
+            "hook": 5,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 1
+          }
+        }
+      },
+      {
+        "id": "mw9h1mxr-kd7nh9ss",
+        "transactionId": "reward:mw9h1mxr-kd7nh9ss",
+        "mode": "fight",
+        "species": "lion",
+        "control": "play",
+        "seconds": 20,
+        "hits": 5,
+        "attempts": 21,
+        "defences": 7,
+        "jumps": 0,
+        "result": "win",
+        "xp": 69,
+        "coins": 12,
+        "evidence": {
+          "cupId": "school-cup:1",
+          "cupStage": 2,
+          "cupOpponentId": "swift",
+          "seed": 76,
+          "rounds": 1,
+          "method": "health",
+          "decision": "health",
+          "playerName": "Yossi",
+          "opponentName": "Swift",
+          "stats": {
+            "lion": {
+              "landed": 5,
+              "thrown": 21
+            },
+            "rabbit": {
+              "landed": 3,
+              "thrown": 10
+            }
+          },
+          "cardTotals": [
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "moveCounts": {
+            "jab": 8,
+            "cross": 6,
+            "hook": 2,
+            "rear_hook": 0,
+            "uppercut": 0,
+            "rear_uppercut": 5
+          }
+        }
+      }
+    ]
+  },
+  "errors": [],
+  "physicalPhones": false
+}
