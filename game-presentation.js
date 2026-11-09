@@ -29,8 +29,8 @@
    for(const side of ['L','R'])for(const n of engine.coach.joints['hand'+side].children){if(n.isBone)continue;this.visibility.set(n,n.visible);n.visible=!/^Wrapped rope grip|^Professional focus mitt/.test(n.name);}
    container.append(this.stage);this.stage.classList.add('game-preview-live');requestAnimationFrame(()=>{if(this.closed)return;window.dispatchEvent(new Event('resize'));this.frame();});
   }
-  frame(){if(this.closed)return;const e=this.e,c=e.camera,root=e.coach.root,target=root.localToWorld(new THREE.Vector3(0,1.15,0)),height=2.8,width=1.7,fov=THREE.MathUtils.degToRad(c.fov),distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.3,c.aspect)))+.2;
-   c.zoom=1;c.position.copy(target).add(new THREE.Vector3(0,.15,distance).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion())));c.lookAt(target);c.updateProjectionMatrix();if(e.viewControls){e.viewControls.yaw=0;e.viewControls.refit(target);}e.lastRenderStamp=null;
+  frame(){if(this.closed)return;const e=this.e,c=e.camera,root=e.coach.root,focus=this.focus||{y:1.15,height:2.8,width:1.7},target=root.localToWorld(new THREE.Vector3(0,focus.y,focus.z||0)),height=focus.height,width=focus.width,fov=THREE.MathUtils.degToRad(c.fov),distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.3,c.aspect)))+.2;
+   c.zoom=1;c.position.copy(target).add(new THREE.Vector3(0,.15,distance).applyAxisAngle(new THREE.Vector3(0,1,0),focus.yaw||0).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion())));c.lookAt(target);c.updateProjectionMatrix();if(e.viewControls){e.viewControls.yaw=0;e.viewControls.refit(target);}e.lastRenderStamp=null;
   }
   close(){if(this.closed)return;this.closed=true;const e=this.e,c=e.camera,v=e.viewControls,s=this.camera;
    this.placeholder.replaceWith(this.stage);this.stage.classList.remove('game-preview-live');for(const [node,visible] of this.visibility)node.visible=visible;e.fitCameraToModel=this.oldFit;
@@ -39,7 +39,7 @@
  }
  function labels(view,profile,lang='en'){
   const species={en:{lion:'Lion',rabbit:'Rabbit'},he:{lion:'אריה',rabbit:'ארנב'},ru:{lion:'Лев',rabbit:'Кролик'}}[lang]||{lion:'Lion',rabbit:'Rabbit'},owner=view.careerEntry?.species||'lion',name=view.careerEntry?.playerName||profile?.name||'Guest';
-  return Object.fromEntries(['lion','rabbit'].map(actor=>[actor,(actor===owner?name:(view.careerEntry?.opponentName||'Shadow'))+' ('+species[actor]+')']));
+  return Object.fromEntries(['lion','rabbit'].map(actor=>[actor,(actor===owner?name:(view.careerEntry?.opponentName||'Shadow'))]));
  }
  const api={apply,materials,Preview,labels};if(typeof module!=='undefined')module.exports=api;else{
   window.GamePresentation=api;window.GameIdentity={labels:view=>labels(view,window.app?.engine?.career?.store.current(),window.app?.lang||'en')};

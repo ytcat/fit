@@ -2,6 +2,7 @@
 (() => {
  const worldRules=typeof module!=='undefined'?require('./game-world.js'):window.GameWorld;
  const iqRules=typeof module!=='undefined'?require('./fight-iq.js'):window.FightIQ;
+ const accessories=typeof module!=='undefined'?require('./game-accessories.js'):window.GameAccessories;
  const slots=['gloves','shorts','boots','belt'],species=['lion','rabbit'];
  const palette=[['default',0,0xc53d32],['midnight',25,0x27334c],['jade',75,0x208675],['sunrise',150,0xe8a341]];
  const catalog=slots.flatMap(slot=>palette.map(([variant,price,color])=>({id:slot+'_'+variant,slot,variant,price,color:variant==='default'?{gloves:0xc53d32,shorts:0x202535,boots:0x202535,belt:0xd8ad4a}[slot]:color,species:[...species],name:(slot==='belt'?'Cosmetic band':slot[0].toUpperCase()+slot.slice(1))+' · '+variant,names:{en:(slot==='belt'?'Cosmetic band':slot)+' · '+variant,he:({gloves:'כפפות',shorts:'מכנסיים',boots:'נעליים',belt:'חגורה קוסמטית'}[slot])+' · '+({default:'בסיס',midnight:'חצות',jade:'ירקן',sunrise:'זריחה'}[variant]),ru:({gloves:'Перчатки',shorts:'Шорты',boots:'Ботинки',belt:'Декоративный пояс'}[slot])+' · '+({default:'базовый',midnight:'полночь',jade:'нефрит',sunrise:'рассвет'}[variant])}})));
@@ -69,7 +70,7 @@
   if(xp!==p.boxers.lion.xp+p.boxers.rabbit.xp||!g.ledger.length||g.ledger[0].type!=='baseline')fail('XP ledger does not match career.');
   for(const event of g.processed)if(!seen.has('reward:'+event))fail('Missing reward transaction.');
   for(const c of combos)if(g.combos.owned.includes(c.id)&&g.activity[c.key]<c.target)fail('Invalid combo unlock.');
-  validateHistory(g);
+  validateHistory(g);if(accessories){if(!g.accessories)g.accessories=accessories.fresh();accessories.validate(g.accessories,g.ledger);}
   if(worldRules){if(g.world===undefined)g.world=worldRules.fresh(p.id);worldRules.validate(g.world,g);}
   if(iqRules){if(g.learning===undefined)g.learning=iqRules.fresh();iqRules.validate(g.learning,g.ledger);}
   return g;
@@ -77,6 +78,7 @@
  function action(g,a,p){
   if(!a||typeof a!=='object')fail('Invalid action.');
   if(a.type==='iq'){if(!iqRules||!p||!species.includes(a.species))fail('Learning is unavailable.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');if(!g.learning)g.learning=iqRules.fresh();const result=iqRules.apply(g.learning,{...a,type:a.iqAction,usernameProfileId:p.id});if(result.transaction){g.ledger.push({...result.transaction,species:a.species});p.boxers[a.species].xp+=result.earnedXP;}return result;}
+  if(a.type==='accessory'){if(!accessories)fail('Accessories unavailable.');return accessories.action(g,a);}
   if(a.type==='world'){if(!worldRules)fail('World rules are unavailable.');return worldRules.action(g,a);}
   if(a.type==='buy'){const item=catalog.find(c=>c.id===a.itemId);if(!item||!item.price)fail('Choose a shop item.');if(g.inventory.includes(item.id))fail('Already owned.');if(wallet(g).coins<item.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');g.ledger.push({id:'purchase:'+item.id,type:'spend',coins:-item.price,xp:0,itemId:item.id,rule:'shop-v1'});g.inventory.push(item.id);return {itemId:item.id,transactionId:'purchase:'+item.id};}
   if(a.type==='equip'){const item=catalog.find(c=>c.id===a.itemId);if(!slots.includes(a.slot)||item?.slot!==a.slot||!g.inventory.includes(a.itemId))fail('Own a compatible item for this slot first.');g.equipment[a.slot]=a.itemId;return {itemId:a.itemId};}

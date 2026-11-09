@@ -20,18 +20,22 @@
   sole(0,.018,1,rubber,'Boxing boot sole');sole(.018,.023,.99,trim,'Thin stitched boot welt');
   // Sectioned leather last: a real instep, low toe box and close-fitting heel.
   const rows=[[-.103,.028,-.037],[-.080,.055,-.013],[-.025,.063,.028],[.025,.070,.036],[.080,.074,.011],[.135,.069,-.012],[.185,.050,-.036],[.209,.023,-.055],[.215,.002,-.067]],p=[],indices=[],segments=18;
-  for(const [z,width,top] of rows)for(let i=0;i<=segments;i++){const a=Math.PI*i/segments;p.push(-Math.cos(a)*width,soleY(z)+.022+Math.sin(a)*(top-soleY(z)-.022),z);}
+  for(const [z,width,top] of rows)for(let i=0;i<=segments;i++){const a=Math.PI*i/segments;p.push(-Math.cos(a)*width,soleY(z)+.022+Math.sin(a)*Math.max(.008,top-soleY(z)-.022),z);}
   for(let r=0;r<rows.length-1;r++)for(let i=0;i<segments;i++){const a=r*(segments+1)+i,b=a+segments+1;indices.push(a,b,a+1,b,b+1,a+1);}
+  // Close both ends and the underside of the leather last; the outsole alone
+  // cannot hide these openings while a foot lifts or pivots.
+  for(const row of [0,rows.length-1]){const [z]=rows[row],center=p.length/3;p.push(0,soleY(z)+.022,z);for(let i=0;i<segments;i++){const a=row*(segments+1)+i;indices.push(...(row===0?[center,a,a+1]:[center,a+1,a]));}}
+  for(let r=0;r<rows.length-1;r++){const a=r*(segments+1),b=a+segments+1;indices.push(a,a+segments,b,b,a+segments,b+segments);}
   const upper=new THREE.BufferGeometry();upper.setAttribute('position',new THREE.Float32BufferAttribute(p,3));upper.setIndex(indices);upper.computeVertexNormals();mesh(foot,upper,leather,'Sculpted boxing boot upper');
   const ankle=new THREE.Group();ankle.name='Articulated padded boot collar';foot.add(ankle);foot.userData.bootAnkle=ankle;
   if(!referee){
-   const cuff=mesh(ankle,new THREE.CylinderGeometry(.076,.064,.177,28,1,true),leather,'Boxing boot ankle');cuff.position.set(0,.071,-.022);cuff.scale.z=.91;
-   const rim=mesh(ankle,new THREE.TorusGeometry(.074,.007,6,32),rubber,'Padded collar rim');rim.rotation.x=Math.PI/2;rim.position.set(0,.160,-.022);rim.scale.y=.91;
-   const tongue=mesh(ankle,new THREE.BoxGeometry(.055,.16,.013),leather,'Boot tongue');tongue.position.set(0,.075,.042);
-   for(const s of [-1,1])line(ankle,[V(s*.069,.146,-.018),V(s*.069,.066,-.004),V(s*.062,-.005,.032)],trim,.003);
+   const cuff=mesh(ankle,new THREE.CylinderGeometry(.091,.078,.177,28,1,true),leather,'Boxing boot ankle');cuff.position.set(0,.071,-.022);cuff.scale.z=1.15;const collar=mesh(ankle,new THREE.RingGeometry(.069,.091,28),leather,'Closed leather collar binding');collar.rotation.x=-Math.PI/2;collar.position.set(0,.1595,-.022);collar.scale.y=1.15;
+   const rim=mesh(ankle,new THREE.TorusGeometry(.090,.006,6,32),rubber,'Padded collar rim');rim.rotation.x=Math.PI/2;rim.position.set(0,.160,-.022);rim.scale.y=1.15;
+   const tongue=mesh(ankle,new THREE.BoxGeometry(.055,.16,.013),leather,'Boot tongue');tongue.position.set(0,.075,.087);
+   for(const s of [-1,1])line(ankle,[V(s*.089,.146,-.018),V(s*.082,.066,-.004),V(s*.062,-.005,.032)],trim,.003);
   }
   for(let i=0;i<(referee?3:8);i++){
-   const high=i>=3,parent=high?ankle:foot,y=high?.02+(i-3)*.026:-.002+i*.013,z=high?.051:.131-i*.033;
+   const high=i>=3,parent=high?ankle:foot,y=high?.02+(i-3)*.026:-.002+i*.013,z=high?.097:.131-i*.033;
    line(parent,[V(-.025,y,z),V(0,y+.005,z+.004),V(.025,y+.011,z-.007)],lace);
    line(parent,[V(.025,y,z),V(0,y+.005,z+.005),V(-.025,y+.011,z-.007)],lace);
   }

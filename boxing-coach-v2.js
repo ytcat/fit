@@ -353,7 +353,7 @@
         if(n.material.color&&!convertedMaterials.has(n.material)) {
           n.material.color.convertSRGBToLinear();convertedMaterials.add(n.material);
         }
-        n.castShadow=true;n.receiveShadow=true;
+        n.castShadow=n!==this.bodyFur&&n!==this.mane;n.receiveShadow=n!==this.skin&&n!==this.bodyFur;
       }});
       this.update(0,'combo','one_two');
     }

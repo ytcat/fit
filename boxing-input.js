@@ -30,7 +30,7 @@
    return !match||(match.phase==='round'&&!match.result&&!match.fighters[this.actor()].down);
   }
   sequence(){const m=this.engine.arena?.fightView?.match;return m?m.playerCombo:this.combo;}
-  canCombo(){const match=this.engine.arena?.fightView?.match,a=match?match.fighters[this.actor()]?.action:(this.context===this.key()?this.current:null),ready=!a||a.move==='guard'&&(!a.guardStyle||a.guardStyle==='high');return this.canAct()&&(!match||typeof match.requestPlayerCombo==='function')&&!this.sequence()&&!(match?.playerQueue||this.queue).length&&ready;}
+  canCombo(){const match=this.engine.arena?.fightView?.match;return this.canAct()&&(match?!match.pendingPlayerCombo:!this.queue.some(c=>c.combo?.step===1));}
   pressCombo(id){
    if(this.context!==this.key())this.reset();
    const unlock=window.ringfighterGame&&window.GameDomain?.combos.find(c=>c.controllerId===id),game=this.engine.career?.store.game(),mode=this.engine.targetMode==='fight'?'fight':'training';if(unlock&&(!game?.combos.owned.includes(unlock.id)||!game.combos[mode].includes(unlock.id)))return false;
@@ -39,7 +39,7 @@
    const commands=ids.map((input,i)=>{const d=definitions[input],duration=d.move==='speedbag'?.27:d.move==='jab'?.54:d.move==='cross'?.64:durations[d.move];return {...d,input,duration,combo:{id,step:i+1,total:ids.length}};});
    const match=this.engine.arena?.fightView?.match;let accepted;
    if(match){match.setPlayer(this.actor());accepted=match.requestPlayerCombo(commands,id);}
-   else{this.current=null;this.queue=commands;this.combo={id,step:1,total:commands.length};this.frame(this.now());accepted=true;}
+   else{this.queue.push(...commands);if(!this.current)this.combo={id,step:1,total:commands.length};this.frame(this.now());accepted=true;}
    if(accepted){this.engine.isPlaying=true;this.engine.lastRenderStamp=null;this.engine.onInputState?.();}return accepted;
   }
   press(id){
@@ -53,7 +53,7 @@
    if(match){match.setPlayer(this.actor());accepted=match.requestPlayerMove(command);}
    else {
     if(this.context!==this.key())this.reset();
-    if(this.combo){this.combo=null;this.queue=[];}
+    if(this.combo){this.combo=null;this.queue=[];if(this.current)delete this.current.combo;}
     const count=definition.count||1,capacity=3-(this.current?1:0)-this.queue.length;
     if(count>capacity)return false;
     for(let i=0;i<count;i++)this.queue.push({...command,duration:count>1?.27:command.duration});
@@ -71,7 +71,7 @@
     if(this.queue.length)this.current={...this.queue.shift(),start:end,id:++this.serial};
    }
    if(!this.current&&this.queue.length)this.current={...this.queue.shift(),start:time,id:++this.serial};
-   if(this.current?.combo&&this.combo)this.combo.step=this.current.combo.step;
+   if(this.current?.combo){if(!this.combo||this.combo.id!==this.current.combo.id)this.combo={...this.current.combo};else this.combo.step=this.current.combo.step;}
    if(!this.current&&!this.queue.length)this.combo=null;
    if(!this.current)return {move:'guard',phase:.35,attack:false,defend:true,brace:1,rest:true,index:this.serial,manual:true};
    const a=this.current;return {...a,phase:Math.max(0,Math.min(1,(time-a.start)/a.duration)),index:a.id,manual:true};
