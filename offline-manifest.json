@@ -1,5 +1,5 @@
 {
-  "version": "bugs-20261109a",
+  "version": "station-20261109a",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -47,12 +47,14 @@
     "./fight-presentation.js?v=2026110901",
     "./ringside-layout.css?v=2026110710",
     "./ringside-layout.js?v=2026110901",
-    "./game-shell.css?v=2026110901",
+    "./game-shell.css?v=2026110902",
     "./game-world-art.js?v=2026110801",
     "./game-world-ui.js?v=2026110901",
     "./fight-iq-demo.js?v=2026110801",
     "./fight-iq-ui.js?v=2026110901",
-    "./game-shell.js?v=2026110901",
+    "./game-resume.js?v=2026110902",
+    "./game-resume-ui.js?v=2026110902",
+    "./game-shell.js?v=2026110902",
     "./assets/models/coach-surface-v2.json?v=1",
     "./assets/models/equipment-surfaces-r76.json",
     "./assets/models/rabbit-surface-r78.json",
