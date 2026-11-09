@@ -1,0 +1,79 @@
+{
+  "fixture": "Earned wallet/loadout fixtures for UI only; not human-played activities.",
+  "errors": [],
+  "shadows": {
+    "shadowLights": 1,
+    "changedPixels": 11203,
+    "furCasts": false,
+    "bodyReceives": false
+  },
+  "store": {
+    "accessories": {
+      "owned": [
+        "headband",
+        "armbands",
+        "champion_belt"
+      ],
+      "equipped": [
+        "headband",
+        "armbands",
+        "champion_belt"
+      ]
+    },
+    "scroll": 0
+  },
+  "layouts": [
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "scroll": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "scroll": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 430,
+        "height": 932
+      },
+      "scroll": 0,
+      "bad": []
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "scroll": 0,
+      "bad": []
+    }
+  ],
+  "fight": {
+    "names": {
+      "lion": "Yossi",
+      "rabbit": "Shadow"
+    },
+    "first": true,
+    "queued": true,
+    "third": false,
+    "moves": [
+      "jab",
+      "jab",
+      "cross"
+    ],
+    "roundSeconds": 20
+  },
+  "ko": {
+    "title": "KO",
+    "sub": "Shadow won",
+    "ko": "true"
+  }
+}

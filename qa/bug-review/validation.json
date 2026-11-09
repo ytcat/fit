@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-09",
+  "baselineSha": "47c65dabce096f757fdbb6cc4bc6775ff6e088fa",
+  "implementationSha": "0cfdf542c02e4d57bdd95e33f1e1b6baf3a14bab",
+  "githubValidation": {
+    "url": "https://github.com/ytcat/fit/actions/runs/42571465196",
+    "status": "success",
+    "suites": 70,
+    "checks": [
+      "local script references",
+      "JavaScript syntax",
+      "tests/*.test.cjs"
+    ]
+  },
+  "browser": {
+    "command": "NODE_PATH=/tmp/fit-tools/node_modules node qa/bug-review/browser.cjs",
+    "status": "pass",
+    "resultFile": "results.json",
+    "renderer": "Linux Chromium / ANGLE SwiftShader"
+  },
+  "offline": {
+    "status": "pass",
+    "cachedAssets": 77,
+    "cache": "ringfighter-offline-bugs-20261109a",
+    "verified": "offline navigation + full local model startup"
+  },
+  "additionalTargetedChecks": [
+    "posed boot shaft coverage for both species across 30 poses",
+    "exact skin-following ribbons with matching visible/depth/distance shaders",
+    "KO state and name-only result",
+    "atomic accessory purchases and quota failure rollback",
+    "combo queue/ownership/loadout enforcement"
+  ],
+  "physicalPhones": "NOT VERIFIED",
+  "crossover": "WITHHELD: opposing arm/torso separation not validated"
+}
