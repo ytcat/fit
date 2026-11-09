@@ -1,4 +1,4 @@
-# RingFighter — 3D Boxing
+# Glory of the Ring — 3D Boxing
 
 Staggered guards, larger species-specific skipping paws, independent ring footwork,
 12 AI tactical phrases and 44 training presets.
