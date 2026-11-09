@@ -3,6 +3,7 @@
  const worldRules=typeof module!=='undefined'?require('./game-world.js'):window.GameWorld;
  const iqRules=typeof module!=='undefined'?require('./fight-iq.js'):window.FightIQ;
  const accessories=typeof module!=='undefined'?require('./game-accessories.js'):window.GameAccessories;
+ const venueIds=Object.freeze(['default','neon_strip','harbor_dome']);
  const slots=['gloves','shorts','boots','belt'],species=['lion','rabbit'];
  const palette=[['default',0,0xc53d32],['midnight',25,0x27334c],['jade',75,0x208675],['sunrise',150,0xe8a341]];
  const catalog=slots.flatMap(slot=>palette.map(([variant,price,color])=>({id:slot+'_'+variant,slot,variant,price,color:variant==='default'?{gloves:0xc53d32,shorts:0x202535,boots:0x202535,belt:0xd8ad4a}[slot]:color,species:[...species],name:(slot==='belt'?'Cosmetic band':slot[0].toUpperCase()+slot.slice(1))+' · '+variant,names:{en:(slot==='belt'?'Cosmetic band':slot)+' · '+variant,he:({gloves:'כפפות',shorts:'מכנסיים',boots:'נעליים',belt:'חגורה קוסמטית'}[slot])+' · '+({default:'בסיס',midnight:'חצות',jade:'ירקן',sunrise:'זריחה'}[variant]),ru:({gloves:'Перчатки',shorts:'Шорты',boots:'Ботинки',belt:'Декоративный пояс'}[slot])+' · '+({default:'базовый',midnight:'полночь',jade:'нефрит',sunrise:'рассвет'}[variant])}})));
@@ -16,7 +17,7 @@
  ].map(c=>({...c,species:[...species],allowedModes:['training','fight'],slotCost:1}));
  const quests=[...combos.map(c=>({id:c.id,name:c.name,key:c.key,target:c.target,comboId:c.id})),{id:'steady_school',name:'Five completed activities',key:'completed',target:5},{id:'first_bout',name:'Complete an active fight',key:'fights',target:1},{id:'straight_work',name:'Land 100 contacts',key:'hits',target:100},{id:'school_minutes',name:'Complete ten active minutes',key:'seconds',target:600}];
  const cleanName=name=>String(name||'').replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,'').trim();
- const fresh=p=>({version:1,school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{})});
+ const fresh=p=>({version:1,venue:'default',school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{})});
  const wallet=g=>({coins:g.ledger.reduce((n,t)=>n+t.coins,0),xp:g.ledger.reduce((n,t)=>n+t.xp,0),transactions:g.ledger.length});
  const fail=message=>{throw Error(message);};
  const integer=(n,max=1e9)=>Number.isSafeInteger(n)&&n>=0&&n<=max;
@@ -59,6 +60,7 @@
  function validate(g,p){
   if(g&&g.version!==1)fail('Incompatible game version.');
   if(!g||g.version!==1||!g.school||typeof g.school.name!=='string'||!g.school.name.trim()||cleanName(g.school.name)!==g.school.name||g.school.name.length>48||!['sun','paw','shield','star'].includes(g.school.crest)||!['balance','precision','courage','patience'].includes(g.school.philosophy))fail('Invalid school.');
+  if(g.venue===undefined)g.venue='default';if(!venueIds.includes(g.venue))fail('Invalid arena style.');
   const list=(a,max,predicate)=>Array.isArray(a)&&a.length<=max&&new Set(a).size===a.length&&a.every(predicate);
   if(!list(g.inventory,16,x=>catalog.some(c=>c.id===x))||slots.some(s=>!g.inventory.includes(g.equipment?.[s])||!catalog.some(c=>c.id===g.equipment[s]&&c.slot===s)))fail('Invalid inventory.');
   if(!g.combos||!list(g.combos.owned,combos.length,x=>combos.some(c=>c.id===x))||!list(g.combos.training,5,x=>g.combos.owned.includes(x))||!list(g.combos.fight,3,x=>g.combos.owned.includes(x)))fail('Invalid combo loadout.');
@@ -78,6 +80,7 @@
  function action(g,a,p){
   if(!a||typeof a!=='object')fail('Invalid action.');
   if(a.type==='iq'){if(!iqRules||!p||!species.includes(a.species))fail('Learning is unavailable.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');if(!g.learning)g.learning=iqRules.fresh();const result=iqRules.apply(g.learning,{...a,type:a.iqAction,usernameProfileId:p.id});if(result.transaction){g.ledger.push({...result.transaction,species:a.species});p.boxers[a.species].xp+=result.earnedXP;}return result;}
+  if(a.type==='venue'){if(!venueIds.includes(a.venueId))fail('Unknown arena style.');g.venue=a.venueId;return {venueId:g.venue};}
   if(a.type==='accessory'){if(!accessories)fail('Accessories unavailable.');return accessories.action(g,a);}
   if(a.type==='world'){if(!worldRules)fail('World rules are unavailable.');return worldRules.action(g,a);}
   if(a.type==='buy'){const item=catalog.find(c=>c.id===a.itemId);if(!item||!item.price)fail('Choose a shop item.');if(g.inventory.includes(item.id))fail('Already owned.');if(wallet(g).coins<item.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');g.ledger.push({id:'purchase:'+item.id,type:'spend',coins:-item.price,xp:0,itemId:item.id,rule:'shop-v1'});g.inventory.push(item.id);return {itemId:item.id,transactionId:'purchase:'+item.id};}
@@ -95,5 +98,5 @@
   if(worldRules)worldRules.record(g,record);
   return {coins,unlocks,activityId:event.id,transactionId,record};
  }
- const api={catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
+ const api={venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
 })();
