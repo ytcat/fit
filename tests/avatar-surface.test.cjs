@@ -2,10 +2,23 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')),coach=new LionCoach(data),g=coach.shorts.geometry;
 let centre=0;
+let upperWidth=0;
 for(let i=0;i<g.attributes.position.count;i++){
  const p=g.attributes.position,w=g.attributes.skinWeight,ids=g.attributes.skinIndex;
+ if(p.getY(i)>1.035&&p.getY(i)<1.045)upperWidth=Math.max(upperWidth,Math.abs(p.getX(i)));
  for(let k=0;k<4;k++)if(w.array[i*4+k]>0)assert.ok(['hips','thighL','thighR'].includes(coach.bones[ids.array[i*4+k]].name),'shorts must never bind to the spine or arms at wide outer panels');
  if(Math.abs(p.getX(i))<.025&&p.getY(i)>.80&&p.getY(i)<.91){let pelvis=0;for(let k=0;k<4;k++)if(coach.bones[ids.array[i*4+k]].name==='hips')pelvis+=w.array[i*4+k];assert.ok(pelvis>.65,'the crotch seam must remain supported by the pelvis');centre++;}
+}
+assert.ok(upperWidth>.24&&upperWidth<.28,'upper shorts must taper into the waist instead of exposing the wide flat leg caps');
+const surfaceNormal=new THREE.Vector3(),edgeA=new THREE.Vector3(),edgeB=new THREE.Vector3(),vertex=new THREE.Vector3();
+for(let i=0;i<g.attributes.position.count;i+=3){
+ const p=g.attributes.position,n=g.attributes.normal;vertex.fromBufferAttribute(p,i);
+ // Only the upper panels change. At the unchanged cut hems, averaged vertex
+ // normals can oppose the face normal because they also sample the removed cap.
+ if([0,1,2].some(k=>p.getY(i+k)<=.90))continue;
+ edgeA.fromBufferAttribute(p,i+1).sub(vertex);edgeB.fromBufferAttribute(p,i+2).sub(vertex);
+ surfaceNormal.fromBufferAttribute(n,i).add(new THREE.Vector3().fromBufferAttribute(n,i+1)).add(new THREE.Vector3().fromBufferAttribute(n,i+2));
+ assert.ok(edgeA.cross(edgeB).dot(surfaceNormal)>=-1e-9,'rounded upper garment panels must retain outward winding');
 }
 // Every garment boundary must be one of its three intended openings.
 const edgeCounts=new Map(),coordinates=new Map(),position=g.attributes.position;

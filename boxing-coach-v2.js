@@ -186,7 +186,10 @@
           let d=hip;
           for(const side of [-1,1]){
             const t=clamp((1.02-p.y)/.29),x=side*(.150+(1.0-p.y)*.07),rx=lerp(.173,.155,t),rz=lerp(.185,.172,t);
-            const leg=Math.max((Math.hypot((p.x-x)/rx,p.z/rz)-1)*Math.min(rx,rz),p.y-1.04);
+            // Round the upper leg into the hip shell. A flat cap here exposed
+            // a horizontal shelf beyond the waist; the rounded tip ends inside
+            // the hip while the fabric below .90 retains its original profile.
+            const leg=(Math.hypot((p.x-x)/rx,p.z/rz,Math.max(0,(p.y-.90)/.17))-1)*Math.min(rx,rz);
             const h=Math.max(.025-Math.abs(d-leg),0)/.025;d=Math.min(d,leg)-h*h*.025*.25;
           }
           return Math.max(d,.735-p.y,p.y-1.085);
