@@ -34,6 +34,19 @@ The offline pack contains **84 same-origin assets** (~21.55 MB uncompressed sour
 
 Same-view renderer checks show no added draw calls or submitted triangles across styles, and zero steady buffer/texture uploads from style application. Counts vary with camera culling; compare identical views rather than totals from different cameras. Theme materials/textures consume bounded additional resources, reported in the QA output. Single software-renderer submission times are not gameplay FPS. Physical iPhone/Android sustained FPS, thermal behavior and driver memory remain **NOT VERIFIED**; this is not a claim of passing hardware performance targets.
 
+
+
+| Camera | Calls (each style) | Triangles (each style) |
+|---|---:|---:|
+| desktop front | 535 | 1,160,663 |
+| desktop quarter | 542 | 1,161,541 |
+| desktop reverse | 541 | 1,161,529 |
+| mobile front | 509 | 1,158,139 |
+| mobile quarter | 526 | 1,159,901 |
+| mobile reverse | 528 | 1,160,129 |
+
+Resource stress: GPU texture count is bounded at 35 with both caches warm, 30→28 during locale cycling, and returns to the original 25 on disposal; geometry count remains 391 and shader programs remain 25. These are renderer resource counts, not a driver-memory measurement. Returning to default reproduces identical screenshot pixels.
+
 Source-only review caught the optional-renderer failure and fixed it before publication. Lifecycle review caught the same-mode new-fight gap and verified synchronous reapplication. Existing station return, short sessions, store and all prior modes are retained.
 
 Rollback: choose Neighborhood Hall, or use `?game=classic` for the original interface. A code rollback should revert this milestone's renderer/UI/domain/index/offline changes together; the extra optional venue field grants no progression and does not modify existing records.
