@@ -151,6 +151,34 @@
 ## Intake session — 2026-11-09
 These nine reports were recorded from the user's latest message. **None is marked implemented or tested.** The immediate batch is GOTR-0001 through GOTR-0007; GOTR-0008 and GOTR-0009 are expansion roadmap items. Triage these against the latest code and any active Codex branches before scheduling work.
 
+### GOTR-0010 — Compact training-menu tabs and agreed public title
+- **Reported:** 2026-11-09
+- **Status:** DONE
+- **Priority:** P1
+- **Area:** Training menu / public branding
+- **Reported behavior / request:** Huge stretched Training, Moves & skills and View & sound buttons in the screenshot; restore the agreed app name.
+- **Resolution:** Fixed tab/content grid placement and applied Glory of the Ring to public title/signs while retaining saves and technical identifiers.
+- **Implementation:** `70d7fd3`, `48ea185`; latest main documentation preserved.
+- **Evidence:** [Actual app captures,36 localized layouts, offline test and rollback](menu-brand-release.md). Full validation/deployment recorded in session handoff after successful publication. GOTR-0006 concerns separate play-action controls and remains open.
+
+### GOTR-0011 — Remove square upper edge from boxer shorts
+- **Reported:** 2026-11-09
+- **Status:** IN PROGRESS
+- **Priority:** P1
+- **Area:** 3D clothing
+- **Reported behavior / request:** Pants look square at the top and strange.
+- **Implementation:** Isolated `lion/rounded-shorts-repair`; runtime cap geometry confirmed as the cause. Not yet merged or published.
+- **Evidence:** Matched pose/angle QA in progress; preserve both species, garment weights and hems.
+
+### GOTR-0012 — Correct coach/opponent spacing for straight jabs
+- **Reported:** 2026-11-09
+- **Status:** TRIAGE
+- **Priority:** P1
+- **Area:** Mitt training / sparring / fight
+- **Reported behavior / request:** Opponent and coach stand too close; the jab should extend straight at an appropriate distance.
+- **Implementation:** Coach mitt contact currently measured at56.3° elbow /47.5% extension. Clean sparring/fight jabs already reach172.3°/171.1°; inspect visual crowding separately and preserve contact stops on blocked punches. No spacing change published yet.
+- **Evidence:** New matched real-app views and contact tests required before resolving.
+
 ### Issue template
 
 ```markdown

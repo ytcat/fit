@@ -1,0 +1,442 @@
+{
+  "layouts": [
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "en",
+      "tab": "practice",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "en",
+      "tab": "moves",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "en",
+      "tab": "settings",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "he",
+      "tab": "practice",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "he",
+      "tab": "moves",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "he",
+      "tab": "settings",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "ru",
+      "tab": "practice",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "ru",
+      "tab": "moves",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 393,
+        "height": 852
+      },
+      "lang": "ru",
+      "tab": "settings",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "en",
+      "tab": "practice",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "en",
+      "tab": "moves",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "en",
+      "tab": "settings",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "he",
+      "tab": "practice",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "he",
+      "tab": "moves",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "he",
+      "tab": "settings",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "ru",
+      "tab": "practice",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "ru",
+      "tab": "moves",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 320,
+        "height": 568
+      },
+      "lang": "ru",
+      "tab": "settings",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "en",
+      "tab": "practice",
+      "tabHeight": 40,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "en",
+      "tab": "moves",
+      "tabHeight": 40,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "en",
+      "tab": "settings",
+      "tabHeight": 40,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "he",
+      "tab": "practice",
+      "tabHeight": 40,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "he",
+      "tab": "moves",
+      "tabHeight": 40,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "he",
+      "tab": "settings",
+      "tabHeight": 40,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "ru",
+      "tab": "practice",
+      "tabHeight": 40,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "ru",
+      "tab": "moves",
+      "tabHeight": 40,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 844,
+        "height": 390
+      },
+      "lang": "ru",
+      "tab": "settings",
+      "tabHeight": 40,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "en",
+      "tab": "practice",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "en",
+      "tab": "moves",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "en",
+      "tab": "settings",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "he",
+      "tab": "practice",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "he",
+      "tab": "moves",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "he",
+      "tab": "settings",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "ru",
+      "tab": "practice",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "ru",
+      "tab": "moves",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    },
+    {
+      "size": {
+        "width": 1100,
+        "height": 950
+      },
+      "lang": "ru",
+      "tab": "settings",
+      "tabHeight": 48,
+      "overflow": 0,
+      "bad": [],
+      "brand": "Glory of the Ring"
+    }
+  ],
+  "header": {
+    "bad": []
+  },
+  "errors": [],
+  "physicalPhones": false,
+  "method": "Real Chromium DOM and Three.js app; local fixture profiles, no activity awards"
+}

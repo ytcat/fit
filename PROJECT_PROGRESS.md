@@ -1,3 +1,12 @@
+## 2026-11-09 — Compact training menu and public title
+
+Fixed stretched Training/Moves/View tabs by assigning their intended grid row.
+Applied the current **Glory of the Ring** public name while preserving technical
+IDs, saved profiles and the app URL. Actual updated arena previews and the full
+optional offline pack are versioned.36 localized layouts and offline navigation
+pass; physical-device performance remains unverified.
+[Evidence and rollback](docs/glory-of-the-ring/menu-brand-release.md).
+
 ## 2026-11-09 — Three-bout Local School Cup (F-009)
 
 World → **Local cup** provides three20-second Play wins, checkpoint recovery,
