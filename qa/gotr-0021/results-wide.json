@@ -1,0 +1,1797 @@
+{
+ "errors": [],
+ "results": [
+  {
+   "viewport": "852x393",
+   "lang": "en",
+   "states": [
+    {
+     "state": "full-play/moves",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Fighters ready",
+     "health": [
+      6,
+      70
+     ],
+     "chipBottom": 70,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/combos",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Fighters ready",
+     "health": [
+      6,
+      70
+     ],
+     "chipBottom": 70,
+     "tabsTop": 80,
+     "movesChecked": 1,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/defence",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Fighters ready",
+     "health": [
+      6,
+      70
+     ],
+     "chipBottom": 70,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "mid-watch-real",
+     "phase": "round",
+     "reported": {
+      "lion": 100,
+      "rabbit": 86.86997078612536
+     },
+     "shown": [
+      "100",
+      "87"
+     ],
+     "bars": [
+      100,
+      87
+     ],
+     "hud": "Round 1/1 · 0:19 · Guest 1 · Shadow 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 0
+    },
+    {
+     "state": "low-injected",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "Round 1/1 · 0:19 · Guest 1 · Shadow 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 0
+    },
+    {
+     "state": "final-seconds",
+     "phase": "round",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.5,
+      18
+     ],
+     "hud": "Round 1/1 · 0:05 · Guest 1 · Shadow 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "long-names-injected",
+     "phase": "round",
+     "truncated": [
+      true,
+      true
+     ],
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.5,
+      18
+     ],
+     "hud": "Round 1/1 · 0:05 · Maximilian Featherstonehaugh III 1 · Bartholomew Wolfeschlegelstein 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "count-injected/moves",
+     "phase": "count",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.5,
+      18
+     ],
+     "hud": "Knockdown count · 5",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/combos",
+     "phase": "count",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.5,
+      18
+     ],
+     "hud": "Knockdown count · 5",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": 80,
+     "movesChecked": 1,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/defence",
+     "phase": "count",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.5,
+      18
+     ],
+     "hud": "Knockdown count · 5",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "result",
+     "phase": "ceremony",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 0
+     },
+     "shown": [
+      "39",
+      "0"
+     ],
+     "bars": [
+      38.5,
+      0
+     ],
+     "hud": "",
+     "health": [
+      6,
+      49
+     ],
+     "chipBottom": null,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1,
+     "resultBannerOverlapsHud": false
+    }
+   ],
+   "labels": {
+    "lion": "Guest",
+    "rabbit": "Shadow"
+   },
+   "dir": "ltr",
+   "introBannerOverlapsHud": false,
+   "realFight": {
+    "waitedMs": 6273,
+    "ticks": 212,
+    "bouts": 1,
+    "phase": "round",
+    "health": {
+     "lion": 100,
+     "rabbit": 86.86997078612536
+    },
+    "landed": {
+     "lion": 1,
+     "rabbit": 0
+    },
+    "hitsLogged": 4,
+    "first": {
+     "corner": "blue",
+     "hit": "b",
+     "style": "width:86.86997078612536%",
+     "fill": [
+      [
+       "width",
+       0,
+       140
+      ]
+     ],
+     "trail": [
+      [
+       "width",
+       380,
+       620
+      ]
+     ],
+     "flash": [
+      [
+       "fight-health-hit-b",
+       0,
+       340
+      ]
+     ]
+    }
+   },
+   "low": {
+    "pulse": "fight-health-low",
+    "valueColor": "rgb(245, 165, 36)"
+   },
+   "hitFrame": {
+    "track": 200,
+    "fill": 77,
+    "trail": 115
+   }
+  },
+  {
+   "viewport": "852x393",
+   "lang": "he",
+   "states": [
+    {
+     "state": "full-play/moves",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "הלוחמים מוכנים",
+     "health": [
+      6,
+      70
+     ],
+     "chipBottom": 70,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/combos",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "הלוחמים מוכנים",
+     "health": [
+      6,
+      70
+     ],
+     "chipBottom": 70,
+     "tabsTop": 80,
+     "movesChecked": 1,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/defence",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "הלוחמים מוכנים",
+     "health": [
+      6,
+      70
+     ],
+     "chipBottom": 70,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "low-injected",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "סיבוב 1/1 · 0:20 · אריאל כהן 0 · הצל 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "final-seconds",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "סיבוב 1/1 · 0:05 · אריאל כהן 0 · הצל 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "long-names-injected",
+     "phase": "round",
+     "truncated": [
+      true,
+      false
+     ],
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "סיבוב 1/1 · 0:05 · אלכסנדר הגדול ממוקדון השלישי 0 · הצל הארוך מאוד של הזירה 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "count-injected/moves",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "ספירת נוקדאון · 5",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/combos",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "ספירת נוקדאון · 5",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": 80,
+     "movesChecked": 1,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/defence",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "ספירת נוקדאון · 5",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "result",
+     "phase": "ceremony",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 0
+     },
+     "shown": [
+      "58",
+      "0"
+     ],
+     "bars": [
+      57.5,
+      0
+     ],
+     "hud": "",
+     "health": [
+      6,
+      49
+     ],
+     "chipBottom": null,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1,
+     "resultBannerOverlapsHud": false
+    }
+   ],
+   "labels": {
+    "lion": "Guest",
+    "rabbit": "Shadow"
+   },
+   "dir": "rtl",
+   "introBannerOverlapsHud": false,
+   "low": {
+    "pulse": "fight-health-low",
+    "valueColor": "rgb(245, 165, 36)"
+   }
+  },
+  {
+   "viewport": "852x393",
+   "lang": "ru",
+   "states": [
+    {
+     "state": "full-play/moves",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Бойцы готовы",
+     "health": [
+      6,
+      70
+     ],
+     "chipBottom": 70,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/combos",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Бойцы готовы",
+     "health": [
+      6,
+      70
+     ],
+     "chipBottom": 70,
+     "tabsTop": 80,
+     "movesChecked": 1,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/defence",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Бойцы готовы",
+     "health": [
+      6,
+      70
+     ],
+     "chipBottom": 70,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "low-injected",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "Раунд 1/1 · 0:20 · Александр 0 · Тень 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "final-seconds",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "Раунд 1/1 · 0:05 · Александр 0 · Тень 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "long-names-injected",
+     "phase": "round",
+     "truncated": [
+      true,
+      true
+     ],
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "Раунд 1/1 · 0:05 · Александр Константинопольский 0 · Тень Преображенского-Задунайского 0",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "count-injected/moves",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "Отсчёт нокдауна · 5",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/combos",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "Отсчёт нокдауна · 5",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": 80,
+     "movesChecked": 1,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/defence",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18
+     ],
+     "hud": "Отсчёт нокдауна · 5",
+     "health": [
+      6,
+      71
+     ],
+     "chipBottom": 71,
+     "tabsTop": 80,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "result",
+     "phase": "ceremony",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 0
+     },
+     "shown": [
+      "58",
+      "0"
+     ],
+     "bars": [
+      57.5,
+      0
+     ],
+     "hud": "",
+     "health": [
+      6,
+      49
+     ],
+     "chipBottom": null,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1,
+     "resultBannerOverlapsHud": false
+    }
+   ],
+   "labels": {
+    "lion": "Guest",
+    "rabbit": "Shadow"
+   },
+   "dir": "ltr",
+   "introBannerOverlapsHud": false,
+   "low": {
+    "pulse": "fight-health-low",
+    "valueColor": "rgb(245, 165, 36)"
+   }
+  },
+  {
+   "viewport": "852x393",
+   "reducedMotion": {
+    "hit": "a",
+    "low": "true",
+    "flash": "none",
+    "pulse": "none",
+    "fillTransition": "0s",
+    "trailTransition": "0s",
+    "fill": 0.2
+   }
+  },
+  {
+   "viewport": "1366x768",
+   "lang": "en",
+   "states": [
+    {
+     "state": "full-play/moves",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Fighters ready",
+     "health": [
+      10,
+      82
+     ],
+     "chipBottom": 82,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/combos",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Fighters ready",
+     "health": [
+      10,
+      82
+     ],
+     "chipBottom": 82,
+     "tabsTop": 100,
+     "movesChecked": 1,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/defence",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Fighters ready",
+     "health": [
+      10,
+      82
+     ],
+     "chipBottom": 82,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "mid-watch-real",
+     "phase": "round",
+     "reported": {
+      "lion": 100,
+      "rabbit": 90.75514311247719
+     },
+     "shown": [
+      "100",
+      "91"
+     ],
+     "bars": [
+      100,
+      90.6
+     ],
+     "hud": "Round 1/1 · 0:18 · Guest 1 · Shadow 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 0
+    },
+    {
+     "state": "low-injected",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "Round 1/1 · 0:18 · Guest 1 · Shadow 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 0
+    },
+    {
+     "state": "final-seconds",
+     "phase": "round",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.8,
+      18.1
+     ],
+     "hud": "Round 1/1 · 0:05 · Guest 1 · Shadow 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "long-names-injected",
+     "phase": "round",
+     "truncated": [
+      true,
+      true
+     ],
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.8,
+      18.1
+     ],
+     "hud": "Round 1/1 · 0:05 · Maximilian Featherstonehaugh III 1 · Bartholomew Wolfeschlegelstein 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "count-injected/moves",
+     "phase": "count",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.8,
+      18.1
+     ],
+     "hud": "Knockdown count · 5",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/combos",
+     "phase": "count",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.8,
+      18.1
+     ],
+     "hud": "Knockdown count · 5",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": 100,
+     "movesChecked": 1,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/defence",
+     "phase": "count",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "39",
+      "19"
+     ],
+     "bars": [
+      38.8,
+      18.1
+     ],
+     "hud": "Knockdown count · 5",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "result",
+     "phase": "ceremony",
+     "reported": {
+      "lion": 38.6,
+      "rabbit": 0
+     },
+     "shown": [
+      "39",
+      "0"
+     ],
+     "bars": [
+      38.8,
+      0
+     ],
+     "hud": "",
+     "health": [
+      10,
+      58
+     ],
+     "chipBottom": null,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1,
+     "resultBannerOverlapsHud": false
+    }
+   ],
+   "labels": {
+    "lion": "Guest",
+    "rabbit": "Shadow"
+   },
+   "dir": "ltr",
+   "introBannerOverlapsHud": false,
+   "realFight": {
+    "waitedMs": 8054,
+    "ticks": 305,
+    "bouts": 1,
+    "phase": "round",
+    "health": {
+     "lion": 100,
+     "rabbit": 90.75514311247719
+    },
+    "landed": {
+     "lion": 1,
+     "rabbit": 0
+    },
+    "hitsLogged": 6,
+    "first": {
+     "corner": "blue",
+     "hit": "b",
+     "style": "width:90.75514311247719%",
+     "fill": [
+      [
+       "width",
+       0,
+       140
+      ]
+     ],
+     "trail": [
+      [
+       "width",
+       380,
+       620
+      ]
+     ],
+     "flash": [
+      [
+       "fight-health-hit-b",
+       0,
+       340
+      ]
+     ]
+    }
+   },
+   "low": {
+    "pulse": "fight-health-low",
+    "valueColor": "rgb(245, 165, 36)"
+   },
+   "hitFrame": {
+    "track": 320,
+    "fill": 124,
+    "trail": 184
+   }
+  },
+  {
+   "viewport": "1366x768",
+   "lang": "he",
+   "states": [
+    {
+     "state": "full-play/moves",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "הלוחמים מוכנים",
+     "health": [
+      10,
+      82
+     ],
+     "chipBottom": 82,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/combos",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "הלוחמים מוכנים",
+     "health": [
+      10,
+      82
+     ],
+     "chipBottom": 82,
+     "tabsTop": 100,
+     "movesChecked": 1,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/defence",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "הלוחמים מוכנים",
+     "health": [
+      10,
+      82
+     ],
+     "chipBottom": 82,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "low-injected",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "סיבוב 1/1 · 0:20 · אריאל כהן 0 · הצל 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "final-seconds",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "סיבוב 1/1 · 0:05 · אריאל כהן 0 · הצל 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "long-names-injected",
+     "phase": "round",
+     "truncated": [
+      false,
+      false
+     ],
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "סיבוב 1/1 · 0:05 · אלכסנדר הגדול ממוקדון השלישי 0 · הצל הארוך מאוד של הזירה 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "count-injected/moves",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "ספירת נוקדאון · 5",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/combos",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "ספירת נוקדאון · 5",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": 100,
+     "movesChecked": 1,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/defence",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "ספירת נוקדאון · 5",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "result",
+     "phase": "ceremony",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 0
+     },
+     "shown": [
+      "58",
+      "0"
+     ],
+     "bars": [
+      57.5,
+      0
+     ],
+     "hud": "",
+     "health": [
+      10,
+      58
+     ],
+     "chipBottom": null,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1,
+     "resultBannerOverlapsHud": false
+    }
+   ],
+   "labels": {
+    "lion": "Guest",
+    "rabbit": "Shadow"
+   },
+   "dir": "rtl",
+   "introBannerOverlapsHud": false,
+   "low": {
+    "pulse": "fight-health-low",
+    "valueColor": "rgb(245, 165, 36)"
+   }
+  },
+  {
+   "viewport": "1366x768",
+   "lang": "ru",
+   "states": [
+    {
+     "state": "full-play/moves",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Бойцы готовы",
+     "health": [
+      10,
+      82
+     ],
+     "chipBottom": 82,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/combos",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Бойцы готовы",
+     "health": [
+      10,
+      82
+     ],
+     "chipBottom": 82,
+     "tabsTop": 100,
+     "movesChecked": 1,
+     "bannerShown": 1
+    },
+    {
+     "state": "full-play/defence",
+     "phase": "intro",
+     "reported": {
+      "lion": 100,
+      "rabbit": 100
+     },
+     "shown": [
+      "100",
+      "100"
+     ],
+     "bars": [
+      100,
+      100
+     ],
+     "hud": "Бойцы готовы",
+     "health": [
+      10,
+      82
+     ],
+     "chipBottom": 82,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 1
+    },
+    {
+     "state": "low-injected",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "Раунд 1/1 · 0:20 · Александр 0 · Тень 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "final-seconds",
+     "phase": "round",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "Раунд 1/1 · 0:05 · Александр 0 · Тень 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "long-names-injected",
+     "phase": "round",
+     "truncated": [
+      true,
+      true
+     ],
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "Раунд 1/1 · 0:05 · Александр Константинопольский 0 · Тень Преображенского-Задунайского 0",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1
+    },
+    {
+     "state": "count-injected/moves",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "Отсчёт нокдауна · 5",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/combos",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "Отсчёт нокдауна · 5",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": 100,
+     "movesChecked": 1,
+     "bannerShown": 0
+    },
+    {
+     "state": "count-injected/defence",
+     "phase": "count",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 18.2
+     },
+     "shown": [
+      "58",
+      "19"
+     ],
+     "bars": [
+      57.5,
+      18.1
+     ],
+     "hud": "Отсчёт нокдауна · 5",
+     "health": [
+      10,
+      83
+     ],
+     "chipBottom": 83,
+     "tabsTop": 100,
+     "movesChecked": 12,
+     "bannerShown": 0
+    },
+    {
+     "state": "result",
+     "phase": "ceremony",
+     "reported": {
+      "lion": 57.4,
+      "rabbit": 0
+     },
+     "shown": [
+      "58",
+      "0"
+     ],
+     "bars": [
+      57.5,
+      0
+     ],
+     "hud": "",
+     "health": [
+      10,
+      58
+     ],
+     "chipBottom": null,
+     "tabsTop": null,
+     "movesChecked": 0,
+     "bannerShown": 1,
+     "resultBannerOverlapsHud": false
+    }
+   ],
+   "labels": {
+    "lion": "Guest",
+    "rabbit": "Shadow"
+   },
+   "dir": "ltr",
+   "introBannerOverlapsHud": false,
+   "low": {
+    "pulse": "fight-health-low",
+    "valueColor": "rgb(245, 165, 36)"
+   }
+  },
+  {
+   "viewport": "1366x768",
+   "reducedMotion": {
+    "hit": "a",
+    "low": "true",
+    "flash": "none",
+    "pulse": "none",
+    "fillTransition": "0s",
+    "trailTransition": "0s",
+    "fill": 0.2
+   }
+  }
+ ]
+}
