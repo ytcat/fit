@@ -1,5 +1,5 @@
 {
-  "version": "design-20261110k",
+  "version": "camera-20261110l",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -40,8 +40,8 @@
     "./fight-ui.js?v=2026110901",
     "./training-controls.js?v=2026111007",
     "./character-roster.js?v=2026110607",
-    "./ring-camera.js?v=2026110703",
-    "./camera-director.js?v=2026111100",
+    "./ring-camera.js?v=2026111013",
+    "./camera-director.js?v=2026111013",
     "./club-world.js?v=2026110905",
     "./club-interface.css?v=2026111012",
     "./club-interface.js?v=2026110905",
@@ -60,7 +60,7 @@
     "./fight-iq-demo.js?v=2026111011",
     "./fight-iq-ui.js?v=2026111011",
     "./academy.css?v=2026111011",
-    "./camera.css?v=2026111100",
+    "./camera.css?v=2026111013",
     "./academy-stage.js?v=2026111011",
     "./game-resume.js?v=2026110902",
     "./game-resume-ui.js?v=2026110902",
