@@ -40,7 +40,7 @@
 
 ### GOTR-0001 — Make the shop immediately discoverable and feel like a real store
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS — entry/discoverability slice READY FOR QA
+- **Status:** IN PROGRESS — slices 1–2 published (`9945b10`, `34d82dd`); badges/confirmation/store look remain
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Shop / navigation / UX
@@ -78,7 +78,7 @@
 
 ### GOTR-0004 — Sell and unlock combos through the shop with equip slots
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS — purchase slice READY FOR QA
+- **Status:** IN PROGRESS — purchase slice published (`34d82dd`); in-Shop demonstration and confirmation remain
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Combo shop / progression / inventory
@@ -183,11 +183,11 @@ These nine reports were recorded from the user's latest message. **None is marke
 - **Reported behavior / request:** Opponent and coach stand too close; the jab should extend straight at an appropriate distance.
 - **Implementation:** Coach mitt contact currently measured at56.3° elbow /47.5% extension. Clean sparring/fight jabs already reach172.3°/171.1°; inspect visual crowding separately and preserve contact stops on blocked punches. No spacing change published yet.
 - **Evidence:** New matched real-app views and contact tests required before resolving.
-- **Investigation 2026-11-10 (no code change yet):** Reproduced headlessly. In mitt work the pad face sits only 0.22 from the boxer's guard knuckle (partner roots 1.20 apart; arm 0.66 + glove 0.20). Jab contact: 49% arm extension, 58° elbow; cross: 47%, 55°. The punch lands because the shoulder lunges 0.45–0.56 forward while the arm stays folded. Moving the trainer back alone does **not** fix it: at 1.35–1.55 root separation jab/cross stop touching the pad (peak extension stays 67–81%) and the roll no longer scores, while hooks/uppercuts still land. So the fix needs the straight-punch reach in mitt mode plus spacing/roll retuning together, not a single distance constant.
+- **Investigation 2026-11-10 (no code change yet):** Reproduced headlessly. In mitt work the pad face sits only 0.22 from the boxer's guard knuckle (partner roots 1.20 apart; arm 0.66 + glove 0.20). Jab contact: 49% arm extension, 58° elbow; cross: 47%, 55°. The punch lands because the shoulder lunges 0.45–0.56 forward while the arm stays folded. Moving the trainer back alone does **not** fix it: at 1.35–1.55 root separation jab/cross stop touching the pad (peak extension stays 67–81%) and the roll no longer scores, while hooks/uppercuts still land. So the fix needs the straight-punch reach in mitt mode plus spacing/roll retuning together, not a single distance constant. Root cause detail: the jab is a step-in punch — lead foot +0.15, hips +0.20, lead shoulder +0.45 toward the coach — while the hand target is the pad itself, so arm extension is only what is left between the advanced shoulder and the pad (about 0.25). A ~90% extended contact needs the pad about 0.73 ahead of the shoulder at contact, i.e. roughly 0.47 more range for straights, while hooks, uppercuts and the coach's roll sweep need the current close range. Planned fix: two ranges in the drill (long for jab/cross, close for the rest) with real stepping, the coach catching straights nearer their own shoulder, and updated spacing tests; needs multi-angle visual QA.
 
 ### GOTR-0013 — Rename Fight IQ to Fight Academy and give it a designed look
 - **Reported:** 2026-11-10
-- **Status:** IN PROGRESS — rename published; landing/lesson redesign READY FOR QA; guided show-and-repeat lesson tracked in GOTR-0007
+- **Status:** DONE for rename and visual redesign (`31a17bd`, `b9c65ed`, live); guided show-and-repeat lesson continues in GOTR-0007
 - **Priority:** P1
 - **Delivery:** NOW — rename as a small release; visual redesign delivered with the GOTR-0007 guided lesson
 - **Area:** Fight IQ / branding / UI design
@@ -223,4 +223,4 @@ These nine reports were recorded from the user's latest message. **None is marke
 | Date | Agent / branch | Completed & verified | Still open | Application link |
 |---|---|---|---|---|
 | 2026-11-09 | Backlog setup / main | Created persistent intake workflow | Awaiting user reports | Not verified |
-| 2026-11-10 | Claude / `claude/serene-cannon-riwk4l` → main | GOTR-0006 combo controls (`d47da6f`), GOTR-0013 part 1 Fight Academy rename (`31a17bd`): full suite 76/76, CI green, deployed and re-checked on the live site. GOTR-0001 slice 1 Shop header button (`9945b10`): suite 76/76 and CI green; first Pages deployment timed out on GitHub's side (`syncing_files`), redeployed with this commit. | GOTR-0012 measured (see entry), GOTR-0001 remainder, 0002–0005, 0007, 0013 redesign, 0008/0009 later | https://ytcat.github.io/fit/ |
+| 2026-11-10 | Claude / `claude/serene-cannon-riwk4l` → main | Published and re-checked on the live site, each with full suite 76/76: GOTR-0006 combo controls (`d47da6f`) + small-phone Moves follow-up (`fa7c158`) — DONE; GOTR-0013 Fight Academy rename (`31a17bd`) + designed landing/lesson screens (`b9c65ed`); GOTR-0001 Shop header button (`9945b10`) + PC/tablet product overflow fix and six-category layout (`34d82dd`); GOTR-0004 buy combos with coins (`34d82dd`). One Pages deployment (`9945b10`) timed out on GitHub's side and was redeployed by the next commit. | GOTR-0012 (measured; needs straight-punch range choreography, see entry), GOTR-0007 guided lesson, GOTR-0005 Burst, GOTR-0002/0003 3D gear, GOTR-0001/0004 remainders; 0008/0009 later. Physical-phone performance still unverified. | https://ytcat.github.io/fit/ |
