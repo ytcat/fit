@@ -1,0 +1,10 @@
+/* Camera direction controls on the stage: the side-view lock toggle (GOTR-0019) and the intro skip hint (GOTR-0020). */
+.camera-lock-toggle{position:absolute;right:14px;bottom:66px;z-index:18;display:grid;justify-items:center;align-content:center;gap:2px;box-sizing:border-box;min-width:56px;max-width:84px;min-height:var(--gr-control-h,44px);padding:5px 7px;border:1px solid var(--gr-scene-line,var(--gr-border,#2b364a));border-radius:var(--gr-radius-m,12px);background:var(--gr-scene-chip-strong,var(--gr-surface-2,#1a2230));color:var(--gr-text-muted,#9aa7bb);box-shadow:var(--gr-shadow-2,0 8px 24px rgb(0 0 0/.38));font-size:10px;font-weight:var(--gr-fw-bold,700);line-height:1.1;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.camera-lock-toggle svg{width:16px;height:16px;display:block}
+.camera-lock-toggle span{display:block;white-space:nowrap}
+.camera-lock-toggle:hover{color:var(--gr-text,#f3f6fb)}
+.camera-lock-toggle:focus-visible{outline:2px solid var(--gr-focus,var(--gr-info,#3b82f6));outline-offset:2px}
+.camera-lock-toggle[aria-pressed=true]{background:var(--gr-info,#3b82f6);border-color:var(--gr-info-line,var(--gr-info,#3b82f6));color:var(--gr-accent-ink,#fff)}
+.camera-intro-skip{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:17;padding:6px 12px;border:1px solid var(--gr-scene-line,var(--gr-border,#2b364a));border-radius:999px;background:var(--gr-scene-chip-strong,var(--gr-surface-2,#1a2230));color:var(--gr-text,#f3f6fb);font-size:11px;font-weight:var(--gr-fw-bold,700);white-space:nowrap;pointer-events:none}
+.camera-intro-skip[hidden],.game-preview-live .camera-lock-toggle,.game-preview-live .camera-intro-skip{display:none}
+@media(max-height:460px){.camera-lock-toggle{right:66px;bottom:14px}}

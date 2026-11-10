@@ -47,6 +47,7 @@
   <script src="./training-controls.js?v=2026111007" defer></script>
   <script src="./character-roster.js?v=2026110607"></script>
   <script src="./ring-camera.js?v=2026110703"></script>
+  <script src="./camera-director.js?v=2026111100"></script>
   <script src="./club-world.js?v=2026110905"></script>
   <link rel="stylesheet" href="./club-interface.css?v=2026111012" />
   <script src="./club-interface.js?v=2026110905" defer></script>
@@ -65,6 +66,7 @@
   <script src="./fight-iq-demo.js?v=2026111011" defer></script>
   <script src="./fight-iq-ui.js?v=2026111011" defer></script>
   <link rel="stylesheet" href="./academy.css?v=2026111011">
+  <link rel="stylesheet" href="./camera.css?v=2026111100">
   <script src="./academy-stage.js?v=2026111011" defer></script>
   <script src="./game-resume.js?v=2026110902" defer></script>
   <script src="./game-resume-ui.js?v=2026110902" defer></script>
@@ -436,7 +438,7 @@
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;this.renderer.shadowMap.autoUpdate=true;
         this.renderer.setSize(w, h, false);
-        this.qualityTier=1;this.frameSamples=[];this.qualityElapsed=0;this.qualityDwell=0;
+        this.qualityTier=1;this.qualityLevel=3;this.frameSamples=[];this.qualityElapsed=0;this.qualityDwell=0;
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 1.5));
 
         const resize = () => {
@@ -456,7 +458,7 @@
         this.scene.add(new THREE.HemisphereLight(0xdbeaff, 0x404040, .48));
         const key = new THREE.DirectionalLight(0xfffaed, 2.8);
         key.position.set(2, 4, 3);
-        key.castShadow=true;key.shadow.mapSize.set(1024,1024);
+        key.castShadow=true;key.shadow.mapSize.set(1024,1024);this.keyLight=key;
         key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;
         key.shadow.camera.near=.5;key.shadow.camera.far=18;key.shadow.bias=-.00015;key.shadow.normalBias=.006;
         this.scene.add(key);
@@ -474,6 +476,7 @@
         this.scene.traverse(n=>{if(n.isMesh && n.material.color)n.material.color.convertSRGBToLinear();});
         this.world=new ClubWorld(this);
         this.initControls();
+        this.cameraDirector=window.CameraDirector?new CameraDirector(this):null;
         document.getElementById('camBack').addEventListener('click', () => {
           if(this.viewControls?.preset){this.viewControls.preset(Math.PI+.78,Math.PI);return;}
           if(this.arena&&this.arena.mode!=='none'){this.arena.group.rotation.y=Math.PI+.78;this.arena.fitCamera(this.camera);}
@@ -709,27 +712,92 @@
       }
 
       updateQuality(delta) {
-        if(!(delta>0))return;
-        const elapsed=Math.min(delta,1);delta=Math.min(delta,.25);
-        this.frameSamples.push(delta);this.qualityElapsed+=elapsed;this.qualityDwell+=elapsed;
-        if(this.qualityElapsed<3)return;
-        const samples=this.frameSamples.sort((a,b)=>a-b),p90=samples[Math.floor(samples.length*.9)];
-        this.frameSamples=[];this.qualityElapsed=0;
-        if(this.qualityDwell<(p90>.032?3:12))return;
-        const next=p90>.032?Math.max(0,this.qualityTier-1):p90<.019?Math.min(2,this.qualityTier+1):this.qualityTier;
-        if(next===this.qualityTier)return;this.qualityTier=next;this.qualityDwell=0;
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,[1,1.5,2][next]));
+        // One ladder of visible states, lowest to highest: [pixel-ratio cap, shadows (0 off, 1 = 1024 map, 2 = 2048 map)].
+        // Level 3 is the default look; levels 1-2 give up resolution before level 0 gives up the shadow pass.
+        const steps=[[1,0],[1,1],[1.25,1],[1.5,1],[1.75,1],[2,1],[2,2]],dpr=window.devicePixelRatio||1,tier=i=>i===0?0:i<4?1:2;
+        let level=this.qualityLevel;if(!(level>=0)||tier(level)!==this.qualityTier)level=[0,3,5][this.qualityTier];
+        const look=i=>Math.min(dpr,steps[i][0])+steps[i][1]*8;
+        const lower=i=>{let j=i;while(j>0&&look(j)===look(i))j--;return j;},higher=i=>{let j=i;while(j<6&&look(j)===look(i))j++;return look(j)===look(i)?i:j;};
+        let next=level;
+        if(this.qualityLock>=0){
+          // A pinned level (QA captures, a future graphics setting) always wins over adaptation.
+          next=Math.min(6,Math.floor(this.qualityLock));if(next===this.qualityLevel)return;
+        } else {
+          if(!(delta>0))return;
+          const elapsed=Math.min(delta,1);delta=Math.min(delta,.25);
+          this.frameSamples.push(delta);this.qualityElapsed+=elapsed;this.qualityDwell+=elapsed;this.qualityClock=(this.qualityClock||0)+elapsed;
+          if(this.qualityElapsed<3)return;
+          const samples=this.frameSamples.sort((a,b)=>a-b),p90=samples[Math.floor(samples.length*.9)],clock=this.qualityClock;
+          this.frameSamples=[];this.qualityElapsed=0;
+          // A raise is on trial for 30 s: it must not cost frame rate, even on a 90/120 Hz display.
+          const trial=this.qualityRaisedAt>=0&&clock-this.qualityRaisedAt<30;
+          if(this.qualityRaisedAt>=0&&!trial){this.qualityRaisedAt=-1;this.qualityFails=0;}
+          // Resolution is traded once ~60 fps is lost (24 ms); the shadow pass only below ~30 fps (32 ms).
+          const slow=p90>(lower(level)>0?.024:.032)||trial&&p90>.0125&&p90>this.qualityBaseline*1.3;
+          if(this.qualityDwell<(slow?3:12))return;
+          if(slow){
+            // Severe stalls go straight to the floor; otherwise one visible step, two when far behind.
+            next=p90>=.1?0:lower(level);if(p90>=.05)next=lower(next);
+            if(next===level)return;
+            // A level that just failed is not retried until a hold that doubles with every repeat has passed.
+            this.qualityFails=trial?(this.qualityFails||0)+1:1;this.qualityHold=clock+Math.min(960,30*2**this.qualityFails);this.qualityRaisedAt=-1;
+          } else if(p90<.019&&!(clock<this.qualityHold)){
+            next=higher(level);if(next===level)return;
+            this.qualityRaisedAt=clock;this.qualityBaseline=p90;
+          } else return;
+        }
+        const [ratio,shadow]=steps[next],r=this.renderer,key=this.keyLight;
+        this.qualityLevel=next;this.qualityTier=tier(next);this.qualityDwell=0;
+        r.setPixelRatio(Math.min(dpr,ratio));
         // Adapt pixel work first. Preserve the same rig, motion and contact clocks.
-        this.renderer.shadowMap.enabled=next>0;this.lastRenderStamp=null;
+        if(key&&shadow&&key.shadow.mapSize.x!==shadow*1024){key.shadow.mapSize.set(shadow*1024,shadow*1024);if(key.shadow.map){key.shadow.map.dispose();key.shadow.map=null;}}
+        if(!shadow&&key&&key.shadow.map){
+          // Compiled programs keep sampling the last shadow map once the pass stops (three r128 does
+          // not rebuild them), so empty it; otherwise the old shadows stay frozen on the floor.
+          const target=r.getRenderTarget(),colour=r.getClearColor(new THREE.Color()),alpha=r.getClearAlpha();
+          r.setRenderTarget(key.shadow.map);r.setClearColor(0xffffff,1);r.clear();r.setRenderTarget(target);r.setClearColor(colour,alpha);
+        }
+        // Materials first drawn while the pass was off were built without shadow code: rebuild on return.
+        if(shadow&&!r.shadowMap.enabled&&this.scene)this.scene.traverse(n=>{for(const m of [].concat(n.material||[]))m.needsUpdate=true;});
+        r.shadowMap.enabled=shadow>0;this.lastRenderStamp=null;
+      }
+
+      framePace(now, wall) {
+        // Advance poses by display time. requestAnimationFrame's timestamp belongs to the frame being
+        // produced, while the callback itself runs a jittery few milliseconds later; and frames are
+        // shown a whole number of refresh periods apart. Snapping to that cadence keeps the fixed
+        // 60/120 Hz simulation ticks per shown frame constant instead of 0-1-2 stutter.
+        const p=this.pace||(this.pace={last:null,period:0,debt:0,misses:0,recent:[]});
+        p.raw=wall;if(!(now>=0))return wall;
+        const raw=p.last===null?0:(now-p.last)/1000;p.last=now;
+        if(!(raw>0)||raw>.25){p.debt=0;p.misses=0;p.recent.length=0;p.raw=raw>0?raw:0;return p.raw;}
+        p.raw=raw;p.recent.push(raw);if(p.recent.length>12)p.recent.shift();
+        if(!p.period){
+          // Lock onto the shortest common interval: the display's refresh period.
+          if(p.recent.length<6)return raw;
+          p.period=[...p.recent].sort((a,b)=>a-b)[Math.floor(p.recent.length/4)];p.debt=0;p.misses=0;
+        }
+        const k=Math.round(raw/p.period);
+        if(k<1||k>4||Math.abs(raw-k*p.period)>.2*p.period){
+          // Off cadence (refresh-rate switch, throttled timers): pass through and re-lock if it persists.
+          if(++p.misses>=8){p.period=0;p.recent.length=0;}
+          return raw;
+        }
+        p.misses=0;
+        // Real time is conserved: the unfed remainder is returned gradually, so game time never drifts.
+        const fed=Math.max(0,k*p.period+p.debt*.1);p.debt+=raw-fed;p.period+=(raw/k-p.period)*.04;
+        return fed;
       }
 
       animate() {
         requestAnimationFrame(this.animate);
-        const delta = this.clock.getDelta();
+        // arguments[0] is the frame timestamp from requestAnimationFrame (absent in direct calls).
+        const wall = this.clock.getDelta(), delta = this.framePace ? this.framePace(arguments[0], wall) : wall;
         if(window.ringfighterGame?.isModalOpen)this.isPlaying=false;
         if(document.hidden)return;
         if(this.fightIQDemo){this.fightIQDemo.frame(delta);return;}
-        if(this.isPlaying)this.updateQuality(delta);
+        this.cameraDirector?.update(delta);
+        if(this.isPlaying||this.qualityLock>=0)this.updateQuality(this.pace?this.pace.raw:delta);
 
         if (!this.activeModel) {
           this.renderer.render(this.scene, this.camera);
@@ -739,7 +807,8 @@
         const stamp=[this.activeModel.uuid,this.arena?.mode!=='none'&&this.arena?this.arena.group.rotation.y:this.activeModel.rotation.y,this.animTime,this.technique,this.currentAnim,this.camera.aspect,this.camera.zoom,this.viewControls?.yaw,this.arena?.mode].join('|');
         if(!this.isPlaying && this.lastRenderStamp===stamp)return;
         this.lastRenderStamp=stamp;
-        const dt=Math.min(delta,.05);
+        // The fight intro orbit holds the clock, so it never eats into the round.
+        const dt=this.cameraDirector?.holdsClock?0:Math.min(delta,.05);
         if (this.isPlaying) this.animTime += dt * this.speed;
         const poseStamp=[this.activeModel.uuid,this.animTime,this.technique,this.currentAnim,this.arena?.mode,this.player?.enabled,this.practiceTiming,this.practiceSeed,this.randomSeed,this.speedDrill].join('|');
         if (this.coach && this.activeModel===this.demoModel && (this.isPlaying||this.lastPoseStamp!==poseStamp)) {

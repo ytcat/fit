@@ -1,0 +1,19 @@
+{
+ "note": "Baseline (commit 3672c18) from `node qa/gotr-0017/measure.cjs perf before`, 6 drawn frames per row. Software WebGL (SwiftShader) on a shared 4-core machine: frame times are NOT representative of a phone GPU and are noisy; the counts are exact. level 1 = default look (pixel ratio 1.5 cap, shadows), level 0 = lowest (pixel ratio 1, no shadow pass). No matching 'after' table was produced: the lighting, shadow-frustum and material work of GOTR-0017 was not done.",
+ "phone 393x852 dpr3": {
+  "gym@1": {"medianMs": 3646, "p95Ms": 3732, "cpuMedianMs": 19.3, "calls": 183, "triangles": 503531, "shadowCalls": 154, "shadowTriangles": 459464, "pixels": 588165, "shadowMap": [1024, 1024], "programs": 24},
+  "gym@0": {"medianMs": 1502, "p95Ms": 1602, "cpuMedianMs": 7.5, "calls": 182, "triangles": 502571, "shadowCalls": 0, "shadowTriangles": 0, "pixels": 261638},
+  "mitts@1": {"medianMs": 3235, "p95Ms": 4413, "cpuMedianMs": 13.3, "calls": 271, "triangles": 885287, "shadowCalls": 243, "shadowTriangles": 815088, "pixels": 588165, "programs": 31},
+  "mitts@0": {"medianMs": 2679, "p95Ms": 3142, "cpuMedianMs": 13.9, "calls": 271, "triangles": 885287, "shadowCalls": 0, "shadowTriangles": 0, "pixels": 261638},
+  "fight@1": {"medianMs": 4788, "p95Ms": 5088, "cpuMedianMs": 30.8, "calls": 460, "triangles": 1143971, "shadowCalls": 373, "shadowTriangles": 1063928, "pixels": 588165, "programs": 51},
+  "fight@0": {"medianMs": 3369, "p95Ms": 3620, "cpuMedianMs": 19.5, "calls": 460, "triangles": 1143971, "shadowCalls": 0, "shadowTriangles": 0, "pixels": 261638}
+ },
+ "desktop 1366x768 dpr1": {
+  "gym@1": {"medianMs": 2102, "p95Ms": 2181, "cpuMedianMs": 12.2, "calls": 190, "triangles": 503659, "shadowCalls": 154, "shadowTriangles": 459464, "pixels": 803196},
+  "gym@0": {"medianMs": 2014, "p95Ms": 2387, "cpuMedianMs": 27.1, "calls": 189, "triangles": 502699, "shadowCalls": 0, "shadowTriangles": 0, "pixels": 803196},
+  "mitts@1": {"medianMs": 5112, "p95Ms": 5272, "cpuMedianMs": 16.2, "calls": 286, "triangles": 885703, "shadowCalls": 243, "shadowTriangles": 815088, "pixels": 803196},
+  "mitts@0": {"medianMs": 3986, "p95Ms": 4434, "cpuMedianMs": 23.7, "calls": 286, "triangles": 885703, "shadowCalls": 0, "shadowTriangles": 0, "pixels": 803196},
+  "fight@1": {"medianMs": 6188, "p95Ms": 6782, "cpuMedianMs": 17.5, "calls": 539, "triangles": 1152499, "shadowCalls": 373, "shadowTriangles": 1063928, "pixels": 803196},
+  "fight@0": {"medianMs": 4667, "p95Ms": 5043, "cpuMedianMs": 18.4, "calls": 539, "triangles": 1152499, "shadowCalls": 0, "shadowTriangles": 0, "pixels": 803196}
+ }
+}
