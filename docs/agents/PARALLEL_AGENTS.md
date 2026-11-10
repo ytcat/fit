@@ -7,7 +7,7 @@ versions, updates docs and publishes. Read `AGENTS.md` once for project values
 (realism, mobile performance, honest evidence), but the rules below win where they differ.
 
 ## Branch and commits
-- Work ONLY on your own branch `agent/<your-name>` (name given in your task), created from the integration branch `claude/serene-cannon-riwk4l`.
+- Work ONLY on your own branch `agent/<your-name>` (name given in your task), created from the integration branch `claude/serene-cannon-riwk4l` (same commit as `main`).
 - Commit early and often; every commit must leave the app working.
 - End every commit message with exactly:
   ```
@@ -80,19 +80,23 @@ Only the design agent edits existing `.css` files; everyone else puts styles in 
   lines; reformatting causes merge conflicts).
 - Do not claim anything you did not verify. Physical phones cannot be tested here; say so.
 
-## Ownership map (2026-11-10) — edit only your own row
+## Ownership map (updated 2026-11-10 22:20 UTC) — edit only your own row
+Merged and published already (their files are free again unless listed below): `mitt-range`, `fight-range`, `academy`, `design`.
+
 | Agent | Owns |
 |---|---|
-| `mitt-range` (GOTR-0012) | `career-drills.js`, `boxing-coach-v2.js`, drill tests |
-| `fight-range` (GOTR-0018) | `boxing-fight.js`, `fight-arena.js`, `fight-referee.js`, fight tests |
-| `academy` (GOTR-0007) | `fight-iq*.js`, `fight-iq-content.json`, `game-domain.js`, `game-shell.js`, `academy-*.js`, `academy.css`, their tests |
-| `design` (GOTR-0014/0015) | every existing `.css`, `assets/app.css`, new theme CSS, `index.html` static markup and `<style>` |
-| `graphics` (GOTR-0017) | `index.html` inline engine script, `gym-details.js`, `ring-camera.js`, `fight-presentation.js`, `game-world-art.js`, `game-venues.js` |
-| `gear-3d` (GOTR-0002, boots of GOTR-0003) | `game-accessories.js`, `boxing-footwear.js`, `game-presentation.js`, their tests |
-| `world-content` (F-010/F-013/F-014) | `game-world.js`, `game-world-ui.js`, new event/mission JSON packs, `world-missions.css`, their tests |
-| `i18n-a11y` (F-019, Boxing Club wording) | `club-interface.js`, `ringside-layout.js`, `fight-ui.js`, `career-interface.js`, `workout-experience.js`, `practice-layout.js`, `training-controls.js`, `ringfighter-controls.js`, `game-tournament-ui.js`, `game-venues-ui.js`, `game-resume-ui.js`, `boxing-routines.js` (labels only), their tests |
-| `adventure-world` (GOTR-0008 prototype) | new `adventure-*.js`, `adventure.css`, `qa/gotr-0008/` only |
+| `camera` (GOTR-0019 side-view lock, GOTR-0020 fight intro; then GOTR-0017 smoothness) | `index.html` inline engine script (renderer, loop, camera), `ring-camera.js`, `fight-presentation.js`, new `camera-*.js`, new `camera.css`; may add its toggle button next to the existing camera buttons in `club-interface.js` (minimal hunk) |
+| `hud` (GOTR-0021 health bars, names, VS) | `fight-ui.js`, new `fight-hud.css`; may replace the `.fight-health*` rules in `club-interface.css` |
+| `arenas` (GOTR-0022 new arenas) | `game-venues.js`, `game-venues-ui.js`, new `arena-*.js`, `assets/venues/`, the `venueIds` list and its tests in `game-domain.js` / `tests/game-domain.test.cjs`; arena-building hunks in `fight-arena.js` only if unavoidable |
+| `gear-3d` (paused; GOTR-0002, boots of GOTR-0003) | `game-accessories.js`, `boxing-footwear.js`, `game-presentation.js`, their tests |
+| `world-content` (paused; F-010/F-013/F-014) | `game-world.js`, `game-world-ui.js`, new event/mission JSON packs, `world-missions.css`, their tests |
+| `i18n-a11y` (paused; F-019, Boxing Club wording) | `ringside-layout.js`, `career-interface.js`, `workout-experience.js`, `practice-layout.js`, `training-controls.js`, `ringfighter-controls.js`, `game-tournament-ui.js`, `game-resume-ui.js`, `boxing-routines.js` (labels only), their tests |
+| `adventure-world` (paused; GOTR-0008 prototype) | new `adventure-*.js`, `adventure.css`, `qa/gotr-0008/` only |
 | integrator | docs, backlog, versions, manifests, merges, publishing; everything not listed |
+
+All existing CSS now uses the `--gr-*` tokens defined in `design-tokens.css` with shared components in `design-system.css` (see `docs/design-system.md`). New UI must use those tokens and component classes; put new styles in your own new CSS file.
+
+The account has a strict usage budget: commit every working step, aim for a complete tested slice within about 45–60 minutes, and report what is left rather than polishing.
 
 ## Reporting when you finish (cloud-session agents)
 Send your final report to the integrator session with the `send_message` tool of the
