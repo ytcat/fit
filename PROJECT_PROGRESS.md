@@ -1,3 +1,9 @@
+## 2026-11-10 — Mitt work at real punching range (GOTR-0012)
+
+Mitt partners stand at jab range and the jab and cross land with a straight arm
+(about 99% extension, 163° elbow; was 49%, 59°). Hooks, uppercuts and the roll still
+work, with real steps and no sliding. [Evidence](qa/gotr-0012/).
+
 ## 2026-11-10 — Variable practice rhythm by default (GOTR-0016); second feedback intake
 
 Variable rhythm is now the default at every training station; Synchronized stays one

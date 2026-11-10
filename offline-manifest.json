@@ -1,5 +1,5 @@
 {
-  "version": "rhythm-20261110g",
+  "version": "mitt-20261110h",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -18,7 +18,7 @@
     "./boxing-footwear.js?v=2026110901",
     "./padding-deformation.js?v=2026110703",
     "./boxing-pose.js?v=2026110720",
-    "./boxing-coach-v2.js?v=2026110906",
+    "./boxing-coach-v2.js?v=2026111008",
     "./contact-response.js?v=2026110406",
     "./gym-details.js?v=2026110905",
     "./training-arena.js?v=2026110710",
@@ -26,7 +26,7 @@
     "./fight-referee.js?v=2026110607",
     "./fight-arena.js?v=2026110802",
     "./training-gear.js?v=2026110801",
-    "./career-drills.js?v=2026110901",
+    "./career-drills.js?v=2026111008",
     "./game-world.js?v=2026110901",
     "./fight-iq.js?v=2026110801",
     "./game-accessories.js?v=2026110901",
