@@ -65,8 +65,12 @@
  #fightHealth{--fh-name:14px;--fh-num:12px;--fh-bar:12px;--fh-badge:32px;--fh-pad:14px;top:10px;gap:0 10px}
  #fightHud{font-size:12px;padding:4px 14px 5px}#fightHud .fight-hud-phase{font-size:11px}
 }
-/* Landscape phones in Play mode: stay between the two move rails. */
-@media(max-height:560px) and (min-width:600px){.manual-active #fightHealth{left:138px;right:138px}}
+/* Landscape phones: stay between the two move rails and clear of the final-seconds counter on the trailing side.
+   The stage is too short for the centred bout announcement to fit above the HUD, so it starts just below it. */
+@media(max-height:560px) and (min-width:600px){
+ #fightHealth{left:186px;right:186px}
+ .game-enabled #stageContainer .bout-announcement:not([data-ko=true]):not([data-kind=countdown]){top:76px!important}
+}
 @media(prefers-reduced-motion:reduce){
  #fightHealth .fight-health-track,#fightHealth .fight-health-fill{animation:none!important}
  #fightHealth .fight-health-fill,#fightHealth .fight-health-trail,#fightHealth .fight-health-value{transition:none}
