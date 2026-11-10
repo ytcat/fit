@@ -82,3 +82,9 @@ body.club-app{height:var(--app-height,100dvh);min-height:0;overflow:hidden}
 
 .manual-pages{display:flex;flex:0 0 100%;gap:4px;justify-content:center;padding-top:3px;direction:inherit}.manual-pages[hidden]{display:none}.manual-pages button{min-height:28px;flex:1;padding:4px 8px;background:#14272b;color:#d8d4c8;border:1px solid #c6a86b56;border-radius:6px;font:650 11px system-ui}.manual-pages [aria-pressed=true]{background:#e2bd7b;color:#241c12}.club-app.manual-active .club-view-tools{height:auto;min-height:34px;flex-wrap:wrap;row-gap:2px}.manual-pages button:focus-visible{outline:2px solid #fff;outline-offset:1px}
 @media(max-height:700px) and (max-width:599px){.club-app.manual-active[data-scene=gym] .manual-rail{width:96px;grid-template-columns:1fr 1fr}.club-app.manual-active[data-scene=gym] .manual-side-label{grid-column:1/-1}.club-app.manual-active[data-scene=gym] .manual-move{min-height:38px;font-size:9px}}
+/* GOTR-0006: at most three primary combos, readable two-line labels, one column at every breakpoint. */
+#manualControls[data-page=combos] .manual-rail{width:96px;grid-template-columns:1fr}
+#manualControls[data-page=combos] .manual-side-label{grid-column:auto}
+#manualControls[data-page=combos] .manual-move{height:auto;min-height:44px;overflow:visible;white-space:normal;overflow-wrap:break-word;hyphens:auto;font-size:11px;line-height:1.2;padding:6px 5px}
+#manualControls[data-page=combos] .manual-move[data-meta=true]{min-height:40px;border-style:dashed;background:#1b2a33e6;color:#e8d3a6;font-weight:600}
+@media(max-height:560px){#manualControls[data-page=combos] .manual-move{min-height:38px;font-size:10px;padding:4px 5px}#manualControls[data-page=combos] .manual-move[data-meta=true]{min-height:34px}}

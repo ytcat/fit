@@ -1,3 +1,13 @@
+## 2026-11-10 — Readable combo controls, max three (GOTR-0006)
+
+The Combos page now shows only the equipped loadout (max three) with **More n/m**
+paging and a **Choose combos** shortcut, instead of six buttons with lock suffixes.
+The bottom quick bar holds max three, wraps only between words and hides while the
+side Combos page is open. Verified in the real app at four sizes in EN/HE/RU; full
+regression suite result recorded on completion. Not yet merged or published. The Moves page on 360-px
+phones still breaks long words (separate follow-up).
+[Evidence](qa/gotr-0006/) · [Backlog entry](docs/glory-of-the-ring/FEEDBACK_BACKLOG.md).
+
 ## 2026-11-09 — Rounded upper shorts (GOTR-0011)
 
 Removed the exposed square upper leg caps by rounding them into the existing hip

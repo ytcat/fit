@@ -100,15 +100,16 @@
 
 ### GOTR-0006 — Fix cramped, wrapped and tiny combo / action buttons
 - **Reported:** 2026-11-09
-- **Status:** OPEN
+- **Status:** READY FOR QA
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** UI / responsiveness / accessibility
 - **Reported behavior / request:** As more combos are added, action buttons become small, labels wrap badly and the interface looks broken. User explicitly suggested limiting active buttons to three if necessary.
 - **Expected behavior:** Max three visible primary combo buttons with a clear More/Select dropdown, carousel or loadout editor for additional owned combos. Consistent widths/heights, compact readable labels, sensible iconography, accessible touch targets and stable layout across phone portrait/landscape and desktop. The full collection remains accessible; excess items are not deleted.
 - **Acceptance criteria:** No cramped unreadable labels in common screen sizes or English/Hebrew/Russian; at most three primary active combo controls; swapping equipped combos does not break queued actions or change ownership; verified screenshots at mobile and desktop breakpoints.
-- **Implementation:** Not started; inspect CSS and existing control panels before redesign.
-- **Evidence:** Pending before/after QA.
+- **Implementation (2026-11-10, branch `claude/serene-cannon-riwk4l`):** Root cause: the Combos page always rendered all six combos (`ringfighter-controls.js` fixed `comboLayout`), appending " · 🔒" to unequipped ones, and the bottom quick bar (`game-shell.js`) squeezed up to five equipped combos with `overflow-wrap:anywhere`, so words broke letter by letter. Now the Combos page shows only the equipped loadout for the current mode (or the full drill set without the game layer), max three, with **More n/m** paging and **Choose combos** opening the loadout screen. Keys 1–3 follow the visible combos. The quick bar shows max three, wraps only between words and hides while the side Combos page is open. Ownership, loadout validation and the input queue are unchanged.
+- **Evidence:** `qa/gotr-0006/` — before/after captures and `browser.cjs` (real app, EN/HE/RU × 393×852, 360×640, 852×393, 1366×768): new player sees only *Choose combos*; Fight loadout shows 3; Training loadout of 5 pages 3 → 2 → back to 3; speed-bag combos page 3 + More; no clipped or off-screen button; pressing a visible combo starts it (`combo_one_two` → jab, queue 1); *Choose combos* opens the loadout; zero page errors. New paging assertions in `tests/club-interface.test.cjs`.
+- **Status note:** READY FOR QA until merged to `main` and published. **Remaining:** the separate **Moves** page (12 single-move buttons) still breaks long words on 360-px phones (e.g. RU "Передн/ий апперк/от"); needs its own layout pass.
 
 ### GOTR-0007 — Make Fight IQ a guided interactive lesson, not a confusing menu
 - **Reported:** 2026-11-09
@@ -178,6 +179,19 @@ These nine reports were recorded from the user's latest message. **None is marke
 - **Reported behavior / request:** Opponent and coach stand too close; the jab should extend straight at an appropriate distance.
 - **Implementation:** Coach mitt contact currently measured at56.3° elbow /47.5% extension. Clean sparring/fight jabs already reach172.3°/171.1°; inspect visual crowding separately and preserve contact stops on blocked punches. No spacing change published yet.
 - **Evidence:** New matched real-app views and contact tests required before resolving.
+
+### GOTR-0013 — Rename Fight IQ to Fight Academy and give it a designed look
+- **Reported:** 2026-11-10
+- **Status:** OPEN
+- **Priority:** P1
+- **Delivery:** NOW — rename as a small release; visual redesign delivered with the GOTR-0007 guided lesson
+- **Area:** Fight IQ / branding / UI design
+- **Reported behavior / request:** "Change Fight IQ to Fight Academy and make sure that this will be better looking, more designed."
+- **Expected behavior:** Every user-visible "Fight IQ" label (toolbar, World hub, lesson screens, tips) reads "Fight Academy" in EN with matching HE/RU names. The Academy screen looks like a designed product area (clear header, lesson cards with progress, consistent typography/spacing/icons), not a plain text menu. Saved Fight IQ progress, ledger entries and technical IDs are preserved.
+- **Acceptance criteria:** No visible "Fight IQ" text remains in EN/HE/RU; saved progress survives reload; before/after screenshots at phone and desktop sizes in EN/HE/RU show readable, unclipped layout; existing Fight IQ tests pass.
+- **Dependencies / risks:** Coordinate with GOTR-0007 so the redesign and guided lesson share one layout. Keep internal IDs (`IQ-*`, `learn` tab) unchanged to avoid save migration.
+- **Implementation:** Not started.
+- **Evidence:** Not yet available.
 
 ### Issue template
 

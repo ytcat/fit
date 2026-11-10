@@ -23,3 +23,7 @@ body.game-enabled[data-training=rope].manual-active .manual-controls{display:blo
 @media(max-height:500px){.game-cup-dialog .game-cup-stage strong{font-size:11px}.game-cup-dialog .game-cup-stage span,.game-cup-dialog .game-cup-stage small{font-size:10px;line-height:1.25}.game-cup-dialog .game-cup-stages,.game-cup-dialog .game-cup-actions{margin:4px 0}.game-cup-dialog>.game-primary{padding:5px}}
 .game-cup-fighter,.game-cup-champion{overflow-wrap:anywhere}@media(max-width:520px){.game-cup-dialog .game-dialog-head h2{font-size:20px;line-height:1.2}.game-cup-dialog .game-close{font-size:23px;padding:4px 10px;min-width:42px;min-height:42px}}
 .club-app dialog.game-cup-dialog{padding:10px;max-height:calc(100dvh - 20px)}
+/* GOTR-0006: quick-access bar holds at most three equipped combos; whole words wrap, never single letters.
+   It is redundant while the side Combos page is open, so it hides there. */
+.game-loadout .game-combo-button{flex:1 1 0;min-width:76px;max-width:120px;overflow-wrap:normal;word-break:normal;hyphens:auto;line-height:1.2}
+#stageContainer:has(#manualControls[data-page=combos]) .game-loadout{display:none}
