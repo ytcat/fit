@@ -10,6 +10,7 @@ const want=(process.argv[3]||'fight,wide,thumb,cost').split(',');
  await p.goto(URL);await p.waitForFunction(()=>window.ringfighterGame&&app.engine.coach?.anatomy,null,{timeout:180000});
  const all=await p.evaluate(()=>{const s=app.engine.career.store;if(!s.current())s.create('QA');return GameVenues.catalog.map(v=>v.id);});
  const ids=process.argv[2]&&process.argv[2]!=='all'?process.argv[2].split(','):all,cost={};
+ if(process.env.UI_LANG)await p.evaluate(lang=>app.setLanguage(lang),process.env.UI_LANG);// e.g. UI_LANG=he OUT=qa/gotr-0022/raw/he
  const settle=ms=>p.waitForTimeout(ms);
  const start=async id=>{await p.evaluate(id=>{const e=app.engine;document.querySelectorAll('dialog[open]').forEach(d=>d.close());e.career.store.gameAction({type:'venue',venueId:id});e.fightOptions={seed:74};ringfighterGame.quick();document.querySelectorAll('dialog[open]').forEach(d=>d.close());GameVenues.apply(e,id,app.lang);},id);await settle(1000);await p.evaluate(()=>{app.engine.isPlaying=true;});await settle(3200);await p.evaluate(()=>{app.engine.isPlaying=false;});await settle(500);};
  const render=()=>p.evaluate(()=>{const e=app.engine;e.world.update(e.animTime,'fight');e.arena.fightView.pose?.();e.renderer.render(e.scene,e.camera);return {calls:e.renderer.info.render.calls,triangles:e.renderer.info.render.triangles,geometries:e.renderer.info.memory.geometries,textures:e.renderer.info.memory.textures,programs:e.renderer.info.programs.length};});

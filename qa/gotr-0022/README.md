@@ -21,6 +21,8 @@ only for that capture), reduced to a 160-colour palette (about 50-70 KB each).
 - `wide-<id>.webp`: canvas only, raised wide camera (lower for the two low-ceiling rooms).
 - `fight-desktop-existing-styles.webp`: the three existing styles from the same camera, for comparison.
 - `gallery-*.webp`, `gallery-results.json`: the gallery at the four required viewports.
+- `signage-he-ru.webp`: in-scene signs with the Hebrew (top) and Russian (bottom) arena names
+  (`UI_LANG=he OUT=qa/gotr-0022/raw/he node qa/gotr-0022/capture.cjs street,regional wide`).
 - `cost.json`: raw renderer counters for every arena.
 
 ## Render cost (three.js `renderer.info`, one frame, same paused fight, seed 74)
