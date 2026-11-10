@@ -10,8 +10,9 @@
   const rules={...RULES,...options},seq=[...sequence];
   if(!Number.isSafeInteger(rules.repetitions)||rules.repetitions<1||!(rules.windowMs>0)||!Number.isSafeInteger(rules.strikes)||rules.strikes<1||!(rules.graceMs>=0))fail('Invalid lesson rules.');
   let step=0,reps=[],current=[],strikes=0,lastAt=null,graceUntil=-Infinity,locked=false,passed=false;
-  // next: the move expected now; first: the move every run-through starts with.
-  const state=()=>({step,total:seq.length,reps:reps.length,required:rules.repetitions,strikes,locked,passed,next:passed||locked?null:seq[step],first:seq[0]});
+  // next: the move expected now; first: the move every run-through starts with;
+  // deadline: latest time for the next move (null before a run-through starts); graceUntil: presses before it are ignored.
+  const state=()=>({step,total:seq.length,reps:reps.length,required:rules.repetitions,strikes,locked,passed,next:passed||locked?null:seq[step],first:seq[0],deadline:step&&!passed&&!locked?lastAt+rules.windowMs:null,graceUntil:Number.isFinite(graceUntil)?graceUntil:null});
   const evidence=()=>({version:1,reps:reps.map(r=>({moves:[...r.moves],ms:[...r.ms]}))});
   // A mistake clears only the current run-through. Earlier successes stay.
   function miss(type,detail,at){
@@ -19,7 +20,8 @@
    const rewatch=strikes>=rules.strikes;if(rewatch){strikes=0;locked=true;}
    return {type,...detail,rewatch,...state()};
   }
-  // Call for every input the game really accepted, with a monotonic time in milliseconds.
+  // Call for every input the game really accepted, with a monotonic time in milliseconds
+  // (the game passes its simulation clock, so a slow device is judged by what the fighter did).
   function input(move,at){
    if(typeof move!=='string'||!Number.isFinite(at))fail('Invalid lesson input.');
    if(passed)return {type:'done',...state()};

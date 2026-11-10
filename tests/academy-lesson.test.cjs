@@ -12,7 +12,7 @@ function player(sequence){const v=L.create(sequence);let now=1000;return {v,pres
 for(const combo of D.combos){
  // Exact order at a steady tempo: every box fills in turn, three run-throughs pass, and the proof is accepted by the game rules.
  const p=player(combo.sequence),n=combo.sequence.length;let last;
- assert.deepEqual(p.v.state(),{step:0,total:n,reps:0,required:REPS,strikes:0,locked:false,passed:false,next:combo.sequence[0],first:combo.sequence[0]});
+ assert.deepEqual(p.v.state(),{step:0,total:n,reps:0,required:REPS,strikes:0,locked:false,passed:false,next:combo.sequence[0],first:combo.sequence[0],deadline:null,graceUntil:null});
  for(let run=0;run<REPS;run++)for(let i=0;i<n;i++){last=p.press(combo.sequence[i],400);const end=i===n-1;
   assert.equal(last.type,end?(run===REPS-1?'pass':'rep'):'step',combo.id+' run '+run+' step '+i);assert.equal(last.reps,end?run+1:run);assert.equal(last.step,end?0:i+1);if(!end)assert.equal(last.next,combo.sequence[i+1]);}
  assert.equal(last.passed,true);assert.equal(last.next,null);assert.equal(last.evidence.reps.length,REPS);for(const run of last.evidence.reps){assert.deepEqual(run.moves,combo.sequence);assert.deepEqual(run.ms,combo.sequence.map((_,i)=>i*400));}
@@ -23,7 +23,7 @@ for(const combo of D.combos){
 {
  // Wrong move: names what was pressed and what was needed, clears only the current run-through.
  const p=player(['jab','cross','hook']);for(const m of ['jab','cross','hook'])p.press(m);assert.equal(p.v.state().reps,1);
- p.press('jab');const wrong=p.press('hook');assert.equal(wrong.type,'wrong');assert.equal(wrong.pressed,'hook');assert.equal(wrong.wanted,'cross');assert.equal(wrong.atStart,false);assert.equal(wrong.step,0);assert.equal(wrong.next,'jab');assert.equal(wrong.reps,1,'an earlier success is kept');assert.equal(wrong.strikes,1);assert.equal(wrong.rewatch,false);
+ p.press('jab');assert.equal(p.v.state().deadline,p.now+WINDOW,'the tempo deadline follows the last move');const wrong=p.press('hook');assert.equal(wrong.type,'wrong');assert.equal(wrong.deadline,null);assert.equal(wrong.graceUntil,p.now+GRACE);assert.equal(wrong.pressed,'hook');assert.equal(wrong.wanted,'cross');assert.equal(wrong.atStart,false);assert.equal(wrong.step,0);assert.equal(wrong.next,'jab');assert.equal(wrong.reps,1,'an earlier success is kept');assert.equal(wrong.strikes,1);assert.equal(wrong.rewatch,false);
  // Presses in the short grace after a mistake are ignored, so one slip is one mistake.
  assert.equal(p.press('cross',GRACE-100).type,'ignored');assert.equal(p.v.state().strikes,1);
  // Starting with the wrong move is a mistake too.
