@@ -27,8 +27,10 @@
    this.mount();
   }
   // RingCamera asks these before it moves the camera or accepts an orbit drag.
-  get owns(){return this.mode!=='free';}
-  get blocksOrbit(){return this.mode==='lock'||this.mode==='intro';}
+  get owns(){return this.mode!=='free'&&!this.suspended;}
+  // Shop previews and Fight Academy demos frame the stage themselves: the director stands aside.
+  get suspended(){const e=this.engine,list=e.stage&&e.stage.classList;return !!(e.fightIQDemo||list&&list.contains('game-preview-live'));}
+  get blocksOrbit(){return (this.mode==='lock'||this.mode==='intro')&&!this.suspended;}
   // The engine clock waits until only the match's own 3 s countdown is left, so the bell meets the final framing.
   get holdsClock(){return this.mode==='intro'&&this.intro.t<this.intro.seconds-INTRO.countdown;}
   reducedMotion(){try{return !!window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch{return false;}}
@@ -63,9 +65,13 @@
   }
   subjects(){
    const e=this.engine,a=e.arena,fight=a&&a.mode==='fight'&&a.fightView&&a.fightView.coaches;
-   if(fight)return {key:'fight',nodes:[fight.lion.root,fight.rabbit.root],yaw:a.group.rotation.y+Math.PI/2,height:1.82};
-   if(a&&a.mode!=='none'&&e.coach){const target=a.models&&a.models[a.mode],pair=target&&target.parent&&a.mode!=='rope';return {key:a.mode,nodes:pair?[e.coach.root,target]:[e.coach.root],yaw:a.group.rotation.y,height:1.78};}
-   const solo=e.activeModel||(e.coach&&e.coach.root);return solo?{key:'none',nodes:[solo],yaw:solo.rotation.y,height:1.78}:null;
+   if(fight)return {key:'fight',nodes:[fight.lion.root,fight.rabbit.root],yaw:a.group.rotation.y+Math.PI/2,frame:2.65};
+   if(a&&a.mode!=='none'&&e.coach){
+    // Equipment stations keep their target in arena.models; mitt work keeps its pad holder on the drill.
+    const drill=a.careerDrill,target=drill&&drill.trainer?drill.trainer.root:a.models&&a.models[a.mode],pair=target&&target.parent&&a.mode!=='rope';
+    return {key:a.mode,nodes:pair?[e.coach.root,target]:[e.coach.root],yaw:a.group.rotation.y,frame:a.mode==='rope'?(e.coach.species==='rabbit'?3.12:2.86):a.mode==='pads'?2.95:2.65};
+   }
+   const solo=e.activeModel||(e.coach&&e.coach.root);return solo?{key:'none',nodes:[solo],yaw:solo.rotation.y,frame:2.65}:null;
   }
   // True side view: perpendicular to the line between the subjects, both framed with reach to spare.
   goal(){
@@ -84,7 +90,9 @@
    }
    this.direction={x:dx,z:dz};
    const width=Math.max(2.4,b?gap+1.0:2.4);
-   return {lx:mx,ly:1.30,lz:mz,angle:Math.atan2(this.side*dz,-this.side*dx),dist:Math.min(12.5,fitDistance(width,2.65,c.fov,c.aspect)),cy:s.height};
+   // Look height and camera height are the station's own free framing: the tilt is the one the player knows.
+   const free=this.freePose();
+   return {lx:mx,ly:free.ly,lz:mz,angle:Math.atan2(this.side*dz,-this.side*dx),dist:Math.min(12.5,fitDistance(width,s.frame,c.fov,c.aspect)),cy:free.cy};
   }
   follow(dt,snap){
    const g=this.goal();if(!g)return this.pose;
@@ -92,7 +100,7 @@
    this.reach=snap||!this.pose||this.reachKey!==this.subjectKey?g.dist:Math.max(g.dist,this.reach-.3*dt);this.reachKey=this.subjectKey;
    if(snap||!this.pose){this.pose={...g,v:{}};return this.pose;}
    const p=this.pose;
-   for(const key of ['lx','ly','lz','cy'])damp(p,key,g[key],.35,dt);damp(p,'angle',g.angle,.5,dt,true);damp(p,'dist',this.reach,.35,dt);
+   for(const key of ['lx','ly','lz','cy'])damp(p,key,g[key],.35,dt);damp(p,'angle',g.angle,.35,dt,true);damp(p,'dist',this.reach,.35,dt);
    return p;
   }
   place(p){const c=this.engine.camera;c.position.set(p.lx+Math.sin(p.angle)*p.dist,p.cy,p.lz+Math.cos(p.angle)*p.dist);c.lookAt(p.lx,p.ly,p.lz);c.updateMatrixWorld(true);}
@@ -106,7 +114,7 @@
   // Called once per displayed frame, before drawing. Returns true when the camera moved.
   update(dt){
    const e=this.engine,c=e.camera,v=e.viewControls;if(!c||!v||!v.target||!v.offset)return false;
-   this.paint();dt=Math.min(Math.max(dt||0,0),.05);
+   this.paint();dt=Math.min(Math.max(dt||0,0),.05);if(this.suspended){if(this.mode==='intro')this.skipIntro();return false;}
    const fight=e.arena&&e.arena.mode==='fight'?e.arena.fightView:null;
    if(fight!==this.seenFight){
     this.seenFight=fight;
