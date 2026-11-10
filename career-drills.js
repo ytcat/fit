@@ -135,11 +135,15 @@
    j.hips.position.z+=.035*sweep+closeIn;j.spine.rotation.x+=.11*sweep-.020*shock;j.chest.rotation.x+=.09*sweep-.035*shock;
    j.spine.rotation.y-=sign*.10*sweep;j.chest.rotation.y-=sign*(.13*sweep-.055*catchPulse);
    j.chest.rotation.x+=.025*catchPulse;j.neck.rotation.y+=sign*.06*sweep;j.head.rotation.y+=sign*.08*sweep;
+   const ready=upper?smooth(phase/.18)*(1-smooth((phase-.72)/.25)):0,feed=hookPunch?smooth((phase-.04)/.22)*(1-smooth((phase-.62)/.26)):0;
+   // Turn the catching shoulder toward an inside punch so the rear arm is not left
+   // reaching across a bladed stance; the eyes stay on the boxer.
+   const turnIn=(catchSide==='R'?-1:.35)*(.24*ready+.18*feed);j.spine.rotation.y+=.4*turnIn;j.chest.rotation.y+=.6*turnIn;j.neck.rotation.y-=.45*turnIn;j.head.rotation.y-=.45*turnIn;
    // Lower the pelvis just enough that neither leg is asked to reach past its bones.
    coach.root.updateMatrixWorld(true);let drop=0;
    for(const {side,ankle} of feet){const start=coach.point(j['thigh'+side]),reach=j['knee'+side].position.length()+j['foot'+side].position.length()-.004,dx=start.x-ankle.x,dz=start.z-ankle.z;drop=Math.max(drop,start.y-ankle.y-Math.sqrt(Math.max(.01,reach*reach-dx*dx-dz*dz)));}
    j.hips.position.y-=drop;
-   const palms=[],errors=[],ready=upper?smooth(phase/.18)*(1-smooth((phase-.72)/.25)):0,feed=hookPunch?smooth((phase-.04)/.22)*(1-smooth((phase-.62)/.26)):0;
+   const palms=[],errors=[];
    for(const [i,side] of ['L','R'].entries()){
     const pad=this.mitts[i],age=this.padPose.t-(pad.userData.hitAt??-100),recoil=age>=0?.065*(pad.userData.hitForce??1)*(1-Math.exp(-age/.022))*Math.exp(-age/.15):0;
     const goal=V(i?.20:-.20,1.82+.010*Math.sin(this.padPose.t*2.3+i),0),palm=V(0,0,1),straight=i?'cross':'jab',catching=side===catchSide;let elbow=null;
