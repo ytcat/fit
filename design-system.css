@@ -1,0 +1,256 @@
+/* Glory of the Ring component system (GOTR-0014, GOTR-0015). Loaded after every other app stylesheet.
+   One control scale and one look for buttons, tabs, cards and dialogs; colours come from design-tokens.css.
+   Rules: docs/design-system.md. Layout mechanics (grids, no-scroll sizing) stay in the feature stylesheets. */
+
+/* ---------- 1. Base ---------- */
+html{background:var(--gr-bg)}
+body.club-app{font-family:var(--gr-font);color:var(--gr-text);background:var(--gr-bg);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.club-app button,.club-app input,.club-app select,.club-app textarea{font-family:var(--gr-font)}
+.club-app ::selection{background:var(--gr-accent);color:var(--gr-accent-ink)}
+.club-app h1,.club-app h2,.club-app h3,.club-app h4{letter-spacing:-.01em}
+.club-app strong,.club-app b{font-weight:var(--gr-fw-bold)}
+
+/* ---------- 2. Focus: one visible ring, never an oversized box ---------- */
+.club-app button:focus-visible,.club-app a:focus-visible,.club-app input:focus-visible,.club-app select:focus-visible,.club-app summary:focus-visible{outline:2px solid var(--gr-focus)!important;outline-offset:2px}
+
+/* ---------- 3. Buttons ----------
+   Secondary is the default. Primary is reserved for the one action that moves the player forward.
+   Heights: standard 40-44px, small 32-36px, icon 36-40px square. */
+.game-button,.workout-tool,.career-secondary,.career-player-choice,.routine-pager button,
+.club-app dialog .practice-control-section button,.club-app .fight-result-actions button,
+.ringside-choose,.ringside-control,.career-profile-button,.game-wallet,.club-zoom-group button,
+.club-app .training-bar>button,.club-app .stage-sound,.club-app #openPracticeControls{
+  background:var(--gr-surface-3);color:var(--gr-text);border:1px solid var(--gr-border);border-radius:var(--gr-radius-s);
+  font-weight:var(--gr-fw-medium);letter-spacing:0;box-shadow:none;text-shadow:none}
+.game-button:hover:not(:disabled),.workout-tool:hover:not(:disabled),.career-secondary:hover,.career-player-choice:hover:not(:disabled),.routine-pager button:hover:not(:disabled),
+.club-app dialog .practice-control-section button:hover:not(:disabled),.club-app .fight-result-actions button:hover,
+.ringside-choose:hover,.ringside-control:hover:not(:disabled),.career-profile-button:hover,.game-wallet:hover,.club-zoom-group button:hover,
+.club-app .training-bar>button:hover:not(:disabled),.club-app .stage-sound:hover,.club-app #openPracticeControls:hover{
+  background:var(--gr-surface-4);border-color:var(--gr-border-strong);filter:none}
+.game-button,.workout-tool{min-height:var(--gr-control-h-s);padding:8px 12px;font-size:13px;line-height:1.2}
+.career-secondary,.career-player-choice{min-height:var(--gr-control-h-m);padding:9px 14px;font-size:13px;line-height:1.2}
+label.career-secondary{display:inline-flex;align-items:center;cursor:pointer}
+.routine-pager button{height:var(--gr-control-h-m);width:76px;font-size:16px}
+
+/* Primary */
+.club-primary,.challenge-primary,.game-button.combo-buy,.academy-lesson .game-button.academy-start,
+.ringside-toolbar .career-start,.store-detail button{
+  background:var(--gr-accent);color:var(--gr-accent-ink);border:1px solid transparent;border-radius:var(--gr-radius-s);
+  font-weight:var(--gr-fw-bold);letter-spacing:0;box-shadow:none}
+.club-primary:hover:not(:disabled),.challenge-primary:hover:not(:disabled),.game-button.combo-buy:hover:not(:disabled),
+.academy-lesson .game-button.academy-start:hover:not(:disabled),.ringside-toolbar .career-start:hover:not(:disabled),.store-detail button:hover:not(:disabled){
+  background:var(--gr-accent-hover);border-color:transparent}
+.club-primary:active:not(:disabled),.challenge-primary:active:not(:disabled),.game-button.combo-buy:active:not(:disabled),
+.academy-lesson .game-button.academy-start:active:not(:disabled),.ringside-toolbar .career-start:active:not(:disabled),.store-detail button:active:not(:disabled){
+  background:var(--gr-accent-press)}
+.club-primary,.challenge-primary{min-height:var(--gr-control-h);padding:10px 16px;font-size:14px;line-height:1.2}
+.club-app dialog .club-primary{width:100%;max-width:none;margin:0;min-height:var(--gr-control-h);font-size:14px}
+
+/* The dialog footer "Back to game" closes the screen; it is not the primary action. */
+.game-dialog>.game-button.game-primary,.ringside-layout .ringside-drawer .ringside-done{
+  background:var(--gr-surface-3);color:var(--gr-text);border:1px solid var(--gr-border);border-radius:var(--gr-radius-s);font-weight:var(--gr-fw-medium)}
+.game-dialog>.game-button.game-primary:hover,.ringside-layout .ringside-drawer .ringside-done:hover{background:var(--gr-surface-4);border-color:var(--gr-border-strong)}
+.game-dialog>.game-button.game-primary{width:100%;min-height:var(--gr-control-h-m);margin-top:12px;font-size:13px}
+
+/* Disabled: quiet and flat, the same everywhere */
+.game-button:disabled,.workout-tool:disabled,.career-player-choice:disabled,.routine-pager button:disabled,.club-primary:disabled,.challenge-primary:disabled,
+.game-button.combo-buy:disabled,.store-detail button:disabled,.ringside-control:disabled,.ringside-toolbar .career-start:disabled,
+.club-app .training-bar>button:disabled,.club-app dialog .practice-control-section button:disabled{
+  opacity:1;background:transparent;color:var(--gr-text-faint);border-color:var(--gr-border);cursor:not-allowed}
+
+/* Icon buttons: every dialog close control is one of these */
+.game-dialog .game-close,.club-app dialog .practice-control-heading button,.ringside-layout .ringside-drawer .ringside-dismiss,.challenge-head button{
+  flex:none;display:grid;place-items:center;box-sizing:border-box;width:var(--gr-icon-btn);height:var(--gr-icon-btn);min-width:0;min-height:0;margin:0;padding:0 0 2px;
+  font:400 22px/1 var(--gr-font);letter-spacing:0;color:var(--gr-text-muted);background:var(--gr-surface-3);border:1px solid var(--gr-border);border-radius:var(--gr-radius-s);box-shadow:none}
+.game-dialog .game-close:hover,.club-app dialog .practice-control-heading button:hover,.ringside-layout .ringside-drawer .ringside-dismiss:hover,.challenge-head button:hover{
+  color:var(--gr-text);background:var(--gr-surface-4);border-color:var(--gr-border-strong)}
+
+/* ---------- 4. Tabs and segmented controls: raised pill plus an accent tick ---------- */
+.game-nav,.world-tabs,.ringside-menu-tabs,.input-mode-switch,.club-camera-group{
+  background:var(--gr-bg);border:1px solid var(--gr-border);border-radius:var(--gr-radius-m);padding:3px;gap:2px}
+.game-nav-button,.world-tab,.ringside-menu-tabs button,.input-mode-switch button,.club-camera-group button{
+  position:relative;background:transparent;border:0;border-radius:9px;color:var(--gr-text-muted);font-weight:var(--gr-fw-medium);box-shadow:none}
+.game-nav-button:hover,.world-tab:hover,.ringside-menu-tabs button:hover,.input-mode-switch button:hover,.club-camera-group button:hover{color:var(--gr-text);background:var(--gr-hairline)}
+.game-nav-button[aria-current=page],.world-tab[aria-selected=true],.ringside-menu-tabs [aria-selected=true],.input-mode-switch [aria-pressed=true],.club-camera-group button[aria-pressed=true]{
+  background:var(--gr-surface-3);color:var(--gr-text);font-weight:var(--gr-fw-bold);box-shadow:var(--gr-shadow-1)}
+.game-nav-button[aria-current=page]::after,.world-tab[aria-selected=true]::after,.ringside-menu-tabs [aria-selected=true]::after{
+  content:"";position:absolute;left:50%;bottom:3px;width:18px;height:2px;margin-left:-9px;border-radius:2px;background:var(--gr-accent)}
+
+/* ---------- 5. Cards and selectable choices ---------- */
+.game-world-card,.game-item,.game-cup-stage,.game-combo-library .game-section,.game-station-resume,.game-world-hero,.academy-lesson,.academy-hero,
+.career-panel,.fight-card,.game-cup-proof,.iq-tip,.iq-feedback,.game-notice,.club-tip{border-radius:var(--gr-radius-m)}
+.store-product,.store-category,.venue-choice,.club-character,.club-equipment,.equipment-choice,.routine-choice,.challenge-day{
+  border-radius:var(--gr-radius-s);box-shadow:none}
+.equipment-choice,.routine-choice,.club-app dialog .routine-choice,.club-app dialog .equipment-choice{border-radius:var(--gr-radius-m)}
+.store-product:hover,.store-category:hover,.venue-choice:hover,.club-character:hover:not(:disabled),.challenge-day:hover{border-color:var(--gr-border-strong);background:var(--gr-surface-3)}
+.store-category[aria-current=true],.store-product[aria-pressed=true],.venue-choice[aria-pressed=true],.club-character[aria-pressed=true],.club-equipment[aria-pressed=true],
+.equipment-choice[aria-pressed=true],.routine-choice[aria-pressed=true],.club-app dialog .routine-choice[aria-pressed=true],.club-app dialog .equipment-choice[aria-pressed=true],.game-cup-stage.is-current{
+  border-color:var(--gr-accent);background:var(--gr-accent-soft);color:var(--gr-text)}
+
+/* ---------- 6. Dialogs: one shell ---------- */
+.game-dialog,.club-app dialog,.challenge-dialog,.ringside-layout .ringside-drawer{
+  background:var(--gr-surface);color:var(--gr-text);border:1px solid var(--gr-border);border-radius:var(--gr-radius-l);box-shadow:var(--gr-shadow-3)}
+.game-dialog::backdrop,.club-app dialog::backdrop,.challenge-dialog::backdrop{background:var(--gr-scrim);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.game-dialog-head,.club-app dialog .practice-control-heading,.challenge-head{gap:12px}
+.game-dialog h2,.club-app dialog .practice-control-heading h2,.challenge-head h2{font-size:var(--gr-fs-xl);font-weight:var(--gr-fw-bold);line-height:1.2;letter-spacing:-.01em;margin:0}
+.game-dialog h3{font-size:var(--gr-fs-l);font-weight:var(--gr-fw-bold);line-height:1.25}
+.game-dialog h4{font-weight:var(--gr-fw-bold)}
+.game-muted{color:var(--gr-text-muted)}
+.game-section{border-bottom-color:var(--gr-border)}
+
+/* ---------- 7. Inputs ---------- */
+.game-school-form input,.game-school-form select,.iq-preference select,.career-create input,.career-account input,.ringside-rope-picker select{
+  background:var(--gr-bg);color:var(--gr-text);border:1px solid var(--gr-border-strong);border-radius:var(--gr-radius-s);min-height:var(--gr-control-h)}
+.game-school-form input:hover,.game-school-form select:hover,.iq-preference select:hover,.career-create input:hover,.career-account input:hover,.ringside-rope-picker select:hover{border-color:var(--gr-text-faint)}
+.career-create input::placeholder,.career-account input::placeholder{color:var(--gr-text-faint)}
+
+/* ---------- 8. Section labels ---------- */
+.club-section-label,.game-academy h3.academy-heading,.academy-eyebrow,.club-eyebrow,.manual-side-label{
+  font-size:var(--gr-fs-xs);font-weight:var(--gr-fw-bold);letter-spacing:var(--gr-label-spacing);text-transform:uppercase}
+.club-section-label,.game-academy h3.academy-heading,.manual-side-label{color:var(--gr-text-muted)}
+.ringside-layout .ringside-drawer .club-section-label{font-size:var(--gr-fs-xs);letter-spacing:var(--gr-label-spacing)}
+
+/* ---------- 9. Header ---------- */
+.club-app .club-header{background:var(--gr-surface);border-bottom:1px solid var(--gr-border)}
+.club-brand #appTitle{color:var(--gr-text);font-weight:var(--gr-fw-heavy)}
+.club-brand #appSubtitle{color:var(--gr-text-faint);font-weight:var(--gr-fw-medium);text-transform:uppercase}
+.club-mark{background:var(--gr-accent);color:var(--gr-accent-ink)}
+.game-nav{padding:3px;border:1px solid var(--gr-border)}
+.game-nav-button{font-size:13px;padding:9px 6px;line-height:1.3}
+/* Shop entry: a normal secondary button; only the coin count is gold. */
+.game-wallet{min-height:var(--gr-control-h-m);padding:6px 10px;gap:7px;font-weight:var(--gr-fw-medium)}
+.game-wallet-icon{flex:none;width:16px;height:16px;font-size:0;line-height:0;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E") center/contain no-repeat}
+.game-wallet-coins{padding:2px 8px;border-radius:var(--gr-radius-pill);background:var(--gr-gold-soft);color:var(--gr-gold);font-weight:var(--gr-fw-bold);font-variant-numeric:tabular-nums}
+.career-profile-button{min-height:var(--gr-control-h-m);padding:6px 12px;font-size:12px;font-weight:var(--gr-fw-medium)}
+
+/* ---------- 10. Toolbar above the ring ---------- */
+.ringside-toolbar{background:var(--gr-surface);border-bottom:1px solid var(--gr-border)}
+.ringside-toolbar button{min-height:var(--gr-control-h-s);border-radius:var(--gr-radius-s);font-weight:var(--gr-fw-medium)}
+.ringside-toolbar .career-start{font-weight:var(--gr-fw-bold)}
+.ringside-control[aria-pressed=true]{background:var(--gr-accent-soft);border-color:var(--gr-accent-line);color:var(--gr-text)}
+.ringside-control[aria-pressed=true]:hover{background:var(--gr-accent-soft);border-color:var(--gr-accent)}
+.club-studio,.ringside-layout .club-studio{background:var(--gr-surface);border:1px solid var(--gr-border);border-radius:var(--gr-radius-l);box-shadow:none}
+
+/* ---------- 11. Controls and HUD over the 3D scene ---------- */
+.manual-pages{gap:4px}
+.manual-pages button{background:var(--gr-scene-chip-strong);color:var(--gr-text-muted);border:1px solid var(--gr-scene-line);border-radius:var(--gr-radius-s);font-weight:var(--gr-fw-medium)}
+.manual-pages button:hover{color:var(--gr-text)}
+.manual-pages [aria-pressed=true]{background:var(--gr-accent);border-color:var(--gr-accent);color:var(--gr-accent-ink);font-weight:var(--gr-fw-bold)}
+.manual-move{background:var(--gr-scene-chip);color:var(--gr-text);border:1px solid var(--gr-accent-line);border-radius:var(--gr-radius-s);font-weight:var(--gr-fw-medium);box-shadow:var(--gr-shadow-1)}
+.manual-rail[data-side=rear] .manual-move{background:var(--gr-scene-chip);border-color:var(--gr-info-line)}
+.manual-move:hover:not(:disabled){background:var(--gr-scene-chip-strong)}
+.manual-move[data-active=true],.manual-rail[data-side=rear] .manual-move[data-active=true]{background:var(--gr-accent);border-color:var(--gr-accent);color:var(--gr-accent-ink)}
+.manual-move:disabled{opacity:.45}
+#manualControls[data-page=combos] .manual-move[data-meta=true]{background:var(--gr-scene-chip);border:1px dashed var(--gr-scene-line);color:var(--gr-text-muted)}
+.manual-status,.ringside-layout .career-drill-cue,.workout-next{background:var(--gr-scene-chip-strong);color:var(--gr-text);border:1px solid var(--gr-scene-line);border-radius:var(--gr-radius-pill);font-weight:var(--gr-fw-medium)}
+.game-combo-button{background:var(--gr-scene-chip-strong);color:var(--gr-text);border:1px solid var(--gr-scene-line);border-radius:var(--gr-radius-s);font-weight:var(--gr-fw-medium)}
+.game-combo-button:hover{background:var(--gr-surface-3)}
+.ringside-layout .ringside-playback #playBtn{background:var(--gr-scene-chip-strong);border:1px solid var(--gr-scene-line);box-shadow:var(--gr-shadow-2)}
+.club-app .fight-hud{background:var(--gr-scene-chip-strong);color:var(--gr-text);border:1px solid var(--gr-scene-line);border-radius:var(--gr-radius-pill);font-weight:var(--gr-fw-medium);font-variant-numeric:tabular-nums}
+.club-app .fight-health-label{color:var(--gr-text);font-weight:var(--gr-fw-bold);letter-spacing:.02em;text-shadow:0 1px 3px var(--gr-shadow-color)}
+.club-app .fight-health-track{height:8px;border-radius:var(--gr-radius-pill);background:var(--gr-scene-chip);border:0;box-shadow:0 0 0 1px var(--gr-scene-line)}
+.club-app .fight-health-fill{border-radius:var(--gr-radius-pill)}
+.club-app .fight-knockout{color:var(--gr-text);font-weight:var(--gr-fw-heavy);font-style:italic;text-transform:uppercase;letter-spacing:.01em}
+.bout-announcement{color:var(--gr-text)}
+.bout-announcement strong{font-family:var(--gr-font);font-weight:var(--gr-fw-heavy);font-style:italic;text-transform:uppercase;letter-spacing:.005em;line-height:1.05}
+.bout-announcement[data-kind=fight] strong{color:var(--gr-text);font-style:italic}
+.bout-announcement span{color:var(--gr-accent-text);font-weight:var(--gr-fw-bold)}
+.bout-announcement[data-kind=countdown]{border-radius:var(--gr-radius-m)}
+.bout-announcement[data-kind=countdown] strong{font-family:var(--gr-font);font-style:normal;font-variant-numeric:tabular-nums}
+[dir=rtl] .bout-announcement strong,[dir=rtl] .club-app .fight-knockout{font-style:normal}
+.ringside-layout .fight-results{background:var(--gr-scene-chip-strong);border:1px solid var(--gr-scene-line);border-radius:var(--gr-radius-m);box-shadow:var(--gr-shadow-2)}
+.fight-result-title{color:var(--gr-text);font-weight:var(--gr-fw-bold)}
+.club-app .fight-card{background:var(--gr-surface-2);border:1px solid var(--gr-border);border-radius:var(--gr-radius-s)}
+.club-app .fight-card strong{color:var(--gr-text);font-weight:var(--gr-fw-heavy)}
+.club-app .fight-result-actions button{min-height:var(--gr-control-h-s);padding:7px 12px;font-size:12px}
+
+/* ---------- 12. Shop ---------- */
+.store-balance strong{color:var(--gr-gold);font-size:15px;font-weight:var(--gr-fw-bold);font-variant-numeric:tabular-nums;white-space:nowrap}
+.store-category{font-weight:var(--gr-fw-medium);color:var(--gr-text-muted);background:transparent;border-color:transparent}
+.store-category:hover{color:var(--gr-text)}
+.store-category[aria-current=true]{color:var(--gr-text);font-weight:var(--gr-fw-bold)}
+.store-product{background:var(--gr-surface-2);border:1px solid var(--gr-border);gap:2px}
+.store-product span{color:var(--gr-text);font-weight:var(--gr-fw-medium)}
+.store-product small{color:var(--gr-gold);font-weight:var(--gr-fw-bold);font-variant-numeric:tabular-nums}
+.game-preview{background:var(--gr-bg);border:1px solid var(--gr-border);border-radius:var(--gr-radius-m)}
+.game-dialog .store-view-reset{min-height:28px;padding:4px 10px;font-size:11px;background:var(--gr-scene-chip-strong);border-color:var(--gr-scene-line);border-radius:var(--gr-radius-pill)}
+.store-detail strong{font-weight:var(--gr-fw-bold)}
+.store-detail button{min-height:var(--gr-control-h-s);padding:8px 14px;font-size:13px}
+.store-combo-sequence{color:var(--gr-text-muted)}
+.game-combo-balance{color:var(--gr-gold);font-variant-numeric:tabular-nums}
+.game-store .game-notice{border-radius:var(--gr-radius-s)}
+
+/* ---------- 13. World, cup, loadouts, venues ---------- */
+.game-world-hero,.game-world-card,.game-cup-stage,.game-combo-library .game-section,.game-station-resume,.game-item{background:var(--gr-surface-2);border:1px solid var(--gr-border)}
+.game-reward{background:var(--gr-success-soft);border:1px solid var(--gr-success-line)}
+.game-reward>strong{color:var(--gr-gold)}
+.game-cup-stage.is-complete{border-color:var(--gr-success-line)}
+.game-cup-champion{color:var(--gr-gold);font-weight:var(--gr-fw-bold)}
+.game-combo-library .game-button{min-height:var(--gr-control-h-s);font-size:12px}
+.venue-choice small{color:var(--gr-text-muted)}
+.game-quest{color:var(--gr-text-muted)}
+
+/* ---------- 14. Training menu, practice controls, pickers ---------- */
+.ringside-layout .ringside-drawer .ringside-menu-footer{border-top:1px solid var(--gr-border)}
+.ringside-layout .ringside-drawer .ringside-done{font-size:13px}
+.club-app .practice-techniques button{background:var(--gr-surface-3);color:var(--gr-text);border:1px solid var(--gr-border);border-radius:var(--gr-radius-s);font-weight:var(--gr-fw-medium)}
+.club-app .practice-techniques button:before{background:var(--gr-hairline);color:var(--gr-text-muted);border-radius:var(--gr-radius-xs)}
+.club-app .practice-techniques button[aria-pressed=true],.club-app .practice-techniques button.bg-amber-500{background:var(--gr-accent-soft);border-color:var(--gr-accent);color:var(--gr-text)}
+.club-app .practice-techniques button[aria-pressed=true]:before,.club-app .practice-techniques button.bg-amber-500:before{background:var(--gr-accent);color:var(--gr-accent-ink)}
+.career-panel{background:var(--gr-surface-2);border:1px solid var(--gr-border)}
+.career-heading strong{font-family:var(--gr-font);font-weight:var(--gr-fw-bold);color:var(--gr-text)}
+.career-heading span,.career-stat strong,.career-record{font-family:var(--gr-font);font-variant-numeric:tabular-nums}
+.career-panel progress,.career-panel progress::-webkit-progress-bar{background:var(--gr-surface-4)}
+.speed-grid button{background:var(--gr-surface-3);border:1px solid var(--gr-border);border-radius:var(--gr-radius-s);color:var(--gr-text);font-weight:var(--gr-fw-bold)}
+.speed-grid button[aria-pressed=true]{background:var(--gr-accent-soft);border-color:var(--gr-accent);color:var(--gr-text)}
+.challenge-day.selected{background:var(--gr-accent-soft);border-color:var(--gr-accent);color:var(--gr-text)}
+.fight-score-table th{color:var(--gr-text-muted);font-weight:var(--gr-fw-medium)}
+
+/* ---------- 15. Reduced motion ---------- */
+@media(prefers-reduced-motion:reduce){.club-app button{transition:none!important}}
+
+/* ---------- 16. Fixes found in visual review ---------- */
+/* A legacy "header" rule padded every dialog header; titles now align with the content edge. */
+.game-dialog .game-dialog-head{height:auto;padding:0}
+.game-dialog .game-close,.club-app dialog .practice-control-heading button,.ringside-layout .ringside-drawer .ringside-dismiss,.challenge-head button{font-size:24px}
+/* Play / Watch is a mode switch, not a warning: it stays a plain secondary button. */
+.ringside-control[aria-pressed=true],.ringside-control[aria-pressed=true]:hover{background:var(--gr-surface-3);border-color:var(--gr-border);color:var(--gr-text)}
+.ringside-control[aria-pressed=true]:hover{background:var(--gr-surface-4);border-color:var(--gr-border-strong)}
+/* Repeated calls to action in a list are tonal, so six cards do not shout at once. */
+.academy-lesson .game-button.academy-start{background:var(--gr-accent-soft);color:var(--gr-accent-text);border-color:var(--gr-accent-line)}
+.academy-lesson .game-button.academy-start:hover:not(:disabled),.academy-lesson .game-button.academy-start:active:not(:disabled){background:var(--gr-accent);color:var(--gr-accent-ink);border-color:var(--gr-accent)}
+.academy-lesson[data-state=complete] .game-button.academy-start{background:var(--gr-surface-3);color:var(--gr-text);border-color:var(--gr-border)}
+.academy-lesson-number{background:var(--gr-surface-4);color:var(--gr-text)}
+.academy-lesson[data-state=complete] .academy-lesson-number{background:var(--gr-success);color:var(--gr-bg)}
+.game-academy .iq-choice::before{background:var(--gr-surface-4);color:var(--gr-text)}
+.academy-emblem{background:var(--gr-accent)}
+.academy-emblem svg{fill:var(--gr-accent-ink)}
+.academy-meter-bar span{background:var(--gr-accent)}
+/* Shop: tertiary actions stay small and quiet; compact layouts keep their tuned row heights. */
+.store-balance .game-button{min-height:var(--gr-control-h-xs);padding:6px 10px;font-size:12px}
+.game-store>.game-button.game-primary{margin-top:0}
+@media(max-height:700px) and (max-width:599px),(max-height:600px) and (min-width:600px){
+ .game-store .store-balance .game-button{min-height:0;padding:3px 8px;font-size:11px}
+ .game-store>.game-button.game-primary{min-height:0;padding:4px;font-size:12px;line-height:20px}
+ .game-store .game-close{width:30px;height:30px;font-size:20px}
+ .game-store .store-detail button{min-height:0;padding:6px 10px;font-size:12px}
+}
+@media(max-height:500px){
+ .game-dialog .game-close,.club-app dialog .practice-control-heading button,.club-app dialog.routine-picker .practice-control-heading button,.ringside-layout .ringside-drawer .ringside-dismiss{width:32px;height:32px;font-size:20px}
+ .game-dialog>.game-button.game-primary{min-height:var(--gr-control-h-xs);margin-top:4px;padding:5px}
+}
+/* Training menu: session buttons read like the other choices. */
+.ringside-layout .ringside-drawer .training-bar button,.ringside-layout .ringside-drawer .training-bar #combinationBtn{font-size:12px;text-align:center}
+@media(max-height:500px) and (min-width:600px){.ringside-layout .ringside-drawer .training-bar button,.ringside-layout .ringside-drawer .training-bar #combinationBtn{font-size:11px}}
+/* Header controls share one text size; short landscape phones get the small control height. */
+.game-wallet{font-size:13px}
+@media(max-width:420px){.game-wallet{font-size:12px}}
+@media(max-height:560px) and (min-width:600px){
+ .club-mark{width:30px;height:32px;border-radius:9px}.club-mark svg{width:20px;height:20px}
+ .game-wallet,.career-profile-button{min-height:var(--gr-control-h-s)}
+ .game-nav-button{padding:6px 8px}
+}
+/* On wide screens the Moves / Combos / Defence switch sits clear of the health bars. */
+@media(min-width:801px) and (min-height:561px){.ringside-layout[data-scene=arena] .manual-pages{top:100px}}

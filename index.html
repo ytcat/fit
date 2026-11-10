@@ -5,10 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; img-src 'self' blob: data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'" />
-  <meta name="theme-color" content="#06070a" />
+  <meta name="theme-color" content="#090c11" />
   <title>Glory of the Ring — Boxing Club</title>
   <meta name="description" content="Glory of the Ring, your interactive 3D boxing club. Train with a lion or rabbit, master combinations in the gym, and watch fight night in the arena." />
 
+  <link rel="stylesheet" href="./design-tokens.css?v=2026111100" />
   <link rel="stylesheet" href="./assets/app.css?v=2" />
   <link rel="stylesheet" href="./workout-experience.css?v=2026110406" />
   <script src="./workout-experience.js?v=1" defer></script>
@@ -57,6 +58,7 @@
   <link rel="stylesheet" href="./ringside-layout.css?v=2026110905">
   <script src="./ringside-layout.js?v=2026110905" defer></script>
   <link rel="stylesheet" href="./game-shell.css?v=2026111006">
+  <link rel="stylesheet" href="./design-system.css?v=2026111100">
   <script src="./game-world-art.js?v=2026110905" defer></script>
   <script src="./game-tournament-ui.js?v=2026110904" defer></script>
   <script src="./game-world-ui.js?v=2026111002" defer></script>
@@ -74,19 +76,20 @@
       height: 100%;
       height: 100dvh;
       overflow: hidden;
-      background-color: #06070a;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--gr-bg);
+      font-family: var(--gr-font);
       user-select: none;
       -webkit-user-select: none;
     }
     .hud-glass {
-      background: rgba(10, 14, 22, 0.90);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      background: var(--gr-surface);
+      border: 1px solid var(--gr-border);
     }
     .glow-gold {
-      text-shadow: 0 0 16px rgba(245, 158, 11, 0.85);
+      text-shadow: none;
+    }
+    .gr-stage {
+      background: linear-gradient(to bottom, var(--gr-stage-top), var(--gr-stage-bottom));
     }
   </style>
 </head>
@@ -115,7 +118,7 @@
   </header>
 
   <!-- 3D INTERACTIVE ARENA -->
-  <main id="stageContainer" class="relative flex-1 w-full min-h-0 overflow-hidden bg-gradient-to-b from-[#0e0c08] via-[#080705] to-[#030302]">
+  <main id="stageContainer" class="relative flex-1 w-full min-h-0 overflow-hidden gr-stage">
     <canvas id="boxerCanvas" class="absolute inset-0 w-full h-full block z-0 cursor-grab active:cursor-grabbing"></canvas>
 
     <!-- Floating Combo HUD -->
