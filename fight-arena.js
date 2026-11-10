@@ -108,7 +108,7 @@
    const accuracy=this.match.fighters[actor].accuracy;if(accuracy!=null){const spread=.085*(1-accuracy);point.x+=Math.sin(action.id*12.9898+this.match.seed)*spread;point.y+=Math.cos(action.id*7.233+this.match.seed)*spread;}
    const world=receiver.root.localToWorld(point),local=coach.root.worldToLocal(world.clone());
    // Commit to the target's arena position; a late slip can actually miss.
-   if(spec.phase>=.18){action.aim=this.arena.group.worldToLocal(world.clone()).toArray();action.aimInArena=true;}
+   if(spec.phase>=.18){action.aim=this.arena.group.worldToLocal(world.clone()).toArray();action.aimInArena=true;if(spec.move==='jab'||spec.move==='cross')action.aimRoot=receiver.root.position.toArray();}
    return local;
   }
   ringTravel(){
@@ -200,7 +200,10 @@
     if(m.phase==='round'&&path.weight>.001&&!ceremony){const yaw=coach.ringYaw,local=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw),first=Math.abs(local.z)>=Math.abs(local.x)?(local.z>=0?-1:1):(local.x>=0?1:-1);options.ringStep={first,phase:path.phase,ease:path.ease,weight:path.weight,turn:0,delta:local.toArray()};}
     if(spec.attack){
      options.planStraight=true;options.extendStraight=spec.move==='jab'||spec.move==='cross';if(options.extendStraight)options.armReachMargin=.003;options.strikeDirection=[0,0,1];
-     let target=this.target(actor,spec);if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(V(...f.action.aim)));
+     let target=this.target(actor,spec);
+      // A committed straight still tracks the opponent's steps across the
+      // ring; only a slip, roll or duck takes the head off its line.
+      if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(f.action.aimRoot?V(...f.action.aim).add(this.coaches[other(actor)].root.position).sub(V(...f.action.aimRoot)).setY(f.action.aim[1]):V(...f.action.aim)));
      const through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(.035);
      options.knuckleTarget=target.add(through).toArray();options.strikeHeight=target.y-.035;
      options.advance=spec.move.includes('uppercut')?.08:spec.move.includes('hook')?.065:.025;
@@ -208,7 +211,7 @@
      else{
       // Hooks and uppercuts are inside punches: step in from boxing range
       // with both feet and step back out, instead of swinging a long arm.
-      if(f.action.closing==null)f.action.closing=clamp((this.chestGap()-1.22)/1.32,0,.46);
+      if(f.action.closing==null)f.action.closing=clamp((this.chestGap()-1.22)/1.32,0,.14);
       options.advance+=f.action.closing;
      }
      options.power=1.32;options.contactDrive=options.extendStraight?.025:.075;options.levelChange=spec.target==='body'?.065:.015;
@@ -539,7 +542,7 @@
  };
  // Stance range in metres between fighter roots, and how far a striker may
  // shift its own weight back/forward to land a straight at full extension.
- FightArena.range={near:1.74,far:1.88,back:.26,forward:.20};
+ FightArena.range={near:1.74,far:1.88,back:.26,forward:.14};
  // Shoulder position (fighter-local) when a fight straight lands; refined
  // from each fighter's own completed punches during a bout.
  FightArena.straightShoulder={jabHead:[-.115,1.491,.512],jabBody:[-.106,1.441,.521],crossHead:[-.035,1.500,.560],crossBody:[-.035,1.450,.560]};
