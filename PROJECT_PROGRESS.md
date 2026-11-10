@@ -1,3 +1,11 @@
+## 2026-11-10 — New design system and colour palette (GOTR-0014, GOTR-0015, first pass)
+
+All UI colours now come from tokens; the brown/gold look is replaced by cool near-black
+neutrals, white text, a crimson accent and gold only for coins. One button scale; the
+dialog close button is a normal icon button. Layout and flow checks pass on the new
+look. Three accent options captured for the user. [Evidence](qa/gotr-0015/) ·
+[Design system](docs/design-system.md).
+
 ## 2026-11-10 — Fight straights at range and Fight Academy lessons (GOTR-0018, GOTR-0007)
 
 Fighters hold boxing range and straights land extended (clean about 98% extension;

@@ -214,25 +214,27 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0014 — Proportional, relevant buttons everywhere
 - **Reported:** 2026-11-10
-- **Status:** IN PROGRESS
+- **Status:** READY FOR QA — first pass published 2026-11-10; user to review
 - **Priority:** P1
 - **Area:** UI / design system
 - **Reported behavior / request:** "The buttons are not proportional. For example in Fight Academy the X button that closes the card is huge. Every button has to be proportional and relevant."
 - **Expected behavior:** One consistent control scale (icon, small, standard, primary) applied to every screen; the dialog close button is a normal icon button without an oversized focus box; no decorative or duplicate buttons.
 - **Acceptance criteria:** Before/after screenshots of every dialog and toolbar at phone and desktop sizes in EN/HE/RU; close buttons ≤ 44 px; touch targets ≥ 40 px where space allows; no clipped labels; existing layout QA scripts still pass.
-- **Implementation:** Assigned to the design-system agent together with GOTR-0015.
-- **Evidence:** Pending.
+- **Implementation (`agent/design`):** One control scale in `design-system.css` (icon 36–40 px, standard 40–44 px, small 32–36 px; primary, secondary and quiet styles; deliberate selected/disabled/focus-visible states). The dialog close button is a normal 36-px icon button with a thin focus ring instead of the oversized gold box; footer buttons and compact layouts follow the same scale.
+- **Evidence:** `qa/gotr-0015/after-*.webp`; existing layout QA re-run on the redesign: Shop layout 0 issues (9 sizes × 3 languages), Moves/Defence 0 bad buttons, combos panel, combo purchase, Academy lessons and rhythm checks all pass; full suite 79/79.
+- **Remaining:** a screen-by-screen review with the user; button relevance (removing or merging rarely used buttons) has not been audited yet.
 
 ### GOTR-0015 — Professional visual redesign and new colour system
 - **Reported:** 2026-11-10
-- **Status:** IN PROGRESS
+- **Status:** READY FOR QA — first pass published 2026-11-10; user to choose the accent palette
 - **Priority:** P1 (user: "very, very important")
 - **Area:** Visual design / whole app
 - **Reported behavior / request:** "Initially we designed this with a kind of brown-orange theme. I'd like something more advanced, professional and good looking… it looks like an amateur app, so please invest in thinking how to make it better and redesign the whole app eventually."
 - **Expected behavior:** A coherent design system (colour tokens, type scale, spacing, radii, button and card styles) replacing the brown/orange-gold look with a modern sports-app palette; applied consistently to header, navigation, training and fight controls, dialogs, Shop, Academy, World and results.
 - **Acceptance criteria:** All UI colours come from shared tokens; contrast is readable; EN/HE/RU and phone/desktop screenshots; two or three alternative accent palettes captured from the real app for the user to choose; existing layout/flow QA scripts pass.
-- **Implementation:** Assigned to the design-system agent. Default direction chosen by the integrator: near-black cool neutrals, white text, one strong accent, gold reserved for coins and titles.
-- **Evidence:** Pending.
+- **Implementation (`agent/design`):** About 530 hard-coded colours in seven CSS files replaced by tokens defined once in `design-tokens.css`; shared component layer in `design-system.css`; rules documented in `docs/design-system.md`. Default palette: cool near-black neutrals, white text, crimson accent for primary actions and selection, blue for information/focus, gold only for coins and rewards. The palette can be swapped by changing token values only.
+- **Evidence:** `qa/gotr-0015/` — after screenshots (fight, Shop, training, World, Hebrew fight) and `palettes-compare.webp` showing the same fight and Academy screens in three accents (A crimson, B electric blue, C lime on graphite) produced by token changes alone. All layout/flow QA scripts pass on the redesign; full suite 79/79.
+- **Remaining:** the design agent was stopped by the account usage limit before writing its own report, so its list of colours embedded in JavaScript (for example Shop icon colours and 3D signage) and its contrast audit output are not available yet; fight HUD redesign is GOTR-0021; the user's palette choice.
 
 ### GOTR-0016 — Variable ("asynchronous") practice rhythm by default
 - **Reported:** 2026-11-10
