@@ -33,17 +33,20 @@
    stop();endHint();
    if(game.startTraining({mode:'heavy',play:true,lesson:true})===false)return {ok:false,error:w().cup};
    if(!e.player.enabled||e.targetMode!=='heavy')return {ok:false,error:w().unavailable};
-   const L=lesson={combo,index:GameDomain.combos.indexOf(combo),mode:e.targetMode,species:e.coach.species,profileId:store().current().id,lang:app.lang,phase:'watch',speed:e.speed,page:currentPage(),demo:null,say:null,tone:'',holdUntil:0,timers:[],fitKey:'',
+   const L=lesson={combo,index:GameDomain.combos.indexOf(combo),mode:e.targetMode,species:e.coach.species,profileId:store().current().id,lang:app.lang,phase:'watch',speed:e.speed,page:currentPage(),demo:null,pending:null,say:null,tone:'',holdUntil:0,timers:[],fitKey:'',
     validator:rules.create(combo.sequence,{repetitions:GameDomain.lesson.repetitions,windowMs:GameDomain.lesson.windowMs})};
    window.manualControls?.setPage?.('moves');
    L.hook=hook({
     // Combo buttons would play the whole sequence for the player; a lesson counts single moves only.
     combo:()=>{if(L.phase==='repeat'){note(()=>w().single,'miss');}return false;},
     press:(id,raw)=>{if(window.BoxingInput?.combos?.[id])return e.player.pressCombo(id);if(L.phase!=='repeat')return false;
-     const accepted=raw.press(id);if(accepted)judge(L.validator.input(id,clock()));else note(()=>w().busy,'');return accepted;}
+     buffered();const accepted=raw.press(id);
+     // The fighter holds three moves at most. One extra tap is kept and thrown as soon as there is room, so brisk tapping of a long combo is not lost.
+     if(accepted)judge(L.validator.input(id,clock()));else if(!L.pending&&e.player.canAct())L.pending={id,until:performance.now()+1500};else note(()=>w().busy,'');return accepted;}
    });
    build();document.body.classList.add('academy-lesson');watch();fit();run();return {ok:true};
   }
+  function buffered(){const L=lesson,held=L?.pending;if(!held||L.phase!=='repeat')return;if(L.hook.raw.press(held.id)){L.pending=null;judge(L.validator.input(held.id,clock()));}else if(performance.now()>held.until)L.pending=null;}
   function build(){
    const L=lesson,hud=make('div','academy-hud'),row=make('div','academy-row'),bar=make('div','academy-bar'),name=make('strong','academy-name'),pips=make('span','academy-pips'),msg=make('span','academy-msg');
    hud.setAttribute('role','region');row.setAttribute('role','list');pips.setAttribute('role','img');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');
@@ -69,7 +72,7 @@
   function note(say,tone){const L=lesson;if(!L)return;L.say=say;L.tone=tone;render();}
   // Watch: the fighter throws the combo at real speed through the same input path the player uses.
   function watch(options={}){
-   const L=lesson;if(!L||L.phase==='pass')return;L.phase='watch';L.holdUntil=0;L.say=null;L.tone='';e.player.reset();e.speed=options.slow?.5:1;
+   const L=lesson;if(!L||L.phase==='pass')return;L.phase='watch';L.pending=null;L.holdUntil=0;L.say=null;L.tone='';e.player.reset();e.speed=options.slow?.5:1;
    L.demo={slow:!!options.slow,runs:options.runs||(L.combo.sequence.length>3?1:2),run:0,fed:0,started:0,seen:null,rest:false,finished:false,wait:performance.now()+(options.delay??450)};
    document.body.classList.add('academy-watching');render();paint();
   }
@@ -82,7 +85,7 @@
   }
   // Repeat: only inputs the game really accepted are judged.
   function turn(){
-   const L=lesson;if(!L||L.phase==='pass')return;L.demo=null;L.phase='repeat';L.holdUntil=0;e.speed=1;e.player.reset();document.body.classList.remove('academy-watching');
+   const L=lesson;if(!L||L.phase==='pass')return;L.demo=null;L.pending=null;L.phase='repeat';L.holdUntil=0;e.speed=1;e.player.reset();document.body.classList.remove('academy-watching');
    const first=L.validator.resume().first;note(()=>fill(w().tap,{move:label(first)}),'');paint();
   }
   function judge(ev){
@@ -90,7 +93,7 @@
    if(ev.type==='step'){L.holdUntil=0;L.say=null;L.tone='';}
    else if(ev.type==='rep'){L.holdUntil=now+450;L.say=null;L.tone='';}
    else if(ev.type==='pass'){pass(ev);return;}
-   else if(ev.type==='wrong'||ev.type==='slow'){L.holdUntil=0;L.tone='miss';const {pressed,wanted}=ev;L.say=ev.type==='slow'?()=>w().late:()=>fill(w().wrong,{pressed:label(pressed),wanted:label(wanted)});
+   else if(ev.type==='wrong'||ev.type==='slow'){L.pending=null;L.holdUntil=0;L.tone='miss';const {pressed,wanted}=ev;L.say=ev.type==='slow'?()=>w().late:()=>fill(w().wrong,{pressed:label(pressed),wanted:label(wanted)});
     // Several misses in a row: show the combo once more. Earned run-throughs stay.
     if(ev.rewatch)L.timers.push(setTimeout(()=>{if(lesson===L&&L.phase==='repeat')watch({runs:1,delay:300});},900));}
    else return;
@@ -136,13 +139,13 @@
    window.manualControls?.setPage?.('combos');
    if(!store()?.game()?.combos.fight.includes(combo.id)||!e.player)return true;
    const pill=make('div','academy-hint');pill.setAttribute('role','status');pill.hidden=true;stage.append(pill);
-   const h=hint={combo,pill,until:performance.now()+60000,done:0};
+   const h=hint={combo,pill,done:0};
    h.hook=hook({press:(id,raw)=>raw.press(id),combo:(id,raw)=>{const accepted=raw.combo(id);if(accepted&&hint===h&&id===combo.controllerId&&!h.done)h.done=performance.now();return accepted;}});
    run();return true;
   }
   function hintTick(now){
    const h=hint,match=e.arena?.fightView?.match;
-   if(e.targetMode!=='fight'||!match||match.result||shell()?.isModalOpen||!e.player?.enabled||now>h.until||h.done&&now>h.done+2600||!h.pill.isConnected||!store()?.game()?.combos.fight.includes(h.combo.id)){endHint();return;}
+   if(e.targetMode!=='fight'||!match||match.result||shell()?.isModalOpen||!e.player?.enabled||h.done&&now>h.done+2600||!h.pill.isConnected||!store()?.game()?.combos.fight.includes(h.combo.id)){endHint();return;}
    const button=!h.done&&match.phase==='round'?moveButton(h.combo.controllerId):null;clearGlow(button);button?.classList.add('academy-next');
    const text=h.done?fill(w().used,{name:comboName(h.combo.id)}):button?fill(w().use,{label:button.textContent}):'';
    if(h.pill.textContent!==text)h.pill.textContent=text;h.pill.hidden=!text;h.pill.dir=app.lang==='he'?'rtl':'ltr';h.pill.dataset.done=String(!!h.done);if(!text)return;
@@ -162,7 +165,7 @@
     if(shell()?.isModalOpen||e.targetMode!==L.mode||!p?.enabled||e.career?.active||e.coach?.species!==L.species||store()?.current()?.id!==L.profileId||!L.ui.hud.isConnected)stop();
     else{if(app.lang!==L.lang){L.lang=app.lang;render();}
      if(currentPage()!=='moves'){window.manualControls?.setPage?.('moves');render();}
-     if(L.phase==='watch')demo(now);else if(L.phase==='repeat'){const ev=L.validator.tick(clock());if(ev)judge(ev);}
+     if(L.phase==='watch')demo(now);else if(L.phase==='repeat'){buffered();const ev=lesson===L&&L.phase==='repeat'?L.validator.tick(clock()):null;if(ev)judge(ev);}
      if(lesson===L){paint();fit();}}}
    if(hint)hintTick(now);
    if(!lesson&&!hint&&timer){clearInterval(timer);timer=null;}
