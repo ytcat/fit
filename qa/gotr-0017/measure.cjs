@@ -39,7 +39,8 @@ async function install(){
 }
 
 async function open(browser,view,scene,takeover=true){
- const context=await browser.newContext(VIEWS[view]),page=await context.newPage(),errors=[];page.on('pageerror',x=>errors.push(x.message));
+ // Reduced motion: no fight-intro orbit (GOTR-0020), so every build simulates the same frames.
+ const context=await browser.newContext({...VIEWS[view],reducedMotion:'reduce'}),page=await context.newPage(),errors=[];page.on('pageerror',x=>errors.push(x.message));
  await page.goto(URL);await page.waitForFunction(()=>window.ringfighterGame&&app.engine.coach?.anatomy,null,{timeout:240000});
  if(takeover){await page.evaluate(install);
   const out=await page.evaluate(({code,tweak})=>{const e=app.engine;__qa.seed(7);e.animTime=0;__qa.quality(1);(0,eval)(code);document.querySelectorAll('dialog[open]').forEach(d=>d.close());e.isPlaying=true;if(tweak)(0,eval)(tweak);return window.__tweakOut;},{code:SCENES[scene].start,tweak:TWEAK});

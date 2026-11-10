@@ -22,16 +22,19 @@ for(const aspect of [.54,2.21,2.9]){
  assert.equal(d.update(STEP),false,'an unlocked camera is left alone');assert.ok(c.position.distanceTo(free)<1e-9);
  d.setLock(true);assert.equal(stored.get('gotr-side-camera'),'1','the lock is remembered');
  // A whole exchange: the fighters circle, close, separate and bob at sub-centimetre scale.
- let worst=0,jerk=0,height=0;const trail=[];
+ let worst=0,jerk=0,height=0,low=9;const trail=[];
  for(let i=0;i<900;i++){
   const t=i*STEP,spin=.35*t,gap=.6+.4*Math.sin(t*.9),noise=.004*Math.sin(i*2.7);
   lion.position.set(-gap*Math.cos(spin)+noise,0,-gap*Math.sin(spin));rabbit.position.set(gap*Math.cos(spin),0,gap*Math.sin(spin)-noise);
   d.update(STEP);trail.push(c.position.clone());
-  if(i>=90){worst=Math.max(worst,framed(e));height=Math.max(height,Math.abs(c.position.y-1.82));assert.ok(sideError(e)<.2,'stays side-on while the fighters circle (aspect '+aspect+', frame '+i+')');}
+  if(i>=90){worst=Math.max(worst,framed(e));height=Math.max(height,Math.abs(c.position.y-1.82));low=Math.min(low,c.position.y);assert.ok(sideError(e)<.2,'stays side-on while the fighters circle (aspect '+aspect+', frame '+i+')');}
   if(i>=92)jerk=Math.max(jerk,trail[i].clone().sub(trail[i-1]).sub(trail[i-1].clone().sub(trail[i-2])).length());
  }
  assert.ok(worst<.97,'both fighters stay fully framed at aspect '+aspect+': worst edge '+worst.toFixed(3));
- assert.ok(height<1e-6,'camera height (tilt) is locked');assert.ok(jerk<.0025,'no judder: frame-to-frame change of camera velocity '+(jerk*1000).toFixed(2)+' mm');
+ // On a wide screen the camera keeps the fight camera's height. On a narrow one it stands further back,
+ // behind the grandstand, so it rises with distance to see over it - never lower, and below the lighting truss.
+ if(aspect>1)assert.ok(height<1e-6,'camera height (tilt) is locked');else{assert.ok(low>=1.82&&height<2.1,'portrait camera rises over the grandstand: '+low.toFixed(2)+'..'+(1.82+height).toFixed(2));
+  const far=Math.hypot(c.position.x,c.position.z);assert.ok(c.position.y*(6.16-1.74)/(far-1.74)>1.83||far<6.2,'the sight line to the near ring edge clears the last grandstand row');}assert.ok(jerk<.0025,'no judder: frame-to-frame change of camera velocity '+(jerk*1000).toFixed(2)+' mm');
  // Standing still, the view settles to a true side view and then does not move at all.
  for(let i=0;i<400;i++)d.update(STEP);assert.ok(sideError(e)<.002,'perpendicular to the line between the fighters');const still=c.position.clone();assert.equal(d.update(STEP),false,'a settled lock requests no redraw');assert.ok(c.position.distanceTo(still)<1e-9);
  // Orbit and tilt gestures do nothing; zoom still works, within limits.

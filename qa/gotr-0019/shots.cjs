@@ -16,10 +16,13 @@ const VIEWS={phone:{viewport:{width:393,height:852},deviceScaleFactor:1,isMobile
   const start=code=>page.evaluate(code=>{(0,eval)(code);document.querySelectorAll('dialog[open]').forEach(d=>d.close());},code);
   // Fight intro: start of the orbit, half way round, and the first frame after it.
   await start("ringfighterGame.startFight({seed:20261110,watch:true})");
-  if(name!=='land'){await shot(path.join(INTRO,name+'-intro-1-start.png'),20);await shot(path.join(INTRO,name+'-intro-2-mid.png'),100);await shot(path.join(INTRO,name+'-intro-3-closing.png'),110);}
-  await shot(path.join(INTRO,name+'-intro-4-bell.png'),name!=='land'?90:320);
+  if(process.env.LOCKONLY)await page.evaluate(()=>__drive(320,false));else{
+   if(name!=='land'){await shot(path.join(INTRO,name+'-intro-1-start.png'),20);await shot(path.join(INTRO,name+'-intro-2-mid.png'),100);await shot(path.join(INTRO,name+'-intro-3-closing.png'),110);}
+   await shot(path.join(INTRO,name+'-intro-4-bell.png'),name!=='land'?90:320);
+  }
   // Side lock in the bout, then at the mitts and the heavy bag.
   await page.click('#camLock');await shot(path.join(LOCK,name+'-fight-locked.png'),330);
+  if(process.env.LOCKONLY){await context.close();continue;}
   await start("ringfighterGame.startTraining({mode:'pads'})");await shot(path.join(LOCK,name+'-mitts-locked.png'),200);
   if(name==='phone'){await start("ringfighterGame.startTraining({mode:'heavy',play:true})");await page.evaluate(()=>document.querySelector('[data-input-page=\"moves\"]')?.click());await shot(path.join(LOCK,name+'-heavy-play-locked.png'),160);}
   await context.close();

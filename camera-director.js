@@ -91,8 +91,9 @@
    this.direction={x:dx,z:dz};
    const width=Math.max(2.4,b?gap+1.0:2.4);
    // Look height and camera height are the station's own free framing: the tilt is the one the player knows.
-   const free=this.freePose();
-   return {lx:mx,ly:free.ly,lz:mz,angle:Math.atan2(this.side*dz,-this.side*dx),dist:Math.min(12.5,fitDistance(width,s.frame,c.fov,c.aspect)),cy:free.cy};
+   const free=this.freePose(),dist=Math.min(12.5,fitDistance(width,s.frame,c.fov,c.aspect));
+   // A narrow (portrait) screen pushes the camera back behind the arena's grandstand: rise with distance to see over it.
+   return {lx:mx,ly:free.ly,lz:mz,angle:Math.atan2(this.side*dz,-this.side*dx),dist,cy:free.cy+(s.key==='fight'?Math.max(0,dist-5.2)*.42:0)};
   }
   follow(dt,snap){
    const g=this.goal();if(!g)return this.pose;
