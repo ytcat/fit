@@ -231,7 +231,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0016 — Variable ("asynchronous") practice rhythm by default
 - **Reported:** 2026-11-10
-- **Status:** READY FOR QA
+- **Status:** DONE (`3672c18`, live; full suite 76/76; re-checked on the live site)
 - **Priority:** P2
 - **Area:** Training
 - **Reported behavior / request:** "Change the synchronous punches that are the default to asynchronous by default everywhere."
@@ -261,6 +261,23 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Acceptance criteria:** Measured elbow angle and arm extension at contact for landed straights in real fights (Play and Watch), both species; matched before/after renders; blocked punches still stop at the guard; no regression in scoring, KO or existing contact tests.
 - **Implementation:** Assigned to the fight-range agent. Related: GOTR-0012 (mitt work).
 - **Evidence:** Pending.
+
+## Parallel work in progress — 2026-11-10
+The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
+
+| Branch | Scope | Source |
+|---|---|---|
+| `agent/mitt-range` | Mitt-work range and straight-arm jab/cross | GOTR-0012 |
+| `agent/fight-range` | Fight straights land extended with body rotation | GOTR-0018 |
+| `agent/academy` | Fight Academy lessons: watch → repeat with real buttons (3 successes) → combo earned → try in a fight | GOTR-0007 (user detail 2026-11-10: move names as semi-transparent boxes in a row that fill as the right buttons are pressed; little text; combos can be bought or earned) |
+| `agent/design` | Colour system, proportional buttons | GOTR-0014, GOTR-0015 |
+| `agent/graphics` | Frame pacing, adaptive quality, lighting | GOTR-0017 |
+| `agent/gear-3d` | Real championship belts, headbands, ribbons; three boot designs | GOTR-0002, boots part of GOTR-0003 |
+| `agent/world-content` | Short missions, JSON event packs, return digest | PRD F-010, F-013, F-014 |
+| `agent/i18n-a11y` | Mixed-language strings, "Boxing Club" wording, RTL, accessibility | PRD F-019, feedback brief of 2026-11-08 |
+| `agent/adventure-world` | Walkable 3D district prototype (not published until it meets the bar) | GOTR-0008 |
+
+Queued because they touch files being changed above: Burst (GOTR-0005), rival memory F-011, coach tactics F-012, FIFO combo-queue check from the 2026-11-08 brief (after `fight-range`); gloves and shorts designs of GOTR-0003, new fighter GOTR-0009 / F-016 (after `mitt-range`); gym station F-015, Skill Fusion F-017, performance automation F-020.
 
 ### Issue template
 
