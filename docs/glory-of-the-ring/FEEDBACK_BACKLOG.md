@@ -182,7 +182,7 @@ These nine reports were recorded from the user's latest message. **None is marke
 
 ### GOTR-0013 — Rename Fight IQ to Fight Academy and give it a designed look
 - **Reported:** 2026-11-10
-- **Status:** OPEN
+- **Status:** IN PROGRESS — rename READY FOR QA; redesign not started
 - **Priority:** P1
 - **Delivery:** NOW — rename as a small release; visual redesign delivered with the GOTR-0007 guided lesson
 - **Area:** Fight IQ / branding / UI design
@@ -190,8 +190,8 @@ These nine reports were recorded from the user's latest message. **None is marke
 - **Expected behavior:** Every user-visible "Fight IQ" label (toolbar, World hub, lesson screens, tips) reads "Fight Academy" in EN with matching HE/RU names. The Academy screen looks like a designed product area (clear header, lesson cards with progress, consistent typography/spacing/icons), not a plain text menu. Saved Fight IQ progress, ledger entries and technical IDs are preserved.
 - **Acceptance criteria:** No visible "Fight IQ" text remains in EN/HE/RU; saved progress survives reload; before/after screenshots at phone and desktop sizes in EN/HE/RU show readable, unclipped layout; existing Fight IQ tests pass.
 - **Dependencies / risks:** Coordinate with GOTR-0007 so the redesign and guided lesson share one layout. Keep internal IDs (`IQ-*`, `learn` tab) unchanged to avoid save migration.
-- **Implementation:** Not started.
-- **Evidence:** Not yet available.
+- **Implementation (2026-11-10, branch `claude/serene-cannon-riwk4l`):** Rename done: EN "Fight Academy", HE "אקדמיית הקרב", RU "Академия боя" in the toolbar button, World hub button and Academy screen title/loading text (`fight-iq-ui.js`, `game-shell.js`, `game-world-ui.js`). Internal IDs, file names, `learn` tab and saved progress unchanged. Redesign not started; planned with GOTR-0007. Observed during QA: on phones the intro line runs under the close button — fix in the redesign.
+- **Evidence:** `qa/gotr-0013/` — real-app check in EN/HE/RU at 393×852 and 1366×768: new name in toolbar, World and screen title; no old name visible; zero page errors. `tests/fight-iq.test.cjs` and `tests/club-interface.test.cjs` pass.
 
 ### Issue template
 
