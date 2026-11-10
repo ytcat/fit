@@ -88,3 +88,6 @@ body.club-app{height:var(--app-height,100dvh);min-height:0;overflow:hidden}
 #manualControls[data-page=combos] .manual-move{height:auto;min-height:44px;overflow:visible;white-space:normal;overflow-wrap:break-word;hyphens:auto;font-size:11px;line-height:1.2;padding:6px 5px}
 #manualControls[data-page=combos] .manual-move[data-meta=true]{min-height:40px;border-style:dashed;background:#1b2a33e6;color:#e8d3a6;font-weight:600}
 @media(max-height:560px){#manualControls[data-page=combos] .manual-move{min-height:38px;font-size:10px;padding:4px 5px}#manualControls[data-page=combos] .manual-move[data-meta=true]{min-height:34px}}
+/* GOTR-0006 follow-up: on short narrow phones the two-column 46px gym buttons split words; one column keeps whole words. */
+@media(max-height:700px) and (max-width:599px){.club-app.manual-active[data-scene=gym] #manualControls:not([data-page=combos]) .manual-rail{width:78px;grid-template-columns:1fr}
+.club-app.manual-active[data-scene=gym] #manualControls:not([data-page=combos]) .manual-move{height:auto;min-height:36px;font-size:10px;line-height:1.15;padding:3px}}

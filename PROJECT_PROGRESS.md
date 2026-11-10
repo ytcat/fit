@@ -1,3 +1,9 @@
+## 2026-11-10 — Whole-word Moves/Defence buttons on small phones (GOTR-0006 follow-up)
+
+Short narrow phones used two 46-px columns in the gym and split words. One 78-px
+column keeps whole words in EN/HE/RU and leaves more room for the fighter.
+[Evidence](qa/gotr-0006/).
+
 ## 2026-11-10 — Fight Academy designed landing and lesson screens (GOTR-0013, part 2)
 
 Hero panel with real progress (solved variants / 18), numbered lesson cards with

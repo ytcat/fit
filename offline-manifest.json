@@ -1,5 +1,5 @@
 {
-  "version": "academy-20261110d",
+  "version": "moves-20261110e",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -42,7 +42,7 @@
     "./club-world.js?v=2026110905",
     "./club-interface.css?v=2026110604",
     "./club-interface.js?v=2026110905",
-    "./ringfighter-controls.css?v=2026111001",
+    "./ringfighter-controls.css?v=2026111005",
     "./ringfighter-controls.js?v=2026111001",
     "./career-interface.css?v=2026110607",
     "./career-interface.js?v=2026110904",

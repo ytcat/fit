@@ -101,7 +101,7 @@
 
 ### GOTR-0006 — Fix cramped, wrapped and tiny combo / action buttons
 - **Reported:** 2026-11-09
-- **Status:** READY FOR QA
+- **Status:** DONE
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** UI / responsiveness / accessibility
@@ -110,7 +110,8 @@
 - **Acceptance criteria:** No cramped unreadable labels in common screen sizes or English/Hebrew/Russian; at most three primary active combo controls; swapping equipped combos does not break queued actions or change ownership; verified screenshots at mobile and desktop breakpoints.
 - **Implementation (2026-11-10, branch `claude/serene-cannon-riwk4l`):** Root cause: the Combos page always rendered all six combos (`ringfighter-controls.js` fixed `comboLayout`), appending " · 🔒" to unequipped ones, and the bottom quick bar (`game-shell.js`) squeezed up to five equipped combos with `overflow-wrap:anywhere`, so words broke letter by letter. Now the Combos page shows only the equipped loadout for the current mode (or the full drill set without the game layer), max three, with **More n/m** paging and **Choose combos** opening the loadout screen. Keys 1–3 follow the visible combos. The quick bar shows max three, wraps only between words and hides while the side Combos page is open. Ownership, loadout validation and the input queue are unchanged.
 - **Evidence:** `qa/gotr-0006/` — before/after captures and `browser.cjs` (real app, EN/HE/RU × 393×852, 360×640, 852×393, 1366×768): new player sees only *Choose combos*; Fight loadout shows 3; Training loadout of 5 pages 3 → 2 → back to 3; speed-bag combos page 3 + More; no clipped or off-screen button; pressing a visible combo starts it (`combo_one_two` → jab, queue 1); *Choose combos* opens the loadout; zero page errors. New paging assertions in `tests/club-interface.test.cjs`; full suite 76/76 test files pass on `d47da6f`.
-- **Status note:** READY FOR QA until merged to `main` and published. **Remaining:** the separate **Moves** page (12 single-move buttons) still breaks long words on 360-px phones (e.g. RU "Передн/ий апперк/от"); needs its own layout pass.
+- **Published:** `d47da6f` on `main`, re-checked on the live site.
+- **Follow-up (2026-11-10):** The Moves/Defence pages on short narrow phones (e.g. 360×640) used two 46-px columns in the gym, splitting words such as RU "Передний апперкот" (11 bad buttons measured across heavy/speed bag in EN/RU). They now use one 78-px column with whole words; more room is left for the fighter. Evidence: `qa/gotr-0006/moves-browser.cjs` — 0 mid-word breaks, clipped or off-stage buttons across fight/heavy/speed × EN/HE/RU × Moves/Defence at 360×640, 393×852, 852×393, 640×360 and 1366×768; `after-small-moves-ru.webp`. Buttons there are 36 px tall (below the 44-px ideal) so six fit without scrolling.
 
 ### GOTR-0007 — Make Fight IQ a guided interactive lesson, not a confusing menu
 - **Reported:** 2026-11-09

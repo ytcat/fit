@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');const URL=process.env.APP_URL||'http://127.0.0.1:8131',PRE=process.env.PREFIX||'mv';
+(async()=>{const b=await chromium.launch({args:['--no-sandbox','--enable-unsafe-swiftshader']});let bad=0;const rows=[];
+for(const [name,vp] of [['small',{width:360,height:640}],['phone',{width:393,height:852}],['land',{width:852,height:393}],['landS',{width:640,height:360}],['desk',{width:1366,height:768}]]){const p=await b.newPage({viewport:vp});
+ await p.goto(URL);await p.waitForFunction(()=>window.ringfighterGame&&app.engine.coach?.anatomy,null,{timeout:120000});
+ for(const scene of ['fight','heavy','speed'])for(const lang of ['en','he','ru'])for(const page of ['moves','defence']){
+  const r=await p.evaluate(async([scene,lang,page])=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());app.setLanguage(lang);if(scene==='fight')ringfighterGame.quick();else ringfighterGame.startTraining({mode:scene,play:true});document.querySelectorAll('dialog[open]').forEach(d=>d.close());document.getElementById('playMode').click();document.querySelector(`[data-input-page="${page}"]`)?.click();await new Promise(r=>setTimeout(r,350));
+   const stage=document.getElementById('stageContainer').getBoundingClientRect();
+   return [...document.querySelectorAll('#manualControls .manual-move')].filter(b=>b.offsetParent).map(b=>{const r=b.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(b);const lines=new Set([...range.getClientRects()].map(x=>Math.round(x.top))).size,words=b.textContent.trim().split(/[\s]+/).length;return {t:b.textContent,w:Math.round(r.width),h:Math.round(r.height),lines,words,midWord:lines>words,clip:b.scrollHeight>b.clientHeight+1||b.scrollWidth>b.clientWidth+1,out:r.bottom>stage.bottom+1||r.top<stage.top-1||r.left<0||r.right>innerWidth};});},[scene,lang,page]);
+  const issues=r.filter(x=>x.midWord||x.clip||x.out);bad+=issues.length;if(issues.length){rows.push(`${name} ${scene} ${lang} ${page}: ${issues.length}/${r.length} bad e.g. ${issues.slice(0,3).map(x=>`"${x.t}" ${x.w}x${x.h}${x.midWord?' midword':''}${x.clip?' clip':''}${x.out?' out':''}`).join('; ')}`);if(process.env.SHOTS)await p.screenshot({path:`${PRE}-${name}-${scene}-${lang}-${page}.png`});}
+ }await p.close();}
+console.log(rows.join('\n'));console.log('TOTAL BAD BUTTONS',bad);await b.close();})();
