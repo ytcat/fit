@@ -47,6 +47,7 @@
   <script src="./training-controls.js?v=2026111007" defer></script>
   <script src="./character-roster.js?v=2026110607"></script>
   <script src="./ring-camera.js?v=2026110703"></script>
+  <script src="./camera-director.js?v=2026111100"></script>
   <script src="./club-world.js?v=2026110905"></script>
   <link rel="stylesheet" href="./club-interface.css?v=2026111012" />
   <script src="./club-interface.js?v=2026110905" defer></script>
@@ -65,6 +66,7 @@
   <script src="./fight-iq-demo.js?v=2026111011" defer></script>
   <script src="./fight-iq-ui.js?v=2026111011" defer></script>
   <link rel="stylesheet" href="./academy.css?v=2026111011">
+  <link rel="stylesheet" href="./camera.css?v=2026111100">
   <script src="./academy-stage.js?v=2026111011" defer></script>
   <script src="./game-resume.js?v=2026110902" defer></script>
   <script src="./game-resume-ui.js?v=2026110902" defer></script>
@@ -474,6 +476,7 @@
         this.scene.traverse(n=>{if(n.isMesh && n.material.color)n.material.color.convertSRGBToLinear();});
         this.world=new ClubWorld(this);
         this.initControls();
+        this.cameraDirector=window.CameraDirector?new CameraDirector(this):null;
         document.getElementById('camBack').addEventListener('click', () => {
           if(this.viewControls?.preset){this.viewControls.preset(Math.PI+.78,Math.PI);return;}
           if(this.arena&&this.arena.mode!=='none'){this.arena.group.rotation.y=Math.PI+.78;this.arena.fitCamera(this.camera);}
@@ -793,6 +796,7 @@
         if(window.ringfighterGame?.isModalOpen)this.isPlaying=false;
         if(document.hidden)return;
         if(this.fightIQDemo){this.fightIQDemo.frame(delta);return;}
+        this.cameraDirector?.update(delta);
         if(this.isPlaying||this.qualityLock>=0)this.updateQuality(this.pace?this.pace.raw:delta);
 
         if (!this.activeModel) {
@@ -803,7 +807,8 @@
         const stamp=[this.activeModel.uuid,this.arena?.mode!=='none'&&this.arena?this.arena.group.rotation.y:this.activeModel.rotation.y,this.animTime,this.technique,this.currentAnim,this.camera.aspect,this.camera.zoom,this.viewControls?.yaw,this.arena?.mode].join('|');
         if(!this.isPlaying && this.lastRenderStamp===stamp)return;
         this.lastRenderStamp=stamp;
-        const dt=Math.min(delta,.05);
+        // The fight intro orbit holds the clock, so it never eats into the round.
+        const dt=this.cameraDirector?.holdsClock?0:Math.min(delta,.05);
         if (this.isPlaying) this.animTime += dt * this.speed;
         const poseStamp=[this.activeModel.uuid,this.animTime,this.technique,this.currentAnim,this.arena?.mode,this.player?.enabled,this.practiceTiming,this.practiceSeed,this.randomSeed,this.speedDrill].join('|');
         if (this.coach && this.activeModel===this.demoModel && (this.isPlaying||this.lastPoseStamp!==poseStamp)) {
