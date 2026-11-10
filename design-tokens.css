@@ -23,7 +23,7 @@
   --gr-accent-press:#b01321;
   --gr-accent-ink:#fff;
   --gr-accent-text:#ff7480;
-  --gr-accent-soft:rgb(var(--gr-accent-rgb)/.16);
+  --gr-accent-soft:rgb(var(--gr-accent-rgb)/.13);
   --gr-accent-line:rgb(var(--gr-accent-rgb)/.6);
 
   /* Info ("blue corner"): information and keyboard focus. */

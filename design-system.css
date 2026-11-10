@@ -91,7 +91,7 @@ label.career-secondary{display:inline-flex;align-items:center;cursor:pointer}
 .game-dialog,.club-app dialog,.challenge-dialog,.ringside-layout .ringside-drawer{
   background:var(--gr-surface);color:var(--gr-text);border:1px solid var(--gr-border);border-radius:var(--gr-radius-l);box-shadow:var(--gr-shadow-3)}
 .game-dialog::backdrop,.club-app dialog::backdrop,.challenge-dialog::backdrop{background:var(--gr-scrim);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-.game-dialog-head,.club-app dialog .practice-control-heading,.challenge-head{min-height:var(--gr-icon-btn);gap:12px}
+.game-dialog-head,.club-app dialog .practice-control-heading,.challenge-head{gap:12px}
 .game-dialog h2,.club-app dialog .practice-control-heading h2,.challenge-head h2{font-size:var(--gr-fs-xl);font-weight:var(--gr-fw-bold);line-height:1.2;letter-spacing:-.01em;margin:0}
 .game-dialog h3{font-size:var(--gr-fs-l);font-weight:var(--gr-fw-bold);line-height:1.25}
 .game-dialog h4{font-weight:var(--gr-fw-bold)}
@@ -210,3 +210,47 @@ label.career-secondary{display:inline-flex;align-items:center;cursor:pointer}
 
 /* ---------- 15. Reduced motion ---------- */
 @media(prefers-reduced-motion:reduce){.club-app button{transition:none!important}}
+
+/* ---------- 16. Fixes found in visual review ---------- */
+/* A legacy "header" rule padded every dialog header; titles now align with the content edge. */
+.game-dialog .game-dialog-head{height:auto;padding:0}
+.game-dialog .game-close,.club-app dialog .practice-control-heading button,.ringside-layout .ringside-drawer .ringside-dismiss,.challenge-head button{font-size:24px}
+/* Play / Watch is a mode switch, not a warning: it stays a plain secondary button. */
+.ringside-control[aria-pressed=true],.ringside-control[aria-pressed=true]:hover{background:var(--gr-surface-3);border-color:var(--gr-border);color:var(--gr-text)}
+.ringside-control[aria-pressed=true]:hover{background:var(--gr-surface-4);border-color:var(--gr-border-strong)}
+/* Repeated calls to action in a list are tonal, so six cards do not shout at once. */
+.academy-lesson .game-button.academy-start{background:var(--gr-accent-soft);color:var(--gr-accent-text);border-color:var(--gr-accent-line)}
+.academy-lesson .game-button.academy-start:hover:not(:disabled),.academy-lesson .game-button.academy-start:active:not(:disabled){background:var(--gr-accent);color:var(--gr-accent-ink);border-color:var(--gr-accent)}
+.academy-lesson[data-state=complete] .game-button.academy-start{background:var(--gr-surface-3);color:var(--gr-text);border-color:var(--gr-border)}
+.academy-lesson-number{background:var(--gr-surface-4);color:var(--gr-text)}
+.academy-lesson[data-state=complete] .academy-lesson-number{background:var(--gr-success);color:var(--gr-bg)}
+.game-academy .iq-choice::before{background:var(--gr-surface-4);color:var(--gr-text)}
+.academy-emblem{background:var(--gr-accent)}
+.academy-emblem svg{fill:var(--gr-accent-ink)}
+.academy-meter-bar span{background:var(--gr-accent)}
+/* Shop: tertiary actions stay small and quiet; compact layouts keep their tuned row heights. */
+.store-balance .game-button{min-height:var(--gr-control-h-xs);padding:6px 10px;font-size:12px}
+.game-store>.game-button.game-primary{margin-top:0}
+@media(max-height:700px) and (max-width:599px),(max-height:600px) and (min-width:600px){
+ .game-store .store-balance .game-button{min-height:0;padding:3px 8px;font-size:11px}
+ .game-store>.game-button.game-primary{min-height:0;padding:4px;font-size:12px;line-height:20px}
+ .game-store .game-close{width:30px;height:30px;font-size:20px}
+ .game-store .store-detail button{min-height:0;padding:6px 10px;font-size:12px}
+}
+@media(max-height:500px){
+ .game-dialog .game-close,.club-app dialog .practice-control-heading button,.club-app dialog.routine-picker .practice-control-heading button,.ringside-layout .ringside-drawer .ringside-dismiss{width:32px;height:32px;font-size:20px}
+ .game-dialog>.game-button.game-primary{min-height:var(--gr-control-h-xs);margin-top:4px;padding:5px}
+}
+/* Training menu: session buttons read like the other choices. */
+.ringside-layout .ringside-drawer .training-bar button,.ringside-layout .ringside-drawer .training-bar #combinationBtn{font-size:12px;text-align:center}
+@media(max-height:500px) and (min-width:600px){.ringside-layout .ringside-drawer .training-bar button,.ringside-layout .ringside-drawer .training-bar #combinationBtn{font-size:11px}}
+/* Header controls share one text size; short landscape phones get the small control height. */
+.game-wallet{font-size:13px}
+@media(max-width:420px){.game-wallet{font-size:12px}}
+@media(max-height:560px) and (min-width:600px){
+ .club-mark{width:30px;height:32px;border-radius:9px}.club-mark svg{width:20px;height:20px}
+ .game-wallet,.career-profile-button{min-height:var(--gr-control-h-s)}
+ .game-nav-button{padding:6px 8px}
+}
+/* On wide screens the Moves / Combos / Defence switch sits clear of the health bars. */
+@media(min-width:801px) and (min-height:561px){.ringside-layout[data-scene=arena] .manual-pages{top:100px}}
