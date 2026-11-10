@@ -49,7 +49,7 @@
   function buffered(){const L=lesson,held=L?.pending;if(!held||L.phase!=='repeat')return;if(L.hook.raw.press(held.id)){L.pending=null;judge(L.validator.input(held.id,clock()));}else if(performance.now()>held.until)L.pending=null;}
   function build(){
    const L=lesson,hud=make('div','academy-hud'),row=make('div','academy-row'),bar=make('div','academy-bar'),name=make('strong','academy-name'),pips=make('span','academy-pips'),msg=make('span','academy-msg');
-   hud.setAttribute('role','region');row.setAttribute('role','list');pips.setAttribute('role','img');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');
+   hud.setAttribute('role','region');row.setAttribute('role','list');row.dataset.long=String(L.combo.sequence.length>=5);pips.setAttribute('role','img');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');
    L.boxes=L.combo.sequence.map(()=>{const b=make('span','academy-box');b.setAttribute('role','listitem');b.dataset.state='idle';row.append(b);return b;});
    L.pips=Array.from({length:L.validator.rules.repetitions},()=>{const p=make('i');pips.append(p);return p;});
    const actions={replay:()=>watch({runs:1}),slow:()=>watch({runs:1,slow:true}),turn,leave:()=>{if(L.phase==='pass')L.finish?.();else stop();}};
