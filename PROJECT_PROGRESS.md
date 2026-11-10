@@ -4,7 +4,7 @@ The Combos page now shows only the equipped loadout (max three) with **More n/m*
 paging and a **Choose combos** shortcut, instead of six buttons with lock suffixes.
 The bottom quick bar holds max three, wraps only between words and hides while the
 side Combos page is open. Verified in the real app at four sizes in EN/HE/RU; full
-regression suite result recorded on completion. Not yet merged or published. The Moves page on 360-px
+regression suite passes (76/76 test files, 0 failures). Not yet merged or published. The Moves page on 360-px
 phones still breaks long words (separate follow-up).
 [Evidence](qa/gotr-0006/) · [Backlog entry](docs/glory-of-the-ring/FEEDBACK_BACKLOG.md).
 
