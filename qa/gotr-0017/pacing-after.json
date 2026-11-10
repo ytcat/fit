@@ -1,0 +1,107 @@
+{
+ "label": "after",
+ "url": "http://127.0.0.1:8145/after/index.html",
+ "command": "pacing",
+ "views": {
+  "desktop": {
+   "rows": {
+    "gym": {
+     "frames": 651,
+     "scored": 639,
+     "clamped": 7,
+     "displayIntervalMedianMs": 16.7,
+     "callbackJitterRmsMs": 9.46,
+     "advanceErrorRmsMs": 0.062,
+     "advanceErrorMaxMs": 0.18,
+     "fixedRateHz": 120,
+     "stepErrorRms": 0.007,
+     "framesOffByAStep": 0,
+     "stepsOnSinglePeriodFrames": {
+      "2": 628
+     }
+    },
+    "gym+busy": {
+     "frames": 638,
+     "scored": 624,
+     "clamped": 9,
+     "displayIntervalMedianMs": 16.7,
+     "callbackJitterRmsMs": 17.25,
+     "advanceErrorRmsMs": 0.062,
+     "advanceErrorMaxMs": 0.18,
+     "fixedRateHz": 120,
+     "stepErrorRms": 0.007,
+     "framesOffByAStep": 0,
+     "stepsOnSinglePeriodFrames": {
+      "2": 602
+     }
+    },
+    "mitts": {
+     "frames": 607,
+     "scored": 586,
+     "clamped": 16,
+     "displayIntervalMedianMs": 16.7,
+     "callbackJitterRmsMs": 13.8,
+     "advanceErrorRmsMs": 0.062,
+     "advanceErrorMaxMs": 0.18,
+     "fixedRateHz": 120,
+     "stepErrorRms": 0.007,
+     "framesOffByAStep": 0,
+     "stepsOnSinglePeriodFrames": {
+      "2": 570
+     }
+    },
+    "mitts+busy": {
+     "frames": 557,
+     "scored": 534,
+     "clamped": 18,
+     "displayIntervalMedianMs": 16.7,
+     "callbackJitterRmsMs": 23.13,
+     "advanceErrorRmsMs": 0.06,
+     "advanceErrorMaxMs": 0.18,
+     "fixedRateHz": 120,
+     "stepErrorRms": 0.145,
+     "framesOffByAStep": 11,
+     "stepsOnSinglePeriodFrames": {
+      "1": 6,
+      "2": 502,
+      "3": 5
+     }
+    },
+    "fight": {
+     "frames": 656,
+     "scored": 644,
+     "clamped": 7,
+     "displayIntervalMedianMs": 16.7,
+     "callbackJitterRmsMs": 14.19,
+     "advanceErrorRmsMs": 0.062,
+     "advanceErrorMaxMs": 0.2,
+     "fixedRateHz": 60,
+     "stepErrorRms": 0.056,
+     "framesOffByAStep": 2,
+     "stepsOnSinglePeriodFrames": {
+      "0": 1,
+      "1": 622
+     }
+    },
+    "fight+busy": {
+     "frames": 676,
+     "scored": 666,
+     "clamped": 5,
+     "displayIntervalMedianMs": 16.7,
+     "callbackJitterRmsMs": 10.05,
+     "advanceErrorRmsMs": 0.06,
+     "advanceErrorMaxMs": 0.18,
+     "fixedRateHz": 60,
+     "stepErrorRms": 0.078,
+     "framesOffByAStep": 4,
+     "stepsOnSinglePeriodFrames": {
+      "0": 2,
+      "1": 652,
+      "2": 2
+     }
+    }
+   },
+   "errors": []
+  }
+ }
+}

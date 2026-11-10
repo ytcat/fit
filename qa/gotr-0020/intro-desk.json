@@ -1,0 +1,132 @@
+{
+ "desk": {
+  "full": {
+   "turned": 6.188288854929692,
+   "introSeconds": 5.146399999999441,
+   "heldSeconds": 2.1425999999996277,
+   "bellAt": 5.198299999999814,
+   "clockAtBell": 20,
+   "maxStep": 0.7854609307007457,
+   "minRadius": 5.12413214154284,
+   "maxRadius": 8.275801775278984,
+   "maxHeight": 4.172985034942325,
+   "minHeight": 1.8200000000189083,
+   "hintShown": true,
+   "hintText": "Tap to skip",
+   "tapped": null,
+   "frames": 1508,
+   "endGap": 0,
+   "endStep": 9.305379603464986e-8,
+   "simSecondsBeforeBell": 3.016667,
+   "turnedDegrees": 355,
+   "insideSolids": [],
+   "endTime": 23.017,
+   "yaw": 0,
+   "mode": "free",
+   "phase": "ceremony"
+  },
+  "reduced": {
+   "turned": 0,
+   "introSeconds": null,
+   "heldSeconds": 0,
+   "bellAt": 2.9637000000001863,
+   "clockAtBell": 20,
+   "maxStep": 0,
+   "minRadius": 1000000000,
+   "maxRadius": 0,
+   "maxHeight": 0,
+   "minHeight": 1000000000,
+   "hintShown": false,
+   "hintText": "Tap to skip",
+   "tapped": null,
+   "frames": 1379,
+   "simSecondsBeforeBell": 3.016667,
+   "turnedDegrees": 0,
+   "insideSolids": [],
+   "endTime": 23.017,
+   "yaw": 0,
+   "mode": "free",
+   "phase": "ceremony"
+  },
+  "skip": {
+   "turned": 1.9547576880912552,
+   "introSeconds": 1.0183999999994413,
+   "heldSeconds": 1.0013999999994412,
+   "bellAt": 4.0385,
+   "clockAtBell": 20,
+   "maxStep": 0.7854609307007457,
+   "minRadius": 7.280251859737837,
+   "maxRadius": 8.275801775278984,
+   "maxHeight": 4.172985034942325,
+   "minHeight": 3.2564516251984927,
+   "hintShown": true,
+   "hintText": "Tap to skip",
+   "tapped": {
+    "at": 1.0013999999994412,
+    "mode": "intro",
+    "after": "release",
+    "held": false
+   },
+   "frames": 542,
+   "endGap": 10.670143859998674,
+   "endStep": 0.15382631217117873,
+   "simSecondsBeforeBell": 3.016667,
+   "turnedDegrees": 112,
+   "insideSolids": [],
+   "endTime": 7.983,
+   "yaw": 0,
+   "mode": "free",
+   "phase": "round"
+  },
+  "locked": {
+   "turned": 6.26096993830269,
+   "introSeconds": 5.1508000000007454,
+   "heldSeconds": 2.130700000000186,
+   "bellAt": 5.168400000000372,
+   "clockAtBell": 20,
+   "maxStep": 0.7469599012915671,
+   "minRadius": 4.684153444323329,
+   "maxRadius": 7.870972153523753,
+   "maxHeight": 4.20430213023754,
+   "minHeight": 1.8200000000367742,
+   "hintShown": true,
+   "hintText": "Tap to skip",
+   "tapped": null,
+   "frames": 482,
+   "endGap": 3.1482171255532228,
+   "endStep": 1.419943077674173e-7,
+   "simSecondsBeforeBell": 3.016667,
+   "turnedDegrees": 359,
+   "insideSolids": [],
+   "endTime": 5.85,
+   "yaw": 0,
+   "mode": "lock",
+   "phase": "round"
+  },
+  "venues": {
+   "default": {
+    "turnedDegrees": 358,
+    "introSeconds": 5.15,
+    "endGap": 0,
+    "insideSolids": []
+   },
+   "neon_strip": {
+    "turnedDegrees": 358,
+    "introSeconds": 5.16,
+    "endGap": 0,
+    "insideSolids": []
+   },
+   "harbor_dome": {
+    "turnedDegrees": 358,
+    "introSeconds": 5.16,
+    "endGap": 0,
+    "insideSolids": []
+   }
+  },
+  "hints": {
+   "en": "Tap to skip",
+   "he": "הקישו לדילוג",
+   "ru": "Нажмите, чтобы пропустить"
+  }
+ }
+}

@@ -1,0 +1,126 @@
+{
+ "phone": {
+  "labels": {
+   "en": {
+    "text": "Side lock",
+    "aria": "Lock the camera to a side view",
+    "pressed": "false",
+    "box": [
+     311,
+     734,
+     60,
+     44
+    ],
+    "inside": true,
+    "fits": true,
+    "count": 1
+   },
+   "he": {
+    "text": "נעילת צד",
+    "aria": "נעילת המצלמה למבט מהצד",
+    "pressed": "false",
+    "box": [
+     315,
+     734,
+     56,
+     44
+    ],
+    "inside": true,
+    "fits": true,
+    "count": 1
+   },
+   "ru": {
+    "text": "Вид сбоку",
+    "aria": "Закрепить камеру сбоку",
+    "pressed": "false",
+    "box": [
+     303,
+     734,
+     68,
+     44
+    ],
+    "inside": true,
+    "fits": true,
+    "count": 1
+   }
+  },
+  "gestures": {
+   "freeDragYaw": -1.2,
+   "lockedDragYaw": 0,
+   "wheelZoom": 1.162,
+   "zoomOutLimit": 0.55
+  },
+  "fight": {
+   "frames": 1403,
+   "scoredFrames": 1044,
+   "worstEdge": 0.663,
+   "sideError": 0.235,
+   "sideDegrees": 13.6,
+   "cameraHeight": [
+    3.1387,
+    3.4212
+   ],
+   "maxSpeedChangePerFrame": 0.265,
+   "phases": [
+    "intro",
+    "round",
+    "ceremony"
+   ],
+   "mode": "lock",
+   "zoom": 1
+  },
+  "mitts": {
+   "frames": 711,
+   "scoredFrames": 581,
+   "worstEdge": 0.542,
+   "sideError": 0,
+   "sideDegrees": 0,
+   "cameraHeight": [
+    1.7,
+    1.7
+   ],
+   "maxSpeedChangePerFrame": 0,
+   "phases": [
+    "training"
+   ],
+   "mode": "lock",
+   "zoom": 1
+  },
+  "heavy": {
+   "frames": 441,
+   "scoredFrames": 302,
+   "worstEdge": 0.507,
+   "sideError": 0,
+   "sideDegrees": 0,
+   "cameraHeight": [
+    1.78,
+    1.78
+   ],
+   "maxSpeedChangePerFrame": 0,
+   "phases": [
+    "training"
+   ],
+   "mode": "lock",
+   "zoom": 1
+  },
+  "paused": {
+   "mode": "lock",
+   "pressed": "true"
+  },
+  "unlocked": {
+   "mode": "free",
+   "pressed": "false",
+   "camera": [
+    -8.372,
+    1.82,
+    3.255
+   ],
+   "zoom": 1
+  },
+  "free": [
+   -8.372,
+   1.82,
+   3.255
+  ]
+ }
+}
