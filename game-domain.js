@@ -17,6 +17,8 @@
   {id:'school_signature',name:'School Signature',controllerId:'combo_super',sequence:['jab','cross','hook','roll','rear_uppercut','hook'],requirement:'Land 150 contacts in completed active activities',key:'hits',target:150}
  ].map(c=>({...c,price:{first_rhythm:0,corner_turn:20,counter_chain:40,thunder_arc:40,rolling_return:70,school_signature:120}[c.id],species:[...species],allowedModes:['training','fight'],slotCost:1}));
  const comboPurchase=id=>'purchase:combo:'+id;
+ // Fight Academy: passing a combo lesson pays once and unlocks that combo. No XP, no combat stats.
+ const lesson=Object.freeze({coins:15,repetitions:3,windowMs:2000,rule:'academy-lesson-v1'}),lessonId=id=>'lesson:'+id;
  const quests=[...combos.map(c=>({id:c.id,name:c.name,key:c.key,target:c.target,comboId:c.id})),{id:'steady_school',name:'Five completed activities',key:'completed',target:5},{id:'first_bout',name:'Complete an active fight',key:'fights',target:1},{id:'straight_work',name:'Land 100 contacts',key:'hits',target:100},{id:'school_minutes',name:'Complete ten active minutes',key:'seconds',target:600}];
  const cleanName=name=>String(name||'').replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,'').trim();
  const fresh=p=>({version:1,venue:'default',school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(cupRules?{cup:cupRules.fresh()}:{}),...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{})});
@@ -50,6 +52,12 @@
   }
   return out;
  }
+ // Compact local proof of a passed lesson: three exact run-throughs with in-tempo gaps. Schema validation, not server verification.
+ function lessonEvidence(c,value){
+  if(!exactKeys(value,['version','reps'])||value.version!==1||!Array.isArray(value.reps)||value.reps.length!==lesson.repetitions)fail('Invalid lesson evidence.');
+  for(const run of value.reps)if(!exactKeys(run,['moves','ms'])||!Array.isArray(run.moves)||!Array.isArray(run.ms)||run.moves.length!==c.sequence.length||run.ms.length!==c.sequence.length||run.moves.some((m,i)=>m!==c.sequence[i])||run.ms[0]!==0||run.ms.some((t,i)=>!integer(t,1e6)||i>0&&(t<run.ms[i-1]||t-run.ms[i-1]>lesson.windowMs)))fail('Lesson evidence does not match the combination.');
+  return {version:1,reps:value.reps.map(run=>({moves:[...run.moves],ms:[...run.ms]}))};
+ }
  function validateHistory(g){
   if(g.history===undefined)g.history=[]; // Older schema-1 saves predate local activity records.
   if(!Array.isArray(g.history)||g.history.length>50)fail('Invalid local history.');
@@ -76,7 +84,8 @@
   if(xp!==p.boxers.lion.xp+p.boxers.rabbit.xp||!g.ledger.length||g.ledger[0].type!=='baseline')fail('XP ledger does not match career.');
   for(const event of g.processed)if(!seen.has('reward:'+event))fail('Missing reward transaction.');
   for(const t of g.ledger)if(t.comboId!==undefined||t.id.startsWith('purchase:combo:')){const c=combos.find(c=>c.id===t.comboId);if(!c||!c.price||t.id!==comboPurchase(c.id)||t.type!=='spend'||t.coins!==-c.price||t.rule!=='combo-shop-v1'||!g.combos.owned.includes(c.id))fail('Invalid combo purchase.');}
-  for(const c of combos)if(g.combos.owned.includes(c.id)&&g.activity[c.key]<c.target&&!seen.has(comboPurchase(c.id)))fail('Invalid combo unlock.');
+  for(const t of g.ledger)if(t.rule===lesson.rule||t.lessonId!==undefined||t.id.startsWith('lesson:')){const c=combos.find(c=>c.id===t.lessonId);if(!c||!exactKeys(t,['id','type','coins','xp','rule','lessonId','evidence'])||t.id!==lessonId(c.id)||t.type!=='earn'||t.coins!==lesson.coins||t.xp!==0||t.rule!==lesson.rule||!g.combos.owned.includes(c.id))fail('Invalid lesson reward.');lessonEvidence(c,t.evidence);}
+  for(const c of combos)if(g.combos.owned.includes(c.id)&&g.activity[c.key]<c.target&&!seen.has(comboPurchase(c.id))&&!seen.has(lessonId(c.id)))fail('Invalid combo unlock.');
   validateHistory(g);if(accessories){if(!g.accessories)g.accessories=accessories.fresh();accessories.validate(g.accessories,g.ledger);}
   if(worldRules){if(g.world===undefined)g.world=worldRules.fresh(p.id);worldRules.validate(g.world,g);}
   if(iqRules){if(g.learning===undefined)g.learning=iqRules.fresh();iqRules.validate(g.learning,g.ledger);}
@@ -94,6 +103,11 @@
   if(a.type==='buy'){const item=catalog.find(c=>c.id===a.itemId);if(!item||!item.price)fail('Choose a shop item.');if(g.inventory.includes(item.id))fail('Already owned.');if(wallet(g).coins<item.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');g.ledger.push({id:'purchase:'+item.id,type:'spend',coins:-item.price,xp:0,itemId:item.id,rule:'shop-v1'});g.inventory.push(item.id);return {itemId:item.id,transactionId:'purchase:'+item.id};}
   if(a.type==='equip'){const item=catalog.find(c=>c.id===a.itemId);if(!slots.includes(a.slot)||item?.slot!==a.slot||!g.inventory.includes(a.itemId))fail('Own a compatible item for this slot first.');g.equipment[a.slot]=a.itemId;return {itemId:a.itemId};}
   if(a.type==='combo-buy'){const c=combos.find(c=>c.id===a.comboId);if(!c)fail('Choose a combination.');if(g.combos.owned.includes(c.id))fail('Already owned.');if(!c.price)fail('This combination is earned by completing your first activity.');if(wallet(g).coins<c.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');g.ledger.push({id:comboPurchase(c.id),type:'spend',coins:-c.price,xp:0,comboId:c.id,rule:'combo-shop-v1'});g.combos.owned.push(c.id);return {comboId:c.id,transactionId:comboPurchase(c.id)};}
+  if(a.type==='lesson'){const c=combos.find(c=>c.id===a.comboId);if(!c)fail('Choose a lesson.');const proof=lessonEvidence(c,a.evidence),id=lessonId(c.id),first=!g.ledger.some(t=>t.id===id),unlocked=!g.combos.owned.includes(c.id),equipped=[];
+   if(first){if(g.ledger.length>=20015)fail('History is full. Export a backup.');g.ledger.push({id,type:'earn',coins:lesson.coins,xp:0,rule:lesson.rule,lessonId:c.id,evidence:proof});if(unlocked)g.combos.owned.push(c.id);
+    // A newly learned combo goes straight into free loadout slots so it can be used at once.
+    for(const [mode,max] of [['training',5],['fight',3]])if(!g.combos[mode].includes(c.id)&&g.combos[mode].length<max){g.combos[mode].push(c.id);equipped.push(mode);}}
+   return {comboId:c.id,first,unlocked:first&&unlocked,coins:first?lesson.coins:0,equipped,loadout:{training:g.combos.training.includes(c.id),fight:g.combos.fight.includes(c.id)},...(first?{transactionId:id}:{})};}
   if(a.type==='combo'){const c=combos.find(c=>c.id===a.comboId);if(!c||!g.combos.owned.includes(c.id)||!c.allowedModes.includes(a.mode)||typeof a.enabled!=='boolean'||(a.species&&!c.species.includes(a.species)))fail('Combo is locked or incompatible.');const load=g.combos[a.mode],index=load.indexOf(c.id);if(a.enabled&&index<0){if(load.length>=(a.mode==='fight'?3:5))fail('All combo slots are full.');load.push(c.id);}else if(!a.enabled&&index>=0)load.splice(index,1);return {comboId:c.id};}
   if(a.type==='school'){g.school={name:cleanName(a.name),crest:a.crest,philosophy:a.philosophy};return {school:g.school};}
   fail('Unknown game action.');
@@ -108,5 +122,6 @@
   const cup=cupRules&&g.cup?cupRules.action(g.cup,{type:'record',matchId:event.id},{profileId,history:g.history,ledger:g.ledger}):undefined;
   return {coins,unlocks,activityId:event.id,transactionId,record,...(cup&&!cup.ignored?{cup}:{})};
  }
- const api={venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
+ const lessonPassed=(g,id)=>!!g?.ledger.some(t=>t.id===lessonId(id));
+ const api={venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
 })();

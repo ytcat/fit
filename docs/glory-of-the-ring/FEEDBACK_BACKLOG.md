@@ -117,7 +117,7 @@
 
 ### GOTR-0007 — Make Fight IQ a guided interactive lesson, not a confusing menu
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS
+- **Status:** DONE (published 2026-11-10, `40256fc`; user to confirm it is now understandable)
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Fight IQ / tutorial / usability
@@ -126,7 +126,9 @@
 - **Acceptance criteria:** Novice can find Fight IQ, finish an interactive demo, correctly execute a specified 2-3 move sequence, see and understand feedback and continue to a next lesson; touch UI and localization verified. Never claim a combo was correctly performed just because buttons were randomly tapped.
 - **User follow-up 2026-11-10 (after the visual redesign):** "I still don't understand how to use it. The concept is the same… what you show me is some tips and we see how it's done very, very slowly for some reason, and what next? I'm stuck. What should I do with this information? Should this somehow affect the fighter? … How does this contribute to the game?"
 - **Decision 2026-11-10:** Rebuild the Academy around combo lessons with a visible purpose: **Watch** the coach at real speed → **Repeat** it with the real move buttons (exact order and timing checked) → **Use it** in a fight. Passing a lesson unlocks that combo for the fighter and pays coins once. The existing decision quizzes become a clearly optional section. Assigned to the Academy agent.
-- **Implementation:** In progress (Academy agent).
+- **Implementation (`agent/academy`):** Landing shows three steps (Watch, Repeat ×3, Fight), one line ("Buy a combo in the Shop — or earn it here") and six lessons, one per combo; quizzes and coach notes are closed secondary groups; the demonstration plays at real speed. A lesson runs on the real training stage: a short skippable watch, then the combo's move names as boxes that fill when the right real move buttons are pressed in order and tempo; a wrong or slow press clears only the current run-through; three successful run-throughs pass. Passing pays 15 coins once (`lesson:<combo>` ledger row), unlocks and equips the combo, and offers "Try it in a fight". Lesson logic is a pure module (`academy-lesson.js`); stage controller `academy-stage.js`; styles `academy.css`.
+- **Evidence:** `tests/academy-lesson.test.cjs`, extended `tests/game-domain.test.cjs` and `tests/fight-iq.test.cjs`; `qa/gotr-0007/browser.cjs` in the real app at four sizes in EN/HE/RU: wrong move named, too-slow and combo-button presses rejected, three run-throughs → +15 coins, combo unlocked, equipped and usable in a fight, reload keeps it, random tapping (57 taps) earns nothing. Full suite 79/79. Re-run on the live site: all six lessons passed with the real buttons (90 coins once; practising again pays 0).
+- **Remaining:** combo is granted after the third run-through in the Academy (not after also using it in a fight); individual single moves are not taught as lessons yet.
 - **Evidence:** Pending lesson walkthrough, interaction tests and recordings.
 
 ### GOTR-0008 — Long-term 3D explorable adventure world connecting gyms, quests and boss fights
@@ -152,6 +154,7 @@
 - **Expected behavior:** Unique, original varied animal and human-inspired fantasy fighters across weight/size classes, named personalities, consistent readable ratings and strengths/weaknesses, adaptive attack patterns and training-based challenge readiness. Show height/mass differences realistically while balancing hitboxes and fairness. Example ORIGINAL archetypes: agile small fox, counterpuncher wolf, large heavyweight bear, fast female cyberboxer, theatrical media personality, oversized green powerhouse — not copies of recognizable protected characters.
 - **Acceptance criteria:** Each new fighter has unique mesh, face, clothing, stance, signature combo, AI behavior, scale/collision profile, reactions, intro and progression reward; visual quality matches existing lion baseline and phone performance passes. Opponent rating is explainable and does not guarantee victory.
 - **Legal boundary:** Do NOT add Vi (League of Legends), Hulk, movie figures, Trump likeness/name or other recognizable characters/real people without verified applicable rights and approval. Original fictional characters or appropriately licensed integrations are viable instead; keep intentional differences in names, designs and characterization.
+- **User follow-up 2026-11-10:** "Also add more avatars as discussed in the PRD." Queued to start once the mitt-range branch (which changes the shared fighter rig file) is merged.
 - **Implementation:** Not started; complex art/rig pipeline and licensing assessment required.
 - **Evidence:** Future approved character sheets and 360° rendered QA.
 
@@ -179,13 +182,15 @@ These nine reports were recorded from the user's latest message. **None is marke
 
 ### GOTR-0012 — Correct coach/opponent spacing for straight jabs
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS
+- **Status:** DONE for mitt work (published 2026-11-10); fight straights continue in GOTR-0018
 - **Priority:** P1
 - **Area:** Mitt training / sparring / fight
 - **Reported behavior / request:** Opponent and coach stand too close; the jab should extend straight at an appropriate distance.
 - **Implementation:** Coach mitt contact currently measured at56.3° elbow /47.5% extension. Clean sparring/fight jabs already reach172.3°/171.1°; inspect visual crowding separately and preserve contact stops on blocked punches. No spacing change published yet.
 - **User follow-up 2026-11-10:** "I mentioned multiple times that during coach training with mitts they have to stand a bit farther from each other… the punch does not straighten the arm; he punches with his arm at 90°." Assigned to the mitt-range agent; fight straights tracked in GOTR-0018.
-- **Evidence:** New matched real-app views and contact tests required before resolving.
+- **Resolution (2026-11-10, `agent/mitt-range` merged):** Mitt partners now stand at jab range (root separation 1.20 → 1.74, guard head-to-head 1.11 → 1.65). The coach holds the pad near their own shoulder line for straights, feeds it forward for hooks and uppercuts and takes real lifted steps for the roll; the boxer's lifted step replaces the old slide. No contact tolerance was widened. One option-gated line in `boxing-coach-v2.js` (`stepLift`), unused by fights.
+- **Evidence:** `qa/gotr-0012/before-after.txt` and renders. Jab at pad contact: 49.6% extension / 59° elbow → 98.9% / 163° (Watch) and 99.1% / 164° (manual Play); cross 45.7% / 54° → 98.9% / 163°. Hooks 60–69° → 84–91°, uppercuts 50–62° → 75–97°; both rolls still duck; manual mixed chain lands 9/9; root drift 0, planted-sole slide 0. Lion and rabbit identical. New `tests/mitt-range.test.cjs`; spacing numbers in `tests/fluid-drills.test.cjs` updated with the same intent (no sliding, room to punch). Agent's full suite 77/77; integrator re-ran the drill and fight tests and an independent measurement (98.9% / 163.3°) on the merged tree.
+- **Remaining / limits:** the mitt auto sequence still uses a fixed 1.2-second beat (Variable rhythm not applied there); the coach's rear-uppercut catching arm is fairly long (84% extension); clearance was checked on still frames, not video; on phone portrait the pair is drawn smaller because the framing is wider; physical phones untested.
 - **Investigation 2026-11-10 (no code change yet):** Reproduced headlessly. In mitt work the pad face sits only 0.22 from the boxer's guard knuckle (partner roots 1.20 apart; arm 0.66 + glove 0.20). Jab contact: 49% arm extension, 58° elbow; cross: 47%, 55°. The punch lands because the shoulder lunges 0.45–0.56 forward while the arm stays folded. Moving the trainer back alone does **not** fix it: at 1.35–1.55 root separation jab/cross stop touching the pad (peak extension stays 67–81%) and the roll no longer scores, while hooks/uppercuts still land. So the fix needs the straight-punch reach in mitt mode plus spacing/roll retuning together, not a single distance constant. Root cause detail: the jab is a step-in punch — lead foot +0.15, hips +0.20, lead shoulder +0.45 toward the coach — while the hand target is the pad itself, so arm extension is only what is left between the advanced shoulder and the pad (about 0.25). A ~90% extended contact needs the pad about 0.73 ahead of the shoulder at contact, i.e. roughly 0.47 more range for straights, while hooks, uppercuts and the coach's roll sweep need the current close range. Planned fix: two ranges in the drill (long for jab/cross, close for the rest) with real stepping, the coach catching straights nearer their own shoulder, and updated spacing tests; needs multi-angle visual QA.
 
 ### GOTR-0013 — Rename Fight IQ to Fight Academy and give it a designed look
@@ -209,29 +214,31 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0014 — Proportional, relevant buttons everywhere
 - **Reported:** 2026-11-10
-- **Status:** IN PROGRESS
+- **Status:** READY FOR QA — first pass published 2026-11-10; user to review
 - **Priority:** P1
 - **Area:** UI / design system
 - **Reported behavior / request:** "The buttons are not proportional. For example in Fight Academy the X button that closes the card is huge. Every button has to be proportional and relevant."
 - **Expected behavior:** One consistent control scale (icon, small, standard, primary) applied to every screen; the dialog close button is a normal icon button without an oversized focus box; no decorative or duplicate buttons.
 - **Acceptance criteria:** Before/after screenshots of every dialog and toolbar at phone and desktop sizes in EN/HE/RU; close buttons ≤ 44 px; touch targets ≥ 40 px where space allows; no clipped labels; existing layout QA scripts still pass.
-- **Implementation:** Assigned to the design-system agent together with GOTR-0015.
-- **Evidence:** Pending.
+- **Implementation (`agent/design`):** One control scale in `design-system.css` (icon 36–40 px, standard 40–44 px, small 32–36 px; primary, secondary and quiet styles; deliberate selected/disabled/focus-visible states). The dialog close button is a normal 36-px icon button with a thin focus ring instead of the oversized gold box; footer buttons and compact layouts follow the same scale.
+- **Evidence:** `qa/gotr-0015/after-*.webp`; existing layout QA re-run on the redesign: Shop layout 0 issues (9 sizes × 3 languages), Moves/Defence 0 bad buttons, combos panel, combo purchase, Academy lessons and rhythm checks all pass; full suite 79/79.
+- **Remaining:** a screen-by-screen review with the user; button relevance (removing or merging rarely used buttons) has not been audited yet.
 
 ### GOTR-0015 — Professional visual redesign and new colour system
 - **Reported:** 2026-11-10
-- **Status:** IN PROGRESS
+- **Status:** READY FOR QA — first pass published 2026-11-10; user to choose the accent palette
 - **Priority:** P1 (user: "very, very important")
 - **Area:** Visual design / whole app
 - **Reported behavior / request:** "Initially we designed this with a kind of brown-orange theme. I'd like something more advanced, professional and good looking… it looks like an amateur app, so please invest in thinking how to make it better and redesign the whole app eventually."
 - **Expected behavior:** A coherent design system (colour tokens, type scale, spacing, radii, button and card styles) replacing the brown/orange-gold look with a modern sports-app palette; applied consistently to header, navigation, training and fight controls, dialogs, Shop, Academy, World and results.
 - **Acceptance criteria:** All UI colours come from shared tokens; contrast is readable; EN/HE/RU and phone/desktop screenshots; two or three alternative accent palettes captured from the real app for the user to choose; existing layout/flow QA scripts pass.
-- **Implementation:** Assigned to the design-system agent. Default direction chosen by the integrator: near-black cool neutrals, white text, one strong accent, gold reserved for coins and titles.
-- **Evidence:** Pending.
+- **Implementation (`agent/design`):** About 530 hard-coded colours in seven CSS files replaced by tokens defined once in `design-tokens.css`; shared component layer in `design-system.css`; rules documented in `docs/design-system.md`. Default palette: cool near-black neutrals, white text, crimson accent for primary actions and selection, blue for information/focus, gold only for coins and rewards. The palette can be swapped by changing token values only.
+- **Evidence:** `qa/gotr-0015/` — after screenshots (fight, Shop, training, World, Hebrew fight) and `palettes-compare.webp` showing the same fight and Academy screens in three accents (A crimson, B electric blue, C lime on graphite) produced by token changes alone. All layout/flow QA scripts pass on the redesign; full suite 79/79.
+- **Remaining:** the design agent was stopped by the account usage limit before writing its own report, so its list of colours embedded in JavaScript (for example Shop icon colours and 3D signage) and its contrast audit output are not available yet; fight HUD redesign is GOTR-0021; the user's palette choice.
 
 ### GOTR-0016 — Variable ("asynchronous") practice rhythm by default
 - **Reported:** 2026-11-10
-- **Status:** READY FOR QA
+- **Status:** DONE (`3672c18`, live; full suite 76/76; re-checked on the live site)
 - **Priority:** P2
 - **Area:** Training
 - **Reported behavior / request:** "Change the synchronous punches that are the default to asynchronous by default everywhere."
@@ -253,14 +260,80 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0018 — Straight punches in fights must fully extend with body rotation
 - **Reported:** 2026-11-10
-- **Status:** IN PROGRESS
+- **Status:** DONE (published 2026-11-10, `6f56434`; user to confirm the feel)
 - **Priority:** P1
 - **Area:** Fight mechanics / realism
 - **Reported behavior / request:** "In the fight, if I hit with a jab or cross he has to straighten his whole arm and move his body a bit so the punch comes from the back to the shoulder to the arm to the fist. Currently the punch does not straighten the arm; he punches with his arm at 90°, which is not correct, not accurate and not real."
 - **Expected behavior:** Clean jabs and crosses land at range with a nearly straight arm and visible hip → chest → shoulder → arm sequencing; fighters keep or create punching range instead of throwing cramped straights chest to chest.
 - **Acceptance criteria:** Measured elbow angle and arm extension at contact for landed straights in real fights (Play and Watch), both species; matched before/after renders; blocked punches still stop at the guard; no regression in scoring, KO or existing contact tests.
-- **Implementation:** Assigned to the fight-range agent. Related: GOTR-0012 (mitt work).
+- **Diagnosis (measured, 12 seeded fights per case):** fighters started a straight 1.22–1.27 apart, where the guards touch; 73–95% of landed straights were stopped by the guard with the elbow at about 110° — the "90° punch". The earlier 171° claim was a staged clean hit one frame after contact.
+- **Implementation (`agent/fight-range`, all in `fight-arena.js`):** stance holds 1.74–1.88 range including the opening; a reach controller shifts the striker's weight so the glove meets its target at the end of the extension; head straights aim at the face surface; committed straights follow the opponent's steps; hooks and uppercuts step in from range; straights score the drive carried into the target so landing at full extension is not weaker.
+- **Evidence:** `qa/gotr-0018/` (README, `stats.md`, before/after renders). Same six seeds: clean straights elbow median 132–149° → 156–160°, extension 91–96% → about 98%; blocked straights elbow median 108–113° → 136–147°, extension 81–83% → 93–96%. New `tests/fight-range.test.cjs`. Full suite 78/78 on the merged tree; GitHub checks run on `main`.
+- **Remaining / limits:** blocked punches still stop at the guard, so the arm is not fully straight there (lowest tenth about 100°); judged from still frames and statistics, not motion video; physical phones untested.
+
+## Intake session — 2026-11-10 (third message)
+
+### GOTR-0019 — Lockable side-view camera in fights and training
+- **Reported:** 2026-11-10
+- **Status:** OPEN (queued for the camera/graphics agent)
+- **Priority:** P1
+- **Area:** Camera / controls
+- **Reported behavior / request:** "Add a task to lock and unlock the camera during a fight or training to a side view. If I click, it positions the camera on a side view and locks on this position, so if the fighters move the camera will always see both from the side. The side camera tilt will be locked but zoom will still work by the user."
+- **Expected behavior:** One clearly labelled toggle in fights and at every training station. On: the camera moves smoothly to a true side view, keeps both fighters (or the fighter and the equipment) framed as they move, ignores orbit/tilt gestures, and still obeys pinch/wheel zoom. Off: the previous free camera returns.
+- **Acceptance criteria:** Both fighters stay fully in frame during a whole fight and a mitt session at phone and desktop sizes; tilt/orbit input does nothing while locked; zoom works within sensible limits; state survives round changes and station changes; EN/HE/RU label; no judder.
+- **Implementation:** Not started.
 - **Evidence:** Pending.
+
+### GOTR-0020 — Fight intro: 360° arena fly-around that settles on the fighters
+- **Reported:** 2026-11-10
+- **Status:** OPEN (queued for the camera/graphics agent)
+- **Priority:** P2
+- **Area:** Fight presentation / camera
+- **Reported behavior / request:** "Before every fight, start with a rotating 360-degree view of the stadium and zoom in slowly until it gets to the position where both players are in starting position."
+- **Expected behavior:** A short cinematic orbit around the arena that slowly closes in and ends exactly on the normal fight framing with both fighters in their corners/stance; then the bell. Skippable with a tap; shortened or skipped for reduced-motion users; does not eat into the 20-second fight clock.
+- **Acceptance criteria:** Smooth, no clipping through arena geometry, ends without a camera jump, works in every arena style, skip works, fight timing and results unchanged.
+- **Implementation:** Not started.
+- **Evidence:** Pending.
+
+### GOTR-0021 — Designed health bars and fighter names with "VS"
+- **Reported:** 2026-11-10
+- **Status:** OPEN (queued as a follow-up for the design agent)
+- **Priority:** P1
+- **Area:** Fight HUD / design
+- **Reported behavior / request:** "Replace the health bars with more designed ones, design the names above the bars better and add 'vs' between them."
+- **Expected behavior:** A broadcast-style HUD: two styled health bars that drain toward the centre with clear damage feedback, well-set fighter names above them, a "VS" badge between, consistent with the new design system; readable over any arena.
+- **Acceptance criteria:** Phone portrait/landscape and desktop; EN/HE/RU (RTL mirrors correctly, names never clip); health values still accurate; no overlap with round banner or move buttons.
+- **Implementation:** Not started.
+- **Evidence:** Pending.
+
+### GOTR-0022 — More arenas: street, boxing club, underground, docks hangar, professional tiers
+- **Reported:** 2026-11-10
+- **Status:** OPEN (queued; needs the fight and Academy branches merged first)
+- **Priority:** P2
+- **Area:** Arenas / world
+- **Reported behavior / request:** "I want additional arenas: a street fight (boxing in the street with an audience), a boxing club, an underground arena (illegal fighting theme), docks (a hangar in a port), and a few professional arenas from simple to championship arena."
+- **Expected behavior:** New selectable arena styles with distinct architecture, lighting, crowd and mood: street ring with onlookers; local boxing club; gritty underground venue; port hangar; and a ladder of professional venues ending in a championship arena. Original, fictional signage only. Existing three styles remain.
+- **Acceptance criteria:** Each arena recognisable at a glance in its gallery card and in a fight; no change to combat; frame cost measured per arena with a phone-safe budget; selection saved per player; EN/HE/RU names.
+- **Dependencies / risks:** Arena ids are validated in the save rules; several arenas at broadcast quality is days of art work — deliver in batches, best ones first.
+- **Implementation:** Not started.
+- **Evidence:** Pending.
+
+## Parallel work in progress — 2026-11-10
+The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
+
+| Branch | Scope | Source |
+|---|---|---|
+| `agent/mitt-range` | Mitt-work range and straight-arm jab/cross | GOTR-0012 |
+| `agent/fight-range` | Fight straights land extended with body rotation | GOTR-0018 |
+| `agent/academy` | Fight Academy lessons: watch → repeat with real buttons (3 successes) → combo earned → try in a fight | GOTR-0007 (user detail 2026-11-10: move names as semi-transparent boxes in a row that fill as the right buttons are pressed; little text; combos can be bought or earned) |
+| `agent/design` | Colour system, proportional buttons | GOTR-0014, GOTR-0015 |
+| `agent/graphics` | Frame pacing, adaptive quality, lighting | GOTR-0017 |
+| `agent/gear-3d` | Real championship belts, headbands, ribbons; three boot designs | GOTR-0002, boots part of GOTR-0003 |
+| `agent/world-content` | Short missions, JSON event packs, return digest | PRD F-010, F-013, F-014 |
+| `agent/i18n-a11y` | Mixed-language strings, "Boxing Club" wording, RTL, accessibility | PRD F-019, feedback brief of 2026-11-08 |
+| `agent/adventure-world` | Walkable 3D district prototype (not published until it meets the bar) | GOTR-0008 |
+
+Queued because they touch files being changed above: Burst (GOTR-0005), rival memory F-011, coach tactics F-012, FIFO combo-queue check from the 2026-11-08 brief (after `fight-range`); gloves and shorts designs of GOTR-0003, new fighter GOTR-0009 / F-016 (after `mitt-range`); gym station F-015, Skill Fusion F-017, performance automation F-020.
 
 ### Issue template
 

@@ -3,6 +3,13 @@
  const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z),Q=()=>new THREE.Quaternion();
  const clamp=n=>Math.max(0,Math.min(1,n)),smooth=n=>{n=clamp(n);return n*n*(3-2*n);},rear=m=>['cross','rear_hook','rear_uppercut'].includes(m);
  let stationSequence=0;
+ // Mitt-work range. Partners stand at jab distance, so a straight punch lands with a
+ // long, unlocked arm; bent-arm punches and the roll close the gap with real steps.
+ const padRange=1.74,gloveLength=.204,straightReachMargin=.004;
+ // Coach footwork for inside work: [lead-foot step, rear-foot step, pelvis travel] in metres.
+ const coachSteps={roll:[.34,.20,.27],uppercut:[.20,.08,.14],hook:[0,0,.03],hold:[0,0,0]};
+ // How far the boxer steps in before each bent-arm punch or roll (see LionCoach `advance`).
+ const boxerAdvance={hook:.15,rear_hook:.19,uppercut:.12,rear_uppercut:.12,roll:.20};
  const mittSequence=['jab','cross','roll','uppercut','rear_hook','rear_uppercut','roll','hook'];
  const mittCues={};
  for(const [lang,column,meet,up,roll] of [['en',1,'meet the mitt and recover guard','drive up into the mitt and recover','Roll under the hook'],['he',3,'פגעו בכפפה וחזרו להגנה','עלו אל הכפפה וחזרו להגנה','התכופפו מתחת להוק'],['ru',5,'попадите в лапу и вернитесь в защиту','удар снизу в лапу и возврат в защиту','Нырок под хук']]){
@@ -70,15 +77,35 @@
     const segments=96,sides=6,p=new Float32Array((segments+1)*sides*3),index=[];for(let i=0;i<segments;i++)for(let j=0;j<sides;j++){const a=i*sides+j,b=i*sides+(j+1)%sides;index.push(a,b,a+sides,b,b+sides,a+sides);}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));const uv=[];for(let i=0;i<=segments;i++)for(let k=0;k<sides;k++)uv.push(i/segments*24,k/sides*2);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(index);this.rope=new THREE.Mesh(g,TrainingGear.cordMaterial());this.rope.name='Round woven skipping cable';this.rope.frustumCulled=false;this.rope.castShadow=true;this.root.add(this.rope);this.ropePoints=Array.from({length:97},()=>V());this.ropeFrame={tangent:V(),normal:V(),binormal:V()};this.ropeClearance=new RopeBodyClearance(this.engine.coach,this.root);this.finalizeRope=coach=>this.poseRope(coach);this.rope.geometry.setAttribute('normal',new THREE.Float32BufferAttribute(new Float32Array(p.length),3));this.rope.geometry.attributes.position.setUsage(THREE.DynamicDrawUsage);this.rope.geometry.attributes.normal.setUsage(THREE.DynamicDrawUsage);
    }else{
-    const species=this.engine.coach.species==='lion'?'rabbit':'lion';arena.padTrainers=arena.padTrainers||{};this.trainer=arena.padTrainers[species]||(arena.padTrainers[species]=new LionCoach(arena.data,{species}));this.root.add(this.trainer.root);this.trainer.root.position.set(0,0,.60);this.trainer.root.rotation.set(0,Math.PI,0);this.mitts=['L','R'].map(side=>TrainingGear.mitt(this.trainer,side));this.previousFist={};this.previousPadFace={};this.padNormal=new THREE.Vector3();this.padNormalMatrix=new THREE.Matrix3();this.padVelocity=new THREE.Vector3();this.padLocal=new THREE.Vector3();this.padBeforeLocal=new THREE.Vector3();this.padContactLocal=new THREE.Vector3();this.padWorldContact=new THREE.Vector3();this.finalizeTrainer=coach=>this.poseTrainer(coach);this.finalizeBoxer=coach=>this.poseBoxer(coach);
+    const species=this.engine.coach.species==='lion'?'rabbit':'lion';arena.padTrainers=arena.padTrainers||{};this.trainer=arena.padTrainers[species]||(arena.padTrainers[species]=new LionCoach(arena.data,{species}));this.root.add(this.trainer.root);this.trainer.root.position.set(0,0,padRange/2);this.trainer.root.rotation.set(0,Math.PI,0);this.mitts=['L','R'].map(side=>TrainingGear.mitt(this.trainer,side));this.previousFist={};this.previousPadFace={};this.padNormal=new THREE.Vector3();this.padNormalMatrix=new THREE.Matrix3();this.padVelocity=new THREE.Vector3();this.padLocal=new THREE.Vector3();this.padBeforeLocal=new THREE.Vector3();this.padContactLocal=new THREE.Vector3();this.padWorldContact=new THREE.Vector3();this.finalizeTrainer=coach=>this.poseTrainer(coach);this.finalizeBoxer=coach=>this.poseBoxer(coach);
     this.padClock=window.BoxingPose&&(typeof location==='undefined'||new URLSearchParams(location.search).get('padClock')!=='legacy')?new BoxingPose.FixedStepClock({step:1/120,maxSteps:24}):null;this.padClock?.reset(this.start);this.padRequestedTime=this.start;this.padFrame=null;this.padStep=time=>{this.deferVisuals=this.padClock.tick<this.padRenderTick;const frame=this.update(time);this.padContacts.push(...frame.contacts);this.padSwings.push(...frame.swings);this.padDefences+=frame.defences||0;this.padFrame=frame;};
    }
   }
   dispose(){this.engine.coach.root.position.y=0;for(const prop of this.grips||this.mitts||[])TrainingGear.dispose(prop);if(this.trainer)this.trainer.root.parent?.remove(this.trainer.root);this.root.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material)n.material.dispose();});this.root.parent?.remove(this.root);}
   once(key){if(this.seen.has(key))return false;this.seen.add(key);if(this.seen.size>80)this.seen.delete(this.seen.values().next().value);return true;}
   face(pad){return this.trainer.root.worldToLocal(pad.localToWorld(pad.userData.face.clone()));}
-  placeMitt(side,goal,palm=V(0,0,1),catchingUpper=false){
-   const coach=this.trainer,j=coach.joints,pad=this.mitts[side==='L'?0:1],pole=V((side==='L'?-1:1)*(.7+.4*palm.y),catchingUpper?-.45:-.45-1.8*palm.y,-.12);let error=0;
+  // Authored body commitment of the boxer for each mitt punch.
+  boxerDrive(move){
+   const straight=move==='jab'||move==='cross',upper=move.includes('uppercut');
+   return {advance:straight?.02:boxerAdvance[move]??.025,contactDrive:move==='jab'?.015:upper?.025:0,shoulderCover:straight?.055:0,armReachMargin:straight?straightReachMargin:undefined,stepLift:boxerAdvance[move]?.036:undefined,guardTightness:1,power:1.15,straightRecovery:.25};
+  }
+  // The coach reads the boxer's reach once per session: where the striking
+  // shoulder finishes each straight and how long the unlocked arm is.
+  measureReach(hero){
+   this.reachOwner=hero;this.reach={};hero.update(0,'guard','one_two',{deferVisuals:true});
+   for(const move of ['jab','cross']){
+    const side=move==='jab'?'L':'R',j=hero.joints;
+    hero.update(.445*1.22,move,'one_two',{...this.boxerDrive(move),guardElbowBack:.5,deferVisuals:true});
+    const shoulder=hero.point(j['arm'+side]);
+    // Boxer space to coach space: the partners face each other across padRange.
+    this.reach[move]={shoulder:V(-shoulder.x,shoulder.y,padRange-shoulder.z),length:j['elbow'+side].position.length()+j['hand'+side].position.length()-straightReachMargin+gloveLength};
+   }
+  }
+  // Depth, in coach space, at which a mitt centred on (x,y) touches the
+  // knuckles of the boxer's fully extended straight.
+  reachDepth(move,goal){const r=this.reach[move],dx=goal.x-r.shoulder.x,dy=goal.y-r.shoulder.y;return r.shoulder.z-Math.sqrt(Math.max(.04,r.length*r.length-dx*dx-dy*dy));}
+  placeMitt(side,goal,palm=V(0,0,1),catchingUpper=false,elbow=null){
+   const coach=this.trainer,j=coach.joints,pad=this.mitts[side==='L'?0:1],pole=elbow||V((side==='L'?-1:1)*(.7+.4*palm.y),catchingUpper?-.45:-.45-1.8*palm.y,-.12);let error=0;
    // Solve the actual catching face, not the hand origin. Pronation follows
    // the forearm, so even a palm-down sweep retains a straight wrist.
    for(let i=0;i<5;i++){
@@ -88,40 +115,68 @@
    return error;
   }
   poseTrainer(coach){
-   const {phase,hook,sweepSide}=this.padPose,j=coach.joints;
-   const rootQ=coach.root.getWorldQuaternion(Q()).invert(),feet=['L','R'].map(side=>({side,ankle:coach.point(j['foot'+side]),q:j['foot'+side].getWorldQuaternion(Q()).premultiply(rootQ)}));
+   const {phase,hook,sweepSide,move}=this.padPose,j=coach.joints;
+   const rootQ=coach.root.getWorldQuaternion(Q()).invert(),feet=['L','R'].map(side=>({side,ankle:coach.point(j['foot'+side]),q:j['foot'+side].getWorldQuaternion(Q()).premultiply(rootQ),lift:0}));
    const sweep=hook?smooth((phase-.08)/.23)*(1-smooth((phase-.76)/.22)):0;
    const travel=smooth((phase-.18)/.56),sign=sweepSide==='L'?-1:1;
    const catchPulse=hook?0:Math.sin(Math.PI*smooth((phase-.16)/.65))**2;
+   const upper=move.includes('uppercut'),hookPunch=move==='hook'||move==='rear_hook',catchSide=rear(move)?'R':'L';
+   // Inside work: the coach closes the distance with a real lead-then-rear step and
+   // returns rear-then-lead. Straight punches are caught from the planted stance.
+   const [leadStep,rearStep,lean]=coachSteps[hook?'roll':upper?'uppercut':hookPunch?'hook':'hold'];
+   const leadOut=clamp((phase-.03)/.19),leadBack=clamp((phase-.81)/.16),rearOut=clamp((phase-.17)/.17),rearBack=clamp((phase-.69)/.15);
+   const leadIn=smooth(leadOut)-smooth(leadBack),rearIn=smooth(rearOut)-smooth(rearBack),closeIn=lean*(.65*leadIn+.35*rearIn);
+   feet[0].ankle.z+=leadStep*leadIn;feet[0].lift=.045*Math.min(1,leadStep/.2)*(Math.sin(Math.PI*leadOut)**2+Math.sin(Math.PI*leadBack)**2);
+   feet[1].ankle.z+=rearStep*rearIn;feet[1].lift=.045*Math.min(1,rearStep/.2)*(Math.sin(Math.PI*rearOut)**2+Math.sin(Math.PI*rearBack)**2);
+   for(const foot of feet)foot.ankle.y+=foot.lift;
    let shock=0;for(const pad of this.mitts){const age=this.padPose.t-(pad.userData.hitAt??-100);if(age>=0)shock=Math.max(shock,(1-Math.exp(-age/.025))*Math.exp(-age/.15));}
    j.hips.position.y-=.035*(sweep+catchPulse);j.hips.position.x+=.010*Math.sin(this.padPose.t*1.3);j.hips.rotation.y-=sign*.08*sweep;
-   // Reach over the roll through a small hip hinge and shoulder glide;
-   // keep the partners' feet a full mitt-work distance apart.
-   j.hips.position.z+=.035*sweep;j.spine.rotation.x+=.11*sweep-.020*shock;j.chest.rotation.x+=.09*sweep-.035*shock;
+   // Reach over the roll through the step, a small hip hinge and shoulder glide.
+   j.hips.position.z+=.035*sweep+closeIn;j.spine.rotation.x+=.11*sweep-.020*shock;j.chest.rotation.x+=.09*sweep-.035*shock;
    j.spine.rotation.y-=sign*.10*sweep;j.chest.rotation.y-=sign*(.13*sweep-.055*catchPulse);
    j.chest.rotation.x+=.025*catchPulse;j.neck.rotation.y+=sign*.06*sweep;j.head.rotation.y+=sign*.08*sweep;
-   const palms=[],errors=[],upper=this.padPose.move.includes('uppercut'),ready=upper?smooth(this.padPose.heroPhase/.18)*(1-smooth((this.padPose.heroPhase-.72)/.25)):0;
+   const ready=upper?smooth(phase/.18)*(1-smooth((phase-.72)/.25)):0,feed=hookPunch?smooth((phase-.04)/.22)*(1-smooth((phase-.62)/.26)):0;
+   // Turn the catching shoulder toward an inside punch so the rear arm is not left
+   // reaching across a bladed stance; the eyes stay on the boxer.
+   const turnIn=(catchSide==='R'?-1:.35)*(.24*ready+.18*feed);j.spine.rotation.y+=.4*turnIn;j.chest.rotation.y+=.6*turnIn;j.neck.rotation.y-=.45*turnIn;j.head.rotation.y-=.45*turnIn;
+   // Lower the pelvis just enough that neither leg is asked to reach past its bones.
+   coach.root.updateMatrixWorld(true);let drop=0;
+   for(const {side,ankle} of feet){const start=coach.point(j['thigh'+side]),reach=j['knee'+side].position.length()+j['foot'+side].position.length()-.004,dx=start.x-ankle.x,dz=start.z-ankle.z;drop=Math.max(drop,start.y-ankle.y-Math.sqrt(Math.max(.01,reach*reach-dx*dx-dz*dz)));}
+   j.hips.position.y-=drop;
+   const palms=[],errors=[];
    for(const [i,side] of ['L','R'].entries()){
     const pad=this.mitts[i],age=this.padPose.t-(pad.userData.hitAt??-100),recoil=age>=0?.065*(pad.userData.hitForce??1)*(1-Math.exp(-age/.022))*Math.exp(-age/.15):0;
-    const goal=V(i?.20:-.20,1.82+.010*Math.sin(this.padPose.t*2.3+i),.43-recoil),palm=V(0,0,1);
-    const catchingUpper=upper&&side===(rear(this.padPose.move)?'R':'L');
-    if(catchingUpper){goal.lerp(V(0,1.86+recoil,.60-recoil*.3),ready);palm.set(0,-Math.sin(ready*Math.PI/2),Math.cos(ready*Math.PI/2));}
-    else if(upper)goal.lerp(V(i?.24:-.24,1.96,.43),ready);
-    if(hook&&side!==sweepSide)goal.lerp(V(i?.22:-.22,1.74,.29),sweep);
+    const goal=V(i?.20:-.20,1.82+.010*Math.sin(this.padPose.t*2.3+i),0),palm=V(0,0,1),straight=i?'cross':'jab',catching=side===catchSide;let elbow=null;
+    // A straight is caught at the end of the boxer's reach: the mitt waits just
+    // beyond it, meets the arriving glove and then gives with the impact.
+    const meet=move===straight?smooth((phase-.38)/.08)*(1-smooth((phase-.56)/.20)):0;
+    goal.z=this.reachDepth(straight,goal)-.035+.055*meet;
+    const catchingUpper=upper&&catching;
+    if(catchingUpper){goal.lerp(V(0,1.80,.58+closeIn),ready);palm.set(0,-Math.sin(ready*Math.PI/2),Math.cos(ready*Math.PI/2));}
+    else if(upper)goal.lerp(V(i?.24:-.24,1.96,.43+closeIn),ready);
+    if(hookPunch&&catching){
+     // Feed the hook mitt forward and turn its face inward to meet the arc;
+     // the elbow drops under the hand so the turn stays in the forearm.
+     const turn=.87*feed;goal.lerp(V(i?.22:-.22,1.75,.57+closeIn),feed);palm.set((i?-1:1)*Math.sin(turn),0,Math.cos(turn));
+     elbow=V((i?1:-1)*(.7-.4*feed),-.45-.55*feed,-.12-.13*feed);
+    }
+    if(hook&&side!==sweepSide)goal.lerp(V(i?.22:-.22,1.74,.29+closeIn),sweep);
     if(hook&&side===sweepSide){
      // Round sweep over the ducking boxer: chamber to the outside, pronate,
      // pass across the crown and fold back. The 90-degree turn is about the
      // forearm, never an artificial bend of the hand.
-     const arc=Math.PI*travel,x=sign*(.14+.24*Math.cos(arc)),y=this.padPose.sweepHeight+.07*Math.sin(arc),z=.60+.12*Math.sin(arc);
+     const arc=Math.PI*travel,x=sign*(.14+.24*Math.cos(arc)),y=this.padPose.sweepHeight+.07*Math.sin(arc),z=.60+closeIn+.12*Math.sin(arc);
      goal.lerp(V(x,y,z),sweep);const roll=sweep*Math.PI/2;palm.set(0,-Math.sin(roll),Math.cos(roll));
     }
+    // The struck mitt gives along its own face normal.
+    goal.addScaledVector(palm,-recoil);if(catchingUpper)goal.z-=recoil*.3*ready;
     j['arm'+side].position.z+=.035*sweep+.012*catchPulse;j['arm'+side].position.y+=.045*sweep;
-    errors.push(this.placeMitt(side,goal,palm,catchingUpper));palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-Math.min(.18,recoil*4);
+    errors.push(this.placeMitt(side,goal,palm,catchingUpper,elbow));palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-Math.min(.18,recoil*4);
    }
-   const footTargets=[];for(const {side,ankle,q} of feet){
+   const footTargets=[];for(const {side,ankle,q,lift} of feet){
     const foot=j['foot'+side],error=coach.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(side==='L'?-.08:.08,.1,1));coach.orient(foot,q);
     const shin=coach.point(j['knee'+side]).sub(coach.point(foot)).normalize().applyQuaternion(q.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);
-    footTargets.push({side,contact:ankle.clone().add(V(0,-.102,.215).applyQuaternion(q)).toArray(),lift:0,error});
+    footTargets.push({side,contact:ankle.clone().add(V(0,-.102,.215).applyQuaternion(q)).toArray(),lift,error});
    }
    return {gloves:palms,handErrors:errors,footTargets,motionState:{load:.35*sweep+.25*catchPulse,drive:catchPulse*.4,left:hook&&sweepSide==='L'?sweep:0,right:hook&&sweepSide==='R'?sweep:0,rope:0}};
   }
@@ -136,7 +191,7 @@
    const footTargets=[];for(const {side,ankle,q} of feet){
     const foot=j['foot'+side],error=coach.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(side==='L'?-.08:.08,.1,1));coach.orient(foot,q);
     const shin=coach.point(j['knee'+side]).sub(coach.point(foot)).normalize().applyQuaternion(q.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);
-    footTargets.push({side,contact:ankle.clone().add(V(0,-.102,.215).applyQuaternion(q)).toArray(),lift:0,error});
+    const contact=ankle.clone().add(V(0,-.102,.215).applyQuaternion(q));footTargets.push({side,contact:contact.toArray(),lift:Math.max(0,contact.y-.015),error});
    }
    const gloves=['L','R'].map(side=>coach.orientGlove(side,0,V(0,-1,0)));
    return {gloves,footTargets,motionState:{load:dip*.8,drive:Math.max(0,-Math.cos(q*Math.PI))*.45}};
@@ -209,15 +264,15 @@
   }
   updatePads(t,time,frame){
    const hero=this.engine.coach,trainer=this.trainer,beat=Math.floor(t/1.20),part=beat%8,autoPhase=(t/1.20)%1,autoMove=mittSequence[part],autoHook=autoMove==='roll',manual=this.engine.player?.frame(time),spec=manual||{move:autoMove,phase:autoPhase,attack:!autoHook,index:beat},phase=manual?spec.phase:autoPhase,hook=manual?spec.move==='roll':autoHook;
-   hero.root.position.set(0,0,-.60);hero.root.rotation.set(0,0,0);
+   hero.root.position.set(0,0,-padRange/2);hero.root.rotation.set(0,0,0);if(this.reachOwner!==hero)this.measureReach(hero);
    const sweepSide=Math.floor(beat/4)%2?'R':'L';
    this.padPose={t,phase,hook,move:spec.move,heroPhase:spec.phase,sweepSide,sweepHeight:1.96};
    // Boxing distance gives the trainee room to extend each punch.
-   trainer.root.position.set(0,0,.60);
+   trainer.root.position.set(0,0,padRange/2);
    trainer.update(0,'guard','one_two',{simulationTime:time,deferVisuals:this.deferVisuals,guardElbowBack:.5,guardWidth:.22,keepFaceClear:true,poseOverlay:this.finalizeTrainer});
    this.arena.group.updateMatrixWorld(true);
    const targetIndex=rear(spec.move)?1:0,pad=this.mitts[targetIndex],worldTarget=pad.localToWorld(pad.userData.face.clone()),target=hero.root.worldToLocal(worldTarget.clone());
-   hero.update(spec.phase*1.22,spec.move,'one_two',{simulationTime:time,deferVisuals:this.deferVisuals,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,planUppercut:spec.move.includes('uppercut'),uppercutBagTarget:spec.move.includes('uppercut')?[target.x,target.y-.18,target.z-.02]:undefined,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,advance:(spec.move==='jab'||spec.move==='cross')?.065:spec.move.includes('uppercut')?.08:.025,contactDrive:(spec.move==='jab'||spec.move==='cross')?.045:spec.move.includes('uppercut')?.025:0,shoulderCover:(spec.move==='jab'||spec.move==='cross')?.055:0,guardTightness:1,power:1.15,straightRecovery:.25,poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
+   hero.update(spec.phase*1.22,spec.move,'one_two',{simulationTime:time,deferVisuals:this.deferVisuals,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,planUppercut:spec.move.includes('uppercut'),uppercutBagTarget:spec.move.includes('uppercut')?[target.x,target.y-.18,target.z-.02]:undefined,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,...this.boxerDrive(spec.move),poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
    const dt=this.last<0?0:t-this.last;
    if(spec.attack){
     if(spec.phase>.2&&this.once('swing'+spec.index))frame.swings.push({actor:'lion',move:spec.move});
@@ -245,6 +300,6 @@
  const set=TrainingArena.prototype.setTarget,update=TrainingArena.prototype.update,fit=TrainingArena.prototype.fitCamera;
  TrainingArena.prototype.setTarget=function(mode){this.careerDrill?.dispose();this.careerDrill=null;if(!['rope','pads'].includes(mode))return set.call(this,mode);set.call(this,'none');this.mode=mode;this.engine.targetMode=mode;this.engine.scene.add(this.group);this.group.add(this.engine.coach.root);this.group.rotation.y=mode==='pads'?.95:.38;this.careerDrill=new CareerDrill(this,mode);this.update(this.engine.animTime);this.fitCamera(this.engine.camera);};
  TrainingArena.prototype.update=function(time,technique,combo){return this.careerDrill?this.careerDrill.advance(time):update.call(this,time,technique,combo);};
- TrainingArena.prototype.fitCamera=function(camera){if(!this.careerDrill)return fit.call(this,camera);const height=this.mode==='rope'?(this.engine.coach.species==='rabbit'?3.12:2.86):2.55,width=this.mode==='rope'?1.8:2.35,fov=THREE.MathUtils.degToRad(camera.fov);camera.position.set(0,1.70,Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+.35);camera.lookAt(0,height*.48,0);this.engine.viewControls?.refit(V(0,height*.48,0));};
- CareerDrill.ropeDrills=ropeDrills;window.CareerDrill=CareerDrill;
+ TrainingArena.prototype.fitCamera=function(camera){if(!this.careerDrill)return fit.call(this,camera);const rope=this.mode==='rope',height=rope?(this.engine.coach.species==='rabbit'?3.12:2.86):2.55,frame=rope?height:2.95,width=rope?1.8:2.80,fov=THREE.MathUtils.degToRad(camera.fov);camera.position.set(0,1.70,Math.max(frame/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+.35);camera.lookAt(0,height*.48,0);this.engine.viewControls?.refit(V(0,height*.48,0));};
+ CareerDrill.ropeDrills=ropeDrills;CareerDrill.padRange=padRange;window.CareerDrill=CareerDrill;
 })();

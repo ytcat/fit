@@ -2,19 +2,19 @@
 body.club-app{height:var(--app-height,100dvh);min-height:0;overflow:hidden}
 .club-app .club-workspace,.club-app .club-studio{min-height:0}
 .club-app #stageContainer{min-height:0}
-.input-mode-switch{display:flex;gap:3px;padding:3px;border:1px solid #e2bd7b35;border-radius:9px;flex:none;background:#121c1e}
-.input-mode-switch button{min-height:34px;min-width:59px;padding:6px 10px;border:0;border-radius:6px;background:transparent;color:#bec9c6;font:650 11px system-ui}
-.input-mode-switch [aria-pressed=true]{background:#e2bd7b;color:#211b12}
+.input-mode-switch{display:flex;gap:3px;padding:3px;border:1px solid var(--gr-border);border-radius:9px;flex:none;background:var(--gr-bg)}
+.input-mode-switch button{min-height:34px;min-width:59px;padding:6px 10px;border:0;border-radius:6px;background:transparent;color:var(--gr-text-muted);font:650 11px system-ui}
+.input-mode-switch [aria-pressed=true]{background:var(--gr-accent);color:var(--gr-accent-ink)}
 .manual-controls{position:absolute;inset:0;z-index:14;pointer-events:none;direction:ltr}
 .manual-controls[hidden]{display:none}
 .manual-rail{position:absolute;top:50%;transform:translateY(-50%);left:8px;width:86px;display:grid;gap:6px;pointer-events:auto;max-height:calc(100% - 72px);overflow-y:auto;scrollbar-width:thin;overscroll-behavior:contain}
 .manual-rail[data-side=rear]{left:auto;right:8px}
-.manual-side-label{font:700 9px system-ui;text-align:center;color:#dfc28b;letter-spacing:.3px}
-.manual-move{min-height:46px;width:100%;padding:7px 4px;line-height:1.15;font:650 11px system-ui;white-space:normal;border:1px solid #c6a86b56;border-radius:10px;background:#14242bed;color:#f1e5cc;box-shadow:0 3px 10px #0003;touch-action:manipulation}
-.manual-rail[data-side=rear] .manual-move{border-color:#78aac170;background:#152737ed}
-.manual-move:hover{background:#35443d}.manual-move[data-active=true]{background:#e2bd7b;color:#241c12;border-color:#ffe3a2}
+.manual-side-label{font:700 9px system-ui;text-align:center;color:var(--gr-text-muted);letter-spacing:.3px}
+.manual-move{min-height:46px;width:100%;padding:7px 4px;line-height:1.15;font:650 11px system-ui;white-space:normal;border:1px solid var(--gr-accent-line);border-radius:10px;background:var(--gr-scene-chip);color:var(--gr-text);box-shadow:var(--gr-shadow-1);touch-action:manipulation}
+.manual-rail[data-side=rear] .manual-move{border-color:var(--gr-info-line);background:var(--gr-scene-chip)}
+.manual-move:hover{background:var(--gr-scene-chip-strong)}.manual-move[data-active=true]{background:var(--gr-accent);color:var(--gr-accent-ink);border-color:var(--gr-accent)}
 .manual-move:disabled{opacity:.4}
-.manual-status{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 20px);text-align:center;border-radius:7px;background:#0b151de8;color:#e7d8b8;padding:6px 10px;font:600 10px system-ui;line-height:1.3;pointer-events:none}
+.manual-status{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 20px);text-align:center;border-radius:7px;background:var(--gr-scene-chip-strong);color:var(--gr-text);padding:6px 10px;font:600 10px system-ui;line-height:1.3;pointer-events:none}
 .manual-active #stageContainer{--technique-rail:0px}
 .manual-active .practice-techniques,.manual-active .club-rail-label{display:none!important}
 .manual-active #boxerCanvas{width:100%!important;height:100%!important}
@@ -74,19 +74,19 @@ body.club-app{height:var(--app-height,100dvh);min-height:0;overflow:hidden}
  .manual-active .fight-health{top:37px;left:138px;right:138px;gap:28px}
 }
 
-.club-zoom-group{display:flex;gap:4px;flex:none}.club-zoom-group button{min-width:32px;min-height:30px;padding:4px 7px;border:1px solid #bfa76a4d;border-radius:6px;background:#182a2d;color:#e8d6ae;font:700 12px system-ui}.club-zoom-group button:first-child,.club-zoom-group button:nth-child(2){font-size:18px;line-height:1}
+.club-zoom-group{display:flex;gap:4px;flex:none}.club-zoom-group button{min-width:32px;min-height:30px;padding:4px 7px;border:1px solid var(--gr-border);border-radius:6px;background:var(--gr-surface-3);color:var(--gr-text);font:700 12px system-ui}.club-zoom-group button:first-child,.club-zoom-group button:nth-child(2){font-size:18px;line-height:1}
 .club-app #stageContainer{touch-action:none}.club-app .practice-techniques{touch-action:pan-x}.manual-rail{touch-action:pan-y}
 @media(max-width:800px){.club-app .club-view-tools{gap:5px;padding:5px 8px}.club-app .club-view-tools .club-stance{display:none}.club-app .club-camera-group button{padding:5px 8px}.club-zoom-group{margin-left:auto}}
 .club-app.manual-active .club-view-tools{display:flex;min-height:34px;height:34px;padding:2px 8px}.manual-active .club-view-label,.manual-active .club-stance,.manual-active .club-keyboard{display:none}
 @media(max-height:560px){.club-app .club-view-tools{min-height:34px;height:34px;padding:2px 8px}}
 
-.manual-pages{display:flex;flex:0 0 100%;gap:4px;justify-content:center;padding-top:3px;direction:inherit}.manual-pages[hidden]{display:none}.manual-pages button{min-height:28px;flex:1;padding:4px 8px;background:#14272b;color:#d8d4c8;border:1px solid #c6a86b56;border-radius:6px;font:650 11px system-ui}.manual-pages [aria-pressed=true]{background:#e2bd7b;color:#241c12}.club-app.manual-active .club-view-tools{height:auto;min-height:34px;flex-wrap:wrap;row-gap:2px}.manual-pages button:focus-visible{outline:2px solid #fff;outline-offset:1px}
+.manual-pages{display:flex;flex:0 0 100%;gap:4px;justify-content:center;padding-top:3px;direction:inherit}.manual-pages[hidden]{display:none}.manual-pages button{min-height:28px;flex:1;padding:4px 8px;background:var(--gr-scene-chip-strong);color:var(--gr-text-muted);border:1px solid var(--gr-scene-line);border-radius:6px;font:650 11px system-ui}.manual-pages [aria-pressed=true]{background:var(--gr-accent);color:var(--gr-accent-ink)}.club-app.manual-active .club-view-tools{height:auto;min-height:34px;flex-wrap:wrap;row-gap:2px}.manual-pages button:focus-visible{outline:2px solid var(--gr-focus);outline-offset:1px}
 @media(max-height:700px) and (max-width:599px){.club-app.manual-active[data-scene=gym] .manual-rail{width:96px;grid-template-columns:1fr 1fr}.club-app.manual-active[data-scene=gym] .manual-side-label{grid-column:1/-1}.club-app.manual-active[data-scene=gym] .manual-move{min-height:38px;font-size:9px}}
 /* GOTR-0006: at most three primary combos, readable two-line labels, one column at every breakpoint. */
 #manualControls[data-page=combos] .manual-rail{width:96px;grid-template-columns:1fr}
 #manualControls[data-page=combos] .manual-side-label{grid-column:auto}
 #manualControls[data-page=combos] .manual-move{height:auto;min-height:44px;overflow:visible;white-space:normal;overflow-wrap:break-word;hyphens:auto;font-size:11px;line-height:1.2;padding:6px 5px}
-#manualControls[data-page=combos] .manual-move[data-meta=true]{min-height:40px;border-style:dashed;background:#1b2a33e6;color:#e8d3a6;font-weight:600}
+#manualControls[data-page=combos] .manual-move[data-meta=true]{min-height:40px;border-style:dashed;background:var(--gr-scene-chip);color:var(--gr-text);font-weight:600}
 @media(max-height:560px){#manualControls[data-page=combos] .manual-move{min-height:38px;font-size:10px;padding:4px 5px}#manualControls[data-page=combos] .manual-move[data-meta=true]{min-height:34px}}
 /* GOTR-0006 follow-up: on short narrow phones the two-column 46px gym buttons split words; one column keeps whole words. */
 @media(max-height:700px) and (max-width:599px){.club-app.manual-active[data-scene=gym] #manualControls:not([data-page=combos]) .manual-rail{width:78px;grid-template-columns:1fr}

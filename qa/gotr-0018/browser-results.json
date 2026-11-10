@@ -1,0 +1,81 @@
+{
+ "url": "http://127.0.0.1:8142/",
+ "browser": "153.0.8010.12",
+ "physicalPhone": false,
+ "runs": [
+  {
+   "mode": "play",
+   "viewport": "393x852",
+   "player": "lion",
+   "presses": 21,
+   "result": "health",
+   "winner": "lion",
+   "errors": [],
+   "all": {
+    "n": 23,
+    "elbowMedian": 155.2,
+    "elbowAtLeast150": 13,
+    "elbowUnder120": 2,
+    "extensionAtLeast85": 22
+   },
+   "clean": {
+    "n": 3,
+    "elbowMedian": 155.2,
+    "elbowAtLeast150": 2,
+    "elbowUnder120": 0,
+    "extensionAtLeast85": 3
+   },
+   "blocked": {
+    "n": 20,
+    "elbowMedian": 155.6,
+    "elbowAtLeast150": 11,
+    "elbowUnder120": 2,
+    "extensionAtLeast85": 19
+   },
+   "playerStraights": {
+    "n": 19,
+    "elbowMedian": 155.2,
+    "elbowAtLeast150": 11,
+    "elbowUnder120": 2,
+    "extensionAtLeast85": 18
+   }
+  },
+  {
+   "mode": "watch",
+   "viewport": "393x852",
+   "player": null,
+   "presses": 0,
+   "result": "health",
+   "winner": "lion",
+   "errors": [],
+   "all": {
+    "n": 11,
+    "elbowMedian": 145.1,
+    "elbowAtLeast150": 4,
+    "elbowUnder120": 2,
+    "extensionAtLeast85": 9
+   },
+   "clean": {
+    "n": 3,
+    "elbowMedian": 148.6,
+    "elbowAtLeast150": 1,
+    "elbowUnder120": 0,
+    "extensionAtLeast85": 3
+   },
+   "blocked": {
+    "n": 8,
+    "elbowMedian": 144.5,
+    "elbowAtLeast150": 3,
+    "elbowUnder120": 2,
+    "extensionAtLeast85": 6
+   },
+   "playerStraights": {
+    "n": 0,
+    "elbowMedian": null,
+    "elbowAtLeast150": 0,
+    "elbowUnder120": 0,
+    "extensionAtLeast85": 0
+   }
+  }
+ ]
+}

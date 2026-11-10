@@ -1,0 +1,63 @@
+{
+ "base": "3672c18",
+ "browser": "153.0.8010.12",
+ "physicalPhone": false,
+ "results": [
+  {
+   "version": "before",
+   "situation": "guard up (typical Play press)",
+   "actor": "lion",
+   "move": "jab",
+   "target": "head",
+   "part": "glove",
+   "blocked": true,
+   "elbow": 131.3,
+   "extension": 91.1,
+   "rootSeparation": 1.579,
+   "file": "jab-before-after.webp (before half)",
+   "errors": []
+  },
+  {
+   "version": "before",
+   "situation": "clean body",
+   "actor": "lion",
+   "move": "cross",
+   "target": "body",
+   "part": "body",
+   "blocked": false,
+   "elbow": 132.2,
+   "extension": 91.5,
+   "rootSeparation": 1.616,
+   "file": "cross-before-after.webp (before half)",
+   "errors": []
+  },
+  {
+   "version": "after",
+   "situation": "guard up (typical Play press)",
+   "actor": "lion",
+   "move": "jab",
+   "target": "head",
+   "part": "glove",
+   "blocked": true,
+   "elbow": 169,
+   "extension": 99.5,
+   "rootSeparation": 1.776,
+   "file": "jab-before-after.webp (after half)",
+   "errors": []
+  },
+  {
+   "version": "after",
+   "situation": "clean body",
+   "actor": "lion",
+   "move": "cross",
+   "target": "body",
+   "part": "body",
+   "blocked": false,
+   "elbow": 161.4,
+   "extension": 98.7,
+   "rootSeparation": 1.678,
+   "file": "cross-before-after.webp (after half)",
+   "errors": []
+  }
+ ]
+}

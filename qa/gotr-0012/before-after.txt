@@ -1,0 +1,47 @@
+GOTR-0012 mitt range: before (3672c18) vs after. Headless, 120 Hz, Synchronized rhythm, arena-local frame.
+Each cell: arm extension / elbow angle of the striking arm at the pad-contact event (roll: defence credit).
+
+== lion boxer ==
+root separation            1.2 -> 1.74 m
+guard head-to-head (bones) 1.113 -> 1.653 m      closest during the sequence 0.764 -> 0.831 m
+guard knuckle to mitt face 0.217 -> 0.721 m
+root drift                 0 -> 0 m      planted-sole slide per tick 0.006 -> 0 m (before: roll overlay reported its lifted step as planted)
+boot lift while stepping   before {"boxerL":0.018,"boxerR":0.018}  after {"boxerL":0.036,"coachL":0.045,"coachR":0.045,"boxerR":0.036}
+wrist/forearm alignment    1 -> 1 (1 = glove and mitt axes collinear with the forearm)
+
+move           Watch before        Watch after         Manual before       Manual after        closing m/s b->a  hips fwd b->a   shoulder fwd b->a  coach arm ext b->a
+jab            49.6% / 59 deg      98.9% / 163.3 deg   46.6% / 55 deg      99.1% / 164.2 deg   0.55 -> 2.14      0.197 -> 0.141  0.449 -> 0.393     52% -> 57.7%
+cross          45.7% / 53.9 deg    98.9% / 163.2 deg   54.6% / 65.7 deg    99.1% / 164.9 deg   0.83 -> 2.18      0.166 -> 0.121  0.562 -> 0.517     61.7% -> 61%
+hook           50.6% / 60.4 deg    66.9% / 83.7 deg    44.8% / 52.7 deg    63.8% / 79 deg      0.99 -> 1.03      0.115 -> 0.259  0.391 -> 0.535     51.3% -> 59.4%
+rear_hook      56.8% / 68.9 deg    71.4% / 90.9 deg    55.8% / 67.5 deg    67.7% / 85 deg      0.2 -> 0.89       0.115 -> 0.305  0.474 -> 0.664     65.5% -> 72.7%
+uppercut       42.5% / 49.8 deg    60.8% / 74.5 deg    49.5% / 58.9 deg    59% / 72 deg        1.02 -> 3.69      0.244 -> 0.29   0.387 -> 0.433     84.4% -> 76.3%
+rear_uppercut  51.5% / 61.6 deg    74.9% / 96.9 deg    50.2% / 59.9 deg    71.3% / 90.7 deg    4.87 -> 3.06      0.244 -> 0.29   0.433 -> 0.479     96.3% -> 83.7%
+roll #1        ducked              ducked              ducked              ducked              - -> -            0.104 -> 0.305  0.259 -> 0.46      -% -> -%
+roll #2        ducked              ducked                                                      - -> -            0.104 -> 0.305  0.259 -> 0.46      -% -> -%
+
+manual mixed chain (hook, jab, rear_uppercut, cross, roll, jab, uppercut, cross, rear_hook, jab):
+  before landed 9/9 punches, 1 roll; straights at 55.5/66.5/55.3/66.5/55.1 deg
+  after  landed 9/9 punches, 1 roll; straights at 164.2/165/164.2/165/164.2 deg
+
+== rabbit boxer ==
+root separation            1.2 -> 1.74 m
+guard head-to-head (bones) 1.113 -> 1.653 m      closest during the sequence 0.777 -> 0.844 m
+guard knuckle to mitt face 0.217 -> 0.721 m
+root drift                 0 -> 0 m      planted-sole slide per tick 0.006 -> 0 m (before: roll overlay reported its lifted step as planted)
+boot lift while stepping   before {"boxerL":0.018,"boxerR":0.018}  after {"boxerL":0.036,"coachL":0.045,"coachR":0.045,"boxerR":0.036}
+wrist/forearm alignment    1 -> 1 (1 = glove and mitt axes collinear with the forearm)
+
+move           Watch before        Watch after         Manual before       Manual after        closing m/s b->a  hips fwd b->a   shoulder fwd b->a  coach arm ext b->a
+jab            49.6% / 59 deg      98.9% / 163.3 deg   46.6% / 55 deg      99.1% / 164.2 deg   0.55 -> 2.14      0.197 -> 0.141  0.449 -> 0.393     52% -> 57.7%
+cross          45.7% / 53.9 deg    98.9% / 163.2 deg   54.6% / 65.7 deg    99.1% / 164.9 deg   0.83 -> 2.18      0.166 -> 0.121  0.562 -> 0.517     61.7% -> 61%
+hook           50.6% / 60.4 deg    66.9% / 83.7 deg    44.8% / 52.7 deg    63.8% / 79 deg      0.99 -> 1.03      0.115 -> 0.259  0.391 -> 0.535     51.3% -> 59.4%
+rear_hook      56.8% / 68.9 deg    71.4% / 90.9 deg    55.8% / 67.5 deg    67.7% / 85 deg      0.2 -> 0.89       0.115 -> 0.305  0.474 -> 0.664     65.5% -> 72.7%
+uppercut       42.5% / 49.8 deg    60.8% / 74.5 deg    49.5% / 58.9 deg    59% / 72 deg        1.02 -> 3.69      0.244 -> 0.29   0.387 -> 0.433     84.4% -> 76.3%
+rear_uppercut  51.5% / 61.6 deg    74.9% / 96.9 deg    50.2% / 59.9 deg    71.3% / 90.7 deg    4.87 -> 3.06      0.244 -> 0.29   0.433 -> 0.479     96.3% -> 83.7%
+roll #1        ducked              ducked              ducked              ducked              - -> -            0.104 -> 0.305  0.259 -> 0.46      -% -> -%
+roll #2        ducked              ducked                                                      - -> -            0.104 -> 0.305  0.259 -> 0.46      -% -> -%
+
+manual mixed chain (hook, jab, rear_uppercut, cross, roll, jab, uppercut, cross, rear_hook, jab):
+  before landed 9/9 punches, 1 roll; straights at 55.5/66.5/55.3/66.5/55.1 deg
+  after  landed 9/9 punches, 1 roll; straights at 164.2/165/164.2/165/164.2 deg
+

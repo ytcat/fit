@@ -17,6 +17,9 @@
   if(id==='IQ-C06'&&state.exitLane){if(state.exitLane==='none')return [['cross',2],['guard',5]];return [['cross',2],['guard',1],['step',3,{stepDirection:state.exitLane==='left'?-1:1}],['guard',1]];}
   return sequences[id]||sequences['IQ-C01'];
  }
+ // One sequence unit is about a third of a second, so a jab lasts as long as it does in play (0.68 s, not 4 s).
+ const UNIT_SECONDS=.34,SLOW=.3,HOLD_SECONDS=.9;
+ function rate(id,state,command,slow=false){const units=sequence(id,state,command).reduce((n,x)=>n+x[1],0);return 8/(units*UNIT_SECONDS)*(slow?SLOW:1);}
  function sample(id,seconds,state,command){const seq=sequence(id,state,command),duration=seq.reduce((s,x)=>s+x[1],0);let t=Math.max(0,Math.min(seconds/8*duration,duration-.000001));for(const [move,length,options={}]of seq){if(t<=length){const blend=Math.max(0,Math.min(1,t/.3,(length-t)/.3));return {move,phase:move==='guard'?(options.guardStyle?Math.min(.4,t/.5,(length-t)/.5):0):t/length,options:{...options,...(options.brace?{brace:options.brace*blend*blend*(3-2*blend)}:{})}};}t-=length;}return {move:'guard',phase:0,options:{}};}
  function cache(e){let c=caches.get(e);if(c)return c;
   const scene=new THREE.Scene();scene.background=new THREE.Color('#192326');scene.add(new THREE.HemisphereLight(0xe9f3ff,0x635541,.9));const key=new THREE.DirectionalLight(0xfff2d9,1.1);key.position.set(-2,4,4);scene.add(key);const fill=new THREE.DirectionalLight(0xc9d9f4,.5);fill.position.set(3,2,-2);scene.add(fill);
@@ -28,7 +31,7 @@
  }
  class Demo {
   constructor(engine,host,id,{reducedMotion=false,onProgress=()=>{},scenarioState={}}={}){
-   this.e=engine;this.id=id;this.host=host;this.seconds=0;this.running=!reducedMotion;this.reducedMotion=reducedMotion;this.onProgress=onProgress;this.angle='quarter';this.dirty=true;this.closed=false;this.state=scenarioState;
+   this.e=engine;this.id=id;this.host=host;this.seconds=0;this.slow=false;this.hold=0;this.running=!reducedMotion;this.reducedMotion=reducedMotion;this.onProgress=onProgress;this.angle='quarter';this.dirty=true;this.closed=false;this.state=scenarioState;
    // Build before taking ownership of the live canvas. A failed optional asset
    // cannot detach the game, leave a render hook, or replace its camera callback.
    this.c=cache(engine);const species=engine.coach.species;this.species=species;
@@ -44,9 +47,10 @@
    GamePresentation.apply(this.coach,engine.career.store.game()?.equipment,GameDomain.catalog);
    window.dispatchEvent(new Event('resize'));this.seek(0);this.frame(0);
   }
-  seek(seconds){this.seconds=Math.max(0,Math.min(8,seconds));this.dirty=true;this.coach.maneInitialized=false;this.opponent&&(this.opponent.maneInitialized=false);return this;}
+  seek(seconds){this.seconds=Math.max(0,Math.min(8,seconds));this.hold=0;this.dirty=true;this.coach.maneInitialized=false;this.opponent&&(this.opponent.maneInitialized=false);return this;}
   view(angle){this.angle=angle;this.dirty=true;}
-  frame(delta){if(this.closed)return;if(this.running&&!document.hidden){this.seconds=Math.min(8,this.seconds+Math.min(delta,.05));this.dirty=true;if(this.seconds===8)this.running=false;}if(!this.dirty)return;this.dirty=false;
+  // Natural speed by default; the short clip repeats after a brief hold until paused.
+  frame(delta){if(this.closed)return;if(this.running&&!document.hidden){const dt=Math.min(delta,.05);if(this.seconds>=8){this.hold+=dt;if(this.hold>=HOLD_SECONDS)this.seek(0);}else{this.seconds=Math.min(8,this.seconds+dt*rate(this.id,this.state,this.command,this.slow));this.dirty=true;}}if(!this.dirty)return;this.dirty=false;
    const e=this.e,{scene,camera}=this.c,pose=sample(this.id,this.seconds,this.state,this.command);this.coach.update(pose.phase*1.22,pose.move,'one_two',{...pose.options,keepFaceClear:true,simulationTime:this.seconds});
    let opponentPhase=null;if(this.opponent){opponentPhase=this.state.opening===false?0:this.seconds<1.5?0:this.seconds<4?Math.min(.95,(this.seconds-1.5)/2.5):.95;this.opponent.update(opponentPhase*1.22,this.seconds<1.5||this.state.opening===false?'guard':'jab','one_two',{keepFaceClear:true,simulationTime:this.seconds});}
    const size=e.renderer.getSize(new THREE.Vector2());camera.aspect=Math.max(.1,size.x/size.y);const target=V(0,this.opponent?1.36:1.13,0),height=this.opponent?3.2:2.65,width=this.opponent?3.8:1.55,distance=Math.max(height/(2*Math.tan(camera.fov*Math.PI/360)),width/(2*Math.tan(camera.fov*Math.PI/360)*camera.aspect))+.3,angle=this.opponent?(this.angle==='quarter'?.35:0):(this.angle==='side'?Math.PI/2:this.angle==='front'?0:.55);
@@ -56,5 +60,5 @@
    const restore=()=>{if(e.gamePreviewToken!==this.token||e.targetMode!==this.oldMode||e.arena?.fightView!==this.oldFight)return;const c=e.camera,v=e.viewControls,s=this.saved;c.position.copy(s.position);c.quaternion.copy(s.quaternion);c.zoom=s.zoom;c.userData.orbitTarget=s.orbit;if(v){v.yaw=s.yaw;v.target=s.target;v.offset=s.offset;}if(e.arena?.fightView)e.arena.fightView.userView=s.userView;c.updateProjectionMatrix();e.lastRenderStamp=null;};restore();requestAnimationFrame(()=>requestAnimationFrame(restore));
   }
  }
- window.FightIQDemo={Demo,sample,sequences};
+ window.FightIQDemo={Demo,sample,sequences,rate,UNIT_SECONDS};
 })();

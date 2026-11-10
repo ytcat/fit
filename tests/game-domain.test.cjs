@@ -85,4 +85,61 @@ function grant(s,id,more){const result=s.award(event(s,id,more));assert.ok(resul
  // A failed save leaves coins and ownership untouched.
  grant(reloaded,'earn-b');grant(reloaded,'earn-c');const before=reloaded.export();disk.fail=true;assert.equal(reloaded.gameAction({type:'combo-buy',comboId:'counter_chain'}).ok,false);assert.equal(reloaded.export(),before);disk.fail=false;assert.equal(reloaded.gameAction({type:'combo-buy',comboId:'counter_chain'}).ok,true);
 }
-console.log('PASS R1 catalog, ledger, migration, idempotence beyond 200, purchase/equip, profile isolation, watch guardrails, four unlock routes, loadout slots, atomic failure, backup recovery, import validation and bounded local evidence history');
+{
+ // GOTR-0007: passing a Fight Academy lesson pays 15 coins once and unlocks that combo. No XP, no combat stats.
+ const L=require('../academy-lesson.js'),clone=v=>JSON.parse(JSON.stringify(v));
+ const proof=(id,gap=400)=>{const c=D.combos.find(c=>c.id===id),v=L.create(c.sequence);let t=0,ev;for(let run=0;run<3;run++)for(const m of c.sequence)ev=v.input(m,t+=gap);assert.equal(ev.type,'pass');return ev.evidence;};
+ const pass=(s,id,evidence=proof(id))=>s.gameAction({type:'lesson',comboId:id,evidence});
+ const {s,disk}=setup();assert.deepEqual(D.lesson,{coins:15,repetitions:3,windowMs:2000,rule:'academy-lesson-v1'});assert.equal(D.lessonPassed(s.game(),'first_rhythm'),false);
+ const points=clone(s.current().boxers.lion.points),ratings=s.ratings('lion'),first=pass(s,'first_rhythm');
+ assert.equal(first.ok,true);assert.equal(first.first,true);assert.equal(first.unlocked,true);assert.equal(first.coins,15);assert.equal(first.transactionId,'lesson:first_rhythm');assert.deepEqual(first.equipped,['training','fight']);assert.deepEqual(first.loadout,{training:true,fight:true});
+ assert.deepEqual(s.game().combos,{owned:['first_rhythm'],training:['first_rhythm'],fight:['first_rhythm']});assert.equal(s.wallet().coins,15);assert.equal(s.wallet().xp,0);assert.equal(D.lessonPassed(s.game(),'first_rhythm'),true);
+ assert.deepEqual(s.game().ledger.at(-1),{id:'lesson:first_rhythm',type:'earn',coins:15,xp:0,rule:'academy-lesson-v1',lessonId:'first_rhythm',evidence:proof('first_rhythm')});
+ assert.deepEqual(s.current().boxers.lion.points,points,'a lesson never changes combat attributes');assert.deepEqual(s.ratings('lion'),ratings);assert.equal(s.current().boxers.lion.xp+s.current().boxers.rabbit.xp,0);assert.equal(s.game().activity.completed,0);assert.deepEqual(s.game().history,[]);
+ // Practising again pays nothing and changes nothing, even with a different valid proof.
+ const rows=s.game().ledger.length,again=pass(s,'first_rhythm',proof('first_rhythm',900));assert.equal(again.ok,true);assert.equal(again.first,false);assert.equal(again.unlocked,false);assert.equal(again.coins,0);assert.deepEqual(again.equipped,[]);assert.equal(again.transactionId,undefined);assert.equal(s.wallet().coins,15);assert.equal(s.game().ledger.length,rows);
+ // A removed loadout choice is respected when practising again.
+ assert.equal(s.gameAction({type:'combo',comboId:'first_rhythm',mode:'fight',enabled:false}).ok,true);assert.deepEqual(pass(s,'first_rhythm').loadout,{training:true,fight:false});assert.deepEqual(s.game().combos.fight,[]);
+ // Evidence must be three exact, in-tempo run-throughs of this combo.
+ const before=s.export(),good=proof('corner_turn'),edit=change=>{const e=clone(good);change(e);return e;};
+ for(const bad of [null,{},[],'jab,cross,hook',edit(e=>e.version=2),edit(e=>e.reps.pop()),edit(e=>e.reps.push(clone(e.reps[0]))),edit(e=>e.reps[1].moves[2]='cross'),edit(e=>e.reps[0].moves.pop()),edit(e=>{e.reps[0].moves.push('hook');e.reps[0].ms.push(900);}),edit(e=>e.reps[2].ms[1]=2001),edit(e=>e.reps[2].ms[2]=100),edit(e=>e.reps[0].ms[0]=5),edit(e=>e.reps[0].ms[1]=1.5),edit(e=>e.reps[0].ms[1]=-1),edit(e=>e.reps[0].ms='0,400,800'),edit(e=>e.reps[0].note='trust me'),edit(e=>e.score=100),proof('first_rhythm')]){const r=pass(s,'corner_turn',bad);assert.equal(r.ok,false,JSON.stringify(bad));assert.match(r.error,/lesson evidence/i);}
+ assert.equal(pass(s,'made_up',good).ok,false);assert.equal(s.gameAction({type:'lesson'}).ok,false);assert.match(s.gameAction({type:'lesson',comboId:'corner_turn'}).error,/lesson evidence/i,'a lesson cannot be claimed without proof');assert.equal(s.export(),before,'rejected lessons change nothing');assert.equal(D.lessonPassed(s.game(),'corner_turn'),false);
+ assert.equal(pass(s,'corner_turn',edit(e=>e.reps[0].ms=[0,2000,4000])).ok,true,'gaps exactly at the tempo window are accepted');
+ // A failed save grants neither coins nor the combo.
+ const safe=s.export();disk.fail=true;const failed=pass(s,'counter_chain');assert.equal(failed.ok,false);assert.equal(s.export(),safe);assert.equal(s.game().combos.owned.includes('counter_chain'),false);disk.fail=false;
+ // Reload and backup keep the lesson, the coins and the combo.
+ const reloaded=new CareerStore(disk);assert.deepEqual(reloaded.game().combos.owned,['first_rhythm','corner_turn']);assert.equal(reloaded.wallet().coins,30);assert.equal(D.lessonPassed(reloaded.game(),'corner_turn'),true);assert.equal(pass(reloaded,'corner_turn').coins,0,'a reload does not pay again');
+ const valid=reloaded.export(),target=setup().s;assert.equal(target.import(valid),1);assert.deepEqual(target.game().combos.owned,['first_rhythm','corner_turn']);assert.equal(target.wallet().coins,30);assert.equal(pass(target,'first_rhythm').coins,0,'an imported backup does not pay again');
+ // Forged or malformed lesson rows are rejected on import; the current save is untouched.
+ const forge=change=>{const data=JSON.parse(valid).data,g=data.profiles[0].game;change(g,g.ledger.find(t=>t.id==='lesson:corner_turn'));return JSON.stringify(data);};
+ assert.throws(()=>reloaded.import(forge(g=>g.combos.owned.push('school_signature'))),/Invalid combo unlock/);
+ assert.throws(()=>reloaded.import(forge((g,row)=>{row.coins=999;})),/Invalid lesson reward/);
+ assert.throws(()=>reloaded.import(forge((g,row)=>{row.type='baseline';row.coins=0;})),/Invalid lesson reward/);
+ assert.throws(()=>reloaded.import(forge((g,row)=>{row.rule='activity-v1';})),/Invalid lesson reward/);
+ assert.throws(()=>reloaded.import(forge((g,row)=>{row.lessonId='first_rhythm';})),/Invalid lesson reward/);
+ assert.throws(()=>reloaded.import(forge((g,row)=>{row.id='lesson:school_signature';row.lessonId='school_signature';})),/Invalid lesson reward/,'a lesson row cannot stand in for a combo that is not owned');
+ assert.throws(()=>reloaded.import(forge((g,row)=>{row.bonus=1;})),/Invalid lesson reward/);
+ assert.throws(()=>reloaded.import(forge((g,row)=>{delete row.evidence;})),/lesson evidence/i);
+ assert.throws(()=>reloaded.import(forge((g,row)=>{row.evidence.reps.pop();})),/lesson evidence/i);
+ assert.throws(()=>reloaded.import(forge((g,row)=>{row.evidence.reps[0].moves=['jab','cross'];row.evidence.reps[0].ms=[0,400];})),/Lesson evidence/);
+ assert.throws(()=>reloaded.import(forge(g=>g.ledger.push({id:'reward:fake',type:'earn',coins:15,xp:0,rule:'academy-lesson-v1'}))),/Invalid lesson reward/);
+ assert.throws(()=>reloaded.import(forge(g=>g.ledger.push({id:'lesson:thunder_arc',type:'earn',coins:500,xp:0,rule:'gift'}))),/Invalid lesson reward/);
+ assert.throws(()=>reloaded.import(forge((g,row)=>g.ledger.push(clone(row)))),/Invalid ledger/,'a lesson cannot be paid twice');
+ assert.throws(()=>reloaded.import(forge((g,row)=>{g.combos.owned=['first_rhythm'];g.combos.training=['first_rhythm'];g.combos.fight=[];})),/Invalid lesson reward/,'a paid lesson always carries its combo');
+ assert.throws(()=>reloaded.import(forge((g,row)=>{row.xp=40;})));assert.equal(reloaded.export(),valid);
+ // Shop and activity routes still work next to lessons and never double-pay or double-own.
+ assert.match(reloaded.gameAction({type:'combo-buy',comboId:'corner_turn'}).error,/Already owned/);assert.equal(reloaded.wallet().coins,30);
+ assert.equal(reloaded.gameAction({type:'combo-buy',comboId:'corner_turn'}).ok,false);grant(reloaded,'lesson-era-activity');assert.equal(reloaded.wallet().coins,65);
+ const bought=reloaded.gameAction({type:'combo-buy',comboId:'counter_chain'});assert.equal(bought.ok,true);assert.equal(reloaded.wallet().coins,25);
+ const late=pass(reloaded,'counter_chain');assert.equal(late.ok,true);assert.equal(late.first,true);assert.equal(late.unlocked,false,'already bought: the lesson still pays once but unlocks nothing new');assert.equal(late.coins,15);assert.equal(reloaded.wallet().coins,40);assert.equal(reloaded.game().combos.owned.filter(id=>id==='counter_chain').length,1);
+ for(let i=0;i<3;i++)grant(reloaded,'lesson-era-fight-'+i,{mode:'fight',result:'win'});assert.ok(reloaded.game().combos.owned.includes('thunder_arc'),'activity unlock still works');
+ // Loadouts: free slots are filled, full loadouts are left alone and reported.
+ assert.deepEqual(reloaded.game().combos.fight,['corner_turn','counter_chain']);assert.equal(reloaded.gameAction({type:'combo',comboId:'first_rhythm',mode:'fight',enabled:true}).ok,true);
+ const full=pass(reloaded,'thunder_arc');assert.equal(full.unlocked,false);assert.deepEqual(full.equipped,['training']);assert.deepEqual(full.loadout,{training:true,fight:false});assert.equal(reloaded.game().combos.fight.length,3);
+ assert.deepEqual(pass(reloaded,'rolling_return').equipped,['training']);const last=pass(reloaded,'school_signature');assert.equal(last.unlocked,true);assert.deepEqual(last.equipped,[]);assert.deepEqual(last.loadout,{training:false,fight:false});assert.equal(reloaded.game().combos.training.length,5);
+ assert.deepEqual(new Set(reloaded.game().combos.owned),new Set(D.combos.map(c=>c.id)));assert.equal(reloaded.game().ledger.filter(t=>t.rule==='academy-lesson-v1').length,6);assert.equal(reloaded.game().ledger.filter(t=>t.rule==='academy-lesson-v1').reduce((n,t)=>n+t.coins,0),90,'six lessons pay ninety coins in total, once');
+ assert.equal(new CareerStore(disk).wallet().coins,reloaded.wallet().coins);
+ // Saves written before lessons existed load unchanged.
+ const old=setup();grant(old.s,'pre-lesson');old.s.gameAction({type:'combo-buy',comboId:'corner_turn'});const oldRaw=old.s.export(),oldStore=new CareerStore(old.disk);assert.equal(oldStore.export(),oldRaw);assert.deepEqual(oldStore.game().combos.owned,['first_rhythm','corner_turn']);assert.equal(D.lessonPassed(oldStore.game(),'first_rhythm'),false);assert.equal(pass(oldStore,'first_rhythm').coins,15,'an activity-earned combo can still collect its lesson reward once');
+}
+console.log('PASS R1 catalog, ledger, migration, idempotence beyond 200, purchase/equip, profile isolation, watch guardrails, four unlock routes, loadout slots, atomic failure, backup recovery, import validation, bounded local evidence history and Academy lesson rewards (pay once, unlock, reload/backup, forged rows rejected)');

@@ -1,0 +1,118 @@
+/* Glory of the Ring design tokens (GOTR-0015).
+   Every UI colour, radius, control size and type step comes from here.
+   Re-theme the app by changing VALUES in this file only; see docs/design-system.md. */
+:root{
+  color-scheme:dark;
+
+  /* Neutrals: cool near-black, no green or brown tint. Background -> surface -> raised. */
+  --gr-bg:#090c11;
+  --gr-surface:#10141b;
+  --gr-surface-2:#171c25;
+  --gr-surface-3:#212836;
+  --gr-surface-4:#2c3546;
+  --gr-border:#283040;
+  --gr-border-strong:#3d4759;
+  --gr-text:#f4f6fa;
+  --gr-text-muted:#a3adbd;
+  --gr-text-faint:#7c8799;
+
+  /* Accent ("red corner"): primary actions and selection. One value drives fills and tints. */
+  --gr-accent-rgb:225 29 46;
+  --gr-accent:rgb(var(--gr-accent-rgb));
+  --gr-accent-hover:#cc1828;
+  --gr-accent-press:#b01321;
+  --gr-accent-ink:#fff;
+  --gr-accent-text:#ff7480;
+  --gr-accent-soft:rgb(var(--gr-accent-rgb)/.13);
+  --gr-accent-line:rgb(var(--gr-accent-rgb)/.6);
+
+  /* Info ("blue corner"): information and keyboard focus. */
+  --gr-info-rgb:76 141 255;
+  --gr-info:rgb(var(--gr-info-rgb));
+  --gr-info-text:#8fb8ff;
+  --gr-info-soft:rgb(var(--gr-info-rgb)/.16);
+  --gr-info-line:rgb(var(--gr-info-rgb)/.55);
+  --gr-focus:var(--gr-info);
+
+  /* Gold: coins, prices, titles and rewards ONLY. */
+  --gr-gold-rgb:244 193 82;
+  --gr-gold:rgb(var(--gr-gold-rgb));
+  --gr-gold-ink:#1f1602;
+  --gr-gold-soft:rgb(var(--gr-gold-rgb)/.14);
+  --gr-gold-line:rgb(var(--gr-gold-rgb)/.45);
+
+  /* Semantic */
+  --gr-success-rgb:62 207 142;
+  --gr-success:rgb(var(--gr-success-rgb));
+  --gr-success-soft:rgb(var(--gr-success-rgb)/.14);
+  --gr-success-line:rgb(var(--gr-success-rgb)/.5);
+  --gr-warning-rgb:245 165 36;
+  --gr-warning:rgb(var(--gr-warning-rgb));
+  --gr-warning-soft:rgb(var(--gr-warning-rgb)/.14);
+  --gr-warning-line:rgb(var(--gr-warning-rgb)/.5);
+  --gr-danger-rgb:255 93 93;
+  --gr-danger:rgb(var(--gr-danger-rgb));
+  --gr-danger-soft:rgb(var(--gr-danger-rgb)/.14);
+
+  /* Fight corners keep their meaning whatever the accent is. */
+  --gr-corner-red:#f04a4a;
+  --gr-corner-blue:#4c8dff;
+
+  /* Layers over the 3D scene and behind dialogs */
+  --gr-scrim:rgb(4 6 10/.74);
+  --gr-scene-chip:rgb(9 12 17/.78);
+  --gr-scene-chip-strong:rgb(9 12 17/.92);
+  --gr-scene-line:rgb(255 255 255/.18);
+  --gr-hairline:rgb(255 255 255/.08);
+  --gr-stage-top:#232a36;
+  --gr-stage-bottom:#0c1016;
+
+  /* Radii */
+  --gr-radius-xs:6px;
+  --gr-radius-s:8px;
+  --gr-radius-m:12px;
+  --gr-radius-l:16px;
+  --gr-radius-pill:999px;
+
+  /* Control scale: icon 36-40 square, standard 40-44 high, small 32-36 high */
+  --gr-control-h:44px;
+  --gr-control-h-m:40px;
+  --gr-control-h-s:36px;
+  --gr-control-h-xs:32px;
+  --gr-icon-btn:40px;
+  --gr-icon-btn-s:36px;
+
+  /* Type: system fonts only (the app works offline) */
+  --gr-font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Noto Sans Hebrew",Arial,sans-serif;
+  --gr-font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --gr-fs-2xs:10px;
+  --gr-fs-xs:11px;
+  --gr-fs-s:12px;
+  --gr-fs-m:14px;
+  --gr-fs-l:16px;
+  --gr-fs-xl:20px;
+  --gr-fs-2xl:24px;
+  --gr-fs-3xl:32px;
+  --gr-fw-regular:500;
+  --gr-fw-medium:600;
+  --gr-fw-bold:700;
+  --gr-fw-heavy:800;
+  --gr-label-spacing:.08em;
+
+  /* Spacing: 4-point scale */
+  --gr-space-1:4px;
+  --gr-space-2:8px;
+  --gr-space-3:12px;
+  --gr-space-4:16px;
+  --gr-space-5:20px;
+  --gr-space-6:24px;
+
+  /* Elevation and motion */
+  --gr-shadow-color:rgb(0 0 0/.6);
+  --gr-shadow-1:0 1px 2px rgb(0 0 0/.4);
+  --gr-shadow-2:0 8px 24px rgb(0 0 0/.38);
+  --gr-shadow-3:0 24px 72px rgb(0 0 0/.62);
+  --gr-ease:.15s ease;
+}
+/* Uppercase tracking does not suit Hebrew letterforms. */
+[dir=rtl],:lang(he){--gr-label-spacing:0}
