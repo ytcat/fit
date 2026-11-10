@@ -180,6 +180,7 @@ These nine reports were recorded from the user's latest message. **None is marke
 - **Reported behavior / request:** Opponent and coach stand too close; the jab should extend straight at an appropriate distance.
 - **Implementation:** Coach mitt contact currently measured at56.3° elbow /47.5% extension. Clean sparring/fight jabs already reach172.3°/171.1°; inspect visual crowding separately and preserve contact stops on blocked punches. No spacing change published yet.
 - **Evidence:** New matched real-app views and contact tests required before resolving.
+- **Investigation 2026-11-10 (no code change yet):** Reproduced headlessly. In mitt work the pad face sits only 0.22 from the boxer's guard knuckle (partner roots 1.20 apart; arm 0.66 + glove 0.20). Jab contact: 49% arm extension, 58° elbow; cross: 47%, 55°. The punch lands because the shoulder lunges 0.45–0.56 forward while the arm stays folded. Moving the trainer back alone does **not** fix it: at 1.35–1.55 root separation jab/cross stop touching the pad (peak extension stays 67–81%) and the roll no longer scores, while hooks/uppercuts still land. So the fix needs the straight-punch reach in mitt mode plus spacing/roll retuning together, not a single distance constant.
 
 ### GOTR-0013 — Rename Fight IQ to Fight Academy and give it a designed look
 - **Reported:** 2026-11-10
@@ -216,3 +217,4 @@ These nine reports were recorded from the user's latest message. **None is marke
 | Date | Agent / branch | Completed & verified | Still open | Application link |
 |---|---|---|---|---|
 | 2026-11-09 | Backlog setup / main | Created persistent intake workflow | Awaiting user reports | Not verified |
+| 2026-11-10 | Claude / `claude/serene-cannon-riwk4l` → main | GOTR-0006 combo controls (`d47da6f`), GOTR-0013 part 1 Fight Academy rename (`31a17bd`): full suite 76/76, CI green, deployed and re-checked on the live site. GOTR-0001 slice 1 Shop header button (`9945b10`): suite 76/76 and CI green; first Pages deployment timed out on GitHub's side (`syncing_files`), redeployed with this commit. | GOTR-0012 measured (see entry), GOTR-0001 remainder, 0002–0005, 0007, 0013 redesign, 0008/0009 later | https://ytcat.github.io/fit/ |
