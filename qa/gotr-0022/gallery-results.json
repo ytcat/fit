@@ -1,0 +1,146 @@
+[
+ {
+  "tag": "393x852-en",
+  "columns": 3,
+  "scrolls": false,
+  "dialog": [
+   19,
+   118,
+   374,
+   734
+  ],
+  "cardHeight": 126
+ },
+ {
+  "tag": "393x852-he",
+  "columns": 3,
+  "scrolls": false,
+  "dialog": [
+   19,
+   136,
+   374,
+   716
+  ],
+  "cardHeight": 114
+ },
+ {
+  "tag": "393x852-ru",
+  "columns": 3,
+  "scrolls": false,
+  "dialog": [
+   19,
+   118,
+   374,
+   734
+  ],
+  "cardHeight": 126
+ },
+ {
+  "tag": "360x640-en",
+  "columns": 3,
+  "scrolls": false,
+  "dialog": [
+   19,
+   22,
+   341,
+   618
+  ],
+  "cardHeight": 119
+ },
+ {
+  "tag": "360x640-he",
+  "columns": 3,
+  "scrolls": false,
+  "dialog": [
+   19,
+   33,
+   341,
+   607
+  ],
+  "cardHeight": 107
+ },
+ {
+  "tag": "360x640-ru",
+  "columns": 3,
+  "scrolls": false,
+  "dialog": [
+   19,
+   22,
+   341,
+   618
+  ],
+  "cardHeight": 119
+ },
+ {
+  "tag": "852x393-en",
+  "columns": 5,
+  "scrolls": true,
+  "dialog": [
+   19,
+   24,
+   833,
+   369
+  ],
+  "cardHeight": 112
+ },
+ {
+  "tag": "852x393-he",
+  "columns": 5,
+  "scrolls": true,
+  "dialog": [
+   19,
+   24,
+   833,
+   369
+  ],
+  "cardHeight": 112
+ },
+ {
+  "tag": "852x393-ru",
+  "columns": 5,
+  "scrolls": true,
+  "dialog": [
+   19,
+   24,
+   833,
+   369
+  ],
+  "cardHeight": 112
+ },
+ {
+  "tag": "1366x768-en",
+  "columns": 5,
+  "scrolls": false,
+  "dialog": [
+   213,
+   97,
+   1153,
+   671
+  ],
+  "cardHeight": 165
+ },
+ {
+  "tag": "1366x768-he",
+  "columns": 5,
+  "scrolls": false,
+  "dialog": [
+   213,
+   97,
+   1153,
+   671
+  ],
+  "cardHeight": 165
+ },
+ {
+  "tag": "1366x768-ru",
+  "columns": 5,
+  "scrolls": false,
+  "dialog": [
+   213,
+   97,
+   1153,
+   671
+  ],
+  "cardHeight": 165
+ }
+]

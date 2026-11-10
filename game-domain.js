@@ -4,7 +4,7 @@
  const worldRules=typeof module!=='undefined'?require('./game-world.js'):window.GameWorld;
  const iqRules=typeof module!=='undefined'?require('./fight-iq.js'):window.FightIQ;
  const accessories=typeof module!=='undefined'?require('./game-accessories.js'):window.GameAccessories;
- const venueIds=Object.freeze(['default','neon_strip','harbor_dome','underground','street','championship']);
+ const venueIds=Object.freeze(['default','neon_strip','harbor_dome','street','boxing_club','underground','docks','regional','championship']);
  const slots=['gloves','shorts','boots','belt'],species=['lion','rabbit'];
  const palette=[['default',0,0xc53d32],['midnight',25,0x27334c],['jade',75,0x208675],['sunrise',150,0xe8a341]];
  const catalog=slots.flatMap(slot=>palette.map(([variant,price,color])=>({id:slot+'_'+variant,slot,variant,price,color:variant==='default'?{gloves:0xc53d32,shorts:0x202535,boots:0x202535,belt:0xd8ad4a}[slot]:color,species:[...species],name:(slot==='belt'?'Cosmetic band':slot[0].toUpperCase()+slot.slice(1))+' · '+variant,names:{en:(slot==='belt'?'Cosmetic band':slot)+' · '+variant,he:({gloves:'כפפות',shorts:'מכנסיים',boots:'נעליים',belt:'חגורה קוסמטית'}[slot])+' · '+({default:'בסיס',midnight:'חצות',jade:'ירקן',sunrise:'זריחה'}[variant]),ru:({gloves:'Перчатки',shorts:'Шорты',boots:'Ботинки',belt:'Декоративный пояс'}[slot])+' · '+({default:'базовый',midnight:'полночь',jade:'нефрит',sunrise:'рассвет'}[variant])}})));

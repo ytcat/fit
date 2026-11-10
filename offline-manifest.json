@@ -54,6 +54,7 @@
     "./ringside-layout.js?v=2026110905",
     "./game-shell.css?v=2026111012",
     "./design-system.css?v=2026111012",
+    "./arena-gallery.css?v=2026111100",
     "./game-world-art.js?v=2026110905",
     "./game-tournament-ui.js?v=2026110904",
     "./game-world-ui.js?v=2026111002",
@@ -93,8 +94,11 @@
     "./assets/venues/default.png?v=2026110905",
     "./assets/venues/neon_strip.png?v=2026110905",
     "./assets/venues/harbor_dome.png?v=2026110905",
-    "./assets/venues/underground.png?v=2026110905",
     "./assets/venues/street.png?v=2026110905",
+    "./assets/venues/boxing_club.png?v=2026110905",
+    "./assets/venues/underground.png?v=2026110905",
+    "./assets/venues/docks.png?v=2026110905",
+    "./assets/venues/regional.png?v=2026110905",
     "./assets/venues/championship.png?v=2026110905"
   ]
 }
