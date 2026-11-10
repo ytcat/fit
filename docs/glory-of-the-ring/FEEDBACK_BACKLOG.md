@@ -152,6 +152,7 @@
 - **Expected behavior:** Unique, original varied animal and human-inspired fantasy fighters across weight/size classes, named personalities, consistent readable ratings and strengths/weaknesses, adaptive attack patterns and training-based challenge readiness. Show height/mass differences realistically while balancing hitboxes and fairness. Example ORIGINAL archetypes: agile small fox, counterpuncher wolf, large heavyweight bear, fast female cyberboxer, theatrical media personality, oversized green powerhouse — not copies of recognizable protected characters.
 - **Acceptance criteria:** Each new fighter has unique mesh, face, clothing, stance, signature combo, AI behavior, scale/collision profile, reactions, intro and progression reward; visual quality matches existing lion baseline and phone performance passes. Opponent rating is explainable and does not guarantee victory.
 - **Legal boundary:** Do NOT add Vi (League of Legends), Hulk, movie figures, Trump likeness/name or other recognizable characters/real people without verified applicable rights and approval. Original fictional characters or appropriately licensed integrations are viable instead; keep intentional differences in names, designs and characterization.
+- **User follow-up 2026-11-10:** "Also add more avatars as discussed in the PRD." Queued to start once the mitt-range branch (which changes the shared fighter rig file) is merged.
 - **Implementation:** Not started; complex art/rig pipeline and licensing assessment required.
 - **Evidence:** Future approved character sheets and 360° rendered QA.
 
@@ -260,6 +261,53 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Expected behavior:** Clean jabs and crosses land at range with a nearly straight arm and visible hip → chest → shoulder → arm sequencing; fighters keep or create punching range instead of throwing cramped straights chest to chest.
 - **Acceptance criteria:** Measured elbow angle and arm extension at contact for landed straights in real fights (Play and Watch), both species; matched before/after renders; blocked punches still stop at the guard; no regression in scoring, KO or existing contact tests.
 - **Implementation:** Assigned to the fight-range agent. Related: GOTR-0012 (mitt work).
+- **Evidence:** Pending.
+
+## Intake session — 2026-11-10 (third message)
+
+### GOTR-0019 — Lockable side-view camera in fights and training
+- **Reported:** 2026-11-10
+- **Status:** OPEN (queued for the camera/graphics agent)
+- **Priority:** P1
+- **Area:** Camera / controls
+- **Reported behavior / request:** "Add a task to lock and unlock the camera during a fight or training to a side view. If I click, it positions the camera on a side view and locks on this position, so if the fighters move the camera will always see both from the side. The side camera tilt will be locked but zoom will still work by the user."
+- **Expected behavior:** One clearly labelled toggle in fights and at every training station. On: the camera moves smoothly to a true side view, keeps both fighters (or the fighter and the equipment) framed as they move, ignores orbit/tilt gestures, and still obeys pinch/wheel zoom. Off: the previous free camera returns.
+- **Acceptance criteria:** Both fighters stay fully in frame during a whole fight and a mitt session at phone and desktop sizes; tilt/orbit input does nothing while locked; zoom works within sensible limits; state survives round changes and station changes; EN/HE/RU label; no judder.
+- **Implementation:** Not started.
+- **Evidence:** Pending.
+
+### GOTR-0020 — Fight intro: 360° arena fly-around that settles on the fighters
+- **Reported:** 2026-11-10
+- **Status:** OPEN (queued for the camera/graphics agent)
+- **Priority:** P2
+- **Area:** Fight presentation / camera
+- **Reported behavior / request:** "Before every fight, start with a rotating 360-degree view of the stadium and zoom in slowly until it gets to the position where both players are in starting position."
+- **Expected behavior:** A short cinematic orbit around the arena that slowly closes in and ends exactly on the normal fight framing with both fighters in their corners/stance; then the bell. Skippable with a tap; shortened or skipped for reduced-motion users; does not eat into the 20-second fight clock.
+- **Acceptance criteria:** Smooth, no clipping through arena geometry, ends without a camera jump, works in every arena style, skip works, fight timing and results unchanged.
+- **Implementation:** Not started.
+- **Evidence:** Pending.
+
+### GOTR-0021 — Designed health bars and fighter names with "VS"
+- **Reported:** 2026-11-10
+- **Status:** OPEN (queued as a follow-up for the design agent)
+- **Priority:** P1
+- **Area:** Fight HUD / design
+- **Reported behavior / request:** "Replace the health bars with more designed ones, design the names above the bars better and add 'vs' between them."
+- **Expected behavior:** A broadcast-style HUD: two styled health bars that drain toward the centre with clear damage feedback, well-set fighter names above them, a "VS" badge between, consistent with the new design system; readable over any arena.
+- **Acceptance criteria:** Phone portrait/landscape and desktop; EN/HE/RU (RTL mirrors correctly, names never clip); health values still accurate; no overlap with round banner or move buttons.
+- **Implementation:** Not started.
+- **Evidence:** Pending.
+
+### GOTR-0022 — More arenas: street, boxing club, underground, docks hangar, professional tiers
+- **Reported:** 2026-11-10
+- **Status:** OPEN (queued; needs the fight and Academy branches merged first)
+- **Priority:** P2
+- **Area:** Arenas / world
+- **Reported behavior / request:** "I want additional arenas: a street fight (boxing in the street with an audience), a boxing club, an underground arena (illegal fighting theme), docks (a hangar in a port), and a few professional arenas from simple to championship arena."
+- **Expected behavior:** New selectable arena styles with distinct architecture, lighting, crowd and mood: street ring with onlookers; local boxing club; gritty underground venue; port hangar; and a ladder of professional venues ending in a championship arena. Original, fictional signage only. Existing three styles remain.
+- **Acceptance criteria:** Each arena recognisable at a glance in its gallery card and in a fight; no change to combat; frame cost measured per arena with a phone-safe budget; selection saved per player; EN/HE/RU names.
+- **Dependencies / risks:** Arena ids are validated in the save rules; several arenas at broadcast quality is days of art work — deliver in batches, best ones first.
+- **Implementation:** Not started.
 - **Evidence:** Pending.
 
 ## Parallel work in progress — 2026-11-10
