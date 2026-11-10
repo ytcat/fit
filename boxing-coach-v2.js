@@ -1042,7 +1042,7 @@
         const direction=move==='slip'?(options.defenceSide||1):move==='hook'?-1:move==='rear_hook'?1:-1;
         const length=(move==='jab'?.085:move==='cross'?.045:move.includes('uppercut')?.17:.025)+(options.advance||0);
         return {z:length*transfer,x:lateralMove?direction*.045*transfer:0,
-          lift:.018*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
+          lift:(options.stepLift??.018)*(Math.sin(Math.PI*out)**2+Math.sin(Math.PI*back)**2)};
       };
       switch(move) {
         case 'jab':
