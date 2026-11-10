@@ -8,7 +8,7 @@ urls+=re.findall(r'(?:src|href)=[\"\'](\./[^\"\']+)[\"\']',html)
 urls+=re.findall(r"fetch\('(\./assets/models/[^']+)'",html)
 urls += ['./'+str(p.relative_to(root))+'?v=79' for p in sorted((root/'assets/audio').glob('*.wav'))]
 urls += ['./assets/club/lion.svg','./assets/club/rabbit.svg']
-urls+=['./assets/venues/'+name+'.png?v=2026110905' for name in ['default','neon_strip','harbor_dome']]
+urls+=['./assets/venues/'+name+'.png?v=2026110905' for name in ['default','neon_strip','harbor_dome','underground','street','championship']]
 urls=list(dict.fromkeys(urls))
 for url in urls:
     if not (root/url.split('?')[0]).is_file():

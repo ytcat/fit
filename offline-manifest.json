@@ -32,6 +32,7 @@
     "./fight-iq.js?v=2026110801",
     "./game-accessories.js?v=2026110901",
     "./game-venues.js?v=2026110905",
+    "./arena-sets.js?v=2026111100",
     "./game-tournament.js?v=2026110904",
     "./academy-lesson.js?v=2026111011",
     "./game-domain.js?v=2026111011",
@@ -91,6 +92,9 @@
     "./assets/club/rabbit.svg",
     "./assets/venues/default.png?v=2026110905",
     "./assets/venues/neon_strip.png?v=2026110905",
-    "./assets/venues/harbor_dome.png?v=2026110905"
+    "./assets/venues/harbor_dome.png?v=2026110905",
+    "./assets/venues/underground.png?v=2026110905",
+    "./assets/venues/street.png?v=2026110905",
+    "./assets/venues/championship.png?v=2026110905"
   ]
 }

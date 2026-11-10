@@ -9,7 +9,7 @@ const unchanged=(items,materials=true)=>{for(const s of items){if(materials)asse
 const originals=snapshot(e.world.arena),ringOriginals=snapshot(e.arena.fightView.ring),protectedRoots=[e.world.gym,coach.root,e.arena.fightView.coaches.rabbit.root,e.arena.fightView.referee.root,e.arena.fightView.audience.root],protectedSnapshots=protectedRoots.map(snapshot),camera=snapshot(e.camera),fight=JSON.stringify(e.arena.fightView.match);
 const allOriginalMaterials=new Set([...originals,...ringOriginals,...protectedSnapshots.flat()].map(n=>n.material).filter(Boolean));
 const originalColors=new Map([...allOriginalMaterials].map(m=>[m,m.color?.toArray()]));
-assert.equal(venues.catalog.length,3);for(const v of venues.catalog)for(const l of ['en','he','ru'])assert.ok(v.names[l]&&v.description[l]);
+assert.deepEqual(venues.catalog.slice(0,3).map(v=>v.id),['default','neon_strip','harbor_dome']);assert.ok(venues.catalog.length>=6);for(const v of venues.catalog)for(const l of ['en','he','ru'])assert.ok(v.names[l]&&v.description[l]);
 assert.equal(venues.apply({},'neon_strip').reason,'arena_not_ready');assert.equal(venues.apply(e,'bad').reason,'unknown_venue');
 const ownedMaterials=new Set(),ownedTextures=new Set();
 function collect(){for(const root of [e.world.arena,e.arena.fightView.ring])root.traverse(n=>{if(n.material&&!allOriginalMaterials.has(n.material)){ownedMaterials.add(n.material);if(n.material.map&&!Array.from(allOriginalMaterials).some(m=>m.map===n.material.map))ownedTextures.add(n.material.map);}});}
