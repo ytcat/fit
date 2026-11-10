@@ -117,7 +117,7 @@
 
 ### GOTR-0007 — Make Fight IQ a guided interactive lesson, not a confusing menu
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS
+- **Status:** DONE (published 2026-11-10, `40256fc`; user to confirm it is now understandable)
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Fight IQ / tutorial / usability
@@ -126,7 +126,9 @@
 - **Acceptance criteria:** Novice can find Fight IQ, finish an interactive demo, correctly execute a specified 2-3 move sequence, see and understand feedback and continue to a next lesson; touch UI and localization verified. Never claim a combo was correctly performed just because buttons were randomly tapped.
 - **User follow-up 2026-11-10 (after the visual redesign):** "I still don't understand how to use it. The concept is the same… what you show me is some tips and we see how it's done very, very slowly for some reason, and what next? I'm stuck. What should I do with this information? Should this somehow affect the fighter? … How does this contribute to the game?"
 - **Decision 2026-11-10:** Rebuild the Academy around combo lessons with a visible purpose: **Watch** the coach at real speed → **Repeat** it with the real move buttons (exact order and timing checked) → **Use it** in a fight. Passing a lesson unlocks that combo for the fighter and pays coins once. The existing decision quizzes become a clearly optional section. Assigned to the Academy agent.
-- **Implementation:** In progress (Academy agent).
+- **Implementation (`agent/academy`):** Landing shows three steps (Watch, Repeat ×3, Fight), one line ("Buy a combo in the Shop — or earn it here") and six lessons, one per combo; quizzes and coach notes are closed secondary groups; the demonstration plays at real speed. A lesson runs on the real training stage: a short skippable watch, then the combo's move names as boxes that fill when the right real move buttons are pressed in order and tempo; a wrong or slow press clears only the current run-through; three successful run-throughs pass. Passing pays 15 coins once (`lesson:<combo>` ledger row), unlocks and equips the combo, and offers "Try it in a fight". Lesson logic is a pure module (`academy-lesson.js`); stage controller `academy-stage.js`; styles `academy.css`.
+- **Evidence:** `tests/academy-lesson.test.cjs`, extended `tests/game-domain.test.cjs` and `tests/fight-iq.test.cjs`; `qa/gotr-0007/browser.cjs` in the real app at four sizes in EN/HE/RU: wrong move named, too-slow and combo-button presses rejected, three run-throughs → +15 coins, combo unlocked, equipped and usable in a fight, reload keeps it, random tapping (57 taps) earns nothing. Full suite 79/79. Re-run on the live site: all six lessons passed with the real buttons (90 coins once; practising again pays 0).
+- **Remaining:** combo is granted after the third run-through in the Academy (not after also using it in a fight); individual single moves are not taught as lessons yet.
 - **Evidence:** Pending lesson walkthrough, interaction tests and recordings.
 
 ### GOTR-0008 — Long-term 3D explorable adventure world connecting gyms, quests and boss fights
@@ -256,14 +258,16 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0018 — Straight punches in fights must fully extend with body rotation
 - **Reported:** 2026-11-10
-- **Status:** IN PROGRESS
+- **Status:** DONE (published 2026-11-10, `6f56434`; user to confirm the feel)
 - **Priority:** P1
 - **Area:** Fight mechanics / realism
 - **Reported behavior / request:** "In the fight, if I hit with a jab or cross he has to straighten his whole arm and move his body a bit so the punch comes from the back to the shoulder to the arm to the fist. Currently the punch does not straighten the arm; he punches with his arm at 90°, which is not correct, not accurate and not real."
 - **Expected behavior:** Clean jabs and crosses land at range with a nearly straight arm and visible hip → chest → shoulder → arm sequencing; fighters keep or create punching range instead of throwing cramped straights chest to chest.
 - **Acceptance criteria:** Measured elbow angle and arm extension at contact for landed straights in real fights (Play and Watch), both species; matched before/after renders; blocked punches still stop at the guard; no regression in scoring, KO or existing contact tests.
-- **Implementation:** Assigned to the fight-range agent. Related: GOTR-0012 (mitt work).
-- **Evidence:** Pending.
+- **Diagnosis (measured, 12 seeded fights per case):** fighters started a straight 1.22–1.27 apart, where the guards touch; 73–95% of landed straights were stopped by the guard with the elbow at about 110° — the "90° punch". The earlier 171° claim was a staged clean hit one frame after contact.
+- **Implementation (`agent/fight-range`, all in `fight-arena.js`):** stance holds 1.74–1.88 range including the opening; a reach controller shifts the striker's weight so the glove meets its target at the end of the extension; head straights aim at the face surface; committed straights follow the opponent's steps; hooks and uppercuts step in from range; straights score the drive carried into the target so landing at full extension is not weaker.
+- **Evidence:** `qa/gotr-0018/` (README, `stats.md`, before/after renders). Same six seeds: clean straights elbow median 132–149° → 156–160°, extension 91–96% → about 98%; blocked straights elbow median 108–113° → 136–147°, extension 81–83% → 93–96%. New `tests/fight-range.test.cjs`. Full suite 78/78 on the merged tree; GitHub checks run on `main`.
+- **Remaining / limits:** blocked punches still stop at the guard, so the arm is not fully straight there (lowest tenth about 100°); judged from still frames and statistics, not motion video; physical phones untested.
 
 ## Intake session — 2026-11-10 (third message)
 

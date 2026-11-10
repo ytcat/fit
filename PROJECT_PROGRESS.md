@@ -1,3 +1,11 @@
+## 2026-11-10 — Fight straights at range and Fight Academy lessons (GOTR-0018, GOTR-0007)
+
+Fighters hold boxing range and straights land extended (clean about 98% extension;
+blocked ones stop at the guard with a much straighter arm). Fight Academy teaches each
+combo on the real stage: watch, repeat with the real buttons three times, earn the
+combo and 15 coins once, then try it in a fight. Both published and re-checked.
+[Fight evidence](qa/gotr-0018/) · [Academy evidence](qa/gotr-0007/).
+
 ## 2026-11-10 — Mitt work at real punching range (GOTR-0012)
 
 Mitt partners stand at jab range and the jab and cross land with a straight arm
