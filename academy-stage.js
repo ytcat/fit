@@ -59,7 +59,7 @@
   }
   function render(){
    const L=lesson;if(!L)return;const t=w(),u=L.ui,s=L.validator.state(),watching=L.phase==='watch',title=comboName(L.combo.id);
-   u.hud.dir=app.lang==='he'?'rtl':'ltr';u.hud.dataset.phase=L.phase;u.hud.setAttribute('aria-label',t.lesson+': '+title);
+   u.hud.dir=app.lang==='he'?'rtl':'ltr';u.hud.lang=app.lang;u.hud.dataset.phase=L.phase;u.hud.setAttribute('aria-label',t.lesson+': '+title);
    L.boxes.forEach((b,i)=>{b.textContent=label(L.combo.sequence[i]);});u.row.setAttribute('aria-label',title);
    u.name.textContent=(L.index+1)+' · '+title;u.name.hidden=!watching;
    u.pips.hidden=watching&&!s.reps;u.pips.setAttribute('aria-label',fill(t.runs,{n:s.reps,total:s.required}));L.pips.forEach((p,i)=>{p.dataset.on=String(i<s.reps);p.textContent=i<s.reps?'✓':'';});
