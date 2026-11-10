@@ -22,6 +22,8 @@
  icons.fight='<path d="M4 12h32v23H4zM4 19h32M4 27h32M10 7l7 4-2 10-7-3zM30 7l-7 4 2 10 7-3z"/>';
  function boot(){
   const app=window.app;if(!app)return;const e=app.engine,w=()=>text[app.lang]||text.en;
+  // GOTR-0016: variable (asynchronous) practice rhythm is the default; Synchronized stays one tap away.
+  if(!e.practiceTiming)e.practiceTiming='random';
   const make=(tag,cls,label)=>{const n=document.createElement(tag);n.className=cls;if(label)n.textContent=label;return n;};
   const footer=document.querySelector('footer'),bar=make('div','training-bar');bar.id='trainingBar';
   const target=make('button','workout-tool'),combo=make('button','workout-tool'),fight=make('button','workout-tool fight-launch');fight.id='fightBtn';fight.type='button';fight.onclick=()=>window.fightUI?.configure();target.id='equipmentBtn';combo.id='combinationBtn';target.type=combo.type='button';
@@ -109,9 +111,9 @@
   timing.onclick=()=>{
    if(e.targetMode==='fight')return;
    const d=dialog(w().timing),grid=make('div','routine-grid');
-   for(const value of ['sync','random']){
+   for(const value of ['random','sync']){
     const b=make('button','routine-choice');b.type='button';b.dataset.timing=value;
-    b.setAttribute('aria-pressed',String((e.practiceTiming||'sync')===value));
+    b.setAttribute('aria-pressed',String((e.practiceTiming||'random')===value));
     b.append(make('strong','',value==='sync'?w().sync:w().variable),make('span','',value==='sync'?w().syncHelp:w().variableHelp));
     b.onclick=()=>{e.practiceTiming=value;e.practiceSeed=Math.floor(Math.random()*4294967295);e.animTime=0;e.arena?.setTarget(e.targetMode||'none');paint();d.close();};grid.append(b);
    }

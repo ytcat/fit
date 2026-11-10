@@ -1,3 +1,10 @@
+## 2026-11-10 — Variable practice rhythm by default (GOTR-0016); second feedback intake
+
+Variable rhythm is now the default at every training station; Synchronized stays one
+tap away. New user feedback recorded as GOTR-0014 to GOTR-0018 and follow-ups on
+GOTR-0007/0012; work continues on parallel isolated branches.
+[Evidence](qa/gotr-0016/) · [Backlog](docs/glory-of-the-ring/FEEDBACK_BACKLOG.md).
+
 ## 2026-11-10 — Buy combos with coins; Shop fits every screen (GOTR-0004 slice 1, GOTR-0001 slice 2)
 
 Combos can be bought with earned coins in the Shop's new Combos category or from

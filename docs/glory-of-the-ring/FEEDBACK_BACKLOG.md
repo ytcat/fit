@@ -117,14 +117,16 @@
 
 ### GOTR-0007 — Make Fight IQ a guided interactive lesson, not a confusing menu
 - **Reported:** 2026-11-09
-- **Status:** OPEN
+- **Status:** IN PROGRESS
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Fight IQ / tutorial / usability
 - **Reported behavior / request:** User does not understand how to use Fight IQ. Wants the system to teach by showing a move/combination and then asking the player to click the exact move buttons to recreate it.
 - **Expected behavior:** A short progressive tutorial: choose concept (e.g. jab–cross–hook, defense/counter), show slow motion and clear move order, coach explains when/why, let player practice via highlighted move buttons, recognize exact sequence and timing, provide immediate understandable success/correction feedback and replay, then let the user repeat independently. First lesson requires no reading long docs. Optional hints/skip/retry, control legends and accessibility.
 - **Acceptance criteria:** Novice can find Fight IQ, finish an interactive demo, correctly execute a specified 2-3 move sequence, see and understand feedback and continue to a next lesson; touch UI and localization verified. Never claim a combo was correctly performed just because buttons were randomly tapped.
-- **Implementation:** Not started; assess current Fight IQ logic and gesture/input validation before changing.
+- **User follow-up 2026-11-10 (after the visual redesign):** "I still don't understand how to use it. The concept is the same… what you show me is some tips and we see how it's done very, very slowly for some reason, and what next? I'm stuck. What should I do with this information? Should this somehow affect the fighter? … How does this contribute to the game?"
+- **Decision 2026-11-10:** Rebuild the Academy around combo lessons with a visible purpose: **Watch** the coach at real speed → **Repeat** it with the real move buttons (exact order and timing checked) → **Use it** in a fight. Passing a lesson unlocks that combo for the fighter and pays coins once. The existing decision quizzes become a clearly optional section. Assigned to the Academy agent.
+- **Implementation:** In progress (Academy agent).
 - **Evidence:** Pending lesson walkthrough, interaction tests and recordings.
 
 ### GOTR-0008 — Long-term 3D explorable adventure world connecting gyms, quests and boss fights
@@ -177,11 +179,12 @@ These nine reports were recorded from the user's latest message. **None is marke
 
 ### GOTR-0012 — Correct coach/opponent spacing for straight jabs
 - **Reported:** 2026-11-09
-- **Status:** TRIAGE
+- **Status:** IN PROGRESS
 - **Priority:** P1
 - **Area:** Mitt training / sparring / fight
 - **Reported behavior / request:** Opponent and coach stand too close; the jab should extend straight at an appropriate distance.
 - **Implementation:** Coach mitt contact currently measured at56.3° elbow /47.5% extension. Clean sparring/fight jabs already reach172.3°/171.1°; inspect visual crowding separately and preserve contact stops on blocked punches. No spacing change published yet.
+- **User follow-up 2026-11-10:** "I mentioned multiple times that during coach training with mitts they have to stand a bit farther from each other… the punch does not straighten the arm; he punches with his arm at 90°." Assigned to the mitt-range agent; fight straights tracked in GOTR-0018.
 - **Evidence:** New matched real-app views and contact tests required before resolving.
 - **Investigation 2026-11-10 (no code change yet):** Reproduced headlessly. In mitt work the pad face sits only 0.22 from the boxer's guard knuckle (partner roots 1.20 apart; arm 0.66 + glove 0.20). Jab contact: 49% arm extension, 58° elbow; cross: 47%, 55°. The punch lands because the shoulder lunges 0.45–0.56 forward while the arm stays folded. Moving the trainer back alone does **not** fix it: at 1.35–1.55 root separation jab/cross stop touching the pad (peak extension stays 67–81%) and the roll no longer scores, while hooks/uppercuts still land. So the fix needs the straight-punch reach in mitt mode plus spacing/roll retuning together, not a single distance constant. Root cause detail: the jab is a step-in punch — lead foot +0.15, hips +0.20, lead shoulder +0.45 toward the coach — while the hand target is the pad itself, so arm extension is only what is left between the advanced shoulder and the pad (about 0.25). A ~90% extended contact needs the pad about 0.73 ahead of the shoulder at contact, i.e. roughly 0.47 more range for straights, while hooks, uppercuts and the coach's roll sweep need the current close range. Planned fix: two ranges in the drill (long for jab/cross, close for the rest) with real stepping, the coach catching straights nearer their own shoulder, and updated spacing tests; needs multi-angle visual QA.
 
@@ -200,6 +203,64 @@ These nine reports were recorded from the user's latest message. **None is marke
 - **Redesign (2026-11-10, part 2):** Academy landing now has a hero panel (emblem, tagline, real progress bar of solved decision variants out of 18), six numbered lesson cards with three progress pips each and a full-width gold action button (card turns green when all three variants are solved), corner notes as cards with a seen marker, and the coach-tip setting as its own row. The lesson screen shows the lesson number/title, numbered answer choices and green/amber feedback. Learning rules, IDs, rewards and saved progress are unchanged (`fight-iq-ui.js`, `game-shell.css`). Fixed during QA: intro text no longer runs under the close button; the Hebrew progress count kept left-to-right order ("0 / 18", not "18 / 0").
 - **Redesign evidence:** `qa/gotr-0013/design-*.webp` and `design-browser.cjs` — real app, EN/HE/RU at 393×852, 360×640 and 1366×768: 6 lessons, 12 notes, no clipped card/button, no horizontal scroll, buttons ≥40 px, hero not under the close button; answering a lesson (wrong then right) colours feedback and the landing meter/pips rise to the saved progress; zero page errors.
 - **Remaining:** guided show-then-repeat lesson with real move buttons (GOTR-0007).
+
+## Intake session — 2026-11-10 (second message)
+User tested the published build. Wording below is the user's request, lightly cleaned from dictation. Work is split across parallel agents on isolated branches (requested by the user), integrated and published by one integrator.
+
+### GOTR-0014 — Proportional, relevant buttons everywhere
+- **Reported:** 2026-11-10
+- **Status:** IN PROGRESS
+- **Priority:** P1
+- **Area:** UI / design system
+- **Reported behavior / request:** "The buttons are not proportional. For example in Fight Academy the X button that closes the card is huge. Every button has to be proportional and relevant."
+- **Expected behavior:** One consistent control scale (icon, small, standard, primary) applied to every screen; the dialog close button is a normal icon button without an oversized focus box; no decorative or duplicate buttons.
+- **Acceptance criteria:** Before/after screenshots of every dialog and toolbar at phone and desktop sizes in EN/HE/RU; close buttons ≤ 44 px; touch targets ≥ 40 px where space allows; no clipped labels; existing layout QA scripts still pass.
+- **Implementation:** Assigned to the design-system agent together with GOTR-0015.
+- **Evidence:** Pending.
+
+### GOTR-0015 — Professional visual redesign and new colour system
+- **Reported:** 2026-11-10
+- **Status:** IN PROGRESS
+- **Priority:** P1 (user: "very, very important")
+- **Area:** Visual design / whole app
+- **Reported behavior / request:** "Initially we designed this with a kind of brown-orange theme. I'd like something more advanced, professional and good looking… it looks like an amateur app, so please invest in thinking how to make it better and redesign the whole app eventually."
+- **Expected behavior:** A coherent design system (colour tokens, type scale, spacing, radii, button and card styles) replacing the brown/orange-gold look with a modern sports-app palette; applied consistently to header, navigation, training and fight controls, dialogs, Shop, Academy, World and results.
+- **Acceptance criteria:** All UI colours come from shared tokens; contrast is readable; EN/HE/RU and phone/desktop screenshots; two or three alternative accent palettes captured from the real app for the user to choose; existing layout/flow QA scripts pass.
+- **Implementation:** Assigned to the design-system agent. Default direction chosen by the integrator: near-black cool neutrals, white text, one strong accent, gold reserved for coins and titles.
+- **Evidence:** Pending.
+
+### GOTR-0016 — Variable ("asynchronous") practice rhythm by default
+- **Reported:** 2026-11-10
+- **Status:** READY FOR QA
+- **Priority:** P2
+- **Area:** Training
+- **Reported behavior / request:** "Change the synchronous punches that are the default to asynchronous by default everywhere."
+- **Investigation:** This is the existing **Practice rhythm** setting: "Synchronized" (evenly paced) was the default; "Variable" (quick combinations, slower reads, unpredictable pauses) was optional.
+- **Implementation (2026-11-10):** Variable is now the default for every training station and is listed first; Synchronized remains one tap away (`training-controls.js`). Low-level fallbacks used by headless tests are unchanged.
+- **Evidence:** `qa/gotr-0016/browser.cjs` — real app: default is Variable on heavy bag, speed bag, shadow and mitts; choosing Synchronized still works. Related tests pass.
+- **Remaining:** The mitt-work auto sequence has its own fixed 1.2-second beat; making it follow Variable rhythm is handed to the mitt agent (GOTR-0012).
+
+### GOTR-0017 — More realistic, smoother graphics
+- **Reported:** 2026-11-10
+- **Status:** IN PROGRESS
+- **Priority:** P2
+- **Area:** Rendering / performance
+- **Reported behavior / request:** "If you can run in parallel a few additional engines that improve the graphics and make everything a bit more realistic and a bit more smooth, it will be great."
+- **Investigation:** The renderer already uses antialiasing, sRGB output, ACES tone mapping, soft shadows and a capped pixel ratio, so gains must come from frame pacing, lighting/material polish and adaptive quality rather than switching features on.
+- **Acceptance criteria:** Measured before/after frame times; matched before/after renders; no change to poses, contacts or scoring; phone-size performance not worse; quality toggle preserved.
+- **Implementation:** Assigned to the graphics agent.
+- **Evidence:** Pending.
+
+### GOTR-0018 — Straight punches in fights must fully extend with body rotation
+- **Reported:** 2026-11-10
+- **Status:** IN PROGRESS
+- **Priority:** P1
+- **Area:** Fight mechanics / realism
+- **Reported behavior / request:** "In the fight, if I hit with a jab or cross he has to straighten his whole arm and move his body a bit so the punch comes from the back to the shoulder to the arm to the fist. Currently the punch does not straighten the arm; he punches with his arm at 90°, which is not correct, not accurate and not real."
+- **Expected behavior:** Clean jabs and crosses land at range with a nearly straight arm and visible hip → chest → shoulder → arm sequencing; fighters keep or create punching range instead of throwing cramped straights chest to chest.
+- **Acceptance criteria:** Measured elbow angle and arm extension at contact for landed straights in real fights (Play and Watch), both species; matched before/after renders; blocked punches still stop at the guard; no regression in scoring, KO or existing contact tests.
+- **Implementation:** Assigned to the fight-range agent. Related: GOTR-0012 (mitt work).
+- **Evidence:** Pending.
 
 ### Issue template
 

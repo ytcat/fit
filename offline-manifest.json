@@ -1,5 +1,5 @@
 {
-  "version": "combobuy-20261110f",
+  "version": "rhythm-20261110g",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -36,7 +36,7 @@
     "./career-progress.js?v=2026110905",
     "./game-presentation.js?v=2026110901",
     "./fight-ui.js?v=2026110901",
-    "./training-controls.js?v=2026110710",
+    "./training-controls.js?v=2026111007",
     "./character-roster.js?v=2026110607",
     "./ring-camera.js?v=2026110703",
     "./club-world.js?v=2026110905",
