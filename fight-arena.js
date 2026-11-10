@@ -201,9 +201,9 @@
     if(spec.attack){
      options.planStraight=true;options.extendStraight=spec.move==='jab'||spec.move==='cross';if(options.extendStraight)options.armReachMargin=.003;options.strikeDirection=[0,0,1];
      let target=this.target(actor,spec);
-      // A committed straight still tracks the opponent's steps across the
-      // ring; only a slip, roll or duck takes the head off its line.
-      if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(f.action.aimRoot?V(...f.action.aim).add(this.coaches[other(actor)].root.position).sub(V(...f.action.aimRoot)).setY(f.action.aim[1]):V(...f.action.aim)));
+     // A committed straight still tracks the opponent's steps across the
+     // ring; only a slip, roll or duck takes the head off its line.
+     if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(f.action.aimRoot?V(...f.action.aim).add(this.coaches[other(actor)].root.position).sub(V(...f.action.aimRoot)).setY(f.action.aim[1]):V(...f.action.aim)));
      const through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(.035);
      options.knuckleTarget=target.add(through).toArray();options.strikeHeight=target.y-.035;
      options.advance=spec.move.includes('uppercut')?.08:spec.move.includes('hook')?.065:.025;
@@ -344,7 +344,6 @@
      }
      state.shift=clamp(state.shift+clamp(change,-.022,.022),-FightArena.range.back,FightArena.range.forward);
     }else if(!straight||spec.phase>.60||action.recorded&&m.time-action.contactTime>.10)state.shift*=Math.exp(-(1/60)/.16);
-    if(m.phase!=='round')state.shift=0;
    }
   }
   separateTorso(sync=true){
@@ -480,12 +479,13 @@
     const coach=this.coaches[actor],spec=this.specs[actor],key=actor+side,world=coach.root.localToWorld(V(...this.metrics[actor].gloves[index].knuckles));
     const current=this.arena.group.worldToLocal(world.clone()),previous=this.previous[key]||current,velocity=current.clone().sub(previous).divideScalar(dt);
     // A straight now lands at the end of its extension, where the hand is
-    // already easing out. Score the drive it carried in over the last 0.1 s.
+    // already easing out. Score half the peak drive of the last 0.1 s, which
+    // matches the contact speeds measured when straights landed mid-flight.
     const drive=(this.drives=this.drives||{})[key]||(this.drives[key]=[]);drive.push(velocity);if(drive.length>6)drive.shift();
     if(spec.attack&&side===(rear(spec.move)?'R':'L')&&spec.phase>.18&&spec.phase<.78&&!m.fighters[actor].action?.recorded){
      const count=Math.max(1,Math.ceil(previous.distanceTo(current)/.018));let contact=null;
      for(let i=1;i<=count;i++){const hit=this.collision(this.arena.group.localToWorld(previous.clone().lerp(current,i/count)),other(actor));if(hit.penetration>0){contact=hit;break;}}
-     if(contact){const normal=contact.normal.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion()).invert()),impact=spec.move==='jab'||spec.move==='cross'?drive.reduce((best,v)=>-v.dot(normal)>-best.dot(normal)?v:best,velocity):velocity,speed=Math.max(0,-impact.dot(normal),spec.move.includes('uppercut')?Math.max(0,velocity.y)*.70:0);const direction=impact.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion())).applyQuaternion(this.coaches[other(actor)].root.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize().toArray();samples.push({normal:contact.normal.toArray(),direction,pushDirection:impact.clone().setY(0).normalize().toArray(),actor,action:spec.id,part:contact.part,speed,point:contact.point.toArray(),side:contact.side==='L'?-1:contact.side==='R'?1:(this.coaches[other(actor)].root.worldToLocal(contact.point.clone()).x<0?-1:1),hand:side,receiver:other(actor)});}
+     if(contact){const normal=contact.normal.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion()).invert()),impact=spec.move==='jab'||spec.move==='cross'?drive.reduce((best,v)=>-v.dot(normal)>-best.dot(normal)?v:best,velocity):velocity,speed=Math.max(0,-velocity.dot(normal),impact===velocity?0:-impact.dot(normal)*.5,spec.move.includes('uppercut')?Math.max(0,velocity.y)*.70:0);const direction=impact.clone().applyQuaternion(this.arena.group.getWorldQuaternion(new THREE.Quaternion())).applyQuaternion(this.coaches[other(actor)].root.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize().toArray();samples.push({normal:contact.normal.toArray(),direction,pushDirection:impact.clone().setY(0).normalize().toArray(),actor,action:spec.id,part:contact.part,speed,point:contact.point.toArray(),side:contact.side==='L'?-1:contact.side==='R'?1:(this.coaches[other(actor)].root.worldToLocal(contact.point.clone()).x<0?-1:1),hand:side,receiver:other(actor)});}
     }
     this.previous[key]=current;
     if(spec.attack&&spec.phase>.15&&spec.phase<.7&&m.phase==='round'){m.roundStats[actor].control+=dt;m.totals[actor].control+=dt;}
