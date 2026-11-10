@@ -1,0 +1,27 @@
+/* Arena gallery with nine cards (GOTR-0022). Base card styles stay in game-shell.css / design-system.css. */
+.game-venue-gallery{width:min(700px,96vw)}
+.game-venue-gallery .venue-gallery-grid{gap:var(--gr-space-2,8px)}
+.game-venue-gallery .venue-choice{min-height:var(--gr-control-h,44px);border-radius:var(--gr-radius-m,12px)}
+.game-venue-gallery .venue-choice img{max-height:104px;background:var(--gr-surface-2,#1a2230)}
+.game-venue-gallery .venue-choice strong{overflow-wrap:anywhere;hyphens:auto}
+.game-venue-gallery .venue-description{min-height:3.2em;margin:8px 0 0}
+/* Phone landscape and other short, wide screens: five across so two rows show nine arenas. */
+@media(max-height:500px) and (min-width:640px){
+ .game-venue-gallery{width:min(840px,96vw)}
+ .game-venue-gallery .venue-gallery-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+ .game-venue-gallery .venue-choice img{max-height:58px}
+ .game-venue-gallery .venue-choice strong{font-size:11px;min-height:1.3em}
+ .game-venue-gallery .venue-choice small{font-size:10px}
+ .game-venue-gallery .venue-description{min-height:0;margin:5px 0 0}
+}
+/* Desktop and tablets: five across so all nine arenas show without scrolling. */
+@media(min-width:900px) and (min-height:501px){
+ .game-venue-gallery{width:min(940px,96vw)}
+ .game-venue-gallery .venue-gallery-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .game-venue-gallery .venue-choice strong{font-size:13px;min-height:2.6em}
+}
+/* Narrow phones: keep three columns readable. */
+@media(max-width:520px){
+ .game-venue-gallery .venue-choice img{max-height:72px}
+ .game-venue-gallery .venue-choice strong{font-size:11px;line-height:1.25;min-height:2.5em}
+}

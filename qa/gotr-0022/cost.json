@@ -1,0 +1,209 @@
+{
+ "default": {
+  "desktop": {
+   "calls": 539,
+   "triangles": 1152499,
+   "geometries": 411,
+   "textures": 30,
+   "programs": 39
+  },
+  "wide": {
+   "calls": 533,
+   "triangles": 1151753,
+   "geometries": 414,
+   "textures": 31,
+   "programs": 39
+  },
+  "phone": {
+   "calls": 460,
+   "triangles": 1143971,
+   "geometries": 403,
+   "textures": 39,
+   "programs": 39
+  }
+ },
+ "neon_strip": {
+  "desktop": {
+   "calls": 539,
+   "triangles": 1152499,
+   "geometries": 413,
+   "textures": 34,
+   "programs": 39
+  },
+  "wide": {
+   "calls": 533,
+   "triangles": 1151753,
+   "geometries": 414,
+   "textures": 35,
+   "programs": 39
+  },
+  "phone": {
+   "calls": 460,
+   "triangles": 1143971,
+   "geometries": 403,
+   "textures": 39,
+   "programs": 39
+  }
+ },
+ "harbor_dome": {
+  "desktop": {
+   "calls": 539,
+   "triangles": 1152499,
+   "geometries": 413,
+   "textures": 38,
+   "programs": 39
+  },
+  "wide": {
+   "calls": 533,
+   "triangles": 1151753,
+   "geometries": 414,
+   "textures": 39,
+   "programs": 39
+  },
+  "phone": {
+   "calls": 460,
+   "triangles": 1143971,
+   "geometries": 403,
+   "textures": 39,
+   "programs": 39
+  }
+ },
+ "street": {
+  "desktop": {
+   "calls": 399,
+   "triangles": 1152053,
+   "geometries": 429,
+   "textures": 40,
+   "programs": 42
+  },
+  "wide": {
+   "calls": 396,
+   "triangles": 1147131,
+   "geometries": 433,
+   "textures": 40,
+   "programs": 42
+  },
+  "phone": {
+   "calls": 384,
+   "triangles": 1148421,
+   "geometries": 414,
+   "textures": 40,
+   "programs": 42
+  }
+ },
+ "boxing_club": {
+  "desktop": {
+   "calls": 396,
+   "triangles": 1136303,
+   "geometries": 426,
+   "textures": 40,
+   "programs": 41
+  },
+  "wide": {
+   "calls": 395,
+   "triangles": 1135407,
+   "geometries": 431,
+   "textures": 40,
+   "programs": 41
+  },
+  "phone": {
+   "calls": 381,
+   "triangles": 1133935,
+   "geometries": 411,
+   "textures": 40,
+   "programs": 41
+  }
+ },
+ "underground": {
+  "desktop": {
+   "calls": 398,
+   "triangles": 1150551,
+   "geometries": 428,
+   "textures": 40,
+   "programs": 42
+  },
+  "wide": {
+   "calls": 396,
+   "triangles": 1147275,
+   "geometries": 432,
+   "textures": 40,
+   "programs": 42
+  },
+  "phone": {
+   "calls": 385,
+   "triangles": 1143875,
+   "geometries": 415,
+   "textures": 40,
+   "programs": 42
+  }
+ },
+ "docks": {
+  "desktop": {
+   "calls": 397,
+   "triangles": 1144835,
+   "geometries": 427,
+   "textures": 40,
+   "programs": 42
+  },
+  "wide": {
+   "calls": 397,
+   "triangles": 1143667,
+   "geometries": 433,
+   "textures": 40,
+   "programs": 42
+  },
+  "phone": {
+   "calls": 382,
+   "triangles": 1138955,
+   "geometries": 412,
+   "textures": 40,
+   "programs": 42
+  }
+ },
+ "regional": {
+  "desktop": {
+   "calls": 396,
+   "triangles": 1139651,
+   "geometries": 426,
+   "textures": 40,
+   "programs": 41
+  },
+  "wide": {
+   "calls": 397,
+   "triangles": 1138231,
+   "geometries": 432,
+   "textures": 40,
+   "programs": 41
+  },
+  "phone": {
+   "calls": 380,
+   "triangles": 1134779,
+   "geometries": 410,
+   "textures": 40,
+   "programs": 41
+  }
+ },
+ "championship": {
+  "desktop": {
+   "calls": 401,
+   "triangles": 1158041,
+   "geometries": 431,
+   "textures": 40,
+   "programs": 42
+  },
+  "wide": {
+   "calls": 400,
+   "triangles": 1153201,
+   "geometries": 438,
+   "textures": 40,
+   "programs": 42
+  },
+  "phone": {
+   "calls": 384,
+   "triangles": 1144849,
+   "geometries": 414,
+   "textures": 40,
+   "programs": 42
+  }
+ }
+}

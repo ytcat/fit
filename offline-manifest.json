@@ -1,5 +1,5 @@
 {
-  "version": "hud-20261110m",
+  "version": "arenas-20261110n",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -32,6 +32,7 @@
     "./fight-iq.js?v=2026110801",
     "./game-accessories.js?v=2026110901",
     "./game-venues.js?v=2026110905",
+    "./arena-sets.js?v=2026111100",
     "./game-tournament.js?v=2026110904",
     "./academy-lesson.js?v=2026111011",
     "./game-domain.js?v=2026111011",
@@ -55,6 +56,7 @@
     "./game-shell.css?v=2026111012",
     "./design-system.css?v=2026111012",
     "./fight-hud.css?v=2026111014",
+    "./arena-gallery.css?v=2026111100",
     "./game-world-art.js?v=2026110905",
     "./game-tournament-ui.js?v=2026110904",
     "./game-world-ui.js?v=2026111002",
@@ -94,6 +96,12 @@
     "./assets/club/rabbit.svg",
     "./assets/venues/default.png?v=2026110905",
     "./assets/venues/neon_strip.png?v=2026110905",
-    "./assets/venues/harbor_dome.png?v=2026110905"
+    "./assets/venues/harbor_dome.png?v=2026110905",
+    "./assets/venues/street.png?v=2026110905",
+    "./assets/venues/boxing_club.png?v=2026110905",
+    "./assets/venues/underground.png?v=2026110905",
+    "./assets/venues/docks.png?v=2026110905",
+    "./assets/venues/regional.png?v=2026110905",
+    "./assets/venues/championship.png?v=2026110905"
   ]
 }
