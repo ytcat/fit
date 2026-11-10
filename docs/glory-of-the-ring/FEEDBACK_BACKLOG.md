@@ -184,7 +184,7 @@ These nine reports were recorded from the user's latest message. **None is marke
 
 ### GOTR-0013 — Rename Fight IQ to Fight Academy and give it a designed look
 - **Reported:** 2026-11-10
-- **Status:** IN PROGRESS — rename READY FOR QA; redesign not started
+- **Status:** IN PROGRESS — rename published; landing/lesson redesign READY FOR QA; guided show-and-repeat lesson tracked in GOTR-0007
 - **Priority:** P1
 - **Delivery:** NOW — rename as a small release; visual redesign delivered with the GOTR-0007 guided lesson
 - **Area:** Fight IQ / branding / UI design
@@ -194,6 +194,9 @@ These nine reports were recorded from the user's latest message. **None is marke
 - **Dependencies / risks:** Coordinate with GOTR-0007 so the redesign and guided lesson share one layout. Keep internal IDs (`IQ-*`, `learn` tab) unchanged to avoid save migration.
 - **Implementation (2026-11-10, branch `claude/serene-cannon-riwk4l`):** Rename done: EN "Fight Academy", HE "אקדמיית הקרב", RU "Академия боя" in the toolbar button, World hub button and Academy screen title/loading text (`fight-iq-ui.js`, `game-shell.js`, `game-world-ui.js`). Internal IDs, file names, `learn` tab and saved progress unchanged. Redesign not started; planned with GOTR-0007. Observed during QA: on phones the intro line runs under the close button — fix in the redesign.
 - **Evidence:** `qa/gotr-0013/` — real-app check in EN/HE/RU at 393×852 and 1366×768: new name in toolbar, World and screen title; no old name visible; zero page errors. `tests/fight-iq.test.cjs` and `tests/club-interface.test.cjs` pass.
+- **Redesign (2026-11-10, part 2):** Academy landing now has a hero panel (emblem, tagline, real progress bar of solved decision variants out of 18), six numbered lesson cards with three progress pips each and a full-width gold action button (card turns green when all three variants are solved), corner notes as cards with a seen marker, and the coach-tip setting as its own row. The lesson screen shows the lesson number/title, numbered answer choices and green/amber feedback. Learning rules, IDs, rewards and saved progress are unchanged (`fight-iq-ui.js`, `game-shell.css`). Fixed during QA: intro text no longer runs under the close button; the Hebrew progress count kept left-to-right order ("0 / 18", not "18 / 0").
+- **Redesign evidence:** `qa/gotr-0013/design-*.webp` and `design-browser.cjs` — real app, EN/HE/RU at 393×852, 360×640 and 1366×768: 6 lessons, 12 notes, no clipped card/button, no horizontal scroll, buttons ≥40 px, hero not under the close button; answering a lesson (wrong then right) colours feedback and the landing meter/pips rise to the saved progress; zero page errors.
+- **Remaining:** guided show-then-repeat lesson with real move buttons (GOTR-0007).
 
 ### Issue template
 

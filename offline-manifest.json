@@ -1,5 +1,5 @@
 {
-  "version": "shop-20261110c",
+  "version": "academy-20261110d",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -49,12 +49,12 @@
     "./fight-presentation.js?v=2026110901",
     "./ringside-layout.css?v=2026110905",
     "./ringside-layout.js?v=2026110905",
-    "./game-shell.css?v=2026111003",
+    "./game-shell.css?v=2026111004",
     "./game-world-art.js?v=2026110905",
     "./game-tournament-ui.js?v=2026110904",
     "./game-world-ui.js?v=2026111002",
     "./fight-iq-demo.js?v=2026110801",
-    "./fight-iq-ui.js?v=2026111002",
+    "./fight-iq-ui.js?v=2026111004",
     "./game-resume.js?v=2026110902",
     "./game-resume-ui.js?v=2026110902",
     "./game-venues-ui.js?v=2026110905",

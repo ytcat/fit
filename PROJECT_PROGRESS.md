@@ -1,3 +1,10 @@
+## 2026-11-10 — Fight Academy designed landing and lesson screens (GOTR-0013, part 2)
+
+Hero panel with real progress (solved variants / 18), numbered lesson cards with
+progress pips, styled corner notes, numbered answer choices and coloured feedback.
+Learning rules and saved progress unchanged. Verified in the real app in EN/HE/RU at
+three sizes. [Evidence](qa/gotr-0013/).
+
 ## 2026-11-10 — Shop entry on every screen (GOTR-0001, slice 1)
 
 The unlabeled coin chip is now a gold **🛒 Shop · coins** header button on every

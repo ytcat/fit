@@ -34,3 +34,53 @@ body.game-enabled[data-training=rope].manual-active .manual-controls{display:blo
 .game-wallet-coins{padding:2px 7px;border-radius:999px;background:#21180c26;font-weight:650;font-variant-numeric:tabular-nums}
 @media(max-width:420px){.game-wallet{gap:4px;padding:6px 8px}.game-wallet-coins{padding:1px 5px}}
 @media(max-width:350px){.game-wallet-label{display:none}}
+/* GOTR-0013: Fight Academy visual design (landing hero, numbered lesson cards, notes, answer choices). */
+.game-academy .iq-body{margin-top:14px}
+.academy-hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px 14px;align-items:center;padding:16px;border-radius:16px;border:1px solid #8a7445;background:radial-gradient(130% 150% at 0 0,#3b3018 0,#1e2b2d 55%,#172124 100%);box-shadow:inset 0 1px 0 #ffffff14,0 6px 18px #0004}
+.academy-emblem{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,#f0d28e,#c4954a);box-shadow:0 4px 14px #0006,inset 0 1px 0 #fff6}
+.academy-emblem svg{width:34px;height:34px;fill:#2a1d0c}
+.academy-tagline{margin:0 0 4px;font-size:17px;font-weight:700;line-height:1.25;color:#f6e7c3}
+.academy-hero .game-muted{margin:0}
+.academy-meter{grid-column:1/-1;display:flex;align-items:center;gap:10px}
+.academy-meter-bar{flex:1;height:10px;border-radius:999px;background:#0e1517;border:1px solid #3c4a48;overflow:hidden}
+.academy-meter-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#c99c4f,#f0d28e)}
+.academy-meter strong{font-size:13px;white-space:nowrap;color:#f0d9a6;font-variant-numeric:tabular-nums}
+.game-academy h3.academy-heading{display:flex;align-items:center;gap:10px;margin:22px 0 12px!important;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:#d9c391}
+.academy-heading::after{content:"";flex:1;height:1px;background:#6b5c3a80}
+.academy-lessons{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.academy-lesson{display:flex;flex-direction:column;gap:10px;padding:14px;border-color:#4a5650;background:linear-gradient(180deg,#212e31,#1a2528)}
+.academy-lesson:hover{border-color:#a98d55}
+.academy-lesson[data-state=complete]{border-color:#7f9a6a}
+.academy-lesson-head{display:flex;align-items:center;gap:10px;min-width:0}
+.academy-lesson .academy-lesson-head h4{margin:0;font-size:15px;line-height:1.25;overflow-wrap:break-word;min-width:0}
+.academy-lesson-number{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#241a0b;background:linear-gradient(180deg,#f0d28e,#c4954a)}
+.academy-lesson[data-state=complete] .academy-lesson-number{background:linear-gradient(180deg,#b9dba0,#7fae62)}
+.academy-lesson-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.academy-lesson-meta .game-muted{font-size:12px;line-height:1.3}
+.academy-pips{display:flex;gap:5px}
+.academy-pips span{width:18px;height:6px;border-radius:999px;background:#0e1517;border:1px solid #46544f}
+.academy-pips span[data-on=true]{background:#e2bd7b;border-color:#f3dba4}
+.academy-lesson .game-button.academy-start{margin:auto 0 0;width:100%;min-height:42px;font-size:14px;font-weight:700;background:#e2bd7b;color:#21180c;border-color:#f3dba4}
+.academy-lesson[data-state=complete] .game-button.academy-start{background:#243236;color:#eee7d8;border-color:#566560}
+.academy-notes{display:grid;gap:8px}
+.academy-notes .iq-note{padding:0;border:1px solid #3f4c48;border-radius:12px;background:#1a2528;overflow:hidden}
+.academy-notes .iq-note[open]{border-color:#8a7445}
+.academy-notes .iq-note summary{display:flex;align-items:center;gap:10px;padding:12px 14px;list-style:none;font-size:14px;line-height:1.35}
+.academy-notes .iq-note summary::-webkit-details-marker{display:none}
+.academy-notes .iq-note summary::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;border:1px solid #a8996b}
+.academy-notes .iq-note[data-seen=true] summary::before{background:#e2bd7b;border-color:#f3dba4}
+.academy-notes .iq-note summary::after{content:"›";margin-inline-start:auto;font-size:20px;line-height:1;color:#c9b27c;transition:transform .15s}
+.academy-notes .iq-note[open] summary::after{transform:rotate(90deg)}
+.academy-notes .iq-note>p{margin:0 14px 12px}
+.academy-notes .iq-note>.game-button{margin:0 14px 12px}
+.game-academy .iq-preference{justify-content:space-between;margin:18px 0 10px;padding:12px 14px;border:1px solid #3f4c48;border-radius:12px;background:#1a2528}
+.academy-eyebrow{display:block;margin-bottom:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#d9c391}
+.game-academy .iq-preview{border-radius:14px;overflow:hidden;border:1px solid #4a5650}
+.game-academy .iq-choices{counter-reset:choice}
+.game-academy .iq-choice{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:14px;line-height:1.3;border-radius:12px}
+.game-academy .iq-choice::before{counter-increment:choice;content:counter(choice);flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:#e2bd7b;color:#21180c}
+.game-academy .iq-feedback[data-correct=true]{border-color:#7fae62;background:#1d2e22}
+.game-academy .iq-feedback[data-correct=false]{border-color:#c99c4f;background:#2c2618}
+@media(max-width:700px){.academy-lessons{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.academy-hero{padding:13px}.academy-emblem{width:46px;height:46px}.academy-emblem svg{width:28px;height:28px}.academy-tagline{font-size:15px}.academy-lesson{padding:11px;gap:8px}.academy-lesson .academy-lesson-head h4{font-size:14px}.academy-lesson-number{width:26px;height:26px;font-size:13px}}
+@media(max-width:339px){.academy-lessons{grid-template-columns:1fr}}
