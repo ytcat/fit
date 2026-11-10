@@ -40,15 +40,16 @@
 
 ### GOTR-0001 — Make the shop immediately discoverable and feel like a real store
 - **Reported:** 2026-11-09
-- **Status:** OPEN
+- **Status:** IN PROGRESS — entry/discoverability slice READY FOR QA
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Shop / navigation / UX
 - **Reported behavior / request:** The user struggled to find the place where equipment can be purchased; the current interface does not look like a shop.
 - **Expected behavior:** A clearly labeled Shop destination accessible prominently from the hub and relevant inventory/character screens, with obvious categories (Gloves, Shorts, Shoes, Belts, Headwear, Accessories, Combos), currency balance, item previews, price tags, locked/unlocked/owned/equipped states, purchase confirmation and return-to-game path.
 - **Acceptance criteria:** On phone and PC, a new player can reach Shop in no more than two obvious actions; browsing, previewing, buying and equipping are understandable without instructions. No dead buttons; virtual credits persist after reload; touch targets are comfortable and localization does not clip.
-- **Implementation:** Not started; investigate current code first.
-- **Evidence:** Pending before/after screen captures and walkthrough.
+- **Implementation (2026-11-10, slice 1):** Investigation: a store already existed (categories, live preview, prices, owned/equipped, buy/equip, persisted coins) but its only header entry was an unlabeled "0 ◈" chip and the screen was titled "Equipment". The header chip is now a gold **🛒 Shop · coins** button on every screen (one tap), the screen is titled Shop/חנות/Магазин, and the EN "Waistband" category reads "Belts". Store logic unchanged (`game-shell.js`, `game-shell.css`).
+- **Evidence:** `qa/gotr-0001/` — real-app checks in EN/HE/RU at 393×852, 360×640, 852×393 and 1366×768 on Train, Fight and World: button visible, ≥40 px tall, unclipped, not overlapped, no horizontal scroll; one tap opens the Shop with localized title and five categories; purchase without coins gives the actionable "Not enough coins…" message; equip persists; zero page errors. Purchase with earned coins remains covered by `tests/game-domain.test.cjs`.
+- **Remaining for full acceptance:** Combos category inside the Shop (with GOTR-0004), clearer locked/owned/equipped badges, purchase confirmation step, and a store look closer to a real shop.
 
 ### GOTR-0002 — Redesign championship belts, headbands and side ribbons as real wearable accessories
 - **Reported:** 2026-11-09

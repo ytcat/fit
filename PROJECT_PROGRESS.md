@@ -1,3 +1,16 @@
+## 2026-11-10 — Shop entry on every screen (GOTR-0001, slice 1)
+
+The unlabeled coin chip is now a gold **🛒 Shop · coins** header button on every
+screen, one tap from anywhere; the store screen is titled Shop/חנות/Магазин and the
+EN "Waistband" category reads "Belts". Store logic is unchanged. Verified in the real
+app at four sizes in EN/HE/RU; full suite 76/76 test files pass. Combos-in-Shop, badges and confirmation remain.
+[Evidence](qa/gotr-0001/).
+
+## 2026-11-10 — Fight IQ renamed Fight Academy (GOTR-0013, part 1)
+
+Visible name only (EN/HE/RU); internal IDs and saved progress unchanged. Published
+on `main` at `31a17bd`. Screen redesign follows with GOTR-0007. [Evidence](qa/gotr-0013/).
+
 ## 2026-11-10 — Readable combo controls, max three (GOTR-0006)
 
 The Combos page now shows only the equipped loadout (max three) with **More n/m**
