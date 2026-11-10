@@ -1,5 +1,5 @@
 {
-  "version": "mitt-20261110h",
+  "version": "fight-20261110i",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -24,7 +24,7 @@
     "./training-arena.js?v=2026110710",
     "./boxing-fight.js?v=2026110904",
     "./fight-referee.js?v=2026110607",
-    "./fight-arena.js?v=2026110802",
+    "./fight-arena.js?v=2026111009",
     "./training-gear.js?v=2026110801",
     "./career-drills.js?v=2026111008",
     "./game-world.js?v=2026110901",
