@@ -29,18 +29,18 @@
 | after | watch | clean, lion | 11 | 139 | 156 | 162 | 8/11 | 1/11 | 97.8 | 11/11 | 1.66 | 1.44 |
 | after | watch | clean, rabbit | 3 | 153 | 157 | 158 | 3/3 | 0/3 | 98.0 | 3/3 | 1.67 | 1.47 |
 | after | watch | blocked (guard/arm) | 47 | 98 | 143 | 169 | 20/47 | 9/47 | 94.8 | 38/47 | 1.79 | 1.57 |
-| after | watch | all landed | 62 | 111 | 149 | 168 | 31/62 | 10/62 | 96.4 | 53/62 | 1.78 | 1.54 |
-| after | play-lion | clean (all) | 7 | 134 | 156 | 161 | 5/7 | 1/7 | 97.9 | 7/7 | 1.68 | 1.42 |
-| after | play-lion | clean head | 4 | 128 | 158 | 162 | 3/4 | 1/4 | 98.2 | 4/4 | 1.68 | 1.38 |
-| after | play-lion | clean body | 3 | 147 | 153 | 157 | 2/3 | 0/3 | 97.3 | 3/3 | 1.67 | 1.47 |
-| after | play-lion | clean, thrown by player | 3 | 124 | 156 | 159 | 2/3 | 1/3 | 97.9 | 3/3 | 1.69 | 1.40 |
-| after | play-lion | clean, lion | 3 | 124 | 156 | 159 | 2/3 | 1/3 | 97.9 | 3/3 | 1.69 | 1.40 |
-| after | play-lion | clean, rabbit | 4 | 147 | 156 | 161 | 3/4 | 0/4 | 97.7 | 4/4 | 1.66 | 1.46 |
-| after | play-lion | blocked (guard/arm) | 130 | 108 | 150 | 169 | 66/130 | 25/130 | 96.7 | 109/130 | 1.78 | 1.57 |
-| after | play-lion | all landed | 139 | 109 | 151 | 169 | 72/139 | 26/139 | 96.7 | 118/139 | 1.77 | 1.56 |
-| after | play-rabbit | clean (all) | 5 | 144 | 161 | 165 | 4/5 | 0/5 | 98.6 | 5/5 | 1.76 | 1.41 |
-| after | play-rabbit | clean head | 5 | 144 | 161 | 165 | 4/5 | 0/5 | 98.6 | 5/5 | 1.76 | 1.41 |
-| after | play-rabbit | clean, thrown by player | 5 | 144 | 161 | 165 | 4/5 | 0/5 | 98.6 | 5/5 | 1.76 | 1.41 |
-| after | play-rabbit | clean, rabbit | 5 | 144 | 161 | 165 | 4/5 | 0/5 | 98.6 | 5/5 | 1.76 | 1.41 |
-| after | play-rabbit | blocked (guard/arm) | 129 | 98 | 140 | 166 | 45/129 | 34/129 | 94.1 | 101/129 | 1.76 | 1.54 |
-| after | play-rabbit | all landed | 136 | 99 | 141 | 166 | 49/136 | 34/136 | 94.2 | 108/136 | 1.76 | 1.54 |
+| after | watch | all landed | 62 | 113 | 149 | 165 | 31/62 | 10/62 | 96.4 | 53/62 | 1.78 | 1.54 |
+| after | play-lion | clean (all) | 9 | 139 | 158 | 164 | 7/9 | 1/9 | 98.2 | 9/9 | 1.68 | 1.42 |
+| after | play-lion | clean head | 5 | 132 | 160 | 167 | 4/5 | 1/5 | 98.4 | 5/5 | 1.69 | 1.40 |
+| after | play-lion | clean body | 4 | 147 | 155 | 159 | 3/4 | 0/4 | 97.7 | 4/4 | 1.67 | 1.46 |
+| after | play-lion | clean, thrown by player | 4 | 128 | 158 | 167 | 3/4 | 1/4 | 98.2 | 4/4 | 1.71 | 1.40 |
+| after | play-lion | clean, lion | 4 | 128 | 158 | 167 | 3/4 | 1/4 | 98.2 | 4/4 | 1.71 | 1.40 |
+| after | play-lion | clean, rabbit | 5 | 148 | 158 | 161 | 4/5 | 0/5 | 98.2 | 5/5 | 1.66 | 1.46 |
+| after | play-lion | blocked (guard/arm) | 128 | 102 | 147 | 169 | 60/128 | 27/128 | 95.9 | 105/128 | 1.77 | 1.56 |
+| after | play-lion | all landed | 139 | 105 | 148 | 169 | 67/139 | 28/139 | 96.2 | 116/139 | 1.77 | 1.55 |
+| after | play-rabbit | clean (all) | 4 | 141 | 160 | 161 | 3/4 | 0/4 | 98.5 | 4/4 | 1.68 | 1.38 |
+| after | play-rabbit | clean head | 4 | 141 | 160 | 161 | 3/4 | 0/4 | 98.5 | 4/4 | 1.68 | 1.38 |
+| after | play-rabbit | clean, thrown by player | 4 | 141 | 160 | 161 | 3/4 | 0/4 | 98.5 | 4/4 | 1.68 | 1.38 |
+| after | play-rabbit | clean, rabbit | 4 | 141 | 160 | 161 | 3/4 | 0/4 | 98.5 | 4/4 | 1.68 | 1.38 |
+| after | play-rabbit | blocked (guard/arm) | 129 | 97 | 136 | 165 | 40/129 | 40/129 | 92.7 | 97/129 | 1.76 | 1.53 |
+| after | play-rabbit | all landed | 134 | 97 | 136 | 165 | 43/134 | 40/134 | 92.7 | 102/134 | 1.76 | 1.53 |
