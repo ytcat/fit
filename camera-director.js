@@ -37,14 +37,14 @@
   mount(){
    const stage=this.engine.stage;if(typeof document==='undefined'||!stage||!stage.append)return;
    const b=document.createElement('button');b.type='button';b.id='camLock';b.className='camera-lock-toggle';
-   b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="10" width="14" height="10" rx="2.5" fill="currentColor"/></svg><span></span>';
+   b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="10" width="14" height="10" rx="2.5" fill="currentColor"/></svg>';const caption=document.createElement('span');b.append(caption);this.caption=caption;
    b.setAttribute('aria-pressed',String(this.locked));b.addEventListener('click',()=>this.setLock(!this.locked));
    const hint=document.createElement('div');hint.className='camera-intro-skip';hint.hidden=true;hint.setAttribute('aria-hidden','true');
    stage.append(b,hint);this.button=b;this.hint=hint;this.paint();
   }
   paint(){
    if(!this.button)return;const lang=(window.app&&window.app.lang)||'en';if(lang===this.lang)return;this.lang=lang;const w=WORDS[lang]||WORDS.en;
-   this.button.lastChild.textContent=w.lock;this.button.setAttribute('aria-label',w.label);this.button.title=w.label;this.hint.textContent=w.skip;
+   this.caption.textContent=w.lock;this.button.setAttribute('aria-label',w.label);this.button.title=w.label;this.hint.textContent=w.skip;
   }
   setLock(on,instant){
    const e=this.engine;on=!!on;if(this.mode==='intro')this.skipIntro();this.locked=on;try{window.localStorage.setItem(KEY,on?'1':'0');}catch{/* Not persisted. */}
