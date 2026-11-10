@@ -49,7 +49,8 @@
 - **Acceptance criteria:** On phone and PC, a new player can reach Shop in no more than two obvious actions; browsing, previewing, buying and equipping are understandable without instructions. No dead buttons; virtual credits persist after reload; touch targets are comfortable and localization does not clip.
 - **Implementation (2026-11-10, slice 1):** Investigation: a store already existed (categories, live preview, prices, owned/equipped, buy/equip, persisted coins) but its only header entry was an unlabeled "0 ◈" chip and the screen was titled "Equipment". The header chip is now a gold **🛒 Shop · coins** button on every screen (one tap), the screen is titled Shop/חנות/Магазин, and the EN "Waistband" category reads "Belts". Store logic unchanged (`game-shell.js`, `game-shell.css`).
 - **Evidence:** `qa/gotr-0001/` — real-app checks in EN/HE/RU at 393×852, 360×640, 852×393 and 1366×768 on Train, Fight and World: button visible, ≥40 px tall, unclipped, not overlapped, no horizontal scroll; one tap opens the Shop with localized title and five categories; purchase without coins gives the actionable "Not enough coins…" message; equip persists; zero page errors. Purchase with earned coins remains covered by `tests/game-domain.test.cjs`.
-- **Remaining for full acceptance:** Combos category inside the Shop (with GOTR-0004), clearer locked/owned/equipped badges, purchase confirmation step, and a store look closer to a real shop.
+- **Slice 2 (2026-11-10):** Found during QA: on PC/tablet the Shop showed only 2 of 4 products per category — square cards sized for portrait phones overflowed behind the buy row (`before-desk-products-cut-off.webp`, present on the live site). Products now use four columns on wide screens; six categories fit every layout (two rows of three on short narrow phones); product names no longer collapse in short landscape. Combos category added (GOTR-0004). Evidence: `qa/gotr-0001/layout-browser.cjs` — 0 issues (product outside/under the buy row, hidden name, clipped or overlapping category, scrolling dialog) across all six categories × EN/HE/RU × 1366×768, 1440×900, 820×1180, 393×852, 375×812, 360×740, 360×640, 852×393, 640×360.
+- **Remaining for full acceptance:** clearer locked/owned/equipped badges, purchase confirmation step, and a store look closer to a real shop.
 
 ### GOTR-0002 — Redesign championship belts, headbands and side ribbons as real wearable accessories
 - **Reported:** 2026-11-09
@@ -77,15 +78,16 @@
 
 ### GOTR-0004 — Sell and unlock combos through the shop with equip slots
 - **Reported:** 2026-11-09
-- **Status:** OPEN
+- **Status:** IN PROGRESS — purchase slice READY FOR QA
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Combo shop / progression / inventory
 - **Reported behavior / request:** User wants to buy combos with earned in-game currency as well as accessories.
 - **Expected behavior:** Shop Combo category offering preview/demonstration, clear move sequence, mastery or progression requirement where appropriate, virtual-credit price, buy/owned/equipped states and separate Training versus Fight loadouts. Unlocks are persisted and purchases never double-charge. Combo access follows a clear balance policy (no unavoidable grind, no real money).
 - **Acceptance criteria:** User earns sufficient virtual credits, purchases combo, equips it and can trigger it in relevant mode; states survive reload; invalid or insufficient-balance purchase gives actionable feedback.
-- **Implementation:** Not started; review existing combo input queue and scoring so economy cannot be exploited.
-- **Evidence:** Pending functional demonstration and tests.
+- **Implementation (2026-11-10, slice 1):** Review: combos unlocked only through activity counters; Training (5) and Fight (3) loadouts, persistence and the input queue already existed. Added coin prices (First Rhythm stays the free first-activity unlock; Corner Turn 20, Counter Chain 40, Thunder Arc 40, Rolling Return 70, School Signature 120 — a 60-second session earns about 35 coins, so nothing needs a long grind and every combo can still be earned by play). New atomic `combo-buy` action writes exactly one `purchase:combo:<id>` spend row; save validation accepts an owned combo only if earned by activity or backed by that row at the listed price. Shop has a **Combos** category (sequence, price, Owned state, shortcut to loadouts); Combo loadouts shows the balance and a Buy button on locked combos. Move names in sequences are now properly localized (`game-domain.js`, `game-shell.js`, `game-shell.css`).
+- **Evidence:** `tests/game-domain.test.cjs` — insufficient coins gives the actionable message, no double charge, Fight/Training equip, reload and backup/restore keep the purchase, later activity unlock neither duplicates nor refunds, forged unlock / wrong price / orphan purchase rejected, failed save leaves coins and ownership unchanged. `qa/gotr-0004/browser.cjs` — real app at 393×852, 360×640, 852×393, 1366×768: earn 105 coins from three real sessions → Shop → Combos → Buy 20 → balance 85 in Shop and header → Owned → loadouts → equip → the combo appears on the Combos page and runs → still owned after reload; EN/HE/RU labels; zero page errors.
+- **Remaining:** animated demonstration of a combo inside the Shop before buying; purchase confirmation step; rollback note — a save containing a bought combo is rejected by app versions before this change.
 
 ### GOTR-0005 — Player-controlled burst / special action in PLAY and WATCH modes
 - **Reported:** 2026-11-09

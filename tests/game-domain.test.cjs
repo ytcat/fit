@@ -64,4 +64,25 @@ function grant(s,id,more){const result=s.award(event(s,id,more));assert.ok(resul
 {
  const {s,disk}=setup(),initial=s.current().id;s.create('Other');const selected=s.current().id;const before=s.export(),stored=disk.getItem(s.key);disk.fail=true;assert.throws(()=>s.create('Ghost'));assert.equal(s.export(),before);assert.equal(s.select(initial),false);assert.equal(s.current().id,selected);assert.equal(disk.getItem(s.key),stored);disk.fail=false;assert.equal(s.select(initial),true);const p=s.create('North\u0000\u202e Star');assert.equal(p.name,'North Star');assert.equal(s.game().school.name,'North Star School');assert.equal(new CareerStore(disk).current().name,'North Star');assert.throws(()=>s.create('\u0000\u202e'));assert.throws(()=>s.create('North Star'));
 }
+{
+ // GOTR-0004: combos can be bought with earned coins; activity unlocks stay available and never double-charge.
+ const {s,disk}=setup();assert.deepEqual(D.combos.map(c=>c.price),[0,20,40,40,70,120]);
+ const poor=s.gameAction({type:'combo-buy',comboId:'corner_turn'});assert.equal(poor.ok,false);assert.match(poor.error,/Not enough coins/);assert.deepEqual(s.game().combos.owned,[]);
+ assert.equal(s.gameAction({type:'combo-buy',comboId:'made_up'}).ok,false);assert.equal(s.gameAction({type:'combo',comboId:'corner_turn',mode:'fight',enabled:true}).ok,false,'locked combos cannot be equipped');
+ grant(s,'earn-a');assert.equal(s.wallet().coins,35);assert.match(s.gameAction({type:'combo-buy',comboId:'first_rhythm'}).error,/Already owned/);
+ const bought=s.gameAction({type:'combo-buy',comboId:'corner_turn'});assert.equal(bought.ok,true);assert.equal(bought.transactionId,'purchase:combo:corner_turn');assert.equal(s.wallet().coins,15);assert.ok(s.game().combos.owned.includes('corner_turn'));assert.equal(s.game().activity.rope,0,'bought without meeting the activity requirement');
+ const again=s.gameAction({type:'combo-buy',comboId:'corner_turn'});assert.equal(again.ok,false);assert.match(again.error,/Already owned/);assert.equal(s.wallet().coins,15,'no double charge');
+ assert.equal(s.gameAction({type:'combo-buy',comboId:'rolling_return'}).ok,false);assert.equal(s.wallet().coins,15);
+ assert.equal(s.gameAction({type:'combo',comboId:'corner_turn',mode:'fight',enabled:true,species:'lion'}).ok,true);assert.equal(s.gameAction({type:'combo',comboId:'corner_turn',mode:'training',enabled:true,species:'lion'}).ok,true);
+ const reloaded=new CareerStore(disk);assert.ok(reloaded.game().combos.owned.includes('corner_turn'));assert.deepEqual(reloaded.game().combos.fight,['corner_turn']);assert.equal(reloaded.wallet().coins,15,'purchase and loadout survive reload');
+ // Meeting the activity requirement later neither duplicates the combo nor refunds or re-charges it.
+ grant(reloaded,'rope-1',{mode:'rope',jumps:40,hits:0,attempts:0});const second=grant(reloaded,'rope-2',{mode:'rope',jumps:40,hits:0,attempts:0});assert.ok(!second.unlocks.includes('corner_turn'));assert.equal(reloaded.game().combos.owned.filter(id=>id==='corner_turn').length,1);assert.equal(reloaded.game().ledger.filter(t=>t.comboId==='corner_turn').length,1);
+ // Backups carry purchases; tampered purchases or unearned unlocks are rejected.
+ const valid=reloaded.export(),target=setup().s;assert.equal(target.import(valid),1);assert.ok(target.game().combos.owned.includes('corner_turn'));
+ const forged=JSON.parse(valid).data;forged.profiles[0].game.combos.owned.push('school_signature');assert.throws(()=>reloaded.import(JSON.stringify(forged)),/Invalid combo unlock/);
+ const cheap=JSON.parse(valid).data;cheap.profiles[0].game.ledger.find(t=>t.comboId==='corner_turn').coins=-1;assert.throws(()=>reloaded.import(JSON.stringify(cheap)));
+ const orphan=JSON.parse(valid).data;orphan.profiles[0].game.combos.owned=orphan.profiles[0].game.combos.owned.filter(id=>id!=='corner_turn');orphan.profiles[0].game.combos.fight=[];orphan.profiles[0].game.combos.training=[];assert.throws(()=>reloaded.import(JSON.stringify(orphan)),/Invalid combo purchase/);assert.equal(reloaded.export(),valid);
+ // A failed save leaves coins and ownership untouched.
+ grant(reloaded,'earn-b');grant(reloaded,'earn-c');const before=reloaded.export();disk.fail=true;assert.equal(reloaded.gameAction({type:'combo-buy',comboId:'counter_chain'}).ok,false);assert.equal(reloaded.export(),before);disk.fail=false;assert.equal(reloaded.gameAction({type:'combo-buy',comboId:'counter_chain'}).ok,true);
+}
 console.log('PASS R1 catalog, ledger, migration, idempotence beyond 200, purchase/equip, profile isolation, watch guardrails, four unlock routes, loadout slots, atomic failure, backup recovery, import validation and bounded local evidence history');

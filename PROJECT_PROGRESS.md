@@ -1,3 +1,11 @@
+## 2026-11-10 — Buy combos with coins; Shop fits every screen (GOTR-0004 slice 1, GOTR-0001 slice 2)
+
+Combos can be bought with earned coins in the Shop's new Combos category or from
+Combo loadouts, and remain earnable by play. One atomic spend row per purchase; no
+double charge; survives reload and backup. Also fixed the PC/tablet Shop showing only
+two of four products per category. [Combo evidence](qa/gotr-0004/) ·
+[Shop layout evidence](qa/gotr-0001/).
+
 ## 2026-11-10 — Whole-word Moves/Defence buttons on small phones (GOTR-0006 follow-up)
 
 Short narrow phones used two 46-px columns in the gym and split words. One 78-px
