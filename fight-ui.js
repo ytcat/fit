@@ -12,8 +12,13 @@
  const clock=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
  function boot(){
   const app=window.app;if(!app)return;const e=app.engine,w=()=>words[app.lang]||words.en,make=(tag,cls,text)=>{const n=document.createElement(tag);n.className=cls||'';if(text)n.textContent=text;return n;};
-  const hud=make('div','fight-hud');hud.id='fightHud';hud.hidden=true;hud.setAttribute('role','status');document.getElementById('stageContainer').append(hud);
-  const health=make('div','fight-health');health.id='fightHealth';health.hidden=true;document.getElementById('stageContainer').append(health);
+  const hud=make('div','fight-hud');hud.id='fightHud';hud.hidden=true;hud.setAttribute('role','status');
+  const health=make('div','fight-health');health.id='fightHealth';health.hidden=true;health.setAttribute('role','group');document.getElementById('stageContainer').append(health);
+  // Broadcast HUD (styled by fight-hud.css): each corner is built once so the damage trail and hit flash can animate between renders.
+  const corners={};for(const actor of ['lion','rabbit']){const player=make('div','fight-health-player'),head=make('div','fight-health-head'),label=make('span','fight-health-label'),value=make('span','fight-health-value'),track=make('div','fight-health-track'),trail=make('div','fight-health-trail'),fill=make('div','fight-health-fill');
+   player.dataset.corner=actor==='lion'?'red':'blue';label.setAttribute('dir','auto');value.setAttribute('aria-hidden','true');track.setAttribute('role','progressbar');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');
+   track.append(trail,fill);head.append(label,value);player.append(head,track);corners[actor]={player,label,value,track,trail,fill,last:null,hit:'a'};}
+  health.append(corners.lion.player,make('span','fight-health-vs','VS'),corners.rabbit.player,hud);
   const banner=make('div','fight-knockout');banner.id='fightKnockout';banner.hidden=true;document.getElementById('stageContainer').append(banner);
   const panel=make('section','fight-results');panel.id='fightResults';panel.hidden=true;document.querySelector('footer').prepend(panel);
   function dialog(title){const d=make('dialog','training-dialog fight-dialog'),head=make('div','practice-control-heading');head.append(make('h2','',title));const close=make('button','', '×');close.type='button';close.setAttribute('aria-label',w().close);close.onclick=()=>d.close();head.append(close);d.append(head);d.addEventListener('close',()=>d.remove(),{once:true});document.body.append(d);d.showModal();return d;}
@@ -31,13 +36,16 @@
   let last='';
   function render(view){
    const m=view.match,s=m.snapshot(),key=[labels(view).lion,labels(view).rabbit,app.lang,s.phase,s.round,Math.ceil(s.remaining),Math.ceil(s.restRemaining),s.count,s.cardsShown,s.totals.lion.landed,s.totals.rabbit.landed,s.health?.lion,s.health?.rabbit].join('|');if(last===key)return;last=key;
-   hud.hidden=false;health.hidden=false;health.replaceChildren();
-   for(const actor of ['lion','rabbit']){const value=Math.max(0,Math.min(100,s.health?.[actor]??100)),column=make('div','fight-health-player'),label=make('span','fight-health-label',labels(view)[actor]+' · '+Math.ceil(value)),track=make('div','fight-health-track'),fill=make('div','fight-health-fill');
-    track.setAttribute('role','progressbar');track.setAttribute('aria-label',labels(view)[actor]);track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',String(Math.round(value)));
-    const color=value>75?'#38bdf8':value>50?'#34d399':value>25?'#facc15':'#f87171';fill.setAttribute('style','width:'+value+'%;background:'+color);track.append(fill);column.append(label,track);health.append(column);}
+   health.hidden=false;health.setAttribute('aria-label',labels(view).lion+' vs '+labels(view).rabbit);
+   for(const actor of ['lion','rabbit']){const bar=corners[actor],value=Math.max(0,Math.min(100,s.health?.[actor]??100)),shown=String(Math.ceil(value)),name=labels(view)[actor];
+    bar.label.textContent=name;bar.value.textContent=shown;bar.track.setAttribute('aria-label',name+' · '+shown);bar.track.setAttribute('aria-valuenow',String(Math.round(value)));bar.track.setAttribute('aria-valuetext',shown);
+    bar.fill.setAttribute('style','width:'+value+'%');bar.trail.setAttribute('style','width:'+value+'%');
+    // A drop in reported health restarts the short hit flash; the values themselves are shown untouched.
+    if(bar.last!=null&&value<bar.last){bar.hit=bar.hit==='a'?'b':'a';bar.player.dataset.hit=bar.hit;}bar.last=value;bar.player.dataset.low=String(value<=25);bar.player.dataset.out=String(value<=0);}
    banner.hidden=!(s.result?.stoppage==='KO');banner.textContent=s.result?.winner?w().KO.toUpperCase()+' · '+labels(view)[s.result.winner]+' '+w().winner:w().KO.toUpperCase()+' · '+w().draw;
-   const status=s.phase==='round'?w().round+' '+s.round+'/'+s.rounds+' · '+clock(s.remaining):s.phase==='rest'?w().rest+' · '+clock(s.restRemaining):s.phase==='count'?w().count+' · '+s.count:s.phase==='intro'?w().intro:s.phase==='scoring'?w().pending:'';
-   hud.textContent=status+(s.phase==='round'?'  |  '+labels(view).lion+' '+s.totals.lion.landed+' · '+labels(view).rabbit+' '+s.totals.rabbit.landed:'');
+   const round=s.phase==='round',status=round?w().round+' '+s.round+'/'+s.rounds:s.phase==='rest'?w().rest:s.phase==='count'?w().count:s.phase==='intro'?w().intro:s.phase==='scoring'?w().pending:'',time=round?clock(s.remaining):s.phase==='rest'?clock(s.restRemaining):s.phase==='count'?String(s.count):'';
+   hud.hidden=!status;hud.dataset.phase=s.phase;hud.replaceChildren(make('span','fight-hud-phase',status));if(time)hud.append(make('span','fight-hud-sr',' · '),make('span','fight-hud-clock',time));
+   if(round)for(const actor of ['lion','rabbit']){const score=make('span','fight-hud-score');score.dataset.corner=actor==='lion'?'red':'blue';score.append(make('span','fight-hud-sr',' · '+labels(view)[actor]+' '),make('span','fight-hud-num',String(s.totals[actor].landed)));hud.append(score);}
    const before=panel.hidden;panel.hidden=!s.result;if(before!==panel.hidden)window.dispatchEvent?.(new Event('resize'));if(!s.result)return;panel.replaceChildren();
    const title=s.phase==='ceremony'?(s.result.winner?labels(view)[s.result.winner]+' '+w().winner+' · '+w()[s.result.decision]:w().draw):w().waiting;
    panel.append(make('strong','fight-result-title',title),make('p','fight-card-order',labels(view).lion+' — '+labels(view).rabbit));const cards=make('div','fight-card-grid');
@@ -45,7 +53,7 @@
    if(s.result.method==='TKO')panel.append(make('p','fight-note',w().stoppage));
    const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;actions.append(details,again);panel.append(actions);
   }
-  function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=true;last='';}
+  function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=true;last='';for(const actor in corners)corners[actor].last=null;}
   e.onFightEvent=event=>{if(event.type==='announcement')app.audio.applause?.();else app.audio.bell(event.type==='final-bell'?'final':event.kind||'start');};
   window.fightUI={configure,detail,render,hide,words:()=>w()};
  }

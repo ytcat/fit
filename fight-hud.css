@@ -1,0 +1,73 @@
+/* GOTR-0021 — broadcast fight HUD: fighter names, VS badge, health bars that drain toward the
+   centre, and the round / clock / landed-punches chip hanging under the plate.
+   Markup is built by fight-ui.js. Colours come from design-tokens.css; the ids outrank the older
+   .fight-hud / .fight-health layout rules that still live in the feature stylesheets. */
+#fightHealth{
+ --fh-red:var(--gr-corner-red,var(--gr-accent,#e63946));--fh-blue:var(--gr-corner-blue,var(--gr-info,#3b82f6));
+ --fh-pad:10px;--fh-name:12px;--fh-num:11px;--fh-bar:10px;--fh-badge:28px;--fh-skew:14deg;
+ position:absolute;top:6px;left:8px;right:8px;z-index:12;box-sizing:border-box;max-width:720px;margin:0 auto;
+ display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:auto auto;gap:0 8px;align-items:center;
+ padding:6px var(--fh-pad) 0;direction:inherit;isolation:isolate;pointer-events:none;
+ font-family:var(--gr-font,system-ui,sans-serif);color:var(--gr-text,#f3f6fb)
+}
+#fightHealth[hidden]{display:none}
+[dir=rtl] #fightHealth{--fh-skew:-14deg}
+/* Plate: a soft scrim behind names and bars, strongest where the text sits. */
+#fightHealth::before{content:'';grid-column:1/-1;grid-row:1;align-self:stretch;z-index:-1;margin:-6px calc(-1*var(--fh-pad)) 0;border-radius:var(--gr-radius-m,12px);background:var(--gr-scene-chip,rgb(9 12 17/.78));background:linear-gradient(to bottom,var(--gr-scene-chip,rgb(9 12 17/.78)),color-mix(in srgb,var(--gr-scene-chip,rgb(9 12 17/.78)) 62%,transparent))}
+
+/* Corners */
+#fightHealth .fight-health-player{grid-row:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding-bottom:8px;text-align:start}
+#fightHealth .fight-health-player[data-corner=red]{grid-column:1;--fh-corner:var(--fh-red)}
+#fightHealth .fight-health-player[data-corner=blue]{grid-column:3;--fh-corner:var(--fh-blue)}
+#fightHealth .fight-health-head{display:flex;align-items:center;gap:6px;min-width:0;line-height:1.35}
+#fightHealth [data-corner=blue] .fight-health-head{flex-direction:row-reverse}
+#fightHealth .fight-health-head::before{content:'';flex:none;width:3px;height:calc(var(--fh-name) - 1px);border-radius:1px;background:var(--fh-corner)}
+#fightHealth .fight-health-label{flex:0 1 auto;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--fh-name);font-weight:var(--gr-fw-heavy,800);letter-spacing:var(--gr-label-spacing,.08em);text-transform:uppercase;color:var(--gr-text,#f3f6fb);text-shadow:0 1px 2px var(--gr-shadow-color,rgb(0 0 0/.6))}
+#fightHealth .fight-health-value{flex:1 0 auto;text-align:end;font-size:var(--fh-num);font-weight:var(--gr-fw-medium,600);font-variant-numeric:tabular-nums;letter-spacing:.01em;color:var(--gr-text-muted,#9aa7bb);unicode-bidi:isolate;transition:color .2s linear}
+#fightHealth [data-corner=blue] .fight-health-value{text-align:start}
+
+/* Bars: remaining health hugs the centre, so the bar drains toward the VS badge. */
+#fightHealth .fight-health-track{position:relative;height:var(--fh-bar);margin:0;border:0;border-radius:2px;overflow:hidden;background:var(--gr-scene-chip-strong,rgb(9 12 17/.92));box-shadow:0 0 0 1px var(--gr-scene-line,rgb(255 255 255/.18));transform:skewX(var(--fh-skew))}
+#fightHealth [data-corner=blue] .fight-health-track{transform:skewX(calc(-1*var(--fh-skew)))}
+#fightHealth .fight-health-trail,#fightHealth .fight-health-fill{position:absolute;top:0;bottom:0;height:auto;inset-inline-end:0;border-radius:0}
+#fightHealth [data-corner=blue] .fight-health-trail,#fightHealth [data-corner=blue] .fight-health-fill{inset-inline-end:auto;inset-inline-start:0}
+#fightHealth .fight-health-fill{background:var(--fh-corner);background:linear-gradient(to bottom,color-mix(in srgb,var(--fh-corner) 78%,var(--gr-text,#f3f6fb)),var(--fh-corner) 58%);transition:width 140ms ease-out}
+/* Recent damage: a paler layer that waits, then catches up with the bar. */
+#fightHealth .fight-health-trail{background:var(--gr-text,#f3f6fb);background:color-mix(in srgb,var(--fh-corner) 38%,var(--gr-text,#f3f6fb));opacity:.9;transition:width 620ms cubic-bezier(.4,0,.2,1) 380ms}
+#fightHealth .fight-health-player[data-hit=a] .fight-health-track{animation:fight-health-hit-a 340ms ease-out}
+#fightHealth .fight-health-player[data-hit=b] .fight-health-track{animation:fight-health-hit-b 340ms ease-out}
+@keyframes fight-health-hit-a{0%{filter:brightness(1.7);box-shadow:0 0 0 2px var(--gr-text,#f3f6fb)}100%{filter:brightness(1)}}
+@keyframes fight-health-hit-b{0%{filter:brightness(1.7);box-shadow:0 0 0 2px var(--gr-text,#f3f6fb)}100%{filter:brightness(1)}}
+/* Low health (25 and under): amber outline and number, slow pulse while the fighter is still up. */
+#fightHealth .fight-health-player[data-low=true] .fight-health-value{color:var(--gr-warning,#f5a524);font-weight:var(--gr-fw-heavy,800)}
+#fightHealth .fight-health-player[data-low=true] .fight-health-track{box-shadow:0 0 0 1px var(--gr-warning,#f5a524)}
+#fightHealth .fight-health-player[data-low=true]:not([data-out=true]) .fight-health-fill{animation:fight-health-low .9s ease-in-out infinite alternate}
+@keyframes fight-health-low{to{opacity:.5}}
+
+/* VS badge */
+#fightHealth .fight-health-vs{grid-column:2;grid-row:1;align-self:center;margin-bottom:8px;box-sizing:border-box;width:var(--fh-badge);height:var(--fh-badge);display:grid;place-items:center;border-radius:50%;background:var(--gr-surface-3,#243044);border:1px solid var(--gr-scene-line,rgb(255 255 255/.18));box-shadow:var(--gr-shadow-1,0 1px 2px rgb(0 0 0/.4));font-size:calc(var(--fh-badge)*.39);font-weight:var(--gr-fw-heavy,800);font-style:italic;line-height:1;letter-spacing:.01em;color:var(--gr-text,#f3f6fb);direction:ltr}
+
+/* Round / clock / landed punches: a tab hanging from the plate, centred under the badge. */
+#fightHud{grid-column:1/-1;grid-row:2;justify-self:center;position:static;transform:none;z-index:auto;box-sizing:border-box;width:auto;max-width:100%;min-width:0;display:flex;align-items:center;gap:6px;margin:0;padding:3px 12px 4px;border:1px solid var(--gr-scene-line,rgb(255 255 255/.18));border-top:0;border-radius:0 0 10px 10px;background:var(--gr-scene-chip-strong,rgb(9 12 17/.92));color:var(--gr-text,#f3f6fb);font-size:11px;font-weight:var(--gr-fw-bold,700);line-height:1.3;white-space:nowrap;font-variant-numeric:tabular-nums;pointer-events:none}
+#fightHud .fight-hud-phase{min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:10px;font-weight:var(--gr-fw-medium,600);letter-spacing:var(--gr-label-spacing,.08em);text-transform:uppercase;color:var(--gr-text-muted,#9aa7bb)}
+#fightHud.fight-clock-urgent .fight-hud-phase{color:inherit}
+#fightHud .fight-hud-clock{flex:none;font-weight:var(--gr-fw-heavy,800);direction:ltr;unicode-bidi:isolate}
+#fightHud .fight-hud-score{flex:none;display:inline-flex;align-items:center;gap:5px;font-weight:var(--gr-fw-heavy,800);color:var(--gr-text,#f3f6fb)}
+#fightHud .fight-hud-score::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--fh-red)}
+#fightHud .fight-hud-score[data-corner=red]{order:-1;padding-inline-end:8px;border-inline-end:1px solid var(--gr-scene-line,rgb(255 255 255/.18))}
+#fightHud .fight-hud-score[data-corner=blue]{flex-direction:row-reverse;padding-inline-start:8px;border-inline-start:1px solid var(--gr-scene-line,rgb(255 255 255/.18))}
+#fightHud .fight-hud-score[data-corner=blue]::before{background:var(--fh-blue)}
+#fightHud .fight-hud-num{unicode-bidi:isolate}
+#fightHud .fight-hud-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* Wide screens: larger type and bars; the Moves / Combos / Defence switch sits at 100px there. */
+@media(min-width:801px) and (min-height:561px){
+ #fightHealth{--fh-name:14px;--fh-num:12px;--fh-bar:12px;--fh-badge:32px;--fh-pad:14px;top:10px;gap:0 10px}
+ #fightHud{font-size:12px;padding:4px 14px 5px}#fightHud .fight-hud-phase{font-size:11px}
+}
+/* Landscape phones in Play mode: stay between the two move rails. */
+@media(max-height:560px) and (min-width:600px){.manual-active #fightHealth{left:138px;right:138px}}
+@media(prefers-reduced-motion:reduce){
+ #fightHealth .fight-health-track,#fightHealth .fight-health-fill{animation:none!important}
+ #fightHealth .fight-health-fill,#fightHealth .fight-health-trail,#fightHealth .fight-health-value{transition:none}
+}

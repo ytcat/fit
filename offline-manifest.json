@@ -53,6 +53,7 @@
     "./ringside-layout.js?v=2026110905",
     "./game-shell.css?v=2026111012",
     "./design-system.css?v=2026111012",
+    "./fight-hud.css?v=2026111100",
     "./game-world-art.js?v=2026110905",
     "./game-tournament-ui.js?v=2026110904",
     "./game-world-ui.js?v=2026111002",
