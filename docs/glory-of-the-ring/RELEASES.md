@@ -1,0 +1,26 @@
+# Glory of the Ring — release numbers
+
+Every publish to https://ytcat.github.io/fit/ gets the next number. The number is shown in
+the app header under the title (e.g. **v1.15**). If your screen shows a lower number, close
+the tab and open the link again (the app keeps an offline copy).
+
+v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are UTC.
+
+| Version | Published | Commit | What changed |
+|---|---|---|---|
+| v1.15 | 2026-11-11 | (this release) | Version number shown in the header; this release list |
+| v1.14 | 2026-11-11 05:13 | `fb5f47d` | New logo: boxing gloves hanging by their laces (header and tab icon) — GOTR-0023 |
+| v1.13 | 2026-11-11 00:18 | `383fd47` | Six new arenas: Street Fight, Boxing Club, The Basement, Dockside Hangar, City Sports Hall, Championship Arena — GOTR-0022 |
+| v1.12 | 2026-11-10 23:48 | `60a7914` | New fight HUD: designed health bars, names and VS badge — GOTR-0021 |
+| v1.11 | 2026-11-10 23:30 | `8f710df` | Side lock camera; 360° fight intro (tap to skip); steadier frame pacing — GOTR-0019, GOTR-0020 |
+| v1.10 | 2026-11-10 22:15 | `ee5c373` | New design system: dark neutral colours, red accent, proportional buttons, small close button — GOTR-0014, GOTR-0015 |
+| v1.9 | 2026-11-10 21:39 | `40256fc` | Fight Academy lessons: watch, repeat with the real buttons ×3, earn the combo, try it in a fight — GOTR-0007 |
+| v1.8 | 2026-11-10 21:38 | `6f56434` | Fighters hold boxing range; jab and cross land with a straight arm in fights — GOTR-0018 |
+| v1.7 | 2026-11-10 16:48 | `ef76b53` | Mitt training at real punching range; straight-arm jab and cross on the mitts — GOTR-0012 |
+| v1.6 | 2026-11-10 13:18 | `3672c18` | Variable (asynchronous) practice rhythm by default — GOTR-0016 |
+| v1.5 | 2026-11-10 12:32 | `34d82dd` | Buy combos with coins; Shop shows all products on PC/tablet — GOTR-0004, GOTR-0001 |
+| v1.4 | 2026-11-10 11:58 | `fa7c158` | Whole-word Moves/Defence buttons on small phones — GOTR-0006 |
+| v1.3 | 2026-11-10 11:21 | `b9c65ed` | Fight Academy designed landing and lesson screens — GOTR-0013 |
+| v1.2 | 2026-11-10 10:40 | `9945b10` | Gold Shop button in the header; screen titled Shop — GOTR-0001 |
+| v1.1 | 2026-11-10 09:26 | `31a17bd` | Combo buttons: max three with More and Choose combos; Fight IQ renamed Fight Academy — GOTR-0006, GOTR-0013 |
+| v1.0 | 2026-11-09 | `180ecef` | Starting point |
