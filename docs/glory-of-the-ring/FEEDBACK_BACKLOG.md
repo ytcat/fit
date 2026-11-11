@@ -699,6 +699,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Expected behavior:** a fixed HUD layout with reserved zones inside the 3D stage (top: names/health/power and one status line; centre: one short announcement such as the winner, with rewards and stars directly under it; bottom: controls and the Next bar); compact, translucent, small type; nothing ever covers the header, tabs, logo, controls or the fighters' bodies; judges' scores as a slim row inside the stage (details on demand); every other blocking card in the game audited and moved into these zones.
 - **Acceptance criteria:** an overlap audit (Playwright) of every state — training, mission running and finished, fight intro, round, KO/count, decision with judges, Burst tip, Academy lesson — at 402×690, 360×640, 852×393, 1366×768 in EN/HE: 0 overlaps of HUD elements with the header, controls or each other, and no element covering more than the agreed share of the stage; before/after screenshots.
 
+### GOTR-0055 — Adventure screen: map first, graphic, ordered, progress and side quests
+- **Reported:** 2026-11-11 (screenshot, v1.29, Adventure → Old Town)
+- **Status:** IN PROGRESS (agent `adventure-ui2`)
+- **Priority:** P1
+- **Area:** Adventure UI
+- **Reported behavior / request:** "The screen is stretched. The text in the boxes takes too much of the screen; make it more graphic so the map is the large portion. Locked, unlocked, then locked again — the order doesn't make sense; unlocked on top, next steps after. Show a progress bar per stage that moves to the next milestone; when a stage is completely done, show on the map animated dots appearing one by one from stage one to stage two (the player moving). I don't know how to embed the side missions; I was thinking of walking like in Roblox/GTA, but that may be complicated now — if it can be done simply and fast do it, if not, embed the side missions simply and clearly into the stages."
+- **Decision (integrator):** walking the city is a large separate project (character controller, collisions, street layout, camera, phone performance) and is not fast; deferred. Side zones become optional side quests attached to chapters: Old Fort ← 1, Midnight Fairground ← 2, Pirate Cove ← 3, Tech Pier ← 4; their pins appear when the chapter is reached and open a themed bonus fight or training.
+- **Acceptance criteria:** no horizontal overflow at 402 and 360 px; map ≥ 60% of the phone screen; compact icon-based bottom sheet; playable missions first and "coming soon" last; per-chapter progress bar with milestones; route dots animation between chapter pins on completion; EN/HE.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
