@@ -491,10 +491,49 @@ function build(scene, opts = {}) {
     return { meshes, instances: inst, triangles: Math.round(tris) };
   }
   return {
-    group, places: W.places, sun, hemi, fogColor, night: NIGHT, focusShadows, update, stats,
+    group, places: W.places, route: (a, b) => streetRoute(W, a, b), sun, hemi, fogColor, night: NIGHT, focusShadows, update, stats,
     bounds: { x0: -108, x1: 108, z0: -74, z1: 66 },
     dispose() { scene.remove(group); for (const d of disposables) d && d.dispose && d.dispose(); }
   };
+}
+
+
+/**
+ * Street route (GOTR-0058): a path from one place to another along the street network, for the Adventure route dots.
+ * Walkable cells (1 unit grid) = the asphalt around every block (its expanded rectangle minus the block itself) plus the
+ * main road ribbons; A* with 8 moves (no corner cutting) and a cost for hugging buildings so the line follows the street centre.
+ * Returns [[x,z],...] or null when the places are not connected by streets.
+ */
+function streetRoute(W, a, b) {
+  const X0 = -110, Z0 = -76, NX = 220, NZ = 144, ok = new Uint8Array(NX * NZ), idx = (x, z) => (z - Z0) * NX + (x - X0);
+  const inRect = (bl, px, pz, ex) => { const c = Math.cos(bl.ang), s = Math.sin(bl.ang), dx = px - bl.x, dz = pz - bl.z, lx = dx * c - dz * s, lz = dx * s + dz * c; return Math.abs(lx) <= bl.w / 2 + ex && Math.abs(lz) <= bl.d / 2 + ex; };
+  const box = (bl, ex) => { const r = Math.hypot(bl.w, bl.d) / 2 + ex; return [Math.max(X0, Math.floor(bl.x - r)), Math.min(X0 + NX - 1, Math.ceil(bl.x + r)), Math.max(Z0, Math.floor(bl.z - r)), Math.min(Z0 + NZ - 1, Math.ceil(bl.z + r))]; };
+  for (const bl of W.blocks) { const [x0, x1, z0, z1] = box(bl, bl.street); for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) if (inRect(bl, x + .5, z + .5, bl.street)) ok[idx(x, z)] = 1; }
+  for (const r of W.roads) for (let i = 0; i < r.pts.length - 1; i++) {
+    const [ax, az] = r.pts[i], [bx, bz] = r.pts[i + 1], len = Math.hypot(bx - ax, bz - az), hw = r.w / 2;
+    for (let t = 0; t <= len; t += .5) { const px = ax + (bx - ax) * t / len, pz = az + (bz - az) * t / len; for (let dz = -Math.ceil(hw); dz <= Math.ceil(hw); dz++) for (let dx = -Math.ceil(hw); dx <= Math.ceil(hw); dx++) { const x = Math.floor(px) + dx, z = Math.floor(pz) + dz; if (x >= X0 && x < X0 + NX && z >= Z0 && z < Z0 + NZ && Math.hypot(x + .5 - px, z + .5 - pz) <= hw) ok[idx(x, z)] = 1; } }
+  }
+  const blocked = new Uint8Array(NX * NZ);
+  for (const bl of W.blocks) { const [x0, x1, z0, z1] = box(bl, 0); for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) if (inRect(bl, x + .5, z + .5, -.3)) blocked[idx(x, z)] = 1; }
+  const walk = (x, z) => x >= X0 && x < X0 + NX && z >= Z0 && z < Z0 + NZ && ok[idx(x, z)] && !blocked[idx(x, z)];
+  const near = p => { const cx = Math.floor(p.x), cz = Math.floor(p.z); for (let r = 0; r < 14; r++) for (let dz = -r; dz <= r; dz++) for (let dx = -r; dx <= r; dx++) if (Math.max(Math.abs(dx), Math.abs(dz)) === r && walk(cx + dx, cz + dz)) return [cx + dx, cz + dz]; return null; };
+  const s0 = near(a), g0 = near(b); if (!s0 || !g0) return null;
+  const gi = idx(g0[0], g0[1]), dist = new Float32Array(NX * NZ).fill(1e9), prev = new Int32Array(NX * NZ).fill(-1), done = new Uint8Array(NX * NZ);
+  const heap = [[0, idx(s0[0], s0[1])]]; dist[heap[0][1]] = 0;
+  const push = it => { heap.push(it); let i = heap.length - 1; while (i) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { let m = i; const l = 2 * i + 1, r = l + 1; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };
+  const edge = (x, z) => { let n = 0; for (let dz = -1; dz <= 1; dz++) for (let dx = -1; dx <= 1; dx++) if (!walk(x + dx, z + dz)) n++; return n ? 1.6 : 0; };
+  while (heap.length) {
+    const [d, cur] = pop(); if (done[cur]) continue; done[cur] = 1; if (cur === gi) break;
+    const cx = cur % NX + X0, cz = Math.floor(cur / NX) + Z0;
+    for (let dz = -1; dz <= 1; dz++) for (let dx = -1; dx <= 1; dx++) {
+      if (!dx && !dz) continue; const nx = cx + dx, nz = cz + dz; if (!walk(nx, nz)) continue; if (dx && dz && (!walk(cx + dx, cz) || !walk(cx, cz + dz))) continue;
+      const ni = idx(nx, nz), nd = d + (dx && dz ? 1.414 : 1) + edge(nx, nz); if (nd < dist[ni]) { dist[ni] = nd; prev[ni] = cur; push([nd, ni]); }
+    }
+  }
+  if (prev[gi] < 0 && gi !== idx(s0[0], s0[1])) return null;
+  const pts = []; for (let c = gi; c >= 0; c = prev[c]) pts.push([c % NX + X0 + .5, Math.floor(c / NX) + Z0 + .5]);
+  return pts.reverse();
 }
 
 /* ------------------------------------------------------------------ layout pass: districts, roads, reserved areas */
