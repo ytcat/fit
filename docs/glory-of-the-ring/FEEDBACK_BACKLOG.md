@@ -692,12 +692,13 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0054 — No floating cards over the game: every message part of the screen
 - **Reported:** 2026-11-11 (on the v1.27 screenshot)
-- **Status:** IN PROGRESS (agent `clean-stage`)
+- **Status:** READY FOR QA — merged (`agent/clean-stage` f10608e), v1.32
 - **Priority:** P1
 - **Area:** UI / HUD layout
 - **Reported behavior / request:** "Look where you put the message. It's blocking everything on top, floating over other buttons and the logo. It has to be part of the fighting screen, including the messages after the win with the stars, points and coins — part of the screen, even smaller. For example, if I win, one message and the rewards under it, as part of the picture, so everything stays clean. After playing, the judges' scores are also a card that opens and blocks the view. Go through the whole game, find similar cards that block the game, and embed them into the screen so it all looks clean."
 - **Expected behavior:** a fixed HUD layout with reserved zones inside the 3D stage (top: names/health/power and one status line; centre: one short announcement such as the winner, with rewards and stars directly under it; bottom: controls and the Next bar); compact, translucent, small type; nothing ever covers the header, tabs, logo, controls or the fighters' bodies; judges' scores as a slim row inside the stage (details on demand); every other blocking card in the game audited and moved into these zones.
 - **Acceptance criteria:** an overlap audit (Playwright) of every state — training, mission running and finished, fight intro, round, KO/count, decision with judges, Burst tip, Academy lesson — at 402×690, 360×640, 852×393, 1366×768 in EN/HE: 0 overlaps of HUD elements with the header, controls or each other, and no element covering more than the agreed share of the stage; before/after screenshots.
+- **Result:** new `stage-hud.css` zones; all HUD messages plain text with a soft shadow; judges as one slim row with Details / New fight; rewards and the Next bar inside the stage above the lowest control; cue, gauge, skip pill and Academy HUD compacted. Overlap audit `qa/gotr-0054/hud-audit.cjs` (7 states + lesson): 60 overlapping pairs and 8 outside-stage elements before → 0 after (final run 402×690 and 852×393 EN; earlier full run EN+HE at 4 sizes had 2 left, since fixed); largest HUD share 32.3% (judges card) → 14.4%. Open: centre text and judges row can still cross the fighters' bodies (not in the audit); Cup result dialogs still open by themselves; no HE re-run after the last fix.
 
 ### GOTR-0055 — Adventure screen: map first, graphic, ordered, progress and side quests
 - **Reported:** 2026-11-11 (screenshot, v1.29, Adventure → Old Town)
