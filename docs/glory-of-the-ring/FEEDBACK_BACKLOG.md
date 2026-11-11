@@ -653,7 +653,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0050 — Muscular avatar is too skinny; smoother, more realistic surface
 - **Reported:** 2026-11-11 (after v1.24)
-- **Status:** READY FOR QA — merged (`agent/muscle-2` e12a529), next release
+- **Status:** REOPENED — owner on the before/after sheets: "the after has a lot of distortion on his body, everywhere; it doesn't look realistic". Merge reverted (not shipped); rework in progress
 - **Priority:** P1
 - **Area:** Avatars / anatomy
 - **Reported behavior / request:** "The new muscular avatar is good, but he's very skinny. He should be more built, his chest has to be bigger, his arms have to be bigger. [Stomach] please also make this a bit smoother. The muscles are good, but it now doesn't look realistic anymore." (voice-typed; "stop alarm" read as the stomach/abs)
