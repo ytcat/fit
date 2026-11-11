@@ -843,6 +843,15 @@
     // Move the speed-bag recovery in front of the head, never through it.
     clearOwnFace(side,glove,palmTarget,pole,reference=null) {
       const j=this.joints,hand=j['hand'+side],head=j.head;
+      // GOTR-0027: the clearance a guard glove needs can switch between ~0 and ~23 cm from one tick to the next
+      // (a 1 mm touch of the muzzle starts a walk to the front of the face). Without a reference the correction
+      // is therefore remembered per hand and may change by at most 3.5 cm per pose (speed bag excepted), so the guard eases out of
+      // and back into the face line instead of jumping. A time jump (seek, new drill) forgets it.
+      const memory=reference||this.faceFree?null:(this.faceMemory||(this.faceMemory={L:V(),R:V(),time:null})),start=memory?this.point(hand):null;
+      let fresh=false;if(memory){const time=this.renderTime;fresh=!(Number.isFinite(time)&&Number.isFinite(memory.time)&&time-memory.time>=0&&time-memory.time<.1);if(fresh){memory.L.set(0,0,0);memory.R.set(0,0,0);memory.fresh={L:true,R:true};}memory.time=time;fresh=!!memory.fresh?.[side];if(memory.fresh)memory.fresh[side]=false;}
+      const place=offset=>{const shoulder=this.point(j['arm'+side]),upper=j['elbow'+side].position.length(),lower=hand.position.length(),target=start.clone().add(offset);
+        target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
+        const e=this.solve(j['arm'+side],j['elbow'+side],hand,target,pole);glove=this.orientGlove(side,glove.turn,palmTarget);return e;};
       const sign=side==='L'?-1:1;
       const samples=[[0,.015,0,.077],[0,-.07,0,.089],[0,-.145,0,.099],[0,-.195,0,.068],[sign*.075,-.10,.05,.067]];
       const shapes=[[0,.13,.03,.17,.20,.17],[0,.065,.195,.135,.105,.125]];
@@ -871,6 +880,10 @@
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
         error=this.solve(j['arm'+side],j['elbow'+side],hand,target,reference?this.contactBendPole(side,target,reference):pole);
         glove=this.orientGlove(side,glove.turn,palmTarget);
+      }
+      if(memory){
+        const wanted=this.point(hand).sub(start),previous=memory[side],change=wanted.clone().sub(previous),limited=fresh?wanted.clone():previous.clone().add(change.clampLength(0,.035));
+        if(limited.distanceToSquared(wanted)>1e-8)error=place(limited);memory[side].copy(limited);
       }
       return {glove,error};
     }
@@ -1074,7 +1087,7 @@
           // GOTR-0024: drive and arc carry their speed into the target (cruise).
           const driveHook=cruise((phase-.23)/.24)*(1-smooth((phase-.57)/.22));
           const equipment=options.target||options.knuckleTarget;
-          const swing=(equipment?cruise:smooth)((phase-(equipment?.19:.17))/(equipment?.32:.40));
+          const swing=(equipment?cruise:smooth)((phase-(equipment?.19:.17))/(equipment?options.hookSwing??.32:.40));
           const active=smooth((phase-.12)/(equipment?.32:.24))*(1-smooth((phase-.57)/.24));
           const rotation=driveHook-.28*load;
           crouch=.035*load+.016*driveHook;
@@ -1503,6 +1516,8 @@
         const palm=V(...returned.palm).lerp(V(0,-1,0),blend).normalize();
         gloves[index]=this.orientGlove(side,returned.turn*(1-blend),palm);
       }
+      // Speed-bag circles pass the face every beat and keep the immediate clearance.
+      this.faceFree=move==='speedbag';
       if(move==='speedbag'||options.keepFaceClear)for(const [index,side,pole] of [[0,'L',leadPole],[1,'R',rearPole]]){
         const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole);gloves[index]=safe.glove;
         if(index)re=safe.error;else le=safe.error;

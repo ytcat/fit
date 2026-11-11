@@ -13,7 +13,7 @@
  // stop on it, and the struck mitt pops back by type (peak about 0.7 x depth x force).
  // Surface samples of the mitt's padded body (training-gear.js mitt: ellipsoid 0.132 x 0.157, face at z .066).
  const mittShell=[];for(let a=0;a<8;a++)for(const b of [-.6,0,.6])mittShell.push(V(Math.cos(a*Math.PI/4)*.132*Math.cos(b),-.12+Math.sin(a*Math.PI/4)*.157*Math.cos(b),.02+Math.sin(b)*.065));
- const driveThrough={hook:.09,rear_hook:.10,uppercut:.045,rear_uppercut:.045},popDepth={jab:.085,cross:.09,hook:.095,rear_hook:.10,uppercut:.08,rear_uppercut:.085};
+ const driveThrough={hook:.15,rear_hook:.16,uppercut:.045,rear_uppercut:.045},popDepth={jab:.085,cross:.09,hook:.16,rear_hook:.17,uppercut:.08,rear_uppercut:.085};
  const boxerAdvance={hook:.15,rear_hook:.19,uppercut:.12,rear_uppercut:.12,roll:.20};
  const mittSequence=['jab','cross','roll','uppercut','rear_hook','rear_uppercut','roll','hook'];
  const mittCues={};
@@ -94,7 +94,7 @@
    const straight=move==='jab'||move==='cross',upper=move.includes('uppercut');
    const hook=move==='hook'||move==='rear_hook';
    // GOTR-0032: hooks get the fight's drive (power 1.32, contact drive .05) so the arc still accelerates at the mitt.
-   return {advance:straight?.02:boxerAdvance[move]??.025,contactDrive:move==='jab'?.015:upper?.025:0,shoulderCover:straight?.055:0,armReachMargin:straight?straightReachMargin:undefined,stepLift:boxerAdvance[move]?.036:undefined,guardTightness:1,power:1.15,straightRecovery:.25};
+   return {hookSwing:move.includes('hook')?.26:undefined,advance:straight?.02:boxerAdvance[move]??.025,contactDrive:move==='jab'?.015:upper?.025:0,shoulderCover:straight?.055:0,armReachMargin:straight?straightReachMargin:undefined,stepLift:boxerAdvance[move]?.036:undefined,guardTightness:1,power:1.15,straightRecovery:.25};
   }
   // The coach reads the boxer's reach once per session: where the striking
   // shoulder finishes each straight and how long the unlocked arm is.
