@@ -438,7 +438,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0032 — Mitt-work punches still look like small touches
 - **Reported:** 2026-11-11 (after v1.18)
-- **Status:** PARTLY DONE — merged, next release; remaining items open
+- **Status:** IN PROGRESS — whole-body drive, remaining speeds and guard-hand jump (agent `smooth-motion-3`)
 - **Priority:** P1
 - **Area:** Mitt training / animation feel
 - **Reported behavior / request:** "In the coach training the punches are not strong enough; it still looks like a small touch."
@@ -501,15 +501,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0037 — Visible muscles on every avatar (definition, form shadows, muscle shapes)
 - **Reported:** 2026-11-11 (screen recording of an illustrated human boxer from an ad, used only as a quality reference)
-- **Status:** IN PROGRESS (agent `muscle-definition`)
+- **Status:** READY FOR QA — merged (`agent/muscle-definition` da07b61), next release
 - **Priority:** P1
 - **Area:** Avatars / 3D realism / lighting
 - **Reported behavior / request:** "Look at how the fighter is visualized. Look at his muscles and the shadows and the shapes of each muscle on his body. I want to achieve this kind of level for my players, not just smooth hands but actually to see muscles on each one of the avatars. Try to get as close as possible to this level."
 - **Reference (not stored in the repo):** clearly separated deltoids, traps, lats, back and spinal grooves, pecs, six-pack and obliques, serratus, biceps/triceps, forearm and calf shapes, with strong form shadows and highlights on each muscle. Our characters stay our own Lion and Rabbit; the reference sets only the level of muscle definition.
 - **Expected behavior:** Lion and Rabbit (and every future avatar) show readable muscle shapes on torso, back, arms and legs, in guard and while punching, in the gym and the arenas; fur does not hide them; muscles deform with the pose.
 - **Acceptance criteria:** Matched before/after renders (front, back, side, 3/4; guard, jab extended, hook) for both species; muscle groups named on a labelled sheet; gear and accessories still fit; measured GPU/JS frame cost before/after at phone size with a lower-quality fallback; full suite passes.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** Real surface relief built once per species at load and stored per vertex (121,804 body vertices, ~6.5 mm apart): a data atlas in `avatar-anatomy.js` with 38 muscle parts (22 named groups per side) and per-species profiles (lion heavier, rabbit leaner); 22 pose-driven channels (biceps bunch, deltoid rounding, lat stretch…); crease shading and fine normal detail off at the lowest adaptive-quality level; fur strands follow the relief (removed back specks); pec seam and dark chest band fixed.
+- **Evidence:** `qa/gotr-0037/` — 14 before/after sheets (front/back/side/3-quarter; guard, jab, hook; both species; gym and arena) and labelled muscle atlases; `tests/muscle-definition.test.cjs` (lead biceps 1.18 in guard → 0.97 in the jab, triceps 1.28, lat 0.80); full suite 92/92 after merge; gear fit: belt plate 1.6 mm (lion) / 0.8 mm (rabbit) into the body vs 4 mm limit; boot closure 0.961 (limit 0.99); frame cost A/B ratio 0.96–0.99 (within noise); +2.15 MB vertex data per rig; build 3.1 s once per species in a loaded browser. Still below the reference: no veins or fibre lines, soft creases in close-ups (an authored sculpt baked to maps would close the gap); lighting unchanged; two old seams (armpit on reach, shoulder front).
 
 ### GOTR-0038 — Coach's mitt goes inside his own face in mitt work
 - **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Train → Coach mitts, cue "Roll under the hook")
