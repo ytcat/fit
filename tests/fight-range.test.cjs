@@ -22,7 +22,7 @@ for(const actor of ['lion','rabbit'])for(const move of ['jab','cross'])for(const
  m.attack(actor,move,situation==='body'?'body':'head');let hit=null;
  for(let i=0;i<60&&!hit;i++){view.step();const contact=view.contacts.find(x=>x.actor===actor);if(contact)hit={...arm(view,actor,move),part:contact.part,blocked:contact.blocked,speed:contact.speed};}
  assert.ok(hit,'the straight must reach its target '+JSON.stringify({actor,move,situation}));
- assert.equal(hit.blocked,situation==='blocked_head','a raised guard still stops the glove; an open target is hit clean');
+ assert.equal(hit.blocked,situation==='blocked_head','a raised guard still stops the glove; an open target is hit clean '+JSON.stringify({actor,move,situation,part:hit.part}));
  assert.ok(hit.elbow>=150&&hit.elbow<=175&&hit.extension>=.85,'contact with an extended, unlocked arm '+JSON.stringify({actor,move,situation,...hit}));
  assert.ok(hit.speed>(hit.blocked?.12:2),'an extended straight still carries its drive into the target '+JSON.stringify({actor,move,situation,speed:hit.speed}));
  staged.push({actor,move,situation,elbow:Math.round(hit.elbow),extension:Math.round(hit.extension*100)});

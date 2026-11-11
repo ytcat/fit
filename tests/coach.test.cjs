@@ -193,7 +193,9 @@ for(const move of moves) {
   const offsets=guardSides.map(s=>coach.point(coach.joints['hand'+s]).sub(vec(start.head)));
   for(let i=0;i<120;i++) {
     const m=coach.update(i*.01,move,'one_two');
-    guardSides.forEach((s,k)=>assert.ok(coach.point(coach.joints['hand'+s]).sub(vec(m.head)).distanceTo(offsets[k])<1e-5,move+' defending glove must follow cheek'));
+    // GOTR-0051: from the orthodox guard the forward lead glove comes back to the cheek while the rear hand
+    // throws, so the defending glove may close in on the head; it must never drift away from it.
+    guardSides.forEach((s,k)=>assert.ok(coach.point(coach.joints['hand'+s]).sub(vec(m.head)).length()<=offsets[k].length()+1e-4,move+' defending glove must follow cheek'));
   }
 }
 const manePositions=coach.mane.geometry.attributes.position;
