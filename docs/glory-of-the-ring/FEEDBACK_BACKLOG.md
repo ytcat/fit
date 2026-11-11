@@ -630,6 +630,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Acceptance criteria:** measured jump height, wrist circle radius, elbow-to-ribs distance and heel contact match the targets; side-by-side frame strips with the owner's references (once uploaded); every exercise loops without foot sliding or rope clipping through the body; existing rope tests pass.
 - **Implementation:** Not started.
 - **Evidence:** Not yet available.
+- **Paused state (`agent/rope-real` dd389a2, pushed, not merged):** 7 selectable exercises (bounce, boxer skip, side/front hops, shuffle, high knees, double unders, free combination; EN/HE/RU); lion basic bounce measured: jump 18 cm → 3.4 cm, heels ≥ 2.4 cm up, planted-foot slide 0, hands 10–13 cm out from the hips with 2 cm wrist circles, elbows 1.4 cm from the ribs, head level (−2°), rope clears the feet; criss-cross behind a flag (rope cuts the forearms); rabbit not measured; no screenshots yet; 4 rope test limits changed on purpose (see branch). Not merged until checked visually.
 
 ### GOTR-0049 — Outfits that fit the place and the activity
 - **Reported:** 2026-11-11
