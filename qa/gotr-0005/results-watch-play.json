@@ -1,0 +1,102 @@
+{
+ "watch": [
+  {
+   "seed": 20261111,
+   "readyAt": 14.57,
+   "hitsLanded": 3,
+   "blocksMade": 2,
+   "starts": 1,
+   "burstPunches": 0,
+   "waited": [
+    {
+     "move": "hook",
+     "wait": 0.567
+    }
+   ],
+   "burstContacts": [
+    "glove",
+    "glove"
+   ],
+   "opponentDefended": 0,
+   "burstPunchesSeen": 1,
+   "defences": [],
+   "after": "bout"
+  },
+  {
+   "seed": 20261112,
+   "readyAt": 14.97,
+   "hitsLanded": 2,
+   "blocksMade": 4,
+   "starts": 1,
+   "burstPunches": 0,
+   "waited": [
+    {
+     "move": "jab",
+     "wait": 0.517
+    }
+   ],
+   "burstContacts": [
+    "glove",
+    "head",
+    "body",
+    "arm",
+    "glove"
+   ],
+   "opponentDefended": 0,
+   "burstPunchesSeen": 3,
+   "defences": [],
+   "after": "charging"
+  }
+ ],
+ "play": [
+  {
+   "seed": 20261121,
+   "readyAt": 14.02,
+   "keyPresses": 16,
+   "landed": 2,
+   "thrown": 16,
+   "status": "You control Lion · Burst 1/5 · Jab",
+   "starts": 1,
+   "burstPunches": 0,
+   "waited": [
+    {
+     "move": "cross",
+     "wait": 0.517
+    }
+   ],
+   "inFlight": "jab",
+   "opponentDefended": 2,
+   "burstPunchesSeen": 3,
+   "defences": [
+    "guard:parry",
+    "slip"
+   ],
+   "acceptedAfter": true
+  },
+  {
+   "seed": 20261122,
+   "readyAt": 12.73,
+   "keyPresses": 14,
+   "landed": 3,
+   "thrown": 14,
+   "starts": 1,
+   "burstPunches": 0,
+   "waited": [
+    {
+     "move": "hook",
+     "wait": 0.15
+    }
+   ],
+   "inFlight": "hook",
+   "opponentDefended": 2,
+   "burstPunchesSeen": 4,
+   "defences": [
+    "slip",
+    "roll"
+   ],
+   "acceptedAfter": true
+  }
+ ],
+ "defendedTotal": 4,
+ "burstPunchesTotal": 11
+}

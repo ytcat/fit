@@ -21,7 +21,7 @@ async function fight(p,{watch,options={}}){
  await p.evaluate(({watch,options})=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());ringfighterGame.startFight({watch,...options});document.querySelectorAll('dialog[open]').forEach(d=>d.close());
   // Event recorder: every burst event plus contacts/punches, and the actor's action at the moment of an order.
   const e=app.engine,m=e.arena.fightView.match,a=e.player.actor();window.__burst={log:[],orders:[]};const emit=m.emit.bind(m);
-  m.emit=(type,data)=>{const ev=emit(type,data);if(/^burst-|^contact$|^punch$|^knockdown$|^bell$/.test(type)){const f=m.fighters[ev.actor||a];window.__burst.log.push({...ev,burstStep:ev.type==='punch'?m.fighters[ev.actor].action?.burst||0:undefined,opp:ev.type==='punch'?null:undefined});}
+  m.emit=(type,data)=>{const ev=emit(type,data);if(/^burst-|^contact$|^punch$|^miss$|^knockdown$|^bell$/.test(type)){const f=m.fighters[ev.actor||a];window.__burst.log.push({...ev,burstStep:ev.type==='punch'?m.fighters[ev.actor].action?.burst||0:undefined,opp:ev.type==='punch'?null:undefined});}
    if(type==='burst-order'){const x=m.fighters[ev.actor].action;window.__burst.orders.push({time:m.time,action:x?{id:x.id,move:x.move,start:x.start,duration:x.duration,attack:!!x.attack}:null});}return ev;};
   const req=m.requestBurst.bind(m);m.requestBurst=actor=>{const ok=req(actor);window.__burst.log.push({type:'request',time:m.time,ok,paused:!e.isPlaying});return ok;};
  },{watch,options});
@@ -34,7 +34,11 @@ const skipIntro=p=>p.evaluate(()=>app.engine.cameraDirector?.skipIntro?.());
 function boundaryCheck(log,orders){
  const starts=log.filter(e=>e.type==='burst-start');assert.ok(starts.length>=1,'burst started');
  for(const [i,s] of starts.entries()){const o=orders[i];assert.ok(o,'order recorded');if(o.action)assert.ok(s.time>=o.action.start+o.action.duration-1e-6,`started ${s.time.toFixed(3)} after the action in progress ended ${(o.action.start+o.action.duration).toFixed(3)} (${o.action.move})`);assert.ok(!s.previous||s.previous.end<=s.time+1e-6,'previous action ended at the boundary');}
- const punches=log.filter(e=>e.type==='punch'&&e.burstStep);return {starts:starts.length,burstPunches:punches.length,waited:orders.map((o,i)=>o.action?{move:o.action.move,wait:+(starts[i].time-o.time).toFixed(3)}:{move:null,wait:+(starts[i].time-o.time).toFixed(3)})};
+ // burst window: from the start to the end of its recovery step (or a cancel); count the punches and how they ended
+ const s0=starts[0],end=(log.find(e=>(e.type==='burst-end'||e.type==='burst-cancel')&&e.time>=s0.time)?.time??Infinity)+.05,inWin=e=>e.actor===s0.actor&&e.time>=s0.time-1e-9&&e.time<=end;
+ const punches=log.filter(e=>e.type==='punch'&&inWin(e)),contacts=log.filter(e=>e.type==='contact'&&inWin(e)),misses=log.filter(e=>e.type==='miss'&&inWin(e));
+ const outcome={landed:contacts.filter(c=>c.legal).length,blocked:contacts.filter(c=>c.blocked).length,shoulder:contacts.filter(c=>c.part==='shoulder').length,missed:misses.length};
+ return {starts:starts.length,burstPunches:punches.length,moves:punches.map(p=>p.move),outcome,waited:orders.map((o,i)=>o.action?{move:o.action.move,wait:+(starts[i].time-o.time).toFixed(3)}:{move:null,wait:+(starts[i].time-o.time).toFixed(3)})};
 }
 (async()=>{const b=await chromium.launch({args:['--no-sandbox','--enable-unsafe-swiftshader']});
 try{
@@ -60,9 +64,8 @@ try{
    await p.waitForTimeout(400);s=await state(p);if(s.ui.state==='active'&&seed===20261111)await shot(p,'watch-executing-desk');
    await until(p,()=>window.__burst.log.some(e=>e.type==='burst-end'||e.type==='burst-cancel')||app.engine.arena.fightView.match.result);
    const log=await p.evaluate(()=>window.__burst.log),orders=await p.evaluate(()=>window.__burst.orders),def=await p.evaluate(()=>window.__def);
-   Object.assign(run,boundaryCheck(log,orders));const actor=s.actor;run.burstContacts=log.filter(e=>e.type==='contact'&&e.actor===actor&&e.time>=log.find(x=>x.type==='burst-start').time).slice(0,5).map(e=>e.part);
-   run.opponentDefended=Object.keys(def.defended).length;run.burstPunchesSeen=Object.keys(def.punches).length;run.defences=Object.values(def.defended);
-   s=await state(p);run.after=s.ui?.state;runs.push(run);await p.evaluate(()=>{window.__def=null;});
+   Object.assign(run,boundaryCheck(log,orders));
+   s=await state(p);run.after=s.ui?.state;runs.push(run);
   }
   results.watch=runs;console.log('WATCH',JSON.stringify(runs));assert.ok(runs.filter(r=>r.starts).length>=2,'at least two real-charge Watch bursts');
   assert.deepEqual(p.errors,[]);await p.close();}
@@ -86,12 +89,12 @@ try{
    s=await state(p);if(seed===20261121&&s.ui.state==='active'){await shot(p,'play-executing-phone');run.status=await p.evaluate(()=>document.getElementById('manualStatus').textContent);}
    await until(p,()=>window.__burst.log.some(e=>e.type==='burst-end'||e.type==='burst-cancel')||app.engine.arena.fightView.match.result);
    const log=await p.evaluate(()=>window.__burst.log),orders=await p.evaluate(()=>window.__burst.orders),def=await p.evaluate(()=>window.__def);
-   Object.assign(run,boundaryCheck(log,orders),{inFlight:mid.move,opponentDefended:Object.keys(def.defended).length,burstPunchesSeen:Object.keys(def.punches).length,defences:Object.values(def.defended)});
+   Object.assign(run,boundaryCheck(log,orders),{inFlight:mid.move});
    await p.waitForTimeout(900);run.acceptedAfter=await p.evaluate(()=>app.engine.player.press('jab')||app.engine.arena.fightView.match.phase!=='round');runs.push(run);await p.evaluate(()=>{window.__def=null;});
   }
   results.play=runs;console.log('PLAY',JSON.stringify(runs));assert.ok(runs.filter(r=>r.starts).length>=1,'a real-charge Play burst');
-  const all=[...(results.watch||[]),...runs];results.defendedTotal=all.reduce((n,r)=>n+(r.opponentDefended||0),0);results.burstPunchesTotal=all.reduce((n,r)=>n+(r.burstPunchesSeen||0),0);
-  console.log('opponent defended',results.defendedTotal,'of',results.burstPunchesTotal,'burst punches');
+  const all=[...(results.watch||[]),...runs],sum=k=>all.reduce((n,r)=>n+(r.outcome?.[k]||0),0);results.burstOutcome={punches:all.reduce((n,r)=>n+(r.burstPunches||0),0),landed:sum('landed'),blocked:sum('blocked'),missed:sum('missed'),shoulder:sum('shoulder')};
+  console.log('BURST OUTCOME',JSON.stringify(results.burstOutcome));assert.ok(results.burstOutcome.blocked+results.burstOutcome.missed>0,'the opponent blocked or avoided at least one burst punch');
   assert.deepEqual(p.errors,[]);await p.close();}
 
  // ---------- RULES: pause, intro with Side lock, knockdown count, round end, KO (HOOK charge) ----------

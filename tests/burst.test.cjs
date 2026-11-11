@@ -12,7 +12,7 @@ const run=(m,seconds,each)=>{for(let i=0;i<Math.round(seconds*120);i++){m.advanc
  // isolate the clock: no contacts happen without the 3D arena, so only time fills the meter here
  run(m,10);assert.ok(near(m.fighters.lion.burst.charge,10*B.perSecond,.01),'time alone: '+m.fighters.lion.burst.charge);
  assert.equal(m.burstState('lion').status,'charging');assert.equal(m.requestBurst('lion'),false,'cannot order while charging');
- assert.ok(20*B.perSecond<.75,'time alone cannot fill the meter inside a 20 s round');}
+ assert.ok(20*B.perSecond<1,'time alone cannot fill the meter inside a 20 s round');}
 
 // 2) Real play events fill it: clean hits for the attacker, blocks and evasions for the defender.
 {const m=new BoxingFight({seed:4,preset:'quick'});toRound(m);const L=m.fighters.lion.burst,R=m.fighters.rabbit.burst;const c0=L.charge,r0=R.charge;

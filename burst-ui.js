@@ -38,7 +38,13 @@
   const suspended=()=>!!(e.fightIQDemo||stage.classList.contains('game-preview-live'));
   // The tip stays while Burst is ready, for up to 6 s of fight time (it waits during pause), or until pressed.
   function hideTip(){tip.hidden=true;tipAt=null;}
-  function showTip(time){if(tipShown)return;tipShown=true;try{window.localStorage.setItem(TIP_KEY,'1');}catch{/* Not persisted. */}tip.textContent=w().tip;tip.hidden=false;tipAt=time;}
+  // Beside the button on its own row, stopping short of the Side lock / pause buttons, so it never covers the status line.
+  function placeTip(){
+   const sr=stage.getBoundingClientRect(),br=button.getBoundingClientRect();let right=sr.right-8;
+   for(const n of [document.getElementById('camLock'),document.getElementById('playBtn')]){if(!n||n.offsetParent===null)continue;const r=n.getBoundingClientRect();if(r.width&&r.bottom>br.top-4&&r.top<br.bottom+4&&r.left>br.right)right=Math.min(right,r.left-8);}
+   tip.style.left=Math.round(br.right-sr.left+8)+'px';tip.style.bottom=Math.round(sr.bottom-br.bottom)+'px';tip.style.maxWidth=Math.max(120,Math.round(right-br.right-8))+'px';tip.style.minHeight=Math.round(br.height)+'px';
+  }
+  function showTip(time){if(tipShown)return;tipShown=true;try{window.localStorage.setItem(TIP_KEY,'1');}catch{/* Not persisted. */}tip.textContent=w().tip;tip.hidden=false;tipAt=time;placeTip();}
   function paint(){
    const m=match(),state=m&&!suspended()?m.burstState?.(actor()):null,v=view(state,{paused:!e.isPlaying,watch:!e.player?.enabled});
    if(tipAt!=null&&(!v||v.reason!=='ready'&&v.reason!=='paused'||m.time-tipAt>6))hideTip();
@@ -47,7 +53,7 @@
    const words=w();button.dataset.state=v.reason;button.disabled=!v.enabled;button.style.setProperty('--burst-fill',v.fill.toFixed(3));
    meter.innerHTML=ICONS[v.icon];caption.textContent=words[v.caption];
    button.setAttribute('aria-label',(v.enabled?words.ready:words.burst+' · '+words[v.caption]+(v.reason==='charging'?' '+Math.round(v.fill*100)+'%':''))+'. '+words.label);button.title=words.label;
-   if(v.reason==='ready')showTip(m.time);
+   if(v.reason==='ready')showTip(m.time);if(!tip.hidden)placeTip();
    return v;
   }
   function press(){
