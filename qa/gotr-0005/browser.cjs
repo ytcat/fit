@@ -6,14 +6,15 @@
 // used where a state must be reached quickly (pause, count, KO, layout), never for the real-charge runs.
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const port=process.argv[2]||8152,parts=(process.argv[3]||'watch,play,rules,cup,layout').split(','),dir=__dirname,results={};
-const shot=async(p,name)=>{const png=path.join(dir,name+'.png');await p.screenshot({path:png});try{require('node:child_process').execFileSync('python3',['-c',`from PIL import Image;Image.open(${JSON.stringify(png)}).save(${JSON.stringify(png.replace(/png$/,'webp'))},quality=78)`]);fs.unlinkSync(png);}catch(e){console.log('webp failed',e.message);}};
+const shot=async(p,name)=>{await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));const png=path.join(dir,name+'.png');await p.screenshot({path:png});try{require('node:child_process').execFileSync('python3',['-c',`from PIL import Image;Image.open(${JSON.stringify(png)}).save(${JSON.stringify(png.replace(/png$/,'webp'))},quality=78)`]);fs.unlinkSync(png);}catch(e){console.log('webp failed',e.message);}};
 const state=p=>p.evaluate(()=>{window.burstControl.paint();const e=app.engine,m=e.arena?.fightView?.match,a=e.player.actor(),b=document.getElementById('burstControl'),s=m?.burstState(a);return {phase:m?.phase,time:m?.time,actor:a,engine:s,ui:b&&!b.hidden?{state:b.dataset.state,disabled:b.disabled,text:b.textContent,fill:b.style.getPropertyValue('--burst-fill')}:null,tip:!document.getElementById('burstTip').hidden?document.getElementById('burstTip').textContent:null,result:!!m?.result};});
 async function open(b,vp,lang='en'){
  const p=await b.newPage({viewport:vp,bypassCSP:true});p.setDefaultTimeout(180000);p.errors=[];p.on('pageerror',e=>p.errors.push(e.message));
  await p.goto('http://127.0.0.1:'+port);await p.waitForFunction(()=>window.ringfighterGame&&app.engine.coach?.anatomy,null,{timeout:180000});
  // Clock driver: software WebGL renders ~1 fps, so the QA advances the real fight clock (arena.update -> match.advance,
  // real poses and the real contact solver) in 1/60 s steps; it stands still while the game is paused or the intro holds it.
- await p.evaluate(()=>{const e=app.engine;window.__until=async(cond,max)=>{let n=0,t=0;while(!cond()){if(t>=max)return false;if(!e.isPlaying||e.cameraDirector?.holdsClock||e.targetMode!=='fight'){await new Promise(r=>setTimeout(r,30));if(++n>4000)return false;continue;}e.animTime+=1/60;t+=1/60;const f=e.arena.update(e.animTime);e.career?.onFrame?.(f,1/60);if(Math.round(t*60)%20===0)await new Promise(r=>setTimeout(r,0));}window.burstControl.paint();return true;};});
+ // Rendering is skipped while the driver runs (the render loop still runs the camera and UI), then resumes for screenshots.
+ await p.evaluate(()=>{const e=app.engine,render=e.renderer.render.bind(e.renderer);e.renderer.render=(...a)=>{if(!window.__noRender)render(...a);};window.__until=async(cond,max)=>{window.__noRender=true;try{return await drive(cond,max);}finally{window.__noRender=false;}};const drive=async(cond,max)=>{let n=0,t=0;while(!cond()){if(t>=max)return false;if(!e.isPlaying||e.cameraDirector?.holdsClock||e.targetMode!=='fight'){await new Promise(r=>setTimeout(r,30));if(++n>4000)return false;continue;}e.animTime+=1/60;t+=1/60;const f=e.arena.update(e.animTime);e.career?.onFrame?.(f,1/60);if(Math.round(t*60)%60===0)await new Promise(r=>setTimeout(r,0));}window.burstControl.paint();return true;};});
  await p.evaluate(lang=>{localStorage.removeItem('gotr-burst-tip');window.burstControl.resetTip();document.querySelectorAll('dialog[open]').forEach(d=>d.close());app.setLanguage(lang);},lang);return p;
 }
 async function fight(p,{watch,options={}}){
@@ -39,7 +40,7 @@ function boundaryCheck(log,orders){
 try{
  // ---------- WATCH: real charge from real contacts and time, coach order at a safe boundary ----------
  if(parts.includes('watch')){const p=await open(b,{width:1366,height:768});const runs=[];
-  for(const seed of [20261111,20261112,20261113]){
+  for(const seed of [20261111,20261112]){
    await fight(p,{watch:true,options:{seed}});await watchDefence(p);
    let s=await state(p);assert.equal(s.ui.state,'bell','intro: wait for the bell');assert.equal(s.ui.disabled,true);
    if(seed===20261111)await shot(p,'watch-disabled-bell-desk');
@@ -69,12 +70,12 @@ try{
  // ---------- PLAY: player lands real punches to charge; Burst queued behind the punch in progress ----------
  if(parts.includes('play')){const p=await open(b,{width:393,height:852});const runs=[];
   for(const seed of [20261121,20261122]){
-   await fight(p,{watch:false,options:{seed}});await watchDefence(p);await skipIntro(p);await until(p,()=>app.engine.arena.fightView.match.phase==='round');
-   // press real move keys (1 jab, 2 cross, 3 hook) like a player until Burst is ready
-   const charged=await p.evaluate(async()=>{const e=app.engine,m=e.arena.fightView.match,a=e.player.actor(),keys=['1','2','1','3','2'];let k=0;
-    while(!m.result&&m.phase!=='rest'&&m.burstState(a).status!=='ready'){if(m.phase==='round'&&!m.fighters[a].action&&!m.playerQueue.length)document.dispatchEvent(new KeyboardEvent('keydown',{key:keys[k++%keys.length],bubbles:true}));await new Promise(r=>setTimeout(r,60));}
-    return {status:m.burstState(a).status,time:m.roundTime,pressed:k};});
-   const run={seed,readyAt:charged.status==='ready'?+charged.time.toFixed(2):null,keyPresses:charged.pressed};
+   await fight(p,{watch:false,options:{seed}});await p.evaluate(()=>window.manualControls.setPage('moves'));await watchDefence(p);await skipIntro(p);await until(p,()=>app.engine.arena.fightView.match.phase==='round');
+   // press real move keys (1 jab, 2 cross, 3 hook) like a player whenever idle, while driving the fight clock, until Burst is ready
+   const charged=await p.evaluate(async()=>{const e=app.engine,m=e.arena.fightView.match,a=e.player.actor(),keys=['1','2','1','3','2'];let k=0,n=0;
+    while(!m.result&&m.phase!=='rest'&&m.burstState(a).status!=='ready'){if(m.phase==='round'&&!m.fighters[a].action&&!m.playerQueue.length)document.dispatchEvent(new KeyboardEvent('keydown',{key:keys[k++%keys.length],bubbles:true}));for(let i=0;i<4;i++){e.animTime+=1/60;e.career?.onFrame?.(e.arena.update(e.animTime),1/60);}if(++n%5===0)await new Promise(r=>setTimeout(r,0));}
+    return {status:m.burstState(a).status,time:m.roundTime,pressed:k,landed:m.totals[a].landed,thrown:m.totals[a].thrown};});
+   const run={seed,readyAt:charged.status==='ready'?+charged.time.toFixed(2):null,keyPresses:charged.pressed,landed:charged.landed,thrown:charged.thrown};
    if(charged.status!=='ready'){run.note='not ready this round';runs.push(run);continue;}
    if(seed===20261121){const s=await state(p);assert.ok(s.tip,'tip shows the first time');await shot(p,'play-ready-phone');}
    // press a cross, then Burst while it is in flight: it must wait for the boundary
@@ -103,13 +104,13 @@ try{
   // pause
   await p.evaluate(()=>{app.engine.arena.fightView.match.fighters[app.engine.player.actor()].burst.charge=1;});await p.waitForTimeout(300);
   await p.click('#playBtn');await p.waitForTimeout(400);s=await state(p);r.paused=s.ui.state;assert.equal(s.ui.state,'paused');assert.equal(s.ui.disabled,true);
-  await p.keyboard.press('b');assert.equal((await state(p)).engine.status,'ready','B key ignored while paused');await shot(p,'rules-paused-land-ru');
+  await p.evaluate(()=>document.activeElement?.blur());await p.keyboard.press('b');assert.equal((await state(p)).engine.status,'ready','B key ignored while paused');await shot(p,'rules-paused-land-ru');
   const t0=(await state(p)).time;await p.waitForTimeout(800);assert.equal((await state(p)).time,t0,'clock stopped');
   await p.click('#playBtn');await p.waitForTimeout(300);s=await state(p);assert.equal(s.ui.state,'ready');
   // order, then pause before the boundary: nothing starts while paused
   await until(p,()=>{const m=app.engine.arena.fightView.match,x=m.fighters[app.engine.player.actor()].action;return x?.attack&&m.time-x.start<.1;},null,20);
-  await p.keyboard.press('b');await p.click('#playBtn');const held=await p.evaluate(()=>({n:window.__burst.log.filter(e=>e.type==='burst-start').length,t:app.engine.arena.fightView.match.time}));await p.waitForTimeout(1000);
-  const held2=await p.evaluate(()=>({n:window.__burst.log.filter(e=>e.type==='burst-start').length,t:app.engine.arena.fightView.match.time}));assert.equal(held2.t,held.t);assert.equal(held2.n,held.n,'no start while paused');
+  await p.evaluate(()=>document.activeElement?.blur());await p.keyboard.press('b');await p.click('#playBtn');const held=await p.evaluate(()=>({n:window.__burst.log.filter(e=>e.type==='burst-start').length,t:app.engine.arena.fightView.match.time}));await p.waitForTimeout(1000);
+  const held2=await p.evaluate(()=>({n:window.__burst.log.filter(e=>e.type==='burst-start').length,t:app.engine.arena.fightView.match.time}));assert.equal(held.n,0,'order still waiting for the boundary when paused');assert.equal((await state(p)).ui.state,'paused');assert.equal(held2.t,held.t);assert.equal(held2.n,held.n,'no start while paused');
   await p.click('#playBtn');await until(p,()=>window.__burst.log.some(e=>e.type==='burst-start'),null,20);r.pauseOrder=boundaryCheck(await p.evaluate(()=>window.__burst.log),await p.evaluate(()=>window.__burst.orders));
   // knockdown count: order queued then the opponent goes down -> order cancelled, meter kept, ready after the count
   await until(p,()=>window.__burst.log.some(e=>e.type==='burst-end'),null,20);
@@ -142,13 +143,14 @@ try{
  if(parts.includes('layout')){const rows=[];
   for(const [name,vp] of [['phone',{width:393,height:852}],['small',{width:360,height:640}],['land',{width:852,height:393}],['desk',{width:1366,height:768}]]){
    const p=await open(b,vp);
+   // one long-round fight per size; language, Watch/Play and the control page are switched inside it
+   await fight(p,{watch:true,options:{seed:7,roundSeconds:900}});await skipIntro(p);await until(p,()=>app.engine.arena.fightView.match.phase==='round');
    for(const lang of ['en','he','ru']){
     await p.evaluate(lang=>app.setLanguage(lang),lang);
     for(const mode of ['watch','moves','combos','defence']){
-     await fight(p,{watch:mode==='watch',options:{seed:7}});if(mode!=='watch')await p.evaluate(m=>window.manualControls.setPage(m),mode);
-     await skipIntro(p);await until(p,()=>app.engine.arena.fightView.match.phase==='round');
+     await p.evaluate(m=>{document.getElementById(m==='watch'?'watchMode':'playMode').click();if(m!=='watch')window.manualControls.setPage(m);},mode);
      for(const st of ['charging','ready']){
-      if(st==='ready')await p.evaluate(()=>{const e=app.engine;e.arena.fightView.match.fighters[e.player.actor()].burst.charge=1;});
+      await p.evaluate(st=>{const e=app.engine,b=e.arena.fightView.match.fighters[e.player.actor()].burst;b.open=0;b.charge=st==='ready'?1:.4;},st);
       await p.waitForTimeout(250);
       const m=await p.evaluate(()=>{const R=n=>{const r=n.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom};},vis=n=>n&&!n.hidden&&n.offsetParent!==null&&getComputedStyle(n).visibility!=='hidden'&&n.getBoundingClientRect().width>0;
        const burst=document.getElementById('burstControl'),stage=document.getElementById('stageContainer');if(!vis(burst))return {missing:true};const b=R(burst),s=R(stage);

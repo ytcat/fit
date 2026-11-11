@@ -32,20 +32,22 @@
   const caption=document.createElement('span');caption.className='burst-caption';button.append(meter,caption);
   const tip=document.createElement('div');tip.className='burst-tip';tip.id='burstTip';tip.setAttribute('role','status');tip.hidden=true;
   stage.append(button,tip);
-  let last='',tipTimer=0,tipShown=false;try{tipShown=window.localStorage.getItem(TIP_KEY)==='1';}catch{/* Private mode: tip may repeat per session. */}
+  let last='',tipAt=null,tipShown=false;try{tipShown=window.localStorage.getItem(TIP_KEY)==='1';}catch{/* Private mode: tip may repeat per session. */}
   const match=()=>e.targetMode==='fight'&&e.arena?.mode==='fight'?e.arena.fightView?.match:null;
   const actor=()=>e.player?.actor?.()||(e.coach?.species==='rabbit'?'rabbit':'lion');
   const suspended=()=>!!(e.fightIQDemo||stage.classList.contains('game-preview-live'));
-  function hideTip(){tip.hidden=true;clearTimeout(tipTimer);}
-  function showTip(){if(tipShown)return;tipShown=true;try{window.localStorage.setItem(TIP_KEY,'1');}catch{/* Not persisted. */}tip.textContent=w().tip;tip.hidden=false;clearTimeout(tipTimer);tipTimer=setTimeout(hideTip,5000);}
+  // The tip stays while Burst is ready, for up to 6 s of fight time (it waits during pause), or until pressed.
+  function hideTip(){tip.hidden=true;tipAt=null;}
+  function showTip(time){if(tipShown)return;tipShown=true;try{window.localStorage.setItem(TIP_KEY,'1');}catch{/* Not persisted. */}tip.textContent=w().tip;tip.hidden=false;tipAt=time;}
   function paint(){
    const m=match(),state=m&&!suspended()?m.burstState?.(actor()):null,v=view(state,{paused:!e.isPlaying,watch:!e.player?.enabled});
+   if(tipAt!=null&&(!v||v.reason!=='ready'&&v.reason!=='paused'||m.time-tipAt>6))hideTip();
    const key=v?[v.reason,Math.round(v.fill*50),app.lang,v.icon].join('|'):'hidden';if(key===last)return v;last=key;
    button.hidden=!v;document.body.classList.toggle('burst-visible',!!v);if(!v){hideTip();return v;}
    const words=w();button.dataset.state=v.reason;button.disabled=!v.enabled;button.style.setProperty('--burst-fill',v.fill.toFixed(3));
    meter.innerHTML=ICONS[v.icon];caption.textContent=words[v.caption];
    button.setAttribute('aria-label',(v.enabled?words.ready:words.burst+' · '+words[v.caption]+(v.reason==='charging'?' '+Math.round(v.fill*100)+'%':''))+'. '+words.label);button.title=words.label;
-   if(v.reason==='ready')showTip();else if(!tip.hidden&&v.reason!=='ready')hideTip();
+   if(v.reason==='ready')showTip(m.time);
    return v;
   }
   function press(){
