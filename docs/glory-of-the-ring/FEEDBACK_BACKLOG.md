@@ -484,6 +484,18 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** `boxing-fight.js` `BoxingFight.burst`: time fill 0.045 → 0.11/s, clean hit +0.10 → +0.25, block/evasion +0.07 → +0.17. `tests/burst.test.cjs` updated on purpose (time alone fills in 7–12 s; two hits and a block in 2–8 s).
 - **Evidence:** `qa/gotr-0036/` — 4 Watch fights, 8 fighters, real contact solver: first full meter (round time) mean 12.3 s → 5.4 s, range 8.9–17.6 s → 3.8–9.1 s; full within the first 10 s of the round 2/8 → 8/8.
 
+### GOTR-0037 — Visible muscles on every avatar (definition, form shadows, muscle shapes)
+- **Reported:** 2026-11-11 (screen recording of an illustrated human boxer from an ad, used only as a quality reference)
+- **Status:** IN PROGRESS (agent `muscle-definition`)
+- **Priority:** P1
+- **Area:** Avatars / 3D realism / lighting
+- **Reported behavior / request:** "Look at how the fighter is visualized. Look at his muscles and the shadows and the shapes of each muscle on his body. I want to achieve this kind of level for my players, not just smooth hands but actually to see muscles on each one of the avatars. Try to get as close as possible to this level."
+- **Reference (not stored in the repo):** clearly separated deltoids, traps, lats, back and spinal grooves, pecs, six-pack and obliques, serratus, biceps/triceps, forearm and calf shapes, with strong form shadows and highlights on each muscle. Our characters stay our own Lion and Rabbit; the reference sets only the level of muscle definition.
+- **Expected behavior:** Lion and Rabbit (and every future avatar) show readable muscle shapes on torso, back, arms and legs, in guard and while punching, in the gym and the arenas; fur does not hide them; muscles deform with the pose.
+- **Acceptance criteria:** Matched before/after renders (front, back, side, 3/4; guard, jab extended, hook) for both species; muscle groups named on a labelled sheet; gear and accessories still fit; measured GPU/JS frame cost before/after at phone size with a lower-quality fallback; full suite passes.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
