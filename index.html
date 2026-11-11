@@ -930,6 +930,8 @@
           const selected=body?'body-'+(1+this.soundSerial%2):'pad',sample=this.samples.has(selected)?selected:this.samples.has('body-1')?'body-1':'pad';
           this.playSample(sample,.26+strength*.42,(heavy?.97:body?.99:1.01)+variation,0,heavy?1800:body?3000:6000);
           if(!body&&!impact.blocked&&['head','body'].includes(impact.kind))this.playSample('body-1',strength*.17,.96+variation,0,1600);
+          // GOTR-0032: a brighter, louder pop layer on the focus mitts (scaled by the closing speed).
+          if(impact.receiver==='pads')this.playSample('pad',.08+strength*.26,1.12+variation,0,9000);
           return;
         }
         const strength=Math.min(1,Math.max(.15,(impact.closingSpeed||1)/6));
