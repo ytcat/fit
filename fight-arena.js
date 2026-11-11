@@ -87,7 +87,7 @@
    // GOTR-0024: a snap, not a held pose. Peaks ~45 ms after contact in
    // proportion to the blow (the old curve saturated every clean hit and
    // held it ~0.4 s), then recovers; a blocked blow jolts the guard.
-   const scale=r.part==='guard'?clamp((r.move==='jab'?.45:.6)+r.severity*2.5,0,.95):clamp(r.severity*.78,0,1.15);
+   const scale=r.part==='guard'?clamp((r.move==='jab'?.45:.6)+r.severity*2.5,0,.95):clamp(r.severity*1.05,0,1.2);
    return {...r,amount:scale*(1-Math.exp(-age/.016))*Math.exp(-age/.21)/.76};
   }
   travelCapacity(point,direction){
