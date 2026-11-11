@@ -509,6 +509,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Acceptance criteria:** Measured minimum distance between each mitt/glove and the owner's head and torso surfaces stays positive in every mitt-work drill, both species as coach where supported; frame strip of the hook-roll drill before/after; mitt tests pass.
 - **Evidence:** `qa/gotr-0038/user-v1.20-coach-mitt-in-face.webp` (owner's screenshot).
 
+### GOTR-0039 — Combo preview in the Shop shows an empty arena
+- **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Shop → Combos → First Rhythm preview)
+- **Status:** IN PROGRESS (agent `store-polish`, together with GOTR-0030)
+- **Priority:** P1
+- **Area:** Shop / combo preview / camera
+- **Reported behavior / request:** "When you click on preview the screen is empty."
+- **Observed:** the preview is playing (Jab/Cross chips, Stop button) but the pane shows only the arena wall and a "Fight Night" sign; the fighter is out of frame.
+- **Expected behavior:** Every combo preview frames the whole fighter performing the combo, in the narrow phone pane and in Full view, in every arena.
+- **Acceptance criteria:** Screenshots of at least two combos at 402×690 and 1366×768 show the fighter fully in frame; EN/HE/RU.
+- **Evidence:** `qa/gotr-0039/user-v1.20-combo-preview-empty.webp` (owner's screenshot).
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
