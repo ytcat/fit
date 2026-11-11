@@ -54,3 +54,5 @@ html:has(.club-app){background:var(--gr-bg)}body.club-app{height:100dvh;min-heig
 @media(max-width:700px){.club-app .club-brand .club-mark{width:40px;height:40px}}
 /* Visible release number at the end of the subtitle line, so testers can tell which build they have. */
 .club-app .club-brand #appSubtitle[data-version]::after{content:'\00a0\00b7\00a0\2066' attr(data-version) '\2069';text-transform:none;letter-spacing:.4px;color:var(--gr-text-muted,#9aa7bb);font-weight:700;white-space:nowrap}
+/* Owner 2026-11-11: subtitle was cut under a two-line title on phones. Keep one short line: version only. */
+@media (max-width:520px){.club-app .club-brand #appTitle{line-height:1.12}.club-app .club-brand #appSubtitle{font-size:0;letter-spacing:0;margin-top:2px;white-space:nowrap}.club-app .club-brand #appSubtitle[data-version]::after{content:attr(data-version);font-size:10px;letter-spacing:.4px}}
