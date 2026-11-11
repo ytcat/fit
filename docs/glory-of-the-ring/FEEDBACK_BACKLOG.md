@@ -584,6 +584,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Acceptance criteria:** HE and RU screenshots at 402×690 with no English left except the player's own name; bidi-isolated names.
 - **Evidence:** `qa/gotr-0045/user-v1.20-he-profile-english.webp` (owner's screenshot).
 
+### GOTR-0046 — Hebrew/Russian screens still show a lot of English (systematic sweep)
+- **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Hebrew, fight intro): "Again, you see a lot in English."
+- **Status:** IN PROGRESS (agent `ux-r1`, with GOTR-0045)
+- **Priority:** P1
+- **Area:** i18n / RTL
+- **Observed:** header "Guest", HUD names "GUEST" / "SHADOW", intro card "GUEST VS SHADOW · ROUND 1 · GET READY", the "VS" badge and the title.
+- **Causes (integrator):** `fight-presentation.js` has no HE/RU strings; the fight uses the opponent's English name although rivals have HE/RU names; the default profile name "Guest" is stored data shown untranslated.
+- **Decisions (integrator):** translate the visible title (HE "תהילת הזירה", RU "Слава ринга"; logo unchanged) and the VS badge; the default guest name shows as אורח / Гость. The owner can ask to keep the English title.
+- **Acceptance criteria:** a Playwright audit (`qa/gotr-0046/i18n-audit.cjs`) walks every main screen and state in HE and RU and lists visible Latin-letter text; allowlist only for the version number, numbers/coins and player-typed names; final run: 0 findings in both languages.
+- **Evidence:** `qa/gotr-0046/user-v1.20-he-fight-english.webp` (owner's screenshot).
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
