@@ -537,6 +537,18 @@ The user asked to run as many independent tasks in parallel as possible and to t
 
 Queued because they touch files being changed above: Burst (GOTR-0005), rival memory F-011, coach tactics F-012, FIFO combo-queue check from the 2026-11-08 brief (after `fight-range`); gloves and shorts designs of GOTR-0003, new fighter GOTR-0009 / F-016 (after `mitt-range`); gym station F-015, Skill Fusion F-017, performance automation F-020.
 
+### Agent status — 2026-11-11 10:00 UTC (owner asked to remove duplicate agents and continue some)
+The four cloud sessions started on 2026-11-10 stopped at the 5-hour usage limit and pushed nothing. Checked against current work:
+
+| Agent | Decision | Why |
+|---|---|---|
+| `gear-3d` (cloud) | Archived — duplicate | Done locally as `agent/gear-3d-local`, published in v1.15 |
+| `i18n-a11y` (cloud) | Archived — duplicate | Wording, Gym name, owner's terms and HE/RU translation are in UX R1 (`agent/ux-r1`, GOTR-0031/0034). The accessibility part (screen-reader labels, focus order, contrast, reduced motion) restarts as a fresh agent after R1 merges |
+| `world-content` (cloud) | Archived — merged into UX R3 | Short missions and the return digest become the "Next up" card and Home of UX R3/R4; restarts as a fresh agent with that brief after R1 merges |
+| `adventure-world` (cloud) | Parked (not a duplicate) | Owner: the adventure comes later (training → street → underground → … → championship, GOTR-0008); a fresh brief will replace the stale one |
+
+Running locally (max four at a time): `store-polish` (GOTR-0030, 0033, 0039), `ux-r1` (GOTR-0031 R1, 0034), `fighter-pad` (GOTR-0035), `muscle-definition` (GOTR-0037). Next when a slot frees: `smooth-motion` follow-up (GOTR-0032 punch power, GOTR-0038 mitt in face, guard flicker), then world-content as UX R3, then accessibility.
+
 ### Issue template
 
 ```markdown
