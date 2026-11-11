@@ -2356,5 +2356,7 @@ function spokeLights(wh) {
   return b.geometry();
 }
 
-root.GlorylandMap = { build, LAND_Y, BLOCK_Y, PAL };
+root.GlorylandMap = { build, LAND_Y, BLOCK_Y, PAL,
+  // Building pieces for small street-scale story sets (adventure/story/story-sets.js). W = { solid: Batch, facade: { style: Batch({ uv, tint }) } }.
+  kit: { Batch, M, P, initProtos, FACADE, paintFacades, facadeMaterial, building, awnings, frame, C, seed: s => { R = mulberry(s); } } };
 })(typeof window !== 'undefined' ? window : globalThis);
