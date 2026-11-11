@@ -110,15 +110,7 @@
    const side=rear(spec.move)?1:-1;
    const point=spec.target==='body'?V(side*.055,1.37,.155):spec.target==='shoulder'?V(side*.29,1.59,.08):spec.move.includes('hook')?V(side*.085,1.90,.19):spec.move.includes('uppercut')?V(side*.012,1.90,.19):V(side*.012,1.94,.30);
    const accuracy=this.match.fighters[actor].accuracy;if(accuracy!=null){const spread=.085*(1-accuracy);point.x+=Math.sin(action.id*12.9898+this.match.seed)*spread;point.y+=Math.cos(action.id*7.233+this.match.seed)*spread;}
-   const world=receiver.root.localToWorld(point);
-   // GOTR-0051: from the bladed guard the defender's glove can stand well in front of the head. A straight aimed
-   // at the head was then stopped by that glove half way, on a bent arm; it now plans its extension to the first
-   // glove or forearm on its line, so a blocked straight still lands extended (GOTR-0012/0018).
-   if((spec.move==='jab'||spec.move==='cross')&&spec.target!=='body'&&spec.target!=='shoulder'){
-    const shoulder=coach.joints[spec.move==='jab'?'armL':'armR'].getWorldPosition(V()),line=world.clone().sub(shoulder),length=line.length();
-    for(let d=.30;d<length;d+=.02){const p=shoulder.clone().addScaledVector(line,d/length),hit=this.collision(p,other(actor));if(hit.penetration>0){if(hit.part==='glove'||hit.part==='arm')world.copy(p);break;}}
-   }
-   const local=coach.root.worldToLocal(world.clone());
+   const world=receiver.root.localToWorld(point),local=coach.root.worldToLocal(world.clone());
    // Commit to the target's arena position; a late slip can actually miss.
    if(spec.phase>=.18){action.aim=this.arena.group.worldToLocal(world.clone()).toArray();action.aimInArena=true;if(spec.move==='jab'||spec.move==='cross')action.aimRoot=receiver.root.position.toArray();}
    return local;
@@ -208,6 +200,9 @@
     if(m.phase==='round'&&this.footPlants){
      options.plantedContacts={};for(const side of ['L','R']){const anchor=this.footPlants[actor+side];if(anchor)options.plantedContacts[side]=coach.root.worldToLocal(coach.root.parent.localToWorld(anchor.clone())).toArray();}
     }
+    // GOTR-0051: when a punch is coming the forward lead glove tightens back to the cheek cover, so blocks keep
+    // the proven guard geometry (a straight caught on the glove still lands extended); it opens again afterwards.
+    {const threat=specs[other(actor)];if(threat.attack&&!spec.attack)options.blockCover=clamp(threat.phase/.14)*(1-clamp((threat.phase-.62)/.25));}
     const path=travel[actor];
     if(m.phase==='round'&&path.weight>.001&&!ceremony){const yaw=coach.ringYaw,local=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw),first=Math.abs(local.z)>=Math.abs(local.x)?(local.z>=0?-1:1):(local.x>=0?1:-1);options.ringStep={first,phase:path.phase,ease:path.ease,weight:path.weight,turn:0,delta:local.toArray()};}
     if(spec.attack){
