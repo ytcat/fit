@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gloryland Map Preview</title>
+<style>
+  :root {
+    --gr-bg: #0a0e14; --gr-surface: #121823; --gr-surface-2: #1a2230; --gr-border: #2b364a;
+    --gr-text: #f3f6fb; --gr-text-muted: #9aa7bb; --gr-accent: #e11d2e; --gr-gold: #f4c152; --gr-side: #5fd0c7;
+    --gr-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--gr-bg); color: var(--gr-text); font: 14px/1.4 var(--gr-font); overflow: hidden; }
+  #view { position: fixed; inset: 0; touch-action: none; }
+  #view canvas { display: block; width: 100%; height: 100%; }
+  #pins { position: fixed; inset: 0; pointer-events: none; }
+  .pin { position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -100%); }
+  .pin .tag { display: flex; align-items: center; gap: 8px; padding: 4px 11px 4px 4px; border-radius: 999px; background: rgb(14 19 28 / .92); border: 1px solid rgb(255 255 255 / .12); box-shadow: 0 6px 18px rgb(0 0 0 / .35), 0 1px 0 rgb(255 255 255 / .06) inset; white-space: nowrap; }
+  .pin .badge { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font: 800 15px/1 var(--gr-font); color: #1a1206; background: linear-gradient(#ffd977, var(--gr-gold)); box-shadow: 0 0 0 2px rgb(14 19 28), 0 0 0 3.5px var(--gr-gold); }
+  .pin.current .badge { color: #fff; background: linear-gradient(#ff4a57, var(--gr-accent)); box-shadow: 0 0 0 2px rgb(14 19 28), 0 0 0 3.5px var(--gr-accent), 0 0 14px rgb(225 29 46 / .8); }
+  .pin.locked .badge { color: var(--gr-text-muted); background: var(--gr-surface-2); box-shadow: 0 0 0 2px rgb(14 19 28), 0 0 0 3px var(--gr-border); }
+  .pin .txt { display: flex; flex-direction: column; line-height: 1.12; }
+  .pin .name { font-weight: 750; font-size: 13.5px; letter-spacing: .01em; }
+  .pin .sub { font-size: 11px; color: var(--gr-text-muted); }
+  .pin.side .badge { width: 22px; height: 22px; border-radius: 6px; transform: rotate(45deg); background: linear-gradient(#8ff0e6, var(--gr-side)); box-shadow: 0 0 0 2px rgb(14 19 28), 0 0 0 3px var(--gr-side); }
+  .pin.side .badge span { transform: rotate(-45deg); font-size: 11px; }
+  .pin.side .tag { padding: 3px 10px 3px 5px; }
+  .pin.side .name { font-size: 12.5px; }
+  .pin.place .badge { width: 20px; height: 20px; font-size: 11px; }
+  .pin.place .tag { padding: 3px 9px 3px 3px; }
+  .pin.place .name { font-size: 12px; }
+  .pin .stem { width: 2px; height: 22px; background: linear-gradient(rgb(255 255 255 / .85), rgb(255 255 255 / 0)); }
+  .pin .dot { width: 9px; height: 9px; margin-top: -4px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgb(255 255 255 / .25), 0 0 10px rgb(255 255 255 / .6); }
+  .pin.current .dot { background: var(--gr-accent); box-shadow: 0 0 0 4px rgb(225 29 46 / .35), 0 0 14px rgb(225 29 46 / .9); }
+  #bar { position: fixed; top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); right: max(10px, env(safe-area-inset-right)); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; pointer-events: none; }
+  #bar > * { pointer-events: auto; }
+  .brand { display: flex; align-items: baseline; gap: 8px; padding: 6px 12px; border-radius: 12px; background: rgb(14 19 28 / .88); border: 1px solid var(--gr-border); }
+  .brand b { font-size: 16px; letter-spacing: .06em; text-transform: uppercase; }
+  .brand small { color: var(--gr-text-muted); font-size: 11.5px; }
+  .seg { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid var(--gr-border); background: rgb(14 19 28 / .88); }
+  .seg button, select { font: 600 13px var(--gr-font); color: var(--gr-text); background: transparent; border: 0; padding: 0 12px; height: 36px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--gr-accent); color: #fff; }
+  select { border: 1px solid var(--gr-border); border-radius: 10px; background: rgb(14 19 28 / .88); }
+  #stats { position: fixed; left: 10px; bottom: 10px; padding: 6px 10px; border-radius: 10px; background: rgb(14 19 28 / .85); border: 1px solid var(--gr-border); font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; color: var(--gr-text-muted); white-space: pre; }
+  body.clean #bar, body.clean #stats { display: none; }
+  body.nopins #pins { display: none; }
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--gr-text-muted); }
+</style>
+</head>
+<body>
+<div id="view"></div>
+<div id="pins"></div>
+<div id="bar">
+  <div class="brand"><b>Gloryland</b><small>city map preview</small></div>
+  <div class="seg" role="group" aria-label="Time of day"><button id="tDay" aria-pressed="true">Day</button><button id="tNight" aria-pressed="false">Night</button></div>
+  <select id="viewSel" aria-label="View"></select>
+</div>
+<div id="stats" hidden></div>
+<div id="loading">Building Gloryland…</div>
+<script src="../assets/vendor/three.min.js"></script>
+<script src="./gloryland-map.js"></script>
+<script>
+(() => {
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('ui') === '0') document.body.classList.add('clean');
+  if (qs.get('pins') === '0') document.body.classList.add('nopins');
+  const host = document.getElementById('view');
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, Number(qs.get('dpr')) || 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  host.appendChild(renderer.domElement);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(30, 1, 2, 1600);
+
+  /* Map camera: a target on the ground, a distance, fixed pitch and yaw (three-quarter view). */
+  const VIEWS = {
+    full:     { label: 'Whole city', x: -2, z: 12, dist: 282, yaw: 0.24, pitch: 0.9 },
+    oldtown:  { label: 'Old Town · Home Gym', x: 54, z: -42, dist: 62, yaw: 0.24, pitch: 0.8 },
+    market:   { label: 'Market Row', x: 40, z: -20, dist: 64, yaw: 0.24, pitch: 0.82 },
+    docks:    { label: 'The Docks', x: 2, z: 40, dist: 72, yaw: 0.24, pitch: 0.8 },
+    downtown: { label: 'Downtown', x: -28, z: 6, dist: 110, yaw: 0.24, pitch: 0.84 },
+    neon:     { label: 'Neon Strip', x: 62, z: 22, dist: 78, yaw: 0.24, pitch: 0.8 },
+    hill:     { label: 'Glory Hill · Arena', x: -8, z: -57, dist: 62, yaw: 0.24, pitch: 0.8 },
+    side:     { label: 'Harbor Dome · Pirate Cove', x: -72, z: 30, dist: 110, yaw: 0.24, pitch: 0.86 },
+    fair:     { label: 'Fairground · Tech Pier', x: 92, z: 10, dist: 110, yaw: 0.24, pitch: 0.86 },
+    top:      { label: 'Plan (debug)', x: 0, z: -4, dist: 420, yaw: 0, pitch: 1.5 }
+  };
+  const sel = document.getElementById('viewSel');
+  for (const [k, v] of Object.entries(VIEWS)) { const o = document.createElement('option'); o.value = k; o.textContent = v.label; sel.appendChild(o); }
+  const cam = Object.assign({}, VIEWS[qs.get('view')] || VIEWS.full);
+  sel.value = VIEWS[qs.get('view')] ? qs.get('view') : 'full';
+  let goal = null;
+  function applyCamera() {
+    const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+    camera.position.set(cam.x + Math.sin(cam.yaw) * cp * cam.dist, sp * cam.dist, cam.z + Math.cos(cam.yaw) * cp * cam.dist);
+    camera.lookAt(cam.x, 0, cam.z);
+    if (map) {
+      map.focusShadows(cam.x, cam.z - cam.dist * 0.05, Math.max(26, cam.dist * 0.62));
+      if (scene.fog) { scene.fog.near = cam.dist * 0.85; scene.fog.far = cam.dist * 2.6 + 120; }
+    }
+  }
+
+  let map = null, time = qs.get('time') === 'night' ? 'night' : 'day';
+  function rebuild() {
+    if (map) map.dispose();
+    const t0 = performance.now();
+    map = GlorylandMap.build(scene, { time, renderer, shadowSize: Number(qs.get('shadow')) || 4096, debugGrid: qs.get('grid') === '1' });
+    window.__buildMs = performance.now() - t0;
+    document.getElementById('tDay').setAttribute('aria-pressed', String(time === 'day'));
+    document.getElementById('tNight').setAttribute('aria-pressed', String(time === 'night'));
+    makePins();
+    applyCamera();
+  }
+
+  /* ---- pins overlay */
+  const pinsEl = document.getElementById('pins'); let pins = [];
+  function makePins() {
+    pinsEl.innerHTML = ''; pins = [];
+    for (const p of map.places) {
+      const el = document.createElement('div');
+      el.className = 'pin ' + p.kind + (p.state ? ' ' + p.state : '');
+      const badge = p.kind === 'side' ? '<span>✦</span>' : (p.chapter || '');
+      el.innerHTML = `<div class="tag"><div class="badge">${p.kind === 'side' ? badge : badge}</div><div class="txt"><span class="name">${p.name}</span>${p.sub ? `<span class="sub">${p.sub}</span>` : ''}</div></div><div class="stem" style="height:${p.stem || 22}px"></div><div class="dot"></div>`;
+      el.addEventListener('click', () => flyTo(p.focus));
+      pinsEl.appendChild(el); pins.push({ p, el });
+    }
+  }
+  const v3 = new THREE.Vector3();
+  function placePins() {
+    const w = renderer.domElement.clientWidth, h = renderer.domElement.clientHeight;
+    for (const { p, el } of pins) {
+      v3.copy(p.anchor).project(camera);
+      const vis = v3.z < 1 && Math.abs(v3.x) < 1.15 && Math.abs(v3.y) < 1.15 && (!p.minDist || cam.dist < p.maxDist);
+      el.style.display = vis ? '' : 'none';
+      if (vis) el.style.transform = `translate(${((v3.x + 1) / 2 * w).toFixed(1)}px, ${((1 - v3.y) / 2 * h).toFixed(1)}px) translate(-50%, -100%)`;
+    }
+  }
+  function flyTo(f) { if (f) goal = { x: f.x, z: f.z, dist: f.dist || 70 }; }
+
+  /* ---- input: drag to pan, wheel / pinch to zoom */
+  const ptrs = new Map(); let pinch0 = 0, dist0 = 0;
+  host.addEventListener('pointerdown', e => { host.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); goal = null; if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); dist0 = cam.dist; } });
+  host.addEventListener('pointermove', e => {
+    const p = ptrs.get(e.pointerId); if (!p) return;
+    const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    if (ptrs.size === 1) {
+      const k = cam.dist * 2 * Math.tan(camera.fov * Math.PI / 360) / host.clientHeight;
+      const c = Math.cos(cam.yaw), s = Math.sin(cam.yaw);
+      cam.x -= (dx * c + dy * s / Math.sin(cam.pitch)) * k; cam.z -= (-dx * s + dy * c / Math.sin(cam.pitch)) * k;
+    } else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch0) cam.dist = dist0 * pinch0 / d; }
+    clampCam(); applyCamera();
+  });
+  const up = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = 0; };
+  host.addEventListener('pointerup', up); host.addEventListener('pointercancel', up);
+  host.addEventListener('wheel', e => { e.preventDefault(); cam.dist *= Math.exp(e.deltaY * 0.0012); clampCam(); applyCamera(); }, { passive: false });
+  function clampCam() { cam.dist = Math.min(420, Math.max(28, cam.dist)); if (map) { const b = map.bounds; cam.x = Math.min(b.x1, Math.max(b.x0, cam.x)); cam.z = Math.min(b.z1, Math.max(b.z0, cam.z)); } }
+  sel.addEventListener('change', () => { const v = VIEWS[sel.value]; Object.assign(cam, v); applyCamera(); });
+  document.getElementById('tDay').onclick = () => { if (time !== 'day') { time = 'day'; rebuild(); } };
+  document.getElementById('tNight').onclick = () => { if (time !== 'night') { time = 'night'; rebuild(); } };
+
+  function resize() { const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  window.addEventListener('resize', resize);
+
+  const statsEl = document.getElementById('stats'); if (qs.get('stats') === '1') statsEl.hidden = false;
+  let last = performance.now(), frames = 0, acc = 0, ms = 0;
+  const animate = qs.get('static') !== '1';
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (goal) { const k = 1 - Math.exp(-dt * 4); cam.x += (goal.x - cam.x) * k; cam.z += (goal.z - cam.z) * k; cam.dist += (goal.dist - cam.dist) * k; if (Math.abs(goal.dist - cam.dist) < .2) goal = null; applyCamera(); }
+    map.update(animate ? dt : 0, camera, renderer);
+    const t0 = performance.now(); renderer.render(scene, camera); ms = ms * .9 + (performance.now() - t0) * .1;
+    placePins();
+    if (!statsEl.hidden && ++frames % 15 === 0) { const i = renderer.info.render, s = map.stats(); statsEl.textContent = `draw calls ${i.calls}\ntriangles ${i.triangles.toLocaleString()}\nscene tris ${s.triangles.toLocaleString()} · ${s.instances} instances\nrender cpu ${ms.toFixed(1)} ms · build ${window.__buildMs | 0} ms`; }
+    if (animate) requestAnimationFrame(frame);
+  }
+  resize(); rebuild(); document.getElementById('loading').remove();
+  map.update(0.016, camera, renderer);
+  if (animate) requestAnimationFrame(frame); else frame(performance.now());
+
+  /* small API for automated captures */
+  window.GL_PREVIEW = {
+    setTime(t) { time = t; rebuild(); frame(performance.now()); },
+    view(k, o) { Object.assign(cam, VIEWS[k] || {}, o || {}); applyCamera(); frame(performance.now()); },
+    render() { frame(performance.now()); return renderer.info.render; },
+    info() { renderer.render(scene, camera); const i = renderer.info.render; return { calls: i.calls, triangles: i.triangles, scene: map.stats(), buildMs: window.__buildMs, memory: renderer.info.memory }; },
+    timeRender(n = 5) { const t0 = performance.now(); for (let k = 0; k < n; k++) renderer.render(scene, camera); renderer.getContext().finish(); return (performance.now() - t0) / n; },
+    get map() { return map; }, camera, cam
+  };
+})();
+</script>
+</body>
+</html>
