@@ -305,7 +305,7 @@
    this.padPose={t,phase,hook,move:spec.move,heroPhase:spec.phase,sweepSide,sweepHeight:1.96};
    // Boxing distance gives the trainee room to extend each punch.
    trainer.root.position.set(0,0,padRange/2);
-   trainer.update(0,'guard','one_two',{simulationTime:time,deferVisuals:this.deferVisuals,guardElbowBack:.5,guardWidth:.22,keepFaceClear:true,poseOverlay:this.finalizeTrainer});
+   trainer.update(0,'guard','one_two',{stance:0,simulationTime:time,deferVisuals:this.deferVisuals,guardElbowBack:.5,guardWidth:.22,keepFaceClear:true,poseOverlay:this.finalizeTrainer});
    this.arena.group.updateMatrixWorld(true);
    const targetIndex=rear(spec.move)?1:0,pad=this.mitts[targetIndex],worldTarget=pad.localToWorld(pad.userData.face.clone());
    // GOTR-0032: aim at where the face would be without its recoil (the glove drives on instead of chasing the

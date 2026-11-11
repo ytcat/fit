@@ -35,7 +35,9 @@ function staged(move,guard){
 for(const move of ['jab','cross']){
  const h=staged(move,false);
  assert.equal(h.part,'head');assert.equal(h.blocked,false);
- assert.ok(h.toContact<=.30,move+' reaches the target faster (was 0.35 s) '+h.toContact);
+ // GOTR-0051: from the bladed guard the cross travels from further back and lands on frame 18 (0.30 s, was
+ // frame 17); the limit is the same 0.30 s, compared without floating-point noise.
+ assert.ok(h.toContact<=.30+1e-9,move+' reaches the target faster (was 0.35 s) '+h.toContact);
  assert.ok(h.approach>=6,move+' glove is still fast in the frame before contact (was ~1-5 m/s staged) '+h.approach.toFixed(2));
  assert.ok(h.speed>=3.5,move+' scored contact speed '+h.speed.toFixed(2));
  const peak=Math.max(...h.rot.filter(r=>r.age<=.15).map(r=>r.angle)),late=h.rot.find(r=>r.age>=.45)?.angle??0;
