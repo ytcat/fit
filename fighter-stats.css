@@ -1,0 +1,13 @@
+/* GOTR-0041 Fighter chip. */
+.fs-root{position:relative;display:inline-block}
+.fs-chip{min-height:var(--gr-control-h-s,36px);padding:0 10px;border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-s,8px);background:var(--gr-surface-2,#1a2230);color:var(--gr-text,#f3f6fb);font:700 12px/1 system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+.fs-chip[aria-expanded=true]{border-color:var(--gr-accent,#e63946)}
+.fs-panel{position:absolute;top:calc(100% + 6px);inset-inline-end:0;z-index:60;width:min(260px,calc(100vw - 32px));padding:12px;border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-m,12px);background:var(--gr-surface,#121823);color:var(--gr-text,#f3f6fb);box-shadow:0 8px 24px rgba(0,0,0,.45);font:13px/1.4 system-ui,sans-serif}
+.fs-panel[hidden]{display:none}
+.fs-title{display:block;margin-bottom:8px;font-size:14px}
+.fs-list{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin:0}
+.fs-list dt{color:var(--gr-text-muted,#9aa7bb)}
+.fs-list dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+.fs-note{margin:8px 0 0;color:var(--gr-warning,#f5a524);font-size:12px}
+.fs-close{margin-top:10px;width:100%;min-height:var(--gr-control-h-s,36px);border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-s,8px);background:var(--gr-surface-3,#243044);color:var(--gr-text,#f3f6fb);cursor:pointer}
+@media (max-width:420px){.fs-chip{padding:0 6px;font-size:11px}}
