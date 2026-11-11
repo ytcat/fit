@@ -161,7 +161,7 @@
         d.append(fact(COACH_ICON[cinfo.coach] || '🐾', T(info.coach).split(/[,·]/)[0], `${w.coach}: ${T(info.coach)}`), fact('🥊', `Lv ${info.level}`, `${w.boss}: ${T(info.boss)} · ${w.entry} ${info.level}`), fact('★', `${stars}/${A.missions.filter(m => m.chapter === chap).length * 3}`, ''));
         card.append(d, progressBar(chap));
       } else if (info.sub && p.kind !== 'chapter') card.append(el('p', 'adv-sub-line', T(info.sub)));
-      const town = p.id === 'oldtown' && window.AdventureOldTown ? AdventureOldTown.render(ctx, { expand: () => { card.classList.add('open'); handle.setAttribute('aria-expanded', 'true'); } }) : null;
+      const town = (p.id === 'oldtown' || p.id === 'market') && window.AdventureOldTown ? AdventureOldTown.render(ctx, { chapter: p.id === 'market' ? 2 : 1, expand: () => { card.classList.add('open'); handle.setAttribute('aria-expanded', 'true'); } }) : null;
       const tiles = el('div', 'adv-tiles');
       if (town) tiles.append(...town.tiles);
       const sideZone = A.sideZones.find(z => z.chapter === chap && A.chapterOpen(g, chap, false)), sp = sideZone && map.places.find(q => q.id === sideZone.id);

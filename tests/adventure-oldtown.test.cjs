@@ -12,11 +12,12 @@ const OT = window.AdventureOldTown, D = OT.defs;
 
 const town = A.missions.filter(m => m.chapter === 1);
 assert.equal(town.length, 9);
+const street = A.missions.filter(m => m.chapter === 2);
 for (const m of town) {
   if (D[m.id]) assert.ok(['training', 'help'].includes(m.type) || m.id === 'morning_sparring' || D[m.id].kind === 'scene', m.id + ' type'); // GOTR-0056: funny missions play as story-set scenes
   else assert.ok(m.type === 'funny' || m.id === 'first_stance', m.id + ' is not playable yet');
 }
-assert.deepEqual(Object.keys(D).sort(), ['bag_power', 'heavy_bag_van', 'morning_sparring', 'one_two_mitts', 'roll_under_hook', 'rope_rhythm', 'teach_the_kid']);
+assert.deepEqual(Object.keys(D).sort(), ['bag_power', 'clean_hands', 'crowd_circle', 'curb_footwork', 'heavy_bag_van', 'influencer_challenge', 'kids_skateboard', 'morning_sparring', 'one_two_mitts', 'roll_under_hook', 'rooftop_callout', 'rope_rhythm', 'teach_the_kid']);
 
 const run = id => ({ id, value: 0 });
 const stars = r => A.starsFor(r.id, r.value);
@@ -79,7 +80,7 @@ assert.deepEqual([0, 5, 10, 15].map(v => A.starsFor('morning_sparring', v)), [0,
 // Goal wording: all three languages, boxing terms stay English, nothing else Latin.
 for (const lang of ['en', 'he', 'ru']) {
   window.app.lang = lang;
-  for (const m of town.filter(x => D[x.id])) {
+  for (const m of [...town, ...street].filter(x => D[x.id])) {
     const text = OT.goalText(m.id, m.thresholds[2]);
     assert.ok(text.includes(String(m.thresholds[2])), lang + ' ' + m.id + ' shows the goal number');
     if (lang !== 'en') assert.ok(!/[A-Za-z]/.test(G.strip(text)), lang + ' ' + m.id + ' has untranslated Latin text: ' + text);
@@ -87,4 +88,17 @@ for (const lang of ['en', 'he', 'ru']) {
 }
 for (const lang of ['he', 'ru']) for (const [k, v] of Object.entries(OT.copy[lang])) if (typeof v === 'string') assert.ok(!/[A-Za-z]/.test(G.strip(v).replace(/\{\w+\}/g, '')), lang + ' ' + k + ': ' + v);
 for (const k of Object.keys(OT.copy.en)) for (const lang of ['he', 'ru']) assert.ok(k in OT.copy[lang], lang + ' is missing ' + k);
+// Chapter 2 (Market Row): measures and stars. Street mini-games without a signal stay "coming soon".
+for (const m of street) assert.ok(D[m.id] || ['rooftop_balloons', 'whistle_chase', 'grandma_groceries'].includes(m.id), m.id + ' is playable or one of the three street mini-games');
+assert.equal(OT.CH[2].venue, 'street'); assert.equal(OT.BOSS.king_hyena.chapter, 2); assert.equal(A.bosses.find(b => b.id === 'king_hyena').entry, 12);
+{
+  const me = { landed: 12, body: 6 }, opp = { landed: 1 };
+  assert.equal(D.clean_hands.measure(me, opp, true), 1); assert.equal(A.starsFor('clean_hands', 1), 2, 'won a round taking 1 hit = 2 stars (<=2)');
+  assert.equal(D.clean_hands.measure(me, opp, false), 99); assert.equal(A.starsFor('clean_hands', 99), 0, 'losing the round earns nothing');
+  assert.equal(A.starsFor('clean_hands', 0), 3);
+  assert.equal(D.kids_skateboard.measure(me), 6); assert.equal(A.starsFor('kids_skateboard', 6), 2);
+  assert.equal(D.rooftop_callout.measure(me), 12); assert.equal(A.starsFor('rooftop_callout', 5), 3);
+  const r = run('influencer_challenge'); for (let i = 0; i < 20; i++) { window.app.engine.targetMode = 'speed'; D.influencer_challenge.imp(r, { actor: 'lion', receiver: 'speedbag' }); } assert.equal(stars(r), 1);
+  assert.equal(D.crowd_circle.chain, 3); assert.equal(A.starsFor('crowd_circle', 3), 3);
+}
 console.log('adventure-oldtown ok');

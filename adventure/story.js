@@ -9,6 +9,11 @@
     dash: { name: L('Dash', 'דאש', 'Дэш'), look: { ears: 'point', fur: '#d9a441', accent: '#5fd0c7', spiky: true } },
     nephew: { name: L("Pip's nephew", 'האחיין של פיפ', 'Племянник Пипа'), look: { ears: 'long', fur: '#f1ece0', accent: '#f4c152', small: true } },
     guard: { name: L('Night guard', 'שומר הלילה', 'Ночной сторож'), look: { ears: 'round', fur: '#7d8795', accent: '#243044', cap: true } },
+    hyena: { name: L('Hyena', 'צבוע', 'Гиена'), look: { ears: 'point', fur: '#b08a5a', accent: '#6b3b2b' } },
+    king: { name: L('King Hyena', 'מלך הצבועים', 'Король гиен'), look: { ears: 'point', fur: '#8c6a3a', accent: '#c9a227', spiky: true, teeth: true } },
+    raccoon: { name: L('Raccoon', 'דביבון', 'Енот'), look: { ears: 'round', fur: '#8b8f98', accent: '#2b2f3a', cap: true } },
+    grandma: { name: L('Grandma', 'סבתא', 'Бабушка'), look: { ears: 'round', fur: '#d8cfc4', accent: '#8e5fa8' } },
+    influencer: { name: L('Show-off', 'המתנשא', 'Хвастун'), look: { ears: 'point', fur: '#e0c8a0', accent: '#ff4d8d' } },
     vix: { name: L('Vix', 'ויקס', 'Викс'), look: { ears: 'point', fur: '#d9692f', accent: '#f3f6fb' } }
   };
   // Story beats of chapter 1 (STORY.md): the recommended order. Missions are ids from adventure-progress.js.
@@ -17,7 +22,14 @@
     { n: 2, ids: ['heavy_bag_van', 'bag_power'] },
     { n: 3, ids: ['snoring_guard', 'teach_the_kid'] },
     { n: 4, ids: ['roll_under_hook', 'rope_rhythm', 'morning_sparring'] },
-    { n: 5, ids: ['brick'] }
+    { n: 5, ids: ['brick'] },
+    // Chapter 2, Market Row (STORY.md): Vix tests footwork, the Hyena crew runs the market, the raccoon steals Pip's whistle,
+    // Grandma and the skateboard, Dash takes the crowd circle first, then King Hyena.
+    { n: 1, chapter: 2, ids: ['curb_footwork', 'clean_hands'] },
+    { n: 2, chapter: 2, ids: ['kids_skateboard', 'rooftop_balloons'] },
+    { n: 3, chapter: 2, ids: ['whistle_chase', 'rooftop_callout'] },
+    { n: 4, chapter: 2, ids: ['grandma_groceries', 'influencer_challenge', 'crowd_circle'] },
+    { n: 5, chapter: 2, ids: ['king_hyena'] }
   ];
   const order = beats.flatMap(b => b.ids), beatOf = id => beats.find(b => b.ids.includes(id))?.n || 0;
   const S = (w, en, he, ru) => ({ who: w, text: L(en, he, ru) });
@@ -32,6 +44,16 @@
     roll_under_hook: { intro: [S('dash', 'Is this the new guy? Cute. Watch how fast I finish a regular.', 'זה החדש? חמוד. תראו כמה מהר אני מסיים קבוע.', 'Это новенький? Мило. Смотри, как быстро я укладываю завсегдатая.'), S('pip', 'Not yet for you. Learn to roll first.', 'עוד לא בשבילכם. קודם לומדים Roll.', 'Тебе ещё рано. Сначала научись Roll.')], outro: [S('pip', 'Clean rolls. Dash would not have landed that.', 'גלגולים נקיים. דאש לא היה פוגע.', 'Чистые Roll. Дэшу бы не попасть.')] },
     rope_rhythm: { intro: [S('pip', 'Footwork is rhythm. Skip.', 'עבודת רגליים היא קצב. קפצו.', 'Работа ног — это ритм. Прыгай.')], outro: [S('pip', 'Light feet. Now a real round.', 'רגליים קלות. עכשיו סיבוב אמיתי.', 'Лёгкие ноги. Теперь настоящий раунд.')] },
     morning_sparring: { intro: [S('pip', 'A friendly round with a regular. Show me the roll.', 'סיבוב ידידותי עם קבוע. תראו לי את ה-Roll.', 'Дружеский раунд с завсегдатаем. Покажи мне Roll.')], outro: [S('pip', 'You are ready. Brick is waiting.', 'אתם מוכנים. בריק מחכה.', 'Ты готов. Брик ждёт.')] },
+    curb_footwork: { intro: [S('vix', 'Market Row does not wait. Show me quick feet.', 'שדרת השוק לא מחכה. תראו לי רגליים מהירות.', 'Рыночный ряд не ждёт. Покажи быстрые ноги.')], outro: [S('vix', 'Not bad for Old Town.', 'לא רע בשביל העיר העתיקה.', 'Неплохо для Старого города.')] },
+    clean_hands: { intro: [S('vix', 'In the street nobody gets hit twice. Keep your hands clean.', 'ברחוב לא חוטפים פעמיים. שמרו על ידיים נקיות.', 'На улице дважды не бьют. Держи руки чистыми.')], outro: [S('vix', 'Clean. The crew noticed.', 'נקי. החבורה שמה לב.', 'Чисто. Банда заметила.')] },
+    kids_skateboard: { intro: [S('hyena', 'Finders keepers, rookie. Take the board back if you can.', 'מוצא שומר, טירון. קחו את הסקייטבורד בחזרה אם אתם מסוגלים.', 'Нашёл — моё, новичок. Забери доску, если сможешь.')], outro: [S('hyena', 'Okay, okay! Take your board.', 'טוב, טוב! קחו את הסקייטבורד.', 'Ладно, ладно! Забирай доску.')] },
+    rooftop_balloons: { intro: [S('vix', 'Pranksters on the roof. Slip or get wet.', 'מתיחות מהגג. התחמקו או תירטבו.', 'Шутники на крыше. Уклоняйся, или промокнешь.')], outro: [S('vix', 'Dry. Impressive.', 'יבשים. מרשים.', 'Сухой. Впечатляет.')] },
+    whistle_chase: { intro: [S('raccoon', "Nice whistle! It's mine now. Catch me!", 'משרוקית יפה! היא שלי עכשיו. תתפסו אותי!', 'Классный свисток! Теперь он мой. Поймай меня!')], outro: [S('pip', 'My whistle! Thank you.', 'המשרוקית שלי! תודה.', 'Мой свисток! Спасибо.')] },
+    rooftop_callout: { intro: [S('hyena', 'Hey, you! Five punches in ten seconds. Bet you cannot.', 'היי, אתם! חמש מכות בעשר שניות. מתערב שלא תצליחו.', 'Эй, ты! Пять ударов за десять секунд. Спорим, не сможешь.')], outro: [S('hyena', '...Okay, you can.', '...טוב, אתם יכולים.', '...Ладно, можешь.')] },
+    grandma_groceries: { intro: [S('grandma', 'Dear, walk me across? The pigeons are rude.', 'יקירי, תלווה אותי? היונים גסות רוח.', 'Дорогой, проводишь меня? Голуби такие грубые.')], outro: [S('grandma', 'Bless you. Take an apple.', 'ברוך תהיה. קח תפוח.', 'Спасибо, милый. Возьми яблоко.')] },
+    influencer_challenge: { intro: [S('influencer', 'Beat my speed-bag challenge and I stop filming you.', 'תנצחו את אתגר שק המהירות שלי ואפסיק לצלם אתכם.', 'Побей мой рекорд на груше — и я перестану тебя снимать.')], outro: [S('influencer', 'Fine. Camera off.', 'בסדר. המצלמה כבויה.', 'Ладно. Камера выключена.')] },
+    crowd_circle: { intro: [S('dash', 'Too slow, newcomer. The circle is already mine.', 'איטיים מדי, חדשים. המעגל כבר שלי.', 'Слишком медленно, новичок. Круг уже мой.'), S('vix', 'Beat three challengers and the crowd is yours.', 'נצחו שלושה מתמודדים והקהל שלכם.', 'Победи троих — и толпа твоя.')], outro: [S('vix', 'The crowd is yours. Dash was watching.', 'הקהל שלכם. דאש צפה.', 'Толпа твоя. Дэш смотрел.')] },
+    king_hyena: { intro: [S('king', 'This is my market. Nobody fights here without my say.', 'זה השוק שלי. אף אחד לא נלחם כאן בלי רשותי.', 'Это мой рынок. Здесь никто не дерётся без моего слова.')], outro: [S('vix', 'You beat him. They say real fights are on at the Docks.', 'ניצחתם אותו. אומרים שיש קרבות אמיתיים בנמל.', 'Ты его победил. Говорят, настоящие бои идут в Доках.')], lost: [S('vix', 'He is big. Train and come back.', 'הוא גדול. התאמנו וחזרו.', 'Он большой. Потренируйся и возвращайся.')] },
     brick: { intro: [S('brick', 'My gym, my spot. Prove you belong.', 'האולם שלי, המקום שלי. תוכיחו שמגיע לכם.', 'Мой зал, моё место. Докажи, что ты здесь не зря.')], outro: [S('pip', 'Take my old hand wraps. Go see Vix at Market Row.', 'קחו את חבישות הידיים הישנות שלי. לכו לראות את ויקס בשדרת השוק.', 'Возьми мои старые бинты. Иди к Викс на Рыночный ряд.')], lost: [S('pip', 'You lost a round, not the fight. Train and come back.', 'הפסדתם סיבוב, לא את הקרב. התאמנו וחזרו.', 'Ты проиграл раунд, а не бой. Потренируйся и возвращайся.')] }
   };
   const KEY = 'gotr.adv.story';

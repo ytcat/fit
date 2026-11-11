@@ -2,9 +2,9 @@
 const assert = require('node:assert/strict');
 global.window = global;
 const A = require('../adventure-progress.js'), G = require('../glossary.js'), S = require('../adventure/story.js');
-const ids = [...A.missions.filter(m => m.chapter === 1).map(m => m.id), 'brick'];
-assert.deepEqual([...S.order].sort(), [...ids].sort(), 'story beats cover every chapter 1 mission and the boss exactly once');
-assert.deepEqual(S.beats.map(b => b.n), [1, 2, 3, 4, 5]);
+const ids = [...A.missions.filter(m => m.chapter <= 2).map(m => m.id), 'brick', 'king_hyena'];
+assert.deepEqual([...S.order].sort(), [...ids].sort(), 'story beats cover every chapter 1 and 2 mission and both bosses exactly once');
+assert.deepEqual(S.beats.map(b => b.n), [1, 2, 3, 4, 5, 1, 2, 3, 4, 5]);
 assert.equal(S.beatOf('roll_under_hook'), 4); assert.equal(S.beatOf('brick'), 5);
 for (const id of ids) {
   const l = S.lines[id]; assert.ok(l && l.intro?.length && l.outro?.length, id + ' has intro and outro');
