@@ -83,15 +83,15 @@
       actors: {
         fighter: { rig: 'fighter', keys: [
           { t: 0, x: 0.6, z: -4.8, act: 'shadow', face: 0.25 },
-          { t: 5.6, x: 0.6, z: -4.8, act: 'guard', face: [-1.0, -5.0] },
-          { t: 8.0, x: 0.6, z: -4.8, act: 'idle', face: [-1.0, -5.0] }
+          { t: 5.6, x: 0.6, z: -4.8, act: 'guard', face: [-1.5, -5.1] },
+          { t: 8.0, x: 0.6, z: -4.8, act: 'idle', face: [-1.5, -5.1] }
         ] },
         pip: { rig: 'pip', mitts: true, keys: [
           { t: 0, x: -8.2, z: -5.3, act: 'idle', face: Math.PI / 2 },
           { t: 1.0, x: -8.2, z: -5.3 },
-          { t: 5.6, x: -1.0, z: -5.0, act: WAVE, face: [0.6, -4.8] },
-          { t: 6.8, x: -1.0, z: -5.0, act: POINT },
-          { t: 8.4, x: -1.0, z: -5.0, act: 'mitts' }
+          { t: 5.6, x: -1.5, z: -5.1, act: WAVE, face: [0.6, -4.8] },
+          { t: 6.8, x: -1.5, z: -5.1, act: POINT },
+          { t: 8.4, x: -1.5, z: -5.1, act: 'mitts' }
         ] }
       },
       props: { bus: [{ t: 0, v: [0.4] }, { t: 0.7, v: [0.4] }, { t: 3.6, v: [30], ease: 'in' }] },

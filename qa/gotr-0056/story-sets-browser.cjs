@@ -32,7 +32,7 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
       const after = await where(); console.log(tag, 'rig/stage before/after', JSON.stringify({ before, after }));
       assert.deepEqual(after, before, 'the Fighter rig and the stage are back where they were');
       // mini-game: a scripted careful player presses the real arrow keys (window keydown/keyup)
-      await p.evaluate(() => { window.__done = null; StoryScenes.play('carry_bag', { onDone: r => { window.__done = r; } }); });
+      await p.evaluate(() => { window.__done = null; StoryScenes.play('carry_bag', { onDone: r => { window.__done = r; }, timeScale: 3 }); });
       await wait(p, () => app.engine.fightIQDemo && StoryScenes.debug?.sim && StoryScenes.stats());
       await p.evaluate(() => {
         const R = StoryCore.CARRY, key = (k, down) => window.dispatchEvent(new KeyboardEvent(down ? 'keydown' : 'keyup', { key: { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown' }[k] }));
@@ -43,9 +43,9 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
           const g = r.sim; if (!g) return;
           if (g.sway && g.theta > .45) { const k = StoryCore.swayKey(g.sway.dir); key(k, true); key(k, false); }
           const o = g.nextObstacle();
-          if (o && !g.stride && o.s - g.s <= .6 && o.s - g.s >= .15) { key('right', false); key('right', true); return; }
-          const c = R.cyclist, near = g.s < c.s - c.half && g.s > c.s - c.half - .6;
-          if (near) { const clear = (c.s + c.half + .05 - g.s) / R.walk + .3; for (let k = 0; k <= clear; k += 1 / 60) if (g.cyclist(g.t + k).inLane) { if (g.held.right) key('right', false); return; } }
+          if (o && !g.stride && o.s - g.s <= 1.0 && o.s - g.s >= .2) { key('right', false); key('right', true); return; }
+          const c = R.cyclist, near = g.s < c.s - c.half && g.s > c.s - c.half - 1.2;
+          if (near) { const clear = (c.s + c.half + .05 - g.s) / R.walk + .6; for (let k = 0; k <= clear; k += 1 / 60) if (g.cyclist(g.t + k).inLane) { if (g.held.right) key('right', false); return; } }
           if (!g.held.right) key('right', true);
         }, 16);
       });

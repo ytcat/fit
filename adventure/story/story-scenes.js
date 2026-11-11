@@ -162,7 +162,7 @@
       if (run.closed) return;
       const dt = Math.min(Math.max(delta || 0, 0), .05) * (opts.timeScale || 1); run.t += dt;
       fit(camera, e);
-      if (game) gameFrame(Math.min(dt, .1)); else sceneFrame();
+      if (game) gameFrame(dt); else sceneFrame();
       if (e.renderer.shadowMap?.enabled) e.renderer.shadowMap.needsUpdate = true;
       e.renderer.render(scene, camera);
       const info = e.renderer.info.render; lastStats = { calls: info.calls, triangles: info.triangles, set: set.stats() };
@@ -189,7 +189,7 @@
     /* ---- carry the heavy bag */
     const X0 = -11, Z = -1.2;
     function gameFrame(dt) {
-      if (!run.result) { sim.step(dt); if (sim.done) endGame(); }
+      if (!run.result) { for (let left = dt; left > 1e-6 && !sim.done; left -= .05) sim.step(Math.min(left, .05)); if (sim.done) endGame(); }
       const v = sim.view(), c = rigs.fighter;
       const stepPhase = (v.s / C.STEP) % 1, walking = !run.result && (sim.held.right || sim.held.left || v.striding) && v.stagger === 0 && v.s > 0 && v.s < C.CARRY.length;
       placeRig(c, { x: X0 + v.s, z: Z, ry: Math.PI / 2 });
