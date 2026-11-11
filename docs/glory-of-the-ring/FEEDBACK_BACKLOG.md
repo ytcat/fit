@@ -664,7 +664,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0051 — Real boxing stance: lead glove and lead foot forward
 - **Reported:** 2026-11-11 (reference photo of two people doing pad work; not stored in the repo)
-- **Status:** PART 1 in v1.36 (`agent/stance` f627617): bag, dummy, shadowboxing, mitts — chest turn 11° → 33°, pelvis 7° → 10°, lead glove 3.5–5 → 12 cm ahead (target 15), rear heel flat → up 2.1 cm, foot stagger unchanged (0.43–0.54 m), both species; full suite 96/96. OPEN: fights and sparring keep the old guard (blocked jab lands on a bent arm, rear forearm too low, sparring partner stops blocking); lead glove short of 15 cm
+- **Status:** READY FOR QA — part 2 merged (`agent/stance-2` 617f53c), v1.39: chest turn 33°, rear heel up 2.1 cm, lead glove ahead of rear 17.0 cm (bag, mitts), 15.4 cm (sparring), 18.0 cm (fight), both species; blocking tightens back to the cover when a punch comes; full suite 98/98 with no test changed; images `qa/gotr-0051/stance-*-shipped.webp`. Note: fight guard sits high (pre-existing)
 - **Priority:** P1
 - **Area:** Animation / stance
 - **Reported behavior / request:** "I don't like how he stands. The gloves have to be left in front of the right, same with the legs."
