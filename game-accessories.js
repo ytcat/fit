@@ -45,10 +45,18 @@
   const thetaAt=s=>{const L=table[720];s=((s%L)+L)%L;let i=1;while(i<720&&table[i]<s)i++;return (i-1+(s-table[i-1])/(table[i]-table[i-1]||1))/720*TAU;};
   return {radius,point,frame,thetaAt,length:table[720],ys};}
  // Thick strap: bottom face, bevel, outer face, bevel, top face, swept around the band.
- function strap(B,yb,yt,T,bevel=.003,segments=96){const prof=[[0,yb,0,-1],[T-bevel,yb,0,-1],[T-bevel,yb,.7,-.7],[T,yb+bevel,.7,-.7],[T,yb+bevel,1,0],[T,yt-bevel,1,0],[T,yt-bevel,.7,.7],[T-bevel,yt,.7,.7],[T-bevel,yt,0,1],[0,yt,0,1]],pos=[],nor=[],idx=[];
-  for(let s=0;s<prof.length;s+=2){const base=pos.length/3;for(let i=0;i<=segments;i++){const t=i/segments*TAU;for(const [u,y,nu,ny] of [prof[s],prof[s+1]]){const f=B.frame(t,y);const p=B.point(t,y).addScaledVector(f.n,u),n=f.n.clone().multiplyScalar(nu).addScaledVector(f.u,ny).normalize();pos.push(p.x,p.y,p.z);nor.push(n.x,n.y,n.z);}}
+ function strap(B,yb,yt,T,bevel=.003,segments=96){const prof=[[0,yb,0,-1],[T-bevel,yb,0,-1],[T-bevel,yb,.7,-.7],[T,yb+bevel,.7,-.7],[T,yb+bevel,1,0],[T,yt-bevel,1,0],[T,yt-bevel,.7,.7],[T-bevel,yt,.7,.7],[T-bevel,yt,0,1],[0,yt,0,1]],pos=[],nor=[],uv=[],idx=[];
+  for(let s=0;s<prof.length;s+=2){const base=pos.length/3;for(let i=0;i<=segments;i++){const t=i/segments*TAU;for(const [u,y,nu,ny] of [prof[s],prof[s+1]]){const f=B.frame(t,y);const p=B.point(t,y).addScaledVector(f.n,u),n=f.n.clone().multiplyScalar(nu).addScaledVector(f.u,ny).normalize();pos.push(p.x,p.y,p.z);nor.push(n.x,n.y,n.z);uv.push(i/segments,(y-yb)/(yt-yb));}}
    for(let i=0;i<segments;i++){const a=base+i*2;idx.push(a,a+2,a+1,a+1,a+2,a+3);}}
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setIndex(idx);return g;}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);return g;}
+ // GOTR-0030: trunk waistband for the belt-slot items. An elastic band fitted over the top edge of the
+ // shorts (hull of skin, fur and shorts plus clearance), carried by the pelvis bone. UVs: u around the
+ // body from the front centre, v up, so a woven design texture wraps it like the real thing.
+ const trunkFits=new WeakMap();
+ function trunkWaistband(coach){if(trunkFits.has(coach))return trunkFits.get(coach);const hips=coach.joints.hips,ys=[.062,.097,.132],bins=96;
+  const s=slices(coach,hips,[coach.skin,coach.bodyFur,coach.shorts],[[ys[0]-.01,ys[1]],[ys[0],ys[2]],[ys[1],ys[2]+.01]]),rings=s.map(xz=>hullRadii(xz,bins).map(r=>r+.004));
+  for(let i=0;i<bins;i++){const r=Math.max(rings[0][i],rings[1][i],rings[2][i]);rings[1][i]=Math.max(rings[1][i],r-.006);}
+  const g=strap(band(ys,rings,bins),ys[0],ys[2],.0045,.002,128);trunkFits.set(coach,g);return g;}
  // Thin closed piping/stitch line running on the strap's outer face at height y.
  const piping=(B,y,lift,r,segments=72)=>new THREE.TubeGeometry(new THREE.CatmullRomCurve3(Array.from({length:segments},(_,i)=>{const t=i/segments*TAU,f=B.frame(t,y,lift);return f.o;}),true),segments,r,3,true);
  // Warps that seat flat relief (x along the strap, y up, z out of its back face) on the band.
@@ -177,5 +185,5 @@
   tied:item?.kind==='armbands'?'<path d="M14 30 Q30 22 46 30 L46 38 Q30 30 14 38Z M34 46 Q50 38 66 46 L66 54 Q50 46 34 54Z" fill="#9c2c22"/><circle cx="30" cy="30" r="4" fill="#7d231b"/><path d="M29 33 L22 46 L27 46Z M31 33 L36 45 L32 47Z" fill="#9c2c22"/><circle cx="50" cy="46" r="4" fill="#7d231b"/><path d="M49 49 L43 62 L48 62Z M51 49 L57 61 L53 63Z" fill="#9c2c22"/>':'<path d="M12 34 Q40 18 68 34 L67 42 Q40 27 13 42Z" fill="#9c2c22"/><ellipse cx="62" cy="41" rx="5" ry="4" fill="#7d231b"/><path d="M60 44 L54 68 L59 66 L61 69Z M64 44 L68 66 L64 65 L62 68Z" fill="#9c2c22"/>',
   side:'<path d="M10 32 Q40 14 70 32 L69 44 Q40 27 11 44Z" fill="#1c2b4b"/><path d="M11 34 Q40 17 69 34 M11 42 Q40 25 69 42" stroke="#e9dfc6" stroke-width="1.5" fill="none"/><ellipse cx="16" cy="40" rx="6" ry="5" fill="#16233d"/><path d="M13 44 L6 58 L11 57 L12 61Z M18 44 L22 58 L18 57 L16 60Z" fill="#1c2b4b"/>'}[d];
   return svg?'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><ellipse cx="40" cy="71" rx="28" ry="5" fill="#000" opacity=".25"/>'+svg+'</svg>'):null;}
- const api={catalog,fresh,validate,action,look,icon,fit:{belt:c=>beltBand(c),strapThickness:STRAP}};if(typeof module!=='undefined')module.exports=api;else window.GameAccessories=api;
+ const api={catalog,fresh,validate,action,look,icon,fit:{belt:c=>beltBand(c),strapThickness:STRAP,waistband:trunkWaistband}};if(typeof module!=='undefined')module.exports=api;else window.GameAccessories=api;
 })();

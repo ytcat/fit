@@ -12,12 +12,47 @@
   let band=coach.waistband||coach.joints?.hips?.children.find(n=>n.isMesh&&n.geometry?.type==='CylinderGeometry'&&n.geometry.parameters?.height===.061);
   if(band){if(band.material===coach.gold)band.material=band.material.clone();band.name='Cosmetic waistband';coach.waistband=band;slots.belt.add(band.material);}
   for(const group of Object.values(slots))for(const m of group)base.set(m,m.color.clone());
-  const value={slots,base};cached.set(coach,value);return value;
+  const bm=[...slots.belt][0],value={slots,base,band:bm&&{color:bm.color.clone(),metalness:bm.metalness,roughness:bm.roughness}};
+  // The designed waistband is a fitted band over the top of the shorts (when the accessory fitter is
+  // loaded); the plain trim cylinder and its printed label are kept and shown again without equipment.
+  const fit=(typeof GameAccessories!=='undefined'?GameAccessories:globalThis.window?.GameAccessories)?.fit?.waistband;
+  if(band&&fit&&coach.joints?.hips){const trunk=new THREE.Mesh(fit(coach),band.material);trunk.name='Trunk waistband';trunk.castShadow=true;trunk.visible=false;coach.joints.hips.add(trunk);
+   value.trunk={mesh:trunk,plain:[band,...coach.joints.hips.children.filter(n=>n.isMesh&&n.geometry?.type==='PlaneGeometry'&&Math.abs(n.position.y-band.position.y)<.02)]};coach.trunkWaistband=trunk;}cached.set(coach,value);return value;
  }
+ // GOTR-0030: the four belt-slot items are boxing-trunk waistbands, each a distinct woven design
+ // (pinstripes, racing stripe, chevrons, repeated wordmark) with piping and a small woven label on the
+ // left hip. One canvas texture per design, drawn on first use; the band geometry is unchanged.
+ const WAISTBANDS={
+  default:{base:'#d3ad57',ink:'#17191d',edge:'#17191d',tag:'#17191d',tagInk:'#e3bb5c',draw:'pinstripes'},
+  midnight:{base:'#1b2742',ink:'#f2efe6',edge:'#f2efe6',stripe:'#c8283a',tag:'#f2efe6',tagInk:'#1b2742',draw:'racing'},
+  jade:{base:'#1f7d6c',ink:'#e3bb5c',edge:'#101417',tag:'#101417',tagInk:'#58c7ad',draw:'chevrons'},
+  sunrise:{base:'#e9792f',base2:'#f2b544',ink:'#5a1d12',edge:'#f6d27a',tag:'#f6d27a',tagInk:'#5a1d12',draw:'wordmark'}};
+ const bandTextures=new Map();
+ function canvas(w,h){const c=(globalThis.document||{}).createElement?.('canvas');if(!c)return null;c.width=w;c.height=h;return c;}
+ function waistbandTexture(variant){if(bandTextures.has(variant))return bandTextures.get(variant);const d=WAISTBANDS[variant]||WAISTBANDS.default,W=2048,H=96,c=canvas(W,H),x=c?.getContext?.('2d');let map=null,bump=null;
+  if(x){const fill=(color,y,h,x0=0,w=W)=>{x.fillStyle=color;x.fillRect(x0,y,w,h);};
+   const grad=x.createLinearGradient?.(0,0,W,0);if(grad&&d.base2){for(let i=0;i<=8;i++)grad.addColorStop(i/8,i%2?d.base2:d.base);fill(grad,0,H);}else fill(d.base,0,H);
+   // Fine knit ribs across the elastic, then the design.
+   x.globalAlpha=.08;for(let i=0;i<W;i+=4)fill('#000',0,H,i,1);x.globalAlpha=1;
+   fill(d.edge,0,7);fill(d.edge,H-7,7);
+   if(d.draw==='pinstripes'){fill(d.ink,15,3);fill(d.ink,H-18,3);}
+   if(d.draw==='racing'){fill(d.ink,30,36);fill(d.stripe,40,16);}
+   if(d.draw==='chevrons'){fill(d.ink,12,3);fill(d.ink,H-15,3);x.strokeStyle=d.ink;x.lineWidth=5;x.beginPath?.();for(let i=-40;i<W+40;i+=40){x.moveTo?.(i,66);x.lineTo?.(i+20,30);x.lineTo?.(i+40,66);}x.stroke?.();}
+   if(d.draw==='wordmark'){fill(d.ink,11,2);fill(d.ink,H-13,2);x.fillStyle=d.ink;x.font='800 40px system-ui,Arial,sans-serif';x.textBaseline='middle';x.textAlign='center';for(let i=170;i<W-120;i+=230)if(Math.abs(i-W*.25)>120)x.fillText?.('GLORY \u2605',i,H/2+2);}
+   // Woven label on the left hip (u = 0.25), stitched border and a crown-and-ring monogram.
+   const lx=W*.25-46,ly=18;fill(d.tag,ly,H-36,lx,92);x.strokeStyle=d.tagInk;x.lineWidth=2;x.setLineDash?.([4,3]);x.strokeRect?.(lx+5,ly+5,82,H-46);x.setLineDash?.([]);
+   x.fillStyle=d.tagInk;x.font='900 26px system-ui,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText?.('GR',W*.25,H/2+1);
+   map=new THREE.CanvasTexture(c);map.encoding=THREE.sRGBEncoding;map.wrapS=THREE.RepeatWrapping;map.anisotropy=4;
+   const b=canvas(W,H),y=b.getContext('2d');y.fillStyle='#808080';y.fillRect(0,0,W,H);y.fillStyle='#6a6a6a';for(let i=0;i<W;i+=4)y.fillRect(i,0,2,H);y.fillStyle='#b0b0b0';y.fillRect(0,0,W,6);y.fillRect(0,H-6,W,6);y.fillRect(lx,ly,92,H-36);
+   bump=new THREE.CanvasTexture(b);bump.wrapS=THREE.RepeatWrapping;}
+  const value={map,bump};bandTextures.set(variant,value);return value;}
+ function dressBand(mat,variant,base){const t=variant?waistbandTexture(variant):{map:null,bump:null},had=!!mat.map;
+  mat.map=t.map;mat.bumpMap=t.bump;mat.bumpScale=.0006;if(t.map){mat.color.set(0xffffff);mat.metalness=.04;mat.roughness=.58;}else{mat.color.copy(base.color);mat.metalness=base.metalness;mat.roughness=base.roughness;}if(had!==!!t.map)mat.needsUpdate=true;}
  function apply(coach,equipment,catalog){if(!coach)return;const data=materials(coach);
   for(const [slot,list] of Object.entries(data.slots)){
    const item=catalog.find(c=>c.id===equipment?.[slot]);
-   for(const mat of list){if(item&&item.variant!=='default')mat.color.set(item.color).convertSRGBToLinear();else mat.color.copy(data.base.get(mat));}
+   if(slot==='belt'&&data.trunk){data.trunk.mesh.visible=!!item;for(const n of data.trunk.plain)n.visible=!item;}
+   for(const mat of list){if(slot==='belt'){dressBand(mat,item?.variant,data.band);continue;}if(item&&item.variant!=='default')mat.color.set(item.color).convertSRGBToLinear();else mat.color.copy(data.base.get(mat));}
   }
   // Boot variants are also distinct constructions (high-top, mid-top, panelled), not only colours.
   const boots=catalog.find(c=>c.id===equipment?.boots);(typeof BoxingFootwear!=='undefined'?BoxingFootwear:globalThis.window?.BoxingFootwear)?.style?.(coach,boots?.variant||'default');
@@ -43,7 +78,7 @@
   const species={en:{lion:'Lion',rabbit:'Rabbit'},he:{lion:'אריה',rabbit:'ארנב'},ru:{lion:'Лев',rabbit:'Кролик'}}[lang]||{lion:'Lion',rabbit:'Rabbit'},owner=view.careerEntry?.species||'lion',name=view.careerEntry?.playerName||profile?.name||'Guest';
   return Object.fromEntries(['lion','rabbit'].map(actor=>[actor,(actor===owner?name:(view.careerEntry?.opponentName||'Shadow'))]));
  }
- const api={apply,materials,Preview,labels};if(typeof module!=='undefined')module.exports=api;else{
+ const api={apply,materials,Preview,labels,waistbands:WAISTBANDS};if(typeof module!=='undefined')module.exports=api;else{
   window.GamePresentation=api;window.GameIdentity={labels:view=>labels(view,window.app?.engine?.career?.store.current(),window.app?.lang||'en')};
  }
 })();

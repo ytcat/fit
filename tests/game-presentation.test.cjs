@@ -12,10 +12,13 @@ for(const coach of coaches){
  const originalBlack=coach.black.color.clone(),originalGold=coach.gold.color.clone(),originalSkin=coach.skin.material.color.clone();
  P.apply(coach,equipment('jade'),D.catalog);
  const targets=new Set(Object.values(P.materials(coach).slots).flatMap(set=>[...set]));assert.equal(Object.values(P.materials(coach).slots).every(set=>set.size>0),true,'all four actual rig slots are discoverable for '+coach.species);
- for(const material of targets)assert.ok(material.color.equals(new THREE.Color(0x208675).convertSRGBToLinear()),'paid variant is visible in each slot');
+ // GOTR-0030: belt-slot items are designed trunk waistbands (a woven texture per design); the other slots are colourways.
+ const band=[...P.materials(coach).slots.belt][0],jadeMap=band.map;assert.ok(jadeMap,'waistband shows its woven design');
+ for(const material of targets)if(material!==band)assert.ok(material.color.equals(new THREE.Color(0x208675).convertSRGBToLinear()),'paid variant is visible in each slot');
+ const maps=new Set(['default','midnight','jade','sunrise'].map(v=>{P.apply(coach,{...equipment('jade'),belt:'belt_'+v},D.catalog);return band.map;}));assert.equal(maps.size,4,'four distinct waistband designs');P.apply(coach,equipment('jade'),D.catalog);
  assert.ok(coach.black.color.equals(originalBlack),'boot recolor preserves shared black straps/face material');assert.ok(coach.gold.color.equals(originalGold),'cosmetic band preserves shared gold trim');assert.ok(coach.skin.material.color.equals(originalSkin),'cosmetics preserve body material');
  for(const [mesh,baseline] of meshes)if(!(Array.isArray(mesh.material)?mesh.material:[mesh.material]).some(m=>targets.has(m)))assert.deepEqual(colors(mesh.material),baseline,'unrelated mesh color changed: '+mesh.name);
- P.apply(coach,equipment('default'),D.catalog);for(const [mesh,baseline] of meshes)assert.deepEqual(colors(mesh.material),baseline,'default restores original '+coach.species+' material: '+mesh.name);
+ P.apply(coach,equipment('default'),D.catalog);for(const [mesh,baseline] of meshes)if(mesh.material!==band)assert.deepEqual(colors(mesh.material),baseline,'default restores original '+coach.species+' material: '+mesh.name);assert.ok(band.map&&band.map!==jadeMap,'default waistband is the Classic design');
  P.apply(coach,equipment('sunrise'),D.catalog);P.apply(coach,null,D.catalog);for(const [mesh,baseline] of meshes)assert.deepEqual(colors(mesh.material),baseline,'clearing equipment restores original species defaults');
  for(const [mesh,,originalGeometry] of meshes)assert.equal(mesh.geometry,originalGeometry,'cosmetics preserve mesh geometry references');
  for(const [g,hash] of geometry)assert.equal(geometryHash(g),hash,'cosmetics must not mutate render/hit geometry');for(const [node,parent,position,quaternion,scale] of nodes){assert.equal(node.parent,parent);assert.ok(node.position.equals(position));assert.ok(node.quaternion.equals(quaternion));assert.ok(node.scale.equals(scale));}
