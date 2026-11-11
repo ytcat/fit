@@ -1,0 +1,91 @@
+/* GOTR-0054 — one HUD layout inside the 3D stage. Nothing floats over the page header, tabs or logo.
+   Zones (all inside #stageContainer):
+     top band    fighter names + health + power (fight) or training cue + power gauge, then ONE status line
+                 (mission goal with counter) at --hud-status-top
+     centre      ONE short announcement ("Shadow won" / "KO" / "Round 2") at --hud-centre-top, reward chips and the
+                 judges row directly under it, auto-fading
+     bottom      game pad, combo chips, camera/play buttons and the Next bar (the Next bar sits above the topmost control)
+   Small, translucent, tokens only. Loaded last so it wins over the older per-feature rules. */
+#stageContainer{
+ --hud-chip:color-mix(in srgb,var(--gr-bg,#0a0e14) 66%,transparent);
+ --hud-chip-strong:color-mix(in srgb,var(--gr-bg,#0a0e14) 82%,transparent);
+ --hud-line:color-mix(in srgb,var(--gr-text,#f3f6fb) 16%,transparent);
+ --hud-status-top:58px;--hud-centre-top:36%
+}
+#stageContainer:has(#fightHealth:not([hidden])){--hud-status-top:74px}
+#stageContainer:has(.academy-hud){--hud-status-top:6px}
+
+/* Top band: training cue and power gauge stay small; the cue leaves room for the gauge. */
+#stageContainer .career-drill-cue{padding:4px 10px;font-size:11px;line-height:1.25;max-width:calc(100% - 150px);background:var(--hud-chip);border-color:var(--hud-line)}
+#stageContainer .gr-power-gauge{width:108px;padding:3px 6px;gap:2px 5px;background:var(--hud-chip)}
+#stageContainer .gr-power-text{font-size:9px}
+
+/* Top band, status line: the mission goal with its counter. */
+#stageContainer > .adv-goal{position:absolute;top:var(--hud-status-top);z-index:12;max-width:calc(100% - 16px);padding:2px 3px 2px 10px;gap:6px;font-size:11px;font-weight:700;background:var(--hud-chip-strong);border-color:color-mix(in srgb,var(--gr-gold,#f4c152) 55%,transparent);box-shadow:none;pointer-events:none}
+#stageContainer > .adv-goal .adv-goal-bar{width:30px;height:4px}
+#stageContainer > .adv-goal .adv-goal-quit{width:22px;height:22px;font-size:13px;pointer-events:auto}
+
+/* Centre: ONE announcement (compact chip), reward chips directly under it. */
+#stageContainer .bout-announcement,
+.game-enabled #stageContainer .bout-announcement:not([data-ko=true]):not([data-kind=countdown]){top:var(--hud-centre-top)!important;min-width:0!important;padding:4px 14px!important;border:1px solid var(--hud-line);border-radius:var(--gr-radius-pill,999px);background:var(--hud-chip);filter:none;max-width:calc(100% - 24px)}
+#stageContainer .bout-announcement strong,#stageContainer .bout-announcement[data-kind=fight] strong{font-size:clamp(14px,2.4vw,20px)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stageContainer .bout-announcement span{font-size:8px!important;letter-spacing:.14em!important;margin-top:1px!important}
+#stageContainer .bout-announcement[data-kind=countdown]{top:var(--hud-centre-top)!important;right:auto!important;min-width:0!important;padding:2px 12px!important}
+#stageContainer .bout-announcement[data-kind=countdown] strong{font-size:20px!important}
+#stageContainer .fight-knockout{top:var(--hud-centre-top);left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);padding:3px 14px;border:1px solid var(--hud-line);border-radius:999px;background:var(--hud-chip);font-size:14px;letter-spacing:.04em}
+#stageContainer .adv-toasts{position:absolute;top:calc(var(--hud-centre-top) + 40px);inset-inline:0;z-index:17;gap:3px}
+body:has(#fightResults:not([hidden])) #stageContainer .adv-toasts{top:calc(var(--hud-centre-top) + 68px)}
+#stageContainer .adv-toast{padding:2px 9px;font-size:11px;background:var(--hud-chip);border-color:var(--hud-line)}
+
+/* Centre, under the announcement: the decision as one slim row (Judges 9–10 · 9–10 · 9–10) with Details on demand. */
+body #fightResults,body.ringside-layout .fight-results,.club-app #fightResults{position:absolute;top:calc(var(--hud-centre-top) + 40px);bottom:auto;left:50%;right:auto;transform:translateX(-50%);z-index:17;width:max-content;max-width:calc(100% - 16px);max-height:none;overflow:visible;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:6px;padding:2px 4px 2px 10px;border:1px solid var(--hud-line);border-radius:var(--gr-radius-pill,999px);background:var(--hud-chip);box-shadow:none;color:var(--gr-text,#f3f6fb);font-size:11px;white-space:nowrap}
+body #fightResults[hidden]{display:none}
+#fightResults .fight-result-title,#fightResults .fight-card-order{display:none}
+#fightResults .fight-judges-label{font-weight:700;color:var(--gr-text-muted,#9aa7bb)}
+#fightResults .fight-card-grid{display:flex;margin:0;gap:0}
+#fightResults .fight-card{display:inline;padding:0;border:0;background:none}
+#fightResults .fight-card span{display:none}
+#fightResults .fight-card strong{font-size:11px;font-weight:700;color:var(--gr-text,#f3f6fb)}
+#fightResults .fight-card + .fight-card::before{content:' · ';color:var(--gr-text-muted,#9aa7bb)}
+#fightResults .fight-note{display:none}
+#fightResults .fight-result-actions{display:flex;gap:4px;margin:0}
+#fightResults .fight-result-actions button{min-height:24px;padding:0 8px;font-size:10px;border-radius:999px}
+
+/* Bottom band: the Next bar, one compact row above the topmost control. */
+#stageContainer > .adv-next{position:absolute;z-index:17;max-width:calc(100% - 16px);gap:4px;padding:3px;border-radius:var(--gr-radius-m,12px);background:var(--hud-chip-strong);box-shadow:none;border-color:var(--hud-line)}
+#stageContainer > .adv-next .adv-go{min-height:26px;font-size:10px;padding:0 8px;line-height:1.1}
+#stageContainer > .adv-next .adv-next-main{flex:1 1 100%}
+
+/* Burst tip, camera buttons and the intro Skip pill: smaller, translucent, kept in the bottom band. */
+#stageContainer .burst-tip{padding:3px 8px!important;font-size:11px!important;background:var(--hud-chip-strong)!important;box-shadow:none!important;animation:stage-hud-fade 7s ease-out forwards}
+#stageContainer .burst-tip::after{display:none}
+@keyframes stage-hud-fade{0%,85%{opacity:1}100%{opacity:0}}
+#stageContainer .camera-lock-toggle{opacity:.85;background:var(--hud-chip-strong)}
+#stageContainer .camera-intro-skip{top:calc(var(--hud-centre-top) + 40px);bottom:auto;padding:3px 9px;font-size:10px;background:var(--hud-chip-strong);white-space:nowrap}
+
+/* Academy lessons: one slim top row, translucent. */
+#stageContainer .academy-hud{top:4px;gap:3px;padding:3px 4px;font-size:11px;background:var(--hud-chip-strong);box-shadow:none}
+#stageContainer .academy-hud:not([data-wide=true]){left:4px;right:4px}
+#stageContainer:has(.academy-hud) .gr-power-gauge{display:none}
+#stageContainer .academy-hud .academy-box{min-height:28px;font-size:11px}
+#stageContainer .academy-hint{padding:3px 9px;font-size:11px;box-shadow:none}
+@media(prefers-reduced-motion:reduce){#stageContainer .burst-tip{animation:none}}
+
+/* Owner rule: HUD messages are plain text drawn on the scene, no panels, pills, borders or card backgrounds.
+   White (gold for rewards) with a soft dark shadow. Buttons (Next bar, Details, Skip, quit, camera, pad) stay buttons. */
+#stageContainer{--hud-shadow:0 1px 2px rgb(0 0 0/.95),0 0 6px rgb(0 0 0/.75),0 0 12px rgb(0 0 0/.45)}
+#stageContainer .career-drill-cue,#stageContainer .gr-power-gauge,#stageContainer > .adv-goal,
+#stageContainer .bout-announcement,.game-enabled #stageContainer .bout-announcement:not([data-ko=true]):not([data-kind=countdown]),
+#stageContainer .fight-knockout,#stageContainer .adv-toast,body #fightResults,body.ringside-layout .fight-results,.club-app #fightResults,
+#stageContainer .burst-tip,#stageContainer .academy-hud{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important}
+#stageContainer .career-drill-cue,#stageContainer > .adv-goal,#stageContainer .bout-announcement,#stageContainer .fight-knockout,#stageContainer .adv-toast,#fightResults,#stageContainer .burst-tip,#stageContainer .gr-power-text{color:var(--gr-text,#f3f6fb);text-shadow:var(--hud-shadow)}
+#stageContainer .bout-announcement span{color:var(--gr-text-muted,#cfd6e2);text-shadow:var(--hud-shadow)}
+#stageContainer .adv-toast.coin,#stageContainer .adv-toast.gold{color:var(--gr-gold,#f4c152)}
+#stageContainer .adv-toast.gain,#stageContainer .adv-toast.xp{color:var(--gr-gold,#f4c152)}
+#stageContainer .adv-toast.bad{color:var(--gr-danger,#ff5d5d)}
+#stageContainer .academy-hint{background:none;color:var(--gr-gold,#f4c152);text-shadow:var(--hud-shadow)}
+#fightResults .fight-card strong,#fightResults .fight-judges-label{text-shadow:var(--hud-shadow)}
+#stageContainer > .adv-goal .adv-goal-bar{background:rgb(255 255 255/.25)}
+#fightResults .fight-card + .fight-card::before{content:'·';margin-inline:6px}
+#fightResults .fight-card strong{white-space:nowrap;margin-inline:0}
+body #fightResults{flex-wrap:wrap;row-gap:3px}
