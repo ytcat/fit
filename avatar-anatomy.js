@@ -15,21 +15,21 @@
  const DEF_CHANNELS=['static','bicepsL','bicepsR','tricepsL','tricepsR','deltL','deltR','pecL','pecR','latL','latR','forearmL','forearmR','abs','back','quadL','quadR','calfL','calfR','flankL','flankR','traps'];
  const DEF_RANGE=.03,F=[0,0,1],B=[0,0,-1];
  // group, channel, origin a, insertion b, facing hint, half width [at a, at b], relative height, options
- const M=(group,ch,a,b,n,w,h,o={})=>({group,ch,a,b,n,wa:Array.isArray(w)?w[0]:w,wb:Array.isArray(w)?w[1]:w,h,bias:o.bias??.5,shape:o.shape??2,p:o.p??1});
+ const M=(group,ch,a,b,n,w,h,o={})=>({group,ch,a,b,n,wa:Array.isArray(w)?w[0]:w,wb:Array.isArray(w)?w[1]:w,h,bias:o.bias??.5,shape:o.shape??2,p:o.p??1,crisp:Boolean(o.crisp)});
  const MUSCLE_ATLAS=[
   // Chest: sternal and clavicular heads of pectoralis major converge on the humerus; firm lower edge.
-  M('pectoralis','pec',[.028,1.535,.19],[.315,1.585,.13],F,[.085,.045],1.25,{bias:.34,p:.75}),
-  M('pectoralis','pec',[.035,1.67,.155],[.31,1.64,.12],[0,.3,1],[.048,.038],1.0,{bias:.4}),
+  M('pectoralis','pec',[.028,1.535,.19],[.315,1.585,.13],F,[.085,.045],1.25,{bias:.34,p:.75,crisp:true}),
+  M('pectoralis','pec',[.035,1.67,.155],[.31,1.64,.12],[0,.3,1],[.048,.038],1.0,{bias:.4,crisp:true}),
   // Rectus abdominis: four boxy segments per side, linea alba and tendinous intersections between.
-  M('rectus','abs',[.058,1.458,.17],[.058,1.370,.16],F,.048,.80,{shape:2.8,p:1.25}),
-  M('rectus','abs',[.058,1.356,.155],[.058,1.276,.15],F,.049,.80,{shape:2.8,p:1.25}),
-  M('rectus','abs',[.058,1.262,.148],[.058,1.182,.148],F,.049,.78,{shape:2.8,p:1.25}),
-  M('rectus','abs',[.056,1.168,.15],[.052,1.095,.15],F,.046,.45,{shape:2.6,p:1.25}),
+  M('rectus','abs',[.058,1.458,.17],[.058,1.370,.16],F,.048,.80,{shape:2.8,p:1.25,crisp:true}),
+  M('rectus','abs',[.058,1.356,.155],[.058,1.276,.15],F,.049,.80,{shape:2.8,p:1.25,crisp:true}),
+  M('rectus','abs',[.058,1.262,.148],[.058,1.182,.148],F,.049,.78,{shape:2.8,p:1.25,crisp:true}),
+  M('rectus','abs',[.056,1.168,.15],[.052,1.095,.15],F,.046,.45,{shape:2.6,p:1.25,crisp:true}),
   // Flank: external oblique above the iliac crest, serratus digits interlocking under the arm.
   M('obliques','flank',[.215,1.39,.095],[.18,1.125,.11],[.75,0,.65],[.062,.055],.80,{bias:.55}),
-  M('serratus','flank',[.275,1.478,.045],[.222,1.452,.118],[1,0,.45],.016,.55,{bias:.6}),
-  M('serratus','flank',[.270,1.426,.040],[.218,1.400,.112],[1,0,.45],.0165,.58,{bias:.6}),
-  M('serratus','flank',[.260,1.373,.035],[.213,1.350,.106],[1,0,.45],.016,.52,{bias:.6}),
+  M('serratus','flank',[.275,1.478,.045],[.222,1.452,.118],[1,0,.45],.016,.55,{bias:.6,crisp:true}),
+  M('serratus','flank',[.270,1.426,.040],[.218,1.400,.112],[1,0,.45],.0165,.58,{bias:.6,crisp:true}),
+  M('serratus','flank',[.260,1.373,.035],[.213,1.350,.106],[1,0,.45],.016,.52,{bias:.6,crisp:true}),
   // Back: trapezius (upper, middle, lower fibres), infraspinatus and teres over the blade,
   // latissimus fanning from the axilla to the lower back (V taper), spinal erectors.
   M('trapezius','traps',[.05,1.795,-.06],[.30,1.735,-.03],[0,1,-.6],[.062,.045],1.15,{bias:.42}),
@@ -112,7 +112,7 @@
    const side=s<0?'L':'R',chName=m.ch==='static'||m.ch==='abs'||m.ch==='back'||m.ch==='traps'?m.ch:m.ch+side;
    const key=m.group+side;let gi=groups.findIndex(x=>x.key===key);if(gi<0){gi=groups.length;groups.push({key,name:m.group,side,parts:[]});}groups[gi].anchors=(groups[gi].anchors||[]).concat([[ia,ib]]);
    const r=Math.max(m.wa,m.wb)*1.05+.012;
-   const part={A,AB:Bp.clone().sub(A),f,wa:m.wa,wb:m.wb,bias:m.bias,shape:m.shape,p:profile.p*m.p,
+   const part={A,AB:Bp.clone().sub(A),f,wa:m.wa,wb:m.wb,bias:m.bias,shape:m.shape,crisp:m.crisp,p:profile.p*m.p,
     height:m.h*unit*(profile.groups[m.group]??1),channel:Math.max(0,DEF_CHANNELS.indexOf(chName)),
     lo:V(Math.min(A.x,Bp.x)-r,Math.min(A.y,Bp.y)-r,Math.min(A.z,Bp.z)-r),hi:V(Math.max(A.x,Bp.x)+r,Math.max(A.y,Bp.y)+r,Math.max(A.z,Bp.z)+r)};
    part.len2=part.AB.lengthSq();groups[gi].parts.push(part);
@@ -130,8 +130,13 @@
      const l=(t-q.bias)/(t<q.bias?q.bias:1-q.bias);if(l<=-1||l>=1)return;
      const tc=clamp(t),qx=px-AB.x*tc,qy=py-AB.y*tc,qz=pz-AB.z*tc,depth=qx*f.x+qy*f.y+qz*f.z;
      const across=Math.hypot(qx-f.x*depth,qy-f.y*depth,qz-f.z*depth),w=q.wa+(q.wb-q.wa)*tc,c=across/w;if(c>=1)return;
-     const d=q.shape===2?Math.sqrt(l*l+c*c):Math.pow(Math.pow(Math.abs(l),q.shape)+Math.pow(c,q.shape),1/q.shape),dd=depth/(4*w),d2=d*d+dd*dd;if(d2>=1)return;
-     const gate=clamp((facing+.15)/.5),v=q.height*Math.pow(1-d2,q.p)*gate*gate*(3-2*gate);
+     // Crisp parts (abs, serratus digits, pectoral edge) are rounded pads; the rest have crisp
+     // side borders but fade smoothly along their length into tendon, like real fusiform bellies.
+     const dd=depth/(4*w);let d2,along=1;
+     if(q.crisp){const d=q.shape===2?Math.sqrt(l*l+c*c):Math.pow(Math.pow(Math.abs(l),q.shape)+Math.pow(c,q.shape),1/q.shape);d2=d*d+dd*dd;}
+     else{d2=c*c+dd*dd;along=1.3*Math.pow(1-l*l,.8);}
+     if(d2>=1)return;
+     const gate=clamp((facing+.15)/.5),v=q.height*Math.pow(1-d2,q.p)*along*gate*gate*(3-2*gate);
      if(v>gv[i]){if(gv[i]===0)touched.push(i);gv[i]=v;if(v>dominant[i]){dominant[i]=v;channel[i]=q.channel;group[i]=gi;}}
     });
    }
@@ -170,8 +175,10 @@
    return out;
   };
   // Limbs keep more of their bellies (biceps peak, deltoid cap, calf) than the torso.
-  const low=lowpass(H),D=new Float32Array(count);
-  for(let i=0;i<count;i++){const x=Math.abs(P[i*3]),y=P[i*3+1],limb=Math.max(y>1.38?smooth01((x-.34)/.10):0,1-smooth01((y-.66)/.12)),keep=profile.keep+(1-profile.keep)*.55*limb;D[i]=H[i]-(1-keep)*low[i];}
+  const low=lowpass(H),D=new Float32Array(count),limbs=new Float32Array(count);
+  for(let i=0;i<count;i++){const x=Math.abs(P[i*3]),y=P[i*3+1],limb=Math.max(y>1.38?smooth01((x-.34)/.10):0,1-smooth01((y-.66)/.12)),keep=profile.keep+(1-profile.keep)*.55*limb;limbs[i]=limb;D[i]=H[i]-(1-keep)*low[i];
+   // Belts and the waistband sit below the navel: there the relief only carves, never bulges (gear fit).
+   if(y<1.28&&y>.95)D[i]=Math.min(D[i],.0005+.02*smooth01((y-1.225)/.055));}
   const near=smooth(D,6),delta=new Int16Array(count*4),normal=new Int8Array(count*4);
   const positions=Float32Array.from(P),M2=new Float32Array(count*3);
   for(let i=0;i<count;i++){positions[i*3]+=N[i*3]*D[i];positions[i*3+1]+=N[i*3+1]*D[i];positions[i*3+2]+=N[i*3+2]*D[i];}
@@ -183,7 +190,7 @@
   const q=v=>Math.max(-32767,Math.min(32767,Math.round(v/DEF_RANGE*32767))),b=v=>Math.max(-127,Math.min(127,Math.round(v*127)));
   for(let i=0;i<count;i++){
    for(let k=0;k<3;k++){delta[i*4+k]=q(N[i*3+k]*D[i]);normal[i*4+k]=b(M2[i*3+k]-N[i*3+k]);}
-   delta[i*4+3]=Math.round(channel[i]/32*32767);normal[i*4+3]=b(clamp((near[i]-D[i])/(unit*.40),-1,1));
+   delta[i*4+3]=Math.round(channel[i]/32*32767);normal[i*4+3]=b(clamp((near[i]-D[i])/(unit*.40),-1,1)*(1-.4*limbs[i]));
   }
   return {delta,normal,group,groups:groups.map(x=>x.name+' '+x.side),anchors:groups.map(x=>x.anchors),count};
  }
@@ -201,7 +208,7 @@
     for(let i=0;i<count;i++){const j=roots[i]*4;data.delta.set(source.delta.subarray(j,j+4),i*4);data.normal.set(source.normal.subarray(j,j+4),i*4);}delete g.userData.furRoots;
    }else{data=definition.build(g,coach.species);if(!data)return false;coach.definitionData=data;}
    g.setAttribute('avatarDefinition',new THREE.BufferAttribute(data.delta,4,true));g.setAttribute('avatarDefinitionNormal',new THREE.BufferAttribute(data.normal,4,true));
-   if(!coach.definition){const profile=MUSCLE_PROFILES[coach.species]||MUSCLE_PROFILES.other;coach.definition={values:new Float32Array(24).fill(1),scale:{value:[0,1,2,3,4,5].map(()=>new THREE.Vector4(1,1,1,1))},look:{value:new THREE.Vector2(profile.cavity,profile.sheen)},detail:{value:1}};}
+   if(!coach.definition){const profile=MUSCLE_PROFILES[coach.species]||MUSCLE_PROFILES.other;coach.definition={values:new Float32Array(24).fill(1),scale:{value:[0,1,2,3,4,5].map(()=>new THREE.Vector4(1,1,1,1))},look:{value:new THREE.Vector2(profile.cavity,profile.sheen)},detail:definition.quality};}
    return true;
   },
   scale(coach,index,g){const d=g.attributes.avatarDefinition;if(!d||!coach.definition)return 0;return coach.definition.values[Math.round(d.array[index*4+3]/32767*32)]||0;},
@@ -221,7 +228,10 @@
    s[0]=1;s[13]=mix(.86,1.25,a[10]);s[14]=mix(.86,1.2,a[11]);s[21]=mix(.95,1.2,.5+.5*(m.guard??.6));
    const g=def.strength??1;for(let k=0;k<6;k++)def.scale.value[k].set(s[k*4]*g,s[k*4+1]*g,s[k*4+2]*g,s[k*4+3]*g);
   },
-  setDetail(coach,level){if(coach.definition)coach.definition.detail.value=level;},
+  // Adaptive quality (GOTR-0017 ladder): at the floor level the per-pixel crease/sheen and the
+  // normal relief are skipped (the silhouette relief stays); one uniform shared by every rig.
+  quality:{value:1},
+  setQuality(level){definition.quality.value=level>0?1:0;},
   // Debug/QA: colour the skin by muscle group (labelled sheet). Returns group names.
   paint(coach,on){
    const g=coach.skin.geometry,c=g.attributes.color,data=coach.definitionData;if(!c||!data)return [];
@@ -237,7 +247,7 @@
  function definitionShader(shader,coach,main,fur){
   shader.uniforms.avatarDefScale=coach.definition.scale;
   shader.vertexShader=shader.vertexShader.replace('#include <common>',`#include <common>
-attribute vec4 avatarDefinition;attribute vec4 avatarDefinitionNormal;uniform vec4 avatarDefScale[6];${main?'varying float avatarDefCavity;':''}
+attribute vec4 avatarDefinition;attribute vec4 avatarDefinitionNormal;uniform vec4 avatarDefScale[6];${main?'varying float avatarDefCavity;uniform float avatarDefDetail;':''}
 float avatarDefK(){float c=floor(avatarDefinition.w*32.0+.5);return dot(avatarDefScale[int(c/4.0)],vec4(equal(vec4(mod(c,4.0)),vec4(0.0,1.0,2.0,3.0))));}`);
   shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>\ntransformed+=avatarDefinition.xyz*(${DEF_RANGE.toFixed(3)}*avatarDefK());`);
   if(!main)return;
@@ -245,9 +255,10 @@ float avatarDefK(){float c=floor(avatarDefinition.w*32.0+.5);return dot(avatarDe
   shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`#include <project_vertex>
 {float avatarK=avatarDefK();avatarDefCavity=avatarDefinitionNormal.w*avatarK;
 #ifndef FLAT_SHADED
-vNormal=normalize(vNormal+normalMatrix*(bindMatrixInverse*vec4(qrotate(coachQ,(bindMatrix*vec4(avatarDefinitionNormal.xyz*avatarK,0.0)).xyz),0.0)).xyz);
+if(avatarDefDetail>0.0)vNormal=normalize(vNormal+normalMatrix*(bindMatrixInverse*vec4(qrotate(coachQ,(bindMatrix*vec4(avatarDefinitionNormal.xyz*avatarK,0.0)).xyz),0.0)).xyz);
 #endif
 }`);
+  if(typeof shader.fragmentShader!=='string')return;
   if(fur)shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_begin>','#include <normal_fragment_begin>\n#ifdef DOUBLE_SIDED\nnormal*=faceDirection;geometryNormal=normal;\n#endif');
   shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying float avatarDefCavity;uniform vec2 avatarDefLook;uniform float avatarDefDetail;')
    .replace('#include <color_fragment>','#include <color_fragment>\ndiffuseColor.rgb*=1.0-avatarDefDetail*avatarDefLook.x*clamp(avatarDefCavity,0.0,1.0);')

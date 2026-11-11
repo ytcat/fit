@@ -767,6 +767,8 @@
         // Materials first drawn while the pass was off were built without shadow code: rebuild on return.
         if(shadow&&!r.shadowMap.enabled&&this.scene)this.scene.traverse(n=>{for(const m of [].concat(n.material||[]))m.needsUpdate=true;});
         r.shadowMap.enabled=shadow>0;this.lastRenderStamp=null;
+        // GOTR-0037: the floor level also drops the per-pixel muscle crease/normal detail.
+        window.AvatarAnatomy?.definition?.setQuality(next);
       }
 
       framePace(now, wall) {
