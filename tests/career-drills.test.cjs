@@ -8,7 +8,7 @@ for(const species of ['lion','rabbit']){
   const m=coach.update(i*1.22/16,move,'one_two');for(const f of m.footTargets){const foot=coach.joints['foot'+f.side],sole=foot.children.find(n=>n.name==='Boxing boot sole'),p=sole.geometry.attributes.position;for(let j=0;j<p.count;j++){const point=coach.root.worldToLocal(sole.localToWorld(new THREE.Vector3().fromBufferAttribute(p,j)));assert.ok(point.y>=.005+f.lift,`${species} ${move} sole ${point.y}`);}const up=new THREE.Vector3(0,1,0).applyQuaternion(foot.userData.bootAnkle.getWorldQuaternion(new THREE.Quaternion())),shin=foot.parent.getWorldPosition(new THREE.Vector3()).sub(foot.getWorldPosition(new THREE.Vector3())).normalize();assert.ok(up.dot(shin)>.9999);}
  }
  e.animTime=0;e.targetMode='rope';e.arena.setTarget('rope');let jumps=0;
- for(let i=1;i<=90;i++){const f=e.arena.update(i/30);jumps+=f.jumps;assert.ok(f.hero.hands.flat().every(Number.isFinite));if(Math.abs(f.rope.phase-.5)<.04){assert.ok(f.rope.lowest>=0,'rope must pass above floor');assert.ok(f.rope.lowest<f.rope.jump,'boots must clear the rope');}}
+ for(let i=1;i<=90;i++){const f=e.arena.update(i/30);jumps+=f.jumps;assert.ok(f.hero.hands.flat().every(Number.isFinite));if(Math.abs(f.rope.pass-.5)<.04){assert.ok(f.rope.lowest>=0,'rope must pass above floor');assert.ok(f.rope.lowest<f.rope.jump,'boots must clear the rope');}}
  assert.ok(jumps>=4);assert.equal(e.arena.update(3).jumps,0,'a held frame cannot award another jump');
  e.animTime=0;e.targetMode='pads';e.arena.setTarget('pads');let hits=0,defences=0;
  for(let i=1;i<=300;i++){const f=e.arena.update(i/30);hits+=f.contacts.length;defences+=f.defences;assert.ok(f.hero.hands.flat().every(Number.isFinite));

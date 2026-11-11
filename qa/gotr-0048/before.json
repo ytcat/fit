@@ -1,0 +1,134 @@
+[
+ {
+  "species": "lion",
+  "exercise": "two_feet",
+  "cadence": 1.72,
+  "jumpHeight": {
+   "min": 0.181,
+   "max": 0.181
+  },
+  "wristCircleRadius": 0.02,
+  "elbowTravel": 0.02,
+  "elbowSkinGap": 0.001,
+  "elbowJointToRibs": 0.055,
+  "handOutFromHip": {
+   "min": 0.078,
+   "max": 0.114
+  },
+  "handAboveHipJoint": 0.21,
+  "heelMinHeight": 0.022,
+  "plantedFootSlide": 0,
+  "ropeBodyClearance": 0.068,
+  "ropeFloorGap": 0.09,
+  "ropeUnderSole": -0.019,
+  "torsoLeanDeg": {
+   "mean": 5.4,
+   "range": 3
+  },
+  "headPitchDeg": {
+   "mean": -8.6,
+   "range": 3.9
+  },
+  "wristFlexMaxDeg": 5,
+  "handIkError": 0
+ },
+ {
+  "species": "lion",
+  "exercise": "alternating",
+  "cadence": 1.9,
+  "jumpHeight": {
+   "min": 0.166,
+   "max": 0.166
+  },
+  "wristCircleRadius": 0.02,
+  "elbowTravel": 0.019,
+  "elbowSkinGap": 0.001,
+  "elbowJointToRibs": 0.042,
+  "handOutFromHip": {
+   "min": 0.058,
+   "max": 0.136
+  },
+  "handAboveHipJoint": 0.21,
+  "heelMinHeight": 0.022,
+  "plantedFootSlide": 0,
+  "ropeBodyClearance": 0.068,
+  "ropeFloorGap": 0.076,
+  "ropeUnderSole": -0.019,
+  "torsoLeanDeg": {
+   "mean": 5.4,
+   "range": 3.1
+  },
+  "headPitchDeg": {
+   "mean": -8.6,
+   "range": 3.9
+  },
+  "wristFlexMaxDeg": 5,
+  "handIkError": 0
+ },
+ {
+  "species": "rabbit",
+  "exercise": "two_feet",
+  "cadence": 1.72,
+  "jumpHeight": {
+   "min": 0.181,
+   "max": 0.181
+  },
+  "wristCircleRadius": 0.02,
+  "elbowTravel": 0.027,
+  "elbowSkinGap": 0.002,
+  "elbowJointToRibs": 0.035,
+  "handOutFromHip": {
+   "min": 0.028,
+   "max": 0.072
+  },
+  "handAboveHipJoint": 0.37,
+  "heelMinHeight": 0.022,
+  "plantedFootSlide": 0,
+  "ropeBodyClearance": 0.079,
+  "ropeFloorGap": 0.09,
+  "ropeUnderSole": -0.037,
+  "torsoLeanDeg": {
+   "mean": 5.4,
+   "range": 3
+  },
+  "headPitchDeg": {
+   "mean": -8.6,
+   "range": 3.9
+  },
+  "wristFlexMaxDeg": 5,
+  "handIkError": 0
+ },
+ {
+  "species": "rabbit",
+  "exercise": "alternating",
+  "cadence": 1.9,
+  "jumpHeight": {
+   "min": 0.166,
+   "max": 0.166
+  },
+  "wristCircleRadius": 0.02,
+  "elbowTravel": 0.027,
+  "elbowSkinGap": 0,
+  "elbowJointToRibs": 0.011,
+  "handOutFromHip": {
+   "min": -0.001,
+   "max": 0.099
+  },
+  "handAboveHipJoint": 0.37,
+  "heelMinHeight": 0.022,
+  "plantedFootSlide": 0,
+  "ropeBodyClearance": 0.073,
+  "ropeFloorGap": 0.076,
+  "ropeUnderSole": -0.037,
+  "torsoLeanDeg": {
+   "mean": 5.4,
+   "range": 3.1
+  },
+  "headPitchDeg": {
+   "mean": -8.6,
+   "range": 3.9
+  },
+  "wristFlexMaxDeg": 5,
+  "handIkError": 0
+ }
+]

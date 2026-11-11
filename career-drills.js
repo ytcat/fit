@@ -19,7 +19,13 @@
   const cues=mittCues[lang]={roll,guard:window.COACH_TECHNIQUES?.guard?.[column]||'Guard'};
   for(const move of mittSequence)if(move!=='roll')cues[move]=(window.COACH_TECHNIQUES?.[move]?.[column]||move)+' · '+(move.includes('uppercut')?up:meet);
  }
- const ropeDrills={mixed:{name:'Mixed footwork',height:.15,cadence:1.8},two_feet:{name:'Two feet',height:.15,cadence:1.72},alternating:{name:'Alternating feet',height:.135,cadence:1.90},left_leg:{name:'Left leg',height:.15,cadence:1.60},right_leg:{name:'Right leg',height:.15,cadence:1.60}};
+ // GOTR-0048: boxer rope exercises. cadence = jumps per second, hop = ballistic rise of the
+ // forefoot contact (m), level = suggested career level (tag only). Legacy ids map via ropeAliases.
+ const ropeDrills={bounce:{name:'Basic bounce',cadence:2.1,hop:.04,level:1},boxer_skip:{name:'Boxer skip',cadence:2.2,hop:.035,level:1,support:'alternate',swing:.045,swingZ:-.35},side_hops:{name:'Side & front hops',cadence:2.0,hop:.045,level:2},shuffle:{name:'Boxer shuffle',cadence:2.2,hop:.04,level:2,scissor:.075},high_knees:{name:'High knees',cadence:2.3,hop:.035,level:3,support:'alternate',swing:.36,swingZ:.5,shape:4},double_under:{name:'Double unders',cadence:1.9,hop:.13,level:4,turns:2},freestyle:{name:'Free combination',cadence:2.1,hop:.04,level:4,sequence:['bounce','boxer_skip','shuffle','side_hops','high_knees','bounce','double_under']}};
+ // Criss-cross is unfinished (crossed cable still clips the forearms): off unless enabled.
+ if(window.ROPE_CRISS_CROSS)ropeDrills.criss_cross={name:'Criss-cross',cadence:2.0,hop:.045,level:3,cross:true};
+ const ropeAliases={mixed:'freestyle',two_feet:'bounce',alternating:'boxer_skip',left_leg:'boxer_skip',right_leg:'boxer_skip'};
+ const ropeCues={en:{bounce:'Basic bounce',boxer_skip:'Boxer skip',side_hops:'Side & front hops',shuffle:'Boxer shuffle',high_knees:'High knees',criss_cross:'Criss-cross',double_under:'Double unders',freestyle:'Free combination',form:'light on the balls of the feet, elbows in, wrists turn'},he:{bounce:'קפיצה בסיסית',boxer_skip:'Boxer skip',side_hops:'צד וקדימה',shuffle:'Boxer shuffle',high_knees:'ברכיים גבוהות',criss_cross:'ידיים מוצלבות',double_under:'סיבוב כפול',freestyle:'שילוב חופשי',form:'קל על כריות הרגליים, מרפקים צמודים, סיבוב בפרקי הידיים'},ru:{bounce:'Базовые прыжки',boxer_skip:'Boxer skip',side_hops:'Вбок и вперёд',shuffle:'Boxer shuffle',high_knees:'Высокие колени',criss_cross:'Скрёстно',double_under:'Двойной оборот',freestyle:'Свободная связка',form:'легко на носках, локти прижаты, крутят кисти'}};
  // Conservative posed exclusion volumes; only the rope is routed around them.
  // The render mesh, IK, jump clock and close hand targets remain authoritative.
  class RopeBodyClearance {
@@ -50,10 +56,10 @@
     v.inverse.copy(v.world).invert().multiply(this.root.matrixWorld);
    }
   }
-  route(points){
+  route(points,swap){
    this.maxCorrection=0;
    for(let i=1;i<points.length-1;i++){
-    const p=points[i],original=p.x,side=i<(points.length-1)/2?-1:1;let next=original;
+    const p=points[i],original=p.x,side=swap==null?(i<(points.length-1)/2?-1:1):(original<swap?-1:1);let next=original;
     for(const v of this.volumes){
      const m=v.inverse.elements,x=m[4]*p.y+m[8]*p.z+m[12],y=m[5]*p.y+m[9]*p.z+m[13],z=m[6]*p.y+m[10]*p.z+m[14];
      const A=m[0]*m[0]+m[1]*m[1]+m[2]*m[2],B=m[0]*x+m[1]*y+m[2]*z,h=1-(x*x+y*y+z*z-B*B/A);
@@ -76,7 +82,7 @@
  class CareerDrill {
   constructor(arena,mode){this.arena=arena;this.engine=arena.engine;this.mode=mode;this.sessionId=++stationSequence;this.start=this.engine.animTime;this.last=-1;this.seen=new Set();this.deferVisuals=false;this.root=new THREE.Group();this.root.name=mode==='rope'?'Jump rope station':'Focus mitt station';arena.group.add(this.root);
    if(mode==='rope'){
-    this.exercise=ropeDrills[this.engine.ropeDrill]?this.engine.ropeDrill:'mixed';this.grips=['L','R'].map(side=>TrainingGear.ropeGrip(this.engine.coach,side));
+    this.exercise=ropeDrills[this.engine.ropeDrill]?this.engine.ropeDrill:ropeAliases[this.engine.ropeDrill]||'bounce';this.grips=['L','R'].map(side=>TrainingGear.ropeGrip(this.engine.coach,side));
     const segments=96,sides=6,p=new Float32Array((segments+1)*sides*3),index=[];for(let i=0;i<segments;i++)for(let j=0;j<sides;j++){const a=i*sides+j,b=i*sides+(j+1)%sides;index.push(a,b,a+sides,b,b+sides,a+sides);}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));const uv=[];for(let i=0;i<=segments;i++)for(let k=0;k<sides;k++)uv.push(i/segments*24,k/sides*2);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(index);this.rope=new THREE.Mesh(g,TrainingGear.cordMaterial());this.rope.name='Round woven skipping cable';this.rope.frustumCulled=false;this.rope.castShadow=true;this.root.add(this.rope);this.ropePoints=Array.from({length:97},()=>V());this.ropeFrame={tangent:V(),normal:V(),binormal:V()};this.ropeClearance=new RopeBodyClearance(this.engine.coach,this.root);this.finalizeRope=coach=>this.poseRope(coach);this.rope.geometry.setAttribute('normal',new THREE.Float32BufferAttribute(new Float32Array(p.length),3));this.rope.geometry.attributes.position.setUsage(THREE.DynamicDrawUsage);this.rope.geometry.attributes.normal.setUsage(THREE.DynamicDrawUsage);
    }else{
@@ -84,7 +90,7 @@
     this.padClock=window.BoxingPose&&(typeof location==='undefined'||new URLSearchParams(location.search).get('padClock')!=='legacy')?new BoxingPose.FixedStepClock({step:1/120,maxSteps:24}):null;this.padClock?.reset(this.start);this.padRequestedTime=this.start;this.padFrame=null;this.padStep=time=>{this.deferVisuals=this.padClock.tick<this.padRenderTick;const frame=this.update(time);this.padContacts.push(...frame.contacts);this.padSwings.push(...frame.swings);this.padDefences+=frame.defences||0;this.padFrame=frame;};
    }
   }
-  dispose(){this.engine.coach.root.position.y=0;for(const prop of this.grips||this.mitts||[])TrainingGear.dispose(prop);if(this.trainer)this.trainer.root.parent?.remove(this.trainer.root);this.root.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material)n.material.dispose();});this.root.parent?.remove(this.root);}
+  dispose(){this.engine.coach.root.position.set(0,0,0);for(const prop of this.grips||this.mitts||[])TrainingGear.dispose(prop);if(this.trainer)this.trainer.root.parent?.remove(this.trainer.root);this.root.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material)n.material.dispose();});this.root.parent?.remove(this.root);}
   once(key){if(this.seen.has(key))return false;this.seen.add(key);if(this.seen.size>80)this.seen.delete(this.seen.values().next().value);return true;}
   face(pad){return this.trainer.root.worldToLocal(pad.localToWorld(pad.userData.face.clone()));}
   // Authored body commitment of the boxer for each mitt punch.
@@ -203,49 +209,116 @@
    const gloves=['L','R'].map(side=>coach.orientGlove(side,0,V(0,-1,0)));
    return {gloves,footTargets,motionState:{load:dip*.8,drive:Math.max(0,-Math.cos(q*Math.PI))*.45}};
   }
+  // GOTR-0048 boxer rope work. Every stance k is centred on an integer rope
+  // clock (rope overhead); flight k (centred on k+.5) carries the rope under
+  // the feet. Feet are planted in gym space for a whole stance, so they never
+  // slide; any travel, stagger or swap happens only while the foot is airborne.
+  ropeStyle(k){const spec=ropeDrills[this.exercise],seq=spec.sequence;return seq?seq[((Math.floor(k/4)%seq.length)+seq.length)%seq.length]:this.exercise;}
+  ropeFlight(k){
+   // Ballistic flight time follows the hop height (T = sqrt(8h/g)).
+   const base=ropeDrills[this.exercise],style=ropeDrills[this.ropeStyle(k)],trick=this.ropeTrickClock,double=style.turns===2||(trick!=null&&k>=trick&&k<trick+3);
+   const hop=double?(this.ropeStyle(k)==='double_under'&&!base.sequence?style.hop:1.226*(.64/base.cadence)**2):style.hop;
+   return {hop,turns:double?2:1,f:Math.min(.72,Math.sqrt(8*hop/9.81)*base.cadence),style:this.ropeStyle(k)};
+  }
+  ropeStance(k,side){
+   // Planted ball-of-foot position (gym space) or null when this foot is the
+   // free leg of a single-support stance.
+   const style=this.ropeStyle(k),spec=ropeDrills[style],sign=side==='L'?-1:1,odd=((k%2)+2)%2,flip=odd?1:-1;
+   if(spec.support&&(odd?'R':'L')!==side)return null;
+   let x=sign*.115,z=.185;
+   if(style==='side_hops'){const m=((k%8)+8)%8;if(m<4)x+=flip*.07;else z+=flip*.06;}
+   if(style==='shuffle')z+=sign*flip*spec.scissor;
+   return V(x,.0062,z);
+  }
+  ropeBody(k){
+   // Travel (root, x/z) and the lateral weight shift of the pelvis (w) per stance.
+   const style=this.ropeStyle(k),spec=ropeDrills[style],odd=((k%2)+2)%2,flip=odd?1:-1,m=((k%8)+8)%8;
+   const w=flip*(spec.support?(style==='high_knees'?.022:.03):style==='double_under'?.006:.013);
+   return style==='side_hops'?(m<4?V(flip*.07,w*.5,0):V(0,w*.5,flip*.06)):V(0,w,0);
+  }
+  ropeClock(c){
+   const k=Math.floor(c),fl=this.ropeFlight(k),u=c-k;
+   if(Math.abs(u-.5)<=fl.f/2)return {flight:true,k,s:(u-.5)/(fl.f/2),fl};
+   const K=u<.5?k:k+1,a=K-.5+this.ropeFlight(K-1).f/2,b=K+.5-this.ropeFlight(K).f/2;return {flight:false,K,v:clamp((c-a)/(b-a))};
+  }
+  ropeFoot(c,side,state){
+   const sign=side==='L'?-1:1,K=state.flight?null:state.K;
+   if(!state.flight){const p=this.ropeStance(K,side);if(p)return {ball:p,lift:0,planted:true};}
+   // Airborne or free leg: travel from the previous planted spot to the next.
+   let j=state.flight?state.k:K-1;while(!this.ropeStance(j,side))j--;
+   let n=state.flight?state.k+1:K+1;while(!this.ropeStance(n,side))n++;
+   const a=j+.5-this.ropeFlight(j).f/2,b=n-.5+this.ropeFlight(n-1).f/2,w=clamp((c-a)/(b-a));
+   let swing=0,swingZ=0,shape=2;for(let m=j+1;m<n;m++){const spec=ropeDrills[this.ropeStyle(m)];if((spec.swing||0)>swing){swing=spec.swing;swingZ=spec.swingZ||0;shape=spec.shape||2;}}
+   const lift=swing*Math.sin(Math.PI*w)**shape,ball=this.ropeStance(j,side).lerp(this.ropeStance(n,side),smooth(w));ball.z+=swingZ*lift;ball.x+=sign*.02*lift;
+   if(state.flight)ball.y+=state.fl.hop*(1-state.s*state.s);ball.y+=lift;return {ball,lift,planted:false};
+  }
   poseRope(hero){
-   const {phase,jump,transfer,single,support,alternating,clock}=this.ropePose,j=hero.joints,angle=2*Math.PI*((this.ropePose.turnPhase??phase)-.5);
-   // Grounded loading/landing bend the legs; the torso counterbalances while
-   // the head stays directed forward. Hands turn beside the hips, not in guard.
-   const load=Math.cos(Math.PI*phase)**4,landing=Math.exp(-(((phase-.90)/.11)**2)),coil=Math.max(load,landing),lean=.045+.070*coil;
-   const sway=Math.sin(Math.PI*(clock-.5)),twist=.042*sway,breath=.012*Math.sin(clock*Math.PI*.5);
-   // Elastic ankle/knee loading with a small two-beat boxer shift. Rotation
-   // is distributed through the back instead of translating a rigid torso.
-   j.hips.position.y-=.062*coil;j.hips.position.x+=transfer*.030+sway*.014;j.hips.rotation.z=-transfer*.022-sway*.008;j.hips.rotation.y+=twist*.38;
-   j.spine.rotation.x+=lean*.45;j.spine.rotation.y+=twist*.32;j.chest.rotation.x+=lean*.55+breath;j.chest.rotation.y+=twist*.30;j.chest.rotation.z+=transfer*.015-sway*.012;
-   j.neck.rotation.x-=lean*.35;j.head.rotation.x-=lean*.50-.020*Math.sin(angle-.35);j.neck.rotation.y-=twist*.35;j.head.rotation.y-=twist*.35;
-   const handY=hero.species==='rabbit'?1.29:1.13,footLifts=[],footTargets=[],gloves=[],handErrors=[];
+   const R=this.ropePose,j=hero.joints,state=R.state,angle=R.angle,rabbit=hero.species==='rabbit';
+   // Spring-mass legs: soft knees and ankles absorb each landing while the
+   // heels stay up; the torso stays upright and the head is stabilised level.
+   const load=state.flight?0:Math.sin(Math.PI*state.v),drive=state.flight?0:Math.max(0,Math.sin(Math.PI*(state.v-.5)))*smooth((state.v-.5)/.5);
+   const single=!!ropeDrills[R.style].support,deep=R.style==='double_under'?.034:single?.028:.022,e=.012,base=.962;
+   const H=state.flight?base+e+state.fl.hop*(1-state.s*state.s)*.92:base+e-(e+deep)*load;
+   const sway=this.ropeSway||0,yaw=.028*Math.sin(Math.PI*(R.clock-.5))+(R.style==='shuffle'?.045*R.scissor:0),roll=-.6*sway;
+   j.hips.position.set(sway,H,0);j.hips.rotation.set(.03,yaw,roll);
+   j.spine.rotation.set(.02+.015*load,-yaw*.5,-roll*.55);j.chest.rotation.set(.012+.025*load+.012*Math.sin(R.clock*Math.PI*.5),-yaw*.4,-roll*.3);
+   hero.root.updateMatrixWorld(true);
+   const headQ=Q().setFromEuler(new THREE.Euler(.035+.04*load-.015*drive+.012*Math.sin(angle),-yaw*.15,0,'YXZ'));hero.orient(j.neck,hero.parentRotation(j.neck).slerp(headQ,.5));hero.orient(j.head,headQ);
+   const footLifts=[],footTargets=[],gloves=[],handErrors=[],root=hero.root.position;
    for(const [i,side] of ['L','R'].entries()){
-    const sign=i?1:-1,rawLift=single?(sign===support?0:.21):alternating?.18*Math.max(0,-sign*transfer)**2:0,lift=rawLift*(this.ropePose.mixed?smooth((clock%4)/.35)*smooth((4-clock%4)/.35):1),foot=j['foot'+side];footLifts.push(lift);
-    const heel=.18*Math.sin(Math.PI*phase)**2+.055*Math.sin(2*Math.PI*phase)**2,q=Q().setFromEuler(new THREE.Euler(heel*(1-Math.min(1,lift/.21))-lift*.6,0,0));
-    const contact=V(sign*.115+sway*.008,.015+lift,.19-lift*.55+sway*sign*.008),ankle=contact.clone().sub(V(0,-.102,.215).applyQuaternion(q));
-    const error=hero.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(sign*.08,.1,1));hero.orient(foot,q);const shin=hero.point(j['knee'+side]).sub(hero.point(foot)).normalize().applyQuaternion(q.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);footTargets.push({side,contact:contact.toArray(),lift:jump+lift,error});
-    j['arm'+side].position.y+=.008*Math.cos(angle-.25);j['arm'+side].position.z+=.018*coil+sign*.009*sway;
-    const hand=V(sign*(.315+.006*Math.sin(angle-.2))+sway*.010,handY+.018*Math.cos(angle)-.025*coil,.16-.025*Math.sin(angle)+sign*.012*sway);
-    handErrors.push(hero.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,V(sign*.045,-.85,-.40)));
-    gloves.push(hero.orientGlove(side,1,V(0,1,0)));
+    const sign=i?1:-1,foot=j['foot'+side],f=R.feet[i];footLifts.push(f.lift);
+    // Forefoot pivot (the rigid boot's toe edge): stance pitch keeps the heel
+    // 2-3 cm up; flight and the free leg point the toes. The ankle is placed so
+    // the planted contact never moves.
+    const pitch=f.planted?.10+.16*(1-load):.26+(state.flight?.10*(1-state.s*state.s):0)+1.15*f.lift,q=Q().setFromEuler(new THREE.Euler(pitch,sign*.09,0,'YXZ'));
+    const contact=f.ball.clone().sub(root),ankle=contact.clone().sub(V(0,-.086,.215).applyQuaternion(q));
+    const error=hero.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(sign*.10,.05+f.lift,1));hero.orient(foot,q);const shin=hero.point(j['knee'+side]).sub(hero.point(foot)).normalize().applyQuaternion(q.clone().invert());foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0,1,0),shin);footTargets.push({side,contact:contact.toArray(),lift:Math.max(0,f.ball.y-.004),error});
+    // Relaxed, low shoulders; elbows hang beside the ribs and the forearms stay
+    // quiet while the wrists draw small circles that drive the rope.
+    j['arm'+side].position.y+=-.012+.005*Math.cos(angle)-.006*load;j['arm'+side].position.z+=-.012;
+    const lead=angle+.45,radius=R.turns===2?.030:.022,cross=R.cross,X=rabbit?.37:.385,Z=.19;
+    const hand=V(sign*X+sign*.006*Math.sin(lead)+.8*sway,H-base+(rabbit?1.07:1.05)-radius*Math.cos(lead),Z-radius*Math.sin(lead));
+    if(cross){hand.x+=(-sign*.04-hand.x)*cross;hand.z+=(.06+(i?0:.03))*cross;hand.y+=(.06+(i?0:.02))*cross;}
+    handErrors.push(hero.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,V(sign*(-.06+.30*cross),-1,-.55+.75*cross)));
+    const turnOver=Math.PI*smooth((cross-.15)/.7);gloves.push(hero.orientGlove(side,1,V(-sign*(.18*Math.cos(turnOver)+Math.sin(turnOver)),Math.cos(turnOver),.22*Math.cos(turnOver))));
     // Rope-specific wrist flex/deviation; boxing strikes retain neutral wrists.
-    j['hand'+side].quaternion.multiply(Q().setFromEuler(new THREE.Euler(.075*Math.sin(angle),sign*.035*Math.cos(angle),sign*.045*Math.sin(angle-.3))));
+    j['hand'+side].quaternion.multiply(Q().setFromEuler(new THREE.Euler(.12*Math.sin(lead),sign*.05*Math.cos(lead),sign*.05*Math.sin(lead-.3))));
    }
-   this.ropePose.footLifts=footLifts;
-   return {gloves,handErrors,footTargets,motionState:{load:coil,drive:Math.max(0,Math.sin(2*Math.PI*phase)),rope:1,left:.25+.20*Math.sin(angle-.3),right:.25+.20*Math.sin(angle+.3)}};
+   R.footLifts=footLifts;
+   return {gloves,handErrors,footTargets,motionState:{load,drive,rope:1,left:.25+.20*Math.sin(angle-.3),right:.25+.20*Math.sin(angle+.3)}};
   }
   updateRope(t,time,frame){
-   const hero=this.engine.coach,base=ropeDrills[this.exercise],clock=t*base.cadence,phase=clock%1,cycle=Math.floor(clock),mixed=this.exercise==='mixed',style=mixed?['two_feet','alternating','left_leg','right_leg'][(Math.imul(Math.floor(cycle/4)+31,1103515245)>>>16)%4]:this.exercise,exercise=ropeDrills[style];
-   const trick=this.engine.ropeTrick,active=trick&&time>=trick.start&&time<trick.start+3/base.cadence,boost=active&&trick.kind==='double',flight=clamp((phase-.12)/.76),jump=(boost?.24:exercise.height)*Math.sin(flight*Math.PI)**2,turnPhase=boost?phase*2:phase;
-   const alternating=style==='alternating',single=style.endsWith('_leg'),support=style==='left_leg'?-1:1,transfer=alternating?Math.sin(Math.PI*(clock-.5)):single?support:.25*Math.sin(Math.PI*(clock-.5));
-   this.ropePose={phase,jump,transfer:transfer*(mixed?smooth((clock%4)/.35)*smooth((4-clock%4)/.35):1),single,support,alternating,clock,turnPhase,mixed};hero.root.position.set(0,jump,0);hero.root.rotation.set(0,0,0);hero.update(0,'guard','one_two',{simulationTime:time,poseOverlay:this.finalizeRope});this.arena.group.updateMatrixWorld(true);
-   const ends=this.grips.map(g=>this.root.worldToLocal(g.userData.exit.getWorldPosition(V()))),height=(ends[0].y+ends[1].y)/2-jump,radius=height+.055,angle=2*Math.PI*(turnPhase-.5),points=this.ropePoints;
+   const hero=this.engine.coach,base=ropeDrills[this.exercise],clock=t*base.cadence,phase=clock%1,cycle=Math.floor(clock),trick=this.engine.ropeTrick;
+   this.ropeTrickClock=trick&&trick.kind==='double'?Math.round((trick.start-this.start)*base.cadence):null;
+   const state=this.ropeClock(clock),k=Math.floor(clock),fl=this.ropeFlight(k),turnFrac=(fl.turns*(clock-k))%1,angle=2*Math.PI*(turnFrac-.5),style=state.flight?fl.style:this.ropeStyle(state.K);
+   // Body (root) drifts smoothly between stance centres; feet stay planted.
+   const b0=this.ropeBody(k),b1=this.ropeBody(k+1),bodyShift=b0.lerp(b1,smooth(clock-k));
+   let cross=0;for(let m=k-1;m<=k+1;m++)if(ropeDrills[this.ropeStyle(m)].cross&&((m%2)+2)%2===1)cross=Math.max(cross,smooth((clock-m+.08)/.22)*smooth((m+1.06-clock)/.22));
+   const scissor=this.ropeStance(k,'L')&&this.ropeStance(k,'R')&&ropeDrills[this.ropeStyle(k)].scissor?Math.sign(this.ropeStance(k,'L').z-this.ropeStance(k,'R').z):0;
+   hero.root.position.set(bodyShift.x,0,bodyShift.z);this.ropeSway=bodyShift.y;hero.root.rotation.set(0,0,0);
+   const feet=['L','R'].map(side=>this.ropeFoot(clock,side,state)),jump=state.flight?state.fl.hop*(1-state.s*state.s):0;
+   this.ropePose={phase,jump,clock,state,angle,style,turns:fl.turns,cross,scissor,bodyShift,feet};
+   hero.update(0,'guard','one_two',{simulationTime:time,poseOverlay:this.finalizeRope});this.arena.group.updateMatrixWorld(true);
+   const ends=this.grips.map(g=>this.root.worldToLocal(g.userData.exit.getWorldPosition(V()))),endsY=(ends[0].y+ends[1].y)/2,reach=endsY-.010,
+    // The hands sit ahead of the feet: advance the loop so its low point sweeps
+    // under the arches at mid-flight, and let it brush the floor in front.
+    advance=Math.asin(Math.max(-.5,Math.min(.5,((ends[0].z+ends[1].z)/2-(feet[0].ball.z+feet[1].ball.z)/2+.12)/reach))),radius=reach/Math.cos(advance),dir=ends[1].x>=ends[0].x?1:-1,points=this.ropePoints,over=hero.species==='rabbit'?.30:.21;
    for(let i=0;i<=96;i++){const u=i/96,a=u*Math.PI,envelope=Math.sin(a),bow=envelope*envelope;
-    // A taut loop with small phase lag toward its centre, asymmetric shoulders
-    // and a traveling bend. Zero lag at overhead/underfoot preserves clearance.
-    const lag=.12*Math.sin(angle)*bow,turn=angle+lag,overhead=Math.max(0,-Math.cos(turn));
-    const rad=(radius+.12*overhead)*Math.pow(envelope,.55),point=points[i].copy(ends[0]).lerp(ends[1],u);
+    // A taut loop with small phase lag toward its centre and a traveling bend.
+    // Zero lag at overhead/underfoot keeps the bottom pass at its set height;
+    // the flattened crown spans both boots so the cable sweeps under, not beside, them.
+    const lag=.12*Math.sin(angle)*bow,turn=angle+advance+lag,overhead=Math.max(0,-Math.cos(turn));
+    const flat=1-(1-clamp(envelope/.85))**2,rad=(radius+over*overhead)*flat,point=points[i].copy(ends[0]).lerp(ends[1],u);
     point.y-=rad*Math.cos(turn);point.z-=rad*Math.sin(turn);
     // The loop bows outside the shoulders even with hands tucked at the
     // hips; narrowing the grips must not pull the cable through the mane.
-    point.x-=Math.min(.14,Math.abs(ends[1].x-ends[0].x)*.11)*Math.sin(2*a);point.x+=.018*Math.sin(angle)*Math.sin(2*a)*envelope;}
-   this.ropeClearance.update();this.ropeClearance.route(points);
+    point.x-=dir*Math.min(.14,Math.abs(ends[1].x-ends[0].x)*.11)*Math.sin(2*a);point.x+=.018*Math.sin(angle)*Math.sin(2*a)*envelope;
+    // Criss-cross: each half of the loop swings back out to its own side.
+    // Criss-cross: the wrists pronate so each handle points to the side its hand
+    // crossed to; the cable halves then swing wide around the body as usual.
+    if(cross)point.x+=cross*((u<.5?-dir:dir)*(hero.species==='rabbit'?.40:.44)-point.x)*Math.abs(Math.sin(2*a))**1.5;
+    if(point.y<.006)point.y=.006;}
+   this.ropeClearance.update();this.ropeClearance.route(points,cross?hero.root.position.x:null);
    const p=this.rope.geometry.attributes.position,n=this.rope.geometry.attributes.normal,{tangent,normal,binormal}=this.ropeFrame;
    normal.set(1,0,0);
    for(let i=0;i<points.length;i++){
@@ -256,7 +329,8 @@
     for(let k=0;k<6;k++){const a=k/6*Math.PI*2,c=Math.cos(a),s=Math.sin(a),x=normal.x*c+binormal.x*s,y=normal.y*c+binormal.y*s,z=normal.z*c+binormal.z*s;p.setXYZ(i*6+k,points[i].x+.0045*x,points[i].y+.0045*y,points[i].z+.0045*z);n.setXYZ(i*6+k,x,y,z);}
    }p.needsUpdate=n.needsUpdate=true;
    if(phase>.54&&this.once('jump'+cycle))frame.jumps=1;
-   frame.cue=exercise.name+' · soft landings, relaxed shoulders, wrist turns';frame.hero=hero.metrics;frame.rope={exercise:this.exercise,phase,jump,footLifts:this.ropePose.footLifts,ends:ends.map(v=>v.toArray()),lowest:Math.min(...points.map(v=>v.y)),centre:points[48].toArray()};
+   const lang=window.app?.lang,cues=ropeCues[lang]||ropeCues.en;
+   frame.cue=(cues[style]||cues.bounce)+' · '+cues.form;frame.hero=hero.metrics;frame.rope={exercise:this.exercise,style,level:base.level,phase,turn:turnFrac,pass:(turnFrac+advance/(2*Math.PI)+1)%1,cross:this.ropePose.cross,turns:fl.turns,jump,footLifts:this.ropePose.footLifts,ends:ends.map(v=>v.toArray()),lowest:Math.min(...points.map(v=>v.y)),centre:points[48].toArray()};
   }
   contactWithMitt(pad,fist,before,face,previousFace,dt){
    this.padClosingSpeed=0;if(!before||!previousFace||!(dt>0&&dt<=.20))return false;
@@ -313,5 +387,5 @@
  TrainingArena.prototype.setTarget=function(mode){this.careerDrill?.dispose();this.careerDrill=null;if(!['rope','pads'].includes(mode))return set.call(this,mode);set.call(this,'none');this.mode=mode;this.engine.targetMode=mode;this.engine.scene.add(this.group);this.group.add(this.engine.coach.root);this.group.rotation.y=mode==='pads'?.95:.38;this.careerDrill=new CareerDrill(this,mode);this.update(this.engine.animTime);this.fitCamera(this.engine.camera);};
  TrainingArena.prototype.update=function(time,technique,combo){return this.careerDrill?this.careerDrill.advance(time):update.call(this,time,technique,combo);};
  TrainingArena.prototype.fitCamera=function(camera){if(!this.careerDrill)return fit.call(this,camera);const rope=this.mode==='rope',height=rope?(this.engine.coach.species==='rabbit'?3.12:2.86):2.55,frame=rope?height:2.95,width=rope?1.8:2.80,fov=THREE.MathUtils.degToRad(camera.fov);camera.position.set(0,1.70,Math.max(frame/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+.35);camera.lookAt(0,height*.48,0);this.engine.viewControls?.refit(V(0,height*.48,0));};
- CareerDrill.ropeDrills=ropeDrills;CareerDrill.padRange=padRange;window.CareerDrill=CareerDrill;
+ CareerDrill.ropeDrills=ropeDrills;CareerDrill.ropeAliases=ropeAliases;CareerDrill.ropeCues=ropeCues;CareerDrill.padRange=padRange;window.CareerDrill=CareerDrill;
 })();
