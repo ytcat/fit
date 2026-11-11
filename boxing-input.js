@@ -78,7 +78,9 @@
    // GOTR-0025: shared punch clock (faster drive into the target), and a
    // punch followed by another queued punch ends once its hand is back at
    // the guard, so a combination flows instead of resetting between punches.
-   if(a.attack&&a.move!=='speedbag'&&R?.punchPhase){
+   // Mitt uppercuts keep the authored clock: the pad is presented on that timing
+   // (tests/mitt-controller: forearm vertical through the pad contact).
+   if(a.attack&&a.move!=='speedbag'&&R?.punchPhase&&!(a.move.includes('uppercut')&&this.engine.arena?.mode==='pads')){
     if(!a.linked&&this.queue[0]?.attack&&this.queue[0].move!=='speedbag'&&time-a.start<a.duration*.5){a.linked=true;a.span=R.punchSpan();a.duration*=a.span;}
     return {...a,phase:R.punchPhase(Math.max(0,Math.min(1,(time-a.start)/a.duration))*(a.span||1)),index:a.id,manual:true};
    }

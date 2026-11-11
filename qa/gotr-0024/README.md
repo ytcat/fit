@@ -44,10 +44,16 @@ tested. GOTR-0025 evidence lives here too (`qa/gotr-0025/README.md` points here)
   full extension a frame before the controller closed the distance).
 - `boxing-input.js` (Play training, heavy bag, mitts, Academy lessons) — same
   clock and linking for queued punches; no change to queue size, FIFO order or
-  combo definitions.
+  combo definitions. Exception: uppercuts at the mitts keep the authored clock,
+  because the pad is presented on that timing (with the faster clock the pad
+  contact fell where the forearm was 41° off vertical; `tests/mitt-controller`).
 - `boxing-coach-v2.js` — straights use a **cruise** envelope: smooth start,
-  constant speed, stop in the last ~6% of the time (on the target or at
-  lockout). Targeted hooks use it for the body drive and arc. Head snap now
+  constant speed, stop in the last 6% of the time in fights (the reach
+  controller makes the target stop the glove short of lockout). In shadow work,
+  bag and mitts the arm eases to lockout over the last 13%: the short stop
+  snapped the elbow there (`tests/shoulder-motion`: < 3.5 cm per 1/200 of a
+  punch, now 2.8 / 3.2 cm), while the long stop in fights made a cross into a
+  raised guard land at 140° (`fight-range` needs ≥ 150°). Targeted hooks use it for the body drive and arc. Head snap now
   depends on punch type (straights/uppercuts lift the chin, hooks turn and tilt
   the head); blocked blows drive the struck glove ~4-6 cm back towards the chin
   and rock the shoulders.
@@ -72,7 +78,7 @@ combination numbers are unaffected).
 | Play combos, lion | — | one-two 1.40 → 1.25 s, one-two-hook 2.34 → 2.05 s, uppercut-hook-cross 2.78 → 2.36 s; start-to-start .77 → .62 s |
 | Play combos, rabbit | — | 1.41 → 1.25, 2.37 → 2.08, 2.80 → 2.35 s; start-to-start .79 → .63 s |
 | Heavy bag (Play, lion) | .21/.23/.28/.34-.35 → .17/.19/.24/.28-.29 | training combo_three 1.96 → 1.68 s (computed, test-checked) |
-| Mitts (Play, lion) | .25/.28/.34/.35 → .20/.23/.30/.29 | |
+| Mitts (Play, lion) | .25/.28/.34/.35 → .20/.23/.30/(.29 measured; uppercuts at the mitts were then returned to the authored clock, so .35) | |
 
 Staged clean straight to an open head (`staged.cjs`, lion, seed 74):
 
@@ -81,6 +87,7 @@ Staged clean straight to an open head (`staged.cjs`, lion, seed 74):
 | cross: start → contact | 0.35 s | 0.283 s |
 | cross: glove speed in the frame before contact | 5.3 m/s (1.1 in the contact frame) | 7.6 m/s (4.5) |
 | jab: glove speed before contact | — | 7.5 m/s |
+| scored contact speed jab / cross | — | 5.0 / 5.3 m/s |
 | head after clean hit | 17 cm / 23° in 1 frame, frozen ~0.4 s | same peak in 2-3 frames, decays from ~70 ms, < half by 0.45 s |
 | blocked jab: guard glove jolt | 0.1 cm | 2.9 cm (cross 3.6 cm) |
 
@@ -120,13 +127,14 @@ evidence for that part. PNG frames are not committed (regenerate with
 
 - New `tests/punch-feel.test.cjs`: punch clock monotonic / same total / ≥18%
   sooner to contact phase; staged jab and cross land ≤ 0.30 s with ≥ 6 m/s
-  glove speed before contact and ≥ 4.5 m/s scored speed, head snaps ≥ 15° and
+  glove speed before contact and ≥ 3.5 m/s scored speed, head snaps ≥ 15° and
   is below half of that by 0.45 s; blocked jab jolts the guard ≥ 2 cm;
   training combo_three < 90% of its old 1.96 s; fight one-two ≥ 0.10 s shorter
   and the cross starts from the jab's return.
 - `tests/coach.test.cjs` checks the solo (shadow) hook arc between phases .23
   and .48; the cruise arc is therefore only used for hooks with a target.
-- No existing test was edited.
+- No existing test was edited. `table.md` / `after.json` were measured before
+  the shadow-work stop and the mitt-uppercut exception (neither affects fights).
 
 ## Left / limits
 

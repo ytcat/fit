@@ -991,8 +991,12 @@
       // speed early and carries it into the last centimetres of the reach,
       // stopping there (on the target, or at lockout) within ~2 frames. The
       // old eased curve had slowed to ~20% of its peak where straights land.
-      const cruise=x=>{x=clamp(x);const a=.45,e=.94,area=a/2+(e-a)+(1-e)/2;if(x<a){const u=x/a;return a*(u*u*u-u*u*u*u/2)/area;}if(x<e)return (a/2+x-a)/area;const u=(x-e)/(1-e);return (a/2+e-a+(1-e)*(u-u*u*u+u*u*u*u/2))/area;};
-      const strike=straight?(handPhase<.16?0:handPhase<.36?cruise((handPhase-.16)/.20):
+      const cruise=(x,e=.94)=>{x=clamp(x);const a=.45,area=a/2+(e-a)+(1-e)/2;if(x<a){const u=x/a;return a*(u*u*u-u*u*u*u/2)/area;}if(x<e)return (a/2+x-a)/area;const u=(x-e)/(1-e);return (a/2+e-a+(1-e)*(u-u*u*u+u*u*u*u/2))/area;};
+      // Fight straights are stopped by the target short of lockout (reach
+      // controller) and stop within 6% of the time; elsewhere (shadow, bag,
+      // mitts) the arm eases to lockout over 13%, which keeps the elbow path
+      // continuous (tests/shoulder-motion).
+      const strike=straight?(handPhase<.16?0:handPhase<.36?cruise((handPhase-.16)/.20,options.extendStraight?.94:.87):
         handPhase<.42?1:1-smooth((handPhase-.42)/(options.straightRecovery??.27))):envelope(phase,.055);
       const soloUpper=move.includes('uppercut')&&!options.uppercutBagTarget&&!options.upperWristHeight&&!options.advance;
       const prepare=smooth((phase-(soloUpper?.02:.06))/(options.loadDuration??(soloUpper?.20:.16)));
