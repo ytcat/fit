@@ -435,7 +435,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0032 — Mitt-work punches still look like small touches
 - **Reported:** 2026-11-11 (after v1.18)
-- **Status:** REOPENED — owner after v1.20: "Also the punches still not powerful enough" (queued for agent `smooth-motion` with GOTR-0038)
+- **Status:** IN PROGRESS — reopened after v1.20 (agent `smooth-motion` follow-up)
 - **Priority:** P1
 - **Area:** Mitt training / animation feel
 - **Reported behavior / request:** "In the coach training the punches are not strong enough; it still looks like a small touch."
@@ -473,14 +473,14 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0035 — Game-pad controls: round D-pad and one-screen punch buttons
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (agent `fighter-pad`)
+- **Status:** READY FOR QA — merged (`agent/fighter-pad`), ships in the next release
 - **Priority:** P1
 - **Area:** Controls / fight / sparring / training
 - **Reported behavior / request:** "I need some kind of controls: a round move controller with 4 direction arrows inside (make it designed) and on the other side some punch move buttons. Because it doesn't matter if the punch will be left or right, you now have fewer options for buttons and you can use everything there. Use this also in fight and in sparring."
 - **Decisions (integrator):** D-pad on the left, punches on the right in every language. ← / → step back / forward on screen; ↑ slip; ↓ duck/roll. Punch buttons Straight, Hook, Uppercut, plus Guard, Burst and the equipped combos on the same screen; the hand is chosen automatically (lead first, then alternate; back to lead after a pause), so Straight, Straight = jab, cross. Replaces the Moves/Combos/Defence pages in fight, sparring and the punch trainings; rope keeps its own buttons.
 - **Acceptance criteria:** All four directions and all punches work in fight, sparring and mitt work (measured input/fight events); move and punch at the same time on touch; no overlap with the boxers; phone portrait/landscape and desktop in EN/HE/RU; Academy lessons still pass; full suite passes.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** New `fighter-pad.js`, `fighter-pad.css` (no edits to `ringfighter-controls.js`). The pad shows in fight, sparring, mitts, bag, dummy, speed bag and shadowboxing; rope, Watch and Academy lessons keep their own buttons. ←/→ step by the fighter's on-screen facing (from the live camera), ↑ alternating slips, ↓ roll; Straight/Hook/Uppercut with automatic hand choice (lead first, alternate, back to lead after 0.8 s; speed bag: taps/doubles/triples); Guard; Burst moved into the pad; equipped combos as chips. Keys: arrows/WASD unchanged, J/K/L punches, 1–3 combos, B Burst. Academy lessons hide the pad and keep the 12 exact move buttons (auto hands cannot make sequences like uppercut-hook-cross).
+- **Evidence:** `qa/gotr-0035/` (agent run, headless with touch emulation): Straight, Straight, Hook → jab, cross, hook and 3 thrown punches counted in a fight; all four arrows, three punches and Guard accepted in sparring and mitts, steps move the hips 22–45 px the matching way on screen, also with the camera turned half way; two-finger move + punch both accepted 4 ms apart; hold → 3.5 s = 3 steps; no page scroll or zoom; buttons ≥ 49 px; pad never covers the boxers (14–110 px clearance) at 4 sizes × EN/HE/RU; Academy jab-cross ×3 → +15 coins with the save check accepting the proof; full suite 86/86. Limits: no physical phone; in portrait the pad shifts and zooms out the 3D view (boxers ~17% smaller at 402 px with 3 combos equipped, ~21% at 360 px); combo chips 37–42 px tall (< 48 px target); the first-time Burst tip is hidden on phones; fight steps are short in-place footwork.
 
 ### GOTR-0036 — Burst meter charges too slowly
 - **Reported:** 2026-11-11
@@ -507,7 +507,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0038 — Coach's mitt goes inside his own face in mitt work
 - **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Train → Coach mitts, cue "Roll under the hook")
-- **Status:** OPEN — queued for agent `smooth-motion` (knows the mitt choreography) as soon as an agent slot frees
+- **Status:** IN PROGRESS (agent `smooth-motion` follow-up)
 - **Priority:** P1
 - **Area:** Animation / mitt work / collision
 - **Reported behavior / request:** "Bug: look at the rabbit's hand, it's inside his face."
@@ -529,7 +529,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0040 — Punch power meter in fights and training
 - **Reported:** 2026-11-11
-- **Status:** OPEN — queued with the punch-power work (agent `smooth-motion` follow-up, GOTR-0032)
+- **Status:** IN PROGRESS (agent `smooth-motion` follow-up)
 - **Priority:** P1
 - **Area:** Fight HUD / training feedback
 - **Reported behavior / request:** "Please show some kind of small meter of the punch power under the health bar in the fight and something for the training."
