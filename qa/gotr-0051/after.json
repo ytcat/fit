@@ -12,7 +12,7 @@
   "kneeBend": 147
  },
  "heavy-lion": {
-  "gloveLeadAhead": 0.132,
+  "gloveLeadAhead": 0.172,
   "gloveLeadY": 1.84,
   "gloveRearY": 1.772,
   "gloveGapX": 0.17,
@@ -24,7 +24,7 @@
   "kneeBend": 149
  },
  "pads-lion": {
-  "gloveLeadAhead": 0.131,
+  "gloveLeadAhead": 0.171,
   "gloveLeadY": 1.838,
   "gloveRearY": 1.768,
   "gloveGapX": 0.17,
@@ -84,7 +84,7 @@
   "kneeBend": 147
  },
  "heavy-rabbit": {
-  "gloveLeadAhead": 0.132,
+  "gloveLeadAhead": 0.172,
   "gloveLeadY": 1.84,
   "gloveRearY": 1.772,
   "gloveGapX": 0.17,
@@ -96,7 +96,7 @@
   "kneeBend": 149
  },
  "pads-rabbit": {
-  "gloveLeadAhead": 0.131,
+  "gloveLeadAhead": 0.171,
   "gloveLeadY": 1.838,
   "gloveRearY": 1.768,
   "gloveGapX": 0.17,

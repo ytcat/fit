@@ -1033,7 +1033,7 @@
       const leadStance=(punch?stanceWeight:(options.stance??1))*(1-block),rearStance=(['cross','rear_hook','rear_uppercut'].includes(move)?stanceWeight:(options.stance??1))*(1-block);
       // Stagger the neutral guard; close cover still protects the cheek.
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
-      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness)+.035*leadStance,lerp(.395,.265,guardTightness)+(.08+.10*guardCover+.12*guardTightness)*leadStance).add(V(.055,.12,.020).multiplyScalar(guardCover));
+      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness)+.035*leadStance,lerp(.395,.265,guardTightness)+(.08+.10*guardCover+.16*guardTightness)*leadStance).add(V(.055,.12,.020).multiplyScalar(guardCover));
       const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness)-.03*rearStance,lerp(options.guardHeight??1.68,1.70,guardTightness)-.01*rearStance,lerp(.255,.235,guardTightness)+.02*rearStance).add(V(-.055,.12,.020).multiplyScalar(guardCover));
       const lead=leadGuard.clone(),rear=rearGuard.clone();
       const guardElbowZ=options.guardElbowBack!=null?-options.guardElbowBack:.1;
