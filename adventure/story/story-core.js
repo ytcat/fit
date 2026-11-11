@@ -10,7 +10,7 @@
  *     actors: { id: { rig: 'fighter' | 'pip' | 'brick' | 'dash' | 'guard' | 'regular', mitts?, keys: [{ t, x, z, act?, face? }] } },
  *     props?: { bus: [{ t, v: [x] }] }, bag?: { holder, drop }, item?: { id, holders: [{ t, who, hand: 'L' | 'R' }] },
  *     lines: [{ t, dur, who (AdventureStory.who id), text: { en, he, ru } }] }
- *   acts: idle guard shadow mitts wave point laugh carry combo down block flex (walking is inferred from moving keys)
+ *   acts: idle guard shadow mitts wave point laugh carry combo down block flex off (off = hidden; walking is inferred from moving keys)
  *   StoryCore.sample(scene, t, { reduced }) -> { camera, actors, props, line, done } ; StoryCore.validate(scene) -> [errors]
  *   StoryCore.CarryBag / StoryCore.GuardGame: mini-game rules: key(k, down), step(dt), view(), result(starsFor), .done
  *   StoryScenes.games[id] = { set, roles, make(Core), frame(ctx, dt), hud(view, words), keys } registers another mini-game.
@@ -172,20 +172,19 @@
         { t: 8.2, dur: 2.0, who: 'pip', text: L('Easy. You will get him. Later.', 'רגוע. תגיעו אליו. אחר כך.', 'Спокойно. Ты до него доберёшься. Позже.') }
       ]
     },
-    // Boss intro: Brick blocks the gym door.
+    // Boss intro: Brick blocks the gym door. Pip is heard from the Fighter's corner, not seen (two rigs on screen).
     boss_intro: {
       set: 'gymfront', duration: 8.6, chapter: 1,
       camera: [
         { t: 0, pos: [10.3, 1.15, 1.4], look: [11, 1.55, -2.6], fit: ['brick'] },
         { t: 1.0, pos: [10.2, 1.2, 1.2], look: [11, 1.55, -2.6], fit: ['brick'], ease: 'linear' },
         { t: 3.2, pos: [7.4, 1.65, 1.9], look: [10.1, 1.3, -2.2], fit: ['brick', 'fighter'] },
-        { t: 5.4, pos: [7.9, 1.6, 2.6], look: [9.4, 1.3, -1.6], fit: ['brick', 'fighter', 'pip'] },
-        { t: 8.6, pos: [8.1, 1.6, 2.4], look: [9.5, 1.3, -1.6], fit: ['brick', 'fighter', 'pip'], ease: 'linear' }
+        { t: 5.4, pos: [8.2, 1.55, 2.4], look: [10.1, 1.3, -2.1], fit: ['brick', 'fighter'] },
+        { t: 8.6, pos: [8.4, 1.55, 2.2], look: [10.2, 1.3, -2.1], fit: ['brick', 'fighter'], ease: 'linear' }
       ],
       actors: {
         brick: { rig: 'brick', keys: [{ t: 0, x: 11, z: -2.5, act: 'block', face: [9.4, -1.5] }, { t: 5.6, x: 11, z: -2.5, act: 'guard' }] },
-        fighter: { rig: 'fighter', keys: [{ t: 0, x: 6.4, z: -1.0, act: 'idle', face: Math.PI / 2 }, { t: 0.5, x: 6.4, z: -1.0 }, { t: 2.8, x: 9.5, z: -1.7, act: 'idle', face: [11, -2.5] }, { t: 5.6, x: 9.5, z: -1.7, act: 'guard' }] },
-        pip: { rig: 'pip', mitts: true, keys: [{ t: 0, x: 5.6, z: -0.2, act: 'idle', face: Math.PI / 2 }, { t: 1.2, x: 5.6, z: -0.2 }, { t: 3.6, x: 8.5, z: -0.4, act: 'idle', face: [9.5, -1.7] }, { t: 5.4, x: 8.5, z: -0.4, act: 'mitts' }] }
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: 6.4, z: -1.0, act: 'idle', face: Math.PI / 2 }, { t: 0.5, x: 6.4, z: -1.0 }, { t: 2.8, x: 9.5, z: -1.7, act: 'idle', face: [11, -2.5] }, { t: 5.6, x: 9.5, z: -1.7, act: 'guard' }] }
       },
       props: {},
       lines: [
@@ -199,13 +198,13 @@
       camera: [
         { t: 0, pos: [8.6, 1.6, 2.8], look: [10.6, 1.3, -2.2], fit: ['brick', 'fighter'] },
         { t: 2.4, pos: [8.8, 1.6, 2.6], look: [10.8, 1.3, -2.0], fit: ['brick', 'fighter'], ease: 'linear' },
-        { t: 4.2, pos: [8.9, 1.5, 2.0], look: [9.0, 1.3, -1.6], fit: ['pip', 'fighter'] },
-        { t: 9.4, pos: [8.9, 1.5, 1.6], look: [9.0, 1.3, -1.6], fit: ['pip', 'fighter'], ease: 'linear' }
+        { t: 4.2, pos: [8.8, 1.5, 2.0], look: [8.8, 1.3, -1.6], fit: ['pip', 'fighter'] },
+        { t: 9.4, pos: [8.8, 1.5, 1.6], look: [8.8, 1.3, -1.6], fit: ['pip', 'fighter'], ease: 'linear' }
       ],
       actors: {
-        brick: { rig: 'brick', keys: [{ t: 0, x: 11, z: -2.5, act: 'idle', face: [9.5, -1.7] }, { t: 0.5, x: 11, z: -2.5 }, { t: 2.2, x: 12.9, z: -1.5, act: 'idle', face: [9.5, -1.7] }] },
+        brick: { rig: 'brick', keys: [{ t: 0, x: 11, z: -2.5, act: 'idle', face: [9.5, -1.7] }, { t: 0.5, x: 11, z: -2.5 }, { t: 2.2, x: 12.9, z: -1.5, act: 'idle', face: [9.5, -1.7] }, { t: 4.4, x: 12.9, z: -1.5, act: 'off' }] }, // out of the shot: not drawn
         fighter: { rig: 'fighter', keys: [{ t: 0, x: 9.6, z: -1.7, act: 'guard', face: [11, -2.5] }, { t: 2.6, x: 9.6, z: -1.7, act: 'idle', face: [8.3, -1.5] }, { t: 6.0, x: 9.6, z: -1.7, act: 'flex' }] },
-        pip: { rig: 'pip', keys: [{ t: 0, x: 6.6, z: -0.8, act: 'idle', face: Math.PI / 2 }, { t: 2.2, x: 6.6, z: -0.8 }, { t: 3.6, x: 8.25, z: -1.5, act: 'point', face: [9.6, -1.7] }, { t: 6.2, x: 8.25, z: -1.5, act: 'idle' }, { t: 7.2, x: 8.25, z: -1.5, act: 'wave' }] }
+        pip: { rig: 'pip', keys: [{ t: 0, x: 6.6, z: -0.8, act: 'idle', face: Math.PI / 2 }, { t: 2.2, x: 6.6, z: -0.8 }, { t: 3.6, x: 7.95, z: -1.5, act: 'point', face: [9.6, -1.7] }, { t: 6.2, x: 7.95, z: -1.5, act: 'idle' }, { t: 7.2, x: 7.95, z: -1.5, act: 'wave' }] }
       },
       props: {},
       lines: [

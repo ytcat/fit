@@ -73,8 +73,15 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
         const rec = await p.evaluate(m => app.engine.career.store.game().adventure?.missions?.[m], run.result.missionId); assert.ok(rec?.stars >= run.result.stars, 'saved ' + JSON.stringify(rec));
         await p.evaluate(() => document.querySelector('.story-result .story-btn-main').click()); await wait(p, () => window.__done, null, 60000);
       }
+      if (process.env.FIGHT) { // the boss outro is triggered from a finished bout: play it over a running fight and check the rigs go back
+        await p.evaluate(() => ringfighterGame.quick()); await p.waitForTimeout(5000);
+        await p.evaluate(() => { const snap = () => { const r = app.engine.coach.root; return { parent: r.parent?.uuid || null, pos: r.position.toArray().map(v => +v.toFixed(4)), ry: +r.rotation.y.toFixed(4), view: !!app.engine.arena.fightView, mode: app.engine.targetMode }; }; window.__fight = { before: snap() }; StoryScenes.play('boss_outro', { timeScale: 3, onDone: r => { window.__fight.after = snap(); window.__fight.done = r; } }); });
+        await wait(p, () => window.__fight.done); const f = await p.evaluate(() => window.__fight); console.log(tag, 'boss_outro over a fight', JSON.stringify(f));
+        assert.equal(f.done.skipped, false); assert.deepEqual(f.after, f.before, 'fight rigs restored'); await p.waitForTimeout(1500);
+        await p.evaluate(() => { app.engine.career?.finish?.(); });
+      }
       const fin = await p.evaluate(() => ({ hook: !!app.engine.fightIQDemo, docW: document.documentElement.scrollWidth }));
-      assert.equal(fin.hook, false); assert.ok(fin.docW <= W, 'no horizontal scroll'); assert.deepEqual(await where(), before);
+      assert.equal(fin.hook, false); assert.ok(fin.docW <= W, 'no horizontal scroll'); if (!process.env.FIGHT) assert.deepEqual(await where(), before);
       const bad = errors.filter(e => !/GL Driver|ReadPixels/.test(e)); assert.equal(bad.length, 0, bad.join('\n')); await p.close();
     }
     console.log('story 2 browser ok');

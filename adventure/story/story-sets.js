@@ -145,7 +145,7 @@
     // houses: the stop side, both corners of the lane, the far side
     house({ style: 'plaster', x: -18, z: -13.2, w: 11, d: 10, floors: 3, tint: PAL.oldTown[0], roof: 'hip', roofColor: C(PAL.terracotta[0]), shop: true, awning: PAL.awning[0] });
     house({ style: 'brick', x: -2.3, z: -13.2, w: 6.4, d: 10, floors: 2, tint: PAL.oldTown[3], roof: 'hip', roofColor: C(PAL.terracotta[2]), shop: true, awning: PAL.awning[5] });
-    house({ style: 'plaster', x: 5.4, z: -13.2, w: 8.6, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true, awning: PAL.awning[2] });
+    house({ style: 'plaster', x: 5.4, z: -13.2, w: 8.6, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true });
     house({ style: 'apartment', x: 15.6, z: -13.2, w: 11.6, d: 10, floors: 3, tint: PAL.apartment[1], roof: 'flat' });
     house({ style: 'plaster', x: 27.6, z: -13.2, w: 12, d: 10, floors: 2, tint: PAL.oldTown[5], roof: 'hip', roofColor: C(PAL.terracotta[4]) });
     house({ style: 'plaster', x: -18, z: 14, w: 11, d: 10, floors: 2, tint: PAL.oldTown[4], roof: 'hip', roofColor: C(PAL.terracotta[3]), ry: Math.PI });
@@ -184,7 +184,7 @@
     pave(-44, 4.2, -14, .5); pave(5.8, 44, -14, .5); pave(4.2, 5.8, -30, .5, PAL.pave2); pave(-44, 44, 7.5, 12);
     joints(-44, 4.2, -3.5, .4); joints(5.8, 44, -3.5, .4); curb(-44, 44, .58); curb(-44, 44, 7.42);
     // gym: the Old Town home gym, door at x = 11
-    house({ style: 'brick', x: 11, z: -8.6, w: 8, d: 10, floors: 2, tint: '#c9653d', roof: 'flat', shop: true, shopTint: C('#f4e4c4'), awning: PAL.awning[0] });
+    house({ style: 'brick', x: 11, z: -8.6, w: 8, d: 10, floors: 2, tint: '#c9653d', roof: 'flat', shop: true, shopTint: C('#f4e4c4') }); // no awning: the door and the glove board stay in view
     house({ style: 'plaster', x: 0, z: -8.6, w: 8.4, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true, awning: PAL.awning[3] });
     house({ style: 'plaster', x: -9.6, z: -8.6, w: 9.6, d: 10, floors: 2, tint: PAL.oldTown[2], roof: 'hip', roofColor: C(PAL.terracotta[0]) });
     house({ style: 'brick', x: -19.6, z: -8.6, w: 9.6, d: 10, floors: 3, tint: PAL.oldTown[5], roof: 'hip', roofColor: C(PAL.terracotta[4]), shop: true, awning: PAL.awning[4] });
@@ -200,7 +200,7 @@
     box(S, 12.25, 2.25, -3.5, .06, .06, .3, '#2f3640'); cyl(S, 12.25, 1.92, -3.3, .12, .3, '#fff0c4', P.cyl6); S.add(P.cone6, M(12.25, 2.22, -3.3, .18, .14, .18), C('#2f3640'));
     box(S, 9.75, 2.05, -3.45, .05, .05, .34, '#2f3640'); cyl(S, 9.75, 1.98, -3.26, .012, .1, '#2f3640', P.cyl6); S.add(P.cone8, M(9.75, 1.72, -3.26, .14, .26, .14), C('#e0b84d')); cyl(S, 9.75, 1.7, -3.26, .15, .03, '#c99a2e', P.cyl8); cyl(S, 9.75, 1.5, -3.26, .008, .22, '#8a6446', P.cyl6);
     // glove board over the awning and a small hanging board on a bracket
-    box(S, 11, 4.0, -3.56, 2.7, 1.42, .08, '#0d1118'); sign('gym', 11, 4.71, -3.47, 2.5, 1.25);
+    box(S, 11, 2.95, -3.56, 2.9, 1.5, .1, '#0d1118'); sign('gym', 11, 3.7, -3.45, 2.7, 1.35); box(S, 11, 2.82, -3.3, 3.3, .1, .5, '#8f2f22');
     box(S, 8.2, 3.0, -3.1, .05, .05, .9, '#2f3640'); box(S, 8.2, 2.3, -2.78, .06, .62, .7, '#0d1118'); sign('gym', 8.235, 2.6, -2.78, .66, .46, Math.PI / 2); sign('gym', 8.165, 2.6, -2.78, .66, .46, -Math.PI / 2);
     // Brick's delivery van at the kerb
     const vx = -14.6, vz = 2.1;

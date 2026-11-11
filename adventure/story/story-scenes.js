@@ -268,7 +268,7 @@
     }
     function sceneFrame() {
       const s = C.sample(scene0, run.t, { reduced });
-      for (const [key, a] of Object.entries(s.actors)) { const c = rigs[key]; if (!c || !a) continue; place(c, a); const y = pose(c, a, run.t, { reduced }); if (y) { c.root.position.y = y; c.root.updateMatrixWorld(true); } }
+      for (const [key, a] of Object.entries(s.actors)) { const c = rigs[key]; if (!c || !a) continue; c.root.visible = a.act !== 'off'; if (!c.root.visible) continue; place(c, a); const y = pose(c, a, run.t, { reduced }); if (y) { c.root.position.y = y; c.root.updateMatrixWorld(true); } }
       if (set.objects.bus && s.props.bus) set.objects.bus.position.x = s.props.bus[0];
       if (scene0.bag && set.objects.bag) {
         const holder = rigs[scene0.bag.holder], drop = scene0.bag.drop, b = set.objects.bag; b.visible = true;
