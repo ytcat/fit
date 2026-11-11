@@ -8,7 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.39 | 2026-11-11 | (this release) | Real boxing stance everywhere: body turned 33°, left glove 15–18 cm in front, rear heel up — now also in fights and sparring, with blocking intact — GOTR-0051 |
+| v1.39 | 2026-11-11 | `973b5e9` | Real boxing stance everywhere: body turned 33°, left glove 15–18 cm in front, rear heel up — now also in fights and sparring, with blocking intact — GOTR-0051 |
 | v1.38 | 2026-11-11 | `9b90a74` | Chapter 2 Market Row: coach Vix, six playable street missions, story lines, boss King Hyena, route to the Docks; three street mini-games still coming — GOTR-0008 slice D |
 | v1.37 | 2026-11-11 | `c60e86c` | Chapter 1 story scenes: arrival at the bus stop with Coach Pip, Brick dumping the heavy bag at the gym door, and the carry-the-bag street mini-game — GOTR-0056 |
 | v1.36 | 2026-11-11 | `c727884` | Real boxing stance, part 1 (bag, dummy, shadowboxing, mitts): body turned 33° (was 11°), left glove 12 cm in front (was 3.5–5), rear heel up; fights and sparring still use the old guard — GOTR-0051 |
