@@ -1,0 +1,21 @@
+/* GOTR-0040 punch power meter (markup from power-meter.js). */
+.gr-power-track{position:relative;display:block;flex:1 1 auto;min-width:0;height:4px;border-radius:2px;overflow:hidden;background:var(--gr-scene-chip-strong,rgb(9 12 17/.92));box-shadow:0 0 0 1px var(--gr-scene-line,rgb(255 255 255/.14))}
+.gr-power-fill{position:absolute;inset-block:0;inset-inline-start:0;width:var(--p,0%);background:var(--gr-warning,#f5a524);transition:width .12s ease-out}
+[data-strong="1"] .gr-power-fill{background:var(--gr-danger,#ff5d5d);box-shadow:0 0 6px var(--gr-danger,#ff5d5d)}
+.gr-power-best{position:absolute;inset-block:-1px;inset-inline-start:var(--p,0%);width:2px;margin-inline-start:-1px;background:var(--gr-text,#f3f6fb);opacity:.85}
+.gr-power-best[hidden]{display:none}
+.gr-power-label{flex:none;font-size:9px;line-height:1;font-weight:var(--gr-fw-heavy,800);letter-spacing:.08em;text-transform:uppercase;color:var(--gr-text-muted,#9aa7bb)}
+.is-fresh .gr-power-fill{animation:gr-power-fade 1.8s ease-out forwards}
+@keyframes gr-power-fade{0%{opacity:1;filter:brightness(1.35)}25%{opacity:1;filter:none}100%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.is-fresh .gr-power-fill{animation:none}}
+
+/* Fight: one slim row under each health bar, inside the corner, so it follows its side and direction. */
+#fightHealth .gr-power-row{display:flex;align-items:center;gap:5px;margin-top:1px}
+#fightHealth [data-corner=blue] .gr-power-row{flex-direction:row-reverse}
+#fightHealth [data-corner=blue] .gr-power-fill{inset-inline-start:auto;inset-inline-end:0}
+
+/* Training: a compact gauge in the stage's upper corner. */
+.gr-power-gauge{position:absolute;z-index:11;top:8px;right:calc(8px + env(safe-area-inset-right,0px));width:128px;box-sizing:border-box;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:3px 6px;padding:5px 8px;border-radius:var(--gr-radius-s,8px);background:var(--gr-scene-chip,rgb(9 12 17/.72));color:var(--gr-text,#f3f6fb);pointer-events:none;font-family:var(--gr-font,system-ui,sans-serif)}
+.gr-power-gauge[hidden]{display:none}
+.gr-power-gauge .gr-power-track{height:5px}
+.gr-power-text{grid-column:1/-1;font-size:10px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--gr-text-muted,#9aa7bb);white-space:nowrap;unicode-bidi:isolate}

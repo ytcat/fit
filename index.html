@@ -77,6 +77,9 @@
   <link rel="stylesheet" href="./fighter-pad.css?v=2026111100">
   <script src="./academy-stage.js?v=2026111011" defer></script>
   <script src="./fighter-pad.js?v=2026111100" defer></script>
+  <link rel="stylesheet" href="./power-meter.css?v=2026111100">
+  <script src="./power-meter.js?v=2026111100" defer></script>
+  <script src="./impact-fx.js?v=2026111100" defer></script>
   <script src="./game-resume.js?v=2026110902" defer></script>
   <script src="./game-resume-ui.js?v=2026110902" defer></script>
   <script src="./game-venues-ui.js?v=2026110905" defer></script>
@@ -817,7 +820,8 @@
         if(!this.isPlaying && this.lastRenderStamp===stamp)return;
         this.lastRenderStamp=stamp;
         // The fight intro orbit holds the clock, so it never eats into the round.
-        const dt=this.cameraDirector?.holdsClock?0:Math.min(delta,.05);
+        // GOTR-0032: a clean contact holds the scene's clock for 50-70 ms (impact-fx.js hit-stop).
+        const dt=(this.cameraDirector?.holdsClock?0:Math.min(delta,.05))*(this.impactFx?this.impactFx.timeScale(delta):1);
         if (this.isPlaying) this.animTime += dt * this.speed;
         const poseStamp=[this.activeModel.uuid,this.animTime,this.technique,this.currentAnim,this.arena?.mode,this.player?.enabled,this.practiceTiming,this.practiceSeed,this.randomSeed,this.speedDrill].join('|');
         if (this.coach && this.activeModel===this.demoModel && (this.isPlaying||this.lastPoseStamp!==poseStamp)) {
@@ -833,7 +837,7 @@
         }
 
         this.world?.update(this.animTime,this.arena?.mode||'none');
-        this.renderer.render(this.scene, this.camera);
+        this.impactFx?.beforeRender(delta);this.renderer.render(this.scene, this.camera);this.impactFx?.afterRender();
       }
     }
 
@@ -934,6 +938,8 @@
           if(!body&&!impact.blocked&&['head','body'].includes(impact.kind))this.playSample('body-1',strength*.17,.96+variation,0,1600);
           // GOTR-0032: a brighter, louder pop layer on the focus mitts (scaled by the closing speed).
           if(impact.receiver==='pads')this.playSample('pad',.08+strength*.26,1.12+variation,0,9000);
+          // GOTR-0032: power shots get a deep low thump under the leather crack.
+          if(!impact.blocked&&strength>=.55)this.playSample('body-2',(strength-.4)*.45,.82+variation,.004,700);
           return;
         }
         const strength=Math.min(1,Math.max(.15,(impact.closingSpeed||1)/6));
