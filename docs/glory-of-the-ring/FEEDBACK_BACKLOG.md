@@ -372,25 +372,25 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0027 — Hand and arm motion is not smooth
 - **Reported:** 2026-11-11 (screen recording on the user's iPhone, v1.17, heavy bag)
-- **Status:** IN PROGRESS (agent `smooth-motion`)
+- **Status:** IN PROGRESS — measured, no fix shipped yet
 - **Priority:** P1
 - **Area:** Animation / frame pacing / performance
 - **Reported behavior / request:** "Look how hands are moving. They are not smooth moves."
 - **Integrator measurement of the recording (60 fps capture, 7.7 s):** during punches, consecutive captured frames are often identical (held frames, sometimes every other frame, i.e. ~30 fps bursts) and the next frame then jumps; at rest the pose barely changes. So part of the problem is presentation/frame pacing on the phone, part may be pose discontinuities (glove direction/velocity changing abruptly).
 - **Acceptance criteria:** Measured glove trajectories have no velocity spikes or reversals that are not part of the punch; animation time advances smoothly even when frames are late (no double-size jumps); phone-size rendering cost reduced or adapted so a mid-range phone holds a steady frame rate; before/after measurements and frame strips.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** `agent/smooth-motion` measured, no code change: the owner's recordings show the phone dropping frames (sparring 20–30 fps, bag 30 fps during punches). Pose time already advances correctly when frames are late (no double jumps). JS cost per frame ~2.5 ms on the bag (so bag drops are GPU-bound) and 8–11 ms in fights. Gaps: fights on 120 Hz screens show each pose twice (60 Hz fight ticks without interpolation). **Defect found:** in mitt work the guard hand jumps 23 cm for one tick during the rear hook (two fixes reverted). Next: render interpolation, GPU cost reduction / adaptive quality, fix the guard flicker.
+- **Evidence:** `qa/gotr-0027/README.md` (measurements). No physical phone; CPU timings noisy (shared machine).
 
 ### GOTR-0028 — Hit opponent slides back on its feet in sparring
 - **Reported:** 2026-11-11 (screen recording, v1.17, Train → Sparring)
-- **Status:** IN PROGRESS (agent `smooth-motion`)
+- **Status:** READY FOR QA in sparring — in v1.20; fights still OPEN
 - **Priority:** P1
 - **Area:** Animation / foot contact
 - **Reported behavior / request:** "Look when the lion is hitting the rabbit, the rabbit slides back with his legs; this is not realistic."
 - **Expected behavior:** When pushed back by a punch, the receiver absorbs it in the upper body and hips with planted feet, or takes a real step (foot lifts and plants). Planted feet never glide across the floor. Same rule in fights.
 - **Acceptance criteria:** Measured planted-foot slide per frame ≈ 0 for the receiver during and after hits in sparring and fights, both species; any displacement of the body root happens through visible steps; matched before/after frame strips.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** `agent/smooth-motion` (merged 486a4e0). Cause: `training-arena.js` moved the sparring partner's root with a pushback spring (up to 30 cm) while its feet are posed relative to the root, so planted feet glided. Now a hard hit makes the partner take a real step back (rear foot lifts ~45 mm and plants), pause and step in again; lighter hits are absorbed by the existing body recoil. **Fights not fixed:** feet still snap at step take-off and some planted feet slide up to 172 mm in one frame (details in `qa/gotr-0028/README.md`).
+- **Evidence:** `qa/gotr-0028/` — worst planted-foot slide per frame in sparring 59.9 mm → 0.19 mm (node), 59.9 mm → 0.4 mm (real app); total 3.0 m → 1 mm over 8 s; frame strip `spar-hit-before-after.webp`; new `tests/foot-plant.test.cjs`. No physical phone.
 
 ### GOTR-0029 — Redesign the Combo loadouts screen
 - **Reported:** 2026-11-11 (screenshot from the user's phone: "Redesign")
@@ -428,15 +428,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0032 — Mitt-work punches still look like small touches
 - **Reported:** 2026-11-11 (after v1.18)
-- **Status:** IN PROGRESS (agent `smooth-motion`, after GOTR-0027/0028)
+- **Status:** READY FOR QA — in v1.20
 - **Priority:** P1
 - **Area:** Mitt training / animation feel
 - **Reported behavior / request:** "In the coach training the punches are not strong enough; it still looks like a small touch."
 - **Known cause:** v1.18 (GOTR-0024/0025) sped up fight, bag and shadow punches but left mitt choreography unchanged: mitt hooks meet the pad at about 1.1 m/s, mitt uppercuts keep the old timing, pad recoil is small (0.065 × force, fast decay) and the coach's arm and body barely react.
 - **Expected behavior:** The glove accelerates into the mitt, the mitt pops back clearly, the coach's arm and shoulder absorb and the coach meets straights with a short counter-push; crisp impact accent and pad-pop sound.
 - **Acceptance criteria:** Measured before/after glove speed at mitt contact for all six punches and pad displacement; matched before/after frame strips; GOTR-0012 extension results and mitt contact tests still pass; no sliding feet.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** `agent/smooth-motion` (merged 486a4e0): hooks aim 5 cm and uppercuts 4.5 cm through the mitt, and every punch aims at the mitt's un-recoiled position so the glove no longer chases the mitt back (4.7 cm → 0.1 cm); mitt pop bigger and sharper; the coach's shoulder gives 5–8 cm (was 1.2) and chest 1.0–1.5 cm (was 0.3); brief glove squash on contact and an extra mitt sound layer. Not done: real hit-stop; Watch-mode straights at the mitts still slow (2.2–3.8 m/s at contact); mitt uppercuts show a one-tick speed jump.
+- **Evidence:** `qa/gotr-0032/` (`before.json`, `after.json`, `measure.cjs`) — glove speed at contact in Play: hooks 1.09 → 2.45/2.32 m/s, uppercuts 3.17/3.72 → 4.92/4.00 m/s; straights unchanged (elbow 164°/167°, extension 0.990/0.994); mitt pop 2.7–5.5 cm → 5.5–8.7 cm, peak at 25 ms (was 42 ms); new `tests/mitt-power.test.cjs`. Before/after frame strips not produced (screenshots did not show the stepped pose).
 
 ### GOTR-0033 — Free development mode: everything available, price tags kept
 - **Reported:** 2026-11-11
@@ -475,14 +475,14 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0036 — Burst meter charges too slowly
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (integrator)
+- **Status:** READY FOR QA — in v1.20
 - **Priority:** P1
 - **Area:** Fight / Burst
 - **Reported behavior / request:** "Charging takes too long. You need to get to fully charge faster."
 - **Known cause:** Burst rules as published in v1.18 (commit 869ecac): +0.045 per second of round time (22 s alone), +0.10 per clean hit, +0.07 per block or evasion; the meter was designed so time alone cannot fill it in a 20 s round.
 - **Acceptance criteria:** Measured time to the first full meter in Watch fights before/after; full well before the end of a 20 s round in normal play; Burst tests updated on purpose.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** `boxing-fight.js` `BoxingFight.burst`: time fill 0.045 → 0.11/s, clean hit +0.10 → +0.25, block/evasion +0.07 → +0.17. `tests/burst.test.cjs` updated on purpose (time alone fills in 7–12 s; two hits and a block in 2–8 s).
+- **Evidence:** `qa/gotr-0036/` — 4 Watch fights, 8 fighters, real contact solver: first full meter (round time) mean 12.3 s → 5.4 s, range 8.9–17.6 s → 3.8–9.1 s; full within the first 10 s of the round 2/8 → 8/8.
 
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.

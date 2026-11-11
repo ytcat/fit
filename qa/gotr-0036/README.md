@@ -13,7 +13,7 @@ time; the round starts at match time 3.0 s (intro and bell), so round time = mat
 |---|---|---|
 | First full meter, round time, mean | 12.3 s | 5.4 s |
 | Range | 8.9 – 17.6 s | 3.8 – 9.1 s |
-| Fighters full before the 20 s round ends | 8 / 8 (most in the last third) | 8 / 8 (all in the first half) |
+| Full within the first 10 s of the 20 s round | 2 / 8 | 8 / 8 |
 
 In these Watch runs nobody presses Burst (the player orders it), so the meter stays full once ready.
 `tests/burst.test.cjs` updated on purpose: time alone fills in 7–12 s; two hits and a block make it ready in 2–8 s.
