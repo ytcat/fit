@@ -515,7 +515,10 @@ function streetRoute(W, a, b) {
   }
   const blocked = new Uint8Array(NX * NZ);
   for (const bl of W.blocks) { const [x0, x1, z0, z1] = box(bl, 0); for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) if (inRect(bl, x + .5, z + .5, -.3)) blocked[idx(x, z)] = 1; }
-  const walk = (x, z) => x >= X0 && x < X0 + NX && z >= Z0 && z < Z0 + NZ && ok[idx(x, z)] && !blocked[idx(x, z)];
+  // Streets first; where two places are not joined by streets (the Docks), open ground between the buildings is allowed at a high cost.
+  const landMemo = new Int8Array(NX * NZ), land = (x, z) => { const i = idx(x, z); return landMemo[i] ? landMemo[i] > 0 : (landMemo[i] = landOK(x + .5, z + .5, 1) ? 1 : -1) > 0; };
+  const inGrid = (x, z) => x >= X0 && x < X0 + NX && z >= Z0 && z < Z0 + NZ;
+  const walk = (x, z) => inGrid(x, z) && !blocked[idx(x, z)] && (ok[idx(x, z)] || land(x, z));
   const near = p => { const cx = Math.floor(p.x), cz = Math.floor(p.z); for (let r = 0; r < 14; r++) for (let dz = -r; dz <= r; dz++) for (let dx = -r; dx <= r; dx++) if (Math.max(Math.abs(dx), Math.abs(dz)) === r && walk(cx + dx, cz + dz)) return [cx + dx, cz + dz]; return null; };
   const s0 = near(a), g0 = near(b); if (!s0 || !g0) return null;
   const gi = idx(g0[0], g0[1]), dist = new Float32Array(NX * NZ).fill(1e9), prev = new Int32Array(NX * NZ).fill(-1), done = new Uint8Array(NX * NZ);

@@ -7,9 +7,9 @@
   const A = () => window.AdventureProgress, G = () => window.GotrGlossary;
   const POWER_MARK = .7; // the power meter's "strong" level (power-meter.js STRONG)
   const copy = {
-    en: { journal: 'Story journal', jEmpty: 'No story lines seen yet.', beat: 'Story beat',  next: 'Next mission: {t} ▶', retry: 'Retry for ★★★', map: 'Old Town map', brickGo: 'Challenge Brick ▶', brickNeed: 'Challenge Brick (Level {n} needed · you are Level {l}) ▶', market: 'Market Row unlocked ▶', xp: '+{n} XP', coins: '+{n} ◈',  coach: 'Coach Pip, rabbit', missions: "Coach Pip's missions", stars: 'stars', goal: '3 stars', best: 'Best', start: 'Start', replay: 'Replay', soon: 'Coming soon', type: { training: 'Training', funny: 'Funny', help: 'Help' }, boss: 'Boss', fl: 'Fighter Level', entry: 'Entry Level', chance: 'Chance', fight: 'Fight Brick', won: 'Beaten', warnT: 'Big difference: low chance to win', warnGo: 'Fight anyway', warnBack: 'Train first', locked: 'Locked. Reach Level {n} to challenge Brick.', quit: 'Quit mission', back: 'Back to Old Town', again: 'Try again', rematch: 'Rematch', result: 'Result', newStars: '+{n} stars', noStars: 'No new stars', measured: 'Measured', level: 'Fighter Level {a} → {b}', stat: { power: 'Power', speed: 'Speed', stamina: 'Stamina' }, none: 'Not enough yet for a star. Try again.', bossWin: 'You beat Brick!', bossLoss: 'Brick won this one. Losing costs nothing.', open: 'Market Row is open.', err: 'Could not save the result: ', noStart: 'This activity could not start right now.', mission: 'Mission' },
-    he: { journal: 'יומן הסיפור', jEmpty: 'עוד לא נראו שורות סיפור.', beat: 'שלב בסיפור',  next: 'המשימה הבאה: {t} ◀', retry: 'שוב ל-★★★', map: 'מפת העיר העתיקה', brickGo: 'לאתגר את בריק ◀', brickNeed: 'לאתגר את בריק (נדרשת רמה {n} · אתם ברמה {l}) ◀', market: 'שדרת השוק נפתחה ◀', xp: '+{n} ניסיון', coins: '+{n} ◈',  coach: 'המאמן פיפ, ארנב', missions: 'המשימות של המאמן פיפ', stars: 'כוכבים', goal: '3 כוכבים', best: 'שיא', start: 'התחלה', replay: 'שוב', soon: 'בקרוב', type: { training: 'אימון', funny: 'מצחיק', help: 'עזרה' }, boss: 'בוס', fl: 'רמת לוחם', entry: 'רמת כניסה', chance: 'סיכוי', fight: 'להילחם בבריק', won: 'ניצחתם', warnT: 'פער גדול: סיכוי נמוך לנצח', warnGo: 'להילחם בכל זאת', warnBack: 'קודם להתאמן', locked: 'נעול. הגיעו לרמה {n} כדי לאתגר את בריק.', quit: 'יציאה מהמשימה', back: 'חזרה לעיר העתיקה', again: 'עוד פעם', rematch: 'קרב חוזר', result: 'תוצאה', newStars: '+{n} כוכבים', noStars: 'אין כוכבים חדשים', measured: 'נמדד', level: 'רמת לוחם {a} ← {b}', stat: { power: 'כוח', speed: 'מהירות', stamina: 'סיבולת' }, none: 'עדיין לא מספיק לכוכב. נסו שוב.', bossWin: 'ניצחתם את בריק!', bossLoss: 'בריק ניצח הפעם. הפסד לא עולה כלום.', open: 'שדרת השוק פתוחה.', err: 'לא ניתן לשמור את התוצאה: ', noStart: 'לא ניתן להתחיל את הפעילות כרגע.', mission: 'משימה' },
-    ru: { journal: 'Дневник истории', jEmpty: 'Пока нет увиденных реплик.', beat: 'Эпизод',  next: 'Следующее задание: {t} ▶', retry: 'Ещё раз на ★★★', map: 'Карта Старого города', brickGo: 'Вызвать Брика ▶', brickNeed: 'Вызвать Брика (нужен уровень {n} · у вас {l}) ▶', market: 'Рыночный ряд открыт ▶', xp: '+{n} опыта', coins: '+{n} ◈',  coach: 'Тренер Пип, кролик', missions: 'Задания тренера Пипа', stars: 'звёзды', goal: '3 звезды', best: 'Рекорд', start: 'Начать', replay: 'Ещё раз', soon: 'Скоро', type: { training: 'Тренировка', funny: 'Забавное', help: 'Помощь' }, boss: 'Босс', fl: 'Уровень бойца', entry: 'Уровень входа', chance: 'Шанс', fight: 'Бой с Бриком', won: 'Побеждён', warnT: 'Большая разница: шанс победить низкий', warnGo: 'Всё равно драться', warnBack: 'Сначала тренировка', locked: 'Закрыто. Достигните уровня {n}, чтобы бросить вызов Брику.', quit: 'Выйти из задания', back: 'Назад в Старый город', again: 'Ещё раз', rematch: 'Реванш', result: 'Результат', newStars: '+{n} звёзд', noStars: 'Новых звёзд нет', measured: 'Результат', level: 'Уровень бойца {a} → {b}', stat: { power: 'Сила', speed: 'Скорость', stamina: 'Выносливость' }, none: 'Пока не хватает на звезду. Попробуйте ещё.', bossWin: 'Вы победили Брика!', bossLoss: 'Брик выиграл в этот раз. Поражение ничего не стоит.', open: 'Рыночный ряд открыт.', err: 'Не удалось сохранить результат: ', noStart: 'Сейчас это занятие нельзя начать.', mission: 'Задание' }
+    en: { challenge: 'Challenge {b} ▶', challengeNeed: 'Challenge {b} (Level {n} needed · you are Level {l}) ▶', fightB: 'Fight {b}', nextCh: '{c} unlocked ▶',  journal: 'Story journal', jEmpty: 'No story lines seen yet.', beat: 'Story beat',  next: 'Next mission: {t} ▶', retry: 'Retry for ★★★', map: 'Old Town map', brickGo: 'Challenge Brick ▶', brickNeed: 'Challenge Brick (Level {n} needed · you are Level {l}) ▶', market: 'Market Row unlocked ▶', xp: '+{n} XP', coins: '+{n} ◈',  coach: 'Coach Pip, rabbit', missions: "Coach Pip's missions", stars: 'stars', goal: '3 stars', best: 'Best', start: 'Start', replay: 'Replay', soon: 'Coming soon', type: { training: 'Training', funny: 'Funny', help: 'Help' }, boss: 'Boss', fl: 'Fighter Level', entry: 'Entry Level', chance: 'Chance', fight: 'Fight Brick', won: 'Beaten', warnT: 'Big difference: low chance to win', warnGo: 'Fight anyway', warnBack: 'Train first', locked: 'Locked. Reach Level {n} to challenge Brick.', quit: 'Quit mission', back: 'Back to Old Town', again: 'Try again', rematch: 'Rematch', result: 'Result', newStars: '+{n} stars', noStars: 'No new stars', measured: 'Measured', level: 'Fighter Level {a} → {b}', stat: { power: 'Power', speed: 'Speed', stamina: 'Stamina' }, none: 'Not enough yet for a star. Try again.', bossWin: 'You beat Brick!', bossLoss: 'Brick won this one. Losing costs nothing.', open: 'Market Row is open.', err: 'Could not save the result: ', noStart: 'This activity could not start right now.', mission: 'Mission' },
+    he: { challenge: 'לאתגר את {b} ◀', challengeNeed: 'לאתגר את {b} (נדרשת רמה {n} · אתם ברמה {l}) ◀', fightB: 'להילחם ב{b}', nextCh: '{c} נפתח ◀',  journal: 'יומן הסיפור', jEmpty: 'עוד לא נראו שורות סיפור.', beat: 'שלב בסיפור',  next: 'המשימה הבאה: {t} ◀', retry: 'שוב ל-★★★', map: 'מפת העיר העתיקה', brickGo: 'לאתגר את בריק ◀', brickNeed: 'לאתגר את בריק (נדרשת רמה {n} · אתם ברמה {l}) ◀', market: 'שדרת השוק נפתחה ◀', xp: '+{n} ניסיון', coins: '+{n} ◈',  coach: 'המאמן פיפ, ארנב', missions: 'המשימות של המאמן פיפ', stars: 'כוכבים', goal: '3 כוכבים', best: 'שיא', start: 'התחלה', replay: 'שוב', soon: 'בקרוב', type: { training: 'אימון', funny: 'מצחיק', help: 'עזרה' }, boss: 'בוס', fl: 'רמת לוחם', entry: 'רמת כניסה', chance: 'סיכוי', fight: 'להילחם בבריק', won: 'ניצחתם', warnT: 'פער גדול: סיכוי נמוך לנצח', warnGo: 'להילחם בכל זאת', warnBack: 'קודם להתאמן', locked: 'נעול. הגיעו לרמה {n} כדי לאתגר את בריק.', quit: 'יציאה מהמשימה', back: 'חזרה לעיר העתיקה', again: 'עוד פעם', rematch: 'קרב חוזר', result: 'תוצאה', newStars: '+{n} כוכבים', noStars: 'אין כוכבים חדשים', measured: 'נמדד', level: 'רמת לוחם {a} ← {b}', stat: { power: 'כוח', speed: 'מהירות', stamina: 'סיבולת' }, none: 'עדיין לא מספיק לכוכב. נסו שוב.', bossWin: 'ניצחתם את בריק!', bossLoss: 'בריק ניצח הפעם. הפסד לא עולה כלום.', open: 'שדרת השוק פתוחה.', err: 'לא ניתן לשמור את התוצאה: ', noStart: 'לא ניתן להתחיל את הפעילות כרגע.', mission: 'משימה' },
+    ru: { challenge: 'Вызвать: {b} ▶', challengeNeed: 'Вызвать: {b} (нужен уровень {n} · у вас {l}) ▶', fightB: 'Бой: {b}', nextCh: '{c}: открыто ▶',  journal: 'Дневник истории', jEmpty: 'Пока нет увиденных реплик.', beat: 'Эпизод',  next: 'Следующее задание: {t} ▶', retry: 'Ещё раз на ★★★', map: 'Карта Старого города', brickGo: 'Вызвать Брика ▶', brickNeed: 'Вызвать Брика (нужен уровень {n} · у вас {l}) ▶', market: 'Рыночный ряд открыт ▶', xp: '+{n} опыта', coins: '+{n} ◈',  coach: 'Тренер Пип, кролик', missions: 'Задания тренера Пипа', stars: 'звёзды', goal: '3 звезды', best: 'Рекорд', start: 'Начать', replay: 'Ещё раз', soon: 'Скоро', type: { training: 'Тренировка', funny: 'Забавное', help: 'Помощь' }, boss: 'Босс', fl: 'Уровень бойца', entry: 'Уровень входа', chance: 'Шанс', fight: 'Бой с Бриком', won: 'Побеждён', warnT: 'Большая разница: шанс победить низкий', warnGo: 'Всё равно драться', warnBack: 'Сначала тренировка', locked: 'Закрыто. Достигните уровня {n}, чтобы бросить вызов Брику.', quit: 'Выйти из задания', back: 'Назад в Старый город', again: 'Ещё раз', rematch: 'Реванш', result: 'Результат', newStars: '+{n} звёзд', noStars: 'Новых звёзд нет', measured: 'Результат', level: 'Уровень бойца {a} → {b}', stat: { power: 'Сила', speed: 'Скорость', stamina: 'Выносливость' }, none: 'Пока не хватает на звезду. Попробуйте ещё.', bossWin: 'Вы победили Брика!', bossLoss: 'Брик выиграл в этот раз. Поражение ничего не стоит.', open: 'Рыночный ряд открыт.', err: 'Не удалось сохранить результат: ', noStart: 'Сейчас это занятие нельзя начать.', mission: 'Задание' }
   };
   const lang = () => copy[window.app?.lang] ? window.app.lang : 'en', W = () => copy[lang()];
   const T = o => o ? (o[lang()] || o.en) : '';
@@ -26,6 +26,12 @@
       rope_rhythm: L(`${n} seconds of rope in rhythm`, `${n} שניות חבל בקצב`, `${n} секунд скакалки в ритме`),
       teach_the_kid: L(`Show the ${jab}-${cross} cleanly ${n} times`, `הדגימו ${jab}-${cross} נקי ${n} פעמים`, `Покажите ${jab}-${cross} чисто: ${n} раза`),
       heavy_bag_van: L(`Carry the bag in with at most ${n} mistakes`, `הכניסו את השק עם ${n} טעויות לכל היותר`, `Занесите мешок, ошибок не больше ${n}`),
+      curb_footwork: L(`${n} quick steps in 20 seconds`, `${n} צעדים מהירים ב-20 שניות`, `${n} быстрых шагов за 20 секунд`),
+      clean_hands: L(`Win a round and take at most ${n} hits`, `נצחו בסיבוב וקבלו לכל היותר ${n} מכות`, `Выиграйте раунд, пропустив не больше ${n} ударов`),
+      kids_skateboard: L(`${n} body shots on the hyena who took it`, `${n} מכות לגוף לצבוע שלקח אותו`, `${n} ударов в корпус гиене, укравшей доску`),
+      crowd_circle: L(`Beat ${n} challengers in a row`, `נצחו ${n} מתמודדים ברצף`, `Победите ${n} соперников подряд`),
+      rooftop_callout: L(`Land ${n} punches in a 10-second round`, `פגעו ${n} פעמים בסיבוב של 10 שניות`, `Нанесите ${n} ударов за раунд в 10 секунд`),
+      influencer_challenge: L(`${n} speed-bag punches in 15 seconds`, `${n} מכות בשק המהירות ב-15 שניות`, `${n} ударов по скоростной груше за 15 секунд`),
       morning_sparring: L(`Land ${n} punches in a 30-second round`, `פגעו ${n} פעמים בסיבוב של 30 שניות`, `Нанесите ${n} ударов за раунд в 30 секунд`)
     }[id];
     return t ? t[l] : '';
@@ -48,8 +54,25 @@
     rope_rhythm: { kind: 'training', mode: 'rope', duration: 45,
       frame: (r, f, dt) => { if (!f.rope || !(dt > 0)) return; r.t = (r.t || 0) + dt; if (f.jumps) { r.lastJump = r.t; r.runStart ??= r.t; } if (r.lastJump != null && r.t - r.lastJump > 1.5) r.runStart = null; if (r.runStart != null && r.lastJump != null) r.value = Math.max(r.value, Math.floor(r.lastJump - r.runStart + 1)); } },
     teach_the_kid: { kind: 'lesson', comboId: 'first_rhythm' },
-    morning_sparring: { kind: 'fight', rounds: 1, roundSeconds: 30, restSeconds: 0 }
+    morning_sparring: { kind: 'fight', rounds: 1, roundSeconds: 30, restSeconds: 0 },
+    // ---- Chapter 2, Market Row (Street arena). Signals that already exist; the three street mini-games stay "coming soon".
+    // Footwork: every step the Fighter takes (Step buttons) while the heavy bag is up.
+    curb_footwork: { kind: 'training', mode: 'heavy', duration: 20, steps: true },
+    // Win a round and count the hits taken; a lost round counts as many.
+    clean_hands: { kind: 'fight', rounds: 1, roundSeconds: 30, restSeconds: 0, opponent: L('Street regular', 'מקומי מהרחוב', 'Уличный боец'), live: (me, opp) => opp.landed, measure: (me, opp, won) => won ? opp.landed : 99 },
+    kids_skateboard: { kind: 'fight', rounds: 1, roundSeconds: 30, restSeconds: 0, opponent: L('Hyena', 'צבוע', 'Гиена'), live: me => me.body, measure: me => me.body },
+    crowd_circle: { kind: 'fight', rounds: 1, roundSeconds: 15, restSeconds: 0, chain: 3, opponent: L('Challenger', 'מתמודד', 'Соперник') },
+    rooftop_callout: { kind: 'fight', rounds: 1, roundSeconds: 10, restSeconds: 0, opponent: L('Rooftop caller', 'המאתגר מהגג', 'Вызывающий с крыши'), live: me => me.landed, measure: me => me.landed },
+    influencer_challenge: { kind: 'training', mode: 'speed', duration: 15,
+      imp: (r, h) => { if (playerOn() && h.actor === 'lion' && h.receiver !== 'lion' && h.receiver !== 'platform' && window.app.engine.targetMode === 'speed') r.value++; } }
   };
+  // Chapter data (GOTR-0058): venue, map pin, boss and the boss's look/strength. Chapter 2: Market Row, the Street arena, King Hyena.
+  const CH = { 1: { venue: 'default', pin: 'oldtown', boss: 'brick' }, 2: { venue: 'street', pin: 'market', boss: 'king_hyena' } };
+  const BOSS = {
+    brick: { chapter: 1, name: L('Brick', 'בריק', 'Брик'), power: 1.08, tempo: 1.03, skill: .04 },
+    king_hyena: { chapter: 2, name: L('King Hyena', 'מלך הצבועים', 'Король гиен'), power: 1.14, tempo: 1.08, skill: .07 }
+  };
+  const chapterOfId = id => A().missions.find(m => m.id === id)?.chapter || BOSS[id]?.chapter || 1;
   let run = null, hooked = false;
 
   function strip(r) {
@@ -61,11 +84,11 @@
   }
   function paintStrip() {
     const r = run; if (!r?.ui) return;
-    const stars = A().starsFor(r.id, r.value), key = r.id + '|' + r.value + '|' + lang();
+    const lower = A().metrics[r.mission.metric]?.lower, stars = lower && !r.ended ? 0 : A().starsFor(r.id, r.value), key = r.id + '|' + r.value + '|' + lang();
     if (r.paintKey === key) return; r.paintKey = key;
     const shown = A().metrics[r.mission.metric].lower ? r.value : Math.min(r.value, r.target);
-    r.ui.txt.textContent = `${goalText(r.id, r.target)} · ${r.value >= r.target ? r.target : shown}/${r.target} · ${starsText(stars)}`;
-    r.ui.fillBar.style.width = Math.min(100, 100 * r.value / r.target).toFixed(0) + '%';
+    r.ui.txt.textContent = lower ? `${goalText(r.id, r.target)} · ${r.value > 9 ? '9+' : r.value}` : `${goalText(r.id, r.target)} · ${r.value >= r.target ? r.target : shown}/${r.target} · ${starsText(stars)}`;
+    r.ui.fillBar.style.width = (lower ? 100 * (1 - Math.min(1, r.value / (r.mission.thresholds[0] + 1))) : Math.min(100, 100 * r.value / r.target)).toFixed(0) + '%';
     r.ui.root.dataset.stars = String(stars);
   }
   // Wrapped once: engine.onImpact (every contact), career.onFrame (every frame, with its dt), career.onFight (fight state each frame).
@@ -78,6 +101,7 @@
       if (run && !run.ended) try { tickRun(frame, dt); } catch (x) { console.warn('adventure', x); }
       return out;
     };
+    const pl = e.player; if (pl && typeof pl.press === 'function' && !pl.advStepHook) { pl.advStepHook = true; const orig = pl.press; pl.press = function (id, ...a) { const ok = orig.call(this, id, ...a); if (ok && run && !run.ended && run.def.steps && /^step/.test(String(id))) { run.value++; paintStrip(); } return ok; }; }
     const prevFight = c.onFight; c.onFight = function (view) {
       const out = prevFight.call(this, view);
       if (run && !run.ended && (run.def.kind === 'fight' || run.def.kind === 'boss') && view === run.view && view.match?.result) try { fightDone(view); } catch (x) { console.warn('adventure', x); }
@@ -91,6 +115,8 @@
       const a = e.career.active;
       if (a) { r.session = a.id; if (!r.early && r.value >= r.target) { r.early = true; setTimeout(() => { if (run === r && !r.ended) e.career.finish(); }, 700); } }
       else if (r.session) finishRun();
+    } else if (d.kind === 'fight' && d.live && r.view?.match && !r.fightDone) {
+      const m = r.view.match, sp = r.view.careerEntry?.species || 'lion', t = m.totals, v = d.live(t[sp], t[sp === 'lion' ? 'rabbit' : 'lion']); if (v !== r.value) { r.value = v; paintStrip(); }
     } else if (d.kind === 'lesson') {
       const s = window.AcademyStage?.state;
       if (s && s.comboId === d.comboId) { r.seen = true; r.value = Math.max(r.value, s.reps || 0); paintStrip(); if (s.phase === 'pass' || s.passed) { r.value = Math.max(r.value, r.target); paintStrip(); setTimeout(() => { window.AcademyStage?.stop(); finishRun(); }, 400); r.passing = true; } }
@@ -101,8 +127,21 @@
   function fightDone(view) {
     const r = run; if (r.fightDone) return; r.fightDone = true;
     if (r.def.kind === 'boss') { setTimeout(() => bossDone(view), 1500); return; }
-    const entry = view.careerEntry, m = view.match, totals = m.result.totals || m.totals;
-    r.value = totals[entry.species].landed; r.extra = { won: m.result.winner === entry.species }; paintStrip(); setTimeout(finishRun, 1500);
+    const entry = view.careerEntry, m = view.match, totals = m.result.totals || m.totals, sp = entry.species, me = totals[sp], opp = totals[sp === 'lion' ? 'rabbit' : 'lion'], won = m.result.winner === sp, d = r.def;
+    if (d.chain) { // Crowd circle: the next challenger steps in after every win; the first loss ends the run
+      if (won) r.value = (r.wins = (r.wins || 0) + 1);
+      paintStrip();
+      if (won && r.value < d.chain) { setTimeout(() => { if (run !== r || r.ended) return; r.fightDone = false; fightStart(r.ctx, d, r); }, 1600); return; }
+      r.extra = { won }; setTimeout(finishRun, 1500); return;
+    }
+    r.value = d.measure ? d.measure(me, opp, won) : me.landed; r.extra = { won }; paintStrip(); setTimeout(finishRun, 1500);
+  }
+  // Starts (or restarts, for a chain) one bout for a mission and names the opponent.
+  function fightStart(ctx, d, r) {
+    const e = window.app.engine;
+    ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds });
+    r.view = e.arena?.fightView; if (!r.view) throw Error(W().noStart);
+    if (d.opponent && r.view.careerEntry) r.view.careerEntry.opponentName = d.opponent[lang()] + (d.chain ? ' ' + ((r.wins || 0) + 1) : '');
   }
 
   const mk = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
@@ -110,7 +149,8 @@
   function cleanup() { run?.ui?.root.remove(); document.getElementById('advNext')?.remove(); }
   function backToTown() {
     cleanup(); const keep = run; run = null; void keep;
-    window.ringfighterGame?.open('adventure', { onReady: h => h.select('oldtown') });
+    const pin = keep?.id ? CH[chapterOfId(keep.id)]?.pin : null;
+    window.ringfighterGame?.open('adventure', { onReady: h => h.select(pin || 'oldtown') });
   }
 
   // ---- non-blocking feedback and the "Next" bar (GOTR-0052): replaces the full-screen post-activity card ----
@@ -122,26 +162,30 @@
     toastLog.push(text); const t = mk('div', 'adv-toast ' + (cls || ''), text); box.append(t); while (box.children.length > 5) box.firstChild.remove(); setTimeout(() => t.remove(), 4200);
   }
   const starsOf = (g, id) => g.adventure?.missions[id]?.stars || 0;
-  function nextMission(g, afterId) {
-    const order = (window.AdventureStory?.order || A().missions.map(m => m.id)).filter(id => DEFS[id]).map(id => A().missions.find(m => m.id === id)), i = order.findIndex(m => m.id === afterId), cand = i < 0 ? order : [...order.slice(i + 1), ...order.slice(0, i)];
+  function nextMission(g, afterId, chap) {
+    const order = (window.AdventureStory?.order || A().missions.map(m => m.id)).filter(id => DEFS[id] && (!chap || chapterOfId(id) === chap)).map(id => A().missions.find(m => m.id === id)), i = order.findIndex(m => m.id === afterId), cand = i < 0 ? order : [...order.slice(i + 1), ...order.slice(0, i)];
     return cand.find(m => !starsOf(g, m.id)) || cand.find(m => starsOf(g, m.id) < 3) || null;
   }
   function openMap(id) { cleanup(); run = null; rg()?.open('adventure', { onReady: h => h.select(id || 'oldtown') }); }
+  const pinOf = n => ({ 1: 'oldtown', 2: 'market', 3: 'docks', 4: 'downtown', 5: 'hill' }[n]);
   // What to do next, from the adventure state: { primary: [label, fn], more: [[label, fn]...] }
   function nextSteps(info) {
-    const w = W(), g = rg().store.game(), ctx = gameCtx(), brickWon = A().bossWon(g, 'brick'), lvl = A().level(g), entry = A().bosses[0].entry, more = [];
-    const go = id => () => start(ctx, id), brick = () => bossStart(ctx);
-    const nm = nextMission(g, info.id), bossBtn = [lvl >= entry ? w.brickGo : fill(w.brickNeed, { n: entry, l: lvl }), brick];
+    const w = W(), g = rg().store.game(), ctx = gameCtx(), more = [], A_ = A();
+    const ch = info.id ? chapterOfId(info.id) : 1, cd = A_.chapters[ch - 1], bossId = cd.boss, b = A_.bosses.find(x => x.id === bossId), bname = T(BOSS[bossId]?.name || b.names).split(/[,،]/)[0];
+    const bossWon = A_.bossWon(g, bossId), lvl = A_.level(g), go = id => () => start(ctx, id), boss = () => bossStart(ctx, bossId);
+    const nm = nextMission(g, info.id, ch), bossBtn = [lvl >= b.entry ? fill(w.challenge, { b: bname }) : fill(w.challengeNeed, { b: bname, n: b.entry, l: lvl }), boss];
+    const chapterBtn = ch < 5 ? [fill(w.nextCh, { c: T(A_.chapters[ch].names) }), () => openMap(pinOf(ch + 1))] : null;
     let primary;
     if (info.kind === 'boss') {
-      primary = info.won ? [w.market, () => openMap('market')] : [w.rematch, brick];
-      if (info.won) more.push([w.rematch, brick]);
+      primary = info.won && chapterBtn ? chapterBtn : [w.rematch, boss];
+      if (info.won) more.push([w.rematch, boss]);
     } else {
       if (info.kind === 'mission' && info.res?.ok && info.res.best < 3) more.push([w.retry, go(info.id)]);
-      primary = nm ? [fill(w.next, { t: T(nm.titles) }), go(nm.id)] : brickWon ? [w.market, () => openMap('market')] : bossBtn;
-      if (nm && !brickWon) more.push(bossBtn);
+      const here = nm; // the recommended next beat of this chapter first
+      primary = here ? [fill(w.next, { t: T(here.titles) }), go(here.id)] : bossWon && chapterBtn ? chapterBtn : bossBtn;
+      if (here && !bossWon) more.push(bossBtn);
     }
-    more.push([w.map, () => openMap('oldtown')]);
+    more.push([w.map, () => openMap(pinOf(ch))]);
     return { primary, more };
   }
   function showNext(info) {
@@ -204,45 +248,44 @@
     if (!begin(ctx, id)) return;
     const d = run.def, e = window.app.engine;
     try {
-      ctx.change({ type: 'venue', venueId: 'default' }); // the Old Town gym
+      ctx.change({ type: 'venue', venueId: CH[chapterOfId(id)]?.venue || 'default' }); // the chapter's arena (Old Town gym, Market Row street)
       if (d.kind === 'training') { ctx.startTraining({ mode: d.mode, play: true, duration: d.duration, technique: d.technique }); if (!e.career.active) throw Error(W().noStart); }
       else if (d.kind === 'lesson') { const s = window.AcademyStage?.start(d.comboId); if (!s?.ok) throw Error(s?.error || W().noStart); }
       else if (d.kind === 'fight') {
-        ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds });
-        run.view = e.arena?.fightView; if (!run.view) throw Error(W().noStart);
+        fightStart(ctx, d, run);
       }
       window.AdventureStory?.show(id, 'intro');
     } catch (x) { const ui = run.ui; run.ended = true; ui?.txt && (ui.txt.textContent = x.message); setTimeout(() => { if (run?.ended) backToTown(); }, 1800); }
   }
 
   // Boss: a bout in the Neighborhood Hall against an existing opponent named Brick (new species comes later).
-  function bossStart(ctx) {
-    const e = window.app.engine, b = A().bosses.find(x => x.id === 'brick'), edge = A().bossEdge(ctx.store.game(), 'brick');
-    cleanup(); run = { id: 'brick', def: { kind: 'boss' }, ctx, ended: false, mission: { titles: b.names, metric: 'wins' }, value: 0, target: 1 };
-    hook(); ctx.change({ type: 'venue', venueId: 'default' });
+  function bossStart(ctx, bossId = 'brick') {
+    const e = window.app.engine, b = A().bosses.find(x => x.id === bossId), cfg = BOSS[bossId], edge = A().bossEdge(ctx.store.game(), bossId);
+    cleanup(); run = { id: bossId, def: { kind: 'boss' }, ctx, ended: false, mission: { titles: b.names, metric: 'wins' }, value: 0, target: 1 };
+    hook(); ctx.change({ type: 'venue', venueId: CH[cfg.chapter].venue });
     ctx.startFight({ preset: 'quick', rounds: 2, roundSeconds: 30, restSeconds: 8 });
     const view = e.arena?.fightView; if (!view) { run = null; return; }
-    window.AdventureStory?.show('brick', 'intro');
+    window.AdventureStory?.show(bossId, 'intro');
     run.view = view; const entry = view.careerEntry, m = view.match, foe = m.fighters[entry.species === 'lion' ? 'rabbit' : 'lion'];
-    if (entry) entry.opponentName = { en: 'Brick', he: 'בריק', ru: 'Брик' }[lang()];
-    // Brick hits a little harder than a gym regular; each Fighter Level above his entry level softens his hits 3% and slows his reactions 3%.
-    foe.power *= 1.08 * edge.damage; foe.tempo *= 1.03 / edge.reaction; foe.skill = Math.min(.99, foe.skill + .04);
+    if (entry) entry.opponentName = cfg.name[lang()];
+    // The boss hits a little harder than a regular; each Fighter Level above his entry level softens his hits 3% and slows his reactions 3%.
+    foe.power *= cfg.power * edge.damage; foe.tempo *= cfg.tempo / edge.reaction; foe.skill = Math.min(.99, foe.skill + cfg.skill);
     const strip2 = mk('div', 'adv-goal'); strip2.id = 'advGoal'; strip2.dir = document.documentElement.dir || 'ltr';
-    const txt = mk('span', 'adv-goal-text', `${T(b.names)} · ${W().entry} ${b.entry}`), quit = btn('×', () => abort(), 'adv-goal-quit'); quit.title = W().quit; quit.setAttribute('aria-label', W().quit); strip2.append(txt, quit); (window.app?.engine?.stage||document.body).append(strip2); run.ui = { root: strip2, txt };
+    const txt = mk('span', 'adv-goal-text', `${T(b.names)} · ${W().entry} ${b.entry}`), quit = btn('×', () => abort(), 'adv-goal-quit'); quit.title = W().quit; quit.setAttribute('aria-label', W().quit); strip2.append(txt, quit); (window.app?.engine?.stage || document.body).append(strip2); run.ui = { root: strip2, txt };
   }
   function bossDone(view) {
     const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove();
     const entry = view.careerEntry, won = view.match.result.winner === entry.species, store = r.ctx.store, w = W();
-    const res = store.gameAction({ type: 'adventure', adventure: 'boss', bossId: 'brick', won });
+    const res = store.gameAction({ type: 'adventure', adventure: 'boss', bossId: r.id, won });
     toast(res.ok ? (won ? w.bossWin : w.bossLoss) : w.err + res.error, won ? 'gold' : 'bad');
-    window.AdventureStory?.show('brick', won ? 'outro' : 'lost');
-    showNext({ kind: 'boss', won, res });
+    window.AdventureStory?.show(r.id, won ? 'outro' : 'lost');
+    showNext({ kind: 'boss', won, res, id: r.id });
   }
   // ---- the Old Town sheet content: small icon tiles (playable first, "coming soon" last), details on tap, boss block ----
-  const ICON = { first_stance: '🛡️', one_two_mitts: '🥊', bag_power: '💥', roll_under_hook: '🌀', rope_rhythm: '🪢', heavy_bag_van: '🚚', teach_the_kid: '🧒', morning_sparring: '🥋', snoring_guard: '😴' };
+  const ICON = { curb_footwork: '👟', rooftop_balloons: '🎈', whistle_chase: '🦝', kids_skateboard: '🛹', grandma_groceries: '👵', influencer_challenge: '🤳', clean_hands: '🧤', crowd_circle: '👥', rooftop_callout: '📣', first_stance: '🛡️', one_two_mitts: '🥊', bag_power: '💥', roll_under_hook: '🌀', rope_rhythm: '🪢', heavy_bag_van: '🚚', teach_the_kid: '🧒', morning_sparring: '🥋', snoring_guard: '😴' };
   function render(ctx, opts = {}) {
-    const w = W(), A_ = A(), store = ctx.store, g = store.game(), tiles = [], rest = [];
-    const all = A_.missions.filter(x => x.chapter === 1), so = id => { const i = window.AdventureStory?.order.indexOf(id); return i >= 0 ? i : 99; }, ordered = [...all.filter(m => DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id)), ...all.filter(m => !DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id))];
+    const w = W(), A_ = A(), store = ctx.store, g = store.game(), tiles = [], rest = [], chap = opts.chapter || 1, bossId = A_.chapters[chap - 1].boss;
+    const all = A_.missions.filter(x => x.chapter === chap), so = id => { const i = window.AdventureStory?.order.indexOf(id); return i >= 0 ? i : 99; }, ordered = [...all.filter(m => DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id)), ...all.filter(m => !DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id))];
     const detail = mk('div', 'adv-detail'); detail.hidden = true;
     const show = (m, tile) => {
       const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id];
@@ -253,7 +296,7 @@
       document.querySelectorAll('.adv-tile[data-mission]').forEach(t => t.setAttribute('aria-pressed', String(t === tile)));
       opts.expand?.(); detail.scrollIntoView?.({ block: 'nearest' });
     };
-    const rec1 = nextMission(g, null)?.id, St = window.AdventureStory;
+    const rec1 = nextMission(g, null, chap)?.id, St = window.AdventureStory;
     for (const m of ordered) {
       const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id], n = rec?.stars || 0;
       const t = btn('', () => show(m, t), 'adv-tile' + (playable ? '' : ' adv-tile-soon') + (n === 3 ? ' adv-tile-done' : '')); t.dataset.mission = m.id; t.setAttribute('aria-pressed', 'false'); if (m.id === rec1) { t.classList.add('adv-tile-next'); t.dataset.next = '1'; } if (St) t.dataset.beat = String(St.beatOf(m.id));
@@ -272,13 +315,13 @@
     }
     rest.push(detail);
     // Boss block (shown when the sheet is expanded)
-    const b = A_.bosses.find(x => x.id === 'brick'), lvl = A_.level(g), chance = A_.chance(g, 'brick'), won = A_.bossWon(g, 'brick'), open = A_.canChallenge(g, 'brick', false);
+    const b = A_.bosses.find(x => x.id === bossId), lvl = A_.level(g), chance = A_.chance(g, bossId), won = A_.bossWon(g, bossId), open = A_.canChallenge(g, bossId, false);
     const boss = mk('div', 'adv-boss'); boss.dataset.won = String(won);
     boss.append(mk('strong', 'adv-boss-name', `🥊 ${w.boss}: ${T(b.names)}${won ? ' · ' + w.won : ''}`));
     boss.append(mk('span', 'adv-boss-gate', `${w.fl} ${lvl} · ${w.entry} ${b.entry} · ${w.chance} ${chance}%`));
     const acts = mk('div', 'adv-actions');
-    const fight = () => { if (store.game()) bossStart(ctx); };
-    if (open) acts.append(btn(w.fight, fight));
+    const fight = () => { if (store.game()) bossStart(ctx, bossId); };
+    if (open) acts.append(btn(fill(w.fightB, { b: T(BOSS[bossId].name) }), fight));
     else if (A_.freeMode()) {
       const warn = mk('div', 'adv-warn'); warn.hidden = true; warn.setAttribute('role', 'alert');
       warn.append(mk('strong', '', w.warnT), mk('span', '', `${w.fl} ${lvl} · ${w.entry} ${b.entry} · ${w.chance} ${chance}%`));
@@ -288,5 +331,5 @@
     boss.append(acts); rest.push(boss);
     return { tiles, rest };
   }
-  window.AdventureOldTown = { toastLog, reward, render, start, bossStart, goalText, defs: DEFS, get run() { return run; }, copy };
+  window.AdventureOldTown = { CH, BOSS, toastLog, reward, render, start, bossStart, goalText, defs: DEFS, get run() { return run; }, copy };
 })();
