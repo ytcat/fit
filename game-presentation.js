@@ -28,7 +28,10 @@
    for(let j=0;j<S.count;j++){q.fromBufferAttribute(S,j);if(q.y>b.min.y-.04&&q.y<b.max.y+.04)near.push(j);}
    const ids=new Uint16Array(P.count*4),weights=new Float32Array(P.count*4),source=new Int32Array(P.count);
    for(let i=0;i<P.count;i++){v.fromBufferAttribute(P,i);let best=near[0],d=Infinity;for(const j of near){q.fromBufferAttribute(S,j);const e=q.distanceToSquared(v);if(e<d){d=e;best=j;}}source[i]=best;for(let k=0;k<4;k++){ids[i*4+k]=SI.array[best*4+k];weights[i*4+k]=SW.array[best*4+k];}}
-   g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(ids,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(weights,4));g.setAttribute('coachLinear',new THREE.Float32BufferAttribute(new Float32Array(P.count),1));g.userData.source=source;
+   g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(ids,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(weights,4));// Every other per-vertex input of the shorts' shader chain (linear blend, anatomy, shoulder and surface corrections)
+   // is copied from the source vertex: a missing vec4 input reads (0,0,0,1) on the GPU and threw parts of the band sideways.
+   for(const [name,attr] of Object.entries(sh.geometry.attributes)){if(['position','normal','uv','uv2','color','tangent','skinIndex','skinWeight'].includes(name))continue;const n=attr.itemSize,out=new Float32Array(P.count*n);for(let i=0;i<P.count;i++)for(let k=0;k<n;k++)out[i*n+k]=attr.array[source[i]*n+k];g.setAttribute(name,new THREE.BufferAttribute(out,n));}
+   g.userData.source=source;
    const m=material.clone();m.skinning=true;m.onBeforeCompile=sh.material.onBeforeCompile;m.customProgramCacheKey=sh.material.customProgramCacheKey;slots.belt.add(m);base.set(m,m.color.clone());
    mesh=new THREE.SkinnedMesh(g,m);mesh.position.copy(sh.position);mesh.quaternion.copy(sh.quaternion);mesh.scale.copy(sh.scale);sh.parent.add(mesh);mesh.bind(coach.skeleton,sh.bindMatrix);mesh.frustumCulled=false;
    if(sh.customDepthMaterial)mesh.customDepthMaterial=sh.customDepthMaterial;if(sh.customDistanceMaterial)mesh.customDistanceMaterial=sh.customDistanceMaterial;}
@@ -83,8 +86,16 @@
    container.append(this.stage);this.stage.classList.add('game-preview-live');requestAnimationFrame(()=>{if(this.closed)return;window.dispatchEvent(new Event('resize'));this.frame();});
   }
   frame(){if(this.closed)return;const e=this.e,c=e.camera,root=e.coach.root,focus=this.focus||{y:1.15,height:2.8,width:1.7},target=root.localToWorld(new THREE.Vector3(0,focus.y,focus.z||0)),height=focus.height,width=focus.width,fov=THREE.MathUtils.degToRad(c.fov),distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.3,c.aspect)))+.2;
-   c.zoom=1;c.position.copy(target).add(new THREE.Vector3(0,.15,distance).applyAxisAngle(new THREE.Vector3(0,1,0),focus.yaw||0).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion())));c.lookAt(target);c.updateProjectionMatrix();if(e.viewControls){e.viewControls.yaw=0;e.viewControls.refit(target);}e.lastRenderStamp=null;
+   c.zoom=1;c.position.copy(target).add(new THREE.Vector3(0,.15,distance).applyAxisAngle(new THREE.Vector3(0,1,0),focus.yaw||0).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion())));c.lookAt(target);c.updateProjectionMatrix();if(e.viewControls){e.viewControls.yaw=0;e.viewControls.refit(target);}this.clearLine();e.lastRenderStamp=null;
   }
+  // GOTR-0039: a narrow phone preview backs the camera 5-6 m away to fit the whole fighter, which put it behind venue
+  // set pieces (e.g. the championship hall) that then filled the frame. Anything between the camera and the fighter's
+  // head, hands, hips or feet is hidden while the preview is open (restored on close); the backdrop stays.
+  clearLine(){const e=this.e,c=e.camera,coach=e.coach,own=o=>{for(let q=o;q;q=q.parent)if(q===coach.root)return true;return false;},list=[];c.updateMatrixWorld(true);coach.root.updateMatrixWorld(true);const rc=new THREE.Raycaster(),shown=o=>{for(let q=o;q;q=q.parent)if(!q.visible)return false;return true;};rc.camera=c;
+   // Only scenery is ray-cast (never the skinned fighter, which is costly on phones).
+   e.scene.traverse(o=>{if((o.isMesh||o.isLine||o.isPoints)&&!o.isSkinnedMesh&&shown(o)&&!own(o))list.push(o);});
+   for(const j of ['head','handL','handR','hips','footL','footR']){const node=coach.joints?.[j];if(!node)continue;const w=node.getWorldPosition(new THREE.Vector3()),dir=w.clone().sub(c.position),far=dir.length();rc.set(c.position,dir.normalize());rc.far=Math.max(0,far-.05);
+    for(const hit of rc.intersectObjects(list,false)){const o=hit.object;if(!o.visible||o.material?.visible===false)continue;if(!this.visibility.has(o))this.visibility.set(o,o.visible);o.visible=false;}}}
   close(){if(this.closed)return;this.closed=true;const e=this.e,c=e.camera,v=e.viewControls,s=this.camera;
    this.placeholder.replaceWith(this.stage);this.stage.classList.remove('game-preview-live');for(const [node,visible] of this.visibility)node.visible=visible;e.fitCameraToModel=this.oldFit;
    window.dispatchEvent(new Event('resize'));requestAnimationFrame(()=>requestAnimationFrame(()=>{if(e.gamePreviewToken!==this.token||e.targetMode!==this.oldMode||e.arena?.fightView!==this.oldFight)return;v?.reset();c.position.copy(s.position);c.quaternion.copy(s.quaternion);c.zoom=s.zoom;c.userData.orbitTarget=s.orbit;if(v){v.yaw=s.yaw;v.target=s.target;v.offset=s.offset;}if(e.arena?.fightView)e.arena.fightView.userView=s.userView;c.updateProjectionMatrix();e.lastRenderStamp=null;}));

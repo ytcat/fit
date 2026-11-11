@@ -41,9 +41,11 @@ for(const species of ['lion','rabbit']){e.targetMode='none';e.roster.select(spec
  // GOTR-0030: the trunk waistband (belt-slot items) rides the shorts: each band vertex carries the skin weights of its
  // nearest shorts vertex, so in every pose it keeps its bind-pose offset from the shorts (no shorts pushing through).
  {global.GameAccessories=A;const P=require('../game-presentation.js');P.materials(c);const trunk=c.trunkWaistband,src=trunk.geometry.userData.source,a=V(),b=V(),rest=[];assert.ok(trunk.isSkinnedMesh,'waistband is skinned with the shorts');
+  // GOTR-0039: the GPU runs the shorts' whole shader chain on the band, so it needs every per-vertex input the shorts have.
+  for(const name of Object.keys(c.shorts.geometry.attributes))if(!['uv','uv2','color','tangent'].includes(name))assert.ok(trunk.geometry.attributes[name],'waistband carries shader input '+name);
   for(let i=0;i<src.length;i+=3){a.fromBufferAttribute(trunk.geometry.attributes.position,i);b.fromBufferAttribute(c.shorts.geometry.attributes.position,src[i]);rest.push([i,a.distanceTo(b)]);}
   let drift=0,at='';for(const [mode,move,phase] of poses){if(e.arena.mode!==mode)e.arena.setTarget(mode);const t=phase*1.22;if(mode==='rope')e.arena.update(t*4,move,'one_two');else c.update(t,move,'one_two');c.root.updateMatrixWorld(true);
-   for(const [i,d0] of rest){const d=c.skinPoint(trunk,i,a).distanceTo(c.skinPoint(c.shorts,src[i],b));if(Math.abs(d-d0)>drift){drift=Math.abs(d-d0);at=[species,move,phase].join(' ');}}}
+   for(const [i,d0] of rest){const d=c.skinPoint(trunk,i,a).distanceTo(c.skinPoint(c.shorts,src[i],b));assert.ok(Number.isFinite(d),'finite waistband vertex');if(Math.abs(d-d0)>drift){drift=Math.abs(d-d0);at=[species,move,phase].join(' ');}}}
   report[species+' waistband offset drift from the shorts (m)']=+drift.toFixed(4)+' at '+at;assert.ok(drift<.004,'waistband stays on the shorts in every pose: '+drift.toFixed(4)+' '+at);}
  if(process.env.DEBUG_FIT)console.log(species,JSON.stringify(Object.fromEntries(Object.entries(dbg).map(([k,v])=>[k,+v.toFixed(3)]))));report[species+' strap worst body penetration (m)']=+worst.toFixed(4)+' at '+where;
  report[species+' front plate worst intrusion (m)']=+plateWorst.toFixed(4)+' at '+plateWhere;assert.ok(plateWorst<.004,'body and gloves stay behind the front plate: '+plateWorst.toFixed(4)+' '+plateWhere);

@@ -152,3 +152,5 @@
 @media(max-height:600px) and (min-width:600px){.game-dialog.game-store[data-free=true]{grid-template-rows:32px auto minmax(0,1fr) 36px 30px;grid-template-areas:'header header' 'note note' 'preview shelf' 'balance detail' 'close close'}.game-dialog.game-store .store-free-note{padding:2px 8px;font-size:10px}}
 /* Wide, tall screens: a shorter preview gives the 3x2 product grid room for real-size thumbnails. */
 @media(min-width:600px) and (min-height:601px){.game-dialog.game-store .store-preview,.game-dialog.game-store .store-preview #stageContainer.game-preview-live{height:clamp(160px,22dvh,240px)!important}}
+/* GOTR-0029 follow-up: the balance is set dir=ltr (digits and coin), so its logical inset resolved to the right in Hebrew and covered the Fight label; pin it to the left there. */
+[dir=rtl] .loadouts-balance{inset-inline-end:auto;right:auto;left:14px}
