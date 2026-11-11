@@ -35,9 +35,7 @@
   // How each playable mission starts and what it measures. Hooks: imp(run, hit), frame(run, frame, dt).
   const playerOn = () => !!window.app?.engine?.player?.enabled;
   const DEFS = {
-    first_stance: { kind: 'training', mode: 'rabbit', technique: 'random', duration: 60,
-      // The sparring partner's punch lands on the Fighter's glove or arm: a held guard.
-      imp: (r, h) => { if (playerOn() && h.actor === 'rabbit' && (h.blocked || ['glove', 'arm'].includes(h.kind))) r.value++; } },
+    // first_stance (guard hold) stays "Coming soon": the sparring partner did not reliably throw at a guarding Fighter in testing, so no honest signal yet.
     one_two_mitts: { kind: 'training', mode: 'pads', duration: 60,
       imp: (r, h) => { if (playerOn() && h.actor === 'lion' && h.receiver === 'pads' && !h.blocked && (h.move === 'jab' || h.move === 'cross')) r.value++; } },
     bag_power: { kind: 'training', mode: 'heavy', duration: 60,

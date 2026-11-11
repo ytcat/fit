@@ -24,7 +24,7 @@ const openTown = p => p.evaluate(() => ringfighterGame.open('adventure', { onRea
         return { rows: rows.length, soon: rows.filter(x => x.querySelector('.adv-soon-pill')).map(x => x.dataset.mission), starts: rows.filter(x => x.querySelector('.adv-mini')).length, stars: c.querySelector('.adv-town-total').textContent, boss: c.querySelector('.adv-boss-gate').textContent, bossBtn: c.querySelector('.adv-boss .adv-go')?.textContent, within: r.bottom <= d.bottom + 1 && r.top >= d.top, minBtn: Math.min(...[...c.querySelectorAll('button')].filter(x => x.offsetParent).map(x => x.getBoundingClientRect().height)), stageH: Math.round(document.querySelector('.adv-stage').getBoundingClientRect().height), hScroll: c.scrollWidth > c.clientWidth + 1, dir: document.querySelector('dialog[open]').dir };
       });
       console.log(tag, 'card', JSON.stringify(card));
-      assert.equal(card.rows, 9); assert.deepEqual(card.soon, ['heavy_bag_van', 'snoring_guard']); assert.equal(card.starts, 7);
+      assert.equal(card.rows, 9); assert.equal(card.starts, 6);
       assert.ok(/0 \/ 27/.test(card.stars) && /5/.test(card.boss) && /25%/.test(card.boss), JSON.stringify(card));
       assert.ok(card.within && card.minBtn >= 32 && !card.hScroll, 'card layout ' + JSON.stringify(card));
       if (SHOTS && full) await p.screenshot({ path: `${SHOTS}/oldtown-${name}-${lang}-list.png`, timeout: 300000 });
@@ -58,7 +58,7 @@ const openTown = p => p.evaluate(() => ringfighterGame.open('adventure', { onRea
       if (SHOTS && full) await p.screenshot({ path: `${SHOTS}/oldtown-${name}-${lang}-updated.png`, timeout: 300000 });
       if (full) {
         // 3. every other playable mission starts its activity with a goal strip (and quits cleanly)
-        for (const [id, mode] of [['first_stance', 'rabbit'], ['bag_power', 'heavy'], ['roll_under_hook', 'pads'], ['rope_rhythm', 'rope'], ['teach_the_kid', 'heavy'], ['morning_sparring', 'fight']]) {
+        for (const [id, mode] of [['bag_power', 'heavy'], ['roll_under_hook', 'pads'], ['rope_rhythm', 'rope'], ['teach_the_kid', 'heavy'], ['morning_sparring', 'fight']]) {
           await p.evaluate(i => document.querySelector(`[data-mission=${i}] .adv-mini`).click(), id);
           await wait(p, () => document.getElementById('advGoal'));
           const st = await p.evaluate(() => ({ strip: document.getElementById('advGoal').innerText, mode: app.engine.targetMode, active: !!app.engine.career.active, lesson: !!window.AcademyStage?.state }));

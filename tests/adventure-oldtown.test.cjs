@@ -14,9 +14,9 @@ const town = A.missions.filter(m => m.chapter === 1);
 assert.equal(town.length, 9);
 for (const m of town) {
   if (D[m.id]) assert.ok(['training', 'help'].includes(m.type) || m.id === 'morning_sparring', m.id + ' type');
-  else assert.equal(m.type, 'funny', m.id + ' is not playable yet, so it must be one of the two new mini-games');
+  else assert.ok(m.type === 'funny' || m.id === 'first_stance', m.id + ' is not playable yet');
 }
-assert.deepEqual(Object.keys(D).sort(), ['bag_power', 'first_stance', 'morning_sparring', 'one_two_mitts', 'roll_under_hook', 'rope_rhythm', 'teach_the_kid']);
+assert.deepEqual(Object.keys(D).sort(), ['bag_power', 'morning_sparring', 'one_two_mitts', 'roll_under_hook', 'rope_rhythm', 'teach_the_kid']);
 
 const run = id => ({ id, value: 0 });
 const stars = r => A.starsFor(r.id, r.value);
@@ -51,13 +51,6 @@ const pad = (move, extra = {}) => ({ actor: 'lion', receiver: 'pads', kind: 'pad
   for (let i = 0; i < 4; i++) D.roll_under_hook.frame(r, { defences: 1 }, .016); D.roll_under_hook.frame(r, { defences: 0 }, .016);
   assert.equal(stars(r), 1);
   for (let i = 0; i < 6; i++) D.roll_under_hook.frame(r, { defences: 1 }, .016); assert.equal(stars(r), 3);
-}
-// First stance: partner punches caught on the glove or arm while the Fighter plays.
-{
-  const r = run('first_stance'), caught = kind => ({ actor: 'rabbit', receiver: 'lion', kind, blocked: kind === 'glove' });
-  D.first_stance.imp(r, caught('head')); assert.equal(r.value, 0, 'a punch that lands is not a held guard');
-  D.first_stance.imp(r, caught('glove')); D.first_stance.imp(r, caught('arm')); D.first_stance.imp(r, caught('glove'));
-  assert.equal(stars(r), 3);
 }
 // Rope rhythm: the longest stretch with a jump at least every 1.5 s (the rope has no miss; the coach sets the beat).
 {
