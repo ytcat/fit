@@ -1,0 +1,5 @@
+{"seed":11,"full":{"rabbit":6.82,"lion":8.3},"samples":{"0":[0,0],"5":[0.23,0.57],"10":[1,1],"15":[1,1],"20":[1,1]},"end":23,"landed":{"lion":5,"rabbit":5},"used":{"lion":0,"rabbit":0}}
+{"seed":18,"full":{"lion":7.97,"rabbit":8.3},"samples":{"0":[0,0],"5":[0.56,0.39],"10":[1,1],"15":[1,1],"20":[1,1]},"end":23,"landed":{"lion":4,"rabbit":4},"used":{"lion":0,"rabbit":0}}
+{"seed":25,"full":{"rabbit":7.48,"lion":12.12},"samples":{"0":[0,0],"5":[0.23,0.57],"10":[0.77,1],"15":[1,1],"20":[1,1]},"end":23,"landed":{"lion":2,"rabbit":6},"used":{"lion":0,"rabbit":0}}
+{"seed":32,"full":{"rabbit":7.33,"lion":9.1},"samples":{"0":[0,0],"5":[0.22,0.56],"10":[1,1],"15":[1,1],"20":[1,1]},"end":23,"landed":{"lion":2,"rabbit":3},"used":{"lion":0,"rabbit":0}}
+{"fighters":8,"filled":8,"meanFirstFull":8.4,"firsts":[8.3,6.82,7.97,8.3,12.12,7.48,9.1,7.33]}
