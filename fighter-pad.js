@@ -62,6 +62,8 @@
  const SHIELD='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8 4.8 5.6v5.6c0 4.6 3 8.6 7.2 10 4.2-1.4 7.2-5.4 7.2-10V5.6z" fill="currentColor" opacity=".9"/><path d="M12 6.2v12" stroke="rgb(0 0 0/.35)" stroke-width="1.6"/></svg>';
  const KEYS={straight:'J',hook:'K',uppercut:'L',guard:'↑'};
  const make=(tag,cls)=>{const n=document.createElement(tag);if(cls)n.className=cls;return n;};
+ // Write only what changed: the pad repaints ten times a second on phones.
+ const put=(n,attr,value)=>{if(n.getAttribute(attr)!==value)n.setAttribute(attr,value);},text=(n,value)=>{if(n.textContent!==value)n.textContent=value;},off=(n,value)=>{if(n.disabled!==!!value)n.disabled=!!value;};
  const familyOf=id=>!id?null:/^(jab|cross|tap_)/.test(id)?'straight':/^(hook|rear_hook|double_)/.test(id)?'hook':/^(uppercut|rear_uppercut|triple_)/.test(id)?'uppercut':id==='guard'?'guard':/^slip/.test(id)?'up':id==='roll'?'down':id==='step_forward'?'forward':id==='step_back'?'back':null;
 
  function boot(){
@@ -170,18 +172,19 @@
   }
 
   /* Combo chips mirror the hidden Combos page (same list, same lock/active states, same digit keys). */
-  function railMoves(){const mc=document.getElementById('manualControls');return mc?.dataset.page==='combos'?[...mc.querySelectorAll('.manual-rail .manual-move')]:[];}
+  // With combos equipped the pad keeps to the combos (and More); the loadout button is the call to action only when none are equipped.
+  function railMoves(){const mc=document.getElementById('manualControls'),all=mc?.dataset.page==='combos'?[...mc.querySelectorAll('.manual-rail .manual-move')]:[];return all.some(b=>!b.dataset.meta)?all.filter(b=>b.dataset.inputMove!=='ui_combo_loadout'):all;}
   function paintChips(){
    const rail=railMoves(),key=rail.map(b=>b.dataset.inputMove+'='+b.textContent).join('|');
    if(key!==chipKey){chipKey=key;chips.replaceChildren();let digit=0;
-    for(const src of rail){const id=src.dataset.inputMove,meta=!!src.dataset.meta,b=make('button','fp-chip'),faceNode=make('span','fp-chip-face'),text=make('span','fp-chip-text');b.type='button';b.dataset.inputMove=id;if(meta)b.dataset.meta='true';text.dir='auto';
-     text.textContent=src.textContent.replace(/\s*·\s*🔒\s*$/,'');faceNode.append(text);
+    for(const src of rail){const id=src.dataset.inputMove,meta=!!src.dataset.meta,b=make('button',id==='ui_combo_more'?'fp-chip fp-chip-more':'fp-chip'),faceNode=make('span','fp-chip-face'),name=make('span','fp-chip-text');b.type='button';b.dataset.inputMove=id;if(meta)b.dataset.meta='true';name.dir='auto';
+     name.textContent=src.textContent.replace(/\s*·\s*🔒\s*$/,'');faceNode.append(name);
      if(!meta&&++digit<=3){const k=make('kbd','fp-key');k.textContent=String(digit);k.setAttribute('aria-hidden','true');faceNode.append(k);}
      b.append(faceNode);b.addEventListener('click',()=>chip(id));chips.append(b);}
    }
    const byId=new Map(rail.map(b=>[b.dataset.inputMove,b]));
-   for(const b of chips.children){const src=byId.get(b.dataset.inputMove);if(!src)continue;b.disabled=src.disabled;b.dataset.locked=src.dataset.locked||'false';b.dataset.active=src.dataset.active||'false';b.classList.toggle('academy-next',src.classList.contains('academy-next'));b.setAttribute('aria-label',src.getAttribute('aria-label')||src.textContent);b.title=src.title||'';}
-   chips.hidden=!rail.length;
+   for(const b of chips.children){const src=byId.get(b.dataset.inputMove);if(!src)continue;off(b,src.disabled);put(b,'data-locked',src.dataset.locked||'false');put(b,'data-active',src.dataset.active||'false');if(b.classList.contains('academy-next')!==src.classList.contains('academy-next'))b.classList.toggle('academy-next');put(b,'aria-label',src.getAttribute('aria-label')||src.textContent);put(b,'title',src.title||'');}
+   if(chips.hidden!==!rail.length)chips.hidden=!rail.length;
   }
 
   /* Visibility, placement and the portrait safe frame */
@@ -248,14 +251,14 @@
     arrows.up.cap.textContent=t.slip;arrows.down.cap.textContent=t.roll;arrows.up.b.setAttribute('aria-label',t.slipFull);arrows.down.b.setAttribute('aria-label',t.rollFull);
     buttons.guard.b.setAttribute('aria-label',t.guard+' — '+t.hold);buttons.guard.b.title=t.guard+' — '+t.hold;
    }
-   for(const dir of ['left','right']){const forward=stepFor(dir,facing)==='step_forward',a=arrows[dir];a.cap.textContent=forward?t.forward:t.back;a.b.setAttribute('aria-label',forward?t.stepIn:t.stepOut);a.b.dataset.step=forward?'in':'out';}
+   for(const dir of ['left','right']){const forward=stepFor(dir,facing)==='step_forward',a=arrows[dir];text(a.cap,forward?t.forward:t.back);put(a.b,'aria-label',forward?t.stepIn:t.stepOut);put(a.b,'data-step',forward?'in':'out');}
    const nextHand=hands.hand(now),active=familyOf(b.input),flash=lastFlash&&now<lastFlash.until?lastFlash:null;
    for(const [id,{b:btn,label}] of Object.entries(buttons)){
-    btn.disabled=!can;btn.dataset.active=String(active===id);if(id!=='guard'){btn.dataset.next=nextHand;btn.setAttribute('aria-label',label.textContent+' — '+(nextHand==='lead'?t.lead:t.rear));btn.title=t.hands;}
-    btn.dataset.flash=flash&&flash.control===id?(flash.ok?'ok':'no'):'';
+    off(btn,!can);put(btn,'data-active',String(active===id));if(id!=='guard'){put(btn,'data-next',nextHand);put(btn,'aria-label',label.textContent+' — '+(nextHand==='lead'?t.lead:t.rear));put(btn,'title',t.hands);}
+    put(btn,'data-flash',flash&&flash.control===id?(flash.ok?'ok':'no'):'');
    }
-   for(const [dir,{b:btn}] of Object.entries(arrows)){const fam=dir==='up'||dir==='down'?dir:btn.dataset.step==='in'?'forward':'back';btn.disabled=!can;btn.dataset.active=String(active===fam);}
-   dpad.dataset.disabled=String(!can);
+   for(const [dir,{b:btn}] of Object.entries(arrows)){const fam=dir==='up'||dir==='down'?dir:btn.dataset.step==='in'?'forward':'back';off(btn,!can);put(btn,'data-active',String(active===fam));}
+   put(dpad,'data-disabled',String(!can));
    paintChips();layout();
   }
   // The camera director keeps placing the camera; in portrait the pad only shifts and widens the lens (setFrame).
