@@ -610,6 +610,19 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Tests:** new `tests/camera-front.test.cjs`; `tests/camera-director.test.cjs` rope assertion changed on purpose from side-on to front.
 - **Evidence:** `qa/gotr-0047/` — real app (`browser.cjs`, `results.json`): ceremony with the lock on (phone 402×690) and off (desktop 1366×768) and locked rope (phone): camera direction vs the subjects' facing = 1.000 in all three (1 = straight in front); screenshots `ceremony-locked-phone.webp`, `ceremony-free-desktop.webp`, `rope-front-lock-phone.webp` show both fighters and the referee from the front with the winner's hand raised, and the lion jumping rope seen from the front with the button "Front lock". Found on the way: after the bout the World window opens over the ceremony (`dialogsOverCeremony`), so players miss it — fixed by UX R2's result card (GOTR-0031 change #1). Tests: `tests/camera-front.test.cjs`, `tests/camera-director.test.cjs` pass.
 
+### GOTR-0048 — Realistic rope jumping: real technique, several exercises by level
+- **Reported:** 2026-11-11 with three YouTube Shorts as reference (`_R_YnM8wsro`, `pHwDFfgjwhg`, `S_1TLFc1uzE`)
+- **Status:** OPEN — queued for the next free agent slot (animation/realism)
+- **Priority:** P1
+- **Area:** Rope training / animation realism
+- **Reported behavior / request:** "Investigate those rope jumping techniques and make the player jump in the same ways, different exercises in different levels. Look at the hands, the head, the legs, how he holds the rope, how he looks and stands. The current player looks artificial; imitate how a real person moves."
+- **Note:** youtube.com is blocked by this environment's network policy, so the videos could not be opened here; the owner can upload screen recordings (frame analysis as done for GOTR-0027/0037) or allow the domain.
+- **Target technique (boxing rope skipping):** upright torso, head neutral and eyes forward, shoulders relaxed and low; elbows close to the ribs, hands at hip height about a hand's width out, the rope turned by the wrists (small circles), not the arms; low jumps (2–5 cm) on the balls of the feet, heels never touch, soft knees; rope handles held loosely in the fingers; breathing rhythm and slight sway.
+- **Exercises by level (proposal):** 1 basic two-foot bounce; 2 alternate-foot boxer skip; 3 side-to-side and front-back hops; 4 boxer shuffle (light weight shift, one foot leading); 5 high knees and running in place; 6 criss-cross; 7 double unders; 8 free-style combination. Each with its own rhythm, unlocked by level later (all open during development).
+- **Acceptance criteria:** measured jump height, wrist circle radius, elbow-to-ribs distance and heel contact match the targets; side-by-side frame strips with the owner's references (once uploaded); every exercise loops without foot sliding or rope clipping through the body; existing rope tests pass.
+- **Implementation:** Not started.
+- **Evidence:** Not yet available.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
