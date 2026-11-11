@@ -1,0 +1,43 @@
+/* Adventure tab (GOTR-0008 slice A): Gloryland map inside the game dialog. Tokens only. */
+.game-dialog.adv-dialog{width:min(1180px,98vw);height:min(92dvh,900px);display:flex;flex-direction:column;gap:8px;padding:12px;overflow:hidden}
+.adv-stage{position:relative;flex:1 1 auto;min-height:260px;border-radius:var(--gr-radius-m,12px);overflow:hidden;background:var(--gr-bg,#0a0e14);touch-action:none;user-select:none;-webkit-user-select:none}
+.adv-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.adv-status{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:var(--gr-text-muted,#9aa7bb)}
+.adv-pins{position:absolute;inset:0;pointer-events:none}
+.adv-pin{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;pointer-events:auto;background:none;border:0;padding:0;margin:0;font:inherit;color:var(--gr-text,#f3f6fb);cursor:pointer;min-height:40px}
+.adv-tag{display:flex;align-items:center;gap:7px;padding:4px 10px 4px 4px;border-radius:999px;background:rgb(14 19 28 / .92);border:1px solid rgb(255 255 255 / .12);box-shadow:0 6px 16px rgb(0 0 0 / .35);white-space:nowrap}
+[dir=rtl] .adv-tag{padding:4px 4px 4px 10px}
+.adv-badge{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#1a1206;background:var(--gr-gold,#f4c152);box-shadow:0 0 0 2px rgb(14 19 28),0 0 0 3.5px var(--gr-gold,#f4c152)}
+.adv-current .adv-badge{color:var(--gr-accent-ink,#fff);background:var(--gr-accent,#e63946);box-shadow:0 0 0 2px rgb(14 19 28),0 0 0 3.5px var(--gr-accent,#e63946)}
+.adv-side .adv-badge{border-radius:7px;background:#5fd0c7;box-shadow:0 0 0 2px rgb(14 19 28),0 0 0 3px #5fd0c7;font-size:12px}
+.adv-place .adv-badge{width:20px;height:20px;font-size:11px}
+.adv-txt{display:flex;flex-direction:column;line-height:1.12;text-align:start}
+.adv-name{font-weight:750;font-size:13px}
+.adv-sub{font-size:11px;color:var(--gr-text-muted,#9aa7bb)}
+.adv-stem{width:2px;height:18px;background:linear-gradient(rgb(255 255 255 / .85),rgb(255 255 255 / 0))}
+.adv-dot{width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgb(255 255 255 / .25)}
+.adv-current .adv-dot{background:var(--gr-accent,#e63946)}
+.adv-pin:focus-visible .adv-tag{outline:2px solid var(--gr-gold,#f4c152);outline-offset:2px}
+.adv-tools{position:absolute;inset-inline-start:8px;bottom:8px;display:flex;gap:6px;align-items:center}
+.adv-seg{display:flex;border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-s,8px);overflow:hidden;background:rgb(14 19 28 / .9)}
+.adv-seg-b,.adv-chip{font:inherit;font-size:13px;min-height:var(--gr-control-h-s,36px);padding:0 12px;border:0;color:var(--gr-text,#f3f6fb);background:transparent;cursor:pointer}
+.adv-seg-b[aria-pressed=true]{background:var(--gr-accent,#e63946);color:var(--gr-accent-ink,#fff);font-weight:700}
+.adv-chip{border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-s,8px);background:rgb(14 19 28 / .9)}
+.adv-card{flex:none;display:grid;gap:8px;padding:12px;border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-m,12px);background:var(--gr-surface-2,#1a2230)}
+.adv-card[hidden]{display:none}
+.adv-card-head{display:flex;align-items:center;gap:10px}
+.adv-card-titles{flex:1;min-width:0}
+.game-dialog .adv-card h3{margin:0;font-size:18px}
+.adv-kicker,.adv-sub-line,.adv-soon{margin:0;font-size:13px;color:var(--gr-text-muted,#9aa7bb)}
+.adv-card-close{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--gr-border,#2b364a);background:var(--gr-surface-3,#243044);color:var(--gr-text,#f3f6fb);font-size:18px;cursor:pointer}
+.adv-facts{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;font-size:14px}
+.adv-facts dt{color:var(--gr-text-muted,#9aa7bb)}
+.adv-facts dd{margin:0}
+.adv-actions{display:flex;flex-wrap:wrap;gap:8px}
+.adv-go{min-height:var(--gr-control-h,44px);background:var(--gr-accent,#e63946);color:var(--gr-accent-ink,#fff);font-weight:750}
+.adv-go.adv-alt{background:var(--gr-surface-3,#243044);color:var(--gr-text,#f3f6fb)}
+.adv-hint{margin:0;font-size:12px;color:var(--gr-text-muted,#9aa7bb)}
+.adv-card:not([hidden])~.adv-hint{display:none}
+@media (max-width:520px){.game-dialog.adv-dialog{padding:8px;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0}.adv-sub{display:none}.adv-card{max-height:46%;overflow:auto}}
+/* Rivals, cup and events stay one tap from the Fight tab (GOTR-0044) */
+.game-nav.adv-nav4{grid-template-columns:repeat(4,minmax(0,1fr))}
