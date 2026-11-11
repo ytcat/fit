@@ -11,7 +11,7 @@
  // How far the boxer steps in before each bent-arm punch or roll (see LionCoach `advance`).
  // GOTR-0032: a power shot drives THROUGH the mitt face (metres past it, into the pad) instead of easing to a
  // stop on it, and the struck mitt pops back by type (peak about 0.7 x depth x force).
- const driveThrough={hook:.07,rear_hook:.07,uppercut:.045,rear_uppercut:.045},popDepth={jab:.085,cross:.09,hook:.08,rear_hook:.085,uppercut:.08,rear_uppercut:.085};
+ const driveThrough={hook:.05,rear_hook:.05,uppercut:.045,rear_uppercut:.045},popDepth={jab:.085,cross:.09,hook:.095,rear_hook:.10,uppercut:.08,rear_uppercut:.085};
  const boxerAdvance={hook:.15,rear_hook:.19,uppercut:.12,rear_uppercut:.12,roll:.20};
  const mittSequence=['jab','cross','roll','uppercut','rear_hook','rear_uppercut','roll','hook'];
  const mittCues={};
