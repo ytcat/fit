@@ -662,6 +662,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** In progress.
 - **Evidence:** Pending.
 
+### GOTR-0051 — Real boxing stance: lead glove and lead foot forward
+- **Reported:** 2026-11-11 (reference photo of two people doing pad work; not stored in the repo)
+- **Status:** IN PROGRESS (agent `smooth-motion-3`, together with the whole-body punch drive)
+- **Priority:** P1
+- **Area:** Animation / stance
+- **Reported behavior / request:** "I don't like how he stands. The gloves have to be left in front of the right, same with the legs."
+- **Expected behavior (orthodox):** left foot forward and right foot back, about shoulder width and staggered, rear heel slightly raised, knees soft; torso turned about 30–45° (bladed); lead (left) glove in front at eye/cheek height, rear (right) glove back at the chin; elbows in. Same in guard, shadowboxing, mitt work, bag and fights, both species; punches start and return to this stance.
+- **Acceptance criteria:** measured lead-to-rear glove offset along the facing direction, foot stagger and torso angle in guard for both species; front and side screenshots before/after; punch range tests pass.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
