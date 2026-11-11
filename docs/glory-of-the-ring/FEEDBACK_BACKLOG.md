@@ -450,6 +450,18 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** In progress.
 - **Evidence:** Pending.
 
+### GOTR-0034 — One set of words for the three characters
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (part of UX release R1, agent `ux-r1`)
+- **Priority:** P1
+- **Area:** UI copy / terminology
+- **Owner's definitions:** **Coach** = the rabbit who holds the mitts. **Fighter** = the main character (the player's boxer). **Opponent** = whoever the fighter faces in sparring and in a fight.
+- **Expected behavior:** Every player-facing text in EN/HE/RU uses these three words with these meanings only. Today the app also says "coach" for the player's own boxer ("Lion coach", "using lion coach", auto-control called coach mode, "Coach could not load"); those become Fighter (or "Auto" for automatic control). Code identifiers such as `engine.coach` stay as they are (internal only). Docs and agent briefs use the same words.
+- **Acceptance criteria:** A search of player-visible strings finds "coach"/"מאמן"/"тренер" only where it means the mitt-holder; screenshots of the first screen, Train, mitt training and Fight in EN/HE/RU.
+- **Open point:** When the player chooses Rabbit as the fighter, who holds the mitts must be checked in the engine (the coach is a rabbit today).
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
