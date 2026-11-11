@@ -32,8 +32,8 @@
   for(let i=0;i<bins;i++){const t=i/bins*TAU,dx=Math.sin(t),dz=Math.cos(t);for(let k=0;k<hull.length;k++){const a=hull[k],b=hull[(k+1)%hull.length],ex=b[0]-a[0],ez=b[1]-a[1],den=dx*ez-dz*ex;if(Math.abs(den)<1e-9)continue;const s=(a[0]*ez-a[1]*ex)/den,u=(a[0]*dz-a[1]*dx)/den;if(s>0&&u>=-1e-6&&u<=1+1e-6)r[i]=Math.max(r[i],s);}}
   return r;}
  // Bind-pose points of the wearer around one bone, as [x,z] pairs per y window, in that bone's frame.
- function slices(coach,bone,meshes,windows){const bi=coach.bones.indexOf(bone),inv=coach.skeleton.boneInverses[bi],out=windows.map(()=>[]),v=new THREE.Vector3(),m=new THREE.Matrix4();
-  for(const mesh of meshes){if(!mesh?.geometry?.attributes?.position)continue;if(mesh.isSkinnedMesh)m.multiplyMatrices(inv,mesh.bindMatrix);else{mesh.updateMatrix();m.copy(mesh.matrix);}const P=mesh.geometry.attributes.position;
+ function slices(coach,bone,meshes,windows,pre){const bi=coach.bones.indexOf(bone),inv=coach.skeleton.boneInverses[bi],out=windows.map(()=>[]),v=new THREE.Vector3(),m=new THREE.Matrix4();
+  for(const mesh of meshes){if(!mesh?.geometry?.attributes?.position)continue;if(mesh.isSkinnedMesh)m.multiplyMatrices(inv,mesh.bindMatrix);else{mesh.updateMatrix();m.copy(mesh.matrix);}if(pre)m.premultiply(pre);const P=mesh.geometry.attributes.position;
    for(let i=0;i<P.count;i++){v.fromBufferAttribute(P,i).applyMatrix4(m);for(let k=0;k<windows.length;k++)if(v.y>=windows[k][0]&&v.y<=windows[k][1])out[k].push(v.x,v.z);}}
   return out;}
  // A closed, tapered band around a bone: rings[k] = radius per direction at heights ys[k].
@@ -118,6 +118,9 @@
   return mesh;
  }
  const headFits=new WeakMap();
+ // Band centre height (in the pitched frame) and pitch per rig: the front edge clears the brows and the
+ // sides pass under the ears (GOTR-0030: the old level band sat on the eyes).
+ const HEAD_FIT={lion:{yc:.215,tilt:.21},rabbit:{yc:.21,tilt:.28}};
  // Flat cloth ribbon with real thickness along a path; width runs along `side`, ends cut in a swallowtail.
  function ribbon(points,side,w0,w1,thick,notch=.6){const curve=new THREE.CatmullRomCurve3(points),n=18,pos=[],nor=[],idx=[],ring=[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
   for(let i=0;i<=n;i++){const s=i/n,p=curve.getPoint(s),t=curve.getTangent(s),w=w0+(w1-w0)*s,across=side.clone().addScaledVector(t,-side.dot(t)).normalize(),out=new THREE.Vector3().crossVectors(t,across).normalize();
@@ -125,16 +128,20 @@
   for(let i=0;i<n;i++)for(let k=0;k<4;k++){const a=i*4+k,b=i*4+(k+1)%4;idx.push(a,a+4,b,b,a+4,b+4);}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setIndex(idx);return g;}
  // Head bands are fitted to the convex hull of the forehead slice (bind pose, head bone).
- function headFit(coach,ys){const key='head'+ys.join();let cache=headFits.get(coach);if(!cache)headFits.set(coach,cache={});if(cache[key])return cache[key];const bins=72,head=coach.joints.head;
-  const s=slices(coach,head,[coach.skin],[[ys[0]-.006,ys[1]],[ys[0],ys[2]],[ys[1],ys[2]+.006]]),rings=s.map(xz=>hullRadii(xz,bins).map(r=>r+.0045));
+ // Pitch about a pivot on the bone axis at the band's height, so the band ring stays centred on that axis.
+ const pitch=(a,y)=>new THREE.Matrix4().makeTranslation(0,y,0).multiply(new THREE.Matrix4().makeRotationX(a)).multiply(new THREE.Matrix4().makeTranslation(0,-y,0));
+ // Head bands are fitted in a frame pitched by `tilt` (front up), like a real band that rests on the
+ // forehead above the brows and drops to the back of the skull; the group is pitched back by -tilt.
+ function headFit(coach,ys,tilt=0){const key='head'+ys.join()+'|'+tilt;let cache=headFits.get(coach);if(!cache)headFits.set(coach,cache={});if(cache[key])return cache[key];const bins=72,head=coach.joints.head;
+  const s=slices(coach,head,[coach.skin],[[ys[0]-.006,ys[1]],[ys[0],ys[2]],[ys[1],ys[2]+.006]],tilt?pitch(tilt,ys[1]):null),rings=s.map(xz=>hullRadii(xz,bins).map(r=>r+.0045));
   return cache[key]=band(ys,rings,bins);}
  // Outer surface of the lion's mane at rest along a direction (plus the guides' sway margin).
- function maneRadius(coach,theta,y0,y1){const rest=coach.maneRest;if(!rest)return 0;let r=0;const dx=Math.sin(theta),dz=Math.cos(theta);for(let i=0;i<rest.length;i+=3){const x=rest[i],y=rest[i+1],z=rest[i+2];if(y<y0||y>y1)continue;const along=x*dx+z*dz,off=Math.abs(x*dz-z*dx);if(off<.035)r=Math.max(r,along);}return r?r-.045:0;}
- function headband(coach,design){const k=materials(),rabbit=coach.species==='rabbit',side=design==='side',h=side?(rabbit?.044:.054):(rabbit?.034:.04),yc=rabbit?.186:.2,ys=[yc-h/2,yc,yc+h/2],B=headFit(coach,ys),T=side?.0065:.005,cloth=[],trim=[];
+ function maneRadius(coach,theta,y0,y1,tilt=0,pivot=0){const rest=coach.maneRest;if(!rest)return 0;let r=0;const dx=Math.sin(theta),dz=Math.cos(theta),ct=Math.cos(tilt),st=Math.sin(tilt);for(let i=0;i<rest.length;i+=3){const x=rest[i],y=pivot+(rest[i+1]-pivot)*ct-rest[i+2]*st,z=(rest[i+1]-pivot)*st+rest[i+2]*ct;if(y<y0||y>y1)continue;const along=x*dx+z*dz,off=Math.abs(x*dz-z*dx);if(off<.035)r=Math.max(r,along);}return r?r-.045:0;}
+ function headband(coach,design){const k=materials(),rabbit=coach.species==='rabbit',side=design==='side',h=side?(rabbit?.044:.054):(rabbit?.034:.04),fit=HEAD_FIT[rabbit?'rabbit':'lion'],tilt=fit.tilt,yc=fit.yc+(side?(h-(rabbit?.034:.04))/2:0),ys=[yc-h/2,yc,yc+h/2],B=headFit(coach,ys,tilt),T=side?.0065:.005,cloth=[],trim=[];
   cloth.push({g:strap(B,ys[0],ys[2],T,.002,72)});
   if(side){for(const y of [ys[0]+.005,ys[2]-.005])trim.push({g:piping(B,y,T+.0004,.0018,72)});cloth.push({g:piping(B,yc,T+.0002,.0022,72)});}
   // Knot: at the back (ribbon) or over the left temple (bandana); on a lion it sits on the mane surface.
-  const theta=side?-2.05:Math.PI,f=B.frame(theta,yc,T),mane=maneRadius(coach,theta,yc-.04,yc+.04),o=f.o.clone();if(mane){const r=Math.hypot(o.x,o.z);o.multiplyScalar(Math.max(1,mane/r));o.y=yc;}
+  const theta=side?-2.05:Math.PI,f=B.frame(theta,yc,T),mane=maneRadius(coach,theta,yc-.04,yc+.04,tilt,yc),o=f.o.clone();if(mane){const r=Math.hypot(o.x,o.z);o.multiplyScalar(Math.max(1,mane/r));o.y=yc;}
   const knot=new THREE.Matrix4().makeBasis(f.t,f.u,f.n).setPosition(o),place=m=>new THREE.Matrix4().multiplyMatrices(knot,m);
   cloth.push({g:new THREE.SphereGeometry(1,12,8),m:place(M(0,0,.006,.5,side?.022:.017,side?.017:.014,.011))});
   for(const s of [-1,1])cloth.push({g:new THREE.TorusGeometry(side?.011:.009,.0045,6,12,Math.PI*1.3),m:place(M(s*.016,.002,.004,s>0?-.6:Math.PI-.6+1.3,1,1,.6))});
@@ -142,7 +149,7 @@
   const down=new THREE.Vector3(0,-1,0),back=f.n.clone(),across=f.t.clone(),start=o.clone().addScaledVector(back,.008);
   for(const [s,len] of side?[[-1,.11],[1,.085]]:[[-1,.2],[1,.17]]){const pts=[];for(let i=0;i<=4;i++){const a=i/4;pts.push(start.clone().addScaledVector(across,s*(.008+a*(side?.05:.03))).addScaledVector(down,a*len).addScaledVector(back,.012*Math.sin(a*Math.PI)+a*(side?.03:.012)));}
    cloth.push({g:ribbon(pts,across,side?.03:.026,side?.034:.03,T*.8)});}
-  const group=new THREE.Group();for(const [parts,mat,name] of [[cloth,side?k.navy:k.ribbon,'cloth'],[trim,k.cream,'trim']]){if(!parts.length)continue;const mesh=new THREE.Mesh(merge(parts),mat);mesh.name='Head band '+name;mesh.castShadow=true;group.add(mesh);}
+  const group=new THREE.Group();pitch(-tilt,yc).decompose(group.position,group.quaternion,group.scale);for(const [parts,mat,name] of [[cloth,side?k.navy:k.ribbon,'cloth'],[trim,k.cream,'trim']]){if(!parts.length)continue;const mesh=new THREE.Mesh(merge(parts),mat);mesh.name='Head band '+name;mesh.castShadow=true;group.add(mesh);}
   return group;}
  // Knot and two short tails on each fitted arm ribbon, carried by the upper-arm bone at the
  // ribbon's lateral (rest-pose top) edge, so they lie along the arm toward the elbow.

@@ -12,7 +12,21 @@ for(const species of ['lion','rabbit']){e.targetMode='none';e.roster.select(spec
  for(const id of ['champion_belt','heritage_belt']){A.look(c,[id]);const g=c.root.getObjectByName('Cosmetic '+id);assert.ok(g?.visible,id+' visible');let tris=0,meshes=0;g.traverse(n=>{if(n.isMesh){meshes++;tris+=n.geometry.attributes.position.count/3;}});assert.ok(meshes<=3,'belt draws in at most three calls');assert.ok(tris<9000,id+' triangle budget '+tris);report[species+' '+id]={meshes,tris};assert.equal(g.parent,c.joints.hips,'belt rides the pelvis bone');}
  for(const id of ['headband','bandana']){A.look(c,[id,'armbands']);const g=c.root.getObjectByName('Cosmetic '+id);let tris=0,meshes=0;g.traverse(n=>{if(n.isMesh){meshes++;tris+=n.geometry.attributes.position.count/3;}});assert.equal(g.parent,c.joints.head,'headband rides the head bone');assert.ok(meshes<=2&&tris<4000,id+' cheap: '+meshes+' calls '+tris+' tris');report[species+' '+id]={meshes,tris};
   // The cloth band clears the bind-pose head surface everywhere (convex hull + clearance).
-  const P=c.skin.geometry.attributes.position,inv=c.skeleton.boneInverses[c.bones.indexOf(c.joints.head)],v=V();let inside=0;const band=g.children[0].children[0].geometry.attributes.position;for(let i=0;i<band.count;i++){v.fromBufferAttribute(band,i);if(Math.hypot(v.x,v.z)<.06)inside++;}assert.equal(inside,0,'band has no collapsed vertices');}
+  const P=c.skin.geometry.attributes.position,inv=c.skeleton.boneInverses[c.bones.indexOf(c.joints.head)],v=V();let inside=0;const band=g.children[0].children[0].geometry.attributes.position;for(let i=0;i<band.count;i++){v.fromBufferAttribute(band,i);if(Math.hypot(v.x,v.z)<.06)inside++;}assert.equal(inside,0,'band has no collapsed vertices');
+  // GOTR-0030: the band rests on the forehead: its lowest point in front of the face stays above the eyes,
+  // lids and brows (with their facial acting) and no band vertex enters an ear, in guard, punches, slip and roll.
+  const head=c.joints.head,box=n=>{n.geometry.computeBoundingBox();n.updateMatrix();return n.geometry.boundingBox.clone().applyMatrix4(n.matrix).getCenter(V());};
+  const feats=head.children.filter(n=>{if(!n.isMesh||!n.geometry)return false;const m=box(n);return m.z>.1&&Math.abs(m.x)<.16&&m.y>.12&&m.y<.25;}),ears=[];
+  assert.ok(feats.filter(n=>n.userData.eye).length>=2,'eyes found on the '+species);
+  head.traverse(n=>{if(!n.isMesh||n.geometry?.type!=='SphereGeometry')return;const m=new THREE.Matrix4();for(let p=n;p&&p!==head;p=p.parent){p.updateMatrix();m.premultiply(p.matrix);}const o=V().setFromMatrixPosition(m);if(Math.abs(o.x)>.06&&o.y>.2&&o.z<.06&&o.z>-.08)ears.push(m.invert());});
+  assert.ok(ears.length>=2,'ears found on the '+species);
+  let low=9,top=-9,earHits=0;const hi=new THREE.Matrix4(),m=new THREE.Matrix4();
+  for(const [move,phase] of [['guard',.25],['jab',.45],['cross',.45],['hook',.45],['uppercut',.45],['slip',.45],['roll',.45]]){c.update(phase*1.22,move,'one_two');c.root.updateMatrixWorld(true);hi.copy(head.matrixWorld).invert();
+   for(const f of feats){const P=f.geometry.attributes.position;m.multiplyMatrices(hi,f.matrixWorld);for(let i=0;i<P.count;i++)top=Math.max(top,v.fromBufferAttribute(P,i).applyMatrix4(m).y);}
+   g.traverse(n=>{if(!n.isMesh)return;const P=n.geometry.attributes.position;m.multiplyMatrices(hi,n.matrixWorld);for(let i=0;i<P.count;i++){v.fromBufferAttribute(P,i).applyMatrix4(m);if(v.z>.08&&Math.abs(v.x)<.12)low=Math.min(low,v.y);for(const ear of ears)if(v.clone().applyMatrix4(ear).length()<1)earHits++;}});}
+  report[species+' '+id].browClearance=+(low-top).toFixed(4);
+  assert.ok(low-top>=.008,id+' must sit above the eyes and brows on the '+species+': clearance '+(low-top).toFixed(4)+' m');
+  assert.equal(earHits,0,id+' must pass under the ears on the '+species);}
  for(const side of ['L','R'])assert.ok(c.joints['arm'+side].children.some(n=>n.name==='Arm ribbon knot '+side&&n.visible),'arm ribbon knot on the upper-arm bone '+side);
  A.look(c,['champion_belt','heritage_belt']);for(const side of ['L','R'])assert.equal(c.joints['arm'+side].getObjectByName('Arm ribbon knot '+side).visible,false,'knots hide with their ribbons');assert.equal(c.root.getObjectByName('Cosmetic champion_belt').visible,false,'only one belt is worn at a time');
  const B=A.fit.belt(c),[yb,,yt]=B.ys,T=A.fit.strapThickness;
@@ -30,4 +44,4 @@ for(const species of ['lion','rabbit']){e.targetMode='none';e.roster.select(spec
  e.arena.setTarget('none');
 }
 console.log(JSON.stringify(report,null,1));
-console.log('PASS modelled belts: one per wearer, ≤3 draw calls, triangle budget, strap clears skin and shorts in guard, punches, slips, rolls, steps and jump rope for lion and rabbit');
+console.log('PASS head bands above the eyes and brows and under the ears; modelled belts: one per wearer, ≤3 draw calls, triangle budget, strap clears skin and shorts in guard, punches, slips, rolls, steps and jump rope for lion and rabbit');
