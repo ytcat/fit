@@ -16,7 +16,13 @@
 .career-backup-group{margin-top:10px;border-top:1px solid var(--gr-border,#2b364a);padding-top:4px}
 .career-backup-group summary{display:flex;align-items:center;min-height:var(--gr-control-h-s,36px);font-size:13px;color:var(--gr-text-muted,#9aa7bb);cursor:pointer}
 .career-backup-group .career-backup{margin-top:4px;padding-top:0;border-top:0}
-@media (max-height:520px){.career-fighter img{max-width:72px}.career-welcome .career-fighter-picker{margin-top:6px}.career-fighter{padding:6px 6px 8px}}
+@media (max-height:520px){
+ .career-welcome .career-dialog-intro{display:none}
+ .career-welcome .career-fighter-picker{margin-top:4px}
+ .career-fighter{grid-template-columns:auto 1fr;justify-items:start;align-items:center;column-gap:10px;row-gap:0;padding:6px 10px;text-align:start}
+ .career-fighter img{grid-row:span 2;max-width:56px}
+ .career-welcome .career-create{margin:8px 0 2px;gap:8px}
+}
 
 /* Auto is the secondary choice; while Auto runs, Play (take control) is outlined in the accent colour. */
 .ringside-toolbar .ringside-control[data-mode=auto]{border-color:var(--gr-accent,#e63946);color:var(--gr-text,#f3f6fb);box-shadow:inset 0 0 0 1px var(--gr-accent,#e63946)}
