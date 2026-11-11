@@ -987,7 +987,12 @@
       // Exercise cadence: hips start first, relaxed hand accelerates into reach,
       // then a quicker recoil leaves a readable reset before the next repetition.
       const handPhase=phase-.055;
-      const strike=straight?(handPhase<.17?0:handPhase<.36?smooth(clamp((handPhase-.17)/.19)**1.35):
+      // GOTR-0024: the hand leaves the guard smoothly, reaches its cruise
+      // speed early and carries it into the last centimetres of the reach,
+      // stopping there (on the target, or at lockout) within ~2 frames. The
+      // old eased curve had slowed to ~20% of its peak where straights land.
+      const cruise=x=>{x=clamp(x);const a=.45,e=.94,area=a/2+(e-a)+(1-e)/2;if(x<a){const u=x/a;return a*(u*u*u-u*u*u*u/2)/area;}if(x<e)return (a/2+x-a)/area;const u=(x-e)/(1-e);return (a/2+e-a+(1-e)*(u-u*u*u+u*u*u*u/2))/area;};
+      const strike=straight?(handPhase<.16?0:handPhase<.36?cruise((handPhase-.16)/.20):
         handPhase<.42?1:1-smooth((handPhase-.42)/(options.straightRecovery??.27))):envelope(phase,.055);
       const soloUpper=move.includes('uppercut')&&!options.uppercutBagTarget&&!options.upperWristHeight&&!options.advance;
       const prepare=smooth((phase-(soloUpper?.02:.06))/(options.loadDuration??(soloUpper?.20:.16)));
@@ -1066,9 +1071,10 @@
           // follows the body through a forward arc; it is never first parked
           // at 90 degrees and then spun around a stationary shoulder.
           const load=smooth((phase-.06)/.16)*(1-smooth((phase-.24)/.14));
-          const driveHook=smooth((phase-.23)/.24)*(1-smooth((phase-.57)/.22));
+          // GOTR-0024: drive and arc carry their speed into the target (cruise).
+          const driveHook=cruise((phase-.23)/.24)*(1-smooth((phase-.57)/.22));
           const equipment=options.target||options.knuckleTarget;
-          const swing=smooth((phase-(equipment?.19:.17))/(equipment?.32:.40));
+          const swing=cruise((phase-(equipment?.19:.17))/(equipment?.32:.40));
           const active=smooth((phase-.12)/(equipment?.32:.24))*(1-smooth((phase-.57)/.24));
           const rotation=driveHook-.28*load;
           crouch=.035*load+.016*driveHook;
@@ -1151,6 +1157,10 @@
       }
       // Equipment punches commit the pelvis and back before shoulder extension.
       // Modes author body drive alongside their calibrated contact targets.
+      // GOTR-0024: a blocked blow drives the struck glove back and down
+      // towards the chin and rocks the shoulders, then the guard recovers.
+      const guardJolt=options.hitReaction?.part==='guard'?clamp(options.hitReaction.amount||0):0;
+      if(guardJolt>0){const struck=(options.hitReaction.side||1)<0?lead:rear,other=struck===lead?rear:lead;struck.add(V(0,-.018,-.065).multiplyScalar(guardJolt));other.add(V(0,-.006,-.022).multiplyScalar(guardJolt));trunkPitch-=.045*guardJolt;forward-=.022*guardJolt;chestYaw+=(options.hitReaction.side||1)*.05*guardJolt;}
       const power=options.power||1;
       hipYaw*=power;chestYaw*=power;forward*=power;
       crouch+=options.stanceDrop||0;
@@ -1198,7 +1208,9 @@
       }
       // Keep the chin behind the lead shoulder through jab extension.
       j.head.rotation.x+=((options.chinTuck||0)*drive+(straight?.045*strike:0));
-      if(hit.part==='head'){j.head.rotation.x-=(hit.move?.includes('uppercut')?.32:.28)*hurt;j.head.rotation.y-=(hit.side||1)*(hit.move?.includes('uppercut')?.07:.24)*hurt;j.neck.rotation.z+=(hit.side||1)*.08*hurt;}
+      // GOTR-0024: the head snaps along the line of the blow: straights and
+      // uppercuts lift the chin, hooks turn and tilt it away.
+      if(hit.part==='head'){const hook=hit.move?.includes('hook'),upper=hit.move?.includes('uppercut');j.head.rotation.x-=(upper?.34:hook?.14:.28)*hurt;j.head.rotation.y-=(hit.side||1)*(upper?.07:hook?.34:.16)*hurt;j.neck.rotation.z+=(hit.side||1)*(hook?.13:.07)*hurt;}
       if(hit.part==='body')j.head.rotation.x+=.10*hurt;
       j.head.rotation.x+=(options.down||0)*.25;
       if(presentation){
