@@ -1,0 +1,30 @@
+phone en new: detail="First Rhythm / Jab → Cross / 🔒 Finish any activity · 0/1"
+phone he new: detail="קצב ראשון / ג׳אב → קרוס / 🔒 השלימו פעילות אחת · 0/1"
+phone ru new: detail="Первый ритм / Джеб → Кросс / 🔒 Завершите любое занятие · 0/1"
+phone buy: {"label":"Buy · 20 ◈","confirm":"Buy Corner Turn? / Balance after: 85 ◈ / Cancel / Pay 20 ◈","during":105,"before":105,"after":85,"owned":true,"cardState":"Owned","detailBtn":"Use in training","balance":"85 ◈","header":"85 ◈","ledger":1}
+phone lab: {"found":true,"fightLabel":"Fight · 0/3","disabledBefore":true,"balance":"85 ◈","buyButtons":["Buy · 40 ◈","Buy · 40 ◈","Buy · 70 ◈","Buy · 120 ◈ (disabled)"]}
+phone run: {"equip":true,"visible":true,"seq":"combo_three"}
+phone reload: {"owned":true,"training":["corner_turn"],"coins":85}
+small en new: detail="First Rhythm / Jab → Cross / 🔒 Finish any activity · 0/1"
+small he new: detail="קצב ראשון / ג׳אב → קרוס / 🔒 השלימו פעילות אחת · 0/1"
+small ru new: detail="Первый ритм / Джеб → Кросс / 🔒 Завершите любое занятие · 0/1"
+small buy: {"label":"Buy · 20 ◈","confirm":"Buy Corner Turn? / Balance after: 85 ◈ / Cancel / Pay 20 ◈","during":105,"before":105,"after":85,"owned":true,"cardState":"Owned","detailBtn":"Use in training","balance":"85 ◈","header":"85 ◈","ledger":1}
+small lab: {"found":true,"fightLabel":"Fight · 0/3","disabledBefore":true,"balance":"85 ◈","buyButtons":["Buy · 40 ◈","Buy · 40 ◈","Buy · 70 ◈","Buy · 120 ◈ (disabled)"]}
+small run: {"equip":true,"visible":true,"seq":"combo_three"}
+small reload: {"owned":true,"training":["corner_turn"],"coins":85}
+land en new: detail="First Rhythm / Jab → Cross / 🔒 Finish any activity · 0/1"
+land he new: detail="קצב ראשון / ג׳אב → קרוס / 🔒 השלימו פעילות אחת · 0/1"
+land ru new: detail="Первый ритм / Джеб → Кросс / 🔒 Завершите любое занятие · 0/1"
+land buy: {"label":"Buy · 20 ◈","confirm":"Buy Corner Turn? / Balance after: 85 ◈ / Cancel / Pay 20 ◈","during":105,"before":105,"after":85,"owned":true,"cardState":"Owned","detailBtn":"Use in training","balance":"85 ◈","header":"85 ◈","ledger":1}
+land lab: {"found":true,"fightLabel":"Fight · 0/3","disabledBefore":true,"balance":"85 ◈","buyButtons":["Buy · 40 ◈","Buy · 40 ◈","Buy · 70 ◈","Buy · 120 ◈ (disabled)"]}
+land run: {"equip":true,"visible":true,"seq":"combo_three"}
+land reload: {"owned":true,"training":["corner_turn"],"coins":85}
+desk en new: detail="First Rhythm / Jab → Cross / 🔒 Finish any activity · 0/1"
+desk he new: detail="קצב ראשון / ג׳אב → קרוס / 🔒 השלימו פעילות אחת · 0/1"
+desk ru new: detail="Первый ритм / Джеб → Кросс / 🔒 Завершите любое занятие · 0/1"
+desk buy: {"label":"Buy · 20 ◈","confirm":"Buy Corner Turn? / Balance after: 85 ◈ / Cancel / Pay 20 ◈","during":105,"before":105,"after":85,"owned":true,"cardState":"Owned","detailBtn":"Use in training","balance":"85 ◈","header":"85 ◈","ledger":1}
+desk lab: {"found":true,"fightLabel":"Fight · 0/3","disabledBefore":true,"balance":"85 ◈","buyButtons":["Buy · 40 ◈","Buy · 40 ◈","Buy · 70 ◈","Buy · 120 ◈ (disabled)"]}
+desk run: {"equip":true,"visible":true,"seq":"combo_three"}
+desk reload: {"owned":true,"training":["corner_turn"],"coins":85}
+COMBO PURCHASE ASSERTIONS PASSED
+exit 0

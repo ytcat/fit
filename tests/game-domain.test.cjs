@@ -142,4 +142,35 @@ function grant(s,id,more){const result=s.award(event(s,id,more));assert.ok(resul
  // Saves written before lessons existed load unchanged.
  const old=setup();grant(old.s,'pre-lesson');old.s.gameAction({type:'combo-buy',comboId:'corner_turn'});const oldRaw=old.s.export(),oldStore=new CareerStore(old.disk);assert.equal(oldStore.export(),oldRaw);assert.deepEqual(oldStore.game().combos.owned,['first_rhythm','corner_turn']);assert.equal(D.lessonPassed(oldStore.game(),'first_rhythm'),false);assert.equal(pass(oldStore,'first_rhythm').coins,15,'an activity-earned combo can still collect its lesson reward once');
 }
+{
+ // Shop (GOTR-0001 / GOTR-0004): card/detail states, confirm-then-pay, one-tap equip, reload; every product kind uses the same rule.
+ const Shop=require('../game-shell.js'),A=require('../game-accessories.js'),{s,disk}=setup(),g=()=>s.game(),coins=()=>s.wallet().coins;
+ const classic=D.catalog.find(c=>c.id==='gloves_default'),gloves=D.catalog.find(c=>c.id==='gloves_midnight'),first=D.combos.find(c=>c.id==='first_rhythm'),corner=D.combos.find(c=>c.id==='corner_turn'),ribbon=A.catalog.find(c=>c.price>0);
+ assert.deepEqual([Shop.kind(gloves),Shop.kind(corner),Shop.kind(ribbon)],['gear','combo','accessory']);
+ assert.equal(Shop.state(classic,g(),coins()),'equipped');assert.equal(Shop.state(gloves,g(),coins()),'short');assert.equal(Shop.short(gloves,coins()),gloves.price);
+ assert.equal(Shop.state(first,g(),coins()),'locked','free combo not yet earned is locked');assert.equal(Shop.state(corner,g(),coins()),'short');assert.equal(Shop.state(ribbon,g(),coins()),'short');
+ for(const lang of ['en','he','ru',undefined])for(const c of D.combos){const hint=Shop.unlock(c,lang);assert.ok(hint.length>0&&hint.trim().split(/\s+/).length<=4,'unlock hint in four words or fewer: '+lang+' '+c.id+' "'+hint+'"');}
+ assert.equal(Shop.unlock(first,'en'),'Finish any activity');
+ // Insufficient coins: the store refuses with an actionable message and nothing changes.
+ const poor=s.gameAction(Shop.buy(gloves));assert.equal(poor.ok,false);assert.match(poor.error,/Not enough coins/);assert.equal(coins(),0);
+ grant(s,'shop-1');grant(s,'shop-2');grant(s,'shop-3');const start=coins();assert.equal(start,105);
+ assert.equal(Shop.state(first,g(),coins()),'owned','earned by the first activity');
+ for(const item of [gloves,corner,ribbon])assert.equal(Shop.state(item,g(),coins()),'price');
+ // Confirm shows the balance after; paying twice (double tap) charges once.
+ assert.equal(Shop.after(gloves,coins()),start-gloves.price);
+ assert.equal(s.gameAction(Shop.buy(gloves)).ok,true);assert.equal(s.gameAction(Shop.buy(gloves)).ok,false);assert.equal(coins(),start-gloves.price,'no double charge');
+ assert.equal(Shop.state(gloves,g(),coins()),'owned');assert.equal(g().equipment.gloves,'gloves_default','buying does not equip by itself');
+ assert.deepEqual(Shop.wear(gloves,g(),'lion'),{type:'equip',slot:'gloves',itemId:'gloves_midnight'});assert.equal(s.gameAction(Shop.wear(gloves,g(),'lion')).ok,true);
+ assert.equal(Shop.state(gloves,g(),coins()),'equipped');assert.equal(Shop.state(classic,g(),coins()),'owned');
+ // Combo: buy, one tap joins the Training loadout; accessory: buy, one tap wears it.
+ assert.equal(s.gameAction(Shop.buy(corner)).ok,true);assert.equal(Shop.state(corner,g(),coins()),'owned');
+ const wearCombo=Shop.wear(corner,g(),'lion');assert.deepEqual(wearCombo,{type:'combo',comboId:'corner_turn',mode:'training',enabled:true,species:'lion'});assert.equal(s.gameAction(wearCombo).ok,true);assert.equal(Shop.state(corner,g(),coins()),'equipped');assert.deepEqual(g().combos.training,['corner_turn']);
+ assert.equal(s.gameAction(Shop.buy(ribbon)).ok,true);assert.equal(s.gameAction(Shop.buy(ribbon)).ok,false);assert.equal(Shop.state(ribbon,g(),coins()),'owned');assert.equal(s.gameAction(Shop.wear(ribbon,g())).ok,true);assert.equal(Shop.state(ribbon,g(),coins()),'equipped');
+ const spent=gloves.price+corner.price+ribbon.price;assert.equal(coins(),start-spent);assert.equal(g().ledger.filter(t=>t.type==='spend').length,3,'one spend row per purchase');
+ // Full loadouts: the one-tap equip hands over to Loadouts instead of failing.
+ assert.equal(Shop.wear(corner,{combos:{training:[1,2,3,4,5],fight:[1,2,3]}}),null);assert.equal(Shop.wear(corner,{combos:{training:[1,2,3,4,5],fight:[]}}).mode,'fight');
+ // Reload keeps purchases, equipment and states.
+ const reloaded=new CareerStore(disk),rg=reloaded.game(),rc=reloaded.wallet().coins;assert.equal(rc,start-spent);
+ assert.deepEqual([gloves,classic,corner,ribbon,first].map(i=>Shop.state(i,rg,rc)),['equipped','owned','equipped','equipped','owned']);
+}
 console.log('PASS R1 catalog, ledger, migration, idempotence beyond 200, purchase/equip, profile isolation, watch guardrails, four unlock routes, loadout slots, atomic failure, backup recovery, import validation, bounded local evidence history and Academy lesson rewards (pay once, unlock, reload/backup, forged rows rejected)');
