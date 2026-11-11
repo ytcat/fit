@@ -1025,16 +1025,16 @@
       const guardTightness=clamp(options.guardTightness||0),guardCover=clamp(options.guardCover||0);
       // GOTR-0051: how much of the bladed orthodox guard shows. Full in the guard; an action blends out of it as it
       // starts and back into it on the way home, so each technique keeps its own geometry at the strike.
-      // options.stance scales it (the mitt coach holds pads square to the fighter: 0).
-      const stanceWeight=(options.stance??1)*(move==='speedbag'?0:move==='guard'||move==='step'?1:1-smooth((phase-.02)/.16)*(1-smooth((phase-.56)/.28)));
+      // options.stance turns it on (1) where a station uses it; off by default (demos, sparring station, mitt coach).
+      const stanceWeight=(options.stance??0)*(move==='speedbag'?0:move==='guard'||move==='step'?1:1-smooth((phase-.02)/.16)*(1-smooth((phase-.56)/.28)));
       // The rear glove keeps its place at the chin unless it punches; the forward lead glove comes back to the
       // cheek for any punch (it covers while the rear hand throws) and for an active block.
       const punch=['jab','hook','uppercut','cross','rear_hook','rear_uppercut'].includes(move),block=options.guardStyle?clamp(options.brace??1):0;
-      const leadStance=(punch?stanceWeight:(options.stance??1))*(1-block),rearStance=(['cross','rear_hook','rear_uppercut'].includes(move)?stanceWeight:(options.stance??1))*(1-block);
+      const leadStance=(punch?stanceWeight:(options.stance??0))*(1-block),rearStance=(['cross','rear_hook','rear_uppercut'].includes(move)?stanceWeight:(options.stance??0))*(1-block);
       // Stagger the neutral guard; close cover still protects the cheek.
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
-      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness)+.035*leadStance,lerp(.395,.265,guardTightness)+(.08+.10*guardCover+.16*guardTightness)*leadStance).add(V(.055,.12,.020).multiplyScalar(guardCover));
-      const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness)-.03*rearStance,lerp(options.guardHeight??1.68,1.70,guardTightness)-.01*rearStance,lerp(.255,.235,guardTightness)+.02*rearStance).add(V(-.055,.12,.020).multiplyScalar(guardCover));
+      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness)+.035*leadStance,lerp(.395,.265,guardTightness)+(.08+.16*guardTightness)*leadStance).add(V(.055,.12,.020).multiplyScalar(guardCover));
+      const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness)-.03*rearStance,lerp(options.guardHeight??1.68,1.70,guardTightness)+.03*rearStance,lerp(.255,.235,guardTightness)+.02*rearStance).add(V(-.055,.12,.020).multiplyScalar(guardCover));
       const lead=leadGuard.clone(),rear=rearGuard.clone();
       const guardElbowZ=options.guardElbowBack!=null?-options.guardElbowBack:.1;
       let leadPole=V(-.6,-1,guardElbowZ),rearPole=V(.6,-1,guardElbowZ);
@@ -1208,17 +1208,18 @@
         forward-=(straight?.003:.020)*kineticLoad*kineticPower;
         crouch+=.015*kineticLoad*kineticPower;
       }
-      // GOTR-0051: bladed orthodox stance in the guard (pelvis ~13 deg, chest ~33 deg lead side forward; the turn sits in the thorax so the cross keeps its drive).
-      hipYaw+=.12+.10*stanceWeight;chestYaw+=.08+.28*stanceWeight;
+      // GOTR-0051: bladed orthodox stance in the guard (pelvis ~10 deg, chest ~33 deg lead side forward; the turn sits in the thorax so the cross keeps its drive).
+      hipYaw+=.12+.05*stanceWeight;chestYaw+=.08;const blade=.33*stanceWeight;
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
       // Spread the thoracic turn over the back instead of rotating a rigid chest.
       j.spine.rotation.set(.045+trunkPitch*.55,chestYaw*.30,trunkRoll*.60);
-      chest.rotation.set(.025+trunkPitch*.45,chestYaw*.70,trunkRoll*.40);
+      // The blade turns the ribcage, not the belly (belt and shorts stay on the pelvis line).
+      chest.rotation.set(.025+trunkPitch*.45,chestYaw*.70+blade,trunkRoll*.40);
       j.neck.position.copy(this.neckRest).add(V(0,Math.min(.045,.055*risingHit*hurt),0));
       j.neck.rotation.set(0,0,0);
       // Eyes remain on the opponent, chin tucked, rather than spinning with the chest.
-      j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw)*.90,-(trunkRoll+pelvisRoll)*.65);
+      j.head.rotation.set(.07-trunkPitch*.65,-(hipYaw+chestYaw+blade)*.90,-(trunkRoll+pelvisRoll)*.65);
       if(move==='uppercut'||move==='rear_uppercut'){
         // Head travels with the loading shoulder and rising spine; do not
         // counter-rotate away the entire upper-body wind-up.
@@ -1227,7 +1228,7 @@
         const side=move==='uppercut'?-1:1;
         j.neck.rotation.set(.06*coil-.04*launch,side*.09*coil-side*.07*launch,side*.08*coil);
         j.head.rotation.x+=.08*coil-.06*launch;
-        j.head.rotation.y=-(hipYaw+chestYaw)-j.neck.rotation.y;
+        j.head.rotation.y=-(hipYaw+chestYaw+blade)-j.neck.rotation.y;
         j.head.rotation.z+=side*.085*coil-side*.07*launch;
       }
       // Keep the chin behind the lead shoulder through jab extension.
