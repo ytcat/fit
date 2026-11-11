@@ -1,0 +1,8 @@
+phone en mitts {"meters":[{"id":"powerGauge","rect":[258,157,128,33],"text":"PowerLast 50 · Best 81"}],"overlaps":[]}
+phone he mitts {"meters":[{"id":"powerGauge","rect":[258,157,128,33],"text":"עוצמהאחרון 50 · שיא 81"}],"overlaps":[]}
+phone ru mitts {"meters":[{"id":"powerGauge","rect":[258,157,128,33],"text":"СилаУдар 50 · Рекорд 81"}],"overlaps":[]}
+phone en fight {"meters":[{"id":"gr-power-row is-fresh","rect":[26,194,153,9],"text":"Power"},{"id":"gr-power-row is-fresh","rect":[223,194,153,9],"text":"Power"}],"overlaps":[]}
+phone he fight {"meters":[{"id":"gr-power-row is-fresh","rect":[223,194,153,9],"text":"עוצמה"},{"id":"gr-power-row is-fresh","rect":[26,194,153,9],"text":"עוצמה"}],"overlaps":[]}
+phone ru fight {"meters":[{"id":"gr-power-row is-fresh","rect":[26,194,153,9],"text":"Сила"},{"id":"gr-power-row is-fresh","rect":[223,194,153,9],"text":"Сила"}],"overlaps":[]}
+small en mitts {"meters":[{"id":"powerGauge","rect":[216,157,128,33],"text":"PowerLast 50 · Best 81"}],"overlaps":[]}
+small en fight {"meters":[{"id":"gr-power-row is-fresh","rect":[26,194,132,9],"text":"Power"},{"id":"gr-power-row is-fresh","rect":[202,194,132,9],"text":"Power"}],"overlaps":[]}
