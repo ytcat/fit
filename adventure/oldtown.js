@@ -25,6 +25,7 @@
       roll_under_hook: L(`${roll} under ${n} coach ${hook}s`, `בצעו ${roll} מתחת ל-${n} הוקים של המאמן`, `${roll} под ${n} ${hook} тренера`),
       rope_rhythm: L(`${n} seconds of rope in rhythm`, `${n} שניות חבל בקצב`, `${n} секунд скакалки в ритме`),
       teach_the_kid: L(`Show the ${jab}-${cross} cleanly ${n} times`, `הדגימו ${jab}-${cross} נקי ${n} פעמים`, `Покажите ${jab}-${cross} чисто: ${n} раза`),
+      snoring_guard: L(`Dodge ${n} pillow swings, then ring the bell`, `התחמקו מ-${n} הנפות כרית ואז צלצלו בפעמון`, `Уклонитесь от ${n} взмахов подушкой и позвоните`), // story-2 hook
       heavy_bag_van: L(`Carry the bag in with at most ${n} mistakes`, `הכניסו את השק עם ${n} טעויות לכל היותר`, `Занесите мешок, ошибок не больше ${n}`),
       morning_sparring: L(`Land ${n} punches in a 30-second round`, `פגעו ${n} פעמים בסיבוב של 30 שניות`, `Нанесите ${n} ударов за раунд в 30 секунд`)
     }[id];
@@ -36,7 +37,9 @@
   // How each playable mission starts and what it measures. Hooks: imp(run, hit), frame(run, frame, dt).
   const playerOn = () => !!window.app?.engine?.player?.enabled;
   const DEFS = {
-    heavy_bag_van: { kind: 'scene', scene: 'carry_bag' }, // GOTR-0056 story set mini-game (adventure/story/story-scenes.js)
+    heavy_bag_van: { kind: 'scene', scene: 'carry_bag' },
+    snoring_guard: { kind: 'scene', scene: 'snoring_guard' }, // story-2 hook: second story-set mini-game
+    // GOTR-0056 story set mini-game (adventure/story/story-scenes.js)
     // first_stance (guard hold) stays "Coming soon": the sparring partner did not reliably throw at a guarding Fighter in testing, so no honest signal yet.
     one_two_mitts: { kind: 'training', mode: 'pads', duration: 60,
       imp: (r, h) => { if (playerOn() && h.actor === 'lion' && h.receiver === 'pads' && !h.blocked && (h.move === 'jab' || h.move === 'cross')) r.value++; } },
@@ -196,7 +199,7 @@
   // GOTR-0056: story scenes before the first mission of a beat (once per browser), and scene-type missions.
   const seen = k => { try { return localStorage.getItem('gotr-scene-' + k) === '1'; } catch { return false; } };
   const mark = k => { try { localStorage.setItem('gotr-scene-' + k, '1'); } catch { /* fine without storage */ } };
-  const PRE = { one_two_mitts: 'arrival', bag_power: 'brick' };
+  const PRE = { one_two_mitts: 'arrival', bag_power: 'brick', roll_under_hook: 'dash' }; // story-2 hook: Dash before beat 4
   function start(ctx, id) {
     const S = window.StoryScenes, d0 = DEFS[id];
     if (d0 && d0.kind === 'scene') { if (S) S.play(d0.scene, { onDone: () => { try { ctx.refresh?.(); } catch { /* sheet may be closed */ } } }); return; }
@@ -217,6 +220,7 @@
 
   // Boss: a bout in the Neighborhood Hall against an existing opponent named Brick (new species comes later).
   function bossStart(ctx) {
+    if (window.StoryScenes && !bossStart.intro) { bossStart.intro = true; window.StoryScenes.play('boss_intro', { onDone: () => { try { bossStart(ctx); } finally { bossStart.intro = false; } } }); return; } // story-2 hook: Brick blocks the door
     const e = window.app.engine, b = A().bosses.find(x => x.id === 'brick'), edge = A().bossEdge(ctx.store.game(), 'brick');
     cleanup(); run = { id: 'brick', def: { kind: 'boss' }, ctx, ended: false, mission: { titles: b.names, metric: 'wins' }, value: 0, target: 1 };
     hook(); ctx.change({ type: 'venue', venueId: 'default' });
@@ -235,7 +239,7 @@
     const entry = view.careerEntry, won = view.match.result.winner === entry.species, store = r.ctx.store, w = W();
     const res = store.gameAction({ type: 'adventure', adventure: 'boss', bossId: 'brick', won });
     toast(res.ok ? (won ? w.bossWin : w.bossLoss) : w.err + res.error, won ? 'gold' : 'bad');
-    window.AdventureStory?.show('brick', won ? 'outro' : 'lost');
+    if (!(won && res.ok && window.StoryScenes?.play('boss_outro'))) window.AdventureStory?.show('brick', won ? 'outro' : 'lost'); // story-2 hook: Pip hands over the wraps
     showNext({ kind: 'boss', won, res });
   }
   // ---- the Old Town sheet content: small icon tiles (playable first, "coming soon" last), details on tap, boss block ----

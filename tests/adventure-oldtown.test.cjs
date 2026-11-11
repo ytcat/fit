@@ -16,7 +16,7 @@ for (const m of town) {
   if (D[m.id]) assert.ok(['training', 'help'].includes(m.type) || m.id === 'morning_sparring' || D[m.id].kind === 'scene', m.id + ' type'); // GOTR-0056: funny missions play as story-set scenes
   else assert.ok(m.type === 'funny' || m.id === 'first_stance', m.id + ' is not playable yet');
 }
-assert.deepEqual(Object.keys(D).sort(), ['bag_power', 'heavy_bag_van', 'morning_sparring', 'one_two_mitts', 'roll_under_hook', 'rope_rhythm', 'teach_the_kid']);
+assert.deepEqual(Object.keys(D).sort(), ['bag_power', 'heavy_bag_van', 'morning_sparring', 'one_two_mitts', 'roll_under_hook', 'rope_rhythm', 'snoring_guard', 'teach_the_kid']);
 
 const run = id => ({ id, value: 0 });
 const stars = r => A.starsFor(r.id, r.value);
