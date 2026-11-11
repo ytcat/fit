@@ -412,14 +412,14 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0030 — Improve and align every Shop component
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (agent `store-polish`)
+- **Status:** READY FOR QA — merged (`agent/store-polish` dce010f), ships in v1.23
 - **Priority:** P1
 - **Area:** Shop / 3D cosmetics
 - **Reported behavior / request:** "Improve and align all store components. The ribbon is on the fighter's eyes, some old belts don't look good. The gloves and shoes look bad in pictures on the store. Improve all."
 - **Expected behavior:** Headband sits on the forehead above the eyes on both species; the old "cosmetic band" belt-slot items are redesigned (or retired with saves migrated safely); every Shop thumbnail (gloves, shorts, boots, belts, accessories, combos) is a clear, consistent, good-looking picture of the real item; all Shop cards, badges, buttons and spacing line up on one grid at every size.
 - **Acceptance criteria:** Multi-angle renders showing the headband above the eyes in guard and moving; before/after thumbnail sheet for every item; layout QA (9 sizes × 3 languages) with 0 issues; purchase/equip flows still pass; old saves load.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** Head ribbon and bandana refitted above the brows; the old belt-slot "cosmetic bands" became four woven waistband designs skinned to the shorts (ids, prices and saves unchanged; shown as Waistbands); every Shop thumbnail is rendered from the real 3D item (`assets/shop/`, 23 files); one card system for all categories (`game-shell.js`, `shop.css`).
+- **Evidence:** `qa/gotr-0030/` — headband now clears eyes and brows by 18 mm (lion) / 15 mm (rabbit) across 7 pose families, before it sat 21 / 33 mm below the brows; waistbands stay on the shorts in 34 poses on both species; Shop card QA 0 issues (5 sizes × EN/HE/RU × 6 categories) and `qa/gotr-0001/layout-browser.cjs` 0 issues (10 sizes × 3 languages); touched tests pass. Still weak: arm-ribbons thumbnail (opaque worn crop), lion head-ribbon knot sits on the mane, desktop thumbnails ~71 px. `qa/gotr-0004/browser.cjs` step 3 targets the pre-GOTR-0029 loadouts layout and is obsolete.
 
 ### GOTR-0031 — Map every user flow and make the first-time experience clear, simple and exciting
 - **Reported:** 2026-11-11
@@ -451,15 +451,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0033 — Free development mode: everything available, price tags kept
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (integrator)
+- **Status:** READY FOR QA — UI merged; switch turned on in v1.23
 - **Priority:** P1
 - **Area:** Shop / progression / release control
 - **Reported behavior / request:** "While we are building the app, try to make all the possibilities available, including the shop — let me buy for free, but add a price tag on the things that need to be, and only when we go live those will be locked until they are purchased or earned."
 - **Expected behavior:** One release switch. In development: every Shop item, accessory and combo can be taken for free with one tap; its normal price stays visible; a short notice says purchases are free during development; coins are still earned and shown but not spent. At go-live (switch flipped): prices are charged and locks apply until bought or earned.
 - **Acceptance criteria:** With the switch in development mode, a fresh player with 0 coins can get and equip every item and every combo; price tags remain visible in EN/HE/RU; the ledger records zero-cost development grants that validate on reload. With the switch in live mode, the same actions are refused without enough coins exactly as before; old saves load in both modes; full test suite passes.
 - **Dependencies / risks:** Shop UI is being changed by `agent/store-polish` (GOTR-0030); the UI part follows its merge. Decision at go-live: keep or revoke development grants in the owner's own save.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** Rules in `game-domain.js`/`game-accessories.js` (2d6142f); Shop and Combo loadouts UI by `agent/store-polish`: with `version.js` channel 'dev' every priced item, accessory and combo shows its price tag and a "Get free" button (no balance check, combos without the confirm row) plus a one-line development notice in EN/HE/RU.
+- **Evidence:** `tests/free-mode.test.cjs`; agent browser run at 402×690 EN/HE/RU: gloves, head ribbon and two combos taken free and equipped, coins stayed 0, all kept after reload; with the switch off nothing changes.
 
 ### GOTR-0034 — One set of words for the three characters
 - **Reported:** 2026-11-11
@@ -520,14 +520,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0039 — Combo preview in the Shop shows an empty arena
 - **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Shop → Combos → First Rhythm preview)
-- **Status:** IN PROGRESS (agent `store-polish`, together with GOTR-0030)
+- **Status:** READY FOR QA — merged, ships in v1.23
 - **Priority:** P1
 - **Area:** Shop / combo preview / camera
 - **Reported behavior / request:** "When you click on preview the screen is empty."
 - **Observed:** the preview is playing (Jab/Cross chips, Stop button) but the pane shows only the arena wall and a "Fight Night" sign; the fighter is out of frame.
 - **Expected behavior:** Every combo preview frames the whole fighter performing the combo, in the narrow phone pane and in Full view, in every arena.
 - **Acceptance criteria:** Screenshots of at least two combos at 402×690 and 1366×768 show the fighter fully in frame; EN/HE/RU.
-- **Evidence:** `qa/gotr-0039/user-v1.20-combo-preview-empty.webp` (owner's screenshot).
+- **Evidence:** `qa/gotr-0030/` — 0 issues across all 9 venues on phone in HE/RU and 3 venues × 2 combos on desktop, both views. Remaining: the phone preview pane is 112 px wide and the move chips cover the lower legs.
+- **Implementation:** Cause: venue scenery stood between the preview camera and the fighter. The combo preview now frames the fighter in every venue, in the phone pane and Full view.
 
 ### GOTR-0040 — Punch power meter in fights and training
 - **Reported:** 2026-11-11
