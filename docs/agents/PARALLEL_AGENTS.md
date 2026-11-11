@@ -80,19 +80,14 @@ Only the design agent edits existing `.css` files; everyone else puts styles in 
   lines; reformatting causes merge conflicts).
 - Do not claim anything you did not verify. Physical phones cannot be tested here; say so.
 
-## Ownership map (updated 2026-11-10 22:20 UTC) — edit only your own row
-Merged and published already (their files are free again unless listed below): `mitt-range`, `fight-range`, `academy`, `design`.
-
+## Ownership map (updated 2026-11-11) — edit only your own row
 | Agent | Owns |
 |---|---|
-| `camera` (GOTR-0019 side-view lock, GOTR-0020 fight intro; then GOTR-0017 smoothness) | `index.html` inline engine script (renderer, loop, camera), `ring-camera.js`, `fight-presentation.js`, new `camera-*.js`, new `camera.css`; may add its toggle button next to the existing camera buttons in `club-interface.js` (minimal hunk) |
-| `hud` (GOTR-0021 health bars, names, VS) | `fight-ui.js`, new `fight-hud.css`; may replace the `.fight-health*` rules in `club-interface.css` |
-| `arenas` (GOTR-0022 new arenas) | `game-venues.js`, `game-venues-ui.js`, new `arena-*.js`, `assets/venues/`, the `venueIds` list and its tests in `game-domain.js` / `tests/game-domain.test.cjs`; arena-building hunks in `fight-arena.js` only if unavoidable |
-| `gear-3d` (paused; GOTR-0002, boots of GOTR-0003) | `game-accessories.js`, `boxing-footwear.js`, `game-presentation.js`, their tests |
-| `world-content` (paused; F-010/F-013/F-014) | `game-world.js`, `game-world-ui.js`, new event/mission JSON packs, `world-missions.css`, their tests |
-| `i18n-a11y` (paused; F-019, Boxing Club wording) | `ringside-layout.js`, `career-interface.js`, `workout-experience.js`, `practice-layout.js`, `training-controls.js`, `ringfighter-controls.js`, `game-tournament-ui.js`, `game-resume-ui.js`, `boxing-routines.js` (labels only), their tests |
-| `adventure-world` (paused; GOTR-0008 prototype) | new `adventure-*.js`, `adventure.css`, `qa/gotr-0008/` only |
-| integrator | docs, backlog, versions, manifests, merges, publishing; everything not listed |
+| `punch-feel` (GOTR-0024 power, GOTR-0025 speed) | `boxing-coach-v2.js`, `contact-response.js`, `padding-deformation.js`, `boxing-routines.js`, `academy-lesson.js` (tempo windows only), impact/sound tuning hunks in `fight-arena.js` and `career-drills.js`, timing constants in `boxing-input.js`, their tests |
+| `burst` (GOTR-0005) | `boxing-fight.js`, new `burst-*.js`, new `burst.css`, `ringfighter-controls.js`; minimal additive hunks in `boxing-input.js` and `fight-arena.js` (no timing or impact changes) |
+| `gear-3d` (GOTR-0002, boots of GOTR-0003) | `game-accessories.js`, `boxing-footwear.js`, `game-presentation.js`, their tests |
+| `shop` (GOTR-0001 / GOTR-0004 finish) | `game-shell.js`, new `shop.css`, `tests/game-domain.test.cjs` (shop cases only) |
+| integrator | logo (GOTR-0023), `club-interface.js`, `assets/`, docs, backlog, versions, manifests, merges, publishing; everything not listed |
 
 All existing CSS now uses the `--gr-*` tokens defined in `design-tokens.css` with shared components in `design-system.css` (see `docs/design-system.md`). New UI must use those tokens and component classes; put new styles in your own new CSS file.
 

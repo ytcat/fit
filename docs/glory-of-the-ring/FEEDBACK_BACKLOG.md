@@ -54,7 +54,7 @@
 
 ### GOTR-0002 — Redesign championship belts, headbands and side ribbons as real wearable accessories
 - **Reported:** 2026-11-09
-- **Status:** OPEN
+- **Status:** IN PROGRESS (agent `gear-3d`, local)
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** 3D cosmetics / shop / rendering
@@ -91,7 +91,7 @@
 
 ### GOTR-0005 — Player-controlled burst / special action in PLAY and WATCH modes
 - **Reported:** 2026-11-09
-- **Status:** OPEN
+- **Status:** IN PROGRESS (agent `burst`)
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Fight controls / AI / mode parity
@@ -317,6 +317,41 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Dependencies / risks:** Arena ids are validated in the save rules; several arenas at broadcast quality is days of art work — deliver in batches, best ones first.
 - **Implementation:** `agent/arenas`: new `arena-sets.js`, `arena-gallery.css`; six selectable arenas — Street Fight, Boxing Club, The Basement (underground), Dockside Hangar, City Sports Hall (regional) and Championship Arena — each with its own architecture, baked lighting, crowd and fictional signage in EN/HE/RU. `venueIds` extended; old saves load; unknown ids rejected. No change to ring, fighters, camera framing or match state.
 - **Evidence:** `qa/gotr-0022/` (fight and wide renders of each arena, gallery at four sizes in EN/HE/RU, `cost.json`): new arenas draw 396–401 calls on desktop and 380–385 on phone (existing three: 539 / 460) at about 1.13–1.16 M triangles. New `tests/arena-sets.test.cjs`. **Limits:** crowds only sway (no applause); near-side props and crowd are hidden per camera sector, so wide shots look open on the near side; one professional mid-tier arena is still missing; no physical-phone measurement.
+
+## Intake session — 2026-11-11
+
+### GOTR-0023 — New logo: realistic hanging boxing gloves
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (integrator)
+- **Priority:** P2
+- **Area:** Branding
+- **Reported behavior / request:** "Fix and design our logo on the way, make it hanging realistic boxing gloves."
+- **Expected behavior:** A crafted mark of a pair of boxing gloves hanging by their laces (shading, laces, cuffs, stitching), used in the header, favicon and app icon; works small (16–32 px) and large, on the dark theme, without real brand marks.
+- **Acceptance criteria:** Header, favicon and offline icon updated; readable at 16 px; EN/HE/RU headers unaffected; no layout shift.
+- **Implementation:** Not started.
+- **Evidence:** Pending.
+
+### GOTR-0024 — Punches must look powerful, not like touches (Watch/coach mode and everywhere)
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (agent `punch-feel`)
+- **Priority:** P1
+- **Area:** Fight feel / animation
+- **Reported behavior / request:** "In coach mode, make punches more powerful — it looks like now the fighter is just touching the opponent, not punching it." (Coach mode = the AI-controlled Watch mode; the save records it as `control:'coach'`.)
+- **Expected behavior:** A landed punch reads as an impact: sharp acceleration into contact, body weight behind it, glove compression, a visible snap of the target's head or torso with a short recovery, a brief hit-stop/impact accent and stronger sound, scaled by punch type and power; blocked punches jolt the guard. Same in Watch and Play, fights and mitt/bag work.
+- **Acceptance criteria:** Measured before/after peak glove speed at contact and target recoil per punch type; matched before/after frame sequences; no change to who wins, damage balance or contact detection beyond what is intended and documented; no gloves through heads; reduced-motion respected for camera effects.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
+### GOTR-0025 — Faster punches, especially combinations
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (agent `punch-feel`)
+- **Priority:** P1
+- **Area:** Fight feel / timing
+- **Reported behavior / request:** "Make also a bit faster punches, specifically combinations."
+- **Expected behavior:** Single punches extend faster; combination punches flow into each other with shorter gaps (no full guard reset between linked punches), in Play, Watch, training and Academy lessons, while keeping the readable recovery after the last punch.
+- **Acceptance criteria:** Measured before/after time per punch and per combo for each combo; the Academy tempo windows still accept correct input; player input queue and FIFO behaviour unchanged; all tests pass (timing numbers updated deliberately).
+- **Implementation:** In progress.
+- **Evidence:** Pending.
 
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
