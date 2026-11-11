@@ -79,3 +79,13 @@ for(const seed of [11,12,13,14,15,16]){
 {const severity=burstFlag=>{const m=new BoxingFight({seed:61,preset:'quick'});toRound(m);const f=m.fighters.lion;f.action=null;let a;if(burstFlag){f.burst.charge=1;m.requestBurst('lion');m.burstStep('lion');a=f.action;assert.equal(a.burst,1);}else a=m.attack('lion','jab','head');f.stamina=1;return m.contact({actor:'lion',action:a.id,part:'head',speed:2.4}).severity;};
  assert.equal(severity(true),severity(false));}
 console.log('PASS burst: empty at bell, time+hit+defence charge, Watch order at action boundary only, real faster punches, recovery cost, opponent defends, Play commit, count/round/KO stop');
+
+// 9) Button view: enabled only when ready; every disabled state names its reason (EN/HE/RU words exist).
+vm.runInThisContext(fs.readFileSync('burst-ui.js','utf8'));
+{const V=(status,extra={},opts)=>BurstUI.view({status,charge:.4,step:2,total:5,final:false,...extra},opts);
+ assert.deepEqual([V('ready').enabled,V('charging').enabled,V('queued').enabled,V('active').enabled,V('bell').enabled,V('down').enabled,V('over').enabled],[true,false,false,false,false,false,false]);
+ assert.equal(V('ready',{},{paused:true}).reason,'paused');assert.equal(V('ready',{},{paused:true}).enabled,false,'pause disables Burst');assert.equal(V('active',{},{paused:true}).reason,'active');
+ assert.equal(V('queued',{},{watch:true}).reason,'ordered');assert.equal(V('queued').reason,'queued');assert.equal(V('over').reason,'round');assert.equal(V('over',{final:true}).reason,'bout');assert.equal(V('bell').icon,'bell');assert.equal(V('down').icon,'down');
+ assert.equal(V('charging').fill,.4);assert.equal(V('recover',{charge:0}).reason,'charging');assert.equal(V('active').fill,.6);assert.equal(BurstUI.view(null),null);
+ for(const lang of ['en','he','ru'])for(const k of ['burst','charging','bell','down','round','bout','paused','ordered','queued','active','tip','label','ready']){const word=BurstUI.WORDS[lang][k];assert.ok(word,lang+' '+k);if(!['tip','label'].includes(k))assert.ok(word.split(/\s+/).length<=2,'1-2 words: '+lang+' '+word);}}
+console.log('PASS burst button view: enabled only when ready, reasons for bell/count/round/bout/pause/charging, EN/HE/RU short words');
