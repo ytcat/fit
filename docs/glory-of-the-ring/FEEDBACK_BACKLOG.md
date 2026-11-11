@@ -653,7 +653,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0050 — Muscular avatar is too skinny; smoother, more realistic surface
 - **Reported:** 2026-11-11 (after v1.24)
-- **Status:** REOPENED — owner on the before/after sheets: "the after has a lot of distortion on his body, everywhere; it doesn't look realistic". Merge reverted (not shipped); rework in progress
+- **Status:** READY FOR QA — reworked (`agent/muscle-3` 81a082b) and shipped in v1.26; surface roughness (RMS neighbour-normal angle, lion torso/back/arms rest) v1.24 13.3/16.3/12.5 → 6.3/5.9/4.9 (v1.23 smooth body 6.1/5.7/5.2); girths vs v1.24 upper arm +15%/+11%, forearm +13%/+10%, chest depth +11%/+8% (lion/rabbit); the four defects in the owner's crop removed; a soft dark patch remains on the front of the abs
 - **Priority:** P1
 - **Area:** Avatars / anatomy
 - **Reported behavior / request:** "The new muscular avatar is good, but he's very skinny. He should be more built, his chest has to be bigger, his arms have to be bigger. [Stomach] please also make this a bit smoother. The muscles are good, but it now doesn't look realistic anymore." (voice-typed; "stop alarm" read as the stomach/abs)
@@ -664,7 +664,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0051 — Real boxing stance: lead glove and lead foot forward
 - **Reported:** 2026-11-11 (reference photo of two people doing pad work; not stored in the repo)
-- **Status:** IN PROGRESS (agent `smooth-motion-3`, together with the whole-body punch drive)
+- **Status:** OPEN — first attempt (33° blade, lead glove 9–22 cm ahead) broke 10 motion tests and was not merged; kept as `qa/gotr-0051/coach-stance-wip.js.txt`. Baseline measured: chest turned 11°, lead glove 3.5–5 cm ahead in training (14 cm in shadowboxing), rear heel flat
 - **Priority:** P1
 - **Area:** Animation / stance
 - **Reported behavior / request:** "I don't like how he stands. The gloves have to be left in front of the right, same with the legs."
