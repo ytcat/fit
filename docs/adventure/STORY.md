@@ -20,3 +20,9 @@ Side quest — Midnight Fairground: strongman booth challenge.
 
 ## Chapters 3–5 (outline)
 3 The Docks — underground money fights; Dash is already a name there; Iron Bull. 4 Downtown — clubs, rankings, press; Onyx. 5 Glory Hill — Dash in the semi-final, Blaze for the title.
+
+## How the story is shown (owner approved 2026-11-11)
+1. Character lines with portraits over the map and existing arenas (no boxes) — building now.
+2. Small 3D story sets built with the map's style and the game engine: bus-stop street corner, gym front door, market alley, dock pier. Short scripted scenes (5–10 s): camera move, characters walking a fixed path and gesturing, lines on screen. No videos (size, offline pack, three languages).
+3. On-rails street mini-games in the same sets, using the game pad: dodge water balloons (Slip/Duck), chase the raccoon (timing), carry the heavy bag (balance).
+Order: bus stop + gym front door for Chapter 1 (arrival, Brick and the heavy bag), then the market alley for Chapter 2. Free walking in a district stays optional for later.

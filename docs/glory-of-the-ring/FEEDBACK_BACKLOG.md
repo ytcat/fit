@@ -732,6 +732,7 @@ The user asked to run as many independent tasks in parallel as possible and to t
 | `agent/adventure-world` | Walkable 3D district prototype (not published until it meets the bar) | GOTR-0008 |
 
 Queued because they touch files being changed above: Burst (GOTR-0005), rival memory F-011, coach tactics F-012, FIFO combo-queue check from the 2026-11-08 brief (after `fight-range`); gloves and shorts designs of GOTR-0003, new fighter GOTR-0009 / F-016 (after `mitt-range`); gym station F-015, Skill Fusion F-017, performance automation F-020.
+- **Presentation (owner approved "Yes, sets + scenes"):** character lines first; then small 3D story sets (bus stop corner, gym front door, market alley, dock pier) for short scripted scenes and on-rails street mini-games; no videos; free walking optional later. Details in `docs/adventure/STORY.md`.
 
 ### Agent status — 2026-11-11 09:45 UTC (owner asked to remove duplicate agents and continue some)
 The four cloud sessions started on 2026-11-10 stopped at the 5-hour usage limit and pushed nothing. Checked against current work:
