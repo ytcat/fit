@@ -479,7 +479,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Priority:** P1
 - **Area:** Fight / Burst
 - **Reported behavior / request:** "Charging takes too long. You need to get to fully charge faster."
-- **Known cause:** v1.13 rules: +0.045 per second of round time (22 s alone), +0.10 per clean hit, +0.07 per block or evasion; the meter was designed so time alone cannot fill it in a 20 s round.
+- **Known cause:** Burst rules as published in v1.18 (commit 869ecac): +0.045 per second of round time (22 s alone), +0.10 per clean hit, +0.07 per block or evasion; the meter was designed so time alone cannot fill it in a 20 s round.
 - **Acceptance criteria:** Measured time to the first full meter in Watch fights before/after; full well before the end of a 20 s round in normal play; Burst tests updated on purpose.
 - **Implementation:** In progress.
 - **Evidence:** Pending.
