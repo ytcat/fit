@@ -1,0 +1,242 @@
+{
+ "mode": "watch",
+ "unit": "cm (negative = inside own head/torso)",
+ "runs": [
+  {
+   "fighter": "lion",
+   "coach": "rabbit",
+   "drills": {
+    "jab": {
+     "coachMitt": {
+      "d": 0.069,
+      "part": "muzzle",
+      "side": "R",
+      "t": 1.192
+     },
+     "fighterGlove": {
+      "d": 4.82,
+      "part": "muzzle",
+      "side": "R",
+      "t": 0.517
+     }
+    },
+    "cross": {
+     "coachMitt": {
+      "d": -0.633,
+      "part": "muzzle",
+      "side": "R",
+      "t": 1.658
+     },
+     "fighterGlove": {
+      "d": 5.045,
+      "part": "muzzle",
+      "side": "L",
+      "t": 1.717
+     }
+    },
+    "roll-L": {
+     "coachMitt": {
+      "d": -13.485,
+      "part": "skull",
+      "side": "R",
+      "t": 2.767
+     },
+     "fighterGlove": {
+      "d": 6.523,
+      "part": "muzzle",
+      "side": "L",
+      "t": 3.125
+     }
+    },
+    "uppercut": {
+     "coachMitt": {
+      "d": -1.165,
+      "part": "muzzle",
+      "side": "R",
+      "t": 4.675
+     },
+     "fighterGlove": {
+      "d": -22.968,
+      "part": "chest",
+      "side": "L",
+      "t": 3.833
+     }
+    },
+    "rear_hook": {
+     "coachMitt": {
+      "d": -0.732,
+      "part": "muzzle",
+      "side": "R",
+      "t": 5.842
+     },
+     "fighterGlove": {
+      "d": 0.755,
+      "part": "muzzle",
+      "side": "L",
+      "t": 5.033
+     }
+    },
+    "rear_uppercut": {
+     "coachMitt": {
+      "d": -2.49,
+      "part": "muzzle",
+      "side": "R",
+      "t": 7.075
+     },
+     "fighterGlove": {
+      "d": -18.516,
+      "part": "chest",
+      "side": "R",
+      "t": 6.233
+     }
+    },
+    "roll-R": {
+     "coachMitt": {
+      "d": -10.229,
+      "part": "skull",
+      "side": "L",
+      "t": 8.183
+     },
+     "fighterGlove": {
+      "d": 6.523,
+      "part": "muzzle",
+      "side": "L",
+      "t": 7.925
+     }
+    },
+    "hook": {
+     "coachMitt": {
+      "d": -1.651,
+      "part": "muzzle",
+      "side": "R",
+      "t": 9.25
+     },
+     "fighterGlove": {
+      "d": 1.666,
+      "part": "muzzle",
+      "side": "L",
+      "t": 8.783
+     }
+    }
+   }
+  },
+  {
+   "fighter": "rabbit",
+   "coach": "lion",
+   "drills": {
+    "jab": {
+     "coachMitt": {
+      "d": 0.069,
+      "part": "muzzle",
+      "side": "R",
+      "t": 1.192
+     },
+     "fighterGlove": {
+      "d": 4.82,
+      "part": "muzzle",
+      "side": "R",
+      "t": 0.517
+     }
+    },
+    "cross": {
+     "coachMitt": {
+      "d": -0.633,
+      "part": "muzzle",
+      "side": "R",
+      "t": 1.658
+     },
+     "fighterGlove": {
+      "d": 5.045,
+      "part": "muzzle",
+      "side": "L",
+      "t": 1.717
+     }
+    },
+    "roll-L": {
+     "coachMitt": {
+      "d": -13.485,
+      "part": "skull",
+      "side": "R",
+      "t": 2.767
+     },
+     "fighterGlove": {
+      "d": 6.523,
+      "part": "muzzle",
+      "side": "L",
+      "t": 3.125
+     }
+    },
+    "uppercut": {
+     "coachMitt": {
+      "d": -1.165,
+      "part": "muzzle",
+      "side": "R",
+      "t": 4.675
+     },
+     "fighterGlove": {
+      "d": -22.968,
+      "part": "chest",
+      "side": "L",
+      "t": 3.833
+     }
+    },
+    "rear_hook": {
+     "coachMitt": {
+      "d": -0.732,
+      "part": "muzzle",
+      "side": "R",
+      "t": 5.842
+     },
+     "fighterGlove": {
+      "d": 0.755,
+      "part": "muzzle",
+      "side": "L",
+      "t": 5.033
+     }
+    },
+    "rear_uppercut": {
+     "coachMitt": {
+      "d": -2.49,
+      "part": "muzzle",
+      "side": "R",
+      "t": 7.075
+     },
+     "fighterGlove": {
+      "d": -18.516,
+      "part": "chest",
+      "side": "R",
+      "t": 6.233
+     }
+    },
+    "roll-R": {
+     "coachMitt": {
+      "d": -10.229,
+      "part": "skull",
+      "side": "L",
+      "t": 8.183
+     },
+     "fighterGlove": {
+      "d": 6.523,
+      "part": "muzzle",
+      "side": "L",
+      "t": 7.925
+     }
+    },
+    "hook": {
+     "coachMitt": {
+      "d": -1.651,
+      "part": "muzzle",
+      "side": "R",
+      "t": 9.25
+     },
+     "fighterGlove": {
+      "d": 1.666,
+      "part": "muzzle",
+      "side": "L",
+      "t": 8.783
+     }
+    }
+   }
+  }
+ ]
+}

@@ -11,6 +11,8 @@
  // How far the boxer steps in before each bent-arm punch or roll (see LionCoach `advance`).
  // GOTR-0032: a power shot drives THROUGH the mitt face (metres past it, into the pad) instead of easing to a
  // stop on it, and the struck mitt pops back by type (peak about 0.7 x depth x force).
+ // Surface samples of the mitt's padded body (training-gear.js mitt: ellipsoid 0.132 x 0.157, face at z .066).
+ const mittShell=[];for(let a=0;a<8;a++)for(const b of [-.6,0,.6])mittShell.push(V(Math.cos(a*Math.PI/4)*.132*Math.cos(b),-.12+Math.sin(a*Math.PI/4)*.157*Math.cos(b),.02+Math.sin(b)*.065));
  const driveThrough={hook:.05,rear_hook:.05,uppercut:.045,rear_uppercut:.045},popDepth={jab:.085,cross:.09,hook:.095,rear_hook:.10,uppercut:.08,rear_uppercut:.085};
  const boxerAdvance={hook:.15,rear_hook:.19,uppercut:.12,rear_uppercut:.12,roll:.20};
  const mittSequence=['jab','cross','roll','uppercut','rear_hook','rear_uppercut','roll','hook'];
@@ -117,6 +119,15 @@
    }
    return error;
   }
+  // Deepest overlap of a mitt's padded body with its holder's head (skull, muzzle) and torso volumes, as the
+  // root-space correction that moves it 1 cm clear; null when it is already clear.
+  ownBodyOverlap(coach,pad){
+   const j=coach.joints,shapes=[[j.head,{centre:[0,.13,.03],radius:[.17,.20,.17]}],[j.head,{centre:[0,.065,.195],radius:[.135,.105,.125]}],[j.chest,{centre:[0,.13,0],radius:[.315,.25,.27]}],[j.spine,{centre:[0,.10,.015],radius:[.24,.23,.19]}]];
+   coach.root.updateMatrixWorld(true);let worst=null;
+   for(const s of mittShell){const p=pad.localToWorld(s.clone());for(const [bone,shape] of shapes){const c=this.arena.closest(p,bone,shape,0);if(c.distance<.01&&(!worst||c.distance<worst.distance))worst=c;}}
+   if(!worst)return null;const base=coach.root.worldToLocal(V()),normal=coach.root.worldToLocal(worst.normal.clone()).sub(base).normalize();
+   return normal.multiplyScalar(.01-worst.distance);
+  }
   poseTrainer(coach){
    const {phase,hook,sweepSide,move}=this.padPose,j=coach.joints;
    const rootQ=coach.root.getWorldQuaternion(Q()).invert(),feet=['L','R'].map(side=>({side,ankle:coach.point(j['foot'+side]),q:j['foot'+side].getWorldQuaternion(Q()).premultiply(rootQ),lift:0}));
@@ -167,7 +178,11 @@
      const turn=.87*feed;goal.lerp(V(i?.22:-.22,1.75,.57+closeIn),feed);palm.set((i?-1:1)*Math.sin(turn),0,Math.cos(turn));
      elbow=V((i?1:-1)*(.7-.4*feed),-.45-.55*feed,-.12-.13*feed);
     }
-    if(hook&&side!==sweepSide)goal.lerp(V(i?.22:-.22,1.74,.29+closeIn),sweep);
+    if(hook&&side!==sweepSide){
+     // GOTR-0038: the free mitt guards beside the coach's own cheek, placed from the head as it leans into
+     // the sweep (a fixed point in front of the chest ended inside the leaning head, up to 13 cm).
+     coach.root.updateMatrixWorld(true);const cheek=coach.root.worldToLocal(j.head.localToWorld(V(i?.27:-.27,.07,.17)));goal.lerp(cheek,sweep);
+    }
     if(hook&&side===sweepSide){
      // Round sweep over the ducking boxer: chamber to the outside, pronate,
      // pass across the crown and fold back. The 90-degree turn is about the
@@ -178,7 +193,9 @@
     // The struck mitt gives along its own face normal.
     goal.addScaledVector(palm,-recoil);if(catchingUpper)goal.z-=recoil*.3*ready;
     j['arm'+side].position.z+=.035*sweep+.012*catchPulse-.015*pops[i];j['arm'+side].position.y+=.045*sweep;pad.userData.palm=palm.clone();
-    errors.push(this.placeMitt(side,goal,palm,catchingUpper,elbow));palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-Math.min(.18,recoil*4);
+    errors.push(this.placeMitt(side,goal,palm,catchingUpper,elbow));
+    // GOTR-0038: a mitt never rests inside its holder's own head or torso: push it out along the surface normal.
+    for(let pass=0;pass<3;pass++){const inside=this.ownBodyOverlap(coach,pad);if(!inside)break;goal.add(inside);errors[errors.length-1]=this.placeMitt(side,goal,palm,catchingUpper,elbow);}palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-Math.min(.18,recoil*4);
    }
    const footTargets=[];for(const {side,ankle,q,lift} of feet){
     const foot=j['foot'+side],error=coach.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(side==='L'?-.08:.08,.1,1));coach.orient(foot,q);
