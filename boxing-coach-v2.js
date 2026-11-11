@@ -1074,7 +1074,7 @@
           // GOTR-0024: drive and arc carry their speed into the target (cruise).
           const driveHook=cruise((phase-.23)/.24)*(1-smooth((phase-.57)/.22));
           const equipment=options.target||options.knuckleTarget;
-          const swing=cruise((phase-(equipment?.19:.17))/(equipment?.32:.40));
+          const swing=(equipment?cruise:smooth)((phase-(equipment?.19:.17))/(equipment?.32:.40));
           const active=smooth((phase-.12)/(equipment?.32:.24))*(1-smooth((phase-.57)/.24));
           const rotation=driveHook-.28*load;
           crouch=.035*load+.016*driveHook;
