@@ -15,7 +15,7 @@ const shots=[];
 for(const species of (process.env.SPECIES||'lion,rabbit').split(','))for(const [pose,move,phase] of (process.env.POSES?JSON.parse(process.env.POSES):[['guard','guard',0],['punch','jab',.47]])){
  const res=await p.evaluate(async({species,ids,boots,move,phase,views,yaw,crop})=>{const e=app.engine;e.isPlaying=false;if(e.coach.species!==species)e.roster.select(species);await new Promise(r=>setTimeout(r,300));
   const c=e.coach;GameAccessories.look(c,ids);GamePresentation.apply(c,{gloves:'gloves_default',shorts:'shorts_default',boots:'boots_'+boots,belt:'belt_default'},GameDomain.catalog);
-  e.technique=move;e.animTime=phase*1.22;if(e.arena)e.arena.update(e.animTime,move,'one_two');else c.update(e.animTime,move,'one_two');
+  e.technique=move;e.animTime=phase*1.22;c.update(e.animTime,move,'one_two');c.root.updateMatrixWorld(true);
   const hide=[];for(const n of e.arena?.group?.children||[])if(n!==c.root&&n.visible){hide.push(n);n.visible=false;}
   const cam=e.camera,old={pos:cam.position.clone(),q:cam.quaternion.clone(),zoom:cam.zoom,aspect:cam.aspect};const root=c.root;root.updateMatrixWorld(true);
   const focus={full:[1.05,2.6],waist:[1.0,.95],head:[c.species==='rabbit'?2.05:1.95,c.species==='rabbit'?1.1:.8],arm:[1.45,1.2],boots:[.15,.6]}[crop];
