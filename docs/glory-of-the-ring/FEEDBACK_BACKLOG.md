@@ -138,7 +138,7 @@
 
 ### GOTR-0008 — Long-term 3D explorable adventure world connecting gyms, quests and boss fights
 - **Reported:** 2026-11-09
-- **Status:** APPROVED DESIGN v1 (owner, 2026-11-11: "I approve your recommendation in the artifact") — first playable slice scheduled
+- **Status:** IN DEVELOPMENT (owner, 2026-11-11: "Start building the world") — slice A Adventure tab + 3D map (agent `gloryland-map`), slice B progression core (agent `adventure-core`)
 - **Priority:** P2
 - **Delivery:** LATER — only after preceding shop, controls, Fight IQ and core milestones are implemented and verified
 - **Area:** World exploration / quests / progression
@@ -620,7 +620,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0048 — Realistic rope jumping: real technique, several exercises by level
 - **Reported:** 2026-11-11 with three YouTube Shorts as reference (`_R_YnM8wsro`, `pHwDFfgjwhg`, `S_1TLFc1uzE`)
-- **Status:** IN PROGRESS (agent `rope-real`)
+- **Status:** PAUSED by the owner (2026-11-11: "leave the rope for now, I will come back later"); work so far kept on `agent/rope-real`. Reference videos: Drive files are 34–50 MB, over the 10 MB connector limit; owner may send ≤10 MB clips later.
 - **Priority:** P1
 - **Area:** Rope training / animation realism
 - **Reported behavior / request:** "Investigate those rope jumping techniques and make the player jump in the same ways, different exercises in different levels. Look at the hands, the head, the legs, how he holds the rope, how he looks and stands. The current player looks artificial; imitate how a real person moves."
