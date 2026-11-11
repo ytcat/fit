@@ -1,0 +1,68 @@
+/* Shop (GOTR-0001 / GOTR-0004): state badges, purchase confirmation, combo demo and store look.
+   Layout mechanics (grid sizes, no-scroll phone layouts) stay in game-shell.css; this file only refines them. */
+
+/* Product cards: name first, then one state badge. Gold is for coins only. */
+.store-product{position:relative;transition:background .14s,border-color .14s,transform .14s}
+.store-product:hover{transform:translateY(-1px)}
+.store-product:active{transform:none}
+.store-product img{filter:drop-shadow(0 2px 3px rgb(0 0 0/.35))}
+.store-product span{font-weight:var(--gr-fw-bold,700)}
+.store-product small.store-badge{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.35;padding:0 6px;border-radius:var(--gr-radius-pill,999px);font-variant-numeric:tabular-nums;font-weight:var(--gr-fw-bold,700)}
+.store-badge[data-state=price],.store-badge[data-state=short]{color:var(--gr-gold,#f4c152)}
+.store-product small.store-badge[data-state=price]{background:var(--gr-gold-soft,rgb(244 193 82/.14))}
+.store-badge[data-state=owned]{color:var(--gr-text-muted,#9aa7bb);background:var(--gr-surface-3,#243044)}
+.store-badge[data-state=equipped]{color:var(--gr-success,#3ecf8e);background:var(--gr-success-soft,rgb(62 207 142/.14))}
+.store-badge[data-state=locked]{color:var(--gr-text-muted,#9aa7bb);background:transparent;font-weight:var(--gr-fw-medium,600)}
+/* Equipped items carry a quiet success edge; the selected card keeps the accent (design-system choice cards). */
+.store-product[data-state=equipped]:not([aria-pressed=true]){border-color:var(--gr-success-line,rgb(62 207 142/.5))}
+.store-product[data-state=locked] img,.store-product[data-state=short] img{opacity:.72}
+
+/* Detail row: never wraps into the footer; long names shorten instead. */
+.store-detail{flex-wrap:nowrap}
+.store-detail>strong,.store-detail>small,.store-confirm,.store-combo-info{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.store-detail>strong{flex:1 1 auto}
+.store-detail>small{flex:0 1 auto}
+.store-detail>.store-badge{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;line-height:1.3;padding:3px 8px;border-radius:var(--gr-radius-pill,999px);font-weight:var(--gr-fw-bold,700)}
+.store-detail>.store-badge[data-state=short]{background:var(--gr-gold-soft,rgb(244 193 82/.14))}
+.store-detail>.store-badge[data-state=locked]{background:var(--gr-surface-3,#243044)}
+.store-detail button{flex:none;white-space:nowrap}
+.store-detail button.store-secondary{background:var(--gr-surface-3,#243044);color:var(--gr-text,#f3f6fb);border:1px solid var(--gr-border,#2b364a);font-weight:var(--gr-fw-medium,600)}
+.store-detail button.store-secondary:hover:not(:disabled){background:var(--gr-surface-4,#2d3a50);border-color:var(--gr-border-strong,#3a475e)}
+.store-detail button.store-secondary:disabled{background:transparent;color:var(--gr-text-faint,#7c8799)}
+
+/* Purchase confirmation: item, then price → balance after, then Cancel / Pay. */
+.store-detail[data-state=confirm]{border-radius:var(--gr-radius-s,8px);background:var(--gr-surface-2,#1a2230);outline:1px solid var(--gr-gold-line,rgb(244 193 82/.45));outline-offset:2px}
+.store-confirm{flex:1 1 0;display:grid;gap:1px;padding-inline-start:6px}
+.store-confirm strong{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.store-confirm span{font-size:12px;color:var(--gr-text-muted,#9aa7bb);font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Shop messages float over the preview, so they never push the no-scroll layout. */
+.game-store .game-notice{position:absolute;z-index:30;top:48px;inset-inline:12px;margin:0;padding:8px 10px;font-size:12px;line-height:1.35;color:var(--gr-text,#f3f6fb);background:var(--gr-surface-2,#1a2230);border:1px solid var(--gr-warning-line,rgb(245 165 36/.5));box-shadow:var(--gr-shadow-2,0 8px 24px rgb(0 0 0/.38))}
+
+/* Combo demo over the live preview: move chips light up with the fighter. */
+.store-demo{position:absolute;z-index:8;inset-inline:6px;bottom:6px;display:flex;align-items:flex-end;gap:6px;pointer-events:none}
+.store-demo[hidden]{display:none}
+.store-demo-moves{flex:1 1 0;min-width:0;display:flex;flex-wrap:wrap;gap:4px}
+.store-demo-move{padding:2px 8px;font-size:11px;line-height:1.35;white-space:nowrap;color:var(--gr-text-muted,#9aa7bb);background:var(--gr-scene-chip-strong,rgb(9 12 17/.92));border:1px solid var(--gr-scene-line,rgb(255 255 255/.14));border-radius:var(--gr-radius-pill,999px);transition:background .1s,color .1s,border-color .1s}
+.store-demo-move[data-state=live]{color:var(--gr-accent-ink,#fff);background:var(--gr-accent,#e63946);border-color:var(--gr-accent,#e63946);font-weight:var(--gr-fw-bold,700)}
+.store-demo-move[data-state=done]{color:var(--gr-text,#f3f6fb);border-color:var(--gr-success-line,rgb(62 207 142/.5))}
+.game-dialog .store-demo .store-demo-play{pointer-events:auto;flex:none;min-height:32px;padding:5px 12px;font-size:12px;font-weight:var(--gr-fw-bold,700);color:var(--gr-accent-ink,#fff);background:var(--gr-accent,#e63946);border:1px solid transparent;border-radius:var(--gr-radius-pill,999px)}
+.game-dialog .store-demo .store-demo-play:hover{background:var(--gr-accent-hover,#cc2f3c)}
+.game-dialog .store-demo[data-playing=true] .store-demo-play{color:var(--gr-text,#f3f6fb);background:var(--gr-scene-chip-strong,rgb(9 12 17/.92));border-color:var(--gr-scene-line,rgb(255 255 255/.14))}
+
+/* Loadouts screen: inline confirm before a combo purchase. */
+.combo-confirm{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.combo-confirm .game-muted{flex:1 1 100%;font-variant-numeric:tabular-nums}
+
+/* Compact layouts (short phones, landscape): smaller badges and chips, same rows. */
+@media(max-height:700px) and (max-width:599px),(max-height:600px) and (min-width:600px){
+ .game-store .store-detail>.store-badge{font-size:10px;padding:2px 6px}
+ .game-store .store-confirm strong{font-size:11px}
+ .game-store .store-confirm span{font-size:10px}
+ .game-store .game-notice{top:40px;font-size:11px;padding:6px 8px}
+ .game-store .store-demo{inset-inline:4px;bottom:4px;gap:4px}
+ .game-store .store-demo-move{font-size:9px;padding:1px 5px}
+ .game-dialog.game-store .store-demo .store-demo-play{min-height:26px;padding:3px 8px;font-size:11px}
+}
+@media(max-width:599px){.store-demo{flex-direction:column;align-items:stretch}.store-demo-moves{flex:none}.game-dialog .store-demo .store-demo-play{align-self:flex-start}}
+@media(prefers-reduced-motion:reduce){.store-product,.store-demo-move{transition:none}.store-product:hover{transform:none}}
