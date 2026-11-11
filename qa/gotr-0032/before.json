@@ -1,0 +1,231 @@
+{
+ "label": "before",
+ "play": {
+  "lion": {
+   "jab": {
+    "pressed": true,
+    "landed": true,
+    "plantedSlideMax_mm": 0.536,
+    "toContact": 0.2,
+    "closing": 5,
+    "speedContactTick": 9.629,
+    "speedBefore1": 12.965,
+    "speedBefore2": 13.502,
+    "peakBefore": 15.613,
+    "approachOverPeak": 0.83,
+    "knuckleIntoPad_cm": -2.085,
+    "mittPeakDisp_cm": 3.13,
+    "mittPeakAt_ms": 242,
+    "mittBackWithin2cm_ms": 633,
+    "coachHandGive_cm": 2.738,
+    "coachElbowGive_cm": 1.87,
+    "coachShoulderGive_cm": 2.651,
+    "coachChestGive_cm": 2.537,
+    "elbowAngle": 164,
+    "extension": 0.99,
+    "reaction": {
+     "mittPop_cm": 5.19,
+     "mittPopAt_ms": 42,
+     "mittPopUnder1cm_ms": 317,
+     "coachHand_cm": 4.623,
+     "coachElbow_cm": 3.247,
+     "coachShoulder_cm": 1.172,
+     "coachChest_cm": 0.285,
+     "strikerGlove_cm": 4.669,
+     "strikerGloveAt_ms": 42
+    }
+   },
+   "cross": {
+    "pressed": true,
+    "landed": true,
+    "plantedSlideMax_mm": 0,
+    "toContact": 0.225,
+    "closing": 3.499,
+    "speedContactTick": 2.726,
+    "speedBefore1": 10.669,
+    "speedBefore2": 12.085,
+    "peakBefore": 15.982,
+    "approachOverPeak": 0.668,
+    "knuckleIntoPad_cm": -0.928,
+    "mittPeakDisp_cm": 3.806,
+    "mittPeakAt_ms": 258,
+    "mittBackWithin2cm_ms": null,
+    "coachHandGive_cm": 3.735,
+    "coachElbowGive_cm": 3.537,
+    "coachShoulderGive_cm": 4.234,
+    "coachChestGive_cm": 2.74,
+    "elbowAngle": 167,
+    "extension": 0.994,
+    "reaction": {
+     "mittPop_cm": 5.186,
+     "mittPopAt_ms": 42,
+     "mittPopUnder1cm_ms": 317,
+     "coachHand_cm": 4.586,
+     "coachElbow_cm": 3.055,
+     "coachShoulder_cm": 1.17,
+     "coachChest_cm": 0.285,
+     "strikerGlove_cm": 4.425,
+     "strikerGloveAt_ms": 33
+    }
+   },
+   "hook": {
+    "pressed": true,
+    "landed": true,
+    "plantedSlideMax_mm": 0.542,
+    "toContact": 0.3,
+    "closing": 1.094,
+    "speedContactTick": 1.683,
+    "speedBefore1": 2.091,
+    "speedBefore2": 2.878,
+    "peakBefore": 9.167,
+    "approachOverPeak": 0.228,
+    "knuckleIntoPad_cm": 0.281,
+    "mittPeakDisp_cm": 15.12,
+    "mittPeakAt_ms": 358,
+    "mittBackWithin2cm_ms": null,
+    "coachHandGive_cm": 14.051,
+    "coachElbowGive_cm": 22.435,
+    "coachShoulderGive_cm": 4.705,
+    "coachChestGive_cm": 3.641,
+    "reaction": {
+     "mittPop_cm": 2.725,
+     "mittPopAt_ms": 42,
+     "mittPopUnder1cm_ms": 217,
+     "coachHand_cm": 2.719,
+     "coachElbow_cm": 2.707,
+     "coachShoulder_cm": 1.175,
+     "coachChest_cm": 0.285,
+     "strikerGlove_cm": 2.29,
+     "strikerGloveAt_ms": 92
+    }
+   },
+   "rear_hook": {
+    "pressed": true,
+    "landed": true,
+    "plantedSlideMax_mm": 0.659,
+    "toContact": 0.308,
+    "closing": 1.094,
+    "speedContactTick": 1.898,
+    "speedBefore1": 2.348,
+    "speedBefore2": 2.86,
+    "peakBefore": 7.827,
+    "approachOverPeak": 0.3,
+    "knuckleIntoPad_cm": 0.227,
+    "mittPeakDisp_cm": 19.745,
+    "mittPeakAt_ms": 350,
+    "mittBackWithin2cm_ms": null,
+    "coachHandGive_cm": 18.531,
+    "coachElbowGive_cm": 23.61,
+    "coachShoulderGive_cm": 10.097,
+    "coachChestGive_cm": 3.634,
+    "reaction": {
+     "mittPop_cm": 2.721,
+     "mittPopAt_ms": 42,
+     "mittPopUnder1cm_ms": 217,
+     "coachHand_cm": 2.67,
+     "coachElbow_cm": 2.496,
+     "coachShoulder_cm": 1.179,
+     "coachChest_cm": 0.285,
+     "strikerGlove_cm": 2.35,
+     "strikerGloveAt_ms": 83
+    }
+   },
+   "uppercut": {
+    "pressed": true,
+    "landed": true,
+    "plantedSlideMax_mm": 2.119,
+    "toContact": 0.35,
+    "closing": 3.168,
+    "speedContactTick": 6.905,
+    "speedBefore1": 9.392,
+    "speedBefore2": 12.618,
+    "peakBefore": 29.7,
+    "approachOverPeak": 0.316,
+    "knuckleIntoPad_cm": 0.092,
+    "mittPeakDisp_cm": 33.859,
+    "mittPeakAt_ms": 458,
+    "mittBackWithin2cm_ms": null,
+    "coachHandGive_cm": 6.966,
+    "coachElbowGive_cm": 5.197,
+    "coachShoulderGive_cm": 3.989,
+    "coachChestGive_cm": 3.333,
+    "reaction": {
+     "mittPop_cm": 5.491,
+     "mittPopAt_ms": 42,
+     "mittPopUnder1cm_ms": 333,
+     "coachHand_cm": 5.388,
+     "coachElbow_cm": 5.234,
+     "coachShoulder_cm": 1.176,
+     "coachChest_cm": 0.285,
+     "strikerGlove_cm": 5.485,
+     "strikerGloveAt_ms": 50
+    }
+   },
+   "rear_uppercut": {
+    "pressed": true,
+    "landed": true,
+    "plantedSlideMax_mm": 2.119,
+    "toContact": 0.35,
+    "closing": 3.719,
+    "speedContactTick": 6.103,
+    "speedBefore1": 8.664,
+    "speedBefore2": 11.893,
+    "peakBefore": 27.554,
+    "approachOverPeak": 0.314,
+    "knuckleIntoPad_cm": 0.046,
+    "mittPeakDisp_cm": 37.295,
+    "mittPeakAt_ms": 458,
+    "mittBackWithin2cm_ms": null,
+    "coachHandGive_cm": 8.118,
+    "coachElbowGive_cm": 7.186,
+    "coachShoulderGive_cm": 7.166,
+    "coachChestGive_cm": 3.333,
+    "reaction": {
+     "mittPop_cm": 5.446,
+     "mittPopAt_ms": 42,
+     "mittPopUnder1cm_ms": 333,
+     "coachHand_cm": 5.304,
+     "coachElbow_cm": 5.071,
+     "coachShoulder_cm": 1.188,
+     "coachChest_cm": 0.285,
+     "strikerGlove_cm": 5.633,
+     "strikerGloveAt_ms": 42
+    }
+   }
+  }
+ },
+ "watch": {
+  "lion": [
+   {
+    "move": "jab",
+    "closing": 3.765,
+    "speedTick": 3.985
+   },
+   {
+    "move": "cross",
+    "closing": 2.198,
+    "speedTick": 2.04
+   },
+   {
+    "move": "uppercut",
+    "closing": 3.688,
+    "speedTick": 6.766
+   },
+   {
+    "move": "rear_hook",
+    "closing": 0.925,
+    "speedTick": 1.078
+   },
+   {
+    "move": "rear_uppercut",
+    "closing": 3.056,
+    "speedTick": 4.684
+   },
+   {
+    "move": "hook",
+    "closing": 0.886,
+    "speedTick": 1.005
+   }
+  ]
+ }
+}

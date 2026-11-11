@@ -1,0 +1,326 @@
+<title>Gloryland Adventure Design</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column; the city map is the one bold moment, everything else is quiet cards and tables.
+   Dark single theme on purpose: it matches the game (Glory of the Ring uses a dark UI). */
+:root{
+  color-scheme:dark;
+  --bg:#0a0d13; --surface:#121722; --surface-2:#192030; --line:#283043; --line-strong:#3a4560;
+  --text:#f2f4f8; --muted:#a4aec0; --faint:#7d889b;
+  --accent:#e11d2e; --accent-text:#ff7783; --gold:#f4c152; --gold-soft:rgb(244 193 82/.14);
+  --sea:#0f2a3d; --sea-deep:#0b2030; --land:#1b2331; --land-2:#222c3d; --sand:#c9a46a;
+  --t-morning:#f6b04b; --t-evening:#f07a3a; --t-night:#8b6cff; --t-neon:#ff4fa0; --t-stadium:#ffe08a; --t-side:#5fd0c7;
+  --display:"Anton","Impact","Arial Narrow",sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r-s:8px; --r-m:12px;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font:15px/1.6 var(--body);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:44px}
+h1,h2{font-family:var(--display);font-weight:400;letter-spacing:.01em;text-wrap:balance;margin:0;line-height:1.05}
+h1{font-size:clamp(44px,9vw,76px);text-transform:uppercase}
+h2{font-size:clamp(26px,5vw,34px);text-transform:uppercase}
+h3{font-size:16px;margin:0;line-height:1.3}
+p{margin:0;max-width:65ch}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lead{color:var(--muted);font-size:16px}
+section{display:grid;gap:16px;min-width:0}
+.hero{display:grid;gap:14px}
+.status{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--muted)}
+.pill.gold{border-color:rgb(244 193 82/.5);color:var(--gold);background:var(--gold-soft)}
+.pill.red{border-color:rgb(225 29 46/.6);color:var(--accent-text)}
+.decisions{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.dec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:12px 14px;display:grid;gap:4px;min-width:0}
+.dec b{font-size:13px;color:var(--gold);font-weight:600}
+.dec span{font-size:14px}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-m);background:var(--sea-deep)}
+.mapbox svg{display:block;width:100%;min-width:620px;height:auto}
+.maptoggle{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--surface);width:max-content}
+.maptoggle button{font:600 13px var(--body);color:var(--muted);background:none;border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+.maptoggle button[aria-pressed="true"]{background:var(--surface-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-strong)}
+.mapfig{margin:0;display:grid;gap:8px}
+.mapfig img{width:100%;height:auto;border-radius:var(--r-m);border:1px solid var(--line);display:block}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.chapters{display:grid;gap:12px}
+.ch{display:grid;grid-template-columns:64px 1fr;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:14px;min-width:0}
+.ch .num{font-family:var(--display);font-size:44px;line-height:1;color:var(--tc);text-align:center}
+.ch .num small{display:block;font-family:var(--body);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.ch .body{display:grid;gap:8px;min-width:0}
+.ch .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px 16px;font-size:13.5px}
+.ch .meta div{min-width:0}
+.ch .meta em{font-style:normal;color:var(--faint);display:block;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+.boss{color:var(--gold)}
+.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-m)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surface)}
+tr:last-child td{border-bottom:0}
+td.k{white-space:nowrap;color:var(--muted)}
+.tag{display:inline-block;font-size:11.5px;border-radius:6px;padding:1px 7px;border:1px solid var(--line-strong);color:var(--muted);white-space:nowrap}
+.tag.t{border-color:rgb(95 208 199/.5);color:#8fe3db}
+.tag.h{border-color:rgb(246 176 75/.5);color:#ffc77a}
+.tag.f{border-color:rgb(255 79 160/.5);color:#ff8cc0}
+.tag.e{border-color:rgb(139 108 255/.55);color:#b4a3ff}
+.tag.b{border-color:rgb(244 193 82/.6);color:var(--gold)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:14px;display:grid;gap:8px;min-width:0}
+.card ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.formula{font-size:15px;background:var(--surface-2);border:1px solid var(--line-strong);border-radius:var(--r-s);padding:12px 14px}
+.formula b{color:var(--gold)}
+.note{font-size:13.5px;color:var(--muted)}
+.ask{border-left:3px solid var(--accent);padding:2px 0 2px 14px;display:grid;gap:6px}
+.ask ol{margin:0;padding-left:20px;display:grid;gap:6px}
+footer{color:var(--faint);font-size:12.5px}
+a{color:var(--accent-text)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (max-width:480px){.ch{grid-template-columns:44px 1fr;gap:10px}.ch .num{font-size:34px}}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Glory of the Ring · Adventure mode · Design v1 · approved</div>
+  <h1>Gloryland</h1>
+  <p class="lead">An unknown fighter arrives in Gloryland, a sunny coastal city with neon nights, and climbs from a small home gym to the Championship. This page collects every decision we made together on 11 Nov 2026. Nothing is built until you approve it.</p>
+  <div class="status">
+    <span class="pill gold">Approved by the owner · 11 Nov 2026</span>
+    <span class="pill">Backlog: GOTR-0008</span>
+    <span class="pill gold">First slice: map + Home Gym + Street</span>
+  </div>
+</header>
+
+<section aria-labelledby="dec-h">
+  <h2 id="dec-h">What you decided</h2>
+  <div class="decisions">
+    <div class="dec"><b>World</b><span>Illustrated 3D city map first: tap a place to travel. Walkable streets come later, per chapter.</span></div>
+    <div class="dec"><b>Story</b><span>Rise to champion: an unknown fighter climbs from nothing to the title.</span></div>
+    <div class="dec"><b>Unlocks</b><span>Missions give stars. Enough stars lets you challenge the place's boss. Beating the boss opens the next place.</span></div>
+    <div class="dec"><b>Coaches</b><span>A new local coach in every place, each teaching its own style and unlocking moves of that style.</span></div>
+    <div class="dec"><b>Characters</b><span>A local animal species per chapter, plus funny original characters dressed as boxers, by theme.</span></div>
+    <div class="dec"><b>Missions</b><span>Training challenges, help a character, street events, and funny tasks that are not strictly boxing.</span></div>
+    <div class="dec"><b>Main setting</b><span>One big coastal city, sunny by day and neon at night. Themed zones are side missions.</span></div>
+    <div class="dec"><b>Growth</b><span>Moves and combos from coaches, plus light stats from training: power, speed, stamina. Gear stays cosmetic.</span></div>
+    <div class="dec"><b>Losing</b><span>No penalty. Each boss has an entry level; the higher your Fighter Level above it, the better your chance.</span></div>
+    <div class="dec"><b>Length</b><span>About 4–6 hours for a first play-through, in pieces of 3–10 minutes.</span></div>
+    <div class="dec"><b>Look</b><span>Day to night by chapter: morning gym, evening street, night underground, stadium lights.</span></div>
+    <div class="dec"><b>Name</b><span>Gloryland.</span></div>
+  </div>
+</section>
+
+<section aria-labelledby="map-h">
+  <h2 id="map-h">The city map</h2>
+  <p class="lead">A 3D render of the city, work in progress: landmarks for every chapter and side zone, numbered chapter pins, and a night version where the neon side comes alive. Close-ups and final polish are still coming.</p>
+  <div class="maptoggle" role="group" aria-label="Time of day">
+    <button type="button" id="mapDay" aria-pressed="true">Day</button>
+    <button type="button" id="mapNight" aria-pressed="false">Night</button>
+  </div>
+  <figure class="mapfig">
+    <img id="mapImgDay" src="img/map-day.webp" width="1600" height="900" alt="3D render of Gloryland by day: Old Town and the Home Gym in the north-east, Market Row, Downtown towers, the Docks with cranes and containers, Neon Strip along the beach, Harbor Dome in the bay, Glory Hill stadium, and side zones Old Fort, Pirate Cove, Midnight Fairground and Tech Pier.">
+    <img id="mapImgNight" src="img/map-night.webp" width="1600" height="900" alt="The same city at night: lit windows, neon on the beach strip, floodlit stadium and docks, lighthouse beam at the Old Fort." hidden>
+    <figcaption class="note">Chapter pins: 1 Old Town · 2 Market Row · 3 The Docks · 4 Downtown, Neon Strip, Harbor Dome · 5 Glory Hill. Diamond pins are side zones.</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="ch-h">
+  <h2 id="ch-h">Five chapters</h2>
+  <p class="lead">All nine existing arenas are reused. Boss entry levels are first proposals.</p>
+  <div class="chapters">
+    <article class="ch" style="--tc:var(--t-morning)">
+      <div class="num">1<small>Morning</small></div>
+      <div class="body">
+        <h3>Old Town — beginner training</h3>
+        <p class="note">You arrive with nothing. A small gym takes you in.</p>
+        <div class="meta">
+          <div><em>Place</em>Home Gym</div>
+          <div><em>Coach</em>Coach Pip, rabbit with the mitts · basics and guard</div>
+          <div><em>Locals</em>Gym regulars: rabbits, lions, a beaver</div>
+          <div class="boss"><em>Boss · entry level</em>Brick, beaver gym bully · Level 5</div>
+        </div>
+      </div>
+    </article>
+    <article class="ch" style="--tc:var(--t-evening)">
+      <div class="num">2<small>Evening</small></div>
+      <div class="body">
+        <h3>Market Row — the street</h3>
+        <p class="note">Your first name on the street: crowds, hustlers and rooftop pranksters.</p>
+        <div class="meta">
+          <div><em>Place</em>Street Fight</div>
+          <div><em>Coach</em>Vix, fox · footwork and slipping</div>
+          <div><em>Locals</em>Hyena crew, raccoon hustler, pigeon gang</div>
+          <div class="boss"><em>Boss · entry level</em>King Hyena, leader of the crew · Level 12</div>
+        </div>
+      </div>
+    </article>
+    <article class="ch" style="--tc:var(--t-night)">
+      <div class="num">3<small>Night</small></div>
+      <div class="body">
+        <h3>The Docks — the underground</h3>
+        <p class="note">Illegal fights under the warehouses. Loud, strange and dangerous.</p>
+        <div class="meta">
+          <div><em>Places</em>The Basement, Dockside Hangar</div>
+          <div><em>Coach</em>Tusk, retired walrus brawler · power punching</div>
+          <div><em>Locals</em>Bulls and gorillas, plus odd fighters: a sumo penguin, a duck in a wrestling mask, a disco cowboy</div>
+          <div class="boss"><em>Boss · entry level</em>The Iron Bull · Level 20</div>
+        </div>
+      </div>
+    </article>
+    <article class="ch" style="--tc:var(--t-neon)">
+      <div class="num">4<small>Neon city</small></div>
+      <div class="body">
+        <h3>Downtown — rising</h3>
+        <p class="note">Real clubs, rankings and press. Every win moves you up the city ladder.</p>
+        <div class="meta">
+          <div><em>Places</em>Boxing Club, City Sports Hall, Neon Strip, Harbor Dome</div>
+          <div><em>Coach</em>Kip, kangaroo · technique and combos</div>
+          <div><em>Locals</em>Panthers, wolves, kangaroos; Captain Cape (a caped hero with his own lightning-glove emblem)</div>
+          <div class="boss"><em>Boss · entry level</em>Onyx, panther city champion · Level 30</div>
+        </div>
+      </div>
+    </article>
+    <article class="ch" style="--tc:var(--t-stadium)">
+      <div class="num">5<small>Stadium</small></div>
+      <div class="body">
+        <h3>Glory Hill — the championship</h3>
+        <p class="note">The title fight. The whole city watches.</p>
+        <div class="meta">
+          <div><em>Place</em>Championship Arena</div>
+          <div><em>Coach</em>Tembo, elephant · ring strategy, reading opponents</div>
+          <div><em>Locals</em>Contenders from every chapter return for a final ladder</div>
+          <div class="boss"><em>Boss · entry level</em>Blaze, tiger world champion · Level 40</div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section aria-labelledby="side-h">
+  <h2 id="side-h">Side zones</h2>
+  <p class="lead">Optional, funny, themed. Each has 3–5 missions and a small reward set. More zones can come later as event packs.</p>
+  <div class="grid2">
+    <div class="card"><h3>Tech Pier · future</h3><p class="note">Clumsy sparring robots, a polite android champion, gadget gloves that light up on clean hits.</p></div>
+    <div class="card"><h3>Midnight Fairground · spooky</h3><p class="note">Lord Batsby the vampire bat, a mummy who keeps unwrapping mid-round, a ghost you can only see when it punches.</p></div>
+    <div class="card"><h3>Pirate Cove · pirates</h3><p class="note">Captain Saltbeard and his deckhand crew, a fight on a rocking ship deck, a sea-monster mascot boss.</p></div>
+    <div class="card"><h3>Old Fort · medieval</h3><p class="note">Sir Clank in full armour, Ember the dragon mascot, a jousting-style footwork challenge.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="slice-h">
+  <h2 id="slice-h">First playable slice</h2>
+  <p class="lead">City map, chapters 1 and 2, two coaches, 18 missions, two bosses, Fighter Level, save and return. About 60–80 minutes of play.</p>
+  <div class="legend">
+    <span><span class="tag t">Training</span> challenge with a star score</span>
+    <span><span class="tag h">Help</span> a character</span>
+    <span><span class="tag f">Funny</span> non-boxing task</span>
+    <span><span class="tag e">Event</span> appears on the map for a short time</span>
+    <span><span class="tag b">Boss</span> needs the entry level</span>
+  </div>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>#</th><th>Mission</th><th>Type</th><th>Goal for 3 stars</th></tr></thead>
+      <tbody>
+        <tr><td class="k" colspan="4"><b style="color:var(--t-morning)">Old Town · Home Gym · Coach Pip</b></td></tr>
+        <tr><td class="k">1</td><td>First stance</td><td><span class="tag t">Training</span></td><td>Hold a clean guard through 3 coach taps</td></tr>
+        <tr><td class="k">2</td><td>One-two on the mitts</td><td><span class="tag t">Training</span></td><td>20 clean jab-cross hits</td></tr>
+        <tr><td class="k">3</td><td>Bag power test</td><td><span class="tag t">Training</span></td><td>Reach the power mark 5 times</td></tr>
+        <tr><td class="k">4</td><td>Roll under the hook</td><td><span class="tag t">Training</span></td><td>Roll under 10 coach hooks</td></tr>
+        <tr><td class="k">5</td><td>Rope rhythm</td><td><span class="tag t">Training</span></td><td>30 seconds without a miss</td></tr>
+        <tr><td class="k">6</td><td>The new heavy bag</td><td><span class="tag f">Funny</span></td><td>Carry it from the delivery van to the gym without knocking anything over</td></tr>
+        <tr><td class="k">7</td><td>Teach the kid a one-two</td><td><span class="tag h">Help</span></td><td>Demonstrate the combo cleanly 3 times</td></tr>
+        <tr><td class="k">8</td><td>Morning sparring</td><td><span class="tag t">Training</span></td><td>Win a 30-second round against a gym regular</td></tr>
+        <tr><td class="k">9</td><td>The snoring night guard</td><td><span class="tag f">Funny</span></td><td>Wake him up for opening time while dodging his pillow swings</td></tr>
+        <tr><td class="k">★</td><td>Brick, the beaver gym bully</td><td><span class="tag b">Boss · Level 5</span></td><td>Win the bout; opens Market Row</td></tr>
+        <tr><td class="k" colspan="4"><b style="color:var(--t-evening)">Market Row · Street · Coach Vix</b></td></tr>
+        <tr><td class="k">10</td><td>Curb footwork</td><td><span class="tag t">Training</span></td><td>Hit every footwork mark in 20 seconds</td></tr>
+        <tr><td class="k">11</td><td>Rooftop water balloons</td><td><span class="tag f">Funny</span></td><td>Slip 12 balloons from the pranksters, stay dry</td></tr>
+        <tr><td class="k">12</td><td>The coach's whistle</td><td><span class="tag f">Funny</span></td><td>Chase down the pickpocket raccoon through the market</td></tr>
+        <tr><td class="k">13</td><td>The kid's skateboard</td><td><span class="tag h">Help</span></td><td>Win it back from a hyena, body shots only</td></tr>
+        <tr><td class="k">14</td><td>Grandma's groceries</td><td><span class="tag h">Help</span></td><td>Get her across the market while dodging the pigeon gang</td></tr>
+        <tr><td class="k">15</td><td>The show-off influencer</td><td><span class="tag f">Funny</span></td><td>Beat his speed-punch challenge so he stops filming you</td></tr>
+        <tr><td class="k">16</td><td>Clean hands</td><td><span class="tag t">Training</span></td><td>Win a round without being hit 3 times</td></tr>
+        <tr><td class="k">17</td><td>Crowd circle</td><td><span class="tag e">Event</span></td><td>Beat 3 challengers in a row before the crowd leaves</td></tr>
+        <tr><td class="k">18</td><td>Rooftop callout</td><td><span class="tag e">Event</span></td><td>Land 5 jabs in 10 seconds on the hustler who bet against you</td></tr>
+        <tr><td class="k">★</td><td>King Hyena</td><td><span class="tag b">Boss · Level 12</span></td><td>Win the bout; Chapter 3 shows on the map as "coming next"</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">The funny tasks reuse the boxing controls: slips, footwork, timing and punches, in a different setting.</p>
+</section>
+
+<section aria-labelledby="lvl-h">
+  <h2 id="lvl-h">Fighter Level</h2>
+  <div class="formula"><b>Fighter Level</b> = stars ÷ 3 (rounded down) + stat points above the start</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Stars</h3>
+      <ul><li>Every mission gives 1–3 stars; replay to improve.</li><li>18 missions in the first slice = up to 54 stars.</li></ul>
+    </div>
+    <div class="card">
+      <h3>Stats (light)</h3>
+      <ul><li>Power, Speed, Stamina start at 1 and grow from training missions, up to 10 each.</li><li>Each point is a small edge: about +2% punch impact, +1.5% hand speed or +3% stamina.</li></ul>
+    </div>
+    <div class="card">
+      <h3>Boss entry</h3>
+      <ul><li>The boss card shows its entry level, for example "Level 12".</li><li>Below it the button reads "Reach Level 12" and the coach suggests the best mission.</li></ul>
+    </div>
+    <div class="card">
+      <h3>Chance to win</h3>
+      <ul><li>Each level above the entry makes the boss react a little slower and hit a little softer, up to 5 levels.</li><li>Losing costs nothing: the coach shows what went wrong and suggests one mission.</li></ul>
+    </div>
+  </div>
+  <p class="note">Example: 30 stars and stats Power 3, Speed 2, Stamina 2 give 10 + 4 = Level 14. That is 2 levels above King Hyena's entry.</p>
+</section>
+
+<section aria-labelledby="len-h">
+  <h2 id="len-h">Length</h2>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>Part</th><th>Missions</th><th>About</th></tr></thead>
+      <tbody>
+        <tr><td>1 Old Town</td><td>9 + boss</td><td>35 min</td></tr>
+        <tr><td>2 Market Row</td><td>9 + boss</td><td>40 min</td></tr>
+        <tr><td>3 The Docks</td><td>10 + boss</td><td>55 min</td></tr>
+        <tr><td>4 Downtown</td><td>12 + boss</td><td>70 min</td></tr>
+        <tr><td>5 Glory Hill</td><td>6 + final ladder</td><td>45 min</td></tr>
+        <tr><td>Side zones</td><td>4 zones × 3–5</td><td>60–90 min</td></tr>
+        <tr><td><b>Total</b></td><td></td><td><b>about 4½–5½ hours</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="rules-h">
+  <h2 id="rules-h">Rules we keep</h2>
+  <div class="grid2">
+    <div class="card"><h3>Original characters only</h3><p class="note">Funny characters evoke a genre or archetype people recognise. No names, emblems, costumes or colours of existing franchise characters, and no copy of another game's city, name, map or look. This keeps the game publishable.</p></div>
+    <div class="card"><h3>Development build</h3><p class="note">While we build, every chapter and zone is open and everything is free, with price tags shown. Locks and levels apply only at go-live.</p></div>
+    <div class="card"><h3>Phones first</h3><p class="note">The map is a light 3D diorama. Each place loads on its own. Walkable streets come later, only if phones keep a smooth frame rate.</p></div>
+    <div class="card"><h3>Same fighting engine</h3><p class="note">Missions and bosses use the real training stations and fights, with the new game-pad controls, Burst and the coach characters.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="ask-h">
+  <h2 id="ask-h">Approved as proposed</h2>
+  <div class="ask">
+    <ol>
+      <li>Coaches: Pip (rabbit), Vix (fox), Tusk (walrus), Kip (kangaroo), Tembo (elephant).</li>
+      <li>Bosses and entry levels: Brick 5, King Hyena 12, Iron Bull 20, Onyx 30, Blaze 40.</li>
+      <li>The 18 missions of the first slice: keep, remove or add any.</li>
+      <li>The Fighter Level formula and the size of the stat edge.</li>
+      <li>Map layout: Old Town in the north-east, the Docks on the south coast, Glory Hill on top.</li>
+    </ol>
+    <p class="note">Build order for the first slice, each as its own version: the Adventure tab with this map, then stars, stats and Fighter Level, then Old Town, then Market Row.</p>
+  </div>
+</section>
+
+<script>
+(()=>{const d=document.getElementById('mapDay'),n=document.getElementById('mapNight'),a=document.getElementById('mapImgDay'),b=document.getElementById('mapImgNight');
+const set=night=>{a.hidden=night;b.hidden=!night;d.setAttribute('aria-pressed',String(!night));n.setAttribute('aria-pressed',String(night));};
+d.addEventListener('click',()=>set(false));n.addEventListener('click',()=>set(true));})();
+</script>
+<footer>Glory of the Ring · Gloryland design v1 · 11 Nov 2026 · Source of truth: backlog entry GOTR-0008</footer>
+</div>

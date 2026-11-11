@@ -11,9 +11,9 @@
 | Rule | Value |
 | --- | --- |
 | Meter at every bell | 0 |
-| Time fill (round live, not during the count) | 0.045 / s (0.9 after 20 s, so time alone never fills it in a 20 s round) |
-| Clean head/body hit landed | +0.10 |
-| Block (glove/arm contact) or evaded punch | +0.07 |
+| Time fill (round live, not during the count) | 0.11 / s (about 9 s by time alone; GOTR-0036, was 0.045) |
+| Clean head/body hit landed | +0.25 (was +0.10) |
+| Block (glove/arm contact) or evaded punch | +0.17 (was +0.07) |
 | No charge while ordered, bursting or recovering | — |
 | Sequence | jab, cross, hook (body), rear uppercut, hook — Super burst without its roll |
 | Speed | each punch 0.76 × the player's move duration (`BoxingInput.durations`) |

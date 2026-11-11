@@ -1,0 +1,131 @@
+/* GOTR-0035 Fighter pad: round D-pad bottom-left, punch arc bottom-right, the same in every language.
+   Shown while the player boxes (body.fighter-pad-on); the old paged panel is only hidden, not removed. */
+.fighter-pad{--u:1;position:absolute;left:0;right:0;bottom:0;height:0;z-index:16;direction:ltr;pointer-events:none;font-family:var(--gr-font,system-ui,sans-serif);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.fighter-pad[hidden]{display:none}
+.fp-zone{position:absolute;bottom:calc(10px*var(--u) + env(safe-area-inset-bottom,0px));pointer-events:none}
+.fp-left{left:calc(10px*var(--u) + env(safe-area-inset-left,0px))}
+.fp-right{right:calc(8px*var(--u) + env(safe-area-inset-right,0px));display:flex;align-items:flex-end;gap:calc(6px*var(--u))}
+.fighter-pad button{-webkit-tap-highlight-color:transparent;touch-action:none;font-family:inherit}
+.fighter-pad button:focus-visible{outline:2px solid var(--gr-focus,var(--gr-info,#3b82f6));outline-offset:2px}
+
+/* ---- D-pad: one circular base, four wedge keys inside, a recessed hub ---- */
+.fp-dpad{--d:calc(116px*var(--u));position:relative;width:var(--d);height:var(--d);border-radius:50%;pointer-events:auto;touch-action:none;transition:transform .12s ease;
+ background:radial-gradient(120% 90% at 50% 12%,rgb(255 255 255/.12),transparent 58%),linear-gradient(180deg,var(--gr-surface-4,#2c3546),var(--gr-surface,#121823));
+ box-shadow:0 0 0 1px var(--gr-scene-line,rgb(255 255 255/.18)),0 calc(10px*var(--u)) calc(22px*var(--u)) rgb(0 0 0/.55),inset 0 2px 1px rgb(255 255 255/.12),inset 0 -5px 10px rgb(0 0 0/.45)}
+.fp-dpad::before{content:'';position:absolute;inset:calc(6px*var(--u));border-radius:50%;background:var(--gr-bg,#0a0e14);box-shadow:inset 0 2px 6px rgb(0 0 0/.8),0 1px 0 rgb(255 255 255/.08)}
+.fp-face{position:absolute;inset:calc(9px*var(--u));display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:calc(4px*var(--u));transform:rotate(45deg)}
+.fp-arrow{position:relative;margin:0;padding:0;border:0;min-width:0;min-height:0;cursor:pointer;color:var(--gr-text-muted,#9aa7bb);
+ background:radial-gradient(140% 140% at 0 0,rgb(255 255 255/.10),transparent 45%),linear-gradient(135deg,var(--gr-surface-4,#2c3546),var(--gr-surface-2,#1a2230) 82%);box-shadow:inset 0 0 0 1px rgb(255 255 255/.07);transition:background .08s,color .08s}
+.fp-arrow[data-dir=up]{grid-area:1/1;border-radius:100% 0 0 0}
+.fp-arrow[data-dir=right]{grid-area:1/2;border-radius:0 100% 0 0}
+.fp-arrow[data-dir=left]{grid-area:2/1;border-radius:0 0 0 100%}
+.fp-arrow[data-dir=down]{grid-area:2/2;border-radius:0 0 100% 0}
+.fp-ink{position:absolute;display:flex;flex-direction:column;align-items:center;gap:0;transform:translate(-50%,-50%) rotate(-45deg);pointer-events:none;line-height:1}
+.fp-arrow[data-dir=up] .fp-ink{left:50%;top:50%}
+.fp-arrow[data-dir=right] .fp-ink{left:50%;top:50%}
+.fp-arrow[data-dir=left] .fp-ink{left:50%;top:50%}
+.fp-arrow[data-dir=down] .fp-ink{left:50%;top:50%;flex-direction:column-reverse}
+.fp-ink svg{width:calc(19px*var(--u));height:calc(19px*var(--u));display:block;color:var(--gr-text,#f3f6fb);filter:drop-shadow(0 1px 0 rgb(0 0 0/.5))}
+.fp-arrow[data-dir=right] .fp-ink svg{transform:rotate(90deg)}
+.fp-arrow[data-dir=down] .fp-ink svg{transform:rotate(180deg)}
+.fp-arrow[data-dir=left] .fp-ink svg{transform:rotate(-90deg)}
+.fp-cap{font-size:calc(8.5px*var(--u));font-weight:var(--gr-fw-bold,700);letter-spacing:.02em;white-space:nowrap;color:var(--gr-text-muted,#9aa7bb);text-shadow:0 1px 0 rgb(0 0 0/.6)}
+.fp-arrow[data-dir=left] .fp-ink,.fp-arrow[data-dir=right] .fp-ink{gap:calc(1px*var(--u))}
+.fp-arrow:hover:not(:disabled){color:var(--gr-text,#f3f6fb)}
+.fp-arrow[data-active=true]{color:var(--gr-info-text,#8fb8ff)}
+.fp-arrow[data-pressed=true]{color:#fff;background:linear-gradient(135deg,var(--gr-info,#3b82f6),rgb(var(--gr-info-rgb,59 130 246)/.55));box-shadow:inset 0 0 0 1px rgb(255 255 255/.25),inset 0 -4px 10px rgb(0 0 0/.25)}
+.fp-arrow[data-pressed=true] .fp-cap{color:#fff}
+.fp-dpad[data-dir=up]{transform:perspective(420px) rotateX(9deg)}
+.fp-dpad[data-dir=down]{transform:perspective(420px) rotateX(-9deg)}
+.fp-dpad[data-dir=left]{transform:perspective(420px) rotateY(-9deg)}
+.fp-dpad[data-dir=right]{transform:perspective(420px) rotateY(9deg)}
+.fp-dpad[data-disabled=true] .fp-arrow{opacity:.5}
+.fp-hub{position:absolute;left:50%;top:50%;width:calc(var(--d)*.24);height:calc(var(--d)*.24);transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
+ background:radial-gradient(circle at 50% 30%,var(--gr-surface-4,#2c3546),var(--gr-surface,#121823) 75%);box-shadow:0 0 0 calc(3px*var(--u)) var(--gr-bg,#0a0e14),0 2px 6px rgb(0 0 0/.6),inset 0 1px 0 rgb(255 255 255/.14)}
+.fp-hub::after{content:'';position:absolute;inset:36%;border-radius:50%;background:var(--gr-accent,#e63946);box-shadow:0 0 calc(8px*var(--u)) var(--gr-accent-line,rgb(230 57 70/.6))}
+
+/* ---- Punch arc: Straight under the thumb, Hook / Uppercut / Guard around it ---- */
+.fp-arc{position:relative;flex:none;width:calc(140px*var(--u));height:calc(140px*var(--u))}
+.fp-btn{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(3px*var(--u));box-sizing:border-box;margin:0;padding:0;border:0;border-radius:50%;pointer-events:auto;cursor:pointer;color:var(--gr-text,#f3f6fb);
+ font-weight:var(--gr-fw-heavy,800);font-size:calc(11px*var(--u));line-height:1;letter-spacing:-.01em;text-shadow:0 1px 1px rgb(0 0 0/.55);
+ background:radial-gradient(circle at 50% 26%,var(--gr-surface-4,#2c3546),var(--gr-surface-2,#1a2230) 70%);
+ box-shadow:inset 0 0 0 calc(2px*var(--u)) var(--gr-accent-line,rgb(230 57 70/.6)),inset 0 2px 1px rgb(255 255 255/.12),inset 0 -5px 10px rgb(0 0 0/.4),0 calc(6px*var(--u)) calc(16px*var(--u)) rgb(0 0 0/.5);
+ transition:transform .07s ease,background .08s,box-shadow .12s,opacity .15s}
+.fp-btn[data-pad=straight]{width:calc(70px*var(--u));height:calc(70px*var(--u));right:calc(4px*var(--u));bottom:calc(4px*var(--u));font-size:calc(13px*var(--u));
+ background:radial-gradient(circle at 50% 24%,rgb(255 255 255/.28),transparent 46%),linear-gradient(180deg,var(--gr-accent,#e63946),var(--gr-accent-press,#b01321));
+ box-shadow:0 0 0 calc(3px*var(--u)) rgb(0 0 0/.35),inset 0 2px 1px rgb(255 255 255/.25),inset 0 -6px 12px rgb(0 0 0/.3),0 calc(8px*var(--u)) calc(20px*var(--u)) rgb(0 0 0/.55)}
+.fp-btn[data-pad=hook]{width:calc(56px*var(--u));height:calc(56px*var(--u));right:calc(83px*var(--u));bottom:calc(11px*var(--u))}
+.fp-btn[data-pad=uppercut]{width:calc(56px*var(--u));height:calc(56px*var(--u));right:calc(60px*var(--u));bottom:calc(66px*var(--u))}
+.fp-btn[data-pad=guard]{width:calc(56px*var(--u));height:calc(56px*var(--u));right:calc(3.5px*var(--u));bottom:calc(82.5px*var(--u));font-size:calc(10px*var(--u));gap:calc(1px*var(--u));
+ box-shadow:inset 0 0 0 calc(2px*var(--u)) var(--gr-info-line,rgb(59 130 246/.55)),inset 0 2px 1px rgb(255 255 255/.12),inset 0 -5px 10px rgb(0 0 0/.4),0 calc(6px*var(--u)) calc(16px*var(--u)) rgb(0 0 0/.5)}
+.fp-icon svg{width:calc(18px*var(--u));height:calc(18px*var(--u));display:block;color:var(--gr-info-text,#8fb8ff)}
+.fp-label{display:block;max-width:92%;overflow:hidden;text-overflow:clip;white-space:nowrap}
+.fp-hands{display:flex;gap:calc(4px*var(--u))}
+.fp-hands i{width:calc(5px*var(--u));height:calc(5px*var(--u));border-radius:50%;background:rgb(255 255 255/.22);transition:background .1s,box-shadow .1s}
+.fp-btn[data-next=lead] .fp-hands i[data-hand=lead],.fp-btn[data-next=rear] .fp-hands i[data-hand=rear]{background:#fff;box-shadow:0 0 calc(5px*var(--u)) rgb(255 255 255/.7)}
+.fp-btn:not([data-pad=straight]) .fp-hands i{background:rgb(255 255 255/.18)}
+.fp-btn:not([data-pad=straight])[data-next=lead] .fp-hands i[data-hand=lead],.fp-btn:not([data-pad=straight])[data-next=rear] .fp-hands i[data-hand=rear]{background:var(--gr-accent-text,#ff7480);box-shadow:0 0 calc(5px*var(--u)) var(--gr-accent-line,rgb(230 57 70/.6))}
+.fp-btn:hover:not(:disabled){filter:brightness(1.08)}
+.fp-btn[data-pressed=true]{transform:scale(.92);filter:brightness(1.12)}
+.fp-btn[data-pad=straight][data-pressed=true]{box-shadow:0 0 0 calc(3px*var(--u)) rgb(255 255 255/.28),0 0 calc(22px*var(--u)) var(--gr-accent-line,rgb(230 57 70/.6)),inset 0 -6px 12px rgb(0 0 0/.35)}
+.fp-btn:not([data-pad=straight])[data-pressed=true]{background:radial-gradient(circle at 50% 26%,rgb(255 255 255/.22),transparent 50%),linear-gradient(180deg,var(--gr-accent,#e63946),var(--gr-accent-press,#b01321))}
+.fp-btn[data-pad=guard][data-pressed=true]{background:radial-gradient(circle at 50% 26%,rgb(255 255 255/.22),transparent 50%),linear-gradient(180deg,var(--gr-info,#3b82f6),rgb(var(--gr-info-rgb,59 130 246)/.6))}
+.fp-btn[data-pad=guard][data-pressed=true] .fp-icon svg{color:#fff}
+.fp-btn[data-active=true]{box-shadow:0 0 0 calc(3px*var(--u)) var(--gr-accent-line,rgb(230 57 70/.6)),0 0 calc(18px*var(--u)) var(--gr-accent-line,rgb(230 57 70/.6)),inset 0 2px 1px rgb(255 255 255/.2)}
+.fp-btn[data-pad=guard][data-active=true]{box-shadow:0 0 0 calc(3px*var(--u)) var(--gr-info-line,rgb(59 130 246/.55)),0 0 calc(18px*var(--u)) var(--gr-info-line,rgb(59 130 246/.55)),inset 0 2px 1px rgb(255 255 255/.2)}
+.fp-btn[data-flash=no]{animation:fp-nudge .18s ease}
+.fp-btn:disabled{opacity:.45;cursor:default}
+@keyframes fp-nudge{30%{transform:translateX(-2px)}70%{transform:translateX(2px)}}
+
+/* ---- Burst and combo chips: a column beside the arc ---- */
+.fp-skills{display:flex;flex-direction:column;justify-content:flex-end;gap:calc(2px*var(--u));width:calc(92px*var(--u));pointer-events:none}
+.fp-chips{display:flex;flex-direction:column;gap:0}
+.fp-chips[hidden]{display:none}
+.fp-chip{display:block;box-sizing:border-box;width:100%;height:calc(42px*var(--u));margin:0;padding:calc(4px*var(--u)) 0;border:0;background:none;pointer-events:auto;cursor:pointer;color:var(--gr-text,#f3f6fb)}
+.fp-chip-face{position:relative;display:flex;align-items:center;justify-content:center;box-sizing:border-box;height:100%;padding:0 calc(6px*var(--u));border-radius:var(--gr-radius-m,12px);background:var(--gr-scene-chip-strong,rgb(9 12 17/.92));border:1px solid var(--gr-accent-line,rgb(230 57 70/.6));box-shadow:0 calc(4px*var(--u)) calc(12px*var(--u)) rgb(0 0 0/.4),inset 0 1px 0 rgb(255 255 255/.08);transition:transform .07s,background .08s}
+.fp-chip-text{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:calc(10px*var(--u));font-weight:var(--gr-fw-bold,700);line-height:1.1;text-align:center;overflow-wrap:normal;word-break:normal;hyphens:auto}
+.fp-chip-more{height:calc(36px*var(--u))}
+.fp-chip[data-meta=true] .fp-chip-face{border-style:dashed;border-color:var(--gr-scene-line,rgb(255 255 255/.18));color:var(--gr-text-muted,#9aa7bb);background:var(--gr-scene-chip,rgb(9 12 17/.78))}
+.fp-chip[data-active=true] .fp-chip-face{background:var(--gr-accent,#e63946);border-color:var(--gr-accent,#e63946);color:var(--gr-accent-ink,#fff)}
+.fp-chip[data-locked=true] .fp-chip-face{opacity:.6}
+.fp-chip:active:not(:disabled) .fp-chip-face{transform:scale(.95)}
+.fp-chip:disabled{cursor:default}.fp-chip:disabled .fp-chip-face{opacity:.45}
+.fp-chip.academy-next .fp-chip-face{outline:3px solid var(--gr-warning,#f5a524);outline-offset:1px;animation:academy-pulse 1s ease-in-out infinite}
+.fp-burst-slot{display:flex;justify-content:stretch;pointer-events:none}
+.fighter-pad .fp-burst-slot .burst-control{position:relative;left:auto;right:auto;bottom:auto;z-index:auto;pointer-events:auto;width:100%;min-width:0;max-width:none;height:calc(42px*var(--u));padding:calc(3px*var(--u)) calc(5px*var(--u)) calc(3px*var(--u)) calc(4px*var(--u));gap:calc(4px*var(--u));font-size:calc(10px*var(--u));margin-bottom:calc(2px*var(--u))}
+.fighter-pad .fp-burst-slot .burst-control[data-state=ready]{font-size:calc(12px*var(--u))}
+.fighter-pad .fp-burst-slot .burst-meter{width:calc(30px*var(--u));height:calc(30px*var(--u))}
+.fighter-pad .fp-burst-slot .burst-caption{text-overflow:clip;letter-spacing:-.01em}
+.fighter-pad .fp-burst-slot .burst-meter svg{width:calc(15px*var(--u));height:calc(15px*var(--u))}
+
+/* Keyboard hints only where there is a keyboard and a mouse. */
+.fp-key{display:none;position:absolute;top:calc(-3px*var(--u));right:calc(-3px*var(--u));min-width:15px;height:15px;box-sizing:border-box;padding:0 3px;border-radius:5px;border:1px solid var(--gr-scene-line,rgb(255 255 255/.18));background:var(--gr-bg,#0a0e14);color:var(--gr-text-muted,#9aa7bb);font:700 9px/13px var(--gr-font-mono,ui-monospace,monospace);text-shadow:none;text-align:center}
+.fp-chip .fp-key{top:-6px;right:-5px}
+@media (hover:hover) and (pointer:fine){.fp-key{display:block}}
+
+/* ---- Layout sizes ---- */
+.fighter-pad[data-layout=portrait] .fp-zone{bottom:calc(8px*var(--u) + env(safe-area-inset-bottom,0px))}
+.fighter-pad[data-layout=short] .fp-zone{bottom:6px}
+
+/* ---- While the pad is on: the old paged panel and its satellites step aside ---- */
+body.fighter-pad-on #manualControls .manual-rail{display:none}
+body.fighter-pad-on .manual-pages,body.fighter-pad-on .manual-pages:not([hidden]){display:none!important}
+body.fighter-pad-on .game-loadout{display:none!important}
+body.fighter-pad-on[data-fighter-pad=portrait] #manualStatus{display:none}
+body.fighter-pad-on #manualStatus{bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+/* Pause and Side lock: a small column on the right edge above the punch arc. */
+body.fighter-pad-on .ringside-playback{right:calc(10px + env(safe-area-inset-right,0px));bottom:var(--fp-sys-bottom,170px)}
+body.fighter-pad-on .camera-lock-toggle{right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(var(--fp-sys-bottom,170px) + 52px);min-width:44px;width:44px;max-width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;place-items:center}
+body.fighter-pad-on .camera-lock-toggle span{display:none}
+/* Portrait: the boxers reach close to the right edge, so the two system buttons are a little smaller and tighter to it. */
+body.fighter-pad-on[data-fighter-pad=portrait] .ringside-playback{right:6px}
+body.fighter-pad-on[data-fighter-pad=portrait] .ringside-playback #playBtn{width:40px;height:40px;min-width:40px;max-width:40px;min-height:40px}
+body.fighter-pad-on[data-fighter-pad=portrait] .camera-lock-toggle{right:6px;bottom:calc(var(--fp-sys-bottom,170px) + 46px);width:40px;min-width:40px;max-width:40px;height:40px;min-height:40px}
+/* The coach's call in mitt work moves to the top-left corner, the Burst tip above the pad. */
+body.fighter-pad-on.ringside-layout .career-drill-cue,body.fighter-pad-on .career-drill-cue{top:8px;bottom:auto;left:8px;transform:none;max-width:min(62%,320px)}
+body.fighter-pad-on #burstTip{left:auto!important;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(var(--fp-sys-bottom,170px) + 104px)!important;max-width:min(260px,calc(100% - 20px))!important}
+body.fighter-pad-on #burstTip::after{display:none}
+/* Phones (portrait, short landscape): no free corner for the first-time tip that would not cover a boxer or the HUD,
+   so it stays hidden there; the red pulsing Burst in the cluster says it. Wide screens show it above the punch arc. */
+body.fighter-pad-on[data-fighter-pad=portrait] #burstTip,body.fighter-pad-on[data-fighter-pad=short] #burstTip{display:none}
+@media (prefers-reduced-motion:reduce){.fp-dpad,.fp-btn,.fp-chip-face{transition:none}.fp-dpad[data-dir]{transform:none}.fp-chip.academy-next .fp-chip-face,.fp-btn[data-flash=no]{animation:none}}

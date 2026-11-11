@@ -1,0 +1,97 @@
+{
+ "base": "7fe5c20",
+ "browser": "153.0.8010.12",
+ "physicalPhone": false,
+ "results": [
+  {
+   "version": "before",
+   "offset": -2,
+   "file": "before-spar--2.png"
+  },
+  {
+   "version": "before",
+   "offset": 0,
+   "file": "before-spar-+0.png"
+  },
+  {
+   "version": "before",
+   "offset": 6,
+   "file": "before-spar-+6.png"
+  },
+  {
+   "version": "before",
+   "offset": 12,
+   "file": "before-spar-+12.png"
+  },
+  {
+   "version": "before",
+   "offset": 18,
+   "file": "before-spar-+18.png"
+  },
+  {
+   "version": "before",
+   "offset": 24,
+   "file": "before-spar-+24.png"
+  },
+  {
+   "version": "before",
+   "offset": 36,
+   "file": "before-spar-+36.png"
+  },
+  {
+   "version": "before",
+   "hitFrame": 67,
+   "slide": {
+    "worst_mm": 59.9,
+    "total_mm": 814.6,
+    "frames": 104
+   },
+   "errors": []
+  },
+  {
+   "version": "after",
+   "offset": -2,
+   "file": "after-spar--2.png"
+  },
+  {
+   "version": "after",
+   "offset": 0,
+   "file": "after-spar-+0.png"
+  },
+  {
+   "version": "after",
+   "offset": 6,
+   "file": "after-spar-+6.png"
+  },
+  {
+   "version": "after",
+   "offset": 12,
+   "file": "after-spar-+12.png"
+  },
+  {
+   "version": "after",
+   "offset": 18,
+   "file": "after-spar-+18.png"
+  },
+  {
+   "version": "after",
+   "offset": 24,
+   "file": "after-spar-+24.png"
+  },
+  {
+   "version": "after",
+   "offset": 36,
+   "file": "after-spar-+36.png"
+  },
+  {
+   "version": "after",
+   "hitFrame": 67,
+   "slide": {
+    "worst_mm": 0.4,
+    "total_mm": 1.3,
+    "frames": 104
+   },
+   "errors": []
+  }
+ ]
+}

@@ -250,7 +250,7 @@
    this.applyDynamics();return {loads,entry};
   }
   resetResponse(time=0){
-   this.previousTime=time;this.previousFists={};this.swingSeen=new Set();this.seen.clear();this.hasFrame=false;this.followBeat=-1;this.followAdvance=0;this.committedAim=null;this.aimBeat=-1;this.impacts=new Set();this.impactPulse={};this.rabbitHit=null;for(const spring of Object.values(this.pushback))spring.reset();
+   this.previousTime=time;this.previousFists={};this.swingSeen=new Set();this.seen.clear();this.hasFrame=false;this.followBeat=-1;this.followAdvance=0;this.committedAim=null;this.aimBeat=-1;this.impacts=new Set();this.impactPulse={};this.rabbitHit=null;this.partnerStep=null;for(const spring of Object.values(this.pushback))spring.reset();
    for(const spring of [...Object.values(this.springs),...Object.values(this.recoil)])spring.reset();
    for(const [actor,coach] of [['lion',this.engine.coach],['rabbit',this.rabbit]]){
     this.pressures[actor]={L:0,R:0};if(coach){coach.aimWristGuide=null;for(const side of ['L','R'])coach.deformGlove(side,0);}
@@ -259,6 +259,16 @@
     const swing=model.userData.swing;if(swing){swing.rotation.set(0,0,0);if(model===this.models.heavy||model===this.models.dummy)swing.position.z=0;}
     const soft=model.userData.soft;if(soft&&(soft.userData.softRest||window.BoxingPadding?.state(soft)))this.deformSurface(soft,null,0);
    }
+  }
+  // Partner footwork after a hit: step back (one foot, then the other), pause, step in again. The root
+  // moves by the coach's ringStep ease while each foot only moves in its own lifted swing, so planted feet stay put.
+  partnerFootwork(time){
+   const step=this.partnerStep;if(!step)return;const out=.30,hold=.14,back=.40,u=time-step.start;
+   if(u<0||u>=out+hold+back){this.partnerStep=null;return;}
+   const phase=u<out?'out':u<out+hold?'hold':'back',p=phase==='out'?u/out:phase==='back'?(u-out-hold)/back:1,ease=p*p*(3-2*p);
+   step.offset=step.distance*(phase==='out'?ease:phase==='back'?1-ease:1);
+   // The partner faces the hero (root turned 180 degrees): backwards is its local -z.
+   step.ring=phase==='hold'?null:{phase:p,ease,weight:1,turn:0,delta:[0,0,phase==='out'?-step.distance:step.distance]};
   }
   applyDynamics(){
    const target=this.models[this.mode],swing=target?.userData.swing;
@@ -272,7 +282,8 @@
     // translating the pivot detached the chains from the hanger.
     if(this.mode==='heavy')swing.position.z=0;
    }
-   if(this.mode==='rabbit'&&this.rabbit)this.rabbit.root.position.z=.79+Math.min(.30,Math.max(0,this.pushback.rabbit.position.z));
+   // GOTR-0028: the partner gives ground only through its own steps (partnerFootwork); the root no longer glides on planted feet.
+   if(this.mode==='rabbit'&&this.rabbit)this.rabbit.root.position.z=.79+(this.partnerStep?.offset||0);
    this.group.updateMatrixWorld(true);
   }
   closest(centre,object,shape,radius=.064){
@@ -370,6 +381,7 @@
    for(const [key,spring] of Object.entries(this.springs))if(key!=='heavy'||mode!=='heavy')spring.step(dt);
    for(const spring of Object.values(this.recoil))spring.step(dt);
    for(const spring of Object.values(this.pushback))spring.step(dt);
+   this.partnerFootwork(time);
    this.applyDynamics();
    const practiceTime=mode==='speed'?time:time*1.12;
    let frame=BOXING_ROUTINES.frame(practiceTime,mode==='speed'?'speedbag':technique,combo),heroSpec={move:frame.move,phase:frame.phase,attack:punches.includes(frame.move)},counter=BOXING_ROUTINES.opponent(frame),random=null;
@@ -420,6 +432,7 @@
     const advance=active&&spec.attack?(spec.move.includes('uppercut')?(mode==='heavy'?.28:.24):spec.move.includes('hook')?(mode==='heavy'?.22:.16):0)+(mode==='heavy'?this.followAdvance:0):0;
     const options={simulationTime:time,guardCover:manual&&mode!=='speed'?1:0,keepFaceClear:spec.move==='guard'||!!manual,guardHeight:spec.attack?1.72:undefined,hitReaction:actor==='rabbit'&&this.rabbitHit?{part:this.rabbitHit.part,move:this.rabbitHit.move,direction:this.rabbitHit.direction,side:this.rabbitHit.side,amount:this.rabbitHit.strength*(1-Math.exp(-Math.max(0,time-this.rabbitHit.time)/.025))*Math.exp(-Math.max(0,time-this.rabbitHit.time)/.25)}:null,power:spec.attack&&(powered||mode==='none'||mode==='rabbit')?1.12:1,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,guardStyle:spec.guardStyle,brace:spec.brace,recoil:Math.min(.06,Math.max(0,this.recoil[actor].position.z)),advance,contactDrive:active&&spec.attack?(spec.move.includes('hook')?.05:spec.move.includes('uppercut')?.045:.028):0,duckDepth:spec.defend&&actor==='rabbit'?.32:undefined};
     if(spec.move==='step'&&!options.stepDirection&&!options.stepAdvance)options.stepDirection=frame.index%2?-1:1;
+    if(actor==='rabbit'&&this.partnerStep?.ring)options.ringStep=this.partnerStep.ring;
     if(mode==='heavy'){
      const straight=spec.move==='jab'||spec.move==='cross';
      options.guardTightness=1;options.stanceWidth=spec.move.includes('uppercut')?.48:.54;options.stanceDepth=spec.move.includes('uppercut')?.44:.55;options.stanceDrop=.015;
@@ -535,7 +548,8 @@
         if(receiver==='rabbit'){
          this.rabbitHit={time,part:entry.kind==='head'?'head':entry.kind==='body'?'body':'shoulder',move:spec.move,direction:velocity.clone().applyQuaternion(this.rabbit.root.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize().toArray(),side:side==='L'?-1:1,strength:Math.min(1.3,(uppercut?.70:.45)+closing*(uppercut?.20:.16))};
          const drive=velocity.clone().applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion()).invert());
-         this.pushback.rabbit.impulse(V(0,0,Math.min(4,Math.max(0,drive.z)*.95+(uppercut?Math.max(0,velocity.y)*.32:0))));
+         // A solid blow makes the partner step back (rear foot first) and then step in again; lighter ones are absorbed by the body recoil above.
+         const push=Math.min(4,Math.max(0,drive.z)*.95+(uppercut?Math.max(0,velocity.y)*.32:0));if(!this.partnerStep&&push>1.1)this.partnerStep={start:time,distance:Math.min(.16,push*.045),offset:0,ring:null};
         }
        }
        const transferred=receiver==='heavy'?loads.reduce((sum,l)=>sum+(l.impactImpulse||0),0):magnitude;

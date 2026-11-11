@@ -1,0 +1,182 @@
+{
+ "label": "after",
+ "seconds": 8,
+ "results": {
+  "spar-lion-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.431,
+    "p99": 7.695,
+    "max": 13.827
+   },
+   "velocityJump": {
+    "p50": 0.129,
+    "p99": 11.073,
+    "max": 16.263,
+    "top": [
+     {
+      "t": 6.633,
+      "hand": "R",
+      "dv": 16.263,
+      "acc": 975.77,
+      "move": "cross",
+      "speed": 10.551
+     },
+     {
+      "t": 6.85,
+      "hand": "R",
+      "dv": 16.122,
+      "acc": 967.333,
+      "move": "cross",
+      "speed": 7.695
+     },
+     {
+      "t": 1.317,
+      "hand": "R",
+      "dv": 15.623,
+      "acc": 937.38,
+      "move": "cross",
+      "speed": 9.945
+     },
+     {
+      "t": 3.95,
+      "hand": "L",
+      "dv": 13.999,
+      "acc": 839.959,
+      "move": "jab",
+      "speed": 3.839
+     },
+     {
+      "t": 1.5,
+      "hand": "R",
+      "dv": 12.738,
+      "acc": 764.287,
+      "move": "cross",
+      "speed": 4.435
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 2.874,
+    "punchP95": 6.306,
+    "punchFrames": 481
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.798,
+     "totalOtherwise_mm": 5.326
+    },
+    "partner": {
+     "hits": 4,
+     "hitFrames": 148,
+     "maxPerFrameAfterHit_mm": 0.185,
+     "totalAfterHits_mm": 0.972,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.48,
+     "totalOtherwise_mm": 5.567
+    }
+   }
+  },
+  "spar-lion-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.413,
+    "p99": 6.587,
+    "max": 12.277
+   },
+   "velocityJump": {
+    "p50": 0.191,
+    "p99": 8.939,
+    "max": 11.849,
+    "top": [
+     {
+      "t": 1.483,
+      "hand": "R",
+      "dv": 11.849,
+      "acc": 710.927,
+      "move": "cross",
+      "speed": 11.412
+     },
+     {
+      "t": 6.867,
+      "hand": "R",
+      "dv": 11.733,
+      "acc": 351.985,
+      "move": "cross",
+      "speed": 5.065
+     },
+     {
+      "t": 1.267,
+      "hand": "R",
+      "dv": 11.073,
+      "acc": 664.389,
+      "move": "cross",
+      "speed": 12.277
+     },
+     {
+      "t": 1.317,
+      "hand": "R",
+      "dv": 10.852,
+      "acc": 217.04,
+      "move": "cross",
+      "speed": 1.692
+     },
+     {
+      "t": 6.683,
+      "hand": "R",
+      "dv": 10.587,
+      "acc": 635.224,
+      "move": "cross",
+      "speed": 7.979
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 2.634,
+    "punchP95": 6.59,
+    "punchFrames": 332
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.693,
+     "totalOtherwise_mm": 3.71
+    },
+    "partner": {
+     "hits": 4,
+     "hitFrames": 101,
+     "maxPerFrameAfterHit_mm": 0.185,
+     "totalAfterHits_mm": 0.622,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.48,
+     "totalOtherwise_mm": 3.554
+    }
+   }
+  }
+ }
+}
