@@ -43,7 +43,7 @@ for(const aspect of [.54,2.21,2.9]){
  // Station changes keep the lock: fighter and bag, then a solo drill.
  const bag=new THREE.Group();e.arena.mode='heavy';e.arena.models.heavy=bag;e.arena.group.remove(rabbit);e.arena.group.add(bag);e.arena.group.rotation.y=1.88;lion.position.set(0,0,-.675);bag.position.set(0,0,.82);
  for(let i=0;i<500;i++)d.update(STEP);assert.equal(d.mode,'lock');assert.ok(sideError(e)<.002,'side-on to fighter and bag');assert.ok(framed(e)<.97,'fighter and bag framed at aspect '+aspect);
- e.arena.mode='rope';for(let i=0;i<500;i++)d.update(STEP);const facing=V(Math.sin(1.88),0,Math.cos(1.88)),off=c.position.clone().sub(lion.getWorldPosition(V())).setY(0).normalize();assert.ok(Math.abs(off.dot(facing))<.12,'a solo drill is seen from the side of the boxer');
+ e.arena.mode='rope';for(let i=0;i<500;i++)d.update(STEP);const facing=V(Math.sin(1.88),0,Math.cos(1.88)),off=c.position.clone().sub(lion.getWorldPosition(V())).setY(0).normalize();assert.ok(off.dot(facing)>.98,'rope jumping is seen from the front of the boxer (GOTR-0047; was side-on)');
  // Unlocking eases back to exactly the free camera the player had.
  d.setLock(false);assert.equal(stored.get('gotr-side-camera'),'0');let frames=0;while(d.mode!=='free'&&frames++<240)d.update(STEP);assert.equal(d.mode,'free');
  const o=v.offset.clone().applyAxisAngle(V(0,1,0),v.yaw);assert.ok(c.position.distanceTo(v.target.clone().add(o))<1e-9,'free camera restored');assert.equal(c.zoom,1,'free zoom restored');assert.ok(frames<120);

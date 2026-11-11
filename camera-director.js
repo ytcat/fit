@@ -11,9 +11,9 @@
   v[key]=((v[key]||0)-omega*step)*decay;pose[key]=target+(change+step)*decay;if(angle)pose[key]=wrap(pose[key]);
  }
  const WORDS={
-  en:{lock:'Side lock',label:'Lock the camera to a side view',skip:'Tap to skip'},
-  he:{lock:'נעילת צד',label:'נעילת המצלמה למבט מהצד',skip:'הקישו לדילוג'},
-  ru:{lock:'Вид сбоку',label:'Закрепить камеру сбоку',skip:'Нажмите, чтобы пропустить'}
+  en:{lock:'Side lock',label:'Lock the camera to a side view',skip:'Tap to skip',front:'Front lock',frontLabel:'Lock the camera to a front view'},
+  he:{lock:'נעילת צד',label:'נעילת המצלמה למבט מהצד',skip:'הקישו לדילוג',front:'נעילה מלפנים',frontLabel:'נעילת המצלמה למבט מלפנים'},
+  ru:{lock:'Вид сбоку',label:'Закрепить камеру сбоку',skip:'Нажмите, чтобы пропустить',front:'Вид спереди',frontLabel:'Закрепить камеру спереди'}
  };
  const INTRO={seconds:5.2,countdown:3,turn:TAU,pullBack:3.2,rise:2.4,lookRise:.35};
  // Distance at which a width x height box fills the view, with the arena framing's own margins.
@@ -43,8 +43,8 @@
    stage.append(b,hint);this.button=b;this.hint=hint;this.paint();
   }
   paint(){
-   if(!this.button)return;const lang=(window.app&&window.app.lang)||'en';if(lang===this.lang)return;this.lang=lang;const w=WORDS[lang]||WORDS.en;
-   this.caption.textContent=w.lock;this.button.setAttribute('aria-label',w.label);this.button.title=w.label;this.hint.textContent=w.skip;
+   if(!this.button)return;const lang=(window.app&&window.app.lang)||'en',front=this.engine.arena?.mode==='rope',key=lang+(front?':front':'');if(key===this.lang)return;this.lang=key;const w=WORDS[lang]||WORDS.en,label=front?w.frontLabel:w.label;
+   this.caption.textContent=front?w.front:w.lock;this.button.setAttribute('aria-label',label);this.button.title=label;this.hint.textContent=w.skip;
   }
   setLock(on,instant){
    const e=this.engine;on=!!on;if(this.mode==='intro')this.skipIntro();this.locked=on;try{window.localStorage.setItem(KEY,on?'1':'0');}catch{/* Not persisted. */}
@@ -73,8 +73,24 @@
    }
    const solo=e.activeModel||(e.coach&&e.coach.root);return solo?{key:'none',nodes:[solo],yaw:solo.rotation.y,frame:2.65}:null;
   }
+  // GOTR-0047: two moments are framed from the FRONT instead of the side: the result ceremony (scoring and
+  // the referee raising the winner's hand, both fighters lined up facing out of the ring) and locked rope
+  // jumping. "Front" is where the subjects face (+Z of the rig), averaged over both fighters.
+  front(){
+   const e=this.engine,a=e.arena;if(!a||typeof THREE==='undefined')return null;
+   const fight=a.mode==='fight'&&a.fightView,m=fight&&fight.match,ceremony=!!(m&&fight.coaches&&(m.phase==='scoring'||m.phase==='ceremony'));
+   const rope=!fight&&a.mode==='rope'&&this.locked&&!!e.coach;if(!ceremony&&!rope)return null;
+   const nodes=ceremony?[fight.coaches.lion.root,fight.coaches.rabbit.root]:[e.coach.root],P=nodes.map(n=>n.getWorldPosition(new THREE.Vector3()));
+   let fx=0,fz=0;for(const n of nodes){const d=n.getWorldDirection(new THREE.Vector3());fx+=d.x;fz+=d.z;}
+   let len=Math.hypot(fx,fz);if(len<.2){const y=a.group?a.group.rotation.y:0;fx=Math.sin(y);fz=Math.cos(y);len=1;}fx/=len;fz/=len;
+   const mx=P.reduce((t,p)=>t+p.x,0)/P.length,mz=P.reduce((t,p)=>t+p.z,0)/P.length,gap=P.length>1?Math.hypot(P[1].x-P[0].x,P[1].z-P[0].z):0;
+   const c=e.camera,width=ceremony?Math.max(2.8,gap+1.6):1.9,frame=ceremony?2.75:(e.coach.species==='rabbit'?3.12:2.86);
+   const free=this.freePose(),dist=Math.min(12.5,fitDistance(width,frame,c.fov,c.aspect));
+   return {key:ceremony?'ceremony':'rope-front',goal:{lx:mx,ly:free.ly,lz:mz,angle:Math.atan2(fx,fz),dist,cy:free.cy+(ceremony?Math.max(0,dist-5.2)*.42:0)}};
+  }
   // True side view: perpendicular to the line between the subjects, both framed with reach to spare.
   goal(){
+   const st=this.front();if(st){this.subjectKey=st.key;return st.goal;}
    const s=this.subjects();if(!s)return null;
    const e=this.engine,c=e.camera,a=s.nodes[0].getWorldPosition(new THREE.Vector3()),b=s.nodes[1]?s.nodes[1].getWorldPosition(new THREE.Vector3()):null;
    let dx=Math.sin(s.yaw),dz=Math.cos(s.yaw),gap=0,mx=a.x,mz=a.z;
@@ -129,7 +145,12 @@
     if(this.mode==='intro'&&!fight)this.skipIntro();
     if(fight&&fight.match&&fight.match.phase==='intro'&&!(fight.match.time>.05)&&!this.reducedMotion())this.startIntro();
    }
-   if(this.mode==='free'){if(!this.locked||!this.subjects())return false;this.engage();}
+   const ceremony=fight&&fight.match&&(fight.match.phase==='scoring'||fight.match.phase==='ceremony');
+   if(this.mode==='free'){
+    if(!this.locked&&ceremony&&this.stagedFight!==fight&&this.subjects()){this.stagedFight=fight;this.engage();this.autoStaged=true;}
+    else{if(!this.locked||!this.subjects())return false;this.engage();}
+   }
+   if(this.mode==='lock'&&this.autoStaged&&(this.locked||!ceremony)){this.autoStaged=false;if(!this.locked)this.mode='release';}
    let pose;
    if(this.mode==='intro'){
     const i=this.intro;i.t+=dt;

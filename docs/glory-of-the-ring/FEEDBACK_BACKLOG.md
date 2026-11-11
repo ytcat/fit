@@ -596,6 +596,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Acceptance criteria:** a Playwright audit (`qa/gotr-0046/i18n-audit.cjs`) walks every main screen and state in HE and RU and lists visible Latin-letter text; allowlist = the English glossary, the version number, numbers/coins and player-typed names; final run: 0 findings in both languages.
 - **Evidence:** `qa/gotr-0046/user-v1.20-he-fight-english.webp` (owner's screenshot).
 
+### GOTR-0047 — Camera in front for the result ceremony and for rope jumping
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (integrator)
+- **Priority:** P1
+- **Area:** Camera
+- **Reported behavior / request:** "When the fight is over and the referee holds the fighters, the camera should always be in front of them. Also, as a default, the camera lock when rope jumping should be in front."
+- **Cause:** the side lock kept the side it had during the fight, so after the line-up it could end up beside or behind the fighters; an unlocked camera stayed wherever the player left it. Rope jumping under the lock used the same side view as the other stations.
+- **Implementation:** `camera-director.js` `front()`: during scoring and the ceremony the camera frames both lined-up fighters (and the referee between them) from where they face, locked or unlocked, once per fight; an explicit unlock during the ceremony is respected; afterwards the player's own choice returns. Locked rope jumping is framed from the front, and the lock button reads "Front lock" there (HE/RU too).
+- **Tests:** new `tests/camera-front.test.cjs`; `tests/camera-director.test.cjs` rope assertion changed on purpose from side-on to front.
+- **Evidence:** `qa/gotr-0047/` (browser run pending).
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
