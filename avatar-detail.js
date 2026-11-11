@@ -88,6 +88,8 @@
    for(let hair=0;hair<count;hair++){
     const i=Math.floor(rand()*p.count),root=V().fromBufferAttribute(p,i),normal=V().fromBufferAttribute(n,i);
     if((root.y>.70&&root.y<1.09)||Math.abs(root.x)>.86)continue;
+    // GOTR-0050: no strands on downward-facing torso skin (under the pecs, armpit, lats): in shadow they read as dark smudges.
+    if(normal.y<-.28&&root.y>1.2&&root.y<1.8&&Math.abs(root.x)<.5)continue;
     const face=root.y>1.79&&root.z>.12;const length=((coach.species==='rabbit'?.006:.003)+rand()*.005)*(face?.35:1),width=.0004+rand()*.0004;
     const across=normal.clone().cross(Math.abs(normal.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
     // Fur follows the resting anatomy, then existing bone/DQ deformation.

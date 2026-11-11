@@ -1,0 +1,24 @@
+{
+ "lion": {
+  "chest_y1_50": 201.4,
+  "chestDepth_y1_50": 48.7,
+  "ribcage_y1_40": 166.4,
+  "waist_y1_22": 113.4,
+  "upperArm_x0_50": 76.1,
+  "upperArm_x0_56": 65.9,
+  "forearm_x0_74": 50.8,
+  "deltoid_x0_38": 86.8,
+  "calf_y0_42": 60.1
+ },
+ "rabbit": {
+  "chest_y1_50": 197.9,
+  "chestDepth_y1_50": 46.5,
+  "ribcage_y1_40": 161.8,
+  "waist_y1_22": 113.2,
+  "upperArm_x0_50": 72.6,
+  "upperArm_x0_56": 63,
+  "forearm_x0_74": 48.9,
+  "deltoid_x0_38": 83.6,
+  "calf_y0_42": 59.7
+ }
+}
