@@ -1,5 +1,5 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
-const T={en:['Shop','Belts'],he:['חנות','חגורה'],ru:['Магазин','Пояс']};
+const T={en:['Shop','Waistbands'],he:['חנות','רצועות מותן'],ru:['Магазин','Пояс']};
 (async()=>{const b=await chromium.launch({args:['--no-sandbox','--enable-unsafe-swiftshader']});const out=[];
 for(const [name,vp] of [['phone',{width:393,height:852}],['small',{width:360,height:640}],['land',{width:852,height:393}],['desk',{width:1366,height:768}]]){
  const p=await b.newPage({viewport:vp});const errors=[];p.on('pageerror',e=>errors.push(e.message));
