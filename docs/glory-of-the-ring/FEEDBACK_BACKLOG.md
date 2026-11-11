@@ -437,7 +437,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0032 — Mitt-work punches still look like small touches
 - **Reported:** 2026-11-11 (after v1.18)
-- **Status:** IN PROGRESS — reopened after v1.20 (agent `smooth-motion` follow-up)
+- **Status:** PARTLY DONE — merged, next release; remaining items open
 - **Priority:** P1
 - **Area:** Mitt training / animation feel
 - **Reported behavior / request:** "In the coach training the punches are not strong enough; it still looks like a small touch."
@@ -448,6 +448,8 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Evidence:** `qa/gotr-0032/` (`before.json`, `after.json`, `measure.cjs`) — glove speed at contact in Play: hooks 1.09 → 2.45/2.32 m/s, uppercuts 3.17/3.72 → 4.92/4.00 m/s; straights unchanged (elbow 164°/167°, extension 0.990/0.994); mitt pop 2.7–5.5 cm → 5.5–8.7 cm, peak at 25 ms (was 42 ms); new `tests/mitt-power.test.cjs`. Before/after frame strips not produced (screenshots did not show the stepped pose).
 - **Owner feedback after v1.20 (2026-11-11):** "Also the punches still not powerful enough." The owner's screenshot was taken in automatic (coach-controlled) mitt training, where straights still reach only 2.2–3.8 m/s at contact (agent measurement). Real boxers reach roughly 6–10 m/s at the glove.
 - **Next targets:** glove speed at contact in Play and automatic modes, in mitt work, bag and fights: straights ≥ 6 m/s, hooks and uppercuts ≥ 6.5 m/s; whole-body drive (hip and shoulder rotation, rear-heel pivot, weight transfer, short load before the punch); a brief hit-stop (~50–70 ms) on clean contact; stronger impact accents (mitt/bag pop, spray or dust, layered sound, slight camera kick on power shots); before/after video-like frame strips.
+- **Result after v1.22 work (glove speed in the tick before contact, m/s):** automatic mitt straights 3.9–5.2 → 10.4–12.6, hooks 2.6–2.8 → 5.0–5.4, uppercuts 8.4–8.6 → 8.9–12.8; Play mitt hooks 3.7–3.9 → 4.9–5.3; bag straights 15–16.5, hooks 6.1–6.8, uppercuts 6.4–7.4; fights straights 8.4–9.1, hooks 6.6–8.6, lead uppercut 8.0, rear uppercut 5.0–5.4. New `impact-fx.js`: hit-stop on clean contact (67 ms measured), camera kick on power shots (does not disturb camera locks), spray at the contact point, deeper sound layer.
+- **Still open:** mitt hooks and the fight rear uppercut below 6.5 m/s (deeper aim breaks the mitt elbow limit); mitt uppercut one-tick spike; whole-body drive (hips, heel pivot) and the 23 cm guard-hand jump need `boxing-coach-v2.js` (after the muscle agent); no before/after strip.
 
 ### GOTR-0033 — Free development mode: everything available, price tags kept
 - **Reported:** 2026-11-11
@@ -509,7 +511,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0038 — Coach's mitt goes inside his own face in mitt work
 - **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Train → Coach mitts, cue "Roll under the hook")
-- **Status:** IN PROGRESS (agent `smooth-motion` follow-up)
+- **Status:** READY FOR QA — merged (`agent/smooth-motion-2` c0578c4), next release
 - **Priority:** P1
 - **Area:** Animation / mitt work / collision
 - **Reported behavior / request:** "Bug: look at the rabbit's hand, it's inside his face."
@@ -517,6 +519,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Expected behavior:** No hand, glove or mitt of either character ever penetrates its own head or body; the coach keeps the non-swinging mitt in a real guard beside the cheek.
 - **Acceptance criteria:** Measured minimum distance between each mitt/glove and the owner's head and torso surfaces stays positive in every mitt-work drill, both species as coach where supported; frame strip of the hook-roll drill before/after; mitt tests pass.
 - **Evidence:** `qa/gotr-0038/user-v1.20-coach-mitt-in-face.webp` (owner's screenshot).
+- **Result:** the coach's free mitt sat up to 13.5 cm inside his own skull in the roll drill; it is now placed beside the cheek and any overlap with the coach's head or torso is pushed out to 1 cm. Worst clearance in every drill, both species: −13.5 cm → ≥ +0.79 cm; straights still land extended (164°/167°). Evidence `qa/gotr-0038/`.
 
 ### GOTR-0039 — Combo preview in the Shop shows an empty arena
 - **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Shop → Combos → First Rhythm preview)
@@ -532,12 +535,13 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0040 — Punch power meter in fights and training
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (agent `smooth-motion` follow-up)
+- **Status:** READY FOR QA — merged, next release
 - **Priority:** P1
 - **Area:** Fight HUD / training feedback
 - **Reported behavior / request:** "Please show some kind of small meter of the punch power under the health bar in the fight and something for the training."
 - **Expected behavior:** In fights, a slim meter under each fighter's health bar shows the power of that fighter's last landed punch (fills, then fades; stronger colour for power shots). In bag, mitt and speed training, a power gauge shows the last punch and the session best.
 - **Acceptance criteria:** Meter values come from the real contact impulse; screenshots at phone and desktop sizes in EN/HE/RU; no overlap with the health bars, Burst button or game pad.
+- **Result:** new `power-meter.js`/`.css`: a "Power" row under each fight health bar and a training gauge (last punch and session best), from the real contact impulse; no overlap at 402×690 (EN/HE/RU), 360×640, 852×393, 1366×768. Evidence `qa/gotr-0040/`.
 
 ### GOTR-0041 — Quick view of the fighter's characteristics
 - **Reported:** 2026-11-11
@@ -612,7 +616,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0048 — Realistic rope jumping: real technique, several exercises by level
 - **Reported:** 2026-11-11 with three YouTube Shorts as reference (`_R_YnM8wsro`, `pHwDFfgjwhg`, `S_1TLFc1uzE`)
-- **Status:** OPEN — queued for the next free agent slot (animation/realism)
+- **Status:** IN PROGRESS (agent `rope-real`)
 - **Priority:** P1
 - **Area:** Rope training / animation realism
 - **Reported behavior / request:** "Investigate those rope jumping techniques and make the player jump in the same ways, different exercises in different levels. Look at the hands, the head, the legs, how he holds the rope, how he looks and stands. The current player looks artificial; imitate how a real person moves."
