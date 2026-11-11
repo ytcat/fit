@@ -32,6 +32,8 @@ uses half of a 16.7 ms budget. Profiles: `profile.cjs` + `profile-summary.cjs`.
   touch is under its 0.2 mm threshold. Two fixes were tried and reverted (only-inside-volume weighting; capping the
   walk to 3× the first penetration): the flip went from 58 → 38 m/s but did not disappear. Root cause still open.
 - Sparring: |Δv| up to 16 m/s at contacts (glove constraint against the partner).
+- Mitt uppercuts: the striking knuckle reaches 27–30 m/s for one tick in the chamber (pads Watch t ≈ 3.80 s,
+  |Δv| 18 m/s): a pose jump, not speed. Found while measuring GOTR-0032; not fixed.
 
 ## What is left (not done)
 - Mitt guard flicker above (P1, a visible one-frame flicker of the lead glove).
