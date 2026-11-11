@@ -10,4 +10,4 @@
 .fs-list dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
 .fs-note{margin:8px 0 0;color:var(--gr-warning,#f5a524);font-size:12px}
 .fs-close{margin-top:10px;width:100%;min-height:var(--gr-control-h-s,36px);border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-s,8px);background:var(--gr-surface-3,#243044);color:var(--gr-text,#f3f6fb);cursor:pointer}
-@media (max-width:420px){.fs-chip{padding:0 6px;font-size:11px}}
+@media (max-width:520px){.fs-chip{padding:0 8px;white-space:nowrap}.fs-label{display:none}}

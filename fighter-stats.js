@@ -16,7 +16,7 @@
    const lang=copy[document.documentElement.lang]?document.documentElement.lang:'en',w=copy[lang],s=state();root.dir=lang==='he'?'rtl':'ltr';
    if(!s){chip.textContent=w.chip;panel.replaceChildren();return;}
    const sum=s.A.summary(s.g),rank=s.store.rank(s.species,s.p).name,max=s.A.rules.maxStat;
-   chip.textContent=w.chip+' · '+w.level+' '+sum.level;chip.title=w.title;
+   chip.replaceChildren(make('span','fs-label',w.chip+' · '),make('span','fs-level',w.level+' '+sum.level));chip.setAttribute('aria-label',w.chip+' · '+w.level+' '+sum.level);chip.title=w.title;
    const rows=[[w.level,sum.level],[w.stars,sum.stars+' / '+sum.maxStars],[w.power,sum.stats.power+' / '+max],[w.speed,sum.stats.speed+' / '+max],[w.stamina,sum.stats.stamina+' / '+max],[w.rank,w.ranks[rank]||rank]];
    const list=make('dl','fs-list');for(const [k,v] of rows)list.append(make('dt','',k),make('dd','',String(v)));
    const nodes=[make('strong','fs-title',w.title),list];if(sum.free)nodes.push(make('p','fs-note',w.dev));
