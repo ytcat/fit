@@ -181,6 +181,8 @@
   for(let i=0;i<count;i++){const x=Math.abs(P[i*3]),y=P[i*3+1],limb=Math.max(y>1.38?smooth01((x-.34)/.10):0,1-smooth01((y-.66)/.12)),keep=profile.keep+(1-profile.keep)*.55*limb;limbs[i]=limb;D[i]=H[i]-(1-keep)*low[i];
    // Belts and the waistband sit below the navel: there the relief only carves, never bulges (gear fit).
    if(y<1.28&&y>.95)D[i]=Math.min(D[i],.0005+.02*smooth01((y-1.225)/.055));
+   // Boots cover the shin and ankle: the leg relief tapers out above the boot collar.
+   if(y<.38)D[i]*=smooth01((y-.31)/.07);
    D[i]=Math.max(-.012,Math.min(.016,D[i]));}
   const near=smooth(D,6),delta=new Int16Array(count*4),normal=new Int8Array(count*4);
   const positions=Float32Array.from(P),M2=new Float32Array(count*3);

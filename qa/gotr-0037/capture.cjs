@@ -15,7 +15,7 @@ const ONLY=(process.env.ONLY||'').split(',').filter(Boolean);
  if(!ONLY.length||ONLY.some(k=>k.includes('arena'))){
   await p.evaluate(()=>{const e=app.engine;if(e.coach.species!=='lion')e.roster.select('lion');ringfighterGame.startFight({seed:20261111,watch:true});document.querySelectorAll('dialog[open]').forEach(d=>d.close());});
   await p.waitForTimeout(4000);
-  for(const rig of ['lion','rabbit'])for(const pose of ['guard','jab'])for(const view of ['front','q34','back']){const n=`arena-${rig}-${pose}-${view}`;if(want(n))save(n,await shoot(p,{rig,pose,view}));}
+  for(const rig of ['lion','rabbit'])for(const pose of ['guard','jab'])for(const view of ['q34','side','back']){const n=`arena-${rig}-${pose}-${view}`;if(want(n))save(n,await shoot(p,{rig,pose,view}));}
  }
  if(app.errors.length)console.error('PAGE ERRORS',app.errors.slice(0,5));await app.close();console.log('captured',label);process.exit(0);
 })().catch(e=>{console.error('FAIL',e);process.exit(1);});

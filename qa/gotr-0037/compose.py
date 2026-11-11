@@ -48,7 +48,7 @@ for sp in ['lion', 'rabbit']:
                                  (f'gym-{sp}-jab-shoulder', 'jab shoulder'), (f'gym-{sp}-guard-legs', 'legs')],
           title=f'{sp} · close-ups (top: before, bottom: after)')
 for pose in ['guard', 'jab']:
-    pairs(f'arena-{pose}', [(f'arena-{r}-{pose}-{v}', f'{r} {v}') for r in ['lion', 'rabbit'] for v in ['front', 'q34', 'back']],
+    pairs(f'arena-{pose}', [(f'arena-{r}-{pose}-{v}', f'{r} {v}') for r in ['lion', 'rabbit'] for v in ['q34', 'side', 'back']],
           cell=260, title=f'Championship arena · {pose} (top: before, bottom: after)')
 
 # Labelled muscle sheet (atlas groups painted on the rest pose).
