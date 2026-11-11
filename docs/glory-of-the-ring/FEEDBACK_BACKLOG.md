@@ -690,6 +690,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Fix:** a new touch always takes over the D-pad, and a finger lift anywhere on the page releases it; the goal strip now sits inside the 3D stage below the cue and power rows.
 - **Evidence:** `scripts/run-tests.sh fighter-pad adventure controls` pass; full suite for v1.28. No physical-phone test.
 
+### GOTR-0054 — No floating cards over the game: every message part of the screen
+- **Reported:** 2026-11-11 (on the v1.27 screenshot)
+- **Status:** IN PROGRESS (agent `clean-stage`)
+- **Priority:** P1
+- **Area:** UI / HUD layout
+- **Reported behavior / request:** "Look where you put the message. It's blocking everything on top, floating over other buttons and the logo. It has to be part of the fighting screen, including the messages after the win with the stars, points and coins — part of the screen, even smaller. For example, if I win, one message and the rewards under it, as part of the picture, so everything stays clean. After playing, the judges' scores are also a card that opens and blocks the view. Go through the whole game, find similar cards that block the game, and embed them into the screen so it all looks clean."
+- **Expected behavior:** a fixed HUD layout with reserved zones inside the 3D stage (top: names/health/power and one status line; centre: one short announcement such as the winner, with rewards and stars directly under it; bottom: controls and the Next bar); compact, translucent, small type; nothing ever covers the header, tabs, logo, controls or the fighters' bodies; judges' scores as a slim row inside the stage (details on demand); every other blocking card in the game audited and moved into these zones.
+- **Acceptance criteria:** an overlap audit (Playwright) of every state — training, mission running and finished, fight intro, round, KO/count, decision with judges, Burst tip, Academy lesson — at 402×690, 360×640, 852×393, 1366×768 in EN/HE: 0 overlaps of HUD elements with the header, controls or each other, and no element covering more than the agreed share of the stage; before/after screenshots.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
