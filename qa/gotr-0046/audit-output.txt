@@ -1,18 +1,7 @@
 
-== HE: 6 visible texts with Latin letters across 50 states
-  "+44 XP · +7 מטבעות"  [fight-result]
-  "0/0 · 20s"  [fight-result]
-  "Guest"  [history]
-  "fight · הפסד"  [history]
-  "0/0 · +44 XP · +7 ◈"  [history]
-  "☀ Guest School"  [world-school]
+== HE: 0 visible texts with Latin letters across 50 states
+(HE and RU ran separately: the preview server stopped between the two languages.)
 
-== RU: 6 visible texts with Latin letters across 50 states
-  "+39 XP · +6 монет"  [fight-result]
-  "0/0 · 20s"  [fight-result]
-  "Guest"  [history]
-  "fight · Поражение"  [history]
-  "0/0 · +39 XP · +6 ◈"  [history]
-  "☀ Guest School"  [world-school]
+== RU: 0 visible texts with Latin letters across 50 states
 
-TOTAL findings: 12
+TOTAL findings: 0

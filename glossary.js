@@ -13,6 +13,8 @@
  const term=(text,lang)=>lang==='he'?isolate(text):text;
  // Removes the allowed English terms from a text; what is left must not contain Latin letters.
  const strip=text=>terms.reduce((s,t)=>s.split(t).join(' '),String(text).replace(/[⁨⁩]/g,''));
+ // Longest first, so that a phrase (Rolling Return) is removed before a word inside it (Roll).
+ terms.sort((a,b)=>b.length-a.length);
  const api={game,terms,moves,combos,stations,isolate,term,strip};
  if(typeof module!=='undefined'){module.exports=api;return;}
  window.GotrGlossary=api;
