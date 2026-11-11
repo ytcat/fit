@@ -223,29 +223,33 @@
     toast(res.ok ? (won ? w.bossWin : w.bossLoss) : w.err + res.error, won ? 'gold' : 'bad');
     showNext({ kind: 'boss', won, res });
   }
-  // ---- the Old Town card ----
-  function render(ctx) {
-    const w = W(), A_ = A(), store = ctx.store, g = store.game(), root = mk('div', 'adv-town');
-    root.append(mk('h4', 'adv-town-h', w.missions));
-    const total = A_.missions.filter(m => m.chapter === 1).reduce((n, m) => n + (g.adventure?.missions[m.id]?.stars || 0), 0);
-    root.querySelector('h4').append(mk('span', 'adv-town-total', `${total} / 27 ${w.stars}`));
-    const list = mk('ul', 'adv-missions');
-    for (const m of A_.missions.filter(x => x.chapter === 1)) {
-      const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id], li = mk('li', 'adv-mission'); li.dataset.mission = m.id;
-      const info = mk('div', 'adv-mission-info'), name = mk('strong', '', T(m.titles)), tag = mk('span', 'adv-mission-tag', w.type[m.type] || m.type);
-      const goal = mk('span', 'adv-mission-goal', playable ? `${w.goal}: ${goalText(m.id, m.thresholds[2])}${rec ? ` · ${w.best} ${rec.value}` : ''}` : w.soon);
-      info.append(mk('span', 'adv-mission-head'), goal); info.firstChild.append(name, tag);
-      const star = mk('span', 'adv-mission-stars', starsText(rec?.stars || 0)); star.setAttribute('aria-label', `${rec?.stars || 0} / 3 ${w.stars}`); star.dataset.stars = String(rec?.stars || 0);
-      li.append(info, star);
-      if (playable) li.append(btn(rec ? w.replay : w.start, () => start(ctx, m.id), 'game-button adv-go adv-mini'));
-      else li.append(mk('span', 'adv-soon-pill', w.soon));
-      list.append(li);
+  // ---- the Old Town sheet content: small icon tiles (playable first, "coming soon" last), details on tap, boss block ----
+  const ICON = { first_stance: '🛡️', one_two_mitts: '🥊', bag_power: '💥', roll_under_hook: '🌀', rope_rhythm: '🪢', heavy_bag_van: '🚚', teach_the_kid: '🧒', morning_sparring: '🥋', snoring_guard: '😴' };
+  function render(ctx, opts = {}) {
+    const w = W(), A_ = A(), store = ctx.store, g = store.game(), tiles = [], rest = [];
+    const all = A_.missions.filter(x => x.chapter === 1), ordered = [...all.filter(m => DEFS[m.id]), ...all.filter(m => !DEFS[m.id])];
+    const detail = mk('div', 'adv-detail'); detail.hidden = true;
+    const show = (m, tile) => {
+      const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id];
+      detail.replaceChildren(); detail.hidden = false; detail.dataset.mission = m.id;
+      const head = mk('div', 'adv-detail-head'); head.append(mk('strong', '', `${ICON[m.id] || ''} ${T(m.titles)}`), mk('span', 'adv-mission-tag', w.type[m.type] || m.type), mk('span', 'adv-mission-stars', starsText(rec?.stars || 0)));
+      detail.append(head, mk('p', 'adv-mission-goal', playable ? `${w.goal}: ${goalText(m.id, m.thresholds[2])}${rec ? ` · ${w.best} ${rec.value}` : ''}` : w.soon));
+      if (playable) detail.append(btn(rec ? w.replay : w.start, () => start(ctx, m.id), 'game-button adv-go adv-mini'));
+      document.querySelectorAll('.adv-tile[data-mission]').forEach(t => t.setAttribute('aria-pressed', String(t === tile)));
+      opts.expand?.(); detail.scrollIntoView?.({ block: 'nearest' });
+    };
+    for (const m of ordered) {
+      const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id], n = rec?.stars || 0;
+      const t = btn('', () => show(m, t), 'adv-tile' + (playable ? '' : ' adv-tile-soon') + (n === 3 ? ' adv-tile-done' : '')); t.dataset.mission = m.id; t.setAttribute('aria-pressed', 'false');
+      t.setAttribute('aria-label', `${T(m.titles)} · ${playable ? n + '/3 ' + w.stars : w.soon}`); t.title = T(m.titles);
+      t.append(mk('i', 'adv-tile-ico', ICON[m.id] || '•'), mk('span', 'adv-tile-name', T(m.titles)), mk('span', 'adv-tile-state', playable ? starsText(n) : '🔒'));
+      tiles.push(t);
     }
-    root.append(list);
-    // Boss card
+    rest.push(detail);
+    // Boss block (shown when the sheet is expanded)
     const b = A_.bosses.find(x => x.id === 'brick'), lvl = A_.level(g), chance = A_.chance(g, 'brick'), won = A_.bossWon(g, 'brick'), open = A_.canChallenge(g, 'brick', false);
     const boss = mk('div', 'adv-boss'); boss.dataset.won = String(won);
-    boss.append(mk('strong', 'adv-boss-name', `${w.boss}: ${T(b.names)}${won ? ' · ' + w.won : ''}`));
+    boss.append(mk('strong', 'adv-boss-name', `🥊 ${w.boss}: ${T(b.names)}${won ? ' · ' + w.won : ''}`));
     boss.append(mk('span', 'adv-boss-gate', `${w.fl} ${lvl} · ${w.entry} ${b.entry} · ${w.chance} ${chance}%`));
     const acts = mk('div', 'adv-actions');
     const fight = () => { if (store.game()) bossStart(ctx); };
@@ -253,11 +257,11 @@
     else if (A_.freeMode()) {
       const warn = mk('div', 'adv-warn'); warn.hidden = true; warn.setAttribute('role', 'alert');
       warn.append(mk('strong', '', w.warnT), mk('span', '', `${w.fl} ${lvl} · ${w.entry} ${b.entry} · ${w.chance} ${chance}%`));
-      const wa = mk('div', 'adv-actions'); wa.append(btn(w.warnGo, fight), btn(w.warnBack, () => { warn.hidden = true; acts.hidden = false; list.scrollIntoView?.({ block: 'nearest' }); }, 'game-button adv-go adv-alt')); warn.append(wa);
+      const wa = mk('div', 'adv-actions'); wa.append(btn(w.warnGo, fight), btn(w.warnBack, () => { warn.hidden = true; acts.hidden = false; }, 'game-button adv-go adv-alt')); warn.append(wa);
       acts.append(btn(w.fight, () => { warn.hidden = false; acts.hidden = true; warn.querySelector('button')?.focus({ preventScroll: true }); })); boss.append(warn);
     } else acts.append(mk('span', 'adv-warn-text', fill(w.locked, { n: b.entry })));
-    boss.append(acts); root.append(boss);
-    return root;
+    boss.append(acts); rest.push(boss);
+    return { tiles, rest };
   }
   window.AdventureOldTown = { toastLog, reward, render, start, bossStart, goalText, defs: DEFS, get run() { return run; }, copy };
 })();
