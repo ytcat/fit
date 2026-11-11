@@ -8,7 +8,8 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.21 | 2026-11-11 | (this release) | Camera in front of the fighters when the referee announces the result; rope jumping with the camera lock is seen from the front ("Front lock"); a lost fight still pays participation coins (win ×1.5, draw ×1, loss ×0.6) — GOTR-0047, GOTR-0043 |
+| v1.22 | 2026-11-11 | (this release) | New game-pad controls: round D-pad (step, slip, roll) and one-screen Straight / Hook / Uppercut / Guard with automatic hand choice, Burst and combos — in fights, sparring and punch trainings — GOTR-0035 |
+| v1.21 | 2026-11-11 12:25 | `3e6629f` (published at owner request before the suite finished; the remaining tests then passed: 90 of 90, 0 failed) | Camera in front of the fighters when the referee announces the result; rope jumping with the camera lock is seen from the front ("Front lock"); a lost fight still pays participation coins (win ×1.5, draw ×1, loss ×0.6) — GOTR-0047, GOTR-0043 |
 | v1.20 | 2026-11-11 09:30 | `2ef46f6` | Sparring opponent steps back when hit instead of sliding on its feet; harder, faster punches into the coach's mitts with a bigger mitt pop; Burst meter charges 2.5× faster — GOTR-0028, GOTR-0032, GOTR-0036 |
 | v1.19 | 2026-11-11 | `e3dfe78` | Combo loadouts screen redesigned (slots on top, clean cards, buy or learn); dialogs open without a focus ring on the close button — GOTR-0029 |
 | v1.18 | 2026-11-11 | `ad44392` | Punches hit harder (head snap, guard jolt, glove keeps speed into the target) and faster; combinations link without a full reset; Burst special move in Play and Watch — GOTR-0024, GOTR-0025, GOTR-0005 |

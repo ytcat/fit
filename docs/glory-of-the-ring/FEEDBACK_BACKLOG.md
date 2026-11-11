@@ -138,7 +138,7 @@
 
 ### GOTR-0008 — Long-term 3D explorable adventure world connecting gyms, quests and boss fights
 - **Reported:** 2026-11-09
-- **Status:** IN DESIGN with the owner (2026-11-11) — no development until the owner approves the design
+- **Status:** APPROVED DESIGN v1 (owner, 2026-11-11: "I approve your recommendation in the artifact") — first playable slice scheduled
 - **Priority:** P2
 - **Delivery:** LATER — only after preceding shop, controls, Fight IQ and core milestones are implemented and verified
 - **Area:** World exploration / quests / progression
@@ -156,6 +156,8 @@
 - **Design decisions round 4 (owner, 2026-11-11):** (13) **City name: Gloryland.** (14) **Fighter Level** = mission stars + training stats; every boss shows an entry level; each level above it raises the chance to win. (15) **First playable slice:** city map + Home Gym + Street (two coaches, two bosses, Fighter Level, save and return) with **more tasks** than the proposed 8. (16) **Next step:** a visual design document for the owner to approve before any development.
 - **Design document v1 (2026-11-11):** `docs/adventure/gloryland-design.html` (also published privately for the owner as an Artifact): city map sketch, five chapters with places, coaches (Pip rabbit, Vix fox, Tusk walrus, Kip kangaroo, Tembo elephant), bosses and entry levels (5/12/20/30/40), four side zones, 18 first-slice missions, Fighter Level = stars ÷ 3 + stat points above start, length ≈ 4½–5½ h. Waiting for the owner's confirmation of the five open points on the page.
 - **Owner on the design doc map (2026-11-11):** "The map should look professional and 3-D, like a real designed city map, not just circles and squares and lines. Invest in this." → agent `gloryland-map` builds a stylised 3D city diorama in three.js (day and night, landmarks for every chapter and side zone, chapter pins) as the foundation of the in-game adventure map; its renders replace the sketch in the design doc. New files only (`adventure/`), not wired into the game before approval.
+- **Owner approval (2026-11-11):** "I approve your recommendation in the artifact." Approved as proposed: coaches Pip (rabbit), Vix (fox), Tusk (walrus), Kip (kangaroo), Tembo (elephant); bosses and entry levels Brick 5, King Hyena 12, Iron Bull 20, Onyx 30, Blaze 40; the 18 first-slice missions; Fighter Level = stars ÷ 3 + stat points above start, with a small per-point edge; map layout as rendered (Old Town north-east, Docks on the south coast, Glory Hill on top).
+- **Build plan (first slice, small releases):** A) Adventure tab replaces World (with GOTR-0044) and shows the 3D Gloryland map with tap-to-travel; B) progression core: stars, stats, Fighter Level, boss entry gate and chance (also feeds GOTR-0041/0042); C) Old Town: coach Pip, 9 missions, boss Brick; D) Market Row: coach Vix, 9 missions, street events, boss King Hyena. New species (beaver, fox, hyena, raccoon) come from the avatar work (GOTR-0009) after the muscle system (GOTR-0037) lands, so new characters get muscles from day one; until then missions run with the existing fighters. Development build: everything open.
 
 ### GOTR-0009 — Expand roster and bosses with varied species, silhouettes, size and combat IQ
 - **Reported:** 2026-11-09
@@ -435,7 +437,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0032 — Mitt-work punches still look like small touches
 - **Reported:** 2026-11-11 (after v1.18)
-- **Status:** REOPENED — owner after v1.20: "Also the punches still not powerful enough" (queued for agent `smooth-motion` with GOTR-0038)
+- **Status:** IN PROGRESS — reopened after v1.20 (agent `smooth-motion` follow-up)
 - **Priority:** P1
 - **Area:** Mitt training / animation feel
 - **Reported behavior / request:** "In the coach training the punches are not strong enough; it still looks like a small touch."
@@ -473,14 +475,14 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0035 — Game-pad controls: round D-pad and one-screen punch buttons
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (agent `fighter-pad`)
+- **Status:** READY FOR QA — merged (`agent/fighter-pad`), ships in the next release
 - **Priority:** P1
 - **Area:** Controls / fight / sparring / training
 - **Reported behavior / request:** "I need some kind of controls: a round move controller with 4 direction arrows inside (make it designed) and on the other side some punch move buttons. Because it doesn't matter if the punch will be left or right, you now have fewer options for buttons and you can use everything there. Use this also in fight and in sparring."
 - **Decisions (integrator):** D-pad on the left, punches on the right in every language. ← / → step back / forward on screen; ↑ slip; ↓ duck/roll. Punch buttons Straight, Hook, Uppercut, plus Guard, Burst and the equipped combos on the same screen; the hand is chosen automatically (lead first, then alternate; back to lead after a pause), so Straight, Straight = jab, cross. Replaces the Moves/Combos/Defence pages in fight, sparring and the punch trainings; rope keeps its own buttons.
 - **Acceptance criteria:** All four directions and all punches work in fight, sparring and mitt work (measured input/fight events); move and punch at the same time on touch; no overlap with the boxers; phone portrait/landscape and desktop in EN/HE/RU; Academy lessons still pass; full suite passes.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** New `fighter-pad.js`, `fighter-pad.css` (no edits to `ringfighter-controls.js`). The pad shows in fight, sparring, mitts, bag, dummy, speed bag and shadowboxing; rope, Watch and Academy lessons keep their own buttons. ←/→ step by the fighter's on-screen facing (from the live camera), ↑ alternating slips, ↓ roll; Straight/Hook/Uppercut with automatic hand choice (lead first, alternate, back to lead after 0.8 s; speed bag: taps/doubles/triples); Guard; Burst moved into the pad; equipped combos as chips. Keys: arrows/WASD unchanged, J/K/L punches, 1–3 combos, B Burst. Academy lessons hide the pad and keep the 12 exact move buttons (auto hands cannot make sequences like uppercut-hook-cross).
+- **Evidence:** `qa/gotr-0035/` (agent run, headless with touch emulation): Straight, Straight, Hook → jab, cross, hook and 3 thrown punches counted in a fight; all four arrows, three punches and Guard accepted in sparring and mitts, steps move the hips 22–45 px the matching way on screen, also with the camera turned half way; two-finger move + punch both accepted 4 ms apart; hold → 3.5 s = 3 steps; no page scroll or zoom; buttons ≥ 49 px; pad never covers the boxers (14–110 px clearance) at 4 sizes × EN/HE/RU; Academy jab-cross ×3 → +15 coins with the save check accepting the proof; full suite 86/86. Limits: no physical phone; in portrait the pad shifts and zooms out the 3D view (boxers ~17% smaller at 402 px with 3 combos equipped, ~21% at 360 px); combo chips 37–42 px tall (< 48 px target); the first-time Burst tip is hidden on phones; fight steps are short in-place footwork.
 
 ### GOTR-0036 — Burst meter charges too slowly
 - **Reported:** 2026-11-11
@@ -507,7 +509,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0038 — Coach's mitt goes inside his own face in mitt work
 - **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Train → Coach mitts, cue "Roll under the hook")
-- **Status:** OPEN — queued for agent `smooth-motion` (knows the mitt choreography) as soon as an agent slot frees
+- **Status:** IN PROGRESS (agent `smooth-motion` follow-up)
 - **Priority:** P1
 - **Area:** Animation / mitt work / collision
 - **Reported behavior / request:** "Bug: look at the rabbit's hand, it's inside his face."
@@ -529,7 +531,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0040 — Punch power meter in fights and training
 - **Reported:** 2026-11-11
-- **Status:** OPEN — queued with the punch-power work (agent `smooth-motion` follow-up, GOTR-0032)
+- **Status:** IN PROGRESS (agent `smooth-motion` follow-up)
 - **Priority:** P1
 - **Area:** Fight HUD / training feedback
 - **Reported behavior / request:** "Please show some kind of small meter of the punch power under the health bar in the fight and something for the training."
@@ -657,5 +659,6 @@ Running locally (max four at a time): `store-polish` (GOTR-0030, 0033, 0039), `u
 
 | Date | Agent / branch | Completed & verified | Still open | Application link |
 |---|---|---|---|---|
+| 2026-11-11 12:15 UTC (saved before the account usage limit) | integrator `claude/serene-cannon-riwk4l` | Live **v1.20** (`2ef46f6`). **v1.21** = `3e6629f` (camera in front for the ceremony and rope, participation pay): 81 of 90 tests passed before the suite hit its 1-hour limit; the last 9 (`shoulder-motion` … `workout`) were re-running — re-run them, then `git push origin 3e6629f:main`. Branch head also has `agent/fighter-pad` merged (game pad, GOTR-0035) = the v1.22 candidate. | Agents saved to GitHub, all unreviewed: `agent/store-polish` f426bd1 (GOTR-0030/0033/0039, looked finished, no report yet); `agent/ux-r1` b3d2240 + `wip/ux-r1` f8eee8e (R1, terms, HE/RU audit — GOTR-0031/0034/0045/0046); `agent/smooth-motion-2` addbf62 + `wip/smooth-motion-2` 1ace5a8 (punch power, coach mitt in face, power meter — GOTR-0032/0038/0040); `agent/muscle-definition` 7246a17 + `wip/muscle-definition` 31552d3 (GOTR-0037); `agent/gloryland-map` dd320e4 + `wip/gloryland-map` 54d66be (GOTR-0008 map). Next: v1.21 publish → merge store-polish, flip `version.js` channel to 'dev' (free mode) → v1.22 → UX R1 → R2 (GOTR-0041/0042/0044, result card) → Adventure first slice (approved design `docs/adventure/gloryland-design.html`). Rules: max 3 agents on this 4-core machine; `scripts/run-tests.sh`; heavy agents as separate cloud sessions. | https://ytcat.github.io/fit/ |
 | 2026-11-09 | Backlog setup / main | Created persistent intake workflow | Awaiting user reports | Not verified |
 | 2026-11-10 | Claude / `claude/serene-cannon-riwk4l` → main | Published and re-checked on the live site, each with full suite 76/76: GOTR-0006 combo controls (`d47da6f`) + small-phone Moves follow-up (`fa7c158`) — DONE; GOTR-0013 Fight Academy rename (`31a17bd`) + designed landing/lesson screens (`b9c65ed`); GOTR-0001 Shop header button (`9945b10`) + PC/tablet product overflow fix and six-category layout (`34d82dd`); GOTR-0004 buy combos with coins (`34d82dd`). One Pages deployment (`9945b10`) timed out on GitHub's side and was redeployed by the next commit. | GOTR-0012 (measured; needs straight-punch range choreography, see entry), GOTR-0007 guided lesson, GOTR-0005 Burst, GOTR-0002/0003 3D gear, GOTR-0001/0004 remainders; 0008/0009 later. Physical-phone performance still unverified. | https://ytcat.github.io/fit/ |

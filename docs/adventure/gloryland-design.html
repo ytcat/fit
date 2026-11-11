@@ -39,6 +39,11 @@ section{display:grid;gap:16px;min-width:0}
 .dec span{font-size:14px}
 .mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-m);background:var(--sea-deep)}
 .mapbox svg{display:block;width:100%;min-width:620px;height:auto}
+.maptoggle{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--surface);width:max-content}
+.maptoggle button{font:600 13px var(--body);color:var(--muted);background:none;border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+.maptoggle button[aria-pressed="true"]{background:var(--surface-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-strong)}
+.mapfig{margin:0;display:grid;gap:8px}
+.mapfig img{width:100%;height:auto;border-radius:var(--r-m);border:1px solid var(--line);display:block}
 .legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
 .chapters{display:grid;gap:12px}
@@ -79,11 +84,11 @@ a{color:var(--accent-text)}
 <div class="wrap">
 
 <header class="hero">
-  <div class="eyebrow">Glory of the Ring · Adventure mode · Design v1 for approval</div>
+  <div class="eyebrow">Glory of the Ring · Adventure mode · Design v1 · approved</div>
   <h1>Gloryland</h1>
   <p class="lead">An unknown fighter arrives in Gloryland, a sunny coastal city with neon nights, and climbs from a small home gym to the Championship. This page collects every decision we made together on 11 Nov 2026. Nothing is built until you approve it.</p>
   <div class="status">
-    <span class="pill red">Status: waiting for your approval</span>
+    <span class="pill gold">Approved by the owner · 11 Nov 2026</span>
     <span class="pill">Backlog: GOTR-0008</span>
     <span class="pill gold">First slice: map + Home Gym + Street</span>
   </div>
@@ -109,74 +114,16 @@ a{color:var(--accent-text)}
 
 <section aria-labelledby="map-h">
   <h2 id="map-h">The city map</h2>
-  <p class="lead">A sketch of the layout, not the final art. The dotted route is the main story; small diamonds are side zones. On a phone, swipe the map sideways.</p>
-  <div class="mapbox" role="img" aria-label="Sketch map of Gloryland: Old Town with the Home Gym in the north-east, Market Row below it, the docks with the Underground on the south coast, Downtown in the middle, Neon Strip on the beach, Harbor Dome in the bay and Glory Hill with the Championship Arena in the north. Side zones: Tech Pier, Midnight Fairground, Pirate Cove and Old Fort.">
-    <svg viewBox="0 0 760 500" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="route" x1="1" y1="0" x2="0" y2="0">
-          <stop offset="0" stop-color="#f6b04b"/><stop offset=".35" stop-color="#f07a3a"/><stop offset=".6" stop-color="#8b6cff"/><stop offset=".8" stop-color="#ff4fa0"/><stop offset="1" stop-color="#ffe08a"/>
-        </linearGradient>
-        <style>
-          .lbl{font:600 15px Inter,system-ui,sans-serif;fill:#f2f4f8;paint-order:stroke;stroke:#0a0d13;stroke-width:4px;stroke-linejoin:round}
-          .sub{font:500 12px Inter,system-ui,sans-serif;fill:#a4aec0;paint-order:stroke;stroke:#0a0d13;stroke-width:3.5px;stroke-linejoin:round}
-          .num{font:400 20px Anton,Impact,sans-serif;fill:#0a0d13}
-          .side{font:600 12.5px Inter,system-ui,sans-serif;fill:#8fe3db;paint-order:stroke;stroke:#0a0d13;stroke-width:3.5px;stroke-linejoin:round}
-          .sea-l{font:italic 500 13px Inter,system-ui,sans-serif;fill:#3f6a86;letter-spacing:.3em}
-        </style>
-      </defs>
-      <rect width="760" height="500" fill="#0b2030"/>
-      <!-- land -->
-      <path d="M60,0 C70,60 100,140 120,190 C150,260 200,300 250,350 C300,400 380,440 470,420 C560,400 640,440 760,430 L760,0 Z" fill="#1b2331"/>
-      <!-- beach -->
-      <path d="M60,0 C70,60 100,140 120,190 C150,260 200,300 250,350 C300,400 380,440 470,420 C560,400 640,440 760,430" fill="none" stroke="#c9a46a" stroke-width="7" stroke-linecap="round" opacity=".75"/>
-      <!-- hills and districts (soft shapes) -->
-      <ellipse cx="300" cy="78" rx="120" ry="56" fill="#222c3d"/>
-      <ellipse cx="640" cy="88" rx="100" ry="58" fill="#222c3d"/>
-      <ellipse cx="270" cy="245" rx="105" ry="62" fill="#222c3d"/>
-      <!-- streets -->
-      <path d="M120,120 L740,150 M200,250 L740,290 M400,40 L470,420 M640,20 L600,410" stroke="#2c3850" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <!-- harbour piers and islands -->
-      <path d="M350,395 l-10,48 M395,410 l-4,46 M440,415 l2,44" stroke="#c9a46a" stroke-width="5" opacity=".6" stroke-linecap="round"/>
-      <ellipse cx="70" cy="455" rx="44" ry="20" fill="#1b2331"/>
-      <ellipse cx="140" cy="352" rx="40" ry="26" fill="#14304a" stroke="#ff4fa0" stroke-width="2"/>
-      <text class="sea-l" x="40" y="300">THE BAY</text>
-      <!-- main route -->
-      <path d="M650,90 C610,120 570,140 545,170 C500,230 430,300 385,365 C340,330 300,290 262,250 C250,200 280,150 305,95" fill="none" stroke="url(#route)" stroke-width="4" stroke-dasharray="2 9" stroke-linecap="round"/>
-      <path d="M262,250 C330,300 470,360 575,392 M262,250 C220,300 180,330 150,350" fill="none" stroke="#ff4fa0" stroke-width="2.5" stroke-dasharray="2 8" stroke-linecap="round" opacity=".8"/>
-      <!-- chapter markers -->
-      <g><circle cx="650" cy="90" r="17" fill="#f6b04b"/><text class="num" x="650" y="98" text-anchor="middle">1</text>
-        <text class="lbl" x="624" y="86" text-anchor="end">Old Town</text><text class="sub" x="624" y="103" text-anchor="end">Home Gym · morning</text></g>
-      <g><circle cx="545" cy="170" r="17" fill="#f07a3a"/><text class="num" x="545" y="178" text-anchor="middle">2</text>
-        <text class="lbl" x="571" y="166">Market Row</text><text class="sub" x="571" y="183">Street · evening</text></g>
-      <g><circle cx="385" cy="365" r="17" fill="#8b6cff"/><text class="num" x="385" y="373" text-anchor="middle">3</text>
-        <text class="lbl" x="410" y="352">The Docks</text><text class="sub" x="410" y="369">Basement · Dockside Hangar · night</text></g>
-      <g><circle cx="262" cy="250" r="17" fill="#ff4fa0"/><text class="num" x="262" y="258" text-anchor="middle">4</text>
-        <text class="lbl" x="166" y="214">Downtown</text><text class="sub" x="122" y="232">Boxing Club · City Sports Hall</text></g>
-      <g><circle cx="575" cy="392" r="10" fill="#ff4fa0"/><text class="lbl" x="560" y="440">Neon Strip</text><text class="sub" x="560" y="456">beach nightlife · 4</text></g>
-      <g><circle cx="150" cy="350" r="10" fill="#ff4fa0"/><text class="lbl" x="104" y="398">Harbor Dome</text><text class="sub" x="122" y="414">in the bay · 4</text></g>
-      <g><circle cx="305" cy="95" r="19" fill="#ffe08a"/><text class="num" x="305" y="103" text-anchor="middle">5</text>
-        <text class="lbl" x="330" y="74">Glory Hill</text><text class="sub" x="330" y="91">Championship Arena · stadium lights</text></g>
-      <!-- side zones -->
-      <g fill="#5fd0c7">
-        <rect x="690" y="292" width="14" height="14" transform="rotate(45 697 299)"/>
-        <rect x="633" y="226" width="14" height="14" transform="rotate(45 640 233)"/>
-        <rect x="63" y="448" width="14" height="14" transform="rotate(45 70 455)"/>
-        <rect x="133" y="62" width="14" height="14" transform="rotate(45 140 69)"/>
-      </g>
-      <text class="side" x="652" y="330">Tech Pier</text>
-      <text class="side" x="585" y="262">Midnight Fairground</text>
-      <text class="side" x="96" y="472">Pirate Cove</text>
-      <text class="side" x="156" y="40">Old Fort</text>
-    </svg>
+  <p class="lead">A 3D render of the city, work in progress: landmarks for every chapter and side zone, numbered chapter pins, and a night version where the neon side comes alive. Close-ups and final polish are still coming.</p>
+  <div class="maptoggle" role="group" aria-label="Time of day">
+    <button type="button" id="mapDay" aria-pressed="true">Day</button>
+    <button type="button" id="mapNight" aria-pressed="false">Night</button>
   </div>
-  <div class="legend">
-    <span><i style="background:var(--t-morning)"></i>Morning</span>
-    <span><i style="background:var(--t-evening)"></i>Evening</span>
-    <span><i style="background:var(--t-night)"></i>Night</span>
-    <span><i style="background:var(--t-neon)"></i>Neon city</span>
-    <span><i style="background:var(--t-stadium)"></i>Stadium lights</span>
-    <span><i style="background:var(--t-side);border-radius:2px;transform:rotate(45deg)"></i>Side zone</span>
-  </div>
+  <figure class="mapfig">
+    <img id="mapImgDay" src="img/map-day.webp" width="1600" height="900" alt="3D render of Gloryland by day: Old Town and the Home Gym in the north-east, Market Row, Downtown towers, the Docks with cranes and containers, Neon Strip along the beach, Harbor Dome in the bay, Glory Hill stadium, and side zones Old Fort, Pirate Cove, Midnight Fairground and Tech Pier.">
+    <img id="mapImgNight" src="img/map-night.webp" width="1600" height="900" alt="The same city at night: lit windows, neon on the beach strip, floodlit stadium and docks, lighthouse beam at the Old Fort." hidden>
+    <figcaption class="note">Chapter pins: 1 Old Town · 2 Market Row · 3 The Docks · 4 Downtown, Neon Strip, Harbor Dome · 5 Glory Hill. Diamond pins are side zones.</figcaption>
+  </figure>
 </section>
 
 <section aria-labelledby="ch-h">
@@ -357,7 +304,7 @@ a{color:var(--accent-text)}
 </section>
 
 <section aria-labelledby="ask-h">
-  <h2 id="ask-h">Please confirm or change</h2>
+  <h2 id="ask-h">Approved as proposed</h2>
   <div class="ask">
     <ol>
       <li>Coaches: Pip (rabbit), Vix (fox), Tusk (walrus), Kip (kangaroo), Tembo (elephant).</li>
@@ -366,9 +313,14 @@ a{color:var(--accent-text)}
       <li>The Fighter Level formula and the size of the stat edge.</li>
       <li>Map layout: Old Town in the north-east, the Docks on the south coast, Glory Hill on top.</li>
     </ol>
-    <p class="note">Comment on this page or answer in the chat. After your approval the first slice is built in small releases: the map, then Old Town, then Market Row, each with its own version number.</p>
+    <p class="note">Build order for the first slice, each as its own version: the Adventure tab with this map, then stars, stats and Fighter Level, then Old Town, then Market Row.</p>
   </div>
 </section>
 
+<script>
+(()=>{const d=document.getElementById('mapDay'),n=document.getElementById('mapNight'),a=document.getElementById('mapImgDay'),b=document.getElementById('mapImgNight');
+const set=night=>{a.hidden=night;b.hidden=!night;d.setAttribute('aria-pressed',String(!night));n.setAttribute('aria-pressed',String(night));};
+d.addEventListener('click',()=>set(false));n.addEventListener('click',()=>set(true));})();
+</script>
 <footer>Glory of the Ring · Gloryland design v1 · 11 Nov 2026 · Source of truth: backlog entry GOTR-0008</footer>
 </div>
