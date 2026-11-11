@@ -81,4 +81,40 @@ assert.ok(cy.bumps >= 2 && cy.bumps <= 3, 'one bump per pass: ' + cy.bumps);
 assert.deepEqual(play(perfect).result(starsFor), res);
 // Stars come from the mission thresholds (lower is better: 5, 2, 0).
 assert.deepEqual([0, 1, 2, 3, 5, 6].map(n => starsFor(R.missionId, n)), [3, 2, 2, 1, 1, 0]);
-console.log('story-scenes ok', JSON.stringify({ perfect: res, lazy: lr }));
+
+// ---- story 2: every Chapter 1 scene id exists; lines are short (70 characters) in every language
+assert.deepEqual(Object.keys(S.scenes).sort(), ['arrival', 'boss_intro', 'boss_outro', 'brick', 'dash']);
+const ST = require('../adventure/story.js');
+for (const [id, scene] of Object.entries(S.scenes)) for (const l of scene.lines) { assert.ok(ST.who[l.who], id + ' speaker ' + l.who); for (const lang of ['en', 'he', 'ru']) assert.ok(l.text[lang].length <= 70, `${id} ${lang} line too long (${l.text[lang].length})`); }
+for (const [id, m] of Object.entries(ST.lines)) for (const kind of ['intro', 'outro', 'lost']) for (const l of m[kind] || []) for (const lang of ['en', 'he', 'ru']) assert.ok(l.text[lang].length <= 70, `${id} ${kind} ${lang} too long (${l.text[lang].length}): ${l.text[lang]}`);
+// camera easing is smooth at both ends and the framing list follows the destination key
+const ck = [{ t: 0, pos: [0], look: [0], fit: ['a'] }, { t: 1, pos: [1], look: [0], fit: ['b'] }];
+assert.ok(S.camera(ck, .1).pos[0] < .02 && S.camera(ck, .9).pos[0] > .98, 'eases in and out'); assert.deepEqual(S.camera(ck, .2).fit, ['a']); assert.deepEqual(S.camera(ck, .8).fit, ['b']);
+// Dash: beats the regular within seconds, laughs, then calls out the Fighter; Pip is only heard
+const da = S.scenes.dash; assert.equal(da.actors.dash.rig, 'dash'); assert.equal(S.sample(da, 2.6).actors.dash.act, 'combo');
+const downAt = da.actors.regular.keys.find(k => k.act === 'down').t, comboAt = da.actors.dash.keys.find(k => k.act === 'combo').t; assert.ok(downAt - comboAt < 1.5, 'the regular is down in under 1.5 s');
+assert.equal(S.sample(da, 4.5).actors.dash.act, 'laugh'); assert.equal(S.sample(da, 9).line.who, 'pip'); assert.ok(!da.actors.pip);
+// Boss scenes: Brick blocks the door; after the win Pip hands the wraps over and sends the Fighter to Vix
+const bi = S.scenes.boss_intro, bo = S.scenes.boss_outro;
+assert.equal(S.sample(bi, 1).actors.brick.act, 'block'); const bk = S.sample(bi, 1).actors.brick; assert.ok(Math.hypot(bk.x - 11, bk.z + 3.5) < 1.2, 'Brick stands in the doorway');
+assert.deepEqual(bo.item.holders.map(h => h.who), ['pip', 'fighter']); assert.match(bo.lines.at(-1).text.en, /Vix at Market Row/);
+assert.ok(S.sample(bo, 3).actors.brick.x > 12.5, 'Brick has stepped aside');
+
+// ---- the snoring night guard
+const GR = S.GUARD; assert.ok(A.missions.some(m => m.id === GR.missionId && m.metric === 'dodges'));
+assert.equal(GR.swings.length, 9, 'nine swings = the 3-star threshold'); assert.deepEqual(A.missions.find(m => m.id === GR.missionId).thresholds, [3, 6, 9]);
+function playGuard(bot) { const g = new S.GuardGame(); let n = 0; while (!g.done && n++ < 100 * 60) { bot(g); g.step(1 / 60); } return g; }
+// perfect: sneak, dodge each swing with the right key a moment before it lands, ring the bell
+const ace = playGuard(g => { const v = g.view(); if (!g.held) g.key('right', true); if (v.swing && v.swing.k > .55 && !v.dodge) g.key(v.prompt, true); if (v.atBell) g.key('up', true); }), ar = ace.result(starsFor);
+assert.equal(ar.finished, true); assert.equal(ar.dodges, 9); assert.equal(ar.hits, 0); assert.equal(ar.stars, 3); assert.ok(ar.time < 30, 'under 30 s: ' + ar.time);
+// only walking: every pillow lands, the bell still wakes him, no stars
+const sleepy = playGuard(g => { if (!g.held) g.key('right', true); if (g.view().atBell) g.key('up', true); }), sr = sleepy.result(starsFor);
+assert.equal(sr.finished, true); assert.equal(sr.dodges, 0); assert.equal(sr.hits, 9); assert.equal(sr.stars, 0);
+// wrong dodge, a dodge that started before the swing, and a dodge that ended too early all count as hits
+const one = (key, at) => { const g = new S.GuardGame(); g.s = g.mark(0); g.step(.01); assert.ok(g.swing); const tele = g.swing.tele; let pressed = false; while (g.swing) { if (!pressed && g.t - g.swing.t0 >= at * tele) { g.key(key, true); pressed = true; } g.step(1 / 120); } return g; };
+assert.equal(one('down', .6).dodges, 1, 'hook: duck in time'); assert.equal(one('left', .6).hits, 1, 'hook: a Slip does not help'); assert.equal(one('down', .05).hits, 1, 'ducked too early');
+const pre = new S.GuardGame(); pre.s = pre.mark(0) - .01; pre.key('down', true); pre.key('right', true); pre.step(.02); pre.step(.02); assert.equal(pre.swing, null, 'no sneaking while ducking');
+// the bell only rings at the end
+const nb = new S.GuardGame(); nb.key('up', true); assert.equal(nb.done, false);
+assert.deepEqual(playGuard(g => { const v = g.view(); if (!g.held) g.key('right', true); if (v.swing && v.swing.k > .55 && !v.dodge) g.key(v.prompt, true); if (v.atBell) g.key('up', true); }).result(starsFor), ar, 'deterministic');
+console.log('story-scenes ok', JSON.stringify({ perfect: res, lazy: lr, guard: ar }));
