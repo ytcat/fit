@@ -526,6 +526,52 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Acceptance criteria:** Screenshots of at least two combos at 402×690 and 1366×768 show the fighter fully in frame; EN/HE/RU.
 - **Evidence:** `qa/gotr-0039/user-v1.20-combo-preview-empty.webp` (owner's screenshot).
 
+### GOTR-0040 — Punch power meter in fights and training
+- **Reported:** 2026-11-11
+- **Status:** OPEN — queued with the punch-power work (agent `smooth-motion` follow-up, GOTR-0032)
+- **Priority:** P1
+- **Area:** Fight HUD / training feedback
+- **Reported behavior / request:** "Please show some kind of small meter of the punch power under the health bar in the fight and something for the training."
+- **Expected behavior:** In fights, a slim meter under each fighter's health bar shows the power of that fighter's last landed punch (fills, then fades; stronger colour for power shots). In bag, mitt and speed training, a power gauge shows the last punch and the session best.
+- **Acceptance criteria:** Meter values come from the real contact impulse; screenshots at phone and desktop sizes in EN/HE/RU; no overlap with the health bars, Burst button or game pad.
+
+### GOTR-0041 — Quick view of the fighter's characteristics
+- **Reported:** 2026-11-11
+- **Status:** OPEN — planned for UX release R2 (agent `ux-r1` after R1)
+- **Priority:** P1
+- **Area:** UI / progression
+- **Reported behavior / request:** "Add a small expandable button that will show all characteristics of the fighter; I don't need to go to options to see how much the power and stamina level and the rest."
+- **Expected behavior:** A small button (header or HUD) that expands to show level/rank, power, speed, stamina, defence and the other ratings of the current fighter, then collapses; reachable in one tap from Train and Fight.
+- **Acceptance criteria:** Values match the career ratings; opens and closes in one tap; phone portrait/landscape and desktop; EN/HE/RU.
+
+### GOTR-0042 — Show both fighters' level and score; warn on a big gap
+- **Reported:** 2026-11-11
+- **Status:** OPEN — planned for UX release R2 (agent `ux-r1` after R1)
+- **Priority:** P1
+- **Area:** Fight setup / rivals / progression
+- **Reported behavior / request:** "I want to see the level and the player score and opponent scores, so if the opponent's score is too high I know I need to train a bit. If there is a huge difference, add a warning with consent that the difference is too big and there is a low chance to win."
+- **Expected behavior:** Before every fight (rival cards, cup, quick fight) the fighter's and the opponent's level and score are shown side by side with an estimated chance. Above a set gap, starting the fight first shows a warning ("Big difference: low chance to win") with Fight anyway / Train first.
+- **Acceptance criteria:** Numbers come from the real ratings; the warning appears only above the threshold and remembers nothing; Train first opens a useful training; EN/HE/RU.
+
+### GOTR-0043 — Losing still pays participation money
+- **Reported:** 2026-11-11
+- **Status:** READY FOR QA — in the next release
+- **Priority:** P1
+- **Area:** Economy
+- **Reported behavior / request:** "Let the user earn money even if he is losing, but less; it's basically participation money."
+- **Finding:** Before this change a fight paid the same for a win or a loss (time × quality); Watch (automatic control) paid 0, which is why a player who never pressed Play saw 0 coins.
+- **Implementation:** `game-domain.js` `fightPay`: win × 1.5, draw × 1, loss × 0.6 of the time-and-quality pay; Watch still pays 0; training pay unchanged.
+- **Evidence:** `tests/fight-pay.test.cjs` — 60 s fight with equal stats: win 52, draw 35, loss 21 coins; Watch 0; heavy-bag training still 35.
+
+### GOTR-0044 — "World" makes no sense; make it the Adventure and move its parts
+- **Reported:** 2026-11-11
+- **Status:** OPEN — planned for UX release R2 (navigation part of change #7), Adventure content per GOTR-0008
+- **Priority:** P1
+- **Area:** Navigation / information architecture
+- **Reported behavior / request:** "The World category is very strange. I don't understand how this is relevant to the world. This one should include probably the adventure, and the components that are in there should be placed in different locations, because this sounds like settings more than world."
+- **Expected behavior:** The World tab becomes **Adventure** (Gloryland map; until the first slice exists, a clear "coming soon" with the plan). Its current parts move: rivals, cup and events → Fight; arena choice → fight setup; history/record book, player & backup, school and other settings → the Settings sheet behind the header gear.
+- **Acceptance criteria:** Every former World item reachable within two taps from its new place; no item lost; screenshots of the new navigation in EN/HE/RU.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
