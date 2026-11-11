@@ -308,7 +308,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0022 — More arenas: street, boxing club, underground, docks hangar, professional tiers
 - **Reported:** 2026-11-10
-- **Status:** READY FOR QA — six arenas merged; published once the final suite passes
+- **Status:** DONE (published 2026-11-11, `383fd47`, full suite 82/82, re-checked on the live site; user to review the look)
 - **Priority:** P2
 - **Area:** Arenas / world
 - **Reported behavior / request:** "I want additional arenas: a street fight (boxing in the street with an audience), a boxing club, an underground arena (illegal fighting theme), docks (a hangar in a port), and a few professional arenas from simple to championship arena."
