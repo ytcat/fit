@@ -496,6 +496,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** In progress.
 - **Evidence:** Pending.
 
+### GOTR-0038 — Coach's mitt goes inside his own face in mitt work
+- **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Train → Coach mitts, cue "Roll under the hook")
+- **Status:** OPEN — queued for agent `smooth-motion` (knows the mitt choreography) as soon as an agent slot frees
+- **Priority:** P1
+- **Area:** Animation / mitt work / collision
+- **Reported behavior / request:** "Bug: look at the rabbit's hand, it's inside his face."
+- **Observed:** while the coach swings a mitt hook for the fighter to roll under, the coach's other mitt sits inside the coach's own face/muzzle. Related known defect: in mitt work the fighter's guard hand jumps 23 cm for one tick during the rear hook (GOTR-0027 measurement).
+- **Expected behavior:** No hand, glove or mitt of either character ever penetrates its own head or body; the coach keeps the non-swinging mitt in a real guard beside the cheek.
+- **Acceptance criteria:** Measured minimum distance between each mitt/glove and the owner's head and torso surfaces stays positive in every mitt-work drill, both species as coach where supported; frame strip of the hook-roll drill before/after; mitt tests pass.
+- **Evidence:** `qa/gotr-0038/user-v1.20-coach-mitt-in-face.webp` (owner's screenshot).
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
