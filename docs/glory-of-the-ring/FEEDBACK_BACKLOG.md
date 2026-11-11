@@ -702,16 +702,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0055 — Adventure screen: map first, graphic, ordered, progress and side quests
 - **Reported:** 2026-11-11 (screenshot, v1.29, Adventure → Old Town)
-- **Status:** IN PROGRESS (agent `adventure-ui2`)
+- **Status:** READY FOR QA — merged (`agent/adventure-ui2` fea451b), next release
 - **Priority:** P1
 - **Area:** Adventure UI
 - **Reported behavior / request:** "The screen is stretched. The text in the boxes takes too much of the screen; make it more graphic so the map is the large portion. Locked, unlocked, then locked again — the order doesn't make sense; unlocked on top, next steps after. Show a progress bar per stage that moves to the next milestone; when a stage is completely done, show on the map animated dots appearing one by one from stage one to stage two (the player moving). I don't know how to embed the side missions; I was thinking of walking like in Roblox/GTA, but that may be complicated now — if it can be done simply and fast do it, if not, embed the side missions simply and clearly into the stages."
 - **Decision (integrator):** walking the city is a large separate project (character controller, collisions, street layout, camera, phone performance) and is not fast; deferred. Side zones become optional side quests attached to chapters: Old Fort ← 1, Midnight Fairground ← 2, Pirate Cove ← 3, Tech Pier ← 4; their pins appear when the chapter is reached and open a themed bonus fight or training.
 - **Acceptance criteria:** no horizontal overflow at 402 and 360 px; map ≥ 60% of the phone screen; compact icon-based bottom sheet; playable missions first and "coming soon" last; per-chapter progress bar with milestones; route dots animation between chapter pins on completion; EN/HE.
+- **Result:** no overflow at 402/360/1366; map 65% of the screen at 402×690, 62% at 360×640 (47% at 1366×768); bottom sheet with ~26% peek, icon tiles with stars; playable first, coming soon last; chapter progress bar with marks every 3 stars + boss (animates, e.g. 0 → 21.4%); 10 route dots after a boss win, next pin highlighted; side-zone pins appear/pulse when their chapter is reached (side quests open a themed free fight; bonus reward not yet). Evidence `qa/gotr-0055/ui2-browser.cjs`. Not verified: route-dot screenshots, 360 px in HE.
 
 ### GOTR-0056 — The adventure must be one connected story
 - **Reported:** 2026-11-11
-- **Status:** APPROVED DESIGN — build queued after GOTR-0055 (agent `adventure-ui2`)
+- **Status:** IN PROGRESS — story lines and journal merged (`adventure/story.js`, 0688cd7); story sets and scenes in progress (agent `story-sets`)
 - **Priority:** P1
 - **Area:** Adventure / narrative
 - **Reported behavior / request:** "Make sure it will be interesting, challenging and fluent. We are building an adventure game, so it's a story; a story has a flow with different things related to it, everything connected — not just jumping between arena and arena, training and training."
@@ -734,6 +735,7 @@ The user asked to run as many independent tasks in parallel as possible and to t
 
 Queued because they touch files being changed above: Burst (GOTR-0005), rival memory F-011, coach tactics F-012, FIFO combo-queue check from the 2026-11-08 brief (after `fight-range`); gloves and shorts designs of GOTR-0003, new fighter GOTR-0009 / F-016 (after `mitt-range`); gym station F-015, Skill Fusion F-017, performance automation F-020.
 - **Presentation (owner approved "Yes, sets + scenes"):** character lines first; then small 3D story sets (bus stop corner, gym front door, market alley, dock pier) for short scripted scenes and on-rails street mini-games; no videos; free walking optional later. Details in `docs/adventure/STORY.md`.
+- **Result so far:** EN/HE/RU intro/outro lines per mission with drawn SVG portraits, plain text on the scene, tap to skip; story beats 1–5 drive the Next bar and the recommended tile; journal tile; Dash speaks at beat 4.
 
 ### Agent status — 2026-11-11 09:45 UTC (owner asked to remove duplicate agents and continue some)
 The four cloud sessions started on 2026-11-10 stopped at the 5-hour usage limit and pushed nothing. Checked against current work:
