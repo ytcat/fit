@@ -116,7 +116,7 @@
   const gameCtx = () => ({ store: rg().store, startTraining: rg().startTraining, startFight: rg().startFight, change: a => { const r = rg().store.gameAction(a); if (r.ok) rg().apply?.(); return r.ok; } });
   function toast(text, cls) {
     let box = document.getElementById('advToasts');
-    if (!box) { box = mk('div', 'adv-toasts'); box.id = 'advToasts'; box.setAttribute('aria-live', 'polite'); document.body.append(box); }
+    if (!box) { box = mk('div', 'adv-toasts'); box.id = 'advToasts'; box.setAttribute('aria-live', 'polite'); (window.app?.engine?.stage || document.body).append(box); } // GOTR-0054: reward chips live in the stage's centre zone
     toastLog.push(text); const t = mk('div', 'adv-toast ' + (cls || ''), text); box.append(t); while (box.children.length > 5) box.firstChild.remove(); setTimeout(() => t.remove(), 4200);
   }
   const starsOf = (g, id) => g.adventure?.missions[id]?.stars || 0;
@@ -148,12 +148,14 @@
     bar.append(btn(primary[0], primary[1], 'game-button adv-go adv-next-main'));
     for (const [label, fn] of more) bar.append(btn(label, fn, 'game-button adv-go adv-alt adv-next-alt'));
     bar._view = e.arena?.fightView || null; bar._mode = e.targetMode;
-    document.body.append(bar); placeNext();
+    (e.stage || document.body).append(bar); placeNext();
   }
+  // GOTR-0054: the Next bar sits in the stage's bottom band, directly above the topmost control (game pad zones, camera lock, play/pause, Burst, result row).
   function placeNext() {
     const bar = document.getElementById('advNext'); if (!bar) return;
-    const pad = document.getElementById('fighterPad'), r = pad && !pad.hidden ? pad.getBoundingClientRect() : null;
-    bar.style.bottom = (r && r.height ? Math.max(8, innerHeight - r.top + 6) : 10) + 'px';
+    const host = bar.parentElement, hr = host.getBoundingClientRect(); let top = Infinity;
+    for (const el of document.querySelectorAll('.fp-zone,#camLock,#playBtn,#burstControl,#burstTip')) { if (el.offsetParent === null) continue; const r = el.getBoundingClientRect(); if (r.width && r.height) top = Math.min(top, r.top); }
+    bar.style.bottom = (top < Infinity ? Math.max(8, hr.bottom - top + 6) : 10) + 'px';
   }
   // Called for every awarded activity (replaces the old full-screen card). Mission/boss runs add their own stars and Next bar.
   function reward(a) {

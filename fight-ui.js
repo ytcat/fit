@@ -8,6 +8,7 @@
  Object.assign(words.en,{quickfight:'Quick fight · 1 minute',quickhelp:'One 60-second round · health damage · knockout or draw',KO:'Knockout',health:'health decision'});
  Object.assign(words.he,{quickfight:'קרב מהיר · דקה אחת',quickhelp:'סיבוב אחד של דקה · מד חיים · נוקאאוט או תיקו',KO:'KO',health:'הכרעה לפי מד חיים'});
  Object.assign(words.ru,{quickfight:'Быстрый бой · 1 минута',quickhelp:'Один раунд 60 секунд · здоровье · нокаут или ничья',KO:'KO',health:'по здоровью'});
+ Object.assign(words.en,{judges:'Judges'});Object.assign(words.he,{judges:'שופטים'});Object.assign(words.ru,{judges:'Судьи'});
  for(const lang of ['en','he','ru'])Object.assign(words[lang],lang==='en'?{quickfight:'20 seconds',quickhelp:'One short round',six:'40 seconds',title:'60 seconds',club:'2 × 20 seconds',real:'10-second corner breaks',quick:'20-second rounds · 10-second breaks'}:lang==='he'?{quickfight:'20 שניות',quickhelp:'סיבוב קצר אחד',six:'40 שניות',title:'60 שניות',club:'2 × 20 שניות',real:'10 שניות מנוחה',quick:'סיבובים של 20 שניות'}:{quickfight:'20 секунд',quickhelp:'Один короткий раунд',six:'40 секунд',title:'60 секунд',club:'2 × 20 секунд',real:'Перерыв 10 секунд',quick:'Раунды по 20 секунд'});
  const clock=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
  function boot(){
@@ -48,7 +49,7 @@
    if(round)for(const actor of ['lion','rabbit']){const score=make('span','fight-hud-score');score.dataset.corner=actor==='lion'?'red':'blue';score.append(make('span','fight-hud-sr',' · '+labels(view)[actor]+' '),make('span','fight-hud-num',String(s.totals[actor].landed)));hud.append(score);}
    const before=panel.hidden;panel.hidden=!s.result;if(before!==panel.hidden)window.dispatchEvent?.(new Event('resize'));if(!s.result)return;panel.replaceChildren();
    const title=s.phase==='ceremony'?(s.result.winner?labels(view)[s.result.winner]+' '+w().winner+' · '+w()[s.result.decision]:w().draw):w().waiting;
-   panel.append(make('strong','fight-result-title',title),make('p','fight-card-order',labels(view).lion+' — '+labels(view).rabbit));const cards=make('div','fight-card-grid');
+   panel.append(make('strong','fight-result-title',title),make('span','fight-judges-label',w().judges));const cards=make('div','fight-card-grid');// GOTR-0054: one slim row (styled by stage-hud.css): Judges 9–10 · 9–10 · 9–10, Details on demand
    for(const [i,card] of s.result.cards.entries()){const cell=make('div','fight-card');cell.append(make('span','',w().judge+' '+(i+1)),make('strong','',i<s.cardsShown?card.totals.join(' – '):'•• – ••'));cards.append(cell);}panel.append(cards);
    if(s.result.method==='TKO')panel.append(make('p','fight-note',w().stoppage));
    const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;actions.append(details,again);panel.append(actions);
