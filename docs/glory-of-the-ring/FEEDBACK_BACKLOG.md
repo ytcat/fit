@@ -40,7 +40,7 @@
 
 ### GOTR-0001 — Make the shop immediately discoverable and feel like a real store
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS — slices 1–2 published (`9945b10`, `34d82dd`); badges/confirmation/store look remain
+- **Status:** READY FOR QA — finished in v1.17 (confirm step, badges, store look); user to review
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Shop / navigation / UX
@@ -51,6 +51,8 @@
 - **Evidence:** `qa/gotr-0001/` — real-app checks in EN/HE/RU at 393×852, 360×640, 852×393 and 1366×768 on Train, Fight and World: button visible, ≥40 px tall, unclipped, not overlapped, no horizontal scroll; one tap opens the Shop with localized title and five categories; purchase without coins gives the actionable "Not enough coins…" message; equip persists; zero page errors. Purchase with earned coins remains covered by `tests/game-domain.test.cjs`.
 - **Slice 2 (2026-11-10):** Found during QA: on PC/tablet the Shop showed only 2 of 4 products per category — square cards sized for portrait phones overflowed behind the buy row (`before-desk-products-cut-off.webp`, present on the live site). Products now use four columns on wide screens; six categories fit every layout (two rows of three on short narrow phones); product names no longer collapse in short landscape. Combos category added (GOTR-0004). Evidence: `qa/gotr-0001/layout-browser.cjs` — 0 issues (product outside/under the buy row, hidden name, clipped or overlapping category, scrolling dialog) across all six categories × EN/HE/RU × 1366×768, 1440×900, 820×1180, 393×852, 375×812, 360×740, 360×640, 852×393, 640×360.
 - **Remaining for full acceptance:** clearer locked/owned/equipped badges, purchase confirmation step, and a store look closer to a real shop.
+- **Slice 3 (v1.17, `agent/shop`):** one state badge per card and in the detail row (price, Owned, Equipped, or Locked with a short unlock hint; gold only for prices); confirm step before spending (item, price, balance after, Cancel/Pay; one tap to equip after buying); "Need N more ◈ — earn coins in training or a fight" when short; combo Preview plays the combo on the Shop's preview fighter with the move chips lighting in sync; accessory cards use the modelled thumbnails from `GameAccessories.icon`. New `shop.css`.
+- **Evidence (v1.17):** `qa/gotr-0001/shop-states-browser.cjs` and results: a double tap on Pay charges once, Cancel spends nothing, chips light within one frame of the move timing, fight state unchanged by the preview, purchases survive reload, EN/HE/RU, phone/small/landscape by the agent and desktop by the integrator on the merged tree; `layout-browser.cjs` 0 issues on 9 sizes × 3 languages; full suite before publishing.
 
 ### GOTR-0002 — Redesign championship belts, headbands and side ribbons as real wearable accessories
 - **Reported:** 2026-11-09
@@ -81,7 +83,7 @@
 
 ### GOTR-0004 — Sell and unlock combos through the shop with equip slots
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS — purchase slice published (`34d82dd`); in-Shop demonstration and confirmation remain
+- **Status:** READY FOR QA — finished in v1.17 (combo preview before buying, confirm step); user to review
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Combo shop / progression / inventory
@@ -359,7 +361,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0026 — Gym wall sign text overlaps
 - **Reported:** 2026-11-11 (screenshot from the user's phone, v1.14)
-- **Status:** READY FOR QA — fixed in v1.16
+- **Status:** DONE — published in v1.16
 - **Priority:** P2
 - **Area:** 3D gym signage
 - **Reported behavior / request:** "Bug. Look at the sign behind, the words overlap." The "MOVE & RECOVER" wall sign drew the small "GLORY OF THE RING / BOXING CLUB" line underneath the big title.
