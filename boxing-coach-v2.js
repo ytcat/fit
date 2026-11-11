@@ -845,9 +845,10 @@
       const j=this.joints,hand=j['hand'+side],head=j.head;
       // GOTR-0027: the clearance a guard glove needs can switch between ~0 and ~23 cm from one tick to the next
       // (a 1 mm touch of the muzzle starts a walk to the front of the face). Without a reference the correction
-      // is therefore remembered per hand and may change by at most 3.5 cm per pose (speed bag excepted), so the guard eases out of
+      // is therefore remembered per hand and may change by at most 3.5 cm per pose (guard hands only), so the guard eases out of
       // and back into the face line instead of jumping. A time jump (seek, new drill) forgets it.
-      const memory=reference||this.faceFree?null:(this.faceMemory||(this.faceMemory={L:V(),R:V(),time:null})),start=memory?this.point(hand):null;
+      const free=!!this.faceFree?.includes(side);
+      const memory=reference?null:(this.faceMemory||(this.faceMemory={L:V(),R:V(),time:null})),start=memory?this.point(hand):null;
       let fresh=false;if(memory){const time=this.renderTime;fresh=!(Number.isFinite(time)&&Number.isFinite(memory.time)&&time-memory.time>=0&&time-memory.time<.1);if(fresh){memory.L.set(0,0,0);memory.R.set(0,0,0);memory.fresh={L:true,R:true};}memory.time=time;fresh=!!memory.fresh?.[side];if(memory.fresh)memory.fresh[side]=false;}
       const place=offset=>{const shoulder=this.point(j['arm'+side]),upper=j['elbow'+side].position.length(),lower=hand.position.length(),target=start.clone().add(offset);
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
@@ -882,7 +883,7 @@
         glove=this.orientGlove(side,glove.turn,palmTarget);
       }
       if(memory){
-        const wanted=this.point(hand).sub(start),previous=memory[side],change=wanted.clone().sub(previous),limited=fresh?wanted.clone():previous.clone().add(change.clampLength(0,.035));
+        const wanted=this.point(hand).sub(start),previous=memory[side],change=wanted.clone().sub(previous),limited=fresh||free?wanted.clone():previous.clone().add(change.clampLength(0,.035));
         if(limited.distanceToSquared(wanted)>1e-8)error=place(limited);memory[side].copy(limited);
       }
       return {glove,error};
@@ -1516,8 +1517,8 @@
         const palm=V(...returned.palm).lerp(V(0,-1,0),blend).normalize();
         gloves[index]=this.orientGlove(side,returned.turn*(1-blend),palm);
       }
-      // Speed-bag circles pass the face every beat and keep the immediate clearance.
-      this.faceFree=move==='speedbag';
+      // The striking hand and speed-bag circles keep the immediate clearance; only a guard hand is rate-limited.
+      this.faceFree=move==='speedbag'?'LR':['jab','hook','uppercut'].includes(move)?'L':['cross','rear_hook','rear_uppercut'].includes(move)?'R':'';
       if(move==='speedbag'||options.keepFaceClear)for(const [index,side,pole] of [[0,'L',leadPole],[1,'R',rearPole]]){
         const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole);gloves[index]=safe.glove;
         if(index)re=safe.error;else le=safe.error;
