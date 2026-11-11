@@ -25,6 +25,7 @@
       roll_under_hook: L(`${roll} under ${n} coach ${hook}s`, `בצעו ${roll} מתחת ל-${n} הוקים של המאמן`, `${roll} под ${n} ${hook} тренера`),
       rope_rhythm: L(`${n} seconds of rope in rhythm`, `${n} שניות חבל בקצב`, `${n} секунд скакалки в ритме`),
       teach_the_kid: L(`Show the ${jab}-${cross} cleanly ${n} times`, `הדגימו ${jab}-${cross} נקי ${n} פעמים`, `Покажите ${jab}-${cross} чисто: ${n} раза`),
+      heavy_bag_van: L(`Carry the bag in with at most ${n} mistakes`, `הכניסו את השק עם ${n} טעויות לכל היותר`, `Занесите мешок, ошибок не больше ${n}`),
       morning_sparring: L(`Land ${n} punches in a 30-second round`, `פגעו ${n} פעמים בסיבוב של 30 שניות`, `Нанесите ${n} ударов за раунд в 30 секунд`)
     }[id];
     return t ? t[l] : '';
@@ -35,6 +36,7 @@
   // How each playable mission starts and what it measures. Hooks: imp(run, hit), frame(run, frame, dt).
   const playerOn = () => !!window.app?.engine?.player?.enabled;
   const DEFS = {
+    heavy_bag_van: { kind: 'scene', scene: 'carry_bag' }, // GOTR-0056 story set mini-game (adventure/story/story-scenes.js)
     // first_stance (guard hold) stays "Coming soon": the sparring partner did not reliably throw at a guarding Fighter in testing, so no honest signal yet.
     one_two_mitts: { kind: 'training', mode: 'pads', duration: 60,
       imp: (r, h) => { if (playerOn() && h.actor === 'lion' && h.receiver === 'pads' && !h.blocked && (h.move === 'jab' || h.move === 'cross')) r.value++; } },
@@ -191,7 +193,14 @@
     cleanup(); run = { id, mission, def, ctx, value: 0, target: mission.thresholds[2], ended: false };
     hook(); strip(run); paintStrip(); return true;
   }
+  // GOTR-0056: story scenes before the first mission of a beat (once per browser), and scene-type missions.
+  const seen = k => { try { return localStorage.getItem('gotr-scene-' + k) === '1'; } catch { return false; } };
+  const mark = k => { try { localStorage.setItem('gotr-scene-' + k, '1'); } catch { /* fine without storage */ } };
+  const PRE = { one_two_mitts: 'arrival', bag_power: 'brick' };
   function start(ctx, id) {
+    const S = window.StoryScenes, d0 = DEFS[id];
+    if (d0 && d0.kind === 'scene') { if (S) S.play(d0.scene, { onDone: () => { try { ctx.refresh?.(); } catch { /* sheet may be closed */ } } }); return; }
+    if (S && PRE[id] && !seen(PRE[id])) { mark(PRE[id]); S.play(PRE[id], { onDone: () => start(ctx, id) }); return; }
     if (!begin(ctx, id)) return;
     const d = run.def, e = window.app.engine;
     try {
