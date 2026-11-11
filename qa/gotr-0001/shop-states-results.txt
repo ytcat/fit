@@ -1,0 +1,25 @@
+phone new player badges: gloves=equipped,short,short,short shorts=equipped,short,short,short boots=equipped,short,short,short belt=equipped,short,short,short accessory=short,short,short combo=locked,short,short,short,short,short
+phone short: badge="Need 25 more ◈" notice="Need 25 more ◈ — earn coins in training or a fight."
+phone buy: confirm="Buy Midnight? / Balance after: 80 ◈ / Cancel / Pay 25 ◈" cancel→105 pay(double tap)→80 spends=1 then Equip→✓ Equipped
+phone combo demo: chips 012012 lit at 0.5/1/1.65/3.7/4.25/4.85s (expected 0.45/0.99/1.63 + 3.21), glove reach 0.62 m, 129 frames in 251.5 s wall (software WebGL), fight state unchanged
+phone combo buy: "Buy Corner Turn? / Balance after: 60 ◈ / Cancel / Pay 20 ◈" → 60 ◈ → Use in training → ✓ Equipped
+phone en after reload: gloves owned:Owned, equipped:✓ Equipped, short:75 ◈ | combos owned:Owned, equipped:✓ Equipped, price:40 ◈ | confirm "Buy Midnight? / Balance after: 35 ◈ / Cancel / Pay 25 ◈"
+phone he after reload: gloves owned:בבעלותך, equipped:✓ בשימוש, short:75 ◈ | combos owned:בבעלותך, equipped:✓ בשימוש, price:40 ◈ | confirm "לרכוש את חצות? / יתרה אחרי הרכישה: 35 ◈ / ביטול / תשלום 25 ◈"
+phone ru after reload: gloves owned:Куплено, equipped:✓ Надето, short:75 ◈ | combos owned:Куплено, equipped:✓ В наборе, price:40 ◈ | confirm "«Полночь» за 25 ◈? / Останется: 35 ◈ / Отмена / Купить"
+small new player badges: gloves=equipped,short,short,short shorts=equipped,short,short,short boots=equipped,short,short,short belt=equipped,short,short,short accessory=short,short,short combo=locked,short,short,short,short,short
+small short: badge="Need 25 more ◈" notice="Need 25 more ◈ — earn coins in training or a fight."
+small buy: confirm="Buy Midnight? / Balance after: 80 ◈ / Cancel / Pay 25 ◈" cancel→105 pay(double tap)→80 spends=1 then Equip→✓ Equipped
+small combo demo: chips 012012 lit at 0.5/1/1.65/3.7/4.25/4.85s (expected 0.45/0.99/1.63 + 3.21), glove reach 0.62 m, 129 frames in 265.8 s wall (software WebGL), fight state unchanged
+small combo buy: "Buy Corner Turn? / Balance after: 60 ◈ / Cancel / Pay 20 ◈" → 60 ◈ → Use in training → ✓ Equipped
+small en after reload: gloves owned:Owned, equipped:✓ Equipped, short:75 ◈ | combos owned:Owned, equipped:✓ Equipped, price:40 ◈ | confirm "Buy Midnight? / Balance after: 35 ◈ / Cancel / Pay 25 ◈"
+small he after reload: gloves owned:בבעלותך, equipped:✓ בשימוש, short:75 ◈ | combos owned:בבעלותך, equipped:✓ בשימוש, price:40 ◈ | confirm "לרכוש את חצות? / יתרה אחרי הרכישה: 35 ◈ / ביטול / תשלום 25 ◈"
+small ru after reload: gloves owned:Куплено, equipped:✓ Надето, short:75 ◈ | combos owned:Куплено, equipped:✓ В наборе, price:40 ◈ | confirm "«Полночь» за 25 ◈? / Останется: 35 ◈ / Отмена / Купить"
+land new player badges: gloves=equipped,short,short,short shorts=equipped,short,short,short boots=equipped,short,short,short belt=equipped,short,short,short accessory=short,short,short combo=locked,short,short,short,short,short
+land short: badge="Need 25 more ◈" notice="Need 25 more ◈ — earn coins in training or a fight."
+land buy: confirm="Buy Midnight? / Balance after: 80 ◈ / Cancel / Pay 25 ◈" cancel→105 pay(double tap)→80 spends=1 then Equip→✓ Equipped
+land combo demo: chips 012012 lit at 0.5/1/1.65/3.7/4.25/4.85s (expected 0.45/0.99/1.63 + 3.21), glove reach 0.62 m, 129 frames in 297.3 s wall (software WebGL), fight state unchanged
+land combo buy: "Buy Corner Turn? / Balance after: 60 ◈ / Cancel / Pay 20 ◈" → 60 ◈ → Use in training → ✓ Equipped
+land en after reload: gloves owned:Owned, equipped:✓ Equipped, short:75 ◈ | combos owned:Owned, equipped:✓ Equipped, price:40 ◈ | confirm "Buy Midnight? / Balance after: 35 ◈ / Cancel / Pay 25 ◈"
+land he after reload: gloves owned:בבעלותך, equipped:✓ בשימוש, short:75 ◈ | combos owned:בבעלותך, equipped:✓ בשימוש, price:40 ◈ | confirm "לרכוש את חצות? / יתרה אחרי הרכישה: 35 ◈ / ביטול / תשלום 25 ◈"
+land ru after reload: gloves owned:Куплено, equipped:✓ Надето, short:75 ◈ | combos owned:Куплено, equipped:✓ В наборе, price:40 ◈ | confirm "«Полночь» за 25 ◈? / Останется: 35 ◈ / Отмена / Купить"
+Run 2026-11-11, branch agent/shop: phone 393x852, small 360x640 and land 852x393 passed every assertion above (0 page errors). The run was stopped before the 1366x768 pass to save time (software WebGL ran at ~0.5 fps); desktop layout and purchase are covered by layout-browser.cjs and qa/gotr-0004/browser.cjs.
