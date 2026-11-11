@@ -631,6 +631,24 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** Not started.
 - **Evidence:** Not yet available.
 
+### GOTR-0049 — Outfits that fit the place and the activity
+- **Reported:** 2026-11-11
+- **Status:** OPEN — queued after the muscle work (GOTR-0037), because outfits must fit the new body shapes
+- **Priority:** P1
+- **Area:** Gear / presentation / adventure themes
+- **Reported behavior / request:** "During trainings without an opponent you can use hand wraps instead of gloves. For street fighting you don't use gloves or special boxing clothes; you can use sport long pants, sporty track style. Adapt the clothes, accessories, the look and everything to the theme."
+- **Proposal (integrator):** an outfit set chosen automatically by activity and place, with the player's Shop items applied where they fit:
+  - **Hand wraps, no gloves:** rope, shadowboxing, speed bag (and footwork drills). Gloves stay for heavy bag, mitts, sparring and fights.
+  - **Street (Street Fight arena, Market Row):** bare or taped fists, track pants with side piping, T-shirt or tank top, sneakers.
+  - **Underground (Basement, Dockside Hangar):** taped fists or fingerless gloves, cargo or track pants, no ring robe.
+  - **Gym and clubs:** training shorts or joggers with gloves for contact work.
+  - **Pro arenas and Championship:** full boxing kit (trunks, belt, boots, robe at the walk-in).
+  - Shop gains outfit items per theme (wraps colours, track pants, tops, sneakers); prices kept, free during development.
+- **IP rule:** original sportswear designs only; no brand marks, logos or a brand's signature stripe pattern.
+- **Acceptance criteria:** the right outfit appears automatically in every activity and arena for both species; it follows the body in all poses (fit tests); Shop shows the new items with rendered thumbnails; screenshots per theme.
+- **Implementation:** Not started.
+- **Evidence:** Not yet available.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
