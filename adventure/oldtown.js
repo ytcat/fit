@@ -154,7 +154,7 @@
   function placeNext() {
     const bar = document.getElementById('advNext'); if (!bar) return;
     const host = bar.parentElement, hr = host.getBoundingClientRect(); let top = Infinity;
-    for (const el of document.querySelectorAll('.fp-zone,#camLock,#playBtn,#burstControl,#burstTip')) { if (el.offsetParent === null) continue; const r = el.getBoundingClientRect(); if (r.width && r.height) top = Math.min(top, r.top); }
+    for (const el of document.querySelectorAll('.fp-zone,#camLock,#playBtn,#burstControl,#burstTip,.ringside-toolbar')) { if (el.offsetParent === null) continue; const r = el.getBoundingClientRect(); if (r.width && r.height && r.top > hr.top + hr.height / 2) top = Math.min(top, r.top); }
     bar.style.bottom = (top < Infinity ? Math.max(8, hr.bottom - top + 6) : 10) + 'px';
   }
   // Called for every awarded activity (replaces the old full-screen card). Mission/boss runs add their own stars and Next bar.

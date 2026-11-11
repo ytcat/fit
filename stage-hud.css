@@ -70,3 +70,22 @@ body #fightResults[hidden]{display:none}
 #stageContainer .academy-hud .academy-box{min-height:28px;font-size:11px}
 #stageContainer .academy-hint{padding:3px 9px;font-size:11px;box-shadow:none}
 @media(prefers-reduced-motion:reduce){#stageContainer .burst-tip{animation:none}}
+
+/* Owner rule: HUD messages are plain text drawn on the scene, no panels, pills, borders or card backgrounds.
+   White (gold for rewards) with a soft dark shadow. Buttons (Next bar, Details, Skip, quit, camera, pad) stay buttons. */
+#stageContainer{--hud-shadow:0 1px 2px rgb(0 0 0/.95),0 0 6px rgb(0 0 0/.75),0 0 12px rgb(0 0 0/.45)}
+#stageContainer .career-drill-cue,#stageContainer .gr-power-gauge,#stageContainer > .adv-goal,
+#stageContainer .bout-announcement,.game-enabled #stageContainer .bout-announcement:not([data-ko=true]):not([data-kind=countdown]),
+#stageContainer .fight-knockout,#stageContainer .adv-toast,body #fightResults,body.ringside-layout .fight-results,.club-app #fightResults,
+#stageContainer .burst-tip,#stageContainer .academy-hud{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important}
+#stageContainer .career-drill-cue,#stageContainer > .adv-goal,#stageContainer .bout-announcement,#stageContainer .fight-knockout,#stageContainer .adv-toast,#fightResults,#stageContainer .burst-tip,#stageContainer .gr-power-text{color:var(--gr-text,#f3f6fb);text-shadow:var(--hud-shadow)}
+#stageContainer .bout-announcement span{color:var(--gr-text-muted,#cfd6e2);text-shadow:var(--hud-shadow)}
+#stageContainer .adv-toast.coin,#stageContainer .adv-toast.gold{color:var(--gr-gold,#f4c152)}
+#stageContainer .adv-toast.gain,#stageContainer .adv-toast.xp{color:var(--gr-gold,#f4c152)}
+#stageContainer .adv-toast.bad{color:var(--gr-danger,#ff5d5d)}
+#stageContainer .academy-hint{background:none;color:var(--gr-gold,#f4c152);text-shadow:var(--hud-shadow)}
+#fightResults .fight-card strong,#fightResults .fight-judges-label{text-shadow:var(--hud-shadow)}
+#stageContainer > .adv-goal .adv-goal-bar{background:rgb(255 255 255/.25)}
+#fightResults .fight-card + .fight-card::before{content:'·';margin-inline:6px}
+#fightResults .fight-card strong{white-space:nowrap;margin-inline:0}
+body #fightResults{flex-wrap:wrap;row-gap:3px}
