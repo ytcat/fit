@@ -400,6 +400,28 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation (integrator):** Rebuilt `combos()` in `game-shell.js` with styles in `shop.css`: title "Combo loadouts"; a loadout panel at the top with the balance and the real Fight (3) and Training (5) slots filled with equipped combos; one card per combo with a single state pill (Locked / Owned / Equipped), the moves as chips, and for owned combos Fight and Training toggles plus Try; for locked combos the requirement with a progress bar, Buy (with confirm, disabled with "Need N more ◈" when short) and Learn in Academy. Fight toggles are disabled with one explanatory line during a fight; full loadouts disable the add button with a tooltip. Dialogs now take focus themselves on open, so the close button no longer shows a focus ring until the keyboard reaches it.
 - **Evidence:** `qa/gotr-0029/` — user's before screenshot and after screenshots; `browser.cjs`: 6 cards, 8 slots, at most one "Locked" per card, no clipping or horizontal scroll at 402×690, 360×640, 852×393 and 1366×768 in EN/HE/RU; earn → buy with confirm → equip for Fight → card shows Equipped and the Fight slot shows the combo.
 
+### GOTR-0030 — Improve and align every Shop component
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (agent `store-polish`)
+- **Priority:** P1
+- **Area:** Shop / 3D cosmetics
+- **Reported behavior / request:** "Improve and align all store components. The ribbon is on the fighter's eyes, some old belts don't look good. The gloves and shoes look bad in pictures on the store. Improve all."
+- **Expected behavior:** Headband sits on the forehead above the eyes on both species; the old "cosmetic band" belt-slot items are redesigned (or retired with saves migrated safely); every Shop thumbnail (gloves, shorts, boots, belts, accessories, combos) is a clear, consistent, good-looking picture of the real item; all Shop cards, badges, buttons and spacing line up on one grid at every size.
+- **Acceptance criteria:** Multi-angle renders showing the headband above the eyes in guard and moving; before/after thumbnail sheet for every item; layout QA (9 sizes × 3 languages) with 0 issues; purchase/equip flows still pass; old saves load.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
+### GOTR-0031 — Map every user flow and make the first-time experience clear, simple and exciting
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (agent `ux-flows`)
+- **Priority:** P1
+- **Area:** UX / onboarding / navigation
+- **Reported behavior / request:** "Can you please prepare all UX flows with decision making. I want to see all game process and user flow. I feel that the user experience is still not intuitive, clear and simple. I want the new user to be able to understand exactly what to do and it will be clear and make sense and exciting."
+- **Expected behavior:** (1) A visual map of the whole game as it exists today: every screen, entry point and decision (first launch, train, fight, academy, shop, loadouts, world, cup, missions, settings) with where players get lost. (2) A proposed simplified journey for a new player (first 5 minutes, then the daily loop) with one obvious next step at every moment. (3) After the user reviews it, implement the new flow in slices.
+- **Acceptance criteria:** Diagrams cover every reachable screen; each friction point backed by evidence from the real app; the proposed first-time path reaches a first win, a first reward and a first unlock with no dead ends; the user approves before implementation.
+- **Implementation:** In progress (mapping and proposal first).
+- **Evidence:** Pending.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
