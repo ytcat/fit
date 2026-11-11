@@ -128,7 +128,7 @@
 .game-dialog.game-store .store-categories{gap:6px}
 .game-dialog.game-store .store-category{border-radius:var(--gr-radius-s,8px);font-weight:var(--gr-fw-medium,600)}
 .game-dialog.game-store .store-category[aria-current=true]{font-weight:var(--gr-fw-bold,700)}
-.game-dialog.game-store .store-detail{gap:var(--gr-space-2,8px);padding:4px 4px 4px 10px;border-radius:var(--gr-radius-m,12px);background:var(--gr-surface-2,#1a2230);border:1px solid var(--gr-border,#2b364a)}
+.game-dialog.game-store .store-detail{box-sizing:border-box;height:48px;min-height:0;gap:var(--gr-space-2,8px);padding:4px 4px 4px 10px;border-radius:var(--gr-radius-m,12px);background:var(--gr-surface-2,#1a2230);border:1px solid var(--gr-border,#2b364a)}
 [dir=rtl] .game-dialog.game-store .store-detail{padding:4px 10px 4px 4px}
 .game-dialog.game-store .store-detail button{min-height:var(--gr-control-h-s,36px);padding:0 14px;border-radius:var(--gr-radius-s,8px);font-size:var(--gr-fs-s,12px)}
 .game-dialog.game-store .store-detail>.store-badge{line-height:18px;padding:0 8px}
@@ -136,8 +136,16 @@
  .game-dialog.game-store .store-products .store-product{padding:4px;gap:2px}
  .game-dialog.game-store .store-products .store-name{font-size:var(--gr-fs-xs,11px)}
  .game-dialog.game-store .store-products .store-product small.store-badge{font-size:10px;line-height:16px;height:16px;padding:0 6px}
- .game-dialog.game-store .store-detail{padding:2px 2px 2px 8px}
+ .game-dialog.game-store .store-detail{height:auto;padding:2px 2px 2px 8px}
  [dir=rtl] .game-dialog.game-store .store-detail{padding:2px 8px 2px 2px}
  .game-dialog.game-store .store-detail button{min-height:30px;padding:0 10px}
  .game-dialog.game-store .store-categories{gap:4px}
 }
+
+/* GOTR-0033: development build — everything is free; the launch price stays on every tag. */
+.store-free-note{grid-area:note;margin:0;padding:4px 10px;font-size:var(--gr-fs-xs,11px);line-height:1.35;color:var(--gr-text,#f3f6fb);background:var(--gr-info-soft,rgb(59 130 246/.14));border:1px solid var(--gr-info-line,rgb(59 130 246/.45));border-radius:var(--gr-radius-s,8px)}
+.store-badge[data-state=free],.game-dialog.game-store .store-products .store-product small.store-badge[data-state=free]{color:var(--gr-gold,#f4c152);background:var(--gr-gold-soft,rgb(244 193 82/.14))}
+.loadout-pill[data-free=true]{color:var(--gr-gold,#f4c152);background:var(--gr-gold-soft,rgb(244 193 82/.14))}
+.game-loadouts .store-free-note{margin-bottom:2px}
+@media(max-height:700px) and (max-width:599px){.game-dialog.game-store[data-free=true]{grid-template-rows:32px auto 26px auto minmax(0,1fr) 38px 30px;grid-template-areas:'header header' 'note note' 'balance balance' 'cats cats' 'preview products' 'detail detail' 'close close'}.game-dialog.game-store .store-free-note{padding:2px 8px;font-size:10px}}
+@media(max-height:600px) and (min-width:600px){.game-dialog.game-store[data-free=true]{grid-template-rows:32px auto minmax(0,1fr) 36px 30px;grid-template-areas:'header header' 'note note' 'preview shelf' 'balance detail' 'close close'}.game-dialog.game-store .store-free-note{padding:2px 8px;font-size:10px}}
