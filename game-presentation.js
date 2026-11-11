@@ -19,6 +19,8 @@
    const item=catalog.find(c=>c.id===equipment?.[slot]);
    for(const mat of list){if(item&&item.variant!=='default')mat.color.set(item.color).convertSRGBToLinear();else mat.color.copy(data.base.get(mat));}
   }
+  // Boot variants are also distinct constructions (high-top, mid-top, panelled), not only colours.
+  const boots=catalog.find(c=>c.id===equipment?.boots);(typeof BoxingFootwear!=='undefined'?BoxingFootwear:globalThis.window?.BoxingFootwear)?.style?.(coach,boots?.variant||'default');
  }
  class Preview {
   constructor(engine,container){
