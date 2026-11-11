@@ -462,6 +462,28 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** In progress.
 - **Evidence:** Pending.
 
+### GOTR-0035 — Game-pad controls: round D-pad and one-screen punch buttons
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (agent `fighter-pad`)
+- **Priority:** P1
+- **Area:** Controls / fight / sparring / training
+- **Reported behavior / request:** "I need some kind of controls: a round move controller with 4 direction arrows inside (make it designed) and on the other side some punch move buttons. Because it doesn't matter if the punch will be left or right, you now have fewer options for buttons and you can use everything there. Use this also in fight and in sparring."
+- **Decisions (integrator):** D-pad on the left, punches on the right in every language. ← / → step back / forward on screen; ↑ slip; ↓ duck/roll. Punch buttons Straight, Hook, Uppercut, plus Guard, Burst and the equipped combos on the same screen; the hand is chosen automatically (lead first, then alternate; back to lead after a pause), so Straight, Straight = jab, cross. Replaces the Moves/Combos/Defence pages in fight, sparring and the punch trainings; rope keeps its own buttons.
+- **Acceptance criteria:** All four directions and all punches work in fight, sparring and mitt work (measured input/fight events); move and punch at the same time on touch; no overlap with the boxers; phone portrait/landscape and desktop in EN/HE/RU; Academy lessons still pass; full suite passes.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
+### GOTR-0036 — Burst meter charges too slowly
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (integrator)
+- **Priority:** P1
+- **Area:** Fight / Burst
+- **Reported behavior / request:** "Charging takes too long. You need to get to fully charge faster."
+- **Known cause:** v1.13 rules: +0.045 per second of round time (22 s alone), +0.10 per clean hit, +0.07 per block or evasion; the meter was designed so time alone cannot fill it in a 20 s round.
+- **Acceptance criteria:** Measured time to the first full meter in Watch fights before/after; full well before the end of a 20 s round in normal play; Burst tests updated on purpose.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
