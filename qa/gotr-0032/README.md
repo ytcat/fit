@@ -37,8 +37,14 @@ GOTR-0012: jab 164° / 0.990 and cross 167° / 0.994 extension at contact, uncha
 face plane at contact (inside the mitt cushion, which squashes); planted-foot slide unchanged (≤ 2.1 mm, the
 pre-existing uppercut step).
 
-Frame strips: `cross-before-after.webp`, `hook-before-after.webp` (`strip.cjs` + `compose.py`; 120 Hz ticks
-−4…+30 around contact; top before, bottom after). New test: `tests/mitt-power.test.cjs`.
+New test: `tests/mitt-power.test.cjs` (closing speed per punch, speed kept into the pad, pop ≥ 4.5 cm, glove does
+not chase the mitt vs. a ghost station, straights still extended).
+
+Frame strips: NOT delivered. `strip.cjs` (+ `compose.py`) drives the real app at 120 Hz, but in the mitt station
+the screenshots did not show the stepped pose (frames 20…28 ticks after a cross press differ by < 1% of pixels
+while the simulation reports contact at tick 28), so the captured images were discarded rather than presented as
+evidence. The sparring strips in `../gotr-0028/` use the same approach and do show motion; the mitt drill's
+fixed-step clock / deferred visuals are the likely difference. Left for the integrator or a follow-up.
 
 ## Left
 - Watch-mode straights at the mitts are still slow (jab 3.8, cross 2.2 m/s closing): the auto sequence spreads one
