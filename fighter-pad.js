@@ -146,10 +146,10 @@
    dpadDir=dir;dpad.dataset.dir=dir||'';
    if(dir){setPressed(arrows[dir].b,true);act(dir);held.set(dir,{node:arrows[dir].b,pointerId:dpadPointer,at:performance.now()});if(!holdTimer)holdTimer=setInterval(repeat,50);}
   }
-  dpad.addEventListener('pointerdown',ev=>{if(ev.button>0)return;ev.preventDefault();stop(ev);if(dpadPointer!==null&&dpadPointer!==ev.pointerId)return;dpadPointer=ev.pointerId;try{dpad.setPointerCapture(ev.pointerId);}catch{/* optional */}dpadSet(dpadAt(ev));});
+  dpad.addEventListener('pointerdown',ev=>{if(ev.button>0)return;ev.preventDefault();stop(ev);if(dpadPointer!==null&&dpadPointer!==ev.pointerId)dpadSet(null);/* GOTR-0053: a lost pointerup (iOS) must never lock the pad: a new touch always takes over */dpadPointer=ev.pointerId;try{dpad.setPointerCapture(ev.pointerId);}catch{/* optional */}dpadSet(dpadAt(ev));});
   dpad.addEventListener('pointermove',ev=>{if(ev.pointerId!==dpadPointer)return;ev.preventDefault();dpadSet(dpadAt(ev));});
   const dpadUp=ev=>{if(ev.pointerId!==dpadPointer)return;dpadSet(null);dpadPointer=null;};
-  for(const type of ['pointerup','pointercancel','lostpointercapture'])dpad.addEventListener(type,dpadUp);
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])dpad.addEventListener(type,dpadUp);for(const type of ['pointerup','pointercancel'])document.addEventListener(type,dpadUp,true);
   dpad.addEventListener('contextmenu',ev=>ev.preventDefault());
   for(const [dir,{b}] of Object.entries(arrows))b.addEventListener('click',ev=>{if(ev.detail===0)act(dir,'key');});
   chips.addEventListener('pointerdown',stop);skills.addEventListener('pointerdown',stop);

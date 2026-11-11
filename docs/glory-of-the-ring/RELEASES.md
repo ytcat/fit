@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.28 | 2026-11-11 | (this release) | D-pad can no longer get stuck on a direction; mission goal no longer covers the header — GOTR-0053 |
 | v1.27 | 2026-11-11 16:27 | `2a2b63d` | Guard hand no longer jumps for one frame in mitt work; mitt hooks drive deeper through the mitt — GOTR-0027, GOTR-0032 |
 | v1.26 | 2026-11-11 16:21 | `b479d3a` | Old Town missions in the Adventure: Coach Pip's missions with a goal and live counter, 1–3 stars, boss Brick with level check; no more full-screen summary after training or fights — small +XP/+coins/stars notifications and a Next bar instead; smoother, bigger athletic body without specks or hard grooves — GOTR-0008 C1, GOTR-0052, GOTR-0050 |
 | v1.25 | 2026-11-11 15:50 | `6ae838d` | Adventure tab replaces World: 3D map of Gloryland (day/night), tap a place to fly there and open it; progression core (stars, Power/Speed/Stamina, Fighter Level, boss entry levels) and a Fighter level button in the header; last Hebrew/Russian texts translated — GOTR-0008 slices A+B, GOTR-0041, GOTR-0044, GOTR-0046 |

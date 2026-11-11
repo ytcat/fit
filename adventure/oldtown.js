@@ -55,7 +55,7 @@
     const txt = document.createElement('span'), bar = document.createElement('span'), fillBar = document.createElement('i'), quit = document.createElement('button');
     txt.className = 'adv-goal-text'; bar.className = 'adv-goal-bar'; bar.append(fillBar); quit.type = 'button'; quit.className = 'adv-goal-quit'; quit.textContent = '×';
     quit.setAttribute('aria-label', W().quit); quit.title = W().quit; quit.onclick = () => abort();
-    root.append(txt, bar, quit); document.body.append(root); r.ui = { root, txt, fillBar };
+    root.append(txt, bar, quit); (window.app?.engine?.stage||document.body).append(root); r.ui = { root, txt, fillBar };
   }
   function paintStrip() {
     const r = run; if (!r?.ui) return;
@@ -214,7 +214,7 @@
     // Brick hits a little harder than a gym regular; each Fighter Level above his entry level softens his hits 3% and slows his reactions 3%.
     foe.power *= 1.08 * edge.damage; foe.tempo *= 1.03 / edge.reaction; foe.skill = Math.min(.99, foe.skill + .04);
     const strip2 = mk('div', 'adv-goal'); strip2.id = 'advGoal'; strip2.dir = document.documentElement.dir || 'ltr';
-    const txt = mk('span', 'adv-goal-text', `${T(b.names)} · ${W().entry} ${b.entry}`), quit = btn('×', () => abort(), 'adv-goal-quit'); quit.title = W().quit; quit.setAttribute('aria-label', W().quit); strip2.append(txt, quit); document.body.append(strip2); run.ui = { root: strip2, txt };
+    const txt = mk('span', 'adv-goal-text', `${T(b.names)} · ${W().entry} ${b.entry}`), quit = btn('×', () => abort(), 'adv-goal-quit'); quit.title = W().quit; quit.setAttribute('aria-label', W().quit); strip2.append(txt, quit); (window.app?.engine?.stage||document.body).append(strip2); run.ui = { root: strip2, txt };
   }
   function bossDone(view) {
     const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove();

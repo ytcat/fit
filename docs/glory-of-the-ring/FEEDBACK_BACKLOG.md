@@ -682,6 +682,14 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** In progress.
 - **Evidence:** Pending.
 
+### GOTR-0053 — D-pad stuck on "Out" in mitt training; mission goal strip covers the header
+- **Reported:** 2026-11-11 (screenshot, v1.27, Old Town mission "Roll under 10 coach hooks")
+- **Status:** READY FOR QA — fixed by the integrator in v1.28 (not verified on a phone)
+- **Reported behavior / request:** "During training I clicked several times on the back arrow and it's just stuck on it; it doesn't give me any option to move anywhere else."
+- **Cause:** `fighter-pad.js` ignored every new touch while it still remembered an earlier finger; when iOS loses the finger-lifted event, the D-pad stayed on "Out" forever. The goal strip was fixed to the top of the page, over the header.
+- **Fix:** a new touch always takes over the D-pad, and a finger lift anywhere on the page releases it; the goal strip now sits inside the 3D stage below the cue and power rows.
+- **Evidence:** `scripts/run-tests.sh fighter-pad adventure controls` pass; full suite for v1.28. No physical-phone test.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 

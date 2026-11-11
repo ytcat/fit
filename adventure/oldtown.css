@@ -36,3 +36,6 @@
 .adv-next .adv-go{min-height:40px;font-size:13px;padding:0 12px}
 .adv-next-main{flex:1 1 100%}
 @media (max-width:520px){.adv-goal{font-size:12px}.adv-goal-bar{width:32px}.adv-card.adv-has-town{max-height:62%}}
+
+/* GOTR-0053: inside the stage, below the cue and power rows, so the header stays visible */
+#stageContainer > .adv-goal{position:absolute;top:76px}
