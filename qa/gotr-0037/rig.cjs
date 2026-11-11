@@ -6,6 +6,7 @@ const POSES={guard:[0,'guard'],jab:[.525,'jab'],hook:[.55,'hook'],uppercut:[.55,
 // [distance, camera height, target height (m above hips, rig scale), yaw from the rig's front]
 const VIEWS={front:[3,.35,.30,0],q34:[3,.35,.30,.75],side:[3,.35,.30,Math.PI/2],back:[3,.35,.30,Math.PI],
  torso:[2.1,.50,.40,0],torso34:[2.1,.50,.40,.6],backclose:[2.1,.55,.42,Math.PI],arm:[1.9,.60,.52,1.15],shoulder:[1.6,.62,.55,-1.35],legs:[2.0,-.15,-.30,Math.PI-.5],
+ sideclose:[1.75,.52,.40,Math.PI/2],backclose34:[1.9,.55,.42,Math.PI-.9],
  atlasfront:[3.9,.25,.02,0],atlasback:[3.9,.25,.02,Math.PI],atlas34:[3.9,.25,.02,Math.PI-.8]};
 async function open(url,viewport={width:1100,height:800}){
  let browser,page;

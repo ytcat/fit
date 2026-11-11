@@ -21,10 +21,10 @@
   M('pectoralis','pec',[.028,1.535,.19],[.315,1.585,.13],F,[.085,.045],1.25,{bias:.34,p:.75,crisp:true}),
   M('pectoralis','pec',[.035,1.67,.155],[.31,1.64,.12],[0,.3,1],[.048,.038],1.0,{bias:.4,crisp:true}),
   // Rectus abdominis: four boxy segments per side, linea alba and tendinous intersections between.
-  M('rectus','abs',[.058,1.458,.17],[.058,1.370,.16],F,.048,.80,{shape:2.8,p:1.25,crisp:true}),
-  M('rectus','abs',[.058,1.356,.155],[.058,1.276,.15],F,.049,.80,{shape:2.8,p:1.25,crisp:true}),
-  M('rectus','abs',[.058,1.262,.148],[.058,1.182,.148],F,.049,.78,{shape:2.8,p:1.25,crisp:true}),
-  M('rectus','abs',[.056,1.168,.15],[.052,1.095,.15],F,.046,.45,{shape:2.6,p:1.25,crisp:true}),
+  M('rectus','abs',[.058,1.458,.17],[.058,1.370,.16],F,.048,.80,{shape:2.3,p:1.9,crisp:true}),
+  M('rectus','abs',[.058,1.356,.155],[.058,1.276,.15],F,.049,.80,{shape:2.3,p:1.9,crisp:true}),
+  M('rectus','abs',[.058,1.262,.148],[.058,1.182,.148],F,.049,.78,{shape:2.3,p:1.9,crisp:true}),
+  M('rectus','abs',[.056,1.168,.15],[.052,1.095,.15],F,.046,.45,{shape:2.2,p:1.9,crisp:true}),
   // Flank: external oblique above the iliac crest, serratus digits interlocking under the arm.
   M('obliques','flank',[.215,1.39,.095],[.18,1.125,.11],[.75,0,.65],[.062,.055],.80,{bias:.55}),
   M('serratus','flank',[.275,1.478,.045],[.222,1.452,.118],[1,0,.45],.016,.55,{bias:.6,crisp:true}),
@@ -67,11 +67,22 @@
  // Species character: unit (m per relative height), dome sharpness, bulk kept after the
  // band-pass, crease darkening and crest sheen; per-group emphasis.
  const MUSCLE_PROFILES={
-  lion:{unit:.0115,p:.85,keep:.42,cavity:.42,sheen:.16,groups:{rectus:.62,serratus:.70,obliques:.85,trapezius:1.35,pectoralis:1.15,'deltoid side':1.0,latissimus:1.25,infraspinatus:1.25,erector:1.15,teres:1.15,biceps:.95}},
-  rabbit:{unit:.0095,p:.62,keep:.22,cavity:.52,sheen:.20,groups:{rectus:1.0,serratus:1.30,obliques:1.15,trapezius:.95,latissimus:1.1,infraspinatus:1.15,'forearm extensors':1.15,'forearm flexors':1.15}},
-  other:{unit:.0095,p:.75,keep:.3,cavity:.4,sheen:.18,groups:{}}
+  lion:{unit:.0115,p:.85,keep:.42,cavity:.04,sheen:0,mass:1,groups:{rectus:.42,serratus:.70,obliques:.85,trapezius:1.35,pectoralis:1.15,'deltoid side':1.0,latissimus:1.25,infraspinatus:1.25,erector:1.15,teres:1.15,biceps:.95}},
+  rabbit:{unit:.0095,p:.62,keep:.22,cavity:.05,sheen:0,mass:.72,groups:{rectus:.62,serratus:1.05,obliques:1.15,trapezius:.95,latissimus:1.1,infraspinatus:1.15,'forearm extensors':1.15,'forearm flexors':1.15}},
+  other:{unit:.0095,p:.75,keep:.3,cavity:.04,sheen:0,mass:.8,groups:{}}
  };
- const definitionCache=new Map();
+ const definitionCache=new Map(),MASS_RANGE=.05;
+ // GOTR-0050 volume: smooth, static mass along the rest normal (cm-scale), so the boxer is built, not
+ // only carved: pectorals and rib cage, lats and upper back, traps, deltoid caps, upper arms, forearms.
+ // Waist (belts), hands (gloves) and legs are left as authored.
+ function muscleMass(x,y,z,profile){
+  const u=Math.abs(x),k=profile.mass??1,front=smooth01((z-.02)/.08),back=smooth01((-z-.02)/.08),torso=1-smooth01((u-.33)/.05),waist=smooth01((y-1.28)/.09);
+  let m=torso*waist*(.034*bell(u,.14,.105)*bell(y,1.56,y<1.56?.13:.09)*front+.020*bell(y,1.48,.13)*bell(u,0,.27)*smooth01((z+.03)/.10)
+   +.020*bell(u,.27,.07)*bell(y,1.43,.11)+.013*bell(y,1.56,.12)*bell(u,.15,.14)*back)+.008*bell(y,1.77,.05)*bell(u,.17,.09)*(1-front);
+  const arm=smooth01((u-.30)/.07)*smooth01((y-1.36)/.10),cuff=1-smooth01((u-.83)/.05),top=smooth01((y-1.60)/.10);
+  m=Math.max(m,arm*cuff*(.016*bell(u,.50,.13)+.011*bell(u,.38,.07)*(.5+.5*top)+.010*bell(u,.735,.075)));
+  return m*k;
+ }
  function buildDefinition(g,profile){
   const P=g.attributes.position.array,N=g.attributes.normal.array,count=P.length/3,index=g.index?.array;
   if(!index)return null;
@@ -177,30 +188,56 @@
    return out;
   };
   // Limbs keep more of their bellies (biceps peak, deltoid cap, calf) than the torso.
-  const low=lowpass(H),D=new Float32Array(count),limbs=new Float32Array(count);
+  const low=lowpass(H),limbs=new Float32Array(count);let D=new Float32Array(count);
   for(let i=0;i<count;i++){const x=Math.abs(P[i*3]),y=P[i*3+1],limb=Math.max(y>1.38?smooth01((x-.34)/.10):0,1-smooth01((y-.66)/.12)),keep=profile.keep+(1-profile.keep)*.55*limb;limbs[i]=limb;D[i]=H[i]-(1-keep)*low[i];
    // Belts and the waistband sit below the navel: there the relief only carves, never bulges (gear fit).
    if(y<1.28&&y>.95)D[i]=Math.min(D[i],.0005+.02*smooth01((y-1.225)/.055));
    // Boots cover the shin and ankle: the leg relief tapers out above the boot collar.
    if(y<.38)D[i]*=smooth01((y-.31)/.07);
    D[i]=Math.max(-.012,Math.min(.016,D[i]));}
-  const near=smooth(D,6),delta=new Int16Array(count*4),normal=new Int8Array(count*4);
-  const positions=Float32Array.from(P),M2=new Float32Array(count*3);
-  for(let i=0;i<count;i++){positions[i*3]+=N[i*3]*D[i];positions[i*3+1]+=N[i*3+1]*D[i];positions[i*3+2]+=N[i*3+2]*D[i];}
+  // GOTR-0050 (muscle-3): a smooth athletic body, not carved relief. Relief and volume are low-passed
+  // on the mesh (Taubin: no feature narrower than ~5 cm, no shrinkage of the large forms), capped, and
+  // guarded against folds: wherever the moved surface would turn a triangle by more than ~45 degrees
+  // (the old dark/white flecks and hard groove lines) the displacement is relaxed locally.
+  const M=new Float32Array(count);for(let i=0;i<count;i++)M[i]=muscleMass(P[i*3],P[i*3+1],P[i*3+2],profile);
+  // Spatial (metric) low-pass: the graph Laplacian is uneven across the mesh's sliver strips.
+  let Ds=lowpass(D).map(v=>v*(profile.reliefGain??1.5)),Ms=lowpass(M);
+  // Move along a smoothed normal field: in tight folds (axilla, under the pecs) raw normals cross, and
+  // pushing along them tears the surface into flecks; the smoothed field keeps neighbours parallel.
+  const Ns=new Float32Array(count*3);{const comp=k=>lowpass(Float32Array.from({length:count},(_,i)=>N[i*3+k])),nx=comp(0),ny=comp(1),nz=comp(2);
+   for(let i=0;i<count;i++){const l=Math.hypot(nx[i],ny[i],nz[i])||1;Ns[i*3]=nx[i]/l;Ns[i*3+1]=ny[i]/l;Ns[i*3+2]=nz[i]/l;}}
+  for(let i=0;i<count;i++){Ds[i]=Math.max(-.006,Math.min(.010,Ds[i]));const y=P[i*3+1];Ms[i]=Math.max(0,Ms[i])*smooth01((y-1.20)/.08)*(1-smooth01((Math.abs(P[i*3])-.84)/.03));if(y<1.28&&y>.95){const cap=.0005+.02*smooth01((y-1.225)/.055);Ds[i]=Math.min(Ds[i],cap);Ms[i]=Math.min(Ms[i],Math.max(0,cap-Math.max(Ds[i],0)));}}
+  const faceN=new Float32Array(index.length),positions=new Float32Array(P.length),M2=new Float32Array(count*3);
+  const faceNormals=(src,out)=>{for(let k=0;k<index.length;k+=3){const a=index[k]*3,b=index[k+1]*3,c=index[k+2]*3,ux=src[b]-src[a],uy=src[b+1]-src[a+1],uz=src[b+2]-src[a+2],vx=src[c]-src[a],vy=src[c+1]-src[a+1],vz=src[c+2]-src[a+2],nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,l=Math.hypot(nx,ny,nz)||1;out[k]=nx/l;out[k+1]=ny/l;out[k+2]=nz/l;}};
+  faceNormals(P,faceN);const moved=new Float32Array(index.length),relax=new Float32Array(count),visible=new Uint8Array(index.length/3);
+  // Only faces big enough to show: sub-millimetre slivers of the source mesh flip under any change.
+  for(let k=0;k<index.length;k+=3){const a=index[k]*3,b=index[k+1]*3,c=index[k+2]*3,e=(p,q)=>Math.hypot(P[p]-P[q],P[p+1]-P[q+1],P[p+2]-P[q+2]),ux=P[b]-P[a],uy=P[b+1]-P[a+1],uz=P[b+2]-P[a+2],vx=P[c]-P[a],vy=P[c+1]-P[a+1],vz=P[c+2]-P[a+2],area2=Math.hypot(uy*vz-uz*vy,uz*vx-ux*vz,ux*vy-uy*vx);visible[k/3]=area2/Math.max(e(a,b),e(b,c),e(c,a))>.0015?1:0;}
+  for(let pass=0;pass<8;pass++){
+   for(let i=0;i<count;i++){const off=1.3*Ds[i]+Ms[i];for(let k=0;k<3;k++)positions[i*3+k]=P[i*3+k]+Ns[i*3+k]*off;}
+   faceNormals(positions,moved);relax.fill(0);let bad=0;
+   for(let k=0;k<index.length;k+=3)if(visible[k/3]&&moved[k]*faceN[k]+moved[k+1]*faceN[k+1]+moved[k+2]*faceN[k+2]<.7){bad++;relax[index[k]]=relax[index[k+1]]=relax[index[k+2]]=1;}
+   if(!bad)break;
+   for(let r=0;r<1;r++){const grow=Float32Array.from(relax);for(let i=0;i<count;i++)if(relax[i])for(let k=degree[i];k<degree[i+1];k++)grow[adjacent[k]]=1;relax.set(grow);}
+   for(let i=0;i<count;i++)if(relax[i]){Ds[i]*=.7;Ms[i]*=.7;}
+   Ds=lowpass(Ds);Ms=lowpass(Ms);
+  }
+  const delta=new Int16Array(count*4),normal=new Int8Array(count*4),mass=new Int16Array(count*3);
+  for(let i=0;i<count;i++){const off=Ds[i]+Ms[i];for(let k=0;k<3;k++){mass[i*3+k]=Math.round(Math.max(-1,Math.min(1,Ns[i*3+k]*Ms[i]/MASS_RANGE))*32767);positions[i*3+k]=P[i*3+k]+Ns[i*3+k]*off;}}
   for(let k=0;k<index.length;k+=3){
    const a=index[k]*3,b=index[k+1]*3,c=index[k+2]*3,ux=positions[b]-positions[a],uy=positions[b+1]-positions[a+1],uz=positions[b+2]-positions[a+2],vx=positions[c]-positions[a],vy=positions[c+1]-positions[a+1],vz=positions[c+2]-positions[a+2];
    const nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;M2[a]+=nx;M2[a+1]+=ny;M2[a+2]+=nz;M2[b]+=nx;M2[b+1]+=ny;M2[b+2]+=nz;M2[c]+=nx;M2[c+1]+=ny;M2[c+2]+=nz;
   }
   for(let i=0;i<count;i++){const l=Math.hypot(M2[i*3],M2[i*3+1],M2[i*3+2])||1;M2[i*3]/=l;M2[i*3+1]/=l;M2[i*3+2]/=l;}
+  D=Ds;const near=smooth(D,9);
   const q=v=>Math.max(-32767,Math.min(32767,Math.round(v/DEF_RANGE*32767))),b=v=>Math.max(-127,Math.min(127,Math.round(v*127)));
   for(let i=0;i<count;i++){
-   for(let k=0;k<3;k++){delta[i*4+k]=q(N[i*3+k]*D[i]);normal[i*4+k]=b(M2[i*3+k]-N[i*3+k]);}
+   for(let k=0;k<3;k++){delta[i*4+k]=q(Ns[i*3+k]*D[i]);normal[i*4+k]=b(M2[i*3+k]-N[i*3+k]);}
    delta[i*4+3]=Math.round(channel[i]/32*32767);normal[i*4+3]=b(clamp((near[i]-D[i])/(unit*.40),-1,1)*(1-.4*limbs[i]));
   }
-  return {delta,normal,group,groups:groups.map(x=>x.name+' '+x.side),anchors:groups.map(x=>x.anchors),count};
+  return {delta,normal,mass,group,groups:groups.map(x=>x.name+' '+x.side),anchors:groups.map(x=>x.anchors),count};
  }
  const definition={
-  channels:DEF_CHANNELS,atlas:MUSCLE_ATLAS,profiles:MUSCLE_PROFILES,
+  channels:DEF_CHANNELS,atlas:MUSCLE_ATLAS,profiles:MUSCLE_PROFILES,range:DEF_RANGE,massRange:MASS_RANGE,mass:muscleMass,
   build(g,species){
    const P=g.attributes.position;let hash=2166136261;for(let i=0;i<P.array.length;i+=97)hash=Math.imul(hash^Math.round(P.array[i]*1e5),16777619)>>>0;
    const key=species+':'+P.count+':'+hash;if(!definitionCache.has(key))definitionCache.set(key,buildDefinition(g,MUSCLE_PROFILES[species]||MUSCLE_PROFILES.other));return definitionCache.get(key);
@@ -211,10 +248,10 @@
    const g=mesh.geometry,fur=Boolean(g.attributes.avatarFurFlex),count=g.attributes.position.count;let data;
    if(fur){
     const source=coach.definitionData,roots=g.userData.furRoots;if(!source||!roots||roots.length!==count)return false;
-    data={delta:new Int16Array(count*4),normal:new Int8Array(count*4)};
-    for(let i=0;i<count;i++){const j=roots[i]*4;data.delta.set(source.delta.subarray(j,j+4),i*4);data.normal.set(source.normal.subarray(j,j+4),i*4);}delete g.userData.furRoots;
+    data={delta:new Int16Array(count*4),normal:new Int8Array(count*4),mass:new Int16Array(count*3)};
+    for(let i=0;i<count;i++){const j=roots[i]*4;data.delta.set(source.delta.subarray(j,j+4),i*4);data.normal.set(source.normal.subarray(j,j+4),i*4);data.mass.set(source.mass.subarray(roots[i]*3,roots[i]*3+3),i*3);}delete g.userData.furRoots;
    }else{data=definition.build(g,coach.species);if(!data)return false;coach.definitionData=data;}
-   g.setAttribute('avatarDefinition',new THREE.BufferAttribute(data.delta,4,true));g.setAttribute('avatarDefinitionNormal',new THREE.BufferAttribute(data.normal,4,true));
+   g.setAttribute('avatarDefinition',new THREE.BufferAttribute(data.delta,4,true));g.setAttribute('avatarDefinitionNormal',new THREE.BufferAttribute(data.normal,4,true));g.setAttribute('avatarMass',new THREE.BufferAttribute(data.mass,3,true));
    if(!coach.definition){const profile=MUSCLE_PROFILES[coach.species]||MUSCLE_PROFILES.other;coach.definition={values:new Float32Array(24).fill(1),scale:{value:[0,1,2,3,4,5].map(()=>new THREE.Vector4(1,1,1,1))},look:{value:new THREE.Vector2(profile.cavity,profile.sheen)},detail:definition.quality};}
    return true;
   },
@@ -254,9 +291,9 @@
  function definitionShader(shader,coach,main,fur){
   shader.uniforms.avatarDefScale=coach.definition.scale;
   shader.vertexShader=shader.vertexShader.replace('#include <common>',`#include <common>
-attribute vec4 avatarDefinition;attribute vec4 avatarDefinitionNormal;uniform vec4 avatarDefScale[6];${main?'varying float avatarDefCavity;uniform float avatarDefDetail;':''}
+attribute vec4 avatarDefinition;attribute vec4 avatarDefinitionNormal;attribute vec3 avatarMass;uniform vec4 avatarDefScale[6];${main?'varying float avatarDefCavity;uniform float avatarDefDetail;':''}
 float avatarDefK(){float c=floor(avatarDefinition.w*32.0+.5);return dot(avatarDefScale[int(c/4.0)],vec4(equal(vec4(mod(c,4.0)),vec4(0.0,1.0,2.0,3.0))));}`);
-  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>\ntransformed+=avatarDefinition.xyz*(${DEF_RANGE.toFixed(3)}*avatarDefK());`);
+  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>\ntransformed+=avatarDefinition.xyz*(${DEF_RANGE.toFixed(3)}*avatarDefK())+avatarMass*${MASS_RANGE.toFixed(3)};`);
   if(!main)return;
   shader.uniforms.avatarDefLook=coach.definition.look;shader.uniforms.avatarDefDetail=coach.definition.detail;
   shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`#include <project_vertex>
@@ -313,7 +350,7 @@ if(avatarDefDetail>0.0)vNormal=normalize(vNormal+normalMatrix*(bindMatrixInverse
      shader.vertexShader=shader.vertexShader.replace('#include <beginnormal_vertex>','#include <beginnormal_vertex>\nobjectNormal=normalize(objectNormal+avatarMuscleNormal*avatarActivation[int(avatarMuscle.w)]);');
      if(defined)definitionShader(shader,coach,material===mesh.material,fur);
     };
-    material.customProgramCacheKey=()=>key()+`-anatomy78-${fur}-def${defined?1:0}`;
+    material.customProgramCacheKey=()=>key()+`-anatomy78-${fur}-def${defined?3:0}`;
    }
   },
   update(coach){
@@ -335,7 +372,8 @@ if(avatarDefDetail>0.0)vNormal=normalize(vNormal+normalMatrix*(bindMatrixInverse
    definition.update(coach);
   },
   deform(p,coach,index,g){const m=g.attributes.avatarMuscle;if(m&&coach.anatomy){const strength=coach.anatomy.value[m.getW(index)];p.x+=m.getX(index)*strength;p.y+=m.getY(index)*strength;p.z+=m.getZ(index)*strength;}
-   const d=g.attributes.avatarDefinition;if(d){const k=definition.scale(coach,index,g)*DEF_RANGE/32767;p.x+=d.array[index*4]*k;p.y+=d.array[index*4+1]*k;p.z+=d.array[index*4+2]*k;}return p;},
+   const d=g.attributes.avatarDefinition;if(d){const k=definition.scale(coach,index,g)*DEF_RANGE/32767;p.x+=d.array[index*4]*k;p.y+=d.array[index*4+1]*k;p.z+=d.array[index*4+2]*k;}
+   const mass=g.attributes.avatarMass;if(mass){const m=MASS_RANGE/32767;p.x+=mass.array[index*3]*m;p.y+=mass.array[index*3+1]*m;p.z+=mass.array[index*3+2]*m;}return p;},
   definition,
   express(coach,state){
    const {move,strike,hurt,hit,presentation,time}=state,head=coach.joints.head;
