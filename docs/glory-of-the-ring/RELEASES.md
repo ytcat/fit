@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.35 | 2026-11-11 | (this release) | Adventure: mission tiles visible right under the chapter progress; route dots appear one by one along the streets to the next chapter — GOTR-0055 |
 | v1.34 | 2026-11-11 | `b3fecac` | Level window fits the phone screen; Lion/Rabbit choice without pictures |
 | v1.33 | 2026-11-11 | `dfdbe6c` | Adventure screen map-first with a bottom panel, missions in story order, chapter progress bar and route dots, side quests per chapter, story lines with character pictures and a journal — GOTR-0055, GOTR-0056 |
 | v1.32 | 2026-11-11 | `13a9c0e` | Clean game view: all messages are plain text inside the stage (winner, rewards, mission goal, cue), judges' scores as one slim row, Next bar above the controls, no floating cards over the header or controls — GOTR-0054 |
