@@ -591,8 +591,9 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Area:** i18n / RTL
 - **Observed:** header "Guest", HUD names "GUEST" / "SHADOW", intro card "GUEST VS SHADOW · ROUND 1 · GET READY", the "VS" badge and the title.
 - **Causes (integrator):** `fight-presentation.js` has no HE/RU strings; the fight uses the opponent's English name although rivals have HE/RU names; the default profile name "Guest" is stored data shown untranslated.
-- **Decisions (integrator):** translate the visible title (HE "תהילת הזירה", RU "Слава ринга"; logo unchanged) and the VS badge; the default guest name shows as אורח / Гость. The owner can ask to keep the English title.
-- **Acceptance criteria:** a Playwright audit (`qa/gotr-0046/i18n-audit.cjs`) walks every main screen and state in HE and RU and lists visible Latin-letter text; allowlist only for the version number, numbers/coins and player-typed names; final run: 0 findings in both languages.
+- **Owner correction (2026-11-11):** "Not everything should be in Russian or Hebrew. Real terminology should stay in English, like shadowboxing — it doesn't sound right in Hebrew. The game name should always be in English."
+- **English glossary (kept in Latin script in every language):** Glory of the Ring (game name); Shadowboxing, Sparring; Jab, Cross, Hook, Uppercut (and lead/rear variants); Slip, Roll, Guard; Combo, KO, Burst, VS; the combo names (First Rhythm, Corner Turn, Counter Chain, Thunder Arc, Rolling Return, School Signature). Bidi-isolated inside HE sentences. Everything else is translated (menus, buttons, instructions, places, tips, round text, Guest → אורח / Гость, opponents' HE/RU names). The owner can add or remove terms.
+- **Acceptance criteria:** a Playwright audit (`qa/gotr-0046/i18n-audit.cjs`) walks every main screen and state in HE and RU and lists visible Latin-letter text; allowlist = the English glossary, the version number, numbers/coins and player-typed names; final run: 0 findings in both languages.
 - **Evidence:** `qa/gotr-0046/user-v1.20-he-fight-english.webp` (owner's screenshot).
 
 ## Parallel work in progress — 2026-11-10
