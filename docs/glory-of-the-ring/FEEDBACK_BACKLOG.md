@@ -653,14 +653,14 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0050 — Muscular avatar is too skinny; smoother, more realistic surface
 - **Reported:** 2026-11-11 (after v1.24)
-- **Status:** IN PROGRESS (agent `muscle-definition`, follow-up `agent/muscle-2`)
+- **Status:** READY FOR QA — merged (`agent/muscle-2` e12a529), next release
 - **Priority:** P1
 - **Area:** Avatars / anatomy
 - **Reported behavior / request:** "The new muscular avatar is good, but he's very skinny. He should be more built, his chest has to be bigger, his arms have to be bigger. [Stomach] please also make this a bit smoother. The muscles are good, but it now doesn't look realistic anymore." (voice-typed; "stop alarm" read as the stomach/abs)
 - **Expected behavior:** More real volume (bigger chest and rib cage, bigger upper arms and forearms, broader shoulders and lats) on both species; softer abdominal grid and fine creases with smooth transitions; main muscle shapes kept.
 - **Acceptance criteria:** measured chest, upper-arm and forearm girths before/after; before/after sheets per species; gear fit and punch range tests pass.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** fixed extra-volume layer in `avatar-anatomy.js` (pecs, rib cage, lats, upper back, traps, deltoids, arms, forearms; rabbit 72% of the lion amount; waist, hands and legs untouched); rounder, lower ab pads, softer serratus, lighter muscle-border darkening (lion 0.42 → 0.28, rabbit 0.52 → 0.34).
+- **Evidence:** `qa/gotr-0050/` — girths v1.24 → now, lion / rabbit: chest +5% / +3%, chest depth +12% / +9%, rib cage +8% / +5%, deltoid +12% / +9%, upper arm +16% / +11%, forearm +14% / +11%; waist and calf unchanged; before/after sheets per species; affected tests 15 files, 0 fails (incl. mitt-range, fight-range, strike-alignment); belt plate 1.6 / 0.6 mm (limit 4). The rabbit change is modest.
 
 ### GOTR-0051 — Real boxing stance: lead glove and lead foot forward
 - **Reported:** 2026-11-11 (reference photo of two people doing pad work; not stored in the repo)
