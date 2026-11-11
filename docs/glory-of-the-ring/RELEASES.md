@@ -8,7 +8,8 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.17 | 2026-11-11 | (this release) | Shop: confirm before buying, Owned/Equipped/Locked badges, combo preview, modelled accessory thumbnails — GOTR-0001, GOTR-0004 |
+| v1.18 | 2026-11-11 | (this release) | Punches hit harder (head snap, guard jolt, glove keeps speed into the target) and faster; combinations link without a full reset; Burst special move in Play and Watch — GOTR-0024, GOTR-0025, GOTR-0005 |
+| v1.17 | 2026-11-11 | `be88b5a` | Shop: confirm before buying, Owned/Equipped/Locked badges, combo preview, modelled accessory thumbnails — GOTR-0001, GOTR-0004 |
 | v1.16 | 2026-11-11 | `6585854` | Gym wall signs: text no longer overlaps — GOTR-0026 |
 | v1.15 | 2026-11-11 | `98cb293` | Real championship belts (crest and medallion), tied headband and bandana, knotted arm ribbons, three boot designs; version number in the header — GOTR-0002, GOTR-0003 (boots) |
 | v1.14 | 2026-11-11 05:13 | `fb5f47d` | New logo: boxing gloves hanging by their laces (header and tab icon) — GOTR-0023 |

@@ -96,15 +96,15 @@
 
 ### GOTR-0005 — Player-controlled burst / special action in PLAY and WATCH modes
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS (agent `burst`)
+- **Status:** READY FOR QA — in v1.18; user to try it
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Fight controls / AI / mode parity
 - **Reported behavior / request:** During WATCH the user feels unable to intervene; wants a special Burst or power move they can command in both interactive play and spectator/coach mode.
 - **Expected behavior:** A prominent usable Burst command with visible charge/cooldown meter and clear effects. In PLAY mode it issues a controllable action in the fighter's existing motion pipeline. In WATCH mode it offers limited but meaningful tactical override/boost without destroying simulation, e.g. one approved Burst order that queues at a safe AI action boundary. Add tutorial explaining usage, costs and counters. Avoid guaranteed hits / unfair power spikes or animation discontinuities.
 - **Acceptance criteria:** Trigger visible and functional in both modes; user can tell when ready and why unavailable; correct guard/counter mechanics; respects pause, round state, KO and cooldown; visuals and damage synchronized; tested on mobile.
-- **Implementation:** Not started; define exact balance with current hit systems.
-- **Evidence:** Pending demonstration in both modes.
+- **Implementation:** `agent/burst`: Burst button with a charge ring (new `burst-ui.js`, `burst.css`; `B` key; EN/HE/RU tip). Charge is empty at every bell and fills from time (0.045/s), clean hits (+0.10) and blocks/slips (+0.07), so it is ready about once per 20-second round. Play: an explosive jab–cross–hook–rear uppercut–hook at 0.76× normal move time through the real motion pipeline. Watch (coach mode): one order that starts at the next safe boundary. No damage multiplier; cost: 0.7 s recovery without defence, −0.08 stamina, and the opponent attacks. Disabled with a short reason during the intro, pause, knockdown count, round end and KO. Values in `BoxingFight.burst`.
+- **Evidence:** `tests/burst.test.cjs` (the Watch order never cut a punch in progress across 6 seeds; identical contacts score identically with or without Burst); `qa/gotr-0005/` browser QA: ready at 12–14 s from real play, bursts start 0.17–0.8 s after the order, 6 of 20 Burst punches landed and 13 were blocked (the opponent can defend), no overlaps in 96 layout checks (4 sizes × EN/HE/RU × modes). **Limits:** the opponent AI never uses Burst; the QA advances the fight clock itself because software rendering is slow; physical phones untested.
 
 ### GOTR-0006 — Fix cramped, wrapped and tiny combo / action buttons
 - **Reported:** 2026-11-09
@@ -339,25 +339,25 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0024 — Punches must look powerful, not like touches (Watch/coach mode and everywhere)
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (agent `punch-feel`)
+- **Status:** READY FOR QA — in v1.18; user to judge the feel
 - **Priority:** P1
 - **Area:** Fight feel / animation
 - **Reported behavior / request:** "In coach mode, make punches more powerful — it looks like now the fighter is just touching the opponent, not punching it." (Coach mode = the AI-controlled Watch mode; the save records it as `control:'coach'`.)
 - **Expected behavior:** A landed punch reads as an impact: sharp acceleration into contact, body weight behind it, glove compression, a visible snap of the target's head or torso with a short recovery, a brief hit-stop/impact accent and stronger sound, scaled by punch type and power; blocked punches jolt the guard. Same in Watch and Play, fights and mitt/bag work.
 - **Acceptance criteria:** Measured before/after peak glove speed at contact and target recoil per punch type; matched before/after frame sequences; no change to who wins, damage balance or contact detection beyond what is intended and documented; no gloves through heads; reduced-motion respected for camera effects.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** `agent/punch-feel`. Measured causes: every clean hit saturated the target reaction (head jumped 17 cm / 23° in one frame, then froze about 0.4 s regardless of punch); the straight's speed curve had dropped to about 20% of peak where straights land; a blocked jab moved the guard 1 mm. Now: the glove keeps its speed into the target (`boxing-coach-v2.js`), the target's head/torso snaps by punch type and recovers (`fight-arena.js` `reaction()`), blocked blows always jolt the guard and rock the shoulders. No damage constants changed.
+- **Evidence:** `qa/gotr-0024/` (README, `table.md`, before/after JSON, three before/after frame strips). Staged clean cross: glove speed one frame before contact 5.3 → 7.6 m/s; head snaps 20° and recovers below half by 0.45 s instead of holding; blocked-jab guard jolt 0.1 → 2.9 cm. New `tests/punch-feel.test.cjs`. Balance check: more punches thrown (Watch 56 → 66 over three bouts); winners unchanged in 12 of 15 seeded bouts (3 combo bouts flipped). **Limits:** no camera impulse or sound change yet; mitt hooks still meet the pad slowly (about 1.1 m/s); the head snap is easier to see in motion than in still strips.
 
 ### GOTR-0025 — Faster punches, especially combinations
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (agent `punch-feel`)
+- **Status:** READY FOR QA — in v1.18; user to judge the speed
 - **Priority:** P1
 - **Area:** Fight feel / timing
 - **Reported behavior / request:** "Make also a bit faster punches, specifically combinations."
 - **Expected behavior:** Single punches extend faster; combination punches flow into each other with shorter gaps (no full guard reset between linked punches), in Play, Watch, training and Academy lessons, while keeping the readable recovery after the last punch.
 - **Acceptance criteria:** Measured before/after time per punch and per combo for each combo; the Academy tempo windows still accept correct input; player input queue and FIFO behaviour unchanged; all tests pass (timing numbers updated deliberately).
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** `agent/punch-feel`: a shared punch clock (`boxing-routines.js`, `boxing-input.js`, `fight-arena.js`) drives into the target 1.25× faster and absorbs the saved time in the return; linked punches inside a combination end once the hand is back at the guard, so the next one starts sooner. Input queue and FIFO unchanged.
+- **Evidence:** `qa/gotr-0024/table.md`: Watch time to contact jab .32 → .28 s, cross .34 → .28, hook .33 → .28; linked punches start-to-start 1.03 → .83 s; Play combos one-two 1.40 → 1.25 s, three-punch 2.34 → 2.05, uppercut-hook-cross 2.78 → 2.36; bag and mitts time to contact −17 to −21%. Integrator re-ran `qa/gotr-0007/browser.cjs` on the merged tree (phone and desktop, EN/HE/RU): all Academy lessons still pass with the faster combos. **Limits:** mitt uppercuts keep the old timing (to keep their contact tests valid).
 
 ### GOTR-0026 — Gym wall sign text overlaps
 - **Reported:** 2026-11-11 (screenshot from the user's phone, v1.14)
