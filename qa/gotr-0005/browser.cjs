@@ -121,7 +121,7 @@ try{
   await p.evaluate(()=>{const e=app.engine,m=e.arena.fightView.match,a=e.player.actor();m.fighters[a].burst.open=0;m.fighters[a].burst.charge=1;m.requestBurst(a);m.fighters[a==='lion'?'rabbit':'lion'].pendingDown=true;});
   await until(p,()=>app.engine.arena.fightView.match.phase==='count');await p.waitForTimeout(500);s=await state(p);r.count=s.ui.state;assert.equal(s.ui.state,'down');assert.equal(s.engine.charge,1,'meter kept through the count');
   await shot(p,'rules-knockdown-land-ru');
-  const during=await p.evaluate(()=>window.__burst.log.filter(e=>e.type==='burst-start'&&app.engine.arena.fightView.match.phase==='count').length);assert.equal(during,0);
+  const during=await p.evaluate(()=>{const L=window.__burst.log,kd=L.filter(e=>e.type==='knockdown').pop().time;return L.filter(e=>e.type==='burst-start'&&e.time>=kd).length;});assert.equal(during,0);
   await until(p,()=>app.engine.arena.fightView.match.phase!=='count',null,30);s=await state(p);r.afterCount=s.ui.state;
   // round end
   await until(p,()=>app.engine.arena.fightView.match.phase==='rest',null,60);await p.waitForTimeout(500);s=await state(p);r.rest=s.ui.state;assert.equal(s.ui.state,'round');assert.equal(s.ui.disabled,true);await shot(p,'rules-round-over-land-ru');

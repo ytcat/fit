@@ -48,6 +48,7 @@
   function paint(){
    const m=match(),state=m&&!suspended()?m.burstState?.(actor()):null,v=view(state,{paused:!e.isPlaying,watch:!e.player?.enabled});
    if(tipAt!=null&&(!v||v.reason!=='ready'&&v.reason!=='paused'||m.time-tipAt>6))hideTip();
+   if(tipAt!=null)tip.hidden=v.reason!=='ready';// kept through a pause, shown again on resume
    const key=v?[v.reason,Math.round(v.fill*50),app.lang,v.icon].join('|'):'hidden';if(key===last)return v;last=key;
    button.hidden=!v;document.body.classList.toggle('burst-visible',!!v);if(!v){hideTip();return v;}
    const words=w();button.dataset.state=v.reason;button.disabled=!v.enabled;button.style.setProperty('--burst-fill',v.fill.toFixed(3));
