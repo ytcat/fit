@@ -104,7 +104,14 @@
    for(const key of ['lx','ly','lz','cy'])damp(p,key,g[key],.35,dt);damp(p,'angle',g.angle,.35,dt,true);damp(p,'dist',this.reach,.35,dt);
    return p;
   }
-  place(p){const c=this.engine.camera;c.position.set(p.lx+Math.sin(p.angle)*p.dist,p.cy,p.lz+Math.cos(p.angle)*p.dist);c.lookAt(p.lx,p.ly,p.lz);c.updateMatrixWorld(true);}
+  // An arena with a low ceiling (the Basement) declares it on its set group; the intro orbit and the
+  // portrait side lock would otherwise rise above the slab and show only its top. Rechecked once a second.
+  // A built arena can declare camera limits on its set group: a low ceiling (the Basement) and a radius
+  // that keeps the intro orbit inside interior walls. Without them the orbit rises above the slab or passes
+  // behind partitions and the screen goes black. Rechecked once a second.
+  limits(){const now=typeof performance!=='undefined'?performance.now():Date.now();if(!(now-this.limitsAt<1000)){this.limitsAt=now;let top=0,radius=0;this.engine.scene?.traverse?.(n=>{const u=n.userData;if(!u||n.visible===false)return;if(u.cameraCeiling>0&&(!top||u.cameraCeiling<top))top=u.cameraCeiling;if(u.cameraRadius>0&&(!radius||u.cameraRadius<radius))radius=u.cameraRadius;});this.limitsNow={top,radius};}return this.limitsNow||{top:0,radius:0};}
+  ceiling(){return this.limits().top;}
+  place(p){const c=this.engine.camera,l=this.limits(),cy=l.top?Math.min(p.cy,l.top):p.cy,dist=l.radius&&this.mode==='intro'?Math.min(p.dist,l.radius):p.dist;c.position.set(p.lx+Math.sin(p.angle)*dist,cy,p.lz+Math.cos(p.angle)*dist);c.lookAt(p.lx,Math.min(p.ly,cy),p.lz);c.updateMatrixWorld(true);}
   startIntro(){this.intro={t:0,seconds:INTRO.seconds};if(this.mode==='free')this.savedZoom=this.engine.camera.zoom;this.mode='intro';this.pose=null;if(this.hint)this.hint.hidden=false;}
   // A tap ends the orbit: the camera takes the short way from where it is to the fight framing.
   skipIntro(){

@@ -104,6 +104,7 @@
  // ---------------------------------------------------------------- underground
  function underground(k){
   const G=-.015,H=8.5,C=3.25,concrete=lin('#6f6d69'),wall=lin('#5d5b57'),soot=lin('#33322f'),rust=lin('#7a4a36'),steel=lin('#6d7378'),yellow=lin('#c9a02c'),black=lin('#17181a');
+  k.ceiling=C;k.cameraRadius=6; // cameras stay under the low slab and inside the room's partitions (read by camera-director.js)
   k.ambient={sky:[.006,.006,.008],ground:[.018,.016,.014]};
   k.lights.push({x:0,y:2.9,z:0,c:[1,.94,.80],power:4.0,r:2.4,wrap:.35,aim:[0,-1,0],cone:[-.25,.45]});
   const bulbs=[[4.35,4.35],[-4.35,4.35],[4.35,-4.35],[-4.35,-4.35],[0,6.7],[0,-6.7],[6.7,0],[-6.7,0]];
@@ -305,6 +306,7 @@
 
  // ---------------------------------------------------------------- boxing club
  function boxingClub(k){
+  k.cameraRadius=6.4; // the intro orbit stays inside the corner fittings
   const G=-.31,HX=7.6,HZ=6.6,C=4.5,wood=lin('#8a6a48'),steel=lin('#5a6068'),black=lin('#1b1b1e'),cream=lin('#cfc3a6'),green=lin('#2f4a3c'),leather=['#7a2a24','#1d1d20','#8a6a3a','#27405c'].map(lin);
   k.ambient={sky:[.07,.066,.06],ground:[.05,.044,.038]};
   const fixtures=[];for(const z of [-3.2,3.2])for(const x of [-5.4,-1.8,1.8,5.4])fixtures.push([x,z]);
@@ -473,6 +475,8 @@
  const builders={underground,street,championship,boxing_club:boxingClub,docks,regional};
  function build(id,lang,title){
   const k=new Kit(),mood=builders[id](k),made=k.finish(id),paint=l=>k.atlas.paint({lang:l,title:title&&(title[l]||title.en)||''});paint(lang);
+  if(k.ceiling)made.group.userData.cameraCeiling=k.ceiling-.9; // clear of beams, pipes and lamps hung from the slab
+  if(k.cameraRadius)made.group.userData.cameraRadius=k.cameraRadius;
   let disposed=false;
   return {id,lang,group:made.group,mood,sectors:made.sectors,stats:{triangles:made.triangles,meshes:made.meshes,texture:[k.atlas.w,k.atlas.h]},
    setLang(next){if(next===this.lang)return;this.lang=next;paint(next);},
