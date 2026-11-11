@@ -228,7 +228,7 @@
     const raise=clamp(Math.acos(clamp(-elbow.clone().sub(shoulder).normalize().dot(up),-1,1))/(Math.PI/2)),active=(side==='L'?m.left:m.right)||0;
     const reach=clamp(hand.distanceTo(shoulder)/(shoulder.distanceTo(elbow)+elbow.distanceTo(hand)));
     s[1+i]=mix(.78,1.32,a[i]);s[3+i]=mix(.82,1.28,a[4+i]);s[5+i]=mix(.86,1.28,raise-.15+.25*active);
-    s[7+i]=mix(.92,1.25,a[2+i])*(1-.18*clamp(reach*raise-.55)/.45);s[9+i]=mix(1.18,.80,raise*(.6+.4*reach));
+    s[7+i]=mix(.92,1.25,a[2+i])*(1-.18*clamp((reach*raise-.55)/.45));s[9+i]=mix(1.18,.80,raise*(.6+.4*reach));
     s[11+i]=mix(.92,1.25,.35+.65*active);s[15+i]=mix(.85,1.22,a[6+i]);s[17+i]=mix(.85,1.25,a[8+i]);
     s[19+i]=mix(.9,1.22,Math.abs(j.chest.rotation.y)*2.2+.3*active);
    }
