@@ -41,6 +41,7 @@
     "./fight-ui.js?v=2026111014",
     "./training-controls.js?v=2026111007",
     "./character-roster.js?v=2026110607",
+    "./glossary.js?v=2026111100",
     "./ring-camera.js?v=2026111013",
     "./camera-director.js?v=2026111016",
     "./club-world.js?v=2026111103",

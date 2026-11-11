@@ -5,8 +5,8 @@
  const TIP_KEY='gotr-burst-tip';
  const WORDS={
   en:{burst:'Burst',charging:'Charging',bell:'After bell',down:'Knockdown',round:'Round over',bout:'Bout over',paused:'Paused',ordered:'Ordered',queued:'Queued',active:'Bursting',tip:'Burst ready — tap to unleash',label:'Burst: a fast, hard run of punches. Fills from clean hits, defences and time; leaves you open for a moment',ready:'Burst ready'},
-  he:{burst:'פרץ',charging:'נטען',bell:'אחרי הפעמון',down:'נוקדאון',round:'הסיבוב נגמר',bout:'הקרב נגמר',paused:'מושהה',ordered:'ניתנה פקודה',queued:'בתור',active:'פורץ!',tip:'הפרץ מוכן — הקישו לשחרור',label:'פרץ: רצף מכות מהיר וחזק. מתמלא ממכות נקיות, הגנות וזמן; משאיר אתכם חשופים לרגע',ready:'הפרץ מוכן'},
-  ru:{burst:'Рывок',charging:'Заряд',bell:'После гонга',down:'Нокдаун',round:'Раунд окончен',bout:'Бой окончен',paused:'Пауза',ordered:'Приказ дан',queued:'В очереди',active:'Рывок!',tip:'Рывок готов — нажмите, чтобы выпустить',label:'Рывок: быстрая сильная серия ударов. Заряжается от чистых попаданий, защиты и времени; после него вы ненадолго открыты',ready:'Рывок готов'}
+  he:{burst:'Burst',charging:'נטען',bell:'אחרי הפעמון',down:'נוקדאון',round:'הסיבוב נגמר',bout:'הקרב נגמר',paused:'מושהה',ordered:'ניתנה פקודה',queued:'בתור',active:'פורץ!',tip:'\u2068Burst\u2069 מוכן — הקישו לשחרור',label:'\u2068Burst\u2069: רצף מכות מהיר וחזק. מתמלא ממכות נקיות, הגנות וזמן; משאיר אתכם חשופים לרגע',ready:'\u2068Burst\u2069 מוכן'},
+  ru:{burst:'Burst',charging:'Заряд',bell:'После гонга',down:'Нокдаун',round:'Раунд окончен',bout:'Бой окончен',paused:'Пауза',ordered:'Приказ дан',queued:'В очереди',active:'Burst!',tip:'Burst готов — нажмите, чтобы выпустить',label:'Burst: быстрая сильная серия ударов. Заряжается от чистых попаданий, защиты и времени; после него вы ненадолго открыты',ready:'Burst готов'}
  };
  const svg=d=>'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+d+'</svg>';
  const ICONS={

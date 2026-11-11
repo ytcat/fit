@@ -47,6 +47,7 @@
   <script src="./fight-ui.js?v=2026111014" defer></script>
   <script src="./training-controls.js?v=2026111007" defer></script>
   <script src="./character-roster.js?v=2026110607"></script>
+  <script src="./glossary.js?v=2026111100"></script>
   <script src="./ring-camera.js?v=2026111013"></script>
   <script src="./camera-director.js?v=2026111016"></script>
   <script src="./club-world.js?v=2026111103"></script>
@@ -122,7 +123,7 @@
         <button id="langHE" class="px-2 py-0.5 rounded text-slate-300">עב</button>
         <button id="langRU" class="px-2 py-0.5 rounded text-slate-300">РУ</button>
       </div>
-      <button id="speedBtn" class="px-2 py-1 text-xs font-mono font-bold rounded bg-slate-800 text-amber-300 border border-slate-700 active:scale-95">1.0x</button>
+      <button id="speedBtn" class="px-2 py-1 text-xs font-mono font-bold rounded bg-slate-800 text-amber-300 border border-slate-700 active:scale-95">1.0×</button>
       <button id="soundBtn" class="px-2 py-1 text-xs font-bold rounded bg-slate-800 text-slate-200 border border-slate-700 active:scale-95">🔊</button>
     </div>
   </header>
@@ -1090,7 +1091,7 @@
           this.speedIdx = (this.speedIdx + 1) % this.speeds.length;
           const s = this.speeds[this.speedIdx];
           this.engine.speed = s;
-          e.target.innerText = s.toFixed(2) + 'x';
+          e.target.innerText = s.toFixed(2) + '×';
         };
 
         document.getElementById('soundBtn').onclick = (e) => {

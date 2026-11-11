@@ -7,7 +7,7 @@
  };
  function render(c){
   if(!window.GameTournament||!c.e?.coach)return null;
-  const {e,store,app,el,button,section,notify,refresh,startFight}=c,lang=app.lang||'en',w=copy[lang]||copy.en,name=v=>v?.[lang]||v?.en||'',state=store.game().cup||GameTournament.fresh(),active=state.active,owner=active?.species||e.coach.species,roster=GameTournament.roster(owner),ownerName=store.current()?.name||w[owner],panel=section(w.title);panel.classList.add('game-cup');panel.dataset.cupPanel='true';
+  const {e,store,app,el,button,section,notify,refresh,startFight}=c,lang=app.lang||'en',w=copy[lang]||copy.en,name=v=>v?.[lang]||v?.en||'',state=store.game().cup||GameTournament.fresh(),active=state.active,owner=active?.species||e.coach.species,roster=GameTournament.roster(owner),ownerName=(window.CareerProgress?.displayName?CareerProgress.displayName(store.current(),lang):store.current()?.name)||w[owner],panel=section(w.title);panel.classList.add('game-cup');panel.dataset.cupPanel='true';
   panel.append(el('p','game-muted',w.help),el('p','game-cup-fighter',`${w.as}: ${ownerName}`));
   const stages=el('div','game-cup-stages');for(let i=0;i<3;i++){const opponent=roster[i],card=el('article','game-cup-stage'+(active&&i<active.stage?' is-complete':active&&i===active.stage?' is-current':''));card.dataset.cupStage=String(i);card.append(el('strong','',`${w.stage} ${i+1} · ${name(opponent.names)}`),el('span','game-muted',`${w[opponent.species]} · ${w[opponent.tactic]}`),el('small','',active&&i<active.stage?'✓ '+w.done:active&&i===active.stage?w.ready:w.next));stages.append(card);}panel.append(stages);
   const act=a=>{const r=store.gameAction({type:'cup',...a});if(!r.ok){notify(r.error);return null;}return r;};

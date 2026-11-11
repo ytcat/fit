@@ -81,5 +81,8 @@
    try{return this.transaction(()=>{const added=[];for(const source of incoming.profiles){const p=clone(source);p.id=id();p.name=(p.name+' · imported').slice(0,32);p.guest=false;if(!p.game)p.game=domain.fresh(p);this.data.profiles.push(p);added.push(p);}if(added.length)this.data.active=added[0].id;return added.length;});}catch(e){this.locked=wasLocked;throw e;}
   }
  }
- const api={CareerStore,attrs,weights,ranks,id};if(typeof module!=='undefined')module.exports=api;else window.CareerProgress=api;
+ // The automatic guest name ('Guest', 'Guest 2', ...) is shown in the player's language; typed names are shown as typed.
+ const guestWords={en:'Guest',he:'אורח',ru:'Гость'};
+ function displayName(profile,lang='en'){const name=typeof profile==='string'?profile:profile?.name||'';return (typeof profile==='string'||profile?.guest)&&/^Guest( \d+)?$/.test(name)?name.replace('Guest',guestWords[lang]||guestWords.en):name;}
+ const api={CareerStore,attrs,weights,ranks,id,displayName};if(typeof module!=='undefined')module.exports=api;else window.CareerProgress=api;
 })();
