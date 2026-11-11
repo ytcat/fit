@@ -8,7 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.33 | 2026-11-11 | (this release) | Adventure screen map-first with a bottom panel, missions in story order, chapter progress bar and route dots, side quests per chapter, story lines with character pictures and a journal — GOTR-0055, GOTR-0056 |
+| v1.33 | 2026-11-11 | `dfdbe6c` | Adventure screen map-first with a bottom panel, missions in story order, chapter progress bar and route dots, side quests per chapter, story lines with character pictures and a journal — GOTR-0055, GOTR-0056 |
 | v1.32 | 2026-11-11 | `13a9c0e` | Clean game view: all messages are plain text inside the stage (winner, rewards, mission goal, cue), judges' scores as one slim row, Next bar above the controls, no floating cards over the header or controls — GOTR-0054 |
 | v1.31 | 2026-11-11 | `a586b3e` | Header on phones: the line under the title is no longer cut (version only) |
 | v1.30 | 2026-11-11 | `5ff3499` | Mission goal shown as plain text on the scene, without a box — GOTR-0054 |
