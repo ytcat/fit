@@ -1,0 +1,27 @@
+/* GOTR-0005 Burst control: bottom-left of the fight stage (mirrors the pause button), with a charge ring and a first-time tip. */
+.burst-control{--burst-fill:0;position:absolute;left:14px;bottom:14px;z-index:18;display:flex;align-items:center;gap:7px;box-sizing:border-box;min-width:96px;max-width:156px;height:var(--gr-control-h,44px);padding:4px 12px 4px 5px;border:1px solid var(--gr-scene-line,var(--gr-border,#2b364a));border-radius:var(--gr-radius-pill,999px);background:var(--gr-scene-chip-strong,var(--gr-surface-2,#1a2230));color:var(--gr-text-muted,#9aa7bb);box-shadow:var(--gr-shadow-2,0 8px 24px rgb(0 0 0/.38));font:var(--gr-fw-bold,700) 12px/1.1 var(--gr-font,system-ui,sans-serif);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
+.burst-control[hidden]{display:none}
+.burst-meter{position:relative;flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gr-accent,#e63946) calc(var(--burst-fill)*360deg),var(--gr-surface-3,#243044) 0)}
+.burst-meter::before{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--gr-scene-chip-strong,var(--gr-surface-2,#1a2230))}
+.burst-meter svg{position:relative;width:17px;height:17px;display:block}
+.burst-caption{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.burst-control:disabled{cursor:default}
+.burst-control:focus-visible{outline:2px solid var(--gr-focus,var(--gr-info,#3b82f6));outline-offset:2px}
+.burst-control[data-state=charging] .burst-meter svg{color:var(--gr-text-muted,#9aa7bb)}
+/* Ready: the one primary scene action, accent fill with a soft glow. */
+.burst-control[data-state=ready]{background:var(--gr-accent,#e63946);border-color:var(--gr-accent,#e63946);color:var(--gr-accent-ink,#fff);box-shadow:0 0 0 3px var(--gr-accent-line,rgb(230 57 70/.6)),var(--gr-shadow-2,0 8px 24px rgb(0 0 0/.38));font-size:14px;letter-spacing:.02em}
+.burst-control[data-state=ready] .burst-meter{background:var(--gr-accent-ink,#fff)}
+.burst-control[data-state=ready] .burst-meter::before{background:var(--gr-accent,#e63946)}
+.burst-control[data-state=ready]:hover{background:var(--gr-accent-hover,var(--gr-accent,#e63946))}
+.burst-control[data-state=ready]:active{background:var(--gr-accent-press,var(--gr-accent,#e63946))}
+.burst-control[data-state=queued],.burst-control[data-state=ordered]{border-color:var(--gr-accent-line,rgb(230 57 70/.6));color:var(--gr-accent-text,var(--gr-text,#f3f6fb))}
+.burst-control[data-state=active]{background:var(--gr-accent,#e63946);border-color:var(--gr-accent,#e63946);color:var(--gr-accent-ink,#fff);animation:burst-pulse .45s ease-in-out infinite alternate}
+.burst-control[data-state=active] .burst-meter{background:conic-gradient(var(--gr-accent-ink,#fff) calc(var(--burst-fill)*360deg),rgb(255 255 255/.25) 0)}
+.burst-control[data-state=active] .burst-meter::before{background:var(--gr-accent,#e63946)}
+.burst-control[data-state=down],.burst-control[data-state=bell],.burst-control[data-state=round],.burst-control[data-state=bout],.burst-control[data-state=paused]{color:var(--gr-text-muted,#9aa7bb)}
+@keyframes burst-pulse{from{box-shadow:0 0 0 2px var(--gr-accent-line,rgb(230 57 70/.6))}to{box-shadow:0 0 0 7px var(--gr-accent-soft,rgb(230 57 70/.13))}}
+@media(prefers-reduced-motion:reduce){.burst-control[data-state=active]{animation:none}}
+.burst-tip{position:absolute;left:120px;bottom:14px;z-index:19;display:flex;align-items:center;max-width:220px;box-sizing:border-box;padding:6px 10px;border:1px solid var(--gr-accent-line,rgb(230 57 70/.6));border-radius:var(--gr-radius-s,8px);background:var(--gr-scene-chip-strong,var(--gr-surface-2,#1a2230));color:var(--gr-text,#f3f6fb);box-shadow:var(--gr-shadow-2,0 8px 24px rgb(0 0 0/.38));font:var(--gr-fw-bold,700) 12px/1.25 var(--gr-font,system-ui,sans-serif);pointer-events:none}
+.burst-tip::after{content:'';position:absolute;left:-6px;top:50%;width:10px;height:10px;transform:translateY(-50%) rotate(45deg);background:inherit;border-left:1px solid var(--gr-accent-line,rgb(230 57 70/.6));border-bottom:1px solid var(--gr-accent-line,rgb(230 57 70/.6))}
+.burst-tip[hidden],.game-preview-live .burst-control,.game-preview-live .burst-tip{display:none}
+@media(max-height:460px),(max-width:360px){.burst-control{min-width:84px;height:40px;gap:5px;padding:3px 10px 3px 4px;font-size:11px}.burst-control[data-state=ready]{font-size:13px}.burst-meter{width:30px;height:30px}.burst-meter svg{width:15px;height:15px}.burst-tip{font-size:11px;padding:4px 8px}}
