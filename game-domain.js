@@ -7,7 +7,9 @@
  const venueIds=Object.freeze(['default','neon_strip','harbor_dome','street','boxing_club','underground','docks','regional','championship']);
  const slots=['gloves','shorts','boots','belt'],species=['lion','rabbit'];
  const palette=[['default',0,0xc53d32],['midnight',25,0x27334c],['jade',75,0x208675],['sunrise',150,0xe8a341]];
- const catalog=slots.flatMap(slot=>palette.map(([variant,price,color])=>({id:slot+'_'+variant,slot,variant,price,color:variant==='default'?{gloves:0xc53d32,shorts:0x202535,boots:0x202535,belt:0xd8ad4a}[slot]:color,species:[...species],name:(slot==='belt'?'Cosmetic band':slot[0].toUpperCase()+slot.slice(1))+' · '+variant,names:{en:(slot==='belt'?'Cosmetic band':slot)+' · '+variant,he:({gloves:'כפפות',shorts:'מכנסיים',boots:'נעליים',belt:'חגורה קוסמטית'}[slot])+' · '+({default:'בסיס',midnight:'חצות',jade:'ירקן',sunrise:'זריחה'}[variant]),ru:({gloves:'Перчатки',shorts:'Шорты',boots:'Ботинки',belt:'Декоративный пояс'}[slot])+' · '+({default:'базовый',midnight:'полночь',jade:'нефрит',sunrise:'рассвет'}[variant])}})));
+ // Belt-slot items are designed boxing-trunk waistbands (GOTR-0030); ids, prices and saves are unchanged.
+ const waistbands={en:{default:'Gold pinstripe',midnight:'Navy racing stripe',jade:'Jade chevron',sunrise:'Sunrise wordmark'},he:{default:'פסי זהב',midnight:'פס מרוץ כחול',jade:'זיגזג ירקן',sunrise:'זריחה עם כיתוב'},ru:{default:'Золотая полоска',midnight:'Синяя с полосой',jade:'Нефритовый зигзаг',sunrise:'Рассвет с надписью'}};
+ const catalog=slots.flatMap(slot=>palette.map(([variant,price,color])=>({id:slot+'_'+variant,slot,variant,price,color:variant==='default'?{gloves:0xc53d32,shorts:0x202535,boots:0x202535,belt:0xd8ad4a}[slot]:color,species:[...species],name:(slot==='belt'?'Waistband · '+waistbands.en[variant]:slot[0].toUpperCase()+slot.slice(1)+' · '+variant),names:slot==='belt'?{en:'Waistband · '+waistbands.en[variant],he:'רצועת מותניים · '+waistbands.he[variant],ru:'Пояс шорт · '+waistbands.ru[variant]}:{en:slot+' · '+variant,he:({gloves:'כפפות',shorts:'מכנסיים',boots:'נעליים'}[slot])+' · '+({default:'בסיס',midnight:'חצות',jade:'ירקן',sunrise:'זריחה'}[variant]),ru:({gloves:'Перчатки',shorts:'Шорты',boots:'Ботинки'}[slot])+' · '+({default:'базовый',midnight:'полночь',jade:'нефрит',sunrise:'рассвет'}[variant])}})));
  const combos=[
   {id:'first_rhythm',name:'First Rhythm',controllerId:'combo_one_two',sequence:['jab','cross'],requirement:'Complete one active activity',key:'completed',target:1},
   {id:'corner_turn',name:'Corner Turn',controllerId:'combo_three',sequence:['jab','cross','hook'],requirement:'Complete two rope drills',key:'rope',target:2},
@@ -21,6 +23,8 @@
  const lesson=Object.freeze({coins:15,repetitions:3,windowMs:2000,rule:'academy-lesson-v1'}),lessonId=id=>'lesson:'+id;
  // GOTR-0033 release switch. version.js channel 'dev' = development: every item and combo can be taken free (price still shown); 'live' or missing = prices charged and locks apply.
  const freeMode=()=>globalThis.APP_VERSION?.channel==='dev',grantRule='dev-free-v1',grant=(id,extra)=>({id,type:'grant',coins:0,xp:0,...extra,rule:grantRule});
+ // GOTR-0043: fights pay by result; a loss still pays participation money (less than a win).
+ const fightPay=Object.freeze({win:1.5,draw:1,loss:.6});
  const quests=[...combos.map(c=>({id:c.id,name:c.name,key:c.key,target:c.target,comboId:c.id})),{id:'steady_school',name:'Five completed activities',key:'completed',target:5},{id:'first_bout',name:'Complete an active fight',key:'fights',target:1},{id:'straight_work',name:'Land 100 contacts',key:'hits',target:100},{id:'school_minutes',name:'Complete ten active minutes',key:'seconds',target:600}];
  const cleanName=name=>String(name||'').replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,'').trim();
  const fresh=p=>({version:1,venue:'default',school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(cupRules?{cup:cupRules.fresh()}:{}),...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{})});
@@ -115,7 +119,7 @@
   fail('Unknown game action.');
  }
  function reward(g,event,xp,quality,profileId){
-  const active=event.control!=='watch',coins=active?Math.max(1,Math.round(Math.min(event.mode==='fight'?100:60,event.seconds)*(.42+.16*quality))):0;
+  const active=event.control!=='watch',coins=active?Math.max(1,Math.round(Math.min(event.mode==='fight'?100:60,event.seconds)*(.42+.16*quality)*(event.mode==='fight'?fightPay[event.result]||1:1))):0;
   const transactionId='reward:'+event.id;g.ledger.push({id:transactionId,type:'earn',coins,xp,species:event.species,activityId:event.id,rule:active?'activity-v1':'watch-v1'});g.processed.push(event.id);
   const record={id:event.id,transactionId,mode:event.mode,species:event.species,control:event.control||'play',seconds:event.seconds,hits:event.hits,attempts:event.attempts,defences:event.defences,jumps:event.jumps,result:event.mode==='fight'?event.result:null,xp,coins};if(event.evidence!==undefined)record.evidence=evidence(event.evidence);g.history.push(record);g.history=g.history.slice(-50);
   const unlocks=[];
@@ -125,5 +129,5 @@
   return {coins,unlocks,activityId:event.id,transactionId,record,...(cup&&!cup.ignored?{cup}:{})};
  }
  const lessonPassed=(g,id)=>!!g?.ledger.some(t=>t.id===lessonId(id));
- const api={freeMode,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
+ const api={freeMode,fightPay,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
 })();

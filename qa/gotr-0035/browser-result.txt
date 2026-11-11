@@ -1,0 +1,34 @@
+# node qa/gotr-0035/browser.cjs (APP_URL http://127.0.0.1:8156/, 2026-11-11, headless Chromium + SwiftShader)
+phone fight (touch, facing right): right→step_forward hips 0..22px | left→step_back hips -23..0px | up→slip_right hips -4..3px | down→roll hips -15..0px | punches jab,cross,hook + rear_uppercut started jab,cross,hook,hook,rear_uppercut · fight thrown +3
+phone rabbit (touch, facing right): right→step_forward hips 0..28px | left→step_back hips -28..0px | up→slip_right hips -1..0px | down→roll hips -1..2px | punches jab,cross,hook + uppercut started jab,cross,hook,uppercut
+phone pads (touch, facing right): right→step_forward hips 0..45px | left→step_back hips -44..0px | up→slip_right hips 0..2px | down→roll hips 0..33px | punches jab,cross,hook + uppercut started jab,cross,hook,uppercut
+phone heavy: Straight, Straight, Hook → jab, cross, hook (started jab,cross,hook); ↓ → roll
+phone dummy: Straight, Straight, Hook → jab, cross, hook (started jab,cross,hook); ↓ → roll
+phone speed: Straight, Straight, Double → tap_lead, tap_rear, double_lead (started tap_lead,tap_rear,double_lead,double_lead); ↓ → roll
+phone none: Straight, Straight, Hook → jab, cross, hook (started jab,cross,hook); ↓ → roll
+phone multi-touch: left→step_back + straight→jab in 4 ms
+phone hold → 3.5 s: 3 accepted steps (step_forward/pad, step_forward/hold, step_forward/hold)
+phone hold Guard 2.5 s: 3 guard orders, still covering at release
+phone mitts, camera half-turn: facing left, → = step_back (hips 0..40px), ← = step_forward (hips -36..0px)
+phone Watch mode / rope: pad hidden, Burst back on the stage, rope keeps its own button
+desk fight (mouse, facing right): right→step_forward hips -19..37px | left→step_back hips -50..0px | up→slip_right hips -3..2px | down→roll hips -9..6px | punches jab,cross,hook + rear_uppercut started jab,cross,hook,hook,rear_uppercut · fight thrown +3
+desk keyboard: J,J,K → jab,cross,hook (thrown), ↑ guard and W step in unchanged, 1 → combo_one_two; chips 1:1–2 / 2:1–2–3 / 3:Slip & counter; click chip → combo_three
+phone Academy: lesson keeps its 12 exact move buttons (pad hidden), jab-cross ×3 → +15 coins, evidence accepted; in the fight the pad chip glows and its tap is confirmed ("First Rhythm ✓")
+phone fight en: targets ≥55px (chips 42px), body clearance 20px (closest playBtn), lens k=1.056 d=87px, labels uppercut=Uppercut guard=Guard hook=Hook straight=Straight up=Slip right=In left=Out down=Duck
+phone Burst ready inside the pad (first-time tip hidden on phones), body clearance 31px
+phone fight he: targets ≥55px (chips 42px), body clearance 28px (closest uppercut), lens k=1.110 d=87px, labels uppercut=אפרקאט guard=הגנה hook=הוק straight=ישרה up=התחמקות right=פנימה left=החוצה down=התכופפות
+phone pads en: targets ≥55px (chips 42px), body clearance 21px (closest playBtn), lens k=1.011 d=70px, labels uppercut=Uppercut guard=Guard hook=Hook straight=Straight up=Slip right=In left=Out down=Duck
+phone rabbit he: targets ≥55px (chips 42px), body clearance 25px (closest uppercut), lens k=1.000 d=102px, labels uppercut=אפרקאט guard=הגנה hook=הוק straight=ישרה up=התחמקות right=פנימה left=החוצה down=התכופפות
+phone combos ru: targets ≥55px (chips 42px), body clearance 18px (closest burstControl), lens k=1.209 d=94px, labels uppercut=Апперкот guard=Защита hook=Хук straight=Прямой up=Уклон right=Вперёд left=Назад down=Нырок
+small fight en: targets ≥49px (chips 37px), body clearance 14px (closest playBtn), lens k=1.112 d=70px, labels uppercut=Uppercut guard=Guard hook=Hook straight=Straight up=Slip right=In left=Out down=Duck
+small fight he: targets ≥49px (chips 37px), body clearance 24px (closest playBtn), lens k=1.145 d=75px, labels uppercut=אפרקאט guard=הגנה hook=הוק straight=ישרה up=התחמקות right=פנימה left=החוצה down=התכופפות
+small speed ru: targets ≥49px (chips 32px), body clearance 14px (closest fp-chip-face), lens k=1.011 d=92px, labels uppercut=Тройка guard=Защита hook=Двойка straight=Удар up=Уклон right=Вперёд left=Назад down=Нырок
+small combos en: targets ≥49px (chips 37px), body clearance 22px (closest playBtn), lens k=1.260 d=83px, labels uppercut=Uppercut guard=Guard hook=Hook straight=Straight up=Slip right=In left=Out down=Duck
+land fight en: targets ≥52px (chips 39px), body clearance 71px (closest fp-chip-face), lens k=1.000 d=0px, labels uppercut=Uppercut guard=Guard hook=Hook straight=Straight up=Slip right=In left=Out down=Duck
+land fight he: targets ≥52px (chips 39px), body clearance 77px (closest fp-chip-face), lens k=1.000 d=0px, labels uppercut=אפרקאט guard=הגנה hook=הוק straight=ישרה up=התחמקות right=פנימה left=החוצה down=התכופפות
+land pads ru: targets ≥52px (chips 39px), body clearance 97px (closest fp-chip-face), lens k=1.000 d=0px, labels uppercut=Апперкот guard=Защита hook=Хук straight=Прямой up=Уклон right=Вперёд left=Назад down=Нырок
+desk fight en: targets ≥73px (chips 54px), body clearance 107px (closest fp-chip-face), lens k=1.000 d=0px, labels uppercut=Uppercut guard=Guard hook=Hook straight=Straight up=Slip right=In left=Out down=Duck
+desk Burst ready inside the pad, tip above the punch arc, body clearance 107px
+desk fight he: targets ≥73px (chips 54px), body clearance 110px (closest fp-chip-face), lens k=1.000 d=0px, labels uppercut=אפרקאט guard=הגנה hook=הוק straight=ישרה up=התחמקות right=פנימה left=החוצה down=התכופפות
+ALL ASSERTIONS PASSED
+EXIT 0

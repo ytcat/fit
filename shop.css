@@ -106,3 +106,51 @@
 .loadout-after{font-size:12px;color:var(--gr-text-muted,#9aa7bb);flex-basis:100%}
 /* Dialogs take focus themselves on open, so the close button no longer shows a focus ring until the keyboard reaches it. */
 .game-dialog:focus{outline:none}
+
+/* GOTR-0030: one card system for every Shop category (gloves, shorts, boots, waistbands, accessories, combos).
+   Same grid in every category (2x3 on narrow screens, 3x2 on wide ones), so every card has one size,
+   one image well and the same name and badge positions. Thumbnails are renders of the real 3D items. */
+.game-dialog.game-store .store-products,.game-dialog.game-store .store-products[data-category]{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);align-content:stretch;gap:var(--gr-space-2,8px);overflow:hidden;min-height:0}
+@media(max-width:599px){.game-dialog.game-store .store-products,.game-dialog.game-store .store-products[data-category]{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:6px}}
+.game-dialog.game-store .store-products .store-product{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;justify-items:center;align-content:stretch;gap:3px;min-width:0;min-height:0;aspect-ratio:auto;padding:6px;border-radius:var(--gr-radius-m,12px);background:var(--gr-surface-2,#1a2230);border:1px solid var(--gr-border,#2b364a);text-align:center}
+.game-dialog.game-store .store-products .store-product:hover{border-color:var(--gr-border-strong,#3a475e)}
+.game-dialog.game-store .store-products .store-product[aria-pressed=true]{border-color:var(--gr-accent,#e63946);background:var(--gr-accent-soft,rgb(230 57 70/.14))}
+.game-dialog.game-store .store-products .store-product[data-state=equipped]:not([aria-pressed=true]){border-color:var(--gr-success-line,rgb(62 207 142/.5))}
+.game-dialog.game-store .store-products .store-thumb{position:relative;display:block;width:100%;height:100%;min-height:0;overflow:hidden;border-radius:var(--gr-radius-s,8px);background:radial-gradient(circle at 50% 42%,var(--gr-surface-3,#243044),var(--gr-bg,#0a0e14) 92%)}
+.game-dialog.game-store .store-products .store-thumb img{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);max-width:none;max-height:none;margin:auto;object-fit:contain;filter:drop-shadow(0 3px 4px rgb(0 0 0/.45))}
+.game-dialog.game-store .store-products .store-thumb[data-kind=combo] img{inset:14%;width:72%;height:72%;filter:none}
+.game-dialog.game-store .store-products .store-name{display:block;width:100%;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--gr-fs-s,12px);line-height:1.25;font-weight:var(--gr-fw-bold,700);color:var(--gr-text,#f3f6fb)}
+.game-dialog.game-store .store-products .store-product small.store-badge{display:inline-block;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--gr-fs-xs,11px);line-height:18px;height:18px;padding:0 8px;border-radius:var(--gr-radius-pill,999px)}
+.game-dialog.game-store .store-products .store-product small.store-badge[data-state=locked],.game-dialog.game-store .store-products .store-product small.store-badge[data-state=short]{background:var(--gr-surface-3,#243044)}
+.game-dialog.game-store .store-products .store-product small.store-badge[data-state=short]{color:var(--gr-gold,#f4c152)}
+.game-dialog.game-store .store-products .store-product[data-state=locked] .store-thumb img{opacity:.6;filter:grayscale(.5) drop-shadow(0 3px 4px rgb(0 0 0/.45))}
+/* Category tabs and the detail row sit on the same spacing grid as the cards. */
+.game-dialog.game-store .store-categories{gap:6px}
+.game-dialog.game-store .store-category{border-radius:var(--gr-radius-s,8px);font-weight:var(--gr-fw-medium,600)}
+.game-dialog.game-store .store-category[aria-current=true]{font-weight:var(--gr-fw-bold,700)}
+.game-dialog.game-store .store-detail{box-sizing:border-box;height:48px;min-height:0;gap:var(--gr-space-2,8px);padding:4px 4px 4px 10px;border-radius:var(--gr-radius-m,12px);background:var(--gr-surface-2,#1a2230);border:1px solid var(--gr-border,#2b364a)}
+[dir=rtl] .game-dialog.game-store .store-detail{padding:4px 10px 4px 4px}
+.game-dialog.game-store .store-detail button{min-height:var(--gr-control-h-s,36px);padding:0 14px;border-radius:var(--gr-radius-s,8px);font-size:var(--gr-fs-s,12px)}
+.game-dialog.game-store .store-detail>.store-badge{line-height:18px;padding:0 8px}
+@media(max-height:700px) and (max-width:599px),(max-height:600px) and (min-width:600px){
+ .game-dialog.game-store .store-products .store-product{padding:4px;gap:2px}
+ .game-dialog.game-store .store-products .store-name{font-size:var(--gr-fs-xs,11px)}
+ .game-dialog.game-store .store-products .store-product small.store-badge{font-size:10px;line-height:16px;height:16px;padding:0 6px}
+ .game-dialog.game-store .store-detail{height:auto;padding:2px 2px 2px 8px}
+ [dir=rtl] .game-dialog.game-store .store-detail{padding:2px 8px 2px 2px}
+ .game-dialog.game-store .store-detail button{min-height:30px;padding:0 10px}
+ .game-dialog.game-store .store-categories{gap:4px}
+}
+
+/* GOTR-0033: development build — everything is free; the launch price stays on every tag. */
+.game-store .store-free-note{grid-area:note}
+.store-free-note{margin:0;padding:4px 10px;font-size:var(--gr-fs-xs,11px);line-height:1.35;color:var(--gr-text,#f3f6fb);background:var(--gr-info-soft,rgb(59 130 246/.14));border:1px solid var(--gr-info-line,rgb(59 130 246/.45));border-radius:var(--gr-radius-s,8px)}
+.store-badge[data-state=free],.game-dialog.game-store .store-products .store-product small.store-badge[data-state=free]{color:var(--gr-gold,#f4c152);background:var(--gr-gold-soft,rgb(244 193 82/.14))}
+.loadout-pill[data-free=true]{color:var(--gr-gold,#f4c152);background:var(--gr-gold-soft,rgb(244 193 82/.14))}
+.game-loadouts .store-free-note{margin-bottom:2px}
+@media(max-height:700px) and (max-width:599px){.game-dialog.game-store[data-free=true]{grid-template-rows:32px auto 26px auto minmax(0,1fr) 38px 30px;grid-template-areas:'header header' 'note note' 'balance balance' 'cats cats' 'preview products' 'detail detail' 'close close'}.game-dialog.game-store .store-free-note{padding:2px 8px;font-size:10px}}
+@media(max-height:600px) and (min-width:600px){.game-dialog.game-store[data-free=true]{grid-template-rows:32px auto minmax(0,1fr) 36px 30px;grid-template-areas:'header header' 'note note' 'preview shelf' 'balance detail' 'close close'}.game-dialog.game-store .store-free-note{padding:2px 8px;font-size:10px}}
+/* Wide, tall screens: a shorter preview gives the 3x2 product grid room for real-size thumbnails. */
+@media(min-width:600px) and (min-height:601px){.game-dialog.game-store .store-preview,.game-dialog.game-store .store-preview #stageContainer.game-preview-live{height:clamp(160px,22dvh,240px)!important}}
+/* GOTR-0029 follow-up: the balance is set dir=ltr (digits and coin), so its logical inset resolved to the right in Hebrew and covered the Fight label; pin it to the left there. */
+[dir=rtl] .loadouts-balance{inset-inline-end:auto;right:auto;left:14px}

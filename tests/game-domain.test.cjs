@@ -149,6 +149,8 @@ function grant(s,id,more){const result=s.award(event(s,id,more));assert.ok(resul
  assert.deepEqual([Shop.kind(gloves),Shop.kind(corner),Shop.kind(ribbon)],['gear','combo','accessory']);
  assert.equal(Shop.state(classic,g(),coins()),'equipped');assert.equal(Shop.state(gloves,g(),coins()),'short');assert.equal(Shop.short(gloves,coins()),gloves.price);
  assert.equal(Shop.state(first,g(),coins()),'locked','free combo not yet earned is locked');assert.equal(Shop.state(corner,g(),coins()),'short');assert.equal(Shop.state(ribbon,g(),coins()),'short');
+ // GOTR-0033 development build: anything not owned (priced items, the earned first combo, accessories) is 'free'; owned and equipped states are unchanged.
+ for(const item of [gloves,first,corner,ribbon])assert.equal(Shop.state(item,g(),coins(),true),'free','free mode offers '+item.id);assert.equal(Shop.state(classic,g(),coins(),true),'equipped');
  for(const lang of ['en','he','ru',undefined])for(const c of D.combos){const hint=Shop.unlock(c,lang);assert.ok(hint.length>0&&hint.trim().split(/\s+/).length<=4,'unlock hint in four words or fewer: '+lang+' '+c.id+' "'+hint+'"');}
  assert.equal(Shop.unlock(first,'en'),'Finish any activity');
  // Insufficient coins: the store refuses with an actionable message and nothing changes.
