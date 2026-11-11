@@ -1,5 +1,5 @@
 {
-  "version": "v128-20261111i",
+  "version": "v129-20261111j",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -47,7 +47,7 @@
     "./camera-director.js?v=2026111109",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111102",
-    "./version.js?v=2026111116",
+    "./version.js?v=2026111117",
     "./club-interface.js?v=2026111112",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
@@ -59,7 +59,7 @@
     "./ringside-layout.js?v=2026111112",
     "./game-shell.css?v=2026111012",
     "./adventure/adventure.css?v=2026111113",
-    "./adventure/oldtown.css?v=2026111116",
+    "./adventure/oldtown.css?v=2026111117",
     "./design-system.css?v=2026111012",
     "./shop.css?v=2026111111",
     "./fight-hud.css?v=2026111014",
