@@ -8,7 +8,8 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.15 | 2026-11-11 | (this release) | Real championship belts (crest and medallion), tied headband and bandana, knotted arm ribbons, three boot designs; version number in the header — GOTR-0002, GOTR-0003 (boots) |
+| v1.16 | 2026-11-11 | (this release) | Gym wall signs: text no longer overlaps — GOTR-0026 |
+| v1.15 | 2026-11-11 | `98cb293` | Real championship belts (crest and medallion), tied headband and bandana, knotted arm ribbons, three boot designs; version number in the header — GOTR-0002, GOTR-0003 (boots) |
 | v1.14 | 2026-11-11 05:13 | `fb5f47d` | New logo: boxing gloves hanging by their laces (header and tab icon) — GOTR-0023 |
 | v1.13 | 2026-11-11 00:18 | `383fd47` | Six new arenas: Street Fight, Boxing Club, The Basement, Dockside Hangar, City Sports Hall, Championship Arena — GOTR-0022 |
 | v1.12 | 2026-11-10 23:48 | `60a7914` | New fight HUD: designed health bars, names and VS badge — GOTR-0021 |

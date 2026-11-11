@@ -357,6 +357,16 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** In progress.
 - **Evidence:** Pending.
 
+### GOTR-0026 — Gym wall sign text overlaps
+- **Reported:** 2026-11-11 (screenshot from the user's phone, v1.14)
+- **Status:** READY FOR QA — fixed in v1.16
+- **Priority:** P2
+- **Area:** 3D gym signage
+- **Reported behavior / request:** "Bug. Look at the sign behind, the words overlap." The "MOVE & RECOVER" wall sign drew the small "GLORY OF THE RING / BOXING CLUB" line underneath the big title.
+- **Root cause:** `club-world.js` `label()` used fixed pixel positions (brand line at y=80, 72 px title centred at half height, subtitle 57 px above the bottom) whatever the sign's proportions; on wide, short wall signs (canvas height 158 px) all three landed on top of each other.
+- **Fix:** Layout is computed from the sign's real height: short signs (and signs whose title is already the brand) drop the brand line; the title size fits the space between the top and the subtitle; posters keep their layout.
+- **Evidence:** `qa/gotr-0026/before-user-phone.webp` (user's report) and `after-signs.webp` (every gym label texture exported from the real app: four wall signs, floor mark and scoreboard, no overlap); `export-signs.cjs`. Club-world, character-selection, arena-sets and venue tests pass; full suite before publishing.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 

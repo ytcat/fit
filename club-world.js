@@ -17,15 +17,25 @@
   label(root,{name='Club signage',title,subtitle='',width=2,height=1,x=0,y=2,z=-3,color='#dfc291',background='#202b31',accent='#ba6b43',poster=false,resolution=1024}){
    const canvas=document.createElement('canvas');canvas.width=resolution;canvas.height=Math.round(resolution*height/width);const c=canvas.getContext('2d'),h=Math.round(1024*height/width);c.scale(resolution/1024,resolution/1024);
    c.fillStyle=background;c.fillRect(0,0,1024,h);c.strokeStyle=color;c.lineWidth=3;c.strokeRect(20,20,984,h-40);
-   c.fillStyle=accent;c.fillRect(44,42,75,7);c.font='600 22px sans-serif';c.textAlign='left';c.fillStyle=color;c.fillText('GLORY OF THE RING  /  BOXING CLUB',44,80);
+   // Layout from the label's real height so the brand line, title and subtitle never overlap (wide, short wall signs
+   // used to draw the 72 px title on top of the brand line). Short signs drop the brand line; a title that is the brand drops it too.
+   const pad=20,brandRow=!poster&&h>=240&&!/GLORY OF THE RING/.test(title),brandSize=Math.round(Math.max(14,Math.min(22,h*.08)));
+   c.textBaseline='middle';
+   if(poster||brandRow){c.fillStyle=accent;c.fillRect(44,pad+22,75,7);c.font=`600 ${brandSize}px sans-serif`;c.textAlign='left';c.fillStyle=color;c.fillText('GLORY OF THE RING  /  BOXING CLUB',44,pad+22+7+brandSize*.9,936);}
    if(poster){
     c.save();c.translate(512,h*.44);c.rotate(-.24);c.fillStyle=accent;
     c.beginPath();(c.roundRect||c.rect).call(c,-198,-124,175,208,55);c.fill();c.beginPath();(c.roundRect||c.rect).call(c,23,-124,175,208,55);c.fill();
     c.fillStyle=color;c.fillRect(-186,65,152,42);c.fillRect(34,65,152,42);c.restore();
    }
-   c.textAlign='center';const lines=title.split('|');const top=poster?h*.72:h*.5;
-   c.font=`900 ${poster?110:72}px sans-serif`;lines.forEach((line,i)=>c.fillText(line,512,top+i*(poster?112:80),900));
-   c.font='500 26px sans-serif';c.fillText(subtitle,512,h-57,900);
+   c.textAlign='center';c.fillStyle=color;const lines=title.split('|');
+   if(poster){c.textBaseline='alphabetic';c.font='900 110px sans-serif';lines.forEach((line,i)=>c.fillText(line,512,h*.72+i*112,900));c.font='500 26px sans-serif';c.fillText(subtitle,512,h-57,900);}
+   else{
+    const subSize=subtitle?Math.round(Math.max(14,Math.min(26,h*.15))):0,subY=h-pad-12-subSize/2,top=brandRow?pad+22+7+brandSize*1.9:pad+12,bottom=subtitle?subY-subSize*.85:h-pad-12;
+    const size=Math.max(18,Math.min(72,(bottom-top)/lines.length*.9));c.font=`900 ${Math.round(size)}px sans-serif`;
+    const step=(bottom-top)/lines.length;lines.forEach((line,i)=>c.fillText(line,512,top+step*(i+.5),900));
+    if(subtitle){c.font=`500 ${subSize}px sans-serif`;c.fillText(subtitle,512,subY,900);}
+   }
+   c.textBaseline='alphabetic';
    const t=new THREE.CanvasTexture(canvas);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;
    const plane=new THREE.Mesh(new THREE.PlaneGeometry(width,height),new THREE.MeshBasicMaterial({map:t,toneMapped:false}));plane.position.set(x,y,z);plane.name=name;root.add(plane);return plane;
   }
