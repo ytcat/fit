@@ -1,0 +1,2538 @@
+{
+ "label": "before",
+ "seconds": 8,
+ "results": {
+  "heavy-lion-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.509,
+    "p99": 9.475,
+    "max": 11.023
+   },
+   "velocityJump": {
+    "p50": 0.192,
+    "p99": 4.098,
+    "max": 6.221,
+    "top": [
+     {
+      "t": 2.917,
+      "hand": "R",
+      "dv": 6.221,
+      "acc": 373.249,
+      "move": "cross",
+      "speed": 10.527
+     },
+     {
+      "t": 4.7,
+      "hand": "R",
+      "dv": 5.939,
+      "acc": 356.338,
+      "move": "cross",
+      "speed": 9.794
+     },
+     {
+      "t": 1.133,
+      "hand": "R",
+      "dv": 5.463,
+      "acc": 327.752,
+      "move": "cross",
+      "speed": 10.72
+     },
+     {
+      "t": 6.483,
+      "hand": "R",
+      "dv": 5.458,
+      "acc": 327.502,
+      "move": "cross",
+      "speed": 8.947
+     },
+     {
+      "t": 3.017,
+      "hand": "R",
+      "dv": 4.597,
+      "acc": 275.807,
+      "move": "cross",
+      "speed": 0.409
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 2.452,
+    "punchP95": 4.844,
+    "punchFrames": 481
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 1.944,
+     "totalOtherwise_mm": 9.357
+    }
+   }
+  },
+  "heavy-lion-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.489,
+    "p99": 9.32,
+    "max": 11.023
+   },
+   "velocityJump": {
+    "p50": 0.275,
+    "p99": 5.263,
+    "max": 6.481,
+    "top": [
+     {
+      "t": 6.483,
+      "hand": "R",
+      "dv": 6.481,
+      "acc": 388.854,
+      "move": "cross",
+      "speed": 8.947
+     },
+     {
+      "t": 2.95,
+      "hand": "R",
+      "dv": 6.077,
+      "acc": 121.55,
+      "move": "cross",
+      "speed": 10.364
+     },
+     {
+      "t": 4.7,
+      "hand": "R",
+      "dv": 5.939,
+      "acc": 356.338,
+      "move": "cross",
+      "speed": 9.794
+     },
+     {
+      "t": 4.817,
+      "hand": "R",
+      "dv": 5.798,
+      "acc": 173.933,
+      "move": "cross",
+      "speed": 0.313
+     },
+     {
+      "t": 6.6,
+      "hand": "R",
+      "dv": 5.701,
+      "acc": 171.035,
+      "move": "cross",
+      "speed": 0.627
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 3.922,
+    "punchP95": 11.614,
+    "punchFrames": 332
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 1.944,
+     "totalOtherwise_mm": 7.195
+    }
+   }
+  },
+  "heavy-lion-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.509,
+    "p99": 9.526,
+    "max": 11.105
+   },
+   "velocityJump": {
+    "p50": 0.089,
+    "p99": 2.465,
+    "max": 5.083,
+    "top": [
+     {
+      "t": 2.908,
+      "hand": "R",
+      "dv": 5.083,
+      "acc": 609.923,
+      "move": "cross",
+      "speed": 10.147
+     },
+     {
+      "t": 4.692,
+      "hand": "R",
+      "dv": 4.324,
+      "acc": 518.92,
+      "move": "cross",
+      "speed": 8.845
+     },
+     {
+      "t": 1.125,
+      "hand": "R",
+      "dv": 3.823,
+      "acc": 458.711,
+      "move": "cross",
+      "speed": 10.417
+     },
+     {
+      "t": 6.475,
+      "hand": "R",
+      "dv": 3.231,
+      "acc": 387.779,
+      "move": "cross",
+      "speed": 7.362
+     },
+     {
+      "t": 6.483,
+      "hand": "R",
+      "dv": 3.186,
+      "acc": 382.352,
+      "move": "cross",
+      "speed": 10.535
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 1.224,
+    "punchP95": 2.19,
+    "punchFrames": 960
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 1.931,
+     "totalOtherwise_mm": 16.445
+    }
+   }
+  },
+  "heavy-rabbit-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.509,
+    "p99": 9.475,
+    "max": 11.023
+   },
+   "velocityJump": {
+    "p50": 0.192,
+    "p99": 4.098,
+    "max": 6.221,
+    "top": [
+     {
+      "t": 2.917,
+      "hand": "R",
+      "dv": 6.221,
+      "acc": 373.249,
+      "move": "cross",
+      "speed": 10.527
+     },
+     {
+      "t": 4.7,
+      "hand": "R",
+      "dv": 5.939,
+      "acc": 356.338,
+      "move": "cross",
+      "speed": 9.794
+     },
+     {
+      "t": 1.133,
+      "hand": "R",
+      "dv": 5.463,
+      "acc": 327.752,
+      "move": "cross",
+      "speed": 10.72
+     },
+     {
+      "t": 6.483,
+      "hand": "R",
+      "dv": 5.458,
+      "acc": 327.502,
+      "move": "cross",
+      "speed": 8.947
+     },
+     {
+      "t": 3.017,
+      "hand": "R",
+      "dv": 4.597,
+      "acc": 275.807,
+      "move": "cross",
+      "speed": 0.409
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 1.472,
+    "punchP95": 4.602,
+    "punchFrames": 481
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 1.944,
+     "totalOtherwise_mm": 9.357
+    }
+   }
+  },
+  "heavy-rabbit-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.489,
+    "p99": 9.32,
+    "max": 11.023
+   },
+   "velocityJump": {
+    "p50": 0.275,
+    "p99": 5.263,
+    "max": 6.481,
+    "top": [
+     {
+      "t": 6.483,
+      "hand": "R",
+      "dv": 6.481,
+      "acc": 388.854,
+      "move": "cross",
+      "speed": 8.947
+     },
+     {
+      "t": 2.95,
+      "hand": "R",
+      "dv": 6.077,
+      "acc": 121.55,
+      "move": "cross",
+      "speed": 10.364
+     },
+     {
+      "t": 4.7,
+      "hand": "R",
+      "dv": 5.939,
+      "acc": 356.338,
+      "move": "cross",
+      "speed": 9.794
+     },
+     {
+      "t": 4.817,
+      "hand": "R",
+      "dv": 5.798,
+      "acc": 173.933,
+      "move": "cross",
+      "speed": 0.313
+     },
+     {
+      "t": 6.6,
+      "hand": "R",
+      "dv": 5.701,
+      "acc": 171.035,
+      "move": "cross",
+      "speed": 0.627
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 2.442,
+    "punchP95": 7.016,
+    "punchFrames": 332
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 1.944,
+     "totalOtherwise_mm": 7.195
+    }
+   }
+  },
+  "heavy-rabbit-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.509,
+    "p99": 9.526,
+    "max": 11.105
+   },
+   "velocityJump": {
+    "p50": 0.089,
+    "p99": 2.465,
+    "max": 5.083,
+    "top": [
+     {
+      "t": 2.908,
+      "hand": "R",
+      "dv": 5.083,
+      "acc": 609.923,
+      "move": "cross",
+      "speed": 10.147
+     },
+     {
+      "t": 4.692,
+      "hand": "R",
+      "dv": 4.324,
+      "acc": 518.92,
+      "move": "cross",
+      "speed": 8.845
+     },
+     {
+      "t": 1.125,
+      "hand": "R",
+      "dv": 3.823,
+      "acc": 458.711,
+      "move": "cross",
+      "speed": 10.417
+     },
+     {
+      "t": 6.475,
+      "hand": "R",
+      "dv": 3.231,
+      "acc": 387.779,
+      "move": "cross",
+      "speed": 7.362
+     },
+     {
+      "t": 6.483,
+      "hand": "R",
+      "dv": 3.186,
+      "acc": 382.352,
+      "move": "cross",
+      "speed": 10.535
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 0.673,
+    "punchP95": 1.388,
+    "punchFrames": 960
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 1.931,
+     "totalOtherwise_mm": 16.445
+    }
+   }
+  },
+  "shadow-lion-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.352,
+    "p99": 6.183,
+    "max": 6.433
+   },
+   "velocityJump": {
+    "p50": 0.102,
+    "p99": 1.954,
+    "max": 3.644,
+    "top": [
+     {
+      "t": 6.683,
+      "hand": "R",
+      "dv": 3.644,
+      "acc": 218.622,
+      "move": "cross",
+      "speed": 0.934
+     },
+     {
+      "t": 4.9,
+      "hand": "R",
+      "dv": 3.589,
+      "acc": 215.362,
+      "move": "cross",
+      "speed": 0.58
+     },
+     {
+      "t": 3.117,
+      "hand": "R",
+      "dv": 3.351,
+      "acc": 201.038,
+      "move": "cross",
+      "speed": 0.321
+     },
+     {
+      "t": 1.333,
+      "hand": "R",
+      "dv": 2.954,
+      "acc": 177.238,
+      "move": "cross",
+      "speed": 0.15
+     },
+     {
+      "t": 0.433,
+      "hand": "L",
+      "dv": 2.896,
+      "acc": 173.789,
+      "move": "jab",
+      "speed": 0.752
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 0.747,
+    "punchP95": 1.277,
+    "punchFrames": 481
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.798,
+     "totalOtherwise_mm": 5.326
+    }
+   }
+  },
+  "shadow-lion-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.376,
+    "p99": 5.942,
+    "max": 6.418
+   },
+   "velocityJump": {
+    "p50": 0.162,
+    "p99": 2.645,
+    "max": 4.592,
+    "top": [
+     {
+      "t": 1.333,
+      "hand": "R",
+      "dv": 4.592,
+      "acc": 275.53,
+      "move": "cross",
+      "speed": 0.15
+     },
+     {
+      "t": 4.917,
+      "hand": "R",
+      "dv": 4.274,
+      "acc": 85.478,
+      "move": "cross",
+      "speed": 1.584
+     },
+     {
+      "t": 6.683,
+      "hand": "R",
+      "dv": 3.644,
+      "acc": 218.622,
+      "move": "cross",
+      "speed": 0.934
+     },
+     {
+      "t": 4.033,
+      "hand": "L",
+      "dv": 3.572,
+      "acc": 71.442,
+      "move": "jab",
+      "speed": 0.517
+     },
+     {
+      "t": 3.117,
+      "hand": "R",
+      "dv": 3.351,
+      "acc": 201.038,
+      "move": "cross",
+      "speed": 0.321
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 1.118,
+    "punchP95": 1.363,
+    "punchFrames": 332
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.693,
+     "totalOtherwise_mm": 3.71
+    }
+   }
+  },
+  "shadow-lion-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.355,
+    "p99": 6.2,
+    "max": 6.444
+   },
+   "velocityJump": {
+    "p50": 0.051,
+    "p99": 1.078,
+    "max": 2.244,
+    "top": [
+     {
+      "t": 6.675,
+      "hand": "R",
+      "dv": 2.244,
+      "acc": 269.291,
+      "move": "cross",
+      "speed": 1.684
+     },
+     {
+      "t": 1.317,
+      "hand": "R",
+      "dv": 2.208,
+      "acc": 265.014,
+      "move": "cross",
+      "speed": 2
+     },
+     {
+      "t": 4.892,
+      "hand": "R",
+      "dv": 2.208,
+      "acc": 265.017,
+      "move": "cross",
+      "speed": 1.104
+     },
+     {
+      "t": 3.1,
+      "hand": "R",
+      "dv": 2.031,
+      "acc": 243.695,
+      "move": "cross",
+      "speed": 2.657
+     },
+     {
+      "t": 3.108,
+      "hand": "R",
+      "dv": 2.029,
+      "acc": 243.502,
+      "move": "cross",
+      "speed": 0.627
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 1.116,
+    "punchP95": 1.478,
+    "punchFrames": 960
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.681,
+     "totalOtherwise_mm": 8.036
+    }
+   }
+  },
+  "shadow-rabbit-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.352,
+    "p99": 6.183,
+    "max": 6.433
+   },
+   "velocityJump": {
+    "p50": 0.102,
+    "p99": 1.954,
+    "max": 3.644,
+    "top": [
+     {
+      "t": 6.683,
+      "hand": "R",
+      "dv": 3.644,
+      "acc": 218.622,
+      "move": "cross",
+      "speed": 0.934
+     },
+     {
+      "t": 4.9,
+      "hand": "R",
+      "dv": 3.589,
+      "acc": 215.362,
+      "move": "cross",
+      "speed": 0.58
+     },
+     {
+      "t": 3.117,
+      "hand": "R",
+      "dv": 3.351,
+      "acc": 201.038,
+      "move": "cross",
+      "speed": 0.321
+     },
+     {
+      "t": 1.333,
+      "hand": "R",
+      "dv": 2.954,
+      "acc": 177.238,
+      "move": "cross",
+      "speed": 0.15
+     },
+     {
+      "t": 0.433,
+      "hand": "L",
+      "dv": 2.896,
+      "acc": 173.789,
+      "move": "jab",
+      "speed": 0.752
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 0.272,
+    "punchP95": 0.526,
+    "punchFrames": 481
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.798,
+     "totalOtherwise_mm": 5.326
+    }
+   }
+  },
+  "shadow-rabbit-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.376,
+    "p99": 5.942,
+    "max": 6.418
+   },
+   "velocityJump": {
+    "p50": 0.162,
+    "p99": 2.645,
+    "max": 4.592,
+    "top": [
+     {
+      "t": 1.333,
+      "hand": "R",
+      "dv": 4.592,
+      "acc": 275.53,
+      "move": "cross",
+      "speed": 0.15
+     },
+     {
+      "t": 4.917,
+      "hand": "R",
+      "dv": 4.274,
+      "acc": 85.478,
+      "move": "cross",
+      "speed": 1.584
+     },
+     {
+      "t": 6.683,
+      "hand": "R",
+      "dv": 3.644,
+      "acc": 218.622,
+      "move": "cross",
+      "speed": 0.934
+     },
+     {
+      "t": 4.033,
+      "hand": "L",
+      "dv": 3.572,
+      "acc": 71.442,
+      "move": "jab",
+      "speed": 0.517
+     },
+     {
+      "t": 3.117,
+      "hand": "R",
+      "dv": 3.351,
+      "acc": 201.038,
+      "move": "cross",
+      "speed": 0.321
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 0.26,
+    "punchP95": 0.319,
+    "punchFrames": 332
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.693,
+     "totalOtherwise_mm": 3.71
+    }
+   }
+  },
+  "shadow-rabbit-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.355,
+    "p99": 6.2,
+    "max": 6.444
+   },
+   "velocityJump": {
+    "p50": 0.051,
+    "p99": 1.078,
+    "max": 2.244,
+    "top": [
+     {
+      "t": 6.675,
+      "hand": "R",
+      "dv": 2.244,
+      "acc": 269.291,
+      "move": "cross",
+      "speed": 1.684
+     },
+     {
+      "t": 1.317,
+      "hand": "R",
+      "dv": 2.208,
+      "acc": 265.014,
+      "move": "cross",
+      "speed": 2
+     },
+     {
+      "t": 4.892,
+      "hand": "R",
+      "dv": 2.208,
+      "acc": 265.017,
+      "move": "cross",
+      "speed": 1.104
+     },
+     {
+      "t": 3.1,
+      "hand": "R",
+      "dv": 2.031,
+      "acc": 243.695,
+      "move": "cross",
+      "speed": 2.657
+     },
+     {
+      "t": 3.108,
+      "hand": "R",
+      "dv": 2.029,
+      "acc": 243.502,
+      "move": "cross",
+      "speed": 0.627
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 0.271,
+    "punchP95": 0.597,
+    "punchFrames": 960
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.681,
+     "totalOtherwise_mm": 8.036
+    }
+   }
+  },
+  "pads-lion-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.659,
+    "p99": 6.902,
+    "max": 14.94
+   },
+   "velocityJump": {
+    "p50": 0.216,
+    "p99": 2.902,
+    "max": 28.634,
+    "top": [
+     {
+      "t": 5.05,
+      "hand": "L",
+      "dv": 28.634,
+      "acc": 1718.043,
+      "move": "rear_hook",
+      "speed": 14.94
+     },
+     {
+      "t": 5.067,
+      "hand": "L",
+      "dv": 15.407,
+      "acc": 924.401,
+      "move": "rear_hook",
+      "speed": 0.469
+     },
+     {
+      "t": 5.033,
+      "hand": "L",
+      "dv": 14.002,
+      "acc": 840.123,
+      "move": "rear_hook",
+      "speed": 13.696
+     },
+     {
+      "t": 6.217,
+      "hand": "R",
+      "dv": 8.959,
+      "acc": 537.512,
+      "move": "rear_uppercut",
+      "speed": 5.809
+     },
+     {
+      "t": 3.817,
+      "hand": "L",
+      "dv": 8.923,
+      "acc": 535.38,
+      "move": "uppercut",
+      "speed": 5.906
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 6.324,
+    "idleP95": 12.707,
+    "punchP50": 6.246,
+    "punchP95": 9.571,
+    "punchFrames": 359
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.828,
+     "totalOtherwise_mm": 8.145
+    },
+    "partner": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 3.688,
+     "totalOtherwise_mm": 42.587
+    }
+   }
+  },
+  "pads-lion-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.675,
+    "p99": 6.893,
+    "max": 14.94
+   },
+   "velocityJump": {
+    "p50": 0.259,
+    "p99": 4.043,
+    "max": 21.635,
+    "top": [
+     {
+      "t": 5.05,
+      "hand": "L",
+      "dv": 21.635,
+      "acc": 1298.08,
+      "move": "rear_hook",
+      "speed": 14.94
+     },
+     {
+      "t": 5.083,
+      "hand": "L",
+      "dv": 14.979,
+      "acc": 449.358,
+      "move": "rear_hook",
+      "speed": 0.135
+     },
+     {
+      "t": 6.233,
+      "hand": "R",
+      "dv": 9.052,
+      "acc": 271.565,
+      "move": "rear_uppercut",
+      "speed": 5.36
+     },
+     {
+      "t": 5.033,
+      "hand": "L",
+      "dv": 7.322,
+      "acc": 219.653,
+      "move": "rear_hook",
+      "speed": 6.702
+     },
+     {
+      "t": 6.2,
+      "hand": "R",
+      "dv": 6.53,
+      "acc": 391.778,
+      "move": "rear_uppercut",
+      "speed": 11.759
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 7.473,
+    "idleP95": 22.24,
+    "punchP50": 7.325,
+    "punchP95": 20.823,
+    "punchFrames": 246
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.83,
+     "totalOtherwise_mm": 5.607
+    },
+    "partner": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 3.688,
+     "totalOtherwise_mm": 34.398
+    }
+   }
+  },
+  "pads-lion-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.634,
+    "p99": 6.945,
+    "max": 31.336
+   },
+   "velocityJump": {
+    "p50": 0.102,
+    "p99": 3.026,
+    "max": 57.925,
+    "top": [
+     {
+      "t": 5.133,
+      "hand": "L",
+      "dv": 57.925,
+      "acc": 6951.01,
+      "move": "rear_hook",
+      "speed": 31.336
+     },
+     {
+      "t": 5.017,
+      "hand": "L",
+      "dv": 55.775,
+      "acc": 6693.059,
+      "move": "rear_hook",
+      "speed": 28.196
+     },
+     {
+      "t": 5.042,
+      "hand": "L",
+      "dv": 55.513,
+      "acc": 6661.537,
+      "move": "rear_hook",
+      "speed": 27.692
+     },
+     {
+      "t": 5.142,
+      "hand": "L",
+      "dv": 31.944,
+      "acc": 3833.252,
+      "move": "rear_hook",
+      "speed": 1.317
+     },
+     {
+      "t": 5.033,
+      "hand": "L",
+      "dv": 28.255,
+      "acc": 3390.597,
+      "move": "rear_hook",
+      "speed": 27.822
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 2.421,
+    "idleP95": 4.581,
+    "punchP50": 2.927,
+    "punchP95": 6.752,
+    "punchFrames": 719
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.787,
+     "totalOtherwise_mm": 14.595
+    },
+    "partner": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 3.168,
+     "totalOtherwise_mm": 54.647
+    }
+   }
+  },
+  "pads-rabbit-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.663,
+    "p99": 6.902,
+    "max": 14.94
+   },
+   "velocityJump": {
+    "p50": 0.221,
+    "p99": 2.902,
+    "max": 28.634,
+    "top": [
+     {
+      "t": 5.05,
+      "hand": "L",
+      "dv": 28.634,
+      "acc": 1718.043,
+      "move": "rear_hook",
+      "speed": 14.94
+     },
+     {
+      "t": 5.067,
+      "hand": "L",
+      "dv": 15.407,
+      "acc": 924.401,
+      "move": "rear_hook",
+      "speed": 0.469
+     },
+     {
+      "t": 5.033,
+      "hand": "L",
+      "dv": 14.002,
+      "acc": 840.123,
+      "move": "rear_hook",
+      "speed": 13.696
+     },
+     {
+      "t": 6.217,
+      "hand": "R",
+      "dv": 8.959,
+      "acc": 537.512,
+      "move": "rear_uppercut",
+      "speed": 5.809
+     },
+     {
+      "t": 3.817,
+      "hand": "L",
+      "dv": 8.923,
+      "acc": 535.38,
+      "move": "uppercut",
+      "speed": 5.906
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 4.325,
+    "idleP95": 7.842,
+    "punchP50": 6.846,
+    "punchP95": 8.467,
+    "punchFrames": 359
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.828,
+     "totalOtherwise_mm": 8.145
+    },
+    "partner": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 3.688,
+     "totalOtherwise_mm": 42.587
+    }
+   }
+  },
+  "pads-rabbit-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.678,
+    "p99": 6.893,
+    "max": 14.94
+   },
+   "velocityJump": {
+    "p50": 0.265,
+    "p99": 4.043,
+    "max": 21.635,
+    "top": [
+     {
+      "t": 5.05,
+      "hand": "L",
+      "dv": 21.635,
+      "acc": 1298.08,
+      "move": "rear_hook",
+      "speed": 14.94
+     },
+     {
+      "t": 5.083,
+      "hand": "L",
+      "dv": 14.979,
+      "acc": 449.358,
+      "move": "rear_hook",
+      "speed": 0.135
+     },
+     {
+      "t": 6.233,
+      "hand": "R",
+      "dv": 9.052,
+      "acc": 271.565,
+      "move": "rear_uppercut",
+      "speed": 5.36
+     },
+     {
+      "t": 5.033,
+      "hand": "L",
+      "dv": 7.322,
+      "acc": 219.653,
+      "move": "rear_hook",
+      "speed": 6.702
+     },
+     {
+      "t": 6.2,
+      "hand": "R",
+      "dv": 6.53,
+      "acc": 391.778,
+      "move": "rear_uppercut",
+      "speed": 11.759
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 6.981,
+    "idleP95": 13.823,
+    "punchP50": 4.634,
+    "punchP95": 14.428,
+    "punchFrames": 246
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.83,
+     "totalOtherwise_mm": 5.607
+    },
+    "partner": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 3.688,
+     "totalOtherwise_mm": 34.398
+    }
+   }
+  },
+  "pads-rabbit-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.644,
+    "p99": 6.945,
+    "max": 31.336
+   },
+   "velocityJump": {
+    "p50": 0.104,
+    "p99": 3.026,
+    "max": 57.925,
+    "top": [
+     {
+      "t": 5.133,
+      "hand": "L",
+      "dv": 57.925,
+      "acc": 6951.01,
+      "move": "rear_hook",
+      "speed": 31.336
+     },
+     {
+      "t": 5.017,
+      "hand": "L",
+      "dv": 55.775,
+      "acc": 6693.059,
+      "move": "rear_hook",
+      "speed": 28.196
+     },
+     {
+      "t": 5.042,
+      "hand": "L",
+      "dv": 55.513,
+      "acc": 6661.537,
+      "move": "rear_hook",
+      "speed": 27.692
+     },
+     {
+      "t": 5.142,
+      "hand": "L",
+      "dv": 31.944,
+      "acc": 3833.252,
+      "move": "rear_hook",
+      "speed": 1.317
+     },
+     {
+      "t": 5.033,
+      "hand": "L",
+      "dv": 28.255,
+      "acc": 3390.597,
+      "move": "rear_hook",
+      "speed": 27.822
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 2.494,
+    "idleP95": 6.161,
+    "punchP50": 2.467,
+    "punchP95": 5.299,
+    "punchFrames": 719
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.787,
+     "totalOtherwise_mm": 14.595
+    },
+    "partner": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 3.168,
+     "totalOtherwise_mm": 54.647
+    }
+   }
+  },
+  "spar-lion-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.405,
+    "p99": 6.544,
+    "max": 15.74
+   },
+   "velocityJump": {
+    "p50": 0.129,
+    "p99": 10.691,
+    "max": 16.392,
+    "top": [
+     {
+      "t": 6.85,
+      "hand": "R",
+      "dv": 16.392,
+      "acc": 983.521,
+      "move": "cross",
+      "speed": 6.459
+     },
+     {
+      "t": 3.967,
+      "hand": "L",
+      "dv": 14.796,
+      "acc": 887.776,
+      "move": "jab",
+      "speed": 3.262
+     },
+     {
+      "t": 1.283,
+      "hand": "R",
+      "dv": 14.672,
+      "acc": 880.3,
+      "move": "cross",
+      "speed": 8.124
+     },
+     {
+      "t": 6.65,
+      "hand": "R",
+      "dv": 14.033,
+      "acc": 841.971,
+      "move": "cross",
+      "speed": 7.011
+     },
+     {
+      "t": 1.5,
+      "hand": "R",
+      "dv": 13.752,
+      "acc": 825.117,
+      "move": "cross",
+      "speed": 4.347
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 2.583,
+    "punchP95": 7.293,
+    "punchFrames": 481
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.798,
+     "totalOtherwise_mm": 5.326
+    },
+    "partner": {
+     "hits": 4,
+     "hitFrames": 148,
+     "maxPerFrameAfterHit_mm": 59.907,
+     "totalAfterHits_mm": 3041.966,
+     "framesSlidingOver2mm": 210,
+     "maxPerFrameOtherwise_mm": 0.48,
+     "totalOtherwise_mm": 10.07
+    }
+   }
+  },
+  "spar-lion-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.405,
+    "p99": 6.532,
+    "max": 13.73
+   },
+   "velocityJump": {
+    "p50": 0.188,
+    "p99": 5.172,
+    "max": 13.391,
+    "top": [
+     {
+      "t": 1.483,
+      "hand": "R",
+      "dv": 13.391,
+      "acc": 803.477,
+      "move": "cross",
+      "speed": 12.694
+     },
+     {
+      "t": 1.317,
+      "hand": "R",
+      "dv": 12.91,
+      "acc": 258.202,
+      "move": "cross",
+      "speed": 3.744
+     },
+     {
+      "t": 6.867,
+      "hand": "R",
+      "dv": 12.096,
+      "acc": 362.869,
+      "move": "cross",
+      "speed": 3.59
+     },
+     {
+      "t": 1.267,
+      "hand": "R",
+      "dv": 11.133,
+      "acc": 667.96,
+      "move": "cross",
+      "speed": 13.73
+     },
+     {
+      "t": 6.833,
+      "hand": "R",
+      "dv": 10.691,
+      "acc": 641.474,
+      "move": "cross",
+      "speed": 12.854
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 3.521,
+    "punchP95": 6.008,
+    "punchFrames": 332
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.693,
+     "totalOtherwise_mm": 3.71
+    },
+    "partner": {
+     "hits": 4,
+     "hitFrames": 101,
+     "maxPerFrameAfterHit_mm": 143.451,
+     "totalAfterHits_mm": 2991.571,
+     "framesSlidingOver2mm": 138,
+     "maxPerFrameOtherwise_mm": 0.48,
+     "totalOtherwise_mm": 7.286
+    }
+   }
+  },
+  "spar-lion-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.404,
+    "p99": 6.491,
+    "max": 28.4
+   },
+   "velocityJump": {
+    "p50": 0.063,
+    "p99": 3.443,
+    "max": 32.908,
+    "top": [
+     {
+      "t": 6.842,
+      "hand": "R",
+      "dv": 32.908,
+      "acc": 3948.926,
+      "move": "cross",
+      "speed": 16.98
+     },
+     {
+      "t": 1.483,
+      "hand": "R",
+      "dv": 29.564,
+      "acc": 3547.727,
+      "move": "cross",
+      "speed": 23.981
+     },
+     {
+      "t": 3.967,
+      "hand": "L",
+      "dv": 27.978,
+      "acc": 3357.355,
+      "move": "jab",
+      "speed": 3.328
+     },
+     {
+      "t": 1.492,
+      "hand": "R",
+      "dv": 27.52,
+      "acc": 3302.386,
+      "move": "cross",
+      "speed": 4.797
+     },
+     {
+      "t": 3.958,
+      "hand": "L",
+      "dv": 27.321,
+      "acc": 3278.474,
+      "move": "jab",
+      "speed": 28.4
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 2.701,
+    "punchP95": 5.665,
+    "punchFrames": 960
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.681,
+     "totalOtherwise_mm": 8.036
+    },
+    "partner": {
+     "hits": 5,
+     "hitFrames": 362,
+     "maxPerFrameAfterHit_mm": 31.613,
+     "totalAfterHits_mm": 3646.175,
+     "framesSlidingOver2mm": 470,
+     "maxPerFrameOtherwise_mm": 0.458,
+     "totalOtherwise_mm": 13.875
+    }
+   }
+  },
+  "spar-rabbit-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.405,
+    "p99": 6.544,
+    "max": 15.74
+   },
+   "velocityJump": {
+    "p50": 0.129,
+    "p99": 10.691,
+    "max": 16.392,
+    "top": [
+     {
+      "t": 6.85,
+      "hand": "R",
+      "dv": 16.392,
+      "acc": 983.521,
+      "move": "cross",
+      "speed": 6.459
+     },
+     {
+      "t": 3.967,
+      "hand": "L",
+      "dv": 14.796,
+      "acc": 887.776,
+      "move": "jab",
+      "speed": 3.262
+     },
+     {
+      "t": 1.283,
+      "hand": "R",
+      "dv": 14.672,
+      "acc": 880.3,
+      "move": "cross",
+      "speed": 8.124
+     },
+     {
+      "t": 6.65,
+      "hand": "R",
+      "dv": 14.033,
+      "acc": 841.971,
+      "move": "cross",
+      "speed": 7.011
+     },
+     {
+      "t": 1.5,
+      "hand": "R",
+      "dv": 13.752,
+      "acc": 825.117,
+      "move": "cross",
+      "speed": 4.347
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 2.286,
+    "punchP95": 6.041,
+    "punchFrames": 481
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.798,
+     "totalOtherwise_mm": 5.326
+    },
+    "partner": {
+     "hits": 4,
+     "hitFrames": 148,
+     "maxPerFrameAfterHit_mm": 59.907,
+     "totalAfterHits_mm": 3041.966,
+     "framesSlidingOver2mm": 210,
+     "maxPerFrameOtherwise_mm": 0.48,
+     "totalOtherwise_mm": 10.07
+    }
+   }
+  },
+  "spar-rabbit-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.405,
+    "p99": 6.532,
+    "max": 13.73
+   },
+   "velocityJump": {
+    "p50": 0.188,
+    "p99": 5.172,
+    "max": 13.391,
+    "top": [
+     {
+      "t": 1.483,
+      "hand": "R",
+      "dv": 13.391,
+      "acc": 803.477,
+      "move": "cross",
+      "speed": 12.694
+     },
+     {
+      "t": 1.317,
+      "hand": "R",
+      "dv": 12.91,
+      "acc": 258.202,
+      "move": "cross",
+      "speed": 3.744
+     },
+     {
+      "t": 6.867,
+      "hand": "R",
+      "dv": 12.096,
+      "acc": 362.869,
+      "move": "cross",
+      "speed": 3.59
+     },
+     {
+      "t": 1.267,
+      "hand": "R",
+      "dv": 11.133,
+      "acc": 667.96,
+      "move": "cross",
+      "speed": 13.73
+     },
+     {
+      "t": 6.833,
+      "hand": "R",
+      "dv": 10.691,
+      "acc": 641.474,
+      "move": "cross",
+      "speed": 12.854
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 2.852,
+    "punchP95": 6.887,
+    "punchFrames": 332
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.693,
+     "totalOtherwise_mm": 3.71
+    },
+    "partner": {
+     "hits": 4,
+     "hitFrames": 101,
+     "maxPerFrameAfterHit_mm": 143.451,
+     "totalAfterHits_mm": 2991.571,
+     "framesSlidingOver2mm": 138,
+     "maxPerFrameOtherwise_mm": 0.48,
+     "totalOtherwise_mm": 7.286
+    }
+   }
+  },
+  "spar-rabbit-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.404,
+    "p99": 6.491,
+    "max": 28.4
+   },
+   "velocityJump": {
+    "p50": 0.063,
+    "p99": 3.443,
+    "max": 32.908,
+    "top": [
+     {
+      "t": 6.842,
+      "hand": "R",
+      "dv": 32.908,
+      "acc": 3948.926,
+      "move": "cross",
+      "speed": 16.98
+     },
+     {
+      "t": 1.483,
+      "hand": "R",
+      "dv": 29.564,
+      "acc": 3547.727,
+      "move": "cross",
+      "speed": 23.981
+     },
+     {
+      "t": 3.967,
+      "hand": "L",
+      "dv": 27.978,
+      "acc": 3357.355,
+      "move": "jab",
+      "speed": 3.328
+     },
+     {
+      "t": 1.492,
+      "hand": "R",
+      "dv": 27.52,
+      "acc": 3302.386,
+      "move": "cross",
+      "speed": 4.797
+     },
+     {
+      "t": 3.958,
+      "hand": "L",
+      "dv": 27.321,
+      "acc": 3278.474,
+      "move": "jab",
+      "speed": 28.4
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": null,
+    "idleP95": null,
+    "punchP50": 2.098,
+    "punchP95": 3.939,
+    "punchFrames": 960
+   },
+   "slide": {
+    "hero": {
+     "hits": 0,
+     "hitFrames": 0,
+     "maxPerFrameAfterHit_mm": 0,
+     "totalAfterHits_mm": 0,
+     "framesSlidingOver2mm": 0,
+     "maxPerFrameOtherwise_mm": 0.681,
+     "totalOtherwise_mm": 8.036
+    },
+    "partner": {
+     "hits": 5,
+     "hitFrames": 362,
+     "maxPerFrameAfterHit_mm": 31.613,
+     "totalAfterHits_mm": 3646.175,
+     "framesSlidingOver2mm": 470,
+     "maxPerFrameOtherwise_mm": 0.458,
+     "totalOtherwise_mm": 13.875
+    }
+   }
+  },
+  "fight-lion-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.388,
+    "p99": 7.97,
+    "max": 10.046
+   },
+   "velocityJump": {
+    "p50": 0.24,
+    "p99": 5.382,
+    "max": 12.696,
+    "top": [
+     {
+      "t": 6.183,
+      "hand": "L",
+      "dv": 12.696,
+      "acc": 761.779,
+      "move": "jab",
+      "speed": 8.685
+     },
+     {
+      "t": 6.117,
+      "hand": "L",
+      "dv": 8.418,
+      "acc": 505.071,
+      "move": "jab",
+      "speed": 8.567
+     },
+     {
+      "t": 6.167,
+      "hand": "L",
+      "dv": 7.397,
+      "acc": 443.832,
+      "move": "jab",
+      "speed": 4.503
+     },
+     {
+      "t": 5.45,
+      "hand": "R",
+      "dv": 7.125,
+      "acc": 427.503,
+      "move": "step",
+      "speed": 7.143
+     },
+     {
+      "t": 6.2,
+      "hand": "L",
+      "dv": 7.001,
+      "acc": 420.08,
+      "move": "jab",
+      "speed": 10.046
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 10.727,
+    "idleP95": 23.291,
+    "punchP50": 11.058,
+    "punchP95": 19.789,
+    "punchFrames": 299
+   },
+   "slide": {
+    "hero": {
+     "hits": 3,
+     "hitFrames": 110,
+     "maxPerFrameAfterHit_mm": 132.951,
+     "totalAfterHits_mm": 248.409,
+     "framesSlidingOver2mm": 5,
+     "maxPerFrameOtherwise_mm": 230.65,
+     "totalOtherwise_mm": 697.342
+    },
+    "partner": {
+     "hits": 5,
+     "hitFrames": 181,
+     "maxPerFrameAfterHit_mm": 172.039,
+     "totalAfterHits_mm": 602.431,
+     "framesSlidingOver2mm": 21,
+     "maxPerFrameOtherwise_mm": 226.929,
+     "totalOtherwise_mm": 765.259
+    }
+   }
+  },
+  "fight-lion-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.409,
+    "p99": 7.851,
+    "max": 9.164
+   },
+   "velocityJump": {
+    "p50": 0.388,
+    "p99": 5.382,
+    "max": 8.418,
+    "top": [
+     {
+      "t": 6.117,
+      "hand": "L",
+      "dv": 8.418,
+      "acc": 505.071,
+      "move": "jab",
+      "speed": 8.567
+     },
+     {
+      "t": 5.45,
+      "hand": "R",
+      "dv": 7.135,
+      "acc": 428.116,
+      "move": "step",
+      "speed": 7.143
+     },
+     {
+      "t": 5.45,
+      "hand": "L",
+      "dv": 6.556,
+      "acc": 393.39,
+      "move": "step",
+      "speed": 6.573
+     },
+     {
+      "t": 6.133,
+      "hand": "L",
+      "dv": 5.971,
+      "acc": 358.248,
+      "move": "jab",
+      "speed": 2.968
+     },
+     {
+      "t": 6.217,
+      "hand": "L",
+      "dv": 5.846,
+      "acc": 175.37,
+      "move": "jab",
+      "speed": 8.232
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 10.706,
+    "idleP95": 30.979,
+    "punchP50": 11.409,
+    "punchP95": 33.049,
+    "punchFrames": 210
+   },
+   "slide": {
+    "hero": {
+     "hits": 3,
+     "hitFrames": 70,
+     "maxPerFrameAfterHit_mm": 58.843,
+     "totalAfterHits_mm": 84.613,
+     "framesSlidingOver2mm": 3,
+     "maxPerFrameOtherwise_mm": 230.65,
+     "totalOtherwise_mm": 506.38
+    },
+    "partner": {
+     "hits": 5,
+     "hitFrames": 126,
+     "maxPerFrameAfterHit_mm": 87.019,
+     "totalAfterHits_mm": 337.769,
+     "framesSlidingOver2mm": 16,
+     "maxPerFrameOtherwise_mm": 226.929,
+     "totalOtherwise_mm": 564.768
+    }
+   }
+  },
+  "fight-lion-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.018,
+    "p99": 13.932,
+    "max": 20.093
+   },
+   "velocityJump": {
+    "p50": 0.777,
+    "p99": 16.022,
+    "max": 20.093,
+    "top": [
+     {
+      "t": 6.2,
+      "hand": "L",
+      "dv": 20.093,
+      "acc": 2411.111,
+      "move": "jab",
+      "speed": 20.093
+     },
+     {
+      "t": 6.208,
+      "hand": "L",
+      "dv": 20.093,
+      "acc": 2411.111,
+      "move": "jab",
+      "speed": 0
+     },
+     {
+      "t": 10.433,
+      "hand": "R",
+      "dv": 18.328,
+      "acc": 2199.306,
+      "move": "cross",
+      "speed": 18.328
+     },
+     {
+      "t": 10.442,
+      "hand": "R",
+      "dv": 18.328,
+      "acc": 2199.306,
+      "move": "cross",
+      "speed": 0
+     },
+     {
+      "t": 7.633,
+      "hand": "R",
+      "dv": 17.748,
+      "acc": 2129.754,
+      "move": "cross",
+      "speed": 17.748
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 4.167,
+    "jitter": 4.167,
+    "max": 8.333
+   },
+   "unevenFrames": 959,
+   "cpu_ms": {
+    "idleP50": 0.007,
+    "idleP95": 10.45,
+    "punchP50": 5.445,
+    "punchP95": 11.609,
+    "punchFrames": 595
+   },
+   "slide": {
+    "hero": {
+     "hits": 3,
+     "hitFrames": 217,
+     "maxPerFrameAfterHit_mm": 132.951,
+     "totalAfterHits_mm": 248.409,
+     "framesSlidingOver2mm": 5,
+     "maxPerFrameOtherwise_mm": 230.65,
+     "totalOtherwise_mm": 697.342
+    },
+    "partner": {
+     "hits": 5,
+     "hitFrames": 355,
+     "maxPerFrameAfterHit_mm": 172.039,
+     "totalAfterHits_mm": 602.431,
+     "framesSlidingOver2mm": 21,
+     "maxPerFrameOtherwise_mm": 226.929,
+     "totalOtherwise_mm": 765.259
+    }
+   }
+  },
+  "fight-rabbit-steady": {
+   "frames": 481,
+   "gloveSpeed": {
+    "p50": 0.598,
+    "p99": 8.904,
+    "max": 14.783
+   },
+   "velocityJump": {
+    "p50": 0.298,
+    "p99": 5.595,
+    "max": 14.192,
+    "top": [
+     {
+      "t": 5.733,
+      "hand": "L",
+      "dv": 14.192,
+      "acc": 851.543,
+      "move": "rear_uppercut",
+      "speed": 14.133
+     },
+     {
+      "t": 5.733,
+      "hand": "R",
+      "dv": 14.191,
+      "acc": 851.455,
+      "move": "rear_uppercut",
+      "speed": 14.14
+     },
+     {
+      "t": 5.75,
+      "hand": "R",
+      "dv": 13.568,
+      "acc": 814.061,
+      "move": "rear_uppercut",
+      "speed": 0.575
+     },
+     {
+      "t": 5.75,
+      "hand": "L",
+      "dv": 13.566,
+      "acc": 813.966,
+      "move": "rear_uppercut",
+      "speed": 0.571
+     },
+     {
+      "t": 5.25,
+      "hand": "R",
+      "dv": 11.449,
+      "acc": 686.923,
+      "move": "rear_uppercut",
+      "speed": 4.998
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 9.191,
+    "idleP95": 11.34,
+    "punchP50": 10.429,
+    "punchP95": 12.199,
+    "punchFrames": 133
+   },
+   "slide": {
+    "hero": {
+     "hits": 5,
+     "hitFrames": 181,
+     "maxPerFrameAfterHit_mm": 172.039,
+     "totalAfterHits_mm": 602.431,
+     "framesSlidingOver2mm": 21,
+     "maxPerFrameOtherwise_mm": 226.929,
+     "totalOtherwise_mm": 765.259
+    },
+    "partner": {
+     "hits": 3,
+     "hitFrames": 110,
+     "maxPerFrameAfterHit_mm": 132.951,
+     "totalAfterHits_mm": 248.409,
+     "framesSlidingOver2mm": 5,
+     "maxPerFrameOtherwise_mm": 230.65,
+     "totalOtherwise_mm": 697.342
+    }
+   }
+  },
+  "fight-rabbit-phone": {
+   "frames": 332,
+   "gloveSpeed": {
+    "p50": 0.601,
+    "p99": 8.231,
+    "max": 12.879
+   },
+   "velocityJump": {
+    "p50": 0.377,
+    "p99": 6.472,
+    "max": 11.136,
+    "top": [
+     {
+      "t": 5.283,
+      "hand": "R",
+      "dv": 11.136,
+      "acc": 334.072,
+      "move": "rear_uppercut",
+      "speed": 2.597
+     },
+     {
+      "t": 5.633,
+      "hand": "R",
+      "dv": 8.507,
+      "acc": 510.438,
+      "move": "rear_uppercut",
+      "speed": 4.006
+     },
+     {
+      "t": 5.317,
+      "hand": "R",
+      "dv": 8.454,
+      "acc": 253.63,
+      "move": "rear_uppercut",
+      "speed": 10.405
+     },
+     {
+      "t": 6.05,
+      "hand": "R",
+      "dv": 8.321,
+      "acc": 499.264,
+      "move": "hook",
+      "speed": 8.904
+     },
+     {
+      "t": 5.25,
+      "hand": "R",
+      "dv": 7.434,
+      "acc": 148.679,
+      "move": "rear_uppercut",
+      "speed": 9.256
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 0,
+    "jitter": 0,
+    "max": 0
+   },
+   "unevenFrames": 0,
+   "cpu_ms": {
+    "idleP50": 7.764,
+    "idleP95": 23.583,
+    "punchP50": 10.347,
+    "punchP95": 27.058,
+    "punchFrames": 87
+   },
+   "slide": {
+    "hero": {
+     "hits": 5,
+     "hitFrames": 126,
+     "maxPerFrameAfterHit_mm": 87.019,
+     "totalAfterHits_mm": 337.769,
+     "framesSlidingOver2mm": 16,
+     "maxPerFrameOtherwise_mm": 226.929,
+     "totalOtherwise_mm": 564.768
+    },
+    "partner": {
+     "hits": 3,
+     "hitFrames": 70,
+     "maxPerFrameAfterHit_mm": 58.843,
+     "totalAfterHits_mm": 84.613,
+     "framesSlidingOver2mm": 3,
+     "maxPerFrameOtherwise_mm": 230.65,
+     "totalOtherwise_mm": 506.38
+    }
+   }
+  },
+  "fight-rabbit-tick120": {
+   "frames": 960,
+   "gloveSpeed": {
+    "p50": 0.002,
+    "p99": 14.475,
+    "max": 29.566
+   },
+   "velocityJump": {
+    "p50": 1.2,
+    "p99": 19.788,
+    "max": 29.566,
+    "top": [
+     {
+      "t": 5.233,
+      "hand": "R",
+      "dv": 29.566,
+      "acc": 3547.898,
+      "move": "rear_uppercut",
+      "speed": 29.566
+     },
+     {
+      "t": 5.242,
+      "hand": "R",
+      "dv": 29.566,
+      "acc": 3547.898,
+      "move": "rear_uppercut",
+      "speed": 0
+     },
+     {
+      "t": 5.733,
+      "hand": "R",
+      "dv": 28.279,
+      "acc": 3393.509,
+      "move": "rear_uppercut",
+      "speed": 28.279
+     },
+     {
+      "t": 5.742,
+      "hand": "R",
+      "dv": 28.279,
+      "acc": 3393.509,
+      "move": "rear_uppercut",
+      "speed": 0
+     },
+     {
+      "t": 5.733,
+      "hand": "L",
+      "dv": 28.265,
+      "acc": 3391.801,
+      "move": "rear_uppercut",
+      "speed": 28.265
+     }
+    ]
+   },
+   "poseLag_ms": {
+    "mean": 4.167,
+    "jitter": 4.167,
+    "max": 8.333
+   },
+   "unevenFrames": 959,
+   "cpu_ms": {
+    "idleP50": 5.026,
+    "idleP95": 11.174,
+    "punchP50": 6.36,
+    "punchP95": 9.804,
+    "punchFrames": 266
+   },
+   "slide": {
+    "hero": {
+     "hits": 5,
+     "hitFrames": 355,
+     "maxPerFrameAfterHit_mm": 172.039,
+     "totalAfterHits_mm": 602.431,
+     "framesSlidingOver2mm": 21,
+     "maxPerFrameOtherwise_mm": 226.929,
+     "totalOtherwise_mm": 765.259
+    },
+    "partner": {
+     "hits": 3,
+     "hitFrames": 217,
+     "maxPerFrameAfterHit_mm": 132.951,
+     "totalAfterHits_mm": 248.409,
+     "framesSlidingOver2mm": 5,
+     "maxPerFrameOtherwise_mm": 230.65,
+     "totalOtherwise_mm": 697.342
+    }
+   }
+  }
+ }
+}

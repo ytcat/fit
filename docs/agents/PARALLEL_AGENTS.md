@@ -47,12 +47,15 @@ versions, updates docs and publishes. Read `AGENTS.md` once for project values
   close dialogs: `document.querySelectorAll('dialog[open]').forEach(d=>d.close())`.
 - In this headless software renderer CSS transitions lag; wait ≥2.5 s before judging
   colours of a just-changed state.
-- Tests: `node tests/<name>.test.cjs`. Full suite (76 files, 11+ minutes):
-  `for t in tests/*.test.cjs; do node "$t" >/dev/null 2>&1 || echo "FAIL $t"; done`
-  Run the relevant files while iterating and the full suite ONCE before your final
-  commit. All must pass. If your change legitimately alters behaviour a test encodes,
-  update that test on purpose, keep its intent, and explain it in your report. Never
-  skip, disable or weaken a test just to get green.
+- Tests: `node tests/<name>.test.cjs`, or several in parallel with `scripts/run-tests.sh <name-part> ...`
+  (e.g. `scripts/run-tests.sh shop loadout accessory`). Run the tests for the files and areas you
+  touched, plus any test that mentions them (`grep -l <file> tests/*.cjs`). Do NOT run the full suite:
+  the integrator runs it once per release (`scripts/run-tests.sh`). Exception: a change to a shared
+  core file (`game-domain.js`, `career-progress.js`, `boxing-coach-v2.js`, `boxing-fight.js`,
+  `boxing-input.js`, `fight-arena.js`) — then run `scripts/run-tests.sh -j 1` once at the end.
+  All must pass. If your change legitimately alters behaviour a test encodes, update that test on
+  purpose, keep its intent, and explain it in your report. Never skip, disable or weaken a test
+  just to get green.
 - Existing browser QA scripts you can reuse (edit the URL/port): `qa/gotr-0001/layout-browser.cjs`,
   `qa/gotr-0004/browser.cjs`, `qa/gotr-0006/browser.cjs`, `qa/gotr-0006/moves-browser.cjs`,
   `qa/gotr-0013/design-browser.cjs`, `qa/gotr-0016/browser.cjs`.
@@ -104,3 +107,14 @@ also if you are blocked. The integrator merges `origin/agent/<your-name>`.
 3. What you verified: commands and results (numbers, not adjectives).
 4. What is not done / known limitations / risks.
 5. Anything the integrator must do.
+
+## Speed and token budget (owner request 2026-11-11)
+- The machine has 4 cores; at most 3 agents run at once. Load average 28 was measured with 5 agents,
+  which made a 22-minute test suite take over an hour.
+- Numbers before pictures: check layout, positions, speeds and text with DOM/geometry/numeric
+  checks first; take screenshots only for final evidence (about 6 per task) and look at each once.
+- Reuse the QA helpers instead of writing new ones: render-free fight clock stepping
+  (`qa/gotr-0036/charge-time.cjs`), camera checks (`qa/gotr-0047/browser.cjs`), layout audit
+  (`qa/gotr-0001/layout-browser.cjs`), i18n audit (`qa/gotr-0046/i18n-audit.cjs` once merged).
+- Read only the parts of large files you need (grep, then read the lines around the match).
+- Keep reports to the requested length; no progress narration in commits.

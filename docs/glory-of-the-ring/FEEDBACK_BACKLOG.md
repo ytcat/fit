@@ -138,7 +138,7 @@
 
 ### GOTR-0008 — Long-term 3D explorable adventure world connecting gyms, quests and boss fights
 - **Reported:** 2026-11-09
-- **Status:** OPEN
+- **Status:** APPROVED DESIGN v1 (owner, 2026-11-11: "I approve your recommendation in the artifact") — first playable slice scheduled
 - **Priority:** P2
 - **Delivery:** LATER — only after preceding shop, controls, Fight IQ and core milestones are implemented and verified
 - **Area:** World exploration / quests / progression
@@ -146,8 +146,18 @@
 - **Expected behavior:** A navigable stylized but visually polished 3D world map/hub with a walking player, buildings/locations/NPCs, assignments, travel, world events, gym training and ranked ring battles. Example journey: local gym tutorial → street training task → equipment shop → city club rival → regional arena → elite destination → final champion. Staged difficulty gates are transparent, reachable through specific skills and practice, not grinding. Preserve 3-minute task sessions and optional long-form exploration. Support save/resume at any location.
 - **Acceptance criteria:** First vertical slice: player can walk between at least three distinct functioning spaces, take a quest, train, enter a fight with a numerically-rated boss, earn a persistent reward and return to hub; acceptable mobile framerate; no break to existing direct-entry boxing mode. Later expansion to larger worlds after feasibility QA.
 - **Dependencies / risks:** Requires navigation/camera, interactive environments, streaming/scene transitions and performance budget; cannot ship as an unplayable decorative map. Separate PRD and architecture review when scheduled.
+- **Owner direction (2026-11-11):** The adventure's progression order: beginner training → street fight → fights in the underground and other places → advancing step by step → championship. Until the adventure exists, all arenas stay available.
 - **Implementation:** Deferred for sequencing, not rejected.
 - **Evidence:** Future vertical-slice prototype and measured mobile test.
+- **Owner (2026-11-11):** "I do want adventure scenarios. But I want to design the world with you here before you start development."
+- **Design decisions so far (owner, 2026-11-11):** (1) **World form:** illustrated 3D city map first (tap a place to travel), walkable streets per chapter later. (2) **Story:** rise to champion — an unknown fighter climbs from nothing to the title. (3) **Unlocks:** missions give stars; enough stars lets the fighter challenge the place's boss; beating the boss opens the next place. (4) **Coach:** a new local coach in every place. Draft chapter ladder (to confirm): 1 Home Gym (beginner training) → 2 Street → 3 Underground (Basement, Dockside Hangar) → 4 Rising (Boxing Club, City Sports Hall, Neon Strip, Harbor Dome) → 5 Championship Arena; each place 3–5 missions + 1 boss.
+- **Design decisions round 2 (owner, 2026-11-11):** (5) **Coaches:** each place's coach teaches its own style and unlocks moves of that style (Home Gym basics and guard; Street footwork and slipping; Underground power; Clubs technique and combos; Championship ring strategy). (6) **Characters:** a venue animal per chapter, plus funny characters dressed as boxers from themes people know (cartoons, movies, genres) — e.g. absurd fighters in illegal fights, robots in a future theme. **IP rule (integrator):** only original characters that evoke a genre or archetype; no names, emblems, costumes or colour schemes of existing franchise characters (needs licences and would block publishing; PRD V2 §17 Tier C). (7) **Missions:** training challenges, help a character, street events (time-limited map challenges), and funny non-boxing tasks (comic everyday conflicts and rescues). (8) **Map look:** day to night per chapter (morning gym → evening street → night underground → stadium lights).
+- **Design decisions round 3 (owner, 2026-11-11):** (9) **Main setting:** one big city with a sunny coastal, neon-nightlife, retro feel; future/tech, spooky, pirate harbour, medieval and more themed zones exist as **side missions**, not main chapters. **IP rule:** an original city (own name, map, art, music, characters) — the genre mood only, never a recreation of an existing game's city, name, map or look. (10) **Growth:** coaches unlock moves and combos, plus light stats from training (power, speed, stamina); gear stays cosmetic. (11) **Losing:** no penalty, but each boss fight has an entry level; the higher the fighter's score (stars, stats) above it, the better the chance to win — losing tells the player to raise the score first. (12) **Length:** about 4–6 hours for a first play-through, in 3–10 minute pieces.
+- **Design decisions round 4 (owner, 2026-11-11):** (13) **City name: Gloryland.** (14) **Fighter Level** = mission stars + training stats; every boss shows an entry level; each level above it raises the chance to win. (15) **First playable slice:** city map + Home Gym + Street (two coaches, two bosses, Fighter Level, save and return) with **more tasks** than the proposed 8. (16) **Next step:** a visual design document for the owner to approve before any development.
+- **Design document v1 (2026-11-11):** `docs/adventure/gloryland-design.html` (also published privately for the owner as an Artifact): city map sketch, five chapters with places, coaches (Pip rabbit, Vix fox, Tusk walrus, Kip kangaroo, Tembo elephant), bosses and entry levels (5/12/20/30/40), four side zones, 18 first-slice missions, Fighter Level = stars ÷ 3 + stat points above start, length ≈ 4½–5½ h. Waiting for the owner's confirmation of the five open points on the page.
+- **Owner on the design doc map (2026-11-11):** "The map should look professional and 3-D, like a real designed city map, not just circles and squares and lines. Invest in this." → agent `gloryland-map` builds a stylised 3D city diorama in three.js (day and night, landmarks for every chapter and side zone, chapter pins) as the foundation of the in-game adventure map; its renders replace the sketch in the design doc. New files only (`adventure/`), not wired into the game before approval.
+- **Owner approval (2026-11-11):** "I approve your recommendation in the artifact." Approved as proposed: coaches Pip (rabbit), Vix (fox), Tusk (walrus), Kip (kangaroo), Tembo (elephant); bosses and entry levels Brick 5, King Hyena 12, Iron Bull 20, Onyx 30, Blaze 40; the 18 first-slice missions; Fighter Level = stars ÷ 3 + stat points above start, with a small per-point edge; map layout as rendered (Old Town north-east, Docks on the south coast, Glory Hill on top).
+- **Build plan (first slice, small releases):** A) Adventure tab replaces World (with GOTR-0044) and shows the 3D Gloryland map with tap-to-travel; B) progression core: stars, stats, Fighter Level, boss entry gate and chance (also feeds GOTR-0041/0042); C) Old Town: coach Pip, 9 missions, boss Brick; D) Market Row: coach Vix, 9 missions, street events, boss King Hyena. New species (beaver, fox, hyena, raccoon) come from the avatar work (GOTR-0009) after the muscle system (GOTR-0037) lands, so new characters get muscles from day one; until then missions run with the existing fighters. Development build: everything open.
 
 ### GOTR-0009 — Expand roster and bosses with varied species, silhouettes, size and combat IQ
 - **Reported:** 2026-11-09
@@ -371,25 +381,25 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0027 — Hand and arm motion is not smooth
 - **Reported:** 2026-11-11 (screen recording on the user's iPhone, v1.17, heavy bag)
-- **Status:** IN PROGRESS (agent `smooth-motion`)
+- **Status:** IN PROGRESS — measured, no fix shipped yet
 - **Priority:** P1
 - **Area:** Animation / frame pacing / performance
 - **Reported behavior / request:** "Look how hands are moving. They are not smooth moves."
 - **Integrator measurement of the recording (60 fps capture, 7.7 s):** during punches, consecutive captured frames are often identical (held frames, sometimes every other frame, i.e. ~30 fps bursts) and the next frame then jumps; at rest the pose barely changes. So part of the problem is presentation/frame pacing on the phone, part may be pose discontinuities (glove direction/velocity changing abruptly).
 - **Acceptance criteria:** Measured glove trajectories have no velocity spikes or reversals that are not part of the punch; animation time advances smoothly even when frames are late (no double-size jumps); phone-size rendering cost reduced or adapted so a mid-range phone holds a steady frame rate; before/after measurements and frame strips.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** `agent/smooth-motion` measured, no code change: the owner's recordings show the phone dropping frames (sparring 20–30 fps, bag 30 fps during punches). Pose time already advances correctly when frames are late (no double jumps). JS cost per frame ~2.5 ms on the bag (so bag drops are GPU-bound) and 8–11 ms in fights. Gaps: fights on 120 Hz screens show each pose twice (60 Hz fight ticks without interpolation). **Defect found:** in mitt work the guard hand jumps 23 cm for one tick during the rear hook (two fixes reverted). Next: render interpolation, GPU cost reduction / adaptive quality, fix the guard flicker.
+- **Evidence:** `qa/gotr-0027/README.md` (measurements). No physical phone; CPU timings noisy (shared machine).
 
 ### GOTR-0028 — Hit opponent slides back on its feet in sparring
 - **Reported:** 2026-11-11 (screen recording, v1.17, Train → Sparring)
-- **Status:** IN PROGRESS (agent `smooth-motion`)
+- **Status:** READY FOR QA in sparring — in v1.20; fights still OPEN
 - **Priority:** P1
 - **Area:** Animation / foot contact
 - **Reported behavior / request:** "Look when the lion is hitting the rabbit, the rabbit slides back with his legs; this is not realistic."
 - **Expected behavior:** When pushed back by a punch, the receiver absorbs it in the upper body and hips with planted feet, or takes a real step (foot lifts and plants). Planted feet never glide across the floor. Same rule in fights.
 - **Acceptance criteria:** Measured planted-foot slide per frame ≈ 0 for the receiver during and after hits in sparring and fights, both species; any displacement of the body root happens through visible steps; matched before/after frame strips.
-- **Implementation:** In progress.
-- **Evidence:** Pending.
+- **Implementation:** `agent/smooth-motion` (merged 486a4e0). Cause: `training-arena.js` moved the sparring partner's root with a pushback spring (up to 30 cm) while its feet are posed relative to the root, so planted feet glided. Now a hard hit makes the partner take a real step back (rear foot lifts ~45 mm and plants), pause and step in again; lighter hits are absorbed by the existing body recoil. **Fights not fixed:** feet still snap at step take-off and some planted feet slide up to 172 mm in one frame (details in `qa/gotr-0028/README.md`).
+- **Evidence:** `qa/gotr-0028/` — worst planted-foot slide per frame in sparring 59.9 mm → 0.19 mm (node), 59.9 mm → 0.4 mm (real app); total 3.0 m → 1 mm over 8 s; frame strip `spar-hit-before-after.webp`; new `tests/foot-plant.test.cjs`. No physical phone.
 
 ### GOTR-0029 — Redesign the Combo loadouts screen
 - **Reported:** 2026-11-11 (screenshot from the user's phone: "Redesign")
@@ -413,14 +423,191 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0031 — Map every user flow and make the first-time experience clear, simple and exciting
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (agent `ux-flows`)
+- **Status:** IN PROGRESS — owner approved the proposal on 2026-11-11 ("The rest do as you suggested"); building in releases R1–R4
 - **Priority:** P1
 - **Area:** UX / onboarding / navigation
 - **Reported behavior / request:** "Can you please prepare all UX flows with decision making. I want to see all game process and user flow. I feel that the user experience is still not intuitive, clear and simple. I want the new user to be able to understand exactly what to do and it will be clear and make sense and exciting."
 - **Expected behavior:** (1) A visual map of the whole game as it exists today: every screen, entry point and decision (first launch, train, fight, academy, shop, loadouts, world, cup, missions, settings) with where players get lost. (2) A proposed simplified journey for a new player (first 5 minutes, then the daily loop) with one obvious next step at every moment. (3) After the user reviews it, implement the new flow in slices.
 - **Acceptance criteria:** Diagrams cover every reachable screen; each friction point backed by evidence from the real app; the proposed first-time path reaches a first win, a first reward and a first unlock with no dead ends; the user approves before implementation.
-- **Implementation:** In progress (mapping and proposal first).
+- **Delivered (`agent/ux-flows`):** `docs/ux/UX_FLOWS.md` (screen inventory, current flow, friction map F1–F15, proposed navigation Home · Train · Fight · Learn · Shop, first five minutes, core loop, "Next up" rules, empty states, reward moments, longer arc, ranked changes and release slices R1–R4) and the phone page `docs/ux/ux-flows.html`, published privately for the owner as an Artifact. Top findings: no first step after naming; Train/Fight run under coach control unless Play is on; the World hub pops up after every activity and hides who won; one place has four names; language is three levels deep; developer notes on player screens.
+- **Evidence:** `qa/gotr-0031/` (34 screenshots from v1.19 at 402×690 and 1366×768, Playwright helpers). Limits: the third Academy repetition and the "Lesson passed" screen were described from code (software rendering too slow); Mermaid diagrams not rendered here; no physical phone.
+- **Open questions for the owner:** arenas as earned rewards for new players (existing players keep all); Lion/Rabbit choice on the first screen and rival cards no longer switching species; one name for the player's place (Gym / Club / Corner).
+- **Owner decisions (2026-11-11):** (1) Arenas: keep all nine available for now — no earned arenas during development. Future adventure order: beginner training → street fight → underground and other places → advancing → championship (recorded on GOTR-0008). Change #8 (progressive unlocks) is deferred to go-live. (2) Lion/Rabbit choice on the first screen; rival cards stop switching the player's species. (3) One name: **Gym**. Everything else as proposed.
+- **Plan:** R1 = changes 2, 5, 10, 12 plus the Lion/Rabbit choice; R2 = 1, 6, 9; R3 = 3, 4; R4 = 7, 11 (8 deferred). Each release is published with its own version number.
+
+### GOTR-0032 — Mitt-work punches still look like small touches
+- **Reported:** 2026-11-11 (after v1.18)
+- **Status:** IN PROGRESS — reopened after v1.20 (agent `smooth-motion` follow-up)
+- **Priority:** P1
+- **Area:** Mitt training / animation feel
+- **Reported behavior / request:** "In the coach training the punches are not strong enough; it still looks like a small touch."
+- **Known cause:** v1.18 (GOTR-0024/0025) sped up fight, bag and shadow punches but left mitt choreography unchanged: mitt hooks meet the pad at about 1.1 m/s, mitt uppercuts keep the old timing, pad recoil is small (0.065 × force, fast decay) and the coach's arm and body barely react.
+- **Expected behavior:** The glove accelerates into the mitt, the mitt pops back clearly, the coach's arm and shoulder absorb and the coach meets straights with a short counter-push; crisp impact accent and pad-pop sound.
+- **Acceptance criteria:** Measured before/after glove speed at mitt contact for all six punches and pad displacement; matched before/after frame strips; GOTR-0012 extension results and mitt contact tests still pass; no sliding feet.
+- **Implementation:** `agent/smooth-motion` (merged 486a4e0): hooks aim 5 cm and uppercuts 4.5 cm through the mitt, and every punch aims at the mitt's un-recoiled position so the glove no longer chases the mitt back (4.7 cm → 0.1 cm); mitt pop bigger and sharper; the coach's shoulder gives 5–8 cm (was 1.2) and chest 1.0–1.5 cm (was 0.3); brief glove squash on contact and an extra mitt sound layer. Not done: real hit-stop; Watch-mode straights at the mitts still slow (2.2–3.8 m/s at contact); mitt uppercuts show a one-tick speed jump.
+- **Evidence:** `qa/gotr-0032/` (`before.json`, `after.json`, `measure.cjs`) — glove speed at contact in Play: hooks 1.09 → 2.45/2.32 m/s, uppercuts 3.17/3.72 → 4.92/4.00 m/s; straights unchanged (elbow 164°/167°, extension 0.990/0.994); mitt pop 2.7–5.5 cm → 5.5–8.7 cm, peak at 25 ms (was 42 ms); new `tests/mitt-power.test.cjs`. Before/after frame strips not produced (screenshots did not show the stepped pose).
+- **Owner feedback after v1.20 (2026-11-11):** "Also the punches still not powerful enough." The owner's screenshot was taken in automatic (coach-controlled) mitt training, where straights still reach only 2.2–3.8 m/s at contact (agent measurement). Real boxers reach roughly 6–10 m/s at the glove.
+- **Next targets:** glove speed at contact in Play and automatic modes, in mitt work, bag and fights: straights ≥ 6 m/s, hooks and uppercuts ≥ 6.5 m/s; whole-body drive (hip and shoulder rotation, rear-heel pivot, weight transfer, short load before the punch); a brief hit-stop (~50–70 ms) on clean contact; stronger impact accents (mitt/bag pop, spray or dust, layered sound, slight camera kick on power shots); before/after video-like frame strips.
+
+### GOTR-0033 — Free development mode: everything available, price tags kept
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (integrator)
+- **Priority:** P1
+- **Area:** Shop / progression / release control
+- **Reported behavior / request:** "While we are building the app, try to make all the possibilities available, including the shop — let me buy for free, but add a price tag on the things that need to be, and only when we go live those will be locked until they are purchased or earned."
+- **Expected behavior:** One release switch. In development: every Shop item, accessory and combo can be taken for free with one tap; its normal price stays visible; a short notice says purchases are free during development; coins are still earned and shown but not spent. At go-live (switch flipped): prices are charged and locks apply until bought or earned.
+- **Acceptance criteria:** With the switch in development mode, a fresh player with 0 coins can get and equip every item and every combo; price tags remain visible in EN/HE/RU; the ledger records zero-cost development grants that validate on reload. With the switch in live mode, the same actions are refused without enough coins exactly as before; old saves load in both modes; full test suite passes.
+- **Dependencies / risks:** Shop UI is being changed by `agent/store-polish` (GOTR-0030); the UI part follows its merge. Decision at go-live: keep or revoke development grants in the owner's own save.
+- **Implementation:** In progress.
 - **Evidence:** Pending.
+
+### GOTR-0034 — One set of words for the three characters
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (part of UX release R1, agent `ux-r1`)
+- **Priority:** P1
+- **Area:** UI copy / terminology
+- **Owner's definitions:** **Coach** = the rabbit who holds the mitts. **Fighter** = the main character (the player's boxer). **Opponent** = whoever the fighter faces in sparring and in a fight.
+- **Expected behavior:** Every player-facing text in EN/HE/RU uses these three words with these meanings only. Today the app also says "coach" for the player's own boxer ("Lion coach", "using lion coach", auto-control called coach mode, "Coach could not load"); those become Fighter (or "Auto" for automatic control). Code identifiers such as `engine.coach` stay as they are (internal only). Docs and agent briefs use the same words.
+- **Acceptance criteria:** A search of player-visible strings finds "coach"/"מאמן"/"тренер" only where it means the mitt-holder; screenshots of the first screen, Train, mitt training and Fight in EN/HE/RU.
+- **Open point:** When the player chooses Rabbit as the fighter, who holds the mitts must be checked in the engine (the coach is a rabbit today).
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
+### GOTR-0035 — Game-pad controls: round D-pad and one-screen punch buttons
+- **Reported:** 2026-11-11
+- **Status:** READY FOR QA — merged (`agent/fighter-pad`), ships in the next release
+- **Priority:** P1
+- **Area:** Controls / fight / sparring / training
+- **Reported behavior / request:** "I need some kind of controls: a round move controller with 4 direction arrows inside (make it designed) and on the other side some punch move buttons. Because it doesn't matter if the punch will be left or right, you now have fewer options for buttons and you can use everything there. Use this also in fight and in sparring."
+- **Decisions (integrator):** D-pad on the left, punches on the right in every language. ← / → step back / forward on screen; ↑ slip; ↓ duck/roll. Punch buttons Straight, Hook, Uppercut, plus Guard, Burst and the equipped combos on the same screen; the hand is chosen automatically (lead first, then alternate; back to lead after a pause), so Straight, Straight = jab, cross. Replaces the Moves/Combos/Defence pages in fight, sparring and the punch trainings; rope keeps its own buttons.
+- **Acceptance criteria:** All four directions and all punches work in fight, sparring and mitt work (measured input/fight events); move and punch at the same time on touch; no overlap with the boxers; phone portrait/landscape and desktop in EN/HE/RU; Academy lessons still pass; full suite passes.
+- **Implementation:** New `fighter-pad.js`, `fighter-pad.css` (no edits to `ringfighter-controls.js`). The pad shows in fight, sparring, mitts, bag, dummy, speed bag and shadowboxing; rope, Watch and Academy lessons keep their own buttons. ←/→ step by the fighter's on-screen facing (from the live camera), ↑ alternating slips, ↓ roll; Straight/Hook/Uppercut with automatic hand choice (lead first, alternate, back to lead after 0.8 s; speed bag: taps/doubles/triples); Guard; Burst moved into the pad; equipped combos as chips. Keys: arrows/WASD unchanged, J/K/L punches, 1–3 combos, B Burst. Academy lessons hide the pad and keep the 12 exact move buttons (auto hands cannot make sequences like uppercut-hook-cross).
+- **Evidence:** `qa/gotr-0035/` (agent run, headless with touch emulation): Straight, Straight, Hook → jab, cross, hook and 3 thrown punches counted in a fight; all four arrows, three punches and Guard accepted in sparring and mitts, steps move the hips 22–45 px the matching way on screen, also with the camera turned half way; two-finger move + punch both accepted 4 ms apart; hold → 3.5 s = 3 steps; no page scroll or zoom; buttons ≥ 49 px; pad never covers the boxers (14–110 px clearance) at 4 sizes × EN/HE/RU; Academy jab-cross ×3 → +15 coins with the save check accepting the proof; full suite 86/86. Limits: no physical phone; in portrait the pad shifts and zooms out the 3D view (boxers ~17% smaller at 402 px with 3 combos equipped, ~21% at 360 px); combo chips 37–42 px tall (< 48 px target); the first-time Burst tip is hidden on phones; fight steps are short in-place footwork.
+
+### GOTR-0036 — Burst meter charges too slowly
+- **Reported:** 2026-11-11
+- **Status:** READY FOR QA — in v1.20
+- **Priority:** P1
+- **Area:** Fight / Burst
+- **Reported behavior / request:** "Charging takes too long. You need to get to fully charge faster."
+- **Known cause:** Burst rules as published in v1.18 (commit 869ecac): +0.045 per second of round time (22 s alone), +0.10 per clean hit, +0.07 per block or evasion; the meter was designed so time alone cannot fill it in a 20 s round.
+- **Acceptance criteria:** Measured time to the first full meter in Watch fights before/after; full well before the end of a 20 s round in normal play; Burst tests updated on purpose.
+- **Implementation:** `boxing-fight.js` `BoxingFight.burst`: time fill 0.045 → 0.11/s, clean hit +0.10 → +0.25, block/evasion +0.07 → +0.17. `tests/burst.test.cjs` updated on purpose (time alone fills in 7–12 s; two hits and a block in 2–8 s).
+- **Evidence:** `qa/gotr-0036/` — 4 Watch fights, 8 fighters, real contact solver: first full meter (round time) mean 12.3 s → 5.4 s, range 8.9–17.6 s → 3.8–9.1 s; full within the first 10 s of the round 2/8 → 8/8.
+
+### GOTR-0037 — Visible muscles on every avatar (definition, form shadows, muscle shapes)
+- **Reported:** 2026-11-11 (screen recording of an illustrated human boxer from an ad, used only as a quality reference)
+- **Status:** IN PROGRESS (agent `muscle-definition`)
+- **Priority:** P1
+- **Area:** Avatars / 3D realism / lighting
+- **Reported behavior / request:** "Look at how the fighter is visualized. Look at his muscles and the shadows and the shapes of each muscle on his body. I want to achieve this kind of level for my players, not just smooth hands but actually to see muscles on each one of the avatars. Try to get as close as possible to this level."
+- **Reference (not stored in the repo):** clearly separated deltoids, traps, lats, back and spinal grooves, pecs, six-pack and obliques, serratus, biceps/triceps, forearm and calf shapes, with strong form shadows and highlights on each muscle. Our characters stay our own Lion and Rabbit; the reference sets only the level of muscle definition.
+- **Expected behavior:** Lion and Rabbit (and every future avatar) show readable muscle shapes on torso, back, arms and legs, in guard and while punching, in the gym and the arenas; fur does not hide them; muscles deform with the pose.
+- **Acceptance criteria:** Matched before/after renders (front, back, side, 3/4; guard, jab extended, hook) for both species; muscle groups named on a labelled sheet; gear and accessories still fit; measured GPU/JS frame cost before/after at phone size with a lower-quality fallback; full suite passes.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
+### GOTR-0038 — Coach's mitt goes inside his own face in mitt work
+- **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Train → Coach mitts, cue "Roll under the hook")
+- **Status:** IN PROGRESS (agent `smooth-motion` follow-up)
+- **Priority:** P1
+- **Area:** Animation / mitt work / collision
+- **Reported behavior / request:** "Bug: look at the rabbit's hand, it's inside his face."
+- **Observed:** while the coach swings a mitt hook for the fighter to roll under, the coach's other mitt sits inside the coach's own face/muzzle. Related known defect: in mitt work the fighter's guard hand jumps 23 cm for one tick during the rear hook (GOTR-0027 measurement).
+- **Expected behavior:** No hand, glove or mitt of either character ever penetrates its own head or body; the coach keeps the non-swinging mitt in a real guard beside the cheek.
+- **Acceptance criteria:** Measured minimum distance between each mitt/glove and the owner's head and torso surfaces stays positive in every mitt-work drill, both species as coach where supported; frame strip of the hook-roll drill before/after; mitt tests pass.
+- **Evidence:** `qa/gotr-0038/user-v1.20-coach-mitt-in-face.webp` (owner's screenshot).
+
+### GOTR-0039 — Combo preview in the Shop shows an empty arena
+- **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Shop → Combos → First Rhythm preview)
+- **Status:** IN PROGRESS (agent `store-polish`, together with GOTR-0030)
+- **Priority:** P1
+- **Area:** Shop / combo preview / camera
+- **Reported behavior / request:** "When you click on preview the screen is empty."
+- **Observed:** the preview is playing (Jab/Cross chips, Stop button) but the pane shows only the arena wall and a "Fight Night" sign; the fighter is out of frame.
+- **Expected behavior:** Every combo preview frames the whole fighter performing the combo, in the narrow phone pane and in Full view, in every arena.
+- **Acceptance criteria:** Screenshots of at least two combos at 402×690 and 1366×768 show the fighter fully in frame; EN/HE/RU.
+- **Evidence:** `qa/gotr-0039/user-v1.20-combo-preview-empty.webp` (owner's screenshot).
+
+### GOTR-0040 — Punch power meter in fights and training
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (agent `smooth-motion` follow-up)
+- **Priority:** P1
+- **Area:** Fight HUD / training feedback
+- **Reported behavior / request:** "Please show some kind of small meter of the punch power under the health bar in the fight and something for the training."
+- **Expected behavior:** In fights, a slim meter under each fighter's health bar shows the power of that fighter's last landed punch (fills, then fades; stronger colour for power shots). In bag, mitt and speed training, a power gauge shows the last punch and the session best.
+- **Acceptance criteria:** Meter values come from the real contact impulse; screenshots at phone and desktop sizes in EN/HE/RU; no overlap with the health bars, Burst button or game pad.
+
+### GOTR-0041 — Quick view of the fighter's characteristics
+- **Reported:** 2026-11-11
+- **Status:** OPEN — planned for UX release R2 (agent `ux-r1` after R1)
+- **Priority:** P1
+- **Area:** UI / progression
+- **Reported behavior / request:** "Add a small expandable button that will show all characteristics of the fighter; I don't need to go to options to see how much the power and stamina level and the rest."
+- **Expected behavior:** A small button (header or HUD) that expands to show level/rank, power, speed, stamina, defence and the other ratings of the current fighter, then collapses; reachable in one tap from Train and Fight.
+- **Acceptance criteria:** Values match the career ratings; opens and closes in one tap; phone portrait/landscape and desktop; EN/HE/RU.
+
+### GOTR-0042 — Show both fighters' level and score; warn on a big gap
+- **Reported:** 2026-11-11
+- **Status:** OPEN — planned for UX release R2 (agent `ux-r1` after R1)
+- **Priority:** P1
+- **Area:** Fight setup / rivals / progression
+- **Reported behavior / request:** "I want to see the level and the player score and opponent scores, so if the opponent's score is too high I know I need to train a bit. If there is a huge difference, add a warning with consent that the difference is too big and there is a low chance to win."
+- **Expected behavior:** Before every fight (rival cards, cup, quick fight) the fighter's and the opponent's level and score are shown side by side with an estimated chance. Above a set gap, starting the fight first shows a warning ("Big difference: low chance to win") with Fight anyway / Train first.
+- **Acceptance criteria:** Numbers come from the real ratings; the warning appears only above the threshold and remembers nothing; Train first opens a useful training; EN/HE/RU.
+
+### GOTR-0043 — Losing still pays participation money
+- **Reported:** 2026-11-11
+- **Status:** READY FOR QA — in the next release
+- **Priority:** P1
+- **Area:** Economy
+- **Reported behavior / request:** "Let the user earn money even if he is losing, but less; it's basically participation money."
+- **Finding:** Before this change a fight paid the same for a win or a loss (time × quality); Watch (automatic control) paid 0, which is why a player who never pressed Play saw 0 coins.
+- **Implementation:** `game-domain.js` `fightPay`: win × 1.5, draw × 1, loss × 0.6 of the time-and-quality pay; Watch still pays 0; training pay unchanged.
+- **Evidence:** `tests/fight-pay.test.cjs` — 60 s fight with equal stats: win 52, draw 35, loss 21 coins; Watch 0; heavy-bag training still 35.
+
+### GOTR-0044 — "World" makes no sense; make it the Adventure and move its parts
+- **Reported:** 2026-11-11
+- **Status:** OPEN — planned for UX release R2 (navigation part of change #7), Adventure content per GOTR-0008
+- **Priority:** P1
+- **Area:** Navigation / information architecture
+- **Reported behavior / request:** "The World category is very strange. I don't understand how this is relevant to the world. This one should include probably the adventure, and the components that are in there should be placed in different locations, because this sounds like settings more than world."
+- **Expected behavior:** The World tab becomes **Adventure** (Gloryland map; until the first slice exists, a clear "coming soon" with the plan). Its current parts move: rivals, cup and events → Fight; arena choice → fight setup; history/record book, player & backup, school and other settings → the Settings sheet behind the header gear.
+- **Acceptance criteria:** Every former World item reachable within two taps from its new place; no item lost; screenshots of the new navigation in EN/HE/RU.
+
+### GOTR-0045 — Player profile dialog stays in English in Hebrew (and Russian)
+- **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Hebrew)
+- **Status:** IN PROGRESS (agent `ux-r1`, part of the R1 copy pass)
+- **Priority:** P1
+- **Area:** i18n / RTL / profile
+- **Reported behavior / request:** "I'm in Hebrew view and my corner still shows English."
+- **Cause (integrator):** every string of the profile dialog in `career-interface.js` ("Your corner", "Create player", "Play as guest", "Import backup", "Export backup", the guest/account note…) is hard-coded English; the file has no HE/RU strings, so in the RTL layout the full stops jump to the start of the lines.
+- **Expected behavior:** The dialog (and every other player-visible string in that file) is fully translated in HE and RU with correct RTL punctuation; one name for this place consistent with the Gym/terms pass; no developer note about an account service; the close button shows no focus ring on open.
+- **Acceptance criteria:** HE and RU screenshots at 402×690 with no English left except the player's own name; bidi-isolated names.
+- **Evidence:** `qa/gotr-0045/user-v1.20-he-profile-english.webp` (owner's screenshot).
+
+### GOTR-0046 — Hebrew/Russian screens still show a lot of English (systematic sweep)
+- **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Hebrew, fight intro): "Again, you see a lot in English."
+- **Status:** IN PROGRESS (agent `ux-r1`, with GOTR-0045)
+- **Priority:** P1
+- **Area:** i18n / RTL
+- **Observed:** header "Guest", HUD names "GUEST" / "SHADOW", intro card "GUEST VS SHADOW · ROUND 1 · GET READY", the "VS" badge and the title.
+- **Causes (integrator):** `fight-presentation.js` has no HE/RU strings; the fight uses the opponent's English name although rivals have HE/RU names; the default profile name "Guest" is stored data shown untranslated.
+- **Owner correction (2026-11-11):** "Not everything should be in Russian or Hebrew. Real terminology should stay in English, like shadowboxing — it doesn't sound right in Hebrew. The game name should always be in English."
+- **English glossary (kept in Latin script in every language):** Glory of the Ring (game name); Shadowboxing, Sparring; Jab, Cross, Hook, Uppercut (and lead/rear variants); Slip, Roll, Guard; Combo, KO, Burst, VS; the combo names (First Rhythm, Corner Turn, Counter Chain, Thunder Arc, Rolling Return, School Signature). Bidi-isolated inside HE sentences. Everything else is translated (menus, buttons, instructions, places, tips, round text, Guest → אורח / Гость, opponents' HE/RU names). The owner can add or remove terms.
+- **Acceptance criteria:** a Playwright audit (`qa/gotr-0046/i18n-audit.cjs`) walks every main screen and state in HE and RU and lists visible Latin-letter text; allowlist = the English glossary, the version number, numbers/coins and player-typed names; final run: 0 findings in both languages.
+- **Evidence:** `qa/gotr-0046/user-v1.20-he-fight-english.webp` (owner's screenshot).
+
+### GOTR-0047 — Camera in front for the result ceremony and for rope jumping
+- **Reported:** 2026-11-11
+- **Status:** READY FOR QA — in the next release
+- **Priority:** P1
+- **Area:** Camera
+- **Reported behavior / request:** "When the fight is over and the referee holds the fighters, the camera should always be in front of them. Also, as a default, the camera lock when rope jumping should be in front."
+- **Cause:** the side lock kept the side it had during the fight, so after the line-up it could end up beside or behind the fighters; an unlocked camera stayed wherever the player left it. Rope jumping under the lock used the same side view as the other stations.
+- **Implementation:** `camera-director.js` `front()`: during scoring and the ceremony the camera frames both lined-up fighters (and the referee between them) from where they face, locked or unlocked, once per fight; an explicit unlock during the ceremony is respected; afterwards the player's own choice returns. Locked rope jumping is framed from the front, and the lock button reads "Front lock" there (HE/RU too).
+- **Tests:** new `tests/camera-front.test.cjs`; `tests/camera-director.test.cjs` rope assertion changed on purpose from side-on to front.
+- **Evidence:** `qa/gotr-0047/` — real app (`browser.cjs`, `results.json`): ceremony with the lock on (phone 402×690) and off (desktop 1366×768) and locked rope (phone): camera direction vs the subjects' facing = 1.000 in all three (1 = straight in front); screenshots `ceremony-locked-phone.webp`, `ceremony-free-desktop.webp`, `rope-front-lock-phone.webp` show both fighters and the referee from the front with the winner's hand raised, and the lion jumping rope seen from the front with the button "Front lock". Found on the way: after the bout the World window opens over the ceremony (`dialogsOverCeremony`), so players miss it — fixed by UX R2's result card (GOTR-0031 change #1). Tests: `tests/camera-front.test.cjs`, `tests/camera-director.test.cjs` pass.
 
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
@@ -438,6 +625,18 @@ The user asked to run as many independent tasks in parallel as possible and to t
 | `agent/adventure-world` | Walkable 3D district prototype (not published until it meets the bar) | GOTR-0008 |
 
 Queued because they touch files being changed above: Burst (GOTR-0005), rival memory F-011, coach tactics F-012, FIFO combo-queue check from the 2026-11-08 brief (after `fight-range`); gloves and shorts designs of GOTR-0003, new fighter GOTR-0009 / F-016 (after `mitt-range`); gym station F-015, Skill Fusion F-017, performance automation F-020.
+
+### Agent status — 2026-11-11 09:45 UTC (owner asked to remove duplicate agents and continue some)
+The four cloud sessions started on 2026-11-10 stopped at the 5-hour usage limit and pushed nothing. Checked against current work:
+
+| Agent | Decision | Why |
+|---|---|---|
+| `gear-3d` (cloud) | Archived — duplicate | Done locally as `agent/gear-3d-local`, published in v1.15 |
+| `i18n-a11y` (cloud) | Archived — duplicate | Wording, Gym name, owner's terms and HE/RU translation are in UX R1 (`agent/ux-r1`, GOTR-0031/0034). The accessibility part (screen-reader labels, focus order, contrast, reduced motion) restarts as a fresh agent after R1 merges |
+| `world-content` (cloud) | Archived — merged into UX R3 | Short missions and the return digest become the "Next up" card and Home of UX R3/R4; restarts as a fresh agent with that brief after R1 merges |
+| `adventure-world` (cloud) | Parked (not a duplicate) | Owner: the adventure comes later (training → street → underground → … → championship, GOTR-0008); a fresh brief will replace the stale one |
+
+Running locally (max four at a time): `store-polish` (GOTR-0030, 0033, 0039), `ux-r1` (GOTR-0031 R1, 0034), `fighter-pad` (GOTR-0035), `muscle-definition` (GOTR-0037). Next when a slot frees: `smooth-motion` follow-up (GOTR-0032 punch power, GOTR-0038 mitt in face, guard flicker), then world-content as UX R3, then accessibility.
 
 ### Issue template
 
@@ -460,5 +659,6 @@ Queued because they touch files being changed above: Burst (GOTR-0005), rival me
 
 | Date | Agent / branch | Completed & verified | Still open | Application link |
 |---|---|---|---|---|
+| 2026-11-11 12:15 UTC (saved before the account usage limit) | integrator `claude/serene-cannon-riwk4l` | Live **v1.20** (`2ef46f6`). **v1.21** = `3e6629f` (camera in front for the ceremony and rope, participation pay): 81 of 90 tests passed before the suite hit its 1-hour limit; the last 9 (`shoulder-motion` … `workout`) were re-running — re-run them, then `git push origin 3e6629f:main`. Branch head also has `agent/fighter-pad` merged (game pad, GOTR-0035) = the v1.22 candidate. | Agents saved to GitHub, all unreviewed: `agent/store-polish` f426bd1 (GOTR-0030/0033/0039, looked finished, no report yet); `agent/ux-r1` b3d2240 + `wip/ux-r1` f8eee8e (R1, terms, HE/RU audit — GOTR-0031/0034/0045/0046); `agent/smooth-motion-2` addbf62 + `wip/smooth-motion-2` 1ace5a8 (punch power, coach mitt in face, power meter — GOTR-0032/0038/0040); `agent/muscle-definition` 7246a17 + `wip/muscle-definition` 31552d3 (GOTR-0037); `agent/gloryland-map` dd320e4 + `wip/gloryland-map` 54d66be (GOTR-0008 map). Next: v1.21 publish → merge store-polish, flip `version.js` channel to 'dev' (free mode) → v1.22 → UX R1 → R2 (GOTR-0041/0042/0044, result card) → Adventure first slice (approved design `docs/adventure/gloryland-design.html`). Rules: max 3 agents on this 4-core machine; `scripts/run-tests.sh`; heavy agents as separate cloud sessions. | https://ytcat.github.io/fit/ |
 | 2026-11-09 | Backlog setup / main | Created persistent intake workflow | Awaiting user reports | Not verified |
 | 2026-11-10 | Claude / `claude/serene-cannon-riwk4l` → main | Published and re-checked on the live site, each with full suite 76/76: GOTR-0006 combo controls (`d47da6f`) + small-phone Moves follow-up (`fa7c158`) — DONE; GOTR-0013 Fight Academy rename (`31a17bd`) + designed landing/lesson screens (`b9c65ed`); GOTR-0001 Shop header button (`9945b10`) + PC/tablet product overflow fix and six-category layout (`34d82dd`); GOTR-0004 buy combos with coins (`34d82dd`). One Pages deployment (`9945b10`) timed out on GitHub's side and was redeployed by the next commit. | GOTR-0012 (measured; needs straight-punch range choreography, see entry), GOTR-0007 guided lesson, GOTR-0005 Burst, GOTR-0002/0003 3D gear, GOTR-0001/0004 remainders; 0008/0009 later. Physical-phone performance still unverified. | https://ytcat.github.io/fit/ |

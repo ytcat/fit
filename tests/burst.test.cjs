@@ -10,9 +10,10 @@ const run=(m,seconds,each)=>{for(let i=0;i<Math.round(seconds*120);i++){m.advanc
  assert.equal(m.burstState('lion').status,'bell');m.fighters.lion.burst.charge=1;assert.equal(m.requestBurst('lion'),false,'no burst during the intro');
  run(m,2.9);assert.equal(m.phase,'intro');toRound(m);assert.equal(m.fighters.lion.burst.charge,0,'charge is empty at the bell');assert.equal(m.fighters.rabbit.burst.charge,0);
  // isolate the clock: no contacts happen without the 3D arena, so only time fills the meter here
- run(m,10);assert.ok(near(m.fighters.lion.burst.charge,10*B.perSecond,.01),'time alone: '+m.fighters.lion.burst.charge);
+ run(m,5);assert.ok(near(m.fighters.lion.burst.charge,5*B.perSecond,.01),'time alone: '+m.fighters.lion.burst.charge);
  assert.equal(m.burstState('lion').status,'charging');assert.equal(m.requestBurst('lion'),false,'cannot order while charging');
- assert.ok(20*B.perSecond<1,'time alone cannot fill the meter inside a 20 s round');}
+ // GOTR-0036 (owner: "charging takes too long"): time alone fills it in 7-12 s; hits, blocks and evasions fill it much faster.
+ assert.ok(1/B.perSecond>=7&&1/B.perSecond<=12,'time alone fills in '+(1/B.perSecond).toFixed(1)+' s');}
 
 // 2) Real play events fill it: clean hits for the attacker, blocks and evasions for the defender.
 {const m=new BoxingFight({seed:4,preset:'quick'});toRound(m);const L=m.fighters.lion.burst,R=m.fighters.rabbit.burst;const c0=L.charge,r0=R.charge;
@@ -21,8 +22,8 @@ const run=(m,seconds,each)=>{for(let i=0;i<Math.round(seconds*120);i++){m.advanc
  m.fighters.lion.action=null;a=m.attack('lion','hook','head');a.facedDefence=true;const before=R.charge;for(let i=0;i<200&&m.fighters.lion.action===a;i++)m.advance(1/120);assert.ok(R.charge-before>=B.defence-1e-9,'an evaded punch charges the defender');
  // Shoulder contacts and misses do not charge the attacker.
  const l1=L.charge;m.fighters.lion.action=null;a=m.attack('lion','jab','head');m.contact({actor:'lion',action:a.id,part:'shoulder',speed:2});assert.ok(L.charge-l1<.001);
- // Typical round: 3 clean hits + 3 defences plus time fill it in the second half of a 20 s round (about once per round).
- const t=(1-3*B.hit-3*B.defence)/B.perSecond;assert.ok(t>8&&t<18,'about once per round: ready after '+t.toFixed(1)+' s');}
+ // Typical exchange: two clean hits and one block plus a few seconds fill it, so it is ready several times per 20 s round.
+ const t=(1-2*B.hit-B.defence)/B.perSecond;assert.ok(t>2&&t<8,'several times per 20 s round: two hits and a block make it ready after '+t.toFixed(1)+' s');}
 
 // 3) Watch (coach) order: queued at any time, starts only at the next action boundary, never mid-punch.
 for(const seed of [11,12,13,14,15,16]){

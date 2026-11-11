@@ -28,30 +28,30 @@
   <script src="./boxing-coach-v2.js?v=2026111105"></script>
   <script src="./contact-response.js?v=2026110406"></script>
   <script src="./gym-details.js?v=2026110905"></script>
-  <script src="./training-arena.js?v=2026110710"></script>
-  <script src="./boxing-fight.js?v=2026111105"></script>
+  <script src="./training-arena.js?v=2026111108"></script>
+  <script src="./boxing-fight.js?v=2026111108"></script>
   <script src="./fight-referee.js?v=2026110607"></script>
   <script src="./fight-arena.js?v=2026111105"></script>
   <script src="./training-gear.js?v=2026110801"></script>
-  <script src="./career-drills.js?v=2026111008"></script>
+  <script src="./career-drills.js?v=2026111108"></script>
   <script src="./game-world.js?v=2026110901"></script>
   <script src="./fight-iq.js?v=2026110801"></script>
-  <script src="./game-accessories.js?v=2026111102"></script>
+  <script src="./game-accessories.js?v=2026111108"></script>
   <script src="./game-venues.js?v=2026111016"></script>
   <script src="./arena-sets.js?v=2026111016"></script>
   <script src="./game-tournament.js?v=2026110904"></script>
   <script src="./academy-lesson.js?v=2026111011"></script>
-  <script src="./game-domain.js?v=2026111016"></script>
+  <script src="./game-domain.js?v=2026111109"></script>
   <script src="./career-progress.js?v=2026110905"></script>
   <script src="./game-presentation.js?v=2026111102"></script>
   <script src="./fight-ui.js?v=2026111014" defer></script>
   <script src="./training-controls.js?v=2026111007" defer></script>
   <script src="./character-roster.js?v=2026110607"></script>
   <script src="./ring-camera.js?v=2026111013"></script>
-  <script src="./camera-director.js?v=2026111016"></script>
+  <script src="./camera-director.js?v=2026111109"></script>
   <script src="./club-world.js?v=2026111103"></script>
   <link rel="stylesheet" href="./club-interface.css?v=2026111102" />
-  <script src="./version.js?v=2026111106"></script>
+  <script src="./version.js?v=2026111110"></script>
   <script src="./club-interface.js?v=2026111102" defer></script>
   <link rel="stylesheet" href="./ringfighter-controls.css?v=2026111012" />
   <script src="./ringfighter-controls.js?v=2026111105" defer></script>
@@ -74,7 +74,9 @@
   <link rel="stylesheet" href="./academy.css?v=2026111011">
   <link rel="stylesheet" href="./camera.css?v=2026111013">
   <link rel="stylesheet" href="./burst.css?v=2026111105">
+  <link rel="stylesheet" href="./fighter-pad.css?v=2026111110">
   <script src="./academy-stage.js?v=2026111011" defer></script>
+  <script src="./fighter-pad.js?v=2026111110" defer></script>
   <script src="./game-resume.js?v=2026110902" defer></script>
   <script src="./game-resume-ui.js?v=2026110902" defer></script>
   <script src="./game-venues-ui.js?v=2026110905" defer></script>
@@ -930,6 +932,8 @@
           const selected=body?'body-'+(1+this.soundSerial%2):'pad',sample=this.samples.has(selected)?selected:this.samples.has('body-1')?'body-1':'pad';
           this.playSample(sample,.26+strength*.42,(heavy?.97:body?.99:1.01)+variation,0,heavy?1800:body?3000:6000);
           if(!body&&!impact.blocked&&['head','body'].includes(impact.kind))this.playSample('body-1',strength*.17,.96+variation,0,1600);
+          // GOTR-0032: a brighter, louder pop layer on the focus mitts (scaled by the closing speed).
+          if(impact.receiver==='pads')this.playSample('pad',.08+strength*.26,1.12+variation,0,9000);
           return;
         }
         const strength=Math.min(1,Math.max(.15,(impact.closingSpeed||1)/6));

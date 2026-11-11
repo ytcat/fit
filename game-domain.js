@@ -23,6 +23,8 @@
  const lesson=Object.freeze({coins:15,repetitions:3,windowMs:2000,rule:'academy-lesson-v1'}),lessonId=id=>'lesson:'+id;
  // GOTR-0033 release switch. version.js channel 'dev' = development: every item and combo can be taken free (price still shown); 'live' or missing = prices charged and locks apply.
  const freeMode=()=>globalThis.APP_VERSION?.channel==='dev',grantRule='dev-free-v1',grant=(id,extra)=>({id,type:'grant',coins:0,xp:0,...extra,rule:grantRule});
+ // GOTR-0043: fights pay by result; a loss still pays participation money (less than a win).
+ const fightPay=Object.freeze({win:1.5,draw:1,loss:.6});
  const quests=[...combos.map(c=>({id:c.id,name:c.name,key:c.key,target:c.target,comboId:c.id})),{id:'steady_school',name:'Five completed activities',key:'completed',target:5},{id:'first_bout',name:'Complete an active fight',key:'fights',target:1},{id:'straight_work',name:'Land 100 contacts',key:'hits',target:100},{id:'school_minutes',name:'Complete ten active minutes',key:'seconds',target:600}];
  const cleanName=name=>String(name||'').replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,'').trim();
  const fresh=p=>({version:1,venue:'default',school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(cupRules?{cup:cupRules.fresh()}:{}),...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{})});
@@ -117,7 +119,7 @@
   fail('Unknown game action.');
  }
  function reward(g,event,xp,quality,profileId){
-  const active=event.control!=='watch',coins=active?Math.max(1,Math.round(Math.min(event.mode==='fight'?100:60,event.seconds)*(.42+.16*quality))):0;
+  const active=event.control!=='watch',coins=active?Math.max(1,Math.round(Math.min(event.mode==='fight'?100:60,event.seconds)*(.42+.16*quality)*(event.mode==='fight'?fightPay[event.result]||1:1))):0;
   const transactionId='reward:'+event.id;g.ledger.push({id:transactionId,type:'earn',coins,xp,species:event.species,activityId:event.id,rule:active?'activity-v1':'watch-v1'});g.processed.push(event.id);
   const record={id:event.id,transactionId,mode:event.mode,species:event.species,control:event.control||'play',seconds:event.seconds,hits:event.hits,attempts:event.attempts,defences:event.defences,jumps:event.jumps,result:event.mode==='fight'?event.result:null,xp,coins};if(event.evidence!==undefined)record.evidence=evidence(event.evidence);g.history.push(record);g.history=g.history.slice(-50);
   const unlocks=[];
@@ -127,5 +129,5 @@
   return {coins,unlocks,activityId:event.id,transactionId,record,...(cup&&!cup.ignored?{cup}:{})};
  }
  const lessonPassed=(g,id)=>!!g?.ledger.some(t=>t.id===lessonId(id));
- const api={freeMode,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
+ const api={freeMode,fightPay,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
 })();
