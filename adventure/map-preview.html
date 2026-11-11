@@ -33,7 +33,7 @@
   .pin .stem { width: 2px; height: 22px; background: linear-gradient(rgb(255 255 255 / .85), rgb(255 255 255 / 0)); }
   .pin .dot { width: 9px; height: 9px; margin-top: -4px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgb(255 255 255 / .25), 0 0 10px rgb(255 255 255 / .6); }
   .pin.current .dot { background: var(--gr-accent); box-shadow: 0 0 0 4px rgb(225 29 46 / .35), 0 0 14px rgb(225 29 46 / .9); }
-  #bar { position: fixed; top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); right: max(10px, env(safe-area-inset-right)); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; pointer-events: none; }
+  #bar { position: fixed; bottom: max(12px, env(safe-area-inset-bottom)); left: max(10px, env(safe-area-inset-left)); right: max(10px, env(safe-area-inset-right)); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; pointer-events: none; }
   #bar > * { pointer-events: auto; }
   .brand { display: flex; align-items: baseline; gap: 8px; padding: 6px 12px; border-radius: 12px; background: rgb(14 19 28 / .88); border: 1px solid var(--gr-border); }
   .brand b { font-size: 16px; letter-spacing: .06em; text-transform: uppercase; }
@@ -42,10 +42,11 @@
   .seg button, select { font: 600 13px var(--gr-font); color: var(--gr-text); background: transparent; border: 0; padding: 0 12px; height: 36px; cursor: pointer; }
   .seg button[aria-pressed="true"] { background: var(--gr-accent); color: #fff; }
   select { border: 1px solid var(--gr-border); border-radius: 10px; background: rgb(14 19 28 / .88); }
-  #stats { position: fixed; left: 10px; bottom: 10px; padding: 6px 10px; border-radius: 10px; background: rgb(14 19 28 / .85); border: 1px solid var(--gr-border); font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; color: var(--gr-text-muted); white-space: pre; }
+  #stats { position: fixed; left: 10px; top: 10px; padding: 6px 10px; border-radius: 10px; background: rgb(14 19 28 / .85); border: 1px solid var(--gr-border); font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; color: var(--gr-text-muted); white-space: pre; }
   body.clean #bar, body.clean #stats { display: none; }
   body.nopins #pins { display: none; }
   #loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--gr-text-muted); }
+  @media (max-width: 480px) { .pin .sub { display: none; } .pin .name { font-size: 12.5px; } .brand small { display: none; } }
 </style>
 </head>
 <body>
@@ -89,12 +90,14 @@
     hill:     { label: 'Glory Hill · Arena', x: -8, z: -57, dist: 62, yaw: 0.24, pitch: 0.8 },
     side:     { label: 'Harbor Dome · Pirate Cove', x: -72, z: 30, dist: 110, yaw: 0.24, pitch: 0.86 },
     fair:     { label: 'Fairground · Tech Pier', x: 92, z: 10, dist: 110, yaw: 0.24, pitch: 0.86 },
+    portrait: { label: 'Phone start (Old Town)', x: 34, z: -14, dist: 250, yaw: 0.24, pitch: 0.92 },
     top:      { label: 'Plan (debug)', x: 0, z: -4, dist: 420, yaw: 0, pitch: 1.5 }
   };
   const sel = document.getElementById('viewSel');
   for (const [k, v] of Object.entries(VIEWS)) { const o = document.createElement('option'); o.value = k; o.textContent = v.label; sel.appendChild(o); }
-  const cam = Object.assign({}, VIEWS[qs.get('view')] || VIEWS.full);
-  sel.value = VIEWS[qs.get('view')] ? qs.get('view') : 'full';
+  const startView = VIEWS[qs.get('view')] ? qs.get('view') : (innerWidth / innerHeight < 0.8 ? 'portrait' : 'full');
+  const cam = Object.assign({}, VIEWS[startView]);
+  sel.value = startView;
   let goal = null;
   function applyCamera() {
     const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
@@ -140,7 +143,12 @@
       v3.copy(p.anchor).project(camera);
       const vis = v3.z < 1 && Math.abs(v3.x) < 1.15 && Math.abs(v3.y) < 1.15 && (!p.minDist || cam.dist < p.maxDist);
       el.style.display = vis ? '' : 'none';
-      if (vis) el.style.transform = `translate(${((v3.x + 1) / 2 * w).toFixed(1)}px, ${((1 - v3.y) / 2 * h).toFixed(1)}px) translate(-50%, -100%)`;
+      if (!vis) continue;
+      const sx = (v3.x + 1) / 2 * w, sy = (1 - v3.y) / 2 * h;
+      el.style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) translate(-50%, -100%)`;
+      const tag = el.firstElementChild, half = (tag._w || (tag._w = tag.offsetWidth)) / 2;
+      const shift = Math.min(0, w - 8 - (sx + half)) + Math.max(0, 8 - (sx - half));
+      tag.style.transform = shift ? `translateX(${shift.toFixed(1)}px)` : '';
     }
   }
   function flyTo(f) { if (f) goal = { x: f.x, z: f.z, dist: f.dist || 70 }; }
