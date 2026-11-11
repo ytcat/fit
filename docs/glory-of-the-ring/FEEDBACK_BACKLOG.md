@@ -708,6 +708,14 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Decision (integrator):** walking the city is a large separate project (character controller, collisions, street layout, camera, phone performance) and is not fast; deferred. Side zones become optional side quests attached to chapters: Old Fort ← 1, Midnight Fairground ← 2, Pirate Cove ← 3, Tech Pier ← 4; their pins appear when the chapter is reached and open a themed bonus fight or training.
 - **Acceptance criteria:** no horizontal overflow at 402 and 360 px; map ≥ 60% of the phone screen; compact icon-based bottom sheet; playable missions first and "coming soon" last; per-chapter progress bar with milestones; route dots animation between chapter pins on completion; EN/HE.
 
+### GOTR-0056 — The adventure must be one connected story
+- **Reported:** 2026-11-11
+- **Status:** APPROVED DESIGN — build queued after GOTR-0055 (agent `adventure-ui2`)
+- **Priority:** P1
+- **Area:** Adventure / narrative
+- **Reported behavior / request:** "Make sure it will be interesting, challenging and fluent. We are building an adventure game, so it's a story; a story has a flow with different things related to it, everything connected — not just jumping between arena and arena, training and training."
+- **Approved (owner chose "Yes, build it"):** story layer in `docs/adventure/STORY.md` — short character lines before/after each mission with portraits, missions chained as story beats, the Next bar shows the next beat, recurring rival Dash, a story journal; Chapter 1 "Nobody" and Chapter 2 "The Street" first.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
