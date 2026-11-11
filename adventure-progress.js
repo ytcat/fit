@@ -46,6 +46,8 @@
   M('crowd_circle',2,'street_fight','event',null,'wins',[1,2,3],'Crowd circle','מעגל הקהל','Круг зрителей'),
   M('rooftop_callout',2,'street_fight','event',null,'landed',[3,4,5],'Rooftop callout','אתגר על הגג','Вызов с крыши')
  ]);
+ // GOTR-0055: each side zone is an optional bonus attached to a chapter; it shows once that chapter is reached. Data only: no rules, no saved state.
+ const sideZones=freeze([{id:'fort',chapter:1},{id:'fair',chapter:2},{id:'cove',chapter:3},{id:'tech',chapter:4}]);
  const missionOf=id=>missions.find(m=>m.id===id),bossOf=id=>bosses.find(b=>b.id===id),chapterOf=n=>chapters.find(c=>c.id===n);
  const fresh=()=>({version:1,missions:{},bosses:{}});
  const bound=v=>Number.isFinite(v)&&v>=0&&v<=1e5;
@@ -132,6 +134,6 @@
   if(a.adventure==='boss')return recordBoss(g,a.bossId,a.won,free);
   fail('Unknown adventure action.');
  }
- const api={rules,stats,metrics,chapters,bosses,missions,opponentBase,fresh,validate,action,starsFor,stars,statPoints,level,chapterOpen,canChallenge,chance,chanceVs,bossEdge,fightEdge,opponent,levelFromScore,fighterScore,compare,summary,recordMission,recordBoss,bossWon,freeMode};
+ const api={sideZones,rules,stats,metrics,chapters,bosses,missions,opponentBase,fresh,validate,action,starsFor,stars,statPoints,level,chapterOpen,canChallenge,chance,chanceVs,bossEdge,fightEdge,opponent,levelFromScore,fighterScore,compare,summary,recordMission,recordBoss,bossWon,freeMode};
  if(typeof module!=='undefined')module.exports=api;else window.AdventureProgress=api;
 })();

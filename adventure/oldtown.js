@@ -7,9 +7,9 @@
   const A = () => window.AdventureProgress, G = () => window.GotrGlossary;
   const POWER_MARK = .7; // the power meter's "strong" level (power-meter.js STRONG)
   const copy = {
-    en: { next: 'Next mission: {t} ▶', retry: 'Retry for ★★★', map: 'Old Town map', brickGo: 'Challenge Brick ▶', brickNeed: 'Challenge Brick (Level {n} needed · you are Level {l}) ▶', market: 'Market Row unlocked ▶', xp: '+{n} XP', coins: '+{n} ◈',  coach: 'Coach Pip, rabbit', missions: "Coach Pip's missions", stars: 'stars', goal: '3 stars', best: 'Best', start: 'Start', replay: 'Replay', soon: 'Coming soon', type: { training: 'Training', funny: 'Funny', help: 'Help' }, boss: 'Boss', fl: 'Fighter Level', entry: 'Entry Level', chance: 'Chance', fight: 'Fight Brick', won: 'Beaten', warnT: 'Big difference: low chance to win', warnGo: 'Fight anyway', warnBack: 'Train first', locked: 'Locked. Reach Level {n} to challenge Brick.', quit: 'Quit mission', back: 'Back to Old Town', again: 'Try again', rematch: 'Rematch', result: 'Result', newStars: '+{n} stars', noStars: 'No new stars', measured: 'Measured', level: 'Fighter Level {a} → {b}', stat: { power: 'Power', speed: 'Speed', stamina: 'Stamina' }, none: 'Not enough yet for a star. Try again.', bossWin: 'You beat Brick!', bossLoss: 'Brick won this one. Losing costs nothing.', open: 'Market Row is open.', err: 'Could not save the result: ', noStart: 'This activity could not start right now.', mission: 'Mission' },
-    he: { next: 'המשימה הבאה: {t} ◀', retry: 'שוב ל-★★★', map: 'מפת העיר העתיקה', brickGo: 'לאתגר את בריק ◀', brickNeed: 'לאתגר את בריק (נדרשת רמה {n} · אתם ברמה {l}) ◀', market: 'שדרת השוק נפתחה ◀', xp: '+{n} ניסיון', coins: '+{n} ◈',  coach: 'המאמן פיפ, ארנב', missions: 'המשימות של המאמן פיפ', stars: 'כוכבים', goal: '3 כוכבים', best: 'שיא', start: 'התחלה', replay: 'שוב', soon: 'בקרוב', type: { training: 'אימון', funny: 'מצחיק', help: 'עזרה' }, boss: 'בוס', fl: 'רמת לוחם', entry: 'רמת כניסה', chance: 'סיכוי', fight: 'להילחם בבריק', won: 'ניצחתם', warnT: 'פער גדול: סיכוי נמוך לנצח', warnGo: 'להילחם בכל זאת', warnBack: 'קודם להתאמן', locked: 'נעול. הגיעו לרמה {n} כדי לאתגר את בריק.', quit: 'יציאה מהמשימה', back: 'חזרה לעיר העתיקה', again: 'עוד פעם', rematch: 'קרב חוזר', result: 'תוצאה', newStars: '+{n} כוכבים', noStars: 'אין כוכבים חדשים', measured: 'נמדד', level: 'רמת לוחם {a} ← {b}', stat: { power: 'כוח', speed: 'מהירות', stamina: 'סיבולת' }, none: 'עדיין לא מספיק לכוכב. נסו שוב.', bossWin: 'ניצחתם את בריק!', bossLoss: 'בריק ניצח הפעם. הפסד לא עולה כלום.', open: 'שדרת השוק פתוחה.', err: 'לא ניתן לשמור את התוצאה: ', noStart: 'לא ניתן להתחיל את הפעילות כרגע.', mission: 'משימה' },
-    ru: { next: 'Следующее задание: {t} ▶', retry: 'Ещё раз на ★★★', map: 'Карта Старого города', brickGo: 'Вызвать Брика ▶', brickNeed: 'Вызвать Брика (нужен уровень {n} · у вас {l}) ▶', market: 'Рыночный ряд открыт ▶', xp: '+{n} опыта', coins: '+{n} ◈',  coach: 'Тренер Пип, кролик', missions: 'Задания тренера Пипа', stars: 'звёзды', goal: '3 звезды', best: 'Рекорд', start: 'Начать', replay: 'Ещё раз', soon: 'Скоро', type: { training: 'Тренировка', funny: 'Забавное', help: 'Помощь' }, boss: 'Босс', fl: 'Уровень бойца', entry: 'Уровень входа', chance: 'Шанс', fight: 'Бой с Бриком', won: 'Побеждён', warnT: 'Большая разница: шанс победить низкий', warnGo: 'Всё равно драться', warnBack: 'Сначала тренировка', locked: 'Закрыто. Достигните уровня {n}, чтобы бросить вызов Брику.', quit: 'Выйти из задания', back: 'Назад в Старый город', again: 'Ещё раз', rematch: 'Реванш', result: 'Результат', newStars: '+{n} звёзд', noStars: 'Новых звёзд нет', measured: 'Результат', level: 'Уровень бойца {a} → {b}', stat: { power: 'Сила', speed: 'Скорость', stamina: 'Выносливость' }, none: 'Пока не хватает на звезду. Попробуйте ещё.', bossWin: 'Вы победили Брика!', bossLoss: 'Брик выиграл в этот раз. Поражение ничего не стоит.', open: 'Рыночный ряд открыт.', err: 'Не удалось сохранить результат: ', noStart: 'Сейчас это занятие нельзя начать.', mission: 'Задание' }
+    en: { journal: 'Story journal', jEmpty: 'No story lines seen yet.', beat: 'Story beat',  next: 'Next mission: {t} ▶', retry: 'Retry for ★★★', map: 'Old Town map', brickGo: 'Challenge Brick ▶', brickNeed: 'Challenge Brick (Level {n} needed · you are Level {l}) ▶', market: 'Market Row unlocked ▶', xp: '+{n} XP', coins: '+{n} ◈',  coach: 'Coach Pip, rabbit', missions: "Coach Pip's missions", stars: 'stars', goal: '3 stars', best: 'Best', start: 'Start', replay: 'Replay', soon: 'Coming soon', type: { training: 'Training', funny: 'Funny', help: 'Help' }, boss: 'Boss', fl: 'Fighter Level', entry: 'Entry Level', chance: 'Chance', fight: 'Fight Brick', won: 'Beaten', warnT: 'Big difference: low chance to win', warnGo: 'Fight anyway', warnBack: 'Train first', locked: 'Locked. Reach Level {n} to challenge Brick.', quit: 'Quit mission', back: 'Back to Old Town', again: 'Try again', rematch: 'Rematch', result: 'Result', newStars: '+{n} stars', noStars: 'No new stars', measured: 'Measured', level: 'Fighter Level {a} → {b}', stat: { power: 'Power', speed: 'Speed', stamina: 'Stamina' }, none: 'Not enough yet for a star. Try again.', bossWin: 'You beat Brick!', bossLoss: 'Brick won this one. Losing costs nothing.', open: 'Market Row is open.', err: 'Could not save the result: ', noStart: 'This activity could not start right now.', mission: 'Mission' },
+    he: { journal: 'יומן הסיפור', jEmpty: 'עוד לא נראו שורות סיפור.', beat: 'שלב בסיפור',  next: 'המשימה הבאה: {t} ◀', retry: 'שוב ל-★★★', map: 'מפת העיר העתיקה', brickGo: 'לאתגר את בריק ◀', brickNeed: 'לאתגר את בריק (נדרשת רמה {n} · אתם ברמה {l}) ◀', market: 'שדרת השוק נפתחה ◀', xp: '+{n} ניסיון', coins: '+{n} ◈',  coach: 'המאמן פיפ, ארנב', missions: 'המשימות של המאמן פיפ', stars: 'כוכבים', goal: '3 כוכבים', best: 'שיא', start: 'התחלה', replay: 'שוב', soon: 'בקרוב', type: { training: 'אימון', funny: 'מצחיק', help: 'עזרה' }, boss: 'בוס', fl: 'רמת לוחם', entry: 'רמת כניסה', chance: 'סיכוי', fight: 'להילחם בבריק', won: 'ניצחתם', warnT: 'פער גדול: סיכוי נמוך לנצח', warnGo: 'להילחם בכל זאת', warnBack: 'קודם להתאמן', locked: 'נעול. הגיעו לרמה {n} כדי לאתגר את בריק.', quit: 'יציאה מהמשימה', back: 'חזרה לעיר העתיקה', again: 'עוד פעם', rematch: 'קרב חוזר', result: 'תוצאה', newStars: '+{n} כוכבים', noStars: 'אין כוכבים חדשים', measured: 'נמדד', level: 'רמת לוחם {a} ← {b}', stat: { power: 'כוח', speed: 'מהירות', stamina: 'סיבולת' }, none: 'עדיין לא מספיק לכוכב. נסו שוב.', bossWin: 'ניצחתם את בריק!', bossLoss: 'בריק ניצח הפעם. הפסד לא עולה כלום.', open: 'שדרת השוק פתוחה.', err: 'לא ניתן לשמור את התוצאה: ', noStart: 'לא ניתן להתחיל את הפעילות כרגע.', mission: 'משימה' },
+    ru: { journal: 'Дневник истории', jEmpty: 'Пока нет увиденных реплик.', beat: 'Эпизод',  next: 'Следующее задание: {t} ▶', retry: 'Ещё раз на ★★★', map: 'Карта Старого города', brickGo: 'Вызвать Брика ▶', brickNeed: 'Вызвать Брика (нужен уровень {n} · у вас {l}) ▶', market: 'Рыночный ряд открыт ▶', xp: '+{n} опыта', coins: '+{n} ◈',  coach: 'Тренер Пип, кролик', missions: 'Задания тренера Пипа', stars: 'звёзды', goal: '3 звезды', best: 'Рекорд', start: 'Начать', replay: 'Ещё раз', soon: 'Скоро', type: { training: 'Тренировка', funny: 'Забавное', help: 'Помощь' }, boss: 'Босс', fl: 'Уровень бойца', entry: 'Уровень входа', chance: 'Шанс', fight: 'Бой с Бриком', won: 'Побеждён', warnT: 'Большая разница: шанс победить низкий', warnGo: 'Всё равно драться', warnBack: 'Сначала тренировка', locked: 'Закрыто. Достигните уровня {n}, чтобы бросить вызов Брику.', quit: 'Выйти из задания', back: 'Назад в Старый город', again: 'Ещё раз', rematch: 'Реванш', result: 'Результат', newStars: '+{n} звёзд', noStars: 'Новых звёзд нет', measured: 'Результат', level: 'Уровень бойца {a} → {b}', stat: { power: 'Сила', speed: 'Скорость', stamina: 'Выносливость' }, none: 'Пока не хватает на звезду. Попробуйте ещё.', bossWin: 'Вы победили Брика!', bossLoss: 'Брик выиграл в этот раз. Поражение ничего не стоит.', open: 'Рыночный ряд открыт.', err: 'Не удалось сохранить результат: ', noStart: 'Сейчас это занятие нельзя начать.', mission: 'Задание' }
   };
   const lang = () => copy[window.app?.lang] ? window.app.lang : 'en', W = () => copy[lang()];
   const T = o => o ? (o[lang()] || o.en) : '';
@@ -121,7 +121,7 @@
   }
   const starsOf = (g, id) => g.adventure?.missions[id]?.stars || 0;
   function nextMission(g, afterId) {
-    const order = A().missions.filter(m => m.chapter === 1 && DEFS[m.id]), i = order.findIndex(m => m.id === afterId), cand = i < 0 ? order : [...order.slice(i + 1), ...order.slice(0, i)];
+    const order = (window.AdventureStory?.order || A().missions.map(m => m.id)).filter(id => DEFS[id]).map(id => A().missions.find(m => m.id === id)), i = order.findIndex(m => m.id === afterId), cand = i < 0 ? order : [...order.slice(i + 1), ...order.slice(0, i)];
     return cand.find(m => !starsOf(g, m.id)) || cand.find(m => starsOf(g, m.id) < 3) || null;
   }
   function openMap(id) { cleanup(); run = null; rg()?.open('adventure', { onReady: h => h.select(id || 'oldtown') }); }
@@ -181,6 +181,7 @@
       for (const k of A().stats) if (after[k] > before[k]) toast(`${w.stat[k]} +${after[k] - before[k]}`, 'gain');
       if (res.level !== res.levelBefore) toast(fill(w.level, { a: res.levelBefore, b: res.level }), 'gain');
     }
+    if (res.ok && res.stars > 0) window.AdventureStory?.show(r.id, 'outro');
     showNext({ kind: 'mission', id: r.id, res });
     window.dispatchEvent(new CustomEvent('adventure-mission-result', { detail: { missionId: r.id, value: r.value, result: res } }));
   }
@@ -201,6 +202,7 @@
         ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds });
         run.view = e.arena?.fightView; if (!run.view) throw Error(W().noStart);
       }
+      window.AdventureStory?.show(id, 'intro');
     } catch (x) { const ui = run.ui; run.ended = true; ui?.txt && (ui.txt.textContent = x.message); setTimeout(() => { if (run?.ended) backToTown(); }, 1800); }
   }
 
@@ -211,6 +213,7 @@
     hook(); ctx.change({ type: 'venue', venueId: 'default' });
     ctx.startFight({ preset: 'quick', rounds: 2, roundSeconds: 30, restSeconds: 8 });
     const view = e.arena?.fightView; if (!view) { run = null; return; }
+    window.AdventureStory?.show('brick', 'intro');
     run.view = view; const entry = view.careerEntry, m = view.match, foe = m.fighters[entry.species === 'lion' ? 'rabbit' : 'lion'];
     if (entry) entry.opponentName = { en: 'Brick', he: 'בריק', ru: 'Брик' }[lang()];
     // Brick hits a little harder than a gym regular; each Fighter Level above his entry level softens his hits 3% and slows his reactions 3%.
@@ -223,31 +226,46 @@
     const entry = view.careerEntry, won = view.match.result.winner === entry.species, store = r.ctx.store, w = W();
     const res = store.gameAction({ type: 'adventure', adventure: 'boss', bossId: 'brick', won });
     toast(res.ok ? (won ? w.bossWin : w.bossLoss) : w.err + res.error, won ? 'gold' : 'bad');
+    window.AdventureStory?.show('brick', won ? 'outro' : 'lost');
     showNext({ kind: 'boss', won, res });
   }
-  // ---- the Old Town card ----
-  function render(ctx) {
-    const w = W(), A_ = A(), store = ctx.store, g = store.game(), root = mk('div', 'adv-town');
-    root.append(mk('h4', 'adv-town-h', w.missions));
-    const total = A_.missions.filter(m => m.chapter === 1).reduce((n, m) => n + (g.adventure?.missions[m.id]?.stars || 0), 0);
-    root.querySelector('h4').append(mk('span', 'adv-town-total', `${total} / 27 ${w.stars}`));
-    const list = mk('ul', 'adv-missions');
-    for (const m of A_.missions.filter(x => x.chapter === 1)) {
-      const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id], li = mk('li', 'adv-mission'); li.dataset.mission = m.id;
-      const info = mk('div', 'adv-mission-info'), name = mk('strong', '', T(m.titles)), tag = mk('span', 'adv-mission-tag', w.type[m.type] || m.type);
-      const goal = mk('span', 'adv-mission-goal', playable ? `${w.goal}: ${goalText(m.id, m.thresholds[2])}${rec ? ` · ${w.best} ${rec.value}` : ''}` : w.soon);
-      info.append(mk('span', 'adv-mission-head'), goal); info.firstChild.append(name, tag);
-      const star = mk('span', 'adv-mission-stars', starsText(rec?.stars || 0)); star.setAttribute('aria-label', `${rec?.stars || 0} / 3 ${w.stars}`); star.dataset.stars = String(rec?.stars || 0);
-      li.append(info, star);
-      if (playable) li.append(btn(rec ? w.replay : w.start, () => start(ctx, m.id), 'game-button adv-go adv-mini'));
-      else li.append(mk('span', 'adv-soon-pill', w.soon));
-      list.append(li);
+  // ---- the Old Town sheet content: small icon tiles (playable first, "coming soon" last), details on tap, boss block ----
+  const ICON = { first_stance: '🛡️', one_two_mitts: '🥊', bag_power: '💥', roll_under_hook: '🌀', rope_rhythm: '🪢', heavy_bag_van: '🚚', teach_the_kid: '🧒', morning_sparring: '🥋', snoring_guard: '😴' };
+  function render(ctx, opts = {}) {
+    const w = W(), A_ = A(), store = ctx.store, g = store.game(), tiles = [], rest = [];
+    const all = A_.missions.filter(x => x.chapter === 1), so = id => { const i = window.AdventureStory?.order.indexOf(id); return i >= 0 ? i : 99; }, ordered = [...all.filter(m => DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id)), ...all.filter(m => !DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id))];
+    const detail = mk('div', 'adv-detail'); detail.hidden = true;
+    const show = (m, tile) => {
+      const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id];
+      detail.replaceChildren(); detail.hidden = false; detail.dataset.mission = m.id;
+      const head = mk('div', 'adv-detail-head'); head.append(mk('strong', '', `${ICON[m.id] || ''} ${T(m.titles)}`), mk('span', 'adv-mission-tag', w.type[m.type] || m.type), mk('span', 'adv-mission-stars', starsText(rec?.stars || 0)));
+      detail.append(head, mk('p', 'adv-mission-goal', playable ? `${w.goal}: ${goalText(m.id, m.thresholds[2])}${rec ? ` · ${w.best} ${rec.value}` : ''}` : w.soon));
+      if (playable) detail.append(btn(rec ? w.replay : w.start, () => start(ctx, m.id), 'game-button adv-go adv-mini'));
+      document.querySelectorAll('.adv-tile[data-mission]').forEach(t => t.setAttribute('aria-pressed', String(t === tile)));
+      opts.expand?.(); detail.scrollIntoView?.({ block: 'nearest' });
+    };
+    const rec1 = nextMission(g, null)?.id, St = window.AdventureStory;
+    for (const m of ordered) {
+      const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id], n = rec?.stars || 0;
+      const t = btn('', () => show(m, t), 'adv-tile' + (playable ? '' : ' adv-tile-soon') + (n === 3 ? ' adv-tile-done' : '')); t.dataset.mission = m.id; t.setAttribute('aria-pressed', 'false'); if (m.id === rec1) { t.classList.add('adv-tile-next'); t.dataset.next = '1'; } if (St) t.dataset.beat = String(St.beatOf(m.id));
+      t.setAttribute('aria-label', `${T(m.titles)} · ${playable ? n + '/3 ' + w.stars : w.soon}`); t.title = T(m.titles);
+      t.append(mk('i', 'adv-tile-ico', ICON[m.id] || '•'), mk('span', 'adv-tile-name', T(m.titles)), mk('span', 'adv-tile-state', playable ? starsText(n) : '🔒'));
+      tiles.push(t);
     }
-    root.append(list);
-    // Boss card
+    if (window.AdventureStory) {
+      const jt = btn('', () => {
+        const items = AdventureStory.journal(); detail.replaceChildren(); detail.hidden = false; detail.dataset.mission = 'journal';
+        detail.append(mk('strong', '', '📖 ' + w.journal));
+        if (!items.length) detail.append(mk('p', 'adv-mission-goal', w.jEmpty));
+        for (const it of items) { const row = mk('p', 'adv-journal-line'); row.append(AdventureStory.bust(it.who), mk('span', '', `${it.name}: ${it.text}`)); detail.append(row); }
+        opts.expand?.(); detail.scrollIntoView?.({ block: 'nearest' });
+      }, 'adv-tile adv-tile-journal'); jt.append(mk('i', 'adv-tile-ico', '📖'), mk('span', 'adv-tile-name', w.journal), mk('span', 'adv-tile-state', String(AdventureStory.journal().length))); jt.setAttribute('aria-label', w.journal); tiles.push(jt);
+    }
+    rest.push(detail);
+    // Boss block (shown when the sheet is expanded)
     const b = A_.bosses.find(x => x.id === 'brick'), lvl = A_.level(g), chance = A_.chance(g, 'brick'), won = A_.bossWon(g, 'brick'), open = A_.canChallenge(g, 'brick', false);
     const boss = mk('div', 'adv-boss'); boss.dataset.won = String(won);
-    boss.append(mk('strong', 'adv-boss-name', `${w.boss}: ${T(b.names)}${won ? ' · ' + w.won : ''}`));
+    boss.append(mk('strong', 'adv-boss-name', `🥊 ${w.boss}: ${T(b.names)}${won ? ' · ' + w.won : ''}`));
     boss.append(mk('span', 'adv-boss-gate', `${w.fl} ${lvl} · ${w.entry} ${b.entry} · ${w.chance} ${chance}%`));
     const acts = mk('div', 'adv-actions');
     const fight = () => { if (store.game()) bossStart(ctx); };
@@ -255,11 +273,11 @@
     else if (A_.freeMode()) {
       const warn = mk('div', 'adv-warn'); warn.hidden = true; warn.setAttribute('role', 'alert');
       warn.append(mk('strong', '', w.warnT), mk('span', '', `${w.fl} ${lvl} · ${w.entry} ${b.entry} · ${w.chance} ${chance}%`));
-      const wa = mk('div', 'adv-actions'); wa.append(btn(w.warnGo, fight), btn(w.warnBack, () => { warn.hidden = true; acts.hidden = false; list.scrollIntoView?.({ block: 'nearest' }); }, 'game-button adv-go adv-alt')); warn.append(wa);
+      const wa = mk('div', 'adv-actions'); wa.append(btn(w.warnGo, fight), btn(w.warnBack, () => { warn.hidden = true; acts.hidden = false; }, 'game-button adv-go adv-alt')); warn.append(wa);
       acts.append(btn(w.fight, () => { warn.hidden = false; acts.hidden = true; warn.querySelector('button')?.focus({ preventScroll: true }); })); boss.append(warn);
     } else acts.append(mk('span', 'adv-warn-text', fill(w.locked, { n: b.entry })));
-    boss.append(acts); root.append(boss);
-    return root;
+    boss.append(acts); rest.push(boss);
+    return { tiles, rest };
   }
   window.AdventureOldTown = { toastLog, reward, render, start, bossStart, goalText, defs: DEFS, get run() { return run; }, copy };
 })();

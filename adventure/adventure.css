@@ -1,6 +1,7 @@
 /* Adventure tab (GOTR-0008 slice A): Gloryland map inside the game dialog. Tokens only. */
-.game-dialog.adv-dialog{width:min(1180px,98vw);height:min(92dvh,900px);display:flex;flex-direction:column;gap:8px;padding:12px;overflow:hidden}
-.adv-stage{position:relative;flex:1 1 auto;min-height:260px;border-radius:var(--gr-radius-m,12px);overflow:hidden;background:var(--gr-bg,#0a0e14);touch-action:none;user-select:none;-webkit-user-select:none}
+.game-dialog.adv-dialog{box-sizing:border-box;width:min(1180px,98vw);max-width:100%;height:min(92dvh,900px);display:flex;flex-direction:column;gap:6px;padding:12px;overflow:hidden}
+.adv-dialog>*{min-width:0;max-width:100%;box-sizing:border-box}
+.adv-stage{position:relative;flex:1 1 auto;min-height:200px;border-radius:var(--gr-radius-m,12px);overflow:hidden;background:var(--gr-bg,#0a0e14);touch-action:none;user-select:none;-webkit-user-select:none}
 .adv-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .adv-status{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:var(--gr-text-muted,#9aa7bb)}
 .adv-pins{position:absolute;inset:0;pointer-events:none}
@@ -38,6 +39,37 @@
 .adv-go.adv-alt{background:var(--gr-surface-3,#243044);color:var(--gr-text,#f3f6fb)}
 .adv-hint{margin:0;font-size:12px;color:var(--gr-text-muted,#9aa7bb)}
 .adv-card:not([hidden])~.adv-hint{display:none}
-@media (max-width:520px){.game-dialog.adv-dialog{padding:8px;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0}.adv-sub{display:none}.adv-card{max-height:46%;overflow:auto}}
+@media (max-width:520px){.game-dialog.adv-dialog{padding:6px;width:100%;max-width:100%;height:100dvh;max-height:100dvh;margin:0;inset:0;border-radius:0}.adv-sub{display:none}.adv-hint{display:none}.adv-dialog>.game-primary{display:none}}
 /* Rivals, cup and events stay one tap from the Fight tab (GOTR-0044) */
 .game-nav.adv-nav4{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* GOTR-0055: compact bottom sheet (peek ~25%), icon facts, tiles, chapter progress, route dots */
+.adv-card{position:relative;flex:none;overflow:hidden;max-height:max(25%,176px);padding:6px 10px 8px;gap:6px;transition:max-height .25s ease}
+.adv-card.open{max-height:66%;overflow:auto}
+.adv-handle{justify-self:center;width:100%;height:16px;border:0;background:none;cursor:pointer;padding:0;display:grid;place-items:center}
+.adv-handle span{width:40px;height:4px;border-radius:2px;background:var(--gr-border,#2b364a)}
+.adv-card-head{gap:8px}.game-dialog .adv-card h3{font-size:17px;line-height:1.1}
+.adv-glance{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;font-weight:700}
+.adv-fact{display:inline-flex;gap:5px;align-items:center}.adv-fact i{font-style:normal;color:var(--gr-gold,#f4c152)}
+.adv-prog-wrap{display:flex;align-items:center;gap:8px}
+.adv-prog{position:relative;flex:1;height:8px;border-radius:4px;background:rgb(255 255 255 / .14);margin-inline-end:6px}
+.adv-prog-fill{position:absolute;inset-block:0;inset-inline-start:0;border-radius:4px;background:var(--gr-gold,#f4c152);transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.adv-mark{position:absolute;top:-3px;width:2px;height:14px;margin-inline-start:-1px;background:rgb(255 255 255 / .35);font-size:0}
+.adv-mark.hit{background:#fff}
+.adv-mark-boss{width:auto;height:auto;top:-8px;margin-inline-start:-8px;font-size:15px;line-height:1;background:none;color:var(--gr-text-muted,#9aa7bb)}.adv-mark-boss.hit{color:var(--gr-gold,#f4c152)}
+.adv-prog-n{font-size:12px;color:var(--gr-text-muted,#9aa7bb);white-space:nowrap}
+.adv-tiles{display:flex;gap:6px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding-bottom:2px}
+.adv-tile{flex:none;width:64px;min-height:64px;display:grid;justify-items:center;align-content:center;gap:1px;padding:4px 2px;border-radius:var(--gr-radius-s,8px);border:1px solid var(--gr-border,#2b364a);background:var(--gr-surface-3,#243044);color:var(--gr-text,#f3f6fb);font:inherit;cursor:pointer}
+.adv-tile-ico{font-style:normal;font-size:22px;line-height:1}
+.adv-tile-name{font-size:10px;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--gr-text-muted,#9aa7bb)}
+.adv-tile-state{font-size:11px;color:var(--gr-gold,#f4c152);letter-spacing:0}
+.adv-tile[aria-pressed=true]{border-color:var(--gr-gold,#f4c152)}
+.adv-tile-soon{opacity:.55}.adv-tile-side{border-style:dashed;border-color:#5fd0c7}.adv-tile-side .adv-tile-state{color:#5fd0c7}
+.adv-tile-done{background:rgb(244 193 82 / .12)}
+.adv-hidden{display:none!important}
+.adv-pulse .adv-dot,.adv-nextpin .adv-dot{animation:adv-pulse 1.4s ease-out infinite}
+.adv-nextpin .adv-tag{border-color:var(--gr-gold,#f4c152)}
+@keyframes adv-pulse{0%{box-shadow:0 0 0 0 rgb(244 193 82 / .8)}100%{box-shadow:0 0 0 14px rgb(244 193 82 / 0)}}
+.adv-route-dot{position:absolute;left:0;top:0;width:10px;height:10px;border-radius:50%;background:var(--gr-gold,#f4c152);box-shadow:0 0 0 2px rgb(14 19 28 / .9);opacity:0;scale:.2;transition:opacity .25s,scale .25s;pointer-events:none}
+.adv-route-dot.on{opacity:1;scale:1}
+@media (prefers-reduced-motion:reduce){.adv-card,.adv-prog-fill,.adv-route-dot{transition:none}.adv-pulse .adv-dot,.adv-nextpin .adv-dot{animation:none}}
