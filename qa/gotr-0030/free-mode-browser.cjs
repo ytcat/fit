@@ -1,7 +1,7 @@
 // GOTR-0033 Shop UI: development build (APP_VERSION.channel 'dev') makes everything free while price tags stay.
 // Fresh 0-coin profile per language at the owner's phone size: the Shop and Combo loadouts show the notice;
 // via the UI get + equip one gear item (Jade gloves), one accessory (head ribbon) and one combo in the Shop
-// (Corner Turn) plus one in Combo loadouts (Thunder Arc); coins stay 0; ownership survives a reload.
+// (Corner Turn) plus one in Combo loadouts (Thunder Arc, into Training: Fight toggles are locked during the quick fight); coins stay 0; ownership survives a reload.
 // Then the live channel: no notice, the same items show "Need N more" / Buy, nothing is granted.
 // Usage: APP_URL=http://127.0.0.1:8171 OUT=qa/gotr-0030 node qa/gotr-0030/free-mode-browser.cjs
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),path=require('path');
@@ -20,20 +20,20 @@ const NOTE={en:'Development build: everything is free.',he:'גרסת פיתוח:
   const out=[];
   for(const [cat,id] of [['gloves','gloves_jade'],['accessory','headband'],['combo','corner_turn']]){const before=await shop(p,cat,id);
    assert.ok(before.note.startsWith(NOTE[lang]),lang+' notice: '+before.note);assert.equal(before.state,'free');assert.match(before.badge,/^\d+ ◈$/,'price tag stays on the card: '+before.badge);assert.ok(before.detail.includes(before.badge),'price tag in the detail row');assert.equal(before.buttons[0].t,GET[lang]);assert.equal(before.buttons[0].disabled,false);assert.equal(before.coins,0);assert.equal(before.scroll,false,'no scrolling');
-   if(lang==='en'&&cat==='gloves'){await p.waitForTimeout(1500);await p.screenshot({path:path.join(OUT,`free-shop-${lang}.png`)});}
+   if(lang==='en'&&cat==='gloves'){await p.waitForTimeout(1500);await p.screenshot({path:path.join(OUT,`free-shop-${lang}.png`),timeout:180000});}
    assert.ok(await press(p,GET[lang]),'Get free pressed');const got=await shop(p,cat,id);assert.equal(got.state,'owned',id+' owned after Get free');assert.equal(got.coins,0,'no coins spent');
    const equipLabel=await pressFirst(p);const worn=await shop(p,cat,id);assert.equal(worn.state,'equipped',id+' equipped via '+equipLabel);out.push(`${id}: ${before.badge} → ${GET[lang]} → owned → ${equipLabel} → equipped`);}
-  if(lang!=='en'){await p.evaluate(()=>document.querySelector('dialog[open] .store-category[data-category=gloves]').click());await p.waitForTimeout(1500);await p.screenshot({path:path.join(OUT,`free-shop-${lang}.png`)});}
-  // Combo loadouts: notice, price on the card, Get free without a confirm row, then equip for Fight.
+  if(lang!=='en'){await p.evaluate(()=>document.querySelector('dialog[open] .store-category[data-category=gloves]').click());await p.waitForTimeout(1500);await p.screenshot({path:path.join(OUT,`free-shop-${lang}.png`),timeout:180000});}
+  // Combo loadouts: notice, price on the card, Get free without a confirm row, then equip for Training.
   const lab=await p.evaluate(async label=>{const wait=ms=>new Promise(r=>setTimeout(r,ms));document.querySelectorAll('dialog[open]').forEach(d=>d.close());ringfighterGame.open('lab');await wait(800);let d=document.querySelector('dialog[open]');const card=()=>document.querySelector('dialog[open] .loadout-card[data-combo=thunder_arc]');
    const r={note:d.querySelector('.store-free-note')?.textContent||'',pill:card().querySelector('.loadout-pill').textContent,first:document.querySelector('dialog[open] .loadout-card[data-combo=first_rhythm] .loadout-actions button')?.textContent};const get=[...card().querySelectorAll('button')].find(b=>b.textContent===label);r.get=!!get&&!get.disabled;get.click();await wait(900);
-   r.state=card().dataset.state;r.confirmRows=document.querySelectorAll('dialog[open] .combo-confirm').length;const fight=card().querySelector('.loadout-toggle');fight.click();await wait(900);r.after=card().dataset.state;r.coins=app.engine.career.store.wallet().coins;return r;},GET[lang]);
+   r.state=card().dataset.state;r.confirmRows=document.querySelectorAll('dialog[open] .combo-confirm').length;const training=card().querySelectorAll('.loadout-toggle')[1];training.click();await wait(900);r.after=card().dataset.state;r.coins=app.engine.career.store.wallet().coins;return r;},GET[lang]);
   assert.ok(lab.note.startsWith(NOTE[lang]),'loadouts notice');assert.match(lab.pill,/^\d+ ◈$/);assert.equal(lab.get,true);assert.equal(lab.first,GET[lang],'the earned first combo can be taken too');assert.equal(lab.state,'owned');assert.equal(lab.confirmRows,0);assert.equal(lab.after,'equipped');assert.equal(lab.coins,0);
-  await p.evaluate(()=>document.querySelector('dialog[open] .loadouts')?.scrollTo?.(0,0));await p.waitForTimeout(800);await p.screenshot({path:path.join(OUT,`free-loadouts-${lang}.png`)});
+  await p.evaluate(()=>document.querySelector('dialog[open] .loadouts')?.scrollTo?.(0,0));await p.waitForTimeout(800);await p.screenshot({path:path.join(OUT,`free-loadouts-${lang}.png`),timeout:180000});
   // Reload keeps the grants (validated ledger rows).
-  await p.reload();await p.waitForFunction(()=>window.ringfighterGame&&app.engine.coach?.anatomy,null,{timeout:180000});const kept=await p.evaluate(()=>{const g=app.engine.career.store.game();return {gloves:g.inventory.includes('gloves_jade'),ribbon:g.accessories.owned.includes('headband'),corner:g.combos.owned.includes('corner_turn'),thunder:g.combos.fight.includes('thunder_arc'),coins:app.engine.career.store.wallet().coins};});
+  await p.reload();await p.waitForFunction(()=>window.ringfighterGame&&app.engine.coach?.anatomy,null,{timeout:180000});const kept=await p.evaluate(()=>{const g=app.engine.career.store.game();return {gloves:g.inventory.includes('gloves_jade'),ribbon:g.accessories.owned.includes('headband'),corner:g.combos.owned.includes('corner_turn'),thunder:g.combos.training.includes('thunder_arc'),coins:app.engine.career.store.wallet().coins};});
   assert.deepEqual(kept,{gloves:true,ribbon:true,corner:true,thunder:true,coins:0});
-  console.log(lang,'dev:',out.join(' | '),'| loadouts: Thunder Arc',lab.pill,'→',GET[lang],'→ Fight → equipped | reload kept',JSON.stringify(kept));await ctx.close();}
+  console.log(lang,'dev:',out.join(' | '),'| loadouts: Thunder Arc',lab.pill,'→',GET[lang],'→ Training → equipped | reload kept',JSON.stringify(kept));await ctx.close();}
  // Live channel: today's behaviour.
  const ctx=await b.newContext({viewport:{width:W,height:H}}),p=await ready(ctx,'live');const live=await shop(p,'gloves','gloves_jade');
  assert.equal(live.note,'');assert.equal(live.state,'short');assert.equal(live.badge,'75 ◈');assert.ok(live.buttons.some(b=>/75 ◈/.test(b.t)),'Buy · 75 ◈ button');assert.ok(!live.buttons.some(b=>b.t===GET.en));

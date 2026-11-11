@@ -29,6 +29,6 @@ const sizes=(process.env.SIZES?JSON.parse(process.env.SIZES):[['owner',402,690],
     const keys=Object.keys(sizes);if(check&&keys.length>1)issues.push('card sizes differ: '+keys.map(k=>k+' '+[...new Set(sizes[k])].join(',')).join(' | '));
     d.querySelector('.store-category[data-category=gloves]').click();await new Promise(r=>setTimeout(r,500));return {issues:[...new Set(issues)],cards:keys};},{lang,check:CHECK});
    bad+=r.issues.length;console.log(name,lang,'cards',r.cards.join(' '),r.issues.length?JSON.stringify(r.issues):'ok');
-   if(name==='owner'||lang==='en'){await p.waitForTimeout(1500);await p.screenshot({path:path.join(OUT,`${PRE}-${name}-${lang}.png`)});}}
+   if(name==='owner'||lang==='en'){await p.waitForTimeout(1500);await p.screenshot({path:path.join(OUT,`${PRE}-${name}-${lang}.png`),timeout:180000});}}
   await p.close();}
  console.log('TOTAL SHOP ISSUES',bad,'page errors',errors.length,errors.slice(0,3));await b.close();process.exitCode=bad||errors.length?1:0;})();

@@ -16,8 +16,24 @@
   // The designed waistband is a fitted band over the top of the shorts (when the accessory fitter is
   // loaded); the plain trim cylinder and its printed label are kept and shown again without equipment.
   const fit=(typeof GameAccessories!=='undefined'?GameAccessories:globalThis.window?.GameAccessories)?.fit?.waistband;
-  if(band&&fit&&coach.joints?.hips){const trunk=new THREE.Mesh(fit(coach),band.material);trunk.name='Trunk waistband';trunk.castShadow=true;trunk.visible=false;coach.joints.hips.add(trunk);
+  if(band&&fit&&coach.joints?.hips){const trunk=waistbandMesh(coach,fit(coach),band.material,slots,base);
    value.trunk={mesh:trunk,plain:[band,...coach.joints.hips.children.filter(n=>n.isMesh&&n.geometry?.type==='PlaneGeometry'&&Math.abs(n.position.y-band.position.y)<.02)]};coach.trunkWaistband=trunk;}cached.set(coach,value);return value;
+ }
+ // The waistband rides the shorts: built around the pelvis bone, moved into the shorts' bind space and given the
+ // skin weights of the nearest shorts vertex, so it bends with the trunks in hooks, uppercuts and rolls (a rigid
+ // band let the shorts push through it by up to 7 cm). It uses the shorts' own skinning shader and shadow materials.
+ function waistbandMesh(coach,geometry,material,slots,base){const sh=coach.shorts,hips=coach.joints.hips;let mesh;
+  if(sh?.isSkinnedMesh&&sh.geometry.attributes.skinIndex){const g=geometry.clone(),bi=coach.bones.indexOf(hips),toBind=sh.bindMatrixInverse.clone().multiply(coach.skeleton.boneInverses[bi].clone().invert());g.applyMatrix4(toBind);
+   const P=g.attributes.position,S=sh.geometry.attributes.position,SI=sh.geometry.attributes.skinIndex,SW=sh.geometry.attributes.skinWeight,b=new THREE.Box3().setFromBufferAttribute(P),near=[],v=new THREE.Vector3(),q=new THREE.Vector3();
+   for(let j=0;j<S.count;j++){q.fromBufferAttribute(S,j);if(q.y>b.min.y-.04&&q.y<b.max.y+.04)near.push(j);}
+   const ids=new Uint16Array(P.count*4),weights=new Float32Array(P.count*4),source=new Int32Array(P.count);
+   for(let i=0;i<P.count;i++){v.fromBufferAttribute(P,i);let best=near[0],d=Infinity;for(const j of near){q.fromBufferAttribute(S,j);const e=q.distanceToSquared(v);if(e<d){d=e;best=j;}}source[i]=best;for(let k=0;k<4;k++){ids[i*4+k]=SI.array[best*4+k];weights[i*4+k]=SW.array[best*4+k];}}
+   g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(ids,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(weights,4));g.setAttribute('coachLinear',new THREE.Float32BufferAttribute(new Float32Array(P.count),1));g.userData.source=source;
+   const m=material.clone();m.skinning=true;m.onBeforeCompile=sh.material.onBeforeCompile;m.customProgramCacheKey=sh.material.customProgramCacheKey;slots.belt.add(m);base.set(m,m.color.clone());
+   mesh=new THREE.SkinnedMesh(g,m);mesh.position.copy(sh.position);mesh.quaternion.copy(sh.quaternion);mesh.scale.copy(sh.scale);sh.parent.add(mesh);mesh.bind(coach.skeleton,sh.bindMatrix);mesh.frustumCulled=false;
+   if(sh.customDepthMaterial)mesh.customDepthMaterial=sh.customDepthMaterial;if(sh.customDistanceMaterial)mesh.customDistanceMaterial=sh.customDistanceMaterial;}
+  else{mesh=new THREE.Mesh(geometry,material);hips.add(mesh);}
+  mesh.name='Trunk waistband';mesh.castShadow=true;mesh.visible=false;return mesh;
  }
  // GOTR-0030: the four belt-slot items are boxing-trunk waistbands, each a distinct woven design
  // (pinstripes, racing stripe, chevrons, repeated wordmark) with piping and a small woven label on the

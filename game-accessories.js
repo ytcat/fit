@@ -56,7 +56,7 @@
  function trunkWaistband(coach){if(trunkFits.has(coach))return trunkFits.get(coach);const hips=coach.joints.hips,ys=[.062,.097,.132],bins=96;
   const s=slices(coach,hips,[coach.skin,coach.bodyFur,coach.shorts],[[ys[0]-.01,ys[1]],[ys[0],ys[2]],[ys[1],ys[2]+.01]]),rings=s.map(xz=>hullRadii(xz,bins).map(r=>r+.004));
   for(let i=0;i<bins;i++){const r=Math.max(rings[0][i],rings[1][i],rings[2][i]);rings[1][i]=Math.max(rings[1][i],r-.006);}
-  const g=strap(band(ys,rings,bins),ys[0],ys[2],.0045,.002,128);trunkFits.set(coach,g);return g;}
+  const B=band(ys,rings,bins),g=strap(B,ys[0],ys[2],.0045,.002,128);g.userData.band=B;trunkFits.set(coach,g);return g;}
  // Thin closed piping/stitch line running on the strap's outer face at height y.
  const piping=(B,y,lift,r,segments=72)=>new THREE.TubeGeometry(new THREE.CatmullRomCurve3(Array.from({length:segments},(_,i)=>{const t=i/segments*TAU,f=B.frame(t,y,lift);return f.o;}),true),segments,r,3,true);
  // Warps that seat flat relief (x along the strap, y up, z out of its back face) on the band.
