@@ -718,6 +718,13 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "Make sure it will be interesting, challenging and fluent. We are building an adventure game, so it's a story; a story has a flow with different things related to it, everything connected — not just jumping between arena and arena, training and training."
 - **Approved (owner chose "Yes, build it"):** story layer in `docs/adventure/STORY.md` — short character lines before/after each mission with portraits, missions chained as story beats, the Next bar shows the next beat, recurring rival Dash, a story journal; Chapter 1 "Nobody" and Chapter 2 "The Street" first.
 
+### GOTR-0060 — The story needs a clear start, next step and end
+- **Reported:** 2026-11-11 (v1.38)
+- **Status:** IN PROGRESS (agent `adventure-ui4`)
+- **Priority:** P1
+- **Reported behavior / request:** "I don't understand the story flow. What is the beginning? What is the end? I don't understand what's going on. Where is the start?" Also confirmed: route dots drawn over roofs, truncated tile names, clipped sheet.
+- **Plan:** first open of Adventure plays a chapter title and the arrival scene, then one "Start the story" button; afterwards a primary "Continue story" button with the next mission; chapter goal line and "Step N of 5"; chapter end with closing scene, "Chapter complete", route dots and the next chapter's title; "Story so far" recap on return. Route dots as 3D markers on the road; short tile labels; sheet not clipped.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
