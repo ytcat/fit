@@ -1,0 +1,31 @@
+PASS 402x690 empty browser opens the first screen
+PASS 402x690 player in control from the start
+PASS 402x690 en first screen offers Lion and Rabbit (Choose your fighter | Start)
+PASS 402x690 en direction
+PASS 402x690 en the dialog takes focus on open, not the close button
+PASS 402x690 he first screen offers Lion and Rabbit (בחרו את המתאגרף שלכם | התחלה)
+PASS 402x690 he direction
+PASS 402x690 he first screen has no English words ()
+PASS 402x690 he the dialog takes focus on open, not the close button
+PASS 402x690 ru first screen offers Lion and Rabbit (Выберите бойца | Начать)
+PASS 402x690 ru direction
+PASS 402x690 ru first screen has no English words ()
+PASS 402x690 ru the dialog takes focus on open, not the close button
+PASS 402x690 chosen lion saved and on screen (Guest)
+PASS 402x690 Auto hands control to the fighter (Play)
+PASS 402x690 Train 15s starts with the player in control after Auto (Finish · 15s · toggle Auto)
+PASS 402x690 a tapped Jab counts in the session (1)
+PASS 402x690 a new bout starts with the player in control after Auto (actor lion, toggle Auto)
+PASS 402x690 the player's Jab is thrown in the fight (1)
+PASS 402x690 he player menu translated, dialog focused, rtl (⁨אורח⁩ · אריה · נבחר · header אורח)
+PASS 402x690 ru player menu translated, dialog focused, ltr (⁨Гость⁩ · Лев · Выбран · header Гость)
+PASS 402x690 a Lion fighter is offered Shadow and Circuit; Ember is named for rabbit fighters (Only for rabbit fighters: Ember)
+PASS 402x690 hub has no developer notes, species switching or old place names (hero: ⁨Guest⁩'s Gym)
+NOTE 402x690 strings owned by game-shell.js / game-domain.js still say School: Guest School, School name, Save school, School Signature
+PASS 402x690 Fight Shadow keeps the Lion and records the rival (Shadow)
+PASS 402x690 Academy shows one Start, for the next lesson only (1:1 0:0 0:0 0:0 0:0 0:0)
+PASS 402x690 lesson hides Train 15s, the toolbar and the page tabs; move buttons stay (12)
+PASS 402x690 no page errors 
+     402x690 took 436 s
+PASS older save without a fighter loads as its most-used fighter ({"name":"Veteran","species":"rabbit","saved":"rabbit","dialog":false,"enabled":true})
+PASS older save: no page errors

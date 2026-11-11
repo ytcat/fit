@@ -1,0 +1,152 @@
+{
+ "he": {
+  "states": [
+   "first-run",
+   "train-home",
+   "station-none",
+   "station-heavy",
+   "station-dummy",
+   "station-speed",
+   "station-rope",
+   "station-pads",
+   "station-rabbit",
+   "heavy-moves",
+   "heavy-combos",
+   "heavy-defence",
+   "auto",
+   "play-again",
+   "drawer-practice",
+   "drawer-moves",
+   "drawer-settings",
+   "settings",
+   "stats",
+   "training-active",
+   "training-finished",
+   "bout-picker",
+   "fight-intro",
+   "fight-round",
+   "fight-result",
+   "fight-reward",
+   "shop",
+   "shop-category-0",
+   "shop-category-1",
+   "shop-category-2",
+   "shop-category-3",
+   "shop-category-4",
+   "shop-category-5",
+   "history",
+   "loadouts",
+   "academy",
+   "academy-groups",
+   "academy-quiz",
+   "lesson",
+   "lesson-turn",
+   "lesson-left",
+   "world-train",
+   "world-school",
+   "world-rivals",
+   "world-cup",
+   "world-events",
+   "venues",
+   "profile",
+   "second-player",
+   "fight-as-maya"
+  ],
+  "findings": {
+   "+44 XP · +7 מטבעות": [
+    "fight-result"
+   ],
+   "☀ Guest School": [
+    "world-school"
+   ],
+   "0/0 · +44 XP · +7 ◈": [
+    "history"
+   ],
+   "0/0 · 20s": [
+    "fight-result"
+   ],
+   "fight · הפסד": [
+    "history"
+   ],
+   "Guest": [
+    "history"
+   ]
+  },
+  "errors": []
+ },
+ "ru": {
+  "states": [
+   "first-run",
+   "train-home",
+   "station-none",
+   "station-heavy",
+   "station-dummy",
+   "station-speed",
+   "station-rope",
+   "station-pads",
+   "station-rabbit",
+   "heavy-moves",
+   "heavy-combos",
+   "heavy-defence",
+   "auto",
+   "play-again",
+   "drawer-practice",
+   "drawer-moves",
+   "drawer-settings",
+   "settings",
+   "stats",
+   "training-active",
+   "training-finished",
+   "bout-picker",
+   "fight-intro",
+   "fight-round",
+   "fight-result",
+   "fight-reward",
+   "shop",
+   "shop-category-0",
+   "shop-category-1",
+   "shop-category-2",
+   "shop-category-3",
+   "shop-category-4",
+   "shop-category-5",
+   "history",
+   "loadouts",
+   "academy",
+   "academy-groups",
+   "academy-quiz",
+   "lesson",
+   "lesson-turn",
+   "lesson-left",
+   "world-train",
+   "world-school",
+   "world-rivals",
+   "world-cup",
+   "world-events",
+   "venues",
+   "profile",
+   "second-player",
+   "fight-as-maya"
+  ],
+  "findings": {
+   "+39 XP · +6 монет": [
+    "fight-result"
+   ],
+   "☀ Guest School": [
+    "world-school"
+   ],
+   "0/0 · +39 XP · +6 ◈": [
+    "history"
+   ],
+   "0/0 · 20s": [
+    "fight-result"
+   ],
+   "fight · Поражение": [
+    "history"
+   ],
+   "Guest": [
+    "history"
+   ]
+  },
+  "errors": []
+ }
+}

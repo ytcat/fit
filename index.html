@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; img-src 'self' blob: data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'" />
   <meta name="theme-color" content="#090c11" />
-  <title>Glory of the Ring — Boxing Club</title>
-  <meta name="description" content="Glory of the Ring, your interactive 3D boxing club. Train with a lion or rabbit, master combinations in the gym, and watch fight night in the arena." />
+  <title>Glory of the Ring — Boxing Gym</title>
+  <meta name="description" content="Glory of the Ring, your interactive 3D boxing gym. Box as a lion or a rabbit, master combinations in the gym, and watch fight night in the arena." />
 
   <link rel="stylesheet" href="./design-tokens.css?v=2026111012" />
   <link rel="stylesheet" href="./assets/app.css?v=2026111012" />
@@ -47,6 +47,7 @@
   <script src="./fight-ui.js?v=2026111014" defer></script>
   <script src="./training-controls.js?v=2026111007" defer></script>
   <script src="./character-roster.js?v=2026110607"></script>
+  <script src="./glossary.js?v=2026111100"></script>
   <script src="./ring-camera.js?v=2026111013"></script>
   <script src="./camera-director.js?v=2026111109"></script>
   <script src="./club-world.js?v=2026111103"></script>
@@ -74,6 +75,7 @@
   <link rel="stylesheet" href="./academy.css?v=2026111011">
   <link rel="stylesheet" href="./camera.css?v=2026111013">
   <link rel="stylesheet" href="./burst.css?v=2026111105">
+  <link rel="stylesheet" href="./player-first.css?v=2026111100">
   <link rel="stylesheet" href="./fighter-pad.css?v=2026111110">
   <script src="./academy-stage.js?v=2026111011" defer></script>
   <script src="./fighter-pad.js?v=2026111110" defer></script>
@@ -115,7 +117,7 @@
       <div class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></div>
       <div>
         <h1 id="appTitle" class="text-xs font-black tracking-widest text-amber-400">Glory of the Ring</h1>
-        <p id="appSubtitle" class="text-[9px] text-slate-400 font-semibold tracking-wider">LION BOXING COACH</p>
+        <p id="appSubtitle" class="text-[9px] text-slate-400 font-semibold tracking-wider">BOXING GYM</p>
       </div>
     </div>
     
@@ -126,7 +128,7 @@
         <button id="langHE" class="px-2 py-0.5 rounded text-slate-300">עב</button>
         <button id="langRU" class="px-2 py-0.5 rounded text-slate-300">РУ</button>
       </div>
-      <button id="speedBtn" class="px-2 py-1 text-xs font-mono font-bold rounded bg-slate-800 text-amber-300 border border-slate-700 active:scale-95">1.0x</button>
+      <button id="speedBtn" class="px-2 py-1 text-xs font-mono font-bold rounded bg-slate-800 text-amber-300 border border-slate-700 active:scale-95">1.0×</button>
       <button id="soundBtn" class="px-2 py-1 text-xs font-bold rounded bg-slate-800 text-slate-200 border border-slate-700 active:scale-95">🔊</button>
     </div>
   </header>
@@ -160,7 +162,7 @@
     </div>
 
     <div class="absolute top-[112px] right-2 z-10 flex flex-col gap-1">
-      <button id="defaultCoach" class="px-2 py-1 text-[10px] rounded bg-amber-500 text-slate-950 font-bold">Lion coach</button>
+      <button id="defaultCoach" class="px-2 py-1 text-[10px] rounded bg-amber-500 text-slate-950 font-bold">Lion</button>
       <button id="motionPause" class="px-2 py-1 text-[10px] rounded bg-slate-900 border border-slate-700">Freeze motion</button>
     </div>
     <!-- Camera Presets -->
@@ -232,7 +234,7 @@
       en: {
         dir: 'ltr',
         title: "Glory of the Ring",
-        subtitle: "BOXING CLUB · R81",
+        subtitle: "BOXING GYM",
         round: "Round",
         timer: "Timer",
         level: "Level",
@@ -285,7 +287,7 @@
       he: {
         dir: 'rtl',
         title: "שאדובוקס 3D",
-        subtitle: "מאמן אגרוף אריה · R26",
+        subtitle: "אולם אגרוף",
         round: "סיבוב",
         timer: "שעון",
         level: "רמה",
@@ -338,7 +340,7 @@
       ru: {
         dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
-        subtitle: "ЛЕВ — ТРЕНЕР ПО БОКСУ · R26",
+        subtitle: "БОКСЁРСКИЙ ЗАЛ",
         round: "Раунд",
         timer: "Таймер",
         level: "Уровень",
@@ -527,7 +529,7 @@
         } catch(error) {
           console.error(error);
           this.loadError=true;
-          document.getElementById('modelStatusText').textContent='Coach could not load. Please reload.';
+          document.getElementById('modelStatusText').textContent='Fighter could not load. Please reload.';
           window.dispatchEvent(new CustomEvent('shadowbox-load-error'));
         }
       }
@@ -597,7 +599,7 @@
             };
           });
           if (file) this.loadAvatarFile(file);
-          else document.getElementById('modelStatusText').textContent='No saved avatar on this device · using lion coach';
+          else document.getElementById('modelStatusText').textContent='No saved avatar on this device · using the lion fighter';
         } catch(e) { console.warn('Saved avatar unavailable:',e); }
       }
 
@@ -687,7 +689,7 @@
         this.scene.add(this.activeModel);
         this.fitCameraToModel(this.activeModel);
         if (!this.mixer) {
-          document.getElementById('modelStatusText').innerText = 'Avatar needs authored clips · using lion coach';
+          document.getElementById('modelStatusText').innerText = 'Avatar needs authored clips · using the lion fighter';
           this.scene.remove(this.activeModel);
           this.activeModel = this.demoModel;
           this.scene.add(this.demoModel);
@@ -1099,7 +1101,7 @@
           this.speedIdx = (this.speedIdx + 1) % this.speeds.length;
           const s = this.speeds[this.speedIdx];
           this.engine.speed = s;
-          e.target.innerText = s.toFixed(2) + 'x';
+          e.target.innerText = s.toFixed(2) + '×';
         };
 
         document.getElementById('soundBtn').onclick = (e) => {

@@ -102,8 +102,8 @@
   }
  }
  function labels(view,profile,lang='en'){
-  const species={en:{lion:'Lion',rabbit:'Rabbit'},he:{lion:'אריה',rabbit:'ארנב'},ru:{lion:'Лев',rabbit:'Кролик'}}[lang]||{lion:'Lion',rabbit:'Rabbit'},owner=view.careerEntry?.species||'lion',name=view.careerEntry?.playerName||profile?.name||'Guest';
-  return Object.fromEntries(['lion','rabbit'].map(actor=>[actor,(actor===owner?name:(view.careerEntry?.opponentName||'Shadow'))]));
+  const species={en:{lion:'Lion',rabbit:'Rabbit'},he:{lion:'אריה',rabbit:'ארנב'},ru:{lion:'Лев',rabbit:'Кролик'}}[lang]||{lion:'Lion',rabbit:'Rabbit'},owner=view.careerEntry?.species||'lion',raw=view.careerEntry?.playerName||profile?.name||'Guest',name=/^Guest( \d+)?$/.test(raw)&&profile?.guest!==false?raw.replace('Guest',{he:'אורח',ru:'Гость'}[lang]||'Guest'):raw,opp=view.careerEntry?.opponentName||'Shadow',rival=typeof window!=='undefined'?[...(window.GameWorld?.rivals||[]),...Object.values(window.GameTournament?.rosters||{}).flat()].find(r=>r.names?.en===opp):null;
+  return Object.fromEntries(['lion','rabbit'].map(actor=>[actor,(actor===owner?name:(rival?.names?.[lang]||opp))]));
  }
  const api={apply,materials,Preview,labels,waistbands:WAISTBANDS};if(typeof module!=='undefined')module.exports=api;else{
   window.GamePresentation=api;window.GameIdentity={labels:view=>labels(view,window.app?.engine?.career?.store.current(),window.app?.lang||'en')};

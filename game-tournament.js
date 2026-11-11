@@ -14,7 +14,7 @@
   lion:[{id:'shadow',species:'rabbit',tactic:'counter',names:names('Shadow','שאדו','Шэдоу')},{id:'circuit',species:'rabbit',tactic:'outside',names:names('Circuit','סירקיט','Сёркит')},{id:'swift',species:'rabbit',tactic:'pressure',names:names('Swift','סוויפט','Свифт')}],
   rabbit:[{id:'ember',species:'lion',tactic:'pressure',names:names('Ember','אמבר','Эмбер')},{id:'anvil',species:'lion',tactic:'counter',names:names('Anvil','אנוויל','Энвил')},{id:'forge',species:'lion',tactic:'outside',names:names('Forge','פורג׳','Фордж')}]
  });
- const titleNames=freeze(names('Local School Cup Champion','אלוף גביע בתי הספר המקומי','Чемпион местного школьного кубка'));
+ const titleNames=freeze(names('Local Cup Champion','אלוף הגביע המקומי','Чемпион местного кубка'));
  const fail=message=>{throw Error(message);},copy=value=>JSON.parse(JSON.stringify(value));
  const integer=(v,max=1e9)=>Number.isSafeInteger(v)&&v>=0&&v<=max;
  const id=v=>typeof v==='string'&&v.length>0&&v.length<=120&&!/[<>\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/.test(v);
