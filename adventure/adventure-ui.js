@@ -78,14 +78,24 @@
     let routeEls = [];
     const flagKey = n => 'gotr.adv.route.' + n;
     const flag = (n, set) => { try { if (set) localStorage.setItem(flagKey(n), '1'); return localStorage.getItem(flagKey(n)) === '1'; } catch { return false; } };
+    // Evenly spaced points along a polyline.
+    function along(pts, count) {
+      const seg = [0]; for (let i = 1; i < pts.length; i++) seg.push(seg[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      const total = seg[seg.length - 1], out = [];
+      for (let k = 1; k <= count; k++) { const d = total * k / (count + 1); let i = 1; while (i < seg.length - 1 && seg[i] < d) i++; const f = (d - seg[i - 1]) / ((seg[i] - seg[i - 1]) || 1); out.push([pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i][1] + (pts[i][1] - pts[i - 1][1]) * f]); }
+      return out;
+    }
+    let routeTimers = [];
     function playRoute(n) {
       const a = map?.places.find(q => q.id === CHAPTER_PIN[n]), b = map?.places.find(q => q.id === CHAPTER_PIN[n + 1]); if (!a || !b) return false;
-      routeEls.forEach(d => d.el.remove()); routeEls = [];
-      const count = 10;
-      for (let i = 1; i <= count; i++) { const d = el('span', 'adv-route-dot'); pinsEl.append(d); routeEls.push({ el: d, t: i / (count + 1), a, b }); }
+      routeTimers.forEach(clearTimeout); routeTimers = []; routeEls.forEach(d => d.el.remove()); routeEls = []; pins.forEach(q => q.el.classList.remove('adv-nextpin'));
+      // along the streets (A* on the road network); a straight line only if the places are not connected
+      const path = map.route?.(a.anchor, b.anchor), line = path && path.length > 3 ? path : [[a.anchor.x, a.anchor.z], [b.anchor.x, b.anchor.z]], count = Math.max(8, Math.min(16, Math.round(line.length / 6))), y = (a.anchor.y + b.anchor.y) / 2 * 0 + 0.4;
+      for (const [x, z] of along(line, count)) { const d = el('span', 'adv-route-dot'); pinsEl.append(d); routeEls.push({ el: d, pos: new THREE.Vector3(x, y, z) }); }
       fly({ x: (a.anchor.x + b.anchor.x) / 2, z: (a.anchor.z + b.anchor.z) / 2, dist: Math.min(300, 90 + a.anchor.distanceTo(b.anchor) * 1.1) });
-      routeEls.forEach((d, i) => setTimeout(() => { if (alive) d.el.classList.add('on'); }, reduced ? 0 : 250 + i * 170));
-      setTimeout(() => { if (!alive) return; pins.find(q => q.p === b)?.el.classList.add('adv-nextpin'); modal.dataset.route = String(n); }, reduced ? 0 : 250 + count * 170 + 150);
+      const step = reduced ? 0 : 150;
+      routeEls.forEach((d, i) => routeTimers.push(setTimeout(() => { if (alive) d.el.classList.add('on'); }, reduced ? 0 : 500 + i * step)));
+      routeTimers.push(setTimeout(() => { if (!alive) return; pins.find(q => q.p === b)?.el.classList.add('adv-nextpin'); modal.dataset.route = String(n); }, reduced ? 0 : 500 + routeEls.length * step + 150));
       flag(n, true); dirty = true; return true;
     }
     function checkRoute() { const A = P(), g = game(); if (!A || !g) return; for (let n = 1; n <= 4; n++) if (A.bossWon(g, A.chapters[n - 1].boss) && !flag(n)) { playRoute(n); return; } }
@@ -105,7 +115,7 @@
     const v3 = window.THREE ? new THREE.Vector3() : null;
     function placePins() {
       const W = stage.clientWidth, H = stage.clientHeight;
-      for (const d of routeEls) { v3.copy(d.a.anchor).lerp(d.b.anchor, d.t).project(camera); d.el.style.transform = `translate(${((v3.x + 1) / 2 * W).toFixed(1)}px,${((1 - v3.y) / 2 * H).toFixed(1)}px) translate(-50%,-50%)`; }
+      for (const d of routeEls) { v3.copy(d.pos).project(camera); d.el.style.transform = `translate(${((v3.x + 1) / 2 * W).toFixed(1)}px,${((1 - v3.y) / 2 * H).toFixed(1)}px) translate(-50%,-50%)`; }
       for (const { p, el: b, tag } of pins) {
         v3.copy(p.anchor).project(camera);
         const vis = v3.z < 1 && Math.abs(v3.x) < 1.1 && Math.abs(v3.y) < 1.1;
@@ -133,6 +143,7 @@
       const info = PLACES[p.id]; if (!info) return;
       fly(p.focus);
       card.replaceChildren(); card.classList.remove('open');
+      { const n = +Object.keys(CHAPTER_PIN).find(k => CHAPTER_PIN[k] === p.id) || 0; if (n && n < 5 && P().bossWon(game(), P().chapters[n - 1].boss) && !reduced) setTimeout(() => { if (alive) playRoute(n); }, 700); }
       const A = P(), g = game(), chap = p.chapter || info.chapterOf || 0, zone = A.sideZones.find(z => z.id === p.id), cinfo = A.chapters[chap - 1];
       const handle = button('', () => card.classList.toggle('open'), 'adv-handle'); handle.setAttribute('aria-label', w.more); handle.setAttribute('aria-expanded', 'false'); handle.append(el('span'));
       card.append(handle);
@@ -162,6 +173,7 @@
       if (info.train) acts.append(button(`${w.train} · ${venueName(info.train)}`, () => { change({ type: 'venue', venueId: info.train }); startTraining({ mode: 'pads', play: true }); }, 'game-button adv-go'));
       for (const id of info.arenas || []) acts.append(button(`${w.fight} · ${venueName(id)}`, () => { if (change({ type: 'venue', venueId: id })) startFight({}); }, 'game-button adv-go' + (info.train ? ' adv-alt' : '')));
       card.append(acts); card.hidden = false;
+      requestAnimationFrame(() => { const t = card.querySelector('.adv-tiles'); card.style.setProperty('--peek', t ? (t.offsetTop + t.offsetHeight + 8) + 'px' : 'auto'); });
       new MutationObserver(() => handle.setAttribute('aria-expanded', String(card.classList.contains('open')))).observe(card, { attributes: true, attributeFilter: ['class'] });
     }
     function setTime(t) {
