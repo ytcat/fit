@@ -1,6 +1,7 @@
 /* GOTR-0031 R1: player-first controls, the fighter choice on the first screen and a focused Academy lesson. */
 
-/* First screen and player menu: Lion or Rabbit is the main choice. */
+/* First screen and player menu: Lion or Rabbit is the main choice. Like the Shop dialogs, the dialog itself takes focus on open. */
+.career-dialog:focus{outline:none}
 .career-welcome .career-fighter-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 4px}
 .career-fighter{display:grid;justify-items:center;align-content:start;gap:4px;min-height:var(--gr-control-h,44px);padding:10px 8px 12px;border:2px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-m,12px);background:var(--gr-surface-2,#1a2230);color:var(--gr-text,#f3f6fb);font:inherit;cursor:pointer;text-align:center}
 .career-fighter img{display:block;width:100%;max-width:128px;height:auto;aspect-ratio:160/130;pointer-events:none}

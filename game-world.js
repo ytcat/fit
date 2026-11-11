@@ -72,6 +72,6 @@
  const freeze=value=>{if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;};[facilities,rivals,events,tutorialSteps].forEach(freeze);
  // The player's place is the Gym (GOTR-0031 R1). A name still equal to the automatic "<player> School" is shown as the player's gym in their language; a name the player typed is shown as typed.
  const gymWords=localized("{name}'s Gym",'האולם של {name}','Зал «{name}»');
- function gymName(game,profileName,lang='en'){const name=game?.school?.name||'',base=String(profileName||''),clean=typeof GameDomain!=='undefined'&&GameDomain.cleanName?GameDomain.cleanName(base+' School'):base+' School';if(base&&(name===base+' School'||name===clean))return (gymWords[lang]||gymWords.en).replace('{name}',base);return name;}
+ function gymName(game,profileName,lang='en',isolate=false){const name=game?.school?.name||'',base=String(profileName||''),clean=typeof GameDomain!=='undefined'&&GameDomain.cleanName?GameDomain.cleanName(base+' School'):base+' School';if(base&&(name===base+' School'||name===clean))return (gymWords[lang]||gymWords.en).replace('{name}',isolate?'\u2068'+base+'\u2069':base);return isolate?'\u2068'+name+'\u2069':name;}
  const api={facilities,rivals,events,tutorialSteps,fresh,validate,validatePack,action,record,today,gymName};if(typeof module!=='undefined')module.exports=api;else window.GameWorld=api;
 })();
