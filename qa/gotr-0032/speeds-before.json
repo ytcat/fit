@@ -1,0 +1,224 @@
+{
+ "mitts-auto": {
+  "jab": {
+   "n": 1,
+   "approachMin": 5.19,
+   "approachMedian": 5.19,
+   "closingMedian": 3.76,
+   "spikes": 0
+  },
+  "cross": {
+   "n": 2,
+   "approachMin": 3.94,
+   "approachMedian": 5.21,
+   "closingMedian": 3.5,
+   "spikes": 0
+  },
+  "hook": {
+   "n": 1,
+   "approachMin": 2.6,
+   "approachMedian": 2.6,
+   "closingMedian": 2.04,
+   "spikes": 0
+  },
+  "rear_hook": {
+   "n": 1,
+   "approachMin": 2.82,
+   "approachMedian": 2.82,
+   "closingMedian": 2.05,
+   "spikes": 0
+  },
+  "uppercut": {
+   "n": 1,
+   "approachMin": 8.64,
+   "approachMedian": 8.64,
+   "closingMedian": 3.97,
+   "spikes": 0
+  },
+  "rear_uppercut": {
+   "n": 1,
+   "approachMin": 8.35,
+   "approachMedian": 8.35,
+   "closingMedian": 4.57,
+   "spikes": 0
+  }
+ },
+ "mitts-play": {
+  "jab": {
+   "n": 1,
+   "approachMin": 12.97,
+   "approachMedian": 12.97,
+   "closingMedian": 5,
+   "spikes": 0
+  },
+  "cross": {
+   "n": 1,
+   "approachMin": 10.56,
+   "approachMedian": 10.56,
+   "closingMedian": 3.46,
+   "spikes": 0
+  },
+  "hook": {
+   "n": 1,
+   "approachMin": 3.89,
+   "approachMedian": 3.89,
+   "closingMedian": 2.46,
+   "spikes": 0
+  },
+  "rear_hook": {
+   "n": 1,
+   "approachMin": 3.74,
+   "approachMedian": 3.74,
+   "closingMedian": 2.2,
+   "spikes": 0
+  },
+  "uppercut": {
+   "n": 1,
+   "approachMin": 12.76,
+   "approachMedian": 12.76,
+   "closingMedian": 4.45,
+   "spikes": 0
+  },
+  "rear_uppercut": {
+   "n": 1,
+   "approachMin": 8.92,
+   "approachMedian": 8.92,
+   "closingMedian": 4.3,
+   "spikes": 0
+  }
+ },
+ "bag-auto": {
+  "jab": {
+   "n": 7,
+   "approachMin": 8.75,
+   "approachMedian": 8.95,
+   "closingMedian": 7.66,
+   "spikes": 0
+  },
+  "cross": {
+   "n": 7,
+   "approachMin": 8.56,
+   "approachMedian": 8.82,
+   "closingMedian": 7.4,
+   "spikes": 0
+  }
+ },
+ "bag-play": {
+  "jab": {
+   "n": 1,
+   "approachMin": 16.52,
+   "approachMedian": 16.52,
+   "closingMedian": 12.36,
+   "spikes": 0
+  },
+  "cross": {
+   "n": 1,
+   "approachMin": 15.25,
+   "approachMedian": 15.25,
+   "closingMedian": 10.57,
+   "spikes": 0
+  },
+  "hook": {
+   "n": 1,
+   "approachMin": 6.78,
+   "approachMedian": 6.78,
+   "closingMedian": 4.02,
+   "spikes": 0
+  },
+  "rear_hook": {
+   "n": 1,
+   "approachMin": 6.12,
+   "approachMedian": 6.12,
+   "closingMedian": 3.98,
+   "spikes": 0
+  },
+  "uppercut": {
+   "n": 1,
+   "approachMin": 6.43,
+   "approachMedian": 6.43,
+   "closingMedian": 3.52,
+   "spikes": 0
+  },
+  "rear_uppercut": {
+   "n": 1,
+   "approachMin": 7.35,
+   "approachMedian": 7.35,
+   "closingMedian": 4.68,
+   "spikes": 0
+  }
+ },
+ "fight-auto": {
+  "jab": {
+   "n": 8,
+   "approachMin": 6.59,
+   "approachMedian": 10.42,
+   "closingMedian": 5.55,
+   "spikes": 0
+  },
+  "cross": {
+   "n": 15,
+   "approachMin": 0.41,
+   "approachMedian": 8.24,
+   "closingMedian": 3.12,
+   "spikes": 0
+  },
+  "hook": {
+   "n": 13,
+   "approachMin": 5.42,
+   "approachMedian": 6.95,
+   "closingMedian": 4.78,
+   "spikes": 0
+  },
+  "rear_uppercut": {
+   "n": 3,
+   "approachMin": 3.55,
+   "approachMedian": 5.11,
+   "closingMedian": 2.67,
+   "spikes": 0
+  }
+ },
+ "fight-play": {
+  "jab": {
+   "n": 4,
+   "approachMin": 6.35,
+   "approachMedian": 8.47,
+   "closingMedian": 3,
+   "spikes": 0
+  },
+  "cross": {
+   "n": 4,
+   "approachMin": 1.05,
+   "approachMedian": 8.36,
+   "closingMedian": 3.02,
+   "spikes": 0
+  },
+  "hook": {
+   "n": 4,
+   "approachMin": 5.62,
+   "approachMedian": 8.49,
+   "closingMedian": 3.26,
+   "spikes": 0
+  },
+  "rear_hook": {
+   "n": 3,
+   "approachMin": 3.27,
+   "approachMedian": 6.6,
+   "closingMedian": 2.18,
+   "spikes": 0
+  },
+  "uppercut": {
+   "n": 3,
+   "approachMin": 6.33,
+   "approachMedian": 7.54,
+   "closingMedian": 4,
+   "spikes": 0
+  },
+  "rear_uppercut": {
+   "n": 3,
+   "approachMin": 4.46,
+   "approachMedian": 5.37,
+   "closingMedian": 3.14,
+   "spikes": 0
+  }
+ }
+}

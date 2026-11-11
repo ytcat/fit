@@ -11,7 +11,9 @@
  // How far the boxer steps in before each bent-arm punch or roll (see LionCoach `advance`).
  // GOTR-0032: a power shot drives THROUGH the mitt face (metres past it, into the pad) instead of easing to a
  // stop on it, and the struck mitt pops back by type (peak about 0.7 x depth x force).
- const driveThrough={hook:.05,rear_hook:.05,uppercut:.045,rear_uppercut:.045},popDepth={jab:.085,cross:.09,hook:.095,rear_hook:.10,uppercut:.08,rear_uppercut:.085};
+ // Surface samples of the mitt's padded body (training-gear.js mitt: ellipsoid 0.132 x 0.157, face at z .066).
+ const mittShell=[];for(let a=0;a<8;a++)for(const b of [-.6,0,.6])mittShell.push(V(Math.cos(a*Math.PI/4)*.132*Math.cos(b),-.12+Math.sin(a*Math.PI/4)*.157*Math.cos(b),.02+Math.sin(b)*.065));
+ const driveThrough={hook:.09,rear_hook:.10,uppercut:.045,rear_uppercut:.045},popDepth={jab:.085,cross:.09,hook:.095,rear_hook:.10,uppercut:.08,rear_uppercut:.085};
  const boxerAdvance={hook:.15,rear_hook:.19,uppercut:.12,rear_uppercut:.12,roll:.20};
  const mittSequence=['jab','cross','roll','uppercut','rear_hook','rear_uppercut','roll','hook'];
  const mittCues={};
@@ -90,6 +92,8 @@
   // Authored body commitment of the boxer for each mitt punch.
   boxerDrive(move){
    const straight=move==='jab'||move==='cross',upper=move.includes('uppercut');
+   const hook=move==='hook'||move==='rear_hook';
+   // GOTR-0032: hooks get the fight's drive (power 1.32, contact drive .05) so the arc still accelerates at the mitt.
    return {advance:straight?.02:boxerAdvance[move]??.025,contactDrive:move==='jab'?.015:upper?.025:0,shoulderCover:straight?.055:0,armReachMargin:straight?straightReachMargin:undefined,stepLift:boxerAdvance[move]?.036:undefined,guardTightness:1,power:1.15,straightRecovery:.25};
   }
   // The coach reads the boxer's reach once per session: where the striking
@@ -117,6 +121,15 @@
    }
    return error;
   }
+  // Deepest overlap of a mitt's padded body with its holder's head (skull, muzzle) and torso volumes, as the
+  // root-space correction that moves it 1 cm clear; null when it is already clear.
+  ownBodyOverlap(coach,pad){
+   const j=coach.joints,shapes=[[j.head,{centre:[0,.13,.03],radius:[.17,.20,.17]}],[j.head,{centre:[0,.065,.195],radius:[.135,.105,.125]}],[j.chest,{centre:[0,.13,0],radius:[.315,.25,.27]}],[j.spine,{centre:[0,.10,.015],radius:[.24,.23,.19]}]];
+   coach.root.updateMatrixWorld(true);let worst=null;
+   for(const s of mittShell){const p=pad.localToWorld(s.clone());for(const [bone,shape] of shapes){const c=this.arena.closest(p,bone,shape,0);if(c.distance<.01&&(!worst||c.distance<worst.distance))worst=c;}}
+   if(!worst)return null;const base=coach.root.worldToLocal(V()),normal=coach.root.worldToLocal(worst.normal.clone()).sub(base).normalize();
+   return normal.multiplyScalar(.01-worst.distance);
+  }
   poseTrainer(coach){
    const {phase,hook,sweepSide,move}=this.padPose,j=coach.joints;
    const rootQ=coach.root.getWorldQuaternion(Q()).invert(),feet=['L','R'].map(side=>({side,ankle:coach.point(j['foot'+side]),q:j['foot'+side].getWorldQuaternion(Q()).premultiply(rootQ),lift:0}));
@@ -135,7 +148,7 @@
    let shock=0;for(const pad of this.mitts){const age=this.padPose.t-(pad.userData.hitAt??-100);if(age>=0)shock=Math.max(shock,(1-Math.exp(-age/.025))*Math.exp(-age/.15));}
    // GOTR-0032: crisp pop per mitt (fast rise, ~0.12 s recovery) scaled by the blow; the holder absorbs it:
    // the struck shoulder turns back, the trunk braces and the knees give a little.
-   const pops=this.mitts.map(pad=>{const age=this.padPose.t-(pad.userData.hitAt??-100);return age>=0?(pad.userData.hitForce??1)*(1-Math.exp(-age/.012))*Math.exp(-age/.12):0;}),brace=Math.max(...pops);
+   const pops=this.mitts.map(pad=>{const age=this.padPose.t-(pad.userData.hitAt??-100);return age>=0?(pad.userData.hitForce??1)*(1-Math.exp(-age/(pad.userData.popRise??.012)))*Math.exp(-age/.12):0;}),brace=Math.max(...pops);
    j.hips.position.y-=.035*(sweep+catchPulse);j.hips.position.x+=.010*Math.sin(this.padPose.t*1.3);j.hips.rotation.y-=sign*.08*sweep;
    // Reach over the roll through the step, a small hip hinge and shoulder glide.
    j.hips.position.z+=.035*sweep+closeIn;j.spine.rotation.x+=.11*sweep-.020*shock;j.chest.rotation.x+=.09*sweep-.035*shock;
@@ -167,7 +180,11 @@
      const turn=.87*feed;goal.lerp(V(i?.22:-.22,1.75,.57+closeIn),feed);palm.set((i?-1:1)*Math.sin(turn),0,Math.cos(turn));
      elbow=V((i?1:-1)*(.7-.4*feed),-.45-.55*feed,-.12-.13*feed);
     }
-    if(hook&&side!==sweepSide)goal.lerp(V(i?.22:-.22,1.74,.29+closeIn),sweep);
+    if(hook&&side!==sweepSide){
+     // GOTR-0038: the free mitt guards beside the coach's own cheek, placed from the head as it leans into
+     // the sweep (a fixed point in front of the chest ended inside the leaning head, up to 13 cm).
+     coach.root.updateMatrixWorld(true);const cheek=coach.root.worldToLocal(j.head.localToWorld(V(i?.27:-.27,.07,.17)));goal.lerp(cheek,sweep);
+    }
     if(hook&&side===sweepSide){
      // Round sweep over the ducking boxer: chamber to the outside, pronate,
      // pass across the crown and fold back. The 90-degree turn is about the
@@ -178,7 +195,10 @@
     // The struck mitt gives along its own face normal.
     goal.addScaledVector(palm,-recoil);if(catchingUpper)goal.z-=recoil*.3*ready;
     j['arm'+side].position.z+=.035*sweep+.012*catchPulse-.015*pops[i];j['arm'+side].position.y+=.045*sweep;pad.userData.palm=palm.clone();
-    errors.push(this.placeMitt(side,goal,palm,catchingUpper,elbow));palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-Math.min(.18,recoil*4);
+    errors.push(this.placeMitt(side,goal,palm,catchingUpper,elbow));
+    // GOTR-0038: a mitt never rests inside its holder's own head or torso: push it out along the surface normal.
+    // A mitt catching a straight moves sideways instead, so the punch still lands at full reach (GOTR-0012).
+    for(let pass=0;pass<3;pass++){const inside=this.ownBodyOverlap(coach,pad);if(!inside)break;if(move===straight){const m=inside.length();inside.set((i?1:-1)*m,0,0);}goal.add(inside);errors[errors.length-1]=this.placeMitt(side,goal,palm,catchingUpper,elbow);}palms.push(coach.orientGlove(side,1,palm));pad.userData.cushion.scale.z=1-Math.min(.18,recoil*4);
    }
    const footTargets=[];for(const {side,ankle,q,lift} of feet){
     const foot=j['foot'+side],error=coach.solve(j['thigh'+side],j['knee'+side],foot,ankle,V(side==='L'?-.08:.08,.1,1));coach.orient(foot,q);
@@ -269,8 +289,17 @@
    this.padContactFraction=Math.max(0,Math.min(1,a/(a-b||1)));this.padContactLocal.copy(this.padBeforeLocal).lerp(this.padLocal,this.padContactFraction);
    return ((this.padContactLocal.x-centre.x)/.125)**2+((this.padContactLocal.y-centre.y)/.145)**2<=1;
   }
+  // GOTR-0032: automatic mitt rounds throw each punch on the same clock as Play (its own duration, the fast
+  // drive of the shared punch clock, uppercuts on their authored clock) and hold the guard for the rest of the
+  // 1.2 s beat, instead of spreading one slow punch over the whole beat.
+  autoSpec(move,beatPhase,index){
+   if(move==='roll')return {move,phase:beatPhase,attack:false,index};
+   const R=window.BOXING_ROUTINES,duration=window.BoxingInput?.durations?.[move],raw=duration?beatPhase*1.20/duration:beatPhase;
+   if(raw>=1)return {move:'guard',phase:.35,attack:false,index,rest:true,cue:move};
+   return {move,phase:R?.punchPhase&&!move.includes('uppercut')?R.punchPhase(raw):raw,attack:true,index};
+  }
   updatePads(t,time,frame){
-   const hero=this.engine.coach,trainer=this.trainer,beat=Math.floor(t/1.20),part=beat%8,autoPhase=(t/1.20)%1,autoMove=mittSequence[part],autoHook=autoMove==='roll',manual=this.engine.player?.frame(time),spec=manual||{move:autoMove,phase:autoPhase,attack:!autoHook,index:beat},phase=manual?spec.phase:autoPhase,hook=manual?spec.move==='roll':autoHook;
+   const hero=this.engine.coach,trainer=this.trainer,beat=Math.floor(t/1.20),part=beat%8,autoPhase=(t/1.20)%1,autoMove=mittSequence[part],autoHook=autoMove==='roll',manual=this.engine.player?.frame(time),spec=manual||this.autoSpec(autoMove,autoPhase,beat),phase=manual||!autoHook?spec.phase:autoPhase,hook=manual?spec.move==='roll':autoHook;
    hero.root.position.set(0,0,-padRange/2);hero.root.rotation.set(0,0,0);if(this.reachOwner!==hero)this.measureReach(hero);
    const sweepSide=Math.floor(beat/4)%2?'R':'L';
    this.padPose={t,phase,hook,move:spec.move,heroPhase:spec.phase,sweepSide,sweepHeight:1.96};
@@ -288,13 +317,13 @@
     if(spec.phase>.2&&this.once('swing'+spec.index))frame.swings.push({actor:'lion',move:spec.move});
     const fist=hero.root.localToWorld(V(...hero.metrics.gloves[targetIndex].strikePoint)),incoming=this.contactWithMitt(pad,fist,this.previousFist[targetIndex],worldTarget,this.previousPadFace[targetIndex],dt),speed=this.padClosingSpeed;
     if(!hook&&spec.phase>.25&&spec.phase<.80&&incoming&&this.once('hit'+spec.index)){
-     frame.contacts.push({actor:'lion',receiver:'pads',part:'glove',kind:'pad',move:spec.move,blocked:false,closingSpeed:speed,impulse:speed*(rear(spec.move)?7.2:5.8),point:pad.localToWorld(this.padWorldContact.copy(this.padContactLocal)).toArray(),normal:this.padNormal.toArray(),relativeVelocity:this.padVelocity.toArray(),localPoint:this.padContactLocal.toArray(),hand:targetIndex?'R':'L',actionId:'pads:'+this.sessionId+':'+spec.index,attacker:'hero',defender:'trainer',targetRegion:'mitt',outcome:'clean',sampleTime:time,time:time-dt*(1-this.padContactFraction),contactFraction:this.padContactFraction});pad.userData.hitAt=t;pad.userData.hitForce=Math.max(.6,Math.min(1.3,speed/3));pad.userData.popDepth=popDepth[spec.move]||.08;this.gloveHit={index:targetIndex,t,force:pad.userData.hitForce};
+     frame.contacts.push({actor:'lion',receiver:'pads',part:'glove',kind:'pad',move:spec.move,blocked:false,closingSpeed:speed,impulse:speed*(rear(spec.move)?7.2:5.8),point:pad.localToWorld(this.padWorldContact.copy(this.padContactLocal)).toArray(),normal:this.padNormal.toArray(),relativeVelocity:this.padVelocity.toArray(),localPoint:this.padContactLocal.toArray(),hand:targetIndex?'R':'L',actionId:'pads:'+this.sessionId+':'+spec.index,attacker:'hero',defender:'trainer',targetRegion:'mitt',outcome:'clean',sampleTime:time,time:time-dt*(1-this.padContactFraction),contactFraction:this.padContactFraction});pad.userData.hitAt=t;pad.userData.hitForce=Math.max(.6,Math.min(1.3,speed/3));pad.userData.popDepth=popDepth[spec.move]||.08;pad.userData.popRise=spec.move.includes("hook")?.007:.012;this.gloveHit={index:targetIndex,t,force:pad.userData.hitForce};
     }this.previousFist[targetIndex]=fist;this.previousPadFace[targetIndex]=worldTarget;
    }
    // Impact accent on the striker: the glove padding squashes on the mitt and springs back (~60 ms).
    const g=this.gloveHit;if(g){const age=t-g.t,squash=age>=0&&age<.4?Math.min(1,.85*g.force)*(1-Math.exp(-age/.006))*Math.exp(-age/.06):0;hero.deformGlove(g.index?'R':'L',squash);if(!(age>=0&&age<.4))this.gloveHit=null;}
    if(hook&&phase>.40&&phase<.72){const head=hero.root.localToWorld(V(...hero.metrics.head)),mitt=this.mitts[sweepSide==='L'?0:1].localToWorld(this.mitts[0].userData.face.clone());if(spec.move==='roll'&&head.y+.29<mitt.y&&Math.hypot(head.x-mitt.x,head.z-mitt.z)<.32&&this.once('defence'+(manual?spec.index:beat)))frame.defences=1;}
-   const cues=mittCues[window.app?.lang]||mittCues.en;frame.cue=cues[hook?'roll':spec.move]||cues.guard;frame.hero=hero.metrics;frame.partner=trainer.metrics;frame.padPhase={hook,phase,sweepSide,targetIndex};
+   const cues=mittCues[window.app?.lang]||mittCues.en;frame.cue=cues[hook?'roll':spec.cue||spec.move]||cues.guard;frame.hero=hero.metrics;frame.partner=trainer.metrics;frame.padPhase={hook,phase,sweepSide,targetIndex};
   }
   advance(time){
    if(this.mode!=='pads'||!this.padClock)return this.update(time);

@@ -51,3 +51,27 @@ fixed-step clock / deferred visuals are the likely difference. Left for the inte
   punch over the whole 1.2 s beat. Compressing it with the punch clock changes the Watch mitt rhythm; not done.
 - Mitt uppercuts have a chamber jump (knuckle 27–30 m/s for one tick, `../gotr-0027/README.md`), separate bug.
 - No real hit-stop (time freeze) on the striker. Not checked on a physical phone.
+
+## Follow-up after v1.20 (owner: "the punches still not powerful enough")
+Glove speed at contact = striking-knuckle speed over the last tick before contact (`speeds.cjs`;
+`speeds-before.json` → `speeds-after.json`; fights: median of landed punches, seeds 3/11 auto, 3 Play).
+
+| mode | straights (jab / cross) | hooks (lead / rear) | uppercuts (lead / rear) |
+|---|---|---|---|
+| mitts automatic | 5.2 / 3.9–5.2 → **12.6 / 10.4** | 2.6 / 2.8 → 5.0 / 5.4 | 8.6 / 8.4 → 12.8 / 8.9 |
+| mitts Play | 13.0 / 10.6 → 13.0 / 10.6 | 3.9 / 3.7 → 4.9 / 5.3 | 12.8 / 8.9 → 12.8 / 8.9 |
+| bag automatic (one-two) | 9.0 / 8.8 → same | – | – |
+| bag Play | 16.5 / 15.3 | 6.8 / 6.1 | 6.4 / 7.4 |
+| fight automatic | 10.4 / 8.2 → 9.1 / 8.5 | 7.0 → 7.4 | rear 5.1 → 5.0 |
+| fight Play | 8.5 / 8.4 → 8.9 / 8.4 | 8.5 / 6.6 → 8.6 / 6.6 | 7.5 / 5.4 → 8.0 / 5.4 |
+
+Changes: automatic mitt rounds throw each punch on its Play duration and the shared punch clock, then hold the
+guard (they spread one punch over the 1.2 s beat); mitt hooks aim 9–10 cm through the mitt with a faster pop
+(rise 7 ms) — hooks sink 3.3–3.5 cm into the cushion at contact; fight hooks/uppercuts aim deeper through the
+target. Impact accents (`impact-fx.js`): hit-stop 50–70 ms on clean contact (67 ms measured on a mitt cross),
+camera kick on power shots applied only around the draw call, spray at the contact point, deep sound layer.
+
+Not met / not done: mitt hooks 4.9–5.4 m/s (< 6.5): deeper aim or more drive folds the elbow below the 70°
+mitt-range limit — the hook arc itself lives in `boxing-coach-v2.js` (off limits); rear uppercut in fights
+5.0–5.4 and lead uppercut on the bag 6.4 m/s; mitt uppercuts keep a one-tick chamber spike (spikes=1);
+whole-body drive (hip/shoulder turn, heel pivot, load) not changed — it is in `boxing-coach-v2.js`.

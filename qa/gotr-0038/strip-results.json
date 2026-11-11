@@ -1,0 +1,125 @@
+{
+ "base": "886b5eb",
+ "browser": "153.0.8010.12",
+ "physicalPhone": false,
+ "results": [
+  {
+   "version": "before",
+   "drill": "roll",
+   "at": 0.3,
+   "file": "before-roll-30.png"
+  },
+  {
+   "version": "before",
+   "drill": "roll",
+   "at": 0.45,
+   "file": "before-roll-45.png"
+  },
+  {
+   "version": "before",
+   "drill": "roll",
+   "at": 0.6,
+   "file": "before-roll-60.png"
+  },
+  {
+   "version": "before",
+   "drill": "roll",
+   "at": 0.75,
+   "file": "before-roll-75.png"
+  },
+  {
+   "version": "before",
+   "drill": "cross",
+   "tick": 20,
+   "file": "before-cross-20.png"
+  },
+  {
+   "version": "before",
+   "drill": "cross",
+   "tick": 24,
+   "file": "before-cross-24.png"
+  },
+  {
+   "version": "before",
+   "drill": "cross",
+   "tick": 28,
+   "file": "before-cross-28.png"
+  },
+  {
+   "version": "before",
+   "drill": "cross",
+   "tick": 32,
+   "file": "before-cross-32.png"
+  },
+  {
+   "version": "before",
+   "drill": "cross",
+   "tick": 40,
+   "file": "before-cross-40.png"
+  },
+  {
+   "version": "before",
+   "crossContactTick": null,
+   "errors": []
+  },
+  {
+   "version": "after",
+   "drill": "roll",
+   "at": 0.3,
+   "file": "after-roll-30.png"
+  },
+  {
+   "version": "after",
+   "drill": "roll",
+   "at": 0.45,
+   "file": "after-roll-45.png"
+  },
+  {
+   "version": "after",
+   "drill": "roll",
+   "at": 0.6,
+   "file": "after-roll-60.png"
+  },
+  {
+   "version": "after",
+   "drill": "roll",
+   "at": 0.75,
+   "file": "after-roll-75.png"
+  },
+  {
+   "version": "after",
+   "drill": "cross",
+   "tick": 20,
+   "file": "after-cross-20.png"
+  },
+  {
+   "version": "after",
+   "drill": "cross",
+   "tick": 24,
+   "file": "after-cross-24.png"
+  },
+  {
+   "version": "after",
+   "drill": "cross",
+   "tick": 28,
+   "file": "after-cross-28.png"
+  },
+  {
+   "version": "after",
+   "drill": "cross",
+   "tick": 32,
+   "file": "after-cross-32.png"
+  },
+  {
+   "version": "after",
+   "drill": "cross",
+   "tick": 40,
+   "file": "after-cross-40.png"
+  },
+  {
+   "version": "after",
+   "crossContactTick": null,
+   "errors": []
+  }
+ ]
+}

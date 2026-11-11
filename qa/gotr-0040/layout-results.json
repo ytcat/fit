@@ -1,0 +1,298 @@
+{
+ "browser": "153.0.8010.12",
+ "physicalPhone": false,
+ "results": [
+  {
+   "name": "phone",
+   "lang": "en",
+   "view": "mitts-play",
+   "meters": [
+    {
+     "id": "powerGauge",
+     "rect": [
+      258,
+      157,
+      128,
+      33
+     ],
+     "text": "PowerLast 50 · Best 81"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "phone",
+   "lang": "he",
+   "view": "mitts-play",
+   "meters": [
+    {
+     "id": "powerGauge",
+     "rect": [
+      258,
+      157,
+      128,
+      33
+     ],
+     "text": "עוצמהאחרון 50 · שיא 81"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "phone",
+   "lang": "ru",
+   "view": "mitts-play",
+   "meters": [
+    {
+     "id": "powerGauge",
+     "rect": [
+      258,
+      157,
+      128,
+      33
+     ],
+     "text": "СилаУдар 50 · Рекорд 81"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "phone",
+   "lang": "en",
+   "view": "fight",
+   "meters": [
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      26,
+      194,
+      153,
+      9
+     ],
+     "text": "Power"
+    },
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      223,
+      194,
+      153,
+      9
+     ],
+     "text": "Power"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "phone",
+   "lang": "he",
+   "view": "fight",
+   "meters": [
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      223,
+      194,
+      153,
+      9
+     ],
+     "text": "עוצמה"
+    },
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      26,
+      194,
+      153,
+      9
+     ],
+     "text": "עוצמה"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "phone",
+   "lang": "ru",
+   "view": "fight",
+   "meters": [
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      26,
+      194,
+      153,
+      9
+     ],
+     "text": "Сила"
+    },
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      223,
+      194,
+      153,
+      9
+     ],
+     "text": "Сила"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "phone",
+   "errors": []
+  },
+  {
+   "name": "small",
+   "lang": "en",
+   "view": "mitts-play",
+   "meters": [
+    {
+     "id": "powerGauge",
+     "rect": [
+      216,
+      157,
+      128,
+      33
+     ],
+     "text": "PowerLast 50 · Best 81"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "small",
+   "lang": "en",
+   "view": "fight",
+   "meters": [
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      26,
+      194,
+      132,
+      9
+     ],
+     "text": "Power"
+    },
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      202,
+      194,
+      132,
+      9
+     ],
+     "text": "Power"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "small",
+   "errors": []
+  },
+  {
+   "name": "land",
+   "lang": "en",
+   "view": "mitts-play",
+   "meters": [
+    {
+     "id": "powerGauge",
+     "rect": [
+      708,
+      105,
+      128,
+      33
+     ],
+     "text": "PowerLast 50 · Best 81"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "land",
+   "lang": "en",
+   "view": "fight",
+   "meters": [
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      204,
+      142,
+      200,
+      9
+     ],
+     "text": "Power"
+    },
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      448,
+      142,
+      200,
+      9
+     ],
+     "text": "Power"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "land",
+   "errors": []
+  },
+  {
+   "name": "desk",
+   "lang": "en",
+   "view": "mitts-play",
+   "meters": [
+    {
+     "id": "powerGauge",
+     "rect": [
+      1213,
+      156,
+      128,
+      33
+     ],
+     "text": "PowerLast 50 · Best 81"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "desk",
+   "lang": "en",
+   "view": "fight",
+   "meters": [
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      337,
+      202,
+      320,
+      9
+     ],
+     "text": "Power"
+    },
+    {
+     "id": "gr-power-row is-fresh",
+     "rect": [
+      709,
+      202,
+      320,
+      9
+     ],
+     "text": "Power"
+    }
+   ],
+   "overlaps": []
+  },
+  {
+   "name": "desk",
+   "errors": []
+  }
+ ]
+}
