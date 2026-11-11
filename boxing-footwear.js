@@ -28,19 +28,53 @@
   for(let r=0;r<rows.length-1;r++){const a=r*(segments+1),b=a+segments+1;indices.push(a,a+segments,b,b,a+segments,b+segments);}
   const upper=new THREE.BufferGeometry();upper.setAttribute('position',new THREE.Float32BufferAttribute(p,3));upper.setIndex(indices);upper.computeVertexNormals();mesh(foot,upper,leather,'Sculpted boxing boot upper');
   const ankle=new THREE.Group();ankle.name='Articulated padded boot collar';foot.add(ankle);foot.userData.bootAnkle=ankle;
+  // Three constructions share the sole, welt and last (same contact and sole height); only
+  // the shaft, collar, lacing and accent panels differ. `style()` shows one per fighter.
+  const styles={classic:new THREE.Group(),mid:new THREE.Group(),panel:new THREE.Group()},feet={classic:new THREE.Group(),mid:new THREE.Group(),panel:new THREE.Group()};
+  for(const [name,g] of Object.entries(styles)){g.name='Boot shaft · '+name;ankle.add(g);feet[name].name='Boot panels · '+name;foot.add(feet[name]);g.visible=feet[name].visible=name==='classic';}
+  // Point on the shaft surface (elliptical, tapered) at side s, angle a from the toe, height y.
+  const shaft=(s,a,y,lift=0)=>{const r=.078+.013*(y+.0175)/.177+lift;return V(s*r*Math.sin(a),y,-.022+1.15*r*Math.cos(a));};
   if(!referee){
-   const cuff=mesh(ankle,new THREE.CylinderGeometry(.091,.078,.177,28,1,true),leather,'Boxing boot ankle');cuff.position.set(0,.071,-.022);cuff.scale.z=1.15;const collar=mesh(ankle,new THREE.RingGeometry(.069,.091,28),leather,'Closed leather collar binding');collar.rotation.x=-Math.PI/2;collar.position.set(0,.1595,-.022);collar.scale.y=1.15;
-   const rim=mesh(ankle,new THREE.TorusGeometry(.090,.006,6,32),rubber,'Padded collar rim');rim.rotation.x=Math.PI/2;rim.position.set(0,.160,-.022);rim.scale.y=1.15;
-   const tongue=mesh(ankle,new THREE.BoxGeometry(.055,.16,.013),leather,'Boot tongue');tongue.position.set(0,.075,.087);
-   for(const s of [-1,1])line(ankle,[V(s*.089,.146,-.018),V(s*.082,.066,-.004),V(s*.062,-.005,.032)],trim,.003);
+   // Classic high-top: tall padded shaft, laced to the top.
+   const hi=styles.classic,cuff=mesh(hi,new THREE.CylinderGeometry(.091,.078,.177,28,1,true),leather,'Boxing boot ankle');cuff.position.set(0,.071,-.022);cuff.scale.z=1.15;const collar=mesh(hi,new THREE.RingGeometry(.069,.091,28),leather,'Closed leather collar binding');collar.rotation.x=-Math.PI/2;collar.position.set(0,.1595,-.022);collar.scale.y=1.15;
+   const rim=mesh(hi,new THREE.TorusGeometry(.090,.006,6,32),rubber,'Padded collar rim');rim.rotation.x=Math.PI/2;rim.position.set(0,.160,-.022);rim.scale.y=1.15;
+   const tongue=mesh(hi,new THREE.BoxGeometry(.055,.16,.013),leather,'Boot tongue');tongue.position.set(0,.075,.087);
+   for(const s of [-1,1])line(hi,[V(s*.089,.146,-.018),V(s*.082,.066,-.004),V(s*.062,-.005,.032)],trim,.003);
+   // Mid-top: shaft ends above the ankle bone under a thick contrast padded collar.
+   const mid=styles.mid,mc=mesh(mid,new THREE.CylinderGeometry(.0866,.078,.1125,28,1,true),leather,'Boxing boot ankle');mc.position.set(0,.0388,-.022);mc.scale.z=1.15;
+   const mb=mesh(mid,new THREE.RingGeometry(.066,.0866,28),leather,'Closed leather collar binding');mb.rotation.x=-Math.PI/2;mb.position.set(0,.095,-.022);mb.scale.y=1.15;
+   const pad=mesh(mid,new THREE.TorusGeometry(.086,.012,8,32),trim,'Padded mid-top collar');pad.rotation.x=Math.PI/2;pad.position.set(0,.095,-.022);pad.scale.set(1,1.15,.9);
+   mesh(mid,new THREE.BoxGeometry(.055,.1,.013),leather,'Boot tongue').position.set(0,.045,.087);mesh(mid,new THREE.BoxGeometry(.042,.03,.007),trim,'Tongue tab').position.set(0,.1,.094);
+   mesh(mid,new THREE.BoxGeometry(.03,.045,.007),trim,'Heel pull tab').position.set(0,.088,-.121);
+   for(const s of [-1,1])line(feet.mid,[V(s*.068,-.06,-.06),V(s*.075,-.058,.03),V(s*.072,-.064,.12),V(s*.04,-.066,.195)],trim,.0035);
+   // Modern panelled: high shaft with a hook-and-loop ankle strap, speed stripes and pull tab.
+   const pn=styles.panel,pc=mesh(pn,new THREE.CylinderGeometry(.091,.078,.177,28,1,true),leather,'Boxing boot ankle');pc.position.set(0,.071,-.022);pc.scale.z=1.15;
+   const pb=mesh(pn,new THREE.RingGeometry(.069,.091,28),leather,'Closed leather collar binding');pb.rotation.x=-Math.PI/2;pb.position.set(0,.1595,-.022);pb.scale.y=1.15;
+   const pr=mesh(pn,new THREE.TorusGeometry(.090,.0075,6,32),trim,'Contrast collar rim');pr.rotation.x=Math.PI/2;pr.position.set(0,.160,-.022);pr.scale.y=1.15;
+   mesh(pn,new THREE.BoxGeometry(.055,.16,.013),leather,'Boot tongue').position.set(0,.075,.087);
+   const strap=mesh(pn,new THREE.CylinderGeometry(.0915,.0905,.034,28,1,true),rubber,'Ankle strap');strap.position.set(0,.112,-.022);strap.scale.z=1.16;
+   for(const s of [-1,1]){mesh(pn,new THREE.BoxGeometry(.008,.04,.05),trim,'Strap tab').position.set(s*.094,.112,-.01);
+    for(const k of [0,1,2])line(pn,[0,.5,1].map(t=>shaft(s,2.55-1.35*t,.008+k*.026+t*.06,.002)),trim,.0042);
+    line(feet.panel,[V(s*.066,-.05,-.08),V(s*.075,-.042,.02),V(s*.07,-.045,.11)],trim,.006);}
+   mesh(pn,new THREE.BoxGeometry(.032,.055,.007),trim,'Heel pull tab').position.set(0,.17,-.125);
   }
   for(let i=0;i<(referee?3:8);i++){
-   const high=i>=3,parent=high?ankle:foot,y=high?.02+(i-3)*.026:-.002+i*.013,z=high?.097:.131-i*.033;
-   line(parent,[V(-.025,y,z),V(0,y+.005,z+.004),V(.025,y+.011,z-.007)],lace);
-   line(parent,[V(.025,y,z),V(0,y+.005,z+.005),V(-.025,y+.011,z-.007)],lace);
+   const high=i>=3,y=high?.02+(i-3)*.026:-.002+i*.013,z=high?.097:.131-i*.033;
+   for(const parent of high?(referee?[]:[styles.classic,styles.panel,...(i<6?[styles.mid]:[])]):[foot]){
+    line(parent,[V(-.025,y,z),V(0,y+.005,z+.004),V(.025,y+.011,z-.007)],lace);
+    line(parent,[V(.025,y,z),V(0,y+.005,z+.005),V(-.025,y+.011,z-.007)],lace);
+   }
   }
   for(const s of [-1,1])line(foot,[V(s*.05,-.045,-.075),V(s*.064,-.034,.016),V(s*.068,-.044,.108)],trim,.0015);
+  // Gum-rubber tread wrapping up the outsole edge, visible whenever the boot lifts or pivots.
+  if(!referee){const ribs=[];for(let i=0;i<outline.length;i++){const [x,z]=outline[i],[x2,z2]=outline[(i+1)%outline.length];for(const t of [.25,.75]){const px=x+(x2-x)*t,pz=z+(z2-z)*t,len=Math.hypot(px,pz)||1;ribs.push([px+px/len*.0012,pz+pz/len*.0012]);}}
+   const g=new THREE.BoxGeometry(.0035,.012,.0035),parts=ribs.map(([x,z])=>{const c=g.clone();c.translate(x,soleY(z)+.007,z);return c;});const pos=[],nor=[];for(const c of parts){const n=c.toNonIndexed();pos.push(...n.attributes.position.array);nor.push(...n.attributes.normal.array);}
+   const tread=new THREE.BufferGeometry();tread.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));tread.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));mesh(foot,tread,rubber,'Sole tread ribs');}
+  foot.userData.bootStyles={styles,feet};
   return ankle;
  }
- window.BoxingFootwear={attach};
+ // Shop variants pick a construction; the save format (boots_<variant>) is unchanged.
+ const designs={default:'classic',midnight:'mid',jade:'panel',sunrise:'classic'};
+ function style(coach,variant){const design=designs[variant]||'classic';for(const side of ['L','R']){const s=coach?.joints?.['foot'+side]?.userData.bootStyles;if(!s)continue;for(const name of Object.keys(s.styles)){s.styles[name].visible=s.feet[name].visible=name===design;}}return design;}
+ window.BoxingFootwear={attach,style,designs};
 })();
