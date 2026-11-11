@@ -146,6 +146,7 @@
 - **Expected behavior:** A navigable stylized but visually polished 3D world map/hub with a walking player, buildings/locations/NPCs, assignments, travel, world events, gym training and ranked ring battles. Example journey: local gym tutorial → street training task → equipment shop → city club rival → regional arena → elite destination → final champion. Staged difficulty gates are transparent, reachable through specific skills and practice, not grinding. Preserve 3-minute task sessions and optional long-form exploration. Support save/resume at any location.
 - **Acceptance criteria:** First vertical slice: player can walk between at least three distinct functioning spaces, take a quest, train, enter a fight with a numerically-rated boss, earn a persistent reward and return to hub; acceptable mobile framerate; no break to existing direct-entry boxing mode. Later expansion to larger worlds after feasibility QA.
 - **Dependencies / risks:** Requires navigation/camera, interactive environments, streaming/scene transitions and performance budget; cannot ship as an unplayable decorative map. Separate PRD and architecture review when scheduled.
+- **Owner direction (2026-11-11):** The adventure's progression order: beginner training → street fight → fights in the underground and other places → advancing step by step → championship. Until the adventure exists, all arenas stay available.
 - **Implementation:** Deferred for sequencing, not rejected.
 - **Evidence:** Future vertical-slice prototype and measured mobile test.
 
@@ -413,7 +414,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0031 — Map every user flow and make the first-time experience clear, simple and exciting
 - **Reported:** 2026-11-11
-- **Status:** IN REVIEW — flow map and proposal delivered 2026-11-11; waiting for the owner's direction before implementation
+- **Status:** IN PROGRESS — owner approved the proposal on 2026-11-11 ("The rest do as you suggested"); building in releases R1–R4
 - **Priority:** P1
 - **Area:** UX / onboarding / navigation
 - **Reported behavior / request:** "Can you please prepare all UX flows with decision making. I want to see all game process and user flow. I feel that the user experience is still not intuitive, clear and simple. I want the new user to be able to understand exactly what to do and it will be clear and make sense and exciting."
@@ -422,6 +423,8 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Delivered (`agent/ux-flows`):** `docs/ux/UX_FLOWS.md` (screen inventory, current flow, friction map F1–F15, proposed navigation Home · Train · Fight · Learn · Shop, first five minutes, core loop, "Next up" rules, empty states, reward moments, longer arc, ranked changes and release slices R1–R4) and the phone page `docs/ux/ux-flows.html`, published privately for the owner as an Artifact. Top findings: no first step after naming; Train/Fight run under coach control unless Play is on; the World hub pops up after every activity and hides who won; one place has four names; language is three levels deep; developer notes on player screens.
 - **Evidence:** `qa/gotr-0031/` (34 screenshots from v1.19 at 402×690 and 1366×768, Playwright helpers). Limits: the third Academy repetition and the "Lesson passed" screen were described from code (software rendering too slow); Mermaid diagrams not rendered here; no physical phone.
 - **Open questions for the owner:** arenas as earned rewards for new players (existing players keep all); Lion/Rabbit choice on the first screen and rival cards no longer switching species; one name for the player's place (Gym / Club / Corner).
+- **Owner decisions (2026-11-11):** (1) Arenas: keep all nine available for now — no earned arenas during development. Future adventure order: beginner training → street fight → underground and other places → advancing → championship (recorded on GOTR-0008). Change #8 (progressive unlocks) is deferred to go-live. (2) Lion/Rabbit choice on the first screen; rival cards stop switching the player's species. (3) One name: **Gym**. Everything else as proposed.
+- **Plan:** R1 = changes 2, 5, 10, 12 plus the Lion/Rabbit choice; R2 = 1, 6, 9; R3 = 3, 4; R4 = 7, 11 (8 deferred). Each release is published with its own version number.
 
 ### GOTR-0032 — Mitt-work punches still look like small touches
 - **Reported:** 2026-11-11 (after v1.18)
@@ -432,6 +435,18 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Known cause:** v1.18 (GOTR-0024/0025) sped up fight, bag and shadow punches but left mitt choreography unchanged: mitt hooks meet the pad at about 1.1 m/s, mitt uppercuts keep the old timing, pad recoil is small (0.065 × force, fast decay) and the coach's arm and body barely react.
 - **Expected behavior:** The glove accelerates into the mitt, the mitt pops back clearly, the coach's arm and shoulder absorb and the coach meets straights with a short counter-push; crisp impact accent and pad-pop sound.
 - **Acceptance criteria:** Measured before/after glove speed at mitt contact for all six punches and pad displacement; matched before/after frame strips; GOTR-0012 extension results and mitt contact tests still pass; no sliding feet.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
+### GOTR-0033 — Free development mode: everything available, price tags kept
+- **Reported:** 2026-11-11
+- **Status:** IN PROGRESS (integrator)
+- **Priority:** P1
+- **Area:** Shop / progression / release control
+- **Reported behavior / request:** "While we are building the app, try to make all the possibilities available, including the shop — let me buy for free, but add a price tag on the things that need to be, and only when we go live those will be locked until they are purchased or earned."
+- **Expected behavior:** One release switch. In development: every Shop item, accessory and combo can be taken for free with one tap; its normal price stays visible; a short notice says purchases are free during development; coins are still earned and shown but not spent. At go-live (switch flipped): prices are charged and locks apply until bought or earned.
+- **Acceptance criteria:** With the switch in development mode, a fresh player with 0 coins can get and equip every item and every combo; price tags remain visible in EN/HE/RU; the ledger records zero-cost development grants that validate on reload. With the switch in live mode, the same actions are refused without enough coins exactly as before; old saves load in both modes; full test suite passes.
+- **Dependencies / risks:** Shop UI is being changed by `agent/store-polish` (GOTR-0030); the UI part follows its merge. Decision at go-live: keep or revoke development grants in the owner's own save.
 - **Implementation:** In progress.
 - **Evidence:** Pending.
 
