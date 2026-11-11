@@ -1,5 +1,5 @@
 {
-  "version": "v115-20261111c",
+  "version": "v116-20261111d",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -43,9 +43,9 @@
     "./character-roster.js?v=2026110607",
     "./ring-camera.js?v=2026111013",
     "./camera-director.js?v=2026111016",
-    "./club-world.js?v=2026110905",
+    "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111102",
-    "./version.js?v=2026111102",
+    "./version.js?v=2026111103",
     "./club-interface.js?v=2026111102",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111001",
