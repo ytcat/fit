@@ -138,7 +138,7 @@
 
 ### GOTR-0008 — Long-term 3D explorable adventure world connecting gyms, quests and boss fights
 - **Reported:** 2026-11-09
-- **Status:** IN DESIGN with the owner (2026-11-11) — no development until the owner approves the design
+- **Status:** APPROVED DESIGN v1 (owner, 2026-11-11: "I approve your recommendation in the artifact") — first playable slice scheduled
 - **Priority:** P2
 - **Delivery:** LATER — only after preceding shop, controls, Fight IQ and core milestones are implemented and verified
 - **Area:** World exploration / quests / progression
@@ -156,6 +156,8 @@
 - **Design decisions round 4 (owner, 2026-11-11):** (13) **City name: Gloryland.** (14) **Fighter Level** = mission stars + training stats; every boss shows an entry level; each level above it raises the chance to win. (15) **First playable slice:** city map + Home Gym + Street (two coaches, two bosses, Fighter Level, save and return) with **more tasks** than the proposed 8. (16) **Next step:** a visual design document for the owner to approve before any development.
 - **Design document v1 (2026-11-11):** `docs/adventure/gloryland-design.html` (also published privately for the owner as an Artifact): city map sketch, five chapters with places, coaches (Pip rabbit, Vix fox, Tusk walrus, Kip kangaroo, Tembo elephant), bosses and entry levels (5/12/20/30/40), four side zones, 18 first-slice missions, Fighter Level = stars ÷ 3 + stat points above start, length ≈ 4½–5½ h. Waiting for the owner's confirmation of the five open points on the page.
 - **Owner on the design doc map (2026-11-11):** "The map should look professional and 3-D, like a real designed city map, not just circles and squares and lines. Invest in this." → agent `gloryland-map` builds a stylised 3D city diorama in three.js (day and night, landmarks for every chapter and side zone, chapter pins) as the foundation of the in-game adventure map; its renders replace the sketch in the design doc. New files only (`adventure/`), not wired into the game before approval.
+- **Owner approval (2026-11-11):** "I approve your recommendation in the artifact." Approved as proposed: coaches Pip (rabbit), Vix (fox), Tusk (walrus), Kip (kangaroo), Tembo (elephant); bosses and entry levels Brick 5, King Hyena 12, Iron Bull 20, Onyx 30, Blaze 40; the 18 first-slice missions; Fighter Level = stars ÷ 3 + stat points above start, with a small per-point edge; map layout as rendered (Old Town north-east, Docks on the south coast, Glory Hill on top).
+- **Build plan (first slice, small releases):** A) Adventure tab replaces World (with GOTR-0044) and shows the 3D Gloryland map with tap-to-travel; B) progression core: stars, stats, Fighter Level, boss entry gate and chance (also feeds GOTR-0041/0042); C) Old Town: coach Pip, 9 missions, boss Brick; D) Market Row: coach Vix, 9 missions, street events, boss King Hyena. New species (beaver, fox, hyena, raccoon) come from the avatar work (GOTR-0009) after the muscle system (GOTR-0037) lands, so new characters get muscles from day one; until then missions run with the existing fighters. Development build: everything open.
 
 ### GOTR-0009 — Expand roster and bosses with varied species, silhouettes, size and combat IQ
 - **Reported:** 2026-11-09
