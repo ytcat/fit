@@ -1,0 +1,36 @@
+{
+ "cup": {
+  "cup": true,
+  "cupStage": 0,
+  "preset": "quick",
+  "roundSeconds": 20,
+  "ui": "charging",
+  "visible": true
+ },
+ "layout": {
+  "checked": 96,
+  "problems": 0,
+  "sizes": [
+   "phone:114x44",
+   "phone:98x44",
+   "phone:96x44",
+   "phone:97x44",
+   "phone:107x44",
+   "small:100x40",
+   "small:86x40",
+   "small:84x40",
+   "small:94x40",
+   "small:85x40",
+   "land:100x40",
+   "land:86x40",
+   "land:84x40",
+   "land:85x40",
+   "land:94x40",
+   "desk:114x44",
+   "desk:98x44",
+   "desk:96x44",
+   "desk:107x44",
+   "desk:97x44"
+  ]
+ }
+}

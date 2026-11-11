@@ -137,7 +137,7 @@ try{
   const start=await p.evaluate(()=>{const st=ringfighterGame.store,r=st.gameAction({type:'cup',cupAction:'start',species:app.engine.coach.species,seed:74});return r.ok?'ok':r.error;});
   if(start==='ok'){await p.evaluate(()=>ringfighterGame.open('cup'));await p.locator('[data-cup-action="continue"]').click();await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());});
    await skipIntro(p);await until(p,()=>app.engine.arena.fightView?.match?.phase==='round',null,60);
-   const c=await p.evaluate(()=>({cup:!!app.engine.fightOptions.cupEntry,preset:app.engine.arena.fightView.match.preset,roundSeconds:app.engine.arena.fightView.match.roundSeconds,ui:document.getElementById('burstControl').dataset.state,visible:!document.getElementById('burstControl').hidden}));
+   const c=await p.evaluate(()=>({cup:app.engine.arena.fightView.match.events.some(e=>e.type==='cup-intro')||!!app.engine.arena.fightView.careerEntry?.activityEvidence?.cupStage,cupStage:app.engine.arena.fightView.careerEntry?.activityEvidence?.cupStage??null,preset:app.engine.arena.fightView.match.preset,roundSeconds:app.engine.arena.fightView.match.roundSeconds,ui:document.getElementById('burstControl').dataset.state,visible:!document.getElementById('burstControl').hidden}));
    results.cup=c;console.log('CUP',JSON.stringify(c));assert.ok(c.cup&&c.visible&&c.ui==='charging');await shot(p,'cup-charging-phone-he');
   }else{results.cup={skipped:start};console.log('CUP skipped:',start);}
   assert.deepEqual(p.errors,[]);await p.close();}
