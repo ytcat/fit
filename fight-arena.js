@@ -110,7 +110,15 @@
    const side=rear(spec.move)?1:-1;
    const point=spec.target==='body'?V(side*.055,1.37,.155):spec.target==='shoulder'?V(side*.29,1.59,.08):spec.move.includes('hook')?V(side*.085,1.90,.19):spec.move.includes('uppercut')?V(side*.012,1.90,.19):V(side*.012,1.94,.30);
    const accuracy=this.match.fighters[actor].accuracy;if(accuracy!=null){const spread=.085*(1-accuracy);point.x+=Math.sin(action.id*12.9898+this.match.seed)*spread;point.y+=Math.cos(action.id*7.233+this.match.seed)*spread;}
-   const world=receiver.root.localToWorld(point),local=coach.root.worldToLocal(world.clone());
+   const world=receiver.root.localToWorld(point);
+   // GOTR-0051: from the bladed guard the defender's glove can stand well in front of the head. A straight aimed
+   // at the head was then stopped by that glove half way, on a bent arm; it now plans its extension to the first
+   // glove or forearm on its line, so a blocked straight still lands extended (GOTR-0012/0018).
+   if((spec.move==='jab'||spec.move==='cross')&&spec.target!=='body'&&spec.target!=='shoulder'){
+    const shoulder=coach.joints[spec.move==='jab'?'armL':'armR'].getWorldPosition(V()),line=world.clone().sub(shoulder),length=line.length();
+    for(let d=.30;d<length;d+=.02){const p=shoulder.clone().addScaledVector(line,d/length),hit=this.collision(p,other(actor));if(hit.penetration>0){if(hit.part==='glove'||hit.part==='arm')world.copy(p);break;}}
+   }
+   const local=coach.root.worldToLocal(world.clone());
    // Commit to the target's arena position; a late slip can actually miss.
    if(spec.phase>=.18){action.aim=this.arena.group.worldToLocal(world.clone()).toArray();action.aimInArena=true;if(spec.move==='jab'||spec.move==='cross')action.aimRoot=receiver.root.position.toArray();}
    return local;
@@ -196,7 +204,7 @@
    if(m.phase==='round')this.separateTorso(false);
    const specs={lion:this.punchSpec('lion'),rabbit:this.punchSpec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
-    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={stance:0,guardElbowBack:.55,guardWidth:.24,guardHeight:1.72,guardCover:1,keepFaceClear:true,legReachMargin:.002+(m.phase==='round'?.012*(this.straightPreparationWeight||0):0),simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,guardStyle:spec.guardStyle,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28*(f.footwork||1)};
+    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={stance:1,guardElbowBack:.55,guardWidth:.24,guardHeight:1.72,guardCover:1,keepFaceClear:true,legReachMargin:.002+(m.phase==='round'?.012*(this.straightPreparationWeight||0):0),simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,guardStyle:spec.guardStyle,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28*(f.footwork||1)};
     if(m.phase==='round'&&this.footPlants){
      options.plantedContacts={};for(const side of ['L','R']){const anchor=this.footPlants[actor+side];if(anchor)options.plantedContacts[side]=coach.root.worldToLocal(coach.root.parent.localToWorld(anchor.clone())).toArray();}
     }
