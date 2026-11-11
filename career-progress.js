@@ -6,6 +6,8 @@
  const pack=data=>JSON.stringify({format:'ringfighter-career',version:1,checksum:checksum(data),data});
  function unpack(raw){const value=JSON.parse(raw);if(value?.format){if(value.format!=='ringfighter-career'||value.version!==1)throw Error('Incompatible backup format.');if(value.checksum!==checksum(value.data))throw Error('Invalid backup checksum.');return validate(value.data);}return validate(value);}
  const attrs=['power','speed','accuracy','footwork','defence','stamina'];
+ // The player's chosen fighter. Older profiles have none and use the one they trained with most (Lion on a tie).
+ const fighters=['lion','rabbit'];
  const weights={none:[.12,.24,.24,.18,.12,.10],heavy:[.48,.08,.28,.04,.02,.10],dummy:[.30,.10,.40,.04,.08,.08],speed:[.05,.48,.28,.04,.03,.12],rope:[0,.30,0,.45,0,.25],pads:[.10,.18,.26,.16,.24,.06],rabbit:[.14,.16,.18,.18,.20,.14],fight:[.20,.16,.18,.14,.18,.14]};
  const ranks=[[0,'Rookie'],[250,'Amateur'],[750,'Prospect'],[1800,'Contender'],[3500,'Professional'],[7000,'Champion'],[14000,'World champion']];
  const blank=()=>({xp:0,points:Object.fromEntries(attrs.map(k=>[k,0])),sessions:0,wins:0,losses:0,draws:0,awards:[]});
@@ -19,6 +21,7 @@
    if(typeof p.name==='string')p.name=domain.cleanName(p.name);
    if(typeof p.id!=='string'||p.id.length>90||seen.has(p.id)||typeof p.name!=='string'||!p.name.trim()||p.name.length>32||!p.boxers)throw Error('Invalid player in backup.');seen.add(p.id);
    for(const species of ['lion','rabbit']){const b=p.boxers[species];if(!b||!['xp','sessions','wins','losses','draws'].every(k=>number(b[k]))||!attrs.every(k=>number(b.points?.[k]))||!Array.isArray(b.awards)||b.awards.length>200||b.awards.some(a=>typeof a!=='string'||a.length>120))throw Error('Invalid boxer progress.');}
+   if(p.species!==undefined&&!fighters.includes(p.species))throw Error('Invalid player in backup.');
    if(p.game!==undefined)domain.validate(p.game,p);
   }
   if(data.active!==null&&!data.profiles.some(p=>p.id===data.active))throw Error('Invalid active player.');
@@ -37,12 +40,14 @@
   wallet(profile=this.current()){const g=this.game(profile);return g?domain.wallet(g):{coins:0,xp:0,transactions:0};}
   gameAction(action){try{return this.transaction(()=>{const p=this.current();if(!p)throw Error('Choose a player first.');return {ok:true,...domain.action(p.game,action,p)};});}catch(e){return {ok:false,error:e.message};}}
   current(){return this.data.profiles.find(p=>p.id===this.data.active)||null;}
-  create(name,guest=false){
+  create(name,guest=false,species){
    name=domain.cleanName(name).slice(0,32).trim();if(!name)throw Error('Enter a player name.');if(this.data.profiles.length>=30)throw Error('This device already has 30 players.');if(this.data.profiles.some(p=>p.name.toLowerCase()===name.toLowerCase()))throw Error('That name already exists. Choose it from saved players.');
-   return this.transaction(()=>{const p={id:id(),name,guest,boxers:{lion:blank(),rabbit:blank()}};p.game=domain.fresh(p);this.data.profiles.push(p);this.data.active=p.id;return p;});
+   return this.transaction(()=>{const p={id:id(),name,guest,boxers:{lion:blank(),rabbit:blank()}};if(fighters.includes(species))p.species=species;p.game=domain.fresh(p);this.data.profiles.push(p);this.data.active=p.id;return p;});
   }
   select(key){if(!this.data.profiles.some(p=>p.id===key))return false;try{return this.transaction(()=>{this.data.active=key;return true;});}catch{return false;}}
-  guest(){const p=this.data.profiles.find(p=>p.guest);if(p){if(!this.select(p.id))throw Error(this.error);return this.current();}let name='Guest',n=1;while(this.data.profiles.some(p=>p.name===name))name='Guest '+(++n);return this.create(name,true);}
+  guest(species){const p=this.data.profiles.find(p=>p.guest);if(p){if(!this.select(p.id))throw Error(this.error);if(species)this.setSpecies(species);return this.current();}let name='Guest',n=1;while(this.data.profiles.some(p=>p.name===name))name='Guest '+(++n);return this.create(name,true,species);}
+  species(profile=this.current()){if(!profile)return null;if(fighters.includes(profile.species))return profile.species;const b=profile.boxers||{},lion=b.lion||{},rabbit=b.rabbit||{},ls=lion.sessions||0,rs=rabbit.sessions||0;return rs>ls||rs===ls&&(rabbit.xp||0)>(lion.xp||0)?'rabbit':'lion';}
+  setSpecies(species,profile=this.current()){if(!fighters.includes(species)||!profile)return false;if(profile.species===species)return true;try{return this.transaction(()=>{this.data.profiles.find(p=>p.id===profile.id).species=species;return true;});}catch{return false;}}
   ratings(species,profile=this.current()){const b=profile?.boxers[species]||blank();return Object.fromEntries(attrs.map(k=>[k,Math.min(99,20+Math.floor(79*Math.sqrt(b.points[k]/(b.points[k]+900))))]));}
   rank(species,profile=this.current()){const xp=profile?.boxers[species]?.xp||0,index=ranks.reduce((best,r,i)=>xp>=r[0]?i:best,0);return {name:ranks[index][1],xp,floor:ranks[index][0],next:ranks[index+1]?.[0]||null};}
   award(event){

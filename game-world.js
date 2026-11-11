@@ -2,19 +2,19 @@
 (() => {
  const localized=(en,he,ru)=>({en,he,ru}),fail=message=>{throw Error(message);};
  const facilities=[
-  {id:'canvas_marks',price:25,names:localized('Canvas marks','סימוני רצפה','Разметка пола'),description:localized('Mark your school floor. Cosmetic; all drills remain available.','סמנו את רצפת בית הספר. קוסמטי; כל האימונים זמינים.','Разметьте зал школы. Только оформление; все занятия доступны.')},
-  {id:'focus_board',price:60,names:localized('Focus board','לוח מיקוד','Доска целей'),description:localized('Display your next practice goal. No combat bonus.','הציגו את יעד האימון הבא. ללא יתרון בקרב.','Покажите следующую цель. Без бонусов в бою.')},
-  {id:'recovery_corner',price:100,names:localized('Recovery corner','פינת מנוחה','Уголок отдыха'),description:localized('A welcoming place to pause. No health or stamina modifier.','מקום נעים להפסקה. ללא שינוי בריאות או סיבולת.','Уютное место для перерыва. Без изменений здоровья и выносливости.')}
+  {id:'canvas_marks',price:25,names:localized('Canvas marks','סימוני רצפה','Разметка пола'),description:localized('Footwork marks on your gym floor.','סימוני עבודת רגליים על רצפת האולם.','Разметка для работы ног на полу зала.')},
+  {id:'focus_board',price:60,names:localized('Focus board','לוח מיקוד','Доска целей'),description:localized('Shows your next practice goal on the gym wall.','מציג על קיר האולם את יעד האימון הבא.','Показывает на стене зала следующую цель тренировки.')},
+  {id:'recovery_corner',price:100,names:localized('Recovery corner','פינת מנוחה','Уголок отдыха'),description:localized('A quiet corner to rest between rounds.','פינה שקטה למנוחה בין סיבובים.','Тихий уголок для отдыха между раундами.')}
  ];
  const rivals=[
   {id:'shadow',species:'rabbit',tactic:'counter',names:localized('Shadow','שאדו','Шэдоу'),description:localized('Patient counter boxer. Practice reading the guard.','מתאגרף נגד סבלני. תרגלו קריאת הגנה.','Терпеливый контратакующий боксёр. Учитесь читать защиту.')},
-  {id:'ember',species:'lion',tactic:'pressure',names:localized('Ember','אמבר','Эмбер'),description:localized('Forward pressure, with ordinary stamina and counterplay.','לחץ קדימה, עם סיבולת רגילה ואפשרות למכות נגד.','Давление вперёд с обычной выносливостью и возможностью контратаки.')},
-  {id:'circuit',species:'rabbit',tactic:'outside',names:localized('Circuit','סירקיט','Сёркит'),description:localized('An original fictional coach who prefers distance. No adaptive learning yet.','מאמן בדיוני מקורי המעדיף מרחק. עדיין ללא למידה מסתגלת.','Оригинальный вымышленный тренер, предпочитающий дистанцию. Пока без адаптивного обучения.')}
+  {id:'ember',species:'lion',tactic:'pressure',names:localized('Ember','אמבר','Эмбер'),description:localized('Forward pressure and quick counters.','לחץ קדימה ומכות נגד מהירות.','Давление вперёд и быстрые контратаки.')},
+  {id:'circuit',species:'rabbit',tactic:'outside',names:localized('Circuit','סירקיט','Сёркит'),description:localized('Prefers distance and straight punches.','מעדיף מרחק ואגרופים ישרים.','Предпочитает дистанцию и прямые удары.')}
  ];
  const tutorialSteps=[{id:'practice',names:localized('Complete an active training session','השלימו אימון פעיל','Завершите активную тренировку')},{id:'contacts',names:localized('Land three contacts during completed training','פגעו שלוש פעמים באימון שהושלם','Нанесите три точных удара в завершённой тренировке')},{id:'bout',names:localized('Complete an active bout','השלימו קרב פעיל','Завершите активный бой')}];
  const events=[
-  {eventId:'E01',contentVersion:1,names:localized('Viral Combo Challenge','אתגר שילובים ויראלי','Вирусный челлендж комбинаций'),description:localized('An original short-video challenge: land jab, cross and hook in order within three seconds during active training. No bonus currency or mastery is awarded.','אתגר סרטונים מקורי: פגעו בישירה קדמית, אחורית והוק לפי הסדר בתוך שלוש שניות באימון פעיל. ללא בונוס מטבעות או שליטה.','Оригинальный видео-челлендж: попадите джебом, прямым и хуком по порядку за три секунды в активной тренировке. Без бонусных монет или мастерства.'),ruleTemplate:'TRAIN_VERIFIED_CHAIN',arenaId:'current_gym',opponentId:null,durationSeconds:15,reward:{xp:0,coins:0},rightsStatus:'ORIGINAL_CONTENT_APPROVED',offlinePlayable:true},
-  {eventId:'E02',contentVersion:1,names:localized('AI Coach Invitational','הזמנת מאמן הבינה','Приглашение ИИ-тренера'),description:localized('Challenge fictional coach Circuit in an active bout. Win with the existing boxing rules; ordinary activity rewards only.','התמודדו מול המאמן הבדיוני סירקיט בקרב פעיל. נצחו לפי כללי האיגרוף הקיימים; רק תגמולי פעילות רגילים.','Вызовите вымышленного тренера Сёркита на активный бой. Победа по обычным правилам; только стандартная награда за бой.'),ruleTemplate:'WIN_CIRCUIT_BOUT',arenaId:'current_ring',opponentId:'circuit',durationSeconds:20,reward:{xp:0,coins:0},rightsStatus:'ORIGINAL_CONTENT_APPROVED',offlinePlayable:true}
+  {eventId:'E01',contentVersion:1,names:localized('Viral Combo Challenge','אתגר שילובים ויראלי','Вирусный челлендж комбинаций'),description:localized('Land jab, cross and lead hook in order within three seconds during a training session.','פגעו בישרה קדמית, ישרה אחורית והוק קדמי לפי הסדר בתוך שלוש שניות באימון.','Попадите джебом, кроссом и передним хуком по порядку за три секунды на тренировке.'),ruleTemplate:'TRAIN_VERIFIED_CHAIN',arenaId:'current_gym',opponentId:null,durationSeconds:15,reward:{xp:0,coins:0},rightsStatus:'ORIGINAL_CONTENT_APPROVED',offlinePlayable:true},
+  {eventId:'E02',contentVersion:1,names:localized('Circuit Invitational','ההזמנה של סירקיט','Приглашение Сёркита'),description:localized('Beat Circuit in a fight.','נצחו את סירקיט בקרב.','Победите Сёркита в бою.'),ruleTemplate:'WIN_CIRCUIT_BOUT',arenaId:'current_ring',opponentId:'circuit',durationSeconds:20,reward:{xp:0,coins:0},rightsStatus:'ORIGINAL_CONTENT_APPROVED',offlinePlayable:true}
  ];
  const integer=(v,max=1e9)=>Number.isSafeInteger(v)&&v>=0&&v<=max;
  const object=(v,keys)=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>keys.includes(k));
@@ -47,9 +47,9 @@
  }
  function digest(world,fromDay,toDay,days,gains){
   const cards=[];
-  if(days)cards.push({id:'practice:'+toDay,type:'simulation',cause:{fromDay,toDay,days,gains},text:localized(`${days} simulated practice days for rival schools. No player matches were played; your resources are unchanged.`,`${days} ימי תרגול מדומים לבתי ספר יריבים. לא נערכו קרבות שחקן והמשאבים שלכם לא השתנו.`,`${days} дней моделируемой практики школ-соперников. Бои игрока не проводились; ваши ресурсы не изменились.`)});
-  if(['new','active'].includes(world.tutorial.status))cards.push({id:'tutorial:'+toDay,type:'tutorial',cause:{tutorialStatus:world.tutorial.status},text:localized('Your optional introduction has unfinished practice steps. Continue or skip any time.','למבוא האופציונלי נותרו משימות תרגול. אפשר להמשיך או לדלג בכל עת.','Во вводном обучении остались задания. Продолжите или пропустите в любой момент.')});
-  const available=events.filter(e=>!world.events[e.eventId].completed),event=available[(world.seed+toDay)%Math.max(1,available.length)];if(event)cards.push({id:'event:'+event.eventId+':'+toDay,type:'opportunity',cause:{eventId:event.eventId},opportunity:{kind:'event',id:event.eventId},text:localized('An original offline event is available: '+event.names.en,'אירוע אופליין מקורי זמין: '+event.names.he,'Доступно оригинальное событие без сети: '+event.names.ru)});
+  if(days)cards.push({id:'practice:'+toDay,type:'simulation',cause:{fromDay,toDay,days,gains},text:localized(`Rival gyms had ${days} days of simulated practice. Your coins and record are unchanged.`,`לאולמות היריבים היו ${days} ימי תרגול מדומים. המטבעות והמאזן שלכם לא השתנו.`,`Залы соперников провели дней моделируемой практики: ${days}. Ваши монеты и счёт не изменились.`)});
+  if(['new','active'].includes(world.tutorial.status))cards.push({id:'tutorial:'+toDay,type:'tutorial',cause:{tutorialStatus:world.tutorial.status},text:localized('Your first-rounds guide has steps left. Continue or skip any time.','במדריך הסיבובים הראשונים נותרו שלבים. אפשר להמשיך או לדלג בכל עת.','В обучении «Первые раунды» остались шаги. Продолжите или пропустите в любой момент.')});
+  const available=events.filter(e=>!world.events[e.eventId].completed),event=available[(world.seed+toDay)%Math.max(1,available.length)];if(event)cards.push({id:'event:'+event.eventId+':'+toDay,type:'opportunity',cause:{eventId:event.eventId},opportunity:{kind:'event',id:event.eventId},text:localized('New challenge: '+event.names.en,'אתגר חדש: '+event.names.he,'Новый вызов: '+event.names.ru)});
   world.digest=cards.slice(0,3);
  }
  function action(g,a){
@@ -70,5 +70,8 @@
  }
  validatePack(events);
  const freeze=value=>{if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;};[facilities,rivals,events,tutorialSteps].forEach(freeze);
- const api={facilities,rivals,events,tutorialSteps,fresh,validate,validatePack,action,record,today};if(typeof module!=='undefined')module.exports=api;else window.GameWorld=api;
+ // The player's place is the Gym (GOTR-0031 R1). A name still equal to the automatic "<player> School" is shown as the player's gym in their language; a name the player typed is shown as typed.
+ const gymWords=localized("{name}'s Gym",'האולם של {name}','Зал «{name}»');
+ function gymName(game,profileName,lang='en'){const name=game?.school?.name||'',base=String(profileName||''),clean=typeof GameDomain!=='undefined'&&GameDomain.cleanName?GameDomain.cleanName(base+' School'):base+' School';if(base&&(name===base+' School'||name===clean))return (gymWords[lang]||gymWords.en).replace('{name}',base);return name;}
+ const api={facilities,rivals,events,tutorialSteps,fresh,validate,validatePack,action,record,today,gymName};if(typeof module!=='undefined')module.exports=api;else window.GameWorld=api;
 })();
