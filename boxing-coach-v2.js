@@ -478,12 +478,8 @@
           const c=tawny.clone().lerp(light,Math.max(muzzle,bib));
           c.multiplyScalar(1+.04*Math.sin(p.y*110+p.x*56)*Math.sin(p.z*143));
           c.multiplyScalar(1-.13*smooth((-p.z-.03)/.15));
-          // Tonal separation at real sculpted muscle boundaries, following the
-          // skinned surface rather than floating linework on top of the body.
-          if(p.z>.09&&p.y>1.15&&p.y<1.66&&Math.abs(p.x)<.28){
-            const groove=Math.exp(-(((p.y-1.465)/.018)**2))*Math.exp(-(((Math.abs(p.x)-.13)/.14)**2));
-            c.multiplyScalar(1-.12*groove);
-          }
+          // Tonal separation at muscle borders now comes from the muscle-definition
+          // crease term (avatar-anatomy.js), which follows every muscle, not one band.
           colors.push(c.r,c.g,c.b);
         }
       }
