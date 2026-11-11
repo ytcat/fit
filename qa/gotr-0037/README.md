@@ -35,7 +35,8 @@ and ~6 fragment ops; no new draw calls, textures or triangles. Build: once per s
 - `<species>-<guard|jab|hook>-gym.webp`: front, 3/4, side, back — same camera rig and lights, top = before
   (`2ef46f6`), bottom = after.
 - `<species>-closeups-gym.webp`: torso, hook torso, back, arm, jab shoulder, legs.
-- `arena-<guard|jab>.webp`: Championship arena, lion and rabbit, 3/4, side, back.
+- `arena-<guard|jab>.webp`: Championship arena, lion and rabbit, 3/4, side, back (in the lion side/back
+  frames the referee and a spectator stand in front of the camera rig; the rabbit and 3/4 frames show it).
 - `muscle-atlas-<species>.webp`: every atlas group painted on the rest pose and labelled.
 - Frame cost: see below (`perf.cjs`).
 
@@ -71,3 +72,11 @@ Adaptive quality: the floor level (0) turns off the per-pixel crease/sheen and t
 - Pre-existing, not addressed: a skinning crease behind the armpit when the arm reaches forward (visible
   in before and after), and the shoulder-front zig-zag seam.
 - No physical phone was available; all timings are SwiftShader on a loaded shared VM.
+
+## Checks
+- Gear fit (`tests/accessory-gear-fit.test.cjs`, after merging the Shop fits): front plate worst intrusion
+  lion 1.6 mm / rabbit 0.8 mm (limit 4 mm; base rabbit 0.1 mm), strap clears skin by 14 / 16 mm.
+- `tests/boot-closure.test.cjs`: shin stays inside the boot shaft (max 0.961 of the shaft, limit 0.99) after
+  the leg relief was tapered out under the boot collar (it failed before that fix).
+- `tests/muscle-definition.test.cjs` (new): 22 groups on both sides, relief bounds, fur roots, CPU skin,
+  pose response (lead biceps 1.18 in guard → 0.97 in the jab; triceps 1.28; lat 0.80), cache, wiring.
