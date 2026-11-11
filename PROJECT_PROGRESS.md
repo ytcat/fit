@@ -1,3 +1,11 @@
+## 2026-11-10/11 — Side-view camera lock, fight intro, new HUD, six arenas (GOTR-0019 to GOTR-0022)
+
+Side lock toggle keeps both fighters framed from the side with tilt locked and zoom
+free; fights open with a skippable 360° orbit; the fight HUD has designed bars, names
+and a VS badge; six new arenas (street, boxing club, basement, docks hangar, sports
+hall, championship). Evidence: [camera](qa/gotr-0019/) · [intro](qa/gotr-0020/) ·
+[HUD](qa/gotr-0021/) · [arenas](qa/gotr-0022/).
+
 ## 2026-11-10 — New design system and colour palette (GOTR-0014, GOTR-0015, first pass)
 
 All UI colours now come from tokens; the brown/gold look is replaced by cool near-black

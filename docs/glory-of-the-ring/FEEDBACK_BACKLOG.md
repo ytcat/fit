@@ -275,48 +275,48 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0019 — Lockable side-view camera in fights and training
 - **Reported:** 2026-11-10
-- **Status:** OPEN (queued for the camera/graphics agent)
+- **Status:** DONE (published 2026-11-10, `8f710df`; user to confirm the feel)
 - **Priority:** P1
 - **Area:** Camera / controls
 - **Reported behavior / request:** "Add a task to lock and unlock the camera during a fight or training to a side view. If I click, it positions the camera on a side view and locks on this position, so if the fighters move the camera will always see both from the side. The side camera tilt will be locked but zoom will still work by the user."
 - **Expected behavior:** One clearly labelled toggle in fights and at every training station. On: the camera moves smoothly to a true side view, keeps both fighters (or the fighter and the equipment) framed as they move, ignores orbit/tilt gestures, and still obeys pinch/wheel zoom. Off: the previous free camera returns.
 - **Acceptance criteria:** Both fighters stay fully in frame during a whole fight and a mitt session at phone and desktop sizes; tilt/orbit input does nothing while locked; zoom works within sensible limits; state survives round changes and station changes; EN/HE/RU label; no judder.
-- **Implementation:** Not started.
-- **Evidence:** Pending.
+- **Implementation:** `agent/graphics` (camera): new `camera-director.js` and `camera.css`; a **Side lock** toggle on the stage in fights and at every training station. Locked: the camera eases to a view perpendicular to the line between the fighters (or fighter and equipment), tracks the midpoint, widens when they separate, ignores orbit/tilt drags and still obeys zoom (0.55–1.85). Unlock restores the exact free camera. Front/Profile/Back buttons release the lock.
+- **Evidence:** `qa/gotr-0019/` at 393×852, 852×393, 1366×768: a whole 20-second bout, mitts and heavy bag stay framed (worst point 0.84 of half-screen); at most 13.6° off side-on while fighters circle; a drag changes yaw by 0; zoom works; survives station change and pause; EN/HE/RU labels fit. `tests/camera-director.test.cjs`. Full suite 81/81. **Limits:** the referee or a ring post can stand in front of a fighter; on portrait phones the locked camera rises to about 3.1–3.4 m to see over the stands; motion judged from sampled frames, not watched live.
 
 ### GOTR-0020 — Fight intro: 360° arena fly-around that settles on the fighters
 - **Reported:** 2026-11-10
-- **Status:** OPEN (queued for the camera/graphics agent)
+- **Status:** DONE (published 2026-11-10, `8f710df`; arena camera limits added 2026-11-11)
 - **Priority:** P2
 - **Area:** Fight presentation / camera
 - **Reported behavior / request:** "Before every fight, start with a rotating 360-degree view of the stadium and zoom in slowly until it gets to the position where both players are in starting position."
 - **Expected behavior:** A short cinematic orbit around the arena that slowly closes in and ends exactly on the normal fight framing with both fighters in their corners/stance; then the bell. Skippable with a tap; shortened or skipped for reduced-motion users; does not eat into the 20-second fight clock.
 - **Acceptance criteria:** Smooth, no clipping through arena geometry, ends without a camera jump, works in every arena style, skip works, fight timing and results unchanged.
-- **Implementation:** Not started.
-- **Evidence:** Pending.
+- **Implementation:** Same branch: one full turn around the arena in about 5.2 s that closes in and ends exactly on the fight framing (0 m jump), then the bell with the full 20-second clock. Tap to skip; skipped for reduced motion; ends in the locked side view when the lock is on. 2026-11-11: built arenas can declare a camera ceiling and intro radius so the orbit stays under low ceilings and inside partitions (Basement 2.35 m / 6 m; Boxing Club 6.4 m).
+- **Evidence:** `qa/gotr-0020/` (three sizes, three original arena styles, skip, reduced motion, clock and bout length unchanged at 23.017 s); `qa/gotr-0022/intro-*.webp` and `intro-occlusion.cjs` for the new arenas. **Limits:** results with and without the intro were not compared seed by seed; never watched in real time (software renderer); no physical phone.
 
 ### GOTR-0021 — Designed health bars and fighter names with "VS"
 - **Reported:** 2026-11-10
-- **Status:** OPEN (queued as a follow-up for the design agent)
+- **Status:** DONE (published 2026-11-10, `60a7914`; user to review the look)
 - **Priority:** P1
 - **Area:** Fight HUD / design
 - **Reported behavior / request:** "Replace the health bars with more designed ones, design the names above the bars better and add 'vs' between them."
 - **Expected behavior:** A broadcast-style HUD: two styled health bars that drain toward the centre with clear damage feedback, well-set fighter names above them, a "VS" badge between, consistent with the new design system; readable over any arena.
 - **Acceptance criteria:** Phone portrait/landscape and desktop; EN/HE/RU (RTL mirrors correctly, names never clip); health values still accurate; no overlap with round banner or move buttons.
-- **Implementation:** Not started.
-- **Evidence:** Pending.
+- **Implementation:** `agent/hud`: `fight-ui.js` builds the HUD once; new `fight-hud.css`. Bold fighter names, a centred VS badge, two bars that drain toward the centre with a damage trail and hit flash, subtle exact numbers, a compact round/clock/score chip. Ids and `.fight-health-*` classes kept. Hebrew mirrors the sides.
+- **Evidence:** `qa/gotr-0021/` at four sizes in EN/HE/RU: bar width matches reported health within 1.2%; no overlap with tabs, move buttons, banner or countdown; long names end in an ellipsis; reduced motion disables the effects. Integrator check with the camera features merged: VS and Side lock present, no overlaps at three sizes. Full suite 81/81. **Limits:** low-health, knockdown and final-seconds states were injected rather than played; in Play mode on landscape phones the round banner still sits behind the Moves/Combos tabs (pre-existing).
 
 ### GOTR-0022 — More arenas: street, boxing club, underground, docks hangar, professional tiers
 - **Reported:** 2026-11-10
-- **Status:** OPEN (queued; needs the fight and Academy branches merged first)
+- **Status:** READY FOR QA — six arenas merged; published once the final suite passes
 - **Priority:** P2
 - **Area:** Arenas / world
 - **Reported behavior / request:** "I want additional arenas: a street fight (boxing in the street with an audience), a boxing club, an underground arena (illegal fighting theme), docks (a hangar in a port), and a few professional arenas from simple to championship arena."
 - **Expected behavior:** New selectable arena styles with distinct architecture, lighting, crowd and mood: street ring with onlookers; local boxing club; gritty underground venue; port hangar; and a ladder of professional venues ending in a championship arena. Original, fictional signage only. Existing three styles remain.
 - **Acceptance criteria:** Each arena recognisable at a glance in its gallery card and in a fight; no change to combat; frame cost measured per arena with a phone-safe budget; selection saved per player; EN/HE/RU names.
 - **Dependencies / risks:** Arena ids are validated in the save rules; several arenas at broadcast quality is days of art work — deliver in batches, best ones first.
-- **Implementation:** Not started.
-- **Evidence:** Pending.
+- **Implementation:** `agent/arenas`: new `arena-sets.js`, `arena-gallery.css`; six selectable arenas — Street Fight, Boxing Club, The Basement (underground), Dockside Hangar, City Sports Hall (regional) and Championship Arena — each with its own architecture, baked lighting, crowd and fictional signage in EN/HE/RU. `venueIds` extended; old saves load; unknown ids rejected. No change to ring, fighters, camera framing or match state.
+- **Evidence:** `qa/gotr-0022/` (fight and wide renders of each arena, gallery at four sizes in EN/HE/RU, `cost.json`): new arenas draw 396–401 calls on desktop and 380–385 on phone (existing three: 539 / 460) at about 1.13–1.16 M triangles. New `tests/arena-sets.test.cjs`. **Limits:** crowds only sway (no applause); near-side props and crowd are hidden per camera sector, so wide shots look open on the near side; one professional mid-tier arena is still missing; no physical-phone measurement.
 
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
