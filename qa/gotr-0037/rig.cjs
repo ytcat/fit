@@ -12,7 +12,7 @@ async function open(url,viewport={width:1100,height:800}){
  if(process.env.CDP){browser=await chromium.connectOverCDP(process.env.CDP);const ctx=browser.contexts()[0]||await browser.newContext();page=await ctx.newPage();await page.setViewportSize(viewport);}
  else{browser=await chromium.launch({args:['--no-sandbox','--enable-unsafe-swiftshader']});page=await browser.newPage({viewport});}
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto(url);await page.waitForFunction(()=>window.ringfighterGame&&app.engine.coach?.anatomy,null,{timeout:300000});
+ await page.goto(url,{timeout:300000});await page.waitForFunction(()=>window.ringfighterGame&&app.engine.coach?.anatomy,null,{timeout:300000});
  await page.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());app.engine.qualityLock=5;app.engine.updateQuality?.(0);});
  return {browser,page,errors,async close(){if(process.env.CDP)await page.close();else await browser.close();}};
 }
