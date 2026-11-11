@@ -84,7 +84,11 @@
   }
   reaction(actor){
    const r=this.match.fighters[actor].reaction;if(!r)return null;const age=this.match.time-r.time;
-   return {...r,amount:clamp(r.severity*2.1*(1-Math.exp(-age/.012))*Math.exp(-age/.34),0,1.25)};
+   // GOTR-0024: a snap, not a held pose. Peaks ~45 ms after contact in
+   // proportion to the blow (the old curve saturated every clean hit and
+   // held it ~0.4 s), then recovers; a blocked blow jolts the guard.
+   const scale=r.part==='guard'?clamp((r.move==='jab'?.45:.6)+r.severity*2.5,0,.95):clamp(r.severity*1.05,0,1.2);
+   return {...r,amount:scale*(1-Math.exp(-age/.016))*Math.exp(-age/.21)/.76};
   }
   travelCapacity(point,direction){
    let limit=Infinity;
@@ -190,7 +194,7 @@
    // Establish boxing range before committing wrist/impact targets. Moving
    // roots only after IK moved a latched contact point twice on the next frame.
    if(m.phase==='round')this.separateTorso(false);
-   const specs={lion:m.spec('lion'),rabbit:m.spec('rabbit')},metrics={};
+   const specs={lion:this.punchSpec('lion'),rabbit:this.punchSpec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
     const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={guardElbowBack:.55,guardWidth:.24,guardHeight:1.72,guardCover:1,keepFaceClear:true,legReachMargin:.002+(m.phase==='round'?.012*(this.straightPreparationWeight||0):0),simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,guardStyle:spec.guardStyle,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28*(f.footwork||1)};
     if(m.phase==='round'&&this.footPlants){
@@ -265,6 +269,19 @@
    for(const part of this.ring.children)part.visible=true;
    this.metrics=metrics;this.specs=specs;
    return metrics;
+  }
+  punchSpec(actor){
+   // GOTR-0025: punches drive into the target faster (shared punch clock),
+   // and a punch followed by another punch of the same combination ends
+   // once its hand is back at the guard, so the next one starts at once.
+   const m=this.match,a=m.fighters[actor].action,R=window.BOXING_ROUTINES;
+   if(!a?.attack||!R?.punchPhase)return m.spec(actor);
+   if(a.baseDuration==null)a.baseDuration=a.duration;
+   if(!a.linked&&m.phase==='round'){
+    const next=actor===m.playerActor?m.playerQueue?.[0]||m.pendingPlayerCombo?.commands?.[0]:m.fighters[actor].plan?.[0];
+    if(next&&['jab','cross','hook','rear_hook','uppercut','rear_uppercut'].includes(next.move)&&(m.time-a.start)<a.baseDuration*.5){a.linked=true;a.duration=a.baseDuration*R.punchSpan();}
+   }
+   const spec=m.spec(actor);spec.phase=R.punchPhase(spec.phase*a.duration/a.baseDuration);return spec;
   }
   chestGap(){
    const a=this.coaches.lion.joints.chest.getWorldPosition(V()),b=this.coaches.rabbit.joints.chest.getWorldPosition(V());return Math.hypot(a.x-b.x,a.z-b.z);
@@ -342,7 +359,7 @@
       // path in front of it and close or open the last centimetres.
       const excess=this.straightExcess(actor,true);change=excess==null?gap-state.gap:-(excess-.010)*.7;state.gap=gap+change;
      }
-     state.shift=clamp(state.shift+clamp(change,-.022,.022),-FightArena.range.back,FightArena.range.forward);
+     state.shift=clamp(state.shift+clamp(change,-FightArena.range.rate,FightArena.range.rate),-FightArena.range.back,FightArena.range.forward);
     }else if(!straight||spec.phase>.60||action.recorded&&m.time-action.contactTime>.10)state.shift*=Math.exp(-(1/60)/.16);
    }
   }
@@ -542,7 +559,9 @@
  };
  // Stance range in metres between fighter roots, and how far a striker may
  // shift its own weight back/forward to land a straight at full extension.
- FightArena.range={near:1.74,far:1.88,back:.26,forward:.14};
+ // rate: most the weight shift may change per frame (GOTR-0025: raised from
+ // .022 with the faster punch clock so a straight still lands extended).
+ FightArena.range={near:1.74,far:1.88,back:.26,forward:.14,rate:.028};
  // Shoulder position (fighter-local) when a fight straight lands; refined
  // from each fighter's own completed punches during a bout.
  FightArena.straightShoulder={jabHead:[-.115,1.491,.512],jabBody:[-.106,1.441,.521],crossHead:[-.035,1.500,.560],crossBody:[-.035,1.450,.560]};

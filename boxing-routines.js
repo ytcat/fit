@@ -215,5 +215,21 @@
    return {...beat,phase,lion:beat.attacker==='lion'?attack:defence,rabbit:beat.attacker==='rabbit'?attack:defence};
   }
  }
- window.BOXING_ROUTINES={list,sequences,timings,speedDrills,speedFrame,frame,opponent,PracticeTimeline,RandomSparring,RoutineDeck,phrase,speeds:[.5,.75,1,1.25,1.5,2,2.5,3]};
+ // GOTR-0025 punch clock. Maps an action's raw progress (elapsed / authored
+ // duration) to choreography phase. Everything up to the landing and the
+ // short hold after it (phase .48) runs `rate` times faster; the return to
+ // guard absorbs the saved time, so a single punch keeps its total duration
+ // and its readable recovery. The rate change is blended (C1) after contact.
+ // A linked combination punch ends at phase `link`, where the hand is
+ // already back at the guard, instead of idling there before the next one.
+ const punchTempo=Object.freeze({rate:1.25,knee:.48,blend:.05,link:.80});
+ function punchPhase(r,tempo=punchTempo){
+  r=Math.max(0,Math.min(1,r));const {rate,knee,blend:b}=tempo,r1=knee/rate,slow=(1-knee)/(1-r1);
+  if(r<=r1-b)return rate*r;
+  if(r>=r1+b)return Math.min(1,knee+slow*(r-r1));
+  const u=r-(r1-b);return rate*(r1-b)+rate*u+(slow-rate)*u*u/(4*b);
+ }
+ // Raw progress at which punchPhase reaches `phase` (phase past the blend).
+ function punchSpan(phase=punchTempo.link,tempo=punchTempo){const r1=tempo.knee/tempo.rate,slow=(1-tempo.knee)/(1-r1);return Math.min(1,r1+(phase-tempo.knee)/slow);}
+ window.BOXING_ROUTINES={list,sequences,timings,speedDrills,speedFrame,frame,opponent,PracticeTimeline,RandomSparring,RoutineDeck,phrase,punchTempo,punchPhase,punchSpan,speeds:[.5,.75,1,1.25,1.5,2,2.5,3]};
 })();

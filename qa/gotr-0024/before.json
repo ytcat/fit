@@ -1,0 +1,1227 @@
+{
+ "label": "before",
+ "seeds": [
+  3,
+  11,
+  42
+ ],
+ "cases": {
+  "watch": {
+   "moves": {
+    "jab": {
+     "thrown": 14,
+     "landed": 14,
+     "clean": 2,
+     "blocked": 11,
+     "toContact": 0.317,
+     "duration": 0.854,
+     "peakGlove": 10.937,
+     "approach": 9.586,
+     "approachOverPeak": 0.918,
+     "contactSpeed": 4.129,
+     "cleanHeadMove": 0.456,
+     "cleanHeadMoveRel": 0.388,
+     "cleanHeadSpeed": 6.858,
+     "cleanHeadRot": 18.724,
+     "cleanChestRot": 28.471,
+     "blockedGuardJolt": 0.055,
+     "blockedGuardSpeed": 1.016,
+     "blockedChestRot": 1.289
+    },
+    "cross": {
+     "thrown": 19,
+     "landed": 18,
+     "clean": 5,
+     "blocked": 13,
+     "toContact": 0.342,
+     "duration": 0.864,
+     "peakGlove": 12.236,
+     "approach": 9.975,
+     "approachOverPeak": 0.825,
+     "contactSpeed": 3.789,
+     "cleanHeadMove": 0.363,
+     "cleanHeadMoveRel": 0.323,
+     "cleanHeadSpeed": 6.596,
+     "cleanHeadRot": 12.646,
+     "cleanChestRot": 34.49,
+     "blockedGuardJolt": 0.034,
+     "blockedGuardSpeed": 0.956,
+     "blockedChestRot": 0.158
+    },
+    "hook": {
+     "thrown": 16,
+     "landed": 15,
+     "clean": 8,
+     "blocked": 5,
+     "toContact": 0.333,
+     "duration": 0.84,
+     "peakGlove": 9.165,
+     "approach": 6.067,
+     "approachOverPeak": 0.63,
+     "contactSpeed": 3.733,
+     "cleanHeadMove": 0.16,
+     "cleanHeadMoveRel": 0.144,
+     "cleanHeadSpeed": 8.367,
+     "cleanHeadRot": 16.748,
+     "cleanChestRot": 14.53,
+     "blockedGuardJolt": 0.224,
+     "blockedGuardSpeed": 3.179,
+     "blockedChestRot": 25.563
+    },
+    "rear_hook": {
+     "thrown": 1,
+     "landed": 1,
+     "clean": 1,
+     "blocked": 0,
+     "toContact": 0.383,
+     "duration": 0.877,
+     "peakGlove": 7.255,
+     "approach": 4.571,
+     "approachOverPeak": 0.63,
+     "contactSpeed": 3.06,
+     "cleanHeadMove": 0.162,
+     "cleanHeadMoveRel": 0.129,
+     "cleanHeadSpeed": 9.3,
+     "cleanHeadRot": 23.109,
+     "cleanChestRot": 5.561,
+     "blockedGuardJolt": null,
+     "blockedGuardSpeed": null,
+     "blockedChestRot": null
+    },
+    "uppercut": {
+     "thrown": 1,
+     "landed": 1,
+     "clean": 1,
+     "blocked": 0,
+     "toContact": 0.417,
+     "duration": 0.991,
+     "peakGlove": 15.52,
+     "approach": 7.509,
+     "approachOverPeak": 0.484,
+     "contactSpeed": 4.764,
+     "cleanHeadMove": 0.26,
+     "cleanHeadMoveRel": 0.214,
+     "cleanHeadSpeed": 10.628,
+     "cleanHeadRot": 7.72,
+     "cleanChestRot": 5.677,
+     "blockedGuardJolt": null,
+     "blockedGuardSpeed": null,
+     "blockedChestRot": null
+    },
+    "rear_uppercut": {
+     "thrown": 5,
+     "landed": 5,
+     "clean": 4,
+     "blocked": 1,
+     "toContact": 0.417,
+     "duration": 0.922,
+     "peakGlove": 12.601,
+     "approach": 4.308,
+     "approachOverPeak": 0.338,
+     "contactSpeed": 2.517,
+     "cleanHeadMove": 0.255,
+     "cleanHeadMoveRel": 0.216,
+     "cleanHeadSpeed": 15.026,
+     "cleanHeadRot": 22.625,
+     "cleanChestRot": 10.009,
+     "blockedGuardJolt": 0.149,
+     "blockedGuardSpeed": 1.485,
+     "blockedChestRot": 10.317
+    }
+   },
+   "links": {
+    "n": 23,
+    "gap": 0.1,
+    "startToStart": 1.033,
+    "contactToContact": 0.983
+   },
+   "combos": {}
+  },
+  "play-lion": {
+   "moves": {
+    "jab": {
+     "thrown": 17,
+     "landed": 16,
+     "clean": 1,
+     "blocked": 15,
+     "toContact": 0.367,
+     "duration": 0.926,
+     "peakGlove": 9.965,
+     "approach": 8.719,
+     "approachOverPeak": 0.927,
+     "contactSpeed": 4.09,
+     "cleanHeadMove": 0.425,
+     "cleanHeadMoveRel": 0.333,
+     "cleanHeadSpeed": 7.821,
+     "cleanHeadRot": 30.986,
+     "cleanChestRot": 69.761,
+     "blockedGuardJolt": 0.102,
+     "blockedGuardSpeed": 2.142,
+     "blockedChestRot": 9.737
+    },
+    "cross": {
+     "thrown": 16,
+     "landed": 14,
+     "clean": 0,
+     "blocked": 14,
+     "toContact": 0.342,
+     "duration": 0.927,
+     "peakGlove": 10.826,
+     "approach": 8.981,
+     "approachOverPeak": 0.83,
+     "contactSpeed": 3.835,
+     "cleanHeadMove": null,
+     "cleanHeadMoveRel": null,
+     "cleanHeadSpeed": null,
+     "cleanHeadRot": null,
+     "cleanChestRot": null,
+     "blockedGuardJolt": 0.119,
+     "blockedGuardSpeed": 1.926,
+     "blockedChestRot": 9.885
+    },
+    "hook": {
+     "thrown": 9,
+     "landed": 9,
+     "clean": 4,
+     "blocked": 5,
+     "toContact": 0.35,
+     "duration": 0.944,
+     "peakGlove": 8.354,
+     "approach": 7.201,
+     "approachOverPeak": 0.759,
+     "contactSpeed": 3.68,
+     "cleanHeadMove": 0.245,
+     "cleanHeadMoveRel": 0.142,
+     "cleanHeadSpeed": 9.935,
+     "cleanHeadRot": 23.233,
+     "cleanChestRot": 5.879,
+     "blockedGuardJolt": 0.204,
+     "blockedGuardSpeed": 2.777,
+     "blockedChestRot": 18.596
+    },
+    "rear_hook": {
+     "thrown": 6,
+     "landed": 6,
+     "clean": 3,
+     "blocked": 3,
+     "toContact": 0.392,
+     "duration": 0.935,
+     "peakGlove": 7.368,
+     "approach": 4.736,
+     "approachOverPeak": 0.684,
+     "contactSpeed": 3.221,
+     "cleanHeadMove": 0.317,
+     "cleanHeadMoveRel": 0.171,
+     "cleanHeadSpeed": 9.516,
+     "cleanHeadRot": 22.629,
+     "cleanChestRot": 11.23,
+     "blockedGuardJolt": 0.196,
+     "blockedGuardSpeed": 2.428,
+     "blockedChestRot": 20.716
+    },
+    "uppercut": {
+     "thrown": 6,
+     "landed": 6,
+     "clean": 4,
+     "blocked": 2,
+     "toContact": 0.458,
+     "duration": 1.091,
+     "peakGlove": 14.759,
+     "approach": 6.853,
+     "approachOverPeak": 0.453,
+     "contactSpeed": 4.501,
+     "cleanHeadMove": 0.278,
+     "cleanHeadMoveRel": 0.254,
+     "cleanHeadSpeed": 14.585,
+     "cleanHeadRot": 21.813,
+     "cleanChestRot": 15.495,
+     "blockedGuardJolt": 0.078,
+     "blockedGuardSpeed": 1.403,
+     "blockedChestRot": 9.708
+    },
+    "rear_uppercut": {
+     "thrown": 7,
+     "landed": 7,
+     "clean": 7,
+     "blocked": 0,
+     "toContact": 0.483,
+     "duration": 1.088,
+     "peakGlove": 12.623,
+     "approach": 3.939,
+     "approachOverPeak": 0.338,
+     "contactSpeed": 2.5,
+     "cleanHeadMove": 0.292,
+     "cleanHeadMoveRel": 0.249,
+     "cleanHeadSpeed": 14.361,
+     "cleanHeadRot": 23.088,
+     "cleanChestRot": 18.108,
+     "blockedGuardJolt": null,
+     "blockedGuardSpeed": null,
+     "blockedChestRot": null
+    }
+   },
+   "links": {
+    "n": 0,
+    "gap": null,
+    "startToStart": null,
+    "contactToContact": null
+   },
+   "combos": {}
+  },
+  "play-rabbit": {
+   "moves": {
+    "jab": {
+     "thrown": 17,
+     "landed": 15,
+     "clean": 0,
+     "blocked": 15,
+     "toContact": 0.367,
+     "duration": 0.933,
+     "peakGlove": 9.82,
+     "approach": 8.774,
+     "approachOverPeak": 0.939,
+     "contactSpeed": 2.619,
+     "cleanHeadMove": null,
+     "cleanHeadMoveRel": null,
+     "cleanHeadSpeed": null,
+     "cleanHeadRot": null,
+     "cleanChestRot": null,
+     "blockedGuardJolt": 0.13,
+     "blockedGuardSpeed": 2.35,
+     "blockedChestRot": 18.886
+    },
+    "cross": {
+     "thrown": 15,
+     "landed": 13,
+     "clean": 0,
+     "blocked": 13,
+     "toContact": 0.35,
+     "duration": 0.907,
+     "peakGlove": 11.357,
+     "approach": 9.763,
+     "approachOverPeak": 0.845,
+     "contactSpeed": 3.378,
+     "cleanHeadMove": null,
+     "cleanHeadMoveRel": null,
+     "cleanHeadSpeed": null,
+     "cleanHeadRot": null,
+     "cleanChestRot": null,
+     "blockedGuardJolt": 0.091,
+     "blockedGuardSpeed": 1.878,
+     "blockedChestRot": 1.217
+    },
+    "hook": {
+     "thrown": 8,
+     "landed": 8,
+     "clean": 4,
+     "blocked": 4,
+     "toContact": 0.358,
+     "duration": 0.916,
+     "peakGlove": 8.311,
+     "approach": 6.599,
+     "approachOverPeak": 0.761,
+     "contactSpeed": 3.584,
+     "cleanHeadMove": 0.211,
+     "cleanHeadMoveRel": 0.14,
+     "cleanHeadSpeed": 9.687,
+     "cleanHeadRot": 23.113,
+     "cleanChestRot": 5.436,
+     "blockedGuardJolt": 0.085,
+     "blockedGuardSpeed": 1.895,
+     "blockedChestRot": 8.927
+    },
+    "rear_hook": {
+     "thrown": 6,
+     "landed": 6,
+     "clean": 2,
+     "blocked": 4,
+     "toContact": 0.367,
+     "duration": 0.915,
+     "peakGlove": 7.533,
+     "approach": 5.666,
+     "approachOverPeak": 0.865,
+     "contactSpeed": 2.523,
+     "cleanHeadMove": 0.163,
+     "cleanHeadMoveRel": 0.128,
+     "cleanHeadSpeed": 9.53,
+     "cleanHeadRot": 22.613,
+     "cleanChestRot": 5.13,
+     "blockedGuardJolt": 0.191,
+     "blockedGuardSpeed": 2.107,
+     "blockedChestRot": 18.971
+    },
+    "uppercut": {
+     "thrown": 6,
+     "landed": 6,
+     "clean": 4,
+     "blocked": 2,
+     "toContact": 0.425,
+     "duration": 1.066,
+     "peakGlove": 14.073,
+     "approach": 7.547,
+     "approachOverPeak": 0.57,
+     "contactSpeed": 4.691,
+     "cleanHeadMove": 0.354,
+     "cleanHeadMoveRel": 0.27,
+     "cleanHeadSpeed": 14.493,
+     "cleanHeadRot": 22.294,
+     "cleanChestRot": 16.435,
+     "blockedGuardJolt": 0.414,
+     "blockedGuardSpeed": 4.724,
+     "blockedChestRot": 41.808
+    },
+    "rear_uppercut": {
+     "thrown": 8,
+     "landed": 8,
+     "clean": 5,
+     "blocked": 3,
+     "toContact": 0.467,
+     "duration": 1.075,
+     "peakGlove": 12.517,
+     "approach": 3.328,
+     "approachOverPeak": 0.265,
+     "contactSpeed": 1.735,
+     "cleanHeadMove": 0.217,
+     "cleanHeadMoveRel": 0.192,
+     "cleanHeadSpeed": 10.859,
+     "cleanHeadRot": 19.995,
+     "cleanChestRot": 9.947,
+     "blockedGuardJolt": 0.124,
+     "blockedGuardSpeed": 1.599,
+     "blockedChestRot": 14.275
+    }
+   },
+   "links": {
+    "n": 0,
+    "gap": null,
+    "startToStart": null,
+    "contactToContact": null
+   },
+   "combos": {}
+  },
+  "combo-lion": {
+   "moves": {
+    "jab": {
+     "thrown": 18,
+     "landed": 16,
+     "clean": 0,
+     "blocked": 16,
+     "toContact": 0.233,
+     "duration": 0.599,
+     "peakGlove": 14.41,
+     "approach": 13.167,
+     "approachOverPeak": 1,
+     "contactSpeed": 2.547,
+     "cleanHeadMove": null,
+     "cleanHeadMoveRel": null,
+     "cleanHeadSpeed": null,
+     "cleanHeadRot": null,
+     "cleanChestRot": null,
+     "blockedGuardJolt": 0.095,
+     "blockedGuardSpeed": 1.954,
+     "blockedChestRot": 0.814
+    },
+    "cross": {
+     "thrown": 23,
+     "landed": 18,
+     "clean": 1,
+     "blocked": 17,
+     "toContact": 0.3,
+     "duration": 0.729,
+     "peakGlove": 12.542,
+     "approach": 10.073,
+     "approachOverPeak": 0.815,
+     "contactSpeed": 3.941,
+     "cleanHeadMove": 0.543,
+     "cleanHeadMoveRel": 0.599,
+     "cleanHeadSpeed": 10.116,
+     "cleanHeadRot": 22.526,
+     "cleanChestRot": 36.371,
+     "blockedGuardJolt": 0.218,
+     "blockedGuardSpeed": 2.349,
+     "blockedChestRot": 19.954
+    },
+    "hook": {
+     "thrown": 14,
+     "landed": 13,
+     "clean": 7,
+     "blocked": 6,
+     "toContact": 0.367,
+     "duration": 0.908,
+     "peakGlove": 8.419,
+     "approach": 5.766,
+     "approachOverPeak": 0.729,
+     "contactSpeed": 3.395,
+     "cleanHeadMove": 0.241,
+     "cleanHeadMoveRel": 0.231,
+     "cleanHeadSpeed": 9.164,
+     "cleanHeadRot": 23.17,
+     "cleanChestRot": 46.421,
+     "blockedGuardJolt": 0.126,
+     "blockedGuardSpeed": 3.907,
+     "blockedChestRot": 0.633
+    },
+    "rear_hook": {
+     "thrown": 6,
+     "landed": 6,
+     "clean": 4,
+     "blocked": 2,
+     "toContact": 0.375,
+     "duration": 0.908,
+     "peakGlove": 7.62,
+     "approach": 4.803,
+     "approachOverPeak": 0.732,
+     "contactSpeed": 3.011,
+     "cleanHeadMove": 0.241,
+     "cleanHeadMoveRel": 0.243,
+     "cleanHeadSpeed": 8.249,
+     "cleanHeadRot": 21.462,
+     "cleanChestRot": 19.716,
+     "blockedGuardJolt": 0.159,
+     "blockedGuardSpeed": 3.926,
+     "blockedChestRot": 21.537
+    },
+    "uppercut": {
+     "thrown": 6,
+     "landed": 6,
+     "clean": 5,
+     "blocked": 1,
+     "toContact": 0.417,
+     "duration": 0.969,
+     "peakGlove": 15.86,
+     "approach": 6.403,
+     "approachOverPeak": 0.423,
+     "contactSpeed": 4.161,
+     "cleanHeadMove": 0.322,
+     "cleanHeadMoveRel": 0.24,
+     "cleanHeadSpeed": 14.58,
+     "cleanHeadRot": 21.688,
+     "cleanChestRot": 22.873,
+     "blockedGuardJolt": 0.533,
+     "blockedGuardSpeed": 7.656,
+     "blockedChestRot": 44.25
+    },
+    "rear_uppercut": {
+     "thrown": 3,
+     "landed": 3,
+     "clean": 2,
+     "blocked": 1,
+     "toContact": 0.433,
+     "duration": 0.968,
+     "peakGlove": 12.727,
+     "approach": 4.378,
+     "approachOverPeak": 0.294,
+     "contactSpeed": 2.762,
+     "cleanHeadMove": 0.287,
+     "cleanHeadMoveRel": 0.279,
+     "cleanHeadSpeed": 15.15,
+     "cleanHeadRot": 24.258,
+     "cleanChestRot": 16.309,
+     "blockedGuardJolt": 0.757,
+     "blockedGuardSpeed": 10.902,
+     "blockedChestRot": 78.757
+    }
+   },
+   "links": {
+    "n": 43,
+    "gap": 0,
+    "startToStart": 0.767,
+    "contactToContact": 0.85
+   },
+   "combos": {
+    "combo_one_two": {
+     "n": 6,
+     "total": 1.4,
+     "firstContact": 0.233,
+     "landed": 10,
+     "punches": 12
+    },
+    "combo_three": {
+     "n": 6,
+     "total": 2.342,
+     "firstContact": 0.233,
+     "landed": 15,
+     "punches": 18
+    },
+    "combo_upper": {
+     "n": 6,
+     "total": 2.783,
+     "firstContact": 0.417,
+     "landed": 18,
+     "punches": 18
+    }
+   }
+  },
+  "combo-rabbit": {
+   "moves": {
+    "jab": {
+     "thrown": 17,
+     "landed": 15,
+     "clean": 0,
+     "blocked": 15,
+     "toContact": 0.25,
+     "duration": 0.601,
+     "peakGlove": 14.694,
+     "approach": 11.855,
+     "approachOverPeak": 1,
+     "contactSpeed": 3.977,
+     "cleanHeadMove": null,
+     "cleanHeadMoveRel": null,
+     "cleanHeadSpeed": null,
+     "cleanHeadRot": null,
+     "cleanChestRot": null,
+     "blockedGuardJolt": 0.183,
+     "blockedGuardSpeed": 2.428,
+     "blockedChestRot": 19.996
+    },
+    "cross": {
+     "thrown": 22,
+     "landed": 17,
+     "clean": 2,
+     "blocked": 15,
+     "toContact": 0.283,
+     "duration": 0.725,
+     "peakGlove": 12.608,
+     "approach": 10.647,
+     "approachOverPeak": 0.887,
+     "contactSpeed": 5.017,
+     "cleanHeadMove": 0.369,
+     "cleanHeadMoveRel": 0.348,
+     "cleanHeadSpeed": 8.681,
+     "cleanHeadRot": 26.191,
+     "cleanChestRot": 44.419,
+     "blockedGuardJolt": 0.097,
+     "blockedGuardSpeed": 1.667,
+     "blockedChestRot": 0.696
+    },
+    "hook": {
+     "thrown": 14,
+     "landed": 14,
+     "clean": 7,
+     "blocked": 7,
+     "toContact": 0.35,
+     "duration": 0.894,
+     "peakGlove": 8.206,
+     "approach": 6.461,
+     "approachOverPeak": 0.809,
+     "contactSpeed": 3.574,
+     "cleanHeadMove": 0.225,
+     "cleanHeadMoveRel": 0.155,
+     "cleanHeadSpeed": 10.047,
+     "cleanHeadRot": 22.677,
+     "cleanChestRot": 5.769,
+     "blockedGuardJolt": 0.148,
+     "blockedGuardSpeed": 2.633,
+     "blockedChestRot": 17.163
+    },
+    "rear_hook": {
+     "thrown": 6,
+     "landed": 5,
+     "clean": 2,
+     "blocked": 3,
+     "toContact": 0.4,
+     "duration": 0.916,
+     "peakGlove": 7.489,
+     "approach": 6.034,
+     "approachOverPeak": 0.857,
+     "contactSpeed": 2.953,
+     "cleanHeadMove": 0.314,
+     "cleanHeadMoveRel": 0.285,
+     "cleanHeadSpeed": 7.034,
+     "cleanHeadRot": 22.869,
+     "cleanChestRot": 27.85,
+     "blockedGuardJolt": 0.224,
+     "blockedGuardSpeed": 2.831,
+     "blockedChestRot": 9.431
+    },
+    "uppercut": {
+     "thrown": 6,
+     "landed": 6,
+     "clean": 6,
+     "blocked": 0,
+     "toContact": 0.425,
+     "duration": 0.979,
+     "peakGlove": 17.197,
+     "approach": 6.892,
+     "approachOverPeak": 0.366,
+     "contactSpeed": 4.497,
+     "cleanHeadMove": 0.275,
+     "cleanHeadMoveRel": 0.219,
+     "cleanHeadSpeed": 15.421,
+     "cleanHeadRot": 22.352,
+     "cleanChestRot": 11.447,
+     "blockedGuardJolt": null,
+     "blockedGuardSpeed": null,
+     "blockedChestRot": null
+    },
+    "rear_uppercut": {
+     "thrown": 3,
+     "landed": 3,
+     "clean": 2,
+     "blocked": 1,
+     "toContact": 0.4,
+     "duration": 0.906,
+     "peakGlove": 12.388,
+     "approach": 5.454,
+     "approachOverPeak": 0.441,
+     "contactSpeed": 3.581,
+     "cleanHeadMove": 0.333,
+     "cleanHeadMoveRel": 0.309,
+     "cleanHeadSpeed": 15.156,
+     "cleanHeadRot": 22.786,
+     "cleanChestRot": 35.135,
+     "blockedGuardJolt": 0.137,
+     "blockedGuardSpeed": 2.314,
+     "blockedChestRot": 11.402
+    }
+   },
+   "links": {
+    "n": 42,
+    "gap": 0,
+    "startToStart": 0.792,
+    "contactToContact": 0.858
+   },
+   "combos": {
+    "combo_one_two": {
+     "n": 6,
+     "total": 1.408,
+     "firstContact": 0.225,
+     "landed": 12,
+     "punches": 12
+    },
+    "combo_three": {
+     "n": 6,
+     "total": 2.367,
+     "firstContact": 0.258,
+     "landed": 16,
+     "punches": 18
+    },
+    "combo_upper": {
+     "n": 5,
+     "total": 2.8,
+     "firstContact": 0.417,
+     "landed": 12,
+     "punches": 15
+    }
+   }
+  },
+  "train-heavy-lion": {
+   "jab": {
+    "toContact": 0.208,
+    "closing": 14.053,
+    "wristPeak": 15.552,
+    "wristApproach": 14.14,
+    "duration": 0.64
+   },
+   "cross": {
+    "toContact": 0.225,
+    "closing": 14.533,
+    "wristPeak": 15.29,
+    "wristApproach": 13.954,
+    "duration": 0.7
+   },
+   "hook": {
+    "toContact": 0.283,
+    "closing": 3.212,
+    "wristPeak": 10.194,
+    "wristApproach": 3.654,
+    "duration": 0.78
+   },
+   "rear_hook": {
+    "toContact": 0.292,
+    "closing": 3.825,
+    "wristPeak": 9.129,
+    "wristApproach": 4.219,
+    "duration": 0.78
+   },
+   "uppercut": {
+    "toContact": 0.35,
+    "closing": 3.7,
+    "wristPeak": 22.169,
+    "wristApproach": 4.798,
+    "duration": 0.84
+   },
+   "rear_uppercut": {
+    "toContact": 0.342,
+    "closing": 4.71,
+    "wristPeak": 20.225,
+    "wristApproach": 5.718,
+    "duration": 0.84
+   }
+  },
+  "train-heavy-rabbit": {
+   "jab": {
+    "toContact": 0.208,
+    "closing": 14.053,
+    "wristPeak": 15.552,
+    "wristApproach": 14.14,
+    "duration": 0.64
+   },
+   "cross": {
+    "toContact": 0.225,
+    "closing": 14.533,
+    "wristPeak": 15.29,
+    "wristApproach": 13.954,
+    "duration": 0.7
+   },
+   "hook": {
+    "toContact": 0.283,
+    "closing": 3.212,
+    "wristPeak": 10.194,
+    "wristApproach": 3.654,
+    "duration": 0.78
+   },
+   "rear_hook": {
+    "toContact": 0.292,
+    "closing": 3.825,
+    "wristPeak": 9.129,
+    "wristApproach": 4.219,
+    "duration": 0.78
+   },
+   "uppercut": {
+    "toContact": 0.35,
+    "closing": 3.7,
+    "wristPeak": 22.169,
+    "wristApproach": 4.798,
+    "duration": 0.84
+   },
+   "rear_uppercut": {
+    "toContact": 0.342,
+    "closing": 4.71,
+    "wristPeak": 20.225,
+    "wristApproach": 5.718,
+    "duration": 0.84
+   }
+  },
+  "train-pads-lion": {
+   "jab": {
+    "toContact": 0.25,
+    "closing": 4.456,
+    "wristPeak": 12.043,
+    "wristApproach": 5.549,
+    "duration": 0.64
+   },
+   "cross": {
+    "toContact": 0.275,
+    "closing": 3.813,
+    "wristPeak": 12.045,
+    "wristApproach": 4.52,
+    "duration": 0.7
+   },
+   "hook": {
+    "toContact": 0.342,
+    "closing": 1.085,
+    "wristPeak": 7.6,
+    "wristApproach": 1.54,
+    "duration": 0.78
+   },
+   "rear_hook": {
+    "toContact": 0.35,
+    "closing": 1.064,
+    "wristPeak": 8.048,
+    "wristApproach": 1.57,
+    "duration": 0.78
+   },
+   "uppercut": {
+    "toContact": 0.35,
+    "closing": 3.168,
+    "wristPeak": 21.433,
+    "wristApproach": 7.382,
+    "duration": 0.84
+   },
+   "rear_uppercut": {
+    "toContact": 0.35,
+    "closing": 3.719,
+    "wristPeak": 21.085,
+    "wristApproach": 7.337,
+    "duration": 0.84
+   }
+  },
+  "train-pads-rabbit": {
+   "jab": {
+    "toContact": 0.25,
+    "closing": 4.456,
+    "wristPeak": 12.043,
+    "wristApproach": 5.549,
+    "duration": 0.64
+   },
+   "cross": {
+    "toContact": 0.275,
+    "closing": 3.813,
+    "wristPeak": 12.045,
+    "wristApproach": 4.52,
+    "duration": 0.7
+   },
+   "hook": {
+    "toContact": 0.342,
+    "closing": 1.085,
+    "wristPeak": 7.6,
+    "wristApproach": 1.54,
+    "duration": 0.78
+   },
+   "rear_hook": {
+    "toContact": 0.35,
+    "closing": 1.064,
+    "wristPeak": 8.048,
+    "wristApproach": 1.57,
+    "duration": 0.78
+   },
+   "uppercut": {
+    "toContact": 0.35,
+    "closing": 3.168,
+    "wristPeak": 21.433,
+    "wristApproach": 7.382,
+    "duration": 0.84
+   },
+   "rear_uppercut": {
+    "toContact": 0.35,
+    "closing": 3.719,
+    "wristPeak": 21.085,
+    "wristApproach": 7.337,
+    "duration": 0.84
+   }
+  }
+ },
+ "bouts": {
+  "watch": [
+   {
+    "seed": 3,
+    "winner": "lion",
+    "method": "health",
+    "health": {
+     "lion": 59.17,
+     "rabbit": 52.6
+    },
+    "totals": {
+     "lion": {
+      "thrown": 7,
+      "landed": 3
+     },
+     "rabbit": {
+      "thrown": 11,
+      "landed": 4
+     }
+    }
+   },
+   {
+    "seed": 11,
+    "winner": "rabbit",
+    "method": "health",
+    "health": {
+     "lion": 41.28,
+     "rabbit": 80.44
+    },
+    "totals": {
+     "lion": {
+      "thrown": 8,
+      "landed": 2
+     },
+     "rabbit": {
+      "thrown": 10,
+      "landed": 5
+     }
+    }
+   },
+   {
+    "seed": 42,
+    "winner": "rabbit",
+    "method": "health",
+    "health": {
+     "lion": 58.71,
+     "rabbit": 66.61
+    },
+    "totals": {
+     "lion": {
+      "thrown": 11,
+      "landed": 3
+     },
+     "rabbit": {
+      "thrown": 9,
+      "landed": 4
+     }
+    }
+   }
+  ],
+  "play-lion": [
+   {
+    "seed": 3,
+    "winner": "lion",
+    "method": "health",
+    "health": {
+     "lion": 100,
+     "rabbit": 41.87
+    },
+    "totals": {
+     "lion": {
+      "thrown": 22,
+      "landed": 5
+     },
+     "rabbit": {
+      "thrown": 4,
+      "landed": 0
+     }
+    }
+   },
+   {
+    "seed": 11,
+    "winner": "lion",
+    "method": "health",
+    "health": {
+     "lion": 85.3,
+     "rabbit": 34.1
+    },
+    "totals": {
+     "lion": {
+      "thrown": 19,
+      "landed": 7
+     },
+     "rabbit": {
+      "thrown": 6,
+      "landed": 1
+     }
+    }
+   },
+   {
+    "seed": 42,
+    "winner": "lion",
+    "method": "health",
+    "health": {
+     "lion": 73.76,
+     "rabbit": 33.54
+    },
+    "totals": {
+     "lion": {
+      "thrown": 20,
+      "landed": 7
+     },
+     "rabbit": {
+      "thrown": 6,
+      "landed": 2
+     }
+    }
+   }
+  ],
+  "play-rabbit": [
+   {
+    "seed": 3,
+    "winner": "rabbit",
+    "method": "health",
+    "health": {
+     "lion": 46.05,
+     "rabbit": 85.58
+    },
+    "totals": {
+     "lion": {
+      "thrown": 7,
+      "landed": 1
+     },
+     "rabbit": {
+      "thrown": 21,
+      "landed": 5
+     }
+    }
+   },
+   {
+    "seed": 11,
+    "winner": "rabbit",
+    "method": "health",
+    "health": {
+     "lion": 40.2,
+     "rabbit": 86.7
+    },
+    "totals": {
+     "lion": {
+      "thrown": 6,
+      "landed": 1
+     },
+     "rabbit": {
+      "thrown": 21,
+      "landed": 6
+     }
+    }
+   },
+   {
+    "seed": 42,
+    "winner": "rabbit",
+    "method": "health",
+    "health": {
+     "lion": 64.93,
+     "rabbit": 76.67
+    },
+    "totals": {
+     "lion": {
+      "thrown": 7,
+      "landed": 2
+     },
+     "rabbit": {
+      "thrown": 18,
+      "landed": 4
+     }
+    }
+   }
+  ],
+  "combo-lion": [
+   {
+    "seed": 3,
+    "winner": "rabbit",
+    "method": "health",
+    "health": {
+     "lion": 31.69,
+     "rabbit": 46.4
+    },
+    "totals": {
+     "lion": {
+      "thrown": 24,
+      "landed": 5
+     },
+     "rabbit": {
+      "thrown": 8,
+      "landed": 5
+     }
+    }
+   },
+   {
+    "seed": 11,
+    "winner": "lion",
+    "method": "health",
+    "health": {
+     "lion": 40.59,
+     "rabbit": 23.68
+    },
+    "totals": {
+     "lion": {
+      "thrown": 22,
+      "landed": 7
+     },
+     "rabbit": {
+      "thrown": 11,
+      "landed": 5
+     }
+    }
+   },
+   {
+    "seed": 42,
+    "winner": "lion",
+    "method": "health",
+    "health": {
+     "lion": 75.09,
+     "rabbit": 27.93
+    },
+    "totals": {
+     "lion": {
+      "thrown": 24,
+      "landed": 7
+     },
+     "rabbit": {
+      "thrown": 8,
+      "landed": 3
+     }
+    }
+   }
+  ],
+  "combo-rabbit": [
+   {
+    "seed": 3,
+    "winner": "rabbit",
+    "method": "health",
+    "health": {
+     "lion": 16.13,
+     "rabbit": 67.17
+    },
+    "totals": {
+     "lion": {
+      "thrown": 8,
+      "landed": 2
+     },
+     "rabbit": {
+      "thrown": 24,
+      "landed": 6
+     }
+    }
+   },
+   {
+    "seed": 11,
+    "winner": "rabbit",
+    "method": "health",
+    "health": {
+     "lion": 12.69,
+     "rabbit": 61.18
+    },
+    "totals": {
+     "lion": {
+      "thrown": 9,
+      "landed": 3
+     },
+     "rabbit": {
+      "thrown": 24,
+      "landed": 7
+     }
+    }
+   },
+   {
+    "seed": 42,
+    "winner": "rabbit",
+    "method": "health",
+    "health": {
+     "lion": 36.97,
+     "rabbit": 75.6
+    },
+    "totals": {
+     "lion": {
+      "thrown": 7,
+      "landed": 2
+     },
+     "rabbit": {
+      "thrown": 20,
+      "landed": 6
+     }
+    }
+   }
+  ]
+ },
+ "static": {
+  "inputDurations": {
+   "jab": 0.64,
+   "cross": 0.7,
+   "hook": 0.78,
+   "rear_hook": 0.78,
+   "uppercut": 0.84,
+   "rear_uppercut": 0.84,
+   "slip": 0.62,
+   "roll": 0.76,
+   "guard": 0.55,
+   "step": 0.72,
+   "speedbag": 0.32
+  },
+  "comboTotals": {
+   "combo_one_two": null,
+   "combo_three": null,
+   "combo_upper": null,
+   "combo_counter": null,
+   "combo_roll": null,
+   "combo_super": null
+  },
+  "routineTimings": {
+   "fast_jabs_upper": 3.04,
+   "burst_exit": 3.76,
+   "read_upper": 4.64,
+   "change_gears": 4.63,
+   "level_change": 4.9,
+   "check_hook_exit": 4.9,
+   "double_counter_return": 5.86,
+   "pressure_break": 4.06,
+   "super_blitz": 6.12,
+   "super_angle": 5.66,
+   "super_inside": 7.1,
+   "super_gears": 6.56,
+   "super_defence": 6.9,
+   "super_ten": 8.06,
+   "super_double_wave": 7.76,
+   "super_upper_ladder": 7.06,
+   "super_checkmate": 6.74,
+   "super_ringcraft": 7.58,
+   "super_comeback": 6.7,
+   "super_marathon": 8.4
+  }
+ }
+}

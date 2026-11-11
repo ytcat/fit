@@ -74,7 +74,17 @@
    if(this.current?.combo){if(!this.combo||this.combo.id!==this.current.combo.id)this.combo={...this.current.combo};else this.combo.step=this.current.combo.step;}
    if(!this.current&&!this.queue.length)this.combo=null;
    if(!this.current)return {move:'guard',phase:.35,attack:false,defend:true,brace:1,rest:true,index:this.serial,manual:true};
-   const a=this.current;return {...a,phase:Math.max(0,Math.min(1,(time-a.start)/a.duration)),index:a.id,manual:true};
+   const a=this.current,R=window.BOXING_ROUTINES;
+   // GOTR-0025: shared punch clock (faster drive into the target), and a
+   // punch followed by another queued punch ends once its hand is back at
+   // the guard, so a combination flows instead of resetting between punches.
+   // Mitt uppercuts keep the authored clock: the pad is presented on that timing
+   // (tests/mitt-controller: forearm vertical through the pad contact).
+   if(a.attack&&a.move!=='speedbag'&&R?.punchPhase&&!(a.move.includes('uppercut')&&this.engine.arena?.mode==='pads')){
+    if(!a.linked&&this.queue[0]?.attack&&this.queue[0].move!=='speedbag'&&time-a.start<a.duration*.5){a.linked=true;a.span=R.punchSpan();a.duration*=a.span;}
+    return {...a,phase:R.punchPhase(Math.max(0,Math.min(1,(time-a.start)/a.duration))*(a.span||1)),index:a.id,manual:true};
+   }
+   return {...a,phase:Math.max(0,Math.min(1,(time-a.start)/a.duration)),index:a.id,manual:true};
   }
  }
  BoxingInput.definitions=definitions;BoxingInput.durations=durations;BoxingInput.combos=combos;window.BoxingInput=BoxingInput;
