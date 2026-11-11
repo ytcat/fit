@@ -66,7 +66,8 @@
 .fp-btn:not([data-pad=straight]) .fp-hands i{background:rgb(255 255 255/.18)}
 .fp-btn:not([data-pad=straight])[data-next=lead] .fp-hands i[data-hand=lead],.fp-btn:not([data-pad=straight])[data-next=rear] .fp-hands i[data-hand=rear]{background:var(--gr-accent-text,#ff7480);box-shadow:0 0 calc(5px*var(--u)) var(--gr-accent-line,rgb(230 57 70/.6))}
 .fp-btn:hover:not(:disabled){filter:brightness(1.08)}
-.fp-btn[data-pressed=true]{transform:scale(.92)}
+.fp-btn[data-pressed=true]{transform:scale(.92);filter:brightness(1.12)}
+.fp-btn[data-pad=straight][data-pressed=true]{box-shadow:0 0 0 calc(3px*var(--u)) rgb(255 255 255/.28),0 0 calc(22px*var(--u)) var(--gr-accent-line,rgb(230 57 70/.6)),inset 0 -6px 12px rgb(0 0 0/.35)}
 .fp-btn:not([data-pad=straight])[data-pressed=true]{background:radial-gradient(circle at 50% 26%,rgb(255 255 255/.22),transparent 50%),linear-gradient(180deg,var(--gr-accent,#e63946),var(--gr-accent-press,#b01321))}
 .fp-btn[data-pad=guard][data-pressed=true]{background:radial-gradient(circle at 50% 26%,rgb(255 255 255/.22),transparent 50%),linear-gradient(180deg,var(--gr-info,#3b82f6),rgb(var(--gr-info-rgb,59 130 246)/.6))}
 .fp-btn[data-pad=guard][data-pressed=true] .fp-icon svg{color:#fff}
@@ -116,8 +117,15 @@ body.fighter-pad-on #manualStatus{bottom:calc(10px + env(safe-area-inset-bottom,
 body.fighter-pad-on .ringside-playback{right:calc(10px + env(safe-area-inset-right,0px));bottom:var(--fp-sys-bottom,170px)}
 body.fighter-pad-on .camera-lock-toggle{right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(var(--fp-sys-bottom,170px) + 52px);min-width:44px;width:44px;max-width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;place-items:center}
 body.fighter-pad-on .camera-lock-toggle span{display:none}
+/* Portrait: the boxers reach close to the right edge, so the two system buttons are a little smaller and tighter to it. */
+body.fighter-pad-on[data-fighter-pad=portrait] .ringside-playback{right:6px}
+body.fighter-pad-on[data-fighter-pad=portrait] .ringside-playback #playBtn{width:40px;height:40px;min-width:40px;max-width:40px;min-height:40px}
+body.fighter-pad-on[data-fighter-pad=portrait] .camera-lock-toggle{right:6px;bottom:calc(var(--fp-sys-bottom,170px) + 46px);width:40px;min-width:40px;max-width:40px;height:40px;min-height:40px}
 /* The coach's call in mitt work moves to the top-left corner, the Burst tip above the pad. */
 body.fighter-pad-on.ringside-layout .career-drill-cue,body.fighter-pad-on .career-drill-cue{top:8px;bottom:auto;left:8px;transform:none;max-width:min(62%,320px)}
 body.fighter-pad-on #burstTip{left:auto!important;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(var(--fp-sys-bottom,170px) + 104px)!important;max-width:min(260px,calc(100% - 20px))!important}
 body.fighter-pad-on #burstTip::after{display:none}
+/* Phones (portrait, short landscape): no free corner for the first-time tip that would not cover a boxer or the HUD,
+   so it stays hidden there; the red pulsing Burst in the cluster says it. Wide screens show it above the punch arc. */
+body.fighter-pad-on[data-fighter-pad=portrait] #burstTip,body.fighter-pad-on[data-fighter-pad=short] #burstTip{display:none}
 @media (prefers-reduced-motion:reduce){.fp-dpad,.fp-btn,.fp-chip-face{transition:none}.fp-dpad[data-dir]{transform:none}.fp-chip.academy-next .fp-chip-face,.fp-btn[data-flash=no]{animation:none}}

@@ -45,7 +45,7 @@ const HELPERS=()=>{
     const add=(p,r)=>{const s=scr(p),s2=scr(p.clone().addScaledVector(right,r));samples.push({x:s.x,y:s.y,r:Math.hypot(s2.x-s.x,s2.y-s.y)});};
     for(const n of names){add(pos[n],R[n]||.08);const parent=names.find(k=>j[k]===j[n].parent);if(parent)for(let i=1;i<6;i++)add(pos[parent].clone().lerp(pos[n],i/6),Math.min(R[n]||.08,R[parent]||.08));}
     add(pos.head.clone().add(V().set(0,coach.species==='rabbit'?.32:.16,0)),coach.species==='rabbit'?.07:.12);}
-   const shapes=[...document.querySelectorAll('#fighterPad .fp-dpad,#fighterPad .fp-btn,#fighterPad .fp-chip-face,#fighterPad #burstControl,#camLock,.ringside-playback #playBtn')].filter(n=>n.getClientRects().length&&getComputedStyle(n).display!=='none').map(n=>({id:n.dataset?.pad||n.id||n.className.split(' ')[0],r:n.getBoundingClientRect(),round:n.matches('.fp-dpad,.fp-btn,#camLock,#playBtn')}));
+   const shapes=[...document.querySelectorAll('#fighterPad .fp-dpad,#fighterPad .fp-btn,#fighterPad .fp-chip-face,#fighterPad #burstControl,#burstTip,#camLock,.ringside-playback #playBtn')].filter(n=>n.getClientRects().length&&getComputedStyle(n).display!=='none'&&!n.hidden).map(n=>({id:n.dataset?.pad||n.id||n.className.split(' ')[0],r:n.getBoundingClientRect(),round:n.matches('.fp-dpad,.fp-btn,#camLock,#playBtn')}));
    let worst={clear:Infinity};
    for(const s of samples)for(const sh of shapes){let d;if(sh.round){d=Math.hypot(s.x-(sh.r.left+sh.r.width/2),s.y-(sh.r.top+sh.r.height/2))-sh.r.width/2;}else{d=Math.hypot(Math.max(sh.r.left-s.x,0,s.x-sh.r.right),Math.max(sh.r.top-s.y,0,s.y-sh.r.bottom));}const clear=d-s.r;if(clear<worst.clear)worst={clear:Math.round(clear),shape:sh.id};}
    return {...worst,samples:samples.length,shapes:shapes.length,frame:fighterPad.frame};
@@ -187,8 +187,10 @@ try{
  if(PARTS.includes('shots')){
   for(const size of (process.env.SIZES||'phone,small,land,desk').split(',')){
    const p=await open(b,size);await fast(p,true);
-   for(const [mode,lang] of [['fight','en'],['fight','he']].concat(size==='phone'?[['pads','en'],['rabbit','he']]:size==='land'?[['pads','ru']]:[])){
-    await p.evaluate(([m,l])=>qa.start(m,l),[mode,lang]);
+   for(const [mode,lang] of [['fight','en'],['fight','he']].concat(size==='phone'?[['pads','en'],['rabbit','he'],['combos','ru']]:size==='land'?[['pads','ru']]:size==='small'?[['speed','ru'],['combos','en']]:[])){
+    // 'combos': a fight with three equipped combos, the tallest punch cluster (Burst + three chips).
+    if(mode==='combos')await p.evaluate(()=>{const st=app.engine.career.store;if(!st.current())st.create('QA combos');const g=st.game();Object.assign(g.activity,{completed:9,rope:9,fights:9,defences:99,hits:999});g.combos.owned=GameDomain.combos.map(c=>c.id);st.save?.();for(const c of GameDomain.combos.slice(0,3))st.gameAction({type:'combo',comboId:c.id,mode:'fight',enabled:true,species:app.engine.coach.species});});
+    await p.evaluate(([m,l])=>qa.start(m,l),[mode==='combos'?'fight':mode,lang]);if(mode==='combos')assert.equal(await p.evaluate(()=>document.querySelectorAll('#fighterPad .fp-chip:not([data-meta])').length),3);
     // let the lens settle (it eases), then measure with the frame that is drawn
     for(let i=0;i<14;i++){await p.evaluate(()=>fighterPad.paint());await sleep(120);}
     const l=await p.evaluate(()=>qa.layout()),c=await p.evaluate(()=>qa.cover());
@@ -196,7 +198,14 @@ try{
     assert.ok(l.minTarget>=48,size+' thumb-sized targets '+l.minTarget);assert.ok(c.clear>=0,size+' '+mode+' boxers never under the pad '+JSON.stringify(c));
     say(`${size} ${mode} ${lang}: targets ≥${l.minTarget}px (chips ${l.chipTarget}px), body clearance ${c.clear}px (closest ${c.shape}), lens k=${c.frame.k.toFixed(3)} d=${Math.round(c.frame.d)}px, labels ${l.labels.join(' ')}`);
     await shot(p,`${size}-${mode}-${lang}`);
-    if(size==='phone'&&mode==='fight'&&lang==='en'){await p.evaluate(()=>{const e=app.engine;e.arena.fightView.match.fighters[e.player.actor()].burst.charge=1;window.burstControl?.resetTip?.();});await sleep(600);const tip=await p.evaluate(()=>({state:document.getElementById('burstControl').dataset.state,tip:!document.getElementById('burstTip').hidden,inPad:!!document.querySelector('#fighterPad #burstControl')}));assert.deepEqual(tip,{state:'ready',tip:true,inPad:true});await shot(p,'phone-fight-burst-en');say('phone Burst ready inside the pad, tip shown above the pad');}
+    if((size==='phone'||size==='desk')&&mode==='fight'&&lang==='en'){await p.evaluate(()=>{const e=app.engine;e.arena.fightView.match.fighters[e.player.actor()].burst.charge=1;window.burstControl?.resetTip?.();});await sleep(600);
+     const tip=await p.evaluate(()=>{const t=document.getElementById('burstTip'),r=t.getBoundingClientRect(),s=document.getElementById('stageContainer').getBoundingClientRect();return {state:document.getElementById('burstControl').dataset.state,tip:getComputedStyle(t).display!=='none'&&!t.hidden,inside:r.left>=s.left&&r.right<=s.right&&r.top>=s.top&&r.bottom<=s.bottom,inPad:!!document.querySelector('#fighterPad #burstControl'),clear:qa.cover().clear};});
+     // Phones hide the first-time tip (no corner free of boxers and HUD); wide screens show it above the punch arc.
+     assert.deepEqual({...tip,clear:tip.clear>=0},{state:'ready',tip:size!=='phone',inside:size!=='phone'?true:tip.inside,inPad:true,clear:true},JSON.stringify(tip));await shot(p,size+'-fight-burst-en');say(`${size} Burst ready inside the pad${size==='phone'?' (first-time tip hidden on phones)':', tip above the punch arc'}, body clearance ${tip.clear}px`);
+     if(size==='phone'){// Pressed look: thumb on → and on Straight at the same time.
+     const cdp=await p.context().newCDPSession(p),r=await p.evaluate(()=>qa.point('right')),st=await p.evaluate(()=>qa.point('straight'));await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:r.x,y:r.y,id:7},{x:st.x,y:st.y,id:8}]});await sleep(200);
+     const pressed=await p.evaluate(()=>({dpad:document.querySelector('.fp-dpad').dataset.dir,arrow:document.querySelector('.fp-arrow[data-dir=right]').dataset.pressed,straight:document.querySelector('[data-pad=straight]').dataset.pressed}));assert.deepEqual(pressed,{dpad:'right',arrow:'true',straight:'true'});
+     await shot(p,'phone-fight-pressed-en');await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}}
     const after=await p.evaluate(()=>qa.cover());assert.ok(after.clear>=0,size+' '+mode+' at the screenshot '+JSON.stringify(after));
    }
    assert.deepEqual(p.errors,[]);await p.close();

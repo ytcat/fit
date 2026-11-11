@@ -166,7 +166,7 @@
    const fv=a?.mode==='fight'?a.fightView:null;let self=e.coach.root,target=null;
    if(fv?.coaches){const me=p.actor(),other=me==='lion'?'rabbit':'lion';self=fv.coaches[me]?.root||self;target=fv.coaches[other]?.root||null;}
    else if(a)target=a.careerDrill?.trainer?.root||a.models?.[a.mode]||null;
-   self.updateMatrixWorld?.(true);self.getWorldPosition(va);
+   self.getWorldPosition(va);
    if(target&&target!==self&&target.parent){target.getWorldPosition(vb);}else vb.copy(self.localToWorld(V().set(0,0,1)));
    va.project(c);vb.project(c);return facingFrom(va.x,vb.x,facing);
   }
@@ -219,13 +219,13 @@
    const box=stage.getBoundingClientRect();if(!box.width||!box.height)return;
    const portrait=box.width/box.height<.95,shortLand=!portrait&&box.height<340;
    const u=portrait?Math.max(.82,Math.min(1,box.width/390)):shortLand?Math.max(.78,Math.min(.92,box.height/310)):Math.max(1,Math.min(1.35,Math.min(box.width/1000,box.height/465)));
-   pad.dataset.layout=portrait?'portrait':shortLand?'short':'wide';body.dataset.fighterPad=pad.dataset.layout;
+   const kind=portrait?'portrait':shortLand?'short':'wide';put(pad,'data-layout',kind);put(body,'data-fighter-pad',kind);
    const fitKey=u.toFixed(3)+'|'+lang;
    if(pad.style.getPropertyValue('--u')!==u.toFixed(3))pad.style.setProperty('--u',u.toFixed(3));
    // Long words (Апперкот) shrink to fit their round button instead of being clipped.
    if(fitKey!==layout.key){layout.key=fitKey;for(const {b,label} of Object.values(buttons)){label.style.fontSize='';const room=b.clientWidth*.86,need=label.scrollWidth;if(room>0&&need>room)label.style.fontSize=(parseFloat(getComputedStyle(label).fontSize)*room/need).toFixed(2)+'px';}}
    // Pause and Side lock stand above the punch arc on the right edge.
-   const a=arc.getBoundingClientRect();if(a.height)stage.style.setProperty('--fp-sys-bottom',Math.round(box.bottom-a.top+8)+'px');
+   const a=arc.getBoundingClientRect(),sys=Math.round(box.bottom-a.top+8)+'px';if(a.height&&stage.style.getPropertyValue('--fp-sys-bottom')!==sys)stage.style.setProperty('--fp-sys-bottom',sys);
    if(!portrait||!e.camera||typeof THREE==='undefined'){setFrame({k:1,d:0});return;}
    const tops=[dpad,arc,skills].map(n=>n.getBoundingClientRect()).filter(r=>r.height).map(r=>r.top);
    const reserve=['#fightHealth','#fightHud','.career-drill-cue'].map(s=>document.querySelector(s)).filter(n=>n&&n.offsetParent&&!n.hidden).map(n=>n.getBoundingClientRect()).filter(r=>r.height&&r.top<box.top+box.height/2).map(r=>r.bottom-box.top);
@@ -264,6 +264,9 @@
   // The camera director keeps placing the camera; in portrait the pad only shifts and widens the lens (setFrame).
   const setLanguage=app.setLanguage.bind(app);app.setLanguage=next=>{setLanguage(next);paint(true);};
   window.addEventListener('resize',()=>paint(true));
+  // A thumb that leaves with the app (switching apps, a system dialog) never leaves a step or Guard held down.
+  const letGo=()=>{for(const c of [...held.keys()])release(c);dpadSet(null);dpadPointer=null;for(const {b} of Object.values(buttons))setPressed(b,false);};
+  window.addEventListener('blur',letGo);document.addEventListener('visibilitychange',()=>{if(document.hidden)letGo();});
   setInterval(()=>paint(),100);paint(true);
   window.fighterPad={paint,press:act,chip,log,hands,slips,get facing(){return facing;},get shown(){return shown;},get frame(){return {...frame};},rules:api};
  }
