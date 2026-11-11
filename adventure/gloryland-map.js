@@ -3,12 +3,16 @@
  * neon nights. Everything is generated at load time from the layout below (no external assets).
  * three.js r128 (global THREE). Not wired into the game yet.
  *
- *   const map = GlorylandMap.build(scene, { time: 'day' | 'night', renderer });
- *   map.places            -> [{ id, name, sub, chapter, kind, anchor: Vector3, focus: {x, z, dist} }]
- *   map.update(dt, camera, renderer)  animates water, wheel, beams, cars; keeps glow sizes right
- *   map.focusShadows(x, z, radius)    fits the sun shadow to the visible area
- *   map.stats()           -> { meshes, instances, triangles, textureMB }
+ *   const map = GlorylandMap.build(scene, { time: 'day' | 'night', renderer, shadowSize: 2048, seed, environment: true });
+ *   map.places   -> [{ id, name, sub, chapter, kind: 'chapter'|'place'|'side', state, anchor: Vector3 (pin tip),
+ *                      focus: { x, z, dist } (where a "travel" tap should move the map camera) }]
+ *   map.bounds   -> { x0, x1, z0, z1 } pan limits for the map camera target
+ *   map.update(dt, camera, renderer)  animates water, Ferris wheel, lighthouse; keeps glow sprite sizes right
+ *   map.focusShadows(x, z, radius)    fits the sun's shadow box to the visible area (call when the view changes;
+ *                                      with renderer.shadowMap.autoUpdate = false the shadow pass runs only then)
+ *   map.stats()  -> { meshes, instances, triangles }
  *   map.dispose()
+ * environment: false leaves scene.fog / scene.background alone. Day and night are separate builds (about 1 s).
  *
  * World axes: x east, z south (towards the default camera), y up. 1 unit is about 4 m.
  * Sea level y = 0, flat land y = LAND_Y.
@@ -932,7 +936,7 @@ function marketBlock(W, b, fr) {
 function hotelBlock(W, b, fr) {
   const floors = rint(4, 7), tint = C(pick(PAL.hotel)), trim = C('#fbf8f2'), w = b.w - 1.6, d = b.d - 2.6;
   const [x, z] = fr.p(0, .2);
-  const top = building(W, { x, z, ry: 0, w, d, floors, style: 'deco', tint, shop: true, shopTint: C('#f7f1e8'), roofColor: C('#efe9df'), parapetColor: trim, awning: pick(PAL.awning), rooftop: false });
+  const top = building(W, { x, z, ry: 0, w, d, floors, style: 'deco', tint, shop: true, shopTint: C('#f7f1e8'), roofColor: shade(tint, .8).lerp(C('#c9bfae'), .55), parapetColor: trim, awning: pick(PAL.awning), rooftop: false });
   const y1 = BLOCK_Y + FACADE.shop.floor, fz = z + d / 2;
   // streamline eyebrows on the front facade
   for (let f = 1; f <= floors; f++) W.solid.add(P.box, M(x, y1 + f * FACADE.deco.floor - .1, fz + .16, w + .12, .1, .34), trim);
@@ -942,7 +946,7 @@ function hotelBlock(W, b, fr) {
   for (let f = 1; f <= floors; f++) W.solid.add(P.cyl20, M(cx, y1 + f * FACADE.deco.floor - .1, cz, cr + .08, .1, cr + .08), trim);
   W.solid.add(P.cyl20, M(cx, ch, cz, cr + .12, .22, cr + .12), trim);
   rod(W.solid, [cx, ch + .2, cz], [cx, ch + 1.8, cz], .05, trim);
-  W.solid.add(P.box, M(x - side * w * .12, top, z, w * .34, 1.3, d * .4), trim);
+  W.solid.add(P.box, M(x - side * w * .12, top, z, w * .34, 1.3, d * .4), trim, { top: shade(tint, .85) });
   W.solid.add(P.box, M(x - side * w * .12, top + 1.3, z, w * .2, .7, d * .26), tint);
   // entrance canopy
   W.solid.add(P.box, M(x - side * w * .18, y1 - .25, fz + .75, 2.4, .16, 1.5), trim);
@@ -1801,18 +1805,21 @@ function pirateShip(W, x, z, ry, sc = 1) {
   glow(W, ...p(-4.6, 2.6, 0), '#ffb84a', 1.6, 1);
 }
 
+const y0Deck = () => 1.21;
 /* ---- Tech Pier */
 function techPier(W) {
-  const B = W.solid, white = C('#f4f6f8'), deck = C('#c9d0d8'), cyan = '#2de0ff', x0 = TECH.x;
+  const B = W.solid, white = C('#f4f6f8'), deck = C('#8e9eae'), cyan = '#2de0ff', x0 = TECH.x;
   // walkway from the promenade
   const wz0 = coastZ(x0).z - .4, wz1 = 49.6;
-  B.add(P.box, M(x0, .85, (wz0 + wz1) / 2, 3.2, .3, wz1 - wz0, 0), deck);
+  B.add(P.box, M(x0, .85, (wz0 + wz1) / 2, 3.2, .3, wz1 - wz0, 0), deck, { top: C('#8d9cab') });
   for (let z = wz0 + 2; z < wz1; z += 2.4) for (const s of [-1.3, 1.3]) B.add(P.cyl6, M(x0 + s, -1, z, .12, 1.9, .12), C('#9aa3ad'));
   for (const s of [-1.55, 1.55]) neon(W, [[x0 + s, 1.3, wz0 + .6], [x0 + s, 1.3, wz1]], cyan, .05, .25);
   // platform
   const px = TECH.x - 1, pz = 57.2, pw = 22, pd = 14;
   W.waterDiscs = W.waterDiscs || []; W.waterDiscs.push([px, pz, 3]);
-  B.add(P.box, M(px, .7, pz, pw, .5, pd), deck, { top: C('#dde3e9') });
+  B.add(P.box, M(px, .7, pz, pw, .5, pd), deck, { top: C('#97a6b5') });
+  for (const dz of [-pd / 2 + .5, pd / 2 - .5]) B.add(P.box, M(px, y0Deck(), pz + dz, pw - .6, .02, .35), C('#2fb6c9'));
+  for (let k = 0; k < 6; k++) B.add(P.box, M(px - 8 + k * 3.2, y0Deck(), pz + .2, 2.4, .02, .9), C('#7a8a9a'));
   for (let i = -3; i <= 3; i++) for (const j of [-1, 0, 1]) B.add(P.cyl8, M(px + i * 3.3, -1.2, pz + j * 5.5, .28, 1.95, .28), C('#9aa3ad'));
   const y = 1.2;
   // capsule pod
@@ -1830,7 +1837,7 @@ function techPier(W) {
   // spire
   const sx = px + 1, sz = pz + 3.2;
   B.add(P.taper || (P.taper = proto(new THREE.CylinderGeometry(.78, 1.0, 1, 14, 1).translate(0, .5, 0))), M(sx, y, sz, 1.1, 14.5, 1.1), white);
-  for (const [h, r] of [[4.5, 2.2], [8.5, 1.8], [12, 1.4]]) { B.add(P.cyl20, M(sx, y + h, sz, r, .14, r), white); if (W.NIGHT) { W.glowSolid.add(P.cyl20, M(sx, y + h - .05, sz, r * 1.02, .06, r * 1.02), C(cyan).multiplyScalar(1.4)); for (let k = 0; k < 10; k++) { const a = k / 10 * TAU; glow(W, sx + Math.cos(a) * r, y + h, sz + Math.sin(a) * r, cyan, 1.2, .6); } } else B.add(P.cyl20, M(sx, y + h - .05, sz, r * 1.02, .06, r * 1.02), C('#7fe3f0')); }
+  for (const [h, r] of [[4.5, 2.2], [8.5, 1.8], [12, 1.4]]) { B.add(P.cyl20, M(sx, y + h, sz, r, .14, r), C('#3fc4d6')); if (W.NIGHT) { W.glowSolid.add(P.cyl20, M(sx, y + h - .05, sz, r * 1.02, .06, r * 1.02), C(cyan).multiplyScalar(1.4)); for (let k = 0; k < 10; k++) { const a = k / 10 * TAU; glow(W, sx + Math.cos(a) * r, y + h, sz + Math.sin(a) * r, cyan, 1.2, .6); } } else B.add(P.cyl20, M(sx, y + h - .05, sz, r * 1.02, .06, r * 1.02), C('#7fe3f0')); }
   rod(B, [sx, y + 14.5, sz], [sx, y + 17, sz], .07, C('#c9d0d8'));
   glow(W, sx, y + 17, sz, '#ff3b30', 1.2, 1);
   // teal walkways, a glass plaza disc and a holo arch at the platform front
