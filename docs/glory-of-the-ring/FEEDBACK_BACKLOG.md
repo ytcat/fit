@@ -572,6 +572,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Expected behavior:** The World tab becomes **Adventure** (Gloryland map; until the first slice exists, a clear "coming soon" with the plan). Its current parts move: rivals, cup and events → Fight; arena choice → fight setup; history/record book, player & backup, school and other settings → the Settings sheet behind the header gear.
 - **Acceptance criteria:** Every former World item reachable within two taps from its new place; no item lost; screenshots of the new navigation in EN/HE/RU.
 
+### GOTR-0045 — Player profile dialog stays in English in Hebrew (and Russian)
+- **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Hebrew)
+- **Status:** IN PROGRESS (agent `ux-r1`, part of the R1 copy pass)
+- **Priority:** P1
+- **Area:** i18n / RTL / profile
+- **Reported behavior / request:** "I'm in Hebrew view and my corner still shows English."
+- **Cause (integrator):** every string of the profile dialog in `career-interface.js` ("Your corner", "Create player", "Play as guest", "Import backup", "Export backup", the guest/account note…) is hard-coded English; the file has no HE/RU strings, so in the RTL layout the full stops jump to the start of the lines.
+- **Expected behavior:** The dialog (and every other player-visible string in that file) is fully translated in HE and RU with correct RTL punctuation; one name for this place consistent with the Gym/terms pass; no developer note about an account service; the close button shows no focus ring on open.
+- **Acceptance criteria:** HE and RU screenshots at 402×690 with no English left except the player's own name; bidi-isolated names.
+- **Evidence:** `qa/gotr-0045/user-v1.20-he-profile-english.webp` (owner's screenshot).
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
