@@ -138,7 +138,7 @@
 
 ### GOTR-0008 — Long-term 3D explorable adventure world connecting gyms, quests and boss fights
 - **Reported:** 2026-11-09
-- **Status:** OPEN
+- **Status:** IN DESIGN with the owner (2026-11-11) — no development until the owner approves the design
 - **Priority:** P2
 - **Delivery:** LATER — only after preceding shop, controls, Fight IQ and core milestones are implemented and verified
 - **Area:** World exploration / quests / progression
@@ -149,6 +149,8 @@
 - **Owner direction (2026-11-11):** The adventure's progression order: beginner training → street fight → fights in the underground and other places → advancing step by step → championship. Until the adventure exists, all arenas stay available.
 - **Implementation:** Deferred for sequencing, not rejected.
 - **Evidence:** Future vertical-slice prototype and measured mobile test.
+- **Owner (2026-11-11):** "I do want adventure scenarios. But I want to design the world with you here before you start development."
+- **Design decisions so far (owner, 2026-11-11):** (1) **World form:** illustrated 3D city map first (tap a place to travel), walkable streets per chapter later. (2) **Story:** rise to champion — an unknown fighter climbs from nothing to the title. (3) **Unlocks:** missions give stars; enough stars lets the fighter challenge the place's boss; beating the boss opens the next place. (4) **Coach:** a new local coach in every place. Draft chapter ladder (to confirm): 1 Home Gym (beginner training) → 2 Street → 3 Underground (Basement, Dockside Hangar) → 4 Rising (Boxing Club, City Sports Hall, Neon Strip, Harbor Dome) → 5 Championship Arena; each place 3–5 missions + 1 boss.
 
 ### GOTR-0009 — Expand roster and bosses with varied species, silhouettes, size and combat IQ
 - **Reported:** 2026-11-09
