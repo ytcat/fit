@@ -650,6 +650,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** Not started.
 - **Evidence:** Not yet available.
 
+### GOTR-0050 — Muscular avatar is too skinny; smoother, more realistic surface
+- **Reported:** 2026-11-11 (after v1.24)
+- **Status:** IN PROGRESS (agent `muscle-definition`, follow-up `agent/muscle-2`)
+- **Priority:** P1
+- **Area:** Avatars / anatomy
+- **Reported behavior / request:** "The new muscular avatar is good, but he's very skinny. He should be more built, his chest has to be bigger, his arms have to be bigger. [Stomach] please also make this a bit smoother. The muscles are good, but it now doesn't look realistic anymore." (voice-typed; "stop alarm" read as the stomach/abs)
+- **Expected behavior:** More real volume (bigger chest and rib cage, bigger upper arms and forearms, broader shoulders and lats) on both species; softer abdominal grid and fine creases with smooth transitions; main muscle shapes kept.
+- **Acceptance criteria:** measured chest, upper-arm and forearm girths before/after; before/after sheets per species; gear fit and punch range tests pass.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
