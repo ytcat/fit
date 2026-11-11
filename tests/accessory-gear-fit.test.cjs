@@ -10,7 +10,11 @@ const report={};
 for(const species of ['lion','rabbit']){e.targetMode='none';e.roster.select(species);const c=e.coach;
  // Drawn geometry stays cheap: one draw call per material, a few thousand triangles.
  for(const id of ['champion_belt','heritage_belt']){A.look(c,[id]);const g=c.root.getObjectByName('Cosmetic '+id);assert.ok(g?.visible,id+' visible');let tris=0,meshes=0;g.traverse(n=>{if(n.isMesh){meshes++;tris+=n.geometry.attributes.position.count/3;}});assert.ok(meshes<=3,'belt draws in at most three calls');assert.ok(tris<9000,id+' triangle budget '+tris);report[species+' '+id]={meshes,tris};assert.equal(g.parent,c.joints.hips,'belt rides the pelvis bone');}
- A.look(c,['champion_belt','heritage_belt']);assert.equal(c.root.getObjectByName('Cosmetic champion_belt').visible,false,'only one belt is worn at a time');
+ for(const id of ['headband','bandana']){A.look(c,[id,'armbands']);const g=c.root.getObjectByName('Cosmetic '+id);let tris=0,meshes=0;g.traverse(n=>{if(n.isMesh){meshes++;tris+=n.geometry.attributes.position.count/3;}});assert.equal(g.parent,c.joints.head,'headband rides the head bone');assert.ok(meshes<=2&&tris<4000,id+' cheap: '+meshes+' calls '+tris+' tris');report[species+' '+id]={meshes,tris};
+  // The cloth band clears the bind-pose head surface everywhere (convex hull + clearance).
+  const P=c.skin.geometry.attributes.position,inv=c.skeleton.boneInverses[c.bones.indexOf(c.joints.head)],v=V();let inside=0;const band=g.children[0].children[0].geometry.attributes.position;for(let i=0;i<band.count;i++){v.fromBufferAttribute(band,i);if(Math.hypot(v.x,v.z)<.06)inside++;}assert.equal(inside,0,'band has no collapsed vertices');}
+ for(const side of ['L','R'])assert.ok(c.joints['arm'+side].children.some(n=>n.name==='Arm ribbon knot '+side&&n.visible),'arm ribbon knot on the upper-arm bone '+side);
+ A.look(c,['champion_belt','heritage_belt']);for(const side of ['L','R'])assert.equal(c.joints['arm'+side].getObjectByName('Arm ribbon knot '+side).visible,false,'knots hide with their ribbons');assert.equal(c.root.getObjectByName('Cosmetic champion_belt').visible,false,'only one belt is worn at a time');
  const B=A.fit.belt(c),[yb,,yt]=B.ys,T=A.fit.strapThickness;
  // Body samples around the waist: skin and shorts, bind-space window near the pelvis.
  const samples=[];for(const mesh of [c.skin,c.shorts]){const P=mesh.geometry.attributes.position;for(let i=0;i<P.count;i+=mesh===c.shorts?5:2){const y=P.getY(i)-.99;if(y>-.06&&y<.32)samples.push([mesh,i]);}}

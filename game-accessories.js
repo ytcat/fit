@@ -117,17 +117,51 @@
   for(const [target,original]of [[ribbon,coach.skin.material],[mesh.customDepthMaterial,coach.skin.customDepthMaterial],[mesh.customDistanceMaterial,coach.skin.customDistanceMaterial]]){target.onBeforeCompile=shader=>{original.onBeforeCompile(shader);shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute float ribbonRestX; varying float vRibbonX;').replace('#include <begin_vertex>','#include <begin_vertex>\nvRibbonX=ribbonRestX;').replace('#include <project_vertex>','transformed+=normalize((bindMatrixInverse*vec4(qrotate(coachQ,(bindMatrix*vec4(normal,0.0)).xyz),0.0)).xyz)*.006;\n#include <project_vertex>');shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying float vRibbonX;').replace(/void main\s*\(\s*\)\s*\{/,'void main(){if(vRibbonX<.442||vRibbonX>.478)discard;');};target.customProgramCacheKey=()=>original.customProgramCacheKey()+'-fitted-ribbon-v1';}
   return mesh;
  }
- function headband(coach,design){const k=materials(),g=new THREE.Group();const add=(geo,name)=>{const m=new THREE.Mesh(geo,k.ribbon);m.name=name;m.castShadow=true;g.add(m);return m;};
-  const band=add(new THREE.CylinderGeometry(.175,.175,.028,40,1,true),'Cloth head ribbon');band.position.set(0,.25,.015);band.scale.z=1.08;const tail=add(new THREE.BoxGeometry(.025,.11,.007),'Ribbon tail');tail.position.set(-.16,.2,-.055);tail.rotation.z=-.25;return g;}
+ const headFits=new WeakMap();
+ // Flat cloth ribbon with real thickness along a path; width runs along `side`, ends cut in a swallowtail.
+ function ribbon(points,side,w0,w1,thick,notch=.6){const curve=new THREE.CatmullRomCurve3(points),n=18,pos=[],nor=[],idx=[],ring=[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
+  for(let i=0;i<=n;i++){const s=i/n,p=curve.getPoint(s),t=curve.getTangent(s),w=w0+(w1-w0)*s,across=side.clone().addScaledVector(t,-side.dot(t)).normalize(),out=new THREE.Vector3().crossVectors(t,across).normalize();
+   for(const [a,b] of ring){const q=p.clone().addScaledVector(across,a*w).addScaledVector(out,b*thick).addScaledVector(t,i===n?a*notch*w:0);pos.push(q.x,q.y,q.z);const nn=out.clone().multiplyScalar(b).addScaledVector(across,a*.35).normalize();nor.push(nn.x,nn.y,nn.z);}}
+  for(let i=0;i<n;i++)for(let k=0;k<4;k++){const a=i*4+k,b=i*4+(k+1)%4;idx.push(a,a+4,b,b,a+4,b+4);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setIndex(idx);return g;}
+ // Head bands are fitted to the convex hull of the forehead slice (bind pose, head bone).
+ function headFit(coach,ys){const key='head'+ys.join();let cache=headFits.get(coach);if(!cache)headFits.set(coach,cache={});if(cache[key])return cache[key];const bins=72,head=coach.joints.head;
+  const s=slices(coach,head,[coach.skin],[[ys[0]-.006,ys[1]],[ys[0],ys[2]],[ys[1],ys[2]+.006]]),rings=s.map(xz=>hullRadii(xz,bins).map(r=>r+.0045));
+  return cache[key]=band(ys,rings,bins);}
+ // Outer surface of the lion's mane at rest along a direction (plus the guides' sway margin).
+ function maneRadius(coach,theta,y0,y1){const rest=coach.maneRest;if(!rest)return 0;let r=0;const dx=Math.sin(theta),dz=Math.cos(theta);for(let i=0;i<rest.length;i+=3){const x=rest[i],y=rest[i+1],z=rest[i+2];if(y<y0||y>y1)continue;const along=x*dx+z*dz,off=Math.abs(x*dz-z*dx);if(off<.035)r=Math.max(r,along);}return r?r-.045:0;}
+ function headband(coach,design){const k=materials(),rabbit=coach.species==='rabbit',side=design==='side',h=side?(rabbit?.044:.054):(rabbit?.034:.04),yc=rabbit?.186:.2,ys=[yc-h/2,yc,yc+h/2],B=headFit(coach,ys),T=side?.0065:.005,cloth=[],trim=[];
+  cloth.push({g:strap(B,ys[0],ys[2],T,.002,72)});
+  if(side){for(const y of [ys[0]+.005,ys[2]-.005])trim.push({g:piping(B,y,T+.0004,.0018,72)});cloth.push({g:piping(B,yc,T+.0002,.0022,72)});}
+  // Knot: at the back (ribbon) or over the left temple (bandana); on a lion it sits on the mane surface.
+  const theta=side?-2.05:Math.PI,f=B.frame(theta,yc,T),mane=maneRadius(coach,theta,yc-.04,yc+.04),o=f.o.clone();if(mane){const r=Math.hypot(o.x,o.z);o.multiplyScalar(Math.max(1,mane/r));o.y=yc;}
+  const knot=new THREE.Matrix4().makeBasis(f.t,f.u,f.n).setPosition(o),place=m=>new THREE.Matrix4().multiplyMatrices(knot,m);
+  cloth.push({g:new THREE.SphereGeometry(1,12,8),m:place(M(0,0,.006,.5,side?.022:.017,side?.017:.014,.011))});
+  for(const s of [-1,1])cloth.push({g:new THREE.TorusGeometry(side?.011:.009,.0045,6,12,Math.PI*1.3),m:place(M(s*.016,.002,.004,s>0?-.6:Math.PI-.6+1.3,1,1,.6))});
+  // Two tails: long and hanging (ribbon) or short and splayed (bandana); swallowtail ends.
+  const down=new THREE.Vector3(0,-1,0),back=f.n.clone(),across=f.t.clone(),start=o.clone().addScaledVector(back,.008);
+  for(const [s,len] of side?[[-1,.11],[1,.085]]:[[-1,.2],[1,.17]]){const pts=[];for(let i=0;i<=4;i++){const a=i/4;pts.push(start.clone().addScaledVector(across,s*(.008+a*(side?.05:.03))).addScaledVector(down,a*len).addScaledVector(back,.012*Math.sin(a*Math.PI)+a*(side?.03:.012)));}
+   cloth.push({g:ribbon(pts,across,side?.03:.026,side?.034:.03,T*.8)});}
+  const group=new THREE.Group();for(const [parts,mat,name] of [[cloth,side?k.navy:k.ribbon,'cloth'],[trim,k.cream,'trim']]){if(!parts.length)continue;const mesh=new THREE.Mesh(merge(parts),mat);mesh.name='Head band '+name;mesh.castShadow=true;group.add(mesh);}
+  return group;}
+ // Knot and two short tails on each fitted arm ribbon, carried by the upper-arm bone at the
+ // ribbon's lateral (rest-pose top) edge, so they lie along the arm toward the elbow.
+ function armKnots(coach,mesh){const k=materials(),P=mesh.geometry.attributes.position,N=mesh.geometry.attributes.normal,knots=[];
+  for(const [side,s] of [['L',-1],['R',1]]){let best=-1;for(let i=0;i<P.count;i++)if(Math.sign(P.getX(i))===s&&(best<0||P.getY(i)>P.getY(best)))best=i;if(best<0)continue;
+   const bone=coach.joints['arm'+side],inv=coach.skeleton.boneInverses[coach.bones.indexOf(bone)],p=new THREE.Vector3().fromBufferAttribute(P,best).applyMatrix4(mesh.bindMatrix).applyMatrix4(inv),n=new THREE.Vector3().fromBufferAttribute(N,best).transformDirection(inv),o=p.addScaledVector(n,.02);
+   const along=new THREE.Vector3(s,0,0),across=new THREE.Vector3(0,0,1),parts=[{g:new THREE.SphereGeometry(1,10,7),m:M(o.x,o.y,o.z,0,.017,.013,.019)}];
+   for(const t of [-1,1]){const pts=[];for(let i=0;i<=3;i++){const a=i/3;pts.push(o.clone().addScaledVector(along,.006+a*.075).addScaledVector(across,t*(.006+a*.012)).addScaledVector(n,.003+.006*a));}parts.push({g:ribbon(pts,across,.018,.021,.005)});}
+   const knot=new THREE.Mesh(merge(parts),k.ribbon);knot.name='Arm ribbon knot '+side;knot.castShadow=true;bone.add(knot);knots.push(knot);}
+  mesh.userData.knots=knots;return knots;}
  function build(coach,item){const g=new THREE.Group();g.name='Cosmetic '+item.id;
-  if(item.kind==='armbands')return fittedBands(coach,materials().ribbon);
+  if(item.kind==='armbands'){const mesh=fittedBands(coach,materials().ribbon);armKnots(coach,mesh);return mesh;}
   if(item.kind==='belt'){coach.joints.hips.add(g);g.add(belt(coach,item.design));}else{coach.joints.head.add(g);g.add(headband(coach,item.design));}
   return g;}
  function look(coach,ids=[]){if(!coach)return;let groups=looks.get(coach);if(!groups&&!ids.length)return;if(!groups){groups={};looks.set(coach,groups);}
   // One item per kind: the last id wins, so a Shop preview replaces the equipped belt or headband.
   const shown=new Map();for(const id of ids){const item=catalog.find(c=>c.id===id);if(item)shown.set(item.kind,item.id);}
   const visible=new Set(shown.values());for(const id of visible)if(!groups[id])groups[id]=build(coach,catalog.find(c=>c.id===id));
-  for(const [id,g]of Object.entries(groups))g.visible=visible.has(id);
+  for(const [id,g]of Object.entries(groups)){g.visible=visible.has(id);for(const knot of g.userData.knots||[])knot.visible=g.visible;}
  }
  const api={catalog,fresh,validate,action,look,fit:{belt:c=>beltBand(c),strapThickness:STRAP}};if(typeof module!=='undefined')module.exports=api;else window.GameAccessories=api;
 })();
