@@ -664,7 +664,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0051 — Real boxing stance: lead glove and lead foot forward
 - **Reported:** 2026-11-11 (reference photo of two people doing pad work; not stored in the repo)
-- **Status:** OPEN — first attempt (33° blade, lead glove 9–22 cm ahead) broke 10 motion tests and was not merged; kept as `qa/gotr-0051/coach-stance-wip.js.txt`. Baseline measured: chest turned 11°, lead glove 3.5–5 cm ahead in training (14 cm in shadowboxing), rear heel flat
+- **Status:** PART 1 in v1.36 (`agent/stance` f627617): bag, dummy, shadowboxing, mitts — chest turn 11° → 33°, pelvis 7° → 10°, lead glove 3.5–5 → 12 cm ahead (target 15), rear heel flat → up 2.1 cm, foot stagger unchanged (0.43–0.54 m), both species; full suite 96/96. OPEN: fights and sparring keep the old guard (blocked jab lands on a bent arm, rear forearm too low, sparring partner stops blocking); lead glove short of 15 cm
 - **Priority:** P1
 - **Area:** Animation / stance
 - **Reported behavior / request:** "I don't like how he stands. The gloves have to be left in front of the right, same with the legs."
