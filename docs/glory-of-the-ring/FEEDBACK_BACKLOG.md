@@ -413,14 +413,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0031 — Map every user flow and make the first-time experience clear, simple and exciting
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (agent `ux-flows`)
+- **Status:** IN REVIEW — flow map and proposal delivered 2026-11-11; waiting for the owner's direction before implementation
 - **Priority:** P1
 - **Area:** UX / onboarding / navigation
 - **Reported behavior / request:** "Can you please prepare all UX flows with decision making. I want to see all game process and user flow. I feel that the user experience is still not intuitive, clear and simple. I want the new user to be able to understand exactly what to do and it will be clear and make sense and exciting."
 - **Expected behavior:** (1) A visual map of the whole game as it exists today: every screen, entry point and decision (first launch, train, fight, academy, shop, loadouts, world, cup, missions, settings) with where players get lost. (2) A proposed simplified journey for a new player (first 5 minutes, then the daily loop) with one obvious next step at every moment. (3) After the user reviews it, implement the new flow in slices.
 - **Acceptance criteria:** Diagrams cover every reachable screen; each friction point backed by evidence from the real app; the proposed first-time path reaches a first win, a first reward and a first unlock with no dead ends; the user approves before implementation.
-- **Implementation:** In progress (mapping and proposal first).
-- **Evidence:** Pending.
+- **Delivered (`agent/ux-flows`):** `docs/ux/UX_FLOWS.md` (screen inventory, current flow, friction map F1–F15, proposed navigation Home · Train · Fight · Learn · Shop, first five minutes, core loop, "Next up" rules, empty states, reward moments, longer arc, ranked changes and release slices R1–R4) and the phone page `docs/ux/ux-flows.html`, published privately for the owner as an Artifact. Top findings: no first step after naming; Train/Fight run under coach control unless Play is on; the World hub pops up after every activity and hides who won; one place has four names; language is three levels deep; developer notes on player screens.
+- **Evidence:** `qa/gotr-0031/` (34 screenshots from v1.19 at 402×690 and 1366×768, Playwright helpers). Limits: the third Academy repetition and the "Lesson passed" screen were described from code (software rendering too slow); Mermaid diagrams not rendered here; no physical phone.
+- **Open questions for the owner:** arenas as earned rewards for new players (existing players keep all); Lion/Rabbit choice on the first screen and rival cards no longer switching species; one name for the player's place (Gym / Club / Corner).
 
 ### GOTR-0032 — Mitt-work punches still look like small touches
 - **Reported:** 2026-11-11 (after v1.18)
