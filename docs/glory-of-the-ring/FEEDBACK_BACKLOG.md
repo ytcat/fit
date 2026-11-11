@@ -422,6 +422,18 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** In progress (mapping and proposal first).
 - **Evidence:** Pending.
 
+### GOTR-0032 — Mitt-work punches still look like small touches
+- **Reported:** 2026-11-11 (after v1.18)
+- **Status:** IN PROGRESS (agent `smooth-motion`, after GOTR-0027/0028)
+- **Priority:** P1
+- **Area:** Mitt training / animation feel
+- **Reported behavior / request:** "In the coach training the punches are not strong enough; it still looks like a small touch."
+- **Known cause:** v1.18 (GOTR-0024/0025) sped up fight, bag and shadow punches but left mitt choreography unchanged: mitt hooks meet the pad at about 1.1 m/s, mitt uppercuts keep the old timing, pad recoil is small (0.065 × force, fast decay) and the coach's arm and body barely react.
+- **Expected behavior:** The glove accelerates into the mitt, the mitt pops back clearly, the coach's arm and shoulder absorb and the coach meets straights with a short counter-push; crisp impact accent and pad-pop sound.
+- **Acceptance criteria:** Measured before/after glove speed at mitt contact for all six punches and pad displacement; matched before/after frame strips; GOTR-0012 extension results and mitt contact tests still pass; no sliding feet.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
