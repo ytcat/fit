@@ -598,14 +598,14 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0047 — Camera in front for the result ceremony and for rope jumping
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (integrator)
+- **Status:** READY FOR QA — in the next release
 - **Priority:** P1
 - **Area:** Camera
 - **Reported behavior / request:** "When the fight is over and the referee holds the fighters, the camera should always be in front of them. Also, as a default, the camera lock when rope jumping should be in front."
 - **Cause:** the side lock kept the side it had during the fight, so after the line-up it could end up beside or behind the fighters; an unlocked camera stayed wherever the player left it. Rope jumping under the lock used the same side view as the other stations.
 - **Implementation:** `camera-director.js` `front()`: during scoring and the ceremony the camera frames both lined-up fighters (and the referee between them) from where they face, locked or unlocked, once per fight; an explicit unlock during the ceremony is respected; afterwards the player's own choice returns. Locked rope jumping is framed from the front, and the lock button reads "Front lock" there (HE/RU too).
 - **Tests:** new `tests/camera-front.test.cjs`; `tests/camera-director.test.cjs` rope assertion changed on purpose from side-on to front.
-- **Evidence:** `qa/gotr-0047/` (browser run pending).
+- **Evidence:** `qa/gotr-0047/` — real app (`browser.cjs`, `results.json`): ceremony with the lock on (phone 402×690) and off (desktop 1366×768) and locked rope (phone): camera direction vs the subjects' facing = 1.000 in all three (1 = straight in front); screenshots `ceremony-locked-phone.webp`, `ceremony-free-desktop.webp`, `rope-front-lock-phone.webp` show both fighters and the referee from the front with the winner's hand raised, and the lion jumping rope seen from the front with the button "Front lock". Found on the way: after the bout the World window opens over the ceremony (`dialogsOverCeremony`), so players miss it — fixed by UX R2's result card (GOTR-0031 change #1). Tests: `tests/camera-front.test.cjs`, `tests/camera-director.test.cjs` pass.
 
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
