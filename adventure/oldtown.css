@@ -42,3 +42,7 @@
 #stageContainer > .adv-goal .adv-goal-text{white-space:nowrap}
 #stageContainer > .adv-goal .adv-goal-bar{width:28px}
 #stageContainer > .adv-goal .adv-goal-quit{width:22px;height:22px;min-height:0;font-size:13px}
+/* GOTR-0054 owner: "take the text out of the box" — the goal is plain HUD text, no panel */
+#stageContainer > .adv-goal{background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;padding:0!important;color:#fff;font-weight:600;text-shadow:0 1px 2px rgb(0 0 0/.9),0 0 6px rgb(0 0 0/.6)}
+#stageContainer > .adv-goal .adv-goal-bar{width:36px;height:3px;background:rgb(255 255 255/.25)}
+#stageContainer > .adv-goal .adv-goal-quit{background:none!important;border:0!important;box-shadow:none!important;color:rgb(255 255 255/.75);text-shadow:inherit}

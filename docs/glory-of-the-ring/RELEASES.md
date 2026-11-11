@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.30 | 2026-11-11 | (this release) | Mission goal shown as plain text on the scene, without a box — GOTR-0054 |
 | v1.29 | 2026-11-11 | (this release) | Hotfix: mission goal is a small line at the top of the game view (between the cue and the power gauge) instead of a bar across the fighters — GOTR-0053/0054 |
 | v1.28 | 2026-11-11 16:34 | `f93d8f4` | D-pad can no longer get stuck on a direction; mission goal no longer covers the header — GOTR-0053 |
 | v1.27 | 2026-11-11 16:27 | `2a2b63d` | Guard hand no longer jumps for one frame in mitt work; mitt hooks drive deeper through the mitt — GOTR-0027, GOTR-0032 |
