@@ -423,7 +423,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0031 — Map every user flow and make the first-time experience clear, simple and exciting
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS — owner approved the proposal on 2026-11-11 ("The rest do as you suggested"); building in releases R1–R4
+- **Status:** R1 READY FOR QA — merged (`agent/ux-r1` 6e35cd8), next release; R2–R4 open
 - **Priority:** P1
 - **Area:** UX / onboarding / navigation
 - **Reported behavior / request:** "Can you please prepare all UX flows with decision making. I want to see all game process and user flow. I feel that the user experience is still not intuitive, clear and simple. I want the new user to be able to understand exactly what to do and it will be clear and make sense and exciting."
@@ -434,6 +434,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Open questions for the owner:** arenas as earned rewards for new players (existing players keep all); Lion/Rabbit choice on the first screen and rival cards no longer switching species; one name for the player's place (Gym / Club / Corner).
 - **Owner decisions (2026-11-11):** (1) Arenas: keep all nine available for now — no earned arenas during development. Future adventure order: beginner training → street fight → underground and other places → advancing → championship (recorded on GOTR-0008). Change #8 (progressive unlocks) is deferred to go-live. (2) Lion/Rabbit choice on the first screen; rival cards stop switching the player's species. (3) One name: **Gym**. Everything else as proposed.
 - **Plan:** R1 = changes 2, 5, 10, 12 plus the Lion/Rabbit choice; R2 = 1, 6, 9; R3 = 3, 4; R4 = 7, 11 (8 deferred). Each release is published with its own version number.
+- **R1 result:** player controls by default (Auto is a separate button); Gym naming; owner's terms; developer notes removed; empty states; Academy single Start; Lion/Rabbit chosen on the first screen and rival cards no longer switch species — same-species fights are not supported by the engine (training-arena.js forces the opposite species), so rivals show only the other species and say which are for the other fighter. Evidence: `qa/gotr-0031/r1/results.txt` 93/93 checks at 4 sizes × EN/HE/RU before the merge, 29/29 after (402×690 + old save); affected tests 21 files, 0 fails. With a Rabbit fighter the mitts are held by a lion (career-drills.js).
 
 ### GOTR-0032 — Mitt-work punches still look like small touches
 - **Reported:** 2026-11-11 (after v1.18)
@@ -465,7 +466,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0034 — One set of words for the three characters
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (part of UX release R1, agent `ux-r1`)
+- **Status:** READY FOR QA — merged with UX R1, next release
 - **Priority:** P1
 - **Area:** UI copy / terminology
 - **Owner's definitions:** **Coach** = the rabbit who holds the mitts. **Fighter** = the main character (the player's boxer). **Opponent** = whoever the fighter faces in sparring and in a fight.
@@ -474,6 +475,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Open point:** When the player chooses Rabbit as the fighter, who holds the mitts must be checked in the engine (the coach is a rabbit today).
 - **Implementation:** In progress.
 - **Evidence:** Pending.
+- **Result:** see GOTR-0031 R1 and GOTR-0046 audit.
 
 ### GOTR-0035 — Game-pad controls: round D-pad and one-screen punch buttons
 - **Reported:** 2026-11-11
@@ -582,7 +584,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0045 — Player profile dialog stays in English in Hebrew (and Russian)
 - **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Hebrew)
-- **Status:** IN PROGRESS (agent `ux-r1`, part of the R1 copy pass)
+- **Status:** READY FOR QA — merged with UX R1, next release
 - **Priority:** P1
 - **Area:** i18n / RTL / profile
 - **Reported behavior / request:** "I'm in Hebrew view and my corner still shows English."
@@ -590,10 +592,11 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Expected behavior:** The dialog (and every other player-visible string in that file) is fully translated in HE and RU with correct RTL punctuation; one name for this place consistent with the Gym/terms pass; no developer note about an account service; the close button shows no focus ring on open.
 - **Acceptance criteria:** HE and RU screenshots at 402×690 with no English left except the player's own name; bidi-isolated names.
 - **Evidence:** `qa/gotr-0045/user-v1.20-he-profile-english.webp` (owner's screenshot).
+- **Result:** see GOTR-0031 R1 and GOTR-0046 audit.
 
 ### GOTR-0046 — Hebrew/Russian screens still show a lot of English (systematic sweep)
 - **Reported:** 2026-11-11 (screenshot from the owner's iPhone, v1.20, Hebrew, fight intro): "Again, you see a lot in English."
-- **Status:** IN PROGRESS (agent `ux-r1`, with GOTR-0045)
+- **Status:** MOSTLY DONE — merged; last 6 strings per language in game-shell.js in progress (`agent/ux-r1b`)
 - **Priority:** P1
 - **Area:** i18n / RTL
 - **Observed:** header "Guest", HUD names "GUEST" / "SHADOW", intro card "GUEST VS SHADOW · ROUND 1 · GET READY", the "VS" badge and the title.
@@ -602,6 +605,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **English glossary (kept in Latin script in every language):** Glory of the Ring (game name); Shadowboxing, Sparring; Jab, Cross, Hook, Uppercut (and lead/rear variants); Slip, Roll, Guard; Combo, KO, Burst, VS; the combo names (First Rhythm, Corner Turn, Counter Chain, Thunder Arc, Rolling Return, School Signature). Bidi-isolated inside HE sentences. Everything else is translated (menus, buttons, instructions, places, tips, round text, Guest → אורח / Гость, opponents' HE/RU names). The owner can add or remove terms.
 - **Acceptance criteria:** a Playwright audit (`qa/gotr-0046/i18n-audit.cjs`) walks every main screen and state in HE and RU and lists visible Latin-letter text; allowlist = the English glossary, the version number, numbers/coins and player-typed names; final run: 0 findings in both languages.
 - **Evidence:** `qa/gotr-0046/user-v1.20-he-fight-english.webp` (owner's screenshot).
+- **Result:** `qa/gotr-0046/i18n-audit.cjs` over 50 states per language with the English glossary (`GotrGlossary`): 0 findings outside game-shell.js; 12 remain there (reward card, history rows, Gym section title), being fixed now.
 
 ### GOTR-0047 — Camera in front for the result ceremony and for rope jumping
 - **Reported:** 2026-11-11
