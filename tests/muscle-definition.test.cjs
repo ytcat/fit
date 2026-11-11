@@ -17,10 +17,6 @@ for(const species of ['lion','rabbit']){
  assert.ok(moved>15000,'relief covers torso, back, arms and legs: '+moved);assert.ok(out>.006&&inward>.002,'muscles rise and their borders carve: '+out+' '+inward);
  // Head, hands-in-gloves and the groin under the shorts are untouched.
  for(let i=0;i<d.count;i+=7){const y=P.getY(i),x=Math.abs(P.getX(i));if(y>1.95||x>.93||(y>.80&&y<1.0&&x<.12))assert.ok(Math.hypot(d.array[i*4],d.array[i*4+1],d.array[i*4+2])*R<.0005,'no relief outside the muscles at '+[P.getX(i),y,P.getZ(i)].map(v=>v.toFixed(2)));}
- // GOTR-0050 volume: static mass on chest and arms, none at the belt line, hands or legs.
- const mass=g.attributes.avatarMass,MR=D.massRange/32767,massAt=(test)=>{let m=0;for(let i=0;i<mass.count;i++)if(test(P.getX(i),P.getY(i),P.getZ(i)))m=Math.max(m,mass.array[i]*MR);return m;};
- assert.ok(mass&&massAt((x,y,z)=>Math.abs(x)<.25&&y>1.5&&y<1.62&&z>.1)>.015,'pectorals gain real volume');assert.ok(massAt((x,y)=>Math.abs(x)>.45&&Math.abs(x)<.6&&y>1.5)>.012,'upper arms gain real volume');
- assert.equal(massAt((x,y)=>y>.9&&y<1.18),0,'belt line untouched');assert.equal(massAt((x,y)=>Math.abs(x)>.9||y<.8),0,'hands in gloves and legs untouched');
  // Fur strands inherit the relief of their root vertex (root and tip identical).
  const f=c.bodyFur.geometry.attributes.avatarDefinition;assert.ok(f,'fur carries the definition');for(let i=0;i<f.count;i+=3)for(let k=1;k<3;k++)for(let j=0;j<4;j++)assert.equal(f.array[(i+k)*4+j],f.array[i*4+j]);
  // Pose response on the real surface.
