@@ -20,14 +20,16 @@
  const burst={sequence:[['jab','head'],['cross','head'],['hook','body'],['rear_uppercut','head'],['hook','head']],tempo:.76,perSecond:.11,hit:.25,defence:.17,recover:.7,stamina:.08,durations:{jab:.64,cross:.70,hook:.78,rear_hook:.78,uppercut:.84,rear_uppercut:.84}};
  const presets={three:{rounds:3,roundSeconds:20,restSeconds:10},club:{rounds:2,roundSeconds:20,restSeconds:10},six:{rounds:1,roundSeconds:40,restSeconds:10},title:{rounds:1,roundSeconds:60,restSeconds:10},exhibition:{rounds:2,roundSeconds:20,restSeconds:10},quick:{rounds:1,roundSeconds:20,restSeconds:0}};
  class BoxingFight {
-  constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor}={}){
+  constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor,adventureEdge}={}){
    this.seed=seed>>>0;this.state=this.seed;this.preset=preset;Object.assign(this,presets[preset]||presets.club);
    if(rounds!=null)this.rounds=rounds;if(roundSeconds!=null)this.roundSeconds=roundSeconds;if(restSeconds!=null)this.restSeconds=restSeconds;
    this.knockdownSeconds=5.6;
    this.time=0;this.phase='intro';this.phaseTime=0;this.round=1;this.roundTime=0;this.eventId=0;this.actionId=0;this.events=[];this.history=[];this.roundStats={lion:empty(),rabbit:empty()};this.totals={lion:empty(),rabbit:empty()};this.seen=new Set();this.result=null;
    this.cards=[{name:'Judge 1',weights:[1,.08,.18,.003],rounds:[]},{name:'Judge 2',weights:[1.04,.16,.09,.002],rounds:[]},{name:'Judge 3',weights:[.98,.05,.25,.005],rounds:[]}];
    this.fighters={};for(const actor of actors)this.fighters[actor]={actor,condition:100,stamina:1,stun:0,down:0,action:null,next:0,plan:[],tactic:actor==='lion'?'pressure':'outside',skill:.78+this.random()*.18,power:.85+this.random()*.3,tempo:.85+this.random()*.3,reaction:null,damage:{left:0,right:0,body:0}};
-   if(actors.includes(careerActor)&&careerStats){const f=this.fighters[careerActor],n=k=>clamp((Number(careerStats[k]||20)-20)/79);f.power*=1+n('power')*.55;f.tempo*=1+n('speed')*.38;f.skill=Math.min(.99,f.skill+n('defence')*.18);f.footwork=1+n('footwork')*.40;f.recovery=1+n('stamina')*.65;f.economy=1-n('stamina')*.28;f.accuracy=n('accuracy');}
+   if(actors.includes(careerActor)&&careerStats){const f=this.fighters[careerActor],n=k=>clamp((Number(careerStats[k]||20)-20)/79);f.power*=1+n('power')*.55;f.tempo*=1+n('speed')*.38;f.skill=Math.min(.99,f.skill+n('defence')*.18);f.footwork=1+n('footwork')*.40;f.recovery=1+n('stamina')*.65;f.economy=1-n('stamina')*.28;f.accuracy=n('accuracy');
+    // Adventure stat edge (Power/Speed/Stamina). Multipliers are 1 without an adventure profile.
+    const edge=n=>Number.isFinite(adventureEdge?.[n])&&adventureEdge[n]>0?Math.min(1.5,adventureEdge[n]):1;f.power*=edge('impact');f.tempo*=edge('speed');f.recovery*=edge('stamina');}
    this.order=this.random()<.5?['lion','rabbit']:['rabbit','lion'];
    for(const a of actors)this.fighters[a].burst={charge:0,order:null,run:null,open:0,used:0};
   }

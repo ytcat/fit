@@ -3,6 +3,7 @@
  const cupRules=typeof module!=='undefined'?require('./game-tournament.js'):window.GameTournament;
  const worldRules=typeof module!=='undefined'?require('./game-world.js'):window.GameWorld;
  const iqRules=typeof module!=='undefined'?require('./fight-iq.js'):window.FightIQ;
+ const adventureRules=typeof module!=='undefined'?require('./adventure-progress.js'):window.AdventureProgress;
  const accessories=typeof module!=='undefined'?require('./game-accessories.js'):window.GameAccessories;
  const venueIds=Object.freeze(['default','neon_strip','harbor_dome','street','boxing_club','underground','docks','regional','championship']);
  const slots=['gloves','shorts','boots','belt'],species=['lion','rabbit'];
@@ -27,7 +28,7 @@
  const fightPay=Object.freeze({win:1.5,draw:1,loss:.6});
  const quests=[...combos.map(c=>({id:c.id,name:c.name,key:c.key,target:c.target,comboId:c.id})),{id:'steady_school',name:'Five completed activities',key:'completed',target:5},{id:'first_bout',name:'Complete an active fight',key:'fights',target:1},{id:'straight_work',name:'Land 100 contacts',key:'hits',target:100},{id:'school_minutes',name:'Complete ten active minutes',key:'seconds',target:600}];
  const cleanName=name=>String(name||'').replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,'').trim();
- const fresh=p=>({version:1,venue:'default',school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(cupRules?{cup:cupRules.fresh()}:{}),...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{})});
+ const fresh=p=>({version:1,venue:'default',school:{name:cleanName(p.name+' School'),crest:'sun',philosophy:'balance'},inventory:slots.map(s=>s+'_default'),equipment:Object.fromEntries(slots.map(s=>[s,s+'_default'])),combos:{owned:[],training:[],fight:[]},activity:{completed:0,rope:0,fights:0,defences:0,hits:0,seconds:0},ledger:[{id:'baseline:'+p.id,type:'baseline',coins:0,xp:p.boxers.lion.xp+p.boxers.rabbit.xp,rule:'migration-v1'}],processed:[],quests:[],history:[],...(cupRules?{cup:cupRules.fresh()}:{}),...(worldRules?{world:worldRules.fresh(p.id)}:{}),...(iqRules?{learning:iqRules.fresh()}:{}),...(adventureRules?{adventure:adventureRules.fresh()}:{})});
  const wallet=g=>({coins:g.ledger.reduce((n,t)=>n+t.coins,0),xp:g.ledger.reduce((n,t)=>n+t.xp,0),transactions:g.ledger.length});
  const fail=message=>{throw Error(message);};
  const integer=(n,max=1e9)=>Number.isSafeInteger(n)&&n>=0&&n<=max;
@@ -95,6 +96,7 @@
   validateHistory(g);if(accessories){if(!g.accessories)g.accessories=accessories.fresh();accessories.validate(g.accessories,g.ledger);}
   if(worldRules){if(g.world===undefined)g.world=worldRules.fresh(p.id);worldRules.validate(g.world,g);}
   if(iqRules){if(g.learning===undefined)g.learning=iqRules.fresh();iqRules.validate(g.learning,g.ledger);}
+  if(adventureRules){if(g.adventure===undefined)g.adventure=adventureRules.fresh();adventureRules.validate(g.adventure);}
   if(g.cup!==undefined&&!cupRules)fail('Local cup rules are unavailable. Saved progress is preserved.');
   if(cupRules){if(g.cup===undefined)g.cup=cupRules.fresh();cupRules.validate(g.cup,{history:g.history,ledger:g.ledger});}
   return g;
@@ -105,6 +107,7 @@
   if(a.type==='iq'){if(!iqRules||!p||!species.includes(a.species))fail('Learning is unavailable.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');if(!g.learning)g.learning=iqRules.fresh();const result=iqRules.apply(g.learning,{...a,type:a.iqAction,usernameProfileId:p.id});if(result.transaction){g.ledger.push({...result.transaction,species:a.species});p.boxers[a.species].xp+=result.earnedXP;}return result;}
   if(a.type==='venue'){if(!venueIds.includes(a.venueId))fail('Unknown arena style.');g.venue=a.venueId;return {venueId:g.venue};}
   if(a.type==='accessory'){if(!accessories)fail('Accessories unavailable.');return accessories.action(g,{...a,free:freeMode()});}
+  if(a.type==='adventure'){if(!adventureRules)fail('Adventure rules are unavailable.');return adventureRules.action(g,a,freeMode());}
   if(a.type==='world'){if(!worldRules)fail('World rules are unavailable.');return worldRules.action(g,a);}
   if(a.type==='buy'){const item=catalog.find(c=>c.id===a.itemId);if(!item||!item.price)fail('Choose a shop item.');if(g.inventory.includes(item.id))fail('Already owned.');const free=freeMode();if(!free&&wallet(g).coins<item.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');g.ledger.push(free?grant('purchase:'+item.id,{itemId:item.id}):{id:'purchase:'+item.id,type:'spend',coins:-item.price,xp:0,itemId:item.id,rule:'shop-v1'});g.inventory.push(item.id);return {itemId:item.id,transactionId:'purchase:'+item.id,free};}
   if(a.type==='equip'){const item=catalog.find(c=>c.id===a.itemId);if(!slots.includes(a.slot)||item?.slot!==a.slot||!g.inventory.includes(a.itemId))fail('Own a compatible item for this slot first.');g.equipment[a.slot]=a.itemId;return {itemId:a.itemId};}
