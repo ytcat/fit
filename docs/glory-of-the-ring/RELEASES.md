@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.37 | 2026-11-11 | (this release) | Chapter 1 story scenes: arrival at the bus stop with Coach Pip, Brick dumping the heavy bag at the gym door, and the carry-the-bag street mini-game — GOTR-0056 |
 | v1.36 | 2026-11-11 | `c727884` | Real boxing stance, part 1 (bag, dummy, shadowboxing, mitts): body turned 33° (was 11°), left glove 12 cm in front (was 3.5–5), rear heel up; fights and sparring still use the old guard — GOTR-0051 |
 | v1.35 | 2026-11-11 | `12dc5fe` | Adventure: mission tiles visible right under the chapter progress; route dots appear one by one along the streets to the next chapter — GOTR-0055 |
 | v1.34 | 2026-11-11 | `b3fecac` | Level window fits the phone screen; Lion/Rabbit choice without pictures |
