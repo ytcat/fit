@@ -103,7 +103,9 @@
       card.append(head);
       if (info.coach) { const d = el('dl', 'adv-facts'); d.append(el('dt', '', w.coach), el('dd', '', T(info.coach)), el('dt', '', w.boss), el('dd', '', `${T(info.boss)} · ${w.entry} ${info.level}`)); card.append(d); }
       else if (info.sub && p.kind !== 'chapter') card.append(el('p', 'adv-sub-line', T(info.sub)));
-      card.append(el('p', 'adv-soon', info.side ? w.sideSoon : w.soon));
+      const town = p.id === 'oldtown' && window.AdventureOldTown ? AdventureOldTown.render(ctx) : null;
+      if (town) card.append(town); else card.append(el('p', 'adv-soon', info.side ? w.sideSoon : w.soon));
+      card.classList.toggle('adv-has-town', !!town); modal.classList.toggle('adv-town-open', !!town);
       const acts = el('div', 'adv-actions');
       if (info.train) acts.append(button(`${w.train} · ${venueName(info.train)}`, () => { change({ type: 'venue', venueId: info.train }); startTraining({ mode: 'pads', play: true }); }, 'game-button adv-go'));
       for (const id of info.arenas || []) acts.append(button(`${w.fight} · ${venueName(id)}`, () => { if (change({ type: 'venue', venueId: id })) startFight({}); }, 'game-button adv-go' + (info.train ? ' adv-alt' : '')));
