@@ -283,6 +283,13 @@
   }
   // ---- the Old Town sheet content: small icon tiles (playable first, "coming soon" last), details on tap, boss block ----
   const ICON = { curb_footwork: '👟', rooftop_balloons: '🎈', whistle_chase: '🦝', kids_skateboard: '🛹', grandma_groceries: '👵', influencer_challenge: '🤳', clean_hands: '🧤', crowd_circle: '👥', rooftop_callout: '📣', first_stance: '🛡️', one_two_mitts: '🥊', bag_power: '💥', roll_under_hook: '🌀', rope_rhythm: '🪢', heavy_bag_van: '🚚', teach_the_kid: '🧒', morning_sparring: '🥋', snoring_guard: '😴' };
+  // Short tile labels (at most 10 characters); the full title is in the detail. Boxing terms stay English.
+  const SHORT = {
+    first_stance: L('Stance', 'עמידה', 'Стойка'), one_two_mitts: L('One-two', 'ימין-שמאל', 'Двойка'), bag_power: L('Power', 'כוח', 'Сила'), roll_under_hook: L('Roll', 'Roll', 'Roll'), rope_rhythm: L('Rope', 'חבל', 'Скакалка'),
+    heavy_bag_van: L('New bag', 'שק חדש', 'Мешок'), teach_the_kid: L('Teach kid', 'ללמד', 'Малыш'), morning_sparring: L('Sparring', 'ספארינג', 'Спарринг'), snoring_guard: L('Guard', 'שומר', 'Сторож'),
+    curb_footwork: L('Footwork', 'רגליים', 'Шаги'), rooftop_balloons: L('Balloons', 'בלונים', 'Шарики'), whistle_chase: L('Whistle', 'משרוקית', 'Свисток'), kids_skateboard: L('Skateboard', 'סקייט', 'Скейт'), grandma_groceries: L('Grandma', 'סבתא', 'Бабушка'),
+    influencer_challenge: L('Show-off', 'משפיען', 'Блогер'), clean_hands: L('Clean', 'נקי', 'Чисто'), crowd_circle: L('Crowd', 'מעגל', 'Круг'), rooftop_callout: L('Callout', 'אתגר', 'Вызов')
+  };
   function render(ctx, opts = {}) {
     const w = W(), A_ = A(), store = ctx.store, g = store.game(), tiles = [], rest = [], chap = opts.chapter || 1, bossId = A_.chapters[chap - 1].boss;
     const all = A_.missions.filter(x => x.chapter === chap), so = id => { const i = window.AdventureStory?.order.indexOf(id); return i >= 0 ? i : 99; }, ordered = [...all.filter(m => DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id)), ...all.filter(m => !DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id))];
@@ -301,7 +308,7 @@
       const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id], n = rec?.stars || 0;
       const t = btn('', () => show(m, t), 'adv-tile' + (playable ? '' : ' adv-tile-soon') + (n === 3 ? ' adv-tile-done' : '')); t.dataset.mission = m.id; t.setAttribute('aria-pressed', 'false'); if (m.id === rec1) { t.classList.add('adv-tile-next'); t.dataset.next = '1'; } if (St) t.dataset.beat = String(St.beatOf(m.id));
       t.setAttribute('aria-label', `${T(m.titles)} · ${playable ? n + '/3 ' + w.stars : w.soon}`); t.title = T(m.titles);
-      t.append(mk('i', 'adv-tile-ico', ICON[m.id] || '•'), mk('span', 'adv-tile-name', T(m.titles)), mk('span', 'adv-tile-state', playable ? starsText(n) : '🔒'));
+      t.append(mk('i', 'adv-tile-ico', ICON[m.id] || '•'), mk('span', 'adv-tile-name', SHORT[m.id] ? T(SHORT[m.id]) : T(m.titles)), mk('span', 'adv-tile-state', playable ? starsText(n) : '🔒'));
       tiles.push(t);
     }
     if (window.AdventureStory) {
@@ -311,7 +318,7 @@
         if (!items.length) detail.append(mk('p', 'adv-mission-goal', w.jEmpty));
         for (const it of items) { const row = mk('p', 'adv-journal-line'); row.append(AdventureStory.bust(it.who), mk('span', '', `${it.name}: ${it.text}`)); detail.append(row); }
         opts.expand?.(); detail.scrollIntoView?.({ block: 'nearest' });
-      }, 'adv-tile adv-tile-journal'); jt.append(mk('i', 'adv-tile-ico', '📖'), mk('span', 'adv-tile-name', w.journal), mk('span', 'adv-tile-state', String(AdventureStory.journal().length))); jt.setAttribute('aria-label', w.journal); tiles.push(jt);
+      }, 'adv-tile adv-tile-journal'); jt.append(mk('i', 'adv-tile-ico', '📖'), mk('span', 'adv-tile-name', { en: 'Journal', he: 'יומן', ru: 'Дневник' }[lang()]), mk('span', 'adv-tile-state', String(AdventureStory.journal().length))); jt.setAttribute('aria-label', w.journal); tiles.push(jt);
     }
     rest.push(detail);
     // Boss block (shown when the sheet is expanded)
@@ -331,5 +338,5 @@
     boss.append(acts); rest.push(boss);
     return { tiles, rest };
   }
-  window.AdventureOldTown = { CH, BOSS, toastLog, reward, render, start, bossStart, goalText, defs: DEFS, get run() { return run; }, copy };
+  window.AdventureOldTown = { SHORT, CH, BOSS, toastLog, reward, render, start, bossStart, goalText, defs: DEFS, get run() { return run; }, copy };
 })();

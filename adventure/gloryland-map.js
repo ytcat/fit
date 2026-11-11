@@ -525,6 +525,9 @@ function streetRoute(W, a, b) {
   const heap = [[0, idx(s0[0], s0[1])]]; dist[heap[0][1]] = 0;
   const push = it => { heap.push(it); let i = heap.length - 1; while (i) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
   const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { let m = i; const l = 2 * i + 1, r = l + 1; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };
+  // Cells a tall block hides from the default chapter camera (yaw .24, pitch .9: looking north-north-west from the south) cost extra,
+  // so the dots prefer streets the player can see. A block of about 6 units hides what lies within 6 / tan(pitch) behind it.
+  const hid = new Int8Array(NX * NZ), hidden = (x, z) => { const i = idx(x, z); if (hid[i]) return hid[i] > 0; let h = false; for (let d = 1; d <= 5 && !h; d++) { const bx = Math.round(x + Math.sin(.24) * d), bz = Math.round(z + Math.cos(.24) * d); if (inGrid(bx, bz) && blocked[idx(bx, bz)]) h = true; } hid[i] = h ? 1 : -1; return h; };
   const edge = (x, z) => { let n = 0; for (let dz = -1; dz <= 1; dz++) for (let dx = -1; dx <= 1; dx++) if (!walk(x + dx, z + dz)) n++; return n ? 1.6 : 0; };
   while (heap.length) {
     const [d, cur] = pop(); if (done[cur]) continue; done[cur] = 1; if (cur === gi) break;
