@@ -41,7 +41,7 @@
    if(e.account){const note=make('p','career-storage-note',e.account.status||'');d.append(note);e.account.controls(d,()=>{paint(true);d.close();});}
    let chosen=store.species()||e.coach?.species||window.CoachRoster?.preferred?.()||'lion';
    const picker=make('div','career-fighter-picker'),cards={};picker.setAttribute('role','radiogroup');picker.setAttribute('aria-label',w.yours);
-   for(const species of ['lion','rabbit']){const b=make('button','career-fighter');b.type='button';b.setAttribute('role','radio');b.setAttribute('data-fighter',species);const img=make('img');img.src='./assets/club/'+species+'.svg';img.alt='';img.width=120;img.height=98;b.append(img,make('strong','',w[species]),make('span','career-fighter-note',w[species+'Note']));b.disabled=busy&&!first;b.onclick=()=>{if(!setFighter(species))return;chosen=species;mark();};cards[species]=b;picker.append(b);}
+   for(const species of ['lion','rabbit']){const b=make('button','career-fighter');b.type='button';b.setAttribute('role','radio');b.setAttribute('data-fighter',species);b.append(make('strong','',w[species]),make('span','career-fighter-note',w[species+'Note']));b.disabled=busy&&!first;b.onclick=()=>{if(!setFighter(species))return;chosen=species;mark();};cards[species]=b;picker.append(b);}
    const rows=[],rowText=p=>isolate(shown(p))+' · '+w[store.species(p)]+(p.id===store.data.active?' · '+w.selected:'');
    function mark(){for(const [species,b] of Object.entries(cards)){b.setAttribute('aria-checked',String(species===chosen));}for(const row of rows){const p=store.data.profiles.find(x=>x.id===row.id);if(p)row.b.textContent=rowText(p);}}
    mark();d.append(picker);

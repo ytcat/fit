@@ -11,3 +11,6 @@
 .fs-note{margin:8px 0 0;color:var(--gr-warning,#f5a524);font-size:12px}
 .fs-close{margin-top:10px;width:100%;min-height:var(--gr-control-h-s,36px);border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-s,8px);background:var(--gr-surface-3,#243044);color:var(--gr-text,#f3f6fb);cursor:pointer}
 @media (max-width:520px){.fs-chip{padding:0 8px;white-space:nowrap}.fs-label{display:none}}
+
+/* Owner: the Level window was cut on phones — keep it inside the screen */
+@media (max-width:520px){.fs-panel{position:fixed;top:calc(env(safe-area-inset-top,0px) + 58px);inset-inline:12px;width:auto;max-width:none}}
