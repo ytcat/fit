@@ -95,13 +95,14 @@
     growth.addScaledVector(normal,-growth.dot(normal)).normalize();
     const tip=root.clone().addScaledVector(normal,length*.82).addScaledVector(growth,length*.56);
     const points=[root.clone().add(across),root.clone().sub(across),tip];
-    for(let k=0;k<3;k++){positions.push(...points[k].toArray());normals.push(...normal.toArray());attachments.push(a.getX(i));flex.push(k===2?1:0);if(coach.shoulderData)shoulderRoots.push(i);}
+    for(let k=0;k<3;k++){positions.push(...points[k].toArray());normals.push(...normal.toArray());attachments.push(a.getX(i));flex.push(k===2?1:0);shoulderRoots.push(i);}
    }
    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
    g.setAttribute('coachArmBlend',new THREE.Float32BufferAttribute(attachments,1));g.setAttribute('avatarFurFlex',new THREE.Float32BufferAttribute(flex,1));g.setAttribute('uv',new THREE.Float32BufferAttribute(positions.flatMap((v,i)=>i%3===2?[]:[v*3]),2));
    // Vertex colors already contain each species' coat; a warm multiplier
    // stains grey rabbit fur brown wherever fibers catch rim/bounce light.
-   if(coach.shoulderData)g.userData.shoulderRoots=new Uint32Array(shoulderRoots);
+   // Each hair keeps its root vertex: shoulder correctives and muscle relief follow the skin under it.
+   g.userData.furRoots=new Uint32Array(shoulderRoots);if(coach.shoulderData)g.userData.shoulderRoots=g.userData.furRoots;
    const material=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:1,side:THREE.DoubleSide,skinning:true});
    coach.bodyFur=coach.skinned(g,material,true);coach.bodyFur.name='Bone-attached short animal coat';coach.bodyFur.castShadow=false;
   },

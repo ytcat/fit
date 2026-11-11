@@ -1,0 +1,29 @@
+[
+ {
+  "name": "ceremony-locked-phone",
+  "dialogsOverCeremony": [
+   "game-dialog"
+  ],
+  "phase": "ceremony",
+  "mode": "lock",
+  "frontDot": 1,
+  "winner": "rabbit"
+ },
+ {
+  "name": "ceremony-free-desktop",
+  "dialogsOverCeremony": [
+   "game-dialog"
+  ],
+  "phase": "ceremony",
+  "mode": "lock",
+  "frontDot": 1,
+  "winner": "rabbit"
+ },
+ {
+  "name": "rope-front-lock-phone",
+  "mode": "rope",
+  "dir": "lock",
+  "frontDot": 1,
+  "caption": "Front lock"
+ }
+]

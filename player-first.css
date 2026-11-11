@@ -1,0 +1,39 @@
+/* GOTR-0031 R1: player-first controls, the fighter choice on the first screen and a focused Academy lesson. */
+
+/* First screen and player menu: Lion or Rabbit is the main choice. Like the Shop dialogs, the dialog itself takes focus on open. */
+.career-dialog:focus{outline:none}
+.career-welcome .career-fighter-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 4px}
+.career-fighter{display:grid;justify-items:center;align-content:start;gap:4px;min-height:var(--gr-control-h,44px);padding:10px 8px 12px;border:2px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-m,12px);background:var(--gr-surface-2,#1a2230);color:var(--gr-text,#f3f6fb);font:inherit;cursor:pointer;text-align:center}
+.career-fighter img{display:block;width:100%;max-width:128px;height:auto;aspect-ratio:160/130;pointer-events:none}
+.career-fighter strong{font-size:16px;line-height:1.2}
+.career-fighter-note{font-size:12px;line-height:1.3;color:var(--gr-text-muted,#9aa7bb)}
+.career-fighter[aria-checked=true]{border-color:var(--gr-accent,#e63946);background:var(--gr-surface-3,#243044)}
+.career-fighter[aria-checked=true] strong::after{content:" ✓";color:var(--gr-accent,#e63946)}
+.career-fighter:focus-visible{outline:2px solid var(--gr-info,#3b82f6);outline-offset:2px}
+.career-fighter:disabled{opacity:.55;cursor:default}
+.career-welcome .career-create{margin:12px 0 4px}
+.career-welcome .career-create .club-primary{min-height:var(--gr-control-h,44px)}
+.career-list-title{margin:12px 0 2px;font-size:13px;font-weight:650;color:var(--gr-text-muted,#9aa7bb)}
+.career-backup-group{margin-top:10px;border-top:1px solid var(--gr-border,#2b364a);padding-top:4px}
+.career-backup-group summary{display:flex;align-items:center;min-height:var(--gr-control-h-s,36px);font-size:13px;color:var(--gr-text-muted,#9aa7bb);cursor:pointer}
+.career-backup-group .career-backup{margin-top:4px;padding-top:0;border-top:0}
+@media (max-height:520px){
+ .career-welcome .career-dialog-intro{display:none}
+ .career-welcome .career-fighter-picker{margin-top:4px}
+ .career-fighter{grid-template-columns:auto 1fr;justify-items:start;align-items:center;column-gap:10px;row-gap:0;padding:6px 10px;text-align:start}
+ .career-fighter img{grid-row:span 2;max-width:56px}
+ .career-welcome .career-create{margin:8px 0 2px;gap:8px}
+}
+
+/* Auto is the secondary choice; while Auto runs, Play (take control) is outlined in the accent colour. */
+.ringside-toolbar .ringside-control[data-mode=auto]{border-color:var(--gr-accent,#e63946);color:var(--gr-text,#f3f6fb);box-shadow:inset 0 0 0 1px var(--gr-accent,#e63946)}
+
+/* During an Academy lesson only the lesson's own controls and the move buttons stay on screen. */
+body.academy-lesson .ringside-toolbar,body.academy-lesson .game-loadout,body.academy-lesson.ringside-layout .manual-pages:not([hidden]),body.academy-lesson .input-mode-switch{display:none!important}
+
+/* Academy landing: passed lessons can be practised again with a quiet button. */
+.game-academy .game-button.academy-again{margin:0;width:100%;min-height:var(--gr-control-h-s,36px);padding:6px 12px;font-size:13px;border-radius:var(--gr-radius-s,8px)}
+
+/* Rivals that face the other species are named once, clearly, instead of switching the player's fighter. */
+.game-rival-elsewhere{margin-top:10px;font-size:13px}
+.game-world-card .game-button.game-primary{background:var(--gr-accent,#e63946);border-color:var(--gr-accent,#e63946);color:var(--gr-accent-ink,#fff)}

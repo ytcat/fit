@@ -1,0 +1,32 @@
+{
+ "buildMsColdOtherSpecies": 12030,
+ "definitionBuildMs": 3056.2,
+ "species": "lion",
+ "level3": {
+  "canvas": [
+   579,
+   799
+  ],
+  "shadows": true,
+  "withMs": 4521.4,
+  "withoutMs": 4704.7,
+  "ratio": 0.961,
+  "samples": 30
+ },
+ "level0": {
+  "canvas": [
+   386,
+   533
+  ],
+  "shadows": false,
+  "withMs": 3122.8,
+  "withoutMs": 3146.5,
+  "ratio": 0.992,
+  "samples": 30
+ },
+ "triangles": {
+  "with": 500475,
+  "without": 500475
+ },
+ "extraVertexBytes": 2152524
+}

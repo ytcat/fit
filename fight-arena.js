@@ -208,8 +208,10 @@
      // A committed straight still tracks the opponent's steps across the
      // ring; only a slip, roll or duck takes the head off its line.
      if(f.action.aimInArena)target=coach.root.worldToLocal(a.group.localToWorld(f.action.aimRoot?V(...f.action.aim).add(this.coaches[other(actor)].root.position).sub(V(...f.action.aimRoot)).setY(f.action.aim[1]):V(...f.action.aim)));
-     const through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(.035);
-     options.knuckleTarget=target.add(through).toArray();options.strikeHeight=target.y-.035;
+     // GOTR-0032: bent-arm punches aim deeper through the target (hooks across, uppercuts up through the chin),
+     // so the glove still accelerates at contact; the contact constraint keeps it on the receiver's surface.
+     const upper=spec.move.includes('uppercut'),bent=upper||spec.move.includes('hook'),through=target.clone().sub(V(0,target.y,0)).normalize().multiplyScalar(bent?.07:.035);
+     options.knuckleTarget=target.add(through).add(V(0,upper?.06:0,0)).toArray();options.strikeHeight=target.y-.035;
      options.advance=spec.move.includes('uppercut')?.08:spec.move.includes('hook')?.065:.025;
      if(options.extendStraight)this.reach[actor].aim=options.knuckleTarget;
      else{
