@@ -67,7 +67,7 @@
  // Species character: unit (m per relative height), dome sharpness, bulk kept after the
  // band-pass, crease darkening and crest sheen; per-group emphasis.
  const MUSCLE_PROFILES={
-  lion:{unit:.0115,p:.85,keep:.42,cavity:.42,sheen:.16,groups:{rectus:.62,serratus:.70,obliques:.85,trapezius:1.35,pectoralis:1.15,'deltoid side':1.15,latissimus:1.25,infraspinatus:1.25,erector:1.15,teres:1.15,biceps:1.1}},
+  lion:{unit:.0115,p:.85,keep:.42,cavity:.42,sheen:.16,groups:{rectus:.62,serratus:.70,obliques:.85,trapezius:1.35,pectoralis:1.15,'deltoid side':1.0,latissimus:1.25,infraspinatus:1.25,erector:1.15,teres:1.15,biceps:.95}},
   rabbit:{unit:.0095,p:.62,keep:.22,cavity:.52,sheen:.20,groups:{rectus:1.0,serratus:1.30,obliques:1.15,trapezius:.95,latissimus:1.1,infraspinatus:1.15,'forearm extensors':1.15,'forearm flexors':1.15}},
   other:{unit:.0095,p:.75,keep:.3,cavity:.4,sheen:.18,groups:{}}
  };
@@ -103,7 +103,7 @@
    }
    return best;
   };
-  const parts=[],groups=[];
+  const groups=[];
   for(const m of MUSCLE_ATLAS)for(const s of [-1,1]){
    const a=[m.a[0]*s,m.a[1],m.a[2]],b=[m.b[0]*s,m.b[1],m.b[2]],n=[m.n[0]*s,m.n[1],m.n[2]];
    const ia=snap(a,n),ib=snap(b,n);if(ia<0||ib<0)continue;
@@ -134,7 +134,7 @@
      // side borders but fade smoothly along their length into tendon, like real fusiform bellies.
      const dd=depth/(4*w);let d2,along=1;
      if(q.crisp){const d=q.shape===2?Math.sqrt(l*l+c*c):Math.pow(Math.pow(Math.abs(l),q.shape)+Math.pow(c,q.shape),1/q.shape);d2=d*d+dd*dd;}
-     else{d2=c*c+dd*dd;along=1.3*Math.pow(1-l*l,.8);}
+     else{d2=c*c+dd*dd;along=1.2*Math.pow(1-l*l,.8);}
      if(d2>=1)return;
      const gate=clamp((facing+.15)/.5),v=q.height*Math.pow(1-d2,q.p)*along*gate*gate*(3-2*gate);
      if(v>gv[i]){if(gv[i]===0)touched.push(i);gv[i]=v;if(v>dominant[i]){dominant[i]=v;channel[i]=q.channel;group[i]=gi;}}
@@ -142,6 +142,8 @@
    }
    for(const i of touched){H[i]+=gv[i];gv[i]=0;}
   }
+  // Neighbouring groups that overlap do not stack into a double bulge: the strongest belly leads.
+  for(let i=0;i<count;i++)H[i]=dominant[i]+.25*(H[i]-dominant[i]);
   // Mesh neighbourhood (CSR) for band-pass and crease measures on the actual surface.
   const degree=new Uint32Array(count+1);for(let k=0;k<index.length;k++)degree[index[k]+1]+=2;
   for(let i=0;i<count;i++)degree[i+1]+=degree[i];
@@ -178,7 +180,8 @@
   const low=lowpass(H),D=new Float32Array(count),limbs=new Float32Array(count);
   for(let i=0;i<count;i++){const x=Math.abs(P[i*3]),y=P[i*3+1],limb=Math.max(y>1.38?smooth01((x-.34)/.10):0,1-smooth01((y-.66)/.12)),keep=profile.keep+(1-profile.keep)*.55*limb;limbs[i]=limb;D[i]=H[i]-(1-keep)*low[i];
    // Belts and the waistband sit below the navel: there the relief only carves, never bulges (gear fit).
-   if(y<1.28&&y>.95)D[i]=Math.min(D[i],.0005+.02*smooth01((y-1.225)/.055));}
+   if(y<1.28&&y>.95)D[i]=Math.min(D[i],.0005+.02*smooth01((y-1.225)/.055));
+   D[i]=Math.max(-.012,Math.min(.016,D[i]));}
   const near=smooth(D,6),delta=new Int16Array(count*4),normal=new Int8Array(count*4);
   const positions=Float32Array.from(P),M2=new Float32Array(count*3);
   for(let i=0;i<count;i++){positions[i*3]+=N[i*3]*D[i];positions[i*3+1]+=N[i*3+1]*D[i];positions[i*3+2]+=N[i*3+2]*D[i];}
@@ -200,7 +203,9 @@
    const P=g.attributes.position;let hash=2166136261;for(let i=0;i<P.array.length;i+=97)hash=Math.imul(hash^Math.round(P.array[i]*1e5),16777619)>>>0;
    const key=species+':'+P.count+':'+hash;if(!definitionCache.has(key))definitionCache.set(key,buildDefinition(g,MUSCLE_PROFILES[species]||MUSCLE_PROFILES.other));return definitionCache.get(key);
   },
+  enabled:true, // a kill switch for future graphics settings and the A/B cost probe (qa/gotr-0037/perf.cjs)
   attach(mesh,coach){
+   if(!definition.enabled)return false;
    const g=mesh.geometry,fur=Boolean(g.attributes.avatarFurFlex),count=g.attributes.position.count;let data;
    if(fur){
     const source=coach.definitionData,roots=g.userData.furRoots;if(!source||!roots||roots.length!==count)return false;
@@ -211,7 +216,7 @@
    if(!coach.definition){const profile=MUSCLE_PROFILES[coach.species]||MUSCLE_PROFILES.other;coach.definition={values:new Float32Array(24).fill(1),scale:{value:[0,1,2,3,4,5].map(()=>new THREE.Vector4(1,1,1,1))},look:{value:new THREE.Vector2(profile.cavity,profile.sheen)},detail:definition.quality};}
    return true;
   },
-  scale(coach,index,g){const d=g.attributes.avatarDefinition;if(!d||!coach.definition)return 0;return coach.definition.values[Math.round(d.array[index*4+3]/32767*32)]||0;},
+  scale(coach,index,g){const d=g.attributes.avatarDefinition;if(!d||!coach.definition)return 0;const k=Math.round(d.array[index*4+3]/32767*32),v=coach.definition.scale.value[k>>2];return v?v.getComponent(k&3):0;},
   update(coach){
    const def=coach.definition;if(!def)return;const s=def.values,a=coach.anatomy?.value||new Float32Array(14),j=coach.joints,m=coach.motionState||{},mix=(x,y,t)=>x+(y-x)*clamp(t);
    const up=V(0,1,0).applyQuaternion(j.chest.getWorldQuaternion(new THREE.Quaternion()));
