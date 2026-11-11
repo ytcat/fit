@@ -39,3 +39,15 @@
 #stageContainer > .adv-goal{background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;padding:0!important;color:#fff;font-weight:600;text-shadow:0 1px 2px rgb(0 0 0/.9),0 0 6px rgb(0 0 0/.6)}
 #stageContainer > .adv-goal .adv-goal-bar{width:36px;height:3px;background:rgb(255 255 255/.25)}
 #stageContainer > .adv-goal .adv-goal-quit{background:none!important;border:0!important;box-shadow:none!important;color:rgb(255 255 255/.75);text-shadow:inherit}
+
+/* story lines: plain text on the scene with a small portrait, no box (GOTR-0056) */
+.adv-story{position:fixed;z-index:56;inset-inline:12px;top:38%;margin-inline:auto;width:fit-content;max-width:min(420px,calc(100vw - 24px));display:flex;gap:10px;align-items:center;color:#fff;font-size:16px;line-height:1.3;text-shadow:0 1px 3px #000,0 0 10px #000;cursor:pointer;touch-action:manipulation}
+.adv-story p{margin:0}.adv-story strong{color:var(--gr-gold,#f4c152)}
+.adv-story .adv-bust{flex:none;width:44px;height:44px;border-radius:50%;box-shadow:0 0 0 2px var(--gr-gold,#f4c152)}
+.adv-story.in{animation:adv-story-in .3s ease-out}
+@keyframes adv-story-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.adv-tile-next{border-color:var(--gr-gold,#f4c152);box-shadow:0 0 0 1px var(--gr-gold,#f4c152)}
+.adv-tile[data-beat]:not([data-beat="0"])::after{content:attr(data-beat);position:absolute;top:2px;inset-inline-start:4px;font-size:10px;color:var(--gr-text-muted,#9aa7bb)}
+.adv-tile{position:relative}
+.adv-journal-line{display:flex;gap:8px;align-items:center;margin:0;font-size:13px}.adv-journal-line .adv-bust{flex:none;width:28px;height:28px}
+@media (prefers-reduced-motion:reduce){.adv-story.in{animation:none}}
