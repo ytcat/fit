@@ -428,7 +428,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0032 — Mitt-work punches still look like small touches
 - **Reported:** 2026-11-11 (after v1.18)
-- **Status:** READY FOR QA — in v1.20
+- **Status:** REOPENED — owner after v1.20: "Also the punches still not powerful enough" (queued for agent `smooth-motion` with GOTR-0038)
 - **Priority:** P1
 - **Area:** Mitt training / animation feel
 - **Reported behavior / request:** "In the coach training the punches are not strong enough; it still looks like a small touch."
@@ -437,6 +437,8 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Acceptance criteria:** Measured before/after glove speed at mitt contact for all six punches and pad displacement; matched before/after frame strips; GOTR-0012 extension results and mitt contact tests still pass; no sliding feet.
 - **Implementation:** `agent/smooth-motion` (merged 486a4e0): hooks aim 5 cm and uppercuts 4.5 cm through the mitt, and every punch aims at the mitt's un-recoiled position so the glove no longer chases the mitt back (4.7 cm → 0.1 cm); mitt pop bigger and sharper; the coach's shoulder gives 5–8 cm (was 1.2) and chest 1.0–1.5 cm (was 0.3); brief glove squash on contact and an extra mitt sound layer. Not done: real hit-stop; Watch-mode straights at the mitts still slow (2.2–3.8 m/s at contact); mitt uppercuts show a one-tick speed jump.
 - **Evidence:** `qa/gotr-0032/` (`before.json`, `after.json`, `measure.cjs`) — glove speed at contact in Play: hooks 1.09 → 2.45/2.32 m/s, uppercuts 3.17/3.72 → 4.92/4.00 m/s; straights unchanged (elbow 164°/167°, extension 0.990/0.994); mitt pop 2.7–5.5 cm → 5.5–8.7 cm, peak at 25 ms (was 42 ms); new `tests/mitt-power.test.cjs`. Before/after frame strips not produced (screenshots did not show the stepped pose).
+- **Owner feedback after v1.20 (2026-11-11):** "Also the punches still not powerful enough." The owner's screenshot was taken in automatic (coach-controlled) mitt training, where straights still reach only 2.2–3.8 m/s at contact (agent measurement). Real boxers reach roughly 6–10 m/s at the glove.
+- **Next targets:** glove speed at contact in Play and automatic modes, in mitt work, bag and fights: straights ≥ 6 m/s, hooks and uppercuts ≥ 6.5 m/s; whole-body drive (hip and shoulder rotation, rear-heel pivot, weight transfer, short load before the punch); a brief hit-stop (~50–70 ms) on clean contact; stronger impact accents (mitt/bag pop, spray or dust, layered sound, slight camera kick on power shots); before/after video-like frame strips.
 
 ### GOTR-0033 — Free development mode: everything available, price tags kept
 - **Reported:** 2026-11-11
