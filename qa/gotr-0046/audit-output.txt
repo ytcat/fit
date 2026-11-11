@@ -1,0 +1,18 @@
+
+== HE: 6 visible texts with Latin letters across 50 states
+  "+41 XP · +10 מטבעות"  [fight-result]
+  "0/0 · 20s"  [fight-result]
+  "Guest"  [history]
+  "fight · הפסד"  [history]
+  "0/0 · +41 XP · +10 ◈"  [history]
+  "☀ Guest School"  [world-school]
+
+== RU: 6 visible texts with Latin letters across 50 states
+  "+41 XP · +10 монет"  [fight-result]
+  "0/0 · 20s"  [fight-result]
+  "Guest"  [history]
+  "fight · Поражение"  [history]
+  "0/0 · +41 XP · +10 ◈"  [history]
+  "☀ Guest School"  [world-school]
+
+TOTAL findings: 12

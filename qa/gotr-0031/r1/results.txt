@@ -2,31 +2,46 @@ PASS 402x690 empty browser opens the first screen
 PASS 402x690 player in control from the start
 PASS 402x690 en first screen offers Lion and Rabbit (Choose your fighter | Start)
 PASS 402x690 en direction
+PASS 402x690 en first screen has no English words (Choose your fighter Train Learn Fight LionFights rabbit opponentsRabbitFights lion opponentsYour name optional StartBackupExport backupImport backup)
+PASS 402x690 en the dialog takes focus on open, not the close button
 PASS 402x690 he first screen offers Lion and Rabbit (בחרו את המתאגרף שלכם | התחלה)
 PASS 402x690 he direction
+PASS 402x690 he first screen has no English words ()
+PASS 402x690 he the dialog takes focus on open, not the close button
 PASS 402x690 ru first screen offers Lion and Rabbit (Выберите бойца | Начать)
 PASS 402x690 ru direction
+PASS 402x690 ru first screen has no English words ()
+PASS 402x690 ru the dialog takes focus on open, not the close button
 PASS 402x690 chosen lion saved and on screen (Guest)
 PASS 402x690 Auto hands control to the fighter (Play)
 PASS 402x690 Train 15s starts with the player in control after Auto (Finish · 15s · toggle Auto)
 PASS 402x690 a tapped Jab counts in the session (1)
 PASS 402x690 a new bout starts with the player in control after Auto (actor lion, toggle Auto)
 PASS 402x690 the player's Jab is thrown in the fight (1)
+PASS 402x690 he player menu translated, dialog focused, rtl (⁨אורח⁩ · אריה · נבחר · header אורח)
+PASS 402x690 ru player menu translated, dialog focused, ltr (⁨Гость⁩ · Лев · Выбран · header Гость)
 PASS 402x690 a Lion fighter is offered Shadow and Circuit; Ember is named for rabbit fighters (Only for rabbit fighters: Ember)
-FAIL 402x690 hub has no developer notes, species switching or old place names (hero: Guest's Gym)
+PASS 402x690 hub has no developer notes, species switching or old place names (hero: ⁨Guest⁩'s Gym)
+NOTE 402x690 strings owned by game-shell.js / game-domain.js still say School: Guest School, School name, Save school, School Signature
 PASS 402x690 Fight Shadow keeps the Lion and records the rival (Shadow)
 PASS 402x690 Academy shows one Start, for the next lesson only (1:1 0:0 0:0 0:0 0:0 0:0)
 PASS 402x690 lesson hides Train 15s, the toolbar and the page tabs; move buttons stay (12)
 PASS 402x690 no page errors 
-     402x690 took 342 s
+     402x690 took 812 s
 PASS 360x640 empty browser opens the first screen
 PASS 360x640 player in control from the start
 PASS 360x640 en first screen offers Lion and Rabbit (Choose your fighter | Start)
 PASS 360x640 en direction
+PASS 360x640 en first screen has no English words (Choose your fighter Train Learn Fight LionFights rabbit opponentsRabbitFights lion opponentsYour name optional StartBackupExport backupImport backup)
+PASS 360x640 en the dialog takes focus on open, not the close button
 PASS 360x640 he first screen offers Lion and Rabbit (בחרו את המתאגרף שלכם | התחלה)
 PASS 360x640 he direction
+PASS 360x640 he first screen has no English words ()
+PASS 360x640 he the dialog takes focus on open, not the close button
 PASS 360x640 ru first screen offers Lion and Rabbit (Выберите бойца | Начать)
 PASS 360x640 ru direction
+PASS 360x640 ru first screen has no English words ()
+PASS 360x640 ru the dialog takes focus on open, not the close button
 PASS 360x640 chosen rabbit saved and on screen (Guest)
 PASS 360x640 Auto hands control to the fighter (לשחק)
 PASS 360x640 Train 15s starts with the player in control after Auto (סיום · 15 שנ׳ · toggle אוטומטי)
@@ -34,15 +49,21 @@ PASS 360x640 a tapped Jab counts in the session (1)
 PASS 360x640 a new bout starts with the player in control after Auto (actor rabbit, toggle אוטומטי)
 PASS 360x640 the player's Jab is thrown in the fight (1)
 PASS 360x640 no page errors 
-     360x640 took 155 s
+     360x640 took 303 s
 PASS 852x393 empty browser opens the first screen
 PASS 852x393 player in control from the start
 PASS 852x393 en first screen offers Lion and Rabbit (Choose your fighter | Start)
 PASS 852x393 en direction
+PASS 852x393 en first screen has no English words (Choose your fighter Train Learn Fight LionFights rabbit opponentsRabbitFights lion opponentsYour name optional StartBackupExport backupImport backup)
+PASS 852x393 en the dialog takes focus on open, not the close button
 PASS 852x393 he first screen offers Lion and Rabbit (בחרו את המתאגרף שלכם | התחלה)
 PASS 852x393 he direction
+PASS 852x393 he first screen has no English words ()
+PASS 852x393 he the dialog takes focus on open, not the close button
 PASS 852x393 ru first screen offers Lion and Rabbit (Выберите бойца | Начать)
 PASS 852x393 ru direction
+PASS 852x393 ru first screen has no English words ()
+PASS 852x393 ru the dialog takes focus on open, not the close button
 PASS 852x393 chosen rabbit saved and on screen (Guest)
 PASS 852x393 Auto hands control to the fighter (Играть)
 PASS 852x393 Train 15s starts with the player in control after Auto (Готово · 15с · toggle Авто)
@@ -50,15 +71,21 @@ PASS 852x393 a tapped Jab counts in the session (1)
 PASS 852x393 a new bout starts with the player in control after Auto (actor rabbit, toggle Авто)
 PASS 852x393 the player's Jab is thrown in the fight (1)
 PASS 852x393 no page errors 
-     852x393 took 159 s
+     852x393 took 302 s
 PASS 1366x768 empty browser opens the first screen
 PASS 1366x768 player in control from the start
 PASS 1366x768 en first screen offers Lion and Rabbit (Choose your fighter | Start)
 PASS 1366x768 en direction
+PASS 1366x768 en first screen has no English words (Choose your fighter Train Learn Fight LionFights rabbit opponentsRabbitFights lion opponentsYour name optional StartBackupExport backupImport backup)
+PASS 1366x768 en the dialog takes focus on open, not the close button
 PASS 1366x768 he first screen offers Lion and Rabbit (בחרו את המתאגרף שלכם | התחלה)
 PASS 1366x768 he direction
+PASS 1366x768 he first screen has no English words ()
+PASS 1366x768 he the dialog takes focus on open, not the close button
 PASS 1366x768 ru first screen offers Lion and Rabbit (Выберите бойца | Начать)
 PASS 1366x768 ru direction
+PASS 1366x768 ru first screen has no English words ()
+PASS 1366x768 ru the dialog takes focus on open, not the close button
 PASS 1366x768 chosen lion saved and on screen (Guest)
 PASS 1366x768 Auto hands control to the fighter (Play)
 PASS 1366x768 Train 15s starts with the player in control after Auto (Finish · 15s · toggle Auto)
@@ -66,6 +93,6 @@ PASS 1366x768 a tapped Jab counts in the session (1)
 PASS 1366x768 a new bout starts with the player in control after Auto (actor lion, toggle Auto)
 PASS 1366x768 the player's Jab is thrown in the fight (1)
 PASS 1366x768 no page errors 
-     1366x768 took 177 s
+     1366x768 took 210 s
 PASS older save without a fighter loads as its most-used fighter ({"name":"Veteran","species":"rabbit","saved":"rabbit","dialog":false,"enabled":true})
 PASS older save: no page errors

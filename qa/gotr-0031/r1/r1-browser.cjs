@@ -4,7 +4,7 @@
 // Usage: node qa/gotr-0031/r1/r1-browser.cjs [port]   (serve the repo root on that port first)
 const {chromium}=require('playwright');const fs=require('fs'),path=require('path');
 const port=process.argv[2]||'8146',url='http://127.0.0.1:'+port+'/',out=__dirname,raw=process.env.QA_RAW||path.join(require('os').tmpdir(),'gotr-0031-r1-raw');fs.mkdirSync(raw,{recursive:true});
-const results=[],fail=[];const check=(ok,label)=>{results.push((ok?'PASS ':'FAIL ')+label);if(!ok)fail.push(label);};
+const results=[],fail=[];const check=(ok,label)=>{const line=(ok?"PASS ":"FAIL ")+label;results.push(line);console.log(line);if(!ok)fail.push(label);};
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 async function shot(p,name){const png=path.join(raw,name+'.png');await p.screenshot({path:png,timeout:180000});return png;}
 async function open(b,vp,init){const ctx=await b.newContext({viewport:{width:vp.w,height:vp.h},deviceScaleFactor:1,hasTouch:!!vp.touch,isMobile:!!vp.touch});if(init)await ctx.addInitScript(init.fn,init.arg);const p=await ctx.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));
@@ -61,5 +61,5 @@ const sizes=[{id:'402x690',w:402,h:690,touch:true,lang:'en',species:'lion'},{id:
  }finally{await b.close();}
  // Small .webp copies for the evidence folder.
  const {execFileSync}=require('child_process');for(const f of fs.readdirSync(raw).filter(f=>f.endsWith('.png'))){execFileSync('python3',['-c','import sys;from PIL import Image;Image.open(sys.argv[1]).convert("RGB").save(sys.argv[2],quality=72)',path.join(raw,f),path.join(out,f.replace(/\.png$/,'.webp'))]);}
- fs.writeFileSync(path.join(out,'results.txt'),results.join('\n')+'\n');console.log(results.join('\n'));console.log(fail.length?'FAILED '+fail.length:'ALL PASS');process.exit(fail.length?1:0);
+ fs.writeFileSync(path.join(out,'results.txt'),results.join('\n')+'\n');console.log(fail.length?'FAILED '+fail.length:'ALL PASS');process.exit(fail.length?1:0);
 })().catch(e=>{console.error(e);process.exit(2);});

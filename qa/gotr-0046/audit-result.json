@@ -53,184 +53,98 @@
    "fight-as-maya"
   ],
   "findings": {
-   "· Guest": [
-    "fight-round"
-   ],
-   "· Shadow": [
-    "fight-round"
-   ],
-   "+38 XP · +9 מטבעות": [
+   "+41 XP · +10 מטבעות": [
     "fight-result"
    ],
    "☀ Guest School": [
     "world-school"
    ],
-   "✓ First Rhythm": [
-    "fight-result"
-   ],
-   "0 XP": [
-    "drawer-moves"
-   ],
-   "0/0 · +38 XP · +9 ◈": [
+   "0/0 · +41 XP · +10 ◈": [
     "history"
    ],
-   "0/0 · 17s": [
+   "0/0 · 20s": [
     "fight-result"
-   ],
-   "1.0x": [
-    "drawer-practice"
-   ],
-   "EN": [
-    "settings"
    ],
    "fight · הפסד": [
     "history"
    ],
-   "Fight Academy": [
-    "first-run"
+   "Guest": [
+    "history"
+   ]
+  },
+  "errors": []
+ },
+ "ru": {
+  "states": [
+   "first-run",
+   "train-home",
+   "station-none",
+   "station-heavy",
+   "station-dummy",
+   "station-speed",
+   "station-rope",
+   "station-pads",
+   "station-rabbit",
+   "heavy-moves",
+   "heavy-combos",
+   "heavy-defence",
+   "auto",
+   "play-again",
+   "drawer-practice",
+   "drawer-moves",
+   "drawer-settings",
+   "settings",
+   "stats",
+   "training-active",
+   "training-finished",
+   "bout-picker",
+   "fight-intro",
+   "fight-round",
+   "fight-result",
+   "fight-reward",
+   "shop",
+   "shop-category-0",
+   "shop-category-1",
+   "shop-category-2",
+   "shop-category-3",
+   "shop-category-4",
+   "shop-category-5",
+   "history",
+   "loadouts",
+   "academy",
+   "academy-groups",
+   "academy-quiz",
+   "lesson",
+   "lesson-turn",
+   "lesson-left",
+   "world-train",
+   "world-school",
+   "world-rivals",
+   "world-cup",
+   "world-events",
+   "venues",
+   "profile",
+   "second-player",
+   "fight-as-maya"
+  ],
+  "findings": {
+   "+41 XP · +10 монет": [
+    "fight-result"
    ],
-   "Glory of the Ring": [
-    "first-run",
-    "train-home",
-    "station-none",
-    "station-heavy",
-    "station-dummy",
-    "station-speed",
-    "station-rope",
-    "station-pads",
-    "station-rabbit",
-    "heavy-moves",
-    "heavy-combos",
-    "heavy-defence",
-    "auto",
-    "play-again",
-    "drawer-practice",
-    "drawer-moves",
-    "drawer-settings",
-    "settings",
-    "stats",
-    "training-active",
-    "training-finished",
-    "bout-picker",
-    "fight-intro",
-    "fight-round",
-    "fight-result",
-    "fight-reward",
-    "shop",
-    "shop-category-0",
-    "shop-category-1",
-    "shop-category-2",
-    "shop-category-3",
-    "shop-category-4",
-    "shop-category-5",
-    "history",
-    "loadouts",
-    "academy",
-    "academy-groups",
-    "academy-quiz",
-    "lesson",
-    "lesson-turn",
-    "lesson-left",
-    "world-train",
-    "world-school",
-    "world-rivals",
-    "world-cup",
-    "world-events",
-    "venues",
-    "profile",
-    "second-player",
-    "fight-as-maya"
+   "☀ Guest School": [
+    "world-school"
+   ],
+   "0/0 · +41 XP · +10 ◈": [
+    "history"
+   ],
+   "0/0 · 20s": [
+    "fight-result"
+   ],
+   "fight · Поражение": [
+    "history"
    ],
    "Guest": [
-    "fight-intro",
-    "fight-round",
-    "fight-result",
-    "fight-reward",
-    "history",
-    "loadouts",
-    "academy",
-    "academy-groups",
-    "academy-quiz"
-   ],
-   "Guest vs Shadow": [
-    "fight-intro"
-   ],
-   "KO": [
-    "fight-result",
-    "fight-reward",
-    "history",
-    "loadouts",
-    "academy",
-    "academy-groups",
-    "academy-quiz"
-   ],
-   "Lion · ready to train": [
-    "settings"
-   ],
-   "Maya vs Shadow": [
-    "fight-as-maya"
-   ],
-   "Right leg · soft landings, relaxed shoulders, wrist turns": [
-    "station-rope"
-   ],
-   "ROUND 1 · GET READY": [
-    "fight-intro",
-    "fight-as-maya"
-   ],
-   "Shadow": [
-    "fight-intro",
-    "fight-round",
-    "fight-result",
-    "fight-reward",
-    "history",
-    "loadouts",
-    "academy",
-    "academy-groups",
-    "academy-quiz",
-    "fight-as-maya"
-   ],
-   "Shadow מנצח": [
-    "fight-result",
-    "fight-reward",
-    "history",
-    "loadouts",
-    "academy",
-    "academy-groups",
-    "academy-quiz"
-   ],
-   "Shadow מנצח · נוקאאוט": [
-    "fight-result",
-    "fight-reward",
-    "history",
-    "loadouts",
-    "academy",
-    "academy-groups",
-    "academy-quiz"
-   ],
-   "VS": [
-    "fight-intro",
-    "fight-round",
-    "fight-result",
-    "fight-reward",
-    "history",
-    "loadouts",
-    "academy",
-    "academy-groups",
-    "academy-quiz",
-    "fight-as-maya"
-   ],
-   "האולם של ⁨Guest⁩": [
-    "fight-result",
-    "world-train",
-    "world-school",
-    "world-rivals",
-    "world-events"
-   ],
-   "המתאגרף שלכם: Guest": [
-    "world-cup"
-   ],
-   "מתחיל · 0 XP": [
-    "stats"
+    "history"
    ]
   },
   "errors": []
