@@ -671,6 +671,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Expected behavior (orthodox):** left foot forward and right foot back, about shoulder width and staggered, rear heel slightly raised, knees soft; torso turned about 30–45° (bladed); lead (left) glove in front at eye/cheek height, rear (right) glove back at the chin; elbows in. Same in guard, shadowboxing, mitt work, bag and fights, both species; punches start and return to this stance.
 - **Acceptance criteria:** measured lead-to-rear glove offset along the facing direction, foot stagger and torso angle in guard for both species; front and side screenshots before/after; punch range tests pass.
 
+### GOTR-0052 — No blocking summary after activities; inline rewards and always a next step
+- **Reported:** 2026-11-11 (after v1.25)
+- **Status:** IN PROGRESS (agent `adventure-oldtown`, with slice C1)
+- **Priority:** P1
+- **Area:** UX / adventure flow
+- **Reported behavior / request:** "I don't understand what happens with missions: the first one brings me to training with mitts. When I finish it, what next? Every time you finish training or a fight you show me a summary I need to close to get back to the game. Don't show it — it covers the whole screen and I cannot do anything until I close it. Just show plus score plus coins under the winner announcement or after the exercise (notifications like in the fight). After a fight or training I need next steps, always. All has to be relevant to the adventure scenario flow."
+- **Expected behavior:** the full-screen post-activity hub never opens by itself; rewards (+XP, +coins, mission stars, stat gains) appear as small non-blocking notifications on the stage; a compact Next bar always follows a training or fight with one primary action driven by the adventure state (next mission, retry for 3 stars, map, boss challenge with level comparison, newly unlocked place); missions show their goal at the start with a live counter.
+- **Acceptance criteria:** browser run at 402×690 EN/HE: Adventure → Old Town → mission → finish → no blocking card, notifications visible, Next bar starts the next mission; same after a free fight and a free training.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
