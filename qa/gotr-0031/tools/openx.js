@@ -1,0 +1,4 @@
+const wait=ms=>new Promise(r=>setTimeout(r,ms));document.querySelectorAll('dialog[open]').forEach(d=>d.close());await wait(300);
+const w=window.__open;if(w.startsWith('#'))document.querySelector(w).click();else if(w.startsWith('btn:')){[...document.querySelectorAll('button')].find(b=>b.innerText.trim()===w.slice(4)&&!b.closest('dialog')).click()}else ringfighterGame.open(w);await wait(1500);
+const d=[...document.querySelectorAll('dialog[open]')].pop();if(!d)return 'no dialog';
+return {cls:d.className,h:d.querySelector('h2,h1')?.innerText,text:d.innerText.replace(/\n+/g,' | ').slice(0,2200),btns:[...d.querySelectorAll('button,[role=tab],select,input')].filter(b=>b.offsetParent).map(b=>(b.innerText||b.value||b.getAttribute('aria-label')||'').trim().replace(/\s+/g,' ').slice(0,30)+(b.disabled?'(dis)':''))};

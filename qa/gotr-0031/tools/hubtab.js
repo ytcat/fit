@@ -1,0 +1,1 @@
+const t=window.__tab;const d=[...document.querySelectorAll('dialog[open]')].pop();const b=[...d.querySelectorAll('button')].find(b=>b.innerText.trim()===t);b.click();await new Promise(r=>setTimeout(r,800));b.scrollIntoView({block:'start'});await new Promise(r=>setTimeout(r,300));return t;
