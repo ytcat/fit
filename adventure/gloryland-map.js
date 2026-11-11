@@ -148,6 +148,8 @@ function initProtos() {
   if (P.box) return;
   P.box = proto(new THREE.BoxGeometry(1, 1, 1).translate(0, .5, 0));
   P.cyl5 = proto(new THREE.CylinderGeometry(1, 1, 1, 5, 1).translate(0, .5, 0), true);
+  P.cyl5o = proto(new THREE.CylinderGeometry(1, 1, 1, 5, 1, true).translate(0, .5, 0), true);
+  P.cone6o = proto(new THREE.ConeGeometry(1, 1, 6, 1, true).translate(0, .5, 0), true);
   P.cyl6 = proto(new THREE.CylinderGeometry(1, 1, 1, 6, 1).translate(0, .5, 0), true);
   P.cyl8 = proto(new THREE.CylinderGeometry(1, 1, 1, 8, 1).translate(0, .5, 0), true);
   P.cyl12 = proto(new THREE.CylinderGeometry(1, 1, 1, 12, 1).translate(0, .5, 0));
@@ -441,12 +443,13 @@ function build(scene, opts = {}) {
   buildSigns(W, add, disposables);
   if (NIGHT) buildNightFx(W, add, disposables);
   buildWheel(W, solidMat, disposables);
+  if (W.clouds && W.clouds.tris) add(new THREE.Mesh(W.clouds.geometry(), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, emissive: new THREE.Color(.16, .17, .19) })), false, false).name = 'clouds';
 
   /* ---- lights and atmosphere */
   const sunDir = NIGHT ? new THREE.Vector3(0.45, 0.8, -0.4).normalize() : new THREE.Vector3(-0.62, 0.72, 0.32).normalize();
   const hemi = NIGHT ? new THREE.HemisphereLight(0x3a4f9a, 0x15142a, 0.2) : new THREE.HemisphereLight(0xd9eeff, 0xcdb88c, 0.62);
   const sun = new THREE.DirectionalLight(NIGHT ? 0x8fa8ff : 0xfff0d6, NIGHT ? 0.22 : 1.55);
-  sun.castShadow = true; sun.shadow.mapSize.set(opts.shadowSize || 2048, opts.shadowSize || 2048);
+  sun.castShadow = true; sun.shadow.mapSize.set(opts.shadowSize || 2048, opts.shadowSize || 2048); // 2048 for phones
   sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
   const sc = sun.shadow.camera; sc.near = 1; sc.far = 600;
   const amb = new THREE.AmbientLight(NIGHT ? 0x232a5c : 0xffffff, NIGHT ? 0.1 : 0.05);
@@ -977,7 +980,7 @@ const rod = (B, a, b, r, col, pr) => B.add(pr || P.cyl6, beamM(a, b, r, r), col)
 const sub3 = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const WHITE = () => new THREE.Color(1, 1, 1);
 function glow(W, x, y, z, hex, size, k = 1) { if (!W.NIGHT) return; const c = CS(hex); W.glow.p.push(x, y, z); W.glow.c.push(c.r * k, c.g * k, c.b * k); W.glow.s.push(size); W.glow.ph.push(R()); }
-function pool(W, x, z, r, hex, k = 1, y = BLOCK_Y) { if (W.NIGHT) W.pools.push({ x, z, r, c: CS(hex).multiplyScalar(k), y }); }
+function pool(W, x, z, r, hex, k = 1, y = BLOCK_Y, stretch = 1) { if (W.NIGHT) W.pools.push({ x, z, r, rz: r * stretch, c: CS(hex).multiplyScalar(k), y }); }
 /** Neon tube: pale glass by day, glowing at night (unlit mesh plus soft glow sprites). */
 function neon(W, pts, hex, t = 0.09, glowK = .5) {
   const col = W.NIGHT ? C(hex).lerp(WHITE(), .3).multiplyScalar(1.5) : C(hex).lerp(WHITE(), .45);
@@ -998,9 +1001,9 @@ let _measure = null;
 function textW(text, px) { if (!_measure) _measure = canvas(8, 8).getContext('2d'); _measure.font = `900 ${px}px ${SIGN_FONT}`; return _measure.measureText(text).width; }
 /** Register a sign. o: { text, x, y (top), z, ry, h, style: 'board'|'letters'|'blade', fg, bg, glow, board (depth), boardColor, flat } */
 function sign(W, o) {
-  const FS = 84, pad = o.style === 'letters' ? 16 : 30;
-  if (o.style === 'blade') { o.cw = 132; o.ch = o.text.length * 90 + 2 * pad; }
-  else { o.cw = Math.ceil(textW(o.text, FS) * 0.9 + 2 * pad); o.ch = 128; }
+  const FS = 56, pad = o.style === 'letters' ? 11 : 20;
+  if (o.style === 'blade') { o.cw = 88; o.ch = o.text.length * 60 + 2 * pad; }
+  else { o.cw = Math.ceil(textW(o.text, FS) * 0.9 + 2 * pad); o.ch = 86; }
   o.w = o.h * o.cw / o.ch; o.pad = pad; o.fs = FS;
   if (o.board) {
     const fr = frame(o.x, o.z, o.ry), [bx, bz] = fr.p(0, -o.board / 2);
@@ -1016,17 +1019,17 @@ function drawSign(c, s, night) {
   const text = (fill, blur, mode) => {
     c.font = font; c.textBaseline = 'middle'; c.textAlign = 'center'; c.shadowBlur = blur; c.shadowColor = blur ? gl : 'transparent';
     const put = (t, x, y) => { if (mode === 'stroke') c.strokeText(t, x, y); else c.fillText(t, x, y); };
-    if (mode === 'stroke') { c.strokeStyle = fill; c.lineWidth = 12; c.lineJoin = 'round'; } else c.fillStyle = fill;
-    if (s.style === 'blade') [...s.text].forEach((ch, i) => put(ch, s.cw / 2, s.pad + 47 + i * 90));
-    else { c.save(); c.translate(s.cw / 2, s.ch / 2 + 5); c.scale(0.9, 1); put(s.text, 0, 0); c.restore(); }
+    if (mode === 'stroke') { c.strokeStyle = fill; c.lineWidth = 8; c.lineJoin = 'round'; } else c.fillStyle = fill;
+    if (s.style === 'blade') [...s.text].forEach((ch, i) => put(ch, s.cw / 2, s.pad + 31 + i * 60));
+    else { c.save(); c.translate(s.cw / 2, s.ch / 2 + 3); c.scale(0.9, 1); put(s.text, 0, 0); c.restore(); }
   };
   if (!night) {
-    if (s.style !== 'letters') { roundRectPath(c, 3, 3, s.cw - 6, s.ch - 6, 18); c.fillStyle = bg; c.fill(); c.lineWidth = 6; c.strokeStyle = s.edge || 'rgba(255,255,255,.9)'; c.stroke(); }
+    if (s.style !== 'letters') { roundRectPath(c, 2, 2, s.cw - 4, s.ch - 4, 12); c.fillStyle = bg; c.fill(); c.lineWidth = 4; c.strokeStyle = s.edge || 'rgba(255,255,255,.9)'; c.stroke(); }
     else text(s.outline || 'rgba(24,28,38,.95)', 0, 'stroke');
     text(fg, 0);
   } else {
-    if (s.style !== 'letters' && s.lit !== false) { roundRectPath(c, 3, 3, s.cw - 6, s.ch - 6, 18); const k = new THREE.Color(bg).multiplyScalar(.32); c.fillStyle = '#' + k.getHexString(); c.fill(); c.lineWidth = 5; c.strokeStyle = gl; c.shadowBlur = 16; c.shadowColor = gl; c.stroke(); c.shadowBlur = 0; }
-    text(gl, 30); text(gl, 14); text('#' + new THREE.Color(gl).lerp(new THREE.Color(1, 1, 1), .6).getHexString(), 4);
+    if (s.style !== 'letters' && s.lit !== false) { roundRectPath(c, 2, 2, s.cw - 4, s.ch - 4, 12); const k = new THREE.Color(bg).multiplyScalar(.32); c.fillStyle = '#' + k.getHexString(); c.fill(); c.lineWidth = 3.5; c.strokeStyle = gl; c.shadowBlur = 11; c.shadowColor = gl; c.stroke(); c.shadowBlur = 0; }
+    text(gl, 20); text(gl, 9); text('#' + new THREE.Color(gl).lerp(new THREE.Color(1, 1, 1), .6).getHexString(), 3);
   }
   c.restore();
 }
@@ -1170,13 +1173,16 @@ function waterfront(W) {
   for (let z = 42; z < 51; z += 2.1) addInst(W, 'sailboats', { x: 27.5, y: 0, z, s: rnd(.85, 1), ry: Math.PI / 2 + rnd(-.1, .1), color: pick(['#ffffff', '#f1ece2']) });
   beam(W.solid, [26.1, .45, 41], [26.1, .45, 52.5], .5, C('#a7835c'), .12);
   for (const [x, z, ry, s] of [[46, 52, .4, 1], [64, 58, -.3, 1.1], [-40, 40, .9, 1], [-56, 56, 2.3, .9], [10, 66, 1.4, 1.1], [80, 52, 2.8, 1], [-30, 58, 1.9, 1]]) addInst(W, 'sailboats', { x, y: 0, z, s, ry, color: '#ffffff' });
-  for (const [x, z, ry] of [[36, 48, .2], [-48, 32, -2.2], [58, 46, 2.8], [-8, 64, .9], [-66, 40, 1.2]]) { addInst(W, 'boats', { x, y: 0, z, s: 1.1, ry, color: pick(['#ffffff', '#f2c14e', '#e8473b']) }); wake(W, x, z, ry); }
+  for (const [x, z, ry, s] of [[-58, 70, 2.6, 1], [-46, 76, 2.4, .9], [-66, 78, 2.7, 1], [-30, 82, 2.5, 1], [40, 70, .5, 1], [-120, 30, 1.2, 1], [-112, 64, .4, 1]]) addInst(W, 'sailboats', { x, y: 0, z, s, ry, color: '#ffffff' });
+  { const fx = -44, fz = 30, fry = -2.3; addInst(W, 'ferries', { x: fx, y: 0, z: fz, s: 1, ry: fry }); wake(W, fx, fz, fry, 1.8); }
+  for (let k = 0; k < 7; k++) { const z = 58 + k * 4; for (const x of [-26, -8]) { W.solid.add(P.cone6, M(x + k * .6, -.1, z, .28, .7, .28), C(x < -10 ? '#e8473b' : '#3fa66b')); glow(W, x + k * .6, .7, z, x < -10 ? '#ff3b30' : '#3bff6a', .8, .9); } }
+  for (const [x, z, ry] of [[36, 48, .2], [-48, 32, -2.2], [58, 46, 2.8], [-8, 64, .9], [-66, 40, 1.2], [-90, 78, .3], [20, 80, 1.8]]) { addInst(W, 'boats', { x, y: 0, z, s: 1.1, ry, color: pick(['#ffffff', '#f2c14e', '#e8473b']) }); wake(W, x, z, ry); }
 }
-function wake(W, x, z, ry) {
-  const fr = frame(x, z, ry), c = C(W.NIGHT ? '#3d5a7a' : '#ffffff'), cf = C(W.NIGHT ? '#2a4566' : '#d9f3f6');
-  const p = (lx, lz) => { const q = fr.p(lx, lz); return [q[0], .03, q[1]]; };
-  for (const s of [-1, 1]) W.solid.quadF(p(s * .22, -.7), p(s * .42, -.7), p(s * 1.9, -5.4), p(s * 1.55, -5.4), cf, c, [0, 1, 0]);
-  W.solid.quadF(p(-.15, -.9), p(.15, -.9), p(.35, -3.6), p(-.35, -3.6), cf, c, [0, 1, 0]);
+function wake(W, x, z, ry, sc = 1) {
+  const fr = frame(x, z, ry), c = C(W.NIGHT ? '#3d5a7a' : '#ffffff'), cf = C(W.NIGHT ? '#173455' : '#2a9fc4');
+  const p = (lx, lz) => { const q = fr.p(lx * sc, lz * sc); return [q[0], .03, q[1]]; };
+  for (const s of [-1, 1]) W.solid.quadF(p(s * .2, -.75), p(s * .5, -.75), p(s * 1.7, -4.2), p(s * 1.62, -4.2), cf, c, [0, 1, 0]);
+  W.solid.quadF(p(-.3, -.85), p(.3, -.85), p(.05, -3), p(-.05, -3), cf, c, [0, 1, 0]);
 }
 function lamp(W, x, y, z, ry = 0) {
   addInst(W, 'lamps', { x, y, z, s: 1, ry });
@@ -1210,7 +1216,9 @@ function homeGym(W) {
   for (const sx of [-1.6, 1.6]) { const [px, pz] = p(sx, gd / 2 - .6); beam(W.solid, [px, top, pz], [px, top + 1.2, pz], .14, C('#3a3f48')); }
   { const [sx, sz] = p(0, gd / 2 - .45); sign(W, { text: 'GYM', x: sx, y: top + 2.95, z: sz, ry: fr.ry, h: 1.9, style: 'board', bg: '#e11d2e', fg: '#ffffff', glow: '#ff3344', board: .18, boardColor: '#f2efe8' }); }
   // fascia sign over the shop windows
-  { const [sx, sz] = p(-.6, gd / 2 + .05); sign(W, { text: 'HOME GYM', x: sx, y: BLOCK_Y + 1.27, z: sz, ry: fr.ry, h: .42, style: 'letters', fg: '#f4c152', glow: '#ffcf5a' }); }
+  { const [sx, sz] = p(-.6, gd / 2 + .05); sign(W, { text: 'HOME GYM', x: sx, y: BLOCK_Y + 1.3, z: sz, ry: fr.ry, h: .5, style: 'letters', fg: '#f4c152', glow: '#ffcf5a' }); }
+  { const [cx2, cz2] = p(1.6, gd / 2 + .55); W.solid.add(P.box, M(cx2, BLOCK_Y + 1.02, cz2, 1.9, .1, 1.1, fr.ry, -.12), C('#e11d2e')); for (const s2 of [-.85, .85]) { const [qx, qz] = p(1.6 + s2, gd / 2 + 1.05); beam(W.solid, [qx, BLOCK_Y, qz], [qx, BLOCK_Y + .96, qz], .05, C('#2a2d33')); } glow(W, cx2, BLOCK_Y + .9, cz2, '#ffd9a0', 1.8, .7); }
+  for (let k = 0; k < 6; k++) { const [qx, qz] = p(rnd(-2.5, 3), gd / 2 + rnd(1.3, 2.3)); addInst(W, 'people', { x: qx, y: BLOCK_Y, z: qz, s: 1, color: pick(['#e11d2e', '#1f2633', '#f4c152', '#ffffff', '#2b62d9']) }); }
   // giant boxing glove hanging from a bracket at the front-right corner
   const [bx0, bz0] = p(gw / 2, gd / 2 - .25), [bx1, bz1] = p(gw / 2 + 1.45, gd / 2 - .25);
   const yb = BLOCK_Y + FACADE.shop.floor + FACADE.brick.floor * 1.75;
@@ -1297,7 +1305,9 @@ function marketRow(W) {
     for (let k = 0; k < n; k++) { const a = -.9 + k * 1.8 / n, bb = a + 1.8 / n; W.solid.quadF(p(a, 1.68, -.5), p(bb, 1.68, -.5), p(bb, 1.4, .72), p(a, 1.4, .72), k % 2 ? bc : ac, k % 2 ? bc : ac, sub3(p(0, 2, .6), p(0, 1, -.2))); }
     if (chance(.8)) addInst(W, 'people', { x: x + rnd(-1, 1), y: BLOCK_Y, z: z + rnd(-.6, .6) * (w > 0 ? -1 : 1) + (w > 0 ? -1.3 : 1.3) * Math.cos(ry), s: 1, color: pick(PAL.car) });
   }
-  for (let k = 0; k < 70; k++) { const [x, z] = at(rnd(0, 49), rnd(-.6, .6)); addInst(W, 'people', { x, y: BLOCK_Y, z, s: rnd(.95, 1.05), color: pick(PAL.car) }); }
+  for (let k = 0; k < 150; k++) { const [x, z] = at(rnd(-.5, 49.5), chance(.6) ? rnd(-.7, .7) : pick([-1, 1]) * rnd(2.5, 3.2)); addInst(W, 'people', { x, y: BLOCK_Y, z, s: rnd(.95, 1.05), color: pick(PAL.car) }); }
+  for (let u = 3.7; u < 48; u += rnd(4, 7)) { const [x, z] = at(u, 0); addInst(W, 'umbrellas', { x, y: BLOCK_Y, z, s: rnd(1.1, 1.3), color: pick(['#e8473b', '#f2c14e', '#2fa59a', '#ffffff', '#f07f3c']) }); }
+  for (let u = 1; u < 49; u += 2.2) for (const w of [-3.15, 3.15]) if (chance(.45)) { const [x, z] = at(u, w); W.solid.add(P.box, M(x, BLOCK_Y, z, .45, .3, .35, rnd(0, 1)), C(pick(['#b98a5a', '#9c7350', '#c9a06a']))); W.solid.add(P.ico, M(x, BLOCK_Y + .33, z, .16, .1, .14), C(pick(['#e2574c', '#f2c14e', '#7bc06b', '#f08a3c']))); }
   // string lights zig-zag over the street
   for (let u = 1.5; u < 49; u += 4.2) {
     const a = at(u, -3.7), b = at(u + 2.1, 3.7), ya = BLOCK_Y + 2.9, n = 9;
@@ -1360,7 +1370,15 @@ function docks(W) {
   addInst(W, 'tugs', { x: 24, y: 0, z: 59, s: 1, ry: -2.6 }); addInst(W, 'tugs', { x: -16, y: 0, z: 57, s: 1, ry: .4 });
   // bollards and quay lamps
   for (let x = -19; x < 22; x += 2.6) W.solid.add(P.cyl8, M(x, LAND_Y, 52.6, .14, .32, .14), C('#2f3339'));
-  for (let x = -18; x < 22; x += 10) lamp(W, x, LAND_Y, 52.2, Math.PI);
+  for (let x = -18; x < 22; x += 10) { lamp(W, x, LAND_Y, 52.2, Math.PI); pool(W, x, 56.5, .5, '#ffb455', .32, .02, 5); }
+  for (const [mx, mz] of [[-2.4, 42.6], [7.2, 42.6], [17.2, 42.6], [4, 33.6]]) {
+    rod(W.solid, [mx, LAND_Y, mz], [mx, LAND_Y + 7.2, mz], .09, C('#7d848e'));
+    W.solid.add(P.box, M(mx, LAND_Y + 7.2, mz, 1.3, .16, .5), C('#5b626c'));
+    for (const dx of [-.45, 0, .45]) glow(W, mx + dx, LAND_Y + 7.05, mz, '#ffb45a', 1.5, .95);
+    pool(W, mx, mz, 7, '#ff8a1e', .3, LAND_Y + .01);
+  }
+  for (const cx of [-1, 11]) { pool(W, cx, 50.4, 3, '#cfe0ff', .28, LAND_Y + .01); pool(W, cx, 56.5, 3.2, '#cfe0ff', .2, 1.75); }
+  pool(W, -13.6, 57.5, 2.2, '#ffa040', .3, .02, 3);
   // Dockside Hangar (barrel vault, doors open to the south)
   const hx = -13.6, hz = 45.4, hl = 11.2, hw = 9.6, hfr = frame(hx, hz, Math.PI / 2);
   for (const sx of [-1, 1]) W.solid.add(P.box, M(hx + sx * (hw / 2 - .1), LAND_Y, hz, .2, 1.4, hl), C('#7b8b96'), { ao: .3 });
@@ -1371,7 +1389,7 @@ function docks(W) {
   litQuad(W, [hx - 2.6, LAND_Y, fz], [hx + 2.6, LAND_Y, fz], [hx + 2.6, LAND_Y + 3.2, fz], [hx - 2.6, LAND_Y + 3.2, fz], [0, 0, 1], '#ffb35c', '#1c2028');
   for (const sx of [-1, 1]) W.solid.add(P.box, M(hx + sx * 3.6, LAND_Y, fz + .12, 2.2, 3.4, .14), C('#c8452f'));
   sign(W, { text: 'DOCKSIDE HANGAR', x: hx, y: LAND_Y + 4.75, z: fz + .05, ry: 0, h: .75, style: 'board', bg: '#1d2430', fg: '#f4c152', glow: '#ff4fa0', board: .1 });
-  pool(W, hx, fz + 2.2, 4.5, '#ffb066', .6, LAND_Y + .01); glow(W, hx, LAND_Y + 1.8, fz + .3, '#ffb35c', 6, .45);
+  pool(W, hx, fz + 2.8, 5.2, '#ffb066', .75, LAND_Y + .01, 1.2); glow(W, hx, LAND_Y + 1.8, fz + .3, '#ffb35c', 7, .5);
   for (let k = 0; k < 14; k++) addInst(W, 'people', { x: hx + rnd(-3, 3), y: LAND_Y, z: fz + rnd(.6, 3.2), s: 1, color: pick(PAL.car) });
   W.hangar = { x: hx, z: hz, top: LAND_Y + 1.4 + hw / 2 * .82 };
   // warehouses
@@ -1589,7 +1607,10 @@ function gloryHill(W) {
 function stadium(W, cx, cz, y0) {
   const A = 8.6, Bz = 7.0, N = 72, B = W.solid;
   // plaza on the hill top
-  ellipseRing(B, cx, cz + .4, HILL.top + .15, HILL.top + .15, 1, 0, y0, y0, 48, (k) => C(k % 2 ? '#e9e0cf' : '#e3d9c6'));
+  ellipseRing(B, cx, cz + .4, HILL.top + .15, HILL.top + .15, 1, 0, y0, y0, 48, (k) => C(k % 2 ? '#e6d9c2' : '#dfd1b8'));
+  for (let k = 0; k < 24; k++) { const a = k / 24 * TAU, r0 = A * 1.34, r1 = HILL.top - .3; W.marks.quadF([cx + Math.cos(a - .006) * r0, y0 + .015, cz + .4 + Math.sin(a - .006) * r0], [cx + Math.cos(a + .006) * r0, y0 + .015, cz + .4 + Math.sin(a + .006) * r0], [cx + Math.cos(a + .004) * r1, y0 + .015, cz + .4 + Math.sin(a + .004) * r1], [cx + Math.cos(a - .004) * r1, y0 + .015, cz + .4 + Math.sin(a - .004) * r1], C('#cbbb9f'), C('#cbbb9f'), [0, 1, 0]); }
+  for (const a of [.35, 1.2, 1.95, 2.8, 3.6, 4.5, 5.4]) { const px = cx + Math.cos(a) * (HILL.top - 1.6), pz = cz + .4 + Math.sin(a) * (HILL.top - 1.6); if (Math.abs(a - Math.PI / 2) < .5) continue; B.add(P.cyl12, M(px, y0, pz, .95, .32, .95), C('#cfc2a8')); B.add(P.cyl12, M(px, y0 + .32, pz, .82, .02, .82), C('#6fae4c')); addInst(W, 'trees', { x: px, y: y0 + .3, z: pz, s: .7 }); }
+  for (let k = 0; k < 12; k++) { const a = (k + .5) / 12 * TAU; lamp(W, cx + Math.cos(a) * (HILL.top - .4), y0, cz + .4 + Math.sin(a) * (HILL.top - .4), Math.atan2(-Math.cos(a), -Math.sin(a))); }
   ellipseRing(B, cx, cz, A, Bz, 1.32, 1.08, y0 + .01, y0 + .01, N, k => C(k % 6 < 3 ? '#d9cdb6' : '#e5dbc7'));
   // podium, facade and red band
   ellipseWall(B, cx, cz, A * 1.05, Bz * 1.05, y0, y0 + .5, N, () => C('#cfc6b6'));
@@ -1715,7 +1736,7 @@ function oldFort(W) {
 /* ---- Pirate Cove: island, cove beach, ship */
 function pirateCove(W) {
   const cx = ISLAND.x, cz = ISLAND.z, pts = [];
-  for (let k = 0; k < 28; k++) { const a = k / 28 * TAU, r = 8.6 * (1 + Math.sin(a * 3 + 1) * .07 + Math.sin(a * 5 + 2) * .04); pts.push([cx + Math.cos(a) * r * 1.12, cz + Math.sin(a) * r]); }
+  for (let k = 0; k < 28; k++) { const a = k / 28 * TAU, r = 10.2 * (1 + Math.sin(a * 3 + 1) * .07 + Math.sin(a * 5 + 2) * .04); pts.push([cx + Math.cos(a) * r * 1.12, cz + Math.sin(a) * r]); }
   let area = 0; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; area += a[0] * b[1] - b[0] * a[1]; }
   if (area > 0) pts.reverse();
   const shape = new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], -p[1])));
@@ -1727,7 +1748,7 @@ function pirateCove(W) {
   occupy(W, 'poly', pts);
   // rocky arc on the west and north
   for (let k = 0; k < 16; k++) {
-    const a = Math.PI * .55 + k / 15 * Math.PI * 1.15, r = rnd(6.2, 8.4), x = cx + Math.cos(a) * r * 1.1, z = cz + Math.sin(a) * r;
+    const a = Math.PI * .55 + k / 15 * Math.PI * 1.15, r = rnd(7.4, 9.8), x = cx + Math.cos(a) * r * 1.1, z = cz + Math.sin(a) * r;
     W.solid.add(P.ico, M(x, LAND_Y - .6, z, rnd(1.5, 2.6), rnd(1.8, 4.2) * (1 - Math.abs(k - 7.5) / 12), rnd(1.4, 2.2), rnd(0, TAU), rnd(-.2, .2)), C(pick(['#a99070', '#b9a07e', '#937b62', '#c4ad8a'])));
   }
   for (let k = 0; k < 9; k++) { const a = rnd(-.4, 1.8), r = rnd(2, 5.5); addInst(W, 'palms', { x: cx + Math.cos(a) * r, y: LAND_Y, z: cz + Math.sin(a) * r, s: rnd(.85, 1.15) }); }
@@ -1740,11 +1761,11 @@ function pirateCove(W) {
   W.solid.add(P.box, M(cx + .2, LAND_Y, cz + 2.6, .7, .45, .45, .4), C('#7a4f2a'), { top: C('#f4c152') });
   // jetty to the east and the ship
   const jy = .55;
-  W.solid.add(P.box, M(cx + 12, jy, cz + 1.4, 7.2, .14, 1.3), C('#a7835c'));
-  for (let k = 0; k < 6; k++) for (const s of [-.55, .55]) W.solid.add(P.cyl6, M(cx + 8.8 + k * 1.3, -1, cz + 1.4 + s, .1, jy + 1.05, .1), C('#6e5139'));
-  pirateShip(W, cx + 14.5, cz + 6.5, -1.05, 1.25);
-  sign(W, { text: 'PIRATE COVE', x: cx + 8.8, y: 2.0, z: cz + 2.2, ry: .2, h: .45, style: 'board', bg: '#5a3a26', fg: '#f4c152', glow: '#ffb84a', edge: '#3a2416', board: .06 });
-  rod(W.solid, [cx + 8.8, jy, cz + 2.2], [cx + 8.8, 1.55, cz + 2.2], .05, C('#5a3a26'));
+  W.solid.add(P.box, M(cx + 13.4, jy, cz + 1.4, 7.2, .14, 1.3), C('#a7835c'));
+  for (let k = 0; k < 6; k++) for (const s of [-.55, .55]) W.solid.add(P.cyl6, M(cx + 10.2 + k * 1.3, -1, cz + 1.4 + s, .1, jy + 1.05, .1), C('#6e5139'));
+  pirateShip(W, cx + 16, cz + 7, -1.05, 1.3);
+  sign(W, { text: 'PIRATE COVE', x: cx + 10.4, y: 2.0, z: cz + 2.2, ry: .2, h: .45, style: 'board', bg: '#5a3a26', fg: '#f4c152', glow: '#ffb84a', edge: '#3a2416', board: .06 });
+  rod(W.solid, [cx + 10.4, jy, cz + 2.2], [cx + 10.4, 1.55, cz + 2.2], .05, C('#5a3a26'));
   W.cove = { x: cx, z: cz, top: 6 };
 }
 function pirateShip(W, x, z, ry, sc = 1) {
@@ -1796,6 +1817,7 @@ function techPier(W) {
   const y = 1.2;
   // capsule pod
   rod(B, [px - 8, y + 1.5, pz - 2.5], [px - 1, y + 1.5, pz - 2.5], 1.45, white, P.cyl12);
+  for (const ex of [-7.2, -1.8]) rod(B, [px + ex - .2, y + 1.5, pz - 2.5], [px + ex + .2, y + 1.5, pz - 2.5], 1.48, C('#2fb6c9'), P.cyl12);
   B.add(P.sph, M(px - 8, y + 1.5, pz - 2.5, 1.45, 1.45, 1.45), white); B.add(P.sph, M(px - 1, y + 1.5, pz - 2.5, 1.45, 1.45, 1.45), white);
   for (let k = 0; k < 6; k++) litQuad(W, [px - 7.4 + k * 1.1, y + 1.4, pz - 1.08], [px - 6.7 + k * 1.1, y + 1.4, pz - 1.08], [px - 6.7 + k * 1.1, y + 2.1, pz - 1.08], [px - 7.4 + k * 1.1, y + 2.1, pz - 1.08], [0, 0, 1], '#bdf5ff', '#3b6f8a');
   neon(W, [[px - 8.2, y + .55, pz - 1.15], [px - .8, y + .55, pz - 1.15]], cyan, .06, .35);
@@ -1807,10 +1829,15 @@ function techPier(W) {
   glow(W, px + 5.5, y + 1.6, pz - 1, '#5ff0ff', 6, .35);
   // spire
   const sx = px + 1, sz = pz + 3.2;
-  B.add(P.taper || (P.taper = proto(new THREE.CylinderGeometry(.78, 1.0, 1, 14, 1).translate(0, .5, 0))), M(sx, y, sz, .7, 12.5, .7), white);
-  for (const [h, r] of [[4, 1.6], [7.5, 1.25], [10.5, .95]]) { B.add(P.cyl20, M(sx, y + h, sz, r, .14, r), white); if (W.NIGHT) { W.glowSolid.add(P.cyl20, M(sx, y + h - .05, sz, r * 1.02, .06, r * 1.02), C(cyan).multiplyScalar(1.4)); for (let k = 0; k < 10; k++) { const a = k / 10 * TAU; glow(W, sx + Math.cos(a) * r, y + h, sz + Math.sin(a) * r, cyan, 1.2, .6); } } else B.add(P.cyl20, M(sx, y + h - .05, sz, r * 1.02, .06, r * 1.02), C('#7fe3f0')); }
-  rod(B, [sx, y + 12.5, sz], [sx, y + 14.5, sz], .05, C('#c9d0d8'));
-  glow(W, sx, y + 14.5, sz, '#ff3b30', 1.2, 1);
+  B.add(P.taper || (P.taper = proto(new THREE.CylinderGeometry(.78, 1.0, 1, 14, 1).translate(0, .5, 0))), M(sx, y, sz, 1.1, 14.5, 1.1), white);
+  for (const [h, r] of [[4.5, 2.2], [8.5, 1.8], [12, 1.4]]) { B.add(P.cyl20, M(sx, y + h, sz, r, .14, r), white); if (W.NIGHT) { W.glowSolid.add(P.cyl20, M(sx, y + h - .05, sz, r * 1.02, .06, r * 1.02), C(cyan).multiplyScalar(1.4)); for (let k = 0; k < 10; k++) { const a = k / 10 * TAU; glow(W, sx + Math.cos(a) * r, y + h, sz + Math.sin(a) * r, cyan, 1.2, .6); } } else B.add(P.cyl20, M(sx, y + h - .05, sz, r * 1.02, .06, r * 1.02), C('#7fe3f0')); }
+  rod(B, [sx, y + 14.5, sz], [sx, y + 17, sz], .07, C('#c9d0d8'));
+  glow(W, sx, y + 17, sz, '#ff3b30', 1.2, 1);
+  // teal walkways, a glass plaza disc and a holo arch at the platform front
+  B.add(P.box, M(px, y + .01, pz + 1.4, pw - 1.5, .02, 1.2), C('#2fb6c9'));
+  B.add(P.cyl20, M(px - 4.5, y + .01, pz + 2.6, 2.1, .03, 2.1), C(W.NIGHT ? '#1f8fa8' : '#8fe6ef'));
+  const ax = px + 3.6, az2 = pz + 5.9;
+  for (let k = 0; k < 16; k++) { const a0 = k / 16 * Math.PI, a1 = (k + 1) / 16 * Math.PI; neon(W, [[ax + Math.cos(a0) * 2.4, y + Math.sin(a0) * 2.6, az2], [ax + Math.cos(a1) * 2.4, y + Math.sin(a1) * 2.6, az2]], cyan, .16, .45); }
   // solar canopy and wind turbines
   for (let k = 0; k < 4; k++) B.add(P.box, M(px - 7 + k * 1.9, y + 1.1, pz + 4.6, 1.7, .08, 2.4, 0, -.35), C('#2b4f86'), { top: C('#365f9e') });
   for (const [tx, tz] of [[px + 9.5, pz + 5], [px + 10, pz - 5.5]]) { rod(B, [tx, y, tz], [tx, y + 6, tz], .12, white); B.add(P.box, M(tx, y + 5.8, tz, .4, .4, .7), white); for (let k = 0; k < 3; k++) { const a = k / 3 * TAU + .3; beam(B, [tx, y + 6, tz + .4], [tx + Math.cos(a) * 2.3, y + 6 + Math.sin(a) * 2.3, tz + .4], .14, white, .04); } }
@@ -1925,10 +1952,11 @@ function hotelNeon(W) {
 /* ---- backdrop hills and forests beyond the city */
 function clouds(W) {
   if (W.NIGHT) return;
-  for (const [x, z, y, s] of [[-122, -58, 30, 1.3], [-118, 46, 26, 1.2], [116, -76, 31, 1.4], [138, 4, 27, 1.1], [-40, -98, 33, 1.2]]) {
+  const B = W.clouds = new Batch();
+  for (const [x, z, y, s] of [[-122, -58, 30, 1.3], [-104, 14, 27, 1.15], [116, -76, 31, 1.4], [138, 4, 27, 1.1], [-40, -98, 33, 1.2], [-70, 84, 24, 1.2]]) {
     const n = rint(4, 6);
-    for (let k = 0; k < n; k++) W.solid.add(P.sph, M(x + (k - n / 2) * 2.5 * s + rnd(-.6, .6), y + rnd(0, 1) - Math.abs(k - n / 2) * .5, z + rnd(-1.4, 1.4), rnd(2.6, 3.6) * s, rnd(1.5, 2.1) * s, rnd(2.2, 3) * s, rnd(0, TAU)), C('#ffffff'));
-    W.solid.add(P.sph, M(x, y - .6, z, n * 1.5 * s, .7 * s, 2.6 * s), C('#eef3f7'));
+    for (let k = 0; k < n; k++) B.add(P.sph, M(x + (k - n / 2) * 2.5 * s + rnd(-.6, .6), y + rnd(0, 1) - Math.abs(k - n / 2) * .5, z + rnd(-1.4, 1.4), rnd(2.6, 3.6) * s, rnd(1.5, 2.1) * s, rnd(2.2, 3) * s, rnd(0, TAU)), C('#ffffff'));
+    B.add(P.sph, M(x, y - .6, z, n * 1.5 * s, .7 * s, 2.6 * s), C('#eef3f7'));
   }
 }
 function backdrop(W) {
@@ -2065,29 +2093,28 @@ function buildTraffic(W) {
 /* ------------------------------------------------------------------ instanced meshes */
 function treeGeo() {
   const b = new Batch();
-  b.add(P.cyl5, M(0, 0, 0, .14, 1.1, .14), C(PAL.trunk));
+  b.add(P.cyl5o, M(0, 0, 0, .14, 1.1, .14), C(PAL.trunk));
   b.add(P.ico, M(0, 1.7, 0, 1.0, .9, 1.0, .3), C('#ffffff'));
-  b.add(P.ico, M(.38, 2.3, .12, .62, .55, .62, .9), C('#f4f4f4'));
-  b.add(P.ico, M(-.42, 2.05, -.2, .55, .5, .55, 1.7), C('#eaeaea'));
+  b.add(P.ico, M(.3, 2.3, .1, .64, .56, .64, .9), C('#f2f2f2'));
   return b.geometry();
 }
 function bushGeo() { const b = new Batch(); b.add(P.ico, M(0, .25, 0, .7, .5, .7), C('#ffffff')); b.add(P.ico, M(.45, .2, .2, .45, .38, .45, .7), C('#eeeeee')); return b.geometry(); }
 function pineGeo() {
   const b = new Batch();
-  b.add(P.cyl5, M(0, 0, 0, .12, .7, .12), C(PAL.trunk));
-  b.add(P.cone6, M(0, .5, 0, .9, 1.6, .9, .3), C('#ffffff'));
-  b.add(P.cone6, M(0, 1.35, 0, .68, 1.3, .68, .9), C('#f0f0f0'));
+  b.add(P.cyl5o, M(0, 0, 0, .12, .7, .12), C(PAL.trunk));
+  b.add(P.cone6o, M(0, .5, 0, .9, 1.6, .9, .3), C('#ffffff'));
+  b.add(P.cone6o, M(0, 1.35, 0, .68, 1.3, .68, .9), C('#f0f0f0'));
   return b.geometry();
 }
 function umbrellaGeo() { const b = new Batch(); b.add(P.cyl5, M(0, 0, 0, .03, 1.15, .03), C('#d8d2c6')); b.add(P.cone8, M(0, .92, 0, .66, .32, .66), C('#ffffff')); return b.geometry(); }
-function personGeo() { const b = new Batch(); b.add(P.box, M(0, 0, 0, .16, .2, .12), C('#4a4f5c')); b.add(P.cyl6, M(0, .2, 0, .1, .19, .08), C('#ffffff')); b.add(P.ico, M(0, .47, 0, .075, .085, .075), C('#f3dcc2')); return b.geometry(); }
+function personGeo() { const b = new Batch(); b.add(P.box, M(0, 0, 0, .17, .4, .12), C('#ffffff'), { ao: .5 }); b.add(P.box, M(0, .4, 0, .12, .13, .12), C('#f3dcc2')); return b.geometry(); }
 function lampGeo() { const b = new Batch(), c = C('#3d434e'); b.add(P.cyl5, M(0, 0, 0, .05, 1.66, .05), c); b.add(P.box, M(0, 1.6, .2, .05, .05, .44), c); b.add(P.box, M(0, 1.53, .42, .16, .08, .26), c); return b.geometry(); }
 function carGeo() {
   const b = new Batch(), glass = C('#2c3644');
   b.add(P.box, M(0, .09, 0, .5, .25, 1.12), C('#ffffff'));
   b.add(P.box, M(0, .34, -.08, .44, .2, .6), glass);
   b.add(P.box, M(0, .54, -.08, .42, .03, .5), C('#ffffff'));
-  for (const [x, z] of [[-.24, .36], [.24, .36], [-.24, -.36], [.24, -.36]]) b.add(P.box, M(x, 0, z, .06, .17, .22), C('#1d1f24'));
+  b.add(P.box, M(0, 0, 0, .46, .1, 1.0), C('#1d1f24'));
   return b.geometry();
 }
 function hull(b, L, Bm, top, col, deckCol) {
@@ -2106,6 +2133,13 @@ function sailGeo() {
   for (const d of [1, -1]) { b.quadF([0, .62, -.8], [0, .62, .1], [0, 2.75, .12], [0, 2.75, .1], sail, sail, [d, 0, 0]); b.quadF([0, .66, .22], [0, .66, .95], [0, 2.5, .2], [0, 2.5, .2], C('#f0eee6'), C('#f0eee6'), [d, 0, 0]); }
   return b.geometry();
 }
+function ferryGeo() {
+  const b = new Batch(); hull(b, 5.4, 1.9, .55, C('#ffffff'), C('#9fb4c4'));
+  b.add(P.box, M(0, .55, -.3, 1.6, .7, 3.4), C('#f6f6f2')); b.add(P.box, M(0, 1.25, -.6, 1.3, .55, 2), C('#f6f6f2'));
+  for (const s of [-1, 1]) { b.add(P.box, M(s * .81, .8, -.3, .02, .25, 3.1), C('#2c3644')); b.add(P.box, M(s * .66, 1.45, -.6, .02, .2, 1.8), C('#2c3644')); }
+  b.add(P.box, M(0, .53, 0, 1.75, .06, 4.8), C('#1d4f91')); b.add(P.cyl8, M(0, 1.8, -1.2, .2, .55, .2), C('#e11d2e'));
+  return b.geometry();
+}
 function tugGeo() { const b = new Batch(); hull(b, 2.8, 1.1, .45, C('#c8452f'), C('#3a3f48')); b.add(P.box, M(0, .45, -.2, .8, .55, 1), C('#f4f2ec')); b.add(P.box, M(0, .85, -.05, .78, .12, .04), C('#2c3644')); b.add(P.cyl8, M(0, 1, -.5, .14, .5, .14), C('#1d2430')); return b.geometry(); }
 function containerGeo() { return proto(new THREE.BoxGeometry(1.5, .64, .62).translate(0, .32, 0)); }
 function gondolaGeo() { const b = new Batch(); b.add(P.box, M(0, -.75, 0, .7, .55, .55), C('#ffffff')); b.add(P.box, M(0, -.2, 0, .78, .08, .62), C('#f4f4f4')); b.add(P.box, M(0, -.15, 0, .05, .2, .05), C('#555b66')); b.add(P.box, M(0, -.62, .28, .55, .22, .01), C('#2c3644')); return b.geometry(); }
@@ -2118,13 +2152,13 @@ function ribTexture() {
 function palmGeo() {
   const b = new Batch(), trunk = C(PAL.palmTrunk), leaf = C(PAL.palmLeaf), leaf2 = C('#78bf4c');
   let x = 0, y = 0, z = 0;
-  for (let k = 0; k < 5; k++) { const nx = x + .06 * k, ny = y + .62; b.add(P.cyl5, M(x, y, z, .13 - k * .012, .64, .13 - k * .012, 0, 0, -.1 * k), shade(trunk, k % 2 ? .9 : 1)); x = nx; y = ny; }
+  for (let k = 0; k < 4; k++) { const nx = x + .08 * k, ny = y + .78; b.add(P.cyl5o, M(x, y, z, .13 - k * .014, .8, .13 - k * .014, 0, 0, -.12 * k), shade(trunk, k % 2 ? .9 : 1)); x = nx; y = ny; }
   const top = [x, y, z];
-  for (let k = 0; k < 8; k++) {
-    const a = k / 8 * TAU + .2, c = Math.cos(a), s = Math.sin(a), droop = k % 2 ? 1 : .8;
-    const pts = [[0, 0], [.38, .22], [.82, .2], [1.2, -.1 * droop], [1.5, -.48 * droop]];
+  for (let k = 0; k < 7; k++) {
+    const a = k / 7 * TAU + .2, c = Math.cos(a), s = Math.sin(a), droop = k % 2 ? 1 : .8;
+    const pts = [[0, 0], [.5, .24], [1.05, .05 * droop], [1.5, -.48 * droop]];
     for (let i = 0; i < pts.length - 1; i++) {
-      const [d0, h0] = pts[i], [d1, h1] = pts[i + 1], wd0 = .26 * Math.sin(Math.PI * (i / 4) + .3), wd1 = .26 * Math.sin(Math.PI * ((i + 1) / 4) + .3);
+      const [d0, h0] = pts[i], [d1, h1] = pts[i + 1], wd0 = .28 * Math.sin(Math.PI * (i / 3) + .3), wd1 = .28 * Math.sin(Math.PI * ((i + 1) / 3) + .3);
       const P0 = [top[0] + c * d0, top[1] + h0, top[2] + s * d0], P1 = [top[0] + c * d1, top[1] + h1, top[2] + s * d1];
       const px = -s, pz = c, col = k % 2 ? leaf : leaf2;
       const L0 = [P0[0] + px * wd0, P0[1] - .07, P0[2] + pz * wd0], L1 = [P1[0] + px * wd1, P1[1] - .07, P1[2] + pz * wd1], R0 = [P0[0] - px * wd0, P0[1] - .07, P0[2] - pz * wd0], R1 = [P1[0] - px * wd1, P1[1] - .07, P1[2] - pz * wd1];
@@ -2132,14 +2166,14 @@ function palmGeo() {
       b.quadF(L0, L1, P1, P0, shade(col, .65), shade(col, .65), [0, -1, 0]); b.quadF(P0, P1, R1, R0, shade(col, .65), shade(col, .65), [0, -1, 0]);
     }
   }
-  b.add(P.ico, M(top[0], top[1] - .12, top[2], .22, .22, .22), C('#7a5a3a'));
+  b.add(P.box, M(top[0], top[1] - .3, top[2], .3, .3, .3, .5), C('#7a5a3a'));
   return b.geometry();
 }
 function buildInstances(W, add) {
   const kinds = {
     trees: { geo: treeGeo, colors: PAL.leaf }, bushes: { geo: bushGeo, colors: PAL.leaf }, pines: { geo: pineGeo, colors: PAL.pine },
     palms: { geo: palmGeo, colors: ['#ffffff', '#f0f4e8', '#e8f0e0'] }, umbrellas: { geo: umbrellaGeo, shadow: false }, people: { geo: personGeo, shadow: false },
-    lamps: { geo: lampGeo }, cars: { geo: carGeo }, boats: { geo: boatGeo }, sailboats: { geo: sailGeo }, tugs: { geo: tugGeo },
+    lamps: { geo: lampGeo }, cars: { geo: carGeo }, boats: { geo: boatGeo }, sailboats: { geo: sailGeo }, tugs: { geo: tugGeo }, ferries: { geo: ferryGeo },
     containers: { geo: containerGeo, map: true }
   };
   for (const [k, def] of Object.entries(kinds)) {
@@ -2199,7 +2233,7 @@ function paintGround(W) {
 function buildSigns(W, add, disposables) {
   if (!W.signs.length) return;
   const AW = 2048; let x = 0, y = 0, rowH = 0;
-  for (const s of W.signs) { if (x + s.cw > AW) { x = 0; y += rowH + 6; rowH = 0; } s.ax = x; s.ay = y; x += s.cw + 6; rowH = Math.max(rowH, s.ch); }
+  for (const s of [...W.signs].sort((a, b) => b.ch - a.ch)) { if (x + s.cw > AW) { x = 0; y += rowH + 4; rowH = 0; } s.ax = x; s.ay = y; x += s.cw + 4; rowH = Math.max(rowH, s.ch); }
   const AH = Math.pow(2, Math.ceil(Math.log2(y + rowH + 6)));
   const cv = canvas(AW, AH), c = cv.getContext('2d');
   for (const s of W.signs) drawSign(c, s, W.NIGHT);
@@ -2231,8 +2265,8 @@ function buildNightFx(W, add, disposables) {
   if (W.pools.length) {
     const pos = [], uv = [], col = [];
     for (const p of W.pools) {
-      const y = p.y + .03, r = p.r;
-      const q = [[p.x - r, y, p.z - r], [p.x + r, y, p.z - r], [p.x + r, y, p.z + r], [p.x - r, y, p.z + r]];
+      const y = p.y + .03, r = p.r, rz = p.rz || p.r;
+      const q = [[p.x - r, y, p.z - rz], [p.x + r, y, p.z - rz], [p.x + r, y, p.z + rz], [p.x - r, y, p.z + rz]];
       pos.push(...q[0], ...q[3], ...q[2], ...q[0], ...q[2], ...q[1]);
       uv.push(0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0);
       for (let k = 0; k < 6; k++) col.push(p.c.r, p.c.g, p.c.b);
@@ -2297,8 +2331,8 @@ function buildWheel(W, solidMat, disposables) {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(p, 3)); geo.setAttribute('gcolor', new THREE.Float32BufferAttribute(c, 3)); geo.setAttribute('size', new THREE.Float32BufferAttribute(s, 1)); geo.setAttribute('phase', new THREE.Float32BufferAttribute(ph, 1));
     const mat = W.glowMat || (W.glowMat = glowMaterial());
-    rimGlow = new THREE.Points(geo, mat); rimGlow.frustumCulled = false; rimGlow.renderOrder = 7; pivot.add(rimGlow); disposables.push(geo);
-    const lb = new THREE.Mesh(spokeLights(wh), new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false })); pivot.add(lb); disposables.push(lb.geometry, lb.material); W.wheelLights = lb;
+    rimGlow = new THREE.Points(geo, mat); rimGlow.name = 'wheel glows'; rimGlow.frustumCulled = false; rimGlow.renderOrder = 7; pivot.add(rimGlow); disposables.push(geo);
+    const lb = new THREE.Mesh(spokeLights(wh), new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false })); lb.name = 'wheel lights'; pivot.add(lb); disposables.push(lb.geometry, lb.material); W.wheelLights = lb;
   }
   const m4 = new THREE.Matrix4();
   const set = t => {
