@@ -54,7 +54,7 @@
 
 ### GOTR-0002 — Redesign championship belts, headbands and side ribbons as real wearable accessories
 - **Reported:** 2026-11-09
-- **Status:** IN PROGRESS (agent `gear-3d`, local)
+- **Status:** READY FOR QA — published in v1.15 (2026-11-11); user to review
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** 3D cosmetics / shop / rendering
@@ -63,10 +63,13 @@
 - **Acceptance criteria:** Belt silhouette clearly recognizable from front, three-quarter, side and rear views; proportionate for multiple animal rigs and clothing; fits during punches, footwork and camera rotation; mobile FPS preserved; store thumbnails accurately represent equipped result.
 - **Implementation:** Not started; research and inspect real championship belts, combat headgear/bands and fighting apparel references before modeling. No unlicensed brand logos.
 - **Evidence:** Pending real-life reference board and in-game multi-angle comparisons.
+- **Delivered (v1.15, `agent/gear-3d-local`):** Two belts — `champion_belt` (crest plate with enamel, wreath, star, crown and banner on a black strap with back snaps) and new `heritage_belt` (round sunburst medallion, side plates, buckle); straps fitted to each rig's real waist. Two headbands — `headband` tied at the back with two tails and new `bandana` tied at the side; arm ribbons gain a knot and tails. One belt and one headband at a time; old saves load. Shop thumbnails exported as `GameAccessories.icon(item)` (wired in the Shop when the Shop agent merges).
+- **Evidence:** `qa/gotr-0002/` (README with real-world references, front/three-quarter/side/rear renders for lion and rabbit, belt and headband close-ups). New `tests/accessory-gear-fit.test.cjs`: strap at least 14 mm clear of body and shorts in guard, all punches, slip, roll, step and jump rope, both rigs. Full suite 83/83 on the agent branch. Cost (lion): belts 7.0–7.8k triangles / 3 calls each (was 92 / 2), headbands 1.5–2.8k / 1–2.
+- **Remaining:** head knot can look detached from the side on the lion; tails are rigid; the old surface-fitted arm band still has jagged edges.
 
 ### GOTR-0003 — Design a richer wardrobe and glove / shoe catalog using real boxing apparel references
 - **Reported:** 2026-11-09
-- **Status:** OPEN
+- **Status:** IN PROGRESS — boots delivered in v1.15 (classic high-top, mid-top, panelled with strap); gloves and shorts designs remain
 - **Priority:** P1
 - **Delivery:** NOW / next implementation batch
 - **Area:** Clothing / character materials / shop
