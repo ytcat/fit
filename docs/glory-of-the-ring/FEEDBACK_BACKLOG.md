@@ -369,6 +369,28 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Fix:** Layout is computed from the sign's real height: short signs (and signs whose title is already the brand) drop the brand line; the title size fits the space between the top and the subtitle; posters keep their layout.
 - **Evidence:** `qa/gotr-0026/before-user-phone.webp` (user's report) and `after-signs.webp` (every gym label texture exported from the real app: four wall signs, floor mark and scoreboard, no overlap); `export-signs.cjs`. Club-world, character-selection, arena-sets and venue tests pass; full suite before publishing.
 
+### GOTR-0027 — Hand and arm motion is not smooth
+- **Reported:** 2026-11-11 (screen recording on the user's iPhone, v1.17, heavy bag)
+- **Status:** IN PROGRESS (agent `smooth-motion`)
+- **Priority:** P1
+- **Area:** Animation / frame pacing / performance
+- **Reported behavior / request:** "Look how hands are moving. They are not smooth moves."
+- **Integrator measurement of the recording (60 fps capture, 7.7 s):** during punches, consecutive captured frames are often identical (held frames, sometimes every other frame, i.e. ~30 fps bursts) and the next frame then jumps; at rest the pose barely changes. So part of the problem is presentation/frame pacing on the phone, part may be pose discontinuities (glove direction/velocity changing abruptly).
+- **Acceptance criteria:** Measured glove trajectories have no velocity spikes or reversals that are not part of the punch; animation time advances smoothly even when frames are late (no double-size jumps); phone-size rendering cost reduced or adapted so a mid-range phone holds a steady frame rate; before/after measurements and frame strips.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
+### GOTR-0028 — Hit opponent slides back on its feet in sparring
+- **Reported:** 2026-11-11 (screen recording, v1.17, Train → Sparring)
+- **Status:** IN PROGRESS (agent `smooth-motion`)
+- **Priority:** P1
+- **Area:** Animation / foot contact
+- **Reported behavior / request:** "Look when the lion is hitting the rabbit, the rabbit slides back with his legs; this is not realistic."
+- **Expected behavior:** When pushed back by a punch, the receiver absorbs it in the upper body and hips with planted feet, or takes a real step (foot lifts and plants). Planted feet never glide across the floor. Same rule in fights.
+- **Acceptance criteria:** Measured planted-foot slide per frame ≈ 0 for the receiver during and after hits in sparring and fights, both species; any displacement of the body root happens through visible steps; matched before/after frame strips.
+- **Implementation:** In progress.
+- **Evidence:** Pending.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
