@@ -14,7 +14,7 @@
   const app=window.app;if(!app||!window.trainingControls)return;const e=app.engine,w=()=>copy[app.lang]||copy.en;
   const byId=id=>document.getElementById(id),body=document.body,header=document.querySelector('header'),stage=byId('stageContainer'),footer=document.querySelector('footer');
   body.classList.add('club-app');header.classList.add('club-header');
-  const brand=header.firstElementChild;brand.classList.add('club-brand');const mark=el('span','club-mark');mark.innerHTML=icon('rabbit');brand.prepend(mark);
+  const brand=header.firstElementChild;brand.classList.add('club-brand');const mark=el('span','club-mark');mark.innerHTML='<img src="./assets/brand/logo-gloves.svg?v=2026111101" alt="" width="44" height="44" decoding="async">';brand.prepend(mark);
   const nav=el('nav','club-navigation');nav.setAttribute('aria-label','Main');const gymNav=el('button'),fightNav=el('button');gymNav.type=fightNav.type='button';nav.append(gymNav,fightNav);header.append(nav);
   const headTools=el('div','club-head-tools');headTools.append(byId('stageSound'),byId('openPracticeControls'));header.append(headTools);
   const workspace=el('div','club-workspace'),sidebar=el('aside','club-sidebar'),studio=el('div','club-studio');workspace.append(sidebar,studio);header.after(workspace);

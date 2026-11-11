@@ -1,1 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0e1520"/><text x="12" y="46" font-size="42" fill="#edb63e">S</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 1 60 60" role="img" aria-label="Glory of the Ring">
+  <defs>
+    <linearGradient id="gf-leather-a" x1="-14" y1="0" x2="14" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff6a6f"/><stop offset=".38" stop-color="#e23140"/><stop offset=".78" stop-color="#a5101d"/><stop offset="1" stop-color="#6e0710"/>
+    </linearGradient>
+    <linearGradient id="gf-leather-b" x1="-14" y1="0" x2="14" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f2525a"/><stop offset=".4" stop-color="#c81e2c"/><stop offset=".8" stop-color="#8c0c16"/><stop offset="1" stop-color="#5a050c"/>
+    </linearGradient>
+    <linearGradient id="gf-cuff" x1="-10" y1="0" x2="10" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#e9e4dc"/><stop offset="1" stop-color="#b9b2a6"/>
+    </linearGradient>
+    <g id="gf-glove">
+      <!-- fist: padded knuckle mass that hangs below the cuff -->
+      <path d="M-9.4 8.2C-11.6 13.6-12.4 18-12.3 22.6-12.1 30.8-6.6 35.4 0 35.4 6.6 35.4 12.2 30.8 12.3 22.4 12.4 17.6 11.4 13.4 9.4 8.2Z" stroke="#3b0208" stroke-opacity=".55" stroke-width=".7"/>
+      <!-- shading: occlusion under the cuff, darker far side -->
+      <path d="M-9.4 9.2H9.4C10 11 10.4 12.2 10.8 13.6-3 11.6-8 12-10.8 13.4-10.4 12-10 10.6-9.4 9.2Z" fill="#000" fill-opacity=".28"/>
+      <path d="M6.2 11.6C9.6 17 10.2 27.6 4.6 34.2 9.6 32.6 12.2 28.2 12.3 22.4 12.4 17.6 11.4 13.4 9.4 8.2Z" fill="#000" fill-opacity=".22"/>
+      <!-- thumb lying along the side, tip pointing down -->
+      <path d="M-10.8 13.6C-14.8 14.4-15.9 19.4-15.1 24.2-14.5 27.8-12.2 29.4-10.3 28.3L-9.6 15.8Z" stroke="#3b0208" stroke-opacity=".55" stroke-width=".7"/>
+      <path d="M-10.4 16C-12.8 17.6-13.3 22-12.2 25.8" fill="none" stroke="#000" stroke-opacity=".3" stroke-width=".8" stroke-linecap="round"/>
+      <path d="M-14.2 17.4C-14.9 20-14.7 23.2-13.6 25.6" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width=".9" stroke-linecap="round"/>
+      <!-- knuckle seam and centre stitching -->
+      <path d="M-7.6 31.6C-2.6 34.2 2.8 34.2 7.8 31.4" fill="none" stroke="#000" stroke-opacity=".3" stroke-width=".9" stroke-linecap="round"/>
+      <path d="M.6 10.2C2 18 2.1 25.6 .9 33.6" fill="none" stroke="#000" stroke-opacity=".24" stroke-width=".65" stroke-dasharray="1.1 1" stroke-linecap="round"/>
+      <!-- leather highlights: long soft sheen plus a small knuckle glint -->
+      <path d="M-7.4 12.6C-9.4 18.4-9.2 25-6.4 30.6" fill="none" stroke="#fff" stroke-opacity=".34" stroke-width="2.1" stroke-linecap="round"/>
+      <ellipse cx="-3.6" cy="29.6" rx="2.6" ry="1.3" fill="#fff" fill-opacity=".22" transform="rotate(-18 -3.6 29.6)"/>
+      <!-- cuff with lace eyelets and a stripe -->
+      <path d="M-8.4 0H8.4Q9.6 0 9.6 1.4L9.4 9.2H-9.4L-9.6 1.4Q-9.6 0-8.4 0Z" fill="url(#gf-cuff)" stroke="#6d665c" stroke-opacity=".5" stroke-width=".5"/>
+      <rect x="-9.5" y="5.6" width="19" height="2.4" rx=".6" fill="#c81e2c"/>
+      <rect x="-9.5" y="5.6" width="19" height=".7" fill="#fff" fill-opacity=".35"/>
+      <circle cx="-2.6" cy="2.4" r=".9" fill="#2b2b2f"/><circle cx="2.6" cy="2.4" r=".9" fill="#2b2b2f"/>
+    </g>
+  </defs>
+  <rect x="2" y="1" width="60" height="60" rx="13" fill="#0e1520"/>
+  <!-- peg -->
+  <circle cx="32" cy="5.2" r="2.6" fill="#8b95a7"/><circle cx="31.3" cy="4.5" r=".9" fill="#e7ecf3"/>
+  <!-- laces from each cuff to the peg (two strands each) -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M18.9 20.5C20.6 13.2 26 7.6 31.2 6.4" stroke="#f3efe7" stroke-width="1.3"/>
+    <path d="M23.9 21.6C24.7 14 28.4 8.6 31.6 7" stroke="#d9d3c8" stroke-width="1.1"/>
+    <path d="M45.4 21.4C43.6 14 38 8 32.8 6.4" stroke="#f3efe7" stroke-width="1.3"/>
+    <path d="M40.3 22C39.4 14.4 35.6 8.8 32.4 7" stroke="#d9d3c8" stroke-width="1.1"/>
+  </g>
+  <!-- back glove, then front glove -->
+  <use href="#gf-glove" fill="url(#gf-leather-b)" transform="translate(21.4 19.4) rotate(13)"/>
+  <use href="#gf-glove" fill="url(#gf-leather-a)" transform="translate(43 20.2) rotate(-11) scale(-1 1)"/>
+</svg>

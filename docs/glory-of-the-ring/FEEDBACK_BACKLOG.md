@@ -322,14 +322,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0023 — New logo: realistic hanging boxing gloves
 - **Reported:** 2026-11-11
-- **Status:** IN PROGRESS (integrator)
+- **Status:** READY FOR QA — published 2026-11-11; user to review
 - **Priority:** P2
 - **Area:** Branding
 - **Reported behavior / request:** "Fix and design our logo on the way, make it hanging realistic boxing gloves."
 - **Expected behavior:** A crafted mark of a pair of boxing gloves hanging by their laces (shading, laces, cuffs, stitching), used in the header, favicon and app icon; works small (16–32 px) and large, on the dark theme, without real brand marks.
 - **Acceptance criteria:** Header, favicon and offline icon updated; readable at 16 px; EN/HE/RU headers unaffected; no layout shift.
-- **Implementation:** Not started.
-- **Evidence:** Pending.
+- **Implementation:** New vector logo `assets/brand/logo-gloves.svg`: a pair of red boxing gloves hanging by white laces from a peg, with padded fist, thumb lying along the side, white cuff with stripe and lace eyelets, centre stitching, knuckle seam and leather sheen. Used as the header mark (replacing the tilted red tile with a rabbit icon) and as the favicon (`assets/favicon.svg`, same drawing on a dark tile); added to the offline pack. Original artwork, no brand marks.
+- **Evidence:** `qa/gotr-0023/logo-sizes.webp` (256 → 16 px on dark and light) and `header-en-he-desktop.webp` (real app header in EN, HE and desktop; no overlap with the title).
+- **Remaining:** at 16 px the laces and stitching disappear (silhouette still reads as two gloves); no PNG app icons for home-screen install yet.
 
 ### GOTR-0024 — Punches must look powerful, not like touches (Watch/coach mode and everywhere)
 - **Reported:** 2026-11-11

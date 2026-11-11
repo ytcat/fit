@@ -48,3 +48,7 @@ html:has(.club-app){background:var(--gr-bg)}body.club-app{height:100dvh;min-heig
 @media(prefers-reduced-motion:reduce){.club-app *{animation:none!important;transition:none!important}.club-contact:after{display:none}}
 
 .club-app [data-technique=guard]:before{content:"◈"}.club-loading.has-error .club-loader{animation:none;border-color:var(--gr-danger)}
+/* GOTR-0023: the brand mark is the hanging-gloves logo itself, not a coloured tile (overrides the tile rules in design-system.css). */
+.club-app .club-brand .club-mark{width:46px;height:46px;border-radius:0;background:none;transform:none;filter:drop-shadow(0 2px 5px rgb(0 0 0/.5))}
+.club-app .club-brand .club-mark img{display:block;width:100%;height:100%}
+@media(max-width:700px){.club-app .club-brand .club-mark{width:40px;height:40px}}
