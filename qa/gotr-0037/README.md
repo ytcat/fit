@@ -80,3 +80,4 @@ Adaptive quality: the floor level (0) turns off the per-pixel crease/sheen and t
   the leg relief was tapered out under the boot collar (it failed before that fix).
 - `tests/muscle-definition.test.cjs` (new): 22 groups on both sides, relief bounds, fur roots, CPU skin,
   pose response (lead biceps 1.18 in guard → 0.97 in the jab; triceps 1.28; lat 0.80), cache, wiring.
+- Full suite after merging `claude/serene-cannon-riwk4l`: `scripts/run-tests.sh -j 1` → files=92 fails=0 (1150 s).
