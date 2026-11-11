@@ -67,3 +67,42 @@
 }
 @media(max-width:599px){.store-demo{flex-direction:column;align-items:stretch}.store-demo-moves{flex:none}.game-dialog .store-demo .store-demo-play{align-self:flex-start}}
 @media(prefers-reduced-motion:reduce){.store-product,.store-demo-move{transition:none}.store-product:hover{transform:none}}
+/* GOTR-0029: Combo loadouts screen. */
+.game-loadouts .loadouts{display:grid;gap:14px;margin-top:12px}
+.loadouts-top{position:relative;display:grid;gap:10px;padding:14px;border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-l,16px);background:var(--gr-surface-2,#1a2230)}
+.loadouts-balance{position:absolute;inset-inline-end:14px;top:12px;color:var(--gr-gold,#f4c152);font-variant-numeric:tabular-nums;font-size:15px}
+.loadout-row{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:6px 10px}
+.loadout-label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gr-text,#f3f6fb)}
+.loadout-count{font-size:12px;color:var(--gr-text-muted,#9aa7bb);font-variant-numeric:tabular-nums}
+.loadout-slots{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.loadout-row[data-mode=training] .loadout-slots{grid-template-columns:repeat(5,minmax(0,1fr))}
+.loadout-slot{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;padding:6px 8px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.2;background:color-mix(in srgb,var(--gr-accent,#e63946) 18%,transparent);border:1px solid color-mix(in srgb,var(--gr-accent,#e63946) 55%,transparent);color:var(--gr-text,#f3f6fb)}
+.loadout-row[data-mode=training] .loadout-slot{background:color-mix(in srgb,var(--gr-info,#3b82f6) 16%,transparent);border-color:color-mix(in srgb,var(--gr-info,#3b82f6) 50%,transparent)}
+.loadout-slot[data-filled=false],.loadout-row[data-mode=training] .loadout-slot[data-filled=false]{background:none;border:1px dashed var(--gr-border,#2b364a);color:var(--gr-text-faint,#6f7b8f);font-weight:600}
+.loadouts-hint{margin:0;font-size:12px;color:var(--gr-text-muted,#9aa7bb)}
+.loadout-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:560px){.loadout-cards{grid-template-columns:1fr}}
+.loadout-card{display:grid;gap:10px;padding:14px;border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-m,12px);background:var(--gr-surface,#121823)}
+.loadout-card[data-state=equipped]{border-color:color-mix(in srgb,var(--gr-accent,#e63946) 55%,var(--gr-border,#2b364a))}
+.loadout-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.loadout-card-head h3{margin:0!important;font-size:16px!important;line-height:1.2}
+.loadout-pill{flex:none;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--gr-surface-3,#243044);color:var(--gr-text-muted,#9aa7bb)}
+.loadout-card[data-state=owned] .loadout-pill{color:var(--gr-text,#f3f6fb)}
+.loadout-card[data-state=equipped] .loadout-pill{background:color-mix(in srgb,var(--gr-success,#3ecf8e) 18%,transparent);color:var(--gr-success,#3ecf8e)}
+.loadout-seq{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+.loadout-move{padding:4px 8px;border-radius:8px;background:var(--gr-surface-2,#1a2230);border:1px solid var(--gr-border,#2b364a);font-size:12px;font-weight:600;color:var(--gr-text,#f3f6fb)}
+.loadout-arrow{font-size:11px;color:var(--gr-text-faint,#6f7b8f)}
+[dir=rtl] .loadout-arrow{transform:scaleX(-1)}
+.loadout-earn{display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px 10px}
+.loadout-earn-text{grid-column:1/-1;font-size:12px;color:var(--gr-text-muted,#9aa7bb)}
+.loadout-progress{height:6px;border-radius:999px;background:var(--gr-surface-3,#243044);overflow:hidden}
+.loadout-progress span{display:block;height:100%;border-radius:999px;background:var(--gr-accent,#e63946)}
+.loadout-earn-count{font-size:12px;font-weight:700;color:var(--gr-text-muted,#9aa7bb);font-variant-numeric:tabular-nums}
+.loadout-actions{display:flex;flex-wrap:wrap;gap:8px}
+.loadout-actions .game-button{margin:0;min-height:38px;padding:8px 12px;font-size:13px;border-radius:10px}
+.game-button.loadout-toggle[aria-pressed=true]{background:var(--gr-accent,#e63946);border-color:var(--gr-accent,#e63946);color:var(--gr-accent-ink,#fff)}
+.game-button.loadout-quiet{background:none}
+.loadout-actions .combo-confirm{display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%}
+.loadout-after{font-size:12px;color:var(--gr-text-muted,#9aa7bb);flex-basis:100%}
+/* Dialogs take focus themselves on open, so the close button no longer shows a focus ring until the keyboard reaches it. */
+.game-dialog:focus{outline:none}

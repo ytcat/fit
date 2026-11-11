@@ -391,6 +391,15 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Implementation:** In progress.
 - **Evidence:** Pending.
 
+### GOTR-0029 — Redesign the Combo loadouts screen
+- **Reported:** 2026-11-11 (screenshot from the user's phone: "Redesign")
+- **Status:** READY FOR QA — in v1.19
+- **Priority:** P1
+- **Area:** UI / combos
+- **Reported behavior / request:** The Combo loadouts screen showed the coin balance alone in an empty grid cell, "Locked" up to three times per card, disabled Training/Fight buttons without a reason, an expandable "▼ Locked" block, and no visible title.
+- **Implementation (integrator):** Rebuilt `combos()` in `game-shell.js` with styles in `shop.css`: title "Combo loadouts"; a loadout panel at the top with the balance and the real Fight (3) and Training (5) slots filled with equipped combos; one card per combo with a single state pill (Locked / Owned / Equipped), the moves as chips, and for owned combos Fight and Training toggles plus Try; for locked combos the requirement with a progress bar, Buy (with confirm, disabled with "Need N more ◈" when short) and Learn in Academy. Fight toggles are disabled with one explanatory line during a fight; full loadouts disable the add button with a tooltip. Dialogs now take focus themselves on open, so the close button no longer shows a focus ring until the keyboard reaches it.
+- **Evidence:** `qa/gotr-0029/` — user's before screenshot and after screenshots; `browser.cjs`: 6 cards, 8 slots, at most one "Locked" per card, no clipping or horizontal scroll at 402×690, 360×640, 852×393 and 1366×768 in EN/HE/RU; earn → buy with confirm → equip for Fight → card shows Equipped and the Fight slot shows the combo.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
