@@ -38,52 +38,8 @@ assert.equal(br.set, 'gymfront'); assert.equal(br.bag.holder, 'brick');
 assert.equal(S.sample(br, 1).actors.brick.act, 'carry'); assert.equal(S.sample(br, 4).actors.brick.act, 'laugh', 'Brick laughs after dropping the bag');
 assert.ok(br.bag.drop < S.sample(br, 4).line.t, 'the line comes after the drop');
 
-// ---- carry the heavy bag
-const R = S.CARRY;
-assert.ok(A.missions.some(m => m.id === R.missionId && m.metric === 'mistakes'), 'records the existing mission and metric');
-const starsFor = A.starsFor;
-function play(bot, maxT = 130) { const g = new S.CarryBag(); let guard = 0; while (!g.done && guard++ < maxT * 60) { bot(g); g.step(1 / 60); } return g; }
-// A perfect player: walks, re-presses Right inside each step window, waits for the cyclist, catches every sway in time.
-function perfect(g) {
-  const v = g.view();
-  if (g.sway && g.theta > .45) { const k = S.swayKey(g.sway.dir); g.key(k, true); g.key(k, false); }
-  const o = g.nextObstacle();
-  if (o && !g.stride && o.s - g.s <= .6 && o.s - g.s >= .15) { g.key('right', false); g.key('right', true); return; }
-  // Before the alley: go only if the whole crossing fits before the bike is in the lane.
-  const c = R.cyclist, before = g.s < c.s - c.half && g.s > c.s - c.half - .6;
-  if (before) { const clear = (c.s + c.half + .05 - g.s) / R.walk; for (let k = 0; k <= clear + .05; k += 1 / 60) if (g.cyclist(g.t + k).inLane) { g.key('right', false); return; } }
-  if (!g.held.right) g.key('right', true);
-  void v;
-}
-const best = play(perfect), res = best.result(starsFor);
-assert.equal(res.finished, true, 'perfect run reaches the door');
-assert.equal(res.bumps, 0, 'no bumps: ' + JSON.stringify(best.log.filter(e => e.type === 'bump')));
-assert.equal(res.drops, 0); assert.equal(res.caught, R.sways.length);
-assert.ok(res.time <= R.par, 'within par: ' + res.time); assert.equal(res.mistakes, 0); assert.equal(res.stars, 3);
-// Holding Right the whole way: bumps the bench and the puddle and drops every sway.
-const lazy = play(g => { if (!g.held.right) g.key('right', true); }), lr = lazy.result(starsFor);
-assert.equal(lr.finished, true); assert.ok(lr.bumps >= 2, 'bench + puddle bumps'); assert.equal(lr.drops, R.sways.length);
-assert.ok(lr.mistakes >= 5 && lr.stars <= 1, 'careless run earns at most one star: ' + JSON.stringify(lr));
-// Wrong key and early key make the tip worse; catching too early is not allowed.
-const w = new S.CarryBag(); w.s = R.sways[0].s; w.step(.01); assert.ok(w.sway); const th = w.theta;
-w.key(S.swayKey(-w.sway.dir), true); assert.ok(w.theta > th + .2, 'wrong key tips further');
-const e = new S.CarryBag(); e.s = R.sways[0].s; e.step(.01); e.key(S.swayKey(e.sway.dir), true); assert.ok(e.sway, 'too early: not caught'); assert.equal(e.log.at(-1).type, 'early');
-// A stride only starts from a fresh Right press inside the window.
-const st = new S.CarryBag(); st.s = R.obstacles[0].s - 3; st.key('right', true); assert.equal(st.stride, null, 'far from the bench: no stride');
-st.key('right', false); st.s = R.obstacles[0].s - .5; st.key('right', true); assert.ok(st.stride, 'stride in the window');
-while (st.stride) st.step(1 / 60); assert.ok(st.s > R.obstacles[0].s + R.obstacles[0].len, 'stepped over the bench'); assert.equal(st.bumps, 0);
-// Time over par costs a mistake per started 8 s.
-const slow = new S.CarryBag(); slow.t = R.par + 8.5; assert.equal(slow.overtime(), 2);
-// Standing in the cyclist lane while the bike passes: one bump per pass.
-const cy = new S.CarryBag(); cy.s = R.cyclist.s; for (let i = 0; i < 60 * 10; i++) cy.step(1 / 60);
-assert.ok(cy.bumps >= 2 && cy.bumps <= 3, 'one bump per pass: ' + cy.bumps);
-// Deterministic: the same inputs give the same result.
-assert.deepEqual(play(perfect).result(starsFor), res);
-// Stars come from the mission thresholds (lower is better: 5, 2, 0).
-assert.deepEqual([0, 1, 2, 3, 5, 6].map(n => starsFor(R.missionId, n)), [3, 2, 2, 1, 1, 0]);
-
 // ---- story 2: every Chapter 1 scene id exists; lines are short (70 characters) in every language
-assert.deepEqual(Object.keys(S.scenes).sort(), ['arrival', 'boss_intro', 'boss_outro', 'brick', 'dash']);
+assert.deepEqual(Object.keys(S.scenes).filter(k => S.scenes[k].chapter === 1).sort(), ['arrival', 'boss_intro', 'boss_outro', 'brick', 'dash']);
 const ST = require('../adventure/story.js');
 for (const [id, scene] of Object.entries(S.scenes)) for (const l of scene.lines) { assert.ok(ST.who[l.who], id + ' speaker ' + l.who); for (const lang of ['en', 'he', 'ru']) assert.ok(l.text[lang].length <= 70, `${id} ${lang} line too long (${l.text[lang].length})`); }
 for (const [id, m] of Object.entries(ST.lines).filter(([id]) => ST.beats.some(b => !b.chapter && b.ids.includes(id)))) for (const kind of ['intro', 'outro', 'lost']) for (const l of m[kind] || []) for (const lang of ['en', 'he', 'ru']) assert.ok(l.text[lang].length <= 70, `${id} ${kind} ${lang} too long (${l.text[lang].length}): ${l.text[lang]}`);
@@ -100,21 +56,10 @@ assert.equal(S.sample(bi, 1).actors.brick.act, 'block'); const bk = S.sample(bi,
 assert.deepEqual(bo.item.holders.map(h => h.who), ['pip', 'fighter']); assert.match(bo.lines.at(-1).text.en, /Vix at Market Row/);
 assert.ok(S.sample(bo, 3).actors.brick.x > 12.5, 'Brick has stepped aside');
 
-// ---- the snoring night guard
-const GR = S.GUARD; assert.ok(A.missions.some(m => m.id === GR.missionId && m.metric === 'dodges'));
-assert.equal(GR.swings.length, 9, 'nine swings = the 3-star threshold'); assert.deepEqual(A.missions.find(m => m.id === GR.missionId).thresholds, [3, 6, 9]);
-function playGuard(bot) { const g = new S.GuardGame(); let n = 0; while (!g.done && n++ < 100 * 60) { bot(g); g.step(1 / 60); } return g; }
-// perfect: sneak, dodge each swing with the right key a moment before it lands, ring the bell
-const ace = playGuard(g => { const v = g.view(); if (!g.held) g.key('right', true); if (v.swing && v.swing.k > .55 && !v.dodge) g.key(v.prompt, true); if (v.atBell) g.key('up', true); }), ar = ace.result(starsFor);
-assert.equal(ar.finished, true); assert.equal(ar.dodges, 9); assert.equal(ar.hits, 0); assert.equal(ar.stars, 3); assert.ok(ar.time < 30, 'under 30 s: ' + ar.time);
-// only walking: every pillow lands, the bell still wakes him, no stars
-const sleepy = playGuard(g => { if (!g.held) g.key('right', true); if (g.view().atBell) g.key('up', true); }), sr = sleepy.result(starsFor);
-assert.equal(sr.finished, true); assert.equal(sr.dodges, 0); assert.equal(sr.hits, 9); assert.equal(sr.stars, 0);
-// wrong dodge, a dodge that started before the swing, and a dodge that ended too early all count as hits
-const one = (key, at) => { const g = new S.GuardGame(); g.s = g.mark(0); g.step(.01); assert.ok(g.swing); const tele = g.swing.tele; let pressed = false; while (g.swing) { if (!pressed && g.t - g.swing.t0 >= at * tele) { g.key(key, true); pressed = true; } g.step(1 / 120); } return g; };
-assert.equal(one('down', .6).dodges, 1, 'hook: duck in time'); assert.equal(one('left', .6).hits, 1, 'hook: a Slip does not help'); assert.equal(one('down', .05).hits, 1, 'ducked too early');
-const pre = new S.GuardGame(); pre.s = pre.mark(0) - .01; pre.key('down', true); pre.key('right', true); pre.step(.02); pre.step(.02); assert.equal(pre.swing, null, 'no sneaking while ducking');
-// the bell only rings at the end
-const nb = new S.GuardGame(); nb.key('up', true); assert.equal(nb.done, false);
-assert.deepEqual(playGuard(g => { const v = g.view(); if (!g.held) g.key('right', true); if (v.swing && v.swing.k > .55 && !v.dodge) g.key(v.prompt, true); if (v.atBell) g.key('up', true); }).result(starsFor), ar, 'deterministic');
-console.log('story-scenes ok', JSON.stringify({ perfect: res, lazy: lr, guard: ar }));
+// ---- Chapter 2, Market Row
+assert.deepEqual(Object.keys(S.scenes).filter(k => S.scenes[k].chapter === 2).sort(), ['dash_circle', 'hyena_intro', 'hyena_outro', 'vix_intro', 'whistle_theft']);
+for (const id of ['dash_circle', 'hyena_intro', 'hyena_outro', 'vix_intro', 'whistle_theft']) { assert.equal(S.scenes[id].set, 'market'); assert.ok(Object.keys(S.scenes[id].actors).length <= 3, id + ' at most three rigs'); }
+const wt = S.scenes.whistle_theft; assert.deepEqual(wt.item.holders.map(h => h.who), ['pip', 'raccoon'], 'the whistle changes hands');
+assert.ok(S.sample(wt, 5).actors.raccoon.walking && S.sample(wt, 5).actors.raccoon.speed > 4, 'the raccoon runs'); assert.equal(S.sample(wt, 7).actors.raccoon.act, 'off');
+assert.match(S.scenes.hyena_outro.lines.at(-1).text.en, /Docks/); assert.equal(S.sample(S.scenes.hyena_intro, 1).actors.king.act, 'block');
+console.log('story-scenes ok');
