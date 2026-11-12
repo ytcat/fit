@@ -740,6 +740,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** APPROVED DESIGN — `docs/adventure/BOSSES_SCOUTING_CHOICES.md`; build queued (Opus agent) starting with Brick, when an agent slot frees
 - **Priority:** P1
 
+### GOTR-0063 — Adventure is the permanent main screen; Training and Fight behind one side icon
+- **Reported:** 2026-11-12
+- **Status:** IN PROGRESS (agent `adventure-home`, Opus)
+- **Reported behavior / request:** "Take training, fight and adventure off the main permanent screen. Always stay in adventure mode; the three modes go into one icon on the side of the screen that expands to small icons below it for training and fight. There should always be a way to get back to adventure."
+
+### GOTR-0064 — Lion head and face (and the other avatars)
+- **Reported:** 2026-11-12 (three reference pictures of lion boxers, style targets only, not stored in the repo)
+- **Status:** OPEN — queued for the 3D agent after the stance work (same rig files)
+- **Reported behavior / request:** "Please fix the lion head. His head is sharp on the top and he needs more volume. Improve the shape of his face; same for the rest of the avatars."
+- **Targets from the references:** broad rounded skull, heavy brow, strong wide muzzle with defined nose bridge and chin, eyes set under the brow with a focused look, full voluminous mane flowing back and down onto the shoulders (no pointed top), small rounded ears inside the mane; rabbit: fuller cheeks and skull, stronger jaw, expressive brow. Original design; references set the quality level only.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
