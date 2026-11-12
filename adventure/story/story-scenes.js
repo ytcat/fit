@@ -256,7 +256,7 @@
         pose(rc, caught || x.over ? { act: 'down', actT: 1 } : { act: 'idle', walking: v.rc.moving, stepPhase: v.rc.k }, x.t);
         for (const [m, z] of [[o.crate, -1.7], [o.crate2, .5]]) { m.visible = true; m.position.set(X0 - 1.15, 0, z); } o.bar.visible = true; o.bar.position.set(X0 - 1.15, 0, -.4);
         const wh = o.whistle, hand = rc.joints?.handL; if (wh && hand) { wh.visible = true; hand.getWorldPosition(wh.position); wh.scale.setScalar(2); }
-        return { pos: [2.1, 6.4, 6.6], look: [2.1, .5, -.5], fit: [f, rc] };
+        return { pos: [2.05, 5.2, 4.9], look: [2.05, .6, -.5], fit: [f, rc] };
       }
     },
     // The hustler's bet: the raccoon feints. Punish only the real openings; three bites on feints lose the bet.

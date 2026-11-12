@@ -260,6 +260,8 @@
     pave(-48, 48, -14, 14, PAL.pave2);
     for (let x = -40; x < 40; x += 1.1) for (let z = -4.2; z < 7; z += 1.1) { const k = Math.round(x * 7 + z * 13); if (k % 3 === 0) box(S, x + .5, -.004, z + .5, .95, .01, .95, k % 2 ? '#cdbfa7' : '#bfae94'); }
     box(S, 0, -.002, -.8, 96, .008, .16, '#a8987f'); box(S, 0, -.002, 1.9, 96, .008, .16, '#a8987f'); // worn drain lines along the alley
+    // a patch of large paving slabs in front of the stalls: the 7 x 5 footwork grid of the cut-off trial (X0 -1.4, 1.15 x 0.8 m cells)
+    for (let cc = 0; cc < 7; cc++) for (let rr = 0; rr < 5; rr++) box(S, -1.4 + cc * 1.15, .001, -2.0 + rr * .8, 1.07, .012, .72, (cc + rr) % 2 ? '#d9cbb0' : '#cbbb9c');
     // houses: shop fronts behind the stalls, the far side behind the camera
     const row = [['plaster', 10, 3, 0, 0], ['brick', 9, 2, 3, 2], ['plaster', 11, 3, 1, 1], ['brick', 8, 3, 6, 4], ['plaster', 10, 2, 4, 3], ['apartment', 11, 3, 0, 0], ['plaster', 9, 3, 7, 5], ['brick', 10, 2, 5, 2]];
     let hx = -40; row.forEach(([style, w, floors, tint, roofC], i) => { house({ style, x: hx + w / 2, z: -9.8, w, d: 10, floors, tint: style === 'apartment' ? PAL.apartment[1] : PAL.market[tint % PAL.market.length], roof: style === 'apartment' ? 'flat' : 'hip', roofColor: C(PAL.terracotta[roofC]), shop: i % 3 !== 2 }); hx += w + (i === 3 ? 2.4 : 0); });
