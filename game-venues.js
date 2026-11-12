@@ -174,6 +174,7 @@
   const audience=engine.arena?.fightView?.audience?.root;
   if(audience&&state.audience!==audience){state.audience=audience;changed=true;}
   if(audience)audience.visible=false;
+  {const view=engine.arena?.fightView,ringless=state.set.mood.ring===false||view?.ringOption===false;if(view?.setRing&&view.ringless!==ringless){view.setRing(!ringless,{referee:state.set.mood.referee!==false&&!ringless});changed=true;}} // GOTR-0065
   hookScene(engine,state);
   return changed;
  }
@@ -181,6 +182,7 @@
   const set=state.set;if(!set)return;state.set=null;
   for(const [node,mask] of state.masked||[])node.layers.mask=mask;state.masked=null;
   if(state.audience){state.audience.visible=true;state.audience=null;}
+  {const view=engine.arena?.fightView;if(view?.ringless&&view.ringOption!==false)view.setRing(true);}
   set.dispose();moodOff(engine,state);
  }
  function dispose(engine){const state=engines.get(engine);if(!state)return;engines.delete(engine);state.unhookTarget?.();detach(engine,state);state.unhookScene?.();release(state.world);release(state.ring);engine.lastRenderStamp=null;}

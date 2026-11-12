@@ -19,6 +19,7 @@ const stock=snapshot(e.world.arena),stockLights=lights(),background=e.scene.back
 const frame=()=>{e.world.update(e.animTime,'fight');e.camera.updateMatrixWorld(true);e.scene.onBeforeRender(null,e.scene,e.camera);};
 const budget={triangles:60000,meshes:48};
 for(const id of built){
+ e.arena.fightView.setRing(true); // each venue is compared against the ringed baseline
  const view=e.arena.fightView,match=JSON.stringify(view.match),ring=snapshot(view.ring).map(s=>({...s,material:undefined})),fighters=[coach.root,view.coaches.rabbit.root,view.referee.root].map(snapshot);
  const before=canvases;assert.equal(venues.apply(e,id,'en').changed,true);assert.equal(canvases-before<=2,true,'one atlas canvas plus the canvas print');
  const group=e.world.arena.children.find(n=>n.userData.arenaSet);assert.ok(group,id+' set attached to the arena group');
@@ -29,8 +30,11 @@ for(const id of built){
  for(const m of materials)assert.equal(m.isMeshBasicMaterial,true,'baked light: no per-pixel lighting cost');
  // The stock hall is masked from the camera, not edited; the ring, fighters, referee, camera and match are untouched.
  same(stock,false);for(const s of stock)assert.equal(s.node.layers.mask,s.node.isLight||s.node===e.world.arena?s.mask:0);
- for(const s of ring){assert.equal(s.node.geometry,s.geometry);assert.deepEqual(s.node.position.toArray(),s.p);assert.deepEqual(s.node.scale.toArray(),s.s);assert.equal(s.node.visible,s.visible);}
- fighters.forEach(s=>same(s));same(camera);assert.equal(JSON.stringify(view.match),match);assert.equal(view.audience.root.visible,false,'set crowd replaces the stock audience');
+ // GOTR-0065: the Street, the Basement and the Dockside Hangar stage the bout on the floor: ring hardware and referee hidden, nothing moved or rebuilt.
+ const ringless=['underground','street','docks'].includes(id);assert.equal(!!view.ringless,ringless,id+' ringless flag');assert.equal(group.parent.children.includes(group)&&venues.catalog.some(v=>v.id===id),true);
+ for(const s of ring){assert.equal(s.node.geometry,s.geometry);assert.deepEqual(s.node.position.toArray(),s.p);assert.deepEqual(s.node.scale.toArray(),s.s);if(!ringless||s.node.parent!==view.ring)assert.equal(s.node.visible,s.visible);else assert.equal(s.node.visible,!!s.node.userData.ground,'only the shadow floor shows in a ringless venue');}
+ if(ringless){assert.equal(view.referee.root.visible,false,id+' has no referee');view.referee.root.visible=true;}
+ fighters.forEach(s=>same(s));if(ringless)view.referee.root.visible=false;same(camera);assert.equal(JSON.stringify(view.match),match);assert.equal(view.audience.root.visible,false,'set crowd replaces the stock audience');
  assert.deepEqual(lights().map(l=>l.split('|').slice(0,2).join()),stockLights.map(l=>l.split('|').slice(0,2).join()),'no light added or removed');
  // First rendered frame applies the mood; spectators between camera and ring are hidden.
  e.camera.position.set(0,1.82,5.1);e.camera.lookAt(0,1.3,0);frame();

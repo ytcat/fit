@@ -74,8 +74,14 @@
      pad.rotation.y=Math.PI/4;
     }
    }
-   window.GymDetails?.ring(this.ring);arena.group.rotation.y=.90;this.pose();
+   window.GymDetails?.ring(this.ring);
+   // Ringless staging (GOTR-0065): a shadow-only floor disc replaces the ring hardware; bounds and logic are unchanged.
+   const ground=new THREE.Mesh(new THREE.CircleGeometry(3.1,32),new THREE.ShadowMaterial({opacity:.42}));ground.rotation.x=-Math.PI/2;ground.position.y=.004;ground.receiveShadow=true;ground.userData.ground=true;ground.visible=false;this.ring.add(ground);this.ringless=false;this.ringOption=options.ring;
+   if(options.ring===false)this.setRing(false,{referee:options.referee===true});
+   arena.group.rotation.y=.90;this.pose();
   }
+  /** on=false stages the bout on the floor: no canvas, apron, posts, ropes or corner pads; fighters keep the same invisible limits. */
+  setRing(on,o={}){this.ringless=!on;for(const part of this.ring.children)part.visible=part.userData.ground?!on:on;this.referee.root.visible=on||!!o.referee;this.engine.lastRenderStamp=null;}
   dispose(){
    const materials=new Set();for(const root of [this.referee.root,this.audience.root,this.ring]){
     root.traverse(node=>{if(!node.isMesh)return;node.geometry.dispose();for(const material of (Array.isArray(node.material)?node.material:[node.material])){if(root!==this.ring||![this.arena.dark,this.arena.leather,this.arena.accent].includes(material))materials.add(material);}});
@@ -271,7 +277,7 @@
    }
    // Ring posts and ropes are physical geometry: keep all four sides visible
    // regardless of camera rotation. Camera-facing culling hid entire sides.
-   for(const part of this.ring.children)part.visible=true;
+   for(const part of this.ring.children)part.visible=part.userData.ground?this.ringless:!this.ringless;
    this.metrics=metrics;this.specs=specs;
    return metrics;
   }
