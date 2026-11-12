@@ -118,3 +118,9 @@ also if you are blocked. The integrator merges `origin/agent/<your-name>`.
   (`qa/gotr-0001/layout-browser.cjs`), i18n audit (`qa/gotr-0046/i18n-audit.cjs` once merged).
 - Read only the parts of large files you need (grep, then read the lines around the match).
 - Keep reports to the requested length; no progress narration in commits.
+
+## Model routing (owner rule, 2026-11-12)
+- **Fable**: 3D, animation, rigs, shaders and other very complicated tasks only.
+- **Opus**: story, writing, game design, UI/UX features and most other work.
+- **Sonnet**: simple, bounded tasks (copy fixes, small CSS, data tables, test updates, release chores).
+The integrator picks the cheapest model that fits each task, keeps at most 3 agents running, reuses an existing agent only when its model fits the new task, and keeps briefs and reports short.
