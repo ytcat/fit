@@ -83,9 +83,11 @@
    this.oldMode=engine.targetMode;this.oldFight=engine.arena?.fightView;this.oldFit=engine.fitCameraToModel;engine.isPlaying=false;v?.reset();engine.fitCameraToModel=()=>this.frame();
    for(const n of engine.arena?.group?.children||[]){this.visibility.set(n,n.visible);if(n!==engine.coach.root)n.visible=false;}
    for(const side of ['L','R'])for(const n of engine.coach.joints['hand'+side].children){if(n.isBone)continue;this.visibility.set(n,n.visible);n.visible=!/^Wrapped rope grip|^Professional focus mitt/.test(n.name);}
+   // GOTR-0072: the preview shows the Fighter as the game poses it now, never a pose (or a skin position) left by a story scene.
+   if(engine.arena?.repose)engine.arena.repose();else{engine.lastPoseStamp=null;engine.lastRenderStamp=null;}
    container.append(this.stage);this.stage.classList.add('game-preview-live');requestAnimationFrame(()=>{if(this.closed)return;window.dispatchEvent(new Event('resize'));this.frame();});
   }
-  frame(){if(this.closed)return;const e=this.e,c=e.camera,root=e.coach.root,focus=this.focus||{y:1.15,height:2.8,width:1.7},target=root.localToWorld(new THREE.Vector3(0,focus.y,focus.z||0)),height=focus.height,width=focus.width,fov=THREE.MathUtils.degToRad(c.fov),distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.3,c.aspect)))+.2;
+  frame(){if(this.closed)return;const e=this.e,c=e.camera,root=e.coach.root;e.coach.syncSkin?.();/* GOTR-0072: the body is drawn where the rig stands */const focus=this.focus||{y:1.15,height:2.8,width:1.7},target=root.localToWorld(new THREE.Vector3(0,focus.y,focus.z||0)),height=focus.height,width=focus.width,fov=THREE.MathUtils.degToRad(c.fov),distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.3,c.aspect)))+.2;
    c.zoom=1;c.position.copy(target).add(new THREE.Vector3(0,.15,distance).applyAxisAngle(new THREE.Vector3(0,1,0),focus.yaw||0).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion())));c.lookAt(target);c.updateProjectionMatrix();if(e.viewControls){e.viewControls.yaw=0;e.viewControls.refit(target);}this.clearLine();e.lastRenderStamp=null;
   }
   // GOTR-0039: a narrow phone preview backs the camera 5-6 m away to fit the whole fighter, which put it behind venue

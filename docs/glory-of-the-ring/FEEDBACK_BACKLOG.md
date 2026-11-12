@@ -748,7 +748,10 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0072 — Shop preview broken: the Fighter's body is invisible
 - **Reported:** 2026-11-12 (v1.47, iPhone; picture `qa/owner-2026-11-12/v147-1.webp`: only mane, one glove, tail and boots are drawn)
-- **Status:** OPEN — P0
+- **Status:** FIXED on branch `agent/preview-occluders` (not released) — reproduced in the browser at 402×690 and 460×860, awaiting release and owner check
+- **Root cause (proven):** the body is skinned on the GPU from world-space dual quaternions that only a pose update refreshes (`LionCoach.syncSkin`). A story scene or skill trial (v1.47 story flow) borrows the Fighter's rig, poses it in the story set and gives it back; with the game paused on the Adventure map at the mitts station the engine never posed the rig again (mitt work keeps its last fixed-step frame while the clock stands still), so the body stayed ~9 m away in the story set while gloves, boots, mane and tail (rigid, on the bones) came back — and the bones kept the trial's pose, seen from behind. Not the camera, view offset, culling or clipping planes.
+- **Fix:** `adventure/story/story-scenes.js` re-syncs the skin of every rig it gives back and asks the arena to pose again; `career-drills.js` `TrainingArena.repose()` (drops the held mitt frame); `game-presentation.js` Shop preview poses again on open and syncs the skin whenever it frames.
+- **Evidence:** `qa/gotr-0072/before-402x690-lion-after-trial.webp` (same picture as the owner's), `after-402x690-*.webp` (lion and rabbit, every category); test `tests/shop-preview-body.test.cjs` (real browser: body pixels and skin-to-rig distance in every category, item view and Full view, both species — fails without the fix: "the skin is 9.3 m away from the rig").
 - **Acceptance:** the whole Fighter is drawn in the Shop preview for every category, both species; browser picture at 402×690; a test that fails when the body mesh is not rendered.
 
 ### GOTR-0073 — Gym equipment in front of the camera hides the Fighter
