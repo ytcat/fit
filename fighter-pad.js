@@ -58,6 +58,15 @@
   he:{pad:'שליטה במתאגרף',move:'תנועה והגנה',punch:'מכות',straight:'ישרה',hook:'הוק',uppercut:'אפרקאט',guard:'הגנה',tap:'מכה',double:'כפול',triple:'שלישייה',forward:'פנימה',back:'החוצה',slip:'התחמקות',roll:'התכופפות',stepIn:'צעד פנימה',stepOut:'צעד החוצה',slipFull:'התחמקות (לסירוגין)',rollFull:'התכופפות מתחת למכה',lead:'יד קדמית',rear:'יד אחורית',hold:'החזיקו כדי להמשיך להגן',combos:'שילובים',hands:'הידיים מתחלפות לבד: קדמית, אחורית, קדמית…'},
   ru:{pad:'Управление боксёром',move:'Передвижение и защита',punch:'Удары',straight:'Прямой',hook:'Хук',uppercut:'Апперкот',guard:'Защита',tap:'Удар',double:'Двойка',triple:'Тройка',forward:'Вперёд',back:'Назад',slip:'Уклон',roll:'Нырок',stepIn:'Шаг вперёд',stepOut:'Шаг назад',slipFull:'Уклон (поочерёдно)',rollFull:'Нырок под удар',lead:'передняя рука',rear:'задняя рука',hold:'держите, чтобы защищаться',combos:'Серии',hands:'Руки чередуются сами: передняя, задняя, передняя…'}
  };
+ // GOTR-0075: what Guard does, said where it applies ({g} = the Guard button's own label, {r} = the Duck label).
+ // Fights: a punch that lands on the gloves or arms is blocked: no health lost, Burst charges. Sparring: blocks count as defence.
+ // Mitts: the Coach's swing is ducked, not blocked. Bag, dummy, speed bag, shadowboxing: nothing hits back.
+ const GUARD_TIPS={
+  en:{fight:'Hold {g} to block. Punches on your gloves do no damage and charge Burst.',rabbit:'Hold {g} to block the partner’s punches. Each block counts as defence.',pads:'On the mitts, duck under the Coach’s swing ({r}). {g} blocks punches in fights and sparring.',solo:'Nothing hits back here. {g} blocks punches in fights and sparring.',blocked:'Blocked · no damage',blockedSpar:'Blocked'},
+  he:{fight:'החזיקו את {g} כדי לחסום. מכה שפוגעת בכפפות לא מורידה חיים ומטעינה Burst.',rabbit:'החזיקו את {g} כדי לחסום את מכות השותף. כל חסימה נספרת כהגנה.',pads:'על הכפפות מתכופפים מתחת לתנופת המאמן ({r}). {g} חוסמת מכות בקרב ובאימון קרב.',solo:'כאן אף אחד לא מכה בחזרה. {g} חוסמת מכות בקרב ובאימון קרב.',blocked:'נחסם · בלי נזק',blockedSpar:'נחסם'},
+  ru:{fight:'Держите «{g}», чтобы блокировать. Удар в перчатки не отнимает здоровье и заряжает Burst.',rabbit:'Держите «{g}», чтобы блокировать удары партнёра. Каждый блок засчитывается как защита.',pads:'На лапах нырните под замах тренера ({r}). «{g}» блокирует удары в бою и спарринге.',solo:'Здесь никто не бьёт в ответ. «{g}» блокирует удары в бою и спарринге.',blocked:'Блок · без урона',blockedSpar:'Блок'}
+ };
+ const guardContext=mode=>mode==='fight'?'fight':mode==='rabbit'?'rabbit':mode==='pads'?'pads':'solo';
  const CHEVRON='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 15.5 12 9l6.5 6.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
  const SHIELD='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8 4.8 5.6v5.6c0 4.6 3 8.6 7.2 10 4.2-1.4 7.2-5.4 7.2-10V5.6z" fill="currentColor" opacity=".9"/><path d="M12 6.2v12" stroke="rgb(0 0 0/.35)" stroke-width="1.6"/></svg>';
  const KEYS={straight:'J',hook:'K',uppercut:'L',guard:'↑'};
@@ -189,7 +198,7 @@
 
   /* Visibility, placement and the portrait safe frame */
   const academy=()=>body.classList.contains('academy-lesson');
-  function visible(){const p=player(),mc=document.getElementById('manualControls');return !!(p?.enabled&&e.coach&&e.targetMode!=='rope'&&!academy()&&!e.fightIQDemo&&!stage.classList.contains('game-preview-live')&&mc&&!mc.hidden);}
+  function visible(){const p=player(),mc=document.getElementById('manualControls');return !!(p?.enabled&&e.coach&&e.targetMode!=='rope'&&!(e.targetMode==='fight'&&e.arena?.fightView?.match?.result)&&!academy()&&!e.fightIQDemo&&!stage.classList.contains('game-preview-live')&&mc&&!mc.hidden);}
   function burstHome(on){const burst=document.getElementById('burstControl');if(!burst)return;if(on&&burst.parentNode!==burstSlot)burstSlot.append(burst);else if(!on&&burst.parentNode===burstSlot)stage.append(burst);}
   // Lens: k >= 1 widens the view around its centre, d moves the picture up by d pixels (no camera move).
   function setFrame(next,H){
@@ -269,8 +278,23 @@
   // A thumb that leaves with the app (switching apps, a system dialog) never leaves a step or Guard held down.
   const letGo=()=>{for(const c of [...held.keys()])release(c);dpadSet(null);dpadPointer=null;for(const {b} of Object.values(buttons))setPressed(b,false);};
   window.addEventListener('blur',letGo);document.addEventListener('visibilitychange',()=>{if(document.hidden)letGo();});
+  /* GOTR-0075: the Guard hint (first presses per place, and the first fights) and the "Blocked" feedback, plain text in the top
+     band of the stage under the round bar / training cue, never over the fighters. */
+  const tip=make('p','fp-guard-tip');tip.hidden=true;tip.setAttribute('role','status');tip.setAttribute('aria-live','polite');stage.append(tip);
+  let tipUntil=0;const LS='gotr.guardTip.',seen=k=>{try{return +(localStorage.getItem(LS+k)||0);}catch{return 9;}},count=k=>{try{localStorage.setItem(LS+k,String(seen(k)+1));}catch{/* optional */}};
+  function say(textValue,kind,ms){if(document.querySelector('.gm-round:not([hidden])')&&kind==='tip')return false;text(tip,textValue);tip.dataset.kind=kind;tip.dir='auto';tip.hidden=false;tipUntil=performance.now()+ms;return true;}
+  function guardTip(force){const ctx=guardContext(e.targetMode),t=w(),words=GUARD_TIPS[app.lang]||GUARD_TIPS.en;if(!force&&seen(ctx)>=3)return;if(say(words[ctx].replace('{g}',t.guard).replace('{r}',t.roll),'tip',ctx==='fight'?5200:4800))count(ctx);}
+  const pressGuard=act;act=(control,source)=>{const ok=pressGuard(control,source);if(control==='guard'&&source!=='hold')guardTip(false);return ok;};
+  const previousImpact=e.onImpact;e.onImpact=hit=>{previousImpact?.(hit);try{
+   const view=e.targetMode==='fight'?e.arena?.fightView:null,mine=view?.match?hit.receiver===view.match.playerActor&&hit.blocked:e.targetMode==='rabbit'&&hit.actor==='rabbit'&&['glove','arm'].includes(hit.kind);
+   if(!mine||!shown)return;const words=GUARD_TIPS[app.lang]||GUARD_TIPS.en;if(tip.dataset.kind!=='tip'||performance.now()>tipUntil)say(view?words.blocked:words.blockedSpar,'blocked',900);
+   const g=buttons.guard.b;g.dataset.blocked='true';clearTimeout(g._blockedTimer);g._blockedTimer=setTimeout(()=>{g.dataset.blocked='';},380);
+  }catch{/* feedback only */}};
+  let fightTipFor=null;
+  setInterval(()=>{if(!tip.hidden&&(performance.now()>tipUntil||!shown))tip.hidden=true;
+   const m=e.targetMode==='fight'&&shown?e.arena?.fightView?.match:null;if(m&&m.phase==='round'&&fightTipFor!==m){fightTipFor=m;if(seen('fightIntro')<2){count('fightIntro');guardTip(true);}}},150);
   setInterval(()=>paint(),100);paint(true);
-  window.fighterPad={paint,press:act,chip,log,hands,slips,get facing(){return facing;},get shown(){return shown;},get frame(){return {...frame};},rules:api};
+  window.fighterPad={paint,press:(c,s)=>act(c,s),guardTip,chip,log,hands,slips,get facing(){return facing;},get shown(){return shown;},get frame(){return {...frame};},rules:api};
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

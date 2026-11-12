@@ -129,3 +129,10 @@ body.fighter-pad-on #burstTip::after{display:none}
    so it stays hidden there; the red pulsing Burst in the cluster says it. Wide screens show it above the punch arc. */
 body.fighter-pad-on[data-fighter-pad=portrait] #burstTip,body.fighter-pad-on[data-fighter-pad=short] #burstTip{display:none}
 @media (prefers-reduced-motion:reduce){.fp-dpad,.fp-btn,.fp-chip-face{transition:none}.fp-dpad[data-dir]{transform:none}.fp-chip.academy-next .fp-chip-face,.fp-btn[data-flash=no]{animation:none}}
+/* GOTR-0075: Guard hint and "Blocked" feedback: plain text in the stage's top band (no box), centred, above the fighters' heads. */
+#stageContainer .fp-guard-tip{position:absolute;left:var(--hud-band-mid,50%);transform:translateX(-50%);top:calc(var(--hud-status-top,58px) + 20px);z-index:13;width:max-content;max-width:min(330px,calc(100% - 184px));margin:0;text-align:center;font-size:12px;font-weight:700;line-height:1.3;color:#fff;text-shadow:0 1px 2px rgb(0 0 0/.95),0 0 8px rgb(0 0 0/.75);pointer-events:none}
+/* the free part of the top band (left of the edge tools, above the heads); the last-seconds countdown has priority there */
+#stageContainer:has(.bout-announcement:not([hidden])) .fp-guard-tip{display:none}
+#stageContainer .fp-guard-tip[hidden]{display:none}
+#stageContainer .fp-guard-tip[data-kind=blocked]{color:#9fd3ff;font-size:14px;letter-spacing:.02em}
+.fp-btn[data-pad=guard][data-blocked=true]{box-shadow:0 0 0 3px #9fd3ff,0 0 16px rgb(159 211 255/.8)}

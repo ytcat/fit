@@ -65,7 +65,7 @@
   }
   // Owner (GOTR-0063 follow-up): no tab row and no station toolbar over the stage. The button sits at the stage's inline-end edge,
   // below any top HUD line it would cross (fight health bars, mission strip, power meter); on the home map it sits under the header.
-  const TOP_HUD = '#fightHealth,#advGoal,#powerGauge,.academy-hud,.stage-hud-line';
+  const TOP_HUD = '#fightHealth,#advGoal,#powerGauge,.academy-hud,.stage-hud-line'
   function place() {
     if (!root) return;
     const rtl = (document.documentElement.dir || document.body.dir) === 'rtl', head = document.querySelector('header')?.getBoundingClientRect();
