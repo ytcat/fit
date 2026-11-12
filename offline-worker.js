@@ -1,8 +1,8 @@
 /* Optional complete offline pack. Installed only after the player requests it. */
-const CACHE='ringfighter-offline-v140-20261112a';
+const CACHE='ringfighter-offline-v141-20261112b';
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const response=await fetch('./offline-manifest.json',{cache:'no-store'});if(!response.ok)throw Error('Offline manifest unavailable');const manifest=await response.json();
- if(manifest.version!=='v140-20261112a'||!Array.isArray(manifest.urls)||manifest.urls.some(url=>!url.startsWith('./')||url.includes('..')))throw Error('Invalid offline manifest');
+ if(manifest.version!=='v141-20261112b'||!Array.isArray(manifest.urls)||manifest.urls.some(url=>!url.startsWith('./')||url.includes('..')))throw Error('Invalid offline manifest');
  const cache=await caches.open(CACHE);try{await cache.addAll(manifest.urls);}catch(error){await caches.delete(CACHE);throw error;}await self.skipWaiting();
 })()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{const keys=(await caches.keys()).filter(k=>k.startsWith('ringfighter-offline-'));for(const key of keys.slice(0,-2))if(key!==CACHE)await caches.delete(key);await self.clients.claim();})()));
