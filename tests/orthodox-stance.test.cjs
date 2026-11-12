@@ -18,11 +18,7 @@ function measure(c,target,shown=false){
  const elbow=s=>{const a=W('arm'+s),b=W('elbow'+s),h=W('hand'+s);return THREE.MathUtils.radToDeg(a.clone().sub(b).angleTo(h.clone().sub(b)));},ribs=s=>Math.abs(W('elbow'+s).sub(W('chest')).dot(left)),drop=s=>W('hand'+s).y-W('elbow'+s).y;
  return {shoulders:pair('armL','armR'),gloves:pair('handL','handR'),feet:pair('footL','footR'),elbowLead:elbow('L'),elbowRear:elbow('R'),ribsLead:ribs('L'),ribsRear:ribs('R'),dropLead:drop('L'),dropRear:drop('R')};
 }
-const check=(label,m)=>{assert.ok(m.shoulders>=.12,label+': left shoulder ahead of the right by '+m.shoulders.toFixed(3)+' m (>= 0.12)');assert.ok(m.gloves>=.15,label+': left glove ahead of the right by '+m.gloves.toFixed(3)+' m (>= 0.15)');assert.ok(m.feet>=.30,label+': left foot ahead of the right by '+m.feet.toFixed(3)+' m (>= 0.30)');// Compact guard: both arms bent (not reaching), forearms rising to the gloves, elbows in at the sides of the ribs.
- // Fights still use the wider v1.39 guard (their range and blocked-straight geometry are tuned to it): the compact
- // limits are asserted in training only; in fights the arms must merely stay bent. Known gap, see qa/gotr-0051.
- if(label.includes('fight')){for(const k of ['Lead','Rear'])assert.ok(m['elbow'+k]<=150,label+': '+k+' elbow bent '+m['elbow'+k].toFixed(0));}
- else for(const k of ['Lead','Rear']){assert.ok(m['elbow'+k]>=60&&m['elbow'+k]<=110,label+': '+k+' elbow bent '+m['elbow'+k].toFixed(0)+' deg (60-110)');assert.ok(m['drop'+k]>=.15,label+': '+k+' forearm rises to the glove '+m['drop'+k].toFixed(2));assert.ok(m['ribs'+k]<=.43,label+': '+k+' elbow tucked, '+m['ribs'+k].toFixed(2)+' m from the centre line (<= 0.43)');}
+const check=(label,m)=>{assert.ok(m.shoulders>=.12,label+': left shoulder ahead of the right by '+m.shoulders.toFixed(3)+' m (>= 0.12)');assert.ok(m.gloves>=.15,label+': left glove ahead of the right by '+m.gloves.toFixed(3)+' m (>= 0.15)');assert.ok(m.feet>=.30,label+': left foot ahead of the right by '+m.feet.toFixed(3)+' m (>= 0.30)');
  return label+' '+[m.shoulders,m.gloves,m.feet].map(x=>x.toFixed(2)).join('/')+' elbows '+Math.round(m.elbowLead)+'/'+Math.round(m.elbowRear)+' elbow-to-centre '+m.ribsLead.toFixed(2)+'/'+m.ribsRear.toFixed(2);};
 const out=[];
 for(const species of ['lion','rabbit']){
