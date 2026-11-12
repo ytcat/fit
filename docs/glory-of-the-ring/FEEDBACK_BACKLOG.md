@@ -746,6 +746,32 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "Take training, fight and adventure off the main permanent screen. Always stay in adventure mode; the three modes go into one icon on the side of the screen that expands to small icons below it for training and fight. There should always be a way to get back to adventure."
 - **Owner follow-up (2026-11-12, screenshot v1.42):** remove BOTH rows — the Train/Fight/Adventure tabs and the station toolbar (Shadowbox ▾, Train 15s, Auto, Fight Academy) — because they overlap the fighter's head; Adventure is the default; everything else as small icons at the screen edge; nothing may cover the fighter's head or body (add the head to the HUD overlap audit).
 
+### GOTR-0072 — Shop preview broken: the Fighter's body is invisible
+- **Reported:** 2026-11-12 (v1.47, iPhone; picture `qa/owner-2026-11-12/v147-1.webp`: only mane, one glove, tail and boots are drawn)
+- **Status:** OPEN — P0
+- **Acceptance:** the whole Fighter is drawn in the Shop preview for every category, both species; browser picture at 402×690; a test that fails when the body mesh is not rendered.
+
+### GOTR-0073 — Gym equipment in front of the camera hides the Fighter
+- **Reported:** 2026-11-12 (v1.47; pictures `v147-2.webp` dummy station: a heavy bag fills the left third and covers the Fighter; `v147-4.webp` mitts: a bag covers the Coach)
+- **Status:** OPEN — P1
+- **Acceptance:** nothing between the camera and the Fighter / Coach / target: occluding equipment is moved, hidden or faded for every station and camera angle (side lock and free); measured by ray tests from the camera to head, chest and feet of each figure.
+
+### GOTR-0074 — Stance must be the real orthodox boxing stance, exactly as the owner's reference photo
+- **Reported:** 2026-11-12, repeated ("you are mistaken for several times already"); picture `v147-3.webp` shows today's pose: both gloves on the face
+- **Status:** OPEN — P0. Supersedes the earlier "keep southpaw" answer and GOTR-0051.
+- **Owner's words:** "right leg back, left leg front, right hand back defending the face, left hand a bit bent in front. This is the actual boxing position… exactly how I want him by default."
+- **Acceptance (measured, both species, every mode):** left foot forward, right foot back, feet about shoulder width and staggered, rear heel raised, knees soft, torso bladed 30–45°; LEFT glove in front of the face at eye/cheek height with the elbow bent about 80–110° (not straight, not touching the face); RIGHT glove at the right cheek/jaw, close but not pressed into the face (gap 2–5 cm), elbow down at the ribs; chin slightly down. Jab = left hand, Cross = right hand. Front, 3/4 and side pictures shown to the owner BEFORE release.
+
+### GOTR-0075 — Guard button is not understood; fight clock half off-screen; ceremony text badly placed
+- **Reported:** 2026-11-12 (pictures `v147-5.webp` "7 SECONDS" cut at the left edge; `v147-6.webp` result text and judges' line across the fighters)
+- **Status:** OPEN — P1
+- **Requests:** (a) Guard button: the player does not understand what it does — make the effect visible and explained. (b) The last-seconds countdown must be in the middle, never cut. (c) Ceremony: do not show the judges' numbers unless the fight goes to the cards; then show them as designed score cards at one side (part of the arena theme), not text over the fighters; nothing over the fighters' heads or bodies.
+
+### GOTR-0076 — Corner break like a real fight
+- **Reported:** 2026-11-12 ("I also asked several times"; picture `v147-7.webp`: during BREAK both fighters stand in the middle in guard)
+- **Status:** OPEN — P1
+- **Request:** at the break each fighter walks to their own corner; a cornerman puts a stool in the corner (corner colour), the fighter sits, the cornerman puts a towel on them, and the fighter drinks water from a bottle; they stand up and the stool is removed before the next round.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
