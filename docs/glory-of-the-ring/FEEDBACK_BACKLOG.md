@@ -790,7 +790,9 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0079 — A gold band floats behind the rabbit Fighter and moves with it
 - **Reported:** 2026-11-12 (v1.48, iPhone, heavy-bag station, rabbit as the Fighter; picture `qa/owner-2026-11-12/v148-floating-band.webp`: a gold band with a buckle hovers at waist height about half a metre behind the rabbit)
-- **Status:** OPEN — P1. Suspect (unproven): the trunk waistband mesh (`game-presentation.js` waistbandMesh / `game-accessories.js` trunkWaistband) placed in the wrong space for the rabbit, or kept from the lion after a species change.
+- **Status:** FIXED on branch `agent/preview-occluders` (not released), awaiting release and owner check
+- **Root cause (proven):** `game-presentation.js` waistbandMesh moved the band into the shorts' bind space with `SkinnedMesh.bindMatrixInverse`, which three.js rewrites every frame from the mesh's CURRENT world matrix. A band first built while the Fighter stood at a station was baked that far from the pelvis (0.67 m at the heavy bag) and then followed the rig. The lion's band is built at start-up at the scene origin, so it was right; the rabbit's is built later, at whatever station the player is in. Not species-specific geometry: a lion first dressed at a station failed the same way in the test.
+- **Fix:** use the inverse of the shorts' bind matrix. Test `tests/waistband-pelvis.test.cjs`: band centre within 6 cm of the pelvis bone and within 5 cm of the shorts, both species, built at every station, four designs, five poses, and after switching species at the heavy bag (before: 0.674 m, after: 1–3 mm).
 - **Acceptance:** no detached gear on either species in any station, also after switching species and equipping each waistband; a test measuring the waistband's distance to the pelvis.
 
 ### GOTR-0070 — Picture stretched tall on the phone in training

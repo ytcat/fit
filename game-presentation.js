@@ -23,7 +23,7 @@
  // skin weights of the nearest shorts vertex, so it bends with the trunks in hooks, uppercuts and rolls (a rigid
  // band let the shorts push through it by up to 7 cm). It uses the shorts' own skinning shader and shadow materials.
  function waistbandMesh(coach,geometry,material,slots,base){const sh=coach.shorts,hips=coach.joints.hips;let mesh;
-  if(sh?.isSkinnedMesh&&sh.geometry.attributes.skinIndex){const g=geometry.clone(),bi=coach.bones.indexOf(hips),toBind=sh.bindMatrixInverse.clone().multiply(coach.skeleton.boneInverses[bi].clone().invert());g.applyMatrix4(toBind);
+  if(sh?.isSkinnedMesh&&sh.geometry.attributes.skinIndex){const g=geometry.clone(),bi=coach.bones.indexOf(hips),/* GOTR-0079: the inverse of the shorts' BIND matrix. bindMatrixInverse is rewritten every frame from the mesh's current world matrix, so a band first built while the Fighter stood at a station was baked that far from the pelvis. */toBind=sh.bindMatrix.clone().invert().multiply(coach.skeleton.boneInverses[bi].clone().invert());g.applyMatrix4(toBind);
    const P=g.attributes.position,S=sh.geometry.attributes.position,SI=sh.geometry.attributes.skinIndex,SW=sh.geometry.attributes.skinWeight,b=new THREE.Box3().setFromBufferAttribute(P),near=[],v=new THREE.Vector3(),q=new THREE.Vector3();
    for(let j=0;j<S.count;j++){q.fromBufferAttribute(S,j);if(q.y>b.min.y-.04&&q.y<b.max.y+.04)near.push(j);}
    const ids=new Uint16Array(P.count*4),weights=new Float32Array(P.count*4),source=new Int32Array(P.count);
