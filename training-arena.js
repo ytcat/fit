@@ -149,7 +149,9 @@
    const e=this.engine;this.mode=mode;e.player?.reset();
    if(mode==='rabbit'){
     const species=e.coach.species==='rabbit'?'lion':'rabbit';
-    if(!this.rabbit||this.rabbit.species!==species){this.rabbit=e.roster?.get(species)||new LionCoach(this.data,{species});this.models.rabbit=this.rabbit.root;this.rabbit.root.name=species+' sparring partner';}
+    // GOTR-0078: a story character (StoryCast.asOpponent) takes the partner slot while it is set.
+    if(this.castOpponent){if(this.rabbit!==this.castOpponent){this.rabbit=this.castOpponent;this.models.rabbit=this.rabbit.root;}}
+    else if(!this.rabbit||this.rabbit.character||this.rabbit.species!==species){this.rabbit=e.roster?.get(species)||new LionCoach(this.data,{species});this.models.rabbit=this.rabbit.root;this.rabbit.root.name=species+' sparring partner';}
    }
    // A bout can end while a fighter is tilted on the canvas. Practice always
    // starts upright, including the cached partner and both selectable species.
