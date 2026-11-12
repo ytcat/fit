@@ -725,6 +725,16 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "I don't understand the story flow. What is the beginning? What is the end? I don't understand what's going on. Where is the start?" Also confirmed: route dots drawn over roofs, truncated tile names, clipped sheet.
 - **Plan:** first open of Adventure plays a chapter title and the arrival scene, then one "Start the story" button; afterwards a primary "Continue story" button with the next mission; chapter goal line and "Step N of 5"; chapter end with closing scene, "Chapter complete", route dots and the next chapter's title; "Story so far" recap on return. Route dots as 3D markers on the road; short tile labels; sheet not clipped.
 
+### GOTR-0061 — Smarter side games and better city graphics
+- **Reported:** 2026-11-12
+- **Status:** IN PROGRESS (agents `story-3` skill trials, `city-gfx` city graphics)
+- **Priority:** P1
+- **Reported behavior / request:** "Let's improve the graphics on the city and side tasks. Also improve the side games; I don't like a game where the lion needs to carry a bag. How is this interesting? Be smart and intelligent, and make the game smart and intelligent. Players will be gamers aged 12 to 50 who play advanced games, so story and graphics are crucial."
+- **Design rule (integrator):** no chore, carry or escort games. Every side game is a 45–90 s skill trial built on the boxing mechanics: readable challenge, escalating difficulty, risk/reward, medals (1–3 stars), personal best, harder variant after gold. Humour lives in scenes and characters.
+- **Trials:** Ch.1 "Brick's bag" (pendulum bag: timing + punch selection + slip), "Sleep talker" (memory combos, Simon-style); Ch.2 "Rooftop barrage" (dodge and reflect), "Cut him off" (footwork puzzle: cutting off the ring), "The hustler's bet" (read feints, wager coins).
+- **City graphics:** ambient occlusion, colour grading per time of day, animated water, moving traffic/boats/pedestrians, landmark craft, cinematic camera; budget ≤ 60 draw calls, ≤ 350k triangles.
+- **Next design steps (not started):** bosses with readable patterns and phases, scouting a rival before the fight, story choices with consequences.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
