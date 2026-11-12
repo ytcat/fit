@@ -5,7 +5,7 @@ here = os.path.dirname(os.path.abspath(__file__))
 frames = os.path.join(here, 'frames')
 for species in ['lion', 'rabbit']:
     tiles = []
-    for mode in ['bag', 'fight']:
+    for mode in ['shadow', 'fight']:
         for view in ['front', 'side']:
             im = Image.open(os.path.join(frames, f'{mode}-{species}-{view}.png')).convert('RGB')
             w, h = im.size
@@ -16,5 +16,5 @@ for species in ['lion', 'rabbit']:
     sheet = Image.new('RGB', (tw * 2, th * 2))
     for i, t in enumerate(tiles):
         sheet.paste(t, ((i % 2) * tw, (i // 2) * th))
-    sheet.save(os.path.join(here, f'stance-{species}-shipped.webp'), quality=80)
+    sheet.save(os.path.join(here, f'guard-{species}.webp'), quality=80)
     print(species, sheet.size)
