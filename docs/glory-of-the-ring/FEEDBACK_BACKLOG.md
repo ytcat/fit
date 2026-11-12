@@ -770,6 +770,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "I don't get it: he is wearing boxing clothes getting out of the bus, and all the time he stands he's shadowboxing. He should get out of the bus wearing normal clothes with a sport bag in his hand. He is on the street, not in a fight. Everyone has to have appropriate clothes in movement."
 - **Plan:** street outfit for the fighter in all street scenes (hoodie/T-shirt, joggers/jeans, sneakers, sport bag; no gloves or boxing shorts); relaxed walk/idle/look-around animations instead of guard and shadowboxing; every character dressed for the place (Pip tracksuit + whistle, Brick gym wear, Dash street wear, locals everyday clothes); boxing gear only in gym, training and fights. Proposed new arrival beat: a pickpocket grabs the bag, the fighter stops him with one reflex, Pip notices ("Fast hands. Ever boxed? Come by my gym.").
 
+### GOTR-0068 — Sound disappears during mitt training; better applause
+- **Reported:** 2026-11-12
+- **Status:** READY FOR QA — v1.44 (integrator; not verified on a phone)
+- **Reported behavior / request:** "During mitts training sometimes the sound disappeared. Also improve claps at fight sound."
+- **Likely cause:** `playSample` is silent whenever the audio context is not running, and iOS suspends/interrupts it (notification, call, silent switch, tab switch); it was only resumed on tab return. **Fix:** any touch or key resumes the context. Applause: the recorded room applause now plays in three staggered layers at native pitch with individual claps on top. If the sound still drops, capture when (after a pause? after many fast hits?) to look for a voice-limit cause.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 

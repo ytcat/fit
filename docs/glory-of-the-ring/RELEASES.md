@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.44 | 2026-11-12 | (this release) | Sound comes back after the phone interrupts it (any touch resumes audio); fuller crowd applause after fights (layered room applause plus individual claps) |
 | v1.43 | 2026-11-12 | `9310611` | Adventure map is never stretched: it re-fits whenever its box changes size (panel opened, rotation, browser bars) |
 | v1.42 | 2026-11-12 | `18f1226` | City map graphics: soft shadows, cloud shadows, water shimmer, morning/evening/night colour moods, moving cars, tram, boats, walkers and birds, glow on the current chapter's landmark, smoother camera — GOTR-0061 |
 | v1.41 | 2026-11-12 | `741899c` | Chapter 1 story upgrade: crafted street sets with a real bus, shop fronts and warm morning light; new scenes (rival Dash, Brick before and after the boss fight), snoring-guard mini-game, rewritten lines with portraits — GOTR-0056 |
