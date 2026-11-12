@@ -746,9 +746,16 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "Take training, fight and adventure off the main permanent screen. Always stay in adventure mode; the three modes go into one icon on the side of the screen that expands to small icons below it for training and fight. There should always be a way to get back to adventure."
 - **Owner follow-up (2026-11-12, screenshot v1.42):** remove BOTH rows — the Train/Fight/Adventure tabs and the station toolbar (Shadowbox ▾, Train 15s, Auto, Fight Academy) — because they overlap the fighter's head; Adventure is the default; everything else as small icons at the screen edge; nothing may cover the fighter's head or body (add the head to the HUD overlap audit).
 
+### GOTR-0070 — Picture stretched tall on the phone in training
+- **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
+- **Status:** RELEASED v1.46
+- **Priority:** P0
+- **Root cause (measured):** `fighter-pad.js` portrait safe frame called `camera.setViewOffset(1,1,…)`; three.js r128 sets `camera.aspect = fullWidth/fullHeight` there, so the camera became square (aspect 1.000) on a 460×860 canvas (0.535). Visible since the stage got taller in v1.45.
+- **Fix:** the full size passed to the view offset carries the canvas aspect; re-applied when the canvas shape changes. Measured after: camera 0.535 = canvas 0.535. Test `tests/pad-frame-aspect.test.cjs`.
+
 ### GOTR-0064 — Lion head and face (and the other avatars)
 - **Reported:** 2026-11-12 (three reference pictures of lion boxers, style targets only, not stored in the repo)
-- **Status:** OPEN — queued for the 3D agent after the stance work (same rig files)
+- **Status:** RELEASED v1.46 — lion: rounded skull, brow, larger eyes, mane as a deep hood down to the shoulders; rabbit: filled crown, cheeks, ear roots. Pictures `qa/gotr-0064/*.webp` (before/after). Limits: skull width unchanged, mane checked in guard pose only. Awaiting owner check
 - **Reported behavior / request:** "Please fix the lion head. His head is sharp on the top and he needs more volume. Improve the shape of his face; same for the rest of the avatars."
 - **Targets from the references:** broad rounded skull, heavy brow, strong wide muzzle with defined nose bridge and chin, eyes set under the brow with a focused look, full voluminous mane flowing back and down onto the shoulders (no pointed top), small rounded ears inside the mane; rabbit: fuller cheeks and skull, stronger jaw, expressive brow. Original design; references set the quality level only.
 
