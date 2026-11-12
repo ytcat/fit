@@ -1342,6 +1342,10 @@
         else if(style==='left'){lead.add(V(-.14,.020,-.18).multiplyScalar(cover));leadPole.lerp(V(-.10,-1,.60),cover).normalize();}
         else if(style==='right'){rear.add(V(.14,.020,-.15).multiplyScalar(cover));rearPole.lerp(V(.10,-1,.60),cover).normalize();}
         else if(style==='parry')rear.add(V(-.055,.025,.075).multiplyScalar(cover));
+        // GOTR-0062 boss tells: the lead glove (the southpaw's right) sinks to the hip and cocks back before a big hook;
+        // 'drop_both' is the winded stagger of a boss whose weak point is open. Only these boss actions use them.
+        else if(style==='drop_lead'){lead.add(V(-.07,-.50,-.13).multiplyScalar(cover));leadPole.lerp(V(-.30,-1,-.20),cover).normalize();}
+        else if(style==='drop_both'){lead.add(V(-.08,-.52,-.06).multiplyScalar(cover));rear.add(V(.08,-.52,-.06).multiplyScalar(cover));}
       }
       // Uppercut endpoint is measured from the LIVE striking shoulder,
       // not a fixed world-space coordinate near the lion's own chin.

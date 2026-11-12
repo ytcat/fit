@@ -1,0 +1,23 @@
+/* GOTR-0062 boss bouts: one call line of plain text under the goal line (no box), never over a fighter */
+.boss-call{position:absolute;z-index:57;top:64px;inset-inline:0;margin-inline:auto;width:max-content;max-width:min(86%,420px);text-align:center;pointer-events:none;color:#fff;font-size:15px;font-weight:800;line-height:1.2;text-shadow:0 1px 2px rgb(0 0 0/.95),0 0 8px rgb(0 0 0/.7);unicode-bidi:plaintext}
+.boss-call:empty{display:none}
+.boss-call[data-kind="tell"]{color:var(--gr-gold,#f4c152);font-size:17px}
+.boss-call[data-kind="weak"]{color:#5fd0c7;font-size:17px}
+.boss-call[data-kind="good"]{color:#5fd0c7}
+.boss-call[data-kind="bad"]{color:#ffb4a2}
+.boss-call[data-kind="phase"]{font-style:italic}
+.boss-call.in{animation:boss-call-in .25s ease-out}
+@keyframes boss-call-in{from{opacity:0;transform:translateY(-4px) scale(.96)}to{opacity:1;transform:none}}
+@media (max-width:520px){.boss-call{font-size:14px;top:60px}.boss-call[data-kind="tell"],.boss-call[data-kind="weak"]{font-size:15px}}
+@media (prefers-reduced-motion:reduce){.boss-call.in{animation:none}}
+/* scouting video caption: Skip is a text button in the goal line */
+#stageContainer > .adv-goal .boss-skip,.adv-goal .boss-skip{width:auto;height:auto;min-height:26px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+/* scouting question: three answers that come in one after another; the two story choices side by side */
+.sf-beat-acts .sf-answer{flex:1 1 100%;max-width:420px;animation:sf-answer-in .45s ease-out both}
+.sf-beat-acts .sf-answer-1{animation-delay:.12s}.sf-beat-acts .sf-answer-2{animation-delay:.24s}
+@keyframes sf-answer-in{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+.sf-beat-acts .sf-choice{flex:1 1 40%;min-width:140px;animation:sf-answer-in .45s ease-out both}
+@media (prefers-reduced-motion:reduce){.sf-beat-acts .sf-answer,.sf-beat-acts .sf-choice{animation:none}}
+/* quest panel: a line remembered from a story choice, the boss's notebook line */
+.sf-note{font-size:12.5px;line-height:1.3;font-style:italic;color:#e8edf5}
+.sf-notebook{font-size:12.5px;line-height:1.25;font-weight:700;color:#5fd0c7}

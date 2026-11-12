@@ -116,24 +116,50 @@
   if(won){r.wins=Math.min(1e6,r.wins+1);if(free&&(level(g)<b.entry||!chapterOpen(g,b.chapter,false)))r.free=true;}else r.losses=Math.min(1e6,r.losses+1); // losing costs nothing
   return {bossId,won,wins:r.wins,losses:r.losses,nextChapterOpen:b.chapter<5&&bossWon(g,bossId)};
  }
+ // GOTR-0062 scouting: one answer per try; once right, the boss's tell is marked in the fight and a notebook line is kept.
+ // Story choices: one per chapter, made once after the chapter's boss is beaten, never lock content. Both are optional keys:
+ // saves without them (every save before GOTR-0062) load unchanged and gain them on the first scout or choice.
+ const choiceDefs=freeze({ch1:{chapter:1,boss:'brick',values:['handshake','walk']},ch2:{chapter:2,boss:'king_hyena',values:['let_go','turn_in']}});
+ const scouted=(g,id)=>!!adv(g)?.scouting?.[id]?.correct,scoutTries=(g,id)=>adv(g)?.scouting?.[id]?.tries||0;
+ const choice=(g,id)=>adv(g)?.choices?.[id]||null;
+ function recordScout(g,bossId,correct,free=freeMode()){
+  const b=bossOf(bossId);if(!b)fail('Unknown boss.');if(!adv(g))g.adventure=fresh();if(typeof correct!=='boolean')fail('Invalid scouting answer.');
+  if(!chapterOpen(g,b.chapter,free))fail('This chapter is not open yet.');
+  const all=g.adventure.scouting||(g.adventure.scouting={}),r=all[bossId]||(all[bossId]={correct:false,tries:0});
+  r.tries=Math.min(1e6,r.tries+1);if(correct)r.correct=true;
+  return {bossId,correct,scouted:r.correct,tries:r.tries};
+ }
+ function recordChoice(g,choiceId,value){
+  const c=choiceDefs[choiceId];if(!c||!c.values.includes(value))fail('Unknown story choice.');if(!adv(g))g.adventure=fresh();
+  if(!bossWon(g,c.boss))fail('Beat the chapter boss first.');
+  const all=g.adventure.choices||(g.adventure.choices={});if(all[choiceId])fail('This choice is already made.');
+  all[choiceId]=value;return {choiceId,value};
+ }
  const object=(v,keys)=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>keys.includes(k));
  function validate(a){
   if(a?.version!==1)fail('Incompatible adventure version.');
-  if(!object(a,['version','missions','bosses'])||!object(a.missions,missions.map(m=>m.id))||!object(a.bosses,bosses.map(b=>b.id)))fail('Invalid adventure progress.');
+  if(!object(a,['version','missions','bosses','scouting','choices'])||!object(a.missions,missions.map(m=>m.id))||!object(a.bosses,bosses.map(b=>b.id)))fail('Invalid adventure progress.');
   for(const [id,r] of Object.entries(a.missions)){
    if(!object(r,['stars','value','plays'])||!Number.isSafeInteger(r.plays)||r.plays<1||r.plays>1e6||!bound(r.value)||r.value!==round1(r.value)||!Number.isSafeInteger(r.stars)||r.stars<1||r.stars>3||starsFor(id,r.value)!==r.stars)fail('Mission stars do not match the recorded result.');}
   const g={adventure:a};
   for(const [id,r] of Object.entries(a.bosses)){const b=bossOf(id);
    if(!object(r,['wins','losses','free'])||![r.wins,r.losses].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=1e6)||typeof r.free!=='boolean'||r.free&&r.wins===0)fail('Invalid boss record.');
    if(r.wins>0&&!r.free){if(level(g)<b.entry)fail('Boss result does not match the Fighter Level.');if(b.chapter>1&&!a.bosses[bosses[b.chapter-2].id]?.wins)fail('Boss result skips an earlier chapter.');}}
+  if(a.scouting!==undefined){if(!object(a.scouting,bosses.map(b=>b.id)))fail('Invalid scouting record.');
+   for(const r of Object.values(a.scouting))if(!object(r,['correct','tries'])||typeof r.correct!=='boolean'||!Number.isSafeInteger(r.tries)||r.tries<1||r.tries>1e6)fail('Invalid scouting record.');}
+  if(a.choices!==undefined){if(!object(a.choices,Object.keys(choiceDefs)))fail('Invalid story choice.');
+   for(const [id,v] of Object.entries(a.choices))if(!choiceDefs[id].values.includes(v)||!bossWon(g,choiceDefs[id].boss))fail('Invalid story choice.');}
   return a;
  }
- // Save action used by game-domain.js: {type:'adventure',adventure:'mission',missionId,measured} | {type:'adventure',adventure:'boss',bossId,won}.
+ // Save action used by game-domain.js: {type:'adventure',adventure:'mission',missionId,measured} | {type:'adventure',adventure:'boss',bossId,won}
+ // | {type:'adventure',adventure:'scout',bossId,correct} | {type:'adventure',adventure:'choice',choiceId,value}.
  function action(g,a,free=freeMode()){
   if(a.adventure==='mission')return recordMission(g,a.missionId,a.measured,free);
   if(a.adventure==='boss')return recordBoss(g,a.bossId,a.won,free);
+  if(a.adventure==='scout')return recordScout(g,a.bossId,a.correct,free);
+  if(a.adventure==='choice')return recordChoice(g,a.choiceId,a.value);
   fail('Unknown adventure action.');
  }
- const api={sideZones,rules,stats,metrics,chapters,bosses,missions,opponentBase,fresh,validate,action,starsFor,stars,statPoints,level,chapterOpen,canChallenge,chance,chanceVs,bossEdge,fightEdge,opponent,levelFromScore,fighterScore,compare,summary,recordMission,recordBoss,bossWon,freeMode};
+ const api={sideZones,rules,stats,metrics,chapters,bosses,missions,opponentBase,fresh,validate,action,starsFor,stars,statPoints,level,chapterOpen,canChallenge,chance,chanceVs,bossEdge,fightEdge,opponent,levelFromScore,fighterScore,compare,summary,recordMission,recordBoss,bossWon,freeMode,choiceDefs,recordScout,recordChoice,scouted,scoutTries,choice};
  if(typeof module!=='undefined')module.exports=api;else window.AdventureProgress=api;
 })();

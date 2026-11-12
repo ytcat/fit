@@ -56,6 +56,13 @@
           'Пип устраивает твой первый настоящий раунд Sparring, чтобы зал увидел тебя в деле. Брик смотрит из дверей и ждёт провала.'),
         L('Won the gym\'s respect in your first Sparring round.', 'זכיתם בכבוד של האולם בסיבוב ה-Sparring הראשון.', 'Заслужил уважение зала в первом раунде Sparring.'),
         { unlock: L("Brick's challenge", 'האתגר של בריק', 'вызов Брика') }),
+      // GOTR-0062 scouting: optional, about 30 s, before the boss. Done once watched; a right answer marks the tell in the fight.
+      S('scout_brick', L('Scout Brick', 'סיור: בריק', 'Разведка: Брик'),
+        L("Optional, 30 seconds: Pip filmed Brick fighting a regular last week. Watch it and learn what he does before his big Hook.",
+          'רשות, 30 שניות: פיפ צילם את בריק נלחם במתאמן קבוע בשבוע שעבר. צפו ולמדו מה הוא עושה לפני ה-Hook הגדול שלו.',
+          'По желанию, 30 секунд: Пип снял, как Брик дрался с завсегдатаем на прошлой неделе. Посмотри и узнай, что он делает перед своим большим Hook.'),
+        L("Watched Pip's video of Brick before the fight.", 'צפיתם בסרטון של פיפ על בריק לפני הקרב.', 'Посмотрел видео Пипа с Бриком перед боем.'),
+        { side: true, after: 'morning_sparring', scout: 'brick' }),
       S('brick', L('Brick', 'בריק', 'Брик'),
         L('Brick says this gym has room for only one of you. Win the bout and your place is yours for good; Pip promises his old hand wraps.',
           'בריק אומר שבאולם הזה יש מקום רק לאחד מכם. נצחו בקרב והמקום שלכם לתמיד; פיפ מבטיח את חבישות הידיים הישנות שלו.',
@@ -139,16 +146,16 @@
   };
   const titles = { 1: L('Old Town', 'העיר העתיקה', 'Старый город'), 2: L('Market Row', 'שדרת השוק', 'Рыночный ряд') };
   const copy = {
-    en: { statUp: '★★★: +1 {s}', chapter: 'Chapter {n} · {c}', stepOf: 'Step {i} of {n}', side: 'Side', done: 'Done', locked: 'Locked', goal: 'Goal', reward: 'Reward', stars: '★ 1 to finish · ★★★ best', boss: 'Win the bout', unlocks: 'Unlocks', start: 'Start ▶', go: "Let's go ▶", cont: 'Continue ▶', retry: 'Retry for more stars ▶', replay: 'Replay', next: 'Next: {t} ▶', back: 'Back to map', again: 'Retry ▶', level: 'Fighter Level {l}', toNext: '{k} ★ to Level {n}', gate: 'Level {n} needed, you are {l}: earn {k} more stars. Replay {list}.', gateOr: ' or ', stepN: 'step {i}', fightAnyway: 'Fight anyway (low chance)', unlocked: 'Unlocked: {t}', nextUp: 'Next: {t}', levelUp: 'Level up! Fighter Level {l}', result: '{s}', resultBoss: 'You won the bout!', resultLost: 'You lost the bout. Losing costs nothing.', noStar: 'No star yet.', newStars: '+{n} ★', complete: 'Chapter {n} complete', summary: '★ {s}/{m} · Fighter Level {l}', lockedCh: 'Locked. Beat {b} in {c} first.', goTo: 'Go to {c} ▶', allDone: 'Chapter {n} complete. Replay any step for more stars.', steps: 'All steps', soFar: 'Story so far', soFarEmpty: 'Your story starts with step 1.', skip: 'Tap to skip' },
-    he: { statUp: '★★★: +1 {s}', chapter: 'פרק {n} · {c}', stepOf: 'שלב {i} מתוך {n}', side: 'צד', done: 'הושלם', locked: 'נעול', goal: 'מטרה', reward: 'פרס', stars: '★ אחד כדי לסיים · ★★★ הכי טוב', boss: 'נצחו בקרב', unlocks: 'פותח', start: 'להתחיל ◀', go: 'יוצאים ◀', cont: 'להמשיך ◀', retry: 'שוב, בשביל עוד כוכבים ◀', replay: 'שוב', next: 'הבא: {t} ◀', back: 'חזרה למפה', again: 'שוב ◀', level: 'רמת לוחם {l}', toNext: 'עוד {k} ★ לרמה {n}', gate: 'נדרשת רמה {n}, אתם ברמה {l}: הרוויחו עוד {k} כוכבים. שחקו שוב {list}.', gateOr: ' או ', stepN: 'שלב {i}', fightAnyway: 'להילחם בכל זאת (סיכוי נמוך)', unlocked: 'נפתח: {t}', nextUp: 'הבא: {t}', levelUp: 'עליתם רמה! רמת לוחם {l}', result: '{s}', resultBoss: 'ניצחתם בקרב!', resultLost: 'הפסדתם בקרב. הפסד לא עולה כלום.', noStar: 'עדיין אין כוכב.', newStars: '+{n} ★', complete: 'פרק {n} הושלם', summary: '★ {s}/{m} · רמת לוחם {l}', lockedCh: 'נעול. קודם נצחו את {b} ב{c}.', goTo: 'ללכת אל {c} ◀', allDone: 'פרק {n} הושלם. אפשר לשחק שוב כל שלב בשביל עוד כוכבים.', steps: 'כל השלבים', soFar: 'עד כה בסיפור', soFarEmpty: 'הסיפור שלכם מתחיל בשלב 1.', skip: 'הקישו כדי לדלג' },
-    ru: { statUp: '★★★: +1 {s}', chapter: 'Глава {n} · {c}', stepOf: 'Шаг {i} из {n}', side: 'Побочное', done: 'Пройдено', locked: 'Закрыто', goal: 'Цель', reward: 'Награда', stars: '★ чтобы пройти · ★★★ лучший', boss: 'Выиграй бой', unlocks: 'Откроет', start: 'Начать ▶', go: 'Вперёд ▶', cont: 'Продолжить ▶', retry: 'Ещё раз за звёздами ▶', replay: 'Ещё раз', next: 'Дальше: {t} ▶', back: 'Назад к карте', again: 'Ещё раз ▶', level: 'Уровень бойца {l}', toNext: 'ещё {k} ★ до уровня {n}', gate: 'Нужен уровень {n}, у тебя {l}: заработай ещё {k} звёзд. Перепройди {list}.', gateOr: ' или ', stepN: 'шаг {i}', fightAnyway: 'Всё равно драться (шанс низкий)', unlocked: 'Открыто: {t}', nextUp: 'Дальше: {t}', levelUp: 'Новый уровень! Уровень бойца {l}', result: '{s}', resultBoss: 'Ты выиграл бой!', resultLost: 'Бой проигран. Поражение ничего не стоит.', noStar: 'Пока без звезды.', newStars: '+{n} ★', complete: 'Глава {n} пройдена', summary: '★ {s}/{m} · Уровень бойца {l}', lockedCh: 'Закрыто. Сначала победи: {b}, {c}.', goTo: 'Перейти: {c} ▶', allDone: 'Глава {n} пройдена. Любой шаг можно перепройти за звёздами.', steps: 'Все шаги', soFar: 'Что было', soFarEmpty: 'Твоя история начинается с шага 1.', skip: 'Нажмите, чтобы пропустить' }
+    en: { scouted: 'Watched', scoutGoal: 'Watch the video, answer one question', notebook: 'Notebook: {t}', scoutFirst: 'Scout {b} first (30 s) ▶', scoutTitle: 'Scouting: {b}', scoutWatch: '{b} vs a gym regular, last week. Watch his hands.', scoutQ: 'What does {b} do before his big Hook?', scoutRight: 'Right. You read him.', scoutRightInfo: 'In the fight his tell is marked.', scoutWrong: 'Not quite. No hint in the fight this time.', scoutAgain: 'Watch again ▶', skipClip: 'Skip ▶', challenge: 'Challenge {b} ▶', choiceKick: 'Your choice', choiceSaved: 'Saved in Story so far.', statUp: '★★★: +1 {s}', chapter: 'Chapter {n} · {c}', stepOf: 'Step {i} of {n}', side: 'Side', done: 'Done', locked: 'Locked', goal: 'Goal', reward: 'Reward', stars: '★ 1 to finish · ★★★ best', boss: 'Win the bout', unlocks: 'Unlocks', start: 'Start ▶', go: "Let's go ▶", cont: 'Continue ▶', retry: 'Retry for more stars ▶', replay: 'Replay', next: 'Next: {t} ▶', back: 'Back to map', again: 'Retry ▶', level: 'Fighter Level {l}', toNext: '{k} ★ to Level {n}', gate: 'Level {n} needed, you are {l}: earn {k} more stars. Replay {list}.', gateOr: ' or ', stepN: 'step {i}', fightAnyway: 'Fight anyway (low chance)', unlocked: 'Unlocked: {t}', nextUp: 'Next: {t}', levelUp: 'Level up! Fighter Level {l}', result: '{s}', resultBoss: 'You won the bout!', resultLost: 'You lost the bout. Losing costs nothing.', noStar: 'No star yet.', newStars: '+{n} ★', complete: 'Chapter {n} complete', summary: '★ {s}/{m} · Fighter Level {l}', lockedCh: 'Locked. Beat {b} in {c} first.', goTo: 'Go to {c} ▶', allDone: 'Chapter {n} complete. Replay any step for more stars.', steps: 'All steps', soFar: 'Story so far', soFarEmpty: 'Your story starts with step 1.', skip: 'Tap to skip' },
+    he: { scouted: 'נצפה', scoutGoal: 'לצפות בסרטון ולענות על שאלה אחת', notebook: 'מחברת: {t}', scoutFirst: 'קודם סיור: {b} (30 שניות) ◀', scoutTitle: 'סיור: {b}', scoutWatch: '{b} מול מתאמן קבוע, בשבוע שעבר. הסתכלו על הידיים שלו.', scoutQ: 'מה {b} עושה לפני ה-Hook הגדול שלו?', scoutRight: 'נכון. קראתם אותו.', scoutRightInfo: 'בקרב הסימן שלו יסומן.', scoutWrong: 'לא בדיוק. הפעם בלי רמז בקרב.', scoutAgain: 'לצפות שוב ◀', skipClip: 'דילוג ◀', challenge: 'לאתגר את {b} ◀', choiceKick: 'הבחירה שלכם', choiceSaved: 'נשמר ביומן הסיפור.', statUp: '★★★: +1 {s}', chapter: 'פרק {n} · {c}', stepOf: 'שלב {i} מתוך {n}', side: 'צד', done: 'הושלם', locked: 'נעול', goal: 'מטרה', reward: 'פרס', stars: '★ אחד כדי לסיים · ★★★ הכי טוב', boss: 'נצחו בקרב', unlocks: 'פותח', start: 'להתחיל ◀', go: 'יוצאים ◀', cont: 'להמשיך ◀', retry: 'שוב, בשביל עוד כוכבים ◀', replay: 'שוב', next: 'הבא: {t} ◀', back: 'חזרה למפה', again: 'שוב ◀', level: 'רמת לוחם {l}', toNext: 'עוד {k} ★ לרמה {n}', gate: 'נדרשת רמה {n}, אתם ברמה {l}: הרוויחו עוד {k} כוכבים. שחקו שוב {list}.', gateOr: ' או ', stepN: 'שלב {i}', fightAnyway: 'להילחם בכל זאת (סיכוי נמוך)', unlocked: 'נפתח: {t}', nextUp: 'הבא: {t}', levelUp: 'עליתם רמה! רמת לוחם {l}', result: '{s}', resultBoss: 'ניצחתם בקרב!', resultLost: 'הפסדתם בקרב. הפסד לא עולה כלום.', noStar: 'עדיין אין כוכב.', newStars: '+{n} ★', complete: 'פרק {n} הושלם', summary: '★ {s}/{m} · רמת לוחם {l}', lockedCh: 'נעול. קודם נצחו את {b} ב{c}.', goTo: 'ללכת אל {c} ◀', allDone: 'פרק {n} הושלם. אפשר לשחק שוב כל שלב בשביל עוד כוכבים.', steps: 'כל השלבים', soFar: 'עד כה בסיפור', soFarEmpty: 'הסיפור שלכם מתחיל בשלב 1.', skip: 'הקישו כדי לדלג' },
+    ru: { scouted: 'Просмотрено', scoutGoal: 'Посмотри видео и ответь на один вопрос', notebook: 'Блокнот: {t}', scoutFirst: 'Сначала разведка: {b} (30 с) ▶', scoutTitle: 'Разведка: {b}', scoutWatch: '{b} против завсегдатая, прошлая неделя. Следи за его руками.', scoutQ: 'Что делает {b} перед своим большим Hook?', scoutRight: 'Верно. Ты его прочитал.', scoutRightInfo: 'В бою его сигнал будет отмечен.', scoutWrong: 'Не совсем. В этот раз без подсказки в бою.', scoutAgain: 'Посмотреть ещё ▶', skipClip: 'Пропустить ▶', challenge: 'Вызвать: {b} ▶', choiceKick: 'Твой выбор', choiceSaved: 'Сохранено в «Что было».', statUp: '★★★: +1 {s}', chapter: 'Глава {n} · {c}', stepOf: 'Шаг {i} из {n}', side: 'Побочное', done: 'Пройдено', locked: 'Закрыто', goal: 'Цель', reward: 'Награда', stars: '★ чтобы пройти · ★★★ лучший', boss: 'Выиграй бой', unlocks: 'Откроет', start: 'Начать ▶', go: 'Вперёд ▶', cont: 'Продолжить ▶', retry: 'Ещё раз за звёздами ▶', replay: 'Ещё раз', next: 'Дальше: {t} ▶', back: 'Назад к карте', again: 'Ещё раз ▶', level: 'Уровень бойца {l}', toNext: 'ещё {k} ★ до уровня {n}', gate: 'Нужен уровень {n}, у тебя {l}: заработай ещё {k} звёзд. Перепройди {list}.', gateOr: ' или ', stepN: 'шаг {i}', fightAnyway: 'Всё равно драться (шанс низкий)', unlocked: 'Открыто: {t}', nextUp: 'Дальше: {t}', levelUp: 'Новый уровень! Уровень бойца {l}', result: '{s}', resultBoss: 'Ты выиграл бой!', resultLost: 'Бой проигран. Поражение ничего не стоит.', noStar: 'Пока без звезды.', newStars: '+{n} ★', complete: 'Глава {n} пройдена', summary: '★ {s}/{m} · Уровень бойца {l}', lockedCh: 'Закрыто. Сначала победи: {b}, {c}.', goTo: 'Перейти: {c} ▶', allDone: 'Глава {n} пройдена. Любой шаг можно перепройти за звёздами.', steps: 'Все шаги', soFar: 'Что было', soFarEmpty: 'Твоя история начинается с шага 1.', skip: 'Нажмите, чтобы пропустить' }
   };
   const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (_, k) => (o[k] ?? ''));
   const P = () => (typeof window !== 'undefined' && window.AdventureProgress) || (typeof require === 'function' ? require('../adventure-progress.js') : null);
   const all = n => chapters[n]?.steps || [];
   const find = id => { for (const n of Object.keys(chapters)) { const s = all(+n).find(x => x.id === id); if (s) return { ...s, chapter: +n }; } return null; };
   const starsOf = (g, id) => g?.adventure?.missions?.[id]?.stars || 0;
-  const doneOf = (g, s) => s.boss ? P().bossWon(g, s.id) : starsOf(g, s.id) > 0;
+  const doneOf = (g, s) => s.boss ? P().bossWon(g, s.id) : s.scout ? P().scoutTries(g, s.scout) > 0 : starsOf(g, s.id) > 0;
   // Chapter 1 is always open. Chapter n opens when the previous boss is beaten, or when an old save already finished a step there.
   function chapterOpen(g, n) { if (!chapters[n]) return false; if (n === 1) return true; return P().bossWon(g, chapters[n - 1].boss) || all(n).some(s => doneOf(g, s)); }
   // The chapter's steps with their state. Main steps are numbered; status: done | current | locked. Side: done | open | hidden.
@@ -162,11 +169,11 @@
     }
     for (const s of ch.steps.filter(x => x.side)) {
       const done = doneOf(g, s), parent = main.find(m => m.id === s.after);
-      side.push({ ...s, chapter: n, done, stars: starsOf(g, s.id), status: done ? 'done' : (open && parent?.done ? 'open' : 'hidden') });
+      side.push({ ...s, chapter: n, done, stars: starsOf(g, s.id), status: done ? 'done' : (open && parent?.done && !(s.scout && P().bossWon(g, s.scout)) ? 'open' : 'hidden') }); // scouting a beaten boss is not offered
     }
     // Timeline order: side steps sit right after the step they follow.
     const timeline = []; for (const m of main) { timeline.push(m); for (const s of side) if (s.after === m.id && s.status !== 'hidden') timeline.push(s); }
-    const visible = [...main, ...side.filter(s => s.status !== 'hidden')], stars = visible.reduce((k, s) => k + (s.boss ? 0 : s.stars), 0), maxStars = ch.steps.filter(s => !s.boss).length * 3;
+    const visible = [...main, ...side.filter(s => s.status !== 'hidden')], stars = visible.reduce((k, s) => k + (s.boss ? 0 : s.stars), 0), maxStars = ch.steps.filter(s => !s.boss && !s.scout).length * 3;
     return { chapter: n, open, main, side, timeline, current, total: main.length, doneCount: main.filter(m => m.done).length, complete: main.every(m => m.done), stars, maxStars, boss: main[main.length - 1] };
   }
   // Can this step be started now? Done (replay), current, or an open side step.
@@ -177,7 +184,7 @@
   function gate(g, n) {
     const A = P(), st = state(g, n), b = A.bosses.find(x => x.id === chapters[n].boss), lvl = A.level(g);
     if (lvl >= b.entry) return null;
-    const pool = [...st.main.filter(m => !m.boss && m.status === 'done' && m.stars < 3), ...st.side.filter(s => s.status !== 'hidden' && s.stars < 3)]
+    const pool = [...st.main.filter(m => !m.boss && m.status === 'done' && m.stars < 3), ...st.side.filter(s => !s.scout && s.status !== 'hidden' && s.stars < 3)]
       .sort((a, c) => a.stars - c.stars || st.timeline.indexOf(a) - st.timeline.indexOf(c));
     return { need: b.entry, level: lvl, stars: starsToLevel(g, b.entry), steps: pool.slice(0, 2).map(s => s.id), ready: st.current?.boss === true };
   }
@@ -195,9 +202,64 @@
     const side = st.side.find(x => x.status === 'open'); if (side && side.id !== id) return side.id;
     const nx = chapters[s.chapter + 1] ? state(g, s.chapter + 1) : null; return nx?.open && nx.current ? nx.current.id : null;
   }
+  // GOTR-0062 story choices: one per chapter, made once after the boss (saved by AdventureProgress.recordChoice), shown in
+  // "Story so far" and referenced later as a note on later steps (quest panel and BEFORE beats). Never locks content.
+  const choices = {
+    ch1: { chapter: 1, after: 'brick', who: 'brick',
+      title: L('Brick holds out his glove', 'בריק מושיט את הכפפה', 'Брик протягивает перчатку'),
+      ask: L('...Fair fight. Shake on it?', '...קרב הוגן. לוחצים ידיים?', '...Честный бой. Пожмём руки?'),
+      options: {
+        handshake: { label: L('Shake his hand', 'ללחוץ לו את היד', 'Пожать ему руку'),
+          reply: L('Then I hold the mitts for you sometimes. No charge.', 'אז לפעמים אני אחזיק לכם את הכפות. בחינם.', 'Тогда иногда буду держать тебе лапы. Бесплатно.'),
+          recap: L("Shook Brick's hand: he is your Sparring partner now.", 'לחצתם את היד של בריק: עכשיו הוא בן הזוג שלכם ל-Sparring.', 'Пожал руку Брику: теперь он твой партнёр по Sparring.') },
+        walk: { label: L('Walk past him', 'לעבור לידו בלי לעצור', 'Пройти мимо'),
+          reply: L('Fine. Dash pays better than handshakes.', 'בסדר. דאש משלם יותר טוב מלחיצות ידיים.', 'Ладно. Дэш платит лучше, чем рукопожатия.'),
+          recap: L("Walked past Brick: he went to Dash's corner.", 'עברתם ליד בריק בלי לעצור: הוא עבר לפינה של דאש.', 'Прошёл мимо Брика: он ушёл в угол Дэша.') }
+      } }
+  };
+  // Later steps that remember the choice: one line each, the person who says it (or narration).
+  const notes = {
+    ch1: {
+      morning_sparring: { handshake: { who: 'brick', text: L('Brick holds the mitts now. "Again. Faster."', 'בריק מחזיק עכשיו את הכפות. "שוב. מהר יותר."', 'Теперь лапы держит Брик. «Ещё. Быстрее».') } },
+      curb_footwork: { handshake: { who: 'brick', text: L('Vix bites. Bite back. And keep that right hand up.', 'ויקס נושכת. תנשכו בחזרה. ותשמרו את יד ימין למעלה.', 'Викс кусается. Кусай в ответ. И держи правую руку повыше.') },
+        walk: { text: L('Word from Old Town: Brick left the gym with Dash.', 'שמועה מהעיר העתיקה: בריק עזב את האולם עם דאש.', 'Слух из Старого города: Брик ушёл из зала вместе с Дэшем.') } },
+      crowd_circle: { handshake: { who: 'brick', text: L('I came to shout for you. Watch their hands, like mine.', 'באתי לצעוק בשבילכם. תסתכלו על הידיים שלהם, כמו על שלי.', 'Я пришёл за тебя покричать. Следи за их руками, как за моими.') },
+        walk: { who: 'brick', text: L("Surprised? I carry Dash's water now.", 'מופתעים? עכשיו אני סוחב את המים של דאש.', 'Удивлён? Теперь я ношу воду Дэшу.') } },
+      king_hyena: { handshake: { who: 'brick', text: L('A tip: hyenas laugh before they bite.', 'טיפ: צבועים צוחקים לפני שהם נושכים.', 'Совет: гиены смеются, прежде чем укусить.') },
+        walk: { text: L('Brick told the crew how you fight. They know your Duck.', 'בריק סיפר לחבורה איך אתם נלחמים. הם מכירים את ההתכופפות שלכם.', 'Брик рассказал банде, как ты дерёшься. Они знают твой нырок.') } }
+    }
+  };
+  const choiceOf = (g, id) => P().choice?.(g, id) || null;
+  // The remembered choice lines for a step: [{who?, text}] in the asked language.
+  function notesFor(g, id, lang = 'en') { const out = []; for (const [c, by] of Object.entries(notes)) { const v = choiceOf(g, c), n = v && by[id]?.[v]; if (n) out.push({ who: n.who || null, text: n.text[lang] || n.text.en }); } return out; }
+  // The choice still to make after a step (its boss beaten, nothing chosen yet), or null.
+  function pendingChoice(g, afterId) { for (const [id, c] of Object.entries(choices)) if (c.after === afterId && P().bossWon(g, c.after) && !choiceOf(g, id)) return id; return null; }
+  // The scouting question per boss: three answers, one right (shown in this order).
+  const scouting = {
+    brick: { answers: [
+      { id: 'step_back', text: L('He steps back first', 'הוא צועד אחורה קודם', 'Сначала шагает назад') },
+      { id: 'drops_right', right: true, text: L('He drops his right hand', 'הוא מוריד את יד ימין', 'Опускает правую руку') },
+      { id: 'jab_first', text: L('He throws a Jab first', 'הוא זורק Jab קודם', 'Сначала бьёт Jab') }] }
+  };
+  // The Coach's one tip from the Fighter's weakest stat (ties: Stamina, Speed, Power).
+  const tips = {
+    brick: {
+      stamina: L('Your Stamina is low: finish him before phase 3, when he swings wild.', 'הסיבולת שלכם נמוכה: גמרו אותו לפני שלב 3, כשהוא מניף בפראות.', 'Выносливость у тебя слабая: добей его до третьей фазы, когда он начнёт махать.'),
+      speed: L('You are not fast yet: Duck the moment his hand drops, not later.', 'אתם עוד לא מהירים: התכופפו ברגע שהיד יורדת, לא אחר כך.', 'Ты пока не быстрый: ныряй, как только рука пошла вниз, не позже.'),
+      power: L('Your punches are light: save the big ones for the weak point.', 'המכות שלכם קלות: שמרו את החזקות לנקודת התורפה.', 'Удар у тебя лёгкий: прибереги сильные для слабого места.')
+    }
+  };
+  function tipFor(g, boss, lang = 'en') { const st = P().statPoints(g), k = ['stamina', 'speed', 'power'].reduce((a, c) => st[c] < st[a] ? c : a, 'stamina'); const t = tips[boss]?.[k]; return t ? { stat: k, text: t[lang] || t.en } : null; }
   const react3 = n => n >= 3 ? 'three' : n >= 1 ? 'some' : 'fail';
   // "Story so far": finished steps, one line each, in story order.
-  function journal(g, lang = 'en') { const out = []; for (const n of Object.keys(chapters)) for (const s of all(+n)) if (doneOf(g, s)) out.push({ id: s.id, chapter: +n, text: s.recap[lang] || s.recap.en }); return out; }
-  const api = { chapters, react, opener, titles, copy, fill, find, all, chapterOpen, state, playable, starsToLevel, gate, unlocks, nextAfter, react3, journal, doneOf };
+  function journal(g, lang = 'en') {
+    const out = [];
+    for (const n of Object.keys(chapters)) for (const s of all(+n)) if (doneOf(g, s)) {
+      out.push({ id: s.id, chapter: +n, text: s.recap[lang] || s.recap.en });
+      for (const [cid, c] of Object.entries(choices)) { const v = c.after === s.id && choiceOf(g, cid); if (v) out.push({ id: cid, chapter: +n, choice: v, text: c.options[v].recap[lang] || c.options[v].recap.en }); }
+    }
+    return out;
+  }
+  const api = { chapters, react, opener, titles, copy, fill, find, all, chapterOpen, state, playable, starsToLevel, gate, unlocks, nextAfter, react3, journal, doneOf, choices, notes, choiceOf, notesFor, pendingChoice, scouting, tips, tipFor };
   if (typeof module !== 'undefined') module.exports = api; else window.StoryFlow = api;
 })();

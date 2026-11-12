@@ -108,7 +108,7 @@ for (const m of A.missions.filter(x => x.chapter <= 2)) for (const lang of ['en'
 {
   const SF = require('../adventure/story-flow.js');
   for (const n of [1, 2]) {
-    for (const s of SF.all(n)) assert.ok(s.boss ? OT.BOSS[s.id]?.chapter === n : !!D[s.id], s.id + ' can start from the quest panel');
+    for (const s of SF.all(n)) assert.ok(s.boss ? OT.BOSS[s.id]?.chapter === n : s.scout ? OT.BOSS[s.scout]?.chapter === n : !!D[s.id], s.id + ' can start from the quest panel');
     assert.equal(SF.chapters[n].boss, OT.CH[n].boss); assert.equal(SF.chapters[n].pin, OT.CH[n].pin);
   }
   for (const f of ['before', 'afterBeat', 'chapterSummary', 'launch', 'render', 'start']) assert.equal(typeof OT[f], 'function', f);
