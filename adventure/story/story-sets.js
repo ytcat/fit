@@ -1,20 +1,50 @@
 /* Story sets (GOTR-0056 layer 2): compact street-scale 3D sets in the visual style of the Gloryland map. The houses are
- * the map's own pieces (GlorylandMap.kit: facade textures, tinted facade material, roofs, awnings) at 4 m per map unit;
- * streets and props are merged vertex-coloured geometry. Built only when a scene plays, disposed after.
- *   const set = StorySets.build('busstop' | 'gymfront', scene, { renderer, shadows })
- *   set.objects -> { bus, bag, cyclist } (movable meshes, may be absent), set.focus(x, z), set.stats(), set.dispose()
- * World: metres, y up, the street runs along x, the camera side is +z. Walking surfaces are at y = 0. */
+ * the map's own pieces (GlorylandMap.kit: facade textures, tinted facade material, roofs, awnings) at 3 m per map unit;
+ * streets and props are merged vertex-coloured geometry; all signs share one small canvas atlas. Morning light: a low
+ * warm sun with long shadows, a warm sky gradient and light haze. Built only when a scene plays, disposed after.
+ *
+ * STABLE API (other chapters add their own sets from their own file):
+ *   StorySets.ready() -> Promise                      loads the map script for its building kit
+ *   StorySets.build(id, scene, { renderer, shadows }) -> { id, group, objects, focus(x, z, r), stats(), dispose() }
+ *   StorySets.register(id, ctx => focus)              a new set. ctx = { K, PAL, C, S (street batch, metres), objects,
+ *       box, cyl, house, road, pave, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, sign, picto, movable(batch, name) }
+ *       return { x, z, r } (where the sun's shadow box starts). Built-in sets: 'busstop', 'gymfront'.
+ *   objects of the built-in sets: busstop { bus } ; gymfront { bag, cyclist, pillow, wraps } (hidden until a scene uses them)
+ * World: metres, y up, the street runs along x, the camera side is +z. Walking surfaces are at y = 0, the road at -0.15. */
 (() => {
   const MAP_SRC = './adventure/gloryland-map.js?v=2026111100';
   let loader = null;
-  /** Loads the map script (once) for its building kit. */
   function ready() {
     if (window.GlorylandMap?.kit) return Promise.resolve();
     if (loader) return loader;
     loader = new Promise((resolve, reject) => { const s = document.createElement('script'); s.src = MAP_SRC; s.onload = () => window.GlorylandMap?.kit ? resolve() : reject(Error('map kit')); s.onerror = () => { loader = null; reject(Error('map script')); }; document.head.append(s); });
     return loader;
   }
-  const U = 4; // metres per map unit
+  const U = 3, TAU = Math.PI * 2; // metres per map unit
+  const SETS = {};
+  // Sign atlas cells (px in a 512 x 256 canvas): gym glove board, bus route board, four shop pictograms.
+  const CELL = { gym: [0, 0, 256, 128], route: [256, 0, 256, 128], bread: [0, 128, 128, 128], cup: [128, 128, 128, 128], flower: [256, 128, 128, 128], book: [384, 128, 128, 128] };
+  function paintSigns() {
+    const cv = document.createElement('canvas'); cv.width = 512; cv.height = 256; const g = cv.getContext('2d');
+    // gym: two red gloves on a dark board with a gold rim
+    g.fillStyle = '#141a26'; g.fillRect(0, 0, 256, 128); g.strokeStyle = '#f4c152'; g.lineWidth = 7; g.strokeRect(7, 7, 242, 114);
+    for (const [cx, flip] of [[88, 1], [168, -1]]) { g.save(); g.translate(cx, 62); g.scale(flip, 1); g.rotate(-.18); g.fillStyle = '#e63946'; g.beginPath(); g.ellipse(0, -6, 29, 33, 0, 0, TAU); g.fill(); g.beginPath(); g.ellipse(-24, 2, 12, 18, -.4, 0, TAU); g.fill(); g.fillStyle = 'rgba(255,255,255,.22)'; g.beginPath(); g.ellipse(6, -18, 12, 8, -.5, 0, TAU); g.fill(); g.fillStyle = '#f3f6fb'; g.fillRect(-20, 26, 40, 15); g.fillStyle = '#c9ced8'; g.fillRect(-20, 31, 40, 3); g.restore(); }
+    // bus route board: amber on black, like a roller blind
+    g.fillStyle = '#12151b'; g.fillRect(256, 0, 256, 128); g.fillStyle = '#ffb52e'; g.textBaseline = 'middle'; g.textAlign = 'center';
+    g.font = '900 60px "Inter Display","Inter","Arial Black",Impact,system-ui,sans-serif'; g.fillText('12', 300, 66); g.font = '900 34px "Inter Display","Inter","Arial Black",Impact,system-ui,sans-serif'; g.fillText('GLORYLAND', 420, 66, 164);
+    // shop pictograms on enamel plates
+    const plate = (i, bg) => { const x = i * 128; g.fillStyle = '#f7f0dc'; g.fillRect(x, 128, 128, 128); g.fillStyle = bg; g.beginPath(); g.arc(x + 64, 192, 52, 0, TAU); g.fill(); return x + 64; };
+    let x = plate(0, '#c9653d'); g.fillStyle = '#f6d58a'; g.beginPath(); g.ellipse(x, 196, 36, 22, 0, 0, TAU); g.fill(); g.strokeStyle = '#a8742c'; g.lineWidth = 5; for (const d of [-16, 0, 16]) { g.beginPath(); g.moveTo(x + d - 6, 182); g.lineTo(x + d + 6, 206); g.stroke(); }
+    x = plate(1, '#2fa59a'); g.fillStyle = '#fff'; g.fillRect(x - 24, 176, 40, 34); g.beginPath(); g.arc(x + 20, 192, 11, -1.4, 1.4); g.lineWidth = 6; g.strokeStyle = '#fff'; g.stroke(); g.fillRect(x - 32, 214, 58, 6); g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 4; for (const d of [-14, 0]) { g.beginPath(); g.moveTo(x + d, 168); g.quadraticCurveTo(x + d + 8, 160, x + d, 152); g.stroke(); }
+    x = plate(2, '#d63d6d'); g.fillStyle = '#fff'; for (let k = 0; k < 6; k++) { g.beginPath(); g.ellipse(x + Math.cos(k / 6 * TAU) * 20, 190 + Math.sin(k / 6 * TAU) * 20, 13, 13, 0, 0, TAU); g.fill(); } g.fillStyle = '#f2c14e'; g.beginPath(); g.arc(x, 190, 11, 0, TAU); g.fill();
+    x = plate(3, '#3c7fc0'); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(x, 172); g.lineTo(x - 36, 164); g.lineTo(x - 36, 214); g.lineTo(x, 222); g.lineTo(x + 36, 214); g.lineTo(x + 36, 164); g.closePath(); g.fill(); g.strokeStyle = '#3c7fc0'; g.lineWidth = 4; g.beginPath(); g.moveTo(x, 172); g.lineTo(x, 222); g.stroke();
+    const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
+  }
+  function skyTexture() {
+    const cv = document.createElement('canvas'); cv.width = 4; cv.height = 256; const g = cv.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 256);
+    gr.addColorStop(0, '#6fa8de'); gr.addColorStop(.38, '#a9cdea'); gr.addColorStop(.6, '#e6dccb'); gr.addColorStop(.74, '#ffd9a6'); gr.addColorStop(1, '#f6c58e');
+    g.fillStyle = gr; g.fillRect(0, 0, 4, 256); const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; return t;
+  }
 
   function build(id, scene, opts = {}) {
     const K = window.GlorylandMap.kit, PAL = window.GlorylandMap.PAL, C = K.C, P = K.P, M = K.M;
@@ -22,120 +52,77 @@
     const group = new THREE.Group(); group.name = 'Story set ' + id;
     const disposables = [], objects = {};
     const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .82, metalness: 0 }); disposables.push(mat);
-    const S = new K.Batch(); // street, props, static things (metres)
+    const signTex = paintSigns(), signMat = new THREE.MeshStandardMaterial({ map: signTex, roughness: .7 }); disposables.push(signTex, signMat);
+    const S = new K.Batch(), SG = new K.Batch({ uv: true }); // street + props (metres), sign quads
     const W = { solid: new K.Batch(), facade: {} }; // map-unit houses
     for (const s of Object.keys(K.FACADE)) W.facade[s] = new K.Batch({ uv: true, tint: true });
-    const box = (B, x, y, z, sx, sy, sz, col, ry = 0, o) => B.add(P.box, M(x, y, z, sx, sy, sz, ry), typeof col === 'string' ? C(col) : col, o);
-    const cyl = (B, x, y, z, r, h, col, proto = P.cyl8, rx = 0, rz = 0, rzz) => B.add(proto, M(x, y, z, r, h, rzz ?? r, 0, rx, rz), typeof col === 'string' ? C(col) : col);
+    const col = c => typeof c === 'string' ? C(c) : c, white = C('#ffffff');
+    const box = (B, x, y, z, sx, sy, sz, c, ry = 0, o) => B.add(P.box, M(x, y, z, sx, sy, sz, ry), col(c), o);
+    const cyl = (B, x, y, z, r, h, c, proto = P.cyl8, rx = 0, rz = 0, r2) => B.add(proto, M(x, y, z, r, h, r2 ?? r, 0, rx, rz), col(c));
     const house = o => K.building(W, { ...o, x: o.x / U, z: o.z / U, w: o.w / U, d: o.d / U, y0: 0, tint: C(o.tint) });
-
-    // ---- street: road (y -0.15), pavements (y 0), curbs, lane marks
+    /** A sign quad from the atlas, centred at (x, y, z), facing +z when ry = 0. */
+    const sign = (cell, x, y, z, w, h, ry = 0, B = SG) => {
+      const [px, py, pw, ph] = CELL[cell], u0 = px / 512, u1 = (px + pw) / 512, v1 = 1 - py / 256, v0 = 1 - (py + ph) / 256, c = Math.cos(ry), s = Math.sin(ry), pt = (lx, yy) => [x + lx * c, yy, z - lx * s];
+      B.quad(pt(-w / 2, y - h / 2), pt(w / 2, y - h / 2), pt(w / 2, y + h / 2), pt(-w / 2, y + h / 2), white, white, [u0, v0, u1, v0, u1, v1, u0, v1]);
+    };
+    /** Round enamel shop sign on a wall bracket above an awning. */
+    const picto = (cell, x, y, z) => { box(S, x, y - .5, z - .06, 1.1, 1.0, .06, '#3b4350'); sign(cell, x, y, z + .01, .96, .96); };
+    const shade = (x, z, w, d, onRoad) => box(S, x - .12, onRoad ? -.1485 : .002, z - .14, w, .006, d, onRoad ? '#474e5c' : '#cfc6b4');
+    const plinth = (x0, x1, z) => { box(S, (x0 + x1) / 2, 0, z, x1 - x0, .22, .14, '#b3a892'); box(S, (x0 + x1) / 2, .001, z + .16, x1 - x0, .006, .3, '#d3cab8'); };
     const road = (x0, x1, z0, z1) => box(S, (x0 + x1) / 2, -.45, (z0 + z1) / 2, x1 - x0, .3, z1 - z0, PAL.asphalt);
-    const pave = (x0, x1, z0, z1, col = PAL.pave) => box(S, (x0 + x1) / 2, -.4, (z0 + z1) / 2, x1 - x0, .4, z1 - z0, col);
-    const curb = (x0, x1, z) => box(S, (x0 + x1) / 2, -.2, z, x1 - x0, .21, .22, PAL.curb);
-    const dashes = (x0, x1, z) => { for (let x = x0; x < x1; x += 4) box(S, x + 1, -.152, z, 2, .01, .14, PAL.line); };
-    const tree = (x, z, h = 4.6) => { cyl(S, x, 0, z, .14, h * .5, PAL.trunk, P.cyl6); S.add(P.ico1, M(x, h * .62, z, 1.25, 1.35, 1.25, x), C(PAL.leaf[Math.abs(Math.round(x * 3)) % PAL.leaf.length])); S.add(P.ico1, M(x + .5, h * .75, z - .3, .8, .85, .8), C(PAL.leaf[(Math.abs(Math.round(x)) + 2) % PAL.leaf.length])); box(S, x, -.01, z, 1.1, .02, 1.1, '#8c7a63'); };
-    const lamp = (x, z) => { cyl(S, x, 0, z, .07, 4.4, '#3b4350', P.cyl6); box(S, x, 4.3, z + .35, .14, .12, .9, '#3b4350'); box(S, x, 4.18, z + .7, .38, .14, .26, '#f5ecd2'); };
-    const bin = (x, z) => { cyl(S, x, 0, z, .26, .9, '#4f7a5a', P.cyl8); cyl(S, x, .88, z, .29, .06, '#3c5c45', P.cyl8); };
-    const planter = (x, z) => { box(S, x, 0, z, 1.0, .5, .5, '#b5643e'); S.add(P.ico, M(x, .55, z, .55, .35, .3), C(PAL.leaf[1])); };
-    const wheel = (B, x, y, z, r, w) => { B.add(P.cyl12, M(x, y, z - w / 2, r, w, r, 0, Math.PI / 2), C('#22252b')); B.add(P.cyl8, M(x, y, z - w / 2 - .01, r * .5, w + .02, r * .5, 0, Math.PI / 2), C('#c9ccd2')); };
-    let focus = { x: 0, z: -3, r: 14 };
+    const pave = (x0, x1, z0, z1, c = PAL.pave) => { box(S, (x0 + x1) / 2, -.4, (z0 + z1) / 2, x1 - x0, .4, z1 - z0, c); };
+    // paving joints: thin darker lines every 2 m so the ground reads as slabs, not a flat colour
+    const joints = (x0, x1, z0, z1) => { for (let x = Math.ceil(x0 / 2) * 2; x < x1; x += 2) box(S, x, -.004, (z0 + z1) / 2, .04, .008, z1 - z0, '#cfc5b2'); for (let z = Math.ceil(z0 / 2) * 2; z < z1; z += 2) box(S, (x0 + x1) / 2, -.004, z, x1 - x0, .008, .04, '#cfc5b2'); };
+    const curb = (x0, x1, z) => { box(S, (x0 + x1) / 2, -.2, z, x1 - x0, .21, .24, PAL.curb); box(S, (x0 + x1) / 2, -.151, z + (z > 0 ? -.3 : .3), x1 - x0, .012, .34, '#4c5463'); };
+    const dashes = (x0, x1, z) => { for (let x = x0; x < x1; x += 4) box(S, x + 1, -.149, z, 2, .01, .14, PAL.line); };
+    const tree = (x, z, h = 4.6) => {
+      cyl(S, x, 0, z, .15, h * .52, PAL.trunk, P.cyl6); cyl(S, x, 0, z, .24, .25, '#7a5a3f', P.cyl6);
+      const L = PAL.leaf, k = Math.abs(Math.round(x * 3));
+      S.add(P.ico1, M(x, h * .62, z, 1.3, 1.25, 1.3, x), C(L[k % L.length])); S.add(P.ico1, M(x + .62, h * .78, z - .25, .85, .8, .85, 1), C(L[(k + 2) % L.length])); S.add(P.ico1, M(x - .55, h * .74, z + .3, .8, .75, .8, 2), C(L[(k + 1) % L.length])); S.add(P.ico1, M(x + .1, h * .95, z, .7, .6, .7, 3), C(L[(k + 4) % L.length]));
+      box(S, x, -.003, z, 1.3, .012, 1.3, '#8c7a63'); box(S, x, .0, z, 1.42, .05, .08, '#b9ad98'); for (const d of [-.67, .67]) { box(S, x + d, 0, z, .08, .05, 1.42, '#b9ad98'); box(S, x, 0, z + d, 1.42, .05, .08, '#b9ad98'); }
+    };
+    // Old Town lantern post
+    const lamp = (x, z) => { shade(x, z, .5, .5); cyl(S, x, 0, z, .14, .5, '#2f3640', P.cyl8); cyl(S, x, .5, z, .06, 3.1, '#2f3640', P.cyl6); cyl(S, x, 3.55, z, .12, .06, '#2f3640', P.cyl6); cyl(S, x, 3.61, z, .19, .36, '#fff0c4', P.cyl6); S.add(P.cone6, M(x, 3.97, z, .28, .2, .28), C('#2f3640')); cyl(S, x, 4.17, z, .03, .1, '#2f3640', P.cyl6); box(S, x + .22, 3.2, z, .5, .04, .04, '#2f3640'); };
+    const bin = (x, z) => { shade(x, z, .7, .7); cyl(S, x, 0, z, .26, .82, '#4f7a5a', P.cyl8); cyl(S, x, .82, z, .3, .07, '#3c5c45', P.cyl8); cyl(S, x, .3, z, .275, .05, '#3c5c45', P.cyl8); };
+    const planter = (x, z, w = 1.1) => { shade(x, z, w + .25, .75); box(S, x, 0, z, w, .46, .5, '#b5643e', 0, { ao: .28 }); box(S, x, .44, z, w + .06, .06, .56, '#c97250'); for (let k = 0; k < 3; k++) S.add(P.ico, M(x - w * .3 + k * w * .3, .58, z, .3, .26, .26, k), C(PAL.leaf[(k * 2 + 1) % PAL.leaf.length])); for (const [d, c] of [[-.35, '#ff8fb1'], [.05, '#ffd166'], [.38, '#ff8fb1']]) S.add(P.ico, M(x + d, .78, z + .08, .07, .07, .07), C(c)); };
+    const bollard = (x, z) => { cyl(S, x, 0, z, .08, .8, '#3b4350', P.cyl6); cyl(S, x, .8, z, .1, .06, '#f4c152', P.cyl6); };
+    const wheel = (B, x, y, z, r, w) => { B.add(P.cyl12, M(x, y, z - w / 2, r, w, r, 0, Math.PI / 2), C('#1c1f25')); B.add(P.cyl12, M(x, y, z - w / 2 - .012, r * .62, w + .024, r * .62, 0, Math.PI / 2), C('#c9ccd2')); B.add(P.cyl8, M(x, y, z - w / 2 - .03, r * .2, w + .06, r * .2, 0, Math.PI / 2), C('#6b7280')); };
+    /** Parked car along x on the road (y -0.15). dir = +1 faces +x. */
+    const car = (x, z, c, dir = 1) => {
+      const y = -.15; shade(x, z, 4.5, 2.1, true); box(S, x, y + .28, z, 4.1, .5, 1.72, c); box(S, x - dir * .15, y + .76, z, 2.3, .5, 1.56, c); box(S, x, y + .2, z, 4.2, .14, 1.76, '#2a2f38');
+      for (const s of [-1, 1]) { box(S, x - dir * .15, y + .82, z + s * .785, 2.0, .34, .02, '#2c3e50'); box(S, x - dir * .15, y + .82, z + s * .79, .06, .36, .02, c); wheel(S, x - 1.3, y + .32, z + s * .78 + (s > 0 ? .2 : 0), .32, .2); wheel(S, x + 1.3, y + .32, z + s * .78 + (s > 0 ? .2 : 0), .32, .2); }
+      box(S, x + dir * 1.01, y + .8, z, .04, .36, 1.4, '#2c3e50'); box(S, x - dir * 1.31, y + .8, z, .04, .34, 1.4, '#2c3e50');
+      for (const s of [-1, 1]) { box(S, x + dir * 2.06, y + .46, z + s * .6, .03, .14, .34, '#fff6d8'); box(S, x - dir * 2.06, y + .46, z + s * .6, .03, .12, .34, '#d9473b'); }
+    };
+    const add = (m, cast = true, recv = true) => { m.castShadow = cast; m.receiveShadow = recv; group.add(m); disposables.push(m.geometry, m.material); return m; };
+    /** A movable object made from its own batch (one draw call). */
+    const movable = (B, name) => { const m = add(new THREE.Mesh(B.geometry(), mat)); m.name = name; return m; };
+    // hazy far skyline so the gaps between houses are never empty sky
+    const skyline = z => { for (let k = 0; k < 9; k++) { const x = -44 + k * 11 + (k % 2) * 3, h = 9 + (k * 37 % 7) * 1.6; box(S, x, 0, z, 9, h, 6, ['#d9cdb8', '#cfd6d9', '#e0cdb4'][k % 3]); box(S, x, h, z, 9.4, .5, 6.4, '#c08a66'); } };
+    const ctx = { id, signMat, disposables, shade, plinth, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
+    const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) };
 
-    if (id === 'busstop') {
-      road(-40, 40, -3.5, 3.5); dashes(-40, 40, 0);
-      pave(-40, -11.6, -14, -3.5); pave(-5.6, 40, -14, -3.5); pave(-11.6, -5.6, -30, -3.5, PAL.pave2); // the corner: a cobbled Old Town lane
-      for (let x = -11.2; x < -5.6; x += .9) for (let z = -13.5; z < -3.6; z += .9) if ((Math.round(x * 10) + Math.round(z * 10)) % 3 === 0) box(S, x + .45, -.005, z + .45, .82, .01, .82, '#cdbfa7');
-      pave(-40, 40, 3.5, 9); curb(-40, -11.6, -3.6); curb(-5.6, 40, -3.6); curb(-40, 40, 3.6);
-      box(S, -8.6, -.149, -2.4, 6, .01, 1.6, '#f4f1e6'); for (let x = -11.2; x < -6; x += 1.1) box(S, x + .3, -.148, -.5, .6, .01, 2.6, '#f4f1e6'); // crossing stripes
-      // houses along the stop side and both corners of the lane
-      house({ style: 'plaster', x: -18, z: -19, w: 11, d: 10, floors: 3, tint: PAL.oldTown[0], roof: 'hip', roofColor: C(PAL.terracotta[0]), shop: true, awning: PAL.awning[0] });
-      house({ style: 'brick', x: -2.3, z: -19, w: 6.4, d: 10, floors: 2, tint: PAL.oldTown[3], roof: 'hip', roofColor: C(PAL.terracotta[2]) });
-      house({ style: 'plaster', x: 5.4, z: -19, w: 8.6, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true, awning: PAL.awning[2] });
-      house({ style: 'apartment', x: 15.6, z: -19, w: 11.6, d: 10, floors: 3, tint: PAL.apartment[1], roof: 'flat' });
-      house({ style: 'plaster', x: -18, z: 14, w: 11, d: 10, floors: 2, tint: PAL.oldTown[4], roof: 'hip', roofColor: C(PAL.terracotta[3]), ry: Math.PI });
-      house({ style: 'brick', x: 2, z: 14, w: 14, d: 10, floors: 2, tint: PAL.oldTown[6], roof: 'hip', roofColor: C(PAL.terracotta[4]), ry: Math.PI, shop: true, awning: PAL.awning[1] });
-      // the stop: glass shelter, bench, sign, timetable
-      for (const x of [2.0, 5.4]) box(S, x, 0, -6.4, .1, 2.5, .1, '#3d4654');
-      box(S, 3.7, 2.45, -5.9, 3.9, .1, 1.5, '#2f5d8a'); box(S, 3.7, .35, -6.42, 3.4, 2.0, .05, '#bcd7e6');
-      box(S, 3.7, .42, -6.1, 2.6, .08, .45, '#8a6446'); for (const x of [2.7, 4.7]) box(S, x, 0, -6.1, .08, .42, .3, '#3d4654');
-      cyl(S, 6.9, 0, -3.95, .05, 2.6, '#8f98a4', P.cyl6); box(S, 6.9, 2.25, -3.95, .62, .5, .05, '#2f6fc0'); box(S, 6.9, 2.36, -3.92, .4, .2, .02, '#ffffff');
-      box(S, 6.2, 0, -6.2, .7, 1.6, .1, '#3d4654'); box(S, 6.2, .5, -6.14, .58, 1.0, .02, '#f3ead8');
-      tree(-14, -5.2); tree(10, -5.0); tree(20, -5.0); tree(-24, -5.0); lamp(-4.6, -4.1); lamp(14.5, -4.1); lamp(-1, 4.2); bin(1.1, -6.3); planter(8, -6.6); planter(-13.2, -8.2);
-      // the bus (moves along x, lane z = -1.9)
-      const B = new K.Batch(), body = C('#f2c14e'), glass = C('#2c3e50');
-      box(B, 0, .35, 0, 10.6, 2.6, 2.5, body); box(B, 0, 2.95, 0, 10.4, .12, 2.4, C('#f7f3e6'));
-      for (const s of [-1, 1]) { box(B, -.3, 1.45, s * 1.255, 8.6, 1.05, .03, glass); box(B, 0, .55, s * 1.255, 10.4, .12, .03, C('#d9473b')); }
-      box(B, 5.31, 1.0, 0, .03, 1.7, 2.1, glass); box(B, -5.31, 1.4, 0, .03, 1.1, 2.0, glass); box(B, 5.32, 2.5, 0, .02, .3, 1.4, C('#1c2028'));
-      for (const x of [-3.4, 3.4]) for (const s of [-1, 1]) wheel(B, x, .45, s * 1.2 + (s > 0 ? .3 : 0), .5, .3);
-      const bus = mesh(B, 'bus'); bus.position.set(.4, -.15, -1.9); objects.bus = bus;
-      focus = { x: 0, z: -4, r: 13 };
-    } else {
-      road(-40, 40, .5, 7.5); dashes(-40, 40, 4);
-      pave(-40, 4.2, -14, .5); pave(5.8, 40, -14, .5); pave(4.2, 5.8, -14, .5, PAL.pave2); pave(-40, 40, 7.5, 12);
-      curb(-40, 40, .55); curb(-40, 40, 7.45);
-      // gym: the Old Town home gym with a glove pictogram, door at x = 11
-      house({ style: 'brick', x: 11, z: -8.6, w: 8, d: 10, floors: 2, tint: '#c9653d', roof: 'flat', shop: true, shopTint: C('#f4e4c4'), awning: PAL.awning[0] });
-      house({ style: 'plaster', x: 0, z: -8.6, w: 8.4, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true, awning: PAL.awning[3] });
-      house({ style: 'plaster', x: -9.6, z: -8.6, w: 9.6, d: 10, floors: 2, tint: PAL.oldTown[2], roof: 'hip', roofColor: C(PAL.terracotta[0]) });
-      house({ style: 'brick', x: -19.6, z: -8.6, w: 9.6, d: 10, floors: 3, tint: PAL.oldTown[5], roof: 'hip', roofColor: C(PAL.terracotta[4]), shop: true, awning: PAL.awning[4] });
-      house({ style: 'apartment', x: 20.6, z: -8.6, w: 10, d: 10, floors: 3, tint: PAL.apartment[0], roof: 'flat' });
-      house({ style: 'plaster', x: -6, z: 17.5, w: 16, d: 10, floors: 2, tint: PAL.oldTown[7], roof: 'hip', roofColor: C(PAL.terracotta[2]), ry: Math.PI });
-      box(S, 11, 0, -3.62, 1.5, 2.45, .12, '#3a2b24'); box(S, 11, 0, -3.5, 1.2, 2.25, .06, '#5b3a2a'); box(S, 11.4, 1.05, -3.45, .1, .1, .06, '#e0b84d'); box(S, 11, 0, -3.35, 1.9, .12, .5, '#cfc6b6');
-      // sign with a red glove pictogram (no words, so it reads in every language)
-      const cv = document.createElement('canvas'); cv.width = 256; cv.height = 128; const g = cv.getContext('2d');
-      g.fillStyle = '#121823'; g.fillRect(0, 0, 256, 128); g.strokeStyle = '#f4c152'; g.lineWidth = 8; g.strokeRect(6, 6, 244, 116);
-      for (const [cx, flip] of [[88, 1], [168, -1]]) { g.save(); g.translate(cx, 64); g.scale(flip, 1); g.fillStyle = '#e63946'; g.beginPath(); g.ellipse(0, -6, 30, 34, 0, 0, Math.PI * 2); g.fill(); g.beginPath(); g.ellipse(-24, 2, 12, 18, -.4, 0, Math.PI * 2); g.fill(); g.fillStyle = '#f3f6fb'; g.fillRect(-20, 26, 40, 16); g.restore(); }
-      const signTex = new THREE.CanvasTexture(cv); signTex.encoding = THREE.sRGBEncoding; disposables.push(signTex);
-      const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.2), new THREE.MeshBasicMaterial({ map: signTex, toneMapped: false })); sign.position.set(11, 3.25, -3.42); add(sign, false, false);
-      // van parked at the kerb (Brick's delivery)
-      const vx = -14.6, vz = 2.1;
-      box(S, vx + .4, .25, vz, 4.6, 2.1, 2.0, '#f4f1ea'); box(S, vx - 2.3, .25, vz, 1.3, 1.5, 1.95, '#f4f1ea'); box(S, vx - 2.95, .95, vz, .05, .7, 1.7, '#2c3e50');
-      box(S, vx + .4, 1.2, vz + 1.01, 3.2, .35, .02, '#e63946'); box(S, vx + 2.71, .4, vz, .04, 1.7, 1.8, '#d7d3cb');
-      for (const x of [vx - 1.9, vx + 1.6]) for (const s of [-1, 1]) wheel(S, x, .25, vz + s * .95 + (s > 0 ? .25 : 0), .42, .25);
-      // obstacles on the pavement: a gym bench put out across the path, a puddle, the alley the cyclist comes from
-      const bx = -4.5 + .25, bz = -1.2;
-      box(S, bx, .38, bz, .34, .1, 1.3, '#1d2026'); for (const z of [-.45, .45]) { box(S, bx, 0, bz + z, .06, .38, .06, '#aab2bc'); box(S, bx, 0, bz + z, .5, .04, .08, '#aab2bc'); }
-      const puddle = new THREE.Mesh(new THREE.CircleGeometry(1, 20).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: C('#4b6b80'), roughness: .06, metalness: .35 }));
-      puddle.position.set(-.5, .006, -1.2); puddle.scale.set(.75, 1, 1.05); add(puddle, false, true);
-      box(S, 5, -.005, -8, 1.6, .01, 9, '#c4b9a5');
-      tree(-6.6, -2.8, 4); tree(16.5, -2.8, 4.2); lamp(-1.8, -.1); lamp(8.2, -.1); bin(14.2, -3.0); planter(9.2, -3.1); planter(12.8, -3.1);
-      // cyclist (moves along z out of the alley at x = 5)
-      const Cb = new K.Batch();
-      wheel(Cb, 0, .34, -.55, .34, .05); wheel(Cb, 0, .34, .55, .34, .05);
-      box(Cb, 0, .34, -.5, .05, .06, 1.0, '#e63946', 0, { }); box(Cb, 0, .38, 0, .05, .5, .06, '#e63946'); box(Cb, 0, .86, .35, .5, .04, .04, '#3b4350');
-      box(Cb, 0, .55, -.1, .34, .62, .3, '#3c7fc0'); box(Cb, 0, 1.15, .02, .42, .62, .3, '#f2b632'); Cb.add(P.sph, M(0, 1.66, .1, .16, .17, .16), C('#9aa5b1')); Cb.add(P.hemi, M(0, 1.7, .1, .19, .14, .2), C('#e63946'));
-      box(Cb, .17, .9, .25, .08, .08, .3, '#f2b632'); box(Cb, -.17, .9, .25, .08, .08, .3, '#f2b632');
-      const cyclist = mesh(Cb, 'cyclist'); cyclist.position.set(5, 0, -6); objects.cyclist = cyclist;
-      focus = { x: -2, z: -1.2, r: 15 };
-    }
-    // the new heavy bag: red leather, black bands, chain stub. Origin at its centre (1.05 m tall).
-    if (id === 'gymfront') {
-      const Bg = new K.Batch();
-      Bg.add(P.cyl20, M(0, -.5, 0, .17, 1.0, .17), C('#a4262c')); Bg.add(P.cyl20, M(0, .38, 0, .175, .12, .175), C('#1d1f24')); Bg.add(P.cyl20, M(0, -.52, 0, .175, .1, .175), C('#1d1f24'));
-      Bg.add(P.cyl20, M(0, -.06, 0, .172, .2, .172), C('#f3f6fb')); Bg.add(P.cyl8, M(0, .5, 0, .03, .12, .03), C('#aab2bc'));
-      objects.bag = mesh(Bg, 'heavy bag'); objects.bag.position.set(-13, 1.1, -.4);
-    }
-
-    // ---- meshes
-    function add(m, cast = true, recv = true) { m.castShadow = cast; m.receiveShadow = recv; group.add(m); disposables.push(m.geometry, m.material); return m; }
-    function mesh(B, name) { const m = add(new THREE.Mesh(B.geometry(), mat)); m.name = name; return m; }
-    const street = new THREE.Mesh(S.geometry(), mat); street.name = 'street'; add(street, true, true); street.matrixAutoUpdate = false; street.updateMatrix();
-    const houses = new THREE.Group(); houses.scale.setScalar(U); houses.name = 'houses (map pieces)'; group.add(houses);
+    // ---- meshes: street (1), signs (1), houses (1 + one per facade style)
+    const street = add(new THREE.Mesh(S.geometry(), mat)); street.name = 'street'; street.matrixAutoUpdate = false; street.updateMatrix();
+    if (SG.tris) { const sg = add(new THREE.Mesh(SG.geometry(), signMat), false, true); sg.name = 'signs'; sg.matrixAutoUpdate = false; sg.updateMatrix(); }
+    const houses = new THREE.Group(); houses.scale.setScalar(U); houses.name = 'houses (map pieces)'; group.add(houses); houses.updateMatrix();
     const addH = m => { m.castShadow = m.receiveShadow = true; m.matrixAutoUpdate = false; m.updateMatrix(); houses.add(m); disposables.push(m.geometry, m.material); };
     addH(new THREE.Mesh(W.solid.geometry(), mat));
-    const aniso = opts.renderer ? Math.min(4, opts.renderer.capabilities.getMaxAnisotropy()) : 2, tex = K.paintFacades(false, aniso);
+    const aniso = opts.renderer ? Math.min(4, opts.renderer.capabilities.getMaxAnisotropy()) : 2, tex = K.paintFacades(false, aniso, s => W.facade[s].tris ? (s === 'shop' ? 3 : 2) : 0);
     for (const s of Object.keys(K.FACADE)) {
-      const t = tex[s]; disposables.push(t.map); if (t.emissive) disposables.push(t.emissive);
-      if (!W.facade[s].tris) continue;
+      const t = tex[s]; if (!t) continue; disposables.push(t.map); if (t.emissive) disposables.push(t.emissive);
       addH(new THREE.Mesh(W.facade[s].geometry(), K.facadeMaterial(t, false, s === 'office' ? .45 : .85, s === 'office' ? .75 : .12)));
     }
-    // ---- light: the map's morning sun, sky and fog
-    const hemi = new THREE.HemisphereLight(0xd9eeff, 0xcdb88c, .62), sun = new THREE.DirectionalLight(0xfff0d6, 1.55), amb = new THREE.AmbientLight(0xffffff, .05);
-    const sunDir = new THREE.Vector3(-.62, .72, .52).normalize();
-    sun.castShadow = !!opts.shadows; sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -.0006; sun.shadow.normalBias = .04;
+    // ---- morning light: low warm sun (long shadows), cool sky fill, warm sky gradient, light haze
+    const hemi = new THREE.HemisphereLight(0xc4dcff, 0xdcb98c, .54), sun = new THREE.DirectionalLight(0xffd7a3, 2.05), amb = new THREE.AmbientLight(0xffffff, .05);
+    const sunDir = new THREE.Vector3(.58, .44, .68).normalize();
+    sun.castShadow = !!opts.shadows; sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -.0007; sun.shadow.normalBias = .05; sun.shadow.radius = 2;
     group.add(hemi, sun, sun.target, amb);
-    scene.background = new THREE.Color(0xbfdcec); scene.fog = new THREE.Fog(0xcfe4ee, 45, 120);
+    const sky = skyTexture(); disposables.push(sky); scene.background = sky; scene.fog = new THREE.Fog(0xf3dfc4, 26, 105);
+    let fx = 1e9, fz = 1e9;
+    /** Centres the sun's shadow box on (x, z); moves only when the point drifts, so shadow edges do not swim. */
     function aim(x, z, r = focus.r) {
+      if (Math.hypot(x - fx, z - fz) < 2.5) return; fx = x; fz = z;
       const sc = sun.shadow.camera; sun.target.position.set(x, 0, z); sun.target.updateMatrixWorld();
       sun.position.set(x + sunDir.x * 40, sunDir.y * 40, z + sunDir.z * 40); sun.updateMatrixWorld();
       sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.near = 1; sc.far = 100; sc.updateProjectionMatrix();
@@ -143,7 +130,112 @@
     aim(focus.x, focus.z);
     scene.add(group);
     function stats() { let meshes = 0, tris = 0; group.traverse(o => { if (!o.isMesh || !o.visible) return; meshes++; const g = o.geometry; tris += (g.index ? g.index.count : g.attributes.position.count) / 3; }); return { meshes, triangles: Math.round(tris) }; }
-    return { id, group, objects, sun, focus: aim, stats, dispose() { scene.remove(group); for (const d of disposables) d?.dispose?.(); scene.fog = null; scene.background = null; } };
+    return { id, group, objects, sun, focus: aim, stats, dispose() { scene.remove(group); for (const d of new Set(disposables)) d?.dispose?.(); scene.fog = null; scene.background = null; } };
   }
-  window.StorySets = { ready, build };
+
+  /* ---------------------------------------------------------------- bus-stop street corner */
+  SETS.busstop = c => {
+    const { K, PAL, C, P, M, S, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, objects } = c;
+    road(-44, 44, -3.5, 3.5); dashes(-44, 44, 0);
+    pave(-44, -11.6, -14, -3.5); pave(-5.6, 44, -14, -3.5); pave(-11.6, -5.6, -34, -3.5, PAL.pave2); // the corner: a cobbled Old Town lane
+    joints(-44, -11.6, -7, -3.6); joints(-5.6, 44, -7, -3.6);
+    for (let x = -11.2; x < -5.6; x += .9) for (let z = -13.5; z < -3.6; z += .9) if ((Math.round(x * 10) + Math.round(z * 10)) % 3 === 0) box(S, x + .45, -.005, z + .45, .82, .01, .82, '#cdbfa7');
+    pave(-44, 44, 3.5, 9); curb(-44, -11.6, -3.62); curb(-5.6, 44, -3.62); curb(-44, 44, 3.62);
+    for (let z = -2.9; z < 3.2; z += 1.0) box(S, -8.6, -.148, z + .25, 4.6, .012, .5, '#f4f1e6'); // zebra crossing in front of the lane
+    cyl(S, 12, -.149, 1.6, .42, .012, '#474e5c', P.cyl12);
+    // houses: the stop side, both corners of the lane, the far side
+    house({ style: 'plaster', x: -18, z: -13.2, w: 11, d: 10, floors: 3, tint: PAL.oldTown[0], roof: 'hip', roofColor: C(PAL.terracotta[0]), shop: true, awning: PAL.awning[0] });
+    house({ style: 'brick', x: -2.3, z: -13.2, w: 6.4, d: 10, floors: 2, tint: PAL.oldTown[3], roof: 'hip', roofColor: C(PAL.terracotta[2]), shop: true, awning: PAL.awning[5] });
+    house({ style: 'plaster', x: 5.4, z: -13.2, w: 8.6, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true });
+    house({ style: 'apartment', x: 15.6, z: -13.2, w: 11.6, d: 10, floors: 3, tint: PAL.apartment[1], roof: 'flat' });
+    house({ style: 'plaster', x: 27.6, z: -13.2, w: 12, d: 10, floors: 2, tint: PAL.oldTown[5], roof: 'hip', roofColor: C(PAL.terracotta[4]) });
+    house({ style: 'plaster', x: -18, z: 14, w: 11, d: 10, floors: 2, tint: PAL.oldTown[4], roof: 'hip', roofColor: C(PAL.terracotta[3]), ry: Math.PI });
+    house({ style: 'brick', x: 2, z: 14, w: 14, d: 10, floors: 2, tint: PAL.oldTown[6], roof: 'hip', roofColor: C(PAL.terracotta[4]), ry: Math.PI, shop: true, awning: PAL.awning[1] });
+    c.skyline(-48); c.plinth(-44, -11.6, -8.12); c.plinth(-5.6, 44, -8.12); c.shade(3.7, -5.9, 4.2, 1.9);
+    picto('bread', -18, 4.6, -8.14); picto('cup', 5.4, 4.6, -8.14); picto('flower', -2.3, 4.6, -8.14);
+    // the stop: glass shelter with a poster end, slatted bench, round stop sign, timetable
+    for (const x of [2.0, 3.7, 5.4]) box(S, x, 0, -6.45, .09, 2.5, .09, '#3d4654');
+    box(S, 3.7, 2.46, -5.85, 3.9, .08, 1.6, '#2f5d8a'); box(S, 3.7, 2.38, -5.07, 3.9, .16, .05, '#f4c152'); box(S, 3.7, 2.54, -5.85, 3.6, .05, 1.3, '#3a6c9c');
+    box(S, 3.7, .3, -6.47, 3.4, 2.05, .04, '#b9d6e6'); box(S, 3.7, 1.3, -6.45, 3.4, .05, .05, '#3d4654'); box(S, 5.42, .3, -5.95, .04, 2.05, 1.0, '#e8f1f5'); box(S, 5.45, .7, -5.95, .02, 1.3, .8, '#e63946'); box(S, 5.46, 1.2, -5.95, .02, .5, .5, '#f7f0dc');
+    for (const z of [-6.22, -6.08, -5.94]) box(S, 3.5, .44, z, 2.6, .05, .11, '#9a7350'); box(S, 3.5, .62, -6.33, 2.6, .3, .05, '#9a7350'); for (const x of [2.5, 4.5]) { box(S, x, 0, -6.08, .07, .44, .42, '#3d4654'); }
+    cyl(S, 6.9, 0, -4.05, .05, 2.7, '#8f98a4', P.cyl6); S.add(P.cyl12, M(6.9, 2.5, -4.08, .34, .06, .34, 0, Math.PI / 2), C('#2f6fc0')); box(S, 6.9, 2.44, -4.0, .42, .13, .02, '#ffffff'); box(S, 6.9, 1.5, -4.03, .46, .62, .04, '#f3ead8'); box(S, 6.9, 1.9, -4.0, .4, .12, .02, '#2f6fc0');
+    tree(-14, -5.3); tree(10.4, -5.2); tree(21, -5.2); tree(-25, -5.2); tree(-16, 6.6, 4.2); tree(9, 6.8, 4.4);
+    lamp(-5.0, -4.0); lamp(15, -4.0); lamp(-2, 4.3); bin(1.2, -6.35); planter(8.2, -6.7); planter(-13.4, -7.6); planter(12.6, -6.7, 1.6);
+    for (const x of [-11.9, -5.3]) bollard(x, -4.1);
+    car(-17.5, 2.45, '#3b7dd8', -1); car(17, 2.45, '#f4f1ea', -1);
+    // the bus: two-tone body, window line with pillars, doors on the kerb side, wheels with hubs, lights, route boards
+    const B = new K.Batch(), glass = '#33485c', shine = '#587891', dark = '#2a2f38';
+    box(B, 0, .32, 0, 10.9, .36, 2.46, dark); box(B, 0, .5, 0, 10.8, 1.0, 2.5, '#f0b429'); box(B, 0, 1.5, 0, 10.84, .1, 2.54, '#d9473b'); box(B, 0, 1.6, 0, 10.8, 1.26, 2.5, '#f7f0dc'); box(B, 0, 2.86, 0, 10.5, .13, 2.3, '#e9e2cc'); box(B, -1.2, 2.99, 0, 2.6, .2, 1.4, '#d9d2bc');
+    for (let k = 0; k < 6; k++) { const x = -4.35 + k * 1.52; box(B, x, 1.72, 1.255, 1.3, .82, .02, glass); box(B, x, 2.34, 1.26, 1.3, .2, .02, shine); }
+    for (const [x, w] of [[-4.35, 1.3], [-2.83, 1.3], [1.4, 1.5]]) { box(B, x, 1.72, -1.255, w, .82, .02, glass); box(B, x, 2.34, -1.26, w, .2, .02, shine); }
+    for (const x of [-.75, 3.75]) { box(B, x, .56, -1.26, 1.2, 2.1, .03, dark); for (const d of [-.29, .29]) box(B, x + d, .7, -1.275, .5, 1.75, .02, glass); }
+    box(B, 5.41, 1.42, 0, .03, 1.3, 2.24, glass); box(B, 5.42, 2.3, 0, .02, .42, 2.24, shine); box(B, 5.43, 2.46, 0, .03, .4, 1.9, '#12151b'); box(B, -5.41, 1.7, 0, .03, .85, 2.0, glass);
+    for (const s of [-1, 1]) { box(B, 5.42, .6, s * .88, .04, .2, .42, '#fff6d8'); box(B, 5.42, .62, s * .52, .04, .12, .16, '#ffb52e'); box(B, -5.42, .7, s * .9, .04, .3, .3, '#d9473b'); box(B, 5.2, 2.0, s * 1.42, .08, .34, .2, dark); for (const x of [-3.35, 3.35]) wheel(B, x, .5, s * 1.16 + (s > 0 ? .32 : 0), .5, .32); }
+    box(B, 5.48, .3, 0, .14, .22, 2.52, dark); box(B, -5.48, .3, 0, .14, .22, 2.52, dark);
+    const bus = movable(B, 'bus'); bus.position.set(.4, -.15, -1.9); objects.bus = bus;
+    const BS = new K.Batch({ uv: true }); sign('route', 2.6, 1.0, 1.262, 2.0, .42, 0, BS); sign('route', 5.45, 2.66, 0, 1.8, .36, Math.PI / 2, BS);
+    const boards = new THREE.Mesh(BS.geometry(), c.signMat); bus.add(boards); c.disposables.push(boards.geometry);
+    return { x: 0, z: -4, r: 12 };
+  };
+
+  /* ---------------------------------------------------------------- gym front door */
+  SETS.gymfront = c => {
+    const { K, PAL, C, P, M, S, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, objects } = c;
+    road(-44, 44, .5, 7.5); dashes(-44, 44, 4);
+    pave(-44, 4.2, -14, .5); pave(5.8, 44, -14, .5); pave(4.2, 5.8, -30, .5, PAL.pave2); pave(-44, 44, 7.5, 12);
+    joints(-44, 4.2, -3.5, .4); joints(5.8, 44, -3.5, .4); curb(-44, 44, .58); curb(-44, 44, 7.42);
+    // gym: the Old Town home gym, door at x = 11
+    house({ style: 'brick', x: 11, z: -8.6, w: 8, d: 10, floors: 2, tint: '#c9653d', roof: 'flat', shop: true, shopTint: C('#f4e4c4') }); // no awning: the door and the glove board stay in view
+    house({ style: 'plaster', x: 0, z: -8.6, w: 8.4, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true, awning: PAL.awning[3] });
+    house({ style: 'plaster', x: -9.6, z: -8.6, w: 9.6, d: 10, floors: 2, tint: PAL.oldTown[2], roof: 'hip', roofColor: C(PAL.terracotta[0]) });
+    house({ style: 'brick', x: -19.6, z: -8.6, w: 9.6, d: 10, floors: 3, tint: PAL.oldTown[5], roof: 'hip', roofColor: C(PAL.terracotta[4]), shop: true, awning: PAL.awning[4] });
+    house({ style: 'apartment', x: 20.6, z: -8.6, w: 10, d: 10, floors: 3, tint: PAL.apartment[0], roof: 'flat' });
+    house({ style: 'plaster', x: 31.6, z: -8.6, w: 11, d: 10, floors: 2, tint: PAL.oldTown[0], roof: 'hip', roofColor: C(PAL.terracotta[3]) });
+    house({ style: 'plaster', x: -6, z: 17.5, w: 16, d: 10, floors: 2, tint: PAL.oldTown[7], roof: 'hip', roofColor: C(PAL.terracotta[2]), ry: Math.PI });
+    house({ style: 'brick', x: 12, z: 17.5, w: 14, d: 10, floors: 3, tint: PAL.oldTown[3], roof: 'hip', roofColor: C(PAL.terracotta[5]), ry: Math.PI });
+    c.skyline(-44); c.plinth(-44, 4.2, -3.52); c.plinth(5.8, 10.1, -3.52); c.plinth(11.9, 44, -3.52); c.shade(-14.2, 2.1, 6.4, 2.4, true); c.shade(-4.25, -1.2, .7, 1.5);
+    picto('book', 0, 4.6, -3.55); picto('flower', -19.6, 4.6, -3.55);
+    // door: frame, leaf with a window, brass handle, step, mat, wall lantern, the opening bell
+    box(S, 11, 0, -3.64, 1.66, 2.56, .14, '#3a2b24'); box(S, 11, .02, -3.52, 1.3, 2.3, .07, '#6b4630'); box(S, 11, 1.25, -3.47, .86, .8, .03, '#33485c'); box(S, 11, 1.62, -3.455, .86, .2, .02, '#587891'); box(S, 11, .25, -3.47, .9, .7, .03, '#5a3a28');
+    box(S, 11.48, 1.02, -3.44, .06, .22, .07, '#e0b84d'); box(S, 11, 0, -3.3, 2.1, .1, .62, '#cfc6b6'); box(S, 11, .1, -3.1, 1.3, .02, .5, '#7a3b34');
+    box(S, 12.25, 2.25, -3.5, .06, .06, .3, '#2f3640'); cyl(S, 12.25, 1.92, -3.3, .12, .3, '#fff0c4', P.cyl6); S.add(P.cone6, M(12.25, 2.22, -3.3, .18, .14, .18), C('#2f3640'));
+    box(S, 9.75, 2.05, -3.45, .05, .05, .34, '#2f3640'); cyl(S, 9.75, 1.98, -3.26, .012, .1, '#2f3640', P.cyl6); S.add(P.cone8, M(9.75, 1.72, -3.26, .14, .26, .14), C('#e0b84d')); cyl(S, 9.75, 1.7, -3.26, .15, .03, '#c99a2e', P.cyl8); cyl(S, 9.75, 1.5, -3.26, .008, .22, '#8a6446', P.cyl6);
+    // glove board over the awning and a small hanging board on a bracket
+    box(S, 11, 2.95, -3.56, 2.9, 1.5, .1, '#0d1118'); sign('gym', 11, 3.7, -3.45, 2.7, 1.35); box(S, 11, 2.82, -3.3, 3.3, .1, .5, '#8f2f22');
+    box(S, 8.2, 3.0, -3.1, .05, .05, .9, '#2f3640'); box(S, 8.2, 2.3, -2.78, .06, .62, .7, '#0d1118'); sign('gym', 8.235, 2.6, -2.78, .66, .46, Math.PI / 2); sign('gym', 8.165, 2.6, -2.78, .66, .46, -Math.PI / 2);
+    // Brick's delivery van at the kerb
+    const vx = -14.6, vz = 2.1;
+    box(S, vx + .4, .25, vz, 4.6, 2.1, 2.0, '#f4f1ea'); box(S, vx + .4, .12, vz, 4.64, .16, 2.04, '#2a2f38'); box(S, vx - 2.3, .25, vz, 1.3, 1.5, 1.95, '#f4f1ea'); box(S, vx - 2.96, .95, vz, .04, .7, 1.7, '#33485c'); box(S, vx - 2.3, 1.75, vz, 1.1, .5, 1.9, '#f4f1ea');
+    for (const s of [-1, 1]) { box(S, vx - 2.2, 1.0, vz + s * .98, .9, .6, .02, '#33485c'); box(S, vx + .4, 1.15, vz + s * 1.01, 3.6, .4, .02, '#e63946'); box(S, vx - 2.97, .5, vz + s * .7, .03, .14, .3, '#fff6d8'); for (const x of [vx - 1.9, vx + 1.6]) wheel(S, x, .27, vz + s * .95 + (s > 0 ? .25 : 0), .42, .25); }
+    box(S, vx + 2.71, .4, vz, .04, 1.7, 1.8, '#d7d3cb'); box(S, vx + 2.73, .4, vz, .02, 1.7, .04, '#9aa5b1');
+    car(21, 2.2, '#45b39d', -1);
+    // carry-the-bag obstacles: a gym bench across the path, a puddle, the alley the cyclist comes from
+    const bx = -4.25, bz = -1.2;
+    box(S, bx, .38, bz, .34, .1, 1.3, '#1d2026'); box(S, bx, .46, bz, .3, .03, 1.2, '#a4262c'); for (const z of [-.45, .45]) { box(S, bx, 0, bz + z, .06, .38, .06, '#aab2bc'); box(S, bx, 0, bz + z, .5, .04, .08, '#aab2bc'); }
+    const puddle = new THREE.Mesh(new THREE.CircleGeometry(1, 20).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: C('#5b7f96'), roughness: .05, metalness: .4 }));
+    puddle.position.set(-.5, .006, -1.2); puddle.scale.set(.75, 1, 1.05); add(puddle, false, true);
+    for (let z = -13.5; z < .2; z += .9) for (const x of [4.25, 5.05]) if ((Math.round(z * 10) + Math.round(x * 4)) % 3) box(S, x + .35, -.005, z + .4, .7, .01, .8, '#cdbfa7');
+    tree(-6.6, -2.7, 4); tree(16.6, -2.7, 4.2); tree(-21, -2.7, 4.4); tree(27, -2.7, 4.2); tree(2, 9.2, 4.2); tree(14, 9.4, 4.4);
+    lamp(-2.2, -3.1); lamp(6.5, -3.1); lamp(15, -3.1); lamp(-15.2, -3.1); bin(14.0, -3.0); planter(9.0, -3.1); planter(12.95, -3.1); planter(-1.6, -3.1, 1.5); planter(1.6, -3.1, 1.5);
+    for (const x of [3.9, 6.1]) bollard(x, .2);
+    // movable things: cyclist, the new heavy bag, the guard's pillow, Pip's old hand wraps
+    const Cb = new K.Batch();
+    wheel(Cb, 0, .34, -.55, .34, .05); wheel(Cb, 0, .34, .55, .34, .05);
+    box(Cb, 0, .34, -.5, .05, .06, 1.0, '#e63946'); box(Cb, 0, .38, -.1, .05, .52, .06, '#e63946'); box(Cb, 0, .4, .5, .05, .5, .05, '#3b4350'); box(Cb, 0, .88, .44, .52, .04, .04, '#3b4350'); box(Cb, 0, .86, -.14, .16, .06, .3, '#1d2026');
+    box(Cb, 0, .56, -.1, .34, .6, .3, '#3c7fc0'); box(Cb, 0, 1.12, 0, .44, .6, .3, '#f2b632'); Cb.add(P.sph, M(0, 1.84, .1, .16, .17, .16), C('#b9c0c9')); Cb.add(P.hemi, M(0, 1.88, .1, .19, .14, .21), C('#e63946'));
+    for (const s of [-1, 1]) { box(Cb, s * .2, .98, .22, .09, .09, .34, '#f2b632'); box(Cb, s * .12, .2, -.05, .1, .44, .12, '#2c3e50'); }
+    box(Cb, 0, 1.1, -.24, .34, .4, .14, '#8a5a38');
+    objects.cyclist = movable(Cb, 'cyclist'); objects.cyclist.position.set(5, 0, -6); objects.cyclist.visible = false;
+    const Bg = new K.Batch();
+    Bg.add(P.cyl20, M(0, -.5, 0, .17, 1.0, .17), C('#a4262c')); Bg.add(P.cyl20, M(0, .38, 0, .176, .12, .176), C('#1d1f24')); Bg.add(P.cyl20, M(0, -.52, 0, .176, .1, .176), C('#1d1f24'));
+    Bg.add(P.cyl20, M(0, -.08, 0, .173, .22, .173), C('#f3f6fb')); Bg.add(P.cyl20, M(0, .02, 0, .1745, .03, .1745), C('#f4c152')); for (let k = 0; k < 4; k++) Bg.add(P.box, M(Math.cos(k * TAU / 4) * .1, .5, Math.sin(k * TAU / 4) * .1, .02, .14, .02), C('#aab2bc')); Bg.add(P.cyl8, M(0, .63, 0, .05, .02, .05), C('#aab2bc'));
+    objects.bag = movable(Bg, 'heavy bag'); objects.bag.position.set(-13, 1.1, -.4); objects.bag.visible = false;
+    const Pw = new K.Batch(); Pw.add(P.sph, M(0, 0, 0, .3, .12, .2), C('#f7f3ea')); for (const s of [-1, 1]) Pw.add(P.ico, M(s * .29, 0, .17 * 0, .05, .05, .05), C('#c9d6e6')); Pw.add(P.box, M(0, -.02, 0, .5, .04, .1), C('#9fc3e6'));
+    objects.pillow = movable(Pw, 'pillow'); objects.pillow.visible = false;
+    const Wr = new K.Batch(); for (const s of [-1, 1]) { Wr.add(P.cyl12, M(s * .06, -.05, 0, .055, .1, .055), C('#f3ead8')); Wr.add(P.cyl12, M(s * .06, -.02, 0, .057, .03, .057), C('#e63946')); } Wr.add(P.box, M(0, -.06, .05, .2, .02, .03), C('#f3ead8'));
+    objects.wraps = movable(Wr, 'hand wraps'); objects.wraps.visible = false;
+    return { x: 8, z: -1.5, r: 12 };
+  };
+
+  window.StorySets = { ready, build, register(id, fn) { SETS[id] = fn; }, ids: () => Object.keys(SETS) };
 })();
