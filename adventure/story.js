@@ -54,6 +54,7 @@
     influencer_challenge: { intro: [S('influencer', 'Beat my speed-bag challenge and I stop filming you.', 'תנצחו את אתגר שק המהירות שלי ואפסיק לצלם אתכם.', 'Побей мой рекорд на груше — и я перестану тебя снимать.')], outro: [S('influencer', 'Fine. Camera off.', 'בסדר. המצלמה כבויה.', 'Ладно. Камера выключена.')] },
     crowd_circle: { intro: [S('dash', 'Too slow, newcomer. The circle is already mine.', 'איטיים מדי, חדשים. המעגל כבר שלי.', 'Слишком медленно, новичок. Круг уже мой.'), S('vix', 'Beat three challengers and the crowd is yours.', 'נצחו שלושה מתמודדים והקהל שלכם.', 'Победи троих — и толпа твоя.')], outro: [S('vix', 'The crowd is yours. Dash was watching.', 'הקהל שלכם. דאש צפה.', 'Толпа твоя. Дэш смотрел.')] },
     king_hyena: { intro: [S('king', 'This is my market. Nobody fights here without my say.', 'זה השוק שלי. אף אחד לא נלחם כאן בלי רשותי.', 'Это мой рынок. Здесь никто не дерётся без моего слова.')], outro: [S('vix', 'You beat him. They say real fights are on at the Docks.', 'ניצחתם אותו. אומרים שיש קרבות אמיתיים בנמל.', 'Ты его победил. Говорят, настоящие бои идут в Доках.')], lost: [S('vix', 'He is big. Train and come back.', 'הוא גדול. התאמנו וחזרו.', 'Он большой. Потренируйся и возвращайся.')] },
+    chapter_2: { intro: [S('vix', 'Welcome to Market Row. Everything here is fought for.', 'ברוכים הבאים לשדרת השוק. כאן נלחמים על הכול.', 'Добро пожаловать на Рыночный ряд. Здесь за всё приходится драться.')] },
     brick: { intro: [S('brick', 'My gym, my spot. Prove you belong.', 'האולם שלי, המקום שלי. תוכיחו שמגיע לכם.', 'Мой зал, моё место. Докажи, что ты здесь не зря.')], outro: [S('pip', 'Take my old hand wraps. Go see Vix at Market Row.', 'קחו את חבישות הידיים הישנות שלי. לכו לראות את ויקס בשדרת השוק.', 'Возьми мои старые бинты. Иди к Викс на Рыночный ряд.')], lost: [S('pip', 'You lost a round, not the fight. Train and come back.', 'הפסדתם סיבוב, לא את הקרב. התאמנו וחזרו.', 'Ты проиграл раунд, а не бой. Потренируйся и возвращайся.')] }
   };
   const KEY = 'gotr.adv.story';
@@ -85,7 +86,7 @@
     stop();
     const list = lines[id]?.[kind]; if (!list?.length) return false;
     const el = document.createElement('div'); el.className = 'adv-story'; el.id = 'advStory'; el.dir = document.documentElement.dir || 'ltr'; el.setAttribute('role', 'status');
-    document.body.append(el); cur = { el, i: 0 };
+    (document.querySelector('dialog[open]') || window.app?.engine?.stage || document.body).append(el); cur = { el, i: 0 };
     const next = () => {
       clearTimeout(cur.timer); const line = list[cur.i++]; if (!line) { stop(); return; }
       const w = who[line.who]; el.replaceChildren(bust(line.who)); const t = document.createElement('p'), n = document.createElement('strong');
