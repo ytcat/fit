@@ -141,6 +141,10 @@
     constructor(data,options={}) {
       this.species=options.species||'lion';this.armHingeFrame='posterior-z';this.shoulderData=data.shoulderCorrectives?.armHingeFrame==='posterior-z'?(data.shoulderCorrectives.species?.[this.species]||null):null;this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
+      // GOTR-0051: the rig and its choreography have the lead side on local -x while facing +z, which is the body's
+      // RIGHT. The fighter is mirrored across its own sagittal plane here, so the lead hand, shoulder and foot are
+      // the anatomical left (orthodox). Root-space choreography is unchanged; see mirrorSafe() for rotations.
+      this.root.scale.x=-1;
       if(data.rigVersion!==2||!data.body.armBlend)throw new Error('Lion rig/model version mismatch');
       this.bones=[];this.joints={};this.metrics={};this.gloveMeshes={};
       const joint=(name,parent,p)=>{
@@ -733,8 +737,9 @@
 
     point(bone) { return this.root.worldToLocal(bone.getWorldPosition(V())); }
     parentRotation(bone) {
-      return this.root.getWorldQuaternion(new THREE.Quaternion()).invert()
-        .multiply(bone.parent.getWorldQuaternion(new THREE.Quaternion()));
+      // Root-space rotation from the local chain (the root may be mirrored; world quaternions would be reflected).
+      const q=new THREE.Quaternion(),chain=[];for(let p=bone.parent;p&&p!==this.root;p=p.parent)chain.push(p);
+      for(let i=chain.length-1;i>=0;i--)q.multiply(chain[i].quaternion);return q;
     }
     orient(bone,q) {
       bone.quaternion.copy(this.parentRotation(bone).invert().multiply(q));
@@ -877,8 +882,7 @@
         }
         const sideways=reference?.lateral||reference?.cheek&&forward<.0002,clearance=sideways?lateral:forward;
         if(clearance<.0002)break;
-        const direction=V(sideways?sign:0,0,sideways?0:1).applyQuaternion(head.getWorldQuaternion(new THREE.Quaternion()))
-          .applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
+        const direction=V(sideways?sign:0,0,sideways?0:1).applyQuaternion(this.parentRotation(head).multiply(head.quaternion));
         const shoulder=this.point(j['arm'+side]),target=this.point(hand).addScaledVector(direction,Math.min(.15,clearance+.001));
         const upper=j['elbow'+side].position.length(),lower=hand.position.length();
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
@@ -941,7 +945,7 @@
         if(!worst)break;
         const {sample,hit}=worst,normal=hit.normal.clone(),correction=normal.multiplyScalar(Math.min(.16,(hit.penetration-allowance+.001)/Math.max(.55,sample.t)));
         const target=this.root.worldToLocal(wrist.add(correction));
-        const localNormal=hit.normal.clone().applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
+        const localNormal=hit.normal.clone().transformDirection(new THREE.Matrix4().copy(this.root.matrixWorld).invert());
         // Bound the adjustment relative to the authored bend plane. Repeated
         // contact passes must not accumulate humeral roll into a half-turn.
         const pole=this.contactBendPole(side,target,reference).addScaledVector(localNormal,.08).normalize();
@@ -983,7 +987,16 @@
       mesh.userData.pressure=amount;
     }
 
+    // Under the mirrored root a bone's decomposed world quaternion is a reflected rotation. Every joint reports
+    // root rotation x its root-space chain rotation instead, which is what the pose code round-trips through.
+    mirrorSafe(){
+      if(this.mirrorReady)return;this.mirrorReady=true;const root=this.root,coach=this;
+      for(const joint of Object.values(this.joints))joint.getWorldQuaternion=function(target){return root.getWorldQuaternion(target).multiply(coach.parentRotation(this)).multiply(this.quaternion);};
+    }
+    // A world-space direction in this fighter's own (choreography) space.
+    localDirection(v){this.root.updateWorldMatrix(true,false);return v.clone().transformDirection(new THREE.Matrix4().copy(this.root.matrixWorld).invert());}
     update(t,technique,combo,options={}) {
+      this.mirrorSafe();
       this.renderTime=options.simulationTime??t;
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
       const beat=t/(technique==='combo'?1.0:1.22),authored=technique==='combo'?window.BOXING_ROUTINES?.frame(t,technique,combo):null,move=authored?.move||seq[Math.floor(beat)%seq.length];
