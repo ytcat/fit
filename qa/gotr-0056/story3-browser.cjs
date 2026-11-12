@@ -44,7 +44,7 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
       // skill trials: scripted players press the real keys (arrows, J K L)
       let first = true;
       for (const [id, [mission, pads]] of Object.entries(TRIALS).filter(([i]) => !ONLY || ONLY.includes(i))) {
-        await p.evaluate(([id, intro]) => { window.__done = null; if (window.__forceShadows) app.engine.renderer.shadowMap.enabled = true; StoryScenes.play(id, { onDone: r => { window.__done = r; }, timeScale: 1.5, noIntro: !intro }); }, [id, first]);
+        await p.evaluate(([id, intro]) => { window.__done = null; if (window.__forceShadows) app.engine.renderer.shadowMap.enabled = true; StoryScenes.play(id, { onDone: r => { window.__done = r; }, timeScale: 6, noIntro: !intro }); }, [id, first]);
         await wait(p, () => app.engine.fightIQDemo && StoryScenes.debug?.sim && StoryScenes.stats());
         const ui = await p.evaluate(() => { const r = e => { const b = e?.getBoundingClientRect(); return b ? [b.x, b.y, b.width, b.height].map(Math.round) : null; }, tut = document.querySelector('.story-tutorial'); return { dpad: r(document.querySelector('.story-pad .fp-dpad')), btns: [...document.querySelectorAll('.story-pad .fp-btn')].map(b => [b.dataset.pad, b.textContent, ...r(b)]), tutorial: tut && !tut.hidden ? tut.innerText.replace(/\n+/g, ' | ') : null, ghost: !!document.querySelector('.story-pad [data-ghost=true]'), goalPx: parseFloat(getComputedStyle(document.querySelector('.story-goal')).fontSize), retry: !!document.querySelector('.story-retry') }; });
         console.log(tag, id, 'ui', JSON.stringify(ui));
@@ -53,16 +53,17 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
         await p.evaluate(id => {
           const KEY = { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown', straight: 'j', hook: 'k', uppercut: 'l' }, key = (k, down) => window.dispatchEvent(new KeyboardEvent(down ? 'keydown' : 'keyup', { key: KEY[k] })), tap = k => { key(k, true); key(k, false); };
           window.__pops = new Set(); window.__prompts = new Set();
-          const tick = setInterval(() => {
-            const r = StoryScenes.debug; for (const n of document.querySelectorAll('.story-pop')) window.__pops.add(n.textContent); const pr = document.querySelector('.story-prompt-text')?.textContent; if (pr) window.__prompts.add(pr);
-            if (!r || r.result) { clearInterval(tick); return; }
-            const g = r.sim; if (!g || r.intro > 0) return; const v = g.view();
+          const tick = setInterval(() => { const r = StoryScenes.debug; for (const n of document.querySelectorAll('.story-pop')) window.__pops.add(n.textContent); const pr = document.querySelector('.story-prompt-text')?.textContent; if (pr) window.__prompts.add(pr); if (!r || r.result) clearInterval(tick); }, 30);
+          // The scripted player looks at the trial before every fixed rule step (the software renderer is far below 60 fps), and answers with real key events.
+          const g = StoryScenes.debug.sim, step = g.step.bind(g);
+          g.step = dt => { bot(g.view()); return step(dt); };
+          const bot = v => {
             if (id === 'carry_bag') { if (v.phase === 'swing' && v.k >= .93) tap(v.type); else if (v.phase === 'back' && v.back > .5) tap('left'); }
             else if (id === 'snoring_guard') { if (v.phase === 'input') tap(v.seq[v.idx]); else if (v.phase === 'wake' && v.wake > .6) tap('down'); }
-            else if (id === 'rooftop_barrage') { if (v.canReflect) tap('straight'); else if (v.balloon && v.balloon.state === 'fly' && !v.balloon.marked && v.balloon.k > .62 && !v.dodge) tap(v.prompt); else if (v.balloon && v.balloon.marked && v.balloon.state === 'fly' && v.balloon.k > .9 && !v.canReflect && !v.dodge) tap(v.prompt); }
+            else if (id === 'rooftop_barrage') { if (v.canReflect) tap('straight'); else if (v.balloon && v.balloon.state === 'fly' && !v.balloon.marked && v.balloon.k > .7 && !v.dodge) tap(v.prompt); else if (v.balloon && v.balloon.marked && v.balloon.state === 'fly' && v.balloon.k > .9 && !v.canReflect && !v.dodge) tap(v.prompt); }
             else if (id === 'cut_him_off') { const [fc, fr] = v.cell.f, [rc, rr] = v.cell.rc; if (fr !== rr) tap(rr > fr ? 'down' : 'up'); else if (fc - rc > 1) tap('left'); }
             else if (id === 'hustlers_bet') { if (v.phase === 'open' && !v.punished && v.k > .1) tap('straight'); else if (v.phase === 'offer') tap('down'); }
-          }, 16);
+          };
         }, id);
         if (SHOTS && lang === 'en') { await wait(p, () => StoryScenes.debug?.result || (StoryScenes.debug?.sim?.view().progress >= .3 && document.querySelector('.story-prompt-text')?.textContent)); await p.screenshot({ path: `${SHOTS}/${id}-${W}x${H}.png`, timeout: 300000 }); }
         await wait(p, () => StoryScenes.debug?.result);

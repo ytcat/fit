@@ -70,7 +70,7 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 .story-prompt[data-kind=repeat]{color:#fff;letter-spacing:.2em}
 .story-prompt[data-now=true] .story-prompt-text{animation:story-now .16s ease-in-out infinite alternate}
 @keyframes story-now{from{transform:scale(1)}to{transform:scale(1.14)}}
-.story-ring{position:absolute;left:50%;top:50%;width:150px;height:56px;margin:0;border:3px solid currentColor;border-radius:40px;opacity:.75;pointer-events:none;transform:translate(-50%,-50%)}
+.story-ring{position:absolute;left:50%;top:50%;width:132px;height:46px;margin:0;border:2px solid currentColor;border-radius:40px;opacity:.55;pointer-events:none;transform:translate(-50%,-50%)}
 .story-prompt[data-now=true] .story-ring{opacity:1;box-shadow:0 0 18px currentColor}
 .story-pop{position:absolute;top:31%;inset-inline:0;text-align:center;font-size:clamp(20px,5.4vw,30px);font-weight:800;pointer-events:none;text-shadow:0 2px 4px #000,0 0 12px #000;animation:story-popup .7s ease-out forwards}
 .story-pop[data-kind=good]{color:#fff}.story-pop[data-kind=gold]{color:var(--gr-gold,#f4c152)}.story-pop[data-kind=bad]{color:var(--gr-danger,#ff5d5d)}

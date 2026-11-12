@@ -226,7 +226,7 @@
       hud: (v, g) => ({ goal: `${g.goal} · ${v.i}/${v.total} · ${g.count} ${v.clean}`, prompt: v.canReflect ? g.bonus : v.prompt ? g[v.prompt] : '', arrow: v.canReflect ? 'straight' : v.prompt || '', kind: v.bonus ? 'uppercut' : v.prompt ? 'hook' : '', ring: v.balloon && v.balloon.state === 'fly' ? v.balloon.k : -1, now: v.canReflect }),
       detail: (r, g) => `${g.count} ${r.clean}/${Trials().BARRAGE.count} · ★ ${r.reflected} · ${r.time} s`,
       frame(x, v) {
-        const f = x.rigs.fighter, FX = -2, FZ = -1.0, a = x.memo.act, age = a ? x.t - a.t : 9, side = a && a.k === 'right' && age < .46 ? Math.sin(Math.min(1, age / .46) * Math.PI) * .7 : 0;
+        const f = x.rigs.fighter, FX = -4.7, FZ = -1.0, a = x.memo.act, age = a ? x.t - a.t : 9, side = a && a.k === 'right' && age < .46 ? Math.sin(Math.min(1, age / .46) * Math.PI) * .7 : 0;
         x.place(f, { x: FX + side, z: FZ, ry: Math.PI }); fighterAct(f, x);
         const o = x.set.objects, b = v.balloon; o.balloon.visible = o.balloon2.visible = false;
         if (b) {
@@ -404,7 +404,7 @@
     function gameFrame(dt) {
       if (run.intro > 0) run.intro = Math.max(0, run.intro - dt);
       else if (run.freeze > 0) run.freeze -= dt; // hit-stop: the world holds for a moment on a clean hit
-      else if (!run.result) { for (let left = dt; left > 1e-6 && !sim.done; left -= .05) sim.step(Math.min(left, .05)); if (sim.done) endGame(); }
+      else if (!run.result) { for (let left = dt; left > 1e-6 && !sim.done; left -= 1 / 120) sim.step(Math.min(left, 1 / 120)); if (sim.done) endGame(); } // 120 Hz rules: timing windows do not depend on the frame rate
       const v = sim.view(), fl = v.flash;
       if (fl && fl.t !== run.flashT) { run.flashT = fl.t; pop(fl); if (['hit', 'perfect', 'reflect', 'catch', 'combo', 'double'].includes(fl.type) && !reduced) run.freeze = fl.type === 'hit' ? .05 : .09; }
       const shot = game.frame({ set, scene, rigs, sim, view: v, t: run.t, reduced, memo, extras, place, over: !!run.result, overAt: run.overAt || 0 }, v, dt);
@@ -451,7 +451,7 @@
         ui.promptKey = key; ui.pText.textContent = p; ui.prompt.dataset.kind = run.result || intro ? '' : h.kind; ui.prompt.dataset.arrow = ui.arrows[arrow] && !intro ? arrow : ''; ui.prompt.dataset.now = String(!!h.now && !intro);
         for (const k of Object.keys(ui.keys)) { ui.keys[k].dataset.active = String(arrow === k); ui.keys[k].dataset.ghost = String(intro && arrow === k); }
       }
-      const r = intro || run.result ? -1 : h.ring; ui.ring.style.display = r >= 0 ? '' : 'none'; if (r >= 0) ui.ring.style.transform = `translate(-50%,-50%) scale(${(1 + (1 - Math.min(1, r)) * 1.5).toFixed(3)})`;
+      const r = intro || run.result ? -1 : h.ring; ui.ring.style.display = r >= 0 ? '' : 'none'; if (r >= 0) ui.ring.style.transform = `translate(-50%,-50%) scale(${(1 + (1 - Math.min(1, r)) * .8).toFixed(3)})`;
     }
     function endGame() {
       const A = window.AdventureProgress, res = sim.result(A?.starsFor); run.result = res; run.overAt = run.t;
