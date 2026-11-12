@@ -348,6 +348,8 @@ float n2 = wNoise(vWW * 0.07 - vec2(wTime * 0.02, -wTime * 0.015));
 vec3 wc = mix(wMid, wDeep, smoothstep(1.5, 11.0, dist + (n1 - 0.5) * 3.0));
 wc = mix(wc, wAbyss, smoothstep(15.0, 34.0, dist));
 wc = mix(wc, wShallow, 1.0 - smoothstep(0.3, 5.0, dNat + (n1 - 0.5) * 1.4));
+{ float ca = sin(vWW.x * 1.3 + wTime * 1.1) + sin(vWW.y * 1.7 - wTime * 1.3) + sin((vWW.x + vWW.y) * 1.1 + wTime * 0.7) + sin((vWW.x - vWW.y) * 1.9 - wTime * 0.9);
+  wc += wFoam * (1.0 - smoothstep(0.0, 0.55, abs(ca))) * 0.2 * (1.0 - smoothstep(1.0, 8.0, dNat)) * smoothstep(0.5, 1.2, dNat); }
 wc *= 0.95 + 0.1 * n2;
 float band = sin(dNat * 2.4 - wTime * 1.6 + n1 * 5.0);
 float foam = smoothstep(0.62, 0.0, dist) * mix(0.45, 0.9, 1.0 - smoothstep(0.0, 2.0, dNat)) + smoothstep(0.82, 0.98, band) * (1.0 - smoothstep(0.4, 3.4, dNat)) * 0.55;
@@ -404,8 +406,30 @@ const DOME = (() => { const b = qpt(27, 0); return { x: b[0] - QW[0] * 22, z: b[
 const TECH = { x: 99, z: 57 };
 
 /* ------------------------------------------------------------------ build */
+/* Time-of-day grades (GOTR-0061): sun direction/colour, sky fill and haze. 'day' stays the neutral default. */
+const GRADES = {
+  day: { dir: [-.62, .72, .32], sun: 0xfff0d6, sunI: 1.55, sky: 0xd9eeff, gnd: 0xcdb88c, hemiI: .62, amb: 0xffffff, ambI: .05, fog: 0xcfe4ee, bg: 0xbfdcec },
+  morning: { dir: [.48, .52, .7], sun: 0xffe0b4, sunI: 1.7, sky: 0xcfe4ff, gnd: 0xdcb88c, hemiI: .5, amb: 0xfff0e0, ambI: .04, fog: 0xd6dcda, bg: 0xdfd9cc },
+  evening: { dir: [-.78, .4, .3], sun: 0xffa868, sunI: 1.55, sky: 0xb7a6ea, gnd: 0xdc9a70, hemiI: .56, amb: 0xffd0c0, ambI: .06, fog: 0xf1bfa2, bg: 0xeeb596 },
+  night: { dir: [.45, .8, -.4], sun: 0x8fa8ff, sunI: .22, sky: 0x3a4f9a, gnd: 0x15142a, hemiI: .2, amb: 0x232a5c, ambI: .1, fog: 0x161b38, bg: 0x0d1128 }
+};
+/** Drifting cloud shadows: one shared time uniform, a few sines per fragment, added to any lit material. */
+function withClouds(mat, u) {
+  const prev = mat.onBeforeCompile, key = mat.customProgramCacheKey && prev ? mat.customProgramCacheKey() : '';
+  mat.onBeforeCompile = (sh, r) => {
+    if (prev) prev(sh, r);
+    sh.uniforms.cTime = u;
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vCl;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\n{ vec4 cw = vec4( transformed, 1.0 );\n#ifdef USE_INSTANCING\n cw = instanceMatrix * cw;\n#endif\n vCl = ( modelMatrix * cw ).xz; }');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vCl; uniform float cTime;')
+      .replace('#include <dithering_fragment>', '{ vec2 q = vCl * 0.021 + vec2( cTime * 0.016, cTime * 0.009 ); float c = sin( q.x * 1.9 + sin( q.y * 1.3 ) ) * sin( q.y * 2.3 + sin( q.x * 1.1 ) ) + 0.45 * sin( q.x * 4.1 - q.y * 3.3 ); gl_FragColor.rgb *= 1.0 - 0.17 * smoothstep( 0.3, 0.85, c ); }\n#include <dithering_fragment>');
+  };
+  mat.customProgramCacheKey = () => 'cl|' + key;
+  return mat;
+}
 function build(scene, opts = {}) {
-  const NIGHT = opts.time === 'night';
+  const TIME = GRADES[opts.time] ? opts.time : 'day', GR = GRADES[TIME], LOW = opts.quality === 'low';
+  const NIGHT = TIME === 'night';
   R = mulberry(opts.seed || 20261111);
   initProtos();
   const aniso = opts.renderer ? Math.min(8, opts.renderer.capabilities.getMaxAnisotropy()) : 4;
@@ -415,7 +439,8 @@ function build(scene, opts = {}) {
     NIGHT, group, debugGrid: !!opts.debugGrid,
     solid: new Batch(), ground: new Batch(), marks: new Batch(), glowSolid: new Batch(), beams: new Batch(),
     facade: {}, inst: {}, glow: { p: [], c: [], s: [], ph: [] }, pools: [], signs: [], places: [], blocks: [], roads: [], cars: [],
-    reserve: [], animated: [], paint: [], occ: [], beamList: []
+    reserve: [], animated: [], paint: [], occ: [], beamList: [], ao: new Batch(), movers: [], low: LOW, time: TIME,
+    cloudU: !NIGHT && !LOW ? { value: 0 } : null
   };
   for (const s of Object.keys(FACADE)) W.facade[s] = new Batch({ uv: true, tint: true });
 
@@ -429,7 +454,7 @@ function build(scene, opts = {}) {
   /* ---- materials and meshes */
   const groundTex = paintGround(W);
   const facadeTex = paintFacades(NIGHT, aniso);
-  const add = (mesh, cast = true, recv = true) => { mesh.castShadow = cast; mesh.receiveShadow = recv; mesh.matrixAutoUpdate = false; mesh.updateMatrix(); group.add(mesh); disposables.push(mesh.geometry, mesh.material); return mesh; };
+  const add = (mesh, cast = true, recv = true) => { mesh.castShadow = cast; mesh.receiveShadow = recv; mesh.matrixAutoUpdate = false; mesh.updateMatrix(); group.add(mesh); disposables.push(mesh.geometry, mesh.material); if (W.cloudU && mesh.material.isMeshStandardMaterial && recv) withClouds(mesh.material, W.cloudU); return mesh; };
   const solidMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0 });
   add(new THREE.Mesh(W.solid.geometry(), solidMat)).name = 'solid';
   const gm = groundMaterial(groundTex); disposables.push(groundTex);
@@ -444,6 +469,7 @@ function build(scene, opts = {}) {
     add(new THREE.Mesh(W.facade[s].geometry(), mat)).name = 'facade ' + s;
   }
   if (W.glowSolid.tris) add(new THREE.Mesh(W.glowSolid.geometry(), new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false })), false, false).name = 'lit';
+  if (W.ao.tris) { const m = add(new THREE.Mesh(W.ao.geometry(), new THREE.MeshBasicMaterial({ vertexColors: true, blending: THREE.MultiplyBlending, transparent: true, depthWrite: false, fog: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 })), false, false); m.name = 'contact shadows'; m.renderOrder = 2; }
   buildWater(W, add, disposables);
   buildInstances(W, add);
   buildSigns(W, add, disposables);
@@ -452,18 +478,19 @@ function build(scene, opts = {}) {
   if (W.clouds && W.clouds.tris) add(new THREE.Mesh(W.clouds.geometry(), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, emissive: new THREE.Color(.16, .17, .19) })), false, false).name = 'clouds';
 
   /* ---- lights and atmosphere */
-  const sunDir = NIGHT ? new THREE.Vector3(0.45, 0.8, -0.4).normalize() : new THREE.Vector3(-0.62, 0.72, 0.32).normalize();
-  const hemi = NIGHT ? new THREE.HemisphereLight(0x3a4f9a, 0x15142a, 0.2) : new THREE.HemisphereLight(0xd9eeff, 0xcdb88c, 0.62);
-  const sun = new THREE.DirectionalLight(NIGHT ? 0x8fa8ff : 0xfff0d6, NIGHT ? 0.22 : 1.55);
-  sun.castShadow = true; sun.shadow.mapSize.set(opts.shadowSize || 2048, opts.shadowSize || 2048); // 2048 for phones
-  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
+  const sunDir = new THREE.Vector3(...GR.dir).normalize();
+  const hemi = new THREE.HemisphereLight(GR.sky, GR.gnd, GR.hemiI);
+  const sun = new THREE.DirectionalLight(GR.sun, GR.sunI);
+  const shadowSize = opts.shadowSize || (LOW ? 1024 : 2048);
+  sun.castShadow = true; sun.shadow.mapSize.set(shadowSize, shadowSize);
+  sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.045; sun.shadow.radius = LOW ? 1.5 : 2.5;
   const sc = sun.shadow.camera; sc.near = 1; sc.far = 600;
-  const amb = new THREE.AmbientLight(NIGHT ? 0x232a5c : 0xffffff, NIGHT ? 0.1 : 0.05);
+  const amb = new THREE.AmbientLight(GR.amb, GR.ambI);
   group.add(hemi, sun, sun.target, amb);
-  const fogColor = new THREE.Color(NIGHT ? 0x161b38 : 0xcfe4ee);
+  const fogColor = new THREE.Color(GR.fog);
   if (opts.environment !== false) {
     scene.fog = new THREE.Fog(fogColor, 260, 700);
-    scene.background = new THREE.Color(NIGHT ? 0x0d1128 : 0xbfdcec);
+    scene.background = new THREE.Color(GR.bg);
   }
   function focusShadows(x, z, radius) {
     sun.target.position.set(x, 0, z); sun.target.updateMatrixWorld();
@@ -476,6 +503,7 @@ function build(scene, opts = {}) {
   let t = 0;
   function update(dt, camera, renderer) {
     t += dt;
+    if (W.cloudU) W.cloudU.value = t;
     if (W.waterMat) W.waterMat.userData.u.wTime.value = t;
     if (W.glowMat) {
       W.glowMat.uniforms.uTime.value = t;
@@ -492,7 +520,12 @@ function build(scene, opts = {}) {
     });
     return { meshes, instances: inst, triangles: Math.round(tris) };
   }
+  buildMovers(W);
+  const halo = buildHalo(W, disposables);
+  const setCurrent = id => { const p = W.places.find(q => q.id === id); halo.set(p || null); };
+  setCurrent((W.places.find(q => q.state === 'current') || {}).id);
   return {
+    time: TIME, quality: LOW ? 'low' : 'high', setCurrent,
     group, places: W.places, route: (a, b) => streetRoute(W, a, b), sun, hemi, fogColor, night: NIGHT, focusShadows, update, stats,
     bounds: { x0: -108, x1: 108, z0: -74, z1: 66 },
     dispose() { scene.remove(group); for (const d of disposables) d && d.dispose && d.dispose(); }
@@ -690,6 +723,7 @@ function building(W, o) {
   const shopH = o.shop ? FACADE.shop.floor : 0;
   const top = y0 + shopH + o.floors * st.floor;
   const corners = [fr.p(-hw, hd), fr.p(hw, hd), fr.p(hw, -hd), fr.p(-hw, -hd)]; // front-left, front-right, back-right, back-left
+  if (W.ao && y0 <= BLOCK_Y + .02) contactShadow(W, corners, y0 + .012, Math.min(1.1, .5 + o.floors * .08));
   const uOff = rint(0, 3) / 4, vOff = o.style === 'industrial' ? 0 : rint(0, 3) / 4;
   const wallBand = (style, yA, yB, tint, sidesMask, aoA, aoB) => {
     const s = FACADE[style], B = W.facade[style];
@@ -720,6 +754,19 @@ function building(W, o) {
   return top;
 }
 function shade(c, k) { return c.clone().multiplyScalar(k); }
+/** Baked-look ambient occlusion: a soft dark skirt on the ground around a convex footprint (multiply blended). */
+function contactShadow(W, pts, y, wd, k = .6) {
+  let cx = 0, cz = 0; for (const p of pts) { cx += p[0]; cz += p[1]; } cx /= pts.length; cz /= pts.length;
+  const n = pts.length, dark = new THREE.Color(k, k, k + .04), white = new THREE.Color(1, 1, 1), out = [];
+  for (let i = 0; i < n; i++) { const a = pts[i], b = pts[(i + 1) % n]; let ox = (a[0] + b[0]) / 2 - cx, oz = (a[1] + b[1]) / 2 - cz; const ex = b[0] - a[0], ez = b[1] - a[1], el = Math.hypot(ex, ez) || 1; let nx = -ez / el, nz = ex / el; if (nx * ox + nz * oz < 0) { nx = -nx; nz = -nz; } out.push([nx * wd, nz * wd]); }
+  for (let i = 0; i < n; i++) {
+    const a = pts[i], b = pts[(i + 1) % n], o = out[i], pv = out[(i + n - 1) % n];
+    W.ao.quadF([a[0], y, a[1]], [b[0], y, b[1]], [b[0] + o[0], y, b[1] + o[1]], [a[0] + o[0], y, a[1] + o[1]], white, dark, [0, 1, 0]);
+    const t = [[a[0], y, a[1]], [a[0] + pv[0], y, a[1] + pv[1]], [a[0] + o[0], y, a[1] + o[1]]];
+    const ux = t[1][0] - t[0][0], uz = t[1][2] - t[0][2], vx = t[2][0] - t[0][0], vz = t[2][2] - t[0][2];
+    if (uz * vx - ux * vz >= 0) W.ao.tri(t[0], t[1], t[2], dark, white, white); else W.ao.tri(t[0], t[2], t[1], dark, white, white);
+  }
+}
 function flatRoof(W, fr, w, d, y, roofC, parC, details) {
   const hw = w / 2, hd = d / 2, t = 0.16, ph = 0.28;
   W.solid.add(P.box, M(...xyz(fr, 0, y, 0), w - .02, .06, d - .02, fr.ry), roofC);
@@ -1223,8 +1270,9 @@ function waterfront(W) {
   for (let z = 41.5; z < 52; z += 1.6) addInst(W, 'boats', { x: 24.6 + rnd(-.1, .2), y: 0, z, s: rnd(.8, 1), ry: Math.PI / 2 + rnd(-.05, .05), color: pick(['#ffffff', '#f2efe6', '#e4eef5', '#ffffff']) });
   for (let z = 42; z < 51; z += 2.1) addInst(W, 'sailboats', { x: 27.5, y: 0, z, s: rnd(.85, 1), ry: Math.PI / 2 + rnd(-.1, .1), color: pick(['#ffffff', '#f1ece2']) });
   beam(W.solid, [26.1, .45, 41], [26.1, .45, 52.5], .5, C('#a7835c'), .12);
-  for (const [x, z, ry, s] of [[46, 52, .4, 1], [64, 58, -.3, 1.1], [-40, 40, .9, 1], [-56, 56, 2.3, .9], [10, 66, 1.4, 1.1], [80, 52, 2.8, 1], [-30, 58, 1.9, 1]]) addInst(W, 'sailboats', { x, y: 0, z, s, ry, color: '#ffffff' });
-  for (const [x, z, ry, s] of [[-58, 70, 2.6, 1], [-46, 76, 2.4, .9], [-66, 78, 2.7, 1], [-30, 82, 2.5, 1], [40, 70, .5, 1], [-120, 30, 1.2, 1], [-112, 64, .4, 1]]) addInst(W, 'sailboats', { x, y: 0, z, s, ry, color: '#ffffff' });
+  for (const [x, z, ry, s] of [[46, 52, .4, 1], [64, 58, -.3, 1.1], [-40, 40, .9, 1], [-56, 56, 2.3, .9], [10, 66, 1.4, 1.1], [80, 52, 2.8, 1], [-30, 58, 1.9, 1]]) addInst(W, 'sailboats', { x, y: 0, z, s, ry, color: '#ffffff', mv: { type: 'orbit', r: rnd(7, 13), w: rnd(.018, .04) * pick([-1, 1]), ph: rnd(0, TAU) } });
+  for (const [x, z, ry, s] of [[-58, 70, 2.6, 1], [-46, 76, 2.4, .9], [-66, 78, 2.7, 1], [-30, 82, 2.5, 1], [40, 70, .5, 1], [-120, 30, 1.2, 1], [-112, 64, .4, 1]]) addInst(W, 'sailboats', { x, y: 0, z, s, ry, color: '#ffffff', mv: { type: 'orbit', r: rnd(9, 16), w: rnd(.015, .035) * pick([-1, 1]), ph: rnd(0, TAU) } });
+  if (!W.NIGHT && !W.low) for (const [bx, bz, by] of [[-48, 44, 17], [-8, -54, 24], [62, 46, 15], [8, 58, 13]]) for (let k = 0; k < 6; k++) addInst(W, 'birds', { x: bx, y: by + rnd(-2, 2), z: bz, s: rnd(.8, 1.1), mv: { type: 'orbit', r: rnd(5, 11), w: rnd(.16, .26), ph: rnd(0, TAU), bob: rnd(.4, 1) } });
   { const fx = -44, fz = 30, fry = -2.3; addInst(W, 'ferries', { x: fx, y: 0, z: fz, s: 1, ry: fry }); wake(W, fx, fz, fry, 1.8); }
   for (let k = 0; k < 7; k++) { const z = 58 + k * 4; for (const x of [-26, -8]) { W.solid.add(P.cone6, M(x + k * .6, -.1, z, .28, .7, .28), C(x < -10 ? '#e8473b' : '#3fa66b')); glow(W, x + k * .6, .7, z, x < -10 ? '#ff3b30' : '#3bff6a', .8, .9); } }
   for (const [x, z, ry] of [[36, 48, .2], [-48, 32, -2.2], [58, 46, 2.8], [-8, 64, .9], [-66, 40, 1.2], [-90, 78, .3], [20, 80, 1.8]]) { addInst(W, 'boats', { x, y: 0, z, s: 1.1, ry, color: pick(['#ffffff', '#f2c14e', '#e8473b']) }); wake(W, x, z, ry); }
@@ -1356,7 +1404,9 @@ function marketRow(W) {
     for (let k = 0; k < n; k++) { const a = -.9 + k * 1.8 / n, bb = a + 1.8 / n; W.solid.quadF(p(a, 1.68, -.5), p(bb, 1.68, -.5), p(bb, 1.4, .72), p(a, 1.4, .72), k % 2 ? bc : ac, k % 2 ? bc : ac, sub3(p(0, 2, .6), p(0, 1, -.2))); }
     if (chance(.8)) addInst(W, 'people', { x: x + rnd(-1, 1), y: BLOCK_Y, z: z + rnd(-.6, .6) * (w > 0 ? -1 : 1) + (w > 0 ? -1.3 : 1.3) * Math.cos(ry), s: 1, color: pick(PAL.car) });
   }
-  for (let k = 0; k < 150; k++) { const [x, z] = at(rnd(-.5, 49.5), chance(.6) ? rnd(-.7, .7) : pick([-1, 1]) * rnd(2.5, 3.2)); addInst(W, 'people', { x, y: BLOCK_Y, z, s: rnd(.95, 1.05), color: pick(PAL.car) }); }
+  for (let k = 0; k < 150; k++) { const u = rnd(-.5, 49.5), wv = chance(.6) ? rnd(-.7, .7) : pick([-1, 1]) * rnd(2.5, 3.2), [x, z] = at(u, wv), o = { x, y: BLOCK_Y, z, s: rnd(.95, 1.05), color: pick(PAL.car) };
+    if (k % 3 === 0) { const u0 = Math.max(0, u - rnd(4, 12)), u1 = Math.min(49, u + rnd(4, 12)); o.mv = { type: 'lane', a: at(u0, wv), b: at(u1, wv), off: .22, speed: rnd(.3, .55), s0: u - u0 }; }
+    addInst(W, 'people', o); }
   for (let u = 3.7; u < 48; u += rnd(4, 7)) { const [x, z] = at(u, 0); addInst(W, 'umbrellas', { x, y: BLOCK_Y, z, s: rnd(1.1, 1.3), color: pick(['#e8473b', '#f2c14e', '#2fa59a', '#ffffff', '#f07f3c']) }); }
   for (let u = 1; u < 49; u += 2.2) for (const w of [-3.15, 3.15]) if (chance(.45)) { const [x, z] = at(u, w); W.solid.add(P.box, M(x, BLOCK_Y, z, .45, .3, .35, rnd(0, 1)), C(pick(['#b98a5a', '#9c7350', '#c9a06a']))); W.solid.add(P.ico, M(x, BLOCK_Y + .33, z, .16, .1, .14), C(pick(['#e2574c', '#f2c14e', '#7bc06b', '#f08a3c']))); }
   // string lights zig-zag over the street
@@ -1678,6 +1728,10 @@ function stadium(W, cx, cz, y0) {
   ellipseWall(B, cx, cz, A * .8, Bz * .8, y0 + 1.7, y0 + 2.05, N, () => C('#e9e5dd'), true);
   ellipseRing(B, cx, cz, A, Bz, .79, .64, y0 + 1.7, y0 + .95, N, (k, a) => seat(k, a).lerp(C('#2a2f3a'), .35));
   ellipseWall(B, cx, cz, A * .64, Bz * .64, y0 + .8, y0 + .95, N, () => C('#f4f4f4'), true);
+  if (!W.low) for (let k = 0; k < 520; k++) { // the crowd: specks of colour on both tiers
+    const a = rnd(0, TAU), up = chance(.45), sc = up ? rnd(.81, .95) : rnd(.65, .78), yy = up ? lerp(y0 + 2.05, y0 + 3.45, (sc - .8) / .16) : lerp(y0 + .95, y0 + 1.7, (sc - .64) / .15);
+    addInst(W, 'people', { x: cx + Math.cos(a) * A * sc, y: yy - .05, z: cz + Math.sin(a) * Bz * sc, s: .9, color: pick(['#ffffff', '#f4c152', '#e11d2e', '#2b62d9', '#f6f1e6', '#ff8a3c', '#1f2633', '#ffffff']) });
+  }
   // arena floor with the ring
   ellipseRing(B, cx, cz, A, Bz, .64, 0, y0 + .82, y0 + .82, N, () => C('#28324a'));
   const ry = 0;
@@ -2097,7 +2151,7 @@ function buildVegetation(W) {
   for (let x = -126; x < 146; x += 2.1) for (let z = -84; z < 66; z += 2.1) {
     if ((x > 116 || x < -114) && (x + z) % 4.2 > 2.1) continue;
     const px = x + rnd(-.9, .9), pz = z + rnd(-.9, .9);
-    if (busy(px, pz)) continue;
+    if (busy(px, pz) || (W.low && (Math.round(x * 10) + Math.round(z * 10)) % 2)) continue;
     const d = fbm(px * .06 + 11, pz * .06 - 4), p = d > .54 ? .9 : d > .45 ? .45 : .08;
     if (!chance(p)) continue;
     addInst(W, chance(d > .56 ? .45 : .2) ? 'pines' : 'trees', { x: px, y: LAND_Y, z: pz, s: rnd(.8, 1.25) });
@@ -2139,7 +2193,11 @@ function buildTraffic(W) {
     for (let i = 0; i < r.pts.length - 1; i++) {
       const a = r.pts[i], b = r.pts[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, nx = -uz, nz = ux;
       if (r.lanes) for (const o of r.lanes) dashes(a, b, o, o === 0 && r.w > 3.6 ? C(PAL.lineY) : lc);
-      if (r.w >= 3) { const lanes = r.w > 8 ? [-3.6, -1.2, 1.2, 3.6] : [-r.w / 4, r.w / 4]; for (let t = rnd(2, 6); t < L - 2; t += rnd(5, 10)) { const o = pick(lanes), dir = o > 0 ? 1 : -1; car(a[0] + ux * t + nx * o, a[1] + uz * t + nz * o, Math.atan2(ux * dir, uz * dir)); } }
+      if (r.w >= 3) { // these cars drive: out along one lane and back along the other
+        const off = r.w > 8 ? 3.6 : r.w / 4, A = [a[0] + ux * 1.5, a[1] + uz * 1.5], Bp = [Math.min(b[0], 114) === b[0] ? b[0] - ux * 1.5 : 114, b[1] - uz * 1.5], Lm = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]);
+        if (Lm > 6) for (let t = rnd(1, 5); t < 2 * Lm; t += rnd(6, 12)) { const mv = { type: 'lane', a: A, b: Bp, off, speed: rnd(2.6, 3.8), s0: t }; addInst(W, 'cars', { x: 0, y: LAND_Y, z: 0, s: 1, ry: 0, color: pick(PAL.car), mv }); if (W.NIGHT) addInst(W, 'carlights', { x: 0, y: LAND_Y, z: 0, s: 1, ry: 0, mv }); }
+        if (r.w > 8) for (const s0 of [4, 70]) addInst(W, 'trams', { x: 0, y: LAND_Y, z: 0, s: 1, ry: 0, mv: { type: 'lane', a: [30, a[1]], b: [112, b[1]], off: 1.25, speed: 2.4, s0 } });
+      }
     }
   }
 }
@@ -2163,6 +2221,18 @@ function pineGeo() {
 function umbrellaGeo() { const b = new Batch(); b.add(P.cyl5, M(0, 0, 0, .03, 1.15, .03), C('#d8d2c6')); b.add(P.cone8, M(0, .92, 0, .66, .32, .66), C('#ffffff')); return b.geometry(); }
 function personGeo() { const b = new Batch(); b.add(P.box, M(0, 0, 0, .17, .4, .12), C('#ffffff'), { ao: .5 }); b.add(P.box, M(0, .4, 0, .12, .13, .12), C('#f3dcc2')); return b.geometry(); }
 function lampGeo() { const b = new Batch(), c = C('#3d434e'); b.add(P.cyl5, M(0, 0, 0, .05, 1.66, .05), c); b.add(P.box, M(0, 1.6, .2, .05, .05, .44), c); b.add(P.box, M(0, 1.53, .42, .16, .08, .26), c); return b.geometry(); }
+function tramGeo() {
+  const b = new Batch();
+  b.add(P.box, M(0, .1, 0, .62, .2, 3.3), C('#2a2f3a'));
+  b.add(P.box, M(0, .3, 0, .66, .34, 3.4), C('#e11d2e'));
+  b.add(P.box, M(0, .64, 0, .67, .3, 3.3), C('#2c3644'));
+  b.add(P.box, M(0, .94, 0, .66, .1, 3.4), C('#f6f1e6'));
+  for (let k = -2; k <= 2; k++) b.add(P.box, M(0, .64, k * .66, .69, .3, .07), C('#f6f1e6'));
+  b.add(P.box, M(0, 1.04, .5, .06, .3, .06), C('#3a3f48'));
+  return b.geometry();
+}
+function carLightGeo() { const b = new Batch(); for (const x of [-.17, .17]) { b.add(P.box, M(x, .2, .56, .1, .08, .03), new THREE.Color(1, .95, .75)); b.add(P.box, M(x, .2, -.58, .1, .07, .03), new THREE.Color(1, .12, .08)); } b.add(P.box, M(0, .02, 1.5, .5, .01, 1.5), new THREE.Color(.22, .2, .13)); return b.geometry(); }
+function birdGeo() { const b = new Batch(), w = C('#ffffff'), g = C('#dfe6ee'); for (const s of [-1, 1]) { b.tri([0, 0, .12], [s * .55, .08, -.1], [0, 0, -.14], w); b.tri([0, 0, .12], [0, 0, -.14], [s * .55, .08, -.1], g); } return b.geometry(); }
 function carGeo() {
   const b = new Batch(), glass = C('#2c3644');
   b.add(P.box, M(0, .09, 0, .5, .25, 1.12), C('#ffffff'));
@@ -2227,20 +2297,63 @@ function buildInstances(W, add) {
   const kinds = {
     trees: { geo: treeGeo, colors: PAL.leaf }, bushes: { geo: bushGeo, colors: PAL.leaf }, pines: { geo: pineGeo, colors: PAL.pine },
     palms: { geo: palmGeo, colors: ['#ffffff', '#f0f4e8', '#e8f0e0'] }, umbrellas: { geo: umbrellaGeo, shadow: false }, people: { geo: personGeo, shadow: false },
+    trams: { geo: tramGeo }, birds: { geo: birdGeo, shadow: false, basic: true }, carlights: { geo: carLightGeo, shadow: false, basic: true },
     lamps: { geo: lampGeo }, cars: { geo: carGeo }, boats: { geo: boatGeo }, sailboats: { geo: sailGeo }, tugs: { geo: tugGeo }, ferries: { geo: ferryGeo },
     containers: { geo: containerGeo, map: true }
   };
-  for (const [k, def] of Object.entries(kinds)) {
-    const list = W.inst[k]; if (!list || !list.length) continue;
-    const geo = def.geo(), mat = new THREE.MeshStandardMaterial({ vertexColors: !def.map, roughness: k === 'cars' ? .45 : .85, map: def.map ? ribTexture() : null });
+  // movers get their own mesh per kind: they cast no shadow (the shadow map only refreshes when the view changes)
+  for (const [k, def] of Object.entries(kinds)) for (const moving of [false, true]) {
+    const list = (W.inst[k] || []).filter(o => !!o.mv === moving); if (!list.length) continue;
+    const geo = def.geo(), mat = def.basic ? new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, side: THREE.DoubleSide }) : new THREE.MeshStandardMaterial({ vertexColors: !def.map, roughness: k === 'cars' ? .45 : .85, map: def.map ? ribTexture() : null });
     if (def.map) W.disposables.push(mat.map);
     const mesh = new THREE.InstancedMesh(geo, mat, list.length), col = new THREE.Color();
     list.forEach((o, i) => {
       mesh.setMatrixAt(i, M(o.x, o.y, o.z, o.s, o.s * (o.sy || 1), o.s, o.ry ?? rnd(0, TAU)));
       col.copy(C(o.color || (def.colors ? pick(def.colors) : '#ffffff'))); mesh.setColorAt(i, col);
+      if (moving) { if (o.mv.type === 'orbit') { o.mv.cx = o.x - Math.cos(o.mv.ph) * o.mv.r; o.mv.cz = o.z - Math.sin(o.mv.ph) * o.mv.r; } W.movers.push({ mesh, i, o }); }
     });
-    mesh.name = k; add(mesh, def.shadow !== false, true);
+    mesh.name = k + (moving ? ' moving' : ''); if (moving) mesh.frustumCulled = false; add(mesh, def.shadow !== false && !moving, !def.basic);
   }
+}
+/** Life: cars, tram, walkers, boats and birds follow simple lane or orbit paths; one matrix write each per frame. */
+function buildMovers(W) {
+  if (!W.movers.length) return;
+  const meshes = [...new Set(W.movers.map(m => m.mesh))];
+  const step = t => {
+    for (const { mesh, i, o } of W.movers) {
+      const m = o.mv; let x, z, ry, y = o.y;
+      if (m.type === 'lane') {
+        const dx = m.b[0] - m.a[0], dz = m.b[1] - m.a[1], L = Math.hypot(dx, dz) || 1, ux = dx / L, uz = dz / L, nx = -uz, nz = ux;
+        const s = (m.s0 + m.speed * t) % (2 * L);
+        if (s < L) { x = m.a[0] + ux * s + nx * m.off; z = m.a[1] + uz * s + nz * m.off; ry = Math.atan2(ux, uz); }
+        else { const q = s - L; x = m.b[0] - ux * q - nx * m.off; z = m.b[1] - uz * q - nz * m.off; ry = Math.atan2(-ux, -uz); }
+      } else {
+        const a = m.ph + m.w * t; x = m.cx + Math.cos(a) * m.r; z = m.cz + Math.sin(a) * m.r; ry = Math.atan2(-Math.sin(a) * Math.sign(m.w), Math.cos(a) * Math.sign(m.w));
+        if (m.bob) y += Math.sin(t * 1.3 + m.ph * 3) * m.bob;
+      }
+      const flap = m.bob ? .55 + .45 * Math.abs(Math.sin(t * 7 + m.ph * 5)) : 1;
+      mesh.setMatrixAt(i, M(x, y, z, o.s * flap, o.s, o.s, ry));
+    }
+    for (const m of meshes) m.instanceMatrix.needsUpdate = true;
+  };
+  step(0);
+  if (!W.low) W.animated.push(step);
+}
+/** Soft pulsing beacon on the current chapter's landmark (gold light column and ground ring). */
+function buildHalo(W, disposables) {
+  const B = new Batch(), n = 20, c0 = new THREE.Color(.11, .08, .028), c1 = new THREE.Color(0, 0, 0);
+  for (let k = 0; k < n; k++) {
+    const a0 = k / n * TAU, a1 = (k + 1) / n * TAU, p = (a, r, y) => [Math.cos(a) * r, y, Math.sin(a) * r];
+    B.quad(p(a0, 1, 0), p(a1, 1, 0), p(a1, 1.05, 1), p(a0, 1.05, 1), c1, c0);
+    B.quad(p(a0, 1.02, .001), p(a1, 1.02, .001), p(a1, 1.9, .001), p(a0, 1.9, .001), c1, c0);
+  }
+  const mat = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, toneMapped: false, fog: false });
+  const mesh = new THREE.Mesh(B.geometry(), mat); mesh.name = 'current place halo'; mesh.visible = false; mesh.renderOrder = 6; mesh.frustumCulled = false;
+  W.group.add(mesh); disposables.push(mesh.geometry, mat);
+  const k0 = W.NIGHT ? 1.6 : 1;
+  mat.color.setScalar(k0);
+  W.animated.push(t => { if (mesh.visible) mat.color.setScalar(k0 * (.75 + .25 * Math.sin(t * 2.2))); });
+  return { set(p) { mesh.visible = !!p; if (!p) return; const f = p.focus || { x: p.anchor.x, z: p.anchor.z }; mesh.position.set(p.anchor.x, 0, p.anchor.z); mesh.scale.set(5, Math.max(7, p.anchor.y + 3), 5); void f; } };
 }
 
 /* ------------------------------------------------------------------ painted ground */
@@ -2403,7 +2516,7 @@ function spokeLights(wh) {
   return b.geometry();
 }
 
-root.GlorylandMap = { build, LAND_Y, BLOCK_Y, PAL,
+root.GlorylandMap = { GRADES, gradeForChapter: n => ({ 1: 'morning', 2: 'evening', 3: 'night', 4: 'night', 5: 'night' })[n] || 'day', build, LAND_Y, BLOCK_Y, PAL,
   // Building pieces for small street-scale story sets (adventure/story/story-sets.js). W = { solid: Batch, facade: { style: Batch({ uv, tint }) } }.
   kit: { Batch, M, P, initProtos, FACADE, paintFacades, facadeMaterial, building, awnings, frame, C, seed: s => { R = mulberry(s); } } };
 })(typeof window !== 'undefined' ? window : globalThis);
