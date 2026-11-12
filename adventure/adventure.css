@@ -77,7 +77,7 @@
 @media (prefers-reduced-motion:reduce){.adv-route-dot.on{animation:none}.adv-card,.adv-prog-fill,.adv-route-dot{transition:none}.adv-pulse .adv-dot,.adv-nextpin .adv-dot{animation:none}}
 
 /* GOTR-0060: the peek ends cleanly after the tile row (nothing of the next block shows) and respects the phone's safe area */
-.adv-card:not(.open)>:not(.adv-handle):not(.adv-card-head):not(.adv-prog-wrap):not(.adv-tiles):not(.adv-goal-line):not(.adv-recap):not(.adv-primary){display:none}
+.adv-card:not(.open)>:not(.adv-handle):not(.adv-card-head):not(.adv-prog-wrap):not(.adv-tiles):not(.adv-goal-line):not(.adv-recap):not(.adv-primary):not(.sf-quest){display:none}
 .adv-card:not(.open){padding-bottom:4px}
 .adv-tile-name{max-width:58px}
 @media (max-width:520px){.game-dialog.adv-dialog{padding-bottom:max(6px,env(safe-area-inset-bottom))}}

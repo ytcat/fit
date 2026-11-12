@@ -163,28 +163,29 @@
       head.append(titles, button('×', () => { card.hidden = true; }, 'adv-card-close'));
       card.append(head);
       // icons instead of sentences: coach, boss level, stars
-      if (info.coach && cinfo) {
+      const story = (p.id === 'oldtown' || p.id === 'market') && !!window.AdventureOldTown && !!window.StoryFlow; // GOTR-0069: the quest panel carries progress and level
+      if (info.coach && cinfo && !story) {
         const stars = A.missions.filter(m => m.chapter === chap).reduce((n, m) => n + (g.adventure?.missions[m.id]?.stars || 0), 0);
         const d = el('div', 'adv-glance');
         const fact = (icon, text, label) => { const f = el('span', 'adv-fact'); f.append(el('i', '', icon), document.createTextNode(text)); f.title = label; f.setAttribute('aria-label', label); return f; };
         d.append(fact(COACH_ICON[cinfo.coach] || '🐾', T(info.coach).split(/[,·]/)[0], `${w.coach}: ${T(info.coach)}`), fact('🥊', `Lv ${info.level}`, `${w.boss}: ${T(info.boss)} · ${w.entry} ${info.level}`), fact('★', `${stars}/${A.missions.filter(m => m.chapter === chap).length * 3}`, ''));
         card.append(d, progressBar(chap));
       } else if (info.sub && p.kind !== 'chapter') card.append(el('p', 'adv-sub-line', T(info.sub)));
-      if (p.id === 'market') window.AdventureOldTown?.chapterIntro(2);
       const town = (p.id === 'oldtown' || p.id === 'market') && window.AdventureOldTown ? AdventureOldTown.render(ctx, { select: id => { const q = map?.places.find(z => z.id === id); if (q) select(q); }, chapter: p.id === 'market' ? 2 : 1, expand: () => { card.classList.add('open'); handle.setAttribute('aria-expanded', 'true'); } }) : null;
       const tiles = el('div', 'adv-tiles');
-      if (town) tiles.append(...town.tiles);
+      if (town?.quest) card.append(town.quest); else if (town) tiles.append(...town.tiles);
       const sideZone = A.sideZones.find(z => z.chapter === chap && A.chapterOpen(g, chap, false)), sp = sideZone && map.places.find(q => q.id === sideZone.id);
       if (sp) { const t = button('', () => select(sp), 'adv-tile adv-tile-side'); t.append(el('i', 'adv-tile-ico', '✦'), el('span', 'adv-tile-name', T(SIDE_SHORT[sp.id] || PLACES[sp.id].name)), el('span', 'adv-tile-state', w.sq)); t.setAttribute('aria-label', `${w.sq}: ${T(PLACES[sp.id].name)}`); tiles.append(t); }
       if (town) { const gl = card.querySelector('.adv-glance'); if (gl && town.goal) card.insertBefore(el('p', 'adv-goal-line', town.goal), gl); if (town.recap) card.append(town.recap); if (town.primary) card.append(town.primary); }
-      if (tiles.children.length) card.append(tiles);
-      if (town) card.append(...town.rest); else if (p.kind !== 'chapter' || !info.coach) card.append(el('p', 'adv-soon', info.side ? w.sideSoon : w.soon));
+      if (tiles.children.length && !town?.quest) card.append(tiles);
+      if (town) card.append(...town.rest);
+      if (tiles.children.length && town?.quest) card.append(tiles); else if (p.kind !== 'chapter' || !info.coach) card.append(el('p', 'adv-soon', info.side ? w.sideSoon : w.soon));
       card.classList.toggle('adv-has-town', !!town); modal.classList.toggle('adv-town-open', true);
       const acts = el('div', 'adv-actions');
       if (info.train) acts.append(button(`${w.train} · ${venueName(info.train)}`, () => { change({ type: 'venue', venueId: info.train }); startTraining({ mode: 'pads', play: true }); }, 'game-button adv-go'));
       for (const id of info.arenas || []) acts.append(button(`${w.fight} · ${venueName(id)}`, () => { if (change({ type: 'venue', venueId: id })) startFight({}); }, 'game-button adv-go' + (info.train ? ' adv-alt' : '')));
       card.append(acts); card.hidden = false;
-      const fitPeek = () => { const t = card.querySelector('.adv-tiles'); if (!card.classList.contains('open')) card.scrollTop = 0; if (alive) card.style.setProperty('--peek', t ? (t.offsetTop + t.offsetHeight + 4) + 'px' : 'none'); };
+      const fitPeek = () => { const t = card.querySelector('.sf-quest') || card.querySelector('.adv-tiles'); if (!card.classList.contains('open')) card.scrollTop = 0; if (alive) card.style.setProperty('--peek', t ? (t.offsetTop + t.offsetHeight + 4) + 'px' : 'none'); };
       requestAnimationFrame(fitPeek); setTimeout(fitPeek, 300); setTimeout(fitPeek, 1200); document.fonts?.ready?.then(fitPeek);
       new MutationObserver(() => handle.setAttribute('aria-expanded', String(card.classList.contains('open')))).observe(card, { attributes: true, attributeFilter: ['class'] });
     }

@@ -51,3 +51,57 @@
 .adv-tile{position:relative}
 .adv-journal-line{display:flex;gap:8px;align-items:center;margin:0;font-size:13px}.adv-journal-line .adv-bust{flex:none;width:28px;height:28px}
 @media (prefers-reduced-motion:reduce){.adv-story.in{animation:none}}
+
+/* GOTR-0069 story mode: quest panel in the chapter sheet, vertical step timeline, Story so far */
+.sf-quest{display:grid;gap:3px;min-width:0}
+.sf-quest p{margin:0}
+.sf-kicker{font-size:11.5px;font-weight:700;letter-spacing:.02em;color:var(--gr-gold,#f4c152)}
+.game-dialog .sf-title{margin:0;font-size:17px;line-height:1.15}
+.sf-why{font-size:13px;line-height:1.3;color:var(--gr-text,#f3f6fb)}
+.sf-goal,.sf-reward{font-size:12px;line-height:1.25;color:var(--gr-text-muted,#9aa7bb)}
+.sf-goal{color:var(--gr-text,#f3f6fb);font-weight:600}
+.sf-gate{font-size:12.5px;line-height:1.25;font-weight:700;color:#ffb4a2}
+.sf-primary{margin-top:3px}
+.sf-more{display:flex;flex-wrap:wrap;gap:6px}
+.sf-small{min-height:34px;font-size:12px;padding:0 10px;flex:1 1 auto}
+.sf-prog{display:flex;align-items:center;gap:8px;margin-top:2px;min-width:0}
+.sf-bar{position:relative;flex:0 0 64px;height:6px;border-radius:3px;background:rgb(255 255 255 / .14);overflow:hidden}
+.sf-bar i{position:absolute;inset-block:0;inset-inline-start:0;background:var(--gr-gold,#f4c152);border-radius:3px}
+.sf-level{flex:1;min-width:0;font-size:11.5px;color:var(--gr-text-muted,#9aa7bb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sf-toggle{flex:none;min-height:30px;padding:0 8px;border:1px solid var(--gr-border,#2b364a);border-radius:var(--gr-radius-s,8px);background:var(--gr-surface-3,#243044);color:var(--gr-text,#f3f6fb);font:inherit;font-size:11.5px;cursor:pointer}
+.adv-card.open .sf-toggle{display:none}
+.sf-steps{list-style:none;margin:2px 0 0;padding:0;display:grid;gap:3px;position:relative}
+.sf-step-b{width:100%;display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:8px;min-height:36px;padding:3px 8px;border:1px solid transparent;border-radius:var(--gr-radius-s,8px);background:none;color:var(--gr-text,#f3f6fb);font:inherit;font-size:13px;text-align:start;cursor:pointer;box-sizing:border-box}
+.sf-mark{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--gr-surface-3,#243044);color:var(--gr-text-muted,#9aa7bb)}
+.sf-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sf-state{font-size:12px;color:var(--gr-gold,#f4c152);white-space:nowrap}
+.sf-done .sf-mark{background:var(--gr-gold,#f4c152);color:#1a1206}
+.sf-current .sf-step-b{border-color:var(--gr-gold,#f4c152);background:rgb(244 193 82 / .1);font-weight:700}
+.sf-current .sf-mark{background:var(--gr-accent,#e63946);color:#fff}
+.sf-locked .sf-step-b{cursor:default;opacity:.5}
+.sf-locked .sf-mark{font-size:11px;background:none}
+.sf-locked .sf-state{color:var(--gr-text-muted,#9aa7bb)}
+.sf-side .sf-step-b{padding-inline-start:22px}.sf-side .sf-state{color:#5fd0c7}.sf-side .sf-mark{color:#5fd0c7}
+.sf-sofar{display:grid;gap:2px;font-size:12px;line-height:1.3;color:var(--gr-text-muted,#9aa7bb)}
+.sf-sofar strong{color:var(--gr-text,#f3f6fb);font-size:13px}.sf-sofar p{margin:0}
+
+/* Story beats (before / after a step): plain text on the map with a soft shade at the edges, never a card */
+.sf-beat{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;color:#fff;text-shadow:0 1px 3px #000,0 0 10px #000}
+.sf-beat-top{display:grid;gap:6px;padding:12px 14px 30px;background:linear-gradient(rgb(6 9 14 / .82),rgb(6 9 14 / .55) 70%,rgb(6 9 14 / 0))}
+.sf-beat-foot{display:grid;gap:4px;padding:30px 12px 10px;justify-items:center;text-align:center;background:linear-gradient(rgb(6 9 14 / 0),rgb(6 9 14 / .6) 35%,rgb(6 9 14 / .85))}
+.sf-beat p{margin:0;max-width:560px}
+.sf-beat-kicker{font-size:12px;font-weight:700;color:var(--gr-gold,#f4c152)}
+.sf-beat-title{font-size:20px;font-weight:800;line-height:1.15}
+.sf-beat-line{display:flex;gap:9px;align-items:center;font-size:15px;line-height:1.3}
+.sf-beat-line strong{color:var(--gr-gold,#f4c152)}
+.sf-beat-line .adv-bust{flex:none;width:38px;height:38px;border-radius:50%;box-shadow:0 0 0 2px var(--gr-gold,#f4c152)}
+.sf-beat-narr{font-style:italic;font-size:14px;color:#e8edf5}
+.sf-beat-info{font-size:14px;font-weight:700}
+.sf-beat-result{font-size:18px;color:var(--gr-gold,#f4c152)}
+.sf-beat-up{color:#5fd0c7}
+.sf-beat-unlock{color:#fff}
+.sf-beat-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:4px;pointer-events:auto;width:100%;max-width:560px}
+.sf-beat-acts .adv-go{min-height:42px;font-size:13px;padding:0 12px;text-shadow:none}
+.sf-beat-main{flex:1 1 100%}
+.adv-stage:has(.sf-beat) .adv-pins,.adv-stage:has(.sf-beat) .adv-tools{opacity:.2;pointer-events:none}
+@media (max-width:520px){.sf-beat-title{font-size:18px}.sf-beat-line{font-size:14px}.sf-beat-top{padding:10px 12px 24px}}
