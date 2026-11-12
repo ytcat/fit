@@ -877,7 +877,7 @@
             const radial=((p.x-cx)/extent(rx))**2+((p.y-cy)/extent(ry))**2;
             // Cheek mode (compact guard): stay in front of the skull but pass BESIDE the muzzle instead of in front of it.
             if(radial<1&&!(reference?.cheek&&muzzle))forward=Math.max(forward,cz+extent(rz)*Math.sqrt(1-radial)-p.z);
-            if(reference?.lateral||reference?.cheek&&muzzle){const sideRadial=((p.y-cy)/extent(ry))**2+((p.z-cz)/extent(rz))**2;if(sideRadial<1)lateral=Math.max(lateral,sign*(cx+sign*extent(rx)*Math.sqrt(1-sideRadial)-p.x));}
+            if(reference?.lateral||reference?.cheek&&muzzle){const sideRadial=((p.y-cy)/extent(ry))**2+((p.z-cz)/extent(rz))**2;if(sideRadial<1)lateral=Math.max(lateral,sign*(cx+sign*(extent(rx)+(reference.cheek?.035:0))*Math.sqrt(1-sideRadial)-p.x));}
           }
         }
         const sideways=reference?.lateral||reference?.cheek&&forward<.0002,clearance=sideways?lateral:forward;
@@ -1052,11 +1052,11 @@
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
       // GOTR-0051 compact guard: in the stance both gloves sit close to the face, beside the muzzle in front of the
       // cheeks (lead a little ahead at eye/cheek height, rear at the jaw), forearms upright, elbows in front of the ribs.
-      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(guardCover)).lerp(V(-.13,1.70,.61),leadStance);
-      const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(guardCover)).lerp(V(.345,1.70,.23),rearStance);
+      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(guardCover)).lerp(V(-.17,1.70,.60),leadStance);
+      const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(guardCover)).lerp(V(.26,1.70,.23),rearStance);
       const lead=leadGuard.clone(),rear=rearGuard.clone();
       const guardElbowZ=options.guardElbowBack!=null?-options.guardElbowBack:.1;
-      let leadPole=V(-.6+.35*leadStance,-1,guardElbowZ),rearPole=V(.6-.35*rearStance,-1,guardElbowZ);
+      let leadPole=V(-.6+.10*leadStance,-1,guardElbowZ),rearPole=V(.6-.35*rearStance,-1,guardElbowZ);
       let leadTurn=0,rearTurn=0;
       const palmTarget=V(0,-1,0);
       const lateTurn=smooth((strike-.35)/.60);
@@ -1288,7 +1288,7 @@
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',pivot=s===-1?leadPivot:rearPivot;
         // GOTR-0051: in the guard the rear heel is slightly up (weight on the ball of the rear foot).
-        const lift=Math.abs(pivot)*.35+(side==='R'?(options.down||0)*.30+.09*stanceWeight:0);
+        const lift=Math.abs(pivot)*.35+(side==='R'?(options.down||0)*.30+.09*stanceWeight*(1-block):0);
         const footQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(lift,pivot,0,'YXZ'));
         // A rigid boot pivots at the forward sole contact. Using the mid-foot
         // here drove the long toe through the floor whenever the heel rose.
@@ -1552,7 +1552,7 @@
         gloves[index]=this.orientGlove(side,returned.turn*(1-blend),palm);
       }
       // The striking hand and speed-bag circles keep the immediate clearance; only a guard hand is rate-limited.
-      this.faceBlock=!!options.guardStyle&&block>=.99; // an explicit block is taken at once
+      this.faceBlock=block>=.99; // an explicit block is taken at once
       this.faceFree=move==='speedbag'?'LR':['jab','hook','uppercut'].includes(move)?'L':['cross','rear_hook','rear_uppercut'].includes(move)?'R':'';
       if(move==='speedbag'||options.keepFaceClear)for(const [index,side,pole] of [[0,'L',leadPole],[1,'R',rearPole]]){
         const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole,index&&rearStance>.5?{cheek:true}:null);gloves[index]=safe.glove; // GOTR-0074: only the rear glove hugs the cheek; the lead glove is out in front

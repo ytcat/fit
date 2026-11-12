@@ -212,7 +212,7 @@
     }
     // GOTR-0051: when a punch is coming the forward lead glove tightens back to the cheek cover, so blocks keep
     // the proven guard geometry (a straight caught on the glove still lands extended); it opens again afterwards.
-    {const threat=specs[other(actor)];if(threat.attack&&!spec.attack)options.blockCover=clamp(threat.phase/.14)*(1-clamp((threat.phase-.62)/.25));}
+    {const threat=specs[other(actor)];if(threat.attack&&!spec.attack)options.blockCover=clamp(threat.phase/.05)*(1-clamp((threat.phase-.62)/.25));}
     const path=travel[actor];
     if(m.phase==='round'&&path.weight>.001&&!ceremony){const yaw=coach.ringYaw,local=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw),first=Math.abs(local.z)>=Math.abs(local.x)?(local.z>=0?-1:1):(local.x>=0?1:-1);options.ringStep={first,phase:path.phase,ease:path.ease,weight:path.weight,turn:0,delta:local.toArray()};}
     if(spec.attack){
@@ -345,8 +345,8 @@
    // ring coordinates once the hand has left the guard.
    // On the final approach the sweep starts at the glove itself.
    const group=this.cast,knuckle=coach.root.localToWorld(V(...coach.metrics.gloves[side==='R'?1:0].knuckles));if(spec.phase<.22||!state.launch)state.launch=group.worldToLocal(knuckle.clone());
-   const finish=coach.root.localToWorld(shoulder.clone().addScaledVector(direction,reach+.140)),line=finish.clone().sub(terminal?knuckle:group.localToWorld(state.launch.clone())),span=line.length();if(span<1e-4)return null;line.divideScalar(span);
-   const length=terminal?span:Math.min(.36,span),total=length+.34,from=finish.clone().addScaledVector(line,-length),beyond=finish.clone().addScaledVector(line,.34);
+   const finish=coach.root.localToWorld(shoulder.clone().addScaledVector(direction,reach+.140)),line=finish.clone().sub(terminal?knuckle:spec.phase<.18?coach.root.localToWorld(shoulder.clone()):group.localToWorld(state.launch.clone())),span=line.length();if(span<1e-4)return null;line.divideScalar(span);
+   const length=terminal?span:.36,total=length+.34,from=finish.clone().addScaledVector(line,-length),beyond=finish.clone().addScaledVector(line,.34);
    const touches=s=>this.collision(from.clone().lerp(beyond,s/total),other(actor)).penetration>0;
    for(let s=0;s<=total+1e-6;s+=.03){
     if(!touches(s))continue;
