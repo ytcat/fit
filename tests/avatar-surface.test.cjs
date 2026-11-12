@@ -34,7 +34,7 @@ assert.ok(centre>20);assert.equal(coach.shorts.material.side,THREE.DoubleSide,'t
 for(const side of ['L','R']){
  const glove=coach.gloveMeshes[side],p=glove.geometry.attributes.position,rest=new Float32Array(p.array);let thumb=0,face=0;
  for(let i=0;i<p.count;i++){if(p.getX(i)*(side==='L'?1:-1)<-.075&&p.getZ(i)>.045&&p.getY(i)<-.06&&p.getY(i)>-.17)thumb++;if(p.getY(i)<-.198){face++;assert.ok(p.getZ(i)<.035,'thumb/finger pocket must stay behind the knuckle crown');}}
- assert.ok(thumb>50&&face>50,'a tucked curved thumb and separate rounded crown are required');assert.ok(glove.matrixWorld.determinant()>0,'handedness must preserve a proper glove transform');
+ assert.ok(thumb>50&&face>50,'a tucked curved thumb and separate rounded crown are required');/* GOTR-0051: the whole fighter is mirrored at its root; a glove must not be mirrored again relative to it. */assert.ok(glove.matrixWorld.determinant()*coach.root.matrixWorld.determinant()>0,'handedness must preserve a proper glove transform');
  coach.deformGlove(side,1);let shortening=0;for(let i=0;i<p.count;i++){shortening=Math.max(shortening,p.getY(i)-rest[i*3+1]);if(rest[i*3+1]>-.06)assert.equal(p.getY(i),rest[i*3+1],'the wrist must remain fixed while foam compresses');}
  assert.ok(shortening>.03&&shortening<.04,'impact should flatten the foam rather than shorten the entire hand');coach.deformGlove(side,0);assert.deepEqual(p.array,rest);
 }
