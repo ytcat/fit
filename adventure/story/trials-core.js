@@ -9,7 +9,7 @@
  *   BagTrial     heavy_bag_van      Brick's bag: hit the swinging bag at the peak with the punch its swing calls for
  *   EchoTrial    snoring_guard      Sleep talker: repeat the growing combo the guard mumbles (lamps), duck if you wake him
  *   BarrageTrial rooftop_balloons   Rooftop barrage: slip / duck / step out, punch the marked balloons back
- *   CutoffTrial  whistle_chase      Cut him off: footwork on a grid, corner the raccoon three times
+ *   CutoffTrial  whistle_chase      Cut him off: footwork on a grid, corner the raccoon five times, each time faster
  *   BetTrial     grandma_groceries  The hustler's bet: punish real openings, three bites on feints lose the bet */
 (() => {
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t;
@@ -140,10 +140,10 @@
   /* ---------------------------------------------------------------- Cut him off */
   // A 7 x 5 grid in the alley. Column 0 is a dead end, the raccoon escapes past column 6. He only steps to cells out of the
   // Fighter's reach (not next to him, diagonals count), so staying level with him and stepping in takes his angles away.
-  const CUTOFF = Object.freeze({ missionId: 'whistle_chase', metric: 'secondsToFinish', cols: 7, rows: 5, catches: 3, beat: [.62, .5, .42], move: .15, escape: 5, timeout: 60, starts: [[2, 2], [2, 0], [3, 4]], seed: 5 });
+  const CUTOFF = Object.freeze({ missionId: 'whistle_chase', metric: 'secondsToFinish', cols: 7, rows: 5, catches: 5, beat: [.5, .44, .38, .34, .3], move: .15, escape: 5, timeout: 60, starts: [[3, 2], [4, 0], [3, 4], [4, 1], [4, 3]], seed: 5 });
   class CutoffTrial extends Trial {
     constructor(rules = CUTOFF, opts) { super(rules, opts); this.R = rng(rules.seed); this.catches = 0; this.escapes = 0; this.place(); }
-    place() { const [c, r] = this.r.starts[this.catches % this.r.starts.length]; this.rc = { c, r, fc: c, fr: r, t0: this.t }; this.f = { c: 5, r: 2, fc: 5, fr: 2, t0: this.t }; this.nextBeat = this.t + .9; this.ready = 0; }
+    place() { const [c, r] = this.r.starts[this.catches % this.r.starts.length]; this.rc = { c, r, fc: c, fr: r, t0: this.t }; this.f = { c: 6, r: 2, fc: 6, fr: 2, t0: this.t }; this.nextBeat = this.t + .9; this.ready = 0; }
     reach(c, r, f = this.f) { return Math.max(Math.abs(c - f.c), Math.abs(r - f.r)) <= 1; }
     key(k, down) {
       if (this.done || !down || this.t < this.ready) return;

@@ -51,12 +51,12 @@ for (const R of [T.BAG, T.ECHO, T.BARRAGE, T.CUTOFF, T.BET]) { const m = A.missi
 // ---- Cut him off: stay level, step in
 {
   const cut = (g, v) => { const [fc, fr] = v.cell.f, [rc, rr] = v.cell.rc; if (fr !== rr) g.key(rr > fr ? 'down' : 'up', true); else if (fc - rc > 1) g.key('left', true); };
-  const pro = play(new T.CutoffTrial(), cut).result(starsFor); assert.equal(pro.finished, true); assert.equal(pro.catches, 3); assert.equal(pro.escapes, 0); assert.ok(pro.value <= 20 && pro.stars === 3, 'clean cut-off is gold: ' + pro.value + ' s');
+  const pro = play(new T.CutoffTrial(), cut).result(starsFor); assert.equal(pro.finished, true); assert.equal(pro.catches, 5); assert.ok(pro.value >= 8, 'not over in a blink: ' + pro.value); assert.equal(pro.escapes, 0); assert.ok(pro.value <= 20 && pro.stars === 3, 'clean cut-off is gold: ' + pro.value + ' s');
   const idle = play(new T.CutoffTrial(), () => {}).result(starsFor); assert.equal(idle.finished, false); assert.ok(idle.escapes >= 3, 'he runs past a Fighter who does not move'); assert.equal(idle.stars, 0);
   const g = new T.CutoffTrial(); g.f = { c: 5, r: 4, fc: 5, fr: 4, t0: 0 }; g.rc = { c: 4, r: 1, fc: 4, fr: 1, t0: 0 }; assert.ok(g.options().some(o => o.c === 5), 'two lanes away: the way past is open');
   g.f = { c: 5, r: 2, fc: 5, fr: 2, t0: 0 }; assert.ok(!g.options().some(o => o.c === 5), 'level with him: the way past is closed');
   g.rc = { c: 0, r: 0, fc: 0, fr: 0, t0: 0 }; g.f = { c: 1, r: 1, fc: 1, fr: 1, t0: 0 }; assert.equal(g.options().length, 0, 'cornered'); g.f = { c: 2, r: 1, fc: 2, fr: 1, t0: 0 }; assert.ok(g.options().length > 0);
-  const f = new T.CutoffTrial(); f.rc = { c: 4, r: 2, fc: 4, fr: 2, t0: 0 }; f.key('left', true); assert.deepEqual([f.f.c, f.f.r], [5, 2], 'cannot step onto him'); f.step(.5); f.key('up', true); f.key('up', true); assert.equal(f.f.r, 1, 'one step per move time');
+  const f = new T.CutoffTrial(); f.rc = { c: 5, r: 2, fc: 5, fr: 2, t0: 0 }; f.key('left', true); assert.deepEqual([f.f.c, f.f.r], [6, 2], 'cannot step onto him'); f.step(.5); f.key('up', true); f.key('up', true); assert.equal(f.f.r, 1, 'one step per move time');
   const esc = new T.CutoffTrial(); esc.rc = { c: 6, r: 0, fc: 6, fr: 0, t0: 0 }; esc.f = { c: 3, r: 4, fc: 3, fr: 4, t0: 0 }; esc.nextBeat = 0; const t0 = esc.t; esc.step(DT); assert.equal(esc.escapes, 1); assert.ok(esc.t - t0 >= T.CUTOFF.escape, 'an escape costs 5 s');
 }
 // ---- The hustler's bet: punish real openings only
