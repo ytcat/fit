@@ -111,11 +111,11 @@
     }
   }
 
-  let map = null, time = qs.get('time') === 'night' ? 'night' : 'day';
+  let map = null, time = ['morning', 'evening', 'night'].includes(qs.get('time')) ? qs.get('time') : 'day';
   function rebuild() {
     if (map) map.dispose();
     const t0 = performance.now();
-    map = GlorylandMap.build(scene, { time, renderer, shadowSize: Number(qs.get('shadow')) || 2048, debugGrid: qs.get('grid') === '1' });
+    map = GlorylandMap.build(scene, { time, renderer, quality: qs.get('quality') === 'low' ? 'low' : 'high', shadowSize: Number(qs.get('shadow')) || undefined, debugGrid: qs.get('grid') === '1' });
     renderer.shadowMap.needsUpdate = true;
     window.__buildMs = performance.now() - t0;
     document.getElementById('tDay').setAttribute('aria-pressed', String(time === 'day'));
