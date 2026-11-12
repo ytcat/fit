@@ -26,7 +26,7 @@ const audit = p => p.evaluate(() => {
       await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); localStorage.clear(); });
       await p.reload({ timeout: 300000 }); await ready(p);
       // Adventure is the home screen (GOTR-0063): with a new profile it opens by itself and the story starts.
-      await p.evaluate(l => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); app.setLanguage(l); app.engine.career.store.create('Story Mode QA'); }, lang); await p.reload({ timeout: 300000 });
+      await p.evaluate(l => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); app.setLanguage(l); localStorage.setItem('shadowbox-language', l); app.engine.career.store.create('Story Mode QA'); }, lang); await p.reload({ timeout: 300000 });
       await wait(p, () => document.getElementById('advTitleCard') || window.StoryScenes?.playing === 'arrival', null, 300000); console.log(tag, 'title card', await p.evaluate(() => document.getElementById('advTitleCard')?.textContent || '(already in the scene)'));
       await wait(p, () => window.StoryScenes?.playing === 'arrival', null, 120000); console.log(tag, 'arrival scene playing');
       await p.waitForTimeout(800); await p.evaluate(() => StoryScenes.stop());
@@ -34,6 +34,7 @@ const audit = p => p.evaluate(() => {
       await wait(p, () => document.querySelector('dialog[open] .adv-stage #sfBeat .sf-beat-main'), null, 120000); await p.waitForTimeout(1500);
       const pre = await p.evaluate(() => document.getElementById('sfBeat').innerText.replace(/\n+/g, ' | ')); console.log(tag, 'before', pre);
       assert.ok(/Step 1 of 8|שלב 1 מתוך 8/.test(pre), pre);
+      if (lang === 'he') assert.ok(/פרק 1/.test(pre), 'Hebrew text: ' + pre);
       const a1 = await audit(p); console.log(tag, 'audit before', JSON.stringify(a1)); assert.ok(a1.docW <= vw && !a1.clipped.length && !a1.out.length && Math.abs(a1.aspectBox - a1.aspectBuf) < .02, JSON.stringify(a1));
       await shot(p, `${tag}-1-before-step1`);
       await p.evaluate(() => document.querySelector('#sfBeat .sf-beat-main').click());

@@ -97,7 +97,7 @@
 .sf-beat-line .adv-bust{flex:none;width:38px;height:38px;border-radius:50%;box-shadow:0 0 0 2px var(--gr-gold,#f4c152)}
 .sf-beat-narr{font-style:italic;font-size:14px;color:#e8edf5}
 .sf-beat-info{font-size:14px;font-weight:700}
-.sf-beat-result{font-size:18px;color:var(--gr-gold,#f4c152)}
+.sf-beat-result{unicode-bidi:plaintext;font-size:18px;color:var(--gr-gold,#f4c152)}
 .sf-beat-up{color:#5fd0c7}
 .sf-beat-unlock{color:#fff}
 .sf-beat-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:4px;pointer-events:auto;width:100%;max-width:560px}
@@ -106,3 +106,4 @@
 .adv-stage:has(.sf-beat) .adv-pins,.adv-stage:has(.sf-beat) .adv-tools{opacity:.2;pointer-events:none}
 @media (max-width:520px){.sf-beat-title{font-size:18px}.sf-beat-line{font-size:14px}.sf-beat-top{padding:10px 12px 24px}}
 .sf-beat-top{padding-inline-end:60px} /* the modes button sits in the map's top corner (GOTR-0063) */
+@media (min-width:900px){.sf-primary{max-width:520px}}
