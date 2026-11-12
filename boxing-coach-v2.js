@@ -1500,7 +1500,7 @@
           // behind it makes the elbow orbit a near-vertical IK axis at launch.
           ready.z=Math.max(ready.z,shoulder.z+.12);
           hand.copy(ready).lerp(targetHand,amount);
-          {const near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(leadStance>0&&d<near&&d>1e-6)hand.copy(shoulder).addScaledVector(hand.clone().sub(shoulder),near/d);}
+          {const near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(leadStance>0&&d<near){const dx=hand.x-shoulder.x,dy=hand.y-shoulder.y;hand.z=Math.max(hand.z,shoulder.z+Math.sqrt(Math.max(0,near*near-dx*dx-dy*dy)));}}
           const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,pole);if(index)re=error;else le=error;
           gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
         }
