@@ -8,7 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.42 | 2026-11-12 | (this release) | City map graphics: soft shadows, cloud shadows, water shimmer, morning/evening/night colour moods, moving cars, tram, boats, walkers and birds, glow on the current chapter's landmark, smoother camera — GOTR-0061 |
+| v1.42 | 2026-11-12 | `18f1226` | City map graphics: soft shadows, cloud shadows, water shimmer, morning/evening/night colour moods, moving cars, tram, boats, walkers and birds, glow on the current chapter's landmark, smoother camera — GOTR-0061 |
 | v1.41 | 2026-11-12 | `741899c` | Chapter 1 story upgrade: crafted street sets with a real bus, shop fronts and warm morning light; new scenes (rival Dash, Brick before and after the boss fight), snoring-guard mini-game, rewritten lines with portraits — GOTR-0056 |
 | v1.40 | 2026-11-12 | `9970054` | Clear story flow: chapter title and arrival scene on first open, Start / Continue story button, chapter goal and step counter, chapter end sequence, story-so-far recap; route markers lie on the roads; short mission labels; panel no longer clipped — GOTR-0060, GOTR-0055 |
 | v1.39 | 2026-11-11 | `973b5e9` | Real boxing stance everywhere: body turned 33°, left glove 15–18 cm in front, rear heel up — now also in fights and sparring, with blocking intact — GOTR-0051 |
