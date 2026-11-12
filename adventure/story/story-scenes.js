@@ -90,9 +90,9 @@
   /* ---------------------------------------------------------------- overlay and speech lines */
   function overlay(kind) {
     const d = el('dialog', 'story-scene'); d.dir = lang() === 'he' ? 'rtl' : 'ltr'; d.dataset.kind = kind;
-    const host = el('div', 'story-host'), lineBox = el('div', 'story-line'), hint = el('div', 'story-hint', kind === 'game' ? '' : w().skip), busy = el('div', 'story-busy', '…');
+    const vignette = el('div', 'story-vignette'), host = el('div', 'story-host'), lineBox = el('div', 'story-line'), hint = el('div', 'story-hint', kind === 'game' ? '' : w().skip), busy = el('div', 'story-busy', '…');
     lineBox.setAttribute('role', 'status'); lineBox.setAttribute('aria-live', 'polite');
-    d.append(host); if (kind === 'scene') d.append(el('div', 'story-bar story-bar-top'), el('div', 'story-bar story-bar-bottom'));
+    d.append(host, vignette); if (kind === 'scene') d.append(el('div', 'story-bar story-bar-top'), el('div', 'story-bar story-bar-bottom'));
     d.append(busy, lineBox, hint); document.body.append(d);
     try { d.showModal(); } catch { d.setAttribute('open', ''); }
     return { d, host, lineBox, hint, busy };
@@ -202,7 +202,7 @@
     const ui = overlay(game ? 'game' : 'scene');
     const run = { id, closed: false, t: 0, ui, host: ui.host, edge: 0 };
     current = run;
-    let set = null, scene = null, camera = null, borrowed = [], mitts = [], rigs = {}, sim = null, stageMove = null, oldFit = null, finished = false;
+    let set = null, scene = null, camera = null, borrowed = [], mitts = [], rigs = {}, sim = null, stageMove = null, oldFit = null, finished = false, blobs = [];
     const memo = {}, look = V();
     const finish = (result = {}) => {
       if (run.closed) return; run.closed = true; if (current === run) current = null;
@@ -215,6 +215,7 @@
       if (e.fightIQDemo === run) e.fightIQDemo = null;
       for (const m of mitts) window.TrainingGear?.dispose(m); mitts = [];
       for (const b of borrowed) giveBack(b); borrowed = [];
+      for (const b of blobs) { scene?.remove(b.mesh); } if (blobs.length) { blobs[0].mesh.geometry.dispose(); blobs[0].mesh.material.map.dispose(); blobs[0].mesh.material.dispose(); } blobs = [];
       set?.dispose(); set = null;
       if (stageMove) { stageMove.placeholder.replaceWith(stageMove.stage); stageMove.stage.classList.remove('game-preview-live', 'story-live'); stageMove.stage.style.pointerEvents = stageMove.pe; stageMove = null; window.dispatchEvent(new Event('resize')); }
       if (oldFit) { e.fitCameraToModel = oldFit; oldFit = null; }
@@ -241,6 +242,10 @@
         if (a.mitts && window.TrainingGear) mitts.push(window.TrainingGear.mitt(c, 'L'), window.TrainingGear.mitt(c, 'R'));
       }
       if (game) sim = game.make(C);
+      // Soft contact shade under every character: keeps feet on the ground when the device has turned shadows off.
+      const cv = document.createElement('canvas'); cv.width = cv.height = 64; const g2 = cv.getContext('2d'), gr = g2.createRadialGradient(32, 32, 2, 32, 32, 32); gr.addColorStop(0, 'rgba(20,14,8,1)'); gr.addColorStop(.55, 'rgba(20,14,8,.55)'); gr.addColorStop(1, 'rgba(20,14,8,0)'); g2.fillStyle = gr; g2.fillRect(0, 0, 64, 64);
+      const blobGeo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), blobMat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthWrite: false, opacity: e.renderer.shadowMap?.enabled ? .3 : .55, toneMapped: false });
+      for (const c of Object.values(rigs)) { const mesh = new THREE.Mesh(blobGeo, blobMat); mesh.renderOrder = 1; mesh.scale.set(1.25, 1, 1.0); scene.add(mesh); blobs.push({ mesh, c }); }
       // Take the engine's canvas: same demo hook and stage move as the Fight IQ examples.
       const stage = e.stage || document.getElementById('stageContainer');
       if (stage) { const placeholder = document.createComment('story stage'); stage.before(placeholder); stageMove = { stage, placeholder, pe: stage.style.pointerEvents }; stage.style.pointerEvents = 'none'; ui.host.append(stage); stage.classList.add('game-preview-live', 'story-live'); }
@@ -262,6 +267,7 @@
       const dt = Math.min(Math.max(delta || 0, 0), .05) * (opts.timeScale || 1); run.t += dt;
       fitLens(camera, e);
       const edge = game ? gameFrame(dt) : sceneFrame();
+      for (const b of blobs) { b.mesh.visible = b.c.root.visible; b.mesh.position.set(b.c.root.position.x - .1, .012, b.c.root.position.z - .12); b.mesh.rotation.y = b.c.root.rotation.y; }
       if (e.renderer.shadowMap?.enabled) e.renderer.shadowMap.needsUpdate = true;
       e.renderer.render(scene, camera);
       const info = e.renderer.info.render; lastStats = { calls: info.calls, triangles: info.triangles, set: set.stats(), edge: +edge.toFixed(3), worstEdge: +run.edge.toFixed(3) };

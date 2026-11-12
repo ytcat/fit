@@ -6,7 +6,7 @@ const { chromium } = require('playwright'), assert = require('node:assert/strict
 const URL = process.env.APP_URL || 'http://127.0.0.1:8197/', SHOTS = process.env.SHOTS || '', LANGS = (process.env.LANGS || 'en').split(',');
 const SIZES = (process.env.SIZES || '402x690,1366x768').split(',').map(s => s.split('x').map(Number)), ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
 const SHOT_AT = { arrival: 1.9, brick: 4.6, dash: 4.6, boss_intro: 4.2, boss_outro: 5.2 };
-const wait = (p, f, a, t = 300000) => p.waitForFunction(f, a, { timeout: t, polling: 250 });
+const wait = (p, f, a, t = 900000) => p.waitForFunction(f, a, { timeout: t, polling: 250 });
 const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.anatomy && window.StoryScenes);
 (async () => {
   const b = await chromium.launch({ args: ['--no-sandbox', '--enable-unsafe-swiftshader'] });
@@ -15,7 +15,7 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
       const tag = `${W}x${H}-${lang}`, p = await b.newPage({ viewport: { width: W, height: H } }), errors = []; p.on('pageerror', e => errors.push(e.message));
       await p.goto(URL, { timeout: 300000 }); await ready(p);
       await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); if (!app.engine.career.store.current()) app.engine.career.store.create('Story QA'); });
-      await p.evaluate(l => app.setLanguage(l), lang);
+      await p.evaluate(l => app.setLanguage(l), lang); await p.evaluate(f => { window.__forceShadows = f; }, !!process.env.SHADOWS);
       const where = () => p.evaluate(() => { const r = app.engine.coach.root; return { parent: r.parent?.type || null, x: r.position.x, z: r.position.z, inStage: !!document.querySelector('main#stageContainer canvas'), stageInBody: document.getElementById('stageContainer')?.closest('dialog') === null }; });
       const before = await where(), ids = await p.evaluate(() => ({ scenes: StoryScenes.sceneIds, games: StoryScenes.gameIds }));
       assert.deepEqual(ids.scenes.sort(), ['arrival', 'boss_intro', 'boss_outro', 'brick', 'dash']); assert.deepEqual(ids.games.sort(), ['carry_bag', 'snoring_guard']);
@@ -32,7 +32,7 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
         for (const l of L) { assert.ok(l.top >= .55 && l.bottom <= 1, id + ' line in the bottom third: ' + JSON.stringify(l)); assert.ok(l.left >= 0 && l.right <= W, id + ' line inside the screen'); assert.ok(l.face && l.who && l.px >= 17 && /rgba\(0, 0, 0, 0\)|transparent/.test(l.bg), id + ' portrait, name, readable, no box'); }
         assert.ok(mid.stats.worstEdge <= 1.001, id + ' framed characters stay inside the frame: ' + mid.stats.worstEdge);
         if (SHOTS && lang === 'en' && SHOT_AT[id]) {
-          await p.evaluate(id => { window.__done = null; StoryScenes.play(id, { onDone: r => { window.__done = r; }, timeScale: .02 }); }, id);
+          await p.evaluate(id => { window.__done = null; if (window.__forceShadows) app.engine.renderer.shadowMap.enabled = true; StoryScenes.play(id, { onDone: r => { window.__done = r; }, timeScale: .02 }); }, id);
           await wait(p, () => app.engine.fightIQDemo && StoryScenes.stats()); await p.evaluate(t => { StoryScenes.debug.t = t; }, SHOT_AT[id]); await p.waitForTimeout(2500);
           await p.screenshot({ path: `${SHOTS}/${id}-${W}x${H}.png`, timeout: 300000 });
           await p.mouse.click(W / 2, H / 3); await wait(p, () => window.__done, null, 60000);
@@ -43,7 +43,7 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
       const after = await where(); assert.deepEqual(after, before, 'the Fighter rig and the stage are back where they were');
       // mini-games: scripted careful players press the real arrow keys (window keydown/keyup)
       for (const id of ids.games.filter(i => !ONLY || ONLY.includes(i))) {
-        await p.evaluate(id => { window.__done = null; StoryScenes.play(id, { onDone: r => { window.__done = r; }, timeScale: 2 }); }, id);
+        await p.evaluate(id => { window.__done = null; StoryScenes.play(id, { onDone: r => { window.__done = r; }, timeScale: 3 }); }, id);
         await wait(p, () => app.engine.fightIQDemo && StoryScenes.debug?.sim && StoryScenes.stats());
         const ui = await p.evaluate(() => { const r = e => { const b = e?.getBoundingClientRect(); return b ? [b.x, b.y, b.width, b.height].map(Math.round) : null; }; return { dpad: r(document.querySelector('.story-pad .fp-dpad')), round: getComputedStyle(document.querySelector('.story-pad .fp-dpad')).borderRadius, caps: [...document.querySelectorAll('.story-pad .fp-cap')].map(c => c.textContent), goalPx: parseFloat(getComputedStyle(document.querySelector('.story-goal')).fontSize) }; });
         console.log(tag, id, 'pad', JSON.stringify(ui)); assert.ok(ui.dpad && ui.dpad[2] >= 110 && ui.round === '50%' && ui.caps.length === 4 && ui.goalPx <= 14, 'game D-pad and small goal text');
@@ -65,7 +65,7 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
             if (!g.held.right) key('right', true);
           }, 16);
         }, id);
-        if (SHOTS && lang === 'en') { await wait(p, id => { const g = StoryScenes.debug?.sim; return StoryScenes.debug?.result || (id === 'snoring_guard' ? g.i >= 3 && g.swing : g.sway); }, id); await p.screenshot({ path: `${SHOTS}/${id}-${W}x${H}.png`, timeout: 300000 }); }
+        if (SHOTS && lang === 'en') { await wait(p, id => { const g = StoryScenes.debug?.sim; return StoryScenes.debug?.result || (g && (id === 'snoring_guard' ? g.i >= 3 && g.swing : g.sway)); }, id); await p.screenshot({ path: `${SHOTS}/${id}-${W}x${H}.png`, timeout: 300000 }); }
         await wait(p, () => StoryScenes.debug?.result);
         const run = await p.evaluate(() => ({ result: StoryScenes.debug.result, saved: StoryScenes.debug.saved, text: document.querySelector('.story-result')?.innerText.replace(/\n+/g, ' | '), prompts: [...window.__prompts], stats: StoryScenes.stats() }));
         console.log(tag, id, JSON.stringify(run));

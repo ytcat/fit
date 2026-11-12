@@ -193,12 +193,14 @@ const FACADE = {
   plaster: { bay: 1.55, floor: FLOOR }, brick: { bay: 1.6, floor: FLOOR }, apartment: { bay: 2.1, floor: FLOOR },
   office: { bay: 1.5, floor: 0.9 }, deco: { bay: 1.9, floor: 1.0 }, industrial: { bay: 2.4, floor: 1.3 }, shop: { bay: 2.0, floor: 1.3 }
 };
-function paintFacades(night, aniso) {
+function paintFacades(night, aniso, scaleOf) { // scaleOf(style) -> texture scale (story sets paint the styles they use sharper); 0 skips a style
   const out = {};
   const CELL = 128, N = 4, SZ = CELL * N, EC = 32;
   for (const style of Object.keys(FACADE)) {
-    const cv = canvas(SZ, SZ), mk = canvas(SZ, SZ), em = canvas(EC * N, EC * N);
+    const k = scaleOf ? scaleOf(style) : 1; if (!k) continue;
+    const cv = canvas(SZ * k, SZ * k), mk = canvas(SZ * k, SZ * k), em = canvas(EC * N, EC * N);
     const c = cv.getContext('2d'), m = mk.getContext('2d'), e = em.getContext('2d');
+    c.scale(k, k); m.scale(k, k);
     e.fillStyle = '#000'; e.fillRect(0, 0, em.width, em.height);
     const r = mulberry(style.length * 977 + 13);
     const rr = (a, b) => a + (b - a) * r();
@@ -281,7 +283,7 @@ function paintFacades(night, aniso) {
       }
     }
     // alpha := 255 for tinted walls, 128 for own-colour parts
-    const id = c.getImageData(0, 0, SZ, SZ), md = m.getImageData(0, 0, SZ, SZ).data;
+    const id = c.getImageData(0, 0, SZ * k, SZ * k), md = m.getImageData(0, 0, SZ * k, SZ * k).data;
     for (let k = 0; k < id.data.length; k += 4) id.data[k + 3] = md[k] > 127 ? 255 : 128;
     c.putImageData(id, 0, 0);
     out[style] = { map: texture(cv, { aniso }), emissive: night ? texture(em, { aniso }) : null };

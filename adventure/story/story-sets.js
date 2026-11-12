@@ -67,6 +67,8 @@
     };
     /** Round enamel shop sign on a wall bracket above an awning. */
     const picto = (cell, x, y, z) => { box(S, x, y - .5, z - .06, 1.1, 1.0, .06, '#3b4350'); sign(cell, x, y, z + .01, .96, .96); };
+    const shade = (x, z, w, d, onRoad) => box(S, x - .12, onRoad ? -.1485 : .002, z - .14, w, .006, d, onRoad ? '#474e5c' : '#cfc6b4');
+    const plinth = (x0, x1, z) => { box(S, (x0 + x1) / 2, 0, z, x1 - x0, .22, .14, '#b3a892'); box(S, (x0 + x1) / 2, .001, z + .16, x1 - x0, .006, .3, '#d3cab8'); };
     const road = (x0, x1, z0, z1) => box(S, (x0 + x1) / 2, -.45, (z0 + z1) / 2, x1 - x0, .3, z1 - z0, PAL.asphalt);
     const pave = (x0, x1, z0, z1, c = PAL.pave) => { box(S, (x0 + x1) / 2, -.4, (z0 + z1) / 2, x1 - x0, .4, z1 - z0, c); };
     // paving joints: thin darker lines every 2 m so the ground reads as slabs, not a flat colour
@@ -80,14 +82,14 @@
       box(S, x, -.003, z, 1.3, .012, 1.3, '#8c7a63'); box(S, x, .0, z, 1.42, .05, .08, '#b9ad98'); for (const d of [-.67, .67]) { box(S, x + d, 0, z, .08, .05, 1.42, '#b9ad98'); box(S, x, 0, z + d, 1.42, .05, .08, '#b9ad98'); }
     };
     // Old Town lantern post
-    const lamp = (x, z) => { cyl(S, x, 0, z, .14, .5, '#2f3640', P.cyl8); cyl(S, x, .5, z, .06, 3.1, '#2f3640', P.cyl6); cyl(S, x, 3.55, z, .12, .06, '#2f3640', P.cyl6); cyl(S, x, 3.61, z, .19, .36, '#fff0c4', P.cyl6); S.add(P.cone6, M(x, 3.97, z, .28, .2, .28), C('#2f3640')); cyl(S, x, 4.17, z, .03, .1, '#2f3640', P.cyl6); box(S, x + .22, 3.2, z, .5, .04, .04, '#2f3640'); };
-    const bin = (x, z) => { cyl(S, x, 0, z, .26, .82, '#4f7a5a', P.cyl8); cyl(S, x, .82, z, .3, .07, '#3c5c45', P.cyl8); cyl(S, x, .3, z, .275, .05, '#3c5c45', P.cyl8); };
-    const planter = (x, z, w = 1.1) => { box(S, x, 0, z, w, .46, .5, '#b5643e'); box(S, x, .44, z, w + .06, .06, .56, '#c97250'); for (let k = 0; k < 3; k++) S.add(P.ico, M(x - w * .3 + k * w * .3, .58, z, .3, .26, .26, k), C(PAL.leaf[(k * 2 + 1) % PAL.leaf.length])); for (const [d, c] of [[-.35, '#ff8fb1'], [.05, '#ffd166'], [.38, '#ff8fb1']]) S.add(P.ico, M(x + d, .78, z + .08, .07, .07, .07), C(c)); };
+    const lamp = (x, z) => { shade(x, z, .5, .5); cyl(S, x, 0, z, .14, .5, '#2f3640', P.cyl8); cyl(S, x, .5, z, .06, 3.1, '#2f3640', P.cyl6); cyl(S, x, 3.55, z, .12, .06, '#2f3640', P.cyl6); cyl(S, x, 3.61, z, .19, .36, '#fff0c4', P.cyl6); S.add(P.cone6, M(x, 3.97, z, .28, .2, .28), C('#2f3640')); cyl(S, x, 4.17, z, .03, .1, '#2f3640', P.cyl6); box(S, x + .22, 3.2, z, .5, .04, .04, '#2f3640'); };
+    const bin = (x, z) => { shade(x, z, .7, .7); cyl(S, x, 0, z, .26, .82, '#4f7a5a', P.cyl8); cyl(S, x, .82, z, .3, .07, '#3c5c45', P.cyl8); cyl(S, x, .3, z, .275, .05, '#3c5c45', P.cyl8); };
+    const planter = (x, z, w = 1.1) => { shade(x, z, w + .25, .75); box(S, x, 0, z, w, .46, .5, '#b5643e', 0, { ao: .28 }); box(S, x, .44, z, w + .06, .06, .56, '#c97250'); for (let k = 0; k < 3; k++) S.add(P.ico, M(x - w * .3 + k * w * .3, .58, z, .3, .26, .26, k), C(PAL.leaf[(k * 2 + 1) % PAL.leaf.length])); for (const [d, c] of [[-.35, '#ff8fb1'], [.05, '#ffd166'], [.38, '#ff8fb1']]) S.add(P.ico, M(x + d, .78, z + .08, .07, .07, .07), C(c)); };
     const bollard = (x, z) => { cyl(S, x, 0, z, .08, .8, '#3b4350', P.cyl6); cyl(S, x, .8, z, .1, .06, '#f4c152', P.cyl6); };
     const wheel = (B, x, y, z, r, w) => { B.add(P.cyl12, M(x, y, z - w / 2, r, w, r, 0, Math.PI / 2), C('#1c1f25')); B.add(P.cyl12, M(x, y, z - w / 2 - .012, r * .62, w + .024, r * .62, 0, Math.PI / 2), C('#c9ccd2')); B.add(P.cyl8, M(x, y, z - w / 2 - .03, r * .2, w + .06, r * .2, 0, Math.PI / 2), C('#6b7280')); };
     /** Parked car along x on the road (y -0.15). dir = +1 faces +x. */
     const car = (x, z, c, dir = 1) => {
-      const y = -.15; box(S, x, y + .28, z, 4.1, .5, 1.72, c); box(S, x - dir * .15, y + .76, z, 2.3, .5, 1.56, c); box(S, x, y + .2, z, 4.2, .14, 1.76, '#2a2f38');
+      const y = -.15; shade(x, z, 4.5, 2.1, true); box(S, x, y + .28, z, 4.1, .5, 1.72, c); box(S, x - dir * .15, y + .76, z, 2.3, .5, 1.56, c); box(S, x, y + .2, z, 4.2, .14, 1.76, '#2a2f38');
       for (const s of [-1, 1]) { box(S, x - dir * .15, y + .82, z + s * .785, 2.0, .34, .02, '#2c3e50'); box(S, x - dir * .15, y + .82, z + s * .79, .06, .36, .02, c); wheel(S, x - 1.3, y + .32, z + s * .78 + (s > 0 ? .2 : 0), .32, .2); wheel(S, x + 1.3, y + .32, z + s * .78 + (s > 0 ? .2 : 0), .32, .2); }
       box(S, x + dir * 1.01, y + .8, z, .04, .36, 1.4, '#2c3e50'); box(S, x - dir * 1.31, y + .8, z, .04, .34, 1.4, '#2c3e50');
       for (const s of [-1, 1]) { box(S, x + dir * 2.06, y + .46, z + s * .6, .03, .14, .34, '#fff6d8'); box(S, x - dir * 2.06, y + .46, z + s * .6, .03, .12, .34, '#d9473b'); }
@@ -97,7 +99,7 @@
     const movable = (B, name) => { const m = add(new THREE.Mesh(B.geometry(), mat)); m.name = name; return m; };
     // hazy far skyline so the gaps between houses are never empty sky
     const skyline = z => { for (let k = 0; k < 9; k++) { const x = -44 + k * 11 + (k % 2) * 3, h = 9 + (k * 37 % 7) * 1.6; box(S, x, 0, z, 9, h, 6, ['#d9cdb8', '#cfd6d9', '#e0cdb4'][k % 3]); box(S, x, h, z, 9.4, .5, 6.4, '#c08a66'); } };
-    const ctx = { id, signMat, disposables, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
+    const ctx = { id, signMat, disposables, shade, plinth, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
     const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) };
 
     // ---- meshes: street (1), signs (1), houses (1 + one per facade style)
@@ -106,14 +108,13 @@
     const houses = new THREE.Group(); houses.scale.setScalar(U); houses.name = 'houses (map pieces)'; group.add(houses); houses.updateMatrix();
     const addH = m => { m.castShadow = m.receiveShadow = true; m.matrixAutoUpdate = false; m.updateMatrix(); houses.add(m); disposables.push(m.geometry, m.material); };
     addH(new THREE.Mesh(W.solid.geometry(), mat));
-    const aniso = opts.renderer ? Math.min(4, opts.renderer.capabilities.getMaxAnisotropy()) : 2, tex = K.paintFacades(false, aniso);
+    const aniso = opts.renderer ? Math.min(4, opts.renderer.capabilities.getMaxAnisotropy()) : 2, tex = K.paintFacades(false, aniso, s => W.facade[s].tris ? (s === 'shop' ? 3 : 2) : 0);
     for (const s of Object.keys(K.FACADE)) {
-      const t = tex[s]; disposables.push(t.map); if (t.emissive) disposables.push(t.emissive);
-      if (!W.facade[s].tris) continue;
+      const t = tex[s]; if (!t) continue; disposables.push(t.map); if (t.emissive) disposables.push(t.emissive);
       addH(new THREE.Mesh(W.facade[s].geometry(), K.facadeMaterial(t, false, s === 'office' ? .45 : .85, s === 'office' ? .75 : .12)));
     }
     // ---- morning light: low warm sun (long shadows), cool sky fill, warm sky gradient, light haze
-    const hemi = new THREE.HemisphereLight(0xcfe3ff, 0xd8b78a, .66), sun = new THREE.DirectionalLight(0xffdcae, 1.75), amb = new THREE.AmbientLight(0xffffff, .06);
+    const hemi = new THREE.HemisphereLight(0xc4dcff, 0xdcb98c, .54), sun = new THREE.DirectionalLight(0xffd7a3, 2.05), amb = new THREE.AmbientLight(0xffffff, .05);
     const sunDir = new THREE.Vector3(.58, .44, .68).normalize();
     sun.castShadow = !!opts.shadows; sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -.0007; sun.shadow.normalBias = .05; sun.shadow.radius = 2;
     group.add(hemi, sun, sun.target, amb);
@@ -150,7 +151,7 @@
     house({ style: 'plaster', x: 27.6, z: -13.2, w: 12, d: 10, floors: 2, tint: PAL.oldTown[5], roof: 'hip', roofColor: C(PAL.terracotta[4]) });
     house({ style: 'plaster', x: -18, z: 14, w: 11, d: 10, floors: 2, tint: PAL.oldTown[4], roof: 'hip', roofColor: C(PAL.terracotta[3]), ry: Math.PI });
     house({ style: 'brick', x: 2, z: 14, w: 14, d: 10, floors: 2, tint: PAL.oldTown[6], roof: 'hip', roofColor: C(PAL.terracotta[4]), ry: Math.PI, shop: true, awning: PAL.awning[1] });
-    c.skyline(-48);
+    c.skyline(-48); c.plinth(-44, -11.6, -8.12); c.plinth(-5.6, 44, -8.12); c.shade(3.7, -5.9, 4.2, 1.9);
     picto('bread', -18, 4.6, -8.14); picto('cup', 5.4, 4.6, -8.14); picto('flower', -2.3, 4.6, -8.14);
     // the stop: glass shelter with a poster end, slatted bench, round stop sign, timetable
     for (const x of [2.0, 3.7, 5.4]) box(S, x, 0, -6.45, .09, 2.5, .09, '#3d4654');
@@ -192,7 +193,7 @@
     house({ style: 'plaster', x: 31.6, z: -8.6, w: 11, d: 10, floors: 2, tint: PAL.oldTown[0], roof: 'hip', roofColor: C(PAL.terracotta[3]) });
     house({ style: 'plaster', x: -6, z: 17.5, w: 16, d: 10, floors: 2, tint: PAL.oldTown[7], roof: 'hip', roofColor: C(PAL.terracotta[2]), ry: Math.PI });
     house({ style: 'brick', x: 12, z: 17.5, w: 14, d: 10, floors: 3, tint: PAL.oldTown[3], roof: 'hip', roofColor: C(PAL.terracotta[5]), ry: Math.PI });
-    c.skyline(-44);
+    c.skyline(-44); c.plinth(-44, 4.2, -3.52); c.plinth(5.8, 10.1, -3.52); c.plinth(11.9, 44, -3.52); c.shade(-14.2, 2.1, 6.4, 2.4, true); c.shade(-4.25, -1.2, .7, 1.5);
     picto('book', 0, 4.6, -3.55); picto('flower', -19.6, 4.6, -3.55);
     // door: frame, leaf with a window, brass handle, step, mat, wall lantern, the opening bell
     box(S, 11, 0, -3.64, 1.66, 2.56, .14, '#3a2b24'); box(S, 11, .02, -3.52, 1.3, 2.3, .07, '#6b4630'); box(S, 11, 1.25, -3.47, .86, .8, .03, '#33485c'); box(S, 11, 1.62, -3.455, .86, .2, .02, '#587891'); box(S, 11, .25, -3.47, .9, .7, .03, '#5a3a28');
@@ -215,7 +216,7 @@
     puddle.position.set(-.5, .006, -1.2); puddle.scale.set(.75, 1, 1.05); add(puddle, false, true);
     for (let z = -13.5; z < .2; z += .9) for (const x of [4.25, 5.05]) if ((Math.round(z * 10) + Math.round(x * 4)) % 3) box(S, x + .35, -.005, z + .4, .7, .01, .8, '#cdbfa7');
     tree(-6.6, -2.7, 4); tree(16.6, -2.7, 4.2); tree(-21, -2.7, 4.4); tree(27, -2.7, 4.2); tree(2, 9.2, 4.2); tree(14, 9.4, 4.4);
-    lamp(-2.2, -3.1); lamp(6.5, -3.1); lamp(15, -3.1); lamp(-12, -3.1); bin(14.0, -3.0); planter(9.0, -3.1); planter(12.95, -3.1); planter(-1.6, -3.1, 1.5); planter(1.6, -3.1, 1.5);
+    lamp(-2.2, -3.1); lamp(6.5, -3.1); lamp(15, -3.1); lamp(-15.2, -3.1); bin(14.0, -3.0); planter(9.0, -3.1); planter(12.95, -3.1); planter(-1.6, -3.1, 1.5); planter(1.6, -3.1, 1.5);
     for (const x of [3.9, 6.1]) bollard(x, .2);
     // movable things: cyclist, the new heavy bag, the guard's pillow, Pip's old hand wraps
     const Cb = new K.Batch();
