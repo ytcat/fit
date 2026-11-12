@@ -53,7 +53,7 @@
   <script src="./camera-director.js?v=2026111109"></script>
   <script src="./club-world.js?v=2026111103"></script>
   <link rel="stylesheet" href="./club-interface.css?v=2026111119" />
-  <script src="./version.js?v=2026111202"></script>
+  <script src="./version.js?v=2026111205"></script>
   <script src="./club-interface.js?v=2026111112" defer></script>
   <link rel="stylesheet" href="./ringfighter-controls.css?v=2026111012" />
   <script src="./ringfighter-controls.js?v=2026111112" defer></script>
@@ -97,8 +97,8 @@
   <script src="./adventure/story/story-sets.js?v=2026111202" defer></script>
   <script src="./adventure/story/story-scenes.js?v=2026111202" defer></script>
   <script src="./adventure/oldtown.js?v=2026111202" defer></script>
-  <script src="./adventure/adventure-ui.js?v=2026111201" defer></script>
-  <link rel="prefetch" href="./adventure/gloryland-map.js?v=2026111202">
+  <script src="./adventure/adventure-ui.js?v=2026111204" defer></script>
+  <link rel="prefetch" href="./adventure/gloryland-map.js?v=2026111203">
   <link rel="stylesheet" href="./modes-menu.css?v=2026111100">
   <script src="./modes-menu.js?v=2026111100" defer></script>
   <script src="./game-shell.js?v=2026111114" defer></script>
@@ -926,7 +926,7 @@
         this.playSample('swing',event.move?.includes('hook')?.12:.08,event.move?.includes('uppercut')?.96:1.02,0,5500);
       }
       sampledApplause() {
-        if(this.samples.has('applause')){this.crowdGain=this.playSample('applause',.50,1);return true;}
+        if(this.samples.has('applause')){this.crowdGain=this.playSample('applause',.50,1);this.playSample('applause',.26,1,.35);this.playSample('applause',.18,1,.8);if(this.samples.has('clap-1'))for(let i=0;i<14;i++)this.playSample('clap-'+(1+i%3),.10+.08*Math.random(),.9+.25*Math.random(),.15+i*.19+.12*Math.random());return true;}
         if(!this.samples.has('clap-1'))return false;
         const ctx=this.ctx,rate=ctx.sampleRate,duration=3.8,buffer=ctx.createBuffer(2,Math.ceil(rate*duration),rate);
         for(let person=0;person<18;person++){
@@ -1063,6 +1063,8 @@
         const activateSound=event=>{if(['stageSound','soundBtn'].includes(event.target?.id))return;if(!this.audio.muted)this.audio.init(true);};
         for(const type of ['pointerup','touchend','click'])document.addEventListener(type,activateSound,{passive:true});
         document.addEventListener('visibilitychange',()=>{if(!document.hidden&&this.audio.unlocked&&!this.audio.muted)this.audio.init();});
+        // Sound could vanish mid-training: iOS suspends or interrupts the audio context (call, notification, silent switch, tab switch) and nothing resumed it. Any touch or key now brings it back.
+        for(const type of ['pointerdown','touchend','keydown'])document.addEventListener(type,()=>{const a=this.audio,c=a&&a.ctx;if(c&&a.unlocked&&!a.muted&&c.state!=='running')c.resume()?.catch?.(()=>{});},{capture:true,passive:true});
         this.drillIdx = 0;
         this.round = 1;
         this.clock = 180;

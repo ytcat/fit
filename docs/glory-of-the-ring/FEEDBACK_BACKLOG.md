@@ -725,6 +725,57 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "I don't understand the story flow. What is the beginning? What is the end? I don't understand what's going on. Where is the start?" Also confirmed: route dots drawn over roofs, truncated tile names, clipped sheet.
 - **Plan:** first open of Adventure plays a chapter title and the arrival scene, then one "Start the story" button; afterwards a primary "Continue story" button with the next mission; chapter goal line and "Step N of 5"; chapter end with closing scene, "Chapter complete", route dots and the next chapter's title; "Story so far" recap on return. Route dots as 3D markers on the road; short tile labels; sheet not clipped.
 
+### GOTR-0061 — Smarter side games and better city graphics
+- **Reported:** 2026-11-12
+- **Status:** IN PROGRESS (agents `story-3` skill trials, `city-gfx` city graphics)
+- **Priority:** P1
+- **Reported behavior / request:** "Let's improve the graphics on the city and side tasks. Also improve the side games; I don't like a game where the lion needs to carry a bag. How is this interesting? Be smart and intelligent, and make the game smart and intelligent. Players will be gamers aged 12 to 50 who play advanced games, so story and graphics are crucial."
+- **Design rule (integrator):** no chore, carry or escort games. Every side game is a 45–90 s skill trial built on the boxing mechanics: readable challenge, escalating difficulty, risk/reward, medals (1–3 stars), personal best, harder variant after gold. Humour lives in scenes and characters.
+- **Trials:** Ch.1 "Brick's bag" (pendulum bag: timing + punch selection + slip), "Sleep talker" (memory combos, Simon-style); Ch.2 "Rooftop barrage" (dodge and reflect), "Cut him off" (footwork puzzle: cutting off the ring), "The hustler's bet" (read feints, wager coins).
+- **City graphics:** ambient occlusion, colour grading per time of day, animated water, moving traffic/boats/pedestrians, landmark craft, cinematic camera; budget ≤ 60 draw calls, ≤ 350k triangles.
+- **Next design steps (not started):** bosses with readable patterns and phases, scouting a rival before the fight, story choices with consequences.
+
+### GOTR-0062 — Bosses with phases and tells, scouting, story choices
+- **Reported:** 2026-11-12 ("Yes, design the bosses, scouting and story choices"; design approved: "Yes, build it")
+- **Status:** APPROVED DESIGN — `docs/adventure/BOSSES_SCOUTING_CHOICES.md`; build queued (Opus agent) starting with Brick, when an agent slot frees
+- **Priority:** P1
+
+### GOTR-0063 — Adventure is the permanent main screen; Training and Fight behind one side icon
+- **Reported:** 2026-11-12
+- **Status:** IN PROGRESS (agent `adventure-home`, Opus)
+- **Reported behavior / request:** "Take training, fight and adventure off the main permanent screen. Always stay in adventure mode; the three modes go into one icon on the side of the screen that expands to small icons below it for training and fight. There should always be a way to get back to adventure."
+- **Owner follow-up (2026-11-12, screenshot v1.42):** remove BOTH rows — the Train/Fight/Adventure tabs and the station toolbar (Shadowbox ▾, Train 15s, Auto, Fight Academy) — because they overlap the fighter's head; Adventure is the default; everything else as small icons at the screen edge; nothing may cover the fighter's head or body (add the head to the HUD overlap audit).
+
+### GOTR-0064 — Lion head and face (and the other avatars)
+- **Reported:** 2026-11-12 (three reference pictures of lion boxers, style targets only, not stored in the repo)
+- **Status:** OPEN — queued for the 3D agent after the stance work (same rig files)
+- **Reported behavior / request:** "Please fix the lion head. His head is sharp on the top and he needs more volume. Improve the shape of his face; same for the rest of the avatars."
+- **Targets from the references:** broad rounded skull, heavy brow, strong wide muzzle with defined nose bridge and chin, eyes set under the brow with a focused look, full voluminous mane flowing back and down onto the shoulders (no pointed top), small rounded ears inside the mane; rabbit: fuller cheeks and skull, stronger jaw, expressive brow. Original design; references set the quality level only.
+
+### GOTR-0065 — Street, underground and story fights without a boxing ring
+- **Reported:** 2026-11-12
+- **Status:** OPEN — queued for agent `city-gfx` after the city graphics
+- **Reported behavior / request:** "When you have a street fight, you don't need a ring, you just need a floor and an audience. It's a street fight; same with underground, or missions where you fight against a robber or any other characters in your story."
+- **Plan:** Street Fight, Basement and Dockside Hangar lose the ring (posts, ropes, canvas); fights happen on the ground inside a close circle of spectators with fitting lighting; no referee there; a per-venue `ring:false` flag so story missions can use ringless fights anywhere.
+
+### GOTR-0066 — Street-level city scenes must look like a real 3D city
+- **Reported:** 2026-11-12
+- **Status:** WAITING FOR ASSETS from the owner (GLB models / textures), then build
+- **Reported behavior / request:** "When I asked to update city graphics, it's not the map; it's when the player is in the city: the buildings, the street, the cars, everything looks 2D and like geometric squares, not like real buildings or designed streets. Remember GTA games; I understand you will not get to that level, but this is my goal. If I can help by generating pictures or files in ChatGPT and uploading them, tell me."
+- **Plan:** owner supplies free-licence or generated assets into `assets/street/` on the integration branch (GLB models < 10 MB each: buildings, bus, cars, stalls, lamps, props; seamless 1024 px textures; sky panoramas; concept pictures). Integrator adds a GLTF loader for three r128, rebuilds the story sets (`adventure/story/*`) from the models with proper lighting and shadows, within the phone budget. No real brands or logos; licence noted per asset in `assets/street/LICENSES.md`.
+
+### GOTR-0067 — Story scenes: street clothes, a sport bag and natural movement
+- **Reported:** 2026-11-12 (v1.41 arrival scene)
+- **Status:** OPEN — queued for the 3D story agent at the next resume (with GOTR-0049 outfits)
+- **Reported behavior / request:** "I don't get it: he is wearing boxing clothes getting out of the bus, and all the time he stands he's shadowboxing. He should get out of the bus wearing normal clothes with a sport bag in his hand. He is on the street, not in a fight. Everyone has to have appropriate clothes in movement."
+- **Plan:** street outfit for the fighter in all street scenes (hoodie/T-shirt, joggers/jeans, sneakers, sport bag; no gloves or boxing shorts); relaxed walk/idle/look-around animations instead of guard and shadowboxing; every character dressed for the place (Pip tracksuit + whistle, Brick gym wear, Dash street wear, locals everyday clothes); boxing gear only in gym, training and fights. Proposed new arrival beat: a pickpocket grabs the bag, the fighter stops him with one reflex, Pip notices ("Fast hands. Ever boxed? Come by my gym.").
+
+### GOTR-0068 — Sound disappears during mitt training; better applause
+- **Reported:** 2026-11-12
+- **Status:** READY FOR QA — v1.44 (integrator; not verified on a phone)
+- **Reported behavior / request:** "During mitts training sometimes the sound disappeared. Also improve claps at fight sound."
+- **Likely cause:** `playSample` is silent whenever the audio context is not running, and iOS suspends/interrupts it (notification, call, silent switch, tab switch); it was only resumed on tab return. **Fix:** any touch or key resumes the context. Applause: the recorded room applause now plays in three staggered layers at native pitch with individual claps on top. If the sound still drops, capture when (after a pause? after many fast hits?) to look for a voice-limit cause.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
