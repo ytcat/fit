@@ -926,23 +926,24 @@
         this.playSample('swing',event.move?.includes('hook')?.12:.08,event.move?.includes('uppercut')?.96:1.02,0,5500);
       }
       sampledApplause() {
-        if(this.samples.has('applause')){this.crowdGain=this.playSample('applause',.50,1);this.playSample('applause',.26,1,.35);this.playSample('applause',.18,1,.8);if(this.samples.has('clap-1'))for(let i=0;i<14;i++)this.playSample('clap-'+(1+i%3),.10+.08*Math.random(),.9+.25*Math.random(),.15+i*.19+.12*Math.random());return true;}
-        if(!this.samples.has('clap-1'))return false;
-        const ctx=this.ctx,rate=ctx.sampleRate,duration=3.8,buffer=ctx.createBuffer(2,Math.ceil(rate*duration),rate);
-        for(let person=0;person<18;person++){
-          const pan=person/17,period=.26+Math.random()*.22,offset=Math.random()*.36;
-          for(let at=offset;at<duration-.35;at+=period*(.90+Math.random()*.2)){
-            const sample=this.samples.get('clap-'+(1+(person+Math.floor(at*10))%3)).getChannelData(0),pitch=.94+Math.random()*.12,power=.12+Math.random()*.11;
-            const start=Math.floor(at*rate);
+        if(!this.samples.has('clap-1')){if(!this.samples.has('applause'))return false;this.crowdGain=this.playSample('applause',.50,1);return true;}
+        // The applause is built from single hand claps: 40 people, each with an own tempo, loudness, pitch and seat,
+        // joining within the first half second and dropping out one by one, so separate claps stay audible.
+        const ctx=this.ctx,rate=ctx.sampleRate,duration=5.2,buffer=ctx.createBuffer(2,Math.ceil(rate*duration),rate),people=40;
+        for(let person=0;person<people;person++){
+          const pan=person/(people-1),period=.22+Math.random()*.13,join=Math.random()*Math.random()*.55,leave=2.6+Math.random()*2.3,near=person%8===0?1.9:1,pitch=.86+Math.random()*.3,sample=this.samples.get('clap-'+(1+person%3)).getChannelData(0);
+          for(let at=join;at<Math.min(leave,duration-.5);at+=period*(.93+Math.random()*.14)){
+            const fade=Math.min(1,(leave-at)/.9),power=(.15+Math.random()*.10)*near*(.55+.45*fade),start=Math.floor(at*rate);
             for(let ch=0;ch<2;ch++){
-              const out=buffer.getChannelData(ch),balance=ch?.25+.75*pan:1-.75*pan;
+              const out=buffer.getChannelData(ch),balance=ch?.3+.7*pan:1-.7*pan;
               for(let i=0;i<sample.length/pitch&&start+i<out.length;i++)out[start+i]+=sample[Math.min(sample.length-1,Math.floor(i*pitch))]*power*balance;
             }
           }
         }
         let peak=0;for(let ch=0;ch<2;ch++)for(const v of buffer.getChannelData(ch))peak=Math.max(peak,Math.abs(v));
-        const scale=.65/Math.max(.65,peak);for(let ch=0;ch<2;ch++){const data=buffer.getChannelData(ch);for(let i=0;i<data.length;i++)data[i]*=scale;}
-        this.crowdGain=this.playSample(buffer,.48);return true;
+        const scale=.7/Math.max(.7,peak);for(let ch=0;ch<2;ch++){const data=buffer.getChannelData(ch);for(let i=0;i<data.length;i++)data[i]*=scale;}
+        if(this.samples.has('applause'))this.playSample('applause',.16,1);
+        this.crowdGain=this.playSample(buffer,.62);return true;
       }
       // Local recorded impacts; synthesis remains a fallback while samples load.
       hit(impact) {
