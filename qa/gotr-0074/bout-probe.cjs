@@ -1,0 +1,5 @@
+/* GOTR-0074 probe: a seeded Watch bout; reports the first frame where a foot target is unreachable or a root leaves the ring. */
+const path=require('path');const {engine}=require(path.join(__dirname,'..','gotr-0024','measure.cjs'));
+const e=engine('lion');e.player.setEnabled(false);e.targetMode='fight';e.fightOptions={preset:'quick',seed:+(process.argv[2]||3)};e.arena.setTarget('fight');const view=e.arena.fightView,m=view.match;let frames=0;
+while(!m.result&&frames++<3600){view.step();for(const [actor,coach] of Object.entries(view.coaches)){const bad=coach.metrics.footTargets.find(f=>f.error>=.002);if(bad||Math.abs(coach.root.position.x)>=1.25||Math.abs(coach.root.position.z)>=1.25){console.log('frame',frames,'phase',m.phase,actor,'move',view.specs[actor].move,'foot',bad&&bad.side,bad&&bad.error.toFixed(4),'lift',bad&&bad.lift,'root',coach.root.position.toArray().map(x=>+x.toFixed(2)),'scale',coach.root.scale.x,'down',m.fighters[actor].down);process.exit(0);}}}
+console.log('clean bout',frames,'frames');
