@@ -101,4 +101,6 @@ assert.equal(OT.CH[2].venue, 'street'); assert.equal(OT.BOSS.king_hyena.chapter,
   const r = run('influencer_challenge'); for (let i = 0; i < 20; i++) { window.app.engine.targetMode = 'speed'; D.influencer_challenge.imp(r, { actor: 'lion', receiver: 'speedbag' }); } assert.equal(stars(r), 1);
   assert.equal(D.crowd_circle.chain, 3); assert.equal(A.starsFor('crowd_circle', 3), 3);
 }
+// Tile labels: every mission has a short label in EN/HE/RU, at most 10 characters.
+for (const m of A.missions.filter(x => x.chapter <= 2)) for (const lang of ['en', 'he', 'ru']) { const t = OT.SHORT[m.id]?.[lang]; assert.ok(t && [...t].length <= 10, m.id + ' ' + lang + ' short label: ' + t); }
 console.log('adventure-oldtown ok');

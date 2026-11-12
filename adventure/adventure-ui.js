@@ -50,7 +50,7 @@
     const home = () => portrait() ? { x: 34, z: -14, dist: 250 } : { x: -2, z: 12, dist: 282 };
     function cleanup() {
       alive = false; cancelAnimationFrame(raf); window.removeEventListener('resize', resize);
-      if (map) map.dispose(); map = null;
+      clearRoute3d(); if (map) map.dispose(); map = null;
       if (renderer) { renderer.dispose(); renderer.forceContextLoss?.(); renderer.domElement.remove(); } renderer = null; scene = null;
     }
     modal.adventureCleanup = cleanup;
@@ -75,7 +75,6 @@
       return prev && !A.bossWon(g, A.chapters[n - 1].boss) ? ' adv-nextpin' : '';
     }
     // Route dots from one chapter pin to the next (player moving 1 -> 2), then the next pin is highlighted.
-    let routeEls = [];
     const flagKey = n => 'gotr.adv.route.' + n;
     const flag = (n, set) => { try { if (set) localStorage.setItem(flagKey(n), '1'); return localStorage.getItem(flagKey(n)) === '1'; } catch { return false; } };
     // Evenly spaced points along a polyline.
@@ -85,20 +84,30 @@
       for (let k = 1; k <= count; k++) { const d = total * k / (count + 1); let i = 1; while (i < seg.length - 1 && seg[i] < d) i++; const f = (d - seg[i - 1]) / ((seg[i] - seg[i - 1]) || 1); out.push([pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i][1] + (pts[i][1] - pts[i - 1][1]) * f]); }
       return out;
     }
-    let routeTimers = [];
-    function playRoute(n) {
-      const a = map?.places.find(q => q.id === CHAPTER_PIN[n]), b = map?.places.find(q => q.id === CHAPTER_PIN[n + 1]); if (!a || !b) return false;
-      routeTimers.forEach(clearTimeout); routeTimers = []; routeEls.forEach(d => d.el.remove()); routeEls = []; pins.forEach(q => q.el.classList.remove('adv-nextpin'));
-      // along the streets (A* on the road network); a straight line only if the places are not connected
-      const path = map.route?.(a.anchor, b.anchor), line = path && path.length > 3 ? path : [[a.anchor.x, a.anchor.z], [b.anchor.x, b.anchor.z]], count = Math.max(8, Math.min(16, Math.round(line.length / 6))), y = (a.anchor.y + b.anchor.y) / 2 * 0 + 0.4;
-      for (const [x, z] of along(line, count)) { const d = el('span', 'adv-route-dot'); pinsEl.append(d); routeEls.push({ el: d, pos: new THREE.Vector3(x, y, z) }); }
+    let routeTimers = [], routeGroup = null, routeMarks = [];
+    // Route markers are real 3D discs on the road (depth-tested: buildings hide them), gold with a dark rim, popping in one by one.
+    function clearRoute3d() { if (routeGroup) { scene?.remove(routeGroup); routeGroup.traverse(o => { o.geometry?.dispose(); o.material?.dispose?.(); }); } routeGroup = null; routeMarks = []; }
+    function playRoute(n, story) {
+      const a = map?.places.find(q => q.id === CHAPTER_PIN[n]), b = map?.places.find(q => q.id === CHAPTER_PIN[n + 1]); if (!a || !b || !scene) return false;
+      routeTimers.forEach(clearTimeout); routeTimers = []; clearRoute3d(); pins.forEach(q => q.el.classList.remove('adv-nextpin'));
+      // along the streets (A* on the road network, preferring streets the default camera can see); a straight line only if the places are not connected
+      const path = map.route?.(a.anchor, b.anchor), line = path && path.length > 3 ? path : [[a.anchor.x, a.anchor.z], [b.anchor.x, b.anchor.z]], count = Math.max(8, Math.min(16, Math.round(line.length / 6)));
+      routeGroup = new THREE.Group(); const rim = new THREE.MeshBasicMaterial({ color: 0x1a1206 }), gold = new THREE.MeshBasicMaterial({ color: 0xf4c152 });
+      const g1 = new THREE.CylinderGeometry(2.1, 2.1, .1, 20), g2 = new THREE.CylinderGeometry(1.5, 1.5, .16, 20);
+      const pts = [line[0], ...along(line, count), line[line.length - 1]]; // first and last sit at the pin bases
+      for (const [x, z] of pts) { const m = new THREE.Group(); m.add(new THREE.Mesh(g1, rim), new THREE.Mesh(g2, gold)); m.position.set(x, .8, z); m.scale.setScalar(.001); m.visible = false; routeGroup.add(m); routeMarks.push({ m, t0: 0 }); }
+      scene.add(routeGroup);
       fly({ x: (a.anchor.x + b.anchor.x) / 2, z: (a.anchor.z + b.anchor.z) / 2, dist: Math.min(300, 90 + a.anchor.distanceTo(b.anchor) * 1.1) });
       const step = reduced ? 0 : 150;
-      routeEls.forEach((d, i) => routeTimers.push(setTimeout(() => { if (alive) d.el.classList.add('on'); }, reduced ? 0 : 500 + i * step)));
-      routeTimers.push(setTimeout(() => { if (!alive) return; pins.find(q => q.p === b)?.el.classList.add('adv-nextpin'); modal.dataset.route = String(n); }, reduced ? 0 : 500 + routeEls.length * step + 150));
+      routeMarks.forEach((d, i) => routeTimers.push(setTimeout(() => { if (!alive) return; d.m.visible = true; d.t0 = performance.now(); if (reduced) d.t0 = -1e9; dirty = true; }, reduced ? 0 : 500 + i * step)));
+      routeTimers.push(setTimeout(() => { if (!alive) return; pins.find(q => q.p === b)?.el.classList.add('adv-nextpin'); modal.dataset.route = String(n); modal.dataset.routeDots = String(routeMarks.length); if (story && window.AdventureOldTown) setTimeout(() => { if (!alive) return; AdventureOldTown.titleCard(AdventureOldTown.chapterTitle(n + 1), 2000, () => { if (alive) select(b); }); }, 700); }, reduced ? 0 : 500 + routeMarks.length * step + 150));
       flag(n, true); dirty = true; return true;
     }
-    function checkRoute() { const A = P(), g = game(); if (!A || !g) return; for (let n = 1; n <= 4; n++) if (A.bossWon(g, A.chapters[n - 1].boss) && !flag(n)) { playRoute(n); return; } }
+    function animateRoute(now) {
+      if (!routeMarks.length) return; const base = Math.max(.7, cam.dist / 170);
+      for (const d of routeMarks) { if (!d.t0) continue; const k = Math.min(1, (now - d.t0) / 350), pop = k < .6 ? k / .6 * 1.7 : 1.7 - (k - .6) / .4 * .7; d.m.scale.setScalar(Math.max(.001, pop * base)); }
+    }
+    function checkRoute() { const A = P(), g = game(); if (!A || !g) return; for (let n = 1; n <= 4; n++) if (A.bossWon(g, A.chapters[n - 1].boss) && !flag(n)) { playRoute(n, true); return; } }
     function makePins() {
       pinsEl.replaceChildren(); pins = [];
       for (const p of map.places) {
@@ -115,7 +124,6 @@
     const v3 = window.THREE ? new THREE.Vector3() : null;
     function placePins() {
       const W = stage.clientWidth, H = stage.clientHeight;
-      for (const d of routeEls) { v3.copy(d.pos).project(camera); d.el.style.transform = `translate(${((v3.x + 1) / 2 * W).toFixed(1)}px,${((1 - v3.y) / 2 * H).toFixed(1)}px) translate(-50%,-50%)`; }
       for (const { p, el: b, tag } of pins) {
         v3.copy(p.anchor).project(camera);
         const vis = v3.z < 1 && Math.abs(v3.x) < 1.1 && Math.abs(v3.y) < 1.1;
@@ -127,6 +135,7 @@
       }
     }
     // Compact bottom sheet (GOTR-0055): peek = title, icon facts, chapter progress, mission tiles; tap the handle or a tile to expand.
+    const SIDE_SHORT = { fort: L('Fort', 'מבצר', 'Форт'), fair: L('Fair', 'יריד', 'Ярмарка'), cove: L('Cove', 'מפרץ', 'Бухта'), tech: L('Tech Pier', 'מזח', 'Пирс') };
     const COACH_ICON = { pip: '🐰', vix: '🦊', tusk: '🦭', kip: '🦘', tembo: '🐘' };
     function progressBar(chap) {
       const A = P(), g = game(), ms = A.missions.filter(m => m.chapter === chap), stars = ms.reduce((n, m) => n + (g.adventure?.missions[m.id]?.stars || 0), 0), max = ms.length * 3 || 27, boss = A.bossWon(g, A.chapters[chap - 1].boss), units = max + 1;
@@ -143,7 +152,7 @@
       const info = PLACES[p.id]; if (!info) return;
       fly(p.focus);
       card.replaceChildren(); card.classList.remove('open');
-      { const n = +Object.keys(CHAPTER_PIN).find(k => CHAPTER_PIN[k] === p.id) || 0; if (n && n < 5 && P().bossWon(game(), P().chapters[n - 1].boss) && !reduced) setTimeout(() => { if (alive) playRoute(n); }, 700); }
+      { const n = +Object.keys(CHAPTER_PIN).find(k => CHAPTER_PIN[k] === p.id) || 0; if (n && n < 5 && P().bossWon(game(), P().chapters[n - 1].boss) && !reduced) { const first = !flag(n); setTimeout(() => { if (alive) playRoute(n, first); }, 700); } }
       const A = P(), g = game(), chap = p.chapter || info.chapterOf || 0, zone = A.sideZones.find(z => z.id === p.id), cinfo = A.chapters[chap - 1];
       const handle = button('', () => card.classList.toggle('open'), 'adv-handle'); handle.setAttribute('aria-label', w.more); handle.setAttribute('aria-expanded', 'false'); handle.append(el('span'));
       card.append(handle);
@@ -161,11 +170,13 @@
         d.append(fact(COACH_ICON[cinfo.coach] || '🐾', T(info.coach).split(/[,·]/)[0], `${w.coach}: ${T(info.coach)}`), fact('🥊', `Lv ${info.level}`, `${w.boss}: ${T(info.boss)} · ${w.entry} ${info.level}`), fact('★', `${stars}/${A.missions.filter(m => m.chapter === chap).length * 3}`, ''));
         card.append(d, progressBar(chap));
       } else if (info.sub && p.kind !== 'chapter') card.append(el('p', 'adv-sub-line', T(info.sub)));
-      const town = (p.id === 'oldtown' || p.id === 'market') && window.AdventureOldTown ? AdventureOldTown.render(ctx, { chapter: p.id === 'market' ? 2 : 1, expand: () => { card.classList.add('open'); handle.setAttribute('aria-expanded', 'true'); } }) : null;
+      if (p.id === 'market') window.AdventureOldTown?.chapterIntro(2);
+      const town = (p.id === 'oldtown' || p.id === 'market') && window.AdventureOldTown ? AdventureOldTown.render(ctx, { select: id => { const q = map?.places.find(z => z.id === id); if (q) select(q); }, chapter: p.id === 'market' ? 2 : 1, expand: () => { card.classList.add('open'); handle.setAttribute('aria-expanded', 'true'); } }) : null;
       const tiles = el('div', 'adv-tiles');
       if (town) tiles.append(...town.tiles);
       const sideZone = A.sideZones.find(z => z.chapter === chap && A.chapterOpen(g, chap, false)), sp = sideZone && map.places.find(q => q.id === sideZone.id);
-      if (sp) { const t = button('', () => select(sp), 'adv-tile adv-tile-side'); t.append(el('i', 'adv-tile-ico', '✦'), el('span', 'adv-tile-name', T(PLACES[sp.id].name)), el('span', 'adv-tile-state', w.sq)); t.setAttribute('aria-label', `${w.sq}: ${T(PLACES[sp.id].name)}`); tiles.append(t); }
+      if (sp) { const t = button('', () => select(sp), 'adv-tile adv-tile-side'); t.append(el('i', 'adv-tile-ico', '✦'), el('span', 'adv-tile-name', T(SIDE_SHORT[sp.id] || PLACES[sp.id].name)), el('span', 'adv-tile-state', w.sq)); t.setAttribute('aria-label', `${w.sq}: ${T(PLACES[sp.id].name)}`); tiles.append(t); }
+      if (town) { const gl = card.querySelector('.adv-glance'); if (gl && town.goal) card.insertBefore(el('p', 'adv-goal-line', town.goal), gl); if (town.recap) card.append(town.recap); if (town.primary) card.append(town.primary); }
       if (tiles.children.length) card.append(tiles);
       if (town) card.append(...town.rest); else if (p.kind !== 'chapter' || !info.coach) card.append(el('p', 'adv-soon', info.side ? w.sideSoon : w.soon));
       card.classList.toggle('adv-has-town', !!town); modal.classList.toggle('adv-town-open', true);
@@ -173,7 +184,8 @@
       if (info.train) acts.append(button(`${w.train} · ${venueName(info.train)}`, () => { change({ type: 'venue', venueId: info.train }); startTraining({ mode: 'pads', play: true }); }, 'game-button adv-go'));
       for (const id of info.arenas || []) acts.append(button(`${w.fight} · ${venueName(id)}`, () => { if (change({ type: 'venue', venueId: id })) startFight({}); }, 'game-button adv-go' + (info.train ? ' adv-alt' : '')));
       card.append(acts); card.hidden = false;
-      requestAnimationFrame(() => { const t = card.querySelector('.adv-tiles'); card.style.setProperty('--peek', t ? (t.offsetTop + t.offsetHeight + 8) + 'px' : 'auto'); });
+      const fitPeek = () => { const t = card.querySelector('.adv-tiles'); if (!card.classList.contains('open')) card.scrollTop = 0; if (alive) card.style.setProperty('--peek', t ? (t.offsetTop + t.offsetHeight + 4) + 'px' : 'none'); };
+      requestAnimationFrame(fitPeek); setTimeout(fitPeek, 300); setTimeout(fitPeek, 1200); document.fonts?.ready?.then(fitPeek);
       new MutationObserver(() => handle.setAttribute('aria-expanded', String(card.classList.contains('open')))).observe(card, { attributes: true, attributeFilter: ['class'] });
     }
     function setTime(t) {
@@ -202,6 +214,7 @@
       const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
       if (goal) { const k = 1 - Math.exp(-dt * 4); cam.x += (goal.x - cam.x) * k; cam.z += (goal.z - cam.z) * k; cam.dist += (goal.dist - cam.dist) * k; if (Math.abs(goal.dist - cam.dist) < .3 && Math.abs(goal.x - cam.x) < .3) goal = null; apply(); }
       if (!reduced) { map.update(dt, camera, renderer); dirty = true; } else if (dirty) map.update(0, camera, renderer);
+      animateRoute(performance.now());
       if (dirty) { renderer.render(scene, camera); placePins(); dirty = false; }
     }
     loadMap().then(() => new Promise(r => requestAnimationFrame(() => setTimeout(r, 30)))).then(() => {
@@ -218,6 +231,7 @@
       ctx.onReady?.({ route: playRoute, map, cam, select: id => { const p = map.places.find(q => q.id === id); if (p) select(p); }, pins: () => pins.map(q => q.el) });
       raf = requestAnimationFrame(frame);
       setTimeout(() => { if (alive) checkRoute(); }, 900);
+      setTimeout(() => { if (alive) window.AdventureOldTown?.onOpen?.(ctx); }, 400);
     }).catch(() => { status.textContent = w.failed; });
   }
   window.AdventureUI = { render, places: PLACES, copy };
