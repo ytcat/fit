@@ -11,8 +11,8 @@
  *       glow (batch of unlit bright things: bulbs, lantern glass), pool(x, z, r, hex) (light pool on the ground)
  *       return { x, z, r, time?: 'morning' | 'evening' } (where the sun's shadow box starts; evening = low orange sun,
  *       dusk sky, lit windows). Built-in sets: 'busstop', 'gymfront' (morning), 'market' (evening).
- *   objects of the built-in sets: busstop { bus } ; gymfront { bag, cyclist, pillow, wraps } ; market { whistle, balloon,
- *       pigeon, crate, crate2, bar, bar2, basket } (hidden until a scene uses them)
+ *   objects of the built-in sets: busstop { bus } ; gymfront { bag, stand, cyclist, pillow, wraps } ; market { whistle,
+ *       balloon, balloon2 (gold), pigeon, crate, crate2, bar, bar2, basket } (hidden until a scene or trial uses them)
  * World: metres, y up, the street runs along x, the camera side is +z. Walking surfaces are at y = 0, the road at -0.15. */
 (() => {
   const MAP_SRC = './adventure/gloryland-map.js?v=2026111100';
@@ -243,6 +243,9 @@
     Bg.add(P.cyl20, M(0, -.5, 0, .17, 1.0, .17), C('#a4262c')); Bg.add(P.cyl20, M(0, .38, 0, .176, .12, .176), C('#1d1f24')); Bg.add(P.cyl20, M(0, -.52, 0, .176, .1, .176), C('#1d1f24'));
     Bg.add(P.cyl20, M(0, -.08, 0, .173, .22, .173), C('#f3f6fb')); Bg.add(P.cyl20, M(0, .02, 0, .1745, .03, .1745), C('#f4c152')); for (let k = 0; k < 4; k++) Bg.add(P.box, M(Math.cos(k * TAU / 4) * .1, .5, Math.sin(k * TAU / 4) * .1, .02, .14, .02), C('#aab2bc')); Bg.add(P.cyl8, M(0, .63, 0, .05, .02, .05), C('#aab2bc'));
     objects.bag = movable(Bg, 'heavy bag'); objects.bag.position.set(-13, 1.1, -.4); objects.bag.visible = false;
+    const St = new K.Batch(); for (const z of [-1.0, 1.0]) { St.add(P.box, M(0, 0, z, .11, 2.72, .11), C('#5b3a2a')); St.add(P.box, M(0, 0, z, 1.3, .08, .14), C('#3a2b24')); St.add(P.box, M(.3, 1.9, z * .82, .08, .9, .08, 0, 0, .0), C('#5b3a2a')); }
+    St.add(P.box, M(0, 2.62, 0, .14, .14, 2.25), C('#3a2b24')); St.add(P.cyl8, M(0, 2.5, 0, .035, .12, .035), C('#aab2bc')); St.add(P.box, M(0, 2.76, 0, .2, .26, 1.7), C('#1d2026'));
+    objects.stand = movable(St, 'bag stand'); objects.stand.visible = false;
     const Pw = new K.Batch(); Pw.add(P.sph, M(0, 0, 0, .3, .12, .2), C('#f7f3ea')); for (const s of [-1, 1]) Pw.add(P.ico, M(s * .29, 0, .17 * 0, .05, .05, .05), C('#c9d6e6')); Pw.add(P.box, M(0, -.02, 0, .5, .04, .1), C('#9fc3e6'));
     objects.pillow = movable(Pw, 'pillow'); objects.pillow.visible = false;
     const Wr = new K.Batch(); for (const s of [-1, 1]) { Wr.add(P.cyl12, M(s * .06, -.05, 0, .055, .1, .055), C('#f3ead8')); Wr.add(P.cyl12, M(s * .06, -.02, 0, .057, .03, .057), C('#e63946')); } Wr.add(P.box, M(0, -.06, .05, .2, .02, .03), C('#f3ead8'));
@@ -316,6 +319,8 @@
     objects.whistle = movable(Wh, 'whistle'); objects.whistle.visible = false;
     const Ba = new K.Batch(); Ba.add(P.sph, M(0, 0, 0, .2, .24, .2), C('#3fc1e8')); Ba.add(P.cone6, M(0, -.3, 0, .05, .08, .05), C('#2b8fb0')); Ba.add(P.ico, M(.07, .1, .13, .05, .06, .03), C('#c9f2ff'));
     objects.balloon = movable(Ba, 'water balloon'); objects.balloon.visible = false;
+    const Bg2 = new K.Batch(); Bg2.add(P.sph, M(0, 0, 0, .2, .24, .2), C('#ffc94d')); Bg2.add(P.cone6, M(0, -.3, 0, .05, .08, .05), C('#c9952a')); Bg2.add(P.ico, M(.07, .1, .13, .05, .06, .03), C('#fff4c4')); Bg2.add(P.cyl12, M(0, -.02, 0, .215, .04, .215), C('#fff4c4'));
+    objects.balloon2 = movable(Bg2, 'gold balloon'); objects.balloon2.visible = false;
     const Pg = new K.Batch(); Pg.add(P.sph, M(0, 0, 0, .1, .1, .17), C('#8f98a8')); Pg.add(P.sph, M(0, .09, .15, .065, .065, .07), C('#6f7888')); Pg.add(P.cone6, M(0, .07, .2, .02, .06, .02, 0, Math.PI / 2), C('#f2b632'));
     for (const sx of [-1, 1]) Pg.add(P.box, M(sx * .17, .02, -.02, .26, .02, .16, 0, 0, sx * -.35), C('#aab2bc')); Pg.add(P.box, M(0, -.01, -.2, .1, .02, .12), C('#6f7888'));
     objects.pigeon = movable(Pg, 'pigeon'); objects.pigeon.visible = false;
