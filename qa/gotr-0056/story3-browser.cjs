@@ -17,6 +17,9 @@ const ready = p => wait(p, () => window.ringfighterGame && app.engine.coach?.ana
       const tag = `${W}x${H}-${lang}`, p = await b.newPage({ viewport: { width: W, height: H } }), errors = []; p.on('pageerror', e => errors.push(e.message));
       await p.goto(URL, { timeout: 300000 }); await ready(p);
       await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); localStorage.removeItem('gotr.trial.v1'); if (!app.engine.career.store.current()) app.engine.career.store.create('Story QA'); });
+      // v1.45: the first Adventure open of a new profile plays the arrival scene by itself; mark it seen so it cannot replace the scene under test
+      await p.evaluate(() => { const id = app.engine.career.store.current()?.id; localStorage.setItem('gotr.adv.intro.' + id, '1'); }); await p.waitForTimeout(3500);
+      await p.evaluate(() => { StoryScenes.stop(); document.querySelectorAll('dialog[open]').forEach(d => d.close()); document.getElementById('advTitleCard')?.remove(); });
       await p.evaluate(l => app.setLanguage(l), lang); await p.evaluate(f => { window.__forceShadows = f; }, !!process.env.SHADOWS);
       const where = () => p.evaluate(() => { const r = app.engine.coach.root; return { parent: r.parent?.type || null, x: r.position.x, z: r.position.z, inStage: !!document.querySelector('main#stageContainer canvas'), stageInBody: document.getElementById('stageContainer')?.closest('dialog') === null }; });
       const before = await where(), ids = await p.evaluate(() => ({ scenes: StoryScenes.sceneIds, games: StoryScenes.gameIds }));
