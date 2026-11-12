@@ -735,6 +735,11 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **City graphics:** ambient occlusion, colour grading per time of day, animated water, moving traffic/boats/pedestrians, landmark craft, cinematic camera; budget ≤ 60 draw calls, ≤ 350k triangles.
 - **Next design steps (not started):** bosses with readable patterns and phases, scouting a rival before the fight, story choices with consequences.
 
+### GOTR-0062 — Bosses with phases and tells, scouting, story choices
+- **Reported:** 2026-11-12 ("Yes, design the bosses, scouting and story choices"; design approved: "Yes, build it")
+- **Status:** APPROVED DESIGN — `docs/adventure/BOSSES_SCOUTING_CHOICES.md`; build queued (Opus agent) starting with Brick, when an agent slot frees
+- **Priority:** P1
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
