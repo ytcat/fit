@@ -22,8 +22,18 @@
 /* no tab row: the header keeps only its first row on phones */
 .game-nav[hidden]{display:none!important}
 @media(max-width:800px){body.gm-on.game-enabled.club-app .club-header{min-height:0!important;grid-template-rows:40px}}
-/* the toolbar under the header keeps the button's corner free */
-body.gm-on .ringside-toolbar{padding-inline-end:52px}
+/* owner follow-up: the station toolbar row (station ▾, Train 15s, Auto, Fight Academy) is gone too; its controls are the edge icons
+   below the modes button and Fight Academy is in the modes stack. The stage gets the freed height. */
+body.gm-on .ringside-toolbar{display:none!important}
+/* a short row beside the modes button, in the band above the fighters' heads (never down the side, where fighters move) */
+.gm-edge{position:absolute;top:0;right:calc(100% + 6px);display:flex;flex-direction:row-reverse;gap:6px}
+.gm-rtl .gm-edge{right:auto;left:calc(100% + 6px)}
+.gm-edge[hidden],.gm-tool[hidden]{display:none}
+.gm-tool{box-sizing:border-box;width:var(--gr-control-h,44px);height:var(--gr-control-h,44px);padding:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;font:700 11px/1 inherit;font-family:inherit;color:var(--gr-text,#f3f6fb);background:color-mix(in srgb,var(--gr-surface-2,#1a2230) 78%,transparent);border:1px solid var(--gr-border,#2b364a);-webkit-tap-highlight-color:transparent;touch-action:manipulation;overflow:hidden;white-space:nowrap}
+.gm-tool:focus-visible{outline:2px solid var(--gr-info,#3b82f6);outline-offset:2px}
+.gm-tool:disabled{opacity:.45;cursor:default}
+.gm-tool-timer{background:var(--gr-accent,#e63946);border-color:var(--gr-accent,#e63946);color:var(--gr-accent-ink,#fff)}
+.gm-tool-auto[data-state="auto"]{border-color:var(--gr-info,#3b82f6)}
 /* Adventure home: a full-width layer below the header (header buttons stay usable), not a floating modal */
 .game-dialog.adv-dialog.game-home{position:fixed;inset:var(--gm-home-top,0px) 0 0 0;top:var(--gm-home-top,0px);width:100%;max-width:100%;height:auto;max-height:none;margin:0;border-radius:0;border-width:0;z-index:19}
 .game-dialog.adv-dialog.game-home>.game-dialog-head,.game-dialog.adv-dialog.game-home>.game-primary{display:none}
