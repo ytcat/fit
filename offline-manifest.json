@@ -93,6 +93,8 @@
     "./adventure/oldtown.js?v=2026111202",
     "./adventure/adventure-ui.js?v=2026111204",
     "./adventure/gloryland-map.js?v=2026111203",
+    "./modes-menu.css?v=2026111100",
+    "./modes-menu.js?v=2026111100",
     "./game-shell.js?v=2026111114",
     "./assets/models/coach-surface-v2.json?v=1",
     "./assets/models/equipment-surfaces-r76.json",
