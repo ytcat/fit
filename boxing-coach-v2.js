@@ -1028,12 +1028,12 @@
       // options.stance turns it on (1) where a station uses it; off by default (demos, sparring station, mitt coach).
       const stanceWeight=(options.stance??0)*(move==='speedbag'?0:move==='guard'||move==='step'?1:1-smooth((phase-.02)/.16)*(1-smooth((phase-.56)/.28)));
       // The rear glove keeps its place at the chin unless it punches; the forward lead glove comes back to the
-      // cheek for any punch (it covers while the rear hand throws) and for an active block.
-      const punch=['jab','hook','uppercut','cross','rear_hook','rear_uppercut'].includes(move),block=options.guardStyle?clamp(options.brace??1):0;
+      // cheek for any punch (it covers while the rear hand throws) and for an active block or brace.
+      const punch=['jab','hook','uppercut','cross','rear_hook','rear_uppercut'].includes(move),block=clamp(options.guardStyle?options.brace??1:options.blockCover||0);
       const leadStance=(punch?stanceWeight:(options.stance??0))*(1-block),rearStance=(['cross','rear_hook','rear_uppercut'].includes(move)?stanceWeight:(options.stance??0))*(1-block);
       // Stagger the neutral guard; close cover still protects the cheek.
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
-      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness)+.035*leadStance,lerp(.395,.265,guardTightness)+(.08+.16*guardTightness)*leadStance).add(V(.055,.12,.020).multiplyScalar(guardCover));
+      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness)+.035*leadStance,lerp(.395,.265,guardTightness)+(.185+.155*guardTightness)*leadStance).add(V(.055,.12,.020).multiplyScalar(guardCover));
       const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness)-.03*rearStance,lerp(options.guardHeight??1.68,1.70,guardTightness)+.03*rearStance,lerp(.255,.235,guardTightness)+.02*rearStance).add(V(-.055,.12,.020).multiplyScalar(guardCover));
       const lead=leadGuard.clone(),rear=rearGuard.clone();
       const guardElbowZ=options.guardElbowBack!=null?-options.guardElbowBack:.1;
@@ -1209,7 +1209,7 @@
         crouch+=.015*kineticLoad*kineticPower;
       }
       // GOTR-0051: bladed orthodox stance in the guard (pelvis ~10 deg, chest ~33 deg lead side forward; the turn sits in the thorax so the cross keeps its drive).
-      hipYaw+=.12+.05*stanceWeight;chestYaw+=.08;const blade=.33*stanceWeight;
+      hipYaw+=.12+.05*stanceWeight*(1-block);chestYaw+=.08;const blade=.33*stanceWeight*(1-block);
       hips.position.set(shift,.935-crouch,forward);
       hips.rotation.set(0,hipYaw,pelvisRoll);
       // Spread the thoracic turn over the back instead of rotating a rigid chest.

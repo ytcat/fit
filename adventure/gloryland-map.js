@@ -517,13 +517,19 @@ function streetRoute(W, a, b) {
   }
   const blocked = new Uint8Array(NX * NZ);
   for (const bl of W.blocks) { const [x0, x1, z0, z1] = box(bl, 0); for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) if (inRect(bl, x + .5, z + .5, -.3)) blocked[idx(x, z)] = 1; }
-  const walk = (x, z) => x >= X0 && x < X0 + NX && z >= Z0 && z < Z0 + NZ && ok[idx(x, z)] && !blocked[idx(x, z)];
+  // Streets first; where two places are not joined by streets (the Docks), open ground between the buildings is allowed at a high cost.
+  const landMemo = new Int8Array(NX * NZ), land = (x, z) => { const i = idx(x, z); return landMemo[i] ? landMemo[i] > 0 : (landMemo[i] = landOK(x + .5, z + .5, 1) ? 1 : -1) > 0; };
+  const inGrid = (x, z) => x >= X0 && x < X0 + NX && z >= Z0 && z < Z0 + NZ;
+  const walk = (x, z) => inGrid(x, z) && !blocked[idx(x, z)] && (ok[idx(x, z)] || land(x, z));
   const near = p => { const cx = Math.floor(p.x), cz = Math.floor(p.z); for (let r = 0; r < 14; r++) for (let dz = -r; dz <= r; dz++) for (let dx = -r; dx <= r; dx++) if (Math.max(Math.abs(dx), Math.abs(dz)) === r && walk(cx + dx, cz + dz)) return [cx + dx, cz + dz]; return null; };
   const s0 = near(a), g0 = near(b); if (!s0 || !g0) return null;
   const gi = idx(g0[0], g0[1]), dist = new Float32Array(NX * NZ).fill(1e9), prev = new Int32Array(NX * NZ).fill(-1), done = new Uint8Array(NX * NZ);
   const heap = [[0, idx(s0[0], s0[1])]]; dist[heap[0][1]] = 0;
   const push = it => { heap.push(it); let i = heap.length - 1; while (i) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
   const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { let m = i; const l = 2 * i + 1, r = l + 1; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };
+  // Cells a tall block hides from the default chapter camera (yaw .24, pitch .9: looking north-north-west from the south) cost extra,
+  // so the dots prefer streets the player can see. A block of about 6 units hides what lies within 6 / tan(pitch) behind it.
+  const hid = new Int8Array(NX * NZ), hidden = (x, z) => { const i = idx(x, z); if (hid[i]) return hid[i] > 0; let h = false; for (let d = 1; d <= 5 && !h; d++) { const bx = Math.round(x + Math.sin(.24) * d), bz = Math.round(z + Math.cos(.24) * d); if (inGrid(bx, bz) && blocked[idx(bx, bz)]) h = true; } hid[i] = h ? 1 : -1; return h; };
   const edge = (x, z) => { let n = 0; for (let dz = -1; dz <= 1; dz++) for (let dx = -1; dx <= 1; dx++) if (!walk(x + dx, z + dz)) n++; return n ? 1.6 : 0; };
   while (heap.length) {
     const [d, cur] = pop(); if (done[cur]) continue; done[cur] = 1; if (cur === gi) break;

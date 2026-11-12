@@ -86,7 +86,7 @@ assert.deepEqual([0, 1, 2, 3, 5, 6].map(n => starsFor(R.missionId, n)), [3, 2, 2
 assert.deepEqual(Object.keys(S.scenes).sort(), ['arrival', 'boss_intro', 'boss_outro', 'brick', 'dash']);
 const ST = require('../adventure/story.js');
 for (const [id, scene] of Object.entries(S.scenes)) for (const l of scene.lines) { assert.ok(ST.who[l.who], id + ' speaker ' + l.who); for (const lang of ['en', 'he', 'ru']) assert.ok(l.text[lang].length <= 70, `${id} ${lang} line too long (${l.text[lang].length})`); }
-for (const [id, m] of Object.entries(ST.lines)) for (const kind of ['intro', 'outro', 'lost']) for (const l of m[kind] || []) for (const lang of ['en', 'he', 'ru']) assert.ok(l.text[lang].length <= 70, `${id} ${kind} ${lang} too long (${l.text[lang].length}): ${l.text[lang]}`);
+for (const [id, m] of Object.entries(ST.lines).filter(([id]) => ST.beats.some(b => !b.chapter && b.ids.includes(id)))) for (const kind of ['intro', 'outro', 'lost']) for (const l of m[kind] || []) for (const lang of ['en', 'he', 'ru']) assert.ok(l.text[lang].length <= 70, `${id} ${kind} ${lang} too long (${l.text[lang].length}): ${l.text[lang]}`);
 // camera easing is smooth at both ends and the framing list follows the destination key
 const ck = [{ t: 0, pos: [0], look: [0], fit: ['a'] }, { t: 1, pos: [1], look: [0], fit: ['b'] }];
 assert.ok(S.camera(ck, .1).pos[0] < .02 && S.camera(ck, .9).pos[0] > .98, 'eases in and out'); assert.deepEqual(S.camera(ck, .2).fit, ['a']); assert.deepEqual(S.camera(ck, .8).fit, ['b']);

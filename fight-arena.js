@@ -196,10 +196,13 @@
    if(m.phase==='round')this.separateTorso(false);
    const specs={lion:this.punchSpec('lion'),rabbit:this.punchSpec('rabbit')},metrics={};
    for(const actor of ['lion','rabbit']){
-    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={stance:0,guardElbowBack:.55,guardWidth:.24,guardHeight:1.72,guardCover:1,keepFaceClear:true,legReachMargin:.002+(m.phase==='round'?.012*(this.straightPreparationWeight||0):0),simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,guardStyle:spec.guardStyle,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28*(f.footwork||1)};
+    const coach=this.coaches[actor],spec=specs[actor],f=m.fighters[actor],state=this.recoveryState(actor),options={stance:1,guardElbowBack:.55,guardWidth:.24,guardHeight:1.72,guardCover:1,keepFaceClear:true,legReachMargin:.002+(m.phase==='round'?.012*(this.straightPreparationWeight||0):0),simulationTime:m.time,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,guardStyle:spec.guardStyle,brace:spec.brace,hitReaction:this.reaction(actor),damage:f.damage,stamina:f.stamina,down:state.down,duckDepth:.28*(f.footwork||1)};
     if(m.phase==='round'&&this.footPlants){
      options.plantedContacts={};for(const side of ['L','R']){const anchor=this.footPlants[actor+side];if(anchor)options.plantedContacts[side]=coach.root.worldToLocal(coach.root.parent.localToWorld(anchor.clone())).toArray();}
     }
+    // GOTR-0051: when a punch is coming the forward lead glove tightens back to the cheek cover, so blocks keep
+    // the proven guard geometry (a straight caught on the glove still lands extended); it opens again afterwards.
+    {const threat=specs[other(actor)];if(threat.attack&&!spec.attack)options.blockCover=clamp(threat.phase/.14)*(1-clamp((threat.phase-.62)/.25));}
     const path=travel[actor];
     if(m.phase==='round'&&path.weight>.001&&!ceremony){const yaw=coach.ringYaw,local=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw),first=Math.abs(local.z)>=Math.abs(local.x)?(local.z>=0?-1:1):(local.x>=0?1:-1);options.ringStep={first,phase:path.phase,ease:path.ease,weight:path.weight,turn:0,delta:local.toArray()};}
     if(spec.attack){
