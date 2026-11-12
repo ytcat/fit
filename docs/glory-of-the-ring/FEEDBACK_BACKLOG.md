@@ -772,6 +772,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** OPEN — P1
 - **Request:** at the break each fighter walks to their own corner; a cornerman puts a stool in the corner (corner colour), the fighter sits, the cornerman puts a towel on them, and the fighter drinks water from a bottle; they stand up and the stool is removed before the next round.
 
+### GOTR-0077 — "Brick's bag" trial: hard to hit properly; scene must look and move realistically
+- **Reported:** 2026-11-12 (v1.47, story step 2: the swinging bag trial with two characters)
+- **Status:** OPEN — P1 (queued; starts when an agent slot frees)
+- **Owner's words:** "This is a good task, but I'm not managing to hit properly. Something doesn't work right, so improve the usability and experience and graphics around this… the scene, the theme, the movement, everything has to be more realistic, the movements more smooth, and shadows. Add better design of the street, the road, the bag, everything."
+- **Acceptance:** (1) input: find why hits do not register (timing window, touch target, missing feedback) with measurements; a first-time player lands a hit within the first 3 swings; clear cue for the right moment and clear hit / miss feedback; works with the punch pad on a phone. (2) motion: bag swings with real pendulum physics, reacts to each hit; the Fighter's punch connects with the bag (no gap, no pass-through); smooth 60 fps motion of all characters. (3) look: street set with a real road, kerb, pavement, building fronts, street lamp, shadows for every character and the bag; a believable heavy bag (chain, swivel, leather, seams). Phone pictures before/after shown to the owner.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
