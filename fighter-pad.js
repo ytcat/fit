@@ -196,10 +196,12 @@
    const c=e.camera;if(!c?.setViewOffset)return;
    if(c.view?.enabled&&!ownView)return;// someone else frames the camera: leave it alone
    const none=next.k<=1.0005&&next.d<.5;if(none&&!ownView){frame={k:1,d:0};return;}
-   if(!none&&ownView&&Math.abs(next.k-frame.k)<.0015&&Math.abs(next.d-frame.d)<.4)return;
-   frame=none?{k:1,d:0}:{k:next.k,d:next.d};
-   if(none){c.clearViewOffset();ownView=false;}
-   else{c.setViewOffset(1,1,(1-frame.k)/2,(1-frame.k)/2+frame.d*frame.k/(H||1),frame.k,frame.k);ownView=true;}
+   // three.js sets camera.aspect = fullWidth/fullHeight in setViewOffset, so the full size must carry the real picture shape.
+   const cv=e.renderer?.domElement,A=cv&&cv.clientHeight?cv.clientWidth/cv.clientHeight:c.aspect;
+   if(!none&&ownView&&Math.abs(next.k-frame.k)<.0015&&Math.abs(next.d-frame.d)<.4&&Math.abs(A-frame.a)<.001)return;
+   frame=none?{k:1,d:0}:{k:next.k,d:next.d,a:A};
+   if(none){c.clearViewOffset();if(Math.abs(c.aspect-A)>.001){c.aspect=A;c.updateProjectionMatrix();}ownView=false;}
+   else{c.setViewOffset(A,1,(1-frame.k)/2*A,(1-frame.k)/2+frame.d*frame.k/(H||1),frame.k*A,frame.k);ownView=true;}
    e.lastRenderStamp=null;
   }
   // Natural (lens-free) screen extent of the boxers: top of the heads and the lowest foot, in stage pixels.

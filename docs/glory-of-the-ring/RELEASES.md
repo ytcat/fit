@@ -8,7 +8,8 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.45 | 2026-11-12 | _pending_ | The Adventure map is the home screen: both top rows removed, Training / Fight / Rivals & Cup / Academy behind one round button at the side, so nothing sits over the fighter's head (GOTR-0063). Compact guard in every mode: gloves beside the cheeks, elbows bent, southpaw kept (GOTR-0051). Applause after fights is built from 40 separate hand claps (GOTR-0068) |
+| v1.46 | 2026-11-12 | _pending_ | Fix: picture no longer stretched tall on phones in training and fights (GOTR-0070). Lion head rounded with a full mane, stronger face; rabbit head filled out (GOTR-0064) |
+| v1.45 | 2026-11-12 | `28fbf42` | The Adventure map is the home screen: both top rows removed, Training / Fight / Rivals & Cup / Academy behind one round button at the side, so nothing sits over the fighter's head (GOTR-0063). Compact guard in every mode: gloves beside the cheeks, elbows bent, southpaw kept (GOTR-0051). Applause after fights is built from 40 separate hand claps (GOTR-0068) |
 | v1.44 | 2026-11-12 | `0b8c40e` | Sound comes back after the phone interrupts it (any touch resumes audio); fuller crowd applause after fights (layered room applause plus individual claps) |
 | v1.43 | 2026-11-12 | `9310611` | Adventure map is never stretched: it re-fits whenever its box changes size (panel opened, rotation, browser bars) |
 | v1.42 | 2026-11-12 | `18f1226` | City map graphics: soft shadows, cloud shadows, water shimmer, morning/evening/night colour moods, moving cars, tram, boats, walkers and birds, glow on the current chapter's landmark, smoother camera — GOTR-0061 |
