@@ -757,6 +757,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "When you have a street fight, you don't need a ring, you just need a floor and an audience. It's a street fight; same with underground, or missions where you fight against a robber or any other characters in your story."
 - **Plan:** Street Fight, Basement and Dockside Hangar lose the ring (posts, ropes, canvas); fights happen on the ground inside a close circle of spectators with fitting lighting; no referee there; a per-venue `ring:false` flag so story missions can use ringless fights anywhere.
 
+### GOTR-0066 — Street-level city scenes must look like a real 3D city
+- **Reported:** 2026-11-12
+- **Status:** WAITING FOR ASSETS from the owner (GLB models / textures), then build
+- **Reported behavior / request:** "When I asked to update city graphics, it's not the map; it's when the player is in the city: the buildings, the street, the cars, everything looks 2D and like geometric squares, not like real buildings or designed streets. Remember GTA games; I understand you will not get to that level, but this is my goal. If I can help by generating pictures or files in ChatGPT and uploading them, tell me."
+- **Plan:** owner supplies free-licence or generated assets into `assets/street/` on the integration branch (GLB models < 10 MB each: buildings, bus, cars, stalls, lamps, props; seamless 1024 px textures; sky panoramas; concept pictures). Integrator adds a GLTF loader for three r128, rebuilds the story sets (`adventure/story/*`) from the models with proper lighting and shadows, within the phone budget. No real brands or logos; licence noted per asset in `assets/street/LICENSES.md`.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
