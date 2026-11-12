@@ -178,6 +178,7 @@
       const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.72,roughnessMap:roughnessMap('cloth'),
         bumpMap:detailMap('cloth'),bumpScale:.00065,skinning:true,side:THREE.DoubleSide});
       this.skin=this.skinned(this.sculptBody(meshFrom(this.species==='rabbit'&&data.rabbitBody?data.rabbitBody:data.body,true)),skin,true);
+      this.sculptHead();
       // A continuous saddle at the crotch with two separate, open leg hems.
       // The previous solid ellipsoid bridge stretched into a flap between legs.
       if(!LionCoach.shortsGeometry){
@@ -324,6 +325,7 @@
         this.curve(this.joints['thigh'+side],[V(s*.125,.055,.075),V(s*.15,-.10,.08),V(s*.15,-.25,.08)],this.gold,.006);
       }
       if(this.species==='rabbit')this.addRabbitFace();else {this.addFace();this.addMane();}
+      this.fitFaceToSkull();
       // Adult athletic proportions: reduce skull/face size consistently with the
       // sculpted skin while retaining a broad lion mane around the neck.
       this.joints.head.children.forEach(part=>{part.position.multiplyScalar(.90);part.scale.multiplyScalar(.90);});
@@ -418,6 +420,57 @@
         p.setXYZ(i,x,y,z);
       }
       p.needsUpdate=true;g.computeVertexNormals();return g;
+    }
+
+    // GOTR-0064: rounded skull, brow, cheeks and jaw (see headForm); the same field moves the face parts.
+    // Runs after the skin is installed: the baked shoulder correctives and the muscle relief are validated against
+    // the authored rest surface, so the head is reshaped afterwards and only vertices above the neck base move.
+    sculptHead() {
+      const g=this.skin.geometry,p=g.attributes.position;
+      for(let i=0;i<p.count;i++){
+        const x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(y<=1.75)continue;
+        const d=this.headForm(x/.9,(y-1.84)/.9,z/.9);p.setXYZ(i,x+.9*d.x,y+.9*d.y,z+.9*d.z);
+      }
+      p.needsUpdate=true;g.computeVertexNormals();g.computeBoundingBox();g.computeBoundingSphere();
+    }
+
+    // GOTR-0064: one smooth displacement field for the head, in head-joint coordinates before the 0.9 head scale.
+    // The skin and every face part (eyes, brows, nose, whiskers, ears) are moved by the same field, so nothing
+    // floats or sinks. It fades out at the neck and stays ~0 around the mouth (animated mouth parts are fixed there).
+    headForm(x,y,z,out=this.headShift||(this.headShift=V())) {
+      const bell=(v,c,r)=>Math.exp(-(((v-c)/r)**2)),s=x<0?-1:1,ax=Math.abs(x),front=smooth((z+.02)/.10),back=smooth((-z-.02)/.10);
+      let dx=0,dy=0,dz=0;
+      if(this.species==='rabbit'){
+        // The skull used to taper to a narrow top between the ears: fill the crown, forehead and occiput.
+        const up=smooth((y-.10)/.21);
+        dx+=x*.34*up;dz+=z*.24*up;dy+=.016*up*bell(x,0,.13);
+        const cheek=.028*bell(y,.070,.055)*bell(ax,.150,.055)*smooth(z/.08);dx+=s*.85*cheek;dz+=.5*cheek;
+        dx+=s*.013*bell(y,0,.045)*smooth((ax-.08)/.05)*smooth((z+.05)/.08);
+        dz+=.010*bell(y,-.015,.030)*bell(x,0,.06)*smooth((z-.10)/.06);
+        dz+=.008*bell(y,.215,.020)*bell(ax,.080,.045)*front;
+      }else{
+        // Dome between the ears above the brow line (was a flat top), fuller forehead and occiput.
+        // Kept low and fairly flat in front: the mane's hairline comes down over it, so the forehead stays short.
+        dy+=.020*smooth((y-.235)/.11)*bell(x,0,.20);
+        dz+=.014*bell(y,.30,.08)*bell(x,0,.15)*front-.030*back*bell(y,.20,.16);
+        // Heavy brow over the eyes, nose bridge, cheekbones, wider whisker pads, chin and jaw.
+        dz+=.014*bell(y,.222,.020)*bell(ax,.085,.050)*front+.008*bell(x,0,.030)*bell(y,.19,.05)*front;
+        const cheek=.014*bell(y,.120,.045)*bell(ax,.170,.050)*front;dx+=s*.8*cheek;dz+=.4*cheek;
+        dx+=s*.010*bell(y,.055,.040)*bell(ax,.10,.05)*smooth((z-.20)/.05);
+        const chin=bell(y,-.020,.030)*bell(x,0,.07)*smooth((z-.12)/.06);dz+=.014*chin;dy-=.008*chin;
+        dx+=s*.012*bell(y,0,.05)*smooth((ax-.09)/.05)*smooth((z+.05)/.08);
+      }
+      const fade=smooth((y+.09)/.05);return out.set(dx*fade,dy*fade,dz*fade);
+    }
+    // Move the face parts with the sculpted skull: placed parts move as a whole, drawn curves vertex by vertex.
+    fitFaceToSkull() {
+      for(const part of this.joints.head.children){
+        if(part===this.mane||part.userData.mane)continue;
+        if(part.position.lengthSq()>0||!part.geometry){part.position.add(this.headForm(part.position.x,part.position.y,part.position.z));continue;}
+        const p=part.geometry.attributes.position;
+        for(let i=0;i<p.count;i++){const d=this.headForm(p.getX(i),p.getY(i),p.getZ(i));p.setXYZ(i,p.getX(i)+d.x,p.getY(i)+d.y,p.getZ(i)+d.z);}
+        p.needsUpdate=true;part.geometry.computeBoundingSphere();
+      }
     }
 
     skinned(g,material,colour) {
@@ -602,11 +655,13 @@
       for(const s of [-1,1]){
         const ear=new THREE.Group();ear.position.set(s*.085,.235,-.012);head.add(ear);this.rabbitEars.push(ear);
         this.ellipsoid(ear,grey,V(0,.20,0),V(.064,.255,.042));
+        // GOTR-0064: a thick ear root that grows out of the skull instead of a thin tip stuck into it.
+        this.ellipsoid(ear,grey,V(0,.045,-.004),V(.060,.085,.047));
         this.ellipsoid(ear,pink,V(0,.205,.034),V(.036,.207,.013));
         this.ellipsoid(head,eye,V(s*.079,.17,.147),V(.030,.025,.021)).userData.eye=true;
         this.ellipsoid(head,white,V(s*.064,.087,.207),V(.068,.052,.059));
         const tooth=this.ellipsoid(head,white,V(s*.014,.035,.244),V(.011,.019,.008));tooth.userData.tooth=true;tooth.visible=false;
-        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xffffff}),V(s*.075,.18,.165),V(.0025,.0025,.0015)).userData.eye=true;
+        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xffffff}),V(s*.079-.008,.180,.1655),V(.0055,.0055,.0025)).userData.eye=true;
         this.curve(head,[V(s*.048,.208,.143),V(s*.085,.216,.139),V(s*.114,.195,.124)],grey,.008);
         for(let i=0;i<3;i++)this.curve(head,[V(s*.057,.095-i*.017,.271),V(s*.16,.10-i*.017,.29),V(s*.23,.12-i*.025,.27)],white,.0009);
       }
@@ -622,15 +677,17 @@
       const wet=new THREE.MeshPhysicalMaterial({color:0x231c18,roughness:.34,clearcoat:.3,bumpMap:detailMap('leather'),bumpScale:.00045});
       const amber=new THREE.MeshPhysicalMaterial({color:0xb58b39,roughness:.28,clearcoat:.45});
       for(const s of [-1,1]) {
-        this.ellipsoid(head,wet,V(s*.091,.171,.176),V(.029,.019,.022)).userData.eye=true;
-        this.ellipsoid(head,amber,V(s*.091,.171,.195),V(.019,.013,.010)).userData.eye=true;
-        this.ellipsoid(head,this.black,V(s*.091,.171,.204),V(.009,.011,.004)).userData.eye=true;
-        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xfff5df}),V(s*.085,.177,.208),V(.0016,.0016,.001)).userData.eye=true;
-        this.curve(head,[V(s*.053,.18,.191),V(s*.09,.195,.190),V(s*.127,.177,.174)],wet,.004);
+        // GOTR-0064: larger eyes that read at phone size (dark rim, amber iris, pupil, one clear highlight).
+        this.ellipsoid(head,wet,V(s*.091,.171,.176),V(.038,.027,.0235)).userData.eye=true;
+        this.ellipsoid(head,amber,V(s*.091,.171,.1965),V(.0265,.0200,.011)).userData.eye=true;
+        this.ellipsoid(head,this.black,V(s*.091,.172,.2065),V(.0115,.0140,.004)).userData.eye=true;
+        this.ellipsoid(head,new THREE.MeshBasicMaterial({color:0xfff5df}),V(s*.091-.009,.181,.2095),V(.005,.005,.002)).userData.eye=true;
+        this.curve(head,[V(s*.046,.181,.192),V(s*.09,.203,.193),V(s*.134,.180,.172)],wet,.0050);
         this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x705037,roughness:1}),V(s*.164,.265,.025),V(.044,.050,.014));
         this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x604325,roughness:1}),V(s*.164,.265,-.044),V(.048,.053,.011));
-        this.curve(head,[V(s*.058,.154,.196),V(s*.092,.151,.203),V(s*.119,.159,.184)],wet,.0025);
-        this.curve(head,[V(s*.055,.213,.174),V(s*.090,.218,.168),V(s*.127,.201,.149)],new THREE.MeshStandardMaterial({color:0x79532e,roughness:.95}),.005);
+        this.curve(head,[V(s*.054,.148,.196),V(s*.092,.143,.203),V(s*.125,.153,.183)],wet,.0025);
+        // Strong brow: low at the nose, lifted outside, for a focused look.
+        this.curve(head,[V(s*.038,.205,.187),V(s*.086,.220,.177),V(s*.137,.215,.149)],new THREE.MeshStandardMaterial({color:0x5d3d20,roughness:.95}),.0072);
         this.curve(head,[V(0,.051,.300),V(s*.035,.015,.287),V(s*.094,.024,.269)],wet,.003);
         for(let i=0;i<7;i++) {
           const y=.044+(i%3)*.016,x=s*(.052+Math.floor(i/3)*.017);
@@ -646,52 +703,71 @@
       this.curve(head,[V(0,.08,.312),V(0,.051,.301)],wet,.003);
     }
     addMane() {
-      const positions=[],colors=[],flex=[],guideIds=[],head=this.joints.head;
-      const undercoat=this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x51351e,roughness:1,
-        bumpMap:detailMap('fur'),bumpScale:.004}),V(0,.065,-.065),V(.295,.355,.210));
-      const surface=undercoat.geometry.attributes.position;
+      // GOTR-0064: a full rounded mane. The old one was a thin upright disc with bristles (a pointed crest in side
+      // view). The coat is now a deep rounded hood around the skull and neck that reaches the shoulders, covered by
+      // broad overlapping locks that lie along it: they frame the face at the rim and flow back and down behind.
+      const positions=[],normals=[],colors=[],flex=[],guideIds=[],head=this.joints.head;
+      const centre=V(0,.09,-.085),power=2.3;
+      const hood=n=>{const rx=.345,ry=n.y>0?.355:.43,rz=n.z>0?lerp(.15,.24,smooth(-n.y*1.4))+.16*smooth((n.y-.42)/.25)*Math.exp(-((n.x/.38)**2)):.31;
+        return Math.pow(Math.pow(Math.abs(n.x/rx),power)+Math.pow(Math.abs(n.y/ry),power)+Math.pow(Math.abs(n.z/rz),power),-1/power);};
+      const undercoat=this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x4a2f1a,roughness:1,
+        bumpMap:detailMap('fur'),bumpScale:.004}),centre,V(1,1,1));undercoat.userData.mane=true;
+      const surface=undercoat.geometry.attributes.position,direction=V();
       for(let i=0;i<surface.count;i++) {
-        const x=surface.getX(i),y=surface.getY(i),z=surface.getZ(i);
-        const r=1+.025*Math.sin(x*17+y*11)*Math.sin(z*13-y*9);
-        surface.setXYZ(i,x*r,y*r,z*r);
+        direction.fromBufferAttribute(surface,i).normalize();direction.multiplyScalar(.93*hood(direction));
+        surface.setXYZ(i,direction.x,direction.y,direction.z);
       }
-      surface.needsUpdate=true;undercoat.geometry.computeVertexNormals();
-      // Distribute roots over the whole ellipsoid, including the occiput.
-      // The previous cylindrical ring left a bare oval on the rear of the skull.
-      for(let i=0;i<3200;i++) {
-        const a=i*2.399963229728653,nz=-1+1.70*(i+.5)/3200,r=Math.sqrt(1-nz*nz);
-        const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz);
-        const rootRadius=1+.025*Math.sin(normal.x*17+normal.y*11)*Math.sin(normal.z*13-normal.y*9);
-        const center=V(normal.x*.295*rootRadius,.065+normal.y*.355*rootRadius,-.065+normal.z*.210*rootRadius);
-        if(center.z>.025&&Math.abs(center.x)<.165&&center.y>-.03&&center.y<.29)continue;
-        const length=.045+random()*.035+Math.max(0,-normal.y)*.055;
-        const width=.003+random()*.004;
-        // Crown flows back; cheek locks fan down; nape trails the neck.
-        const crown=smooth((normal.y-.05)/.70),cheek=smooth((Math.abs(normal.x)-.25)/.60);
-        const outward=normal.clone().multiplyScalar(.66).add(V(normal.x*.24*cheek,-.64*(1-crown)-.12,-.20-.62*crown)).normalize();
-        const across=outward.clone().cross(Math.abs(outward.y)>.9?V(1,0,0):V(0,1,0)).normalize().multiplyScalar(width);
-        const colour=new THREE.Color().setHSL(.076+random()*.018,.46+random()*.10,.12+random()*.12);
-        for(let j=0;j<3;j++) {
-          const point=t=>center.clone().addScaledVector(outward,length*t).add(V(.005*Math.sin(a*11+t*4),-.045*(1-.88*crown)*t*t,-.023*t*t));
-          const t0=j/3,t1=(j+1)/3,p=point(t0),q=point(t1);
-          const p0=p.clone().addScaledVector(across,1-t0),p1=p.clone().addScaledVector(across,-(1-t0));
-          const q0=q.clone().addScaledVector(across,1-t1),q1=q.clone().addScaledVector(across,-(1-t1));
-          flex.push(t0,t0,t1,t0,t1,t1);
-          const sector=Math.min(5,Math.floor(((Math.atan2(normal.z,normal.x)+Math.PI)/(2*Math.PI))*6)),band=Math.min(3,Math.floor((normal.y+1)*2));
-          for(let k=0;k<6;k++)guideIds.push(band*6+sector);
-          for(const [k,v] of [p0,p1,q0,p1,q1,q0].entries()) {
-            positions.push(v.x,v.y,v.z);const linear=colour.clone().multiplyScalar(.80+.28*(k===2||k===4||k===5?t1:t0)).convertSRGBToLinear();colors.push(linear.r,linear.g,linear.b);
+      surface.needsUpdate=true;undercoat.geometry.computeVertexNormals();undercoat.geometry.computeBoundingSphere();
+      const count=1500,across=V(),lift=V(),tangent=V(),flow=V(),point=V(),shade=new THREE.Color();
+      for(let i=0;i<count;i++) {
+        const a=i*2.399963229728653,nz=-1+2*(i+.5)/count,r=Math.sqrt(1-nz*nz);
+        const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz),root=normal.clone().multiplyScalar(hood(normal)).add(centre);
+        const r0=random(),r1=random(),r2=random(),r3=random();
+        // The face stays open up to a low hairline over the forehead, and so do the ears at its upper corners.
+        if(root.z>-.01&&((root.x/.215)**2+((root.y-.105)/.215)**2<1||Math.hypot(Math.abs(root.x)-.168,root.y-.275)<.062))continue;
+        const rim=smooth((root.z+.10)/.16),top=smooth((normal.y+.1)/.8),low=smooth(-normal.y*1.2);
+        // Behind the face the locks flow back over the crown and down the neck; at the rim they fan out around the face.
+        flow.set(normal.x*.25,-.55-.45*(1-top),-.8*top-.25);
+        tangent.set(root.x,root.y-.13,0).normalize().add(V(0,-.25,-.35));flow.lerp(tangent,rim*.75);
+        // A short fringe along the hairline falls forward onto the top of the forehead.
+        const fringe=smooth((root.z-.02)/.06)*smooth((root.y-.27)/.05)*(1-smooth((Math.abs(root.x)-.10)/.08));
+        flow.lerp(tangent.set(root.x*2.2,-.55,.75),fringe);
+        tangent.copy(flow).addScaledVector(normal,-flow.dot(normal));
+        if(tangent.lengthSq()<1e-6)tangent.set(0,-normal.z,normal.y);tangent.normalize();
+        // A little spread in direction keeps the locks from lining up in rows.
+        tangent.applyAxisAngle(normal,(r2-.5)*.7);
+        const angle=.30+.25*rim+.15*r0,forward=tangent.clone().multiplyScalar(Math.cos(angle)).addScaledVector(normal,Math.sin(angle));
+        const length=(.125+.085*r1)*(1+.5*low)*(1-.25*rim*top)*(1-.50*fringe),width=.013+.012*r2,curl=(r3-.5)*.06;
+        across.crossVectors(forward,normal).normalize();lift.copy(normal).addScaledVector(forward,-normal.dot(forward)).normalize();
+        const tone=clamp(rim*.8+top*.25-low*.3+(r3-.5)*.3);
+        const colour=new THREE.Color().setHSL(lerp(.068,.085,tone)+r0*.01,lerp(.46,.58,tone),lerp(.15,.35,tone));
+        const sector=Math.min(5,Math.floor(((Math.atan2(normal.z,normal.x)+Math.PI)/(2*Math.PI))*6)),band=Math.min(3,Math.floor((normal.y+1)*2)),guide=band*6+sector;
+        const stations=[];
+        for(let j=0;j<=4;j++) {
+          const t=j/4,half=width*(1-t)*(.6+1.6*t);
+          point.copy(root).addScaledVector(normal,-.012).addScaledVector(forward,length*t).addScaledVector(normal,-.30*length*t*t).addScaledVector(across,curl*t*t);
+          point.y-=.035*t*t*(1-.6*top);
+          stations.push({t,p:[point.clone().addScaledVector(across,-half),point.clone().addScaledVector(lift,.35*half),point.clone().addScaledVector(across,half)]});
+        }
+        // Soft shading: each lock is a shallow ridge whose normals lean toward the coat normal.
+        const ridge=[lift.clone().multiplyScalar(.6).addScaledVector(across,-.8).addScaledVector(normal,.3).normalize(),lift.clone().addScaledVector(normal,.3).normalize(),lift.clone().multiplyScalar(.6).addScaledVector(across,.8).addScaledVector(normal,.3).normalize()];
+        for(let j=0;j<4;j++) {
+          const p=stations[j],q=stations[j+1];
+          for(const [station,k] of [[p,0],[p,1],[q,0],[p,1],[q,1],[q,0],[p,1],[p,2],[q,1],[p,2],[q,2],[q,1]]) {
+            const v=station.p[k],m=ridge[k];positions.push(v.x,v.y,v.z);normals.push(m.x,m.y,m.z);flex.push(station.t);guideIds.push(guide);
+            shade.copy(colour).multiplyScalar((.70+.44*station.t)*(k===1?1.06:1)).convertSRGBToLinear();colors.push(shade.r,shade.g,shade.b);
           }
         }
       }
       const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
-      g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeVertexNormals();
+      g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+      g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
       const mane=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:1}));
       head.add(mane);this.mane=mane;
       this.maneRest=new Float32Array(positions);this.maneFlex=new Float32Array(flex);this.maneGuideIds=new Uint8Array(guideIds);
       this.maneGuides=Array.from({length:24},(_,i)=>{
         const y=-.75+Math.floor(i/6)*.5,a=-Math.PI+(i%6+.5)*Math.PI/3,r=Math.sqrt(1-y*y),normal=V(Math.cos(a)*r,y,Math.sin(a)*r);
-        return {rest:V(normal.x*.36,.065+normal.y*.44,-.065+normal.z*.29),position:V(),velocity:V(),offset:V(),normal};
+        return {rest:normal.clone().multiplyScalar(hood(normal)+.06).add(centre),position:V(),velocity:V(),offset:V(),normal};
       });
     }
 
