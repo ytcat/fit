@@ -783,6 +783,13 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "During mitts training sometimes the sound disappeared. Also improve claps at fight sound."
 - **Likely cause:** `playSample` is silent whenever the audio context is not running, and iOS suspends/interrupts it (notification, call, silent switch, tab switch); it was only resumed on tab return. **Fix:** any touch or key resumes the context. Applause: the recorded room applause now plays in three staggered layers at native pitch with individual claps on top. If the sound still drops, capture when (after a pause? after many fast hits?) to look for a voice-limit cause.
 
+### GOTR-0069 — A real step-by-step story mode: levels, progress, unlocks
+- **Reported:** 2026-11-12
+- **Status:** IN PROGRESS (agent `story-flow`, branch `agent/story-flow`)
+- **Priority:** P1
+- **Reported behavior / request:** "I don't understand how the story starts, how he proceeds. You added a few buttons, but it doesn't actually tell a story. I want to start a story. I want step-by-step. I want levels. I want progress. I want to do something and finish it, and then it will open additional things. What I see right now is a flow bar, but with no reasonable flow narrative."
+- **Plan:** each chapter is an ordered list of numbered story steps; exactly one is current, finished steps show ✓ and stars (replayable), later steps are locked. The chapter sheet becomes a quest panel ("Chapter 1 · Old Town — Step 3 of N", title, why the Fighter does it now, measurable objective, rewards, one primary button) with a vertical timeline, progress bar and Fighter Level. Every step has a before beat and an after beat (scene or plain-text lines, never a box over the Fighter); the after beat reacts to the result and says what was unlocked, with Next / Retry / Back to map. The boss gate says exactly how many stars are missing and which steps to replay. First open: arrival → step 1 automatically; boss → outro → chapter summary → chapter 2. Existing saves keep their completed steps. Step lists in `docs/adventure/STORY.md`.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 

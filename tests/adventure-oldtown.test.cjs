@@ -17,7 +17,7 @@ for (const m of town) {
   if (D[m.id]) assert.ok(['training', 'help'].includes(m.type) || m.id === 'morning_sparring' || D[m.id].kind === 'scene', m.id + ' type'); // GOTR-0056: funny missions play as story-set scenes
   else assert.ok(m.type === 'funny' || m.id === 'first_stance', m.id + ' is not playable yet');
 }
-assert.deepEqual(Object.keys(D).sort(), ['bag_power', 'clean_hands', 'crowd_circle', 'curb_footwork', 'heavy_bag_van', 'influencer_challenge', 'kids_skateboard', 'morning_sparring', 'one_two_mitts', 'roll_under_hook', 'rooftop_callout', 'rope_rhythm', 'snoring_guard', 'teach_the_kid']);
+assert.deepEqual(Object.keys(D).sort(), ['bag_power', 'clean_hands', 'crowd_circle', 'curb_footwork', 'grandma_groceries', 'heavy_bag_van', 'influencer_challenge', 'kids_skateboard', 'morning_sparring', 'one_two_mitts', 'roll_under_hook', 'rooftop_balloons', 'rooftop_callout', 'rope_rhythm', 'snoring_guard', 'teach_the_kid', 'whistle_chase']);
 
 const run = id => ({ id, value: 0 });
 const stars = r => A.starsFor(r.id, r.value);
@@ -103,4 +103,14 @@ assert.equal(OT.CH[2].venue, 'street'); assert.equal(OT.BOSS.king_hyena.chapter,
 }
 // Tile labels: every mission has a short label in EN/HE/RU, at most 10 characters.
 for (const m of A.missions.filter(x => x.chapter <= 2)) for (const lang of ['en', 'he', 'ru']) { const t = OT.SHORT[m.id]?.[lang]; assert.ok(t && [...t].length <= 10, m.id + ' ' + lang + ' short label: ' + t); }
+// GOTR-0069 story mode: every story step can start (a playable mission or a boss), boss steps match the chapter data,
+// and the chip row is gone: the sheet is a quest panel with BEFORE/AFTER beats exported for the flow.
+{
+  const SF = require('../adventure/story-flow.js');
+  for (const n of [1, 2]) {
+    for (const s of SF.all(n)) assert.ok(s.boss ? OT.BOSS[s.id]?.chapter === n : !!D[s.id], s.id + ' can start from the quest panel');
+    assert.equal(SF.chapters[n].boss, OT.CH[n].boss); assert.equal(SF.chapters[n].pin, OT.CH[n].pin);
+  }
+  for (const f of ['before', 'afterBeat', 'chapterSummary', 'launch', 'render', 'start']) assert.equal(typeof OT[f], 'function', f);
+}
 console.log('adventure-oldtown ok');
