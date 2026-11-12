@@ -18,6 +18,29 @@ Side quest — Old Fort: dawn runs on the fort walls with Pip (bonus Stamina).
 Vix tests footwork → the Hyena crew runs the market → a raccoon steals Pip's whistle (chase) → help Grandma past the pigeon gang, win back a kid's skateboard → Dash takes the crowd circle before you arrive → Boss King Hyena. Win → the crew whispers about "real fights at the Docks".
 Side quest — Midnight Fairground: strongman booth challenge.
 
+## Story mode steps (GOTR-0069, `adventure/story-flow.js`)
+A chapter is an ordered list of numbered steps; one is current, finished steps (≥1 star, or the boss beaten) show ✓ and stars and can be replayed, later steps are locked. Side steps are optional, appear after the step they follow and are marked "Side". Every step has a BEFORE beat (its scene the first time, else 1–2 lines) and an AFTER beat on the map (the Coach reacts to fail / 1–2 / 3 stars, the step's own line, "Unlocked: …", Next / Retry / Back to map). The boss is the last step; below his entry level the quest panel says how many stars are missing and which steps to replay. Nothing new is saved: step state comes from mission stars and boss wins, so old saves keep their finished steps.
+
+**Chapter 1 · Old Town (Coach Pip)** — arrival in Gloryland with nothing → earn a place in Pip's gym → Brick.
+1. Pip's trial — One-two on the mitts (before: arrival scene). Unlocks a corner in Pip's gym.
+2. Brick's bag — skill trial: hit the swinging bag at its peak (before: Brick scene).
+3. Pillow hands — Bag power test, Brick's "you punch like a pillow".
+4. The night guard — Sleep talker trial; unlocks the gym at dawn.
+5. Pip's nephew — teach the kid a Jab-Cross; unlocks your own locker. Side after it: Rope at dawn (Stamina).
+6. Dash walks in — Roll under the Hook (before: Dash scene); unlocks the move Roll.
+7. First Sparring — morning Sparring round; unlocks Brick's challenge.
+8. Boss: Brick (entry Level 5; before: boss intro scene; after: outro scene → chapter summary). Unlocks Market Row and Coach Vix.
+
+**Chapter 2 · Market Row (Coach Vix)** — Pip's hand wraps open Vix's door → the Hyena crew → King Hyena.
+1. Vix's test — Curb footwork (before: Vix intro scene).
+2. Clean hands — win a street round taking few hits.
+3. The skateboard — body shots until a hyena returns a kid's board. Side after it: Rooftop callout.
+4. Rooftop barrage — the crew's revenge, skill trial: stay dry.
+5. The stolen whistle — Cut him off trial (before: whistle theft scene). Side after it: The show-off (speed bag).
+6. The hustler's bet — the same raccoon hustles Grandma's money; read his feints.
+7. The crowd circle — Dash got there first; beat three challengers (before: Dash circle scene).
+8. Boss: King Hyena (entry Level 12; intro and outro scenes). Unlocks The Docks (next).
+
 ## Chapters 3–5 (outline)
 3 The Docks — underground money fights; Dash is already a name there; Iron Bull. 4 Downtown — clubs, rankings, press; Onyx. 5 Glory Hill — Dash in the semi-final, Blaze for the title.
 

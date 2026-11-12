@@ -746,6 +746,32 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "Take training, fight and adventure off the main permanent screen. Always stay in adventure mode; the three modes go into one icon on the side of the screen that expands to small icons below it for training and fight. There should always be a way to get back to adventure."
 - **Owner follow-up (2026-11-12, screenshot v1.42):** remove BOTH rows — the Train/Fight/Adventure tabs and the station toolbar (Shadowbox ▾, Train 15s, Auto, Fight Academy) — because they overlap the fighter's head; Adventure is the default; everything else as small icons at the screen edge; nothing may cover the fighter's head or body (add the head to the HUD overlap audit).
 
+### GOTR-0072 — Shop preview broken: the Fighter's body is invisible
+- **Reported:** 2026-11-12 (v1.47, iPhone; picture `qa/owner-2026-11-12/v147-1.webp`: only mane, one glove, tail and boots are drawn)
+- **Status:** OPEN — P0
+- **Acceptance:** the whole Fighter is drawn in the Shop preview for every category, both species; browser picture at 402×690; a test that fails when the body mesh is not rendered.
+
+### GOTR-0073 — Gym equipment in front of the camera hides the Fighter
+- **Reported:** 2026-11-12 (v1.47; pictures `v147-2.webp` dummy station: a heavy bag fills the left third and covers the Fighter; `v147-4.webp` mitts: a bag covers the Coach)
+- **Status:** OPEN — P1
+- **Acceptance:** nothing between the camera and the Fighter / Coach / target: occluding equipment is moved, hidden or faded for every station and camera angle (side lock and free); measured by ray tests from the camera to head, chest and feet of each figure.
+
+### GOTR-0074 — Stance must be the real orthodox boxing stance, exactly as the owner's reference photo
+- **Reported:** 2026-11-12, repeated ("you are mistaken for several times already"); picture `v147-3.webp` shows today's pose: both gloves on the face
+- **Status:** OPEN — P0. Supersedes the earlier "keep southpaw" answer and GOTR-0051.
+- **Owner's words:** "right leg back, left leg front, right hand back defending the face, left hand a bit bent in front. This is the actual boxing position… exactly how I want him by default."
+- **Acceptance (measured, both species, every mode):** left foot forward, right foot back, feet about shoulder width and staggered, rear heel raised, knees soft, torso bladed 30–45°; LEFT glove in front of the face at eye/cheek height with the elbow bent about 80–110° (not straight, not touching the face); RIGHT glove at the right cheek/jaw, close but not pressed into the face (gap 2–5 cm), elbow down at the ribs; chin slightly down. Jab = left hand, Cross = right hand. Front, 3/4 and side pictures shown to the owner BEFORE release.
+
+### GOTR-0075 — Guard button is not understood; fight clock half off-screen; ceremony text badly placed
+- **Reported:** 2026-11-12 (pictures `v147-5.webp` "7 SECONDS" cut at the left edge; `v147-6.webp` result text and judges' line across the fighters)
+- **Status:** OPEN — P1
+- **Requests:** (a) Guard button: the player does not understand what it does — make the effect visible and explained. (b) The last-seconds countdown must be in the middle, never cut. (c) Ceremony: do not show the judges' numbers unless the fight goes to the cards; then show them as designed score cards at one side (part of the arena theme), not text over the fighters; nothing over the fighters' heads or bodies.
+
+### GOTR-0076 — Corner break like a real fight
+- **Reported:** 2026-11-12 ("I also asked several times"; picture `v147-7.webp`: during BREAK both fighters stand in the middle in guard)
+- **Status:** OPEN — P1
+- **Request:** at the break each fighter walks to their own corner; a cornerman puts a stool in the corner (corner colour), the fighter sits, the cornerman puts a towel on them, and the fighter drinks water from a bottle; they stand up and the stool is removed before the next round.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
@@ -765,7 +791,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0064 — Lion head and face (and the other avatars)
 - **Reported:** 2026-11-12 (three reference pictures of lion boxers, style targets only, not stored in the repo)
-- **Status:** RELEASED v1.46 — lion: rounded skull, brow, larger eyes, mane as a deep hood down to the shoulders; rabbit: filled crown, cheeks, ear roots. Pictures `qa/gotr-0064/*.webp` (before/after). Limits: skull width unchanged, mane checked in guard pose only. Awaiting owner check
+- **Status:** IN PROGRESS on `agent/head` — first version (rounded skull, hood mane) held back: owner says the forehead is too big, and it broke `muscle-definition` and `shoulder-corrective` tests (rest surface changed). Not released
 - **Reported behavior / request:** "Please fix the lion head. His head is sharp on the top and he needs more volume. Improve the shape of his face; same for the rest of the avatars."
 - **Targets from the references:** broad rounded skull, heavy brow, strong wide muzzle with defined nose bridge and chin, eyes set under the brow with a focused look, full voluminous mane flowing back and down onto the shoulders (no pointed top), small rounded ears inside the mane; rabbit: fuller cheeks and skull, stronger jaw, expressive brow. Original design; references set the quality level only.
 
@@ -792,6 +818,13 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** READY FOR QA — v1.44 (integrator; not verified on a phone)
 - **Reported behavior / request:** "During mitts training sometimes the sound disappeared. Also improve claps at fight sound."
 - **Likely cause:** `playSample` is silent whenever the audio context is not running, and iOS suspends/interrupts it (notification, call, silent switch, tab switch); it was only resumed on tab return. **Fix:** any touch or key resumes the context. Applause: the recorded room applause now plays in three staggered layers at native pitch with individual claps on top. If the sound still drops, capture when (after a pause? after many fast hits?) to look for a voice-limit cause.
+
+### GOTR-0069 — A real step-by-step story mode: levels, progress, unlocks
+- **Reported:** 2026-11-12
+- **Status:** IN PROGRESS (agent `story-flow`, branch `agent/story-flow`)
+- **Priority:** P1
+- **Reported behavior / request:** "I don't understand how the story starts, how he proceeds. You added a few buttons, but it doesn't actually tell a story. I want to start a story. I want step-by-step. I want levels. I want progress. I want to do something and finish it, and then it will open additional things. What I see right now is a flow bar, but with no reasonable flow narrative."
+- **Plan:** each chapter is an ordered list of numbered story steps; exactly one is current, finished steps show ✓ and stars (replayable), later steps are locked. The chapter sheet becomes a quest panel ("Chapter 1 · Old Town — Step 3 of N", title, why the Fighter does it now, measurable objective, rewards, one primary button) with a vertical timeline, progress bar and Fighter Level. Every step has a before beat and an after beat (scene or plain-text lines, never a box over the Fighter); the after beat reacts to the result and says what was unlocked, with Next / Retry / Back to map. The boss gate says exactly how many stars are missing and which steps to replay. First open: arrival → step 1 automatically; boss → outro → chapter summary → chapter 2. Existing saves keep their completed steps. Step lists in `docs/adventure/STORY.md`.
 
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.

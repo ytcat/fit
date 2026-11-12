@@ -25,8 +25,11 @@
       roll_under_hook: L(`${roll} under ${n} coach ${hook}s`, `בצעו ${roll} מתחת ל-${n} הוקים של המאמן`, `${roll} под ${n} ${hook} тренера`),
       rope_rhythm: L(`${n} seconds of rope in rhythm`, `${n} שניות חבל בקצב`, `${n} секунд скакалки в ритме`),
       teach_the_kid: L(`Show the ${jab}-${cross} cleanly ${n} times`, `הדגימו ${jab}-${cross} נקי ${n} פעמים`, `Покажите ${jab}-${cross} чисто: ${n} раза`),
-      snoring_guard: L(`Dodge ${n} pillow swings, then ring the bell`, `התחמקו מ-${n} הנפות כרית ואז צלצלו בפעמון`, `Уклонитесь от ${n} взмахов подушкой и позвоните`),
-      heavy_bag_van: L(`Carry the bag in with at most ${n} mistakes`, `הכניסו את השק עם ${n} טעויות לכל היותר`, `Занесите мешок, ошибок не больше ${n}`),
+      snoring_guard: L(`Sleep talker: repeat ${n} combos he mumbles`, `מדבר מתוך שינה: חזרו על ${n} רצפים שהוא ממלמל`, `Говорун во сне: повторите ${n} серий`), // GOTR-0061 skill trials
+      heavy_bag_van: L(`Brick's bag: hit every swing at its peak (${n} misses for gold)`, `השק של בריק: פגעו בכל תנופה בשיא (${n} החטאות לזהב)`, `Мешок Брика: бейте в верхней точке (${n} промахов для золота)`),
+      rooftop_balloons: L(`Rooftop barrage: stay dry (${n} for gold)`, `מטח מהגגות: הישארו יבשים (${n} לזהב)`, `Обстрел с крыш: останьтесь сухим (${n} для золота)`),
+      whistle_chase: L(`Cut him off: corner the raccoon 5 times in ${n} seconds`, `לחסום אותו: דחקו את הדביבון לפינה 5 פעמים ב-${n} שניות`, `Отрежь путь: загоните енота в угол 5 раз за ${n} секунд`),
+      grandma_groceries: L(`The hustler's bet: ${n} clean hits on real openings`, `ההימור של הנוכל: ${n} פגיעות נקיות בפתחים אמיתיים`, `Пари жулика: ${n} чистых попаданий в настоящие окна`),
       curb_footwork: L(`${n} quick steps in 20 seconds`, `${n} צעדים מהירים ב-20 שניות`, `${n} быстрых шагов за 20 секунд`),
       clean_hands: L(`Win a round and take at most ${n} hits`, `נצחו בסיבוב וקבלו לכל היותר ${n} מכות`, `Выиграйте раунд, пропустив не больше ${n} ударов`),
       kids_skateboard: L(`${n} body shots on the hyena who took it`, `${n} מכות לגוף לצבוע שלקח אותו`, `${n} ударов в корпус гиене, укравшей доску`),
@@ -44,7 +47,8 @@
   const playerOn = () => !!window.app?.engine?.player?.enabled;
   const DEFS = {
     heavy_bag_van: { kind: 'scene', scene: 'carry_bag' },
-    snoring_guard: { kind: 'scene', scene: 'snoring_guard' }, // GOTR-0056 story set mini-game (adventure/story/story-scenes.js)
+    snoring_guard: { kind: 'scene', scene: 'snoring_guard' }, // GOTR-0056 / GOTR-0061 skill trials in the story sets (adventure/story/story-scenes.js)
+    rooftop_balloons: { kind: 'scene', scene: 'rooftop_barrage' }, whistle_chase: { kind: 'scene', scene: 'cut_him_off' }, grandma_groceries: { kind: 'scene', scene: 'hustlers_bet' },
     // first_stance (guard hold) stays "Coming soon": the sparring partner did not reliably throw at a guarding Fighter in testing, so no honest signal yet.
     one_two_mitts: { kind: 'training', mode: 'pads', duration: 60,
       imp: (r, h) => { if (playerOn() && h.actor === 'lion' && h.receiver === 'pads' && !h.blocked && (h.move === 'jab' || h.move === 'cross')) r.value++; } },
@@ -168,7 +172,7 @@
     const order = (window.AdventureStory?.order || A().missions.map(m => m.id)).filter(id => DEFS[id] && (!chap || chapterOfId(id) === chap)).map(id => A().missions.find(m => m.id === id)), i = order.findIndex(m => m.id === afterId), cand = i < 0 ? order : [...order.slice(i + 1), ...order.slice(0, i)];
     return cand.find(m => !starsOf(g, m.id)) || cand.find(m => starsOf(g, m.id) < 3) || null;
   }
-  function openMap(id) { cleanup(); run = null; rg()?.open('adventure', { onReady: h => h.select(id || 'oldtown') }); }
+  function openMap(id, then) { cleanup(); closeBeat(); run = null; rg()?.open('adventure', { onReady: h => { selectPin = h.select; h.select(id || 'oldtown'); if (then) setTimeout(then, 300); } }); }
   const pinOf = n => ({ 1: 'oldtown', 2: 'market', 3: 'docks', 4: 'downtown', 5: 'hill' }[n]);
   // What to do next, from the adventure state: { primary: [label, fn], more: [[label, fn]...] }
   function nextSteps(info) {
@@ -209,7 +213,7 @@
   function reward(a) {
     const w = W(), award = a.award; toast(fill(w.xp, { n: award.xp }), 'xp'); if (award.coins) toast(fill(w.coins, { n: award.coins }), 'coin');
     for (const id of award.unlocks || []) toast('✓ ' + (rg().comboName?.(id) || id), 'gain');
-    if (!run || run.ended) showNext({ kind: 'free' });
+    if ((!run || run.ended) && !pendingAfter) showNext({ kind: 'free' });
     return true;
   }
   function watchNext() {
@@ -229,12 +233,10 @@
     else {
       toast(res.stars ? starsText(res.best) + (res.newStars > 0 ? ' · ' + fill(w.newStars, { n: res.newStars }) : '') : w.none, res.stars ? 'gold' : '');
       for (const k of A().stats) if (after[k] > before[k]) toast(`${w.stat[k]} +${after[k] - before[k]}`, 'gain');
-      if (res.level !== res.levelBefore) toast(fill(w.level, { a: res.levelBefore, b: res.level }), 'gain');
     }
     stamp();
-    if (res.ok && res.stars > 0) window.AdventureStory?.show(r.id, 'outro');
-    showNext({ kind: 'mission', id: r.id, res });
     window.dispatchEvent(new CustomEvent('adventure-mission-result', { detail: { missionId: r.id, value: r.value, result: res } }));
+    afterRun(r.id, { stars: res.ok ? res.stars : 0 });
   }
 
   function begin(ctx, id) {
@@ -242,36 +244,113 @@
     cleanup(); run = { id, mission, def, ctx, value: 0, target: mission.thresholds[2], ended: false };
     hook(); strip(run); paintStrip(); return true;
   }
-  // GOTR-0056: story scenes before the first mission of a beat (once per browser), and scene-type missions.
+  // GOTR-0056: story scenes are seen once per browser (a replay of the step shows the short lines instead).
   const seen = k => { try { return localStorage.getItem('gotr-scene-' + k) === '1'; } catch { return false; } };
   const mark = k => { try { localStorage.setItem('gotr-scene-' + k, '1'); } catch { /* fine without storage */ } };
-  const PRE = { one_two_mitts: 'arrival', bag_power: 'brick', roll_under_hook: 'dash' };
-  function start(ctx, id) {
+  const BOSS_SCENE = { brick: ['boss_intro', 'boss_outro'], king_hyena: ['hyena_intro', 'hyena_outro'] };
+
+  // ---- GOTR-0069 story mode: BEFORE beat -> the step -> AFTER beat (on the map, never over the Fighter) -> Next ----
+  const SF = () => window.StoryFlow, FW = () => SF().copy[lang()] || SF().copy.en;
+  const snaps = {}; let pendingAfter = false, selectPin = null;
+  const stepLabel = id => { const s = SF()?.find(id); if (!s) return ''; if (s.side) return `${FW().side} · ${T(s.title)}`; const st = SF().state(rg().store.game(), s.chapter), x = st.main.find(m => m.id === id); return `${x ? x.n + '. ' : ''}${T(s.title)}`; };
+  const beatHost = () => document.querySelector('dialog[open].adv-dialog .adv-stage') || window.app?.engine?.stage || document.body;
+  function closeBeat() { document.getElementById('sfBeat')?.remove(); }
+  // Plain text on the map: kicker, title, up to three character lines, info lines and one row of buttons. No card, no box.
+  function beat(o) {
+    closeBeat(); const host = beatHost(), el = mk('div', 'sf-beat'); el.id = 'sfBeat'; el.dir = document.documentElement.dir || 'ltr'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+    const top = mk('div', 'sf-beat-top'), foot = mk('div', 'sf-beat-foot');
+    if (o.kicker) top.append(mk('p', 'sf-beat-kicker', o.kicker)); if (o.title) top.append(mk('p', 'sf-beat-title', o.title));
+    for (const l of (o.lines || []).slice(0, 3)) {
+      const p = mk('p', 'sf-beat-line' + (l.who ? '' : ' sf-beat-narr')), St = window.AdventureStory;
+      if (l.who && St) { p.append(St.bust(l.who)); const t = mk('span'); t.append(mk('strong', '', St.who[l.who].name[lang()]), document.createTextNode(' ' + l.text)); p.append(t); } else p.textContent = l.text;
+      top.append(p);
+    }
+    for (const t of o.info || []) if (t) foot.append(mk('p', 'sf-beat-info' + (t.cls ? ' ' + t.cls : ''), t.text ?? t));
+    const row = mk('div', 'sf-beat-acts');
+    for (const [label, fn, main] of o.buttons || []) row.append(btn(label, () => { closeBeat(); fn(); }, 'game-button adv-go ' + (main ? 'sf-beat-main' : 'adv-alt')));
+    foot.append(row); el.append(top, foot); host.append(el);
+    document.querySelector('.adv-card.open')?.classList.remove('open');
+    requestAnimationFrame(() => row.querySelector('.sf-beat-main')?.focus({ preventScroll: true }));
+    return el;
+  }
+  const goalLine = s => s.boss ? `${FW().goal}: ${FW().boss} · ${W().entry} ${A().bosses.find(b => b.id === s.id).entry}` : `${FW().goal}: ${goalText(s.id, A().missions.find(m => m.id === s.id).thresholds[2])}`;
+  // BEFORE beat: the step's scene the first time, otherwise 1-2 lines from the Coach or the character who asks; then the step.
+  function before(ctx, id, o = {}) {
+    closeBeat(); const s = SF()?.find(id), g = ctx.store.game(); if (!s || !g) return false;
+    if (!o.force && !SF().playable(g, id)) return false;
+    const S = window.StoryScenes, sc = s.scene && S && !seen(s.scene) ? s.scene : null;
+    const go = () => { if (sc) { mark(sc); S.play(sc, { onDone: () => launch(ctx, id) }); } else launch(ctx, id); };
+    if (sc && !o.lead) { go(); return true; }
+    const lines = []; if (o.lead) lines.push({ text: T(o.lead) });
+    if (!sc) for (const l of (window.AdventureStory?.lines[id]?.intro || []).slice(0, 2)) lines.push({ who: l.who, text: T(l.text) });
+    const st = SF().state(g, s.chapter);
+    beat({ kicker: `${fill(FW().chapter, { n: s.chapter, c: T(SF().titles[s.chapter]) })} — ${s.side ? FW().side : fill(FW().stepOf, { i: st.main.find(m => m.id === id)?.n || 1, n: st.total })}`, title: T(s.title), lines, info: [goalLine(s)], buttons: [[FW().go, go, true], [FW().back, () => {}]] });
+    return true;
+  }
+  // Starts the step itself (no beat). Remembers the state before, so the AFTER beat can say what changed.
+  function launch(ctx, id) {
+    const s = SF()?.find(id), g = ctx.store.game();
+    if (s && g) snaps[id] = { done: SF().doneOf(g, s), stars: starsOf(g, id), level: A().level(g) };
+    if (s?.boss || BOSS[id]) { bossStart(ctx, id); return; }
     const S = window.StoryScenes, d0 = DEFS[id];
-    if (d0 && d0.kind === 'scene') { if (S) S.play(d0.scene, { onDone: () => { try { ctx.refresh?.(); } catch { /* sheet may be closed */ } } }); return; }
-    if (S && PRE[id] && !seen(PRE[id])) { mark(PRE[id]); S.play(PRE[id], { onDone: () => start(ctx, id) }); return; }
+    if (d0 && d0.kind === 'scene') { if (S) S.play(d0.scene, { onDone: res => sceneDone(id, res) }); return; }
     if (!begin(ctx, id)) return;
     const d = run.def, e = window.app.engine;
     try {
       ctx.change({ type: 'venue', venueId: CH[chapterOfId(id)]?.venue || 'default' }); // the chapter's arena (Old Town gym, Market Row street)
       if (d.kind === 'training') { ctx.startTraining({ mode: d.mode, play: true, duration: d.duration, technique: d.technique }); if (!e.career.active) throw Error(W().noStart); }
-      else if (d.kind === 'lesson') { const s = window.AcademyStage?.start(d.comboId); if (!s?.ok) throw Error(s?.error || W().noStart); }
-      else if (d.kind === 'fight') {
-        fightStart(ctx, d, run);
-      }
-      window.AdventureStory?.show(id, 'intro');
+      else if (d.kind === 'lesson') { const s2 = window.AcademyStage?.start(d.comboId); if (!s2?.ok) throw Error(s2?.error || W().noStart); }
+      else if (d.kind === 'fight') fightStart(ctx, d, run);
     } catch (x) { const ui = run.ui; run.ended = true; ui?.txt && (ui.txt.textContent = x.message); setTimeout(() => { if (run?.ended) backToTown(); }, 1800); }
   }
+  // Older entry point (Next bar, tests, QA): a story step goes through its BEFORE beat when it is a story step.
+  function start(ctx, id) { if (SF()?.find(id) && SF().playable(ctx.store.game(), id)) { if (!before(ctx, id)) launch(ctx, id); } else launch(ctx, id); }
+  function sceneDone(id, res) {
+    const g = rg()?.store?.game(), got = res?.mission?.stars ?? res?.saved?.stars;
+    if (res?.skipped && got == null && starsOf(g, id) === snaps[id]?.stars) { openMap(CH[chapterOfId(id)]?.pin); return; }
+    openMap(CH[chapterOfId(id)]?.pin, () => afterBeat(id, { stars: got || 0 }));
+  }
+  function afterRun(id, at) { pendingAfter = true; setTimeout(() => { pendingAfter = false; openMap(CH[chapterOfId(id)]?.pin, () => afterBeat(id, at)); }, 1600); }
+  // AFTER beat: the Coach reacts to the result (fail / 1-2 stars / 3 stars), the step's own line, the stars, level-up, what opened, and Next.
+  function afterBeat(id, at = {}) {
+    const s = SF()?.find(id), g = rg()?.store?.game(); if (!s || !g) return;
+    const w = FW(), ctx = gameCtx(), snap = snaps[id] || { done: false, stars: 0, level: A().level(g) }, coach = SF().chapters[s.chapter].coach;
+    const got = s.boss ? (at.won ? 3 : 0) : (at.stars || 0), best = starsOf(g, id), done = SF().doneOf(g, s);
+    const lines = [{ who: coach, text: T(SF().react[coach][SF().react3(got)]) }], St = window.AdventureStory;
+    const own = got > 0 ? St?.lines[id]?.outro?.[0] : s.boss ? St?.lines[id]?.lost?.[0] : null; if (own && own.who !== coach) lines.push({ who: own.who, text: T(own.text) }); else if (own) lines[0] = { who: own.who, text: `${lines[0].text} ${T(own.text)}` };
+    const info = [{ text: s.boss ? (got ? w.resultBoss : w.resultLost) : got ? starsText(best) + (best > snap.stars ? '  ' + fill(w.newStars, { n: best - snap.stars }) : '') : w.noStar, cls: 'sf-beat-result' }];
+    const lvl = A().level(g); if (lvl > snap.level) info.push({ text: fill(w.levelUp, { l: lvl }), cls: 'sf-beat-up' });
+    const next = SF().nextAfter(g, id);
+    if (done && !snap.done) { const u = SF().unlocks(id), parts = [u.next && SF().playable(g, u.next) ? stepLabel(u.next) : null, ...u.side.map(stepLabel), u.extra ? T(u.extra) : null].filter(Boolean); if (parts.length) info.push({ text: fill(w.unlocked, { t: parts.join(' · ') }), cls: 'sf-beat-unlock' }); }
+    else if (done && next) info.push({ text: fill(w.nextUp, { t: stepLabel(next) }) });
+    const buttons = [];
+    if (got > 0 || (done && !s.boss)) {
+      if (next) buttons.push([fill(w.next, { t: stepLabel(next) }), () => { const n2 = SF().find(next); if (n2.chapter !== s.chapter) { selectPin?.(SF().chapters[n2.chapter].pin); setTimeout(() => before(ctx, next), 400); } else before(ctx, next); }, true]);
+      if (!s.boss && best < 3) buttons.push([w.retry, () => before(ctx, id), !next]);
+    } else buttons.push([w.again, () => before(ctx, id), true]);
+    buttons.push([w.back, () => {}]);
+    beat({ kicker: `${fill(w.chapter, { n: s.chapter, c: T(SF().titles[s.chapter]) })} — ${s.side ? w.side : stepLabel(id)}`, lines, info, buttons });
+  }
+  // Chapter end: the boss's outro scene has played; summary (stars, level), what opens, and Next to the new chapter's first step.
+  function chapterSummary(n) {
+    const g = rg()?.store?.game(); if (!g) return; const w = FW(), st = SF().state(g, n), boss = st.boss.id, ctx = gameCtx(), nx = SF().chapters[n + 1];
+    const own = window.AdventureStory?.lines[boss]?.outro?.[0], lines = own ? [{ who: own.who, text: T(own.text) }] : [];
+    const info = [{ text: fill(w.summary, { s: st.stars, m: st.maxStars, l: A().level(g) }), cls: 'sf-beat-result' }];
+    if (snaps[boss] && A().level(g) > snaps[boss].level) info.push({ text: fill(w.levelUp, { l: A().level(g) }), cls: 'sf-beat-up' });
+    if (st.boss.unlock) info.push({ text: fill(w.unlocked, { t: T(st.boss.unlock) }), cls: 'sf-beat-unlock' });
+    const buttons = [];
+    if (nx) buttons.push([fill(w.goTo, { c: T(SF().titles[n + 1]) }), () => { selectPin?.(nx.pin); setTimeout(() => titleCard(chapterTitle(n + 1), 1800, () => before(ctx, nx.steps[0].id, { lead: SF().opener[n + 1] })), 500); }, true]);
+    buttons.push([w.back, () => {}]);
+    beat({ kicker: fill(w.chapter, { n, c: T(SF().titles[n]) }), title: fill(w.complete, { n }), lines, info, buttons });
+  }
 
-  // Boss: a bout in the Neighborhood Hall against an existing opponent named Brick (new species comes later).
+  // Boss: a bout in the chapter's arena against an existing opponent with the boss's name and strength. Its intro scene is the step's BEFORE beat.
   function bossStart(ctx, bossId = 'brick') {
-    if (bossId === 'brick' && window.StoryScenes && !bossStart.intro) { bossStart.intro = true; window.StoryScenes.play('boss_intro', { onDone: () => { try { bossStart(ctx, bossId); } finally { bossStart.intro = false; } } }); return; }
     const e = window.app.engine, b = A().bosses.find(x => x.id === bossId), cfg = BOSS[bossId], edge = A().bossEdge(ctx.store.game(), bossId);
     cleanup(); run = { id: bossId, def: { kind: 'boss' }, ctx, ended: false, mission: { titles: b.names, metric: 'wins' }, value: 0, target: 1 };
     hook(); ctx.change({ type: 'venue', venueId: CH[cfg.chapter].venue });
     ctx.startFight({ preset: 'quick', rounds: 2, roundSeconds: 30, restSeconds: 8 });
     const view = e.arena?.fightView; if (!view) { run = null; return; }
-    window.AdventureStory?.show(bossId, 'intro');
     run.view = view; const entry = view.careerEntry, m = view.match, foe = m.fighters[entry.species === 'lion' ? 'rabbit' : 'lion'];
     if (entry) entry.opponentName = cfg.name[lang()];
     // The boss hits a little harder than a regular; each Fighter Level above his entry level softens his hits 3% and slows his reactions 3%.
@@ -284,16 +363,14 @@
     const entry = view.careerEntry, won = view.match.result.winner === entry.species, store = r.ctx.store, w = W();
     const res = store.gameAction({ type: 'adventure', adventure: 'boss', bossId: r.id, won });
     toast(res.ok ? (won ? w.bossWin : w.bossLoss) : w.err + res.error, won ? 'gold' : 'bad');
-    if (!(r.id === 'brick' && won && res.ok && window.StoryScenes?.play('boss_outro'))) window.AdventureStory?.show(r.id, won ? 'outro' : 'lost');
-    stamp(); showNext({ kind: 'boss', won, res, id: r.id });
-    const chp = BOSS[r.id].chapter;
-    if (won && res.ok && chp < 5) { // chapter end: outro line, title card, then the map with the route dots to the next chapter
-      setTimeout(() => titleCard(fill(w.chDone, { n: chp }), 2200), 3800);
-      setTimeout(() => { if (document.getElementById('advNext')) openMap(pinOf(chp)); }, 6200);
-    }
+    stamp(); pendingAfter = true;
+    const chp = BOSS[r.id].chapter, pin = pinOf(chp), S = window.StoryScenes, out = BOSS_SCENE[r.id]?.[1];
+    if (won && res.ok) {
+      lsSet('gotr.adv.route.' + chp, '1'); // the route dots still draw on the map; the story itself moves on through the summary's Next
+      const go = () => { pendingAfter = false; openMap(pin, () => chapterSummary(chp)); };
+      setTimeout(() => { if (S && out) S.play(out, { onDone: go }); else go(); }, 600);
+    } else setTimeout(() => { pendingAfter = false; openMap(pin, () => afterBeat(r.id, { won: false })); }, 1200);
   }
-  // ---- the Old Town sheet content: small icon tiles (playable first, "coming soon" last), details on tap, boss block ----
-  const ICON = { curb_footwork: '👟', rooftop_balloons: '🎈', whistle_chase: '🦝', kids_skateboard: '🛹', grandma_groceries: '👵', influencer_challenge: '🤳', clean_hands: '🧤', crowd_circle: '👥', rooftop_callout: '📣', first_stance: '🛡️', one_two_mitts: '🥊', bag_power: '💥', roll_under_hook: '🌀', rope_rhythm: '🪢', heavy_bag_van: '🚚', teach_the_kid: '🧒', morning_sparring: '🥋', snoring_guard: '😴' };
   // ---- story flow (GOTR-0060): title cards, first open, Continue button, chapter goal, recap ----
   const CH_TITLE = { 1: L('Nobody', 'אף אחד', 'Никто'), 2: L('The Street', 'הרחוב', 'Улица'), 3: L('The Underground', 'המחתרת', 'Подполье'), 4: L('Rising', 'בדרך למעלה', 'Восхождение'), 5: L('The Championship', 'האליפות', 'Чемпионат') };
   const chapterTitle = n => `${W().chWord} ${n} · ${T(CH_TITLE[n])}`;
@@ -305,24 +382,19 @@
     (document.querySelector('dialog[open]') || document.body).append(el);
     let fin = false; const end = () => { if (fin) return; fin = true; clearTimeout(t); el.remove(); done?.(); }, t = setTimeout(end, ms); el.addEventListener('pointerdown', end);
   }
-  // First open of Adventure for this profile: chapter title, then the arrival scene; the sheet follows with "Start the story".
+  // First open of Adventure for this profile: chapter title, the arrival scene, then straight into step 1's BEFORE beat.
   function onOpen(ctx) {
     const g = ctx.store.game(), pid = ctx.store.current()?.id, key = 'gotr.adv.intro.' + pid;
     if (!g || lsGet(key) === '1' || A().missions.some(m => starsOf(g, m.id)) || A().bossWon(g, 'brick')) return false;
     lsSet(key, '1');
-    titleCard(chapterTitle(1), 2000, () => { const S = window.StoryScenes; if (!S) return; rg().close(); mark('arrival'); if (!S.play('arrival', { onDone: () => openMap('oldtown') })) openMap('oldtown'); });
+    const first = SF()?.chapters[1].steps[0].id, toStep = () => openMap('oldtown', () => { if (first) before(gameCtx(), first, { lead: SF().opener[1] }); });
+    // The arrival scene needs the Fighter's rig: on a cold start wait for it (up to 60 s) instead of skipping the scene.
+    const play = (k = 0) => { const S = window.StoryScenes; if (!S) { toStep(); return; } if (!window.app?.engine?.coach?.anatomy && k < 120) { setTimeout(() => play(k + 1), 500); return; } rg().close(); mark('arrival'); S.play('arrival', { onDone: toStep }); };
+    titleCard(chapterTitle(1), 2000, () => play());
     return true;
   }
   function chapterIntro(n) { const k = 'ch' + n; if (seen(k) || !window.AdventureStory?.lines['chapter_' + n]) return; mark(k); window.AdventureStory.show('chapter_' + n, 'intro'); }
   const stamp = () => { lsSet('gotr.adv.last', String(Date.now())); };
-  let recapShown = false;
-  function recapNode() {
-    if (recapShown || !window.AdventureStory) return null;
-    const last = +lsGet('gotr.adv.last') || 0, ver = window.APP_VERSION?.number || '', old = lsGet('gotr.adv.ver') !== ver || (last && Date.now() - last > 864e5), items = window.AdventureStory.journal().slice(-2);
-    if (!old || !items.length) return null;
-    recapShown = true; lsSet('gotr.adv.ver', ver);
-    return mk('p', 'adv-recap', `${W().recap}: ` + items.map(i => `${i.name}: ${i.text}`).join(' '));
-  }
   // Short tile labels (at most 10 characters); the full title is in the detail. Boxing terms stay English.
   const SHORT = {
     first_stance: L('Stance', 'עמידה', 'Стойка'), one_two_mitts: L('One-two', 'ימין-שמאל', 'Двойка'), bag_power: L('Power', 'כוח', 'Сила'), roll_under_hook: L('Roll', 'Roll', 'Roll'), rope_rhythm: L('Rope', 'חבל', 'Скакалка'),
@@ -330,63 +402,60 @@
     curb_footwork: L('Footwork', 'רגליים', 'Шаги'), rooftop_balloons: L('Balloons', 'בלונים', 'Шарики'), whistle_chase: L('Whistle', 'משרוקית', 'Свисток'), kids_skateboard: L('Skateboard', 'סקייט', 'Скейт'), grandma_groceries: L('Grandma', 'סבתא', 'Бабушка'),
     influencer_challenge: L('Show-off', 'משפיען', 'Блогер'), clean_hands: L('Clean', 'נקי', 'Чисто'), crowd_circle: L('Crowd', 'מעגל', 'Круг'), rooftop_callout: L('Callout', 'אתגר', 'Вызов')
   };
-  // The first playable mission of the chapter that has no stars yet, in story order.
-  const nextNew = (g, chap) => (window.AdventureStory?.order || []).filter(id => DEFS[id] && chapterOfId(id) === chap && !starsOf(g, id)).map(id => A().missions.find(m => m.id === id))[0] || null;
+  // GOTR-0069: the chapter sheet is a QUEST panel (chapter, step N of M, title, why, goal, reward, one primary button, progress
+  // and Fighter Level), then a vertical timeline of every step (done / current / locked, side steps marked) and "Story so far".
   function render(ctx, opts = {}) {
-    const w = W(), A_ = A(), store = ctx.store, g = store.game(), tiles = [], rest = [], chap = opts.chapter || 1, bossId = A_.chapters[chap - 1].boss;
-    const all = A_.missions.filter(x => x.chapter === chap), so = id => { const i = window.AdventureStory?.order.indexOf(id); return i >= 0 ? i : 99; }, ordered = [...all.filter(m => DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id)), ...all.filter(m => !DEFS[m.id]).sort((a, b) => so(a.id) - so(b.id))];
-    const detail = mk('div', 'adv-detail'); detail.hidden = true;
-    const show = (m, tile) => {
-      const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id];
-      detail.replaceChildren(); detail.hidden = false; detail.dataset.mission = m.id;
-      const head = mk('div', 'adv-detail-head'); head.append(mk('strong', '', `${ICON[m.id] || ''} ${T(m.titles)}`), mk('span', 'adv-mission-tag', w.type[m.type] || m.type), mk('span', 'adv-mission-stars', starsText(rec?.stars || 0)));
-      detail.append(head, mk('p', 'adv-mission-goal', playable ? `${w.goal}: ${goalText(m.id, m.thresholds[2])}${rec ? ` · ${w.best} ${rec.value}` : ''}` : w.soon));
-      if (playable) detail.append(btn(rec ? w.replay : w.start, () => start(ctx, m.id), 'game-button adv-go adv-mini'));
-      document.querySelectorAll('.adv-tile[data-mission]').forEach(t => t.setAttribute('aria-pressed', String(t === tile)));
-      opts.expand?.(); detail.scrollIntoView?.({ block: 'nearest' });
-    };
-    const rec1 = nextMission(g, null, chap)?.id, St = window.AdventureStory;
-    for (const m of ordered) {
-      const rec = g.adventure?.missions[m.id], playable = !!DEFS[m.id], n = rec?.stars || 0;
-      const t = btn('', () => show(m, t), 'adv-tile' + (playable ? '' : ' adv-tile-soon') + (n === 3 ? ' adv-tile-done' : '')); t.dataset.mission = m.id; t.setAttribute('aria-pressed', 'false'); if (m.id === rec1) { t.classList.add('adv-tile-next'); t.dataset.next = '1'; } if (St) t.dataset.beat = String(St.beatOf(m.id));
-      t.setAttribute('aria-label', `${T(m.titles)} · ${playable ? n + '/3 ' + w.stars : w.soon}`); t.title = T(m.titles);
-      t.append(mk('i', 'adv-tile-ico', ICON[m.id] || '•'), mk('span', 'adv-tile-name', SHORT[m.id] ? T(SHORT[m.id]) : T(m.titles)), mk('span', 'adv-tile-state', playable ? starsText(n) : '🔒'));
-      tiles.push(t);
+    const w = FW(), W0 = W(), A_ = A(), F = SF(), g = ctx.store.game(), chap = opts.chapter || 1, st = F.state(g, chap), chName = T(F.titles[chap]);
+    if (opts.select) selectPin = opts.select;
+    const quest = mk('section', 'sf-quest'), rest = [], primary = (label, fn) => btn(label, fn, 'game-button adv-go adv-primary sf-primary');
+    const kicker = text => mk('p', 'sf-kicker', text), chLine = fill(w.chapter, { n: chap, c: chName });
+    const lvl = A_.level(g), toNext = F.starsToLevel(g, lvl + 1);
+    // progress row: bar of finished main steps, Fighter Level and what the next level needs, and the timeline toggle
+    const prog = mk('div', 'sf-prog'), bar = mk('span', 'sf-bar'), fillEl = mk('i'); fillEl.style.width = (100 * st.doneCount / st.total).toFixed(0) + '%'; bar.append(fillEl);
+    bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', String(st.total)); bar.setAttribute('aria-valuenow', String(st.doneCount));
+    const lv = mk('span', 'sf-level', `${st.doneCount}/${st.total} · ${fill(w.level, { l: lvl })} · ${fill(w.toNext, { k: toNext, n: lvl + 1 })}`);
+    const tog = btn(w.steps + ' ▾', () => opts.expand?.(), 'sf-toggle'); prog.append(bar, lv, tog);
+    if (!st.open) {
+      const prev = F.chapters[chap - 1];
+      quest.append(kicker(chLine), mk('p', 'sf-why', fill(w.lockedCh, { b: T(BOSS[prev.boss].name), c: T(F.titles[chap - 1]) })), primary(fill(w.goTo, { c: T(F.titles[chap - 1]) }), () => opts.select?.(prev.pin)));
+    } else if (!st.current) {
+      quest.append(kicker(chLine), mk('h4', 'sf-title', fill(w.complete, { n: chap })), mk('p', 'sf-why', fill(w.allDone, { n: chap })));
+      const nx = F.chapters[chap + 1]; if (nx) quest.append(primary(fill(w.goTo, { c: T(F.titles[chap + 1]) }), () => opts.select?.(nx.pin)));
+    } else {
+      const cur = st.current, gt = cur.boss ? F.gate(g, chap) : null, m = A_.missions.find(x => x.id === cur.id);
+      quest.append(kicker(`${chLine} — ${fill(w.stepOf, { i: cur.n, n: st.total })}`), mk('h4', 'sf-title', T(cur.title)), mk('p', 'sf-why', T(cur.why)), mk('p', 'sf-goal', goalLine(cur)));
+      const u = F.unlocks(cur.id), opens = [u.next ? T(F.find(u.next).title) : null, u.extra ? T(u.extra) : null].filter(Boolean);
+      const rw = cur.boss ? opens : [w.stars, m?.stat ? fill(w.statUp, { s: W0.stat[m.stat] }) : null, opens.length ? `${w.unlocks}: ${opens.join(' · ')}` : null].filter(Boolean);
+      if (cur.boss && opens.length) rw.splice(0, rw.length, `${w.unlocks}: ${opens.join(' · ')}`);
+      if (rw.length) quest.append(mk('p', 'sf-reward', `${w.reward}: ${rw.join(' · ')}`));
+      if (gt) {
+        const names = gt.steps.map(id => stepLabel(id)), list = gt.steps.map(id => { const s = F.find(id); return s.side ? `${w.side} · ${T(s.title)}` : fill(w.stepN, { i: st.main.find(x => x.id === id)?.n }); });
+        quest.append(mk('p', 'sf-gate', fill(w.gate, { n: gt.need, l: gt.level, k: gt.stars, list: list.join(w.gateOr) })));
+        if (gt.steps[0]) quest.append(primary(`${names[0]} ▶`, () => before(ctx, gt.steps[0])));
+        const more = mk('div', 'sf-more'); if (gt.steps[1]) more.append(btn(`${names[1]} ▶`, () => before(ctx, gt.steps[1]), 'game-button adv-go adv-alt sf-small'));
+        if (A_.freeMode()) more.append(btn(w.fightAnyway, () => before(ctx, cur.id, { force: true }), 'game-button adv-go adv-alt sf-small'));
+        if (more.children.length) quest.append(more);
+      } else quest.append(primary(st.doneCount === 0 && !st.side.some(s => s.done) ? w.start : w.cont, () => before(ctx, cur.id)));
     }
-    if (window.AdventureStory) {
-      const jt = btn('', () => {
-        const items = AdventureStory.journal(); detail.replaceChildren(); detail.hidden = false; detail.dataset.mission = 'journal';
-        detail.append(mk('strong', '', '📖 ' + w.journal));
-        if (!items.length) detail.append(mk('p', 'adv-mission-goal', w.jEmpty));
-        for (const it of items) { const row = mk('p', 'adv-journal-line'); row.append(AdventureStory.bust(it.who), mk('span', '', `${it.name}: ${it.text}`)); detail.append(row); }
-        opts.expand?.(); detail.scrollIntoView?.({ block: 'nearest' });
-      }, 'adv-tile adv-tile-journal'); jt.append(mk('i', 'adv-tile-ico', '📖'), mk('span', 'adv-tile-name', { en: 'Journal', he: 'יומן', ru: 'Дневник' }[lang()]), mk('span', 'adv-tile-state', String(AdventureStory.journal().length))); jt.setAttribute('aria-label', w.journal); tiles.push(jt);
+    quest.append(prog);
+    // timeline (shown when the sheet is expanded)
+    const list = mk('ol', 'sf-steps'); list.setAttribute('aria-label', w.steps);
+    for (const s of st.timeline) {
+      const can = s.status !== 'locked', row = mk('li', `sf-step sf-${s.status}${s.side ? ' sf-side' : ''}`), b = can ? btn('', () => before(ctx, s.id), 'sf-step-b') : mk('div', 'sf-step-b');
+      if (!can) b.setAttribute('aria-disabled', 'true');
+      const markTxt = s.status === 'done' ? '✓' : s.status === 'locked' ? '🔒' : s.side ? '✦' : String(s.n);
+      const state = s.status === 'done' ? (s.boss ? W0.won : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? (lang() === 'he' ? '◀' : '▶') : w.side;
+      b.append(mk('span', 'sf-mark', markTxt), mk('span', 'sf-name', `${s.side ? w.side + ' · ' : s.n + '. '}${T(s.title)}`), mk('span', 'sf-state', state));
+      if (can) b.setAttribute('aria-label', `${s.side ? w.side : s.n}. ${T(s.title)} · ${state}`);
+      row.append(b); list.append(row);
     }
-    rest.push(detail);
-    // Boss block (shown when the sheet is expanded)
-    const b = A_.bosses.find(x => x.id === bossId), lvl = A_.level(g), chance = A_.chance(g, bossId), won = A_.bossWon(g, bossId), open = A_.canChallenge(g, bossId, false);
-    const boss = mk('div', 'adv-boss'); boss.dataset.won = String(won);
-    boss.append(mk('strong', 'adv-boss-name', `🥊 ${w.boss}: ${T(b.names)}${won ? ' · ' + w.won : ''}`));
-    boss.append(mk('span', 'adv-boss-gate', `${w.fl} ${lvl} · ${w.entry} ${b.entry} · ${w.chance} ${chance}%`));
-    const acts = mk('div', 'adv-actions');
-    const fight = () => { if (store.game()) bossStart(ctx, bossId); };
-    if (open) acts.append(btn(fill(w.fightB, { b: T(BOSS[bossId].name) }), fight));
-    else if (A_.freeMode()) {
-      const warn = mk('div', 'adv-warn'); warn.hidden = true; warn.setAttribute('role', 'alert');
-      warn.append(mk('strong', '', w.warnT), mk('span', '', `${w.fl} ${lvl} · ${w.entry} ${b.entry} · ${w.chance} ${chance}%`));
-      const wa = mk('div', 'adv-actions'); wa.append(btn(w.warnGo, fight), btn(w.warnBack, () => { warn.hidden = true; acts.hidden = false; }, 'game-button adv-go adv-alt')); warn.append(wa);
-      acts.append(btn(w.fight, () => { warn.hidden = false; acts.hidden = true; warn.querySelector('button')?.focus({ preventScroll: true }); })); boss.append(warn);
-    } else acts.append(mk('span', 'adv-warn-text', fill(w.locked, { n: b.entry })));
-    boss.append(acts); rest.push(boss);
-    // Chapter goal, story step and the one primary button (tiles stay as replay/secondary)
-    const nn = nextNew(g, chap), step = nn ? window.AdventureStory?.beatOf(nn.id) || 1 : 5, goal = `${w['goal' + chap] || ''} · ${fill(w.step, { n: step })}`;
-    const bname = T(BOSS[bossId].name).split(/[,،]/)[0], chStart = all.some(m => starsOf(g, m.id));
-    let label = null, act = null;
-    if (nn) { label = !chStart ? (chap === 1 ? w.startStory : w.startCh) : fill(w.cont, { t: T(SHORT[nn.id] || nn.titles) }); act = () => start(ctx, nn.id); }
-    else if (!A_.bossWon(g, bossId)) { label = fill(w.challenge, { b: bname }); act = () => bossStart(ctx, bossId); }
-    else if (chap < 5) { label = fill(w.goTo, { c: T(A_.chapters[chap].names) }); act = () => opts.select?.(pinOf(chap + 1)); }
-    const primary = label ? btn(label, act, 'game-button adv-go adv-primary') : null;
-    return { tiles, rest, goal, primary, recap: recapNode() };
+    rest.push(list);
+    // Story so far: one line per finished step, every chapter
+    const jr = F.journal(g, lang()), sofar = mk('div', 'sf-sofar'); sofar.append(mk('strong', '', w.soFar));
+    if (!jr.length) sofar.append(mk('p', '', w.soFarEmpty));
+    for (const j of jr) { const n = F.state(g, j.chapter).main.find(x => x.id === j.id)?.n; sofar.append(mk('p', '', `✓ ${n ? n + '.' : w.side + ':'} ${j.text}`)); }
+    rest.push(sofar);
+    return { tiles: [], rest, quest, goal: null, primary: null, recap: null };
   }
-  window.AdventureOldTown = { onOpen, chapterIntro, titleCard, chapterTitle, SHORT, CH, BOSS, toastLog, reward, render, start, bossStart, goalText, leave, defs: DEFS, get run() { return run; }, copy };
+  window.AdventureOldTown = { before, afterBeat, chapterSummary, launch, closeBeat, onOpen, chapterIntro, titleCard, chapterTitle, SHORT, CH, BOSS, toastLog, reward, render, start, bossStart, goalText, leave, defs: DEFS, get run() { return run; }, copy };
 })();
