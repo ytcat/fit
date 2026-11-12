@@ -753,6 +753,16 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Root cause (measured):** `fighter-pad.js` portrait safe frame called `camera.setViewOffset(1,1,…)`; three.js r128 sets `camera.aspect = fullWidth/fullHeight` there, so the camera became square (aspect 1.000) on a 460×860 canvas (0.535). Visible since the stage got taller in v1.45.
 - **Fix:** the full size passed to the view offset carries the canvas aspect; re-applied when the canvas shape changes. Measured after: camera 0.535 = canvas 0.535. Test `tests/pad-frame-aspect.test.cjs`.
 
+### GOTR-0071 — Timed round: sound stops and the red "15s" button is unexplained
+- **Reported:** 2026-11-12 (iPhone Safari, v1.45, mitts with the Coach; screenshot: edge tools "Play", red "2s", settings, station)
+- **Status:** READY FOR QA — branch `agent/timer-sound` (not verified on an iPhone)
+- **Priority:** P0
+- **Reported behavior / request:** "I clicked on the training and it started to calculate 15 seconds back and sound disappeared."
+- **Root cause (measured in the browser, game time stepped in the page):** one tap on the timer silently switched Auto to Play (UX R1: the round is the player's turn), so the Fighter stopped punching: Auto free training 26 sounds / 10 s, after the tap 0 swings, 0 contacts, 0 sounds; the same round left in Auto 26 sounds / 10 s; punches by hand during the round sound normally (23 sounds / 6 s). Nothing said the round had started or that the punch buttons were needed; no bell at start or end; at 0 the scene froze (`isPlaying=false`). The owner's screenshot ("Play" label, no pad at 2 s) shows Auto at that moment; why it was silent then is not reproduced (Auto rounds sound here).
+- **Fix:** start bell (1 strike) and final bell at 0 (3 strikes); a second tap stops the round (no final bell); scene keeps running after the bell; timer tool = stopwatch + seconds with "Start a 15-second round" / "Stop the round · Ns left" labels; plain-text line at the top inline-start corner (no box, measured clear of Fighter and Coach): "15-second round · N s left / Land as many clean punches on the mitts as you can. Use the punch buttons. / Tap the timer again to stop", Auto text when the round runs in Auto, result line "Round over · N clean hits · XP…" with an "Again" action; EN/HE/RU; pad repainted at once. Audio hardening (GOTR-0068): a sound request on an unlocked but `suspended`/`interrupted` context asks it to resume (≤ 2/s) instead of staying silent until the next tap — effect on a real iPhone unverified.
+- **Evidence:** `qa/gotr-0071/` (402×690 EN/HE idle, start, mid-round, result; before picture; `round-browser.cjs` + run log); test `tests/timed-round-sound.test.cjs`.
+- **Seen, not changed:** the post-award "Next mission / Challenge Brick" bar (`adventure/oldtown.js` showNext) is a box across the fighters' bodies.
+
 ### GOTR-0064 — Lion head and face (and the other avatars)
 - **Reported:** 2026-11-12 (three reference pictures of lion boxers, style targets only, not stored in the repo)
 - **Status:** RELEASED v1.46 — lion: rounded skull, brow, larger eyes, mane as a deep hood down to the shoulders; rabbit: filled crown, cheeks, ear roots. Pictures `qa/gotr-0064/*.webp` (before/after). Limits: skull width unchanged, mane checked in guard pose only. Awaiting owner check
