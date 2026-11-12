@@ -178,6 +178,7 @@
       const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.72,roughnessMap:roughnessMap('cloth'),
         bumpMap:detailMap('cloth'),bumpScale:.00065,skinning:true,side:THREE.DoubleSide});
       this.skin=this.skinned(this.sculptBody(meshFrom(this.species==='rabbit'&&data.rabbitBody?data.rabbitBody:data.body,true)),skin,true);
+      this.sculptHead();
       // A continuous saddle at the crotch with two separate, open leg hems.
       // The previous solid ellipsoid bridge stretched into a flap between legs.
       if(!LionCoach.shortsGeometry){
@@ -416,11 +417,21 @@
         }
         if(y>1.76){const amount=.10*smooth((y-1.76)/.10);x*=1-amount;z*=1-amount;y=1.84+(y-1.84)*(1-amount);}
         if(this.species==='rabbit'&&y>1.78){const a=smooth((y-1.78)/.10);x*=1-.13*a;z*=1-.24*a; if(!this.nativeRabbit)y-=.065*smooth((y-2.015)/.11)*smooth((Math.abs(x)-.10)/.065);}
-        // GOTR-0064: rounded skull, brow, cheeks and jaw (see headForm); the same field moves the face parts.
-        if(y>1.75){const d=this.headForm(x/.9,(y-1.84)/.9,z/.9);x+=.9*d.x;y+=.9*d.y;z+=.9*d.z;}
         p.setXYZ(i,x,y,z);
       }
       p.needsUpdate=true;g.computeVertexNormals();return g;
+    }
+
+    // GOTR-0064: rounded skull, brow, cheeks and jaw (see headForm); the same field moves the face parts.
+    // Runs after the skin is installed: the baked shoulder correctives and the muscle relief are validated against
+    // the authored rest surface, so the head is reshaped afterwards and only vertices above the neck base move.
+    sculptHead() {
+      const g=this.skin.geometry,p=g.attributes.position;
+      for(let i=0;i<p.count;i++){
+        const x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(y<=1.75)continue;
+        const d=this.headForm(x/.9,(y-1.84)/.9,z/.9);p.setXYZ(i,x+.9*d.x,y+.9*d.y,z+.9*d.z);
+      }
+      p.needsUpdate=true;g.computeVertexNormals();g.computeBoundingBox();g.computeBoundingSphere();
     }
 
     // GOTR-0064: one smooth displacement field for the head, in head-joint coordinates before the 0.9 head scale.
@@ -439,8 +450,9 @@
         dz+=.008*bell(y,.215,.020)*bell(ax,.080,.045)*front;
       }else{
         // Dome between the ears above the brow line (was a flat top), fuller forehead and occiput.
-        dy+=.042*smooth((y-.235)/.11)*bell(x,0,.20);
-        dz+=.034*bell(y,.30,.08)*bell(x,0,.15)*front-.030*back*bell(y,.20,.16);
+        // Kept low and fairly flat in front: the mane's hairline comes down over it, so the forehead stays short.
+        dy+=.020*smooth((y-.235)/.11)*bell(x,0,.20);
+        dz+=.014*bell(y,.30,.08)*bell(x,0,.15)*front-.030*back*bell(y,.20,.16);
         // Heavy brow over the eyes, nose bridge, cheekbones, wider whisker pads, chin and jaw.
         dz+=.014*bell(y,.222,.020)*bell(ax,.085,.050)*front+.008*bell(x,0,.030)*bell(y,.19,.05)*front;
         const cheek=.014*bell(y,.120,.045)*bell(ax,.170,.050)*front;dx+=s*.8*cheek;dz+=.4*cheek;
@@ -696,7 +708,7 @@
       // broad overlapping locks that lie along it: they frame the face at the rim and flow back and down behind.
       const positions=[],normals=[],colors=[],flex=[],guideIds=[],head=this.joints.head;
       const centre=V(0,.09,-.085),power=2.3;
-      const hood=n=>{const rx=.345,ry=n.y>0?.355:.43,rz=n.z>0?lerp(.15,.24,smooth(-n.y*1.4)):.31;
+      const hood=n=>{const rx=.345,ry=n.y>0?.355:.43,rz=n.z>0?lerp(.15,.24,smooth(-n.y*1.4))+.16*smooth((n.y-.42)/.25)*Math.exp(-((n.x/.38)**2)):.31;
         return Math.pow(Math.pow(Math.abs(n.x/rx),power)+Math.pow(Math.abs(n.y/ry),power)+Math.pow(Math.abs(n.z/rz),power),-1/power);};
       const undercoat=this.ellipsoid(head,new THREE.MeshStandardMaterial({color:0x4a2f1a,roughness:1,
         bumpMap:detailMap('fur'),bumpScale:.004}),centre,V(1,1,1));undercoat.userData.mane=true;
@@ -711,18 +723,21 @@
         const a=i*2.399963229728653,nz=-1+2*(i+.5)/count,r=Math.sqrt(1-nz*nz);
         const normal=V(Math.cos(a)*r,Math.sin(a)*r,nz),root=normal.clone().multiplyScalar(hood(normal)).add(centre);
         const r0=random(),r1=random(),r2=random(),r3=random();
-        // The face (and the ears at its upper corners) stays open.
-        if(root.z>-.01&&(root.x/.215)**2+((root.y-.13)/.235)**2<1)continue;
+        // The face stays open up to a low hairline over the forehead, and so do the ears at its upper corners.
+        if(root.z>-.01&&((root.x/.215)**2+((root.y-.105)/.215)**2<1||Math.hypot(Math.abs(root.x)-.168,root.y-.275)<.062))continue;
         const rim=smooth((root.z+.10)/.16),top=smooth((normal.y+.1)/.8),low=smooth(-normal.y*1.2);
         // Behind the face the locks flow back over the crown and down the neck; at the rim they fan out around the face.
         flow.set(normal.x*.25,-.55-.45*(1-top),-.8*top-.25);
         tangent.set(root.x,root.y-.13,0).normalize().add(V(0,-.25,-.35));flow.lerp(tangent,rim*.75);
+        // A short fringe along the hairline falls forward onto the top of the forehead.
+        const fringe=smooth((root.z-.02)/.06)*smooth((root.y-.27)/.05)*(1-smooth((Math.abs(root.x)-.10)/.08));
+        flow.lerp(tangent.set(root.x*2.2,-.55,.75),fringe);
         tangent.copy(flow).addScaledVector(normal,-flow.dot(normal));
         if(tangent.lengthSq()<1e-6)tangent.set(0,-normal.z,normal.y);tangent.normalize();
         // A little spread in direction keeps the locks from lining up in rows.
         tangent.applyAxisAngle(normal,(r2-.5)*.7);
         const angle=.30+.25*rim+.15*r0,forward=tangent.clone().multiplyScalar(Math.cos(angle)).addScaledVector(normal,Math.sin(angle));
-        const length=(.125+.085*r1)*(1+.5*low)*(1-.25*rim*top),width=.013+.012*r2,curl=(r3-.5)*.06;
+        const length=(.125+.085*r1)*(1+.5*low)*(1-.25*rim*top)*(1-.50*fringe),width=.013+.012*r2,curl=(r3-.5)*.06;
         across.crossVectors(forward,normal).normalize();lift.copy(normal).addScaledVector(forward,-normal.dot(forward)).normalize();
         const tone=clamp(rim*.8+top*.25-low*.3+(r3-.5)*.3);
         const colour=new THREE.Color().setHSL(lerp(.068,.085,tone)+r0*.01,lerp(.46,.58,tone),lerp(.15,.35,tone));
