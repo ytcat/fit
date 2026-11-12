@@ -44,7 +44,7 @@
     seg.append(dayB, nightB); tools.append(seg, allB);
     stage.append(status, pinsEl, tools);
     modal.append(stage, card, el('p', 'adv-hint', w.hint));
-    let alive = true, renderer = null, scene = null, camera = null, map = null, raf = 0, goal = null, time = store.game()?.adventureTime === 'night' ? 'night' : 'day', last = 0, dirty = true;
+    let alive = true, renderer = null, scene = null, camera = null, map = null, raf = 0, goal = null, time = store.game()?.adventureTime === 'night' ? 'night' : 'day', last = 0, dirty = true, idleAt = performance.now();
     const cam = { x: 0, z: 0, dist: 280, ...VIEW };
     const portrait = () => stage.clientWidth / Math.max(1, stage.clientHeight) < .9;
     const home = () => portrait() ? { x: 34, z: -14, dist: 250 } : { x: -2, z: 12, dist: 282 };
@@ -55,14 +55,14 @@
     }
     modal.adventureCleanup = cleanup;
     function apply() {
-      if (!camera) return;
+      if (!camera) return; idleAt = performance.now();
       const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
       camera.position.set(cam.x + Math.sin(cam.yaw) * cp * cam.dist, sp * cam.dist, cam.z + Math.cos(cam.yaw) * cp * cam.dist); camera.lookAt(cam.x, 0, cam.z);
       if (map) { map.focusShadows(cam.x, cam.z - cam.dist * .05, Math.max(26, cam.dist * .62)); renderer.shadowMap.needsUpdate = true; if (scene.fog) { scene.fog.near = cam.dist * .85; scene.fog.far = cam.dist * 2.6 + 120; } }
       dirty = true;
     }
     function clamp() { cam.dist = Math.min(330, Math.max(34, cam.dist)); if (map) { const b = map.bounds; cam.x = Math.min(b.x1, Math.max(b.x0, cam.x)); cam.z = Math.min(b.z1, Math.max(b.z0, cam.z)); } }
-    function fly(f) { if (!f) return; if (reduced) { Object.assign(cam, { x: f.x, z: f.z, dist: f.dist }); clamp(); apply(); } else goal = { ...f }; }
+    function fly(f) { if (!f) return; if (reduced) { Object.assign(cam, { x: f.x, z: f.z, dist: f.dist }); clamp(); apply(); } else goal = { ...f, t: 0, from: { x: cam.x, z: cam.z, dist: cam.dist } }; }
     function resize() { if (!renderer) return; const W = stage.clientWidth, H = stage.clientHeight; renderer.setSize(W, H, false); camera.aspect = W / H; camera.updateProjectionMatrix(); for (const p of pins) p.tag._w = 0; apply(); }
     let pins = [];
     const CHAPTER_PIN = { 1: 'oldtown', 2: 'market', 3: 'docks', 4: 'downtown', 5: 'hill' };
@@ -192,11 +192,12 @@
       time = t; dayB.setAttribute('aria-pressed', String(t === 'day')); nightB.setAttribute('aria-pressed', String(t === 'night'));
       if (!renderer) return;
       if (map) map.dispose();
-      map = GlorylandMap.build(scene, { time, renderer, shadowSize: 2048 }); makePins(); apply();
+      const g = game(), A = P(), chNow = g && A ? (A.chapters.findIndex(c => !A.bossWon(g, c.boss)) + 1 || 5) : 1, low = (navigator.deviceMemory && navigator.deviceMemory < 4) || /[?&]gfx=low/.test(location.search); // GOTR-0061 city-gfx hook
+      map = GlorylandMap.build(scene, { time: time === 'night' ? 'night' : ({ 1: 'morning', 2: 'evening' })[chNow] || 'day', renderer, quality: low ? 'low' : 'high' }); map.setCurrent?.(CHAPTER_PIN[chNow]); modal.dataset.grade = map.time || time; makePins(); apply();
     }
     // input: drag to pan, wheel / pinch to zoom
     const ptrs = new Map(); let pinch0 = 0, dist0 = 0, moved = 0;
-    stage.addEventListener('pointerdown', ev => { if (ev.target.closest('.adv-pin,.adv-tools')) return; stage.setPointerCapture(ev.pointerId); ptrs.set(ev.pointerId, { x: ev.clientX, y: ev.clientY }); goal = null; moved = 0; if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); dist0 = cam.dist; } });
+    stage.addEventListener('pointerdown', ev => { idleAt = performance.now(); if (ev.target.closest('.adv-pin,.adv-tools')) return; stage.setPointerCapture(ev.pointerId); ptrs.set(ev.pointerId, { x: ev.clientX, y: ev.clientY }); goal = null; moved = 0; if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); dist0 = cam.dist; } });
     stage.addEventListener('pointermove', ev => {
       const q = ptrs.get(ev.pointerId); if (!q || !camera) return;
       const dx = ev.clientX - q.x, dy = ev.clientY - q.y; q.x = ev.clientX; q.y = ev.clientY; moved += Math.abs(dx) + Math.abs(dy);
@@ -212,7 +213,8 @@
       raf = requestAnimationFrame(frame);
       if (!modal.isConnected) { cleanup(); return; }
       const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
-      if (goal) { const k = 1 - Math.exp(-dt * 4); cam.x += (goal.x - cam.x) * k; cam.z += (goal.z - cam.z) * k; cam.dist += (goal.dist - cam.dist) * k; if (Math.abs(goal.dist - cam.dist) < .3 && Math.abs(goal.x - cam.x) < .3) goal = null; apply(); }
+      if (goal) { const G = goal, F = G.from, far = Math.hypot(G.x - F.x, G.z - F.z); G.t = Math.min(1, G.t + dt / (1 + Math.min(.6, far / 220))); const k = G.t * G.t * (3 - 2 * G.t); cam.x = F.x + (G.x - F.x) * k; cam.z = F.z + (G.z - F.z) * k; cam.dist = F.dist + (G.dist - F.dist) * k + Math.sin(Math.PI * G.t) * Math.min(36, far * .22); if (G.t >= 1) goal = null; clamp(); apply(); idleAt = now; }
+      else if (!reduced && !ptrs.size && now - idleAt > 6000) { cam.yaw = VIEW.yaw + Math.sin((now - idleAt - 6000) * .00016) * .045; const cp = Math.cos(cam.pitch); camera.position.set(cam.x + Math.sin(cam.yaw) * cp * cam.dist, Math.sin(cam.pitch) * cam.dist, cam.z + Math.cos(cam.yaw) * cp * cam.dist); camera.lookAt(cam.x, 0, cam.z); } // idle drift: camera only, shadows untouched
       if (!reduced) { map.update(dt, camera, renderer); dirty = true; } else if (dirty) map.update(0, camera, renderer);
       animateRoute(performance.now());
       if (dirty) { renderer.render(scene, camera); placePins(); dirty = false; }
