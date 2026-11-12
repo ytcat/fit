@@ -900,9 +900,17 @@
         if (['suspended','interrupted'].includes(this.ctx.state)) this.ctx.resume()?.catch?.(()=>{});
         this.onState?.();
       }
+      // GOTR-0068/0071: true when sound can play now. iOS can leave an unlocked context 'suspended' or 'interrupted'
+      // (call, notification, Control Centre) while nobody touches the screen, e.g. watching Auto; a sound request then
+      // asks it to resume (at most twice a second) instead of staying silent until the next tap.
+      live() {
+        const ctx=this.ctx;if(this.muted||!ctx)return false;if(ctx.state==='running')return true;
+        if(this.unlocked&&['suspended','interrupted'].includes(ctx.state)){const now=Date.now();if(!(now-(this.retryAt||0)<500)){this.retryAt=now;this.retries=(this.retries||0)+1;try{ctx.resume()?.catch?.(()=>{});}catch{}}}
+        return false;
+      }
       playSample(name,level=.3,rate=1,delay=0,cutoff=0) {
         const ctx=this.ctx,buffer=typeof name==='string'?this.samples.get(name):name;
-        if(this.muted||!ctx||ctx.state!=='running'||!buffer)return false;
+        if(!this.live()||!buffer)return false;
         if(!this.output){
           this.output=ctx.createGain();this.output.gain.value=.82;
           if(ctx.createDynamicsCompressor){
@@ -947,7 +955,7 @@
       }
       // Local recorded impacts; synthesis remains a fallback while samples load.
       hit(impact) {
-        if(this.muted||!this.ctx||this.ctx.state!=='running')return;
+        if(!this.live())return;
         const ctx=this.ctx,t=ctx.currentTime,heavy=impact.receiver==='heavy',speed=impact.receiver==='speed';
         if(this.samples.has('pad')){
           const strength=Math.min(1,Math.max(.1,(impact.closingSpeed||1)/7)),variation=(this.soundSerial++%5-2)*.008;
@@ -977,7 +985,7 @@
         noise.connect(filter);filter.connect(snap);snap.connect(ctx.destination);noise.start(t);noise.stop(t+.06);
       }
       pain(impact) {
-        if(this.muted||!this.ctx||this.ctx.state!=='running'||!['head','body'].includes(impact.kind))return;
+        if(!this.live()||!['head','body'].includes(impact.kind))return;
         const ctx=this.ctx,t=ctx.currentTime,level=Math.min(.08,.025+(impact.severity||.5)*.025);
         if(this.samples.has('effort-1')){
           if(impact.blocked||!['lion','rabbit'].includes(impact.receiver)||(impact.closingSpeed!=null&&impact.closingSpeed<.75))return;
@@ -996,7 +1004,7 @@
       }
 
       applause() {
-        if(this.muted||!this.ctx||this.ctx.state!=='running')return;
+        if(!this.live())return;
         if(this.sampledApplause())return;
         const ctx=this.ctx,duration=3.8,rate=ctx.sampleRate,buffer=ctx.createBuffer(2,Math.ceil(rate*duration),rate);
         // Individual people clap in slightly irregular pairs; each clap combines
