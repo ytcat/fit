@@ -8,8 +8,11 @@
  *   StorySets.build(id, scene, { renderer, shadows }) -> { id, group, objects, focus(x, z, r), stats(), dispose() }
  *   StorySets.register(id, ctx => focus)              a new set. ctx = { K, PAL, C, S (street batch, metres), objects,
  *       box, cyl, house, road, pave, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, sign, picto, movable(batch, name) }
- *       return { x, z, r } (where the sun's shadow box starts). Built-in sets: 'busstop', 'gymfront'.
- *   objects of the built-in sets: busstop { bus } ; gymfront { bag, cyclist, pillow, wraps } (hidden until a scene uses them)
+ *       glow (batch of unlit bright things: bulbs, lantern glass), pool(x, z, r, hex) (light pool on the ground)
+ *       return { x, z, r, time?: 'morning' | 'evening' } (where the sun's shadow box starts; evening = low orange sun,
+ *       dusk sky, lit windows). Built-in sets: 'busstop', 'gymfront' (morning), 'market' (evening).
+ *   objects of the built-in sets: busstop { bus } ; gymfront { bag, stand, cyclist, pillow, wraps } ; market { whistle,
+ *       balloon, balloon2 (gold), pigeon, crate, crate2, bar, bar2, basket } (hidden until a scene or trial uses them)
  * World: metres, y up, the street runs along x, the camera side is +z. Walking surfaces are at y = 0, the road at -0.15. */
 (() => {
   const MAP_SRC = './adventure/gloryland-map.js?v=2026111100';
@@ -40,9 +43,10 @@
     x = plate(3, '#3c7fc0'); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(x, 172); g.lineTo(x - 36, 164); g.lineTo(x - 36, 214); g.lineTo(x, 222); g.lineTo(x + 36, 214); g.lineTo(x + 36, 164); g.closePath(); g.fill(); g.strokeStyle = '#3c7fc0'; g.lineWidth = 4; g.beginPath(); g.moveTo(x, 172); g.lineTo(x, 222); g.stroke();
     const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
   }
-  function skyTexture() {
+  function skyTexture(evening) {
     const cv = document.createElement('canvas'); cv.width = 4; cv.height = 256; const g = cv.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 256);
-    gr.addColorStop(0, '#6fa8de'); gr.addColorStop(.38, '#a9cdea'); gr.addColorStop(.6, '#e6dccb'); gr.addColorStop(.74, '#ffd9a6'); gr.addColorStop(1, '#f6c58e');
+    const stops = evening ? [[0, '#27306e'], [.3, '#5a4a92'], [.5, '#b2648f'], [.66, '#f28a52'], [.8, '#ffc27a'], [1, '#f0a763']] : [[0, '#6fa8de'], [.38, '#a9cdea'], [.6, '#e6dccb'], [.74, '#ffd9a6'], [1, '#f6c58e']];
+    for (const [k, c] of stops) gr.addColorStop(k, c);
     g.fillStyle = gr; g.fillRect(0, 0, 4, 256); const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; return t;
   }
 
@@ -53,7 +57,7 @@
     const disposables = [], objects = {};
     const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .82, metalness: 0 }); disposables.push(mat);
     const signTex = paintSigns(), signMat = new THREE.MeshStandardMaterial({ map: signTex, roughness: .7 }); disposables.push(signTex, signMat);
-    const S = new K.Batch(), SG = new K.Batch({ uv: true }); // street + props (metres), sign quads
+    const S = new K.Batch(), SG = new K.Batch({ uv: true }), G = new K.Batch(), PL = new K.Batch({ uv: true }); // street + props (metres), sign quads, unlit glow, light pools
     const W = { solid: new K.Batch(), facade: {} }; // map-unit houses
     for (const s of Object.keys(K.FACADE)) W.facade[s] = new K.Batch({ uv: true, tint: true });
     const col = c => typeof c === 'string' ? C(c) : c, white = C('#ffffff');
@@ -99,26 +103,35 @@
     const movable = (B, name) => { const m = add(new THREE.Mesh(B.geometry(), mat)); m.name = name; return m; };
     // hazy far skyline so the gaps between houses are never empty sky
     const skyline = z => { for (let k = 0; k < 9; k++) { const x = -44 + k * 11 + (k % 2) * 3, h = 9 + (k * 37 % 7) * 1.6; box(S, x, 0, z, 9, h, 6, ['#d9cdb8', '#cfd6d9', '#e0cdb4'][k % 3]); box(S, x, h, z, 9.4, .5, 6.4, '#c08a66'); } };
-    const ctx = { id, signMat, disposables, shade, plinth, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
-    const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) };
+    /** Light pool on the ground under a lantern (additive, evening sets). */
+    const pool = (x, z, r, hex, y = .02) => { const c = C(hex); PL.quad([x - r, y, z + r], [x + r, y, z + r], [x + r, y, z - r], [x - r, y, z - r], c, c, [0, 0, 1, 0, 1, 1, 0, 1]); };
+    const ctx = { id, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
+    const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) }, evening = focus.time === 'evening';
 
     // ---- meshes: street (1), signs (1), houses (1 + one per facade style)
     const street = add(new THREE.Mesh(S.geometry(), mat)); street.name = 'street'; street.matrixAutoUpdate = false; street.updateMatrix();
     if (SG.tris) { const sg = add(new THREE.Mesh(SG.geometry(), signMat), false, true); sg.name = 'signs'; sg.matrixAutoUpdate = false; sg.updateMatrix(); }
+    if (G.tris) { const gm = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }), g = add(new THREE.Mesh(G.geometry(), gm), false, false); g.name = 'glow'; g.matrixAutoUpdate = false; g.updateMatrix(); }
+    if (PL.tris) {
+      const cv = document.createElement('canvas'); cv.width = cv.height = 64; const g2 = cv.getContext('2d'), gr = g2.createRadialGradient(32, 32, 1, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,.75)'); gr.addColorStop(.5, 'rgba(255,255,255,.28)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g2.fillStyle = gr; g2.fillRect(0, 0, 64, 64);
+      const pt = new THREE.CanvasTexture(cv), pm = new THREE.MeshBasicMaterial({ map: pt, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }); disposables.push(pt);
+      const pl = add(new THREE.Mesh(PL.geometry(), pm), false, false); pl.name = 'light pools'; pl.renderOrder = 1; pl.matrixAutoUpdate = false; pl.updateMatrix();
+    }
     const houses = new THREE.Group(); houses.scale.setScalar(U); houses.name = 'houses (map pieces)'; group.add(houses); houses.updateMatrix();
     const addH = m => { m.castShadow = m.receiveShadow = true; m.matrixAutoUpdate = false; m.updateMatrix(); houses.add(m); disposables.push(m.geometry, m.material); };
     addH(new THREE.Mesh(W.solid.geometry(), mat));
-    const aniso = opts.renderer ? Math.min(4, opts.renderer.capabilities.getMaxAnisotropy()) : 2, tex = K.paintFacades(false, aniso, s => W.facade[s].tris ? (s === 'shop' ? 3 : 2) : 0);
+    const aniso = opts.renderer ? Math.min(4, opts.renderer.capabilities.getMaxAnisotropy()) : 2, tex = K.paintFacades(evening, aniso, s => W.facade[s].tris ? (s === 'shop' ? 3 : 2) : 0);
     for (const s of Object.keys(K.FACADE)) {
       const t = tex[s]; if (!t) continue; disposables.push(t.map); if (t.emissive) disposables.push(t.emissive);
-      addH(new THREE.Mesh(W.facade[s].geometry(), K.facadeMaterial(t, false, s === 'office' ? .45 : .85, s === 'office' ? .75 : .12)));
+      const fm = K.facadeMaterial(t, evening, s === 'office' ? .45 : .85, s === 'office' ? .75 : .12); if (evening) fm.emissiveIntensity = 1.5; // lit windows at dusk
+      addH(new THREE.Mesh(W.facade[s].geometry(), fm));
     }
     // ---- morning light: low warm sun (long shadows), cool sky fill, warm sky gradient, light haze
-    const hemi = new THREE.HemisphereLight(0xc4dcff, 0xdcb98c, .54), sun = new THREE.DirectionalLight(0xffd7a3, 2.05), amb = new THREE.AmbientLight(0xffffff, .05);
-    const sunDir = new THREE.Vector3(.58, .44, .68).normalize();
+    const hemi = evening ? new THREE.HemisphereLight(0x8f9cff, 0x7a4f3c, .46) : new THREE.HemisphereLight(0xc4dcff, 0xdcb98c, .54), sun = new THREE.DirectionalLight(evening ? 0xff9450 : 0xffd7a3, evening ? 1.85 : 2.05), amb = new THREE.AmbientLight(0xffffff, .05);
+    const sunDir = (evening ? new THREE.Vector3(-.72, .3, .62) : new THREE.Vector3(.58, .44, .68)).normalize();
     sun.castShadow = !!opts.shadows; sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -.0007; sun.shadow.normalBias = .05; sun.shadow.radius = 2;
     group.add(hemi, sun, sun.target, amb);
-    const sky = skyTexture(); disposables.push(sky); scene.background = sky; scene.fog = new THREE.Fog(0xf3dfc4, 26, 105);
+    const sky = skyTexture(evening); disposables.push(sky); scene.background = sky; scene.fog = evening ? new THREE.Fog(0xd08a64, 22, 95) : new THREE.Fog(0xf3dfc4, 26, 105);
     let fx = 1e9, fz = 1e9;
     /** Centres the sun's shadow box on (x, z); moves only when the point drifts, so shadow edges do not swim. */
     function aim(x, z, r = focus.r) {
@@ -230,11 +243,94 @@
     Bg.add(P.cyl20, M(0, -.5, 0, .17, 1.0, .17), C('#a4262c')); Bg.add(P.cyl20, M(0, .38, 0, .176, .12, .176), C('#1d1f24')); Bg.add(P.cyl20, M(0, -.52, 0, .176, .1, .176), C('#1d1f24'));
     Bg.add(P.cyl20, M(0, -.08, 0, .173, .22, .173), C('#f3f6fb')); Bg.add(P.cyl20, M(0, .02, 0, .1745, .03, .1745), C('#f4c152')); for (let k = 0; k < 4; k++) Bg.add(P.box, M(Math.cos(k * TAU / 4) * .1, .5, Math.sin(k * TAU / 4) * .1, .02, .14, .02), C('#aab2bc')); Bg.add(P.cyl8, M(0, .63, 0, .05, .02, .05), C('#aab2bc'));
     objects.bag = movable(Bg, 'heavy bag'); objects.bag.position.set(-13, 1.1, -.4); objects.bag.visible = false;
+    const St = new K.Batch(); for (const z of [-1.0, 1.0]) { St.add(P.box, M(0, 0, z, .11, 2.72, .11), C('#5b3a2a')); St.add(P.box, M(0, 0, z, 1.3, .08, .14), C('#3a2b24')); St.add(P.box, M(.3, 1.9, z * .82, .08, .9, .08, 0, 0, .0), C('#5b3a2a')); }
+    St.add(P.box, M(0, 2.62, 0, .14, .14, 2.25), C('#3a2b24')); St.add(P.cyl8, M(0, 2.5, 0, .035, .12, .035), C('#aab2bc')); St.add(P.box, M(0, 2.76, 0, .2, .26, 1.7), C('#1d2026'));
+    objects.stand = movable(St, 'bag stand'); objects.stand.visible = false;
     const Pw = new K.Batch(); Pw.add(P.sph, M(0, 0, 0, .3, .12, .2), C('#f7f3ea')); for (const s of [-1, 1]) Pw.add(P.ico, M(s * .29, 0, .17 * 0, .05, .05, .05), C('#c9d6e6')); Pw.add(P.box, M(0, -.02, 0, .5, .04, .1), C('#9fc3e6'));
     objects.pillow = movable(Pw, 'pillow'); objects.pillow.visible = false;
     const Wr = new K.Batch(); for (const s of [-1, 1]) { Wr.add(P.cyl12, M(s * .06, -.05, 0, .055, .1, .055), C('#f3ead8')); Wr.add(P.cyl12, M(s * .06, -.02, 0, .057, .03, .057), C('#e63946')); } Wr.add(P.box, M(0, -.06, .05, .2, .02, .03), C('#f3ead8'));
     objects.wraps = movable(Wr, 'hand wraps'); objects.wraps.visible = false;
     return { x: 8, z: -1.5, r: 12 };
+  };
+
+  /* ---------------------------------------------------------------- market alley (Chapter 2, evening) */
+  SETS.market = c => {
+    const { K, PAL, C, P, M, S, box, cyl, house, picto, pave, tree, bin, planter, movable, objects, glow: G, pool, shade } = c;
+    const WARM = '#ffd27a', R = (i, a, b) => a + (b - a) * (Math.abs(Math.sin(i * 12.9898) * 43758.5453) % 1); // repeatable scatter
+    pave(-48, 48, -14, 14, PAL.pave2);
+    for (let x = -40; x < 40; x += 1.1) for (let z = -4.2; z < 7; z += 1.1) { const k = Math.round(x * 7 + z * 13); if (k % 3 === 0) box(S, x + .5, -.004, z + .5, .95, .01, .95, k % 2 ? '#cdbfa7' : '#bfae94'); }
+    box(S, 0, -.002, -.8, 96, .008, .16, '#a8987f'); box(S, 0, -.002, 1.9, 96, .008, .16, '#a8987f'); // worn drain lines along the alley
+    // a patch of large paving slabs in front of the stalls: the 7 x 5 footwork grid of the cut-off trial (X0 -1.4, 1.15 x 0.8 m cells)
+    for (let cc = 0; cc < 7; cc++) for (let rr = 0; rr < 5; rr++) box(S, -1.4 + cc * 1.15, .001, -2.0 + rr * .8, 1.07, .012, .72, (cc + rr) % 2 ? '#d9cbb0' : '#cbbb9c');
+    // houses: shop fronts behind the stalls, the far side behind the camera
+    const row = [['plaster', 10, 3, 0, 0], ['brick', 9, 2, 3, 2], ['plaster', 11, 3, 1, 1], ['brick', 8, 3, 6, 4], ['plaster', 10, 2, 4, 3], ['apartment', 11, 3, 0, 0], ['plaster', 9, 3, 7, 5], ['brick', 10, 2, 5, 2]];
+    let hx = -40; row.forEach(([style, w, floors, tint, roofC], i) => { house({ style, x: hx + w / 2, z: -9.8, w, d: 10, floors, tint: style === 'apartment' ? PAL.apartment[1] : PAL.market[tint % PAL.market.length], roof: style === 'apartment' ? 'flat' : 'hip', roofColor: C(PAL.terracotta[roofC]), shop: i % 3 !== 2 }); hx += w + (i === 3 ? 2.4 : 0); });
+    hx = -38; [['plaster', 12, 2, 2], ['brick', 14, 3, 5], ['plaster', 12, 2, 1], ['brick', 13, 3, 3], ['plaster', 12, 2, 6], ['plaster', 12, 3, 4]].forEach(([style, w, floors, tint], i) => { house({ style, x: hx + w / 2, z: 15, w, d: 10, floors, tint: PAL.market[tint % PAL.market.length], roof: 'hip', roofColor: C(PAL.terracotta[i % 6]), ry: Math.PI, shop: i % 2 === 0 }); hx += w; });
+    c.skyline(-44); c.plinth(-44, 44, -4.72);
+    picto('bread', -30, 4.4, -4.75); picto('cup', -8, 4.4, -4.75); picto('flower', 14, 4.4, -4.75); picto('book', 31, 4.4, -4.75);
+    // lantern: unlit bright glass + a warm pool on the cobbles
+    const lantern = (x, y, z, r = .13, hex = WARM) => { G.add(P.cyl6, M(x, y, z, r, r * 1.7, r), C(hex)); S.add(P.cone6, M(x, y + r * 1.7, z, r * 1.5, r * .9, r * 1.5), C('#2f3640')); cyl(S, x, y - .04, z, r * .7, .04, '#2f3640', P.cyl6); pool(x, z + .5, 2.4, '#ff9d45'); };
+    const post = (x, z) => { cyl(S, x, 0, z, .13, .5, '#2f3640', P.cyl8); cyl(S, x, .5, z, .055, 3.0, '#2f3640', P.cyl6); box(S, x, 3.42, z + .25, .04, .04, .55, '#2f3640'); lantern(x, 3.02, z + .5, .15); };
+    // a market stall: posts, counter, striped awning with a scalloped valance, crates of fruit, a hanging lantern
+    const stall = (x, [a, b], goods, w = 3.0) => {
+      const zb = -4.1, zf = -2.3, ya = 2.95, yf = 2.3, n = 8, c1 = C(a), c2 = C(b), wood = '#8a6446';
+      for (const sx of [-1, 1]) { box(S, x + sx * (w / 2 - .06), 0, zb + .1, .08, ya, .08, wood); box(S, x + sx * (w / 2 - .06), 0, zf - .1, .08, yf, .08, wood); }
+      box(S, x, 0, -3.0, w - .2, .86, 1.0, '#a97c55', 0, { ao: .3 }); box(S, x, .86, -3.0, w, .06, 1.12, '#c29a6f'); box(S, x, .2, -2.47, w - .2, .5, .03, a);
+      for (let k = 0; k < n; k++) {
+        const x0 = x - w / 2 - .15 + k * (w + .3) / n, x1 = x0 + (w + .3) / n, col = k % 2 ? c2 : c1, lo = col.clone().multiplyScalar(.8);
+        S.quad([x0, yf, zf], [x1, yf, zf], [x1, ya, zb], [x0, ya, zb], col, lo); S.quad([x0, ya, zb], [x1, ya, zb], [x1, yf, zf], [x0, yf, zf], lo, lo);
+        S.tri([x0, yf, zf], [(x0 + x1) / 2, yf - .26, zf], [x1, yf, zf], col, lo, col); S.tri([x1, yf, zf], [(x0 + x1) / 2, yf - .26, zf], [x0, yf, zf], lo, lo, lo);
+      }
+      shade(x, -2.9, w + .6, 2.4);
+      goods.forEach((hex, i) => { const gx = x - w / 2 + .5 + i * ((w - 1) / Math.max(1, goods.length - 1)); box(S, gx, .92, -2.95, .62, .22, .78, '#9c7448', R(i + x, -.12, .12)); for (let k = 0; k < 9; k++) S.add(P.ico, M(gx - .2 + (k % 3) * .2, 1.17 + (k % 2) * .03, -3.2 + Math.floor(k / 3) * .24, .1, .1, .1, k), C(hex).multiplyScalar(R(k + i, .85, 1.1))); });
+      lantern(x, 1.95, zf + .05, .11);
+    };
+    const AW = PAL.awning, FRUIT = ['#f08a3c', '#d9473b', '#7bc06b', '#f2c14e', '#8e5fa8', '#e84a3d'];
+    [-33, -27.5, -21, -15.5, -9.5, -4, 2.2, 8, 16.5, 22, 28, 34].forEach((x, i) => stall(x, AW[i % AW.length], [FRUIT[i % 6], FRUIT[(i + 2) % 6], FRUIT[(i + 4) % 6]], i % 3 === 1 ? 3.6 : 3.0));
+    // loose goods between the stalls: crates, barrels, sacks
+    const crate = (B, x, y, z, s = .5, ry = 0) => { B.add(P.box, M(x, y, z, s, s * .8, s, ry), C('#a97c55'), { ao: .3 }); B.add(P.box, M(x, y + s * .3, z, s * 1.04, s * .1, s * 1.04, ry), C('#7e5b3c')); };
+    [[-24.3, -3.2], [-12.4, -3.4], [-6.8, -3.3], [5.2, -3.3], [12.6, -3.5], [19.3, -3.2], [25, -3.4], [31, -3.2]].forEach(([x, z], i) => {
+      crate(S, x, 0, z, .55, i * .4); crate(S, x + .5, 0, z - .3, .5, i * .7 + .3); if (i % 2) crate(S, x + .15, .44, z - .1, .45, i); else { cyl(S, x - .6, 0, z, .3, .8, '#8a5a38', P.cyl12); cyl(S, x - .6, .25, z, .315, .06, '#3b4350', P.cyl12); cyl(S, x - .6, .6, z, .315, .06, '#3b4350', P.cyl12); }
+      S.add(P.ico1, M(x + 1.0, .2, z + .25, .3, .26, .26, i), C('#c9b08a')); shade(x + .1, z, 1.9, 1.2);
+    });
+    for (const x of [-30, -18.4, -1, 11, 25.4, 37]) post(x, -1.95);
+    tree(-36.5, 4.6, 4.4); tree(-13, 5.4, 4.2); tree(6, 5.2, 4.6); tree(19.5, 5.5, 4.2); tree(38, 4.8, 4.4); bin(-19.6, -3.9); bin(14.6, -3.9); planter(-2, 5.6, 1.6); planter(10, 5.9, 1.6); planter(-24, 5.8, 1.6);
+    // string lights and bunting across the alley
+    const BULB = ['#ffd27a', '#ff9d6b', '#fff0c4', '#ffb347'], FLAG = ['#e8473b', '#f2b632', '#2fa59a', '#3c7fc0', '#d63d6d', '#fff4e0'];
+    [-34, -26, -19, -11.5, -4, 4.5, 12, 20, 27, 35].forEach((x, i) => {
+      const z0 = -4.5, z1 = 6.2, y0 = 5.0 + (i % 2) * .3, n = 15, wire = C('#2a2f38');
+      for (let k = 0; k < n; k++) {
+        const u0 = k / n, u1 = (k + 1) / n, pt = u => [x + (u - .5) * 1.4 * (i % 2 ? 1 : -1), y0 - Math.sin(u * Math.PI) * .7, z0 + (z1 - z0) * u], a = pt(u0), b = pt(u1);
+        S.quad(a, b, [b[0], b[1] + .025, b[2]], [a[0], a[1] + .025, a[2]], wire); S.quad(b, a, [a[0], a[1] + .025, a[2]], [b[0], b[1] + .025, b[2]], wire);
+        if (i % 3 === 2) { const col = C(FLAG[(k + i) % FLAG.length]), m = pt((u0 + u1) / 2); S.tri(a, [m[0], m[1] - .34, m[2]], b, col); S.tri(b, [m[0], m[1] - .34, m[2]], a, col); }
+        else G.add(P.ico, M(a[0], a[1] - .07, a[2], .075, .095, .075), C(BULB[(k + i) % 4]));
+      }
+      cyl(S, x + .7 * (i % 2 ? 1 : -1), 0, z1, .06, y0, '#3b4350', P.cyl6);
+    });
+    // people of the market: simple evening silhouettes (static, merged)
+    const SIL = ['#3b3552', '#4b3b4c', '#2f3b57', '#57424c', '#40465e', '#5a4a3f'];
+    const person = (x, z, i, h = 1) => { const col = C(SIL[i % SIL.length]), hd = col.clone().multiplyScalar(1.25); S.add(P.cyl8, M(x, 0, z, .2 * h, .78 * h, .15 * h), col.clone().multiplyScalar(.8)); S.add(P.cyl8, M(x, .76 * h, z, .25 * h, .62 * h, .17 * h), col); S.add(P.sph, M(x, 1.56 * h, z, .15 * h, .17 * h, .15 * h), hd); if (i % 3 === 0) S.add(P.cone8, M(x, 1.66 * h, z, .2 * h, .12 * h, .2 * h), C('#6b3b2b')); shade(x, z, .7, .6); };
+    for (let k = 0; k < 12; k++) { const a = Math.PI * (1.05 + .9 * k / 11); person(13.4 + Math.cos(a) * (2.75 + (k % 2) * .5), -1.0 + Math.sin(a) * (2.0 + (k % 2) * .45) * .78, k, .92 + (k % 4) * .04); } // the crowd circle
+    [[-15.8, -2.0], [-16.6, -1.2], [-16.2, -.3], [-15.2, -2.4]].forEach(([x, z], i) => person(x, z, i + 3, 1.04)); // the Hyena crew behind their king
+    [[-31, -1.9], [-26, -1.7], [-22.5, -2.0], [-7.6, -2.2], [3.4, -2.1], [6.6, -1.9], [21, -2.0], [24, -1.7], [29.5, -2.1], [33, -1.8], [-3, 4.6], [9, 4.9], [-20, 4.4], [27, 4.7]].forEach(([x, z], i) => person(x, z, i + 1, .95 + (i % 3) * .05));
+    // rooftop pranksters on a balcony over the balloon run, with a bucket of balloons
+    box(S, -2, 3.6, -4.2, 15, .14, 1.0, '#b3a892'); for (let x = -9.2; x <= 5.3; x += .48) box(S, x, 3.74, -3.74, .05, .7, .05, '#3b4350'); box(S, -2, 4.44, -3.74, 15, .06, .08, '#3b4350');
+    [-7, -2.4, 3.2].forEach((x, i) => { person(x, -4.3, i + 2, .8); S.add(P.sph, M(x + .45, 5.1 - 1.2, -3.9, .16, .19, .16), C(['#3fc1e8', '#ff6b8b', '#ffd166'][i])); });
+    // movable things for the scenes and the three street games
+    const Wh = new K.Batch(); Wh.add(P.cyl8, M(0, -.03, 0, .035, .06, .035), C('#e0b84d')); Wh.add(P.box, M(.05, -.02, 0, .08, .035, .03), C('#e0b84d')); Wh.add(P.box, M(-.02, .03, 0, .01, .14, .01), C('#e63946'));
+    objects.whistle = movable(Wh, 'whistle'); objects.whistle.visible = false;
+    const Ba = new K.Batch(); Ba.add(P.sph, M(0, 0, 0, .2, .24, .2), C('#3fc1e8')); Ba.add(P.cone6, M(0, -.3, 0, .05, .08, .05), C('#2b8fb0')); Ba.add(P.ico, M(.07, .1, .13, .05, .06, .03), C('#c9f2ff'));
+    objects.balloon = movable(Ba, 'water balloon'); objects.balloon.visible = false;
+    const Bg2 = new K.Batch(); Bg2.add(P.sph, M(0, 0, 0, .2, .24, .2), C('#ffc94d')); Bg2.add(P.cone6, M(0, -.3, 0, .05, .08, .05), C('#c9952a')); Bg2.add(P.ico, M(.07, .1, .13, .05, .06, .03), C('#fff4c4')); Bg2.add(P.cyl12, M(0, -.02, 0, .215, .04, .215), C('#fff4c4'));
+    objects.balloon2 = movable(Bg2, 'gold balloon'); objects.balloon2.visible = false;
+    const Pg = new K.Batch(); Pg.add(P.sph, M(0, 0, 0, .1, .1, .17), C('#8f98a8')); Pg.add(P.sph, M(0, .09, .15, .065, .065, .07), C('#6f7888')); Pg.add(P.cone6, M(0, .07, .2, .02, .06, .02, 0, Math.PI / 2), C('#f2b632'));
+    for (const sx of [-1, 1]) Pg.add(P.box, M(sx * .17, .02, -.02, .26, .02, .16, 0, 0, sx * -.35), C('#aab2bc')); Pg.add(P.box, M(0, -.01, -.2, .1, .02, .12), C('#6f7888'));
+    objects.pigeon = movable(Pg, 'pigeon'); objects.pigeon.visible = false;
+    for (const id of ['crate', 'crate2']) { const Cr = new K.Batch(); crate(Cr, 0, 0, 0, .62); crate(Cr, .1, .5, .05, .5, .4); for (let k = 0; k < 6; k++) Cr.add(P.ico, M(-.12 + (k % 3) * .14, .98, -.06 + Math.floor(k / 3) * .16, .08, .08, .08, k), C(FRUIT[k % 6])); objects[id] = movable(Cr, 'chase crates'); objects[id].visible = false; }
+    for (const id of ['bar', 'bar2']) { const Br = new K.Batch(); for (const z of [-1.5, 1.5]) Br.add(P.cyl6, M(0, 0, z, .05, 1.95, .05), C('#8a6446')); Br.add(P.box, M(0, 1.5, 0, .07, .07, 3.0), C('#8a6446')); for (let k = 0; k < 7; k++) { const col = C(FLAG[k % 6]), z = -1.2 + k * .4; Br.tri([0, 1.5, z - .18], [0, 1.16, z], [0, 1.5, z + .18], col); Br.tri([0, 1.5, z + .18], [0, 1.16, z], [0, 1.5, z - .18], col); } objects[id] = movable(Br, 'chase pole'); objects[id].visible = false; }
+    const Bk = new K.Batch(); Bk.add(P.cyl8, M(0, -.3, 0, .16, .28, .12), C('#b88a55')); Bk.add(P.ico, M(-.05, 0, 0, .08, .08, .08), C('#d9473b')); Bk.add(P.ico, M(.07, .01, .02, .07, .07, .07), C('#7bc06b')); Bk.add(P.box, M(.02, -.02, -.04, .03, .2, .03, 0, 0, .3), C('#e8c98a'));
+    objects.basket = movable(Bk, 'groceries'); objects.basket.visible = false;
+    return { x: 0, z: -1, r: 12, time: 'evening' };
   };
 
   window.StorySets = { ready, build, register(id, fn) { SETS[id] = fn; }, ids: () => Object.keys(SETS) };

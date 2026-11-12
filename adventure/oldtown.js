@@ -25,8 +25,11 @@
       roll_under_hook: L(`${roll} under ${n} coach ${hook}s`, `בצעו ${roll} מתחת ל-${n} הוקים של המאמן`, `${roll} под ${n} ${hook} тренера`),
       rope_rhythm: L(`${n} seconds of rope in rhythm`, `${n} שניות חבל בקצב`, `${n} секунд скакалки в ритме`),
       teach_the_kid: L(`Show the ${jab}-${cross} cleanly ${n} times`, `הדגימו ${jab}-${cross} נקי ${n} פעמים`, `Покажите ${jab}-${cross} чисто: ${n} раза`),
-      snoring_guard: L(`Dodge ${n} pillow swings, then ring the bell`, `התחמקו מ-${n} הנפות כרית ואז צלצלו בפעמון`, `Уклонитесь от ${n} взмахов подушкой и позвоните`),
-      heavy_bag_van: L(`Carry the bag in with at most ${n} mistakes`, `הכניסו את השק עם ${n} טעויות לכל היותר`, `Занесите мешок, ошибок не больше ${n}`),
+      snoring_guard: L(`Sleep talker: repeat ${n} combos he mumbles`, `מדבר מתוך שינה: חזרו על ${n} רצפים שהוא ממלמל`, `Говорун во сне: повторите ${n} серий`), // GOTR-0061 skill trials
+      heavy_bag_van: L(`Brick's bag: hit every swing at its peak (${n} misses for gold)`, `השק של בריק: פגעו בכל תנופה בשיא (${n} החטאות לזהב)`, `Мешок Брика: бейте в верхней точке (${n} промахов для золота)`),
+      rooftop_balloons: L(`Rooftop barrage: stay dry (${n} for gold)`, `מטח מהגגות: הישארו יבשים (${n} לזהב)`, `Обстрел с крыш: останьтесь сухим (${n} для золота)`),
+      whistle_chase: L(`Cut him off: corner the raccoon 5 times in ${n} seconds`, `לחסום אותו: דחקו את הדביבון לפינה 5 פעמים ב-${n} שניות`, `Отрежь путь: загоните енота в угол 5 раз за ${n} секунд`),
+      grandma_groceries: L(`The hustler's bet: ${n} clean hits on real openings`, `ההימור של הנוכל: ${n} פגיעות נקיות בפתחים אמיתיים`, `Пари жулика: ${n} чистых попаданий в настоящие окна`),
       curb_footwork: L(`${n} quick steps in 20 seconds`, `${n} צעדים מהירים ב-20 שניות`, `${n} быстрых шагов за 20 секунд`),
       clean_hands: L(`Win a round and take at most ${n} hits`, `נצחו בסיבוב וקבלו לכל היותר ${n} מכות`, `Выиграйте раунд, пропустив не больше ${n} ударов`),
       kids_skateboard: L(`${n} body shots on the hyena who took it`, `${n} מכות לגוף לצבוע שלקח אותו`, `${n} ударов в корпус гиене, укравшей доску`),
@@ -44,7 +47,8 @@
   const playerOn = () => !!window.app?.engine?.player?.enabled;
   const DEFS = {
     heavy_bag_van: { kind: 'scene', scene: 'carry_bag' },
-    snoring_guard: { kind: 'scene', scene: 'snoring_guard' }, // GOTR-0056 story set mini-game (adventure/story/story-scenes.js)
+    snoring_guard: { kind: 'scene', scene: 'snoring_guard' }, // GOTR-0056 / GOTR-0061 skill trials in the story sets (adventure/story/story-scenes.js)
+    rooftop_balloons: { kind: 'scene', scene: 'rooftop_barrage' }, whistle_chase: { kind: 'scene', scene: 'cut_him_off' }, grandma_groceries: { kind: 'scene', scene: 'hustlers_bet' },
     // first_stance (guard hold) stays "Coming soon": the sparring partner did not reliably throw at a guarding Fighter in testing, so no honest signal yet.
     one_two_mitts: { kind: 'training', mode: 'pads', duration: 60,
       imp: (r, h) => { if (playerOn() && h.actor === 'lion' && h.receiver === 'pads' && !h.blocked && (h.move === 'jab' || h.move === 'cross')) r.value++; } },
@@ -245,11 +249,12 @@
   // GOTR-0056: story scenes before the first mission of a beat (once per browser), and scene-type missions.
   const seen = k => { try { return localStorage.getItem('gotr-scene-' + k) === '1'; } catch { return false; } };
   const mark = k => { try { localStorage.setItem('gotr-scene-' + k, '1'); } catch { /* fine without storage */ } };
-  const PRE = { one_two_mitts: 'arrival', bag_power: 'brick', roll_under_hook: 'dash' };
+  const PRE = { one_two_mitts: 'arrival', bag_power: 'brick', roll_under_hook: 'dash', curb_footwork: 'vix_intro', whistle_chase: 'whistle_theft', crowd_circle: 'dash_circle' };
+  const BOSS_SCENE = { brick: ['boss_intro', 'boss_outro'], king_hyena: ['hyena_intro', 'hyena_outro'] };
   function start(ctx, id) {
     const S = window.StoryScenes, d0 = DEFS[id];
-    if (d0 && d0.kind === 'scene') { if (S) S.play(d0.scene, { onDone: () => { try { ctx.refresh?.(); } catch { /* sheet may be closed */ } } }); return; }
     if (S && PRE[id] && !seen(PRE[id])) { mark(PRE[id]); S.play(PRE[id], { onDone: () => start(ctx, id) }); return; }
+    if (d0 && d0.kind === 'scene') { if (S) S.play(d0.scene, { onDone: () => { try { ctx.refresh?.(); } catch { /* sheet may be closed */ } } }); return; }
     if (!begin(ctx, id)) return;
     const d = run.def, e = window.app.engine;
     try {
@@ -265,7 +270,7 @@
 
   // Boss: a bout in the Neighborhood Hall against an existing opponent named Brick (new species comes later).
   function bossStart(ctx, bossId = 'brick') {
-    if (bossId === 'brick' && window.StoryScenes && !bossStart.intro) { bossStart.intro = true; window.StoryScenes.play('boss_intro', { onDone: () => { try { bossStart(ctx, bossId); } finally { bossStart.intro = false; } } }); return; }
+    if (BOSS_SCENE[bossId] && window.StoryScenes && !bossStart.intro) { bossStart.intro = true; window.StoryScenes.play(BOSS_SCENE[bossId][0], { onDone: () => { try { bossStart(ctx, bossId); } finally { bossStart.intro = false; } } }); return; }
     const e = window.app.engine, b = A().bosses.find(x => x.id === bossId), cfg = BOSS[bossId], edge = A().bossEdge(ctx.store.game(), bossId);
     cleanup(); run = { id: bossId, def: { kind: 'boss' }, ctx, ended: false, mission: { titles: b.names, metric: 'wins' }, value: 0, target: 1 };
     hook(); ctx.change({ type: 'venue', venueId: CH[cfg.chapter].venue });
@@ -284,7 +289,7 @@
     const entry = view.careerEntry, won = view.match.result.winner === entry.species, store = r.ctx.store, w = W();
     const res = store.gameAction({ type: 'adventure', adventure: 'boss', bossId: r.id, won });
     toast(res.ok ? (won ? w.bossWin : w.bossLoss) : w.err + res.error, won ? 'gold' : 'bad');
-    if (!(r.id === 'brick' && won && res.ok && window.StoryScenes?.play('boss_outro'))) window.AdventureStory?.show(r.id, won ? 'outro' : 'lost');
+    if (!(BOSS_SCENE[r.id] && won && res.ok && window.StoryScenes?.play(BOSS_SCENE[r.id][1]))) window.AdventureStory?.show(r.id, won ? 'outro' : 'lost');
     stamp(); showNext({ kind: 'boss', won, res, id: r.id });
     const chp = BOSS[r.id].chapter;
     if (won && res.ok && chp < 5) { // chapter end: outro line, title card, then the map with the route dots to the next chapter

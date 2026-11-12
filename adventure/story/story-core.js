@@ -12,7 +12,7 @@
  *     lines: [{ t, dur, who (AdventureStory.who id), text: { en, he, ru } }] }
  *   acts: idle guard shadow mitts wave point laugh carry combo down block flex off (off = hidden; walking is inferred from moving keys)
  *   StoryCore.sample(scene, t, { reduced }) -> { camera, actors, props, line, done } ; StoryCore.validate(scene) -> [errors]
- *   StoryCore.CarryBag / StoryCore.GuardGame: mini-game rules: key(k, down), step(dt), view(), result(starsFor), .done
+ *   The side games are skill trials with their own pure rules: adventure/story/trials-core.js (window.StoryTrials).
  *   StoryScenes.games[id] = { set, roles, make(Core), frame(ctx, dt), hud(view, words), keys } registers another mini-game.
  *   StoryScenes.looks[role] = { gloves: '#hex', shorts: '#hex' } dresses the opponent-species rig for a new character.
  */
@@ -141,7 +141,7 @@
       },
       props: {},
       lines: [
-        { t: 3.3, dur: 4.6, who: 'brick', text: L('Ha! Special delivery, rookie. Carry it in!', 'הא! משלוח מיוחד, טירון. תסחבו פנימה!', 'Ха! Спецдоставка, салага. Заноси!') }
+        { t: 3.3, dur: 4.6, who: 'brick', text: L('Ha! Meet the new bag, rookie. This one hits back!', 'הא! תכירו את השק החדש, טירון. הוא מחזיר!', 'Ха! Знакомься с новым мешком, салага. Он даёт сдачи!') }
       ]
     },
     // Beat 4. Dash walks up to the morning session, drops a regular in seconds and laughs. Pip is heard, not seen.
@@ -215,147 +215,108 @@
     }
   };
 
-  /* ---------------------------------------------------------------- carry the heavy bag (mini-game rules) */
-  // Fixed path along the pavement from where Brick dropped the bag to the gym door: s = 0 .. LENGTH metres.
-  const CARRY = Object.freeze({
-    missionId: 'heavy_bag_van', length: 22, walk: 1.5, back: .9, par: 22, overtimeStep: 8, timeout: 120,
-    stride: { before: [.15, 1.1], time: .6, past: .35 }, stagger: { bump: .7, drop: .9 },
-    obstacles: [{ id: 'bench', s: 6.5, len: .5 }, { id: 'puddle', s: 10, len: 1.0 }],
-    cyclist: { s: 16, half: .55, period: 4.2, offset: 1.5, ride: 1.6, from: -4.8, to: 5.2, lane: [.40, .56] },
-    sways: [{ s: 3, dir: 1 }, { s: 12.6, dir: -1 }, { s: 19, dir: 1 }],
-    sway: { stand: 1.3, walk: 1.0, catchFrom: .3, early: .15, wrong: .25 }
+  /* ---------------------------------------------------------------- Chapter 2, Market Row (evening). The side games are skill trials: trials-core.js */
+  const HALF = Math.PI / 2;
+  Object.assign(scenes, {
+    // Vix, the fox coach of Market Row, is working her feet between the stalls when the Fighter arrives.
+    vix_intro: {
+      set: 'market', duration: 9.6, chapter: 2,
+      camera: [
+        { t: 0, pos: [-7.5, 3.4, 7.2], look: [-0.5, 1.7, -2.2] },
+        { t: 1.2, pos: [-7.0, 3.2, 6.8], look: [-0.3, 1.6, -2.0], ease: 'linear' },
+        { t: 3.6, pos: [-1.6, 1.6, 3.6], look: [0.3, 1.3, -0.9], fit: ['vix', 'fighter'] },
+        { t: 9.6, pos: [-1.2, 1.55, 3.1], look: [0.3, 1.3, -0.9], fit: ['vix', 'fighter'], ease: 'linear' }
+      ],
+      actors: {
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: -5.2, z: -0.5, act: 'idle', face: HALF }, { t: 0.4, x: -5.2, z: -0.5 }, { t: 3.3, x: -0.7, z: -0.8, act: 'idle', face: [1.3, -1.0] }, { t: 6.4, x: -0.7, z: -0.8, act: 'guard' }] },
+        vix: { rig: 'vix', keys: [{ t: 0, x: 1.3, z: -1.0, act: 'shadow', face: 0.5 }, { t: 3.3, x: 1.3, z: -1.0, act: 'idle', face: [-0.7, -0.8] }, { t: 4.4, x: 1.3, z: -1.0, act: 'point' }, { t: 6.2, x: 1.3, z: -1.0, act: 'mitts' }] }
+      },
+      props: {},
+      lines: [
+        { t: 3.5, dur: 2.6, who: 'vix', text: L('Old Town sent you? Market Row eats slow feet.', 'העיר העתיקה שלחה אתכם? שדרת השוק אוכלת רגליים איטיות.', 'Тебя прислал Старый город? Рыночный ряд ест медленных.') },
+        { t: 6.3, dur: 3.0, who: 'vix', text: L('Keep up with me and you have a coach.', 'תעמדו בקצב שלי ויש לכם מאמנת.', 'Не отставай от меня — и у тебя есть тренер.') }
+      ]
+    },
+    // The raccoon lifts Pip's whistle and runs.
+    whistle_theft: {
+      set: 'market', duration: 9.6, chapter: 2, item: { id: 'whistle', holders: [{ t: 0, who: 'pip', hand: 'R' }, { t: 3.35, who: 'raccoon', hand: 'L' }] },
+      camera: [
+        { t: 0, pos: [-2.2, 1.6, 3.4], look: [-2.1, 1.35, -0.9], fit: ['pip', 'fighter'] },
+        { t: 3.0, pos: [-2.6, 1.6, 3.2], look: [-2.6, 1.35, -1.0], fit: ['pip', 'fighter', 'raccoon'], ease: 'linear' },
+        { t: 5.2, pos: [0.6, 1.9, 5.0], look: [3.6, 1.2, -1.2] },
+        { t: 6.6, pos: [-1.8, 1.55, 3.2], look: [-2.0, 1.3, -0.9], fit: ['pip', 'fighter'] },
+        { t: 9.6, pos: [-1.6, 1.55, 2.9], look: [-2.0, 1.3, -0.9], fit: ['pip', 'fighter'], ease: 'linear' }
+      ],
+      actors: {
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: -1.2, z: -0.8, act: 'idle', face: [-3, -1] }, { t: 5.4, x: -1.2, z: -0.8, act: 'guard', face: HALF }] },
+        pip: { rig: 'pip', keys: [{ t: 0, x: -3.0, z: -1.0, act: 'idle', face: [-1.2, -0.8] }, { t: 0.6, x: -3.0, z: -1.0, act: 'wave' }, { t: 3.4, x: -3.0, z: -1.0, act: 'idle' }, { t: 5.6, x: -3.0, z: -1.0, act: 'point', face: HALF }] },
+        raccoon: { rig: 'raccoon', keys: [{ t: 0, x: -8.5, z: -2.0, act: 'off', face: HALF }, { t: 1.0, x: -8.5, z: -2.0, act: 'idle' }, { t: 3.1, x: -3.75, z: -1.55, act: 'point', face: [-3.0, -1.0] }, { t: 3.7, x: -3.75, z: -1.55, act: 'idle' }, { t: 6.2, x: 9.5, z: -1.3 }, { t: 6.3, x: 9.5, z: -1.3, act: 'off' }] }
+      },
+      props: {},
+      lines: [
+        { t: 0.7, dur: 2.4, who: 'pip', text: L('Good work. One blow of this whistle and—', 'עבודה טובה. שריקה אחת במשרוקית הזאת ו—', 'Хорошая работа. Один свисток — и...') },
+        { t: 3.6, dur: 2.3, who: 'raccoon', text: L('Finders keepers, coach! Catch me!', 'מי שמצא, שלו, מאמן! תתפסו אותי!', 'Кто нашёл, того и свисток, тренер! Лови!') },
+        { t: 6.3, dur: 3.0, who: 'pip', text: L('My whistle! Do not just stand there. After him!', 'המשרוקית שלי! אל תעמדו ככה. אחריו!', 'Мой свисток! Не стой столбом. За ним!') }
+      ]
+    },
+    // Dash has taken the crowd circle before the Fighter arrives.
+    dash_circle: {
+      set: 'market', duration: 9.6, chapter: 2,
+      camera: [
+        { t: 0, pos: [10.4, 2.8, 6.6], look: [13.2, 1.3, -1.0] },
+        { t: 3.0, pos: [10.8, 1.7, 3.8], look: [12.4, 1.3, -0.9], fit: ['dash', 'fighter'] },
+        { t: 9.6, pos: [11.0, 1.6, 3.4], look: [12.3, 1.3, -0.9], fit: ['dash', 'fighter'], ease: 'linear' }
+      ],
+      actors: {
+        regular: { rig: 'regular', keys: [{ t: 0, x: 14.4, z: -1.3, act: 'down', face: [12.9, -1] }] },
+        dash: { rig: 'dash', keys: [{ t: 0, x: 12.9, z: -1.0, act: 'flex', face: 0.3 }, { t: 3.4, x: 12.9, z: -1.0, act: 'point', face: [11.0, -0.7] }, { t: 6.4, x: 12.9, z: -1.0, act: 'laugh' }] },
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: 8.2, z: -0.4, act: 'idle', face: HALF }, { t: 0.6, x: 8.2, z: -0.4 }, { t: 2.6, x: 11.0, z: -0.7, act: 'idle', face: [12.9, -1.0] }, { t: 3.6, x: 11.0, z: -0.7, act: 'guard' }] }
+      },
+      props: {},
+      lines: [
+        { t: 0.9, dur: 2.5, who: 'dash', text: L('Too slow again, new one. The circle is mine.', 'שוב איטיים מדי, חדשים. המעגל שלי.', 'Опять медленно, новенький. Круг мой.') },
+        { t: 3.6, dur: 2.7, who: 'dash', text: L('Win three here. Then you may say my name.', 'נצחו כאן שלושה. אז תוכלו להגיד את השם שלי.', 'Победи здесь троих. Тогда можешь звать меня по имени.') },
+        { t: 6.6, dur: 2.8, who: 'vix', text: L('Three challengers. Then the crowd is yours.', 'שלושה מתמודדים. ואז הקהל שלכם.', 'Трое соперников. И толпа твоя.') }
+      ]
+    },
+    // Boss of Market Row: King Hyena and his crew.
+    hyena_intro: {
+      set: 'market', duration: 8.8, chapter: 2,
+      camera: [
+        { t: 0, pos: [-12.6, 1.1, 2.4], look: [-14, 1.5, -1.2], fit: ['king'] },
+        { t: 1.2, pos: [-12.5, 1.15, 2.2], look: [-14, 1.5, -1.2], fit: ['king'], ease: 'linear' },
+        { t: 3.4, pos: [-11.6, 1.6, 3.4], look: [-13.1, 1.3, -1.0], fit: ['king', 'fighter'] },
+        { t: 8.8, pos: [-11.9, 1.55, 3.0], look: [-13.1, 1.3, -1.0], fit: ['king', 'fighter'], ease: 'linear' }
+      ],
+      actors: {
+        king: { rig: 'king', keys: [{ t: 0, x: -14, z: -1.2, act: 'block', face: [-12.2, -0.9] }, { t: 5.6, x: -14, z: -1.2, act: 'guard' }] },
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: -8.6, z: -0.5, act: 'idle', face: -HALF }, { t: 0.5, x: -8.6, z: -0.5 }, { t: 2.8, x: -12.2, z: -0.9, act: 'idle', face: [-14, -1.2] }, { t: 5.6, x: -12.2, z: -0.9, act: 'guard' }] }
+      },
+      props: {},
+      lines: [
+        { t: 2.6, dur: 2.7, who: 'king', text: L('My market. Here you fight when I say so.', 'השוק שלי. כאן נלחמים כשאני אומר.', 'Мой рынок. Здесь дерутся, когда я скажу.') },
+        { t: 5.5, dur: 3.0, who: 'vix', text: L('He talks big. Make him prove it.', 'הוא מדבר גדול. תנו לו להוכיח.', 'Говорит он громко. Пусть докажет.') }
+      ]
+    },
+    hyena_outro: {
+      set: 'market', duration: 9.2, chapter: 2,
+      camera: [
+        { t: 0, pos: [-11.8, 1.5, 3.2], look: [-13.2, 1.2, -1.0], fit: ['king', 'fighter'] },
+        { t: 9.2, pos: [-12.2, 1.55, 2.7], look: [-13.1, 1.3, -1.0], fit: ['king', 'fighter'], ease: 'linear' }
+      ],
+      actors: {
+        king: { rig: 'king', keys: [{ t: 0, x: -14, z: -1.2, act: 'down', face: [-12.2, -0.9] }, { t: 3.4, x: -14, z: -1.2, act: 'idle' }] },
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: -12.2, z: -0.9, act: 'guard', face: [-14, -1.2] }, { t: 1.0, x: -12.2, z: -0.9, act: 'idle' }, { t: 3.8, x: -12.2, z: -0.9, act: 'flex', face: 0.6 }] }
+      },
+      props: {},
+      lines: [
+        { t: 0.7, dur: 2.7, who: 'king', text: L('...Fine. The market is yours. For now.', '...טוב. השוק שלכם. בינתיים.', '...Ладно. Рынок твой. Пока что.') },
+        { t: 3.7, dur: 2.5, who: 'vix', text: L('You beat the King! The whole row saw it.', 'ניצחתם את המלך! כל השדרה ראתה.', 'Ты победил Короля! Весь ряд это видел.') },
+        { t: 6.4, dur: 2.6, who: 'vix', text: L('The real fights are down at the Docks. Go.', 'הקרבות האמיתיים הם בנמל. לכו.', 'Настоящие бои — в Доках. Иди.') }
+      ]
+    }
   });
-  // Bag tips forward (dir +1): pull it back with Down. Tips back (dir -1): push it forward with Up.
-  const swayKey = dir => dir > 0 ? 'down' : 'up';
-  class CarryBag {
-    constructor(rules = CARRY) {
-      this.r = rules; this.t = 0; this.s = 0; this.held = { left: false, right: false };
-      this.cleared = new Set(); this.swayDone = 0; this.sway = null; this.theta = 0; this.stride = null; this.stagger = 0;
-      this.bumps = 0; this.drops = 0; this.caught = 0; this.passHit = -1; this.done = false; this.log = [];
-    }
-    /** Pass key events: 'left' | 'right' | 'up' | 'down', down = pressed (true) or released (false). */
-    key(k, down) {
-      if (this.done) return;
-      if (k === 'left' || k === 'right') { const fresh = down && !this.held[k]; this.held[k] = down; if (fresh && k === 'right') this.tryStride(); return; }
-      if (!down || !this.sway) return;
-      if (k !== swayKey(this.sway.dir)) { this.theta += this.r.sway.wrong; this.event('wrong'); return; }
-      if (this.theta < this.r.sway.catchFrom) { this.theta += this.r.sway.early; this.event('early'); return; }
-      this.caught++; this.sway = null; this.theta = 0; this.event('caught');
-    }
-    event(type, extra) { this.log.push({ t: +this.t.toFixed(2), s: +this.s.toFixed(2), type, ...extra }); }
-    nextObstacle() { return this.r.obstacles.find(o => !this.cleared.has(o.id) && o.s + o.len > this.s); }
-    /** Where a fresh Right press starts a stride over the next obstacle. */
-    strideWindow() { const o = this.nextObstacle(); if (!o) return null; const d = o.s - this.s, [a, b] = this.r.stride.before; return d >= a && d <= b ? o : null; }
-    tryStride() {
-      if (this.stride || this.stagger > 0) return;
-      const o = this.strideWindow(); if (!o) return;
-      this.cleared.add(o.id); this.stride = { from: this.s, to: o.s + o.len + this.r.stride.past, t: 0, id: o.id }; this.event('stride', { id: o.id });
-    }
-    /** Cyclist: z across the pavement (alley -> road) and whether the bike is in the walking lane now. */
-    cyclist(t = this.t) {
-      const c = this.r.cyclist, k = t - c.offset; if (k < 0) return { u: -1, z: c.from, inLane: false, pass: -1 };
-      const pass = Math.floor(k / c.period), u = (k - pass * c.period) / c.ride;
-      return { u, pass, z: u <= 1 ? lerp(c.from, c.to, u) : c.from, riding: u <= 1, inLane: u >= c.lane[0] && u <= c.lane[1] };
-    }
-    step(dt) {
-      if (this.done || !(dt > 0)) return this;
-      dt = Math.min(dt, .1); this.t += dt; const r = this.r;
-      if (this.stagger > 0) this.stagger = Math.max(0, this.stagger - dt);
-      let moving = false;
-      if (this.stride) {
-        const st = this.stride; st.t += dt; const k = clamp(st.t / r.stride.time); this.s = lerp(st.from, st.to, smooth(k)); moving = true;
-        if (k >= 1) this.stride = null;
-      } else if (this.stagger === 0) {
-        const v = this.held.right && !this.held.left ? r.walk : this.held.left && !this.held.right ? -r.back : 0;
-        let s = clamp(this.s + v * dt, 0, r.length); moving = v !== 0 && s !== this.s;
-        const o = this.nextObstacle();
-        if (o && v > 0 && s >= o.s - .1 && this.s < o.s) { // walked into it without a step
-          this.bumps++; this.cleared.add(o.id); this.stagger = r.stagger.bump; s = o.s + o.len + .2; this.event('bump', { id: o.id });
-        }
-        this.s = s;
-      }
-      // Cyclist crossing the pavement from the alley.
-      const c = this.cyclist();
-      if (c.inLane && c.pass !== this.passHit && Math.abs(this.s - r.cyclist.s) < r.cyclist.half) { this.passHit = c.pass; this.bumps++; this.stagger = r.stagger.bump; this.event('bump', { id: 'cyclist' }); }
-      // Sways: the bag starts to tip at fixed points of the path; catch it with Up / Down in time.
-      const next = r.sways[this.swayDone];
-      if (!this.sway && next && this.s >= next.s) { this.sway = { dir: next.dir, t0: this.t }; this.swayDone++; this.theta = 0; this.event('sway', { dir: next.dir }); }
-      if (this.sway) {
-        this.theta += dt / (moving ? r.sway.walk : r.sway.stand);
-        if (this.theta >= 1) { this.drops++; this.sway = null; this.theta = 0; this.stagger = r.stagger.drop; this.event('drop'); }
-      }
-      if (this.s >= r.length && !this.stride) { this.done = true; this.event('door'); }
-      if (this.t >= r.timeout) { this.done = true; this.event('timeout'); }
-      return this;
-    }
-    /** What the screen shows: which prompt, the tip, the cyclist. */
-    view() {
-      const r = this.r, c = this.cyclist(), o = this.nextObstacle(), stride = this.strideWindow();
-      const nearLane = this.s < r.cyclist.s + r.cyclist.half && this.s > r.cyclist.s - 3 && c.riding && c.u < r.cyclist.lane[1];
-      const prompt = this.sway ? swayKey(this.sway.dir) : stride ? 'step' : nearLane ? 'wait' : null;
-      return { s: this.s, t: this.t, progress: this.s / r.length, theta: this.theta, swayDir: this.sway?.dir || 0, prompt, obstacle: o?.id || null, cyclist: c, striding: !!this.stride, stagger: this.stagger, mistakes: this.mistakes(), done: this.done };
-    }
-    overtime() { return Math.max(0, Math.ceil((this.t - this.r.par) / this.r.overtimeStep)); }
-    /** The measured value for the mission (metric "mistakes", lower is better): bumps + dropped balance + time over par. */
-    mistakes() { return this.bumps + this.drops + this.overtime(); }
-    result(starsFor) {
-      const mistakes = this.mistakes(), stars = typeof starsFor === 'function' ? starsFor(this.r.missionId, mistakes) : null;
-      return { missionId: this.r.missionId, time: +this.t.toFixed(1), bumps: this.bumps, drops: this.drops, caught: this.caught, overtime: this.overtime(), mistakes, value: mistakes, metric: 'mistakes', stars, finished: this.s >= this.r.length };
-    }
-  }
 
-  /* ---------------------------------------------------------------- the snoring night guard (mini-game rules) */
-  // The guard sleeps on his feet in front of the gym door and swings his pillow in his sleep. Sneak up with Right,
-  // Slip (Left) the straight pokes, duck (Down) under the round swings, then ring the bell (Up) to wake him.
-  const GUARD = Object.freeze({
-    missionId: 'snoring_guard', approach: 3, gap: .15, bell: .3, sneak: 1.0, dodge: .5, stun: .6, rest: .35, timeout: 90,
-    swings: [['hook', .9], ['jab', .85], ['hook', .8], ['jab', .75], ['jab', .7], ['hook', .7], ['jab', .65], ['hook', .6], ['jab', .6]]
-  });
-  const dodgeKey = type => type === 'hook' ? 'down' : 'left';
-  class GuardGame {
-    constructor(rules = GUARD) {
-      this.r = rules; this.t = 0; this.s = 0; this.held = false; this.i = 0; this.swing = null; this.dodge = null; this.stun = 0; this.rest = 0;
-      this.dodges = 0; this.hits = 0; this.rung = false; this.done = false; this.log = []; this.last = null;
-    }
-    get end() { return this.r.approach + this.r.gap * (this.r.swings.length - 1) + this.r.bell; }
-    mark(i) { return this.r.approach + this.r.gap * i; }
-    event(type, extra) { this.log.push({ t: +this.t.toFixed(2), type, ...extra }); }
-    key(k, down) {
-      if (this.done) return;
-      if (k === 'right') { this.held = down; return; }
-      if (!down) return;
-      if (k === 'up') { if (this.s >= this.end - 1e-6 && !this.swing) { this.rung = true; this.done = true; this.event('bell'); } return; }
-      if ((k === 'left' || k === 'down') && this.stun === 0 && !(this.dodge && this.t < this.dodge.until)) this.dodge = { key: k, t0: this.t, until: this.t + this.r.dodge };
-    }
-    step(dt) {
-      if (this.done || !(dt > 0)) return this;
-      dt = Math.min(dt, .1); this.t += dt; const r = this.r;
-      this.stun = Math.max(0, this.stun - dt); this.rest = Math.max(0, this.rest - dt);
-      if (this.swing) {
-        if (this.t >= this.swing.t0 + this.swing.tele) { // the pillow arrives now
-          const ok = this.dodge && this.dodge.key === dodgeKey(this.swing.type) && this.t < this.dodge.until && this.dodge.t0 >= this.swing.t0;
-          if (ok) { this.dodges++; this.event('dodge', { swing: this.swing.type }); } else { this.hits++; this.stun = r.stun; this.event('hit', { swing: this.swing.type }); }
-          this.last = { type: this.swing.type, ok: !!ok, t: this.t }; this.swing = null; this.rest = r.rest; this.i++;
-        }
-      } else {
-        const limit = this.i < r.swings.length ? this.mark(this.i) : this.end, dodging = this.dodge && this.t < this.dodge.until;
-        if (this.held && this.stun === 0 && this.rest === 0 && !dodging) this.s = Math.min(limit, this.s + r.sneak * dt);
-        if (this.i < r.swings.length && this.s >= limit - 1e-6 && this.rest === 0) { const [type, tele] = r.swings[this.i]; this.swing = { type, tele, t0: this.t }; this.event('swing', { swing: type }); }
-      }
-      if (this.t >= r.timeout) { this.done = true; this.event('timeout'); }
-      return this;
-    }
-    view() {
-      const sw = this.swing, dodging = this.dodge && this.t < this.dodge.until, atBell = this.s >= this.end - 1e-6;
-      return { s: this.s, t: this.t, progress: this.s / this.end, swing: sw ? { type: sw.type, k: clamp((this.t - sw.t0) / sw.tele) } : null,
-        dodge: dodging ? { key: this.dodge.key, k: clamp((this.t - this.dodge.t0) / this.r.dodge) } : null,
-        prompt: sw ? dodgeKey(sw.type) : atBell ? 'bell' : null, stun: this.stun, dodges: this.dodges, hits: this.hits, total: this.r.swings.length, atBell,
-        moving: this.held && !sw && this.stun === 0 && this.rest === 0 && !dodging && !atBell && this.s < (this.i < this.r.swings.length ? this.mark(this.i) : this.end), last: this.last, done: this.done };
-    }
-    /** Measured value for the mission (metric "dodges", higher is better). */
-    result(starsFor) { return { missionId: this.r.missionId, time: +this.t.toFixed(1), dodges: this.dodges, hits: this.hits, value: this.dodges, metric: 'dodges', stars: typeof starsFor === 'function' ? starsFor(this.r.missionId, this.dodges) : null, finished: this.rung }; }
-  }
-
-  const api = { clamp, smooth, EASE, segment, camera, prop, actor, line, sample, validate, scenes, CARRY, CarryBag, swayKey, GUARD, GuardGame, dodgeKey, STEP, L };
+  const api = { clamp, smooth, EASE, segment, camera, prop, actor, line, sample, validate, scenes, STEP, L };
   if (typeof module !== 'undefined') module.exports = api; else window.StoryCore = api;
 })();
