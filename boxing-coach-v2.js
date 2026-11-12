@@ -850,6 +850,8 @@
       const free=!!this.faceFree?.includes(side);
       const memory=reference&&!reference.cheek?null:(this.faceMemory||(this.faceMemory={L:V(),R:V(),time:null})),start=memory?this.point(hand):null;
       let fresh=false;if(memory){const time=this.renderTime;fresh=!(Number.isFinite(time)&&Number.isFinite(memory.time)&&time-memory.time>=0&&time-memory.time<.1);if(fresh){memory.L.set(0,0,0);memory.R.set(0,0,0);memory.fresh={L:true,R:true};}memory.time=time;fresh=!!memory.fresh?.[side];if(memory.fresh)memory.fresh[side]=false;}
+      // A change from cheek to forward clearance for an explicit block is taken at once; other changes ease in.
+      if(memory){const mode=reference?.cheek?'cheek':'forward';memory.mode=memory.mode||{};if(memory.mode[side]&&memory.mode[side]!==mode&&this.faceBlock)fresh=true;memory.mode[side]=mode;}
       const place=offset=>{const shoulder=this.point(j['arm'+side]),upper=j['elbow'+side].position.length(),lower=hand.position.length(),target=start.clone().add(offset);
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
         const e=this.solve(j['arm'+side],j['elbow'+side],hand,target,pole);glove=this.orientGlove(side,glove.turn,palmTarget);return e;};
@@ -1031,7 +1033,8 @@
       // The rear glove keeps its place at the chin unless it punches; the forward lead glove comes back to the
       // cheek for any punch (it covers while the rear hand throws) and for an active block or brace.
       const punch=['jab','hook','uppercut','cross','rear_hook','rear_uppercut'].includes(move),block=clamp(options.guardStyle?options.brace??1:options.blockCover||0);
-      const leadStance=(punch?stanceWeight:(options.stance??0))*(1-block),rearStance=(['cross','rear_hook','rear_uppercut'].includes(move)?stanceWeight:(options.stance??0))*(1-block);
+      // Both gloves hold the compact guard only between actions; any action uses the proven technique geometry.
+      const leadStance=stanceWeight*(1-block),rearStance=leadStance;
       // Stagger the neutral guard; close cover still protects the cheek.
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
       // GOTR-0051 compact guard: in the stance both gloves sit close to the face, beside the muzzle in front of the
@@ -1444,6 +1447,8 @@
         const guided=this.guideAim(side,move,hand,pole,options.simulationTime,options.uppercutBagTarget?'heavy':'target');
         pole.copy(guided);
       }
+      // The compact guard is close to the shoulders: never ask for a wrist inside the folded-arm limit.
+      if(leadStance>0)for(const [side,hand] of [['L',lead],['R',rear]]){this.root.updateMatrixWorld(true);const shoulder=this.point(j['arm'+side]),near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(d<near&&d>1e-6)hand.copy(shoulder).addScaledVector(hand.clone().sub(shoulder),near/d);}
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
@@ -1495,6 +1500,7 @@
           // behind it makes the elbow orbit a near-vertical IK axis at launch.
           ready.z=Math.max(ready.z,shoulder.z+.12);
           hand.copy(ready).lerp(targetHand,amount);
+          {const near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(leadStance>0&&d<near&&d>1e-6)hand.copy(shoulder).addScaledVector(hand.clone().sub(shoulder),near/d);}
           const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,pole);if(index)re=error;else le=error;
           gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
         }
@@ -1533,6 +1539,7 @@
         gloves[index]=this.orientGlove(side,returned.turn*(1-blend),palm);
       }
       // The striking hand and speed-bag circles keep the immediate clearance; only a guard hand is rate-limited.
+      this.faceBlock=!!options.guardStyle&&block>=.99; // an explicit block is taken at once
       this.faceFree=move==='speedbag'?'LR':['jab','hook','uppercut'].includes(move)?'L':['cross','rear_hook','rear_uppercut'].includes(move)?'R':'';
       if(move==='speedbag'||options.keepFaceClear)for(const [index,side,pole] of [[0,'L',leadPole],[1,'R',rearPole]]){
         const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole,(index?rearStance:leadStance)>.5?{cheek:true}:null);gloves[index]=safe.glove;
