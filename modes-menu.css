@@ -18,6 +18,10 @@
 .gm-rtl .gm-label{right:auto;left:calc(100% + 8px)}
 .gm-labels .gm-label{display:block}
 @media (hover:hover) and (pointer:fine){.gm-item:hover .gm-label{display:block}}
+/* short screens: the stack opens as a row beside the button (labels under the icons) so it never reaches the right-edge controls */
+.gm-row .gm-list{position:absolute;top:0;right:calc(100% + 6px);flex-direction:row-reverse}
+.gm-rtl.gm-row .gm-list{right:auto;left:calc(100% + 6px)}
+.gm-row .gm-label,.gm-rtl.gm-row .gm-label{top:calc(100% + 4px);right:auto;left:50%;transform:translateX(-50%);width:54px;white-space:normal;text-align:center;font-size:11px;line-height:1.15}
 @media (prefers-reduced-motion:reduce){.gm-caret{transition:none}}
 /* no tab row: the header keeps only its first row on phones */
 .game-nav[hidden]{display:none!important}

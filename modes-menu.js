@@ -14,6 +14,7 @@
     fight: '<path d="M7 11V7.5a2.5 2.5 0 0 1 5 0V9h2.5A3.5 3.5 0 0 1 18 12.5V15a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M12 9v3M7 13h5"/>',
     learn: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6"/>',
     station: '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+    auto: '<rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M9 13h0M15 13h0M9.5 16.5h5"/>',
     world: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4"/>'
   };
   const svg = id => '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + P[id] + '</svg>';
@@ -67,6 +68,12 @@
       const x0 = rtl ? st.left + M : st.right - M - wd, x1 = x0 + wd;
       for (const n of document.querySelectorAll(TOP_HUD)) { if (n.hidden || !n.offsetParent) continue; const r = n.getBoundingClientRect(); if (r.width && r.height && r.left < x1 && r.right > x0 && r.top < st.top + st.height * .35 && r.bottom + 6 > top) top = r.bottom + 6; }
     }
+    // not enough room for the stack above the right-edge controls (camera lock, pause, pad): open it as a row beside the button instead
+    let row = false;
+    if (st) { const x0 = rtl ? st.left + M : st.right - M - S, x1 = x0 + S, need = top + S + ITEMS.length * (S + 6) + 4;
+      for (const n of document.querySelectorAll('#camLock,#playBtn,.fp-zone,#burstControl')) { if (!n.offsetParent) continue; const r = n.getBoundingClientRect(); if (r.width && r.left < x1 && r.right > x0 && r.top > top && r.top < need) row = true; }
+      if (need > st.bottom) row = true; }
+    root.classList.toggle('gm-row', row);
     root.style.top = Math.round(Math.max(0, top)) + 'px'; root.style.left = rtl ? Math.round(side) + 'px' : ''; root.style.right = rtl ? '' : Math.round(side) + 'px';
     root.dir = rtl ? 'rtl' : 'ltr'; root.classList.toggle('gm-rtl', rtl);
     document.body.style.setProperty('--gm-home-top', Math.round(head ? head.bottom : 0) + 'px');
@@ -81,8 +88,10 @@
       const o = document.getElementById(src), b = tools[id]; b.hidden = !shown(o); if (b.hidden) continue;
       const txt = o.textContent.trim(), label = (o.getAttribute('aria-label') || txt).trim(); b.disabled = !!o.disabled; b.setAttribute('aria-label', label); b.title = label;
       if (id === 'station') continue;
-      const short = id === 'timer' ? ((txt.match(/\d+\s*s|\d+:\d+|\d+/) || [txt.split(/\s+/).pop() || ''])[0]).slice(0, 5) : txt.slice(0, 6);
-      if (b.textContent !== short) b.textContent = short; b.dataset.state = o.dataset.mode || '';
+      const short = id === 'timer' ? ((txt.match(/\d+\s*s|\d+:\d+|\d+/) || [txt.split(/\s+/).pop() || ''])[0]).slice(0, 5) : txt;
+      const key = short.length <= 5 ? 't:' + short : 'i:' + (o.dataset.mode || ''); // a word that does not fit 44 px becomes an icon (HE / RU Auto, Play)
+      if (b.dataset.key !== key) { b.dataset.key = key; if (short.length <= 5) b.textContent = short; else b.innerHTML = svg(o.dataset.mode === 'play' ? 'auto' : 'fight'); }
+      b.dataset.state = o.dataset.mode || '';
     }
   }
   function paint() {
