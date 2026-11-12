@@ -763,6 +763,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "When I asked to update city graphics, it's not the map; it's when the player is in the city: the buildings, the street, the cars, everything looks 2D and like geometric squares, not like real buildings or designed streets. Remember GTA games; I understand you will not get to that level, but this is my goal. If I can help by generating pictures or files in ChatGPT and uploading them, tell me."
 - **Plan:** owner supplies free-licence or generated assets into `assets/street/` on the integration branch (GLB models < 10 MB each: buildings, bus, cars, stalls, lamps, props; seamless 1024 px textures; sky panoramas; concept pictures). Integrator adds a GLTF loader for three r128, rebuilds the story sets (`adventure/story/*`) from the models with proper lighting and shadows, within the phone budget. No real brands or logos; licence noted per asset in `assets/street/LICENSES.md`.
 
+### GOTR-0067 — Story scenes: street clothes, a sport bag and natural movement
+- **Reported:** 2026-11-12 (v1.41 arrival scene)
+- **Status:** OPEN — queued for the 3D story agent at the next resume (with GOTR-0049 outfits)
+- **Reported behavior / request:** "I don't get it: he is wearing boxing clothes getting out of the bus, and all the time he stands he's shadowboxing. He should get out of the bus wearing normal clothes with a sport bag in his hand. He is on the street, not in a fight. Everyone has to have appropriate clothes in movement."
+- **Plan:** street outfit for the fighter in all street scenes (hoodie/T-shirt, joggers/jeans, sneakers, sport bag; no gloves or boxing shorts); relaxed walk/idle/look-around animations instead of guard and shadowboxing; every character dressed for the place (Pip tracksuit + whistle, Brick gym wear, Dash street wear, locals everyday clothes); boxing gear only in gym, training and fights. Proposed new arrival beat: a pickpocket grabs the bag, the fighter stops him with one reflex, Pip notices ("Fast hands. Ever boxed? Come by my gym.").
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
