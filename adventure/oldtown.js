@@ -217,6 +217,8 @@
     const e = window.app.engine; if (e.career.active || e.arena?.fightView !== bar._view || e.targetMode !== bar._mode) bar.remove();
   }
 
+  // GOTR-0063: leave a running mission/boss run without opening the map (the modes menu decides where to go). Returns its chapter pin.
+  function leave() { if (!run) return null; const pin = CH[chapterOfId(run.id)]?.pin || null; if (!run.ended) { if (run.def.kind === 'lesson') window.AcademyStage?.stop(); run.ended = true; try { window.app.engine.career.finish(); } catch { /* none active */ } } cleanup(); run = null; return pin; }
   function abort() { if (!run) return; const e = window.app.engine; if (run.def.kind === 'lesson') window.AcademyStage?.stop(); run.ended = true; try { e.career.finish(); } catch { /* none active */ } backToTown(); }
 
   function finishRun() {
@@ -386,5 +388,5 @@
     const primary = label ? btn(label, act, 'game-button adv-go adv-primary') : null;
     return { tiles, rest, goal, primary, recap: recapNode() };
   }
-  window.AdventureOldTown = { onOpen, chapterIntro, titleCard, chapterTitle, SHORT, CH, BOSS, toastLog, reward, render, start, bossStart, goalText, defs: DEFS, get run() { return run; }, copy };
+  window.AdventureOldTown = { onOpen, chapterIntro, titleCard, chapterTitle, SHORT, CH, BOSS, toastLog, reward, render, start, bossStart, goalText, leave, defs: DEFS, get run() { return run; }, copy };
 })();

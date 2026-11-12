@@ -664,7 +664,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0051 — Real boxing stance: lead glove and lead foot forward
 - **Reported:** 2026-11-11 (reference photo of two people doing pad work; not stored in the repo)
-- **Status:** READY FOR QA — part 2 merged (`agent/stance-2` 617f53c), v1.39: chest turn 33°, rear heel up 2.1 cm, lead glove ahead of rear 17.0 cm (bag, mitts), 15.4 cm (sparring), 18.0 cm (fight), both species; blocking tightens back to the cover when a punch comes; full suite 98/98 with no test changed; images `qa/gotr-0051/stance-*-shipped.webp`. Note: fight guard sits high (pre-existing)
+- **Status:** RELEASED v1.45 (compact guard) — gloves beside the cheeks, elbows bent 45–87°, in shadow, bag, mitts, sparring and fights, both species; `tests/compact-guard.test.cjs`, pictures `qa/gotr-0051/guard-lion.webp`, `guard-rabbit.webp`. **Owner decision 2026-11-12: keep southpaw for good** — the left-forward flip (`agent/stance-4`) is dropped. Awaiting owner check on a phone
 - **Priority:** P1
 - **Area:** Animation / stance
 - **Reported behavior / request:** "I don't like how he stands. The gloves have to be left in front of the right, same with the legs."
@@ -742,7 +742,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0063 — Adventure is the permanent main screen; Training and Fight behind one side icon
 - **Reported:** 2026-11-12
-- **Status:** IN PROGRESS (agent `adventure-home`, Opus)
+- **Status:** RELEASED v1.45 — Adventure map is the home layer, both rows removed, one round modes button at the side (`modes-menu.js/css`); evidence `qa/gotr-0063/` (402×690 home and training screenshots: nothing over the fighter's head). Awaiting owner check
 - **Reported behavior / request:** "Take training, fight and adventure off the main permanent screen. Always stay in adventure mode; the three modes go into one icon on the side of the screen that expands to small icons below it for training and fight. There should always be a way to get back to adventure."
 - **Owner follow-up (2026-11-12, screenshot v1.42):** remove BOTH rows — the Train/Fight/Adventure tabs and the station toolbar (Shadowbox ▾, Train 15s, Auto, Fight Academy) — because they overlap the fighter's head; Adventure is the default; everything else as small icons at the screen edge; nothing may cover the fighter's head or body (add the head to the HUD overlap audit).
 

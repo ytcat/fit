@@ -848,8 +848,10 @@
       // is therefore remembered per hand and may change by at most 3.5 cm per pose (guard hands only), so the guard eases out of
       // and back into the face line instead of jumping. A time jump (seek, new drill) forgets it.
       const free=!!this.faceFree?.includes(side);
-      const memory=reference?null:(this.faceMemory||(this.faceMemory={L:V(),R:V(),time:null})),start=memory?this.point(hand):null;
+      const memory=reference&&!reference.cheek?null:(this.faceMemory||(this.faceMemory={L:V(),R:V(),time:null})),start=memory?this.point(hand):null;
       let fresh=false;if(memory){const time=this.renderTime;fresh=!(Number.isFinite(time)&&Number.isFinite(memory.time)&&time-memory.time>=0&&time-memory.time<.1);if(fresh){memory.L.set(0,0,0);memory.R.set(0,0,0);memory.fresh={L:true,R:true};}memory.time=time;fresh=!!memory.fresh?.[side];if(memory.fresh)memory.fresh[side]=false;}
+      // A change from cheek to forward clearance for an explicit block is taken at once; other changes ease in.
+      if(memory){const mode=reference?.cheek?'cheek':'forward';memory.mode=memory.mode||{};if(memory.mode[side]&&memory.mode[side]!==mode&&this.faceBlock)fresh=true;memory.mode[side]=mode;}
       const place=offset=>{const shoulder=this.point(j['arm'+side]),upper=j['elbow'+side].position.length(),lower=hand.position.length(),target=start.clone().add(offset);
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
         const e=this.solve(j['arm'+side],j['elbow'+side],hand,target,pole);glove=this.orientGlove(side,glove.turn,palmTarget);return e;};
@@ -859,27 +861,28 @@
       let error=0;
       for(let iteration=0;iteration<8;iteration++){
         const toHead=new THREE.Matrix4().multiplyMatrices(head.matrixWorld.clone().invert(),hand.matrixWorld);
-        let forward=0,lateral=0;
+        let forward=0,lateral=0,shape=0;
         for(const [x,y,z,r] of samples){
           const p=V(x,y,z).applyMatrix4(toHead);
-          for(const [cx,cy,cz,rx,ry,rz] of shapes){
+          shape=0;for(const [cx,cy,cz,rx,ry,rz] of shapes){const muzzle=shape++===1;
             // A tight outer ellipsoid contains skull + padding (support-function
             // Cauchy bound); using the smallest radius over-inflated the muzzle.
             const pad=r+.006,beta=pad/Math.cbrt(rx*ry*rz);
             const extent=a=>Math.sqrt((1+beta)*a*a+(1+1/beta)*pad*pad);
             const radial=((p.x-cx)/extent(rx))**2+((p.y-cy)/extent(ry))**2;
-            if(radial<1)forward=Math.max(forward,cz+extent(rz)*Math.sqrt(1-radial)-p.z);
-            if(reference?.lateral){const sideRadial=((p.y-cy)/extent(ry))**2+((p.z-cz)/extent(rz))**2;if(sideRadial<1)lateral=Math.max(lateral,sign*(cx+sign*extent(rx)*Math.sqrt(1-sideRadial)-p.x));}
+            // Cheek mode (compact guard): stay in front of the skull but pass BESIDE the muzzle instead of in front of it.
+            if(radial<1&&!(reference?.cheek&&muzzle))forward=Math.max(forward,cz+extent(rz)*Math.sqrt(1-radial)-p.z);
+            if(reference?.lateral||reference?.cheek&&muzzle){const sideRadial=((p.y-cy)/extent(ry))**2+((p.z-cz)/extent(rz))**2;if(sideRadial<1)lateral=Math.max(lateral,sign*(cx+sign*extent(rx)*Math.sqrt(1-sideRadial)-p.x));}
           }
         }
-        const clearance=reference?.lateral?lateral:forward;
+        const sideways=reference?.lateral||reference?.cheek&&forward<.0002,clearance=sideways?lateral:forward;
         if(clearance<.0002)break;
-        const direction=V(reference?.lateral?sign:0,0,reference?.lateral?0:1).applyQuaternion(head.getWorldQuaternion(new THREE.Quaternion()))
+        const direction=V(sideways?sign:0,0,sideways?0:1).applyQuaternion(head.getWorldQuaternion(new THREE.Quaternion()))
           .applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
         const shoulder=this.point(j['arm'+side]),target=this.point(hand).addScaledVector(direction,Math.min(.15,clearance+.001));
         const upper=j['elbow'+side].position.length(),lower=hand.position.length();
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
-        error=this.solve(j['arm'+side],j['elbow'+side],hand,target,reference?this.contactBendPole(side,target,reference):pole);
+        error=this.solve(j['arm'+side],j['elbow'+side],hand,target,reference&&!reference.cheek?this.contactBendPole(side,target,reference):pole);
         glove=this.orientGlove(side,glove.turn,palmTarget);
       }
       if(memory){
@@ -1030,14 +1033,17 @@
       // The rear glove keeps its place at the chin unless it punches; the forward lead glove comes back to the
       // cheek for any punch (it covers while the rear hand throws) and for an active block or brace.
       const punch=['jab','hook','uppercut','cross','rear_hook','rear_uppercut'].includes(move),block=clamp(options.guardStyle?options.brace??1:options.blockCover||0);
-      const leadStance=(punch?stanceWeight:(options.stance??0))*(1-block),rearStance=(['cross','rear_hook','rear_uppercut'].includes(move)?stanceWeight:(options.stance??0))*(1-block);
+      // Both gloves hold the compact guard only between actions; any action uses the proven technique geometry.
+      const leadStance=stanceWeight*(1-block),rearStance=leadStance;
       // Stagger the neutral guard; close cover still protects the cheek.
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
-      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness)+.035*leadStance,lerp(.395,.265,guardTightness)+(.185+.155*guardTightness)*leadStance).add(V(.055,.12,.020).multiplyScalar(guardCover));
-      const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness)-.03*rearStance,lerp(options.guardHeight??1.68,1.70,guardTightness)+.03*rearStance,lerp(.255,.235,guardTightness)+.02*rearStance).add(V(-.055,.12,.020).multiplyScalar(guardCover));
+      // GOTR-0051 compact guard: in the stance both gloves sit close to the face, beside the muzzle in front of the
+      // cheeks (lead a little ahead at eye/cheek height, rear at the jaw), forearms upright, elbows in front of the ribs.
+      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(guardCover)).lerp(V(-.215,1.735,.37),leadStance);
+      const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(guardCover)).lerp(V(.215,1.70,.23),rearStance);
       const lead=leadGuard.clone(),rear=rearGuard.clone();
       const guardElbowZ=options.guardElbowBack!=null?-options.guardElbowBack:.1;
-      let leadPole=V(-.6,-1,guardElbowZ),rearPole=V(.6,-1,guardElbowZ);
+      let leadPole=V(-.6+.35*leadStance,-1,guardElbowZ),rearPole=V(.6-.35*rearStance,-1,guardElbowZ);
       let leadTurn=0,rearTurn=0;
       const palmTarget=V(0,-1,0);
       const lateTurn=smooth((strike-.35)/.60);
@@ -1441,6 +1447,8 @@
         const guided=this.guideAim(side,move,hand,pole,options.simulationTime,options.uppercutBagTarget?'heavy':'target');
         pole.copy(guided);
       }
+      // The compact guard is close to the shoulders: never ask for a wrist inside the folded-arm limit.
+      if(leadStance>0)for(const [side,hand] of [['L',lead],['R',rear]]){this.root.updateMatrixWorld(true);const shoulder=this.point(j['arm'+side]),near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(d<near&&d>1e-6)hand.copy(shoulder).addScaledVector(hand.clone().sub(shoulder),near/d);}
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
@@ -1492,6 +1500,7 @@
           // behind it makes the elbow orbit a near-vertical IK axis at launch.
           ready.z=Math.max(ready.z,shoulder.z+.12);
           hand.copy(ready).lerp(targetHand,amount);
+          {const near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(leadStance>0&&d<near&&d>1e-6)hand.copy(shoulder).addScaledVector(hand.clone().sub(shoulder),near/d);}
           const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,pole);if(index)re=error;else le=error;
           gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);
         }
@@ -1530,9 +1539,10 @@
         gloves[index]=this.orientGlove(side,returned.turn*(1-blend),palm);
       }
       // The striking hand and speed-bag circles keep the immediate clearance; only a guard hand is rate-limited.
+      this.faceBlock=!!options.guardStyle&&block>=.99; // an explicit block is taken at once
       this.faceFree=move==='speedbag'?'LR':['jab','hook','uppercut'].includes(move)?'L':['cross','rear_hook','rear_uppercut'].includes(move)?'R':'';
       if(move==='speedbag'||options.keepFaceClear)for(const [index,side,pole] of [[0,'L',leadPole],[1,'R',rearPole]]){
-        const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole);gloves[index]=safe.glove;
+        const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole,(index?rearStance:leadStance)>.5?{cheek:true}:null);gloves[index]=safe.glove;
         if(index)re=safe.error;else le=safe.error;
       }
       // Arena-space spring guides retain inertia under head/root acceleration; orbit adds no force.
