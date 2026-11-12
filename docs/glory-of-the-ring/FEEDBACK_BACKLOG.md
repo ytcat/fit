@@ -751,6 +751,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "Please fix the lion head. His head is sharp on the top and he needs more volume. Improve the shape of his face; same for the rest of the avatars."
 - **Targets from the references:** broad rounded skull, heavy brow, strong wide muzzle with defined nose bridge and chin, eyes set under the brow with a focused look, full voluminous mane flowing back and down onto the shoulders (no pointed top), small rounded ears inside the mane; rabbit: fuller cheeks and skull, stronger jaw, expressive brow. Original design; references set the quality level only.
 
+### GOTR-0065 — Street, underground and story fights without a boxing ring
+- **Reported:** 2026-11-12
+- **Status:** OPEN — queued for agent `city-gfx` after the city graphics
+- **Reported behavior / request:** "When you have a street fight, you don't need a ring, you just need a floor and an audience. It's a street fight; same with underground, or missions where you fight against a robber or any other characters in your story."
+- **Plan:** Street Fight, Basement and Dockside Hangar lose the ring (posts, ropes, canvas); fights happen on the ground inside a close circle of spectators with fitting lighting; no referee there; a per-venue `ring:false` flag so story missions can use ringless fights anywhere.
+
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.
 
