@@ -103,4 +103,14 @@ assert.equal(OT.CH[2].venue, 'street'); assert.equal(OT.BOSS.king_hyena.chapter,
 }
 // Tile labels: every mission has a short label in EN/HE/RU, at most 10 characters.
 for (const m of A.missions.filter(x => x.chapter <= 2)) for (const lang of ['en', 'he', 'ru']) { const t = OT.SHORT[m.id]?.[lang]; assert.ok(t && [...t].length <= 10, m.id + ' ' + lang + ' short label: ' + t); }
+// GOTR-0069 story mode: every story step can start (a playable mission or a boss), boss steps match the chapter data,
+// and the chip row is gone: the sheet is a quest panel with BEFORE/AFTER beats exported for the flow.
+{
+  const SF = require('../adventure/story-flow.js');
+  for (const n of [1, 2]) {
+    for (const s of SF.all(n)) assert.ok(s.boss ? OT.BOSS[s.id]?.chapter === n : !!D[s.id], s.id + ' can start from the quest panel');
+    assert.equal(SF.chapters[n].boss, OT.CH[n].boss); assert.equal(SF.chapters[n].pin, OT.CH[n].pin);
+  }
+  for (const f of ['before', 'afterBeat', 'chapterSummary', 'launch', 'render', 'start']) assert.equal(typeof OT[f], 'function', f);
+}
 console.log('adventure-oldtown ok');
