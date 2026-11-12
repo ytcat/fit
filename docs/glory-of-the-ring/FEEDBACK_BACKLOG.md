@@ -744,6 +744,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported:** 2026-11-12
 - **Status:** IN PROGRESS (agent `adventure-home`, Opus)
 - **Reported behavior / request:** "Take training, fight and adventure off the main permanent screen. Always stay in adventure mode; the three modes go into one icon on the side of the screen that expands to small icons below it for training and fight. There should always be a way to get back to adventure."
+- **Owner follow-up (2026-11-12, screenshot v1.42):** remove BOTH rows — the Train/Fight/Adventure tabs and the station toolbar (Shadowbox ▾, Train 15s, Auto, Fight Academy) — because they overlap the fighter's head; Adventure is the default; everything else as small icons at the screen edge; nothing may cover the fighter's head or body (add the head to the HUD overlap audit).
 
 ### GOTR-0064 — Lion head and face (and the other avatars)
 - **Reported:** 2026-11-12 (three reference pictures of lion boxers, style targets only, not stored in the repo)
