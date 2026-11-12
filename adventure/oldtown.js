@@ -388,7 +388,9 @@
     if (!g || lsGet(key) === '1' || A().missions.some(m => starsOf(g, m.id)) || A().bossWon(g, 'brick')) return false;
     lsSet(key, '1');
     const first = SF()?.chapters[1].steps[0].id, toStep = () => openMap('oldtown', () => { if (first) before(gameCtx(), first, { lead: SF().opener[1] }); });
-    titleCard(chapterTitle(1), 2000, () => { const S = window.StoryScenes; if (!S) { toStep(); return; } rg().close(); mark('arrival'); S.play('arrival', { onDone: toStep }); });
+    // The arrival scene needs the Fighter's rig: on a cold start wait for it (up to 60 s) instead of skipping the scene.
+    const play = (k = 0) => { const S = window.StoryScenes; if (!S) { toStep(); return; } if (!window.app?.engine?.coach?.anatomy && k < 120) { setTimeout(() => play(k + 1), 500); return; } rg().close(); mark('arrival'); S.play('arrival', { onDone: toStep }); };
+    titleCard(chapterTitle(1), 2000, () => play());
     return true;
   }
   function chapterIntro(n) { const k = 'ch' + n; if (seen(k) || !window.AdventureStory?.lines['chapter_' + n]) return; mark(k); window.AdventureStory.show('chapter_' + n, 'intro'); }
