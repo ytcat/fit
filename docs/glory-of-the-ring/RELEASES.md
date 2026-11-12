@@ -8,7 +8,11 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.41 | 2026-11-12 | (this release) | Chapter 1 story upgrade: crafted street sets with a real bus, shop fronts and warm morning light; new scenes (rival Dash, Brick before and after the boss fight), snoring-guard mini-game, rewritten lines with portraits — GOTR-0056 |
+| v1.45 | 2026-11-12 | _pending_ | The Adventure map is the home screen: both top rows removed, Training / Fight / Rivals & Cup / Academy behind one round button at the side, so nothing sits over the fighter's head (GOTR-0063). Compact guard in every mode: gloves beside the cheeks, elbows bent, southpaw kept (GOTR-0051) |
+| v1.44 | 2026-11-12 | `0b8c40e` | Sound comes back after the phone interrupts it (any touch resumes audio); fuller crowd applause after fights (layered room applause plus individual claps) |
+| v1.43 | 2026-11-12 | `9310611` | Adventure map is never stretched: it re-fits whenever its box changes size (panel opened, rotation, browser bars) |
+| v1.42 | 2026-11-12 | `18f1226` | City map graphics: soft shadows, cloud shadows, water shimmer, morning/evening/night colour moods, moving cars, tram, boats, walkers and birds, glow on the current chapter's landmark, smoother camera — GOTR-0061 |
+| v1.41 | 2026-11-12 | `741899c` | Chapter 1 story upgrade: crafted street sets with a real bus, shop fronts and warm morning light; new scenes (rival Dash, Brick before and after the boss fight), snoring-guard mini-game, rewritten lines with portraits — GOTR-0056 |
 | v1.40 | 2026-11-12 | `9970054` | Clear story flow: chapter title and arrival scene on first open, Start / Continue story button, chapter goal and step counter, chapter end sequence, story-so-far recap; route markers lie on the roads; short mission labels; panel no longer clipped — GOTR-0060, GOTR-0055 |
 | v1.39 | 2026-11-11 | `973b5e9` | Real boxing stance everywhere: body turned 33°, left glove 15–18 cm in front, rear heel up — now also in fights and sparring, with blocking intact — GOTR-0051 |
 | v1.38 | 2026-11-11 | `9b90a74` | Chapter 2 Market Row: coach Vix, six playable street missions, story lines, boss King Hyena, route to the Docks; three street mini-games still coming — GOTR-0008 slice D |

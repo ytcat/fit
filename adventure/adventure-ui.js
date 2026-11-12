@@ -49,7 +49,7 @@
     const portrait = () => stage.clientWidth / Math.max(1, stage.clientHeight) < .9;
     const home = () => portrait() ? { x: 34, z: -14, dist: 250 } : { x: -2, z: 12, dist: 282 };
     function cleanup() {
-      alive = false; cancelAnimationFrame(raf); window.removeEventListener('resize', resize);
+      alive = false; cancelAnimationFrame(raf); window.removeEventListener('resize', resize); stage.__ro?.disconnect();
       clearRoute3d(); if (map) map.dispose(); map = null;
       if (renderer) { renderer.dispose(); renderer.forceContextLoss?.(); renderer.domElement.remove(); } renderer = null; scene = null;
     }
@@ -210,6 +210,7 @@
     stage.addEventListener('wheel', ev => { ev.preventDefault(); cam.dist *= Math.exp(ev.deltaY * .0012); clamp(); apply(); }, { passive: false });
     function frame(now) {
       if (!alive || !renderer) return;
+      if (stage.clientWidth && (Math.abs(stage.clientWidth / stage.clientHeight - camera.aspect) > 0.005)) resize(); // never draw a stretched map
       raf = requestAnimationFrame(frame);
       if (!modal.isConnected) { cleanup(); return; }
       const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
@@ -230,6 +231,8 @@
       Object.assign(cam, home());
       setTime(time); resize(); status.remove();
       window.addEventListener('resize', resize);
+      // Owner rule: the map is never stretched. Re-fit whenever the map box changes size (sheet expand/collapse, rotation, browser bars).
+      if (typeof ResizeObserver !== 'undefined') { const ro = new ResizeObserver(() => resize()); ro.observe(stage); stage.__ro = ro; }
       ctx.onReady?.({ route: playRoute, map, cam, select: id => { const p = map.places.find(q => q.id === id); if (p) select(p); }, pins: () => pins.map(q => q.el) });
       raf = requestAnimationFrame(frame);
       setTimeout(() => { if (alive) checkRoute(); }, 900);
