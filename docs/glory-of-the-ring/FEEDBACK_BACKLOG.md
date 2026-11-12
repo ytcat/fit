@@ -746,9 +746,16 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported behavior / request:** "Take training, fight and adventure off the main permanent screen. Always stay in adventure mode; the three modes go into one icon on the side of the screen that expands to small icons below it for training and fight. There should always be a way to get back to adventure."
 - **Owner follow-up (2026-11-12, screenshot v1.42):** remove BOTH rows — the Train/Fight/Adventure tabs and the station toolbar (Shadowbox ▾, Train 15s, Auto, Fight Academy) — because they overlap the fighter's head; Adventure is the default; everything else as small icons at the screen edge; nothing may cover the fighter's head or body (add the head to the HUD overlap audit).
 
+### GOTR-0070 — Picture stretched tall on the phone in training
+- **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
+- **Status:** RELEASED v1.46
+- **Priority:** P0
+- **Root cause (measured):** `fighter-pad.js` portrait safe frame called `camera.setViewOffset(1,1,…)`; three.js r128 sets `camera.aspect = fullWidth/fullHeight` there, so the camera became square (aspect 1.000) on a 460×860 canvas (0.535). Visible since the stage got taller in v1.45.
+- **Fix:** the full size passed to the view offset carries the canvas aspect; re-applied when the canvas shape changes. Measured after: camera 0.535 = canvas 0.535. Test `tests/pad-frame-aspect.test.cjs`.
+
 ### GOTR-0064 — Lion head and face (and the other avatars)
 - **Reported:** 2026-11-12 (three reference pictures of lion boxers, style targets only, not stored in the repo)
-- **Status:** OPEN — queued for the 3D agent after the stance work (same rig files)
+- **Status:** IN PROGRESS on `agent/head` — first version (rounded skull, hood mane) held back: owner says the forehead is too big, and it broke `muscle-definition` and `shoulder-corrective` tests (rest surface changed). Not released
 - **Reported behavior / request:** "Please fix the lion head. His head is sharp on the top and he needs more volume. Improve the shape of his face; same for the rest of the avatars."
 - **Targets from the references:** broad rounded skull, heavy brow, strong wide muzzle with defined nose bridge and chin, eyes set under the brow with a focused look, full voluminous mane flowing back and down onto the shoulders (no pointed top), small rounded ears inside the mane; rabbit: fuller cheeks and skull, stronger jaw, expressive brow. Original design; references set the quality level only.
 
@@ -775,6 +782,13 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** READY FOR QA — v1.44 (integrator; not verified on a phone)
 - **Reported behavior / request:** "During mitts training sometimes the sound disappeared. Also improve claps at fight sound."
 - **Likely cause:** `playSample` is silent whenever the audio context is not running, and iOS suspends/interrupts it (notification, call, silent switch, tab switch); it was only resumed on tab return. **Fix:** any touch or key resumes the context. Applause: the recorded room applause now plays in three staggered layers at native pitch with individual claps on top. If the sound still drops, capture when (after a pause? after many fast hits?) to look for a voice-limit cause.
+
+### GOTR-0069 — A real step-by-step story mode: levels, progress, unlocks
+- **Reported:** 2026-11-12
+- **Status:** IN PROGRESS (agent `story-flow`, branch `agent/story-flow`)
+- **Priority:** P1
+- **Reported behavior / request:** "I don't understand how the story starts, how he proceeds. You added a few buttons, but it doesn't actually tell a story. I want to start a story. I want step-by-step. I want levels. I want progress. I want to do something and finish it, and then it will open additional things. What I see right now is a flow bar, but with no reasonable flow narrative."
+- **Plan:** each chapter is an ordered list of numbered story steps; exactly one is current, finished steps show ✓ and stars (replayable), later steps are locked. The chapter sheet becomes a quest panel ("Chapter 1 · Old Town — Step 3 of N", title, why the Fighter does it now, measurable objective, rewards, one primary button) with a vertical timeline, progress bar and Fighter Level. Every step has a before beat and an after beat (scene or plain-text lines, never a box over the Fighter); the after beat reacts to the result and says what was unlocked, with Next / Retry / Back to map. The boss gate says exactly how many stars are missing and which steps to replay. First open: arrival → step 1 automatically; boss → outro → chapter summary → chapter 2. Existing saves keep their completed steps. Step lists in `docs/adventure/STORY.md`.
 
 ## Parallel work in progress — 2026-11-10
 The user asked to run as many independent tasks in parallel as possible and to take decisions without waiting. Rules and the file-ownership map are in [`docs/agents/PARALLEL_AGENTS.md`](../agents/PARALLEL_AGENTS.md). Each agent works on `agent/<name>`; the integrator merges, runs the full suite, publishes and records evidence here. Nothing below is done until its entry says so.

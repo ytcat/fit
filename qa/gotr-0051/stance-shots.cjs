@@ -10,7 +10,7 @@ const out=path.join(__dirname,'frames'),url=process.env.QA_URL||'http://127.0.0.
   // Only this script draws: the app's own loop (camera director, intro orbit) must not overwrite the frame.
   const e0=app.engine,draw=e0.renderer.render.bind(e0.renderer);e0.renderer.render=()=>{};window.__draw=draw;
   const css=document.createElement('style');css.textContent='#stageContainer>*:not(canvas){visibility:hidden!important}';document.head.append(css);
-  window.__shot=(coach,view,mode,hide=[])=>{const e=app.engine,cam=e.camera;for(const n of hide)if(n)n.visible=false;coach.root.updateMatrixWorld(true);const o=coach.root.localToWorld(new THREE.Vector3(0,1.45,.1)),p=coach.root.localToWorld(view==='front'?new THREE.Vector3(.25,1.6,2.6):new THREE.Vector3(-2.6,1.6,.2));
+  window.__shot=(coach,view,mode,hide=[])=>{const e=app.engine,cam=e.camera;for(const n of hide)if(n)n.visible=false;coach.root.updateMatrixWorld(true);const o=coach.root.localToWorld(new THREE.Vector3(0,1.45,.1)),p=coach.root.localToWorld(view==='front'?new THREE.Vector3(.25,1.6,2.6):new THREE.Vector3(2.6,1.6,.2));
    cam.zoom=1;cam.position.copy(p);cam.lookAt(o);cam.updateProjectionMatrix();e.world?.update(e.animTime,mode);__draw(e.scene,cam);for(const n of hide)if(n)n.visible=true;};});
  for(const species of ['lion','rabbit']){
   await page.evaluate(species=>{const e=app.engine;document.querySelectorAll('dialog[open]').forEach(d=>d.close());if(e.coach.species!==species)e.roster.select(species);ringfighterGame.startTraining({mode:'none',play:true});document.querySelectorAll('dialog[open]').forEach(d=>d.close());e.isPlaying=false;let t=e.animTime;for(let i=0;i<90;i++){t+=1/120;e.animTime=t;e.arena.update(t,e.technique,e.currentAnim);}},species);
