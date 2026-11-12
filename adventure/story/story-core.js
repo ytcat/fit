@@ -198,13 +198,13 @@
       camera: [
         { t: 0, pos: [8.6, 1.6, 2.8], look: [10.6, 1.3, -2.2], fit: ['brick', 'fighter'] },
         { t: 2.4, pos: [8.8, 1.6, 2.6], look: [10.8, 1.3, -2.0], fit: ['brick', 'fighter'], ease: 'linear' },
-        { t: 4.2, pos: [8.8, 1.5, 2.0], look: [8.8, 1.3, -1.6], fit: ['pip', 'fighter'] },
-        { t: 9.4, pos: [8.8, 1.5, 1.6], look: [8.8, 1.3, -1.6], fit: ['pip', 'fighter'], ease: 'linear' }
+        { t: 4.2, pos: [8.6, 1.5, 2.0], look: [8.6, 1.3, -1.6], fit: ['pip', 'fighter'] },
+        { t: 9.4, pos: [8.6, 1.5, 1.6], look: [8.6, 1.3, -1.6], fit: ['pip', 'fighter'], ease: 'linear' }
       ],
       actors: {
         brick: { rig: 'brick', keys: [{ t: 0, x: 11, z: -2.5, act: 'idle', face: [9.5, -1.7] }, { t: 0.5, x: 11, z: -2.5 }, { t: 2.2, x: 12.9, z: -1.5, act: 'idle', face: [9.5, -1.7] }, { t: 4.4, x: 12.9, z: -1.5, act: 'off' }] }, // out of the shot: not drawn
         fighter: { rig: 'fighter', keys: [{ t: 0, x: 9.6, z: -1.7, act: 'guard', face: [11, -2.5] }, { t: 2.6, x: 9.6, z: -1.7, act: 'idle', face: [8.3, -1.5] }, { t: 6.0, x: 9.6, z: -1.7, act: 'flex' }] },
-        pip: { rig: 'pip', keys: [{ t: 0, x: 6.6, z: -0.8, act: 'idle', face: Math.PI / 2 }, { t: 2.2, x: 6.6, z: -0.8 }, { t: 3.6, x: 7.95, z: -1.5, act: 'point', face: [9.6, -1.7] }, { t: 6.2, x: 7.95, z: -1.5, act: 'idle' }, { t: 7.2, x: 7.95, z: -1.5, act: 'wave' }] }
+        pip: { rig: 'pip', keys: [{ t: 0, x: 6.6, z: -0.8, act: 'idle', face: Math.PI / 2 }, { t: 2.2, x: 6.6, z: -0.8 }, { t: 3.6, x: 7.6, z: -1.5, act: 'point', face: [9.6, -1.7] }, { t: 6.2, x: 7.6, z: -1.5, act: 'idle' }, { t: 7.2, x: 7.6, z: -1.5, act: 'wave' }] }
       },
       props: {},
       lines: [
