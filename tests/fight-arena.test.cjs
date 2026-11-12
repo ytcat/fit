@@ -13,7 +13,7 @@ for(const seed of [11,999,42,1,7,91]){
  assert.ok(m.result&&hits>0&&head+body===hits,'actual scene contacts must drive the recorded legal hits');
  assert.equal(hits,m.totals.lion.landed+m.totals.rabbit.landed,'cards cannot receive invented hits');winners.add(m.result.winner);
  for(const card of m.result.cards){assert.equal(card.rounds.length,1);assert.deepEqual(card.totals,card.rounds[0].scores);}
- if(m.result.winner){const winner=m.result.winner,loser=winner==='lion'?'rabbit':'lion',hand=view.coaches[winner].joints[winner==='lion'?'handR':'handL'],refHand=view.referee.arms[winner==='lion'?-1:1].wrist;
+ if(m.result.winner){const winner=m.result.winner,loser=winner==='lion'?'rabbit':'lion',/* GOTR-0051: mirrored fighters: the hand beside the referee is the lion's L, the rabbit's R */hand=view.coaches[winner].joints[winner==='lion'?'handL':'handR'],refHand=view.referee.arms[winner==='lion'?-1:1].wrist;
   assert.ok(hand.getWorldPosition(new THREE.Vector3()).distanceTo(refHand.getWorldPosition(new THREE.Vector3()))<.035,'referee must actually hold the raised wrist');
   assert.ok(view.coaches[loser].joints.head.rotation.x>.3,'loser must look down');assert.ok(view.coaches[winner].celebrationSmile.visible,'winner must have a celebratory expression');}
  const now=view.tick/60,totals=JSON.stringify(m.totals);assert.equal(arena.update(now,'fight','one_two').contacts.length,0);assert.equal(JSON.stringify(m.totals),totals,'pause must not score another contact');

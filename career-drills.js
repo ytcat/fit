@@ -76,7 +76,7 @@
  }
 
  class CareerDrill {
-  constructor(arena,mode){this.arena=arena;this.engine=arena.engine;this.mode=mode;this.sessionId=++stationSequence;this.start=this.engine.animTime;this.last=-1;this.seen=new Set();this.deferVisuals=false;this.root=new THREE.Group();this.root.name=mode==='rope'?'Jump rope station':'Focus mitt station';arena.group.add(this.root);
+  constructor(arena,mode){this.arena=arena;this.engine=arena.engine;this.mode=mode;this.sessionId=++stationSequence;this.start=this.engine.animTime;this.last=-1;this.seen=new Set();this.deferVisuals=false;this.root=new THREE.Group();this.root.name=mode==='rope'?'Jump rope station':'Focus mitt station';arena.group.add(this.root);if(mode==='rope')this.root.scale.x=-1; /* GOTR-0051: the rope shares the fighter's sagittal mirror */
    if(mode==='rope'){
     this.exercise=ropeDrills[this.engine.ropeDrill]?this.engine.ropeDrill:'mixed';this.grips=['L','R'].map(side=>TrainingGear.ropeGrip(this.engine.coach,side));
     const segments=96,sides=6,p=new Float32Array((segments+1)*sides*3),index=[];for(let i=0;i<segments;i++)for(let j=0;j<sides;j++){const a=i*sides+j,b=i*sides+(j+1)%sides;index.push(a,b,a+sides,b,b+sides,a+sides);}

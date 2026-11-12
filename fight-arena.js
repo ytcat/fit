@@ -108,7 +108,7 @@
    const receiver=this.coaches[other(actor)],coach=this.coaches[actor],action=this.match.fighters[actor].action;
    if(action.aim)return V(...action.aim);
    const side=rear(spec.move)?1:-1;
-   const point=spec.target==='body'?V(side*.055,1.37,.155):spec.target==='shoulder'?V(side*.29,1.59,.08):spec.move.includes('hook')?V(side*.085,1.90,.19):spec.move.includes('uppercut')?V(side*.012,1.90,.19):V(side*.012,1.94,.30);
+   const point=spec.target==='body'?V(side*.055,1.37,.155):spec.target==='shoulder'?V(side*.29,1.59,.08):spec.move.includes('hook')?V(side*.085,1.90,.19):spec.move.includes('uppercut')?V(side*.012,1.90,.19):V(-side*.012,1.94,.30); // GOTR-0051: straight head aim 1.2 cm to the inside (re-tuned for the mirrored fighters)
    const accuracy=this.match.fighters[actor].accuracy;if(accuracy!=null){const spread=.085*(1-accuracy);point.x+=Math.sin(action.id*12.9898+this.match.seed)*spread;point.y+=Math.cos(action.id*7.233+this.match.seed)*spread;}
    const world=receiver.root.localToWorld(point),local=coach.root.worldToLocal(world.clone());
    // Commit to the target's arena position; a late slip can actually miss.
@@ -204,7 +204,7 @@
     // the proven guard geometry (a straight caught on the glove still lands extended); it opens again afterwards.
     {const threat=specs[other(actor)];if(threat.attack&&!spec.attack)options.blockCover=clamp(threat.phase/.14)*(1-clamp((threat.phase-.62)/.25));}
     const path=travel[actor];
-    if(m.phase==='round'&&path.weight>.001&&!ceremony){const yaw=coach.ringYaw,local=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw),first=Math.abs(local.z)>=Math.abs(local.x)?(local.z>=0?-1:1):(local.x>=0?1:-1);options.ringStep={first,phase:path.phase,ease:path.ease,weight:path.weight,turn:0,delta:local.toArray()};}
+    if(m.phase==='round'&&path.weight>.001&&!ceremony){const yaw=coach.ringYaw,local=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw).multiply(V(coach.root.scale.x,1,1)),first=Math.abs(local.z)>=Math.abs(local.x)?(local.z>=0?-1:1):(local.x>=0?1:-1);options.ringStep={first,phase:path.phase,ease:path.ease,weight:path.weight,turn:0,delta:local.toArray()};}
     if(spec.attack){
      options.planStraight=true;options.extendStraight=spec.move==='jab'||spec.move==='cross';if(options.extendStraight)options.armReachMargin=.003;options.strikeDirection=[0,0,1];
      let target=this.target(actor,spec);
@@ -240,7 +240,7 @@
       options.advance*=1-blend;options.contactDrive*=1-blend;
      }
     }
-    if(ceremony){options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'R':'L',raise:!m.result.winner||m.result.winner===actor?raise:0};}
+    if(ceremony){options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'L':'R',raise:!m.result.winner||m.result.winner===actor?raise:0};}
     const time=ceremony?m.time:spec.phase*1.22;
     metrics[actor]=coach.update(time,ceremony?(ease<1?'step':'guard'):spec.move,'one_two',options);
     if(f.down)this.downPose(coach,state);
@@ -252,8 +252,8 @@
    this.referee.root.position.set(ceremony?1.13*(1-ease):1.13,0,ceremony?-.83+.71*ease:-.83);this.referee.root.rotation.y=ceremony?-.55*(1-ease):-.55;
    a.group.updateMatrixWorld(true);
    let grip=null,side=1;
-   if(reveal&&m.result.winner){const winner=m.result.winner,coach=this.coaches[winner],hand=coach.joints[winner==='lion'?'handR':'handL'];grip=hand.getWorldPosition(V());side=winner==='lion'?-1:1;}
-   if(reveal&&!m.result.winner)grip={'-1':this.coaches.lion.joints.handR.getWorldPosition(V()),'1':this.coaches.rabbit.joints.handL.getWorldPosition(V())};
+   if(reveal&&m.result.winner){const winner=m.result.winner,coach=this.coaches[winner],hand=coach.joints[winner==='lion'?'handL':'handR'];grip=hand.getWorldPosition(V());side=winner==='lion'?-1:1;}
+   if(reveal&&!m.result.winner)grip={'-1':this.coaches.lion.joints.handL.getWorldPosition(V()),'1':this.coaches.rabbit.joints.handR.getWorldPosition(V())};
    if(m.phase==='count'){grip=this.referee.root.localToWorld(V(.32,1.76,.27));side=1;}
    const leftReaction=this.reaction('lion')?.amount||0,rightReaction=this.reaction('rabbit')?.amount||0;
    this.referee.update(m.time,grip,side,{lookAt:ceremony?null:this.coaches[leftReaction>rightReaction?'lion':'rabbit'].joints.head.getWorldPosition(V()),alert:Math.max(leftReaction,rightReaction)});this.audience.update(m.time,reveal);
