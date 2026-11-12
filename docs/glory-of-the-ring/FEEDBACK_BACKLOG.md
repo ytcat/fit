@@ -785,6 +785,11 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Also required:** really moving from place to place through the streets with a Skip option; very good graphics for streets, audience, venues and equipment (the bag); all moves smooth and realistic; clothes always fit the situation; new detailed characters — the story Coach is not a rabbit, the robber is a bigger muscular animal (suggested: a wolf in black rocker leather with a gold necklace).
 - **Acceptance:** each build slice in the script is played from a fresh profile in the browser at 402×690 and shown to the owner as pictures before release.
 
+### GOTR-0079 — A gold band floats behind the rabbit Fighter and moves with it
+- **Reported:** 2026-11-12 (v1.48, iPhone, heavy-bag station, rabbit as the Fighter; picture `qa/owner-2026-11-12/v148-floating-band.webp`: a gold band with a buckle hovers at waist height about half a metre behind the rabbit)
+- **Status:** OPEN — P1. Suspect (unproven): the trunk waistband mesh (`game-presentation.js` waistbandMesh / `game-accessories.js` trunkWaistband) placed in the wrong space for the rabbit, or kept from the lion after a species change.
+- **Acceptance:** no detached gear on either species in any station, also after switching species and equipping each waistband; a test measuring the waistband's distance to the pelvis.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
