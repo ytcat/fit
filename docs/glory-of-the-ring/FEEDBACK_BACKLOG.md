@@ -755,7 +755,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0064 — Lion head and face (and the other avatars)
 - **Reported:** 2026-11-12 (three reference pictures of lion boxers, style targets only, not stored in the repo)
-- **Status:** RELEASED v1.46 — lion: rounded skull, brow, larger eyes, mane as a deep hood down to the shoulders; rabbit: filled crown, cheeks, ear roots. Pictures `qa/gotr-0064/*.webp` (before/after). Limits: skull width unchanged, mane checked in guard pose only. Awaiting owner check
+- **Status:** IN PROGRESS on `agent/head` — first version (rounded skull, hood mane) held back: owner says the forehead is too big, and it broke `muscle-definition` and `shoulder-corrective` tests (rest surface changed). Not released
 - **Reported behavior / request:** "Please fix the lion head. His head is sharp on the top and he needs more volume. Improve the shape of his face; same for the rest of the avatars."
 - **Targets from the references:** broad rounded skull, heavy brow, strong wide muzzle with defined nose bridge and chin, eyes set under the brow with a focused look, full voluminous mane flowing back and down onto the shoulders (no pointed top), small rounded ears inside the mane; rabbit: fuller cheeks and skull, stronger jaw, expressive brow. Original design; references set the quality level only.
 

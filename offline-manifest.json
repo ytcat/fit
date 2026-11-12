@@ -1,5 +1,5 @@
 {
-  "version": "v146-20261112h",
+  "version": "v146-20261112i",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -19,7 +19,7 @@
     "./boxing-footwear.js?v=2026111102",
     "./padding-deformation.js?v=2026110703",
     "./boxing-pose.js?v=2026110720",
-    "./boxing-coach-v2.js?v=2026111208",
+    "./boxing-coach-v2.js?v=2026111209",
     "./contact-response.js?v=2026110406",
     "./gym-details.js?v=2026110905",
     "./training-arena.js?v=2026111127",
@@ -47,7 +47,7 @@
     "./camera-director.js?v=2026111109",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111119",
-    "./version.js?v=2026111208",
+    "./version.js?v=2026111209",
     "./club-interface.js?v=2026111112",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
@@ -76,7 +76,7 @@
     "./fighter-pad.css?v=2026111110",
     "./fighter-stats.css?v=2026111122",
     "./academy-stage.js?v=2026111011",
-    "./fighter-pad.js?v=2026111208",
+    "./fighter-pad.js?v=2026111209",
     "./power-meter.css?v=2026111112",
     "./power-meter.js?v=2026111112",
     "./stage-hud.css?v=2026111120",
