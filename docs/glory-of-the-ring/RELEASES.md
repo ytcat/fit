@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.40 | 2026-11-12 | (this release) | Clear story flow: chapter title and arrival scene on first open, Start / Continue story button, chapter goal and step counter, chapter end sequence, story-so-far recap; route markers lie on the roads; short mission labels; panel no longer clipped — GOTR-0060, GOTR-0055 |
 | v1.39 | 2026-11-11 | `973b5e9` | Real boxing stance everywhere: body turned 33°, left glove 15–18 cm in front, rear heel up — now also in fights and sparring, with blocking intact — GOTR-0051 |
 | v1.38 | 2026-11-11 | `9b90a74` | Chapter 2 Market Row: coach Vix, six playable street missions, story lines, boss King Hyena, route to the Docks; three street mini-games still coming — GOTR-0008 slice D |
 | v1.37 | 2026-11-11 | `c60e86c` | Chapter 1 story scenes: arrival at the bus stop with Coach Pip, Brick dumping the heavy bag at the gym door, and the carry-the-bag street mini-game — GOTR-0056 |
