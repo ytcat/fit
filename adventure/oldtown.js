@@ -543,7 +543,7 @@
     run.ui = goalStrip(`${T(s.title)} · ${goalLine(s).split(': ').slice(1).join(': ')}`);
   }
   function storyFightDone(view) {
-    const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove(); restoreCast(r);
+    const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove();
     const won = view.match.result.winner === view.careerEntry.species, d = r.def, ctx = r.ctx, pin = CH[1].pin;
     // The first Brick fight records either outcome; the others only a win (a loss can be retried).
     const res = d.any || won ? recordStory(ctx, r.id, won ? 'won' : 'lost') : null;
@@ -551,8 +551,8 @@
     pendingAfter = true; const at = { ok: d.any ? !!res?.ok : won && !!res?.ok, won, coins: res?.ok ? res.coins : 0 };
     const after = () => { pendingAfter = false; openMap(pin, () => afterBeat(r.id, at)); };
     const S = window.StoryScenes;
-    if (d.after && res?.ok && S && (S.sceneIds || []).includes(d.after)) setTimeout(() => { rg()?.close?.(); S.play(d.after, { outcome: won ? 'win' : 'loss', onDone: after }); }, 600);
-    else setTimeout(after, 1200);
+    if (d.after && res?.ok && S && (S.sceneIds || []).includes(d.after)) setTimeout(() => { restoreCast(r); rg()?.close?.(); S.play(d.after, { outcome: won ? 'win' : 'loss', onDone: after }); }, 600); // Brick stays in the room until the scene takes over
+    else { restoreCast(r); setTimeout(after, 1200); }
   }
   // ---- story flow (GOTR-0060): title cards, first open, Continue button, chapter goal, recap ----
   const CH_TITLE = { 1: L('The Dream', 'החלום', 'Мечта'), 2: L('Junior League', 'ליגת הנוער', 'Юниорская лига'), 3: L('The Underground', 'המחתרת', 'Подполье'), 4: L('Rising', 'בדרך למעלה', 'Восхождение'), 5: L('The Championship', 'האליפות', 'Чемпионат') };
