@@ -142,6 +142,10 @@
       this.species=options.species||'lion';this.cast=options.cast||null;this.character=this.cast?.id||null; // GOTR-0078: story characters (adventure/story/story-cast.js) reshape and dress the same rig
       this.armHingeFrame='posterior-z';this.shoulderData=data.shoulderCorrectives?.armHingeFrame==='posterior-z'?(data.shoulderCorrectives.species?.[this.species]||null):null;this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
+      // GOTR-0051: the rig and its choreography have the lead side on local -x while facing +z, which is the body's
+      // RIGHT. The fighter is mirrored across its own sagittal plane here, so the lead hand, shoulder and foot are
+      // the anatomical left (orthodox). Root-space choreography is unchanged; see mirrorSafe() for rotations.
+      this.root.scale.x=-1;
       if(data.rigVersion!==2||!data.body.armBlend)throw new Error('Lion rig/model version mismatch');
       this.bones=[];this.joints={};this.metrics={};this.gloveMeshes={};
       const joint=(name,parent,p)=>{
@@ -613,7 +617,7 @@
     addLabel(parent,text,p,w,h) {
       const c=document.createElement('canvas');c.width=256;c.height=64;
       const ctx=c.getContext('2d');ctx.fillStyle='#dbc186';ctx.font='bold 39px sans-serif';
-      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,128,32);
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.translate?.(256,0);ctx.scale?.(-1,1);ctx.fillText(text,128,32); // mirrored: the fighter root is mirrored (GOTR-0074)
       const map=new THREE.CanvasTexture(c);map.encoding=THREE.sRGBEncoding;
       const label=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map,transparent:true,roughness:.7}));
       label.position.copy(p);parent.add(label);return label;
@@ -812,8 +816,9 @@
 
     point(bone) { return this.root.worldToLocal(bone.getWorldPosition(V())); }
     parentRotation(bone) {
-      return this.root.getWorldQuaternion(new THREE.Quaternion()).invert()
-        .multiply(bone.parent.getWorldQuaternion(new THREE.Quaternion()));
+      // Root-space rotation from the local chain (the root may be mirrored; world quaternions would be reflected).
+      const q=new THREE.Quaternion(),chain=[];for(let p=bone.parent;p&&p!==this.root;p=p.parent)chain.push(p);
+      for(let i=chain.length-1;i>=0;i--)q.multiply(chain[i].quaternion);return q;
     }
     orient(bone,q) {
       bone.quaternion.copy(this.parentRotation(bone).invert().multiply(q));
@@ -951,13 +956,12 @@
             const radial=((p.x-cx)/extent(rx))**2+((p.y-cy)/extent(ry))**2;
             // Cheek mode (compact guard): stay in front of the skull but pass BESIDE the muzzle instead of in front of it.
             if(radial<1&&!(reference?.cheek&&muzzle))forward=Math.max(forward,cz+extent(rz)*Math.sqrt(1-radial)-p.z);
-            if(reference?.lateral||reference?.cheek&&muzzle){const sideRadial=((p.y-cy)/extent(ry))**2+((p.z-cz)/extent(rz))**2;if(sideRadial<1)lateral=Math.max(lateral,sign*(cx+sign*extent(rx)*Math.sqrt(1-sideRadial)-p.x));}
+            if(reference?.lateral||reference?.cheek&&muzzle){const sideRadial=((p.y-cy)/extent(ry))**2+((p.z-cz)/extent(rz))**2;if(sideRadial<1)lateral=Math.max(lateral,sign*(cx+sign*(extent(rx)+(reference.cheek?.035:0))*Math.sqrt(1-sideRadial)-p.x));}
           }
         }
         const sideways=reference?.lateral||reference?.cheek&&forward<.0002,clearance=sideways?lateral:forward;
         if(clearance<.0002)break;
-        const direction=V(sideways?sign:0,0,sideways?0:1).applyQuaternion(head.getWorldQuaternion(new THREE.Quaternion()))
-          .applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
+        const direction=V(sideways?sign:0,0,sideways?0:1).applyQuaternion(this.parentRotation(head).multiply(head.quaternion));
         const shoulder=this.point(j['arm'+side]),target=this.point(hand).addScaledVector(direction,Math.min(.15,clearance+.001));
         const upper=j['elbow'+side].position.length(),lower=hand.position.length();
         target.copy(shoulder.clone().add(target.clone().sub(shoulder).clampLength(foldedArmReach(upper,lower),upper+lower-.002)));
@@ -1020,7 +1024,7 @@
         if(!worst)break;
         const {sample,hit}=worst,normal=hit.normal.clone(),correction=normal.multiplyScalar(Math.min(.16,(hit.penetration-allowance+.001)/Math.max(.55,sample.t)));
         const target=this.root.worldToLocal(wrist.add(correction));
-        const localNormal=hit.normal.clone().applyQuaternion(this.root.getWorldQuaternion(new THREE.Quaternion()).invert());
+        const localNormal=hit.normal.clone().transformDirection(new THREE.Matrix4().copy(this.root.matrixWorld).invert());
         // Bound the adjustment relative to the authored bend plane. Repeated
         // contact passes must not accumulate humeral roll into a half-turn.
         const pole=this.contactBendPole(side,target,reference).addScaledVector(localNormal,.08).normalize();
@@ -1062,7 +1066,16 @@
       mesh.userData.pressure=amount;
     }
 
+    // Under the mirrored root a bone's decomposed world quaternion is a reflected rotation. Every joint reports
+    // root rotation x its root-space chain rotation instead, which is what the pose code round-trips through.
+    mirrorSafe(){
+      if(this.mirrorReady)return;this.mirrorReady=true;const root=this.root,coach=this;
+      for(const joint of Object.values(this.joints))joint.getWorldQuaternion=function(target){return root.getWorldQuaternion(target).multiply(coach.parentRotation(this)).multiply(this.quaternion);};
+    }
+    // A world-space direction in this fighter's own (choreography) space.
+    localDirection(v){this.root.updateWorldMatrix(true,false);return v.clone().transformDirection(new THREE.Matrix4().copy(this.root.matrixWorld).invert());}
     update(t,technique,combo,options={}) {
+      this.mirrorSafe();
       this.renderTime=options.simulationTime??t;
       const seq=technique==='combo'?(sequences[combo]||sequences.one_two):[technique];
       const beat=t/(technique==='combo'?1.0:1.22),authored=technique==='combo'?window.BOXING_ROUTINES?.frame(t,technique,combo):null,move=authored?.move||seq[Math.floor(beat)%seq.length];
@@ -1118,11 +1131,14 @@
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
       // GOTR-0051 compact guard: in the stance both gloves sit close to the face, beside the muzzle in front of the
       // cheeks (lead a little ahead at eye/cheek height, rear at the jaw), forearms upright, elbows in front of the ribs.
-      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(guardCover)).lerp(V(-.215,1.735,.37),leadStance);
-      const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(guardCover)).lerp(V(.215,1.70,.23),rearStance);
+      const leadBase=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(guardCover)),leadGuard=leadBase.clone().lerp(V(-.17,1.70,.60),leadStance);
+      const rearBase=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(guardCover)),rearGuard=rearBase.clone().lerp(V(.26,1.70,.23),rearStance);
+      // How far each glove currently sits from its technique guard because of the open stance (root space):
+      // the fight's reach planner removes it, so a straight is planned on the line the fist will really travel.
+      this.stanceShift={L:leadGuard.clone().sub(leadBase).toArray(),R:rearGuard.clone().sub(rearBase).toArray()};
       const lead=leadGuard.clone(),rear=rearGuard.clone();
       const guardElbowZ=options.guardElbowBack!=null?-options.guardElbowBack:.1;
-      let leadPole=V(-.6+.35*leadStance,-1,guardElbowZ),rearPole=V(.6-.35*rearStance,-1,guardElbowZ);
+      let leadPole=V(-.6+.10*leadStance,-1,guardElbowZ),rearPole=V(.6-.35*rearStance,-1,guardElbowZ);
       let leadTurn=0,rearTurn=0;
       const palmTarget=V(0,-1,0);
       const lateTurn=smooth((strike-.35)/.60);
@@ -1354,7 +1370,7 @@
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',pivot=s===-1?leadPivot:rearPivot;
         // GOTR-0051: in the guard the rear heel is slightly up (weight on the ball of the rear foot).
-        const lift=Math.abs(pivot)*.35+(side==='R'?(options.down||0)*.30+.09*stanceWeight:0);
+        const lift=Math.abs(pivot)*.35+(side==='R'?(options.down||0)*.30+.09*stanceWeight*(1-block):0);
         const footQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(lift,pivot,0,'YXZ'));
         // A rigid boot pivots at the forward sole contact. Using the mid-foot
         // here drove the long toe through the floor whenever the heel rose.
@@ -1618,10 +1634,10 @@
         gloves[index]=this.orientGlove(side,returned.turn*(1-blend),palm);
       }
       // The striking hand and speed-bag circles keep the immediate clearance; only a guard hand is rate-limited.
-      this.faceBlock=!!options.guardStyle&&block>=.99; // an explicit block is taken at once
+      this.faceBlock=block>=.99; // an explicit block is taken at once
       this.faceFree=move==='speedbag'?'LR':['jab','hook','uppercut'].includes(move)?'L':['cross','rear_hook','rear_uppercut'].includes(move)?'R':'';
       if(move==='speedbag'||options.keepFaceClear)for(const [index,side,pole] of [[0,'L',leadPole],[1,'R',rearPole]]){
-        const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole,(index?rearStance:leadStance)>.5?{cheek:true}:null);gloves[index]=safe.glove;
+        const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole,index&&rearStance>.5?{cheek:true}:null);gloves[index]=safe.glove; // GOTR-0074: only the rear glove hugs the cheek; the lead glove is out in front
         if(index)re=safe.error;else le=safe.error;
       }
       // Arena-space spring guides retain inertia under head/root acceleration; orbit adds no force.

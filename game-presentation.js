@@ -23,7 +23,7 @@
  // skin weights of the nearest shorts vertex, so it bends with the trunks in hooks, uppercuts and rolls (a rigid
  // band let the shorts push through it by up to 7 cm). It uses the shorts' own skinning shader and shadow materials.
  function waistbandMesh(coach,geometry,material,slots,base){const sh=coach.shorts,hips=coach.joints.hips;let mesh;
-  if(sh?.isSkinnedMesh&&sh.geometry.attributes.skinIndex){const g=geometry.clone(),bi=coach.bones.indexOf(hips),toBind=sh.bindMatrixInverse.clone().multiply(coach.skeleton.boneInverses[bi].clone().invert());g.applyMatrix4(toBind);
+  if(sh?.isSkinnedMesh&&sh.geometry.attributes.skinIndex){const g=geometry.clone(),bi=coach.bones.indexOf(hips),/* GOTR-0079: the inverse of the shorts' BIND matrix. bindMatrixInverse is rewritten every frame from the mesh's current world matrix, so a band first built while the Fighter stood at a station was baked that far from the pelvis. */toBind=sh.bindMatrix.clone().invert().multiply(coach.skeleton.boneInverses[bi].clone().invert());g.applyMatrix4(toBind);
    const P=g.attributes.position,S=sh.geometry.attributes.position,SI=sh.geometry.attributes.skinIndex,SW=sh.geometry.attributes.skinWeight,b=new THREE.Box3().setFromBufferAttribute(P),near=[],v=new THREE.Vector3(),q=new THREE.Vector3();
    for(let j=0;j<S.count;j++){q.fromBufferAttribute(S,j);if(q.y>b.min.y-.04&&q.y<b.max.y+.04)near.push(j);}
    const ids=new Uint16Array(P.count*4),weights=new Float32Array(P.count*4),source=new Int32Array(P.count);
@@ -57,10 +57,12 @@
    if(d.draw==='pinstripes'){fill(d.ink,15,3);fill(d.ink,H-18,3);}
    if(d.draw==='racing'){fill(d.ink,30,36);fill(d.stripe,40,16);}
    if(d.draw==='chevrons'){fill(d.ink,12,3);fill(d.ink,H-15,3);x.strokeStyle=d.ink;x.lineWidth=5;x.beginPath?.();for(let i=-40;i<W+40;i+=40){x.moveTo?.(i,66);x.lineTo?.(i+20,30);x.lineTo?.(i+40,66);}x.stroke?.();}
-   if(d.draw==='wordmark'){fill(d.ink,11,2);fill(d.ink,H-13,2);x.fillStyle=d.ink;x.font='800 40px system-ui,Arial,sans-serif';x.textBaseline='middle';x.textAlign='center';for(let i=170;i<W-120;i+=230)if(Math.abs(i-W*.25)>120)x.fillText?.('GLORY \u2605',i,H/2+2);}
+   // GOTR-0074: fighters are mirrored at their root (orthodox stance), so words are drawn mirrored to read correctly.
+   const word=(text,cx,cy)=>{x.save?.();x.translate?.(cx,cy);x.scale?.(-1,1);x.fillText?.(text,0,0);x.restore?.();};
+   if(d.draw==='wordmark'){fill(d.ink,11,2);fill(d.ink,H-13,2);x.fillStyle=d.ink;x.font='800 40px system-ui,Arial,sans-serif';x.textBaseline='middle';x.textAlign='center';for(let i=170;i<W-120;i+=230)if(Math.abs(i-W*.25)>120)word('GLORY \u2605',i,H/2+2);}
    // Woven label on the left hip (u = 0.25), stitched border and a crown-and-ring monogram.
    const lx=W*.25-46,ly=18;fill(d.tag,ly,H-36,lx,92);x.strokeStyle=d.tagInk;x.lineWidth=2;x.setLineDash?.([4,3]);x.strokeRect?.(lx+5,ly+5,82,H-46);x.setLineDash?.([]);
-   x.fillStyle=d.tagInk;x.font='900 26px system-ui,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText?.('GR',W*.25,H/2+1);
+   x.fillStyle=d.tagInk;x.font='900 26px system-ui,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';word('GR',W*.25,H/2+1);
    map=new THREE.CanvasTexture(c);map.encoding=THREE.sRGBEncoding;map.wrapS=THREE.RepeatWrapping;map.anisotropy=4;
    const b=canvas(W,H),y=b.getContext('2d');y.fillStyle='#808080';y.fillRect(0,0,W,H);y.fillStyle='#6a6a6a';for(let i=0;i<W;i+=4)y.fillRect(i,0,2,H);y.fillStyle='#b0b0b0';y.fillRect(0,0,W,6);y.fillRect(0,H-6,W,6);y.fillRect(lx,ly,92,H-36);
    bump=new THREE.CanvasTexture(b);bump.wrapS=THREE.RepeatWrapping;}
@@ -83,9 +85,11 @@
    this.oldMode=engine.targetMode;this.oldFight=engine.arena?.fightView;this.oldFit=engine.fitCameraToModel;engine.isPlaying=false;v?.reset();engine.fitCameraToModel=()=>this.frame();
    for(const n of engine.arena?.group?.children||[]){this.visibility.set(n,n.visible);if(n!==engine.coach.root)n.visible=false;}
    for(const side of ['L','R'])for(const n of engine.coach.joints['hand'+side].children){if(n.isBone)continue;this.visibility.set(n,n.visible);n.visible=!/^Wrapped rope grip|^Professional focus mitt/.test(n.name);}
+   // GOTR-0072: the preview shows the Fighter as the game poses it now, never a pose (or a skin position) left by a story scene.
+   if(engine.arena?.repose)engine.arena.repose();else{engine.lastPoseStamp=null;engine.lastRenderStamp=null;}
    container.append(this.stage);this.stage.classList.add('game-preview-live');requestAnimationFrame(()=>{if(this.closed)return;window.dispatchEvent(new Event('resize'));this.frame();});
   }
-  frame(){if(this.closed)return;const e=this.e,c=e.camera,root=e.coach.root,focus=this.focus||{y:1.15,height:2.8,width:1.7},target=root.localToWorld(new THREE.Vector3(0,focus.y,focus.z||0)),height=focus.height,width=focus.width,fov=THREE.MathUtils.degToRad(c.fov),distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.3,c.aspect)))+.2;
+  frame(){if(this.closed)return;const e=this.e,c=e.camera,root=e.coach.root;e.coach.syncSkin?.();/* GOTR-0072: the body is drawn where the rig stands */const focus=this.focus||{y:1.15,height:2.8,width:1.7},target=root.localToWorld(new THREE.Vector3(0,focus.y,focus.z||0)),height=focus.height,width=focus.width,fov=THREE.MathUtils.degToRad(c.fov),distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.3,c.aspect)))+.2;
    c.zoom=1;c.position.copy(target).add(new THREE.Vector3(0,.15,distance).applyAxisAngle(new THREE.Vector3(0,1,0),focus.yaw||0).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion())));c.lookAt(target);c.updateProjectionMatrix();if(e.viewControls){e.viewControls.yaw=0;e.viewControls.refit(target);}this.clearLine();e.lastRenderStamp=null;
   }
   // GOTR-0039: a narrow phone preview backs the camera 5-6 m away to fit the whole fighter, which put it behind venue

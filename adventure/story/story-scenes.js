@@ -58,7 +58,10 @@
     dress(c, looks[role]); return c;
   }
   const borrow = c => ({ c, parent: c.root.parent, pos: c.root.position.clone(), q: c.root.quaternion.clone(), scale: c.root.scale.clone(), visible: c.root.visible });
-  function giveBack(b) { const r = b.c.root; r.parent?.remove(r); if (b.parent) b.parent.add(r); r.position.copy(b.pos); r.quaternion.copy(b.q); r.scale.copy(b.scale); r.visible = b.visible; b.c.maneInitialized = false; }
+  function giveBack(b) { const r = b.c.root; r.parent?.remove(r); if (b.parent) b.parent.add(r); r.position.copy(b.pos); r.quaternion.copy(b.q); r.scale.copy(b.scale); r.visible = b.visible; b.c.maneInitialized = false;
+    // GOTR-0072: the skin is placed by world-space dual quaternions that only a pose update refreshes. Without this the body
+    // stayed in the story set (metres away) while gloves, boots, mane and tail followed the rig back to the gym.
+    b.c.syncSkin?.(); }
 
   /* ---------------------------------------------------------------- poses (existing rig controller, no new animation data) */
   const seq = list => { const total = list.reduce((n, x) => n + x[1], 0); return { list, total }; };
@@ -317,7 +320,8 @@
       set?.dispose(); set = null;
       if (stageMove) { stageMove.placeholder.replaceWith(stageMove.stage); stageMove.stage.classList.remove('game-preview-live', 'story-live'); stageMove.stage.style.pointerEvents = stageMove.pe; stageMove = null; window.dispatchEvent(new Event('resize')); }
       if (oldFit) { e.fitCameraToModel = oldFit; oldFit = null; }
-      e.lastPoseStamp = null; e.lastRenderStamp = null;
+      // The engine poses the Fighter again on its next frame, also when the game is paused at the mitts (GOTR-0072).
+      e.arena?.repose?.(); e.lastPoseStamp = null; e.lastRenderStamp = null;
     }
     const KEYMAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', j: 'straight', k: 'hook', l: 'uppercut', z: 'straight', x: 'hook', c: 'uppercut' };
     const press = (k, down) => {

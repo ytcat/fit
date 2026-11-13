@@ -554,7 +554,7 @@
        }else if(entry.kind!=='bag'){
         this.recoil[receiver].impulse(V(0,0,magnitude*.45));
         if(receiver==='rabbit'){
-         this.rabbitHit={time,part:entry.kind==='head'?'head':entry.kind==='body'?'body':'shoulder',move:spec.move,direction:velocity.clone().applyQuaternion(this.rabbit.root.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize().toArray(),side:side==='L'?-1:1,strength:Math.min(1.3,(uppercut?.70:.45)+closing*(uppercut?.20:.16))};
+         this.rabbitHit={time,part:entry.kind==='head'?'head':entry.kind==='body'?'body':'shoulder',move:spec.move,direction:this.rabbit.localDirection(velocity).normalize().toArray(),side:side==='L'?-1:1,strength:Math.min(1.3,(uppercut?.70:.45)+closing*(uppercut?.20:.16))};
          const drive=velocity.clone().applyQuaternion(this.group.getWorldQuaternion(new THREE.Quaternion()).invert());
          // A solid blow makes the partner step back (rear foot first) and then step in again; lighter ones are absorbed by the body recoil above.
          const push=Math.min(4,Math.max(0,drive.z)*.95+(uppercut?Math.max(0,velocity.y)*.32:0));if(!this.partnerStep&&push>1.1)this.partnerStep={start:time,distance:Math.min(.16,push*.045),offset:0,ring:null};

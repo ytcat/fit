@@ -103,6 +103,10 @@
     // Take the side the camera is already on, then keep it: each fighter stays on the same half of the screen.
     const p=this.pose||this.freePose(),ox=p.lx+Math.sin(p.angle)*p.dist-mx,oz=p.lz+Math.cos(p.angle)*p.dist-mz;
     this.side=ox*dz-oz*dx>=0?1:-1;this.subjectKey=s.key;
+    // GOTR-0074: an orthodox fighter is open (chest, both gloves) toward its right: with a partner or target the side
+    // view stands on the first subject's right, which is the Fighter's open side (in a bout the first subject is the
+    // red corner; when the player's boxer is the other one the view takes the opposite side).
+    if(b&&s.key!=='rope'){const view=e.arena&&e.arena.fightView,other=s.key==='fight'&&view&&view.coaches&&e.coach&&view.coaches.rabbit===e.coach;this.side=other?1:-1;}
    }
    this.direction={x:dx,z:dz};
    const width=Math.max(2.4,b?gap+1.0:2.4);

@@ -76,7 +76,7 @@
  }
 
  class CareerDrill {
-  constructor(arena,mode){this.arena=arena;this.engine=arena.engine;this.mode=mode;this.sessionId=++stationSequence;this.start=this.engine.animTime;this.last=-1;this.seen=new Set();this.deferVisuals=false;this.root=new THREE.Group();this.root.name=mode==='rope'?'Jump rope station':'Focus mitt station';arena.group.add(this.root);
+  constructor(arena,mode){this.arena=arena;this.engine=arena.engine;this.mode=mode;this.sessionId=++stationSequence;this.start=this.engine.animTime;this.last=-1;this.seen=new Set();this.deferVisuals=false;this.root=new THREE.Group();this.root.name=mode==='rope'?'Jump rope station':'Focus mitt station';arena.group.add(this.root);if(mode==='rope')this.root.scale.x=-1; /* GOTR-0051: the rope shares the fighter's sagittal mirror */
    if(mode==='rope'){
     this.exercise=ropeDrills[this.engine.ropeDrill]?this.engine.ropeDrill:'mixed';this.grips=['L','R'].map(side=>TrainingGear.ropeGrip(this.engine.coach,side));
     const segments=96,sides=6,p=new Float32Array((segments+1)*sides*3),index=[];for(let i=0;i<segments;i++)for(let j=0;j<sides;j++){const a=i*sides+j,b=i*sides+(j+1)%sides;index.push(a,b,a+sides,b,b+sides,a+sides);}
@@ -341,6 +341,9 @@
  const set=TrainingArena.prototype.setTarget,update=TrainingArena.prototype.update,fit=TrainingArena.prototype.fitCamera;
  TrainingArena.prototype.setTarget=function(mode){this.careerDrill?.dispose();this.careerDrill=null;if(!['rope','pads'].includes(mode))return set.call(this,mode);set.call(this,'none');this.mode=mode;this.engine.targetMode=mode;this.engine.scene.add(this.group);this.group.add(this.engine.coach.root);this.group.rotation.y=mode==='pads'?.95:.38;this.careerDrill=new CareerDrill(this,mode);this.update(this.engine.animTime);this.fitCamera(this.engine.camera);};
  TrainingArena.prototype.update=function(time,technique,combo){return this.careerDrill?this.careerDrill.advance(time):update.call(this,time,technique,combo);};
+ // GOTR-0072: someone else posed the Fighter's rig (story scene, Shop demo). Mitt work keeps its last fixed-step frame while
+ // the clock stands still, so a paused game never posed the rig again: drop that frame and let the engine pose on its next frame.
+ TrainingArena.prototype.repose=function(){const d=this.careerDrill;if(d&&d.padFrame)d.padFrame=null;const e=this.engine;if(e){e.lastPoseStamp=null;e.lastRenderStamp=null;}};
  TrainingArena.prototype.fitCamera=function(camera){if(!this.careerDrill)return fit.call(this,camera);const rope=this.mode==='rope',height=rope?(this.engine.coach.species==='rabbit'?3.12:2.86):2.55,frame=rope?height:2.95,width=rope?1.8:2.80,fov=THREE.MathUtils.degToRad(camera.fov);camera.position.set(0,1.70,Math.max(frame/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.2,camera.aspect)))+.35);camera.lookAt(0,height*.48,0);this.engine.viewControls?.refit(V(0,height*.48,0));};
  CareerDrill.ropeDrills=ropeDrills;CareerDrill.padRange=padRange;window.CareerDrill=CareerDrill;
 })();

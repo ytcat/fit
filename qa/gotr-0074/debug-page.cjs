@@ -1,0 +1,7 @@
+/* GOTR-0074 debug: app state after starting shadow training (is the fighter in the scene, what overlays are up). */
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch({args:['--no-sandbox','--enable-unsafe-swiftshader']});try{const p=await b.newPage({viewport:{width:402,height:690}});p.setDefaultTimeout(300000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
+await p.goto('http://127.0.0.1:8161/');await p.waitForFunction(()=>window.ringfighterGame&&app.engine.coach?.anatomy,null,{timeout:300000});
+const r=await p.evaluate(()=>{try{if(!app.engine.career?.store?.current?.())app.engine.career.store.guest();}catch{}document.querySelectorAll('dialog[open]').forEach(d=>d.close());const e=app.engine;ringfighterGame.startTraining({mode:'none',play:true});
+ const chain=[];for(let n=e.coach.root;n;n=n.parent)chain.push((n.name||n.type)+(n.visible?'':'(hidden)')+' sx'+n.scale.x);
+ return {mode:e.arena?.mode,chain,world:e.coach.root.getWorldPosition(new THREE.Vector3()).toArray(),active:e.activeModel===e.coach.root,demo:e.demoModel===e.coach.root,inScene:!!chain.find(c=>c.startsWith('Scene')),body:document.body.className,stage:[...document.getElementById('stageContainer').children].filter(n=>!n.hidden&&n.offsetParent).map(n=>n.id||n.className).slice(0,20),director:e.cameraDirector?.mode,skin:{visible:e.coach.skin.visible,frustum:e.coach.skin.frustumCulled,det:e.coach.skin.matrixWorld.determinant()}};});
+console.log(JSON.stringify(r,null,1),'errors',errors.slice(0,3));}finally{await b.close();}})();

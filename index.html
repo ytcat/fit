@@ -25,15 +25,15 @@
   <script src="./boxing-footwear.js?v=2026111102"></script>
   <script src="./padding-deformation.js?v=2026110703"></script>
   <script src="./boxing-pose.js?v=2026110720"></script>
-  <script src="./boxing-coach-v2.js?v=2026111211"></script>
+  <script src="./boxing-coach-v2.js?v=2026111303"></script>
   <script src="./contact-response.js?v=2026110406"></script>
   <script src="./gym-details.js?v=2026110905"></script>
-  <script src="./training-arena.js?v=2026111212"></script>
+  <script src="./training-arena.js?v=2026111303"></script>
   <script src="./boxing-fight.js?v=2026111113"></script>
   <script src="./fight-referee.js?v=2026110607"></script>
-  <script src="./fight-arena.js?v=2026111212"></script>
+  <script src="./fight-arena.js?v=2026111303"></script>
   <script src="./training-gear.js?v=2026110801"></script>
-  <script src="./career-drills.js?v=2026111124"></script>
+  <script src="./career-drills.js?v=2026111303"></script>
   <script src="./game-world.js?v=2026111112"></script>
   <script src="./fight-iq.js?v=2026110801"></script>
   <script src="./game-accessories.js?v=2026111111"></script>
@@ -44,16 +44,17 @@
   <script src="./adventure-progress.js?v=2026111121"></script>
   <script src="./game-domain.js?v=2026111113"></script>
   <script src="./career-progress.js?v=2026111112"></script>
-  <script src="./game-presentation.js?v=2026111112"></script>
+  <script src="./game-presentation.js?v=2026111303"></script>
   <script src="./fight-ui.js?v=2026111212" defer></script>
   <script src="./training-controls.js?v=2026111112" defer></script>
   <script src="./character-roster.js?v=2026110607"></script>
   <script src="./glossary.js?v=2026111113"></script>
   <script src="./ring-camera.js?v=2026111013"></script>
-  <script src="./camera-director.js?v=2026111109"></script>
+  <script src="./camera-director.js?v=2026111303"></script>
+  <script src="./occlusion-guard.js?v=2026111302"></script>
   <script src="./club-world.js?v=2026111103"></script>
   <link rel="stylesheet" href="./club-interface.css?v=2026111119" />
-  <script src="./version.js?v=2026111212"></script>
+  <script src="./version.js?v=2026111303"></script>
   <script src="./club-interface.js?v=2026111112" defer></script>
   <link rel="stylesheet" href="./ringfighter-controls.css?v=2026111012" />
   <script src="./ringfighter-controls.js?v=2026111112" defer></script>
@@ -97,12 +98,16 @@
   <script src="./adventure/story/trials-core.js?v=2026111210" defer></script>
   <script src="./adventure/story/story-core.js?v=2026111210" defer></script>
   <script src="./adventure/story/story-sets.js?v=2026111210" defer></script>
+<<<<<<< HEAD
   <script src="./adventure/story/story-scenes.js?v=2026111210" defer></script>
   <script src="./adventure/story/dream-core.js?v=2026111301" defer></script>
   <script src="./adventure/story/story-cast.js?v=2026111301" defer></script>
   <script src="./adventure/story/dream-pose.js?v=2026111301" defer></script>
   <script src="./adventure/story/dream-sets.js?v=2026111301" defer></script>
   <script src="./adventure/story/dream-scenes.js?v=2026111301" defer></script>
+=======
+  <script src="./adventure/story/story-scenes.js?v=2026111302" defer></script>
+>>>>>>> origin/claude/serene-cannon-riwk4l
   <script src="./adventure/story-flow.js?v=2026111210" defer></script>
   <script src="./adventure/oldtown.js?v=2026111212" defer></script>
   <script src="./adventure/adventure-ui.js?v=2026111210" defer></script>
@@ -515,6 +520,7 @@
         this.world=new ClubWorld(this);
         this.initControls();
         this.cameraDirector=window.CameraDirector?new CameraDirector(this):null;
+        this.occlusionGuard=window.OcclusionGuard?new OcclusionGuard(this):null;
         document.getElementById('camBack').addEventListener('click', () => {
           if(this.viewControls?.preset){this.viewControls.preset(Math.PI+.78,Math.PI);return;}
           if(this.arena&&this.arena.mode!=='none'){this.arena.group.rotation.y=Math.PI+.78;this.arena.fitCamera(this.camera);}
@@ -865,6 +871,8 @@
         }
 
         this.world?.update(this.animTime,this.arena?.mode||'none');
+        // GOTR-0073: scenery between the camera and a figure is hidden for as long as it is in the way.
+        this.occlusionGuard?.update();
         this.impactFx?.beforeRender(delta);this.renderer.render(this.scene, this.camera);this.impactFx?.afterRender();
       }
     }
