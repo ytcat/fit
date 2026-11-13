@@ -19,16 +19,17 @@ const noPip = p => p.evaluate(() => /\bPip\b|פיפ|Пип/.test(document.body.i
       const tag = `402x690-${lang}`, p = await b.newPage({ viewport: { width: 402, height: 690 }, deviceScaleFactor: 2 }), errors = []; p.on('pageerror', e => errors.push(e.message));
       await p.goto(URL, { timeout: 300000 }); await ready(p);
       await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); localStorage.clear(); }); await p.reload({ timeout: 300000 }); await ready(p);
-      await p.evaluate(l => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); app.setLanguage(l); localStorage.setItem('shadowbox-language', l); app.engine.career.store.create('Portrait QA'); }, lang); await p.reload({ timeout: 300000 });
-      // Beat 0/1 conversation (the portrait fallback while agent/dream-1's films are not merged).
-      await wait(p, () => document.querySelector('#sfBeat .sf-beat-line .sp-portrait'), null, 300000);
+      await p.evaluate(l => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); app.setLanguage(l); localStorage.setItem('shadowbox-language', l); app.engine.career.store.create('Portrait QA'); localStorage.setItem('gotr.adv.intro.' + app.engine.career.store.current().id, '1'); }, lang); await p.reload({ timeout: 300000 });
+      // Story lines with faces: the BEFORE beat of the first Brick fight (Brick, Bruno) over the map, and the quest panel face.
+      await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); localStorage.setItem('gotr.adv.intro.' + app.engine.career.store.current().id, '1'); window.StoryScenes?.stop?.(); ringfighterGame.open('adventure', { onReady: h => h.select('oldtown') }); });
+      await wait(p, () => document.querySelector('.sf-quest .sf-pic .sp-portrait'), null, 300000);
       await wait(p, () => !document.querySelector('.sp-portrait[data-kind="pending"]'), null, 300000); await p.waitForTimeout(800);
-      await shot(p, `${tag}-1-arrival-lines`);
-      await p.evaluate(() => document.querySelector('#sfBeat .sf-beat-main').click());
-      await wait(p, () => document.querySelectorAll('#sfBeat .sf-beat-line .sp-portrait').length >= 2 && /Bruno|ברונו/.test(document.getElementById('sfBeat').innerText), null, 300000);
+      await shot(p, `${tag}-1-quest-face`);
+      await p.evaluate(() => { const g = ringfighterGame.store; AdventureOldTown.before({ store: g, startTraining: ringfighterGame.startTraining, startFight: ringfighterGame.startFight, change: a => g.gameAction(a).ok }, 'first_brick', { force: true }); });
+      await wait(p, () => document.querySelectorAll('#sfBeat .sf-beat-line .sp-portrait').length >= 2, null, 300000);
       await wait(p, () => !document.querySelector('.sp-portrait[data-kind="pending"]'), null, 300000); await p.waitForTimeout(800);
-      const talk = await p.evaluate(() => [...document.querySelectorAll('#sfBeat .sp-portrait')].map(x => x.dataset.who + ':' + x.dataset.kind));
-      console.log(tag, 'gym talk portraits', talk.join(' ')); await shot(p, `${tag}-2-gym-talk-lines`);
+      const talk = await p.evaluate(() => [...document.querySelectorAll('#sfBeat .sp-portrait, .sf-quest .sp-portrait')].map(x => x.dataset.who + ':' + x.dataset.kind));
+      console.log(tag, 'portraits on screen', talk.join(' ')); await shot(p, `${tag}-2-brick-lines`);
       assert.ok(talk.includes('fighter:3d'), 'the Fighter is a 3D head: ' + talk);
       // Gallery: every character in the two sizes used on phones (42 px lines, 56 px quest panel).
       const gal = await p.evaluate(() => {

@@ -22,27 +22,31 @@
   // Renders the rig's head into an image. Returns a data URL, or null when the render is empty or WebGL refuses.
   function render(rig, e) {
     const T = window.THREE, r = e.renderer; if (!T || !r || !rig?.root || !rig.joints?.head) return null;
-    const root = rig.root, added = [], prev = { rt: r.getRenderTarget(), color: r.getClearColor(new T.Color()), alpha: r.getClearAlpha(), vis: root.visible };
+    const root = rig.root, added = [], hidden = [], prev = { rt: r.getRenderTarget(), color: r.getClearColor(new T.Color()), alpha: r.getClearAlpha(), vis: root.visible };
     let rt = null;
     try {
       root.updateMatrixWorld(true);
       const head = rig.joints.head.getWorldPosition(new T.Vector3()), up = new T.Vector3(0, 1, 0);
       const fwd = new T.Vector3(0, 0, 1).applyQuaternion(root.getWorldQuaternion(new T.Quaternion())); fwd.y = 0; if (fwd.lengthSq() < 1e-6) fwd.set(0, 0, 1); fwd.normalize();
-      const side = new T.Vector3().crossVectors(up, fwd).normalize(), centre = head.clone().addScaledVector(up, .07).addScaledVector(fwd, .03);
+      // Framing per body: the lion's mane is wide, the rabbit's ears are tall (Bruno and Brick are lion-bodied in agent/dream-1).
+      const lion = rig.species !== 'rabbit', dist = lion ? 2.3 : 1.3, lift = lion ? .08 : .14;
+      const side = new T.Vector3().crossVectors(up, fwd).normalize(), centre = head.clone().addScaledVector(up, lift).addScaledVector(fwd, .03);
       const cam = new T.PerspectiveCamera(22, 1, .05, 20);
-      cam.position.copy(centre).addScaledVector(fwd, .95).addScaledVector(side, .55).addScaledVector(up, .07); cam.lookAt(centre); cam.updateMatrixWorld(true);
+      cam.position.copy(centre).addScaledVector(fwd, dist * .82).addScaledVector(side, dist * .55).addScaledVector(up, .12); cam.lookAt(centre); cam.updateMatrixWorld(true);
       // Studio light in world space, parented to the rig only for this one render (lights must be inside the rendered subtree).
       const place = (light, world) => { light.position.copy(root.worldToLocal(world.clone())); root.add(light); added.push(light); };
       const target = new T.Object3D(); target.position.copy(root.worldToLocal(centre.clone())); root.add(target); added.push(target);
-      const key = new T.DirectionalLight(0xfff1dd, 2.2); key.target = target; place(key, centre.clone().addScaledVector(fwd, 1).addScaledVector(side, 1.1).addScaledVector(up, .9));
-      const rim = new T.DirectionalLight(0x9fc4ff, 1.6); rim.target = target; place(rim, centre.clone().addScaledVector(fwd, -1).addScaledVector(side, -.8).addScaledVector(up, .6));
-      const fill = new T.HemisphereLight(0xbfd2ff, 0x1a1410, .9); place(fill, centre.clone().addScaledVector(up, 2));
+      const key = new T.DirectionalLight(0xfff1dd, 3.2); key.target = target; place(key, centre.clone().addScaledVector(fwd, 1).addScaledVector(side, 1.1).addScaledVector(up, .9));
+      const rim = new T.DirectionalLight(0xcfe0ff, 1.8); rim.target = target; place(rim, centre.clone().addScaledVector(fwd, -1).addScaledVector(side, -.8).addScaledVector(up, .6));
+      const fill = new T.HemisphereLight(0xf2f4ff, 0x3a3028, 1.6); place(fill, centre.clone().addScaledVector(up, 2));
       root.visible = true;
+      // Gloves held in guard would cover the face: hidden for the portrait only.
+      for (const g of [rig.gloveMeshes?.L, rig.gloveMeshes?.R]) if (g?.visible) { g.visible = false; hidden.push(g); }
       const S = PX * 2; rt = new T.WebGLRenderTarget(S, S, { samples: 4 }); rt.texture.encoding = T.sRGBEncoding;
       r.setRenderTarget(rt); r.setClearColor(0x000000, 0); r.clear(); r.render(root, cam);
       const buf = new Uint8Array(S * S * 4); r.readRenderTargetPixels(rt, 0, 0, S, S, buf);
       let covered = 0; for (let i = 3; i < buf.length; i += 4) if (buf[i] > 8) covered++;
-      const share = covered / (S * S); if (share < .05 || share > .97) return null; // nothing (head off) or everything (wrong subtree)
+      const share = covered / (S * S); debug.last = { char: rig.character || rig.species, share: +share.toFixed(3) }; if (share < .05 || share > .985) return null; // nothing (head off) or everything (wrong subtree)
       const big = document.createElement('canvas'); big.width = big.height = S; const bc = big.getContext('2d'), img = bc.createImageData(S, S);
       for (let y = 0; y < S; y++) img.data.set(buf.subarray((S - 1 - y) * S * 4, (S - y) * S * 4), y * S * 4); // WebGL rows are bottom-up
       bc.putImageData(img, 0, 0);
@@ -52,7 +56,7 @@
       return out.toDataURL('image/png');
     } catch (x) { console.warn('portraits', x); return null; }
     finally {
-      for (const o of added) root.remove(o); root.visible = prev.vis;
+      for (const o of added) root.remove(o); for (const g of hidden) g.visible = true; root.visible = prev.vis;
       r.setRenderTarget(prev.rt); r.setClearColor(prev.color, prev.alpha); rt?.dispose();
     }
   }
@@ -79,8 +83,9 @@
     return s;
   }
   const SKIP = /^(coach|mrs\.?|mr\.?|uncle|המאמן|גברת|тренер|миссис)$/i;
-  function monogram(name) {
-    const words = String(name || '?').split(/\s+/).filter(w => w && !SKIP.test(w) && !/^[’'“"]/.test(w)), letters = words.slice(0, 2).map(w => [...w][0]).join('');
+  // One letter (the name without a title or a possessive), or the character's own two-letter mark (King Hyena: KH).
+  function monogram(name, mono) {
+    const words = String(name || '?').split(/\s+/).filter(w => w && !SKIP.test(w) && !/['’]s$/.test(w)), letters = mono || (words[0] ? [...words[0]][0] : '');
     const m = document.createElement('span'); m.className = 'sp-mono'; m.textContent = (letters || '?').toUpperCase(); m.dir = 'auto'; return m;
   }
   function fill(el, id, url) {
@@ -88,20 +93,25 @@
     const inner = el.querySelector('.sp-face'); inner.replaceChildren();
     if (url) { const img = new Image(); img.src = url; img.alt = ''; img.decoding = 'async'; img.className = 'sp-img'; inner.append(img); el.dataset.kind = '3d'; }
     else if (has3d(id)) { inner.append(silhouette()); el.dataset.kind = 'silhouette'; }
-    else { inner.append(monogram(el.dataset.name)); el.dataset.kind = 'monogram'; }
+    else { inner.append(monogram(el.dataset.name, el.dataset.mono)); el.dataset.kind = 'monogram'; }
   }
   // The portrait element: frame + face. 3D characters show the silhouette until their render is ready (usually the next frame).
   function el(id, o = {}) {
     const span = document.createElement('span'), face = document.createElement('span');
-    span.className = 'adv-bust sp-portrait'; span.dataset.who = id; span.dataset.name = o.name || ''; span.setAttribute('aria-hidden', 'true');
+    span.className = 'adv-bust sp-portrait'; span.dataset.who = id; span.dataset.name = o.name || ''; if (o.mono) span.dataset.mono = o.mono; span.setAttribute('aria-hidden', 'true');
     if (o.accent) span.style.setProperty('--sp-accent', o.accent);
     face.className = 'sp-face'; span.append(face);
     if (!has3d(id)) { fill(span, id, null); return span; }
+    // The Fighter's species is known only once his rig is built: wait for it (the face is keyed by species).
+    if (id === 'fighter' && !eng()?.coach?.species) { face.append(silhouette()); span.dataset.kind = 'pending'; let n = 0; const t = setInterval(() => { if (eng()?.coach?.species || ++n > 120) { clearInterval(t); attach(span, id); } }, 500); return span; }
+    attach(span, id); return span;
+  }
+  function attach(span, id) {
+    const face = span.querySelector('.sp-face');
     const k = keyOf(id, eng()), hit = cache.get(k);
-    if (hit) { fill(span, id, hit === 'fail' ? null : hit); return span; }
-    face.append(silhouette()); span.dataset.kind = 'pending';
+    if (hit) { fill(span, id, hit === 'fail' ? null : hit); return; }
+    if (!face.firstChild) face.append(silhouette()); span.dataset.kind = 'pending';
     request(id); waiting.get(k)?.add(span);
-    return span;
   }
   const api = { el, has3d, render, debug, cache, reset: () => { cache.clear(); debug.renders.length = debug.fails.length = 0; } };
   if (typeof window !== 'undefined') window.StoryPortraits = api;
