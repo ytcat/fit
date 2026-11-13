@@ -95,7 +95,7 @@ console.log('dream scenes ok');
 {
   const S = require('../adventure/story/story-core.js'), src = fs.readFileSync('adventure/story/story-scenes.js', 'utf8');
   const games = [...src.matchAll(/\n    (\w+): \{\n      set: '(\w+)', roles:/g)].map(m => [m[1], { set: m[2] }]);
-  assert.ok(games.length >= 5, 'trials found'); assert.ok(/StoryCast\.outfit\(c, wear/.test(src) && /C\.outfitFor\(place\)/.test(src), 'the player dresses every rig for the place');
+  assert.ok(games.length >= 5, 'trials found'); assert.ok(/StoryCast\.outfit\(c, wear/.test(src) && /C\.outfitFor\(placeKind\)/.test(src), 'the player dresses every rig for the place');
   const everything = [...Object.entries(S.scenes), ...games, ...all];
   const fighter = new LionCoach(data, { species: 'lion' }), other = new LionCoach(data, { species: 'rabbit' });
   for (const [id, sc] of everything) {
@@ -116,5 +116,6 @@ console.log('dream scenes ok');
     StoryCast.outfit(c, 'kit'); assert.ok(c.gloveMeshes.L.visible && c.shorts.visible, 'kit back');
   }
   assert.ok(/everyday\(c, a, t, o\)/.test(src) && /FIGHT_ACTS/.test(src), 'the player poses non-fight acts with everyday body language');
+  for (const f of fs.readdirSync('adventure/story').filter(f => f.endsWith('.js'))) new vm.Script(fs.readFileSync('adventure/story/' + f, 'utf8'), { filename: f }); // every story script parses
   console.log('clothes rule ok:', everything.length, 'scenes and trials');
 }

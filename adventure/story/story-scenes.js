@@ -311,7 +311,7 @@
     current = run;
     let set = null, scene = null, camera = null, borrowed = [], mitts = [], rigs = {}, sim = null, stageMove = null, oldFit = null, finished = false, blobs = [];
     let memo = {}, hard = !!opts.hard, acts = 0; const look = V(), extras = [], dressed = [];
-    const place = C.placeOf(game || scene0), wear = C.outfitFor(place); run.place = place; run.wear = wear;
+    const placeKind = C.placeOf(game || scene0), wear = C.outfitFor(placeKind); run.place = placeKind; run.wear = wear;
     const finish = (result = {}) => {
       if (run.closed) return; run.closed = true; if (current === run) current = null;
       try { cleanup(); } catch (x) { console.warn('story', x); }
