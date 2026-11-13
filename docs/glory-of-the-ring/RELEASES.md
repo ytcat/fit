@@ -8,7 +8,8 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.64 | 2026-11-13 | _pending_ | First fight against Brick takes place on the mat in Bruno's Gym: no ring, ropes or crowd; Coach Bruno referees — counts the knockdown and raises the winner's arm; a crash on punches landed in story fights fixed; the goal line no longer covers the health bars (GOTR-0083) |
+| v1.65 | 2026-11-13 | _pending_ | Bag-break film: at night the Fighter's huge Cross snaps the chain, the heavy bag falls and rolls ("…Bruno's going to kill me."); the bag stays on the floor in the gym until the new one is bought (GOTR-0087) |
+| v1.64 | 2026-11-13 | `d5a026b` | First fight against Brick takes place on the mat in Bruno's Gym: no ring, ropes or crowd; Coach Bruno referees — counts the knockdown and raises the winner's arm; a crash on punches landed in story fights fixed; the goal line no longer covers the health bars (GOTR-0083) |
 | v1.63 | 2026-11-13 | `d884ac1` | No bell in training: the timed round starts and ends without the ring bell (the bell is for fights only) |
 | v1.62 | 2026-11-13 | `4fffaa2` | Shop preview: the Fighter in his own studio, centred and whole from every screen (map, film, training, fight) (GOTR-0090). Step goal line wraps to two lines and stays clear of the tool buttons and the Fighter (GOTR-0086) |
 | v1.61 | 2026-11-13 | `19ed869` | Opening film uses Codex's new 3D city: the Route 12 bus (doors open as the Fighter steps off, wheels turn with the road), the bus station, and Old Town buildings; the map dive no longer passes through a roof; the generated street remains as a fallback if a model cannot load; models load in the background, not in the offline pack (GOTR-0089) |
