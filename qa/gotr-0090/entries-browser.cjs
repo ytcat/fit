@@ -1,6 +1,6 @@
 // GOTR-0090 exploration: open the Shop from many places, measure the drawn Fighter in the preview, take pictures.
 const { chromium } = require('playwright');
-const S = process.env.SHOTS || '/tmp/claude-0/-home-user-fit/b37bfff1-aeb8-5307-a0d1-6fd97a5fefe0/scratchpad/';
+const S = process.env.SHOTS || 'qa/gotr-0090/';
 const URL = process.env.APP_URL || 'http://127.0.0.1:8931/';
 const wait = (p, f, a, t = 300000) => p.waitForFunction(f, a, { timeout: t });
 const frameBox = () => { const e = app.engine, r = e.renderer, sz = r.getSize(new THREE.Vector2()), w = Math.round(sz.x), h = Math.round(sz.y), rt = new THREE.WebGLRenderTarget(w, h);

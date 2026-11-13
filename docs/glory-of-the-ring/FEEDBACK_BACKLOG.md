@@ -844,6 +844,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported:** 2026-11-13 (v1.54; picture `qa/owner-2026-11-12/v154-stale-ko-text.webp`: after the Brick fight, the Shadowboxing step shows "KO Barak won" and the goal line "50 punches in 45 seconds…" over the lion's face, behind the Auto / timer tools)
 - **Status:** OPEN — P1
 - **Acceptance:** the bout announcement is cleared when a fight ends or the mode changes; the goal line sits above the head area and never under the edge tools; nothing over the Fighter's head at 402×690 (measured).
+- **Progress 2026-11-13 (`agent/ui-fixes` 5e00631, not merged):** the stale announcement part was fixed earlier (`stage-hud.css`, `fight-presentation.js`, `tests/hidden-announcement.test.cjs`). Goal line: wraps (no "…", counter and stars stay together) and `adventure/oldtown.js` placeStrip puts it where it covers neither the edge tools (`#gameModes`, outside the stage — missed by the WIP placement), the training cue / power gauge nor the Fighter's head and body. Measured with `qa/gotr-0086/goal-line-browser.cjs`: bag drill, night shadowboxing, Jab-Cross mitts and defence mitts, EN and HE at 402×690 (and bag drill EN at 360×640) — no overlap, no ellipsis, at most two lines; pictures `qa/gotr-0086/*.webp`. Status stays OPEN until merged and seen after the real Brick fight flow (`origin/wip/dream-flow` goal-browser script).
 
 ### GOTR-0088 — Finisher: a signature super punch that knocks the Opponent out cold (earned or bought)
 - **Reported:** 2026-11-13
@@ -859,9 +860,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0090 — Shop preview: show the Fighter alone in the middle, never the current game picture
 - **Reported:** 2026-11-13 (v1.60)
-- **Status:** IN PROGRESS — P1 (branch `agent/ui-fixes`)
+- **Status:** READY FOR QA — `agent/ui-fixes` d948131 + 0dcc192 (not merged, not released)
 - **Owner's words:** "When you are in the shop, do not capture the existing picture. Always have the player in the middle. For example, if I get to the shop while I'm in the map, I don't see the player at all in the preview."
 - **Acceptance:** whatever runs underneath (Adventure home map, a story film, shadowboxing, heavy bag, mitts, a bout, after a story scene) the Shop preview is its own clean shot of the Fighter: whole body head to feet, horizontally centred, three-quarter to the camera, neutral studio background, never the game view and never empty; closing the Shop gives back the stage, camera, visibility, mode and play state exactly. Measured at 402×690: the drawn Fighter inside the preview, centre within 10 % of the middle, at least 60 % of its height.
+- **Root cause:** the Shop preview re-parented the live stage and aimed the game camera at the Fighter, but a story film (e.g. the arrival film that plays over the home map) owns the engine's render hook (`engine.fightIQDemo`) and has the Fighter's rig in its own scene, so the canvas kept drawing the film's map shot with no Fighter.
+- **Fix:** `game-presentation.js` Preview now moves the rig into its own studio scene (backdrop, floor, three lights) with its own camera, pauses whatever held the render hook, dresses a film's street clothes back to the kit and hides a carried bag, turns the Fighter three-quarter and fits the whole posed body (vertices sampled through the bones; the bind box of a skinned mesh is the T-pose); item picks only turn the camera, never crop. Close gives back rig place, scene, camera, hook, outfit, stage and mode.
+- **Evidence:** `tests/shop-preview-body.test.cjs` (home map: drawn box centre 0.52, height 0.74; bout: 0.51 / 0.72; scene/camera/mode/rig parent identical after close; existing body/skin checks for both species); pictures `qa/gotr-0090/402x690-en-shop-from-{film,home,shadowbox,heavy,mitts,fight,story}.webp` (script `qa/gotr-0090/entries-browser.cjs`). Not checked on a real phone; HE/RU Shop not pictured (the preview has no text).
 
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
