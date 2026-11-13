@@ -166,3 +166,25 @@ console.log('dream scenes ok');
   assert.ok(!/neck (rolls|folds)|fold under the jaw/.test(fs.readFileSync('adventure/story/story-cast.js', 'utf8')), 'no neck plate geometry is left on Brick');
   console.log('cast parts stay on the body');
 }
+// ---- GOTR-0083: the first fight vs Brick on the gym floor; Bruno referees (counts beside the fallen fighter), no ring, ropes or crowd
+{
+  const html = fs.readFileSync('index.html', 'utf8'), manifest = fs.readFileSync('offline-manifest.json', 'utf8');
+  assert.ok(html.includes('./adventure/story/gym-fight.js?v=') && manifest.includes('adventure/story/gym-fight.js'), 'gym-fight.js is loaded and cached offline');
+  assert.ok(/first_brick: \{ kind: 'story_fight', place: 'gym'/.test(fs.readFileSync('adventure/oldtown.js', 'utf8')), 'the first Brick fight asks for the gym floor');
+  assert.ok(/fightOptions\?\.place==='gym'&&window\.StoryGymFight/.test(fs.readFileSync('fight-arena.js', 'utf8')), 'the fight view installs the gym floor');
+  assert.ok(/Sets\.register\('dream_gym_floor', gym\(true\)\)/.test(fs.readFileSync('adventure/story/dream-sets.js', 'utf8')), 'the gym set has a floor-fight variant with the mat');
+  window.StorySets = { ready: () => new Promise(() => {}) }; vm.runInThisContext(fs.readFileSync('adventure/story/gym-fight.js', 'utf8'));
+  const G = () => new THREE.Group(), rhino = { root: G(), update() { throw Error('the rhino must not referee'); } }, lion = { root: G() }, rabbit = { root: G() };
+  lion.root.position.set(.4, 0, -.4); rabbit.root.position.set(-1, 0, .5);
+  const world = { arena: { visible: true }, mode: 'fight' }, camera = new THREE.PerspectiveCamera(); camera.position.set(0, 2, -5);
+  const cast = G(); cast.scale.x = -1; const group = G(); group.add(cast); cast.add(lion.root, rabbit.root);
+  let disposed = 0; const view = { engine: { ...engine, world, camera }, arena: { group }, referee: rhino, ring: G(), audience: { root: G() }, cast, coaches: { lion, rabbit }, match: { phase: 'round' }, dispose() { disposed++; } };
+  assert.ok(StoryGymFight.install(view), 'installs');
+  const bruno = StoryCast.rig('bruno', engine); assert.ok(view.referee.isBruno && bruno.root.parent === cast && !rhino.root.visible, 'Bruno referees');
+  view.referee.root.position.set(1.13, 0, -.83); view.referee.update(1, null, 1, {}); assert.ok(!view.ring.visible && !view.audience.root.visible && !world.arena.visible, 'no ring, ropes, crowd or stands');
+  view.match = { phase: 'count', downActor: 'lion' }; for (let i = 0; i < 90; i++) { view.referee.root.position.set(1.13, 0, -.83); view.referee.update(1 + i / 30, null, 1, {}); }
+  const p = bruno.root.position, d = Math.hypot(p.x - lion.root.position.x, p.z - lion.root.position.z); assert.ok(d > .7 && d < 1.3, 'Bruno counts beside the fallen fighter: ' + d.toFixed(2));
+  group.updateMatrixWorld(true); const toCam = cast.worldToLocal(camera.position.clone()).sub(lion.root.position), toBruno = p.clone().sub(lion.root.position); assert.ok(toCam.x * toBruno.x + toCam.z * toBruno.z < 0, 'Bruno stands beyond the fallen fighter, not between him and the camera');
+  view.dispose(); assert.ok(disposed === 1 && view.referee === rhino && rhino.root.visible && world.arena.visible && !bruno.root.parent, 'everything comes back after the fight');
+  console.log('gym floor fight with Bruno as referee');
+}
