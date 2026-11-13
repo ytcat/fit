@@ -142,12 +142,12 @@
  }
  // Is a Dream beat finished? (story.done for events and migrated beats, stars for mission beats, a win for the boss beat)
  function dreamDone(g,id){const a=adv(g);if(!a)return false;if(a.story?.done?.includes(id))return true;if(id==='brick')return bossWon(g,id);if(id==='first_brick')return !!a.story?.firstBrick;return (a.missions?.[id]?.stars||0)>0;}
- // Can this story event be recorded now? It must be a known event and the beat before it must be finished.
- function storyReady(g,step){const i=dreamSteps.indexOf(step);if(!storyEvents.includes(step))fail('Unknown story step.');if(i>0&&!dreamDone(g,dreamSteps[i-1]))fail('Finish the step before this one first.');return true;}
+ // Can this story event be recorded now? It must be a known event and the beat before it must be finished (any order in the development build).
+ function storyReady(g,step,free=false){const i=dreamSteps.indexOf(step);if(!storyEvents.includes(step))fail('Unknown story step.');if(!free&&i>0&&!dreamDone(g,dreamSteps[i-1]))fail('Finish the step before this one first.');return true;}
  // Records a finished story event. first_brick keeps the FIRST outcome ('lost' | 'won'): a loss advances the story too. The two
  // street fights must be won (the caller pays their reward); the purchase is charged by the caller (game-domain.js).
- function recordStory(g,step,outcome){
-  if(!adv(g))g.adventure=fresh();migrate(g.adventure);storyReady(g,step);const st=g.adventure.story;
+ function recordStory(g,step,outcome,free=false){
+  if(!adv(g))g.adventure=fresh();migrate(g.adventure);storyReady(g,step,free);const st=g.adventure.story;
   if(step==='first_brick'){if(!['lost','won'].includes(outcome))fail('Invalid fight result.');if(!st.firstBrick)st.firstBrick=outcome;}
   if(['market_robber','docks_fight'].includes(step)&&outcome!=='won')fail('Win the fight to finish this step.');
   const first=!st.done.includes(step);if(first)st.done.push(step);
@@ -170,7 +170,7 @@
  function action(g,a,free=freeMode()){
   if(a.adventure==='mission')return recordMission(g,a.missionId,a.measured,free);
   if(a.adventure==='boss')return recordBoss(g,a.bossId,a.won,free);
-  if(a.adventure==='story')return recordStory(g,a.step,a.outcome);
+  if(a.adventure==='story')return recordStory(g,a.step,a.outcome,free); // development build: any order (owner's dev skip)
   fail('Unknown adventure action.');
  }
  const api={sideZones,rules,stats,metrics,chapters,bosses,missions,opponentBase,fresh,validate,action,starsFor,stars,statPoints,level,chapterOpen,canChallenge,chance,chanceVs,bossEdge,fightEdge,opponent,levelFromScore,fighterScore,compare,summary,recordMission,recordBoss,bossWon,freeMode,dreamSteps,storyEvents,legacyBeat,migrate,dreamDone,storyReady,recordStory};

@@ -4,10 +4,10 @@
 (() => {
   const L = (en, he, ru) => ({ en, he, ru });
   const who = {
-    pip: { name: L('Coach Pip', 'המאמן פיפ', 'Тренер Пип'), look: { ears: 'long', fur: '#e9e2d4', accent: '#e63946' } },
+    pip: { name: L('Mack', 'מאק', 'Мак'), look: { ears: 'long', fur: '#e9e2d4', accent: '#e63946' } },
     brick: { name: L('Brick', 'בריק', 'Брик'), look: { ears: 'round', fur: '#8a5a38', accent: '#2b364a', teeth: true } },
     dash: { name: L('Dash', 'דאש', 'Дэш'), look: { ears: 'point', fur: '#d9a441', accent: '#5fd0c7', spiky: true } },
-    nephew: { name: L("Pip's nephew", 'האחיין של פיפ', 'Племянник Пипа'), look: { ears: 'long', fur: '#f1ece0', accent: '#f4c152', small: true } },
+    nephew: { name: L("Mack's nephew", 'האחיין של מאק', 'Племянник Мака'), look: { ears: 'long', fur: '#f1ece0', accent: '#f4c152', small: true } },
     guard: { name: L('Night guard', 'שומר הלילה', 'Ночной сторож'), look: { ears: 'round', fur: '#7d8795', accent: '#243044', cap: true } },
     hyena: { name: L('Hyena', 'צבוע', 'Гиена'), look: { ears: 'point', fur: '#b08a5a', accent: '#6b3b2b' } },
     king: { name: L('King Hyena', 'מלך הצבועים', 'Король гиен'), look: { ears: 'point', fur: '#8c6a3a', accent: '#c9a227', spiky: true, teeth: true } },
@@ -32,7 +32,7 @@
     { n: 3, ids: ['market_robber', 'buy_heavy_bag'] },
     { n: 4, ids: ['bag_drill', 'fight_prep', 'docks_fight'] },
     { n: 5, ids: ['advanced_training', 'brick'] },
-    // Chapter 2, Market Row (STORY.md): Vix tests footwork, the Hyena crew runs the market, the raccoon steals Pip's whistle,
+    // Chapter 2, Market Row (STORY.md): Vix tests footwork, the Hyena crew runs the market, the raccoon steals Mack's whistle,
     // Grandma and the skateboard, Dash takes the crowd circle first, then King Hyena.
     { n: 1, chapter: 2, ids: ['curb_footwork', 'clean_hands'] },
     { n: 2, chapter: 2, ids: ['kids_skateboard', 'rooftop_balloons'] },
@@ -52,7 +52,7 @@
     heavy_bag_van: { intro: [S('brick', 'Nice gloves, rookie. The new bag is outside. It bites.', 'כפפות יפות, טירון. השק החדש בחוץ. הוא נושך.', 'Милые перчатки, салага. Новый мешок на улице. Кусается.')], outro: [S('brick', 'Huh. It did not flatten you. Beginner luck.', 'הא. הוא לא שיטח אתכם. מזל של מתחילים.', 'Хм. Он тебя не расплющил. Новичкам везёт.')] },
     bag_power: { intro: [S('pip', 'Brick says you hit like a pillow. Tell the bag.', 'בריק אומר שאתם מכים כמו כרית. ספרו לשק.', 'Брик говорит, ты бьёшь как подушка. Объясни мешку.')], outro: [S('brick', '...Who taught the pillow to punch?', '...מי לימד את הכרית להכות?', '...Кто научил подушку бить?')] },
     snoring_guard: { intro: [S('guard', 'Zzz... Jab... Hook... five more minutes, Mum...', 'זזז... Jab... Hook... עוד חמש דקות, אמא...', 'Хррр... Jab... Hook... ещё пять минут, мам...')], outro: [S('guard', 'I was not sleeping! I was guarding. With my eyes shut.', 'לא ישנתי! שמרתי. בעיניים עצומות.', 'Я не спал! Я сторожил. С закрытыми глазами.')] },
-    teach_the_kid: { intro: [S('nephew', 'Uncle Pip says you know the one-two. Show me!', 'דוד פיפ אמר שאתם יודעים ימין-שמאל. תראו לי!', 'Дядя Пип сказал, ты знаешь двойку. Покажи!')], outro: [S('nephew', 'Jab, Cross! Look out, world!', 'Jab, Cross! עולם, תיזהר!', 'Jab, Cross! Берегись, мир!')] },
+    teach_the_kid: { intro: [S('nephew', 'Uncle Mack says you know the one-two. Show me!', 'דוד מאק אמר שאתם יודעים ימין-שמאל. תראו לי!', 'Дядя Мак сказал, ты знаешь двойку. Покажи!')], outro: [S('nephew', 'Jab, Cross! Look out, world!', 'Jab, Cross! עולם, תיזהר!', 'Jab, Cross! Берегись, мир!')] },
     roll_under_hook: { intro: [S('dash', 'So this is the new one? My warm-up hits harder.', 'זה החדש? החימום שלי מכה חזק יותר.', 'Это новенький? Моя разминка бьёт сильнее.'), S('pip', 'Not yet. First you learn to Roll.', 'עוד לא. קודם לומדים Roll.', 'Рано. Сначала научись Roll.')], outro: [S('pip', 'Clean. His Hook would have hit only air.', 'נקי. ה-Hook שלו היה פוגע רק באוויר.', 'Чисто. Его Hook попал бы только в воздух.')] },
     rope_rhythm: { intro: [S('pip', 'Footwork is music. Do not step on the rope.', 'עבודת רגליים היא מוזיקה. לא לדרוך על החבל.', 'Работа ног — это музыка. На скакалку не наступать.')], outro: [S('pip', 'Light feet. Now a real round.', 'רגליים קלות. עכשיו סיבוב אמיתי.', 'Лёгкие ноги. Теперь настоящий раунд.')] },
     morning_sparring: { intro: [S('pip', 'A friendly round. Friendly still means you duck.', 'סיבוב ידידותי. גם בידידותי מתכופפים.', 'Дружеский раунд. В дружеском тоже ныряют.')], outro: [S('pip', 'You are ready. Brick is at the door. Literally.', 'אתם מוכנים. בריק בדלת. ממש בדלת.', 'Ты готов. Брик стоит в дверях. Буквально.')] },
@@ -113,7 +113,10 @@
   const markSeen = id => { try { const s = seenSet(); if (!s.includes(id)) { s.push(id); localStorage.setItem(KEY, JSON.stringify(s)); } } catch { /* optional */ } };
   const lang = () => ['en', 'he', 'ru'].includes(window.app?.lang) ? window.app.lang : 'en';
   // Small drawn bust: head, ears, shoulders. No emoji.
+  // GOTR-0081: portraits come from adventure/portraits.js (3D head renders / monogram badges in a metal ring). The drawn bust
+  // below is only the last fallback when that module is not loaded.
   function bust(id) {
+    if (window.StoryPortraits) return window.StoryPortraits.el(id, { name: who[id]?.name?.[lang()] || '', accent: who[id]?.look?.accent });
     const k = who[id]?.look || {}, ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('viewBox', '0 0 40 40'); svg.setAttribute('width', '40'); svg.setAttribute('height', '40'); svg.setAttribute('aria-hidden', 'true'); svg.classList.add('adv-bust');
     const add = (tag, attrs) => { const n = document.createElementNS(ns, tag); for (const [a, v] of Object.entries(attrs)) n.setAttribute(a, v); svg.append(n); return n; };

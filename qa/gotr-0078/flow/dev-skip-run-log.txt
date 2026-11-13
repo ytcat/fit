@@ -1,0 +1,9 @@
+channel dev
+dev start {"kicker":"Chapter 1 · The Dream — Step 1 of 13","title":"The big city","skip":"Skip step (dev)","lockedButtons":12,"locked":12}
+after 3 skips {"kicker":"Chapter 1 · The Dream — Step 4 of 13","title":"Night Shadowboxing","skip":"Skip step (dev)","lockedButtons":9,"locked":9}
+timeline {"kicker":"Chapter 1 · The Dream — Step 4 of 13","title":"Night Shadowboxing","skip":"Skip step (dev)","lockedButtons":9,"locked":9}
+locked step opened Chapter 1 · The Dream — Step 11 of 13 | The Docks | You No ring, no gloves... this fight is illegal. | Coach Bruno Your call. Walk away or fight. | Goal: Win the fight at the Docks | Stand-in: a bout with gloves in the Docks arena stands in for the bare-knuckle fight | Fight ▶ | Back to map
+live channel {"kicker":"Chapter 1 · The Dream — Step 4 of 13","title":"Night Shadowboxing","skip":null,"lockedButtons":0,"locked":9}
+reset dialog Reset game | This erases your progress on this device. Export a backup first? | Reset | Cancel
+after reset {"profiles":0,"lang":"en","welcome":"Choose your fighter"}
+dev skip browser ok

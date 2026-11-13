@@ -20,4 +20,15 @@ for (const [k, w] of Object.entries(S.who)) for (const lang of ['he', 'ru']) ass
 assert.ok(S.lines.roll_under_hook.intro.some(l => l.who === 'dash'), 'Dash appears as a scene line in the old beat 4');
 assert.equal(S.pick('brick', 'intro', 'won')[0], S.lines.brick.intro_won[0]); assert.equal(S.pick('brick', 'intro', null)[0], S.lines.brick.intro[0]); assert.equal(S.pick('brick', 'outro', 'won')[0], S.lines.brick.outro[0], 'no variant: the default');
 assert.deepEqual(S.journal(), [], 'no storage in node: empty journal');
+// GOTR-0081: the rabbit mitt holder is "Mack" for players (internal id 'pip' stays); no player-visible text says Pip in any language.
+{
+  const fs = require('node:fs'), path = require('node:path'), PIP = /\bPip\b|פיפ|Пип/;
+  assert.deepEqual(S.who.pip.name, { en: 'Mack', he: 'מאק', ru: 'Мак' }); assert.equal(S.who.bruno.name.en, 'Coach Bruno');
+  const files = ['adventure/story.js', 'adventure/story-flow.js', 'adventure/oldtown.js', 'adventure/adventure-ui.js', 'adventure/portraits.js', 'adventure/story/story-core.js', 'adventure/story/story-scenes.js', 'adventure/story/story-sets.js', 'adventure/story/trials-core.js', 'index.html'];
+  for (const f of files) {
+    const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"\\])\/\/.*$/gm, '$1').replace(/<!--[\s\S]*?-->/g, '');
+    const hit = src.split('\n').find(l => PIP.test(l)); assert.ok(!hit, f + ' shows "Pip" to players: ' + (hit || '').trim().slice(0, 120));
+  }
+  const F = require('../adventure/story-flow.js'); assert.ok(!PIP.test(JSON.stringify([F.chapters, F.react, F.opener, F.titles, S.who, S.lines])), 'story data says Pip');
+}
 console.log('adventure-story ok');
