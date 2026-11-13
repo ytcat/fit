@@ -153,8 +153,9 @@
       p.z -= (o.back || 0) * bell(p.y, 1.5, .2) * (1 - front) * bell(p.x, 0, .26) * wt;
       const hip = (o.hips || 0) * bell(p.y, .98, .12); p.x *= 1 + hip * inside; p.z *= 1 + hip;
     }
-    const wn = smooth((p.y - 1.56) / .10) * (1 - smooth((p.y - 1.75) / .11)) * (1 - smooth((ax - .16) / .12));
-    if (wn > 0) { p.x *= 1 + (o.neck || 0) * wn; p.z = (p.z + .02) * (1 + (o.neck || 0) * wn) - .02; }
+    // bull neck: the column between the shoulders and the jaw grows outward by a fixed amount (a scale here makes a ledge on the shoulders)
+    const wn = smooth((p.y - 1.63) / .08) * (1 - smooth((p.y - 1.79) / .09)), r = Math.hypot(p.x, p.z + .02);
+    if (wn > 0 && r > 1e-4) { const push = (o.neck || 0) * .075 * wn * (1 - smooth((r - .13) / .13)); p.x += p.x / r * push; p.z += (p.z + .02) / r * push; }
     return p;
   }
   function reshape(g, fn) { const P = g.attributes.position, p = V(); for (let i = 0; i < P.count; i++) { p.fromBufferAttribute(P, i); fn(p); P.setXYZ(i, p.x, p.y, p.z); } P.needsUpdate = true; g.computeBoundingBox(); g.computeBoundingSphere(); }
@@ -222,7 +223,7 @@
       for (const s of [-1, 1]) {
         P.sph(V(s * .255, .272, -.04), V(.078, .082, .046), fur, [0, s * .35, s * -.25]); P.sph(V(s * .252, .27, -.008), V(.05, .054, .022), '#a07c66', [0, s * .35, s * -.25]); // round ears, low enough to stay under the cap
         eye(rig, s, .082, .192, Z(.082, .192) - .006, .029, 'hazel');
-        brow(rig, [V(s * .036, .224, Z(.04, .224) + .004), V(s * .085, .240, Z(.085, .236) + .006), V(s * .140, .218, Z(.14, .218) + .004)], 0xb8b2a8, .0095); // heavy grey brows that droop at the outside
+        brow(rig, [V(s * .036, .224, Z(.04, .224) - .002), V(s * .085, .240, Z(.085, .24) - .001), V(s * .140, .218, Z(.14, .218) - .002)], 0xb8b2a8, .0095); // heavy grey brows that droop at the outside
         P.ribbon([V(s * .012, .048, Z(.012, .05) + .002), V(s * .045, .028, Z(.045, .03) + .002), V(s * .085, .040, Z(.085, .04))], .0075, .0075, '#2a201b', V(0, 1, 0), 12, 6); // mouth line
         for (let k = 0; k < 3; k++) P.sph(V(s * (.05 + k * .02), .075 - k * .008, Z(.05 + k * .02, .075) + .001), V(.0045, .0045, .003), '#5c4a40'); // whisker dots
       }
@@ -317,16 +318,16 @@
         // jowls hang over the corners of the mouth
         const jz = Z(.075, .02); P.sph(V(s * .078, .018, jz - .028), V(.07, .066, .055), s > 0 ? '#ead9c6' : '#f0e6d8', [0, 0, s * .22]);
         P.sph(V(s * .05, -.018, Z(.05, -.02) + .004), V(.012, .017, .009), '#fbf7ee'); // lower teeth of the underbite
-        brow(rig, [V(s * .04, .232, Z(.04, .232) + .005), V(s * .095, .246, Z(.095, .244) + .007), V(s * .152, .226, Z(.152, .226) + .004)], s > 0 ? 0x4a2f1f : 0xb7a48f, .0105);
+        brow(rig, [V(s * .04, .226, Z(.04, .226) - .003), V(s * .095, .238, Z(.095, .238) - .002), V(s * .15, .222, Z(.15, .222) - .004)], s > 0 ? 0x4a2f1f : 0xb7a48f, .0105);
       }
       const nz = Z(0, .112);
       P.sph(V(0, .118, nz + .006), V(.05, .03, .026), '#1f1917'); P.sph(V(-.013, .128, nz + .026), V(.012, .006, .005), '#6d645f');
       for (const [y, w] of [[.158, .06], [.176, .075]]) P.ribbon([V(-w, y - .008, Z(w, y) - .002), V(0, y + .006, Z(0, y) + .001), V(w, y - .008, Z(w, y) - .002)], .011, .008, '#c9b29c', V(0, 1, 0), 12, 6); // folds over the nose
       P.ribbon([V(-.1, .0, Z(.1, 0) + .002), V(-.04, -.004, Z(.04, 0) + .016), V(0, .028, Z(0, .03) + .01), V(.04, -.004, Z(.04, 0) + .016), V(.1, .0, Z(.1, 0) + .002)], .008, .008, '#2a1f1b', V(0, 1, 0), 20, 6); // mouth line under the jowls
       // scar across the right brow: a pale hairless line with two stitch marks
-      const sx = .098, scar = [V(sx - .034, .286, Z(sx - .034, .28) + .004), V(sx - .008, .248, Z(sx - .008, .248) + .008), V(sx + .014, .212, Z(sx + .014, .214) + .006)];
+      const sx = .098, scar = [V(sx - .03, .272, Z(sx - .03, .272) - .001), V(sx - .01, .246, Z(sx - .01, .246) + .001), V(sx + .012, .214, Z(sx + .012, .214) - .001)];
       P.ribbon(scar, .015, .007, '#e8a093', V(1, 0, 0), 10, 6);
-      for (const k of [.3, .62]) { const c = scar[0].clone().lerp(scar[2], k); c.z = Z(c.x, c.y) + .007; P.ribbon([c.clone().add(V(-.017, -.006, 0)), c.clone().add(V(.017, .006, 0))], .005, .004, '#d18c80', V(0, 1, 0), 4, 6); }
+      for (const k of [.3, .62]) { const c = scar[0].clone().lerp(scar[2], k); c.z = Z(c.x, c.y) + .001; P.ribbon([c.clone().add(V(-.017, -.006, 0)), c.clone().add(V(.017, .006, 0))], .005, .004, '#d18c80', V(0, 1, 0), 4, 6); }
       head.add(grow(P.mesh('Brick: ears, jowls, nose, scar'), BRICK.K));
       BRICK.mouthZ = Z(0, .03) * BRICK.K - .004;
     },
@@ -339,7 +340,7 @@
       g.setAttribute('color', new THREE.BufferAttribute(col, 3));
       rig.shorts.material.vertexColors = true; rig.shorts.material.color.set(0xffffff); // the cloth material belongs to this rig alone
       for (const m of kitParts(rig).trim) { if (m.geometry.type === 'CylinderGeometry') { m.material = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: .6 }); m.scale.x *= 1 + BRICK.build.torso * .9 + BRICK.build.hips; m.scale.z *= 1 + BRICK.build.depth * .9 + BRICK.build.hips; } else m.visible = false; }
-      rig.gloveMeshes.L.material.color.set(BRICK.gloves);
+      rig.gloveMeshes.L.material.color.set(BRICK.gloves); rig.bodyFurOff = true; // a smooth short coat: loose strands read as spikes on the heavy shoulders
     }
   };
   const DEFS = { bruno: BRUNO, brick: BRICK };
@@ -420,7 +421,7 @@
         const P = new Parts(), [hood, dark] = HOODIE[rig.species] || HOODIE.lion, bz = B(0, 1.66, true), o = V(0, 1.36, 0), L = p => p.clone().sub(o);
         P.sph(L(V(0, 1.66, bz - .016)), V(.19, .15, .055), hood, [.22, 0, 0]); P.sph(L(V(0, 1.685, bz - .05)), V(.12, .08, .028), dark, [.22, 0, 0]);
         P.tor(L(V(0, 1.775, -.012)), V(.118, .135, .11), hood, [Math.PI / 2 - .22, 0, 0]);
-        for (const s of [-1, 1]) { const z = B(s * .045, 1.62); P.ribbon([L(V(s * .05, 1.74, z + .02)), L(V(s * .045, 1.66, z + .012)), L(V(s * .05, 1.575, B(s * .05, 1.575) + .008))], .008, .008, '#e9e4d8', V(1, 0, 0), 10, 6); P.sph(L(V(s * .05, 1.568, B(s * .05, 1.575) + .008)), V(.008, .012, .008), '#e9e4d8'); }
+        for (const s of [-1, 1]) { const z = B(s * .045, 1.62); P.ribbon([L(V(s * .05, 1.70, B(s * .05, 1.70) + .01)), L(V(s * .045, 1.64, B(s * .045, 1.64) + .01)), L(V(s * .05, 1.575, B(s * .05, 1.575) + .008))], .008, .008, '#e9e4d8', V(1, 0, 0), 10, 6); P.sph(L(V(s * .05, 1.568, B(s * .05, 1.575) + .008)), V(.008, .012, .008), '#e9e4d8'); }
         const m = P.mesh('Hood, collar, drawstrings'); j.chest.add(m); add(m);
       }
     }
@@ -434,7 +435,7 @@
     if (name === 'kit') return true;
     const def = OUTFITS[name]; if (!st.base) st.base = grab(g);
     let b = st.built[name];
-    if (!b) { b = st.built[name] = { parts: [], streams: null }; if (def.cloth) b.streams = dress(g, def.cloth(rig)); if (def.parts) def.parts(rig, m => b.parts.push(m)); }
+    if (!b) { b = st.built[name] = { parts: [], streams: null }; if (def.cloth) { b.streams = dress(g, def.cloth(rig)); use(g, b.streams); } if (def.parts) def.parts(rig, m => b.parts.push(m)); } // small parts are seated on the dressed surface
     if (b.streams) use(g, b.streams);
     const kit = kitParts(rig); for (const k of def.hide || []) for (const o of kit[k] || []) { st.hidden.push([o, o.visible]); o.visible = false; }
     for (const m of b.parts) m.visible = true; st.outfit = name; return true;

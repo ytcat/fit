@@ -161,7 +161,7 @@
       cyl(S, -1.3, 0, -1.0, .2, .5, '#8f2f22', P.cyl12); cyl(S, -1.3, .5, -1.0, .23, .05, '#1d1f24', P.cyl12); cyl(S, -.75, 0, -1.3, .17, .32, '#aab2bc', P.cyl12, 0, 0, .2); box(S, -.75, .3, -1.3, .3, .03, .22, '#f1ece0');
       cyl(S, 3.4, 0, ZB + .35, .02, 1.6, '#c9a36a', P.cyl6, .18); box(S, 3.4, 0, ZB + .62, .34, .08, .14, '#d8d2c4');
       // hanging lamps: enamel shades, bright bulbs, warm pools on the floor
-      pool(0, 1.0, 2.8, '#ffe2a8'); for (const [x, z] of [[-4.6, -3.3], [-2.4, 3.4], [2.6, 3.6], [5.6, -2.6], [-6, 5.5], [6, 5.5]]) { cyl(S, x, 3.6, z, .012, H - 3.6, '#2a2f38', P.cyl6); S.add(P.cone8, M(x, 3.42, z, .46, .26, .46), C('#2f5d4a')); G.add(P.sph, M(x, 3.44, z, .1, .1, .1), C('#fff3cf')); pool(x, z, 2.6, '#ffe2a8'); }
+      pool(0, 1.0, 2.8, '#ffe2a8'); for (const [x, z] of [[-4.6, -3.3], [-2.4, 3.4], [2.6, 3.6], [7.2, -.6], [-6, 5.5], [6, 5.5]]) { cyl(S, x, 3.6, z, .012, H - 3.6, '#2a2f38', P.cyl6); S.add(P.cone8, M(x, 3.42, z, .46, .26, .46), C('#2f5d4a')); G.add(P.sph, M(x, 3.44, z, .1, .1, .1), C('#fff3cf')); pool(x, z, 2.6, '#ffe2a8'); }
       return { x: 0, z: 0, r: 13 };
     });
   }

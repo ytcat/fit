@@ -8,11 +8,11 @@ module.exports = async (p, shot, u) => {
     window.__done = null; window.__mapWanted = /dream_opening/.test(id);
     StoryScenes.play(id, { outcome, noMap: !window.__wantMap, onDone: r => { window.__done = r; } });
   }, { id, outcome: process.env.OUTCOME || undefined, lang: process.env.LANG || '' });
-  const wantMap = shots.some(s => s[0].startsWith('map'));
+  const isMap = n => /(^|-)map/.test(n), wantMap = shots.some(s => isMap(s[0]));
   if (wantMap) { await p.evaluate(id => { StoryScenes.stop(); window.__done = null; StoryScenes.play(id, { onDone: r => { window.__done = r; } }); }, id); }
   await p.waitForFunction(() => DreamScenes.debug && DreamScenes.debug.phase !== 'load', null, { timeout: 300000 });
   for (const [name, t] of shots) {
-    if (name.startsWith('map')) await p.evaluate(t => { DreamScenes.debug.mapT = t; }, +t); else await p.evaluate(t => DreamScenes.seek(t), +t);
+    if (isMap(name)) await p.evaluate(t => { DreamScenes.debug.mapT = t; }, +t); else await p.evaluate(t => DreamScenes.seek(t), +t);
     const n0 = await p.evaluate(() => app.engine.renderer.info.render.frame); await p.waitForFunction(n => app.engine.renderer.info.render.frame >= n + 3, n0, { timeout: 120000 });
     await shot(`${tag}-${name}-${u.w}`);
     console.log(name, t, JSON.stringify(await p.evaluate(() => ({ s: DreamScenes.stats(), t: +DreamScenes.debug.t.toFixed(2), line: document.querySelector('.dream-text')?.textContent }))));

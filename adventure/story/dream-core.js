@@ -72,8 +72,8 @@
       set: 'dream_street', intro: 'map', duration: 31.5, chapter: 1, outfit: { fighter: 'street' }, bag: [{ t: 0, on: 'shoulder' }],
       camera: [
         { t: 0, pos: [-24, 40, 5], look: [-2, 0, 3] },                                        // down from the sky
-        { t: 4.6, pos: [8.4, 2.6, 9.8], look: [1.2, 1.5, 2.6] },
-        { t: 7.2, pos: [7.6, 1.55, 9.2], look: [2.2, 1.35, 3.0], ease: 'smooth' },            // the bus has stopped, doors open
+        { t: 4.6, pos: [9.6, 2.7, 10.4], look: [.4, 1.5, 3.4] },
+        { t: 7.2, pos: [8.2, 1.6, 9.4], look: [1.9, 1.35, 3.2], ease: 'smooth' },            // the bus has stopped, doors open
         { t: 9.6, pos: [7.0, 1.5, 8.4], look: [2.6, 1.3, 4.0], ease: 'smooth' },
         { t: 9.6, cut: true, pos: [5.9, 1.2, 6.9], look: [2.85, 1.68, 4.45] },       // low on his face: he looks up at the city
         { t: 12.4, pos: [5.6, 1.2, 6.6], look: [2.85, 1.72, 4.45], fov: 33, ease: 'linear' },
@@ -138,8 +138,8 @@
         { t: 32, pos: [.1, 1.3, 2.7], look: [-.8, 1.72, .8], fov: 26, ease: 'linear' },
         { t: 32, cut: true, pos: [-1.5, 1.68, 2.5], look: [.9, 1.68, .7], fov: 28 },           // "Words are cheap. Show me."
         { t: 36, pos: [-1.45, 1.68, 2.4], look: [.9, 1.68, .7], fov: 27, ease: 'linear' },
-        { t: 36, cut: true, pos: [-.6, 1.45, 5.4], look: [1.1, 1.3, .2] },                     // wide: Brick comes over
-        { t: 40, pos: [-.3, 1.45, 5.0], look: [1.1, 1.3, .3], ease: 'smooth' },
+        { t: 36, cut: true, pos: [-.2, 1.5, 6.6], look: [.9, 1.25, .2] },                     // wide: Brick comes over
+        { t: 40, pos: [0, 1.5, 6.2], look: [.8, 1.25, .3], ease: 'smooth' },
         { t: 40, cut: true, pos: [.55, 1.3, 3.0], look: [2.2, 1.6, .2], fov: 32 },           // Brick, from below
         { t: 44, pos: [.6, 1.3, 2.85], look: [2.2, 1.62, .2], fov: 30, ease: 'linear' }
       ],
