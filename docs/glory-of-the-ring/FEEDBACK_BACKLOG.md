@@ -819,6 +819,22 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Plan:** portraits rendered from the real 3D heads (lit three-quarter view, dark vignette, thin metal ring), one per character; the story Coach is Bruno (GOTR-0078); the rabbit mitt holder is renamed **Mack**; every "Pip" text, id shown to players and journal line updated in EN/HE/RU.
 - **Progress 2026-11-14 (branch `agent/dream-flow`, not released):** players see **Mack** / מאק / Мак everywhere (internal id `pip` kept; test `adventure-story` scans the player-visible sources and story data for Pip/פיפ/Пип). `adventure/portraits.js`: portraits rendered once per session from the real 3D heads with the game renderer (three-quarter view, studio light, gloves hidden, dark vignette), cached as images; thin brushed-metal ring with a coloured accent arc; 3D today: the Fighter, Mack, Bruno and Brick (agent/dream-1 StoryCast); monogram badges for Fang, Mrs. Hazel, Otto, Slick, Hook, Vix, King Hyena, Dash and the chapter-2 extras; neutral silhouette if render-to-image fails. 42 px in story lines, 56 px in the quest panel, 2x pixels. Evidence `qa/gotr-0081/` (EN+HE, 402×690 at 2x).
 
+### GOTR-0082 — Brick's model is broken: long rods stick out through his shoulders
+- **Reported:** 2026-11-13 (v1.54, iPhone; pictures `qa/owner-2026-11-12/v154-brick-broken-talk.webp`, `v154-brick-broken-fight.webp`: two long tan bars cross the neck/shoulders in the gym talk and in the fight; also brow pieces float off the head)
+- **Status:** OPEN — P0
+- **Acceptance:** Brick rendered in the talk scene and in a real fight on the game's own cameras with no detached or stretched parts, in guard, punching and knocked down; a test measuring that every Brick mesh stays within a body-sized bound of the rig.
+
+### GOTR-0083 — First fight vs Brick must be in the gym, not an arena ring; Bruno referees
+- **Reported:** 2026-11-13 (v1.54: the fight ran in the Fight Night ring with ropes and audience and the rhino referee)
+- **Status:** OPEN — P1
+- **Request:** "Please fight in a gym and not in a ring, without audience and without the ropes; the judge is the coach."
+- **Acceptance:** beat 2 takes place on the gym floor (mat area of Bruno's Gym), no ring, ropes, posts or crowd; Bruno counts and stops the fight in place of the referee; fighters stay inside the mat by an invisible boundary.
+
+### GOTR-0084 — Gym conversation reads unnatural; rewrite the opening dialogue
+- **Reported:** 2026-11-13 (v1.54: "I want to train. Training costs money. I don't have money, I have only a bag… This is not how people talk")
+- **Status:** OPEN — P1
+- **Owner's direction:** the Fighter is excited: he came to the city to follow his dream. Coach: "Do you have money for training?" Fighter: no, but he will do whatever it takes — he heard this is the best place, all the best fighters started here. The Coach then offers him jobs to do as payment for the training.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
