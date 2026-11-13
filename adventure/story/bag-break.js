@@ -125,9 +125,13 @@
   }
 
   // ---------------------------------------------------------------- the training bag wears the old bag's skin
-  let trained = null;
+  let trained = null, wantTraining = false, waitTries = 0;
   function training(on) {
     const model = window.app?.engine?.arena?.models?.heavy, body = model?.userData?.soft;
+    wantTraining = !!on;
+    // the arena builds its heavy bag lazily, when the training starts: wait for it (a few seconds at most)
+    if (on && !trained && !body && Core()) { if (waitTries === 0) { waitTries = 1; const poll = () => { if (!wantTraining || trained) { waitTries = 0; return; } if (window.app?.engine?.arena?.models?.heavy?.userData?.soft) { waitTries = 0; training(true); return; } if (++waitTries > 600) { waitTries = 0; return; } requestAnimationFrame(poll); }; requestAnimationFrame(poll); } return false; }
+    if (on && trained) return true;
     if (trained) { const t = trained; trained = null; for (const [m, mat] of t.swaps) m.material = mat; for (const n of t.hidden) n.visible = true; for (const n of t.added) n.parent?.remove(n); t.dispose(); }
     if (!on || !body || !Core()) return false;
     const B = Core().BAG, map = skin(true); map.offset.x = -.25; // the strike zone faces the Fighter (u = .5 on the training model)
@@ -334,6 +338,7 @@
 
   const api = {
     play, bag, rig, dress, training, gymState,
+    get trainingOn() { return !!trained; },
     has: id => !!Core() && id === Core().ID,
     get ids() { return Core() ? [Core().ID] : []; },
     get playing() { return current ? current.id : null; },

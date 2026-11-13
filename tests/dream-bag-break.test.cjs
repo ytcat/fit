@@ -77,7 +77,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     await p.evaluate(() => { window.__plays = []; const S = StoryScenes, play = S.play; S.play = (id, o) => { window.__plays.push(id); return play.call(S, id, o); };
       const st = ringfighterGame.store; ringfighterGame.close(); AdventureOldTown.launch({ store: st, startTraining: ringfighterGame.startTraining, startFight: ringfighterGame.startFight, change: a => { const r = st.gameAction(a); if (r.ok) ringfighterGame.apply?.(); return r.ok; } }, 'night_bag'); });
     await wait(() => app.engine.career.active && AdventureOldTown.run?.id === 'night_bag');
-    assert.ok(await p.evaluate(() => /Old heavy bag|old/.test(app.engine.arena.models.heavy.userData.soft.material.map ? 'old' : '')), 'the training bag wears the old bag');
+    await wait(() => BagBreak.trainingOn); // the night training hits the old bag (its leather, chain and pipe)
     await p.evaluate(() => { const r = AdventureOldTown.run; r.value = r.target; });
     await wait(() => BagBreak.playing === 'dream_bag_break' && BagBreak.debug?.phase === 'play');
     assert.equal(await p.evaluate(() => BagBreak.gymState()), 'broken', 'the save says broken once night_bag is done');
@@ -86,6 +86,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     assert.deepEqual(mid.scale, [-1, 1, 1], 'mirrored root in the film'); assert.equal(mid.outfit, 'kit'); assert.ok(mid.skip, 'Skip button');
     await p.evaluate(() => document.querySelector('dialog.dream-scene .dream-skip').click());
     await wait(() => !BagBreak.playing && !document.querySelector('dialog.dream-scene'));
+    assert.equal(await p.evaluate(() => BagBreak.trainingOn), false, 'the game\'s training bag is put back');
     const after = await p.evaluate(() => ({ scale: app.engine.coach.root.scale.toArray(), outfit: StoryCast.outfitOf(app.engine.coach), demo: !!app.engine.fightIQDemo, plays: window.__plays.slice() }));
     assert.deepEqual(after.scale, before.scale, 'root scale handed back'); assert.equal(after.outfit, before.outfit, 'outfit handed back'); assert.equal(after.demo, false);
     assert.deepEqual(after.plays.filter(id => id === 'dream_bag_break'), ['dream_bag_break'], 'the film played once');
