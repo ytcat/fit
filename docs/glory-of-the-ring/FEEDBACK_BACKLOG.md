@@ -810,6 +810,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Root cause:** v1.51 mirrors every fighter at its root (`scale.x = -1`, GOTR-0074) and the pose code relies on it; `adventure/story/story-scenes.js` reset a borrowed rig to scale 1. Regression missed because the full suite has no rendered check of a story scene after the mirror.
 - **Fix:** borrowed rigs keep the mirrored root. Evidence: screenshot of a story scene at 402×690 with intact characters; `tests/story-mirror.test.cjs`. Not verified by picture: every trial and scene (choreography may now face the other way in places).
 
+### GOTR-0081 — Character portraits look childish; "Pip" is not a coach's name
+- **Reported:** 2026-11-13 (crop of the story line portrait: a flat cartoon rabbit face in a gold ring next to "Coach Pip")
+- **Status:** OPEN — P1
+- **Request:** portraits must look designed, not kids' style; change the names — "Pip" is not a good coach name.
+- **Plan:** portraits rendered from the real 3D heads (lit three-quarter view, dark vignette, thin metal ring), one per character; the story Coach is Bruno (GOTR-0078); the rabbit mitt holder is renamed **Mack**; every "Pip" text, id shown to players and journal line updated in EN/HE/RU.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
