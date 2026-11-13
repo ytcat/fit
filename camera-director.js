@@ -79,6 +79,8 @@
   front(){
    const e=this.engine,a=e.arena;if(!a||typeof THREE==='undefined')return null;
    const fight=a.mode==='fight'&&a.fightView,m=fight&&fight.match,ceremony=!!(m&&fight.coaches&&(m.phase==='scoring'||m.phase==='ceremony'));
+   // GOTR-0076: the corner break frames both corners, then each corner in turn (fight-corner.js chooses the shots).
+   const corner=fight&&m&&m.phase==='rest'&&fight.corner?.active&&fight.corner.cameraGoal?.(e.camera,this.freePose());if(corner)return corner;
    const rope=!fight&&a.mode==='rope'&&this.locked&&!!e.coach;if(!ceremony&&!rope)return null;
    const nodes=ceremony?[fight.coaches.lion.root,fight.coaches.rabbit.root]:[e.coach.root],P=nodes.map(n=>n.getWorldPosition(new THREE.Vector3()));
    let fx=0,fz=0;for(const n of nodes){const d=n.getWorldDirection(new THREE.Vector3());fx+=d.x;fz+=d.z;}
@@ -149,12 +151,13 @@
     if(this.mode==='intro'&&!fight)this.skipIntro();
     if(fight&&fight.match&&fight.match.phase==='intro'&&!(fight.match.time>.05)&&!this.reducedMotion())this.startIntro();
    }
-   const ceremony=fight&&fight.match&&(fight.match.phase==='scoring'||fight.match.phase==='ceremony');
+   const ceremony=fight&&fight.match&&(fight.match.phase==='scoring'||fight.match.phase==='ceremony'),cornerBreak=!!(fight&&fight.match?.phase==='rest'&&fight.corner?.active),breakKey=cornerBreak?fight.match.round:null;
    if(this.mode==='free'){
     if(!this.locked&&ceremony&&this.stagedFight!==fight&&this.subjects()){this.stagedFight=fight;this.engage();this.autoStaged=true;}
+    else if(!this.locked&&cornerBreak&&(this.stagedBreak?.fight!==fight||this.stagedBreak.round!==breakKey)&&this.subjects()){this.stagedBreak={fight,round:breakKey};this.engage();this.autoStaged=true;}
     else{if(!this.locked||!this.subjects())return false;this.engage();}
    }
-   if(this.mode==='lock'&&this.autoStaged&&(this.locked||!ceremony)){this.autoStaged=false;if(!this.locked)this.mode='release';}
+   if(this.mode==='lock'&&this.autoStaged&&(this.locked||!(ceremony||cornerBreak))){this.autoStaged=false;if(!this.locked)this.mode='release';}
    let pose;
    if(this.mode==='intro'){
     const i=this.intro;i.t+=dt;
