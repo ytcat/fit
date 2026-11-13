@@ -4,7 +4,7 @@
   // Names are intentionally stable; unapproved sounds are never substituted.
   const paths = Object.freeze({
     'referee-fight-en': './assets/audio/approved/referee-fight-en.wav',
-    'referee-fight-ru': './assets/audio/approved/referee-fight-ru.wav',
+    'referee-fight-ru': './assets/audio/approved/referee-fight-ru.opus',
     'boxing-bell': './assets/audio/approved/boxing-bell.wav',
     'glove-impact': './assets/audio/approved/glove-impact.wav',
     'knockout-crowd': './assets/audio/approved/knockout-crowd.wav'
