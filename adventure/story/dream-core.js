@@ -14,7 +14,8 @@
  *     lines: [{ t, who, text: { en, he, ru }, hold?: true }] }  hold = the timeline waits here for a tap (conversations)
  * DreamCore.sample(scene, t) -> { camera: { pos, look, shot }, actors: { id: { x, y, z, ry, walking, dist, arms, look, act, lean, drop } },
  *                                 props, bag, line, lineIndex, done } ; DreamCore.validate(scene) -> [errors]
- * DreamCore.variant(id, outcome) -> the scene for an outcome ('dream_after_brick': 'loss' | 'win'). */
+ * DreamCore.variant(id, outcome) -> the scene for an outcome ('dream_after_brick': 'loss' | 'win').
+ * DreamCore.withCity(scene) -> the scene re-staged for the city models when it has a city part (GOTR-0089), else the same. */
 (() => {
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t;
   const EASE = { linear: t => clamp(t), smooth: t => { t = clamp(t); return t * t * (3 - 2 * t); }, smoother: t => { t = clamp(t); return t * t * t * (t * (6 * t - 15) + 10); }, in: t => { t = clamp(t); return t * t; }, out: t => { t = clamp(t); return 1 - (1 - t) * (1 - t); } };
@@ -66,6 +67,34 @@
   const F = [-.78, .8], B = [.78, .8], K = [2.35, .15]; // gym hall: Fighter, Bruno, Brick's mark
   const HALF = Math.PI / 2;
 
+  /* GOTR-0089: the same film when Codex's bus model is in the street (adventure/story/city-assets.js). The model is turned
+   * half a turn (its doors are on its left), so it drives in toward -x and stops with the front door at the same spot (x 2.75):
+   * wrapper x = 2.75 + 4.49. The real door clip (open 0-1.3 s, hold to 3.0 s, shut by 4.33 s) runs on the film clock and is
+   * fully open before the Fighter moves; he steps from the entry floor (y 0.57) over the tread to the kerb marker (z 3.85). */
+  const BUS_STOP = 2.75 + 4.49;
+  const CITY_OPENING = {
+    props: {
+      bus: [{ t: 0, v: [BUS_STOP + 56.6] }, { t: 2.2, v: [BUS_STOP + 28.6], ease: 'linear' }, { t: 6.7, v: [BUS_STOP], ease: 'out' }, { t: 10.7, v: [BUS_STOP] }, { t: 15.4, v: [BUS_STOP - 71], ease: 'in' }],
+      doorClip: [{ t: 0, v: [0] }, { t: 6.7, v: [0] }, { t: 8.0, v: [1.3], ease: 'linear' }, { t: 9.3, v: [3.0], ease: 'linear' }, { t: 10.63, v: [4.33], ease: 'linear' }] // opens once stopped
+    },
+    fighter: [
+      { t: 0, x: 2.75, z: 2.5, y: .57, act: 'off', face: 0, arms: { R: 'strap' } },
+      { t: 7.3, act: 'idle', face: 0 },
+      { t: 8.05, x: 2.75, z: 2.5, y: .57 },
+      { t: 8.45, x: 2.75, z: 3.08, y: .26 },                                              // the entry tread
+      { t: 8.9, x: 2.75, z: 3.85, y: .0 }                                                 // the kerb marker
+    ],
+    // the arrival shot sits further along the kerb (the model bus is longer, its door near its front) and stays clear of
+    // the Old Town façades and awnings at z 9.4 (the old camera stood in the house fronts at z 10.4)
+    camera: { 1: { pos: [11.2, 2.5, 9.1], look: [2.6, 1.5, 3.2] }, 2: { pos: [10.0, 1.75, 9.1], look: [3.7, 1.4, 3.3] }, 3: { pos: [8.5, 1.6, 8.9], look: [3.3, 1.3, 4.0] } }
+  };
+  /** The film with the city models: the bus props and the Fighter's step-off replaced, everything after 9.5 s unchanged. */
+  function withCity(scene) {
+    const c = scene?.city; if (!c) return scene;
+    const fighter = scene.actors.fighter, rest = fighter.keys.filter(k => k.t >= 9.5);
+    return { ...scene, cityCut: true, props: { ...scene.props, ...c.props }, actors: { ...scene.actors, fighter: { ...fighter, keys: [...c.fighter, ...rest] } }, camera: c.camera ? scene.camera.map((k, i) => c.camera[i] ? { ...k, ...c.camera[i] } : k) : scene.camera };
+  }
+
   const scenes = {
     /* Beat 0. Map dive, the bus pulls in, the Fighter steps off with his bag, looks up at the city, walks to Bruno's Gym. */
     dream_opening: {
@@ -103,9 +132,10 @@
           { t: 19.2, x: 7.6, z: 6.9 },
           { t: 19.2, x: 15.4, z: 7.1, jump: true },
           { t: 22.6, x: 19.65, z: 7.1 },
-          { t: 22.6, x: 21.5, z: 2.9, jump: true },
+          { t: 22.6, x: 21.5, z: 2.9, y: -.15, jump: true },                                // on the road (GOTR-0089: not 15 cm above it)
           { t: 26.2, x: 23.4, z: -1.2, look: { yaw: .2, pitch: .1 } },
           { t: 26.2, x: 24.9, z: -3.3, jump: true },
+          { t: 26.52, x: 25.08, z: -3.62, y: .0 },                                            // up the far kerb
           { t: 29.4, x: GYM[0] - .25, z: GYM[1] + .15, face: [27, -9], look: { yaw: 0, pitch: .05 } },
           { t: 29.9, look: { yaw: 0, pitch: .4 } }                                              // up at the sign
         ] }
@@ -114,7 +144,8 @@
         bus: [{ t: 0, v: [-62] }, { t: 2.2, v: [-40] }, { t: 6.7, v: [-1], ease: 'out' }, { t: 10.6, v: [-1] }, { t: 15.4, v: [70], ease: 'in' }],
         doors: [{ t: 0, v: [0] }, { t: 6.8, v: [0] }, { t: 7.4, v: [1] }, { t: 9.9, v: [1] }, { t: 10.5, v: [0] }]
       },
-      lines: []
+      lines: [],
+      city: CITY_OPENING
     },
 
     /* Beat 1. The gym hall. He has no money, one bag and a dream. "Words are cheap. Show me." Brick steps forward. */
@@ -251,6 +282,6 @@
   const variants = { dream_after_brick: { loss: scenes.dream_after_brick, win: afterBrick(true) } };
   const variant = (id, outcome) => variants[id]?.[outcome] || scenes[id] || null;
 
-  const api = { scenes, variant, sample, validate, holdAfter, camera, actor, prop, EASE, SETTLE, ids: Object.keys(scenes), places: { DOOR, GYM, F, B, K } };
+  const api = { scenes, variant, withCity, BUS_STOP, sample, validate, holdAfter, camera, actor, prop, EASE, SETTLE, ids: Object.keys(scenes), places: { DOOR, GYM, F, B, K } };
   if (typeof module !== 'undefined') module.exports = api; else window.DreamCore = api;
 })();

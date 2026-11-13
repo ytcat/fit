@@ -26,33 +26,40 @@
     /* ------------------------------------------------------------ bus station street -> Bruno's Gym */
     Sets.register('dream_street', c => {
       const { K, PAL, C, P, M, S, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, objects } = c;
-      road(-70, 110, -3.5, 3.5); dashes(-70, 110, 0);
-      pave(-70, 110, -14, -3.5); pave(-70, 110, 3.5, 10.2); joints(-44, 60, -8, -3.6); joints(-44, 60, 3.6, 10); curb(-70, 110, -3.62); curb(-70, 110, 3.62);
+      // GOTR-0089: Codex's models (city-assets.js) stand in for the generated stop, bus and some façades when they are ready
+      const city = window.CityAssets && c.opts?.city ? c.opts.city : null, CL = window.CityAssets?.LAYOUT, st = !!city?.station, ot = !!city?.oldtown, lane = city?.bus ? -1 : 1;
+      const near = (list, x, z) => list.some(p => Math.abs(p[0] - x) < .01 && Math.abs(p[1] - z) < .01), cut = (x0, x1, f) => { if (!st) return f(x0, x1); if (x0 < CL.gap[0]) f(x0, Math.min(x1, CL.gap[0])); if (x1 > CL.gap[1]) f(Math.max(x0, CL.gap[1]), x1); };
+      const keep = { lamp: (x, z) => !st || !near(CL.lamps, x, z), bin: (x, z) => !st || !near(CL.bins, x, z), far: x => !ot || !CL.replaced.far.includes(x), near: x => !ot || !CL.replaced.near.includes(x) };
+      cut(-70, 110, (a, b) => road(a, b, -3.5, 3.5)); cut(-70, 110, (a, b) => dashes(a, b, 0));
+      pave(-70, 110, -14, -3.5); cut(-70, 110, (a, b) => pave(a, b, 3.5, 10.2)); joints(-44, 60, -8, -3.6); cut(-44, 60, (a, b) => joints(a, b, 3.6, 10)); curb(-70, 110, -3.62); cut(-70, 110, (a, b) => curb(a, b, 3.62));
+      if (st) { pave(CL.gap[0], CL.gap[1], CL.pavingZ, 10.2); joints(CL.gap[0], CL.gap[1], CL.pavingZ + .1, 10); } // behind the modules' paving
       box(S, 20, -.6, -40, 200, .2, 52, '#b9b2a2'); box(S, 20, -.6, 36, 200, .2, 52, '#b9b2a2'); // ground behind the house rows (seen in the dive)
       for (let x = 20.2; x < 24.2; x += 1.0) box(S, x + .25, -.148, 0, .5, .012, 6.4, '#f4f1e6'); // zebra crossing to the gym
       for (const z of [-3.9, 3.9]) for (let x = 20; x < 24.6; x += .5) box(S, x, .002, z, .3, .008, .3, '#e8c15a'); // tactile strip at the crossing
-      box(S, -1, -.148, 3.38, 13, .012, .12, '#f4c152'); box(S, -1, -.148, .55, 13, .012, .1, '#f4c152'); // bus bay lines
+      if (!st) { box(S, -1, -.148, 3.38, 13, .012, .12, '#f4c152'); box(S, -1, -.148, .55, 13, .012, .1, '#f4c152'); } // bus bay lines
       // far side (lit by the morning sun): shops, flats, and Bruno's Gym at x = 27
       house({ style: 'plaster', x: -34, z: -13.2, w: 11, d: 10, floors: 2, tint: PAL.oldTown[5], roof: 'hip', roofColor: C(PAL.terracotta[4]) });
       house({ style: 'brick', x: -22.5, z: -13.2, w: 11, d: 10, floors: 3, tint: PAL.oldTown[3], roof: 'hip', roofColor: C(PAL.terracotta[2]), shop: true, awning: PAL.awning[4] });
-      house({ style: 'plaster', x: -11, z: -13.2, w: 11, d: 10, floors: 3, tint: PAL.oldTown[0], roof: 'hip', roofColor: C(PAL.terracotta[0]), shop: true, awning: PAL.awning[0] });
-      house({ style: 'apartment', x: .6, z: -13.2, w: 11.4, d: 10, floors: 4, tint: PAL.apartment[1], roof: 'flat' });
-      house({ style: 'plaster', x: 11.4, z: -13.2, w: 9.4, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true, awning: PAL.awning[5] });
+      if (keep.far(-11)) house({ style: 'plaster', x: -11, z: -13.2, w: 11, d: 10, floors: 3, tint: PAL.oldTown[0], roof: 'hip', roofColor: C(PAL.terracotta[0]), shop: true, awning: PAL.awning[0] });
+      if (keep.far(.6)) house({ style: 'apartment', x: .6, z: -13.2, w: 11.4, d: 10, floors: 4, tint: PAL.apartment[1], roof: 'flat' });
+      if (ot) for (const f of CL.fill) house({ style: f.style, x: f.x, z: -13.2, w: f.w, d: 10, floors: f.floors, tint: PAL.oldTown[f.tint], roof: 'hip', roofColor: C(PAL.terracotta[f.roof]), shop: true, awning: PAL.awning[2] });
+      if (keep.far(11.4)) house({ style: 'plaster', x: 11.4, z: -13.2, w: 9.4, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true, awning: PAL.awning[5] });
       house({ style: 'brick', x: 27, z: -13.2, w: 10, d: 10, floors: 2, tint: '#c9653d', roof: 'flat', shop: true, shopTint: C('#f4e4c4') });
       house({ style: 'plaster', x: 37.6, z: -13.2, w: 10.4, d: 10, floors: 3, tint: PAL.oldTown[2], roof: 'hip', roofColor: C(PAL.terracotta[3]), shop: true, awning: PAL.awning[1] });
       house({ style: 'apartment', x: 49, z: -13.2, w: 11.6, d: 10, floors: 4, tint: PAL.apartment[0], roof: 'flat' });
       house({ style: 'plaster', x: 61, z: -13.2, w: 11, d: 10, floors: 3, tint: PAL.oldTown[6], roof: 'hip', roofColor: C(PAL.terracotta[5]) });
       // near side (behind the station, seen from the road and in the dive)
-      const near = [[-30, 12, 2, 4, 'plaster'], [-17, 12, 3, 7, 'brick'], [-4, 13, 2, 2, 'plaster'], [9.5, 13, 3, 1, 'plaster'], [23, 13, 2, 6, 'brick'], [36, 12, 3, 0, 'plaster'], [48.5, 12, 4, 0, 'apartment'], [61, 12, 3, 5, 'plaster']];
-      near.forEach(([x, w, floors, tint, style], i) => house({ style, x, z: 15.4, w, d: 10, floors, tint: style === 'apartment' ? PAL.apartment[1] : PAL.oldTown[tint], roof: style === 'apartment' ? 'flat' : 'hip', roofColor: C(PAL.terracotta[i % 6]), ry: Math.PI, shop: i % 2 === 0, awning: PAL.awning[(i + 2) % 6] }));
-      c.skyline(-50); c.plinth(-70, 21.9, -8.12); c.plinth(32.1, 110, -8.12);
-      picto('bread', -11, 4.6, -8.14); picto('cup', 11.4, 4.6, -8.14); picto('flower', -22.5, 4.6, -8.14); picto('book', 37.6, 4.6, -8.14);
+      const nearRow = [[-30, 12, 2, 4, 'plaster'], [-17, 12, 3, 7, 'brick'], [-4, 13, 2, 2, 'plaster'], [9.5, 13, 3, 1, 'plaster'], [23, 13, 2, 6, 'brick'], [36, 12, 3, 0, 'plaster'], [48.5, 12, 4, 0, 'apartment'], [61, 12, 3, 5, 'plaster']];
+      nearRow.forEach(([x, w, floors, tint, style], i) => keep.near(x) && house({ style, x, z: 15.4, w, d: 10, floors, tint: style === 'apartment' ? PAL.apartment[1] : PAL.oldTown[tint], roof: style === 'apartment' ? 'flat' : 'hip', roofColor: C(PAL.terracotta[i % 6]), ry: Math.PI, shop: i % 2 === 0, awning: PAL.awning[(i + 2) % 6] }));
+      c.skyline(-50); if (ot) { c.plinth(-70, -16.5, -8.12); c.plinth(6.3, 21.9, -8.12); } else c.plinth(-70, 21.9, -8.12); c.plinth(32.1, 110, -8.12);
+      if (!ot) picto('bread', -11, 4.6, -8.14); picto('cup', 11.4, 4.6, -8.14); picto('flower', -22.5, 4.6, -8.14); picto('book', 37.6, 4.6, -8.14);
       // the big city: hazy towers far down the street, and a second row of roofs behind both sides
       const tw = [[96, -30, 11, 46], [108, -10, 12, 74], [120, -28, 13, 58], [102, 20, 11, 42], [118, 14, 14, 92], [132, -6, 12, 66], [92, 34, 10, 34], [136, 26, 12, 50], [146, -22, 14, 84], [128, 40, 12, 60], [112, -46, 12, 52]];
       for (const [x, z, w, h] of tw) { const col = ['#8ea9c6', '#9db4cc', '#86a2c0'][Math.round(x) % 3]; box(S, x, 0, z, w, h, w, col); box(S, x, h, z, w * .6, h * .1, w * .6, col); for (let y = 6; y < h - 2; y += 4) box(S, x - w / 2 - .03, y, z, .06, 1.9, w * .86, '#6f8db0'); cyl(S, x, h * 1.1, z, .12, 5, '#9aa8b6', P.cyl6); }
       for (let k = 0; k < 13; k++) { const x = -52 + k * 10; box(S, x, 0, 29, 9, 8 + (k * 5 % 4) * 2, 8, ['#d9cdb8', '#cfd6d9', '#e0cdb4'][k % 3]); box(S, x, 8 + (k * 5 % 4) * 2, 29, 9.4, .5, 8.4, '#c08a66'); box(S, x + 2, 0, -29, 9, 9 + (k * 7 % 4) * 2, 8, ['#e0cdb4', '#d9cdb8', '#cfd6d9'][k % 3]); box(S, x + 2, 9 + (k * 7 % 4) * 2, -29, 9.4, .5, 8.4, '#b97a5c'); }
 
       // ---- the bus station: glass shelter with a route sign, bench, timetable, stop pole, ticket machine
+      if (!st) {
       const sx = -1.5, sz = 6.1; c.shade(sx, sz - .3, 4.6, 2.2);
       for (const x of [sx - 2.05, sx, sx + 2.05]) box(S, x, 0, sz + .55, .09, 2.55, .09, '#3d4654');
       for (const x of [sx - 2.05, sx + 2.05]) box(S, x, 0, sz - .75, .07, 2.5, .07, '#3d4654');
@@ -64,14 +71,15 @@
       sign('route', sx, 2.47, sz - .915, 2.4, .2, 0);
       cyl(S, 5.2, 0, 3.95, .05, 2.9, '#8f98a4', P.cyl6); S.add(P.cyl12, M(5.2, 2.62, 3.99, .36, .06, .36, 0, Math.PI / 2), C('#2f6fc0')); box(S, 5.2, 2.56, 4.07, .44, .14, .02, '#ffffff'); box(S, 5.2, 2.72, 4.07, .14, .2, .02, '#ffffff');
       box(S, 5.2, 1.45, 4.0, .5, .7, .05, '#f3ead8'); box(S, 5.2, 1.95, 4.03, .44, .13, .02, '#2f6fc0'); for (let k = 0; k < 4; k++) box(S, 5.2, 1.53 + k * .1, 4.03, .38, .03, .01, '#9aa5b1');
+      }
       c.shade(-4.7, 6.2, .9, .8); box(S, -4.7, 0, 6.3, .62, 1.55, .42, '#2f6fc0'); box(S, -4.7, 1.0, 6.08, .44, .3, .02, '#12151b'); box(S, -4.7, .72, 6.08, .3, .12, .02, '#f4c152'); box(S, -4.7, 1.55, 6.3, .7, .08, .5, '#254f86'); // ticket machine
-      bin(-6.0, 6.5); planter(7.6, 8.9, 1.6); planter(-9.4, 8.9, 1.6); planter(13, 8.9);
+      if (keep.bin(-6.0, 6.5)) bin(-6.0, 6.5); planter(7.6, 8.9, 1.6); planter(-9.4, 8.9, 1.6); planter(13, 8.9);
       // street furniture along the walk
-      for (const x of [-22, -9, 8.5, 13.4, 31.5, 44]) lamp(x, 4.15); for (const x of [-15, 2, 16, 33.6, 46]) lamp(x, -4.15);
+      for (const x of [-22, -9, 8.5, 13.4, 31.5, 44]) if (keep.lamp(x, 4.15)) lamp(x, 4.15); for (const x of [-15, 2, 16, 33.6, 46]) if (keep.lamp(x, -4.15)) lamp(x, -4.15);
       tree(-14, 5.6); tree(11.6, 5.4, 4.4); tree(28, 5.6, 4.2); tree(40, 5.5); tree(-26, 5.6, 4.3); tree(-6.4, -5.4); tree(6.6, -5.3, 4.3); tree(17.4, -5.4, 4.5); tree(34.6, -5.4, 4.2); tree(44, -5.4);
-      bin(14.6, 8.6); bin(31.3, -7.3); planter(21.4, -7.6, 1.5); planter(32.9, -7.6); planter(-2.4, -7.6, 1.5); planter(16.8, 8.9);
+      if (keep.bin(14.6, 8.6)) bin(14.6, 8.6); bin(31.3, -7.3); planter(21.4, -7.6, 1.5); planter(32.9, -7.6); planter(-2.4, -7.6, 1.5); planter(16.8, 8.9);
       for (const x of [19.7, 24.7]) { bollard(x, 4.0); bollard(x, -4.0); }
-      car(-16, -2.45, '#3b7dd8', -1); car(8.4, -2.45, '#f4f1ea', -1); car(35.5, -2.45, '#45b39d', -1); car(30, 2.45, '#d9473b', 1); car(44, 2.45, '#f2b632', 1);
+      car(-16, -2.45, '#3b7dd8', -lane); car(8.4, -2.45, '#f4f1ea', -lane); car(35.5, -2.45, '#45b39d', -lane); car(30, 2.45, '#d9473b', lane); car(44, 2.45, '#f2b632', lane); // parked with the traffic
       // newspaper stand and cafe tables on the near pavement (things to walk past)
       box(S, 10.2, 0, 8.7, 1.5, 1.0, .5, '#3c7fc0'); box(S, 10.2, 1.0, 8.7, 1.6, .06, .6, '#254f86'); for (let k = 0; k < 4; k++) box(S, 9.65 + k * .37, .25, 8.42, .3, .5, .03, ['#f7f0dc', '#e63946', '#f4c152', '#f7f0dc'][k]);
       for (const x of [16.2, 18.2]) { c.shade(x, 8.4, 1.3, 1.3); cyl(S, x, 0, 8.4, .04, .72, '#3d4654', P.cyl6); cyl(S, x, .72, 8.4, .42, .04, '#f7f0dc', P.cyl12); cyl(S, x, 0, 8.4, .22, .03, '#3d4654', P.cyl8); for (const d of [-.65, .65]) { box(S, x + d, 0, 8.4, .36, .45, .36, '#c9653d'); box(S, x + d + Math.sign(d) * .17, .45, 8.4, .04, .42, .36, '#c9653d'); } }
@@ -89,6 +97,7 @@
       c.shade(gx + 3.3, gz + .9, 1.9, .8); box(S, gx + 3.3, .4, gz + .8, 1.6, .06, .4, '#9a7350'); for (const d of [-.7, .7]) box(S, gx + 3.3 + d, 0, gz + .8, .06, .4, .36, '#3d4654');
       planter(gx - 2.2, gz + .9); planter(gx + 2.0, gz + .9);
 
+      if (!city?.bus) {
       // ---- the bus: two-tone body, a real door well at the front door, sliding door leaves, wheels, lights, route boards
       const B = new K.Batch(), glass = '#33485c', shine = '#587891', dark = '#2a2f38', low = '#f0b429', up = '#f7f0dc';
       box(B, 0, .004, 0, 11.6, .01, 3.1, '#3f4551'); // contact shade on the road
@@ -107,6 +116,8 @@
       const BS = new K.Batch({ uv: true }); sign('route', -.4, 1.0, 1.262, 2.0, .42, 0, BS); sign('route', 5.45, 2.66, 0, 1.8, .36, Math.PI / 2, BS);
       const boards = new THREE.Mesh(BS.geometry(), c.signMat); bus.add(boards); c.disposables.push(boards.geometry);
       objects.doors = [-1, 1].map(s => { const D = new K.Batch(); box(D, 0, .44, 0, .6, 2.0, .04, dark); box(D, 0, .62, .012, .46, 1.7, .03, glass); box(D, s * -.27, 1.2, .04, .03, .5, .03, '#f4c152'); const m = movable(D, 'bus door'); c.S && bus.add(m); m.position.set(3.75 + s * .3, 0, 1.27); m.userData.shut = 3.75 + s * .3; m.userData.open = 3.75 + s * .93; return m; });
+      }
+      if (city) objects.city = window.CityAssets.dress(c, city); // after the generated pieces: objects.bus becomes the model's wrapper
       return { x: 2, z: 3, r: 16 };
     });
 

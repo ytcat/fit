@@ -1,0 +1,194 @@
+{
+ "name": "film-fallback",
+ "viewport": [
+  402,
+  690
+ ],
+ "blocked": true,
+ "city": {
+  "bus": "failed",
+  "station": "failed",
+  "oldtown": "failed"
+ },
+ "glbRequests": [
+  "gloryland-bus.glb",
+  "gloryland-station.glb",
+  "gloryland-oldtown.glb",
+  "gloryland-bus.glb",
+  "gloryland-station.glb",
+  "gloryland-oldtown.glb",
+  "gloryland-bus.glb",
+  "gloryland-station.glb",
+  "gloryland-oldtown.glb"
+ ],
+ "frames": [
+  {
+   "label": "dive",
+   "phase": "map",
+   "calls": 30,
+   "triangles": 194127,
+   "t": 0,
+   "city": false,
+   "fighter": [
+    0,
+    0,
+    0
+   ],
+   "bus": -62
+  },
+  {
+   "label": "sky",
+   "phase": "play",
+   "calls": 8,
+   "triangles": 19406,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 0,
+   "city": false,
+   "t": 3.1,
+   "fighter": null,
+   "bus": -25.96
+  },
+  {
+   "label": "arrives",
+   "phase": "play",
+   "calls": 12,
+   "triangles": 20774,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 0,
+   "city": false,
+   "t": 6.15,
+   "fighter": null,
+   "bus": -1.58
+  },
+  {
+   "label": "step-off",
+   "phase": "play",
+   "calls": 72,
+   "triangles": 362836,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 0,
+   "city": false,
+   "t": 9.1,
+   "fighter": [
+    2.75,
+    0,
+    3.993
+   ],
+   "bus": -1
+  },
+  {
+   "label": "face",
+   "phase": "play",
+   "calls": 67,
+   "triangles": 351676,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 1,
+   "city": false,
+   "t": 11.5,
+   "fighter": [
+    2.75,
+    0,
+    4.5
+   ],
+   "bus": 1.5
+  },
+  {
+   "label": "street",
+   "phase": "play",
+   "calls": 62,
+   "triangles": 337328,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 2,
+   "city": false,
+   "t": 14.5,
+   "fighter": [
+    2.75,
+    0,
+    4.5
+   ],
+   "bus": 45.87
+  },
+  {
+   "label": "walk",
+   "phase": "play",
+   "calls": 68,
+   "triangles": 361468,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 3,
+   "city": false,
+   "t": 18.1,
+   "fighter": [
+    6.347,
+    0,
+    6.319
+   ],
+   "bus": 70
+  },
+  {
+   "label": "ahead",
+   "phase": "play",
+   "calls": 68,
+   "triangles": 361468,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 4,
+   "city": false,
+   "t": 21.5,
+   "fighter": [
+    18.275,
+    0,
+    7.1
+   ],
+   "bus": 70
+  }
+ ],
+ "afterStop": {
+  "playing": null,
+  "geometries": 168,
+  "textures": 18
+ },
+ "log": [
+  "warning [.WebGL-0x15e4015bac00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x15e4015bac00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x15e4015bac00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x15e4015bac00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+  "warning city asset bus [object ProgressEvent]",
+  "error Failed to load resource: net::ERR_FAILED",
+  "warning city asset station [object ProgressEvent]",
+  "error Failed to load resource: net::ERR_FAILED",
+  "warning city asset oldtown [object ProgressEvent]",
+  "error Failed to load resource: net::ERR_FAILED",
+  "warning city asset bus [object ProgressEvent]",
+  "error Failed to load resource: net::ERR_FAILED",
+  "warning city asset station [object ProgressEvent]",
+  "error Failed to load resource: net::ERR_FAILED",
+  "warning city asset oldtown [object ProgressEvent]",
+  "error Failed to load resource: net::ERR_FAILED",
+  "warning city asset bus [object ProgressEvent]",
+  "error Failed to load resource: net::ERR_FAILED",
+  "warning city asset station [object ProgressEvent]",
+  "error Failed to load resource: net::ERR_FAILED",
+  "warning city asset oldtown [object ProgressEvent]",
+  "error Failed to load resource: net::ERR_FAILED"
+ ]
+}

@@ -121,9 +121,36 @@
     const lower = A().metrics[r.mission.metric]?.lower, stars = lower && !r.ended ? 0 : A().starsFor(r.id, r.value), key = r.id + '|' + r.value + '|' + lang();
     if (r.paintKey === key) return; r.paintKey = key;
     const shown = A().metrics[r.mission.metric].lower ? r.value : Math.min(r.value, r.target);
-    r.ui.txt.textContent = lower ? `${goalText(r.id, r.target)} · ${r.value > 9 ? '9+' : r.value}` : `${goalText(r.id, r.target)} · ${r.value >= r.target ? r.target : shown}/${r.target} · ${starsText(stars)}`;
+    r.ui.txt.textContent = lower ? `${goalText(r.id, r.target)} · ${r.value > 9 ? '9+' : r.value}` : `${goalText(r.id, r.target)} · ${r.value >= r.target ? r.target : shown}/${r.target}\u00a0·\u00a0${starsText(stars)}` /* GOTR-0086: counter and stars wrap together */;
     r.ui.fillBar.style.width = (lower ? 100 * (1 - Math.min(1, r.value / (r.mission.thresholds[0] + 1))) : Math.min(100, 100 * r.value / r.target)).toFixed(0) + '%';
-    r.ui.root.dataset.stars = String(stars);
+    r.ui.root.dataset.stars = String(stars); placeStrip(true);
+  }
+  // GOTR-0086: the goal line goes where it covers nothing: not the Fighter's head and body (projected head joint with a margin for
+  // the mane and ears, down to hands and hips), not the edge tools, the training cue or the power gauge. It wraps to two lines instead of being cut with "…".
+  // Tried in order: the HUD status line, the very top of the stage, then lower bands in the upper half.
+  function headBox(host) {
+    const e = window.app?.engine, T = window.THREE, j = e?.coach?.joints?.head; if (!T || !j || !e.camera || e.coach.root?.visible === false) return null;
+    const c = (e.renderer?.domElement || host).getBoundingClientRect(), h = j.getWorldPosition(new T.Vector3());
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const [dx, dy, dz] of [[-.3, 0, 0], [.3, 0, 0], [0, 0, -.3], [0, 0, .3], [0, .34, 0], [0, -.24, 0]]) { const q = h.clone().add(new T.Vector3(dx, dy, dz)).project(e.camera); const x = c.left + (q.x + 1) / 2 * c.width, y = c.top + (1 - q.y) / 2 * c.height; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    // the body below it as well (hands, chest, hips), so a lower band never crosses the torso
+    for (const n of ['handL', 'handR', 'chest', 'hips']) { const jn = e.coach.joints[n]; if (!jn) continue; const q = jn.getWorldPosition(new T.Vector3()).project(e.camera); const x = c.left + (q.x + 1) / 2 * c.width, y = c.top + (1 - q.y) / 2 * c.height; x0 = Math.min(x0, x - 12); x1 = Math.max(x1, x + 12); y1 = Math.max(y1, y); }
+    return Number.isFinite(x0) ? { left: x0, right: x1, top: y0, bottom: y1 } : null;
+  }
+  let placedAt = 0;
+  function placeStrip(force) {
+    const g = document.getElementById('advGoal'), host = g?.parentElement; if (!g || host?.id !== 'stageContainer') return;
+    const now = performance.now(); if (!force && now - placedAt < 300) return; placedAt = now;
+    const hb = host.getBoundingClientRect(), avoid = [], hd = headBox(host); if (hd) avoid.push(hd);
+    // the stage's own buttons and top-band chips, and the edge tools (modes button, Auto / timer / settings) that live in #gameModes
+    for (const el of [...host.querySelectorAll('button, .career-drill-cue, .gr-power-gauge, .bout-announcement, #fightHud'), ...document.querySelectorAll('#gameModes .gm-fab, #gameModes .gm-tool')]) {
+      if (g.contains(el) || el.hidden || !el.getClientRects().length || getComputedStyle(el).visibility === 'hidden') continue;
+      const r = el.getBoundingClientRect(); if (r.width && r.height && r.top < hb.top + hb.height * .55) avoid.push(r);
+    }
+    const gr = g.getBoundingClientRect(), h = gr.height || 24, base = parseFloat(getComputedStyle(host).getPropertyValue('--hud-status-top')) || 58;
+    const free = y => { const t = hb.top + y, b = t + h; return !avoid.some(r => gr.left < r.right && gr.right > r.left && t < r.bottom + 2 && b > r.top - 2); };
+    const cands = [base, 6]; for (let y = 6; y < hb.height * .5; y += 8) cands.push(y);
+    g.style.top = (cands.find(free) ?? 6) + 'px';
   }
   // Wrapped once: engine.onImpact (every contact), career.onFrame (every frame, with its dt), career.onFight (fight state each frame).
   function hook() {
@@ -143,7 +170,7 @@
     };
   }
   function tickRun(frame, dt) {
-    const r = run, d = r.def, e = window.app.engine;
+    const r = run, d = r.def, e = window.app.engine; placeStrip();
     if (d.kind === 'training') {
       d.frame?.(r, frame, dt); paintStrip();
       const a = e.career.active;
@@ -551,6 +578,7 @@
     const g = ctx.store.game(), pid = ctx.store.current()?.id, key = 'gotr.adv.intro.' + pid, first = SF()?.find('dream_arrival');
     if (!g || !first || lsGet(key) === '1' || lsGet('gotr.adv.nointro') === '1' /* QA scripts */ || A().missions.some(m => starsOf(g, m.id)) || A().bossWon(g, 'brick') || SF().doneOf(g, first)) return false;
     lsSet(key, '1');
+    window.CityAssets?.preload(); // GOTR-0089: the street models download while the rig gets ready (never blocks the film)
     // The film needs the Fighter's rig: on a cold start wait for it (up to 60 s) instead of skipping the film.
     const play = (k = 0) => { if (!window.app?.engine?.coach?.anatomy && k < 120) { setTimeout(() => play(k + 1), 500); return; } launch(gameCtx(), 'dream_arrival'); };
     play();
