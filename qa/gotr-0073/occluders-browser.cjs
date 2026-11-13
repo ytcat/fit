@@ -1,6 +1,6 @@
 // GOTR-0073 browser evidence: every station and the fight at 402x690 (tall phone), side lock off and on.
-// For the default view and 12 orbit steps it counts the scenery meshes that real ray casts (camera -> head, chest, feet of
-// each figure, target centre) hit, with the occlusion guard switched off ("before") and on ("after"), and saves a
+// For the default view and 12 orbit steps it counts the scenery meshes that real ray casts (camera -> head, chest, hips, hands, knees, feet
+// of each figure, target centre) hit, with the occlusion guard switched off ("before") and on ("after"), and saves a
 // before/after picture of the most blocked view per station. Static server at APP_URL (default :8931). SHOTS=dir.
 const { chromium } = require('playwright'), assert = require('node:assert/strict');
 const URL = process.env.APP_URL || 'http://127.0.0.1:8931/', SHOTS = process.env.SHOTS || __dirname, ONLY = (process.env.ONLY || '').split(',').filter(Boolean);
@@ -8,7 +8,7 @@ const wait = (p, f, a, t = 300000) => p.waitForFunction(f, a, { timeout: t });
 const probe = () => { const e = app.engine, g = e.occlusionGuard || window.__guard, list = []; e.scene.updateMatrixWorld(true);
   for (const root of [e.world.gym, e.world.arena]) root.traverseVisible(n => { if (n.isMesh && n.layers.mask !== 0) list.push(n); });
   const rc = new THREE.Raycaster(), from = e.camera.getWorldPosition(new THREE.Vector3()), names = new Set();
-  for (const pt of g.points()) { const d = pt.clone().sub(from), far = d.length(); rc.set(from, d.normalize()); rc.far = far - .15; for (const h of rc.intersectObjects(list, false)) names.add((h.object.name || h.object.type) + (h.instanceId !== undefined ? '#' + h.instanceId : '')); }
+  for (const pt of g.points()) { const d = pt.clone().sub(from), far = d.length(); rc.set(from, d.normalize()); rc.far = far - .32; for (const h of rc.intersectObjects(list, false)) names.add((h.object.name || h.object.type) + (h.instanceId !== undefined ? '#' + h.instanceId : '')); }
   return { blocked: [...names], hidden: g.hidden.size, points: g.points().length, lock: e.cameraDirector.mode, yaw: +e.viewControls.yaw.toFixed(2) }; };
 (async () => {
   const b = await chromium.launch({ args: ['--no-sandbox', '--enable-unsafe-swiftshader'] }), report = {};
@@ -25,7 +25,7 @@ const probe = () => { const e = app.engine, g = e.occlusionGuard || window.__gua
     const guardOn = on => p.evaluate(on => { const e = app.engine; if (on) e.occlusionGuard = window.__guard; else { window.__guard.release(); e.occlusionGuard = null; } e.lastRenderStamp = null; }, on);
     const settle = async (ms = 900) => { await p.evaluate(() => { app.engine.lastRenderStamp = null; }); await p.waitForTimeout(ms); };
     for (const mode of ['none', 'heavy', 'dummy', 'pads', 'speed', 'rope', 'rabbit', 'fight'].filter(m => !ONLY.length || ONLY.includes(m))) {
-      if (mode === 'fight') { await p.evaluate(() => { GameModes.toggle(true); document.querySelector('.gm-item[data-mode="fight"]').click(); }); await wait(p, () => document.querySelector('dialog.fight-dialog[open] [data-fight-preset="quick"]'), null, 60000); await p.evaluate(() => document.querySelector('dialog.fight-dialog[open] [data-fight-preset="quick"]').click()); await wait(p, () => app.engine.arena?.fightView && app.engine.cameraDirector.mode !== 'intro', null, 120000); await p.waitForTimeout(1500); }
+      if (mode === 'fight') { await p.evaluate(() => { GameModes.toggle(true); document.querySelector('.gm-item[data-mode="fight"]').click(); }); await wait(p, () => document.querySelector('dialog.fight-dialog[open] [data-fight-preset="quick"]'), null, 60000); await p.evaluate(() => document.querySelector('dialog.fight-dialog[open] [data-fight-preset="quick"]').click()); await wait(p, () => app.engine.arena?.fightView, null, 120000); await p.waitForTimeout(1500); await p.evaluate(() => app.engine.cameraDirector.skipIntro()); await p.waitForTimeout(1500); }
       else await p.evaluate(m => { trainingControls.chooseTarget(m); const e = app.engine; if (m !== 'rope') e.player?.setEnabled(true); e.isPlaying = true; }, mode);
       await p.waitForTimeout(2500);
       for (const lock of [false, true]) {
