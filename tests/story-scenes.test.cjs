@@ -26,9 +26,9 @@ for (const [id, scene] of Object.entries(S.scenes)) {
   const end = S.sample(scene, scene.duration + 3); assert.equal(end.done, true, id + ' ends'); assert.equal(S.sample(scene, 0).done, false);
 }
 const arr = S.scenes.arrival;
-assert.equal(arr.set, 'busstop'); assert.equal(arr.actors.pip.mitts, true, 'Coach Pip holds the mitts');
+assert.equal(arr.set, 'busstop'); assert.equal(arr.place, 'street'); assert.ok(!arr.actors.pip.mitts, 'no boxing gear on the street (GOTR-0078 clothes rule)');
 assert.ok(S.sample(arr, 0).props.bus[0] < 1 && S.sample(arr, 4).props.bus[0] > 25, 'the bus pulls away');
-assert.equal(S.sample(arr, 3).actors.fighter.act, 'shadow', 'the Fighter shadowboxes at the stop');
+assert.equal(S.sample(arr, 3).actors.fighter.act, 'idle', 'the Fighter waits at the stop like anyone else (no boxing on the street)');
 assert.equal(S.sample(arr, 3).actors.pip.walking, true, 'Pip walks over');
 const pipEnd = S.sample(arr, 6).actors.pip, fEnd = S.sample(arr, 6).actors.fighter;
 assert.ok(Math.hypot(pipEnd.x - fEnd.x, pipEnd.z - fEnd.z) > 1.2 && Math.hypot(pipEnd.x - fEnd.x, pipEnd.z - fEnd.z) < 2.2, 'Pip stops at talking distance');

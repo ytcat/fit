@@ -77,7 +77,16 @@
     else c.update(phase * 1.22, move, 'one_two', { ...base, guardCover: 1, power, recoil: 0, advance: 0, contactDrive: 0 });
   }
   /** Poses one rig from an actor state: act + walking (procedural boxer's step through the controller's ringStep). Returns a hop height. */
+  const everyT = new WeakMap();
+  const CIVIL = { idle: {}, wave: { R: 'wave' }, point: { R: 'point' }, laugh: { L: 'hips', R: 'hips' }, block: { L: 'cross', R: 'cross2' }, flex: { R: 'fist' }, mitts: { L: 'open', R: 'open' } };
+  /** Owner's rule: outside a fight or drill moment a character stands, walks and talks like a person (DreamPose), never in the guard. */
+  function everyday(c, a, t, o) {
+    const P = window.DreamPose, fight = Core().FIGHT_ACTS.includes(a.act); if (!P || fight || ['carry', 'sleep', 'down'].includes(a.act)) return false;
+    const last = everyT.get(c), dt = last != null && t > last && t - last < .2 ? t - last : 0; everyT.set(c, t); // own clock: gestures and the start and stop of a walk ease in
+    P.civil(c, { t, dt, dist: a.dist ?? (a.stepPhase || 0) * P.STRIDE, walk: a.walking ? 1 : 0, arms: a.walking && a.act !== 'idle' && !(a.act in CIVIL) ? {} : CIVIL[a.act] || {}, nod: a.act === 'laugh' ? 1 : 0, talk: o.talking ? 1 : null }); return true;
+  }
   function pose(c, a, t, o = {}) {
+    if (everyday(c, a, t, o)) return a.act === 'laugh' && !o.reduced ? .012 * Math.abs(Math.sin(a.actT * 12)) : 0;
     const base = { simulationTime: t, keepFaceClear: true, ...o.options }, act = a.act, relaxed = { mode: 'waiting', raise: 0 };
     if (a.walking) base.ringStep = { first: -1, phase: a.stepPhase, ease: a.stepPhase, weight: 1, turn: 0, delta: [0, 0, Core().STEP] };
     let y = 0;
@@ -153,7 +162,7 @@
     if (a && age < dur && a.k !== 'up' && !o.still) {
       const move = { straight: a.n % 2 ? 'jab' : 'cross', hook: 'hook', uppercut: 'uppercut', left: 'slip', down: 'roll', right: 'slip' }[a.k];
       pose(c, { act: 'move', move, phase: Math.min(.97, .14 + age / dur * .8) }, x.t, { options: { defenceSide: a.k === 'right' ? 1 : -1, guardCover: 1, power: 1.2, recoil: 0, advance: 0, contactDrive: 0 } });
-    } else pose(c, { act: 'guard', walking: !!o.walking, stepPhase: o.stepPhase || 0 }, x.t);
+    } else { const hot = !!(x.view?.prompt || x.view?.canReflect || x.view?.open || (a && age < 1.0)) && !x.over; pose(c, { act: hot ? 'guard' : 'idle', walking: !!o.walking, stepPhase: o.stepPhase || 0 }, x.t); } // guard only in the fight moment
     const fl = x.view.flash, hurt = fl && ['bagged', 'splash'].includes(fl.type) ? Math.max(0, 1 - (x.view.t - fl.t) / .45) : 0;
     if (hurt && !x.reduced) { c.root.rotation.z = .08 * Math.sin(x.t * 30) * hurt; c.root.updateMatrixWorld(true); }
   }
@@ -254,7 +263,7 @@
       frame(x, v) {
         const f = x.rigs.fighter, rc = x.rigs.raccoon, X0 = -1.4, cell = p => ({ x: X0 + p.c * 1.15, z: -2.0 + p.r * .8 }), F = cell(v.f), Rc = cell(v.rc), o = x.set.objects;
         x.place(f, { ...F, ry: Math.atan2(Rc.x - F.x, Rc.z - F.z) }); x.place(rc, { ...Rc, ry: Math.atan2(Rc.x - F.x, Rc.z - F.z) + (v.options ? 0 : Math.PI) });
-        pose(f, { act: 'guard', walking: v.f.moving, stepPhase: v.f.k }, x.t);
+        pose(f, { act: 'idle', walking: v.f.moving, stepPhase: v.f.k }, x.t); // a chase on foot, not a fight
         const caught = v.flash && v.flash.type === 'catch' && v.t - v.flash.t < .8;
         pose(rc, caught || x.over ? { act: 'down', actT: 1 } : { act: 'idle', walking: v.rc.moving, stepPhase: v.rc.k }, x.t);
         for (const [m, z] of [[o.crate, -1.7], [o.crate2, .5]]) { m.visible = true; m.position.set(X0 - 1.15, 0, z); } o.bar.visible = true; o.bar.position.set(X0 - 1.15, 0, -.4);
@@ -303,7 +312,8 @@
     const run = { id, closed: false, t: 0, ui, host: ui.host, edge: 0 };
     current = run;
     let set = null, scene = null, camera = null, borrowed = [], mitts = [], rigs = {}, sim = null, stageMove = null, oldFit = null, finished = false, blobs = [];
-    let memo = {}, hard = !!opts.hard, acts = 0; const look = V(), extras = [];
+    let memo = {}, hard = !!opts.hard, acts = 0; const look = V(), extras = [], dressed = [];
+    const placeKind = C.placeOf(game || scene0), wear = C.outfitFor(placeKind); run.place = placeKind; run.wear = wear;
     const finish = (result = {}) => {
       if (run.closed) return; run.closed = true; if (current === run) current = null;
       try { cleanup(); } catch (x) { console.warn('story', x); }
@@ -315,6 +325,7 @@
       if (e.fightIQDemo === run) e.fightIQDemo = null;
       for (const m of mitts) window.TrainingGear?.dispose(m); mitts = [];
       for (const m of extras) { scene?.remove(m); m.material?.dispose(); } if (extras.length) extras[0].geometry.dispose(); extras.length = 0;
+      for (const c of dressed) { window.StoryCast?.outfit(c, 'kit'); window.DreamPose?.reset(c); } dressed.length = 0;
       for (const b of borrowed) giveBack(b); borrowed = [];
       for (const b of blobs) { scene?.remove(b.mesh); } if (blobs.length) { blobs[0].mesh.geometry.dispose(); blobs[0].mesh.material.map.dispose(); blobs[0].mesh.material.dispose(); } blobs = [];
       set?.dispose(); set = null;
@@ -347,7 +358,8 @@
       for (const [key, a] of Object.entries(game ? game.roles : scene0.actors)) {
         const c = rigFor(a.rig || key, e, borrowed.map(b => b.c));
         borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.root.scale.set(-1, 1, 1); /* GOTR-0074: fighters are mirrored at the root; a plain scale of 1 tears the skin */ c.maneInitialized = false; rigs[key] = c;
-        if (a.mitts && window.TrainingGear) mitts.push(window.TrainingGear.mitt(c, 'L'), window.TrainingGear.mitt(c, 'R'));
+        window.DreamPose?.reset(c); if (window.StoryCast) { window.StoryCast.outfit(c, wear, { tint: looks[a.rig || key]?.shorts }); dressed.push(c); } // clothes follow the place (kit and gloves only in the gym and the ring)
+        if (a.mitts && window.TrainingGear && wear === 'kit') mitts.push(window.TrainingGear.mitt(c, 'L'), window.TrainingGear.mitt(c, 'R'));
       }
       if (game) { sim = game.make(Trials(), { hard }); run.intro = opts.noIntro ? 0 : 3; }
       // Soft contact shade under every character: keeps feet on the ground when the device has turned shadows off.

@@ -30,6 +30,8 @@
     cross: { h: [-.105, 1.36, .255], pole: [.8, -.75, .2], palm: [0, 0, -1], turn: .7 },   // arms folded
     cross2: { h: [-.14, 1.305, .285], pole: [.8, -.75, .2], palm: [0, 0, -1], turn: .7 },
     pound: { h: [.075, 1.36, .33], pole: [.85, -.6, 0], palm: [-1, 0, 0], turn: .5 },      // glove into glove
+    shrug: { h: [.36, 1.16, .2], pole: [.9, -.5, -.3], palm: [0, 1, .2], turn: .9 },         // both palms out: "what can I say"
+    wave: { h: [.40, 1.93, .12], pole: [1, -.3, -.2], palm: [0, 0, 1], turn: .5 },           // hand up: hello
     low: { h: [.30, 1.02, .16], pole: [.4, -.3, -1], palm: [-1, 0, 0], turn: .4 },         // offering a hand low
     carry: { h: [.31, .93, .06], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 }       // straight arm with a weight (bag handles)
   };
@@ -60,7 +62,8 @@
       plans.push({ side, s, x: lerp(sx, g.x, w), y: lerp(sy, g.y, w), z: lerp(sz, g.z, w), pitch: g.pitch * w, yaw: s * lerp(st.toes ?? .16, .07, w), planted: g.planted });
     }
     // pelvis: turns with the swinging leg, rolls onto the stance leg, rides as high as the legs allow
-    const hips = j.hips, yaw = .11 * sw * w, sway = (-.022 * sw) * w + .012 * shift;
+    const hips = j.hips, yaw = .11 * cw * w, // the hip of the leading leg comes forward
+       sway = (-.022 * sw) * w + .012 * shift;
     hips.rotation.set(0, yaw, .035 * sw * w + .02 * shift); hips.position.set(sway, HIP, .01 * w);
     c.root.updateMatrixWorld(true);
     let y = HIP + .004 * breath * idle - (m.drop || 0);
@@ -69,8 +72,8 @@
     const stoop = c.character === 'bruno' ? .085 : 0, lean = m.lean + .035 * w + stoop; // the old champion carries his years in his back
     j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .75, -.03 * sw * w - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * .9, -.02 * sw * w - .008 * shift);
     j.neck.position.copy(c.neckRest); j.neck.rotation.set(-m.pitch * .4 - (lean - stoop * .4) * .5, m.yaw * .4 + yaw * .3, 0);
-    const nod = (st.nod || 0) * .06 * Math.sin(t * 6.5) + (st.talk || 0) * .025 * Math.sin(t * 9.1);
-    j.head.rotation.set(.03 - m.pitch * .6 - lean * .4 + nod, m.yaw * .6 + yaw * .35, (st.tilt || 0) + .012 * shift);
+    const nod = (st.nod || 0) * .06 * Math.sin(t * 6.5) + (st.talk || 0) * .025 * Math.sin(t * 9.1) + (st.listen || 0) * .05 * Math.max(0, Math.sin(t * 1.9 + 1)) ** 4;
+    j.head.rotation.set(.03 - m.pitch * .6 - lean * .4 + nod, m.yaw * .6 + yaw * .35, (st.tilt || 0) + (st.listen || 0) * .05 + .012 * shift);
     for (const side of ['L', 'R']) { const s = side === 'L' ? -1 : 1; j['scapula' + side].position.set(s * .17, .17, -.06); j['scapula' + side].rotation.set(0, 0, 0); }
     c.root.updateMatrixWorld(true);
     const footTargets = [];
@@ -83,7 +86,7 @@
     // arms: gesture targets, smoothed; while walking the hanging arm swings against its leg
     const gloves = [], handErrors = [];
     for (const side of ['L', 'R']) {
-      const s = side === 'L' ? -1 : 1, name = st.arms?.[side] || 'hang', g = GESTURES[name] || GESTURES.hang, swing = (name === 'hang' ? 1 : name === 'carry' ? .25 : 0) * w * (s < 0 ? -sw : sw);
+      const s = side === 'L' ? -1 : 1, name = st.arms?.[side] || 'hang', g = GESTURES[name] || GESTURES.hang, swing = (name === 'hang' ? 1 : name === 'carry' ? .25 : 0) * w * (s < 0 ? -1 : 1) * Math.cos((phase - .04) * tau); // the arm swings against its own leg
       const hand = mirror(g.h, s), pole = mirror(g.pole, s), palm = mirror(g.palm, s);
       hand.z += .19 * swing; hand.y += .035 * Math.abs(swing) + .004 * breath * idle; hand.x += s * (.012 * w);
       if (name !== 'hang' && name !== 'carry' && name !== 'strap' && name !== 'hips' && name !== 'cross' && name !== 'cross2') { const beat = (st.talk || 0) * Math.sin(t * 5.3 + s); hand.y += .022 * beat; hand.z += .018 * beat; } // the hand moves with the words
@@ -97,7 +100,10 @@
   }
   function civil(c, st = {}) {
     const m = memo(c), dt = st.dt > 0 && m.last >= 0 ? st.dt : 0, k = dt ? 1 - Math.exp(-dt * 7) : 1, kw = dt ? 1 - Math.exp(-dt * 10) : 1;
-    m.walk = lerp(m.walk, clamp(st.walk || 0), kw); m.yaw = lerp(m.yaw, clamp(st.look?.yaw || 0, -1.15, 1.15), k); m.pitch = lerp(m.pitch, clamp(st.look?.pitch || 0, -.5, .6), k); m.lean = lerp(m.lean, st.lean || 0, k); m.drop = lerp(m.drop, st.drop || 0, k); m.last = st.t || 0;
+    // with nothing to look at, the eyes wander: slow glances to the sides and down the street
+    const t0 = st.t || 0, seedC = c.character === 'bruno' ? 1.7 : c.character === 'brick' ? 3.1 : c.species === 'rabbit' ? 4.2 : 0, wander = st.look ? 0 : 1 - .6 * clamp(st.walk || 0);
+    const gy = wander * (.32 * Math.sin(t0 * .37 + seedC) + .16 * Math.sin(t0 * .83 + seedC * 2)), gp = wander * .06 * Math.sin(t0 * .29 + seedC);
+    m.walk = lerp(m.walk, clamp(st.walk || 0), kw); m.yaw = lerp(m.yaw, clamp((st.look?.yaw || 0) + gy, -1.15, 1.15), k); m.pitch = lerp(m.pitch, clamp((st.look?.pitch || 0) + gp, -.5, .6), k); m.lean = lerp(m.lean, st.lean || 0, k); m.drop = lerp(m.drop, st.drop || 0, k); m.last = st.t || 0;
     const t = st.t || 0, metrics = c.update(t, 'guard', 'one_two', { simulationTime: t, keepFaceClear: true, presentation: { mode: 'waiting', raise: 0 }, poseOverlay: rig => overlay(rig, { ...st, dt }, m) });
     if (st.talk != null) window.StoryCast?.talk(c, st.talk > 0 ? clamp(st.talk * (.35 + .65 * Math.abs(Math.sin(t * 11.3) * Math.sin(t * 4.1 + 1)))) : 0);
     return metrics;

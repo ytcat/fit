@@ -90,3 +90,46 @@ for (const species of ['lion', 'rabbit']) {
   }
 }
 console.log('dream scenes ok');
+
+// ---- owner's clothes rule: kit and gloves only in the gym and the ring; outside a fight people stand like people
+{
+  const S = require('../adventure/story/story-core.js'), src = fs.readFileSync('adventure/story/story-scenes.js', 'utf8');
+  const games = [...src.matchAll(/\n    (\w+): \{\n      set: '(\w+)', roles:/g)].map(m => [m[1], { set: m[2] }]);
+  assert.ok(games.length >= 5, 'trials found'); assert.ok(/StoryCast\.outfit\(c, wear/.test(src) && /C\.outfitFor\(placeKind\)/.test(src), 'the player dresses every rig for the place');
+  const everything = [...Object.entries(S.scenes), ...games, ...all];
+  const fighter = new LionCoach(data, { species: 'lion' }), other = new LionCoach(data, { species: 'rabbit' });
+  for (const [id, sc] of everything) {
+    const place = sc.place || S.placeOf(sc), wear = S.outfitFor(place); assert.ok(S.PLACES.includes(place), id + ' has a place: ' + place);
+    if (['gym', 'ring'].includes(place)) { assert.equal(wear, 'kit'); continue; }
+    assert.notEqual(wear, 'kit', id + ' (' + place + '): no boxing kit');
+    for (const c of [fighter, other]) {
+      assert.equal(StoryCast.outfit(c, wear, { tint: '#8f2f22' }), true); assert.notEqual(StoryCast.outfitOf(c), 'kit', id + ': dressed for the ' + place);
+      assert.ok(!c.gloveMeshes.L.visible && !c.gloveMeshes.R.visible && !c.shorts.visible, id + ': no gloves or trunks on the ' + place);
+    }
+    // nobody stands in the guard or punches in a scene that has no fight (scene.fight marks the three that do)
+    for (const [who, a] of Object.entries(sc.actors || {})) a.keys.forEach(k => { if (S.FIGHT_ACTS.includes(k.act)) assert.ok(sc.fight === true, id + ': ' + who + ' is in a fight act (' + k.act + ') in a scene without a fight'); });
+  }
+  for (const c of [fighter, other]) for (const wear of ['street', 'track_wraps']) {
+    StoryCast.outfit(c, wear); const m = DreamPose.civil(c, { t: 2, dist: 0 });
+    assert.ok(m.hands.every(h => h[1] < 1.2), wear + ': relaxed hands hang below the chest (not the guard): ' + m.hands.map(h => h[1].toFixed(2)));
+    const g = c.update(2, 'guard', 'one_two', { guardCover: 1 }); assert.ok(g.hands.every(h => h[1] > 1.4), 'the guard is at the chin, for contrast');
+    StoryCast.outfit(c, 'kit'); assert.ok(c.gloveMeshes.L.visible && c.shorts.visible, 'kit back');
+  }
+  assert.ok(/everyday\(c, a, t, o\)/.test(src) && /FIGHT_ACTS/.test(src), 'the player poses non-fight acts with everyday body language');
+  for (const f of fs.readdirSync('adventure/story').filter(f => f.endsWith('.js'))) new vm.Script(fs.readFileSync('adventure/story/' + f, 'utf8'), { filename: f }); // every story script parses
+  console.log('clothes rule ok:', everything.length, 'scenes and trials');
+}
+
+// ---- motion outside a fight: no guard leaking into walks, trial intros or idles; the arms swing against the legs
+{
+  const src = fs.readFileSync('adventure/story/story-scenes.js', 'utf8');
+  assert.ok(/if \(everyday\(c, a, t, o\)\) return/.test(src), 'every non-fight act goes through the everyday pose first');
+  assert.ok(/act: hot \? 'guard' : 'idle'/.test(src) && !/pose\(f, \{ act: 'guard', walking/.test(src), 'trials: the guard comes up only in the fight moment; the chase is a walk');
+  const c = new LionCoach(data, { species: 'lion' }); StoryCast.outfit(c, 'street');
+  let opposite = 0, n = 0, maxHand = 0;
+  for (let i = 0; i < 116; i++) { const dist = i * .01, m = DreamPose.civil(c, { t: i * .008, dist, walk: 1 }), footL = c.point(c.joints.footL).z, handL = m.hands[0][2] - .055; maxHand = Math.max(maxHand, m.hands[0][1], m.hands[1][1]); if (Math.abs(footL) > .12) { n++; if (Math.sign(footL) !== Math.sign(handL)) opposite++; } }
+  assert.ok(opposite / n > .85, 'the arm swings against its leg: ' + opposite + '/' + n); assert.ok(maxHand < 1.15, 'hands stay low while walking: ' + maxHand.toFixed(2));
+  DreamPose.reset(c); const a = DreamPose.civil(c, { t: 1, dist: 0 }), b = DreamPose.civil(c, { t: 5, dist: 0 }); assert.ok(a.hands.every(h => h[1] < 1.1) && b.hands.every(h => h[1] < 1.1), 'idle: arms down');
+  const y1 = c.joints.head.rotation.y; DreamPose.civil(c, { t: 9, dist: 0 }); assert.notEqual(c.joints.head.rotation.y, y1, 'idle: the head glances around');
+  console.log('motion ok');
+}

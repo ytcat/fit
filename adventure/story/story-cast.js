@@ -281,9 +281,9 @@
       const j = rig.joints, chest = new Parts(), B = (x, y, back) => seat(rig, x, y, false, .02, back);
       // towel over the left shoulder: down the chest in front, over the trapezius, down the back
       const tx = -.155, T = [], W = (y, back) => seat(rig, tx, y, false, .02, back, .08), sag = k => .012 * Math.sin(k * 2.3);
-      for (const [k, y] of [1.33, 1.39, 1.45, 1.51, 1.57, 1.63, 1.68].entries()) T.push(V(tx + sag(k), y, W(y) + .016));
-      for (const z of [.11, .04, -.04, -.11]) T.push(V(tx + .012, crest(rig, tx, z, .08, .035) + .016, z));
-      for (const [k, y] of [1.68, 1.61, 1.54, 1.47, 1.4].entries()) T.push(V(tx - sag(k), y, W(y, true) - .016));
+      for (const [k, y] of [1.33, 1.39, 1.45, 1.51, 1.57, 1.63, 1.68].entries()) T.push(V(tx + sag(k), y, W(y) + .03));
+      for (const z of [.11, .04, -.04, -.11]) T.push(V(tx + .012, crest(rig, tx, z, .09, .04) + .03, z));
+      for (const [k, y] of [1.68, 1.61, 1.54, 1.47, 1.4].entries()) T.push(V(tx - sag(k), y, W(y, true) - .03));
       const TL = T.map(q => q.clone().sub(V(0, 1.36, 0))), flat = q => V(0, smooth((q.y - .28) / .1), q.z > 0 ? 1 : -1).normalize();
       chest.ribbon(TL, .17, .026, '#f3eee2', V(1, 0, 0), 44, 14); for (const sd of [-1, 1]) chest.ribbon(TL.map(q => q.clone().add(V(sd * .082, 0, 0))), .02, .032, '#e9e3d5', V(1, 0, 0), 44, 8); // terry cloth with thickness and rolled edges
       for (const [a, b] of [[0, 1], [15, 14]]) { const q = T[a].clone().lerp(T[b], .4).sub(V(0, 1.36, 0)); chest.ribbon([q.clone().add(V(-.085, 0, a ? -.009 : .009)), q.clone().add(V(.085, 0, a ? -.009 : .009))], .03, .004, '#4f7fb3', V(0, 1, 0), 4, 6); } // blue stripe at both ends
@@ -293,7 +293,7 @@
       chest.cyl(V(0, 1.445 - 1.36, wz + .012), V(.019, .034, .019), '#c9ccd2', [0, 0, Math.PI / 2]); chest.box(V(.03, 1.452 - 1.36, wz + .012), V(.03, .018, .016), '#c9ccd2'); chest.sph(V(-.006, 1.445 - 1.36, wz + .027), V(.007, .007, .004), '#3b4350');
       j.chest.add(chest.mesh('Bruno: towel and whistle'));
       // cardigan buttons on the spine (belly) and the chest
-      const but = new Parts(); for (const y of [1.08, 1.15, 1.22, 1.29]) { but.sph(V(.026, y - 1.13, B(.026, y) + .003), V(.015, .015, .007), '#d9c9a3'); but.sph(V(.026, y - 1.13, B(.026, y) + .009), V(.006, .006, .003), '#8a7a58'); but.sph(V(-.03, y - 1.13, B(-.03, y) + .002), V(.011, .004, .003), '#2a4033'); } j.spine.add(but.mesh('Bruno: buttons'));
+      const but = new Parts(); for (const y of [1.08, 1.15, 1.22, 1.29]) { but.sph(V(.026, y - 1.13, B(.026, y) + .003), V(.015, .015, .007), '#d9c9a3'); but.sph(V(.026, y - 1.13, B(.026, y) + .009), V(.006, .006, .003), '#8a7a58'); } j.spine.add(but.mesh('Bruno: buttons'));
       bareHands(rig, BRUNO.fur, '#3a2a22'); shoes(rig, { upper: '#4a3a30', toe: '#3c2f27', sole: '#c9c0ae', lace: '#d8d2c4' });
       // fur: a ruff round the cheeks and under the jaw, tufts on the back of the head, shaggy grey brows
       const hd = q => [q.x / HS, (q.y - HEAD_Y) / HS, q.z / HS];
@@ -370,12 +370,12 @@
         // jowls hang over the corners of the mouth
         const jz = Z(.075, .02); P.sph(V(s * .082, .012, jz - .05), V(.068, .058, .06), '#e4d3bd', [0, 0, s * .3]); P.sph(V(s * .1, -.022, jz - .07), V(.05, .04, .05), '#d9c6ad', [0, 0, s * .4]);
         P.sph(V(s * .046, .012, Z(.046, .0) + .006), V(.011, .024, .01), '#fbf7ee', [0, 0, s * .12]); // lower canines of the underbite
-        brow(rig, [V(s * .036, .222, Z(.036, .222) - .002), V(s * .095, .242, Z(.095, .242) - .001), V(s * .156, .228, Z(.156, .228) - .004)], s > 0 ? 0x3a2416 : 0xa8926f, .015);
+        brow(rig, [V(s * .036, .222, Z(.036, .222) - .002), V(s * .095, .242, Z(.095, .242) - .001), V(s * .156, .228, Z(.156, .228) - .004)], s > 0 ? 0x3a2416 : 0x8f7a5c, .0105);
       }
       const nz = Z(0, .112);
       P.sph(V(0, .118, nz + .006), V(.05, .03, .026), '#1f1917'); P.sph(V(-.013, .128, nz + .026), V(.012, .006, .005), '#6d645f');
-      for (const [y, w, t] of [[.15, .058, .02], [.172, .075, .022], [.196, .06, .016]]) P.ribbon([V(-w, y - .012, Z(w, y - .012) - .008), V(-w * .5, y + .002, Z(w * .5, y) - .004), V(0, y + .007, Z(0, y) - .003), V(w * .5, y + .002, Z(w * .5, y) - .004), V(w, y - .012, Z(w, y - .012) - .008)], t, t * .8, y > .19 ? '#c7b294' : '#d6c4a8', V(0, 1, 0), 18, 8); // rolls of skin over the nose
-      P.ribbon([V(-.11, .02, Z(.11, .02) - .004), V(-.06, .034, Z(.06, .034) + .004), V(0, .05, Z(0, .05) + .004), V(.06, .034, Z(.06, .034) + .004), V(.11, .02, Z(.11, .02) - .004)], .016, .014, '#3a2a25', V(0, 1, 0), 22, 8); // dark upper lip line across the muzzle
+      for (const [y, w, t] of [[.152, .05, .02], [.176, .062, .02]]) P.ribbon([V(-w, y - .012, Z(w, y - .012) - .014), V(-w * .5, y + .002, Z(w * .5, y) - .009), V(0, y + .007, Z(0, y) - .008), V(w * .5, y + .002, Z(w * .5, y) - .009), V(w, y - .012, Z(w, y - .012) - .014)], t, t * .8, y > .19 ? '#c7b294' : '#d6c4a8', V(0, 1, 0), 18, 8); // rolls of skin over the nose
+      P.ribbon([V(-.11, .02, Z(.11, .02) - .004), V(-.06, .034, Z(.06, .034) + .004), V(0, .05, Z(0, .05) + .004), V(.06, .034, Z(.06, .034) + .004), V(.11, .02, Z(.11, .02) - .004)], .009, .008, '#4a3832', V(0, 1, 0), 22, 8); // upper lip line across the muzzle
       P.ribbon([V(-.1, .0, Z(.1, 0) + .002), V(-.04, -.004, Z(.04, 0) + .016), V(0, .028, Z(0, .03) + .01), V(.04, -.004, Z(.04, 0) + .016), V(.1, .0, Z(.1, 0) + .002)], .008, .008, '#2a1f1b', V(0, 1, 0), 20, 6); // mouth line under the jowls
       // scar across the right brow: a pale hairless line with two stitch marks
       const sx = .098, scar = [V(sx - .03, .272, Z(sx - .03, .272) - .001), V(sx - .01, .246, Z(sx - .01, .246) + .001), V(sx + .012, .214, Z(sx + .012, .214) - .001)];
@@ -394,7 +394,6 @@
       rig.shorts.material.vertexColors = true; rig.shorts.material.color.set(0xffffff); // the cloth material belongs to this rig alone
       for (const m of kitParts(rig).trim) { if (m.geometry.type === 'CylinderGeometry') { m.material = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: .6 }); m.scale.x *= 1 + BRICK.build.torso * .9 + BRICK.build.hips; m.scale.z *= 1 + BRICK.build.depth * .9 + BRICK.build.hips; } else m.visible = false; }
       rig.gloveMeshes.L.material.color.set(BRICK.gloves);
-      { const NK = new Parts(), y0 = 1.745; for (const [dy, t, col] of [[0, .05, '#cdb99b'], [-.045, .058, '#c4ae8e']]) { const pts = []; for (let a = -1.9; a <= 1.91; a += .19) { const r = Math.max(.11, rim(rig, y0 + dy, a, .016, .22)) - t * .32; pts.push(V(Math.sin(a) * r, y0 + dy - 1.72 - .03 * (1 - Math.cos(a)) * .0, Math.cos(a) * r - .02)); } NK.ribbon(pts, t, t * .9, col, V(0, 1, 0), 40, 10); } rig.joints.neck.add(NK.mesh('Brick: neck rolls')); } // soft rolls sunk into the neck
       rig.skin.material.roughness = .8; if (rig.definition?.look) rig.definition.look.value.multiplyScalar(1.45); // short coat with a little sheen; hard muscle lines
     }
   };
@@ -456,8 +455,8 @@
     // arrival clothes: a grey marl hoodie, worn jeans, tired canvas sneakers, bare hands
     street: {
       hide: ['gloves', 'shorts', 'boots', 'trim', 'fur'],
-      cloth(rig) {
-        const tone = HOODIE[rig.species] || HOODIE.lion, hood = lin(tone[0]), dark = lin(tone[1]), denim = lin('#3d5b86'), worn = lin('#7f9cc4'), seam = lin('#c9a36a'), tmp = new THREE.Color();
+      cloth(rig, tint) {
+        const tone = HOODIE[rig.species] || HOODIE.lion, hood = tint ? lin(tint).lerp(lin('#8a8f96'), .35) : lin(tone[0]), dark = tint ? hood.clone().multiplyScalar(.72) : lin(tone[1]), denim = lin('#3d5b86'), worn = lin('#7f9cc4'), seam = lin('#c9a36a'), tmp = new THREE.Color();
         return v => {
           const ax = Math.abs(v.x);
           if (v.y > 1.772 || ax > .925 || v.y < .112) return null;
@@ -480,12 +479,12 @@
           return { d: .022 + .006 * waist + .005 * pocket + wr + gather - .006 * Math.max(hem, cuff) * (1 - rib * .5) - .006 * smooth((v.y - 1.71) / .06), c, move };
         };
       },
-      parts(rig, add) {
+      parts(rig, add, tint) {
         const f = FUR[rig.species] || FUR.lion, j = rig.joints, B = (x, y, back) => seat(rig, x, y, false, .02, back);
         for (const m of bareHands(rig, f.fur, f.pad)) add(m);
         for (const m of shoes(rig, { upper: '#d6cfbf', toe: '#bdb5a3', sole: '#a79e8c', edge: '#8c3b33', lace: '#efeadf', collar: '#b9b1a0' })) add(m);
         // the hood lies on the upper back; a collar ring and two drawstrings in front
-        const P = new Parts(), [hood, dark] = HOODIE[rig.species] || HOODIE.lion, bz = B(0, 1.66, true), o = V(0, 1.36, 0), L = p => p.clone().sub(o);
+        const hc = tint ? lin(tint).lerp(lin('#8a8f96'), .35) : lin((HOODIE[rig.species] || HOODIE.lion)[0]), P = new Parts(), hood = hc, dark = hc.clone().multiplyScalar(.72), bz = B(0, 1.66, true), o = V(0, 1.36, 0), L = p => p.clone().sub(o);
         P.sph(L(V(0, 1.63, bz - .02)), V(.2, .17, .07), hood, [.2, 0, 0]); P.sph(L(V(0, 1.675, bz - .068)), V(.13, .09, .03), dark, [.2, 0, 0]); for (const sd of [-1, 1]) P.sph(L(V(sd * .13, 1.72, bz * .5 - .01)), V(.075, .06, .1), hood, [0, sd * .5, 0]);
         P.tor(L(V(0, 1.775, -.012)), V(.118, .135, .11), hood, [Math.PI / 2 - .22, 0, 0]);
         for (const s of [-1, 1]) { const z = B(s * .045, 1.62); P.ribbon([L(V(s * .05, 1.70, B(s * .05, 1.70) + .01)), L(V(s * .045, 1.64, B(s * .045, 1.64) + .01)), L(V(s * .05, 1.575, B(s * .05, 1.575) + .008))], .008, .008, '#e9e4d8', V(1, 0, 0), 10, 6); P.sph(L(V(s * .05, 1.568, B(s * .05, 1.575) + .008)), V(.008, .012, .008), '#e9e4d8'); }
@@ -493,19 +492,36 @@
       }
     }
   };
+  // the docks: long track pants, hand wraps, no gloves, bare chest
+  OUTFITS.track_wraps = {
+    hide: ['gloves', 'shorts', 'boots', 'trim'],
+    cloth(rig, tint) {
+      const pants = lin('#2f333b'), stripe = lin(tint || '#d9d4c6'), tmp = new THREE.Color();
+      return v => { if (v.y > 1.075 || v.y < .112 || v.arm > .5) return null; const ax = Math.abs(v.x), side = bell(Math.abs(Math.atan2(v.z, ax - (.15 + (1 - v.y) * .07))), 0, .16) * smooth((ax - .2) / .04), band2 = 1 - smooth((1.045 - v.y) / .02);
+        return { d: (.015 + .008 * bell(v.y, .13, .03)) * (1 - .4 * smooth((v.y - 1.05) / .025)), c: tmp.copy(pants).lerp(stripe, clamp(side * 1.3)).lerp(lin('#1d2026'), band2).clone(), move: v.y < .93 ? trouser(v, lerp(.112, .126, smooth((v.y - .5) / .4)), smooth((.93 - v.y) / .1)) : null }; };
+    },
+    parts(rig, add) {
+      const f = FUR[rig.species] || FUR.lion;
+      for (const m of bareHands(rig, f.fur, f.pad)) add(m);
+      for (const sd of ['L', 'R']) { const P = new Parts(); for (let k = 0; k < 4; k++) P.tor(V(0, -.012 - k * .024, 0), V(.047 - k * .001, .04, .05), '#f1ece0', [Math.PI / 2, 0, 0]); P.sph(V(0, -.098, .008), V(.048, .03, .034), '#f1ece0', [.35, 0, 0]); const m = P.mesh('Hand wraps'); rig.joints['hand' + sd].add(m); add(m); }
+      for (const m of shoes(rig, { upper: '#3b3e46', toe: '#2a2d33', sole: '#c9c0ae', lace: '#d8d2c4' })) add(m);
+    }
+  };
   const state = rig => rig.storyCast || (rig.storyCast = { outfit: 'kit', built: {}, hidden: [], base: null, bag: null });
-  function outfit(rig, name) {
+  function outfit(rig, name, o = {}) {
     if (!rig?.skin || !(name in OUTFITS)) return false;
-    groom(rig); const st = state(rig), g = rig.skin.geometry; if (st.outfit === name) return true;
+    if (rig.cast) return true; // story characters wear their own clothes (Bruno) or their kit (Brick)
+    const tint = name !== 'kit' && o.tint ? String(o.tint) : '', key = name + (tint ? '|' + tint : '');
+    groom(rig); const st = state(rig), g = rig.skin.geometry; if (st.key === key || (name === 'kit' && st.outfit === 'kit')) return true;
     // back to the kit: streams and every visibility flag exactly as they were
-    if (st.outfit !== 'kit') { use(g, st.base); for (const [o, v] of st.hidden) o.visible = v; st.hidden = []; for (const m of st.built[st.outfit].parts) m.visible = false; if (st.bag) st.bag.visible = false; st.outfit = 'kit'; }
+    if (st.outfit !== 'kit') { use(g, st.base); for (const [o, v] of st.hidden) o.visible = v; st.hidden = []; for (const m of st.built[st.key].parts) m.visible = false; if (st.bag) st.bag.visible = false; st.outfit = 'kit'; st.key = 'kit'; }
     if (name === 'kit') return true;
     const def = OUTFITS[name]; if (!st.base) st.base = grab(g);
-    let b = st.built[name];
-    if (!b) { b = st.built[name] = { parts: [], streams: null }; if (def.cloth) { b.streams = dress(g, def.cloth(rig), { relax: 26 }); use(g, b.streams); } if (def.parts) def.parts(rig, m => b.parts.push(m)); } // small parts are seated on the dressed surface
+    let b = st.built[key];
+    if (!b) { b = st.built[key] = { parts: [], streams: null }; if (def.cloth) { b.streams = dress(g, def.cloth(rig, tint), { relax: 26 }); use(g, b.streams); } if (def.parts) def.parts(rig, m => b.parts.push(m), tint); } // small parts are seated on the dressed surface
     if (b.streams) use(g, b.streams);
     const kit = kitParts(rig); for (const k of def.hide || []) for (const o of kit[k] || []) { st.hidden.push([o, o.visible]); o.visible = false; }
-    for (const m of b.parts) m.visible = true; st.outfit = name; return true;
+    for (const m of b.parts) m.visible = true; st.outfit = name; st.key = key; return true;
   }
   const outfitOf = rig => rig?.storyCast?.outfit || 'kit';
 
