@@ -83,13 +83,16 @@
       { t: 8.05, x: 2.75, z: 2.5, y: .57 },
       { t: 8.45, x: 2.75, z: 3.08, y: .26 },                                              // the entry tread
       { t: 8.9, x: 2.75, z: 3.85, y: .0 }                                                 // the kerb marker
-    ]
+    ],
+    // the arrival shot sits further along the kerb (the model bus is longer, its door near its front) and stays clear of
+    // the Old Town façades and awnings at z 9.4 (the old camera stood in the house fronts at z 10.4)
+    camera: { 1: { pos: [11.2, 2.5, 9.1], look: [2.6, 1.5, 3.2] }, 2: { pos: [10.0, 1.75, 9.1], look: [3.7, 1.4, 3.3] }, 3: { pos: [8.5, 1.6, 8.9], look: [3.3, 1.3, 4.0] } }
   };
   /** The film with the city models: the bus props and the Fighter's step-off replaced, everything after 9.5 s unchanged. */
   function withCity(scene) {
     const c = scene?.city; if (!c) return scene;
     const fighter = scene.actors.fighter, rest = fighter.keys.filter(k => k.t >= 9.5);
-    return { ...scene, cityCut: true, props: { ...scene.props, ...c.props }, actors: { ...scene.actors, fighter: { ...fighter, keys: [...c.fighter, ...rest] } }, camera: c.camera || scene.camera };
+    return { ...scene, cityCut: true, props: { ...scene.props, ...c.props }, actors: { ...scene.actors, fighter: { ...fighter, keys: [...c.fighter, ...rest] } }, camera: c.camera ? scene.camera.map((k, i) => c.camera[i] ? { ...k, ...c.camera[i] } : k) : scene.camera };
   }
 
   const scenes = {

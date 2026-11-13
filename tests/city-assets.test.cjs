@@ -69,6 +69,8 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   const solids = c.group.getObjectByName('city art (GLB)').children.filter(o => /Shelter|Bus_stop_sign|Streetlamp|Litter_bin|Bench/.test(o.name)).map(o => new THREE.Box3().setFromObject(o));
   assert.ok(solids.length >= 12, 'street furniture placed: ' + solids.length);
   for (let t = kerb; t <= 29.5; t += .1) { const f = C.sample(film, t).actors.fighter; if (!f.walking && t > 9.6 && t < 15.6) continue; for (const b of solids) assert.ok(!(f.x + .3 > b.min.x && f.x - .3 < b.max.x && f.z + .3 > b.min.z && f.z - .3 < b.max.z), `walks into street furniture at t ${t.toFixed(1)}`); }
+  // the camera never stands inside an Old Town prototype (front wall + 1.05 m of sills and awnings, 6.7 m deep)
+  for (let t = 0; t <= film.duration; t += .1) { const p = C.sample(film, t).camera.pos; for (const [kind, x, z, ry] of CA.LAYOUT.houses) { const hw = kind === 'brick' ? 3.9 : 3.6, out = ry ? [z - 1.05, z + 6.7] : [z - 6.7, z + 1.05]; assert.ok(!(Math.abs(p[0] - x) < hw && p[2] > out[0] && p[2] < out[1] && p[1] < 13), `camera inside the ${kind} house at t ${t.toFixed(1)}`); } }
   // GPU resources go when the set goes
   let disposed = 0; bus.scene.traverse(o => { if (o.isMesh) o.geometry.addEventListener('dispose', () => disposed++); }); for (const d of c.disposables) d.dispose();
   assert.ok(disposed > 30, 'bus geometry disposed: ' + disposed);

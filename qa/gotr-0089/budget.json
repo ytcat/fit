@@ -1,0 +1,149 @@
+[
+ {
+  "t": 6,
+  "shot": 0,
+  "shadows": false,
+  "all": [
+   95,
+   177886
+  ],
+  "withoutCity": [
+   7,
+   17176
+  ],
+  "withoutCharacters": [
+   95,
+   177886
+  ],
+  "cityMeshes": {
+   "meshes": 139,
+   "triangles": 200322
+  }
+ },
+ {
+  "t": 9.1,
+  "shot": 0,
+  "shadows": false,
+  "all": [
+   143,
+   494180
+  ],
+  "withoutCity": [
+   67,
+   359238
+  ],
+  "withoutCharacters": [
+   84,
+   152120
+  ],
+  "cityMeshes": {
+   "meshes": 143,
+   "triangles": 209818
+  }
+ },
+ {
+  "t": 11.5,
+  "shot": 1,
+  "shadows": false,
+  "all": [
+   117,
+   447948
+  ],
+  "withoutCity": [
+   64,
+   348150
+  ],
+  "withoutCharacters": [
+   61,
+   116976
+  ],
+  "cityMeshes": {
+   "meshes": 143,
+   "triangles": 209818
+  }
+ },
+ {
+  "t": 14.5,
+  "shot": 2,
+  "shadows": false,
+  "all": [
+   78,
+   367074
+  ],
+  "withoutCity": [
+   61,
+   333822
+  ],
+  "withoutCharacters": [
+   26,
+   50446
+  ],
+  "cityMeshes": {
+   "meshes": 138,
+   "triangles": 207510
+  }
+ },
+ {
+  "t": 18.1,
+  "shot": 3,
+  "shadows": false,
+  "all": [
+   92,
+   417350
+  ],
+  "withoutCity": [
+   67,
+   359238
+  ],
+  "withoutCharacters": [
+   33,
+   75290
+  ],
+  "cityMeshes": {
+   "meshes": 127,
+   "triangles": 184202
+  }
+ },
+ {
+  "t": 21.5,
+  "shot": 4,
+  "shadows": false,
+  "all": [
+   185,
+   538392
+  ],
+  "withoutCity": [
+   67,
+   359238
+  ],
+  "withoutCharacters": [
+   126,
+   196332
+  ],
+  "cityMeshes": {
+   "meshes": 130,
+   "triangles": 185526
+  }
+ },
+ {
+  "t": 25,
+  "shot": 5,
+  "shadows": false,
+  "all": [
+   73,
+   373080
+  ],
+  "withoutCity": [
+   69,
+   359256
+  ],
+  "withoutCharacters": [
+   14,
+   31020
+  ],
+  "cityMeshes": {
+   "meshes": 130,
+   "triangles": 185526
+  }
+ }
+]

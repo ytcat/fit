@@ -23,14 +23,14 @@
     gap: [-27, 33], pavingZ: 8.3,         // the generated road, near kerb and near paving are cut out here
     bus: { z: 1.9, y: -.15, door: 4.49, floor: .72, curb: [4.49, -1.95] }, // wrapper z; entry door centre (model x); markers
     shelter: [-1.6, 5.75], sign: [.35, 4.05],
-    lamps: [[-22, 4.15, HALF], [-9, 4.15, HALF], [8.5, 4.15, HALF], [13.4, 4.15, HALF], [31.5, 4.15, HALF], [-15, -4.15, 0], [2, -4.15, 0], [16, -4.15, 0]],
+    lamps: [[-22, 4.15, HALF], [-9, 4.15, HALF], [8.5, 4.15, HALF, 16.2], [13.4, 4.15, HALF], [31.5, 4.15, HALF], [-15, -4.15, 0], [2, -4.15, 0], [16, -4.15, 0]],
     bins: [[-6.0, 6.5, HALF], [14.6, 8.6, HALF]],
     // Old Town prototypes: front wall centre at pavement height; far side faces +z, near side is turned to face -z
     // (budget: four instances; the Fighter alone submits ~340k triangles, so the street keeps generated houses in between)
     houses: [['brick', -12.6, -8.2, 0], ['plaster', 2.4, -8.2, 0], ['plaster', 6.2, 10.4, HALF], ['brick', 13.1, 10.4, HALF]],
     replaced: { far: [-11, .6], near: [9.5] }, // generated house slots (x) the prototypes stand in
     fill: [{ style: 'plaster', x: -5.1, w: 7.0, floors: 3, tint: 0, roof: 4 }], // a generated house between the two far prototypes
-    detailDist: 12, trimDist: 22, busInsideDist: 9
+    detailDist: 15, trimDist: 22, busInsideDist: 9
   };
   const cache = new Map(); // name -> { state, promise, gltf, error }
   let makeLoader = () => new THREE.GLTFLoader();
@@ -41,7 +41,7 @@
     e.promise = new Promise((resolve, reject) => {
       let loader; try { loader = makeLoader(); } catch (x) { reject(x); return; }
       loader.load(FILES[name], g => resolve(g), undefined, x => reject(x || Error('load ' + name)));
-    }).then(g => { e.state = 'ready'; e.gltf = g; return g; }, x => { e.state = 'failed'; e.error = String(x?.message || x); console.warn('city asset', name, e.error); throw x; });
+    }).then(g => { e.state = 'ready'; e.gltf = g; return g; }, x => { e.state = 'failed'; e.error = String(x?.message || (x?.type ? 'network ' + x.type : x)); console.warn('city asset', name, e.error); throw x; });
     e.promise.catch(() => {}); cache.set(name, e); return e.promise;
   }
   const names = () => Object.keys(FILES);
@@ -121,7 +121,7 @@
       const sh = shadows(instance(city.station, 'Shelter'), o => !o.material.transparent && /iron|steel/.test(o.material.name)); put(sh, L.shelter[0], 0, L.shelter[1], HALF);
       const bench = shadows(instance(city.station, 'Bench'), false); put(bench, L.shelter[0] + .05, 0, L.shelter[1] + .35, HALF); // its place in the shelter
       put(shadows(instance(city.station, 'Bus_stop_sign'), false), L.sign[0], 0, L.sign[1], HALF);
-      for (const [x, z, ry] of L.lamps) put(shadows(instance(city.station, 'Streetlamp'), false), x, 0, z, ry);
+      for (const [x, z, ry, at] of L.lamps) put(shadows(instance(city.station, 'Streetlamp'), false), at ?? x, 0, z, ry); // [generated x, z, turn, model x]
       for (const [x, z, ry] of L.bins) put(shadows(instance(city.station, 'Litter_bin'), false), x, 0, z, ry);
       handle.station = true; handle.active = true;
     }
@@ -130,7 +130,7 @@
       for (const [kind, x, z, ry] of L.houses) {
         const name = kind === 'brick' ? 'OldTown_brick_hiproof' : 'OldTown_plaster_parapet', near = z > 0;
         const h = shadows(instance(city.oldtown, name), o => near && HOUSE_CAST.test(o.material.name) && !o.material.transparent); put(h, x, 0, z, ry);
-        const detail = [], trim = []; h.traverse(o => { if (!o.isMesh) return; const n = o.material.name; if (/interior|curtain|herbs|flowerpot|room plaster|lamp glow|lettering/.test(n)) detail.push(o); else if (/ivory timber|ironwork|zinc|shop timber/.test(n)) trim.push(o); });
+        const detail = [], trim = []; h.traverse(o => { if (!o.isMesh) return; const n = o.material.name; if (/interior|curtain|herbs|flowerpot|room plaster|lamp glow/.test(n)) detail.push(o); else if (/ivory timber|ironwork|zinc|shop timber/.test(n)) trim.push(o); });
         handle.houses.push({ root: h, detail, trim, centre: new THREE.Vector3(x, 4, z + (near ? 3.2 : -3.2)) });
       }
       handle.oldtown = true; handle.active = true;
