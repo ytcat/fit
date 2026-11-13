@@ -134,12 +134,12 @@
  // Story events (GOTR-0078). The street and Docks fights pay their fixed reward once; buy_heavy_bag charges the bag (a grant in the
  // development build, like every Shop item) and is finished by the purchase. The order rule is checked before any coin moves.
  function storyAction(g,a){
-  if(!g.adventure)g.adventure=adventureRules.fresh();adventureRules.migrate(g.adventure);adventureRules.storyReady(g,a.step);
+  if(!g.adventure)g.adventure=adventureRules.fresh();adventureRules.migrate(g.adventure);adventureRules.storyReady(g,a.step,freeMode());
   const extra={};
   if(a.step in storyRewards&&a.outcome==='won'){const id=storyRewardId(a.step);if(!g.ledger.some(t=>t.id===id)){if(g.ledger.length>=20015)fail('History is full. Export a backup.');g.ledger.push({id,type:'earn',coins:storyRewards[a.step],xp:0,rule:'story-reward-v1',storyStep:a.step});extra.coins=storyRewards[a.step];extra.transactionId=id;}else extra.coins=0;}
   const item=gear.find(x=>x.step===a.step);
   if(item&&!ownsGear(g,item.id)){const free=freeMode();if(!free&&wallet(g).coins<item.price)fail('Not enough coins.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');g.ledger.push(free?grant(gearPurchase(item.id),{gearId:item.id}):{id:gearPurchase(item.id),type:'spend',coins:-item.price,xp:0,gearId:item.id,rule:'gear-shop-v1'});extra.spent=free?0:item.price;extra.gearId=item.id;extra.free=free;}
-  return {...adventureRules.action(g,{adventure:'story',step:a.step,outcome:a.outcome}),...extra};
+  return {...adventureRules.action(g,{adventure:'story',step:a.step,outcome:a.outcome},freeMode()),...extra};
  }
  function reward(g,event,xp,quality,profileId){
   const active=event.control!=='watch',coins=active?Math.max(1,Math.round(Math.min(event.mode==='fight'?100:60,event.seconds)*(.42+.16*quality)*(event.mode==='fight'?fightPay[event.result]||1:1))):0;

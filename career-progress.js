@@ -84,5 +84,10 @@
  // The automatic guest name ('Guest', 'Guest 2', ...) is shown in the player's language; typed names are shown as typed.
  const guestWords={en:'Guest',he:'אורח',ru:'Гость'};
  function displayName(profile,lang='en'){const name=typeof profile==='string'?profile:profile?.name||'';return (typeof profile==='string'||profile?.guest)&&/^Guest( \d+)?$/.test(name)?name.replace('Guest',guestWords[lang]||guestWords.en):name;}
- const api={CareerStore,attrs,weights,ranks,id,displayName};if(typeof module!=='undefined')module.exports=api;else window.CareerProgress=api;
+ // Owner request (GOTR-0078 dev feedback): "Reset game" erases this device's progress so the first-run welcome and the opening
+ // film play again. Keeps only display preferences (language, sound/audio, camera); removes everything else this origin stored.
+ const keepOnReset=/^shadowbox-language$|sound|audio|volume|camera/i;
+ function resetDevice(storage,session){const removed=[];if(!storage)return removed;const keys=[];for(let i=0;i<storage.length;i++){const k=storage.key(i);if(k!=null)keys.push(k);}
+  for(const k of keys)if(!keepOnReset.test(k)){storage.removeItem(k);removed.push(k);}try{session?.clear?.();}catch{}return removed;}
+ const api={CareerStore,attrs,weights,ranks,id,displayName,resetDevice,keepOnReset};if(typeof module!=='undefined')module.exports=api;else window.CareerProgress=api;
 })();

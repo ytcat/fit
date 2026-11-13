@@ -475,6 +475,23 @@
       setTimeout(() => { if (S && out) S.play(out, { onDone: go }); else go(); }, 600);
     } else setTimeout(() => { pendingAfter = false; openMap(pin, () => afterBeat(r.id, { won: false })); }, 1200);
   }
+  // ---- development build only (owner: "I want to get to all tasks to check them"): skip a step with its minimum passing result ----
+  const devMode = () => { try { return !!(window.GameDomain?.freeMode ? window.GameDomain.freeMode() : A().freeMode()); } catch { return false; } };
+  // The save action that finishes a step at its lowest pass: 1 star, the story event (first Brick fight = lost, street fights = won,
+  // the bag granted free as every dev purchase), or the boss beaten. null outside the development build.
+  function devSkipAction(id) {
+    if (!devMode()) return null;
+    const s = SF()?.find(id); if (!s) return null;
+    if (s.boss || BOSS[id]) return { type: 'adventure', adventure: 'boss', bossId: id, won: true };
+    if (s.event) return { type: 'adventure', adventure: 'story', step: id, ...(id === 'first_brick' ? { outcome: 'lost' } : ['market_robber', 'docks_fight'].includes(id) ? { outcome: 'won' } : {}) };
+    const m = A().missions.find(x => x.id === id); return m ? { type: 'adventure', adventure: 'mission', missionId: id, measured: { [m.metric]: m.thresholds[0] } } : null;
+  }
+  function devSkip(ctx, id) {
+    const a = devSkipAction(id); if (!a) return false;
+    const res = ctx.store.gameAction(a); if (!res.ok) { toast(W().err + res.error, 'bad'); return false; }
+    stamp(); rg()?.apply?.(); closeBeat(); const s = SF().find(id); selectPin ? selectPin(SF().chapters[s.chapter].pin) : openMap(SF().chapters[s.chapter].pin);
+    return true;
+  }
   // ---- GOTR-0078 story fights: first fight vs Brick (a loss advances the story), the street fight, the Docks ----
   // Brick's look comes from agent/dream-1 (StoryCast.asOpponent); without it the partner fights under Brick's name and strength.
   function castBrick(r) {
@@ -583,12 +600,15 @@
         if (A_.freeMode()) more.append(btn(w.fightAnyway, () => before(ctx, cur.id, { force: true }), 'game-button adv-go adv-alt sf-small'));
         if (more.children.length) quest.append(more);
       } else { const k = DEFS[cur.id]?.kind; quest.append(primary(k === 'film' ? w.watch : k === 'story_fight' || cur.boss ? w.fight : st.doneCount === 0 && !st.side.some(s => s.done) ? w.start : w.cont, () => before(ctx, cur.id))); }
+      // Owner (development build only): skip the current step with its minimum passing result, to reach every task quickly.
+      if (devMode()) quest.append(btn(w.devSkip, () => devSkip(ctx, cur.id), 'game-button adv-go adv-alt sf-small sf-dev-skip'));
     }
     quest.append(prog);
     // timeline (shown when the sheet is expanded)
     const list = mk('ol', 'sf-steps'); list.setAttribute('aria-label', w.steps);
     for (const s of st.timeline) {
-      const can = s.status !== 'locked', row = mk('li', `sf-step sf-${s.status}${s.side ? ' sf-side' : ''}`), b = can ? btn('', () => before(ctx, s.id), 'sf-step-b') : mk('div', 'sf-step-b');
+      // Development build: locked steps stay marked but can be started (like "Fight anyway").
+      const can = s.status !== 'locked' || devMode(), row = mk('li', `sf-step sf-${s.status}${s.side ? ' sf-side' : ''}`), b = can ? btn('', () => before(ctx, s.id, { force: s.status === 'locked' }), 'sf-step-b') : mk('div', 'sf-step-b');
       if (!can) b.setAttribute('aria-disabled', 'true');
       const markTxt = s.status === 'done' ? '✓' : s.status === 'locked' ? '🔒' : s.side ? '✦' : String(s.n);
       const state = s.status === 'done' ? (s.boss ? W0.won : s.event ? w.done : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? (lang() === 'he' ? '◀' : '▶') : w.side;
@@ -604,5 +624,5 @@
     rest.push(sofar);
     return { tiles: [], rest, quest, goal: null, primary: null, recap: null };
   }
-  window.AdventureOldTown = { recordStory, storyFightStart, storyFightDone, playFilm, shop, before, afterBeat, chapterSummary, launch, closeBeat, onOpen, chapterIntro, titleCard, chapterTitle, SHORT, CH, BOSS, toastLog, reward, render, start, bossStart, goalText, leave, defs: DEFS, get run() { return run; }, copy };
+  window.AdventureOldTown = { devSkipAction, devSkip, devMode, recordStory, storyFightStart, storyFightDone, playFilm, shop, before, afterBeat, chapterSummary, launch, closeBeat, onOpen, chapterIntro, titleCard, chapterTitle, SHORT, CH, BOSS, toastLog, reward, render, start, bossStart, goalText, leave, defs: DEFS, get run() { return run; }, copy };
 })();
