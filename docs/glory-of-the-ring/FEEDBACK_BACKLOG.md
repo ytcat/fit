@@ -877,6 +877,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Evidence:** `qa/gotr-0089/film-before.webp`, `film-after.webp`, `film-1366.webp`, `stepoff-close.webp` (crop of `film-1366-step-off.webp`), `film-fallback.webp` (all GLB requests aborted: the generated set plays) with JSON numbers; `tests/city-assets.test.cjs` (cache/fallback with a stubbed loader, real GLBs: wheel roll, door clip vs step-off, markers, foot height on the paving, no walking through furniture or door leaves, camera never inside a building, no GLB precached).
 - **Remaining:** physical phone FPS/memory; LOD/merging by Codex would cut the Old Town cost; a right-door bus; trees/cars/market from Codex's next deliveries.
 
+### GOTR-0093 — The Fighter's street clothes look stuck on, not worn
+- **Reported:** 2026-11-13 (v1.61 film pictures: hoodie, jeans, sneakers and duffel bag in the bus-stop and walking shots)
+- **Status:** QUEUED — starts in the next free agent slot
+- **Owner's words:** "Improve the player visuals when he's wearing casual clothes, like when he gets out of the bus or goes to the market… it has to look more natural; it is stuck on currently. This is not good enough. It doesn't sit on him in a good way."
+- **Acceptance:** clothes follow the body like fabric worn by a person: hoodie with a real hood resting on the back, shoulder seams on the shoulders, sleeves that bend at the elbow and bunch at the wrist, hem and kangaroo pocket that hang, folds that move with the pose; jeans that sit on the hips with a waistband and belt loops, fall straight with a break over the sneakers, knees that bend without ballooning; sneakers shaped like shoes (sole, toe cap, laces); the duffel strap across the chest, the bag resting on the hip and swinging with the walk. No body shape (pecs, abs, muscle bulges) showing through clothes; no skin poking through in any pose (walk, turn, talk, sit, bare-hand fight). Both lion and rabbit. Before/after at 402×690 from the opening film and the walk, plus close-ups, shown to the owner before release.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
