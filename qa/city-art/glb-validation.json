@@ -21,5 +21,14 @@
     "extensionsUsed": [],
     "requiredExtensions": [],
     "animations": []
+  },
+  {
+    "asset": "ch01-oldtown/gloryland-oldtown.glb",
+    "status": "PASS",
+    "bytes": 9000840,
+    "triangles": 61904,
+    "extensionsUsed": [],
+    "requiredExtensions": [],
+    "animations": []
   }
 ]
