@@ -1,5 +1,5 @@
 {
-  "version": "v158-20261113j",
+  "version": "v159-20261113k",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -48,7 +48,7 @@
     "./occlusion-guard.js?v=2026111302",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111119",
-    "./version.js?v=2026111311",
+    "./version.js?v=2026111312",
     "./club-interface.js?v=2026111112",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
@@ -80,7 +80,7 @@
     "./fighter-pad.js?v=2026111310",
     "./power-meter.css?v=2026111112",
     "./power-meter.js?v=2026111112",
-    "./stage-hud.css?v=2026111212",
+    "./stage-hud.css?v=2026111312",
     "./impact-fx.js?v=2026111112",
     "./game-resume.js?v=2026110902",
     "./game-resume-ui.js?v=2026111112",
@@ -103,7 +103,7 @@
     "./adventure/oldtown.js?v=2026111306",
     "./adventure/adventure-ui.js?v=2026111306",
     "./adventure/gloryland-map.js?v=2026111203",
-    "./modes-menu.css?v=2026111212",
+    "./modes-menu.css?v=2026111312",
     "./modes-menu.js?v=2026111212",
     "./game-shell.js?v=2026111207",
     "./assets/models/coach-surface-v2.json?v=1",

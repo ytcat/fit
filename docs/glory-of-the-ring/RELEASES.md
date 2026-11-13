@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.59 | 2026-11-13 | _pending_ | The fight result text really disappears after the fight (a style rule kept the hidden line visible) (GOTR-0086). Smaller seconds in the timer button |
 | v1.58 | 2026-11-13 | `5cee017` | The fight result text ("KO … won") no longer stays on screen after the fight: it is removed as soon as the game leaves a fight (GOTR-0086, first part) |
 | v1.57 | 2026-11-13 | `61b1d39` | The "Choose combos" placeholder is no longer shown on the pad when the player has no combos |
 | v1.56 | 2026-11-13 | `6c3b186` | Hotfix: the Fighter is no longer torn apart in the scene after the first Brick fight (GOTR-0085) |
