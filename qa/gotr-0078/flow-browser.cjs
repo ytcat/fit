@@ -2,7 +2,7 @@
 // gym conversation with Bruno (beat 1) -> first fight vs Brick (beat 2), FORCED LOSS -> Bruno's job offer -> quest panel with
 // step 4 (Night Shadowboxing) current and side job A open. Works alone (portrait-conversation fallback) and lights up with the
 // agent/dream-1 scenes (dream_opening / dream_gym_talk / dream_after_brick, StoryCast Brick) when they are merged.
-// Also checks the post-fight Next row (no box over the fighters). Screenshots (webp) at 402x690, EN and HE.
+// The post-fight Next row is checked by next-row-browser.cjs. Screenshots (webp) at 402x690, EN and HE.
 // Usage: APP_URL=http://127.0.0.1:8293/ SHOTS=qa/gotr-0078/flow node qa/gotr-0078/flow-browser.cjs
 const { chromium } = require('playwright'), assert = require('node:assert/strict'), fs = require('node:fs'), { execFileSync } = require('node:child_process');
 const URL = process.env.APP_URL || 'http://127.0.0.1:8293/', SHOTS = process.env.SHOTS || '', LANGS = (process.env.LANGS || 'en,he').split(',');
@@ -14,18 +14,6 @@ async function shot(p, name) {
 }
 const beatText = p => p.evaluate(() => document.getElementById('sfBeat')?.innerText.replace(/\n+/g, ' | ') || '');
 const clickMain = p => p.evaluate(() => document.querySelector('#sfBeat .sf-beat-main').click());
-// Fighter boxes on screen (projected bounding spheres of both fight rigs) vs every visible UI element over the stage.
-const overlap = p => p.evaluate(() => {
-  const e = app.engine, cam = e.camera, canvas = e.renderer.domElement.getBoundingClientRect(), V = new THREE.Vector3(), boxes = [];
-  for (const rig of [e.coach, e.arena?.rabbit].filter(Boolean)) {
-    const b = new THREE.Box3().setFromObject(rig.root || rig.group || rig.model || rig); if (b.isEmpty()) continue; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-    for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) { V.set(x, y, z).project(cam); const sx = canvas.left + (V.x + 1) / 2 * canvas.width, sy = canvas.top + (1 - V.y) / 2 * canvas.height; x0 = Math.min(x0, sx); x1 = Math.max(x1, sx); y0 = Math.min(y0, sy); y1 = Math.max(y1, sy); }
-    boxes.push([x0, y0, x1, y1].map(Math.round));
-  }
-  const next = document.getElementById('advNext'), r = next?.getBoundingClientRect();
-  const hits = r ? boxes.filter(([x0, y0, x1, y1]) => r.left < x1 && r.right > x0 && r.top < y1 && r.bottom > y0) : [];
-  return { boxes, next: r ? [r.left, r.top, r.right, r.bottom].map(Math.round) : null, inStage: !!next?.closest('#stageContainer'), hits: hits.length, bg: next ? getComputedStyle(next).backgroundColor : '' };
-});
 (async () => {
   if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
   const b = await chromium.launch({ args: ['--no-sandbox', '--enable-unsafe-swiftshader'] });
@@ -69,15 +57,6 @@ const overlap = p => p.evaluate(() => {
       assert.ok(q.steps[2].startsWith('sf-step sf-done') && q.steps[3].includes('sf-side') && q.steps[4].startsWith('sf-step sf-current'), JSON.stringify(q.steps));
       await shot(p, `${tag}-4-quest-step4`);
       await p.evaluate(() => document.querySelector('.sf-toggle').click()); await p.waitForTimeout(700); await shot(p, `${tag}-5-timeline`);
-      // GOTR-0078 item 7: after a free fight the Next row sits in the bottom action area, never over a fighter.
-      if (lang === LANGS[0]) {
-        await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); ringfighterGame.startFight({ preset: 'quick', rounds: 1, roundSeconds: 30, restSeconds: 0 }); });
-        await wait(p, () => app.engine.arena?.fightView?.match); await p.waitForTimeout(2500);
-        await p.evaluate(() => { const v = app.engine.arena.fightView; v.match.finish(v.careerEntry.species, 'KO'); });
-        await wait(p, () => document.getElementById('advNext'), null, 300000); await p.waitForTimeout(2500);
-        const o = await overlap(p); console.log(tag, 'next row', JSON.stringify(o)); await shot(p, `${tag}-6-next-row-after-fight`);
-        assert.equal(o.hits, 0, 'the Next row covers a fighter: ' + JSON.stringify(o)); assert.ok(!o.inStage, 'the Next row is outside the stage');
-      }
       const bad = errors.filter(e => !/GL Driver|ReadPixels/.test(e)); assert.equal(bad.length, 0, bad.join('\n')); await p.close();
     }
     console.log('dream flow browser ok');

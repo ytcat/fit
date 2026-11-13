@@ -119,13 +119,13 @@
     const add = (tag, attrs) => { const n = document.createElementNS(ns, tag); for (const [a, v] of Object.entries(attrs)) n.setAttribute(a, v); svg.append(n); return n; };
     add('circle', { cx: 20, cy: 20, r: 20, fill: '#1a2230' });
     add('path', { d: 'M4 40 C6 30 14 28 20 28 C26 28 34 30 36 40Z', fill: k.accent || '#2b364a' });
+    if (k.mane) add('circle', { cx: 20, cy: 19, r: 15, fill: k.mane }); // the lion Fighter: a mane behind the head
     if (k.ears === 'none') { /* crocodile: no ears */ }
     else if (k.ears === 'long') { add('ellipse', { cx: 14, cy: 8, rx: 3, ry: 9, fill: k.fur }); add('ellipse', { cx: 26, cy: 8, rx: 3, ry: 9, fill: k.fur }); }
     else if (k.ears === 'point') { add('path', { d: 'M9 14 L12 3 L18 11Z', fill: k.fur }); add('path', { d: 'M31 14 L28 3 L22 11Z', fill: k.fur }); }
     else { add('circle', { cx: 11, cy: 11, r: 4, fill: k.fur }); add('circle', { cx: 29, cy: 11, r: 4, fill: k.fur }); }
     add('ellipse', { cx: 20, cy: 20, rx: k.small ? 8 : 10, ry: k.small ? 8 : 10, fill: k.fur });
     if (k.muzzle) add('ellipse', { cx: 20, cy: 23.5, rx: 5.5, ry: 4, fill: k.muzzle });
-    if (k.mane) add('path', { d: 'M8 16 Q10 6 20 7 Q30 6 32 16 Q28 11 20 11 Q12 11 8 16Z', fill: k.mane });
     if (k.chain) add('path', { d: 'M13 31 Q20 36 27 31', stroke: '#e0b23a', 'stroke-width': 1.6, fill: 'none' });
     if (k.spiky) add('path', { d: 'M10 14 L13 7 L17 12 L20 5 L23 12 L27 7 L30 14Z', fill: k.fur });
     if (k.cap) add('path', { d: 'M9 15 Q20 4 31 15Z', fill: '#243044' });

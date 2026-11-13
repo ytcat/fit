@@ -62,7 +62,7 @@
     dream_gym_talk: { kind: 'film', scene: 'dream_gym_talk' },
     first_brick: { kind: 'story_fight', brick: true, any: true, after: 'dream_after_brick', rounds: 1, roundSeconds: 60, restSeconds: 0, opponent: L('Brick', 'בריק', 'Брик'),
       // Much stronger than the Fighter on day one (a regular partner is 0.85-1.15 power/tempo): a loss is expected, a win possible.
-      foe: { power: 1.4, tempo: 1.18, skill: .12 } },
+      foe: { power: 1.4, tempo: 1.18, skill: .1 } },
     clean_gym: { kind: 'training', mode: 'heavy', duration: 30, steps: true },
     night_shadow: { kind: 'training', mode: 'none', duration: 45, frame: (r, f) => { if (playerOn()) r.value += (f.swings || []).filter(x => x.actor === 'lion').length; } },
     night_bag: { kind: 'training', mode: 'heavy', duration: 60, imp: (r, h) => { if (powerHit(h)) r.value++; } },
@@ -198,7 +198,7 @@
   }
   const starsOf = (g, id) => g.adventure?.missions[id]?.stars || 0;
   function nextMission(g, afterId, chap) {
-    const order = (window.AdventureStory?.order || A().missions.map(m => m.id)).filter(id => DEFS[id] && (!chap || chapterOfId(id) === chap)).map(id => A().missions.find(m => m.id === id)), i = order.findIndex(m => m.id === afterId), cand = i < 0 ? order : [...order.slice(i + 1), ...order.slice(0, i)];
+    const order = (window.AdventureStory?.order || A().missions.map(m => m.id)).filter(id => DEFS[id] && A().missions.some(m => m.id === id) && (!chap || chapterOfId(id) === chap)).map(id => A().missions.find(m => m.id === id)), i = order.findIndex(m => m.id === afterId), cand = i < 0 ? order : [...order.slice(i + 1), ...order.slice(0, i)];
     return cand.find(m => !starsOf(g, m.id)) || cand.find(m => starsOf(g, m.id) < 3) || null;
   }
   function openMap(id, then) { cleanup(); closeBeat(); run = null; rg()?.open('adventure', { onReady: h => { selectPin = h.select; h.select(id || 'oldtown'); if (then) setTimeout(then, 300); } }); }
@@ -216,9 +216,14 @@
       if (info.won) more.push([w.rematch, boss]);
     } else {
       if (info.kind === 'mission' && info.res?.ok && info.res.best < 3) more.push([w.retry, go(info.id)]);
-      const here = nm; // the recommended next beat of this chapter first
-      primary = here ? [fill(w.next, { t: T(here.titles) }), go(here.id)] : bossWon && chapterBtn ? chapterBtn : bossBtn;
-      if (here && !bossWon) more.push(bossBtn);
+      // GOTR-0078: the story's current step comes first (films, talks and story fights included), through its BEFORE beat on the map.
+      const cur = SF() ? SF().state(g, ch).current : null;
+      if (cur) primary = cur.boss ? bossBtn : [fill(w.next, { t: stepLabel(cur.id) }), () => openMap(pinOf(ch), () => before(gameCtx(), cur.id))];
+      else {
+        const here = nm; // no story data: the recommended next mission of this chapter first
+        primary = here ? [fill(w.next, { t: T(here.titles) }), go(here.id)] : bossWon && chapterBtn ? chapterBtn : bossBtn;
+        if (here && !bossWon) more.push(bossBtn);
+      }
     }
     more.push([w.map, () => openMap(pinOf(ch))]);
     return { primary, more };
@@ -231,12 +236,11 @@
     bar._view = e.arena?.fightView || null; bar._mode = e.targetMode;
     (e.stage || document.body).append(bar); placeNext();
   }
-  // GOTR-0054: the Next bar sits in the stage's bottom band, directly above the topmost control (game pad zones, camera lock, play/pause, Burst, result row).
+  // GOTR-0078 (owner: no boxes over the game): the Next row is plain buttons in the stage's bottom action band, where the game
+  // pad sits during play. While it is shown the idle pad steps aside (CSS), so nothing covers a fighter or another control.
   function placeNext() {
     const bar = document.getElementById('advNext'); if (!bar) return;
-    const host = bar.parentElement, hr = host.getBoundingClientRect(); let top = Infinity;
-    for (const el of document.querySelectorAll('.fp-zone,#camLock,#playBtn,#burstControl,#burstTip,.ringside-toolbar,#fightResults .fight-result-actions')) { if (el.offsetParent === null) continue; const r = el.getBoundingClientRect(); if (r.width && r.height && r.top > hr.top + hr.height / 2) top = Math.min(top, r.top); }
-    bar.style.bottom = (top < Infinity ? Math.max(8, hr.bottom - top + 6) : 10) + 'px';
+    bar.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + 8px)';
   }
   // Called for every awarded activity (replaces the old full-screen card). Mission/boss runs add their own stars and Next bar.
   function reward(a) {
@@ -484,7 +488,7 @@
     const view = e.arena?.fightView; if (!view) { restoreCast(run); run = null; toast(W().noStart, 'bad'); return; }
     run.view = view; const entry = view.careerEntry, foe = view.match.fighters[entry?.species === 'lion' ? 'rabbit' : 'lion'];
     if (entry && d.opponent) entry.opponentName = T(d.opponent);
-    if (foe && d.foe) { foe.power *= d.foe.power; foe.tempo *= d.foe.tempo; foe.skill = Math.min(.99, foe.skill + d.foe.skill); }
+    if (foe && d.foe) { foe.power *= d.foe.power; foe.tempo *= d.foe.tempo; foe.skill = Math.min(.95, foe.skill + d.foe.skill); } // skill below the cap: a skilled player can still win
     run.ui = goalStrip(`${T(s.title)} · ${goalLine(s).split(': ').slice(1).join(': ')}`);
   }
   function storyFightDone(view) {
@@ -580,7 +584,7 @@
       const can = s.status !== 'locked', row = mk('li', `sf-step sf-${s.status}${s.side ? ' sf-side' : ''}`), b = can ? btn('', () => before(ctx, s.id), 'sf-step-b') : mk('div', 'sf-step-b');
       if (!can) b.setAttribute('aria-disabled', 'true');
       const markTxt = s.status === 'done' ? '✓' : s.status === 'locked' ? '🔒' : s.side ? '✦' : String(s.n);
-      const state = s.status === 'done' ? (s.boss ? W0.won : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? (lang() === 'he' ? '◀' : '▶') : w.side;
+      const state = s.status === 'done' ? (s.boss ? W0.won : s.event ? w.done : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? (lang() === 'he' ? '◀' : '▶') : w.side;
       b.append(mk('span', 'sf-mark', markTxt), mk('span', 'sf-name', `${s.side ? w.side + ' · ' : s.n + '. '}${T(s.title)}`), mk('span', 'sf-state', state));
       if (can) b.setAttribute('aria-label', `${s.side ? w.side : s.n}. ${T(s.title)} · ${state}`);
       row.append(b); list.append(row);
