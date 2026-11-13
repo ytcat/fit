@@ -1,4 +1,4 @@
-/* Old Town playable (GOTR-0008 slice C1): Coach Pip's mission list on the Old Town card, a small goal strip while a
+/* Old Town playable (GOTR-0008 slice C1): Mack's mission list on the Old Town card, a small goal strip while a
  * mission runs on an EXISTING activity, measured results -> AdventureProgress.recordMission, and the boss bout against
  * Brick -> recordBoss. Nothing here changes how the activities work: it listens (engine.onImpact, career.onFrame,
  * career.onFight, AcademyStage.state) and measures what they already produce. Development build: everything open. */
@@ -289,7 +289,7 @@
   // GOTR-0056: story scenes are seen once per browser (a replay of the step shows the short lines instead).
   const seen = k => { try { return localStorage.getItem('gotr-scene-' + k) === '1'; } catch { return false; } };
   const mark = k => { try { localStorage.setItem('gotr-scene-' + k, '1'); } catch { /* fine without storage */ } };
-  // GOTR-0078: the older Brick scenes star Pip as the Coach, so the Dream rematch plays none (Bruno speaks in the summary instead).
+  // GOTR-0078: the older Brick scenes star Mack as the Coach, so the Dream rematch plays none (Bruno speaks in the summary instead).
   const BOSS_SCENE = { brick: [null, null], king_hyena: ['hyena_intro', 'hyena_outro'] };
 
   // ---- GOTR-0069 story mode: BEFORE beat -> the step -> AFTER beat (on the map, never over the Fighter) -> Next ----

@@ -231,7 +231,7 @@
     tree(-6.6, -2.7, 4); tree(16.6, -2.7, 4.2); tree(-21, -2.7, 4.4); tree(27, -2.7, 4.2); tree(2, 9.2, 4.2); tree(14, 9.4, 4.4);
     lamp(-2.2, -3.1); lamp(6.5, -3.1); lamp(15, -3.1); lamp(-15.2, -3.1); bin(14.0, -3.0); planter(9.0, -3.1); planter(12.95, -3.1); planter(-1.6, -3.1, 1.5); planter(1.6, -3.1, 1.5);
     for (const x of [3.9, 6.1]) bollard(x, .2);
-    // movable things: cyclist, the new heavy bag, the guard's pillow, Pip's old hand wraps
+    // movable things: cyclist, the new heavy bag, the guard's pillow, Mack's old hand wraps
     const Cb = new K.Batch();
     wheel(Cb, 0, .34, -.55, .34, .05); wheel(Cb, 0, .34, .55, .34, .05);
     box(Cb, 0, .34, -.5, .05, .06, 1.0, '#e63946'); box(Cb, 0, .38, -.1, .05, .52, .06, '#e63946'); box(Cb, 0, .4, .5, .05, .5, .05, '#3b4350'); box(Cb, 0, .88, .44, .52, .04, .04, '#3b4350'); box(Cb, 0, .86, -.14, .16, .06, .3, '#1d2026');

@@ -120,3 +120,14 @@
 #stageContainer > #advNext.adv-next .adv-go{flex:1 1 auto;min-width:0;min-height:38px;padding:2px 10px;font-size:12px;line-height:1.15;white-space:normal}
 #stageContainer > #advNext.adv-next .adv-next-main{flex:3 1 0}
 #stageContainer:has(> #advNext) :is(.fp-zone,#burstControl,#burstTip,#camLock,#playBtn){visibility:hidden;pointer-events:none}
+/* GOTR-0081 portraits: a thin brushed-metal ring with a short accent arc at the lower corner, the face on a dark vignette */
+.adv-bust.sp-portrait{--sp:40px;--sp-accent:#e63946;position:relative;display:inline-block;flex:none;box-sizing:border-box;width:var(--sp);height:var(--sp);padding:2px;border-radius:50%;
+  background:conic-gradient(from 0deg,#eef1f5 0deg,#8a93a0 60deg,#dfe4ea 100deg,var(--sp-accent) 112deg,var(--sp-accent) 150deg,#dfe4ea 162deg,#6c7582 220deg,#f4f6f9 290deg,#8a93a0 330deg,#eef1f5 360deg);
+  box-shadow:0 1px 3px rgb(0 0 0/.7),inset 0 0 0 .5px rgb(255 255 255/.35)!important}
+.sp-portrait .sp-face{display:block;width:100%;height:100%;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 42%,#3a4659,#161c27 55%,#05070b);box-shadow:inset 0 0 0 1px rgb(0 0 0/.55)}
+.sp-portrait .sp-img,.sp-portrait .sp-sil{display:block;width:100%;height:100%;object-fit:cover}
+.sp-portrait .sp-mono{display:grid;place-items:center;width:100%;height:100%;font:800 calc(var(--sp) * .36)/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.04em;color:#e9edf3;text-shadow:0 1px 2px #000;background:radial-gradient(circle at 50% 38%,#33405a,#121824 60%,#05070b)}
+.sf-beat-line .adv-bust.sp-portrait{--sp:42px;width:var(--sp);height:var(--sp)}
+.sf-pic .adv-bust.sp-portrait{--sp:56px;width:var(--sp);height:var(--sp)}
+.adv-story .adv-bust.sp-portrait{--sp:44px;width:var(--sp);height:var(--sp)}
+.adv-journal-line .adv-bust.sp-portrait{--sp:40px;width:var(--sp);height:var(--sp)}
