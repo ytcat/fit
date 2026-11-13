@@ -19,8 +19,8 @@
   {
    "label": "arrives",
    "phase": "play",
-   "calls": 120,
-   "triangles": 189372,
+   "calls": 119,
+   "triangles": 188388,
    "set": {
     "meshes": 149,
     "triangles": 218978
@@ -34,8 +34,8 @@
   {
    "label": "step-off",
    "phase": "play",
-   "calls": 173,
-   "triangles": 515774,
+   "calls": 172,
+   "triangles": 514790,
    "set": {
     "meshes": 153,
     "triangles": 228474
@@ -80,19 +80,19 @@
    },
    "shot": 2,
    "city": true,
-   "t": 14.45,
+   "t": 14.5,
    "fighter": [
     2.75,
     0,
     4.5
    ],
-   "bus": -37.96
+   "bus": -39.17
   },
   {
    "label": "walk",
    "phase": "play",
-   "calls": 114,
-   "triangles": 451286,
+   "calls": 113,
+   "triangles": 450302,
    "set": {
     "meshes": 157,
     "triangles": 227266
@@ -129,19 +129,19 @@
   {
    "label": "crossing",
    "phase": "play",
-   "calls": 74,
-   "triangles": 374064,
+   "calls": 75,
+   "triangles": 375048,
    "set": {
     "meshes": 147,
     "triangles": 211346
    },
    "shot": 5,
    "city": true,
-   "t": 25.1,
+   "t": 25.05,
    "fighter": [
-    22.819,
+    22.793,
     -0.15,
-    0.053
+    0.11
    ],
    "bus": -63.76
   },
@@ -171,9 +171,9 @@
   "textures": 20
  },
  "log": [
-  "warning [.WebGL-0x65401865e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-  "warning [.WebGL-0x65401865e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-  "warning [.WebGL-0x65401865e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-  "warning [.WebGL-0x65401865e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  "warning [.WebGL-0x72c0150f000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x72c0150f000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x72c0150f000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x72c0150f000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
  ]
 }
