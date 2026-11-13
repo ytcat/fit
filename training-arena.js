@@ -436,6 +436,8 @@
     if(spec.move==='step'&&!options.stepDirection&&!options.stepAdvance)options.stepDirection=frame.index%2?-1:1;
     // GOTR-0051: a bracing sparring partner brings both gloves from the bladed guard to the blocking cover for that beat.
     if(actor==='rabbit'&&spec.move==='guard'&&spec.defend&&spec.brace&&!spec.rest)options.blockCover=spec.brace*smooth(spec.phase/.15)*(1-smooth((spec.phase-.80)/.20));
+    // GOTR-0075: the Fighter's held Guard (player input) visibly closes both gloves to the blocking cover, eased so a hold stays closed.
+    if(isHero){const want=manual&&spec.move==='guard'&&spec.defend&&!spec.rest?1:0,c=this.heroCover||(this.heroCover={v:0,t:time}),dt=Math.max(0,Math.min(.1,time-c.t));c.t=time;c.v+=(want-c.v)*(1-Math.exp(-dt/.06));if(want&&c.v<.35)c.v=.35;if(c.v>.01)options.blockCover=Math.max(options.blockCover||0,c.v);}
     if(actor==='rabbit'&&this.partnerStep?.ring)options.ringStep=this.partnerStep.ring;
     if(mode==='heavy'){
      const straight=spec.move==='jab'||spec.move==='cross';

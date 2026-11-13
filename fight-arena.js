@@ -203,6 +203,9 @@
     // GOTR-0051: when a punch is coming the forward lead glove tightens back to the cheek cover, so blocks keep
     // the proven guard geometry (a straight caught on the glove still lands extended); it opens again afterwards.
     {const threat=specs[other(actor)];if(threat.attack&&!spec.attack)options.blockCover=clamp(threat.phase/.14)*(1-clamp((threat.phase-.62)/.25));}
+    // GOTR-0075: a Guard the player orders (held on the pad) closes both gloves to that blocking cover for as long as it is
+    // held, eased in/out over ~60 ms so the repeated guard orders of a hold never flicker. Idle stays the open stance.
+    {const want=m.phase==='round'&&actor===m.playerActor&&spec.move==='guard'&&spec.defend&&spec.id>0?1:0,c=(this.heldCover=this.heldCover||{})[actor]||(this.heldCover[actor]={v:0,t:m.time}),dt=clamp(m.time-c.t,0,.1);c.t=m.time;c.v+=(want-c.v)*(1-Math.exp(-dt/.06));if(want&&c.v<.35)c.v=.35;if(c.v>.01)options.blockCover=Math.max(options.blockCover||0,c.v);}
     const path=travel[actor];
     if(m.phase==='round'&&path.weight>.001&&!ceremony){const yaw=coach.ringYaw,local=coach.ringDelta.clone().applyAxisAngle(V(0,1,0),-yaw),first=Math.abs(local.z)>=Math.abs(local.x)?(local.z>=0?-1:1):(local.x>=0?1:-1);options.ringStep={first,phase:path.phase,ease:path.ease,weight:path.weight,turn:0,delta:local.toArray()};}
     if(spec.attack){

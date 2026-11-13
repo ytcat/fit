@@ -47,14 +47,16 @@
    const round=s.phase==='round',status=round?w().round+' '+s.round+'/'+s.rounds:s.phase==='rest'?w().rest:s.phase==='count'?w().count:s.phase==='intro'?w().intro:s.phase==='scoring'?w().pending:'',time=round?clock(s.remaining):s.phase==='rest'?clock(s.restRemaining):s.phase==='count'?String(s.count):'';
    hud.hidden=!status;hud.dataset.phase=s.phase;hud.replaceChildren(make('span','fight-hud-phase',status));if(time)hud.append(make('span','fight-hud-sr',' · '),make('span','fight-hud-clock',time));
    if(round)for(const actor of ['lion','rabbit']){const score=make('span','fight-hud-score');score.dataset.corner=actor==='lion'?'red':'blue';score.append(make('span','fight-hud-sr',' · '+labels(view)[actor]+' '),make('span','fight-hud-num',String(s.totals[actor].landed)));hud.append(score);}
-   const before=panel.hidden;panel.hidden=!s.result;if(before!==panel.hidden)window.dispatchEvent?.(new Event('resize'));if(!s.result)return;panel.replaceChildren();
+   const before=panel.hidden;panel.hidden=!s.result;document.body?.classList?.toggle?.('fight-over',!!s.result);if(before!==panel.hidden)window.dispatchEvent?.(new Event('resize'));if(!s.result)return;panel.replaceChildren();
    const title=s.phase==='ceremony'?(s.result.winner?labels(view)[s.result.winner]+' '+w().winner+' · '+w()[s.result.decision]:w().draw):w().waiting;
-   panel.append(make('strong','fight-result-title',title),make('span','fight-judges-label',w().judges));const cards=make('div','fight-card-grid');// GOTR-0054: one slim row (styled by stage-hud.css): Judges 9–10 · 9–10 · 9–10, Details on demand
-   for(const [i,card] of s.result.cards.entries()){const cell=make('div','fight-card');cell.append(make('span','',w().judge+' '+(i+1)),make('strong','',i<s.cardsShown?card.totals.join(' – '):'•• – ••'));cards.append(cell);}panel.append(cards);
+   // GOTR-0075: the judges' cards only when the bout goes to the cards (points decision or draw); a KO/TKO/stoppage shows the
+   // winner line alone. The cards are three score cards at one side of the scene and the buttons sit in the bottom band (stage-hud.css).
+   const onCards=s.result.stoppage==='points';panel.dataset.cards=String(onCards);panel.append(make('strong','fight-result-title',title));
+   if(onCards){const cards=make('div','fight-card-grid');cards.setAttribute('aria-label',w().judges);for(const [i,card] of s.result.cards.entries()){const cell=make('div','fight-card');cell.append(make('span','',w().judge+' '+(i+1)),make('strong','',i<s.cardsShown?card.totals.join(' – '):'•• – ••'));cards.append(cell);}panel.append(cards);}
    if(s.result.method==='TKO')panel.append(make('p','fight-note',w().stoppage));
    const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;actions.append(details,again);panel.append(actions);
   }
-  function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=true;last='';for(const actor in corners)corners[actor].last=null;}
+  function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=true;document.body?.classList?.toggle?.('fight-over',false);last='';for(const actor in corners)corners[actor].last=null;}
   e.onFightEvent=event=>{if(event.type==='announcement')app.audio.applause?.();else app.audio.bell(event.type==='final-bell'?'final':event.kind||'start');};
   window.fightUI={configure,detail,render,hide,words:()=>w()};
  }
