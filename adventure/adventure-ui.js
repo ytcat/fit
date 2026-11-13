@@ -12,7 +12,7 @@
   };
   // Content from the approved design (docs/adventure/gloryland-design.html). Bosses are not built yet.
   const PLACES = {
-    oldtown: { name: L('Old Town', 'העיר העתיקה', 'Старый город'), sub: L('Home Gym · morning', 'אולם הבית · בוקר', 'Домашний зал · утро'), coach: L('Coach Pip, rabbit · basics and guard', 'המאמן פיפ, ארנב · יסודות ושמירה', 'Тренер Пип, кролик · основы и защита'), boss: L('Brick, beaver gym bully', 'בריק, הבונה בריון האולם', 'Брик, бобр-задира из зала'), level: 5, train: 'default' },
+    oldtown: { name: L('Old Town', 'העיר העתיקה', 'Старый город'), sub: L('Home Gym · morning', 'אולם הבית · בוקר', 'Домашний зал · утро'), coach: L('Coach Bruno, bear · basics and guard', 'המאמן ברונו, דוב · יסודות ושמירה', 'Тренер Бруно, медведь · основы и защита'), boss: L('Brick, bulldog gym champion', 'בריק, בולדוג, אלוף האולם', 'Брик, бульдог, чемпион зала'), level: 5, train: 'default' },
     market: { name: L('Market Row', 'שדרת השוק', 'Рыночный ряд'), sub: L('Street fights · evening', 'קרבות רחוב · ערב', 'Уличные бои · вечер'), coach: L('Vix, fox · footwork and slipping', 'ויקס, שועלה · עבודת רגליים והתחמקויות', 'Викс, лиса · работа ног и уклоны'), boss: L('King Hyena, leader of the crew', 'מלך הצבועים, ראש החבורה', 'Король Гиен, главарь банды'), level: 12, arenas: ['street'] },
     docks: { name: L('The Docks', 'הנמל', 'Доки'), sub: L('The Basement · Dockside Hangar · night', 'המרתף · האנגר הנמל · לילה', 'Подвал · Портовый ангар · ночь'), coach: L('Tusk, retired walrus brawler · power punching', 'טאסק, סוס ים מתאגרף בדימוס · אגרופי עוצמה', 'Таск, морж-боец на пенсии · сильные удары'), boss: L('The Iron Bull', 'השור מברזל', 'Железный Бык'), level: 20, arenas: ['underground', 'docks'] },
     downtown: { name: L('Downtown', 'מרכז העיר', 'Центр'), sub: L('Boxing Club · City Sports Hall', 'מועדון האגרוף · היכל הספורט העירוני', 'Боксёрский клуб · Городской спортзал'), coach: L('Kip, kangaroo · technique and combos', 'קיפ, קנגורו · טכניקה ושילובים', 'Кип, кенгуру · техника и комбинации'), boss: L('Onyx, panther city champion', 'אוניקס, פנתר אלוף העיר', 'Оникс, пантера, чемпион города'), level: 30, arenas: ['boxing_club', 'regional'] },
@@ -136,7 +136,7 @@
     }
     // Compact bottom sheet (GOTR-0055): peek = title, icon facts, chapter progress, mission tiles; tap the handle or a tile to expand.
     const SIDE_SHORT = { fort: L('Fort', 'מבצר', 'Форт'), fair: L('Fair', 'יריד', 'Ярмарка'), cove: L('Cove', 'מפרץ', 'Бухта'), tech: L('Tech Pier', 'מזח', 'Пирс') };
-    const COACH_ICON = { pip: '🐰', vix: '🦊', tusk: '🦭', kip: '🦘', tembo: '🐘' };
+    const COACH_ICON = { bruno: '🐻', pip: '🐰', vix: '🦊', tusk: '🦭', kip: '🦘', tembo: '🐘' };
     function progressBar(chap) {
       const A = P(), g = game(), ms = A.missions.filter(m => m.chapter === chap), stars = ms.reduce((n, m) => n + (g.adventure?.missions[m.id]?.stars || 0), 0), max = ms.length * 3 || 27, boss = A.bossWon(g, A.chapters[chap - 1].boss), units = max + 1;
       const bar = el('div', 'adv-prog'), fillEl = el('i', 'adv-prog-fill'), key = 'gotr.adv.p.' + chap; let old = 0;
