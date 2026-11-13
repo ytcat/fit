@@ -8,7 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.57 | 2026-11-13 | _pending_ | The "Choose combos" placeholder is no longer shown on the pad when the player has no combos |
+| v1.57 | 2026-11-13 | `61b1d39` | The "Choose combos" placeholder is no longer shown on the pad when the player has no combos |
 | v1.56 | 2026-11-13 | `6c3b186` | Hotfix: the Fighter is no longer torn apart in the scene after the first Brick fight (GOTR-0085) |
 | v1.55 | 2026-11-13 | `bd3082d` | Outside a fight nobody holds a boxing guard: relaxed standing, a real walk with arm swing, talk gestures, in every story scene and trial intro. Clothes follow the place: street clothes and bare hands on the street and market, track pants and hand wraps at the docks, boxing kit only in the gym and ring (old scenes included). Third pass on the cast: fur, Brick head, cloth (GOTR-0078) |
 | v1.54 | 2026-11-13 | `41afa17` | Character portraits rendered from the real 3D heads in a metal ring (monogram badges for characters without a model yet); Pip is Mack in every text (GOTR-0081) |
