@@ -208,7 +208,7 @@
     mk(rig.castMats.glint, V(s * x - size * .27, y + size * .26, z + size * .76), V(size * .17, size * .17, size * .05));
     mk(rig.castMats.glint, V(s * x + size * .22, y - size * .2, z + size * .74), V(size * .07, size * .07, size * .03));
     if (lid) { // upper and lower lids in the coat colour: the eye sits in the face instead of on it
-      const mat = new THREE.MeshStandardMaterial({ color: lid.color, roughness: .95 }), up = mk(mat, V(s * x, y + size * (.6 + (lid.open || 0)), z + size * .02), V(size * 1.14, size * .46, size * .76), false), low = mk(mat, V(s * x, y - size * .8, z - size * .1), V(size * 1.02, size * .28, size * .66), false);
+      const mat = new THREE.MeshStandardMaterial({ color: lid.color, roughness: .95 }), up = mk(mat, V(s * x, y + size * (.62 + (lid.open || 0)), z - size * .06), V(size * 1.06, size * .38, size * .78), false), low = mk(mat, V(s * x, y - size * .86, z - size * .16), V(size * .98, size * .24, size * .66), false);
       up.rotation.z = s * (lid.tilt || 0); low.rotation.z = s * (lid.tilt || 0) * -.4;
     }
   }
@@ -406,7 +406,7 @@
       P.sph(V(0, .128, nz + .004), V(.062, .038, .03), '#1c1614'); for (const sd of [-1, 1]) P.sph(V(sd * .027, .116, nz + .026), V(.013, .009, .008), '#060505'); P.sph(V(-.016, .144, nz + .027), V(.014, .007, .005), '#7a716c');
       // the mouth: a dark line in the fold under the flews, lifted at one side (a sneer)
       const lip = x => -.024 - .034 * smooth((Math.abs(x) - .05) / .09) + (x > 0 ? .008 * smooth(x / .1) : 0);
-      P.ribbon([-.135, -.1, -.05, 0, .05, .1, .135].map(x => V(x, lip(x), Z(Math.abs(x), lip(x)) - .001)), .011, .008, '#2e211d', V(0, 1, 0), 26, 6);
+      P.ribbon([-.135, -.1, -.05, 0, .05, .1, .135].map(x => V(x * .86, lip(x * .86), Z(Math.abs(x * .86), lip(x * .86)) - .004)), .008, .007, '#3a2a25', V(0, 1, 0), 26, 6);
       // scar through the brow on the patch side: pale, hairless, two stitch marks
       const sx = .118, scar = [[-.022, .272], [-.008, .25], [.01, .224]].map(([dx, y]) => V(sx + dx, y, Z(sx + dx, y) + .001));
       P.ribbon(scar, .014, .006, '#eaa397', V(1, 0, 0), 12, 6);
