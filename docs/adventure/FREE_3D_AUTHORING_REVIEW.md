@@ -1,6 +1,6 @@
 # Free tools for Gloryland's city assets and animation
 
-Reviewed 2026-11-13 against the paused `main` snapshot `b6a19c2424fc179af6d702137c391b8677e25fd9`. This is an asset-authoring recommendation, not a runtime replacement or permission to integrate unfinished Claude branches.
+Reviewed 2026-11-13 against the frozen `main` snapshot `b6a19c2424fc179af6d702137c391b8677e25fd9`. Concurrent development subsequently advanced `main` to `dab12f682e58f68f1d35398069aa606fe15001fa`; its updated Chapter 1 script and asset-related changes were checked. This is an asset-authoring recommendation; game integration remains coordinated with Claude's active work.
 
 ## Recommendation
 

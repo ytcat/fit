@@ -1,0 +1,25 @@
+[
+  {
+    "asset": "ch01-bus/gloryland-bus.glb",
+    "status": "PASS",
+    "bytes": 2993632,
+    "triangles": 55484,
+    "extensionsUsed": [
+      "KHR_materials_emissive_strength"
+    ],
+    "requiredExtensions": [],
+    "animations": [
+      "Doors_open_hold_close",
+      "Wheels_one_revolution"
+    ]
+  },
+  {
+    "asset": "ch01-station/gloryland-station.glb",
+    "status": "PASS",
+    "bytes": 6808148,
+    "triangles": 25860,
+    "extensionsUsed": [],
+    "requiredExtensions": [],
+    "animations": []
+  }
+]
