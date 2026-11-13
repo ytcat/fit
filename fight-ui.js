@@ -61,6 +61,16 @@
   // Do not play a second synthetic bell over the approved three-strike end bell.
   const approvedAudio=window.ApprovedFightAudio;
   approvedAudio?.preload(app.audio);
+  // Prefer the approved glove recording at confirmed non-heavy impacts only,
+  // and retain the original effect when the approved recording is unavailable.
+  if(approvedAudio && !app.audio.__approvedImpactInstalled){
+    const previousHit=app.audio.hit.bind(app.audio);
+    app.audio.hit=function(impact){
+      if(impact?.receiver!=='heavy' && approvedAudio.impact(this))return;
+      return previousHit(impact);
+    };
+    app.audio.__approvedImpactInstalled=true;
+  }
   e.onFightEvent=event=>{
    if(event.type==='announcement'){
     if(!approvedAudio?.handle(event,app))app.audio.applause?.();
