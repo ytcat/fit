@@ -4,7 +4,7 @@ process.chdir(path.join(__dirname, '..'));
 global.THREE = require('../assets/vendor/three.min.js'); global.window = global;
 global.document = { createElement: () => ({ getContext: () => new Proxy({}, { get: (_, key) => key === 'createImageData' ? ((w, h) => ({ data: new Uint8ClampedArray(w * h * 4) })) : () => {} }) }) };
 const G = require('../glossary.js'), C = require('../adventure/story/dream-core.js');
-for (const f of ['boxing-routines.js', 'boxing-footwear.js', 'boxing-coach-v2.js', 'adventure/story/story-cast.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'));
+for (const f of ['boxing-routines.js', 'boxing-footwear.js', 'boxing-coach-v2.js', 'adventure/story/story-cast.js', 'adventure/story/street-wear.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'));
 const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}`);
 
 // ---- scene scripts
@@ -70,7 +70,8 @@ for (const species of ['lion', 'rabbit']) {
   assert.equal(StoryCast.outfitOf(c), 'kit'); assert.equal(StoryCast.outfit(c, 'nonsense'), false);
   assert.equal(StoryCast.outfit(c, 'street'), true); assert.equal(StoryCast.outfitOf(c), 'street'); finite(c);
   assert.ok(!c.gloveMeshes.L.visible && !c.gloveMeshes.R.visible && !c.shorts.visible, species + ': no gloves or trunks in street clothes');
-  assert.ok(g.attributes.position !== before.attrs[0], 'street streams are in use'); assert.ok(width(c, 1.18, 1.22) > width({ skin: { geometry: { attributes: { position: before.attrs[0] } } } }, 1.18, 1.22) + .03, species + ': the hoodie hangs loose over the waist');
+  assert.ok(g.attributes.position !== before.attrs[0], 'street streams are in use'); const cloth = c.root.children.find(o => o.userData.streetCloth); assert.ok(cloth?.isSkinnedMesh && cloth.visible, species + ': the clothes are their own skinned mesh (GOTR-0093)');
+  assert.ok(width({ skin: cloth }, 1.18, 1.22) > width({ skin: { geometry: { attributes: { position: before.attrs[0] } } } }, 1.18, 1.22) + .03, species + ': the hoodie hangs loose over the waist');
   StoryCast.bag(c, 'shoulder'); assert.ok(c.storyCast.bag.visible, 'bag on the shoulder'); const t1 = tris(c);
   DreamPose.civil(c, { t: 0, dist: 0, arms: { R: 'strap' } });
   assert.equal(StoryCast.outfit(c, 'kit'), true); const after = snap();
