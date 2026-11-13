@@ -27,7 +27,7 @@ module.exports = async (p, shot, u) => {
   if (process.env.KIT) await p.evaluate(() => { __pv.kit = true; });
   const yaw = { front: 0, 34: .75, side: Math.PI / 2, back: Math.PI, b34: Math.PI - .75, m34: -.75 };
   for (const v of views) {
-    await p.evaluate(({ y, zoom, n }) => { __pv.yaw = y; if (zoom === 'head') { __pv.look = [0, 1.92, 0]; __pv.dist = 2.0 + (n - 1) * 1.2; } else if (zoom === 'feet') { __pv.look = [0, .35, 0]; __pv.dist = 2.4; } else { __pv.look = [0, 1.08, 0]; __pv.dist = 5.6 + (n - 1) * 1.6; } }, { y: yaw[v], zoom, n: who.length });
+    await p.evaluate(({ y, zoom, n }) => { __pv.yaw = y; if (zoom === 'head') { __pv.look = [0, __pv.rigs[0].character === 'brick' ? 1.99 : 1.92, 0]; __pv.dist = 2.0 + (n - 1) * 1.2; } else if (zoom === 'feet') { __pv.look = [0, .35, 0]; __pv.dist = 2.4; } else { __pv.look = [0, 1.08, 0]; __pv.dist = 5.6 + (n - 1) * 1.6; } }, { y: yaw[v], zoom, n: who.length });
     await p.waitForTimeout(2500); await shot(`${tag}-${zoom}-${v}-${u.w}`, box);
   }
   console.log('stats', JSON.stringify(await p.evaluate(() => __pv.stats)));
