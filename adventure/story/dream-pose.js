@@ -69,7 +69,7 @@
     let y = HIP + .004 * breath * idle - (m.drop || 0);
     for (const p of plans) { const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .992 : .975), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz))); }
     hips.position.y = y - .012 * w;
-    const stoop = c.character === 'bruno' ? .085 : 0, lean = m.lean + .035 * w + stoop; // the old champion carries his years in his back
+    const stoop = c.cast?.stoop ?? (c.character === 'bruno' ? .085 : 0), lean = m.lean + .035 * w + stoop; // the old champion carries his years in his back
     j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .75, -.03 * sw * w - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * .9, -.02 * sw * w - .008 * shift);
     j.neck.position.copy(c.neckRest); j.neck.rotation.set(-m.pitch * .4 - (lean - stoop * .4) * .5, m.yaw * .4 + yaw * .3, 0);
     const nod = (st.nod || 0) * .06 * Math.sin(t * 6.5) + (st.talk || 0) * .025 * Math.sin(t * 9.1) + (st.listen || 0) * .05 * Math.max(0, Math.sin(t * 1.9 + 1)) ** 4;

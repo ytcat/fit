@@ -13,10 +13,12 @@
     if (!e?.coach) return null;
     if (id === 'fighter') return e.coach;
     if (id === 'pip') { const r = [e.arena?.padTrainers?.rabbit, e.roster?.get?.('rabbit')].find(x => x?.root && x.joints?.head); return r || (e.coach.species === 'rabbit' ? e.coach : null); }
-    if ((id === 'bruno' || id === 'brick') && typeof window.StoryCast?.rig === 'function') { try { return window.StoryCast.rig(id, e) || null; } catch { return null; } }
+    if (castHas(id)) { try { const c = window.StoryCast.rig(id, e) || null; if (c && !c.root.parent) window.DreamPose?.civil?.(c, { t: 1, dist: 0 }); return c; } catch { return null; } } // not on stage: everyday stance, not the build-time guard
     return null;
   }
-  const has3d = id => id === 'fighter' || id === 'pip' || ((id === 'bruno' || id === 'brick') && typeof window.StoryCast?.rig === 'function');
+  // Story characters on the game rig: Bruno and Brick (story-cast.js), Fang, Mrs. Hazel and Otto (cast-market.js, GOTR-0092).
+  function castHas(id) { const S = window.StoryCast; return typeof S?.rig === 'function' && (Array.isArray(S.ids) ? S.ids.includes(id) : id === 'bruno' || id === 'brick'); }
+  const has3d = id => id === 'fighter' || id === 'pip' || castHas(id);
   const keyOf = (id, e) => id === 'fighter' ? 'fighter:' + (e?.coach?.species || '?') : id;
 
   // Renders the rig's head into an image. Returns a data URL, or null when the render is empty or WebGL refuses.
