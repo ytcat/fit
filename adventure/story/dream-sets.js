@@ -42,6 +42,7 @@
       house({ style: 'brick', x: -22.5, z: -13.2, w: 11, d: 10, floors: 3, tint: PAL.oldTown[3], roof: 'hip', roofColor: C(PAL.terracotta[2]), shop: true, awning: PAL.awning[4] });
       if (keep.far(-11)) house({ style: 'plaster', x: -11, z: -13.2, w: 11, d: 10, floors: 3, tint: PAL.oldTown[0], roof: 'hip', roofColor: C(PAL.terracotta[0]), shop: true, awning: PAL.awning[0] });
       if (keep.far(.6)) house({ style: 'apartment', x: .6, z: -13.2, w: 11.4, d: 10, floors: 4, tint: PAL.apartment[1], roof: 'flat' });
+      if (ot) for (const f of CL.fill) house({ style: f.style, x: f.x, z: -13.2, w: f.w, d: 10, floors: f.floors, tint: PAL.oldTown[f.tint], roof: 'hip', roofColor: C(PAL.terracotta[f.roof]), shop: true, awning: PAL.awning[2] });
       if (keep.far(11.4)) house({ style: 'plaster', x: 11.4, z: -13.2, w: 9.4, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true, awning: PAL.awning[5] });
       house({ style: 'brick', x: 27, z: -13.2, w: 10, d: 10, floors: 2, tint: '#c9653d', roof: 'flat', shop: true, shopTint: C('#f4e4c4') });
       house({ style: 'plaster', x: 37.6, z: -13.2, w: 10.4, d: 10, floors: 3, tint: PAL.oldTown[2], roof: 'hip', roofColor: C(PAL.terracotta[3]), shop: true, awning: PAL.awning[1] });
@@ -50,8 +51,8 @@
       // near side (behind the station, seen from the road and in the dive)
       const nearRow = [[-30, 12, 2, 4, 'plaster'], [-17, 12, 3, 7, 'brick'], [-4, 13, 2, 2, 'plaster'], [9.5, 13, 3, 1, 'plaster'], [23, 13, 2, 6, 'brick'], [36, 12, 3, 0, 'plaster'], [48.5, 12, 4, 0, 'apartment'], [61, 12, 3, 5, 'plaster']];
       nearRow.forEach(([x, w, floors, tint, style], i) => keep.near(x) && house({ style, x, z: 15.4, w, d: 10, floors, tint: style === 'apartment' ? PAL.apartment[1] : PAL.oldTown[tint], roof: style === 'apartment' ? 'flat' : 'hip', roofColor: C(PAL.terracotta[i % 6]), ry: Math.PI, shop: i % 2 === 0, awning: PAL.awning[(i + 2) % 6] }));
-      c.skyline(-50); if (ot) { c.plinth(-70, -16.5, -8.12); c.plinth(16.1, 21.9, -8.12); } else c.plinth(-70, 21.9, -8.12); c.plinth(32.1, 110, -8.12);
-      if (!ot) { picto('bread', -11, 4.6, -8.14); picto('cup', 11.4, 4.6, -8.14); } picto('flower', -22.5, 4.6, -8.14); picto('book', 37.6, 4.6, -8.14);
+      c.skyline(-50); if (ot) { c.plinth(-70, -16.5, -8.12); c.plinth(6.3, 21.9, -8.12); } else c.plinth(-70, 21.9, -8.12); c.plinth(32.1, 110, -8.12);
+      if (!ot) picto('bread', -11, 4.6, -8.14); picto('cup', 11.4, 4.6, -8.14); picto('flower', -22.5, 4.6, -8.14); picto('book', 37.6, 4.6, -8.14);
       // the big city: hazy towers far down the street, and a second row of roofs behind both sides
       const tw = [[96, -30, 11, 46], [108, -10, 12, 74], [120, -28, 13, 58], [102, 20, 11, 42], [118, 14, 14, 92], [132, -6, 12, 66], [92, 34, 10, 34], [136, 26, 12, 50], [146, -22, 14, 84], [128, 40, 12, 60], [112, -46, 12, 52]];
       for (const [x, z, w, h] of tw) { const col = ['#8ea9c6', '#9db4cc', '#86a2c0'][Math.round(x) % 3]; box(S, x, 0, z, w, h, w, col); box(S, x, h, z, w * .6, h * .1, w * .6, col); for (let y = 6; y < h - 2; y += 4) box(S, x - w / 2 - .03, y, z, .06, 1.9, w * .86, '#6f8db0'); cyl(S, x, h * 1.1, z, .12, 5, '#9aa8b6', P.cyl6); }

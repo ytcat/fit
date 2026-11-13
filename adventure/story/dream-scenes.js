@@ -118,7 +118,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     }
     const MAP_T = 3.4;
     function mapFrame(dt) {
-      run.mapT += dt; const k = smooth(run.mapT / MAP_T), kk = k * k, to = run.mapTo, x = 34 + (to.x - 34) * k, z = -14 + (to.z + 14) * k, dist = 250 * Math.pow(9 / 250, kk), pitch = .9 - .22 * k, yaw = .24 - .5 * k;
+      run.mapT += dt; const k = smooth(run.mapT / MAP_T), kk = k * k, to = run.mapTo, x = 34 + (to.x - 34) * k, z = -14 + (to.z + 14) * k, dist = 250 * Math.pow(12 / 250, kk), pitch = .9 + .38 * kk, yaw = .24 - .5 * k; // GOTR-0089: steepens as it falls, so it ends above the street, never inside a roof
       const size = e.renderer.getSize(new THREE.Vector2()); mapCam.aspect = size.x / Math.max(1, size.y); mapCam.fov = mapCam.aspect < .9 ? 44 : 30; mapCam.updateProjectionMatrix();
       mapCam.position.set(x + Math.sin(yaw) * Math.cos(pitch) * dist, Math.sin(pitch) * dist, z + Math.cos(yaw) * Math.cos(pitch) * dist); mapCam.lookAt(x, 0, z);
       if (mapScene.fog) { mapScene.fog.near = dist * .85; mapScene.fog.far = dist * 2.6 + 120; }

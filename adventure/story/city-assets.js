@@ -26,10 +26,11 @@
     lamps: [[-22, 4.15, HALF], [-9, 4.15, HALF], [8.5, 4.15, HALF], [13.4, 4.15, HALF], [31.5, 4.15, HALF], [-15, -4.15, 0], [2, -4.15, 0], [16, -4.15, 0]],
     bins: [[-6.0, 6.5, HALF], [14.6, 8.6, HALF]],
     // Old Town prototypes: front wall centre at pavement height; far side faces +z, near side is turned to face -z
-    houses: [['brick', -12.6, -8.2, 0], ['plaster', -5.0, -8.2, 0], ['brick', 2.4, -8.2, 0], ['plaster', 10.4, -8.2, 0],
-      ['plaster', 6.2, 10.4, HALF], ['brick', 13.1, 10.4, HALF]],
-    replaced: { far: [-11, .6, 11.4], near: [9.5] }, // generated house slots (x) the prototypes stand in
-    detailDist: 16, trimDist: 30, busInsideDist: 14
+    // (budget: four instances; the Fighter alone submits ~340k triangles, so the street keeps generated houses in between)
+    houses: [['brick', -12.6, -8.2, 0], ['plaster', 2.4, -8.2, 0], ['plaster', 6.2, 10.4, HALF], ['brick', 13.1, 10.4, HALF]],
+    replaced: { far: [-11, .6], near: [9.5] }, // generated house slots (x) the prototypes stand in
+    fill: [{ style: 'plaster', x: -5.1, w: 7.0, floors: 3, tint: 0, roof: 4 }], // a generated house between the two far prototypes
+    detailDist: 12, trimDist: 22, busInsideDist: 9
   };
   const cache = new Map(); // name -> { state, promise, gltf, error }
   let makeLoader = () => new THREE.GLTFLoader();
@@ -111,7 +112,7 @@
       /** Wheels roll by the distance driven: the model faces -x in the street, so driving toward -x is forward. */
       bus.roll = () => { if (bus.x0 == null) bus.x0 = wrap.position.x; bus.dist = bus.x0 - wrap.position.x; const a = wheelAngle(bus.dist); for (const w of wheels) w.rotation.z = a; };
       bus.door = t => { if (!doors) return; const tt = Math.max(0, Math.min(clip.duration, t)); if (tt === bus.clipT) return; bus.clipT = tt; doors.time = tt; mixer.update(0); };
-      bus.roll(); handle.bus = bus; handle.active = true; c.objects.bus = wrap;
+      handle.bus = bus; handle.active = true; c.objects.bus = wrap; // the wheel roll counts from the first film frame
       c.disposables.push({ dispose() { mixer.stopAllAction(); mixer.uncacheRoot(model); } });
     }
     // ---- the stop: road / kerb / paving modules, shelter with bench, stop sign, lamps, bins
