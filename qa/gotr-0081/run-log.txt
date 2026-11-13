@@ -1,0 +1,5 @@
+402x690-en portraits on screen brick:3d bruno:3d fighter:3d
+402x690-en gallery {"fighter":"3d","pip":"3d","bruno":"3d","brick":"3d","fang":"monogram","hazel":"monogram","otto":"monogram","slick":"monogram","hook":"monogram","vix":"monogram","king":"monogram","dash":"monogram","hyena":"monogram","raccoon":"monogram","nephew":"monogram"} {"renders":["fighter:lion","brick","bruno","pip"],"fails":[],"storyCast":true}
+402x690-he portraits on screen brick:3d bruno:3d fighter:3d
+402x690-he gallery {"fighter":"3d","pip":"3d","bruno":"3d","brick":"3d","fang":"monogram","hazel":"monogram","otto":"monogram","slick":"monogram","hook":"monogram","vix":"monogram","king":"monogram","dash":"monogram","hyena":"monogram","raccoon":"monogram","nephew":"monogram"} {"renders":["fighter:lion","brick","bruno","pip"],"fails":[],"storyCast":true}
+portraits browser ok

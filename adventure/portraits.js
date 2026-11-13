@@ -101,12 +101,17 @@
     span.className = 'adv-bust sp-portrait'; span.dataset.who = id; span.dataset.name = o.name || ''; if (o.mono) span.dataset.mono = o.mono; span.setAttribute('aria-hidden', 'true');
     if (o.accent) span.style.setProperty('--sp-accent', o.accent);
     face.className = 'sp-face'; span.append(face);
-    if (!has3d(id) || (id === 'fighter' && !eng()?.coach?.species)) { if (!has3d(id)) { fill(span, id, null); return span; } span.querySelector('.sp-face').append(silhouette()); span.dataset.kind = 'silhouette'; return span; }
+    if (!has3d(id)) { fill(span, id, null); return span; }
+    // The Fighter's species is known only once his rig is built: wait for it (the face is keyed by species).
+    if (id === 'fighter' && !eng()?.coach?.species) { face.append(silhouette()); span.dataset.kind = 'pending'; let n = 0; const t = setInterval(() => { if (eng()?.coach?.species || ++n > 120) { clearInterval(t); attach(span, id); } }, 500); return span; }
+    attach(span, id); return span;
+  }
+  function attach(span, id) {
+    const face = span.querySelector('.sp-face');
     const k = keyOf(id, eng()), hit = cache.get(k);
-    if (hit) { fill(span, id, hit === 'fail' ? null : hit); return span; }
-    face.append(silhouette()); span.dataset.kind = 'pending';
+    if (hit) { fill(span, id, hit === 'fail' ? null : hit); return; }
+    if (!face.firstChild) face.append(silhouette()); span.dataset.kind = 'pending';
     request(id); waiting.get(k)?.add(span);
-    return span;
   }
   const api = { el, has3d, render, debug, cache, reset: () => { cache.clear(); debug.renders.length = debug.fails.length = 0; } };
   if (typeof window !== 'undefined') window.StoryPortraits = api;
