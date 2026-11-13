@@ -20,6 +20,13 @@
   {id:'school_signature',name:'School Signature',controllerId:'combo_super',sequence:['jab','cross','hook','roll','rear_uppercut','hook'],requirement:'Land 150 contacts in completed active activities',key:'hits',target:150}
  ].map(c=>({...c,price:{first_rhythm:0,corner_turn:20,counter_chain:40,thunder_arc:40,rolling_return:70,school_signature:120}[c.id],species:[...species],allowedModes:['training','fight'],slotCost:1}));
  const comboPurchase=id=>'purchase:combo:'+id;
+ // GOTR-0088 Finishers (moves category of the Shop). Owned when bought (ledger 'purchase:finisher:<id>', a grant in the development
+ // build) OR earned in the story (adventure step `earn` finished: Bruno teaches the Sunday Punch before the Brick rematch).
+ // Ownership is DERIVED from the ledger and the story, so no new save field and no migration is needed.
+ const finishers=Object.freeze([Object.freeze({id:'sunday_punch',name:'Sunday Punch',finisher:true,price:150,earn:'advanced_training',sequence:Object.freeze(['rear_uppercut']),species:Object.freeze([...species])})]);
+ const finisherPurchase=id=>'purchase:finisher:'+id;
+ const ownsFinisher=(g,id)=>{const f=finishers.find(x=>x.id===id);if(!f||!g)return false;return !!(g.ledger?.some(t=>t.id===finisherPurchase(id))||adventureRules?.dreamDone?.(g,f.earn)||adventureRules?.bossWon?.(g,'brick'));};
+ const finishersOwned=g=>finishers.filter(f=>ownsFinisher(g,f.id)).map(f=>f.id);
  // GOTR-0078 Chapter 1 "The Dream": gym equipment bought in the story (Otto's Corner) and the story's fixed cash rewards. The
  // market reward (beat 6) is defined AS the heavy bag's price, so the reward always buys exactly the bag of beat 7.
  const L3=(en,he,ru)=>({en,he,ru});
@@ -99,6 +106,7 @@
   for(const event of g.processed)if(!seen.has('reward:'+event))fail('Missing reward transaction.');
   for(const t of g.ledger)if(t.comboId!==undefined||t.id.startsWith('purchase:combo:')){const c=combos.find(c=>c.id===t.comboId);if(!c||t.id!==comboPurchase(c.id)||!(t.type==='grant'||c.price&&t.type==='spend'&&t.coins===-c.price&&t.rule==='combo-shop-v1')||!g.combos.owned.includes(c.id))fail('Invalid combo purchase.');}
   for(const t of g.ledger)if(t.id.startsWith('story:')||t.rule==='story-reward-v1'){const step=t.id.slice(6);if(!(step in storyRewards)||!exactKeys(t,['id','type','coins','xp','rule','storyStep'])||t.storyStep!==step||t.type!=='earn'||t.coins!==storyRewards[step]||t.xp!==0||t.rule!=='story-reward-v1')fail('Invalid story reward.');}
+ for(const t of g.ledger)if(t.id.startsWith('purchase:finisher:')||t.rule==='finisher-shop-v1'){const item=finishers.find(x=>finisherPurchase(x.id)===t.id);if(!item||t.finisherId!==item.id||!(t.type==='grant'||t.type==='spend'&&t.coins===-item.price&&t.rule==='finisher-shop-v1'))fail('Invalid finisher purchase.');}
  for(const t of g.ledger)if(t.id.startsWith('purchase:gear:')||t.rule==='gear-shop-v1'){const item=gear.find(x=>gearPurchase(x.id)===t.id);if(!item||t.gearId!==item.id||!(t.type==='grant'||t.type==='spend'&&t.coins===-item.price&&t.rule==='gear-shop-v1'))fail('Invalid gear purchase.');}
  for(const t of g.ledger)if(t.rule===lesson.rule||t.lessonId!==undefined||t.id.startsWith('lesson:')){const c=combos.find(c=>c.id===t.lessonId);if(!c||!exactKeys(t,['id','type','coins','xp','rule','lessonId','evidence'])||t.id!==lessonId(c.id)||t.type!=='earn'||t.coins!==lesson.coins||t.xp!==0||t.rule!==lesson.rule||!g.combos.owned.includes(c.id))fail('Invalid lesson reward.');lessonEvidence(c,t.evidence);}
   for(const c of combos)if(g.combos.owned.includes(c.id)&&g.activity[c.key]<c.target&&!seen.has(comboPurchase(c.id))&&!seen.has(lessonId(c.id)))fail('Invalid combo unlock.');
@@ -122,6 +130,7 @@
   if(a.type==='buy'){const item=catalog.find(c=>c.id===a.itemId);if(!item||!item.price)fail('Choose a shop item.');if(g.inventory.includes(item.id))fail('Already owned.');const free=freeMode();if(!free&&wallet(g).coins<item.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');g.ledger.push(free?grant('purchase:'+item.id,{itemId:item.id}):{id:'purchase:'+item.id,type:'spend',coins:-item.price,xp:0,itemId:item.id,rule:'shop-v1'});g.inventory.push(item.id);return {itemId:item.id,transactionId:'purchase:'+item.id,free};}
   if(a.type==='equip'){const item=catalog.find(c=>c.id===a.itemId);if(!slots.includes(a.slot)||item?.slot!==a.slot||!g.inventory.includes(a.itemId))fail('Own a compatible item for this slot first.');g.equipment[a.slot]=a.itemId;return {itemId:a.itemId};}
   if(a.type==='combo-buy'){const c=combos.find(c=>c.id===a.comboId);if(!c)fail('Choose a combination.');if(g.combos.owned.includes(c.id))fail('Already owned.');const free=freeMode();if(!free&&!c.price)fail('This combination is earned by completing your first activity.');if(!free&&wallet(g).coins<c.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');g.ledger.push(free?grant(comboPurchase(c.id),{comboId:c.id}):{id:comboPurchase(c.id),type:'spend',coins:-c.price,xp:0,comboId:c.id,rule:'combo-shop-v1'});g.combos.owned.push(c.id);return {comboId:c.id,transactionId:comboPurchase(c.id),free};}
+  if(a.type==='finisher-buy'){const f=finishers.find(x=>x.id===a.finisherId);if(!f)fail('Choose a finisher.');if(ownsFinisher(g,f.id))fail('Already owned.');const free=freeMode();if(!free&&wallet(g).coins<f.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');const id=finisherPurchase(f.id);g.ledger.push(free?grant(id,{finisherId:f.id}):{id,type:'spend',coins:-f.price,xp:0,finisherId:f.id,rule:'finisher-shop-v1'});return {finisherId:f.id,transactionId:id,free};}
   if(a.type==='lesson'){const c=combos.find(c=>c.id===a.comboId);if(!c)fail('Choose a lesson.');const proof=lessonEvidence(c,a.evidence),id=lessonId(c.id),first=!g.ledger.some(t=>t.id===id),unlocked=!g.combos.owned.includes(c.id),equipped=[];
    if(first){if(g.ledger.length>=20015)fail('History is full. Export a backup.');g.ledger.push({id,type:'earn',coins:lesson.coins,xp:0,rule:lesson.rule,lessonId:c.id,evidence:proof});if(unlocked)g.combos.owned.push(c.id);
     // A newly learned combo goes straight into free loadout slots so it can be used at once.
@@ -152,5 +161,5 @@
   return {coins,unlocks,activityId:event.id,transactionId,record,...(cup&&!cup.ignored?{cup}:{})};
  }
  const lessonPassed=(g,id)=>!!g?.ledger.some(t=>t.id===lessonId(id));
- const api={gear,storyRewards,gearPurchase,ownsGear,freeMode,fightPay,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
+ const api={finishers,finisherPurchase,ownsFinisher,finishersOwned,gear,storyRewards,gearPurchase,ownsGear,freeMode,fightPay,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
 })();

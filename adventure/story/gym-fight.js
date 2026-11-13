@@ -40,6 +40,13 @@
           const beat = time % 1; Pose.civil(bruno, { t: time, dt, dist: 0, arms: { L: 'hips', R: 'count' }, reach: { R: [.3, 1.6 - .24 * Math.min(1, beat * 4) * (1 - Math.min(1, Math.max(0, beat - .25) * 3)), .38] }, look: { yaw: 0, pitch: -.45 }, lean: .2 });
           return;
         }
+        // GOTR-0088 Sunday Punch: no count. Bruno waves it off, both arms sweeping across each other over the fallen fighter.
+        if (o.waveOff) {
+          const c = Math.sin(o.waveOff.t * Math.PI * 3), w = Math.min(1, Math.max(0, o.waveOff.w ?? 1)), mix = (a, b) => a + (b - a) * w;
+          state.arms = { L: 'count', R: 'count' }; state.reach = {};
+          for (const [side, s] of [['L', -1], ['R', 1]]) state.reach[side] = [mix(s * .30, s * (.06 - .36 * c)), mix(1.10, 1.50 + .05 * Math.abs(c)), mix(.20, .40)];
+          state.lean = .14; Pose.civil(bruno, state); return;
+        }
         if (st.walk) { const k = 1 - Math.exp(-3 * dt); st.walk.lerp(root.position, k); if (st.walk.distanceTo(root.position) < .02) st.walk = null; else root.position.copy(st.walk); } // back to his place
         if (grip && grip.isVector3) {
           p.copy(grip); bruno.root.worldToLocal(p);

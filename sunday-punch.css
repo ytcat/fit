@@ -1,0 +1,28 @@
+/* GOTR-0088 Sunday Punch: the Finisher button on the fight pad, the impact flash and the caption of the knockout. */
+.fighter-pad .fp-finisher{position:relative;display:flex;align-items:center;justify-content:center;gap:calc(4px*var(--u));box-sizing:border-box;width:100%;height:calc(40px*var(--u));margin:0 0 calc(6px*var(--u));padding:0 calc(6px*var(--u));border:1px solid var(--gr-scene-line,rgb(255 255 255/.18));border-radius:calc(12px*var(--u));pointer-events:auto;cursor:pointer;
+ font-weight:var(--gr-fw-heavy,800);font-size:calc(11px*var(--u));line-height:1.05;letter-spacing:.01em;text-align:center;white-space:nowrap;color:var(--gr-text-muted,#9aa7bb);
+ background:linear-gradient(180deg,var(--gr-surface-4,#2c3546),var(--gr-surface-2,#1a2230));box-shadow:inset 0 1px 0 rgb(255 255 255/.10),0 calc(4px*var(--u)) calc(12px*var(--u)) rgb(0 0 0/.45);transition:background .15s,color .15s,box-shadow .2s,opacity .15s}
+.fighter-pad .fp-finisher[hidden]{display:none}
+.fighter-pad .fp-finisher:disabled{opacity:.55;cursor:default}
+.fighter-pad .fp-finisher .fp-key{position:absolute;right:calc(3px*var(--u));top:calc(2px*var(--u))}
+.fighter-pad .fp-finisher[data-lit=true]{opacity:1;color:#2a1600;border-color:#ffd36b;
+ background:radial-gradient(120% 140% at 50% 0,rgb(255 255 255/.55),transparent 55%),linear-gradient(180deg,#ffd36b,#e8a341 60%,#c9781d);
+ box-shadow:0 0 0 calc(2px*var(--u)) rgb(255 211 107/.55),0 0 calc(18px*var(--u)) rgb(255 190 80/.65),inset 0 -4px 8px rgb(120 60 0/.35)}
+.fighter-pad .fp-finisher[data-pulse=true]{animation:sp-pulse .62s ease-in-out infinite alternate}
+.fighter-pad .fp-finisher[data-lit=true]:active{transform:scale(.95)}
+@keyframes sp-pulse{from{transform:scale(1);box-shadow:0 0 0 calc(2px*var(--u)) rgb(255 211 107/.55),0 0 calc(12px*var(--u)) rgb(255 190 80/.5)}to{transform:scale(1.06);box-shadow:0 0 0 calc(4px*var(--u)) rgb(255 211 107/.8),0 0 calc(30px*var(--u)) rgb(255 170 40/.9)}}
+@media (prefers-reduced-motion:reduce){.fighter-pad .fp-finisher[data-pulse=true]{animation:none}}
+/* impact: a short white-gold flash over the picture (no text, no layout) */
+.sp-flash{position:absolute;inset:0;z-index:15;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 40%,rgb(255 255 255/.95),rgb(255 236 190/.55) 35%,transparent 75%)}
+.sp-flash.on{animation:sp-flash .32s ease-out forwards}
+@keyframes sp-flash{0%{opacity:.95}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.sp-flash.on{animation-duration:.12s}}
+/* caption in the top band while the knockout plays (the fight HUD keeps the health bars) */
+.sp-caption{position:absolute;left:50%;top:calc(var(--gr-hud-top,74px) + 6px);z-index:17;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;text-align:center}
+.sp-caption[hidden]{display:none}
+.sp-caption strong{font:italic 900 clamp(20px,6.4vw,34px)/1 var(--gr-font-display,var(--gr-font,system-ui,sans-serif));letter-spacing:.04em;text-transform:uppercase;color:#ffd36b;text-shadow:0 2px 0 #7a3b00,0 0 18px rgb(255 160 40/.6),0 3px 10px rgb(0 0 0/.8);animation:sp-title .5s cubic-bezier(.2,1.4,.4,1) both}
+.sp-caption span{font-size:12px;font-weight:700;color:rgb(255 255 255/.8);text-shadow:0 1px 3px rgb(0 0 0/.8)}
+.sp-caption span:empty{display:none}
+@keyframes sp-title{from{opacity:0;transform:scale(1.6)}to{opacity:1;transform:scale(1)}}
+/* while it plays, the round's text overlays stand aside */
+body.sunday-punch-on .bout-announcement,body.sunday-punch-on .fp-guard-tip,body.sunday-punch-on .burst-tip{visibility:hidden}

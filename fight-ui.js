@@ -36,18 +36,18 @@
   }
   let last='';
   function render(view){
-   const m=view.match,s=m.snapshot(),key=[labels(view).lion,labels(view).rabbit,app.lang,s.phase,s.round,Math.ceil(s.remaining),Math.ceil(s.restRemaining),s.count,s.cardsShown,s.totals.lion.landed,s.totals.rabbit.landed,s.health?.lion,s.health?.rabbit].join('|');if(last===key)return;last=key;
+   const m=view.match,s=m.snapshot(),key=[labels(view).lion,labels(view).rabbit,app.lang,s.phase,s.round,Math.ceil(s.remaining),Math.ceil(s.restRemaining),s.count,s.cardsShown,s.totals.lion.landed,s.totals.rabbit.landed,s.health?.lion,s.health?.rabbit,!!s.finisher?.hold].join('|');if(last===key)return;last=key;
    health.hidden=false;health.setAttribute('aria-label',labels(view).lion+' VS '+labels(view).rabbit);
    for(const actor of ['lion','rabbit']){const bar=corners[actor],value=Math.max(0,Math.min(100,s.health?.[actor]??100)),shown=String(Math.ceil(value)),name=labels(view)[actor];
     bar.label.textContent=name;bar.value.textContent=shown;bar.track.setAttribute('aria-label',name+' · '+shown);bar.track.setAttribute('aria-valuenow',String(Math.round(value)));bar.track.setAttribute('aria-valuetext',shown);
     bar.fill.setAttribute('style','width:'+value+'%');bar.trail.setAttribute('style','width:'+value+'%');
     // A drop in reported health restarts the short hit flash; the values themselves are shown untouched.
     if(bar.last!=null&&value<bar.last){bar.hit=bar.hit==='a'?'b':'a';bar.player.dataset.hit=bar.hit;}bar.last=value;bar.player.dataset.low=String(value<=25);bar.player.dataset.out=String(value<=0);}
-   banner.hidden=!(s.result?.stoppage==='KO');banner.textContent=s.result?.winner?w().KO.toUpperCase()+' · '+labels(view)[s.result.winner]+' '+w().winner:w().KO.toUpperCase()+' · '+w().draw;
+   banner.hidden=!(s.result?.stoppage==='KO')||!!s.finisher?.hold;banner.textContent=s.result?.winner?w().KO.toUpperCase()+' · '+labels(view)[s.result.winner]+' '+w().winner:w().KO.toUpperCase()+' · '+w().draw;
    const round=s.phase==='round',status=round?w().round+' '+s.round+'/'+s.rounds:s.phase==='rest'?w().rest:s.phase==='count'?w().count:s.phase==='intro'?w().intro:s.phase==='scoring'?w().pending:'',time=round?clock(s.remaining):s.phase==='rest'?clock(s.restRemaining):s.phase==='count'?String(s.count):'';
    hud.hidden=!status;hud.dataset.phase=s.phase;hud.replaceChildren(make('span','fight-hud-phase',status));if(time)hud.append(make('span','fight-hud-sr',' · '),make('span','fight-hud-clock',time));
    if(round)for(const actor of ['lion','rabbit']){const score=make('span','fight-hud-score');score.dataset.corner=actor==='lion'?'red':'blue';score.append(make('span','fight-hud-sr',' · '+labels(view)[actor]+' '),make('span','fight-hud-num',String(s.totals[actor].landed)));hud.append(score);}
-   const before=panel.hidden;panel.hidden=!s.result;document.body?.classList?.toggle?.('fight-over',!!s.result);if(before!==panel.hidden)window.dispatchEvent?.(new Event('resize'));if(!s.result)return;panel.replaceChildren();
+   const before=panel.hidden;panel.hidden=!s.result||!!s.finisher?.hold;/* GOTR-0088: the result waits for the Sunday Punch knockout to play out */document.body?.classList?.toggle?.('fight-over',!!s.result);if(before!==panel.hidden)window.dispatchEvent?.(new Event('resize'));if(!s.result)return;panel.replaceChildren();
    const title=s.phase==='ceremony'?(s.result.winner?labels(view)[s.result.winner]+' '+w().winner+' · '+w()[s.result.decision]:w().draw):w().waiting;
    // GOTR-0075: the judges' cards only when the bout goes to the cards (points decision or draw); a KO/TKO/stoppage shows the
    // winner line alone. The cards are three score cards at one side of the scene and the buttons sit in the bottom band (stage-hud.css).
