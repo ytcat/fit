@@ -821,7 +821,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0082 — Brick's model is broken: long rods stick out through his shoulders
 - **Reported:** 2026-11-13 (v1.54, iPhone; pictures `qa/owner-2026-11-12/v154-brick-broken-talk.webp`, `v154-brick-broken-fight.webp`: two long tan bars cross the neck/shoulders in the gym talk and in the fight; also brow pieces float off the head)
-- **Status:** OPEN — P0
+- **Status:** OPEN — 2026-11-13: owner rejected the code-built v3 head (`agent/dream-1b` c60a46a, pictures qa/gotr-0082/brick-face-v3-*.webp): "This is terrible." Four code-built rounds have not reached the bar; procedural geometry in JS is the limit. Next: an authored 3D head (sculpted in Blender, exported GLB, attached to the game rig with jaw/brow/jowl bones), built to docs/adventure/BRICK_HEAD_SPEC.md and the owner's six reference pictures — proposed for Codex (has Blender 4.3.2 and delivered the bus/buildings) or for us once a Blender-capable environment / the Fable model is available (Fable limit resets 2026-11-17 10:00 UTC). No Blender in this container
 - **Acceptance:** Brick rendered in the talk scene and in a real fight on the game's own cameras with no detached or stretched parts, in guard, punching and knocked down; a test measuring that every Brick mesh stays within a body-sized bound of the rig.
 
 ### GOTR-0083 — First fight vs Brick must be in the gym, not an arena ring; Bruno referees
