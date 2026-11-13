@@ -41,7 +41,7 @@
       const command=lang==='ru'?'referee-fight-ru':lang==='en'?'referee-fight-en':null;
       return command?play(audio,command,.72):false;
     }
-    if(event.type==='bell')return play(audio,'boxing-bell',.48);
+    if(event.type==='bell'||event.type==='final-bell')return play(audio,'boxing-bell',.48);
     if(event.type==='announcement'&&event.result?.stoppage==='KO')return play(audio,'knockout-crowd',.68);
     return false;
   }
