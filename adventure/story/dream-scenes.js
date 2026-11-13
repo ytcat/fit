@@ -84,7 +84,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (scene0.set === 'dream_gym') tuneInterior(); else if (scene.fog) { scene.fog.near = 34; scene.fog.far = 210; } // the towers down the street stay readable through the haze
       for (const [key, a] of Object.entries(scene0.actors)) {
         const c = a.rig === 'fighter' ? e.coach : Cast().rig(a.rig, e); if (!c) throw Error('rig ' + a.rig);
-        borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.root.scale.setScalar(1); c.maneInitialized = false; rigs[key] = c; Pose().reset(c);
+        borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.maneInitialized = false; rigs[key] = c; // the root keeps its own scale: fighters are mirrored there (GOTR-0074) Pose().reset(c);
         if (scene0.outfit?.[key]) Cast().outfit(c, scene0.outfit[key]);
       }
       if (scene0.bag) { floorBag = Cast().duffel(); floorBag.visible = false; floorBag.castShadow = true; scene.add(floorBag); }
@@ -137,6 +137,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (!Array.isArray(L) && typeof L === 'object') return L;
       const from = headAt(a, key), to = typeof L === 'string' ? (s.actors[L] ? headAt(s.actors[L], L) : null) : V(L[0], L[1], L[2]); if (!to) return { yaw: 0, pitch: 0 };
       const dx = to.x - from.x, dz = to.z - from.z; let yaw = Math.atan2(dx, dz) - a.ry; yaw = Math.atan2(Math.sin(yaw), Math.cos(yaw));
+      if (rigs[key]?.root.scale.x < 0) yaw = -yaw; // a mirrored rig turns its head the other way in its own space
       return { yaw, pitch: Math.atan2(to.y - from.y, Math.hypot(dx, dz)) };
     }
     function frame(delta) {
