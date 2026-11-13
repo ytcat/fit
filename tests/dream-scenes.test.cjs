@@ -157,7 +157,8 @@ console.log('dream scenes ok');
     const poses = { talk: () => DreamPose.civil(c, { t: 3, dist: 0, arms: { L: 'pound', R: 'point' }, look: { yaw: .6, pitch: .1 }, talk: 1 }), guard: () => c.update(1, 'guard', 'one_two', { guardCover: 1 }), punch: () => c.update(.5 * 1.22, 'jab', 'one_two', { power: 1.2 }), hook: () => c.update(.5 * 1.22, 'hook', 'one_two', {}), down: () => c.update(1, 'guard', 'one_two', { presentation: { mode: 'loser', raise: 0 }, down: 1 }) };
     for (const [name, f] of Object.entries(poses)) {
       f(); check(c, id + ' ' + name);
-      const home = c.root.parent, cast = new THREE.Group(); cast.scale.x = -1; cast.position.set(.4, 0, -.3); cast.rotation.y = 1.1; cast.add(c.root); f(); check(c, id + ' ' + name + ' (mirrored cast)'); cast.remove(c.root); if (home) home.add(c.root);
+      const home = c.root.parent, cast = new THREE.Group(); cast.scale.x = -1; cast.position.set(.4, 0, -.3); cast.rotation.y = 1.1; cast.add(c.root); f(); check(c, id + ' ' + name + ' (mirrored cast)');
+      c.root.scale.set(1, 1, 1); f(); check(c, id + ' ' + name + ' (root scale 1 inside the mirrored ring cast, as in a bout)'); c.root.scale.set(-1, 1, 1); cast.remove(c.root); if (home) home.add(c.root);
     }
   }
   assert.ok(!/neck (rolls|folds)|fold under the jaw/.test(fs.readFileSync('adventure/story/story-cast.js', 'utf8')), 'no neck plate geometry is left on Brick');
