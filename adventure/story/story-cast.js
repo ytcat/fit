@@ -189,7 +189,7 @@
       side.addScaledVector(dir, twist).normalize(); c.fromBufferAttribute(K, i); if (o.tone) c.lerp(o.tone, .14 * rand()); const shade = .93 + .14 * rand();
       const rows = [[0, .8, -1], [.3, 1, lift * .8], [.68, .55, lift], [1, 0, lift * .75]].map(([u, ww, up]) => { const q = p.clone().addScaledVector(dir, len * u).addScaledVector(n, up < 0 ? -.004 : len * up); q.y -= len * u * u * (o.droop ?? .22); return [q, ww * wd / 2]; });
       const m = n.clone().addScaledVector(dir, .35).normalize();
-      for (let r = 0; r < 3; r++) { const [a, wa] = rows[r], [b, wb] = rows[r + 1], ka = shade * (.8 + .09 * r), kb = shade * (.8 + .09 * (r + 1)), a0 = a.clone().addScaledVector(side, -wa), a1 = a.clone().addScaledVector(side, wa), b0 = b.clone().addScaledVector(side, -wb), b1 = b.clone().addScaledVector(side, wb);
+      for (let r = 0; r < 3; r++) { const [a, wa] = rows[r], [b, wb] = rows[r + 1], ka = shade * (.94 + .05 * r), kb = shade * (.94 + .05 * (r + 1)), a0 = a.clone().addScaledVector(side, -wa), a1 = a.clone().addScaledVector(side, wa), b0 = b.clone().addScaledVector(side, -wb), b1 = b.clone().addScaledVector(side, wb);
         put(a0, m, ka); put(a1, m, ka); put(b0, m, kb); if (wb > 0) { put(a1, m, ka); put(b1, m, kb); put(b0, m, kb); } }
     }
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); geo.computeBoundingSphere();
@@ -285,7 +285,6 @@
       for (const [k, y] of [1.68, 1.61, 1.54, 1.47, 1.4].entries()) T.push(V(tx - sag(k), y, W(y, true) - .016));
       const TL = T.map(q => q.clone().sub(V(0, 1.36, 0))), flat = q => V(0, smooth((q.y - .28) / .1), q.z > 0 ? 1 : -1).normalize();
       chest.ribbon(TL, .17, .014, '#f1ece0', V(1, 0, 0), 44, 12);
-      for (const dx of [-.05, .0, .052]) chest.ribbon(TL.map((q, k) => q.clone().add(V(dx + .006 * Math.sin(k * 1.7 + dx * 40), 0, 0)).addScaledVector(flat(q), .007)), .02, .011, '#e7e1d3', V(1, 0, 0), 44, 6); // soft folds along the towel
       for (const [a, b] of [[0, 1], [15, 14]]) { const q = T[a].clone().lerp(T[b], .4).sub(V(0, 1.36, 0)); chest.ribbon([q.clone().add(V(-.085, 0, a ? -.009 : .009)), q.clone().add(V(.085, 0, a ? -.009 : .009))], .03, .004, '#4f7fb3', V(0, 1, 0), 4, 6); } // blue stripe at both ends
       // whistle on a cord round the neck
       const wz = B(0, 1.47) + .012, cord = [V(-.105, 1.735, -.02), V(-.09, 1.69, B(.09, 1.69) + .006), V(-.03, 1.52, B(.03, 1.52) + .008), V(0, 1.475, wz), V(.03, 1.52, B(.03, 1.52) + .008), V(.09, 1.69, B(.09, 1.69) + .006), V(.105, 1.735, -.02)];
@@ -390,9 +389,6 @@
       for (const m of kitParts(rig).trim) { if (m.geometry.type === 'CylinderGeometry') { m.material = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: .6 }); m.scale.x *= 1 + BRICK.build.torso * .9 + BRICK.build.hips; m.scale.z *= 1 + BRICK.build.depth * .9 + BRICK.build.hips; } else m.visible = false; }
       rig.gloveMeshes.L.material.color.set(BRICK.gloves);
       rig.skin.material.roughness = .8; if (rig.definition?.look) rig.definition.look.value.multiplyScalar(1.45); // short coat with a little sheen; hard muscle lines
-      // soft skin folds under the jaw: low, wide rolls that sit in the neck (no collar)
-      const NK = new Parts(); for (const [y, t, a1] of [[1.752, .022, 1.5]]) { const pts = []; for (let a = -a1; a <= a1 + .01; a += a1 / 6) { const r = rim(rig, y, a) - t * .25; pts.push(V(Math.sin(a) * r, y - 1.72 - .02 * Math.cos(a), Math.cos(a) * r - .02)); } NK.ribbon(pts, t * 2.4, t * 1.5, '#d3c0a3', V(0, 1, 0), 36, 10); }
-      rig.joints.neck.add(NK.mesh('Brick: fold under the jaw'));
     }
   };
   const DEFS = { bruno: BRUNO, brick: BRICK };
@@ -402,8 +398,7 @@
     const j = rig.joints, hd = q => [q.x / HS, (q.y - HEAD_Y) / HS, q.z / HS], white = lin('#f0e9df');
     j.head.add(tufts(rig, q => { if (q.y < 1.8) return 0; const [hx, hy, hz] = hd(q), ax = Math.abs(hx); return Math.max(smooth((ax - .125) / .04) * band(hy, -.05, .13, .035) * smooth((hz + .08) / .08), .6 * band(hy, .2, .3, .03) * smooth((ax - .03) / .03) * (1 - smooth((ax - .15) / .03)) * smooth((-hz + .06) / .08)); },
       { count: 2200, len: .036, width: .0085, lift: .15, droop: .25, origin: HEAD0, seed: 23, name: 'Rabbit: cheek ruff', tone: white, flow: q => V(q.x * 1.6, -.8, q.z * .3 - .2).normalize() }));
-    const chest = tufts(rig, q => q.y > 1.47 && q.y < 1.7 ? bell(q.x, 0, .085) * smooth((q.z - .1) / .04) * band(q.y, 1.5, 1.68, .03) : 0, { count: 1100, len: .042, width: .009, lift: .14, droop: .2, origin: CHEST0, seed: 5, name: 'Rabbit: chest tuft', tone: white, flow: q => V(q.x * 1.5, -1, .25).normalize() });
-    j.chest.add(chest); rig.storyChestFur = chest; return true;
+    return true;
   }
   function groomAll() { const e = window.app?.engine; if (!e) return; for (const c of [e.coach, ...Object.values(e.roster?.coaches || {}), e.arena?.rabbit, ...Object.values(e.arena?.padTrainers || {})]) groom(c); }
   if (typeof window.addEventListener === 'function') { window.addEventListener('load', () => setTimeout(groomAll, 0)); window.addEventListener('shadowbox-character', () => setTimeout(groomAll, 0)); }
