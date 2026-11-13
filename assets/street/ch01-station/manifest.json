@@ -1,0 +1,11 @@
+{
+  "source_sha": "b6a19c2424fc179af6d702137c391b8677e25fd9",
+  "remote_checked": "dab12f682e58f68f1d35398069aa606fe15001fa",
+  "authoring": "Blender 4.3.2",
+  "triangles": 25860,
+  "mesh_nodes": 21,
+  "glb_bytes": 6808148,
+  "textures": "6 original 1024px PBR maps, packed into GLB",
+  "game_integration": false,
+  "physical_phone": "NOT VERIFIED"
+}

@@ -182,7 +182,7 @@
 
   /* Combo chips mirror the hidden Combos page (same list, same lock/active states, same digit keys). */
   // With combos equipped the pad keeps to the combos (and More); the loadout button is the call to action only when none are equipped.
-  function railMoves(){const mc=document.getElementById('manualControls'),all=mc?.dataset.page==='combos'?[...mc.querySelectorAll('.manual-rail .manual-move')]:[];return all.some(b=>!b.dataset.meta)?all.filter(b=>b.dataset.inputMove!=='ui_combo_loadout'):all;}
+  function railMoves(){const mc=document.getElementById('manualControls'),all=mc?.dataset.page==='combos'?[...mc.querySelectorAll('.manual-rail .manual-move')]:[];return all.some(b=>!b.dataset.meta)?all.filter(b=>b.dataset.inputMove!=='ui_combo_loadout'):[];} // no combos owned or chosen: no placeholder chip (owner 2026-11-13)
   function paintChips(){
    const rail=railMoves(),key=rail.map(b=>b.dataset.inputMove+'='+b.textContent).join('|');
    if(key!==chipKey){chipKey=key;chips.replaceChildren();let digit=0;

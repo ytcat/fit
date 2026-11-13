@@ -1,0 +1,34 @@
+402x690-en dream_gym_talk 0 bruno {"text":"Gym's closed, kid. Looking for someone?","dir":"ltr","box":[26,628,376,650],"clipped":false,"inside":true}
+402x690-en dream_gym_talk 1 fighter {"text":"Are you Bruno? I just got off the bus!","dir":"ltr","box":[46,628,356,650],"clipped":false,"inside":true}
+402x690-en dream_gym_talk 2 bruno {"text":"That's me. What do you want?","dir":"ltr","box":[72,628,330,650],"clipped":false,"inside":true}
+402x690-en dream_gym_talk 3 fighter {"text":"I came here to become a champion!","dir":"ltr","box":[50,628,352,650],"clipped":false,"inside":true}
+402x690-en dream_gym_talk 4 bruno {"text":"You and half the city. Got money for training?","dir":"ltr","box":[16,617,386,661],"clipped":false,"inside":true}
+402x690-en dream_gym_talk 5 fighter {"text":"No. Not a coin. But I'll do whatever it takes.","dir":"ltr","box":[19,628,383,650],"clipped":false,"inside":true}
+402x690-en dream_gym_talk 6 fighter {"text":"Sweep, carry, anything. The best started here!","dir":"ltr","box":[16,617,386,661],"clipped":false,"inside":true}
+402x690-en dream_gym_talk 7 bruno {"text":"They did. The rest quit in a week. Talk is free.","dir":"ltr","box":[16,617,386,661],"clipped":false,"inside":true}
+402x690-en dream_gym_talk 8 bruno {"text":"Brick, glove up. Let's see what he's made of.","dir":"ltr","box":[16,617,386,661],"clipped":false,"inside":true}
+402x690-en dream_gym_talk 9 brick {"text":"This one? He won't last a minute.","dir":"ltr","box":[60,628,342,650],"clipped":false,"inside":true}
+402x690-en dream_after_brick 0 bruno {"text":"You lost. But you kept getting up.","dir":"ltr","box":[61,628,341,650],"clipped":false,"inside":true}
+402x690-en dream_after_brick 1 fighter {"text":"Let me go again. I can do better!","dir":"ltr","box":[65,628,337,650],"clipped":false,"inside":true}
+402x690-en dream_after_brick 2 bruno {"text":"That I can work with. Here's the deal.","dir":"ltr","box":[43,628,359,650],"clipped":false,"inside":true}
+402x690-en dream_after_brick 3 bruno {"text":"You clean, run errands, sleep in the back. I train you.","dir":"ltr","box":[16,617,386,661],"clipped":false,"inside":true}
+402x690-en dream_after_brick 4 fighter {"text":"Deal! When do we start?","dir":"ltr","box":[97,628,305,650],"clipped":false,"inside":true}
+402x690-en dream_after_brick 5 bruno {"text":"You already did. Mop's over there.","dir":"ltr","box":[55,628,347,650],"clipped":false,"inside":true}
+talk browser ok
+402x690-he dream_gym_talk 0 bruno {"text":"סגור, ילד. מחפש מישהו?","dir":"rtl","box":[103,628,299,650],"clipped":false,"inside":true}
+402x690-he dream_gym_talk 1 fighter {"text":"אתה ברונו? הרגע ירדתי מהאוטובוס!","dir":"rtl","box":[60,628,342,650],"clipped":false,"inside":true}
+402x690-he dream_gym_talk 2 bruno {"text":"זה אני. מה אתה רוצה?","dir":"rtl","box":[113,628,289,650],"clipped":false,"inside":true}
+402x690-he dream_gym_talk 3 fighter {"text":"באתי לפה להיות אלוף!","dir":"rtl","box":[112,628,290,650],"clipped":false,"inside":true}
+402x690-he dream_gym_talk 4 bruno {"text":"אתה וחצי עיר. יש לך כסף לאימונים?","dir":"rtl","box":[60,628,342,650],"clipped":false,"inside":true}
+402x690-he dream_gym_talk 5 fighter {"text":"לא. אפילו לא שקל. אבל אעשה כל מה שצריך.","dir":"rtl","box":[24,628,378,650],"clipped":false,"inside":true}
+402x690-he dream_gym_talk 6 fighter {"text":"לטאטא, לסחוב, הכול. הכי טובים התחילו פה!","dir":"rtl","box":[26,628,376,650],"clipped":false,"inside":true}
+402x690-he dream_gym_talk 7 bruno {"text":"נכון. השאר נשברו אחרי שבוע. דיבורים זה בחינם.","dir":"rtl","box":[16,617,386,661],"clipped":false,"inside":true}
+402x690-he dream_gym_talk 8 bruno {"text":"בריק, תעלה כפפות. בוא נראה ממה הוא עשוי.","dir":"rtl","box":[23,628,379,650],"clipped":false,"inside":true}
+402x690-he dream_gym_talk 9 brick {"text":"זה? הוא לא יחזיק דקה.","dir":"rtl","box":[112,628,290,650],"clipped":false,"inside":true}
+402x690-he dream_after_brick 0 bruno {"text":"הפסדת. אבל קמת כל פעם מחדש.","dir":"rtl","box":[68,628,334,650],"clipped":false,"inside":true}
+402x690-he dream_after_brick 1 fighter {"text":"תן לי עוד סיבוב. אני יכול יותר טוב!","dir":"rtl","box":[68,628,334,650],"clipped":false,"inside":true}
+402x690-he dream_after_brick 2 bruno {"text":"עם זה אני יכול לעבוד. הנה העסקה.","dir":"rtl","box":[65,628,337,650],"clipped":false,"inside":true}
+402x690-he dream_after_brick 3 bruno {"text":"אתה מנקה, עושה סידורים, ישן מאחור. אני מאמן אותך.","dir":"rtl","box":[16,617,386,661],"clipped":false,"inside":true}
+402x690-he dream_after_brick 4 fighter {"text":"סגרנו! מתי מתחילים?","dir":"rtl","box":[116,628,286,650],"clipped":false,"inside":true}
+402x690-he dream_after_brick 5 bruno {"text":"כבר התחלת. המגב שם.","dir":"rtl","box":[108,628,294,650],"clipped":false,"inside":true}
+talk browser ok

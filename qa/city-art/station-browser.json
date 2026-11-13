@@ -1,0 +1,25 @@
+{
+  "three": "128",
+  "station": {
+    "triangles": 25860,
+    "meshNodes": 21,
+    "materials": 13,
+    "textures": 6,
+    "lightAnchor": [
+      -3.5,
+      3.700000047683716,
+      -4.150000095367432
+    ]
+  },
+  "combinedRender": {
+    "frame": 5,
+    "calls": 118,
+    "triangles": 160374,
+    "points": 0,
+    "lines": 0
+  },
+  "physicalPhone": "NOT VERIFIED",
+  "environment": "Headless Chromium with SwiftShader software rendering; composed bus and station, not complete game",
+  "errors": [],
+  "warnings": []
+}

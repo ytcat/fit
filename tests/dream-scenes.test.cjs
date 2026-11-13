@@ -17,9 +17,11 @@ for (const [id, s] of all) {
   for (let t = 0; t <= s.duration; t += .25) { const f = C.sample(s, t); assert.ok(f.camera.pos.every(Number.isFinite) && f.camera.look.every(Number.isFinite), id + ' camera at ' + t); for (const a of Object.values(f.actors)) assert.ok([a.x, a.y, a.z, a.ry, a.dist].every(Number.isFinite), id + ' actor at ' + t); }
 }
 assert.equal(C.variant('dream_after_brick').outcome, 'loss', 'the loss is the default story'); assert.equal(C.variant('dream_after_brick', 'win').outcome, 'win');
-assert.ok(/You got up/.test(C.variant('dream_after_brick', 'loss').lines[0].text.en) && /clean this gym/.test(C.variant('dream_after_brick', 'win').lines[2].text.en), 'the job offer in both variants');
+{ const loss = C.variant('dream_after_brick', 'loss').lines.map(l => l.text.en).join(' '), win = C.variant('dream_after_brick', 'win').lines; // GOTR-0084 wording
+  assert.ok(/kept getting up/.test(loss) && /You clean, run errands/.test(loss) && /Deal! When do we start/.test(loss) && /Mop's over there/.test(loss), 'the job offer after a loss');
+  assert.ok(win[0].who === 'brick' && /rematch/.test(win[0].text.en) && win.some(l => /You clean, run errands/.test(l.text.en)), 'the same deal after a win; Brick wants a rematch'); }
 const talk = C.scenes.dream_gym_talk, said = talk.lines.map(l => l.text.en).join(' ');
-for (const w of [/no money/i, /One bag/i, /dream/i, /World champion/i, /whatever is needed/i, /Words are cheap\. Show me\./]) assert.ok(w.test(said), 'beat 1 says ' + w);
+for (const w of [/Are you Bruno/, /off the bus/, /become a champion/, /money for training/, /whatever it takes/, /The best started here/, /Talk is free/, /glove up/, /won't last a minute/]) assert.ok(w.test(said), 'beat 1 says ' + w); // GOTR-0084
 assert.equal(talk.tap, true); assert.ok(talk.lines.filter(l => l.hold).length >= 8, 'tap to advance');
 assert.equal(C.sample(talk, 43).actors.brick.walking, false); assert.ok(Math.hypot(C.sample(talk, 43).actors.brick.x - C.sample(talk, 43).actors.fighter.x, 0) < 3.5, 'Brick has stepped forward');
 // opening film: the bus arrives and stops, the doors open, he steps down, walks, ends at the gym door; cuts are counted
