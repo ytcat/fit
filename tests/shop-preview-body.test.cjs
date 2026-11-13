@@ -29,11 +29,11 @@ const measure = () => { const e = app.engine, r = e.renderer, c = e.coach, sz = 
   try {
     const p = await browser.newPage({ viewport: { width: 402, height: 690 } }), errors = []; p.on('pageerror', x => errors.push(x.message));
     await p.goto(url, { timeout: 300000 }); await wait(p, () => window.ringfighterGame && window.GameModes);
-    await p.evaluate(() => { localStorage.clear(); localStorage.setItem('shadowbox-language', 'en'); }); await p.reload({ timeout: 300000 }); await wait(p, () => window.ringfighterGame && window.GameModes);
+    await p.evaluate(() => { localStorage.clear(); localStorage.setItem('shadowbox-language', 'en'); localStorage.setItem('gotr.adv.nointro', '1'); }); await p.reload({ timeout: 300000 }); await wait(p, () => window.ringfighterGame && window.GameModes);
     await wait(p, () => document.querySelector('dialog.career-welcome[open]'));
     await p.evaluate(() => { const d = document.querySelector('dialog.career-welcome[open]'); d.querySelector('input').value = 'Shop QA'; d.querySelector('button[type=submit]').click(); });
     await wait(p, () => document.querySelector('dialog.game-home[open]') && app.engine.coach?.anatomy);
-    await wait(p, () => window.StoryScenes?.playing === 'arrival', null, 180000).catch(() => {}); await p.evaluate(() => window.StoryScenes?.stop?.()); await p.waitForTimeout(1500);
+    await p.evaluate(() => window.StoryScenes?.stop?.()); await p.waitForTimeout(1500);
     const check = async (tag, min = .03) => { const m = await p.evaluate(measure); rows.push({ tag, ...m }); console.log(tag, JSON.stringify(m));
       assert.ok(m.meshes >= 2, `${tag}: skinned body meshes are hidden`); assert.ok(m.skin < .02, `${tag}: the skin is ${m.skin} m away from the rig`); assert.ok(m.body >= min, `${tag}: the body covers only ${m.body} of the preview (not drawn)`); };
     const shopTour = async tag => {
