@@ -765,7 +765,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0074 — Stance must be the real orthodox boxing stance, exactly as the owner's reference photo
 - **Reported:** 2026-11-12, repeated ("you are mistaken for several times already"); picture `v147-3.webp` shows today's pose: both gloves on the face
-- **Status:** OPEN — P0. Supersedes the earlier "keep southpaw" answer and GOTR-0051.
+- **Status:** RELEASED v1.51 — owner approved the pictures on 2026-11-13 ("Approve"). Each fighter mirrored across its own sagittal plane (no canvas mirror). Measured: left foot 41–54 cm ahead, left glove 32 cm in front of the chin with the elbow at 83–84°, right glove 2.8–4.7 cm from the cheek, shoulders 33° bladed. Pictures `qa/gotr-0074/`. Not pressed in the browser: Hook and Uppercut buttons; not checked on a phone. Supersedes GOTR-0051
 - **Owner's words:** "right leg back, left leg front, right hand back defending the face, left hand a bit bent in front. This is the actual boxing position… exactly how I want him by default."
 - **Acceptance (measured, both species, every mode):** left foot forward, right foot back, feet about shoulder width and staggered, rear heel raised, knees soft, torso bladed 30–45°; LEFT glove in front of the face at eye/cheek height with the elbow bent about 80–110° (not straight, not touching the face); RIGHT glove at the right cheek/jaw, close but not pressed into the face (gap 2–5 cm), elbow down at the ribs; chin slightly down. Jab = left hand, Cross = right hand. Front, 3/4 and side pictures shown to the owner BEFORE release.
 
