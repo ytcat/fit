@@ -17,7 +17,7 @@ for(const side of ['L','R']){
  for(const b of c.bones)b.quaternion.identity();c.root.quaternion.identity();c.root.updateMatrixWorld(true);
  const sign=side==='L'?-1:1,a=c.joints['arm'+side],b=c.joints['elbow'+side],h=c.joints['hand'+side],start=c.point(a);
  c.solve(a,b,h,start.add(V(sign*b.position.length(),0,h.position.length())),V(sign,0,0));c.orientGlove(side,0,V(0,-1,0));
- const front=V(0,0,1).applyQuaternion(b.getWorldQuaternion(Q())),mesh=c.gloveMeshes[side],palm=mesh.localToWorld(V(0,0,1)).sub(mesh.localToWorld(V())).normalize();
+ /* GOTR-0051: real world direction of the forearm front (the fighter root is mirrored). */const front=V(0,0,1).transformDirection(b.matrixWorld),mesh=c.gloveMeshes[side],palm=mesh.localToWorld(V(0,0,1)).sub(mesh.localToWorld(V())).normalize();
  assert.ok(front.dot(palm)>.999999,'neutral glove palm must agree with the forearm front instead of carrying a quarter-turn mismatch');
 }
 const arena=Object.create(TrainingArena.prototype);

@@ -1,4 +1,4 @@
-// GOTR-0051 compact guard: in the idle guard of every mode and both species both arms are bent (elbow <= 105 deg),
+// GOTR-0074 orthodox guard (supersedes the GOTR-0051 compact guard, where both gloves sat on the face):
 // each glove is close to the face (its padding <= 12 cm from the skull/muzzle surface), the forearm rises to the glove,
 // no glove pad is inside the head, and the lead glove is ahead of the rear one.
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
@@ -17,7 +17,7 @@ function measure(c){
   // Deepest glove pad sample inside the skull or muzzle volume (same volumes as the game's own face clearance).
   let inside=0;const toHead=new THREE.Matrix4().copy(c.joints.head.matrixWorld).invert();
   for(const [x,y,z,r] of [[0,.015,0,.077],[0,-.07,0,.089],[0,-.145,0,.099],[0,-.195,0,.068]]){const p=c.joints['hand'+side].localToWorld(V(x,y,z)).applyMatrix4(toHead);for(const [cx,cy,cz,rx,ry,rz] of [[0,.13,.03,.17,.20,.17],[0,.065,.195,.135,.105,.125]]){const k=Math.hypot((p.x-cx)/(rx+r),(p.y-cy)/(ry+r),(p.z-cz)/(rz+r));inside=Math.max(inside,(1-k)*Math.min(rx,ry,rz));}}
-  out[side]={elbow:THREE.MathUtils.radToDeg(a.clone().sub(b).angleTo(h.clone().sub(b))),cheek:faceGap(glove.clone().applyMatrix4(toHead)),rise:h.y-b.y,inside};
+  out[side]={elbow:THREE.MathUtils.radToDeg(a.clone().sub(b).angleTo(h.clone().sub(b))),cheek:faceGap(glove.clone().applyMatrix4(toHead)),ahead:glove.clone().applyMatrix4(toHead).z-.25,height:glove.clone().applyMatrix4(toHead).y,rise:h.y-b.y,inside};
  }
  out.lead=c.point(c.joints.handL).z-c.point(c.joints.handR).z;return out;
 }
@@ -25,12 +25,23 @@ const lines=[];
 function check(label,c){
  const m=measure(c);
  for(const side of ['L','R']){const s=m[side];
-  assert.ok(s.elbow<=105&&s.elbow>=25,label+' '+side+': elbow bent '+s.elbow.toFixed(0)+' deg (25-105)');
-  assert.ok(s.cheek<=.12,label+' '+side+': glove padding '+(s.cheek*100).toFixed(1)+' cm from the face (<= 12)');
+  if(side==='L'){
+   // GOTR-0074 (owner's acceptance): the LEFT lead glove is out in front of the face at eye/cheek height, elbow bent
+   // about 80-110 degrees: not straight, and not touching the face.
+   assert.ok(s.elbow>=80&&s.elbow<=110,label+' lead elbow '+s.elbow.toFixed(0)+' deg (80-110)');
+   assert.ok(s.ahead>=.25&&s.ahead<=.35,label+' lead glove '+(s.ahead*100).toFixed(1)+' cm in front of the chin (25-35)');
+   assert.ok(s.height>=-.02&&s.height<=.20,label+' lead glove at eye/cheek height ('+(s.height*100).toFixed(1)+' cm above the jaw line)');
+   assert.ok(s.cheek>=.06,label+' lead glove does not touch the face (gap '+(s.cheek*100).toFixed(1)+' cm)');
+  }else{
+   // The RIGHT rear glove guards beside the cheek/jaw, close but not pressed into the face; elbow down at the ribs.
+   assert.ok(s.elbow<=105&&s.elbow>=25,label+' rear elbow bent '+s.elbow.toFixed(0)+' deg (25-105)');
+   assert.ok(s.cheek>=.02&&s.cheek<=.05,label+' rear glove '+(s.cheek*100).toFixed(1)+' cm from the face (2-5)');
+   assert.ok(s.height>=-.06&&s.height<=.16,label+' rear glove at cheek/jaw height ('+(s.height*100).toFixed(1)+' cm)');
+  }
   assert.ok(s.rise>=.12,label+' '+side+': forearm rises to the glove '+s.rise.toFixed(2));
   assert.ok(s.inside<=.03,label+' '+side+': glove not inside the head ('+(s.inside*100).toFixed(1)+' cm)');}
- assert.ok(m.lead>=.06,label+': lead glove ahead of the rear by '+(m.lead*100).toFixed(1)+' cm (>= 6)');
- lines.push(label+' elbows '+m.L.elbow.toFixed(0)+'/'+m.R.elbow.toFixed(0)+' face gap cm '+(m.L.cheek*100).toFixed(1)+'/'+(m.R.cheek*100).toFixed(1)+' lead '+(m.lead*100).toFixed(0));
+ assert.ok(m.lead>=.15,label+': lead glove ahead of the rear by '+(m.lead*100).toFixed(1)+' cm (>= 15)');
+ lines.push(label+' elbows '+m.L.elbow.toFixed(0)+'/'+m.R.elbow.toFixed(0)+' face gap cm '+(m.L.cheek*100).toFixed(1)+'/'+(m.R.cheek*100).toFixed(1)+' lead ahead of chin '+(m.L.ahead*100).toFixed(0)+' lead-rear '+(m.lead*100).toFixed(0));
 }
 for(const species of ['lion','rabbit']){
  for(const mode of ['none','heavy','pads','rabbit']){
