@@ -28,6 +28,10 @@
    if(p.kind==='winner')document.getElementById('fightKnockout').hidden=true;
   };
   window.fightUI.hide=()=>{oldHide();node.hidden=true;key='';document.getElementById('fightHud').classList.toggle('fight-clock-urgent',false);};
+  // GOTR-0086: the announcement belongs to one bout. When the fight is over and the stage moves on (training, a story step, the
+  // map) without fightUI.hide being called, it must not stay over the next activity. Its kind and text are cleared too, because
+  // the stage HUD's winner/KO rules show the element by data-kind even when it is [hidden].
+  setInterval(()=>{const over=e.targetMode!=='fight'||!e.arena?.fightView,kb=document.getElementById('fightKnockout');if(!over)return;if(!node.hidden||node.dataset.kind){node.hidden=true;key='';node.dataset.kind='';node.dataset.ko='false';title.textContent=sub.textContent='';}if(kb&&!kb.hidden)kb.hidden=true;},250);
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
