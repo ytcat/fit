@@ -1,5 +1,5 @@
 {
-  "version": "v156-20261113h",
+  "version": "v157-20261113i",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -48,7 +48,7 @@
     "./occlusion-guard.js?v=2026111302",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111119",
-    "./version.js?v=2026111309",
+    "./version.js?v=2026111310",
     "./club-interface.js?v=2026111112",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
@@ -77,7 +77,7 @@
     "./fighter-pad.css?v=2026111212",
     "./fighter-stats.css?v=2026111122",
     "./academy-stage.js?v=2026111011",
-    "./fighter-pad.js?v=2026111212",
+    "./fighter-pad.js?v=2026111310",
     "./power-meter.css?v=2026111112",
     "./power-meter.js?v=2026111112",
     "./stage-hud.css?v=2026111212",
