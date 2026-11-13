@@ -8,7 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.60 | 2026-11-13 | _pending_ | Gym conversation and the job offer rewritten as natural speech in EN/HE/RU, same voices for the rest of chapter 1 (GOTR-0084). Brick: one sculpted bulldog head (first redesign round; a deeper redesign is in progress) and a test that no part of Bruno or Brick leaves the body (GOTR-0082) |
+| v1.60 | 2026-11-13 | `f0985bc` | Gym conversation and the job offer rewritten as natural speech in EN/HE/RU, same voices for the rest of chapter 1 (GOTR-0084). Brick: one sculpted bulldog head (first redesign round; a deeper redesign is in progress) and a test that no part of Bruno or Brick leaves the body (GOTR-0082) |
 | v1.59 | 2026-11-13 | `dab12f6` | The fight result text really disappears after the fight (a style rule kept the hidden line visible) (GOTR-0086). Smaller seconds in the timer button |
 | v1.58 | 2026-11-13 | `5cee017` | The fight result text ("KO … won") no longer stays on screen after the fight: it is removed as soon as the game leaves a fight (GOTR-0086, first part) |
 | v1.57 | 2026-11-13 | `61b1d39` | The "Choose combos" placeholder is no longer shown on the pad when the player has no combos |
