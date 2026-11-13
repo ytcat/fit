@@ -370,6 +370,7 @@
     headForm(x, y, z, out) { const k = .5 * smooth((y + .03) / .1); return out.set(-x * k, (.1 - y) * k, (-.02 - z) * k); },
     sculpt(rig) { reshape(rig.skin.geometry, p => { bulk(p, BRICK.build); }); normals(rig.skin.geometry, rig.skin.geometry.attributes.position.array, rig.skin.geometry.attributes.normal.array); rig.skin.geometry.attributes.normal.needsUpdate = true; },
     face(rig) { castMats(rig); emptyMane(rig); bulldogHead(rig); BRICK.mouthZ = .2; },
+    animate: (rig, s) => animateFace(rig, s),
     finish(rig) {
       rig.tail.clear(); rig.ellipsoid(rig.tail, new THREE.MeshStandardMaterial({ color: 0xe6dccb, roughness: 1 }), V(0, -.05, -.2), V(.04, .045, .04));
       // red trunks with a white side stripe and a white waistband, on the heavier hips
@@ -384,77 +385,175 @@
     }
   };
   /* Brick's head: an English bulldog built like a character sculpt. Head-joint coordinates in metres (x across, y up, z to the
-   * nose). Proportions: wider than tall, the lower half is the biggest mass, a very short muzzle almost as wide as the skull,
-   * the nose pushed back level with the wide-set eyes, a rope fold over it, flews hanging below the jawline, an undershot
-   * jaw with the lower lip and canines showing, loose skin under it. The jaw is its own surface and opens for speech. */
+   * nose). Proportions: as wide as tall, the jaw and cheeks are the biggest mass, a very short muzzle almost as wide as the skull,
+   * a big nose set high between wide-set low eyes, the rope over it and furrows on the forehead as real rolls of skin, flews
+   * hanging below the jawline, an undershot jaw with the lower lip and canines showing, loose skin into a bull neck. The jaw is
+   * its own surface and opens for speech. Creases are shaded from the field itself (its curvature), not painted on. */
   const E = (x, y, z, cx, cy, cz, rx, ry, rz) => (Math.hypot((x - cx) / rx, (y - cy) / ry, (z - cz) / rz) - 1) * Math.min(rx, ry, rz);
   const SM = (a, b, k) => { const h = Math.max(k - Math.abs(a - b), 0) / k; return Math.min(a, b) - h * h * k * .25; };
-  const mugUpper = (px, y, z) => {
+  const SS = (a, b, k) => -SM(-a, b, k); // carve b out of a
+  /** A soft cord of skin along a polyline (the rope, a forehead roll): radius r, thinner toward both ends (or only the far end). */
+  function cord(pts, r, far = false) {
+    const seg = [], lo = [9, 9, 9], hi = [-9, -9, -9]; let L = 0;
+    for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1], d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], l = Math.hypot(d[0], d[1], d[2]); seg.push({ a, d, l, s: L }); L += l; }
+    for (const p of pts) for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], p[k] - r - .03); hi[k] = Math.max(hi[k], p[k] + r + .03); }
+    return (x, y, z) => {
+      const ox = Math.max(lo[0] - x, x - hi[0], 0), oy = Math.max(lo[1] - y, y - hi[1], 0), oz = Math.max(lo[2] - z, z - hi[2], 0); if (ox || oy || oz) return Math.hypot(ox, oy, oz) + .03;
+      let best = 9, u = 0;
+      for (const g of seg) { const px = x - g.a[0], py = y - g.a[1], pz = z - g.a[2], t = clamp((px * g.d[0] + py * g.d[1] + pz * g.d[2]) / (g.l * g.l)), dd = Math.hypot(px - g.d[0] * t, py - g.d[1] * t, pz - g.d[2] * t); if (dd < best) { best = dd; u = (g.s + t * g.l) / L; } }
+      const e = far ? u : Math.abs(2 * u - 1); return best - r * (1 - .65 * e * e * e);
+    };
+  }
+  /** z of the front (or back) surface of a field at (x, y). */
+  const surfZ = (f, x, y, z0 = .4, back = false) => { let a = back ? -z0 : z0, b = back ? .1 : -.1; if (f(x, y, a) < 0) return a; for (let k = 0; k < 28; k++) { const m = (a + b) / 2; if (f(x, y, m) > 0) a = m; else b = m; } return (a + b) / 2; };
+  // docs/adventure/BRICK_HEAD_SPEC.md holds the measured targets these numbers come from
+  const fold = p => .5 - .5 * Math.cos(Math.PI * 2 * p); // soft rolls of skin, one per unit of p
+  const mugBase = (px, y, z) => {
     const x = Math.abs(px);
-    let d = E(x, y, z, 0, .17, -.03, .225, .14, .2);                    // wide flat skull
-    d = SM(d, E(x, y, z, 0, .03, -.09, .235, .17, .165), .06);           // back of the head into the neck
-    d = SM(d, E(x, y, z, .18, .03, .03, .14, .13, .155), .05);           // cheeks and jowls: the biggest mass
-    d = SM(d, E(x, y, z, 0, .082, .16, .165, .078, .09), .035);          // short muzzle, almost as wide as the skull
-    d = SM(d, E(x, y, z, .095, .206, .158, .108, .04, .062), .028);       // heavy brow, low over the eyes
-    d = SM(d, E(x, y, z, 0, .176, .2, .12, .025, .034), .011);           // rope fold over the nose
-    d = SM(d, E(x, y, z, 0, .212, .183, .075, .017, .025), .011);        // a second fold above it
-    d = -SM(-d, E(x, y, z, 0, .265, .2, .012, .05, .05), .014);          // the furrow down the forehead
-    d = SM(d, E(x, y, z, .115, -.02, .178, .092, .118, .082), .011);     // flews: they hang below the jawline
-    d = SM(d, E(x, y, z, .13, .104, .2, .052, .016, .022), .011);        // lower lid roll
-    d = -SM(-d, E(x, y, z, .13, .15, .23, .047, .04, .046), .012);       // eye sockets
-    d = SM(d, E(x, y, z, 0, -.16, .03, .225, .08, .16), .05);            // dewlap: loose skin into a bull neck
-    d = SM(d, E(x, y, z, 0, .055, -.225, .2, .036, .06), .012);          // two rolls of skin on the nape (the fight cameras see him from behind)
-    d = SM(d, E(x, y, z, 0, -.03, -.215, .225, .042, .07), .012);
-    d = SM(d, E(x, y, z, .245, -.07, -.04, .07, .06, .12), .014);        // the jowl rolls back into the neck
+    let d = E(x, y, z, 0, .185, -.03, .215, .12, .2);                   // wide flat skull
+    d = SM(d, E(x, y, z, 0, .03, -.09, .24, .17, .17), .06);            // back of the head into the neck
+    d = SM(d, E(x, y, z, .18, .04, .03, .15, .14, .16), .05);           // cheeks and jowls: the biggest mass
+    d = SM(d, E(x, y, z, 0, .086, .15, .17, .08, .085), .035);          // very short muzzle, almost as wide as the skull
+    d = SM(d, E(x, y, z, .07, .2, .168, .065, .036, .05), .022);        // heavy brow: low at the inside (a permanent frown) ...
+    d = SM(d, E(x, y, z, .155, .222, .12, .075, .042, .056), .028);     // ... higher at the outside
+    d = SM(d, E(x, y, z, .118, -.05, .175, .1, .135, .085), .012);      // flews: they hang well below the jaw
+    d = SM(d, E(x, y, z, 0, -.17, .05, .262, .096, .16), .055);         // dewlap: loose skin into a bull neck
+    d = SM(d, E(x, y, z, .245, -.075, -.01, .07, .064, .1), .016);      // the jowl rolls back into the neck
     return d;
   };
-  const mugJaw = (px, y, z) => { const x = Math.abs(px); let d = E(x, y, z, 0, -.072, .125, .16, .056, .14); d = SM(d, E(x, y, z, 0, -.098, .248, .08, .042, .044), .03); return SM(d, E(x, y, z, 0, -.034, .252, .095, .019, .028), .011); };
-  const mugAll = (x, y, z) => Math.min(mugUpper(x, y, z), mugJaw(x, y, z));
-  const surfZ = (f, x, y, z0 = .4) => { let a = z0, b = -.1; if (f(x, y, a) < 0) return a; for (let k = 0; k < 26; k++) { const m = (a + b) / 2; if (f(x, y, m) > 0) a = m; else b = m; } return (a + b) / 2; };
+  let mugFields = null;
+  function brickFields() {
+    if (mugFields) return mugFields;
+    const on = (pts, r, inset = .45, back = false) => pts.map(([x, y]) => [x, y, surfZ(mugBase, x, y, .4, back) + (back ? 1 : -1) * r * inset]);
+    const rope = cord(on([[0, .2], [.04, .197], [.072, .182], [.094, .152], [.103, .112], [.106, .07]], .028, .3).map(p => [p[0], p[1], Math.max(p[2], .24 - .3 * p[0])]), .028, true); // the rope: a thick arch over the nose, down beside it into the flews
+    const bags = cord(on([[.1, .112], [.145, .106], [.19, .118]], .012, .4), .012); // heavy bags under the eyes
+    const nape = [cord(on([[0, .07], [.09, .068], [.17, .05], [.215, .02]], .018, .75, true), .018), cord(on([[0, -.03], [.1, -.035], [.19, -.05]], .02, .75, true), .02)];
+    const skin = (x, y, z) => { // folds as displacement: forehead (radiating from between the eyes, plus cross rolls), flews, dewlap
+      let k = 0;
+      const wf = smooth((y - .19) / .03) * smooth(z / .08) * (1 - smooth((y - .3) / .025)) * smooth((x - .012) / .012);
+      if (wf > 0) { const a = Math.atan2(x, y - .1); k += wf * .01 * fold(a * 3.4 + .3 * Math.sin(y * 28 + x * 9)); }
+      const wl = smooth((.06 - y) / .04) * smooth((z - .1) / .06) * smooth((x - .035) / .03) * (1 - smooth((x - .24) / .04));
+      if (wl > 0) k += wl * .01 * fold((x * .9 + y * .45) / .055);
+      const wd = smooth((-.1 - y) / .04) * smooth((z + .02) / .06);
+      if (wd > 0) k += wd * .011 * fold((y + 1.2 * x * x) / .05);
+      return k;
+    };
+    const upper = (px, y, z) => {
+      const x = Math.abs(px); let d = mugBase(px, y, z); if (Math.abs(d) > .06) return d; // every detail lies within 4 cm of the base form
+      d = SM(d, rope(x, y, z), .008);
+      d = SM(d, bags(x, y, z), .006);
+      for (const f of nape) d = SM(d, f(x, y, z), .01);
+      d -= skin(x, y, z);
+      d = SS(d, E(x, y, z, 0, .25, .21, .014, .065, .06), .012);        // the furrow down the forehead
+      d = SS(d, E(x, y, z, .145, .155, .215, .044, .037, .05), .012);   // deep eye sockets under the brow
+      d = SS(d, E(x, y, z, 0, .04, .26, .02, .035, .04), .01);          // the cleft under the nose between the flews
+      return d;
+    };
+    const jaw = (px, y, z) => { const x = Math.abs(px); let d = E(x, y, z, 0, -.08, .125, .17, .056, .14); d = SM(d, E(x, y, z, 0, -.1, .255, .115, .042, .048), .03); return SM(d, E(x, y, z, 0, -.034, .265, .13, .022, .03), .011); }; // undershot: a broad square chin and the lower lip jut out past the nose
+    return (mugFields = { base: mugBase, upper, jaw, rope, all: (x, y, z) => Math.min(upper(x, y, z), jaw(x, y, z)) });
+  }
+  /** Skin weights for the face dynamics: x = jowls, flews, dewlap (swing), y = brow (frown / lift), z = cheeks (ripple on impact). */
+  function flexWeights(g, jaw = false) {
+    const P = g.attributes.position.array, W = new Float32Array(P.length);
+    for (let i = 0; i < P.length; i += 3) { const x = Math.abs(P[i]), y = P[i + 1], z = P[i + 2];
+      if (jaw) { W[i] = .45; continue; }
+      W[i] = smooth((.06 - y) / .1) * smooth((z + .06) / .1) * (.55 + .45 * smooth((-.08 - y) / .06));
+      W[i + 1] = bell(y, .215, .035) * smooth((z - .1) / .05) * (1 - smooth((x - .23) / .04));
+      W[i + 2] = smooth((.13 - y) / .06) * smooth(z / .1) * bell(x, .17, .1); }
+    g.setAttribute('brickFlex', new THREE.BufferAttribute(W, 3)); return g;
+  }
   let mugGeo = null;
   function bulldogHead(rig) {
     const head = rig.joints.head, S9 = 1 / HS; // parts made here are scaled 0.9 with every head child afterwards
+    const F = brickFields();
     if (!mugGeo) {
-      const fawn = lin('#bd8550'), white = lin('#f3eada'), patch = lin(BRICK.patch), mask = lin('#4a3831'), lipc = lin('#7a5148'), red = lin('#6a262a');
-      const coat = (x, y, z, nx, ny, nz, c) => {
-        const ax = Math.abs(x), w = Math.max(smooth((z - .07) / .06) * smooth((.135 - y) / .05) * (1 - smooth((ax - .215) / .05)), bell(x, 0, .032) * smooth((z - .04) / .05), smooth((-.07 - y) / .04) * bell(x, 0, .15) * smooth((z + .02) / .06));
-        c.copy(fawn).multiplyScalar(1 - .1 * Math.sin(x * 70 + y * 46) * Math.sin(z * 58 + y * 30)).lerp(lin('#8f5f38'), .5 * smooth((-z - .02) / .12)).lerp(white, clamp(w));
-        c.lerp(patch, clamp(Math.max(smooth((.13 - Math.hypot(x - .135, (y - .175) * .9, (z - .15) * .45)) / .035), smooth((x - .15) / .04) * smooth((y - .2) / .04) * smooth((.06 - z) / .08)))); // patch over one eye and ear
-        c.lerp(patch, clamp(Math.max(smooth((.12 - Math.hypot(x + .09, (y - .2) * .9, (z + .16) * .6)) / .03), .8 * smooth((.1 - Math.hypot(x - .06, y - .0, (z + .22) * .7)) / .03)))); // dark saddle marks on the back of the skull and the nape
-        c.lerp(mask, clamp(.8 * smooth((.115 - Math.hypot(x, (y - .115) * 1.1, (z - .25) * .7)) / .05) + .7 * smooth((-.075 - y) / .05) * smooth((z - .1) / .05) * bell(ax, .115, .075))); // dark mask round the nose, dark lower edge of the flews
+      const fawn = lin('#c08850'), deep = lin('#946238'), white = lin('#f1e9dc'), patch = lin(BRICK.patch), mask = lin('#3b3433'), lip = lin('#2e2626'), pink = lin('#b8646a'), mouth = lin('#5a2128'), rimc = lin('#2a1d17');
+      const coat = (px, y, z, nx, ny, nz, c) => {
+        const x = Math.abs(px), front = smooth((z - .09) / .05);
+        c.copy(fawn).multiplyScalar(1 - .07 * Math.sin(x * 70 + y * 46) * Math.sin(z * 58 + y * 30)).lerp(deep, .55 * smooth((-z - .02) / .14));
+        const blaze = bell(x, 0, .02 + .035 * smooth((.25 - y) / .05)) * smooth((z - .02) / .06) * smooth((y - .17) / .02);
+        const face = Math.max((1 - smooth((x - .1) / .025)) * smooth((.215 - y) / .02), smooth((.085 - .6 * Math.max(0, x - .1) - y) / .06) * (1 - .4 * smooth((x - .22) / .05))) * front; // white inside the rope and everything below it
+        const throat = smooth((-.1 - y) / .06) * bell(x, 0, .2) * smooth((z + .04) / .08), rope = smooth((.012 - F.rope(x, y, z)) / .012);
+        c.lerp(white, clamp(Math.max(blaze, face, throat, rope)));
+        const eyeZone = 1 - smooth((Math.hypot(x - .145, (y - .158) * 1.1) - .045) / .02); // fawn round the eyes, a dark rim right at the lids
+        c.lerp(fawn, clamp(eyeZone * front * (1 - rope))).lerp(rimc, clamp(.9 * bell(Math.hypot(x - .145, (y - .155) * 1.05), .036, .009) * front));
+        c.lerp(patch, clamp((1 - .85 * face) * Math.max(smooth((.105 - Math.hypot(px - .15, (y - .18) * .85, (z - .13) * .45)) / .03), smooth((px - .15) / .04) * smooth((y - .22) / .04) * smooth((.07 - z) / .08)))); // dark patch round one eye, up to the ear
+        c.lerp(patch, clamp(.85 * smooth((.11 - Math.hypot(px + .09, (y - .2) * .9, (z + .17) * .6)) / .03))); // saddle mark on the back of the skull
+        c.lerp(mask, clamp(.95 * smooth((1 - Math.hypot(x / .1, (y - .125) / .065)) / .45) * front * (1 - rope))); // dark round the nose
+        c.lerp(lip, clamp(Math.max(smooth((-.155 - y) / .025) * bell(x, .12, .08), bell(x, 0, .028) * band(y, -.01, .07, .02)) * front)); // dark lip edges on the flews and the cleft
+        for (const [sx, sy] of [[.06, .03], [.09, .012], [.1, .04]]) c.lerp(mask, .6 * smooth((.007 - Math.hypot(x - sx, y - sy)) / .003) * front); // whisker spots
       };
-      const up = tint(surface(mugUpper, [-.345, -.25, -.27], [.345, .34, .3], .019), mugAll, coat);
-      const jw = tint(surface(mugJaw, [-.175, -.15, -.03], [.175, .0, .31], .017), mugAll, (x, y, z, nx, ny, nz, c) => { c.copy(white).lerp(lipc, clamp(smooth((y + .05) / .02) * smooth((z - .2) / .03) + .0)).lerp(red, smooth((ny - .55) / .2) * (1 - smooth((z - .2) / .03))).lerp(mask, .5 * smooth((-.1 - y) / .03) * (1 - smooth((z - .2) / .05))); }, .018, .5);
+      const up = flexWeights(tint(surface(F.upper, [-.37, -.29, -.36], [.37, .37, .34], .0125), F.all, coat, .024, .38));
+      const jw = flexWeights(tint(surface(F.jaw, [-.18, -.16, -.03], [.18, .0, .32], .011), F.all, (px, y, z, nx, ny, nz, c) => { const x = Math.abs(px); c.copy(white).lerp(lip, clamp(smooth((y + .03) / .01) * smooth((z - .22) / .03))).lerp(pink, smooth((ny - .55) / .2) * (1 - smooth((z - .22) / .03))).lerp(mouth, .6 * smooth((ny - .7) / .2) * (1 - smooth((z - .2) / .05))).lerp(mask, .45 * smooth((-.12 - y) / .03) * smooth((z - .15) / .05) * bell(x, 0, .12)); }, .018, .5), true);
+      for (const k of [up, jw]) crease(k, F.all, .007, 75, .55);
       mugGeo = { up, jw };
     }
-    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .8, bumpMap: rig.skin.material.bumpMap, bumpScale: .0025 });
-    const mug = new THREE.Group(); mug.name = 'Brick: bulldog head'; mug.userData.mane = true; mug.scale.setScalar(S9);
+    const U = { uJowl: { value: V() }, uBrow: { value: 0 }, uRipple: { value: 0 }, uTime: { value: 0 } };
+    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .78, bumpMap: rig.skin.material.bumpMap, bumpScale: .0022 });
+    mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, U); sh.vertexShader = 'attribute vec3 brickFlex;\nuniform vec3 uJowl;\nuniform float uBrow, uRipple, uTime;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += uJowl * brickFlex.x + vec3(0., .016, .006) * uBrow * brickFlex.y + objectNormal * (uRipple * brickFlex.z * sin(position.y * 70. + position.x * 30. - uTime * 38.));'); };
+    mat.customProgramCacheKey = () => 'brick-face-flex';
+    const mug = new THREE.Group(); mug.name = 'Brick: bulldog head'; mug.userData.mane = true; mug.scale.setScalar(S9); mug.position.set(0, -.032, .014); // sits low and forward
     const skull = new THREE.Mesh(mugGeo.up, mat); skull.name = 'Brick: skull, muzzle, flews'; skull.castShadow = true; mug.add(skull);
     // the jaw swings on a hinge behind the cheeks
     const hinge = new THREE.Group(); hinge.position.set(0, .004, .0); hinge.rotation.x = .02; mug.add(hinge);
     const jaw = new THREE.Mesh(mugGeo.jw, mat); jaw.position.set(0, .01, 0); jaw.name = 'Brick: jaw'; jaw.castShadow = true; hinge.add(jaw);
     const T = new Parts(), J = p => p.clone().add(V(0, .01, 0));
-    for (const sd of [-1, 1]) { T.sph(J(V(sd * .064, -.012, .25)), V(.015, .034, .015), sd > 0 ? '#e0a83a' : '#fbf7ee', [-.2, 0, sd * .14]); for (const k of [.014, .04]) T.sph(J(V(sd * k, -.024, .268)), V(.011, .013, .008), '#f3ecde'); } // canines (one gold) and small front teeth
-    T.sph(J(V(0, -.03, .17)), V(.055, .012, .075), '#c06a70'); hinge.add(T.mesh('Brick: teeth, tongue'));
+    for (const sd of [-1, 1]) { T.sph(J(V(sd * .086, -.006, .27)), V(.014, .036, .014), sd > 0 ? '#e0a83a' : '#fbf7ee', [-.3, 0, sd * .12]); T.sph(J(V(sd * .022, -.022, .292)), V(.01, .012, .007), '#f3ecde'); } // two lower canines (one gold) and the front teeth
+    T.sph(J(V(0, -.036, .17)), V(.07, .013, .085), '#c06a70'); hinge.add(T.mesh('Brick: teeth, tongue'));
     const P = new Parts();
-    P.sph(V(0, .0, .15), V(.12, .03, .1), '#2a1214'); // the dark of the mouth behind the lips
-    // big wet nose pushed back between the eyes, slightly crooked (a broken-nose feel)
-    const nz = surfZ(mugUpper, 0, .128);
-    P.sph(V(.004, .126, nz + .004), V(.066, .042, .038), '#161210', [0, 0, .08]); for (const sd of [-1, 1]) P.sph(V(sd * .032 + .004, .114, nz + .036), V(.016, .011, .01), '#040303'); P.sph(V(-.018, .15, nz + .034), V(.018, .008, .006), '#8a817c');
-    // thin rose ears at the back corners; the left one is torn
-    for (const sd of [-1, 1]) { const ec = sd > 0 ? BRICK.patch : '#b07c4c', len = sd > 0 ? 1 : .62;
-      P.ribbon([V(sd * .17, .215, -.07), V(sd * .205, .262, -.095), V(sd * (.215 + .05 * len), .262 - .02 * len, -.12), V(sd * (.225 + .075 * len), .262 - .075 * len, -.115)], .08, .016, ec, V(0, .3, 1), 18, 10);
-      P.ribbon([V(sd * .2, .25, -.082), V(sd * (.212 + .04 * len), .256 - .018 * len, -.103), V(sd * (.222 + .06 * len), .256 - .055 * len, -.1)], .036, .01, '#d99a93', V(0, .3, 1), 10, 8); }
+    P.sph(V(0, .0, .12), V(.13, .032, .1), '#2a1214'); // the dark of the mouth behind the lips
+    // small rose ears high on the corners of the skull, folded back and a little down, with a darker edge; the left one is torn
+    for (const sd of [-1, 1]) { const ec = sd > 0 ? BRICK.patch : '#a87447', len = sd > 0 ? .85 : .55, e0 = V(sd * .17, .245, -.06);
+      const pts = [e0, V(sd * .2, .285, -.085), V(sd * (.212 + .04 * len), .285 - .018 * len, -.108), V(sd * (.222 + .058 * len), .282 - .062 * len, -.1)];
+      P.ribbon(pts, .07, .016, ec, V(0, .3, 1), 18, 10); P.ribbon(pts.map(q => q.clone().add(V(sd * .004, -.006, -.008))), .074, .008, sd > 0 ? '#2c1a10' : '#6b4527', V(0, .3, 1), 18, 8);
+      P.ribbon([V(sd * .195, .272, -.072), V(sd * (.208 + .03 * len), .278 - .014 * len, -.093), V(sd * (.218 + .045 * len), .276 - .045 * len, -.09)], .03, .01, '#d99a93', V(0, .3, 1), 10, 8); }
     // scar through the brow on the patch side
-    const sc = [[.1, .262], [.118, .236], [.14, .2]].map(([x, y]) => V(x, y, surfZ(mugUpper, x, y) + .002)); P.ribbon(sc, .013, .006, '#e9a195', V(1, 0, 0), 12, 6);
-    for (const k of [.3, .66]) { const q = sc[0].clone().lerp(sc[2], k); q.z = surfZ(mugUpper, q.x, q.y) + .003; P.ribbon([q.clone().add(V(-.016, -.005, 0)), q.clone().add(V(.016, .005, 0))], .005, .004, '#cf8a7e', V(0, 1, 0), 4, 6); }
-    const pm = P.mesh('Brick: nose, ears, scar'); mug.add(pm); head.add(mug);
-    // wide-set round eyes, low on the face: whites, brown iris, dark rim; they blink with the rig's face acting
-    const white = new THREE.MeshPhysicalMaterial({ color: 0xe9e2d6, roughness: .35, clearcoat: .4 }), iris = new THREE.MeshPhysicalMaterial({ color: 0x5a3416, roughness: .24, clearcoat: .6 }), rim = new THREE.MeshStandardMaterial({ color: 0x1f130d, roughness: .9 });
-    const mk = (m, p, sc, e = true) => { const o = rig.ellipsoid(head, m, p.multiplyScalar(S9), sc.multiplyScalar(S9)); o.userData.eye = e; o.userData.mane = true; return o; };
-    for (const sd of [-1, 1]) { const ex = sd * .13, ey = .148, ez = .172, r = .043;
-      mk(rim, V(ex, ey, ez - .008), V(r * 1.12, r * 1.0, r * .62), false); mk(white, V(ex, ey, ez), V(r, r * .9, r * .62)); mk(iris, V(ex - sd * .006, ey - .002, ez + r * .46), V(r * .7, r * .68, r * .26)); mk(rig.black, V(ex - sd * .006, ey - .002, ez + r * .66), V(r * .34, r * .37, r * .1)); mk(rig.castMats.glint, V(ex - sd * .006 - r * .25, ey + r * .26, ez + r * .74), V(r * .17, r * .17, r * .05)); }
-    rig.castTalk = { hinge, rest: .02 };
+    const sc = [[.11, .275], [.13, .24], [.16, .205]].map(([x, y]) => V(x, y, surfZ(F.upper, x, y) + .002)); P.ribbon(sc, .013, .006, '#e9a195', V(1, 0, 0), 12, 6);
+    for (const k of [.3, .66]) { const q = sc[0].clone().lerp(sc[2], k); q.z = surfZ(F.upper, q.x, q.y) + .003; P.ribbon([q.clone().add(V(-.016, -.005, 0)), q.clone().add(V(.016, .005, 0))], .005, .004, '#cf8a7e', V(0, 1, 0), 4, 6); }
+    mug.add(P.mesh('Brick: mouth, ears, scar'));
+    // big wet black nose set back high under the rope, slightly crooked (a broken-nose feel): broad, flat on top, deep nostrils
+    const nz = surfZ(F.upper, 0, .128), N = new Parts();
+    N.sph(V(.004, .126, nz - .006), V(.076, .044, .04), '#151110', [0, 0, .07]); N.sph(V(.004, .142, nz + .002), V(.064, .026, .032), '#1c1715', [0, 0, .07]);
+    for (const sd of [-1, 1]) N.sph(V(sd * .036 + .004, .116, nz + .026), V(.018, .012, .011), '#030202', [0, 0, sd * .5]);
+    N.ribbon([V(.004, .1, nz + .022), V(.003, .068, surfZ(F.upper, 0, .068) + .002)], .007, .006, '#120d0c', V(1, 0, 0), 6, 6); // the groove down to the lip
+    const nose = N.mesh('Brick: nose', new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: .32, clearcoat: 1, clearcoatRoughness: .18 }));
+    const shine = new Parts(); shine.sph(V(-.016, .154, nz + .024), V(.02, .008, .006), '#cfc8c2'); shine.sph(V(.03, .146, nz + .022), V(.007, .004, .004), '#8f8883'); nose.add(shine.mesh('Brick: nose highlight', new THREE.MeshBasicMaterial({ vertexColors: true })));
+    mug.add(nose); head.add(mug);
+    // small, deep-set eyes, low and wide apart: brown iris filling the opening, dark rims, heavy upper lids slanted into a frown; they blink with the rig
+    const white = new THREE.MeshPhysicalMaterial({ color: 0xcfc2b0, roughness: .35, clearcoat: .4 }), iris = new THREE.MeshPhysicalMaterial({ color: 0x5e3315, roughness: .22, clearcoat: .7 }), rim = new THREE.MeshStandardMaterial({ color: 0x1b110c, roughness: .9 });
+    const at = p => p.multiplyScalar(S9).add(mug.position), mk = (m, p, sc, e = true) => { const o = rig.ellipsoid(head, m, at(p), sc.multiplyScalar(S9)); o.userData.eye = e; o.userData.mane = true; return o; };
+    const lids = [];
+    for (const sd of [-1, 1]) { const ex = sd * .145, ey = .155, r = .032, ez = surfZ(F.upper, .145, .155) - r * .12, lid = new THREE.MeshStandardMaterial({ color: sd > 0 ? 0x4a2c1a : 0xb07c4a, roughness: .9 });
+      mk(rim, V(ex, ey, ez - .006), V(r * 1.12, r * 1.0, r * .62), false); mk(white, V(ex, ey, ez), V(r * .95, r * .88, r * .6)); mk(iris, V(ex - sd * .003, ey - .002, ez + r * .4), V(r * .82, r * .8, r * .3)); mk(rig.black, V(ex - sd * .003, ey - .002, ez + r * .62), V(r * .42, r * .44, r * .12));
+      mk(rig.castMats.glint, V(ex - sd * .003 - r * .26, ey + r * .22, ez + r * .7), V(r * .17, r * .15, r * .05)); mk(rig.castMats.glint, V(ex - sd * .003 + r * .2, ey - r * .26, ez + r * .66), V(r * .07, r * .06, r * .03));
+      const ul = new THREE.Mesh(proto('sph'), lid); ul.position.set(ex, ey + r * .58, ez + r * .06); ul.scale.set(r * 1.18, r * .52, r * .68); ul.rotation.z = sd * .3; ul.name = 'Brick: upper lid'; mug.add(ul); lids.push({ m: ul, y: ul.position.y }); // heavy upper lid (in the head group, so face acting leaves it alone)
+    }
+    rig.castTalk = { hinge, rest: .02, amount: 0 };
+    rig.castFace = { U, mug, lids, spring: null, time: null, brow: -.4 };
+  }
+  /** Face dynamics, every rig update (cheap): jowls on a spring, brow frown / lift, impact ripple, jaw on effort. */
+  const FX = { a: V(), b: V(), c: V(), m: new THREE.Matrix4() };
+  function animateFace(rig, s) {
+    const f = rig.castFace; if (!f) return;
+    const dt = f.time == null ? 0 : s.time - f.time; f.time = s.time; const h = Math.min(.05, Math.max(0, dt));
+    f.mug.updateWorldMatrix(true, false); const target = FX.a.set(0, -.12, .2).applyMatrix4(f.mug.matrixWorld);
+    if (!f.spring || dt < 0 || dt > .25) f.spring = { p: target.clone(), v: V() };
+    const sp = f.spring; for (let n = Math.max(1, Math.ceil(h * 120)), k = 0; k < n; k++) { const q = h / n; sp.v.addScaledVector(FX.b.copy(target).sub(sp.p), 90 * q).multiplyScalar(Math.exp(-9 * q)); sp.p.addScaledVector(sp.v, q); }
+    if (sp.p.distanceTo(target) > .05) sp.p.copy(target).add(FX.b.copy(sp.p).sub(target).setLength(.05));
+    FX.m.copy(f.mug.matrixWorld).invert(); const lag = FX.c.copy(sp.p).applyMatrix4(FX.m).sub(FX.b.copy(target).applyMatrix4(FX.m)); if (lag.length() > .03) lag.setLength(.03);
+    f.U.uJowl.value.copy(lag); f.U.uTime.value = s.time;
+    const hurt = s.hurt || 0, effort = s.move && s.move !== 'guard' ? s.strike || 0 : 0, want = -.4 - .45 * clamp(s.guard || 0) - .25 * effort + 1.6 * hurt; f.brow += (want - f.brow) * (1 - Math.exp(-12 * h)); if (!dt) f.brow = want;
+    f.U.uBrow.value = f.brow; f.U.uRipple.value = .006 * hurt;
+    for (const l of f.lids) l.m.position.y = l.y + .006 * f.brow;
+    const t = rig.castTalk; if (t) t.hinge.rotation.x = t.rest + .3 * clamp(Math.max(t.amount || 0, .45 * effort, .6 * hurt));
+  }
+  /** Darkens the creases of a field surface by the field's curvature (a fold, the rope, a furrow get their dark line). */
+  function crease(g, field, e = .006, depth = 55, dark = .5) {
+    const P = g.attributes.position.array, N = g.attributes.normal.array, C = g.attributes.color.array;
+    for (let i = 0; i < P.length; i += 3) { const x = P[i] + N[i] * .002, y = P[i + 1] + N[i + 1] * .002, z = P[i + 2] + N[i + 2] * .002, f0 = field(x, y, z);
+      const lap = (field(x + e, y, z) + field(x - e, y, z) + field(x, y + e, z) + field(x, y - e, z) + field(x, y, z + e) + field(x, y, z - e) - 6 * f0) / (e * e);
+      const k = 1 - dark * smooth(-lap / depth); C[i] *= k; C[i + 1] *= k; C[i + 2] *= k; }
+    g.attributes.color.needsUpdate = true; return g;
   }
   const DEFS = { bruno: BRUNO, brick: BRICK };
   /** The rabbit gets the same fur care: a cheek ruff, fur behind the ears and a chest tuft (identity unchanged). */
@@ -629,7 +728,7 @@
   }
   /** Opens the mouth for speech (0..1). Uses the face acting parts the rig makes on its first update. */
   function talk(rig, amount) {
-    const t = rig.castTalk; if (t) { t.hinge.rotation.x = t.rest + .3 * clamp(amount); return; } // a real jaw
+    const t = rig.castTalk; if (t) { t.amount = clamp(amount); t.hinge.rotation.x = t.rest + .3 * t.amount; return; } // a real jaw
     const f = rig.faceActing; if (!f) return; const a = clamp(amount); f.inner.visible = a > .06; f.inner.scale.y = .001 + .016 * a; f.lip.position.y = -.016 * a; }
 
   window.StoryCast = {
@@ -637,6 +736,6 @@
     rig, asOpponent, outfit, outfitOf, bag, duffel, talk, groom, groomAll, tufts,
     get outfits() { return Object.keys(OUTFITS); },
     registerOutfit(name, def) { if (name && name !== 'kit' && def) OUTFITS[name] = def; },
-    Parts, seat, dress, bulk, kitParts
+    Parts, seat, dress, bulk, kitParts, brickFields
   };
 })();

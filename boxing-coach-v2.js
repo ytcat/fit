@@ -1650,6 +1650,7 @@
       // Fixed station substeps keep bones authoritative; upload cosmetic detail once.
       if(!options.deferVisuals){
       this.updateMane(options.simulationTime??t);
+      this.cast?.animate?.(this,{time:options.simulationTime??t,move,strike,hurt,hit,guard:options.guardCover||0}); // GOTR-0082: story faces move with the body
       const acted=window.AvatarAnatomy?.express(this,{move,strike:Math.max(strike,move.includes('uppercut')?this.motionState.load*.35:0),hurt,hit,presentation,time:options.simulationTime??t,stamina:options.stamina});
       this.painMouth.visible=!acted&&hurt>.12&&(hit.part==='head'||hit.part==='body');
       for(const {side,mark} of this.damageMarks){const amount=clamp((options.damage?.[side<0?'left':'right']||0)/6);mark.visible=amount>.025;mark.material.opacity=.60*amount;mark.scale.y=.024*(1+amount*.35);}
