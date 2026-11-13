@@ -900,6 +900,11 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Fix:** `game-presentation.js` Preview now moves the rig into its own studio scene (backdrop, floor, three lights) with its own camera, pauses whatever held the render hook, dresses a film's street clothes back to the kit and hides a carried bag, turns the Fighter three-quarter and fits the whole posed body (vertices sampled through the bones; the bind box of a skinned mesh is the T-pose); item picks only turn the camera, never crop. Close gives back rig place, scene, camera, hook, outfit, stage and mode.
 - **Evidence:** `tests/shop-preview-body.test.cjs` (home map: drawn box centre 0.52, height 0.74; bout: 0.51 / 0.72; scene/camera/mode/rig parent identical after close; existing body/skin checks for both species); pictures `qa/gotr-0090/402x690-en-shop-from-{film,home,shadowbox,heavy,mitts,fight,story}.webp` (script `qa/gotr-0090/entries-browser.cjs`). Not checked on a real phone; HE/RU Shop not pictured (the preview has no text).
 
+### GOTR-0094 — Walking in street clothes: the arm sinks into the body
+- **Reported:** 2026-11-13 (v1.65 opening film, walking towards the camera; picture `qa/owner-2026-11-12/v165-arm-in-body.webp`: one hand holds the strap at the chest and looks pushed into the hoodie; the other arm disappears into the side of the torso)
+- **Status:** OPEN — P1, with GOTR-0093
+- **Acceptance:** in the walk, talk and strap-holding poses neither arm, hand nor glove intersects the torso or the clothes; arms swing beside the body with a gap at the elbows; measured clearance (hand/forearm to torso surface ≥ 2 cm) over a full walk cycle, both species, in kit and street clothes.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
