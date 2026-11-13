@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.61 | 2026-11-13 | _pending_ | Opening film uses Codex's new 3D city: the Route 12 bus (doors open as the Fighter steps off, wheels turn with the road), the bus station, and Old Town buildings; the map dive no longer passes through a roof; the generated street remains as a fallback if a model cannot load; models load in the background, not in the offline pack (GOTR-0089) |
 | v1.60 | 2026-11-13 | `f0985bc` | Gym conversation and the job offer rewritten as natural speech in EN/HE/RU, same voices for the rest of chapter 1 (GOTR-0084). Brick: one sculpted bulldog head (first redesign round; a deeper redesign is in progress) and a test that no part of Bruno or Brick leaves the body (GOTR-0082) |
 | v1.59 | 2026-11-13 | `dab12f6` | The fight result text really disappears after the fight (a style rule kept the hidden line visible) (GOTR-0086). Smaller seconds in the timer button |
 | v1.58 | 2026-11-13 | `5cee017` | The fight result text ("KO … won") no longer stays on screen after the fight: it is removed as soon as the game leaves a fight (GOTR-0086, first part) |

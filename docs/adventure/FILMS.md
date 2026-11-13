@@ -16,7 +16,7 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 
 | # | Film (scene id) | Beat | What it shows | State | Where / notes |
 |---|---|---|---|---|---|
-| 1 | Opening (`dream_opening`) | 0 | Camera dives from the city map to the bus station; bus arrives; Fighter steps off in street clothes with his bag; walks to Bruno's Gym | **Live** v1.53; **In work**: Codex's bus, station and buildings (GOTR-0089) | `adventure/story/dream-core.js`, `agent/city-integrate-b` |
+| 1 | Opening (`dream_opening`) | 0 | Camera dives from the city map to the bus station; bus arrives; Fighter steps off in street clothes with his bag; walks to Bruno's Gym | **Live** v1.53; Codex's bus, station and buildings v1.61 (GOTR-0089) | `adventure/story/dream-core.js`, `adventure/story/city-assets.js` |
 | 2 | Gym talk (`dream_gym_talk`) | 1 | Fighter meets Coach Bruno: no money, a dream, "whatever it takes"; Brick steps in | **Live** v1.53, natural dialogue v1.60 | |
 | 3 | First fight vs Brick | 2 | Fight on the gym floor, Bruno referees | **In work** (GOTR-0083); live version still uses the arena ring | `agent/dream-1b` |
 | 4 | After the fight (`dream_after_brick`) | 2 | Bruno's deal: clean the gym, run errands, train for free — loss and win versions | **Live** v1.53 (torn-arms fix v1.56) | |

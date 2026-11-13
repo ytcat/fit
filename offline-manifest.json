@@ -1,5 +1,5 @@
 {
-  "version": "v160-20261113l",
+  "version": "v161-20261113m",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -48,7 +48,7 @@
     "./occlusion-guard.js?v=2026111302",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111119",
-    "./version.js?v=2026111313",
+    "./version.js?v=2026111314",
     "./club-interface.js?v=2026111112",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
@@ -97,6 +97,7 @@
     "./adventure/story/dream-core.js?v=2026111313",
     "./adventure/story/story-cast.js?v=2026111313",
     "./adventure/story/dream-pose.js?v=2026111308",
+    "./adventure/story/city-assets.js?v=2026111320",
     "./adventure/story/dream-sets.js?v=2026111306",
     "./adventure/story/dream-scenes.js?v=2026111309",
     "./adventure/story-flow.js?v=2026111306",
