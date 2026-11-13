@@ -412,7 +412,7 @@
     const x = Math.abs(px);
     let d = E(x, y, z, 0, .185, -.03, .215, .12, .2);                   // wide flat skull
     d = SM(d, E(x, y, z, 0, .03, -.09, .24, .17, .17), .06);            // back of the head into the neck
-    d = SM(d, E(x, y, z, .18, .04, .03, .15, .14, .16), .05);           // cheeks and jowls: the biggest mass
+    d = SM(d, E(x, y, z, .18, .04, .005, .15, .14, .155), .05);         // cheeks and jowls: the biggest mass
     d = SM(d, E(x, y, z, 0, .086, .15, .17, .08, .085), .035);          // very short muzzle, almost as wide as the skull
     d = SM(d, E(x, y, z, .07, .2, .168, .065, .036, .05), .022);        // heavy brow: low at the inside (a permanent frown) ...
     d = SM(d, E(x, y, z, .155, .222, .12, .075, .042, .056), .028);     // ... higher at the outside
@@ -433,7 +433,7 @@
       const wf = smooth((y - .19) / .03) * smooth(z / .08) * (1 - smooth((y - .3) / .025)) * smooth((x - .012) / .012);
       if (wf > 0) { const a = Math.atan2(x, y - .1); k += wf * .01 * fold(a * 3.4 + .3 * Math.sin(y * 28 + x * 9)); }
       const wl = smooth((.06 - y) / .04) * smooth((z - .1) / .06) * smooth((x - .035) / .03) * (1 - smooth((x - .24) / .04));
-      if (wl > 0) k += wl * .01 * fold((x * .9 + y * .45) / .055);
+      if (wl > 0) k += wl * .007 * fold((x * .9 + y * .45) / .055);
       const wd = smooth((-.1 - y) / .04) * smooth((z + .02) / .06);
       if (wd > 0) k += wd * .011 * fold((y + 1.2 * x * x) / .05);
       return k;
@@ -446,10 +446,9 @@
       d -= skin(x, y, z);
       d = SS(d, E(x, y, z, 0, .25, .21, .014, .065, .06), .012);        // the furrow down the forehead
       d = SS(d, E(x, y, z, .145, .155, .215, .044, .037, .05), .012);   // deep eye sockets under the brow
-      d = SS(d, E(x, y, z, 0, .04, .26, .02, .035, .04), .01);          // the cleft under the nose between the flews
       return d;
     };
-    const jaw = (px, y, z) => { const x = Math.abs(px); let d = E(x, y, z, 0, -.08, .125, .17, .056, .14); d = SM(d, E(x, y, z, 0, -.1, .255, .115, .042, .048), .03); return SM(d, E(x, y, z, 0, -.034, .265, .13, .022, .03), .011); }; // undershot: a broad square chin and the lower lip jut out past the nose
+    const jaw = (px, y, z) => { const x = Math.abs(px); let d = E(x, y, z, 0, -.08, .125, .17, .056, .14); d = SM(d, E(x, y, z, 0, -.098, .252, .115, .036, .046), .03); return SM(d, E(x, y, z, 0, -.032, .265, .105, .018, .028), .011); }; // undershot: a broad square chin and the lower lip jut out past the nose
     return (mugFields = { base: mugBase, upper, jaw, rope, all: (x, y, z) => Math.min(upper(x, y, z), jaw(x, y, z)) });
   }
   /** Skin weights for the face dynamics: x = jowls, flews, dewlap (swing), y = brow (frown / lift), z = cheeks (ripple on impact). */
@@ -484,7 +483,7 @@
         for (const [sx, sy] of [[.06, .03], [.09, .012], [.1, .04]]) c.lerp(mask, .6 * smooth((.007 - Math.hypot(x - sx, y - sy)) / .003) * front); // whisker spots
       };
       const up = flexWeights(tint(surface(F.upper, [-.37, -.29, -.36], [.37, .37, .34], .0125), F.all, coat, .024, .38));
-      const jw = flexWeights(tint(surface(F.jaw, [-.18, -.16, -.03], [.18, .0, .32], .011), F.all, (px, y, z, nx, ny, nz, c) => { const x = Math.abs(px); c.copy(white).lerp(lip, clamp(smooth((y + .03) / .01) * smooth((z - .22) / .03))).lerp(pink, smooth((ny - .55) / .2) * (1 - smooth((z - .22) / .03))).lerp(mouth, .6 * smooth((ny - .7) / .2) * (1 - smooth((z - .2) / .05))).lerp(mask, .45 * smooth((-.12 - y) / .03) * smooth((z - .15) / .05) * bell(x, 0, .12)); }, .018, .5), true);
+      const jw = flexWeights(tint(surface(F.jaw, [-.18, -.16, -.03], [.18, .0, .32], .011), F.all, (px, y, z, nx, ny, nz, c) => { const x = Math.abs(px); c.copy(white).lerp(lip, clamp(.85 * smooth((y + .016) / .006) * smooth((z - .24) / .02))).lerp(pink, smooth((ny - .55) / .2) * (1 - smooth((z - .22) / .03))).lerp(mouth, .6 * smooth((ny - .7) / .2) * (1 - smooth((z - .2) / .05))).lerp(mask, .45 * smooth((-.12 - y) / .03) * smooth((z - .15) / .05) * bell(x, 0, .12)); }, .018, .72), true);
       for (const k of [up, jw]) crease(k, F.all, .007, 75, .55);
       mugGeo = { up, jw };
     }
@@ -495,13 +494,13 @@
     const mug = new THREE.Group(); mug.name = 'Brick: bulldog head'; mug.userData.mane = true; mug.scale.setScalar(S9); mug.position.set(0, -.032, .014); // sits low and forward
     const skull = new THREE.Mesh(mugGeo.up, mat); skull.name = 'Brick: skull, muzzle, flews'; skull.castShadow = true; mug.add(skull);
     // the jaw swings on a hinge behind the cheeks
-    const hinge = new THREE.Group(); hinge.position.set(0, .004, .0); hinge.rotation.x = .02; mug.add(hinge);
+    const hinge = new THREE.Group(); hinge.position.set(0, .004, .0); mug.add(hinge);
     const jaw = new THREE.Mesh(mugGeo.jw, mat); jaw.position.set(0, .01, 0); jaw.name = 'Brick: jaw'; jaw.castShadow = true; hinge.add(jaw);
     const T = new Parts(), J = p => p.clone().add(V(0, .01, 0));
     for (const sd of [-1, 1]) { T.sph(J(V(sd * .086, -.006, .27)), V(.014, .036, .014), sd > 0 ? '#e0a83a' : '#fbf7ee', [-.3, 0, sd * .12]); T.sph(J(V(sd * .022, -.022, .292)), V(.01, .012, .007), '#f3ecde'); } // two lower canines (one gold) and the front teeth
     T.sph(J(V(0, -.036, .17)), V(.07, .013, .085), '#c06a70'); hinge.add(T.mesh('Brick: teeth, tongue'));
     const P = new Parts();
-    P.sph(V(0, .0, .12), V(.13, .032, .1), '#2a1214'); // the dark of the mouth behind the lips
+    P.sph(V(0, -.004, .1), V(.12, .024, .09), '#2a1214'); // the dark of the mouth behind the lips
     // small rose ears high on the corners of the skull, folded back and a little down, with a darker edge; the left one is torn
     for (const sd of [-1, 1]) { const ec = sd > 0 ? BRICK.patch : '#a87447', len = sd > 0 ? .85 : .55, e0 = V(sd * .17, .245, -.06);
       const pts = [e0, V(sd * .2, .285, -.085), V(sd * (.212 + .04 * len), .285 - .018 * len, -.108), V(sd * (.222 + .058 * len), .282 - .062 * len, -.1)];
@@ -528,7 +527,7 @@
       mk(rig.castMats.glint, V(ex - sd * .003 - r * .26, ey + r * .22, ez + r * .7), V(r * .17, r * .15, r * .05)); mk(rig.castMats.glint, V(ex - sd * .003 + r * .2, ey - r * .26, ez + r * .66), V(r * .07, r * .06, r * .03));
       const ul = new THREE.Mesh(proto('sph'), lid); ul.position.set(ex, ey + r * .58, ez + r * .06); ul.scale.set(r * 1.18, r * .52, r * .68); ul.rotation.z = sd * .3; ul.name = 'Brick: upper lid'; mug.add(ul); lids.push({ m: ul, y: ul.position.y }); // heavy upper lid (in the head group, so face acting leaves it alone)
     }
-    rig.castTalk = { hinge, rest: .02, amount: 0 };
+    rig.castTalk = { hinge, rest: 0, amount: 0 };
     rig.castFace = { U, mug, lids, spring: null, time: null, brow: -.4 };
   }
   /** Face dynamics, every rig update (cheap): jowls on a spring, brow frown / lift, impact ripple, jaw on effort. */

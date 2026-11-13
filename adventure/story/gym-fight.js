@@ -17,7 +17,7 @@
     view.gymFight = st;
     rhino.root.visible = false;
     bruno.root.parent?.remove(bruno.root); bruno.root.scale.set(1, 1, 1); bruno.root.visible = true; view.cast.add(bruno.root); Pose.reset(bruno); // scale 1 inside the mirrored cast, like the fighters
-    const hide = () => { if (view.ring) view.ring.visible = false; if (view.audience?.root) view.audience.root.visible = false; };
+    const hide = () => { if (view.ring) view.ring.visible = false; if (view.audience?.root) view.audience.root.visible = false; if (e.world?.arena) e.world.arena.visible = false; }; // the club arena's stands and seats too
     hide();
     const p = V();
     view.referee = {
@@ -28,6 +28,19 @@
         bruno.root.updateMatrixWorld(true);
         const state = { t: time, dt, dist: 0, arms: { L: 'hips', R: 'hips' }, look: null };
         if (o.lookAt) { p.copy(o.lookAt); bruno.root.worldToLocal(p); state.look = { yaw: Math.atan2(p.x, p.z), pitch: Math.atan2(p.y - 1.9, Math.hypot(p.x, p.z)) }; }
+        // a knockdown: Bruno steps in beside the fallen fighter, faces him, leans over and chops the count down once a second
+        const m = view.match, down = m?.phase === 'count' ? view.coaches?.[m.downActor] : null, root = bruno.root;
+        if (!st.home) st.home = root.position.clone();
+        if (down) {
+          const d = down.root.position, other = view.coaches[m.downActor === 'lion' ? 'rabbit' : 'lion'].root.position, away = V(d.x - other.x, 0, d.z - other.z); if (away.lengthSq() < 1e-4) away.set(1, 0, 0); away.normalize();
+          const cam = view.cast.worldToLocal(e.camera.position.clone()), side = V(-away.z, 0, away.x); if (side.dot(V(cam.x - d.x, 0, cam.z - d.z)) > 0) side.negate(); // beyond the fallen fighter as the camera sees him, so he never hides him
+          const goal = V(d.x, 0, d.z).addScaledVector(side, .95).addScaledVector(away, .25);
+          if (!st.walk) st.walk = root.position.clone(); st.walk.lerp(goal, 1 - Math.exp(-4 * dt));
+          root.position.copy(st.walk); root.rotation.y = Math.atan2(d.x - st.walk.x, d.z - st.walk.z);
+          const beat = time % 1; Pose.civil(bruno, { t: time, dt, dist: 0, arms: { L: 'hips', R: 'count' }, reach: { R: [.3, 1.6 - .24 * Math.min(1, beat * 4) * (1 - Math.min(1, Math.max(0, beat - .25) * 3)), .38] }, look: { yaw: 0, pitch: -.45 }, lean: .2 });
+          return;
+        }
+        if (st.walk) { const k = 1 - Math.exp(-3 * dt); st.walk.lerp(root.position, k); if (st.walk.distanceTo(root.position) < .02) st.walk = null; else root.position.copy(st.walk); } // back to his place
         if (grip && grip.isVector3) {
           p.copy(grip); bruno.root.worldToLocal(p);
           if (Math.hypot(p.x, p.z) < .6 && p.y > 1.5) { const beat = time % 1; state.arms = { L: 'hips', R: 'count' }; state.reach = { R: [.3, 1.62 - .22 * Math.min(1, beat * 4) * (1 - Math.min(1, Math.max(0, beat - .25) * 3)), .34] }; state.look = { yaw: 0, pitch: -.35 }; state.lean = .12; } // the count: the arm chops down once a second
@@ -49,7 +62,7 @@
     }).catch(x => console.warn('gym fight', x));
     const dispose = view.dispose;
     view.dispose = function (...args) {
-      st.gone = true; view.referee = rhino; rhino.root.visible = true;
+      st.gone = true; view.referee = rhino; rhino.root.visible = true; if (e.world?.arena) e.world.arena.visible = e.world.mode === 'fight';
       bruno.root.parent?.remove(bruno.root); bruno.root.scale.set(-1, 1, 1); Pose.reset(bruno);
       for (const o of st.hidden) o.visible = true;
       try { st.set?.dispose(); } catch (x) { console.warn('gym fight', x); }

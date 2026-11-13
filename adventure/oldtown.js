@@ -117,7 +117,7 @@
     root.append(txt, bar, quit); (window.app?.engine?.stage||document.body).append(root); r.ui = { root, txt, fillBar };
   }
   function paintStrip() {
-    const r = run; if (!r?.ui) return;
+    const r = run; if (!r?.ui?.fillBar) return; // story fights and boss strips have no goal bar (they paint their own text)
     const lower = A().metrics[r.mission.metric]?.lower, stars = lower && !r.ended ? 0 : A().starsFor(r.id, r.value), key = r.id + '|' + r.value + '|' + lang();
     if (r.paintKey === key) return; r.paintKey = key;
     const shown = A().metrics[r.mission.metric].lower ? r.value : Math.min(r.value, r.target);
@@ -161,7 +161,7 @@
   function fightDone(view) {
     const r = run; if (r.fightDone) return; r.fightDone = true;
     if (r.def.kind === 'boss') { setTimeout(() => bossDone(view), 1500); return; }
-    if (r.def.kind === 'story_fight') { setTimeout(() => storyFightDone(view), 1500); return; }
+    if (r.def.kind === 'story_fight') { const t0 = performance.now(), wait = () => { const m = view.match; if (!m || m.phase !== 'ceremony' || m.phaseTime >= 3.2 || performance.now() - t0 > 7000) storyFightDone(view); else setTimeout(wait, 150); }; setTimeout(wait, 1500); return; } // the referee raises the winner's arm before the story goes on (GOTR-0083)
     const entry = view.careerEntry, m = view.match, totals = m.result.totals || m.totals, sp = entry.species, me = totals[sp], opp = totals[sp === 'lion' ? 'rabbit' : 'lion'], won = m.result.winner === sp, d = r.def;
     if (d.chain) { // Crowd circle: the next challenger steps in after every win; the first loss ends the run
       if (won) r.value = (r.wins = (r.wins || 0) + 1);
