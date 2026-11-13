@@ -51,6 +51,7 @@
   <script src="./glossary.js?v=2026111113"></script>
   <script src="./ring-camera.js?v=2026111013"></script>
   <script src="./camera-director.js?v=2026111109"></script>
+  <script src="./occlusion-guard.js?v=2026111301"></script>
   <script src="./club-world.js?v=2026111103"></script>
   <link rel="stylesheet" href="./club-interface.css?v=2026111119" />
   <script src="./version.js?v=2026111211"></script>
@@ -509,6 +510,7 @@
         this.world=new ClubWorld(this);
         this.initControls();
         this.cameraDirector=window.CameraDirector?new CameraDirector(this):null;
+        this.occlusionGuard=window.OcclusionGuard?new OcclusionGuard(this):null;
         document.getElementById('camBack').addEventListener('click', () => {
           if(this.viewControls?.preset){this.viewControls.preset(Math.PI+.78,Math.PI);return;}
           if(this.arena&&this.arena.mode!=='none'){this.arena.group.rotation.y=Math.PI+.78;this.arena.fitCamera(this.camera);}
@@ -859,6 +861,8 @@
         }
 
         this.world?.update(this.animTime,this.arena?.mode||'none');
+        // GOTR-0073: scenery between the camera and a figure is hidden for as long as it is in the way.
+        this.occlusionGuard?.update();
         this.impactFx?.beforeRender(delta);this.renderer.render(this.scene, this.camera);this.impactFx?.afterRender();
       }
     }

@@ -45,6 +45,7 @@
     "./glossary.js?v=2026111113",
     "./ring-camera.js?v=2026111013",
     "./camera-director.js?v=2026111109",
+    "./occlusion-guard.js?v=2026111301",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111119",
     "./version.js?v=2026111211",
