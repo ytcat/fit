@@ -65,7 +65,7 @@
       foe: { power: 1.4, tempo: 1.18, skill: .1 } },
     clean_gym: { kind: 'training', mode: 'heavy', duration: 30, steps: true },
     night_shadow: { kind: 'training', mode: 'none', duration: 45, frame: (r, f) => { if (playerOn()) r.value += (f.swings || []).filter(x => x.actor === 'lion').length; } },
-    night_bag: { kind: 'training', mode: 'heavy', duration: 60, imp: (r, h) => { if (powerHit(h)) r.value++; } },
+    night_bag: { kind: 'training', mode: 'heavy', duration: 60, after: 'dream_bag_break', imp: (r, h) => { if (powerHit(h)) r.value++; } },
     dream_apology: { kind: 'talk' },
     market_robber: { kind: 'story_fight', venue: 'street', rounds: 1, roundSeconds: 45, restSeconds: 0, opponent: L('Fang', 'פאנג', 'Фанг'), foe: { power: 1.05, tempo: 1.02, skill: .02 } },
     buy_heavy_bag: { kind: 'buy', item: 'heavy_bag' },
@@ -183,7 +183,7 @@
   const btn = (text, fn, cls) => { const b = mk('button', cls || 'game-button adv-go', text); b.type = 'button'; b.onclick = fn; return b; };
   function cleanup() { run?.ui?.root.remove(); document.getElementById('advNext')?.remove(); }
   function backToTown() {
-    cleanup(); const keep = run; run = null; void keep;
+    cleanup(); window.BagBreak?.training?.(false); const keep = run; run = null; void keep;
     const pin = keep?.id ? CH[chapterOfId(keep.id)]?.pin : null;
     window.ringfighterGame?.open('adventure', { onReady: h => h.select(pin || 'oldtown') });
   }
@@ -337,7 +337,9 @@
     const lines = []; if (o.lead) lines.push({ text: T(o.lead) });
     if (!sc) lines.push(...said(id, 'intro', SF().firstBrick(g)).slice(0, 2));
     const label = d?.kind === 'talk' ? FW().cont : d?.kind === 'story_fight' || s.boss ? FW().fight : FW().go;
-    beat({ kicker: kickerOf(g, s), title: T(s.title), lines, info: [goalLine(s), standLine(s)], buttons: [[label, go, true], [FW().back, () => {}]] });
+    // a finished step that ended with a film can show it again (GOTR-0087)
+    const again = d?.after && SF().doneOf(g, s) && S && (S.sceneIds || []).includes(d.after) ? [[T(L('Watch the scene ▶', 'לצפות בסצנה ◀', 'Смотреть сцену ▶')), () => { rg()?.close?.(); S.play(d.after, { onDone: () => openMap(CH[chapterOfId(id)]?.pin) }); }]] : [];
+    beat({ kicker: kickerOf(g, s), title: T(s.title), lines, info: [goalLine(s), standLine(s)], buttons: [[label, go, true], ...again, [FW().back, () => {}]] });
     return true;
   }
   // Records a story event (film, talk, story fight, purchase) in the save. Returns the action result.
@@ -391,7 +393,7 @@
     const d = run.def, e = window.app.engine;
     try {
       ctx.change({ type: 'venue', venueId: CH[chapterOfId(id)]?.venue || 'default' }); // the chapter's arena (Old Town gym, Market Row street)
-      if (d.kind === 'training') { ctx.startTraining({ mode: d.mode, play: true, duration: d.duration, technique: d.technique }); if (!e.career.active) throw Error(W().noStart); }
+      if (d.kind === 'training') { window.BagBreak?.training?.(id === 'night_bag'); ctx.startTraining({ mode: d.mode, play: true, duration: d.duration, technique: d.technique }); if (!e.career.active) throw Error(W().noStart); }
       else if (d.kind === 'lesson') { const s2 = window.AcademyStage?.start(d.comboId); if (!s2?.ok) throw Error(s2?.error || W().noStart); }
       else if (d.kind === 'fight') fightStart(ctx, d, run);
     } catch (x) { const ui = run.ui; run.ended = true; ui?.txt && (ui.txt.textContent = x.message); setTimeout(() => { if (run?.ended) backToTown(); }, 1800); }
@@ -403,7 +405,12 @@
     if (res?.skipped && got == null && starsOf(g, id) === snaps[id]?.stars) { openMap(CH[chapterOfId(id)]?.pin); return; }
     openMap(CH[chapterOfId(id)]?.pin, () => afterBeat(id, { stars: got || 0 }));
   }
-  function afterRun(id, at) { pendingAfter = true; setTimeout(() => { pendingAfter = false; openMap(CH[chapterOfId(id)]?.pin, () => afterBeat(id, at)); }, 1600); }
+  // A training step can end with a film (GOTR-0087: the old bag breaks) the first time it is finished; Skip goes straight on.
+  function afterRun(id, at) {
+    const S = window.StoryScenes, film = DEFS[id]?.after, first = !!film && at?.stars > 0 && !snaps[id]?.done && !!S && (S.sceneIds || []).includes(film);
+    const go = () => { pendingAfter = false; openMap(CH[chapterOfId(id)]?.pin, () => afterBeat(id, at)); };
+    pendingAfter = true; setTimeout(() => { if (first) { rg()?.close?.(); mark(film); S.play(film, { onDone: go }); } else go(); }, first ? 700 : 1600);
+  }
   // AFTER beat: the Coach reacts to the result (fail / 1-2 stars / 3 stars), the step's own line, the stars, level-up, what opened, and Next.
   function afterBeat(id, at = {}) {
     const s = SF()?.find(id), g = rg()?.store?.game(); if (!s || !g) return;
