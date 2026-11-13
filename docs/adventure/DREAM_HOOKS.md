@@ -56,6 +56,11 @@ import. Terms: Coach = Bruno, Fighter = the player's boxer, Opponent = whoever h
 - **Fang** (beat 6, the robber): big grey wolf, black leather rocker jacket over a T-shirt, gold chain, ripped jeans, boots. He never
   wears gloves: `const restore = StoryCast.asOpponent(engine, 'fang')` makes him the Opponent of the bare-handed street fight with the
   normal fight animations (bare fists); `restore()` after the result. `StoryCast.market.barehanded` lists him.
+  He has the lion fighter's body (same skeleton, muscle relief, a heavyweight's few percent bigger) and runs the lion's own `update`
+  (every punch, slip, roll, block, hit reaction, knockdown). `asOpponent` puts him in his fight clothes (fitted tank top, jeans,
+  boots, chain); `restore()` puts the jacket back. Before the fight: `StoryCast.market.jacketOff(rig, u)` (u 0..1, about 2 s) swaps the
+  clothes, shows the jacket in his hand then on the ground (in the rig's parent space) and returns the `DreamPose.civil` state
+  (`{ arms, lean, look }`) for that moment. `StoryCast.market.wear(rig, 'jacket' | 'fight')` switches directly.
 - **Mrs. Hazel** (beat 6, the stall owner): doe, headscarf, cardigan over a dress, stall apron; stands a little stooped (`rig.cast.stoop`).
   Her handbag is a prop in her left hand: `StoryCast.market.handbag(rig)` → the `THREE.Group` (hide it or re-parent it for the snatch).
 - **Otto** (beat 7, Otto's Corner): otter, reading glasses on a cord, flannel shirt, navy shop apron, tape measure round the neck.

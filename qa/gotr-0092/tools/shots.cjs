@@ -28,11 +28,13 @@ const URL = process.env.APP_URL || 'http://127.0.0.1:8613/';
     for (const f of plan.frames) {
       for (const o of [...scene.children]) if (o.userData.rigRoot) scene.remove(o);
       const rigs = f.who.map((id, i) => { const c = rigOf(id); c.root.parent?.remove(c.root); scene.add(c.root); c.root.userData.rigRoot = true; c.root.visible = true; c.root.scale.set(-1, 1, 1); const at = f.at?.[i] || [(i - (f.who.length - 1) / 2) * 1.0, 0, 0]; c.root.position.set(at[0], 0, at[1]); c.root.rotation.set(0, at[2] || 0, 0); window.DreamPose.reset(c); return c; });
+      rigs.forEach((c, i) => { const w = Array.isArray(f.wear) ? f.wear[i] : f.wear; if (w && c.castFight) window.StoryCast.market.wear(c, w); });
       for (const c of rigs) c.root.traverse(o => { if (o.isMesh && o.userData.qaHidden) { o.visible = true; delete o.userData.qaHidden; } if (o.isMesh && f.hide?.some(h => (o.name || '').includes(h)) && o.visible) { o.visible = false; o.userData.qaHidden = true; } });
       const pose = f.pose || 'stand', t1 = f.t ?? 2;
       for (let k = 0; k <= 40; k++) { const t = t1 - (40 - k) / 30; rigs.forEach((c, i) => {
         const P = Array.isArray(pose) ? pose[i] : pose;
-        if (P && typeof P === 'object') { if (P.move === 'guard') c.update(t, 'guard', 'one_two', { simulationTime: t, keepFaceClear: true, guardCover: 1 }); else c.update(P.ph * 1.22, P.move, 'one_two', { simulationTime: t, keepFaceClear: true, guardCover: 1, power: 1.15, recoil: 0, advance: 0, contactDrive: 0 }); window.DreamPose.reset(c); }
+        if (P && typeof P === 'object') { const ex = { simulationTime: t, keepFaceClear: true, guardCover: 1, hitReaction: P.hit, down: P.down, presentation: P.down ? { mode: 'loser', raise: 0 } : undefined }; if (P.move === 'guard') c.update(t, 'guard', 'one_two', ex); else c.update(P.ph * 1.22, P.move, 'one_two', { ...ex, power: 1.15, recoil: 0, advance: 0, contactDrive: 0 }); window.DreamPose.reset(c); }
+        else if (P === 'jacket') { const q = window.StoryCast.market.jacketOff(c, f.u); window.DreamPose.civil(c, { t, dt: 1 / 30, dist: 0, ...q }); }
         else window.DreamPose.civil(c, { t, dt: 1 / 30, dist: P === 'walk' ? t * 1.25 : 0, walk: P === 'walk' ? 1 : 0, talk: P === 'talk' ? (f.talkAmount ?? 1) : 0, arms: f.arms || (P === 'talk' ? { R: 'open' } : {}), look: f.look || { yaw: 0, pitch: 0 } });
         if (P === 'talk' && f.talkAmount != null) window.StoryCast.talk(c, f.talkAmount);
         if (P === 'walk') { c.root.position.z = (f.at?.[i]?.[1] || 0); }

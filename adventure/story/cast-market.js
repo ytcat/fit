@@ -271,7 +271,7 @@
   /* ================================================================ FANG: big grey wolf, rocker jacket, gold chain, ripped jeans */
   const FANG = {
     id: 'fang', fur: '#7d7c7b', light: '#d6d0c4',
-    build: { torso: .15, depth: .14, belly: 0, chest: .012, arm: .22, leg: .15, neck: .85, hips: .03, back: .03, traps: .07 },
+    build: { torso: .07, depth: .07, belly: 0, chest: .015, arm: .1, leg: .08, neck: .6, hips: .02, back: .02, traps: .05 }, // the lion fighter's body (muscle relief kept), a heavyweight's few percent bigger
     stoop: 0, talkGain: .8,
     headForm(x, y, z, out) {
       const s = x < 0 ? -1 : 1, ax = Math.abs(x), fade = smooth((y + .09) / .05);
@@ -296,8 +296,10 @@
     coat(p, h, c) {
       const [hx, hy, hz] = h, ax = Math.abs(p.x);
       const grey = lin('#73716f'), dark = lin('#34353a'), pale = lin('#d3cabb'), tan = lin('#8a6f52'), mz = lin('#5a5049'), throat = lin('#9b958c');
-      c.copy(grey).lerp(dark, clamp((p.y > 1.74 ? .3 : .75) * smooth((-p.z + .02) / .14) + .3 * smooth((p.y - 1.9) / .2)));
-      if (p.y > 1.72) {
+      c.copy(grey).lerp(dark, clamp((p.y > 1.74 ? .3 : .6) * smooth((-p.z + .02) / .14) + .3 * smooth((p.y - 1.9) / .2)));
+      if (p.y < 1.74 && p.y > .95 && ax < .3) c.lerp(lin('#a49d93'), .7 * bell(p.x, 0, .085) * smooth((p.z - .03) / .07) * band(p.y, 1.0, 1.72, .08)); // pale chest and belly
+      if (ax > .22 && p.y > 1.3 && p.y < 1.8) c.lerp(lin('#5a595b'), .55 + .25 * smooth((ax - .5) / .3)); // darker, grizzled arms: the muscle shading reads on them
+      if (p.y > 1.72 && (p.y > 1.8 || ax < .2)) { // the head and neck only (the rest-pose arms and the raised traps lie at this height too)
         const ahx = Math.abs(hx), muzzle = smooth((hz - .26) / .05);
         const under = smooth((.075 - hy) / .05) * smooth((hz - .05) / .1) + smooth((.13 - hy) / .08) * smooth((ahx - .12) / .05) * smooth((hz + .02) / .1) * .8; // pale cheeks, lips and throat
         c.lerp(tan, .55 * bell(hy, .1, .08) * smooth((ahx - .15) / .05) * smooth((.12 - hz) / .1));
@@ -314,8 +316,10 @@
       const g = rig.skin.geometry; reshapeLocal(g, p => bulk(p, FANG.build));
       paint(rig, FANG.coat);
       jaw(rig, { lip: hz => .052 - .02 * smooth((hz - .36) / .08) + .006 * bell(hz, .26, .05), from: .17, to: .5, back: .06, hinge: [.07, .04], angle: .26, depth: .02, depthZ: .012, band: .011, throat: .1, lips: '#121012', inner: '#4a1a1e' });
-      rig.castBase = dress(g, fangClothes(rig), { relax: 24 }); use(g, rig.castBase);
-      const P = g.attributes.position, G = new Float32Array(P.count); for (let i = 0; i < P.count; i++) G[i] = rig.castGlossOf ? rig.castGlossOf[i] : 0; gloss(rig, G, .38);
+      // street (leather jacket) and fight (fitted tank top: the bare arms keep the lion's muscle relief, the fabric none) from the same body
+      rig.castFight = dress(g, fangClothes(rig, true), { relax: 14 }); const fightGloss = new THREE.BufferAttribute(rig.castGlossOf, 1);
+      rig.castBase = dress(g, fangClothes(rig), { relax: 24 }); const jacketGloss = new THREE.BufferAttribute(rig.castGlossOf, 1);
+      use(g, rig.castBase); gloss(rig, jacketGloss.array, .38); rig.castGlossSets = { jacket: g.attributes.castGloss, fight: fightGloss }; rig.castWear = 'jacket';
     },
     face(rig) {
       const head = rig.joints.head, Z = (x, y) => seat(rig, x, y), m = mats(rig);
@@ -362,6 +366,7 @@
       const W = new Parts(); for (const s of [-1, 1]) for (let k = 0; k < 5; k++) { const z = seat(rig, s * .05, .07 - k * .004) * HS, y0 = (.075 - k * .006) * HS, x0 = s * (.045 + k * .002) * HS, zz = z - .03 - k * .012; W.ribbon([V(x0, y0, zz), V(x0 + s * .06, y0 - .004 + k * .002, zz - .02), V(x0 + s * .12, y0 - .012 + k * .004, zz - .05)], .0016, .0016, '#e6e1d8', V(0, 1, 0), 10, 4); }
       head.add(meshOf(W, 'Fang: whiskers', m.parts));
       fangOutfit(rig);
+      if (rig.definition?.look) rig.definition.look.value.multiplyScalar(1.5); // muscle lines read on grey fur like the lion's on tawny
       // bushy tail: a tapered core hidden in long locks
       const tl = new THREE.Group(); tl.name = 'Fang: tail'; rig.tail.add(tl); tl.position.set(0, -.04, -.2); const core = new Parts(), path = [V(0, 0, 0), V(0, -.12, -.1), V(.04, -.32, -.16), V(.08, -.52, -.12)], curve = new THREE.CatmullRomCurve3(path);
       core.ribbon(path, .07, .07, '#5a5a5e', V(1, 0, 0), 20, 10); tl.add(meshOf(core, 'Fang: tail core', m.parts));
@@ -371,6 +376,7 @@
       install(rig);
     }
   };
+  const grabStreams = g => { const o = {}; for (const k of SWAP) if (g.attributes[k]) o[k] = g.attributes[k]; return o; };
   const reshapeLocal = (g, fn) => { const P = g.attributes.position, p = V(); for (let i = 0; i < P.count; i++) { p.fromBufferAttribute(P, i); fn(p); P.setXYZ(i, p.x, p.y, p.z); } P.needsUpdate = true; g.computeBoundingBox(); g.computeBoundingSphere(); };
   /** A point on the head surface in head-joint local rest metres: (hx, hy) head coordinates, dz pushed along +z from the front surface,
    *  or with back = true the rear surface. Used for ears and hats. */
@@ -379,7 +385,7 @@
 
   /** Fang's clothes on the skin: black leather rocker jacket (open, wide lapels, shoulder yoke, quilted creases at the elbows, belted
    *  hem, zipped cuffs) over a charcoal T-shirt; ripped faded-black jeans. Sets rig.castGlossOf (leather is glossy). */
-  function fangClothes(rig) {
+  function fangClothes(rig, fight = false) {
     const leather = lin('#242024'), worn = lin('#4a4446'), seamC = lin('#0c0a0c'), tee = lin('#3a3d44'), teeRib = lin('#22242a'), denim = lin('#2f3542'), fadeC = lin('#5f6779'), thread = lin('#d9d6cc'), fur = lin('#6f6e6d'), tmp = new THREE.Color();
     const G = rig.castGlossOf = new Float32Array(rig.skin.geometry.attributes.position.count); let i = -1;
     return v => {
@@ -394,6 +400,14 @@
         if (hole > 0) c.lerp(fur, smooth((hole - .3) / .4)).lerp(thread, clamp(threads * 1.2 + bell(hole, .3, .12) * .7));
         const hem = 1 - smooth((v.y - .135) / .02), crease = .003 * Math.sin(v.y * 110 + ang * 3) * bell(v.y, .3, .14);
         return { d: lerp(.014 + .008 * hem + crease, .004, smooth((hole - .25) / .5)), c, move: v.y < .93 ? trouser(v, lerp(.118, .13, smooth((v.y - .5) / .4)), smooth((.93 - v.y) / .1)) : null };
+      }
+      if (fight) { // a fitted charcoal tank top: no sleeves, scooped neck, bound edges, ribbed hem over the jeans
+        if (v.arm > .3 || ax > .3) return null; const fr = v.z > 0;
+        const neck = fr ? v.y > 1.66 && ax < .11 : v.y > 1.735; // scooped front, straps over the shoulders
+        const arm = v.y > 1.4 && ax > .2 + .02 * smooth((v.y - 1.55) / .12) - .03 * smooth((1.52 - v.y) / .1); if (arm || neck || (v.y > 1.6 && ax > .175)) return null;
+        const edge = Math.max(bell(ax, .2 + .02 * smooth((v.y - 1.55) / .12) - .03 * smooth((1.52 - v.y) / .1), .008) * smooth((v.y - 1.4) / .02), fr ? bell(v.y, 1.66, .008) * (ax < .12 ? 1 : 0) : 0), hem = bell(v.y, 1.06, .012);
+        const c = tmp.copy(lin('#2a2c32')).lerp(lin('#1b1c21'), clamp(edge * .8 + hem * .5 + bell(v.z, -.005, .004) * smooth((ax - .2) / .03) * .6)).multiplyScalar(1 - .04 * Math.sin(v.y * 500) * Math.sin(ax * 210)).clone();
+        G[i] = 0; return { d: .0045 + .0015 * edge + .002 * hem + .0012 * Math.sin(v.y * 90 + ax * 30) * bell(v.y, 1.15, .06), c };
       }
       // the jacket is open: a T-shirt shows between the fronts, wider toward the collar
       const front = smooth((v.z - .02) / .05) * (v.arm < .3 ? 1 : 0), open = .025 + .09 * smooth((v.y - 1.2) / .5), opening = front * (1 - smooth((ax - open) / .012));
@@ -440,17 +454,25 @@
     // shoulder epaulettes with pyramid studs
     for (const s of [-1, 1]) {
       // studs on the collar-side of the shoulder only: the outer shoulder moves with the arm, a rigid strap there would stick out
-      const pts = [.125, .16, .195].map(x => V(s * x, 0, .005)).map(q => V(q.x, crest(rig, q.x, q.z) + .012, q.z));
+      const pts = [.125, .16, .195].map(x => V(s * x, 0, .005)).map(q => V(q.x, Math.max(1.66, crest(rig, q.x, q.z, .03, .05)) + .012, q.z));
       for (const q of pts) for (const dz of [-.012, .012]) { const c = L(q).add(V(s * .02, .007, dz)); G.add(pyramid(), new THREE.Matrix4().compose(c.add(V(-s * .02, -.004, 0)), new THREE.Quaternion(), V(.009, .009, .009)), '#d9dce0'); }
     }
-    j.chest.add(meshOf(H, 'Fang: zips and epaulettes', m.metal)); j.chest.add(meshOf(G, 'Fang: studs', m.metal));
+    const jacket = rig.castJacketParts = [lapels]; for (const [P, n] of [[H, 'Fang: jacket zips'], [G, 'Fang: jacket studs']]) { const k = meshOf(P, n, m.metal); j.chest.add(k); jacket.push(k); }
     // the gold chain: heavy curb links round the neck, hanging on the T-shirt
     const C = new Parts(), chain = new THREE.CatmullRomCurve3([V(-.115, 1.76, -.05), V(-.12, 1.72, B(.12, 1.72) + .012), V(-.07, 1.6, B(.07, 1.6) + .012), V(0, 1.535, B(0, 1.54) + .014), V(.07, 1.6, B(.07, 1.6) + .012), V(.12, 1.72, B(.12, 1.72) + .012), V(.115, 1.76, -.05)]), nL = 46;
     for (let k = 0; k <= nL; k++) { const u = k / nL, q = chain.getPoint(u), t = chain.getTangent(u), quat = new THREE.Quaternion().setFromUnitVectors(V(0, 0, 1), t).multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), k % 2 ? Math.PI / 2 : 0)).multiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), Math.PI / 2)); C.add(linkGeo(), new THREE.Matrix4().compose(L(q), quat, V(.0105, .0105, .0105)), '#e2b44c'); }
     j.chest.add(meshOf(C, 'Fang: gold chain', m.gold));
     // cuff zips on the forearms
-    for (const s of [-1, 1]) { const Z = new Parts(), side = s < 0 ? 'L' : 'R'; Z.ribbon([V(s * .2, -.05, -.0), V(s * .27, -.068, .0)].map(q => q.clone()), .006, .004, '#9aa0a8', V(0, 0, 1), 6, 6); Z.box(V(s * .272, -.07, 0), V(.008, .012, .005), '#c3c8cf'); j['elbow' + side].add(meshOf(Z, 'Fang: cuff zip', m.metal)); }
+    for (const s of [-1, 1]) { const Z = new Parts(), side = s < 0 ? 'L' : 'R'; Z.ribbon([V(s * .2, -.05, -.0), V(s * .27, -.068, .0)].map(q => q.clone()), .006, .004, '#9aa0a8', V(0, 0, 1), 6, 6); Z.box(V(s * .272, -.07, 0), V(.008, .012, .005), '#c3c8cf'); const cz = meshOf(Z, 'Fang: cuff zip', m.metal); j['elbow' + side].add(cz); jacket.push(cz); }
     hands(rig, '#6f6e6d', '#1c1a1d', { claw: '#1a1718', knuckle: '#5c5b5c', k: 1.05, cuff: '#6f6e6d' });
+    // fight body only: fur on the forearms (on the forearm bone, rooted on the bare skin of the fight streams)
+    const g = rig.skin.geometry, keep = grabStreams(g); use(g, rig.castFight); rig.castFightParts = [];
+    for (const s of [-1, 1]) {
+      const side = s < 0 ? 'L' : 'R', org = V(s * .6538361203, 1.62, 0);
+      const t = tufts(rig, p => { const ax = Math.abs(p.x); return p.x * s > 0 && ax > .7 && ax < .9 ? .9 * (1 - smooth((p.z + .02) / .2) * .3) : 0; }, { count: 420, len: .034, width: .013, lift: .25, droop: .1, origin: org, seed: s < 0 ? 71 : 73, name: 'Fang: forearm fur', flow: q => V(s, -.25, 0).normalize() });
+      t.material = m.fur; t.visible = false; j['elbow' + side].add(t); rig.castFightParts.push(t);
+    }
+    use(g, keep);
     shoes(rig, { upper: '#141316', toe: '#0f0e10', sole: '#1e1d1f', welt: '#3a3634', shaft: true, buckle: true, heel: .028, soleH: .03, scale: 1.08, glossy: true });
   }
   let PYR = null, LINK = null;
@@ -717,5 +739,56 @@
   for (const [id, def] of Object.entries(DEFS)) { SC.defs[id] = def; if (!SC.ids.includes(id)) SC.ids.push(id); }
   Object.assign(SC.names, { fang: { en: 'Fang', he: 'פאנג', ru: 'Фанг' }, hazel: { en: 'Mrs. Hazel', he: 'גברת הייזל', ru: 'Миссис Хейзел' }, otto: { en: 'Otto', he: 'אוטו', ru: 'Отто' } });
   /** Which outfit rule each character follows: Fang fights bare-handed in his street clothes (no gloves ever on this rig). */
-  SC.market = { ids: Object.keys(DEFS), barehanded: ['fang'], handbag: rig => rig?.castProps?.handbag || null, settle, version: 1 };
+  /** Fang's two looks: 'jacket' (street, story scenes) and 'fight' (tank top: the fighter body shows). Swaps the skin streams and parts. */
+  function wear(rig, mode) {
+    if (!rig?.castFight || (mode !== 'jacket' && mode !== 'fight')) return false; const g = rig.skin.geometry, fight = mode === 'fight';
+    use(g, fight ? rig.castFight : rig.castBase); g.setAttribute('castGloss', rig.castGlossSets[mode]);
+    for (const o of rig.castJacketParts || []) o.visible = !fight; for (const o of rig.castFightParts || []) o.visible = fight;
+    if (!fight) { const h = rig.castJacketHeld, gr = rig.castJacketGround; if (h) h.visible = false; if (gr) gr.visible = false; }
+    rig.castWear = mode; return true;
+  }
+  /** The leather jacket as a loose prop: held by the collar (hanging) or lying crumpled on the ground. */
+  function jacketProp(rig, ground) {
+    const P = new Parts(), L = '#232024', D = '#151316', E = '#3e393b';
+    if (!ground) { // hanging from the collar, open: two flat fronts with the zips, the back behind, sleeves hanging past the hem
+      for (const s of [-1, 1]) {
+        P.box(V(s * .1, -.27, .012), V(.17, .44, .018), L, [0, 0, s * .03]); P.box(V(s * .1, -.27, -.012), V(.18, .45, .016), D);
+        P.ribbon([V(s * .06, -.01, 0), V(s * .17, -.035, 0), V(s * .25, -.07, 0)], .05, .03, L, V(0, 0, 1), 8, 6); // shoulder seam
+        P.ribbon([V(s * .25, -.07, 0), V(s * .275, -.3, .01), V(s * .27, -.56, .02)], .095, .035, E, V(1, 0, 0), 16, 8);    // empty sleeves
+        P.ribbon([V(s * .03, -.05, .024), V(s * .025, -.48, .024)], .007, .005, '#9aa0a8', V(1, 0, 0), 8, 6); P.ribbon([V(s * .05, -.04, .024), V(s * .17, -.2, .024)], .04, .006, D, V(0, 0, 1), 8, 6); // zip, lapel
+      }
+      P.ribbon([V(-.1, -.005, -.005), V(0, .02, -.01), V(.1, -.005, -.005)], .05, .016, D, V(0, 1, 0), 12, 6); P.box(V(0, -.5, 0), V(.36, .03, .04), D);
+    } else {
+      P.box(V(0, .025, 0), V(.48, .05, .36), L, [.05, .2, .04]); P.box(V(.05, .055, -.04), V(.3, .04, .22), E, [.0, -.3, 0]);
+      for (const s of [-1, 1]) P.ribbon([V(s * .18, .03, .05), V(s * .36, .03, .12), V(s * .46, .025, .02)], .1, .04, L, V(0, 1, 0), 14, 8);
+      P.ribbon([V(-.15, .06, -.16), V(0, .075, -.2), V(.15, .06, -.16)], .06, .025, D, V(0, 0, 1), 10, 6); P.ribbon([V(-.1, .056, .12), V(.12, .058, .1)], .008, .006, '#9aa0a8', V(0, 0, 1), 6, 6);
+    }
+    const m = meshOf(P, ground ? 'Fang: jacket on the ground' : 'Fang: jacket in the hand', mats(rig).glossy); m.userData.mane = false; return m;
+  }
+  /** The jacket-off beat before the street fight, u = 0..1 (about 2 s): shrugs it off the shoulders, swings it off the arm, tosses it
+   *  to the ground, rolls his shoulders. Returns the DreamPose state for this moment ({ arms, lean, look }); pose with DreamPose.civil.
+   *  The tossed jacket stays on the ground (world space, next to him) until wear(rig, 'jacket'). */
+  function jacketOff(rig, u) {
+    if (!rig?.castFight) return null; u = clamp(u);
+    if (u < .3) { wear(rig, 'jacket'); return { arms: { L: 'hang', R: 'hang' }, lean: -.06 * smooth(u / .3), look: { yaw: 0, pitch: -.1 * smooth(u / .3) } }; }
+    wear(rig, 'fight');
+    const held = rig.castJacketHeld || (rig.castJacketHeld = (() => { const h = jacketProp(rig, false), grp = new THREE.Group(); grp.name = 'Fang: held jacket'; grp.add(h); h.position.set(0, -.02, 0); rig.joints.handR.add(grp); grp.position.set(0, -.12, .02); grp.userData.storyPart = true; (rig.castSprings || []).push({ o: grp, rest: grp.quaternion.clone(), k: 1, kind: 'bag' }); return grp; })());
+    const ground = rig.castJacketGround || (rig.castJacketGround = jacketProp(rig, true));
+    held.visible = u < .62;
+    const host = rig.root.parent || rig.root; if (ground.parent !== host) host.add(ground);
+    ground.visible = u >= .62;
+    if (u >= .62 && !ground.userData.placed) { rig.root.updateMatrixWorld(true); const at = rig.root.localToWorld(V(-.55, 0, .35)); host.worldToLocal(at); ground.position.set(at.x, host === rig.root ? 0 : at.y, at.z); ground.rotation.set(0, rig.root.rotation.y + .7, 0); ground.userData.placed = true; }
+    if (u < .62) ground.userData.placed = false;
+    if (u < .62) return { arms: { L: 'hang', R: u < .45 ? 'low' : 'shrug' }, lean: -.03, look: { yaw: -.3, pitch: .05 } };
+    if (u < .8) return { arms: { L: 'hang', R: 'point' }, lean: .02, look: { yaw: -.5, pitch: .15 } };
+    const roll = Math.sin((u - .8) / .2 * Math.PI * 2); return { arms: { L: 'shrug', R: 'shrug' }, lean: .04 * roll, look: { yaw: .1 * roll, pitch: -.05 } };
+  }
+  // the street fight: Fang takes the Opponent slot in his fight clothes (tank top, bare fists); back in the jacket afterwards
+  const baseOpponent = SC.asOpponent;
+  SC.asOpponent = (engine, id) => {
+    const restore = baseOpponent(engine, id); if (id !== 'fang') return restore;
+    const c = SC.rig(id, engine); wear(c, 'fight');
+    return () => { restore(); wear(c, 'jacket'); };
+  };
+  SC.market = { ids: Object.keys(DEFS), barehanded: ['fang'], handbag: rig => rig?.castProps?.handbag || null, wear, jacketOff, settle, version: 2 };
 })();

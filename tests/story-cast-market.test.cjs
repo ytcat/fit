@@ -54,6 +54,42 @@ const restore = StoryCast.asOpponent(engine, 'fang'); assert.equal(engine.arena.
 // outfit by place: the street fight (market_robber) is not in the gym, and Fang's rig has no glove to show there
 { const S = require('../adventure/story/story-core.js'); assert.notEqual(S.outfitFor('street'), 'kit', 'street: no kit'); }
 
+// ---- owner 2026-11-13: "the wolf is the one the player needs to fight against": a fighter's body and the lion's moves
+{
+  const MOVES = ['guard', 'jab', 'cross', 'hook', 'rear_hook', 'uppercut', 'rear_uppercut', 'slip', 'roll', 'step', 'block'];
+  const fightSrc = fs.readFileSync('boxing-fight.js', 'utf8'), lionMoves = JSON.parse(fightSrc.match(/const moves=(\[[^\]]*\])/)[1].replace(/'/g, '"'));
+  assert.deepEqual(lionMoves.filter(m => !MOVES.includes(m)), [], 'every punch of the fight is in the compared list');
+  assert.ok(!Object.prototype.hasOwnProperty.call(fang, 'update') && fang.update === LionCoach.prototype.update, 'Fang runs the lion fighter\'s own update (no separate move set)');
+  const ref = new LionCoach(data, { species: 'lion' });
+  const cases = [];
+  for (const move of MOVES) for (const ph of [0, .3, .55, .8]) cases.push([move, ph, {}]);
+  cases.push(['guard', 0, { hitReaction: { part: 'head', amount: .9, side: 1, move: 'cross' } }], ['guard', 0, { hitReaction: { part: 'body', amount: .8, side: -1, move: 'hook' } }], ['guard', 0, { hitReaction: { part: 'guard', amount: .7 } }], ['guard', 0, { down: 1, presentation: { mode: 'loser', raise: 0 } }], ['guard', 0, { down: .4 }]);
+  let worst = 0;
+  for (const [move, ph, o] of cases) {
+    const a = fang.update(ph * 1.22, move, 'one_two', { guardCover: 1, ...o }), b = ref.update(ph * 1.22, move, 'one_two', { guardCover: 1, ...o });
+    assert.ok(a.handErrors.every(x => x < .001), 'Fang ' + move + ' reaches like the lion');
+    fang.bones.forEach((bone, k) => { worst = Math.max(worst, 1 - Math.abs(bone.quaternion.dot(ref.bones[k].quaternion)), bone.position.distanceTo(ref.bones[k].position)); });
+  }
+  assert.ok(worst < 1e-6, 'every bone of every fight pose (punches, slips, rolls, blocks, hits, knockdown) is the lion\'s: ' + worst);
+  // the street fight look: the tank top shows the fighter body; the muscles stay on the bare arms, not on the fabric
+  const g = fang.skin.geometry, F = fang.castFight, J = fang.castBase, P = F.position, D = F.avatarDefinition, M = F.avatarMuscle, C = F.color;
+  let armRelief = 0, clothRelief = 0, arms = 0, cloth = 0;
+  for (let i = 0; i < P.count; i++) { const x = Math.abs(P.getX(i)), y = P.getY(i); const r = Math.hypot(M.getX(i), M.getY(i), M.getZ(i)) + (D ? Math.abs(D.array[i * 4]) + Math.abs(D.array[i * 4 + 1]) + Math.abs(D.array[i * 4 + 2]) : 0);
+    if (x > .4 && x < .85 && y > 1.5) { arms++; armRelief += r > 1e-6 ? 1 : 0; } if (x < .12 && y > 1.15 && y < 1.4 && P.getZ(i) > .05) { cloth++; clothRelief += r > 1e-6 ? 1 : 0; } }
+  assert.ok(armRelief / arms > .3, 'bare arms keep the muscle relief: ' + (armRelief / arms).toFixed(2)); assert.ok(clothRelief / cloth < .05, 'no muscle relief on the tank top: ' + (clothRelief / cloth).toFixed(2));
+  assert.equal(fang.castWear, 'jacket', 'outside the fight he wears the jacket');
+  const restore2 = StoryCast.asOpponent(engine, 'fang'); assert.equal(fang.castWear, 'fight'); assert.equal(g.attributes.position, F.position, 'fight streams in use');
+  assert.ok(fang.castJacketParts.every(o => !o.visible) && fang.castFightParts.every(o => o.visible), 'jacket hardware off, forearm fur on');
+  assert.ok(fang.joints.chest.children.some(o => o.visible && o.name === 'Fang: gold chain'), 'the chain stays on'); assert.ok(!fang.gloveMeshes.L.visible && !fang.gloveMeshes.R.visible, 'bare fists');
+  restore2(); assert.equal(fang.castWear, 'jacket'); assert.equal(g.attributes.position, J.position); assert.equal(engine.arena.castOpponent, null);
+  // the jacket-off beat: jacket on, then in the hand, then on the ground; ends in fight clothes
+  const q0 = StoryCast.market.jacketOff(fang, .1); assert.equal(fang.castWear, 'jacket'); assert.ok(q0.arms);
+  StoryCast.market.jacketOff(fang, .5); assert.equal(fang.castWear, 'fight'); assert.ok(fang.castJacketHeld.visible && !fang.castJacketGround.visible, 'held');
+  StoryCast.market.jacketOff(fang, .95); assert.ok(!fang.castJacketHeld.visible && fang.castJacketGround.visible, 'tossed to the ground');
+  StoryCast.market.wear(fang, 'jacket'); assert.ok(!fang.castJacketGround.visible);
+  console.log('Fang: lion move set, identical bones (' + cases.length + ' poses), fight wear, jacket-off beat ok');
+}
+
 // ---- walk: the planted foot does not slide on the new bodies either; the skirt follows the stride
 for (const c of [fang, hazel, otto]) {
   let worst = 0; const hold = {}; DreamPose.reset(c);
@@ -85,12 +121,13 @@ assert.equal(hazel.cast.stoop > 0, true, 'Mrs. Hazel stands a little stooped');
   for (const id of IDS) {
     const c = rigs[id]; assert.equal(c.root.scale.x, -1, id + ': the root is mirrored');
     const poses = { talk: () => DreamPose.civil(c, { t: 3, dist: 0, arms: { L: 'pound', R: 'point' }, look: { yaw: .6, pitch: .1 }, talk: 1 }), walk: () => DreamPose.civil(c, { t: 2, dist: .4, walk: 1 }), guard: () => c.update(1, 'guard', 'one_two', { guardCover: 1 }), punch: () => c.update(.5 * 1.22, 'jab', 'one_two', { power: 1.2 }), hook: () => c.update(.5 * 1.22, 'hook', 'one_two', {}) };
+    if (id === 'fang') Object.assign(poses, { fightGuard: () => { StoryCast.market.wear(c, 'fight'); c.update(1, 'guard', 'one_two', { guardCover: 1 }); }, uppercut: () => c.update(.5 * 1.22, 'rear_uppercut', 'one_two', {}), slip: () => c.update(.5 * 1.22, 'slip', 'one_two', {}), roll: () => c.update(.5 * 1.22, 'roll', 'one_two', {}), hit: () => c.update(1, 'guard', 'one_two', { hitReaction: { part: 'head', amount: 1, side: 1, move: 'cross' } }), down: () => c.update(1, 'guard', 'one_two', { down: 1, presentation: { mode: 'loser', raise: 0 } }), jacketHeld: () => { StoryCast.market.jacketOff(c, .5); DreamPose.civil(c, { t: 2, dist: 0, arms: { R: 'low' } }); } });
     for (const [name, f] of Object.entries(poses)) {
       for (let k = 0; k < 3; k++) f(); check(c, id + ' ' + name);
       const home = c.root.parent, cast = new THREE.Group(); cast.scale.x = -1; cast.position.set(.4, 0, -.3); cast.rotation.y = 1.1; cast.add(c.root); f(); check(c, id + ' ' + name + ' (mirrored cast)');
       c.root.scale.set(1, 1, 1); f(); check(c, id + ' ' + name + ' (root scale 1 in a mirrored cast)'); c.root.scale.set(-1, 1, 1); cast.remove(c.root); if (home) home.add(c.root);
     }
-    DreamPose.reset(c);
+    DreamPose.reset(c); if (id === 'fang') StoryCast.market.wear(c, 'jacket');
   }
   console.log('market cast parts stay on the body');
 }
