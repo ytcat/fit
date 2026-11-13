@@ -290,6 +290,7 @@
 
   /* ---------------------------------------------------------------- runner */
   function play(id, opts = {}) {
+    if (window.DreamScenes?.has(id)) return window.DreamScenes.play(id, opts); // Chapter 1 "The Dream" (GOTR-0078): dream-scenes.js
     const C = Core(), e = window.app?.engine, done = typeof opts.onDone === 'function' ? opts.onDone : () => {};
     const game = games[id] || null, scene0 = C?.scenes[id];
     const fail = error => { setTimeout(() => done({ id, skipped: true, error }), 0); return false; };
@@ -485,14 +486,14 @@
 
   window.StoryScenes = {
     play, games, looks, best,
-    get sceneIds() { return Object.keys(Core()?.scenes || {}); },
+    get sceneIds() { return [...Object.keys(Core()?.scenes || {}), ...(window.DreamScenes?.ids || [])]; },
     get gameIds() { return Object.keys(games); },
     get ids() { return [...this.sceneIds, ...this.gameIds]; },
-    get playing() { return current ? current.id : null; },
+    get playing() { return current ? current.id : window.DreamScenes?.playing || null; },
     /** Ends the current scene as skipped. */
-    stop() { current?.finish({ skipped: true }); },
+    stop() { current?.finish({ skipped: true }); window.DreamScenes?.stop(); },
     /** Last rendered frame: draw calls, triangles, the set's own meshes/triangles, frame edge (QA, performance report). */
-    stats: () => lastStats,
+    stats: () => window.DreamScenes?.playing ? window.DreamScenes.stats() : lastStats,
     /** QA: the running scene or mini-game (read-only use). */
     get debug() { return current; }
   };
