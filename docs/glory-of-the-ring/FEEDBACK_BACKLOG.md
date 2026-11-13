@@ -817,6 +817,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** OPEN — P1
 - **Request:** portraits must look designed, not kids' style; change the names — "Pip" is not a good coach name.
 - **Plan:** portraits rendered from the real 3D heads (lit three-quarter view, dark vignette, thin metal ring), one per character; the story Coach is Bruno (GOTR-0078); the rabbit mitt holder is renamed **Mack**; every "Pip" text, id shown to players and journal line updated in EN/HE/RU.
+- **Progress 2026-11-14 (branch `agent/dream-flow`, not released):** players see **Mack** / מאק / Мак everywhere (internal id `pip` kept; test `adventure-story` scans the player-visible sources and story data for Pip/פיפ/Пип). `adventure/portraits.js`: portraits rendered once per session from the real 3D heads with the game renderer (three-quarter view, studio light, gloves hidden, dark vignette), cached as images; thin brushed-metal ring with a coloured accent arc; 3D today: the Fighter, Mack, Bruno and Brick (agent/dream-1 StoryCast); monogram badges for Fang, Mrs. Hazel, Otto, Slick, Hook, Vix, King Hyena, Dash and the chapter-2 extras; neutral silhouette if render-to-image fails. 42 px in story lines, 56 px in the quest panel, 2x pixels. Evidence `qa/gotr-0081/` (EN+HE, 402×690 at 2x).
 
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)

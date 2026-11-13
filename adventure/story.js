@@ -10,7 +10,7 @@
     nephew: { name: L("Mack's nephew", 'האחיין של מאק', 'Племянник Мака'), look: { ears: 'long', fur: '#f1ece0', accent: '#f4c152', small: true } },
     guard: { name: L('Night guard', 'שומר הלילה', 'Ночной сторож'), look: { ears: 'round', fur: '#7d8795', accent: '#243044', cap: true } },
     hyena: { name: L('Hyena', 'צבוע', 'Гиена'), look: { ears: 'point', fur: '#b08a5a', accent: '#6b3b2b' } },
-    king: { name: L('King Hyena', 'מלך הצבועים', 'Король гиен'), look: { ears: 'point', fur: '#8c6a3a', accent: '#c9a227', spiky: true, teeth: true } },
+    king: { mono: L('KH', 'מה', 'КГ'), name: L('King Hyena', 'מלך הצבועים', 'Король гиен'), look: { ears: 'point', fur: '#8c6a3a', accent: '#c9a227', spiky: true, teeth: true } },
     raccoon: { name: L('Raccoon', 'דביבון', 'Енот'), look: { ears: 'round', fur: '#8b8f98', accent: '#2b2f3a', cap: true } },
     grandma: { name: L('Grandma', 'סבתא', 'Бабушка'), look: { ears: 'round', fur: '#d8cfc4', accent: '#8e5fa8' } },
     influencer: { name: L('Show-off', 'המתנשא', 'Хвастун'), look: { ears: 'point', fur: '#e0c8a0', accent: '#ff4d8d' } },
@@ -116,7 +116,7 @@
   // GOTR-0081: portraits come from adventure/portraits.js (3D head renders / monogram badges in a metal ring). The drawn bust
   // below is only the last fallback when that module is not loaded.
   function bust(id) {
-    if (window.StoryPortraits) return window.StoryPortraits.el(id, { name: who[id]?.name?.[lang()] || '', accent: who[id]?.look?.accent });
+    if (window.StoryPortraits) return window.StoryPortraits.el(id, { name: who[id]?.name?.[lang()] || '', mono: who[id]?.mono?.[lang()], accent: who[id]?.look?.accent });
     const k = who[id]?.look || {}, ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('viewBox', '0 0 40 40'); svg.setAttribute('width', '40'); svg.setAttribute('height', '40'); svg.setAttribute('aria-hidden', 'true'); svg.classList.add('adv-bust');
     const add = (tag, attrs) => { const n = document.createElementNS(ns, tag); for (const [a, v] of Object.entries(attrs)) n.setAttribute(a, v); svg.append(n); return n; };
