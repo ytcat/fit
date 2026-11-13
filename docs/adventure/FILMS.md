@@ -20,7 +20,7 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 | 2 | Gym talk (`dream_gym_talk`) | 1 | Fighter meets Coach Bruno: no money, a dream, "whatever it takes"; Brick steps in | **Live** v1.53, natural dialogue v1.60 | |
 | 3 | First fight vs Brick | 2 | Fight on the gym floor, Bruno referees | **Live** v1.64 (GOTR-0083) | `adventure/story/gym-fight.js` |
 | 4 | After the fight (`dream_after_brick`) | 2 | Bruno's deal: clean the gym, run errands, train for free — loss and win versions | **Live** v1.53 (torn-arms fix v1.56) | |
-| 5 | Bag break (`dream_bag_break`) | 4 | Night gym, one huge Cross, the chain snaps, the bag falls and rolls; "Bruno's going to kill me" | **In work** (GOTR-0087): physics and old bag done, paused by the usage limit | `wip/bag-break` |
+| 5 | Bag break (`dream_bag_break`) | 4 | Night gym, one huge Cross, the chain snaps, the bag falls and rolls; "Bruno's going to kill me" | **Done on `agent/bag-break-b`** (GOTR-0087), not released: Jab-Cross, slowed big Cross, bag folds, top link snaps, swing up, falls on its end, bounce, tips over, rolls; lamp sways; replay from the step | `adventure/story/bag-break-core.js` (script, physics), `bag-break.js` (bag model, film); evidence `qa/gotr-0087/` |
 | 6 | Apology | 5 | Morning: Fighter apologises, Bruno sends him to the market (walk, Skip) | **Planned** — stand-in: portrait conversation | |
 | 7 | Market robbery | 6 | Fang (wolf, leather jacket, gold chain) snatches Mrs. Hazel's bag; street fight, bare hands; reward | **Planned** — stand-in: street bout with gloves | Codex: market set |
 | 8 | Otto's Corner | 7 | Buying the new heavy bag; carrying it back (walk, Skip) | **Planned** — stand-in: buy counter on the map | Codex: shop front |
@@ -48,7 +48,7 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 
 ## Next in order
 
-1. Bag break (5) — resume when a slot frees.
+1. Bag break (5) — done on `agent/bag-break-b`, waiting for review and release.
 2. Opening with Codex's assets (1) and first fight on the gym floor (3) — in work.
 3. Sunday Punch (F1) and knockout fall (F3).
 4. Corner break (F2).

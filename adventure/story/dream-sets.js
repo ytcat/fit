@@ -149,7 +149,7 @@
       for (let k = 0; k < 3; k++) box(S, rx + 1.2, 0, rz + R + .42 + (2 - k) * .3, 1.2, (k + 1) * .29, .3, '#5b3a2a'); // steps on the camera side
       // ---- heavy bags on a beam (back right), speed bag, floor mats
       const bag = (x, z, col, len = 1.15) => { const y1 = 1.02 + len, y0 = 1.02, ch = H - .32 - y1; c.shade(x, z, .8, .8); cyl(S, x, y0, z, .2, len, col, P.cyl20); cyl(S, x, y1 - .1, z, .206, .1, '#1d1f24', P.cyl20); cyl(S, x, y0, z, .206, .08, '#1d1f24', P.cyl20); cyl(S, x, y0 + len * .45, z, .203, .16, '#e9e4d6', P.cyl20); for (let k = 0; k < 4; k++) box(S, x + Math.cos(k * TAU / 4) * .1 * (1 - .0), y1, z + Math.sin(k * TAU / 4) * .1, .016, .5, .016, '#aab2bc'); cyl(S, x, y1 + .5, z, .018, ch - .5, '#8f98a4', P.cyl6); };
-      bag(5.6, -2.5, '#8f2f22'); bag(7.9, -4.4, '#2b2f3a', 1.3); bag(8.6, -1.2, '#7a5238', 1.0);
+      if (!window.BagBreak?.dress?.(c)) bag(5.6, -2.5, '#8f2f22'); /* the old bag: hanging, on the floor or new (GOTR-0087, bag-break.js) */ bag(7.9, -4.4, '#2b2f3a', 1.3); bag(8.6, -1.2, '#7a5238', 1.0);
       box(S, 6.8, 0, -3.0, 5.4, .03, 4.6, '#3b4350'); for (let x = 4.2; x < 9.6; x += 1.35) box(S, x, .031, -3.0, .02, .003, 4.6, '#2a2f38');
       box(S, 2.6, 2.2, ZB + .5, 1.1, .08, 1.0, '#5b3a2a'); box(S, 2.6, 1.3, ZB + .08, .9, 1.0, .08, '#5b3a2a'); S.add(P.sph, M(2.6, 1.93, ZB + .55, .14, .2, .14), C('#8f2f22')); cyl(S, 2.6, 2.1, ZB + .55, .03, .1, '#aab2bc', P.cyl6); // speed bag
       // ---- right wall: lockers, bench, water cooler; left wall: glove rack, weights, medicine balls

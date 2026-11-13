@@ -1,0 +1,28 @@
+{
+ "name": "bag-break-gym-after",
+ "viewport": [
+  402,
+  690
+ ],
+ "frames": [
+  {
+   "label": "gym",
+   "state": "broken"
+  }
+ ],
+ "afterStop": {
+  "playing": null,
+  "scale": [
+   -1,
+   1,
+   1
+  ],
+  "outfit": "kit"
+ },
+ "log": [
+  "warning [.WebGL-0x25c40177ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x25c40177ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x25c40177ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x25c40177ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}

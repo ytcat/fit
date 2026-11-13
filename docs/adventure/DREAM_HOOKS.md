@@ -49,6 +49,25 @@ import. Terms: Coach = Bruno, Fighter = the player's boxer, Opponent = whoever h
 - Both are built on the lion body, so `rig.species === 'lion'` for either Fighter species; tell them apart by `rig.character`.
 - Scene scripts use `rig: 'bruno' | 'brick' | 'fighter'`.
 
+## Beat 4: the old bag breaks (GOTR-0087) — `adventure/story/bag-break-core.js` (`BagBreakCore`, node too), `adventure/story/bag-break.js` (`BagBreak`)
+- Film `dream_bag_break` (about 14.6 s, Skip / Esc at any time, `StoryScenes.play` forwards it): night gym, one lamp; Jab-Cross,
+  then the big rear-hand Cross (the game's own punch animation, slowed at the impact); the leather folds, the top chain link
+  snaps, the bag swings up, lands on its end, bounces, tips over and rolls; reaction in the everyday pose; one line
+  "…Bruno's going to kill me." (EN/HE/RU). The Fighter wears the kit; his root scale, outfit and place are handed back.
+- Wiring (`adventure/oldtown.js`): `night_bag` has `after: 'dream_bag_break'`; the film plays the FIRST time the step is
+  finished with at least 1 ★, then the step's after-beat goes on. A finished step shows "Watch the scene ▶" in its beat.
+  `BagBreak.filmFor('night_bag') -> 'dream_bag_break'`.
+- **Gym state hook:** `BagBreak.gymState() -> 'hanging' | 'broken' | 'new'` from the save (`BagBreakCore.gymState(game)`):
+  `'broken'` once `night_bag` has a star, `'new'` once `buy_heavy_bag` is done (beat 7). The set `dream_gym` calls
+  `BagBreak.dress(ctx)`, so every gym scene shows the old bag hanging, the bag on the floor under the empty chain, or the new
+  (blue) bag; `set.objects.oldBag` is that rig (`.state`, `.bag.group`, `.links`). QA: `BagBreak.force = 'broken'` overrides the save.
+- The night training hits the same bag: `BagBreak.training(true)` dresses the training heavy bag in the old bag's leather,
+  chain and pipe while `night_bag` runs; `training(false)` (on leaving) puts the game's bag back.
+- Physics (all precomputed at 480 Hz, sampled at 120 Hz): rigid bag on a chain constraint (double pendulum), punch impulses,
+  snap, free flight, floor contacts with restitution and Coulomb friction, rolling resistance; 13 chain links (4 stay on the
+  mount, 3 fly, 6 stay on the bag's ring); the lamp is a damped pendulum. `BagBreakCore.sample(simT)`, `.rest()`, `.track().events`.
+- Tests: `tests/dream-bag-break.test.cjs` (node part + browser part). Evidence tool: `qa/gotr-0087/tools/film.cjs`.
+
 ## Not in this slice (owned by `agent/dream-flow`)
 The step list, the "expected loss still advances" rule, rewards, saving. Suggested order for beats 0–2:
 `dream_opening` → `dream_gym_talk` → fight vs Brick (`asOpponent`) → `dream_after_brick` with `outcome`.
