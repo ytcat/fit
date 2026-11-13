@@ -857,6 +857,10 @@ User tested the published build. Wording below is the user's request, lightly cl
   - **Opponents:** bosses can have their own finisher with a visible tell that the player can Slip or Guard.
 - **Acceptance:** real-time 3D animation on the game rigs in the orthodox stance; the knocked-out Opponent ends lying on the floor with a believable ragdoll-like settle (no hovering, no clipping through the canvas); works in the ring, in the gym and in ringless venues; frame strip and a phone recording-style sequence shown to the owner before release.
 
+### GOTR-0091 — Ongoing task: all animation films
+- **Reported:** 2026-11-13 (owner: "Can you create an ongoing task for all animation films?")
+- **Status:** ONGOING — tracker [`docs/adventure/FILMS.md`](../adventure/FILMS.md): every scripted film of Chapter 1, the fight films (Sunday Punch, corner break, knockout fall) and the older scenes, each with state and branch. The integrator updates it at every release that touches a film; a film is Done only when played in the game flow at 402×690, shown to the owner and live.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
