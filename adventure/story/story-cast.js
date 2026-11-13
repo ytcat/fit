@@ -544,14 +544,14 @@
     const tint = name !== 'kit' && o.tint ? String(o.tint) : '', key = name + (tint ? '|' + tint : '');
     groom(rig); const st = state(rig), g = rig.skin.geometry; if (st.key === key || (name === 'kit' && st.outfit === 'kit')) return true;
     // back to the kit: streams and every visibility flag exactly as they were
-    if (st.outfit !== 'kit') { use(g, st.base); for (const [o, v] of st.hidden) o.visible = v; st.hidden = []; for (const m of st.built[st.key].parts) m.visible = false; if (st.bag) st.bag.visible = false; st.outfit = 'kit'; st.key = 'kit'; }
+    if (st.outfit !== 'kit') { OUTFITS[st.outfit]?.off?.(rig); use(g, st.base); for (const [o, v] of st.hidden) o.visible = v; st.hidden = []; for (const m of st.built[st.key].parts) m.visible = false; if (st.bag) st.bag.visible = false; st.outfit = 'kit'; st.key = 'kit'; }
     if (name === 'kit') return true;
     const def = OUTFITS[name]; if (!st.base) st.base = grab(g);
     let b = st.built[key];
     if (!b) { b = st.built[key] = { parts: [], streams: null }; if (def.cloth) { b.streams = dress(g, def.cloth(rig, tint), { relax: 26 }); use(g, b.streams); } if (def.parts) def.parts(rig, m => b.parts.push(m), tint); } // small parts are seated on the dressed surface
     if (b.streams) use(g, b.streams);
     const kit = kitParts(rig); for (const k of def.hide || []) for (const o of kit[k] || []) { st.hidden.push([o, o.visible]); o.visible = false; }
-    for (const m of b.parts) m.visible = true; st.outfit = name; st.key = key; return true;
+    for (const m of b.parts) m.visible = true; def.on?.(rig); st.outfit = name; st.key = key; return true;
   }
   const outfitOf = rig => rig?.storyCast?.outfit || 'kit';
 
@@ -606,6 +606,6 @@
     rig, asOpponent, outfit, outfitOf, bag, duffel, talk, groom, groomAll, tufts,
     get outfits() { return Object.keys(OUTFITS); },
     registerOutfit(name, def) { if (name && name !== 'kit' && def) OUTFITS[name] = def; },
-    Parts, seat, dress, bulk, kitParts
+    Parts, seat, dress, bulk, kitParts, bareHands
   };
 })();
