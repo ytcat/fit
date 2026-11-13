@@ -857,6 +857,12 @@ User tested the published build. Wording below is the user's request, lightly cl
   - **Opponents:** bosses can have their own finisher with a visible tell that the player can Slip or Guard.
 - **Acceptance:** real-time 3D animation on the game rigs in the orthodox stance; the knocked-out Opponent ends lying on the floor with a believable ragdoll-like settle (no hovering, no clipping through the canvas); works in the ring, in the gym and in ringless venues; frame strip and a phone recording-style sequence shown to the owner before release.
 
+### GOTR-0090 — Shop preview: show the Fighter alone in the middle, never the current game picture
+- **Reported:** 2026-11-13 (v1.60)
+- **Status:** IN PROGRESS — P1 (branch `agent/ui-fixes`)
+- **Owner's words:** "When you are in the shop, do not capture the existing picture. Always have the player in the middle. For example, if I get to the shop while I'm in the map, I don't see the player at all in the preview."
+- **Acceptance:** whatever runs underneath (Adventure home map, a story film, shadowboxing, heavy bag, mitts, a bout, after a story scene) the Shop preview is its own clean shot of the Fighter: whole body head to feet, horizontally centred, three-quarter to the camera, neutral studio background, never the game view and never empty; closing the Shop gives back the stage, camera, visibility, mode and play state exactly. Measured at 402×690: the drawn Fighter inside the preview, centre within 10 % of the middle, at least 60 % of its height.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46

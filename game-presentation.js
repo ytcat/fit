@@ -1,4 +1,4 @@
-/* Material-only locker previews. No rig, geometry or combat changes. */
+/* Locker previews: material changes plus the Shop studio shot (GOTR-0090). No rig, geometry or combat changes. */
 (() => {
  const cached=new WeakMap();
  function materials(coach){
@@ -78,30 +78,80 @@
   // Boot variants are also distinct constructions (high-top, mid-top, panelled), not only colours.
   const boots=catalog.find(c=>c.id===equipment?.boots);(typeof BoxingFootwear!=='undefined'?BoxingFootwear:globalThis.window?.BoxingFootwear)?.style?.(coach,boots?.variant||'default');
  }
+ // GOTR-0090: the Shop preview is its own studio shot, never "whatever the game camera sees". While it is open the Fighter's rig
+ // stands alone in a small studio scene (backdrop, floor, three lights) with its own camera, whole body, centred, three-quarter to
+ // the camera, whatever runs underneath: the Adventure map, a story film (paused: it held the render hook and the rig, so the
+ // preview showed the map and no Fighter), training or a bout. On close the rig, scene, camera, render hook, stage and mode return
+ // exactly as they were.
+ const STUDIO_TURN=-.42; // the Fighter's yaw in the studio: lead shoulder toward the camera (three-quarter view)
+ function studioTexture(draw,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;}
+ function buildStudio(source){
+  const scene=new THREE.Scene();scene.name='Shop preview studio';scene.background=new THREE.Color(0x1d2229);scene.fog=new THREE.Fog(0x1d2229,40,60);scene.environment=source?.environment||null;
+  const back=new THREE.Mesh(new THREE.PlaneGeometry(26,14),new THREE.MeshBasicMaterial({fog:false,map:studioTexture((g,w,h)=>{const r=g.createRadialGradient(w/2,h*.62,8,w/2,h*.62,w*.55);r.addColorStop(0,'#4a525e');r.addColorStop(.55,'#2b313a');r.addColorStop(1,'#1d2229');g.fillStyle=r;g.fillRect(0,0,w,h);},256,128)}));
+  back.position.set(0,5,-6);
+  const floor=new THREE.Mesh(new THREE.CircleGeometry(9,48),new THREE.MeshBasicMaterial({fog:false,transparent:true,depthWrite:false,map:studioTexture((g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);r.addColorStop(0,'rgba(0,0,0,.55)');r.addColorStop(.035,'rgba(0,0,0,.35)');r.addColorStop(.07,'rgba(96,104,116,.9)');r.addColorStop(.22,'rgba(66,73,83,.85)');r.addColorStop(1,'rgba(29,34,41,0)');g.fillStyle=r;g.fillRect(0,0,w,h);},256,256)}));
+  floor.rotation.x=-Math.PI/2;floor.position.y=.002;floor.renderOrder=-1;
+  const key=new THREE.DirectionalLight(0xfff4e6,2.6);key.position.set(2.2,4,3.4);const fill=new THREE.DirectionalLight(0xb9d2ff,.8);fill.position.set(-3,2,2.4);
+  const rim=new THREE.DirectionalLight(0xdfe8ff,1.6);rim.position.set(-1.5,3.5,-4);
+  scene.add(back,floor,key,fill,rim,new THREE.HemisphereLight(0xdbeaff,0x3a3631,.55));
+  const camera=new THREE.PerspectiveCamera(30,1,.05,80);camera.name='Shop preview camera';
+  return {scene,camera,dispose(){for(const m of [back,floor]){m.geometry.dispose();m.material.map.dispose();m.material.dispose();}}};
+ }
+ // The posed body as drawn, as points: skinned meshes sampled through their bones (the bind-pose box of a skinned mesh is the
+ // T-pose), rigid parts (mane, gloves, boots) by their vertices. Hidden parts are ignored. Projecting the points (not a box,
+ // which grows with the gloves held forward and the round mane) gives the true outline on screen.
+ function posedPoints(root){
+  const pts=[];root.updateMatrixWorld(true);
+  const shown=o=>{for(let q=o;q&&q!==root.parent;q=q.parent)if(!q.visible)return false;return true;};
+  root.traverse(o=>{if(!o.isMesh||!shown(o)||o.material?.visible===false)return;const pos=o.geometry?.attributes?.position;if(!pos)return;
+   if(o.isSkinnedMesh&&o.skeleton){o.skeleton.update();const step=Math.max(1,Math.floor(pos.count/500));for(let i=0;i<pos.count;i+=step){const v=new THREE.Vector3().fromBufferAttribute(pos,i);o.boneTransform(i,v);v.applyMatrix4(o.matrixWorld);if(Number.isFinite(v.x+v.y+v.z))pts.push(v);}}
+   else{const step=Math.max(1,Math.floor(pos.count/150));for(let i=0;i<pos.count;i+=step){const v=new THREE.Vector3().fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);if(Math.abs(v.y)<50)pts.push(v);}}});
+  return pts;
+ }
  class Preview {
   constructor(engine,container){
    this.e=engine;this.token=engine.gamePreviewToken=(engine.gamePreviewToken||0)+1;this.stage=document.getElementById('stageContainer');this.playing=engine.isPlaying;this.placeholder=document.createComment('locker stage');this.stage.before(this.placeholder);this.visibility=new Map();
    const c=engine.camera,v=engine.viewControls;this.camera={position:c.position.clone(),quaternion:c.quaternion.clone(),zoom:c.zoom,orbit:c.userData.orbitTarget?.clone(),yaw:v?.yaw,target:v?.target?.clone(),offset:v?.offset?.clone(),userView:engine.arena?.fightView?.userView};
    this.oldMode=engine.targetMode;this.oldFight=engine.arena?.fightView;this.oldFit=engine.fitCameraToModel;engine.isPlaying=false;v?.reset();engine.fitCameraToModel=()=>this.frame();
-   for(const n of engine.arena?.group?.children||[]){this.visibility.set(n,n.visible);if(n!==engine.coach.root)n.visible=false;}
+   this.hadLive=this.stage.classList.contains('game-preview-live');
+   // A story film (or any demo) holds the render hook and may hold the rig: it is paused while the Shop is open.
+   this.hook=engine.fightIQDemo||null;engine.fightIQDemo=null;
    for(const side of ['L','R'])for(const n of engine.coach.joints['hand'+side].children){if(n.isBone)continue;this.visibility.set(n,n.visible);n.visible=!/^Wrapped rope grip|^Professional focus mitt/.test(n.name);}
+   // A paused film may have the Fighter in street clothes with a duffel bag: the Shop shows the kit (both come back on close).
+   const cast=window.StoryCast,st=engine.coach.storyCast;if(st?.bag){this.visibility.set(st.bag,st.bag.visible);st.bag.visible=false;}
+   if(cast?.outfit&&st?.outfit&&st.outfit!=='kit'){this.dress={name:st.outfit,tint:String(st.key||'').split('|')[1]||''};cast.outfit(engine.coach,'kit');}
    // GOTR-0072: the preview shows the Fighter as the game poses it now, never a pose (or a skin position) left by a story scene.
    if(engine.arena?.repose)engine.arena.repose();else{engine.lastPoseStamp=null;engine.lastRenderStamp=null;}
-   container.append(this.stage);this.stage.classList.add('game-preview-live');requestAnimationFrame(()=>{if(this.closed)return;window.dispatchEvent(new Event('resize'));this.frame();});
+   const root=engine.coach.root;this.rig={root,parent:root.parent,index:root.parent?root.parent.children.indexOf(root):-1,position:root.position.clone(),quaternion:root.quaternion.clone(),scale:root.scale.clone(),visible:root.visible};
+   const e0=engine;this.studio=buildStudio(engine.scene);this.scene=engine.scene;this.gameCamera=engine.camera;this.studio.camera.aspect=c.aspect;
+   this.studio.scene.add(root);this.place();this.studio.scene.onBeforeRender=()=>{if(this.closed)return;this.place();const k=[e0.lastPoseStamp,this.studio.camera.aspect.toFixed(3)].join('|');if(k!==this.fitKey)this.frame();};
+   engine.scene=this.studio.scene;engine.camera=this.studio.camera;engine.coach.maneInitialized=false;
+   container.append(this.stage);this.stage.classList.add('game-preview-live');this.frame();requestAnimationFrame(()=>{if(this.closed)return;window.dispatchEvent(new Event('resize'));this.frame();});
   }
-  frame(){if(this.closed)return;const e=this.e,c=e.camera,root=e.coach.root;e.coach.syncSkin?.();/* GOTR-0072: the body is drawn where the rig stands */const focus=this.focus||{y:1.15,height:2.8,width:1.7},target=root.localToWorld(new THREE.Vector3(0,focus.y,focus.z||0)),height=focus.height,width=focus.width,fov=THREE.MathUtils.degToRad(c.fov),distance=Math.max(height/(2*Math.tan(fov/2)),width/(2*Math.tan(fov/2)*Math.max(.3,c.aspect)))+.2;
-   c.zoom=1;c.position.copy(target).add(new THREE.Vector3(0,.15,distance).applyAxisAngle(new THREE.Vector3(0,1,0),focus.yaw||0).applyQuaternion(root.getWorldQuaternion(new THREE.Quaternion())));c.lookAt(target);c.updateProjectionMatrix();if(e.viewControls){e.viewControls.yaw=0;e.viewControls.refit(target);}this.clearLine();e.lastRenderStamp=null;
+  // The rig stands on the studio floor, mirrored root (GOTR-0074/0085), turned three-quarter to the camera. A bout may try to move it.
+  place(){const r=this.rig.root;if(r.parent!==this.studio.scene)this.studio.scene.add(r);r.position.set(0,0,0);r.rotation.set(0,STUDIO_TURN,0);r.scale.set(-1,1,1);r.visible=true;r.updateMatrixWorld(true);}
+  frame(){if(this.closed)return;const e=this.e,c=this.studio.camera,root=this.rig.root;this.place();e.coach.syncSkin?.();/* GOTR-0072: the body is drawn where the rig stands */
+   const fov=THREE.MathUtils.degToRad(c.fov),aspect=Math.max(.2,c.aspect||1),dir=new THREE.Vector3(0,.06,1).applyAxisAngle(new THREE.Vector3(0,1,0),this.focus?.yaw||0).normalize();c.zoom=1;
+   {// GOTR-0090: always the whole body, head to feet, centred (an item only turns the camera, e.g. to the arm): fitted to the posed body's points
+    let corners=posedPoints(root);if(corners.length<8)corners=[new THREE.Vector3(-.5,0,0),new THREE.Vector3(.5,2.3,0)];
+    const box=new THREE.Box3().setFromPoints(corners),size=box.getSize(new THREE.Vector3()),target=box.getCenter(new THREE.Vector3());
+    const fill=.84,t=Math.tan(fov/2);let distance=Math.max(size.y/(2*t*fill),Math.max(size.x,size.z)/(2*t*aspect*fill))+Math.max(size.x,size.z)/2;
+    for(let i=0;i<4;i++){c.position.copy(target).addScaledVector(dir,distance);c.lookAt(target);c.updateMatrixWorld(true);c.updateProjectionMatrix();
+     let x0=1,x1=-1,y0=1,y1=-1;const q=new THREE.Vector3();for(const p of corners){q.copy(p).project(c);x0=Math.min(x0,q.x);x1=Math.max(x1,q.x);y0=Math.min(y0,q.y);y1=Math.max(y1,q.y);}
+     const right=new THREE.Vector3().setFromMatrixColumn(c.matrixWorld,0),up=new THREE.Vector3().setFromMatrixColumn(c.matrixWorld,1),k=distance*t;
+     target.addScaledVector(right,(x0+x1)/2*k*aspect).addScaledVector(up,(y0+y1)/2*k);distance*=Math.max((x1-x0)/2,(y1-y0)/2)/fill;}
+    c.position.copy(target).addScaledVector(dir,distance);c.lookAt(target);c.updateProjectionMatrix();
+   }
+   c.updateMatrixWorld(true);this.fitKey=[e.lastPoseStamp,c.aspect.toFixed(3)].join('|');e.lastRenderStamp=null;
   }
-  // GOTR-0039: a narrow phone preview backs the camera 5-6 m away to fit the whole fighter, which put it behind venue
-  // set pieces (e.g. the championship hall) that then filled the frame. Anything between the camera and the fighter's
-  // head, hands, hips or feet is hidden while the preview is open (restored on close); the backdrop stays.
-  clearLine(){const e=this.e,c=e.camera,coach=e.coach,own=o=>{for(let q=o;q;q=q.parent)if(q===coach.root)return true;return false;},list=[];c.updateMatrixWorld(true);coach.root.updateMatrixWorld(true);const rc=new THREE.Raycaster(),shown=o=>{for(let q=o;q;q=q.parent)if(!q.visible)return false;return true;};rc.camera=c;
-   // Only scenery is ray-cast (never the skinned fighter, which is costly on phones).
-   e.scene.traverse(o=>{if((o.isMesh||o.isLine||o.isPoints)&&!o.isSkinnedMesh&&shown(o)&&!own(o))list.push(o);});
-   for(const j of ['head','handL','handR','hips','footL','footR']){const node=coach.joints?.[j];if(!node)continue;const w=node.getWorldPosition(new THREE.Vector3()),dir=w.clone().sub(c.position),far=dir.length();rc.set(c.position,dir.normalize());rc.far=Math.max(0,far-.05);
-    for(const hit of rc.intersectObjects(list,false)){const o=hit.object;if(!o.visible||o.material?.visible===false)continue;if(!this.visibility.has(o))this.visibility.set(o,o.visible);o.visible=false;}}}
-  close(){if(this.closed)return;this.closed=true;const e=this.e,c=e.camera,v=e.viewControls,s=this.camera;
-   this.placeholder.replaceWith(this.stage);this.stage.classList.remove('game-preview-live');for(const [node,visible] of this.visibility)node.visible=visible;e.fitCameraToModel=this.oldFit;
+  close(){if(this.closed)return;this.closed=true;const e=this.e,c=this.gameCamera,v=e.viewControls,s=this.camera,g=this.rig;
+   // a demo started in the Shop ends with it; a paused film gets the render hook back
+   if(e.fightIQDemo&&e.fightIQDemo!==this.hook)e.fightIQDemo.close?.();if(!e.fightIQDemo)e.fightIQDemo=this.hook;
+   if(this.dress)window.StoryCast?.outfit(e.coach,this.dress.name,this.dress.tint?{tint:this.dress.tint}:{});
+   this.studio.scene.onBeforeRender=()=>{};this.studio.scene.remove(g.root);if(g.parent){g.parent.add(g.root);const list=g.parent.children,at=list.indexOf(g.root);if(g.index>=0&&at!==g.index){list.splice(at,1);list.splice(Math.min(g.index,list.length),0,g.root);}}
+   g.root.position.copy(g.position);g.root.quaternion.copy(g.quaternion);g.root.scale.copy(g.scale);g.root.visible=g.visible;g.root.updateMatrixWorld(true);e.coach.maneInitialized=false;
+   e.scene=this.scene;e.camera=c;c.aspect=this.studio.camera.aspect;this.studio.dispose();e.lastPoseStamp=null;
+   this.placeholder.replaceWith(this.stage);if(!this.hadLive)this.stage.classList.remove('game-preview-live');for(const [node,visible] of this.visibility)node.visible=visible;e.fitCameraToModel=this.oldFit;
    window.dispatchEvent(new Event('resize'));requestAnimationFrame(()=>requestAnimationFrame(()=>{if(e.gamePreviewToken!==this.token||e.targetMode!==this.oldMode||e.arena?.fightView!==this.oldFight)return;v?.reset();c.position.copy(s.position);c.quaternion.copy(s.quaternion);c.zoom=s.zoom;c.userData.orbitTarget=s.orbit;if(v){v.yaw=s.yaw;v.target=s.target;v.offset=s.offset;}if(e.arena?.fightView)e.arena.fightView.userView=s.userView;c.updateProjectionMatrix();e.lastRenderStamp=null;}));
   }
  }
@@ -109,7 +159,7 @@
   const species={en:{lion:'Lion',rabbit:'Rabbit'},he:{lion:'אריה',rabbit:'ארנב'},ru:{lion:'Лев',rabbit:'Кролик'}}[lang]||{lion:'Lion',rabbit:'Rabbit'},owner=view.careerEntry?.species||'lion',raw=view.careerEntry?.playerName||profile?.name||'Guest',name=/^Guest( \d+)?$/.test(raw)&&profile?.guest!==false?raw.replace('Guest',{he:'אורח',ru:'Гость'}[lang]||'Guest'):raw,opp=view.careerEntry?.opponentName||'Shadow',rival=typeof window!=='undefined'?[...(window.GameWorld?.rivals||[]),...Object.values(window.GameTournament?.rosters||{}).flat()].find(r=>r.names?.en===opp):null;
   return Object.fromEntries(['lion','rabbit'].map(actor=>[actor,(actor===owner?name:(rival?.names?.[lang]||opp))]));
  }
- const api={apply,materials,Preview,labels,waistbands:WAISTBANDS};if(typeof module!=='undefined')module.exports=api;else{
+ const api={apply,materials,Preview,posedPoints,labels,waistbands:WAISTBANDS};if(typeof module!=='undefined')module.exports=api;else{
   window.GamePresentation=api;window.GameIdentity={labels:view=>labels(view,window.app?.engine?.career?.store.current(),window.app?.lang||'en')};
  }
 })();
