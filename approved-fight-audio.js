@@ -3,11 +3,12 @@
   'use strict';
   // Names are intentionally stable; unapproved sounds are never substituted.
   const paths = Object.freeze({
-    'referee-fight-en': './assets/audio/approved/referee-fight-en.wav',
+    'referee-fight-en': './assets/audio/approved/referee_en.wav',
+    'referee-fight-he': './assets/audio/approved/referee_he.wav',
     'referee-fight-ru': './assets/audio/approved/referee-fight-ru.opus',
-    'boxing-bell': './assets/audio/approved/boxing-bell.wav',
-    'glove-impact': './assets/audio/approved/glove-impact.wav',
-    'knockout-crowd': './assets/audio/approved/knockout-crowd.wav'
+    'boxing-bell': './assets/audio/approved/bell.wav',
+    'glove-impact': './assets/audio/approved/punch.wav',
+    'knockout-crowd': './assets/audio/approved/applause.wav'
   });
   let audioContext=null,loading=null;
   function preload(audio) {
@@ -38,7 +39,7 @@
     if(!event||!app||app.audio?.muted)return false;
     const audio=app.audio,lang=app.lang;
     if(event.type==='bell'&&event.kind==='start'){
-      const command=lang==='ru'?'referee-fight-ru':lang==='en'?'referee-fight-en':null;
+      const command=lang==='ru'?'referee-fight-ru':lang==='en'?'referee-fight-en':lang==='he'?'referee-fight-he':null;
       return command?play(audio,command,.72):false;
     }
     if(event.type==='bell'||event.type==='final-bell')return play(audio,'boxing-bell',.48);
