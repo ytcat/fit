@@ -112,7 +112,7 @@
   const DENIM = { base: '#344d73', fade: '#7f9bc0', dark: '#223450', stitch: '#c79a55', belt: '#3b2a20', buckle: '#b9b4a8' };
 
   function buildShape(rig) {
-    const st = rig.storyCast, g = rig.skin.geometry, base = st.base, P = base.position.array, N = base.normal.array, A = g.attributes.coachArmBlend.array, idx = st.fullIndex.array;
+    const st = rig.storyCast, g = rig.skin.geometry, base = st.base, A = g.attributes.coachArmBlend.array, P = slim(base.position.array, A), N = base.normal.array, idx = st.fullIndex.array;
     const SI = g.attributes.skinIndex.array, SW = g.attributes.skinWeight.array, LIN = g.attributes.coachLinear?.array, NB = rig.bones.length;
     const n = P.length / 3, rep = weld(P);
     // which garment each body vertex is in (signed: < 0 inside) - hoodie (H) and jeans (J) overlap at the waist
@@ -203,9 +203,9 @@
     for (let s = 0; s < NL; s++) { const y = LY0 + s * LDY; if (y < .9) continue; let lo = 9, hi = -9; for (const side of [0, 1]) for (const [x, z] of legS[side][s]) { const zz = z + legC[side][s][1]; lo = Math.min(lo, zz); hi = Math.max(hi, zz); } pz[s] = (lo + hi) / 2; for (const side of [0, 1]) for (const [x, z] of legS[side][s]) pel[s].push([x + legC[side][s][0], z + legC[side][s][1] - pz[s]]); }
     const RL = [0, 1].map(side => { const T = hullTable(legS[side], NT); fillRows(T); return T; }), RP = hullTable(pel, NT); for (let s = 0; s < NL; s++) if (!RP[s]) RP[s] = new Float32Array(NT);
     // straight leg: below the knee the cloth falls from the knee and calf, barely tapering, never tighter than the shoe needs
-    for (const side of [0, 1]) for (let k = 0; k < NT; k++) { let run = 0; for (let s = Math.round((.78 - LY0) / LDY); s >= 0; s--) { run = Math.max(run - .085 * LDY, RL[side][s][k]); RL[side][s][k] = Math.max(RL[side][s][k], run, .066); } }
+    for (const side of [0, 1]) for (let k = 0; k < NT; k++) { let run = 0; for (let s = Math.round((.6 - LY0) / LDY); s >= 0; s--) { run = Math.max(run - .06 * LDY, RL[side][s][k]); RL[side][s][k] = Math.max(RL[side][s][k], run, .066); } }
     for (const T of RL) blurRows(T, NT, 2, 1); blurRows(RP, NT, 2, 1);
-    const legEase = y => lerp(.016, .011, smooth((y - .5) / .3)) + .004 * bell(y, .55, .06);
+    const legEase = y => lerp(.014, .011, smooth((y - .5) / .3));
     const pinJ = new Uint8Array(nJ), bndJ = boundary(J);
     for (let k = 0; k < nJ; k++) {
       const i = J.orig[k], x = P[i * 3], y = P[i * 3 + 1], z = P[i * 3 + 2], side = x < 0 ? 0 : 1, s = clamp(Math.round((y - LY0) / LDY), 0, NL - 1), c = legC[side][s];
@@ -232,6 +232,18 @@
   }
   /** Vertices on a cut edge take the normal of the cloth next to them (snapped edge triangles can be slivers). */
   function edgeNormals(part, N) { for (const k of part.bnd) { let x = 0, y = 0, z = 0; for (let e = part.G.start[k]; e < part.G.start[k + 1]; e++) { const q = part.G.nb[e]; if (part.bnd.has(q)) continue; x += N[q * 3]; y += N[q * 3 + 1]; z += N[q * 3 + 2]; } const l = Math.hypot(x, y, z); if (l > 1e-6) { N[k * 3] = x / l; N[k * 3 + 1] = y / l; N[k * 3 + 2] = z / l; } } return N; }
+  /** The fighter's bodybuilder bulk under street clothes (GOTR-0094): thinner upper arms and forearms, narrower lats, flatter
+   *  pecs - the garments are cut from this slimmer rest surface (the skeleton is unchanged; the body under the cloth is not drawn). */
+  function slim(P0, A) {
+    const P = new Float32Array(P0);
+    for (let i = 0; i < P.length / 3; i++) {
+      const x = P[i * 3], y = P[i * 3 + 1], z = P[i * 3 + 2], a = A[i], ax = Math.abs(x);
+      if (a > .02) { const k = 1 - a * (.2 * smooth((ax - .3) / .08) * (1 - smooth((ax - .66) / .1)) + .1 * smooth((ax - .62) / .06) * (1 - smooth((ax - .83) / .04))); P[i * 3 + 1] = 1.615 + (y - 1.615) * k; P[i * 3 + 2] = z * k; }
+      const t = (1 - a) * Math.exp(-(((y - 1.47) / .15) ** 2));
+      if (t > 0) { P[i * 3] = x * (1 - .11 * t * smooth((ax - .1) / .1)); P[i * 3 + 2] = z * (1 - (z > 0 ? .11 : .06) * t); }
+    }
+    return P;
+  }
   function boundary(part) { // vertices on open edges
     const cnt = new Map(); for (let t = 0; t < part.tris.length; t += 3) for (let k = 0; k < 3; k++) { const a = part.tris[t + k], b = part.tris[t + (k + 1) % 3], key = a < b ? a * 1048576 + b : b * 1048576 + a; cnt.set(key, (cnt.get(key) || 0) + 1); }
     const out = new Set(); for (const [key, c] of cnt) if (c === 1) { out.add(Math.floor(key / 1048576)); out.add(key % 1048576); } return out;
@@ -258,8 +270,8 @@
       return f;
     };
     const foldJ = (x, y, z) => { const ax = Math.abs(x), th = legTh(x, z);
-      const stack = smooth((.3 - y) / .1) * smooth((y - .13) / .015), knee = bell(y, .55, .05) * smooth(-Math.cos(th) / .3), whisk = bell(y, .9, .04) * bell(ax, .1, .05) * smooth(z / .05);
-      return .005 * stack * Math.sin(y * 210 + 1.4 * Math.sin(th * 2)) + .003 * knee * Math.sin(y * 260) + .0025 * whisk * Math.sin((y - ax * 1.2) * 250); };
+      const stack = smooth((.22 - y) / .06) * smooth((y - .13) / .015), knee = bell(y, .55, .05) * smooth(-Math.cos(th) / .3), whisk = bell(y, .9, .04) * bell(ax, .1, .05) * smooth(z / .05);
+      return .003 * stack * Math.sin(y * 150 + 2.2 * Math.sin(th * 1.5 + y * 40)) * (.4 + .6 * smooth(Math.sin(th * 2 + y * 60) + .3)) + .0015 * knee * Math.sin(y * 200) + .0025 * whisk * Math.sin((y - ax * 1.2) * 250); };
     const colH = (x, y, z, a, f) => {
       const ax = Math.abs(x), th = Math.atan2(x, z), heather = 1 + .07 * (hash(x * 91, y * 57, z * 33) - .5) + .03 * Math.sin(y * 230 + x * 170);
       const seamShoulder = a > .3 && a < .8 ? bell(a, .55, .06) : 0, side = a < .5 ? bell(Math.abs(Math.abs(th) - Math.PI / 2), 0, .035) * smooth((1.4 - y) / .05) : 0, under = a > .5 ? bell(Math.atan2(z, y - 1.615), -Math.PI, .08) : 0;
