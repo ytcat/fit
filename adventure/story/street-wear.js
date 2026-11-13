@@ -40,11 +40,11 @@
     return { start, nb };
   }
   function smoothPos(pos, G, pin, rounds, lam = .5, mu = -.53, mask = null) { // Taubin: smooths without shrinking
-    const n = pos.length / 3, tmp = new Float32Array(pos.length);
+    const n = pos.length / 3, tmp = new Float32Array(pos.length), act = []; for (let i = 0; i < n; i++) if (!pin[i] && (!mask || mask[i] > .01)) act.push(i);
     for (let r = 0; r < rounds * 2; r++) {
       const f = r % 2 ? mu : lam; tmp.set(pos);
-      for (let i = 0; i < n; i++) {
-        if (pin[i]) continue; const a = G.start[i], b = G.start[i + 1]; if (a === b) continue; const w = f * (mask ? mask[i] : 1); if (!w) continue;
+      for (const i of act) {
+        const a = G.start[i], b = G.start[i + 1]; if (a === b) continue; const w = f * (mask ? mask[i] : 1); if (!w) continue;
         let x = 0, y = 0, z = 0; for (let k = a; k < b; k++) { const j = G.nb[k] * 3; x += tmp[j]; y += tmp[j + 1]; z += tmp[j + 2]; } const m = 1 / (b - a);
         pos[i * 3] += (x * m - tmp[i * 3]) * w; pos[i * 3 + 1] += (y * m - tmp[i * 3 + 1]) * w; pos[i * 3 + 2] += (z * m - tmp[i * 3 + 2]) * w;
       }
@@ -79,7 +79,7 @@
     nearest(x, y, z, r = .06) { let best = -1, bd = 1e9; this.near(x, y, z, r, (q, d) => { if (d < bd) { bd = d; best = q; } }); return best < 0 && r < .5 ? this.nearest(x, y, z, r * 2) : best; }
     /** The outermost surface point along the ray p + t d (d unit, t in [t0, t1]): max t of points within `w` of the line. Marches in from outside. */
     surface(p, d, w = .014, t0 = -.12, t1 = .45) { const P = this.p, w2 = w * w, c = this.c; let best = -1e9, at = -1;
-      for (let t = t1; t >= t0 - 1e-9; t -= c) { this.near(p.x + d.x * t, p.y + d.y * t, p.z + d.z * t, c * 1.05, q => { const vx = P[q * 3] - p.x, vy = P[q * 3 + 1] - p.y, vz = P[q * 3 + 2] - p.z, tt = vx * d.x + vy * d.y + vz * d.z, px = vx - d.x * tt, py = vy - d.y * tt, pz = vz - d.z * tt; if (px * px + py * py + pz * pz < w2 && tt > best) { best = tt; at = q; } }); if (at >= 0 && best > t - c * 2) break; }
+      for (let t = t1; t >= t0 - 1e-9; t -= c) { this.near(p.x + d.x * t, p.y + d.y * t, p.z + d.z * t, c * .99, q => { const vx = P[q * 3] - p.x, vy = P[q * 3 + 1] - p.y, vz = P[q * 3 + 2] - p.z, tt = vx * d.x + vy * d.y + vz * d.z, px = vx - d.x * tt, py = vy - d.y * tt, pz = vz - d.z * tt; if (px * px + py * py + pz * pz < w2 && tt > best) { best = tt; at = q; } }); if (at >= 0 && best > t - c * 2) break; }
       return at < 0 ? null : { t: best, i: at }; }
   }
 
@@ -141,7 +141,7 @@
     /* hoodie: torso by slices (hull, drape, ease), sleeves as loose tubes, shoulders from the smoothed body */
     const H = parts.H, nH = H.orig.length, X = new Float32Array(nH * 3), S = new Float32Array(nH * 3);
     for (let k = 0; k < nH; k++) { const i = H.orig[k]; S[k * 3] = P[i * 3]; S[k * 3 + 1] = P[i * 3 + 1]; S[k * 3 + 2] = P[i * 3 + 2]; }
-    smoothPos(S, H.G, new Uint8Array(nH), 40);
+    smoothPos(S, H.G, new Uint8Array(nH), 22);
     const SN = vnormals(S, H.tris);
     const Y0 = 1.05, DY = .01, NS = 75, NT = 72, slices = Array.from({ length: NS }, () => []), cz = new Float32Array(NS);
     { const zmin = new Float32Array(NS).fill(9), zmax = new Float32Array(NS).fill(-9);
@@ -193,7 +193,7 @@
     /* jeans: legs by slices round each leg, the seat and hips round the body; straight below the knee */
     const J = parts.J, nJ = J.orig.length, XJ = new Float32Array(nJ * 3), SJ = new Float32Array(nJ * 3);
     for (let k = 0; k < nJ; k++) { const i = J.orig[k]; SJ[k * 3] = P[i * 3]; SJ[k * 3 + 1] = P[i * 3 + 1]; SJ[k * 3 + 2] = P[i * 3 + 2]; }
-    smoothPos(SJ, J.G, new Uint8Array(nJ), 30);
+    smoothPos(SJ, J.G, new Uint8Array(nJ), 14);
     const LY0 = .1, LDY = .01, NL = 102, legS = [[], []].map(() => Array.from({ length: NL }, () => [])), legC = [0, 1].map(() => Array.from({ length: NL }, () => [0, 0]));
     { const ext = [0, 1].map(() => Array.from({ length: NL }, () => [9, -9, 9, -9]));
       for (let i = 0; i < n; i++) { if (A[i] > .02) continue; const y = P[i * 3 + 1], s = Math.round((y - LY0) / LDY); if (s < 0 || s >= NL || Math.abs(y - (LY0 + s * LDY)) > .007) continue; const x = P[i * 3], z = P[i * 3 + 2], side = x < 0 ? 0 : 1, e = ext[side][s]; e[0] = Math.min(e[0], x); e[1] = Math.max(e[1], x); e[2] = Math.min(e[2], z); e[3] = Math.max(e[3], z); legS[side][s].push([x, z]); }
@@ -223,7 +223,8 @@
 
     // the skin weights the cloth grew from, smoothed along the cloth
     const weights = (part, rounds, mask = null) => { const m = part.orig.length, W = new Float32Array(m * NB), T = new Float32Array(m * NB); for (let k = 0; k < m; k++) { const i = part.orig[k]; for (let q = 0; q < 4; q++) W[k * NB + SI[i * 4 + q]] += SW[i * 4 + q]; }
-      for (let r = 0; r < rounds; r++) { T.set(W); for (let k = 0; k < m; k++) { const a = part.G.start[k], b = part.G.start[k + 1]; if (a === b) continue; for (let q = 0; q < NB; q++) { let acc = 0; for (let e = a; e < b; e++) acc += T[part.G.nb[e] * NB + q]; const w = mask ? .5 * mask[k] : .5; W[k * NB + q] = (1 - w) * T[k * NB + q] + w * acc / (b - a); } } } return W; };
+      const all = [], hot = []; for (let k = 0; k < m; k++) { if (part.G.start[k] === part.G.start[k + 1]) continue; all.push(k); if (!mask || mask[k] > .3) hot.push(k); }
+      for (let r = 0; r < rounds; r++) { T.set(W); for (const k of r < 6 ? all : hot) { const a = part.G.start[k], b = part.G.start[k + 1], w = mask ? .5 * mask[k] : .5; for (let q = 0; q < NB; q++) { let acc = 0; for (let e = a; e < b; e++) acc += T[part.G.nb[e] * NB + q]; W[k * NB + q] = (1 - w) * T[k * NB + q] + w * acc / (b - a); } } } return W; };
     const shoulder = new Float32Array(nH); for (let k = 0; k < nH; k++) { const i = H.orig[k]; shoulder[k] = Math.max(.25, bell(A[i], .45, .35) * smooth((P[i * 3 + 1] - 1.4) / .1)); }
     H.W = weights(H, 30, shoulder); J.W = weights(J, 4); H.X = X; J.X = XJ; H.lin = H.orig.map((i, k) => Math.max(LIN ? LIN[i] : 0, .6 * bell(A[i], .45, .3) * smooth((P[i * 3 + 1] - 1.48) / .1))); J.lin = J.orig.map(i => LIN ? LIN[i] : 0);
     H.bnd = bnd; J.bnd = bndJ; H.N = edgeNormals(H, vnormals(X, H.tris)); J.N = edgeNormals(J, vnormals(XJ, J.tris));
@@ -486,5 +487,9 @@
     if (mode === 'shoulder' && st && !st.bag && !rig.cast && st.outfit === 'street' && SKIN_CACHE.get(rig)) st.bag = bagFor(rig);
     return baseBag(rig, mode);
   };
-  SC.streetWear = { buildShape, dressMesh, skinSoup, clothFor, sneaker, def, BAG, lines: { HEM, CUFF, neckY, waistY, beltY, hemJ, LEG_X } };
+  /** Build the Fighter's clothes ahead of time (idle, after load), so the film does not wait for them. */
+  function prewarm(rig) { try { if (!rig?.skin || rig.cast || SKIN_CACHE.get(rig) || (rig.storyCast && rig.storyCast.outfit !== 'kit')) return false; const st = rig.storyCast || (rig.storyCast = { outfit: 'kit', built: {}, hidden: [], base: null, bag: null }); const g = rig.skin.geometry; if (!st.fullIndex) st.fullIndex = g.index;
+      const base = st.base; if (!base) st.base = { position: g.attributes.position, normal: g.attributes.normal, temp: true }; clothFor(rig, ''); if (st.base?.temp) st.base = null; return true; } catch (e) { return false; } }
+  if (typeof window.addEventListener === 'function') window.addEventListener('load', () => setTimeout(() => { const go = () => prewarm(window.app?.engine?.coach); window.requestIdleCallback ? window.requestIdleCallback(go, { timeout: 6000 }) : go(); }, 1500));
+  SC.streetWear = { prewarm, buildShape, dressMesh, skinSoup, clothFor, sneaker, def, BAG, lines: { HEM, CUFF, neckY, waistY, beltY, hemJ, LEG_X } };
 })();
