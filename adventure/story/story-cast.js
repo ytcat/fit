@@ -185,12 +185,13 @@
     const put = (q, m, k) => { pos.push(q.x - org.x, q.y - org.y, q.z - org.z); nor.push(m.x, m.y, m.z); col.push(c.r * k, c.g * k, c.b * k); };
     for (let made = 0, tries = 0; made < o.count && tries < o.count * 400; tries++) {
       const i = Math.floor(rand() * P.count); p.fromBufferAttribute(P, i); n.fromBufferAttribute(N, i); const w = where(p, n); if (!(w > 0) || rand() > w) continue; made++;
-      const dir = o.flow(p, n).clone(); dir.addScaledVector(n, -dir.dot(n) * .7).normalize(); const side = n.clone().cross(dir).normalize(), len = o.len * (.55 + .9 * rand()) * (.6 + .4 * w), wd = o.width * (.7 + .6 * rand()), lift = o.lift ?? .25, twist = (rand() - .5) * .5;
-      side.addScaledVector(dir, twist).normalize(); c.fromBufferAttribute(K, i); if (o.tone) c.lerp(o.tone, .14 * rand()); const shade = .93 + .14 * rand();
-      const rows = [[0, .8, -1], [.3, 1, lift * .8], [.68, .55, lift], [1, 0, lift * .75]].map(([u, ww, up]) => { const q = p.clone().addScaledVector(dir, len * u).addScaledVector(n, up < 0 ? -.004 : len * up); q.y -= len * u * u * (o.droop ?? .22); return [q, ww * wd / 2]; });
-      const m = n.clone().addScaledVector(dir, .35).normalize();
-      for (let r = 0; r < 3; r++) { const [a, wa] = rows[r], [b, wb] = rows[r + 1], ka = shade * (.94 + .05 * r), kb = shade * (.94 + .05 * (r + 1)), a0 = a.clone().addScaledVector(side, -wa), a1 = a.clone().addScaledVector(side, wa), b0 = b.clone().addScaledVector(side, -wb), b1 = b.clone().addScaledVector(side, wb);
-        put(a0, m, ka); put(a1, m, ka); put(b0, m, kb); if (wb > 0) { put(a1, m, ka); put(b1, m, kb); put(b0, m, kb); } }
+      const r0 = rand(), r1 = rand(), r2 = rand(), r3 = rand(), tangent = o.flow(p, n).clone(); tangent.addScaledVector(n, -tangent.dot(n)); if (tangent.lengthSq() < 1e-6) tangent.set(0, -n.z, n.y); tangent.normalize().applyAxisAngle(n, (r2 - .5) * .7);
+      const angle = (o.lift ?? .3) + .15 * r0, forward = tangent.clone().multiplyScalar(Math.cos(angle)).addScaledVector(n, Math.sin(angle)), len = o.len * (.7 + .6 * r1) * (.55 + .45 * w), width = o.width * (.75 + .5 * r2), curl = (r3 - .5) * .35 * len;
+      const across = forward.clone().cross(n).normalize(), lift = n.clone().addScaledVector(forward, -n.dot(forward)).normalize();
+      c.fromBufferAttribute(K, i); if (o.tone) c.lerp(o.tone, .1 * r3); const shade = .96 + .08 * r0, st = [];
+      for (let k = 0; k <= 4; k++) { const t = k / 4, half = width * (1 - t) * (.6 + 1.6 * t), q = p.clone().addScaledVector(n, -.01).addScaledVector(forward, len * t).addScaledVector(n, -.3 * len * t * t).addScaledVector(across, curl * t * t); q.y -= (o.droop ?? .2) * len * t * t; st.push([t, [q.clone().addScaledVector(across, -half), q.clone().addScaledVector(lift, .35 * half), q.clone().addScaledVector(across, half)]]); }
+      const ridge = [lift.clone().multiplyScalar(.6).addScaledVector(across, -.8).addScaledVector(n, .5).normalize(), lift.clone().addScaledVector(n, .5).normalize(), lift.clone().multiplyScalar(.6).addScaledVector(across, .8).addScaledVector(n, .5).normalize()];
+      for (let k = 0; k < 4; k++) { const a = st[k], b = st[k + 1]; for (const [q, e] of [[a, 0], [a, 1], [b, 0], [a, 1], [b, 1], [b, 0], [a, 1], [a, 2], [b, 1], [a, 2], [b, 2], [b, 1]]) put(q[1][e], ridge[e], shade * (.9 + .16 * q[0]) * (e === 1 ? 1.04 : 1)); }
     }
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); geo.computeBoundingSphere();
     const mesh = new THREE.Mesh(geo, tuftMaterial()); mesh.name = o.name || 'Fur locks'; mesh.castShadow = false; mesh.receiveShadow = true; mesh.userData.mane = true; mesh.userData.storyPart = true; return mesh;
@@ -257,8 +258,8 @@
         eye(rig, s, .084, .19, Z(.084, .19) - .012, .034, 'hazel', { color: 0x5f3f2a, tilt: -.16 });
         for (const [dy, w] of [[-.052, .034], [-.064, .026]]) P.ribbon([V(s * (.084 - w), .19 + dy + .006, Z(.084 - w, .19 + dy) + .0005), V(s * .084, .19 + dy, Z(.084, .19 + dy) + .002), V(s * (.084 + w), .19 + dy + .008, Z(.084 + w, .19 + dy) + .0005)], .005, .004, '#4a3122', V(0, 1, 0), 10, 6); // bags under the eyes
         brow(rig, [V(s * .036, .224, Z(.04, .224) - .002), V(s * .085, .240, Z(.085, .24) - .001), V(s * .140, .218, Z(.14, .218) - .002)], 0xb8b2a8, .0095); // heavy grey brows that droop at the outside
-        P.ribbon([V(s * .012, .048, Z(.012, .05) + .002), V(s * .045, .028, Z(.045, .03) + .002), V(s * .085, .040, Z(.085, .04))], .0075, .0075, '#2a201b', V(0, 1, 0), 12, 6); // mouth line
-        for (let k = 0; k < 3; k++) P.sph(V(s * (.05 + k * .02), .075 - k * .008, Z(.05 + k * .02, .075) + .001), V(.0045, .0045, .003), '#5c4a40'); // whisker dots
+        P.ribbon([V(s * .012, .048, Z(.012, .05) - .001), V(s * .045, .03, Z(.045, .03) - .001), V(s * .078, .04, Z(.078, .04) - .002)], .0055, .005, '#4a372d', V(0, 1, 0), 12, 6); // mouth line
+        for (let k = 0; k < 3; k++) P.sph(V(s * (.05 + k * .02), .075 - k * .008, Z(.05 + k * .02, .075 - k * .008) - .001), V(.0035, .0035, .002), '#8a7a70'); // whisker dots
       }
       const nz = Z(0, .108);
       P.sph(V(0, .114, nz + .002), V(.056, .04, .036), '#211916'); P.sph(V(-.014, .13, nz + .03), V(.014, .008, .006), '#7a706a'); for (const sd of [-1, 1]) P.sph(V(sd * .024, .1, nz + .028), V(.011, .008, .008), '#0d0a09'); // big leathery nose: highlight and nostrils
@@ -284,7 +285,7 @@
       for (const z of [.11, .04, -.04, -.11]) T.push(V(tx + .012, crest(rig, tx, z, .08, .035) + .016, z));
       for (const [k, y] of [1.68, 1.61, 1.54, 1.47, 1.4].entries()) T.push(V(tx - sag(k), y, W(y, true) - .016));
       const TL = T.map(q => q.clone().sub(V(0, 1.36, 0))), flat = q => V(0, smooth((q.y - .28) / .1), q.z > 0 ? 1 : -1).normalize();
-      chest.ribbon(TL, .17, .014, '#f1ece0', V(1, 0, 0), 44, 12);
+      chest.ribbon(TL, .17, .026, '#f3eee2', V(1, 0, 0), 44, 14); for (const sd of [-1, 1]) chest.ribbon(TL.map(q => q.clone().add(V(sd * .082, 0, 0))), .02, .032, '#e9e3d5', V(1, 0, 0), 44, 8); // terry cloth with thickness and rolled edges
       for (const [a, b] of [[0, 1], [15, 14]]) { const q = T[a].clone().lerp(T[b], .4).sub(V(0, 1.36, 0)); chest.ribbon([q.clone().add(V(-.085, 0, a ? -.009 : .009)), q.clone().add(V(.085, 0, a ? -.009 : .009))], .03, .004, '#4f7fb3', V(0, 1, 0), 4, 6); } // blue stripe at both ends
       // whistle on a cord round the neck
       const wz = B(0, 1.47) + .012, cord = [V(-.105, 1.735, -.02), V(-.09, 1.69, B(.09, 1.69) + .006), V(-.03, 1.52, B(.03, 1.52) + .008), V(0, 1.475, wz), V(.03, 1.52, B(.03, 1.52) + .008), V(.09, 1.69, B(.09, 1.69) + .006), V(.105, 1.735, -.02)];
@@ -297,8 +298,8 @@
       // fur: a ruff round the cheeks and under the jaw, tufts on the back of the head, shaggy grey brows
       const hd = q => [q.x / HS, (q.y - HEAD_Y) / HS, q.z / HS];
       j.head.add(tufts(rig, q => { const [hx, hy, hz] = hd(q), ax = Math.abs(hx); if (q.y < 1.79) return 0; return Math.max(smooth((ax - .17) / .05) * band(hy, -.08, .16, .04) * smooth((hz + .12) / .08), .9 * band(hy, -.11, -.02, .025) * smooth((hz + .1) / .1), .7 * smooth((-hz - .06) / .06) * band(hy, -.06, .24, .05)); },
-        { count: 3200, len: .05, width: .0105, lift: .16, droop: .28, origin: HEAD0, seed: 311, name: 'Bruno: cheek and neck ruff', tone: lin('#b9b1a6'), flow: q => V(q.x * 1.4, -1, q.z * .5 - .15).normalize() }));
-      j.head.add(tufts(rig, q => { const [hx, hy, hz] = hd(q); return q.y > 1.8 ? bell(hy, .245, .016) * bell(Math.abs(hx), .09, .05) * smooth((hz - .12) / .05) : 0; }, { count: 420, len: .026, width: .0055, lift: .3, droop: .1, origin: HEAD0, seed: 77, name: 'Bruno: brows', tone: lin('#d8d2c8'), flow: q => V(q.x * 2.4, .25, .4).normalize() }));
+        { count: 900, len: .075, width: .022, lift: .28, droop: .25, origin: HEAD0, seed: 311, name: 'Bruno: cheek and neck ruff', flow: q => V(q.x * 1.4, -1, q.z * .5 - .15).normalize() }));
+      j.head.add(tufts(rig, q => { const [hx, hy, hz] = hd(q); return q.y > 1.8 ? bell(hy, .245, .016) * bell(Math.abs(hx), .09, .05) * smooth((hz - .12) / .05) : 0; }, { count: 110, len: .034, width: .011, lift: .4, droop: .05, origin: HEAD0, seed: 77, name: 'Bruno: brows', tone: lin('#d8d2c8'), flow: q => V(q.x * 2.4, .25, .4).normalize() }));
     }
   };
   /** Bruno's clothes are part of him: cardigan over a gym shirt, track pants. Returns the dressed streams. */
@@ -332,7 +333,7 @@
       c.lerp(lin('#b89a76'), clamp(.6 * smooth((-p.z + .02) / .14) + .45 * smooth((ax - .5) / .3) + .4 * smooth((.6 - p.y) / .4)));
       if (p.y > 1.05 && p.y < 1.72) c.lerp(light, .8 * bell(p.x, 0, .13) * smooth((p.z - .04) / .08));
       let k = 0;
-      if (p.y > 1.80) k = Math.max(smooth((.118 - Math.hypot(hx - .1, (hy - .2) * .95, (hz - .19) * .45)) / .045), smooth((hx - .13) / .03) * smooth((hy - .2) / .03) * smooth((.1 - hz) / .1));
+      if (p.y > 1.80) k = Math.max(smooth((.112 - Math.hypot(hx - .1, (hy - .2) * .95, (hz - .19) * .45)) / .022), smooth((hx - .13) / .03) * smooth((hy - .2) / .03) * smooth((.1 - hz) / .1));
       else k = Math.max(smooth((.26 - Math.hypot((p.x - .12) * .8, p.y - 1.5, (p.z + .2) * 1.2)) / .03), smooth((.2 - Math.hypot((p.x + .36) * .8, p.y - 1.63, p.z * .4)) / .025), smooth((.13 - Math.hypot(p.x - .27, (p.y - 1.22) * .7, p.z * .5)) / .025), p.y < 1 ? smooth((.12 - Math.hypot(p.x + .2, (p.y - .74) * .7, (p.z - .08) * .6)) / .025) : 0, smooth((.085 - Math.hypot(p.x - .72, (p.y - 1.62) * 1.4, p.z)) / .02));
       if (k > 0) c.lerp(patch, clamp(k));
       // jowls, lips and the skin round the nose are darker and pinker
@@ -349,6 +350,8 @@
       dz += .074 * bell(y, .205, .075) * (1 - smooth((ax - .17) / .07)) * front;
       dx += x * .36 * muzzle; dy += .018 * muzzle * bell(y, .11, .04);
       dz -= .030 * muzzle * bell(y, .105, .03) * bell(x, 0, .05); // the nose sits in a fold between the eyes
+      dz -= .028 * muzzle * smooth((y - .03) / .05); dy += .012 * bell(y, .16, .03) * bell(x, 0, .1) * front; // short, pushed-in muzzle under a roll of skin
+      dz += .016 * bell(y, .262, .02) * (1 - smooth((ax - .16) / .05)) * front; // heavy brow bar
       const chin = bell(y, -.035, .035) * smooth((z - .10) / .07); dz += .034 * chin * bell(x, 0, .13); dx += s * .03 * chin * smooth(ax / .04); // underbite
       dz += .012 * bell(y, .252, .018) * bell(ax, .085, .07) * front; // brow ridge
       return growField(out.set(dx * fade, dy * fade, dz * fade), x, y, z, BRICK.K, smooth((y + .10) / .13));
@@ -359,17 +362,20 @@
       const head = rig.joints.head, P = new Parts(), Z = seatHead(rig, BRICK.K), patch = BRICK.patch;
       for (const s of [-1, 1]) {
         // rose ears: small, folded back and down at the corners of the flat skull
-        const ec = s > 0 ? patch : '#d9c8b4';
-        P.sph(V(s * .262, .268, -.03), V(.062, .05, .028), ec, [.5, s * .5, s * -.9]); P.sph(V(s * .292, .236, -.012), V(.04, .036, .02), ec, [.9, s * .4, s * -1.2]);
+        const ec = s > 0 ? patch : '#cdb89a', ei = s > 0 ? '#3f2616' : '#b79a86';
+        // rose ears: a thick root on the skull corner, the leaf folded back and down with the inner fold showing
+        P.sph(V(s * .236, .285, -.045), V(.05, .05, .03), ec, [.2, s * .6, s * -.5]);
+        P.ribbon([V(s * .236, .3, -.04), V(s * .275, .305, -.06), V(s * .305, .27, -.075), V(s * .31, .225, -.07)], .085, .022, ec, V(0, .3, 1), 16, 10); P.ribbon([V(s * .262, .296, -.045), V(s * .292, .272, -.058), V(s * .3, .238, -.056)], .04, .012, ei, V(0, .3, 1), 10, 8);
         eye(rig, s, .098, .188, Z(.098, .188) - .012, .035, 'amber', { color: s > 0 ? 0x55331f : 0xd6c4a8, tilt: .22, open: .22 });
         // jowls hang over the corners of the mouth
         const jz = Z(.075, .02); P.sph(V(s * .082, .012, jz - .05), V(.068, .058, .06), '#e4d3bd', [0, 0, s * .3]); P.sph(V(s * .1, -.022, jz - .07), V(.05, .04, .05), '#d9c6ad', [0, 0, s * .4]);
-        P.sph(V(s * .05, -.018, Z(.05, -.02) + .004), V(.012, .017, .009), '#fbf7ee'); // lower teeth of the underbite
-        brow(rig, [V(s * .04, .226, Z(.04, .226) - .003), V(s * .095, .238, Z(.095, .238) - .002), V(s * .15, .222, Z(.15, .222) - .004)], s > 0 ? 0x4a2f1f : 0xb7a48f, .0105);
+        P.sph(V(s * .046, .012, Z(.046, .0) + .006), V(.011, .024, .01), '#fbf7ee', [0, 0, s * .12]); // lower canines of the underbite
+        brow(rig, [V(s * .036, .222, Z(.036, .222) - .002), V(s * .095, .242, Z(.095, .242) - .001), V(s * .156, .228, Z(.156, .228) - .004)], s > 0 ? 0x3a2416 : 0xa8926f, .015);
       }
       const nz = Z(0, .112);
       P.sph(V(0, .118, nz + .006), V(.05, .03, .026), '#1f1917'); P.sph(V(-.013, .128, nz + .026), V(.012, .006, .005), '#6d645f');
-      for (const [y, w] of [[.158, .06], [.176, .075]]) P.ribbon([V(-w, y - .008, Z(w, y) - .002), V(0, y + .006, Z(0, y) + .001), V(w, y - .008, Z(w, y) - .002)], .011, .008, '#c9b29c', V(0, 1, 0), 12, 6); // folds over the nose
+      for (const [y, w, t] of [[.15, .058, .02], [.172, .075, .022], [.196, .06, .016]]) P.ribbon([V(-w, y - .012, Z(w, y - .012) - .008), V(-w * .5, y + .002, Z(w * .5, y) - .004), V(0, y + .007, Z(0, y) - .003), V(w * .5, y + .002, Z(w * .5, y) - .004), V(w, y - .012, Z(w, y - .012) - .008)], t, t * .8, y > .19 ? '#c7b294' : '#d6c4a8', V(0, 1, 0), 18, 8); // rolls of skin over the nose
+      P.ribbon([V(-.11, .02, Z(.11, .02) - .004), V(-.06, .034, Z(.06, .034) + .004), V(0, .05, Z(0, .05) + .004), V(.06, .034, Z(.06, .034) + .004), V(.11, .02, Z(.11, .02) - .004)], .016, .014, '#3a2a25', V(0, 1, 0), 22, 8); // dark upper lip line across the muzzle
       P.ribbon([V(-.1, .0, Z(.1, 0) + .002), V(-.04, -.004, Z(.04, 0) + .016), V(0, .028, Z(0, .03) + .01), V(.04, -.004, Z(.04, 0) + .016), V(.1, .0, Z(.1, 0) + .002)], .008, .008, '#2a1f1b', V(0, 1, 0), 20, 6); // mouth line under the jowls
       // scar across the right brow: a pale hairless line with two stitch marks
       const sx = .098, scar = [V(sx - .03, .272, Z(sx - .03, .272) - .001), V(sx - .01, .246, Z(sx - .01, .246) + .001), V(sx + .012, .214, Z(sx + .012, .214) - .001)];
@@ -388,6 +394,7 @@
       rig.shorts.material.vertexColors = true; rig.shorts.material.color.set(0xffffff); // the cloth material belongs to this rig alone
       for (const m of kitParts(rig).trim) { if (m.geometry.type === 'CylinderGeometry') { m.material = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: .6 }); m.scale.x *= 1 + BRICK.build.torso * .9 + BRICK.build.hips; m.scale.z *= 1 + BRICK.build.depth * .9 + BRICK.build.hips; } else m.visible = false; }
       rig.gloveMeshes.L.material.color.set(BRICK.gloves);
+      { const NK = new Parts(), y0 = 1.745; for (const [dy, t, col] of [[0, .05, '#cdb99b'], [-.045, .058, '#c4ae8e']]) { const pts = []; for (let a = -1.9; a <= 1.91; a += .19) { const r = Math.max(.11, rim(rig, y0 + dy, a, .016, .22)) - t * .32; pts.push(V(Math.sin(a) * r, y0 + dy - 1.72 - .03 * (1 - Math.cos(a)) * .0, Math.cos(a) * r - .02)); } NK.ribbon(pts, t, t * .9, col, V(0, 1, 0), 40, 10); } rig.joints.neck.add(NK.mesh('Brick: neck rolls')); } // soft rolls sunk into the neck
       rig.skin.material.roughness = .8; if (rig.definition?.look) rig.definition.look.value.multiplyScalar(1.45); // short coat with a little sheen; hard muscle lines
     }
   };
@@ -396,8 +403,8 @@
   function groom(rig) {
     if (!rig || rig.cast || rig.species !== 'rabbit' || rig.storyGroomed || !rig.skin?.geometry.attributes.color) return false; rig.storyGroomed = true;
     const j = rig.joints, hd = q => [q.x / HS, (q.y - HEAD_Y) / HS, q.z / HS], white = lin('#f0e9df');
-    j.head.add(tufts(rig, q => { if (q.y < 1.8) return 0; const [hx, hy, hz] = hd(q), ax = Math.abs(hx); return Math.max(smooth((ax - .125) / .04) * band(hy, -.05, .13, .035) * smooth((hz + .08) / .08), .6 * band(hy, .2, .3, .03) * smooth((ax - .03) / .03) * (1 - smooth((ax - .15) / .03)) * smooth((-hz + .06) / .08)); },
-      { count: 2200, len: .036, width: .0085, lift: .15, droop: .25, origin: HEAD0, seed: 23, name: 'Rabbit: cheek ruff', tone: white, flow: q => V(q.x * 1.6, -.8, q.z * .3 - .2).normalize() }));
+    j.head.add(tufts(rig, q => { if (q.y < 1.8) return 0; const [hx, hy, hz] = hd(q), ax = Math.abs(hx); return smooth((ax - .135) / .04) * band(hy, -.04, .1, .035) * smooth((hz + .06) / .08) * (1 - smooth((hz - .1) / .05)); },
+      { count: 520, len: .06, width: .019, lift: .28, droop: .2, origin: HEAD0, seed: 23, name: 'Rabbit: cheek ruff', flow: q => V(q.x * 2.2, -.7, -.35).normalize() }));
     return true;
   }
   function groomAll() { const e = window.app?.engine; if (!e) return; for (const c of [e.coach, ...Object.values(e.roster?.coaches || {}), e.arena?.rabbit, ...Object.values(e.arena?.padTrainers || {})]) groom(c); }
