@@ -25,7 +25,7 @@
   BAG.chain = BAG.mount - BAG.cy - BAG.ring; BAG.pitch = BAG.chain / BAG.links; BAG.inertia = BAG.mass * (3 * BAG.r * BAG.r + 4 * BAG.h * BAG.h) / 12;
   const PLACE = { x: 5.6, z: -2.5, dir: [-1, 0], side: [0, -1], stand: .82, lamp: [-.4, 5.4, .45, 2.3] }; // lamp: offset along -dir, ceiling y, offset sideways, cord length
   // ---- sim-time script of the Fighter: guard, jab, cross, guard, the big cross, guard, then the reaction
-  const HIT_PHASE = .315; // phase of a straight punch at which the glove meets the leather (measured in the browser)
+  const HIT_PHASE = .375; // phase of a straight punch at which the glove meets the leather (measured in the browser: full reach at .41-.43, the glove reaches the leather at about .375)
   const MOVES = [{ move: 'jab', t: 1.9, dur: .5, dv: .3, y: .16 }, { move: 'cross', t: 2.4, dur: .58, dv: .5, y: .14 }, { move: 'cross', t: 3.75, dur: .74, dv: 3.3, y: .05, big: true }];
   for (const m of MOVES) m.hit = m.t + HIT_PHASE * m.dur;
   const BIG = MOVES[2], REACT = BIG.hit + 2.6, SIM_END = REACT + 6.3;
@@ -60,8 +60,8 @@
       { t: 0, pos: [3.5, 1.7, -6.5], look: [5.95, 1.75, -2.5], fov: 44 },                              // night gym: the lamp, the bag, the Fighter
       { t: W(1.8), pos: [4.1, 1.6, -6.0], look: [5.95, 1.62, -2.5], fov: 40, ease: 'smooth' },
       { t: W(BIG.t - .1), pos: [4.4, 1.55, -5.7], look: [5.9, 1.6, -2.5], fov: 38, ease: 'linear' },
-      { t: W(BIG.t - .1), cut: true, pos: [6.75, 1.6, -5.2], look: [5.85, 1.5, -2.5], fov: 34 },       // he loads up: the rear hand side
-      { t: W(BIG.hit - .05), pos: [6.6, 1.6, -5.0], look: [5.8, 1.5, -2.5], fov: 32, ease: 'linear' },
+      { t: W(BIG.t - .1), cut: true, pos: [6.95, 1.4, -6.2], look: [6.7, 1.3, -2.5], fov: 36 },       // he loads up: side on, the whole body turns into the Cross
+      { t: W(BIG.hit - .05), pos: [6.75, 1.42, -5.7], look: [6.55, 1.35, -2.5], fov: 34, ease: 'linear' },
       { t: W(BIG.hit - .05), cut: true, pos: [5.5, 1.52, -4.25], look: [5.78, 1.45, -2.5], fov: 34 },  // impact, slow motion: the bag folds round the glove
       { t: W(BIG.hit + .13), pos: [5.4, 1.52, -4.2], look: [5.62, 1.47, -2.5], fov: 33, ease: 'linear' },
       { t: W(BIG.hit + .13), cut: true, pos: [6.0, 1.45, -4.7], look: [5.25, 2.75, -2.5], fov: 36 },    // the chain: a link opens, links fly
@@ -69,8 +69,8 @@
       { t: W(BIG.hit + .42), cut: true, pos: [4.9, 1.2, -6.9], look: [4.5, 1.2, -2.5], fov: 46 },       // wide: the fall, the floor, the roll
       { t: W(BIG.hit + 1.3), pos: [4.3, 1.05, -6.7], look: [3.5, .6, -2.5], fov: 42, ease: 'smooth' },
       { t: R0, pos: [4.1, 1.0, -6.4], look: [3.3, .5, -2.5], fov: 40, ease: 'linear' },
-      { t: R0, cut: true, pos: [4.5, 1.6, -4.7], look: [6.55, 1.48, -2.5], fov: 30 },                   // reaction: hands drop, he steps back
-      { t: R0 + 3.3, pos: [4.4, 1.6, -4.8], look: [6.6, 1.48, -2.5], fov: 30, ease: 'linear' },
+      { t: R0, cut: true, pos: [4.5, 1.5, -4.7], look: [6.6, 1.25, -2.5], fov: 37 },                    // reaction: hands drop, he steps back
+      { t: R0 + 3.3, pos: [4.4, 1.5, -4.8], look: [6.7, 1.3, -2.5], fov: 35, ease: 'linear' },
       { t: R0 + 3.3, cut: true, pos: [.3, 1.7, -3.1], look: [6.4, .5, -2.5], fov: 40 },             // the bag on the floor, the empty chain, "...uh oh"
       { t: DURATION, pos: [.15, 1.75, -3.1], look: [6.4, .55, -2.5], fov: 39, ease: 'linear' }
     ],

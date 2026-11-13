@@ -120,7 +120,7 @@
   function dress(ctx) {
     if (!Core() || !ctx?.add) return false;
     const r = rig(gymState()); ctx.add(r.group, false, false); ctx.objects.oldBag = r; ctx.disposables.push({ dispose: () => r.dispose() });
-    if (ctx.shade) ctx.shade(r.bag.group.position.x, r.bag.group.position.z, .8, .8);
+    if (ctx.shade && r.state !== 'broken') ctx.shade(r.bag.group.position.x, r.bag.group.position.z, .8, .8); // the set's pale floor patch under a hanging bag; the bag on the floor casts its own shadow
     return true;
   }
 
