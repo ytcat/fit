@@ -76,6 +76,18 @@ Load the GLB with a fallback to the current head, attach it to Brick's head join
 brow, lids, ears and spring jowls/dewlap, check the fight cameras and the gym talk at 402×690, and show the owner pictures
 before release.
 
-## Next characters that could use the same route
-Fang (wolf), Mrs. Hazel (doe), Otto (otter) — currently in work as code-built characters (GOTR-0092); if their heads fall
-short, the same brief applies.
+## Also requested (owner, 2026-11-13): heads for Fang, Mrs. Hazel and Otto
+Same route, same contract (folder `assets/characters/<id>/`, bones `<Id>_Head`, `<Id>_Jaw`, `<Id>_Brow_L/R`, `<Id>_Ear_L/R`,
+`<Id>_Lid_U_L/R`, eyes as separate meshes, ≤ 40 k triangles, ≤ 5 materials, r128 renders in `qa/character-art/<id>/`).
+Bodies, clothes and animation already exist in the game (`adventure/story/cast-market.js`, branch `agent/cast-market`,
+pictures `qa/gotr-0092/heads.webp` and `bodies.webp` there) — only the heads are needed. Order after Brick: Fang, Hazel, Otto.
+
+- **Fang** (`fang`) — the robber the Fighter must beat in a bare-hand street fight. A big, mean grey wolf: long strong
+  muzzle, black nose and lips, amber eyes with a cold squint under a heavy brow, tall pointed ears (left one notched), thick
+  cheek and neck ruff, a scar or two; snarl with visible canines when the mouth opens. Reads as dangerous and as a fighter.
+- **Mrs. Hazel** (`hazel`) — a kind older doe who runs a fruit stall. Unmistakably a deer, not a fox: long slender muzzle
+  with a soft dark nose and a pale chin, very large dark eyes with lashes set on the sides of the head, long wide ears on the
+  sides, a few grey hairs, gentle smile lines; she wears a headscarf (ears out through it). The current head reads as a fox.
+- **Otto** (`otto`) — the otter who owns the boxing shop. Unmistakably an otter, not a bear: flat broad skull with tiny low
+  ears (no round bear ears), wide blunt muzzle with big whisker pads and long whiskers, small dark eyes, sleek glossy fur,
+  lighter throat; friendly, a bit fussy; reading glasses on his nose.
