@@ -17,9 +17,11 @@ for (const [id, s] of all) {
   for (let t = 0; t <= s.duration; t += .25) { const f = C.sample(s, t); assert.ok(f.camera.pos.every(Number.isFinite) && f.camera.look.every(Number.isFinite), id + ' camera at ' + t); for (const a of Object.values(f.actors)) assert.ok([a.x, a.y, a.z, a.ry, a.dist].every(Number.isFinite), id + ' actor at ' + t); }
 }
 assert.equal(C.variant('dream_after_brick').outcome, 'loss', 'the loss is the default story'); assert.equal(C.variant('dream_after_brick', 'win').outcome, 'win');
-assert.ok(/You got up/.test(C.variant('dream_after_brick', 'loss').lines[0].text.en) && /clean this gym/.test(C.variant('dream_after_brick', 'win').lines[2].text.en), 'the job offer in both variants');
+{ const loss = C.variant('dream_after_brick', 'loss').lines.map(l => l.text.en).join(' '), win = C.variant('dream_after_brick', 'win').lines; // GOTR-0084 wording
+  assert.ok(/kept getting up/.test(loss) && /You clean, run errands/.test(loss) && /Deal! When do we start/.test(loss) && /Mop's over there/.test(loss), 'the job offer after a loss');
+  assert.ok(win[0].who === 'brick' && /rematch/.test(win[0].text.en) && win.some(l => /You clean, run errands/.test(l.text.en)), 'the same deal after a win; Brick wants a rematch'); }
 const talk = C.scenes.dream_gym_talk, said = talk.lines.map(l => l.text.en).join(' ');
-for (const w of [/no money/i, /One bag/i, /dream/i, /World champion/i, /whatever is needed/i, /Words are cheap\. Show me\./]) assert.ok(w.test(said), 'beat 1 says ' + w);
+for (const w of [/Are you Bruno/, /off the bus/, /become a champion/, /money for training/, /whatever it takes/, /The best started here/, /Talk is free/, /glove up/, /won't last a minute/]) assert.ok(w.test(said), 'beat 1 says ' + w); // GOTR-0084
 assert.equal(talk.tap, true); assert.ok(talk.lines.filter(l => l.hold).length >= 8, 'tap to advance');
 assert.equal(C.sample(talk, 43).actors.brick.walking, false); assert.ok(Math.hypot(C.sample(talk, 43).actors.brick.x - C.sample(talk, 43).actors.fighter.x, 0) < 3.5, 'Brick has stepped forward');
 // opening film: the bus arrives and stops, the doors open, he steps down, walks, ends at the gym door; cuts are counted
@@ -132,4 +134,35 @@ console.log('dream scenes ok');
   DreamPose.reset(c); const a = DreamPose.civil(c, { t: 1, dist: 0 }), b = DreamPose.civil(c, { t: 5, dist: 0 }); assert.ok(a.hands.every(h => h[1] < 1.1) && b.hands.every(h => h[1] < 1.1), 'idle: arms down');
   const y1 = c.joints.head.rotation.y; DreamPose.civil(c, { t: 9, dist: 0 }); assert.notEqual(c.joints.head.rotation.y, y1, 'idle: the head glances around');
   console.log('motion ok');
+}
+
+// ---- GOTR-0082: no part of Bruno or Brick may stick out of the body (bars through the neck, floating brows), in the talk pose,
+// the guard, a punch and a knockdown, with the root mirrored (v1.51) and again inside a mirrored parent (the fight's cast)
+{
+  const box = new THREE.Box3(), size = new THREE.Vector3(), q = new THREE.Vector3(), headQ = new THREE.Vector3();
+  const check = (c, label) => {
+    c.root.updateMatrixWorld(true); const inv = c.root.matrixWorld.clone().invert(); let n = 0;
+    c.joints.head.getWorldPosition(headQ).applyMatrix4(inv);
+    c.root.traverse(o => {
+      if (!o.isMesh || o.isSkinnedMesh || !o.geometry.attributes.position?.count) return; let v = true, k = o; while (k && k !== c.root) { v = v && k.visible; k = k.parent; } if (!v) return; n++;
+      o.geometry.computeBoundingBox(); box.copy(o.geometry.boundingBox).applyMatrix4(inv.clone().multiply(o.matrixWorld)); box.getSize(size);
+      const name = label + ': ' + (o.name || o.parent?.name || o.geometry.type);
+      assert.ok(Math.max(size.x, size.y, size.z) < 1.05, name + ' is ' + Math.max(size.x, size.y, size.z).toFixed(2) + ' m long'); // the neck bars were about 2 m
+      assert.ok(box.min.x > -1.3 && box.max.x < 1.3 && box.min.z > -1.3 && box.max.z < 1.6 && box.min.y > -.35 && box.max.y < 2.7, name + ' leaves the body: ' + JSON.stringify(box));
+      let h = o.parent; while (h && h !== c.joints.head) h = h.parent;
+      if (h) { box.getCenter(q); assert.ok(q.distanceTo(headQ) < .5 && Math.max(size.x, size.y, size.z) < .95, name + ' floats off the head: ' + q.distanceTo(headQ).toFixed(2)); }
+    });
+    assert.ok(n > 5, label + ' has parts');
+  };
+  for (const id of StoryCast.ids) {
+    const c = StoryCast.rig(id, engine); assert.equal(c.root.scale.x, -1, id + ': the root is mirrored');
+    const poses = { talk: () => DreamPose.civil(c, { t: 3, dist: 0, arms: { L: 'pound', R: 'point' }, look: { yaw: .6, pitch: .1 }, talk: 1 }), guard: () => c.update(1, 'guard', 'one_two', { guardCover: 1 }), punch: () => c.update(.5 * 1.22, 'jab', 'one_two', { power: 1.2 }), hook: () => c.update(.5 * 1.22, 'hook', 'one_two', {}), down: () => c.update(1, 'guard', 'one_two', { presentation: { mode: 'loser', raise: 0 }, down: 1 }) };
+    for (const [name, f] of Object.entries(poses)) {
+      f(); check(c, id + ' ' + name);
+      const home = c.root.parent, cast = new THREE.Group(); cast.scale.x = -1; cast.position.set(.4, 0, -.3); cast.rotation.y = 1.1; cast.add(c.root); f(); check(c, id + ' ' + name + ' (mirrored cast)');
+      c.root.scale.set(1, 1, 1); f(); check(c, id + ' ' + name + ' (root scale 1 inside the mirrored ring cast, as in a bout)'); c.root.scale.set(-1, 1, 1); cast.remove(c.root); if (home) home.add(c.root);
+    }
+  }
+  assert.ok(!/neck (rolls|folds)|fold under the jaw/.test(fs.readFileSync('adventure/story/story-cast.js', 'utf8')), 'no neck plate geometry is left on Brick');
+  console.log('cast parts stay on the body');
 }

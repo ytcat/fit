@@ -23,11 +23,15 @@
  function boot(){if(!window.fightUI||!window.app)return;const app=window.app,e=app.engine,clock=new Clock(),node=document.createElement('div'),title=document.createElement('strong'),sub=document.createElement('span');node.className='bout-announcement';node.hidden=true;node.setAttribute('role','status');node.setAttribute('aria-live','polite');node.append(title,sub);document.getElementById('stageContainer').append(node);
   const oldRender=window.fightUI.render,oldHide=window.fightUI.hide;let key='';
   window.fightUI.render=view=>{oldRender(view);const w=words[app.lang]||words.en,p=state(view.match,app.lang),names=window.GameIdentity?.labels(view);if(names){if(p.kind==='versus')p.text=names.lion+' '+w.vs+' '+names.rabbit;if(p.kind==='winner'&&view.match.result?.winner)p.text=names[view.match.result.winner]+' '+(window.fightUI.words().winner||'wins');}if(p.kind==='winner'&&p.sub==='KO'){p.sub=p.text;p.text=w.ko;}const next=p.kind+'|'+p.text+'|'+p.sub;const tick=clock.tick(view.match,e.isPlaying);if(tick!=null)app.audio.countdown?.(tick);
-   if(next===key)return;key=next;node.hidden=!p.kind;node.dataset.kind=p.kind;node.dataset.ko=String(p.kind==='winner'&&p.text===w.ko);title.textContent=p.text;sub.textContent=p.sub;node.setAttribute('aria-live',p.kind==='countdown'?'off':'polite');document.getElementById('fightHud').classList.toggle('fight-clock-urgent',p.kind==='countdown');
+   if(next===key)return;key=next;node.hidden=!p.kind||e.targetMode!=='fight';node.dataset.kind=p.kind;node.dataset.ko=String(p.kind==='winner'&&p.text===w.ko);title.textContent=p.text;sub.textContent=p.sub;node.setAttribute('aria-live',p.kind==='countdown'?'off':'polite');document.getElementById('fightHud').classList.toggle('fight-clock-urgent',p.kind==='countdown');
    // The result announcement replaces the old KO-only overlay.
    if(p.kind==='winner')document.getElementById('fightKnockout').hidden=true;
   };
   window.fightUI.hide=()=>{oldHide();node.hidden=true;key='';document.getElementById('fightHud').classList.toggle('fight-clock-urgent',false);};
+  // GOTR-0086: a result line must never outlive its fight. Whatever path left the bout (story step change, modes menu,
+  // home map), the announcement goes as soon as the engine is no longer in a fight.
+  const stale=()=>{if(!node.hidden&&e.targetMode!=='fight'){node.hidden=true;key='';document.getElementById('fightHud')?.classList.toggle('fight-clock-urgent',false);}};
+  setInterval(stale,250);window.fightUI.clearStale=stale;
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

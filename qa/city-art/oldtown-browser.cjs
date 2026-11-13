@@ -1,0 +1,43 @@
+const{chromium}=require('playwright');const fs=require('node:fs');const path=require('node:path');let browser;
+(async()=>{
+ const b=browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+ const p=await b.newPage({viewport:{width:1200,height:900}});const errors=[],warnings=[];
+ p.on('pageerror',e=>errors.push(String(e)));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());else if(m.type()==='warning')warnings.push(m.text())});
+ await p.goto('http://127.0.0.1:8142/qa/city-art/bus/viewer.html');await p.waitForFunction(()=>window.asset?.ready,null,{timeout:90000});
+ await p.evaluate(async()=>{await asset.setOldTown(true);asset.render()});
+ const report=await p.evaluate(()=>{
+  const a=asset.oldtown.getObjectByName('OldTown_brick_hiproof'),bb=asset.oldtown.getObjectByName('OldTown_plaster_parapet');
+  if(!a||!bb)throw Error('Missing building prototypes');asset.oldtown.updateMatrixWorld(true);
+  const meshes=(parent,word)=>{const r=[];parent.traverse(o=>{if(o.isMesh&&o.material.name.includes(word))r.push(o)});return r};
+  const ray=(x,y,objects,far=3)=>new THREE.Raycaster(new THREE.Vector3(x,y,-7.4),new THREE.Vector3(0,0,-1),0,far).intersectObjects(objects)[0]?.distance??null;
+  const wall=ray(-5.38,4.9,meshes(a,'fired brick'),1.8),hole=ray(-6.23,4.9,meshes(a,'fired brick'),1.8),glass=ray(-6.23,4.9,meshes(a,'thin window glass')),back=ray(-6.23,4.9,meshes(a,'dim warm room'));
+  if(wall===null||hole!==null)throw Error('Masonry window is not a true hole: '+JSON.stringify({wall,hole}));
+  if(glass===null||glass-wall<.19||glass-wall>.32)throw Error('Glazing recess outside intended range: '+JSON.stringify({wall,glass}));
+  if(back===null||back-glass<.65)throw Error('Interior pocket depth missing: '+JSON.stringify({back,glass}));
+  const cornerSkin=ray(.27,4.9,meshes(bb,'plaster front')),cornerCore=ray(.27,4.9,meshes(bb,'fired brick'));
+  if(cornerSkin===null||cornerCore===null||cornerCore-cornerSkin<.016)throw Error('Corner core overlaps its plaster face: '+JSON.stringify({cornerSkin,cornerCore}));
+  const chipSkin=ray(.37,1.7,meshes(bb,'plaster front'),1.8),chipCore=ray(.37,1.7,meshes(bb,'fired brick'),1.8);
+  if(chipSkin!==null||chipCore===null)throw Error('Exposed masonry patch is not an actual plaster opening: '+JSON.stringify({chipSkin,chipCore}));
+  const all=[];a.traverse(o=>{if(o.isMesh)all.push(o)});
+  const down=(x)=>new THREE.Raycaster(new THREE.Vector3(x,13,-11.6),new THREE.Vector3(0,-1,0),0,1.45).intersectObjects(all)[0]?.distance??null;
+  const flue=down(-4.05),crown=down(-3.77);
+  if(flue!==null||crown===null)throw Error('Chimney crown does not have a recessed opening: '+JSON.stringify({flue,crown}));
+  let triangles=0,nodes=0,vertexColorMeshes=0;const materials=new Set(),textures=new Set();
+  asset.oldtown.traverse(o=>{if(o.isMesh){nodes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3;materials.add(o.material.uuid);if(o.geometry.attributes.color)vertexColorMeshes++;for(const k of ['map','normalMap','roughnessMap','metalnessMap'])if(o.material[k])textures.add(o.material[k].uuid)}});
+  if(vertexColorMeshes<2)throw Error('Interior vertex shading did not export');
+  return{three:THREE.REVISION,geometry:{triangles,meshNodes:nodes,materials:materials.size,textures:textures.size,vertexColorMeshes},openings:{wall,hole,glass,back,cornerSkin,cornerCore,chipSkin,chipCore,flue,crown},combinedRender:{...asset.renderer.info.render},physicalPhone:'NOT VERIFIED',environment:'Headless Chromium / SwiftShader software renderer; bus + station + two building prototypes'};
+ });
+ const shot=async name=>p.screenshot({path:path.join(__dirname,name+'.png')});
+ await shot('oldtown-day');
+ await p.evaluate(()=>{asset.setNight(true);asset.render()});await shot('oldtown-night');
+ await p.evaluate(()=>{asset.setNight(false);asset.setView('facade');asset.render()});await shot('oldtown-window-front');
+ async function camera(pos,target){await p.evaluate(({pos,target})=>{asset.camera.position.set(...pos);asset.camera.lookAt(...target);asset.draw()},{pos,target})}
+ await camera([-2.2,4.9,-3.5],[-6.23,4.9,-8.4]);await shot('oldtown-window-oblique');
+ await camera([-7.5,1.6,-2.5],[-3.3,3,-8.4]);await shot('oldtown-street-height');
+ await camera([11.5,3.5,-4.5],[3.7,3.4,-8.5]);await shot('oldtown-plaster-corner');
+ await camera([12,10,-23],[0,5,-12]);await shot('oldtown-rear');
+ await camera([-2,14,-4],[-4.05,10.5,-11.5]);await shot('oldtown-roof');
+ await p.setViewportSize({width:393,height:852});await p.evaluate(()=>{asset.setView('town');asset.render()});await shot('oldtown-portrait');
+ report.mobileViewport=await p.evaluate(()=>({width:innerWidth,height:innerHeight,overflow:document.documentElement.scrollWidth>innerWidth}));
+ report.errors=errors;report.warnings=warnings;fs.writeFileSync(path.join(__dirname,'oldtown-browser.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));await b.close();if(errors.length)process.exitCode=1;
+})().catch(async e=>{console.error(e);await browser?.close();process.exitCode=1});

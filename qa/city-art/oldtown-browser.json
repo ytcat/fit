@@ -1,0 +1,38 @@
+{
+  "three": "128",
+  "geometry": {
+    "triangles": 61904,
+    "meshNodes": 36,
+    "materials": 20,
+    "textures": 13,
+    "vertexColorMeshes": 2
+  },
+  "openings": {
+    "wall": 1,
+    "hole": null,
+    "glass": 1.2549999952316284,
+    "back": 2.049999952316284,
+    "cornerSkin": 1,
+    "cornerCore": 1.0219999998807907,
+    "chipSkin": null,
+    "chipCore": 1.0219999998807907,
+    "flue": null,
+    "crown": 0.9900000095367432
+  },
+  "combinedRender": {
+    "frame": 6,
+    "calls": 185,
+    "triangles": 283830,
+    "points": 0,
+    "lines": 0
+  },
+  "physicalPhone": "NOT VERIFIED",
+  "environment": "Headless Chromium / SwiftShader software renderer; bus + station + two building prototypes",
+  "mobileViewport": {
+    "width": 393,
+    "height": 852,
+    "overflow": false
+  },
+  "errors": [],
+  "warnings": []
+}

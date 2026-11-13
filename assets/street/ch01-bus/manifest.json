@@ -1,0 +1,14 @@
+{
+  "baseline_sha": "b6a19c2424fc179af6d702137c391b8677e25fd9",
+  "authoring": "Blender 4.3.2",
+  "triangles": 55484,
+  "mesh_nodes": 41,
+  "materials": 13,
+  "glb_bytes": 2993632,
+  "physical_phone": "NOT VERIFIED",
+  "game_integration": false,
+  "units": "metres",
+  "length_m": 10.96,
+  "width_m_excluding_mirrors": 2.57,
+  "height_m": 3.147
+}

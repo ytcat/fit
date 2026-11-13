@@ -118,3 +118,5 @@ body #fightResults[hidden]{display:none}
 #fightResults .fight-result-actions button{min-height:36px;padding:0 12px;font-size:12px;border-radius:999px;background:var(--hud-chip-strong);border:1px solid var(--hud-line);color:var(--gr-text,#f3f6fb)}
 /* After the result the pad is put away (fighter-pad.js) and the old paged move panel stays hidden too: the bottom band holds the buttons. */
 body.fight-over #manualControls,body.fight-over .manual-controls,body.ringside-layout.fight-over .manual-pages:not([hidden]),body.fight-over .manual-pages,body.fight-over .manual-status{display:none!important}
+/* GOTR-0086: the display rules above outrank the UA's [hidden] rule, so a hidden result line stayed on screen. */
+#stageContainer .bout-announcement[hidden]{display:none!important}

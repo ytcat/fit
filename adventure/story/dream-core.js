@@ -179,16 +179,17 @@
       },
       props: {},
       lines: [
-        { t: 4.4, who: 'bruno', hold: true, text: L('The gym is closed to strangers. What do you want?', 'האולם סגור לזרים. מה אתם רוצים?', 'Зал закрыт для чужих. Чего тебе?') },
-        { t: 8.2, who: 'fighter', hold: true, text: L('To train. I just got off the bus.', 'להתאמן. הרגע ירדתי מהאוטובוס.', 'Тренироваться. Я только с автобуса.') },
-        { t: 12.2, who: 'bruno', hold: true, text: L('Training costs money.', 'אימונים עולים כסף.', 'Тренировки стоят денег.') },
-        { t: 16.2, who: 'fighter', hold: true, text: L('I have no money. One bag. And a dream.', 'אין לי כסף. יש לי תיק אחד. וחלום.', 'Денег нет. Одна сумка. И мечта.') },
-        { t: 20.2, who: 'bruno', hold: true, text: L('Everybody has a dream. What is yours?', 'לכולם יש חלום. מה שלכם?', 'Мечта есть у всех. Какая твоя?') },
-        { t: 24.2, who: 'fighter', hold: true, text: L('World champion.', 'אלוף העולם.', 'Чемпион мира.') },
-        { t: 28.2, who: 'fighter', hold: true, text: L("I'll do whatever is needed.", 'אעשה כל מה שצריך.', 'Я сделаю всё, что нужно.') },
-        { t: 32.2, who: 'bruno', hold: true, text: L('Words are cheap. Show me.', 'מילים זה זול. תראו לי.', 'Слова дёшевы. Покажи.') },
-        { t: 36.2, who: 'bruno', dur: 3.4, text: L('Brick! Come here.', 'בריק! בוא לכאן.', 'Брик! Иди сюда.') },
-        { t: 40.2, who: 'brick', hold: true, text: L("This one? He won't last a minute.", 'זה? דקה אחת, לא יותר.', 'Этот? Он и минуты не простоит.') }
+        // GOTR-0084: spoken as people talk (owner). Same voices as adventure/story.js dream_gym_talk / first_brick.
+        { t: 4.4, who: 'bruno', hold: true, text: L("Gym's closed, kid. Looking for someone?", 'סגור, ילד. מחפש מישהו?', 'Закрыто, парень. Ищешь кого-то?') },
+        { t: 8.2, who: 'fighter', hold: true, text: L('Are you Bruno? I just got off the bus!', 'אתה ברונו? הרגע ירדתי מהאוטובוס!', 'Вы Бруно? Я только с автобуса!') },
+        { t: 12.2, who: 'bruno', hold: true, text: L("That's me. What do you want?", 'זה אני. מה אתה רוצה?', 'Ну, я. Чего хотел?') },
+        { t: 16.2, who: 'fighter', hold: true, text: L('I came here to become a champion!', 'באתי לפה להיות אלוף!', 'Я приехал стать чемпионом!') },
+        { t: 20.2, who: 'bruno', hold: true, text: L('You and half the city. Got money for training?', 'אתה וחצי עיר. יש לך כסף לאימונים?', 'Ты и полгорода. Деньги на тренировки есть?') },
+        { t: 24.2, who: 'fighter', hold: true, text: L("No. Not a coin. But I'll do whatever it takes.", 'לא. אפילו לא שקל. אבל אעשה כל מה שצריך.', 'Нет. Ни копейки. Но я сделаю всё что угодно.') },
+        { t: 28.2, who: 'fighter', hold: true, text: L('Sweep, carry, anything. The best started here!', 'לטאטא, לסחוב, הכול. הכי טובים התחילו פה!', 'Подмету, потаскаю, что скажете. Лучшие начинали здесь!') },
+        { t: 32.2, who: 'bruno', hold: true, text: L('They did. The rest quit in a week. Talk is free.', 'נכון. השאר נשברו אחרי שבוע. דיבורים זה בחינם.', 'Начинали. Остальные сдувались за неделю. Болтать — дело нехитрое.') },
+        { t: 36.2, who: 'bruno', hold: true, text: L("Brick, glove up. Let's see what he's made of.", 'בריק, תעלה כפפות. בוא נראה ממה הוא עשוי.', 'Брик, перчатки. Посмотрим, из чего он сделан.') },
+        { t: 40.2, who: 'brick', hold: true, text: L("This one? He won't last a minute.", 'זה? הוא לא יחזיק דקה.', 'Этот? Да он и минуты не продержится.') }
       ]
     }
   };
@@ -227,18 +228,22 @@
         brick: { rig: 'brick', keys: [{ t: 0, x: 3.9, z: -1.2, face: 'fighter', look: 'fighter', arms: win ? {} : { L: 'pound', R: 'pound' }, lean: win ? .1 : 0 }] }
       },
       props: {},
+      // GOTR-0084: the job offer as a deal (clean, errands, a bed in the back; Bruno trains him). Win: Brick wants a rematch.
       lines: win ? [
-        { t: 4.2, who: 'bruno', hold: true, text: L('You beat Brick. On your first day.', 'ניצחתם את בריק. ביום הראשון.', 'Ты побил Брика. В первый же день.') },
-        { t: 8.2, who: 'fighter', hold: true, text: L('I told you. Whatever is needed.', 'אמרתי לכם. כל מה שצריך.', 'Я же сказал. Всё, что нужно.') },
-        { t: 12.2, who: 'bruno', hold: true, text: L('Then listen. I need someone to clean this gym.', 'אז תקשיבו. אני צריך מישהו שינקה את האולם.', 'Тогда слушай. Мне нужен тот, кто будет убирать зал.') },
-        { t: 16.2, who: 'bruno', hold: true, text: L('There is a bed in the store room. You start tomorrow.', 'יש מיטה במחסן. מתחילים מחר.', 'В кладовой есть койка. Начнёшь завтра.') },
-        { t: 20.2, who: 'fighter', hold: true, text: L('Thank you, Coach.', 'תודה, מאמן.', 'Спасибо, тренер.') }
+        { t: 1.0, who: 'brick', hold: true, text: L('That was luck! I want a rematch. Now!', 'זה היה מזל! אני רוצה קרב חוזר. עכשיו!', 'Это случайность! Требую реванш. Сейчас же!') },
+        { t: 4.2, who: 'bruno', hold: true, text: L('You beat Brick. On day one. Huh.', 'ניצחת את בריק. ביום הראשון. מעניין.', 'Побил Брика. В первый же день. Ну надо же.') },
+        { t: 8.2, who: 'fighter', hold: true, text: L('I told you. Whatever it takes!', 'אמרתי לך. כל מה שצריך!', 'Я же говорил. Всё что угодно!') },
+        { t: 12.2, who: 'bruno', hold: true, text: L("Then here's the deal. No pay.", 'אז הנה העסקה. בלי משכורת.', 'Тогда уговор такой. Без зарплаты.') },
+        { t: 16.2, who: 'bruno', hold: true, text: L('You clean, run errands, sleep in the back. I train you.', 'אתה מנקה, עושה סידורים, ישן מאחור. אני מאמן אותך.', 'Ты убираешь, бегаешь по делам, спишь в подсобке. Я тренирую.') },
+        { t: 20.2, who: 'fighter', hold: true, text: L('Deal! When do we start?', 'סגרנו! מתי מתחילים?', 'Договорились! Когда начинаем?') },
+        { t: 22.4, who: 'bruno', hold: true, text: L("You already did. Mop's over there.", 'כבר התחלת. המגב שם.', 'Уже начали. Швабра вон там.') }
       ] : [
-        { t: 4.2, who: 'bruno', hold: true, text: L('You got up. That I can work with.', 'קמתם. עם זה אפשר לעבוד.', 'Ты встал. С этим можно работать.') },
-        { t: 8.2, who: 'fighter', hold: true, text: L('Again. I can do better.', 'שוב. אני יכול יותר.', 'Ещё раз. Я могу лучше.') },
-        { t: 12.2, who: 'bruno', hold: true, text: L('Not today. I need someone to clean this gym.', 'לא היום. אני צריך מישהו שינקה את האולם.', 'Не сегодня. Мне нужен тот, кто будет убирать зал.') },
-        { t: 16.2, who: 'bruno', hold: true, text: L('There is a bed in the store room. You start tomorrow.', 'יש מיטה במחסן. מתחילים מחר.', 'В кладовой есть койка. Начнёшь завтра.') },
-        { t: 20.2, who: 'fighter', hold: true, text: L('Thank you, Coach.', 'תודה, מאמן.', 'Спасибо, тренер.') }
+        { t: 4.2, who: 'bruno', hold: true, text: L('You lost. But you kept getting up.', 'הפסדת. אבל קמת כל פעם מחדש.', 'Проиграл. Но каждый раз вставал.') },
+        { t: 8.2, who: 'fighter', hold: true, text: L('Let me go again. I can do better!', 'תן לי עוד סיבוב. אני יכול יותר טוב!', 'Дайте ещё раунд. Я могу лучше!') },
+        { t: 12.2, who: 'bruno', hold: true, text: L("That I can work with. Here's the deal.", 'עם זה אני יכול לעבוד. הנה העסקה.', 'С этим можно работать. Уговор такой.') },
+        { t: 16.2, who: 'bruno', hold: true, text: L('You clean, run errands, sleep in the back. I train you.', 'אתה מנקה, עושה סידורים, ישן מאחור. אני מאמן אותך.', 'Ты убираешь, бегаешь по делам, спишь в подсобке. Я тренирую.') },
+        { t: 20.2, who: 'fighter', hold: true, text: L('Deal! When do we start?', 'סגרנו! מתי מתחילים?', 'Договорились! Когда начинаем?') },
+        { t: 22.4, who: 'bruno', hold: true, text: L("You already did. Mop's over there.", 'כבר התחלת. המגב שם.', 'Уже начали. Швабра вон там.') }
       ]
     };
   }
