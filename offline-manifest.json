@@ -33,6 +33,7 @@
     "./game-accessories.js?v=2026111111",
     "./game-venues.js?v=2026111016",
     "./arena-sets.js?v=2026111016",
+    "./ringless-venues.js?v=2026111320",
     "./game-tournament.js?v=2026111112",
     "./academy-lesson.js?v=2026111011",
     "./adventure-progress.js?v=2026111306",
