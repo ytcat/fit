@@ -171,7 +171,7 @@
     const geos = [new THREE.CylinderGeometry(.006, .006, len, 5), new THREE.ConeGeometry(.3, .19, 20, 1, true), new THREE.SphereGeometry(.055, 12, 8)];
     const part = (i, y) => { const m = new THREE.Mesh(geos[i], mats[i]); m.position.y = y; pivot.add(m); return m; };
     part(0, -len / 2); part(1, -len - .02); part(2, -len - .1);
-    const spot = new THREE.SpotLight(0xffd6a0, 62, 0, 1.08, .5, 2), glow = new THREE.PointLight(0xffc888, 5, 9, 2); glow.position.set(0, -len + .12, 0); pivot.add(glow); // glow: what the room throws back up at the chain and the ceiling spot.position.set(0, -len - .1, 0); spot.target.position.set(0, -len - 3, 0); pivot.add(spot, spot.target);
+    const spot = new THREE.SpotLight(0xffd6a0, 24, 0, 1.1, .38, 2), glow = new THREE.PointLight(0xffc888, 5, 9, 2); glow.position.set(0, -len + .12, 0); pivot.add(glow); /* glow: what the room throws back up at the chain and the ceiling */ spot.position.set(0, -len - .1, 0); spot.target.position.set(0, -len - 3, 0); pivot.add(spot, spot.target);
     spot.castShadow = !!shadows; spot.shadow.mapSize.set(1024, 1024); spot.shadow.bias = -.0012; spot.shadow.normalBias = .04; spot.shadow.camera.near = .4; spot.shadow.camera.far = 9; spot.shadow.radius = 3;
     return { pivot, spot, set(a, b) { pivot.quaternion.setFromAxisAngle(r.side, -a).multiply(new THREE.Quaternion().setFromAxisAngle(r.dir, b)); }, dispose() { scene.remove(pivot); geos.forEach(g => g.dispose()); mats.forEach(m => m.dispose()); spot.shadow.map?.dispose(); } };
   }
@@ -252,31 +252,32 @@
       let v = Math.min(66, Math.max(36, 2 * Math.atan(.345 / aspect) * 180 / Math.PI)); if (fovKey) v *= fovKey / 36;
       if (camera.aspect !== aspect || Math.abs(camera.fov - v) > .01) { camera.aspect = aspect; camera.fov = v; camera.updateProjectionMatrix(); }
     }
-    const HEAVY = { stance: 1, guardCover: 1, guardTightness: 1, stanceWidth: .54, stanceDepth: .55, stanceDrop: .015, shoulderCover: .055, armReachMargin: .001, chinTuck: .035 };
-    const GLOVE = .085, offs = new Map();
+    const GLOVE = .085, BOX = { keepFaceClear: false, guardCover: 1, recoil: 0, advance: 0, contactDrive: 0 };
     const gloveAt = side => { const j = c.joints, wr = j['hand' + side].getWorldPosition(V()), el = j['elbow' + side].getWorldPosition(V()); return wr.clone().addScaledVector(wr.clone().sub(el).normalize(), .11); };
-    /** The game's own straight punch (jab / cross animation and IK) aimed at the bag where it is when the glove lands.
-     *  Returns the centre of the punching glove in world space. */
+    /** The game's own straight punch, exactly as authored (jab / cross of the fight rig). Returns the centre of the punching glove (world). */
     function punch(m, phase, sim) {
-      const st = C.sample(m.hit).bag, side = m.move === 'jab' ? 'L' : 'R';
-      a1.copy(hang.dir).multiplyScalar(-Math.sin(st.th)).addScaledVector(UP, Math.cos(st.th)); // bag axis
-      const want = hang.world([st.s, st.y, 0]).addScaledVector(a1, m.y).addScaledVector(hang.dir, -B.r - GLOVE + (m.big ? .13 : .06)); // glove centre at full reach: pressed into the leather
-      const solve = off => {
-        const aim = want.clone().add(off); inv.copy(c.root.matrixWorld).invert(); const local = aim.applyMatrix4(inv), sd = a2.copy(hang.dir).transformDirection(inv);
-        c.update(phase * 1.22, m.move, 'one_two', { ...HEAVY, simulationTime: sim, keepFaceClear: false, power: m.big ? 1.3 : 1.16, planStraight: true, contactDrive: m.big ? .09 : .065, straightRecovery: m.big ? .3 : .22, knuckleTarget: local.toArray(), strikeDirection: sd.toArray(), strikeHeight: local.y - .026, levelChange: m.big ? .03 : .018 });
-        c.root.updateMatrixWorld(true); return gloveAt(side);
-      };
-      if (!offs.has(m)) { // the solver's knuckle point is not the glove's centre: measure the difference once at full reach and aim through it
-        const keep = phase, off = V(); phase = .44; for (let i = 0; i < 3; i++) off.add(want.clone().sub(solve(off))); phase = keep; offs.set(m, off); (run.calib = run.calib || []).push({ move: m.move, off: off.toArray().map(x => +x.toFixed(3)) });
-      }
-      return solve(offs.get(m));
+      c.update(phase * 1.22, m.move, 'one_two', { ...BOX, simulationTime: sim, power: m.big ? 1.3 : 1.15 });
+      c.root.updateMatrixWorld(true); return gloveAt(m.move === 'jab' ? 'L' : 'R');
+    }
+    /** Where he stands: measured once, so that the big cross at full reach is buried in the leather of the bag where it hangs at that moment. */
+    let stand = null;
+    function place() {
+      const face = Math.atan2(P.dir[0], P.dir[1]), big = C.BIG, st = C.sample(big.hit).bag, base = hang.world([0, 0, 0]);
+      c.root.position.copy(base); c.root.rotation.set(0, face, 0); c.root.updateMatrixWorld(true);
+      let best = null; const curve = [];
+      for (let ph = .24; ph <= .5; ph += .01) { const g = punch(big, ph, big.t + ph * big.dur).sub(base), reach = g.dot(hang.dir); curve.push([+ph.toFixed(2), +reach.toFixed(3)]); if (!best || reach > best.reach) best = { reach, lat: g.dot(hang.side), y: g.y, ph }; }
+      const back = best.reach - st.s + B.r + GLOVE - .13; // root this far behind the bag's resting axis
+      stand = base.clone().addScaledVector(hang.dir, -back).addScaledVector(hang.side, -best.lat * .7);
+      const touch = curve.find(q => q[1] >= best.reach - .13); run.calib = { back: +back.toFixed(3), lat: +best.lat.toFixed(3), y: +best.y.toFixed(3), full: +best.ph.toFixed(2), touch: touch?.[0], curve };
+      Pose().reset(c);
     }
     /** The Fighter this frame. Returns the glove's strike point in world space while he punches. */
     function fighter(sim, dt) {
-      const f = C.fighterAt(sim), base = scene0.actors.fighter.keys[0], face = Math.atan2(P.dir[0], P.dir[1]);
+      if (!stand) place();
+      const f = C.fighterAt(sim), base = stand, face = Math.atan2(P.dir[0], P.dir[1]);
       if (f.act !== 'react') {
         c.root.position.set(base.x, 0, base.z); c.root.rotation.set(0, face, 0); c.root.updateMatrixWorld(true); Pose().reset(c); turn = null;
-        if (f.act === 'guard') { c.update(sim * 1.5, 'guard', 'one_two', { ...HEAVY, simulationTime: sim, keepFaceClear: true }); return null; } // breathing hard: the guard bobs faster
+        if (f.act === 'guard') { c.update(sim * 1.5, 'guard', 'one_two', { simulationTime: sim, keepFaceClear: true, guardCover: 1 }); return null; } // breathing hard: the guard bobs faster
         return punch(C.MOVES.find(q => sim >= q.t && sim < q.t + q.dur), f.phase, sim);
       }
       const r = C.reactionAt(f.t), at = V(base.x, 0, base.z).addScaledVector(hang.dir, -r.back);
@@ -316,6 +317,7 @@
       for (const f of ev.floor) if (f.speed > 1.9 && crossed(f.t)) sound(f.flat ? 'body-2' : 'body-1', Math.min(.8, .2 * f.speed), f.flat ? .4 : .46, 900);
       prevSim = sim;
       // camera: a short shake on the impact and on the floor hits
+      if (run.cam) Object.assign(cam, run.cam); // QA: try another camera
       lens(cam.fov); camera.position.fromArray(cam.pos); look.fromArray(cam.look);
       let shake = 0; for (const t of [C.BIG.hit, ...ev.floor.filter(f => f.speed > 1.9).map(f => f.t)]) { const u = sim - t; if (u >= 0 && u < .5) shake += .028 * Math.exp(-u / .1); }
       if (shake && !opts.reducedMotion) { camera.position.x += shake * Math.sin(run.clock * 71); camera.position.y += shake * Math.sin(run.clock * 93 + 1); }

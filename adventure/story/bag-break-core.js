@@ -23,9 +23,9 @@
   // ---- the bag and where it hangs (the old bag of Bruno's Gym: first bag on the mat of the set 'dream_gym')
   const BAG = { r: .235, h: .575, cy: 1.54, ring: .93, mount: 3.30, mass: 36, links: 13, keep: 4, fly: 3 };
   BAG.chain = BAG.mount - BAG.cy - BAG.ring; BAG.pitch = BAG.chain / BAG.links; BAG.inertia = BAG.mass * (3 * BAG.r * BAG.r + 4 * BAG.h * BAG.h) / 12;
-  const PLACE = { x: 5.6, z: -2.5, dir: [-1, 0], side: [0, -1], stand: .675, lamp: [-.95, 5.4, .55, 2.3] }; // lamp: offset along -dir, ceiling y, offset sideways, cord length
+  const PLACE = { x: 5.6, z: -2.5, dir: [-1, 0], side: [0, -1], stand: .82, lamp: [-.4, 5.4, .45, 2.3] }; // lamp: offset along -dir, ceiling y, offset sideways, cord length
   // ---- sim-time script of the Fighter: guard, jab, cross, guard, the big cross, guard, then the reaction
-  const HIT_PHASE = .372; // phase of a straight punch at which the glove meets the leather (measured in the browser)
+  const HIT_PHASE = .315; // phase of a straight punch at which the glove meets the leather (measured in the browser)
   const MOVES = [{ move: 'jab', t: 1.9, dur: .5, dv: .3, y: .16 }, { move: 'cross', t: 2.4, dur: .58, dv: .5, y: .14 }, { move: 'cross', t: 3.75, dur: .74, dv: 3.3, y: .05, big: true }];
   for (const m of MOVES) m.hit = m.t + HIT_PHASE * m.dur;
   const BIG = MOVES[2], REACT = BIG.hit + 2.6, SIM_END = REACT + 6.3;
@@ -71,8 +71,8 @@
       { t: R0, pos: [4.1, 1.0, -6.4], look: [3.3, .5, -2.5], fov: 40, ease: 'linear' },
       { t: R0, cut: true, pos: [4.5, 1.6, -4.7], look: [6.55, 1.48, -2.5], fov: 30 },                   // reaction: hands drop, he steps back
       { t: R0 + 3.3, pos: [4.4, 1.6, -4.8], look: [6.6, 1.48, -2.5], fov: 30, ease: 'linear' },
-      { t: R0 + 3.3, cut: true, pos: [.45, 1.4, -3.05], look: [6.4, .8, -2.5], fov: 40 },             // the bag on the floor, the empty chain, "...uh oh"
-      { t: DURATION, pos: [.3, 1.45, -3.05], look: [6.4, .85, -2.5], fov: 39, ease: 'linear' }
+      { t: R0 + 3.3, cut: true, pos: [.3, 1.7, -3.1], look: [6.4, .5, -2.5], fov: 40 },             // the bag on the floor, the empty chain, "...uh oh"
+      { t: DURATION, pos: [.15, 1.75, -3.1], look: [6.4, .55, -2.5], fov: 39, ease: 'linear' }
     ],
     lines: [{ t: R0 + 3.6, who: 'fighter', text: L('…Bruno\'s going to kill me.', '…ברונו יהרוג אותי.', '…Бруно меня убьёт.') }]
   };
