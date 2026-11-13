@@ -403,6 +403,9 @@
     d = SM(d, E(x, y, z, .13, .104, .2, .052, .016, .022), .011);        // lower lid roll
     d = -SM(-d, E(x, y, z, .13, .15, .23, .047, .04, .046), .012);       // eye sockets
     d = SM(d, E(x, y, z, 0, -.16, .03, .225, .08, .16), .05);            // dewlap: loose skin into a bull neck
+    d = SM(d, E(x, y, z, 0, .055, -.225, .2, .036, .06), .012);          // two rolls of skin on the nape (the fight cameras see him from behind)
+    d = SM(d, E(x, y, z, 0, -.03, -.215, .225, .042, .07), .012);
+    d = SM(d, E(x, y, z, .245, -.07, -.04, .07, .06, .12), .014);        // the jowl rolls back into the neck
     return d;
   };
   const mugJaw = (px, y, z) => { const x = Math.abs(px); let d = E(x, y, z, 0, -.072, .125, .16, .056, .14); d = SM(d, E(x, y, z, 0, -.098, .248, .08, .042, .044), .03); return SM(d, E(x, y, z, 0, -.034, .252, .095, .019, .028), .011); };
@@ -417,6 +420,7 @@
         const ax = Math.abs(x), w = Math.max(smooth((z - .07) / .06) * smooth((.135 - y) / .05) * (1 - smooth((ax - .215) / .05)), bell(x, 0, .032) * smooth((z - .04) / .05), smooth((-.07 - y) / .04) * bell(x, 0, .15) * smooth((z + .02) / .06));
         c.copy(fawn).multiplyScalar(1 - .1 * Math.sin(x * 70 + y * 46) * Math.sin(z * 58 + y * 30)).lerp(lin('#8f5f38'), .5 * smooth((-z - .02) / .12)).lerp(white, clamp(w));
         c.lerp(patch, clamp(Math.max(smooth((.13 - Math.hypot(x - .135, (y - .175) * .9, (z - .15) * .45)) / .035), smooth((x - .15) / .04) * smooth((y - .2) / .04) * smooth((.06 - z) / .08)))); // patch over one eye and ear
+        c.lerp(patch, clamp(Math.max(smooth((.12 - Math.hypot(x + .09, (y - .2) * .9, (z + .16) * .6)) / .03), .8 * smooth((.1 - Math.hypot(x - .06, y - .0, (z + .22) * .7)) / .03)))); // dark saddle marks on the back of the skull and the nape
         c.lerp(mask, clamp(.8 * smooth((.115 - Math.hypot(x, (y - .115) * 1.1, (z - .25) * .7)) / .05) + .7 * smooth((-.075 - y) / .05) * smooth((z - .1) / .05) * bell(ax, .115, .075))); // dark mask round the nose, dark lower edge of the flews
       };
       const up = tint(surface(mugUpper, [-.345, -.25, -.27], [.345, .34, .3], .019), mugAll, coat);

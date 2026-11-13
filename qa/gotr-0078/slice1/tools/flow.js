@@ -16,6 +16,7 @@ module.exports = async (p, shot, u) => {
   await p.waitForTimeout(1500); await p.evaluate(() => { const b = document.querySelector('#sfBeat .sf-beat-main'); if (b) b.click(); });
   await wait(() => app.engine.targetMode === 'fight' && app.engine.arena?.fightView?.match);
   console.log('fight', JSON.stringify(await p.evaluate(() => ({ opponent: app.engine.arena.rabbit?.character, venue: app.engine.arena.fightView.venue?.id || app.engine.fightOptions?.venue, phase: app.engine.arena.fightView.match.phase }))));
+  console.log('graph', JSON.stringify(await p.evaluate(() => { const a = app.engine.arena, f = o => (o.name || o.type) + (o.visible ? '' : '(hidden)') + ':' + o.children.length; return { group: a.group.children.map(f), scene: app.engine.scene.children.map(f), gym: !!a.fightView.gymFight, set: !!a.fightView.gymFight?.set }; })));
   await frames(40); await shot(`${tag}-fight-guard-${u.w}`);
   // a punch by Brick: wait until his hand is far in front of his chest
   await wait(() => { const c = app.engine.arena.rabbit, m = c?.metrics; return m && m.strike > .7; }, null, 200000).catch(() => {}); await shot(`${tag}-fight-punch-${u.w}`);
