@@ -1,0 +1,76 @@
+{
+  "checked": "2026-11-13",
+  "report": "docs/adventure/FREE_3D_AUTHORING_REVIEW.md",
+  "sourceSnapshots": [
+    {
+      "source": "blender_license",
+      "bytes": 302,
+      "sha256": "19e6f4b541772f9d7b98a52bdbca3ebd5ef9e404956a9a6de68bfc3c1a178387"
+    },
+    {
+      "source": "rigify_source",
+      "bytes": 30750,
+      "sha256": "596a831894fd7808ca60034d959560c70bae80597896e8c05e5f7ee3c972a5fd"
+    },
+    {
+      "source": "sapling_source",
+      "bytes": 37179,
+      "sha256": "7266d098db3a63c97e5d993045c5adfafce315cc580b6b4a3a3511bbf91f0ef8"
+    },
+    {
+      "source": "polyhaven_addon",
+      "bytes": 3628,
+      "sha256": "83edfefeea674c42993ff5689f2ffc62a2a49c585bc9a4fb9e6cd8f7e8bd7140"
+    },
+    {
+      "source": "blenderkit_readme",
+      "bytes": 3302,
+      "sha256": "83b5ff53429f8b7dcf17af9e1384e7f3070e48ddef0798e75e8d8a5c1a259736"
+    },
+    {
+      "source": "blenderkit_license",
+      "bytes": 18092,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    {
+      "source": "rokoko_readme",
+      "bytes": 12237,
+      "sha256": "ee4d3c253987ca01d4307a758ed68c87e4042168c9156690a2f1d36bf6a212a1"
+    },
+    {
+      "source": "rokoko_license2",
+      "bytes": 7651,
+      "sha256": "a5681bf9b05db14d86776930017c647ad9e6e56ff6bbcfdf21e5848288dfaf1b"
+    },
+    {
+      "source": "freemocap_readme",
+      "bytes": 6416,
+      "sha256": "1f7caf53989abd3f21bbbf4ca960960f19672b59dcfc7da09e81d5f59d9f8d75"
+    },
+    {
+      "source": "freemocap_license",
+      "bytes": 34523,
+      "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+    },
+    {
+      "source": "blender_mcp",
+      "bytes": 39908,
+      "sha256": "58d30e2ae5c708cabb72f2a2acd66b0437cb605bde08afa66ce25787febcf15d"
+    },
+    {
+      "source": "mcp_license",
+      "bytes": 1071,
+      "sha256": "049501fd54d27852507853a5b88094ca1c6ff97404418a5032f3310eecc9cde6"
+    },
+    {
+      "source": "gltftransform_license",
+      "bytes": 1078,
+      "sha256": "2c4f111d00dbf22b10d31a14813c5f5de6a828640f7311f26b9dda89b3fce165"
+    },
+    {
+      "source": "gltftransform_readme",
+      "bytes": 6647,
+      "sha256": "d89d0c933e18062a4e664e6389774bc84e0bebc5011e5e801406c6895bc948a3"
+    }
+  ]
+}

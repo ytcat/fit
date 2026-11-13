@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gloryland · arrival bus asset review</title><link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#18232b;color:#eee;font:14px system-ui}canvas{display:block;touch-action:none;width:100vw;height:100vh}header{position:fixed;top:16px;left:20px;pointer-events:none}h1{font-size:20px;margin:0 0 6px}p{margin:0;color:#b9c7cf}nav{position:fixed;bottom:18px;left:16px;right:16px;display:flex;flex-wrap:wrap;gap:7px}button{border:1px solid #61717c;background:#1e2a33e8;color:#fff;padding:11px 16px;border-radius:8px;font:inherit;cursor:pointer}button[aria-pressed=true]{background:#d3aa66;color:#17232b}#status{position:fixed;right:15px;top:16px;font-size:12px;max-width:40%;text-align:right;color:#b9c7cf}@media(max-width:600px){header{top:12px;left:12px}h1{font-size:16px}p{max-width:210px;font-size:11px}#status{top:66px;left:12px;max-width:80%;text-align:left}button{padding:10px 11px;font-size:12px}}
+</style></head><body>
+<header><h1>Gloryland · Route 12</h1><p>Actual GLB · isolated asset review<br>Drag to orbit · pinch or scroll to zoom</p></header><div id="status">Loading local asset…</div>
+<nav><button data-view="front">Front / curb</button><button data-view="rear">Rear / road</button><button data-view="side">Side</button><button data-view="entry">Entry detail</button><button id="door" aria-pressed="false">Open doors</button><button id="night" aria-pressed="false">Night lighting</button><button id="baseline" aria-pressed="false">Original bus</button><button id="station" aria-pressed="false">Arrival street</button></nav>
+<script src="../../../assets/vendor/three.min.js"></script><script src="../../../assets/vendor/GLTFLoader.js"></script>
+<script>
+'use strict';
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,180);
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);
+renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.prepend(renderer.domElement);
+renderer.info.autoReset=false;
+const ambient=new THREE.HemisphereLight(0xddebf6,0x625244,.85);scene.add(ambient);
+const sun=new THREE.DirectionalLight(0xffe8cd,2.0);sun.position.set(8,14,-9);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-11,right:11,top:10,bottom:-10,near:.5,far:55});sun.shadow.bias=-.00015;sun.shadow.normalBias=.025;scene.add(sun);
+const fill=new THREE.DirectionalLight(0xb5d4ed,.65);fill.position.set(-6,7,8);scene.add(fill);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(160,160),new THREE.MeshStandardMaterial({color:0x59636a,roughness:.96}));ground.rotation.x=-Math.PI/2;ground.position.y=-.007;ground.receiveShadow=true;scene.add(ground);
+const streetlight=new THREE.SpotLight(0xffd49b,4,35,.68,.65,1.3);streetlight.position.set(4,7,-5);streetlight.target.position.set(1,0,0);streetlight.castShadow=true;streetlight.shadow.mapSize.set(1024,1024);streetlight.shadow.bias=-.0003;streetlight.visible=false;scene.add(streetlight,streetlight.target);
+streetlight.shadow.camera.near=.45;streetlight.shadow.camera.far=35;
+const target=new THREE.Vector3(0,1.3,0);let az=.83,el=.30,distance=18.5,model,mixer,night=false;
+const clips={};let doorOpen=false;
+let baseline=null,baselineOn=false;
+let station=null,stationOn=false;
+async function setStation(on){
+ if(on&&baselineOn)await setBaseline(false);
+ if(on&&!station){
+  const g=await new Promise((resolve,reject)=>new THREE.GLTFLoader().load('../../../assets/street/ch01-station/gloryland-station.glb',resolve,undefined,reject));
+  station=g.scene;station.traverse(o=>{if(o.isMesh){o.castShadow=!o.material.transparent&&!o.material.emissive?.getHex();o.receiveShadow=true;}});scene.add(station);window.asset.station=station;
+ }
+ stationOn=on;if(station)station.visible=on;
+ model.position.set(on?.4:0,on?-.15:0,on?-1.9:0);ground.position.y=on?-.325:-.007;
+ target.set(0,1.4,on?-2.8:0);distance=on?24:18.5;az=on?-.65:.83;el=.30;
+ streetlight.position.set(on?-3.5:4,on?3.7:7,on?-4.15:-5);streetlight.target.position.set(on?-2:1,0,on?-1.9:0);
+ document.querySelector('#station').setAttribute('aria-pressed',String(on));render();return station;
+}
+async function setBaseline(on){
+ if(on&&stationOn)await setStation(false);
+ if(on&&!baseline){
+  for(const src of ['../../../adventure/gloryland-map.js','../../../adventure/story/story-sets.js'])await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.append(s)});
+  const staging=new THREE.Scene(),set=StorySets.build('busstop',staging,{renderer,shadows:false});baseline=set.objects.bus;baseline.position.set(0,0,0);scene.add(baseline);
+ }
+ baselineOn=on;if(baseline)baseline.visible=on;model.visible=!on;document.querySelector('#baseline').setAttribute('aria-pressed',String(on));render();
+}
+function place(){camera.position.set(target.x+distance*Math.cos(el)*Math.cos(az),target.y+distance*Math.sin(el),target.z-distance*Math.cos(el)*Math.sin(az));camera.lookAt(target)}
+function setView(id){target.set(0,1.3,0);distance=innerWidth<600?23:18.5;el=.30;az=.83;if(id==='rear')az=3.97;if(id==='side'){az=Math.PI/2;el=.06;distance=innerWidth<600?25:18;}if(id==='entry'){target.set(4,1.5,-.9);az=1.03;el=.12;distance=5.7;}place()}
+function setNight(on){night=on;scene.background=new THREE.Color(on?0x111b30:0x96a8b3);scene.fog=new THREE.Fog(scene.background,45,120);ambient.intensity=on?.24:.85;sun.intensity=on?.12:2;fill.intensity=on?.18:.65;streetlight.visible=on;document.querySelector('#night').setAttribute('aria-pressed',String(on));render()}
+function setDoors(open){doorOpen=open;const a=clips.Doors_open_hold_close;if(a){a.enabled=true;a.paused=false;a.play();a.time=open?2:0;mixer.update(0);a.paused=true;}document.querySelector('#door').setAttribute('aria-pressed',String(open));render()}
+function render(){place();renderer.info.reset();renderer.render(scene,camera);if(window.asset)document.querySelector('#status').textContent=`${renderer.info.render.triangles.toLocaleString()} submitted triangles · ${renderer.info.render.calls} calls incl. shadows`;}
+setView('front');setNight(false);
+new THREE.GLTFLoader().load('../../../assets/street/ch01-bus/gloryland-bus.glb',g=>{
+ model=g.scene;scene.add(model);model.traverse(o=>{if(o.isMesh){o.castShadow=!o.material.transparent;o.receiveShadow=true;}});
+ mixer=new THREE.AnimationMixer(model);g.animations.forEach(c=>clips[c.name]=mixer.clipAction(c));
+ window.asset={scene,camera,renderer,model,mixer,clips:g.animations,actions:clips,setView,setNight,setDoors,setBaseline,setStation,render};
+ setDoors(false);render();document.querySelector('#status').textContent=`${renderer.info.render.triangles.toLocaleString()} submitted triangles · ${renderer.info.render.calls} calls incl. shadows`;
+ window.asset.ready=true;
+},undefined,e=>{document.querySelector('#status').textContent='Asset failed to load';console.error(e)});
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{setView(b.dataset.view);render()});
+document.querySelector('#door').onclick=()=>setDoors(!doorOpen);document.querySelector('#night').onclick=()=>setNight(!night);
+document.querySelector('#baseline').onclick=()=>setBaseline(!baselineOn);
+document.querySelector('#station').onclick=()=>setStation(!stationOn).catch(console.error);
+const pointers=new Map();let prevPinch=0;
+renderer.domElement.addEventListener('pointerdown',e=>{renderer.domElement.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});prevPinch=0;});
+renderer.domElement.addEventListener('pointermove',e=>{const p=pointers.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){az+=dx*.006;el=THREE.MathUtils.clamp(el+dy*.005,-.05,1.2);}else{const [a,b]=[...pointers.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(prevPinch>0)distance=THREE.MathUtils.clamp(distance*prevPinch/d,3,40);prevPinch=d;}render();});
+for(const event of ['pointerup','pointercancel','lostpointercapture'])renderer.domElement.addEventListener(event,e=>{pointers.delete(e.pointerId);prevPinch=0;});
+renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();distance=THREE.MathUtils.clamp(distance*Math.exp(e.deltaY*.001),3,40);render()},{passive:false});
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);render()});
+</script></body></html>
