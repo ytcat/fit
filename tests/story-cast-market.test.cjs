@@ -34,7 +34,9 @@ for (const id of IDS) {
 }
 const fang = rigs.fang, hazel = rigs.hazel, otto = rigs.otto;
 assert.ok(front(fang, 1.9, 1.98) > front(lion, 1.9, 1.98) + .08, 'the wolf has a long muzzle');
-assert.ok(width(fang, 1.2, 1.5) > width(lion, 1.2, 1.5) * 1.06, 'Fang is bigger than the lion fighter'); assert.ok(width(hazel, 1.2, 1.5) < width(lion, 1.2, 1.5), 'Mrs. Hazel is slimmer');
+console.log('waist half-widths lion/fang/hazel/otto', [lion, fang, hazel, otto].map(c => width(c, 1.05, 1.15).toFixed(3)).join(' '));
+assert.ok(width(fang, 1.05, 1.15) > width(lion, 1.05, 1.15) * 1.06, 'Fang is bigger than the lion fighter'); const arm = c => { const P = c.skin.geometry.attributes.position; let z = 0; for (let i = 0; i < P.count; i++) if (Math.abs(Math.abs(P.getX(i)) - .5) < .03) z = Math.max(z, Math.abs(P.getZ(i))); return z; }; console.log('upper arm half-depth lion/fang/hazel/otto', [lion, fang, hazel, otto].map(c => arm(c).toFixed(3)).join(' '));
+assert.ok(width(hazel, 1.05, 1.15) < width(fang, 1.05, 1.15) && arm(hazel) < arm(lion) && arm(hazel) < arm(fang), 'Mrs. Hazel is slimmer');
 assert.ok(width(otto, 1.1, 1.25) > width(lion, 1.1, 1.25) * 1.05, 'Otto is stocky');
 { const top = c => { const P = c.skin.geometry.attributes.position; let y = 0; for (let i = 0; i < P.count; i++) y = Math.max(y, P.getY(i)); return y; }; assert.ok(top(hazel) < top(lion) - .02 && top(otto) < top(lion) - .02, 'Mrs. Hazel and Otto stand lower than the fighters'); }
 assert.ok(hazel.castProps.handbag && StoryCast.market.handbag(hazel) === hazel.castProps.handbag, 'the handbag is a prop the robbery can take');

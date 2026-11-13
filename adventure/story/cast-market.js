@@ -29,7 +29,7 @@
       wet: new THREE.MeshPhysicalMaterial({ color: 0x120e0c, roughness: .25, clearcoat: .6 }), glint: new THREE.MeshBasicMaterial({ color: 0xfff6e6 }), black: new THREE.MeshStandardMaterial({ color: 0x0b0a0a, roughness: .5 }) });
   }
   const mark = m => { m.userData.storyPart = true; m.userData.mane = true; m.castShadow = true; return m; };
-  const meshOf = (P, name, mat) => mark(new THREE.Mesh(P.geometry(), mat));
+  const meshOf = (P, name, mat) => { const m = mark(new THREE.Mesh(P.geometry(), mat)); m.name = name; return m; };
 
   /* ---------------------------------------------------------------- the skin: colour, gloss, jaw */
   /** Repaints the sculpted skin in its final rest shape: fn(p, h = [hx, hy, hz], c) edits c (linear). Grain and back shade on top. */
@@ -579,7 +579,7 @@
     j.chest.add(meshOf(Bt, 'Hazel: buttons', m.glossy));
     // a cardigan collar lying round the neck (skinned)
     const col = lin('#6f7f64');
-    shell(rig, (p, n, h) => { const ax = Math.abs(p.x), open = .03 + .06 * smooth((p.y - 1.3) / .4); if (p.y < 1.68 || p.y > 1.77) return null; if (p.z > .02 && ax < open) return null; return { d: .022 + .006 * smooth((p.y - 1.7) / .05), c: col.clone().multiplyScalar(1 - .08 * Math.sin(Math.atan2(p.x, p.z) * 60)) }; }, { name: 'Hazel: cardigan collar', roughness: .95 });
+    shell(rig, (p, n, h) => { const ax = Math.abs(p.x), open = .03 + .06 * smooth((p.y - 1.3) / .4); if (p.y < 1.68 || p.y > 1.77 || ax > .2) return null; if (p.z > .02 && ax < open) return null; return { d: .022 + .006 * smooth((p.y - 1.7) / .05), c: col.clone().multiplyScalar(1 - .08 * Math.sin(Math.atan2(p.x, p.z) * 60)) }; }, { name: 'Hazel: cardigan collar', roughness: .95 });
     hands(rig, '#8d5c3a', '#2e2220', { k: .92, cuff: '#8d5c3a' });
     shoes(rig, { upper: '#4a2b22', toe: '#3c231c', sole: '#2a1c18', welt: '#2a1c18', strap: '#3c231c', scale: .9, glossy: true });
     // the handbag in her left hand, hanging by its handles (kept upright; swings a little)
@@ -693,7 +693,8 @@
     // apron neck strap, waist ties, a pencil and a folded rule in the pockets, the tape measure round the neck
     const P = new Parts();
     for (const s of [-1, 1]) P.ribbon([V(s * .15, 1.58, B(s * .15, 1.58) + .028), V(s * .12, 1.7, B(s * .12, 1.7) + .022), V(s * .08, 1.775, -.0), V(0, 1.79, -.07)].map(L), .03, .006, '#24324b', V(0, 0, 1), 14, 6);
-    const [wx, wz] = waist(rig, 1.08); for (const s of [-1, 1]) P.ribbon([V(s * .2, 1.08, wz * .4), V(s * (wx + .03), 1.08, 0), V(s * .1, 1.08, -wz - .03), V(0, 1.075, -wz - .035)].map(L), .025, .006, '#24324b', V(0, 1, 0), 16, 6);
+    const [wx, wz] = waist(rig, 1.08), Ties = new Parts(), LS = p => p.clone().sub(SPINE0); for (const s of [-1, 1]) Ties.ribbon([V(s * .2, 1.08, wz * .4), V(s * (wx + .03), 1.08, 0), V(s * .1, 1.08, -wz - .03), V(0, 1.075, -wz - .035)].map(LS), .025, .006, '#24324b', V(0, 1, 0), 16, 6);
+    Ties.sph(LS(V(0, 1.075, -wz - .04)), V(.022, .018, .012), '#24324b'); j.spine.add(meshOf(Ties, 'Otto: apron ties', m.parts));
     P.box(L(V(.09, 1.36, B(.09, 1.36) + .034)), V(.008, .07, .008), '#d4a640'); P.sph(L(V(.09, 1.4, B(.09, 1.4) + .034)), V(.005, .006, .005), '#d68a8a'); // pencil in the bib pocket
     const tape = [V(-.11, 1.775, -.04), V(-.12, 1.72, B(.12, 1.72) + .03), V(-.1, 1.6, B(.1, 1.6) + .034), V(-.095, 1.45, B(.095, 1.45) + .036), V(-.1, 1.36, B(.1, 1.36) + .036)];
     const tape2 = [V(.11, 1.775, -.04), V(.12, 1.72, B(.12, 1.72) + .03), V(.11, 1.6, B(.11, 1.6) + .034), V(.115, 1.5, B(.115, 1.5) + .036)];
@@ -706,7 +707,7 @@
     j.chest.add(meshOf(Bt, 'Otto: buttons and rivets', m.metal));
     // the shirt collar (skinned): points lying on the chest either side of the top button
     const shirt = lin('#8e2a24'), dk = lin('#4b1513');
-    shell(rig, (p, n) => { const ax = Math.abs(p.x); if (p.y < 1.66 || p.y > 1.785) return null; if (p.z > .02 && ax < .012) return null; const pt = p.z > .02 ? smooth((1.73 - p.y) / .05) : 0; if (p.z > .02 && ax > .02 + .08 * (1 - pt) && p.y < 1.72) return null; return { d: .017 + .005 * smooth((p.y - 1.72) / .05), c: shirt.clone().lerp(dk, (Math.sin(p.y * 95) > .3 ? .35 : 0) + (Math.sin(p.x * 95) > .3 ? .35 : 0)) }; }, { name: 'Otto: shirt collar', roughness: .9 });
+    shell(rig, (p, n) => { const ax = Math.abs(p.x); if (p.y < 1.66 || p.y > 1.785 || ax > .19) return null; if (p.z > .02 && ax < .012) return null; const pt = p.z > .02 ? smooth((1.73 - p.y) / .05) : 0; if (p.z > .02 && ax > .02 + .08 * (1 - pt) && p.y < 1.72) return null; return { d: .017 + .005 * smooth((p.y - 1.72) / .05), c: shirt.clone().lerp(dk, (Math.sin(p.y * 95) > .3 ? .35 : 0) + (Math.sin(p.x * 95) > .3 ? .35 : 0)) }; }, { name: 'Otto: shirt collar', roughness: .9 });
     hands(rig, '#55361f', '#2a1a12', { k: 1.04, cuff: '#55361f' });
     shoes(rig, { upper: '#5a3420', toe: '#4a2a18', sole: '#2e2219', welt: '#8a6a4a', lace: '#2e2219', scale: 1.02, glossy: true });
   }
