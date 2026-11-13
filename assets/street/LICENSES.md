@@ -15,3 +15,7 @@ Future downloaded textures/models must add an entry with exact source URL, creat
 Original station, street furniture and geometry authored locally with `scripts/authoring/build_station_kit.py`. Six original PBR maps generated with `scripts/authoring/build_street_textures.py` using seeded numeric synthesis; no photographic input or downloaded material. Poster lettering and glove pictograms are original project artwork using Blender's bundled default font. No real transit brand or paid content is included. Ownership/licensing follows the project's owner.
 
 Build-time tools: Blender (GPL), Python, NumPy (BSD) and Pillow (HPND). These tools/libraries are not bundled into the browser game. This entry records provenance without granting a new public license to project artwork.
+
+## `ch01-oldtown/`
+
+Original two-building geometry, furnishings, plant leaves, signs and fictional RISE tag authored for this project with `build_oldtown_kit.py`, `city_blender_helpers.py` and `build_oldtown_textures.py`. Material maps are seeded numeric synthesis using NumPy/Pillow; no scan or downloaded texture was imported. Store names/livery are fictional. Signs use Blender's bundled default font; the graffiti letter paths are hand-authored polylines without an external font. `.blend` packs the generated material images. Ownership/licensing follows the project's owner; build-time tool licenses do not add a license to original exported artwork.
