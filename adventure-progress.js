@@ -36,6 +36,14 @@
   M('teach_the_kid',1,'home_gym','help',null,'combos',[1,2,3],'Teach the kid a one-two','ללמד את הילד ימין-שמאל','Научить малыша двойке'),
   M('morning_sparring',1,'home_gym','training','power','landed',[5,10,15],'Morning sparring','ספארינג בוקר','Утренний спарринг'),
   M('snoring_guard',1,'home_gym','funny',null,'dodges',[3,6,9],'The snoring night guard','שומר הלילה המנחר','Храпящий ночной сторож'),
+  // GOTR-0078 "The Dream" (docs/adventure/CHAPTER1_SCRIPT_V2.md): the measured beats of the new chapter 1. The older chapter-1
+  // missions above stay valid in saves (and still count for stars and level) but are no longer story steps.
+  M('clean_gym',1,'home_gym','help',null,'marks',[8,14,20],'Clean the gym','לנקות את האולם','Уборка зала'),
+  M('night_shadow',1,'home_gym','training','speed','landed',[20,35,50],'Night Shadowboxing','Shadowboxing בלילה','Shadowboxing ночью'),
+  M('night_bag',1,'home_gym','training','power','powerMarks',[1,3,5],'The old heavy bag','השק הכבד הישן','Старый тяжёлый мешок'),
+  M('bag_drill',1,'home_gym','training','stamina','landed',[15,25,35],'Two-sided bag drill','תרגיל שק משני הצדדים','Мешок с двух сторон'),
+  M('fight_prep',1,'home_gym','training','speed','dodges',[4,7,10],'Fight preparation','הכנה לקרב','Подготовка к бою'),
+  M('advanced_training',1,'home_gym','training','power','combos',[1,2,3],'Advanced training','אימון מתקדם','Продвинутая тренировка'),
   M('curb_footwork',2,'street_fight','training','speed','marks',[5,8,12],'Curb footwork','עבודת רגליים על המדרכה','Работа ног у бордюра'),
   M('rooftop_balloons',2,'street_fight','funny',null,'dodges',[6,9,12],'Rooftop water balloons','בלוני מים מהגג','Водяные шарики с крыши'),
   M('whistle_chase',2,'street_fight','funny',null,'secondsToFinish',[40,30,20],"The coach's whistle",'משרוקית המאמן','Свисток тренера'),
@@ -49,7 +57,23 @@
  // GOTR-0055: each side zone is an optional bonus attached to a chapter; it shows once that chapter is reached. Data only: no rules, no saved state.
  const sideZones=freeze([{id:'fort',chapter:1},{id:'fair',chapter:2},{id:'cove',chapter:3},{id:'tech',chapter:4}]);
  const missionOf=id=>missions.find(m=>m.id===id),bossOf=id=>bosses.find(b=>b.id===id),chapterOf=n=>chapters.find(c=>c.id===n);
- const fresh=()=>({version:1,missions:{},bosses:{}});
+ // GOTR-0078 chapter 1 "The Dream": the 13 main beats in order (beat 0 = index 0 ... beat 12 = the boss rematch). Side job A is the
+ // mission 'clean_gym'. Beats backed by a mission are done with >=1 star, the boss beat by a boss win; the others (films, talks,
+ // the first Brick fight, the street and Docks fights, the purchase) are written to adventure.story.done by the 'story' action.
+ const dreamSteps=Object.freeze(['dream_arrival','dream_gym_talk','first_brick','night_shadow','night_bag','dream_apology','market_robber','buy_heavy_bag','bag_drill','fight_prep','docks_fight','advanced_training','brick']);
+ const storyEvents=Object.freeze(['dream_arrival','dream_gym_talk','first_brick','dream_apology','market_robber','buy_heavy_bag','docks_fight']);
+ // Old chapter-1 step (GOTR-0069 list) -> the new beat it is equivalent to. A save that finished an old step keeps every new beat up
+ // to and including that one (the old list was played in order too). Old side step rope_rhythm and the unplayable first_stance map to nothing.
+ const legacyBeat=Object.freeze({one_two_mitts:1,heavy_bag_van:2,bag_power:4,snoring_guard:5,teach_the_kid:8,roll_under_hook:9,morning_sparring:10,brick:12});
+ const fresh=()=>({version:1,missions:{},bosses:{},story:{done:[]}});
+ // Runs once, when an older save without adventure.story loads: derives the finished beats from the old progress.
+ function migrate(a){
+  if(!a||typeof a!=='object'||a.story!==undefined)return a;
+  let k=-1;for(const [id,beat] of Object.entries(legacyBeat))if(id==='brick'?(a.bosses?.brick?.wins||0)>0:(a.missions?.[id]?.stars||0)>0)k=Math.max(k,beat);
+  a.story={done:dreamSteps.slice(0,k+1).filter(id=>id!=='brick')};
+  if(k>=2)a.story.firstBrick=(a.bosses?.brick?.wins||0)>0?'won':'lost';
+  return a;
+ }
  const bound=v=>Number.isFinite(v)&&v>=0&&v<=1e5;
  const round1=v=>Math.round(v*10)/10;
  // Stars for a measured value (0 = not yet earned).
@@ -116,10 +140,24 @@
   if(won){r.wins=Math.min(1e6,r.wins+1);if(free&&(level(g)<b.entry||!chapterOpen(g,b.chapter,false)))r.free=true;}else r.losses=Math.min(1e6,r.losses+1); // losing costs nothing
   return {bossId,won,wins:r.wins,losses:r.losses,nextChapterOpen:b.chapter<5&&bossWon(g,bossId)};
  }
+ // Is a Dream beat finished? (story.done for events and migrated beats, stars for mission beats, a win for the boss beat)
+ function dreamDone(g,id){const a=adv(g);if(!a)return false;if(a.story?.done?.includes(id))return true;if(id==='brick')return bossWon(g,id);if(id==='first_brick')return !!a.story?.firstBrick;return (a.missions?.[id]?.stars||0)>0;}
+ // Can this story event be recorded now? It must be a known event and the beat before it must be finished.
+ function storyReady(g,step){const i=dreamSteps.indexOf(step);if(!storyEvents.includes(step))fail('Unknown story step.');if(i>0&&!dreamDone(g,dreamSteps[i-1]))fail('Finish the step before this one first.');return true;}
+ // Records a finished story event. first_brick keeps the FIRST outcome ('lost' | 'won'): a loss advances the story too. The two
+ // street fights must be won (the caller pays their reward); the purchase is charged by the caller (game-domain.js).
+ function recordStory(g,step,outcome){
+  if(!adv(g))g.adventure=fresh();migrate(g.adventure);storyReady(g,step);const st=g.adventure.story;
+  if(step==='first_brick'){if(!['lost','won'].includes(outcome))fail('Invalid fight result.');if(!st.firstBrick)st.firstBrick=outcome;}
+  if(['market_robber','docks_fight'].includes(step)&&outcome!=='won')fail('Win the fight to finish this step.');
+  const first=!st.done.includes(step);if(first)st.done.push(step);
+  return {step,first,firstBrick:st.firstBrick||null,done:[...st.done]};
+ }
  const object=(v,keys)=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>keys.includes(k));
  function validate(a){
   if(a?.version!==1)fail('Incompatible adventure version.');
-  if(!object(a,['version','missions','bosses'])||!object(a.missions,missions.map(m=>m.id))||!object(a.bosses,bosses.map(b=>b.id)))fail('Invalid adventure progress.');
+  migrate(a);
+  if(!object(a,['version','missions','bosses','story'])||!object(a.story,['done','firstBrick'])||!Array.isArray(a.story.done)||new Set(a.story.done).size!==a.story.done.length||a.story.done.some(id=>!dreamSteps.includes(id)||id==='brick')||!(a.story.firstBrick===undefined||['lost','won'].includes(a.story.firstBrick))||a.story.done.includes('first_brick')&&!a.story.firstBrick||!object(a.missions,missions.map(m=>m.id))||!object(a.bosses,bosses.map(b=>b.id)))fail('Invalid adventure progress.');
   for(const [id,r] of Object.entries(a.missions)){
    if(!object(r,['stars','value','plays'])||!Number.isSafeInteger(r.plays)||r.plays<1||r.plays>1e6||!bound(r.value)||r.value!==round1(r.value)||!Number.isSafeInteger(r.stars)||r.stars<1||r.stars>3||starsFor(id,r.value)!==r.stars)fail('Mission stars do not match the recorded result.');}
   const g={adventure:a};
@@ -132,8 +170,9 @@
  function action(g,a,free=freeMode()){
   if(a.adventure==='mission')return recordMission(g,a.missionId,a.measured,free);
   if(a.adventure==='boss')return recordBoss(g,a.bossId,a.won,free);
+  if(a.adventure==='story')return recordStory(g,a.step,a.outcome);
   fail('Unknown adventure action.');
  }
- const api={sideZones,rules,stats,metrics,chapters,bosses,missions,opponentBase,fresh,validate,action,starsFor,stars,statPoints,level,chapterOpen,canChallenge,chance,chanceVs,bossEdge,fightEdge,opponent,levelFromScore,fighterScore,compare,summary,recordMission,recordBoss,bossWon,freeMode};
+ const api={sideZones,rules,stats,metrics,chapters,bosses,missions,opponentBase,fresh,validate,action,starsFor,stars,statPoints,level,chapterOpen,canChallenge,chance,chanceVs,bossEdge,fightEdge,opponent,levelFromScore,fighterScore,compare,summary,recordMission,recordBoss,bossWon,freeMode,dreamSteps,storyEvents,legacyBeat,migrate,dreamDone,storyReady,recordStory};
  if(typeof module!=='undefined')module.exports=api;else window.AdventureProgress=api;
 })();

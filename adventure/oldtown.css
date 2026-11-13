@@ -107,3 +107,10 @@
 @media (max-width:520px){.sf-beat-title{font-size:18px}.sf-beat-line{font-size:14px}.sf-beat-top{padding:10px 12px 24px}}
 .sf-beat-top{padding-inline-end:60px} /* the modes button sits in the map's top corner (GOTR-0063) */
 @media (min-width:900px){.sf-primary{max-width:520px}}
+/* GOTR-0078: the quest panel leads with the picture (who is in the scene); stand-in activities are marked in small print */
+.sf-pic{display:flex;align-items:center;gap:10px;min-width:0}
+.sf-pic .adv-bust{flex:none;width:56px;height:56px;border-radius:50%;box-shadow:0 0 0 2px var(--gr-gold,#f4c152)}
+.sf-pic-name{font-size:13px;color:var(--gr-gold,#f4c152)}
+.sf-stand{font-size:11px;line-height:1.25;color:var(--gr-text-muted,#9aa7bb);font-style:italic}
+.sf-beat-stand{font-size:12px;font-weight:600;font-style:italic;color:#c9d3e2}
+.sf-beat-gate{color:#ffb4a2}

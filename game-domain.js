@@ -20,6 +20,13 @@
   {id:'school_signature',name:'School Signature',controllerId:'combo_super',sequence:['jab','cross','hook','roll','rear_uppercut','hook'],requirement:'Land 150 contacts in completed active activities',key:'hits',target:150}
  ].map(c=>({...c,price:{first_rhythm:0,corner_turn:20,counter_chain:40,thunder_arc:40,rolling_return:70,school_signature:120}[c.id],species:[...species],allowedModes:['training','fight'],slotCost:1}));
  const comboPurchase=id=>'purchase:combo:'+id;
+ // GOTR-0078 Chapter 1 "The Dream": gym equipment bought in the story (Otto's Corner) and the story's fixed cash rewards. The
+ // market reward (beat 6) is defined AS the heavy bag's price, so the reward always buys exactly the bag of beat 7.
+ const L3=(en,he,ru)=>({en,he,ru});
+ const gear=Object.freeze([Object.freeze({id:'heavy_bag',kind:'gym',price:90,step:'buy_heavy_bag',names:Object.freeze(L3('Heavy bag (Otto\'s Corner)','שק כבד (הפינה של אוטו)','Тяжёлый мешок (лавка Отто)'))})]);
+ const gearPurchase=id=>'purchase:gear:'+id,storyRewardId=step=>'story:'+step;
+ const storyRewards=Object.freeze({market_robber:gear.find(x=>x.id==='heavy_bag').price,docks_fight:120});
+ const ownsGear=(g,id)=>!!g?.ledger?.some(t=>t.id===gearPurchase(id));
  // Fight Academy: passing a combo lesson pays once and unlocks that combo. No XP, no combat stats.
  const lesson=Object.freeze({coins:15,repetitions:3,windowMs:2000,rule:'academy-lesson-v1'}),lessonId=id=>'lesson:'+id;
  // GOTR-0033 release switch. version.js channel 'dev' = development: every item and combo can be taken free (price still shown); 'live' or missing = prices charged and locks apply.
@@ -91,7 +98,9 @@
   if(xp!==p.boxers.lion.xp+p.boxers.rabbit.xp||!g.ledger.length||g.ledger[0].type!=='baseline')fail('XP ledger does not match career.');
   for(const event of g.processed)if(!seen.has('reward:'+event))fail('Missing reward transaction.');
   for(const t of g.ledger)if(t.comboId!==undefined||t.id.startsWith('purchase:combo:')){const c=combos.find(c=>c.id===t.comboId);if(!c||t.id!==comboPurchase(c.id)||!(t.type==='grant'||c.price&&t.type==='spend'&&t.coins===-c.price&&t.rule==='combo-shop-v1')||!g.combos.owned.includes(c.id))fail('Invalid combo purchase.');}
-  for(const t of g.ledger)if(t.rule===lesson.rule||t.lessonId!==undefined||t.id.startsWith('lesson:')){const c=combos.find(c=>c.id===t.lessonId);if(!c||!exactKeys(t,['id','type','coins','xp','rule','lessonId','evidence'])||t.id!==lessonId(c.id)||t.type!=='earn'||t.coins!==lesson.coins||t.xp!==0||t.rule!==lesson.rule||!g.combos.owned.includes(c.id))fail('Invalid lesson reward.');lessonEvidence(c,t.evidence);}
+  for(const t of g.ledger)if(t.id.startsWith('story:')||t.rule==='story-reward-v1'){const step=t.id.slice(6);if(!(step in storyRewards)||!exactKeys(t,['id','type','coins','xp','rule','storyStep'])||t.storyStep!==step||t.type!=='earn'||t.coins!==storyRewards[step]||t.xp!==0||t.rule!=='story-reward-v1')fail('Invalid story reward.');}
+ for(const t of g.ledger)if(t.id.startsWith('purchase:gear:')||t.rule==='gear-shop-v1'){const item=gear.find(x=>gearPurchase(x.id)===t.id);if(!item||t.gearId!==item.id||!(t.type==='grant'||t.type==='spend'&&t.coins===-item.price&&t.rule==='gear-shop-v1'))fail('Invalid gear purchase.');}
+ for(const t of g.ledger)if(t.rule===lesson.rule||t.lessonId!==undefined||t.id.startsWith('lesson:')){const c=combos.find(c=>c.id===t.lessonId);if(!c||!exactKeys(t,['id','type','coins','xp','rule','lessonId','evidence'])||t.id!==lessonId(c.id)||t.type!=='earn'||t.coins!==lesson.coins||t.xp!==0||t.rule!==lesson.rule||!g.combos.owned.includes(c.id))fail('Invalid lesson reward.');lessonEvidence(c,t.evidence);}
   for(const c of combos)if(g.combos.owned.includes(c.id)&&g.activity[c.key]<c.target&&!seen.has(comboPurchase(c.id))&&!seen.has(lessonId(c.id)))fail('Invalid combo unlock.');
   validateHistory(g);if(accessories){if(!g.accessories)g.accessories=accessories.fresh();accessories.validate(g.accessories,g.ledger);}
   if(worldRules){if(g.world===undefined)g.world=worldRules.fresh(p.id);worldRules.validate(g.world,g);}
@@ -107,6 +116,7 @@
   if(a.type==='iq'){if(!iqRules||!p||!species.includes(a.species))fail('Learning is unavailable.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');if(!g.learning)g.learning=iqRules.fresh();const result=iqRules.apply(g.learning,{...a,type:a.iqAction,usernameProfileId:p.id});if(result.transaction){g.ledger.push({...result.transaction,species:a.species});p.boxers[a.species].xp+=result.earnedXP;}return result;}
   if(a.type==='venue'){if(!venueIds.includes(a.venueId))fail('Unknown arena style.');g.venue=a.venueId;return {venueId:g.venue};}
   if(a.type==='accessory'){if(!accessories)fail('Accessories unavailable.');return accessories.action(g,{...a,free:freeMode()});}
+  if(a.type==='adventure'&&a.adventure==='story'){if(!adventureRules)fail('Adventure rules are unavailable.');return storyAction(g,a);}
   if(a.type==='adventure'){if(!adventureRules)fail('Adventure rules are unavailable.');return adventureRules.action(g,a,freeMode());}
   if(a.type==='world'){if(!worldRules)fail('World rules are unavailable.');return worldRules.action(g,a);}
   if(a.type==='buy'){const item=catalog.find(c=>c.id===a.itemId);if(!item||!item.price)fail('Choose a shop item.');if(g.inventory.includes(item.id))fail('Already owned.');const free=freeMode();if(!free&&wallet(g).coins<item.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');g.ledger.push(free?grant('purchase:'+item.id,{itemId:item.id}):{id:'purchase:'+item.id,type:'spend',coins:-item.price,xp:0,itemId:item.id,rule:'shop-v1'});g.inventory.push(item.id);return {itemId:item.id,transactionId:'purchase:'+item.id,free};}
@@ -121,6 +131,16 @@
   if(a.type==='school'){g.school={name:cleanName(a.name),crest:a.crest,philosophy:a.philosophy};return {school:g.school};}
   fail('Unknown game action.');
  }
+ // Story events (GOTR-0078). The street and Docks fights pay their fixed reward once; buy_heavy_bag charges the bag (a grant in the
+ // development build, like every Shop item) and is finished by the purchase. The order rule is checked before any coin moves.
+ function storyAction(g,a){
+  if(!g.adventure)g.adventure=adventureRules.fresh();adventureRules.migrate(g.adventure);adventureRules.storyReady(g,a.step);
+  const extra={};
+  if(a.step in storyRewards&&a.outcome==='won'){const id=storyRewardId(a.step);if(!g.ledger.some(t=>t.id===id)){if(g.ledger.length>=20015)fail('History is full. Export a backup.');g.ledger.push({id,type:'earn',coins:storyRewards[a.step],xp:0,rule:'story-reward-v1',storyStep:a.step});extra.coins=storyRewards[a.step];extra.transactionId=id;}else extra.coins=0;}
+  const item=gear.find(x=>x.step===a.step);
+  if(item&&!ownsGear(g,item.id)){const free=freeMode();if(!free&&wallet(g).coins<item.price)fail('Not enough coins.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');g.ledger.push(free?grant(gearPurchase(item.id),{gearId:item.id}):{id:gearPurchase(item.id),type:'spend',coins:-item.price,xp:0,gearId:item.id,rule:'gear-shop-v1'});extra.spent=free?0:item.price;extra.gearId=item.id;extra.free=free;}
+  return {...adventureRules.action(g,{adventure:'story',step:a.step,outcome:a.outcome}),...extra};
+ }
  function reward(g,event,xp,quality,profileId){
   const active=event.control!=='watch',coins=active?Math.max(1,Math.round(Math.min(event.mode==='fight'?100:60,event.seconds)*(.42+.16*quality)*(event.mode==='fight'?fightPay[event.result]||1:1))):0;
   const transactionId='reward:'+event.id;g.ledger.push({id:transactionId,type:'earn',coins,xp,species:event.species,activityId:event.id,rule:active?'activity-v1':'watch-v1'});g.processed.push(event.id);
@@ -132,5 +152,5 @@
   return {coins,unlocks,activityId:event.id,transactionId,record,...(cup&&!cup.ignored?{cup}:{})};
  }
  const lessonPassed=(g,id)=>!!g?.ledger.some(t=>t.id===lessonId(id));
- const api={freeMode,fightPay,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
+ const api={gear,storyRewards,gearPurchase,ownsGear,freeMode,fightPay,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
 })();
