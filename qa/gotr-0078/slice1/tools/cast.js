@@ -10,7 +10,7 @@ module.exports = async (p, shot, u) => {
     scene.background = new THREE.Color('#aeb9c6').convertSRGBToLinear();
     scene.add(new THREE.HemisphereLight(0xdfe9ff, 0x8a7460, .75)); const sun = new THREE.DirectionalLight(0xfff0dc, 1.7); sun.position.set(2.5, 4, 5); scene.add(sun); const rim = new THREE.DirectionalLight(0xbfd4ff, .5); rim.position.set(-3, 3, -4); scene.add(rim);
     const floor = new THREE.Mesh(new THREE.CircleGeometry(4, 48).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x8d949e, roughness: .95 })); scene.add(floor);
-    const rigs = who.map((id, i) => { const c = id === 'fighter' ? e.coach : StoryCast.rig(id, e); c.root.parent?.remove(c.root); scene.add(c.root); c.root.position.set((i - (who.length - 1) / 2) * 1.1, 0, 0); c.root.rotation.set(0, 0, 0); c.root.visible = true; if (id === 'fighter' && outfit) { StoryCast.outfit(c, outfit); if (bag) StoryCast.bag(c, 'shoulder'); } return c; });
+    const rigs = who.map((id, i) => { const c = id === 'fighter' ? e.coach : id === 'lion' || id === 'rabbit' ? (e.coach.species === id ? e.coach : e.roster.get(id)) : StoryCast.rig(id, e); StoryCast.groom(c); c.root.parent?.remove(c.root); scene.add(c.root); c.root.position.set((i - (who.length - 1) / 2) * 1.1, 0, 0); c.root.rotation.set(0, 0, 0); c.root.visible = true; if (id === 'fighter' && outfit) { StoryCast.outfit(c, outfit); if (bag) StoryCast.bag(c, 'shoulder'); } return c; });
     const built = Math.round(performance.now() - t0);
     const pv = window.__pv = { state: JSON.parse(decodeURIComponent(state)), scene, camera, rigs, yaw: 0, look: [0, 1.1, 0], dist: 6.2, t: 0, pose: window.__pose || null };
     e.fightIQDemo = { frame(dt) {

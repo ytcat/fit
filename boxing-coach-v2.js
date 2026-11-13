@@ -353,7 +353,7 @@
       const tip=this.ellipsoid(this.tail,new THREE.MeshStandardMaterial({color:0x44301d,roughness:1}),V(.23,-.54,-.29),V(.04,.075,.04));
       tip.rotation.z=-.6;
       if(this.species==='rabbit'){this.tail.clear();this.ellipsoid(this.tail,this.cream,V(0,-.11,-.18),V(.085,.085,.08));}
-      this.cast?.finish?.(this);
+      this.cast?.finish?.(this);if(!this.cast)window.StoryCast?.groom?.(this); // GOTR-0078: fur locks for the rabbit
       window.AvatarSurface?.addFur(this);
       const convertedMaterials=new Set();
       this.root.traverse(n=>{if(n.isMesh){
