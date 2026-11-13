@@ -416,8 +416,8 @@
     d = SM(d, E(x, y, z, 0, .086, .15, .17, .08, .085), .035);          // very short muzzle, almost as wide as the skull
     d = SM(d, E(x, y, z, .07, .2, .168, .065, .036, .05), .022);        // heavy brow: low at the inside (a permanent frown) ...
     d = SM(d, E(x, y, z, .155, .222, .12, .075, .042, .056), .028);     // ... higher at the outside
-    d = SM(d, E(x, y, z, .118, -.05, .175, .1, .135, .085), .012);      // flews: they hang well below the jaw
-    d = SM(d, E(x, y, z, 0, -.17, .05, .262, .096, .16), .055);         // dewlap: loose skin into a bull neck
+    d = SM(d, E(x, y, z, .088, -.055, .195, .118, .13, .088), .03);     // flews: two heavy soft masses either side of the nose, draping over the jaw
+    d = SM(d, E(x, y, z, 0, -.19, .05, .262, .11, .16), .055);          // dewlap: loose skin into a bull neck
     d = SM(d, E(x, y, z, .245, -.075, -.01, .07, .064, .1), .016);      // the jowl rolls back into the neck
     return d;
   };
@@ -434,8 +434,8 @@
       if (wf > 0) { const a = Math.atan2(x, y - .1); k += wf * .01 * fold(a * 3.4 + .3 * Math.sin(y * 28 + x * 9)); }
       const wl = smooth((.06 - y) / .04) * smooth((z - .1) / .06) * smooth((x - .035) / .03) * (1 - smooth((x - .24) / .04));
       if (wl > 0) k += wl * .007 * fold((x * .9 + y * .45) / .055);
-      const wd = smooth((-.1 - y) / .04) * smooth((z + .02) / .06);
-      if (wd > 0) k += wd * .011 * fold((y + 1.2 * x * x) / .05);
+      const wd = smooth((-.15 - y) / .04) * smooth((z + .02) / .06);
+      if (wd > 0) k += wd * .015 * fold((y + 1.4 * x * x) / .045); // dewlap folds running down into the chest
       return k;
     };
     const upper = (px, y, z) => {
@@ -446,9 +446,10 @@
       d -= skin(x, y, z);
       d = SS(d, E(x, y, z, 0, .25, .21, .014, .065, .06), .012);        // the furrow down the forehead
       d = SS(d, E(x, y, z, .145, .155, .215, .044, .037, .05), .012);   // deep eye sockets under the brow
+      d = SS(d, E(x, y, z, 0, -.15, .27, .036, .1, .07), .025);          // the flews part at the centre over the lower lip
       return d;
     };
-    const jaw = (px, y, z) => { const x = Math.abs(px); let d = E(x, y, z, 0, -.08, .125, .17, .056, .14); d = SM(d, E(x, y, z, 0, -.098, .252, .115, .036, .046), .03); return SM(d, E(x, y, z, 0, -.032, .265, .105, .018, .028), .011); }; // undershot: a broad square chin and the lower lip jut out past the nose
+    const jaw = (px, y, z) => { const x = Math.abs(px); let d = E(x, y, z, 0, -.085, .13, .16, .055, .14); return SM(d, E(x, y, z, 0, -.095, .23, .1, .042, .05), .045); }; // undershot: one smooth broad chin, its lip pushed out between the flews
     return (mugFields = { base: mugBase, upper, jaw, rope, all: (x, y, z) => Math.min(upper(x, y, z), jaw(x, y, z)) });
   }
   /** Skin weights for the face dynamics: x = jowls, flews, dewlap (swing), y = brow (frown / lift), z = cheeks (ripple on impact). */
@@ -468,10 +469,10 @@
     if (!mugGeo) {
       const fawn = lin('#c08850'), deep = lin('#946238'), white = lin('#f1e9dc'), patch = lin(BRICK.patch), mask = lin('#3b3433'), lip = lin('#2e2626'), pink = lin('#b8646a'), mouth = lin('#5a2128'), rimc = lin('#2a1d17');
       const coat = (px, y, z, nx, ny, nz, c) => {
-        const x = Math.abs(px), front = smooth((z - .09) / .05);
+        const x = Math.abs(px), front = smooth((z - .02) / .12);
         c.copy(fawn).multiplyScalar(1 - .07 * Math.sin(x * 70 + y * 46) * Math.sin(z * 58 + y * 30)).lerp(deep, .55 * smooth((-z - .02) / .14));
         const blaze = bell(x, 0, .02 + .035 * smooth((.25 - y) / .05)) * smooth((z - .02) / .06) * smooth((y - .17) / .02);
-        const face = Math.max((1 - smooth((x - .1) / .025)) * smooth((.215 - y) / .02), smooth((.085 - .6 * Math.max(0, x - .1) - y) / .06) * (1 - .4 * smooth((x - .22) / .05))) * front; // white inside the rope and everything below it
+        const face = Math.max((1 - smooth((x - .1) / .025)) * smooth((.215 - y) / .02), smooth((.085 - .6 * Math.max(0, x - .1) - y) / .07) * (1 - .4 * smooth((x - .22) / .06))) * front; // white inside the rope and everything below it
         const throat = smooth((-.1 - y) / .06) * bell(x, 0, .2) * smooth((z + .04) / .08), rope = smooth((.012 - F.rope(x, y, z)) / .012);
         c.lerp(white, clamp(Math.max(blaze, face, throat, rope)));
         const eyeZone = 1 - smooth((Math.hypot(x - .145, (y - .158) * 1.1) - .045) / .02); // fawn round the eyes, a dark rim right at the lids
@@ -479,11 +480,11 @@
         c.lerp(patch, clamp((1 - .85 * face) * Math.max(smooth((.105 - Math.hypot(px - .15, (y - .18) * .85, (z - .13) * .45)) / .03), smooth((px - .15) / .04) * smooth((y - .22) / .04) * smooth((.07 - z) / .08)))); // dark patch round one eye, up to the ear
         c.lerp(patch, clamp(.85 * smooth((.11 - Math.hypot(px + .09, (y - .2) * .9, (z + .17) * .6)) / .03))); // saddle mark on the back of the skull
         c.lerp(mask, clamp(.95 * smooth((1 - Math.hypot(x / .1, (y - .125) / .065)) / .45) * front * (1 - rope))); // dark round the nose
-        c.lerp(lip, clamp(Math.max(smooth((-.155 - y) / .025) * bell(x, .12, .08), bell(x, 0, .028) * band(y, -.01, .07, .02)) * front)); // dark lip edges on the flews and the cleft
-        for (const [sx, sy] of [[.06, .03], [.09, .012], [.1, .04]]) c.lerp(mask, .6 * smooth((.007 - Math.hypot(x - sx, y - sy)) / .003) * front); // whisker spots
+        c.lerp(mask, clamp(.75 * smooth((1 - Math.hypot(x / .07, (y + .06) / .12)) / .6) * front)); // dark mask down the middle of the mouth
+        c.lerp(lip, clamp(Math.max(smooth((-.15 - y) / .04) * bell(x, .09, .1), .8 * smooth((1 - Math.hypot(x / .045, (y + .1) / .08)) / .5)) * front)); // dark lip line along the flews and round the parting
       };
       const up = flexWeights(tint(surface(F.upper, [-.37, -.29, -.36], [.37, .37, .34], .0125), F.all, coat, .024, .38));
-      const jw = flexWeights(tint(surface(F.jaw, [-.18, -.16, -.03], [.18, .0, .32], .011), F.all, (px, y, z, nx, ny, nz, c) => { const x = Math.abs(px); c.copy(white).lerp(lip, clamp(.85 * smooth((y + .016) / .006) * smooth((z - .24) / .02))).lerp(pink, smooth((ny - .55) / .2) * (1 - smooth((z - .22) / .03))).lerp(mouth, .6 * smooth((ny - .7) / .2) * (1 - smooth((z - .2) / .05))).lerp(mask, .45 * smooth((-.12 - y) / .03) * smooth((z - .15) / .05) * bell(x, 0, .12)); }, .018, .72), true);
+      const jw = flexWeights(tint(surface(F.jaw, [-.18, -.16, -.03], [.18, .0, .32], .011), F.all, (px, y, z, nx, ny, nz, c) => { const x = Math.abs(px); c.copy(white).lerp(mask, clamp(.6 * bell(x, 0, .07) * smooth((z - .2) / .05))).lerp(lip, clamp(.9 * smooth((y + .05) / .012) * smooth((z - .2) / .03))).lerp(pink, smooth((ny - .55) / .2) * (1 - smooth((z - .22) / .03))).lerp(mouth, .6 * smooth((ny - .7) / .2) * (1 - smooth((z - .2) / .05))).lerp(mask, .45 * smooth((-.12 - y) / .03) * smooth((z - .15) / .05) * bell(x, 0, .12)); }, .018, .72), true);
       for (const k of [up, jw]) crease(k, F.all, .007, 75, .55);
       mugGeo = { up, jw };
     }
@@ -497,7 +498,7 @@
     const hinge = new THREE.Group(); hinge.position.set(0, .004, .0); mug.add(hinge);
     const jaw = new THREE.Mesh(mugGeo.jw, mat); jaw.position.set(0, .01, 0); jaw.name = 'Brick: jaw'; jaw.castShadow = true; hinge.add(jaw);
     const T = new Parts(), J = p => p.clone().add(V(0, .01, 0));
-    for (const sd of [-1, 1]) { T.sph(J(V(sd * .086, -.006, .27)), V(.014, .036, .014), sd > 0 ? '#e0a83a' : '#fbf7ee', [-.3, 0, sd * .12]); T.sph(J(V(sd * .022, -.022, .292)), V(.01, .012, .007), '#f3ecde'); } // two lower canines (one gold) and the front teeth
+    for (const sd of [-1, 1]) T.sph(J(V(sd * .042, -.05, .262)), V(.011, .026, .011), sd > 0 ? '#e6d9b8' : '#f1e9d6', [-.25, 0, sd * .1]); // two lower canines set in the jaw, partly under the flews
     T.sph(J(V(0, -.036, .17)), V(.07, .013, .085), '#c06a70'); hinge.add(T.mesh('Brick: teeth, tongue'));
     const P = new Parts();
     P.sph(V(0, -.004, .1), V(.12, .024, .09), '#2a1214'); // the dark of the mouth behind the lips
