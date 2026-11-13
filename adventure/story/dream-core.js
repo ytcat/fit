@@ -75,8 +75,8 @@
         { t: 4.6, pos: [8.4, 2.6, 9.8], look: [1.2, 1.5, 2.6] },
         { t: 7.2, pos: [7.6, 1.55, 9.2], look: [2.2, 1.35, 3.0], ease: 'smooth' },            // the bus has stopped, doors open
         { t: 9.6, pos: [7.0, 1.5, 8.4], look: [2.6, 1.3, 4.0], ease: 'smooth' },
-        { t: 9.6, cut: true, pos: [5.5, .95, 6.5], look: [2.85, 1.72, 4.45] },       // low on his face: he looks up at the city
-        { t: 12.4, pos: [5.2, 1.0, 6.2], look: [2.85, 1.76, 4.45], fov: 33, ease: 'linear' },
+        { t: 9.6, cut: true, pos: [5.9, 1.2, 6.9], look: [2.85, 1.68, 4.45] },       // low on his face: he looks up at the city
+        { t: 12.4, pos: [5.6, 1.2, 6.6], look: [2.85, 1.72, 4.45], fov: 33, ease: 'linear' },
         { t: 12.4, cut: true, pos: [.3, 2.05, 5.5], look: [24, 6.5, -7] },                   // over his shoulder: the street, the towers
         { t: 15.6, pos: [1.0, 2.3, 5.3], look: [26, 8, -8], ease: 'linear' },
         { t: 15.6, cut: true, pos: [6.6, 1.25, .8], look: [3.9, 1.15, 5.4] },                 // walk 1: from the road, he passes
@@ -198,7 +198,7 @@
     return {
       set: 'dream_gym', duration: 24, chapter: 1, tap: true, outcome: win ? 'win' : 'loss', outfit: { fighter: 'kit' },
       camera: [
-        { t: 0, pos: [-.3, 1.2, 4.6], look: [.2, 1.15, .7] },
+        { t: 0, pos: [-1.0, 1.25, 4.3], look: [-.55, 1.2, .8] },
         { t: 4, pos: [0, 1.5, 4.5], look: [0, 1.3, .8], ease: 'smooth' },
         { t: 4, cut: true, pos: [-1.8, 1.7, 2.2], look: [.9, 1.66, .7], fov: 30 },
         { t: 8, pos: [-1.75, 1.7, 2.2], look: [.9, 1.66, .7], fov: 29, ease: 'linear' },

@@ -383,6 +383,7 @@
   }
 
   /* ---------------------------------------------------------------- outfits (the Fighter and anyone else on the rig) */
+  const HOODIE = { lion: ['#8f959c', '#787e86'], rabbit: ['#a55a3c', '#8a4630'] }; // grey marl on the lion, faded rust on the grey rabbit
   const FUR = { lion: { fur: '#b98143', pad: '#4a3324' }, rabbit: { fur: '#939ba7', pad: '#c79a9a' } };
   const OUTFITS = {
     kit: null,
@@ -390,7 +391,7 @@
     street: {
       hide: ['gloves', 'shorts', 'boots', 'trim', 'fur'],
       cloth(rig) {
-        const hood = lin('#8f959c'), dark = lin('#787e86'), denim = lin('#3d5b86'), worn = lin('#7f9cc4'), seam = lin('#c9a36a'), tmp = new THREE.Color();
+        const tone = HOODIE[rig.species] || HOODIE.lion, hood = lin(tone[0]), dark = lin(tone[1]), denim = lin('#3d5b86'), worn = lin('#7f9cc4'), seam = lin('#c9a36a'), tmp = new THREE.Color();
         return v => {
           const ax = Math.abs(v.x);
           if (v.y > 1.772 || ax > .925 || v.y < .112) return null;
@@ -399,7 +400,7 @@
             const fade = Math.max(.75 * bell(v.y, .82, .13) * smooth(v.z / .05), bell(v.y, .56, .07) * smooth(v.z / .04)) * bell(ax, cx, .09);
             const hem = 1 - smooth((v.y - .135) / .02), fold = .0035 * Math.sin(v.y * 95 + ang * 2) * bell(v.y, .3, .16);
             const c = tmp.copy(denim).lerp(worn, clamp(fade)).lerp(seam, clamp(seamLine * .8)).lerp(worn, hem * .6).clone().multiplyScalar(1 - .06 * Math.sin(v.y * 700 + ax * 300));
-            return { d: .013 + .009 * hem + fold * .5 + .004 * bell(v.y, .9, .12), c, move: v.y < .9 ? trouser(v, lerp(.098, .128, smooth((v.y - .45) / .42)), smooth((.9 - v.y) / .1)) : null };
+            return { d: .013 + .009 * hem + fold * .15 + .004 * bell(v.y, .9, .12), c, move: v.y < .9 ? trouser(v, lerp(.098, .128, smooth((v.y - .45) / .42)), smooth((.9 - v.y) / .1)) : null };
           }
           // hoodie: ribbed hem and cuffs, a kangaroo pocket, loose over the waist
           const hem = 1 - smooth((v.y - 1.085) / .02), cuff = smooth((ax - .875) / .02), front = smooth((v.z - .02) / .06) * (1 - v.arm);
@@ -407,7 +408,7 @@
           const waist = bell(v.y, 1.2, .14) * (1 - v.arm), wr = v.arm > .5 ? .004 * Math.sin(ax * 62) * bell(ax, .66, .11) : 0; // a few soft folds at the elbow only
           const rib = (hem > .2 || cuff > .2) ? .5 + .5 * Math.sin((cuff > .2 ? Math.atan2(v.z, v.y - 1.62) * 26 : Math.atan2(v.z, v.x) * 44)) : 0;
           const c = tmp.copy(hood).lerp(dark, clamp(Math.max(hem, cuff) * (.45 + .4 * rib) + pocketEdge * .9)).clone().multiplyScalar(1 - .07 * Math.sin(v.y * 900 + v.x * 610) * Math.sin(v.z * 770));
-          const move = v.arm > .6 ? sleeve(v, lerp(.098, .064, smooth((ax - .42) / .46)), smooth((v.arm - .6) / .3)) : v.arm < .25 && v.y < 1.69 ? tube(v, .292, lerp(.2, .232, smooth((v.y - 1.2) / .3)), .205, (1 - v.arm * 4) * smooth((1.69 - v.y) / .1)) : null;
+          const move = v.arm > .6 ? sleeve(v, lerp(.098, .064, smooth((ax - .42) / .46)), smooth((v.arm - .6) / .3)) : v.arm < .25 && v.y < 1.69 ? tube(v, .292, lerp(.2, .246, smooth((v.y - 1.2) / .3)), .205, (1 - v.arm * 4) * smooth((1.69 - v.y) / .1)) : null;
           return { d: .022 + .006 * waist + .005 * pocket + wr - .006 * Math.max(hem, cuff) * (1 - rib * .5) - .006 * smooth((v.y - 1.71) / .06), c, move };
         };
       },
@@ -416,8 +417,8 @@
         for (const m of bareHands(rig, f.fur, f.pad)) add(m);
         for (const m of shoes(rig, { upper: '#d6cfbf', toe: '#bdb5a3', sole: '#a79e8c', edge: '#8c3b33', lace: '#efeadf', collar: '#b9b1a0' })) add(m);
         // the hood lies on the upper back; a collar ring and two drawstrings in front
-        const P = new Parts(), hood = '#8f959c', dark = '#787e86', bz = B(0, 1.66, true), o = V(0, 1.36, 0), L = p => p.clone().sub(o);
-        P.sph(L(V(0, 1.685, bz - .035)), V(.185, .125, .075), hood, [.35, 0, 0]); P.sph(L(V(0, 1.70, bz - .062)), V(.13, .085, .04), dark, [.35, 0, 0]);
+        const P = new Parts(), [hood, dark] = HOODIE[rig.species] || HOODIE.lion, bz = B(0, 1.66, true), o = V(0, 1.36, 0), L = p => p.clone().sub(o);
+        P.sph(L(V(0, 1.66, bz - .016)), V(.19, .15, .055), hood, [.22, 0, 0]); P.sph(L(V(0, 1.685, bz - .05)), V(.12, .08, .028), dark, [.22, 0, 0]);
         P.tor(L(V(0, 1.775, -.012)), V(.118, .135, .11), hood, [Math.PI / 2 - .22, 0, 0]);
         for (const s of [-1, 1]) { const z = B(s * .045, 1.62); P.ribbon([L(V(s * .05, 1.74, z + .02)), L(V(s * .045, 1.66, z + .012)), L(V(s * .05, 1.575, B(s * .05, 1.575) + .008))], .008, .008, '#e9e4d8', V(1, 0, 0), 10, 6); P.sph(L(V(s * .05, 1.568, B(s * .05, 1.575) + .008)), V(.008, .012, .008), '#e9e4d8'); }
         const m = P.mesh('Hood, collar, drawstrings'); j.chest.add(m); add(m);

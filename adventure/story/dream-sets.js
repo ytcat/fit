@@ -67,7 +67,7 @@
       c.shade(-4.7, 6.2, .9, .8); box(S, -4.7, 0, 6.3, .62, 1.55, .42, '#2f6fc0'); box(S, -4.7, 1.0, 6.08, .44, .3, .02, '#12151b'); box(S, -4.7, .72, 6.08, .3, .12, .02, '#f4c152'); box(S, -4.7, 1.55, 6.3, .7, .08, .5, '#254f86'); // ticket machine
       bin(-6.0, 6.5); planter(7.6, 8.9, 1.6); planter(-9.4, 8.9, 1.6); planter(13, 8.9);
       // street furniture along the walk
-      for (const x of [-22, -9, 8.5, 18.6, 31.5, 44]) lamp(x, 4.15); for (const x of [-15, 2, 16, 33.6, 46]) lamp(x, -4.15);
+      for (const x of [-22, -9, 8.5, 13.4, 31.5, 44]) lamp(x, 4.15); for (const x of [-15, 2, 16, 33.6, 46]) lamp(x, -4.15);
       tree(-14, 5.6); tree(11.6, 5.4, 4.4); tree(28, 5.6, 4.2); tree(40, 5.5); tree(-26, 5.6, 4.3); tree(-6.4, -5.4); tree(6.6, -5.3, 4.3); tree(17.4, -5.4, 4.5); tree(34.6, -5.4, 4.2); tree(44, -5.4);
       bin(14.6, 8.6); bin(31.3, -7.3); planter(21.4, -7.6, 1.5); planter(32.9, -7.6); planter(-2.4, -7.6, 1.5); planter(16.8, 8.9);
       for (const x of [19.7, 24.7]) { bollard(x, 4.0); bollard(x, -4.0); }
@@ -161,7 +161,7 @@
       cyl(S, -1.3, 0, -1.0, .2, .5, '#8f2f22', P.cyl12); cyl(S, -1.3, .5, -1.0, .23, .05, '#1d1f24', P.cyl12); cyl(S, -.75, 0, -1.3, .17, .32, '#aab2bc', P.cyl12, 0, 0, .2); box(S, -.75, .3, -1.3, .3, .03, .22, '#f1ece0');
       cyl(S, 3.4, 0, ZB + .35, .02, 1.6, '#c9a36a', P.cyl6, .18); box(S, 3.4, 0, ZB + .62, .34, .08, .14, '#d8d2c4');
       // hanging lamps: enamel shades, bright bulbs, warm pools on the floor
-      for (const [x, z] of [[-4.6, -3.3], [0, 1.2], [5.6, -2.6], [-6, 4.5], [6, 5.5], [0, 7]]) { cyl(S, x, 3.6, z, .012, H - 3.6, '#2a2f38', P.cyl6); S.add(P.cone8, M(x, 3.42, z, .46, .26, .46), C('#2f5d4a')); G.add(P.sph, M(x, 3.44, z, .1, .1, .1), C('#fff3cf')); pool(x, z, 2.6, '#ffe2a8'); }
+      pool(0, 1.0, 2.8, '#ffe2a8'); for (const [x, z] of [[-4.6, -3.3], [-2.4, 3.4], [2.6, 3.6], [5.6, -2.6], [-6, 5.5], [6, 5.5]]) { cyl(S, x, 3.6, z, .012, H - 3.6, '#2a2f38', P.cyl6); S.add(P.cone8, M(x, 3.42, z, .46, .26, .46), C('#2f5d4a')); G.add(P.sph, M(x, 3.44, z, .1, .1, .1), C('#fff3cf')); pool(x, z, 2.6, '#ffe2a8'); }
       return { x: 0, z: 0, r: 13 };
     });
   }
