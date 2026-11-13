@@ -45,7 +45,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     const run = { id, closed: false, t: 0, clock: 0, ack: -1, waiting: false, shot: 0, lineIndex: -1, phase: 'load', mapT: 0 };
     current = run;
     let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false;
-    const look = V();
+    const look = V(), turn = new Map();
     const finish = (result = {}) => {
       if (run.closed) return; run.closed = true; if (current === run) current = null;
       try { cleanup(); } catch (x) { console.warn('dream', x); }
@@ -158,14 +158,16 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       // actors
       for (const [k, a] of Object.entries(s.actors)) {
         const c = rigs[k]; if (!c) continue; c.root.visible = a.act !== 'off'; if (!c.root.visible) continue;
-        c.root.position.set(a.x, a.y || 0, a.z); c.root.rotation.set(0, a.ry, 0); c.root.updateMatrixWorld(true);
+        // turn in place: the body comes round over a few steps of time instead of snapping to the new direction
+        let ry = a.ry; const prev = turn.get(c); if (prev != null && dt > 0) { let d = a.ry - prev; d = Math.atan2(Math.sin(d), Math.cos(d)); ry = prev + d * (1 - Math.exp(-dt * (a.walking ? 9 : 5))); } turn.set(c, ry);
+        c.root.position.set(a.x, a.y || 0, a.z); c.root.rotation.set(0, ry, 0); c.root.updateMatrixWorld(true);
         if (a.act === 'box' || a.act === 'guard') {
           let u = (run.clock % BOX_T), move = 'guard', ph = 0; if (a.act === 'box') for (const [m, dur] of BOX) { if (u < dur) { move = m; ph = u / dur; break; } u -= dur; }
           if (move === 'guard') c.update(run.clock, 'guard', 'one_two', { simulationTime: run.clock, keepFaceClear: true, guardCover: 1 }); else c.update(ph * 1.22, move, 'one_two', { simulationTime: run.clock, keepFaceClear: true, guardCover: 1, power: 1.15, recoil: 0, advance: 0, contactDrive: 0 });
           Pose().reset(c);
         } else {
           const tired = a.act === 'tired';
-          Pose().civil(c, { t: run.clock, dt, dist: a.dist, walk: a.walking ? 1 : 0, arms: a.arms || {}, look: lookFor(a, k, s), lean: (a.lean || 0) + (tired ? .03 * Math.sin(run.clock * 3.4) : 0), drop: a.drop || 0, talk: talking === k ? 1 : 0, nod: 0 });
+          Pose().civil(c, { t: run.clock, dt, dist: a.dist, walk: a.walking ? 1 : 0, arms: a.arms || {}, look: lookFor(a, k, s), lean: (a.lean || 0) + (tired ? .03 * Math.sin(run.clock * 3.4) : 0), drop: a.drop || 0, talk: talking === k ? 1 : 0, listen: talking && talking !== k ? 1 : 0, nod: 0 });
         }
       }
       // props, bag
@@ -181,7 +183,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (s.done && !ended) { ended = true; setTimeout(() => finish({ skipped: !!run.skipping }), 250); }
     }
     Object.defineProperty(run, 'rigs', { get: () => rigs }); Object.defineProperty(run, 'set', { get: () => set });
-    run.seek = t => { run.t = clamp(t, 0, scene0.duration); run.ack = scene0.lines.reduce((n, q, i) => q.t + C.SETTLE < run.t ? i : n, -1); if (run.phase === 'map') { run.phase = 'play'; fade.style.opacity = '0'; try { map?.dispose(); } catch { /* ignore */ } map = null; } for (const c of Object.values(rigs)) Pose().reset(c); };
+    run.seek = t => { turn.clear(); run.t = clamp(t, 0, scene0.duration); run.ack = scene0.lines.reduce((n, q, i) => q.t + C.SETTLE < run.t ? i : n, -1); if (run.phase === 'map') { run.phase = 'play'; fade.style.opacity = '0'; try { map?.dispose(); } catch { /* ignore */ } map = null; } for (const c of Object.values(rigs)) Pose().reset(c); };
     return true;
   }
 

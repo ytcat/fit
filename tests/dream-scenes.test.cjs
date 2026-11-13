@@ -119,3 +119,17 @@ console.log('dream scenes ok');
   for (const f of fs.readdirSync('adventure/story').filter(f => f.endsWith('.js'))) new vm.Script(fs.readFileSync('adventure/story/' + f, 'utf8'), { filename: f }); // every story script parses
   console.log('clothes rule ok:', everything.length, 'scenes and trials');
 }
+
+// ---- motion outside a fight: no guard leaking into walks, trial intros or idles; the arms swing against the legs
+{
+  const src = fs.readFileSync('adventure/story/story-scenes.js', 'utf8');
+  assert.ok(/if \(everyday\(c, a, t, o\)\) return/.test(src), 'every non-fight act goes through the everyday pose first');
+  assert.ok(/act: hot \? 'guard' : 'idle'/.test(src) && !/pose\(f, \{ act: 'guard', walking/.test(src), 'trials: the guard comes up only in the fight moment; the chase is a walk');
+  const c = new LionCoach(data, { species: 'lion' }); StoryCast.outfit(c, 'street');
+  let opposite = 0, n = 0, maxHand = 0;
+  for (let i = 0; i < 116; i++) { const dist = i * .01, m = DreamPose.civil(c, { t: i * .008, dist, walk: 1 }), footL = c.point(c.joints.footL).z, handL = m.hands[0][2] - .055; maxHand = Math.max(maxHand, m.hands[0][1], m.hands[1][1]); if (Math.abs(footL) > .12) { n++; if (Math.sign(footL) !== Math.sign(handL)) opposite++; } }
+  assert.ok(opposite / n > .85, 'the arm swings against its leg: ' + opposite + '/' + n); assert.ok(maxHand < 1.15, 'hands stay low while walking: ' + maxHand.toFixed(2));
+  DreamPose.reset(c); const a = DreamPose.civil(c, { t: 1, dist: 0 }), b = DreamPose.civil(c, { t: 5, dist: 0 }); assert.ok(a.hands.every(h => h[1] < 1.1) && b.hands.every(h => h[1] < 1.1), 'idle: arms down');
+  const y1 = c.joints.head.rotation.y; DreamPose.civil(c, { t: 9, dist: 0 }); assert.notEqual(c.joints.head.rotation.y, y1, 'idle: the head glances around');
+  console.log('motion ok');
+}
