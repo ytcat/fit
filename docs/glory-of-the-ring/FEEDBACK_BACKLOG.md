@@ -829,6 +829,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** OPEN — P1
 - **Request:** "Please fight in a gym and not in a ring, without audience and without the ropes; the judge is the coach."
 - **Acceptance:** beat 2 takes place on the gym floor (mat area of Bruno's Gym), no ring, ropes, posts or crowd; Bruno counts and stops the fight in place of the referee; fighters stay inside the mat by an invisible boundary.
+- **Fix (2026-11-13, branch `agent/gotr-0083`, not released):** `adventure/story/gym-fight.js` + `place: 'gym'` on `first_brick`: the bout runs on a 3.9 m sparring mat in Bruno's Gym (`dream_gym_floor`), ring, ropes, posts, crowd and the club arena's stands hidden; Bruno replaces the rhino (walks in beside the fallen fighter on the far side from the camera and counts, raises the winner's arm); the story waits for the raised arm and Brick stays until the after-fight scene takes over; the fighters keep the fight's own boundary (the mat is the ring canvas size). Uses the released Brick head (v3 head not included). Test in `tests/dream-scenes.test.cjs`; pictures `qa/gotr-0083/gym-fight-sheet.webp` (guard, Brick's punch, knockdown count, result) from the game flow at 402×690 (headless; the result picture holds the after-fight scene for the capture only). Not measured on a phone.
 
 ### GOTR-0084 — Gym conversation reads unnatural; rewrite the opening dialogue
 - **Reported:** 2026-11-13 (v1.54: "I want to train. Training costs money. I don't have money, I have only a bag… This is not how people talk")

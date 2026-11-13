@@ -30,7 +30,8 @@ module.exports = async (p, shot, u) => {
   await p.evaluate(() => { const S = window.StoryScenes, play = S.play; window.__held = []; S.play = (...a) => { window.__held.push(() => { S.play = play; play.apply(S, a); }); return true; }; });
   if (process.env.TRACE) await p.evaluate(() => { const t0 = performance.now(); window.__trace = []; setInterval(() => { const v = app.engine.arena.fightView, m = v?.match; window.__trace.push([Math.round(performance.now() - t0), m?.phase, +(m?.phaseTime || 0).toFixed(2), window.StoryScenes?.playing || '', app.engine.targetMode]); }, 250); });
   await p.waitForFunction(() => { const m = app.engine.arena.fightView?.match; if (m?.phase === 'ceremony') { app.engine.speed = 22; return true; } }, null, { timeout: 280000, polling: 50 }).catch(() => console.log('no ceremony'));
-  await p.waitForFunction(() => { const m = app.engine.arena.fightView?.match; if (!m || m.phaseTime > 1.9) { app.engine.speed = 0; return true; } }, null, { timeout: 60000, polling: 30 }).catch(() => {});
+  await p.waitForFunction(() => { const m = app.engine.arena.fightView?.match; if (!m || m.phaseTime > 2.2) { app.engine.speed = 0; return true; } }, null, { timeout: 280000, polling: 30 }).catch(() => console.log('arm not up in time')); await frames(2);
+  console.log('ceremony time', await p.evaluate(() => app.engine.arena.fightView?.match.phaseTime));
   console.log('result', JSON.stringify(await info())); await shot(`${tag}-4-result-${u.w}`);
   console.log('story goes on', await p.evaluate(() => { const h = window.__held || []; window.__held = null; for (const f of h) f(); return h.length; }));
   if (process.env.TRACE) console.log('trace', JSON.stringify(await p.evaluate(() => window.__trace)));
