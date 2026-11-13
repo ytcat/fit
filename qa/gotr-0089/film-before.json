@@ -1,0 +1,163 @@
+{
+ "name": "film-before",
+ "viewport": [
+  402,
+  690
+ ],
+ "blocked": false,
+ "city": null,
+ "glbRequests": [],
+ "frames": [
+  {
+   "label": "dive",
+   "phase": "play",
+   "calls": 8,
+   "triangles": 19406,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 0,
+   "t": 0.2,
+   "city": false,
+   "fighter": null,
+   "bus": -61.49
+  },
+  {
+   "label": "sky",
+   "phase": "play",
+   "calls": 8,
+   "triangles": 19406,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 0,
+   "t": 3.1,
+   "city": false,
+   "fighter": null,
+   "bus": -25.96
+  },
+  {
+   "label": "arrives",
+   "phase": "play",
+   "calls": 12,
+   "triangles": 20774,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 0,
+   "t": 6,
+   "city": false,
+   "fighter": null,
+   "bus": -1.94
+  },
+  {
+   "label": "step-off",
+   "phase": "play",
+   "calls": 72,
+   "triangles": 362836,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 0,
+   "t": 9.1,
+   "city": false,
+   "fighter": [
+    2.75,
+    0,
+    3.993
+   ],
+   "bus": -1
+  },
+  {
+   "label": "face",
+   "phase": "play",
+   "calls": 67,
+   "triangles": 351676,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 1,
+   "t": 11.5,
+   "city": false,
+   "fighter": [
+    2.75,
+    0,
+    4.5
+   ],
+   "bus": 1.5
+  },
+  {
+   "label": "street",
+   "phase": "play",
+   "calls": 62,
+   "triangles": 337328,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 2,
+   "t": 14.5,
+   "city": false,
+   "fighter": [
+    2.75,
+    0,
+    4.5
+   ],
+   "bus": 45.87
+  },
+  {
+   "label": "walk",
+   "phase": "play",
+   "calls": 68,
+   "triangles": 361468,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 3,
+   "t": 18.05,
+   "city": false,
+   "fighter": [
+    6.29,
+    0,
+    6.293
+   ],
+   "bus": 70
+  },
+  {
+   "label": "ahead",
+   "phase": "play",
+   "calls": 68,
+   "triangles": 361468,
+   "set": {
+    "meshes": 12,
+    "triangles": 20774
+   },
+   "shot": 4,
+   "t": 21.5,
+   "city": false,
+   "fighter": [
+    18.275,
+    0,
+    7.1
+   ],
+   "bus": 70
+  }
+ ],
+ "afterStop": {
+  "playing": null,
+  "geometries": 168,
+  "textures": 18
+ },
+ "log": [
+  "warning [.WebGL-0x2fc4015dee00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x2fc4015dee00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x2fc4015dee00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x2fc4015dee00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}
