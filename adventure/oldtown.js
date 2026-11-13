@@ -60,7 +60,7 @@
     // a loss advances too), buy (Otto's counter). Trainings reuse existing stations as clearly marked stand-ins (step.stand).
     dream_arrival: { kind: 'film', scene: 'dream_opening' },
     dream_gym_talk: { kind: 'film', scene: 'dream_gym_talk' },
-    first_brick: { kind: 'story_fight', brick: true, any: true, after: 'dream_after_brick', rounds: 1, roundSeconds: 60, restSeconds: 0, opponent: L('Brick', 'בריק', 'Брик'),
+    first_brick: { kind: 'story_fight', place: 'gym', brick: true, any: true, after: 'dream_after_brick', rounds: 1, roundSeconds: 60, restSeconds: 0, opponent: L('Brick', 'בריק', 'Брик'),
       // Much stronger than the Fighter on day one (a regular partner is 0.85-1.15 power/tempo): a loss is expected, a win possible.
       foe: { power: 1.4, tempo: 1.18, skill: .1 } },
     clean_gym: { kind: 'training', mode: 'heavy', duration: 30, steps: true },
@@ -117,7 +117,7 @@
     root.append(txt, bar, quit); (window.app?.engine?.stage||document.body).append(root); r.ui = { root, txt, fillBar };
   }
   function paintStrip() {
-    const r = run; if (!r?.ui) return;
+    const r = run; if (!r?.ui?.fillBar) return; // story fights and boss strips have no goal bar (they paint their own text)
     const lower = A().metrics[r.mission.metric]?.lower, stars = lower && !r.ended ? 0 : A().starsFor(r.id, r.value), key = r.id + '|' + r.value + '|' + lang();
     if (r.paintKey === key) return; r.paintKey = key;
     const shown = A().metrics[r.mission.metric].lower ? r.value : Math.min(r.value, r.target);
@@ -143,7 +143,7 @@
     const now = performance.now(); if (!force && now - placedAt < 300) return; placedAt = now;
     const hb = host.getBoundingClientRect(), avoid = [], hd = headBox(host); if (hd) avoid.push(hd);
     // the stage's own buttons and top-band chips, and the edge tools (modes button, Auto / timer / settings) that live in #gameModes
-    for (const el of [...host.querySelectorAll('button, .career-drill-cue, .gr-power-gauge, .bout-announcement, #fightHud'), ...document.querySelectorAll('#gameModes .gm-fab, #gameModes .gm-tool')]) {
+    for (const el of [...host.querySelectorAll('button, .career-drill-cue, .gr-power-gauge, .bout-announcement, #fightHud, #fightHealth'), ...document.querySelectorAll('#gameModes .gm-fab, #gameModes .gm-tool')]) {
       if (g.contains(el) || el.hidden || !el.getClientRects().length || getComputedStyle(el).visibility === 'hidden') continue;
       const r = el.getBoundingClientRect(); if (r.width && r.height && r.top < hb.top + hb.height * .55) avoid.push(r);
     }
@@ -188,7 +188,7 @@
   function fightDone(view) {
     const r = run; if (r.fightDone) return; r.fightDone = true;
     if (r.def.kind === 'boss') { setTimeout(() => bossDone(view), 1500); return; }
-    if (r.def.kind === 'story_fight') { setTimeout(() => storyFightDone(view), 1500); return; }
+    if (r.def.kind === 'story_fight') { const t0 = performance.now(), wait = () => { const m = view.match; if (!m || m.phase !== 'ceremony' || m.phaseTime >= 3.2 || performance.now() - t0 > 7000) storyFightDone(view); else setTimeout(wait, 150); }; setTimeout(wait, 1500); return; } // the referee raises the winner's arm before the story goes on (GOTR-0083)
     const entry = view.careerEntry, m = view.match, totals = m.result.totals || m.totals, sp = entry.species, me = totals[sp], opp = totals[sp === 'lion' ? 'rabbit' : 'lion'], won = m.result.winner === sp, d = r.def;
     if (d.chain) { // Crowd circle: the next challenger steps in after every win; the first loss ends the run
       if (won) r.value = (r.wins = (r.wins || 0) + 1);
@@ -535,7 +535,7 @@
     cleanup(); closeBeat(); run = { id, def: d, ctx, ended: false, mission: { titles: s.title, metric: 'wins' }, value: 0, target: 1 };
     hook(); ctx.change({ type: 'venue', venueId: d.venue || CH[1].venue });
     if (d.brick) castBrick(run);
-    try { ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds }); } catch (x) { console.warn('adventure', x); }
+    try { ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds, ...(d.place ? { place: d.place } : {}) }); } catch (x) { console.warn('adventure', x); } // place 'gym': on the gym floor, Bruno referees (GOTR-0083)
     const view = e.arena?.fightView; if (!view) { restoreCast(run); run = null; toast(W().noStart, 'bad'); return; }
     run.view = view; const entry = view.careerEntry, foe = view.match.fighters[entry?.species === 'lion' ? 'rabbit' : 'lion'];
     if (entry && d.opponent) entry.opponentName = T(d.opponent);
@@ -543,7 +543,7 @@
     run.ui = goalStrip(`${T(s.title)} · ${goalLine(s).split(': ').slice(1).join(': ')}`);
   }
   function storyFightDone(view) {
-    const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove(); restoreCast(r);
+    const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove();
     const won = view.match.result.winner === view.careerEntry.species, d = r.def, ctx = r.ctx, pin = CH[1].pin;
     // The first Brick fight records either outcome; the others only a win (a loss can be retried).
     const res = d.any || won ? recordStory(ctx, r.id, won ? 'won' : 'lost') : null;
@@ -551,8 +551,8 @@
     pendingAfter = true; const at = { ok: d.any ? !!res?.ok : won && !!res?.ok, won, coins: res?.ok ? res.coins : 0 };
     const after = () => { pendingAfter = false; openMap(pin, () => afterBeat(r.id, at)); };
     const S = window.StoryScenes;
-    if (d.after && res?.ok && S && (S.sceneIds || []).includes(d.after)) setTimeout(() => { rg()?.close?.(); S.play(d.after, { outcome: won ? 'win' : 'loss', onDone: after }); }, 600);
-    else setTimeout(after, 1200);
+    if (d.after && res?.ok && S && (S.sceneIds || []).includes(d.after)) setTimeout(() => { restoreCast(r); rg()?.close?.(); S.play(d.after, { outcome: won ? 'win' : 'loss', onDone: after }); }, 600); // Brick stays in the room until the scene takes over
+    else { restoreCast(r); setTimeout(after, 1200); }
   }
   // ---- story flow (GOTR-0060): title cards, first open, Continue button, chapter goal, recap ----
   const CH_TITLE = { 1: L('The Dream', 'החלום', 'Мечта'), 2: L('Junior League', 'ליגת הנוער', 'Юниорская лига'), 3: L('The Underground', 'המחתרת', 'Подполье'), 4: L('Rising', 'בדרך למעלה', 'Восхождение'), 5: L('The Championship', 'האליפות', 'Чемпионат') };
