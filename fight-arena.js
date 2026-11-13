@@ -256,6 +256,11 @@
     if(ceremony){options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'R':'L',raise:!m.result.winner||m.result.winner===actor?raise:0};}
     const time=ceremony?m.time:spec.phase*1.22;
     metrics[actor]=coach.update(time,ceremony?(ease<1?'step':'guard'):spec.move,'one_two',options);
+    // A planted sole the posed leg cannot reach (the body was driven away from it) is released and the pose redone.
+    if(options.plantedContacts&&metrics[actor].footTargets.some(f=>f.error>=.0015&&options.plantedContacts[f.side])){
+     for(const f of metrics[actor].footTargets)if(f.error>=.0015&&options.plantedContacts[f.side]){delete this.footPlants[actor+f.side];delete options.plantedContacts[f.side];}
+     metrics[actor]=coach.update(time,ceremony?(ease<1?'step':'guard'):spec.move,'one_two',options);
+    }
     if(f.down)this.downPose(coach,state);
    }
    if(m.phase==='round'){this.stabilizeBends();this.clearOwnFaces();}

@@ -614,7 +614,7 @@
     addLabel(parent,text,p,w,h) {
       const c=document.createElement('canvas');c.width=256;c.height=64;
       const ctx=c.getContext('2d');ctx.fillStyle='#dbc186';ctx.font='bold 39px sans-serif';
-      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,128,32);
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.translate?.(256,0);ctx.scale?.(-1,1);ctx.fillText(text,128,32); // mirrored: the fighter root is mirrored (GOTR-0074)
       const map=new THREE.CanvasTexture(c);map.encoding=THREE.sRGBEncoding;
       const label=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map,transparent:true,roughness:.7}));
       label.position.copy(p);parent.add(label);return label;

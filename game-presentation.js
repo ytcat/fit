@@ -57,10 +57,12 @@
    if(d.draw==='pinstripes'){fill(d.ink,15,3);fill(d.ink,H-18,3);}
    if(d.draw==='racing'){fill(d.ink,30,36);fill(d.stripe,40,16);}
    if(d.draw==='chevrons'){fill(d.ink,12,3);fill(d.ink,H-15,3);x.strokeStyle=d.ink;x.lineWidth=5;x.beginPath?.();for(let i=-40;i<W+40;i+=40){x.moveTo?.(i,66);x.lineTo?.(i+20,30);x.lineTo?.(i+40,66);}x.stroke?.();}
-   if(d.draw==='wordmark'){fill(d.ink,11,2);fill(d.ink,H-13,2);x.fillStyle=d.ink;x.font='800 40px system-ui,Arial,sans-serif';x.textBaseline='middle';x.textAlign='center';for(let i=170;i<W-120;i+=230)if(Math.abs(i-W*.25)>120)x.fillText?.('GLORY \u2605',i,H/2+2);}
+   // GOTR-0074: fighters are mirrored at their root (orthodox stance), so words are drawn mirrored to read correctly.
+   const word=(text,cx,cy)=>{x.save?.();x.translate?.(cx,cy);x.scale?.(-1,1);x.fillText?.(text,0,0);x.restore?.();};
+   if(d.draw==='wordmark'){fill(d.ink,11,2);fill(d.ink,H-13,2);x.fillStyle=d.ink;x.font='800 40px system-ui,Arial,sans-serif';x.textBaseline='middle';x.textAlign='center';for(let i=170;i<W-120;i+=230)if(Math.abs(i-W*.25)>120)word('GLORY \u2605',i,H/2+2);}
    // Woven label on the left hip (u = 0.25), stitched border and a crown-and-ring monogram.
    const lx=W*.25-46,ly=18;fill(d.tag,ly,H-36,lx,92);x.strokeStyle=d.tagInk;x.lineWidth=2;x.setLineDash?.([4,3]);x.strokeRect?.(lx+5,ly+5,82,H-46);x.setLineDash?.([]);
-   x.fillStyle=d.tagInk;x.font='900 26px system-ui,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText?.('GR',W*.25,H/2+1);
+   x.fillStyle=d.tagInk;x.font='900 26px system-ui,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';word('GR',W*.25,H/2+1);
    map=new THREE.CanvasTexture(c);map.encoding=THREE.sRGBEncoding;map.wrapS=THREE.RepeatWrapping;map.anisotropy=4;
    const b=canvas(W,H),y=b.getContext('2d');y.fillStyle='#808080';y.fillRect(0,0,W,H);y.fillStyle='#6a6a6a';for(let i=0;i<W;i+=4)y.fillRect(i,0,2,H);y.fillStyle='#b0b0b0';y.fillRect(0,0,W,6);y.fillRect(0,H-6,W,6);y.fillRect(lx,ly,92,H-36);
    bump=new THREE.CanvasTexture(b);bump.wrapS=THREE.RepeatWrapping;}
