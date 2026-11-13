@@ -11,7 +11,7 @@
  // Measurable values the game already produces. lower=true means fewer/shorter is better.
  const metrics=freeze({cleanHits:{lower:false},landed:{lower:false},dodges:{lower:false},seconds:{lower:false},secondsToFinish:{lower:true},combos:{lower:false},powerMarks:{lower:false},guards:{lower:false},marks:{lower:false},bodyHits:{lower:false},hitsTaken:{lower:true},mistakes:{lower:true},wins:{lower:false}});
  const chapters=freeze([
-  {id:1,key:'old_town',time:'morning',names:L('Old Town','העיר העתיקה','Старый город'),subtitle:L('Beginner training','אימון מתחילים','Первые тренировки'),places:['home_gym'],coach:'pip',boss:'brick'},
+  {id:1,key:'old_town',time:'morning',names:L('Old Town','העיר העתיקה','Старый город'),subtitle:L('Beginner training','אימון מתחילים','Первые тренировки'),places:['home_gym'],coach:'bruno',boss:'brick'},
   {id:2,key:'market_row',time:'evening',names:L('Market Row','שדרת השוק','Рыночный ряд'),subtitle:L('The street','הרחוב','Улица'),places:['street_fight'],coach:'vix',boss:'king_hyena'},
   {id:3,key:'the_docks',time:'night',names:L('The Docks','הנמל','Доки'),subtitle:L('The underground','המחתרת','Подполье'),places:['basement','dockside_hangar'],coach:'tusk',boss:'iron_bull'},
   {id:4,key:'downtown',time:'neon',names:L('Downtown','מרכז העיר','Даунтаун'),subtitle:L('Rising','בדרך למעלה','Восхождение'),places:['boxing_club','city_sports_hall','neon_strip','harbor_dome'],coach:'kip',boss:'onyx'},

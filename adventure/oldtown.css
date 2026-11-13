@@ -116,7 +116,7 @@
 .sf-beat-gate{color:#ffb4a2}
 /* GOTR-0078: the post-activity Next row = plain buttons in the bottom action band of the stage, no panel; the idle game pad and
    Burst step aside while it shows, so it never sits over a fighter (measured by qa/gotr-0078/next-row-browser.cjs). */
-#stageContainer > .adv-next{position:absolute;z-index:30;inset-inline:8px;width:auto;max-width:none;margin:0;flex-wrap:nowrap;gap:6px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none}
-#stageContainer > .adv-next .adv-go{flex:1 1 0;min-width:0;min-height:40px;padding:2px 8px;font-size:12px;line-height:1.15;white-space:normal}
-#stageContainer > .adv-next .adv-next-main{flex:2 1 0}
-#stageContainer:has(> #advNext) :is(.fp-zone,#burstControl,#burstTip){visibility:hidden;pointer-events:none}
+#stageContainer > #advNext.adv-next{position:absolute;z-index:30;inset-inline:8px;width:auto;max-width:none;margin:0;display:flex;flex-wrap:nowrap;gap:6px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none}
+#stageContainer > #advNext.adv-next .adv-go{flex:1 1 auto;min-width:0;min-height:38px;padding:2px 10px;font-size:12px;line-height:1.15;white-space:normal}
+#stageContainer > #advNext.adv-next .adv-next-main{flex:3 1 0}
+#stageContainer:has(> #advNext) :is(.fp-zone,#burstControl,#burstTip,#camLock,#playBtn){visibility:hidden;pointer-events:none}

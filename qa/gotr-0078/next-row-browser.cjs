@@ -21,7 +21,8 @@ const measure = p => p.evaluate(() => {
   const next = document.getElementById('advNext'), r = next?.getBoundingClientRect(), cs = next && getComputedStyle(next);
   const btns = next ? [...next.querySelectorAll('button')].map(b => { const q = b.getBoundingClientRect(); return [q.left, q.top, q.right, q.bottom].map(Math.round); }) : [];
   const hits = btns.filter(([l, t, rr, bb]) => boxes.some(([x0, y0, x1, y1]) => l < x1 && rr > x0 && t < y1 && bb > y0));
-  return { boxes, row: r ? [r.left, r.top, r.right, r.bottom].map(Math.round) : null, btns, hits: hits.length, panel: cs ? { bg: cs.backgroundColor, border: cs.borderTopWidth, shadow: cs.boxShadow } : null, vw: innerWidth, vh: innerHeight, docW: document.documentElement.scrollWidth };
+  const stage = document.getElementById('stageContainer'), others = [...stage.querySelectorAll('button')].filter(x => !next?.contains(x) && x.offsetParent !== null && getComputedStyle(x).visibility !== 'hidden').map(x => [x, x.getBoundingClientRect()]).filter(([, q]) => q.width && btns.some(([l, t, rr, bb]) => l < q.right && rr > q.left && t < q.bottom && bb > q.top)).map(([x]) => x.id || x.className || x.textContent);
+  return { others, boxes, row: r ? [r.left, r.top, r.right, r.bottom].map(Math.round) : null, btns, hits: hits.length, panel: cs ? { bg: cs.backgroundColor, border: cs.borderTopWidth, shadow: cs.boxShadow } : null, vw: innerWidth, vh: innerHeight, docW: document.documentElement.scrollWidth };
 });
 (async () => {
   if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
@@ -40,7 +41,7 @@ const measure = p => p.evaluate(() => {
       await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); AdventureOldTown.reward({ award: { xp: 12, coins: 9, unlocks: [] } }); });
       await wait(p, () => document.getElementById('advNext')); await p.waitForTimeout(1500);
       const m = await measure(p); console.log(tag, JSON.stringify(m)); await shot(p, `${tag}-6-next-row-after-fight`);
-      assert.ok(m.boxes.length === 2, 'both fighters measured'); assert.equal(m.hits, 0, 'a Next button covers a fighter');
+      assert.ok(m.boxes.length === 2, 'both fighters measured'); assert.equal(m.hits, 0, 'a Next button covers a fighter'); assert.deepEqual(m.others, [], 'a Next button covers another control');
       assert.ok(m.panel.bg === 'rgba(0, 0, 0, 0)' && m.panel.border === '0px' && m.panel.shadow === 'none', 'no box: ' + JSON.stringify(m.panel));
       assert.ok(m.row[3] <= m.vh && m.docW <= m.vw, 'inside the screen');
       const bad = errors.filter(e => !/GL Driver|ReadPixels/.test(e)); assert.equal(bad.length, 0, bad.join('\n')); await p.close();

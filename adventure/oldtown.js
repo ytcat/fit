@@ -238,9 +238,14 @@
   }
   // GOTR-0078 (owner: no boxes over the game): the Next row is plain buttons in the stage's bottom action band, where the game
   // pad sits during play. While it is shown the idle pad steps aside (CSS), so nothing covers a fighter or another control.
+  // A control that stays (the fight result's "details" row) keeps its place: the Next row goes just under it when it fits there,
+  // else just above it.
   function placeNext() {
     const bar = document.getElementById('advNext'); if (!bar) return;
-    bar.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + 8px)';
+    const host = bar.parentElement, hr = host.getBoundingClientRect(), h = bar.getBoundingClientRect().height || 40; let low = -Infinity, high = Infinity;
+    for (const el of document.querySelectorAll('#fightResults .fight-result-actions,.ringside-toolbar')) { if (el.offsetParent === null) continue; const r = el.getBoundingClientRect(); if (r.width && r.height && r.top > hr.top + hr.height / 2) { low = Math.max(low, r.bottom); high = Math.min(high, r.top); } }
+    const pad = 6, room = hr.bottom - low - 2 * pad;
+    bar.style.bottom = (low === -Infinity || room >= h ? pad : Math.max(pad, hr.bottom - high + pad)) + 'px';
   }
   // Called for every awarded activity (replaces the old full-screen card). Mission/boss runs add their own stars and Next bar.
   function reward(a) {
