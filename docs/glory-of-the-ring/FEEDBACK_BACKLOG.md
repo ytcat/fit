@@ -835,6 +835,16 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** OPEN — P1
 - **Owner's direction:** the Fighter is excited: he came to the city to follow his dream. Coach: "Do you have money for training?" Fighter: no, but he will do whatever it takes — he heard this is the best place, all the best fighters started here. The Coach then offers him jobs to do as payment for the training.
 
+### GOTR-0085 — After the first Brick fight the Fighter's arms are stretched into huge loops
+- **Reported:** 2026-11-13 (v1.54, iPhone; pictures `qa/owner-2026-11-12/v154-after-fight-torn-1.webp`, `-2.webp`)
+- **Status:** RELEASED v1.56 (hotfix)
+- **Root cause:** inside a bout the fighters sit in one mirrored ring group with root scale 1 (GOTR-0074); the job-offer scene took the Fighter straight out of the bout and kept that scale, so the pose code (which expects the mirrored root) tore the skin. Fix: `adventure/story/dream-scenes.js` always sets the mirrored root on a borrowed rig. Evidence: scene replayed in the browser with the rig forced to scale 1 — intact; `tests/story-mirror.test.cjs`. Not replayed through a real fight in the browser.
+
+### GOTR-0086 — "KO … won" stays on screen in the next training; goal line and tools cross the Fighter's face
+- **Reported:** 2026-11-13 (v1.54; picture `qa/owner-2026-11-12/v154-stale-ko-text.webp`: after the Brick fight, the Shadowboxing step shows "KO Barak won" and the goal line "50 punches in 45 seconds…" over the lion's face, behind the Auto / timer tools)
+- **Status:** OPEN — P1
+- **Acceptance:** the bout announcement is cleared when a fight ends or the mode changes; the goal line sits above the head area and never under the edge tools; nothing over the Fighter's head at 402×690 (measured).
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
