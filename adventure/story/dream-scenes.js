@@ -27,7 +27,7 @@
 
   function play(id, opts = {}) {
     const C = Core(), e = window.app?.engine, done = typeof opts.onDone === 'function' ? opts.onDone : () => {};
-    const scene0 = C?.variant(id, opts.outcome);
+    let scene0 = C?.variant(id, opts.outcome); // re-staged once the set is built when the city models are in it (GOTR-0089)
     const fail = error => { setTimeout(() => done({ id, skipped: true, error }), 0); return false; };
     if (!scene0) return fail('unknown scene');
     if (!e?.renderer || !e.coach?.update || !window.StorySets || !Cast() || !Pose()) return fail('engine not ready');
@@ -77,10 +77,13 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     skip.addEventListener('click', ev => { ev.stopPropagation(); skipNow(); }); skip.addEventListener('pointerdown', ev => ev.stopPropagation());
     d.addEventListener('pointerdown', advance);
 
-    window.StorySets.ready().then(() => new Promise(r => requestAnimationFrame(() => r()))).then(() => {
+    // the street waits a few seconds at most for Codex's models (city-assets.js); whatever is not ready stays generated
+    const cityWait = scene0.set === 'dream_street' && window.CityAssets ? window.CityAssets.ready().catch(() => null) : null;
+    Promise.all([window.StorySets.ready(), cityWait]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
       if (run.closed) return;
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 260);
-      set = window.StorySets.build(scene0.set, scene, { renderer: e.renderer, shadows: !!e.renderer.shadowMap?.enabled });
+      set = window.StorySets.build(scene0.set, scene, { renderer: e.renderer, shadows: !!e.renderer.shadowMap?.enabled, city });
+      if (set.objects.city?.bus && C.withCity) scene0 = C.withCity(scene0);
       if (scene0.set === 'dream_gym') tuneInterior(); else if (scene.fog) { scene.fog.near = 34; scene.fog.far = 210; } // the towers down the street stay readable through the haze
       for (const [key, a] of Object.entries(scene0.actors)) {
         const c = a.rig === 'fighter' ? e.coach : Cast().rig(a.rig, e); if (!c) throw Error('rig ' + a.rig);
@@ -176,10 +179,11 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (s.bag && rigs.fighter) { Cast().bag(rigs.fighter, s.bag.on === 'shoulder' && rigs.fighter.root.visible ? 'shoulder' : 'off'); if (floorBag) { floorBag.visible = s.bag.on === 'floor'; if (floorBag.visible) { floorBag.position.set(s.bag.at[0], .135, s.bag.at[1]); floorBag.rotation.y = s.bag.at[2] || 0; } } }
       // camera
       lens(s.camera.fov); camera.position.fromArray(s.camera.pos); look.fromArray(s.camera.look); camera.lookAt(look); set.focus(look.x, look.z);
-      for (const b of blobs) { const r = b.c.root, small = b.c.small; b.mesh.visible = r.visible; b.mesh.position.set(r.position.x - .16, (small ? 0 : r.position.y * 0) + .014, r.position.z - .2); b.mesh.rotation.y = .7; b.mesh.scale.set(small ? .95 : 1.75, 1, small ? .6 : 1.05); }
+      o.city?.frame(s, camera); // GOTR-0089: model bus wheels and doors, distance detail
+      for (const b of blobs) { const r = b.c.root, small = b.c.small; b.mesh.visible = r.visible; b.mesh.position.set(r.position.x - .16, (small ? 0 : r.position.y) + .014, r.position.z - .2); b.mesh.rotation.y = .7; b.mesh.scale.set(small ? .95 : 1.75, 1, small ? .6 : 1.05); } // shadows lie on the ground the actor stands on (bus floor, road)
       if (e.renderer.shadowMap?.enabled) e.renderer.shadowMap.needsUpdate = true;
       e.renderer.render(scene, camera);
-      const info = e.renderer.info.render; lastStats = { phase: 'play', calls: info.calls, triangles: info.triangles, set: set.stats(), shot: run.shot };
+      const info = e.renderer.info.render; lastStats = { phase: 'play', calls: info.calls, triangles: info.triangles, set: set.stats(), shot: run.shot, ...(o.city ? { city: o.city.stats() } : {}) };
       if (s.done && !ended) { ended = true; setTimeout(() => finish({ skipped: !!run.skipping }), 250); }
     }
     Object.defineProperty(run, 'rigs', { get: () => rigs }); Object.defineProperty(run, 'set', { get: () => set });

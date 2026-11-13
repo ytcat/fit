@@ -544,6 +544,7 @@
     const g = ctx.store.game(), pid = ctx.store.current()?.id, key = 'gotr.adv.intro.' + pid, first = SF()?.find('dream_arrival');
     if (!g || !first || lsGet(key) === '1' || lsGet('gotr.adv.nointro') === '1' /* QA scripts */ || A().missions.some(m => starsOf(g, m.id)) || A().bossWon(g, 'brick') || SF().doneOf(g, first)) return false;
     lsSet(key, '1');
+    window.CityAssets?.preload(); // GOTR-0089: the street models download while the rig gets ready (never blocks the film)
     // The film needs the Fighter's rig: on a cold start wait for it (up to 60 s) instead of skipping the film.
     const play = (k = 0) => { if (!window.app?.engine?.coach?.anatomy && k < 120) { setTimeout(() => play(k + 1), 500); return; } launch(gameCtx(), 'dream_arrival'); };
     play();

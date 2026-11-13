@@ -9,6 +9,7 @@
  *   StorySets.register(id, ctx => focus)              a new set. ctx = { K, PAL, C, S (street batch, metres), objects,
  *       box, cyl, house, road, pave, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, sign, picto, movable(batch, name) }
  *       glow (batch of unlit bright things: bulbs, lantern glass), pool(x, z, r, hex) (light pool on the ground)
+ *       group (the set's root), opts (the build options; opts.city = ready city models, see city-assets.js)
  *       return { x, z, r, time?: 'morning' | 'evening' } (where the sun's shadow box starts; evening = low orange sun,
  *       dusk sky, lit windows). Built-in sets: 'busstop', 'gymfront' (morning), 'market' (evening).
  *   objects of the built-in sets: busstop { bus } ; gymfront { bag, stand, cyclist, pillow, wraps } ; market { whistle,
@@ -105,7 +106,7 @@
     const skyline = z => { for (let k = 0; k < 9; k++) { const x = -44 + k * 11 + (k % 2) * 3, h = 9 + (k * 37 % 7) * 1.6; box(S, x, 0, z, 9, h, 6, ['#d9cdb8', '#cfd6d9', '#e0cdb4'][k % 3]); box(S, x, h, z, 9.4, .5, 6.4, '#c08a66'); } };
     /** Light pool on the ground under a lantern (additive, evening sets). */
     const pool = (x, z, r, hex, y = .02) => { const c = C(hex); PL.quad([x - r, y, z + r], [x + r, y, z + r], [x + r, y, z - r], [x - r, y, z - r], c, c, [0, 0, 1, 0, 1, 1, 0, 1]); };
-    const ctx = { id, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
+    const ctx = { id, group, opts, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
     const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) }, evening = focus.time === 'evening';
 
     // ---- meshes: street (1), signs (1), houses (1 + one per facade style)
