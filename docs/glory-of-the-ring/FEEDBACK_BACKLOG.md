@@ -845,6 +845,18 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** OPEN — P1
 - **Acceptance:** the bout announcement is cleared when a fight ends or the mode changes; the goal line sits above the head area and never under the edge tools; nothing over the Fighter's head at 402×690 (measured).
 
+### GOTR-0088 — Finisher: a signature super punch that knocks the Opponent out cold (earned or bought)
+- **Reported:** 2026-11-13
+- **Status:** OPEN — P1 (queued; needs a Fable animation agent when a slot frees)
+- **Owner's words:** "Add a final super punch, like for example the famous uppercut to the chin [of a well-known heavyweight champion], and the opponent will fall on the floor, fainted. This has to be really animated. And this can be something that can be earned or bought."
+- **Design (integrator's proposal; original names only, no real fighter's name or likeness):**
+  - A **Finisher** slot on the pad. First finisher: **"Skybreaker"** — a dipping step inside, then a rising rear Uppercut under the chin.
+  - **When it is available:** the Opponent is hurt (health under about 25 %) and the Burst meter is full; the Finisher button lights up for a few seconds. A miss or a block spends the Burst.
+  - **What it shows (about 4–5 s, skippable after the first time):** camera cuts to a low side angle, slow motion on the dip and drive from the legs, the glove lifts the chin, sweat spray, the Opponent's feet leave the canvas, eyes roll, body goes limp and drops flat on the back, one arm flops, the referee (or the Coach in the gym) waves it off without a count; the Fighter stands over him, then walks to a neutral corner. Crowd reaction and a deep impact sound.
+  - **How to get it:** earned by finishing Chapter 1 (Bruno teaches it before the Brick rematch), or bought in the Shop (price shown; free in the development build). More finishers later (e.g. a liver Hook, an overhand Cross) as rewards or Shop items.
+  - **Opponents:** bosses can have their own finisher with a visible tell that the player can Slip or Guard.
+- **Acceptance:** real-time 3D animation on the game rigs in the orthodox stance; the knocked-out Opponent ends lying on the floor with a believable ragdoll-like settle (no hovering, no clipping through the canvas); works in the ring, in the gym and in ringless venues; frame strip and a phone recording-style sequence shown to the owner before release.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
