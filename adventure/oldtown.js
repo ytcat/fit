@@ -143,7 +143,7 @@
     const now = performance.now(); if (!force && now - placedAt < 300) return; placedAt = now;
     const hb = host.getBoundingClientRect(), avoid = [], hd = headBox(host); if (hd) avoid.push(hd);
     // the stage's own buttons and top-band chips, and the edge tools (modes button, Auto / timer / settings) that live in #gameModes
-    for (const el of [...host.querySelectorAll('button, .career-drill-cue, .gr-power-gauge, .bout-announcement, #fightHud'), ...document.querySelectorAll('#gameModes .gm-fab, #gameModes .gm-tool')]) {
+    for (const el of [...host.querySelectorAll('button, .career-drill-cue, .gr-power-gauge, .bout-announcement, #fightHud, #fightHealth'), ...document.querySelectorAll('#gameModes .gm-fab, #gameModes .gm-tool')]) {
       if (g.contains(el) || el.hidden || !el.getClientRects().length || getComputedStyle(el).visibility === 'hidden') continue;
       const r = el.getBoundingClientRect(); if (r.width && r.height && r.top < hb.top + hb.height * .55) avoid.push(r);
     }
