@@ -131,3 +131,6 @@
 .sf-pic .adv-bust.sp-portrait{--sp:56px;width:var(--sp);height:var(--sp)}
 .adv-story .adv-bust.sp-portrait{--sp:44px;width:var(--sp);height:var(--sp)}
 .adv-journal-line .adv-bust.sp-portrait{--sp:40px;width:var(--sp);height:var(--sp)}
+/* GOTR-0086: the goal line wraps (at most two lines) instead of "…"; its place is chosen by oldtown.js placeStrip. */
+#stageContainer > .adv-goal{max-width:calc(100% - 16px)!important}
+#stageContainer > .adv-goal .adv-goal-text{white-space:normal!important;overflow:visible;text-overflow:clip;text-align:center;line-height:1.25}
