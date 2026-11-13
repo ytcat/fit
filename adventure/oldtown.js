@@ -235,6 +235,8 @@
     for (const [label, fn] of more) bar.append(btn(label, fn, 'game-button adv-go adv-alt adv-next-alt'));
     bar._view = e.arena?.fightView || null; bar._mode = e.targetMode;
     (e.stage || document.body).append(bar); placeNext();
+    // The result rows can appear after the bar while the scene is idle (no frames): keep the place right until the bar goes.
+    const t = setInterval(() => { if (!bar.isConnected) clearInterval(t); else placeNext(); }, 400);
   }
   // GOTR-0078 (owner: no boxes over the game): the Next row is plain buttons in the stage's bottom action band, where the game
   // pad sits during play. While it is shown the idle pad steps aside (CSS), so nothing covers a fighter or another control.
