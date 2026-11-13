@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.54 | 2026-11-13 | _pending_ | Character portraits rendered from the real 3D heads in a metal ring (monogram badges for characters without a model yet); Pip is Mack in every text (GOTR-0081) |
 | v1.53 | 2026-11-13 | `510bf6a` | Chapter 1 "The Dream", part 1: opening film from the city map to the bus station, the Fighter arrives in street clothes with his bag and walks to the gym; Coach Bruno (bear) and Brick (bulldog); gym conversation; first fight against Brick where a loss or a win both continue the story; the 12 steps of the new chapter (several still stand-ins) (GOTR-0078). Dev build: "Skip step (dev)" and open any step. "Reset game" in Player & backup. Brick's bag trial easier (GOTR-0077). Pip renamed Mack (GOTR-0081). Next bar as plain buttons clear of the fighters |
 | v1.52 | 2026-11-13 | `b6a19c2` | Hotfix: characters in story scenes and skill trials are no longer torn apart (regression from the v1.51 stance) (GOTR-0080) |
 | v1.51 | 2026-11-13 | `dbe7ed8` | Real orthodox boxing stance in every mode, both animals: left foot and left glove in front (elbow bent), right foot back, right glove beside the cheek; Jab = left hand, Cross = right hand; side lock shows the Fighter's open side (GOTR-0074, owner approved the pictures) |

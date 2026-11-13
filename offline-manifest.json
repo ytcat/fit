@@ -1,5 +1,5 @@
 {
-  "version": "v153-20261113e",
+  "version": "v154-20261113f",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -48,7 +48,7 @@
     "./occlusion-guard.js?v=2026111302",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111119",
-    "./version.js?v=2026111306",
+    "./version.js?v=2026111307",
     "./club-interface.js?v=2026111112",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
@@ -86,8 +86,8 @@
     "./game-resume-ui.js?v=2026111112",
     "./game-venues-ui.js?v=2026110905",
     "./fighter-stats.js?v=2026111113",
-    "./adventure/portraits.js?v=2026111306",
-    "./adventure/story.js?v=2026111306",
+    "./adventure/portraits.js?v=2026111307",
+    "./adventure/story.js?v=2026111307",
     "./adventure/story/story.css?v=2026111210",
     "./adventure/story/dream.css?v=2026111306",
     "./adventure/story/trials-core.js?v=2026111306",
