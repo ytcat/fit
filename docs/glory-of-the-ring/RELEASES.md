@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.63 | 2026-11-13 | _pending_ | No bell in training: the timed round starts and ends without the ring bell (the bell is for fights only) |
 | v1.62 | 2026-11-13 | `4fffaa2` | Shop preview: the Fighter in his own studio, centred and whole from every screen (map, film, training, fight) (GOTR-0090). Step goal line wraps to two lines and stays clear of the tool buttons and the Fighter (GOTR-0086) |
 | v1.61 | 2026-11-13 | `19ed869` | Opening film uses Codex's new 3D city: the Route 12 bus (doors open as the Fighter steps off, wheels turn with the road), the bus station, and Old Town buildings; the map dive no longer passes through a roof; the generated street remains as a fallback if a model cannot load; models load in the background, not in the offline pack (GOTR-0089) |
 | v1.60 | 2026-11-13 | `f0985bc` | Gym conversation and the job offer rewritten as natural speech in EN/HE/RU, same voices for the rest of chapter 1 (GOTR-0084). Brick: one sculpted bulldog head (first redesign round; a deeper redesign is in progress) and a test that no part of Bruno or Brick leaves the body (GOTR-0082) |

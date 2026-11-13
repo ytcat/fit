@@ -1,5 +1,5 @@
 {
-  "version": "v162-20261113n",
+  "version": "v163-20261113o",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -48,13 +48,13 @@
     "./occlusion-guard.js?v=2026111302",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111119",
-    "./version.js?v=2026111315",
+    "./version.js?v=2026111316",
     "./club-interface.js?v=2026111112",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
     "./burst-ui.js?v=2026111112",
     "./career-interface.css?v=2026111012",
-    "./career-interface.js?v=2026111306",
+    "./career-interface.js?v=2026111316",
     "./fight-presentation.js?v=2026111311",
     "./ringside-layout.css?v=2026111012",
     "./ringside-layout.js?v=2026111112",

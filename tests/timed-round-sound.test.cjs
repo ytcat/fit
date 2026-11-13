@@ -25,21 +25,21 @@ const frame = i => ({ swings: i % 8 ? [] : [{ actor: 'lion', move: 'jab' }], con
 // One tap from Auto: the round is the player's turn (UX R1) and says so; the pad is repainted at once; one start bell.
 start.onclick();
 assert.equal(e.player.enabled, true, 'the round is played by hand'); assert.ok(padPaints.length, 'punch pad shown immediately');
-assert.deepEqual(bells, ['start'], 'one start bell'); assert.equal(rounds.at(-1).phase, 'start'); assert.equal(rounds.at(-1).duration, 15);
+assert.deepEqual(bells, [], 'no bell in training (owner 2026-11-13)'); assert.equal(rounds.at(-1).phase, 'start'); assert.equal(rounds.at(-1).duration, 15);
 api.paint(true); assert.match(start.attrs['aria-label'], /^Stop the round · 15s left$/);
 for (let i = 0; i < 400 && api.active; i++) api.onFrame(frame(i), .05);
 assert.equal(api.active, null, 'the round ends at 0');
-assert.deepEqual(bells, ['start', 'end'], 'final bell at 0 (three strikes inside bell("end"))');
+assert.deepEqual(bells, [], 'no bell at the end of a training round either');
 const end = rounds.at(-1); assert.equal(end.phase, 'end'); assert.equal(end.reason, 'time'); assert.ok(end.hits > 10, 'clean hits counted'); assert.ok(end.xp > 0 && /XP/.test(end.recap), 'result with XP');
 assert.equal(e.isPlaying, true, 'the scene keeps running after the final bell (no frozen, silent stage)');
 console.log('PASS timed round: start bell, hand play with the pad, final bell at 0, result event, scene keeps running');
 
 // Second tap stops the round: no final bell, reason 'stop'.
 start.onclick(); for (let i = 0; i < 40; i++) api.onFrame(frame(i), .05); start.onclick();
-assert.equal(api.active, null); assert.deepEqual(bells, ['start', 'end', 'start'], 'stopping does not ring the final bell'); assert.equal(rounds.at(-1).reason, 'stop');
+assert.equal(api.active, null); assert.deepEqual(bells, [], 'no bell when a training round is stopped'); assert.equal(rounds.at(-1).reason, 'stop');
 // A round already in Auto (guided cards: startTraining({play:false})) keeps the coach-driven Fighter.
 e.player.enabled = false; api.startSession({ duration: 15 }); assert.equal(e.player.enabled, false); assert.equal(rounds.at(-1).control, 'coach');
-api.finish(); assert.equal(rounds.at(-1).reason, 'left', 'leaving (mode change, pagehide) is not a result'); assert.equal(bells.filter(b => b === 'end').length, 1);
+api.finish(); assert.equal(rounds.at(-1).reason, 'left', 'leaving (mode change, pagehide) is not a result'); assert.equal(bells.length, 0);
 console.log('PASS second tap stops the round without the final bell; Auto rounds stay Auto; leaving is silent');
 
 /* ---------- 2. audio engine: bells, mitt impacts, interrupted context ---------- */
