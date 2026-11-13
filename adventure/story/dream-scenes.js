@@ -84,7 +84,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (scene0.set === 'dream_gym') tuneInterior(); else if (scene.fog) { scene.fog.near = 34; scene.fog.far = 210; } // the towers down the street stay readable through the haze
       for (const [key, a] of Object.entries(scene0.actors)) {
         const c = a.rig === 'fighter' ? e.coach : Cast().rig(a.rig, e); if (!c) throw Error('rig ' + a.rig);
-        borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.maneInitialized = false; rigs[key] = c; // the root keeps its own scale: fighters are mirrored there (GOTR-0074) Pose().reset(c);
+        borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.root.scale.set(-1, 1, 1); c.maneInitialized = false; rigs[key] = c; // always the mirrored root (GOTR-0074): a rig taken out of a bout has scale 1 inside the mirrored ring cast and would tear (GOTR-0085) Pose().reset(c);
         if (scene0.outfit?.[key]) Cast().outfit(c, scene0.outfit[key]);
       }
       if (scene0.bag) { floorBag = Cast().duffel(); floorBag.visible = false; floorBag.castShadow = true; scene.add(floorBag); }
