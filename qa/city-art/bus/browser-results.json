@@ -1,0 +1,70 @@
+{
+  "three": "128",
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "meshNodes": 41,
+  "uniqueMaterials": 13,
+  "triangles": 55484,
+  "clips": [
+    {
+      "name": "Doors_open_hold_close",
+      "seconds": 4.333333492279053,
+      "tracks": 4
+    },
+    {
+      "name": "Wheels_one_revolution",
+      "seconds": 2.0333333015441895,
+      "tracks": 4
+    }
+  ],
+  "closedDoor": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "openDoor": [
+    0,
+    0.6560591459274292,
+    0,
+    0.7547095417976379
+  ],
+  "bounds": {
+    "min": [
+      -5.48799991607666,
+      -0.004000101398006217,
+      -1.6799999475479126
+    ],
+    "max": [
+      5.48799991607666,
+      3.1474998872727156,
+      1.6799999475479126
+    ]
+  },
+  "render": {
+    "frame": 7,
+    "calls": 78,
+    "triangles": 109026,
+    "points": 0,
+    "lines": 0
+  },
+  "geometryCount": 42,
+  "textureCount": 1,
+  "physicalPhone": "NOT VERIFIED",
+  "environment": "Headless Chromium / software renderer; isolated bus scene, not full game",
+  "frameMs": {
+    "samples": 30,
+    "median": 622.9000000003725,
+    "p95": 3367.0999999996275,
+    "note": "warm rAF intervals including software rendering; not physical device performance"
+  },
+  "mobileViewport": {
+    "width": 393,
+    "height": 852,
+    "overflow": false,
+    "canvas": [
+      393,
+      852
+    ]
+  },
+  "errors": []
+}
