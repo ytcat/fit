@@ -60,7 +60,7 @@
     // a loss advances too), buy (Otto's counter). Trainings reuse existing stations as clearly marked stand-ins (step.stand).
     dream_arrival: { kind: 'film', scene: 'dream_opening' },
     dream_gym_talk: { kind: 'film', scene: 'dream_gym_talk' },
-    first_brick: { kind: 'story_fight', brick: true, any: true, after: 'dream_after_brick', rounds: 1, roundSeconds: 60, restSeconds: 0, opponent: L('Brick', 'בריק', 'Брик'),
+    first_brick: { kind: 'story_fight', place: 'gym', brick: true, any: true, after: 'dream_after_brick', rounds: 1, roundSeconds: 60, restSeconds: 0, opponent: L('Brick', 'בריק', 'Брик'),
       // Much stronger than the Fighter on day one (a regular partner is 0.85-1.15 power/tempo): a loss is expected, a win possible.
       foe: { power: 1.4, tempo: 1.18, skill: .1 } },
     clean_gym: { kind: 'training', mode: 'heavy', duration: 30, steps: true },
@@ -508,7 +508,7 @@
     cleanup(); closeBeat(); run = { id, def: d, ctx, ended: false, mission: { titles: s.title, metric: 'wins' }, value: 0, target: 1 };
     hook(); ctx.change({ type: 'venue', venueId: d.venue || CH[1].venue });
     if (d.brick) castBrick(run);
-    try { ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds }); } catch (x) { console.warn('adventure', x); }
+    try { ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds, ...(d.place ? { place: d.place } : {}) }); } catch (x) { console.warn('adventure', x); } // place 'gym': on the gym floor, Bruno referees (GOTR-0083)
     const view = e.arena?.fightView; if (!view) { restoreCast(run); run = null; toast(W().noStart, 'bad'); return; }
     run.view = view; const entry = view.careerEntry, foe = view.match.fighters[entry?.species === 'lion' ? 'rabbit' : 'lion'];
     if (entry && d.opponent) entry.opponentName = T(d.opponent);

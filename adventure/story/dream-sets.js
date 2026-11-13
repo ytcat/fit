@@ -111,7 +111,7 @@
     });
 
     /* ------------------------------------------------------------ Bruno's Gym, main hall */
-    Sets.register('dream_gym', c => {
+    const gym = floorFight => c => {
       const { K, C, P, M, S, box, cyl, sign, movable, objects, glow: G, pool } = c;
       const A = new K.Batch(); // architecture: receives shadows, casts none (so the room is never black)
       const X = 11, ZB = -7.5, ZF = 12, H = 5.4;
@@ -162,8 +162,11 @@
       cyl(S, 3.4, 0, ZB + .35, .02, 1.6, '#c9a36a', P.cyl6, .18); box(S, 3.4, 0, ZB + .62, .34, .08, .14, '#d8d2c4');
       // hanging lamps: enamel shades, bright bulbs, warm pools on the floor
       pool(0, 1.0, 2.8, '#ffe2a8'); for (const [x, z] of [[-4.6, -3.3], [-2.4, 3.4], [2.6, 3.6], [7.2, -.6], [-6, 5.5], [6, 5.5]]) { cyl(S, x, 3.6, z, .012, H - 3.6, '#2a2f38', P.cyl6); S.add(P.cone8, M(x, 3.42, z, .46, .26, .46), C('#2f5d4a')); G.add(P.sph, M(x, 3.44, z, .1, .1, .1), C('#fff3cf')); pool(x, z, 2.6, '#ffe2a8'); }
+      if (floorFight) { // the sparring mat of the first fight: the size of a ring canvas, taped edge, no ropes
+        const [mx, mz] = [1.5, 2.0]; box(S, mx, 0, mz, 3.9, .035, 3.9, '#27364b'); box(S, mx, .035, mz, 3.5, .004, 3.5, '#33475f'); for (const [dx, dz, w, d] of [[0, 1.78, 3.6, .06], [0, -1.78, 3.6, .06], [1.78, 0, .06, 3.6], [-1.78, 0, .06, 3.6]]) box(S, mx + dx, .039, mz + dz, w, .003, d, '#f4f1ea'); box(S, mx, .039, mz, .5, .003, .5, '#8f2f22'); }
       return { x: 0, z: 0, r: 13 };
-    });
+    };
+    Sets.register('dream_gym', gym(false)); Sets.register('dream_gym_floor', gym(true));
   }
   if (window.StorySets) register(); else window.addEventListener('DOMContentLoaded', register);
   window.DreamSets = { register };
