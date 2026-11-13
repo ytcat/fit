@@ -281,9 +281,9 @@
       const j = rig.joints, chest = new Parts(), B = (x, y, back) => seat(rig, x, y, false, .02, back);
       // towel over the left shoulder: down the chest in front, over the trapezius, down the back
       const tx = -.155, T = [], W = (y, back) => seat(rig, tx, y, false, .02, back, .08), sag = k => .012 * Math.sin(k * 2.3);
-      for (const [k, y] of [1.33, 1.39, 1.45, 1.51, 1.57, 1.63, 1.68].entries()) T.push(V(tx + sag(k), y, W(y) + .016));
-      for (const z of [.11, .04, -.04, -.11]) T.push(V(tx + .012, crest(rig, tx, z, .08, .035) + .016, z));
-      for (const [k, y] of [1.68, 1.61, 1.54, 1.47, 1.4].entries()) T.push(V(tx - sag(k), y, W(y, true) - .016));
+      for (const [k, y] of [1.33, 1.39, 1.45, 1.51, 1.57, 1.63, 1.68].entries()) T.push(V(tx + sag(k), y, W(y) + .03));
+      for (const z of [.11, .04, -.04, -.11]) T.push(V(tx + .012, crest(rig, tx, z, .09, .04) + .03, z));
+      for (const [k, y] of [1.68, 1.61, 1.54, 1.47, 1.4].entries()) T.push(V(tx - sag(k), y, W(y, true) - .03));
       const TL = T.map(q => q.clone().sub(V(0, 1.36, 0))), flat = q => V(0, smooth((q.y - .28) / .1), q.z > 0 ? 1 : -1).normalize();
       chest.ribbon(TL, .17, .026, '#f3eee2', V(1, 0, 0), 44, 14); for (const sd of [-1, 1]) chest.ribbon(TL.map(q => q.clone().add(V(sd * .082, 0, 0))), .02, .032, '#e9e3d5', V(1, 0, 0), 44, 8); // terry cloth with thickness and rolled edges
       for (const [a, b] of [[0, 1], [15, 14]]) { const q = T[a].clone().lerp(T[b], .4).sub(V(0, 1.36, 0)); chest.ribbon([q.clone().add(V(-.085, 0, a ? -.009 : .009)), q.clone().add(V(.085, 0, a ? -.009 : .009))], .03, .004, '#4f7fb3', V(0, 1, 0), 4, 6); } // blue stripe at both ends
@@ -293,7 +293,7 @@
       chest.cyl(V(0, 1.445 - 1.36, wz + .012), V(.019, .034, .019), '#c9ccd2', [0, 0, Math.PI / 2]); chest.box(V(.03, 1.452 - 1.36, wz + .012), V(.03, .018, .016), '#c9ccd2'); chest.sph(V(-.006, 1.445 - 1.36, wz + .027), V(.007, .007, .004), '#3b4350');
       j.chest.add(chest.mesh('Bruno: towel and whistle'));
       // cardigan buttons on the spine (belly) and the chest
-      const but = new Parts(); for (const y of [1.08, 1.15, 1.22, 1.29]) { but.sph(V(.026, y - 1.13, B(.026, y) + .003), V(.015, .015, .007), '#d9c9a3'); but.sph(V(.026, y - 1.13, B(.026, y) + .009), V(.006, .006, .003), '#8a7a58'); but.sph(V(-.03, y - 1.13, B(-.03, y) + .002), V(.011, .004, .003), '#2a4033'); } j.spine.add(but.mesh('Bruno: buttons'));
+      const but = new Parts(); for (const y of [1.08, 1.15, 1.22, 1.29]) { but.sph(V(.026, y - 1.13, B(.026, y) + .003), V(.015, .015, .007), '#d9c9a3'); but.sph(V(.026, y - 1.13, B(.026, y) + .009), V(.006, .006, .003), '#8a7a58'); } j.spine.add(but.mesh('Bruno: buttons'));
       bareHands(rig, BRUNO.fur, '#3a2a22'); shoes(rig, { upper: '#4a3a30', toe: '#3c2f27', sole: '#c9c0ae', lace: '#d8d2c4' });
       // fur: a ruff round the cheeks and under the jaw, tufts on the back of the head, shaggy grey brows
       const hd = q => [q.x / HS, (q.y - HEAD_Y) / HS, q.z / HS];
@@ -370,12 +370,12 @@
         // jowls hang over the corners of the mouth
         const jz = Z(.075, .02); P.sph(V(s * .082, .012, jz - .05), V(.068, .058, .06), '#e4d3bd', [0, 0, s * .3]); P.sph(V(s * .1, -.022, jz - .07), V(.05, .04, .05), '#d9c6ad', [0, 0, s * .4]);
         P.sph(V(s * .046, .012, Z(.046, .0) + .006), V(.011, .024, .01), '#fbf7ee', [0, 0, s * .12]); // lower canines of the underbite
-        brow(rig, [V(s * .036, .222, Z(.036, .222) - .002), V(s * .095, .242, Z(.095, .242) - .001), V(s * .156, .228, Z(.156, .228) - .004)], s > 0 ? 0x3a2416 : 0xa8926f, .015);
+        brow(rig, [V(s * .036, .222, Z(.036, .222) - .002), V(s * .095, .242, Z(.095, .242) - .001), V(s * .156, .228, Z(.156, .228) - .004)], s > 0 ? 0x3a2416 : 0x8f7a5c, .0105);
       }
       const nz = Z(0, .112);
       P.sph(V(0, .118, nz + .006), V(.05, .03, .026), '#1f1917'); P.sph(V(-.013, .128, nz + .026), V(.012, .006, .005), '#6d645f');
-      for (const [y, w, t] of [[.15, .058, .02], [.172, .075, .022], [.196, .06, .016]]) P.ribbon([V(-w, y - .012, Z(w, y - .012) - .008), V(-w * .5, y + .002, Z(w * .5, y) - .004), V(0, y + .007, Z(0, y) - .003), V(w * .5, y + .002, Z(w * .5, y) - .004), V(w, y - .012, Z(w, y - .012) - .008)], t, t * .8, y > .19 ? '#c7b294' : '#d6c4a8', V(0, 1, 0), 18, 8); // rolls of skin over the nose
-      P.ribbon([V(-.11, .02, Z(.11, .02) - .004), V(-.06, .034, Z(.06, .034) + .004), V(0, .05, Z(0, .05) + .004), V(.06, .034, Z(.06, .034) + .004), V(.11, .02, Z(.11, .02) - .004)], .016, .014, '#3a2a25', V(0, 1, 0), 22, 8); // dark upper lip line across the muzzle
+      for (const [y, w, t] of [[.152, .05, .02], [.176, .062, .02]]) P.ribbon([V(-w, y - .012, Z(w, y - .012) - .014), V(-w * .5, y + .002, Z(w * .5, y) - .009), V(0, y + .007, Z(0, y) - .008), V(w * .5, y + .002, Z(w * .5, y) - .009), V(w, y - .012, Z(w, y - .012) - .014)], t, t * .8, y > .19 ? '#c7b294' : '#d6c4a8', V(0, 1, 0), 18, 8); // rolls of skin over the nose
+      P.ribbon([V(-.11, .02, Z(.11, .02) - .004), V(-.06, .034, Z(.06, .034) + .004), V(0, .05, Z(0, .05) + .004), V(.06, .034, Z(.06, .034) + .004), V(.11, .02, Z(.11, .02) - .004)], .009, .008, '#4a3832', V(0, 1, 0), 22, 8); // upper lip line across the muzzle
       P.ribbon([V(-.1, .0, Z(.1, 0) + .002), V(-.04, -.004, Z(.04, 0) + .016), V(0, .028, Z(0, .03) + .01), V(.04, -.004, Z(.04, 0) + .016), V(.1, .0, Z(.1, 0) + .002)], .008, .008, '#2a1f1b', V(0, 1, 0), 20, 6); // mouth line under the jowls
       // scar across the right brow: a pale hairless line with two stitch marks
       const sx = .098, scar = [V(sx - .03, .272, Z(sx - .03, .272) - .001), V(sx - .01, .246, Z(sx - .01, .246) + .001), V(sx + .012, .214, Z(sx + .012, .214) - .001)];
@@ -394,7 +394,6 @@
       rig.shorts.material.vertexColors = true; rig.shorts.material.color.set(0xffffff); // the cloth material belongs to this rig alone
       for (const m of kitParts(rig).trim) { if (m.geometry.type === 'CylinderGeometry') { m.material = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: .6 }); m.scale.x *= 1 + BRICK.build.torso * .9 + BRICK.build.hips; m.scale.z *= 1 + BRICK.build.depth * .9 + BRICK.build.hips; } else m.visible = false; }
       rig.gloveMeshes.L.material.color.set(BRICK.gloves);
-      { const NK = new Parts(), y0 = 1.745; for (const [dy, t, col] of [[0, .05, '#cdb99b'], [-.045, .058, '#c4ae8e']]) { const pts = []; for (let a = -1.9; a <= 1.91; a += .19) { const r = Math.max(.11, rim(rig, y0 + dy, a, .016, .22)) - t * .32; pts.push(V(Math.sin(a) * r, y0 + dy - 1.72 - .03 * (1 - Math.cos(a)) * .0, Math.cos(a) * r - .02)); } NK.ribbon(pts, t, t * .9, col, V(0, 1, 0), 40, 10); } rig.joints.neck.add(NK.mesh('Brick: neck rolls')); } // soft rolls sunk into the neck
       rig.skin.material.roughness = .8; if (rig.definition?.look) rig.definition.look.value.multiplyScalar(1.45); // short coat with a little sheen; hard muscle lines
     }
   };
