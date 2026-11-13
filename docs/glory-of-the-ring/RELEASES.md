@@ -8,6 +8,8 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.49 | 2026-11-12 | `9bebbcc` | Timed round: start and end bells, stopwatch button, plain-text explanation, second tap stops it, result with Again; the round no longer goes silent (GOTR-0071). Guard: holding it raises a visible closed cover, hint text, "Blocked · no damage" feedback. Fight countdown centred, never cut. After a KO only the winner line; judges shown only when the fight goes to the cards, as three score cards (GOTR-0075) |
+| v1.48 | 2026-11-12 | `dc4d2d3` | Lion head: rounded skull, short forehead with a fringe, fuller mane down to the shoulders, stronger brow and eyes; rabbit head filled out (GOTR-0064, owner approved the picture) |
 | v1.47 | 2026-11-12 | `e72d33d` | Guided story: each chapter is a numbered list of steps, one open at a time; a story panel says why, the goal and the reward; a line from the Coach before and after every step, then "Unlocked" and Next; boss gate tells what to replay (GOTR-0069). Five skill trials replace the chore games and Market Row gets its scenes (GOTR-0056) |
 | v1.46 | 2026-11-12 | `88c69a9` | Fix: picture no longer stretched tall on phones in training and fights (GOTR-0070). |
 | v1.45 | 2026-11-12 | `28fbf42` | The Adventure map is the home screen: both top rows removed, Training / Fight / Rivals & Cup / Academy behind one round button at the side, so nothing sits over the fighter's head (GOTR-0063). Compact guard in every mode: gloves beside the cheeks, elbows bent, southpaw kept (GOTR-0051). Applause after fights is built from 40 separate hand claps (GOTR-0068) |

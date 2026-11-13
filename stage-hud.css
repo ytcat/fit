@@ -89,3 +89,32 @@ body #fightResults[hidden]{display:none}
 #fightResults .fight-card + .fight-card::before{content:'·';margin-inline:6px}
 #fightResults .fight-card strong{white-space:nowrap;margin-inline:0}
 body #fightResults{flex-wrap:wrap;row-gap:3px}
+
+/* GOTR-0075 (owner, v1.47 pictures): nothing over the fighters' heads or bodies at the end of a bout and in the last seconds.
+   (b) The last-seconds countdown sits centred in the top band under the round bar. It was cut at the left edge: left:auto
+       (career-interface.css) + right:auto (above) + translateX(-50%) (game-shell.css) put half of it outside the stage. */
+/* Centred in the free part of the band: the edge tools (Auto, settings, modes; ~160 px) sit at the inline-end side. */
+#stageContainer{--hud-band-mid:calc(50% - 80px)}[dir=rtl] #stageContainer,#stageContainer[dir=rtl]{--hud-band-mid:calc(50% + 80px)}
+#stageContainer .bout-announcement[data-kind=countdown]{top:calc(var(--hud-status-top) + 26px)!important;left:var(--hud-band-mid)!important;max-width:calc(100% - 184px)!important;right:auto!important;transform:translateX(-50%)!important;width:max-content;max-width:calc(100% - 16px);display:flex;align-items:baseline;justify-content:center;gap:7px;padding:0!important;white-space:nowrap;animation:none}
+#stageContainer .bout-announcement[data-kind=countdown] strong{display:inline;font-size:22px!important;line-height:1;color:var(--gr-warning,#f4c152)}
+#stageContainer .bout-announcement[data-kind=countdown] span{display:inline;margin:0!important;font-size:10px!important}
+/* (c) Winner / KO line: the same top band (one line, never over the fighters). */
+#stageContainer .bout-announcement[data-kind=winner],#stageContainer .bout-announcement[data-ko=true],.game-enabled #stageContainer .bout-announcement[data-kind=winner]:not([hidden]):not([data-kind=countdown]){top:calc(var(--hud-status-top) + 26px)!important;left:var(--hud-band-mid)!important;right:auto!important;transform:translateX(-50%)!important;width:max-content;max-width:calc(100% - 184px)!important;overflow:hidden;display:flex;align-items:baseline;justify-content:center;gap:8px;padding:0!important;white-space:nowrap}
+#stageContainer .bout-announcement[data-kind=winner] strong,#stageContainer .bout-announcement[data-ko=true] strong{display:inline;font-size:20px!important;line-height:1.1}
+#stageContainer .bout-announcement[data-kind=winner] span,#stageContainer .bout-announcement[data-ko=true] span{display:inline;margin:0!important;font-size:11px!important;color:var(--gr-gold,#f4c152)}
+#stageContainer:has(#fightResults:not([hidden])) .fight-knockout{display:none}
+/* The results layer covers the stage but only its cards and buttons take space or taps. */
+body #fightResults,body.ringside-layout .fight-results,.club-app #fightResults{inset:0;top:0;left:0;right:0;bottom:0;transform:none;width:auto;max-width:none;padding:0;display:block;pointer-events:none;z-index:15}
+body #fightResults[hidden]{display:none}
+/* Three judges' score cards in a row at the inline-start side, under the winner line and above the fighters' heads
+   (at the ceremony the fighters fill the width of a phone, so the free band is the top one): arena-styled, compact. */
+#fightResults .fight-card-grid{position:absolute;top:calc(var(--hud-status-top) + 54px);inset-inline-start:8px;display:flex;flex-direction:row;gap:5px;margin:0}
+#fightResults .fight-card,#fightResults .fight-card + .fight-card{display:flex;flex-direction:column;align-items:center;gap:1px;width:64px;padding:2px 0 3px;border-radius:7px;border:1px solid color-mix(in srgb,var(--gr-gold,#f4c152) 55%,transparent);border-top:3px solid var(--gr-gold,#f4c152);background:linear-gradient(180deg,rgb(22 28 42/.92),rgb(10 14 22/.92));box-shadow:0 2px 8px rgb(0 0 0/.45)}
+#fightResults .fight-card + .fight-card::before{content:none}
+#fightResults .fight-card span{display:block;font-size:8.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gr-gold,#f4c152);text-shadow:none}
+#fightResults .fight-card strong{font-size:13px;line-height:1.1;font-weight:800;font-variant-numeric:tabular-nums;color:#fff;margin:0}
+/* Buttons in the bottom action band, centred between the Burst chip and the pause button. */
+#fightResults .fight-result-actions{position:absolute;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:max-content;max-width:calc(100% - 250px);pointer-events:auto}
+#fightResults .fight-result-actions button{min-height:36px;padding:0 12px;font-size:12px;border-radius:999px;background:var(--hud-chip-strong);border:1px solid var(--hud-line);color:var(--gr-text,#f3f6fb)}
+/* After the result the pad is put away (fighter-pad.js) and the old paged move panel stays hidden too: the bottom band holds the buttons. */
+body.fight-over #manualControls,body.fight-over .manual-controls,body.ringside-layout.fight-over .manual-pages:not([hidden]),body.fight-over .manual-pages,body.fight-over .manual-status{display:none!important}

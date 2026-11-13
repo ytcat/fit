@@ -1,3 +1,5 @@
+> **2026-11-12:** Chapter 1 is being rebuilt from the owner's script — see [CHAPTER1_SCRIPT_V2.md](CHAPTER1_SCRIPT_V2.md) (GOTR-0078). The chapter-1 parts below describe what is live in v1.47–v1.48.
+
 # Gloryland — story layer (approved by the owner 2026-11-11, GOTR-0056)
 
 Rise to champion. Every mission happens because of the previous one; the Next bar always shows the next story beat.

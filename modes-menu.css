@@ -41,3 +41,19 @@ body.gm-on .ringside-toolbar{display:none!important}
 /* Adventure home: a full-width layer below the header (header buttons stay usable), not a floating modal */
 .game-dialog.adv-dialog.game-home{position:fixed;inset:var(--gm-home-top,0px) 0 0 0;top:var(--gm-home-top,0px);width:100%;max-width:100%;height:auto;max-height:none;margin:0;border-radius:0;border-width:0;z-index:19}
 .game-dialog.adv-dialog.game-home>.game-dialog-head,.game-dialog.adv-dialog.game-home>.game-primary{display:none}
+/* GOTR-0071: the timed-round tool is a stopwatch with its seconds; while a round runs it pulses softly (tap again = stop). */
+.gm-tool-timer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.gm-tool-timer svg{width:15px;height:15px;flex:none}
+.gm-tool-sec{font:800 11px/1 inherit;font-family:inherit;font-variant-numeric:tabular-nums}
+.gm-tool-timer[data-state="run"]{background:color-mix(in srgb,var(--gr-surface-2,#1a2230) 78%,transparent);color:var(--gr-text,#f3f6fb);border:2px solid var(--gr-accent,#e63946)}
+/* The round line: plain text on the scene (no box or card), top inline-start corner, beside the edge tools, above the fighters' heads. */
+.gm-round{position:absolute;z-index:7;margin:0;color:#fff;font-size:12.5px;line-height:1.3;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.75);pointer-events:none;text-align:start}
+.gm-round[hidden]{display:none}
+.gm-round p{margin:0}
+.gm-round-title{font-size:14px;font-weight:800}
+.gm-round-left{color:#ffb0a6;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gm-round-sub{margin-top:2px}
+.gm-round-hint{margin-top:2px;opacity:.82;font-size:11.5px}
+.gm-round-hint[hidden],.gm-round-again[hidden]{display:none}
+.gm-round-again{pointer-events:auto;margin:0;margin-inline-start:-6px;padding:0 6px;min-height:44px;min-width:44px;background:none;border:0;color:#fff;font:800 14px/1 inherit;font-family:inherit;text-decoration:underline;text-underline-offset:3px;text-shadow:inherit;cursor:pointer}
+.gm-round-again:focus-visible{outline:2px solid var(--gr-info,#3b82f6);outline-offset:2px}
