@@ -90,3 +90,31 @@ for (const species of ['lion', 'rabbit']) {
   }
 }
 console.log('dream scenes ok');
+
+// ---- owner's clothes rule: kit and gloves only in the gym and the ring; outside a fight people stand like people
+{
+  const S = require('../adventure/story/story-core.js'), src = fs.readFileSync('adventure/story/story-scenes.js', 'utf8');
+  const games = [...src.matchAll(/\n    (\w+): \{\n      set: '(\w+)', roles:/g)].map(m => [m[1], { set: m[2] }]);
+  assert.ok(games.length >= 5, 'trials found'); assert.ok(/StoryCast\.outfit\(c, wear/.test(src) && /C\.outfitFor\(place\)/.test(src), 'the player dresses every rig for the place');
+  const everything = [...Object.entries(S.scenes), ...games, ...all];
+  const fighter = new LionCoach(data, { species: 'lion' }), other = new LionCoach(data, { species: 'rabbit' });
+  for (const [id, sc] of everything) {
+    const place = sc.place || S.placeOf(sc), wear = S.outfitFor(place); assert.ok(S.PLACES.includes(place), id + ' has a place: ' + place);
+    if (['gym', 'ring'].includes(place)) { assert.equal(wear, 'kit'); continue; }
+    assert.notEqual(wear, 'kit', id + ' (' + place + '): no boxing kit');
+    for (const c of [fighter, other]) {
+      assert.equal(StoryCast.outfit(c, wear, { tint: '#8f2f22' }), true); assert.notEqual(StoryCast.outfitOf(c), 'kit', id + ': dressed for the ' + place);
+      assert.ok(!c.gloveMeshes.L.visible && !c.gloveMeshes.R.visible && !c.shorts.visible, id + ': no gloves or trunks on the ' + place);
+    }
+    // nobody stands in the guard or punches in a scene that has no fight (scene.fight marks the three that do)
+    for (const [who, a] of Object.entries(sc.actors || {})) a.keys.forEach(k => { if (S.FIGHT_ACTS.includes(k.act)) assert.ok(sc.fight === true, id + ': ' + who + ' is in a fight act (' + k.act + ') in a scene without a fight'); });
+  }
+  for (const c of [fighter, other]) for (const wear of ['street', 'track_wraps']) {
+    StoryCast.outfit(c, wear); const m = DreamPose.civil(c, { t: 2, dist: 0 });
+    assert.ok(m.hands.every(h => h[1] < 1.2), wear + ': relaxed hands hang below the chest (not the guard): ' + m.hands.map(h => h[1].toFixed(2)));
+    const g = c.update(2, 'guard', 'one_two', { guardCover: 1 }); assert.ok(g.hands.every(h => h[1] > 1.4), 'the guard is at the chin, for contrast');
+    StoryCast.outfit(c, 'kit'); assert.ok(c.gloveMeshes.L.visible && c.shorts.visible, 'kit back');
+  }
+  assert.ok(/everyday\(c, a, t, o\)/.test(src) && /FIGHT_ACTS/.test(src), 'the player poses non-fight acts with everyday body language');
+  console.log('clothes rule ok:', everything.length, 'scenes and trials');
+}

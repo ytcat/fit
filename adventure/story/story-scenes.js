@@ -77,7 +77,14 @@
     else c.update(phase * 1.22, move, 'one_two', { ...base, guardCover: 1, power, recoil: 0, advance: 0, contactDrive: 0 });
   }
   /** Poses one rig from an actor state: act + walking (procedural boxer's step through the controller's ringStep). Returns a hop height. */
+  const CIVIL = { idle: {}, wave: { R: 'wave' }, point: { R: 'point' }, laugh: { L: 'hips', R: 'hips' }, block: { L: 'cross', R: 'cross2' }, flex: { R: 'fist' }, mitts: { L: 'open', R: 'open' } };
+  /** Owner's rule: outside a fight or drill moment a character stands, walks and talks like a person (DreamPose), never in the guard. */
+  function everyday(c, a, t, o) {
+    const P = window.DreamPose, fight = Core().FIGHT_ACTS.includes(a.act); if (!P || fight || !(a.act in CIVIL) && !a.walking) return false;
+    P.civil(c, { t, dt: o.dt || 0, dist: a.dist ?? (a.stepPhase || 0) * P.STRIDE, walk: a.walking ? 1 : 0, arms: a.walking && a.act !== 'idle' && !(a.act in CIVIL) ? {} : CIVIL[a.act] || {}, nod: a.act === 'laugh' ? 1 : 0, talk: o.talking ? 1 : null }); return true;
+  }
   function pose(c, a, t, o = {}) {
+    if (a.act !== 'carry' && everyday(c, a, t, o)) return a.act === 'laugh' && !o.reduced ? .012 * Math.abs(Math.sin(a.actT * 12)) : 0;
     const base = { simulationTime: t, keepFaceClear: true, ...o.options }, act = a.act, relaxed = { mode: 'waiting', raise: 0 };
     if (a.walking) base.ringStep = { first: -1, phase: a.stepPhase, ease: a.stepPhase, weight: 1, turn: 0, delta: [0, 0, Core().STEP] };
     let y = 0;
@@ -303,7 +310,8 @@
     const run = { id, closed: false, t: 0, ui, host: ui.host, edge: 0 };
     current = run;
     let set = null, scene = null, camera = null, borrowed = [], mitts = [], rigs = {}, sim = null, stageMove = null, oldFit = null, finished = false, blobs = [];
-    let memo = {}, hard = !!opts.hard, acts = 0; const look = V(), extras = [];
+    let memo = {}, hard = !!opts.hard, acts = 0; const look = V(), extras = [], dressed = [];
+    const place = C.placeOf(game || scene0), wear = C.outfitFor(place); run.place = place; run.wear = wear;
     const finish = (result = {}) => {
       if (run.closed) return; run.closed = true; if (current === run) current = null;
       try { cleanup(); } catch (x) { console.warn('story', x); }
@@ -315,6 +323,7 @@
       if (e.fightIQDemo === run) e.fightIQDemo = null;
       for (const m of mitts) window.TrainingGear?.dispose(m); mitts = [];
       for (const m of extras) { scene?.remove(m); m.material?.dispose(); } if (extras.length) extras[0].geometry.dispose(); extras.length = 0;
+      for (const c of dressed) { window.StoryCast?.outfit(c, 'kit'); window.DreamPose?.reset(c); } dressed.length = 0;
       for (const b of borrowed) giveBack(b); borrowed = [];
       for (const b of blobs) { scene?.remove(b.mesh); } if (blobs.length) { blobs[0].mesh.geometry.dispose(); blobs[0].mesh.material.map.dispose(); blobs[0].mesh.material.dispose(); } blobs = [];
       set?.dispose(); set = null;
@@ -347,7 +356,8 @@
       for (const [key, a] of Object.entries(game ? game.roles : scene0.actors)) {
         const c = rigFor(a.rig || key, e, borrowed.map(b => b.c));
         borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.root.scale.set(-1, 1, 1); /* GOTR-0074: fighters are mirrored at the root; a plain scale of 1 tears the skin */ c.maneInitialized = false; rigs[key] = c;
-        if (a.mitts && window.TrainingGear) mitts.push(window.TrainingGear.mitt(c, 'L'), window.TrainingGear.mitt(c, 'R'));
+        window.DreamPose?.reset(c); if (window.StoryCast) { window.StoryCast.outfit(c, wear, { tint: looks[a.rig || key]?.shorts }); dressed.push(c); } // clothes follow the place (kit and gloves only in the gym and the ring)
+        if (a.mitts && window.TrainingGear && wear === 'kit') mitts.push(window.TrainingGear.mitt(c, 'L'), window.TrainingGear.mitt(c, 'R'));
       }
       if (game) { sim = game.make(Trials(), { hard }); run.intro = opts.noIntro ? 0 : 3; }
       // Soft contact shade under every character: keeps feet on the ground when the device has turned shadows off.

@@ -69,7 +69,7 @@
   const scenes = {
     /* Beat 0. Map dive, the bus pulls in, the Fighter steps off with his bag, looks up at the city, walks to Bruno's Gym. */
     dream_opening: {
-      set: 'dream_street', intro: 'map', duration: 31.5, chapter: 1, outfit: { fighter: 'street' }, bag: [{ t: 0, on: 'shoulder' }],
+      set: 'dream_street', place: 'street', intro: 'map', duration: 31.5, chapter: 1, outfit: { fighter: 'street' }, bag: [{ t: 0, on: 'shoulder' }],
       camera: [
         { t: 0, pos: [-24, 40, 5], look: [-2, 0, 3] },                                        // down from the sky
         { t: 4.6, pos: [9.6, 2.7, 10.4], look: [.4, 1.5, 3.4] },
@@ -119,7 +119,7 @@
 
     /* Beat 1. The gym hall. He has no money, one bag and a dream. "Words are cheap. Show me." Brick steps forward. */
     dream_gym_talk: {
-      set: 'dream_gym', duration: 44, chapter: 1, tap: true, outfit: { fighter: 'street' },
+      set: 'dream_gym', place: 'gym', duration: 44, chapter: 1, tap: true, outfit: { fighter: 'street' },
       bag: [{ t: 0, on: 'shoulder' }, { t: 4.2, on: 'floor', at: [-1.5, .55, .5] }],
       camera: [
         { t: 0, pos: [-1.2, 2.3, 8.6], look: [.6, 1.25, -1.5] },                               // the hall: ring, bags, Bruno
@@ -196,7 +196,7 @@
   /* Beat 2, after the fight. Bruno's job offer; the loss is the expected story, a win is remembered. */
   function afterBrick(win) {
     return {
-      set: 'dream_gym', duration: 24, chapter: 1, tap: true, outcome: win ? 'win' : 'loss', outfit: { fighter: 'kit' },
+      set: 'dream_gym', place: 'gym', duration: 24, chapter: 1, tap: true, outcome: win ? 'win' : 'loss', outfit: { fighter: 'kit' },
       camera: [
         { t: 0, pos: [-1.0, 1.25, 4.3], look: [-.55, 1.2, .8] },
         { t: 4, pos: [0, 1.5, 4.5], look: [0, 1.3, .8], ease: 'smooth' },

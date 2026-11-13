@@ -96,16 +96,16 @@
       ],
       actors: {
         fighter: { rig: 'fighter', keys: [
-          { t: 0, x: 0.6, z: -4.8, act: 'shadow', face: 0.25 },
-          { t: 5.6, x: 0.6, z: -4.8, act: 'guard', face: [-1.5, -5.1] },
+          { t: 0, x: 0.6, z: -4.8, act: 'idle', face: 0.25 },
+          { t: 5.6, x: 0.6, z: -4.8, act: 'idle', face: [-1.5, -5.1] },
           { t: 8.0, x: 0.6, z: -4.8, act: 'idle', face: [-1.5, -5.1] }
         ] },
-        pip: { rig: 'pip', mitts: true, keys: [
+        pip: { rig: 'pip', keys: [
           { t: 0, x: -8.2, z: -5.3, act: 'idle', face: Math.PI / 2 },
           { t: 1.0, x: -8.2, z: -5.3 },
           { t: 5.6, x: -1.5, z: -5.1, act: WAVE, face: [0.6, -4.8] },
           { t: 6.8, x: -1.5, z: -5.1, act: POINT },
-          { t: 8.4, x: -1.5, z: -5.1, act: 'mitts' }
+          { t: 8.4, x: -1.5, z: -5.1, act: 'idle' }
         ] }
       },
       props: { bus: [{ t: 0, v: [0.4] }, { t: 0.7, v: [0.4] }, { t: 3.6, v: [30], ease: 'in' }] },
@@ -126,7 +126,7 @@
       actors: {
         fighter: { rig: 'fighter', keys: [
           { t: 0, x: -8.2, z: -0.9, act: 'idle', face: [-11.6, -1.2] },
-          { t: 2.6, x: -8.2, z: -0.9, act: 'guard' },
+          { t: 2.6, x: -8.2, z: -0.9, act: 'idle' },
           { t: 4.4, x: -8.2, z: -0.9, act: 'idle' }
         ] },
         brick: { rig: 'brick', keys: [
@@ -155,7 +155,7 @@
         { t: 10.2, pos: [5.2, 1.55, 3.3], look: [6.9, 1.3, -1.0], fit: ['dash', 'fighter'], ease: 'linear' }
       ],
       actors: {
-        fighter: { rig: 'fighter', keys: [{ t: 0, x: 5.4, z: -0.5, act: 'idle', face: [8, -1.4] }, { t: 6.2, x: 5.4, z: -0.5, act: 'guard', face: [7.4, -1.4] }, { t: 8.4, x: 5.4, z: -0.5, act: 'idle' }] },
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: 5.4, z: -0.5, act: 'idle', face: [8, -1.4] }, { t: 6.2, x: 5.4, z: -0.5, act: 'idle', face: [7.4, -1.4] }, { t: 8.4, x: 5.4, z: -0.5, act: 'idle' }] },
         regular: { rig: 'regular', keys: [{ t: 0, x: 8.7, z: -1.4, act: 'shadow', face: [7.4, -1.4] }, { t: 2.0, x: 8.7, z: -1.4, act: 'guard' }, { t: 2.95, x: 8.7, z: -1.4, act: 'down' }] },
         dash: { rig: 'dash', keys: [
           { t: 0, x: 2.4, z: -1.6, act: 'idle', face: Math.PI / 2 },
@@ -203,7 +203,7 @@
       ],
       actors: {
         brick: { rig: 'brick', keys: [{ t: 0, x: 11, z: -2.5, act: 'idle', face: [9.5, -1.7] }, { t: 0.5, x: 11, z: -2.5 }, { t: 2.2, x: 12.9, z: -1.5, act: 'idle', face: [9.5, -1.7] }, { t: 4.4, x: 12.9, z: -1.5, act: 'off' }] }, // out of the shot: not drawn
-        fighter: { rig: 'fighter', keys: [{ t: 0, x: 9.6, z: -1.7, act: 'guard', face: [11, -2.5] }, { t: 2.6, x: 9.6, z: -1.7, act: 'idle', face: [8.3, -1.5] }, { t: 6.0, x: 9.6, z: -1.7, act: 'flex' }] },
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: 9.6, z: -1.7, act: 'idle', face: [11, -2.5] }, { t: 2.6, x: 9.6, z: -1.7, act: 'idle', face: [8.3, -1.5] }, { t: 6.0, x: 9.6, z: -1.7, act: 'flex' }] },
         pip: { rig: 'pip', keys: [{ t: 0, x: 6.6, z: -0.8, act: 'idle', face: Math.PI / 2 }, { t: 2.2, x: 6.6, z: -0.8 }, { t: 3.6, x: 7.6, z: -1.5, act: 'point', face: [9.6, -1.7] }, { t: 6.2, x: 7.6, z: -1.5, act: 'idle' }, { t: 7.2, x: 7.6, z: -1.5, act: 'wave' }] }
       },
       props: {},
@@ -228,8 +228,8 @@
         { t: 9.6, pos: [-1.2, 1.55, 3.1], look: [0.3, 1.3, -0.9], fit: ['vix', 'fighter'], ease: 'linear' }
       ],
       actors: {
-        fighter: { rig: 'fighter', keys: [{ t: 0, x: -5.2, z: -0.5, act: 'idle', face: HALF }, { t: 0.4, x: -5.2, z: -0.5 }, { t: 3.3, x: -0.7, z: -0.8, act: 'idle', face: [1.3, -1.0] }, { t: 6.4, x: -0.7, z: -0.8, act: 'guard' }] },
-        vix: { rig: 'vix', keys: [{ t: 0, x: 1.3, z: -1.0, act: 'shadow', face: 0.5 }, { t: 3.3, x: 1.3, z: -1.0, act: 'idle', face: [-0.7, -0.8] }, { t: 4.4, x: 1.3, z: -1.0, act: 'point' }, { t: 6.2, x: 1.3, z: -1.0, act: 'mitts' }] }
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: -5.2, z: -0.5, act: 'idle', face: HALF }, { t: 0.4, x: -5.2, z: -0.5 }, { t: 3.3, x: -0.7, z: -0.8, act: 'idle', face: [1.3, -1.0] }, { t: 6.4, x: -0.7, z: -0.8, act: 'idle' }] },
+        vix: { rig: 'vix', keys: [{ t: 0, x: 1.3, z: -1.0, act: 'idle', face: 0.5 }, { t: 3.3, x: 1.3, z: -1.0, act: 'idle', face: [-0.7, -0.8] }, { t: 4.4, x: 1.3, z: -1.0, act: 'point' }, { t: 6.2, x: 1.3, z: -1.0, act: 'idle' }] }
       },
       props: {},
       lines: [
@@ -248,7 +248,7 @@
         { t: 9.6, pos: [-1.6, 1.55, 2.9], look: [-2.0, 1.3, -0.9], fit: ['pip', 'fighter'], ease: 'linear' }
       ],
       actors: {
-        fighter: { rig: 'fighter', keys: [{ t: 0, x: -1.2, z: -0.8, act: 'idle', face: [-3, -1] }, { t: 5.4, x: -1.2, z: -0.8, act: 'guard', face: HALF }] },
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: -1.2, z: -0.8, act: 'idle', face: [-3, -1] }, { t: 5.4, x: -1.2, z: -0.8, act: 'idle', face: HALF }] },
         pip: { rig: 'pip', keys: [{ t: 0, x: -3.0, z: -1.0, act: 'idle', face: [-1.2, -0.8] }, { t: 0.6, x: -3.0, z: -1.0, act: 'wave' }, { t: 3.4, x: -3.0, z: -1.0, act: 'idle' }, { t: 5.6, x: -3.0, z: -1.0, act: 'point', face: HALF }] },
         raccoon: { rig: 'raccoon', keys: [{ t: 0, x: -8.5, z: -2.0, act: 'off', face: HALF }, { t: 1.0, x: -8.5, z: -2.0, act: 'idle' }, { t: 3.1, x: -3.75, z: -1.55, act: 'point', face: [-3.0, -1.0] }, { t: 3.7, x: -3.75, z: -1.55, act: 'idle' }, { t: 6.2, x: 9.5, z: -1.3 }, { t: 6.3, x: 9.5, z: -1.3, act: 'off' }] }
       },
@@ -270,7 +270,7 @@
       actors: {
         regular: { rig: 'regular', keys: [{ t: 0, x: 14.4, z: -1.3, act: 'down', face: [12.9, -1] }] },
         dash: { rig: 'dash', keys: [{ t: 0, x: 12.9, z: -1.0, act: 'flex', face: 0.3 }, { t: 3.4, x: 12.9, z: -1.0, act: 'point', face: [11.0, -0.7] }, { t: 6.4, x: 12.9, z: -1.0, act: 'laugh' }] },
-        fighter: { rig: 'fighter', keys: [{ t: 0, x: 8.2, z: -0.4, act: 'idle', face: HALF }, { t: 0.6, x: 8.2, z: -0.4 }, { t: 2.6, x: 11.0, z: -0.7, act: 'idle', face: [12.9, -1.0] }, { t: 3.6, x: 11.0, z: -0.7, act: 'guard' }] }
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: 8.2, z: -0.4, act: 'idle', face: HALF }, { t: 0.6, x: 8.2, z: -0.4 }, { t: 2.6, x: 11.0, z: -0.7, act: 'idle', face: [12.9, -1.0] }, { t: 3.6, x: 11.0, z: -0.7, act: 'idle' }] }
       },
       props: {},
       lines: [
@@ -306,7 +306,7 @@
       ],
       actors: {
         king: { rig: 'king', keys: [{ t: 0, x: -14, z: -1.2, act: 'down', face: [-12.2, -0.9] }, { t: 3.4, x: -14, z: -1.2, act: 'idle' }] },
-        fighter: { rig: 'fighter', keys: [{ t: 0, x: -12.2, z: -0.9, act: 'guard', face: [-14, -1.2] }, { t: 1.0, x: -12.2, z: -0.9, act: 'idle' }, { t: 3.8, x: -12.2, z: -0.9, act: 'flex', face: 0.6 }] }
+        fighter: { rig: 'fighter', keys: [{ t: 0, x: -12.2, z: -0.9, act: 'idle', face: [-14, -1.2] }, { t: 1.0, x: -12.2, z: -0.9, act: 'idle' }, { t: 3.8, x: -12.2, z: -0.9, act: 'flex', face: 0.6 }] }
       },
       props: {},
       lines: [
@@ -317,6 +317,20 @@
     }
   });
 
-  const api = { clamp, smooth, EASE, segment, camera, prop, actor, line, sample, validate, scenes, STEP, L };
+  /* ---------------------------------------------------------------- places and clothes (owner's rule, GOTR-0078)
+   * Boxing kit and gloves belong to the gym and the ring only. Every scene and every skill trial has a place kind; the
+   * outfit of EVERY character in it follows the place: street and market -> street clothes, bare hands; docks -> long
+   * track pants and hand wraps, no gloves; gym and ring -> boxing kit. Outside a fight or drill moment characters stand
+   * and move like people (no guard). */
+  const PLACES = ['street', 'market', 'docks', 'gym', 'ring'];
+  const SET_PLACE = { busstop: 'street', gymfront: 'street', market: 'market', dream_street: 'street', dream_gym: 'gym' };
+  const OUTFIT = { street: 'street', market: 'street', docks: 'track_wraps', gym: 'kit', ring: 'kit' };
+  const placeOf = scene => scene?.place || SET_PLACE[scene?.set] || 'street';
+  const outfitFor = place => OUTFIT[place] || 'street';
+  /** Acts that are a fight or a punching drill: only these may show the guard or punches. Everything else is everyday body language. */
+  const FIGHT_ACTS = ['guard', 'shadow', 'combo', 'move'];
+  for (const sc of Object.values(scenes)) sc.place = placeOf(sc);
+  for (const id of ['dash', 'boss_intro', 'hyena_intro']) scenes[id].fight = true; // scenes where a fight really starts or happens: the only ones that may use FIGHT_ACTS
+  const api = { clamp, smooth, EASE, segment, camera, prop, actor, line, sample, validate, scenes, STEP, L, PLACES, SET_PLACE, placeOf, outfitFor, FIGHT_ACTS };
   if (typeof module !== 'undefined') module.exports = api; else window.StoryCore = api;
 })();

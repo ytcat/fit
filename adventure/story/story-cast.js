@@ -456,8 +456,8 @@
     // arrival clothes: a grey marl hoodie, worn jeans, tired canvas sneakers, bare hands
     street: {
       hide: ['gloves', 'shorts', 'boots', 'trim', 'fur'],
-      cloth(rig) {
-        const tone = HOODIE[rig.species] || HOODIE.lion, hood = lin(tone[0]), dark = lin(tone[1]), denim = lin('#3d5b86'), worn = lin('#7f9cc4'), seam = lin('#c9a36a'), tmp = new THREE.Color();
+      cloth(rig, tint) {
+        const tone = HOODIE[rig.species] || HOODIE.lion, hood = tint ? lin(tint).lerp(lin('#8a8f96'), .35) : lin(tone[0]), dark = tint ? hood.clone().multiplyScalar(.72) : lin(tone[1]), denim = lin('#3d5b86'), worn = lin('#7f9cc4'), seam = lin('#c9a36a'), tmp = new THREE.Color();
         return v => {
           const ax = Math.abs(v.x);
           if (v.y > 1.772 || ax > .925 || v.y < .112) return null;
@@ -480,12 +480,12 @@
           return { d: .022 + .006 * waist + .005 * pocket + wr + gather - .006 * Math.max(hem, cuff) * (1 - rib * .5) - .006 * smooth((v.y - 1.71) / .06), c, move };
         };
       },
-      parts(rig, add) {
+      parts(rig, add, tint) {
         const f = FUR[rig.species] || FUR.lion, j = rig.joints, B = (x, y, back) => seat(rig, x, y, false, .02, back);
         for (const m of bareHands(rig, f.fur, f.pad)) add(m);
         for (const m of shoes(rig, { upper: '#d6cfbf', toe: '#bdb5a3', sole: '#a79e8c', edge: '#8c3b33', lace: '#efeadf', collar: '#b9b1a0' })) add(m);
         // the hood lies on the upper back; a collar ring and two drawstrings in front
-        const P = new Parts(), [hood, dark] = HOODIE[rig.species] || HOODIE.lion, bz = B(0, 1.66, true), o = V(0, 1.36, 0), L = p => p.clone().sub(o);
+        const hc = tint ? lin(tint).lerp(lin('#8a8f96'), .35) : lin((HOODIE[rig.species] || HOODIE.lion)[0]), P = new Parts(), hood = hc, dark = hc.clone().multiplyScalar(.72), bz = B(0, 1.66, true), o = V(0, 1.36, 0), L = p => p.clone().sub(o);
         P.sph(L(V(0, 1.63, bz - .02)), V(.2, .17, .07), hood, [.2, 0, 0]); P.sph(L(V(0, 1.675, bz - .068)), V(.13, .09, .03), dark, [.2, 0, 0]); for (const sd of [-1, 1]) P.sph(L(V(sd * .13, 1.72, bz * .5 - .01)), V(.075, .06, .1), hood, [0, sd * .5, 0]);
         P.tor(L(V(0, 1.775, -.012)), V(.118, .135, .11), hood, [Math.PI / 2 - .22, 0, 0]);
         for (const s of [-1, 1]) { const z = B(s * .045, 1.62); P.ribbon([L(V(s * .05, 1.70, B(s * .05, 1.70) + .01)), L(V(s * .045, 1.64, B(s * .045, 1.64) + .01)), L(V(s * .05, 1.575, B(s * .05, 1.575) + .008))], .008, .008, '#e9e4d8', V(1, 0, 0), 10, 6); P.sph(L(V(s * .05, 1.568, B(s * .05, 1.575) + .008)), V(.008, .012, .008), '#e9e4d8'); }
@@ -493,19 +493,36 @@
       }
     }
   };
+  // the docks: long track pants, hand wraps, no gloves, bare chest
+  OUTFITS.track_wraps = {
+    hide: ['gloves', 'shorts', 'boots', 'trim'],
+    cloth(rig, tint) {
+      const pants = lin('#2f333b'), stripe = lin(tint || '#d9d4c6'), tmp = new THREE.Color();
+      return v => { if (v.y > 1.075 || v.y < .112 || v.arm > .5) return null; const ax = Math.abs(v.x), side = bell(Math.abs(Math.atan2(v.z, ax - (.15 + (1 - v.y) * .07))), 0, .16) * smooth((ax - .2) / .04), band2 = 1 - smooth((1.045 - v.y) / .02);
+        return { d: (.015 + .008 * bell(v.y, .13, .03)) * (1 - .4 * smooth((v.y - 1.05) / .025)), c: tmp.copy(pants).lerp(stripe, clamp(side * 1.3)).lerp(lin('#1d2026'), band2).clone(), move: v.y < .93 ? trouser(v, lerp(.112, .126, smooth((v.y - .5) / .4)), smooth((.93 - v.y) / .1)) : null }; };
+    },
+    parts(rig, add) {
+      const f = FUR[rig.species] || FUR.lion;
+      for (const m of bareHands(rig, f.fur, f.pad)) add(m);
+      for (const sd of ['L', 'R']) { const P = new Parts(); for (let k = 0; k < 4; k++) P.tor(V(0, -.012 - k * .024, 0), V(.047 - k * .001, .04, .05), '#f1ece0', [Math.PI / 2, 0, 0]); P.sph(V(0, -.098, .008), V(.048, .03, .034), '#f1ece0', [.35, 0, 0]); const m = P.mesh('Hand wraps'); rig.joints['hand' + sd].add(m); add(m); }
+      for (const m of shoes(rig, { upper: '#3b3e46', toe: '#2a2d33', sole: '#c9c0ae', lace: '#d8d2c4' })) add(m);
+    }
+  };
   const state = rig => rig.storyCast || (rig.storyCast = { outfit: 'kit', built: {}, hidden: [], base: null, bag: null });
-  function outfit(rig, name) {
+  function outfit(rig, name, o = {}) {
     if (!rig?.skin || !(name in OUTFITS)) return false;
-    groom(rig); const st = state(rig), g = rig.skin.geometry; if (st.outfit === name) return true;
+    if (rig.cast) return true; // story characters wear their own clothes (Bruno) or their kit (Brick)
+    const tint = name !== 'kit' && o.tint ? String(o.tint) : '', key = name + (tint ? '|' + tint : '');
+    groom(rig); const st = state(rig), g = rig.skin.geometry; if (st.key === key || (name === 'kit' && st.outfit === 'kit')) return true;
     // back to the kit: streams and every visibility flag exactly as they were
-    if (st.outfit !== 'kit') { use(g, st.base); for (const [o, v] of st.hidden) o.visible = v; st.hidden = []; for (const m of st.built[st.outfit].parts) m.visible = false; if (st.bag) st.bag.visible = false; st.outfit = 'kit'; }
+    if (st.outfit !== 'kit') { use(g, st.base); for (const [o, v] of st.hidden) o.visible = v; st.hidden = []; for (const m of st.built[st.key].parts) m.visible = false; if (st.bag) st.bag.visible = false; st.outfit = 'kit'; st.key = 'kit'; }
     if (name === 'kit') return true;
     const def = OUTFITS[name]; if (!st.base) st.base = grab(g);
-    let b = st.built[name];
-    if (!b) { b = st.built[name] = { parts: [], streams: null }; if (def.cloth) { b.streams = dress(g, def.cloth(rig), { relax: 26 }); use(g, b.streams); } if (def.parts) def.parts(rig, m => b.parts.push(m)); } // small parts are seated on the dressed surface
+    let b = st.built[key];
+    if (!b) { b = st.built[key] = { parts: [], streams: null }; if (def.cloth) { b.streams = dress(g, def.cloth(rig, tint), { relax: 26 }); use(g, b.streams); } if (def.parts) def.parts(rig, m => b.parts.push(m), tint); } // small parts are seated on the dressed surface
     if (b.streams) use(g, b.streams);
     const kit = kitParts(rig); for (const k of def.hide || []) for (const o of kit[k] || []) { st.hidden.push([o, o.visible]); o.visible = false; }
-    for (const m of b.parts) m.visible = true; st.outfit = name; return true;
+    for (const m of b.parts) m.visible = true; st.outfit = name; st.key = key; return true;
   }
   const outfitOf = rig => rig?.storyCast?.outfit || 'kit';
 
