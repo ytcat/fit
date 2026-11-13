@@ -8,7 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.56 | 2026-11-13 | _pending_ | Hotfix: the Fighter is no longer torn apart in the scene after the first Brick fight (GOTR-0085) |
+| v1.56 | 2026-11-13 | `6c3b186` | Hotfix: the Fighter is no longer torn apart in the scene after the first Brick fight (GOTR-0085) |
 | v1.55 | 2026-11-13 | `bd3082d` | Outside a fight nobody holds a boxing guard: relaxed standing, a real walk with arm swing, talk gestures, in every story scene and trial intro. Clothes follow the place: street clothes and bare hands on the street and market, track pants and hand wraps at the docks, boxing kit only in the gym and ring (old scenes included). Third pass on the cast: fur, Brick head, cloth (GOTR-0078) |
 | v1.54 | 2026-11-13 | `41afa17` | Character portraits rendered from the real 3D heads in a metal ring (monogram badges for characters without a model yet); Pip is Mack in every text (GOTR-0081) |
 | v1.53 | 2026-11-13 | `510bf6a` | Chapter 1 "The Dream", part 1: opening film from the city map to the bus station, the Fighter arrives in street clothes with his bag and walks to the gym; Coach Bruno (bear) and Brick (bulldog); gym conversation; first fight against Brick where a loss or a win both continue the story; the 12 steps of the new chapter (several still stand-ins) (GOTR-0078). Dev build: "Skip step (dev)" and open any step. "Reset game" in Player & backup. Brick's bag trial easier (GOTR-0077). Pip renamed Mack (GOTR-0081). Next bar as plain buttons clear of the fighters |
