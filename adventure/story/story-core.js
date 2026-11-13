@@ -84,7 +84,7 @@
   /* ---------------------------------------------------------------- Chapter 1 scenes */
   const WAVE = 'wave', POINT = 'point';
   const scenes = {
-    // Bus-stop street corner. The bus pulls away, the Fighter is shadowboxing at the stop, Coach Pip walks over.
+    // Bus-stop street corner. The bus pulls away, the Fighter is shadowboxing at the stop, Mack walks over.
     arrival: {
       set: 'busstop', duration: 10.6, chapter: 1,
       camera: [
@@ -144,7 +144,7 @@
         { t: 3.3, dur: 4.6, who: 'brick', text: L('Ha! Meet the new bag, rookie. This one hits back!', 'הא! תכירו את השק החדש, טירון. הוא מחזיר!', 'Ха! Знакомься с новым мешком, салага. Он даёт сдачи!') }
       ]
     },
-    // Beat 4. Dash walks up to the morning session, drops a regular in seconds and laughs. Pip is heard, not seen.
+    // Beat 4. Dash walks up to the morning session, drops a regular in seconds and laughs. Mack is heard, not seen.
     dash: {
       set: 'gymfront', duration: 10.2, chapter: 1,
       camera: [
@@ -172,7 +172,7 @@
         { t: 8.2, dur: 2.0, who: 'pip', text: L('Easy. You will get him. Later.', 'רגוע. תגיעו אליו. אחר כך.', 'Спокойно. Ты до него доберёшься. Позже.') }
       ]
     },
-    // Boss intro: Brick blocks the gym door. Pip is heard from the Fighter's corner, not seen (two rigs on screen).
+    // Boss intro: Brick blocks the gym door. Mack is heard from the Fighter's corner, not seen (two rigs on screen).
     boss_intro: {
       set: 'gymfront', duration: 8.6, chapter: 1,
       camera: [
@@ -192,7 +192,7 @@
         { t: 5.4, dur: 2.8, who: 'pip', text: L('Hands up, chin down. You know how.', 'ידיים למעלה, סנטר למטה. אתם יודעים איך.', 'Руки выше, подбородок ниже. Ты умеешь.') }
       ]
     },
-    // Boss outro: Brick steps aside, Pip hands over his old hand wraps.
+    // Boss outro: Brick steps aside, Mack hands over his old hand wraps.
     boss_outro: {
       set: 'gymfront', duration: 9.4, chapter: 1, item: { id: 'wraps', holders: [{ t: 3.2, who: 'pip', hand: 'L' }, { t: 6.0, who: 'fighter', hand: 'R' }] },
       camera: [
@@ -237,7 +237,7 @@
         { t: 6.3, dur: 3.0, who: 'vix', text: L('Keep up with me and you have a coach.', 'תעמדו בקצב שלי ויש לכם מאמנת.', 'Не отставай от меня — и у тебя есть тренер.') }
       ]
     },
-    // The raccoon lifts Pip's whistle and runs.
+    // The raccoon lifts Mack's whistle and runs.
     whistle_theft: {
       set: 'market', duration: 9.6, chapter: 2, item: { id: 'whistle', holders: [{ t: 0, who: 'pip', hand: 'R' }, { t: 3.35, who: 'raccoon', hand: 'L' }] },
       camera: [

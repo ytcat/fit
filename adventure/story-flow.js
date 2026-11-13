@@ -1,73 +1,82 @@
 /* Story mode (GOTR-0069): each chapter is an ORDERED list of numbered story steps. Exactly one main step is current;
  * finished steps (at least one star, or the boss beaten) stay finished and can be replayed; later steps are locked.
- * Side steps are optional and appear once the step they follow is finished. Nothing new is saved: a step's state is
- * derived from the existing adventure save (mission stars, boss wins), so old saves keep every step they completed.
+ * Side steps are optional and appear once the step they follow is finished. A step's state is derived from the adventure save:
+ * mission stars, boss wins and, for chapter 1 "The Dream" (GOTR-0078), adventure.story (films, talks, story fights, the purchase;
+ * older saves are mapped once by adventure-progress.js migrate).
  * Data + pure rules + EN/HE/RU story text. Works in node (tests) and the browser (window.StoryFlow). */
 (() => {
   const L = (en, he, ru) => ({ en, he, ru });
   // S(id, title, why, recap, opts): why = why the Fighter does this NOW (who asked, what is at stake); recap = one line for "Story so far".
   const S = (id, title, why, recap, o = {}) => ({ id, title, why, recap, ...o });
   const chapters = {
-    1: { coach: 'pip', pin: 'oldtown', boss: 'brick', steps: [
-      S('one_two_mitts', L("Pip's trial", 'המבחן של פיפ', 'Испытание Пипа'),
-        L('You stepped off the bus in Gloryland with one bag and nothing else. Coach Pip saw you shadowboxing at the stop: pass one trial on his mitts and a corner of his gym is yours.',
-          'ירדתם מהאוטובוס בגלורילנד עם תיק אחד ותו לא. המאמן פיפ ראה אתכם מתאגרפים מול הצל בתחנה: עברו מבחן אחד על הכפות שלו, ופינה באולם שלו שלכם.',
-          'Ты вышел из автобуса в Глориленде с одной сумкой и больше ничем. Тренер Пип увидел, как ты боксируешь с тенью на остановке: пройди одно испытание на его лапах — и угол в его зале твой.'),
-        L("Arrived with nothing; passed Pip's trial and got a corner of his gym.", 'הגעתם בלי כלום; עברתם את המבחן של פיפ וקיבלתם פינה באולם.', 'Приехал ни с чем; прошёл испытание Пипа и получил угол в зале.'),
-        { scene: 'arrival', unlock: L("a corner in Pip's gym", 'פינה באולם של פיפ', 'угол в зале Пипа') }),
-      S('heavy_bag_van', L("Brick's bag", 'השק של בריק', 'Мешок Брика'),
-        L('Brick, the gym bully, wants the newcomer gone. He hung the new heavy bag swinging by the door to make you look silly. Hit every swing at its peak.',
-          'בריק, הבריון של האולם, רוצה שהחדשים ייעלמו. הוא תלה את השק הכבד החדש מתנדנד ליד הדלת כדי שתיראו מגוחכים. פגעו בכל תנופה בשיא.',
-          'Брик, задира зала, хочет выжить новичка. Он повесил новый мешок раскачиваться у двери, чтобы выставить тебя смешным. Бей каждый замах в верхней точке.'),
-        L("Tamed Brick's swinging bag in front of the whole gym.", 'אילפתם את השק המתנדנד של בריק מול כל האולם.', 'Укротил качающийся мешок Брика на глазах у всего зала.'),
-        { scene: 'brick' }),
-      S('bag_power', L('Pillow hands', 'ידיים של כרית', 'Руки-подушки'),
-        L('Brick now tells everyone you punch like a pillow. Pip says there is one answer: the power mark on the heavy bag, in front of him.',
-          'עכשיו בריק מספר לכולם שאתם מכים כמו כרית. פיפ אומר שיש רק תשובה אחת: סימן העוצמה על השק הכבד, מולו.',
-          'Теперь Брик всем рассказывает, что ты бьёшь как подушка. Пип говорит, ответ один: отметка силы на тяжёлом мешке, прямо при нём.'),
-        L('Hit the power mark and silenced Brick, for now.', 'הגעתם לסימן העוצמה והשתקתם את בריק, בינתיים.', 'Достал отметку силы и заткнул Брика. Пока что.')),
-      S('snoring_guard', L('The night guard', 'שומר הלילה', 'Ночной сторож'),
-        L('To train before Brick arrives you need the gym open at dawn, but the night guard sleeps on the keys and mumbles combos. Repeat them and he wakes up.',
-          'כדי להתאמן לפני שבריק מגיע צריך אולם פתוח עם שחר, אבל שומר הלילה ישן על המפתחות וממלמל רצפים. חזרו עליהם והוא יתעורר.',
-          'Чтобы тренироваться до прихода Брика, зал нужен открытым на рассвете, но ночной сторож спит на ключах и бормочет серии. Повтори их — и он проснётся.'),
-        L('Woke the night guard; the gym now opens for you at dawn.', 'העירו את שומר הלילה; האולם נפתח בשבילכם עם שחר.', 'Разбудил ночного сторожа; теперь зал открыт для тебя на рассвете.'),
-        { unlock: L('the gym at dawn', 'האולם עם שחר', 'зал на рассвете') }),
-      S('teach_the_kid', L("Pip's nephew", 'האחיין של פיפ', 'Племянник Пипа'),
-        L('Pip trusts you with his nephew for one lesson. If the kid throws a clean one-two, you are part of the gym, not a guest.',
-          'פיפ סומך עליכם עם האחיין שלו לשיעור אחד. אם הילד יזרוק ימין-שמאל נקי, אתם חלק מהאולם ולא אורחים.',
-          'Пип доверяет тебе племянника на один урок. Если малыш чисто выбросит двойку, ты часть зала, а не гость.'),
-        L("Taught Pip's nephew the one-two; Pip gave you your own locker.", 'לימדתם את האחיין של פיפ ימין-שמאל; פיפ נתן לכם לוקר משלכם.', 'Научил племянника Пипа двойке; Пип дал тебе свой шкафчик.'),
-        { unlock: L('your own locker', 'לוקר משלכם', 'свой шкафчик') }),
-      S('rope_rhythm', L('Rope at dawn', 'חבל עם שחר', 'Скакалка на рассвете'),
-        L("Optional: Pip's dawn rope routine for members only. Light feet build Stamina for later fights.",
-          'רשות: שגרת החבל של פיפ עם שחר, לחברי האולם בלבד. רגליים קלות בונות סיבולת לקרבות הבאים.',
-          'По желанию: утренняя скакалка Пипа, только для своих. Лёгкие ноги дают выносливость для будущих боёв.'),
-        L("Joined Pip's dawn rope routine.", 'הצטרפתם לשגרת החבל של פיפ עם שחר.', 'Присоединился к утренней скакалке Пипа.'),
-        { side: true, after: 'teach_the_kid' }),
-      S('roll_under_hook', L('Dash walks in', 'דאש נכנס', 'Входит Дэш'),
-        L('Dash, a cocky young fighter, beat a regular in seconds and laughed at you. Pip: "Not yet. First you learn to Roll under a Hook."',
-          'דאש, לוחם צעיר ושחצן, ניצח מתאמן קבוע תוך שניות וצחק עליכם. פיפ: "עוד לא. קודם לומדים Roll מתחת ל-Hook."',
-          'Дэш, дерзкий молодой боец, за секунды побил завсегдатая и посмеялся над тобой. Пип: «Рано. Сначала научись Roll под Hook».'),
-        L('Dash laughed at you; you learned to Roll under the Hook.', 'דאש צחק עליכם; למדתם Roll מתחת ל-Hook.', 'Дэш посмеялся; ты научился Roll под Hook.'),
-        { scene: 'dash', unlock: L('new move: Roll', 'מהלך חדש: Roll', 'новый приём: Roll') }),
-      S('morning_sparring', L('First Sparring', 'Sparring ראשון', 'Первый Sparring'),
-        L('Pip sets up your first real Sparring round so the gym can see you fight. Brick watches from the door, waiting for you to fail.',
-          'פיפ מארגן לכם סיבוב Sparring אמיתי ראשון כדי שכל האולם יראה אתכם נלחמים. בריק צופה מהדלת ומחכה שתיכשלו.',
-          'Пип устраивает твой первый настоящий раунд Sparring, чтобы зал увидел тебя в деле. Брик смотрит из дверей и ждёт провала.'),
-        L('Won the gym\'s respect in your first Sparring round.', 'זכיתם בכבוד של האולם בסיבוב ה-Sparring הראשון.', 'Заслужил уважение зала в первом раунде Sparring.'),
-        { unlock: L("Brick's challenge", 'האתגר של בריק', 'вызов Брика') }),
-      S('brick', L('Brick', 'בריק', 'Брик'),
-        L('Brick says this gym has room for only one of you. Win the bout and your place is yours for good; Pip promises his old hand wraps.',
-          'בריק אומר שבאולם הזה יש מקום רק לאחד מכם. נצחו בקרב והמקום שלכם לתמיד; פיפ מבטיח את חבישות הידיים הישנות שלו.',
-          'Брик говорит, что в зале место только для одного. Выиграй бой — и место твоё навсегда; Пип обещает свои старые бинты.'),
-        L('Beat Brick. Pip gave you his old hand wraps and sent you to Vix at Market Row.', 'ניצחתם את בריק. פיפ נתן לכם את החבישות הישנות שלו ושלח אתכם לוויקס בשדרת השוק.', 'Победил Брика. Пип отдал свои старые бинты и отправил тебя к Викс на Рыночный ряд.'),
-        { boss: true, scene: 'boss_intro', outro: 'boss_outro', unlock: L('Market Row and Coach Vix', 'שדרת השוק והמאמנת ויקס', 'Рыночный ряд и тренер Викс') })
+    // GOTR-0078 Chapter 1 "The Dream" (docs/adventure/CHAPTER1_SCRIPT_V2.md): beats 0-12 + side job A. Ids are stable and listed in
+    // adventure-progress.js dreamSteps (save order and old-save mapping). why = ONE short line under the picture; who = the face shown.
+    // event: finished by a story event (film, talk, fight, purchase), not by stars. stand: what still stands in for the real scene.
+    1: { coach: 'bruno', pin: 'oldtown', boss: 'brick', steps: [
+      S('dream_arrival', L('The big city', 'העיר הגדולה', 'Большой город'),
+        L('The bus stops. One bag, no money, and a dream.', 'האוטובוס עוצר. תיק אחד, בלי כסף, וחלום.', 'Автобус останавливается. Одна сумка, ни денег, и мечта.'),
+        L('Came to the big city with one bag, no money and a dream: world champion.', 'הגעתם לעיר הגדולה עם תיק אחד, בלי כסף ועם חלום: אלוף העולם.', 'Приехал в большой город с одной сумкой, без денег и с мечтой: стать чемпионом мира.'),
+        { event: true, who: 'fighter', beat: 0, goal: L('Watch the arrival (Skip any time)', 'צפו בהגעה (אפשר לדלג)', 'Посмотри приезд (можно пропустить)') }),
+      S('dream_gym_talk', L('Coach Bruno', 'המאמן ברונו', 'Тренер Бруно'),
+        L('Bruno ran this gym before you were born. Ask him for a chance.', 'ברונו מנהל את האולם הזה עוד לפני שנולדתם. בקשו ממנו הזדמנות.', 'Бруно держит этот зал дольше, чем ты живёшь. Попроси у него шанс.'),
+        L('Asked Coach Bruno for a chance. "Words are cheap. Show me."', 'ביקשתם מהמאמן ברונו הזדמנות. "מילים זה זול. תראו לי."', 'Попросил тренера Бруно о шансе. «Слова дёшевы. Покажи».'),
+        { event: true, who: 'bruno', beat: 1, goal: L('Talk to Coach Bruno (Skip any time)', 'דברו עם המאמן ברונו (אפשר לדלג)', 'Поговори с тренером Бруно (можно пропустить)') }),
+      S('first_brick', L('First fight: Brick', 'קרב ראשון: בריק', 'Первый бой: Брик'),
+        L('Brick is the gym champion. Win or lose, get up.', 'בריק הוא אלוף האולם. בניצחון או בהפסד, קומו.', 'Брик — чемпион зала. Победа или поражение — вставай.'),
+        L('Lost to Brick on the first day, but got up. Bruno gave you a job and a bed.', 'הפסדתם לבריק ביום הראשון, אבל קמתם. ברונו נתן לכם עבודה ומיטה.', 'В первый день проиграл Брику, но встал. Бруно дал тебе работу и койку.'),
+        { event: true, who: 'brick', beat: 2, recapWon: L('Beat Brick on the first day. Bruno gave you a job and a bed.', 'ניצחתם את בריק ביום הראשון. ברונו נתן לכם עבודה ומיטה.', 'В первый же день побил Брика. Бруно дал тебе работу и койку.'),
+          goal: L('Fight Brick. Win or lose, the story goes on.', 'הילחמו בבריק. בניצחון או בהפסד, הסיפור ממשיך.', 'Бой с Бриком. Победа или поражение — история продолжается.'),
+          unlock: L('a job, a bed and the night gym', 'עבודה, מיטה והאולם בלילה', 'работа, койка и ночной зал') }),
+      S('clean_gym', L('Clean the gym', 'לנקות את האולם', 'Уборка зала'),
+        L('Your job: mop in rhythm, feet light. Small pay.', 'העבודה שלכם: סמרטוט בקצב, רגליים קלות. שכר קטן.', 'Твоя работа: швабра в ритм, ноги лёгкие. Плата небольшая.'),
+        L("Took the job: cleaning Bruno's gym.", 'קיבלתם את העבודה: לנקות את האולם של ברונו.', 'Взялся за работу: убирать зал Бруно.'),
+        { side: true, after: 'first_brick', who: 'bruno', beat: 'A', stand: L('footwork on the heavy bag stands in for the mop lanes', 'עבודת רגליים מול השק במקום מסלולי הסמרטוט', 'работа ног у мешка вместо дорожек со шваброй') }),
+      S('night_shadow', L('Night Shadowboxing', 'Shadowboxing בלילה', 'Shadowboxing ночью'),
+        L('Night, the gym is empty. Just you and your shadow.', 'לילה, האולם ריק. רק אתם והצל.', 'Ночь, зал пуст. Только ты и твоя тень.'),
+        L('Trained Shadowboxing alone at night.', 'התאמנתם Shadowboxing לבד בלילה.', 'Ночью в одиночку тренировал Shadowboxing.'),
+        { who: 'fighter', beat: 3 }),
+      S('night_bag', L('The old bag', 'השק הישן', 'Старый мешок'),
+        L('Still night. Hit the old heavy bag like you mean it.', 'עדיין לילה. הכו בשק הכבד הישן ברצינות.', 'Всё та же ночь. Бей старый тяжёлый мешок всерьёз.'),
+        L('Hit the old heavy bag so hard the chain snapped.', 'הכיתם בשק הישן כל כך חזק שהשרשרת נקרעה.', 'Бил старый мешок так, что лопнула цепь.'),
+        { who: 'fighter', beat: 4, stand: L('the bag-break scene is still to come', 'סצנת השק הנופל עוד תגיע', 'сцена падения мешка ещё впереди') }),
+      S('dream_apology', L('Owning up', 'לקחת אחריות', 'Признание'),
+        L('The bag is on the floor. Tell Bruno before he finds it.', 'השק על הרצפה. ספרו לברונו לפני שהוא ימצא.', 'Мешок на полу. Скажи Бруно, пока он сам не нашёл.'),
+        L('Owned up to Bruno and went to the market for supplies.', 'סיפרתם לברונו את האמת ויצאתם לשוק להביא ציוד.', 'Признался Бруно и пошёл на рынок за припасами.'),
+        { event: true, who: 'bruno', beat: 5, goal: L('Own up to Bruno', 'ספרו לברונו', 'Признайся Бруно'), stand: L('portraits stand in for the gym scene and the walk', 'דיוקנאות במקום סצנת האולם וההליכה', 'портреты вместо сцены в зале и прогулки') }),
+      S('market_robber', L('The robber', 'השודד', 'Грабитель'),
+        L("Market Row. A wolf just grabbed a lady's handbag.", 'שדרת השוק. זאב חטף עכשיו תיק לגברת.', 'Рыночный ряд. Волк только что вырвал сумку у дамы.'),
+        L('Stopped Fang the robber; the market paid for a new heavy bag.', 'עצרתם את השודד פאנג; השוק שילם על שק כבד חדש.', 'Остановил грабителя Фанга; рынок заплатил за новый тяжёлый мешок.'),
+        { event: true, who: 'fang', beat: 6, goal: L('Win the street fight', 'נצחו בקרב הרחוב', 'Выиграй уличную драку'), stand: L('a street bout with gloves stands in for the bare-hand fight at the market', 'קרב רחוב עם כפפות במקום הקרב בידיים חשופות בשוק', 'уличный бой в перчатках вместо драки голыми руками на рынке') }),
+      S('buy_heavy_bag', L('A new bag', 'שק חדש', 'Новый мешок'),
+        L("Otto's Corner. The reward pays for a new heavy bag.", 'הפינה של אוטו. הפרס משלם על שק כבד חדש.', 'Лавка Отто. Награды хватит на новый тяжёлый мешок.'),
+        L("Bought a new heavy bag at Otto's Corner.", 'קניתם שק כבד חדש בפינה של אוטו.', 'Купил новый тяжёлый мешок в лавке Отто.'),
+        { event: true, who: 'otto', beat: 7, goal: L('Buy the heavy bag: {price} ◈', 'קנו את השק הכבד: {price} ◈', 'Купи тяжёлый мешок: {price} ◈'), stand: L("the shop counter is shown here until Otto's Corner is built", 'הדלפק מוצג כאן עד שהפינה של אוטו תיבנה', 'прилавок показан здесь, пока лавка Отто не построена') }),
+      S('bag_drill', L('Two-sided drill', 'תרגיל משני הצדדים', 'Мешок с двух сторон'),
+        L('Bruno heard about the market. Test the new bag with Mack.', 'ברונו שמע על השוק. בדקו את השק החדש עם מאק.', 'Бруно слышал про рынок. Проверь новый мешок с Маком.'),
+        L('Tested the new bag with Mack, from both sides.', 'בדקתם את השק החדש עם מאק, משני הצדדים.', 'Проверил новый мешок с Маком, с двух сторон.'),
+        { who: 'bruno', beat: 8, stand: L('the heavy bag alone stands in for the drill with Mack', 'השק לבד במקום התרגיל עם מאק', 'один мешок вместо упражнения с Маком') }),
+      S('fight_prep', L('Fight preparation', 'הכנה לקרב', 'Подготовка к бою'),
+        L('An unofficial fight is coming. Mitts, Slip and Roll with Mack.', 'קרב לא רשמי בדרך. כפות, Slip ו-Roll עם מאק.', 'Скоро неофициальный бой. Лапы, Slip и Roll с Маком.'),
+        L('Said yes to an unofficial fight and trained for it with Mack.', 'הסכמתם לקרב לא רשמי והתאמנתם אליו עם מאק.', 'Согласился на неофициальный бой и готовился к нему с Маком.'),
+        { who: 'pip', beat: 9 }),
+      S('docks_fight', L('The Docks', 'הנמל', 'Доки'),
+        L('Night at the Docks. No ring, no gloves, cash on a barrel.', 'לילה בנמל. בלי זירה, בלי כפפות, כסף על חבית.', 'Ночь в Доках. Ни ринга, ни перчаток, деньги на бочке.'),
+        L('Won a bare-knuckle fight against Hook at the Docks.', 'ניצחתם את הוק בקרב בלי כפפות בנמל.', 'Выиграл бой без перчаток против Хука в Доках.'),
+        { event: true, who: 'hook', beat: 10, goal: L('Win the fight at the Docks', 'נצחו בקרב בנמל', 'Выиграй бой в Доках'), stand: L('a bout with gloves in the Docks arena stands in for the bare-knuckle fight', 'קרב עם כפפות בזירת הנמל במקום הקרב בלי כפפות', 'бой в перчатках на арене Доков вместо боя без перчаток') }),
+      S('advanced_training', L('Advanced training', 'אימון מתקדם', 'Продвинутая тренировка'),
+        L('Longer Combos: a counter after the Slip, body then head.', 'Combo ארוכים יותר: מכת נגד אחרי Slip, גוף ואז ראש.', 'Длинные Combo: контратака после Slip, корпус, потом голова.'),
+        L('Learned to counter after a Slip.', 'למדתם להחזיר מכה אחרי Slip.', 'Научился контратаковать после Slip.'),
+        { who: 'bruno', beat: 11 }),
+      S('brick', L('Rematch: Brick', 'קרב חוזר: בריק', 'Реванш: Брик'),
+        L('Fight night at the gym. The whole neighbourhood came to watch.', 'ערב קרבות באולם. כל השכונה באה לראות.', 'Вечер боёв в зале. Посмотреть пришёл весь район.'),
+        L('Beat Brick in front of the whole neighbourhood.', 'ניצחתם את בריק מול כל השכונה.', 'Победил Брика на глазах у всего района.'),
+        { boss: true, who: 'brick', beat: 12, unlock: L('Chapter 2: Junior League', 'פרק 2: ליגת הנוער', 'Глава 2: Юниорская лига'), stand: L('the gym ring stands in for fight night with the audience', 'הזירה באולם במקום ערב הקרבות עם הקהל', 'ринг в зале вместо вечера боёв со зрителями') })
     ] },
     2: { coach: 'vix', pin: 'market', boss: 'king_hyena', steps: [
       S('curb_footwork', L("Vix's test", 'המבחן של ויקס', 'Проверка Викс'),
-        L("Pip's hand wraps got you in front of Vix, the fox who coaches Market Row. She trains nobody who cannot move: quick feet on the curb, now.",
-          'החבישות של פיפ הביאו אתכם אל ויקס, השועלה שמאמנת בשדרת השוק. היא לא מאמנת מי שלא זז: רגליים מהירות על המדרכה, עכשיו.',
-          'Бинты Пипа привели тебя к Викс, лисе, что тренирует на Рыночном ряду. Она не учит тех, кто не умеет двигаться: быстрые ноги у бордюра, сейчас.'),
+        L("Mack's hand wraps got you in front of Vix, the fox who coaches Market Row. She trains nobody who cannot move: quick feet on the curb, now.",
+          'החבישות של מאק הביאו אתכם אל ויקס, השועלה שמאמנת בשדרת השוק. היא לא מאמנת מי שלא זז: רגליים מהירות על המדרכה, עכשיו.',
+          'Бинты Мака привели тебя к Викс, лисе, что тренирует на Рыночном ряду. Она не учит тех, кто не умеет двигаться: быстрые ноги у бордюра, сейчас.'),
         L("Passed Vix's footwork test on the curb.", 'עברתם את מבחן עבודת הרגליים של ויקס.', 'Прошёл проверку работы ног у Викс.'),
         { scene: 'vix_intro', unlock: L('training with Vix', 'אימונים עם ויקס', 'тренировки у Викс') }),
       S('clean_hands', L('Clean hands', 'ידיים נקיות', 'Чистые руки'),
@@ -92,10 +101,10 @@
           'Банде не понравилось терять доску. Теперь они кидают в тебя водяные шарики с крыш по дороге к Викс. Останься сухим.'),
         L("Stayed dry under the crew's balloon barrage.", 'נשארתם יבשים תחת מטח הבלונים של החבורה.', 'Остался сухим под обстрелом шариков.')),
       S('whistle_chase', L('The stolen whistle', 'המשרוקית הגנובה', 'Украденный свисток'),
-        L("Pip came to see how you are doing, and a raccoon from the crew snatched his whistle. Cut him off before he vanishes into the market.",
-          'פיפ בא לראות מה שלומכם, ודביבון מהחבורה חטף לו את המשרוקית. חסמו אותו לפני שייעלם בשוק.',
-          'Пип пришёл проведать тебя, а енот из банды стащил его свисток. Отрежь ему путь, пока он не скрылся на рынке.'),
-        L("Cornered the raccoon and got Pip's whistle back.", 'דחקתם את הדביבון לפינה והחזרתם לפיפ את המשרוקית.', 'Загнал енота в угол и вернул Пипу свисток.'),
+        L("Mack came to see how you are doing, and a raccoon from the crew snatched his whistle. Cut him off before he vanishes into the market.",
+          'מאק בא לראות מה שלומכם, ודביבון מהחבורה חטף לו את המשרוקית. חסמו אותו לפני שייעלם בשוק.',
+          'Мак пришёл проведать тебя, а енот из банды стащил его свисток. Отрежь ему путь, пока он не скрылся на рынке.'),
+        L("Cornered the raccoon and got Mack's whistle back.", 'דחקתם את הדביבון לפינה והחזרתם למאק את המשרוקית.', 'Загнал енота в угол и вернул Маку свисток.'),
         { scene: 'whistle_theft' }),
       S('influencer_challenge', L('The show-off', 'המתנשא', 'Хвастун'),
         L('Optional: a show-off keeps filming you for his channel. Beat his speed-bag challenge and the camera goes off.',
@@ -125,6 +134,9 @@
   };
   // The chapter's Coach reacts to the result first: fail / 1-2 stars / 3 stars. Plain lines, the story line follows.
   const react = {
+    bruno: { fail: L('Not yet. Shake it out. Again.', 'עוד לא. לנער את הידיים. שוב.', 'Пока нет. Встряхнись. Ещё раз.'),
+      some: L('Good. Not great. Good.', 'טוב. לא מצוין. טוב.', 'Хорошо. Не отлично. Но хорошо.'),
+      three: L('Hm. I have seen champions do worse.', 'הממ. ראיתי אלופים שעשו פחות.', 'Хм. Я видел чемпионов, которые делали хуже.') },
     pip: { fail: L('Not yet. Breathe, shake it out, go again.', 'עוד לא. נשימה, לנער את הידיים, ושוב.', 'Пока нет. Выдохни, встряхнись и ещё раз.'),
       some: L('Done. There is a third star in there if you want it.', 'עשיתם את זה. יש שם עוד כוכב שלישי, אם תרצו.', 'Готово. Там есть и третья звезда, если хочешь.'),
       three: L('Three stars. I have nothing to fix.', 'שלושה כוכבים. אין לי מה לתקן.', 'Три звезды. Мне нечего поправить.') },
@@ -134,21 +146,23 @@
   };
   // Chapter openers (the first time a chapter opens) and the end-of-chapter line.
   const opener = {
-    1: L('Gloryland. You have one bag, no gym and no name. Everyone starts somewhere.', 'גלורילנד. יש לכם תיק אחד, אין אולם ואין שם. כולם מתחילים מאיפשהו.', 'Глориленд. У тебя одна сумка, ни зала, ни имени. Все с чего-то начинают.'),
-    2: L('Market Row, evening. Pip\'s hand wraps in your bag, and a new Coach to find.', 'שדרת השוק, ערב. החבישות של פיפ בתיק, ומאמנת חדשה למצוא.', 'Рыночный ряд, вечер. Бинты Пипа в сумке, и нужно найти нового тренера.')
+    1: L('Gloryland. One bag, no money, and a dream: world champion.', 'גלורילנד. תיק אחד, בלי כסף, וחלום: אלוף העולם.', 'Глориленд. Одна сумка, ни денег, и мечта: стать чемпионом мира.'),
+    2: L('Real gear, a real league. The Arena is waiting.', 'ציוד אמיתי, ליגה אמיתית. הזירה הגדולה מחכה.', 'Настоящая экипировка, настоящая лига. Арена ждёт.')
   };
-  const titles = { 1: L('Old Town', 'העיר העתיקה', 'Старый город'), 2: L('Market Row', 'שדרת השוק', 'Рыночный ряд') };
+  const titles = { 1: L('The Dream', 'החלום', 'Мечта'), 2: L('Junior League', 'ליגת הנוער', 'Юниорская лига') };
   const copy = {
-    en: { statUp: '★★★: +1 {s}', chapter: 'Chapter {n} · {c}', stepOf: 'Step {i} of {n}', side: 'Side', done: 'Done', locked: 'Locked', goal: 'Goal', reward: 'Reward', stars: '★ 1 to finish · ★★★ best', boss: 'Win the bout', unlocks: 'Unlocks', start: 'Start ▶', go: "Let's go ▶", cont: 'Continue ▶', retry: 'Retry for more stars ▶', replay: 'Replay', next: 'Next: {t} ▶', back: 'Back to map', again: 'Retry ▶', level: 'Fighter Level {l}', toNext: '{k} ★ to Level {n}', gate: 'Level {n} needed, you are {l}: earn {k} more stars. Replay {list}.', gateOr: ' or ', stepN: 'step {i}', fightAnyway: 'Fight anyway (low chance)', unlocked: 'Unlocked: {t}', nextUp: 'Next: {t}', levelUp: 'Level up! Fighter Level {l}', result: '{s}', resultBoss: 'You won the bout!', resultLost: 'You lost the bout. Losing costs nothing.', noStar: 'No star yet.', newStars: '+{n} ★', complete: 'Chapter {n} complete', summary: '★ {s}/{m} · Fighter Level {l}', lockedCh: 'Locked. Beat {b} in {c} first.', goTo: 'Go to {c} ▶', allDone: 'Chapter {n} complete. Replay any step for more stars.', steps: 'All steps', soFar: 'Story so far', soFarEmpty: 'Your story starts with step 1.', skip: 'Tap to skip' },
-    he: { statUp: '★★★: +1 {s}', chapter: 'פרק {n} · {c}', stepOf: 'שלב {i} מתוך {n}', side: 'צד', done: 'הושלם', locked: 'נעול', goal: 'מטרה', reward: 'פרס', stars: '★ אחד כדי לסיים · ★★★ הכי טוב', boss: 'נצחו בקרב', unlocks: 'פותח', start: 'להתחיל ◀', go: 'יוצאים ◀', cont: 'להמשיך ◀', retry: 'שוב, בשביל עוד כוכבים ◀', replay: 'שוב', next: 'הבא: {t} ◀', back: 'חזרה למפה', again: 'שוב ◀', level: 'רמת לוחם {l}', toNext: 'עוד {k} ★ לרמה {n}', gate: 'נדרשת רמה {n}, אתם ברמה {l}: הרוויחו עוד {k} כוכבים. שחקו שוב {list}.', gateOr: ' או ', stepN: 'שלב {i}', fightAnyway: 'להילחם בכל זאת (סיכוי נמוך)', unlocked: 'נפתח: {t}', nextUp: 'הבא: {t}', levelUp: 'עליתם רמה! רמת לוחם {l}', result: '{s}', resultBoss: 'ניצחתם בקרב!', resultLost: 'הפסדתם בקרב. הפסד לא עולה כלום.', noStar: 'עדיין אין כוכב.', newStars: '+{n} ★', complete: 'פרק {n} הושלם', summary: '★ {s}/{m} · רמת לוחם {l}', lockedCh: 'נעול. קודם נצחו את {b} ב{c}.', goTo: 'ללכת אל {c} ◀', allDone: 'פרק {n} הושלם. אפשר לשחק שוב כל שלב בשביל עוד כוכבים.', steps: 'כל השלבים', soFar: 'עד כה בסיפור', soFarEmpty: 'הסיפור שלכם מתחיל בשלב 1.', skip: 'הקישו כדי לדלג' },
-    ru: { statUp: '★★★: +1 {s}', chapter: 'Глава {n} · {c}', stepOf: 'Шаг {i} из {n}', side: 'Побочное', done: 'Пройдено', locked: 'Закрыто', goal: 'Цель', reward: 'Награда', stars: '★ чтобы пройти · ★★★ лучший', boss: 'Выиграй бой', unlocks: 'Откроет', start: 'Начать ▶', go: 'Вперёд ▶', cont: 'Продолжить ▶', retry: 'Ещё раз за звёздами ▶', replay: 'Ещё раз', next: 'Дальше: {t} ▶', back: 'Назад к карте', again: 'Ещё раз ▶', level: 'Уровень бойца {l}', toNext: 'ещё {k} ★ до уровня {n}', gate: 'Нужен уровень {n}, у тебя {l}: заработай ещё {k} звёзд. Перепройди {list}.', gateOr: ' или ', stepN: 'шаг {i}', fightAnyway: 'Всё равно драться (шанс низкий)', unlocked: 'Открыто: {t}', nextUp: 'Дальше: {t}', levelUp: 'Новый уровень! Уровень бойца {l}', result: '{s}', resultBoss: 'Ты выиграл бой!', resultLost: 'Бой проигран. Поражение ничего не стоит.', noStar: 'Пока без звезды.', newStars: '+{n} ★', complete: 'Глава {n} пройдена', summary: '★ {s}/{m} · Уровень бойца {l}', lockedCh: 'Закрыто. Сначала победи: {b}, {c}.', goTo: 'Перейти: {c} ▶', allDone: 'Глава {n} пройдена. Любой шаг можно перепройти за звёздами.', steps: 'Все шаги', soFar: 'Что было', soFarEmpty: 'Твоя история начинается с шага 1.', skip: 'Нажмите, чтобы пропустить' }
+    en: { statUp: '★★★: +1 {s}', chapter: 'Chapter {n} · {c}', stepOf: 'Step {i} of {n}', side: 'Side', done: 'Done', locked: 'Locked', goal: 'Goal', reward: 'Reward', stars: '★ 1 to finish · ★★★ best', boss: 'Win the bout', unlocks: 'Unlocks', start: 'Start ▶', go: "Let's go ▶", cont: 'Continue ▶', retry: 'Retry for more stars ▶', replay: 'Replay', next: 'Next: {t} ▶', back: 'Back to map', again: 'Retry ▶', level: 'Fighter Level {l}', toNext: '{k} ★ to Level {n}', gate: 'Level {n} needed, you are {l}: earn {k} more stars. Replay {list}.', gateOr: ' or ', stepN: 'step {i}', fightAnyway: 'Fight anyway (low chance)', unlocked: 'Unlocked: {t}', nextUp: 'Next: {t}', levelUp: 'Level up! Fighter Level {l}', result: '{s}', resultBoss: 'You won the bout!', resultLost: 'You lost the bout. Losing costs nothing.', noStar: 'No star yet.', newStars: '+{n} ★', complete: 'Chapter {n} complete', summary: '★ {s}/{m} · Fighter Level {l}', lockedCh: 'Locked. Beat {b} in {c} first.', goTo: 'Go to {c} ▶', allDone: 'Chapter {n} complete. Replay any step for more stars.', steps: 'All steps', soFar: 'Story so far', soFarEmpty: 'Your story starts with step 1.', skip: 'Tap to skip', stand: 'Stand-in: {t}', buy: 'Buy · {p} ◈ ▶', have: 'You have {c} ◈', short: 'Not enough coins: {k} ◈ more. Clean the gym to earn them.', paid: '+{n} ◈ reward', bought: 'Bought: {t}', watch: 'Watch ▶', fight: 'Fight ▶', talk: 'Talk ▶', firstLost: 'You lost to Brick. The story goes on.', firstWon: 'You beat Brick!', skipBtn: 'Skip ▶▶', devSkip: 'Skip step (dev)' },
+    he: { statUp: '★★★: +1 {s}', chapter: 'פרק {n} · {c}', stepOf: 'שלב {i} מתוך {n}', side: 'צד', done: 'הושלם', locked: 'נעול', goal: 'מטרה', reward: 'פרס', stars: '★ אחד כדי לסיים · ★★★ הכי טוב', boss: 'נצחו בקרב', unlocks: 'פותח', start: 'להתחיל ◀', go: 'יוצאים ◀', cont: 'להמשיך ◀', retry: 'שוב, בשביל עוד כוכבים ◀', replay: 'שוב', next: 'הבא: {t} ◀', back: 'חזרה למפה', again: 'שוב ◀', level: 'רמת לוחם {l}', toNext: 'עוד {k} ★ לרמה {n}', gate: 'נדרשת רמה {n}, אתם ברמה {l}: הרוויחו עוד {k} כוכבים. שחקו שוב {list}.', gateOr: ' או ', stepN: 'שלב {i}', fightAnyway: 'להילחם בכל זאת (סיכוי נמוך)', unlocked: 'נפתח: {t}', nextUp: 'הבא: {t}', levelUp: 'עליתם רמה! רמת לוחם {l}', result: '{s}', resultBoss: 'ניצחתם בקרב!', resultLost: 'הפסדתם בקרב. הפסד לא עולה כלום.', noStar: 'עדיין אין כוכב.', newStars: '+{n} ★', complete: 'פרק {n} הושלם', summary: '★ {s}/{m} · רמת לוחם {l}', lockedCh: 'נעול. קודם נצחו את {b} ב{c}.', goTo: 'ללכת אל {c} ◀', allDone: 'פרק {n} הושלם. אפשר לשחק שוב כל שלב בשביל עוד כוכבים.', steps: 'כל השלבים', soFar: 'עד כה בסיפור', soFarEmpty: 'הסיפור שלכם מתחיל בשלב 1.', skip: 'הקישו כדי לדלג', stand: 'זמני: {t}', buy: 'לקנות · {p} ◈ ◀', have: 'יש לכם {c} ◈', short: 'אין מספיק מטבעות: חסרים {k} ◈. נקו את האולם כדי להרוויח.', paid: '+{n} ◈ פרס', bought: 'נקנה: {t}', watch: 'לצפות ◀', fight: 'להילחם ◀', talk: 'לדבר ◀', firstLost: 'הפסדתם לבריק. הסיפור ממשיך.', firstWon: 'ניצחתם את בריק!', skipBtn: 'לדלג ◀◀', devSkip: 'דילוג על השלב (פיתוח)' },
+    ru: { statUp: '★★★: +1 {s}', chapter: 'Глава {n} · {c}', stepOf: 'Шаг {i} из {n}', side: 'Побочное', done: 'Пройдено', locked: 'Закрыто', goal: 'Цель', reward: 'Награда', stars: '★ чтобы пройти · ★★★ лучший', boss: 'Выиграй бой', unlocks: 'Откроет', start: 'Начать ▶', go: 'Вперёд ▶', cont: 'Продолжить ▶', retry: 'Ещё раз за звёздами ▶', replay: 'Ещё раз', next: 'Дальше: {t} ▶', back: 'Назад к карте', again: 'Ещё раз ▶', level: 'Уровень бойца {l}', toNext: 'ещё {k} ★ до уровня {n}', gate: 'Нужен уровень {n}, у тебя {l}: заработай ещё {k} звёзд. Перепройди {list}.', gateOr: ' или ', stepN: 'шаг {i}', fightAnyway: 'Всё равно драться (шанс низкий)', unlocked: 'Открыто: {t}', nextUp: 'Дальше: {t}', levelUp: 'Новый уровень! Уровень бойца {l}', result: '{s}', resultBoss: 'Ты выиграл бой!', resultLost: 'Бой проигран. Поражение ничего не стоит.', noStar: 'Пока без звезды.', newStars: '+{n} ★', complete: 'Глава {n} пройдена', summary: '★ {s}/{m} · Уровень бойца {l}', lockedCh: 'Закрыто. Сначала победи: {b}, {c}.', goTo: 'Перейти: {c} ▶', allDone: 'Глава {n} пройдена. Любой шаг можно перепройти за звёздами.', steps: 'Все шаги', soFar: 'Что было', soFarEmpty: 'Твоя история начинается с шага 1.', skip: 'Нажмите, чтобы пропустить', stand: 'Временно: {t}', buy: 'Купить · {p} ◈ ▶', have: 'У тебя {c} ◈', short: 'Не хватает монет: ещё {k} ◈. Заработай уборкой зала.', paid: '+{n} ◈ награда', bought: 'Куплено: {t}', watch: 'Смотреть ▶', fight: 'В бой ▶', talk: 'Говорить ▶', firstLost: 'Ты проиграл Брику. История продолжается.', firstWon: 'Ты победил Брика!', skipBtn: 'Пропустить ▶▶', devSkip: 'Пропустить шаг (разработка)' }
   };
   const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (_, k) => (o[k] ?? ''));
   const P = () => (typeof window !== 'undefined' && window.AdventureProgress) || (typeof require === 'function' ? require('../adventure-progress.js') : null);
   const all = n => chapters[n]?.steps || [];
   const find = id => { for (const n of Object.keys(chapters)) { const s = all(+n).find(x => x.id === id); if (s) return { ...s, chapter: +n }; } return null; };
   const starsOf = (g, id) => g?.adventure?.missions?.[id]?.stars || 0;
-  const doneOf = (g, s) => s.boss ? P().bossWon(g, s.id) : starsOf(g, s.id) > 0;
+  // Chapter 1 beats use the Dream save (adventure.story + stars + boss win, adventure-progress.js dreamDone); the rest stars / boss wins.
+  const doneOf = (g, s) => P().dreamSteps?.includes(s.id) ? P().dreamDone(g, s.id) : s.boss ? P().bossWon(g, s.id) : starsOf(g, s.id) > 0;
+  const firstBrick = g => g?.adventure?.story?.firstBrick || null;
   // Chapter 1 is always open. Chapter n opens when the previous boss is beaten, or when an old save already finished a step there.
   function chapterOpen(g, n) { if (!chapters[n]) return false; if (n === 1) return true; return P().bossWon(g, chapters[n - 1].boss) || all(n).some(s => doneOf(g, s)); }
   // The chapter's steps with their state. Main steps are numbered; status: done | current | locked. Side: done | open | hidden.
@@ -166,7 +180,7 @@
     }
     // Timeline order: side steps sit right after the step they follow.
     const timeline = []; for (const m of main) { timeline.push(m); for (const s of side) if (s.after === m.id && s.status !== 'hidden') timeline.push(s); }
-    const visible = [...main, ...side.filter(s => s.status !== 'hidden')], stars = visible.reduce((k, s) => k + (s.boss ? 0 : s.stars), 0), maxStars = ch.steps.filter(s => !s.boss).length * 3;
+    const visible = [...main, ...side.filter(s => s.status !== 'hidden')], stars = visible.reduce((k, s) => k + (s.boss ? 0 : s.stars), 0), maxStars = ch.steps.filter(s => !s.boss && !s.event).length * 3;
     return { chapter: n, open, main, side, timeline, current, total: main.length, doneCount: main.filter(m => m.done).length, complete: main.every(m => m.done), stars, maxStars, boss: main[main.length - 1] };
   }
   // Can this step be started now? Done (replay), current, or an open side step.
@@ -177,7 +191,7 @@
   function gate(g, n) {
     const A = P(), st = state(g, n), b = A.bosses.find(x => x.id === chapters[n].boss), lvl = A.level(g);
     if (lvl >= b.entry) return null;
-    const pool = [...st.main.filter(m => !m.boss && m.status === 'done' && m.stars < 3), ...st.side.filter(s => s.status !== 'hidden' && s.stars < 3)]
+    const pool = [...st.main.filter(m => !m.boss && !m.event && m.status === 'done' && m.stars < 3), ...st.side.filter(s => s.status !== 'hidden' && s.stars < 3)]
       .sort((a, c) => a.stars - c.stars || st.timeline.indexOf(a) - st.timeline.indexOf(c));
     return { need: b.entry, level: lvl, stars: starsToLevel(g, b.entry), steps: pool.slice(0, 2).map(s => s.id), ready: st.current?.boss === true };
   }
@@ -197,7 +211,7 @@
   }
   const react3 = n => n >= 3 ? 'three' : n >= 1 ? 'some' : 'fail';
   // "Story so far": finished steps, one line each, in story order.
-  function journal(g, lang = 'en') { const out = []; for (const n of Object.keys(chapters)) for (const s of all(+n)) if (doneOf(g, s)) out.push({ id: s.id, chapter: +n, text: s.recap[lang] || s.recap.en }); return out; }
-  const api = { chapters, react, opener, titles, copy, fill, find, all, chapterOpen, state, playable, starsToLevel, gate, unlocks, nextAfter, react3, journal, doneOf };
+  function journal(g, lang = 'en') { const out = []; for (const n of Object.keys(chapters)) for (const s of all(+n)) if (doneOf(g, s)) { const r = s.recapWon && firstBrick(g) === 'won' ? s.recapWon : s.recap; out.push({ id: s.id, chapter: +n, text: r[lang] || r.en }); } return out; }
+  const api = { firstBrick, chapters, react, opener, titles, copy, fill, find, all, chapterOpen, state, playable, starsToLevel, gate, unlocks, nextAfter, react3, journal, doneOf };
   if (typeof module !== 'undefined') module.exports = api; else window.StoryFlow = api;
 })();

@@ -1,5 +1,5 @@
 /* Story scenes and skill trials (GOTR-0056, GOTR-0061): plays a short scripted scene, or a skill trial, in a small 3D
- * story set (story-sets.js) with the game's own rigs: the player's Fighter (engine.coach), Coach Pip (a rabbit rig holding
+ * story set (story-sets.js) with the game's own rigs: the player's Fighter (engine.coach), Mack (a rabbit rig holding
  * the mitt-work focus mitts) and characters of the opponent species dressed by colour (Brick, Dash, the night guard, Vix,
  * the raccoon, King Hyena). Lines are plain text with a portrait and the speaker's name in the accent colour.
  *

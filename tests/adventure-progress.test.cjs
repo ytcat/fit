@@ -10,10 +10,10 @@ const rec=(s,id,value)=>{const r=s.gameAction({type:'adventure',adventure:'missi
 const forged=(s,mutate)=>{const copy=JSON.parse(s.export());mutate(copy.data.profiles[0].game.adventure);return copy;};
 
 setChannel('live');
-// Data: 18 missions, 5 chapters, trilingual titles, boss entry levels.
-assert.equal(A.missions.length,18);assert.equal(A.chapters.length,5);
+// Data: 24 missions (15 in chapter 1: 9 older + 6 "The Dream" beats, GOTR-0078), 5 chapters, trilingual titles, boss entry levels.
+assert.equal(A.missions.length,24);assert.equal(A.chapters.length,5);
 assert.deepEqual(A.bosses.map(b=>b.entry),[5,12,20,30,40]);assert.deepEqual(A.bosses.map(b=>b.id),['brick','king_hyena','iron_bull','onyx','blaze']);
-assert.equal(A.missions.filter(m=>m.chapter===1).length,9);assert.equal(A.missions.filter(m=>m.chapter===2).length,9);
+assert.equal(A.missions.filter(m=>m.chapter===1).length,15);assert.equal(A.missions.filter(m=>m.chapter===2).length,9);
 for(const m of A.missions){assert.ok(['training','help','funny','event'].includes(m.type),m.id);assert.ok(m.titles.en&&m.titles.he&&m.titles.ru,m.id);assert.ok(A.metrics[m.metric],m.id);assert.equal(m.thresholds.length,3);assert.equal(!!m.stat,m.type==='training',m.id);
  const lower=A.metrics[m.metric].lower;assert.ok(m.thresholds.every((t,i)=>i===0||(lower?t<m.thresholds[i-1]:t>m.thresholds[i-1])),m.id+' thresholds ordered');}
 
@@ -108,6 +108,6 @@ setChannel('dev');
  assert.equal(new CareerStore(Object.assign(memory(),{})).locked,false);const copy=JSON.parse(f.export());const again=new CareerStore(memory());again.import(JSON.stringify(copy));assert.equal(again.game().adventure.bosses.blaze.wins,1);
  assert.equal(A.summary(f.game()).chapters.every(c=>c.open&&c.canChallenge),true);}
 setChannel('live');
-{const f=new CareerStore(memory());f.create('Live2');const sum=A.summary(f.game());assert.equal(sum.free,false);assert.deepEqual(sum.chapters.map(c=>c.open),[true,false,false,false,false]);assert.equal(sum.maxStars,54);}
+{const f=new CareerStore(memory());f.create('Live2');const sum=A.summary(f.game());assert.equal(sum.free,false);assert.deepEqual(sum.chapters.map(c=>c.open),[true,false,false,false,false]);assert.equal(sum.maxStars,72);}
 setChannel(undefined);
 console.log('adventure-progress tests passed');

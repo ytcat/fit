@@ -20,7 +20,7 @@ details below are the integrator's proposals and stay open to the owner's change
 | Fighter | the player's lion or rabbit | arrival: hoodie, jeans, worn sneakers, duffel bag on the shoulder |
 | Coach | **Bruno**, an old bear, former champion | grey muzzle, flat cap, towel on the shoulder, whistle, cardigan over a gym shirt |
 | Gym champion, chapter boss | **Brick**, a bulldog heavyweight | stocky, scar over one brow, red trunks with white stripe |
-| Mitt man | **Pip**, the rabbit | Bruno's assistant: holds the mitts in drills (keeps today's mitt training) |
+| Mitt man | **Mack**, the rabbit (was Pip; owner: not a coach name) | Bruno's assistant: holds the mitts in drills (keeps today's mitt training) |
 | Robber | **Fang**, a big wolf | black leather rocker jacket, gold chain, ripped jeans, boots |
 | Victim | **Mrs. Hazel**, a doe who runs a fruit stall | apron, handbag |
 | Shop owner | **Otto**, an otter | boxing-equipment shop "Otto's Corner" |
@@ -43,8 +43,8 @@ The Docks warehouse (crowd in a circle, no ring, hanging lamps) · Bruno's Gym o
 | 5 | Morning | Gym | The Fighter owns up: "I'm sorry. I'll work to pay it back." Bruno agrees and sends him to the market for supplies (walk, Skip). | street | 6 |
 | 6 | Day | Market Row | Fang snatches Mrs. Hazel's handbag. The Fighter stops him: **street fight, no gloves, street clothes**, crowd of market people around. Win → Mrs. Hazel and the stall owners collect a reward: exactly the price of a new heavy bag. | street, bare hands | 7 |
 | 7 | Day | Otto's Corner | **Buy the new bag** in the Shop with the reward coins (the price equals the reward). Carry it back (walk, Skip). | street | 8 |
-| 8 | Afternoon | Gym | Bruno heard about the market and is impressed. "Let's test it." **Two-sided bag drill**: the Fighter and Pip hit the new bag from both sides in rhythm. | kit | 9 |
-| 9 | Afternoon | Gym | Bruno proposes an unofficial fight. The Fighter agrees. **Fight preparation**: mitts with Pip (combos), Slip and Roll drill. | kit | 10 |
+| 8 | Afternoon | Gym | Bruno heard about the market and is impressed. "Let's test it." **Two-sided bag drill**: the Fighter and Mack hit the new bag from both sides in rhythm. | kit | 9 |
+| 9 | Afternoon | Gym | Bruno proposes an unofficial fight. The Fighter agrees. **Fight preparation**: mitts with Mack (combos), Slip and Roll drill. | kit | 10 |
 | 10 | Night | The Docks | They arrive (walk, Skip). The Fighter realises it is an illegal fight — and fights anyway. **Bare-knuckle fight vs Hook**, long track pants, hand wraps, crowd in a circle, cash on a barrel. Win → prize money. | track pants, wraps | 11 |
 | 11 | Next day | Gym | **Advanced training**: longer combos, counter after Slip, body-head. | kit | 12 |
 | 12 | Evening | Gym fight night | **Rematch: Brick**, with the neighbourhood as audience. By now the Fighter has the skills. Win → Chapter 1 complete; Bruno: "Now you need real gear and a real league." | kit, own gloves | Chapter 2 |
