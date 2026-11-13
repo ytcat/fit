@@ -12,7 +12,7 @@ for species in ['lion', 'rabbit']:
         for name, label in row:
             im = Image.open(os.path.join(frames, f'{species}-{name}.png')).convert('RGB')
             w, h = im.size
-            im = im.crop((0, int(h * .05), w, int(h * .95))).resize((w // 2, int(h * .9) // 2))
+            im = im.resize((w // 2, h // 2))
             ImageDraw.Draw(im).text((6, 6), label, fill=(255, 255, 255))
             tiles.append(im)
     tw, th = tiles[0].size
