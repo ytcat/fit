@@ -32,7 +32,7 @@
   M('bag_power',1,'home_gym','training','power','powerMarks',[1,3,5],'Bag power test','מבחן כוח בשק','Проверка силы на мешке'),
   M('roll_under_hook',1,'home_gym','training','speed','dodges',[4,7,10],'Roll under the hook','גלגול מתחת לאגרוף עקום','Нырок под боковой'),
   M('rope_rhythm',1,'home_gym','training','stamina','seconds',[10,20,30],'Rope rhythm','קצב חבל','Ритм скакалки'),
-  M('heavy_bag_van',1,'home_gym','funny',null,'mistakes',[5,2,0],'The new heavy bag','השק הכבד החדש','Новый тяжёлый мешок'),
+  M('heavy_bag_van',1,'home_gym','funny',null,'mistakes',[12,6,0],'The new heavy bag','השק הכבד החדש','Новый тяжёлый мешок'),
   M('teach_the_kid',1,'home_gym','help',null,'combos',[1,2,3],'Teach the kid a one-two','ללמד את הילד ימין-שמאל','Научить малыша двойке'),
   M('morning_sparring',1,'home_gym','training','power','landed',[5,10,15],'Morning sparring','ספארינג בוקר','Утренний спарринг'),
   M('snoring_guard',1,'home_gym','funny',null,'dodges',[3,6,9],'The snoring night guard','שומר הלילה המנחר','Храпящий ночной сторож'),

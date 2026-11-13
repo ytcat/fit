@@ -26,7 +26,7 @@
   }
 
   /* ---------------------------------------------------------------- Brick's bag */
-  const BAG = Object.freeze({ missionId: 'heavy_bag_van', metric: 'mistakes', swings: 24, period: [1.45, .85], window: .17, perfect: .07, back: .6, dodge: .42, rest: .28, seed: 77 });
+  const BAG = Object.freeze({ missionId: 'heavy_bag_van', metric: 'mistakes', swings: 16, period: [1.7, 1.1], window: .27, perfect: .09, back: .6, dodge: .42, rest: .28, seed: 77 });
   class BagTrial extends Trial {
     constructor(rules = BAG, opts) { super(rules, opts); const R = rng(rules.seed + (this.hard ? 9 : 0)); this.types = Array.from({ length: rules.swings }, (_, i) => i < 3 ? PUNCH[i] : PUNCH[Math.floor(R() * 3)]); this.i = 0; this.mistakes = 0; this.hits = 0; this.dodged = 0; this.start(0); }
     period(i) { return lerp(this.r.period[0], this.r.period[1], i / (this.r.swings - 1)) / this.k; }
