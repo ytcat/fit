@@ -227,7 +227,8 @@
     root.position.copy(s.corner); const centre = V(0, 0, 0).sub(s.corner), yaw = Math.atan2(centre.x, centre.z); root.quaternion.setFromEuler(new THREE.Euler(0, yaw, 0, 'YXZ'));
     metrics[s.actor] = coach.update(m.time, 'guard', 'one_two', { stance: 1, simulationTime: m.time, presentation: { mode: 'winner', side: s.actor === 'lion' ? 'R' : 'L', raise } });
     view.cast.updateMatrixWorld(true);
-    const ref = view.referee, side = s.actor === 'lion' ? 1 : -1, beside = s.corner.clone().add(centre.clone().normalize().multiplyScalar(.45)).add(V(Math.cos(yaw), 0, -Math.sin(yaw)).multiplyScalar(-.5 * side));
+    const ref = view.referee, handAt = view.cast.worldToLocal(coach.joints[s.actor === 'lion' ? 'handR' : 'handL'].getWorldPosition(V())).sub(s.corner).setY(0);
+    if (handAt.lengthSq() < 1e-4) handAt.set(1, 0, 0); const beside = s.corner.clone().addScaledVector(handAt.normalize(), .78).addScaledVector(centre.clone().normalize(), .18); // on the side of the raised arm
     if (!sp.ref.cer) sp.ref.cer = ref.root.position.clone();
     sp.ref.cer.lerp(beside, .06); ref.root.position.copy(sp.ref.cer); ref.root.position.y = 0; ref.root.rotation.set(0, Math.atan2(s.corner.x - ref.root.position.x, s.corner.z - ref.root.position.z), 0);
     view.cast.updateMatrixWorld(true);
@@ -270,12 +271,13 @@
     const add = (coach, names) => { for (const n of names) pts.push(coach.joints[n].getWorldPosition(V())); };
     add(fc, ['head', 'hips', 'footL', 'footR', 'handL', 'handR']);
     if (u < 2.2) add(sc, ['head', 'footL', 'footR', 'handR']); else add(sc, ['head', 'hips']);
-    if (u > .9) pts.push(view.referee.root.localToWorld(V(0, 1.9, 0)));
     const fov = THREE.MathUtils.degToRad(cam.fov), tv = Math.tan(fov / 2), th = tv * Math.max(.2, cam.aspect);
     const { side, line } = sp.axis, up = V(0, 1, 0);
-    const pitch = u < 0 ? .10 : u < 1.2 ? .14 : .22; // low: the lens looks slightly up at the fighters, then lifts to see the body on the canvas
-    const dir = side.clone().multiplyScalar(Math.cos(pitch)).add(V(0, -Math.sin(pitch), 0)).normalize(); // from the camera toward the subjects is -dir
-    const right = up.clone().cross(dir).normalize(), camUp = dir.clone().cross(right).normalize();
+    // a low three-quarter view from behind the striker's punching shoulder for the dip and the drive (the Opponent's face and
+    // chin toward the lens), swinging round to the side as the body falls, so the fall reads across the picture
+    const swing = u < 0 ? .62 : lerp(.62, .12, smooth(u / .9)), flat = side.clone().multiplyScalar(Math.cos(swing)).addScaledVector(line, -Math.sin(swing));
+    const height = u < 0 ? .62 : lerp(.62, .95, smooth((u - .6) / 1.2));
+    const dir = flat.clone().normalize(), right = up.clone().cross(dir).normalize(), camUp = up.clone();
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity; const c0 = V();
     for (const p of pts) c0.add(p); c0.divideScalar(pts.length);
     for (const p of pts) { const d = p.clone().sub(c0), x = d.dot(right), y = d.dot(camUp); minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
@@ -285,9 +287,8 @@
     if (!sp.cam || sp.cut) { sp.cam = { c: goal.c.clone(), d: goal.d }; sp.cut = false; }
     else { const k = 1 - Math.exp(-Math.max(0, dt) / .35); sp.cam.c.lerp(goal.c, k); sp.cam.d = lerp(sp.cam.d, goal.d, k); }
     const position = sp.cam.c.clone().addScaledVector(dir, sp.cam.d);
-    position.y = Math.max(.35, position.y);
+    position.y = height; // low lens, looking up at the punch
     cam.position.copy(position); cam.zoom = 1; cam.up.set(0, 1, 0); cam.lookAt(sp.cam.c); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
-    void line;
   }
   function restoreCamera(view) {
     const sp = view.sundayPunch, cam = view.engine.camera; if (!sp?.saved || !cam) return;
