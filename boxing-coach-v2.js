@@ -1128,8 +1128,11 @@
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
       // GOTR-0051 compact guard: in the stance both gloves sit close to the face, beside the muzzle in front of the
       // cheeks (lead a little ahead at eye/cheek height, rear at the jaw), forearms upright, elbows in front of the ribs.
-      const leadGuard=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(guardCover)).lerp(V(-.17,1.70,.60),leadStance);
-      const rearGuard=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(guardCover)).lerp(V(.26,1.70,.23),rearStance);
+      const leadBase=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(guardCover)),leadGuard=leadBase.clone().lerp(V(-.17,1.70,.60),leadStance);
+      const rearBase=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(guardCover)),rearGuard=rearBase.clone().lerp(V(.26,1.70,.23),rearStance);
+      // How far each glove currently sits from its technique guard because of the open stance (root space):
+      // the fight's reach planner removes it, so a straight is planned on the line the fist will really travel.
+      this.stanceShift={L:leadGuard.clone().sub(leadBase).toArray(),R:rearGuard.clone().sub(rearBase).toArray()};
       const lead=leadGuard.clone(),rear=rearGuard.clone();
       const guardElbowZ=options.guardElbowBack!=null?-options.guardElbowBack:.1;
       let leadPole=V(-.6+.10*leadStance,-1,guardElbowZ),rearPole=V(.6-.35*rearStance,-1,guardElbowZ);

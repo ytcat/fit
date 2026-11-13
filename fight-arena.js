@@ -347,8 +347,8 @@
    // leaves to full extension and well past it. The launch point is kept in
    // ring coordinates once the hand has left the guard.
    // On the final approach the sweep starts at the glove itself.
-   const group=this.cast,knuckle=coach.root.localToWorld(V(...coach.metrics.gloves[side==='R'?1:0].knuckles));if(spec.phase<.22||!state.launch)state.launch=group.worldToLocal(knuckle.clone());
-   const finish=coach.root.localToWorld(shoulder.clone().addScaledVector(direction,reach+.140)),line=finish.clone().sub(terminal?knuckle:spec.phase<.18?coach.root.localToWorld(shoulder.clone()):group.localToWorld(state.launch.clone())),span=line.length();if(span<1e-4)return null;line.divideScalar(span);
+   const group=this.cast,knuckle=coach.root.localToWorld(V(...coach.metrics.gloves[side==='R'?1:0].knuckles));if(spec.phase<.22||!state.launch)state.launch=group.worldToLocal(coach.root.localToWorld(V(...coach.metrics.gloves[side==='R'?1:0].knuckles).sub(V(...(coach.stanceShift?.[side]||[0,0,0])))));
+   const finish=coach.root.localToWorld(shoulder.clone().addScaledVector(direction,reach+.140)),line=finish.clone().sub(terminal?knuckle:group.localToWorld(state.launch.clone())),span=line.length();if(span<1e-4)return null;line.divideScalar(span);
    const length=terminal?span:.36,total=length+.34,from=finish.clone().addScaledVector(line,-length),beyond=finish.clone().addScaledVector(line,.34);
    const touches=s=>this.collision(from.clone().lerp(beyond,s/total),other(actor)).penetration>0;
    for(let s=0;s<=total+1e-6;s+=.03){
