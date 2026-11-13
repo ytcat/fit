@@ -6,8 +6,8 @@ Status: **staging branch only; not a live deployment.** Integrate all approved r
 | Type | Source | Exact status |
 |---|---|---|
 | Rhino referee Russian «БОКС!» | User-approved trimmed `Box_first_shout_trimmed.wav` (0.84 s) | **IN GIT**: transcoded from approved 0.84 s WAV as `assets/audio/approved/referee-fight-ru.opus` (Git blob `90578c5`), retaining the same shout; original WAV remains saved separately |
-| Rhino referee Hebrew “להילחם!” | User confirms previously approved Hebrew version; exact version/URL needs reconciliation before binary import | Approved, not yet in Git |
-| Rhino referee English “FIGHT!” | HeyGen William Prescott – Angry (approved) | Exact audio at HeyGen, binary not yet imported |
+| Rhino referee Hebrew “להילחם!” | User-uploaded approved WAV | **IN GIT**: `assets/audio/approved/referee_he.opus` (SHA `b741279`) |
+| Rhino referee English “FIGHT!” | User-uploaded approved WAV | **IN GIT**: `assets/audio/approved/referee_en.opus` (SHA `0a95c09`) |
 | Boxing bell | Benboncan, Freesound 66951, the *second* bell example, three strikes | Exact approved file must be downloaded and attributed (CC BY 4.0) |
 | Glove punches | Pixabay “Punching Bag” #38481 | Approved sample; exact binary still needed; Pixabay Content License |
 | Knockout applause | Bansemer, Freesound 160493 | Approved sample; exact binary still needed; CC0 |
@@ -33,7 +33,7 @@ it is a three-strike end bell, not an approved single start bell.
 For punches trigger only on a confirmed impact with intensity and frequency limiting.
 
 ## Before live merge
-1. Import the **exact** six approved binary recordings to `assets/audio/approved/` and record their SHA-256 and source metadata. The approved Russian first-shout sound is committed as compact Opus. The five other exact recordings, including the approved Hebrew line, still need import; do not use sound-alikes.
+1. Ensure the **exact** six approved recordings are present under `assets/audio/approved/` and record their SHA-256 and source metadata. All three approved referee commands are committed as compact Opus. Only the bell, glove impact and knockout applause exact recordings still need import; do not use sound-alikes.
 2. Wire the handler to `fight-ui.js` event callbacks and fight hit callbacks, with unchanged behavior if a file is missing.
 3. Only replace the existing synth bell/applause/punch paths **after** the approved sample decodes successfully; never double-play old+new.
 4. Preserve iOS audio unlock/resume, mute, cached clips, and language switching. Do not touch animation or 3D logic.
