@@ -1,0 +1,23 @@
+/* Chapter 1 "The Dream" scenes (GOTR-0078): film bars, the spoken line as plain text in the bottom bar, Skip.
+ * Owner rule: no boxes or cards over the scene and nothing over a character: all text sits in the black bars. */
+.dream-scene{--dream-top:7dvh;--dream-bottom:17dvh}
+.dream-scene[data-tap=true]{cursor:pointer}
+.dream-bar{position:absolute;inset-inline:0;background:#000;pointer-events:none}
+.dream-bar-top{top:0;height:var(--dream-top)}.dream-bar-bottom{bottom:0;height:var(--dream-bottom)}
+.dream-scene .story-host{top:var(--dream-top);bottom:var(--dream-bottom)}
+.dream-scene .story-vignette{top:var(--dream-top);bottom:var(--dream-bottom)}
+.dream-fade{position:absolute;inset:var(--dream-top) 0 var(--dream-bottom);background:#f6efe2;opacity:0;pointer-events:none}
+.dream-sub{position:absolute;inset-inline:16px;bottom:0;height:var(--dream-bottom);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;pointer-events:none;padding-bottom:env(safe-area-inset-bottom)}
+.dream-name{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gr-gold,#f4c152)}
+.dream-sub[data-who=brick] .dream-name{color:#ff6b6b}.dream-sub[data-who=fighter] .dream-name{color:#8fd0ff}
+.dream-text{margin:0;max-width:min(620px,100%);font-size:clamp(16px,4.4vw,21px);font-weight:600;line-height:1.25;color:#fff;text-wrap:balance}
+.dream-more{font-size:15px;line-height:1;color:var(--gr-gold,#f4c152);opacity:0;height:14px}
+.dream-sub[data-wait=true] .dream-more{opacity:1;animation:dream-more 1s ease-in-out infinite}
+.dream-sub.in .dream-text,.dream-sub.in .dream-name{animation:dream-in .28s ease-out}
+.dream-skip{position:absolute;top:0;inset-inline-end:0;height:max(44px,var(--dream-top));padding:0 16px;border:0;background:none;color:#c9d2df;font:inherit;font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;touch-action:manipulation}
+.dream-scene:focus{outline:none}.dream-skip:hover{color:#fff}.dream-skip:focus-visible{color:#fff;outline:2px solid var(--gr-gold,#f4c152);outline-offset:-6px}
+@keyframes dream-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes dream-more{50%{transform:translateX(4px)}}
+[dir=rtl] .dream-more{transform:scaleX(-1)}
+@media (prefers-reduced-motion:reduce){.dream-sub.in .dream-text,.dream-sub.in .dream-name,.dream-sub[data-wait=true] .dream-more{animation:none}}
+@media (orientation:landscape) and (max-height:520px){.dream-scene{--dream-top:9dvh;--dream-bottom:22dvh}}

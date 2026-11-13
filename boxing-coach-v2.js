@@ -139,7 +139,8 @@
 
   class LionCoach {
     constructor(data,options={}) {
-      this.species=options.species||'lion';this.armHingeFrame='posterior-z';this.shoulderData=data.shoulderCorrectives?.armHingeFrame==='posterior-z'?(data.shoulderCorrectives.species?.[this.species]||null):null;this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
+      this.species=options.species||'lion';this.cast=options.cast||null;this.character=this.cast?.id||null; // GOTR-0078: story characters (adventure/story/story-cast.js) reshape and dress the same rig
+      this.armHingeFrame='posterior-z';this.shoulderData=data.shoulderCorrectives?.armHingeFrame==='posterior-z'?(data.shoulderCorrectives.species?.[this.species]||null):null;this.nativeRabbit=this.species==='rabbit'&&Boolean(data.rabbitBody);
       this.root=new THREE.Group();this.root.name='Lion boxing coach';
       // GOTR-0051: the rig and its choreography have the lead side on local -x while facing +z, which is the body's
       // RIGHT. The fighter is mirrored across its own sagittal plane here, so the lead hand, shoulder and foot are
@@ -182,7 +183,7 @@
       const cloth=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x134c55:0x152635,roughness:.72,roughnessMap:roughnessMap('cloth'),
         bumpMap:detailMap('cloth'),bumpScale:.00065,skinning:true,side:THREE.DoubleSide});
       this.skin=this.skinned(this.sculptBody(meshFrom(this.species==='rabbit'&&data.rabbitBody?data.rabbitBody:data.body,true)),skin,true);
-      this.sculptHead();
+      this.sculptHead();this.cast?.sculpt?.(this);
       // A continuous saddle at the crotch with two separate, open leg hems.
       // The previous solid ellipsoid bridge stretched into a flap between legs.
       if(!LionCoach.shortsGeometry){
@@ -328,15 +329,15 @@
         // Satin side piping follows each thigh, rather than floating beside it.
         this.curve(this.joints['thigh'+side],[V(s*.125,.055,.075),V(s*.15,-.10,.08),V(s*.15,-.25,.08)],this.gold,.006);
       }
-      if(this.species==='rabbit')this.addRabbitFace();else {this.addFace();this.addMane();}
+      if(this.cast?.face)this.cast.face(this);else if(this.species==='rabbit')this.addRabbitFace();else {this.addFace();this.addMane();}
       this.fitFaceToSkull();
       // Adult athletic proportions: reduce skull/face size consistently with the
       // sculpted skin while retaining a broad lion mane around the neck.
       this.joints.head.children.forEach(part=>{part.position.multiplyScalar(.90);part.scale.multiplyScalar(.90);});
-      const smileZ=this.species==='rabbit'?.249:.284;
+      const smileZ=this.cast?.mouthZ??(this.species==='rabbit'?.249:.284);
       this.celebrationSmile=this.curve(this.joints.head,[V(-.053,.039,smileZ-.013),V(-.027,.013,smileZ),V(0,.008,smileZ+.003),V(.027,.013,smileZ),V(.053,.039,smileZ-.013)],this.black,.0027);
       this.celebrationSmile.visible=false;
-      const mouthZ=this.species==='rabbit'?.255:.295;
+      const mouthZ=this.cast?.mouthZ!=null?this.cast.mouthZ+.011:this.species==='rabbit'?.255:.295;
       this.painMouth=this.curve(this.joints.head,[V(-.047,.018,mouthZ),V(-.020,.034,mouthZ+.005),V(.018,.030,mouthZ+.005),V(.043,.008,mouthZ)],this.black,.0033);
       this.painMouth.visible=false;
       this.damageMarks=[];
@@ -356,6 +357,7 @@
       const tip=this.ellipsoid(this.tail,new THREE.MeshStandardMaterial({color:0x44301d,roughness:1}),V(.23,-.54,-.29),V(.04,.075,.04));
       tip.rotation.z=-.6;
       if(this.species==='rabbit'){this.tail.clear();this.ellipsoid(this.tail,this.cream,V(0,-.11,-.18),V(.085,.085,.08));}
+      this.cast?.finish?.(this);if(!this.cast)window.StoryCast?.groom?.(this); // GOTR-0078: fur locks for the rabbit
       window.AvatarSurface?.addFur(this);
       const convertedMaterials=new Set();
       this.root.traverse(n=>{if(n.isMesh){
@@ -444,6 +446,7 @@
     headForm(x,y,z,out=this.headShift||(this.headShift=V())) {
       const bell=(v,c,r)=>Math.exp(-(((v-c)/r)**2)),s=x<0?-1:1,ax=Math.abs(x),front=smooth((z+.02)/.10),back=smooth((-z-.02)/.10);
       let dx=0,dy=0,dz=0;
+      if(this.cast?.headForm)return this.cast.headForm(x,y,z,out);
       if(this.species==='rabbit'){
         // The skull used to taper to a narrow top between the ears: fill the crown, forehead and occiput.
         const up=smooth((y-.10)/.21);
@@ -479,7 +482,7 @@
 
     skinned(g,material,colour) {
       const positions=g.attributes.position, ids=[],weights=[],colors=[],linear=[];
-      const tawny=new THREE.Color(this.species==='rabbit'?'#939ba7':'#b98143').convertSRGBToLinear(), light=new THREE.Color(this.species==='rabbit'?'#f0e9df':'#e1cda1').convertSRGBToLinear();
+      const tawny=new THREE.Color(this.cast?.fur||(this.species==='rabbit'?'#939ba7':'#b98143')).convertSRGBToLinear(), light=new THREE.Color(this.cast?.light||(this.species==='rabbit'?'#f0e9df':'#e1cda1')).convertSRGBToLinear();
       for(let i=0;i<positions.count;i++) {
         const p=V().fromBufferAttribute(positions,i);
         const u=Math.abs(p.x);
@@ -532,7 +535,7 @@
           const face=p.y>1.82 && p.z>.175;
           const muzzle=face && p.y<1.954 ? smooth((p.z-.18)*14) : 0;
           const bib=p.z>.08&&p.y>1.13&&p.y<1.70 ? .48*Math.exp(-((p.x/.16)**2))*smooth((p.y-1.13)/.12)*smooth((1.70-p.y)/.10) : 0;
-          const c=tawny.clone().lerp(light,Math.max(muzzle,bib));
+          const c=tawny.clone().lerp(light,Math.max(muzzle,bib));this.cast?.colour?.(p,c,tawny,light);
           c.multiplyScalar(1+.04*Math.sin(p.y*110+p.x*56)*Math.sin(p.z*143));
           c.multiplyScalar(1-.13*smooth((-p.z-.03)/.15));
           // Tonal separation at muscle borders now comes from the muscle-definition
