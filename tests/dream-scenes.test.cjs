@@ -133,3 +133,33 @@ console.log('dream scenes ok');
   const y1 = c.joints.head.rotation.y; DreamPose.civil(c, { t: 9, dist: 0 }); assert.notEqual(c.joints.head.rotation.y, y1, 'idle: the head glances around');
   console.log('motion ok');
 }
+
+// ---- GOTR-0082: no part of Bruno or Brick may stick out of the body (bars through the neck, floating brows), in the talk pose,
+// the guard, a punch and a knockdown, with the root mirrored (v1.51) and again inside a mirrored parent (the fight's cast)
+{
+  const box = new THREE.Box3(), size = new THREE.Vector3(), q = new THREE.Vector3(), headQ = new THREE.Vector3();
+  const check = (c, label) => {
+    c.root.updateMatrixWorld(true); const inv = c.root.matrixWorld.clone().invert(); let n = 0;
+    c.joints.head.getWorldPosition(headQ).applyMatrix4(inv);
+    c.root.traverse(o => {
+      if (!o.isMesh || o.isSkinnedMesh || !o.geometry.attributes.position?.count) return; let v = true, k = o; while (k && k !== c.root) { v = v && k.visible; k = k.parent; } if (!v) return; n++;
+      o.geometry.computeBoundingBox(); box.copy(o.geometry.boundingBox).applyMatrix4(inv.clone().multiply(o.matrixWorld)); box.getSize(size);
+      const name = label + ': ' + (o.name || o.parent?.name || o.geometry.type);
+      assert.ok(Math.max(size.x, size.y, size.z) < 1.05, name + ' is ' + Math.max(size.x, size.y, size.z).toFixed(2) + ' m long'); // the neck bars were about 2 m
+      assert.ok(box.min.x > -1.3 && box.max.x < 1.3 && box.min.z > -1.3 && box.max.z < 1.6 && box.min.y > -.35 && box.max.y < 2.7, name + ' leaves the body: ' + JSON.stringify(box));
+      let h = o.parent; while (h && h !== c.joints.head) h = h.parent;
+      if (h) { box.getCenter(q); assert.ok(q.distanceTo(headQ) < .5 && Math.max(size.x, size.y, size.z) < .95, name + ' floats off the head: ' + q.distanceTo(headQ).toFixed(2)); }
+    });
+    assert.ok(n > 5, label + ' has parts');
+  };
+  for (const id of StoryCast.ids) {
+    const c = StoryCast.rig(id, engine); assert.equal(c.root.scale.x, -1, id + ': the root is mirrored');
+    const poses = { talk: () => DreamPose.civil(c, { t: 3, dist: 0, arms: { L: 'pound', R: 'point' }, look: { yaw: .6, pitch: .1 }, talk: 1 }), guard: () => c.update(1, 'guard', 'one_two', { guardCover: 1 }), punch: () => c.update(.5 * 1.22, 'jab', 'one_two', { power: 1.2 }), hook: () => c.update(.5 * 1.22, 'hook', 'one_two', {}), down: () => c.update(1, 'guard', 'one_two', { presentation: { mode: 'loser', raise: 0 }, down: 1 }) };
+    for (const [name, f] of Object.entries(poses)) {
+      f(); check(c, id + ' ' + name);
+      const home = c.root.parent, cast = new THREE.Group(); cast.scale.x = -1; cast.position.set(.4, 0, -.3); cast.rotation.y = 1.1; cast.add(c.root); f(); check(c, id + ' ' + name + ' (mirrored cast)'); cast.remove(c.root); if (home) home.add(c.root);
+    }
+  }
+  assert.ok(!/neck (rolls|folds)|fold under the jaw/.test(fs.readFileSync('adventure/story/story-cast.js', 'utf8')), 'no neck plate geometry is left on Brick');
+  console.log('cast parts stay on the body');
+}
