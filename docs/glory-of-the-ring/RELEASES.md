@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.52 | 2026-11-13 | `b6a19c2` | Hotfix: characters in story scenes and skill trials are no longer torn apart (regression from the v1.51 stance) (GOTR-0080) |
 | v1.51 | 2026-11-13 | `dbe7ed8` | Real orthodox boxing stance in every mode, both animals: left foot and left glove in front (elbow bent), right foot back, right glove beside the cheek; Jab = left hand, Cross = right hand; side lock shows the Fighter's open side (GOTR-0074, owner approved the pictures) |
 | v1.50 | 2026-11-13 | `644bc16` | Shop preview draws the whole Fighter again (the body was left behind in a story set) (GOTR-0072). The rabbit's waistband no longer floats behind it (GOTR-0079). Gym equipment and stands between the camera and the fighters are hidden automatically (GOTR-0073) |
 | v1.49 | 2026-11-12 | `9bebbcc` | Timed round: start and end bells, stopwatch button, plain-text explanation, second tap stops it, result with Again; the round no longer goes silent (GOTR-0071). Guard: holding it raises a visible closed cover, hint text, "Blocked · no damage" feedback. Fight countdown centred, never cut. After a KO only the winner line; judges shown only when the fight goes to the cards, as three score cards (GOTR-0075) |

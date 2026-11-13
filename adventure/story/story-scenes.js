@@ -346,7 +346,7 @@
       set = window.StorySets.build(game ? game.set : scene0.set, scene, { renderer: e.renderer, shadows: !!e.renderer.shadowMap?.enabled });
       for (const [key, a] of Object.entries(game ? game.roles : scene0.actors)) {
         const c = rigFor(a.rig || key, e, borrowed.map(b => b.c));
-        borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.root.scale.setScalar(1); c.maneInitialized = false; rigs[key] = c;
+        borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.root.scale.set(-1, 1, 1); /* GOTR-0074: fighters are mirrored at the root; a plain scale of 1 tears the skin */ c.maneInitialized = false; rigs[key] = c;
         if (a.mitts && window.TrainingGear) mitts.push(window.TrainingGear.mitt(c, 'L'), window.TrainingGear.mitt(c, 'R'));
       }
       if (game) { sim = game.make(Trials(), { hard }); run.intro = opts.noIntro ? 0 : 3; }
