@@ -57,7 +57,30 @@
    const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;actions.append(details,again);panel.append(actions);
   }
   function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=true;document.body?.classList?.toggle?.('fight-over',false);last='';for(const actor in corners)corners[actor].last=null;}
-  e.onFightEvent=event=>{if(event.type==='announcement')app.audio.applause?.();else app.audio.bell(event.type==='final-bell'?'final':event.kind||'start');};
+  // Approved recordings take precedence only when their exact source file has loaded.
+  // Do not play a second synthetic bell over the approved three-strike end bell.
+  const approvedAudio=window.ApprovedFightAudio;
+  approvedAudio?.preload(app.audio);
+  // Prefer the approved glove recording at confirmed non-heavy impacts only,
+  // and retain the original effect when the approved recording is unavailable.
+  if(approvedAudio && !app.audio.__approvedImpactInstalled){
+    const previousHit=app.audio.hit.bind(app.audio);
+    app.audio.hit=function(impact){
+      if(impact?.receiver!=='heavy' && approvedAudio.impact(this))return;
+      return previousHit(impact);
+    };
+    app.audio.__approvedImpactInstalled=true;
+  }
+  e.onFightEvent=event=>{
+   if(event.type==='announcement'){
+    if(!approvedAudio?.handle(event,app))app.audio.applause?.();
+   }else if(event.type==='bell' && event.kind==='start'){
+    app.audio.bell('start');
+    approvedAudio?.handle(event,app); // Once only, in the selected language.
+   }else{
+    if(!approvedAudio?.handle(event,app))app.audio.bell(event.type==='final-bell'?'final':event.kind||'start');
+   }
+  };
   window.fightUI={configure,detail,render,hide,words:()=>w()};
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
