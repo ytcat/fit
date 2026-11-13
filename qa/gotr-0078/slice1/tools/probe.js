@@ -1,9 +1,14 @@
-// Lists the visible meshes of the Fighter in street clothes that sit around the waist (debug).
+// Debug: front surface of the street outfit against the bare body, and fur visibility.
 module.exports = async (p) => {
   await p.waitForFunction(() => window.StoryCast, null, { timeout: 120000 });
   const info = await p.evaluate(() => {
-    const c = app.engine.coach; StoryCast.outfit(c, 'street'); c.root.updateMatrixWorld(true); const out = [];
-    c.root.traverse(o => { if (!o.isMesh) return; let v = true, q = o; while (q && q !== c.root.parent) { v = v && q.visible; q = q.parent; } if (!v) return; o.geometry.computeBoundingBox(); const b = o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld); if (b.max.y > .95 && b.min.y < 1.15 && !o.isSkinnedMesh) out.push([o.name || o.type, o.parent?.name, o.geometry.type, +b.min.y.toFixed(2), +b.max.y.toFixed(2)].join('|')); if (o.isSkinnedMesh) out.push('SK ' + (o.name || '') + ' ' + (o === c.skin) + ' ' + (o === c.shorts)); });
+    const c = app.engine.coach, g = c.skin.geometry, out = [];
+    const front = (y, x = 0) => { const P = g.attributes.position; let z = -9; for (let i = 0; i < P.count; i++) if (Math.abs(P.getY(i) - y) < .012 && Math.abs(P.getX(i) - x) < .012) z = Math.max(z, P.getZ(i)); return +z.toFixed(3); };
+    const base = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6].map(y => front(y)), baseX = [1.1, 1.2, 1.3, 1.4].map(y => front(y, .1));
+    StoryCast.outfit(c, 'street');
+    out.push('base ' + base, 'street ' + [1.1, 1.2, 1.3, 1.4, 1.5, 1.6].map(y => front(y)), 'baseX ' + baseX, 'streetX ' + [1.1, 1.2, 1.3, 1.4].map(y => front(y, .1)));
+    const a = g.attributes; out.push('attrs ' + Object.keys(a).join(','), 'mass ' + Array.from(a.avatarMass.array.slice(0, 3)) + ' ' + a.avatarMass.array.reduce((n, v) => n + (v !== 0), 0), 'fur ' + c.bodyFur?.visible);
+    const b = StoryCast.rig('bruno'); out.push('bruno fur ' + b.bodyFur?.visible + ' ' + b.bodyFurOff);
     return out;
   });
   console.log(info.join('\n'));

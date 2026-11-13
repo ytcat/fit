@@ -140,8 +140,8 @@
         { t: 36, pos: [-1.45, 1.68, 2.4], look: [.9, 1.68, .7], fov: 27, ease: 'linear' },
         { t: 36, cut: true, pos: [-.6, 1.45, 5.4], look: [1.1, 1.3, .2] },                     // wide: Brick comes over
         { t: 40, pos: [-.3, 1.45, 5.0], look: [1.1, 1.3, .3], ease: 'smooth' },
-        { t: 40, cut: true, pos: [-.2, 1.25, 2.3], look: [2.3, 1.72, .2], fov: 30 },           // Brick, from below
-        { t: 44, pos: [-.1, 1.25, 2.2], look: [2.3, 1.74, .2], fov: 28, ease: 'linear' }
+        { t: 40, cut: true, pos: [.55, 1.3, 3.0], look: [2.2, 1.6, .2], fov: 32 },           // Brick, from below
+        { t: 44, pos: [.6, 1.3, 2.85], look: [2.2, 1.62, .2], fov: 30, ease: 'linear' }
       ],
       actors: {
         fighter: { rig: 'fighter', keys: [

@@ -20,7 +20,7 @@
   function speaker(id, e) {
     if (id !== 'fighter') return Cast().names[id]?.[lang()] || id;
     let name = ''; try { name = e.career?.store?.current?.()?.name || ''; } catch { /* no profile */ }
-    return name || W[lang()].you;
+    return name && !/^guest$/i.test(name.trim()) ? name : W[lang()].you;
   }
   const borrow = c => ({ c, parent: c.root.parent, pos: c.root.position.clone(), q: c.root.quaternion.clone(), scale: c.root.scale.clone(), visible: c.root.visible });
   function giveBack(b) { const r = b.c.root; r.parent?.remove(r); if (b.parent) b.parent.add(r); r.position.copy(b.pos); r.quaternion.copy(b.q); r.scale.copy(b.scale); r.visible = b.visible; b.c.maneInitialized = false; }

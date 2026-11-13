@@ -108,14 +108,14 @@
   function tube(v, a, bf, bb, k = 1, zc = -.005) { const dz = v.z - zc, r = Math.hypot(v.x, dz); if (r < 1e-4) return null; const b = dz > 0 ? bf : bb, cx = v.x / r, cz = dz / r, R = a * b / Math.hypot(b * cx, a * cz); return R > r ? [cx * (R - r) * k, 0, cz * (R - r) * k] : null; }
   function sleeve(v, R, k = 1) { const dy = v.y - 1.615, r = Math.hypot(dy, v.z); return r > 1e-4 && R > r ? [0, dy / r * (R - r) * k, v.z / r * (R - r) * k] : null; }
   function trouser(v, R, k = 1) { const s = v.x < 0 ? -1 : 1, dx = v.x - s * (.15 + (1 - v.y) * .07), dz = v.z + .02 * smooth((.7 - v.y) / .3), r = Math.hypot(dx, dz); return r > 1e-4 && R > r ? [dx / r * (R - r) * k, 0, dz / r * (R - r) * k] : null; }
-  const SWAP = ['position', 'normal', 'color', 'avatarMuscle', 'avatarMuscleNormal', 'avatarDefinition', 'avatarDefinitionNormal'];
+  const SWAP = ['position', 'normal', 'color', 'avatarMuscle', 'avatarMuscleNormal', 'avatarDefinition', 'avatarDefinitionNormal', 'avatarMass'];
   /** Dresses a copy of the skin's streams. cloth(v) -> null (bare) or { d: offset along the normal (m), c: THREE.Color (linear),
    *  loose?: 0..1 relief washed out (default 1) }. v = { x, y, z, nx, ny, nz, arm (0..1 arm blend) } in the rest pose. */
   function dress(g, cloth, opt = {}) {
     const P = g.attributes.position, N = g.attributes.normal, n = P.count, pos = new Float32Array(P.array), col = new Float32Array(g.attributes.color.array), mask = new Float32Array(n), off = new Float32Array(n);
     const arm = g.attributes.coachArmBlend, v = {};
     for (let i = 0; i < n; i++) {
-      v.x = pos[i * 3]; v.y = pos[i * 3 + 1]; v.z = pos[i * 3 + 2]; v.nx = N.getX(i); v.ny = N.getY(i); v.nz = N.getZ(i); v.arm = arm ? arm.getX(i) : 0;
+      v.x = pos[i * 3]; v.y = pos[i * 3 + 1]; v.z = pos[i * 3 + 2]; v.nx = N.getX(i); v.ny = N.getY(i); v.nz = N.getZ(i); v.arm = smooth((Math.abs(v.x) - .29) / .075) * smooth((v.y - 1.34) / .07); // 0 on the trunk and legs, 1 on the arms (rest pose: arms out along x)
       const o = cloth(v); if (!o) continue;
       mask[i] = o.loose ?? 1; off[i] = o.d; if (o.c) { col[i * 3] = o.c.r; col[i * 3 + 1] = o.c.g; col[i * 3 + 2] = o.c.b; }
       if (o.move) { pos[i * 3] += o.move[0]; pos[i * 3 + 1] += o.move[1]; pos[i * 3 + 2] += o.move[2]; }
@@ -259,7 +259,7 @@
   };
   /** Bruno's clothes are part of him: cardigan over a gym shirt, track pants. Returns the dressed streams. */
   function brunoClothes(rig) {
-    const card = lin(BRUNO.cardigan), rib = lin(BRUNO.rib), shirt = lin(BRUNO.shirt), pants = lin(BRUNO.pants), stripe = lin(BRUNO.stripe), tmp = new THREE.Color();
+    const card = lin(BRUNO.cardigan), rib = lin(BRUNO.rib), shirt = lin(BRUNO.shirt), pants = lin(BRUNO.pants), stripe = lin(BRUNO.stripe), tmp = new THREE.Color(), tmp2 = new THREE.Color();
     return dress(rig.skin.geometry, v => {
       const ax = Math.abs(v.x);
       if (v.y > 1.775 || ax > .915) return null;
@@ -271,7 +271,7 @@
       const front = smooth((v.z - .02) / .06) * (v.arm < .3 ? 1 : 0), open = .016 + .085 * smooth((v.y - 1.30) / .42), k = 1 - front * (1 - smooth((ax - open) / .02)); // k = 0 in the open front (gym shirt), 1 on the cardigan
       const top = 1 - smooth((v.y - 1.735) / .04), hem = bell(v.y, 1.055, .028) * (1 - v.arm), cuff = smooth((ax - .86) / .02), edge = front * bell(ax, open + .03, .016), knit = .5 + .5 * Math.sin((v.arm > .5 ? ax : v.y) * 520);
       const c = tmp.copy(card).lerp(rib, clamp(Math.max(hem, cuff, edge) * (.55 + .45 * knit))).multiplyScalar(1 - .05 * Math.sin(v.y * 260 + ax * 90));
-      if (k < .5) c.copy(shirt).multiplyScalar(1 - .1 * bell(v.y, 1.75, .02));
+      if (k < 1) c.lerp(tmp2.copy(shirt).multiplyScalar(1 - .1 * bell(v.y, 1.75, .02)), 1 - smooth(k / .45));
       const move = v.arm > .6 ? sleeve(v, lerp(.1, .066, smooth((ax - .42) / .46)), smooth((v.arm - .6) / .3)) : v.arm < .25 && v.y < 1.6 ? tube(v, .345, .30, .235, (1 - v.arm * 4) * smooth((1.6 - v.y) / .12)) : null;
       return { d: lerp(.006, .022 + .006 * Math.max(hem, cuff) + .007 * edge, k) * lerp(.25, 1, top), c: c.clone(), move };
     }, { relax: 10 });
@@ -404,7 +404,7 @@
           // hoodie: ribbed hem and cuffs, a kangaroo pocket, loose over the waist
           const hem = 1 - smooth((v.y - 1.085) / .02), cuff = smooth((ax - .875) / .02), front = smooth((v.z - .02) / .06) * (1 - v.arm);
           const pocket = front * band(v.y, 1.10, 1.275, .012) * (1 - smooth((ax - (.185 - (v.y - 1.10) * .28)) / .012)), pocketEdge = front * Math.max(bell(v.y, 1.28, .009) * (1 - smooth((ax - .14) / .01)), bell(ax, .185 - (v.y - 1.10) * .28, .008) * band(v.y, 1.10, 1.28, .01));
-          const waist = bell(v.y, 1.2, .14) * (1 - v.arm), wr = v.arm > .5 ? .0045 * Math.sin(ax * 62) * bell(ax, .66, .13) : .004 * Math.sin(v.y * 70 + v.x * 9) * bell(v.y, 1.14, .08);
+          const waist = bell(v.y, 1.2, .14) * (1 - v.arm), wr = v.arm > .5 ? .004 * Math.sin(ax * 62) * bell(ax, .66, .11) : 0; // a few soft folds at the elbow only
           const rib = (hem > .2 || cuff > .2) ? .5 + .5 * Math.sin((cuff > .2 ? Math.atan2(v.z, v.y - 1.62) * 26 : Math.atan2(v.z, v.x) * 44)) : 0;
           const c = tmp.copy(hood).lerp(dark, clamp(Math.max(hem, cuff) * (.45 + .4 * rib) + pocketEdge * .9)).clone().multiplyScalar(1 - .07 * Math.sin(v.y * 900 + v.x * 610) * Math.sin(v.z * 770));
           const move = v.arm > .6 ? sleeve(v, lerp(.098, .064, smooth((ax - .42) / .46)), smooth((v.arm - .6) / .3)) : v.arm < .25 && v.y < 1.69 ? tube(v, .292, lerp(.2, .232, smooth((v.y - 1.2) / .3)), .205, (1 - v.arm * 4) * smooth((1.69 - v.y) / .1)) : null;
