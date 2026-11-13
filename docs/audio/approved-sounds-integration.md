@@ -1,0 +1,42 @@
+# Approved game sounds — safe staged integration
+
+Status: **staging branch only; not a live deployment.** Integrate all approved recordings, not just the Russian referee.
+
+## The five approved recordings
+| Type | Source | Exact status |
+|---|---|---|
+| Rhino referee Russian «БОКС!» | User-approved trimmed `Box_first_shout_trimmed.wav` (0.84 s) | Local original verified, needs binary upload to GitHub |
+| Rhino referee English “FIGHT!” | HeyGen William Prescott – Angry (approved) | Exact audio at HeyGen, binary not yet imported |
+| Boxing bell | Benboncan, Freesound 66951, the *second* bell example, three strikes | Exact approved file must be downloaded and attributed (CC BY 4.0) |
+| Glove punches | Pixabay “Punching Bag” #38481 | Approved sample; exact binary still needed; Pixabay Content License |
+| Knockout applause | Bansemer, Freesound 160493 | Approved sample; exact binary still needed; CC0 |
+
+Do not confuse approved KO applause with the *rejected* regular audience recording.
+The rejected heavy bag, fighter grunts, regular crowd, other referee versions and unapproved Hebrew line must **not** be substituted.
+
+## Source links
+- English (approved exact generated WAV): https://resource2.heygen.ai/text_to_speech/3df7e370c86747a2bc7b7a7e550f19c8/24ec3736b0ef4c67a1c635794629679e/id=54f86ed5d7374771a86e8131cc0f93e9.wav
+- Bell (Benboncan): https://freesound.org/people/Benboncan/sounds/66951/
+- Glove punch: https://pixabay.com/sound-effects/film-special-effects-punching-bag-38481/
+- KO audience (Bansemer): https://freesound.org/people/Bansemer/sounds/160493/
+
+## Code strategy
+The staged `approved-fight-audio.js` module loads only same-origin recordings under
+`assets/audio/approved/` and stores them separately from the existing synthesized or recorded sounds.
+A failed load never installs a substitute. It uses the existing audio engine's mute and gain controls.
+A referee command plays once only on `bell(kind=start)`; no extra speech on scene render.
+The knockout crowd should play only for confirmed KO (not all result ceremonies).
+The selected three-strike bell should play ONCE when an end/final bell fires; do **not** wrap the recording
+in the existing 3x loop. For start-of-round bell decide whether the approved recording is appropriate;
+it is a three-strike end bell, not an approved single start bell.
+For punches trigger only on a confirmed impact with intensity and frequency limiting.
+
+## Before live merge
+1. Import the **exact** five approved binary recordings to `assets/audio/approved/` and record their SHA-256 and source metadata. The first Russian source was available locally but the GitHub connector cannot consume local bytes directly.
+2. Wire the handler to `fight-ui.js` event callbacks and fight hit callbacks, with unchanged behavior if a file is missing.
+3. Only replace the existing synth bell/applause/punch paths **after** the approved sample decodes successfully; never double-play old+new.
+4. Preserve iOS audio unlock/resume, mute, cached clips, and language switching. Do not touch animation or 3D logic.
+5. Test fight start, round end, knockout, contact, mute/unmute, switching EN/HE/RU, pause/resume and missing-file fallback on both phone and desktop.
+6. Do not merge until assets are complete and the user approves test results.
+
+Attribution for bell: “Boxing Bell.wav” by Benboncan, Freesound.org, CC BY 4.0.
