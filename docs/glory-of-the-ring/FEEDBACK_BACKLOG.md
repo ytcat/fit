@@ -861,6 +861,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported:** 2026-11-13 (owner: "Can you create an ongoing task for all animation films?")
 - **Status:** ONGOING — tracker [`docs/adventure/FILMS.md`](../adventure/FILMS.md): every scripted film of Chapter 1, the fight films (Sunday Punch, corner break, knockout fall) and the older scenes, each with state and branch. The integrator updates it at every release that touches a film; a film is Done only when played in the game flow at 402×690, shown to the owner and live.
 
+### GOTR-0092 — New characters for Chapter 1: Fang (wolf), Mrs. Hazel (doe), Otto (otter)
+- **Reported:** 2026-11-13 (owner: "Start also work on the other characters, like wolves, the woman in the market and the otter in his shop")
+- **Status:** QUEUED — starts in the first free agent slot (max 3 at once)
+- **Cast (CHAPTER1_SCRIPT_V2.md):** **Fang** — big, muscular wolf robber: black leather rocker jacket, gold chain, ripped jeans, boots; street fight with bare hands (beat 6). **Mrs. Hazel** — doe who runs the fruit stall: apron, handbag, headscarf, kind older face (beat 6 victim). **Otto** — otter who owns the boxing shop "Otto's Corner": shop apron or cardigan, glasses on a cord, measuring tape (beat 7). Later: **Slick** (weasel promoter) and **Hook** (crocodile dock worker; name may change — clashes with the punch Hook).
+- **Acceptance:** on the game rig like Bruno and Brick, at the lion's quality bar (heads sculpted, fur/coat detail, cloth with seams and folds), everyday pose and walk, talk gestures, face dynamics; Fang also boxes bare-handed with the fight animations; outfits by place; mirrored-root safe; part-bounds test; head sheets and full bodies next to the lion shown to the owner before release; 3D portraits replace their monogram badges.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
