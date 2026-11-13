@@ -75,15 +75,20 @@
     for(const x of [-1.65,1.65])arena.rod(this.ring,V(x,y,-1.65),V(x,y,1.65),.012,arena.accent);
    }
    for(const x of [-1.65,1.65])for(const z of [-1.65,1.65]){
-    const corner=new THREE.MeshStandardMaterial({color:z<0?0x973d38:0x315d91,roughness:.55});
+    // GOTR-0076: red and blue corners face each other across the diagonal (the fighters' corners in the mirrored cast
+    // are cast (-1.65,-1.65) red and (1.65,1.65) blue); the other two are the white neutral corners.
+    const corner=new THREE.MeshStandardMaterial({color:x>0&&z<0?0x973d38:x<0&&z>0?0x315d91:0xd8dce1,roughness:.55});
     for(const y of [.36,.65,.94,1.23]){
      const pad=arena.mesh(this.ring,new THREE.BoxGeometry(.13,.10,.13),corner,V(x,y,z));
      pad.rotation.y=Math.PI/4;
     }
    }
-   window.GymDetails?.ring(this.ring);arena.group.rotation.y=.90;this.pose();
+   window.GymDetails?.ring(this.ring);arena.group.rotation.y=.90;
+   // GOTR-0076: the corner break between rounds (fight-corner.js): walk to the corner, stool, towel, water, back out.
+   this.corner=window.FightCorner?.create(this);this.pose();
   }
   dispose(){
+   this.corner?.dispose();
    for(const coach of Object.values(this.coaches||{})){coach.root.scale.x=-1;if(coach.root.parent===this.cast)this.arena.group.add(coach.root);}this.cast?.parent?.remove(this.cast);
    const materials=new Set();for(const root of [this.referee.root,this.audience.root,this.ring]){
     root.traverse(node=>{if(!node.isMesh)return;node.geometry.dispose();for(const material of (Array.isArray(node.material)?node.material:[node.material])){if(root!==this.ring||![this.arena.dark,this.arena.leather,this.arena.accent].includes(material))materials.add(material);}});
@@ -191,12 +196,13 @@
    if(!ceremony){
     this.keepRange();
     for(const [actor,index] of [['lion',0],['rabbit',1]]){
-     const coach=this.coaches[actor],direction=index?-1:1,corner=m.phase==='rest'?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.pushDirection?0:reaction?.move?.includes('uppercut')?Math.min(.06,(reaction.amount||0)*.04):Math.min(.045,(reaction?.amount||0)*.032);
+     const coach=this.coaches[actor],direction=index?-1:1,corner=m.phase==='rest'&&!this.corner?.34*clamp(m.phaseTime/1.4):0;const reaction=this.reaction(actor),push=reaction?.pushDirection?0:reaction?.move?.includes('uppercut')?Math.min(.06,(reaction.amount||0)*.04):Math.min(.045,(reaction?.amount||0)*.032);
      coach.root.position.z-=direction*(corner+push);const impulse=this.impactIntent(actor);impulse.multiplyScalar(Math.min(1,this.travelCapacity(coach.root.position,impulse)));this.impactOffsets=this.impactOffsets||{};this.impactOffsets[actor]=impulse;coach.root.position.add(impulse);
     }
     this.applyReach();
    }
    if(!ceremony){for(const actor of ['lion','rabbit']){const c=this.coaches[actor],op=this.coaches[other(actor)];const d=op.root.position.clone().sub(c.root.position);c.ringYaw=Math.atan2(d.x,d.z);}}
+   const corner=!ceremony&&!!this.corner?.place({lion:{position:this.coaches.lion.root.position.clone(),yaw:this.coaches.lion.ringYaw},rabbit:{position:this.coaches.rabbit.root.position.clone(),yaw:this.coaches.rabbit.ringYaw}});
 
    for(const actor of ['lion','rabbit']){
     const coach=this.coaches[actor],state=this.recoveryState(actor),yaw=coach.ringYaw;
@@ -256,6 +262,7 @@
      }
     }
     if(ceremony){options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'R':'L',raise:!m.result.winner||m.result.winner===actor?raise:0};}
+    if(corner){metrics[actor]=this.corner.pose(actor,options,m.time);continue;}
     const time=ceremony?m.time:spec.phase*1.22;
     metrics[actor]=coach.update(time,ceremony?(ease<1?'step':'guard'):spec.move,'one_two',options);
     // A planted sole the posed leg cannot reach (the body was driven away from it) is released and the pose redone.
@@ -277,6 +284,7 @@
    if(m.phase==='count'){grip=this.referee.root.localToWorld(V(.32,1.76,.27));side=1;}
    const leftReaction=this.reaction('lion')?.amount||0,rightReaction=this.reaction('rabbit')?.amount||0;
    this.referee.update(m.time,grip,side,{lookAt:ceremony?null:this.coaches[leftReaction>rightReaction?'lion':'rabbit'].joints.head.getWorldPosition(V()),alert:Math.max(leftReaction,rightReaction)});this.audience.update(m.time,reveal);
+   if(corner)this.corner.after();
    // Crowd occlusion is determined in WORLD space, not by fixed side IDs.
    // Hide every spectator in the camera-facing half of the arena, including
    // diagonal near-side seats, so no crowd meshes cover the fighters.

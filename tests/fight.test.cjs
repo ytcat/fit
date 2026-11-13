@@ -1,5 +1,6 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');global.window=global;vm.runInThisContext(fs.readFileSync('boxing-fight.js','utf8'));
-assert.deepEqual(BoxingFight.presets.club,{rounds:2,roundSeconds:20,restSeconds:10});assert.equal(BoxingFight.presets.title.rounds,1);assert.deepEqual(BoxingFight.presets.three,{rounds:3,roundSeconds:20,restSeconds:10});
+// GOTR-0076: multi-round bouts rest 20 s, the corner break (walk, stool, towel, water, back out) fits in it.
+assert.deepEqual(BoxingFight.presets.club,{rounds:2,roundSeconds:20,restSeconds:20});assert.equal(BoxingFight.presets.title.rounds,1);assert.deepEqual(BoxingFight.presets.three,{rounds:3,roundSeconds:20,restSeconds:20});
 const scoreFixture=(winningActor)=>{
  const m=new BoxingFight({seed:22,rounds:1,roundSeconds:10});m.phase='round';
  for(let i=0;i<5;i++){const a=m.attack(winningActor,'cross','head');const hit=m.contact({actor:winningActor,action:a.id,part:i%2?'body':'head',speed:3,point:[0,1.8,0]});assert.ok(hit.legal);assert.equal(m.contact({actor:winningActor,action:a.id,part:'head',speed:9}),null,'one contact per punch');}
