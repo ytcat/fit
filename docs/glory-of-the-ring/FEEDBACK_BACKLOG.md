@@ -922,6 +922,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Suspect (unproven):** the arm-raise targets were authored before the fighters were mirrored at the root (GOTR-0074, v1.51), so the referee grabs the wrong side / the IK solves through the torso.
 - **Acceptance:** the referee stands between the fighters, holds the winner's near wrist and lifts the arm straight up beside the head; the loser stands to the other side; no limb passes through any body (measured clearance), in ring and gym (Bruno) and ringless venues; both corners as winner; pictures at 402×690.
 
+### GOTR-0100 — Bare paws are small and strange; make real lion hands
+- **Reported:** 2026-11-14 (owner, opening film walk in street clothes; three style references of muscular lion fighters, not stored in the repo)
+- **Status:** OPEN — P1 (branch `agent/street-clothes`)
+- **Owner's words:** "Look at his paws. They are small and strange, they don't look like a lion's. Make them bigger. I want to see lion fingers, the colours of the paw from inside and outside."
+- **Acceptance:** bare hands (street, ringless fights, wraps) are big, powerful lion paws in proportion to the muscular arms (about the size of a boxing glove, references show oversized fists): four thick fingers with knuckles and a thumb, short dark claws (retracted look), fur on the back of the hand in the coat colour, palm and finger pads in a darker brown-pink leather tone, a palm pad; they close into a real fist for punches and guard and relax half-open when walking; works with hand wraps; same quality for the rabbit (rabbit paws: fur, pads); no change to gloved hands. Pictures: close-ups (back, palm, fist, relaxed) and the walk at 402×690.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
