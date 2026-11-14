@@ -26,7 +26,7 @@
     if (!keys?.length) return null; const i = at(keys, t), a = keys[i], b = keys[i + 1]; let shot = 0; for (let k = 1; k <= i; k++) if (keys[k].cut) shot++;
     if (!b || b.cut || t <= a.t) return { pos: a.pos.slice(), look: a.look.slice(), shot, fov: a.fov || 0 };
     const k = (EASE[b.ease] || EASE.smoother)((t - a.t) / Math.max(1e-6, b.t - a.t));
-    return { pos: mix(a.pos, b.pos, k), look: mix(a.look, b.look, k), shot, fov: lerp(a.fov || 0, b.fov || a.fov || 0, k) };
+    return { pos: mix(a.pos, b.pos, k), look: mix(a.look, b.look, k), shot, fov: a.fov || b.fov ? lerp(a.fov || 36, b.fov || a.fov || 36, k) : 0 }; // a key without fov is the normal lens (36), not 0 (GOTR-0097: the face shot opened on an extreme zoom)
   }
   function prop(keys, t) { const i = at(keys, t), a = keys[i], b = keys[i + 1]; if (!b || t <= a.t) return a.v.slice(); return mix(a.v, b.v, (EASE[b.ease] || EASE.smooth)((t - a.t) / Math.max(1e-6, b.t - a.t))); }
   /** One actor at time t. A key without x / z stays where the previous key was. */
@@ -111,7 +111,7 @@
         { t: 4.6, pos: [9.6, 2.7, 10.4], look: [.4, 1.5, 3.4] },
         { t: 7.2, pos: [8.2, 1.6, 9.4], look: [1.9, 1.35, 3.2], ease: 'smooth' },            // the bus has stopped, doors open
         { t: 9.6, pos: [7.0, 1.5, 8.4], look: [2.6, 1.3, 4.0], ease: 'smooth' },
-        { t: 9.6, cut: true, pos: [5.9, 1.2, 6.9], look: [2.85, 1.68, 4.45] },       // low on his face: he looks up at the city
+        { t: 9.6, cut: true, pos: [5.9, 1.2, 6.9], look: [2.85, 1.68, 4.45], fov: 17 }, // low on his face: he looks up at the city (slow pull-out to 33)
         { t: 12.4, pos: [5.6, 1.2, 6.6], look: [2.85, 1.72, 4.45], fov: 33, ease: 'linear' },
         { t: 12.4, cut: true, pos: [.3, 2.05, 5.5], look: [24, 6.5, -7] },                   // over his shoulder: the street, the towers
         { t: 15.6, pos: [1.0, 2.3, 5.3], look: [26, 8, -8], ease: 'linear' },

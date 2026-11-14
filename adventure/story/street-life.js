@@ -98,7 +98,7 @@
   function pigeonState(flock, t, track) { for (const [tt, x, z] of track) { if (tt > t) break; if (Math.hypot(x - flock.x, z - flock.z) < FLUSH) return tt; } return null; }
   function birdGeometry() {
     const body = at(ball(.06, 7, 5), 0, 0, 0, 0, 0, 0, .85, .8, 1.5), head = at(ball(.032, 6, 4), 0, .06, .075), beak = at(new THREE.ConeGeometry(.008, .025, 4), 0, .055, .11, Math.PI / 2), tail = at(new THREE.BoxGeometry(.06, .01, .07), 0, .01, -.1, -.25);
-    const parts = [[body, '#8d929e'], [head, '#5f6b7d'], [beak, '#3a3a3a'], [tail, '#5a5f69']], pos = [], col = [], c = new THREE.Color();
+    const parts = [[body, '#767b88'], [head, '#4f5a6b'], [beak, '#3a3a3a'], [tail, '#4c5059']], pos = [], col = [], c = new THREE.Color();
     for (const [g0, cc] of parts) { const g = g0.index ? g0.toNonIndexed() : g0; c.set(cc).convertSRGBToLinear(); for (let i = 0; i < g.attributes.position.count; i++) { pos.push(g.attributes.position.getX(i), g.attributes.position.getY(i), g.attributes.position.getZ(i)); col.push(c.r, c.g, c.b); } if (g !== g0) g.dispose(); g0.dispose(); }
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.computeVertexNormals(); return g;
   }
@@ -107,7 +107,7 @@
   /* ---------------------------------------------------------------- clouds, litter */
   function cloudTexture(seed) {
     const cv = document.createElement('canvas'); cv.width = 256; cv.height = 128; const g = cv.getContext('2d'), r = rnd(seed);
-    for (let k = 0; k < 16; k++) { const x = 40 + r() * 176, y = 58 + (r() - .5) * 34 - Math.sin((x - 40) / 176 * Math.PI) * 14, rr = 22 + r() * 30, gr = g.createRadialGradient(x, y, 2, x, y, rr); gr.addColorStop(0, 'rgba(255,255,255,.55)'); gr.addColorStop(.6, 'rgba(250,248,244,.32)'); gr.addColorStop(1, 'rgba(240,238,236,0)'); g.fillStyle = gr; g.fillRect(0, 0, 256, 128); }
+    for (let k = 0; k < 22; k++) { const x = 40 + r() * 176, y = 58 + (r() - .5) * 34 - Math.sin((x - 40) / 176 * Math.PI) * 14, rr = 22 + r() * 30, gr = g.createRadialGradient(x, y, 2, x, y, rr); gr.addColorStop(0, 'rgba(255,255,255,.9)'); gr.addColorStop(.55, 'rgba(250,249,246,.6)'); gr.addColorStop(1, 'rgba(240,240,242,0)'); g.fillStyle = gr; g.fillRect(0, 0, 256, 128); }
     const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; return t;
   }
   function litter(rng) {
@@ -118,7 +118,6 @@
     for (let k = 0; k < 26; k++) { const x = 2 + rng() * 26, z = (rng() < .5 ? 3.75 + rng() * .5 : 8.6 + rng() * .4); quad(x, z, .03 + rng() * .02, .02, rng() * TAU, leaf[k % leaf.length]); } // along the kerb and walls
     for (let k = 0; k < 18; k++) { const x = 19 + rng() * 9, z = -3.62 - rng() * .5; quad(x, z, .03, .02, rng() * TAU, leaf[k % 5]); }
     for (const [x, z, color] of [[9.1, 7.9, '#f2efe6'], [14.2, 4.0, '#e8e2d0'], [25.3, -4.3, '#d9473b'], [21.0, 3.75, '#f2efe6'], [3.6, 8.2, '#4a6fa5'], [30.4, -6.9, '#f2efe6']]) quad(x, z, .06 + rng() * .03, .045, rng() * TAU, color, .008); // paper, a ticket, a wrapper
-    for (const [x, z] of [[12.4, 7.6], [26.2, -5.9], [7.2, 4.4]]) quad(x, z, .09, .07, rng(), '#5d5b55', .002); // damp patches
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.computeVertexNormals(); return g;
   }
 
@@ -129,7 +128,7 @@
     const clouds = [], rng = rnd(97);
     for (let k = 0; k < 9; k++) {
       const tex = own(cloudTexture(11 + k * 7)), mat = own(new THREE.SpriteMaterial({ map: tex, fog: false, depthWrite: false, transparent: true, opacity: .9, color: new THREE.Color(k % 3 ? 0xfffaf2 : 0xf3ece4) })), s = new THREE.Sprite(mat);
-      const a = -1.2 + k * .42 + rng() * .2, r = 150 + rng() * 50; s.position.set(20 + Math.cos(a) * r, 52 + rng() * 34, -Math.sin(a) * r * .9 - 20); const w = 70 + rng() * 50; s.scale.set(w, w * .42, 1); s.renderOrder = -2;
+      const a = -1.2 + k * .42 + rng() * .2, r = 125 + rng() * 45; s.position.set(20 + Math.cos(a) * r, 80 + rng() * 55, -Math.sin(a) * r * .9 - 20); const w = 85 + rng() * 60; s.scale.set(w, w * .42, 1); s.renderOrder = -2; // high enough to show over the towers and roofs
       s.userData.x0 = s.position.x; clouds.push(s); group.add(s);
     }
     // litter and leaves (one mesh)
@@ -163,8 +162,8 @@
           const away = fighter ? Math.atan2(b.x - fighter.x, b.z - fighter.z) + b.fly.a : b.fly.a, k = Math.min(u, 4.5); P.set(b.x + Math.sin(away) * (b.fly.out * k + .4 * k * k), .06 + b.fly.up * k + .25 * k * k, b.z + Math.cos(away) * (b.fly.out * k + .4 * k * k)); E.set(-.5 * smooth(u * 3), away, 0); flap = 1;
         }
         Q.setFromEuler(E); M4.compose(P, Q, S1); body.setMatrixAt(i, u > 4.5 ? M4.makeScale(0, 0, 0) : M4);
-        const beat = flap ? Math.sin(t * 42 + b.ph) * 1.1 : -1.35;
-        for (const [s, wing] of [[-1, wings[0]], [1, wings[1]]]) { W.makeRotationZ(s * -beat).premultiply(W.clone().makeTranslation(s * .035, .045, 0)); const m = M4.clone().multiply(W); wing.setMatrixAt(i, u > 4.5 ? m.makeScale(0, 0, 0) : m); }
+        const beat = flap ? Math.sin(t * 42 + b.ph) * 1.1 : 0;
+        for (const [s, wing] of [[-1, wings[0]], [1, wings[1]]]) { W.makeRotationZ(s * -beat).premultiply(W.clone().makeTranslation(s * .035, .045, 0)); const m = M4.clone().multiply(W); wing.setMatrixAt(i, u > 4.5 || !flap ? m.makeScale(0, 0, 0) : m); } // folded on the ground: the body shape reads as the bird
         i++;
       }
       body.instanceMatrix.needsUpdate = true; for (const w of wings) w.instanceMatrix.needsUpdate = true;

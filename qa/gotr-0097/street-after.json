@@ -1,0 +1,242 @@
+{
+ "name": "street-after",
+ "viewport": [
+  402,
+  690
+ ],
+ "city": {
+  "bus": "ready",
+  "station": "ready",
+  "oldtown": "ready"
+ },
+ "frames": [
+  {
+   "label": "face",
+   "phase": "play",
+   "calls": 132,
+   "triangles": 478082,
+   "shot": 1,
+   "quality": "high",
+   "shadows": true,
+   "life": {
+    "meshes": 18,
+    "triangles": 4136,
+    "level": 2
+   },
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 10.001,
+   "fighter": [
+    2.75,
+    0,
+    4.5
+   ],
+   "pelvis": 0.9756,
+   "feet": [
+    [
+     2.856,
+     0.04,
+     4.332
+    ],
+    [
+     2.894,
+     0.04,
+     4.608
+    ]
+   ]
+  },
+  {
+   "label": "face2",
+   "phase": "play",
+   "calls": 136,
+   "triangles": 477482,
+   "shot": 1,
+   "quality": "high",
+   "shadows": true,
+   "life": {
+    "meshes": 18,
+    "triangles": 4136,
+    "level": 2
+   },
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 11.601,
+   "fighter": [
+    2.75,
+    0,
+    4.5
+   ],
+   "pelvis": 0.9752,
+   "feet": [
+    [
+     2.831,
+     0.04,
+     4.32
+    ],
+    [
+     2.908,
+     0.04,
+     4.588
+    ]
+   ]
+  },
+  {
+   "label": "street",
+   "phase": "play",
+   "calls": 93,
+   "triangles": 396618,
+   "shot": 2,
+   "quality": "high",
+   "shadows": true,
+   "life": {
+    "meshes": 18,
+    "triangles": 4136,
+    "level": 2
+   },
+   "city": {
+    "meshes": 141,
+    "triangles": 209698
+   },
+   "t": 14.001,
+   "fighter": [
+    2.75,
+    0,
+    4.5
+   ],
+   "pelvis": 0.9716,
+   "feet": [
+    [
+     2.831,
+     0.04,
+     4.32
+    ],
+    [
+     2.908,
+     0.04,
+     4.588
+    ]
+   ]
+  },
+  {
+   "label": "crossing",
+   "phase": "play",
+   "calls": 88,
+   "triangles": 394430,
+   "shot": 5,
+   "quality": "high",
+   "shadows": true,
+   "life": {
+    "meshes": 18,
+    "triangles": 4136,
+    "level": 2
+   },
+   "city": {
+    "meshes": 139,
+    "triangles": 194154
+   },
+   "t": 24.001,
+   "fighter": [
+    22.239,
+    -0.15,
+    1.304
+   ],
+   "pelvis": 0.8315,
+   "feet": [
+    [
+     22.034,
+     -0.03,
+     1.49
+    ],
+    [
+     22.413,
+     -0.108,
+     1.181
+    ]
+   ]
+  },
+  {
+   "label": "crossing2",
+   "phase": "play",
+   "calls": 87,
+   "triangles": 392918,
+   "shot": 5,
+   "quality": "high",
+   "shadows": true,
+   "life": {
+    "meshes": 18,
+    "triangles": 4136,
+    "level": 2
+   },
+   "city": {
+    "meshes": 139,
+    "triangles": 194154
+   },
+   "t": 25.401,
+   "fighter": [
+    22.978,
+    -0.15,
+    -0.29
+   ],
+   "pelvis": 0.8017,
+   "feet": [
+    [
+     23.04,
+     -0.088,
+     -0.672
+    ],
+    [
+     22.972,
+     -0.118,
+     -0.02
+    ]
+   ]
+  },
+  {
+   "label": "ahead",
+   "phase": "play",
+   "calls": 193,
+   "triangles": 551458,
+   "shot": 4,
+   "quality": "high",
+   "shadows": true,
+   "life": {
+    "meshes": 18,
+    "triangles": 4136,
+    "level": 2
+   },
+   "city": {
+    "meshes": 133,
+    "triangles": 187730
+   },
+   "t": 21.001,
+   "fighter": [
+    17.651,
+    0,
+    7.1
+   ],
+   "pelvis": 0.9811,
+   "feet": [
+    [
+     17.764,
+     0.139,
+     6.992
+    ],
+    [
+     17.694,
+     0.041,
+     7.206
+    ]
+   ]
+  }
+ ],
+ "log": [
+  "warning [.WebGL-0x1aa400194a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x1aa400194a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x1aa400194a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x1aa400194a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}

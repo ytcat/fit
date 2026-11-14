@@ -32,8 +32,9 @@ const URL = process.env.APP_URL || 'http://127.0.0.1:18734/', OUT = path.join(__
   for (const s of shots) {
     await p.evaluate(t => window.__step(t, 18), s.t); await wait();
     const png = path.join(OUT, `.${name}-${frames.length}.png`); await p.screenshot({ path: png, timeout: 300000 }); files.push(png);
+    const full = await p.evaluate(() => { const r = app.engine.renderer, i = r.info; i.autoReset = false; i.reset(); if (r.shadowMap.enabled) r.shadowMap.needsUpdate = true; DreamScenes.debug.frame(1e-4); const o = { calls: i.render.calls, triangles: i.render.triangles }; i.autoReset = true; return o; }); // main pass + shadow pass
     const st = await p.evaluate(() => { const d = DreamScenes.debug, f = d.rigs?.fighter, o = d.set?.objects, j = f?.joints; return { ...DreamScenes.stats(), t: +d.t.toFixed(3), fighter: f && f.root.visible ? f.root.position.toArray().map(v => +v.toFixed(3)) : null, pelvis: j ? +j.hips.getWorldPosition(new THREE.Vector3()).y.toFixed(4) : null, feet: f ? DreamPose.feet(f).map(a => a.map(v => +v.toFixed(3))) : null, shadows: !!app.engine.renderer.shadowMap?.enabled }; });
-    delete st.set; frames.push({ label: s.label, ...st }); console.log(s.label, JSON.stringify(st));
+    delete st.set; st.withShadowPass = full; frames.push({ label: s.label, ...st }); console.log(s.label, JSON.stringify(st));
   }
   await p.evaluate(() => StoryScenes.stop());
   fs.writeFileSync(path.join(OUT, name + '.json'), JSON.stringify({ name, viewport: [+w, +h], city, frames, log }, null, 1) + '\n');

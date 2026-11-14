@@ -153,7 +153,7 @@
     // pelvis (GOTR-0097): nearly level. A small bob, lowest just after each heel strike (double support), highest at
     // mid-stance; it turns +-5 deg (the hip of the leading leg forward), drops +-3.5 deg on the swing side while the other
     // leg takes the weight, and shifts 2 cm over the stance foot
-    const hips = j.hips, pL = phase, yaw = .085 * Math.cos(pL * tau) * w, roll = -.06 * Math.sin((pL + .15) * tau) * w, hb = (pL * 2) % 1, bob = hb < .16 ? -.3 * Math.sin(Math.PI * hb / .16) : hb < .5 ? smooth((hb - .16) / .34) : 1 - smooth((hb - .5) / .5) // the knee gives a little as the heel takes the weight;
+    const hips = j.hips, pL = phase, yaw = .085 * Math.cos(pL * tau) * w, roll = -.06 * Math.sin((pL + .15) * tau) * w, hb = (pL * 2) % 1, bob = hb < .16 ? -.3 * Math.sin(Math.PI * hb / .16) : hb < .5 ? smooth((hb - .16) / .34) : 1 - smooth((hb - .5) / .5); // the knee gives a little as the heel takes the weight (dip at loading)
     const sway = -.02 * Math.sin((pL - .05) * tau) * w + .012 * shift;
     hips.rotation.set(0, yaw, roll + .02 * shift); hips.position.set(sway, HIP, .012 * w);
     c.root.updateMatrixWorld(true);
