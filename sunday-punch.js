@@ -279,7 +279,7 @@
     const pts = [];
     const add = (coach, names) => { for (const n of names) { const p = coach.joints[n].getWorldPosition(V()); if (n === 'head') p.y += .26; if (n.startsWith('foot')) p.y = Math.max(0, p.y - .1); pts.push(p); } };
     add(fc, ['head', 'hips', 'footL', 'footR', 'handL', 'handR']);
-    if (u < 1.3) add(sc, ['head', 'footL', 'footR', 'handR']); else if (u < 2.1) add(sc, ['hips']);
+    if (u < 1.3 || u > 2.9) add(sc, ['head', 'footL', 'footR', 'handR']); else if (u < 2.1) add(sc, ['hips']); // the winner at his corner comes back into the picture for the result
     const fov = THREE.MathUtils.degToRad(cam.fov), tv = Math.tan(fov / 2), th = tv * Math.max(.2, cam.aspect);
     const { side, line } = sp.axis, up = V(0, 1, 0);
     // a low three-quarter view from behind the striker's punching shoulder for the dip and the drive (the Opponent's face and
@@ -292,7 +292,7 @@
     for (const p of pts) { const d = p.clone().sub(c0), x = d.dot(right), y = d.dot(camUp); minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
     const centre = c0.clone().addScaledVector(right, (minX + maxX) / 2).addScaledVector(camUp, (minY + maxY) / 2 + (u < 0 ? -.05 : .02));
     const margin = u < 0 ? 1.18 : 1.24, dist = Math.max(((maxX - minX) / 2 + .22) * margin / th, ((maxY - minY) / 2 + .18) * margin / tv) + .3;
-    const goal = { c: centre, d: Math.max(2.4, dist) };
+    const goal = { c: centre, d: clamp(dist, 2.4, view.gymFight ? 5.2 : 7.5) }; // the gym room is small: hanging bags stand just off the mat
     if (!sp.cam || sp.cut) { sp.cam = { c: goal.c.clone(), d: goal.d }; sp.cut = false; }
     else { const k = 1 - Math.exp(-Math.max(0, dt) / .35); sp.cam.c.lerp(goal.c, k); sp.cam.d = lerp(sp.cam.d, goal.d, k); }
     const position = sp.cam.c.clone().addScaledVector(dir, sp.cam.d);
@@ -304,13 +304,25 @@
   // Ropes, posts and corner pads between the lens and the fighters are hidden while the cinematic runs (like a film crew's
   // camera inside the ropes); everything is shown again when it ends.
   function clearView(view, eye, targets) {
-    const ring = view.ring; if (!ring?.visible) return; const sp = view.sundayPunch, ray = new THREE.Ray(), hit = V(), box = new THREE.Box3();
+    const ring = view.ring; const sp = view.sundayPunch, ray = new THREE.Ray(), hit = V(), box = new THREE.Box3();
     sp.hidden = sp.hidden || new Set(); const hide = new Set(), corners = [];
+    const boxBlocks = () => { box.expandByScalar(.04); if (box.containsPoint(eye)) return true; for (const t of targets) { ray.origin.copy(eye); ray.direction.copy(t).sub(eye); const far = ray.direction.length(); ray.direction.divideScalar(far); if (ray.intersectBox(box, hit) && hit.distanceTo(eye) < far - .25) return true; } return false; };
     const blocks = part => { box.setFromObject(part).expandByScalar(.04); for (const t of targets) { ray.origin.copy(eye); ray.direction.copy(t).sub(eye); const far = ray.direction.length(); ray.direction.divideScalar(far); if (ray.intersectBox(box, hit) && hit.distanceTo(eye) < far - .25) return true; } return false; };
     const cornerOf = part => { const p = part.position; return Math.abs(Math.abs(p.x) - 1.65) < .2 && Math.abs(Math.abs(p.z) - 1.65) < .2 ? Math.sign(p.x) + ',' + Math.sign(p.z) : null; };
-    for (const part of ring.children) { if (!part.isMesh || part.position.y < -.05 && !cornerOf(part)) continue; if (blocks(part)) { hide.add(part); const c = cornerOf(part); if (c) corners.push(c); } }
-    for (const part of ring.children) if (corners.includes(cornerOf(part))) hide.add(part); // a corner goes as a whole: post, pads and turnbuckles
-    for (const part of ring.children) { if (hide.has(part)) { part.visible = false; sp.hidden.add(part); } else if (sp.hidden.has(part)) { part.visible = true; sp.hidden.delete(part); } }
+    if (ring?.visible) for (const part of ring.children) { if (!part.isMesh || part.position.y < -.05 && !cornerOf(part)) continue; if (blocks(part)) { hide.add(part); const c = cornerOf(part); if (c) corners.push(c); } }
+    if (ring?.visible) for (const part of ring.children) if (corners.includes(cornerOf(part))) hide.add(part); // a corner goes as a whole: post, pads and turnbuckles
+    if (ring?.visible) for (const part of ring.children) { if (hide.has(part)) { part.visible = false; sp.hidden.add(part); } else if (sp.hidden.has(part)) { part.visible = true; sp.hidden.delete(part); } }
+    // props of the room (heavy bags, posts, equipment) between the lens and the fighters go too
+    const props = [], skip = new Set([view.cast, view.ring, view.audience?.root]); (function walk(o) { for (const c of o.children) { if (skip.has(c)) continue; if (c.isMesh) props.push(c); walk(c); } })(view.engine.scene || view.arena.group); // e.g. a heavy bag of the gym room
+    for (const obj of props) {
+      if (!obj.visible && !sp.hidden.has(obj)) continue;
+      let hit = false;
+      if (obj.isInstancedMesh) { // batched fixtures (a row of hanging bags): each instance is its own box; one in the way hides the batch
+        const g = obj.geometry; if (!g.boundingBox) g.computeBoundingBox(); const mat = new THREE.Matrix4(), w = new THREE.Matrix4();
+        for (let i = 0; i < obj.count && !hit; i++) { obj.getMatrixAt(i, mat); box.copy(g.boundingBox).applyMatrix4(w.multiplyMatrices(obj.matrixWorld, mat)); if (box.isEmpty() || box.getSize(V()).length() > 3.2 || box.max.y < .05) continue; hit = boxBlocks(); }
+      } else { box.setFromObject(obj); if (box.isEmpty() || box.getSize(V()).length() > 3.2 || box.max.y < .05) continue; hit = boxBlocks(); } // walls, floor and mats stay
+      if (hit) { obj.visible = false; sp.hidden.add(obj); } else if (sp.hidden.has(obj)) { obj.visible = true; sp.hidden.delete(obj); }
+    }
     // spectators on the camera's side of the ring stay hidden, as in the bout
     const aud = view.audience?.root; if (aud) { const centre = ring.getWorldPosition(V()), toCam = eye.clone().sub(centre).setY(0).normalize(); for (const fan of aud.children) { if (fan.userData.audienceSide === undefined) continue; const o = fan.getWorldPosition(V()).sub(centre).setY(0); fan.visible = o.dot(toCam) < -.15; } }
   }
