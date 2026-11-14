@@ -451,6 +451,7 @@
   function hideKit(rig, groups) { const k = kitParts(rig); for (const gname of groups) for (const o of k[gname] || []) o.visible = false; }
   /** Bare hands: a soft closed paw with a thumb, in the fur colour, on the hand joints (hand frame: -y to the knuckles, +z palm). */
   function bareHands(rig, fur, pad) {
+    if (!rig.cast && window.LionPaws) return window.LionPaws.attach(rig, { fur, pad }); // the Fighter: big lion / rabbit paws (GOTR-0100)
     const out = [];
     for (const s of [-1, 1]) {
       const P = new Parts();
@@ -533,6 +534,7 @@
     parts(rig, add) {
       const f = FUR[rig.species] || FUR.lion;
       for (const m of bareHands(rig, f.fur, f.pad)) add(m);
+      if (!rig.cast && window.LionPaws) for (const m of window.LionPaws.wraps(rig)) add(m); else
       for (const sd of ['L', 'R']) { const P = new Parts(); for (let k = 0; k < 4; k++) P.tor(V(0, -.012 - k * .024, 0), V(.047 - k * .001, .04, .05), '#f1ece0', [Math.PI / 2, 0, 0]); P.sph(V(0, -.098, .008), V(.048, .03, .034), '#f1ece0', [.35, 0, 0]); const m = P.mesh('Hand wraps'); rig.joints['hand' + sd].add(m); add(m); }
       for (const m of shoes(rig, { upper: '#3b3e46', toe: '#2a2d33', sole: '#c9c0ae', lace: '#d8d2c4' })) add(m);
     }

@@ -36,6 +36,7 @@
     low: { h: [.30, 1.02, .16], pole: [.4, -.3, -1], palm: [-1, 0, 0], turn: .4 },         // offering a hand low
     carry: { h: [.31, .93, .06], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 }       // straight arm with a weight (bag handles)
   };
+  const PAW = { hang: .22, carry: .85, strap: .7, open: .05, shrug: .05, wave: .05, low: .1, point: .5, thumb: .7, fist: 1, pound: 1, cross: .55, cross2: .55, hips: .75, chin: .6, count: .3 }; // how closed a bare paw is per gesture
   const mem = new WeakMap();
   const memo = rig => { let m = mem.get(rig); if (!m) { m = { hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
   const mirror = (a, s) => V(a[0] * s, a[1], a[2]);
@@ -148,6 +149,7 @@
       if (name !== 'hang' && name !== 'carry' && name !== 'strap' && name !== 'hips' && name !== 'cross' && name !== 'cross2') { const beat = (st.talk || 0) * Math.sin(t * 5.3 + s); hand.y += .022 * beat; hand.z += .018 * beat; } // the hand moves with the words
       const k = st.dt > 0 && m.hand[side] ? 1 - Math.exp(-st.dt * 9) : 1;
       m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? m.pole[side].lerp(pole, k) : pole; m.palm[side] = m.palm[side] ? m.palm[side].lerp(palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
+      (c.pawCurl || (c.pawCurl = {}))[side] = { v: PAW[name] ?? .22, at: (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000 }; // bare paws: relaxed, or a fist for the fist gestures (GOTR-0100)
       const target = m.hand[side].clone(); target.y += hips.position.y - HIP; // hands ride with the pelvis
       if (name === 'strap') { const ch = j.chest, M = new THREE.Matrix4().copy(c.root.matrixWorld).invert().multiply(ch.matrixWorld); target.copy(m.hand[side]).sub(restOf(c, ch)).applyMatrix4(M); } // the hand on the strap moves with the chest
       handErrors.push(clearArm(c, side, target, m.pole[side], name === 'strap', () => c.orientGlove(side, m.turn[side], m.palm[side]))); // the strap hand rests on the strap gloves.push(c.orientGlove(side, m.turn[side], m.palm[side]));

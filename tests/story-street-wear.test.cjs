@@ -6,7 +6,7 @@ const assert = require('node:assert/strict'), fs = require('node:fs'), vm = requ
 process.chdir(path.join(__dirname, '..'));
 global.THREE = require('../assets/vendor/three.min.js'); global.window = global;
 global.document = { createElement: () => ({ getContext: () => new Proxy({}, { get: (_, key) => key === 'createImageData' ? ((w, h) => ({ data: new Uint8ClampedArray(w * h * 4) })) : () => {} }) }) };
-for (const f of ['boxing-routines.js', 'boxing-footwear.js', 'boxing-coach-v2.js', 'adventure/story/story-cast.js', 'adventure/story/street-wear.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'), { filename: f });
+for (const f of ['boxing-routines.js', 'boxing-footwear.js', 'boxing-coach-v2.js', 'adventure/story/lion-paws.js', 'adventure/story/story-cast.js', 'adventure/story/street-wear.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'), { filename: f });
 const data = JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')), V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const SW = StoryCast.streetWear; assert.ok(SW, 'street-wear.js registers on StoryCast');
 
@@ -87,6 +87,9 @@ for (const species of ['lion', 'rabbit']) {
   // the body under the clothes is not drawn; shoes and bare hands replace boots and gloves
   assert.ok(g.index !== fullIndex && g.index.count < fullIndex.count * .4, species + ': covered body triangles are left out (' + g.index.count / 3 + ' of ' + fullIndex.count / 3 + ')');
   assert.ok(['footL', 'footR'].every(f => c.joints[f].children.some(o => o.name === 'Sneaker' && o.visible)), species + ': sneakers on both feet');
+  // GOTR-0100: big bare paws on the hand bones, relaxed with a fist morph; at least glove-scale across the knuckles
+  for (const s of ['L', 'R']) { const paw = c.joints['hand' + s].children.find(o => o.name === 'Bare hand' && o.visible); assert.ok(paw && paw.geometry.morphAttributes.position?.length === 1 && paw.morphTargetInfluences.length === 1, species + ': paw with a fist morph');
+    paw.geometry.computeBoundingBox(); const b = paw.geometry.boundingBox; assert.ok(b.max.x - b.min.x > .13 && b.max.y - b.min.y > .2, species + ': big paws ' + (b.max.x - b.min.x).toFixed(3)); }
   // no drawn body vertex outside the cloth, in every pose
   const results = [];
   StoryCast.bag(c, 'shoulder');

@@ -6,7 +6,7 @@ const assert = require('node:assert/strict'), fs = require('node:fs'), vm = requ
 process.chdir(path.join(__dirname, '..'));
 global.THREE = require('../assets/vendor/three.min.js'); global.window = global;
 global.document = { createElement: () => ({ getContext: () => new Proxy({}, { get: (_, key) => key === 'createImageData' ? ((w, h) => ({ data: new Uint8ClampedArray(w * h * 4) })) : () => {} }) }) };
-for (const f of ['boxing-routines.js', 'boxing-footwear.js', 'boxing-coach-v2.js', 'adventure/story/story-cast.js', 'adventure/story/street-wear.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'), { filename: f });
+for (const f of ['boxing-routines.js', 'boxing-footwear.js', 'boxing-coach-v2.js', 'adventure/story/lion-paws.js', 'adventure/story/story-cast.js', 'adventure/story/street-wear.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'), { filename: f });
 const data = JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')), V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const ARM = /^(arm|elbow|hand)[LR]$/, FORE = /^(elbow|hand)[LR]$/;
 
