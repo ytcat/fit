@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "glbSha256": "f1be679456a57b4134db80d3a135493b458b20c1022016807efb568d04777571",
+  "triangles": 38456,
+  "bytes": 3430940,
+  "materials": 5,
+  "bones": [
+    "Brick_Head",
+    "Brick_Jaw",
+    "Brick_Brow_L",
+    "Brick_Brow_R",
+    "Brick_Jowl_L",
+    "Brick_Jowl_R",
+    "Brick_Dewlap",
+    "Brick_Ear_L",
+    "Brick_Ear_R",
+    "Brick_Lid_U_L",
+    "Brick_Lid_U_R"
+  ],
+  "images": [
+    {
+      "name": "brick-short-coat-normal",
+      "width": 512,
+      "height": 512,
+      "bytes": 523199
+    },
+    {
+      "name": "brick-coat-basecolor",
+      "width": 768,
+      "height": 768,
+      "bytes": 921950
+    },
+    {
+      "name": "brick-coat-roughness",
+      "width": 768,
+      "height": 768,
+      "bytes": 502931
+    }
+  ],
+  "requiredExtensions": [],
+  "selfContained": true,
+  "positiveScale": true,
+  "referenceParityClaim": false
+}

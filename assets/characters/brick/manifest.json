@@ -1,0 +1,56 @@
+{
+  "asset": "Brick authored head",
+  "version": 2,
+  "status": "anatomy revision for art review; not integrated or owner-approved",
+  "source": "brick-head.blend",
+  "runtime": "brick-head.glb",
+  "authoringScript": "scripts/authoring/build_brick_head_sculpt.py",
+  "blender": "4.3.2",
+  "triangles": 38456,
+  "materials": 5,
+  "glbBytes": 3430940,
+  "bones": [
+    "Brick_Head",
+    "Brick_Jaw",
+    "Brick_Brow_L",
+    "Brick_Brow_R",
+    "Brick_Jowl_L",
+    "Brick_Jowl_R",
+    "Brick_Dewlap",
+    "Brick_Ear_L",
+    "Brick_Ear_R",
+    "Brick_Lid_U_L",
+    "Brick_Lid_U_R"
+  ],
+  "morphTargets": [],
+  "textures": [
+    {
+      "file": "textures/brick-coat-basecolor.png",
+      "width": 768,
+      "height": 768
+    },
+    {
+      "file": "textures/brick-coat-roughness.png",
+      "width": 768,
+      "height": 768
+    },
+    {
+      "file": "textures/brick-short-coat-normal.png",
+      "width": 512,
+      "height": 512
+    }
+  ],
+  "referenceLimit": "Six owner images unavailable; written spec used. No reference parity claimed.",
+  "axes": "+Y up, +Z nose, +X character-left",
+  "units": "metres",
+  "root": "Brick_Head",
+  "jaw": {
+    "axis": "local X",
+    "openRadians": [
+      0,
+      0.32
+    ]
+  },
+  "qa": "qa/character-art/brick/",
+  "provenance": "Original offline Blender anatomical loft and displacement; no external meshes/textures"
+}

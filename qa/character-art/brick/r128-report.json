@@ -1,0 +1,1271 @@
+{
+  "revision": "128",
+  "triangles": 38456,
+  "materials": 5,
+  "meshes": [
+    "Brick_Eye_L",
+    "Brick_Eye_R",
+    "Brick_Lower_Canine_-1",
+    "Brick_Lower_Canine_1",
+    "Brick_Lower_Gum_Palate",
+    "Brick_Lower_Incisor_-1_0",
+    "Brick_Lower_Incisor_-1_1",
+    "Brick_Lower_Incisor_-1_2",
+    "Brick_Lower_Incisor_1_0",
+    "Brick_Lower_Incisor_1_1",
+    "Brick_Lower_Incisor_1_2",
+    "Brick_Nose_Sculpt",
+    "Brick_Oral_Lining",
+    "Brick_Rose_Ear_L",
+    "Brick_Rose_Ear_R",
+    "Brick_Tongue",
+    "Brick_Upper_Palate",
+    "Brick_Upper_Tooth_-1_0",
+    "Brick_Upper_Tooth_-1_1",
+    "Brick_Upper_Tooth_-1_2",
+    "Brick_Upper_Tooth_1_0",
+    "Brick_Upper_Tooth_1_1",
+    "Brick_Upper_Tooth_1_2",
+    "Brick_Coat_Continuous_Sculpt"
+  ],
+  "bones": [
+    "Brick_Head",
+    "Brick_Jaw",
+    "Brick_Brow_L",
+    "Brick_Brow_R",
+    "Brick_Jowl_L",
+    "Brick_Jowl_R",
+    "Brick_Dewlap",
+    "Brick_Ear_L",
+    "Brick_Ear_R",
+    "Brick_Lid_U_L",
+    "Brick_Lid_U_R"
+  ],
+  "badScales": [],
+  "maxWeightError": 4.470348358154297e-8,
+  "bounds": [
+    0.6619241833686829,
+    0.5799999982118607,
+    0.49085184931755066
+  ],
+  "errors": [],
+  "mouthBoundaryMatches": 130,
+  "glbSha256": "f1be679456a57b4134db80d3a135493b458b20c1022016807efb568d04777571",
+  "posedBounds": {
+    "Brick_Jaw": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.2099999934493351,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2802854621211923
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5799999856900602,
+        0.4811365613927078
+      ]
+    },
+    "Brick_Brow_L": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.2099999934493351,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2900007292558377
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5799999856900602,
+        0.4908518285273532
+      ]
+    },
+    "Brick_Brow_R": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.2099999934493351,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2900007292558377
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5799999856900602,
+        0.4908518285273532
+      ]
+    },
+    "Brick_Jowl_L": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.21021284468182747,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2900007292558377
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5802128369225525,
+        0.4908518285273532
+      ]
+    },
+    "Brick_Jowl_R": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.21021284468182747,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2900007292558377
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5802128369225525,
+        0.4908518285273532
+      ]
+    },
+    "Brick_Dewlap": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.2157470359938048,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2900007292558377
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5857470282345298,
+        0.4908518285273532
+      ]
+    },
+    "Brick_Ear_L": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.2099999934493351,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2900007292558377
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5799999856900602,
+        0.4908518285273532
+      ]
+    },
+    "Brick_Ear_R": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.2099999934493351,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2900007292558377
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5799999856900602,
+        0.4908518285273532
+      ]
+    },
+    "Brick_Lid_U_L": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.2099999934493351,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2900007292558377
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5799999856900602,
+        0.4908518285273532
+      ]
+    },
+    "Brick_Lid_U_R": {
+      "finite": true,
+      "min": [
+        -0.3309620936493234,
+        -0.2099999934493351,
+        -0.20085109927151548
+      ],
+      "max": [
+        0.3309620936493234,
+        0.3699999922407251,
+        0.2900007292558377
+      ],
+      "size": [
+        0.6619241872986468,
+        0.5799999856900602,
+        0.4908518285273532
+      ]
+    }
+  },
+  "deformation": {
+    "Brick_Jaw": {
+      "affectedVertices": 3533,
+      "maxDisplacement": 0.09077641687843217,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 84,
+          "maxDisplacement": 0.08791272599295852
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 84,
+          "maxDisplacement": 0.08791272599295852
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 455,
+          "maxDisplacement": 0.08892467778571009
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 84,
+          "maxDisplacement": 0.08517029982456509
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 84,
+          "maxDisplacement": 0.08421591685877376
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 84,
+          "maxDisplacement": 0.08326156884540285
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 84,
+          "maxDisplacement": 0.08517029982456509
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 84,
+          "maxDisplacement": 0.08421591685877376
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 84,
+          "maxDisplacement": 0.08326156884540285
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 752,
+          "maxDisplacement": 0.08879843358910462
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 578,
+          "maxDisplacement": 0.07161596891189238
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 1076,
+          "maxDisplacement": 0.09077641687843217
+        }
+      }
+    },
+    "Brick_Brow_L": {
+      "affectedVertices": 2295,
+      "maxDisplacement": 0.0107806586509408,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 2295,
+          "maxDisplacement": 0.0107806586509408
+        }
+      }
+    },
+    "Brick_Brow_R": {
+      "affectedVertices": 2262,
+      "maxDisplacement": 0.0107806586509408,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 2262,
+          "maxDisplacement": 0.0107806586509408
+        }
+      }
+    },
+    "Brick_Jowl_L": {
+      "affectedVertices": 3816,
+      "maxDisplacement": 0.021868644800288654,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 535,
+          "maxDisplacement": 0.019767992415907362
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 3281,
+          "maxDisplacement": 0.021868644800288654
+        }
+      }
+    },
+    "Brick_Jowl_R": {
+      "affectedVertices": 3782,
+      "maxDisplacement": 0.021868644800288654,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 525,
+          "maxDisplacement": 0.019767992415907362
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 3257,
+          "maxDisplacement": 0.021868644800288654
+        }
+      }
+    },
+    "Brick_Dewlap": {
+      "affectedVertices": 3706,
+      "maxDisplacement": 0.016619769361969072,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 934,
+          "maxDisplacement": 0.0016458871024747773
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 2772,
+          "maxDisplacement": 0.016619769361969072
+        }
+      }
+    },
+    "Brick_Ear_L": {
+      "affectedVertices": 882,
+      "maxDisplacement": 0.021118558629353825,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 882,
+          "maxDisplacement": 0.021118558629353825
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        }
+      }
+    },
+    "Brick_Ear_R": {
+      "affectedVertices": 882,
+      "maxDisplacement": 0.02111855847171061,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 882,
+          "maxDisplacement": 0.02111855847171061
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        }
+      }
+    },
+    "Brick_Lid_U_L": {
+      "affectedVertices": 766,
+      "maxDisplacement": 0.016222938071769666,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 766,
+          "maxDisplacement": 0.016222938071769666
+        }
+      }
+    },
+    "Brick_Lid_U_R": {
+      "affectedVertices": 766,
+      "maxDisplacement": 0.016222938071769666,
+      "mouthSeamGap": 0,
+      "perMesh": {
+        "Brick_Eye_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Eye_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_-1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Canine_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Gum_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Lower_Incisor_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Nose_Sculpt": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Oral_Lining": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_L": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Rose_Ear_R": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Tongue": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Palate": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_-1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_0": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_1": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Upper_Tooth_1_2": {
+          "affectedVertices": 0,
+          "maxDisplacement": 0
+        },
+        "Brick_Coat_Continuous_Sculpt": {
+          "affectedVertices": 766,
+          "maxDisplacement": 0.016222938071769666
+        }
+      }
+    }
+  },
+  "browserErrors": [],
+  "browserWarnings": [],
+  "passed": true
+}
