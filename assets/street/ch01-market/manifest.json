@@ -1,0 +1,12 @@
+{
+  "authoring": "Blender 4.3.2",
+  "bytes": 2743044,
+  "triangles": 56014,
+  "mesh_nodes": 21,
+  "units": "metres",
+  "front": "glTF +Z",
+  "origin": "centre ground",
+  "game_integration": false,
+  "physical_phone": "NOT VERIFIED",
+  "seed": 14531
+}

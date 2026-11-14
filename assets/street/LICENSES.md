@@ -23,3 +23,7 @@ Original two-building geometry, furnishings, plant leaves, signs and fictional R
 ## `ch01-car/` and `ch01-trees/`
 
 Original unbranded compact car and broadleaf trees authored locally with `build_street_car.py`, `build_street_tree.py` and `build_tree_textures.py`. No external meshes, scans, photographs or animation clips. The four 512 px tree textures are original seeded NumPy/Pillow synthesis; the car uses standard material parameters. Fictional plates use Blender's bundled font. Packed Blender sources retain editable geometry; tree motion is an original three-bone breeze, not a downloaded clip. Build-time Blender, Python, NumPy and Pillow are not game dependencies. Project ownership applies; no new public artwork license is granted here.
+
+## `ch01-market/`
+
+Hazel's fruit stall is original artwork built with `scripts/authoring/build_market_stall.py`: original shaped canopy, counter/crates, fruit profiles, scale and lettering. Wood color/roughness and fruit skin normal are seeded numerical synthesis with NumPy/Pillow; no external photos or models. Lettering uses Blender's bundled font. The packed source and GLB have no paid or runtime generation dependency. Project ownership applies.
