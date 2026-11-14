@@ -1,0 +1,88 @@
+{
+ "name": "film-before",
+ "viewport": [
+  402,
+  690
+ ],
+ "blocked": false,
+ "city": {
+  "bus": "ready",
+  "station": "ready",
+  "oldtown": "ready"
+ },
+ "glbRequests": [
+  "gloryland-bus.glb",
+  "gloryland-station.glb",
+  "gloryland-oldtown.glb"
+ ],
+ "frames": [
+  {
+   "label": "step-off",
+   "phase": "play",
+   "calls": 145,
+   "triangles": 493306,
+   "set": {
+    "meshes": 153,
+    "triangles": 228474
+   },
+   "shot": 0,
+   "city": true,
+   "t": 9.15,
+   "fighter": [
+    2.75,
+    0,
+    4.121
+   ],
+   "bus": 7.24
+  },
+  {
+   "label": "face",
+   "phase": "play",
+   "calls": 117,
+   "triangles": 448020,
+   "set": {
+    "meshes": 153,
+    "triangles": 228474
+   },
+   "shot": 1,
+   "city": true,
+   "t": 11.5,
+   "fighter": [
+    2.75,
+    0,
+    4.5
+   ],
+   "bus": 5.18
+  },
+  {
+   "label": "walk",
+   "phase": "play",
+   "calls": 103,
+   "triangles": 433434,
+   "set": {
+    "meshes": 157,
+    "triangles": 227266
+   },
+   "shot": 3,
+   "city": true,
+   "t": 18.1,
+   "fighter": [
+    6.347,
+    0,
+    6.319
+   ],
+   "bus": -63.76
+  }
+ ],
+ "afterStop": {
+  "playing": null,
+  "geometries": 169,
+  "textures": 18
+ },
+ "log": [
+  "warning [.WebGL-0x378c016e1200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x378c016e1200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x378c016e1200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x378c016e1200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}

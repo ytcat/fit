@@ -100,7 +100,11 @@ body #fightResults{flex-wrap:wrap;row-gap:3px}
 #stageContainer .bout-announcement[data-kind=countdown] span{display:inline;margin:0!important;font-size:10px!important}
 /* (c) Winner / KO line: the same top band (one line, never over the fighters). */
 #stageContainer .bout-announcement[data-kind=winner],#stageContainer .bout-announcement[data-ko=true],.game-enabled #stageContainer .bout-announcement[data-kind=winner]:not([hidden]):not([data-kind=countdown]){top:calc(var(--hud-status-top) + 26px)!important;left:var(--hud-band-mid)!important;right:auto!important;transform:translateX(-50%)!important;width:max-content;max-width:calc(100% - 184px)!important;overflow:hidden;display:flex;align-items:baseline;justify-content:center;gap:8px;padding:0!important;white-space:nowrap}
-#stageContainer .bout-announcement[data-kind=winner] strong,#stageContainer .bout-announcement[data-ko=true] strong{display:inline;font-size:20px!important;line-height:1.1}
+#stageContainer .bout-announcement[data-kind=winner] strong,#stageContainer .bout-announcement[data-ko=true] strong{display:inline;font-size:clamp(14px,5vw,20px)!important;line-height:1.1;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word;text-align:center}
+/* GOTR-0095: the full winner name, never an ellipsis: one line when it fits (smaller type), else the name itself wraps to a second line. */
+#stageContainer .bout-announcement[data-kind=winner],#stageContainer .bout-announcement[data-ko=true],.game-enabled #stageContainer .bout-announcement[data-kind=winner]:not([hidden]):not([data-kind=countdown]){overflow:visible!important;align-items:center;gap:6px}
+#stageContainer .bout-announcement[data-kind=winner] strong,#stageContainer .bout-announcement[data-ko=true] strong{font-size:clamp(14px,4.4vw,18px)!important;line-height:1.05;min-width:0;flex:0 1 auto;white-space:nowrap}
+#stageContainer .bout-announcement[data-kind=winner] span,#stageContainer .bout-announcement[data-ko=true] span{flex:none;white-space:nowrap}
 #stageContainer .bout-announcement[data-kind=winner] span,#stageContainer .bout-announcement[data-ko=true] span{display:inline;margin:0!important;font-size:11px!important;color:var(--gr-gold,#f4c152)}
 #stageContainer:has(#fightResults:not([hidden])) .fight-knockout{display:none}
 /* The results layer covers the stage but only its cards and buttons take space or taps. */

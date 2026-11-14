@@ -24,7 +24,7 @@
  // boss can be given its own finisher later through the same requestFinisher(actor) hook. `hold` = game seconds the result
  // waits (phase clock frozen) after the knockout so the fall plays out before the cards/ceremony; `duration` = the move.
  const finishers={sunday_punch:{id:'sunday_punch',move:'rear_uppercut',target:'head',hurt:25,duration:1.32,hold:3.0,stamina:.10,read:.30}};
- const presets={three:{rounds:3,roundSeconds:20,restSeconds:10},club:{rounds:2,roundSeconds:20,restSeconds:10},six:{rounds:1,roundSeconds:40,restSeconds:10},title:{rounds:1,roundSeconds:60,restSeconds:10},exhibition:{rounds:2,roundSeconds:20,restSeconds:10},quick:{rounds:1,roundSeconds:20,restSeconds:0}};
+ const presets={three:{rounds:3,roundSeconds:20,restSeconds:20},club:{rounds:2,roundSeconds:20,restSeconds:20},six:{rounds:1,roundSeconds:40,restSeconds:10},title:{rounds:1,roundSeconds:60,restSeconds:10},exhibition:{rounds:2,roundSeconds:20,restSeconds:20},quick:{rounds:1,roundSeconds:20,restSeconds:0}};
  class BoxingFight {
   constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor,adventureEdge,finishers:owned}={}){
    this.seed=seed>>>0;this.state=this.seed;this.preset=preset;Object.assign(this,presets[preset]||presets.club);

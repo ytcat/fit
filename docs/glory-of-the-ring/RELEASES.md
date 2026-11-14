@@ -8,7 +8,10 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.66 | 2026-11-14 | _pending_ | No ring in street, basement and docks fights: their own ground, a circle of standing spectators, props at the edge, no referee, bare hands and clothes for the place (street clothes; track pants and wraps underground and at the docks); ring venues unchanged (GOTR-0065) |
+| v1.69 | 2026-11-14 | _pending_ | Street clothes worn like real clothes: hoodie and jeans as their own garments over a slimmer body, a hoodie that covers the belt, proper sneakers, a strap across the chest and a bag that swings; arms never sink into the body while walking or talking (GOTR-0093, GOTR-0094) |
+| v1.68 | 2026-11-14 | `5a2bd2b` | Fight screen: the winner's name is shown in full; story fights show no "New fight" button; the break line moved into the top bar so nothing covers the fighters |
+| v1.67 | 2026-11-14 | `15223ca` | Corner break between rounds: fighters walk to their corners, the cornerman sets a stool in the corner colour, the fighter sits, gets a towel and drinks, then stands and walks back at the bell; "Skip break"; rest 20 s in club, three-round and exhibition fights (GOTR-0076) |
+| v1.66 | 2026-11-14 | `e99e1ac` | No ring in street, basement and docks fights: their own ground, a circle of standing spectators, props at the edge, no referee, bare hands and clothes for the place (street clothes; track pants and wraps underground and at the docks); ring venues unchanged (GOTR-0065) |
 | v1.65 | 2026-11-13 | `827371e` | Bag-break film: at night the Fighter's huge Cross snaps the chain, the heavy bag falls and rolls ("…Bruno's going to kill me."); the bag stays on the floor in the gym until the new one is bought (GOTR-0087) |
 | v1.64 | 2026-11-13 | `d5a026b` | First fight against Brick takes place on the mat in Bruno's Gym: no ring, ropes or crowd; Coach Bruno referees — counts the knockdown and raises the winner's arm; a crash on punches landed in story fights fixed; the goal line no longer covers the health bars (GOTR-0083) |
 | v1.63 | 2026-11-13 | `d884ac1` | No bell in training: the timed round starts and ends without the ring bell (the bell is for fights only) |

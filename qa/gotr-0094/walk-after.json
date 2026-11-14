@@ -1,0 +1,183 @@
+{
+ "name": "walk-after",
+ "viewport": [
+  402,
+  690
+ ],
+ "blocked": false,
+ "city": {
+  "bus": "ready",
+  "station": "ready",
+  "oldtown": "ready"
+ },
+ "glbRequests": [
+  "gloryland-bus.glb",
+  "gloryland-station.glb",
+  "gloryland-oldtown.glb"
+ ],
+ "frames": [
+  {
+   "label": "w1",
+   "phase": "play",
+   "calls": 181,
+   "triangles": 547208,
+   "set": {
+    "meshes": 141,
+    "triangles": 204922
+   },
+   "shot": 4,
+   "city": true,
+   "t": 20.15,
+   "fighter": [
+    16.588,
+    0,
+    7.1
+   ],
+   "bus": -63.76
+  },
+  {
+   "label": "w2",
+   "phase": "play",
+   "calls": 183,
+   "triangles": 547304,
+   "set": {
+    "meshes": 141,
+    "triangles": 204922
+   },
+   "shot": 4,
+   "city": true,
+   "t": 20.7,
+   "fighter": [
+    17.275,
+    0,
+    7.1
+   ],
+   "bus": -63.76
+  },
+  {
+   "label": "w3",
+   "phase": "play",
+   "calls": 184,
+   "triangles": 550576,
+   "set": {
+    "meshes": 141,
+    "triangles": 204922
+   },
+   "shot": 4,
+   "city": true,
+   "t": 21.3,
+   "fighter": [
+    18.025,
+    0,
+    7.1
+   ],
+   "bus": -63.76
+  },
+  {
+   "label": "w4",
+   "phase": "play",
+   "calls": 187,
+   "triangles": 554548,
+   "set": {
+    "meshes": 141,
+    "triangles": 204922
+   },
+   "shot": 4,
+   "city": true,
+   "t": 21.9,
+   "fighter": [
+    18.775,
+    0,
+    7.1
+   ],
+   "bus": -63.76
+  },
+  {
+   "label": "w5",
+   "phase": "play",
+   "calls": 190,
+   "triangles": 557204,
+   "set": {
+    "meshes": 141,
+    "triangles": 204922
+   },
+   "shot": 4,
+   "city": true,
+   "t": 22.5,
+   "fighter": [
+    19.525,
+    0,
+    7.1
+   ],
+   "bus": -63.76
+  },
+  {
+   "label": "w6",
+   "phase": "play",
+   "calls": 70,
+   "triangles": 382908,
+   "set": {
+    "meshes": 147,
+    "triangles": 211346
+   },
+   "shot": 5,
+   "city": true,
+   "t": 23.1,
+   "fighter": [
+    21.764,
+    -0.15,
+    2.331
+   ],
+   "bus": -63.76
+  },
+  {
+   "label": "w7",
+   "phase": "play",
+   "calls": 75,
+   "triangles": 390268,
+   "set": {
+    "meshes": 147,
+    "triangles": 211346
+   },
+   "shot": 5,
+   "city": true,
+   "t": 23.7,
+   "fighter": [
+    22.081,
+    -0.15,
+    1.647
+   ],
+   "bus": -63.76
+  },
+  {
+   "label": "w8",
+   "phase": "play",
+   "calls": 74,
+   "triangles": 388756,
+   "set": {
+    "meshes": 147,
+    "triangles": 211346
+   },
+   "shot": 5,
+   "city": true,
+   "t": 24.3,
+   "fighter": [
+    22.397,
+    -0.15,
+    0.964
+   ],
+   "bus": -63.76
+  }
+ ],
+ "afterStop": {
+  "playing": null,
+  "geometries": 169,
+  "textures": 18
+ },
+ "log": [
+  "warning [.WebGL-0x5c400194400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x5c400194400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x5c400194400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x5c400194400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}

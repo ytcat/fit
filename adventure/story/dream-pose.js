@@ -20,7 +20,7 @@
   // hand targets in rig space for the +x arm (mirrored for the other): [hand x, y, z], elbow pole, palm direction, wrist turn
   const GESTURES = {
     hang: { h: [.335, .985, .055], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 },
-    strap: { h: [.175, 1.50, .225], pole: [.9, -.7, -.15], palm: [0, 0, -1], turn: .6 },   // holding the bag strap at the chest
+    strap: { h: [.175, 1.50, .225], pole: [.3, -1, -.3], palm: [0, 0, -1], turn: .6 },   // holding the bag strap at the chest
     open: { h: [.30, 1.20, .36], pole: [.7, -.8, -.3], palm: [0, 1, 0], turn: .9 },        // palm up: explaining
     fist: { h: [.085, 1.43, .255], pole: [.9, -.45, -.1], palm: [0, 0, -1], turn: .6 },    // fist on the chest: a promise
     point: { h: [.2, 1.47, .64], pole: [.6, -.8, 0], palm: [0, -1, 0], turn: .4 },
@@ -51,6 +51,61 @@
     return { x: s * GAIT_X, y: lerp(y0, ANKLE, k) + .075 * Math.sin(Math.PI * Math.min(1, w * 1.08)) * (1 - .3 * w), z: lerp(z0, half, k), pitch: lerp(toe0, -.30, smooth(w * 1.15)), planted: false, u: w };
   }
   const footQ = (yaw, pitch) => new THREE.Quaternion().setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
+
+  /* ---------------------------------------------------------------- arms beside the body (GOTR-0094)
+   * A torso profile from what the rig wears (the street clothes, or the skin and trunks), in the rest pose: per height and
+   * direction round the body, the outermost radius of everything that does not ride the arm bones. After the arm IK, the
+   * hand, forearm, elbow and upper arm are taken back into the rest frame of the torso bone they pass and, if they would
+   * come closer than their own thickness + 2 cm, the hand target (and with it the whole arm) is moved out and the IK
+   * solved again, with the elbow turned out. Fighters with a huge chest and lats get their arms held further out. */
+  const ARM = /^(arm|elbow|hand)[LR]$/, PY0 = .78, PDY = .01, PNY = 102, PNT = 48, profiles = new WeakMap();
+  function profile(c) {
+    const cloth = c.root.children.find(o => o.userData?.streetCloth && o.visible) || null, key = cloth ? cloth.uuid : 'kit' + (c.shorts?.visible ? 1 : 0) + c.skin.geometry.attributes.position.uuid;
+    let p = profiles.get(c); if (p?.key === key) return p;
+    const R = new Float32Array(PNY * PNT), arm = c.bones.map(b => ARM.test(b.name));
+    const add = g => { const P = g.attributes.position.array, I = g.attributes.skinIndex?.array, W = g.attributes.skinWeight?.array; if (!I) return;
+      for (let i = 0; i < P.length / 3; i++) { let dom = 0; for (let k = 1; k < 4; k++) if (W[i * 4 + k] > W[i * 4 + dom]) dom = k; if (arm[I[i * 4 + dom]]) continue;
+        const y = P[i * 3 + 1], b = Math.round((y - PY0) / PDY); if (b < 0 || b >= PNY) continue; const x = P[i * 3], z = P[i * 3 + 2], t = Math.round(((Math.atan2(x, z) / (Math.PI * 2)) % 1 + 1) % 1 * PNT) % PNT, r = Math.hypot(x, z), q = b * PNT + t; if (r > R[q]) R[q] = r; } };
+    if (cloth) add(cloth.geometry); add(c.skin.geometry); if (c.shorts?.visible) add(c.shorts.geometry);
+    const S = new Float32Array(R); for (let b = 0; b < PNY; b++) for (let t = 0; t < PNT; t++) { let v = 0; for (let db = -1; db <= 1; db++) for (let dt = -1; dt <= 1; dt++) { const bb = b + db; if (bb >= 0 && bb < PNY) v = Math.max(v, R[bb * PNT + (t + dt + PNT) % PNT]); } S[b * PNT + t] = v; }
+    p = { key, R: S }; profiles.set(c, p); return p;
+  }
+  const restOf = (c, bone) => { const v = V(); for (let b = bone; b && b !== c.root; b = b.parent) v.add(b.name === 'hips' ? V(0, .99, 0) : b.name === 'neck' ? c.neckRest : b.position); return v; };
+  /** How far (root space) point q, of thickness r, must move to clear the torso; null when clear. */
+  function clearance(c, prof, q, r, gap = .02, side = 'R') {
+    const j = c.joints, bone = q.y > 1.36 ? j.chest : q.y > 1.13 ? j.spine : q.y > .95 ? j.hips : j['thigh' + side], inv = new THREE.Matrix4().copy(c.root.matrixWorld).invert().multiply(bone.matrixWorld), local = q.clone().applyMatrix4(inv.clone().invert()), rest = local.clone().add(restOf(c, bone));
+    const b = Math.round((rest.y - PY0) / PDY); if (b < 0 || b >= PNY) return null;
+    const t = Math.round(((Math.atan2(rest.x, rest.z) / (Math.PI * 2)) % 1 + 1) % 1 * PNT) % PNT, need = prof.R[b * PNT + t] + r + gap, have = Math.hypot(rest.x, rest.z);
+    if (!(need > 0) || have >= need || prof.R[b * PNT + t] === 0) return null;
+    const out = rest.clone(); if (have < 1e-4) out.x = need; else { out.x *= need / have; out.z *= need / have; }
+    return out.sub(restOf(c, bone)).applyMatrix4(inv).sub(q);
+  }
+  /** Corners and face centres of the box round what the hand joint carries (bare hand or glove), in the hand frame. */
+  const handBoxes = new WeakMap();
+  function handPoints(c, side) {
+    const hand = c.joints['hand' + side], vis = []; hand.traverse(o => { if (o.isMesh && o.visible) vis.push(o); }); const key = vis.map(o => o.uuid).join();
+    let m = handBoxes.get(hand); if (m?.key === key) return m.pts;
+    const box = new THREE.Box3(), inv = new THREE.Matrix4().copy(hand.matrixWorld).invert(), v = V(); hand.updateWorldMatrix(true, true);
+    for (const o of vis) { if (o.geometry.attributes.position.count < 30) continue; const P = o.geometry.attributes.position, M = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld); for (let i = 0; i < P.count; i += 3) box.expandByPoint(v.fromBufferAttribute(P, i).applyMatrix4(M)); }
+    const pts = []; if (!box.isEmpty()) { const lo = box.min, hi = box.max, mid = box.getCenter(V()); for (const x of [lo.x, mid.x, hi.x]) for (const y of [lo.y, mid.y, hi.y]) for (const z of [lo.z, mid.z, hi.z]) if ((x !== mid.x) + (y !== mid.y) + (z !== mid.z) >= 2) pts.push(V(x, y, z).lerp(mid, .12)); }
+    handBoxes.set(hand, { key, pts }); return pts;
+  }
+  function clearArm(c, side, target, pole, rest = false, orient = () => {}) {
+    const j = c.joints, prof = profile(c), glove = c.gloveMeshes?.[side]?.visible, hr = glove ? .11 : .05, t = target.clone(), pl = pole.clone();
+    let err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl); orient();
+    for (let it = 0; it < 6; it++) {
+      const sh = c.point(j['arm' + side]), el = c.point(j['elbow' + side]), ha = c.point(j['hand' + side]);
+      j['hand' + side].updateWorldMatrix(true, false); let dt = null; if (!rest) for (const q of handPoints(c, side)) { const d = clearance(c, prof, c.root.worldToLocal(j['hand' + side].localToWorld(q.clone())), .008, .022, side); if (d && (!dt || d.lengthSq() > dt.lengthSq())) dt = d; }
+      const dh0 = clearance(c, prof, ha, hr, rest ? 0 : .02, side), dh = dt && (!dh0 || dt.lengthSq() > dh0.lengthSq()) ? dt : dh0, dm = clearance(c, prof, ha.clone().lerp(el, .5), .068, .02, side), de = clearance(c, prof, el, .055, .012, side), du = sh.y - el.y > .12 ? clearance(c, prof, sh.clone().lerp(el, .7), .062, .006, side) : null;
+      if (!dh && !dm && !de && !du) break;
+      const arm = [de, du, dm].filter(Boolean).reduce((a, d) => d.lengthSq() > a.lengthSq() ? d : a, V());
+      t.add(dh && dh.lengthSq() > arm.lengthSq() ? dh : arm).add(dh && arm.lengthSq() ? dh.clone().multiplyScalar(.3) : V());
+      if (arm.lengthSq()) pl.lerp(arm.clone().normalize(), .5).normalize();
+      const reach = (j['elbow' + side].position.length() + j['hand' + side].position.length()) * .985, off = t.clone().sub(sh); if (off.length() > reach) t.copy(sh).addScaledVector(off.normalize(), reach); // never past the arm's reach
+      err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl); orient();
+    }
+    target.copy(t); return err;
+  }
 
   function overlay(c, st, m) {
     const j = c.joints, t = st.t || 0, w = m.walk, phase = ((st.dist || 0) / STRIDE) % 1, tau = Math.PI * 2, sw = Math.sin(phase * tau), cw = Math.cos(phase * tau);
@@ -94,7 +149,8 @@
       const k = st.dt > 0 && m.hand[side] ? 1 - Math.exp(-st.dt * 9) : 1;
       m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? m.pole[side].lerp(pole, k) : pole; m.palm[side] = m.palm[side] ? m.palm[side].lerp(palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
       const target = m.hand[side].clone(); target.y += hips.position.y - HIP; // hands ride with the pelvis
-      handErrors.push(c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], target, m.pole[side])); gloves.push(c.orientGlove(side, m.turn[side], m.palm[side]));
+      if (name === 'strap') { const ch = j.chest, M = new THREE.Matrix4().copy(c.root.matrixWorld).invert().multiply(ch.matrixWorld); target.copy(m.hand[side]).sub(restOf(c, ch)).applyMatrix4(M); } // the hand on the strap moves with the chest
+      handErrors.push(clearArm(c, side, target, m.pole[side], name === 'strap', () => c.orientGlove(side, m.turn[side], m.palm[side]))); // the strap hand rests on the strap gloves.push(c.orientGlove(side, m.turn[side], m.palm[side]));
     }
     const bag = c.storyCast?.bagBody; if (bag) bag.rotation.z = -.5 + .045 * Math.sin(phase * tau * 2) * w;
     return { gloves, handErrors, footTargets };
@@ -114,5 +170,5 @@
   /** Forgets the smoothed pose (new scene, or the rig went back to the game). */
   function reset(c) { mem.delete(c); }
 
-  window.DreamPose = { civil, feet, reset, GESTURES, STRIDE, DUTY, step };
+  window.DreamPose = { civil, feet, reset, GESTURES, STRIDE, DUTY, step, profile, clearance };
 })();
