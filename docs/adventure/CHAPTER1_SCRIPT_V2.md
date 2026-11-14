@@ -37,7 +37,7 @@ The Docks warehouse (crowd in a circle, no ring, hanging lamps) · Bruno's Gym o
 | 0 | Morning | Map → bus station | Opening film: the camera dives from the city map to the bus station; a bus stops; the Fighter steps off with his bag, looks up at the city. He walks to the gym (walk, Skip). | street | 1 |
 | 1 | Morning | Gym hall | Conversation with Coach Bruno (skippable): no money, a dream, "I'll do whatever is needed". Bruno: "Words are cheap. Show me." | street → borrowed kit | 2 |
 | 2 | Morning | Gym ring | **First fight: Brick.** Brick is far stronger; the player is expected to lose (a win is possible and remembered). Either way Bruno is impressed: "You got up. That I can work with." He offers a job and a bed in the store room. | borrowed kit | 3, side A |
-| A (side) | Day | Gym | **Clean the gym** (job): a short timed skill game, not a chore — footwork with the mop along marked lanes, wipe the bags as they swing back. Small pay. Repeatable. | street | — |
+| A (side) | Day | Gym | **Clean the gym** (job): a short timed skill game, not a chore — footwork with the mop along marked lanes, wipe on the beat, Duck or Slip the bags Bruno shoves along the lanes. Small pay. Repeatable. (Built: GOTR-0099, `adventure/story/mop-game.js`.) | street | — |
 | 3 | Night | Gym, empty | **Night training 1: Shadowboxing** with the lights low. | kit | 4 |
 | 4 | Night | Gym, empty | **Night training 2: the heavy bag.** Power builds; the last punch tears the chain and the old bag crashes to the floor (scripted animation, dust, the lamp swinging). | kit | 5 |
 | 5 | Morning | Gym | The Fighter owns up: "I'm sorry. I'll work to pay it back." Bruno agrees and sends him to the market for supplies (walk, Skip). | street | 6 |

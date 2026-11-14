@@ -120,7 +120,7 @@ const DREAM = ['dream_arrival', 'dream_gym_talk', 'first_brick', 'night_shadow',
   const gt = F.gate(g, 1); assert.equal(A.level(g), 1, "5 stars = Level 1"); assert.equal(gt.need, 5); assert.equal(gt.stars, F.starsToLevel(g, 5)); assert.equal(gt.ready, true);
   assert.equal(gt.steps.length, 2); assert.ok(gt.steps.every(id => F.playable(g, id) && !F.find(id).event), 'advice names measured steps');
   A.recordBoss(g, 'brick', true, true);
-  assert.equal(F.state(g, 1).complete, true); assert.equal(F.chapterOpen(g, 2), true); assert.equal(F.nextAfter(g, 'brick'), 'clean_gym', 'the open side job first'); rec(g, 'clean_gym', 8); assert.equal(F.nextAfter(g, 'brick'), 'curb_footwork');
+  assert.equal(F.state(g, 1).complete, true); assert.equal(F.chapterOpen(g, 2), true); assert.equal(F.nextAfter(g, 'brick'), 'clean_gym', 'the open side job first'); rec(g, 'clean_gym', 25); assert.equal(F.nextAfter(g, 'brick'), 'curb_footwork');
   assert.ok(/whole neighbourhood/.test(F.journal(g).pop().text));
 }
 // Text: every step has a title, ONE short line (why) and a recap in EN/HE/RU; HE/RU keep only the glossary terms in Latin.

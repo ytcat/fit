@@ -68,6 +68,29 @@ import. Terms: Coach = Bruno, Fighter = the player's boxer, Opponent = whoever h
   mount, 3 fly, 6 stay on the bag's ring); the lamp is a damped pendulum. `BagBreakCore.sample(simT)`, `.rest()`, `.track().events`.
 - Tests: `tests/dream-bag-break.test.cjs` (node part + browser part). Evidence tool: `qa/gotr-0087/tools/film.cjs`.
 
+## Side job A: Clean the gym (GOTR-0099) — `adventure/story/mop-core.js` (`MopCore`, node too), `adventure/story/mop-game.js` (`MopGame`)
+- A skill game in the story runner: `StoryScenes.play('clean_gym', { onDone, hard? })` (it is `StoryScenes.games.clean_gym`, so it
+  gets the runner's pad, tutorial, hit-stop, score pops, result card, retry and hard mode). Step wiring: `adventure/oldtown.js`
+  DEFS `clean_gym: { kind: 'scene', scene: 'clean_gym' }`; one star finishes side job A; replayable.
+- Set `dream_gym` (place `gym`) but the game says `wear: 'street'`: the runner dresses the Fighter in street clothes, bare hands
+  (`game.wear` overrides the place's outfit). Roles: `fighter`, `bruno` (the runner now takes story characters from
+  `StoryCast.rig`, scale -1 at the root like everyone).
+- Rules (`MopCore.MOP`): two lanes x five spots (world x = -1.0 + 0.8 * spot, streak z = 0.7 / 1.9, the Fighter 0.8 m behind it);
+  left / right = a step along the lane, up = Slip to the other lane, down = Duck, `straight` (J, the "Mop" button) = wipe.
+  The mop's beat: a push lands every 0.9 s after arriving; a tap within 0.15 s wipes (0.06 s = perfect), otherwise smears
+  (combo lost). Every 5th streak is big (two wipes). A streak sets into a stain after 7.0 -> 4.2 s (combo lost). Bruno shoves a
+  bag every 8.5 -> 5.5 s (1.1 s wind-up, the lane tape turns red): a pendulum L = 3.05 m, g = 9.81, half period 1.75 s, 0.8 rad
+  out and back; it knocks the Fighter (stun 1 s, combo lost) when it meets him in its lane low enough to reach his head, unless he
+  ducks or has slipped out (a dodge counts in the combo). 50 s shift.
+- Result value (`metric marks`) = score / 100, floored; stars at 25 / 50 / 75 (`adventure-progress.js`). Wage per shift by stars
+  `MopCore.PAY` = `GameDomain.jobs.clean_gym` = 0 / 6 / 10 / 15 coins: the save action `{ type: 'job', jobId: 'clean_gym', stars }`
+  pays once per recorded shift (ledger `job:clean_gym:<n>`, rule `job-pay-v1`, checked on load: paid shifts <= recorded plays,
+  stars <= best stars). The runner pays it after a finished shift with a star (`game.job`).
+- Lines: Bruno's one line in the tutorial and one reaction on the result card (`AdventureStory.lines.clean_gym.job`,
+  `job_0`..`job_3`, EN/HE/RU; they go into the journal via `AdventureStory.mark`).
+- Pose: `DreamPose.civil` with exact hand targets (`reach`) on the mop handle, staggered feet and a shuffle for the steps; no
+  change to `dream-pose.js`. QA: `StoryScenes.debug.sim` is the running `MopTrial`; evidence tool `qa/gotr-0099/clean-gym.cjs`.
+
 ## Not in this slice (owned by `agent/dream-flow`)
 The step list, the "expected loss still advances" rule, rewards, saving. Suggested order for beats 0–2:
 `dream_opening` → `dream_gym_talk` → fight vs Brick (`asOpponent`) → `dream_after_brick` with `outcome`.

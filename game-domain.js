@@ -27,6 +27,10 @@
  const gearPurchase=id=>'purchase:gear:'+id,storyRewardId=step=>'story:'+step;
  const storyRewards=Object.freeze({market_robber:gear.find(x=>x.id==='heavy_bag').price,docks_fight:120});
  const ownsGear=(g,id)=>!!g?.ledger?.some(t=>t.id===gearPurchase(id));
+ // GOTR-0099 side jobs: a small wage for every finished shift with at least one star (repeatable), coins by that shift's stars.
+ // A shift can only be paid once its result is in the adventure save: paid shifts <= recorded plays, stars <= the best stars.
+ const jobs=Object.freeze({clean_gym:Object.freeze([0,6,10,15])}),jobRule='job-pay-v1',jobId=(id,n)=>'job:'+id+':'+n;
+ const jobShifts=(g,id)=>g.ledger.filter(t=>t.rule===jobRule&&t.jobId===id).length;
  // Fight Academy: passing a combo lesson pays once and unlocks that combo. No XP, no combat stats.
  const lesson=Object.freeze({coins:15,repetitions:3,windowMs:2000,rule:'academy-lesson-v1'}),lessonId=id=>'lesson:'+id;
  // GOTR-0033 release switch. version.js channel 'dev' = development: every item and combo can be taken free (price still shown); 'live' or missing = prices charged and locks apply.
@@ -99,6 +103,7 @@
   for(const event of g.processed)if(!seen.has('reward:'+event))fail('Missing reward transaction.');
   for(const t of g.ledger)if(t.comboId!==undefined||t.id.startsWith('purchase:combo:')){const c=combos.find(c=>c.id===t.comboId);if(!c||t.id!==comboPurchase(c.id)||!(t.type==='grant'||c.price&&t.type==='spend'&&t.coins===-c.price&&t.rule==='combo-shop-v1')||!g.combos.owned.includes(c.id))fail('Invalid combo purchase.');}
   for(const t of g.ledger)if(t.id.startsWith('story:')||t.rule==='story-reward-v1'){const step=t.id.slice(6);if(!(step in storyRewards)||!exactKeys(t,['id','type','coins','xp','rule','storyStep'])||t.storyStep!==step||t.type!=='earn'||t.coins!==storyRewards[step]||t.xp!==0||t.rule!=='story-reward-v1')fail('Invalid story reward.');}
+ {const n={};for(const t of g.ledger)if(t.id.startsWith('job:')||t.rule===jobRule){const pay=jobs[t.jobId],k=(n[t.jobId]||0)+1,rec=g.adventure?.missions?.[t.jobId];if(!pay||!exactKeys(t,['id','type','coins','xp','rule','jobId','stars'])||t.id!==jobId(t.jobId,k)||t.type!=='earn'||t.rule!==jobRule||t.xp!==0||!Number.isInteger(t.stars)||t.stars<1||t.stars>3||t.coins!==pay[t.stars]||!rec||k>rec.plays||t.stars>rec.stars)fail('Invalid job pay.');n[t.jobId]=k;}}
  for(const t of g.ledger)if(t.id.startsWith('purchase:gear:')||t.rule==='gear-shop-v1'){const item=gear.find(x=>gearPurchase(x.id)===t.id);if(!item||t.gearId!==item.id||!(t.type==='grant'||t.type==='spend'&&t.coins===-item.price&&t.rule==='gear-shop-v1'))fail('Invalid gear purchase.');}
  for(const t of g.ledger)if(t.rule===lesson.rule||t.lessonId!==undefined||t.id.startsWith('lesson:')){const c=combos.find(c=>c.id===t.lessonId);if(!c||!exactKeys(t,['id','type','coins','xp','rule','lessonId','evidence'])||t.id!==lessonId(c.id)||t.type!=='earn'||t.coins!==lesson.coins||t.xp!==0||t.rule!==lesson.rule||!g.combos.owned.includes(c.id))fail('Invalid lesson reward.');lessonEvidence(c,t.evidence);}
   for(const c of combos)if(g.combos.owned.includes(c.id)&&g.activity[c.key]<c.target&&!seen.has(comboPurchase(c.id))&&!seen.has(lessonId(c.id)))fail('Invalid combo unlock.');
@@ -119,6 +124,7 @@
   if(a.type==='adventure'&&a.adventure==='story'){if(!adventureRules)fail('Adventure rules are unavailable.');return storyAction(g,a);}
   if(a.type==='adventure'){if(!adventureRules)fail('Adventure rules are unavailable.');return adventureRules.action(g,a,freeMode());}
   if(a.type==='world'){if(!worldRules)fail('World rules are unavailable.');return worldRules.action(g,a);}
+  if(a.type==='job'){const pay=jobs[a.jobId];if(!pay)fail('Unknown job.');if(!Number.isInteger(a.stars)||a.stars<1||a.stars>3)fail('Invalid job result.');const rec=g.adventure?.missions?.[a.jobId],k=jobShifts(g,a.jobId)+1;if(!rec||k>rec.plays||a.stars>rec.stars)fail('Finish the shift first.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');const id=jobId(a.jobId,k);g.ledger.push({id,type:'earn',coins:pay[a.stars],xp:0,rule:jobRule,jobId:a.jobId,stars:a.stars});return {jobId:a.jobId,coins:pay[a.stars],shift:k,transactionId:id};}
   if(a.type==='buy'){const item=catalog.find(c=>c.id===a.itemId);if(!item||!item.price)fail('Choose a shop item.');if(g.inventory.includes(item.id))fail('Already owned.');const free=freeMode();if(!free&&wallet(g).coins<item.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');g.ledger.push(free?grant('purchase:'+item.id,{itemId:item.id}):{id:'purchase:'+item.id,type:'spend',coins:-item.price,xp:0,itemId:item.id,rule:'shop-v1'});g.inventory.push(item.id);return {itemId:item.id,transactionId:'purchase:'+item.id,free};}
   if(a.type==='equip'){const item=catalog.find(c=>c.id===a.itemId);if(!slots.includes(a.slot)||item?.slot!==a.slot||!g.inventory.includes(a.itemId))fail('Own a compatible item for this slot first.');g.equipment[a.slot]=a.itemId;return {itemId:a.itemId};}
   if(a.type==='combo-buy'){const c=combos.find(c=>c.id===a.comboId);if(!c)fail('Choose a combination.');if(g.combos.owned.includes(c.id))fail('Already owned.');const free=freeMode();if(!free&&!c.price)fail('This combination is earned by completing your first activity.');if(!free&&wallet(g).coins<c.price)fail('Not enough coins. Complete training or a quick fight to earn coins.');if(g.ledger.length>=20015)fail('History is full. Export a backup.');g.ledger.push(free?grant(comboPurchase(c.id),{comboId:c.id}):{id:comboPurchase(c.id),type:'spend',coins:-c.price,xp:0,comboId:c.id,rule:'combo-shop-v1'});g.combos.owned.push(c.id);return {comboId:c.id,transactionId:comboPurchase(c.id),free};}
@@ -152,5 +158,5 @@
   return {coins,unlocks,activityId:event.id,transactionId,record,...(cup&&!cup.ignored?{cup}:{})};
  }
  const lessonPassed=(g,id)=>!!g?.ledger.some(t=>t.id===lessonId(id));
- const api={gear,storyRewards,gearPurchase,ownsGear,freeMode,fightPay,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
+ const api={jobs,gear,storyRewards,gearPurchase,ownsGear,freeMode,fightPay,venueIds,catalog,combos,quests,slots,species,fresh,wallet,validate,action,reward,evidence,cleanName,lesson,lessonPassed};if(typeof module!=='undefined')module.exports=api;else window.GameDomain=api;
 })();

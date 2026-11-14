@@ -38,7 +38,7 @@
   M('snoring_guard',1,'home_gym','funny',null,'dodges',[3,6,9],'The snoring night guard','שומר הלילה המנחר','Храпящий ночной сторож'),
   // GOTR-0078 "The Dream" (docs/adventure/CHAPTER1_SCRIPT_V2.md): the measured beats of the new chapter 1. The older chapter-1
   // missions above stay valid in saves (and still count for stars and level) but are no longer story steps.
-  M('clean_gym',1,'home_gym','help',null,'marks',[8,14,20],'Clean the gym','לנקות את האולם','Уборка зала'),
+  M('clean_gym',1,'home_gym','help',null,'marks',[25,50,75],'Clean the gym','לנקות את האולם','Уборка зала'),
   M('night_shadow',1,'home_gym','training','speed','landed',[20,35,50],'Night Shadowboxing','Shadowboxing בלילה','Shadowboxing ночью'),
   M('night_bag',1,'home_gym','training','power','powerMarks',[1,3,5],'The old heavy bag','השק הכבד הישן','Старый тяжёлый мешок'),
   M('bag_drill',1,'home_gym','training','stamina','landed',[15,25,35],'Two-sided bag drill','תרגיל שק משני הצדדים','Мешок с двух сторон'),
