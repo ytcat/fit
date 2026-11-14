@@ -906,8 +906,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0094 — Walking in street clothes: the arm sinks into the body
 - **Reported:** 2026-11-13 (v1.65 opening film, walking towards the camera; picture `qa/owner-2026-11-12/v165-arm-in-body.webp`: one hand holds the strap at the chest and looks pushed into the hoodie; the other arm disappears into the side of the torso)
-- **Status:** OPEN — P1, with GOTR-0093
+- **Status:** READY FOR QA — branch `agent/street-clothes` (with GOTR-0093; not merged, not released)
 - **Acceptance:** in the walk, talk and strap-holding poses neither arm, hand nor glove intersects the torso or the clothes; arms swing beside the body with a gap at the elbows; measured clearance (hand/forearm to torso surface ≥ 2 cm) over a full walk cycle, both species, in kit and street clothes.
+- **Root cause:** the everyday arm targets (`dream-pose.js`) were fixed points for a slim body: the hanging hand at x 0.335 sits inside the fighters' lats/hips once a loose hoodie or the trunks are on, and the strap hand target (z 0.225) is behind the hoodie's front (z ~0.24).
+- **Fix:** `dream-pose.js` builds a torso profile from what the rig wears (street clothes, or skin + trunks; everything not riding the arm bones) and, after the arm IK, takes the hand box, forearm, elbow and upper arm back into the rest frame of the torso/thigh bone they pass; anything closer than its thickness + 2 cm moves the hand target out (elbow turned out, never past the arm's reach) and the IK is solved again. The strap hand rests on the strap. Street clothes are now cut from a slimmer rest body (upper arm -20 %, forearm -10 %, lats -11 %, pecs flatter; skeleton unchanged), sleeves follow the arm's own girth + 1.2-1.7 cm, jeans knees weight-smoothed and no longer as wide as the thigh, ankle folds reduced to two soft irregular ones.
+- **Evidence:** `qa/gotr-0094/owner-shot-before-after.webp` (402x690, the owner's walk toward the camera, v1.65 vs now), `walk-{before,after}.webp` 8-frame strips (frames 1-5 the walk toward the camera) and single frames; tool `qa/gotr-0094/tools/film.cjs`. Test `tests/story-arm-clearance.test.cjs` (lion/rabbit x kit/street, 12-frame walk cycle, talk, strap standing and walking): min forearm 4.8-9 cm, hand 2.9-7.2 cm; strap hand 4-6 cm off the cloth (resting on the strap). `dream-scenes`, `story-street-wear` pass.
+- **Still off:** the strap arm's elbow sticks out sideways; the arms are held visibly wide on the lion (his lats); the upper sleeves are still full.
 
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
