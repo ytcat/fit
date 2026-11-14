@@ -1,0 +1,15 @@
+{
+  "author": "OpenAI Codex for Gloryland",
+  "method": "Original deterministic NumPy/Pillow synthesis, seed 61309; no external image inputs",
+  "files": [
+    "bark-color.png",
+    "bark-normal.png",
+    "bark-roughness.png",
+    "leaf-color.png"
+  ],
+  "resolution": [
+    512,
+    512
+  ],
+  "license": "Project-original artwork; no third-party asset licenses required"
+}

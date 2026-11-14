@@ -1,0 +1,13 @@
+{
+  "source_sha": "8fe3600",
+  "main_checked": "dab12f6",
+  "authoring": "Blender 4.3.2",
+  "units": "metres",
+  "glb_bytes": 1517124,
+  "triangles": 44076,
+  "mesh_nodes": 21,
+  "wheel_radius_m": 0.298,
+  "wheelbase_m": 2.45,
+  "game_integration": false,
+  "physical_phone": "NOT VERIFIED"
+}
