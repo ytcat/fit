@@ -9,6 +9,7 @@ import. Terms: Coach = Bruno, Fighter = the player's boxer, Opponent = whoever h
 |---|---|---|
 | `adventure/story/dream-core.js` | `DreamCore` | Pure data: scene scripts, lines EN/HE/RU, validation. Loads in node (`require`). |
 | `adventure/story/story-cast.js` | `StoryCast` | Characters Bruno and Brick, outfits, bare hands, duffel bag. |
+| `adventure/story/cast-market.js` | registers into `StoryCast` | Fang, Mrs. Hazel and Otto (GOTR-0092); loads right after `story-cast.js`. |
 | `adventure/story/dream-pose.js` | `DreamPose` | Everyday poses on the fight rig: standing, walk cycle, talk gestures, head turns (`DreamPose.civil(rig, state)`). |
 | `adventure/story/dream-sets.js` | registers sets in `StorySets` | `dream_street` (bus station → Bruno's Gym front), `dream_gym` (gym hall). |
 | `adventure/story/dream-scenes.js` | `DreamScenes` | Player for the three scenes. `StoryScenes.play` forwards the ids below to it. |
@@ -67,6 +68,41 @@ import. Terms: Coach = Bruno, Fighter = the player's boxer, Opponent = whoever h
   snap, free flight, floor contacts with restitution and Coulomb friction, rolling resistance; 13 chain links (4 stay on the
   mount, 3 fly, 6 stay on the bag's ring); the lamp is a damped pendulum. `BagBreakCore.sample(simT)`, `.rest()`, `.track().events`.
 - Tests: `tests/dream-bag-break.test.cjs` (node part + browser part). Evidence tool: `qa/gotr-0087/tools/film.cjs`.
+
+## Characters — `fang`, `hazel`, `otto` (GOTR-0092, `adventure/story/cast-market.js`)
+- Same API as Bruno and Brick: `StoryCast.rig('fang' | 'hazel' | 'otto', engine)`, `StoryCast.names[id][lang]`, `DreamPose.civil(rig, …)`;
+  `StoryCast.ids` lists all five. Each wears its own clothes (`StoryCast.outfit` leaves them as they are). Scene scripts use the same ids.
+- **Fang** (beat 6, the robber): big grey wolf, black leather rocker jacket over a T-shirt, gold chain, ripped jeans, boots. He never
+  wears gloves: `const restore = StoryCast.asOpponent(engine, 'fang')` makes him the Opponent of the bare-handed street fight with the
+  normal fight animations (bare fists); `restore()` after the result. `StoryCast.market.barehanded` lists him.
+  He has the lion fighter's body (same skeleton, muscle relief, a heavyweight's few percent bigger) and runs the lion's own `update`
+  (every punch, slip, roll, block, hit reaction, knockdown). `asOpponent` puts him in his fight clothes (fitted tank top, jeans,
+  boots, chain); `restore()` puts the jacket back. Before the fight: `StoryCast.market.jacketOff(rig, u)` (u 0..1, about 2 s) swaps the
+  clothes, shows the jacket in his hand then on the ground (in the rig's parent space) and returns the `DreamPose.civil` state
+  (`{ arms, lean, look }`) for that moment. `StoryCast.market.wear(rig, 'jacket' | 'fight')` switches directly.
+- **Mrs. Hazel** (beat 6, the stall owner): doe, headscarf, cardigan over a dress, stall apron; stands a little stooped (`rig.cast.stoop`).
+  Her handbag is a prop in her left hand: `StoryCast.market.handbag(rig)` → the `THREE.Group` (hide it or re-parent it for the snatch).
+- **Otto** (beat 7, Otto's Corner): otter, reading glasses on a cord, flannel shirt, navy shop apron, tape measure round the neck.
+- Face dynamics: `StoryCast.talk(rig, a)` opens a real jaw (a skin morph; a hit in the fight opens it too); they blink; ears, cheek
+  ruffs, tails and the handbag lag behind the motion. `StoryPortraits` renders their heads (no monogram badges).
+- Same skeleton as the fighters: Mrs. Hazel and Otto read smaller (slimmer / lower head, shorter neck, stoop) but their legs and
+  arms are the rig's; the fight rig cannot be shortened without changing the shared pose code.
+
+## Beats 5-7 as films (GOTR-0096) — `adventure/story/market-core.js` (`MarketCore`, node too), `adventure/story/market-sets.js`
+- Scenes (same format and player as above; `DreamCore.register` adds them, `StoryScenes.play` forwards them):
+  `dream_apology` (beat 5, gym, tap), `dream_market_robbery` (beat 6, timed, ends with Fang facing the Fighter),
+  `dream_market_reward` (after a WON street fight, tap), `dream_otto_shop` (beat 7, tap, purchase inside the film).
+- Wiring (`adventure/oldtown.js`, `adventure/story-flow.js`): `dream_apology` is a `film` step and chains (first time) into
+  `market_robber`; that step has `scene: 'dream_market_robbery'` (once per browser, then the fight), `cast: 'fang'`
+  (`StoryCast.asOpponent(engine, 'fang')`, ringless `street` venue, bare hands) and `after: 'dream_market_reward'` (only after a
+  win; a loss shows the usual lost beat and Retry, as before). `buy_heavy_bag` has `film: 'dream_otto_shop'`: played when the coins
+  are enough (or owned / dev); `opts.onBuy` = the step's own save action; Skip before buying -> the old counter beat.
+- Player options: `onBuy() -> boolean` (the scene waits at `scene.buy.t` with a Buy button; `result.bought`), `owned`, `price`
+  (`{price}` in lines; default the heavy bag's price). Scene fields: `gymBag: 'broken'` (BagBreak.force while the set is built),
+  `carry` (handbag / pouch / heavybag between hands, the ground, the display, the Fighter's shoulder; `MarketProps`), act `'jacketoff'`.
+- Rigs handed back: mirrored root, outfit, Fang in his jacket, Mrs. Hazel's handbag in her hand.
+- Sets (placeholders until Codex's): `dream_market` (day market row, Mrs. Hazel's stall at x 0), `dream_shop` (street front at
+  x -12..12, interior at x 36..44.4, `objects.display`). Test `tests/dream-market-films.test.cjs`; evidence tool `qa/gotr-0096/tools/film.cjs`.
 
 ## Not in this slice (owned by `agent/dream-flow`)
 The step list, the "expected loss still advances" rule, rewards, saving. Suggested order for beats 0–2:

@@ -1,0 +1,121 @@
+{
+ "id": "dream_market_reward",
+ "name": "reward",
+ "viewport": [
+  402,
+  690
+ ],
+ "before": {
+  "scale": [
+   -1,
+   1,
+   1
+  ],
+  "outfit": "kit"
+ },
+ "frames": [
+  {
+   "label": "a",
+   "calls": 101,
+   "triangles": 732025,
+   "shot": 0,
+   "t": 1.8,
+   "line": "Mrs. HazelMy bag! Oh, thank you, dear. Are you hurt?▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "b",
+   "calls": 68,
+   "triangles": 670023,
+   "shot": 1,
+   "t": 5.3,
+   "line": "FighterI'm fine. He won't be back.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "c",
+   "calls": 131,
+   "triangles": 1061423,
+   "shot": 2,
+   "t": 11,
+   "line": "OttoSaw it all from my door. Bravo!▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "d",
+   "calls": 110,
+   "triangles": 990731,
+   "shot": 3,
+   "t": 13.3,
+   "line": "Mrs. HazelThe whole row chipped in. 90 coins. Take it.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "e",
+   "calls": 109,
+   "triangles": 987191,
+   "shot": 3,
+   "t": 15.3,
+   "line": "Mrs. HazelThe whole row chipped in. 90 coins. Take it.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "f",
+   "calls": 73,
+   "triangles": 918355,
+   "shot": 4,
+   "t": 18,
+   "line": "Fighter90? That's exactly a new heavy bag!▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "g",
+   "calls": 140,
+   "triangles": 1074735,
+   "shot": 5,
+   "t": 21.95,
+   "line": "OttoThen come to Otto's Corner. I've got one.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "h",
+   "calls": 140,
+   "triangles": 1074735,
+   "shot": 5,
+   "t": 25.5,
+   "line": "OttoThen come to Otto's Corner. I've got one.▸",
+   "buyShown": false,
+   "bought": false
+  }
+ ],
+ "afterStop": {
+  "done": {
+   "id": "dream_market_reward",
+   "skipped": true
+  },
+  "buys": 0,
+  "playing": null,
+  "scale": [
+   -1,
+   1,
+   1
+  ],
+  "outfit": "kit",
+  "fangWear": "jacket",
+  "handbagHome": true,
+  "dialogs": 0
+ },
+ "log": [
+  "warning [.WebGL-0x3eec001a8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x3eec001a8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x3eec001a8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x3eec001a8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}

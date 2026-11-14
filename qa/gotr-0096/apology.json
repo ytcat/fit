@@ -1,0 +1,121 @@
+{
+ "id": "dream_apology",
+ "name": "apology",
+ "viewport": [
+  402,
+  690
+ ],
+ "before": {
+  "scale": [
+   -1,
+   1,
+   1
+  ],
+  "outfit": "kit"
+ },
+ "frames": [
+  {
+   "label": "a",
+   "calls": 125,
+   "triangles": 698088,
+   "shot": 0,
+   "t": 2.05,
+   "line": "▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "b",
+   "calls": 54,
+   "triangles": 608476,
+   "shot": 1,
+   "t": 5,
+   "line": "▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "c",
+   "calls": 45,
+   "triangles": 605668,
+   "shot": 2,
+   "t": 7.5,
+   "line": "BrunoWhat happened to my bag?▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "d",
+   "calls": 73,
+   "triangles": 633470,
+   "shot": 3,
+   "t": 10.85,
+   "line": "FighterThat was me. Last night. I'm sorry, Bruno.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "e",
+   "calls": 69,
+   "triangles": 631644,
+   "shot": 4,
+   "t": 15,
+   "line": "BrunoForty years that bag hung there. Forty.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "f",
+   "calls": 44,
+   "triangles": 600860,
+   "shot": 6,
+   "t": 21.1,
+   "line": "BrunoSnapped the chain, huh? Hm.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "g",
+   "calls": 119,
+   "triangles": 697940,
+   "shot": 7,
+   "t": 28.3,
+   "line": "FighterOn my way, Coach!▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "h",
+   "calls": 69,
+   "triangles": 611322,
+   "shot": 7,
+   "t": 33.5,
+   "line": "Bruno…Forty years.▸",
+   "buyShown": false,
+   "bought": false
+  }
+ ],
+ "afterStop": {
+  "done": {
+   "id": "dream_apology",
+   "skipped": true
+  },
+  "buys": 0,
+  "playing": null,
+  "scale": [
+   -1,
+   1,
+   1
+  ],
+  "outfit": "kit",
+  "fangWear": "jacket",
+  "handbagHome": true,
+  "dialogs": 0
+ },
+ "log": [
+  "warning [.WebGL-0x161c0156c800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x161c0156c800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x161c0156c800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x161c0156c800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}

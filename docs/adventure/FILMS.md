@@ -21,9 +21,9 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 | 3 | First fight vs Brick | 2 | Fight on the gym floor, Bruno referees | **Live** v1.64 (GOTR-0083) | `adventure/story/gym-fight.js` |
 | 4 | After the fight (`dream_after_brick`) | 2 | Bruno's deal: clean the gym, run errands, train for free — loss and win versions | **Live** v1.53 (torn-arms fix v1.56) | |
 | 5 | Bag break (`dream_bag_break`) | 4 | Night gym, one huge Cross, the chain snaps, the bag falls and rolls; "Bruno's going to kill me" | **Done on `agent/bag-break-b`** (GOTR-0087), not released: Jab-Cross, slowed big Cross, bag folds, top link snaps, swing up, falls on its end, bounce, tips over, rolls; lamp sways; replay from the step | `adventure/story/bag-break-core.js` (script, physics), `bag-break.js` (bag model, film); evidence `qa/gotr-0087/` |
-| 6 | Apology | 5 | Morning: Fighter apologises, Bruno sends him to the market (walk, Skip) | **Planned** — stand-in: portrait conversation | |
-| 7 | Market robbery | 6 | Fang (wolf, leather jacket, gold chain) snatches Mrs. Hazel's bag; street fight, bare hands; reward | **Planned** — stand-in: street bout with gloves | Codex: market set |
-| 8 | Otto's Corner | 7 | Buying the new heavy bag; carrying it back (walk, Skip) | **Planned** — stand-in: buy counter on the map | Codex: shop front |
+| 6 | Apology (`dream_apology`) | 5 | Morning gym, the old bag on the floor under the empty chain; the Fighter (street clothes) owns up, Bruno grumbles ("Forty years"), sends him to Market Row; he walks out (tap / Skip) | **Built** on branch agent/market-films (GOTR-0096), not released | `adventure/story/market-core.js`; plays at the step, then chains into the robbery film; evidence `qa/gotr-0096/apology.webp` |
+| 7 | Market robbery (`dream_market_robbery` -> street fight -> `dream_market_reward`) | 6 | Market Row by day: Fang snatches Mrs. Hazel's handbag, runs, the Fighter blocks him, Fang drops the bag and takes his jacket off; hand-off into the ringless street fight vs Fang (bare hands); after a win Mrs. Hazel gets her bag back and she and Otto hand over the reward (= heavy bag price); a loss keeps the existing lost beat and Retry | **Built** on branch agent/market-films (GOTR-0096), not released | Placeholder set `dream_market` (`market-sets.js`) until Codex's market set; evidence `qa/gotr-0096/robbery.webp`, `robbery-fight.webp` |
+| 8 | Otto's Corner (`dream_otto_shop`) | 7 | Shop front, then inside: Otto greets him, shows the new heavy bag; the film waits for the in-scene Buy button (the step's own purchase); he carries the bag out on his shoulder (tap / Skip; Skip before buying shows the old counter) | **Built** on branch agent/market-films (GOTR-0096), not released | Placeholder set `dream_shop` until Codex's shop; evidence `qa/gotr-0096/otto.webp` |
 | 9 | New bag | 8 | Bruno heard about the market; two-sided bag drill with Mack | **Planned** | |
 | 10 | Offer | 9 | Bruno proposes an unofficial fight | **Planned** — stand-in lines | |
 | 11 | The Docks | 10 | Arrival at night, illegal fight in a crowd circle, bare-knuckle vs Rourke | **Planned** — stand-in: Docks bout with gloves | Codex: warehouse set |
@@ -52,5 +52,5 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 2. Opening with Codex's assets (1) and first fight on the gym floor (3) — in work.
 3. Sunday Punch (F1) and knockout fall (F3).
 4. Corner break (F2).
-5. Apology (6) → Market robbery (7) → Otto's Corner (8), as Codex delivers the market and shop sets.
+5. Apology (6), Market robbery (7), Otto's Corner (8) — built on branch agent/market-films; swap the placeholder sets when Codex delivers the market and the shop.
 6. New bag (9), Offer (10), The Docks (11), Fight night (12).
