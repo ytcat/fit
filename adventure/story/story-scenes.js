@@ -51,6 +51,7 @@
   }
   function rigFor(role, e, used) {
     if (role === 'fighter') return e.coach;
+    if (!looks[role] && window.StoryCast?.ids?.includes(role)) return window.StoryCast.rig(role, e); // GOTR-0099: Coach Bruno in a skill game (his own clothes)
     const species = role === 'pip' ? 'rabbit' : e.coach.species === 'rabbit' ? 'lion' : 'rabbit', free = c => c && c !== e.coach && c.root && !inScene(c, e.scene) && !used.includes(c);
     if (!looks[role]) { const b = [e.arena?.padTrainers?.[species], species !== e.coach.species ? e.roster?.get?.(species) : null].find(free); if (b) return b; }
     const pool = cast[species] || (cast[species] = []); let c = pool.find(x => !used.includes(x));
@@ -310,11 +311,11 @@
     if (e.fightIQDemo) return fail('busy');
     const reduced = opts.reducedMotion ?? reducedMotion(), L = lang(), gw = game ? game.words[L] || game.words.en : null;
     const ui = overlay(game ? 'game' : 'scene');
-    const run = { id, closed: false, t: 0, ui, host: ui.host, edge: 0 };
+    const run = { id, closed: false, t: 0, ui, host: ui.host, edge: 0 }; if (game) ui.d.dataset.game = id;
     current = run;
     let set = null, scene = null, camera = null, borrowed = [], mitts = [], rigs = {}, sim = null, stageMove = null, oldFit = null, finished = false, blobs = [];
     let memo = {}, hard = !!opts.hard, acts = 0; const look = V(), extras = [], dressed = [];
-    const placeKind = C.placeOf(game || scene0), wear = C.outfitFor(placeKind); run.place = placeKind; run.wear = wear;
+    const placeKind = C.placeOf(game || scene0), wear = game?.wear || C.outfitFor(placeKind); run.place = placeKind; run.wear = wear; // a job in the gym (GOTR-0099) is street clothes
     const finish = (result = {}) => {
       if (run.closed) return; run.closed = true; if (current === run) current = null;
       try { cleanup(); } catch (x) { console.warn('story', x); }
@@ -325,6 +326,7 @@
     function cleanup() {
       if (e.fightIQDemo === run) e.fightIQDemo = null;
       for (const m of mitts) window.TrainingGear?.dispose(m); mitts = [];
+      try { game?.dispose?.({ scene, memo }); } catch (x) { console.warn('story', x); } // a game's own props (GOTR-0099)
       for (const m of extras) { scene?.remove(m); m.material?.dispose(); } if (extras.length) extras[0].geometry.dispose(); extras.length = 0;
       for (const c of dressed) { window.StoryCast?.outfit(c, 'kit'); window.DreamPose?.reset(c); } dressed.length = 0;
       for (const b of borrowed) giveBack(b); borrowed = [];
@@ -433,12 +435,21 @@
       if (fl.type === 'note') return; n.dataset.kind = good ? (fl.type === 'perfect' || fl.type === 'reflect' || fl.type === 'double' ? 'gold' : 'good') : 'bad'; ui.d.append(n); setTimeout(() => n.remove(), 700);
       if (!good && !reduced) { ui.d.classList.remove('shake'); void ui.d.offsetWidth; ui.d.classList.add('shake'); }
     }
+    /** One spoken line inside the tutorial or the result (portrait, name, words): never a box over the scene. */
+    function said(l) {
+      const p = el('p', 'story-say'); p.dataset.who = l.who; const bust = window.AdventureStory?.bust?.(l.who); if (bust) { bust.classList.add('story-face'); p.append(bust); }
+      const name = (window.AdventureStory?.who?.[l.who]?.name || {})[L] || ''; p.append(el('strong', 'story-name', name), el('span', 'story-text', l.text[L] || l.text.en)); p.dir = 'auto';
+      try { if (l.kind) window.AdventureStory?.mark?.(l.id || id, l.kind, 0); } catch { /* journal is optional */ }
+      return p;
+    }
     function buildGameUi() {
       const hud = el('div', 'story-hud'), goal = el('p', 'story-goal'), score = el('p', 'story-score'), help = el('div', 'story-tutorial'), prompt = el('div', 'story-prompt'), ring = el('span', 'story-ring'), pIcon = el('span', 'story-prompt-arrow'), pText = el('span', 'story-prompt-text'), bar = el('div', 'story-progress'), barFill = el('i'), quit = el('button', 'story-quit', '×'), again = el('button', 'story-quit story-retry', '↻');
       quit.type = again.type = 'button'; quit.setAttribute('aria-label', w().quit); quit.title = w().quit; quit.onclick = () => finish({ skipped: true, quit: true });
       again.setAttribute('aria-label', w().retry); again.title = w().retry; again.onclick = () => restart();
       pIcon.innerHTML = CHEVRON; prompt.append(ring, pIcon, pText); bar.append(barFill);
-      help.append(el('strong', 'story-tutorial-title', gw.title), el('p', '', gw.help), el('span', 'story-tutorial-count'));
+      help.append(el('strong', 'story-tutorial-title', gw.title), el('p', '', gw.help));
+      const intro = game.say?.('intro'); if (intro) help.append(said(intro)); // GOTR-0099: the Coach's one line before the job
+      help.append(el('span', 'story-tutorial-count'));
       // The game's own pad (fighter-pad.css): round D-pad on the left, punch buttons on the right.
       const pad = el('div', 'fighter-pad story-pad'), zone = el('div', 'fp-zone fp-left'), dpad = el('div', 'fp-dpad'), face = el('div', 'fp-face'), arrows = {}, keys = {};
       const bind = (b, k) => { const on = down => ev => { ev.preventDefault(); if (down) b.setPointerCapture?.(ev.pointerId); if (down === (b.dataset.pressed === 'true') && !(run.intro > 0)) return; press(k, down); }; b.addEventListener('pointerdown', on(true)); for (const n of ['pointerup', 'pointercancel', 'lostpointercapture']) b.addEventListener(n, on(false)); keys[k] = b; };
@@ -449,7 +460,7 @@
       dpad.append(face, el('span', 'fp-hub')); zone.append(dpad); pad.append(zone);
       if (game.pads.length) {
         const right = el('div', 'fp-zone fp-right'), arc = el('div', 'fp-arc');
-        for (const k of game.pads) { const b = el('button', 'fp-btn'); b.type = 'button'; b.dataset.pad = k; b.dataset.punch = k; const label = el('span', 'fp-label', w().punch[k]); label.dir = 'auto'; const key = el('span', 'fp-key', { straight: 'J', hook: 'K', uppercut: 'L' }[k]); b.append(label, key); arc.append(b); bind(b, k); }
+        for (const k of game.pads) { const b = el('button', 'fp-btn'); b.type = 'button'; b.dataset.pad = k; b.dataset.punch = k; const label = el('span', 'fp-label', game.padWords?.(L)?.[k] || w().punch[k]); if (game.padWords) b.setAttribute('aria-label', label.textContent); label.dir = 'auto'; const key = el('span', 'fp-key', { straight: 'J', hook: 'K', uppercut: 'L' }[k]); b.append(label, key); arc.append(b); bind(b, k); }
         right.append(arc); pad.append(right);
       }
       hud.append(goal, score, bar);
@@ -483,6 +494,8 @@
         } catch (x) { saved = { ok: false, error: x.message }; }
         window.dispatchEvent(new CustomEvent('adventure-mission-result', { detail: { missionId: res.missionId, value: res.value, result: saved, score: res.score, source: 'story-' + id } }));
       }
+      // GOTR-0099: a job pays a small wage for every finished shift with a star (game-domain.js 'job' action)
+      if (game.job && res.finished && res.stars > 0 && saved?.ok !== false) { const rg = window.ringfighterGame; try { const j = rg?.store?.gameAction?.({ type: 'job', jobId: game.job, stars: res.stars }); if (j?.ok) { res.pay = j.coins ?? j.result?.coins ?? 0; rg.apply?.(); } } catch (x) { console.warn('story', x); } }
       run.saved = saved; const pb = run.best = saveBest(id, res);
       const box = el('div', 'story-result'), medal = el('p', 'story-medal', res.stars ? `${stars(res.stars)}  ${w().medal[res.stars]}` : w().none), sc = el('p', 'story-result-score', String(res.score)), detail = el('p', 'story-result-detail', `${game.detail(res, gw)} · ${w().streak} ${res.streak}`);
       medal.dataset.medal = String(res.stars || 0);
@@ -491,6 +504,8 @@
       const again = el('button', 'story-btn', w().again), next = el('button', 'story-btn story-btn-main', w().next); again.type = next.type = 'button';
       again.onclick = () => restart(); next.onclick = () => finish({ skipped: false, mission: res, saved: run.saved, best: pb });
       box.append(medal, sc, bestLine, detail); if (pb.unlocked) box.append(el('p', 'story-result-unlock', w().hardNew));
+      if (res.pay) box.append(el('p', 'story-result-pay', (gw.pay || '+{n}').replace('{n}', res.pay)));
+      const end = game.say?.('end', res); if (end) box.append(said(end)); // the Coach's one-line reaction
       box.append(again); if (pb.gold && !hard) { const hb = el('button', 'story-btn story-btn-hard', w().hardGo); hb.type = 'button'; hb.onclick = () => restart(true); box.append(hb); }
       box.append(next); ui.d.append(box); ui.result = box; next.focus({ preventScroll: true });
     }

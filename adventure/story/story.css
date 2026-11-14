@@ -100,3 +100,13 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 .story-scene[data-hard=true] .story-score{color:#ff9a9f}
 @media (max-height:500px){.story-tutorial{top:14%}.story-result{top:8%}.story-result-score{font-size:36px}}
 @media (prefers-reduced-motion:reduce){.story-pop{animation-duration:.01s}.story-scene.shake .story-host,.story-prompt[data-now=true] .story-prompt-text,.story-pad .fp-btn[data-active=true],.story-pad [data-ghost=true]{animation:none}}
+/* GOTR-0099: a character's one line inside a skill game's tutorial or result (portrait, name, words; no box) and a job's pay */
+.story-say{display:flex;align-items:center;justify-content:center;gap:9px;margin:10px auto 0!important;max-width:360px;font-size:14px;line-height:1.3;color:#fff;text-align:start}
+.story-say .story-face{width:36px;height:36px}
+.story-say .story-name{display:inline;margin-inline-end:6px;font-size:11px}
+.story-say .story-text{font-weight:600}
+.story-result-pay{font-size:17px;font-weight:800;color:var(--gr-gold,#f4c152)}
+/* the mop game frames the Fighter in the middle of the picture: its tutorial and result read above his head */
+.story-scene[data-game=clean_gym] .story-tutorial,.story-scene[data-game=clean_gym] .story-result{top:max(60px,9%)}
+.story-scene[data-game=clean_gym] .story-tutorial p{margin:4px 0}
+.story-scene[data-game=clean_gym] .story-tutorial-count{font-size:30px}

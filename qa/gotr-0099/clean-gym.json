@@ -1,0 +1,367 @@
+{
+ "name": "clean-gym",
+ "lang": "en",
+ "viewport": [
+  402,
+  690
+ ],
+ "frames": [
+  {
+   "label": "intro",
+   "t": 0.83,
+   "phase": "free",
+   "lane": 0,
+   "spot": 2,
+   "cleaned": 0,
+   "stains": 0,
+   "knocks": 0,
+   "dodges": 0,
+   "streak": 0,
+   "mult": 1,
+   "score": 0,
+   "bag": null,
+   "outfit": "street",
+   "gloves": false,
+   "scale": [
+    -1,
+    1,
+    1
+   ],
+   "stats": {
+    "calls": 168,
+    "triangles": 695022,
+    "set": {
+     "meshes": 42,
+     "triangles": 19690
+    },
+    "edge": 0.99,
+    "worstEdge": 0.99
+   },
+   "hud": {
+    "goal": [
+     12,
+     8,
+     306,
+     25
+    ],
+    "prompt": null
+   }
+  },
+  {
+   "label": "lanes",
+   "t": 1.6,
+   "phase": "mop",
+   "lane": 0,
+   "spot": 1,
+   "cleaned": 0,
+   "stains": 0,
+   "knocks": 0,
+   "dodges": 0,
+   "streak": 0,
+   "mult": 1,
+   "score": 0,
+   "bag": null,
+   "outfit": "street",
+   "gloves": false,
+   "scale": [
+    -1,
+    1,
+    1
+   ],
+   "stats": {
+    "calls": 168,
+    "triangles": 694158,
+    "set": {
+     "meshes": 42,
+     "triangles": 19690
+    },
+    "edge": 0.99,
+    "worstEdge": 0.99
+   },
+   "hud": {
+    "goal": [
+     12,
+     8,
+     306,
+     25
+    ],
+    "prompt": [
+     168,
+     131,
+     234,
+     170
+    ]
+   }
+  },
+  {
+   "label": "mopping",
+   "t": 2.25,
+   "phase": "mop",
+   "lane": 0,
+   "spot": 1,
+   "cleaned": 0,
+   "stains": 0,
+   "knocks": 0,
+   "dodges": 0,
+   "streak": 0,
+   "mult": 1,
+   "score": 0,
+   "bag": null,
+   "outfit": "street",
+   "gloves": false,
+   "scale": [
+    -1,
+    1,
+    1
+   ],
+   "stats": {
+    "calls": 170,
+    "triangles": 694162,
+    "set": {
+     "meshes": 42,
+     "triangles": 19690
+    },
+    "edge": 0.99,
+    "worstEdge": 0.99
+   },
+   "hud": {
+    "goal": [
+     12,
+     8,
+     306,
+     25
+    ],
+    "prompt": [
+     168,
+     131,
+     234,
+     170
+    ]
+   }
+  },
+  {
+   "label": "duck",
+   "t": 8.73,
+   "phase": "duck",
+   "lane": 1,
+   "spot": 1,
+   "cleaned": 4,
+   "stains": 0,
+   "knocks": 0,
+   "dodges": 1,
+   "streak": 5,
+   "mult": 2,
+   "score": 720,
+   "bag": {
+    "lane": 1,
+    "phase": "swing",
+    "x": 0.51,
+    "bottom": 2.63
+   },
+   "outfit": "street",
+   "gloves": false,
+   "scale": [
+    -1,
+    1,
+    1
+   ],
+   "stats": {
+    "calls": 171,
+    "triangles": 695986,
+    "set": {
+     "meshes": 42,
+     "triangles": 19690
+    },
+    "edge": 0.99,
+    "worstEdge": 0.99
+   },
+   "hud": {
+    "goal": [
+     12,
+     8,
+     306,
+     25
+    ],
+    "prompt": [
+     193,
+     131,
+     252,
+     170
+    ]
+   }
+  },
+  {
+   "label": "knocked",
+   "t": 19.49,
+   "phase": "stunned",
+   "lane": 1,
+   "spot": 0,
+   "cleaned": 9,
+   "stains": 0,
+   "knocks": 1,
+   "dodges": 1,
+   "streak": 0,
+   "mult": 1,
+   "score": 2620,
+   "bag": {
+    "lane": 1,
+    "phase": "swing",
+    "x": 0.5,
+    "bottom": 2.62
+   },
+   "outfit": "street",
+   "gloves": false,
+   "scale": [
+    -1,
+    1,
+    1
+   ],
+   "stats": {
+    "calls": 172,
+    "triangles": 694166,
+    "set": {
+     "meshes": 42,
+     "triangles": 19690
+    },
+    "edge": 0.99,
+    "worstEdge": 0.99
+   },
+   "hud": {
+    "goal": [
+     12,
+     8,
+     306,
+     25
+    ],
+    "prompt": [
+     162,
+     131,
+     240,
+     170
+    ]
+   }
+  },
+  {
+   "label": "combo",
+   "t": 28.77,
+   "phase": "free",
+   "lane": 0,
+   "spot": 1,
+   "cleaned": 15,
+   "stains": 2,
+   "knocks": 1,
+   "dodges": 1,
+   "streak": 5,
+   "mult": 2,
+   "score": 3720,
+   "bag": {
+    "lane": 0,
+    "phase": "warn",
+    "x": -1.5,
+    "bottom": 1.75
+   },
+   "outfit": "street",
+   "gloves": false,
+   "scale": [
+    -1,
+    1,
+    1
+   ],
+   "stats": {
+    "calls": 171,
+    "triangles": 694070,
+    "set": {
+     "meshes": 42,
+     "triangles": 19690
+    },
+    "edge": 0.99,
+    "worstEdge": 0.99
+   },
+   "hud": {
+    "goal": [
+     12,
+     8,
+     306,
+     42
+    ],
+    "prompt": [
+     148,
+     131,
+     254,
+     170
+    ]
+   }
+  },
+  {
+   "label": "result",
+   "t": 50.01,
+   "phase": "mop",
+   "lane": 0,
+   "spot": 0,
+   "cleaned": 25,
+   "stains": 5,
+   "knocks": 1,
+   "dodges": 3,
+   "streak": 4,
+   "mult": 2,
+   "score": 5800,
+   "bag": null,
+   "outfit": "street",
+   "gloves": false,
+   "scale": [
+    -1,
+    1,
+    1
+   ],
+   "stats": {
+    "calls": 172,
+    "triangles": 695030,
+    "set": {
+     "meshes": 42,
+     "triangles": 19690
+    },
+    "edge": 0.99,
+    "worstEdge": 0.99
+   },
+   "hud": {
+    "goal": [
+     12,
+     8,
+     306,
+     25
+    ],
+    "prompt": null
+   }
+  },
+  {
+   "label": "bruno",
+   "playing": null,
+   "outfit": "kit",
+   "scale": [
+    -1,
+    1,
+    1
+   ],
+   "beat": null
+  }
+ ],
+ "result": {
+  "value": 58,
+  "stars": 2,
+  "score": 5800,
+  "cleaned": 25,
+  "stains": 5,
+  "knocks": 1,
+  "dodges": 3,
+  "pay": 10,
+  "saved": true,
+  "coins": 10,
+  "say": "Coach BrunoGood. You ducked that bag like a boxer."
+ },
+ "log": [
+  "warning [.WebGL-0x3eb401930c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x3eb401930c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x3eb401930c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x3eb401930c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}

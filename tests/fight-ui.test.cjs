@@ -37,4 +37,13 @@ console.log('PASS GOTR-0075 judges cards only when the bout goes to the cards');
  const free=btns(mk(false)),story=btns(mk(true));assert.equal(free.length,2,'free fight keeps details and New fight');assert.equal(story.length,1,'story fight: details only');assert.ok(!story.includes(ui.words().new));
  const r=new ctx.BoxingFight({rounds:2,restSeconds:20});r.phase='rest';r.phaseTime=0;const rv={match:r};e.arena.fightView=rv;ui.render(rv);const find=(n,id)=>n.id===id?n:n.children.map(c=>find(c,id)).find(Boolean),hud=find(get('stageContainer'),'fightHud');assert.ok(hud,'hud present');assert.ok(/next round/i.test(text(hud)),'break HUD line says next round: '+text(hud));}
 console.log('PASS GOTR-0095 story fight has no New fight; break line in the HUD');
+// GOTR-0099: a bout on the gym floor (the first Brick fight, GOTR-0083 place 'gym') is a story fight even before the story's
+// flag is set: details only. The winner line and its "Final result" word are two lines (stage-hud.css), never one row.
+{app.setLanguage('en');const k=new ctx.BoxingFight({rounds:1});k.phase='round';k.finish('lion','KO');for(let i=0;i<30&&k.phase!=='ceremony';i++)k.advance(.5);
+ const v={match:k,gymFight:{set:null}};e.arena.fightView=v;ctx.trainingControls.chooseTarget('fight');e.arena.fightView=v;const p=footer.children.find(n=>n.id==='fightResults');ui.render(v);
+ const a=p.children.find(n=>n.className==='fight-result-actions').children.map(b=>b.textContent);assert.equal(a.length,1,'gym-floor fight: details only');assert.ok(!a.includes(ui.words().new),'no New fight on the gym floor');
+ const css=fs.readFileSync('stage-hud.css','utf8'),rule=css.split('\n').find(l=>l.includes('.bout-announcement[data-kind=winner]')&&l.includes('flex-direction:column'));
+ assert.ok(rule,'the winner line stacks the name over the Final result word');assert.ok(css.indexOf(rule)>css.indexOf('GOTR-0095: the full winner name'),'the stacking rule comes after the GOTR-0095 one-row rules');
+ const grid=/#fightResults \.fight-card-grid\{position:absolute;top:calc\(var\(--hud-status-top\) \+ (\d+)px\)/.exec(css);assert.ok(grid&&+grid[1]>=62,'the judges cards start below the two-line winner block');}
+console.log('PASS GOTR-0099 gym-floor fight hides New fight; winner and Final result on two lines');
 console.log('PASS fight setup, full/short presets, locked live speed, staged cards before winner, round detail, translations and clean return to practice');

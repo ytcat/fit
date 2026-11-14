@@ -80,7 +80,13 @@
       outro_won: [S('bruno', 'You beat Brick on day one. Huh. Deal: you clean, I train you.', 'ניצחת את בריק ביום הראשון. מעניין. עסקה: אתה מנקה, אני מאמן.', 'Побил Брика в первый же день? Ну надо же. Уговор: убираешь, я тренирую.'), S('fighter', 'Deal! When do we start?', 'סגרנו! מתי מתחילים?', 'Договорились! Когда начинаем?')],
       reply: [S('bruno', "You already did. Mop's over there.", 'כבר התחלת. המגב שם.', 'Уже начали. Швабра вон там.')] },
     clean_gym: { intro: [S('bruno', 'Mop in rhythm, light feet. Same as the ring.', 'מגב בקצב, רגליים קלות. בדיוק כמו בזירה.', 'Шваброй в ритм, ноги лёгкие. Как на ринге.')],
-      outro: [S('bruno', 'Floor shines. Here. You earned it.', 'הרצפה מבריקה. קח. הרווחת.', 'Пол блестит. Держи. Заработал.')] },
+      outro: [S('bruno', 'Floor shines. Here. You earned it.', 'הרצפה מבריקה. קח. הרווחת.', 'Пол блестит. Держи. Заработал.')],
+      // GOTR-0099: said inside the mop game (adventure/story/mop-game.js): job = before the shift, job_<stars> = his reaction after it
+      job: [S('bruno', "Floor's yours, kid. Mop on the beat, mind the bags.", 'הרצפה שלך, ילד. מגב בקצב, ותיזהר מהשקים.', 'Пол твой, малой. Шваброй в такт и следи за мешками.')],
+      job_0: [S('bruno', 'Call that clean? Again.', 'זה נקרא נקי? עוד פעם.', 'Это, по-твоему, чисто? Ещё раз.')],
+      job_1: [S('bruno', 'Not bad. Quicker feet next time.', 'לא רע. בפעם הבאה רגליים יותר מהירות.', 'Неплохо. В следующий раз ноги побыстрее.')],
+      job_2: [S('bruno', 'Good. You ducked that bag like a boxer.', 'יפה. התכופפת מתחת לשק כמו מתאגרף.', 'Хорошо. Под мешок нырнул как боксёр.')],
+      job_3: [S('bruno', 'Floor shines. Feet like that win fights.', 'הרצפה מבריקה. עם רגליים כאלה מנצחים קרבות.', 'Пол блестит. С такими ногами бои выигрывают.')] },
     night_shadow: { intro: [S('fighter', "Brick put me down today. Tonight I find out why.", 'בריק הפיל אותי היום. הלילה אני מבין למה.', 'Сегодня Брик меня уронил. Ночью разберусь почему.'), S('fighter', 'Just me and the shadow. Jab, Cross, move.', 'רק אני והצל. Jab, Cross, לזוז.', 'Только я и тень. Jab, Cross, двигаемся.')],
       intro_won: [S('fighter', 'One lucky win means nothing. Tonight I work.', 'ניצחון אחד במזל זה כלום. הלילה עובדים.', 'Одна удачная победа — это ничего. Ночью работаю.'), S('fighter', 'Just me and the shadow. Jab, Cross, move.', 'רק אני והצל. Jab, Cross, לזוז.', 'Только я и тень. Jab, Cross, двигаемся.')],
       outro: [S('fighter', 'Again. Faster.', 'שוב. יותר מהר.', 'Ещё. Быстрее.')] },
@@ -161,6 +167,8 @@
     for (const id of [...order, ...legacy]) for (const kind of Object.keys(lines[id] || {})) (lines[id]?.[kind] || []).forEach((l, i) => { if (seen.includes(id + '.' + kind + '.' + i)) out.push({ id, kind, who: l.who, name: who[l.who].name[lang()], text: l.text[lang()] }); });
     return out;
   }
-  const api = { pick, legacy, who, beats, order, beatOf, lines, show, stop, journal, bust, seen: seenSet, reset: () => { try { localStorage.removeItem(KEY); } catch { /* optional */ } } };
+  // A line said somewhere else (a skill game's own screen) goes into the journal too.
+  const mark = (id, kind, i = 0) => markSeen(id + '.' + kind + '.' + i);
+  const api = { pick, legacy, who, beats, order, beatOf, lines, show, stop, journal, bust, mark, seen: seenSet, reset: () => { try { localStorage.removeItem(KEY); } catch { /* optional */ } } };
   if (typeof module !== 'undefined') module.exports = api; else window.AdventureStory = api;
 })();

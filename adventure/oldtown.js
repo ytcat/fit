@@ -20,7 +20,7 @@
     const l = lang(), jab = term('Jab'), cross = term('Cross'), roll = term('Roll'), hook = term('Hook'), guard = term('Guard'), slip = term('Slip'), shadow = term('Shadowboxing');
     const t = {
       // GOTR-0078 "The Dream"
-      clean_gym: L(`Mop lanes: ${n} quick steps in 30 seconds`, `מסלולי סמרטוט: ${n} צעדים מהירים ב-30 שניות`, `Дорожки со шваброй: ${n} быстрых шагов за 30 секунд`),
+      clean_gym: L(`Mop lanes: ${n} marks in a 50-second shift, duck Bruno's bags`, `מסלולי מגב: ${n} נקודות במשמרת של 50 שניות, להתכופף מהשקים של ברונו`, `Дорожки со шваброй: ${n} очков за 50-секундную смену, ныряй под мешки Бруно`),
       night_shadow: L(`${n} punches in 45 seconds of ${shadow}`, `${n} מכות ב-45 שניות של ${shadow}`, `${n} ударов за 45 секунд ${shadow}`),
       night_bag: L(`Reach the power mark ${n} times`, `הגיעו לסימן העוצמה ${n} פעמים`, `Достигните отметки силы ${n} раз`),
       bag_drill: L(`${n} hits on the new bag in 40 seconds`, `${n} פגיעות בשק החדש ב-40 שניות`, `${n} ударов по новому мешку за 40 секунд`),
@@ -63,7 +63,7 @@
     first_brick: { kind: 'story_fight', place: 'gym', brick: true, any: true, after: 'dream_after_brick', rounds: 1, roundSeconds: 60, restSeconds: 0, opponent: L('Brick', 'בריק', 'Брик'),
       // Much stronger than the Fighter on day one (a regular partner is 0.85-1.15 power/tempo): a loss is expected, a win possible.
       foe: { power: 1.4, tempo: 1.18, skill: .1 } },
-    clean_gym: { kind: 'training', mode: 'heavy', duration: 30, steps: true },
+    clean_gym: { kind: 'scene', scene: 'clean_gym' }, // GOTR-0099 side job A: the mop-lanes skill game in Bruno's Gym (adventure/story/mop-game.js)
     night_shadow: { kind: 'training', mode: 'none', duration: 45, frame: (r, f) => { if (playerOn()) r.value += (f.swings || []).filter(x => x.actor === 'lion').length; } },
     night_bag: { kind: 'training', mode: 'heavy', duration: 60, after: 'dream_bag_break', imp: (r, h) => { if (powerHit(h)) r.value++; } },
     dream_apology: { kind: 'film', scene: 'dream_apology' }, // GOTR-0096: the morning in the gym (market-core.js); chains into the market
@@ -439,7 +439,7 @@
   function sceneDone(id, res) {
     const g = rg()?.store?.game(), got = res?.mission?.stars ?? res?.saved?.stars;
     if (res?.skipped && got == null && starsOf(g, id) === snaps[id]?.stars) { openMap(CH[chapterOfId(id)]?.pin); return; }
-    openMap(CH[chapterOfId(id)]?.pin, () => afterBeat(id, { stars: got || 0 }));
+    openMap(CH[chapterOfId(id)]?.pin, () => afterBeat(id, { stars: got || 0, coins: res?.mission?.pay || 0 }));
   }
   // A training step can end with a film (GOTR-0087: the old bag breaks) the first time it is finished; Skip goes straight on.
   function afterRun(id, at) {
@@ -464,6 +464,7 @@
       lines = [{ who: coach, text: T(SF().react[coach][SF().react3(got)]) }];
       const own = got > 0 ? said(id, 'outro', fb)[0] : s.boss ? said(id, 'lost')[0] : null; if (own && own.who !== coach) lines.push(own); else if (own) lines[0] = { who: own.who, text: `${lines[0].text} ${own.text}` };
       info = [{ text: s.boss ? (got ? w.resultBoss : w.resultLost) : got ? starsText(best) + (best > snap.stars ? '  ' + fill(w.newStars, { n: best - snap.stars }) : '') : w.noStar, cls: 'sf-beat-result' }];
+      if (at.coins) info.push({ text: fill(w.wage || w.paid, { n: at.coins }), cls: 'sf-beat-up' }); // a job's wage (GOTR-0099)
     }
     const lvl = A().level(g); if (lvl > snap.level) info.push({ text: fill(w.levelUp, { l: lvl }), cls: 'sf-beat-up' });
     const next = SF().nextAfter(g, id);

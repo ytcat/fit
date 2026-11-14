@@ -117,7 +117,7 @@ for (const m of A.missions.filter(x => x.chapter <= 2)) for (const lang of ['en'
 {
   const SF = require('../adventure/story-flow.js');
   const kinds = Object.fromEntries(SF.all(1).map(s => [s.id, s.boss ? 'boss' : D[s.id].kind]));
-  assert.deepEqual(kinds, { dream_arrival: 'film', dream_gym_talk: 'film', first_brick: 'story_fight', clean_gym: 'training', night_shadow: 'training', night_bag: 'training', dream_apology: 'film', market_robber: 'story_fight', buy_heavy_bag: 'buy', bag_drill: 'training', fight_prep: 'training', docks_fight: 'story_fight', advanced_training: 'lesson', brick: 'boss' });
+  assert.deepEqual(kinds, { dream_arrival: 'film', dream_gym_talk: 'film', first_brick: 'story_fight', clean_gym: 'scene', night_shadow: 'training', night_bag: 'training', dream_apology: 'film', market_robber: 'story_fight', buy_heavy_bag: 'buy', bag_drill: 'training', fight_prep: 'training', docks_fight: 'story_fight', advanced_training: 'lesson', brick: 'boss' });
   assert.equal(D.dream_arrival.scene, 'dream_opening'); assert.equal(D.dream_gym_talk.scene, 'dream_gym_talk'); assert.equal(D.first_brick.after, 'dream_after_brick');
   assert.equal(D.first_brick.any, true, 'a loss vs Brick advances'); assert.ok(!D.market_robber.any && !D.docks_fight.any, 'the street fights must be won');
   // Brick on day one: clearly stronger than any regular partner (power/tempo 0.85-1.15 before the multiplier) and than the rematch boss.
