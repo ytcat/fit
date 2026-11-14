@@ -11,13 +11,16 @@ const URL = process.env.APP_URL || 'http://127.0.0.1:8731/', OUT = __dirname;
   const b = await chromium.launch({ args: ['--no-sandbox', '--enable-unsafe-swiftshader'] });
   const p = await b.newPage({ viewport: { width: 402, height: 690 } }), log = [];
   p.on('pageerror', e => log.push('PAGEERROR ' + e.message)); p.on('console', m => { if (['error', 'warning'].includes(m.type())) log.push(m.type() + ' ' + m.text().slice(0, 240)); });
-  await p.addInitScript(() => { try { localStorage.setItem('gotr.adv.nointro', '1'); } catch { /* private mode */ } });
+  await p.addInitScript(l => { try { if (!sessionStorage.getItem('qa')) { localStorage.clear(); sessionStorage.setItem('qa', '1'); } localStorage.setItem('shadowbox-language', l); localStorage.setItem('gotr.adv.nointro', '1'); } catch { /* private mode */ } }, lang);
   await p.goto(URL, { timeout: 300000 });
+  // a fresh player (the save needs one): the game's own welcome dialog
+  await p.waitForFunction(() => document.querySelector('dialog.career-welcome[open]'), null, { timeout: 300000 });
+  await p.evaluate(() => { const d = document.querySelector('dialog.career-welcome[open]'); d.querySelector('input').value = 'Mop QA'; d.querySelector('button[type=submit]').click(); });
   await p.waitForFunction(() => window.ringfighterGame && app.engine.coach?.anatomy && window.AdventureOldTown && window.StoryCast && window.MopGame && StoryScenes.games.clean_gym, null, { timeout: 300000 });
   await p.evaluate(l => {
-    document.querySelectorAll('dialog[open]').forEach(d => d.close()); app.setLanguage(l);
-    const rg = window.ringfighterGame; window.__ctx = { store: rg.store, startTraining: rg.startTraining, startFight: rg.startFight, change: a => { const r = rg.store.gameAction(a); if (r.ok) rg.apply?.(); return r.ok; } };
-    window.__coins0 = rg.store.current?.()?.game ? null : null;
+    window.StoryScenes?.stop?.(); app.setLanguage(l);
+    const rg = window.ringfighterGame; rg.close?.(); window.__ctx = { store: rg.store, startTraining: rg.startTraining, startFight: rg.startFight, change: a => { const r = rg.store.gameAction(a); if (r.ok) rg.apply?.(); return r.ok; } };
+    window.__coins0 = GameDomain.wallet(rg.store.current().game).coins;
     AdventureOldTown.launch(window.__ctx, 'clean_gym');
     // autopilot on the rules: mode 'play' (clean, dodge), 'stay' (stand in the bag's lane, no defence), 'duck' (duck the bag), 'idle'
     window.__auto = (secs, mode = 'play', o = {}) => {
@@ -25,6 +28,8 @@ const URL = process.env.APP_URL || 'http://127.0.0.1:8731/', OUT = __dirname;
       while (left > 0 && !g.done) {
         g.step(1 / 120); left -= 1 / 120; if (g.t < next) continue; const v = g.view();
         if (v.phase === 'stunned' || v.phase === 'move' || v.phase === 'duck') continue;
+        if (mode === 'stay' && o.lane != null && v.f.lane !== o.lane) { g.key('up', true); continue; }
+        if (mode === 'stay' && o.spot != null && v.f.spot !== o.spot) { g.key(v.f.spot > o.spot ? 'left' : 'right', true); continue; }
         if (v.bag && v.bag.lane === v.body.lane && !v.bag.hit) {
           if (mode === 'duck' || mode === 'play') { if (v.bag.phase === 'swing' && Math.abs(v.bag.x - v.body.x) < .95 && v.bag.bottom < 2.05) { g.key('down', true); next = g.t + .1; continue; } }
           if (mode === 'stay' || mode === 'duck') continue;
@@ -41,7 +46,7 @@ const URL = process.env.APP_URL || 'http://127.0.0.1:8731/', OUT = __dirname;
   }, lang);
   await p.waitForFunction(() => StoryScenes.debug?.sim && app.engine.fightIQDemo === StoryScenes.debug, null, { timeout: 300000 });
   const frames = [], files = [];
-  const draw = async () => p.evaluate(async () => { const run = StoryScenes.debug; for (let i = 0; i < 3; i++) { run.frame(1 / 60); await new Promise(r => requestAnimationFrame(r)); } });
+  const draw = async () => p.evaluate(async () => { const run = StoryScenes.debug; run.frame(1 / 60); await new Promise(r => requestAnimationFrame(r)); });
   const state = () => p.evaluate(() => {
     const run = StoryScenes.debug, v = run?.sim?.view(), c = app.engine.coach, box = n => { const q = n?.getBoundingClientRect?.(); return q && q.width ? [q.left, q.top, q.right, q.bottom].map(x => Math.round(x)) : null; };
     return v ? { t: +v.t.toFixed(2), phase: v.phase, lane: v.f.lane, spot: v.f.spot, cleaned: v.cleaned, stains: v.stains, knocks: v.knocks, dodges: v.dodges, streak: v.streak, mult: v.mult, score: v.score, bag: v.bag ? { lane: v.bag.lane, phase: v.bag.phase, x: +v.bag.x.toFixed(2), bottom: +v.bag.bottom.toFixed(2) } : null, outfit: StoryCast.outfitOf(c), gloves: !!(c.gloveMeshes?.L?.visible || c.gloveMeshes?.R?.visible), scale: c.root.scale.toArray(), stats: StoryScenes.stats(), hud: { goal: box(document.querySelector('.story-goal')), prompt: box(document.querySelector('.story-prompt-text')) } } : { scene: StoryScenes.playing };
@@ -58,7 +63,7 @@ const URL = process.env.APP_URL || 'http://127.0.0.1:8731/', OUT = __dirname;
   await p.evaluate(() => { const g = StoryScenes.debug.sim; for (let i = 0; i < 600 && !(g.view().on != null && g.view().strokeK > .8); i++) window.__auto(1 / 120, 'play'); });
   await shot('mopping');
   // 4 slip / duck under the bag: autopilot until Bruno shoves, stay in that lane and duck as it comes
-  await p.evaluate(() => { const g = StoryScenes.debug.sim; for (let i = 0; i < 3000 && !(g.bag && g.bag.phase === 'warn'); i++) window.__auto(1 / 120, 'play'); const lane = g.bag.lane; window.__auto(.05, 'stay', { lane, spot: 1 }); for (let i = 0; i < 600 && !(g.view().ducking && g.bag && Math.abs(g.view().bag.x - g.view().body.x) < .35); i++) window.__auto(1 / 120, 'duck'); });
+  await p.evaluate(() => { const g = StoryScenes.debug.sim; for (let i = 0; i < 3000 && !(g.bag && g.bag.phase === 'warn'); i++) window.__auto(1 / 120, 'play'); const lane = g.bag.lane; window.__auto(.05, 'stay', { lane, spot: 1 }); for (let i = 0; i < 600 && !(g.view().ducking && g.bag && g.bag.credited); i++) window.__auto(1 / 120, 'duck'); });
   await shot('duck');
   // 5 knocked: the next shove, stand in its lane without defence
   await p.evaluate(() => { const g = StoryScenes.debug.sim; for (let i = 0; i < 4000 && !(g.bag && g.bag.phase === 'warn'); i++) window.__auto(1 / 120, 'play'); const lane = g.bag.lane; for (let i = 0; i < 900 && !g.stunned(); i++) window.__auto(1 / 120, 'stay', { lane, spot: 0 }); window.__auto(.18, 'idle'); });
@@ -70,7 +75,7 @@ const URL = process.env.APP_URL || 'http://127.0.0.1:8731/', OUT = __dirname;
   await p.evaluate(() => { window.__auto(60, 'play'); });
   await p.waitForFunction(() => document.querySelector('.story-result'), null, { timeout: 120000 });
   await shot('result');
-  const res = await p.evaluate(() => { const r = StoryScenes.debug.result; return { value: r.value, stars: r.stars, score: r.score, cleaned: r.cleaned, pay: r.pay, saved: StoryScenes.debug.saved?.ok, say: document.querySelector('.story-result .story-say')?.textContent }; });
+  const res = await p.evaluate(() => { const r = StoryScenes.debug.result; return { value: r.value, stars: r.stars, score: r.score, cleaned: r.cleaned, stains: r.stains, knocks: r.knocks, dodges: r.dodges, pay: r.pay, saved: StoryScenes.debug.saved?.ok, coins: GameDomain.wallet(ringfighterGame.store.current().game).coins - window.__coins0, say: document.querySelector('.story-result .story-say')?.textContent }; });
   console.log('result', JSON.stringify(res));
   // 8 Bruno's line: Continue -> the step's after-beat on the map
   await p.evaluate(() => document.querySelector('.story-result .story-btn-main').click());

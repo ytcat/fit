@@ -62,6 +62,9 @@ const quiet = o => ({ ...R, ...o, bag: { ...R.bag, first: 999 } }); // no bag un
   assert.deepEqual(A.missions.find(m => m.id === 'clean_gym').thresholds, [25, 50, 75]);
   assert.deepEqual([A.starsFor('clean_gym', 24), A.starsFor('clean_gym', 25), A.starsFor('clean_gym', 50), A.starsFor('clean_gym', 75)], [0, 1, 2, 3]);
   assert.deepEqual([...M.PAY], [...D.jobs.clean_gym]); assert.deepEqual([1, 2, 3].map(M.pay), [6, 10, 15]); assert.ok(M.pay(3) < 20, 'a job pays little');
+  // an old save (stand-in: steps 8/14/20) keeps its stars on the new scale; a record that matches neither scale is still refused
+  const old = A.fresh(); old.missions.clean_gym = { stars: 2, value: 15, plays: 3 }; A.validate(old); assert.deepEqual(old.missions.clean_gym, { stars: 2, value: 50, plays: 3 });
+  const bad = A.fresh(); bad.missions.clean_gym = { stars: 3, value: 15, plays: 1 }; assert.throws(() => A.validate(bad));
   const h = new M.MopTrial(undefined, { hard: true }); assert.ok(h.nextBag < new M.MopTrial().nextBag);
 }
 // ---- the wage in the save: only after a recorded shift, coins by its stars, repeatable, forged entries rejected

@@ -15,7 +15,7 @@
   const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t, smooth = t => { t = clamp(t); return t * t * (3 - 2 * t); };
   const L = (en, he, ru) => ({ en, he, ru });
-  const Core = () => window.MopCore, Pose = () => window.DreamPose;
+  const Core = () => window.MopCore, Pose = () => window.DreamPose, WET = '#34495c';
   const sound = (name, level, rate = 1, cutoff = 0) => { try { window.app?.audio?.playSample?.(name, level, rate, 0, cutoff); } catch { /* no sound */ } };
   let squeakBuf = null;
   /** A rubber squeak (no existing sample fits): 110 ms, pitch gliding 1.4 -> 2.3 kHz with a little roughness, soft attack. */
@@ -47,11 +47,13 @@
     }
     // the streaks: a glossy wet film (alpha from a soft blot) and a dull stain for the ones that set
     const blot = keep(canvasTex((c, w, h) => { const gr = c.createRadialGradient(w / 2, h / 2, 2, w / 2, h / 2, w / 2); gr.addColorStop(0, '#fff'); gr.addColorStop(.62, '#e8e8e8'); gr.addColorStop(.86, '#555'); gr.addColorStop(1, '#000'); c.fillStyle = gr; c.fillRect(0, 0, w, h); c.globalCompositeOperation = 'multiply'; for (let i = 0; i < 9; i++) { c.fillStyle = 'rgba(0,0,0,.5)'; c.beginPath(); c.arc(w / 2 + Math.cos(i * 2.4) * w * .43, h / 2 + Math.sin(i * 2.4) * h * .43, w * (.08 + (i % 3) * .03), 0, 7); c.fill(); } }));
+    const glint = keep(canvasTex((c, w, h) => { c.fillStyle = '#000'; c.fillRect(0, 0, w, h); c.fillStyle = '#fff'; c.filter = 'blur(3px)'; c.beginPath(); c.ellipse(w * .42, h * .4, w * .2, h * .06, -.4, 0, 7); c.fill(); c.beginPath(); c.ellipse(w * .62, h * .6, w * .1, h * .04, -.4, 0, 7); c.fill(); }));
     const pool = { wet: [], ring: null };
     const ringGeo = keep(new THREE.RingGeometry(.93, 1, 48)), ringMat = keep(new THREE.MeshBasicMaterial({ color: '#f4c152', transparent: true, opacity: .9, depthWrite: false, toneMapped: false }));
     pool.ring = mesh(ringGeo, ringMat); pool.ring.rotation.x = -Math.PI / 2; pool.ring.renderOrder = 3; pool.ring.visible = false;
     const wetGeo = keep(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2));
-    pool.make = () => { const mat = keep(new THREE.MeshStandardMaterial({ color: '#8fb0c6', roughness: .04, metalness: .15, transparent: true, opacity: .75, alphaMap: blot, depthWrite: false })); const m = mesh(wetGeo, mat); m.renderOrder = 2; return m; };
+    pool.make = () => { const mat = keep(new THREE.MeshStandardMaterial({ color: WET, roughness: .05, metalness: .35, transparent: true, opacity: .8, alphaMap: blot, depthWrite: false })); const m = mesh(wetGeo, mat); m.renderOrder = 2;
+      const sheen = new THREE.Mesh(wetGeo, keep(new THREE.MeshBasicMaterial({ color: '#cfe6f5', transparent: true, opacity: .35, alphaMap: glint, depthWrite: false, toneMapped: false }))); sheen.position.y = .002; sheen.renderOrder = 3; m.add(sheen); m.userData.sheen = sheen; return m; };
     // the bags, hung high over the lane ends ("so you can mop under them"): chain to a ceiling plate, leather, caps, a seam band
     const leather = std('#8f2f22', { roughness: .55 }), cap = std('#1d1f24', { roughness: .5 }), band = std('#e9e4d6', { roughness: .6 }), metal = std('#7d848e', { roughness: .35, metalness: .7 });
     const B = R.bag, bags = [];
@@ -152,17 +154,18 @@
         x.scene.fog = null; x.scene.background = new THREE.Color('#2a2420').convertSRGBToLinear();
         x.set.group.traverse(o => { if (o.isHemisphereLight) { o.intensity = .78; o.color.set(0xfff1dc); o.groundColor.set(0x9a7a5c); } else if (o.isAmbientLight) o.intensity = .2; });
         if (x.set.sun) { x.set.sun.intensity = 1.25; x.set.sun.color.set(0xffe6c2); } }
-      // ---- streaks and the timing ring
+      // ---- streaks and the timing ring (a restart begins a fresh floor)
+      if (P.sim !== x.sim) { P.sim = x.sim; for (const me of P.wetMeshes.values()) { me.parent?.remove(me); me.material.dispose(); } P.wetMeshes.clear(); }
       const seen = new Set();
       for (const w of v.wet) {
         seen.add(w.id); let me = P.wetMeshes.get(w.id); if (!me) { me = P.pool.make(); P.wetMeshes.set(w.id, me); me.userData.born = t; }
         const X = R.x0 + w.spot * R.dx, Z = R.zLane[w.lane], grow = smooth((t - me.userData.born) / .35), big = w.big ? 1.3 : 1;
-        let sc = grow * big, op = .78, col = '#8fb0c6';
+        let sc = grow * big, op = .8, col = WET;
         if (w.state === 'wet') { if (w.wipes < (w.big ? 2 : 1)) sc *= .7; op = .55 + .3 * w.left; if (w.left < .3 && !x.reduced) op *= .75 + .25 * Math.sin(t * 14); } // the last moments: it is setting
         else if (w.state === 'clean') { const k = smooth(w.since / .7); sc *= 1 - .65 * k; op = .8 * (1 - k); } // wiped: the film shrinks and dries
         else { col = '#6e5638'; op = .5 * (1 - smooth((w.since - 1.2) / 1.3)); me.material.roughness = .9; me.material.metalness = 0; } // set into a stain, then fades
-        me.material.color.set(col); me.material.opacity = Math.max(0, op); me.visible = op > .01;
-        me.position.set(X, .006 + w.id % 5 * .0004, Z); me.rotation.y = w.turn; me.scale.set(.62 * w.len * sc + .01, 1, .46 * sc + .01);
+        me.material.color.set(col); me.material.opacity = Math.max(0, op); me.visible = op > .01; me.userData.sheen.material.opacity = w.state === 'stain' ? 0 : .4 * Math.max(0, op);
+        me.position.set(X, .006 + w.id % 5 * .0004, Z); me.rotation.y = w.turn; me.scale.set(.78 * w.len * sc + .01, 1, .5 * sc + .01);
       }
       for (const [id, me] of P.wetMeshes) if (!seen.has(id)) { me.parent?.remove(me); me.material.dispose(); P.wetMeshes.delete(id); }
       const ring = P.pool.ring, on = v.on != null && v.ring >= 0 && !x.over;
@@ -182,9 +185,9 @@
       if (v.danger || v.stunned) { const bw = V(R.bag.restX + (v.bag ? Math.sin(v.bag.th) * R.bag.length : 0), 2.1, b.z), p = f.root.worldToLocal(bw); look = { yaw: Math.atan2(p.x, p.z), pitch: .05 }; }
       Ps.civil(f, { t, dt: dt > 0 ? dt : 0, dist: 0, walk: 0, feet: feet(v, R), arms: { L: 'low', R: 'low' }, reach: { L: gp.Lh.toArray(), R: gp.U.toArray() }, lean: .2 + .1 * gp.push + .38 * gp.duck - .25 * stagger, drop: .05 + .4 * gp.duck, look });
       // ---- the mop follows the hands: handle through both grips, head on the floor
-      const hand = s => f.joints['hand' + s].getWorldPosition(V());
-      const hu = hand('R'), hl = hand('L'), dir = hu.clone().sub(hl); if (dir.lengthSq() < 1e-4) dir.set(0, 1, 0); dir.normalize();
-      const k2 = dir.y > .2 ? (hl.y - .07) / dir.y : 1.2, foot = hl.clone().addScaledVector(dir, -Math.min(1.5, Math.max(.3, k2))), top = hu.clone().addScaledVector(dir, .14);
+      const grab = s => f.joints['hand' + s].localToWorld(V(0, -.07, .02)); // the middle of the closed hand, not the wrist
+      const hu = grab('R'), foot = f.root.localToWorld(gp.H.clone());
+      const dir = hu.clone().sub(foot); if (dir.lengthSq() < 1e-4) dir.set(0, 1, 0); dir.normalize(); const top = hu.clone().addScaledVector(dir, .16);
       const len = foot.distanceTo(top); P.handle.scale.set(1, len, 1); P.handle.position.copy(foot).add(top).multiplyScalar(.5); P.handle.quaternion.setFromUnitVectors(V(0, 1, 0), dir);
       P.head.position.copy(foot); P.head.quaternion.setFromUnitVectors(V(0, 1, 0), V(dir.x * .25, 1, dir.z * .25).normalize());
       const vel = m.lastFoot ? foot.clone().sub(m.lastFoot).divideScalar(Math.max(1e-3, dt || 1 / 60)) : V(); m.lastFoot = foot.clone();
@@ -210,8 +213,7 @@
       } else { const p = br.root.worldToLocal(V(b.x, 1.6, b.z + .6)); st.look = { yaw: Math.atan2(p.x, p.z), pitch: -.2 }; st.talk = x.over && t - x.overAt < 2.4 ? 1 : 0; }
       Ps.civil(br, st);
       // ---- camera: in front of the lanes, a little above, both lanes and Bruno in the picture
-      const cx = R.x0 + R.dx * 1.6;
-      return { pos: [cx + .2, 3.35, 6.9], look: [cx - .25, .95, .75], fit: [f, br] };
+      return { pos: [-.3, 3.3, 7.7], look: [-.3, 1.95, .55], fit: [f, br] };
     }
   };
   function register() { const S = window.StoryScenes; if (!S?.games || S.games.clean_gym) return; S.games.clean_gym = game; }

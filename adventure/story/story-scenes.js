@@ -311,7 +311,7 @@
     if (e.fightIQDemo) return fail('busy');
     const reduced = opts.reducedMotion ?? reducedMotion(), L = lang(), gw = game ? game.words[L] || game.words.en : null;
     const ui = overlay(game ? 'game' : 'scene');
-    const run = { id, closed: false, t: 0, ui, host: ui.host, edge: 0 };
+    const run = { id, closed: false, t: 0, ui, host: ui.host, edge: 0 }; if (game) ui.d.dataset.game = id;
     current = run;
     let set = null, scene = null, camera = null, borrowed = [], mitts = [], rigs = {}, sim = null, stageMove = null, oldFit = null, finished = false, blobs = [];
     let memo = {}, hard = !!opts.hard, acts = 0; const look = V(), extras = [], dressed = [];

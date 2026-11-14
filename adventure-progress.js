@@ -154,9 +154,13 @@
   return {step,first,firstBrick:st.firstBrick||null,done:[...st.done]};
  }
  const object=(v,keys)=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>keys.includes(k));
+ // GOTR-0099: a mission whose measure changed keeps the stars it had: a record that matches its OLD thresholds is moved to the
+ // lowest value of the same stars on the new scale (clean_gym: stand-in steps 8/14/20 -> mop-game marks 25/50/75).
+ const rescaled=Object.freeze({clean_gym:[8,14,20]});
+ function rescale(a){for(const [id,old] of Object.entries(rescaled)){const r=a?.missions?.[id],m=missionOf(id);if(!r||!m||!bound(r.value)||starsFor(id,r.value)===r.stars)continue;const was=old.reduce((n,t)=>n+(r.value>=t?1:0),0);if(was===r.stars&&r.stars>=1&&r.stars<=3)r.value=m.thresholds[r.stars-1];}return a;}
  function validate(a){
   if(a?.version!==1)fail('Incompatible adventure version.');
-  migrate(a);
+  migrate(a);rescale(a);
   if(!object(a,['version','missions','bosses','story'])||!object(a.story,['done','firstBrick'])||!Array.isArray(a.story.done)||new Set(a.story.done).size!==a.story.done.length||a.story.done.some(id=>!dreamSteps.includes(id)||id==='brick')||!(a.story.firstBrick===undefined||['lost','won'].includes(a.story.firstBrick))||a.story.done.includes('first_brick')&&!a.story.firstBrick||!object(a.missions,missions.map(m=>m.id))||!object(a.bosses,bosses.map(b=>b.id)))fail('Invalid adventure progress.');
   for(const [id,r] of Object.entries(a.missions)){
    if(!object(r,['stars','value','plays'])||!Number.isSafeInteger(r.plays)||r.plays<1||r.plays>1e6||!bound(r.value)||r.value!==round1(r.value)||!Number.isSafeInteger(r.stars)||r.stars<1||r.stars>3||starsFor(id,r.value)!==r.stars)fail('Mission stars do not match the recorded result.');}
