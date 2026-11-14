@@ -8,7 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.69 | 2026-11-14 | _pending_ | Street clothes worn like real clothes: hoodie and jeans as their own garments over a slimmer body, a hoodie that covers the belt, proper sneakers, a strap across the chest and a bag that swings; arms never sink into the body while walking or talking (GOTR-0093, GOTR-0094) |
+| v1.69 | 2026-11-14 | `cc85f0d` | Street clothes worn like real clothes: hoodie and jeans as their own garments over a slimmer body, a hoodie that covers the belt, proper sneakers, a strap across the chest and a bag that swings; arms never sink into the body while walking or talking (GOTR-0093, GOTR-0094) |
 | v1.68 | 2026-11-14 | `5a2bd2b` | Fight screen: the winner's name is shown in full; story fights show no "New fight" button; the break line moved into the top bar so nothing covers the fighters |
 | v1.67 | 2026-11-14 | `15223ca` | Corner break between rounds: fighters walk to their corners, the cornerman sets a stool in the corner colour, the fighter sits, gets a towel and drinks, then stands and walks back at the bell; "Skip break"; rest 20 s in club, three-round and exhibition fights (GOTR-0076) |
 | v1.66 | 2026-11-14 | `e99e1ac` | No ring in street, basement and docks fights: their own ground, a circle of standing spectators, props at the edge, no referee, bare hands and clothes for the place (street clothes; track pants and wraps underground and at the docks); ring venues unchanged (GOTR-0065) |
