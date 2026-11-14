@@ -15,7 +15,7 @@ const CASES = (process.env.CASES || 'ring-tko,ring-points,gym-story').split(',')
     await p.goto(URL, { timeout: 300000 });
     await p.waitForFunction(() => window.ringfighterGame && app.engine.coach?.anatomy && window.AdventureOldTown && window.StoryCast, null, { timeout: 300000 });
     const r = await p.evaluate(async ([kase, lang]) => {
-      document.querySelectorAll('dialog[open]').forEach(d => d.close()); app.setLanguage(lang);
+      document.querySelectorAll('dialog[open]').forEach(d => d.close()); app.setLanguage(lang); window.ringfighterGame.close?.(); // the home map would cover the bout
       const rg = window.ringfighterGame, e = app.engine, sleep = ms => new Promise(q => setTimeout(q, ms));
       if (kase === 'gym-story') { const ctx = { store: rg.store, startTraining: rg.startTraining, startFight: rg.startFight, change: a => { const r = rg.store.gameAction(a); if (r.ok) rg.apply?.(); return r.ok; } }; AdventureOldTown.storyFightStart(ctx, 'first_brick'); }
       else rg.startFight({ seed: 9, rounds: 1, roundSeconds: 20, restSeconds: 0 });
@@ -23,7 +23,7 @@ const CASES = (process.env.CASES || 'ring-tko,ring-points,gym-story').split(',')
       const v = e.arena.fightView, m = v.match, win = v.careerEntry?.species || 'lion'; e.cameraDirector?.skipIntro?.(); while (m.phase === 'intro') m.advance(.5);
       if (kase === 'ring-points') { while (!m.result && m.phase !== 'ceremony') m.advance(.5); } else m.finish(win, 'TKO', true);
       for (let i = 0; i < 400 && !(m.phase === 'ceremony' && m.phaseTime > 1.6); i++) { try { e.arena.update(e.animTime += .05, e.technique, e.currentAnim); } catch (x) { m.advance(.05); } e.cameraDirector?.update?.(.05); if (m.phase !== 'ceremony' && m.result) m.advance(.05); }
-      e.isPlaying = false; e.lastRenderStamp = null; window.fightUI.render(v); await sleep(700);
+      e.isPlaying = false; e.lastRenderStamp = null; window.ringfighterGame.close?.(); document.querySelectorAll("dialog[open]").forEach(d => d.close()); window.fightUI.render(v); await sleep(700);
       const box = n => { const q = n?.getBoundingClientRect(); return q ? { x: +q.left.toFixed(1), y: +q.top.toFixed(1), r: +q.right.toFixed(1), b: +q.bottom.toFixed(1) } : null; };
       const node = document.querySelector('#stageContainer .bout-announcement'), st = box(node?.querySelector('strong')), sp = box(node?.querySelector('span')), stage = box(document.getElementById('stageContainer'));
       const tools = [...document.querySelectorAll('#gameModes button, #stageContainer .stage-tools button, .edge-tools button')].filter(x => x.offsetParent).map(box);
