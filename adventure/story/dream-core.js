@@ -15,7 +15,8 @@
  * DreamCore.sample(scene, t) -> { camera: { pos, look, shot }, actors: { id: { x, y, z, ry, walking, dist, arms, look, act, lean, drop } },
  *                                 props, bag, line, lineIndex, done } ; DreamCore.validate(scene) -> [errors]
  * DreamCore.variant(id, outcome) -> the scene for an outcome ('dream_after_brick': 'loss' | 'win').
- * DreamCore.withCity(scene) -> the scene re-staged for the city models when it has a city part (GOTR-0089), else the same. */
+ * DreamCore.withCity(scene) -> the scene re-staged for the city models when it has a city part (GOTR-0089), else the same.
+ * DreamCore.register({ id: scene }) adds scenes from another file (market-core.js); DreamCore.ids lists them all. */
 (() => {
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t;
   const EASE = { linear: t => clamp(t), smooth: t => { t = clamp(t); return t * t * (3 - 2 * t); }, smoother: t => { t = clamp(t); return t * t * t * (t * (6 * t - 15) + 10); }, in: t => { t = clamp(t); return t * t; }, out: t => { t = clamp(t); return 1 - (1 - t) * (1 - t); } };
@@ -52,11 +53,12 @@
   /** Next time the timeline must stop and wait for a tap after time t (a line with hold), or Infinity. */
   const SETTLE = .9;
   function holdAfter(scene, t) { for (const l of scene.lines || []) if (l.hold && l.t + SETTLE > t - 1e-6) return l.t + SETTLE; return Infinity; }
+  const RIGS = ['fighter', 'bruno', 'brick', 'fang', 'hazel', 'otto']; // story-cast.js + cast-market.js (GOTR-0092)
   function validate(scene) {
     const e = [], sorted = (k, n) => { if (!k?.length) e.push(n + ' empty'); for (let i = 1; i < (k || []).length; i++) if (k[i].t < k[i - 1].t) e.push(n + ' keys not sorted'); };
     if (!(scene.duration > 0)) e.push('duration'); if (!scene.set) e.push('set'); sorted(scene.camera, 'camera');
     for (const c of scene.camera || []) if (c.pos?.length !== 3 || c.look?.length !== 3) e.push('camera key');
-    for (const [id, a] of Object.entries(scene.actors || {})) { sorted(a.keys, id); if (!['fighter', 'bruno', 'brick'].includes(a.rig)) e.push(id + ' rig'); if (a.keys?.[0]?.x == null || a.keys?.[0]?.z == null) e.push(id + ' start'); }
+    for (const [id, a] of Object.entries(scene.actors || {})) { sorted(a.keys, id); if (!RIGS.includes(a.rig)) e.push(id + ' rig'); if (a.keys?.[0]?.x == null || a.keys?.[0]?.z == null) e.push(id + ' start'); }
     for (const [id, k] of Object.entries(scene.props || {})) sorted(k, id);
     let last = -1; for (const l of scene.lines || []) { for (const g of ['en', 'he', 'ru']) if (!l.text?.[g]) e.push('line ' + g); if (l.t <= last) e.push('lines not sorted'); last = l.t; if (l.t >= scene.duration) e.push('line past the end'); if (!scene.actors[l.who]) e.push('line speaker ' + l.who); if (/\bnobody\b/i.test(l.text?.en || '')) e.push('the Fighter is never called nobody'); }
     return e;
@@ -282,6 +284,8 @@
   const variants = { dream_after_brick: { loss: scenes.dream_after_brick, win: afterBrick(true) } };
   const variant = (id, outcome) => variants[id]?.[outcome] || scenes[id] || null;
 
-  const api = { scenes, variant, withCity, BUS_STOP, sample, validate, holdAfter, camera, actor, prop, EASE, SETTLE, ids: Object.keys(scenes), places: { DOOR, GYM, F, B, K } };
+  /** More scenes from another file (market-core.js, beats 5-7, GOTR-0096): they play through the same player. */
+  const register = more => { Object.assign(scenes, more); return Object.keys(scenes); };
+  const api = { scenes, variant, withCity, BUS_STOP, sample, validate, holdAfter, camera, actor, prop, EASE, SETTLE, RIGS, register, get ids() { return Object.keys(scenes); }, places: { DOOR, GYM, F, B, K } };
   if (typeof module !== 'undefined') module.exports = api; else window.DreamCore = api;
 })();

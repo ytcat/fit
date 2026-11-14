@@ -88,6 +88,22 @@ import. Terms: Coach = Bruno, Fighter = the player's boxer, Opponent = whoever h
 - Same skeleton as the fighters: Mrs. Hazel and Otto read smaller (slimmer / lower head, shorter neck, stoop) but their legs and
   arms are the rig's; the fight rig cannot be shortened without changing the shared pose code.
 
+## Beats 5-7 as films (GOTR-0096) — `adventure/story/market-core.js` (`MarketCore`, node too), `adventure/story/market-sets.js`
+- Scenes (same format and player as above; `DreamCore.register` adds them, `StoryScenes.play` forwards them):
+  `dream_apology` (beat 5, gym, tap), `dream_market_robbery` (beat 6, timed, ends with Fang facing the Fighter),
+  `dream_market_reward` (after a WON street fight, tap), `dream_otto_shop` (beat 7, tap, purchase inside the film).
+- Wiring (`adventure/oldtown.js`, `adventure/story-flow.js`): `dream_apology` is a `film` step and chains (first time) into
+  `market_robber`; that step has `scene: 'dream_market_robbery'` (once per browser, then the fight), `cast: 'fang'`
+  (`StoryCast.asOpponent(engine, 'fang')`, ringless `street` venue, bare hands) and `after: 'dream_market_reward'` (only after a
+  win; a loss shows the usual lost beat and Retry, as before). `buy_heavy_bag` has `film: 'dream_otto_shop'`: played when the coins
+  are enough (or owned / dev); `opts.onBuy` = the step's own save action; Skip before buying -> the old counter beat.
+- Player options: `onBuy() -> boolean` (the scene waits at `scene.buy.t` with a Buy button; `result.bought`), `owned`, `price`
+  (`{price}` in lines; default the heavy bag's price). Scene fields: `gymBag: 'broken'` (BagBreak.force while the set is built),
+  `carry` (handbag / pouch / heavybag between hands, the ground, the display, the Fighter's shoulder; `MarketProps`), act `'jacketoff'`.
+- Rigs handed back: mirrored root, outfit, Fang in his jacket, Mrs. Hazel's handbag in her hand.
+- Sets (placeholders until Codex's): `dream_market` (day market row, Mrs. Hazel's stall at x 0), `dream_shop` (street front at
+  x -12..12, interior at x 36..44.4, `objects.display`). Test `tests/dream-market-films.test.cjs`; evidence tool `qa/gotr-0096/tools/film.cjs`.
+
 ## Not in this slice (owned by `agent/dream-flow`)
 The step list, the "expected loss still advances" rule, rewards, saving. Suggested order for beats 0–2:
 `dream_opening` → `dream_gym_talk` → fight vs Brick (`asOpponent`) → `dream_after_brick` with `outcome`.

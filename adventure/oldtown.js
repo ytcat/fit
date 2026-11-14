@@ -66,9 +66,9 @@
     clean_gym: { kind: 'training', mode: 'heavy', duration: 30, steps: true },
     night_shadow: { kind: 'training', mode: 'none', duration: 45, frame: (r, f) => { if (playerOn()) r.value += (f.swings || []).filter(x => x.actor === 'lion').length; } },
     night_bag: { kind: 'training', mode: 'heavy', duration: 60, after: 'dream_bag_break', imp: (r, h) => { if (powerHit(h)) r.value++; } },
-    dream_apology: { kind: 'talk' },
-    market_robber: { kind: 'story_fight', venue: 'street', rounds: 1, roundSeconds: 45, restSeconds: 0, opponent: L('Fang', 'פאנג', 'Фанг'), foe: { power: 1.05, tempo: 1.02, skill: .02 } },
-    buy_heavy_bag: { kind: 'buy', item: 'heavy_bag' },
+    dream_apology: { kind: 'film', scene: 'dream_apology' }, // GOTR-0096: the morning in the gym (market-core.js); chains into the market
+    market_robber: { kind: 'story_fight', venue: 'street', cast: 'fang', after: 'dream_market_reward', rounds: 1, roundSeconds: 45, restSeconds: 0, opponent: L('Fang', 'פאנג', 'Фанг'), foe: { power: 1.05, tempo: 1.02, skill: .02 } },
+    buy_heavy_bag: { kind: 'buy', item: 'heavy_bag', film: 'dream_otto_shop' }, // the purchase is confirmed inside the film (GOTR-0096)
     bag_drill: { kind: 'training', mode: 'heavy', duration: 40, imp: (r, h) => { if (heavyHit(h)) r.value++; } },
     fight_prep: { kind: 'training', mode: 'pads', duration: 60, frame: (r, f) => { if (playerOn() && f.defences > 0) r.value += f.defences; } },
     docks_fight: { kind: 'story_fight', venue: 'docks', rounds: 2, roundSeconds: 30, restSeconds: 8, opponent: L('Hook', 'הוק', 'Хук'), foe: { power: 1.12, tempo: 1.06, skill: .05 } },
@@ -394,12 +394,21 @@
     const i = A().dreamSteps.indexOf(id), next = A().dreamSteps[i + 1];
     if (fresh && next && DEFS[next]?.kind === 'film') { snaps[next] = { done: SF().doneOf(ctx.store.game(), SF().find(next)), stars: 0, level: A().level(ctx.store.game()) }; playFilm(ctx, next); return; }
     if (fresh && next === 'first_brick') { launch(ctx, next); return; }
+    if (fresh && next === 'market_robber' && before(ctx, next)) return; // beat 5 -> the robbery film -> the street fight (GOTR-0096)
     openMap(CH[1].pin, () => afterBeat(id, { ok: true }));
   }
-  // Otto's Corner (beat 7): the shop counter as a beat. The purchase itself completes the step.
-  function shop(ctx, id) {
+  // Otto's Corner (beat 7): the film (GOTR-0096, dream_otto_shop) with the purchase confirmed inside it; the purchase itself
+  // completes the step. Without the film, when the coins are short, or when the film was skipped before buying: the counter beat.
+  function shop(ctx, id, o = {}) {
     const s = SF().find(id), g = ctx.store.game(), w = FW(), price = gearPrice(DEFS[id].item), have = coins(), free = !!window.GameDomain?.freeMode?.();
-    snaps[id] = { done: SF().doneOf(g, s), stars: 0, level: A().level(g) };
+    const owned = SF().doneOf(g, s); snaps[id] = { done: owned, stars: 0, level: A().level(g) };
+    const S = window.StoryScenes, film = DEFS[id].film;
+    if (!o.counter && film && S && (S.sceneIds || []).includes(film) && (owned || free || have >= price)) {
+      let bought = false; rg()?.close?.(); mark(film);
+      S.play(film, { owned, price, onBuy: () => { const res = recordStory(ctx, id); bought = !!res.ok; return bought; },
+        onDone: () => openMap(CH[1].pin, () => bought || owned ? afterBeat(id, { ok: true, bought }) : shop(ctx, id, { counter: true })) });
+      return;
+    }
     const short = !free && have < price, info = [goalLine(s), { text: fill(w.have, { c: have }) }, short ? { text: fill(w.short, { k: price - have }), cls: 'sf-beat-gate' } : null, standLine(s)];
     const buy = () => { const res = recordStory(ctx, id); if (res.ok) afterBeat(id, { ok: true, bought: true }); else shop(ctx, id); };
     const buttons = short ? [[`${T(SF().find('clean_gym').title)} ▶`, () => before(ctx, 'clean_gym'), true], [w.back, () => {}]] : [[fill(w.buy, { p: price }), buy, true], [w.back, () => {}]];
@@ -528,10 +537,11 @@
   }
   // ---- GOTR-0078 story fights: first fight vs Brick (a loss advances the story), the street fight, the Docks ----
   // Brick's look comes from agent/dream-1 (StoryCast.asOpponent); without it the partner fights under Brick's name and strength.
-  function castBrick(r) {
+  // GOTR-0096: Fang the same way in the market street fight (bare hands, cast-market.js); the ringless venue dresses the Fighter.
+  function castBrick(r, who = 'brick') {
     const e = window.app.engine, C = window.StoryCast;
     try { if (C?.outfit && e.coach) C.outfit(e.coach, 'kit'); } catch (x) { console.warn('adventure', x); }
-    try { r.restore = typeof C?.asOpponent === 'function' ? C.asOpponent(e, 'brick') || null : null; } catch (x) { r.restore = null; console.warn('adventure', x); }
+    try { r.restore = typeof C?.asOpponent === 'function' && (who === 'brick' || C.ids?.includes(who)) ? C.asOpponent(e, who) || null : null; } catch (x) { r.restore = null; console.warn('adventure', x); }
   }
   function goalStrip(text) {
     const strip2 = mk('div', 'adv-goal'); strip2.id = 'advGoal'; strip2.dir = document.documentElement.dir || 'ltr';
@@ -541,7 +551,7 @@
     const e = window.app.engine, d = DEFS[id], s = SF().find(id);
     cleanup(); closeBeat(); run = { id, def: d, ctx, ended: false, mission: { titles: s.title, metric: 'wins' }, value: 0, target: 1 };
     hook(); ctx.change({ type: 'venue', venueId: d.venue || CH[1].venue });
-    if (d.brick) castBrick(run);
+    if (d.brick || d.cast) castBrick(run, d.cast || 'brick');
     try { ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds, ...(d.place ? { place: d.place } : {}) }); } catch (x) { console.warn('adventure', x); } // place 'gym': on the gym floor, Bruno referees (GOTR-0083)
     const view = e.arena?.fightView; if (!view) { restoreCast(run); run = null; toast(W().noStart, 'bad'); return; }
     run.view = view; view.storyFight = true; const entry = view.careerEntry, foe = view.match.fighters[entry?.species === 'lion' ? 'rabbit' : 'lion'];
