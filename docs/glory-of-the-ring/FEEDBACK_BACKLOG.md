@@ -918,7 +918,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0098 — Result ceremony: the referee raises the winner's arm twisted, through both bodies
 - **Reported:** 2026-11-14 (owner, live v1.68)
-- **Status:** OPEN — P1 (with the corner-break polish, branch `agent/corner-break-2`)
+- **Status:** READY FOR QA on `agent/corner-break-2` (not released). Cause found: the fighters lined up 1.44 m apart in their bladed stance with the raise target a fixed point across the body, so the winner's elbow bent inward into the referee's shoulder and the referee's arm crossed it. Fix: square stance in the line-up, fighters 1.92 m apart, the near arm straight up from its own shoulder, referee in the middle (Bruno steps toward the winner in the gym). Test `tests/fight-result-raise.test.cjs` (smallest arm-to-body clearance 0.055 m, both corners, KO/TKO); pictures `qa/gotr-0098/`. Sunday Punch is not on this branch — untested there.
 - **Suspect (unproven):** the arm-raise targets were authored before the fighters were mirrored at the root (GOTR-0074, v1.51), so the referee grabs the wrong side / the IK solves through the torso.
 - **Acceptance:** the referee stands between the fighters, holds the winner's near wrist and lifts the arm straight up beside the head; the loser stands to the other side; no limb passes through any body (measured clearance), in ring and gym (Bruno) and ringless venues; both corners as winner; pictures at 402×690.
 
