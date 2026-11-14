@@ -202,7 +202,7 @@
   function fightStart(ctx, d, r) {
     const e = window.app.engine;
     ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds });
-    r.view = e.arena?.fightView; if (!r.view) throw Error(W().noStart);
+    r.view = e.arena?.fightView; if (!r.view) throw Error(W().noStart); r.view.storyFight = true;
     if (d.opponent && r.view.careerEntry) r.view.careerEntry.opponentName = d.opponent[lang()] + (d.chain ? ' ' + ((r.wins || 0) + 1) : '');
   }
 
@@ -489,7 +489,7 @@
     if (bossId === 'brick') castBrick(run);
     ctx.startFight({ preset: 'quick', rounds: 2, roundSeconds: 30, restSeconds: 8 });
     const view = e.arena?.fightView; if (!view) { restoreCast(run); run = null; return; }
-    run.view = view; const entry = view.careerEntry, m = view.match, foe = m.fighters[entry.species === 'lion' ? 'rabbit' : 'lion'];
+    run.view = view; view.storyFight = true; const entry = view.careerEntry, m = view.match, foe = m.fighters[entry.species === 'lion' ? 'rabbit' : 'lion'];
     if (entry) entry.opponentName = cfg.name[lang()];
     // The boss hits a little harder than a regular; each Fighter Level above his entry level softens his hits 3% and slows his reactions 3%.
     foe.power *= cfg.power * edge.damage; foe.tempo *= cfg.tempo / edge.reaction; foe.skill = Math.min(.99, foe.skill + cfg.skill);
@@ -544,7 +544,7 @@
     if (d.brick) castBrick(run);
     try { ctx.startFight({ preset: 'quick', rounds: d.rounds, roundSeconds: d.roundSeconds, restSeconds: d.restSeconds, ...(d.place ? { place: d.place } : {}) }); } catch (x) { console.warn('adventure', x); } // place 'gym': on the gym floor, Bruno referees (GOTR-0083)
     const view = e.arena?.fightView; if (!view) { restoreCast(run); run = null; toast(W().noStart, 'bad'); return; }
-    run.view = view; const entry = view.careerEntry, foe = view.match.fighters[entry?.species === 'lion' ? 'rabbit' : 'lion'];
+    run.view = view; view.storyFight = true; const entry = view.careerEntry, foe = view.match.fighters[entry?.species === 'lion' ? 'rabbit' : 'lion'];
     if (entry && d.opponent) entry.opponentName = T(d.opponent);
     if (foe && d.foe) { foe.power *= d.foe.power; foe.tempo *= d.foe.tempo; foe.skill = Math.min(.95, foe.skill + d.foe.skill); } // skill below the cap: a skilled player can still win
     run.ui = goalStrip(`${T(s.title)} · ${goalLine(s).split(': ').slice(1).join(': ')}`);
