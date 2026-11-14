@@ -202,6 +202,8 @@
     if (Pose) metrics[s.actor] = Pose.civil(coach, { t: m.time, dt, dist: along, walk: walking, arms: { L: 'fist', R: 'fist' }, reach: { L: [-.16, 1.40, .30], R: [.16, 1.40, .30] }, // gloves up at chest height
       look: u < T.walk[0] ? { yaw: clamp(Math.atan2(look.x, look.z), -1, 1), pitch: -.35 } : null, lean: .04 });
     else metrics[s.actor] = coach.update(m.time, 'step', 'one_two', { simulationTime: m.time });
+    // dream-pose.js (v1.69) no longer returns the gloves from its overlay: rebuild them so the bout's contact pass has both fists
+    const mt = metrics[s.actor]; if (mt && !(mt.gloves?.length === 2)) mt.gloves = ['L', 'R'].map(sd => coach.orientGlove(sd, .6, V(0, 0, -1)));
   }
   // The rhino referee has one trouser mesh and separate shoes: his walk steps the shoes under the trousers with a body bob and sway.
   function refStep(ref, phase, amount) {
@@ -282,7 +284,7 @@
       const rearHand = sc.joints.handR.getWorldPosition(V()), leadHand = sc.joints.handL.getWorldPosition(V()), across = rearHand.sub(leadHand).setY(0);
       let side = V(-line.z, 0, line.x); if (side.dot(across) < 0) side.negate();
       // the referee must not stand between the lens and the punch: take the other side when he would
-      const mid = a.clone().lerp(b, .5), ref = view.referee.root.getWorldPosition(V()).sub(mid).setY(0), blocked = sd => { const f = sd.clone().multiplyScalar(Math.cos(.62)).addScaledVector(line, -Math.sin(.62)).normalize(); return ref.length() > .2 && ref.clone().normalize().dot(f) > Math.cos(.75); };
+      const mid = a.clone().lerp(b, .5), ref = view.referee.root.getWorldPosition(V()).sub(mid).setY(0), blocked = sd => { const f = sd.clone().multiplyScalar(Math.cos(-.14)).addScaledVector(line, Math.sin(.14)).normalize(); return ref.length() > .2 && ref.clone().normalize().dot(f) > Math.cos(.75); };
       if (blocked(side) && !blocked(side.clone().negate())) side.negate();
       sp.axis = { line, side };
     }
@@ -295,9 +297,9 @@
     if (u > 2.9 && view.referee?.root?.visible !== false) { const rr = view.referee.root; pts.push(rr.localToWorld(V(0, 2.25, 0)), rr.localToWorld(V(0, 0, 0))); } // the result: winner and referee/Bruno whole // the winner at his corner comes back into the picture for the result
     const fov = THREE.MathUtils.degToRad(cam.fov), tv = Math.tan(fov / 2), th = tv * Math.max(.2, cam.aspect);
     const { side, line } = sp.axis, up = V(0, 1, 0);
-    // a low three-quarter view from behind the striker's punching shoulder for the dip and the drive (the Opponent's face and
-    // chin toward the lens), swinging round to the side as the body falls, so the fall reads across the picture
-    const swing = u < 0 ? .48 : lerp(.48, .12, smooth(u / .9)), flat = side.clone().multiplyScalar(Math.cos(swing)).addScaledVector(line, -Math.sin(swing));
+    // a low profile view from the striker's punching side, a touch in front of him, so the rising glove is seen meeting the
+    // underside of the jaw; then it swings round as the body falls, so the fall reads across the picture
+    const swing = u < 0 ? -.14 : lerp(-.14, .10, smooth(u / .9)), flat = side.clone().multiplyScalar(Math.cos(swing)).addScaledVector(line, -Math.sin(swing));
     const height = u < 0 ? .62 : lerp(.62, 1.40, smooth((u - .7) / 1.1)); // then it rises to look down on the body on the canvas
     const dir = flat.clone().normalize(), right = up.clone().cross(dir).normalize(), camUp = up.clone();
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity; const c0 = V();

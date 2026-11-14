@@ -225,7 +225,7 @@
     // the proven guard geometry (a straight caught on the glove still lands extended); it opens again afterwards.
     {const threat=specs[other(actor)];if(threat.attack&&!spec.attack)options.blockCover=clamp(threat.phase/.05)*(1-clamp((threat.phase-.62)/.25));
      // GOTR-0088: a hurt Opponent caught by the Sunday Punch (no high guard when it was ordered) lets his gloves sag for the dip.
-     const fin=m.fighters[other(actor)].action;if(fin?.finisher&&fin.opening&&!spec.attack){const drop=clamp(threat.phase/.12);options.blockCover=0;options.guardHeight=1.72-.30*drop;options.guardWidth=.24+.08*drop;options.brace=0;}}
+     const fin=m.fighters[other(actor)].action;if(fin?.finisher&&fin.opening&&!spec.attack){const drop=clamp(threat.phase/.12);options.blockCover=0;options.stance=1-drop;options.guardCover=1-drop;options.guardHeight=1.72-.34*drop;options.guardWidth=.24+.10*drop;options.brace=0;}}
     // GOTR-0075: a Guard the player orders (held on the pad) closes both gloves to that blocking cover for as long as it is
     // held, eased in/out over ~60 ms so the repeated guard orders of a hold never flicker. Idle stays the open stance.
     {const want=m.phase==='round'&&actor===m.playerActor&&spec.move==='guard'&&spec.defend&&spec.id>0?1:0,c=(this.heldCover=this.heldCover||{})[actor]||(this.heldCover[actor]={v:0,t:m.time}),dt=clamp(m.time-c.t,0,.1);c.t=m.time;c.v+=(want-c.v)*(1-Math.exp(-dt/.06));if(want&&c.v<.35)c.v=.35;if(c.v>.01)options.blockCover=Math.max(options.blockCover||0,c.v);}
