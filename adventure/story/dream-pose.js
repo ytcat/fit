@@ -52,6 +52,50 @@
   }
   const footQ = (yaw, pitch) => new THREE.Quaternion().setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
 
+  /* ---------------------------------------------------------------- arms beside the body (GOTR-0094)
+   * A torso profile from what the rig wears (the street clothes, or the skin and trunks), in the rest pose: per height and
+   * direction round the body, the outermost radius of everything that does not ride the arm bones. After the arm IK, the
+   * hand, forearm, elbow and upper arm are taken back into the rest frame of the torso bone they pass and, if they would
+   * come closer than their own thickness + 2 cm, the hand target (and with it the whole arm) is moved out and the IK
+   * solved again, with the elbow turned out. Fighters with a huge chest and lats get their arms held further out. */
+  const ARM = /^(arm|elbow|hand)[LR]$/, PY0 = .78, PDY = .01, PNY = 102, PNT = 48, profiles = new WeakMap();
+  function profile(c) {
+    const cloth = c.root.children.find(o => o.userData?.streetCloth && o.visible) || null, key = cloth ? cloth.uuid : 'kit' + (c.shorts?.visible ? 1 : 0) + c.skin.geometry.attributes.position.uuid;
+    let p = profiles.get(c); if (p?.key === key) return p;
+    const R = new Float32Array(PNY * PNT), arm = c.bones.map(b => ARM.test(b.name));
+    const add = g => { const P = g.attributes.position.array, I = g.attributes.skinIndex?.array, W = g.attributes.skinWeight?.array; if (!I) return;
+      for (let i = 0; i < P.length / 3; i++) { let dom = 0; for (let k = 1; k < 4; k++) if (W[i * 4 + k] > W[i * 4 + dom]) dom = k; if (arm[I[i * 4 + dom]]) continue;
+        const y = P[i * 3 + 1], b = Math.round((y - PY0) / PDY); if (b < 0 || b >= PNY) continue; const x = P[i * 3], z = P[i * 3 + 2], t = Math.round(((Math.atan2(x, z) / (Math.PI * 2)) % 1 + 1) % 1 * PNT) % PNT, r = Math.hypot(x, z), q = b * PNT + t; if (r > R[q]) R[q] = r; } };
+    if (cloth) add(cloth.geometry); add(c.skin.geometry); if (c.shorts?.visible) add(c.shorts.geometry);
+    const S = new Float32Array(R); for (let b = 0; b < PNY; b++) for (let t = 0; t < PNT; t++) { let v = 0; for (let db = -1; db <= 1; db++) for (let dt = -1; dt <= 1; dt++) { const bb = b + db; if (bb >= 0 && bb < PNY) v = Math.max(v, R[bb * PNT + (t + dt + PNT) % PNT]); } S[b * PNT + t] = v; }
+    p = { key, R: S }; profiles.set(c, p); return p;
+  }
+  const restOf = (c, bone) => { const v = V(); for (let b = bone; b && b !== c.root; b = b.parent) v.add(b.name === 'hips' ? V(0, .99, 0) : b.name === 'neck' ? c.neckRest : b.position); return v; };
+  /** How far (root space) point q, of thickness r, must move to clear the torso; null when clear. */
+  function clearance(c, prof, q, r, gap = .02, side = 'R') {
+    const j = c.joints, bone = q.y > 1.36 ? j.chest : q.y > 1.13 ? j.spine : q.y > .95 ? j.hips : j['thigh' + side], inv = new THREE.Matrix4().copy(c.root.matrixWorld).invert().multiply(bone.matrixWorld), local = q.clone().applyMatrix4(inv.clone().invert()), rest = local.clone().add(restOf(c, bone));
+    const b = Math.round((rest.y - PY0) / PDY); if (b < 0 || b >= PNY) return null;
+    const t = Math.round(((Math.atan2(rest.x, rest.z) / (Math.PI * 2)) % 1 + 1) % 1 * PNT) % PNT, need = prof.R[b * PNT + t] + r + gap, have = Math.hypot(rest.x, rest.z);
+    if (!(need > 0) || have >= need || prof.R[b * PNT + t] === 0) return null;
+    const out = rest.clone(); if (have < 1e-4) out.x = need; else { out.x *= need / have; out.z *= need / have; }
+    return out.sub(restOf(c, bone)).applyMatrix4(inv).sub(q);
+  }
+  function clearArm(c, side, target, pole, rest = false) {
+    const j = c.joints, prof = profile(c), glove = c.gloveMeshes?.[side]?.visible, hr = glove ? .11 : .05, t = target.clone(), pl = pole.clone();
+    let err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl);
+    for (let it = 0; it < 4; it++) {
+      const sh = c.point(j['arm' + side]), el = c.point(j['elbow' + side]), ha = c.point(j['hand' + side]);
+      const tip = c.root.worldToLocal(j['hand' + side].localToWorld(V(0, glove ? -.07 : -.1, 0))), dt = clearance(c, prof, tip, glove ? .07 : .03, .02, side);
+      const dh0 = clearance(c, prof, ha, hr, rest ? 0 : .02, side), dh = dt && (!dh0 || dt.lengthSq() > dh0.lengthSq()) && !rest ? dt : dh0, dm = clearance(c, prof, ha.clone().lerp(el, .5), .06, .02, side), de = clearance(c, prof, el, .075, .02, side), du = sh.y - el.y > .12 ? clearance(c, prof, sh.clone().lerp(el, .7), .085, .02, side) : null;
+      if (!dh && !dm && !de && !du) break;
+      const arm = [de, du, dm].filter(Boolean).reduce((a, d) => d.lengthSq() > a.lengthSq() ? d : a, V());
+      t.add(dh && dh.lengthSq() > arm.lengthSq() ? dh : arm).add(dh && arm.lengthSq() ? dh.clone().multiplyScalar(.3) : V());
+      if (arm.lengthSq()) pl.lerp(arm.clone().normalize(), .5).normalize();
+      err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl);
+    }
+    target.copy(t); return err;
+  }
+
   function overlay(c, st, m) {
     const j = c.joints, t = st.t || 0, w = m.walk, phase = ((st.dist || 0) / STRIDE) % 1, tau = Math.PI * 2, sw = Math.sin(phase * tau), cw = Math.cos(phase * tau);
     const breath = Math.sin(t * 1.7 + (c.character ? 1.3 : 0)), idle = 1 - w, shift = Math.sin(t * .43 + (c.character === 'bruno' ? 2 : 0)) * idle;
@@ -94,7 +138,7 @@
       const k = st.dt > 0 && m.hand[side] ? 1 - Math.exp(-st.dt * 9) : 1;
       m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? m.pole[side].lerp(pole, k) : pole; m.palm[side] = m.palm[side] ? m.palm[side].lerp(palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
       const target = m.hand[side].clone(); target.y += hips.position.y - HIP; // hands ride with the pelvis
-      handErrors.push(c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], target, m.pole[side])); gloves.push(c.orientGlove(side, m.turn[side], m.palm[side]));
+      handErrors.push(clearArm(c, side, target, m.pole[side], name === 'strap')); // the strap hand rests on the strap gloves.push(c.orientGlove(side, m.turn[side], m.palm[side]));
     }
     const bag = c.storyCast?.bagBody; if (bag) bag.rotation.z = -.5 + .045 * Math.sin(phase * tau * 2) * w;
     return { gloves, handErrors, footTargets };
@@ -114,5 +158,5 @@
   /** Forgets the smoothed pose (new scene, or the rig went back to the game). */
   function reset(c) { mem.delete(c); }
 
-  window.DreamPose = { civil, feet, reset, GESTURES, STRIDE, DUTY, step };
+  window.DreamPose = { civil, feet, reset, GESTURES, STRIDE, DUTY, step, profile, clearance };
 })();
