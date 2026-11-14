@@ -1,5 +1,6 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');global.window=global;vm.runInThisContext(fs.readFileSync('boxing-fight.js','utf8'));
-assert.deepEqual(BoxingFight.presets.club,{rounds:2,roundSeconds:20,restSeconds:10});assert.equal(BoxingFight.presets.title.rounds,1);assert.deepEqual(BoxingFight.presets.three,{rounds:3,roundSeconds:20,restSeconds:10});
+// GOTR-0076: multi-round bouts rest 20 s, the corner break (walk, stool, towel, water, back out) fits in it.
+assert.deepEqual(BoxingFight.presets.club,{rounds:2,roundSeconds:20,restSeconds:20});assert.equal(BoxingFight.presets.title.rounds,1);assert.deepEqual(BoxingFight.presets.three,{rounds:3,roundSeconds:20,restSeconds:20});
 const scoreFixture=(winningActor)=>{
  const m=new BoxingFight({seed:22,rounds:1,roundSeconds:10});m.phase='round';
  for(let i=0;i<5;i++){const a=m.attack(winningActor,'cross','head');const hit=m.contact({actor:winningActor,action:a.id,part:i%2?'body':'head',speed:3,point:[0,1.8,0]});assert.ok(hit.legal);assert.equal(m.contact({actor:winningActor,action:a.id,part:'head',speed:9}),null,'one contact per punch');}
@@ -17,5 +18,5 @@ console.log('PASS real round presets, contact-only scoring, all three judge card
 const close=new BoxingFight({rounds:1});close.phase='round';Object.assign(close.roundStats.lion,{quality:10,power:4,thrown:15,landed:8});Object.assign(close.roundStats.rabbit,{quality:9.3,power:10,thrown:14,landed:7});close.finish(null,'points');assert.deepEqual(close.result.votes,['lion','rabbit','lion']);assert.equal(close.result.decision,'split');
 console.log('PASS independent judge priorities can produce a performance-based split decision');
 const full=new BoxingFight({seed:12,preset:'club'});const transitions=[];let previous=full.phase;for(let i=0;i<60*920;i++){full.advance(1/60);if(full.phase!==previous){transitions.push({phase:full.phase,time:full.time,round:full.round});previous=full.phase;}if(full.phase==='ceremony')break;}
-assert.equal(full.cards[0].rounds.length,2);const starts=transitions.filter(t=>t.phase==='round'),ends=transitions.filter(t=>t.phase==='rest'||t.phase==='scoring');for(let i=0;i<2;i++)assert.ok(Math.abs(ends[i].time-starts[i].time-20)<.04,'full round must run for 20 seconds of active fight time');for(let i=0;i<1;i++)assert.ok(Math.abs(starts[i+1].time-ends[i].time-10)<.04,'full corner break must last ten seconds');
+assert.equal(full.cards[0].rounds.length,2);const starts=transitions.filter(t=>t.phase==='round'),ends=transitions.filter(t=>t.phase==='rest'||t.phase==='scoring');for(let i=0;i<2;i++)assert.ok(Math.abs(ends[i].time-starts[i].time-20)<.04,'full round must run for 20 seconds of active fight time');for(let i=0;i<1;i++)assert.ok(Math.abs(starts[i+1].time-ends[i].time-20)<.04,'full corner break must last twenty seconds (GOTR-0076)');
 console.log('PASS two twenty-second rounds with a ten-second corner break');

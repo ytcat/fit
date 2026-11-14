@@ -74,6 +74,18 @@
   // Rings of spectators on a square around the ropes; two interleaved groups per sector can sway out of phase.
   crowd(o){
    const rnd=random(o.seed||7);
+   if(o.round){ // ringless fights (GOTR-0065): a loose circle of people standing close around the fighters
+    for(let r=0;r<o.rows;r++){
+     const rad=o.inner+r*o.step,n=Math.max(1,Math.round(2*PI*rad/o.spacing));
+     for(let i=0;i<n;i++){
+      const a=(i+(r%2)*.5+(rnd()-.5)*.5)/n*2*PI,d=rad+(rnd()-.5)*o.step*.55,x=Math.sin(a)*d,z=Math.cos(a)*d,thin=rnd(),turn=(rnd()-.5)*.5;
+      if(o.skip&&o.skip(x,z)||thin<(o.thin||0))continue;
+      this.person(((i+r)&1?'a':'b')+sector(x,z),x,z,o.g+r*(o.rise||0),Math.atan2(-x,-z)+turn,rnd,o.style);
+      if(o.lights&&rnd()<o.lights.p){const c=o.lights.colors[Math.floor(rnd()*o.lights.colors.length)%o.lights.colors.length],k=.9-.1*r;this.box('g'+sector(x,z),.07,.12,.02,x*k+(rnd()-.5)*.1,o.g+1.42+rnd()*.3,z*k+(rnd()-.5)*.1,c,Math.atan2(-x,-z));} // a raised phone screen
+     }
+    }
+    return;
+   }
    for(let r=0;r<o.rows;r++){
     const half=o.inner+r*o.step,n=Math.max(1,Math.round(2*half/o.spacing));
     for(let side=0;side<4;side++)for(let i=0;i<n;i++){
@@ -83,6 +95,8 @@
     }
    }
   }
+  // Painted or chalked circle on the floor: the edge of the fight where there is no ring (dashed when gap>0).
+  mark(r,y,color,o={}){const n=o.n||56,gap=o.gap||0,w=o.w||.05;for(let i=0;i<n;i++){if(gap&&i%gap===gap-1)continue;const a=(i+.5)/n*2*PI,x=Math.sin(a)*r,z=Math.cos(a)*r;this.box('s'+sector(x,z),2*PI*r/n*1.03,.004,w,x,y,z,color,a,{unlit:!!o.unlit,gain:o.gain||1});}}
   finish(id){
    const lit=new THREE.MeshBasicMaterial({map:this.atlas.texture,vertexColors:true,alphaTest:.4}),glow=new THREE.MeshBasicMaterial({map:this.atlas.texture,vertexColors:true,alphaTest:.4,toneMapped:false,fog:false}),add=new THREE.MeshBasicMaterial({vertexColors:true,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false,fog:false});
    const materials={lit,glow,add},group=new THREE.Group(),sectors=[],geometries=[];let triangles=0,meshes=0;group.name='Arena set '+id;group.userData.arenaSet=true;
@@ -138,8 +152,8 @@
   for(const z of [-3.6,3.6])k.tube('shell',.055,2*H,0,2.82,z,rust,{rz:PI/2});
   for(const x of [-3.95,4.15]){k.tube('shell',.04,2*H,x,2.9,0,steel,{rx:PI/2});k.tube('shell',.04,2*H,x+.12,2.9,0,steel,{rx:PI/2});}
   k.box('shell',.62,.36,2*H,6.1,C-.55,0,steel);
-  // Painted square, stains and a drain on the floor.
-  for(const s of [-1,1]){k.quad('shell',4.9,.09,0,G+.004,s*2.4,yellow,{rx:-PI/2,sx:5});k.quad('shell',.09,4.9,s*2.4,G+.004,0,yellow,{rx:-PI/2,sy:5});}
+  // GOTR-0065: no ring. A worn, dashed paint circle marks the fight; stains and a drain on the floor.
+  k.disc('shell',2.45,0,G+.002,0,lin('#5f5d59'));k.mark(2.3,G+.006,yellow,{w:.07,gap:7});k.mark(.5,G+.006,lin('#8f8d88'),{n:20,w:.04});
   for(const [x,z,r] of [[3.3,-2.9,.8],[-3.6,3.2,1.1],[-2.9,-3.9,.6],[5.9,1.4,.9],[1.2,5.4,.7],[-6.2,-1.1,1.2]])k.disc('shell',r,x,G+.003,z,lin('#3b3a38'));
   // The single harsh ring lamp and its haze.
   k.box('shell',.025,C-3.0,.025,0,(C+3.0)/2,0,black);k.cone('shell',.07,.36,.22,0,2.9,0,lin('#2e3a33'),{seg:10});k.ball('glow',.2,.035,.2,0,2.79,0,[1,.96,.84]);
@@ -161,9 +175,12 @@
   for(const [x,z] of [[7.4,4.2],[-7.4,-4.4],[4.6,-7.5]]){const key='s'+sector(x,z);for(let i=0;i<4;i++)k.tube(key,.34,.2,x+(i%2)*.04,G+.1+i*.2,z,lin('#1f1f21'));}
   // Tight standing crowd inside the fence, and a darker row pressed against it outside.
   const style={cloth:['#2b2f36','#3a3f45','#4a3b35','#1f2a33','#55504a','#6a2f2c','#2f3d2f','#3d3550','#5f5a52','#243443'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.3};
-  k.crowd({seed:11,rows:3,inner:2.62,step:.56,spacing:.5,rise:.05,g:G,style});
+  // Oil drums, a crate and old tyres in the circle of people (GOTR-0065), the crowd standing between them.
+  const edge=[[.5,'drum'],[2.2,'crate'],[3.7,'drum'],[5.3,'tyres']];
+  for(const [a,what] of edge){const x=Math.sin(a)*2.72,z=Math.cos(a)*2.72,key='s'+sector(x,z);if(what==='drum'){k.tube(key,.29,.88,x,G+.44,z,rust);k.tube(key,.3,.03,x,G+.6,z,black);}else if(what==='crate')k.box(key,.7,.56,.7,x,G+.28,z,lin('#7b6248'),a);else for(let i=0;i<2;i++)k.tube(key,.3,.18,x+i*.05,G+.09+i*.18,z,lin('#1c1c1e'));}
+  k.crowd({seed:11,round:true,rows:3,inner:3.0,step:.5,spacing:.5,rise:.05,g:G,style,lights:{p:.1,colors:[lin('#ffd9a0'),lin('#dfe9ff')]},skip:(x,z)=>edge.some(([a])=>Math.hypot(x-Math.sin(a)*2.72,z-Math.cos(a)*2.72)<.5)});
   k.crowd({seed:23,rows:1,inner:5.5,step:.5,spacing:.74,g:G,style,thin:.25,skip:(x,z)=>Math.abs(Math.abs(x)-fence)<.6&&Math.abs(Math.abs(z)-fence)<.6});
-  return {background:0x060607,fog:[9,25],lights:{hemi:[0xfff1d6,.30,0x2a2622],key:[0xfff3d9,3.0],fill:[0xb9c4d6,.32],rimA:[0xffd9a6,1.5],rimB:[0xffd9a6,1.5],a:[0xffb060,1.5],b:[0xff9a4a,1.2]}};
+  return {ring:false,referee:false,background:0x060607,fog:[9,25],lights:{hemi:[0xfff1d6,.30,0x2a2622],key:[0xfff3d9,3.0],fill:[0xb9c4d6,.32],rimA:[0xffd9a6,1.5],rimB:[0xffd9a6,1.5],a:[0xffb060,1.5],b:[0xff9a4a,1.2]}};
  }
 
  // ---------------------------------------------------------------- street
@@ -228,13 +245,18 @@
   car(-1.6,5.25,0,lin('#3c4046'),false);car(3.6,5.3,PI,lin('#8a8778'),false,true);car(-2.6,-5.3,PI,lin('#24364a'),false);car(2.7,-5.25,0,lin('#59302b'),false);car(13.2,5.3,0,lin('#3a4a3c'),false);car(-13.4,-5.3,PI,lin('#6a6a70'),false,true);
   // Fire barrels at two corners.
   for(const [x,z] of [[5.1,-5.0],[-5.1,5.0]]){const key='s'+sector(x,z);k.tube(key,.3,.9,x,G+.45,z,lin('#5a3a2c'));k.cone('glow',.05,.26,.42,x,G+1.08,z,[1,.55,.12],{seg:6});k.cone('glow',.02,.14,.5,x+.04,G+1.16,z,[1,.86,.4],{seg:5});}
-  // Onlookers: close around the ropes, with a few on the parked cars and pavements.
+  // GOTR-0065: no ring. A scuffed patch of asphalt and a chalk circle drawn round it; bins and a crate where the people stand.
+  k.disc('shell',2.6,0,G+.002,0,lin('#3f424a'));k.disc('shell',1.5,.3,G+.003,-.2,lin('#45474e'));
+  k.mark(2.3,G+.006,lin('#e9e7df'),{w:.06,gap:9,gain:1.3});k.box('s0',.9,.004,.05,0,G+.006,0,lin('#e9e7df'),.6);k.box('s0',.9,.004,.05,0,G+.006,0,lin('#e9e7df'),-.95);
+  const edge=[[1.1,'bin'],[2.9,'crate'],[4.4,'bin'],[5.8,'cone']];
+  for(const [a,what] of edge){const x=Math.sin(a)*2.75,z=Math.cos(a)*2.75,key='s'+sector(x,z);if(what==='bin'){k.tube(key,.26,.82,x,G+.41,z,lin('#3c4a3e'));k.tube(key,.28,.05,x,G+.84,z,lin('#2a332c'));}else if(what==='crate'){k.box(key,.55,.4,.55,x,G+.2,z,lin('#8a6a48'),a);k.box(key,.5,.36,.5,x+.05,G+.58,z,lin('#7b5c3e'),a+.4);}else{k.cone(key,.03,.17,.5,x,G+.26,z,lin('#d8642a'),{seg:8});k.box(key,.36,.04,.36,x,G+.02,z,lin('#d8642a'));}}
+  // Onlookers: a loose circle close round the fighters, with a few on the parked cars and pavements.
   const style={cloth:['#3d5a7a','#7a3b34','#4f6b4a','#8a7a4c','#3a3f4c','#6b4a6e','#9a5a2c','#2f3f4a','#b0a48c','#5a2f3a','#44556b'].map(lin),fur:FUR,legs:DARK_LEGS.concat([lin('#3c4a66')]),cheer:.36};
-  k.crowd({seed:31,rows:3,inner:2.62,step:.58,spacing:.52,rise:.045,g:G,style});
+  k.crowd({seed:31,round:true,rows:3,inner:3.0,step:.52,spacing:.52,rise:.045,g:G,style,lights:{p:.16,colors:[lin('#e8f1ff'),lin('#cfe4ff'),lin('#fff1d0')]},skip:(x,z)=>edge.some(([a])=>Math.hypot(x-Math.sin(a)*2.75,z-Math.cos(a)*2.75)<.45)});
   const rnd=random(77);
   for(const [x,z,y] of [[-1.9,5.2,1.42],[-1.1,5.3,1.42],[2.4,-5.2,1.42],[3.1,-5.3,1.42],[-2.2,-5.3,1.42],[3.3,5.3,1.45],[4.2,5.2,1.45]])k.person('s'+sector(x,z),x,z,G+y,Math.atan2(-x,-z),rnd,style);
   for(let i=0;i<34;i++){const side=i%2?1:-1,x=-13+rnd()*26,z=side*(KERB+.7+rnd()*1.9);if(Math.abs(x)<4.4&&rnd()<.2)continue;k.person((i&2?'a':'b')+sector(x,z),x,z,G+.16,Math.atan2(-x,-z)+(rnd()-.5),rnd,style);}
-  return {background:SKY,fog:[17,52],lights:{hemi:[0x9fb4ff,.40,0x3a2c22],key:[0xffd6a8,2.5],fill:[0x7f9cff,.72],rimA:[0xffb070,1.9],rimB:[0xffb070,1.7],a:[0xff9a3c,1.8],b:[0x6f8cff,1.3]}};
+  return {ring:false,referee:false,background:SKY,fog:[17,52],lights:{hemi:[0x9fb4ff,.40,0x3a2c22],key:[0xffd6a8,2.5],fill:[0x7f9cff,.72],rimA:[0xffb070,1.9],rimB:[0xffb070,1.7],a:[0xff9a3c,1.8],b:[0x6f8cff,1.3]}};
  }
 
  // ---------------------------------------------------------------- championship
@@ -361,7 +383,7 @@
 
  // ---------------------------------------------------------------- docks hangar
  function docks(k){
-  const G=-.31,HX=15,HZ=11,E=7,R=9.6,SKY=0x0d1326,sky=lin('#0d1326'),concrete=lin('#585b5f'),steel=lin('#59636c'),black=lin('#15171a'),yellow=lin('#d0aa1e'),paints=['#8a3a2a','#2f5a80','#3f6a48','#b8642a','#6a6f76','#7a2f3a','#2f6a70'].map(lin);
+  const G=-.015,HX=15,HZ=11,E=7,R=9.6,SKY=0x0d1326,sky=lin('#0d1326'),concrete=lin('#585b5f'),steel=lin('#59636c'),black=lin('#15171a'),yellow=lin('#d0aa1e'),paints=['#8a3a2a','#2f5a80','#3f6a48','#b8642a','#6a6f76','#7a2f3a','#2f6a70'].map(lin);
   k.ambient={sky:[.018,.022,.036],ground:[.022,.019,.016]};
   const bays=[];for(const x of [-8,0,8])for(const z of [-4.6,4.6])bays.push([x,z]);
   for(const [x,z] of bays)k.lights.push({x,y:6.3,z,c:[1,.68,.36],power:4.4,r:4.4,aim:[0,-1,0],cone:[.05,.7]});
@@ -374,7 +396,12 @@
   // Floor inside and the quay outside, lane paint, hazard square and puddles.
   k.quad('shell',64,56,6,G,-6,concrete,{rx:-PI/2,sx:32,sy:28});
   for(const s of [-1,1]){k.quad('shell',2*HX-3,.12,0,G+.004,s*6.6,yellow,{rx:-PI/2,sx:12});k.quad('shell',.12,13.2,s*(HX-1.5),G+.004,0,yellow,{rx:-PI/2,sy:8});}
-  for(const s of [-1,1])for(let i=0;i<4;i++){const t=-2.1+i*1.4;k.quad('shell',1.4,.24,t,G+.005,s*2.75,[1,1,1],{rx:-PI/2,uv:hazard});k.quad('shell',1.4,.24,s*2.75,G+.005,t,[1,1,1],{rx:-PI/2,ry:PI/2,uv:hazard});}
+  // GOTR-0065: no ring. Bare concrete under a hanging work lamp, a dashed yellow circle, a hazard strip by the quay door.
+  k.disc('shell',2.5,0,G+.003,0,lin('#4a5058'));k.mark(2.34,G+.008,yellow,{w:.09,gap:4});
+  for(let i=0;i<4;i++)k.quad('shell',1.4,.24,-2.1+i*1.4,G+.005,-6.2,[1,1,1],{rx:-PI/2,uv:hazard});
+  k.lights.push({x:0,y:3.4,z:0,c:[1,.86,.6],power:3.2,r:2.6,wrap:.35,aim:[0,-1,0],cone:[-.2,.5]});
+  k.box('shell',.02,E-3.55,.02,0,(E+3.55)/2,0,black);k.cone('shell',.06,.32,.24,0,3.48,0,lin('#c9a020'),{seg:10});k.ball('glow',.18,.035,.18,0,3.36,0,[1,.9,.66]);
+  k.beam('add',0,3.35,0,.18,2.4,3.36,[.075,.06,.036],{seg:16,curve:1.25});
   for(const [x,z,r] of [[5.2,3.8,1.1],[-6.1,-2.2,.8],[2.2,-7.6,1.3],[-3.8,6.9,.9],[9.6,-1.5,1.0]])k.disc('shell',r,x,G+.003,z,lin('#34373b'));
   // Corrugated walls with two open doors (quay side -Z, yard side +X).
   const wall=(x,z,ry,w,y0,y1)=>k.tiled('shell',w,y1-y0,x,(y0+y1)/2,z,[.5,.58,.64],rib,[3,3],{ry});
@@ -416,9 +443,12 @@
   pallet(7.2,5.6,2,'#7b6248');pallet(8.6,5.9,1,'#8a7a5c');pallet(-6.2,5.4,2,'#6a5a48');pallet(6.6,-8.4,1,'#7b6248');
   for(const [x,z,c] of [[5.6,6.9,'#2f5a80'],[6.2,7.2,'#8a3a2a'],[-5.3,-8.6,'#2f5a80'],[9.9,3.6,'#8a3a2a']])k.tube('s'+sector(x,z),.29,.88,x,G+.44,z,lin(c));
   for(const x of [-4,0,4,8])k.tube('shell',.16,.5,x,G+.25,-HZ-3.4,yellow);
-  // Dock crew around the ring.
-  k.crowd({seed:83,rows:2,inner:2.8,step:.62,spacing:.6,rise:.05,g:G,style,thin:.12});
-  return {background:SKY,fog:[30,90],lights:{hemi:[0xffd9a8,.36,0x2a2a30],key:[0xffe0b0,2.7],fill:[0x8fb0ff,.5],rimA:[0xffb060,1.8],rimB:[0xffb060,1.7],a:[0xff9a30,1.9],b:[0x7aa0ff,1.1]}};
+  // Dock crew in a loose circle round the fighters, between stacked crates and drums (GOTR-0065).
+  const edge=[[.8,2],[2.4,1],[3.9,2],[5.5,1]];
+  for(const [a,h] of edge){const x=Math.sin(a)*2.78,z=Math.cos(a)*2.78,key='s'+sector(x,z);for(let i=0;i<h;i++)k.box(key,.62,.46,.62,x,G+.23+i*.46,z,lin(['#8a7052','#7b6248','#6a5a48'][(i+Math.round(a))%3]),a+i*.3);}
+  for(const a of [1.6,4.7]){const x=Math.sin(a)*2.9,z=Math.cos(a)*2.9;k.tube('s'+sector(x,z),.29,.88,x,G+.44,z,paints[Math.round(a)%paints.length]);}
+  k.crowd({seed:83,round:true,rows:2,inner:3.1,step:.58,spacing:.56,rise:.05,g:G,style,thin:.1,lights:{p:.1,colors:[lin('#ffd08a'),lin('#e8f1ff')]},skip:(x,z)=>edge.some(([a])=>Math.hypot(x-Math.sin(a)*2.78,z-Math.cos(a)*2.78)<.6)||[1.6,4.7].some(a=>Math.hypot(x-Math.sin(a)*2.9,z-Math.cos(a)*2.9)<.45)});
+  return {ring:false,referee:false,background:SKY,fog:[30,90],lights:{hemi:[0xffd9a8,.36,0x2a2a30],key:[0xffe0b0,2.7],fill:[0x8fb0ff,.5],rimA:[0xffb060,1.8],rimB:[0xffb060,1.7],a:[0xff9a30,1.9],b:[0x7aa0ff,1.1]}};
  }
 
  // ---------------------------------------------------------------- regional arena
@@ -478,7 +508,8 @@
   if(k.ceiling)made.group.userData.cameraCeiling=k.ceiling-.9; // clear of beams, pipes and lamps hung from the slab
   if(k.cameraRadius)made.group.userData.cameraRadius=k.cameraRadius;
   let disposed=false;
-  return {id,lang,group:made.group,mood,sectors:made.sectors,stats:{triangles:made.triangles,meshes:made.meshes,texture:[k.atlas.w,k.atlas.h]},
+  // mood.ring===false (GOTR-0065): the fight is staged on the floor; ringless-venues.js hides the ring hardware and the referee.
+  return {id,lang,group:made.group,mood,ring:mood.ring!==false,sectors:made.sectors,stats:{triangles:made.triangles,meshes:made.meshes,texture:[k.atlas.w,k.atlas.h]},
    setLang(next){if(next===this.lang)return;this.lang=next;paint(next);},
    // cx,cz: unit direction from the ring to the camera in arena space.
    tick(cx,cz,time){for(const [i,s] of made.sectors.entries()){s.group.visible=s.x*cx+s.z*cz<.12;if(!s.group.visible)continue;for(const [j,mesh] of s.crowd.entries())mesh.position.y=.014*Math.sin(time*2.3+i*1.7+j*2.4);}},

@@ -6,7 +6,7 @@
   Object.freeze({id:'neon_strip',names:localized('Neon Strip','שדרת הניאון','Неоновый бульвар'),description:localized('Midnight indigo, cyan ropes and electric rose signage.','אינדיגו לילי, חבלים בגוון ציאן ושילוט ורוד זוהר.','Ночной индиго, голубые канаты и ярко-розовые вывески.')}),
   Object.freeze({id:'harbor_dome',names:localized('Harbor Dome','כיפת הנמל','Купол гавани'),description:localized('Marine blue, sea-glass canvas and warm brass details.','כחול ימי, משטח בגוון זכוכית ים ופרטי פליז חמים.','Морской синий, бирюзовый настил и тёплые латунные детали.')}),
   // Built sets (arena-sets.js): their own architecture, baked light and crowd around the same ring.
-  Object.freeze({id:'street',names:localized('Street Fight','קרב רחוב','Уличный бой'),description:localized('A roped square on the asphalt at dusk: street lamps, shopfronts, headlights and onlookers pressed close.','ריבוע חבלים על האספלט בשעת דמדומים: פנסי רחוב, חזיתות חנויות, פנסי מכוניות וקהל קרוב.','Квадрат из канатов на асфальте в сумерках: фонари, витрины, свет фар и зеваки вплотную.')}),
+  Object.freeze({id:'street',names:localized('Street Fight','קרב רחוב','Уличный бой'),description:localized('No ring: a chalk circle on the asphalt at dusk, street lamps, shopfronts, headlights and onlookers pressed close.','בלי זירה: עיגול גיר על האספלט בשעת דמדומים, פנסי רחוב, חזיתות חנויות, פנסי מכוניות וקהל קרוב.','Без ринга: круг мелом на асфальте в сумерках, фонари, витрины, свет фар и зеваки вплотную.')}),
   Object.freeze({id:'boxing_club',names:localized('Boxing Club','מועדון האגרוף','Боксёрский клуб'),description:localized('A working local club: brick walls, heavy bags, speed-bag platforms, posters and a few members at the apron.','מועדון שכונתי פעיל: קירות לבנים, שקי אגרוף, אגסי מהירות, פוסטרים וכמה חברי מועדון ליד הזירה.','Рабочий районный клуб: кирпичные стены, мешки, платформы для пневмогруш, афиши и несколько своих у ринга.')}),
   Object.freeze({id:'underground',names:localized('The Basement','המרתף','Подвал'),description:localized('An unlicensed fight night: low concrete ceiling, one harsh lamp, chain-link and a tight standing crowd.','ערב קרבות לא רשמי: תקרת בטון נמוכה, מנורה אחת חזקה, גדר רשת וקהל צפוף בעמידה.','Неофициальный бойцовский вечер: низкий бетонный потолок, одна резкая лампа, сетка и плотная толпа.')}),
   Object.freeze({id:'docks',names:localized('Dockside Hangar','האנגר הנמל','Портовый ангар'),description:localized('A port hangar under sodium lamps: open doors to cranes and containers, with the dock crew watching from the stacks.','האנגר בנמל באור נתרן: שערים פתוחים אל מנופים ומכולות, וצוות הרציף צופה מעל הערימות.','Портовый ангар под натриевыми лампами: открытые ворота на краны и контейнеры, докеры смотрят со штабелей.')}),
@@ -154,6 +154,7 @@
   if(scene.background?.isColor&&scene.background.getHex()!==bg){scene.background.setHex(bg);scene.fog?.color.setHex(bg);}
   const e=camera.matrixWorld.elements,yaw=arena.rotation.y,c=Math.cos(yaw),s=Math.sin(yaw),x=e[12]*c-e[14]*s,z=e[12]*s+e[14]*c,d=Math.hypot(x,z)||1;
   set.tick(x/d,z/d,engine.animTime||0);
+  window.RinglessVenues?.sync(engine,set); // GOTR-0065: Street, Basement, Docks: no ring, no referee, bare hands
  }
  function hookScene(engine,state){
   const scene=engine.scene;if(state.unhookScene||!scene)return;
@@ -179,6 +180,7 @@
  }
  function detach(engine,state){
   const set=state.set;if(!set)return;state.set=null;
+  window.RinglessVenues?.release(engine);
   for(const [node,mask] of state.masked||[])node.layers.mask=mask;state.masked=null;
   if(state.audience){state.audience.visible=true;state.audience=null;}
   set.dispose();moodOff(engine,state);
