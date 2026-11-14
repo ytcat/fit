@@ -101,6 +101,7 @@
       const arm = [de, du, dm].filter(Boolean).reduce((a, d) => d.lengthSq() > a.lengthSq() ? d : a, V());
       t.add(dh && dh.lengthSq() > arm.lengthSq() ? dh : arm).add(dh && arm.lengthSq() ? dh.clone().multiplyScalar(.3) : V());
       if (arm.lengthSq()) pl.lerp(arm.clone().normalize(), .5).normalize();
+      const reach = (j['elbow' + side].position.length() + j['hand' + side].position.length()) * .985, off = t.clone().sub(sh); if (off.length() > reach) t.copy(sh).addScaledVector(off.normalize(), reach); // never past the arm's reach
       err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl); orient();
     }
     target.copy(t); return err;
