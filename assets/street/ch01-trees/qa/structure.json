@@ -1,0 +1,18 @@
+{
+  "StreetTree": {
+    "wood_connected_components": 1,
+    "wood_nonmanifold_edges": 0,
+    "maximum_weight_sum_error": 2.9802322387695312e-08,
+    "fixed_root_vertex_max_motion_m": 0.0,
+    "loop_endpoint_max_error_m": 0.0,
+    "sampled_crown_motion_m": 0.0911341635578957
+  },
+  "StreetTreeLow": {
+    "wood_connected_components": 1,
+    "wood_nonmanifold_edges": 0,
+    "maximum_weight_sum_error": 2.9802322387695312e-08,
+    "fixed_root_vertex_max_motion_m": 0.0,
+    "loop_endpoint_max_error_m": 0.0,
+    "sampled_crown_motion_m": 0.09114703379135682
+  }
+}

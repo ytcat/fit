@@ -1,0 +1,31 @@
+TREE_STAGE StreetTree Continuous welded branch junctions vertices 74939 faces 75519
+TREE_STAGE StreetTree Organic branch subdivision vertices 300917 faces 300909
+TREE_STAGE StreetTree reduced wood vertices 8999 faces 16633
+ERROR Draco mesh compression is not available because library could not be found at /usr/bin/4.3/python/lib/python3.13/site-packages/libextern_draco.so
+21:24:39 | INFO: Starting glTF 2.0 export
+21:24:39 | INFO: Extracting primitive: StreetTree branch graph
+21:24:39 | INFO: Primitives created: 1
+21:24:39 | INFO: Extracting primitive: StreetTree directional opaque leaf fans
+21:24:39 | INFO: Primitives created: 3
+21:24:39 | INFO: Extracting primitive: StreetTree soil root bed
+21:24:39 | INFO: Primitives created: 1
+21:24:39 | INFO: Finished glTF 2.0 export in 0.49197816848754883 s
+
+TREE_STAGE StreetTreeLow Continuous welded branch junctions vertices 74939 faces 75519
+TREE_STAGE StreetTreeLow Organic branch subdivision vertices 300917 faces 300909
+TREE_STAGE StreetTreeLow reduced wood vertices 4000 faces 7661
+21:25:00 | INFO: Starting glTF 2.0 export
+21:25:00 | INFO: Extracting primitive: StreetTreeLow branch graph
+21:25:00 | INFO: Primitives created: 1
+21:25:00 | INFO: Extracting primitive: StreetTreeLow directional opaque leaf fans
+21:25:00 | INFO: Primitives created: 3
+21:25:00 | INFO: Extracting primitive: StreetTreeLow soil root bed
+21:25:00 | INFO: Primitives created: 1
+21:25:00 | INFO: Finished glTF 2.0 export in 0.3797464370727539 s
+
+Info: Packed 4 file(s)
+Info: Saved "street-tree.blend"
+TREE_MANIFEST {"asset": "Original Gloryland street broadleaf tree", "authoring": "Blender 4.3.2", "seed": 61309, "source": "street-tree.blend", "textures": "textures/", "units": "metres", "authoring_axes": "Z-up, +X/+Y horizontal", "glTF_axes": "Y-up, Blender (x,y,z) maps to glTF (x,z,-y)", "origin": "trunk centre at paving plane; soil and buried root tips below zero", "branch_construction": "Connected tree graph, native Skin modifier, Catmull-Clark subdivision; retained editable graphs in hidden collection", "foliage": "Opaque bent pointed leaf geometry on directional twig fans; no alpha blending", "animation": "Breeze: 4 seconds; 3 bones, root fixed; same smooth height weights on bark and leaves; artistic approximation, no physics simulation", "LOD": "Two separately selected GLBs; no automatic runtime switching; low keeps the same branching form and envelope", "build_commands": ["python scripts/authoring/build_tree_textures.py", "blender -b -t 2 --python scripts/authoring/build_street_tree.py"], "provenance": "All geometry and textures generated locally from original seeded scripts, no imported artwork or paid services", "game_integration": false, "physical_phone": "NOT VERIFIED", "assets": [{"file": "street-tree.glb", "bytes": 3256092, "triangles": 41136, "meshes": 3, "primitives": 5, "materials": 5, "skins": 1, "bones": 3, "animations": [{"name": "Breeze", "duration_seconds": 4.0, "channels": 9}], "rest_bounds_blender_xyz": [[-1.942500352859497, -2.121110200881958, -0.17135775089263916], [2.04878830909729, 1.9991118907928467, 6.304640293121338]], "leaf_count": 2880}, {"file": "street-tree-low.glb", "bytes": 2104620, "triangles": 19618, "meshes": 3, "primitives": 5, "materials": 5, "skins": 1, "bones": 3, "animations": [{"name": "Breeze", "duration_seconds": 4.0, "channels": 9}], "rest_bounds_blender_xyz": [[-1.9542429447174072, -2.132777452468872, -0.1692485511302948], [2.0628111362457275, 2.0110297203063965, 6.314926624298096]], "leaf_count": 1440}]}
+Blender 4.3.2
+
+Blender quit

@@ -19,3 +19,7 @@ Build-time tools: Blender (GPL), Python, NumPy (BSD) and Pillow (HPND). These to
 ## `ch01-oldtown/`
 
 Original two-building geometry, furnishings, plant leaves, signs and fictional RISE tag authored for this project with `build_oldtown_kit.py`, `city_blender_helpers.py` and `build_oldtown_textures.py`. Material maps are seeded numeric synthesis using NumPy/Pillow; no scan or downloaded texture was imported. Store names/livery are fictional. Signs use Blender's bundled default font; the graffiti letter paths are hand-authored polylines without an external font. `.blend` packs the generated material images. Ownership/licensing follows the project's owner; build-time tool licenses do not add a license to original exported artwork.
+
+## `ch01-car/` and `ch01-trees/`
+
+Original unbranded compact car and broadleaf trees authored locally with `build_street_car.py`, `build_street_tree.py` and `build_tree_textures.py`. No external meshes, scans, photographs or animation clips. The four 512 px tree textures are original seeded NumPy/Pillow synthesis; the car uses standard material parameters. Fictional plates use Blender's bundled font. Packed Blender sources retain editable geometry; tree motion is an original three-bone breeze, not a downloaded clip. Build-time Blender, Python, NumPy and Pillow are not game dependencies. Project ownership applies; no new public artwork license is granted here.
