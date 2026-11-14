@@ -75,15 +75,19 @@
   const CITY_OPENING = {
     props: {
       bus: [{ t: 0, v: [BUS_STOP + 56.6] }, { t: 2.2, v: [BUS_STOP + 28.6], ease: 'linear' }, { t: 6.7, v: [BUS_STOP], ease: 'out' }, { t: 10.7, v: [BUS_STOP] }, { t: 15.4, v: [BUS_STOP - 71], ease: 'in' }],
-      doorClip: [{ t: 0, v: [0] }, { t: 6.7, v: [0] }, { t: 8.0, v: [1.3], ease: 'linear' }, { t: 9.3, v: [3.0], ease: 'linear' }, { t: 10.63, v: [4.33], ease: 'linear' }] // opens once stopped
+      doorClip: [{ t: 0, v: [0] }, { t: 6.7, v: [0] }, { t: 7.6, v: [1.3], ease: 'linear' }, { t: 9.3, v: [3.0], ease: 'linear' }, { t: 10.63, v: [4.33], ease: 'linear' }] // opens once stopped, fully open before his first step (GOTR-0097)
     },
-    // GOTR-0097: one even walk from the bus floor to the door spot (1.39 m/s, the step phase lands the right foot on the tread
-    // and the left one on the pavement); the feet find the steps through `ground`, the body follows them down
+    // GOTR-0097: one even walk from the floor marker over the kerb marker to the door spot (1.14 m/s, a careful step down).
+    // Unseen in the bus he takes his last half step to the door (2.01 -> 2.5): that sets the step phase so the right foot
+    // lands on the entry tread and the left one on the pavement; the feet find the steps through `ground`
     fighter: [
       { t: 0, x: 2.75, z: 2.01, y: .57, act: 'off', face: 0, arms: { R: 'strap' } },
+      { t: 6.9, x: 2.75, z: 2.01 },
+      { t: 7.25, x: 2.75, z: 2.5 },
       { t: 7.3, act: 'idle', face: 0 },
-      { t: 7.7, x: 2.75, z: 2.01, y: .57 },
-      { t: 9.5, x: 2.75, z: 4.5, y: 0 }
+      { t: 7.7, x: 2.75, z: 2.5, y: .57 },                                                // the floor marker
+      { t: 8.88, x: 2.75, z: 3.85, y: 0 },                                                // the kerb marker
+      { t: 9.45, x: 2.75, z: 4.5, y: 0 }
     ],
     // what the feet stand on (world boxes, the highest wins; elsewhere the pavement, y 0): the bus floor and its entry tread
     // (bus model markers: floor y 0.57 to z ~2.85, tread y 0.26 to the body side at z 3.15), the road (y -0.15) between the kerbs

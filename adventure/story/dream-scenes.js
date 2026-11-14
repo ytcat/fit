@@ -105,7 +105,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
         // (fuller than the body, so the body does not receive shadows while it is used: it would shade itself)
         const track = []; for (let tt = 0; tt <= scene0.duration; tt += .1) { const f = C.sample(scene0, tt).actors.fighter; if (f && f.act !== 'off') track.push([tt, f.x, f.z]); }
         try { life = window.StreetLife.build(scene, { level: hi ? 2 : 1, track }); } catch (x) { console.warn('street life', x); life = null; }
-        for (const c of Object.values(rigs)) { c.root.traverse(o => { if (o.isMesh) { castWas.push([o, o.castShadow, o.receiveShadow]); o.castShadow = false; o.receiveShadow = false; } }); try { proxies.push(window.StreetLife.shadowProxy(c)); } catch (x) { console.warn('shadow stand-in', x); } }
+        if (hi) for (const c of Object.values(rigs)) { c.root.traverse(o => { if (o.isMesh) { castWas.push([o, o.castShadow, o.receiveShadow]); o.castShadow = false; o.receiveShadow = false; } }); try { proxies.push(window.StreetLife.shadowProxy(c)); } catch (x) { console.warn('shadow stand-in', x); } }
       }
       if (scene0.bag) { floorBag = Cast().duffel(); floorBag.visible = false; floorBag.castShadow = true; scene.add(floorBag); }
       // soft contact shadow under every character (and the bag): long toward the side away from the sun
