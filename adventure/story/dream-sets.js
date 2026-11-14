@@ -34,7 +34,7 @@
       pave(-70, 110, -14, -3.5); cut(-70, 110, (a, b) => pave(a, b, 3.5, 10.2)); joints(-44, 60, -8, -3.6); cut(-44, 60, (a, b) => joints(a, b, 3.6, 10)); curb(-70, 110, -3.62); cut(-70, 110, (a, b) => curb(a, b, 3.62));
       if (st) { pave(CL.gap[0], CL.gap[1], CL.pavingZ, 10.2); joints(CL.gap[0], CL.gap[1], CL.pavingZ + .1, 10); } // behind the modules' paving
       box(S, 20, -.6, -40, 200, .2, 52, '#b9b2a2'); box(S, 20, -.6, 36, 200, .2, 52, '#b9b2a2'); // ground behind the house rows (seen in the dive)
-      for (let x = 20.2; x < 24.2; x += 1.0) box(S, x + .25, -.148, 0, .5, .012, 6.4, '#f4f1e6'); // zebra crossing to the gym
+      for (let z = -3.0; z < 3.1; z += 1.0) box(S, 22.2, -.148, z, 4.0, .012, .5, '#f4f1e6'); // zebra crossing to the gym: bars along the traffic (x), side by side across the road; the walker steps over them (GOTR-0097)
       for (const z of [-3.9, 3.9]) for (let x = 20; x < 24.6; x += .5) box(S, x, .002, z, .3, .008, .3, '#e8c15a'); // tactile strip at the crossing
       if (!st) { box(S, -1, -.148, 3.38, 13, .012, .12, '#f4c152'); box(S, -1, -.148, .55, 13, .012, .1, '#f4c152'); } // bus bay lines
       // far side (lit by the morning sun): shops, flats, and Bruno's Gym at x = 27

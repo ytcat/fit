@@ -16,7 +16,7 @@
 (() => {
   const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t, smooth = t => { t = clamp(t); return t * t * (3 - 2 * t); };
-  const STRIDE = 1.16, DUTY = .62, ANKLE = .12, BALL = .13, HIP = .972, GAIT_X = .092;
+  const STRIDE = 1.30, DUTY = .62, ANKLE = .12, BALL = .13, HIP = .972, GAIT_X = .092, WALK_Y = .958, BOB = .028;
   // hand targets in rig space for the +x arm (mirrored for the other): [hand x, y, z], elbow pole, palm direction, wrist turn
   const GESTURES = {
     hang: { h: [.335, .985, .055], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 },
@@ -40,15 +40,30 @@
   const memo = rig => { let m = mem.get(rig); if (!m) { m = { hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
   const mirror = (a, s) => V(a[0] * s, a[1], a[2]);
 
-  /** One leg of the walk cycle at phase p (0..1): ankle position in rig space, foot pitch, whether it is planted. */
+  /* The walk cycle from human gait (GOTR-0097). Phase 0 = this leg's heel strike; stance 0..DUTY, swing DUTY..1; double
+   * support 0..0.12 and 0.50..0.62 (each foot is on the ground 62 % of the cycle, so one foot is always down, never airborne).
+   *   heel strike, ankle dorsiflexed (toes up) -> the foot rolls down round the heel -> foot flat (0.10) -> the body passes
+   *   over it (mid-stance ~0.25) -> heel off (0.42), the foot rolls over the ball -> toe off (DUTY) -> swing: the knee folds
+   *   (~60 deg at 0.72), the foot passes under the body with the toes clear and reaches forward, knee almost straight, heel first.
+   * The contact point (heel, then the whole sole, then the ball) is fixed to the ground: in the rig frame it moves back at
+   * exactly the walking speed, so nothing slides. The swing starts and ends at ground speed (Hermite tangents). */
+  const G = { hs: .30, flat: .10, heelOff: .34, toe: .75, heel: .065, sole: ANKLE, lift: .085 };
+  const rot = (oy, oz, th) => [oy * Math.cos(th) - oz * Math.sin(th), oy * Math.sin(th) + oz * Math.cos(th)]; // (y, z) of a foot point at pitch th (+ = toes down)
+  const herm = (a, b, ma, mb, w) => { const w2 = w * w, w3 = w2 * w; return (2 * w3 - 3 * w2 + 1) * a + (w3 - 2 * w2 + w) * ma + (-2 * w3 + 3 * w2) * b + (w3 - w2) * mb; };
+  function stance(p, stride) {
+    const hz = stride * .2 - stride * p; // heel contact point (rig z) while the foot is down
+    if (p < G.flat) { const th = -G.hs * (1 - smooth(p / G.flat)), [y, z] = rot(-G.sole, -G.heel, th); return { y: -y, z: hz - z, pitch: th, hz, ball: false }; } // heel rocker
+    if (p < G.heelOff) return { y: G.sole, z: hz + G.heel, pitch: 0, hz, ball: false };                                                                          // foot flat
+    const th = G.toe * smooth((p - G.heelOff) / (DUTY - G.heelOff)) ** 1.15, [y, z] = rot(-G.sole, BALL, th); return { y: -y, z: hz + G.heel + BALL - z, pitch: th, hz, ball: true }; // over the ball
+  }
+  /** One leg of the walk cycle at phase p (0..1): ankle target in rig space, foot pitch, whether it is planted. */
   function step(p, s, stride) {
-    const half = stride * DUTY / 2;
-    if (p < DUTY) { // stance: the ball of the foot stays on its spot while the body travels over it
-      const u = p / DUTY, toe = .62 * smooth((u - .66) / .34), heel = -.30 * (1 - smooth(u / .16));
-      return { x: s * GAIT_X, y: ANKLE + BALL * Math.sin(toe), z: half - stride * DUTY * u + BALL * (1 - Math.cos(toe)), pitch: toe + heel, planted: true, u };
-    }
-    const w = (p - DUTY) / (1 - DUTY), k = smooth(w), toe0 = .62, z0 = -half + BALL * (1 - Math.cos(toe0)), y0 = ANKLE + BALL * Math.sin(toe0);
-    return { x: s * GAIT_X, y: lerp(y0, ANKLE, k) + .075 * Math.sin(Math.PI * Math.min(1, w * 1.08)) * (1 - .3 * w), z: lerp(z0, half, k), pitch: lerp(toe0, -.30, smooth(w * 1.15)), planted: false, u: w };
+    p = ((p % 1) + 1) % 1;
+    if (p < DUTY) { const a = stance(p, stride); return { x: s * GAIT_X, y: a.y, z: a.z, pitch: a.pitch, planted: true, u: p / DUTY, hz: a.hz, ball: a.ball }; } // hz: heel contact z; ball: rolling over the ball
+    const w = (p - DUTY) / (1 - DUTY), a = stance(DUTY - 1e-6, stride), b = stance(0, stride), m = -stride * (1 - DUTY);
+    const lift = G.lift * Math.sin(Math.PI * Math.pow(w, .5)) ** 1.2, y = herm(a.y, b.y, 0, 0, w) + lift;
+    const pitch = w < .8 ? lerp(G.toe, -G.hs * 1.1, smooth(w / .8)) : lerp(-G.hs * 1.1, -G.hs, (w - .8) / .2);
+    return { x: s * GAIT_X, y, z: herm(a.z, b.z, m, m, w), pitch, planted: false, u: w };
   }
   const footQ = (yaw, pitch) => new THREE.Quaternion().setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
 
@@ -110,26 +125,47 @@
   function overlay(c, st, m) {
     const j = c.joints, t = st.t || 0, w = m.walk, phase = ((st.dist || 0) / STRIDE) % 1, tau = Math.PI * 2, sw = Math.sin(phase * tau), cw = Math.cos(phase * tau);
     const breath = Math.sin(t * 1.7 + (c.character ? 1.3 : 0)), idle = 1 - w, shift = Math.sin(t * .43 + (c.character === 'bruno' ? 2 : 0)) * idle;
-    // legs: stand targets blended with the walk cycle
-    const plans = [];
+    // legs: stand targets blended with the walk cycle. st.ground(x, z) -> world height under a point (steps: the bus floor,
+    // its tread, the kerb): each foot stands on what is under it; a planted foot keeps its step, a swinging foot clears the
+    // edge and lands on the next one (GOTR-0097)
+    const plans = [], R = c.root, gnd = typeof st.ground === 'function' ? (x, ...zs) => Math.max(...zs.map(z => { const q = R.localToWorld(V(x, 0, z)); return st.ground(q.x, q.z); })) - R.position.y : null;
+    if (gnd) R.updateMatrixWorld(true);
     for (const s of [-1, 1]) {
-      const side = s < 0 ? 'L' : 'R', g = step((phase + (s < 0 ? 0 : .5)) % 1, s, STRIDE), stand = st.feet?.[side];
+      const side = s < 0 ? 'L' : 'R', pg = (phase + (s < 0 ? 0 : .5)) % 1, g = step(pg, s, STRIDE), stand = st.feet?.[side];
       const sx = stand ? stand[0] : s * (st.wide ?? .118), sz = stand ? stand[2] : s * -.012, sy = ANKLE + (stand ? stand[1] : 0);
-      plans.push({ side, s, x: lerp(sx, g.x, w), y: lerp(sy, g.y, w), z: lerp(sz, g.z, w), pitch: g.pitch * w, yaw: s * lerp(st.toes ?? .16, .07, w), planted: g.planted });
+      let off = 0;
+      if (gnd) {
+        let ow = 0; const back = G.heel + .01, fore = BALL;
+        if (g.planted) ow = gnd(g.x, g.z - back, g.z + fore);
+        else { const a = stance(DUTY - 1e-6, STRIDE).z - (pg - DUTY) * STRIDE, b = stance(0, STRIDE).z + (1 - pg) * STRIDE, o0 = gnd(g.x, a - back - BALL, a), o1 = gnd(g.x, b - back, b + fore); ow = Math.max(lerp(o0, o1, o1 > o0 ? smooth(g.u / .55) : smooth((g.u - .35) / .5)), gnd(g.x, g.z - back - .03, g.z + fore + .03)); } // never through the step it passes over
+        off = lerp(gnd(sx, sz - back, sz + fore), ow, w);
+      }
+      const yawF = s * lerp(st.toes ?? .16, .07, w);
+      if (g.planted) { // the toed-out foot: heel and ball lie along its own (turned) axis, the pivot stays on its spot
+        const sy = Math.sin(yawF), cy = Math.cos(yawF), [oy, oz] = rot(-G.sole, g.ball ? BALL : -G.heel, g.pitch), L = g.ball ? G.heel + BALL : 0;
+        g.x = g.x + L * sy - oz * sy; g.z = g.hz + L * cy - oz * cy; g.y = -oy;
+      } else { // the same turn at toe-off and at the next heel strike, blended through the swing (no jump at either end)
+        const sy = Math.sin(yawF), cy = Math.cos(yawF), L = G.heel + BALL, o0 = rot(-G.sole, BALL, G.toe)[1], o1 = rot(-G.sole, -G.heel, -G.hs)[1], k = smooth(g.u);
+        g.x += lerp((L - o0) * sy, -o1 * sy, k); g.z += lerp((L - o0) * (cy - 1), -o1 * (cy - 1), k);
+      }
+      plans.push({ side, s, off, x: lerp(sx, g.x, w), y: lerp(sy, g.y, w) + off, z: lerp(sz, g.z, w), pitch: g.pitch * w, yaw: yawF, planted: g.planted || w < .5 });
     }
-    // pelvis: turns with the swinging leg, rolls onto the stance leg, rides as high as the legs allow
-    const hips = j.hips, yaw = .11 * cw * w, // the hip of the leading leg comes forward
-       sway = (-.022 * sw) * w + .012 * shift;
-    hips.rotation.set(0, yaw, .035 * sw * w + .02 * shift); hips.position.set(sway, HIP, .01 * w);
+    // pelvis (GOTR-0097): nearly level. A small bob, lowest just after each heel strike (double support), highest at
+    // mid-stance; it turns +-5 deg (the hip of the leading leg forward), drops +-3.5 deg on the swing side while the other
+    // leg takes the weight, and shifts 2 cm over the stance foot
+    const hips = j.hips, pL = phase, yaw = .085 * Math.cos(pL * tau) * w, roll = -.06 * Math.sin((pL + .15) * tau) * w, hb = (pL * 2) % 1, bob = hb < .16 ? -.3 * Math.sin(Math.PI * hb / .16) : hb < .5 ? smooth((hb - .16) / .34) : 1 - smooth((hb - .5) / .5) // the knee gives a little as the heel takes the weight;
+    const sway = -.02 * Math.sin((pL - .05) * tau) * w + .012 * shift;
+    hips.rotation.set(0, yaw, roll + .02 * shift); hips.position.set(sway, HIP, .012 * w);
     c.root.updateMatrixWorld(true);
-    let y = HIP + .004 * breath * idle - (m.drop || 0);
-    for (const p of plans) { const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .992 : .975), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz))); }
-    hips.position.y = y - .012 * w;
-    const stoop = c.character === 'bruno' ? .085 : 0, lean = m.lean + .035 * w + stoop; // the old champion carries his years in his back
-    j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .75, -.03 * sw * w - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * .9, -.02 * sw * w - .008 * shift);
-    j.neck.position.copy(c.neckRest); j.neck.rotation.set(-m.pitch * .4 - (lean - stoop * .4) * .5, m.yaw * .4 + yaw * .3, 0);
+    let y = lerp(HIP + .004 * breath * idle, WALK_Y + BOB * bob, w) - (m.drop || 0) + (plans[0].off + plans[1].off) / 2;
+    for (const p of plans) { const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .998 : 1.02), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz))); } // never past the legs' reach
+    hips.position.y = y;
+    const stoop = c.character === 'bruno' ? .085 : 0, lean = m.lean + .04 * w + stoop; // the old champion carries his years in his back
+    // the thorax turns against the pelvis and keeps the shoulders level; neck and head take the turn back out (head steady)
+    j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .85, -roll * .5 - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * 1.0, -roll * .35 - .008 * shift);
+    j.neck.position.copy(c.neckRest); j.neck.rotation.set(-m.pitch * .4 - (lean - stoop * .4) * .5, m.yaw * .4 + yaw * .4, 0);
     const nod = (st.nod || 0) * .06 * Math.sin(t * 6.5) + (st.talk || 0) * .025 * Math.sin(t * 9.1) + (st.listen || 0) * .05 * Math.max(0, Math.sin(t * 1.9 + 1)) ** 4;
-    j.head.rotation.set(.03 - m.pitch * .6 - lean * .4 + nod, m.yaw * .6 + yaw * .35, (st.tilt || 0) + (st.listen || 0) * .05 + .012 * shift);
+    j.head.rotation.set(.03 - m.pitch * .6 - lean * .4 + nod + .012 * w * Math.cos(2 * tau * (pL - .02)), m.yaw * .6 + yaw * .45, (st.tilt || 0) + (st.listen || 0) * .05 + .012 * shift - roll * .15);
     for (const side of ['L', 'R']) { const s = side === 'L' ? -1 : 1; j['scapula' + side].position.set(s * .17, .17, -.06); j['scapula' + side].rotation.set(0, 0, 0); }
     c.root.updateMatrixWorld(true);
     const footTargets = [];
@@ -144,7 +180,7 @@
     for (const side of ['L', 'R']) {
       const s = side === 'L' ? -1 : 1, name = st.arms?.[side] || 'hang', g = GESTURES[name] || GESTURES.hang, swing = (name === 'hang' ? 1 : name === 'carry' ? .25 : 0) * w * (s < 0 ? -1 : 1) * Math.cos((phase - .04) * tau); // the arm swings against its own leg
       const hand = st.reach?.[side] ? V(...st.reach[side]) : mirror(g.h, s), pole = mirror(g.pole, s), palm = mirror(g.palm, s); // reach: an exact hand target in rig space
-      hand.z += .19 * swing; hand.y += .035 * Math.abs(swing) + .004 * breath * idle; hand.x += s * (.012 * w);
+      hand.z += swing > 0 ? .21 * swing : .15 * swing; hand.y += (swing > 0 ? .055 : .015) * Math.abs(swing) + .004 * breath * idle; hand.x += s * (.012 * w) - s * .015 * Math.max(0, swing); // from the shoulder: ~22 deg forward with the elbow a little more bent, ~15 deg back
       if (name !== 'hang' && name !== 'carry' && name !== 'strap' && name !== 'hips' && name !== 'cross' && name !== 'cross2') { const beat = (st.talk || 0) * Math.sin(t * 5.3 + s); hand.y += .022 * beat; hand.z += .018 * beat; } // the hand moves with the words
       const k = st.dt > 0 && m.hand[side] ? 1 - Math.exp(-st.dt * 9) : 1;
       m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? m.pole[side].lerp(pole, k) : pole; m.palm[side] = m.palm[side] ? m.palm[side].lerp(palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
