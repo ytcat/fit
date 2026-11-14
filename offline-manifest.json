@@ -1,5 +1,5 @@
 {
-  "version": "v165-20261113q",
+  "version": "v166-20261114a",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -31,9 +31,9 @@
     "./game-world.js?v=2026111112",
     "./fight-iq.js?v=2026110801",
     "./game-accessories.js?v=2026111111",
-    "./game-venues.js?v=2026111016",
-    "./arena-sets.js?v=2026111016",
-    "./ringless-venues.js?v=2026111320",
+    "./game-venues.js?v=2026111401",
+    "./arena-sets.js?v=2026111401",
+    "./ringless-venues.js?v=2026111401",
     "./game-tournament.js?v=2026111112",
     "./academy-lesson.js?v=2026111011",
     "./adventure-progress.js?v=2026111306",
@@ -49,7 +49,7 @@
     "./occlusion-guard.js?v=2026111302",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111119",
-    "./version.js?v=2026111318",
+    "./version.js?v=2026111401",
     "./club-interface.js?v=2026111112",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
