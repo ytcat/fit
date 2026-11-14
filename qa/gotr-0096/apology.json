@@ -49,15 +49,15 @@
    "calls": 73,
    "triangles": 633470,
    "shot": 3,
-   "t": 11,
+   "t": 10.85,
    "line": "FighterThat was me. Last night. I'm sorry, Bruno.▸",
    "buyShown": false,
    "bought": false
   },
   {
    "label": "e",
-   "calls": 63,
-   "triangles": 610156,
+   "calls": 69,
+   "triangles": 631644,
    "shot": 4,
    "t": 15,
    "line": "BrunoForty years that bag hung there. Forty.▸",
@@ -113,11 +113,9 @@
   "dialogs": 0
  },
  "log": [
-  "warning [.WebGL-0x163c015e2800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-  "warning [.WebGL-0x163c015e2800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-  "warning [.WebGL-0x163c015e2800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-  "warning [.WebGL-0x163c015e2800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
-  "error Failed to load resource: net::ERR_CONNECTION_REFUSED",
-  "warning Shoulder detail unavailable; using original surface."
+  "warning [.WebGL-0x161c0156c800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x161c0156c800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x161c0156c800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x161c0156c800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
  ]
 }

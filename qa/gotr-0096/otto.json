@@ -16,8 +16,8 @@
  "frames": [
   {
    "label": "a",
-   "calls": 72,
-   "triangles": 632116,
+   "calls": 73,
+   "triangles": 633396,
    "shot": 0,
    "t": 2.55,
    "line": "▸",
@@ -26,18 +26,18 @@
   },
   {
    "label": "b",
-   "calls": 99,
-   "triangles": 723744,
+   "calls": 100,
+   "triangles": 725024,
    "shot": 1,
-   "t": 6.5,
+   "t": 6.45,
    "line": "▸",
    "buyShown": false,
    "bought": false
   },
   {
    "label": "c",
-   "calls": 98,
-   "triangles": 711260,
+   "calls": 99,
+   "triangles": 712540,
    "shot": 2,
    "t": 10,
    "line": "OttoWelcome to Otto's Corner! Mind the step.▸",
@@ -46,8 +46,8 @@
   },
   {
    "label": "d",
-   "calls": 83,
-   "triangles": 684250,
+   "calls": 84,
+   "triangles": 685530,
    "shot": 3,
    "t": 13.5,
    "line": "FighterMrs. Hazel sent me. I need a heavy bag.▸",
@@ -56,8 +56,8 @@
   },
   {
    "label": "e",
-   "calls": 121,
-   "triangles": 729898,
+   "calls": 122,
+   "triangles": 731178,
    "shot": 5,
    "t": 18.9,
    "line": "OttoDouble-stitched. She'll outlast us both.▸",
@@ -66,8 +66,8 @@
   },
   {
    "label": "f",
-   "calls": 118,
-   "triangles": 721594,
+   "calls": 119,
+   "triangles": 722874,
    "shot": 5,
    "t": 21.8,
    "line": "Otto90 coins, and she's yours.▸",
@@ -76,18 +76,18 @@
   },
   {
    "label": "g",
-   "calls": 89,
-   "triangles": 637560,
+   "calls": 90,
+   "triangles": 638840,
    "shot": 7,
-   "t": 29,
+   "t": 28.85,
    "line": "OttoLift with your legs, champ!▸",
    "buyShown": false,
    "bought": true
   },
   {
    "label": "h",
-   "calls": 88,
-   "triangles": 637060,
+   "calls": 89,
+   "triangles": 638340,
    "shot": 8,
    "t": 33.5,
    "line": "FighterBruno's going to love this.▸",
@@ -114,9 +114,9 @@
   "dialogs": 0
  },
  "log": [
-  "warning [.WebGL-0x39fc01586600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-  "warning [.WebGL-0x39fc01586600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-  "warning [.WebGL-0x39fc01586600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-  "warning [.WebGL-0x39fc01586600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  "warning [.WebGL-0x243c016e6c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x243c016e6c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x243c016e6c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x243c016e6c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
  ]
 }

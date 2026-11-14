@@ -97,6 +97,8 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     assert.ok(snatch.inFang, 'Fang has the handbag'); assert.deepEqual(snatch.scale, [-1, 1, 1], 'Fang mirrored like every rig'); assert.equal(snatch.wear, 'jacket');
     await p.evaluate(() => DreamScenes.seek(16)); await p.waitForTimeout(1500);
     assert.equal(await p.evaluate(() => StoryCast.rig('fang', app.engine).castWear), 'fight', 'the jacket is off before the fight');
+    await p.evaluate(() => DreamScenes.seek(3)); await p.waitForTimeout(1500); assert.equal(await p.evaluate(() => StoryCast.rig('fang', app.engine).castWear), 'jacket', 'seeking back puts the jacket on');
+    await p.evaluate(() => DreamScenes.seek(18.3)); await p.waitForTimeout(1500); assert.equal(await p.evaluate(() => StoryCast.rig('fang', app.engine).castWear), 'fight', 'jumping over the jacket beat still takes it off');
     // the film ends -> the street fight with Fang (ringless street, bare hands)
     await p.evaluate(() => DreamScenes.seek(18.7));
     await wait(() => !DreamScenes.playing && AdventureOldTown.run?.id === 'market_robber' && app.engine.arena?.fightView);

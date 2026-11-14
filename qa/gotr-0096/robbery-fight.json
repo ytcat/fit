@@ -1,0 +1,21 @@
+{
+ "state": {
+  "foe": true,
+  "name": "Fang",
+  "ringless": "street",
+  "ringVisible": false,
+  "fangGloves": false,
+  "fangWear": "fight",
+  "fighter": "street",
+  "scale": [
+   1,
+   1
+  ]
+ },
+ "labels": [
+  "film end",
+  "fight start",
+  "fight"
+ ],
+ "log": []
+}

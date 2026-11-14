@@ -53,7 +53,8 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     const run = { id, closed: false, t: 0, clock: 0, ack: -1, waiting: false, shot: 0, lineIndex: -1, phase: 'load', mapT: 0, bought: !!opts.owned, buying: false };
     current = run;
     let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false, props = null;
-    const look = V(), turn = new Map();
+    const look = V(), turn = new Map(), jacketAt = {}; // the time of each actor's jacket-off key (Fang, GOTR-0096)
+    for (const [k, a] of Object.entries(scene0.actors || {})) { const j = a.keys.find(q => q.act === 'jacketoff'); if (j) jacketAt[k] = j.t; }
     const finish = (result = {}) => {
       if (run.closed) return; run.closed = true; if (current === run) current = null;
       try { cleanup(); } catch (x) { console.warn('dream', x); }
@@ -189,6 +190,9 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
           let u = (run.clock % BOX_T), move = 'guard', ph = 0; if (a.act === 'box') for (const [m, dur] of BOX) { if (u < dur) { move = m; ph = u / dur; break; } u -= dur; }
           if (move === 'guard') c.update(run.clock, 'guard', 'one_two', { simulationTime: run.clock, keepFaceClear: true, guardCover: 1 }); else c.update(ph * 1.22, move, 'one_two', { simulationTime: run.clock, keepFaceClear: true, guardCover: 1, power: 1.15, recoil: 0, advance: 0, contactDrive: 0 });
           Pose().reset(c);
+        } else if (a.act !== 'jacketoff' && c.castFight && jacketAt[k] != null && Cast().market) { // before / after Fang's jacket beat, whatever the playback jumped over
+          const J = window.MarketCore?.JACKET_T || 2.2; if (run.t >= jacketAt[k] + J) { if (c.castWear !== 'fight' || !c.castJacketGround?.visible) Cast().market.jacketOff(c, 1); } else if (run.t < jacketAt[k] && c.castWear !== 'jacket') Cast().market.wear(c, 'jacket');
+          Pose().civil(c, { t: run.clock, dt, dist: a.dist, walk: a.walking ? 1 : 0, arms: a.arms || {}, reach: props?.reach(k, run.t), look: lookFor(a, k, s), lean: a.lean || 0, drop: a.drop || 0, talk: talking === k ? 1 : 0, listen: talking && talking !== k ? 1 : 0, nod: 0 });
         } else if (a.act === 'jacketoff' && Cast().market?.jacketOff) {
           const u = clamp(a.actT / (window.MarketCore?.JACKET_T || 2.2)), p = Cast().market.jacketOff(c, u) || {}; // Fang, before the street fight
           Pose().civil(c, { t: run.clock, dt, dist: a.dist, walk: 0, arms: p.arms || {}, look: p.look || lookFor(a, k, s), lean: p.lean || 0, talk: talking === k ? 1 : 0, listen: talking && talking !== k ? 1 : 0, nod: 0 });
