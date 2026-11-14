@@ -80,18 +80,28 @@
     const out = rest.clone(); if (have < 1e-4) out.x = need; else { out.x *= need / have; out.z *= need / have; }
     return out.sub(restOf(c, bone)).applyMatrix4(inv).sub(q);
   }
-  function clearArm(c, side, target, pole, rest = false) {
+  /** Corners and face centres of the box round what the hand joint carries (bare hand or glove), in the hand frame. */
+  const handBoxes = new WeakMap();
+  function handPoints(c, side) {
+    const hand = c.joints['hand' + side], vis = []; hand.traverse(o => { if (o.isMesh && o.visible) vis.push(o); }); const key = vis.map(o => o.uuid).join();
+    let m = handBoxes.get(hand); if (m?.key === key) return m.pts;
+    const box = new THREE.Box3(), inv = new THREE.Matrix4().copy(hand.matrixWorld).invert(), v = V(); hand.updateWorldMatrix(true, true);
+    for (const o of vis) { if (o.geometry.attributes.position.count < 30) continue; const P = o.geometry.attributes.position, M = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld); for (let i = 0; i < P.count; i += 3) box.expandByPoint(v.fromBufferAttribute(P, i).applyMatrix4(M)); }
+    const pts = []; if (!box.isEmpty()) { const lo = box.min, hi = box.max, mid = box.getCenter(V()); for (const x of [lo.x, mid.x, hi.x]) for (const y of [lo.y, mid.y, hi.y]) for (const z of [lo.z, mid.z, hi.z]) if ((x !== mid.x) + (y !== mid.y) + (z !== mid.z) >= 2) pts.push(V(x, y, z).lerp(mid, .12)); }
+    handBoxes.set(hand, { key, pts }); return pts;
+  }
+  function clearArm(c, side, target, pole, rest = false, orient = () => {}) {
     const j = c.joints, prof = profile(c), glove = c.gloveMeshes?.[side]?.visible, hr = glove ? .11 : .05, t = target.clone(), pl = pole.clone();
-    let err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl);
-    for (let it = 0; it < 4; it++) {
+    let err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl); orient();
+    for (let it = 0; it < 6; it++) {
       const sh = c.point(j['arm' + side]), el = c.point(j['elbow' + side]), ha = c.point(j['hand' + side]);
-      const tip = c.root.worldToLocal(j['hand' + side].localToWorld(V(0, glove ? -.07 : -.1, 0))), dt = clearance(c, prof, tip, glove ? .07 : .03, .02, side);
-      const dh0 = clearance(c, prof, ha, hr, rest ? 0 : .02, side), dh = dt && (!dh0 || dt.lengthSq() > dh0.lengthSq()) && !rest ? dt : dh0, dm = clearance(c, prof, ha.clone().lerp(el, .5), .06, .02, side), de = clearance(c, prof, el, .075, .02, side), du = sh.y - el.y > .12 ? clearance(c, prof, sh.clone().lerp(el, .7), .085, .02, side) : null;
+      j['hand' + side].updateWorldMatrix(true, false); let dt = null; if (!rest) for (const q of handPoints(c, side)) { const d = clearance(c, prof, c.root.worldToLocal(j['hand' + side].localToWorld(q.clone())), .008, .022, side); if (d && (!dt || d.lengthSq() > dt.lengthSq())) dt = d; }
+      const dh0 = clearance(c, prof, ha, hr, rest ? 0 : .02, side), dh = dt && (!dh0 || dt.lengthSq() > dh0.lengthSq()) ? dt : dh0, dm = clearance(c, prof, ha.clone().lerp(el, .5), .068, .02, side), de = clearance(c, prof, el, .075, .02, side), du = sh.y - el.y > .12 ? clearance(c, prof, sh.clone().lerp(el, .7), .085, .02, side) : null;
       if (!dh && !dm && !de && !du) break;
       const arm = [de, du, dm].filter(Boolean).reduce((a, d) => d.lengthSq() > a.lengthSq() ? d : a, V());
       t.add(dh && dh.lengthSq() > arm.lengthSq() ? dh : arm).add(dh && arm.lengthSq() ? dh.clone().multiplyScalar(.3) : V());
       if (arm.lengthSq()) pl.lerp(arm.clone().normalize(), .5).normalize();
-      err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl);
+      err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl); orient();
     }
     target.copy(t); return err;
   }
@@ -138,7 +148,7 @@
       const k = st.dt > 0 && m.hand[side] ? 1 - Math.exp(-st.dt * 9) : 1;
       m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? m.pole[side].lerp(pole, k) : pole; m.palm[side] = m.palm[side] ? m.palm[side].lerp(palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
       const target = m.hand[side].clone(); target.y += hips.position.y - HIP; // hands ride with the pelvis
-      handErrors.push(clearArm(c, side, target, m.pole[side], name === 'strap')); // the strap hand rests on the strap gloves.push(c.orientGlove(side, m.turn[side], m.palm[side]));
+      handErrors.push(clearArm(c, side, target, m.pole[side], name === 'strap', () => c.orientGlove(side, m.turn[side], m.palm[side]))); // the strap hand rests on the strap gloves.push(c.orientGlove(side, m.turn[side], m.palm[side]));
     }
     const bag = c.storyCast?.bagBody; if (bag) bag.rotation.z = -.5 + .045 * Math.sin(phase * tau * 2) * w;
     return { gloves, handErrors, footTargets };
