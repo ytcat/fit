@@ -10,7 +10,7 @@
  Object.assign(words.ru,{quickfight:'Быстрый бой · 1 минута',quickhelp:'Один раунд 60 секунд · здоровье · нокаут или ничья',KO:'KO',health:'по здоровью'});
  Object.assign(words.en,{judges:'Judges'});Object.assign(words.he,{judges:'שופטים'});Object.assign(words.ru,{judges:'Судьи'});
  // GOTR-0076: the corner break (20 s) and its skip button
- Object.assign(words.en,{clubhelp:'20-second corner break',skipBreak:'Skip break'});Object.assign(words.he,{clubhelp:'הפסקה בפינה של 20 שניות',skipBreak:'דילוג על ההפסקה'});Object.assign(words.ru,{clubhelp:'Перерыв в углу 20 секунд',skipBreak:'Пропустить перерыв'});
+ Object.assign(words.en,{restNext:'Corner break · next round',clubhelp:'20-second corner break',skipBreak:'Skip break'});Object.assign(words.he,{restNext:'מנוחה בפינה · הסיבוב הבא',clubhelp:'הפסקה בפינה של 20 שניות',skipBreak:'דילוג על ההפסקה'});Object.assign(words.ru,{restNext:'Перерыв · следующий раунд',clubhelp:'Перерыв в углу 20 секунд',skipBreak:'Пропустить перерыв'});
  for(const lang of ['en','he','ru'])Object.assign(words[lang],lang==='en'?{quickfight:'20 seconds',quickhelp:'One short round',six:'40 seconds',title:'60 seconds',club:'2 × 20 seconds',real:'10-second corner breaks',quick:'20-second rounds · 10-second breaks'}:lang==='he'?{quickfight:'20 שניות',quickhelp:'סיבוב קצר אחד',six:'40 שניות',title:'60 שניות',club:'2 × 20 שניות',real:'10 שניות מנוחה',quick:'סיבובים של 20 שניות'}:{quickfight:'20 секунд',quickhelp:'Один короткий раунд',six:'40 секунд',title:'60 секунд',club:'2 × 20 секунд',real:'Перерыв 10 секунд',quick:'Раунды по 20 секунд'});
  const clock=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
  function boot(){
@@ -41,7 +41,7 @@
   }
   let last='';
   function render(view){
-   const m=view.match,s=m.snapshot(),key=[labels(view).lion,labels(view).rabbit,app.lang,s.phase,s.round,Math.ceil(s.remaining),Math.ceil(s.restRemaining),s.count,s.cardsShown,s.totals.lion.landed,s.totals.rabbit.landed,s.health?.lion,s.health?.rabbit].join('|');if(last===key)return;last=key;
+   const m=view.match,s=m.snapshot(),key=[labels(view).lion,labels(view).rabbit,app.lang,s.phase,s.round,Math.ceil(s.remaining),Math.ceil(s.restRemaining),s.count,s.cardsShown,s.totals.lion.landed,s.totals.rabbit.landed,s.health?.lion,s.health?.rabbit,!!view.storyFight].join('|');if(last===key)return;last=key;
    health.hidden=false;health.setAttribute('aria-label',labels(view).lion+' VS '+labels(view).rabbit);
    for(const actor of ['lion','rabbit']){const bar=corners[actor],value=Math.max(0,Math.min(100,s.health?.[actor]??100)),shown=String(Math.ceil(value)),name=labels(view)[actor];
     bar.label.textContent=name;bar.value.textContent=shown;bar.track.setAttribute('aria-label',name+' · '+shown);bar.track.setAttribute('aria-valuenow',String(Math.round(value)));bar.track.setAttribute('aria-valuetext',shown);
@@ -49,7 +49,7 @@
     // A drop in reported health restarts the short hit flash; the values themselves are shown untouched.
     if(bar.last!=null&&value<bar.last){bar.hit=bar.hit==='a'?'b':'a';bar.player.dataset.hit=bar.hit;}bar.last=value;bar.player.dataset.low=String(value<=25);bar.player.dataset.out=String(value<=0);}
    banner.hidden=!(s.result?.stoppage==='KO');banner.textContent=s.result?.winner?w().KO.toUpperCase()+' · '+labels(view)[s.result.winner]+' '+w().winner:w().KO.toUpperCase()+' · '+w().draw;
-   const round=s.phase==='round',status=round?w().round+' '+s.round+'/'+s.rounds:s.phase==='rest'?w().rest:s.phase==='count'?w().count:s.phase==='intro'?w().intro:s.phase==='scoring'?w().pending:'',time=round?clock(s.remaining):s.phase==='rest'?clock(s.restRemaining):s.phase==='count'?String(s.count):'';
+   const round=s.phase==='round',status=round?w().round+' '+s.round+'/'+s.rounds:s.phase==='rest'?(w().restNext||w().rest):s.phase==='count'?w().count:s.phase==='intro'?w().intro:s.phase==='scoring'?w().pending:'',time=round?clock(s.remaining):s.phase==='rest'?clock(s.restRemaining):s.phase==='count'?String(s.count):'';
    skip.hidden=!(s.phase==='rest'&&m.restSeconds>0&&!s.result);skip.textContent=w().skipBreak;
    hud.hidden=!status;hud.dataset.phase=s.phase;hud.replaceChildren(make('span','fight-hud-phase',status));if(time)hud.append(make('span','fight-hud-sr',' · '),make('span','fight-hud-clock',time));
    if(round)for(const actor of ['lion','rabbit']){const score=make('span','fight-hud-score');score.dataset.corner=actor==='lion'?'red':'blue';score.append(make('span','fight-hud-sr',' · '+labels(view)[actor]+' '),make('span','fight-hud-num',String(s.totals[actor].landed)));hud.append(score);}
@@ -60,7 +60,7 @@
    const onCards=s.result.stoppage==='points';panel.dataset.cards=String(onCards);panel.append(make('strong','fight-result-title',title));
    if(onCards){const cards=make('div','fight-card-grid');cards.setAttribute('aria-label',w().judges);for(const [i,card] of s.result.cards.entries()){const cell=make('div','fight-card');cell.append(make('span','',w().judge+' '+(i+1)),make('strong','',i<s.cardsShown?card.totals.join(' – '):'•• – ••'));cards.append(cell);}panel.append(cards);}
    if(s.result.method==='TKO')panel.append(make('p','fight-note',w().stoppage));
-   const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;actions.append(details,again);panel.append(actions);
+   const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;if(view.storyFight)actions.append(details);else actions.append(details,again);panel.append(actions); // a story fight goes on with the story's own Next button; New fight only in free fights
   }
   function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=skip.hidden=true;document.body?.classList?.toggle?.('fight-over',false);last='';for(const actor in corners)corners[actor].last=null;}
   e.onFightEvent=event=>{if(event.type==='announcement')app.audio.applause?.();else app.audio.bell(event.type==='final-bell'?'final':event.kind||'start');};

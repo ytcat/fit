@@ -21,9 +21,13 @@
  const api={state,Clock,words};if(typeof module!=='undefined')module.exports=api;else window.FightPresentation=api;
  if(typeof document==='undefined')return;
  function boot(){if(!window.fightUI||!window.app)return;const app=window.app,e=app.engine,clock=new Clock(),node=document.createElement('div'),title=document.createElement('strong'),sub=document.createElement('span');node.className='bout-announcement';node.hidden=true;node.setAttribute('role','status');node.setAttribute('aria-live','polite');node.append(title,sub);document.getElementById('stageContainer').append(node);
+  // GOTR-0095: the winner name is shown in full (never an ellipsis): shrink the type until the line fits the free part of the band; only then wrap.
+  function fitWinner(box,strong,on){const st=strong.style;if(!st||!st.setProperty)return;st.removeProperty('font-size');st.removeProperty('white-space');if(!on||typeof requestAnimationFrame!=='function')return;
+   requestAnimationFrame(()=>{let px=parseFloat(getComputedStyle(strong).fontSize)||18;while(box.scrollWidth>box.clientWidth+1&&px>11){px-=1;st.setProperty('font-size',px+'px','important');}if(box.scrollWidth>box.clientWidth+1)st.setProperty('white-space','normal','important');});}
   const oldRender=window.fightUI.render,oldHide=window.fightUI.hide;let key='';
   window.fightUI.render=view=>{oldRender(view);const w=words[app.lang]||words.en,p=state(view.match,app.lang),names=window.GameIdentity?.labels(view);if(names){if(p.kind==='versus')p.text=names.lion+' '+w.vs+' '+names.rabbit;if(p.kind==='winner'&&view.match.result?.winner)p.text=names[view.match.result.winner]+' '+(window.fightUI.words().winner||'wins');}if(p.kind==='winner'&&p.sub==='KO'){p.sub=p.text;p.text=w.ko;}const next=p.kind+'|'+p.text+'|'+p.sub;const tick=clock.tick(view.match,e.isPlaying);if(tick!=null)app.audio.countdown?.(tick);
-   if(next===key)return;key=next;node.hidden=!p.kind||e.targetMode!=='fight';node.dataset.kind=p.kind;node.dataset.ko=String(p.kind==='winner'&&p.text===w.ko);title.textContent=p.text;sub.textContent=p.sub;node.setAttribute('aria-live',p.kind==='countdown'?'off':'polite');document.getElementById('fightHud').classList.toggle('fight-clock-urgent',p.kind==='countdown');
+   if(next===key)return;key=next;node.hidden=!p.kind||p.kind==='break'||e.targetMode!=='fight'; // the break countdown lives in the HUD timer (fight-ui.js), not over the fighters
+   node.dataset.kind=p.kind;node.dataset.ko=String(p.kind==='winner'&&p.text===w.ko);title.textContent=p.text;sub.textContent=p.sub;fitWinner(node,title,p.kind==='winner'&&!node.hidden);node.setAttribute('aria-live',p.kind==='countdown'?'off':'polite');document.getElementById('fightHud').classList.toggle('fight-clock-urgent',p.kind==='countdown');
    // The result announcement replaces the old KO-only overlay.
    if(p.kind==='winner')document.getElementById('fightKnockout').hidden=true;
   };
