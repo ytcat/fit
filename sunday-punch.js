@@ -281,7 +281,7 @@
     // the side of the striker's rear (punching) hand, perpendicular to the line between the fighters, fixed at the start
     if (!sp.axis) {
       const a = sc.root.getWorldPosition(V()), b = fc.root.getWorldPosition(V()), line = b.clone().sub(a).setY(0).normalize();
-      const rearHand = sc.joints.handR.getWorldPosition(V()), leadHand = sc.joints.handL.getWorldPosition(V()), across = rearHand.sub(leadHand).setY(0);
+      const rearShoulder = sc.joints.armR.getWorldPosition(V()), leadShoulder = sc.joints.armL.getWorldPosition(V()), across = rearShoulder.sub(leadShoulder).setY(0); // shoulders, not gloves: in the guard the gloves line up along the punch
       let side = V(-line.z, 0, line.x); if (side.dot(across) < 0) side.negate();
       // the referee must not stand between the lens and the punch: take the other side when he would
       const mid = a.clone().lerp(b, .5), ref = view.referee.root.getWorldPosition(V()).sub(mid).setY(0), blocked = sd => { const f = sd.clone().multiplyScalar(Math.cos(-.14)).addScaledVector(line, Math.sin(.14)).normalize(); return ref.length() > .2 && ref.clone().normalize().dot(f) > Math.cos(.75); };
