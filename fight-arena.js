@@ -245,8 +245,8 @@
       // knuckle crown up under the target instead of sweeping through ribs.
       options.uppercutBagTarget=[target.x,target.y-.19,target.z-.08];
       // GOTR-0088 Sunday Punch: a short dip and step inside, then the rear Uppercut driven up from the legs and hips,
-      // the glove aimed up THROUGH the chin (the contact constraint still stops it on the receiver's surface).
-      if(f.action.finisher){Object.assign(options,{upperDip:1.6,upperDrive:1,loadDuration:.22,riseStart:.27,riseDuration:.20,upperLoadHeight:1.10,power:1.45});options.advance+=.07;options.uppercutBagTarget=[target.x,target.y-.08,target.z-.04];}
+      // the glove aimed up THROUGH the chin, rising on the centre line between the Opponent's forearms (the contact constraint still stops it on the receiver's surface).
+      if(f.action.finisher){Object.assign(options,{upperDip:1.6,upperDrive:1,loadDuration:.22,riseStart:.27,riseDuration:.20,upperLoadHeight:1.10,power:1.45});options.advance+=.07;options.uppercutBagTarget=[0,target.y-.08,target.z-.04];}
      }
      if(f.action?.returnHand){
       const returned=f.action.returnHand,hold=returned.followReceiver?.055:.025,t=clamp((m.time-f.action.contactTime-hold)/.21),blend=t*t*(3-2*t),point=V(...returned.point);

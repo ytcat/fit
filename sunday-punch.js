@@ -206,7 +206,8 @@
     const sp = view.sundayPunch, ref = view.referee, root = ref.root, m = view.match, fallen = view.coaches[sp.fallen];
     if (!root.visible && !ref.isBruno) return; // ringless venues (GOTR-0065): no referee, nobody counts or waves
     const chest = view.cast.worldToLocal(fallen.joints.chest.getWorldPosition(V())); chest.y = 0;
-    const side = V(Math.cos(sp.fall.yaw), 0, -Math.sin(sp.fall.yaw)).multiplyScalar(-sp.fall.face); // beyond the body, as the camera sees it
+    const side = V(Math.cos(sp.fall.yaw), 0, -Math.sin(sp.fall.yaw)), camAt = view.cast.worldToLocal(view.engine.camera.position.clone()).sub(chest).setY(0);
+    if (side.dot(camAt) > 0) side.negate(); // beyond the body, as the camera sees it: he faces the lens over the fallen fighter
     const spot = chest.clone().addScaledVector(side, .85);
     const k = smooth((u - .25) / .75);
     root.position.copy(sp.ref.start).lerp(spot, k); root.position.y = 0;
@@ -278,13 +279,13 @@
     const pts = [];
     const add = (coach, names) => { for (const n of names) { const p = coach.joints[n].getWorldPosition(V()); if (n === 'head') p.y += .26; if (n.startsWith('foot')) p.y = Math.max(0, p.y - .1); pts.push(p); } };
     add(fc, ['head', 'hips', 'footL', 'footR', 'handL', 'handR']);
-    if (u < 2.2) add(sc, ['head', 'footL', 'footR', 'handR']); else add(sc, ['head', 'hips']);
+    if (u < 1.3) add(sc, ['head', 'footL', 'footR', 'handR']); else if (u < 2.1) add(sc, ['hips']);
     const fov = THREE.MathUtils.degToRad(cam.fov), tv = Math.tan(fov / 2), th = tv * Math.max(.2, cam.aspect);
     const { side, line } = sp.axis, up = V(0, 1, 0);
     // a low three-quarter view from behind the striker's punching shoulder for the dip and the drive (the Opponent's face and
     // chin toward the lens), swinging round to the side as the body falls, so the fall reads across the picture
     const swing = u < 0 ? .48 : lerp(.48, .12, smooth(u / .9)), flat = side.clone().multiplyScalar(Math.cos(swing)).addScaledVector(line, -Math.sin(swing));
-    const height = u < 0 ? .62 : lerp(.62, .95, smooth((u - .6) / 1.2));
+    const height = u < 0 ? .62 : lerp(.62, 1.40, smooth((u - .7) / 1.1)); // then it rises to look down on the body on the canvas
     const dir = flat.clone().normalize(), right = up.clone().cross(dir).normalize(), camUp = up.clone();
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity; const c0 = V();
     for (const p of pts) c0.add(p); c0.divideScalar(pts.length);
@@ -297,7 +298,8 @@
     const position = sp.cam.c.clone().addScaledVector(dir, sp.cam.d);
     position.y = height; // low lens, looking up at the punch
     cam.position.copy(position); cam.zoom = 1; cam.up.set(0, 1, 0); cam.lookAt(sp.cam.c); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
-    clearView(view, position, [fc.joints.head, fc.joints.chest, fc.joints.hips, sc.joints.head, sc.joints.chest, sc.joints.handR].map(b => b.getWorldPosition(V())));
+    const grid = []; for (let i = 0; i <= 4; i++) for (let k = 0; k <= 4; k++) grid.push(c0.clone().addScaledVector(right, lerp(minX, maxX, i / 4)).addScaledVector(camUp, lerp(minY, maxY, k / 4)));
+    clearView(view, position, grid.concat([fc.joints.head, fc.joints.hips, sc.joints.head, sc.joints.handR].map(b => b.getWorldPosition(V()))));
   }
   // Ropes, posts and corner pads between the lens and the fighters are hidden while the cinematic runs (like a film crew's
   // camera inside the ropes); everything is shown again when it ends.
