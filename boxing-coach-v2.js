@@ -1220,13 +1220,13 @@
           const loaded=prepare*(1-bodyRise)*(1-recover);
           // GOTR-0088 Sunday Punch: upperDip deepens the knee dip and the coil (1 = the normal Uppercut), upperDrive adds the
           // leg drive: hips rise past the stance as the rear heel comes up, the trunk rises and opens behind the punch.
-          const dip=options.upperDip??1,driveUp=options.upperDrive??0;
+          const dip=options.upperDip??1,driveUp=options.upperDrive??0,pitch=options.upperPitch??1,lean=options.upperLean??0;
           hipYaw=s*(soloUpper?.13:.14)*loaded*dip-s*(soloUpper?.22:.22)*up*(1+.45*driveUp);chestYaw=s*(soloUpper?.18:.20)*loaded*dip-s*(soloUpper?.24:.25)*up*(1+.40*driveUp);
           crouch=.19*loaded*dip+.035*up*(1-driveUp)-.045*driveUp*up;forward=-.095*loaded*(1+.4*(dip-1))+.11*up*(1+.35*driveUp);
           shift=s*.035*loaded*dip-s*.025*up;
           pelvisRoll=-s*.035*loaded*dip+s*.020*up;
-          trunkPitch=.16*loaded*dip-.085*up*(1+.9*driveUp);
-          trunkRoll=-s*.10*loaded+s*.065*up;
+          trunkPitch=.16*loaded*dip*pitch-.085*up*(1+.9*driveUp);
+          trunkRoll=-s*.10*loaded*(1+lean)+s*.065*up;
           shoulderLoad=loaded;shoulderSide=s;
           palmTarget.set(0,0,-1);
           // Three distinct phases: settle under the target, drive upward with
@@ -1461,7 +1461,7 @@
           target.z=shoulder.z+axis.z*lower+Math.sqrt(Math.max(.0036,upper*upper-dx*dx-dy*dy));
         }
         const guard=(side==='L'?leadGuard:rearGuard).clone().add(headShift);
-        const load=V(side==='L'?-.23:.23,options.upperLoadHeight??1.18,options.uppercutBagTarget?.08:.36).add(guardShift);
+        const load=(options.upperLoad?V(...options.upperLoad):V(side==='L'?-.23:.23,options.upperLoadHeight??1.18,options.uppercutBagTarget?.08:.36)).add(guardShift);
         const release=options.uppercutBagTarget?smooth((phase-.49)/.25):recover;
         // One continuous load/rise/recovery path. A second endpoint blend
         // pulled the wrist in opposite directions during guard recovery.

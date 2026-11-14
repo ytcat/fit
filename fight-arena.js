@@ -157,7 +157,7 @@
    this.footPlants=this.footPlants||{};
    for(const actor of ['lion','rabbit']){
     const coach=this.coaches[actor],parent=coach.root.parent;
-    if(this.match.fighters[actor].down){delete this.footPlants[actor+'L'];delete this.footPlants[actor+'R'];continue;}
+    if(this.match.fighters[actor].down||this.match.fighters[actor].action?.finisher){delete this.footPlants[actor+'L'];delete this.footPlants[actor+'R'];continue;} // GOTR-0088: the feet step in with the Sunday Punch
     let changed=false;
     for(const plan of coach.metrics.footTargets){
      const side=plan.side,key=actor+side,foot=coach.joints['foot'+side];
@@ -200,6 +200,9 @@
      coach.root.position.z-=direction*(corner+push);const impulse=this.impactIntent(actor);impulse.multiplyScalar(Math.min(1,this.travelCapacity(coach.root.position,impulse)));this.impactOffsets=this.impactOffsets||{};this.impactOffsets[actor]=impulse;coach.root.position.add(impulse);
     }
     this.applyReach();
+    // GOTR-0088: the Sunday Punch steps inside during the dip (root toward the Opponent), so the forearm stands up under the jaw.
+    for(const actor of ['lion','rabbit']){const act=m.fighters[actor].action;if(!act?.finisher||m.phase!=='round')continue;const p=clamp((m.time-act.start)/act.duration),e=x=>{x=clamp(x);return x*x*(3-2*x);},want=.36*e(p/.30)*(1-e((p-.70)/.30));
+     const c=this.coaches[actor],o=this.coaches[other(actor)],dir=o.root.position.clone().sub(c.root.position).setY(0);if(dir.lengthSq()<1e-6)continue;dir.normalize();c.root.position.addScaledVector(dir,Math.min(want,this.travelCapacity(c.root.position,dir)));}
    }
    if(!ceremony){for(const actor of ['lion','rabbit']){const c=this.coaches[actor],op=this.coaches[other(actor)];const d=op.root.position.clone().sub(c.root.position);c.ringYaw=Math.atan2(d.x,d.z);}}
    const corner=!ceremony&&!!this.corner?.place({lion:{position:this.coaches.lion.root.position.clone(),yaw:this.coaches.lion.ringYaw},rabbit:{position:this.coaches.rabbit.root.position.clone(),yaw:this.coaches.rabbit.ringYaw}});
@@ -220,7 +223,9 @@
     }
     // GOTR-0051: when a punch is coming the forward lead glove tightens back to the cheek cover, so blocks keep
     // the proven guard geometry (a straight caught on the glove still lands extended); it opens again afterwards.
-    {const threat=specs[other(actor)];if(threat.attack&&!spec.attack)options.blockCover=clamp(threat.phase/.05)*(1-clamp((threat.phase-.62)/.25));}
+    {const threat=specs[other(actor)];if(threat.attack&&!spec.attack)options.blockCover=clamp(threat.phase/.05)*(1-clamp((threat.phase-.62)/.25));
+     // GOTR-0088: a hurt Opponent caught by the Sunday Punch (no high guard when it was ordered) lets his gloves sag for the dip.
+     const fin=m.fighters[other(actor)].action;if(fin?.finisher&&fin.opening&&!spec.attack){const drop=clamp(threat.phase/.12);options.blockCover=0;options.guardHeight=1.72-.30*drop;options.guardWidth=.24+.08*drop;options.brace=0;}}
     // GOTR-0075: a Guard the player orders (held on the pad) closes both gloves to that blocking cover for as long as it is
     // held, eased in/out over ~60 ms so the repeated guard orders of a hold never flicker. Idle stays the open stance.
     {const want=m.phase==='round'&&actor===m.playerActor&&spec.move==='guard'&&spec.defend&&spec.id>0?1:0,c=(this.heldCover=this.heldCover||{})[actor]||(this.heldCover[actor]={v:0,t:m.time}),dt=clamp(m.time-c.t,0,.1);c.t=m.time;c.v+=(want-c.v)*(1-Math.exp(-dt/.06));if(want&&c.v<.35)c.v=.35;if(c.v>.01)options.blockCover=Math.max(options.blockCover||0,c.v);}
@@ -252,7 +257,16 @@
       options.uppercutBagTarget=[target.x,target.y-.19,target.z-.08];
       // GOTR-0088 Sunday Punch: a short dip and step inside, then the rear Uppercut driven up from the legs and hips,
       // the glove aimed up THROUGH the chin, rising on the centre line between the Opponent's forearms (the contact constraint still stops it on the receiver's surface).
-      if(f.action.finisher){Object.assign(options,{upperDip:1.6,upperDrive:1,loadDuration:.22,riseStart:.27,riseDuration:.20,upperLoadHeight:1.10,power:1.45});options.advance+=.07;options.uppercutBagTarget=[0,target.y-.08,target.z-.04];}
+      if(f.action.finisher){
+       // The knees bend and the torso drops straight down (~15-20 cm) with a lean to the rear side, not a forward lunge.
+       Object.assign(options,{upperDip:.6,upperPitch:.35,upperLean:1.2,upperDrive:1,loadDuration:.22,riseStart:.27,riseDuration:.20,upperLoadHeight:1.08,power:1.45});options.advance+=.20; // a real step inside: the forearm can stand under the chin
+       // Aimed at the live underside of the Opponent's jaw: the wrist goes where the top of the fist ends 4 cm up through the chin.
+       const rc=this.coaches[other(actor)],chin=coach.root.worldToLocal(rc.joints.head.localToWorld(V(...FightArena.chin))),aim=coach.root.worldToLocal(rc.joints.head.localToWorld(V(...FightArena.chinAim))),g=coach.metrics?.gloves?.[1],h=coach.metrics?.hands?.[1];
+       const fist=g&&h?V(...g.strikePoint).sub(V(...h)):V(0,.14,.03);if(fist.y<.08)fist.set(0,.14,.03);
+       options.uppercutBagTarget=aim.clone().sub(fist).add(V(0,.04,0)).toArray();
+       // the chamber: the fist low and well forward, nearly under the jaw, so it rises almost straight up (forearm near vertical)
+       {const u=options.uppercutBagTarget,b=.16;options.upperLoad=[u[0]*.6+.08,1.02,u[2]-b];}options.knuckleTarget=chin.clone().add(V(0,.04,0)).toArray();
+      }
      }
      if(f.action?.returnHand){
       const returned=f.action.returnHand,hold=returned.followReceiver?.055:.025,t=clamp((m.time-f.action.contactTime-hold)/.21),blend=t*t*(3-2*t),point=V(...returned.point);
@@ -329,7 +343,7 @@
    // far enough apart for it to land extended on the guard or the head.
    const m=this.match,a=this.coaches.lion,b=this.coaches.rabbit,axis=b.root.position.clone().sub(a.root.position).setY(0),distance=axis.length();
    if(distance<1e-4)return;axis.divideScalar(distance);
-   const near=FightArena.range.near,far=FightArena.range.far,change=distance<near?near-distance:m.phase==='round'&&distance>far?far-distance:0;
+   const inside=['lion','rabbit'].some(x=>m.fighters[x].action?.finisher)?.80:1,near=FightArena.range.near*inside,far=FightArena.range.far,/* GOTR-0088: the Sunday Punch steps inside the normal range */change=distance<near?near-distance:m.phase==='round'&&distance>far?far-distance:0;
    if(!change)return;
    if(change<0){a.root.position.addScaledVector(axis,-change*.5);b.root.position.addScaledVector(axis,change*.5);return;}
    // Opening the range yields to the ropes and the referee's corner: each
@@ -415,12 +429,13 @@
    if(distance>.001)axis.divideScalar(distance);else axis.copy(b.root.getWorldPosition(V()).sub(a.root.getWorldPosition(V()))).setY(0).normalize();
    // Baseline range correction must not absorb the registered impact recoil.
    const offset=this.impactOffset('rabbit').sub(this.impactOffset('lion')),recoil=offset.clone().transformDirection(this.cast.matrixWorld).multiplyScalar(offset.length());
-   const clearance=1.02+Math.max(0,recoil.dot(axis));if(distance>=clearance)return;
+   const body=['lion','rabbit'].some(x=>this.match.fighters[x].action?.finisher)?.80:1.02; // GOTR-0088: inside the Opponent's chest for the Sunday Punch
+   const clearance=body+Math.max(0,recoil.dot(axis));if(distance>=clearance)return;
    // Preserve mandatory body separation; only the new optional range expansion
    // yields to ropes/referee space. Do not clamp bodies back into each other.
-   const hard=Math.max(0,1.02-distance)*.5;
+   const hard=Math.max(0,body-distance)*.5;
    for(const [coach,sign] of [[a,-1],[b,1]])if(hard){const world=coach.root.getWorldPosition(V()).addScaledVector(axis,hard*sign);coach.root.position.copy(coach.root.parent.worldToLocal(world));}
-   const extra=Math.max(0,clearance-Math.max(1.02,distance)),localAxis=axis.clone().transformDirection(new THREE.Matrix4().copy(this.cast.matrixWorld).invert());
+   const extra=Math.max(0,clearance-Math.max(body,distance)),localAxis=axis.clone().transformDirection(new THREE.Matrix4().copy(this.cast.matrixWorld).invert());
    const directions=[localAxis.clone().negate(),localAxis],coaches=[a,b],caps=coaches.map((c,i)=>this.travelCapacity(c.root.position,directions[i])),amounts=caps.map(c=>Math.min(extra*.5,c));
    let remaining=extra-amounts[0]-amounts[1];
    for(let i=0;i<2;i++){const take=Math.min(remaining,caps[i]-amounts[i]);amounts[i]+=take;remaining-=take;}
@@ -535,9 +550,9 @@
     // already easing out. Score half the peak drive of the last 0.1 s, which
     // matches the contact speeds measured when straights landed mid-flight.
     const drive=(this.drives=this.drives||{})[key]||(this.drives[key]=[]);drive.push(velocity);if(drive.length>6)drive.shift();
-    if(spec.attack&&side===(rear(spec.move)?'R':'L')&&spec.phase>.18&&spec.phase<.78&&!m.fighters[actor].action?.recorded){
+    if(spec.attack&&side===(rear(spec.move)?'R':'L')&&spec.phase>(m.fighters[actor].action?.finisher?.30:.18)&&spec.phase<.78&&!m.fighters[actor].action?.recorded){
      const count=Math.max(1,Math.ceil(previous.distanceTo(current)/.018));let contact=null;
-     for(let i=1;i<=count;i++){const hit=this.collision(this.cast.localToWorld(previous.clone().lerp(current,i/count)),other(actor));if(hit.penetration>0){contact=hit;break;}}
+     for(let i=1;i<=count;i++){const hit=this.collision(this.cast.localToWorld(previous.clone().lerp(current,i/count)),other(actor));if(hit.penetration>0&&!(m.fighters[actor].action?.finisher&&hit.part==='body')){contact=hit;break;}/* GOTR-0088: the Sunday Punch rises along the chest to the jaw; grazing the body on the way up is not the blow */}
      if(contact){const normal=contact.normal.clone().transformDirection(new THREE.Matrix4().copy(this.cast.matrixWorld).invert()),impact=spec.move==='jab'||spec.move==='cross'?drive.reduce((best,v)=>-v.dot(normal)>-best.dot(normal)?v:best,velocity):velocity,speed=Math.max(0,-velocity.dot(normal),impact===velocity?0:-impact.dot(normal)*.5,spec.move.includes('uppercut')?Math.max(0,velocity.y)*.70:0);const direction=this.coaches[other(actor)].localDirection(impact.clone().transformDirection(this.cast.matrixWorld)).normalize().toArray();samples.push({normal:contact.normal.toArray(),direction,pushDirection:impact.clone().setY(0).normalize().toArray(),actor,action:spec.id,part:contact.part,speed,point:contact.point.toArray(),side:contact.side==='L'?-1:contact.side==='R'?1:(this.coaches[other(actor)].root.worldToLocal(contact.point.clone()).x<0?-1:1),hand:side,receiver:other(actor)});}
     }
     this.previous[key]=current;
@@ -548,7 +563,10 @@
     const bind=receiver.skeleton.boneInverses[receiver.bones.indexOf(bone)].clone().invert();
     sample.surfacePoint=bone.worldToLocal(V(...sample.point)).applyMatrix4(bind).toArray();
     sample.surfaceNormal=V(...sample.normal).applyQuaternion(bone.getWorldQuaternion(new THREE.Quaternion()).invert()).applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(bind)).toArray();
-    const event=m.contact(sample);if(event){
+    const event=m.contact(sample);
+    // GOTR-0088 QA: where the Sunday Punch met the jaw, measured on this frame's pose (before any reaction moves the head)
+    if(event?.finisher){const st=this.coaches[sample.actor],rc=this.coaches[sample.receiver],chin=rc.joints.head.localToWorld(V(...FightArena.chin)),top=st.root.localToWorld(V(...this.metrics[sample.actor].gloves[1].strikePoint)),fore=st.joints.handR.getWorldPosition(V()).sub(st.joints.elbowR.getWorldPosition(V())).normalize();event.chinGap=V(...sample.point).distanceTo(chin);event.fistTopToChin=top.distanceTo(chin);event.forearmUp=fore.y;event.contactInHead=rc.joints.head.worldToLocal(V(...sample.point)).toArray();}
+    if(event){
      if(event.move==='jab'||event.move==='cross')m.fighters[sample.receiver].reaction.pushDirection=sample.pushDirection;
      this.contacts.push({...event,kind:sample.part,impulse:event.severity,closingSpeed:sample.speed});goals[sample.actor][sample.hand]=clamp(.3+event.severity*.45);if(sample.part==='glove')goals[sample.receiver][sample.side<0?'L':'R']=.5;}}
    // Always constrain the rendered glove, including follow-through/recovery
@@ -597,6 +615,10 @@
  // shift its own weight back/forward to land a straight at full extension.
  // rate: most the weight shift may change per frame (GOTR-0025: raised from
  // .022 with the faster punch clock so a straight still lands extended).
+ // The underside of the jaw in the head bone's frame (below the muzzle volume of training-arena bodyContacts).
+ FightArena.chin=[0,-.04,.20];
+ // Where the fist is steered so that, after the glove's own lean, its top meets that point (measured on lion and rabbit rigs).
+ FightArena.chinAim=[.015,-.04,.185];
  FightArena.range={near:1.74,far:1.88,back:.26,forward:.14,rate:.028};
  // Shoulder position (fighter-local) when a fight straight lands; refined
  // from each fighter's own completed punches during a bout.

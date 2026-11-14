@@ -23,7 +23,7 @@
  // wastes it). A clean head contact knocks the Opponent out cold: KO, no count. Owned per actor (options.finishers), so a
  // boss can be given its own finisher later through the same requestFinisher(actor) hook. `hold` = game seconds the result
  // waits (phase clock frozen) after the knockout so the fall plays out before the cards/ceremony; `duration` = the move.
- const finishers={sunday_punch:{id:'sunday_punch',move:'rear_uppercut',target:'head',hurt:25,duration:1.32,hold:3.0,stamina:.10,read:.30}};
+ const finishers={sunday_punch:{id:'sunday_punch',move:'rear_uppercut',target:'head',hurt:25,duration:1.32,hold:3.0,stamina:.10,read:.30,opening:.75}};
  const presets={three:{rounds:3,roundSeconds:20,restSeconds:20},club:{rounds:2,roundSeconds:20,restSeconds:20},six:{rounds:1,roundSeconds:40,restSeconds:10},title:{rounds:1,roundSeconds:60,restSeconds:10},exhibition:{rounds:2,roundSeconds:20,restSeconds:20},quick:{rounds:1,roundSeconds:20,restSeconds:0}};
  class BoxingFight {
   constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor,adventureEdge,finishers:owned}={}){
@@ -92,7 +92,10 @@
    const state=this.finisherState(actor,id);if(state?.status!=='ready')return false;const f=this.fighters[actor],b=f.burst;
    b.charge=0;b.used++;f.finisher.used++;f.finisher.order={id:state.id,time:this.time};f.plan=[];
    if(actor===this.playerActor){this.playerQueue=[];this.playerCombo=null;this.pendingPlayerCombo=null;}
-   this.emit('finisher-order',{actor,id:state.id,player:actor===this.playerActor});
+   // The Opponent is hurt: unless his guard was already up high when the button lit, it drops for the dip (a short opening).
+   const op=this.fighters[other(actor)],guarded=op.action?.move==='guard'&&(['high','parry'].includes(op.action.guardStyle)||other(actor)===this.playerActor&&op.action.defend);
+   f.finisher.order.opening=!guarded;if(!guarded&&other(actor)!==this.playerActor){if(!op.action?.attack)op.action=null;op.plan=[];op.next=Math.max(op.next||0,this.time+finishers[state.id].opening);}
+   this.emit('finisher-order',{actor,id:state.id,player:actor===this.playerActor,opening:!guarded});
    if(!f.action||!f.action.attack&&!f.action.burstRecover)this.finisherStep(actor);
    return true;
   }
@@ -101,7 +104,7 @@
    const spec=finishers[order.id];f.finisher.order=null;f.action=null;
    const a=this.attack(actor,spec.move,spec.target);if(!a)return false;
    // A deeper dip and a longer leg drive than the normal Uppercut; tempo and stamina still matter a little.
-   a.finisher=spec.id;a.input='finisher';a.duration=spec.duration*(1+(1-f.stamina)*.15)/Math.sqrt(f.tempo);f.stamina=clamp(f.stamina-spec.stamina);
+   a.finisher=spec.id;a.input='finisher';a.opening=order.opening!==false;a.duration=spec.duration*(1+(1-f.stamina)*.15)/Math.sqrt(f.tempo);f.stamina=clamp(f.stamina-spec.stamina);
    this.emit('finisher-start',{actor,id:spec.id,action:a.id,player:actor===this.playerActor});return true;
   }
   // True while a finisher knockout is still playing out (the result waits; the phase clock is frozen).

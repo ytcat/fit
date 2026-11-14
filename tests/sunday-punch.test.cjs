@@ -30,6 +30,11 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  const m2=new BoxingFight({seed:4,preset:'quick',finishers:{lion:['sunday_punch']}});while(m2.phase==='intro')m2.advance(.1);m2.decide=()=>{};
  m2.fighters.rabbit.condition=10;m2.fighters.lion.burst.charge=1;m2.fighters.lion.action=null;assert.ok(m2.requestFinisher('lion'));for(let i=0;i<120;i++)m2.advance(1/60);
  assert.ok(m2.events.some(e=>e.type==='finisher-miss'&&!e.blocked),'a miss is reported');assert.equal(m2.result,null);assert.ok(m2.fighters.lion.burst.charge<.3,'Burst is gone after a miss (only the slow time charge since)');
+ // the opening: a hurt Opponent's guard drops for the dip, unless it was already up high when the button was pressed
+ {const g=new BoxingFight({seed:6,preset:'quick',finishers:{lion:['sunday_punch']}});while(g.phase==='intro')g.advance(.1);g.fighters.rabbit.condition=15;g.fighters.lion.burst.charge=1;g.fighters.lion.action=null;
+  g.fighters.rabbit.action={id:99,actor:'rabbit',move:'guard',guardStyle:'high',start:g.time,duration:1,attack:false,defend:true};assert.ok(g.requestFinisher('lion'));assert.equal(g.fighters.lion.action.opening,false,'high guard already up: no opening (it can block)');
+  const h=new BoxingFight({seed:6,preset:'quick',finishers:{lion:['sunday_punch']}});while(h.phase==='intro')h.advance(.1);h.fighters.rabbit.condition=15;h.fighters.lion.burst.charge=1;h.fighters.lion.action=null;
+  h.fighters.rabbit.action={id:98,actor:'rabbit',move:'step',start:h.time,duration:1,attack:false};assert.ok(h.requestFinisher('lion'));assert.equal(h.fighters.lion.action.opening,true);assert.equal(h.fighters.rabbit.action,null,'his guard drops');assert.ok(h.fighters.rabbit.next>=h.time+.7,'no new decision during the dip');}
  // in training stations there is no BoxingFight and no finisher: the pad rule hides it outside fights
  const padModule={exports:{}};vm.runInNewContext(fs.readFileSync('fighter-pad.js','utf8'),{module:padModule});const pad=padModule.exports;
  assert.equal(pad.finisherView({status:'ready'},{mode:'rabbit'}).show,false,'not in sparring');assert.equal(pad.finisherView({status:'ready'},{mode:'heavy'}).show,false,'not at the bag');
@@ -77,12 +82,15 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
   const coach=new LionCoach(data,{species}),e={coach,scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,.6,.1,100),animTime:0,fitCameraToModel(){}};e.demoModel=coach.root;e.scene.add(coach.root);
   const arena=e.arena=new TrainingArena(e,data);e.fightOptions={seed,preset:'quick',finishers:{lion:['sunday_punch'],rabbit:['sunday_punch']}};arena.setTarget('fight');
   const v=arena.fightView,m=v.match;if(venue){assert.ok(RinglessVenues.install(v,venue));assert.equal(v.referee.root.visible,false,'ringless: no referee');}const striker=coach.species==='rabbit'?'rabbit':'lion',fallen=striker==='lion'?'rabbit':'lion';
-  while(m.phase==='intro')v.step();for(let i=0;i<40;i++)v.step();
-  m.decide=()=>{};for(const f of Object.values(m.fighters)){f.action=null;f.plan=[];}
+  while(m.phase==='intro')v.step();for(let i=0;i<60;i++)v.step(); // a natural bout: both fighters keep deciding
   m.fighters[fallen].condition=20;m.fighters[striker].burst.charge=1;
   let k=0;while(!m.requestFinisher(striker)&&k++<120)v.step();assert.equal(m.fighters[striker].burst.charge,0);
   for(let i=0;i<150&&!m.result;i++){v.step();for(const c of Object.values(v.coaches))assert.equal(c.root.scale.x,1,'scale 1 inside the mirrored cast');}
   assert.ok(m.result,species+': the finisher lands on an undefended hurt Opponent');
+  {// under the chin: at the impact frame the top of the rear glove is at the underside of the jaw, the forearm well up
+   const ev=m.events.filter(e=>e.type==='contact'&&e.actor===striker&&e.finisher).pop();
+   console.log(species,'impact',{gloveContactToChin:+ev.chinGap.toFixed(3),fistTopToChin:+ev.fistTopToChin.toFixed(3),forearmUp:+ev.forearmUp.toFixed(2),contactInHead:ev.contactInHead.map(x=>+x.toFixed(3))});
+   assert.ok(ev.chinGap<.03,'the glove meets the underside of the jaw within 3 cm of the chin');assert.ok(ev.fistTopToChin<.05,'the top of the fist is right under the chin');assert.ok(ev.forearmUp>.6,'forearm rising steeply under the chin');assert.ok(ev.contactInHead[1]<0&&ev.contactInHead[2]<.27,'contact under the jaw, not on the muzzle front');}
   assert.equal(m.result.method,'KO');assert.equal(m.result.winner,striker);assert.equal(m.result.finisher,'sunday_punch');assert.ok(m.fighters[fallen].condition<=0);
   assert.ok(!m.events.some(e=>e.type==='knockdown'),'no count');
   assert.ok(m.finisherHold()&&m.snapshot().finisher.hold,'the result waits while the knockout plays');const phaseTime=m.phaseTime;
@@ -103,5 +111,11 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
   checked++;
  }
  assert.equal(checked,3);
- console.log('PASS rigs: finisher lands, KO recorded without a count, fallen fighter flat on the canvas (lion and rabbit, ring and ringless street), scale restored');
+  // natural bouts (the Opponent keeps deciding): the hurt Opponent's guard drops for the dip unless it was already up high
+ {let landed=0,tried=0,opened=0;for(const seed of [5,7,9,11,13,21]){const coach=new LionCoach(data,{species:'lion'}),e={coach,scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,.6,.1,100),animTime:0,fitCameraToModel(){}};e.demoModel=coach.root;e.scene.add(coach.root);
+  const arena=e.arena=new TrainingArena(e,data);e.fightOptions={seed,preset:'quick',finishers:{lion:['sunday_punch']}};arena.setTarget('fight');const v=arena.fightView,m=v.match;while(m.phase==='intro')v.step();for(let i=0;i<60;i++)v.step();
+  m.fighters.rabbit.condition=20;m.fighters.lion.burst.charge=1;let k=0;while(!m.requestFinisher('lion')&&k++<200)v.step();tried++;if(m.events.find(x=>x.type==='finisher-order')?.opening)opened++;
+  for(let i=0;i<150&&!m.events.some(x=>x.type==='finisher-ko'||x.type==='finisher-miss');i++)v.step();if(m.events.some(x=>x.type==='finisher-ko'))landed++;arena.setTarget('none');}
+  console.log('natural bouts',{tried,opened,landed});assert.ok(landed>=tried-1,'in natural bouts the Sunday Punch lands like in the staged one (a block only from a guard already up)');}
+console.log('PASS rigs: finisher lands, KO recorded without a count, fallen fighter flat on the canvas (lion and rabbit, ring and ringless street), scale restored');
 }

@@ -42,10 +42,14 @@
         }
         // GOTR-0088 Sunday Punch: no count. Bruno waves it off, both arms sweeping across each other over the fallen fighter.
         if (o.waveOff) {
-          const c = Math.sin(o.waveOff.t * Math.PI * 3), w = Math.min(1, Math.max(0, o.waveOff.w ?? 1)), mix = (a, b) => a + (b - a) * w;
+          // he walks over (the everyday walk, o.walk: metres walked and how much of the cycle shows), then both arms high,
+          // crossing over his head in big sweeps
+          const c = Math.sin(o.waveOff.t * Math.PI * 2 * 1.4), w = Math.min(1, Math.max(0, o.waveOff.w ?? 1)), mix = (a, b) => a + (b - a) * w;
+          if (o.walk) { state.dist = o.walk.dist; state.walk = o.walk.w; }
+          if (w < .01) { state.arms = { L: 'hang', R: 'hang' }; Pose.civil(bruno, state); return; }
           state.arms = { L: 'count', R: 'count' }; state.reach = {};
-          for (const [side, s] of [['L', -1], ['R', 1]]) state.reach[side] = [mix(s * .30, s * (.06 - .36 * c)), mix(1.10, 1.50 + .05 * Math.abs(c)), mix(.20, .40)];
-          state.lean = .14; Pose.civil(bruno, state); return;
+          for (const [side, s] of [['L', -1], ['R', 1]]) state.reach[side] = [mix(s * .30, s * (.05 - .40 * c)), mix(1.10, 2.02 + .04 * Math.abs(c)), mix(.20, .22)];
+          state.lean = .04; state.look = { yaw: 0, pitch: -.3 }; Pose.civil(bruno, state); return;
         }
         if (st.walk) { const k = 1 - Math.exp(-3 * dt); st.walk.lerp(root.position, k); if (st.walk.distanceTo(root.position) < .02) st.walk = null; else root.position.copy(st.walk); } // back to his place
         if (grip && grip.isVector3) {

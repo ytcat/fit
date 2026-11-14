@@ -14,7 +14,7 @@
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t, smooth = t => { t = clamp(t); return t * t * (3 - 2 * t); };
   const SEEN = 'gotr-sunday-punch-seen', SLOW = .3, FOV = 50;
   // Fall timeline in fight seconds after the impact.
-  const T = { snap: .06, air: .24, land: .80, flop: 1.02, settle: 1.6, wave: [.95, 2.25], turn: [.9, 1.25], walk: [1.25, 2.85] };
+  const T = { snap: .06, air: .24, land: .80, flop: 1.02, settle: 1.6, refWalk: [.12, 1.15], wave: [1.15, 2.55], turn: [.9, 1.25], walk: [1.25, 2.85] };
   const other = a => a === 'lion' ? 'rabbit' : 'lion';
   // Slow motion: the dip and drive, the impact and a little after it run at SLOW, then ease back to real time.
   function timeScale(view) {
@@ -199,29 +199,39 @@
     s.dist = along; const walking = u > T.walk[0] && u < T.walk[1] + .2 ? 1 : 0;
     const fallenHead = view.coaches[sp.fallen].joints.head.getWorldPosition(V()), look = root.worldToLocal(fallenHead.clone());
     const Pose = window.DreamPose;
-    if (Pose) metrics[s.actor] = Pose.civil(coach, { t: m.time, dt, dist: along, walk: walking, arms: { L: 'hang', R: 'hang' }, look: u < T.walk[0] ? { yaw: clamp(Math.atan2(look.x, look.z), -1, 1), pitch: -.35 } : null, lean: .04 });
+    if (Pose) metrics[s.actor] = Pose.civil(coach, { t: m.time, dt, dist: along, walk: walking, arms: { L: 'fist', R: 'fist' }, reach: { L: [-.16, 1.40, .30], R: [.16, 1.40, .30] }, // gloves up at chest height
+      look: u < T.walk[0] ? { yaw: clamp(Math.atan2(look.x, look.z), -1, 1), pitch: -.35 } : null, lean: .04 });
     else metrics[s.actor] = coach.update(m.time, 'step', 'one_two', { simulationTime: m.time });
+  }
+  // The rhino referee has one trouser mesh and separate shoes: his walk steps the shoes under the trousers with a body bob and sway.
+  function refStep(ref, phase, amount) {
+    const feet = ref.sundayFeet || (ref.sundayFeet = ref.root.children.filter(o => o.isGroup && Math.abs(o.position.y - .102) < .01 && Math.abs(Math.abs(o.position.x) - .148) < .02).map(o => ({ o, p: o.position.clone() })));
+    for (const f of feet) { const s = f.p.x < 0 ? 0 : Math.PI, a = phase * Math.PI * 2 + s; f.o.position.set(f.p.x, f.p.y + .055 * Math.max(0, Math.sin(a)) * amount, f.p.z + .16 * Math.cos(a) * amount); }
+    ref.root.position.y = .022 * Math.abs(Math.sin(phase * Math.PI * 2)) * amount; ref.root.rotation.z = .035 * Math.sin(phase * Math.PI * 2) * amount;
   }
   function refereePose(view, u) {
     const sp = view.sundayPunch, ref = view.referee, root = ref.root, m = view.match, fallen = view.coaches[sp.fallen];
     if (!root.visible && !ref.isBruno) return; // ringless venues (GOTR-0065): no referee, nobody counts or waves
     const chest = view.cast.worldToLocal(fallen.joints.chest.getWorldPosition(V())); chest.y = 0;
-    const side = V(Math.cos(sp.fall.yaw), 0, -Math.sin(sp.fall.yaw)), camAt = view.cast.worldToLocal(view.engine.camera.position.clone()).sub(chest).setY(0);
-    if (side.dot(camAt) > 0) side.negate(); // beyond the body, as the camera sees it: he faces the lens over the fallen fighter
-    const spot = chest.clone().addScaledVector(side, .85);
-    const k = smooth((u - .25) / .75);
-    root.position.copy(sp.ref.start).lerp(spot, k); root.position.y = 0;
-    const face = Math.atan2(chest.x - root.position.x, chest.z - root.position.z);
-    root.rotation.set(0, lerp(sp.ref.yaw, face, smooth((u - .25) / .5)), 0);
-    view.cast.updateMatrixWorld(true);
-    const waving = u >= T.wave[0] && u <= T.wave[1] + .3, w = smooth((u - T.wave[0]) / .2) * (1 - smooth((u - T.wave[1]) / .3));
+    // beyond the body as the camera sees it (decided once), so he faces the lens over the fallen fighter
+    if (!sp.ref.side) { const side = V(Math.cos(sp.fall.yaw), 0, -Math.sin(sp.fall.yaw)), camAt = view.cast.worldToLocal(view.engine.camera.position.clone()).sub(chest).setY(0); if (side.dot(camAt) > 0) side.negate(); sp.ref.side = side; }
+    const spot = chest.clone().addScaledVector(sp.ref.side, .9);
+    // he walks over as the body falls (T.refWalk), then faces the fallen fighter
+    const [w0, w1] = T.refWalk, k = clamp((u - w0) / (w1 - w0)), path = spot.clone().sub(sp.ref.start).setY(0), dist = path.length() * smooth(k);
+    root.position.copy(sp.ref.start).addScaledVector(path.clone().normalize(), dist); root.position.y = 0;
+    const heading = Math.atan2(path.x, path.z), face = Math.atan2(chest.x - root.position.x, chest.z - root.position.z), walking = k > 0 && k < 1 ? 1 : 0;
+    const turnIn = smooth((u - w0) / .25) * (1 - smooth((u - w1 + .15) / .3)), yaw = Math.atan2(Math.sin(heading - face), Math.cos(heading - face)) * turnIn + face;
+    root.rotation.set(0, path.lengthSq() > 1e-4 ? yaw : face, 0);
+    const wave = smooth((u - T.wave[0]) / .18) * (1 - smooth((u - T.wave[1]) / .3)), t = Math.max(0, u - T.wave[0]);
     const lookAt = fallen.joints.head.getWorldPosition(V());
-    if (ref.isBruno) { ref.update(m.time, null, 1, { lookAt, waveOff: waving ? { t: u - T.wave[0], w } : null }); return; }
-    if (!waving) { ref.update(m.time, null, 1, { lookAt, alert: .6 }); return; }
-    // the wave-off: both arms crossing back and forth in front of the chest, above the fallen fighter
-    const c = Math.sin((u - T.wave[0]) * Math.PI * 2 * 1.5), grip = {};
-    for (const s of [-1, 1]) grip[s] = root.localToWorld(V(lerp(s * .36, s * -.22 * c - .05 * s, w), lerp(1.04, 1.50 + .05 * Math.abs(c), w), lerp(.12, .40, w)));
-    ref.update(m.time, grip, 1, { lookAt, alert: .8 });
+    if (ref.isBruno) { view.cast.updateMatrixWorld(true); ref.update(m.time, null, 1, { lookAt, waveOff: { t, w: wave }, walk: { dist, w: walking } }); return; }
+    refStep(ref, dist / .62, walking ? Math.min(1, Math.min(k, 1 - k) * 8) : 0);
+    view.cast.updateMatrixWorld(true);
+    if (wave < .01) { ref.update(m.time, null, 1, { lookAt, alert: .6 }); return; }
+    // the wave-off: both arms high, crossing over the head, three big sweeps — readable on a phone
+    const c = Math.sin(t * Math.PI * 2 * 1.4), grip = {};
+    for (const s of [-1, 1]) grip[s] = root.localToWorld(V(lerp(s * .36, s * (.05 - .44 * c), wave), lerp(1.04, 2.08 + .05 * Math.abs(c), wave), lerp(.12, .22, wave)));
+    ref.update(m.time, grip, 1, { lookAt, alert: .9 });
   }
   // After the knockout has played out: the fallen fighter stays down, the referee raises the winner's arm at his corner.
   function ceremonyPose(view, metrics) {
@@ -235,7 +245,9 @@
     const camRight = V(1, 0, 0).applyQuaternion(view.engine.camera.quaternion), across = view.cast.worldToLocal(view.cast.getWorldPosition(V()).add(camRight)).sub(view.cast.worldToLocal(view.cast.getWorldPosition(V()))).setY(0).normalize();
     if (across.dot(handAt) < 0) across.negate(); const beside = s.corner.clone().addScaledVector(across, .82);
     if (!sp.ref.cer) sp.ref.cer = ref.root.position.clone();
-    sp.ref.cer.lerp(beside, .06); ref.root.position.copy(sp.ref.cer); ref.root.position.y = 0; ref.root.rotation.set(0, Math.atan2(s.corner.x - ref.root.position.x, s.corner.z - ref.root.position.z), 0);
+    const before = sp.ref.cer.clone(); sp.ref.cer.lerp(beside, .06); const step = before.distanceTo(sp.ref.cer); sp.ref.cdist = (sp.ref.cdist || 0) + step;
+    ref.root.position.copy(sp.ref.cer); ref.root.position.y = 0; ref.root.rotation.set(0, Math.atan2(s.corner.x - ref.root.position.x, s.corner.z - ref.root.position.z), 0);
+    if (!ref.isBruno) refStep(ref, sp.ref.cdist / .62, step > .004 ? 1 : 0); // he walks to the winner too
     view.cast.updateMatrixWorld(true);
     const hand = coach.joints[s.actor === 'lion' ? 'handR' : 'handL'].getWorldPosition(V());
     ref.update(m.time, raise > 0 ? hand : null, s.actor === 'lion' ? -1 : 1, { lookAt: coach.joints.head.getWorldPosition(V()) });
@@ -279,7 +291,8 @@
     const pts = [];
     const add = (coach, names) => { for (const n of names) { const p = coach.joints[n].getWorldPosition(V()); if (n === 'head') p.y += .26; if (n.startsWith('foot')) p.y = Math.max(0, p.y - .1); pts.push(p); } };
     add(fc, ['head', 'hips', 'footL', 'footR', 'handL', 'handR']);
-    if (u < 1.3 || u > 2.9) add(sc, ['head', 'footL', 'footR', 'handR']); else if (u < 2.1) add(sc, ['hips']); // the winner at his corner comes back into the picture for the result
+    if (u < 1.3 || u > 2.9) add(sc, ['head', 'footL', 'footR', 'handR']); else if (u < 2.1) add(sc, ['hips']);
+    if (u > 2.9 && view.referee?.root?.visible !== false) { const rr = view.referee.root; pts.push(rr.localToWorld(V(0, 2.25, 0)), rr.localToWorld(V(0, 0, 0))); } // the result: winner and referee/Bruno whole // the winner at his corner comes back into the picture for the result
     const fov = THREE.MathUtils.degToRad(cam.fov), tv = Math.tan(fov / 2), th = tv * Math.max(.2, cam.aspect);
     const { side, line } = sp.axis, up = V(0, 1, 0);
     // a low three-quarter view from behind the striker's punching shoulder for the dip and the drive (the Opponent's face and
@@ -292,9 +305,11 @@
     for (const p of pts) { const d = p.clone().sub(c0), x = d.dot(right), y = d.dot(camUp); minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
     const centre = c0.clone().addScaledVector(right, (minX + maxX) / 2).addScaledVector(camUp, (minY + maxY) / 2 + (u < 0 ? -.05 : .02));
     const margin = u < 0 ? 1.18 : 1.24, dist = Math.max(((maxX - minX) / 2 + .22) * margin / th, ((maxY - minY) / 2 + .18) * margin / tv) + .3;
-    const goal = { c: centre, d: clamp(dist, 2.4, view.gymFight ? 5.2 : 7.5) }; // the gym room is small: hanging bags stand just off the mat
-    if (!sp.cam || sp.cut) { sp.cam = { c: goal.c.clone(), d: goal.d }; sp.cut = false; }
-    else { const k = 1 - Math.exp(-Math.max(0, dt) / .35); sp.cam.c.lerp(goal.c, k); sp.cam.d = lerp(sp.cam.d, goal.d, k); }
+    // the gym room is small (hanging bags just off the mat): past the cap the lens widens instead of backing into the props
+    const cap = view.gymFight ? 5.2 : 7.5, goal = { c: centre, d: clamp(dist, 2.4, cap), fov: dist > cap ? THREE.MathUtils.radToDeg(2 * Math.atan(tv * (dist - .3) / (cap - .3))) : FOV };
+    if (!sp.cam || sp.cut) { sp.cam = { c: goal.c.clone(), d: goal.d, fov: goal.fov }; sp.cut = false; }
+    else { const k = 1 - Math.exp(-Math.max(0, dt) / .35); sp.cam.c.lerp(goal.c, k); sp.cam.d = lerp(sp.cam.d, goal.d, k); sp.cam.fov = lerp(sp.cam.fov ?? FOV, goal.fov, k); }
+    cam.fov = Math.min(75, sp.cam.fov);
     const position = sp.cam.c.clone().addScaledVector(dir, sp.cam.d);
     position.y = height; // low lens, looking up at the punch
     cam.position.copy(position); cam.zoom = 1; cam.up.set(0, 1, 0); cam.lookAt(sp.cam.c); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
@@ -330,6 +345,7 @@
     const sp = view.sundayPunch, cam = view.engine.camera; if (!sp?.saved || !cam) return;
     cam.position.copy(sp.saved.p); cam.quaternion.copy(sp.saved.q); cam.zoom = sp.saved.zoom; cam.fov = sp.saved.fov; cam.updateProjectionMatrix(); cam.updateMatrixWorld(); sp.saved = null;
     for (const part of sp.hidden || []) part.visible = true; sp.hidden?.clear();
+    const rf = view.referee?.sundayFeet; if (rf) for (const f of rf) f.o.position.copy(f.p); if (view.referee?.root && !view.referee.isBruno) view.referee.root.rotation.z = 0;
   }
   function audio() { return window.app?.audio; }
   function effects(view, events) {
