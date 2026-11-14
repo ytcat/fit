@@ -61,7 +61,7 @@
         { who: 'pip', beat: 9 }),
       S('docks_fight', L('The Docks', 'הנמל', 'Доки'),
         L('Night at the Docks. No ring, no gloves, cash on a barrel.', 'לילה בנמל. בלי זירה, בלי כפפות, כסף על חבית.', 'Ночь в Доках. Ни ринга, ни перчаток, деньги на бочке.'),
-        L('Won a bare-knuckle fight against Hook at the Docks.', 'ניצחתם את הוק בקרב בלי כפפות בנמל.', 'Выиграл бой без перчаток против Хука в Доках.'),
+        L('Won a bare-knuckle fight against Rourke at the Docks.', 'ניצחתם את רורק בקרב בלי כפפות בנמל.', 'Выиграл бой без перчаток против Рурка в Доках.'),
         { event: true, who: 'hook', beat: 10, goal: L('Win the fight at the Docks', 'נצחו בקרב בנמל', 'Выиграй бой в Доках'), stand: L('a bout with gloves in the Docks arena stands in for the bare-knuckle fight', 'קרב עם כפפות בזירת הנמל במקום הקרב בלי כפפות', 'бой в перчатках на арене Доков вместо боя без перчаток') }),
       S('advanced_training', L('Advanced training', 'אימון מתקדם', 'Продвинутая тренировка'),
         L('Longer Combos: a counter after the Slip, body then head.', 'Combo ארוכים יותר: מכת נגד אחרי Slip, גוף ואז ראש.', 'Длинные Combo: контратака после Slip, корпус, потом голова.'),

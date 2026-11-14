@@ -26,7 +26,7 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 | 8 | Otto's Corner | 7 | Buying the new heavy bag; carrying it back (walk, Skip) | **Planned** — stand-in: buy counter on the map | Codex: shop front |
 | 9 | New bag | 8 | Bruno heard about the market; two-sided bag drill with Mack | **Planned** | |
 | 10 | Offer | 9 | Bruno proposes an unofficial fight | **Planned** — stand-in lines | |
-| 11 | The Docks | 10 | Arrival at night, illegal fight in a crowd circle, bare-knuckle vs Hook | **Planned** — stand-in: Docks bout with gloves | Codex: warehouse set |
+| 11 | The Docks | 10 | Arrival at night, illegal fight in a crowd circle, bare-knuckle vs Rourke | **Planned** — stand-in: Docks bout with gloves | Codex: warehouse set |
 | 12 | Fight night | 12 | Rematch vs Brick in the gym with the neighbourhood watching; chapter ending | **Planned** | |
 
 ## Fight films (every fight)

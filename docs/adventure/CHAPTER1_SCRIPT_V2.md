@@ -25,7 +25,7 @@ details below are the integrator's proposals and stay open to the owner's change
 | Victim | **Mrs. Hazel**, a doe who runs a fruit stall | apron, handbag |
 | Shop owner | **Otto**, an otter | boxing-equipment shop "Otto's Corner" |
 | Docks promoter | **Slick**, a weasel | cheap suit, cigar-less toothpick, cash roll |
-| Docks opponent | **Hook**, a crocodile dock worker | bare fists with wraps, overalls rolled to the waist |
+| Docks opponent | **Rourke**, a crocodile dock worker (was Hook; renamed 2026-11-14 — clashed with the punch) | bare fists with wraps, overalls rolled to the waist |
 
 ## Places (street-level sets, all reachable by walking from the map)
 Bus station street · Bruno's Gym (front, main hall, store room) · Market Row street with stalls · Otto's Corner shop front ·
@@ -45,7 +45,7 @@ The Docks warehouse (crowd in a circle, no ring, hanging lamps) · Bruno's Gym o
 | 7 | Day | Otto's Corner | **Buy the new bag** in the Shop with the reward coins (the price equals the reward). Carry it back (walk, Skip). | street | 8 |
 | 8 | Afternoon | Gym | Bruno heard about the market and is impressed. "Let's test it." **Two-sided bag drill**: the Fighter and Mack hit the new bag from both sides in rhythm. | kit | 9 |
 | 9 | Afternoon | Gym | Bruno proposes an unofficial fight. The Fighter agrees. **Fight preparation**: mitts with Mack (combos), Slip and Roll drill. | kit | 10 |
-| 10 | Night | The Docks | They arrive (walk, Skip). The Fighter realises it is an illegal fight — and fights anyway. **Bare-knuckle fight vs Hook**, long track pants, hand wraps, crowd in a circle, cash on a barrel. Win → prize money. | track pants, wraps | 11 |
+| 10 | Night | The Docks | They arrive (walk, Skip). The Fighter realises it is an illegal fight — and fights anyway. **Bare-knuckle fight vs Rourke**, long track pants, hand wraps, crowd in a circle, cash on a barrel. Win → prize money. | track pants, wraps | 11 |
 | 11 | Next day | Gym | **Advanced training**: longer combos, counter after Slip, body-head. | kit | 12 |
 | 12 | Evening | Gym fight night | **Rematch: Brick**, with the neighbourhood as audience. By now the Fighter has the skills. Win → Chapter 1 complete; Bruno: "Now you need real gear and a real league." | kit, own gloves | Chapter 2 |
 
@@ -59,7 +59,7 @@ as a junior-league boxer.
 2. Night training, bag-break animation, apology scene, Clean-the-gym side job. Needs: the detailed heavy bag.
 3. Market set, Fang (wolf) and Mrs. Hazel, robbery scene, bare-hand street fight without a ring, reward, buying the bag at
    Otto's Corner. Uses the ringless-fight work (GOTR-0065).
-4. Two-sided bag drill (GOTR-0077), fight preparation, Docks set, Slick and Hook, bare-knuckle fight.
+4. Two-sided bag drill (GOTR-0077), fight preparation, Docks set, Slick and Rourke, bare-knuckle fight.
 5. Advanced training, fight-night gym with audience, rematch vs Brick, chapter ending, Chapter 2 opening.
 
 Absorbs: GOTR-0067 (arrival clothes), GOTR-0049 (outfits by place), GOTR-0065 (ringless fights), GOTR-0062 (Brick as boss),

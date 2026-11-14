@@ -71,7 +71,7 @@
     buy_heavy_bag: { kind: 'buy', item: 'heavy_bag' },
     bag_drill: { kind: 'training', mode: 'heavy', duration: 40, imp: (r, h) => { if (heavyHit(h)) r.value++; } },
     fight_prep: { kind: 'training', mode: 'pads', duration: 60, frame: (r, f) => { if (playerOn() && f.defences > 0) r.value += f.defences; } },
-    docks_fight: { kind: 'story_fight', venue: 'docks', rounds: 2, roundSeconds: 30, restSeconds: 8, opponent: L('Hook', 'הוק', 'Хук'), foe: { power: 1.12, tempo: 1.06, skill: .05 } },
+    docks_fight: { kind: 'story_fight', venue: 'docks', rounds: 2, roundSeconds: 30, restSeconds: 8, opponent: L('Rourke', 'רורק', 'Рурк'), foe: { power: 1.12, tempo: 1.06, skill: .05 } },
     advanced_training: { kind: 'lesson', comboId: 'counter_chain' },
     // ---- older chapter-1 missions (GOTR-0069 list): still valid in saves, no longer story steps
     heavy_bag_van: { kind: 'scene', scene: 'carry_bag' },
