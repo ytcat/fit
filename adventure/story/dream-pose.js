@@ -111,7 +111,7 @@
     for (let it = 0; it < 6; it++) {
       const sh = c.point(j['arm' + side]), el = c.point(j['elbow' + side]), ha = c.point(j['hand' + side]);
       j['hand' + side].updateWorldMatrix(true, false); let dt = null; if (!rest) for (const q of handPoints(c, side)) { const d = clearance(c, prof, c.root.worldToLocal(j['hand' + side].localToWorld(q.clone())), .008, .022, side); if (d && (!dt || d.lengthSq() > dt.lengthSq())) dt = d; }
-      const dh0 = clearance(c, prof, ha, hr, rest ? 0 : .02, side), dh = dt && (!dh0 || dt.lengthSq() > dh0.lengthSq()) ? dt : dh0, dm = clearance(c, prof, ha.clone().lerp(el, .5), .068, .02, side), de = clearance(c, prof, el, .055, .012, side), du = sh.y - el.y > .12 ? clearance(c, prof, sh.clone().lerp(el, .7), .062, .006, side) : null;
+      const dh0 = clearance(c, prof, ha, hr, rest ? .006 : .02, side), dh = dt && (!dh0 || dt.lengthSq() > dh0.lengthSq()) ? dt : dh0, dm = clearance(c, prof, ha.clone().lerp(el, .5), .068, .02, side), de = clearance(c, prof, el, .055, .012, side), du = sh.y - el.y > .12 ? clearance(c, prof, sh.clone().lerp(el, .7), .062, .006, side) : null;
       if (!dh && !dm && !de && !du) break;
       const arm = [de, du, dm].filter(Boolean).reduce((a, d) => d.lengthSq() > a.lengthSq() ? d : a, V());
       t.add(dh && dh.lengthSq() > arm.lengthSq() ? dh : arm).add(dh && arm.lengthSq() ? dh.clone().multiplyScalar(.3) : V());
