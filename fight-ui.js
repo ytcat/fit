@@ -39,9 +39,11 @@
    for(let i=0;i<m.cards[0].rounds.length;i++){const row=make('tr');row.append(make('th','',String(i+1)));for(const card of m.cards)row.append(make('td','',card.rounds[i].scores.join(' – ')));table.append(row);}d.append(table);
    for(const actor of ['lion','rabbit']){const t=m.totals[actor];d.append(make('p','fight-note',labels(view)[actor]+': '+t.head+' / '+t.body+' · '+t.blocked+' · '+t.thrown));}d.append(make('p','fight-note',w().stats));
   }
+  // A story fight: flagged by the story (oldtown.js), or a bout on the gym floor (GOTR-0083 place 'gym', only the story starts one).
+  const story=view=>!!(view.storyFight||view.gymFight);
   let last='';
   function render(view){
-   const m=view.match,s=m.snapshot(),key=[labels(view).lion,labels(view).rabbit,app.lang,s.phase,s.round,Math.ceil(s.remaining),Math.ceil(s.restRemaining),s.count,s.cardsShown,s.totals.lion.landed,s.totals.rabbit.landed,s.health?.lion,s.health?.rabbit,!!view.storyFight].join('|');if(last===key)return;last=key;
+   const m=view.match,s=m.snapshot(),key=[labels(view).lion,labels(view).rabbit,app.lang,s.phase,s.round,Math.ceil(s.remaining),Math.ceil(s.restRemaining),s.count,s.cardsShown,s.totals.lion.landed,s.totals.rabbit.landed,s.health?.lion,s.health?.rabbit,story(view)].join('|');if(last===key)return;last=key;
    health.hidden=false;health.setAttribute('aria-label',labels(view).lion+' VS '+labels(view).rabbit);
    for(const actor of ['lion','rabbit']){const bar=corners[actor],value=Math.max(0,Math.min(100,s.health?.[actor]??100)),shown=String(Math.ceil(value)),name=labels(view)[actor];
     bar.label.textContent=name;bar.value.textContent=shown;bar.track.setAttribute('aria-label',name+' · '+shown);bar.track.setAttribute('aria-valuenow',String(Math.round(value)));bar.track.setAttribute('aria-valuetext',shown);
@@ -60,7 +62,7 @@
    const onCards=s.result.stoppage==='points';panel.dataset.cards=String(onCards);panel.append(make('strong','fight-result-title',title));
    if(onCards){const cards=make('div','fight-card-grid');cards.setAttribute('aria-label',w().judges);for(const [i,card] of s.result.cards.entries()){const cell=make('div','fight-card');cell.append(make('span','',w().judge+' '+(i+1)),make('strong','',i<s.cardsShown?card.totals.join(' – '):'•• – ••'));cards.append(cell);}panel.append(cards);}
    if(s.result.method==='TKO')panel.append(make('p','fight-note',w().stoppage));
-   const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;if(view.storyFight)actions.append(details);else actions.append(details,again);panel.append(actions); // a story fight goes on with the story's own Next button; New fight only in free fights
+   const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;if(story(view))actions.append(details);else actions.append(details,again);panel.append(actions); // a story fight goes on with the story's own Next button; New fight only in free fights
   }
   function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=skip.hidden=true;document.body?.classList?.toggle?.('fight-over',false);last='';for(const actor in corners)corners[actor].last=null;}
   e.onFightEvent=event=>{if(event.type==='announcement')app.audio.applause?.();else app.audio.bell(event.type==='final-bell'?'final':event.kind||'start');};

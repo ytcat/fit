@@ -106,13 +106,18 @@ body #fightResults{flex-wrap:wrap;row-gap:3px}
 #stageContainer .bout-announcement[data-kind=winner] strong,#stageContainer .bout-announcement[data-ko=true] strong{font-size:clamp(14px,4.4vw,18px)!important;line-height:1.05;min-width:0;flex:0 1 auto;white-space:nowrap}
 #stageContainer .bout-announcement[data-kind=winner] span,#stageContainer .bout-announcement[data-ko=true] span{flex:none;white-space:nowrap}
 #stageContainer .bout-announcement[data-kind=winner] span,#stageContainer .bout-announcement[data-ko=true] span{display:inline;margin:0!important;font-size:11px!important;color:var(--gr-gold,#f4c152)}
+/* GOTR-0099: the winner and the "Final result" / KO word never share a row (at 402 px the long name ran over it): two short
+   centred lines, the name first. The name still shrinks before it wraps (fitWinner in fight-presentation.js). */
+#stageContainer .bout-announcement[data-kind=winner],#stageContainer .bout-announcement[data-ko=true],.game-enabled #stageContainer .bout-announcement[data-kind=winner]:not([hidden]):not([data-kind=countdown]){flex-direction:column;align-items:center;justify-content:flex-start;gap:2px}
+#stageContainer .bout-announcement[data-kind=winner] strong,#stageContainer .bout-announcement[data-ko=true] strong{flex:none;max-width:100%}
+#stageContainer .bout-announcement[data-kind=winner] span,#stageContainer .bout-announcement[data-ko=true] span{font-size:10px!important;letter-spacing:.14em;line-height:1.1}
 #stageContainer:has(#fightResults:not([hidden])) .fight-knockout{display:none}
 /* The results layer covers the stage but only its cards and buttons take space or taps. */
 body #fightResults,body.ringside-layout .fight-results,.club-app #fightResults{inset:0;top:0;left:0;right:0;bottom:0;transform:none;width:auto;max-width:none;padding:0;display:block;pointer-events:none;z-index:15}
 body #fightResults[hidden]{display:none}
 /* Three judges' score cards in a row at the inline-start side, under the winner line and above the fighters' heads
    (at the ceremony the fighters fill the width of a phone, so the free band is the top one): arena-styled, compact. */
-#fightResults .fight-card-grid{position:absolute;top:calc(var(--hud-status-top) + 54px);inset-inline-start:8px;display:flex;flex-direction:row;gap:5px;margin:0}
+#fightResults .fight-card-grid{position:absolute;top:calc(var(--hud-status-top) + 66px);inset-inline-start:8px;display:flex;flex-direction:row;gap:5px;margin:0}
 #fightResults .fight-card,#fightResults .fight-card + .fight-card{display:flex;flex-direction:column;align-items:center;gap:1px;width:64px;padding:2px 0 3px;border-radius:7px;border:1px solid color-mix(in srgb,var(--gr-gold,#f4c152) 55%,transparent);border-top:3px solid var(--gr-gold,#f4c152);background:linear-gradient(180deg,rgb(22 28 42/.92),rgb(10 14 22/.92));box-shadow:0 2px 8px rgb(0 0 0/.45)}
 #fightResults .fight-card + .fight-card::before{content:none}
 #fightResults .fight-card span{display:block;font-size:8.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gr-gold,#f4c152);text-shadow:none}
