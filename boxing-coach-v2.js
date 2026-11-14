@@ -1105,7 +1105,7 @@
         handPhase<.42?1:1-smooth((handPhase-.42)/(options.straightRecovery??.27))):envelope(phase,.055);
       const soloUpper=move.includes('uppercut')&&!options.uppercutBagTarget&&!options.upperWristHeight&&!options.advance;
       const prepare=smooth((phase-(soloUpper?.02:.06))/(options.loadDuration??(soloUpper?.20:.16)));
-      const riseStart=soloUpper?.12:.22,riseDuration=options.riseDuration??(soloUpper?.36:.24);
+      const riseStart=options.riseStart??(soloUpper?.12:.22),riseDuration=options.riseDuration??(soloUpper?.36:.24);
       const rise=smooth((phase-riseStart)/riseDuration),bodyRise=smooth((phase-(riseStart-.025))/(riseDuration+.025));
       // Shared compact kinetic loading: coil before extension, never pull
       // the fist far behind the shoulder. A jab loads less than a cross.
@@ -1218,12 +1218,15 @@
           const s=move==='uppercut'?-1:1;
           const active=prepare*(1-recover),up=bodyRise*(1-recover);
           const loaded=prepare*(1-bodyRise)*(1-recover);
-          hipYaw=s*(soloUpper?.13:.14)*loaded-s*(soloUpper?.22:.22)*up;chestYaw=s*(soloUpper?.18:.20)*loaded-s*(soloUpper?.24:.25)*up;
-          crouch=.19*loaded+.035*up;forward=-.095*loaded+.11*up;
-          shift=s*.035*loaded-s*.025*up;
-          pelvisRoll=-s*.035*loaded+s*.020*up;
-          trunkPitch=.16*loaded-.085*up;
-          trunkRoll=-s*.10*loaded+s*.065*up;
+          // GOTR-0088 Sunday Punch: upperDip deepens the knee dip and the coil (1 = the normal Uppercut), upperDrive adds the
+          // leg drive: hips rise past the stance as the rear heel comes up, the trunk rises and opens behind the punch.
+          const dip=options.upperDip??1,driveUp=options.upperDrive??0,pitch=options.upperPitch??1,lean=options.upperLean??0;
+          hipYaw=s*(soloUpper?.13:.14)*loaded*dip-s*(soloUpper?.22:.22)*up*(1+.45*driveUp);chestYaw=s*(soloUpper?.18:.20)*loaded*dip-s*(soloUpper?.24:.25)*up*(1+.40*driveUp);
+          crouch=.19*loaded*dip+.035*up*(1-driveUp)-.045*driveUp*up;forward=-.095*loaded*(1+.4*(dip-1))+.11*up*(1+.35*driveUp);
+          shift=s*.035*loaded*dip-s*.025*up;
+          pelvisRoll=-s*.035*loaded*dip+s*.020*up;
+          trunkPitch=.16*loaded*dip*pitch-.085*up*(1+.9*driveUp);
+          trunkRoll=-s*.10*loaded*(1+lean)+s*.065*up;
           shoulderLoad=loaded;shoulderSide=s;
           palmTarget.set(0,0,-1);
           // Three distinct phases: settle under the target, drive upward with
@@ -1370,7 +1373,7 @@
       for(const s of [-1,1]) {
         const side=s===-1?'L':'R',pivot=s===-1?leadPivot:rearPivot;
         // GOTR-0051: in the guard the rear heel is slightly up (weight on the ball of the rear foot).
-        const lift=Math.abs(pivot)*.35+(side==='R'?(options.down||0)*.30+.09*stanceWeight*(1-block):0);
+        const lift=Math.abs(pivot)*.35+(side==='R'?(options.down||0)*.30+.09*stanceWeight*(1-block):0)+(options.upperDrive&&move.includes('uppercut')?options.upperDrive*(side==='R'?.62:.16)*bodyRise*(1-recover):0);
         const footQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(lift,pivot,0,'YXZ'));
         // A rigid boot pivots at the forward sole contact. Using the mid-foot
         // here drove the long toe through the floor whenever the heel rose.
@@ -1458,7 +1461,7 @@
           target.z=shoulder.z+axis.z*lower+Math.sqrt(Math.max(.0036,upper*upper-dx*dx-dy*dy));
         }
         const guard=(side==='L'?leadGuard:rearGuard).clone().add(headShift);
-        const load=V(side==='L'?-.23:.23,options.upperLoadHeight??1.18,options.uppercutBagTarget?.08:.36).add(guardShift);
+        const load=(options.upperLoad?V(...options.upperLoad):V(side==='L'?-.23:.23,options.upperLoadHeight??1.18,options.uppercutBagTarget?.08:.36)).add(guardShift);
         const release=options.uppercutBagTarget?smooth((phase-.49)/.25):recover;
         // One continuous load/rise/recovery path. A second endpoint blend
         // pulled the wrist in opposite directions during guard recovery.

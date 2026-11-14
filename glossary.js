@@ -3,10 +3,12 @@
 (() => {
  const game='Glory of the Ring';
  // Boxing terms, written as the player sees them. Longer phrases first so the audit removes them whole.
- const terms=[game,'Shadowboxing','Shadowbox','Sparring','Lead hook','Rear hook','Lead uppercut','Rear uppercut','Slip left','Slip right','Uppercut','Hook','Jab','Cross','Slip','Roll','Guard','Combos','Combo','KO','Burst','VS','First Rhythm','Corner Turn','Counter Chain','Thunder Arc','Rolling Return','School Signature'];
+ const terms=[game,'Shadowboxing','Shadowbox','Sparring','Lead hook','Rear hook','Lead uppercut','Rear uppercut','Slip left','Slip right','Uppercut','Hook','Jab','Cross','Slip','Roll','Guard','Combos','Combo','KO','Burst','VS','First Rhythm','Corner Turn','Counter Chain','Thunder Arc','Rolling Return','School Signature','Sunday Punch'];
  // Move ids whose shown name is a glossary term (the technique table's English column).
  const moves={jab:'Jab',cross:'Cross',hook:'Lead hook',rear_hook:'Rear hook',uppercut:'Lead uppercut',rear_uppercut:'Rear uppercut',slip:'Slip right',slip_left:'Slip left',slip_right:'Slip right',roll:'Roll',guard:'Guard'};
  const combos={first_rhythm:'First Rhythm',corner_turn:'Corner Turn',counter_chain:'Counter Chain',thunder_arc:'Thunder Arc',rolling_return:'Rolling Return',school_signature:'School Signature'};
+ // GOTR-0088 finisher names are move names: Latin in every language.
+ const finishers={sunday_punch:'Sunday Punch'};
  const stations={none:'Shadowboxing',rabbit:'Sparring'};
  // Inside Hebrew text an English term is a first-strong isolate, so punctuation stays where it belongs.
  const isolate=text=>'⁨'+text+'⁩';
@@ -15,7 +17,7 @@
  const strip=text=>terms.reduce((s,t)=>s.split(t).join(' '),String(text).replace(/[⁨⁩]/g,''));
  // Longest first, so that a phrase (Rolling Return) is removed before a word inside it (Roll).
  terms.sort((a,b)=>b.length-a.length);
- const api={game,terms,moves,combos,stations,isolate,term,strip};
+ const api={game,terms,moves,combos,finishers,stations,isolate,term,strip};
  if(typeof module!=='undefined'){module.exports=api;return;}
  window.GotrGlossary=api;
  // The shared technique table feeds move buttons, lessons, cues and drill names: keep the English term there.

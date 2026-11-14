@@ -47,7 +47,15 @@
   const k=Math.max(1,Math.min(maxScale,span/avail)),c=H/2,feetY=c+(feet*H-c)/k,headY=c+(head*H-c)/k;
   return {k,d:Math.max(0,Math.min(feetY-bottom,headY-top))};
  }
- const api={RESET_MS,SLIP_RESET_MS,PUNCHES,SPEED,createHands,createSlips,stepFor,direction,facingFrom,sector,repeatDue,safeFrame};
+ // GOTR-0088 Finisher button (fights only, when a finisher is owned). state = BoxingFight.finisherState(actor). It lights up when
+ // the Opponent is hurt and Burst is full ('ready') and pulses for PULSE_MS from that moment; otherwise it is shown dim (disabled).
+ const PULSE_MS=4000;
+ function finisherView(state,{mode='fight',readyAt=null,now=0}={}){
+  if(mode!=='fight'||!state||state.status==='none')return {show:false,enabled:false,pulse:false,lit:false};
+  const ready=state.status==='ready',live=state.status==='queued'||state.status==='active';
+  return {show:true,enabled:ready,lit:ready||live,pulse:ready&&readyAt!=null&&now-readyAt<PULSE_MS,reason:state.status};
+ }
+ const api={RESET_MS,SLIP_RESET_MS,PULSE_MS,PUNCHES,SPEED,createHands,createSlips,stepFor,direction,facingFrom,sector,repeatDue,safeFrame,finisherView};
  if(typeof module!=='undefined')module.exports=api;
  if(typeof window==='undefined'||typeof document==='undefined')return;
  window.FighterPadRules=api;
@@ -58,6 +66,9 @@
   he:{pad:'שליטה במתאגרף',move:'תנועה והגנה',punch:'מכות',straight:'ישרה',hook:'הוק',uppercut:'אפרקאט',guard:'הגנה',tap:'מכה',double:'כפול',triple:'שלישייה',forward:'פנימה',back:'החוצה',slip:'התחמקות',roll:'התכופפות',stepIn:'צעד פנימה',stepOut:'צעד החוצה',slipFull:'התחמקות (לסירוגין)',rollFull:'התכופפות מתחת למכה',lead:'יד קדמית',rear:'יד אחורית',hold:'החזיקו כדי להמשיך להגן',combos:'שילובים',hands:'הידיים מתחלפות לבד: קדמית, אחורית, קדמית…'},
   ru:{pad:'Управление боксёром',move:'Передвижение и защита',punch:'Удары',straight:'Прямой',hook:'Хук',uppercut:'Апперкот',guard:'Защита',tap:'Удар',double:'Двойка',triple:'Тройка',forward:'Вперёд',back:'Назад',slip:'Уклон',roll:'Нырок',stepIn:'Шаг вперёд',stepOut:'Шаг назад',slipFull:'Уклон (поочерёдно)',rollFull:'Нырок под удар',lead:'передняя рука',rear:'задняя рука',hold:'держите, чтобы защищаться',combos:'Серии',hands:'Руки чередуются сами: передняя, задняя, передняя…'}
  };
+ Object.assign(WORDS.en,{finisherHelp:'Finisher: a knockout Uppercut. Ready when the Opponent is hurt and Burst is full; a miss or a block spends the Burst'});
+ Object.assign(WORDS.he,{finisherHelp:'מכת סיום: \u2068Uppercut\u2069 של נוקאאוט. מוכנה כשהיריב פגוע ו-\u2068Burst\u2069 מלא; החטאה או חסימה מבזבזות את ה-\u2068Burst\u2069'});
+ Object.assign(WORDS.ru,{finisherHelp:'Добивающий удар: нокаутирующий Uppercut. Готов, когда соперник потрясён и Burst полон; промах или блок тратят Burst'});
  // GOTR-0075: what Guard does, said where it applies ({g} = the Guard button's own label, {r} = the Duck label).
  // Fights: a punch that lands on the gloves or arms is blocked: no health lost, Burst charges. Sparring: blocks count as defence.
  // Mitts: the Coach's swing is ducked, not blocked. Bag, dummy, speed bag, shadowboxing: nothing hits back.
@@ -91,7 +102,10 @@
    const b=make('button','fp-arrow');b.type='button';b.dataset.dir=dir;b.tabIndex=0;const ink=make('span','fp-ink'),cap=make('span','fp-cap');ink.innerHTML=CHEVRON;cap.dir='auto';ink.append(cap);b.append(ink);face.append(b);arrows[dir]={b,cap};
   }
   dpad.append(face,hub);left.append(dpad);
-  const skills=make('div','fp-skills'),burstSlot=make('div','fp-burst-slot'),chips=make('div','fp-chips');skills.append(burstSlot,chips);
+  const skills=make('div','fp-skills'),burstSlot=make('div','fp-burst-slot'),chips=make('div','fp-chips');
+  // GOTR-0088: the Finisher ("Sunday Punch" — a move name, Latin in every language) above Burst.
+  const finisher=make('button','fp-finisher');finisher.type='button';finisher.hidden=true;finisher.dir='ltr';const finName=make('span','fp-finisher-name');finName.textContent='Sunday Punch';const finKey=make('kbd','fp-key');finKey.textContent='F';finKey.setAttribute('aria-hidden','true');finisher.append(finName,finKey);
+  skills.append(finisher,burstSlot,chips);let finReadyAt=null;
   const arc=make('div','fp-arc'),buttons={};
   for(const id of ['uppercut','guard','hook','straight']){
    const b=make('button','fp-btn');b.type='button';b.dataset.pad=id;const label=make('span','fp-label');label.dir='auto';
@@ -126,6 +140,11 @@
   }
   function chip(id){if(!shown)return;hands.reset();window.manualControls?.press?.(id);paint(true);}
 
+  // GOTR-0088: one press orders the Finisher (it spends the whole Burst).
+  function finisherMatch(){return e.targetMode==='fight'&&e.arena?.mode==='fight'?e.arena.fightView?.match:null;}
+  function pressFinisher(source='pad'){const m=finisherMatch(),p=player();if(!m||!p?.enabled||!shown||!e.isPlaying)return false;const ok=!!m.requestFinisher?.(p.actor());log.push({control:'finisher',id:'finisher',ok,source,t:Math.round(performance.now())});if(ok){e.lastRenderStamp=null;e.onInputState?.();}paint(true);return ok;}
+  finisher.addEventListener('pointerdown',ev=>{if(ev.button>0)return;ev.preventDefault();ev.stopPropagation();pressFinisher();});
+  finisher.addEventListener('click',ev=>{if(ev.detail===0)pressFinisher('key');});
   /* Pointer input: every control tracks its own pointer, so moving and punching work together. */
   const held=new Map();let holdTimer=null;
   function setPressed(node,on){node.dataset.pressed=String(!!on);}
@@ -165,6 +184,7 @@
   // Keyboard: J / K / L throw Straight / Hook / Uppercut with automatic hands. Digits, arrows, WASD and B keep their old meaning.
   document.addEventListener('keydown',ev=>{
    if(!shown||ev.altKey||ev.ctrlKey||ev.metaKey||ev.repeat||document.querySelector('dialog[open]')||/INPUT|TEXTAREA|SELECT|BUTTON/.test(ev.target?.tagName)||ev.target?.isContentEditable)return;
+   if(ev.code==='KeyF'&&!finisher.hidden){ev.preventDefault();pressFinisher('keyboard');return;}
    const control={KeyJ:'straight',KeyK:'hook',KeyL:'uppercut'}[ev.code];if(!control)return;ev.preventDefault();act(control,'keyboard');
   });
 
@@ -198,7 +218,7 @@
 
   /* Visibility, placement and the portrait safe frame */
   const academy=()=>body.classList.contains('academy-lesson');
-  function visible(){const p=player(),mc=document.getElementById('manualControls');return !!(p?.enabled&&e.coach&&e.targetMode!=='rope'&&!(e.targetMode==='fight'&&e.arena?.fightView?.match?.result)&&!academy()&&!e.fightIQDemo&&!stage.classList.contains('game-preview-live')&&mc&&!mc.hidden);}
+  function visible(){const p=player(),mc=document.getElementById('manualControls');return !!(p?.enabled&&e.coach&&e.targetMode!=='rope'&&!window.sundayPunchUI?.active&&!(e.targetMode==='fight'&&e.arena?.fightView?.match?.result)&&!academy()&&!e.fightIQDemo&&!stage.classList.contains('game-preview-live')&&mc&&!mc.hidden);}
   function burstHome(on){const burst=document.getElementById('burstControl');if(!burst)return;if(on&&burst.parentNode!==burstSlot)burstSlot.append(burst);else if(!on&&burst.parentNode===burstSlot)stage.append(burst);}
   // Lens: k >= 1 widens the view around its centre, d moves the picture up by d pixels (no camera move).
   function setFrame(next,H){
@@ -270,6 +290,9 @@
    }
    for(const [dir,{b:btn}] of Object.entries(arrows)){const fam=dir==='up'||dir==='down'?dir:btn.dataset.step==='in'?'forward':'back';off(btn,!can);put(btn,'data-active',String(active===fam));}
    put(dpad,'data-disabled',String(!can));
+   {const m=finisherMatch(),st=m?.finisherState?.(p.actor()),readyNow=st?.status==='ready';if(readyNow&&finReadyAt==null)finReadyAt=now;if(!readyNow)finReadyAt=null;
+    const fv=finisherView(st,{mode:e.targetMode,readyAt:finReadyAt,now});if(finisher.hidden===fv.show)finisher.hidden=!fv.show;
+    if(fv.show){off(finisher,!fv.enabled||!can&&!readyNow);put(finisher,'data-state',fv.reason);put(finisher,'data-lit',String(fv.lit));put(finisher,'data-pulse',String(fv.pulse));put(finisher,'aria-label','Sunday Punch — '+(t.finisherHelp||WORDS.en.finisherHelp));put(finisher,'title',t.finisherHelp||WORDS.en.finisherHelp);}}
    paintChips();layout();
   }
   // The camera director keeps placing the camera; in portrait the pad only shifts and widens the lens (setFrame).
@@ -294,7 +317,7 @@
   setInterval(()=>{if(!tip.hidden&&(performance.now()>tipUntil||!shown))tip.hidden=true;
    const m=e.targetMode==='fight'&&shown?e.arena?.fightView?.match:null;if(m&&m.phase==='round'&&fightTipFor!==m){fightTipFor=m;if(seen('fightIntro')<2){count('fightIntro');guardTip(true);}}},150);
   setInterval(()=>paint(),100);paint(true);
-  window.fighterPad={paint,press:(c,s)=>act(c,s),guardTip,chip,log,hands,slips,get facing(){return facing;},get shown(){return shown;},get frame(){return {...frame};},rules:api};
+  window.fighterPad={paint,press:(c,s)=>act(c,s),pressFinisher:s=>pressFinisher(s),finisherButton:finisher,guardTip,chip,log,hands,slips,get facing(){return facing;},get shown(){return shown;},get frame(){return {...frame};},rules:api};
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

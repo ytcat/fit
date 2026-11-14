@@ -18,9 +18,15 @@
  // multiplier: faster gloves score through the normal contact solver, and the burst ends in a committed
  // recovery step during which the fighter cannot defend and the opponent does not pause to reset.
  const burst={sequence:[['jab','head'],['cross','head'],['hook','body'],['rear_uppercut','head'],['hook','head']],tempo:.76,perSecond:.11,hit:.25,defence:.17,recover:.7,stamina:.08,durations:{jab:.64,cross:.70,hook:.78,rear_hook:.78,uppercut:.84,rear_uppercut:.84}};
+ // GOTR-0088 Finisher "Sunday Punch": one dipping, rising rear Uppercut under the chin, available when the Opponent is hurt
+ // (health under `hurt`) AND the fighter's Burst meter is full. Pressing it spends the whole Burst at once (a miss or a block
+ // wastes it). A clean head contact knocks the Opponent out cold: KO, no count. Owned per actor (options.finishers), so a
+ // boss can be given its own finisher later through the same requestFinisher(actor) hook. `hold` = game seconds the result
+ // waits (phase clock frozen) after the knockout so the fall plays out before the cards/ceremony; `duration` = the move.
+ const finishers={sunday_punch:{id:'sunday_punch',move:'rear_uppercut',target:'head',hurt:25,duration:1.32,hold:3.0,stamina:.10,read:.30,opening:.75}};
  const presets={three:{rounds:3,roundSeconds:20,restSeconds:20},club:{rounds:2,roundSeconds:20,restSeconds:20},six:{rounds:1,roundSeconds:40,restSeconds:10},title:{rounds:1,roundSeconds:60,restSeconds:10},exhibition:{rounds:2,roundSeconds:20,restSeconds:20},quick:{rounds:1,roundSeconds:20,restSeconds:0}};
  class BoxingFight {
-  constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor,adventureEdge}={}){
+  constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor,adventureEdge,finishers:owned}={}){
    this.seed=seed>>>0;this.state=this.seed;this.preset=preset;Object.assign(this,presets[preset]||presets.club);
    if(rounds!=null)this.rounds=rounds;if(roundSeconds!=null)this.roundSeconds=roundSeconds;if(restSeconds!=null)this.restSeconds=restSeconds;
    this.knockdownSeconds=5.6;
@@ -32,6 +38,9 @@
     const edge=n=>Number.isFinite(adventureEdge?.[n])&&adventureEdge[n]>0?Math.min(1.5,adventureEdge[n]):1;f.power*=edge('impact');f.tempo*=edge('speed');f.recovery*=edge('stamina');}
    this.order=this.random()<.5?['lion','rabbit']:['rabbit','lion'];
    for(const a of actors)this.fighters[a].burst={charge:0,order:null,run:null,open:0,used:0};
+   // Owned finishers per actor: {lion:['sunday_punch']} or an array for the player's career actor.
+   const own=options=>Array.isArray(options)?{[careerActor||'lion']:options}:options||{};this.finisherOwned=own(owned);
+   for(const a of actors)this.fighters[a].finisher={order:null,used:0,spent:0};
   }
   random(){this.state=(Math.imul(this.state,1664525)+1013904223)>>>0;return this.state/4294967296;}
   setPlayer(actor){
@@ -41,14 +50,14 @@
   }
   requestPlayerMove(command){
    const actor=this.playerActor,f=this.fighters[actor];
-   if(!f||this.phase!=='round'||this.result||f.down||f.burst.order||f.burst.run||!moves.concat(['guard','slip','roll','step']).includes(command.move))return false;
+   if(!f||this.phase!=='round'||this.result||f.down||f.burst.order||f.burst.run||f.finisher.order||f.action?.finisher||!moves.concat(['guard','slip','roll','step']).includes(command.move))return false;
    this.pendingPlayerCombo=null;if(this.playerCombo){this.playerCombo=null;this.playerQueue=[];}
    if(!f.action){this.startPlayerMove(command);return true;}
    if(this.playerQueue.length>=2)return false;this.playerQueue.push({...command});return true;
   }
   requestPlayerCombo(commands,id){
    const f=this.fighters[this.playerActor];
-   if(!f||this.phase!=='round'||this.result||f.down||f.burst.order||f.burst.run||this.pendingPlayerCombo||!commands.length||commands.length>8||commands.some(c=>!moves.concat(['guard','slip','roll','step']).includes(c.move)||!(c.duration>=.25&&c.duration<=1.3)))return false;
+   if(!f||this.phase!=='round'||this.result||f.down||f.burst.order||f.burst.run||f.finisher.order||f.action?.finisher||this.pendingPlayerCombo||!commands.length||commands.length>8||commands.some(c=>!moves.concat(['guard','slip','roll','step']).includes(c.move)||!(c.duration>=.25&&c.duration<=1.3)))return false;
    if(this.playerCombo||this.playerQueue.length||f.action&&(f.action.move!=='guard'||f.action.guardStyle&&f.action.guardStyle!=='high')){this.pendingPlayerCombo={id,commands:commands.map(c=>({...c}))};return true;}
    this.playerCombo={id,step:1,total:commands.length};this.playerQueue=commands.map(c=>({...c}));f.action=null;this.startPlayerMove(this.playerQueue.shift());return true;
   }
@@ -71,8 +80,38 @@
    f.burst.order={time:this.time,player:actor===this.playerActor};if(actor===this.playerActor){this.playerQueue=[];this.pendingPlayerCombo=null;}
    this.emit('burst-order',{actor,player:actor===this.playerActor});return true;
   }
+  // GOTR-0088: why the Finisher is unavailable, or 'ready' / 'queued' / 'active' (the move in the air) for one fighter.
+  finisherState(actor,id){
+   const f=this.fighters[actor];if(!f)return null;const ids=(this.finisherOwned[actor]||[]).filter(k=>finishers[k]);id=id&&ids.includes(id)?id:ids[0];
+   if(!id)return {status:'none',id:null};const spec=finishers[id],op=this.fighters[other(actor)],b=f.burst;
+   const status=this.result||this.phase!=='round'&&this.phase!=='count'?'over':this.phase==='count'||f.down||op.down?'down':f.finisher.order?'queued':f.action?.finisher?'active':b.run||b.order?'busy':this.time<b.open?'recover':b.charge<1?'charging':op.condition>=spec.hurt?'healthy':'ready';
+   return {status,id,charge:b.charge,hurt:op.condition<spec.hurt,threshold:spec.hurt,used:f.finisher.used};
+  }
+  // One press: spends the full Burst at once and throws the finisher at the next action boundary (now, if the fighter is free).
+  requestFinisher(actor,id){
+   const state=this.finisherState(actor,id);if(state?.status!=='ready')return false;const f=this.fighters[actor],b=f.burst;
+   b.charge=0;b.used++;f.finisher.used++;f.finisher.order={id:state.id,time:this.time};f.plan=[];
+   if(actor===this.playerActor){this.playerQueue=[];this.playerCombo=null;this.pendingPlayerCombo=null;}
+   // The Opponent is hurt: unless his guard was already up high when the button lit, it drops for the dip (a short opening).
+   const op=this.fighters[other(actor)],guarded=op.action?.move==='guard'&&(['high','parry'].includes(op.action.guardStyle)||other(actor)===this.playerActor&&op.action.defend);
+   f.finisher.order.opening=!guarded;if(!guarded&&other(actor)!==this.playerActor){if(!op.action?.attack)op.action=null;op.plan=[];op.next=Math.max(op.next||0,this.time+finishers[state.id].opening);}
+   this.emit('finisher-order',{actor,id:state.id,player:actor===this.playerActor,opening:!guarded});
+   if(!f.action||!f.action.attack&&!f.action.burstRecover)this.finisherStep(actor);
+   return true;
+  }
+  finisherStep(actor){
+   const f=this.fighters[actor],order=f.finisher.order;if(!order||this.phase!=='round'||this.result||f.down)return false;
+   const spec=finishers[order.id];f.finisher.order=null;f.action=null;
+   const a=this.attack(actor,spec.move,spec.target);if(!a)return false;
+   // A deeper dip and a longer leg drive than the normal Uppercut; tempo and stamina still matter a little.
+   a.finisher=spec.id;a.input='finisher';a.opening=order.opening!==false;a.duration=spec.duration*(1+(1-f.stamina)*.15)/Math.sqrt(f.tempo);f.stamina=clamp(f.stamina-spec.stamina);
+   this.emit('finisher-start',{actor,id:spec.id,action:a.id,player:actor===this.playerActor});return true;
+  }
+  // True while a finisher knockout is still playing out (the result waits; the phase clock is frozen).
+  finisherHold(){const r=this.result;return !!(r?.finisher&&!r.finisherSkipped&&this.time-r.finisherTime<finishers[r.finisher].hold);}
+  skipFinisher(){if(this.result?.finisher)this.result.finisherSkipped=true;}
   chargeBurst(actor,amount){const b=this.fighters[actor].burst;if(this.phase==='round'&&!this.result&&!b.order&&!b.run&&!(this.time<b.open))b.charge=clamp(b.charge+amount);}
-  stopBurst(actor){const b=this.fighters[actor].burst;if(b.order||b.run)this.emit('burst-cancel',{actor,started:!!b.run});b.order=null;b.run=null;b.open=0;}
+  stopBurst(actor){const b=this.fighters[actor].burst;this.fighters[actor].finisher.order=null;if(b.order||b.run)this.emit('burst-cancel',{actor,started:!!b.run});b.order=null;b.run=null;b.open=0;}
   bellStart(){for(const a of actors){this.stopBurst(a);this.fighters[a].burst.charge=0;}this.emit('bell',{kind:'start'});}
   // Called only at an action boundary: no action in progress, the round live and nobody down.
   burstStep(actor){
@@ -97,7 +136,7 @@
   }
   decide(actor){
    const f=this.fighters[actor],op=this.fighters[other(actor)],incoming=op.action?.attack&&this.time-op.action.start<op.action.duration*.57;
-   if(incoming&&this.random()<f.skill*.72){
+   if(incoming&&this.random()<f.skill*.72*(op.action.finisher?finishers[op.action.finisher].read:1)){
     const punch=op.action.move,choice=this.random();let move=choice<.36?'guard':punch.includes('hook')?'roll':punch.includes('uppercut')?'slip':choice<.8?'slip':'guard';
     if(op.action.target==='body'&&move==='roll')move='guard';
     const guardStyle=op.action.target==='body'?'body':punch==='hook'?'right':punch==='rear_hook'?'left':punch.includes('uppercut')?'high':'parry';
@@ -121,7 +160,7 @@
    }
   }
   advance(dt){
-   if(!(dt>0))return;this.time+=dt;this.phaseTime+=dt;
+   if(!(dt>0))return;this.time+=dt;if(!this.finisherHold())this.phaseTime+=dt;
    if(this.phase!=='round'){this.playerQueue=[];this.playerCombo=null;this.pendingPlayerCombo=null;}
    for(const a of actors){const f=this.fighters[a];f.stamina=clamp(f.stamina+dt*(this.phase==='rest'?.025:.018)*(f.recovery||1));f.stun=Math.max(0,f.stun-dt*2.2);}
    if(this.phase==='intro'){if(this.phaseTime>=3){this.phase='round';this.phaseTime=0;this.bellStart();}return;}
@@ -143,9 +182,11 @@
    for(const actor of this.order){
     const f=this.fighters[actor];
     if(f.action&&this.time-f.action.start>=f.action.duration+(f.action.contactTime!=null?.045:0)){
+     if(f.action.finisher&&!f.action.recorded)this.emit('finisher-miss',{actor,receiver:other(actor),id:f.action.finisher,blocked:false});
      if(f.action.attack&&!f.action.recorded){this.roundStats[actor].missed++;this.totals[actor].missed++;if(f.action.facedDefence){this.roundStats[other(actor)].evaded++;this.totals[other(actor)].evaded++;this.chargeBurst(other(actor),burst.defence);}this.emit('miss',{actor,action:f.action.id});}
      f.last={move:f.action.move,start:f.action.start,end:this.time,attack:!!f.action.attack,burst:f.action.burst||0};f.action=null;f.next=this.time+(f.plan.length&&f.stamina>.30?.045+this.random()*.12:.10+this.random()*.52+(1-f.stamina)*.6)/(f.footwork||1);
     }
+    if(!f.action&&f.finisher.order&&this.finisherStep(actor))continue;
     if(!f.action&&this.burstStep(actor))continue;
     if(!f.action&&actor===this.playerActor){if(this.playerQueue.length)this.startPlayerMove(this.playerQueue.shift());else if(this.pendingPlayerCombo){const next=this.pendingPlayerCombo;this.pendingPlayerCombo=null;this.playerCombo={id:next.id,step:1,total:next.commands.length};this.playerQueue=next.commands;this.startPlayerMove(this.playerQueue.shift());}else this.playerCombo=null;}
     else if(!f.action&&this.time>=f.next)this.decide(actor);
@@ -169,7 +210,9 @@
    victim.reaction={time:this.time,part:part==='glove'?'guard':part,severity,side:side||1,move:a.move,surfacePoint,surfaceNormal,direction:direction||[0,a.move.includes('uppercut')?.8:0,-1]};
    if(legal){const zone=part==='body'?'body':(side||1)<0?'left':'right';victim.damage[zone]+=severity;victim.condition=Math.max(0,victim.condition-severity*(this.preset==='quick'?(part==='head'?12:9):(part==='head'?3:2.2)));victim.stamina=clamp(victim.stamina-severity*.025);victim.stun+=severity*(part==='head'?5:3);f.stamina=clamp(f.stamina+.012);}
    const event=this.emit('contact',{actor,receiver,action,part,legal,blocked,speed,quality,severity,point,move:a.move,direction});
-   if(legal&&victim.stun>18){if(!victim.pendingDown){victim.pendingDown=true;this.roundStats[receiver].knockdowns++;this.totals[receiver].knockdowns++;}}
+   // GOTR-0088: the finisher landing clean on the head knocks the Opponent out cold (no count). Glove/arm = blocked: Burst is gone.
+   if(a.finisher){event.finisher=a.finisher;if(legal&&part==='head'){victim.condition=0;victim.stun=40;this.finisherKO={actor,receiver,id:a.finisher,time:this.time,action:{...a},point,direction};this.emit('finisher-ko',{actor,receiver,id:a.finisher});}else this.emit('finisher-miss',{actor,receiver,id:a.finisher,blocked});}
+   if(legal&&victim.stun>18&&!a.finisher){if(!victim.pendingDown){victim.pendingDown=true;this.roundStats[receiver].knockdowns++;this.totals[receiver].knockdowns++;}}
    return event;
   }
   measure(stats,weights){const [clean,power,defence,control]=weights;return stats.quality*clean+stats.power*power+(stats.blocked+stats.evaded)*defence+stats.control*control;}
@@ -189,9 +232,10 @@
    const votes=cards.map(c=>c.totals[0]===c.totals[1]?null:c.totals[0]>c.totals[1]?'lion':'rabbit');
    if(method==='points'){const l=votes.filter(v=>v==='lion').length,r=votes.filter(v=>v==='rabbit').length;winner=l>=2?'lion':r>=2?'rabbit':null;}
    this.result={winner,stoppage:method,method:winner?method:'draw',decision:method!=='points'?method:!winner?'draw':votes.every(v=>v===winner)?'unanimous':votes.includes(null)?'majority':'split',cards,votes,totals:JSON.parse(JSON.stringify(this.totals))};
+   const ko=this.finisherKO;if(ko&&method==='KO'&&winner===ko.actor){this.result.finisher=ko.id;this.result.finisherTime=ko.time;this.result.finisherActor=ko.actor;this.result.finisherAction=ko.action;}
    this.phase=this.preset==='quick'?'ceremony':'scoring';this.phaseTime=0;for(const a of actors){this.fighters[a].action=null;this.stopBurst(a);}this.emit('final-bell',{result:this.result});if(this.preset==='quick')this.emit('announcement',{result:this.result});
   }
-  snapshot(){return {phase:this.phase,round:this.round,rounds:this.rounds,remaining:Math.max(0,this.roundSeconds-this.roundTime),restRemaining:Math.max(0,this.restSeconds-this.phaseTime),count:this.phase==='count'?Math.min(8,Math.floor(this.phaseTime/(this.knockdownSeconds/8))+1):0,cardsShown:this.phase==='scoring'?(this.phaseTime<1?0:Math.min(3,Math.floor((this.phaseTime-1)/2.5)+1)):this.phase==='ceremony'?3:0,health:{lion:this.fighters.lion.condition,rabbit:this.fighters.rabbit.condition},result:this.result,totals:this.totals};}
+  snapshot(){return {finisher:this.result?.finisher?{id:this.result.finisher,hold:this.finisherHold()}:null,phase:this.phase,round:this.round,rounds:this.rounds,remaining:Math.max(0,this.roundSeconds-this.roundTime),restRemaining:Math.max(0,this.restSeconds-this.phaseTime),count:this.phase==='count'?Math.min(8,Math.floor(this.phaseTime/(this.knockdownSeconds/8))+1):0,cardsShown:this.phase==='scoring'?(this.phaseTime<1?0:Math.min(3,Math.floor((this.phaseTime-1)/2.5)+1)):this.phase==='ceremony'?3:0,health:{lion:this.fighters.lion.condition,rabbit:this.fighters.rabbit.condition},result:this.result,totals:this.totals};}
  }
- BoxingFight.presets=presets;BoxingFight.burst=burst;window.BoxingFight=BoxingFight;
+ BoxingFight.presets=presets;BoxingFight.burst=burst;BoxingFight.finishers=finishers;window.BoxingFight=BoxingFight;
 })();

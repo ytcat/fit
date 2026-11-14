@@ -33,9 +33,9 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 
 | # | Film | What it shows | State |
 |---|---|---|---|
-| F1 | Sunday Punch (finisher, GOTR-0088) | Dip, rising rear Uppercut under the chin, slow motion, Opponent lifted and falls out cold; earned at the end of Chapter 1 or bought | **Planned** |
+| F1 | Sunday Punch (finisher, GOTR-0088) | Dip, rising rear Uppercut under the chin, slow motion, Opponent lifted and falls out cold; earned at the end of Chapter 1 or bought | **In review** (`agent/sunday-punch`) |
 | F2 | Corner break (GOTR-0076) | Between rounds: walk to the corner, cornerman brings the stool (corner colour), towel, water bottle; stool removed at the bell | **Ready for QA** (`agent/corner-break`, `fight-corner.js`) |
-| F3 | Knockout fall | Believable fall to the canvas, no floating or clipping; referee or Coach waves it off | **Planned** (part of F1) |
+| F3 | Knockout fall | Believable fall to the canvas, no floating or clipping; referee or Coach waves it off | **In review** (part of F1, `sunday-punch.js`) |
 | F4 | Fight intro and result | Intro, VS, result ceremony with score cards only on a decision | **Live** (v1.49) |
 
 ## Older scenes (live, to be redone in the new style)

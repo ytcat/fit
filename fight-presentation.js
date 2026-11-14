@@ -7,6 +7,7 @@
   ru:{lion:'Лев',rabbit:'Кролик',vs:'VS',round:'РАУНД',ready:'ПРИГОТОВЬТЕСЬ',fight:'Бой!',rest:'Перерыв',next:'СЛЕДУЮЩИЙ РАУНД ЧЕРЕЗ {n} С',wins:'{name} побеждает',draw:'Ничья',final:'ИТОГ',last:'ПОСЛЕДНИЕ СЕКУНДЫ',ko:'KO'}
  };
  function state(match,lang='en'){const w=words[lang]||words.en,s=match.snapshot(),seconds=Math.ceil(s.remaining),opening=s.phase==='round'&&match.roundTime<1.1;
+  if(s.finisher?.hold)return {kind:'',text:'',sub:''}; // GOTR-0088: the Sunday Punch knockout plays first
   if(s.phase==='intro')return {kind:'versus',text:w.lion+' '+w.vs+' '+w.rabbit,sub:w.round+' '+s.round+' · '+w.ready};
   if(opening)return {kind:'fight',text:w.fight,sub:w.round+' '+s.round};
   if(s.phase==='rest')return {kind:'break',text:w.rest,sub:w.next.replace('{n}',Math.ceil(s.restRemaining))};

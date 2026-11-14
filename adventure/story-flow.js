@@ -65,7 +65,7 @@
         { event: true, who: 'hook', beat: 10, goal: L('Win the fight at the Docks', 'נצחו בקרב בנמל', 'Выиграй бой в Доках'), stand: L('a bout with gloves in the Docks arena stands in for the bare-knuckle fight', 'קרב עם כפפות בזירת הנמל במקום הקרב בלי כפפות', 'бой в перчатках на арене Доков вместо боя без перчаток') }),
       S('advanced_training', L('Advanced training', 'אימון מתקדם', 'Продвинутая тренировка'),
         L('Longer Combos: a counter after the Slip, body then head.', 'Combo ארוכים יותר: מכת נגד אחרי Slip, גוף ואז ראש.', 'Длинные Combo: контратака после Slip, корпус, потом голова.'),
-        L('Learned to counter after a Slip.', 'למדתם להחזיר מכה אחרי Slip.', 'Научился контратаковать после Slip.'),
+        L('Learned to counter after a Slip. Bruno taught you his finisher, the Sunday Punch.', 'למדתם להחזיר מכה אחרי Slip. ברונו לימד אתכם את מכת הסיום שלו, Sunday Punch.', 'Научился контратаковать после Slip. Бруно научил тебя своему добивающему удару — Sunday Punch.'),
         { who: 'bruno', beat: 11 }),
       S('brick', L('Rematch: Brick', 'קרב חוזר: בריק', 'Реванш: Брик'),
         L('Fight night at the gym. The whole neighbourhood came to watch.', 'ערב קרבות באולם. כל השכונה באה לראות.', 'Вечер боёв в зале. Посмотреть пришёл весь район.'),
