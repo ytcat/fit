@@ -920,6 +920,13 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Pass 2 (a574e95):** strap elbow down by the side (pole down/back, hand target follows the chest), arm abduction cut to what the clearance needs (street walk: forearm 2.5 cm, hand 6.7 cm), hoodie hem lowered to cover the belt and jeans top with a blouse over the rib, upper sleeves the smoothed arm + 1 cm, knee smoothed (no crease). Pictures re-rendered.
 - **Still off:** the strap forearm crosses the chest fairly high and level; the upper sleeves are still full on the lion; a faint fold line remains at the inner knee.
 
+### GOTR-0096 — Chapter 1 beats 5-7 as 3D films: apology, market robbery, Otto's Corner
+- **Reported:** 2026-11-14 (integrator: replace the stand-ins of FILMS.md rows 6-8; part of GOTR-0078)
+- **Status:** READY FOR QA — branch `agent/market-films` (not merged, not released)
+- **What changed:** `adventure/story/market-core.js` (scripts, EN/HE/RU) + `market-sets.js` (placeholder sets `dream_market`, `dream_shop`; props) played by `dream-scenes.js`. Beat 5 `dream_apology` (gym, bag on the floor, Bruno sends him to the market, walk out) chains into beat 6 `dream_market_robbery` (Fang snatches Mrs. Hazel's handbag, the Fighter blocks him, jacket off) -> the ringless street fight vs Fang (bare hands) -> after a win `dream_market_reward` (bag back, reward = heavy bag price, unchanged); a loss keeps the lost beat + Retry. Beat 7 `dream_otto_shop`: the purchase is confirmed inside the film (the step's own save action); Skip before buying shows the old counter; he carries the bag out.
+- **Evidence:** `qa/gotr-0096/apology.webp`, `robbery.webp`, `robbery-fight.webp`, `reward.webp`, `otto.webp` (402x690, headless SwiftShader); test `tests/dream-market-films.test.cjs`.
+- **Limits:** the market and shop sets are code-built placeholders until Codex's sets; Fang/Hazel/Otto heads await Codex's sculpts; Fang's "run" is the walk cycle at 2 m/s; phones not measured (~1.1 M triangles in the market shots).
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46

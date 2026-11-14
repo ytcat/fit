@@ -172,7 +172,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (scene0.tap) for (let i = run.ack + 1; i < scene0.lines.length; i++) if (scene0.lines[i].hold) { limit = Math.min(limit, scene0.lines[i].t + C.SETTLE); break; }
       const atBuy = !!scene0.buy && !run.bought && scene0.buy.t <= limit; if (atBuy) limit = scene0.buy.t; // the shop waits for the purchase
       run.t = Math.min(run.t + dt, limit); if (scene0.tap && run.t >= limit && limit < scene0.duration && !atBuy) run.waiting = true;
-      buyBtn.hidden = !(atBuy && run.t >= limit && !run.closed);
+      buyBtn.hidden = !(atBuy && run.t >= limit && !run.closed); sub.style.paddingBottom = buyBtn.hidden ? '' : '52px'; // the line sits above the Buy button
       const s = C.sample(scene0, run.t); run.shot = s.camera.shot; run.lineIndex = s.lineIndex;
       // lines
       const l = s.line, key = l ? s.lineIndex + '|' + lang() : '';

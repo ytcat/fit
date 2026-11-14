@@ -1,0 +1,121 @@
+{
+ "id": "dream_market_robbery",
+ "name": "robbery",
+ "viewport": [
+  402,
+  690
+ ],
+ "before": {
+  "scale": [
+   -1,
+   1,
+   1
+  ],
+  "outfit": "kit"
+ },
+ "frames": [
+  {
+   "label": "a",
+   "calls": 47,
+   "triangles": 893734,
+   "shot": 0,
+   "t": 2.55,
+   "line": "Mrs. HazelPears! Sweet pears! Best on Market Row!▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "b",
+   "calls": 89,
+   "triangles": 1064578,
+   "shot": 1,
+   "t": 5.7,
+   "line": "FangNice bag, lady.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "c",
+   "calls": 143,
+   "triangles": 1145538,
+   "shot": 2,
+   "t": 7,
+   "line": "Mrs. HazelHey! My bag! Stop him!▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "d",
+   "calls": 143,
+   "triangles": 1145538,
+   "shot": 2,
+   "t": 8.7,
+   "line": "Mrs. HazelHey! My bag! Stop him!▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "e",
+   "calls": 115,
+   "triangles": 1094160,
+   "shot": 3,
+   "t": 11,
+   "line": "FighterWhoa. Going somewhere?▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "f",
+   "calls": 117,
+   "triangles": 1099800,
+   "shot": 3,
+   "t": 13.05,
+   "line": "FangMove, kid. Or I move you.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "g",
+   "calls": 108,
+   "triangles": 1092239,
+   "shot": 4,
+   "t": 15.8,
+   "line": "FighterGive the lady her bag back.▸",
+   "buyShown": false,
+   "bought": false
+  },
+  {
+   "label": "h",
+   "calls": 115,
+   "triangles": 1094117,
+   "shot": 5,
+   "t": 18.1,
+   "line": "FangYou asked for it.▸",
+   "buyShown": false,
+   "bought": false
+  }
+ ],
+ "afterStop": {
+  "done": {
+   "id": "dream_market_robbery",
+   "skipped": true
+  },
+  "buys": 0,
+  "playing": null,
+  "scale": [
+   -1,
+   1,
+   1
+  ],
+  "outfit": "kit",
+  "fangWear": "jacket",
+  "handbagHome": true,
+  "dialogs": 0
+ },
+ "log": [
+  "warning [.WebGL-0x105c01908c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x105c01908c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x105c01908c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x105c01908c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}

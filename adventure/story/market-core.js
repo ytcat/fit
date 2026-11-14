@@ -31,12 +31,12 @@
         { t: 5.8, pos: [1.2, 1.6, 2.6], look: [4.1, 1.45, -1.6], ease: 'smooth' },
         { t: 5.8, cut: true, pos: [.55, 1.72, -.05], look: [4.15, 1.6, -1.25], fov: 30 },    // over the Fighter's shoulder, on Bruno
         { t: 9.4, pos: [.6, 1.72, -.1], look: [4.15, 1.62, -1.25], fov: 29, ease: 'linear' },
-        { t: 9.4, cut: true, pos: [5.35, 1.7, -.25], look: [1.75, 1.55, -1.45], fov: 30 },   // over Bruno's shoulder, on the Fighter
-        { t: 13, pos: [5.3, 1.7, -.3], look: [1.75, 1.57, -1.45], fov: 29, ease: 'linear' },
-        { t: 13, cut: true, pos: [2.95, .75, .6], look: [3.3, 1.2, -2.8], fov: 34 },          // low: the bag on the floor, Bruno behind it
-        { t: 16.6, pos: [2.75, .8, .45], look: [3.4, 1.3, -2.8], fov: 33, ease: 'linear' },
-        { t: 16.6, cut: true, pos: [5.35, 1.7, -.25], look: [1.75, 1.55, -1.45], fov: 29 },
-        { t: 20.2, pos: [5.3, 1.7, -.3], look: [1.75, 1.57, -1.45], fov: 28, ease: 'linear' },
+        { t: 9.4, cut: true, pos: [5.6, 1.74, .85], look: [1.75, 1.5, -1.45], fov: 27 },    // past Bruno's shoulder, on the Fighter
+        { t: 13, pos: [5.55, 1.74, .8], look: [1.75, 1.52, -1.45], fov: 26, ease: 'linear' },
+        { t: 13, cut: true, pos: [1.7, 1.35, 1.9], look: [3.75, 1.2, -1.75], fov: 44 },        // Bruno over the bag on the floor
+        { t: 16.6, pos: [1.85, 1.38, 1.75], look: [3.75, 1.22, -1.75], fov: 43, ease: 'linear' },
+        { t: 16.6, cut: true, pos: [5.6, 1.74, .85], look: [1.75, 1.5, -1.45], fov: 26 },
+        { t: 20.2, pos: [5.55, 1.74, .8], look: [1.75, 1.52, -1.45], fov: 25, ease: 'linear' },
         { t: 20.2, cut: true, pos: [.55, 1.72, -.05], look: [4.15, 1.6, -1.25], fov: 29 },
         { t: 27.4, pos: [.65, 1.72, -.15], look: [4.15, 1.62, -1.25], fov: 27, ease: 'linear' },
         { t: 27.4, cut: true, pos: [3.0, 1.55, 5.2], look: [2.6, 1.25, -1.3] },               // wide: he heads out, Bruno stays with the bag
@@ -91,14 +91,14 @@
      * takes his jacket off. The film ends with the two facing each other: the street fight starts (oldtown.js). */
     dream_market_robbery: {
       set: 'dream_market', place: 'street', duration: 18.8, chapter: 1, outfit: { fighter: 'street' },
-      carry: { handbag: [{ t: 0, on: 'hazel', hand: 'L' }, { t: 6.05, on: 'fang', hand: 'R' }, { t: 13.9, on: 'ground', at: [-1.05, .45, .6] }] },
+      carry: { handbag: [{ t: 0, on: 'hazel', hand: 'L' }, { t: 6.05, on: 'fang', hand: 'L' }, { t: 13.9, on: 'ground', at: [-1.5, .5, .6] }] },
       camera: [
         { t: 0, pos: [-3.2, 2.5, 8.6], look: [.2, 1.25, -2.4] },                               // Market Row by day
         { t: 3.6, pos: [-2.2, 2.15, 7.4], look: [.8, 1.25, -2.0], ease: 'smooth' },
-        { t: 3.6, cut: true, pos: [5.0, 1.62, 2.7], look: [2.0, 1.35, -1.55], fov: 34 },     // Mrs. Hazel; Fang walks up
-        { t: 6.8, pos: [4.7, 1.6, 2.5], look: [1.9, 1.3, -1.45], fov: 34, ease: 'linear' },
-        { t: 6.8, cut: true, pos: [-6.4, 1.45, 1.5], look: [-1.0, 1.3, -.5] },              // behind the Fighter: Fang runs at him
-        { t: 9.4, pos: [-6.1, 1.5, 1.6], look: [-1.8, 1.35, -.3], ease: 'linear' },
+        { t: 3.6, cut: true, pos: [.2, 1.55, 2.6], look: [2.35, 1.25, -1.4], fov: 36 },      // Mrs. Hazel; Fang walks up, grabs the bag
+        { t: 6.8, pos: [.45, 1.55, 2.4], look: [2.2, 1.2, -1.3], fov: 36, ease: 'linear' },
+        { t: 6.8, cut: true, pos: [-6.3, 1.5, 2.8], look: [-1.2, 1.25, -.6] },              // past the Fighter: Fang runs at him
+        { t: 9.4, pos: [-6.0, 1.5, 2.8], look: [-1.9, 1.3, -.4], ease: 'linear' },
         { t: 9.4, cut: true, pos: [-2.4, 1.55, 3.6], look: [-2.4, 1.48, -.25], fov: 32 },    // side two-shot: the stand-off
         { t: 13.4, pos: [-2.4, 1.55, 3.35], look: [-2.4, 1.48, -.25], fov: 31, ease: 'linear' },
         { t: 13.4, cut: true, pos: [-4.0, 1.5, 2.0], look: [-1.75, 1.4, -.3], fov: 32 },     // over the Fighter's shoulder: the jacket comes off
@@ -123,11 +123,11 @@
           { t: 1.6, act: 'idle' },
           { t: 1.6, x: 9.5, z: 1.4 },
           { t: 5.6, x: 2.75, z: -1.2, face: 'hazel', look: 'hazel' },                            // "Nice bag, lady."
-          { t: 6.05, arms: { R: 'carry' } },                                                     // the snatch
+          { t: 6.05, arms: { L: 'carry' } },                                                     // the snatch
           { t: 6.4, x: 2.75, z: -1.2 },
           { t: 8.6, x: -1.75, z: -.25, face: 'fighter', look: 'fighter' },                       // runs, stops short
-          { t: 11.2, arms: { L: 'hips', R: 'carry' }, lean: .06 },                               // "Move, kid."
-          { t: 13.5, arms: { L: 'hang', R: 'low' }, lean: 0 },                                   // drops the bag
+          { t: 11.2, arms: { L: 'carry', R: 'hips' }, lean: .06 },                               // "Move, kid."
+          { t: 13.5, arms: { L: 'low', R: 'hang' }, lean: 0 },                                   // drops the bag
           { t: 14.0, act: 'jacketoff' },
           { t: 16.4, act: 'idle', arms: { L: 'hang', R: 'hang' }, lean: .05, look: 'fighter' }   // "You asked for it."
         ] },
@@ -168,8 +168,8 @@
         { t: 8.2, pos: [1.85, 1.7, 1.9], look: [-.85, 1.6, .55], fov: 29, ease: 'linear' },
         { t: 8.2, cut: true, pos: [-1.2, 1.55, 4.9], look: [1.3, 1.3, -.4] },                 // Otto comes over from his corner
         { t: 12.2, pos: [-1.0, 1.55, 4.5], look: [1.0, 1.3, -.3], ease: 'smooth' },
-        { t: 12.2, cut: true, pos: [-2.0, 1.66, 2.0], look: [.55, 1.5, -.25], fov: 30 },      // over the Fighter, on Mrs. Hazel: the reward
-        { t: 16.2, pos: [-1.95, 1.66, 1.95], look: [.55, 1.5, -.25], fov: 29, ease: 'linear' },
+        { t: 12.2, cut: true, pos: [-2.2, 1.6, 3.3], look: [.2, 1.3, -.1], fov: 34 },        // past the Fighter, on Mrs. Hazel: the reward
+        { t: 16.2, pos: [-2.1, 1.6, 3.15], look: [.2, 1.3, -.1], fov: 33, ease: 'linear' },
         { t: 16.2, cut: true, pos: [.3, 1.3, 2.6], look: [-.85, 1.68, .55], fov: 30 },        // low on the Fighter: "exactly a new bag"
         { t: 20.2, pos: [.25, 1.3, 2.45], look: [-.85, 1.7, .55], fov: 28, ease: 'linear' },
         { t: 20.2, cut: true, pos: [-.4, 1.65, 5.2], look: [.5, 1.3, -.3] },                  // the three of them
@@ -226,18 +226,18 @@
         { t: 4.4, pos: [-4.4, 1.4, 2.4], look: [.4, 2.1, -4.2], ease: 'smooth' },
         { t: 4.4, cut: true, pos: [SHOP + 1.2, 1.75, 3.1], look: [SHOP + 1.0, 1.35, -1.6] },  // inside: counter, glove wall, Otto
         { t: 7.6, pos: [SHOP + .9, 1.7, 2.8], look: [SHOP + 1.2, 1.35, -1.6], ease: 'smooth' },
-        { t: 7.6, cut: true, pos: [SHOP + 2.55, 1.66, .6], look: [SHOP + 1.2, 1.5, -2.15], fov: 30 }, // over the Fighter, on Otto
-        { t: 11.0, pos: [SHOP + 2.5, 1.66, .55], look: [SHOP + 1.2, 1.5, -2.15], fov: 29, ease: 'linear' },
-        { t: 11.0, cut: true, pos: [SHOP + .4, 1.6, -1.35], look: [SHOP + 1.45, 1.6, -.3], fov: 30 }, // over Otto, on the Fighter
-        { t: 14.2, pos: [SHOP + .35, 1.6, -1.3], look: [SHOP + 1.45, 1.6, -.3], fov: 29, ease: 'linear' },
+        { t: 7.6, cut: true, pos: [SHOP + 2.95, 1.78, 1.45], look: [SHOP + 1.15, 1.45, -2.1], fov: 30 }, // past the Fighter, on Otto
+        { t: 11.0, pos: [SHOP + 2.9, 1.78, 1.4], look: [SHOP + 1.15, 1.45, -2.1], fov: 29, ease: 'linear' },
+        { t: 11.0, cut: true, pos: [SHOP + .55, 1.75, -2.85], look: [SHOP + 1.5, 1.5, -.35], fov: 32 }, // past Otto, on the Fighter
+        { t: 14.2, pos: [SHOP + .5, 1.75, -2.85], look: [SHOP + 1.5, 1.52, -.35], fov: 31, ease: 'linear' },
         { t: 14.2, cut: true, pos: [SHOP + 2.4, 1.6, 3.0], look: [SHOP - .4, 1.3, -.6] },      // Otto shows the bag
         { t: 17.8, pos: [SHOP + 1.9, 1.6, 2.7], look: [SHOP - .8, 1.35, -.2], ease: 'smooth' },
-        { t: 17.8, cut: true, pos: [SHOP + .9, 1.25, 2.1], look: [SHOP - 1.15, 1.45, .3], fov: 32 }, // the new bag between them
-        { t: 22.4, pos: [SHOP + .8, 1.27, 1.95], look: [SHOP - 1.15, 1.45, .3], fov: 31, ease: 'linear' },
+        { t: 17.8, cut: true, pos: [SHOP - 1.6, 1.5, 3.1], look: [SHOP - .55, 1.35, -.05], fov: 40 }, // the new bag between them
+        { t: 22.4, pos: [SHOP - 1.5, 1.5, 2.95], look: [SHOP - .55, 1.35, -.05], fov: 39, ease: 'linear' },
         { t: 22.4, cut: true, pos: [SHOP - 1.95, 1.62, -1.2], look: [SHOP + .35, 1.62, .65], fov: 30 }, // "Deal!"
         { t: 27.5, pos: [SHOP - 1.9, 1.62, -1.15], look: [SHOP + .35, 1.62, .65], fov: 29, ease: 'linear' },
-        { t: 27.5, cut: true, pos: [SHOP + .2, 1.6, 3.0], look: [SHOP + 2.4, 1.4, .3] },      // he carries it to the door
-        { t: 30.2, pos: [SHOP + .5, 1.6, 2.9], look: [SHOP + 3.0, 1.4, .8], ease: 'linear' },
+        { t: 27.5, cut: true, pos: [SHOP - .5, 1.8, 3.3], look: [SHOP + 1.9, 1.45, .6], fov: 40 }, // he carries it to the door
+        { t: 30.2, pos: [SHOP - .2, 1.8, 3.3], look: [SHOP + 2.8, 1.45, .9], fov: 40, ease: 'linear' },
         { t: 30.2, cut: true, pos: [5.6, 1.5, 1.6], look: [1.6, 1.5, -2.6] },                  // out on the street, toward the gym
         { t: 35.5, pos: [6.6, 1.6, 1.2], look: [5.0, 1.4, -2.4], ease: 'linear' }
       ],
@@ -268,7 +268,7 @@
           { t: 14.6, arms: { R: 'point' } },                                                     // "Right this way."
           { t: 15.0, x: SHOP + 1.25, z: -2.2 },
           { t: 16.2, x: SHOP - .25, z: -2.05 },
-          { t: 17.6, x: SHOP - .55, z: -.6, face: 'fighter', look: 'fighter', arms: { L: 'open' } },
+          { t: 17.6, x: SHOP - .1, z: -.5, face: 'fighter', look: 'fighter', arms: { L: 'open' } },
           { t: 18.0, arms: { R: 'open' } },                                                      // "Double-stitched."
           { t: 21.0, arms: { L: 'hips', R: 'open' } },
           { t: 26.0, arms: { L: 'hips', R: 'point' } },                                          // "Lift with your legs!"
