@@ -12,7 +12,7 @@
 (() => {
   const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t, smooth = t => { t = clamp(t); return t * t * (3 - 2 * t); };
-  const SEEN = 'gotr-sunday-punch-seen', SLOW = .3;
+  const SEEN = 'gotr-sunday-punch-seen', SLOW = .3, FOV = 50;
   // Fall timeline in fight seconds after the impact.
   const T = { snap: .06, air: .24, land: .80, flop: 1.02, settle: 1.6, wave: [.95, 2.25], turn: [.9, 1.25], walk: [1.25, 2.85] };
   const other = a => a === 'lion' ? 'rabbit' : 'lion';
@@ -227,7 +227,10 @@
     root.position.copy(s.corner); const centre = V(0, 0, 0).sub(s.corner), yaw = Math.atan2(centre.x, centre.z); root.quaternion.setFromEuler(new THREE.Euler(0, yaw, 0, 'YXZ'));
     metrics[s.actor] = coach.update(m.time, 'guard', 'one_two', { stance: 1, simulationTime: m.time, presentation: { mode: 'winner', side: s.actor === 'lion' ? 'R' : 'L', raise } });
     view.cast.updateMatrixWorld(true);
-    const ref = view.referee, side = s.actor === 'lion' ? 1 : -1, beside = s.corner.clone().add(centre.clone().normalize().multiplyScalar(.45)).add(V(Math.cos(yaw), 0, -Math.sin(yaw)).multiplyScalar(-.5 * side));
+    const ref = view.referee, handAt = view.cast.worldToLocal(coach.joints[s.actor === 'lion' ? 'handR' : 'handL'].getWorldPosition(V())).sub(s.corner).setY(0);
+    // beside the winner across the picture (camera right/left), on the side of the arm he raises
+    const camRight = V(1, 0, 0).applyQuaternion(view.engine.camera.quaternion), across = view.cast.worldToLocal(view.cast.getWorldPosition(V()).add(camRight)).sub(view.cast.worldToLocal(view.cast.getWorldPosition(V()))).setY(0).normalize();
+    if (across.dot(handAt) < 0) across.negate(); const beside = s.corner.clone().addScaledVector(across, .82);
     if (!sp.ref.cer) sp.ref.cer = ref.root.position.clone();
     sp.ref.cer.lerp(beside, .06); ref.root.position.copy(sp.ref.cer); ref.root.position.y = 0; ref.root.rotation.set(0, Math.atan2(s.corner.x - ref.root.position.x, s.corner.z - ref.root.position.z), 0);
     view.cast.updateMatrixWorld(true);
@@ -253,7 +256,8 @@
   function camera(view, dt) {
     const e = view.engine, cam = e.camera, sp = view.sundayPunch || (view.sundayPunch = {}), m = view.match, r = m.result;
     if (!cam) return;
-    if (!sp.saved) sp.saved = { p: cam.position.clone(), q: cam.quaternion.clone(), zoom: cam.zoom, view: cam.view?.enabled ? { ...cam.view } : null };
+    if (!sp.saved) sp.saved = { p: cam.position.clone(), q: cam.quaternion.clone(), zoom: cam.zoom, fov: cam.fov };
+    cam.fov = FOV; // a wider lens, so a low camera close to the fighters still holds the whole action on a phone
     if (cam.view?.enabled) { cam.clearViewOffset(); const cv = e.renderer?.domElement; if (cv?.clientHeight) cam.aspect = cv.clientWidth / cv.clientHeight; }
     const striker = r?.finisherActor || ['lion', 'rabbit'].find(a => m.fighters[a].action?.finisher) || sp.actor, fallen = other(striker), sc = view.coaches[striker], fc = view.coaches[fallen];
     sp.actor = striker;
@@ -262,20 +266,24 @@
       const a = sc.root.getWorldPosition(V()), b = fc.root.getWorldPosition(V()), line = b.clone().sub(a).setY(0).normalize();
       const rearHand = sc.joints.handR.getWorldPosition(V()), leadHand = sc.joints.handL.getWorldPosition(V()), across = rearHand.sub(leadHand).setY(0);
       let side = V(-line.z, 0, line.x); if (side.dot(across) < 0) side.negate();
+      // the referee must not stand between the lens and the punch: take the other side when he would
+      const mid = a.clone().lerp(b, .5), ref = view.referee.root.getWorldPosition(V()).sub(mid).setY(0), blocked = sd => { const f = sd.clone().multiplyScalar(Math.cos(.62)).addScaledVector(line, -Math.sin(.62)).normalize(); return ref.length() > .2 && ref.clone().normalize().dot(f) > Math.cos(.75); };
+      if (blocked(side) && !blocked(side.clone().negate())) side.negate();
       sp.axis = { line, side };
     }
     const u = r?.finisher ? (sp.skip ? 9 : m.time - r.finisherTime) : -1;
     // what must stay in the picture
     const pts = [];
-    const add = (coach, names) => { for (const n of names) pts.push(coach.joints[n].getWorldPosition(V())); };
+    const add = (coach, names) => { for (const n of names) { const p = coach.joints[n].getWorldPosition(V()); if (n === 'head') p.y += .26; if (n.startsWith('foot')) p.y = Math.max(0, p.y - .1); pts.push(p); } };
     add(fc, ['head', 'hips', 'footL', 'footR', 'handL', 'handR']);
     if (u < 2.2) add(sc, ['head', 'footL', 'footR', 'handR']); else add(sc, ['head', 'hips']);
-    if (u > .9) pts.push(view.referee.root.localToWorld(V(0, 1.9, 0)));
     const fov = THREE.MathUtils.degToRad(cam.fov), tv = Math.tan(fov / 2), th = tv * Math.max(.2, cam.aspect);
     const { side, line } = sp.axis, up = V(0, 1, 0);
-    const pitch = u < 0 ? .10 : u < 1.2 ? .14 : .22; // low: the lens looks slightly up at the fighters, then lifts to see the body on the canvas
-    const dir = side.clone().multiplyScalar(Math.cos(pitch)).add(V(0, -Math.sin(pitch), 0)).normalize(); // from the camera toward the subjects is -dir
-    const right = up.clone().cross(dir).normalize(), camUp = dir.clone().cross(right).normalize();
+    // a low three-quarter view from behind the striker's punching shoulder for the dip and the drive (the Opponent's face and
+    // chin toward the lens), swinging round to the side as the body falls, so the fall reads across the picture
+    const swing = u < 0 ? .48 : lerp(.48, .12, smooth(u / .9)), flat = side.clone().multiplyScalar(Math.cos(swing)).addScaledVector(line, -Math.sin(swing));
+    const height = u < 0 ? .62 : lerp(.62, .95, smooth((u - .6) / 1.2));
+    const dir = flat.clone().normalize(), right = up.clone().cross(dir).normalize(), camUp = up.clone();
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity; const c0 = V();
     for (const p of pts) c0.add(p); c0.divideScalar(pts.length);
     for (const p of pts) { const d = p.clone().sub(c0), x = d.dot(right), y = d.dot(camUp); minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
@@ -285,13 +293,27 @@
     if (!sp.cam || sp.cut) { sp.cam = { c: goal.c.clone(), d: goal.d }; sp.cut = false; }
     else { const k = 1 - Math.exp(-Math.max(0, dt) / .35); sp.cam.c.lerp(goal.c, k); sp.cam.d = lerp(sp.cam.d, goal.d, k); }
     const position = sp.cam.c.clone().addScaledVector(dir, sp.cam.d);
-    position.y = Math.max(.35, position.y);
+    position.y = height; // low lens, looking up at the punch
     cam.position.copy(position); cam.zoom = 1; cam.up.set(0, 1, 0); cam.lookAt(sp.cam.c); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
-    void line;
+    clearView(view, position, [fc.joints.head, fc.joints.chest, fc.joints.hips, sc.joints.head, sc.joints.chest, sc.joints.handR].map(b => b.getWorldPosition(V())));
+  }
+  // Ropes, posts and corner pads between the lens and the fighters are hidden while the cinematic runs (like a film crew's
+  // camera inside the ropes); everything is shown again when it ends.
+  function clearView(view, eye, targets) {
+    const ring = view.ring; if (!ring?.visible) return; const sp = view.sundayPunch, ray = new THREE.Ray(), hit = V(), box = new THREE.Box3();
+    sp.hidden = sp.hidden || new Set(); const hide = new Set(), corners = [];
+    const blocks = part => { box.setFromObject(part).expandByScalar(.04); for (const t of targets) { ray.origin.copy(eye); ray.direction.copy(t).sub(eye); const far = ray.direction.length(); ray.direction.divideScalar(far); if (ray.intersectBox(box, hit) && hit.distanceTo(eye) < far - .25) return true; } return false; };
+    const cornerOf = part => { const p = part.position; return Math.abs(Math.abs(p.x) - 1.65) < .2 && Math.abs(Math.abs(p.z) - 1.65) < .2 ? Math.sign(p.x) + ',' + Math.sign(p.z) : null; };
+    for (const part of ring.children) { if (!part.isMesh || part.position.y < -.05 && !cornerOf(part)) continue; if (blocks(part)) { hide.add(part); const c = cornerOf(part); if (c) corners.push(c); } }
+    for (const part of ring.children) if (corners.includes(cornerOf(part))) hide.add(part); // a corner goes as a whole: post, pads and turnbuckles
+    for (const part of ring.children) { if (hide.has(part)) { part.visible = false; sp.hidden.add(part); } else if (sp.hidden.has(part)) { part.visible = true; sp.hidden.delete(part); } }
+    // spectators on the camera's side of the ring stay hidden, as in the bout
+    const aud = view.audience?.root; if (aud) { const centre = ring.getWorldPosition(V()), toCam = eye.clone().sub(centre).setY(0).normalize(); for (const fan of aud.children) { if (fan.userData.audienceSide === undefined) continue; const o = fan.getWorldPosition(V()).sub(centre).setY(0); fan.visible = o.dot(toCam) < -.15; } }
   }
   function restoreCamera(view) {
     const sp = view.sundayPunch, cam = view.engine.camera; if (!sp?.saved || !cam) return;
-    cam.position.copy(sp.saved.p); cam.quaternion.copy(sp.saved.q); cam.zoom = sp.saved.zoom; cam.updateProjectionMatrix(); cam.updateMatrixWorld(); sp.saved = null;
+    cam.position.copy(sp.saved.p); cam.quaternion.copy(sp.saved.q); cam.zoom = sp.saved.zoom; cam.fov = sp.saved.fov; cam.updateProjectionMatrix(); cam.updateMatrixWorld(); sp.saved = null;
+    for (const part of sp.hidden || []) part.visible = true; sp.hidden?.clear();
   }
   function audio() { return window.app?.audio; }
   function effects(view, events) {
