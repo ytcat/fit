@@ -1,0 +1,29 @@
+name: Release quality gate
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-release:
+    name: Release metadata and asset integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify release and offline assets
+        run: node scripts/check_release_integrity.cjs
+      - name: Run focused existing regressions
+        run: |
+          node tests/fight-ui.test.cjs
+          node tests/story-flow.test.cjs
