@@ -18,6 +18,11 @@
   const lang = () => W[window.app?.lang] ? window.app.lang : 'en';
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   let current = null, lastStats = null;
+  /* Picture quality of the street film (GOTR-0097): 'high' = real sun shadows (PCF soft, fitted to the shot) and the street life
+   * (people, a dog, pigeons); 'low' = contact shadows only, clouds and litter; 'auto' (default) starts high and drops to low
+   * when the first second of the film runs below ~30 fps (a phone that cannot keep up). Kept per device. */
+  const QKEY = 'gotr.film.quality', QUALITIES = ['auto', 'high', 'low'];
+  let quality = 'auto'; try { const q = localStorage.getItem(QKEY); if (QUALITIES.includes(q)) quality = q; } catch { /* private mode */ }
   const BOX = [['jab', .5], ['cross', .58], ['guard', .4], ['jab', .46], ['hook', .6], ['guard', .8]], BOX_T = BOX.reduce((n, x) => n + x[1], 0);
 
   function speaker(id, e) {
@@ -52,6 +57,7 @@
 d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.focus({ preventScroll: true });
     const run = { id, closed: false, t: 0, clock: 0, ack: -1, waiting: false, shot: 0, lineIndex: -1, phase: 'load', mapT: 0, bought: !!opts.owned, buying: false };
     current = run;
+    let life = null, proxies = [], castWas = [], shadowWas = null, hi = false, perf = { n: 0, sum: 0 };
     let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false, props = null;
     const look = V(), turn = new Map(), jacketAt = {}; // the time of each actor's jacket-off key (Fang, GOTR-0096)
     for (const [k, a] of Object.entries(scene0.actors || {})) { const j = a.keys.find(q => q.act === 'jacketoff'); if (j) jacketAt[k] = j.t; }
@@ -65,6 +71,8 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     function cleanup() {
       if (e.fightIQDemo === run) e.fightIQDemo = null;
       props?.dispose(); props = null;
+      try { life?.dispose(); } catch { /* gone */ } life = null; for (const p of proxies) p.userData.dispose(); proxies = []; for (const [o, v, r] of castWas) { o.castShadow = v; o.receiveShadow = r; } castWas = [];
+      if (shadowWas) { Object.assign(e.renderer.shadowMap, shadowWas); shadowWas = null; }
       for (const c of Object.values(rigs)) { Cast().bag(c, 'off'); Cast().outfit(c, 'kit'); if (c.castFight) Cast().market?.wear(c, 'jacket'); Cast().talk(c, 0); Pose().reset(c); c.root.position.y = 0; }
       for (const b of borrowed) giveBack(b); borrowed = [];
       for (const b of blobs) scene?.remove(b.mesh); if (blobs.length) { blobs[0].mesh.geometry.dispose(); blobs[0].mesh.material.map.dispose(); blobs[0].mesh.material.dispose(); } blobs = [];
@@ -99,8 +107,11 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     Promise.all([window.StorySets.ready(), cityWait]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
       if (run.closed) return;
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 260);
+      const street = scene0.set === 'dream_street' && !!e.renderer.shadowMap; hi = street && quality !== 'low';
+      if (street) { const sm = e.renderer.shadowMap; shadowWas = { enabled: sm.enabled, type: sm.type, autoUpdate: sm.autoUpdate }; if (hi) { sm.enabled = true; sm.type = THREE.PCFSoftShadowMap; } }
       const BB = window.BagBreak, force0 = BB?.force; if (scene0.gymBag && BB) BB.force = scene0.gymBag; // beat 5: the old bag lies on the floor
       try { set = window.StorySets.build(scene0.set, scene, { renderer: e.renderer, shadows: !!e.renderer.shadowMap?.enabled, city }); } finally { if (scene0.gymBag && BB) BB.force = force0; }
+      if (street && hi && set.sun) { set.sun.shadow.mapSize.set(2048, 2048); set.sun.shadow.radius = 3; set.sun.shadow.camera.layers.enable(window.StreetLife?.SHADOW_LAYER ?? 1); }
       if (set.objects.city?.bus && C.withCity) scene0 = C.withCity(scene0);
       if (scene0.set === 'dream_gym') tuneInterior(); else if (scene.fog) { scene.fog.near = 34; scene.fog.far = 210; } // the towers down the street stay readable through the haze
       for (const [key, a] of Object.entries(scene0.actors)) {
@@ -110,6 +121,12 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
         if (c.castFight) Cast().market?.wear(c, 'jacket'); // Fang starts in his jacket
       }
       if (scene0.carry && window.MarketProps) props = window.MarketProps.create({ scene, set, rigs, carry: scene0.carry });
+      if (street && window.StreetLife) { // GOTR-0097: a living street; the characters cast their sun shadow through a light stand-in
+        // (fuller than the body, so the body does not receive shadows while it is used: it would shade itself)
+        const track = []; for (let tt = 0; tt <= scene0.duration; tt += .1) { const f = C.sample(scene0, tt).actors.fighter; if (f && f.act !== 'off') track.push([tt, f.x, f.z]); }
+        try { life = window.StreetLife.build(scene, { level: hi ? 2 : 1, track }); } catch (x) { console.warn('street life', x); life = null; }
+        if (hi) for (const c of Object.values(rigs)) { c.root.traverse(o => { if (o.isMesh) { castWas.push([o, o.castShadow, o.receiveShadow]); o.castShadow = false; o.receiveShadow = false; } }); try { proxies.push(window.StreetLife.shadowProxy(c)); } catch (x) { console.warn('shadow stand-in', x); } }
+      }
       if (scene0.bag) { floorBag = Cast().duffel(); floorBag.visible = false; floorBag.castShadow = true; scene.add(floorBag); }
       // soft contact shadow under every character (and the bag): long toward the side away from the sun
       const cv = document.createElement('canvas'); cv.width = cv.height = 64; const g2 = cv.getContext('2d'), gr = g2.createRadialGradient(32, 32, 2, 32, 32, 32); gr.addColorStop(0, 'rgba(18,13,9,.95)'); gr.addColorStop(.45, 'rgba(18,13,9,.6)'); gr.addColorStop(1, 'rgba(18,13,9,0)'); g2.fillStyle = gr; g2.fillRect(0, 0, 64, 64);
@@ -198,7 +215,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
           Pose().civil(c, { t: run.clock, dt, dist: a.dist, walk: 0, arms: p.arms || {}, look: p.look || lookFor(a, k, s), lean: p.lean || 0, talk: talking === k ? 1 : 0, listen: talking && talking !== k ? 1 : 0, nod: 0 });
         } else {
           const tired = a.act === 'tired';
-          Pose().civil(c, { t: run.clock, dt, dist: a.dist, walk: a.walking ? 1 : 0, arms: a.arms || {}, reach: props?.reach(k, run.t), look: lookFor(a, k, s), lean: (a.lean || 0) + (tired ? .03 * Math.sin(run.clock * 3.4) : 0), drop: a.drop || 0, talk: talking === k ? 1 : 0, listen: talking && talking !== k ? 1 : 0, nod: 0 });
+          Pose().civil(c, { t: run.clock, dt, dist: a.dist, ground: scene0.ground ? (gx, gz) => C.groundAt(scene0, gx, gz, run.t) : null, walk: a.walking ? 1 : 0, arms: a.arms || {}, reach: props?.reach(k, run.t), look: lookFor(a, k, s), lean: (a.lean || 0) + (tired ? .03 * Math.sin(run.clock * 3.4) : 0), drop: a.drop || 0, talk: talking === k ? 1 : 0, listen: talking && talking !== k ? 1 : 0, nod: 0 });
         }
       }
       // props, bag
@@ -207,14 +224,23 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (o.doors && s.props.doors) for (const m of o.doors) m.position.x = m.userData.shut + (m.userData.open - m.userData.shut) * smooth(s.props.doors[0]);
       if (s.bag && rigs.fighter) { Cast().bag(rigs.fighter, s.bag.on === 'shoulder' && rigs.fighter.root.visible ? 'shoulder' : 'off'); if (floorBag) { floorBag.visible = s.bag.on === 'floor'; if (floorBag.visible) { floorBag.position.set(s.bag.at[0], .135, s.bag.at[1]); floorBag.rotation.y = s.bag.at[2] || 0; } } }
       // camera
-      lens(s.camera.fov); camera.position.fromArray(s.camera.pos); look.fromArray(s.camera.look); camera.lookAt(look); set.focus(look.x, look.z);
+      lens(s.camera.fov); camera.position.fromArray(s.camera.pos); look.fromArray(s.camera.look); camera.lookAt(look);
+      if (hi && set.sun) { // the sun's shadow box covers what this shot sees near the camera: between the lens and the subject
+        const d = Math.hypot(look.x - camera.position.x, look.z - camera.position.z), k = Math.min(1, 9 / Math.max(1e-3, d)) * .55, r = Math.max(7, Math.min(18, d * .55 + 4)), sc = set.sun.shadow.camera;
+        set.focus(camera.position.x + (look.x - camera.position.x) * k, camera.position.z + (look.z - camera.position.z) * k, r);
+        if (Math.abs(sc.right - r) > r * .15) { sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.updateProjectionMatrix(); }
+      } else set.focus(look.x, look.z);
+      if (life) { const f = rigs.fighter?.root; life.update(dt, run.t, f && f.visible ? f.position : null); }
+      if (quality === 'auto' && hi && run.phase === 'play' && perf.n < 60) { perf.n++; if (perf.n > 12) perf.sum += Math.max(0, delta || 0); if (perf.n === 60 && perf.sum / 48 > 1 / 30) lowQuality(); }
       o.city?.frame(s, camera); // GOTR-0089: model bus wheels and doors, distance detail
       for (const b of blobs) { const r = b.c.root, small = b.c.small; b.mesh.visible = r.visible; b.mesh.position.set(r.position.x - .16, (small ? 0 : r.position.y) + .014, r.position.z - .2); b.mesh.rotation.y = .7; b.mesh.scale.set(small ? .95 : 1.75, 1, small ? .6 : 1.05); } // shadows lie on the ground the actor stands on (bus floor, road)
       if (e.renderer.shadowMap?.enabled) e.renderer.shadowMap.needsUpdate = true;
       e.renderer.render(scene, camera);
-      const info = e.renderer.info.render; lastStats = { phase: 'play', calls: info.calls, triangles: info.triangles, set: set.stats(), shot: run.shot, ...(o.city ? { city: o.city.stats() } : {}) };
+      const info = e.renderer.info.render; lastStats = { phase: 'play', calls: info.calls, triangles: info.triangles, set: set.stats(), shot: run.shot, quality: run.quality || quality, shadows: !!(hi && set.sun?.castShadow), ...(life ? { life: life.stats() } : {}), ...(o.city ? { city: o.city.stats() } : {}) };
       if (s.done && !ended) { ended = true; setTimeout(() => finish({ skipped: !!run.skipping }), 250); }
     }
+    /** This device cannot keep up: contact shadows only, no street people and birds (clouds and litter stay). */
+    function lowQuality() { hi = false; if (set?.sun) set.sun.castShadow = false; e.renderer.shadowMap.enabled = false; life?.level(1); for (const b of blobs) b.mesh.material.opacity = .6; run.quality = 'low (auto)'; }
     Object.defineProperty(run, 'rigs', { get: () => rigs }); Object.defineProperty(run, 'set', { get: () => set });
     run.seek = t => { turn.clear(); run.t = clamp(t, 0, scene0.duration); run.ack = scene0.lines.reduce((n, q, i) => q.t + C.SETTLE < run.t ? i : n, -1); if (run.phase === 'map') { run.phase = 'play'; fade.style.opacity = '0'; try { map?.dispose(); } catch { /* ignore */ } map = null; } for (const c of Object.values(rigs)) Pose().reset(c); };
     return true;
@@ -226,6 +252,8 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     get playing() { return current ? current.id : null; },
     stop() { current?.finish({ skipped: true }); },
     stats: () => lastStats,
+    /** Street film picture quality: 'auto' | 'high' | 'low' (kept per device); no argument = the current setting. */
+    quality(q) { if (QUALITIES.includes(q)) { quality = q; try { localStorage.setItem(QKEY, q); } catch { /* private mode */ } } return quality; },
     seek(t) { current?.seek?.(t); },
     get debug() { return current; }
   };

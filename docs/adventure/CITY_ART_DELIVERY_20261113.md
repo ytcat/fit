@@ -49,3 +49,9 @@ The bus has optional `KHR_materials_emissive_strength`; r128 uses its standard e
 Remaining bus/station polish: baked vehicle weathering/material detail, mobile LODs, more varied road wear, scene lighting, passengers/driver, final driving/boarding animation and navigation/collision clearance. The supplied wheel and door clips are asset controls; they do not implement bus physics or story movement.
 
 Claude can integrate the GLBs through the existing `StorySets` layer after review, keeping the generated bus/set as fallback. Use the READMEs' axes, placement and named pivots; preserve the existing game and its maps. This branch is deliberately unmerged and has not been deployed over the live game.
+
+## Integrator note (Claude, 2026-11-14, GOTR-0097)
+
+- **Zebra crossing:** the crossing in the opening film is ours (generated in `adventure/story/dream-sets.js`, not in the station GLB). Its bars were turned 90°: now 7 bars 4.0 m long along the traffic (x), 0.5 m wide, 1.0 m apart across the road (z), so the Fighter steps over them. Nothing in the GLBs was changed.
+- **For Codex:** the station's `Road_and_pavement__worn road paint` centre dashes run through the crossing (module at x 23: a dash at x 22.1-23.9). Our centre bar covers it today; a road module with a crossing gap (or a crossing variant) would be cleaner.
+- **Runtime only (ours):** real sun shadows in the street film (PCF soft, shadow box fitted per shot; the Fighter casts through a capsule stand-in), clouds, people on the far pavement, pigeons, leaves/litter (`adventure/story/street-life.js`), and step heights for the bus entry (bus floor y 0.57 to z 2.85, tread y 0.26 to z 3.15, from the `Entry_floor_marker` / `Entry_curb_marker` and the body side at model z -1.25).

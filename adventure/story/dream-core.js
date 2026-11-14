@@ -27,7 +27,7 @@
     if (!keys?.length) return null; const i = at(keys, t), a = keys[i], b = keys[i + 1]; let shot = 0; for (let k = 1; k <= i; k++) if (keys[k].cut) shot++;
     if (!b || b.cut || t <= a.t) return { pos: a.pos.slice(), look: a.look.slice(), shot, fov: a.fov || 0 };
     const k = (EASE[b.ease] || EASE.smoother)((t - a.t) / Math.max(1e-6, b.t - a.t));
-    return { pos: mix(a.pos, b.pos, k), look: mix(a.look, b.look, k), shot, fov: lerp(a.fov || 0, b.fov || a.fov || 0, k) };
+    return { pos: mix(a.pos, b.pos, k), look: mix(a.look, b.look, k), shot, fov: a.fov || b.fov ? lerp(a.fov || 36, b.fov || a.fov || 36, k) : 0 }; // a key without fov is the normal lens (36), not 0 (GOTR-0097: the face shot opened on an extreme zoom)
   }
   function prop(keys, t) { const i = at(keys, t), a = keys[i], b = keys[i + 1]; if (!b || t <= a.t) return a.v.slice(); return mix(a.v, b.v, (EASE[b.ease] || EASE.smooth)((t - a.t) / Math.max(1e-6, b.t - a.t))); }
   /** One actor at time t. A key without x / z stays where the previous key was. */
@@ -77,15 +77,23 @@
   const CITY_OPENING = {
     props: {
       bus: [{ t: 0, v: [BUS_STOP + 56.6] }, { t: 2.2, v: [BUS_STOP + 28.6], ease: 'linear' }, { t: 6.7, v: [BUS_STOP], ease: 'out' }, { t: 10.7, v: [BUS_STOP] }, { t: 15.4, v: [BUS_STOP - 71], ease: 'in' }],
-      doorClip: [{ t: 0, v: [0] }, { t: 6.7, v: [0] }, { t: 8.0, v: [1.3], ease: 'linear' }, { t: 9.3, v: [3.0], ease: 'linear' }, { t: 10.63, v: [4.33], ease: 'linear' }] // opens once stopped
+      doorClip: [{ t: 0, v: [0] }, { t: 6.7, v: [0] }, { t: 7.6, v: [1.3], ease: 'linear' }, { t: 9.3, v: [3.0], ease: 'linear' }, { t: 10.63, v: [4.33], ease: 'linear' }] // opens once stopped, fully open before his first step (GOTR-0097)
     },
+    // GOTR-0097: one even walk from the floor marker over the kerb marker to the door spot (1.14 m/s, a careful step down).
+    // Unseen in the bus he takes his last half step to the door (2.01 -> 2.5): that sets the step phase so the right foot
+    // lands on the entry tread and the left one on the pavement; the feet find the steps through `ground`
     fighter: [
-      { t: 0, x: 2.75, z: 2.5, y: .57, act: 'off', face: 0, arms: { R: 'strap' } },
+      { t: 0, x: 2.75, z: 2.01, y: .57, act: 'off', face: 0, arms: { R: 'strap' } },
+      { t: 6.9, x: 2.75, z: 2.01 },
+      { t: 7.25, x: 2.75, z: 2.5 },
       { t: 7.3, act: 'idle', face: 0 },
-      { t: 8.05, x: 2.75, z: 2.5, y: .57 },
-      { t: 8.45, x: 2.75, z: 3.08, y: .26 },                                              // the entry tread
-      { t: 8.9, x: 2.75, z: 3.85, y: .0 }                                                 // the kerb marker
+      { t: 7.7, x: 2.75, z: 2.5, y: .57 },                                                // the floor marker
+      { t: 8.88, x: 2.75, z: 3.85, y: 0 },                                                // the kerb marker
+      { t: 9.45, x: 2.75, z: 4.5, y: 0 }
     ],
+    // what the feet stand on (world boxes, the highest wins; elsewhere the pavement, y 0): the bus floor and its entry tread
+    // (bus model markers: floor y 0.57 to z ~2.85, tread y 0.26 to the body side at z 3.15), the road (y -0.15) between the kerbs
+    ground: [{ x: [-70, 110], z: [-3.56, 3.45], y: -.15 }, { x: [1.6, 3.9], z: [.7, 2.85], y: .57, until: 10.7 }, { x: [2.15, 3.35], z: [2.85, 3.15], y: .26, until: 10.7 }],
     // the arrival shot sits further along the kerb (the model bus is longer, its door near its front) and stays clear of
     // the Old Town façades and awnings at z 9.4 (the old camera stood in the house fronts at z 10.4)
     camera: { 1: { pos: [11.2, 2.5, 9.1], look: [2.6, 1.5, 3.2] }, 2: { pos: [10.0, 1.75, 9.1], look: [3.7, 1.4, 3.3] }, 3: { pos: [8.5, 1.6, 8.9], look: [3.3, 1.3, 4.0] } }
@@ -94,8 +102,11 @@
   function withCity(scene) {
     const c = scene?.city; if (!c) return scene;
     const fighter = scene.actors.fighter, rest = fighter.keys.filter(k => k.t >= 9.5);
-    return { ...scene, cityCut: true, props: { ...scene.props, ...c.props }, actors: { ...scene.actors, fighter: { ...fighter, keys: [...c.fighter, ...rest] } }, camera: c.camera ? scene.camera.map((k, i) => c.camera[i] ? { ...k, ...c.camera[i] } : k) : scene.camera };
+    return { ...scene, cityCut: true, ground: c.ground || scene.ground, props: { ...scene.props, ...c.props }, actors: { ...scene.actors, fighter: { ...fighter, keys: [...c.fighter, ...rest] } }, camera: c.camera ? scene.camera.map((k, i) => c.camera[i] ? { ...k, ...c.camera[i] } : k) : scene.camera };
   }
+
+  /** Height of the ground at world (x, z) at scene time t: the highest `ground` box there, else the pavement (0). */
+  function groundAt(scene, x, z, t = 0) { let y = null; for (const g of scene?.ground || []) if (x >= g.x[0] && x <= g.x[1] && z >= g.z[0] && z <= g.z[1] && !(t > g.until)) y = y == null ? g.y : Math.max(y, g.y); return y ?? 0; }
 
   const scenes = {
     /* Beat 0. Map dive, the bus pulls in, the Fighter steps off with his bag, looks up at the city, walks to Bruno's Gym. */
@@ -106,7 +117,7 @@
         { t: 4.6, pos: [9.6, 2.7, 10.4], look: [.4, 1.5, 3.4] },
         { t: 7.2, pos: [8.2, 1.6, 9.4], look: [1.9, 1.35, 3.2], ease: 'smooth' },            // the bus has stopped, doors open
         { t: 9.6, pos: [7.0, 1.5, 8.4], look: [2.6, 1.3, 4.0], ease: 'smooth' },
-        { t: 9.6, cut: true, pos: [5.9, 1.2, 6.9], look: [2.85, 1.68, 4.45] },       // low on his face: he looks up at the city
+        { t: 9.6, cut: true, pos: [5.9, 1.2, 6.9], look: [2.85, 1.68, 4.45], fov: 17 }, // low on his face: he looks up at the city (slow pull-out to 33)
         { t: 12.4, pos: [5.6, 1.2, 6.6], look: [2.85, 1.72, 4.45], fov: 33, ease: 'linear' },
         { t: 12.4, cut: true, pos: [.3, 2.05, 5.5], look: [24, 6.5, -7] },                   // over his shoulder: the street, the towers
         { t: 15.6, pos: [1.0, 2.3, 5.3], look: [26, 8, -8], ease: 'linear' },
@@ -147,6 +158,7 @@
         doors: [{ t: 0, v: [0] }, { t: 6.8, v: [0] }, { t: 7.4, v: [1] }, { t: 9.9, v: [1] }, { t: 10.5, v: [0] }]
       },
       lines: [],
+      ground: [{ x: [-70, 110], z: [-3.56, 3.45], y: -.15 }, { x: [-6.4, 4.4], z: [.65, 3.2], y: .26, until: 10.7 }], // road; the generated bus floor (GOTR-0097)
       city: CITY_OPENING
     },
 
@@ -286,6 +298,6 @@
 
   /** More scenes from another file (market-core.js, beats 5-7, GOTR-0096): they play through the same player. */
   const register = more => { Object.assign(scenes, more); return Object.keys(scenes); };
-  const api = { scenes, variant, withCity, BUS_STOP, sample, validate, holdAfter, camera, actor, prop, EASE, SETTLE, RIGS, register, get ids() { return Object.keys(scenes); }, places: { DOOR, GYM, F, B, K } };
+  const api = { scenes, variant, withCity, groundAt, BUS_STOP, sample, validate, holdAfter, camera, actor, prop, EASE, SETTLE, RIGS, register, get ids() { return Object.keys(scenes); }, places: { DOOR, GYM, F, B, K } };
   if (typeof module !== 'undefined') module.exports = api; else window.DreamCore = api;
 })();

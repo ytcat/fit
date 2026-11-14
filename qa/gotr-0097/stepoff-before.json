@@ -1,0 +1,268 @@
+{
+ "name": "stepoff-before",
+ "viewport": [
+  402,
+  690
+ ],
+ "city": {
+  "bus": "ready",
+  "station": "ready",
+  "oldtown": "ready"
+ },
+ "frames": [
+  {
+   "label": "7.6",
+   "phase": "play",
+   "calls": 155,
+   "triangles": 531278,
+   "shot": 0,
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 7.601,
+   "fighter": [
+    2.75,
+    0.57,
+    2.5
+   ],
+   "pelvis": 1.5457,
+   "feet": [
+    [
+     2.889,
+     0.61,
+     2.64
+    ],
+    [
+     2.611,
+     0.61,
+     2.616
+    ]
+   ],
+   "shadows": false
+  },
+  {
+   "label": "8.0",
+   "phase": "play",
+   "calls": 154,
+   "triangles": 530154,
+   "shot": 0,
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 8.001,
+   "fighter": [
+    2.75,
+    0.57,
+    2.5
+   ],
+   "pelvis": 1.5452,
+   "feet": [
+    [
+     2.889,
+     0.61,
+     2.64
+    ],
+    [
+     2.611,
+     0.61,
+     2.616
+    ]
+   ],
+   "shadows": false
+  },
+  {
+   "label": "8.2",
+   "phase": "play",
+   "calls": 153,
+   "triangles": 529546,
+   "shot": 0,
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 8.201,
+   "fighter": [
+    2.75,
+    0.471,
+    2.719
+   ],
+   "pelvis": 1.433,
+   "feet": [
+    [
+     2.858,
+     0.511,
+     2.965
+    ],
+    [
+     2.646,
+     0.554,
+     2.579
+    ]
+   ],
+   "shadows": false
+  },
+  {
+   "label": "8.4",
+   "phase": "play",
+   "calls": 150,
+   "triangles": 525358,
+   "shot": 0,
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 8.401,
+   "fighter": [
+    2.75,
+    0.273,
+    3.009
+   ],
+   "pelvis": 1.2033,
+   "feet": [
+    [
+     2.852,
+     0.313,
+     2.991
+    ],
+    [
+     2.647,
+     0.374,
+     3.459
+    ]
+   ],
+   "shadows": false
+  },
+  {
+   "label": "8.6",
+   "phase": "play",
+   "calls": 147,
+   "triangles": 522830,
+   "shot": 0,
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 8.601,
+   "fighter": [
+    2.75,
+    0.192,
+    3.338
+   ],
+   "pelvis": 1.1519,
+   "feet": [
+    [
+     2.848,
+     0.303,
+     3.216
+    ],
+    [
+     2.649,
+     0.232,
+     3.569
+    ]
+   ],
+   "shadows": false
+  },
+  {
+   "label": "8.8",
+   "phase": "play",
+   "calls": 145,
+   "triangles": 507998,
+   "shot": 0,
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 8.801,
+   "fighter": [
+    2.75,
+    0.032,
+    3.681
+   ],
+   "pelvis": 0.9437,
+   "feet": [
+    [
+     2.852,
+     0.11,
+     4.166
+    ],
+    [
+     2.651,
+     0.076,
+     3.544
+    ]
+   ],
+   "shadows": false
+  },
+  {
+   "label": "9.2",
+   "phase": "play",
+   "calls": 145,
+   "triangles": 507998,
+   "shot": 0,
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 9.201,
+   "fighter": [
+    2.75,
+    0,
+    4.176
+   ],
+   "pelvis": 0.9207,
+   "feet": [
+    [
+     2.851,
+     0.04,
+     4.146
+    ],
+    [
+     2.648,
+     0.099,
+     4.644
+    ]
+   ],
+   "shadows": false
+  },
+  {
+   "label": "9.8",
+   "phase": "play",
+   "calls": 52,
+   "triangles": 396186,
+   "shot": 1,
+   "city": {
+    "meshes": 145,
+    "triangles": 211282
+   },
+   "t": 9.801,
+   "fighter": [
+    2.75,
+    0,
+    4.5
+   ],
+   "pelvis": 0.9728,
+   "feet": [
+    [
+     2.881,
+     0.042,
+     4.362
+    ],
+    [
+     2.871,
+     0.04,
+     4.637
+    ]
+   ],
+   "shadows": false
+  }
+ ],
+ "log": [
+  "warning [.WebGL-0x2324015aa200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x2324015aa200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x2324015aa200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+  "warning [.WebGL-0x2324015aa200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+ ]
+}

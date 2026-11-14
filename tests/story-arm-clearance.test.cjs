@@ -1,4 +1,5 @@
 // node tests/story-arm-clearance.test.cjs — GOTR-0094: in the everyday poses the arms hang and swing beside the body.
+// GOTR-0097: plus the opening film's step-off the bus, the turn and the look-around (free arm 2 cm off the body, the strap arm never inside).
 // Over a full walk cycle, in the talk gesture and while holding the bag strap, the hand and forearm surfaces (sleeve and bare
 // hand in street clothes, skin and glove in the kit) stay at least 2 cm from the torso surface (the clothes, or the skin and
 // trunks); the hand on the strap rests on it (in front of the chest, not inside). Lion and rabbit, kit and street clothes.
@@ -36,6 +37,13 @@ function minGap(c, S) {
   return { fore: +fore.toFixed(4), hand: +hand.toFixed(4) };
 }
 
+/** minGap for one arm only (forearm samples and hand meshes of that side). */
+function minGapSide(c, S, side) {
+  const names = c.bones.map(b => b.name), keep = new RegExp('^(elbow|hand)' + side + '$');
+  const fore = S.fore.filter(([m, i]) => keep.test(names[dominant(m.geometry, i)])), hands = S.hands.filter(h => { let q = h; while (q && q !== c.joints['hand' + side]) q = q.parent; return !!q; });
+  return minGap(c, { torso: S.torso, fore, hands });
+}
+const Core = require('../adventure/story/dream-core.js');
 const rows = [];
 for (const species of ['lion', 'rabbit']) for (const wear of ['street', 'kit']) {
   const c = new LionCoach(data, { species }); StoryCast.outfit(c, wear); if (wear === 'street') StoryCast.bag(c, 'shoulder');
@@ -45,13 +53,31 @@ for (const species of ['lion', 'rabbit']) for (const wear of ['street', 'kit']) 
   DreamPose.reset(c); for (let k = 0; k < 4; k++) DreamPose.civil(c, { t: 2.3, dist: 0, arms: { L: 'open', R: 'open' }, talk: .5, dt: k ? .5 : 0 }); const talk = minGap(c, S);
   DreamPose.reset(c); for (let k = 0; k < 4; k++) DreamPose.civil(c, { t: 1, dist: 0, arms: { R: 'strap' }, dt: k ? .5 : 0 }); const strap = minGap(c, S);
   DreamPose.reset(c); for (let k = 0; k < 4; k++) DreamPose.civil(c, { t: 1.5, dist: 1.5 + k * .03, walk: 1, arms: { R: 'strap' }, dt: k ? 1 / 30 : 0 }); const strapWalk = minGap(c, S);
-  rows.push({ species, wear, walk: worst, at, talk, strap, strapWalk });
+  // GOTR-0097: the opening film's step-off the bus, the turn to the city and the look-around (street clothes, mirrored root,
+  // the feet on the bus floor, tread and pavement), every 4th frame at 30 fps
+  let film = null;
+  if (wear === 'street') {
+    const sc = Core.withCity(Core.scenes.dream_opening); film = { fore: 9, hand: 9, strap: 9, at: null }; DreamPose.reset(c); c.root.scale.set(-1, 1, 1); let ry = null, k = 0;
+    for (let t = 7.3; t <= 15.5; t += 1 / 30, k++) {
+      const a = Core.sample(sc, t).actors.fighter; ry = ry == null ? a.ry : ry + Math.atan2(Math.sin(a.ry - ry), Math.cos(a.ry - ry)) * (1 - Math.exp(-(a.walking ? 9 : 5) / 30));
+      c.root.position.set(a.x, a.y, a.z); c.root.rotation.set(0, ry, 0); c.root.updateMatrixWorld(true);
+      DreamPose.civil(c, { t, dt: k ? 1 / 30 : 0, dist: a.dist, walk: a.walking ? 1 : 0, arms: a.arms || {}, look: a.look && !Array.isArray(a.look) && typeof a.look === 'object' ? a.look : { yaw: 0, pitch: 0 }, ground: (x, z) => Core.groundAt(sc, x, z, t) });
+      if (t < 7.7 || k % 4) continue; const g = minGap(c, S), free = minGapSide(c, S, 'L');
+      if (free.fore < film.fore || free.hand < film.hand) film.at = (t < 9.5 ? 'step-off ' : t < 10.2 ? 'turn ' : 'look-around ') + t.toFixed(2);
+      film.fore = Math.min(film.fore, free.fore); film.hand = Math.min(film.hand, free.hand); film.strap = Math.min(film.strap, g.hand, g.fore);
+    }
+    c.root.scale.set(1, 1, 1); c.root.position.set(0, 0, 0); c.root.rotation.set(0, 0, 0); c.root.updateMatrixWorld(true);
+  }
+  rows.push({ species, wear, walk: worst, at, talk, strap, strapWalk, film });
+  if (film) console.log(species, 'film step-off/turn/look-around: free arm', JSON.stringify({ fore: +film.fore.toFixed(4), hand: +film.hand.toFixed(4) }), 'worst at', film.at, '| strap arm and hand', film.strap.toFixed(4));
   console.log(species, wear, 'walk', JSON.stringify(worst), 'worst frame', at, '| talk', JSON.stringify(talk), '| strap', JSON.stringify(strap), '| strap walking', JSON.stringify(strapWalk));
 }
 for (const r of rows) {
   const id = r.species + ' ' + r.wear;
   assert.ok(r.walk.fore >= .02 && r.walk.hand >= .02, id + ': walk cycle keeps hand and forearm 2 cm off the torso ' + JSON.stringify(r.walk));
   assert.ok(r.talk.fore >= .02 && r.talk.hand >= .02, id + ': talk gesture clear of the torso ' + JSON.stringify(r.talk));
-  for (const k of ['strap', 'strapWalk']) assert.ok(r[k].fore >= .02 && r[k].hand >= .006 && r[k].hand < .06, id + ': the strap hand rests on the strap in front of the chest, the forearm clear ' + JSON.stringify(r[k]));
+  // the strap hand rests on the strap in front of the chest (street clothes; in the kit there is no strap: only clear of the chest)
+  for (const k of ['strap', 'strapWalk']) assert.ok(r[k].fore >= .02 && r[k].hand >= .006 && (r.wear === 'kit' || r[k].hand < .06), id + ': the strap hand rests on the strap in front of the chest, the forearm clear ' + JSON.stringify(r[k]));
+  if (r.film) { assert.ok(r.film.fore >= .02 && r.film.hand >= .02, id + ': step-off, turn and look-around keep the free arm 2 cm off the body ' + JSON.stringify(r.film)); assert.ok(r.film.strap >= .006, id + ': the strap arm never enters the body in the film ' + r.film.strap); }
 }
 console.log('arm clearance ok');
