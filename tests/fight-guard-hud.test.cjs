@@ -38,7 +38,7 @@ assert.ok(/left:var\(--hud-band-mid\)!important/.test(cd) && /transform:translat
 assert.ok(/max-width:calc\(100% - 184px\)!important/.test(cd), 'never reaches the edge tools or the stage edge');
 assert.ok(/--hud-band-mid:calc\(50% - 80px\)/.test(tail) && /\[dir=rtl\] #stageContainer[^{]*\{--hud-band-mid:calc\(50% \+ 80px\)/.test(tail), 'mirrored in RTL');
 assert.ok(/\.game-enabled #stageContainer \.bout-announcement\[data-kind=winner\]:not\(\[hidden\]\):not\(\[data-kind=countdown\]\)\{top:calc\(var\(--hud-status-top\) \+ 26px\)!important/.test(tail), 'winner line beats the older centre rule');
-assert.ok(/#fightResults \.fight-card-grid\{position:absolute;top:calc\(var\(--hud-status-top\) \+ 54px\)/.test(tail), 'score cards under the winner line, above the heads');
+assert.ok(/#fightResults \.fight-card-grid\{position:absolute;top:calc\(var\(--hud-status-top\) \+ (\d+)px\)/.test(tail) && +tail.match(/#fightResults \.fight-card-grid\{position:absolute;top:calc\(var\(--hud-status-top\) \+ (\d+)px\)/)[1] >= 54, 'score cards under the (two-line) winner line, above the heads');
 assert.ok(/#fightResults \.fight-result-actions\{position:absolute;[^}]*bottom:/.test(tail), 'result buttons in the bottom band');
 assert.ok(/body\.fight-over #manualControls/.test(tail), 'the old move panel does not return after the bout');
 console.log('PASS countdown, winner line, score cards and result buttons placed by the GOTR-0075 rules');
