@@ -34,7 +34,7 @@
     for (const side of ['L', 'R']) {
       ell(j['thigh' + side], [0, -.20, .01], [.14, .24, .15]); ell(j['knee' + side], [0, -.18, -.01], [.10, .22, .11]);
       const sign = side === 'L' ? -1 : 1; ell(j['arm' + side], [sign * .17, 0, 0], [.20, .13, .13]); ell(j['elbow' + side], [sign * .15, 0, 0], [.18, .075, .08]);
-      for (const root of [j['foot' + side], coach.gloveMeshes?.[side]]) root?.traverse(part => { if (!part.isMesh) return; const g = part.geometry; if (!g.boundingBox) g.computeBoundingBox(); const b = g.boundingBox; for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) low = Math.min(low, V(x, y, z).applyMatrix4(part.matrixWorld).y); });
+      for (const root of [j['foot' + side], coach.gloveMeshes?.[side]]) if (root?.visible !== false) root?.traverse(part => { if (!part.isMesh || !part.visible) return; const g = part.geometry; if (!g.boundingBox) g.computeBoundingBox(); const b = g.boundingBox; for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) low = Math.min(low, V(x, y, z).applyMatrix4(part.matrixWorld).y); });
     }
     return low;
   }
@@ -131,9 +131,9 @@
   function gaps(coach) {
     const j = coach.joints, g = { hand: {}, foot: {} }; coach.root.updateMatrixWorld(true);
     const ell = (bone, centre, r) => { const p = bone.localToWorld(V(...centre)), a = bone.matrixWorld.elements; return p.y - Math.hypot(a[1] * r[0], a[5] * r[1], a[9] * r[2]); };
-    const box = root => { let low = Infinity; root?.traverse(part => { if (!part.isMesh) return; const b = part.geometry.boundingBox || (part.geometry.computeBoundingBox(), part.geometry.boundingBox); for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) low = Math.min(low, V(x, y, z).applyMatrix4(part.matrixWorld).y); }); return low; };
+    const box = root => { let low = Infinity; if (root?.visible === false) return low; root?.traverse(part => { if (!part.isMesh || !part.visible) return; const b = part.geometry.boundingBox || (part.geometry.computeBoundingBox(), part.geometry.boundingBox); for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) low = Math.min(low, V(x, y, z).applyMatrix4(part.matrixWorld).y); }); return low; };
     g.hips = ell(j.hips, [0, .06, 0], [.25, .23, .19]); g.chest = ell(j.chest, [0, .13, -.018], [.34, .27, .22]); g.head = ell(j.head, [0, .13, .03], [.19, .22, .20]);
-    for (const side of ['L', 'R']) { g.hand[side] = box(coach.gloveMeshes?.[side]); g.foot[side] = box(j['foot' + side]); }
+    for (const side of ['L', 'R']) { const h = box(coach.gloveMeshes?.[side]); g.hand[side] = Number.isFinite(h) ? h : j['hand' + side].getWorldPosition(V()).y - .045; g.foot[side] = box(j['foot' + side]); } // bare hands (ringless venues): the fist itself
     return g;
   }
   // The settle: from this rig's own final lying pose, bring the pelvis, the back of the head, both gloves and both heels onto the
@@ -204,6 +204,7 @@
   }
   function refereePose(view, u) {
     const sp = view.sundayPunch, ref = view.referee, root = ref.root, m = view.match, fallen = view.coaches[sp.fallen];
+    if (!root.visible && !ref.isBruno) return; // ringless venues (GOTR-0065): no referee, nobody counts or waves
     const chest = view.cast.worldToLocal(fallen.joints.chest.getWorldPosition(V())); chest.y = 0;
     const side = V(Math.cos(sp.fall.yaw), 0, -Math.sin(sp.fall.yaw)).multiplyScalar(-sp.fall.face); // beyond the body, as the camera sees it
     const spot = chest.clone().addScaledVector(side, .85);
@@ -227,7 +228,8 @@
     root.position.copy(s.corner); const centre = V(0, 0, 0).sub(s.corner), yaw = Math.atan2(centre.x, centre.z); root.quaternion.setFromEuler(new THREE.Euler(0, yaw, 0, 'YXZ'));
     metrics[s.actor] = coach.update(m.time, 'guard', 'one_two', { stance: 1, simulationTime: m.time, presentation: { mode: 'winner', side: s.actor === 'lion' ? 'R' : 'L', raise } });
     view.cast.updateMatrixWorld(true);
-    const ref = view.referee, handAt = view.cast.worldToLocal(coach.joints[s.actor === 'lion' ? 'handR' : 'handL'].getWorldPosition(V())).sub(s.corner).setY(0);
+    const ref = view.referee; if (!ref.root.visible && !ref.isBruno) return;
+    const handAt = view.cast.worldToLocal(coach.joints[s.actor === 'lion' ? 'handR' : 'handL'].getWorldPosition(V())).sub(s.corner).setY(0);
     // beside the winner across the picture (camera right/left), on the side of the arm he raises
     const camRight = V(1, 0, 0).applyQuaternion(view.engine.camera.quaternion), across = view.cast.worldToLocal(view.cast.getWorldPosition(V()).add(camRight)).sub(view.cast.worldToLocal(view.cast.getWorldPosition(V()))).setY(0).normalize();
     if (across.dot(handAt) < 0) across.negate(); const beside = s.corner.clone().addScaledVector(across, .82);

@@ -4,7 +4,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,k)=>k==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 global.EQUIPMENT_SURFACES=JSON.parse(fs.readFileSync('assets/models/equipment-surfaces-r76.json'));
-for(const f of ['boxing-routines.js','avatar-anatomy.js','avatar-detail.js','boxing-coach-v2.js','contact-response.js','training-arena.js','boxing-fight.js','fight-referee.js','fight-arena.js','sunday-punch.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'),{filename:f});
+for(const f of ['boxing-routines.js','avatar-anatomy.js','avatar-detail.js','boxing-coach-v2.js','contact-response.js','training-arena.js','boxing-fight.js','fight-referee.js','fight-arena.js','ringless-venues.js','sunday-punch.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'),{filename:f});
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 
 /* 1. availability */
@@ -73,10 +73,10 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json'));
  const skinLow=c=>{let lo=Infinity;const p=c.skin.geometry.attributes.position;for(let i=0;i<p.count;i+=5)lo=Math.min(lo,c.root.localToWorld(c.skinPoint(c.skin,i)).y);return lo;};
  let checked=0;
- for(const [species,seed] of [['lion',5],['rabbit',13]]){
+ for(const [species,seed,venue] of [['lion',5],['rabbit',13],['lion',5,'street']]){
   const coach=new LionCoach(data,{species}),e={coach,scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,.6,.1,100),animTime:0,fitCameraToModel(){}};e.demoModel=coach.root;e.scene.add(coach.root);
   const arena=e.arena=new TrainingArena(e,data);e.fightOptions={seed,preset:'quick',finishers:{lion:['sunday_punch'],rabbit:['sunday_punch']}};arena.setTarget('fight');
-  const v=arena.fightView,m=v.match,striker=coach.species==='rabbit'?'rabbit':'lion',fallen=striker==='lion'?'rabbit':'lion';
+  const v=arena.fightView,m=v.match;if(venue){assert.ok(RinglessVenues.install(v,venue));assert.equal(v.referee.root.visible,false,'ringless: no referee');}const striker=coach.species==='rabbit'?'rabbit':'lion',fallen=striker==='lion'?'rabbit':'lion';
   while(m.phase==='intro')v.step();for(let i=0;i<40;i++)v.step();
   m.decide=()=>{};for(const f of Object.values(m.fighters)){f.action=null;f.plan=[];}
   m.fighters[fallen].condition=20;m.fighters[striker].burst.charge=1;
@@ -93,7 +93,7 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
   }
   assert.ok(!m.finisherHold()&&m.phaseTime>0&&phaseTime<.05,'the phase clock waited, then the result went on');
   const pelvis=c.joints.hips.getWorldPosition(V()).y,head=c.joints.head.getWorldPosition(V()).y,low=skinLow(c),chest=c.joints.chest.getWorldPosition(V()).y;
-  console.log(species,'fallen',fallen,{pelvis:+pelvis.toFixed(3),chest:+chest.toFixed(3),head:+head.toFixed(3),skinLow:+low.toFixed(3),minDuringFall:+minDuring.toFixed(3),feetOffCanvas:+peakLift.toFixed(3),travel:+start.distanceTo(c.root.position).toFixed(2)});
+  console.log(species,venue||'ring','fallen',fallen,{pelvis:+pelvis.toFixed(3),chest:+chest.toFixed(3),head:+head.toFixed(3),skinLow:+low.toFixed(3),minDuringFall:+minDuring.toFixed(3),feetOffCanvas:+peakLift.toFixed(3),travel:+start.distanceTo(c.root.position).toFixed(2)});
   assert.ok(pelvis>.05&&pelvis<.30,'pelvis rests low, on the canvas');assert.ok(head>.05&&head<.36,'head down on the canvas');assert.ok(Math.abs(pelvis-head)<.2,'lying flat');
   assert.ok(low>=-.006,'no part sinks through the canvas');assert.ok(low<=.02,'not hovering: the body touches the canvas');assert.ok(minDuring>=-.03,'no sinking while falling');
   assert.ok(peakLift>.17,'the feet leave the canvas briefly (ankles above their standing height)');
@@ -102,6 +102,6 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
   const ends=[...Object.values(v.coaches)];arena.setTarget('none');for(const r of ends)assert.equal(r.root.scale.x,-1,'root scale restored (-1) when the bout view goes');
   checked++;
  }
- assert.equal(checked,2);
- console.log('PASS rigs: finisher lands, KO recorded without a count, fallen fighter flat on the canvas (lion and rabbit), scale restored');
+ assert.equal(checked,3);
+ console.log('PASS rigs: finisher lands, KO recorded without a count, fallen fighter flat on the canvas (lion and rabbit, ring and ringless street), scale restored');
 }
