@@ -259,7 +259,7 @@
       // the glove aimed up THROUGH the chin, rising on the centre line between the Opponent's forearms (the contact constraint still stops it on the receiver's surface).
       if(f.action.finisher){
        // The knees bend and the torso drops straight down (~15-20 cm) with a lean to the rear side, not a forward lunge.
-       Object.assign(options,{upperDip:.6,upperPitch:.35,upperLean:1.2,upperDrive:1,loadDuration:.22,riseStart:.27,riseDuration:.20,upperLoadHeight:1.08,power:1.45});options.advance+=.20; // a real step inside: the forearm can stand under the chin
+       Object.assign(options,{guardTightness:1,upperDip:.6,upperPitch:.35,upperLean:1.2,upperDrive:1,loadDuration:.22,riseStart:.27,riseDuration:.20,upperLoadHeight:1.08,power:1.45});options.advance+=.20; // a real step inside: the forearm can stand under the chin
        // Aimed at the live underside of the Opponent's jaw: the wrist goes where the top of the fist ends 4 cm up through the chin.
        const rc=this.coaches[other(actor)],chin=coach.root.worldToLocal(rc.joints.head.localToWorld(V(...FightArena.chin))),aim=coach.root.worldToLocal(rc.joints.head.localToWorld(V(...FightArena.chinAim))),g=coach.metrics?.gloves?.[1],h=coach.metrics?.hands?.[1];
        const fist=g&&h?V(...g.strikePoint).sub(V(...h)):V(0,.14,.03);if(fist.y<.08)fist.set(0,.14,.03);
