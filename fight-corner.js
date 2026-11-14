@@ -68,7 +68,7 @@
   const fill=new THREE.Mesh(new THREE.CylinderGeometry(.038,.038,.13,14),water);fill.position.y=-.17;g.add(fill);
   const shoulder=new THREE.Mesh(new THREE.CylinderGeometry(.016,.042,.04,16),plastic);shoulder.position.y=-.02;g.add(shoulder);
   const top=new THREE.Mesh(new THREE.CylinderGeometry(.017,.017,.03,12),cap);top.position.y=.005;g.add(top);
-  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return g;
+  g.scale.setScalar(1.2);g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return g;
  }
  const towelMat=(stripe='#b4302c')=>{const c=typeof document!=='undefined'&&document.createElement?.('canvas');let map=null;
   if(c?.getContext){c.width=64;c.height=256;const x=c.getContext('2d');if(x&&x.fillRect){x.fillStyle='#f3f1ea';x.fillRect(0,0,64,256);x.fillStyle='rgba(0,0,0,.05)';for(let i=0;i<256;i+=3)x.fillRect(0,i,64,1);x.fillStyle=stripe;x.fillRect(0,18,64,9);x.fillRect(0,229,64,9);x.fillStyle='#e4e0d6';x.fillRect(0,30,64,2);x.fillRect(0,224,64,2);for(let i=0;i<64;i+=2){x.fillStyle='rgba(0,0,0,.035)';x.fillRect(i,0,1,256);}map=new THREE.CanvasTexture(c);}}
@@ -154,7 +154,7 @@
     const Q=P.clone().addScaledVector(side.out,1.6).addScaledVector(side.along,.5),cross=ringless?null:C.clone().addScaledVector(side.along,.42);
     const bucketAt=ringless?P.clone().addScaledVector(side.along,.42).addScaledVector(d,.15):C.clone().addScaledVector(side.along,1.02).addScaledVector(side.out,.30);
     this.geo[actor]={C,d,S,P,Q,cross,side,bucket:bucketAt,inYaw:Math.atan2(d.x,d.z),approach:S.clone().addScaledVector(d,.30),seat:S.clone().addScaledVector(d,.035)};
-    const p=this.props[actor];p.bucket.position.copy(bucketAt);p.bucket.rotation.y=Math.atan2(-side.out.x,-side.out.z);p.bucket.visible=true;
+    const p=this.props[actor];p.bucket.position.copy(bucketAt);p.bucket.rotation.y=Math.atan2(-side.out.x,-side.out.z);p.bucket.visible=this.view.match.rounds>1; // no corner kit for a one-round bout
    }
   }
   /** The story rigs as cornermen (red: Bruno, blue: Brick). Absent rigs leave the props on their timeline. */
@@ -228,7 +228,7 @@
    const drink=span(n,[T.drink[0]-.15,T.drink[0]+.35])*(1-span(n,[T.drink[1]-.2,T.drink[1]+.2])),gulp=drink*.08*Math.max(0,Math.sin((n-T.drink[0])*2.4));
    const man=this.men[actor],talk=span(n,T.talk)*(1-span(n,T.stand));
    let look={yaw:0,pitch:-.12*f.sit};
-   if(man?.saved&&f.sit>.5){const p=c.root.worldToLocal(man.rig.joints.head.getWorldPosition(V()));look={yaw:clamp(Math.atan2(p.x,p.z),-.9,.9)*.6*talk,pitch:-.12+.05*talk};}
+   if(man?.saved&&f.sit>.5){const p=c.root.worldToLocal(man.rig.joints.head.getWorldPosition(V()));look={yaw:clamp(Math.atan2(p.x,p.z),-.9,.9)*Math.max(.6*talk,.75*drink),pitch:-.12+.05*talk};}
    look.pitch+=(.55+gulp)*drink;
    const st={t:m.time,walk:f.walk,dist:f.dist,sit:f.sit,guard:f.guard,lean:.18*f.sit*(1-drink)-.10*drink+.06*f.walk,yaw:look.yaw,pitch:look.pitch,nod:talk*.6,tired:1};
    return c.update(time,'guard','one_two',{...options,poseOverlay:rig=>fighterOverlay(rig,st)});
@@ -298,7 +298,7 @@
     const side=G.P.clone().sub(G.seat).setY(0).normalize(),out=G.d.clone().multiplyScalar(.45).addScaledVector(side,.85).normalize(),e=.5;
     const bottom=out.multiplyScalar(Math.cos(e)).add(V(0,Math.sin(e),0)).normalize(),q=new THREE.Quaternion().slerp(new THREE.Quaternion().setFromUnitVectors(V(0,1,0),bottom.clone().negate()),clamp(tilt/1.9));
     p.bottle.position.copy(bottleAt);p.bottle.quaternion.copy(q);
-    p.bottleQ=q;if(cm)hands.R=toRig(V(0,-.23,0).applyQuaternion(q).add(bottleAt)); // the paw holds the bottom: the bottle shows between paw and mouth
+    p.bottleQ=q;if(cm)hands.R=toRig(V(0,-.27,0).applyQuaternion(q).add(bottleAt)); // the paw holds the bottom: the bottle shows between paw and mouth
    }
    // ---- wipe and talk
    let talk=0,arms={L:'hang',R:'hang'},look=null,wipeAt=null;
@@ -324,7 +324,7 @@
     }
     if(stoolHeld==='both'&&stoolAt){const mid=cast.worldToLocal(rig.joints.handL.getWorldPosition(V())).add(cast.worldToLocal(rig.joints.handR.getWorldPosition(V()))).multiplyScalar(.5).add(V(0,-.03,0));
      const up=n>=T.stoolOut[0]?span(n,[T.stoolOut[0]+.2,T.stoolOut[0]+.35]):1,at=stoolAt.clone().setY(stoolAt.y).lerp(mid,up);if(!ringless)ropeClear(at);p.stool.position.set(at.x,at.y-SEAT,at.z);if(n<T.stoolDrop[0])p.lastHeld=at.clone();p.stool.rotation.set(0,yaw,0);}
-    if(p.bottle.visible&&p.bottleQ){const hand=cast.worldToLocal(rig.joints.handR.getWorldPosition(V()));p.bottle.position.copy(V(0,.23,0).applyQuaternion(p.bottleQ).add(hand));}
+    if(p.bottle.visible&&p.bottleQ){const hand=cast.worldToLocal(rig.joints.handR.getWorldPosition(V()));p.bottle.position.copy(V(0,.27,0).applyQuaternion(p.bottleQ).add(hand));}
    }
    if(!p.cloth){p.cloth=new THREE.Mesh(new THREE.BoxGeometry(.13,.035,.1),this.towelMaterials[actor]);p.cloth.name='Wipe cloth';this.root.add(p.cloth);}
    p.cloth.visible=!!(wipeAt&&rig);if(p.cloth.visible){const paw=cast.worldToLocal(rig.joints.handL.getWorldPosition(V()));p.cloth.position.copy(paw.lerp(wipeAt,.55));p.cloth.rotation.set(0,yaw,0);}
@@ -375,6 +375,8 @@
     if(Math.max(Math.abs(f.x),Math.abs(m.x))>.7||m.y>.55||b.y<-.75)score+=10;const sep=Math.abs(f.x-m.x);if(sep<.25)score+=4;if(sep>.9)score+=2;
     // never from inside or through the other corner (its fighter sits on the diagonal behind the camera)
     const flat=V(cam.position.x-otherSeat.x,0,cam.position.z-otherSeat.z).length(),o=otherSeat.clone().project(cam);if(flat<1.6||(o.z<1&&Math.abs(o.x)<1.1&&Math.abs(o.y)<1.1))score+=12;
+    // and from the side away from the cornerman, so he stands beside his fighter, not in front of the lens
+    const cmSide=W(G.P).sub(seat).setY(0);if(cam.position.clone().sub(seat).setY(0).dot(cmSide)>0)score+=12;
     if(!best||score<best.score)best={score,a};}
    return {lx:look.x,ly:1.0,lz:look.z,angle:best.a,dist,cy};
   }

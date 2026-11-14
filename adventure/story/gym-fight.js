@@ -44,7 +44,10 @@
         if (grip && grip.isVector3) {
           p.copy(grip); bruno.root.worldToLocal(p);
           if (Math.hypot(p.x, p.z) < .6 && p.y > 1.5) { const beat = time % 1; state.arms = { L: 'hips', R: 'count' }; state.reach = { R: [.3, 1.62 - .22 * Math.min(1, beat * 4) * (1 - Math.min(1, Math.max(0, beat - .25) * 3)), .34] }; state.look = { yaw: 0, pitch: -.35 }; state.lean = .12; } // the count: the arm chops down once a second
-          else { const arm = p.x >= 0 ? 'R' : 'L'; state.arms = { [arm]: 'wave', [arm === 'R' ? 'L' : 'R']: 'hips' }; state.reach = { [arm]: [p.x, p.y, p.z] }; } // the winner's wrist, held high
+          else { // the winner's wrist, held high (GOTR-0098): Bruno's arms are shorter than the rhino's, so he steps toward the winner
+            const arm = p.x >= 0 ? 'R' : 'L', s = arm === 'R' ? 1 : -1, step = Math.max(0, Math.min(.42, Math.abs(p.x) - .30));
+            if (step > 0) { root.position.add(V(s * step, 0, 0).applyQuaternion(root.quaternion)); root.updateMatrixWorld(true); p.copy(grip); root.worldToLocal(p); }
+            state.arms = { [arm]: 'wave', [arm === 'R' ? 'L' : 'R']: 'hips' }; state.reach = { [arm]: [p.x, p.y, p.z] }; }
         } else if (grip) state.arms = { L: 'open', R: 'open' }; // a draw: both palms out
         Pose.civil(bruno, state);
       }

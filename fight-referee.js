@@ -287,7 +287,7 @@
      const bend=Math.sqrt(Math.max(0,upper*upper-along*along));
      const elbow=shoulder.clone().addScaledVector(direction,along).addScaledVector(pole,bend);
      const wrist=shoulder.clone().addScaledVector(direction,dist);
-     const mesh=this.arms[s];mesh.arm.userData.pose(shoulder,elbow,wrist);
+     const mesh=this.arms[s];mesh.arm.userData.pose(shoulder,elbow,wrist);mesh.points={shoulder,elbow,wrist}; // root space (GOTR-0098 clearance test)
      mesh.wrist.position.copy(wrist);
      const palmForward=V(0,0,1);
      const up=held?wrist.clone().sub(elbow).normalize():V(0,1,0);

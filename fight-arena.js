@@ -190,7 +190,7 @@
    if(ceremony&&!this.userView&&this.lineupEase!==1)a.group.rotation.y=.90*(1-ease);this.lineupEase=ease;
    for(const [actor,index] of [['lion',0],['rabbit',1]]){
     const coach=this.coaches[actor],f=m.fighters[actor];
-    if(ceremony){coach.root.position.copy(this.lineupStart[actor].position).lerp(V(index?.72:-.72,0,.05),ease);coach.ringYaw=this.lineupStart[actor].yaw*(1-ease);}
+    if(ceremony){coach.root.position.copy(this.lineupStart[actor].position).lerp(V(index?.96:-.96,0,.05),ease);coach.ringYaw=this.lineupStart[actor].yaw*(1-ease);}
     else {const path=travel[actor];coach.root.position.copy(path.from).lerp(path.to,path.ease);coach.ringDelta=path.to.clone().sub(path.from);}
    }
    if(!ceremony){
@@ -261,7 +261,8 @@
       options.advance*=1-blend;options.contactDrive*=1-blend;
      }
     }
-    if(ceremony){options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'R':'L',raise:!m.result.winner||m.result.winner===actor?raise:0};}
+    // GOTR-0098: lined up for the result both stand square to the camera (no bladed stance), so the raised arm goes straight up.
+    if(ceremony){options.stance=1-ease;options.presentation={mode:!reveal?'waiting':!m.result.winner?'winner':m.result.winner===actor?'winner':'loser',side:actor==='lion'?'R':'L',raise:!m.result.winner||m.result.winner===actor?raise:0};}
     if(corner){metrics[actor]=this.corner.pose(actor,options,m.time);continue;}
     const time=ceremony?m.time:spec.phase*1.22;
     metrics[actor]=coach.update(time,ceremony?(ease<1?'step':'guard'):spec.move,'one_two',options);
@@ -276,6 +277,7 @@
    a.group.updateMatrixWorld(true);
    if(m.phase==='round')this.separateTorso();
    this.plantFeet();
+   // GOTR-0098: the referee stands in the middle, the two fighters far enough apart for his arms and theirs
    this.referee.root.position.set(ceremony?1.13*(1-ease):1.13,0,ceremony?-.83+.71*ease:-.83);this.referee.root.rotation.y=ceremony?-.55*(1-ease):-.55;
    a.group.updateMatrixWorld(true);
    let grip=null,side=1;

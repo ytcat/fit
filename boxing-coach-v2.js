@@ -1513,7 +1513,10 @@
       if(presentation){
         lead.copy(V(-.22,1.10,.18).add(guardShift));rear.copy(V(.22,1.10,.18).add(guardShift));
         const lift=presentation.raise||0,side=presentation.side||'R',hand=side==='L'?lead:rear;
-        hand.lerp(V(side==='L'?-.27:.27,2.08,.03).add(guardShift),lift);
+        // GOTR-0098: the raised arm goes straight up from its own shoulder beside the head (elbow almost straight), not
+        // across the body to a fixed point.
+        const sh=this.point(j['arm'+side]),reach=(j['elbow'+side].position.length()+j['hand'+side].position.length())*.975;
+        hand.lerp(sh.clone().add(V((side==='L'?-1:1)*.05,reach,.03)),lift);(side==='L'?leadPole:rearPole).lerp(V(0,-.25,-1),lift); // the little bend that is left points back
         leadTurn=rearTurn=.35;
       }
       if(move==='speedbag'&&options.speedBagTargets){
