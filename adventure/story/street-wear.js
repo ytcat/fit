@@ -22,11 +22,11 @@
   const TAU = Math.PI * 2;
 
   /* ---------------------------------------------------------------- garment lines (rest pose) */
-  const HEM = 1.15, CUFF = .872, RIB = .052, CUFF_RIB = .062;          // hoodie hem, sleeve end (|x|), rib band heights
+  const HEM = 1.04, CUFF = .872, RIB = .052, CUFF_RIB = .062;          // hoodie hem, sleeve end (|x|), rib band heights
   const NECK_Z = -.012, neckY = th => 1.745 - .032 * Math.cos(th);        // neckline: lower at the throat, higher at the nape
   const neckF = (x, y, z) => { const r = Math.hypot(x, z - NECK_Z); return Math.max(y - 1.80, y - (neckY(Math.atan2(x, z - NECK_Z)) + 1.1 * Math.max(0, r - .128))); };
   const beltY = th => 1.13 - .012 * Math.cos(th);                       // belt line, a little lower in front
-  const waistY = () => HEM + .022;                                       // the jeans cloth ends under the hoodie's rib
+  const waistY = () => 1.142;                                            // the jeans cloth ends above the belt, under the hoodie
   const LEG_X = .19, hemJ = th => .124 - .006 * Math.cos(th);            // jeans hem round the ankle (rests on the shoe)
   const legTh = (x, z) => Math.atan2(Math.abs(x) - LEG_X, z);
 
@@ -143,7 +143,7 @@
     for (let k = 0; k < nH; k++) { const i = H.orig[k]; S[k * 3] = P[i * 3]; S[k * 3 + 1] = P[i * 3 + 1]; S[k * 3 + 2] = P[i * 3 + 2]; }
     smoothPos(S, H.G, new Uint8Array(nH), 22);
     const SN = vnormals(S, H.tris);
-    const Y0 = 1.05, DY = .01, NS = 75, NT = 72, slices = Array.from({ length: NS }, () => []), cz = new Float32Array(NS);
+    const Y0 = .98, DY = .01, NS = 82, NT = 72, slices = Array.from({ length: NS }, () => []), cz = new Float32Array(NS);
     { const zmin = new Float32Array(NS).fill(9), zmax = new Float32Array(NS).fill(-9);
       for (let i = 0; i < n; i++) { const y = P[i * 3 + 1], s = Math.round((y - Y0) / DY); if (s < 0 || s >= NS || A[i] > .02 || Math.abs(y - (Y0 + s * DY)) > .007) continue; const x = P[i * 3], z = P[i * 3 + 2]; if (y > 1.36 && Math.abs(x) > .27) continue; zmin[s] = Math.min(zmin[s], z); zmax[s] = Math.max(zmax[s], z); slices[s].push([x, z]); }
       { let acc = 0, m = 0; for (let s = 0; s < NS; s++) if (zmax[s] > zmin[s]) { acc += (zmin[s] + zmax[s]) / 2; m++; } cz.fill(m ? acc / m : 0); } /* one fixed axis: the drape is measured straight down */ for (let s = 0; s < NS; s++) slices[s] = slices[s].map(([x, z]) => [x, z - cz[s]]); }
@@ -162,16 +162,16 @@
     { const full = ac.map((q, s) => q[9] ? -1 : s).filter(s => s >= 0); for (let s = 0; s < NA; s++) if (ac[s][9]) ac[s][3] = ac[full.reduce((b, k) => Math.abs(k - s) < Math.abs(b - s) ? k : b, full[0])][3]; }
     { const sm = ac.map((q, s) => { let cy = 0, czz = 0, r = 0, w = 0; for (let d = -5; d <= 5; d++) { const o = ac[clamp(s + d, 0, NA - 1)], k = Math.exp(-(d * d) / 10); cy += o[1] * k; czz += o[2] * k; w += k; } return [cy / w, czz / w]; }); // centre line smoothed along the arm
       for (let s = 0; s < NA; s++) { ac[s][1] = sm[s][0]; ac[s][2] = sm[s][1]; }
-      let run = 0; for (let s = NA - 1; s >= 0; s--) { run = Math.max(run - .0006, ac[s][3]); ac[s][3] = run; } } // a sleeve never narrows toward the shoulder: no biceps / elbow relief
+      const r0 = ac.map(q => q[3]); for (let s = 0; s < NA; s++) { let m = 0, w = 0; for (let d = -6; d <= 6; d++) { const k = Math.exp(-(d * d) / 18); m += r0[clamp(s + d, 0, NA - 1)] * k; w += k; } ac[s][3] = Math.max(m / w, r0[s] - .004); } } // the arm's own girth, its muscle relief smoothed out
     const armAt = ax => { const f = clamp((ax - AX0) / ADX, 0, NA - 1), k = Math.min(NA - 2, Math.floor(f)), u = f - k, a = ac[k], b = ac[k + 1]; return [lerp(a[1], b[1], u), lerp(a[2], b[2], u), lerp(a[3], b[3], u)]; };
     // the sleeve radius: loose over the upper arm, a little narrower down the forearm, gathered into the cuff
-    const sleeveR = (ax, body) => body + lerp(.017, .012, smooth((ax - (CUFF - .075)) / .06)); // the arm's own (slimmed, never narrowing toward the shoulder) girth plus ease
+    const sleeveR = (ax, body) => body + lerp(.01, .012, smooth((ax - (CUFF - .075)) / .06)); // the arm's own (slimmed, never narrowing toward the shoulder) girth plus ease
     const ease = (y, th) => lerp(.012, .022, smooth((y - (HEM + .02)) / .07)) + .004 * bell(y, HEM + .085, .03); // gathered at the rib, blousing just above it
     const pinH = new Uint8Array(nH), bnd = boundary(H);
     for (let k = 0; k < nH; k++) {
       const i = H.orig[k], x = P[i * 3], y = P[i * 3 + 1], z = P[i * 3 + 2], a = A[i], ax = Math.abs(x);
       // torso target
-      const s = sliceOf(y), th = Math.atan2(x, z - cz[s]), r = Math.hypot(x, z - cz[s]), R = lerp(lookup(RT0, s, th, NT) + .03, lookup(RT, s, th, NT) + ease(y, th), smooth((y - HEM - .015) / .11)); // bloused over a rib that hugs the hips
+      const s = sliceOf(y), th = Math.atan2(x, z - cz[s]), r = Math.hypot(x, z - cz[s]), R = lerp(lookup(RT0, s, th, NT) + .036, lookup(RT, s, th, NT) + ease(y, th), smooth((y - HEM - .015) / .11)); // bloused over a rib that hugs the hips
       const hullW = (1 - smooth((y - top(th) + .02) / .16)) * (1 - smooth((a - .02) / .2));
       let tx = lerp(S[k * 3] + SN[k * 3] * .018, Math.sin(th) * R, hullW), ty = lerp(S[k * 3 + 1] + SN[k * 3 + 1] * .018, y, hullW), tz = lerp(S[k * 3 + 2] + SN[k * 3 + 2] * .018, cz[s] + Math.cos(th) * R, hullW);
       if (hullW > 0 && r > Math.sin(0) && R < r + .012) { /* hull never inside the body */ }
@@ -192,7 +192,7 @@
     /* jeans: legs by slices round each leg, the seat and hips round the body; straight below the knee */
     const J = parts.J, nJ = J.orig.length, XJ = new Float32Array(nJ * 3), SJ = new Float32Array(nJ * 3);
     for (let k = 0; k < nJ; k++) { const i = J.orig[k]; SJ[k * 3] = P[i * 3]; SJ[k * 3 + 1] = P[i * 3 + 1]; SJ[k * 3 + 2] = P[i * 3 + 2]; }
-    smoothPos(SJ, J.G, new Uint8Array(nJ), 14);
+    smoothPos(SJ, J.G, new Uint8Array(nJ), 24);
     const LY0 = .1, LDY = .01, NL = 102, legS = [[], []].map(() => Array.from({ length: NL }, () => [])), legC = [0, 1].map(() => Array.from({ length: NL }, () => [0, 0]));
     { const ext = [0, 1].map(() => Array.from({ length: NL }, () => [9, -9, 9, -9]));
       for (let i = 0; i < n; i++) { if (A[i] > .02) continue; const y = P[i * 3 + 1], s = Math.round((y - LY0) / LDY); if (s < 0 || s >= NL || Math.abs(y - (LY0 + s * LDY)) > .007) continue; const x = P[i * 3], z = P[i * 3 + 2], side = x < 0 ? 0 : 1, e = ext[side][s]; e[0] = Math.min(e[0], x); e[1] = Math.max(e[1], x); e[2] = Math.min(e[2], z); e[3] = Math.max(e[3], z); legS[side][s].push([x, z]); }
@@ -218,15 +218,18 @@
       XJ[k * 3] = tx; XJ[k * 3 + 1] = yy + medial; XJ[k * 3 + 2] = tz;
     }
     for (const k of bndJ) { const i = J.orig[k], x = XJ[k * 3], z = XJ[k * 3 + 2]; XJ[k * 3 + 1] = P[i * 3 + 1] < .62 ? hemJ(legTh(x, z)) : waistY(Math.atan2(x, z)); pinJ[k] = 1; }
-    for (let r = 0; r < 3; r++) { smoothPos(XJ, J.G, pinJ, r ? 4 : 10); clear(XJ, J, () => .011); }
+    // clearance against the smoothed legs: the crease behind and inside the knee does not print through
+    const SJN = vnormals(SJ, J.tris), clearJ = () => { for (let k = 0; k < nJ; k++) { const d = (XJ[k * 3] - SJ[k * 3]) * SJN[k * 3] + (XJ[k * 3 + 1] - SJ[k * 3 + 1]) * SJN[k * 3 + 1] + (XJ[k * 3 + 2] - SJ[k * 3 + 2]) * SJN[k * 3 + 2]; const kz = Math.exp(-(((SJ[k * 3 + 1] - .55) / .13) ** 2)); if (kz > .05 && d < .012) for (let q = 0; q < 3; q++) XJ[k * 3 + q] += SJN[k * 3 + q] * (.012 - d) * kz; } };
+    for (let r = 0; r < 3; r++) { smoothPos(XJ, J.G, pinJ, r ? 4 : 10); clearJ(); clear(XJ, J, (k, i) => P[i * 3 + 1] > .38 && P[i * 3 + 1] < .72 ? .004 : .011); }
+    { const kb = new Float32Array(nJ); for (let k = 0; k < nJ; k++) kb[k] = Math.exp(-(((P[J.orig[k] * 3 + 1] - .55) / .12) ** 2)); for (let r = 0; r < 2; r++) { smoothPos(XJ, J.G, pinJ, 25, .5, -.53, kb); clearJ(); clear(XJ, J, () => .004); } } // the knee: one smooth tube, no crease printing through
 
     // the skin weights the cloth grew from, smoothed along the cloth
     const weights = (part, rounds, mask = null) => { const m = part.orig.length, W = new Float32Array(m * NB), T = new Float32Array(m * NB); for (let k = 0; k < m; k++) { const i = part.orig[k]; for (let q = 0; q < 4; q++) W[k * NB + SI[i * 4 + q]] += SW[i * 4 + q]; }
       const all = [], hot = []; for (let k = 0; k < m; k++) { if (part.G.start[k] === part.G.start[k + 1]) continue; all.push(k); if (!mask || mask[k] > .3) hot.push(k); }
       for (let r = 0; r < rounds; r++) { T.set(W); for (const k of r < 6 ? all : hot) { const a = part.G.start[k], b = part.G.start[k + 1], w = mask ? .5 * mask[k] : .5; for (let q = 0; q < NB; q++) { let acc = 0; for (let e = a; e < b; e++) acc += T[part.G.nb[e] * NB + q]; W[k * NB + q] = (1 - w) * T[k * NB + q] + w * acc / (b - a); } } } return W; };
     const shoulder = new Float32Array(nH); for (let k = 0; k < nH; k++) { const i = H.orig[k]; shoulder[k] = Math.max(.25, bell(A[i], .45, .35) * smooth((P[i * 3 + 1] - 1.4) / .1)); }
-    const knee = new Float32Array(J.orig.length); for (let k = 0; k < knee.length; k++) knee[k] = Math.max(.25, Math.exp(-(((P[J.orig[k] * 3 + 1] - .57) / .1) ** 2)));
-    H.W = weights(H, 30, shoulder); J.W = weights(J, 20, knee); /* soft knees: no crease where thigh and shin weights meet */ H.X = X; J.X = XJ; H.lin = H.orig.map((i, k) => Math.max(LIN ? LIN[i] : 0, .6 * bell(A[i], .45, .3) * smooth((P[i * 3 + 1] - 1.48) / .1))); J.lin = J.orig.map(i => LIN ? LIN[i] : 0);
+    const knee = new Float32Array(J.orig.length); for (let k = 0; k < knee.length; k++) knee[k] = Math.max(.25, Math.exp(-(((P[J.orig[k] * 3 + 1] - .56) / .14) ** 2)));
+    H.W = weights(H, 30, shoulder); J.W = weights(J, 45, knee); /* soft knees: no crease where thigh and shin weights meet */ H.X = X; J.X = XJ; H.lin = H.orig.map((i, k) => Math.max(LIN ? LIN[i] : 0, .6 * bell(A[i], .45, .3) * smooth((P[i * 3 + 1] - 1.48) / .1))); J.lin = J.orig.map(i => LIN ? LIN[i] : 0);
     H.bnd = bnd; J.bnd = bndJ; H.N = edgeNormals(H, vnormals(X, H.tris)); J.N = edgeNormals(J, vnormals(XJ, J.tris));
     return { parts, reduced, pull, legC, NB, ac, armAt, sleeveR };
   }
@@ -304,7 +307,7 @@
     const all = new Float32Array(eh.pos.length + ej.pos.length); all.set(eh.pos); all.set(ej.pos, eh.pos.length);
     const alln = new Float32Array(all.length); alln.set(eh.nn); alln.set(ej.nn, eh.nn.length);
     const grid = new Grid(all, .03), hoodN = H.orig.length;
-    const surf = (p, d, off = 0, onlyH = null) => { const s = grid.surface(p, d); if (!s) return p.clone(); return p.clone().addScaledVector(d, s.t + off); };
+    const jgrid = new Grid(ej.pos, .03), surf = (p, d, off = 0, jeans = false) => { const s = (jeans ? jgrid : grid).surface(p, d); if (!s) return p.clone(); return p.clone().addScaledVector(d, s.t + off); }; // belt and loops sit on the jeans, under the hoodie
     const ribC = (u, k) => { const r = .5 + .5 * Math.sin(u); return tmp.copy(hood).lerp(dark, .28 + .2 * r).multiplyScalar(1 + .04 * (hash(u, k) - .5)).clone(); };
 
     // hoodie hem rib: a band round the hips, gathered, its lower edge rolled back to the cloth
@@ -341,14 +344,14 @@
         soup.cord([pts[0].clone().add(V(0, .006, -.002)), pts[0].clone().add(V(0, -.004, .002))], .0065, lin('#b7b3aa'), 3, 8, 1); } }
     // jeans waistband, belt with a buckle, belt loops
     { const nu = 160, w0 = .042, beltW = .03;
-      const band = (j, nv, top, h, off, colf, flip) => soup.grid(nu, nv, (i, k) => { const th = i / nu * TAU, d = V(Math.sin(th), 0, Math.cos(th)), y = beltY(th) - top - h * (k / nv), p = surf(V(0, y, .0), d, 0), prof = (k === 0 || k === nv) ? off * .2 : off; return [p.addScaledVector(d, prof).setY(y), colf(th, k)]; }, { closedU: true, flip });
+      const band = (j, nv, top, h, off, colf, flip) => soup.grid(nu, nv, (i, k) => { const th = i / nu * TAU, d = V(Math.sin(th), 0, Math.cos(th)), y = beltY(th) - top - h * (k / nv), p = surf(V(0, y, .0), d, 0, true), prof = (k === 0 || k === nv) ? off * .2 : off; return [p.addScaledVector(d, prof).setY(y), colf(th, k)]; }, { closedU: true, flip });
       band(0, 4, -.001, w0, .004, (th, k) => tmp.copy(denim).lerp(dd, .2).lerp(stitch, k === 1 || k === 3 ? .35 : 0).clone());
       const belt = lin(DENIM.belt); band(0, 3, .006, beltW, .009, (th, k) => tmp.copy(belt).multiplyScalar((k === 0 || k === 3 ? .75 : 1) * (1 + .1 * (hash(th * 9, k) - .5))).clone());
       // buckle at the front, a little to the side
-      const bx = .0, by = beltY(0) - .006 - beltW / 2, bp = surf(V(bx, by, 0), V(0, 0, 1), .011), buck = lin(DENIM.buckle);
+      const bx = .0, by = beltY(0) - .006 - beltW / 2, bp = surf(V(bx, by, 0), V(0, 0, 1), .011, true), buck = lin(DENIM.buckle);
       soup.grid(16, 2, (i, j) => { const a = i / 16 * TAU, rx = .032 - .006 * j / 2, ry = .022 - .006 * j / 2; return [bp.clone().add(V(Math.cos(a) * rx, Math.sin(a) * ry, .003 + .002 * (j === 1 ? 1 : 0))), buck]; }, { closedU: true });
       soup.cord([bp.clone().add(V(-.012, -.016, .006)), bp.clone().add(V(-.012, .016, .006))], .0022, buck, 3, 6, 0);
-      for (const th of [-2.6, -1.55, -.62, .62, 1.55, 2.6, Math.PI]) { const d = V(Math.sin(th), 0, Math.cos(th)), yT = beltY(th) - .001, yB = beltY(th) - w0 - .002, a = surf(V(0, yT, 0), d, .012), b = surf(V(0, yB, 0), d, .012), m = a.clone().lerp(b, .5).addScaledVector(d, .003); const sd = V(Math.cos(th), 0, -Math.sin(th)).multiplyScalar(.006);
+      for (const th of [-2.6, -1.55, -.62, .62, 1.55, 2.6, Math.PI]) { const d = V(Math.sin(th), 0, Math.cos(th)), yT = beltY(th) - .001, yB = beltY(th) - w0 - .002, a = surf(V(0, yT, 0), d, .012, true), b = surf(V(0, yB, 0), d, .012, true), m = a.clone().lerp(b, .5).addScaledVector(d, .003); const sd = V(Math.cos(th), 0, -Math.sin(th)).multiplyScalar(.006);
         soup.grid(1, 3, (i, j) => [[a, m, m, b][j].clone().addScaledVector(sd, i ? 1 : -1), tmp.copy(denim).lerp(dd, .1).clone()]); } }
 
     // one indexed geometry: hoodie, jeans (weights they grew from), then the sewn-on parts (weights by transfer)
@@ -448,7 +451,7 @@
   SC.registerOutfit('street', def);
 
   /* ---------------------------------------------------------------- the duffel: cross-body strap, bag behind the hip on a spring */
-  const BAG = { at: V(-.03, 1.1, -.262), len: .44, r: .118 };
+  const BAG = { at: V(-.03, 1.1, -.30), len: .44, r: .118 };
   function bagFor(rig) {
     const st = rig.storyCast, c = SKIN_CACHE.get(rig); if (!c) return null;
     const anyTint = Object.values(c.byTint)[0], grid = new Grid(anyTint.all, .03), surf = (p, d, off) => { const s = grid.surface(p, d, .02); return s ? p.clone().addScaledVector(d, s.t + off) : p.clone(); };
