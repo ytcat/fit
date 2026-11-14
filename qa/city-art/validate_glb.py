@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[2]
 sizes={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4,'MAT4':16}
 formats={5120:'b',5121:'B',5122:'h',5123:'H',5125:'I',5126:'f'}
 results=[]
-for name in ['ch01-bus/gloryland-bus.glb','ch01-station/gloryland-station.glb','ch01-oldtown/gloryland-oldtown.glb','ch01-car/compact-car.glb','ch01-trees/street-tree.glb','ch01-trees/street-tree-low.glb']:
+for name in ['ch01-bus/gloryland-bus.glb','ch01-station/gloryland-station.glb','ch01-oldtown/gloryland-oldtown.glb','ch01-car/compact-car.glb','ch01-trees/street-tree.glb','ch01-trees/street-tree-low.glb','ch01-market/hazel-fruit-stall.glb']:
     path=ROOT/'assets/street'/name;b=path.read_bytes()
     magic,version,total=struct.unpack_from('<III',b)
     assert magic==0x46546c67 and version==2 and total==len(b),name

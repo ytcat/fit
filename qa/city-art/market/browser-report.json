@@ -1,0 +1,29 @@
+{
+  "three": "128",
+  "triangles": 56014,
+  "meshes": 22,
+  "materials": 15,
+  "bounds": {
+    "min": [
+      -1.5016000270843506,
+      0,
+      -1.0425000190734863
+    ],
+    "max": [
+      1.5016000270843506,
+      2.6810001134872437,
+      0.8087729285560175
+    ]
+  },
+  "render": {
+    "frame": 35,
+    "calls": 23,
+    "triangles": 56016,
+    "points": 0,
+    "lines": 0
+  },
+  "physicalPhone": "NOT VERIFIED",
+  "environment": "Chromium SwiftShader, 1000x850; 1024 directional shadow map",
+  "errors": [],
+  "warnings": []
+}

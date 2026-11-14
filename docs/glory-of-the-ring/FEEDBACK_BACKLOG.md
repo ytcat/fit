@@ -850,6 +850,8 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 - **Codex street-detail delivery (2026-11-14):** isolated authored compact car and two tree detail levels, original textures and packed sources; actual r128 car-aperture, cloned-skeleton and breeze-root/loop checks pass with zero browser errors. [Evidence, counts and limitations](../adventure/STREET_DETAILS_ART_DELIVERY_20261114.md). Art branch only; production adoption and physical-phone validation pending. City work remains IN PROGRESS. Latest main inspected `827371e`; prior bus/station/building adoption is tracked separately by Claude in GOTR-0089.
 
+- **Codex market asset (2026-11-14):** Hazel's Chapter 1 fruit stall authored with fitted canopy, slatted crates/produce, scale, signs and packed source. Seven actual r128 views and structural checks pass; [delivery](../adventure/MARKET_ART_DELIVERY_20261114.md). Optional asset only; Claude retains story placement, crowd/character integration and physical-phone performance gates. Full city remains IN PROGRESS.
+
 ### GOTR-0067 — Story scenes: street clothes, a sport bag and natural movement
 - **Reported:** 2026-11-12 (v1.41 arrival scene)
 - **Status:** OPEN — queued for the 3D story agent at the next resume (with GOTR-0049 outfits)

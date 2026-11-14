@@ -61,5 +61,14 @@
     "animations": [
       "Breeze"
     ]
+  },
+  {
+    "asset": "ch01-market/hazel-fruit-stall.glb",
+    "status": "PASS",
+    "bytes": 2743044,
+    "triangles": 56014,
+    "extensionsUsed": [],
+    "requiredExtensions": [],
+    "animations": []
   }
 ]
