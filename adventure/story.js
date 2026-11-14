@@ -22,7 +22,7 @@
     hazel: { name: L('Mrs. Hazel', 'גברת הייזל', 'Миссис Хейзел'), look: { ears: 'point', fur: '#b98a5e', accent: '#7fa36b' } },
     otto: { name: L('Otto', 'אוטו', 'Отто'), look: { ears: 'round', fur: '#6b4a32', accent: '#2f6f8f', small: true } },
     slick: { name: L('Slick', 'סליק', 'Слик'), look: { ears: 'round', fur: '#a8865a', accent: '#4a4a52' } },
-    hook: { name: L('Hook', 'הוק', 'Хук'), look: { ears: 'none', fur: '#5f7a4a', accent: '#3b5a7a', teeth: true } }
+    hook: { name: L('Rourke', 'רורק', 'Рурк'), look: { ears: 'none', fur: '#5f7a4a', accent: '#3b5a7a', teeth: true } }
   };
   // Story beats of chapter 1 (STORY.md): the recommended order. Missions are ids from adventure-progress.js.
   // Chapter 1 "The Dream" (GOTR-0078): beats 0-12 and side job A, grouped by the script's build slices.
