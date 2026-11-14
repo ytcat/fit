@@ -925,9 +925,10 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0065 — Street, underground and story fights without a boxing ring
 - **Reported:** 2026-11-12
-- **Status:** OPEN — queued for agent `city-gfx` after the city graphics
+- **Status:** READY FOR QA — branch `agent/ringless` (not released; not checked on a phone)
 - **Reported behavior / request:** "When you have a street fight, you don't need a ring, you just need a floor and an audience. It's a street fight; same with underground, or missions where you fight against a robber or any other characters in your story."
 - **Plan:** Street Fight, Basement and Dockside Hangar lose the ring (posts, ropes, canvas); fights happen on the ground inside a close circle of spectators with fitting lighting; no referee there; a per-venue `ring:false` flag so story missions can use ringless fights anywhere.
+- **Done (2026-11-14, `agent/ringless` 24987e5):** ported `wip/city-gfx` a0d572c. Street, Basement and Dockside Hangar sets say `ring:false` (arena-sets.js): own ground (asphalt patch + chalk circle, painted basement floor circle, dock concrete under a hanging work lamp), a loose circle of standing spectators 3–4.4 m round the fighters, props at the edge (bins, crate, cone / drums, crate, tyres / crates, drums). New `ringless-venues.js` (hooked by two lines in game-venues.js; fight-arena.js untouched) hides the whole ring group (canvas, apron, posts, ropes, pads, steps) and the referee, and dresses both fighters per place (street → street clothes, basement/docks → track pants + wraps; bare hands, gloves hidden every frame), restoring all on venue change or fight end. The bout's own limits keep fighters inside the 2.3 m floor circle; the knockdown count shows in the HUD. Covers the Chapter 1 market robbery (venue street), docks fight (docks) and Chapter 2 Street missions. Test `tests/ringless-venues.test.cjs`; pictures `qa/gotr-0065/*.webp` (script `qa/gotr-0065/browser.cjs`). Limits: bare hands are smaller than gloves, so a landed punch can stop ~3–4 cm short of the face (contact uses glove geometry); no extra referee stand-in.
 
 ### GOTR-0066 — Street-level city scenes must look like a real 3D city
 - **Reported:** 2026-11-12
