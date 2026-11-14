@@ -150,7 +150,7 @@
       m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? m.pole[side].lerp(pole, k) : pole; m.palm[side] = m.palm[side] ? m.palm[side].lerp(palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
       const target = m.hand[side].clone(); target.y += hips.position.y - HIP; // hands ride with the pelvis
       if (name === 'strap') { const ch = j.chest, M = new THREE.Matrix4().copy(c.root.matrixWorld).invert().multiply(ch.matrixWorld); target.copy(m.hand[side]).sub(restOf(c, ch)).applyMatrix4(M); } // the hand on the strap moves with the chest
-      handErrors.push(clearArm(c, side, target, m.pole[side], name === 'strap', () => c.orientGlove(side, m.turn[side], m.palm[side]))); // the strap hand rests on the strap gloves.push(c.orientGlove(side, m.turn[side], m.palm[side]));
+      let glove = null; handErrors.push(clearArm(c, side, target, m.pole[side], name === 'strap', () => (glove = c.orientGlove(side, m.turn[side], m.palm[side])))); gloves.push(glove); // the strap hand rests on the strap; the last orientation is returned
     }
     const bag = c.storyCast?.bagBody; if (bag) bag.rotation.z = -.5 + .045 * Math.sin(phase * tau * 2) * w;
     return { gloves, handErrors, footTargets };
