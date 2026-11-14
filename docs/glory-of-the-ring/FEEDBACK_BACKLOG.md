@@ -915,6 +915,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Pass 2 (a574e95):** strap elbow down by the side (pole down/back, hand target follows the chest), arm abduction cut to what the clearance needs (street walk: forearm 2.5 cm, hand 6.7 cm), hoodie hem lowered to cover the belt and jeans top with a blouse over the rib, upper sleeves the smoothed arm + 1 cm, knee smoothed (no crease). Pictures re-rendered.
 - **Still off:** the strap forearm crosses the chest fairly high and level; the upper sleeves are still full on the lion; a faint fold line remains at the inner knee.
 
+### GOTR-0098 — Result ceremony: the referee raises the winner's arm twisted, through both bodies
+- **Reported:** 2026-11-14 (owner, live v1.68)
+- **Status:** OPEN — P1 (with the corner-break polish, branch `agent/corner-break-2`)
+- **Suspect (unproven):** the arm-raise targets were authored before the fighters were mirrored at the root (GOTR-0074, v1.51), so the referee grabs the wrong side / the IK solves through the torso.
+- **Acceptance:** the referee stands between the fighters, holds the winner's near wrist and lifts the arm straight up beside the head; the loser stands to the other side; no limb passes through any body (measured clearance), in ring and gym (Bruno) and ringless venues; both corners as winner; pictures at 402×690.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
