@@ -5,7 +5,7 @@
 *{box-sizing:border-box}body{margin:0;background:#18232b;color:#eee;font:14px system-ui}canvas{display:block;touch-action:none;width:100vw;height:100vh}header{position:fixed;top:16px;left:20px;pointer-events:none}h1{font-size:20px;margin:0 0 6px}p{margin:0;color:#b9c7cf}nav{position:fixed;bottom:18px;left:16px;right:16px;display:flex;flex-wrap:wrap;gap:7px}button{border:1px solid #61717c;background:#1e2a33e8;color:#fff;padding:11px 16px;border-radius:8px;font:inherit;cursor:pointer}button[aria-pressed=true]{background:#d3aa66;color:#17232b}#status{position:fixed;right:15px;top:16px;font-size:12px;max-width:40%;text-align:right;color:#b9c7cf}@media(max-width:600px){header{top:12px;left:12px}h1{font-size:16px}p{max-width:210px;font-size:11px}#status{top:66px;left:12px;max-width:80%;text-align:left}button{padding:10px 11px;font-size:12px}}
 </style></head><body>
 <header><h1>Gloryland · Route 12</h1><p>Actual GLB · isolated asset review<br>Drag to orbit · pinch or scroll to zoom</p></header><div id="status">Loading local asset…</div>
-<nav><button data-view="front">Front / curb</button><button data-view="rear">Rear / road</button><button data-view="side">Side</button><button data-view="entry">Entry detail</button><button id="door" aria-pressed="false">Open doors</button><button id="night" aria-pressed="false">Night lighting</button><button id="baseline" aria-pressed="false">Original bus</button><button id="station" aria-pressed="false">Arrival street</button><button id="oldtown" aria-pressed="false">Old Town</button><button data-view="town">Street view</button><button data-view="facade">Window detail</button></nav>
+<nav><button data-view="front">Front / curb</button><button data-view="rear">Rear / road</button><button data-view="side">Side</button><button data-view="entry">Entry detail</button><button id="door" aria-pressed="false">Open doors</button><button id="night" aria-pressed="false">Night lighting</button><button id="baseline" aria-pressed="false">Original bus</button><button id="station" aria-pressed="false">Arrival street</button><button id="oldtown" aria-pressed="false">Old Town</button><button data-view="town">Street view</button><button data-view="facade">Window detail</button><button id="details" aria-pressed="false">Trees &amp; car</button><button id="tree-low" aria-pressed="false">Low tree detail</button><button id="breeze" aria-pressed="false">Play breeze</button></nav>
 <script src="../../../assets/vendor/three.min.js"></script><script src="../../../assets/vendor/GLTFLoader.js"></script>
 <script>
 'use strict';
@@ -49,7 +49,7 @@ async function setStation(on){
  model.position.set(on?.4:0,on?-.15:0,on?-1.9:0);ground.position.y=on?-.325:-.007;
  target.set(0,1.4,on?-2.8:0);distance=on?24:18.5;az=on?-.65:.83;el=.30;
  streetlight.position.set(on?-3.5:4,on?3.7:7,on?-4.15:-5);streetlight.target.position.set(on?-2:1,0,on?-1.9:0);
- document.querySelector('#station').setAttribute('aria-pressed',String(on));render();return station;
+ document.querySelector('#station').setAttribute('aria-pressed',String(on));render();window.dispatchEvent(new CustomEvent('stationvisibility',{detail:on}));return station;
 }
 async function setBaseline(on){
  if(on&&stationOn)await setStation(false);
@@ -72,6 +72,7 @@ new THREE.GLTFLoader().load('../../../assets/street/ch01-bus/gloryland-bus.glb',
  window.asset={scene,camera,renderer,model,mixer,clips:g.animations,actions:clips,setView,setNight,setDoors,setBaseline,setStation,setOldTown,render,draw};
  setDoors(false);render();document.querySelector('#status').textContent=`${renderer.info.render.triangles.toLocaleString()} submitted triangles · ${renderer.info.render.calls} calls incl. shadows`;
  window.asset.ready=true;
+ window.dispatchEvent(new Event('assetready'));
 },undefined,e=>{document.querySelector('#status').textContent='Asset failed to load';console.error(e)});
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{setView(b.dataset.view);render()});
 document.querySelector('#door').onclick=()=>setDoors(!doorOpen);document.querySelector('#night').onclick=()=>setNight(!night);
@@ -84,4 +85,4 @@ renderer.domElement.addEventListener('pointermove',e=>{const p=pointers.get(e.po
 for(const event of ['pointerup','pointercancel','lostpointercapture'])renderer.domElement.addEventListener(event,e=>{pointers.delete(e.pointerId);prevPinch=0;});
 renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();distance=THREE.MathUtils.clamp(distance*Math.exp(e.deltaY*.001),3,40);render()},{passive:false});
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);render()});
-</script></body></html>
+</script><script src="../details-preview.js"></script></body></html>

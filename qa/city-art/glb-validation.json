@@ -30,5 +30,36 @@
     "extensionsUsed": [],
     "requiredExtensions": [],
     "animations": []
+  },
+  {
+    "asset": "ch01-car/compact-car.glb",
+    "status": "PASS",
+    "bytes": 1517124,
+    "triangles": 44076,
+    "extensionsUsed": [],
+    "requiredExtensions": [],
+    "animations": []
+  },
+  {
+    "asset": "ch01-trees/street-tree.glb",
+    "status": "PASS",
+    "bytes": 3256092,
+    "triangles": 41136,
+    "extensionsUsed": [],
+    "requiredExtensions": [],
+    "animations": [
+      "Breeze"
+    ]
+  },
+  {
+    "asset": "ch01-trees/street-tree-low.glb",
+    "status": "PASS",
+    "bytes": 2104620,
+    "triangles": 19618,
+    "extensionsUsed": [],
+    "requiredExtensions": [],
+    "animations": [
+      "Breeze"
+    ]
   }
 ]

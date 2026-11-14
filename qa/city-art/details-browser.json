@@ -1,0 +1,43 @@
+{
+  "three": "128",
+  "car": {
+    "triangles": 44076,
+    "meshes": 21,
+    "skinned": 0,
+    "materials": 9
+  },
+  "heroTree": {
+    "triangles": 41136,
+    "meshes": 5,
+    "skinned": 4,
+    "materials": 5
+  },
+  "carOpenings": {
+    "arch": null,
+    "tire": 1.145000003278255,
+    "above": 1.1622222692317932,
+    "windowPaint": null,
+    "windowGlass": 1.2515446599927547
+  },
+  "wind": {
+    "rootError": 0,
+    "crownMotion": 0.05475013745949639,
+    "loopError": 0,
+    "samples": 1610,
+    "clipSeconds": 4.041666507720947
+  },
+  "combinedRender": {
+    "frame": 8,
+    "calls": 243,
+    "triangles": 534702,
+    "points": 0,
+    "lines": 0
+  },
+  "physicalPhone": "NOT VERIFIED",
+  "environment": "Headless Chromium / SwiftShader software renderer; street composition and isolated details",
+  "lowTree": {
+    "triangles": 19618
+  },
+  "errors": [],
+  "warnings": []
+}
