@@ -30,7 +30,7 @@
   cmIn:[.15,2.4],stoolIn:[2.4,3.35],stoolDrop:[3.35,3.55],cmOut:[15.3,18.6]
  };
  const STATES=[['walk',0],['sit',3.5],['towel',4.6],['drink',6.0],['talk',10.4],['stand',13.0],['walkback',14.2],['guard',17.9]];
- const SEAT=.47,SEAT_R=.17,ROPE_TOP=1.23,POST=1.65,STOOL_D=.50,ANKLE=.12,HIP=.972,BALL=.13;
+ const SEAT=.47,SEAT_R=.17,ROPE_TOP=1.23,POST=1.65,STOOL_D=.62,ANKLE=.12,HIP=.972,BALL=.13;
  const nominal=(rest,t)=>{rest=Math.max(.01,rest);if(rest<NOMINAL)return clamp(t*NOMINAL/rest,0,NOMINAL);if(t<=HOLD)return t;const back=rest-t;return back<TAIL?NOMINAL-back:HOLD;};
  const stateAt=n=>{let s='walk';for(const [name,at] of STATES)if(n>=at)s=name;return s;};
  const CORNERS={lion:{corner:[-POST,-POST],colour:0xb4302c,name:'red'},rabbit:{corner:[POST,POST],colour:0x2f5fa8,name:'blue'}};
@@ -169,7 +169,8 @@
    return true;
   }
   begin(live){
-   this.active=true;this.log=[];this.wide=null;this.ropeSide=this.ropeSide||this.pickSides();this.layout();this.home={};
+   this.active=true;this.log=[];this.shots={};this.layout();const e=this.view.engine;
+   this.wide=e?.camera?this.wideShot(e.camera,e.cameraDirector?.freePose?.()):null;this.ropeSide=this.pickSides();this.layout();this.home={};
    for(const actor of ['lion','rabbit'])this.home[actor]={position:live[actor].position.clone(),yaw:live[actor].yaw};
    this.cornermen();for(const man of Object.values(this.men))this.borrow(man);this.last=null;
   }
@@ -178,9 +179,10 @@
    for(const actor of ['lion','rabbit']){const p=this.props[actor];p.stool.visible=p.bottle.visible=false;if(p.held)p.held.visible=false;if(p.draped){p.draped.parent?.remove(p.draped);p.draped.geometry.dispose();p.draped=null;}}
    for(const man of Object.values(this.men))this.giveBack(man);
   }
-  /** Cornerman on the rope side the default camera does not look through (he stands behind his fighter's shoulder). */
+  /** Cornerman on the rope side away from the break's wide shot (he stands behind his fighter's shoulder, not in front). */
   pickSides(){
-   const v=this.view,cam=v.engine?.camera;if(!cam)return {lion:0,rabbit:0};const local=v.cast.worldToLocal(cam.getWorldPosition(V())),out={};
+   const v=this.view,cam=v.engine?.camera,w=this.wide;if(!cam&&!w)return {lion:0,rabbit:0};
+   const at=w?V(w.lx+Math.sin(w.angle)*w.dist,w.cy,w.lz+Math.cos(w.angle)*w.dist):cam.getWorldPosition(V()),local=v.cast.worldToLocal(at),out={};
    for(const actor of ['lion','rabbit']){const [cx,cz]=CORNERS[actor].corner,a=V(-Math.sign(cx)*.6+cx,0,cz+Math.sign(cz)*.3),b=V(cx+Math.sign(cx)*.3,0,cz-Math.sign(cz)*.6);out[actor]=a.distanceTo(local)>b.distanceTo(local)?0:1;}
    return out;
   }
@@ -300,9 +302,9 @@
   drape(actor){
    const c=this.view.coaches[actor],j=c.joints,p=this.props[actor];c.root.updateMatrixWorld(true);
    const L=c.point(j.armL),R=c.point(j.armR),N=c.point(j.neck),Ch=c.point(j.chest);
-   const pts=[L.clone().add(V(.03,-.36,.19)),L.clone().add(V(.02,-.14,.17)),L.clone().add(V(.04,.11,.03)),N.clone().add(V(-.05,-.01,-.13)),N.clone().add(V(.05,-.01,-.13)),R.clone().add(V(-.04,.11,.03)),R.clone().add(V(-.02,-.14,.17)),R.clone().add(V(-.03,-.36,.19))];
+   const pts=[L.clone().add(V(.09,-.42,.215)),L.clone().add(V(.07,-.17,.20)),L.clone().add(V(.06,.10,.05)),N.clone().add(V(-.06,-.02,-.14)),N.clone().add(V(.06,-.02,-.14)),R.clone().add(V(-.06,.10,.05)),R.clone().add(V(-.07,-.17,.20)),R.clone().add(V(-.09,-.42,.215))];
    const widths=[V(1,0,0),V(1,0,.1),V(1,.1,-.2),V(0,1,.3),V(0,1,.3),V(1,-.1,.2),V(1,0,-.1),V(1,0,0)];
-   const mesh=ribbon(pts,widths,.24,this.towelMaterial);mesh.name='Corner towel (draped)';
+   const mesh=ribbon(pts,widths,.21,this.towelMaterial);mesh.name='Corner towel (draped)';
    // rig frame -> chest frame
    const toChest=new THREE.Matrix4().copy(j.chest.matrixWorld).invert().multiply(c.root.matrixWorld);mesh.applyMatrix4(toChest);
    j.chest.add(mesh);mesh.userData.y=mesh.position.y;p.draped=mesh;mesh.userData.chest=Ch;
@@ -312,10 +314,22 @@
    if(!this.active)return null;const v=this.view,n=this.n,toWorld=p=>v.cast.localToWorld(p.clone()),player=v.match.playerActor||'lion',other=player==='lion'?'rabbit':'lion';
    const shot=n<T.towel[0]||n>=T.stand[0]?'wide':n<T.wipe[0]?player:n<T.talk[1]-.6?other:player;
    if(shot==='wide'){if(!this.wide)this.wide=this.wideShot(camera,free);return {key:'break-wide',goal:this.wide};}
-   // a corner: from inside the ring in front of the stool, high enough to look over the near ropes, the cornerman beside
-   const G=this.geo[shot],seat=toWorld(G.seat),front=toWorld(G.seat.clone().addScaledVector(G.d,1)).sub(seat),dir=Math.atan2(front.x,front.z),mw=toWorld(G.P);
-   const look=seat.clone().lerp(mw,.35),lateral=Math.sign((mw.x-seat.x)*Math.cos(dir)-(mw.z-seat.z)*Math.sin(dir))||1;
-   return {key:'break-'+shot,goal:{lx:look.x,ly:.95,lz:look.z,angle:dir-lateral*.42,dist:3.5,cy:2.45}};
+   if(!this.shots[shot])this.shots[shot]=this.cornerShot(shot,camera);return {key:'break-'+shot,goal:this.shots[shot]};
+  }
+  /** A corner seen from in front of the stool, high enough to look over the near ropes: the seated fighter and his
+   *  cornerman both in the frame, apart from each other. */
+  cornerShot(actor,camera){
+   const v=this.view,W=p=>v.cast.localToWorld(p.clone()),G=this.geo[actor],seat=W(G.seat),front=W(G.seat.clone().addScaledVector(G.d,1)).sub(seat),dir=Math.atan2(front.x,front.z);
+   const fighter=W(G.seat.clone().setY(1.35)),feet=W(G.seat.clone().addScaledVector(G.d,.42).setY(.05)),man=W(G.P.clone().setY(1.85)),look=seat.clone().lerp(W(G.P),.4),cam=camera.clone(),dist=4.7,cy=2.65;
+   let best=null;
+   const otherSeat=W(this.geo[actor==='lion'?'rabbit':'lion'].seat.clone().setY(1.2));
+   for(let k=-14;k<=14;k++){const a=dir+k*.1;cam.position.set(look.x+Math.sin(a)*dist,cy,look.z+Math.cos(a)*dist);cam.lookAt(look.x,1.0,look.z);cam.updateMatrixWorld(true);cam.matrixWorldInverse.copy(cam.matrixWorld).invert();
+    const f=fighter.clone().project(cam),m=man.clone().project(cam),b=feet.clone().project(cam);let score=Math.abs(k)*.05;
+    if(Math.max(Math.abs(f.x),Math.abs(m.x))>.7||m.y>.55||b.y<-.75)score+=10;const sep=Math.abs(f.x-m.x);if(sep<.25)score+=4;if(sep>.9)score+=2;
+    // never from inside or through the other corner (its fighter sits on the diagonal behind the camera)
+    const flat=V(cam.position.x-otherSeat.x,0,cam.position.z-otherSeat.z).length(),o=otherSeat.clone().project(cam);if(flat<1.6||(o.z<1&&Math.abs(o.x)<1.1&&Math.abs(o.y)<1.1))score+=12;
+    if(!best||score<best.score)best={score,a};}
+   return {lx:look.x,ly:1.0,lz:look.z,angle:best.a,dist,cy};
   }
   /** The wide shot: the view of both corners closest to the player's own camera that keeps both stools in the frame,
    *  the referee out from between them and no seats or fittings in the way. */

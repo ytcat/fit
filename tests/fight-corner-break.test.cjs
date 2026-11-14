@@ -23,7 +23,7 @@ function toRest(view,m,start){let t=start;while(m.phase!=='rest'&&t<start+60){ar
   for(const actor of ['lion','rabbit']){
    const c=view.coaches[actor],p=corner.props[actor];assert.equal(c.root.parent,view.cast,'fighters stay in the mirrored cast');assert.equal(c.root.scale.x,1);
    const hips=view.cast.worldToLocal(c.joints.hips.getWorldPosition(V())),stool=p.stool.position;
-   if(n>T.sit[1]+.1&&n<T.stand[0]-.05)sitting.push({actor,hip:hips.y,off:Math.hypot(hips.x-stool.x,hips.z-stool.z),feet:['L','R'].map(s=>view.cast.worldToLocal(c.joints['foot'+s].getWorldPosition(V())).y),stoolY:stool.y,errors:c.metrics.footTargets.map(f=>f.error)});
+   if(n>T.sit[1]+.1&&n<T.stand[0]-.05)sitting.push({actor,hip:hips.y,clear:Math.min(...['chest','head','armL','armR','hips','elbowL','elbowR'].map(k=>{const p=view.cast.worldToLocal(c.joints[k].getWorldPosition(V()));return 1.65-Math.max(Math.abs(p.x),Math.abs(p.z));})),off:Math.hypot(hips.x-stool.x,hips.z-stool.z),feet:['L','R'].map(s=>view.cast.worldToLocal(c.joints['foot'+s].getWorldPosition(V())).y),stoolY:stool.y,errors:c.metrics.footTargets.map(f=>f.error)});
    // the stool never passes through the ropes: near a rope line it is above the top rope or inside the ring clear of it
    if(p.stool.visible){const edge=1.65-Math.max(Math.abs(stool.x),Math.abs(stool.z));if(Math.abs(edge)<.21&&stool.y<1.23+.01)stoolBad.push([n.toFixed(2),stool.toArray().map(v=>v.toFixed(2))]);}
    if(p.draped?.visible)towelSeen=true;
@@ -38,7 +38,7 @@ function toRest(view,m,start){let t=start;while(m.phase!=='rest'&&t<start+60){ar
   assert.ok(Math.abs(s.stoolY)<1e-6,'the stool stands on the canvas while he sits');
   assert.ok(s.hip>SEAT+.05&&s.hip<SEAT+.15,s.actor+' hips at stool height: hip joint '+s.hip.toFixed(3)+' over a '+SEAT+' m seat');
   assert.ok(s.off<.12,s.actor+' hips over the stool ('+s.off.toFixed(3)+' m off centre)');
-  assert.ok(s.feet.every(y=>y<.2),'feet on the canvas');assert.ok(s.errors.every(x=>x<.003),'legs reach their feet');
+  assert.ok(s.feet.every(y=>y<.2),'feet on the canvas');assert.ok(s.clear>.14,s.actor+' body joints stay '+s.clear.toFixed(3)+' m inside the ropes');assert.ok(s.errors.every(x=>x<.003),'legs reach their feet');
  }
  assert.deepEqual(stoolBad,[],'stool through the ropes');
  assert.ok(towelSeen,'a towel is draped over the shoulders');assert.ok(bottleAtMouth<.06,'the bottle reaches the mouth ('+bottleAtMouth.toFixed(3)+')');
@@ -57,6 +57,11 @@ function toRest(view,m,start){let t=start;while(m.phase!=='rest'&&t<start+60){ar
  m.phaseTime=m.restSeconds;arena.update(t+=1/30,'fight','one_two'); // what "Skip break" does
  assert.equal(m.phase,'round');assert.equal(corner.active,false);assert.ok(Object.values(corner.props).every(p=>!p.stool.visible&&!p.bottle.visible&&!p.draped),'skip clears the corner');
 }
+{ // ringless venue: the stool is set down by the fighter's side of the floor, no lift over ropes
+ const {view,m}=bout({rounds:2,roundSeconds:2,restSeconds:20});view.ring.visible=false;const corner=view.corner;let t=toRest(view,m,0),top=0;const seen=[];
+ while(m.phase==='rest'){arena.update(t+=1/30,'fight','one_two');if(m.phase!=='rest')break;if(seen[seen.length-1]!==corner.state)seen.push(corner.state);for(const p of Object.values(corner.props))if(p.stool.visible)top=Math.max(top,p.stool.position.y);}
+ assert.deepEqual(seen,order,'ringless break steps in order');assert.ok(top<.6,'no lift over ropes that are not there ('+top.toFixed(2)+')');view.ring.visible=true;
+}
 { // single-round bouts have no break
  for(const options of [{rounds:1,roundSeconds:2,restSeconds:10},{rounds:1,roundSeconds:2,restSeconds:0}]){const {view,m}=bout(options);let t=0,active=false;while(!(m.phase==='ceremony'&&m.phaseTime>1)&&t<40){arena.update(t+=1/30,'fight','one_two');active=active||view.corner.active||m.phase==='rest';}
   assert.equal(active,false,'no break in a one-round bout');}
@@ -65,7 +70,7 @@ function toRest(view,m,start){let t=start;while(m.phase!=='rest'&&t<start+60){ar
  const {view,m}=bout({rounds:2,roundSeconds:2,restSeconds:20});let t=toRest(view,m,0);while(view.corner.n<6)arena.update(t+=1/30,'fight','one_two');
  const pads=[];view.ring.traverse(o=>{if(o.isMesh&&o.geometry.type==='BoxGeometry'&&o.geometry.parameters.width===.13)pads.push(o);});
  for(const [actor,hex] of [['lion',0x973d38],['rabbit',0x315d91]]){const stool=view.corner.props[actor].stool.getWorldPosition(V()),near=pads.reduce((a,b)=>a.getWorldPosition(V()).distanceTo(stool)<b.getWorldPosition(V()).distanceTo(stool)?a:b);
-  assert.equal(near.material.color.getHex(),hex,actor+' stool in the corner of its colour');assert.ok(near.getWorldPosition(V()).setY(0).distanceTo(stool.setY(0))<.6);}
+  assert.equal(near.material.color.getHex(),hex,actor+' stool in the corner of its colour');assert.ok(near.getWorldPosition(V()).setY(0).distanceTo(stool.setY(0))<.7);}
  arena.setTarget('none');assert.equal(coach.root.parent,e.scene,'the rig goes back after the bout');
 }
 console.log('PASS corner break: order and timing, sitting on the stool, props cleared before the bell, seamless bell, short break, skip, one-round bouts, corner colours with the mirrored cast');
