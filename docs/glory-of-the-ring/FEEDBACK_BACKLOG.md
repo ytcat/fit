@@ -781,8 +781,9 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0076 — Corner break like a real fight
 - **Reported:** 2026-11-12 ("I also asked several times"; picture `v147-7.webp`: during BREAK both fighters stand in the middle in guard)
-- **Status:** OPEN — P1
+- **Status:** READY FOR QA on branch `agent/corner-break` (not released)
 - **Request:** at the break each fighter walks to their own corner; a cornerman puts a stool in the corner (corner colour), the fighter sits, the cornerman puts a towel on them, and the fighter drinks water from a bottle; they stand up and the stool is removed before the next round.
+- **Built (agent/corner-break):** `fight-corner.js` hooked into `fight-arena.js` (create/place/pose/after/dispose). 20 s rests for multi-round presets (was 10 s; Docks' 8 s break plays the same steps faster). Fighters drop the guard and walk to their corner (lion red, rabbit blue; red/blue now diagonal, the other two corners white); Bruno (red) and Brick (blue, still in his boxing kit: story rigs cannot change outfit) walk up outside the ropes, lift the stool in the corner colour over the top rope, the fighter turns and sits (hips 9.5 cm above the 47 cm seat, knees bent, gloves on thighs), towel draped over the shoulders (follows the chest), water from the corner bucket to the mouth with the head back, face wipe, talk; at T-7 s he stands, towel and stool go back out, he walks back to his round position and raises the guard (no jump at the bell). Break camera: wide shot of both corners, then each corner in turn; HUD unchanged; new "Skip break" button (EN/HE/RU). Ringless venues: stool set down by the side, no rope lift. Test `tests/fight-corner-break.test.cjs`; evidence `qa/gotr-0076/corner-break.webp`. Not done: subtitles, the referee only drifts to his neutral corner (no walk cycle).
 
 ### GOTR-0077 — "Brick's bag" trial: hard to hit properly; scene must look and move realistically
 - **Reported:** 2026-11-12 (v1.47, story step 2: the swinging bag trial with two characters)

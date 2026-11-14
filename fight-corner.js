@@ -124,7 +124,7 @@
    // Build the story rigs ahead of the first break (not at the bell).
    if(view.match.rounds>1&&typeof setTimeout==='function')setTimeout(()=>{try{this.cornermen();}catch(x){console.warn('corner break',x);}},0);
   }
-  get ringless(){const v=this.view;return !!v.gymFight||v.ring?.visible===false;}
+  get ringless(){const v=this.view;return !!v.gymFight||!!v.ringless||v.ring?.visible===false;}
   /** Corner geometry in the cast frame for both fighters; the cornerman works from the rope side away from the camera. */
   layout(){
    this.geo={};const ringless=this.ringless;
