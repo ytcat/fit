@@ -18,7 +18,7 @@
  // multiplier: faster gloves score through the normal contact solver, and the burst ends in a committed
  // recovery step during which the fighter cannot defend and the opponent does not pause to reset.
  const burst={sequence:[['jab','head'],['cross','head'],['hook','body'],['rear_uppercut','head'],['hook','head']],tempo:.76,perSecond:.11,hit:.25,defence:.17,recover:.7,stamina:.08,durations:{jab:.64,cross:.70,hook:.78,rear_hook:.78,uppercut:.84,rear_uppercut:.84}};
- const presets={three:{rounds:3,roundSeconds:20,restSeconds:10},club:{rounds:2,roundSeconds:20,restSeconds:10},six:{rounds:1,roundSeconds:40,restSeconds:10},title:{rounds:1,roundSeconds:60,restSeconds:10},exhibition:{rounds:2,roundSeconds:20,restSeconds:10},quick:{rounds:1,roundSeconds:20,restSeconds:0}};
+ const presets={three:{rounds:3,roundSeconds:20,restSeconds:20},club:{rounds:2,roundSeconds:20,restSeconds:20},six:{rounds:1,roundSeconds:40,restSeconds:10},title:{rounds:1,roundSeconds:60,restSeconds:10},exhibition:{rounds:2,roundSeconds:20,restSeconds:20},quick:{rounds:1,roundSeconds:20,restSeconds:0}};
  class BoxingFight {
   constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor,adventureEdge}={}){
    this.seed=seed>>>0;this.state=this.seed;this.preset=preset;Object.assign(this,presets[preset]||presets.club);
