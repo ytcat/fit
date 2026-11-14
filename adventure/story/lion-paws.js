@@ -94,7 +94,7 @@
   function wraps(rig) {
     const L = LOOK[rig.species] || LOOK.lion, k = L.scale, out = [], cloth = lin('#f1ece0'), edge = lin('#d6cfbf');
     // the cross-section of the paw (back of hand + wrist ellipsoids) at height y, plus the cloth's thickness
-    const half = y => { const a = (y + .058) / .06, w = (y + .004) / .045, hx = Math.max(a * a < 1 ? .072 * Math.sqrt(1 - a * a) : 0, w * w < 1 ? .058 * Math.sqrt(1 - w * w) : 0), hz = Math.max(a * a < 1 ? .044 * Math.sqrt(1 - a * a) : 0, w * w < 1 ? .052 * Math.sqrt(1 - w * w) : 0); const palmZ = y < -.03 && y > -.1 ? .056 : 0, tuftR = y > -.03 ? .061 : 0; return [Math.max(hx, .045, tuftR), Math.max(hz, .035, palmZ, tuftR)]; }; // over the palm pad and the wrist tufts
+    const half = y => { const a = (y + .058) / .06, w = (y + .004) / .045, hx = Math.max(a * a < 1 ? .072 * Math.sqrt(1 - a * a) : 0, w * w < 1 ? .058 * Math.sqrt(1 - w * w) : 0), hz = Math.max(a * a < 1 ? .044 * Math.sqrt(1 - a * a) : 0, w * w < 1 ? .052 * Math.sqrt(1 - w * w) : 0); const palmZ = y < -.03 && y > -.1 ? .062 : 0, tuftR = y > -.03 ? .061 : 0; return [Math.max(hx, .045, tuftR), Math.max(hz, .035, palmZ, tuftR)]; }; // over the palm pad and the wrist tufts
     for (const side of ['L', 'R']) {
       const pos = [], nor = [], col = [], NU = 40;
       const band = (y0, y1, tw = 0) => { // a turn of cloth from y0 to y1 (a tilt tw makes it run diagonally over the back)
@@ -103,8 +103,8 @@
         for (let r = 0; r < rows; r++) for (let i = 0; i < NU; i++) { const q = [P[r][i], P[r][i + 1], P[r + 1][i], P[r + 1][i + 1]], n1 = q[1].clone().sub(q[0]).cross(q[2].clone().sub(q[0])).normalize().negate(), c = r === 0 || r === rows - 1 ? edge : cloth;
           for (const p of [q[0], q[2], q[1], q[1], q[2], q[3]]) { pos.push(p.x, p.y, p.z); const nn = V(p.x, 0, p.z + .004 * k).normalize(); nor.push(nn.x, nn.y, nn.z); col.push(c.r, c.g, c.b); } }
       };
-      band(.018, .0, 0); band(.001, -.017, 0); band(-.016, -.034, 0); // the wrist, three turns
-      band(-.04, -.06, .006); band(-.058, -.078, -.006); band(-.075, -.094, 0); // round the palm below the knuckles
+      band(.02, -.002, 0); band(.001, -.022, 0); band(-.019, -.042, 0); // the wrist, three turns
+      band(-.039, -.062, .006); band(-.058, -.081, -.006); band(-.077, -.098, 0); // round the palm below the knuckles
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
       const m = new THREE.Mesh(g, mats.wrap || (mats.wrap = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92, side: THREE.DoubleSide }))); m.name = 'Hand wraps'; m.userData.storyPart = true; m.userData.mane = true; m.castShadow = true;
       rig.joints['hand' + side].add(m); out.push(m);
