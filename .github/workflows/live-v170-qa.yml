@@ -10,7 +10,7 @@ permissions:
 jobs:
   live-v170-observe:
     name: Playwright test of public v1.70 (no deployment)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
