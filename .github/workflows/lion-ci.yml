@@ -10,9 +10,13 @@ concurrency:
   group: lion-validation-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  validate:
+  regressions:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -56,7 +60,23 @@ jobs:
               esac
             done
       - name: Motion, contact and application regressions
+        shell: bash
+        env:
+          SHARD: ${{ matrix.shard }}
+          SHARD_COUNT: ${{ strategy.job-total }}
         run: |
-          for test in tests/*.test.cjs; do
-            node "$test" || exit 1
+          tests=(tests/*.test.cjs)
+          for ((index = SHARD; index < ${#tests[@]}; index += SHARD_COUNT)); do
+            test_file="${tests[index]}"
+            echo "Running $test_file"
+            node "$test_file"
           done
+  validate:
+    runs-on: ubuntu-latest
+    needs: regressions
+    if: ${{ always() }}
+    steps:
+      - name: Require every regression job to pass
+        env:
+          RESULT: ${{ needs.regressions.result }}
+        run: test "$RESULT" = success
