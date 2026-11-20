@@ -61,8 +61,16 @@
         }
       };
       const AW = PAL.awning;
-      [-22, -16.5, -11, -5.5, 0, 5.5, 11, 16.5, 22].forEach((x, i) => stall(x, x === 0 ? ['#4f8f5a', '#fff4e0'] : AW[i % AW.length], x === 0 ? ['#c9d65a', '#f2c14e', '#c9d65a'] : [FRUIT[i % 7], FRUIT[(i + 2) % 7], FRUIT[(i + 4) % 7]], i % 3 === 1 ? 3.6 : 3.0, x === 0));
-      board(c, "HAZEL'S FRUIT", 0, 2.62, -2.42, 1.6, .3, 0, ['#fff4e0', '#3c6b45']);
+      [-22, -16.5, -11, -5.5, 0, 5.5, 11, 16.5, 22].forEach((x, i) => {
+        if (x !== 0) stall(x, AW[i % AW.length], [FRUIT[i % 7], FRUIT[(i + 2) % 7], FRUIT[(i + 4) % 7]], i % 3 === 1 ? 3.6 : 3.0);
+      });
+      if (c.opts.city?.hazelStall) {
+        objects.city = window.CityAssets.dress(c, c.opts.city);
+        shade(0, -3.3, 3.6, 2.4);
+      } else {
+        stall(0, ['#4f8f5a', '#fff4e0'], ['#c9d65a', '#f2c14e', '#c9d65a'], 3.6, true);
+        board(c, "HAZEL'S FRUIT", 0, 2.62, -2.42, 1.6, .3, 0, ['#fff4e0', '#3c6b45']);
+      }
       // crates of fruit stacked in front of the stalls (not in the walking lane)
       const crate = (x, y, z, s, hex, ry = 0, i = 0) => { S.add(P.box, M(x, y, z, s, s * .62, s * .78, ry), C('#a97c55'), { ao: .3 }); S.add(P.box, M(x, y + s * .5, z, s * 1.03, s * .07, s * .8, ry), C('#7e5b3c')); for (let k = 0; k < 6; k++) S.add(P.ico1, M(x - s * .3 + (k % 3) * s * .3, y + s * .66, z - s * .17 + Math.floor(k / 3) * s * .34, s * .17, s * .17, s * .17, k + i), C(hex).multiplyScalar(R(k + i, .85, 1.1))); };
       crate(-1.05, 0, -2.05, .55, '#c9d65a', .1, 1); crate(-.45, 0, -2.0, .5, '#f2c14e', -.2, 2); crate(-.8, .35, -2.1, .46, '#d9473b', .3, 3);

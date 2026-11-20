@@ -37,8 +37,24 @@ jobs:
           print('Core assets and local script references OK')
           PY
       - name: JavaScript syntax check
+        shell: bash
         run: |
-          find . -type f -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 -r -n1 node --check
+          find . -type f -name '*.js' -not -path './node_modules/*' -print0 |
+            while IFS= read -r -d '' file; do
+              case "$file" in
+                ./qa/gotr-0031/tools/*.js|./qa/gotr-0076/goto.js|./qa/gotr-0076/start.js|./qa/gotr-0098/ceremony-browser.js)
+                  # These helpers are evaluated as async function bodies in the browser.
+                  node - "$file" <<'JS'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const filename = process.argv[2];
+          const body = fs.readFileSync(filename, 'utf8');
+          new vm.Script(`(async () => {\n${body}\n})`, { filename, lineOffset: -1 });
+          JS
+                  ;;
+                *) node --check "$file" ;;
+              esac
+            done
       - name: Motion, contact and application regressions
         run: |
           for test in tests/*.test.cjs; do

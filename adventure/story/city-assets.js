@@ -1,12 +1,11 @@
-/* City art in the Chapter 1 opening film (GOTR-0089): Codex's authored GLB models (assets/street/ch01-bus|station|oldtown, READMEs) dressed
- * into the generated 'dream_street' set. The models are loaded once, asynchronously, through the page's GLTFLoader and kept
+/* Authored city art for the Chapter 1 opening and market films. The GLBs are loaded asynchronously through the page's GLTFLoader and kept
  * in a cache; the generated set stays the fallback: a model that failed or is not ready when the film starts is simply not
  * used, and the generated piece is built instead (nothing ever waits longer than CityAssets.WAIT_MS).
  *
- *   CityAssets.preload(names?) -> Promise (never rejects)      starts the downloads (Adventure home on a fresh profile)
- *   CityAssets.ready(ms?) -> Promise<{ bus, station, oldtown }>  each a loaded glTF or null, after at most ms
+ *   CityAssets.preload(names?) -> Promise (never rejects)      defaults to the opening assets for Adventure home
+ *   CityAssets.ready(ms?, names?) -> Promise                  each requested model a loaded glTF or null, after at most ms
  *   CityAssets.status() -> { bus: 'idle' | 'loading' | 'ready' | 'failed', ... }
- *   CityAssets.dress(ctx, city) -> handle                      called by the 'dream_street' builder with ready models
+ *   CityAssets.dress(ctx, city) -> handle                      called by the street and market builders with ready models
  *       handle { active, bus, station, oldtown, frame(sample, camera), stats(), dispose() }  (objects.city of the set)
  *   CityAssets.LAYOUT                                          where the models go; dream-sets.js skips what they replace
  *   CityAssets.wheelAngle(distance) / doorClipTime(...)        pure helpers (tests/city-assets.test.cjs)
@@ -16,7 +15,14 @@
  * (never mirrored: positive unit scale, lettering reads correctly) and the bus therefore drives toward -x in this street.
  * The GPU copies are disposed when the set is disposed; the parsed models stay cached for a replay. */
 (() => {
-  const FILES = { car: './assets/street/ch01-car/compact-car.glb', bus: './assets/street/ch01-bus/gloryland-bus.glb', station: './assets/street/ch01-station/gloryland-station.glb', oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb' };
+  const FILES = {
+    car: './assets/street/ch01-car/compact-car.glb',
+    bus: './assets/street/ch01-bus/gloryland-bus.glb',
+    station: './assets/street/ch01-station/gloryland-station.glb',
+    oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb',
+    hazelStall: './assets/street/ch01-market/hazel-fruit-stall.glb'
+  };
+  const OPENING_MODELS = ['car', 'bus', 'station', 'oldtown'];
   const WAIT_MS = 5000, TIRE_R = .515, HALF = Math.PI;
   const LAYOUT = {
     patches: [-17, 3, 23],              // centres of the 20 m road / kerb / paving modules; kerb face at z 3.45, paving to z 8.3
@@ -45,12 +51,12 @@
     e.promise.catch(() => {}); cache.set(name, e); return e.promise;
   }
   const names = () => Object.keys(FILES);
-  function preload(list = names()) { return Promise.all(list.map(n => load(n).catch(() => null))).then(status); }
+  function preload(list = OPENING_MODELS) { return Promise.all(list.map(n => load(n).catch(() => null))).then(status); }
   const defaultLoader = makeLoader;
   /** Waits for the models for at most ms and reports what is ready; a model still loading keeps loading for the next time. */
-  function ready(ms = WAIT_MS) {
-    const pick = () => Object.fromEntries(names().map(n => [n, cache.get(n)?.state === 'ready' ? cache.get(n).gltf : null]));
-    let all; try { all = preload(); } catch { return Promise.resolve(pick()); }
+  function ready(ms = WAIT_MS, list = OPENING_MODELS) {
+    const pick = () => Object.fromEntries(list.map(n => [n, cache.get(n)?.state === 'ready' ? cache.get(n).gltf : null]));
+    let all; try { all = preload(list); } catch { return Promise.resolve(pick()); }
     return Promise.race([all, new Promise(r => setTimeout(r, ms))]).then(pick, pick);
   }
   const status = () => Object.fromEntries(names().map(n => [n, cache.get(n)?.state || 'idle']));
@@ -102,6 +108,12 @@
       const car = city.car.scene.clone(true);
       car.name = 'Old Town compact';
       put(shadows(car, false), 8.4, -.15, -2.45, city.bus ? 0 : HALF);
+      handle.active = true;
+    }
+    if (city?.hazelStall) {
+      const stall = city.hazelStall.scene.clone(true);
+      stall.name = "Hazel's fruit stall";
+      put(shadows(stall, false), 0, 0, -3.3, 0);
       handle.active = true;
     }
     // ---- the bus: the wrapper keeps the generated bus's contract (objects.bus, moved along x); the model turns half a turn

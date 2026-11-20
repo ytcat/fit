@@ -8,7 +8,8 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.72 | 2026-11-20 | | Old Town arrival uses the authored compact car with a generated fallback. |
+| v1.73 | 2026-11-20 | | Hazel's modeled fruit stall appears in the Market Row robbery and reward scenes, with the generated stall as a fallback. Restores the GitHub validation workflow so the regression suite can run. |
+| v1.72 | 2026-11-20 | `2419d9a` | Old Town arrival uses the authored compact car with a generated fallback. |
 | v1.71 | 2026-11-14 | `cce61bb` | Last version before the pause. Sunday Punch finisher: lights up when the Opponent is hurt and Burst is full; a dip and rising uppercut under the chin, slow motion, knockout, waved off; earned before the Brick rematch or bought (GOTR-0088). Chapter 1 films: apology, the market robbery with Fang and Mrs. Hazel leading into the street fight, Otto's shop (GOTR-0096). Natural walk, step-off from the bus, crossing stripes turned, sun shadows, clouds, passers-by, pigeons (GOTR-0097). Gym mopping side job (GOTR-0099). Winner line on two lines; no New fight on the gym floor |
 | v1.70 | 2026-11-14 | (published as part of v1.71) | Corner break polish: a real towel over the neck and shoulders, the cornerman wipes the face without going into it and stays outside the ropes; the referee (Bruno in the gym) lifts the winner's arm straight up with no arm through a body (GOTR-0076, GOTR-0098) |
 | v1.69 | 2026-11-14 | `cc85f0d` | Street clothes worn like real clothes: hoodie and jeans as their own garments over a slimmer body, a hoodie that covers the belt, proper sneakers, a strap across the chest and a bag that swings; arms never sink into the body while walking or talking (GOTR-0093, GOTR-0094) |

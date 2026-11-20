@@ -14,21 +14,37 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
 (async () => {
   // ---- loader: one request per file (cache), a failure falls back and is retried later, a slow file never blocks
   const calls = {}, pending = [];
-  CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop(); calls[n] = (calls[n] || 0) + 1; if (/bus/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
-  assert.deepEqual(CA.status(), { car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle' });
+  CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop(); calls[n] = (calls[n] || 0) + 1; if (/bus|hazel/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
+  assert.deepEqual(CA.status(), { car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle' });
   const t0 = Date.now(), r1 = await CA.ready(60);
   assert.ok(Date.now() - t0 < 400, 'ready() returns after its timeout even while a file is still loading');
   assert.ok(r1.bus && r1.station === null && r1.oldtown === null, 'only what is ready is used');
-  assert.deepEqual(CA.status(), { car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading' });
+  assert.deepEqual(CA.status(), { car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', hazelStall: 'idle' });
   await CA.ready(30); await CA.preload(['bus']);
   assert.equal(calls['gloryland-bus.glb'], 1, 'the bus is fetched once (cache)'); assert.equal(calls['gloryland-oldtown.glb'], 1, 'a slow file is not requested twice');
   assert.equal(calls['gloryland-station.glb'], 2, 'a failed file is tried again next time');
   pending[0]({ scene: new THREE.Group(), animations: [] }); await new Promise(r => setTimeout(r, 5));
   assert.equal(CA.status().oldtown, 'ready', 'a late file is ready for the next play');
+  assert.equal(calls['hazel-fruit-stall.glb'], undefined, 'opening preload does not fetch market art');
+  const market = await CA.ready(60, ['hazelStall']);
+  assert.deepEqual(Object.keys(market), ['hazelStall']);
+  assert.ok(market.hazelStall);
+  await CA.ready(60, ['hazelStall']);
+  assert.equal(calls['hazel-fruit-stall.glb'], 1, 'the market films share the cached model');
 
   // ---- the real models (the page's r128 GLTFLoader)
   const parse = f => new Promise((ok, err) => { const b = fs.readFileSync(f); new THREE.GLTFLoader().parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength), './', ok, err); });
   const bus = await parse('assets/street/ch01-bus/gloryland-bus.glb'), station = await parse('assets/street/ch01-station/gloryland-station.glb');
+  const hazelStall = await parse('assets/street/ch01-market/hazel-fruit-stall.glb');
+  const marketSet = { group: new THREE.Group(), objects: {}, disposables: [] };
+  const marketArt = CA.dress(marketSet, { hazelStall });
+  const stall = marketSet.group.getObjectByName("Hazel's fruit stall");
+  assert.ok(marketArt.active && stall);
+  const stallBox = new THREE.Box3().setFromObject(stall);
+  near(stallBox.min.y, 0, .03, 'stall rests on the market pavement');
+  assert.ok(stallBox.max.z < -2.2, 'stall stays behind the walking lane');
+  assert.ok(marketArt.stats().triangles <= 57000, 'stall fits its stated geometry budget');
+  for (const disposable of marketSet.disposables) disposable.dispose();
   const c = { group: new THREE.Group(), objects: {}, disposables: [], opts: {} }, h = CA.dress(c, { bus, station, oldtown: null });
   assert.ok(h.active && h.bus && h.station && !h.oldtown && c.objects.bus === h.bus.wrap, 'the wrapper is objects.bus');
   c.group.updateMatrixWorld(true);
