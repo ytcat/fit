@@ -103,7 +103,9 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     });
 
     // the street waits a few seconds at most for Codex's models (city-assets.js); whatever is not ready stays generated
-    const cityWait = scene0.set === 'dream_street' && window.CityAssets ? window.CityAssets.ready().catch(() => null) : null;
+    let cityWait = null;
+    if (window.CityAssets && scene0.set === 'dream_street') cityWait = window.CityAssets.ready();
+    if (window.CityAssets && scene0.set === 'dream_market') cityWait = window.CityAssets.ready(undefined, ['stall']);
     Promise.all([window.StorySets.ready(), cityWait]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
       if (run.closed) return;
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 260);

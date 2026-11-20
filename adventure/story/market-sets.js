@@ -41,6 +41,16 @@
       c.skyline(-46); c.plinth(-48, 48, -5.32);
       // a stall: posts, counter with a skirt, striped awning with a scalloped valance, crates of fruit on the counter
       const stall = (x, [a, b], goods, w = 3.0, own) => {
+        if (own && c.opts?.city?.stall) {
+          const asset = c.opts.city.stall;
+          const model = asset.scene.clone(true);
+          model.name = 'Hazel fruit stall';
+          model.position.set(x, 0, -3.35);
+          c.group.add(model);
+          c.disposables.push({ dispose() { window.CityAssets.disposeGPU(asset); } });
+          shade(x, -3.05, w + .6, 2.4);
+          return;
+        }
         const zb = -4.3, zf = -2.45, ya = 2.95, yf = 2.32, n = 8, c1 = C(a), c2 = C(b), wood = '#8a6446';
         for (const sx of [-1, 1]) { box(S, x + sx * (w / 2 - .06), 0, zb + .1, .08, ya, .08, wood); box(S, x + sx * (w / 2 - .06), 0, zf - .1, .08, yf, .08, wood); }
         box(S, x, 0, -3.15, w - .2, .86, 1.0, '#a97c55', 0, { ao: .3 }); box(S, x, .86, -3.15, w, .06, 1.12, '#c29a6f'); box(S, x, .16, -2.62, w - .2, .56, .03, a);

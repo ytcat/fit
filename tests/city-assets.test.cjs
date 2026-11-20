@@ -15,16 +15,20 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   // ---- loader: one request per file (cache), a failure falls back and is retried later, a slow file never blocks
   const calls = {}, pending = [];
   CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop(); calls[n] = (calls[n] || 0) + 1; if (/bus/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
-  assert.deepEqual(CA.status(), { tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle' });
+  assert.deepEqual(CA.status(), { tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', stall: 'idle' });
   const t0 = Date.now(), r1 = await CA.ready(60);
   assert.ok(Date.now() - t0 < 400, 'ready() returns after its timeout even while a file is still loading');
   assert.ok(r1.bus && r1.station === null && r1.oldtown === null, 'only what is ready is used');
-  assert.deepEqual(CA.status(), { tree: 'loading', car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading' });
+  assert.deepEqual(CA.status(), { tree: 'loading', car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', stall: 'idle' });
   await CA.ready(30); await CA.preload(['bus']);
   assert.equal(calls['gloryland-bus.glb'], 1, 'the bus is fetched once (cache)'); assert.equal(calls['gloryland-oldtown.glb'], 1, 'a slow file is not requested twice');
   assert.equal(calls['gloryland-station.glb'], 2, 'a failed file is tried again next time');
   pending[0]({ scene: new THREE.Group(), animations: [] }); await new Promise(r => setTimeout(r, 5));
   assert.equal(CA.status().oldtown, 'ready', 'a late file is ready for the next play');
+
+  assert.equal(calls['hazel-fruit-stall.glb'], undefined, 'street does not request market art');
+  CA._setLoader(() => ({ load(url, ok) { assert.equal(url, CA.FILES.stall); ok({ scene: new THREE.Group() }); } }));
+  assert.deepEqual(Object.keys(await CA.ready(60, ['stall'])), ['stall']);
 
   // ---- the real models (the page's r128 GLTFLoader)
   const parse = f => new Promise((ok, err) => { const b = fs.readFileSync(f); new THREE.GLTFLoader().parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength), './', ok, err); });

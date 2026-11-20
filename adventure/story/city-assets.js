@@ -44,13 +44,15 @@
     }).then(g => { e.state = 'ready'; e.gltf = g; return g; }, x => { e.state = 'failed'; e.error = String(x?.message || (x?.type ? 'network ' + x.type : x)); console.warn('city asset', name, e.error); throw x; });
     e.promise.catch(() => {}); cache.set(name, e); return e.promise;
   }
+  const streetNames = Object.keys(FILES);
+  FILES.stall = './assets/street/ch01-market/hazel-fruit-stall.glb';
   const names = () => Object.keys(FILES);
-  function preload(list = names()) { return Promise.all(list.map(n => load(n).catch(() => null))).then(status); }
+  function preload(list = streetNames) { return Promise.all(list.map(n => load(n).catch(() => null))).then(status); }
   const defaultLoader = makeLoader;
   /** Waits for the models for at most ms and reports what is ready; a model still loading keeps loading for the next time. */
-  function ready(ms = WAIT_MS) {
-    const pick = () => Object.fromEntries(names().map(n => [n, cache.get(n)?.state === 'ready' ? cache.get(n).gltf : null]));
-    let all; try { all = preload(); } catch { return Promise.resolve(pick()); }
+  function ready(ms = WAIT_MS, list = streetNames) {
+    const pick = () => Object.fromEntries(list.map(n => [n, cache.get(n)?.state === 'ready' ? cache.get(n).gltf : null]));
+    let all; try { all = preload(list); } catch { return Promise.resolve(pick()); }
     return Promise.race([all, new Promise(r => setTimeout(r, ms))]).then(pick, pick);
   }
   const status = () => Object.fromEntries(names().map(n => [n, cache.get(n)?.state || 'idle']));
@@ -192,7 +194,7 @@
   }
 
   window.CityAssets = {
-    FILES, LAYOUT, WAIT_MS, TIRE_R, load, preload, ready, status, dress, wheelAngle,
+    FILES, LAYOUT, WAIT_MS, TIRE_R, load, preload, ready, status, dress, disposeGPU, wheelAngle,
     get: n => cache.get(n)?.gltf || null,
     _setLoader(f) { makeLoader = f || defaultLoader; cache.clear(); } // tests
   };
