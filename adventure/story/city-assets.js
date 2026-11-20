@@ -16,7 +16,7 @@
  * (never mirrored: positive unit scale, lettering reads correctly) and the bus therefore drives toward -x in this street.
  * The GPU copies are disposed when the set is disposed; the parsed models stay cached for a replay. */
 (() => {
-  const FILES = { bus: './assets/street/ch01-bus/gloryland-bus.glb', station: './assets/street/ch01-station/gloryland-station.glb', oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb' };
+  const FILES = { car: './assets/street/ch01-car/compact-car.glb', bus: './assets/street/ch01-bus/gloryland-bus.glb', station: './assets/street/ch01-station/gloryland-station.glb', oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb' };
   const WAIT_MS = 5000, TIRE_R = .515, HALF = Math.PI;
   const LAYOUT = {
     patches: [-17, 3, 23],              // centres of the 20 m road / kerb / paving modules; kerb face at z 3.45, paving to z 8.3
@@ -98,6 +98,12 @@
       if (m.transparent) o.renderOrder = 2; m.needsUpdate = true;
     });
     const put = (o, x, y, z, ry) => { o.position.set(x, y, z); o.rotation.y = ry; o.updateMatrix(); group.add(o); return o; };
+    if (city?.car) {
+      const car = city.car.scene.clone(true);
+      car.name = 'Old Town compact';
+      put(shadows(car, false), 8.4, -.15, -2.45, city.bus ? 0 : HALF);
+      handle.active = true;
+    }
     // ---- the bus: the wrapper keeps the generated bus's contract (objects.bus, moved along x); the model turns half a turn
     if (city?.bus) {
       const wrap = new THREE.Group(); wrap.name = 'bus'; wrap.position.set(-62, L.bus.y, L.bus.z); c.group.add(wrap);

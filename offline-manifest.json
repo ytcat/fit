@@ -1,5 +1,5 @@
 {
-  "version": "v171-20261114f",
+  "version": "v172-20261120",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -50,7 +50,7 @@
     "./occlusion-guard.js?v=2026111302",
     "./club-world.js?v=2026111103",
     "./club-interface.css?v=2026111119",
-    "./version.js?v=2026111406",
+    "./version.js?v=2026112072",
     "./club-interface.js?v=2026111112",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
@@ -106,8 +106,8 @@
     "./adventure/story/dream-pose.js?v=2026111406",
     "./adventure/story/bag-break-core.js?v=2026111318",
     "./adventure/story/bag-break.js?v=2026111318",
-    "./adventure/story/city-assets.js?v=2026111320",
-    "./adventure/story/dream-sets.js?v=2026111406",
+    "./adventure/story/city-assets.js?v=2026112072",
+    "./adventure/story/dream-sets.js?v=2026112072",
     "./adventure/story/market-sets.js?v=2026111406",
     "./adventure/story/street-life.js?v=2026111406",
     "./adventure/story/dream-scenes.js?v=2026111406",

@@ -14,12 +14,12 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
 (async () => {
   // ---- loader: one request per file (cache), a failure falls back and is retried later, a slow file never blocks
   const calls = {}, pending = [];
-  CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop(); calls[n] = (calls[n] || 0) + 1; if (/bus/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else pending.push(ok); } }));
-  assert.deepEqual(CA.status(), { bus: 'idle', station: 'idle', oldtown: 'idle' });
+  CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop(); calls[n] = (calls[n] || 0) + 1; if (/bus/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
+  assert.deepEqual(CA.status(), { car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle' });
   const t0 = Date.now(), r1 = await CA.ready(60);
   assert.ok(Date.now() - t0 < 400, 'ready() returns after its timeout even while a file is still loading');
   assert.ok(r1.bus && r1.station === null && r1.oldtown === null, 'only what is ready is used');
-  assert.deepEqual(CA.status(), { bus: 'ready', station: 'failed', oldtown: 'loading' });
+  assert.deepEqual(CA.status(), { car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading' });
   await CA.ready(30); await CA.preload(['bus']);
   assert.equal(calls['gloryland-bus.glb'], 1, 'the bus is fetched once (cache)'); assert.equal(calls['gloryland-oldtown.glb'], 1, 'a slow file is not requested twice');
   assert.equal(calls['gloryland-station.glb'], 2, 'a failed file is tried again next time');
