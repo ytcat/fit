@@ -1081,4 +1081,4 @@ Running locally (max four at a time): `store-polish` (GOTR-0030, 0033, 0039), `u
 
 GOTR-0066 · v1.72 · Old Town arrival uses the authored compact car with a generated fallback. Source art from `art/city-components-20261113`.
 
-GOTR-0066 · v1.73 · The Market Row robbery and reward films use the authored Hazel's fruit stall. The opening film does not preload the market model. The generated stall remains available when the model cannot finish loading. The surrounding market and other street sets remain in progress.
+GOTR-0066 · v1.73 · The Market Row robbery and reward films use Hazel's authored fruit stall. The preceding apology film starts the download in the background. The generated stall remains available when the model cannot finish loading. The surrounding market and other street sets remain in progress.
