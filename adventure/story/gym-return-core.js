@@ -14,7 +14,7 @@
   const line = (id, i, t) => ({ t, ...Story.lines[id].intro[i], hold: true });
   const scenes = {
     dream_new_bag: {
-      set: 'dream_gym', place: 'gym', chapter: 1, tap: true, duration: 13.4, gymBag: 'new', gymStrikes: true,
+      set: 'dream_gym', place: 'gym', chapter: 1, tap: true, playTailAfterDialogue: true, duration: 13.4, gymBag: 'new', gymStrikes: true,
       outfit: { fighter: 'kit', pip: 'kit' },
       actors: {
         fighter: { rig: 'fighter', keys: [
@@ -40,7 +40,7 @@
       lines: [line('bag_drill',0,2.1), line('bag_drill',1,4.5)]
     },
     dream_offer: {
-      set: 'dream_gym', place: 'gym', chapter: 1, tap: true, duration: 9, gymBag: 'new',
+      set: 'dream_gym', place: 'gym', chapter: 1, tap: true, playTailAfterDialogue: true, duration: 9, gymBag: 'new',
       outfit: { fighter: 'kit', pip: 'kit' },
       actors: {
         fighter: { rig: 'fighter', keys: [

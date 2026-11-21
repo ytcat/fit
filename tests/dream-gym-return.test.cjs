@@ -8,6 +8,7 @@ for (const [step, id] of Object.entries(sceneIds)) {
   assert.equal(Flow.find(step).scene, id, 'existing story mission attaches film');
   const s = Film.scenes[id];
   assert.deepEqual(Core.validate(s), []);
+  assert.equal(s.playTailAfterDialogue,true,'final subtitle must leave time for the scene action');
   assert.ok(s.actors.pip && s.actors.bruno && s.actors.fighter);
   assert.ok(s.lines.every(l => Object.values(l.text).length === 3));
   for (let t = 0; t < s.duration; t += .05) {
@@ -49,7 +50,7 @@ const server = http.createServer((req,res) => {
   try {
     browser = await chromium.launch({args:['--no-sandbox','--enable-unsafe-swiftshader']});
     for (const [step,id] of Object.entries(sceneIds)) {
-      const page = await browser.newPage({viewport:{width:402,height:690}});
+      const page = await browser.newPage({viewport:{width:402,height:690},hasTouch:true,isMobile:true});
       const wait = (f,x) => page.waitForFunction(f,x,{timeout:60000});
       const errors = []; page.on('pageerror',e => errors.push(e.message));
       await page.addInitScript(() => {
@@ -60,46 +61,95 @@ const server = http.createServer((req,res) => {
       await wait(() => document.querySelector('dialog.career-welcome[open]'));
       await page.evaluate(() => { const d = document.querySelector('dialog.career-welcome[open]'); d.querySelector('input').value = 'Gym Film QA'; d.querySelector('button[type=submit]').click(); });
       await wait(() => window.app?.engine?.coach?.anatomy);
-      const seeded = await page.evaluate(step => {
+      const seeded = await page.evaluate(({step,id}) => {
         StoryScenes.stop();
         const g = ringfighterGame;
-        const ctx = window.__gymCtx = { store:g.store, startFight:g.startFight, startTraining: (...args) => { window.__gymTraining = args[0]; return g.startTraining(...args); }, change:a => { const r = g.store.gameAction(a); if (r.ok) g.apply?.(); return r.ok; } };
+        window.__gymTraining = []; window.__gymEnds = [];
+        const ctx = window.__gymCtx = { store:g.store, startFight:g.startFight, startTraining: (...args) => { window.__gymTraining.push(args[0].mode); return g.startTraining(...args); }, change:a => { const r = g.store.gameAction(a); if (r.ok) g.apply?.(); return r.ok; } };
+        const play = StoryScenes.play;
+        StoryScenes.play = (scene,options) => scene !== id ? play(scene,options) : play(scene,{
+          ...options, timeScale:2.5,
+          onDone: result => { window.__gymEnds.push(result); options.onDone(result); }
+        });
         for (const id of AdventureProgress.dreamSteps) {
           if (id === step) break;
           if (!AdventureOldTown.devSkip(ctx,id)) return id;
         }
         document.querySelectorAll('dialog[open]').forEach(d => d.close()); AdventureOldTown.closeBeat();
         return AdventureOldTown.before(ctx,step) ? true : 'cannot start';
-      },step);
+      },{step,id});
       assert.equal(seeded,true,'starting ' + step + ' prerequisite');
       await wait(id => DreamScenes.playing === id && DreamScenes.debug?.phase === 'play',id);
       const visible = await page.evaluate(() => {
         const r = DreamScenes.debug.rigs; return { distinct:r.pip !== r.fighter, species:r.pip.species, bag:DreamScenes.debug.set.objects.oldBag?.state, overlay:!!document.querySelector('dialog.dream-scene[open] .dream-skip') };
       });
       assert.deepEqual(visible,{distinct:true,species:'rabbit',bag:'new',overlay:true});
+      const tapAt = async selector => {
+        const target = await page.evaluate(sel => {
+          const element = document.querySelector(sel), box = element?.getBoundingClientRect();
+          if (!box?.width || !box.height) return null;
+          const x = box.left + box.width/2, y = box.top + box.height/2;
+          const hit = document.elementFromPoint(x,y);
+          return element.contains(hit) ? {x,y} : null;
+        },selector);
+        assert.ok(target, selector + ' is a touchscreen hit target');
+        await page.touchscreen.tap(target.x,target.y);
+      };
+      if (step === 'bag_drill') await page.evaluate(() => {
+        // Record real bag samples across render frames so a slow runner cannot miss the peaks.
+        const bag = DreamScenes.debug.set.objects.oldBag, pose = bag.pose; window.__gymMotion = {positive:false,negative:false};
+        bag.pose = function(sample) {
+          if (sample.bag.th > .03) __gymMotion.positive = true;
+          if (sample.bag.th < -.03) __gymMotion.negative = true;
+          return pose.call(this,sample);
+        };
+      });
       if (process.env.GOTR_GYM_ARTIFACTS) {
+        await page.evaluate(t => {
+          // Pause only after the real film advances to the target frame; never seek.
+          const run = DreamScenes.debug, frame = run.frame;
+          run.frame = delta => {
+            if (run.t >= t) { window.__gymCaptureReady = true; frame(0); }
+            else frame(delta);
+          };
+          window.__gymResumeFrame = () => { run.frame = frame; };
+        },step === 'bag_drill' ? 7.18 : 7.25);
+      }
+      for (let line = 0; line < 2; line++) {
+        await wait(line => DreamScenes.debug?.lineIndex === line && DreamScenes.debug?.waiting,line);
+        await tapAt('dialog.dream-scene');
+      }
+      if (process.env.GOTR_GYM_ARTIFACTS) {
+        await wait(() => window.__gymCaptureReady && !!DreamScenes.playing);
         fs.mkdirSync(process.env.GOTR_GYM_ARTIFACTS,{recursive:true});
-        await page.evaluate(t => DreamScenes.seek(t),step === 'bag_drill' ? 7.12 : 4.65);
-        await page.waitForTimeout(140);
-        await page.screenshot({path:path.join(process.env.GOTR_GYM_ARTIFACTS,id + '.png')});
+        try { await page.screenshot({path:path.join(process.env.GOTR_GYM_ARTIFACTS,id + '-natural-tail.png'),timeout:60000}); }
+        finally { await page.evaluate(() => window.__gymResumeFrame()); }
       }
       if (step === 'bag_drill') {
-        // Inspect actual mobile-size hit geometry, then exercise the click handler without waiting for
-        // Playwright's frame cadence under CPU software rendering.
-        const hit = await page.evaluate(() => {
-          const button = document.querySelector('dialog.dream-scene .dream-skip');
-          const box = button?.getBoundingClientRect();
-          if (!button || !box?.width || !box.height || !button.contains(document.elementFromPoint(box.left + box.width/2,box.top + box.height/2))) return false;
-          button.click(); return true;
-        });
-        assert.equal(hit,true,'Skip button is visible and hit-testable');
-      } else await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})));
-      await wait(() => !!window.__gymTraining && !DreamScenes.playing && !!window.app?.engine?.career?.active);
-      assert.deepEqual(await page.evaluate(() => [window.__gymTraining.mode,app.engine.career.active.mode]),Array(2).fill(step === 'bag_drill' ? 'heavy' : 'pads'));
-      assert.equal(await page.evaluate(step => StoryFlow.doneOf(ringfighterGame.store.game(),StoryFlow.find(step)),step),false,'skipping film does not complete training');
+        await wait(() => DreamScenes.debug?.t >= 8.4 && window.__gymMotion.positive && window.__gymMotion.negative);
+      } else {
+        await wait(() => DreamScenes.debug?.t >= 7.1 && DreamScenes.debug?.rigs.fighter.root.position.z < 2.75);
+      }
+      const mode = step === 'bag_drill' ? 'heavy' : 'pads';
+      const assertHandoff = async (n,skipped) => {
+        await wait(n => window.__gymEnds.length >= n && window.__gymTraining.length >= n && !DreamScenes.playing && !!app.engine.career.active,n);
+        assert.deepEqual(await page.evaluate(() => ({training:window.__gymTraining,ends:window.__gymEnds.map(e => [e.skipped,e.error || null]),active:app.engine.career.active.mode,dialog:!!document.querySelector('dialog.dream-scene[open]')})),
+          {training:Array(n).fill(mode),ends:n === 1 ? [[false,null]] : [[false,null],[skipped,null]],active:mode,dialog:false});
+        assert.equal(await page.evaluate(step => StoryFlow.doneOf(ringfighterGame.store.game(),StoryFlow.find(step)),step),false,'the film does not complete the drill');
+      };
+      await assertHandoff(1,false);
+      assert.equal(await page.evaluate(({step,id}) => {
+        AdventureOldTown.leave();
+        localStorage.removeItem('gotr-scene-' + id);
+        return AdventureOldTown.before(window.__gymCtx,step);
+      },{step,id}),true);
+      await wait(id => DreamScenes.playing === id && DreamScenes.debug?.phase === 'play',id);
+      if (step === 'bag_drill') await tapAt('dialog.dream-scene .dream-skip');
+      else await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})));
+      await assertHandoff(2,true);
       assert.deepEqual(errors,[]);
       await page.close();
     }
-    console.log('PASS gym return browser: two real mobile-size films, Mack, Skip to heavy bag, Escape to mitts, no premature story completion');
+    console.log('PASS gym return browser: normal touch-through preserves both cinematic tails and opens the correct drills once; touchscreen Skip and Escape also work');
   } finally { if (browser) await browser.close(); server.close(); }
 })().catch(err => { console.error(err); process.exitCode = 1; });

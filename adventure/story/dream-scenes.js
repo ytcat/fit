@@ -87,7 +87,10 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     const skipNow = () => { if (run.closed) return; if (id === 'dream_opening' && run.phase !== 'load' && run.t < scene0.duration - 1.3 && !run.skipping) { run.skipping = true; run.phase = 'play'; fade.style.opacity = '0'; run.t = scene0.duration - 1.2; for (const c of Object.values(rigs)) Pose().reset(c); } else finish({ skipped: true }); };
     const advance = () => {
       if (!scene0.tap || run.phase !== 'play') return; const i = run.lineIndex; if (i < 0 || i <= run.ack || !scene0.lines[i].hold) return;
-      run.ack = i; run.waiting = false; run.t = Math.max(run.t, i + 1 < scene0.lines.length ? scene0.lines[i + 1].t : scene0.duration);
+      run.ack = i; run.waiting = false;
+      const next = scene0.lines[i + 1];
+      // Gym films stage action after the closing subtitle. Other conversation films retain their existing tap-to-close behavior.
+      if (next || !scene0.playTailAfterDialogue) run.t = Math.max(run.t, next ? next.t : scene0.duration);
     };
     const onKey = ev => { if (ev.key === 'Escape') { ev.preventDefault(); finish({ skipped: true }); } else if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); advance(); } };
     window.addEventListener('keydown', onKey);
