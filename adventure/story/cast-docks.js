@@ -55,7 +55,7 @@
   function headForm(x, y, z, out) {
     const z0 = z, s = x < 0 ? -1 : 1, fade = smooth((y + .095) / .05);
     { const ax0 = Math.abs(x), w = band(ax0, .03, .155, .012) * band(y, .1, .25, .02) * smooth((z - .04) / .03);
-      if (w > 0) { const fill = lerp(rowAt(Z06, y), rowAt(Z14, y), (ax0 - .06) / .08) - .004; if (z < fill) z = lerp(z, fill - (fill - z) * .12, w); } }
+      if (w > 0) { const fill = lerp(rowAt(Z06, y), rowAt(Z14, y), (ax0 - .06) / .08) - .004; if (z < fill) z = lerp(z, fill - (fill - z) * .3, w); } }
     // 1. the long snout: everything in front of the eyes is drawn forward
     const vm = smooth((y + .13) / .05) * (1 - smooth((y - .37) / .05)), dzb = z - ZB, g = dzb * smooth((dzb + .03) / .08);
     let Z = z + KS * g * vm;
@@ -167,6 +167,42 @@
     }
     for (let i = 0; i < n; i++) { const j = rep[i]; P.setXYZ(i, pos[j * 3], pos[j * 3 + 1], pos[j * 3 + 2]); }
     P.needsUpdate = true; g.computeVertexNormals();
+  }
+  /** The upper jaw rebuilt as a clean surface: around the snout's axis its cross-section is star-shaped, so every vertex of the upper
+   *  jaw (between the eyes and the tip, above the mouth line) is put on the outer envelope of the sculpted snout, radius F(angle, z),
+   *  and spread evenly over it (a Tutte relaxation with the region's rim held): the lion's eye sockets, folded inside the stretched
+   *  snout, are unfolded instead of showing as slits or see-through holes. */
+  function unfold(g, rounds = 1500) {
+    const P = g.attributes.position, n = P.count, rep = new Int32Array(n), map = new Map(), YA = .1;
+    for (let i = 0; i < n; i++) { const k = Math.round(P.getX(i) * 20000) + ':' + Math.round(P.getY(i) * 20000) + ':' + Math.round(P.getZ(i) * 20000), r = map.get(k); if (r == null) { map.set(k, i); rep[i] = i; } else rep[i] = r; }
+    const inR = new Uint8Array(n), th = new Float32Array(n), zz = new Float32Array(n), rho = new Float32Array(n);
+    for (let i = 0; i < n; i++) { if (rep[i] !== i || P.getY(i) < 1.75) continue; const hx = P.getX(i) / HS, hy = (P.getY(i) - HEAD_Y) / HS, hz = P.getZ(i) / HS; if (hz < .15 || hz > .44 || hy < lip(hz) + .006) continue; inR[i] = 1; th[i] = Math.atan2(hx, hy - YA); zz[i] = hz; rho[i] = Math.hypot(hx, hy - YA); }
+    // the envelope: the largest radius per (angle, z) bin, gaps filled, softened
+    const TA = 64, TZ = 30, T0 = -2.2, T1 = 2.2, Z0 = .15, Z1 = .44, F = new Float32Array(TA * TZ), bin = (t, z) => [clamp((t - T0) / (T1 - T0)) * (TA - 1), clamp((z - Z0) / (Z1 - Z0)) * (TZ - 1)];
+    for (let i = 0; i < n; i++) if (inR[i]) { const [a, b] = bin(th[i], zz[i]), k = Math.round(b) * TA + Math.round(a); F[k] = Math.max(F[k], rho[i]); }
+    for (let pass = 0; pass < 40; pass++) { let empty = 0; const G = F.slice(); for (let b = 0; b < TZ; b++) for (let a = 0; a < TA; a++) { const k = b * TA + a; if (F[k] > 0) continue; let s = 0, m = 0; for (const [da, db] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const A = a + da, B = b + db; if (A < 0 || B < 0 || A >= TA || B >= TZ || !(F[B * TA + A] > 0)) continue; s += F[B * TA + A]; m++; } if (m) G[k] = s / m; else empty++; } F.set(G); if (!empty) break; }
+    for (let pass = 0; pass < 2; pass++) { const G = F.slice(); for (let b = 0; b < TZ; b++) for (let a = 0; a < TA; a++) { let s = 0, m = 0; for (let db = -1; db <= 1; db++) for (let da = -1; da <= 1; da++) { const A = a + da, B = b + db; if (A < 0 || B < 0 || A >= TA || B >= TZ) continue; s += F[B * TA + A]; m++; } G[b * TA + a] = s / m; } F.set(G); }
+    // vertices folded deep inside the snout (the sockets' walls) join the region wherever they lie above the mouth line
+    for (let i = 0; i < n; i++) { if (inR[i] || rep[i] !== i || P.getY(i) < 1.75) continue; const hx = P.getX(i) / HS, hy = (P.getY(i) - HEAD_Y) / HS, hz = P.getZ(i) / HS; if (hz < .15 || hz > .44 || hy < lip(hz) - .01) continue; const t = Math.atan2(hx, hy - YA), r = Math.hypot(hx, hy - YA); if (Math.abs(t) > 1.9) continue; const [a, b] = bin(t, hz); if (r < 1.02 * F[Math.round(b) * TA + Math.round(a)]) { inR[i] = 1; th[i] = t; zz[i] = hz; rho[i] = r; } }
+    const env = (t, z) => { const [a, b] = bin(t, z), a0 = Math.min(TA - 2, Math.floor(a)), b0 = Math.min(TZ - 2, Math.floor(b)), fa = a - a0, fb = b - b0; return lerp(lerp(F[b0 * TA + a0], F[b0 * TA + a0 + 1], fa), lerp(F[(b0 + 1) * TA + a0], F[(b0 + 1) * TA + a0 + 1], fa), fb); };
+    // neighbours (welded); a region vertex next to the outside is held
+    const nb = new Map(), idx = g.index.array, fixed = new Uint8Array(n);
+    for (let t = 0; t < idx.length; t += 3) for (let k = 0; k < 3; k++) { const a = rep[idx[t + k]], b = rep[idx[t + (k + 1) % 3]]; if (a === b) continue; if (inR[a] && !inR[b]) fixed[a] = 1; if (!inR[a]) continue; let l = nb.get(a); if (!l) nb.set(a, l = new Set()); l.add(b); }
+    const ids = [...nb.keys()].filter(i => inR[i] && !fixed[i]), T = th.slice(), Zs = zz.slice();
+    for (let i = 0; i < n; i++) if (!inR[i] && rep[i] === i && P.getY(i) > 1.72) { const hx = P.getX(i) / HS, hy = (P.getY(i) - HEAD_Y) / HS; T[i] = Math.atan2(hx, hy - YA); Zs[i] = P.getZ(i) / HS; }
+    for (let r = 0; r < rounds; r++) for (const i of ids) { let a = 0, b = 0, m = 0; for (const j of nb.get(i)) { a += T[j]; b += Zs[j]; m++; } T[i] = lerp(T[i], a / m, .9); Zs[i] = lerp(Zs[i], b / m, .9); }
+    const out = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) { if (!inR[i] || rep[i] !== i) continue; const t = fixed[i] ? th[i] : T[i], z = fixed[i] ? zz[i] : Zs[i], R = fixed[i] ? rho[i] : env(t, z); out[i * 3] = Math.sin(t) * R * HS; out[i * 3 + 1] = (YA + Math.cos(t) * R) * HS + HEAD_Y; out[i * 3 + 2] = z * HS; }
+    for (let i = 0; i < n; i++) { const j = rep[i]; if (inR[j] && !fixed[j]) P.setXYZ(i, out[j * 3], out[j * 3 + 1], out[j * 3 + 2]); }
+    // a few triangles of the lion's folded sockets still face into the snout once laid on the envelope: turn them outward
+    let turned = 0; const ix = g.index.array, A = V(), B = V(), Cc = V(), N = V();
+    for (let t = 0; t < ix.length; t += 3) {
+      if (!inR[rep[ix[t]]] || !inR[rep[ix[t + 1]]] || !inR[rep[ix[t + 2]]]) continue;
+      A.fromBufferAttribute(P, ix[t]); B.fromBufferAttribute(P, ix[t + 1]); Cc.fromBufferAttribute(P, ix[t + 2]); N.subVectors(B, A).cross(Cc.clone().sub(A));
+      const cx = (A.x + B.x + Cc.x) / 3 / HS, cy = ((A.y + B.y + Cc.y) / 3 - HEAD_Y) / HS - YA, cz = (A.z + B.z + Cc.z) / 3 / HS; if (cz > .19 && N.x * cx + N.y * cy < 0) { const k = ix[t + 1]; ix[t + 1] = ix[t + 2]; ix[t + 2] = k; turned++; }
+    }
+    if (turned) g.index.needsUpdate = true; g.userData.castTurned = turned;
+    P.needsUpdate = true; g.computeVertexNormals(); return ids.length;
   }
   /** Paints and raises the scales over the whole sculpted skin (before the clothes are made, so cloth washes the relief out). */
   function scaleSkin(rig) {
@@ -356,7 +392,7 @@
   /* ================================================================ ROURKE */
   const ROURKE = {
     id: 'rourke', fur: '#3d4a24', light: '#d9d09a', talkGain: .65,
-    build: { torso: .09, depth: .08, belly: .07, bellyY: 1.2, bellyH: .2, chest: -.022, arm: .12, leg: .1, neck: .7, hips: .03, back: .025, traps: .06 }, // the lion fighter's body, a few percent heavier than Fang
+    build: { torso: .09, depth: .08, belly: .05, bellyY: 1.2, bellyH: .2, chest: -.022, arm: .12, leg: .1, neck: .7, hips: .03, back: .025, traps: .06 }, // the lion fighter's body, a few percent heavier than Fang
     headForm,
     sculpt(rig) {
       const g = rig.skin.geometry; reshapeLocal(g, p => bulk(p, ROURKE.build));
@@ -366,6 +402,7 @@
           for (let c = 0; c < 3; c++) { if (D) D.array[i * 4 + c] = Math.round(D.array[i * 4 + c] * k); if (DN) DN.array[i * 4 + c] = Math.round(DN.array[i * 4 + c] * k); if (MA) MA.array[i * 3 + c] = Math.round(MA.array[i * 3 + c] * k); }
           if (DN) DN.array[i * 4 + 3] = Math.round(DN.array[i * 4 + 3] * k); }
         for (const a of [D, DN, MA]) if (a) a.needsUpdate = true; }
+      rig.castUnfolded = unfold(g);
       // where the lion's eye pits were filled the skin is crumpled: relax it, then iron the whole face and skull (no shrinking)
       iron(g, p => { if (p.y < 1.72) return 0; const [hx, hy, hz] = hc(p), ax = Math.abs(hx); return band(hz, .15, .44, .04) * band(hy, .07, .25, .03) * band(ax, .015, .175, .02); }, 6, true);
       iron(g, p => { if (p.y < 1.72) return 0; const [hx, hy, hz] = hc(p); return Math.max(smooth((hz - .1) / .06) * smooth((hy + .06) / .04) * (1 - .5 * bell(Math.abs(hx), .1, .03) * bell(hz, .12, .04)), .6 * smooth((hy - .02) / .06) * smooth((.08 - hz) / .06)); }, 60);

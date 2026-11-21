@@ -33,14 +33,14 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
       // wait for the moment in the live bout, then render it twice from the same frame state
       const shot = await p.evaluate(want => new Promise((resolve, reject) => {
         const e = app.engine, view = e.arena.fightView, m = view.match, rk = StoryCast.rig('rourke', e), t0 = performance.now();
-        const ok = () => { const f = m.fighters.rabbit, a = f.action; if (f.down || m.phase !== 'round') return false; if (want === 'guard') return !a || (!a.attack && a.move !== 'step'); if (!a) return false; const ph = (m.time - a.start) / a.duration; return a.attack && ['jab', 'cross', 'hook', 'rear_hook', 'uppercut', 'rear_uppercut'].includes(a.move) && ph > .3 && ph < .6; };
+        const ok = () => { const f = m.fighters.rabbit, a = f.action; if (f.down || m.phase !== 'round') return false; if (want === 'guard') return !a || (!a.attack && a.move !== 'step'); if (!a) return false; const ph = (m.time - a.start) / a.duration; return a.attack && ['jab', 'cross', 'hook', 'rear_hook', 'uppercut', 'rear_uppercut'].includes(a.move) && ph > .42 && ph < .62; };
         const tick = () => {
           if (performance.now() - t0 > 240000) { reject(new Error('timeout waiting for ' + want)); return; }
           if (!ok()) { requestAnimationFrame(tick); return; }
           const T = THREE, r = e.renderer, W = 402, H = 690, rt = new T.WebGLRenderTarget(W, H, { samples: 4 }); rt.texture.encoding = T.sRGBEncoding;
           const cam = new T.PerspectiveCamera(34, W / H, .05, 80), at = rk.root.getWorldPosition(new T.Vector3()), opp = e.coach.root.getWorldPosition(new T.Vector3());
           const toward = opp.clone().sub(at).setY(0).normalize(), side = new T.Vector3(-toward.z, 0, toward.x);
-          cam.position.copy(at).addScaledVector(toward, 2.6).addScaledVector(side, 2.2).setY(1.45); cam.lookAt(at.x, 1.0, at.z);
+          cam.position.copy(at).addScaledVector(toward, 4.0).addScaledVector(side, 2.3).setY(1.45); cam.lookAt(at.x, 1.08, at.z);
           const kit = []; rk.root.traverse(o => { let v = o.visible, q = o; while (v && q.parent && q !== rk.root) { q = q.parent; v = q.visible; } if (v && o.isMesh && !o.userData.storyPart && o !== rk.skin) kit.push(o.name || o.geometry?.type || 'mesh'); });
           const parts = n => ['L', 'R'].map(s => rk.joints['hand' + s].children.some(o => o.visible && o.name === n));
           const buf = new Uint8Array(W * H * 4); r.setRenderTarget(rt); r.render(e.scene, cam); r.readRenderTargetPixels(rt, 0, 0, W, H, buf); r.setRenderTarget(null);
