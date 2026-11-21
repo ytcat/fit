@@ -20,7 +20,7 @@
     const l = lang(), jab = term('Jab'), cross = term('Cross'), roll = term('Roll'), hook = term('Hook'), guard = term('Guard'), slip = term('Slip'), shadow = term('Shadowboxing');
     const t = {
       // GOTR-0078 "The Dream"
-      clean_gym: L(`Mop lanes: ${n} marks in a 50-second shift, duck Bruno's bags`, `מסלולי מגב: ${n} נקודות במשמרת של 50 שניות, להתכופף מהשקים של ברונו`, `Дорожки со шваброй: ${n} очков за 50-секундную смену, ныряй под мешки Бруно`),
+      clean_gym: L(`Clean at least ${n}% of the gym floor`, `נקו לפחות ${n}% מרצפת האולם`, `Очистите хотя бы ${n}% пола зала`),
       night_shadow: L(`${n} punches in 45 seconds of ${shadow}`, `${n} מכות ב-45 שניות של ${shadow}`, `${n} ударов за 45 секунд ${shadow}`),
       night_bag: L(`Reach the power mark ${n} times`, `הגיעו לסימן העוצמה ${n} פעמים`, `Достигните отметки силы ${n} раз`),
       bag_drill: L(`${n} hits on the new bag in 40 seconds`, `${n} פגיעות בשק החדש ב-40 שניות`, `${n} ударов по новому мешку за 40 секунд`),
@@ -63,7 +63,7 @@
     first_brick: { kind: 'story_fight', place: 'gym', brick: true, any: true, after: 'dream_after_brick', rounds: 1, roundSeconds: 60, restSeconds: 0, opponent: L('Brick', 'בריק', 'Брик'),
       // Much stronger than the Fighter on day one (a regular partner is 0.85-1.15 power/tempo): a loss is expected, a win possible.
       foe: { power: 1.4, tempo: 1.18, skill: .1 } },
-    clean_gym: { kind: 'scene', scene: 'clean_gym' }, // GOTR-0099 side job A: the mop-lanes skill game in Bruno's Gym (adventure/story/mop-game.js)
+    clean_gym: { kind: 'scene', scene: 'clean_gym' }, // GOTR-0099 side job A: direct floor cleaning in Bruno's Gym (adventure/story/mop-game.js)
     night_shadow: { kind: 'training', mode: 'none', duration: 45, frame: (r, f) => { if (playerOn()) r.value += (f.swings || []).filter(x => x.actor === 'lion').length; } },
     night_bag: { kind: 'training', mode: 'heavy', duration: 60, after: 'dream_bag_break', imp: (r, h) => { if (powerHit(h)) r.value++; } },
     dream_apology: { kind: 'film', scene: 'dream_apology' }, // GOTR-0096: the morning in the gym (market-core.js); chains into the market
@@ -354,7 +354,7 @@
   // GOTR-0078: film steps start with the picture at once (never text first).
   function before(ctx, id, o = {}) {
     closeBeat(); const s = SF()?.find(id), g = ctx.store.game(); if (!s || !g) return false;
-    if (!o.force && !SF().playable(g, id)) return false;
+    if (A().blockedByGymShift(g,id) || (!SF().playable(g,id) && (!o.force || id === 'clean_gym'))) return false;
     const d = DEFS[id];
     if (d?.kind === 'film') { launch(ctx, id); return true; }
     if (d?.kind === 'buy') { shop(ctx, id); return true; }
@@ -417,6 +417,7 @@
   // Starts the step itself (no beat). Remembers the state before, so the AFTER beat can say what changed.
   function launch(ctx, id) {
     const s = SF()?.find(id), g = ctx.store.game();
+    if (A().blockedByGymShift(g,id) || (id === 'clean_gym' && !SF().playable(g,id))) return;
     if (s && g) snaps[id] = { done: SF().doneOf(g, s), stars: starsOf(g, id), level: A().level(g) };
     if (s?.boss || BOSS[id]) { bossStart(ctx, id); return; }
     const S = window.StoryScenes, d0 = DEFS[id];
@@ -524,14 +525,14 @@
   // The save action that finishes a step at its lowest pass: 1 star, the story event (first Brick fight = lost, street fights = won,
   // the bag granted free as every dev purchase), or the boss beaten. null outside the development build.
   function devSkipAction(id) {
-    if (!devMode()) return null;
+    if (!devMode() || id === 'clean_gym') return null;
     const s = SF()?.find(id); if (!s) return null;
     if (s.boss || BOSS[id]) return { type: 'adventure', adventure: 'boss', bossId: id, won: true };
     if (s.event) return { type: 'adventure', adventure: 'story', step: id, ...(id === 'first_brick' ? { outcome: 'lost' } : ['market_robber', 'docks_fight'].includes(id) ? { outcome: 'won' } : {}) };
     const m = A().missions.find(x => x.id === id); return m ? { type: 'adventure', adventure: 'mission', missionId: id, measured: { [m.metric]: m.thresholds[0] } } : null;
   }
   function devSkip(ctx, id) {
-    const a = devSkipAction(id); if (!a) return false;
+    const a = devSkipAction(id); if (!a || A().blockedByGymShift(ctx.store.game(),id)) return false;
     const res = ctx.store.gameAction(a); if (!res.ok) { toast(W().err + res.error, 'bad'); return false; }
     stamp(); rg()?.apply?.(); closeBeat(); const s = SF().find(id); selectPin ? selectPin(SF().chapters[s.chapter].pin) : openMap(SF().chapters[s.chapter].pin);
     return true;
@@ -647,17 +648,17 @@
         if (more.children.length) quest.append(more);
       } else { const k = DEFS[cur.id]?.kind; quest.append(primary(k === 'film' ? w.watch : k === 'story_fight' || cur.boss ? w.fight : st.doneCount === 0 && !st.side.some(s => s.done) ? w.start : w.cont, () => before(ctx, cur.id))); }
       // Owner (development build only): skip the current step with its minimum passing result, to reach every task quickly.
-      if (devMode()) quest.append(btn(w.devSkip, () => devSkip(ctx, cur.id), 'game-button adv-go adv-alt sf-small sf-dev-skip'));
+      if (devSkipAction(cur.id)) quest.append(btn(w.devSkip, () => devSkip(ctx, cur.id), 'game-button adv-go adv-alt sf-small sf-dev-skip'));
     }
     quest.append(prog);
     // timeline (shown when the sheet is expanded)
     const list = mk('ol', 'sf-steps'); list.setAttribute('aria-label', w.steps);
     for (const s of st.timeline) {
       // Development build: locked steps stay marked but can be started (like "Fight anyway").
-      const can = s.status !== 'locked' || devMode(), row = mk('li', `sf-step sf-${s.status}${s.side ? ' sf-side' : ''}`), b = can ? btn('', () => before(ctx, s.id, { force: s.status === 'locked' }), 'sf-step-b') : mk('div', 'sf-step-b');
+      const can = s.status !== 'locked' || (devMode() && s.id !== 'clean_gym' && !A_.blockedByGymShift(g,s.id)), row = mk('li', `sf-step sf-${s.status}${s.side ? ' sf-side' : ''}`), b = can ? btn('', () => before(ctx, s.id, { force: s.status === 'locked' }), 'sf-step-b') : mk('div', 'sf-step-b');
       if (!can) b.setAttribute('aria-disabled', 'true');
-      const markTxt = s.status === 'done' ? '✓' : s.status === 'locked' ? '🔒' : s.side ? '✦' : String(s.n);
-      const state = s.status === 'done' ? (s.boss ? W0.won : s.event ? w.done : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? (lang() === 'he' ? '◀' : '▶') : w.side;
+      const markTxt = s.status === 'done' ? '✓' : s.status === 'locked' ? '🔒' : s.side || s.status === 'optional' ? '✦' : String(s.n);
+      const state = s.status === 'done' ? (s.boss ? W0.won : s.event ? w.done : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? (lang() === 'he' ? '◀' : '▶') : s.status === 'optional' ? T(L('Optional','לא חובה','По желанию')) : w.side;
       b.append(mk('span', 'sf-mark', markTxt), mk('span', 'sf-name', `${s.side ? w.side + ' · ' : s.n + '. '}${T(s.title)}`), mk('span', 'sf-state', state));
       if (can) b.setAttribute('aria-label', `${s.side ? w.side : s.n}. ${T(s.title)} · ${state}`);
       row.append(b); list.append(row);

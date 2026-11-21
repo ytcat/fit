@@ -78,6 +78,7 @@ const server = http.createServer((req,res) => {
         for (const id of AdventureProgress.dreamSteps) {
           if (id === step) break;
           if (!AdventureOldTown.devSkip(ctx,id)) return id;
+          if (id==='first_brick' && !ctx.store.gameAction({type:'adventure',adventure:'mission',missionId:'clean_gym',measured:{marks:25}}).ok) return 'clean_gym';
         }
         document.querySelectorAll('dialog[open]').forEach(d => d.close()); AdventureOldTown.closeBeat();
         return AdventureOldTown.before(ctx,step) ? true : 'cannot start';

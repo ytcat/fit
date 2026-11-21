@@ -80,7 +80,9 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     // dev: finish the steps up to beat 5 with their minimum pass (the development build's own skip)
     const ctx = () => p.evaluate(() => { window.__ctx = { store: ringfighterGame.store, startTraining: ringfighterGame.startTraining, startFight: ringfighterGame.startFight, change: a => { const r = ringfighterGame.store.gameAction(a); if (r.ok) ringfighterGame.apply?.(); return r.ok; } }; });
     await ctx(); await p.evaluate(() => { window.__plays = []; const S = StoryScenes, play = S.play; S.play = (id, o) => { window.__plays.push(id); return play.call(S, id, o); }; });
-    for (const id of ['dream_arrival', 'dream_gym_talk', 'first_brick', 'night_shadow', 'night_bag']) assert.ok(await p.evaluate(id => AdventureOldTown.devSkip(__ctx, id), id), 'dev skip ' + id);
+    for (const id of ['dream_arrival','dream_gym_talk','first_brick','clean_gym','night_shadow','night_bag']) assert.ok(await p.evaluate(id => id==='clean_gym'
+      ? __ctx.store.gameAction({type:'adventure',adventure:'mission',missionId:id,measured:{marks:25}}).ok
+      : AdventureOldTown.devSkip(__ctx,id),id),'seed '+id);
     await p.waitForTimeout(800); await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); AdventureOldTown.closeBeat(); });
     // beat 5: the apology film plays at its step, in street clothes, mirrored root; Skip ends it and the step is recorded
     await p.evaluate(() => AdventureOldTown.before(__ctx, 'dream_apology'));

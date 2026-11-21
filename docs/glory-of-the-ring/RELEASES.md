@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.79 | 2026-11-21 | [Design PR #13](https://github.com/ytcat/fit/pull/13) | Development update: swipe to mop Bruno’s gym directly in 3D. One successful shift follows the first Brick fight, win or lose; after that the job is optional. Keeps prior saves and wages (GOTR-0099). |
 | v1.78 | 2026-11-21 | | Otto's Corner: carrying the new bag out, the Fighter's hand rests on the outside of the bag instead of going through it; the street tree no longer fills the last shot and the camera follows him to the end (GOTR-0103). |
 | v1.77 | 2026-11-21 | | Otto's Corner: the display windows and the counter case are see-through glass with the goods and a lit shelf behind (no longer white); the shop floor no longer flickers when the Fighter walks in (GOTR-0102). |
 | v1.76 | 2026-11-21 | | Otto's Corner display windows no longer flicker (GOTR-0101). The referee shouts the approved "Fight!" recording in English, Hebrew or Russian at the start bell (AAC copy for browsers without Opus). Bell, punch and KO sounds unchanged until their approved files are added. Offline worker and manifest versions checked by a test. |

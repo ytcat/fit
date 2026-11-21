@@ -110,3 +110,26 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 .story-scene[data-game=clean_gym] .story-tutorial,.story-scene[data-game=clean_gym] .story-result{top:max(60px,9%)}
 .story-scene[data-game=clean_gym] .story-tutorial p{margin:4px 0}
 .story-scene[data-game=clean_gym] .story-tutorial-count{font-size:30px}
+
+/* Direct floor work: hit testing is local to this shift; the existing stage stays untouched. */
+.story-mop-surface{position:absolute;inset:0;z-index:2;touch-action:none;cursor:grab;outline:none}
+.story-mop-surface:active{cursor:grabbing}
+.story-mop-surface:focus-visible{box-shadow:inset 0 0 0 2px #b5f4d4}
+.story-mop-surface[hidden],.story-mop-footer[hidden]{display:none}
+.story-mop-hud{position:absolute;z-index:3;top:max(11px,env(safe-area-inset-top));inset-inline:14px 119px;width:min(278px,calc(100vw - 139px));max-width:100%;padding:12px 14px;background:#101a20e8;border:1px solid #85b8a356;border-radius:13px;pointer-events:none;box-shadow:0 4px 18px #0006}
+.story-mop-title{display:block;font-size:clamp(19px,4.1vw,26px);line-height:1;color:#fff}
+.story-mop-value{display:block;margin-top:6px;color:#c4f1d9;font-size:13px;font-weight:700}
+.story-mop-bar{height:5px;margin-top:7px;border-radius:6px;background:#ffffff36;overflow:hidden}
+.story-mop-bar i{display:block;height:100%;width:0;background:#8ee6bc;transition:width .14s linear}
+.story-mop-footer{position:absolute;z-index:3;bottom:max(9px,env(safe-area-inset-bottom));inset-inline:12px;max-width:440px;margin-inline:auto;padding:7px 11px;text-align:center;background:#111f24ee;border:1px solid #85b8a36b;border-radius:13px;box-shadow:0 4px 18px #0008;pointer-events:none;color:#fff}
+.story-mop-help,.story-mop-keyboard{margin:0;line-height:1.2}
+.story-mop-help{font-size:14px;font-weight:700}.story-mop-keyboard{display:none;font-size:12px;color:#c7d9d0;margin-top:3px}
+.story-mop-finish{pointer-events:auto;min-height:44px;background:#277452;border-color:#74be9e;margin:6px 0 0}
+.story-mop-finish:disabled{opacity:.55;cursor:default}
+.story-mop-footer .story-say{display:none}
+.story-scene[data-direct=true] .story-quit{z-index:4;width:44px;height:44px}
+.story-scene[data-direct=true] .story-retry{inset-inline-end:58px}
+.story-scene[data-direct=true] .story-result{z-index:4;background:#172528f2;border:1px solid #85b8a36b;border-radius:16px;padding:15px}
+@media (hover:hover) and (pointer:fine){.story-mop-keyboard{display:block}}
+@media (max-height:440px){.story-mop-hud{padding:7px 11px;top:5px}.story-mop-title{font-size:17px}.story-mop-footer{bottom:4px;padding:4px 8px}.story-mop-footer .story-mop-finish{min-height:36px;margin-top:4px}.story-mop-help{font-size:12px}}
+@media (prefers-reduced-motion:reduce){.story-mop-bar i{transition:none}}
