@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spectator lineup</title>
+<style>html,body{margin:0;background:#20232a;overflow:hidden}canvas{display:block}</style></head>
+<body>
+<!-- QA only: the spectator prototypes of arena-sets.js side by side (?tier=0|1|2&set=species|poses|outfits|seated&yaw=0). -->
+<script src="../../assets/vendor/three.min.js"></script>
+<script src="../../arena-sets.js"></script>
+<script>
+(() => {
+  const q = new URLSearchParams(location.search), tier = +(q.get('tier') ?? 2), set = q.get('set') || 'species', yaw = +(q.get('yaw') || 0), S = ArenaSets.spectators;
+  const W = innerWidth, H = innerHeight, r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); r.setSize(W, H); r.outputEncoding = THREE.sRGBEncoding; document.body.append(r.domElement);
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x2a2d34);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x404040, .9)); const key = new THREE.DirectionalLight(0xffffff, .9); key.position.set(2, 4, 5); scene.add(key);
+  const lin = h => { const c = new THREE.Color(h).convertSRGBToLinear(); return [c.r, c.g, c.b]; };
+  const fur = { lion: '#c79a62', rabbit: '#ded7c8', bear: '#6b5646', wolf: '#8f8f93', fox: '#a8643c', otter: '#6b5646', deer: '#b08a5a', dog: '#cdbb9d' };
+  const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+  const palette = (sp, cloth) => { const f = lin(fur[sp]), P = []; P[0] = f; P[1] = mix(f, lin('#f0e6d6'), .55); P[2] = lin('#110d0b'); P[3] = lin('#f6f3ec'); P[4] = mix(f, lin('#d79a90'), .5); P[5] = mix(f, lin('#3a2414'), .45); P[6] = lin(cloth); P[7] = lin('#e8e4da'); P[8] = lin('#2c2f3a'); P[9] = lin('#e8e6e0'); P[10] = lin('#e0c020'); P[11] = lin('#8a7414'); P[12] = lin('#16171a'); P[13] = lin('#2a2c31'); P[14] = lin('#d8dcd8'); P[15] = lin('#1a1514'); return P; };
+  const mesh = (g, P) => { const s = g.attributes.slot, c = new Float32Array(s.count * 3); for (let i = 0; i < s.count; i++) c.set(P[s.getX(i)], i * 3); const h = g.clone(); h.setAttribute('color', new THREE.BufferAttribute(c, 3)); return new THREE.Mesh(h, new THREE.MeshLambertMaterial({ vertexColors: true })); };
+  const cloths = ['#3d5a7a', '#7a3b34', '#4f6b4a', '#8a7a4c', '#e0701c', '#6b4a6e', '#d9c21c', '#2f3f4a'];
+  let people = [];
+  if (set === 'species') people = S.species.map((sp, i) => ({ species: sp, outfit: S.outfits[i % 3], pose: ['idle', 'crossed', 'pockets', 'fist', 'hips', 'clap', 'phone', 'point'][i], hat: i === 3 ? 'cap' : i === 6 ? 'beanie' : null }));
+  if (set === 'poses') people = S.poses.stand.map((p, i) => ({ species: S.species[i % 8], outfit: S.outfits[i % 5], pose: p, hat: null }));
+  if (set === 'outfits') people = S.outfits.map((o, i) => ({ species: S.species[(i * 3) % 8], outfit: o, pose: 'idle', hat: ['cap', null, 'capBack', 'hard', 'beanie'][i] }));
+  if (set === 'seated') people = S.poses.seat.map((p, i) => ({ species: S.species[i % 8], outfit: S.outfits[i % 3], pose: p, seated: true }));
+  let tris = 0; const n = people.length, cols = Math.min(n, +(q.get('cols') || 4)), rows = Math.ceil(n / cols);
+  people.forEach((o, i) => {
+    const g = S.parts({ tier, species: o.species, seated: !!o.seated, pose: o.pose, outfit: o.outfit, hat: o.hat }), P = palette(o.species, cloths[i % cloths.length]);
+    const x = ((i % cols) - (cols - 1) / 2) * .75, z = -Math.floor(i / cols) * 1.1, root = new THREE.Group(); root.position.set(x, 0, z); root.rotation.y = yaw; scene.add(root);
+    root.add(mesh(g.body, P)); const head = new THREE.Group(); head.position.set(0, o.seated ? 1.14 : 1.57, .015); head.scale.setScalar(1.13); root.add(head); head.add(mesh(g.head, P)); if (g.hat) head.add(mesh(g.hat, P));
+    tris += g.body.index.count / 3 + g.head.index.count / 3 + (g.hat ? g.hat.index.count / 3 : 0);
+  });
+  const cam = new THREE.PerspectiveCamera(30, W / H, .1, 50), d = 1.1 + cols * .62; cam.position.set(0, 1.45, d); cam.lookAt(0, .95 - (rows - 1) * .1, -(rows - 1) * .55);
+  r.render(scene, cam); window.__lineup = { tris, people: n };
+})();
+</script>
+</body></html>

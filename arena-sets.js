@@ -21,8 +21,195 @@
  // Fit one line of text inside a cell.
  function label(c,text,x,y,size,color,maxWidth,weight=800,family='sans-serif'){c.fillStyle=color;c.font=`${weight} ${size}px ${family}`;while(maxWidth&&size>8&&c.measureText(text).width>maxWidth)c.font=`${weight} ${--size}px ${family}`;c.fillText(text,x,y);return size;}
 
+ // ---------------------------------------------------------------- spectators
+ // Owner 2026-11-21: "the crowd is just geometric figures". Each spectator is an anthropomorphic animal (lion, rabbit, bear, wolf,
+ // fox, otter, deer, dog) built from a few shared rounded prototypes: a head per species (skull, muzzle, nose, eyes with a glint,
+ // species ears, a lion's mane), a body per pose and outfit (torso shaped at chest, waist and hips with the clothes in it, a neck,
+ // two arms bent at the elbow with hands, two legs bent at the knee with shoes, hood or overall straps), a hat and, for a seated
+ // guest, a folding chair. Every prototype vertex carries a palette slot; Kit.add colours it from the person's own palette, so
+ // one prototype serves every colourway and the whole crowd still merges into the per-sector batches (no extra draw calls).
+ // Three levels of detail; Kit.flushPeople() gives the closest spectators the finest level the set's triangle budget allows.
+ const SL={fur:0,muzzle:1,eye:2,glint:3,inner:4,mane:5,cloth:6,cloth2:7,legs:8,shoes:9,hat:10,hat2:11,phone:12,chair:13,stripe:14,nose:15},SLOTS=16;
+ const LOD=[ // 0 far rows, crews up on containers; 1 middle rows; 2 the front row a story camera films from 2-3 m
+  {skull:[6,3],muzzle:[4,2],nose:null,eye:[3,2],glint:null,ear:[3,2],cone:3,inner:null,mane:[5,3],torso:5,ys:[.80,1.20,1.36,1.45],cap:false,neck:4,arm:3,arms:'far',hand:[3,2],leg:4,calf:false,shoe:[4,2],hood:[4,2],dome:[5,1],brim:[4,2],band:false,phone:false,finger:false,chair:0,stripes:false},
+  {skull:[7,4],muzzle:[5,3],nose:[3,2],eye:[3,2],glint:null,ear:[4,2],cone:4,inner:null,mane:[6,3],torso:6,ys:[.80,.91,1.10,1.28,1.38,1.44],cap:true,neck:5,arm:5,arms:'mid',hand:[4,2],leg:5,calf:false,shoe:[5,2],hood:[5,3],dome:[6,2],brim:[6,2],band:true,phone:true,finger:false,chair:1,stripes:true},
+  {skull:[8,5],muzzle:[6,3],nose:[4,2],eye:[5,3],glint:[3,2],ear:[5,3],cone:4,inner:[4,2],mane:[7,4],torso:8,ys:[.80,.90,1.04,1.17,1.29,1.37,1.44],cap:true,neck:6,arm:6,arms:'fine',hand:[5,4],leg:6,calf:true,shoe:[5,3],hood:[5,3],dome:[8,2],brim:[8,2],band:true,phone:true,finger:true,chair:2,stripes:true}
+ ];
+ // Torso cross-section by height: [y, centre z, depth radius, width radius]; chest forward, seat back, shoulders sloping to the neck.
+ const PROFILE=[[.80,0,.062,.075],[.845,-.006,.104,.162],[.91,-.012,.116,.18],[.975,-.005,.109,.17],[1.04,0,.109,.17],[1.15,.012,.123,.19],[1.25,.012,.127,.2],[1.33,0,.114,.196],[1.395,-.005,.078,.13],[1.44,0,.05,.055]];
+ const profile=y=>{let i=1;while(i<PROFILE.length-1&&PROFILE[i][0]<y)i++;const a=PROFILE[i-1],b=PROFILE[i],t=Math.max(0,Math.min(1,(y-a[0])/(b[0]-a[0])));return [a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t,a[3]+(b[3]-a[3])*t];};
+ // Clothes are part of the shape: where the top ends, sleeves, hood, an open jacket's shirt front, a hi-vis vest's stripes, overall bibs.
+ const OUTFIT={
+  tee:{hem:.955,bump:.006,sleeve:'short',slot:y=>y<.955?SL.legs:SL.cloth},
+  hoodie:{hem:.90,bump:.012,sleeve:'long',hood:true,slot:y=>y<.90?SL.legs:SL.cloth},
+  jacket:{hem:.95,bump:.004,sleeve:'long',shell:true,slot:y=>y<.95?SL.legs:SL.cloth2}, // an open jacket over a shirt
+  vest:{hem:.955,bump:.008,sleeve:'long',sleeveSlot:SL.cloth2,bands:[1.31],stripes:[1.06,1.18],slot:y=>y<.955?SL.legs:y>1.31?SL.cloth2:Math.abs(y-1.06)<.004||Math.abs(y-1.18)<.004?SL.stripe:SL.cloth},
+  overalls:{hem:1.21,bump:.004,sleeve:'short',straps:true,slot:y=>y<1.21?SL.legs:SL.cloth}
+ };
+ // Arms: elbow, wrist, hand centre and hand kind for the arm on side s (+1 / -1), standing coordinates (metres, +z faces the fight).
+ const ARM={
+  down:s=>[[s*.238,1.07,-.025],[s*.25,.83,.02],[s*.253,.77,.03],'open'],
+  pocket:s=>[[s*.245,1.08,-.045],[s*.175,.885,.065],[s*.168,.868,.07],'fist'],
+  hips:s=>[[s*.37,1.11,-.06],[s*.20,.975,0],[s*.178,.962,.004],'fist'],
+  crossF:s=>[[s*.245,1.12,.09],[-s*.03,1.205,.22],[-s*.10,1.215,.228],'fist'],
+  crossB:s=>[[s*.25,1.13,.075],[-s*.02,1.245,.18],[-s*.09,1.255,.165],'fist'],
+  fist:s=>[[s*.30,1.565,0],[s*.275,1.80,.045],[s*.27,1.855,.055],'fist'],
+  up:s=>[[s*.33,1.56,-.01],[s*.36,1.80,.02],[s*.365,1.865,.025],'open'],
+  pump:s=>[[s*.27,1.25,.20],[s*.25,1.47,.25],[s*.25,1.525,.26],'fist'],
+  phone:s=>[[s*.255,1.15,.12],[s*.12,1.38,.26],[s*.10,1.43,.28],'phone'],
+  phoneHigh:s=>[[s*.30,1.55,.10],[s*.22,1.78,.20],[s*.21,1.83,.22],'phone'],
+  point:s=>[[s*.23,1.27,.22],[s*.21,1.33,.46],[s*.205,1.335,.515],'point'],
+  clap:s=>[[s*.24,1.10,.10],[s*.06,1.26,.25],[s*.035,1.29,.27],'open'],
+  knees:s=>[[s*.225,1.10,.08],[s*.14,1.02,.30],[s*.125,1.0,.37],'open'],
+  lap:s=>[[s*.22,1.10,.06],[s*.08,1.00,.22],[s*.05,.995,.26],'open']
+ };
+ const POSES={
+  stand:{idle:['down','down'],pockets:['pocket','pocket'],pocket:['pocket','down'],hips:['hips','hips'],hip:['hips','down'],crossed:['crossF','crossB'],clap:['clap','clap'],point:['down','point'],phone:['down','phone'],phoneHigh:['pocket','phoneHigh'],fist:['down','fist'],fistPocket:['pocket','fist'],up:['up','up'],pump:['hips','pump']},
+  seat:{knees:['knees','knees'],lap:['lap','lap'],crossed:['crossF','crossB'],clap:['clap','clap'],point:['knees','point'],phone:['knees','phone'],fist:['knees','fist'],up:['up','up'],pump:['knees','pump']}
+ };
+ const CALM={stand:[['idle',2],['pockets',2],['pocket',1.5],['hips',1],['hip',1],['crossed',2.5],['clap',1.2],['point',1],['phone',.5]],seat:[['knees',3],['lap',2],['crossed',2],['clap',1.5],['point',.6],['phone',.4]]};
+ const CHEER={stand:[['up',1.2],['fist',1],['fistPocket',1],['pump',1]],seat:[['up',1],['fist',1.4],['pump',1]]};
+ // Legs: hip, knee, ankle for side s. 'shift' rests the weight on one leg, the other knee bent.
+ const LEG={stand:s=>[[s*.095,.865,0],[s*.105,.48,.02],[s*.11,.085,-.005]],wide:s=>[[s*.10,.865,0],[s*.14,.48,.015],[s*.175,.085,0]],
+  shift:s=>s>0?[[.095,.865,0],[.115,.49,.07],[.135,.09,.05]]:LEG.stand(s),seat:s=>[[s*.095,.435,0],[s*.11,.47,.38],[s*.12,.085,.40]]};
+ // Species: fur choices (FUR indices), skull radii, muzzle [y,z,rx,ry,rz], nose radii, eyes [x,y], ears, colours of muzzle/inner ear/nose.
+ const SPECIES={
+  lion:{w:14,fur:[0,7,2],skull:[.108,.108,.104],muzzle:[-.034,.08,.064,.048,.052],nose:[.024,.015,.014],eyes:[.043,.024],ears:['round',.034,.034,.016,.078,.08,-.02],mane:[.168,.162,.125],muzzleTo:['#efe0c4',.5],noseC:'#3d2620'},
+  rabbit:{w:16,fur:[4,1,2,3,0],skull:[.098,.104,.098],muzzle:[-.036,.074,.05,.04,.045],nose:[.014,.01,.01],eyes:[.05,.025],ears:['long',.03,.12,.016,.04,.075,-.015],muzzleTo:['#f4efe6',.6],innerTo:['#e2a4a0',.6],noseC:'#c97b7b'},
+  bear:{w:14,fur:[3,6,5,0],skull:[.115,.11,.108],muzzle:[-.036,.082,.062,.05,.06],nose:[.03,.02,.02],eyes:[.045,.03],ears:['round',.042,.04,.018,.085,.083,-.01],muzzleTo:['#c8a888',.45],innerTo:['#3a2a22',.45],noseC:'#191414'},
+  wolf:{w:12,fur:[1,6,2],skull:[.10,.10,.104],muzzle:[-.036,.105,.045,.04,.075],nose:[.02,.015,.015],eyes:[.042,.028],ears:['point',.042,.095,.02,.06,.085,-.02,.22],muzzleTo:['#e8e2d8',.6],noseC:'#141212'},
+  fox:{w:10,fur:[5,7],skull:[.095,.096,.098],muzzle:[-.036,.1,.04,.035,.07],nose:[.016,.012,.012],eyes:[.04,.026],ears:['point',.04,.105,.02,.058,.08,-.02,.25],muzzleTo:['#f2ece2',.85],innerTo:['#2a201c',.5],noseC:'#141212'},
+  otter:{w:10,fur:[3,0],skull:[.10,.094,.10],muzzle:[-.032,.078,.066,.04,.05],nose:[.026,.016,.014],eyes:[.046,.026],ears:['round',.022,.022,.012,.09,.035,-.01],muzzleTo:['#e6d6bc',.6],noseC:'#191414'},
+  deer:{w:10,fur:[0,5,7],skull:[.09,.10,.10],muzzle:[-.042,.088,.044,.044,.075],nose:[.02,.015,.014],eyes:[.05,.028],ears:['side',.03,.068,.013,.088,.07,-.02],muzzleTo:['#f0e8dc',.6],innerTo:['#ead8c8',.6],noseC:'#191414'},
+  dog:{w:14,fur:[2,3,4,6,7],skull:[.104,.104,.104],muzzle:[-.036,.09,.054,.045,.062],nose:[.026,.018,.016],eyes:[.044,.028],ears:['flop',.028,.072,.042,.1,.02,-.01],muzzleTo:['#efe6d6',.4],noseC:'#141212'}
+ };
+ const SHOES=['#1b1b1d','#e8e6e0','#5a3e2b','#2d2f36','#8a2a24','#d9d4c8'].map(lin),BOOTS=['#1b1b1d','#5a3e2b','#3a2c22'].map(lin),SHIRTS=['#e8e4da','#d9d5cb','#9aa4b0','#2a2c30','#c8c0b0'].map(lin);
+ const INK=lin('#110d0b'),GLINT=lin('#f6f3ec'),PHONE=lin('#16171a'),SILVER=lin('#d8dcd8'),CHAIR=lin('#2a2c31');
+ const mixc=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+ const weighted=(rnd,list)=>{let t=0;for(const [,w] of list)t+=w;let x=rnd()*t;for(const [v,w] of list)if((x-=w)<0)return v;return list[list.length-1][0];};
+
+ // A prototype under construction: positions, normals, palette slot per vertex, triangles.
+ class Proto{
+  constructor(){this.p=[];this.n=[];this.s=[];this.i=[];this.meta={};}
+  put(g,m,slot){
+   const P=g.attributes.position,N=g.attributes.normal,o=this.p.length/3,nm=new THREE.Matrix3().getNormalMatrix(m),v=new THREE.Vector3(),n=new THREE.Vector3(),flip=m.determinant()<0,I=g.index;
+   for(let i=0;i<P.count;i++){v.fromBufferAttribute(P,i).applyMatrix4(m);n.fromBufferAttribute(N,i).applyMatrix3(nm).normalize();this.p.push(v.x,v.y,v.z);this.n.push(n.x,n.y,n.z);this.s.push(slot);}
+   for(let i=0;i<I.count;i+=3){const a=o+I.getX(i),b=o+I.getX(i+1),c=o+I.getX(i+2);if(flip)this.i.push(a,c,b);else this.i.push(a,b,c);}
+   return this;
+  }
+  // Elliptic rings along a polyline (limbs) or up the body (torso): ring=[x,y,z,radius along the first normal,slot,radius along the second].
+  // A slot may be a function of the ring vertex index (0 = the side the first normal points to). Rings share vertices: no seams.
+  tube(rings,seg,o={}){
+   const n=rings.length,o0=this.p.length/3,P=rings.map(r=>new THREE.Vector3(r[0],r[1],r[2])),t=new THREE.Vector3(),a=new THREE.Vector3(),N=new THREE.Vector3(),B=new THREE.Vector3(),d=new THREE.Vector3(),q=new THREE.Vector3();let prev=null;const T=[],arc=o.arc,cols=arc?seg+1:seg; // arc: an open shell from angle arc[0] to arc[1] (an open jacket)
+   for(let k=0;k<n;k++){
+    if(k===0)t.subVectors(P[1],P[0]);else if(k===n-1)t.subVectors(P[k],P[k-1]);else t.subVectors(P[k+1],P[k]).normalize().add(a.subVectors(P[k],P[k-1]).normalize());
+    t.normalize();T.push(t.clone());
+    if(prev)N.copy(prev);else N.copy(o.front||(Math.abs(t.y)<.9?new THREE.Vector3(0,1,0):new THREE.Vector3(0,0,1)));
+    N.addScaledVector(t,-N.dot(t)).normalize();B.crossVectors(t,N);prev=N.clone();
+    const r=rings[k],ra=r[3],rb=r[5]===undefined?ra:r[5];
+    for(let j=0;j<cols;j++){const th=arc?arc[0]+(arc[1]-arc[0])*j/seg:2*PI*j/seg,c=Math.cos(th),s=Math.sin(th);d.copy(N).multiplyScalar(c*ra).addScaledVector(B,s*rb).add(P[k]);q.copy(N).multiplyScalar(c/ra).addScaledVector(B,s/rb).normalize();this.p.push(d.x,d.y,d.z);this.n.push(q.x,q.y,q.z);this.s.push(typeof r[4]==='function'?r[4](j,seg):r[4]);}
+   }
+   for(let k=0;k<n-1;k++)for(let j=0;j<seg;j++){const A=o0+k*cols+j,b=o0+k*cols+(j+1)%cols,c=A+cols,e=b+cols;this.i.push(A,b,c,b,e,c);}
+   const cap=(k,dir)=>{const r=rings[k],c=this.p.length/3,tt=T[k].clone().multiplyScalar(dir),ctr=P[k].clone().addScaledVector(tt,Math.min(r[3],r[5]===undefined?r[3]:r[5])*.35);this.p.push(ctr.x,ctr.y,ctr.z);this.n.push(tt.x,tt.y,tt.z);this.s.push(typeof r[4]==='function'?r[4](1,seg):r[4]);for(let j=0;j<seg;j++){const A=o0+k*seg+j,b=o0+k*seg+(j+1)%seg;if(dir<0)this.i.push(c,b,A);else this.i.push(c,A,b);}};
+   if(o.cap0)cap(0,-1);if(o.cap1)cap(n-1,1);
+   return this;
+  }
+  geometry(){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(this.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(this.n,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(new Float32Array(this.p.length/3*2),2));g.setAttribute('slot',new THREE.Float32BufferAttribute(this.s,1));g.setIndex(this.i);g.userData=this.meta;return g;}
+ }
+ const PROTO=new Map(),GEO=new Map();
+ const cached=(key,make)=>{if(!PROTO.has(key))PROTO.set(key,make());return PROTO.get(key);};
+ const sph=(w,h)=>{const k='s'+w+'x'+h;if(!GEO.has(k))GEO.set(k,new THREE.SphereGeometry(1,w,h));return GEO.get(k);};
+ const dome=(w,h)=>{const k='d'+w+'x'+h;if(!GEO.has(k))GEO.set(k,new THREE.SphereGeometry(1,w,h,0,2*PI,0,PI/2));return GEO.get(k);};
+ const cone=seg=>{const k='c'+seg;if(!GEO.has(k))GEO.set(k,new THREE.CylinderGeometry(0,1,1,seg,1,false));return GEO.get(k);};
+ const band=seg=>{const k='b'+seg;if(!GEO.has(k))GEO.set(k,new THREE.CylinderGeometry(1,1,1,seg,1,true));return GEO.get(k);};
+ const cube=()=>{if(!GEO.has('box'))GEO.set('box',new THREE.BoxGeometry(1,1,1));return GEO.get('box');};
+ const _e=new THREE.Euler(),_q=new THREE.Quaternion(),_v=new THREE.Vector3(),_s=new THREE.Vector3(),UP=new THREE.Vector3(0,1,0);
+ const M=(x,y,z,rx,ry,rz,sx,sy,sz)=>new THREE.Matrix4().compose(_v.set(x,y,z),_q.setFromEuler(_e.set(rx,ry,rz,'YXZ')),_s.set(sx,sy,sz));
+ // Local +y along dir (hands along the forearm, a pointing finger).
+ const Mdir=(p,dir,sx,sy,sz)=>new THREE.Matrix4().compose(_v.set(p[0],p[1],p[2]),_q.setFromUnitVectors(UP,new THREE.Vector3(dir[0],dir[1],dir[2]).normalize()),_s.set(sx,sy,sz));
+ const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],lerp3=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+
+ function headProto(tier,sp){return cached(`h${tier}${sp}`,()=>{
+  const D=SPECIES[sp],L=LOD[tier],q=new Proto(),[a,b,c]=D.skull,[my,mz,ma,mb,mc]=D.muzzle;
+  q.put(sph(...L.skull),M(0,0,0,0,0,0,a,b,c),SL.fur);
+  q.put(sph(...L.muzzle),M(0,my,mz,0,0,0,ma,mb,mc),SL.muzzle);
+  if(L.nose)q.put(sph(...L.nose),M(0,my+mb*.45,mz+mc*.86,0,0,0,...D.nose),SL.nose);
+  for(const s of [-1,1]){
+   const ex=s*D.eyes[0],ey=D.eyes[1],ez=c*Math.sqrt(Math.max(0,1-(ex/a)**2-(ey/b)**2)),n=new THREE.Vector3(ex/a/a,ey/b/b,ez/c/c).normalize(),yaw=Math.atan2(n.x,n.z);
+   q.put(sph(...L.eye),M(ex-n.x*.004,ey,ez-n.z*.004,0,yaw,0,.017,.02,.012),SL.eye);
+   if(L.glint)q.put(sph(...L.glint),M(ex+n.x*.008+.004,ey+.007,ez+n.z*.008,0,yaw,0,.0058,.0058,.004),SL.glint);
+   const [kind,ew,eh,ed,x,y,z,tilt]=D.ears;
+   if(kind==='round'){q.put(sph(...L.ear),M(s*x,y,z,0,0,-s*.3,ew,eh,ed),SL.fur);if(L.inner)q.put(sph(...L.ear),M(s*x*.98,y-.002,z+ed*.7,0,0,-s*.3,ew*.62,eh*.62,ed*.4),SL.inner);}
+   else if(kind==='long'){q.put(sph(...L.ear),M(s*x,y+eh*.92,z,-.18,0,-s*.14,ew,eh,ed),SL.fur);if(L.inner)q.put(sph(...L.ear),M(s*(x+.003),y+eh*.95,z+ed*.75,-.18,0,-s*.14,ew*.58,eh*.82,ed*.35),SL.inner);}
+   else if(kind==='point'){q.put(cone(L.cone),M(s*x,y+eh*.42,z,-.1,0,-s*tilt,ew,eh,ed*1.1),SL.fur);if(L.inner)q.put(cone(L.cone),M(s*x*.99,y+eh*.38,z+.009,-.1,0,-s*tilt,ew*.6,eh*.72,ed*.5),SL.inner);}
+   else if(kind==='side'){q.put(sph(...L.ear),M(s*x,y,z,0,s*.35,-s*1.15,ew,eh,ed),SL.fur);if(L.inner)q.put(sph(...L.ear),M(s*x,y+.004,z+.008,0,s*.35,-s*1.15,ew*.6,eh*.8,ed*.4),SL.inner);}
+   else q.put(sph(...L.ear),M(s*x,y,z,.12,0,s*.22,ew,eh,ed),SL.mane); // dog: soft ears hanging beside the head, a shade darker
+  }
+  if(D.mane)q.put(sph(...L.mane),M(0,-.012,-.034,0,0,0,...D.mane),SL.mane);
+  return q.geometry();});}
+
+ // Caps, beanies and hard hats sit on the species' own skull.
+ function hatProto(tier,kind,sp){return cached(`t${tier}${kind}${sp}`,()=>{
+  const [a,b,c]=SPECIES[sp].skull,L=LOD[tier],q=new Proto();
+  if(kind==='cap'||kind==='capBack'){const back=kind==='capBack';q.put(dome(...L.dome),M(0,.042,-.004,0,0,0,a*1.08,b*.82,c*1.08),SL.hat);q.put(sph(...L.brim),M(0,.048,back?-c*.95:c*.93,back?.12:-.12,0,0,a*.76,.009,c*.66),SL.hat2);}
+  else if(kind==='beanie'){q.put(dome(...L.dome),M(0,.032,-.005,0,0,0,a*1.08,b*.98,c*1.08),SL.hat);if(L.band)q.put(band(L.dome[0]),M(0,.048,-.005,0,0,0,a*1.12,.036,c*1.12),SL.hat2);}
+  else{q.put(dome(...L.dome),M(0,.04,0,0,0,0,a*1.14,b*.95,c*1.16),SL.hat);q.put(sph(...L.brim),M(0,.045,.01,0,0,0,a*1.42,.011,c*1.48),SL.hat);if(L.finger)q.put(cube(),M(0,.04+b*.95,0,0,0,0,.022,.018,c*2.0),SL.hat2);} // hard hat
+  return q.geometry();});}
+
+ // Body: torso with the outfit, neck, arms, hands (phone, pointing finger), legs, shoes, hood or straps, and a chair when seated.
+ function bodyProto(tier,seated,pose,mirror,outfit,legPose){return cached(`b${tier}${seated?1:0}${pose}${mirror?1:0}${outfit}${legPose}`,()=>{
+  const L=LOD[tier],O=OUTFIT[outfit],q=new Proto(),dy=seated?-.43:0,eps=.006;
+  const cuts=[O.hem,...(O.bands||[])],stripes=L.stripes&&O.stripes||[],ys=new Set(L.ys.filter(y=>![...cuts,...stripes].some(c=>Math.abs(c-y)<.025)));
+  for(const y of cuts){ys.add(y-eps);ys.add(y+eps);}for(const y of stripes){ys.add(y-.016);ys.add(y);ys.add(y+.016);} // a hi-vis stripe peaks on its own ring
+  q.tube([...ys].sort((u,v)=>u-v).map(y=>{const [z,rz,rx]=profile(y),bump=Math.abs(y-O.hem-eps)<1e-4?O.bump:0;return [0,y+dy,z,rz+bump,(O.shell&&!tier&&y>O.hem?SL.cloth:O.slot(y)),rx+bump];}),L.torso,{front:new THREE.Vector3(0,0,1),cap1:L.cap}); // far away an open jacket is just the jacket
+  q.tube([[0,1.40+dy,-.005,.047,SL.fur],[0,1.50+dy,.012,.043,SL.fur]],L.neck);
+  const arms=POSES[seated?'seat':'stand'][pose],sleeve=O.sleeveSlot===undefined?SL.cloth:O.sleeveSlot,short=O.sleeve==='short';
+  (mirror?[arms[1],arms[0]]:arms).forEach((kind,k)=>{
+   const s=k?-1:1,up=p=>[p[0],p[1]+dy,p[2]],[E,W,H,hk]=ARM[kind](s).map((p,i)=>i<3?up(p):p),S=up([s*.16,1.36,-.005]),r=[[...S,.058,sleeve]];
+   if(L.arms==='far')r.push([...E,.046,short?SL.fur:sleeve],[...W,.036,short?SL.fur:sleeve]);
+   else if(short)r.push([...lerp3(S,E,.5),.06,sleeve],[...lerp3(S,E,.56),.045,SL.fur],[...E,.041,SL.fur],[...W,.033,SL.fur]);
+   else if(L.arms==='fine')r.push([...E,.05,sleeve],[...lerp3(E,W,.92),.046,sleeve],[...lerp3(E,W,.97),.033,SL.fur]);
+   else r.push([...E,.05,sleeve],[...lerp3(E,W,.85),.045,sleeve],[...W,.033,SL.fur]);
+   q.tube(r,L.arm,{cap0:true});
+   const dir=sub(H,W),len=Math.hypot(...dir),Hc=lerp3(W,H,(hk==='fist'?.04:.046)/len);
+   if(hk==='fist')q.put(sph(...L.hand),Mdir(Hc,dir,.046,.047,.042),SL.fur);else q.put(sph(...L.hand),Mdir(Hc,dir,.041,.054,.03),SL.fur);
+   if(hk==='phone'){const ph=[H[0]-s*.004,H[1]+.03,H[2]+.022];q.meta.phone=ph;if(L.phone)q.put(cube(),M(...ph,-.22,0,0,.048,.09,.01),SL.phone);}
+   if(hk==='point'&&L.finger)q.put(cone(4),Mdir(lerp3(H,[H[0]+dir[0],H[1]+dir[1],H[2]+dir[2]],1.1),dir,.011,.06,.011),SL.fur);
+  });
+  for(const s of [-1,1]){
+   const [hip,knee,ankle]=legPose==='shiftL'?LEG.shift(-s).map(p=>[-p[0],p[1],p[2]]):LEG[legPose](s);
+   q.tube(L.calf?[[...hip,.094,SL.legs],[...knee,.066,SL.legs],[...lerp3(knee,ankle,.42),.063,SL.legs],[...ankle,.054,SL.legs]]:[[...hip,.094,SL.legs],[...knee,.066,SL.legs],[...ankle,.054,SL.legs]],L.leg);
+   const toe=s*(legPose==='wide'?.25:.12);if(tier||!seated)q.put(sph(...L.shoe),M(ankle[0]+Math.sin(toe)*.04,.048,ankle[2]+Math.cos(toe)*.045,0,toe,0,.052,.05,.118),SL.shoes);
+  }
+  if(O.shell&&tier){const ys=L.ys.filter(y=>y>.95&&y<1.4);q.tube([.925,...ys,1.4].map(y=>{const [z,rz,rx]=profile(y),k=y<1.3?1.075:1.1;return [0,y+dy,z,rz*k+.004,SL.cloth,rx*k+.004];}),L.torso,{front:new THREE.Vector3(0,0,1),arc:[.42,2*PI-.42]});}
+  if(O.hood)q.put(sph(...L.hood),M(0,1.395+dy,-.105,-.35,0,0,.135,.09,.08),SL.cloth);
+  if(O.straps&&tier)for(const s of [-1,1])for(const f of [1,-1])q.put(cube(),M(s*.075,1.275+dy,f*.122,-f*.1,0,0,.032,.13,.01),SL.legs);
+  if(seated&&L.chair){q.put(cube(),M(0,.36,.04,0,0,0,.44,.035,.42),SL.chair);q.put(cube(),M(0,.62,-.17,-.08,0,0,.42,.34,.025),SL.chair);for(const s of [-1,1]){q.put(cube(),M(s*.2,.39,-.17,0,0,0,.022,.78,.022),SL.chair);if(L.chair>1)q.put(cube(),M(s*.2,.17,.22,0,0,0,.022,.34,.022),SL.chair);}}
+  return q.geometry();});}
+
+ // Everything about one spectator that does not depend on the level of detail (seeded, so a venue always looks the same).
+ function planPerson(sp){
+  const rnd=random(sp.seed||1),st=sp.st,pick=list=>list[Math.floor(rnd()*list.length)%list.length],seated=!!st.seated;
+  const species=weighted(rnd,Object.entries(SPECIES).map(([k,v])=>[k,v.w])),D=SPECIES[species];
+  const furList=st.fur===FUR?D.fur.map(i=>FUR[i]):st.fur,fur=pick(furList);
+  const outfit=weighted(rnd,Object.entries(st.wear||{tee:1,hoodie:1,jacket:1}));
+  const set=seated?'seat':'stand',cheer=rnd()<st.cheer;let pose=sp.glow?(sp.high?'phoneHigh':'phone'):weighted(rnd,cheer?CHEER[set]:CALM[set]);if(!POSES[set][pose])pose='phone';
+  const legPose=seated?'seat':weighted(rnd,[['stand',3],['wide',1.4],['shift',1],['shiftL',1]]),mirror=rnd()<.5;
+  const hats=st.hat,hatP=hats?hats.p:st.caps===undefined?.22:st.caps,work=outfit==='vest'||outfit==='overalls';
+  const hat=rnd()<hatP?(hats&&hats.hard?(work?'hard':'beanie'):weighted(rnd,[['cap',5],['capBack',2],['beanie',3]])):null;
+  let cloth=pick(st.cloth);if(outfit==='vest'&&st.vest)cloth=pick(st.vest);
+  const shirt=outfit==='vest'?pick(st.cloth.filter(c=>c[0]+c[1]<.12).concat([SHIRTS[3]])):pick(SHIRTS);
+  const hatC=hat?(hats?pick(hats.colors):pick(st.cloth)):cloth;
+  const P=new Array(SLOTS);P[SL.fur]=fur;P[SL.muzzle]=mixc(fur,lin(D.muzzleTo[0]),D.muzzleTo[1]);P[SL.eye]=INK;P[SL.glint]=GLINT;P[SL.inner]=D.innerTo?mixc(fur,lin(D.innerTo[0]),D.innerTo[1]):mixc(fur,lin('#d79a90'),.45);
+  P[SL.mane]=mixc(fur,lin('#3a2414'),species==='lion'?.5:.3);P[SL.cloth]=cloth;P[SL.cloth2]=shirt;P[SL.legs]=pick(st.legs);P[SL.shoes]=work?pick(BOOTS):pick(SHOES);
+  P[SL.hat]=hatC;P[SL.hat2]=mixc(hatC,[0,0,0],.35);P[SL.phone]=PHONE;P[SL.chair]=st.chair||CHAIR;P[SL.stripe]=SILVER;P[SL.nose]=lin(D.noseC);
+  const heavy=rnd(),bw=heavy<.2?.92:heavy>.78?1.13:1,sc=(1.5+rnd()*.34)/1.7;
+  return {species,outfit,pose,legPose,mirror,hat,palette:P,seated,sc,bw,bz:bw>1?bw*1.05:bw,hs:(1.08+rnd()*.12)*Math.sqrt(sc),
+   lean:seated?rnd()*.06:-.02+rnd()*.08,headYaw:(rnd()-.5)*.7,headPitch:(seated?-.12:-.04)+rnd()*.12+(sp.up>.5?.28:0),headTilt:(rnd()-.5)*.16};
+ }
+
  class Kit{
-  constructor(){this.lights=[];this.ambient={sky:[.02,.02,.02],ground:[.02,.02,.02]};this.atlas=new Atlas();this.buffers=new Map();this.v=new THREE.Vector3();this.n=new THREE.Vector3();this.nm=new THREE.Matrix3();this.mat=new THREE.Matrix4();this.base=new THREE.Matrix4();this.local=new THREE.Matrix4();this.q=new THREE.Quaternion();this.e=new THREE.Euler(0,0,0,'YXZ');this.p=new THREE.Vector3();this.s=new THREE.Vector3();this.L=[0,0,0];templates();}
+  constructor(){this.lights=[];this.ambient={sky:[.02,.02,.02],ground:[.02,.02,.02]};this.atlas=new Atlas();this.buffers=new Map();this.v=new THREE.Vector3();this.n=new THREE.Vector3();this.nm=new THREE.Matrix3();this.mat=new THREE.Matrix4();this.base=new THREE.Matrix4();this.local=new THREE.Matrix4();this.q=new THREE.Quaternion();this.e=new THREE.Euler(0,0,0,'YXZ');this.p=new THREE.Vector3();this.s=new THREE.Vector3();this.L=[0,0,0];this.people=[];this.peopleBudget=57000;templates();}
   buffer(key){let b=this.buffers.get(key);if(!b){b={key,kind:kindOf(key),pos:[],col:[],uv:[],idx:[]};this.buffers.set(key,b);}return b;}
   // Per-vertex Lambert from the set's own virtual lamps plus a sky/ground ambient.
   shade(p,n){
@@ -40,11 +227,13 @@
   add(key,g,m,color,o){
    const b=this.buffer(key),P=g.attributes.position,N=g.attributes.normal,U=g.attributes.uv,first=b.pos.length/3,lit=b.kind==='lit'&&!(o&&o.unlit),uv=o&&o.uv,tint=o&&o.tint,gain=o&&o.gain||1,w=this.atlas.white,v=this.v,n=this.n;
    this.nm.getNormalMatrix(m);
+   const S=g.attributes.slot; // spectator prototypes: per-vertex palette slot, color is then the person's palette
    for(let i=0;i<P.count;i++){
     v.fromBufferAttribute(P,i);const ly=v.y;v.applyMatrix4(m);n.fromBufferAttribute(N,i).applyMatrix3(this.nm).normalize();
-    let r=color[0]*gain,g2=color[1]*gain,b2=color[2]*gain;
+    const c=S?color[S.getX(i)]:color;let r=c[0]*gain,g2=c[1]*gain,b2=c[2]*gain;
     if(tint){const t=tint(ly,U.getX(i),U.getY(i),v);r*=t[0];g2*=t[1];b2*=t[2];}
     if(lit){const L=this.shade(v,n);r*=L[0];g2*=L[1];b2*=L[2];}
+    if(S){const k=.72+.28*(.5+.5*n.y);r*=k;g2*=k;b2*=k;} // spectators: soft occlusion under chins, arms and hems so the rounded forms read
     else if(b.kind==='add'){r=Math.pow(r,2.2);g2=Math.pow(g2,2.2);b2=Math.pow(b2,2.2);}// blended after sRGB encoding, so authored in display space
     b.pos.push(v.x,v.y,v.z);b.col.push(r,g2,b2);
     if(uv)b.uv.push(uv[0]+(uv[2]-uv[0])*U.getX(i),uv[1]+(uv[3]-uv[1])*U.getY(i));else b.uv.push(w[0],w[1]);
@@ -62,14 +251,30 @@
   disc(key,r,x,y,z,color,o){this.add(key,T.disc,this.m(x,y,z,-PI/2,0,0,r,r,1),color,o);}
   // Soft additive light shaft: bright at the lamp, black at the far end.
   beam(key,x,y,z,top,bottom,length,color,o={}){this.local.makeTranslation(0,-length/2,0).scale(this.s.set(1,length,1));this.m(x,y,z,o.rx||0,0,o.rz||0,1,1,1,this.base);this.add(key,taper(top,bottom,o.seg||12,true),this.mat.multiplyMatrices(this.base,this.local),color,{tint:ly=>{const t=Math.pow(ly+.5,o.curve||1.5);return [t,t,t];}});}
-  person(key,x,z,g,yaw,rnd,st){
-   const pick=list=>list[Math.floor(rnd()*list.length)%list.length],sc=(1.50+rnd()*.34)/1.7,B=new THREE.Matrix4().makeRotationY(yaw).setPosition(x,g,z),cloth=pick(st.cloth),fur=pick(st.fur),drop=st.seated?-.40:0;
-   const part=(geo,px,py,pz,sx,sy,sz,color,rz=0)=>{this.m(px*sc,(py+drop)*sc,pz*sc,0,0,rz,sx*sc,sy*sc,sz*sc,this.local);this.add(key,geo,this.mat.multiplyMatrices(B,this.local),color);};
-   if(!st.seated)part(T.box,0,.42,0,.30,.84,.19,pick(st.legs));else{const leg=pick(st.legs);part(T.box,0,.86,.2,.32,.17,.5,leg);part(T.box,0,.62,.42,.30,.46,.15,leg);}
-   part(T.torso,0,1.13,0,1,1,.62,cloth);part(T.ball,0,1.585,0,.135,.15,.135,fur);
-   const ears=rnd();if(ears<.3)for(const s of [-1,1])part(T.ear,s*.085,1.76,0,.045,.11,.03,fur);else if(ears<.5)for(const s of [-1,1])part(T.box,s*.05,1.86,0,.045,.27,.03,fur,-s*.12);else if(ears<.8)for(const s of [-1,1])part(T.box,s*.105,1.71,0,.075,.075,.03,fur);
-   if(st.hat&&rnd()<st.hat.p)part(T.ball,0,1.70,0,.15,.075,.15,pick(st.hat.colors));
-   const cheer=rnd();if(cheer<st.cheer)for(const s of cheer<st.cheer*.35?[-1,1]:[cheer<st.cheer*.7?-1:1]){part(T.box,s*.27,1.60,.02,.085,.50,.085,cloth,-s*.22);part(T.ball,s*.325,1.89,.02,.062,.062,.062,fur);}
+  // Queue one spectator (built in finish(), when the set's own triangles are known); takes exactly one draw from the set's random stream.
+  person(key,x,z,g,yaw,rnd,st,o={}){(this.people||(this.people=[])).push({key,x,z,g,yaw,st,seed:Math.floor(rnd()*4294967296)>>>0||1,up:g,prio:Math.hypot(x,z)+(g>.5?4:0),glow:o.glow||null,high:!!o.high});}
+  // Closest spectators first: the finest level of detail that still fits the set's triangle budget, everyone else the next one down.
+  flushPeople(){
+   const list=this.people||[];this.people=[];if(!list.length)return;
+   let used=0;for(const b of this.buffers.values())used+=b.idx.length/3;
+   const tri=g=>g.index.count/3,plans=list.map(planPerson),costs=list.map((sp,i)=>{const pl=plans[i];return [0,1,2].map(t=>tri(bodyProto(t,pl.seated,pl.pose,pl.mirror,pl.outfit,pl.legPose))+tri(headProto(t,pl.species))+(pl.hat?tri(hatProto(t,pl.hat,pl.species)):0)+(sp.glow?12:0));});
+   const tiers=list.map(()=>0);let spare=this.peopleBudget-used-costs.reduce((s,c)=>s+c[0],0);
+   const order=list.map((sp,i)=>i).sort((a,b)=>list[a].prio-list[b].prio),front=order.filter(i=>list[i].prio<=list[order[0]].prio+.45);
+   const lift=(i,t)=>{const extra=costs[i][t]-costs[i][tiers[i]];if(t<=tiers[i]||extra>spare)return false;tiers[i]=t;spare-=extra;return true;};
+   const all2=front.reduce((s,i)=>s+costs[i][2]-costs[i][0],0);
+   if(all2<=spare*1.3)front.forEach(i=>lift(i,2)); // the front row at full detail (all of it, or nearly: the farthest few fall to the middle level), else first at the middle level
+   for(const i of order)lift(i,1);for(const i of order)lift(i,2);
+   const stats={count:list.length,tiers:[0,0,0],triangles:0,max:0,species:{},poses:{}};
+   list.forEach((sp,i)=>{const pl=plans[i],c=this.buildPerson(sp,pl,tiers[i]);stats.tiers[tiers[i]]++;stats.triangles+=c;stats.max=Math.max(stats.max,c);stats.species[pl.species]=(stats.species[pl.species]||0)+1;stats.poses[pl.pose]=(stats.poses[pl.pose]||0)+1;});
+   this.peopleStats=stats;
+  }
+  buildPerson(sp,pl,t){
+   const B=this.m(sp.x,sp.g,sp.z,pl.lean,sp.yaw,0,pl.sc*pl.bw,pl.sc,pl.sc*pl.bz,new THREE.Matrix4()),body=bodyProto(t,pl.seated,pl.pose,pl.mirror,pl.outfit,pl.legPose),head=headProto(t,pl.species);
+   const at=new THREE.Vector3(0,(pl.seated?1.14:1.57),.015).applyMatrix4(B),H=this.m(at.x,at.y,at.z,pl.lean+pl.headPitch,sp.yaw+pl.headYaw,pl.headTilt,pl.hs,pl.hs,pl.hs,new THREE.Matrix4());
+   this.add(sp.key,body,B,pl.palette);this.add(sp.key,head,H,pl.palette);let n=body.index.count/3+head.index.count/3;
+   if(pl.hat){const hat=hatProto(t,pl.hat,pl.species);this.add(sp.key,hat,H,pl.palette);n+=hat.index.count/3;}
+   const ph=body.userData.phone;if(sp.glow&&ph){const w=new THREE.Vector3(...ph).applyMatrix4(B);this.box('g'+sector(sp.x,sp.z),.04*pl.sc,.078*pl.sc,.012,w.x,w.y,w.z,sp.glow,sp.yaw,{rx:pl.lean-.22});n+=12;} // the phone's screen (and its torch from the front)
+   return n;
   }
   // Rings of spectators on a square around the ropes; two interleaved groups per sector can sway out of phase.
   crowd(o){
@@ -80,8 +285,8 @@
      for(let i=0;i<n;i++){
       const a=(i+(r%2)*.5+(rnd()-.5)*.5)/n*2*PI,d=rad+(rnd()-.5)*o.step*.55,x=Math.sin(a)*d,z=Math.cos(a)*d,thin=rnd(),turn=(rnd()-.5)*.5;
       if(o.skip&&o.skip(x,z)||thin<(o.thin||0))continue;
-      this.person(((i+r)&1?'a':'b')+sector(x,z),x,z,o.g+r*(o.rise||0),Math.atan2(-x,-z)+turn,rnd,o.style);
-      if(o.lights&&rnd()<o.lights.p){const c=o.lights.colors[Math.floor(rnd()*o.lights.colors.length)%o.lights.colors.length],k=.9-.1*r;this.box('g'+sector(x,z),.07,.12,.02,x*k+(rnd()-.5)*.1,o.g+1.42+rnd()*.3,z*k+(rnd()-.5)*.1,c,Math.atan2(-x,-z));} // a raised phone screen
+      const glow=o.lights&&rnd()<o.lights.p?o.lights.colors[Math.floor(rnd()*o.lights.colors.length)%o.lights.colors.length]:null; // filming the fight on a phone
+      this.person(((i+r)&1?'a':'b')+sector(x,z),x,z,o.g+r*(o.rise||0),Math.atan2(-x,-z)+turn,rnd,o.style,{glow,high:r>0});
      }
     }
     return;
@@ -98,6 +303,7 @@
   // Painted or chalked circle on the floor: the edge of the fight where there is no ring (dashed when gap>0).
   mark(r,y,color,o={}){const n=o.n||56,gap=o.gap||0,w=o.w||.05;for(let i=0;i<n;i++){if(gap&&i%gap===gap-1)continue;const a=(i+.5)/n*2*PI,x=Math.sin(a)*r,z=Math.cos(a)*r;this.box('s'+sector(x,z),2*PI*r/n*1.03,.004,w,x,y,z,color,a,{unlit:!!o.unlit,gain:o.gain||1});}}
   finish(id){
+   this.flushPeople();
    const lit=new THREE.MeshBasicMaterial({map:this.atlas.texture,vertexColors:true,alphaTest:.4}),glow=new THREE.MeshBasicMaterial({map:this.atlas.texture,vertexColors:true,alphaTest:.4,toneMapped:false,fog:false}),add=new THREE.MeshBasicMaterial({vertexColors:true,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false,fog:false});
    const materials={lit,glow,add},group=new THREE.Group(),sectors=[],geometries=[];let triangles=0,meshes=0;group.name='Arena set '+id;group.userData.arenaSet=true;
    for(let i=0;i<SECTORS;i++){const g=new THREE.Group();g.name='Arena set sector '+i;g.userData.arenaSet=true;group.add(g);sectors.push({group:g,x:Math.sin(i*PI/4),z:Math.cos(i*PI/4),crowd:[]});}
@@ -106,7 +312,7 @@
     const mesh=new THREE.Mesh(g,materials[b.kind]);mesh.name='Arena set '+b.key;mesh.userData.arenaSet=true;mesh.castShadow=false;mesh.receiveShadow=false;if(b.kind==='add')mesh.renderOrder=3;geometries.push(g);triangles+=b.idx.length/3;meshes++;
     const index=/^[sabgd]\d$/.test(b.key)?Number(b.key[1]):-1;if(index<0)group.add(mesh);else{sectors[index].group.add(mesh);if(b.key[0]==='a'||b.key[0]==='b')sectors[index].crowd.push(mesh);}
    }
-   return {group,sectors,materials,geometries,triangles,meshes};
+   return {group,sectors,materials,geometries,triangles,meshes,people:this.peopleStats||null};
   }
  }
 
@@ -174,7 +380,7 @@
   crate(7.3,-2.2,.9,2);crate(7.2,-1.1,.8,1);crate(-7.3,2.4,.9,3);crate(-7.3,1.2,.8,1);crate(2.6,7.4,.9,2);crate(-3.2,-7.4,.9,2);crate(-4.3,-7.5,.8,1);
   for(const [x,z] of [[7.4,4.2],[-7.4,-4.4],[4.6,-7.5]]){const key='s'+sector(x,z);for(let i=0;i<4;i++)k.tube(key,.34,.2,x+(i%2)*.04,G+.1+i*.2,z,lin('#1f1f21'));}
   // Tight standing crowd inside the fence, and a darker row pressed against it outside.
-  const style={cloth:['#2b2f36','#3a3f45','#4a3b35','#1f2a33','#55504a','#6a2f2c','#2f3d2f','#3d3550','#5f5a52','#243443'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.3};
+  const style={cloth:['#2b2f36','#3a3f45','#4a3b35','#1f2a33','#55504a','#6a2f2c','#2f3d2f','#3d3550','#5f5a52','#243443'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.3,wear:{hoodie:3.5,tee:3,jacket:3.5},caps:.3};
   // Oil drums, a crate and old tyres in the circle of people (GOTR-0065), the crowd standing between them.
   const edge=[[.5,'drum'],[2.2,'crate'],[3.7,'drum'],[5.3,'tyres']];
   for(const [a,what] of edge){const x=Math.sin(a)*2.72,z=Math.cos(a)*2.72,key='s'+sector(x,z);if(what==='drum'){k.tube(key,.29,.88,x,G+.44,z,rust);k.tube(key,.3,.03,x,G+.6,z,black);}else if(what==='crate')k.box(key,.7,.56,.7,x,G+.28,z,lin('#7b6248'),a);else for(let i=0;i<2;i++)k.tube(key,.3,.18,x+i*.05,G+.09+i*.18,z,lin('#1c1c1e'));}
@@ -251,7 +457,7 @@
   const edge=[[1.1,'bin'],[2.9,'crate'],[4.4,'bin'],[5.8,'cone']];
   for(const [a,what] of edge){const x=Math.sin(a)*2.75,z=Math.cos(a)*2.75,key='s'+sector(x,z);if(what==='bin'){k.tube(key,.26,.82,x,G+.41,z,lin('#3c4a3e'));k.tube(key,.28,.05,x,G+.84,z,lin('#2a332c'));}else if(what==='crate'){k.box(key,.55,.4,.55,x,G+.2,z,lin('#8a6a48'),a);k.box(key,.5,.36,.5,x+.05,G+.58,z,lin('#7b5c3e'),a+.4);}else{k.cone(key,.03,.17,.5,x,G+.26,z,lin('#d8642a'),{seg:8});k.box(key,.36,.04,.36,x,G+.02,z,lin('#d8642a'));}}
   // Onlookers: a loose circle close round the fighters, with a few on the parked cars and pavements.
-  const style={cloth:['#3d5a7a','#7a3b34','#4f6b4a','#8a7a4c','#3a3f4c','#6b4a6e','#9a5a2c','#2f3f4a','#b0a48c','#5a2f3a','#44556b'].map(lin),fur:FUR,legs:DARK_LEGS.concat([lin('#3c4a66')]),cheer:.36};
+  const style={cloth:['#3d5a7a','#7a3b34','#4f6b4a','#8a7a4c','#3a3f4c','#6b4a6e','#9a5a2c','#2f3f4a','#b0a48c','#5a2f3a','#44556b'].map(lin),fur:FUR,legs:DARK_LEGS.concat([lin('#3c4a66')]),cheer:.36,wear:{tee:3.5,hoodie:3.5,jacket:3},caps:.3};
   k.crowd({seed:31,round:true,rows:3,inner:3.0,step:.52,spacing:.52,rise:.045,g:G,style,lights:{p:.16,colors:[lin('#e8f1ff'),lin('#cfe4ff'),lin('#fff1d0')]},skip:(x,z)=>edge.some(([a])=>Math.hypot(x-Math.sin(a)*2.75,z-Math.cos(a)*2.75)<.45)});
   const rnd=random(77);
   for(const [x,z,y] of [[-1.9,5.2,1.42],[-1.1,5.3,1.42],[2.4,-5.2,1.42],[3.1,-5.3,1.42],[-2.2,-5.3,1.42],[3.3,5.3,1.45],[4.2,5.2,1.45]])k.person('s'+sector(x,z),x,z,G+y,Math.atan2(-x,-z),rnd,style);
@@ -280,9 +486,9 @@
   // Judges' tables.
   for(const [x,z,ry] of [[3.25,1.2,PI/2],[-3.25,-1.2,PI/2],[1.2,3.25,0]]){const key='s'+sector(x,z);k.box(key,1.9,.74,.62,x,G+.37,z,lin('#d9d9de'),ry);k.quad(key,1.5,.46,x-Math.sign(x)*(ry?.315:0),G+.4,z-(ry?0:.315),[1.5,1.5,1.5],{ry:ry?-Math.sign(x)*PI/2:PI,uv:press});}
   // Ringside chairs with seated guests.
-  const style={cloth:['#2c3550','#6a2a30','#e3ded2','#3f5f4c','#8a6a2c','#4a4a56','#1d2330','#7c4f73','#b5483c','#3c6c8c'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.3,seated:true};
+  const style={cloth:['#2c3550','#6a2a30','#e3ded2','#3f5f4c','#8a6a2c','#4a4a56','#1d2330','#7c4f73','#b5483c','#3c6c8c'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.3,seated:true,wear:{jacket:5.5,tee:2,hoodie:2.5},caps:.08};
   const aisle=(x,z)=>z<0&&Math.abs(x)<1.55;
-  k.crowd({seed:41,rows:4,inner:3.55,step:.62,spacing:.56,rise:.07,g:G+.08,style,skip:aisle});
+  k.crowd({seed:41,rows:4,inner:3.55,step:.62,spacing:.62,rise:.07,g:G+.08,style,skip:aisle});
   // Entrance: stage, ramp with light strips, truss gate and the big screen.
   k.box('shell',11,1.0,3.2,0,G+.5,-13.2,black);k.quad('shell',11,3.2,0,G+1.003,-13.2,lin('#3a3f4c'),{rx:-PI/2,sx:8,sy:2});
   for(let i=0;i<4;i++){const z=-11.6+i*2.35+1.175,h=1.0-i*.235;k.box('shell',1.9,h,2.35,0,G+h/2,z,lin('#30343f'));k.quad('shell',1.9,2.35,0,G+h+.003,z,lin('#4a5060'),{rx:-PI/2,sy:2});for(const s of [-1,1])k.box('glow',.06,.05,2.3,s*.96,G+h+.03,z,[1,.83,.42]);}
@@ -375,7 +581,7 @@
   k.tube('shell',.17,.04,2.35,G+.5,2.35,lin('#8f231f'));k.tube('shell',.03,.5,2.35,G+.25,2.35,steel);k.tube('shell',.13,.28,2.75,G+.14,2.05,lin('#8a9099'));
   k.box('s'+sector(-2.35,-2.2),.7,.16,.5,-2.35,G+.08,-2.25,wood);k.box('s'+sector(-2.35,-2.2),.7,.16,.26,-2.35,G+.24,-2.13,wood);
   // A few members watching from the apron and the mats.
-  const style={cloth:['#8f9499','#27405c','#7a2a24','#d9d5cb','#2f4a3c','#1d1d20','#c9a23a','#5a6068'].map(lin),fur:FUR,legs:DARK_LEGS.concat(['#6a6f76','#27405c'].map(lin)),cheer:.2};
+  const style={cloth:['#8f9499','#27405c','#7a2a24','#d9d5cb','#2f4a3c','#1d1d20','#c9a23a','#5a6068'].map(lin),fur:FUR,legs:DARK_LEGS.concat(['#6a6f76','#27405c'].map(lin)),cheer:.2,wear:{tee:4.5,hoodie:3.5,jacket:2},caps:.25};
   k.crowd({seed:53,rows:2,inner:2.8,step:.7,spacing:.82,g:G,style,thin:.52});
   const rnd=random(61);for(const [x,z] of [[-5.5,-4.4],[-3.0,-4.5],[1.3,-4.5],[5.9,-2.3],[5.9,2.0],[-5.9,-1.7],[-5.7,3.6],[4.7,5.0],[-1.5,5.3]])k.person('s'+sector(x,z),x,z,G,Math.atan2(-x,-z)+(rnd()-.5)*1.6,rnd,style);
   return {background:0x14110e,fog:[20,48],lights:{hemi:[0xfff0dc,.5,0x4a3c30],key:[0xfff4e0,2.8],fill:[0xcfd8e6,.6],rimA:[0xf4f4f4,2],rimB:[0xf4f4f4,2],a:[0xffc890,1.2],b:[0xffe2b8,1.0]}};
@@ -429,7 +635,7 @@
   for(let i=0;i<5;i++){const z=-9+i*6.3,n=1+Math.floor(far()*3);for(let j=0;j<n;j++)container('shell',23+(i%2)*2.7,G+j*2.59,z,PI/2,paints[Math.floor(far()*paints.length)],false);}
   k.tube('shell',.14,15,21,G+7.5,-15,steel);for(const d of [-.5,.5])k.box('glow',.5,.3,.12,21+d,G+15,-15,[1,.9,.7]);
   // Containers inside as grandstands, with crew on top.
-  const rnd=random(71),style={cloth:['#e0701c','#d9c21c','#1f2f44','#5a5f66','#e0701c','#2f4a3c','#d9c21c','#3a3f48'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.32,hat:{p:.72,colors:['#e0c020','#f1efe8','#e0701c'].map(lin)}};
+  const rnd=random(71),style={cloth:['#e0701c','#d9c21c','#1f2f44','#5a5f66','#e0701c','#2f4a3c','#d9c21c','#3a3f48'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.32,hat:{p:.72,hard:true,colors:['#e0c020','#f1efe8','#e0701c'].map(lin)},wear:{vest:4,overalls:2,jacket:2.5,hoodie:1.5},vest:['#e0701c','#d9c21c'].map(lin)};
   const stand=(x,z,ry,levels,tints)=>{
    for(let j=0;j<levels;j++)container('s'+sector(x,z),x,G+j*2.59,z,ry,paints[tints[j]],true);
    // Crew along the edge that faces the ring.
@@ -492,7 +698,7 @@
    for(let i=0;i<8;i++){const x=-10.5+i*3,key='s'+sector(x,z);k.box(key,2.96,.42,.62,x,y-.21,z+s*.31,lin(r%2?'#7a5a3a':'#86643f'));k.box(key,2.9,.3,.06,x,y+.2,z+s*.56,blue);if(rnd()<.68)k.quad(key,2.96,.98,x,y+.46,z+s*.26,[1.05,1.05,1.05],{ry:s>0?PI:0,uv:(i+r)%2?crowdA:crowdB});}
   }
   // Folding chairs at ringside, the walk-in carpet and barriers.
-  const style={cloth:['#3d5a7a','#7a3b34','#d9d5cb','#4f6b4a','#8a7a4c','#3a3f4c','#b0a48c','#2b4f86','#a3262a'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.24,seated:true};
+  const style={cloth:['#3d5a7a','#7a3b34','#d9d5cb','#4f6b4a','#8a7a4c','#3a3f4c','#b0a48c','#2b4f86','#a3262a'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.24,seated:true,wear:{jacket:4,tee:3,hoodie:3},caps:.12};
   k.crowd({seed:91,rows:2,inner:3.5,step:.72,spacing:.62,rise:.03,g:G+.06,style,thin:.2,skip:(x,z)=>x>0&&Math.abs(z)<1.3});
   k.quad('shell',10.2,1.5,7.6,G+.006,0,red,{rx:-PI/2,sx:8});
   for(const s of [-1,1])for(let i=0;i<4;i++){const x=5.4+i*2.1,key='s'+sector(x,s*1.1);k.box(key,1.9,.05,.05,x,G+1.0,s*1.1,steel);k.box(key,1.9,.05,.05,x,G+.3,s*1.1,steel);for(const dx of [-.9,-.45,0,.45,.9])k.box(key,.04,.9,.04,x+dx,G+.55,s*1.1,steel);}
@@ -511,12 +717,15 @@
   if(k.cameraRadius)made.group.userData.cameraRadius=k.cameraRadius;
   let disposed=false;
   // mood.ring===false (GOTR-0065): the fight is staged on the floor; ringless-venues.js hides the ring hardware and the referee.
-  return {id,lang,group:made.group,mood,ring:mood.ring!==false,sectors:made.sectors,stats:{triangles:made.triangles,meshes:made.meshes,texture:[k.atlas.w,k.atlas.h]},
+  return {id,lang,group:made.group,mood,ring:mood.ring!==false,sectors:made.sectors,stats:{triangles:made.triangles,meshes:made.meshes,texture:[k.atlas.w,k.atlas.h],people:made.people},
    setLang(next){if(next===this.lang)return;this.lang=next;paint(next);},
    // cx,cz: unit direction from the ring to the camera in arena space.
    tick(cx,cz,time){for(const [i,s] of made.sectors.entries()){s.group.visible=s.x*cx+s.z*cz<.12;if(!s.group.visible)continue;for(const [j,mesh] of s.crowd.entries())mesh.position.y=.014*Math.sin(time*2.3+i*1.7+j*2.4);}},
    dispose(){if(disposed)return;disposed=true;made.group.parent?.remove(made.group);for(const g of made.geometries)g.dispose();for(const m of Object.values(made.materials))m.dispose();k.atlas.texture.dispose();}};
  }
- const api=Object.freeze({ids:Object.freeze(Object.keys(builders)),has:id=>Object.prototype.hasOwnProperty.call(builders,id),build});
+ // Spectator prototypes for tests and QA: the parts of one person at a level of detail.
+ const spectators=Object.freeze({species:Object.keys(SPECIES),outfits:Object.keys(OUTFIT),poses:{stand:Object.keys(POSES.stand),seat:Object.keys(POSES.seat)},levels:LOD.length,
+  parts:({tier=2,species='lion',seated=false,pose,mirror=false,outfit='tee',legPose,hat=null}={})=>({body:bodyProto(tier,seated,pose||(seated?'knees':'idle'),mirror,outfit,legPose||(seated?'seat':'stand')),head:headProto(tier,species),hat:hat?hatProto(tier,hat,species):null})});
+ const api=Object.freeze({ids:Object.freeze(Object.keys(builders)),has:id=>Object.prototype.hasOwnProperty.call(builders,id),build,spectators});
  if(typeof module!=='undefined')module.exports=api;else window.ArenaSets=api;
 })();
