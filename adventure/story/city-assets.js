@@ -30,6 +30,10 @@
     Object.freeze({ name: 'Old Town compact tree', x: 11.6, z: 5.4, h: 4.4, yaw: 2.2, scale: [.74, .88, .81], phase: .7 }),
     Object.freeze({ name: 'Old Town spreading tree', x: 17.4, z: -5.4, h: 4.5, yaw: -1.3, scale: [1.17, .92, 1.03], phase: 1.6 })
   ]);
+  const MARKET_TREES = Object.freeze([
+    Object.freeze({ name: 'Market west tree', x: -2.9, z: -4.45, h: 4.0, yaw: 1.8, scale: [.74, .83, .75], phase: 1.1 }),
+    Object.freeze({ name: 'Market east tree', x: 3.25, z: -4.6, h: 4.1, yaw: -.6, scale: [.91, .88, .79], phase: 2.2 })
+  ]);
   const OPENING_MODELS = ['tree', 'car', 'bus', 'station', 'oldtown'];
   const WAIT_MS = 5000, TIRE_R = .515, HALF = Math.PI;
   const LAYOUT = {
@@ -99,7 +103,7 @@
     tex.dispose(); return rt;
   }
 
-  function dress(c, city) {
+  function dress(c, city, treeSites = ARRIVAL_TREES) {
     const L = LAYOUT, group = new THREE.Group(), handle = { active: false, bus: null, station: false, oldtown: false, parts: [], houses: [] };
     group.name = 'city art (GLB)'; c.group.add(group);
     const used = [], env = environment(c.opts?.renderer), aniso = c.opts?.renderer ? Math.min(4, c.opts.renderer.capabilities.getMaxAnisotropy()) : 1;
@@ -113,7 +117,7 @@
     });
     const put = (o, x, y, z, ry) => { o.position.set(x, y, z); o.rotation.y = ry; o.updateMatrix(); group.add(o); return o; };
     const trees = [], treeClip = new THREE.Frustum(), treeVP = new THREE.Matrix4();
-    if (city?.tree) for (const site of ARRIVAL_TREES) {
+    if (city?.tree) for (const site of treeSites) {
       // Give each film instance its own bones so playback leaves the cached GLTF intact.
       const template = city.tree.scene, tree = template.clone(true);
       const sources = [], copies = [];
@@ -225,7 +229,7 @@
   }
 
   window.CityAssets = {
-    FILES, LAYOUT, ARRIVAL_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, wheelAngle,
+    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, wheelAngle,
     get: n => cache.get(n)?.gltf || null,
     _setLoader(f) { makeLoader = f || defaultLoader; cache.clear(); } // tests
   };

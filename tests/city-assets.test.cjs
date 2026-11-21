@@ -54,6 +54,11 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
       assert.equal(mesh.castShadow, false, 'no extra shadow-map draw');
     });
   }
+  const marketTreeSet = { group: new THREE.Group(), objects: {}, disposables: [] };
+  const marketTreeArt = CA.dress(marketTreeSet, { tree }, CA.MARKET_TREES);
+  assert.ok(marketTreeArt.stats().triangles <= 40000);
+  assert.equal(marketTreeSet.group.getObjectByName(CA.ARRIVAL_TREES[0].name), undefined, 'Market does not import the arrival placement');
+  for (const site of CA.MARKET_TREES) assert.deepEqual(marketTreeSet.group.getObjectByName(site.name)?.position.toArray(), [site.x, 0, site.z]);
   const sourceBones = [], instanceBones = [];
   tree.scene.traverse(node => { if (node.isBone) sourceBones.push(node); });
   treeInstance.traverse(node => {

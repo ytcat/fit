@@ -64,8 +64,14 @@
       [-22, -16.5, -11, -5.5, 0, 5.5, 11, 16.5, 22].forEach((x, i) => {
         if (x !== 0) stall(x, AW[i % AW.length], [FRUIT[i % 7], FRUIT[(i + 2) % 7], FRUIT[(i + 4) % 7]], i % 3 === 1 ? 3.6 : 3.0);
       });
-      if (c.opts.city?.hazelStall) {
-        objects.city = window.CityAssets.dress(c, c.opts.city);
+      const city = c.opts.city, art = window.CityAssets;
+      const marketTrees = art?.MARKET_TREES || [{ x: -2.9, z: -4.45, h: 4 }, { x: 3.25, z: -4.6, h: 4.1 }];
+      if (art && (city?.hazelStall || city?.tree)) objects.city = art.dress(c, city, marketTrees);
+      for (const { x, z, h } of marketTrees) {
+        if (!city?.tree) tree(x, z, h);
+        else shade(x, z, 1.5, 1.15);
+      }
+      if (city?.hazelStall) {
         shade(0, -3.3, 3.6, 2.4);
       } else {
         stall(0, ['#4f8f5a', '#fff4e0'], ['#c9d65a', '#f2c14e', '#c9d65a'], 3.6, true);

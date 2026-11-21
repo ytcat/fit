@@ -449,6 +449,7 @@ function build(scene, opts = {}) {
   buildDistricts(W);
   buildLandmarks(W);
   buildVegetation(W);
+  civicPlanting(W);
   buildTraffic(W);
 
   /* ---- materials and meshes */
@@ -2140,6 +2141,29 @@ function occupancy(W) {
   const data = c.getImageData(0, 0, w, h).data;
   return (x, z) => { const i = Math.round(X(x)), j = Math.round(Y(z)); if (i < 0 || j < 0 || i >= w || j >= h) return !inPoly(x, z, LAND) || polyDist(x, z, LAND) < 4; return data[(j * w + i) * 4] > 127; };
 }
+/** A small number of civic plantings on already-open paved edges; keep road, pins and plaza centres clear. */
+function civicPlanting(W) {
+  const leaf = ['#739350', '#7b994a', '#8da455'];
+  let i = 0;
+  function plant(x, z, s, shape) {
+    const id = i++;
+    addInst(W, 'trees', { x, z, y: BLOCK_Y, s, sx: shape[0], sy: shape[1], sz: shape[2], ry: id * .87, color: leaf[id % leaf.length] });
+  }
+  const mf = W.marketFrame;
+  // Between shopfronts and stalls; the middle of the marked pedestrian lane stays open.
+  for (const [u, w] of [[5,-3.30],[15,3.30],[24,-3.30],[34,3.30],[44,-3.30]]) {
+    plant(mf.o[0] + mf.U[0] * u + mf.Wv[0] * w, mf.o[1] + mf.U[1] * u + mf.Wv[1] * w, .63, [.79, 1.13, .84]);
+  }
+  for (const b of W.blocks) if ((b.district === 'oldtown' && b.kind === 'square') || b.kind === 'park') {
+    const fr = frame(b.x, b.z, b.ang);
+    const pts = b.kind === 'park' ? [[-.31, -.26], [.31, .26]] : [[-.31, .05], [.31, -.05]];
+    for (const [a, c] of pts) {
+      const [x, z] = fr.p(b.w * a, b.d * c);
+      // Do not overlap a naturally generated park tree on the same grass.
+      if (!(W.inst.trees || []).some(o => Math.hypot(o.x - x, o.z - z) < 1.25)) plant(x, z, .75, [.98, .86, 1.11]);
+    }
+  }
+}
 function buildVegetation(W) {
   for (const b of W.blocks) if (b.kind === 'park') {
     const fr = frame(b.x, b.z, b.ang), n = Math.round(b.w * b.d / 7);
@@ -2308,7 +2332,7 @@ function buildInstances(W, add) {
     if (def.map) W.disposables.push(mat.map);
     const mesh = new THREE.InstancedMesh(geo, mat, list.length), col = new THREE.Color();
     list.forEach((o, i) => {
-      mesh.setMatrixAt(i, M(o.x, o.y, o.z, o.s, o.s * (o.sy || 1), o.s, o.ry ?? rnd(0, TAU)));
+      mesh.setMatrixAt(i, M(o.x, o.y, o.z, o.s * (o.sx || 1), o.s * (o.sy || 1), o.s * (o.sz || 1), o.ry ?? rnd(0, TAU)));
       col.copy(C(o.color || (def.colors ? pick(def.colors) : '#ffffff'))); mesh.setColorAt(i, col);
       if (moving) { if (o.mv.type === 'orbit') { o.mv.cx = o.x - Math.cos(o.mv.ph) * o.mv.r; o.mv.cz = o.z - Math.sin(o.mv.ph) * o.mv.r; } W.movers.push({ mesh, i, o }); }
     });
