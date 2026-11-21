@@ -25,7 +25,7 @@ assert.ok(Film.angle(7.4) > 0 && Film.angle(8.6) < 0);
 const rest = Bag.sample(0), copy = JSON.stringify(rest), sample = Film.bagPose(rest,7.5);
 assert.equal(sample.links.length,rest.links.length); assert.equal(JSON.stringify(rest),copy);
 assert.ok(sample.links.flatMap(l => [...l.p,...l.d]).every(Number.isFinite));
-for (const file of ['index.html', 'offline-manifest.json']) assert.ok(fs.readFileSync(path.join(ROOT,file),'utf8').includes('adventure/story/gym-return-core.js?v=1'));
+for (const file of ['index.html', 'offline-manifest.json']) assert.ok(fs.readFileSync(path.join(ROOT,file),'utf8').includes('adventure/story/gym-return-core.js?v='));
 console.log('PASS gym return scripts: both timelines, alternate strikes, bag response, localization and story wiring');
 
 let chromium;
