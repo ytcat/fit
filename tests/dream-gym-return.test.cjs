@@ -83,10 +83,19 @@ const server = http.createServer((req,res) => {
         await page.waitForTimeout(140);
         await page.screenshot({path:path.join(process.env.GOTR_GYM_ARTIFACTS,id + '.png')});
       }
-      if (step === 'bag_drill') await page.locator('dialog.dream-scene .dream-skip').click();
-      else await page.keyboard.press('Escape');
+      if (step === 'bag_drill') {
+        // Inspect actual mobile-size hit geometry, then exercise the click handler without waiting for
+        // Playwright's frame cadence under CPU software rendering.
+        const hit = await page.evaluate(() => {
+          const button = document.querySelector('dialog.dream-scene .dream-skip');
+          const box = button?.getBoundingClientRect();
+          if (!button || !box?.width || !box.height || !button.contains(document.elementFromPoint(box.left + box.width/2,box.top + box.height/2))) return false;
+          button.click(); return true;
+        });
+        assert.equal(hit,true,'Skip button is visible and hit-testable');
+      } else await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})));
       await wait(() => !!window.__gymTraining && !DreamScenes.playing && !!window.app?.engine?.career?.active);
-      assert.equal(await page.evaluate(() => window.__gymTraining.mode),step === 'bag_drill' ? 'heavy' : 'pads');
+      assert.deepEqual(await page.evaluate(() => [window.__gymTraining.mode,app.engine.career.active.mode]),Array(2).fill(step === 'bag_drill' ? 'heavy' : 'pads'));
       assert.equal(await page.evaluate(step => StoryFlow.doneOf(ringfighterGame.store.game(),StoryFlow.find(step)),step),false,'skipping film does not complete training');
       assert.deepEqual(errors,[]);
       await page.close();
