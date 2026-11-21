@@ -144,7 +144,7 @@
       ] },
       bruno: { rig: 'bruno', keys: [
         { t: 0, x: -2.25, z: .55, face: 'fighter', look: 'fighter', arms: { L: 'hips', R: 'hips' } },
-        { t: 5.6, x: -2.4, z: .9, face: 'fighter', look: 'fighter', arms: {} },
+        { t: 5.6, x: -2.0, z: .72, face: 'fighter', look: 'fighter', arms: {} },
         { t: 14.8, arms: { R: 'point' } }, { t: 16.4, arms: { L: 'hips', R: 'hips' } }                 // "The whole neighbourhood's here."
       ] },
       brick: { rig: 'brick', keys: [
@@ -167,14 +167,14 @@
     camera: [
       { t: 0, pos: [3.4, 2.4, 8.4], look: [-2.2, 1.3, -1.4], fov: 44 },                                // the hall at night: people round the ring
       { t: 5.4, pos: [2.2, 2.2, 7.0], look: [-2.6, 1.3, -1.6], fov: 42, ease: 'smooth' },
-      { t: 5.4, cut: true, pos: [-3.7, 1.65, 2.1], look: [-.5, 1.45, .9], fov: 38 },                   // the neighbours turn and greet him
-      { t: 11.0, pos: [-3.75, 1.65, 2.2], look: [-.6, 1.45, .9], fov: 37, ease: 'linear' },
+      { t: 5.4, cut: true, pos: [-3.3, 1.75, 3.1], look: [-.7, 1.4, .9], fov: 38 },                    // the neighbours turn and greet him
+      { t: 11.0, pos: [-3.35, 1.75, 3.2], look: [-.75, 1.4, .9], fov: 37, ease: 'linear' },
       { t: 11.0, cut: true, pos: [-1.45, 1.4, -1.6], look: [RX + .6, 2.05, RZ + .9], fov: 32 },          // up at Brick, through the ropes
       { t: 14.6, pos: [-1.4, 1.35, -1.55], look: [RX + .6, 2.1, RZ + .9], fov: 31, ease: 'linear' },
-      { t: 14.6, cut: true, pos: [-3.3, 1.65, 1.9], look: [-2.4, 1.55, .9], fov: 32 },                  // Bruno to the Fighter
-      { t: 18.0, pos: [-3.32, 1.65, 1.95], look: [-2.4, 1.55, .9], fov: 31, ease: 'linear' },
-      { t: 18.0, cut: true, pos: [-1.9, 1.55, 2.4], look: [-3.0, 1.6, .55], fov: 32 },                  // on the Fighter: "Let's go."
-      { t: 21, pos: [-1.95, 1.55, 2.5], look: [-3.0, 1.6, .55], fov: 31, ease: 'linear' }
+      { t: 14.6, cut: true, pos: [-2.45, 1.62, 3.1], look: [-2.45, 1.5, .72], fov: 34 },                // Bruno and the Fighter face to face, from the hall
+      { t: 18.0, pos: [-2.45, 1.62, 3.0], look: [-2.45, 1.5, .72], fov: 33, ease: 'linear' },
+      { t: 18.0, cut: true, pos: [-3.52, 2.45, -.77], look: [-2.9, 1.6, .7], fov: 34 },                // on the Fighter, from the ring he faces: "Let's go."
+      { t: 21, pos: [-3.55, 2.5, -.82], look: [-2.9, 1.6, .7], fov: 33, ease: 'linear' }
     ],
     props: {},
     lines: [
@@ -210,8 +210,8 @@
     camera: [
       { t: 0, pos: [-1.3, 1.2, -1.2], look: [RX - .2, 2.2, RZ + .4], fov: 40 },                          // low, through the ropes: the winner
       { t: 4.4, pos: [-1.35, 1.2, -1.3], look: [RX - .2, 2.25, RZ + .4], fov: 39, ease: 'linear' },
-      { t: 4.4, cut: true, pos: [-2.7, 2.15, -1.0], look: [-2.1, 1.5, .2], fov: 34 },                    // from the ring down at Bruno: the verdict
-      { t: 11.2, pos: [-2.75, 2.2, -1.05], look: [-2.1, 1.5, .2], fov: 33, ease: 'linear' },
+      { t: 4.4, cut: true, pos: [-2.75, 2.8, -1.1], look: [-2.1, 1.5, .2], fov: 34 },                    // from the ring, over the top rope, down at Bruno: the verdict
+      { t: 11.2, pos: [-2.8, 2.85, -1.15], look: [-2.1, 1.5, .2], fov: 33, ease: 'linear' },
       { t: 11.2, cut: true, pos: [RX + 2.4, 2.1, RZ + 2.2], look: [RX + .1, 1.95, RZ - .1], fov: 32 },   // Brick and the Fighter
       { t: 20, pos: [RX + 2.7, 2.2, RZ + 2.6], look: [RX + .1, 1.95, RZ - .1], fov: 34, ease: 'smooth' }
     ],
