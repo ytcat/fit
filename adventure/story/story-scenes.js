@@ -304,6 +304,7 @@
     if (window.BagBreak?.has(id)) return window.BagBreak.play(id, opts); // beat 4, the old bag breaks (GOTR-0087): bag-break.js
     const C = Core(), e = window.app?.engine, done = typeof opts.onDone === 'function' ? opts.onDone : () => {};
     const game = games[id] || null, scene0 = C?.scenes[id];
+    const direct = !!game?.direct;
     const fail = error => { setTimeout(() => done({ id, skipped: true, error }), 0); return false; };
     if (!C || (!game && !scene0)) return fail('unknown scene');
     if (!e?.renderer || !e.coach?.update || !window.StorySets || !window.LionCoach || (game && !Trials())) return fail('engine not ready');
@@ -314,6 +315,7 @@
     const run = { id, closed: false, t: 0, ui, host: ui.host, edge: 0 }; if (game) ui.d.dataset.game = id;
     current = run;
     let set = null, scene = null, camera = null, borrowed = [], mitts = [], rigs = {}, sim = null, stageMove = null, oldFit = null, finished = false, blobs = [];
+    let directInput = null;
     let memo = {}, hard = !!opts.hard, acts = 0; const look = V(), extras = [], dressed = [];
     const placeKind = C.placeOf(game || scene0), wear = game?.wear || C.outfitFor(placeKind); run.place = placeKind; run.wear = wear; // a job in the gym (GOTR-0099) is street clothes
     const finish = (result = {}) => {
@@ -324,6 +326,7 @@
     };
     run.finish = finish; Object.defineProperty(run, 'sim', { get: () => sim });
     function cleanup() {
+      directInput?.dispose(); directInput = null;
       if (e.fightIQDemo === run) e.fightIQDemo = null;
       for (const m of mitts) window.TrainingGear?.dispose(m); mitts = [];
       try { game?.dispose?.({ scene, memo }); } catch (x) { console.warn('story', x); } // a game's own props (GOTR-0099)
@@ -346,7 +349,8 @@
     };
     const onKey = ev => {
       if (ev.key === 'Escape') { ev.preventDefault(); finish({ skipped: true }); return; }
-      const k = KEYMAP[ev.key.length === 1 ? ev.key.toLowerCase() : ev.key]; if (!k || !game) return;
+      if (direct && ev.target !== ui.surface && ev.type === 'keydown') return;
+      const k = (game?.keymap || KEYMAP)[ev.key.length === 1 ? ev.key.toLowerCase() : ev.key]; if (!k || !game) return;
       ev.preventDefault(); if (ev.type === 'keydown' && ev.repeat) return; press(k, ev.type === 'keydown');
     };
     window.addEventListener('keydown', onKey); window.addEventListener('keyup', onKey);
@@ -364,7 +368,7 @@
         window.DreamPose?.reset(c); if (window.StoryCast) { window.StoryCast.outfit(c, wear, { tint: looks[a.rig || key]?.shorts }); dressed.push(c); } // clothes follow the place (kit and gloves only in the gym and the ring)
         if (a.mitts && window.TrainingGear && wear === 'kit') mitts.push(window.TrainingGear.mitt(c, 'L'), window.TrainingGear.mitt(c, 'R'));
       }
-      if (game) { sim = game.make(Trials(), { hard }); run.intro = opts.noIntro ? 0 : 3; }
+      if (game) { sim = game.make(Trials(), { hard }); run.intro = opts.noIntro || direct ? 0 : 3; }
       // Soft contact shade under every character: keeps feet on the ground when the device has turned shadows off.
       const cv = document.createElement('canvas'); cv.width = cv.height = 64; const g2 = cv.getContext('2d'), gr = g2.createRadialGradient(32, 32, 2, 32, 32, 32); gr.addColorStop(0, 'rgba(20,14,8,1)'); gr.addColorStop(.55, 'rgba(20,14,8,.55)'); gr.addColorStop(1, 'rgba(20,14,8,0)'); g2.fillStyle = gr; g2.fillRect(0, 0, 64, 64);
       const blobGeo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), blobMat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthWrite: false, opacity: e.renderer.shadowMap?.enabled ? .3 : .55, toneMapped: false });
@@ -372,6 +376,12 @@
       // Take the engine's canvas: same demo hook and stage move as the Fight IQ examples.
       const stage = e.stage || document.getElementById('stageContainer');
       if (stage) { const placeholder = document.createComment('story stage'); stage.before(placeholder); stageMove = { stage, placeholder, pe: stage.style.pointerEvents }; stage.style.pointerEvents = 'none'; ui.host.append(stage); stage.classList.add('game-preview-live', 'story-live'); }
+      if (direct && stage) {
+        const canvas = stage.querySelector('canvas');
+        if (!canvas) throw Error('game canvas unavailable');
+        directInput = game.mount({ surface: ui.surface, canvas, camera, getSim: () => sim });
+        run.projectFloor = (x,z) => directInput?.project(x,z);
+      }
       oldFit = e.fitCameraToModel; e.fitCameraToModel = () => {};
       run.frame = frame; e.fightIQDemo = run; ui.busy.remove();
       window.dispatchEvent(new Event('resize'));
@@ -381,6 +391,10 @@
     function bagOnRig(c, tilt = 0) { const b = set.objects.bag; b.position.copy(c.root.localToWorld(V(0, 1.12, .38))); b.quaternion.copy(c.root.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), tilt)); }
     function aimCamera(shot, limY) {
       camera.position.fromArray(shot.pos); look.fromArray(shot.look); camera.lookAt(look);
+      if (shot.minHorizontal) {
+        const v = Math.min(96, Math.max(camera.fov, 2 * Math.atan(Math.tan(shot.minHorizontal * Math.PI / 360) / camera.aspect) * 180 / Math.PI));
+        if (camera.fov !== v) { camera.fov = v; camera.updateProjectionMatrix(); }
+      }
       const framed = (shot.fit || []).map(k => typeof k === 'string' ? rigs[k] : k).filter(Boolean);
       const edge = keepInFrame(camera, look, framed, .93, limY); run.edge = Math.max(run.edge, edge); set.focus(look.x, look.z);
       return edge;
@@ -420,7 +434,7 @@
     }
 
     /* ---- skill trial: 3 s tutorial, fixed-step rules, hit-stop, the game's own frame, HUD with the fighter pad */
-    function restart(nextHard = hard) { hard = nextHard; ui.result?.remove(); ui.result = null; run.result = null; run.saved = null; sim = game.make(Trials(), { hard }); memo = {}; acts = 0; run.intro = 0; run.freeze = 0; run.flashT = -1; ui.promptKey = null; ui.d.dataset.hard = String(hard); }
+    function restart(nextHard = hard) { directInput?.clear(); hard = nextHard; ui.result?.remove(); ui.result = null; run.result = null; run.saved = null; sim = game.make(Trials(), { hard }); memo = {}; acts = 0; run.intro = 0; run.freeze = 0; run.flashT = -1; ui.promptKey = null; ui.d.dataset.hard = String(hard); }
     function gameFrame(dt) {
       if (run.intro > 0) run.intro = Math.max(0, run.intro - dt);
       else if (run.freeze > 0) run.freeze -= dt; // hit-stop: the world holds for a moment on a clean hit
@@ -442,7 +456,25 @@
       try { if (l.kind) window.AdventureStory?.mark?.(l.id || id, l.kind, 0); } catch { /* journal is optional */ }
       return p;
     }
+    function buildDirectUi() {
+      const hud = el('div','story-mop-hud'), title = el('strong','story-mop-title',gw.title), goal = el('span','story-mop-value'),
+        bar = el('div','story-mop-bar'), barFill = el('i'), surface = el('div','story-mop-surface'),
+        footer = el('div','story-mop-footer'), help = el('p','story-mop-help',gw.help), keyboard = el('p','story-mop-keyboard',gw.keyboard),
+        finishShift = el('button','story-btn story-mop-finish',gw.finish),
+        quit = el('button','story-quit','×'), again = el('button','story-quit story-retry','↻');
+      ui.d.dataset.direct = 'true';
+      surface.tabIndex = 0; surface.setAttribute('role','group'); surface.setAttribute('aria-label',gw.help+' '+gw.keyboard);
+      bar.setAttribute('role','progressbar'); bar.setAttribute('aria-label',gw.goal); bar.setAttribute('aria-valuemin','0'); bar.setAttribute('aria-valuemax','100'); bar.setAttribute('aria-valuenow','0'); bar.append(barFill);
+      for (const b of [quit,again,finishShift]) b.type = 'button';
+      quit.setAttribute('aria-label',w().quit); again.setAttribute('aria-label',w().retry); quit.title=w().quit; again.title=w().retry;
+      quit.onclick=()=>finish({ skipped:true,quit:true }); again.onclick=()=>{ restart(); surface.focus({preventScroll:true}); };
+      finishShift.disabled=true; finishShift.onclick=()=>sim?.finish();
+      hud.append(title,goal,bar); footer.append(help,keyboard,finishShift);
+      const intro=game.say?.('intro'); if (intro) footer.append(said(intro));
+      ui.d.append(surface,hud,footer,again,quit); Object.assign(ui,{ surface,goal,bar,barFill,footer,finishShift,keys:{},dpad:{ dataset:{} } });
+    }
     function buildGameUi() {
+      if (direct) { buildDirectUi(); return; }
       const hud = el('div', 'story-hud'), goal = el('p', 'story-goal'), score = el('p', 'story-score'), help = el('div', 'story-tutorial'), prompt = el('div', 'story-prompt'), ring = el('span', 'story-ring'), pIcon = el('span', 'story-prompt-arrow'), pText = el('span', 'story-prompt-text'), bar = el('div', 'story-progress'), barFill = el('i'), quit = el('button', 'story-quit', '×'), again = el('button', 'story-quit story-retry', '↻');
       quit.type = again.type = 'button'; quit.setAttribute('aria-label', w().quit); quit.title = w().quit; quit.onclick = () => finish({ skipped: true, quit: true });
       again.setAttribute('aria-label', w().retry); again.title = w().retry; again.onclick = () => restart();
@@ -469,6 +501,11 @@
     function paintHud(v) {
       const h = game.hud(v, gw, L), intro = run.intro > 0;
       if (ui.goal.textContent !== h.goal) ui.goal.textContent = h.goal;
+      if (direct) {
+        ui.barFill.style.width=v.score+'%'; ui.bar.setAttribute('aria-valuenow',String(v.score));
+        ui.footer.hidden=!!run.result; ui.surface.hidden=!!run.result; ui.finishShift.disabled=v.score<25||!!run.result;
+        return;
+      }
       const sc = `${v.score}${v.mult > 1 ? '  ×' + v.mult : ''}${hard ? '  · ' + w().hardTag : ''}`; if (ui.score.textContent !== sc) { ui.score.textContent = sc; ui.score.dataset.mult = String(v.mult); }
       ui.barFill.style.width = Math.round((v.progress || 0) * 100) + '%';
       // tutorial: the keys of this trial pulse on the pad one after another (ghost input), with a 3-2-1
@@ -483,6 +520,7 @@
       const r = intro || run.result ? -1 : h.ring; ui.ring.style.display = r >= 0 ? '' : 'none'; if (r >= 0) ui.ring.style.transform = `translate(-50%,-50%) scale(${(1 + (1 - Math.min(1, r)) * .8).toFixed(3)})`;
     }
     function endGame() {
+      directInput?.clear();
       const A = window.AdventureProgress, res = sim.result(A?.starsFor); run.result = res; run.overAt = run.t;
       for (const k of Object.keys(ui.keys)) ui.keys[k].dataset.pressed = 'false'; delete ui.dpad.dataset.dir;
       let saved = null;
@@ -497,16 +535,16 @@
       // GOTR-0099: a job pays a small wage for every finished shift with a star (game-domain.js 'job' action)
       if (game.job && res.finished && res.stars > 0 && saved?.ok !== false) { const rg = window.ringfighterGame; try { const j = rg?.store?.gameAction?.({ type: 'job', jobId: game.job, stars: res.stars }); if (j?.ok) { res.pay = j.coins ?? j.result?.coins ?? 0; rg.apply?.(); } } catch (x) { console.warn('story', x); } }
       run.saved = saved; const pb = run.best = saveBest(id, res);
-      const box = el('div', 'story-result'), medal = el('p', 'story-medal', res.stars ? `${stars(res.stars)}  ${w().medal[res.stars]}` : w().none), sc = el('p', 'story-result-score', String(res.score)), detail = el('p', 'story-result-detail', `${game.detail(res, gw)} · ${w().streak} ${res.streak}`);
+      const box = el('div', 'story-result'), medal = el('p', 'story-medal', res.stars ? `${stars(res.stars)}  ${w().medal[res.stars]}` : w().none), sc = el('p', 'story-result-score', String(res.score)), detail = el('p', 'story-result-detail', direct ? game.detail(res, gw) : `${game.detail(res, gw)} · ${w().streak} ${res.streak}`);
       medal.dataset.medal = String(res.stars || 0);
       const bestLine = el('p', 'story-result-best', pb.isNew ? w().newBest : `${w().best} ${pb.best}`); bestLine.dataset.new = String(pb.isNew);
       if (saved && !saved.ok) detail.textContent += ' · ' + w().saveErr + saved.error;
       const again = el('button', 'story-btn', w().again), next = el('button', 'story-btn story-btn-main', w().next); again.type = next.type = 'button';
       again.onclick = () => restart(); next.onclick = () => finish({ skipped: false, mission: res, saved: run.saved, best: pb });
-      box.append(medal, sc, bestLine, detail); if (pb.unlocked) box.append(el('p', 'story-result-unlock', w().hardNew));
+      box.append(medal, sc, bestLine, detail); if (pb.unlocked && !direct) box.append(el('p', 'story-result-unlock', w().hardNew));
       if (res.pay) box.append(el('p', 'story-result-pay', (gw.pay || '+{n}').replace('{n}', res.pay)));
       const end = game.say?.('end', res); if (end) box.append(said(end)); // the Coach's one-line reaction
-      box.append(again); if (pb.gold && !hard) { const hb = el('button', 'story-btn story-btn-hard', w().hardGo); hb.type = 'button'; hb.onclick = () => restart(true); box.append(hb); }
+      box.append(again); if (pb.gold && !hard && !direct) { const hb = el('button', 'story-btn story-btn-hard', w().hardGo); hb.type = 'button'; hb.onclick = () => restart(true); box.append(hb); }
       box.append(next); ui.d.append(box); ui.result = box; next.focus({ preventScroll: true });
     }
     return true;
