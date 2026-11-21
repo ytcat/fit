@@ -957,6 +957,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Old saves:** a `clean_gym` record from the stand-in (steps, 8/14/20) is moved on load to the lowest marks of the same stars (`adventure-progress.js` rescale), so it keeps its stars and still validates.
 - **Limits:** Swiftshader only; the mop pose and audio not checked on a phone.
 
+### GOTR-0103 — Carrying the bag out of Otto's: the hand goes through the bag
+- **Reported:** 2026-11-21 (owner, iPhone screenshot of v1.77: "the player holds the bag, his hand is going through the bag and not around it"; the same picture shows a tree filling the shot)
+- **Status:** READY FOR QA — v1.78 (not checked on a phone)
+- **Cause:** `MarketProps.reach` aimed the carrying hand 17 cm off the axis of a 23.5 cm-radius bag, inside it. Measured in the browser (live v1.77): hand centre 16–21 cm off the axis at 28.0–35.0 s. The street tree at x 6 stood in the last shot.
+- **Fix (`adventure/story/market-sets.js`, `market-core.js`):** the hand target sits on the outside of the bag, 69° down from the top on the side away from the head, `HAND_R` = bag radius + 7.5 cm off the axis (measured after: 28–33 cm); tree moved to x 15.5; the last camera move pans with him to the end. Test `tests/otto-carry.test.cjs`; evidence `qa/gotr-0103/hand-before-after.webp` (top live v1.77, bottom fix), `walk-out-shot.webp`; probe via `qa/gotr-0101/otto-flicker.cjs` (BUY=21.9, PROBE=…).
+
 ### GOTR-0102 — Otto's Corner: windows look white; part of the shop floor flickers
 - **Reported:** 2026-11-21 (owner, after v1.76: "the windows are now white. Make them look transparent"; "the player goes into the shop, part of the floor is flickering as well")
 - **Status:** READY FOR QA — v1.77 (not checked on a phone)

@@ -139,7 +139,7 @@
       { const x0 = -3.6, x1 = 3.6, n = 14, zf2 = fz + 1.25, y0 = 2.85, y1 = 2.4; for (let k = 0; k < n; k++) { const a = x0 + (x1 - x0) * k / n, b = x0 + (x1 - x0) * (k + 1) / n, col = C(k % 2 ? '#fff4e0' : '#7a2f26'), lo = col.clone().multiplyScalar(.8); S.quad([a, y1, zf2], [b, y1, zf2], [b, y0, fz + .1], [a, y0, fz + .1], col, lo); S.quad([a, y0, fz + .1], [b, y0, fz + .1], [b, y1, zf2], [a, y1, zf2], lo, lo); box(S, (a + b) / 2, y1 - .2, zf2, b - a, .2, .02, k % 2 ? '#fff4e0' : '#7a2f26'); } }
       board(c, "OTTO'S CORNER", 0, 3.45, fz + .1, 4.2, .62, 0, ['#14202b', '#f4c152']);
       box(S, 3.0, 2.95, fz + .1, .05, .05, .7, '#2f3640'); board(c, 'BOXING', 3.0, 2.62, fz + .78, .7, .32, Math.PI / 2, ['#7a2f26', '#fff4e0']); board(c, 'BOXING', 3.0, 2.62, fz + .78, .7, .32, -Math.PI / 2, ['#7a2f26', '#fff4e0']);
-      for (const x of [-11, 8.5, 18]) lamp(x, -.9); tree(-6.2, -1.2, 4.2); tree(6.0, -1.2, 4.4); bin(4.6, -3.9); planter(-4.3, -3.95, 1.3); planter(13.6, -3.95, 1.3);
+      for (const x of [-11, 8.5, 18]) lamp(x, -.9); tree(-6.2, -1.2, 4.2); tree(15.5, -1.2, 4.4); /* was x 6: its crown filled the last shot as he walks out with the bag (GOTR-0103) */ bin(4.6, -3.9); planter(-4.3, -3.95, 1.3); planter(13.6, -3.95, 1.3);
       c.car?.(-8, 1.35, '#3b7dd8', 1); c.car?.(12, 1.35, '#45b39d', 1);
 
       // ---- the interior (x 36 .. 44.4, z -3.2 .. 3.6, 3.2 m high)
@@ -201,6 +201,7 @@
     g.traverse(o => { if (o.isMesh) o.castShadow = true; }); g.userData.storyPart = true;
     return { group: g, dispose: () => { g.traverse(o => o.geometry?.dispose()); leather.dispose(); cord.dispose(); } };
   }
+  const HAND_R = .235 + .075; // bag radius + half a hand + the reach the arm falls short by: the carrying hand's centre stays outside the leather
   function create({ scene, set, rigs, carry }) {
     const Cast = window.StoryCast, items = [], m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), UP = V(0, 1, 0);
     const byRig = id => Object.keys(rigs).find(k => rigs[k].character === id || k === id);
@@ -216,7 +217,11 @@
     /** Hand targets in rig space for the actors that carry the heavy bag on the shoulder. */
     function reach(actor, t) {
       if (!heavy || rigs[actor] !== holderOf('fighter') || at(heavy.keys, t).on !== 'shoulder') return null;
-      const c = heavy.local; return { R: c ? [c.x + .06, c.y + .17, c.z + .34] : [.32, 1.84, .34] }; // the hand over the front end of the bag
+      // the hand on the outside of the bag (GOTR-0103): 69 degrees down from the top on the side away from the head, its centre
+      // HAND_R off the bag's axis so the palm rests on the leather; the old target (17 cm off a 23.5 cm bag) put the hand inside it
+      const c = heavy.local; if (!c) return { R: [.32, 1.84, .34] };
+      const o = heavy.out, a = 1.2, d = HAND_R;
+      return { R: [c.x + o.x * Math.sin(a) * d, c.y + Math.cos(a) * d, c.z + o.z * Math.sin(a) * d + .2] };
     }
     const wp = V(), wq = new THREE.Quaternion(), ws = V(1, 1, 1);
     function frame(t) {
@@ -242,7 +247,8 @@
           const B = window.BagBreakCore?.BAG || { r: .235 };
           g.position.copy(sR).addScaledVector(side, .02).addScaledVector(UP, B.r + .1).addScaledVector(fwd, -.08);
           q.setFromUnitVectors(UP, fwd); g.quaternion.copy(q); g.visible = true;
-          heavy.local = r.worldToLocal(g.position.clone()).addScaledVector(V(0, 0, 0), 0);
+          heavy.local = r.worldToLocal(g.position.clone());
+          heavy.out = r.worldToLocal(g.position.clone().add(side)).sub(heavy.local).setY(0).normalize(); // away from the head, in rig space
         } else g.visible = false;
       }
     }

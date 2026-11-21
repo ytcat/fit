@@ -239,7 +239,7 @@
         { t: 27.5, cut: true, pos: [SHOP - .5, 1.8, 3.3], look: [SHOP + 1.9, 1.45, .6], fov: 40 }, // he carries it to the door
         { t: 30.2, pos: [SHOP - .2, 1.8, 3.3], look: [SHOP + 2.8, 1.45, .9], fov: 40, ease: 'linear' },
         { t: 30.2, cut: true, pos: [5.6, 1.5, 1.6], look: [1.6, 1.5, -2.6] },                  // out on the street, toward the gym
-        { t: 35.5, pos: [6.6, 1.6, 1.2], look: [5.0, 1.4, -2.4], ease: 'linear' }
+        { t: 35.5, pos: [5.0, 1.6, 2.0], look: [6.8, 1.35, -2.3], ease: 'linear' }                // pans with him to the end (he left the frame before, GOTR-0103)
       ],
       actors: {
         fighter: { rig: 'fighter', keys: [
