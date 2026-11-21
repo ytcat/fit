@@ -39,7 +39,26 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   const treeSet = { group: new THREE.Group(), objects: {}, disposables: [] };
   const treeArt = CA.dress(treeSet, { tree });
   const treeInstance = treeSet.group.getObjectByName('Old Town street tree');
-  assert.ok(treeArt.active && treeInstance && treeArt.stats().triangles <= 20000, 'tree uses the street geometry budget');
+  assert.ok(treeArt.active && treeInstance && treeArt.stats().triangles <= 59000, 'three trees use a bounded geometry budget');
+  const models = CA.ARRIVAL_TREES.map(p => treeSet.group.getObjectByName(p.name));
+  assert.equal(models.filter(Boolean).length, 3);
+  assert.equal(new Set(models.map(o => o.scale.toArray().join(','))).size, 3);
+  for (const [i, model] of models.entries()) {
+    const site = CA.ARRIVAL_TREES[i];
+    assert.deepEqual(model.position.toArray(), [site.x, 0, site.z]);
+    const meshes = root => { const found = []; root.traverse(o => { if (o.isSkinnedMesh) found.push(o); }); return found; };
+    meshes(model).forEach((mesh, j) => {
+      assert.equal(mesh.geometry, meshes(tree.scene)[j].geometry, 'reuse authored geometry');
+      assert.equal(mesh.material, meshes(tree.scene)[j].material, 'reuse authored material and maps');
+      assert.ok(mesh.skeleton.bones.every(bone => model.getObjectById(bone.id)), 'skin binds to its own instance only');
+      assert.equal(mesh.castShadow, false, 'no extra shadow-map draw');
+    });
+  }
+  const marketSet = { group: new THREE.Group(), objects: {}, disposables: [] };
+  const marketArt = CA.dress(marketSet, { tree }, CA.MARKET_TREES);
+  assert.ok(marketArt.stats().triangles <= 40000);
+  assert.equal(marketSet.group.getObjectByName(CA.ARRIVAL_TREES[0].name), undefined, 'Market does not import the arrival placement');
+  for (const site of CA.MARKET_TREES) assert.deepEqual(marketSet.group.getObjectByName(site.name)?.position.toArray(), [site.x, 0, site.z]);
   const sourceBones = [], instanceBones = [];
   tree.scene.traverse(node => { if (node.isBone) sourceBones.push(node); });
   treeInstance.traverse(node => {
@@ -47,6 +66,13 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
     if (node.isSkinnedMesh) assert.ok(node.skeleton.bones.every(bone => treeInstance.getObjectById(bone.id)), 'skin binds to the instance');
   });
   assert.equal(instanceBones.length, 3, 'the tree has the authored three-bone rig');
+  const cam = new THREE.PerspectiveCamera(36, 402 / 690, .1, 220);
+  cam.position.set(10, 1.5, 5); cam.lookAt(10, 2.5, 25);
+  treeArt.frame({ t: .5 }, cam);
+  assert.ok(models.some(o => !o.visible), 'off-screen authored trees are culled at phone aspect');
+  cam.position.set(16, 2, 5); cam.lookAt(17.4, 2.5, -5.4);
+  treeArt.frame({ t: .5 }, cam);
+  assert.ok(models[2].visible, 'visible arrival tree is not culled');
   const templatePose = sourceBones.map(bone => bone.quaternion.clone());
   treeArt.frame({ t: 0 });
   const initialPose = instanceBones.map(bone => bone.quaternion.clone());
