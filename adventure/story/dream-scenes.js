@@ -113,7 +113,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (run.closed) return;
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 260);
       const street = scene0.set === 'dream_street' && !!e.renderer.shadowMap; hi = street && quality !== 'low';
-      if (street) { const sm = e.renderer.shadowMap; shadowWas = { enabled: sm.enabled, type: sm.type, autoUpdate: sm.autoUpdate }; if (hi) { sm.enabled = true; sm.type = THREE.PCFSoftShadowMap; } }
+      if (street) { const sm = e.renderer.shadowMap; shadowWas = { enabled: sm.enabled, type: sm.type, autoUpdate: sm.autoUpdate }; sm.enabled = hi; if (hi) sm.type = THREE.PCFSoftShadowMap; }
       const BB = window.BagBreak, force0 = BB?.force; if (scene0.gymBag && BB) BB.force = scene0.gymBag; // beat 5: the old bag lies on the floor
       try { set = window.StorySets.build(scene0.set, scene, { renderer: e.renderer, shadows: !!e.renderer.shadowMap?.enabled, city }); } finally { if (scene0.gymBag && BB) BB.force = force0; }
       if (street && hi && set.sun) { set.sun.shadow.mapSize.set(2048, 2048); set.sun.shadow.radius = 3; set.sun.shadow.camera.layers.enable(window.StreetLife?.SHADOW_LAYER ?? 1); }
