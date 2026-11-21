@@ -8,7 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
-| v1.76 | 2026-11-21 | | The referee shouts the approved "Fight!" recording in English, Hebrew or Russian at the start bell (AAC copy for browsers without Opus). Bell, punch and KO sounds unchanged until their approved files are added. Offline worker and manifest versions checked by a test. |
+| v1.76 | 2026-11-21 | | Otto's Corner display windows no longer flicker (GOTR-0101). The referee shouts the approved "Fight!" recording in English, Hebrew or Russian at the start bell (AAC copy for browsers without Opus). Bell, punch and KO sounds unchanged until their approved files are added. Offline worker and manifest versions checked by a test. |
 | v1.75 | 2026-11-21 | [PR #10](https://github.com/ytcat/fit/pull/10) | Development update: Chapter 1 films The New Bag and The Offer finish their animated scenes and lead into the drills. Low street-film quality disables real-time shadows. Verified browser regressions are now part of validation. |
 | v1.74 | 2026-11-21 | | The authored Old Town tree sways in the Chapter 1 opening. The generated tree is used if the model is unavailable. Includes the artwork already integrated in v1.72 and v1.73. |
 | v1.73 | 2026-11-20 | `bf7e79a` | Hazel's modeled fruit stall appears in the Market Row robbery and reward scenes, with the generated stall as a fallback. The apology film preloads the model (`577bd22`). Restores GitHub regression validation. |

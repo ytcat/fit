@@ -957,6 +957,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Old saves:** a `clean_gym` record from the stand-in (steps, 8/14/20) is moved on load to the lowest marks of the same stars (`adventure-progress.js` rescale), so it keeps its stars and still validates.
 - **Limits:** Swiftshader only; the mop pose and audio not checked on a phone.
 
+### GOTR-0101 — Otto's Corner: the display windows flicker
+- **Reported:** 2026-11-21 (owner; worked on in a ChatGPT session that ran out of usage — no commit reached GitHub)
+- **Status:** READY FOR QA — fixed on `claude/ecstatic-clarke-9as2ak` (v1.76 candidate, not published)
+- **Cause:** in `adventure/story/market-sets.js` the display-window glass and its dark frame had their front faces on the same plane (shop front + 0.11 m), so the depth test picked a different surface each frame (z-fighting).
+- **Fix:** glass moved 1.5 cm in front of the frame. Test `tests/shop-window-depth.test.cjs`. Evidence `qa/gotr-0101/otto-windows-before-after.webp` (6 consecutive frames of the street shot at 402×690, before: large dark patches change every frame; after: stable), tool `qa/gotr-0101/otto-flicker.cjs`. Not checked on a phone.
+
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
 - **Status:** RELEASED v1.46
