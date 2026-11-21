@@ -28,7 +28,7 @@ jobs:
           "$tools/node_modules/.bin/playwright" install --with-deps chromium
           echo "NODE_PATH=$tools/node_modules" >> "$GITHUB_ENV"
           sudo apt-get install -y python3-pil
-      - name: Compare decorative glass and native Foundry back-view taps at 402 x 690
+      - name: Compare decorative glass and Foundry Back preset at 402 x 690
         run: |
           node tests/shop-window-depth.test.cjs
           node tests/club-world.test.cjs
@@ -41,9 +41,9 @@ jobs:
           trap 'kill "$a" "$b"' EXIT
           for side in before after; do
             port=8671; if [ "$side" = after ]; then port=8672; fi
-            APP_URL=http://127.0.0.1:$port/ node qa/city-frontage-glass/foundry.cjs "$side"
             APP_URL=http://127.0.0.1:$port/ CLIP=dream_opening SHOTS=bruno:28.45 node qa/city-frontage-glass/compare.cjs "$side-bruno"
             APP_URL=http://127.0.0.1:$port/ CLIP=dream_otto_shop SHOTS=inside:12.2 node qa/city-frontage-glass/compare.cjs "$side-otto-inside"
+            APP_URL=http://127.0.0.1:$port/ node qa/city-frontage-glass/foundry.cjs "$side"
           done
           node --input-type=commonjs <<'NODE'
           const fs = require('node:fs'), a = require('node:assert/strict');

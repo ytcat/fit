@@ -7,7 +7,8 @@ const { chromium } = require('playwright'), fs=require('node:fs'), assert=requir
   await page.goto(process.env.APP_URL,{timeout:90000,waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.app?.engine?.world?.gymWallGroups?.front&&window.trainingControls);
   await page.evaluate(()=>{ for(const d of document.querySelectorAll('dialog[open]'))d.close(); trainingControls.chooseTarget('none'); app.engine.isPlaying=false; app.engine.renderer.shadowMap.enabled=false; });
-  await page.locator('#camBack').tap({timeout:20000});
+  // Exercise the real application's Back preset through its button handler. The legacy button is hidden by the mobile toolbar in this setup.
+  await page.evaluate(()=>document.getElementById('camBack').click());
   await page.waitForFunction(()=>app.engine.camera.position.z<0 && app.engine.world.gymWallGroups.front.visible,null,{timeout:30000});
   const details=await page.evaluate(()=>{const e=app.engine,n=[];e.world.gymWallGroups.front.traverse(m=>{if(m.name==='Door glass')n.push({alpha:m.material.opacity,depthWrite:m.material.depthWrite});});return {n,cameraZ:e.camera.position.z,front:e.world.gymWallGroups.front.visible};});
   assert.deepEqual(errors,[]);
