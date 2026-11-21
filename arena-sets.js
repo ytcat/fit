@@ -33,7 +33,7 @@
  const LOD=[ // 0 far rows, crews up on containers; 1 middle rows; 2 the front row a story camera films from 2-3 m
   {skull:[6,3],muzzle:[4,2],nose:null,eye:[3,2],glint:null,ear:[3,2],cone:3,inner:null,mane:[5,3],torso:5,ys:[.80,1.20,1.36,1.45],cap:false,neck:4,arm:3,arms:'far',hand:[3,2],leg:4,calf:false,shoe:[4,2],hood:[4,2],dome:[5,1],brim:[4,2],band:false,phone:false,finger:false,chair:0,stripes:false},
   {skull:[7,4],muzzle:[5,3],nose:[3,2],eye:[3,2],glint:null,ear:[4,2],cone:4,inner:null,mane:[6,3],torso:6,ys:[.80,.91,1.10,1.28,1.38,1.44],cap:true,neck:5,arm:5,arms:'mid',hand:[4,2],leg:5,calf:false,shoe:[5,2],hood:[5,3],dome:[6,2],brim:[6,2],band:true,phone:true,finger:false,chair:1,stripes:true},
-  {skull:[8,5],muzzle:[6,3],nose:[4,2],eye:[4,2],glint:[3,2],ear:[5,3],cone:4,inner:[4,2],mane:[7,4],torso:8,ys:[.80,.90,1.04,1.17,1.29,1.37,1.44],cap:true,neck:6,arm:6,arms:'fine',hand:[5,4],leg:6,calf:true,shoe:[6,3],hood:[5,3],dome:[8,2],brim:[8,2],band:true,phone:true,finger:true,chair:2,stripes:true}
+  {skull:[8,5],muzzle:[6,3],nose:[4,2],eye:[5,3],glint:[3,2],ear:[5,3],cone:4,inner:[4,2],mane:[7,4],torso:8,ys:[.80,.90,1.04,1.17,1.29,1.37,1.44],cap:true,neck:6,arm:6,arms:'fine',hand:[5,4],leg:6,calf:true,shoe:[5,3],hood:[5,3],dome:[8,2],brim:[8,2],band:true,phone:true,finger:true,chair:2,stripes:true}
  ];
  // Torso cross-section by height: [y, centre z, depth radius, width radius]; chest forward, seat back, shoulders sloping to the neck.
  const PROFILE=[[.80,0,.062,.075],[.845,-.006,.104,.162],[.91,-.012,.116,.18],[.975,-.005,.109,.17],[1.04,0,.109,.17],[1.15,.012,.123,.19],[1.25,.012,.127,.2],[1.33,0,.114,.196],[1.395,-.005,.078,.13],[1.44,0,.05,.055]];
@@ -233,6 +233,7 @@
     const c=S?color[S.getX(i)]:color;let r=c[0]*gain,g2=c[1]*gain,b2=c[2]*gain;
     if(tint){const t=tint(ly,U.getX(i),U.getY(i),v);r*=t[0];g2*=t[1];b2*=t[2];}
     if(lit){const L=this.shade(v,n);r*=L[0];g2*=L[1];b2*=L[2];}
+    if(S){const k=.72+.28*(.5+.5*n.y);r*=k;g2*=k;b2*=k;} // spectators: soft occlusion under chins, arms and hems so the rounded forms read
     else if(b.kind==='add'){r=Math.pow(r,2.2);g2=Math.pow(g2,2.2);b2=Math.pow(b2,2.2);}// blended after sRGB encoding, so authored in display space
     b.pos.push(v.x,v.y,v.z);b.col.push(r,g2,b2);
     if(uv)b.uv.push(uv[0]+(uv[2]-uv[0])*U.getX(i),uv[1]+(uv[3]-uv[1])*U.getY(i));else b.uv.push(w[0],w[1]);
@@ -261,7 +262,7 @@
    const order=list.map((sp,i)=>i).sort((a,b)=>list[a].prio-list[b].prio),front=order.filter(i=>list[i].prio<=list[order[0]].prio+.45);
    const lift=(i,t)=>{const extra=costs[i][t]-costs[i][tiers[i]];if(t<=tiers[i]||extra>spare)return false;tiers[i]=t;spare-=extra;return true;};
    const all2=front.reduce((s,i)=>s+costs[i][2]-costs[i][0],0);
-   if(all2<=spare*1.05)front.forEach(i=>lift(i,2)); // the front row at full detail (all of it, or all but a few at the end), else first at the middle level
+   if(all2<=spare*1.3)front.forEach(i=>lift(i,2)); // the front row at full detail (all of it, or nearly: the farthest few fall to the middle level), else first at the middle level
    for(const i of order)lift(i,1);for(const i of order)lift(i,2);
    const stats={count:list.length,tiers:[0,0,0],triangles:0,max:0,species:{},poses:{}};
    list.forEach((sp,i)=>{const pl=plans[i],c=this.buildPerson(sp,pl,tiers[i]);stats.tiers[tiers[i]]++;stats.triangles+=c;stats.max=Math.max(stats.max,c);stats.species[pl.species]=(stats.species[pl.species]||0)+1;stats.poses[pl.pose]=(stats.poses[pl.pose]||0)+1;});
