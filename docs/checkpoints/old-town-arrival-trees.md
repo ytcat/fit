@@ -1,0 +1,7 @@
+# Old Town arrival trees · review only
+
+Three silhouettes share one authored tree GLB, texture set, and cached download. Off-screen animated trees are culled and do not cast into the shadow map. Procedural trees cover all three positions if the GLB is unavailable or late. Only the Chapter 1 arrival street changes; the map, market, shop and remaining films are untouched. No version bump or publication.
+
+Code and evidence head: `ec5e2f8acf59fe012dc7fb859ef28f0b68b26ac4`; baseline: `939bfebc9d97a5513f9ace1cbd18e778c699c35a`. Local Node tests passed: city-assets, dream-scenes, story-walk-gait. [402×690 Chromium comparison](https://github.com/ytcat/fit/actions/runs/44931069140) passed: six matched shots, one GLB request, no page errors; blocking only the tree package still let the opening render with fallback trees. Highest measured addition was **36,982 submitted triangles / 8 draw calls** in the wide street shot. Two shots each dropped 2,160 triangles / one draw. [Raw before/after evidence](https://github.com/ytcat/fit/actions/runs/44931069140/artifacts/14717214889); visible updates inspected around 14–15 s across the road and 20–21 s behind the Fighter. No physical iPhone/FPS claim.
+
+Review the frames and leave the separate candidate unpublished unless the owner approves. Before merging later, reconcile main and use the repository release checklist. The focused comparison workflow intentionally references the v1.78 baseline for this review; replace that reference or scope the workflow to a manual comparison if keeping it for unrelated future tree work.

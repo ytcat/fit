@@ -23,6 +23,13 @@
     oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb',
     hazelStall: './assets/street/ch01-market/hazel-fruit-stall.glb'
   };
+  // One authored asset/download and three silhouettes. Keep these on the arrival street only;
+  // positions match the procedural trees so a cold/offline load keeps a complete street.
+  const ARRIVAL_TREES = Object.freeze([
+    Object.freeze({ name: 'Old Town street tree', x: 6.6, z: -5.3, h: 4.3, yaw: 0, scale: [1, 1, 1], phase: 0 }),
+    Object.freeze({ name: 'Old Town compact tree', x: 11.6, z: 5.4, h: 4.4, yaw: 2.2, scale: [.74, .88, .81], phase: .7 }),
+    Object.freeze({ name: 'Old Town spreading tree', x: 17.4, z: -5.4, h: 4.5, yaw: -1.3, scale: [1.17, .92, 1.03], phase: 1.6 })
+  ]);
   const OPENING_MODELS = ['tree', 'car', 'bus', 'station', 'oldtown'];
   const WAIT_MS = 5000, TIRE_R = .515, HALF = Math.PI;
   const LAYOUT = {
@@ -105,8 +112,8 @@
       if (m.transparent) o.renderOrder = 2; m.needsUpdate = true;
     });
     const put = (o, x, y, z, ry) => { o.position.set(x, y, z); o.rotation.y = ry; o.updateMatrix(); group.add(o); return o; };
-    let treeMixer;
-    if (city?.tree) {
+    const trees = [], treeClip = new THREE.Frustum(), treeVP = new THREE.Matrix4();
+    if (city?.tree) for (const site of ARRIVAL_TREES) {
       // Give each film instance its own bones so playback leaves the cached GLTF intact.
       const template = city.tree.scene, tree = template.clone(true);
       const sources = [], copies = [];
@@ -120,12 +127,18 @@
         clones.get(node).bind(skeleton, node.bindMatrix);
         c.disposables.push(skeleton);
       });
-      tree.name = 'Old Town street tree';
-      put(shadows(tree, false), 6.6, 0, -5.3, 0);
+      tree.name = site.name;
+      tree.scale.fromArray(site.scale);
+      put(shadows(tree, false), site.x, 0, site.z, site.yaw);
+      // GLTFLoader disables native culling on skinned meshes; use a generous world-space
+      // sphere to avoid submitting whole off-screen trees without clipping their swaying crowns.
+      const entry = { root: tree, bounds: new THREE.Sphere(new THREE.Vector3(site.x, 2.5, site.z), 4.5), phase: site.phase };
+      trees.push(entry);
       const breeze = city.tree.animations.find(clip => clip.name === 'Breeze');
       if (breeze) {
-        treeMixer = new THREE.AnimationMixer(tree);
+        const treeMixer = new THREE.AnimationMixer(tree);
         treeMixer.clipAction(breeze).play();
+        entry.mixer = treeMixer;
         c.disposables.push({ dispose() { treeMixer.stopAllAction(); treeMixer.uncacheRoot(tree); } });
       }
       handle.active = true;
@@ -183,7 +196,14 @@
     const v = new THREE.Vector3();
     /** Per frame: tree breeze, bus wheels and doors, and distance-based detail. */
     handle.frame = (s, camera) => {
-      if (treeMixer && Number.isFinite(s?.t)) treeMixer.setTime(s.t);
+      if (camera?.isCamera && trees.length) {
+        camera.updateMatrixWorld();
+        treeClip.setFromProjectionMatrix(treeVP.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+      }
+      for (const tree of trees) {
+        tree.root.visible = !camera?.isCamera || treeClip.intersectsSphere(tree.bounds);
+        if (tree.root.visible && Number.isFinite(s?.t)) tree.mixer?.setTime(s.t + tree.phase);
+      }
       const b = handle.bus;
       if (b) { b.roll(); if (s?.props?.doorClip) b.door(s.props.doorClip[0]); if (camera) { const d = camera.position.distanceTo(v.set(b.wrap.position.x, 1.2, b.wrap.position.z)); for (const m of b.inside) m.visible = d < L.busInsideDist; } }
       if (camera) for (const h of handle.houses) { const d = camera.position.distanceTo(h.centre); for (const m of h.detail) m.visible = d < L.detailDist; for (const m of h.trim) m.visible = d < L.trimDist; }
@@ -205,7 +225,7 @@
   }
 
   window.CityAssets = {
-    FILES, LAYOUT, WAIT_MS, TIRE_R, load, preload, ready, status, dress, wheelAngle,
+    FILES, LAYOUT, ARRIVAL_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, wheelAngle,
     get: n => cache.get(n)?.gltf || null,
     _setLoader(f) { makeLoader = f || defaultLoader; cache.clear(); } // tests
   };
