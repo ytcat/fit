@@ -41,9 +41,9 @@
       if (!inFloor(p)) { this.release(); return; }
       this.move(p, true);
     }
-    move(p, wipe) {
+    move(p, wipe, minStep = .012) {
       const from = this.point;
-      if (Math.hypot(from.x-p.x, from.z-p.z) < .012) return;
+      if (Math.hypot(from.x-p.x, from.z-p.z) <= minStep) return;
       this.point = { x: p.x, z: p.z };
       if (!wipe) return;
       for (const s of this.spots) for (const dot of s.dots) {
@@ -65,7 +65,7 @@
       const z = Number(this.keys.has('down')) - Number(this.keys.has('up'));
       if (!x && !z) return;
       const n = Math.hypot(x,z), d = 2.45*Math.min(.05, Math.max(0,dt));
-      this.move({ x: Math.max(MOP.minX, Math.min(MOP.maxX, this.point.x + d*x/n)), z: Math.max(MOP.minZ, Math.min(MOP.maxZ, this.point.z + d*z/n)) }, this.keys.has('wipe'));
+      this.move({ x: Math.max(MOP.minX, Math.min(MOP.maxX, this.point.x + d*x/n)), z: Math.max(MOP.minZ, Math.min(MOP.maxZ, this.point.z + d*z/n)) }, this.keys.has('wipe'), 0);
     }
     finish() {
       if (this.done || this.marks < 25) return false;

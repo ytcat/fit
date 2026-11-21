@@ -58,7 +58,7 @@
  const sideZones=freeze([{id:'fort',chapter:1},{id:'fair',chapter:2},{id:'cove',chapter:3},{id:'tech',chapter:4}]);
  const missionOf=id=>missions.find(m=>m.id===id),bossOf=id=>bosses.find(b=>b.id===id),chapterOf=n=>chapters.find(c=>c.id===n);
  // GOTR-0078 chapter 1 "The Dream": the 13 main beats in order (beat 0 = index 0 ... beat 12 = the boss rematch). Side job A is the
- // mission 'clean_gym'. Beats backed by a mission are done with >=1 star, the boss beat by a boss win; the others (films, talks,
+ // mission 'clean_gym'; it is now a required transition after first_brick but is not inserted into this historical index. Beats backed by a mission are done with >=1 star, the boss beat by a boss win; the others (films, talks,
  // the first Brick fight, the street and Docks fights, the purchase) are written to adventure.story.done by the 'story' action.
  const dreamSteps=Object.freeze(['dream_arrival','dream_gym_talk','first_brick','night_shadow','night_bag','dream_apology','market_robber','buy_heavy_bag','bag_drill','fight_prep','docks_fight','advanced_training','brick']);
  const storyEvents=Object.freeze(['dream_arrival','dream_gym_talk','first_brick','dream_apology','market_robber','buy_heavy_bag','docks_fight']);
@@ -125,6 +125,7 @@
  function recordMission(g,missionId,measured,free=freeMode()){
   const m=missionOf(missionId);if(!m)fail('Unknown mission.');if(!adv(g))g.adventure=fresh();
   if(!chapterOpen(g,m.chapter,free))fail('This chapter is not open yet.');
+  if(blockedByGymShift(g,m.id))fail('Finish cleaning the gym first.');
   const raw=measured&&typeof measured==='object'?measured[m.metric]:measured;if(!bound(raw))fail('Invalid measured value.');
   const value=round1(raw),earned=starsFor(m.id,value),rec=g.adventure.missions[m.id],before=rec?.stars||0,levelBefore=level(g);
   if(!rec){if(earned>0)g.adventure.missions[m.id]={stars:earned,value,plays:1};}
@@ -134,6 +135,7 @@
  }
  function recordBoss(g,bossId,won,free=freeMode()){
   const b=bossOf(bossId);if(!b)fail('Unknown boss.');if(!adv(g))g.adventure=fresh();
+  if(blockedByGymShift(g,b.id))fail('Finish cleaning the gym first.');
   if(typeof won!=='boolean')fail('Invalid boss result.');
   if(!canChallenge(g,bossId,free))fail('Reach Level '+b.entry+' to challenge this boss.');if(!chapterOpen(g,b.chapter,free))fail('This chapter is not open yet.');
   const r=g.adventure.bosses[bossId]||(g.adventure.bosses[bossId]={wins:0,losses:0,free:false});
@@ -142,8 +144,13 @@
  }
  // Is a Dream beat finished? (story.done for events and migrated beats, stars for mission beats, a win for the boss beat)
  function dreamDone(g,id){const a=adv(g);if(!a)return false;if(a.story?.done?.includes(id))return true;if(id==='brick')return bossWon(g,id);if(id==='first_brick')return !!a.story?.firstBrick;return (a.missions?.[id]?.stars||0)>0;}
+ // Existing saves with real recorded progress beyond Brick keep their place without receiving a synthetic cleaning star or wage.
+ const firstBout=dreamSteps.indexOf('first_brick'), stepsAfterGym=dreamSteps.slice(firstBout+1);
+ const gymShiftGrandfathered=g=>stepsAfterGym.some(id=>dreamDone(g,id));
+ const gymShiftPending=g=>dreamDone(g,'first_brick')&&!dreamDone(g,'clean_gym')&&!gymShiftGrandfathered(g);
+ const blockedByGymShift=(g,id)=>gymShiftPending(g)&&stepsAfterGym.includes(id);
  // Can this story event be recorded now? It must be a known event and the beat before it must be finished (any order in the development build).
- function storyReady(g,step,free=false){const i=dreamSteps.indexOf(step);if(!storyEvents.includes(step))fail('Unknown story step.');if(!free&&i>0&&!dreamDone(g,dreamSteps[i-1]))fail('Finish the step before this one first.');return true;}
+ function storyReady(g,step,free=false){const i=dreamSteps.indexOf(step);if(!storyEvents.includes(step))fail('Unknown story step.');if(blockedByGymShift(g,step))fail('Finish cleaning the gym first.');if(!free&&i>0&&!dreamDone(g,dreamSteps[i-1]))fail('Finish the step before this one first.');return true;}
  // Records a finished story event. first_brick keeps the FIRST outcome ('lost' | 'won'): a loss advances the story too. The two
  // street fights must be won (the caller pays their reward); the purchase is charged by the caller (game-domain.js).
  function recordStory(g,step,outcome,free=false){
@@ -177,6 +184,6 @@
   if(a.adventure==='story')return recordStory(g,a.step,a.outcome,free); // development build: any order (owner's dev skip)
   fail('Unknown adventure action.');
  }
- const api={sideZones,rules,stats,metrics,chapters,bosses,missions,opponentBase,fresh,validate,action,starsFor,stars,statPoints,level,chapterOpen,canChallenge,chance,chanceVs,bossEdge,fightEdge,opponent,levelFromScore,fighterScore,compare,summary,recordMission,recordBoss,bossWon,freeMode,dreamSteps,storyEvents,legacyBeat,migrate,dreamDone,storyReady,recordStory};
+ const api={sideZones,rules,stats,metrics,chapters,bosses,missions,opponentBase,fresh,validate,action,starsFor,stars,statPoints,level,chapterOpen,canChallenge,chance,chanceVs,bossEdge,fightEdge,opponent,levelFromScore,fighterScore,compare,summary,recordMission,recordBoss,bossWon,freeMode,dreamSteps,storyEvents,legacyBeat,migrate,dreamDone,gymShiftGrandfathered,gymShiftPending,blockedByGymShift,storyReady,recordStory};
  if(typeof module!=='undefined')module.exports=api;else window.AdventureProgress=api;
 })();

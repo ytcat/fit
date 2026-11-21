@@ -16,7 +16,7 @@ process.chdir(path.join(__dirname,'..'));
   assert.ok(g.marks>0 && g.marks<25); const k=g.removed;
   g.drag({x:x-.45,z:z+.1}); assert.equal(g.removed,k,'wiping the same strip again cannot score twice');
   g.release();
-  const kbd=new M.MopTrial(), p={...kbd.point}; kbd.key('right',true); kbd.step(.05);
+  const kbd=new M.MopTrial(), p={...kbd.point}; kbd.key('right',true); kbd.step(1/240);
   assert.ok(kbd.point.x>p.x); assert.equal(kbd.marks,0,'keyboard movement alone does not wipe');
 }
 function scrub(g,[x,z]) {
@@ -62,9 +62,9 @@ function scrub(g,[x,z]) {
 // ---- the step: side job A runs the game; the stand-in note is gone; Bruno's lines exist in EN/HE/RU and reach the journal
 {
   const ot = fs.readFileSync('adventure/oldtown.js', 'utf8'); assert.match(ot, /clean_gym: \{ kind: 'scene', scene: 'clean_gym' \}/);
-  const s = SF.find('clean_gym'); assert.equal(s.side, true); assert.equal(s.after, 'first_brick'); assert.equal(s.stand, undefined, 'no stand-in any more');
+  const s = SF.find('clean_gym'); assert.equal(s.side, undefined); assert.equal(SF.unlocks('first_brick').next,'clean_gym'); assert.equal(s.stand, undefined, 'no stand-in any more');
   for (const k of ['job', 'job_0', 'job_1', 'job_2', 'job_3']) { const l = ST.lines.clean_gym[k][0]; assert.equal(l.who, 'bruno'); for (const lang of ['en', 'he', 'ru']) assert.ok(l.text[lang] && l.text[lang].length < 80, k + ' ' + lang); }
-  const g = { adventure: A.fresh() }; A.recordMission(g, 'clean_gym', { marks: 25 }, true); assert.equal(SF.doneOf(g, s), true, 'one star finishes the side job');
+  const g = { adventure: A.fresh() }; A.recordMission(g, 'clean_gym', { marks: 25 }, true); assert.equal(SF.doneOf(g, s), true, 'one star finishes the required shift');
   const html = fs.readFileSync('index.html', 'utf8'); assert.ok(html.indexOf('adventure/story/mop-core.js') > html.indexOf('adventure/story/trials-core.js') && html.indexOf('adventure/story/mop-game.js') > html.indexOf('adventure/story/story-scenes.js'), 'load order');
   const man = fs.readFileSync('offline-manifest.json', 'utf8'); assert.ok(man.includes('mop-core.js') && man.includes('mop-game.js'), 'offline manifest');
 }
@@ -100,7 +100,12 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     const touch=(type,a=[])=>CDP.send('Input.dispatchTouchEvent',{type,touchPoints:a.map(({x,y})=>({x,y,id:1}))});
     const wait=(fn,a)=>p.waitForFunction(fn,a,{timeout:90000});
     const art=process.env.GOTR_MOP_ARTIFACTS;
-    const shot=async name=>{ if(art){fs.mkdirSync(art,{recursive:true});await p.screenshot({path:path.join(art,name+'.png'),timeout:60000});} };
+    const shot=async name=>{
+      if(!art) return; fs.mkdirSync(art,{recursive:true});
+      await p.evaluate(()=>{const r=window.StoryScenes?.debug;if(r?.frame){window.__mopCapture={r,frame:r.frame};r.frame=()=>{};}});
+      try { await p.screenshot({path:path.join(art,name+'.png'),timeout:60000}); }
+      finally { await p.evaluate(()=>{const x=window.__mopCapture;if(x){x.r.frame=x.frame;delete window.__mopCapture;}}); }
+    };
     await p.addInitScript(()=>{localStorage.setItem('shadowbox-language','en');localStorage.setItem('gotr.adv.nointro','1');});
     await p.goto(url); await wait(()=>window.ringfighterGame?.store&&window.MopGame&&window.StoryScenes?.games.clean_gym);
     if(await p.locator('dialog.career-welcome[open]').count()){
@@ -109,8 +114,8 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     }
     await wait(()=>app.engine.coach?.anatomy&&ringfighterGame.store.game());
     await p.evaluate(()=>{StoryScenes?.stop();ringfighterGame.close();});
-    const begin=async ()=>{
-      await p.evaluate(()=>{
+    const begin=async (afterBrick=false)=>{
+      const gate=await p.evaluate(afterBrick=>{
         const rg=ringfighterGame, st=rg.store; rg.close();
         for(const d of document.querySelectorAll('dialog[open]')) d.close();
         const change=a=>{const r=st.gameAction(a);if(r.ok)rg.apply?.();return r.ok;};
@@ -118,25 +123,39 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
           const s=StoryFlow.find(step);
           if(!StoryFlow.doneOf(st.game(),s)) change({type:'adventure',adventure:'story',step,outcome:step==='first_brick'?'lost':undefined});
         }
-        if(!StoryFlow.playable(st.game(),'clean_gym')) throw Error('normal side job not unlocked by first Brick bout');
-        AdventureOldTown.start({store:st,startTraining:rg.startTraining,startFight:rg.startFight,change},'clean_gym');
-      });
-      if(await p.locator('#sfBeat .sf-beat-main').count()) await p.locator('#sfBeat .sf-beat-main').tap();
+        if(!StoryFlow.playable(st.game(),'clean_gym')) throw Error('required shift not unlocked by first Brick bout');
+        const cx={store:st,startTraining:rg.startTraining,startFight:rg.startFight,change};
+        const selected=afterBrick?StoryFlow.state(st.game(),1).current?.id:null;
+        if(afterBrick){
+          const forced=AdventureOldTown.before(cx,'night_shadow',{force:true});
+          const devSkip=AdventureOldTown.devSkip(cx,'clean_gym');
+          AdventureOldTown.afterBeat('first_brick',{ok:true,won:false});
+          return {selected,forced,devSkip};
+        }
+        AdventureOldTown.start(cx,'clean_gym');
+      },afterBrick);
+      const next=p.locator('#sfBeat .sf-beat-main');
+      if(afterBrick){
+        assert.deepEqual(gate,{selected:'clean_gym',forced:false,devSkip:false});
+        assert.match(await next.textContent(),/Clean the gym/i);
+        await next.tap();
+      }
+      if(await next.count()) await next.tap();
       await wait(()=>StoryScenes.debug?.sim&&StoryScenes.debug.projectFloor&&app.engine.fightIQDemo===StoryScenes.debug&&StoryScenes.stats()?.calls);
     };
     const state=()=>p.evaluate(()=>({marks:StoryScenes.debug?.sim?.marks,progress:document.querySelector('.story-mop-bar')?.getAttribute('aria-valuenow'),coins:GameDomain.wallet(ringfighterGame.store.game()).coins,wages:ringfighterGame.store.game().ledger.filter(t=>t.rule==='job-pay-v1').length}));
     const before=await p.evaluate(()=>({scale:app.engine.coach.root.scale.toArray(),outfit:StoryCast.outfitOf(app.engine.coach),parent:app.engine.stage.parentElement.id,coins:GameDomain.wallet(ringfighterGame.store.game()).coins}));
-    await begin();
+    await begin(true);
     const inGame=await p.evaluate(()=>({
       outfit:StoryCast.outfitOf(app.engine.coach),
-      oldControls:!!document.querySelector('dialog[data-game=clean_gym] .fighter-pad'),
+      oldControls:!!document.querySelector('dialog[data-game=clean_gym] > .story-pad'),
       bags:app.engine.coach.root.parent?.children.some(x=>/Mop lanes/.test(x.name)),
       projected:window.MopCore.MOP.spots.map(([x,z])=>{const p=StoryScenes.debug.projectFloor(x,z);return {...p,hit:document.elementFromPoint(p.x,p.y)?.classList.contains('story-mop-surface')};}),
       h:innerHeight,w:innerWidth
     }));
-    assert.equal(inGame.outfit,'street'); assert.equal(inGame.oldControls,false); assert.equal(inGame.bags,false);
-    assert.ok(inGame.projected.every(a=>a.x>22&&a.x<inGame.w-22&&a.y>100&&a.y<inGame.h-95&&a.hit),'all stains are drag targets');
     await shot('01-dirty-floor');
+    assert.equal(inGame.outfit,'street'); assert.equal(inGame.oldControls,false); assert.equal(inGame.bags,false);
+    assert.ok(inGame.projected.every(a=>a.x>22&&a.x<inGame.w-22&&a.y>100&&a.y<inGame.h-95&&a.hit),'all stains are drag targets: '+JSON.stringify(inGame));
     const [x,z]=M.MOP.spots[0], project=(x,z)=>p.evaluate(([x,z])=>StoryScenes.debug.projectFloor(x,z),[x,z]);
     const center=await project(x,z), right=await project(x+.41,z);
     await touch('touchStart',[{x:6,y:140}]); await touch('touchMove',[center]); await touch('touchEnd');
@@ -156,6 +175,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     await p.locator('dialog[data-game=clean_gym] .story-retry').tap(); await wait(()=>StoryScenes.debug.sim.marks===0);
     await p.locator('dialog[data-game=clean_gym] .story-quit:not(.story-retry)').tap(); await wait(()=>!StoryScenes.playing);
     assert.deepEqual(await state().then(t=>[t.coins,t.wages]),[before.coins,0],'quit and retry do not pay');
+    assert.deepEqual(await p.evaluate(()=>{const g=ringfighterGame.store.game();return [StoryFlow.state(g,1).current.id,StoryFlow.playable(g,'night_shadow')]}),['clean_gym',false],'quit leaves cleaning required');
     await begin();
     await p.setViewportSize({width:690,height:402});
     await wait(()=>innerWidth===690);
@@ -177,7 +197,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
       wages:ringfighterGame.store.game().ledger.filter(t=>t.rule==='job-pay-v1').length
     }));
     assert.deepEqual(after.scale,before.scale);assert.equal(after.outfit,before.outfit);assert.equal(after.parent,before.parent);
-    assert.equal(after.done,true);assert.equal(after.wages,1);assert.equal(after.coins-before.coins,got.pay);
+    assert.equal(after.done,true);assert.equal(await p.evaluate(()=>StoryFlow.state(ringfighterGame.store.game(),1).current.id),'night_shadow');assert.equal(after.wages,1);assert.equal(after.coins-before.coins,got.pay);
     const best=await p.evaluate(()=>ringfighterGame.store.game().adventure.missions.clean_gym.stars);
     await begin();
     assert.equal((await state()).marks,0);

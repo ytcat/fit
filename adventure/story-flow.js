@@ -9,7 +9,7 @@
   // S(id, title, why, recap, opts): why = why the Fighter does this NOW (who asked, what is at stake); recap = one line for "Story so far".
   const S = (id, title, why, recap, o = {}) => ({ id, title, why, recap, ...o });
   const chapters = {
-    // GOTR-0078 Chapter 1 "The Dream" (docs/adventure/CHAPTER1_SCRIPT_V2.md): beats 0-12 + side job A. Ids are stable and listed in
+    // GOTR-0078 Chapter 1 "The Dream" (docs/adventure/CHAPTER1_SCRIPT_V2.md): beats 0-12 plus the required gym shift after the first fight. Ids are stable and listed in
     // adventure-progress.js dreamSteps (save order and old-save mapping). why = ONE short line under the picture; who = the face shown.
     // event: finished by a story event (film, talk, fight, purchase), not by stars. stand: what still stands in for the real scene.
     1: { coach: 'bruno', pin: 'oldtown', boss: 'brick', steps: [
@@ -26,11 +26,11 @@
         L('Lost to Brick on the first day, but got up. Bruno gave you a job and a bed.', 'הפסדתם לבריק ביום הראשון, אבל קמתם. ברונו נתן לכם עבודה ומיטה.', 'В первый день проиграл Брику, но встал. Бруно дал тебе работу и койку.'),
         { event: true, who: 'brick', beat: 2, recapWon: L('Beat Brick on the first day. Bruno gave you a job and a bed.', 'ניצחתם את בריק ביום הראשון. ברונו נתן לכם עבודה ומיטה.', 'В первый же день побил Брика. Бруно дал тебе работу и койку.'),
           goal: L('Fight Brick. Win or lose, the story goes on.', 'הילחמו בבריק. בניצחון או בהפסד, הסיפור ממשיך.', 'Бой с Бриком. Победа или поражение — история продолжается.'),
-          unlock: L('a job, a bed and the night gym', 'עבודה, מיטה והאולם בלילה', 'работа, койка и ночной зал') }),
+          unlock: L('a job and a bed', 'עבודה ומיטה', 'работа и койка') }),
       S('clean_gym', L('Clean the gym', 'לנקות את האולם', 'Уборка зала'),
         L('Drag the mop over the dirty spots. Small pay.', 'גררו את המגב על הכתמים. שכר קטן.', 'Проведи шваброй по грязным пятнам. Плата небольшая.'),
         L("Took the job: cleaning Bruno's gym.", 'קיבלתם את העבודה: לנקות את האולם של ברונו.', 'Взялся за работу: убирать зал Бруно.'),
-        { side: true, after: 'first_brick', who: 'bruno', beat: 'A' }), // GOTR-0099: direct floor cleaning (adventure/story/mop-game.js)
+        { who: 'bruno', beat: 'A', goal: L('Clean at least 25% to finish the first shift.', 'נקו לפחות 25% כדי לסיים את המשמרת הראשונה.', 'Очисти не меньше 25%, чтобы закончить первую смену.'), unlock: L('the gym at night', 'האולם בלילה', 'ночной зал') }), // GOTR-0099: direct floor cleaning (adventure/story/mop-game.js)
       S('night_shadow', L('Night Shadowboxing', 'Shadowboxing בלילה', 'Shadowboxing ночью'),
         L('Night, the gym is empty. Just you and your shadow.', 'לילה, האולם ריק. רק אתם והצל.', 'Ночь, зал пуст. Только ты и твоя тень.'),
         L('Trained Shadowboxing alone at night.', 'התאמנתם Shadowboxing לבד בלילה.', 'Ночью в одиночку тренировал Shadowboxing.'),
@@ -171,7 +171,8 @@
     for (const s of ch.steps) {
       const done = doneOf(g, s), stars = s.boss ? (done ? 3 : 0) : starsOf(g, s.id);
       if (s.side) continue;
-      const st = { ...s, chapter: n, n: ++i, done, stars, status: done ? 'done' : (!current && open ? 'current' : 'locked') };
+      const optional = s.id === 'clean_gym' && !done && P().gymShiftGrandfathered(g);
+      const st = { ...s, chapter: n, n: ++i, done: done || optional, stars, status: done ? 'done' : optional ? 'optional' : (!current && open ? 'current' : 'locked') };
       if (st.status === 'current') current = st; main.push(st);
     }
     for (const s of ch.steps.filter(x => x.side)) {
@@ -184,7 +185,7 @@
     return { chapter: n, open, main, side, timeline, current, total: main.length, doneCount: main.filter(m => m.done).length, complete: main.every(m => m.done), stars, maxStars, boss: main[main.length - 1] };
   }
   // Can this step be started now? Done (replay), current, or an open side step.
-  function playable(g, id) { const s = find(id); if (!s) return false; const st = state(g, s.chapter), x = [...st.main, ...st.side].find(q => q.id === id); return !!x && ['done', 'current', 'open'].includes(x.status); }
+  function playable(g, id) { const s = find(id); if (!s) return false; const st = state(g, s.chapter), x = [...st.main, ...st.side].find(q => q.id === id); return !!x && ['done', 'current', 'open', 'optional'].includes(x.status); }
   // Stars still needed to reach a level (3 stars = 1 level; 3 stars on a training step also add a stat point, so it may take fewer).
   function starsToLevel(g, target) { const A = P(), lvl = A.level(g); if (lvl >= target) return 0; const s = A.stars(g); return 3 * (Math.floor(s / 3) + (target - lvl)) - s; }
   // Boss gate: when the boss is the current step and the Fighter Level is below his entry level, say exactly what to do.

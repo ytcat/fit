@@ -103,8 +103,8 @@ import. Terms: Coach = Bruno, Fighter = the player's boxer, Opponent = whoever h
 - Rigs handed back: mirrored root, outfit, Fang in his jacket, Mrs. Hazel's handbag in her hand.
 - Sets (placeholders until Codex's): `dream_market` (day market row, Mrs. Hazel's stall at x 0), `dream_shop` (street front at
   x -12..12, interior at x 36..44.4, `objects.display`). Test `tests/dream-market-films.test.cjs`; evidence tool `qa/gotr-0096/tools/film.cjs`.
-## Side job A: Clean the gym (GOTR-0099) — `adventure/story/mop-core.js`, `adventure/story/mop-game.js`
-- Available in Old Town after the first Brick bout, even on a loss. The original step, dialogue, journal, save and Continue route stay in place.
+## Required first shift: Clean the gym (GOTR-0099) — `adventure/story/mop-core.js`, `adventure/story/mop-game.js`
+- The next main task after the first Brick bout, win or loss. A successful shift unlocks Night Shadowboxing. Later replay is optional. Earlier completed shifts count; saves already beyond cleaning keep their progress without fake stars or wages.
 - Drag the mop directly across any of the ten scattered dirty patches in the daylight 3D gym. There are no lanes, beats, timer or moving-bag hazards. On a keyboard, focus the floor, move with the arrows, and hold Space to scrub. Cleaned portions reveal the planks and a subtle shine.
 - The floor input uses the camera's ray intersection, swept distance instead of just pointer endpoints, and cancels on leaving the floor, resize, loss of focus, or release. Retry restores all the dirt.
 - The existing `marks` score is percent cleaned. Finish unlocks at 25%; cleaning everything finishes automatically. Stars remain 25 / 50 / 75 and wages remain 6 / 10 / 15 coins; the existing ledger pays once per completed shift, including paid replays.
