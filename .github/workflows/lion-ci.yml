@@ -75,8 +75,6 @@ jobs:
     name: Browser regressions (Chromium)
     runs-on: ubuntu-22.04
     timeout-minutes: 25
-    env:
-      NODE_PATH: ${{ runner.temp }}/fit-playwright/node_modules
     steps:
       - uses: actions/checkout@v6
         with:
@@ -93,6 +91,7 @@ jobs:
           tools="$RUNNER_TEMP/fit-playwright"
           npm install --prefix "$tools" --no-save playwright@1.56.1
           "$tools/node_modules/.bin/playwright" install --with-deps chromium
+          printf 'NODE_PATH=%s\n' "$tools/node_modules" >> "$GITHUB_ENV"
       - name: Verify Chromium and WebGL can start
         shell: bash
         run: |
