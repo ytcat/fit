@@ -54,6 +54,11 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
       assert.equal(mesh.castShadow, false, 'no extra shadow-map draw');
     });
   }
+  const marketTreeSet = { group: new THREE.Group(), objects: {}, disposables: [] };
+  const marketTreeArt = CA.dress(marketTreeSet, { tree }, CA.MARKET_TREES);
+  assert.ok(marketTreeArt.stats().triangles <= 40000);
+  assert.equal(marketTreeSet.group.getObjectByName(CA.ARRIVAL_TREES[0].name), undefined, 'Market does not import the arrival placement');
+  for (const site of CA.MARKET_TREES) assert.deepEqual(marketTreeSet.group.getObjectByName(site.name)?.position.toArray(), [site.x, 0, site.z]);
   const sourceBones = [], instanceBones = [];
   tree.scene.traverse(node => { if (node.isBone) sourceBones.push(node); });
   treeInstance.traverse(node => {
@@ -87,11 +92,27 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   assert.ok(stallBox.max.z < -2.2, 'stall stays behind the walking lane');
   assert.ok(marketArt.stats().triangles <= 57000, 'stall fits its stated geometry budget');
   for (const disposable of marketSet.disposables) disposable.dispose();
-  const c = { group: new THREE.Group(), objects: {}, disposables: [], opts: {} }, h = CA.dress(c, { bus, station, oldtown: null });
+  require('../adventure/gloryland-map.js'); const K = window.GlorylandMap.kit;
+  K.initProtos();
+  const c = { group: new THREE.Group(), objects: {}, disposables: [], opts: {}, K,
+    box: (B,x,y,z,w,h,d,color) => B.add(K.P.box,K.M(x,y,z,w,h,d),K.C(color)) };
+  const h = CA.dress(c, { bus, station, oldtown: null });
   assert.ok(h.active && h.bus && h.station && !h.oldtown && c.objects.bus === h.bus.wrap, 'the wrapper is objects.bus');
   c.group.updateMatrixWorld(true);
   const m = h.bus.model.matrixWorld; assert.ok(m.determinant() > 0, 'never mirrored'); h.bus.model.traverse(o => assert.ok(o.scale.x > 0 && o.scale.y > 0 && o.scale.z > 0, 'positive scale ' + o.name));
   near(h.bus.wrap.position.y, -.15, 1e-9, 'root at road level'); near(new THREE.Box3().setFromObject(h.bus.model).min.y, -.15, .01, 'tyres on the road');
+  const realGlass=[]; h.bus.model.traverse(o => { if(o.isMesh && o.material.name.includes('safety glass')) realGlass.push(o); });
+  assert.equal(realGlass.length,5,'door leaves and the main coach keep their authored glass');
+  assert.ok(realGlass.every(o=>o.material.transparent && !o.material.depthWrite && o.material.opacity<.3 && !o.castShadow));
+  assert.equal(h.bus.cabinLOD.geometry.attributes.position.count/3,288,'deliberately bounded low-poly seats');
+  const nextToNose=()=>{ cam.position.set(h.bus.wrap.position.x+10,1.55,h.bus.wrap.position.z+3); h.frame({},cam); };
+  nextToNose();
+  assert.ok(h.bus.inside.every(o=>o.visible) && !h.bus.cabinLOD.visible,'near front/door keeps seats even >9m from the coach midpoint');
+  cam.position.set(h.bus.wrap.position.x,1.55,h.bus.wrap.position.z+13); h.frame({},cam);
+  assert.ok(h.bus.inside.every(o=>!o.visible) && h.bus.cabinLOD.visible,'middle-distance panes keep silhouettes');
+  cam.position.z+=30; h.frame({},cam);
+  assert.ok(h.bus.inside.every(o=>!o.visible) && !h.bus.cabinLOD.visible,'very distant coach draws neither seat set');
+  h.bus.x0 = null; // start the independent film-roll test at its original first frame
   // wheels: roll = road distance / 0.515 m over the whole film
   const film = C.withCity(C.scenes.dream_opening), wheel = h.bus.wheels[0], x0 = film.props.bus[0].v[0];
   assert.equal(h.bus.wheels.length, 4); assert.equal(CA.TIRE_R, .515);

@@ -91,35 +91,42 @@
 
       // ---- Bruno's Gym: door, glove board, name sign, hanging board, bench outside
       const gx = 27, gz = -8.24;
-      box(S, gx, 0, gz, 1.66, 2.56, .14, '#3a2b24'); box(S, gx, .02, gz + .12, 1.3, 2.3, .07, '#6b4630'); box(S, gx, 1.25, gz + .17, .86, .8, .03, '#33485c'); box(S, gx, 1.62, gz + .185, .86, .2, .02, '#587891'); box(S, gx, .25, gz + .17, .9, .7, .03, '#5a3a28');
+      box(S, gx, 0, gz, 1.66, 2.56, .14, '#3a2b24'); box(S, gx, .02, gz + .12, 1.3, 2.3, .07, '#6b4630'); c.displayBay(gx, 1.25, gz + .175, .86, .8, 'gym', .12); box(S, gx, .25, gz + .17, .9, .7, .03, '#5a3a28');
       box(S, gx + .48, 1.02, gz + .2, .06, .22, .07, '#e0b84d'); box(S, gx, 0, gz + .34, 2.1, .1, .62, '#cfc6b6'); box(S, gx, .1, gz + .54, 1.3, .02, .5, '#7a3b34');
       for (const s of [-1, 1]) { box(S, gx + s * 1.25, 2.25, gz + .14, .06, .06, .3, '#2f3640'); cyl(S, gx + s * 1.25, 1.92, gz + .34, .12, .3, '#fff0c4', P.cyl6); S.add(P.cone6, M(gx + s * 1.25, 2.22, gz + .34, .18, .14, .18), C('#2f3640')); }
       box(S, gx, 2.86, gz + .08, 4.6, 1.02, .1, '#0d1118'); box(S, gx, 2.78, gz + .34, 4.9, .08, .5, '#8f2f22'); box(S, gx, 3.9, gz + .1, 4.9, .08, .3, '#8f2f22');
       board(c, "BRUNO'S GYM", gx + .55, 3.38, gz + .2, 3.3, .82); sign('gym', gx - 1.7, 3.38, gz + .2, 1.1, .82);
       box(S, gx - 3.4, 3.0, gz + .64, .05, .05, .9, '#2f3640'); box(S, gx - 3.4, 2.3, gz + .96, .06, .62, .7, '#0d1118'); sign('gym', gx - 3.365, 2.6, gz + .96, .66, .46, Math.PI / 2); sign('gym', gx - 3.435, 2.6, gz + .96, .66, .46, -Math.PI / 2);
-      for (const s of [-1, 1]) { box(S, gx + s * 2.9, .32, gz + .15, 1.7, 1.7, .05, '#33485c'); box(S, gx + s * 2.9, .32, gz + .19, 1.7, .08, .06, '#3a2b24'); box(S, gx + s * 2.9, 1.1, gz + .2, .05, .9, .03, '#3a2b24'); box(S, gx + s * 2.9, 1.15, gz + .2, 1.5, .34, .02, s > 0 ? '#e63946' : '#f4c152'); } // windows with a poster strip
+      for (const side of [-1, 1]) c.displayBay(gx + side * 2.9, .32, gz + .16, 1.7, 1.7, 'gym', .30); // framed trophy/equipment displays
       c.shade(gx + 3.3, gz + .9, 1.9, .8); box(S, gx + 3.3, .4, gz + .8, 1.6, .06, .4, '#9a7350'); for (const d of [-.7, .7]) box(S, gx + 3.3 + d, 0, gz + .8, .06, .4, .36, '#3d4654');
       planter(gx - 2.2, gz + .9); planter(gx + 2.0, gz + .9);
 
       if (!city?.bus) {
       // ---- the bus: two-tone body, a real door well at the front door, sliding door leaves, wheels, lights, route boards
-      const B = new K.Batch(), glass = '#33485c', shine = '#587891', dark = '#2a2f38', low = '#f0b429', up = '#f7f0dc';
+      const B = new K.Batch(), dark = '#2a2f38', low = '#f0b429', up = '#f7f0dc';
       box(B, 0, .004, 0, 11.6, .01, 3.1, '#3f4551'); // contact shade on the road
-      const body = (x0, x1, z0 = -1.25, z1 = 1.25) => { const x = (x0 + x1) / 2, w = x1 - x0, z = (z0 + z1) / 2, d = z1 - z0; box(B, x, .32, z, w, .2, d - .04, dark); box(B, x, .5, z, w, 1.0, d, low); box(B, x, 1.5, z, w + .02, .1, d + (z1 > 1.2 ? .04 : 0), '#d9473b'); box(B, x, 1.6, z, w, 1.26, d, up); };
+      const body = (x0, x1, z0 = -1.25, z1 = 1.25) => { const x = (x0 + x1) / 2, w = x1 - x0, z = (z0 + z1) / 2, d = z1 - z0; box(B, x, .32, z, w, .2, d - .04, dark); box(B, x, .5, z, w, 1.0, d, low); box(B, x, 1.5, z, w + .02, .1, d + (z1 > 1.2 ? .04 : 0), '#d9473b');  };
       body(-5.4, 3.15); body(4.35, 5.4); body(3.15, 4.35, -1.25, .3);
       box(B, 3.75, 2.46, .78, 1.2, .4, .95, up); box(B, 3.75, .32, .78, 1.2, .1, .95, '#565d6b'); box(B, 3.75, .42, .78, 1.2, .02, .95, '#8a909c'); // door header and step
-      box(B, 3.75, .44, .3, 1.2, 2.02, .02, '#3b4350'); box(B, 3.16, .44, .78, .02, 2.02, .95, '#49505e'); box(B, 4.34, .44, .78, .02, 2.02, .95, '#49505e'); cyl(B, 3.3, .44, 1.05, .022, 1.9, '#f4c152', P.cyl6); // well walls, grab pole
-      box(B, 0, 2.86, 0, 10.5, .13, 2.3, '#e9e2cc'); box(B, -1.2, 2.99, 0, 2.6, .2, 1.4, '#d9d2bc'); box(B, 2.6, 2.99, 0, 1.2, .14, 1.0, '#d9d2bc');
-      for (const [x, w] of [[-4.5, 1.3], [-3.0, 1.3], [.75, 1.3], [2.25, 1.3]]) { box(B, x, 1.72, 1.255, w, .82, .02, glass); box(B, x, 2.34, 1.26, w, .2, .02, shine); }
-      for (let k = 0; k < 6; k++) { const x = -4.35 + k * 1.52; box(B, x, 1.72, -1.275, 1.3, .82, .02, glass); box(B, x, 2.34, -1.28, 1.3, .2, .02, shine); }
-      box(B, -1.5, .56, 1.26, 1.2, 2.1, .03, dark); for (const d of [-.29, .29]) box(B, -1.5 + d, .7, 1.275, .5, 1.75, .02, glass); // rear door (stays shut)
-      box(B, 5.41, 1.42, 0, .03, 1.3, 2.24, glass); box(B, 5.42, 2.3, 0, .02, .42, 2.24, shine); box(B, 5.43, 2.46, 0, .03, .4, 1.9, '#12151b'); box(B, -5.41, 1.7, 0, .03, .85, 2.0, glass);
+      box(B, 3.75, .44, .3, 1.2, 1.10, .02, '#3b4350'); box(B, 3.16, .44, .78, .02, 1.10, .95, '#49505e'); box(B, 4.34, .44, .78, .02, 1.10, .95, '#49505e'); cyl(B, 3.3, .44, 1.05, .022, 1.9, '#f4c152', P.cyl6); // well walls, grab pole
+      box(B, 0, 2.86, 0, 10.5, .13, 2.48, '#e9e2cc'); box(B, -1.2, 2.99, 0, 2.6, .2, 1.4, '#d9d2bc'); box(B, 2.6, 2.99, 0, 1.2, .14, 1.0, '#d9d2bc');
+      const panes = c.busCabin(B, 1, [-1.5,3.75]);
+      box(B,5.47,2.55,0,.08,.28,1.9,'#12151b');
       for (const s of [-1, 1]) { box(B, 5.42, .6, s * .88, .04, .2, .42, '#fff6d8'); box(B, 5.42, .62, s * .52, .04, .12, .16, '#ffb52e'); box(B, -5.42, .7, s * .9, .04, .3, .3, '#d9473b'); box(B, 5.2, 2.0, s * 1.42, .08, .34, .2, dark); for (const x of [-3.35, 2.35]) { wheel(B, x, .5, s * 1.16 + (s > 0 ? .32 : 0), .5, .32); box(B, x, .98, s * 1.262, 1.3, .1, .02, dark); } }
       box(B, 5.48, .3, 0, .14, .22, 2.52, dark); box(B, -5.48, .3, 0, .14, .22, 2.52, dark);
-      const bus = movable(B, 'bus'); bus.position.set(-62, -.15, 1.9); objects.bus = bus;
+      const bus = movable(B, 'bus'); bus.position.set(-62, -.15, 1.9); objects.bus = bus; c.mountVehicleGlass(panes, bus, 'bus cabin glass');
       const BS = new K.Batch({ uv: true }); sign('route', -.4, 1.0, 1.262, 2.0, .42, 0, BS); sign('route', 5.45, 2.66, 0, 1.8, .36, Math.PI / 2, BS);
       const boards = new THREE.Mesh(BS.geometry(), c.signMat); bus.add(boards); c.disposables.push(boards.geometry);
-      objects.doors = [-1, 1].map(s => { const D = new K.Batch(); box(D, 0, .44, 0, .6, 2.0, .04, dark); box(D, 0, .62, .012, .46, 1.7, .03, glass); box(D, s * -.27, 1.2, .04, .03, .5, .03, '#f4c152'); const m = movable(D, 'bus door'); c.S && bus.add(m); m.position.set(3.75 + s * .3, 0, 1.27); m.userData.shut = 3.75 + s * .3; m.userData.open = 3.75 + s * .93; return m; });
+      objects.doors = [-1, 1].map(s => {
+        const D = new K.Batch(), pane = new K.Batch();
+        box(D,0,.44,0,.6,.37,.04,dark); box(D,0,1.96,0,.6,.48,.04,dark);
+        for (const edge of [-.263,.263]) box(D,edge,.81,0,.074,1.15,.04,dark);
+        box(D,s*-.22,1.2,.04,.03,.5,.03,'#f4c152');
+        const m = movable(D,'bus door'); bus.add(m);
+        c.vehiclePane(pane,0,.81,.024,.45,1.15); c.mountVehicleGlass(pane,m,'bus entry door glass');
+        m.position.set(3.75+s*.3,0,1.27); m.userData.shut=3.75+s*.3; m.userData.open=3.75+s*.93;
+        return m;
+      });
       }
       if (city) objects.city = window.CityAssets.dress(c, city); // after the generated pieces: objects.bus becomes the model's wrapper
       return { x: 2, z: 3, r: 16 };

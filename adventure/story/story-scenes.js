@@ -9,7 +9,7 @@
  *     trial ids (StoryScenes.gameIds):  carry_bag = Brick's bag (heavy_bag_van), snoring_guard = Sleep talker,
  *                                       rooftop_barrage (rooftop_balloons), cut_him_off (whistle_chase), hustlers_bet (grandma_groceries)
  *     result: { id, skipped, error?, mission?: measured run (value, score, stars), saved?: save result }
- *   StoryScenes.games[id] = { set, roles, make(Trials, { hard }), pads, ghost, words, hud(view, words, lang), detail(res, words), frame(ctx, view, dt) }
+ *   StoryScenes.games[id] = { set, roles, make(Trials, { hard }), pads, ghost, words, hud(view, words, lang), detail(res, words), frame(ctx, view, dt), dpad? (false: punches only) }
  *   StoryScenes.looks[role] = { gloves, shorts }   colours for a character played by the opponent-species rig
  *   StoryScenes.best(id) -> { score, hard, gold }   personal best kept in this browser
  *   StoryScenes.playing / stop() / stats() (last frame: draw calls, triangles, set meshes, worst frame edge of a framed actor)
@@ -180,6 +180,26 @@
   const T_PUNCH = ['straight', 'hook', 'uppercut'];
   const pw = (g, k, l) => W[l].punch[k];
   const games = {
+    // Two-sided drill (Chapter 1 beat 8, GOTR-0106): Mack and the Fighter on the two sides of the new heavy bag in Bruno's Gym.
+    // "You hit, I hit": Mack hits, the bag swings over; hit it back at the top of the swing with the punch he calls (x2: twice).
+    bag_duo: {
+      set: 'dream_gym', wear: 'kit', dpad: false, roles: { fighter: {}, pip: {} }, make: (T, o) => new T.DuoTrial(undefined, o), pads: T_PUNCH, ghost: ['straight', 'hook', 'uppercut'],
+      words: {
+        en: { title: 'Two-sided drill', goal: 'Hit the bag back to Mack', count: 'Hits', miss: 'Misses', help: 'Mack hits, then it is your turn: hit the bag when it swings to you, with the punch he calls. ×2 means twice.', caps: { up: '', down: '', left: '', right: '' } },
+        he: { title: 'תרגיל משני הצדדים', goal: 'החזירו את השק למאק', count: 'פגיעות', miss: 'החטאות', help: 'מאק מכה ואז תורכם: הכו בשק כשהוא מגיע אליכם, במכה שהוא קורא. ×2 זה פעמיים.', caps: { up: '', down: '', left: '', right: '' } },
+        ru: { title: 'Мешок с двух сторон', goal: 'Отбейте мешок Маку', count: 'Удары', miss: 'Промахи', help: 'Мак бьёт, потом ваш ход: бейте, когда мешок качнётся к вам, тем ударом, который он называет. ×2 — дважды.', caps: { up: '', down: '', left: '', right: '' } }
+      },
+      hud: (v, g, l) => ({ goal: `${g.goal} · ${g.count} ${v.landed} · ${Math.ceil(v.left || 0)} s`, prompt: v.prompt ? pw(g, v.prompt, l) + (v.double ? ` ×${v.need - v.hits}` : '') : '', arrow: v.prompt || '', kind: v.prompt || '', ring: v.phase === 'toward' ? v.k : -1, now: !!v.open }),
+      detail: (r, g) => `${g.count} ${r.value} · ${g.miss} ${r.misses} · ${r.time} s`,
+      frame(x, v) {
+        const P = window.BagBreakCore.PLACE, X = 1.03 * P.stand, f = x.rigs.fighter, m = x.rigs.pip, bag = x.set.objects.oldBag;
+        x.place(f, { x: P.x + X, z: P.z, ry: -Math.PI / 2 }); x.place(m, { x: P.x - X, z: P.z, ry: Math.PI / 2 }); fighterAct(f, x);
+        if (v.mackHit) pose(m, { act: 'move', move: { straight: 'cross', hook: 'hook', uppercut: 'uppercut' }[v.type] || 'cross', phase: Math.min(.97, .14 + v.mackAge / .3 * .8) }, x.t, { options: { guardCover: 1, power: 1.15, recoil: 0, advance: 0, contactDrive: 0 } });
+        else pose(m, { act: v.phase === 'end' ? 'idle' : 'guard' }, x.t);
+        if (bag?.pose && bag.sample) { x.memo.base ||= bag.sample; bag.pose(window.GymReturnCore.bagPoseAt(x.memo.base, .2 * (v.swing ?? 0))); } // + toward Mack
+        return { pos: [P.x, 1.6, P.z + 3.7], look: [P.x, 1.3, P.z], fit: [f, m] };
+      }
+    },
     // Brick's bag: Brick shoves the heavy bag; hit it at the peak of the swing with the punch its swing calls for.
     carry_bag: {
       set: 'gymfront', roles: { fighter: {}, brick: { rig: 'brick' } }, make: (T, o) => new T.BagTrial(undefined, o), pads: T_PUNCH, ghost: ['straight', 'hook', 'uppercut', 'left'],
@@ -489,7 +509,7 @@
         const b = el('button', 'fp-arrow'); b.type = 'button'; b.dataset.dir = k; b.setAttribute('aria-label', `${w().dir[k]}${gw.caps[k] ? ': ' + gw.caps[k] : ''}`); if (!gw.caps[k]) b.dataset.idle = 'true';
         const ink = el('span', 'fp-ink'), cap = el('span', 'fp-cap', gw.caps[k]); ink.innerHTML = CHEVRON; cap.dir = 'auto'; ink.append(cap); b.append(ink); face.append(b); arrows[k] = b; bind(b, k);
       }
-      dpad.append(face, el('span', 'fp-hub')); zone.append(dpad); pad.append(zone);
+      dpad.append(face, el('span', 'fp-hub')); zone.append(dpad); pad.append(zone); if (game.dpad === false) zone.hidden = true; // punches only (bag_duo)
       if (game.pads.length) {
         const right = el('div', 'fp-zone fp-right'), arc = el('div', 'fp-arc');
         for (const k of game.pads) { const b = el('button', 'fp-btn'); b.type = 'button'; b.dataset.pad = k; b.dataset.punch = k; const label = el('span', 'fp-label', game.padWords?.(L)?.[k] || w().punch[k]); if (game.padWords) b.setAttribute('aria-label', label.textContent); label.dir = 'auto'; const key = el('span', 'fp-key', { straight: 'J', hook: 'K', uppercut: 'L' }[k]); b.append(label, key); arc.append(b); bind(b, k); }

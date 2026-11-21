@@ -16,7 +16,7 @@
  *       balloon, balloon2 (gold), pigeon, crate, crate2, bar, bar2, basket } (hidden until a scene or trial uses them)
  * World: metres, y up, the street runs along x, the camera side is +z. Walking surfaces are at y = 0, the road at -0.15. */
 (() => {
-  const MAP_SRC = './adventure/gloryland-map.js?v=2026111100';
+  const MAP_SRC = './adventure/gloryland-map.js?v=20261121city181';
   let loader = null;
   function ready() {
     if (window.GlorylandMap?.kit) return Promise.resolve();
@@ -92,11 +92,78 @@
     const planter = (x, z, w = 1.1) => { shade(x, z, w + .25, .75); box(S, x, 0, z, w, .46, .5, '#b5643e', 0, { ao: .28 }); box(S, x, .44, z, w + .06, .06, .56, '#c97250'); for (let k = 0; k < 3; k++) S.add(P.ico, M(x - w * .3 + k * w * .3, .58, z, .3, .26, .26, k), C(PAL.leaf[(k * 2 + 1) % PAL.leaf.length])); for (const [d, c] of [[-.35, '#ff8fb1'], [.05, '#ffd166'], [.38, '#ff8fb1']]) S.add(P.ico, M(x + d, .78, z + .08, .07, .07, .07), C(c)); };
     const bollard = (x, z) => { cyl(S, x, 0, z, .08, .8, '#3b4350', P.cyl6); cyl(S, x, .8, z, .1, .06, '#f4c152', P.cyl6); };
     const wheel = (B, x, y, z, r, w) => { B.add(P.cyl12, M(x, y, z - w / 2, r, w, r, 0, Math.PI / 2), C('#1c1f25')); B.add(P.cyl12, M(x, y, z - w / 2 - .012, r * .62, w + .024, r * .62, 0, Math.PI / 2), C('#c9ccd2')); B.add(P.cyl8, M(x, y, z - w / 2 - .03, r * .2, w + .06, r * .2, 0, Math.PI / 2), C('#6b7280')); };
+    // A single thin pane batch, not tinted boxes (six faces), and no write to the depth buffer.
+    const parkedGlass = new K.Batch();
+    const vehiclePane = (B, x, y, z, w, h, yaw = 0) => {
+      const a = Math.cos(yaw) * w / 2, b = Math.sin(yaw) * w / 2;
+      B.quad([x-a,y,z+b], [x+a,y,z-b], [x+a,y+h,z-b], [x-a,y+h,z+b], C('#bad5e4'), C('#587485'));
+    };
+    let vehicleGlassMat;
+    const mountVehicleGlass = (B, parent = group, name = 'vehicle cabin glass') => {
+      if (!vehicleGlassMat) {
+        vehicleGlassMat = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: .23, depthWrite: false, side: THREE.DoubleSide });
+        disposables.push(vehicleGlassMat);
+      }
+      const glass = new THREE.Mesh(B.geometry(), vehicleGlassMat);
+      glass.name = name; glass.renderOrder = 2; parent.add(glass); disposables.push(glass.geometry);
+      return glass;
+    };
+    /** A hollow upper coach with shallow seats, dark seals and a separate pane batch. */
+    const busCabin = (B, curb, doorXs) => {
+      const PANE = new K.Batch(), ivory = '#f7f0dc', trim = '#384a50';
+      const span = (a,b,z,y,h,c=ivory) => box(B,(a+b)/2,y,z,b-a,h,.12,c);
+      for (const side of [-1,1]) {
+        const z = side * 1.245;
+        const windows = [[-5.04,-3.78],[-3.64,-2.36],[-2.22,-.94],[-.80,.48],[.62,1.90],[2.04,3.32],[3.46,5.04]];
+        let used = side === curb ? windows.filter(([a,b]) => !doorXs.some(x => a < x + .67 && b > x - .67)) : windows;
+        if (side === curb) used = [...used, ...doorXs.filter(x=>x!==3.75 || curb<0).map(x=>[x-.60,x+.60,true])].sort((a,b)=>a[0]-b[0]);
+        if (side === curb && curb > 0) used = [...used,[3.15,4.35,'entry']].sort((a,b)=>a[0]-b[0]);
+        let last=-5.4;
+        for (const [a,b,door] of used) {
+          if(a>last) span(last,a,z,1.6,1.26);
+          if (door !== 'entry') {
+            span(a,b,z,1.6,.17,trim); span(a,b,z,2.56,.30);
+            if(door) {
+              // These are mechanical doors: lower kick panels stay solid; only the upper leaves are glazed.
+              span(a,b,side*1.24,.57,1.05,trim);
+              span((a+b)/2-.04,(a+b)/2+.04,z,1.62,.94,trim);
+            }
+            vehiclePane(PANE,(a+b)/2,1.77,side*1.258,b-a,.79,side<0?Math.PI:0);
+          }
+          last=b;
+        }
+        span(last,5.4,z,1.6,1.26);
+      }
+      for(const end of [-1,1]) {
+        const x=end*5.39;
+        box(B,x,1.60,0,.12,.18,2.48,ivory);
+        box(B,x,2.55,0,.12,.31,2.48,ivory);
+        for(const side of [-1,1]) box(B,x,1.78,side*1.16,.12,.77,.16,trim);
+        vehiclePane(PANE,end*5.46,1.78,0,2.18,.77,end*Math.PI/2);
+      }
+      for (const x of [-4.55,-3.35,-2.25,-.3,1.1,2.35,4.7]) for(const side of [-1,1]) {
+        if (side===curb && doorXs.some(d=>Math.abs(x-d)<.85)) continue;
+        box(B,x,1.43,side*.72,.48,.16,.62,'#517071');
+        box(B,x-.20,1.53,side*.72,.16,.53,.61,'#537376');
+      }
+      box(B,4.82,1.55,.58,.62,.42,.74,'#435659');
+      return PANE;
+    };
     /** Parked car along x on the road (y -0.15). dir = +1 faces +x. */
     const car = (x, z, c, dir = 1) => {
-      const y = -.15; shade(x, z, 4.5, 2.1, true); box(S, x, y + .28, z, 4.1, .5, 1.72, c); box(S, x - dir * .15, y + .76, z, 2.3, .5, 1.56, c); box(S, x, y + .2, z, 4.2, .14, 1.76, '#2a2f38');
-      for (const s of [-1, 1]) { box(S, x - dir * .15, y + .82, z + s * .785, 2.0, .34, .02, '#2c3e50'); box(S, x - dir * .15, y + .82, z + s * .79, .06, .36, .02, c); wheel(S, x - 1.3, y + .32, z + s * .78 + (s > 0 ? .2 : 0), .32, .2); wheel(S, x + 1.3, y + .32, z + s * .78 + (s > 0 ? .2 : 0), .32, .2); }
-      box(S, x + dir * 1.01, y + .8, z, .04, .36, 1.4, '#2c3e50'); box(S, x - dir * 1.31, y + .8, z, .04, .34, 1.4, '#2c3e50');
+      const y = -.15, cx = x-dir*.15;
+      shade(x,z,4.5,2.1,true); box(S,x,y+.28,z,4.1,.50,1.72,c); box(S,x,y+.20,z,4.2,.14,1.76,'#2a2f38');
+      box(S,cx,y+.78,z,2.30,.07,1.56,c); box(S,cx,y+1.19,z,2.30,.10,1.56,c);
+      for (const side of [-1,1]) {
+        for (const dx of [-1.10,0,1.10]) box(S,cx+dx,y+.84,z+side*.745,.09,.35,.08,c);
+        vehiclePane(parkedGlass,cx,y+.85,z+side*.789,2.11,.34,side<0?Math.PI:0);
+        for (const dx of [-.64,.36]) {
+          box(S,cx+dx,y+.83,z+side*.39,.48,.11,.48,'#576163');
+          box(S,cx+dx-dir*.22,y+.88,z+side*.39,.13,.25,.44,'#616c6e');
+        }
+        for (const dx of [-1.30,1.30]) wheel(S,x+dx,y+.32,z+side*.78+(side>0?.2:0),.32,.2);
+      }
+      for(const end of [-1,1]) vehiclePane(parkedGlass,cx+end*1.155,y+.85,z,1.42,.34,end*Math.PI/2);
       for (const s of [-1, 1]) { box(S, x + dir * 2.06, y + .46, z + s * .6, .03, .14, .34, '#fff6d8'); box(S, x - dir * 2.06, y + .46, z + s * .6, .03, .12, .34, '#d9473b'); }
     };
     const add = (m, cast = true, recv = true) => { m.castShadow = cast; m.receiveShadow = recv; group.add(m); disposables.push(m.geometry, m.material); return m; };
@@ -106,9 +173,47 @@
     const skyline = z => { for (let k = 0; k < 9; k++) { const x = -44 + k * 11 + (k % 2) * 3, h = 9 + (k * 37 % 7) * 1.6; box(S, x, 0, z, 9, h, 6, ['#d9cdb8', '#cfd6d9', '#e0cdb4'][k % 3]); box(S, x, h, z, 9.4, .5, 6.4, '#c08a66'); } };
     /** Light pool on the ground under a lantern (additive, evening sets). */
     const pool = (x, z, r, hex, y = .02) => { const c = C(hex); PL.quad([x - r, y, z + r], [x + r, y, z + r], [x + r, y, z - r], [x - r, y, z - r], c, c, [0, 0, 1, 0, 1, 1, 0, 1]); };
-    const ctx = { id, group, opts, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
+    // Selective street display bays. The painted building remains behind a closed,
+    // shallow display; it never becomes a transparent hole into an empty building.
+    const frontagePanes = [];
+    function displayBay(x, y, z, w, h, theme = 'market', depth = .32) {
+      const gym = theme === 'gym', trim = gym ? '#493629' : '#51473e', rear = gym ? '#6c5949' : '#8b7152';
+      box(S, x, y, z, w, h, .035, rear);
+      for (const side of [-1, 1]) box(S, x + side * (w / 2 - .042), y, z + depth / 2, .084, h, depth, trim);
+      box(S, x, y, z + depth / 2, w, .075, depth, trim);
+      box(S, x, y + h - .075, z + depth / 2, w, .075, depth, trim);
+      const sw = w - .19;
+      box(S, x, y + h * .35, z + depth * .45, sw, .042, depth * .68, '#c09b6c');
+      box(S, x, y + h * .72, z + .035, sw, .038, .03, '#e1bc82');
+      for (let i = -1; i <= 1; i++) {
+        const q = gym ? ['#9a4343', '#ecb24c', '#53728a'] : ['#d4ad63', '#9d4b43', '#94a46b'];
+        const cx = x + i * sw * .29, cy = y + h * .35 + .045, z1 = z + depth * .50;
+        if (gym) {
+          box(S, cx, cy, z1, sw * .18, h * (.15 + (i + 1) * .03), depth * .41, q[i + 1], .12 * i);
+          box(S, cx, cy + h * .12, z1, sw * .19, .03, depth * .43, '#ead6a3');
+        } else {
+          cyl(S, cx, cy, z1, Math.min(sw * .09, depth * .20), h * (.14 + (i + 1) * .047), q[i + 1]);
+          cyl(S, cx, cy + h * (.14 + (i + 1) * .047), z1, Math.min(sw * .10, depth * .21), .026, '#dac095');
+        }
+      }
+      // Keep a visible gap in depth between the last solid and the pane. Front-only:
+      // each bay faces the street and cannot appear as a white panel from the back.
+      const a = x - w / 2 + .085, b = x + w / 2 - .085, c = y + .076, d = y + h - .076, p = z + depth + .035;
+      frontagePanes.push(a,c,p,b,c,p,b,d,p,a,c,p,b,d,p,a,d,p);
+    }
+    const ctx = { id, group, opts, displayBay, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline, vehiclePane, mountVehicleGlass, busCabin };
     const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) }, evening = focus.time === 'evening';
 
+    if (parkedGlass.tris) mountVehicleGlass(parkedGlass, group, 'parked car cabin glass');
+
+    if (frontagePanes.length) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(frontagePanes, 3));
+      const pane = add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({
+        color: '#cce5f2', transparent: true, opacity: .14, depthWrite: false
+      })), false, false);
+      pane.name = 'street frontage clear panes'; pane.renderOrder = 2;
+    }
     // ---- meshes: street (1), signs (1), houses (1 + one per facade style)
     const street = add(new THREE.Mesh(S.geometry(), mat)); street.name = 'street'; street.matrixAutoUpdate = false; street.updateMatrix();
     if (SG.tris) { const sg = add(new THREE.Mesh(SG.geometry(), signMat), false, true); sg.name = 'signs'; sg.matrixAutoUpdate = false; sg.updateMatrix(); }
@@ -178,15 +283,14 @@
     for (const x of [-11.9, -5.3]) bollard(x, -4.1);
     car(-17.5, 2.45, '#3b7dd8', -1); car(17, 2.45, '#f4f1ea', -1);
     // the bus: two-tone body, window line with pillars, doors on the kerb side, wheels with hubs, lights, route boards
-    const B = new K.Batch(), glass = '#33485c', shine = '#587891', dark = '#2a2f38';
-    box(B, 0, .32, 0, 10.9, .36, 2.46, dark); box(B, 0, .5, 0, 10.8, 1.0, 2.5, '#f0b429'); box(B, 0, 1.5, 0, 10.84, .1, 2.54, '#d9473b'); box(B, 0, 1.6, 0, 10.8, 1.26, 2.5, '#f7f0dc'); box(B, 0, 2.86, 0, 10.5, .13, 2.3, '#e9e2cc'); box(B, -1.2, 2.99, 0, 2.6, .2, 1.4, '#d9d2bc');
-    for (let k = 0; k < 6; k++) { const x = -4.35 + k * 1.52; box(B, x, 1.72, 1.255, 1.3, .82, .02, glass); box(B, x, 2.34, 1.26, 1.3, .2, .02, shine); }
-    for (const [x, w] of [[-4.35, 1.3], [-2.83, 1.3], [1.4, 1.5]]) { box(B, x, 1.72, -1.255, w, .82, .02, glass); box(B, x, 2.34, -1.26, w, .2, .02, shine); }
-    for (const x of [-.75, 3.75]) { box(B, x, .56, -1.26, 1.2, 2.1, .03, dark); for (const d of [-.29, .29]) box(B, x + d, .7, -1.275, .5, 1.75, .02, glass); }
-    box(B, 5.41, 1.42, 0, .03, 1.3, 2.24, glass); box(B, 5.42, 2.3, 0, .02, .42, 2.24, shine); box(B, 5.43, 2.46, 0, .03, .4, 1.9, '#12151b'); box(B, -5.41, 1.7, 0, .03, .85, 2.0, glass);
+    const B = new K.Batch(), dark = '#2a2f38';
+    box(B,0,.32,0,10.9,.36,2.46,dark); box(B,0,.5,0,10.8,1,2.5,'#f0b429'); box(B,0,1.5,0,10.84,.10,2.54,'#d9473b');
+    box(B,0,2.86,0,10.5,.13,2.48,'#e9e2cc'); box(B,-1.2,2.99,0,2.6,.2,1.4,'#d9d2bc');
+    const panes = c.busCabin(B,-1,[-.75,3.75]);
+    box(B,5.47,2.55,0,.08,.28,1.9,'#12151b');
     for (const s of [-1, 1]) { box(B, 5.42, .6, s * .88, .04, .2, .42, '#fff6d8'); box(B, 5.42, .62, s * .52, .04, .12, .16, '#ffb52e'); box(B, -5.42, .7, s * .9, .04, .3, .3, '#d9473b'); box(B, 5.2, 2.0, s * 1.42, .08, .34, .2, dark); for (const x of [-3.35, 3.35]) wheel(B, x, .5, s * 1.16 + (s > 0 ? .32 : 0), .5, .32); }
     box(B, 5.48, .3, 0, .14, .22, 2.52, dark); box(B, -5.48, .3, 0, .14, .22, 2.52, dark);
-    const bus = movable(B, 'bus'); bus.position.set(.4, -.15, -1.9); objects.bus = bus;
+    const bus = movable(B, 'bus'); bus.position.set(.4, -.15, -1.9); objects.bus = bus; c.mountVehicleGlass(panes, bus, 'bus cabin glass');
     const BS = new K.Batch({ uv: true }); sign('route', 2.6, 1.0, 1.262, 2.0, .42, 0, BS); sign('route', 5.45, 2.66, 0, 1.8, .36, Math.PI / 2, BS);
     const boards = new THREE.Mesh(BS.geometry(), c.signMat); bus.add(boards); c.disposables.push(boards.geometry);
     return { x: 0, z: -4, r: 12 };

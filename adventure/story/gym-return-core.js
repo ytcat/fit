@@ -79,8 +79,10 @@
     }, 0);
   }
   // Work in the existing rig's pendulum frame: s along the first punch, y up, w perpendicular.
-  function bagPose(base, t) {
-    const th = angle(t), sn = Math.sin(th), co = Math.cos(th), pivot = B.BAG.mount;
+  function bagPose(base, t) { return bagPoseAt(base, angle(t)); }
+  /** The new bag at swing angle th (rad, + toward Mack's side): used by the films and by the two-sided drill (story-scenes.js bag_duo). */
+  function bagPoseAt(base, th) {
+    const sn = Math.sin(th), co = Math.cos(th), pivot = B.BAG.mount;
     const turn = (s, h) => [s*co - h*sn, s*sn + h*co];
     const b = base.bag, [s,y] = turn(b.s,b.y - pivot);
     return { ...base, bag: { ...b, s, y: y + pivot, th }, links: base.links.map(l => {
@@ -88,7 +90,7 @@
       return { ...l, p: [a,b + pivot,l.p[2]], d: [c,d,l.d[2]] };
     }) };
   }
-  const api = { scenes, strikes, punch, angle, bagPose };
+  const api = { scenes, strikes, punch, angle, bagPose, bagPoseAt };
   if (typeof module !== 'undefined') module.exports = api;
   else { window.GymReturnCore = api; C.register(scenes); }
 })();

@@ -449,6 +449,7 @@ function build(scene, opts = {}) {
   buildDistricts(W);
   buildLandmarks(W);
   buildVegetation(W);
+  civicPlanting(W);
   buildTraffic(W);
 
   /* ---- materials and meshes */
@@ -1254,6 +1255,12 @@ function waterfront(W) {
   });
   for (let x = 33; x < 115; x += 6.2) addInst(W, 'palms', { x, y: BLOCK_Y, z: lerp(31.1, coastZ(x).z, .62), s: rnd(.95, 1.2) });
   for (let x = 36; x < 115; x += 8.4) lamp(W, x, BLOCK_Y, 31.7, Math.PI);
+  // Low shade trees on the landward edge, away from the road, existing lamps and palm line.
+  for (const x of [42.1, 53.9, 68.3, 80.5, 93.9, 109.2]) {
+    const z = 32.85;
+    if (coastZ(x).z - z < 2.1 || W.inst.palms.some(p => Math.hypot(p.x - x, p.z - z) < 1.65)) continue;
+    addInst(W, 'trees', { x, y: BLOCK_Y, z, s: .87, sy: .86, ry: x * .29, color: '#79a154' });
+  }
   // beach life
   const ucol = ['#e8473b', '#f2c14e', '#2fa59a', '#ffffff', '#3c7fc0', '#f07f3c', '#d63d6d'];
   for (let x = 33; x < 114; x += rnd(1.6, 3.2)) {
@@ -1619,6 +1626,12 @@ function downtownLandmarks(W) {
     gloveGold(W, pz.x, BLOCK_Y + 2.45, pz.z, fr.ry);
     for (let k = 0; k < 8; k++) { const a = k / 8 * TAU; addInst(W, 'palms', { x: pz.x + Math.cos(a) * 4.2, y: BLOCK_Y, z: pz.z + Math.sin(a) * 4.2, s: rnd(.85, 1) }); }
     for (let k = 0; k < 16; k++) { const a = rnd(0, TAU), r = rnd(2.8, 5); addInst(W, 'people', { x: pz.x + Math.cos(a) * r, y: BLOCK_Y, z: pz.z + Math.sin(a) * r, s: 1, color: pick(PAL.car) }); }
+    // Keep the radial walkways and the golden glove open, planting only the corners.
+    for (const [sx, sz] of [[-1,-1], [1,-1], [-1,1], [1,1]]) {
+      const [x, z] = fr.p(sx * (pz.w / 2 - 1.55), sz * (pz.d / 2 - 1.55));
+      if (W.inst.palms.some(p => Math.hypot(p.x - x, p.z - z) < 1.65)) continue;
+      addInst(W, 'trees', { x, y: BLOCK_Y, z, s: sx === sz ? 1.02 : .92, sy: sx === sz ? .88 : 1.07, ry: 1 + .7 * sx + .3 * sz, color: '#77974e' });
+    }
     pool(W, pz.x, pz.z, 4, '#ffe2a8', .5); glow(W, pz.x, BLOCK_Y + 1.8, pz.z, '#ffd36a', 3, .5);
   }
 }
@@ -2140,6 +2153,29 @@ function occupancy(W) {
   const data = c.getImageData(0, 0, w, h).data;
   return (x, z) => { const i = Math.round(X(x)), j = Math.round(Y(z)); if (i < 0 || j < 0 || i >= w || j >= h) return !inPoly(x, z, LAND) || polyDist(x, z, LAND) < 4; return data[(j * w + i) * 4] > 127; };
 }
+/** A small number of civic plantings on already-open paved edges; keep road, pins and plaza centres clear. */
+function civicPlanting(W) {
+  const leaf = ['#739350', '#7b994a', '#8da455'];
+  let i = 0;
+  function plant(x, z, s, shape) {
+    const id = i++;
+    addInst(W, 'trees', { x, z, y: BLOCK_Y, s, sx: shape[0], sy: shape[1], sz: shape[2], ry: id * .87, color: leaf[id % leaf.length] });
+  }
+  const mf = W.marketFrame;
+  // Between shopfronts and stalls; the middle of the marked pedestrian lane stays open.
+  for (const [u, w] of [[5,-3.30],[15,3.30],[24,-3.30],[34,3.30],[44,-3.30]]) {
+    plant(mf.o[0] + mf.U[0] * u + mf.Wv[0] * w, mf.o[1] + mf.U[1] * u + mf.Wv[1] * w, .63, [.79, 1.13, .84]);
+  }
+  for (const b of W.blocks) if ((b.district === 'oldtown' && b.kind === 'square') || b.kind === 'park') {
+    const fr = frame(b.x, b.z, b.ang);
+    const pts = b.kind === 'park' ? [[-.31, -.26], [.31, .26]] : [[-.31, .05], [.31, -.05]];
+    for (const [a, c] of pts) {
+      const [x, z] = fr.p(b.w * a, b.d * c);
+      // Do not overlap a naturally generated park tree on the same grass.
+      if (!(W.inst.trees || []).some(o => Math.hypot(o.x - x, o.z - z) < 1.25)) plant(x, z, .75, [.98, .86, 1.11]);
+    }
+  }
+}
 function buildVegetation(W) {
   for (const b of W.blocks) if (b.kind === 'park') {
     const fr = frame(b.x, b.z, b.ang), n = Math.round(b.w * b.d / 7);
@@ -2308,7 +2344,7 @@ function buildInstances(W, add) {
     if (def.map) W.disposables.push(mat.map);
     const mesh = new THREE.InstancedMesh(geo, mat, list.length), col = new THREE.Color();
     list.forEach((o, i) => {
-      mesh.setMatrixAt(i, M(o.x, o.y, o.z, o.s, o.s * (o.sy || 1), o.s, o.ry ?? rnd(0, TAU)));
+      mesh.setMatrixAt(i, M(o.x, o.y, o.z, o.s * (o.sx || 1), o.s * (o.sy || 1), o.s * (o.sz || 1), o.ry ?? rnd(0, TAU)));
       col.copy(C(o.color || (def.colors ? pick(def.colors) : '#ffffff'))); mesh.setColorAt(i, col);
       if (moving) { if (o.mv.type === 'orbit') { o.mv.cx = o.x - Math.cos(o.mv.ph) * o.mv.r; o.mv.cz = o.z - Math.sin(o.mv.ph) * o.mv.r; } W.movers.push({ mesh, i, o }); }
     });
