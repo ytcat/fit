@@ -67,7 +67,7 @@
   function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=skip.hidden=true;document.body?.classList?.toggle?.('fight-over',false);last='';for(const actor in corners)corners[actor].last=null;}
   // Approved recordings play only when their exact file has loaded; otherwise the existing sounds play unchanged.
   const approvedAudio=window.ApprovedFightAudio;
-  const loadApproved=()=>{try{approvedAudio?.preload(app.audio);}catch(_){}};loadApproved();document.addEventListener('pointerdown',loadApproved,{passive:true});
+  const loadApproved=()=>{try{approvedAudio?.preload(app.audio);}catch(_){}};loadApproved();document.addEventListener?.('pointerdown',loadApproved,{passive:true});
   e.onFightEvent=event=>{
    if(event.type==='announcement'){if(!approvedAudio?.handle(event,app))app.audio.applause?.();}
    else if(event.type==='bell'&&event.kind==='start'){app.audio.bell('start');approvedAudio?.handle(event,app);} // referee command once, in the player's language
