@@ -1,0 +1,74 @@
+name: Market and map tree review
+on:
+  pull_request:
+    paths:
+      - 'adventure/gloryland-map.js'
+      - 'adventure/story/**'
+      - 'qa/gloryland-trees/market.cjs'
+      - '.github/workflows/market-map-trees-review.yml'
+permissions:
+  contents: read
+jobs:
+  evidence:
+    if: github.head_ref == 'wip/gloryland-market-map-trees-v180-review'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: 9961b9d54c08827715ec667121d84445c4fb461d
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          tools="$RUNNER_TEMP/fit-playwright"
+          npm install --prefix "$tools" --no-save playwright@1.56.1
+          "$tools/node_modules/.bin/playwright" install --with-deps chromium
+          echo "NODE_PATH=$tools/node_modules" >> "$GITHUB_ENV"
+          sudo apt-get install -y python3-pil
+      - name: Compare phone-sized map and Market Row; check bounded render cost
+        run: |
+          node tests/city-assets.test.cjs
+          mkdir -p "$RUNNER_TEMP/tree-review"
+          export OUT_DIR="$RUNNER_TEMP/tree-review" TOUCH=1 SINGLE=1 COLS=3 WAIT=1
+          python3 -m http.server 8671 --bind 127.0.0.1 --directory baseline > "$OUT_DIR/baseline-server.log" 2>&1 &
+          a=$!
+          python3 -m http.server 8672 --bind 127.0.0.1 > "$OUT_DIR/review-server.log" 2>&1 &
+          b=$!
+          trap 'kill "$a" "$b"' EXIT
+          for side in before after; do
+            port=8671; if [ "$side" = after ]; then port=8672; fi
+            MAP_URL=http://127.0.0.1:$port/adventure/map-preview.html SHADOW=1024 node qa/gotr-0008/map/capture.cjs "$OUT_DIR" "$side-map:market:day:402:690" > "$OUT_DIR/$side-map.jsonl"
+            APP_URL=http://127.0.0.1:$port/ CLIP=dream_market_robbery SHOTS='opening:1.3,faceoff:11.2' node qa/gloryland-trees/market.cjs "$side-market"
+          done
+          APP_URL=http://127.0.0.1:8672/ CLIP=dream_market_robbery WAIT=0 BLOCK=tree SHOTS='opening:1.3' node qa/gloryland-trees/market.cjs market-fallback
+          node --input-type=commonjs <<'NODE'
+          const assert = require('node:assert/strict'), fs = require('node:fs');
+          const read = name => JSON.parse(fs.readFileSync(process.env.OUT_DIR + '/' + name));
+          const map1 = read('before-map.jsonl'), map2 = read('after-map.jsonl');
+          assert.equal(map1.calls, map2.calls);
+          assert.ok(map2.triangles > map1.triangles && map2.triangles - map1.triangles < 3000);
+          console.log('map delta', map2.triangles - map1.triangles, map2.calls - map1.calls);
+          for (const [mode, count] of [['market', 2]]) {
+            const before = read('before-' + mode + '.json'), after = read('after-' + mode + '.json');
+            assert.ok(!after.log.some(x => x.startsWith('PAGEERROR')));
+            assert.equal(after.glbRequests.filter(u => u === 'street-tree-low.glb').length, 1);
+            for (const [i, a] of after.frames.entries()) {
+              const b = before.frames[i], dt = a.triangles - b.triangles, dc = a.calls - b.calls;
+              console.log(mode, a.label, dt, dc);
+              assert.equal(a.trees.length, count);
+              assert.ok(dt < 50000 && dc < 16, 'phone frame budget exceeded at ' + a.label);
+            }
+          }
+          const fallback = read('market-fallback.json');
+          assert.equal(fallback.frames[0].trees.length, 0);
+          assert.ok(fallback.glbRequests.includes('street-tree-low.glb') && fallback.frames[0].triangles > 0);
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: market-map-tree-review
+          path: ${{ runner.temp }}/tree-review
+          retention-days: 14
