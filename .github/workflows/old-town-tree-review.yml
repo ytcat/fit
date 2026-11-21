@@ -1,0 +1,67 @@
+name: Old Town tree visual comparison
+on:
+  pull_request:
+    paths:
+      - 'adventure/story/city-assets.js'
+      - 'adventure/story/dream-sets.js'
+      - 'qa/gotr-0089/tools/film.cjs'
+      - '.github/workflows/old-town-tree-review.yml'
+permissions:
+  contents: read
+jobs:
+  arrival:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: 939bfebc9d97a5513f9ace1cbd18e778c699c35a
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          tools="$RUNNER_TEMP/fit-playwright"
+          npm install --prefix "$tools" --no-save playwright@1.56.1
+          "$tools/node_modules/.bin/playwright" install --with-deps chromium
+          echo "NODE_PATH=$tools/node_modules" >> "$GITHUB_ENV"
+          sudo apt-get install -y python3-pil
+      - name: Capture matched 402 × 690 frames and check renderer budget
+        run: |
+          mkdir -p "$RUNNER_TEMP/tree-review"
+          export OUT_DIR="$RUNNER_TEMP/tree-review" TOUCH=1 SINGLE=1 COLS=3
+          export SHOTS='arrive:8.6,street:14.0,walk:17.6,ahead:20.0,crossing:24.6,gym:29.3'
+          python3 -m http.server 8671 --bind 127.0.0.1 --directory baseline > "$OUT_DIR/baseline-server.log" 2>&1 &
+          a=$!
+          python3 -m http.server 8672 --bind 127.0.0.1 > "$OUT_DIR/review-server.log" 2>&1 &
+          b=$!
+          trap 'kill "$a" "$b"' EXIT
+          APP_URL=http://127.0.0.1:8671/ node qa/gotr-0089/tools/film.cjs before
+          APP_URL=http://127.0.0.1:8672/ node qa/gotr-0089/tools/film.cjs after
+          APP_URL=http://127.0.0.1:8672/ BLOCK=tree SHOTS=street:14.0 node qa/gotr-0089/tools/film.cjs fallback
+          node --input-type=commonjs <<'NODE'
+          const assert = require('node:assert/strict'), fs = require('node:fs');
+          const read = name => JSON.parse(fs.readFileSync(process.env.OUT_DIR + '/' + name + '.json'));
+          const before = read('before'), after = read('after'), fallback = read('fallback');
+          for (const r of [before, after, fallback]) assert.ok(!r.log.some(x => x.startsWith('PAGEERROR')));
+          assert.equal(after.city.tree, 'ready');
+          assert.equal(after.glbRequests.filter(u => u === 'street-tree-low.glb').length, 1);
+          assert.equal(after.frames[0].trees.length, 3);
+          assert.ok(after.frames.some(f => f.trees.some(([, visible]) => !visible)), 'culling actually occurs');
+          assert.equal(fallback.city.tree, 'failed');
+          assert.equal(fallback.frames[0].trees.length, 0);
+          assert.ok(fallback.frames[0].triangles > 0);
+          for (const [i, a] of after.frames.entries()) {
+            const b = before.frames[i];
+            const dt = a.triangles - b.triangles, dc = a.calls - b.calls;
+            console.log(a.label, 'triangle delta', dt, 'draw delta', dc);
+            assert.ok(dt < 50000 && dc < 16, 'phone frame budget exceeded at ' + a.label);
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: old-town-arrival-tree-comparison
+          path: ${{ runner.temp }}/tree-review
+          retention-days: 14

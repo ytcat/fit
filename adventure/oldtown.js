@@ -71,7 +71,7 @@
     buy_heavy_bag: { kind: 'buy', item: 'heavy_bag', film: 'dream_otto_shop' }, // the purchase is confirmed inside the film (GOTR-0096)
     bag_drill: { kind: 'training', mode: 'heavy', duration: 40, imp: (r, h) => { if (heavyHit(h)) r.value++; } },
     fight_prep: { kind: 'training', mode: 'pads', duration: 60, frame: (r, f) => { if (playerOn() && f.defences > 0) r.value += f.defences; } },
-    docks_fight: { kind: 'story_fight', venue: 'docks', rounds: 2, roundSeconds: 30, restSeconds: 8, opponent: L('Rourke', 'רורק', 'Рурк'), foe: { power: 1.12, tempo: 1.06, skill: .05 } },
+    docks_fight: { kind: 'story_fight', venue: 'docks', cast: 'rourke', after: 'dream_docks_after', rounds: 2, roundSeconds: 30, restSeconds: 8, opponent: L('Rourke', 'רורק', 'Рурк'), foe: { power: 1.12, tempo: 1.06, skill: .05 } },
     advanced_training: { kind: 'lesson', comboId: 'counter_chain' },
     // ---- older chapter-1 missions (GOTR-0069 list): still valid in saves, no longer story steps
     heavy_bag_van: { kind: 'scene', scene: 'carry_bag' },
@@ -317,7 +317,7 @@
   const seen = k => { try { return localStorage.getItem('gotr-scene-' + k) === '1'; } catch { return false; } };
   const mark = k => { try { localStorage.setItem('gotr-scene-' + k, '1'); } catch { /* fine without storage */ } };
   // GOTR-0078: the older Brick scenes star Mack as the Coach, so the Dream rematch plays none (Bruno speaks in the summary instead).
-  const BOSS_SCENE = { brick: [null, null], king_hyena: ['hyena_intro', 'hyena_outro'] };
+  const BOSS_SCENE = { brick: [null, 'dream_chapter_end'], king_hyena: ['hyena_intro', 'hyena_outro'] };
 
   // ---- GOTR-0069 story mode: BEFORE beat -> the step -> AFTER beat (on the map, never over the Fighter) -> Next ----
   const SF = () => window.StoryFlow, FW = () => SF().copy[lang()] || SF().copy.en;
@@ -358,8 +358,8 @@
     const d = DEFS[id];
     if (d?.kind === 'film') { launch(ctx, id); return true; }
     if (d?.kind === 'buy') { shop(ctx, id); return true; }
-    const S = window.StoryScenes, sc = s.scene && S && !seen(s.scene) ? s.scene : null;
-    const go = () => { if (d?.kind === 'talk') { recordStory(ctx, id); afterBeat(id, { ok: true }); return; } if (sc) { mark(sc); S.play(sc, { onDone: () => launch(ctx, id) }); } else launch(ctx, id); };
+    const S = window.StoryScenes, sc = s.scene && S && !seen(s.scene) && (S.sceneIds || []).includes(s.scene) ? s.scene : null; // a film that is not registered (docks-core.js without Rourke) keeps the lines
+    const go = () => { if (d?.kind === 'talk') { recordStory(ctx, id); afterBeat(id, { ok: true }); return; } if (sc) { mark(sc); S.play(sc, { outcome: SF().firstBrick(g) || undefined, onDone: () => launch(ctx, id) }); } else launch(ctx, id); };
     if (sc && !o.lead) { go(); return true; }
     const lines = []; if (o.lead) lines.push({ text: T(o.lead) });
     if (!sc) lines.push(...said(id, 'intro', SF().firstBrick(g)).slice(0, 2));

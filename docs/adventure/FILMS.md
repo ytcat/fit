@@ -20,23 +20,23 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 | 2 | Gym talk (`dream_gym_talk`) | 1 | Fighter meets Coach Bruno: no money, a dream, "whatever it takes"; Brick steps in | **Live** v1.53, natural dialogue v1.60 | |
 | 3 | First fight vs Brick | 2 | Fight on the gym floor, Bruno referees | **Live** v1.64 (GOTR-0083) | `adventure/story/gym-fight.js` |
 | 4 | After the fight (`dream_after_brick`) | 2 | Bruno's deal: clean the gym, run errands, train for free — loss and win versions | **Live** v1.53 (torn-arms fix v1.56) | |
-| A | Clean the gym (`clean_gym`, skill game) | side A | Day, Bruno's Gym: the Fighter in street clothes mops wet streaks along two taped lanes on the beat (In / Out steps, Slip to the other lane); Bruno shoves the high-hung heavy bags along the lane ends: Duck or Slip, or get knocked; combo, stars, a small wage every shift; Bruno's line before and after | **Built** on `agent/clean-gym` (GOTR-0099), not released | `adventure/story/mop-core.js` (rules), `adventure/story/mop-game.js` (picture); evidence `qa/gotr-0099/clean-gym.webp` |
-| 5 | Bag break (`dream_bag_break`) | 4 | Night gym, one huge Cross, the chain snaps, the bag falls and rolls; "Bruno's going to kill me" | **Done on `agent/bag-break-b`** (GOTR-0087), not released: Jab-Cross, slowed big Cross, bag folds, top link snaps, swing up, falls on its end, bounce, tips over, rolls; lamp sways; replay from the step | `adventure/story/bag-break-core.js` (script, physics), `bag-break.js` (bag model, film); evidence `qa/gotr-0087/` |
-| 6 | Apology (`dream_apology`) | 5 | Morning gym, the old bag on the floor under the empty chain; the Fighter (street clothes) owns up, Bruno grumbles ("Forty years"), sends him to Market Row; he walks out (tap / Skip) | **Built** on branch agent/market-films (GOTR-0096), not released | `adventure/story/market-core.js`; plays at the step, then chains into the robbery film; evidence `qa/gotr-0096/apology.webp` |
+| A | Clean the gym (`clean_gym`, skill game) | side A | Day, Bruno's Gym: the Fighter in street clothes mops wet streaks along two taped lanes on the beat (In / Out steps, Slip to the other lane); Bruno shoves the high-hung heavy bags along the lane ends: Duck or Slip, or get knocked; combo, stars, a small wage every shift; Bruno's line before and after | **Live** v1.71 (GOTR-0099) | `adventure/story/mop-core.js` (rules), `adventure/story/mop-game.js` (picture); evidence `qa/gotr-0099/clean-gym.webp` |
+| 5 | Bag break (`dream_bag_break`) | 4 | Night gym, one huge Cross, the chain snaps, the bag falls and rolls; "Bruno's going to kill me" | **Live** v1.65 (GOTR-0087) | `adventure/story/bag-break-core.js` (script, physics), `bag-break.js` (bag model, film); evidence `qa/gotr-0087/` |
+| 6 | Apology (`dream_apology`) | 5 | Morning gym, the old bag on the floor under the empty chain; the Fighter (street clothes) owns up, Bruno grumbles ("Forty years"), sends him to Market Row; he walks out (tap / Skip) | **Live** v1.71 (GOTR-0096) | `adventure/story/market-core.js`; plays at the step, then chains into the robbery film; evidence `qa/gotr-0096/apology.webp` |
 | 7 | Market robbery (`dream_market_robbery` -> street fight -> `dream_market_reward`) | 6 | Market Row by day: Fang snatches Mrs. Hazel's handbag, runs, the Fighter blocks him, Fang drops the bag and takes his jacket off; hand-off into the ringless street fight vs Fang (bare hands); after a win Mrs. Hazel gets her bag back and she and Otto hand over the reward (= heavy bag price); a loss keeps the existing lost beat and Retry | Live since v1.71 (GOTR-0096) | v1.73 adds the authored Hazel stall to the two films. The surrounding street uses the existing Market Row set. Evidence `qa/gotr-0096/robbery.webp` and `robbery-fight.webp` |
-| 8 | Otto's Corner (`dream_otto_shop`) | 7 | Shop front, then inside: Otto greets him, shows the new heavy bag; the film waits for the in-scene Buy button (the step's own purchase); he carries the bag out on his shoulder (tap / Skip; Skip before buying shows the old counter) | **Built** on branch agent/market-films (GOTR-0096), not released | Placeholder set `dream_shop` until Codex's shop; evidence `qa/gotr-0096/otto.webp` |
-| 9 | New bag | 8 | Bruno heard about the market; two-sided bag drill with Mack | **Built** — staging, visual QA pending | Reconstructed from Chapter 1 script; `adventure/story/gym-return-core.js` |
-| 10 | Offer | 9 | Bruno proposes an unofficial fight | **Built** — staging, visual QA pending | Reconstructed film leads into the existing mitt drill |
-| 11 | The Docks | 10 | Arrival at night, illegal fight in a crowd circle, bare-knuckle vs Rourke | **Planned** — stand-in: Docks bout with gloves | Codex: warehouse set |
-| 12 | Fight night | 12 | Rematch vs Brick in the gym with the neighbourhood watching; chapter ending | **Planned** | |
+| 8 | Otto's Corner (`dream_otto_shop`) | 7 | Shop front, then inside: Otto greets him, shows the new heavy bag; the film waits for the in-scene Buy button (the step's own purchase); he carries the bag out on his shoulder (tap / Skip; Skip before buying shows the old counter) | **Live** v1.71 (GOTR-0096); windows, floor and bag carry fixed v1.76–v1.78 (GOTR-0101–0103) | Placeholder set `dream_shop` until Codex's shop; evidence `qa/gotr-0096/otto.webp` |
+| 9 | New bag | 8 | Bruno heard about the market; two-sided bag drill with Mack | **Live** v1.75 | Reconstructed from the Chapter 1 script; `adventure/story/gym-return-core.js` |
+| 10 | Offer | 9 | Bruno proposes an unofficial fight | **Live** v1.75 | Leads into the mitt drill |
+| 11 | The Docks | 10 | Arrival at night, illegal fight in a crowd circle, bare-knuckle vs Rourke | **Built** 2026-11-21 (`claude/ecstatic-clarke-9as2ak`): `dream_docks` (night, in through the quay door and the lane in the crowd, cash on the drum, "I didn't come this far to walk away", Rourke) and `dream_docks_after` (win: Rourke pays the purse = the step reward; loss: his jibe) | `adventure/story/docks-core.js`, `docks-sets.js` (the fight venue `arena-sets.js` docks at night); Rourke: `adventure/story/cast-docks.js` |
+| 12 | Fight night | 12 | Rematch vs Brick in the gym with the neighbourhood watching; chapter ending | **Built** 2026-11-21: `dream_fight_night` (evening gym, Mrs. Hazel, Otto and Mack round the ring, Brick in it; variant for a won first fight) and `dream_chapter_end` (Bruno: "real gear and a real league", Brick: "Good fight, champ") | `adventure/story/docks-core.js`; the rematch itself still runs in the chapter arena |
 
 ## Fight films (every fight)
 
 | # | Film | What it shows | State |
 |---|---|---|---|
-| F1 | Sunday Punch (finisher, GOTR-0088) | Dip, rising rear Uppercut under the chin, slow motion, Opponent lifted and falls out cold; earned at the end of Chapter 1 or bought | **In review** (`agent/sunday-punch`) |
-| F2 | Corner break (GOTR-0076) | Between rounds: walk to the corner, cornerman brings the stool (corner colour), towel, water bottle; stool removed at the bell | **Ready for QA** (`agent/corner-break`, `fight-corner.js`) |
-| F3 | Knockout fall | Believable fall to the canvas, no floating or clipping; referee or Coach waves it off | **In review** (part of F1, `sunday-punch.js`) |
+| F1 | Sunday Punch (finisher, GOTR-0088) | Dip, rising rear Uppercut under the chin, slow motion, Opponent lifted and falls out cold; earned at the end of Chapter 1 or bought | **Live** v1.71 |
+| F2 | Corner break (GOTR-0076) | Between rounds: walk to the corner, cornerman brings the stool (corner colour), towel, water bottle; stool removed at the bell | **Live** v1.67, polish v1.70 |
+| F3 | Knockout fall | Believable fall to the canvas, no floating or clipping; referee or Coach waves it off | **Live** v1.71 (with F1) |
 | F4 | Fight intro and result | Intro, VS, result ceremony with score cards only on a decision | **Live** (v1.49) |
 
 ## Older scenes (live, to be redone in the new style)
@@ -49,9 +49,6 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 
 ## Next in order
 
-1. Bag break (5) — done on `agent/bag-break-b`, waiting for review and release.
-2. Opening with Codex's assets (1) and first fight on the gym floor (3) — in work.
-3. Sunday Punch (F1) and knockout fall (F3).
-4. Corner break (F2).
-5. Apology (6), Market robbery (7), Otto's Corner (8) — built on branch agent/market-films; swap the placeholder sets when Codex delivers the market and the shop.
-6. New bag (9), Offer (10), The Docks (11), Fight night (12).
+1. Films 11 and 12: release after the owner sees the pictures (`qa/films-11-12/`).
+2. Codex heads for Brick, Fang, Mrs. Hazel, Otto and Rourke (code-built heads are interim); Codex's market, shop and docks sets.
+3. Older Chapter 2 scenes (Market Row) once the "Junior League" script exists.

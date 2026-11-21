@@ -1,6 +1,6 @@
 // Otto's Corner street front: capture consecutive frames at small time steps and measure pixel changes inside the
 // display windows versus the rest of the picture. Z-fighting shows as large frame-to-frame changes on still surfaces.
-// usage: node qa/gotr-0101/otto-flicker.cjs <outdir>   (TIMES="4.5,4.6,..." picks other scene times; BUY=21.9 presses the in-scene Buy first)
+// usage: node qa/gotr-0101/otto-flicker.cjs <outdir>   (TIMES="4.5,4.6,..." scene times; BUY=21.9 presses the in-scene Buy first; SCENE=<id>, OUTCOME=<variant>, PRE=<js run before play>, PROBE=<js per frame>, SETTLE=1 plays the 2 s before each picture)
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '../..'), out = process.argv[2];
@@ -17,7 +17,8 @@ const server = http.createServer((q, r) => {
   await p.goto(`http://localhost:${server.address().port}/`, { timeout: 300000 });
   await p.waitForFunction(() => window.ringfighterGame && app.engine.coach?.anatomy && window.StoryCast?.market && window.DreamScenes && window.MarketProps, null, { timeout: 300000 });
   await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); setInterval(() => document.querySelectorAll('dialog[open]:not(.dream-scene)').forEach(d => d.close()), 300); });
-  await p.evaluate(() => StoryScenes.play('dream_otto_shop', { onDone: () => { }, onBuy: () => true }));
+  if (process.env.PRE) await p.evaluate(process.env.PRE);
+  await p.evaluate(([id, outcome]) => StoryScenes.play(id, { outcome: outcome || undefined, onDone: () => { }, onBuy: () => true }), [process.env.SCENE || 'dream_otto_shop', process.env.OUTCOME || '']);
   await p.waitForFunction(() => DreamScenes.debug && DreamScenes.debug.phase === 'play', null, { timeout: 300000 });
   const wait = async () => { const n0 = await p.evaluate(() => app.engine.renderer.info.render.frame); await p.waitForFunction(n => app.engine.renderer.info.render.frame >= n + 3, n0, { timeout: 120000 }); };
   // window rectangles in screen space: project the two display windows (shop front z -4.4)
@@ -27,6 +28,7 @@ const server = http.createServer((q, r) => {
   for (let i = 0; i < list.length; i++) {
     const t = list[i];
     if (process.env.BUY && t >= +process.env.BUY && !p.__bought) { await p.evaluate(t => DreamScenes.seek(t), +process.env.BUY); await wait(); await p.evaluate(() => document.querySelector('.dream-buy')?.click()); await wait(); p.__bought = true; }
+    if (process.env.SETTLE) { for (let u = Math.max(0, t - 2); u < t; u += .1) { await p.evaluate(u => DreamScenes.seek(u), u); await p.waitForFunction(n => app.engine.renderer.info.render.frame > n, await p.evaluate(() => app.engine.renderer.info.render.frame), { timeout: 60000 }); } } // play into the moment: turns and gestures settle as in the game
     await p.evaluate(t => DreamScenes.seek(t), t); await wait();
     if (process.env.PROBE) console.log('probe', t, JSON.stringify(await p.evaluate(process.env.PROBE)));
     const file = path.join(out, `f${String(i).padStart(2, '0')}.png`);

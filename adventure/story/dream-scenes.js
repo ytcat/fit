@@ -122,7 +122,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (street && hi && set.sun) { set.sun.shadow.mapSize.set(2048, 2048); set.sun.shadow.radius = 3; set.sun.shadow.camera.layers.enable(window.StreetLife?.SHADOW_LAYER ?? 1); }
       if (set.objects.city?.bus && C.withCity) scene0 = C.withCity(scene0);
       if (scene0.gymStrikes && set.objects.oldBag?.state === 'new') gymBagBase = set.objects.oldBag.sample;
-      if (scene0.set === 'dream_gym') tuneInterior(); else if (scene.fog) { scene.fog.near = 34; scene.fog.far = 210; } // the towers down the street stay readable through the haze
+      if (scene0.set === 'dream_gym') tuneInterior(scene0.evening); else if (set.objects.tune) set.objects.tune(scene, set); else if (scene.fog) { scene.fog.near = 34; scene.fog.far = 210; } // the towers down the street stay readable through the haze
       for (const [key, a] of Object.entries(scene0.actors)) {
         const c = a.rig === 'fighter' ? e.coach : Cast().rig(a.rig, e); if (!c) throw Error('rig ' + a.rig);
         borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.root.scale.set(-1, 1, 1); c.maneInitialized = false; rigs[key] = c; // always the mirrored root (GOTR-0074): a rig taken out of a bout has scale 1 inside the mirrored ring cast and would tear (GOTR-0085) Pose().reset(c);
@@ -149,10 +149,16 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     }).catch(x => { console.warn('dream', x); finish({ skipped: true, error: String(x?.message || x) }); });
 
     /** Indoors: softer sun through the windows, more bounce, no sky fog. */
-    function tuneInterior() {
+    function tuneInterior(evening) {
       scene.fog = null; scene.background = new THREE.Color('#2a2420').convertSRGBToLinear();
-      set.group.traverse(o => { if (o.isHemisphereLight) { o.intensity = .78; o.color.set(0xfff1dc); o.groundColor.set(0x9a7a5c); } else if (o.isAmbientLight) o.intensity = .2; });
-      if (set.sun) { set.sun.intensity = 1.25; set.sun.color.set(0xffe6c2); }
+      set.group.traverse(o => { if (o.isHemisphereLight) { o.intensity = evening ? .5 : .78; o.color.set(evening ? 0xffd9b0 : 0xfff1dc); o.groundColor.set(evening ? 0x5a4434 : 0x9a7a5c); } else if (o.isAmbientLight) o.intensity = evening ? .12 : .2; });
+      if (set.sun) { set.sun.intensity = evening ? .55 : 1.25; set.sun.color.set(evening ? 0x8fa6ff : 0xffe6c2); }
+      if (evening) { // fight night (docks-core.js beat 12): dusk blue at the windows, warm light over the ring and the people
+        set.group.traverse(o => { if (o.name === 'glow' && o.geometry?.attributes?.color) { const c = o.geometry.attributes.color; for (let i = 0; i < c.count; i++) { const r = c.getX(i), g = c.getY(i), b = c.getZ(i); if (b > .85 && r > .8 && g > .85 && b >= r) c.setXYZ(i, r * .28, g * .34, b * .55); } c.needsUpdate = true; } });
+        const ring = new THREE.SpotLight(0xffd9a6, 2.6, 12, .62, .5, 1.3); ring.position.set(-4.6, 4.9, -2.6); ring.target.position.set(-4.6, .9, -3.3); ring.name = 'fight night: ring light';
+        const hall = new THREE.PointLight(0xffc98a, .9, 14, 1.6); hall.position.set(-1, 3.4, 1.8); hall.name = 'fight night: hall light';
+        set.group.add(ring, ring.target, hall);
+      }
     }
     /** The dive: the city map from high above, falling toward Old Town; a bright haze hides the change to the street. */
     function startMap() {
