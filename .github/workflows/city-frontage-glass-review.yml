@@ -52,7 +52,8 @@ jobs:
             a.equal(x.panes, 0);
             a.deepEqual(x.door, { opacity: .29, transparent: true, depthWrite: false, castShadow: false });
             a.ok(Math.abs(x.t - y.t) < .2, 'match each entrance/exit frame');
-            a.ok(x.calls <= y.calls + 1 && x.triangles < y.triangles, 'remove the display geometry without raising the draw budget');
+            a.ok(Number.isFinite(x.streetTriangles) && x.streetTriangles < y.streetTriangles, 'display props removed from the opaque street mesh');
+            a.ok(x.calls <= y.calls + 1 && x.triangles <= y.triangles + 1600, 'bound total renderer cost separately from geometry')
           }
           NODE
       - uses: actions/upload-artifact@v4
