@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.80 | 2026-11-21 | | Chapter 1 is complete as films: The Docks (night arrival, crowd circle, cash on the drum, Rourke the crocodile; after the bare-knuckle fight his purse or his jibe), Fight Night in Bruno's Gym with the neighbourhood round the ring, and the chapter ending (GOTR-0104). Rourke is a new character and the Docks opponent. Spectators in every fight venue are modelled animal people in clothes and poses instead of block figures (GOTR-0105). Three varied authored trees on the Old Town arrival street (ChatGPT, checked). |
 | v1.79 | 2026-11-21 | [Design PR #13](https://github.com/ytcat/fit/pull/13) | Development update: swipe to mop Bruno’s gym directly in 3D. One successful shift follows the first Brick fight, win or lose; after that the job is optional. Keeps prior saves and wages (GOTR-0099). |
 | v1.78 | 2026-11-21 | | Otto's Corner: carrying the new bag out, the Fighter's hand rests on the outside of the bag instead of going through it; the street tree no longer fills the last shot and the camera follows him to the end (GOTR-0103). |
 | v1.77 | 2026-11-21 | | Otto's Corner: the display windows and the counter case are see-through glass with the goods and a lit shelf behind (no longer white); the shop floor no longer flickers when the Fighter walks in (GOTR-0102). |
