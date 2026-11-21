@@ -62,7 +62,7 @@
       S('docks_fight', L('The Docks', 'הנמל', 'Доки'),
         L('Night at the Docks. No ring, no gloves, cash on a barrel.', 'לילה בנמל. בלי זירה, בלי כפפות, כסף על חבית.', 'Ночь в Доках. Ни ринга, ни перчаток, деньги на бочке.'),
         L('Won a bare-knuckle fight against Rourke at the Docks.', 'ניצחתם את רורק בקרב בלי כפפות בנמל.', 'Выиграл бой без перчаток против Рурка в Доках.'),
-        { event: true, who: 'hook', beat: 10, goal: L('Win the fight at the Docks', 'נצחו בקרב בנמל', 'Выиграй бой в Доках'), stand: L('a bout with gloves in the Docks arena stands in for the bare-knuckle fight', 'קרב עם כפפות בזירת הנמל במקום הקרב בלי כפפות', 'бой в перчатках на арене Доков вместо боя без перчаток') }),
+        { event: true, who: 'hook', beat: 10, scene: 'dream_docks', goal: L('Win the fight at the Docks', 'נצחו בקרב בנמל', 'Выиграй бой в Доках'), stand: L('a bout with gloves in the Docks arena stands in for the bare-knuckle fight', 'קרב עם כפפות בזירת הנמל במקום הקרב בלי כפפות', 'бой в перчатках на арене Доков вместо боя без перчаток') }),
       S('advanced_training', L('Advanced training', 'אימון מתקדם', 'Продвинутая тренировка'),
         L('Longer Combos: a counter after the Slip, body then head.', 'Combo ארוכים יותר: מכת נגד אחרי Slip, גוף ואז ראש.', 'Длинные Combo: контратака после Slip, корпус, потом голова.'),
         L('Learned to counter after a Slip. Bruno taught you his finisher, the Sunday Punch.', 'למדתם להחזיר מכה אחרי Slip. ברונו לימד אתכם את מכת הסיום שלו, Sunday Punch.', 'Научился контратаковать после Slip. Бруно научил тебя своему добивающему удару — Sunday Punch.'),
@@ -70,7 +70,7 @@
       S('brick', L('Rematch: Brick', 'קרב חוזר: בריק', 'Реванш: Брик'),
         L('Fight night at the gym. The whole neighbourhood came to watch.', 'ערב קרבות באולם. כל השכונה באה לראות.', 'Вечер боёв в зале. Посмотреть пришёл весь район.'),
         L('Beat Brick in front of the whole neighbourhood.', 'ניצחתם את בריק מול כל השכונה.', 'Победил Брика на глазах у всего района.'),
-        { boss: true, who: 'brick', beat: 12, unlock: L('Chapter 2: Junior League', 'פרק 2: ליגת הנוער', 'Глава 2: Юниорская лига'), stand: L('the gym ring stands in for fight night with the audience', 'הזירה באולם במקום ערב הקרבות עם הקהל', 'ринг в зале вместо вечера боёв со зрителями') })
+        { boss: true, who: 'brick', beat: 12, scene: 'dream_fight_night', unlock: L('Chapter 2: Junior League', 'פרק 2: ליגת הנוער', 'Глава 2: Юниорская лига'), stand: L('the gym ring stands in for fight night with the audience', 'הזירה באולם במקום ערב הקרבות עם הקהל', 'ринг в зале вместо вечера боёв со зрителями') })
     ] },
     2: { coach: 'vix', pin: 'market', boss: 'king_hyena', steps: [
       S('curb_footwork', L("Vix's test", 'המבחן של ויקס', 'Проверка Викс'),

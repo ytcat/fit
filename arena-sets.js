@@ -447,7 +447,9 @@
   const edge=[[.8,2],[2.4,1],[3.9,2],[5.5,1]];
   for(const [a,h] of edge){const x=Math.sin(a)*2.78,z=Math.cos(a)*2.78,key='s'+sector(x,z);for(let i=0;i<h;i++)k.box(key,.62,.46,.62,x,G+.23+i*.46,z,lin(['#8a7052','#7b6248','#6a5a48'][(i+Math.round(a))%3]),a+i*.3);}
   for(const a of [1.6,4.7]){const x=Math.sin(a)*2.9,z=Math.cos(a)*2.9;k.tube('s'+sector(x,z),.29,.88,x,G+.44,z,paints[Math.round(a)%paints.length]);}
-  k.crowd({seed:83,round:true,rows:2,inner:3.1,step:.58,spacing:.56,rise:.05,g:G,style,thin:.1,lights:{p:.1,colors:[lin('#ffd08a'),lin('#e8f1ff')]},skip:(x,z)=>edge.some(([a])=>Math.hypot(x-Math.sin(a)*2.78,z-Math.cos(a)*2.78)<.6)||[1.6,4.7].some(a=>Math.hypot(x-Math.sin(a)*2.9,z-Math.cos(a)*2.9)<.45)});
+  // Chapter 1 beat 10: the purse, banded notes stacked on the drum by the circle ("cash on a barrel").
+  {const a=1.6,x=Math.sin(a)*2.9,z=Math.cos(a)*2.9,key='s'+sector(x,z);for(let i=0;i<3;i++){k.box(key,.17,.035,.08,x-.04+i*.05,G+.9+i*.036,z+(i%2)*.03-.02,lin('#5f8a5a'),.3*i);k.box(key,.03,.037,.082,x-.04+i*.05,G+.9+i*.036,z+(i%2)*.03-.02,lin('#e0d6b8'),.3*i);}}
+  k.crowd({seed:83,round:true,rows:2,inner:3.1,step:.58,spacing:.56,rise:.05,g:G,style,thin:.1,lights:{p:.1,colors:[lin('#ffd08a'),lin('#e8f1ff')]},skip:(x,z)=>edge.some(([a])=>Math.hypot(x-Math.sin(a)*2.78,z-Math.cos(a)*2.78)<.6)||[1.6,4.7].some(a=>Math.hypot(x-Math.sin(a)*2.9,z-Math.cos(a)*2.9)<.45)||(z<0&&Math.abs(x-.15)<.62)}); // a lane through the crowd from the quay door (Chapter 1 beat 10: they walk in)
   return {ring:false,referee:false,background:SKY,fog:[30,90],lights:{hemi:[0xffd9a8,.36,0x2a2a30],key:[0xffe0b0,2.7],fill:[0x8fb0ff,.5],rimA:[0xffb060,1.8],rimB:[0xffb060,1.7],a:[0xff9a30,1.9],b:[0x7aa0ff,1.1]}};
  }
 

@@ -53,7 +53,7 @@
   /** Next time the timeline must stop and wait for a tap after time t (a line with hold), or Infinity. */
   const SETTLE = .9;
   function holdAfter(scene, t) { for (const l of scene.lines || []) if (l.hold && l.t + SETTLE > t - 1e-6) return l.t + SETTLE; return Infinity; }
-  const RIGS = ['fighter', 'bruno', 'brick', 'fang', 'hazel', 'otto', 'pip']; // story-cast.js + cast-market.js (GOTR-0092)
+  const RIGS = ['fighter', 'bruno', 'brick', 'fang', 'hazel', 'otto', 'pip', 'rourke']; // story-cast.js + cast-market.js (GOTR-0092)
   function validate(scene) {
     const e = [], sorted = (k, n) => { if (!k?.length) e.push(n + ' empty'); for (let i = 1; i < (k || []).length; i++) if (k[i].t < k[i - 1].t) e.push(n + ' keys not sorted'); };
     if (!(scene.duration > 0)) e.push('duration'); if (!scene.set) e.push('set'); sorted(scene.camera, 'camera');
@@ -297,7 +297,7 @@
   const variant = (id, outcome) => variants[id]?.[outcome] || scenes[id] || null;
 
   /** More scenes from another file (market-core.js, beats 5-7, GOTR-0096): they play through the same player. */
-  const register = more => { Object.assign(scenes, more); return Object.keys(scenes); };
+  const register = (more, vars) => { Object.assign(scenes, more); if (vars) Object.assign(variants, vars); return Object.keys(scenes); }; // vars: { id: { outcome: scene } } (docks-core.js)
   const api = { scenes, variant, withCity, groundAt, BUS_STOP, sample, validate, holdAfter, camera, actor, prop, EASE, SETTLE, RIGS, register, get ids() { return Object.keys(scenes); }, places: { DOOR, GYM, F, B, K } };
   if (typeof module !== 'undefined') module.exports = api; else window.DreamCore = api;
 })();
