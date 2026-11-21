@@ -10,7 +10,8 @@
  *   EchoTrial    snoring_guard      Sleep talker: repeat the growing combo the guard mumbles (lamps), duck if you wake him
  *   BarrageTrial rooftop_balloons   Rooftop barrage: slip / duck / step out, punch the marked balloons back
  *   CutoffTrial  whistle_chase      Cut him off: footwork on a grid, corner the raccoon five times, each time faster
- *   BetTrial     grandma_groceries  The hustler's bet: punish real openings, three bites on feints lose the bet */
+ *   BetTrial     grandma_groceries  The hustler's bet: punish real openings, three bites on feints lose the bet
+ *   DuoTrial     bag_drill          Two-sided drill: Mack hits the bag, hit it back at the top of the swing with the called punch */
 (() => {
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t;
   const rng = seed => { let a = seed >>> 0; return () => { a = (Math.imul(a, 1664525) + 1013904223) >>> 0; return a / 4294967296; }; };
@@ -222,6 +223,60 @@
     result(starsFor) { return { ...this.finish(starsFor, this.value), hits: this.hits, bites: this.bites, doubled: this.stage === 'bonus' }; }
   }
 
-  const api = { PUNCH, rng, Trial, BAG, BagTrial, ECHO, EchoTrial, BARRAGE, BarrageTrial, CUTOFF, CutoffTrial, BET, BetTrial };
+  /* ---------------------------------------------------------------- Two-sided bag drill (Chapter 1 beat 8, GOTR-0106) */
+  // "Other side's mine! You hit, I hit." Mack hits the new bag from his side; it swings to the Fighter, who hits it back at the top
+  // of the swing with the punch Mack calls. One cycle = Mack's hit + the Fighter's answer. The tempo rises; after `doubleFrom`
+  // cycles some calls are a double (the same punch twice, the second `doubleGap` after the first). A miss breaks the streak and
+  // the bag swings on to Mack, who keeps the rhythm. value = landed (bag hits on the beat): adventure-progress.js bag_drill
+  // thresholds 15 / 25 / 35.
+  const DUO = Object.freeze({ missionId: 'bag_drill', metric: 'landed', time: 40, period: [1.65, 1.0], window: .24, perfect: .085, doubleFrom: 8, doubleEvery: 2, doubleGap: .34, doubleWindow: .17, seed: 53 });
+  class DuoTrial extends Trial {
+    constructor(rules = DUO, opts) { super(rules, opts); this.R = rng(rules.seed + (this.hard ? 7 : 0)); this.cycle = 0; this.landed = 0; this.misses = 0; this.perfects = 0; this.start(.9); }
+    period() { return lerp(this.r.period[0], this.r.period[1], clamp(this.t / this.r.time)) / this.k; }
+    start(at) { // Mack hits at `at`; the bag reaches the Fighter half a period later
+      const half = this.period() / 2, dbl = this.cycle >= this.r.doubleFrom && this.cycle % this.r.doubleEvery === 0;
+      const type = this.cycle < 3 ? PUNCH[this.cycle] : PUNCH[Math.floor(this.R() * 3)];
+      this.c = { type, mack: at, peak: at + half, back: at + half * 2, hits: 0, need: dbl ? 2 : 1, state: 'mack', second: dbl ? at + half + this.r.doubleGap / this.k : null };
+    }
+    get due() { const c = this.c; return c.hits === 0 ? c.peak : c.second; }
+    get win() { return this.c.hits === 0 ? this.r.window : this.r.doubleWindow; }
+    key(k, down) {
+      const c = this.c; if (this.done || !down || !c || !isPunch(k) || this.t < c.mack) return;
+      if (c.state === 'missed' || c.hits >= c.need) return; // the swing is lost or already answered: wait for Mack
+      const d = Math.abs(this.t - this.due);
+      if (k === c.type && d <= this.win) {
+        c.hits++; this.landed++; const perfect = d <= this.r.perfect; if (perfect) this.perfects++;
+        this.gain(perfect ? 150 : 100, perfect ? 'perfect' : 'hit'); c.state = c.hits >= c.need ? 'answered' : 'toward';
+        if (c.hits >= c.need) { c.answered = this.t; c.back = this.t + this.period() / 2; } // the bag flies back to Mack from the Fighter's hit
+      } else { c.state = 'missed'; this.misses++; this.fail(k !== c.type ? 'wrong' : this.t < this.due ? 'early' : 'late'); }
+    }
+    step(dt) {
+      if (this.done || !(dt > 0)) return this; dt = Math.min(dt, .1); this.t += dt; const c = this.c;
+      if (c.state === 'mack' && this.t >= c.mack) c.state = 'toward';
+      if (c.state === 'toward' && this.t > this.due + this.win) { c.state = 'missed'; this.misses++; this.fail('late'); }
+      if (this.t >= c.back) { // the bag is back on Mack's side: his next hit, or the end of the drill
+        this.cycle++;
+        if (this.t >= this.r.time) { this.done = true; this.c = { ...c, state: 'end' }; this.event('end'); }
+        else this.start(this.t);
+      }
+      return this;
+    }
+    view() {
+      const c = this.c, v = this.base(), r = this.r;
+      if (!c || this.done) return { ...v, phase: 'end', landed: this.landed, misses: this.misses, left: 0, progress: 1, prompt: null };
+      // bag angle along the drill line: +1 = at Mack's side (just hit), -1 = at the top of the swing toward the Fighter
+      let swing;
+      if (c.state === 'answered') swing = -Math.cos(Math.PI * clamp((this.t - c.answered) / (c.back - c.answered)));
+      else if (this.t < c.peak) swing = Math.cos(Math.PI * clamp((this.t - c.mack) / (c.peak - c.mack)));
+      else swing = c.state === 'missed' || c.hits < c.need ? -Math.cos(Math.PI * clamp((this.t - c.peak) / (c.back - c.peak))) : -1;
+      const open = (c.state === 'toward') && Math.abs(this.t - this.due) <= this.win;
+      return { ...v, phase: c.state, type: c.type, need: c.need, hits: c.hits, double: c.need > 1, swing, k: clamp((this.t - c.mack) / Math.max(.01, this.due - c.mack)), open,
+        landed: this.landed, misses: this.misses, perfects: this.perfects, cycle: this.cycle, left: Math.max(0, r.time - this.t), progress: clamp(this.t / r.time),
+        mackHit: this.t >= c.mack && this.t - c.mack < .3, mackAge: this.t - c.mack, prompt: c.state === 'toward' || c.state === 'mack' ? c.type : null };
+    }
+    result(starsFor) { return { ...this.finish(starsFor, this.landed), landed: this.landed, misses: this.misses, perfects: this.perfects }; }
+  }
+
+  const api = { PUNCH, rng, Trial, BAG, BagTrial, ECHO, EchoTrial, BARRAGE, BarrageTrial, CUTOFF, CutoffTrial, BET, BetTrial, DUO, DuoTrial };
   if (typeof module !== 'undefined') module.exports = api; else window.StoryTrials = api;
 })();

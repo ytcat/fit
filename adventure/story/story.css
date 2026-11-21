@@ -133,3 +133,4 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 @media (hover:hover) and (pointer:fine){.story-mop-keyboard{display:block}}
 @media (max-height:440px){.story-mop-hud{padding:7px 11px;top:5px}.story-mop-title{font-size:17px}.story-mop-footer{bottom:4px;padding:4px 8px}.story-mop-footer .story-mop-finish{min-height:36px;margin-top:4px}.story-mop-help{font-size:12px}}
 @media (prefers-reduced-motion:reduce){.story-mop-bar i{transition:none}}
+.story-pad .fp-zone[hidden]{display:none!important} /* a punches-only skill game (bag_duo, GOTR-0106) */

@@ -52,7 +52,6 @@
 
   // How each playable mission starts and what it measures. Hooks: imp(run, hit), frame(run, frame, dt).
   const playerOn = () => !!window.app?.engine?.player?.enabled;
-  const heavyHit = h => playerOn() && h.actor === 'lion' && h.receiver === 'heavy' && !h.blocked;
   const powerHit = h => { const p = window.PowerMeter?.power(h, 'heavy'); return playerOn() && p != null && p >= POWER_MARK; };
   const DEFS = {
     // ---- GOTR-0078 Chapter 1 "The Dream" (adventure/story-flow.js). Kinds: film (a 3D scene from agent/dream-1, with a
@@ -69,7 +68,7 @@
     dream_apology: { kind: 'film', scene: 'dream_apology' }, // GOTR-0096: the morning in the gym (market-core.js); chains into the market
     market_robber: { kind: 'story_fight', venue: 'street', cast: 'fang', after: 'dream_market_reward', rounds: 1, roundSeconds: 45, restSeconds: 0, opponent: L('Fang', 'פאנג', 'Фанг'), foe: { power: 1.05, tempo: 1.02, skill: .02 } },
     buy_heavy_bag: { kind: 'buy', item: 'heavy_bag', film: 'dream_otto_shop' }, // the purchase is confirmed inside the film (GOTR-0096)
-    bag_drill: { kind: 'training', mode: 'heavy', duration: 40, imp: (r, h) => { if (heavyHit(h)) r.value++; } },
+    bag_drill: { kind: 'scene', scene: 'bag_duo' }, // GOTR-0106: the two-sided drill with Mack is a skill game (story-scenes.js bag_duo, trials-core.js DuoTrial)
     fight_prep: { kind: 'training', mode: 'pads', duration: 60, frame: (r, f) => { if (playerOn() && f.defences > 0) r.value += f.defences; } },
     docks_fight: { kind: 'story_fight', venue: 'docks', cast: 'rourke', after: 'dream_docks_after', rounds: 2, roundSeconds: 30, restSeconds: 8, opponent: L('Rourke', 'רורק', 'Рурк'), foe: { power: 1.12, tempo: 1.06, skill: .05 } },
     advanced_training: { kind: 'lesson', comboId: 'counter_chain' },

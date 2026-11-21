@@ -68,6 +68,7 @@ const server = http.createServer((req,res) => {
         const ctx = window.__gymCtx = { store:g.store, startFight:g.startFight, startTraining: (...args) => { window.__gymTraining.push(args[0].mode); return g.startTraining(...args); }, change:a => { const r = g.store.gameAction(a); if (r.ok) g.apply?.(); return r.ok; } };
         const play = StoryScenes.play;
         StoryScenes.play = (scene,options) => {
+          if (scene === 'bag_duo') window.__gymTraining.push('bag_duo'); // beat 8 opens the two-sided drill game (GOTR-0106)
           if (scene !== id) return play(scene,options);
           const playback = window.__gymPlayback = {
             ...options, timeScale:8,
@@ -148,22 +149,23 @@ const server = http.createServer((req,res) => {
       // The motion is already witnessed above; run only the remaining tail faster on this CPU-only test.
       // Do not seek, force the callback, or alter normal playback speed in the game.
       await page.evaluate(() => { window.__gymPlayback.timeScale = 8; });
-      const mode = step === 'bag_drill' ? 'heavy' : 'pads';
+      const mode = step === 'bag_drill' ? 'bag_duo' : 'pads', game = mode === 'bag_duo';
       const assertHandoff = async (n,skipped) => {
         try {
-          await page.waitForFunction(n => window.__gymEnds.length >= n && window.__gymTraining.length >= n && !DreamScenes.playing && !!app.engine.career.active,n,{timeout:90000});
+          await page.waitForFunction(([n,game]) => window.__gymEnds.length >= n && window.__gymTraining.length >= n && !DreamScenes.playing && (game ? StoryScenes.playing === 'bag_duo' && !!document.querySelector('dialog.story-scene[data-game="bag_duo"][open]') : !!app.engine.career.active),[n,game],{timeout:90000});
         } catch (failure) {
           const state = await page.evaluate(() => ({scene:DreamScenes.playing,t:DreamScenes.debug?.t,ack:DreamScenes.debug?.ack,phase:DreamScenes.debug?.phase,ends:window.__gymEnds,training:window.__gymTraining,active:app.engine.career.active?.mode,mode:app.engine.targetMode}));
           console.error('GYM FILM HANDOFF STATE ' + id + ': ' + JSON.stringify({n,state,errors}));
           throw failure;
         }
-        assert.deepEqual(await page.evaluate(() => ({training:window.__gymTraining,ends:window.__gymEnds.map(e => [e.skipped,e.error || null]),active:app.engine.career.active.mode,dialog:!!document.querySelector('dialog.dream-scene[open]')})),
+        assert.deepEqual(await page.evaluate(game => ({training:window.__gymTraining,ends:window.__gymEnds.map(e => [e.skipped,e.error || null]),active:game ? StoryScenes.playing : app.engine.career.active.mode,dialog:!!document.querySelector('dialog.dream-scene[open]')}),game),
           {training:Array(n).fill(mode),ends:n === 1 ? [[false,null]] : [[false,null],[skipped,null]],active:mode,dialog:false});
         assert.equal(await page.evaluate(step => StoryFlow.doneOf(ringfighterGame.store.game(),StoryFlow.find(step)),step),false,'the film does not complete the drill');
       };
       await assertHandoff(1,false);
       console.log('PASS natural film handoff: ' + step);
       assert.equal(await page.evaluate(({step,id}) => {
+        if (StoryScenes.playing === 'bag_duo') StoryScenes.stop(); // leave the drill game before replaying the film
         AdventureOldTown.leave();
         localStorage.removeItem('gotr-scene-' + id);
         return AdventureOldTown.before(window.__gymCtx,step);

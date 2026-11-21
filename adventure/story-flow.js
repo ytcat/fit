@@ -54,7 +54,7 @@
       S('bag_drill', L('Two-sided drill', 'תרגיל משני הצדדים', 'Мешок с двух сторон'),
         L('Bruno heard about the market. Test the new bag with Mack.', 'ברונו שמע על השוק. בדקו את השק החדש עם מאק.', 'Бруно слышал про рынок. Проверь новый мешок с Маком.'),
         L('Tested the new bag with Mack, from both sides.', 'בדקתם את השק החדש עם מאק, משני הצדדים.', 'Проверил новый мешок с Маком, с двух сторон.'),
-        { who: 'bruno', beat: 8, scene: 'dream_new_bag', stand: L('the heavy bag alone stands in for the drill with Mack', 'השק לבד במקום התרגיל עם מאק', 'один мешок вместо упражнения с Маком') }),
+        { who: 'bruno', beat: 8, scene: 'dream_new_bag' }), // the drill with Mack is the skill game bag_duo (GOTR-0106)
       S('fight_prep', L('Fight preparation', 'הכנה לקרב', 'Подготовка к бою'),
         L('An unofficial fight is coming. Mitts, Slip and Roll with Mack.', 'קרב לא רשמי בדרך. כפות, Slip ו-Roll עם מאק.', 'Скоро неофициальный бой. Лапы, Slip и Roll с Маком.'),
         L('Said yes to an unofficial fight and trained for it with Mack.', 'הסכמתם לקרב לא רשמי והתאמנתם אליו עם מאק.', 'Согласился на неофициальный бой и готовился к нему с Маком.'),
