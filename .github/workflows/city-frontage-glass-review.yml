@@ -1,0 +1,63 @@
+name: City frontage glass review
+on:
+  pull_request:
+    paths:
+      - 'adventure/story/**'
+      - 'qa/city-frontage-glass/**'
+      - '.github/workflows/city-frontage-glass-review.yml'
+permissions:
+  contents: read
+jobs:
+  frontage:
+    if: github.head_ref == 'wip/city-street-frontage-glass-v180-review'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: 057a23527b3fa6be06e077092b7a03a1d9f899ac
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          tools="$RUNNER_TEMP/fit-playwright"
+          npm install --prefix "$tools" --no-save playwright@1.56.1
+          "$tools/node_modules/.bin/playwright" install --with-deps chromium
+          echo "NODE_PATH=$tools/node_modules" >> "$GITHUB_ENV"
+          sudo apt-get install -y python3-pil
+      - name: Capture paired frontage frames (402 x 690)
+        run: |
+          mkdir -p "$RUNNER_TEMP/frontage-review"
+          export OUT_DIR="$RUNNER_TEMP/frontage-review" WAIT=1 TOUCH=1 SINGLE=1
+          node tests/shop-window-depth.test.cjs
+          python3 -m http.server 8671 --bind 127.0.0.1 --directory baseline > "$OUT_DIR/baseline-server.log" 2>&1 &
+          a=$!
+          python3 -m http.server 8672 --bind 127.0.0.1 > "$OUT_DIR/review-server.log" 2>&1 &
+          b=$!
+          trap 'kill "$a" "$b"' EXIT
+          for side in before after; do
+            port=8671; if [ "$side" = after ]; then port=8672; fi
+            APP_URL=http://127.0.0.1:$port/ CLIP=dream_otto_shop SHOTS='exterior:1.9,entry:4.15,exit:31.4' node qa/city-frontage-glass/compare.cjs "$side-otto"
+          done
+          node --input-type=commonjs <<'NODE'
+          const fs = require('node:fs'), a = require('node:assert/strict');
+          const read = n => JSON.parse(fs.readFileSync(process.env.OUT_DIR + '/' + n + '.json'));
+          const b = read('before-otto'), c = read('after-otto');
+          a.ok(!c.log.some(x => x.startsWith('PAGEERROR') || /shader error/i.test(x)));
+          for (let i = 0; i < c.frames.length; i++) {
+            const x = c.frames[i], y = b.frames[i];
+            a.equal(y.panes, 1);
+            a.equal(x.panes, 0);
+            a.deepEqual(x.door, { opacity: .29, transparent: true, depthWrite: false, castShadow: false });
+            a.ok(Math.abs(x.t - y.t) < .2, 'match each entrance/exit frame');
+            a.ok(Number.isFinite(x.streetTriangles) && x.streetTriangles < y.streetTriangles, 'display props removed from the opaque street mesh');
+            a.ok(x.calls <= y.calls + 1 && x.triangles <= y.triangles + 1600, 'bound total renderer cost separately from geometry')
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: city-frontage-glass-review
+          path: ${{ runner.temp }}/frontage-review

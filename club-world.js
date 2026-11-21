@@ -103,9 +103,26 @@
    const bench=(g,x)=>{this.box(g,'Studio oak bench',[2.25,.10,.46],[x,.48,.72],m.wood);for(const dx of [-.9,.9])this.box(g,'Studio bench leg',[.08,.48,.38],[x+dx,.2,.72],m.steel);};
    const rack=(g,x)=>{for(const dx of [-.7,.7])this.box(g,'Storage upright',[.07,1.35,.43],[x+dx,.64,.35],m.steel);for(const y of [.22,.76,1.25])this.box(g,'Storage shelf',[1.55,.055,.46],[x,y,.35],m.dark);};
    // A complete entrance/reception wall faces the original decorated back wall.
+   // This is a finish over the existing closed doors, not a new room beyond them.
+   const decorativeDoorGeo = new THREE.PlaneGeometry(.88, 1.3);
+   const decorativeDoorMat = new THREE.ShaderMaterial({
+          transparent: true, depthWrite: false, opacity: .29,
+          uniforms: { tint: { value: new THREE.Color('#b8d5e4') }, strength: { value: .29 } },
+          vertexShader: 'varying vec2 paneUV; void main(){ paneUV = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+          fragmentShader: `
+            uniform vec3 tint; uniform float strength; varying vec2 paneUV;
+            void main() {
+              float axis = paneUV.x + .54 * paneUV.y;
+              float sheen = smoothstep(.49,.57,axis) * (1.0 - smoothstep(.61,.71,axis));
+              float sky = smoothstep(.20,.93,paneUV.y);
+              gl_FragColor = vec4(tint, strength + .12 * sheen + .06 * sky);
+              #include <tonemapping_fragment>
+              #include <encodings_fragment>
+            }`
+        });
    for(const x of [-.60,.60]){
     this.box(front,'Entrance door',[1.12,2.4,.09],[x,1.2,.04],m.blue);
-    this.box(front,'Door glass',[.88,1.3,.025],[x,1.6,.10],m.wall);
+    const pane=new THREE.Mesh(decorativeDoorGeo,decorativeDoorMat);pane.name='Door glass';pane.position.set(x,1.6,.108);pane.renderOrder=2;front.add(pane);
     this.box(front,'Door lower panel',[.88,.62,.025],[x,.46,.10],m.dark);
     this.box(front,'Door handle',[.035,.30,.05],[x+(x<0?.40:-.40),1.1,.15],m.gold);
    }

@@ -106,9 +106,69 @@
     const skyline = z => { for (let k = 0; k < 9; k++) { const x = -44 + k * 11 + (k % 2) * 3, h = 9 + (k * 37 % 7) * 1.6; box(S, x, 0, z, 9, h, 6, ['#d9cdb8', '#cfd6d9', '#e0cdb4'][k % 3]); box(S, x, h, z, 9.4, .5, 6.4, '#c08a66'); } };
     /** Light pool on the ground under a lantern (additive, evening sets). */
     const pool = (x, z, r, hex, y = .02) => { const c = C(hex); PL.quad([x - r, y, z + r], [x + r, y, z + r], [x + r, y, z - r], [x - r, y, z - r], c, c, [0, 0, 1, 0, 1, 1, 0, 1]); };
-    const ctx = { id, group, opts, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
+    // Selective street display bays. The painted building remains behind a closed,
+    // shallow display; it never becomes a transparent hole into an empty building.
+    const frontagePanes = [];
+    function displayBay(x, y, z, w, h, theme = 'market', depth = .32) {
+      const gym = theme === 'gym', trim = gym ? '#493629' : '#51473e', rear = gym ? '#6c5949' : '#8b7152';
+      box(S, x, y, z, w, h, .035, rear);
+      for (const side of [-1, 1]) box(S, x + side * (w / 2 - .042), y, z + depth / 2, .084, h, depth, trim);
+      box(S, x, y, z + depth / 2, w, .075, depth, trim);
+      box(S, x, y + h - .075, z + depth / 2, w, .075, depth, trim);
+      const sw = w - .19;
+      box(S, x, y + h * .35, z + depth * .45, sw, .042, depth * .68, '#c09b6c');
+      box(S, x, y + h * .72, z + .035, sw, .038, .03, '#e1bc82');
+      for (let i = -1; i <= 1; i++) {
+        const q = gym ? ['#9a4343', '#ecb24c', '#53728a'] : ['#d4ad63', '#9d4b43', '#94a46b'];
+        const cx = x + i * sw * .29, cy = y + h * .35 + .045, z1 = z + depth * .50;
+        if (gym) {
+          box(S, cx, cy, z1, sw * .18, h * (.15 + (i + 1) * .03), depth * .41, q[i + 1], .12 * i);
+          box(S, cx, cy + h * .12, z1, sw * .19, .03, depth * .43, '#ead6a3');
+        } else {
+          cyl(S, cx, cy, z1, Math.min(sw * .09, depth * .20), h * (.14 + (i + 1) * .047), q[i + 1]);
+          cyl(S, cx, cy + h * (.14 + (i + 1) * .047), z1, Math.min(sw * .10, depth * .21), .026, '#dac095');
+        }
+      }
+      // Keep a visible gap in depth between the last solid and the pane. Front-only:
+      // each bay faces the street and cannot appear as a white panel from the back.
+      const a = x - w / 2 + .085, b = x + w / 2 - .085, c = y + .076, d = y + h - .076, p = z + depth + .035;
+      frontagePanes.push(a,c,p,b,c,p,b,d,p,a,c,p,b,d,p,a,d,p);
+    }
+    let reflectiveMat;
+    // Decorative panes only. Backed display glass is a separate helper/material.
+    const reflectivePane = (name, x, y, z, w, h, facing = 1) => {
+        reflectiveMat ||= new THREE.ShaderMaterial({
+          transparent: true, depthWrite: false, opacity: .29,
+          uniforms: { tint: { value: new THREE.Color('#b8d5e4') }, strength: { value: .29 } },
+          vertexShader: 'varying vec2 paneUV; void main(){ paneUV = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+          fragmentShader: `
+            uniform vec3 tint; uniform float strength; varying vec2 paneUV;
+            void main() {
+              float axis = paneUV.x + .54 * paneUV.y;
+              float sheen = smoothstep(.49,.57,axis) * (1.0 - smoothstep(.61,.71,axis));
+              float sky = smoothstep(.20,.93,paneUV.y);
+              gl_FragColor = vec4(tint, strength + .12 * sheen + .06 * sky);
+              #include <tonemapping_fragment>
+              #include <encodings_fragment>
+            }`
+        });
+      const pane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), reflectiveMat);
+      pane.castShadow = pane.receiveShadow = false; group.add(pane); disposables.push(pane.geometry);
+      if (!disposables.includes(reflectiveMat)) disposables.push(reflectiveMat);
+      pane.position.set(x, y, z); if (facing < 0) pane.rotation.y = Math.PI;
+      pane.name = name; pane.renderOrder = 2; return pane;
+    };
+    const ctx = { id, group, opts, displayBay, reflectivePane, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
     const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) }, evening = focus.time === 'evening';
 
+    if (frontagePanes.length) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(frontagePanes, 3));
+      const pane = add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({
+        color: '#cce5f2', transparent: true, opacity: .14, depthWrite: false
+      })), false, false);
+      pane.name = 'street frontage clear panes'; pane.renderOrder = 2;
+    }
     // ---- meshes: street (1), signs (1), houses (1 + one per facade style)
     const street = add(new THREE.Mesh(S.geometry(), mat)); street.name = 'street'; street.matrixAutoUpdate = false; street.updateMatrix();
     if (SG.tris) { const sg = add(new THREE.Mesh(SG.geometry(), signMat), false, true); sg.name = 'signs'; sg.matrixAutoUpdate = false; sg.updateMatrix(); }
@@ -210,7 +270,7 @@
     c.skyline(-44); c.plinth(-44, 4.2, -3.52); c.plinth(5.8, 10.1, -3.52); c.plinth(11.9, 44, -3.52); c.shade(-14.2, 2.1, 6.4, 2.4, true); c.shade(-4.25, -1.2, .7, 1.5);
     picto('book', 0, 4.6, -3.55); picto('flower', -19.6, 4.6, -3.55);
     // door: frame, leaf with a window, brass handle, step, mat, wall lantern, the opening bell
-    box(S, 11, 0, -3.64, 1.66, 2.56, .14, '#3a2b24'); box(S, 11, .02, -3.52, 1.3, 2.3, .07, '#6b4630'); box(S, 11, 1.25, -3.47, .86, .8, .03, '#33485c'); box(S, 11, 1.62, -3.455, .86, .2, .02, '#587891'); box(S, 11, .25, -3.47, .9, .7, .03, '#5a3a28');
+    box(S, 11, 0, -3.64, 1.66, 2.56, .14, '#3a2b24'); box(S, 11, .02, -3.52, 1.3, 2.3, .07, '#6b4630'); c.reflectivePane('Legacy gym exterior door glass', 11, 1.65, -3.468, .86, .8); box(S, 11, .25, -3.47, .9, .7, .03, '#5a3a28');
     box(S, 11.48, 1.02, -3.44, .06, .22, .07, '#e0b84d'); box(S, 11, 0, -3.3, 2.1, .1, .62, '#cfc6b6'); box(S, 11, .1, -3.1, 1.3, .02, .5, '#7a3b34');
     box(S, 12.25, 2.25, -3.5, .06, .06, .3, '#2f3640'); cyl(S, 12.25, 1.92, -3.3, .12, .3, '#fff0c4', P.cyl6); S.add(P.cone6, M(12.25, 2.22, -3.3, .18, .14, .18), C('#2f3640'));
     box(S, 9.75, 2.05, -3.45, .05, .05, .34, '#2f3640'); cyl(S, 9.75, 1.98, -3.26, .012, .1, '#2f3640', P.cyl6); S.add(P.cone8, M(9.75, 1.72, -3.26, .14, .26, .14), C('#e0b84d')); cyl(S, 9.75, 1.7, -3.26, .15, .03, '#c99a2e', P.cyl8); cyl(S, 9.75, 1.5, -3.26, .008, .22, '#8a6446', P.cyl6);

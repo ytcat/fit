@@ -91,13 +91,13 @@
 
       // ---- Bruno's Gym: door, glove board, name sign, hanging board, bench outside
       const gx = 27, gz = -8.24;
-      box(S, gx, 0, gz, 1.66, 2.56, .14, '#3a2b24'); box(S, gx, .02, gz + .12, 1.3, 2.3, .07, '#6b4630'); box(S, gx, 1.25, gz + .17, .86, .8, .03, '#33485c'); box(S, gx, 1.62, gz + .185, .86, .2, .02, '#587891'); box(S, gx, .25, gz + .17, .9, .7, .03, '#5a3a28');
+      box(S, gx, 0, gz, 1.66, 2.56, .14, '#3a2b24'); box(S, gx, .02, gz + .12, 1.3, 2.3, .07, '#6b4630'); c.reflectivePane('Bruno exterior door glass', gx, 1.65, gz + .183, .86, .8); box(S, gx, .25, gz + .17, .9, .7, .03, '#5a3a28');
       box(S, gx + .48, 1.02, gz + .2, .06, .22, .07, '#e0b84d'); box(S, gx, 0, gz + .34, 2.1, .1, .62, '#cfc6b6'); box(S, gx, .1, gz + .54, 1.3, .02, .5, '#7a3b34');
       for (const s of [-1, 1]) { box(S, gx + s * 1.25, 2.25, gz + .14, .06, .06, .3, '#2f3640'); cyl(S, gx + s * 1.25, 1.92, gz + .34, .12, .3, '#fff0c4', P.cyl6); S.add(P.cone6, M(gx + s * 1.25, 2.22, gz + .34, .18, .14, .18), C('#2f3640')); }
       box(S, gx, 2.86, gz + .08, 4.6, 1.02, .1, '#0d1118'); box(S, gx, 2.78, gz + .34, 4.9, .08, .5, '#8f2f22'); box(S, gx, 3.9, gz + .1, 4.9, .08, .3, '#8f2f22');
       board(c, "BRUNO'S GYM", gx + .55, 3.38, gz + .2, 3.3, .82); sign('gym', gx - 1.7, 3.38, gz + .2, 1.1, .82);
       box(S, gx - 3.4, 3.0, gz + .64, .05, .05, .9, '#2f3640'); box(S, gx - 3.4, 2.3, gz + .96, .06, .62, .7, '#0d1118'); sign('gym', gx - 3.365, 2.6, gz + .96, .66, .46, Math.PI / 2); sign('gym', gx - 3.435, 2.6, gz + .96, .66, .46, -Math.PI / 2);
-      for (const s of [-1, 1]) { box(S, gx + s * 2.9, .32, gz + .15, 1.7, 1.7, .05, '#33485c'); box(S, gx + s * 2.9, .32, gz + .19, 1.7, .08, .06, '#3a2b24'); box(S, gx + s * 2.9, 1.1, gz + .2, .05, .9, .03, '#3a2b24'); box(S, gx + s * 2.9, 1.15, gz + .2, 1.5, .34, .02, s > 0 ? '#e63946' : '#f4c152'); } // windows with a poster strip
+      for (const side of [-1, 1]) c.displayBay(gx + side * 2.9, .32, gz + .16, 1.7, 1.7, 'gym', .30); // framed trophy/equipment displays
       c.shade(gx + 3.3, gz + .9, 1.9, .8); box(S, gx + 3.3, .4, gz + .8, 1.6, .06, .4, '#9a7350'); for (const d of [-.7, .7]) box(S, gx + 3.3 + d, 0, gz + .8, .06, .4, .36, '#3d4654');
       planter(gx - 2.2, gz + .9); planter(gx + 2.0, gz + .9);
 
