@@ -7,6 +7,6 @@ const body = src.slice(src.indexOf(line), src.indexOf('\n', src.indexOf(line) + 
 const frame = body.match(/box\(S, wx, \.55, fz \+ ([\d.]+), ww, 1\.85, ([\d.]+)/), glass = body.match(/G\.add\(P\.box, M\(wx, \.62, fz \+ ([\d.]+), ww - \.14, 1\.7, ([\d.]+)\)/);
 assert.ok(frame && glass, 'display window frame/glass lines not found');
 const frameFront = +frame[1] + frame[2] / 2, glassFront = +glass[1] + glass[2] / 2, glassBack = +glass[1] - glass[2] / 2;
-assert.ok(glassFront - frameFront >= 0.01, `glass front ${glassFront} must be >= 1 cm in front of the frame front ${frameFront}`);
+assert.ok(glassFront - frameFront >= 0.03, `glass front ${glassFront} must be >= 3 cm in front of the frame front ${frameFront}`);
 assert.ok(Math.abs(glassBack - frameFront) < 1e-9 || glassBack - frameFront >= 0.003 || frameFront - glassBack >= 0.003, 'glass back face too close to the frame front');
 console.log('shop-window-depth: ok', { frameFront, glassFront });

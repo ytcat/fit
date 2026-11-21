@@ -961,7 +961,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported:** 2026-11-21 (owner; worked on in a ChatGPT session that ran out of usage — no commit reached GitHub)
 - **Status:** READY FOR QA — fixed on `claude/ecstatic-clarke-9as2ak` (v1.76 candidate, not published)
 - **Cause:** in `adventure/story/market-sets.js` the display-window glass and its dark frame had their front faces on the same plane (shop front + 0.11 m), so the depth test picked a different surface each frame (z-fighting).
-- **Fix:** glass moved 1.5 cm in front of the frame. Test `tests/shop-window-depth.test.cjs`. Evidence `qa/gotr-0101/otto-windows-before-after.webp` (6 consecutive frames of the street shot at 402×690, before: large dark patches change every frame; after: stable), tool `qa/gotr-0101/otto-flicker.cjs`. Not checked on a phone.
+- **Fix:** glass moved 4 cm in front of the frame (margin for the lower depth precision of phones; owner iPhone recording of live v1.75 on 2026-11-21 showed the same blocky flicker). Test `tests/shop-window-depth.test.cjs`. Evidence `qa/gotr-0101/otto-windows-before-after.webp` (6 consecutive frames of the street shot at 402×690, before: large dark patches change every frame; after: stable), tool `qa/gotr-0101/otto-flicker.cjs`. Not checked on a phone.
 
 ### GOTR-0070 — Picture stretched tall on the phone in training
 - **Reported:** 2026-11-12 (iPhone screenshot, v1.45, mitts: Fighter and Coach tall and thin)
