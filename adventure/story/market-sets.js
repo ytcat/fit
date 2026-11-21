@@ -120,7 +120,7 @@
       c.skyline(-42);
       const fz = -4.4; // the shop front
       box(S, 0, 0, fz + .02, 7.4, 3.25, .1, '#1f3a4a'); // painted shop front
-      box(S, .9, 0, fz + .06, 1.18, 2.35, .08, '#2b2420'); box(S, .9, .04, fz + .1, .98, 2.22, .05, '#7a2f26'); box(S, .9, 1.15, fz + .14, .72, .9, .02, '#9fc3e6'); box(S, 1.27, 1.0, fz + .16, .05, .16, .05, '#e0b84d'); // door
+      box(S, .9, 0, fz + .06, 1.18, 2.35, .08, '#2b2420'); box(S, .9, .04, fz + .1, .98, 2.22, .05, '#7a2f26'); c.displayBay(.9, 1.15, fz + .134, .72, .9, 'gym', .092); box(S, 1.27, 1.0, fz + .16, .05, .16, .05, '#e0b84d'); // door
       box(S, .9, 0, fz + .2, 1.4, .1, .5, '#b3a892'); // step
       // display windows (GOTR-0101/0102): a shallow lit display box in front of the shop front, see-through glass on the street side
       const glassMat = new THREE.MeshStandardMaterial({ color: '#d6ecf5', roughness: .08, metalness: .25, transparent: true, opacity: .16, depthWrite: false });

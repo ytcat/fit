@@ -41,11 +41,12 @@ jobs:
             port=8671; if [ "$side" = after ]; then port=8672; fi
             APP_URL=http://127.0.0.1:$port/ CLIP=dream_opening SHOTS=bruno:29.8 node qa/city-frontage-glass/compare.cjs "$side-gym"
             APP_URL=http://127.0.0.1:$port/ CLIP=dream_market_robbery SHOTS=market:11.2 node qa/city-frontage-glass/compare.cjs "$side-market"
+            APP_URL=http://127.0.0.1:$port/ CLIP=dream_otto_shop SHOTS='exterior:1.9,entry:4.15,exit:31.4' node qa/city-frontage-glass/compare.cjs "$side-otto"
           done
           node --input-type=commonjs <<'NODE'
           const fs = require('node:fs'), a = require('node:assert/strict');
           const read = n => JSON.parse(fs.readFileSync(process.env.OUT_DIR + '/' + n + '.json'));
-          for (const [n, panes] of [['gym',3],['market',4]]) {
+          for (const [n, panes] of [['gym',3],['market',4],['otto',1]]) {
             const orig = read('before-'+n), next = read('after-'+n), b = orig.frames[0], c = next.frames[0];
             a.ok(!next.log.some(x=>x.startsWith('PAGEERROR')));
             a.equal(b.panes,0); a.equal(c.panes,panes);
