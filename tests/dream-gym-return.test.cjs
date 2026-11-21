@@ -70,7 +70,7 @@ const server = http.createServer((req,res) => {
         StoryScenes.play = (scene,options) => {
           if (scene !== id) return play(scene,options);
           const playback = window.__gymPlayback = {
-            ...options, timeScale:2.5,
+            ...options, timeScale:8,
             onDone: result => { window.__gymEnds.push(result); options.onDone(result); }
           };
           return play(scene,playback);
@@ -120,11 +120,19 @@ const server = http.createServer((req,res) => {
         },step === 'bag_drill' ? 7.18 : 7.25);
       }
       for (let line = 0; line < 2; line++) {
-        await wait(line => DreamScenes.debug?.lineIndex === line && DreamScenes.debug?.waiting,line);
+        try {
+          await page.waitForFunction(line => DreamScenes.debug?.lineIndex === line && DreamScenes.debug?.waiting,line,{timeout:100000});
+        } catch (failure) {
+          const state = await page.evaluate(() => ({scene:DreamScenes.playing,t:DreamScenes.debug?.t,ack:DreamScenes.debug?.ack,waiting:DreamScenes.debug?.waiting,lineIndex:DreamScenes.debug?.lineIndex,ends:window.__gymEnds,errors:document.querySelector('.story-busy')?.textContent}));
+          console.error('GYM FILM DIALOGUE STATE ' + id + ': ' + JSON.stringify({line,state,errors}));
+          throw failure;
+        }
+        console.log('Ready for real touch at dialogue ' + line + ': ' + id);
+        if (line === 1) await page.evaluate(() => { window.__gymPlayback.timeScale = 4; });
         await tapAt('dialog.dream-scene');
       }
       if (process.env.GOTR_GYM_ARTIFACTS) {
-        await wait(() => window.__gymCaptureReady && !!DreamScenes.playing);
+        await page.waitForFunction(() => window.__gymCaptureReady && !!DreamScenes.playing,null,{timeout:100000});
         fs.mkdirSync(process.env.GOTR_GYM_ARTIFACTS,{recursive:true});
         try { await page.screenshot({path:path.join(process.env.GOTR_GYM_ARTIFACTS,id + '-natural-tail.png'),timeout:60000}); }
         finally { await page.evaluate(() => window.__gymResumeFrame()); }

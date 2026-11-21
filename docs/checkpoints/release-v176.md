@@ -1,9 +1,10 @@
-# Fit v1.75 checkpoint (2026-11-21)
+# Fit v1.76 checkpoint (2026-11-21)
 
-Branch `claude/ecstatic-clarke-9as2ak`, based on v1.74 (`658e3c9`).
+Branch `claude/ecstatic-clarke-9as2ak`, based on v1.74; merged with ChatGPT's v1.75 (`ee2c2e1`, same gym films and CI work).
 
 ## In this release
-- `wip/combined-chapter1-qa-candidate-20261121` (Codex, today): films 9 `dream_new_bag` and 10 `dream_offer` (`adventure/story/gym-return-core.js`), low-quality street films without shadows, stricter Chromium CI jobs.
+- Gym films 9–10 and the CI work came in through ChatGPT's v1.75 on main (`ee2c2e1`); this branch had merged the same `wip/combined-chapter1-qa-candidate-20261121` commits.
+- `tests/offline-version-match.test.cjs`: worker, manifest and build script must name the same offline version.
 - Approved referee "Fight!" EN/HE/RU from `audio/approved-sounds-staging-20261113` (`approved-fight-audio.js`, `fight-ui.js`). Opus plus AAC copies of the same recordings. Bell, punch and KO applause files were never imported; those keep the current sounds.
 - Backlog statuses reconciled with RELEASES.md.
 
