@@ -120,8 +120,29 @@
       c.skyline(-42);
       const fz = -4.4; // the shop front
       box(S, 0, 0, fz + .02, 7.4, 3.25, .1, '#1f3a4a'); // painted shop front
-      box(S, .9, 0, fz + .06, 1.18, 2.35, .08, '#2b2420'); box(S, .9, .04, fz + .1, .98, 2.22, .05, '#7a2f26'); c.displayBay(.9, 1.15, fz + .134, .72, .9, 'gym', .092); box(S, 1.27, 1.0, fz + .16, .05, .16, .05, '#e0b84d'); // door
+      box(S, .9, 0, fz + .06, 1.18, 2.35, .08, '#2b2420'); box(S, .9, .04, fz + .1, .98, 2.22, .05, '#7a2f26'); box(S, 1.27, 1.0, fz + .16, .05, .16, .05, '#e0b84d'); // door
       box(S, .9, 0, fz + .2, 1.4, .1, .5, '#b3a892'); // step
+      // A lightly obscured reflective pane over the existing door. No display,
+      // fake room, extra backing, or change to the door's surrounding geometry.
+      const doorTint = new THREE.ShaderMaterial({
+        transparent: true, depthWrite: false, opacity: .29,
+        uniforms: { tint: { value: new THREE.Color('#b8d5e4') }, strength: { value: .29 } },
+        vertexShader: 'varying vec2 paneUV; void main(){ paneUV = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+        fragmentShader: `
+          uniform vec3 tint; uniform float strength; varying vec2 paneUV;
+          void main() {
+            float axis = paneUV.x + .54 * paneUV.y;
+            float sheen = smoothstep(.49,.57,axis) * (1.0 - smoothstep(.61,.71,axis));
+            float sky = smoothstep(.20,.93,paneUV.y);
+            gl_FragColor = vec4(tint, strength + .12 * sheen + .06 * sky);
+            #include <tonemapping_fragment>
+            #include <encodings_fragment>
+          }`
+      });
+      const doorPane = add(new THREE.Mesh(new THREE.PlaneGeometry(.72,.90), doorTint), false, false);
+      doorPane.position.set(.9,1.60,fz + .153);
+      doorPane.name = 'Otto exterior tinted door glass'; doorPane.renderOrder = 2;
+
       // display windows (GOTR-0101/0102): a shallow lit display box in front of the shop front, see-through glass on the street side
       const glassMat = new THREE.MeshStandardMaterial({ color: '#d6ecf5', roughness: .08, metalness: .25, transparent: true, opacity: .16, depthWrite: false });
       const sheenMat = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .15, depthWrite: false, toneMapped: false });

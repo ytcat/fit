@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/checkout@v6
         with:
-          ref: 9961b9d54c08827715ec667121d84445c4fb461d
+          ref: 057a23527b3fa6be06e077092b7a03a1d9f899ac
           path: baseline
       - uses: actions/setup-node@v4
         with:
@@ -39,20 +39,20 @@ jobs:
           trap 'kill "$a" "$b"' EXIT
           for side in before after; do
             port=8671; if [ "$side" = after ]; then port=8672; fi
-            APP_URL=http://127.0.0.1:$port/ CLIP=dream_opening SHOTS=bruno:29.8 node qa/city-frontage-glass/compare.cjs "$side-gym"
-            APP_URL=http://127.0.0.1:$port/ CLIP=dream_market_robbery SHOTS=market:11.2 node qa/city-frontage-glass/compare.cjs "$side-market"
             APP_URL=http://127.0.0.1:$port/ CLIP=dream_otto_shop SHOTS='exterior:1.9,entry:4.15,exit:31.4' node qa/city-frontage-glass/compare.cjs "$side-otto"
           done
           node --input-type=commonjs <<'NODE'
           const fs = require('node:fs'), a = require('node:assert/strict');
           const read = n => JSON.parse(fs.readFileSync(process.env.OUT_DIR + '/' + n + '.json'));
-          for (const [n, panes] of [['gym',3],['market',4],['otto',1]]) {
-            const orig = read('before-'+n), next = read('after-'+n), b = orig.frames[0], c = next.frames[0];
-            a.ok(!next.log.some(x=>x.startsWith('PAGEERROR')));
-            a.equal(b.panes,0); a.equal(c.panes,panes);
-            a.ok(c.opacity > 0 && c.opacity < .2); a.equal(c.depthWrite,false);
-            console.log(n,'draw delta',c.calls-b.calls,'tris delta',c.triangles-b.triangles);
-            a.ok(c.calls-b.calls <= 3 && c.triangles-b.triangles < 3000);
+          const b = read('before-otto'), c = read('after-otto');
+          a.ok(!c.log.some(x => x.startsWith('PAGEERROR') || /shader error/i.test(x)));
+          for (let i = 0; i < c.frames.length; i++) {
+            const x = c.frames[i], y = b.frames[i];
+            a.equal(y.panes, 1);
+            a.equal(x.panes, 0);
+            a.deepEqual(x.door, { opacity: .29, transparent: true, depthWrite: false, castShadow: false });
+            a.ok(Math.abs(x.t - y.t) < .2, 'match each entrance/exit frame');
+            a.ok(x.calls <= y.calls + 1 && x.triangles < y.triangles, 'remove the display geometry without raising the draw budget');
           }
           NODE
       - uses: actions/upload-artifact@v4
