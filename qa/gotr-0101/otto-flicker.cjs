@@ -1,6 +1,6 @@
 // Otto's Corner street front: capture consecutive frames at small time steps and measure pixel changes inside the
 // display windows versus the rest of the picture. Z-fighting shows as large frame-to-frame changes on still surfaces.
-// usage: node qa/gotr-0101/otto-flicker.cjs <outdir>   (TIMES="4.5,4.6,..." picks other scene times)
+// usage: node qa/gotr-0101/otto-flicker.cjs <outdir>   (TIMES="4.5,4.6,..." picks other scene times; BUY=21.9 presses the in-scene Buy first)
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '../..'), out = process.argv[2];
@@ -26,7 +26,9 @@ const server = http.createServer((q, r) => {
   const list = times.length ? times : Array.from({ length: 12 }, (_, i) => 1.0 + i * 0.25);
   for (let i = 0; i < list.length; i++) {
     const t = list[i];
+    if (process.env.BUY && t >= +process.env.BUY && !p.__bought) { await p.evaluate(t => DreamScenes.seek(t), +process.env.BUY); await wait(); await p.evaluate(() => document.querySelector('.dream-buy')?.click()); await wait(); p.__bought = true; }
     await p.evaluate(t => DreamScenes.seek(t), t); await wait();
+    if (process.env.PROBE) console.log('probe', t, JSON.stringify(await p.evaluate(process.env.PROBE)));
     const file = path.join(out, `f${String(i).padStart(2, '0')}.png`);
     await p.screenshot({ path: file }); shots.push(file);
   }
