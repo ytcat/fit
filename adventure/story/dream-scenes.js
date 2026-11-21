@@ -26,7 +26,7 @@
   const BOX = [['jab', .5], ['cross', .58], ['guard', .4], ['jab', .46], ['hook', .6], ['guard', .8]], BOX_T = BOX.reduce((n, x) => n + x[1], 0);
 
   function speaker(id, e) {
-    if (id !== 'fighter') return Cast().names[id]?.[lang()] || id;
+    if (id !== 'fighter') return Cast().names[id]?.[lang()] || window.AdventureStory?.who?.[id]?.name?.[lang()] || id;
     let name = ''; try { name = e.career?.store?.current?.()?.name || ''; } catch { /* no profile */ }
     return name && !/^guest$/i.test(name.trim()) ? name : W[lang()].you;
   }
@@ -58,7 +58,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     const run = { id, closed: false, t: 0, clock: 0, ack: -1, waiting: false, shot: 0, lineIndex: -1, phase: 'load', mapT: 0, bought: !!opts.owned, buying: false };
     current = run;
     let life = null, proxies = [], castWas = [], shadowWas = null, hi = false, perf = { n: 0, sum: 0 };
-    let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false, props = null;
+    let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false, props = null, gymBagBase = null;
     const look = V(), turn = new Map(), jacketAt = {}; // the time of each actor's jacket-off key (Fang, GOTR-0096)
     for (const [k, a] of Object.entries(scene0.actors || {})) { const j = a.keys.find(q => q.act === 'jacketoff'); if (j) jacketAt[k] = j.t; }
     const finish = (result = {}) => {
@@ -118,6 +118,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       try { set = window.StorySets.build(scene0.set, scene, { renderer: e.renderer, shadows: !!e.renderer.shadowMap?.enabled, city }); } finally { if (scene0.gymBag && BB) BB.force = force0; }
       if (street && hi && set.sun) { set.sun.shadow.mapSize.set(2048, 2048); set.sun.shadow.radius = 3; set.sun.shadow.camera.layers.enable(window.StreetLife?.SHADOW_LAYER ?? 1); }
       if (set.objects.city?.bus && C.withCity) scene0 = C.withCity(scene0);
+      if (scene0.gymStrikes && set.objects.oldBag?.state === 'new') gymBagBase = set.objects.oldBag.sample;
       if (scene0.set === 'dream_gym') tuneInterior(); else if (scene.fog) { scene.fog.near = 34; scene.fog.far = 210; } // the towers down the street stay readable through the haze
       for (const [key, a] of Object.entries(scene0.actors)) {
         const c = a.rig === 'fighter' ? e.coach : Cast().rig(a.rig, e); if (!c) throw Error('rig ' + a.rig);
@@ -208,7 +209,11 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
         // turn in place: the body comes round over a few steps of time instead of snapping to the new direction
         let ry = a.ry; const prev = turn.get(c); if (prev != null && dt > 0) { let d = a.ry - prev; d = Math.atan2(Math.sin(d), Math.cos(d)); ry = prev + d * (1 - Math.exp(-dt * (a.walking ? 9 : 5))); } turn.set(c, ry);
         c.root.position.set(a.x, a.y || 0, a.z); c.root.rotation.set(0, ry, 0); c.root.updateMatrixWorld(true);
-        if (a.act === 'box' || a.act === 'guard') {
+        const gymPunch = scene0.gymStrikes && window.GymReturnCore?.punch(k, run.t);
+        if (gymPunch) {
+          c.update(gymPunch.phase * 1.22, gymPunch.move, 'one_two', { simulationTime: run.clock, keepFaceClear: true, guardCover: 1, power: 1.15, recoil: 0, advance: 0, contactDrive: 0 });
+          Pose().reset(c);
+        } else if (a.act === 'box' || a.act === 'guard') {
           let u = (run.clock % BOX_T), move = 'guard', ph = 0; if (a.act === 'box') for (const [m, dur] of BOX) { if (u < dur) { move = m; ph = u / dur; break; } u -= dur; }
           if (move === 'guard') c.update(run.clock, 'guard', 'one_two', { simulationTime: run.clock, keepFaceClear: true, guardCover: 1 }); else c.update(ph * 1.22, move, 'one_two', { simulationTime: run.clock, keepFaceClear: true, guardCover: 1, power: 1.15, recoil: 0, advance: 0, contactDrive: 0 });
           Pose().reset(c);
@@ -225,7 +230,9 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       }
       // props, bag
       props?.frame(run.t, dt);
-      const o = set.objects; if (o.bus && s.props.bus) o.bus.position.x = s.props.bus[0];
+      const o = set.objects;
+      if (gymBagBase) o.oldBag.pose(window.GymReturnCore.bagPose(gymBagBase, run.t));
+      if (o.bus && s.props.bus) o.bus.position.x = s.props.bus[0];
       if (o.doors && s.props.doors) for (const m of o.doors) m.position.x = m.userData.shut + (m.userData.open - m.userData.shut) * smooth(s.props.doors[0]);
       if (s.bag && rigs.fighter) { Cast().bag(rigs.fighter, s.bag.on === 'shoulder' && rigs.fighter.root.visible ? 'shoulder' : 'off'); if (floorBag) { floorBag.visible = s.bag.on === 'floor'; if (floorBag.visible) { floorBag.position.set(s.bag.at[0], .135, s.bag.at[1]); floorBag.rotation.y = s.bag.at[2] || 0; } } }
       // camera
