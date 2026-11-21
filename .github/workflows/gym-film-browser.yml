@@ -1,0 +1,46 @@
+name: Chapter 1 gym film browser review
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'adventure/story/gym-return-core.js'
+      - 'adventure/story/dream-core.js'
+      - 'adventure/story/dream-scenes.js'
+      - 'adventure/story/story-cast.js'
+      - 'adventure/story-flow.js'
+      - 'tests/dream-gym-return.test.cjs'
+      - '.github/workflows/gym-film-browser.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gym-film-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_PATH: /tmp/gotr-gym-qa/node_modules
+      GOTR_REQUIRE_GYM_BROWSER: '1'
+      GOTR_GYM_ARTIFACTS: qa-gym-films
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --prefix /tmp/gotr-gym-qa --no-save playwright@1.56.1
+          /tmp/gotr-gym-qa/node_modules/.bin/playwright install --with-deps chromium
+      - name: Verify the gym films and drill handoffs
+        run: node tests/dream-gym-return.test.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter-1-gym-films-402x690
+          path: qa-gym-films/
+          if-no-files-found: ignore
+          retention-days: 7
