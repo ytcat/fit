@@ -33,3 +33,13 @@ assert.match(flow, /beat: 8, scene: 'dream_new_bag' \}/); assert.ok(!/stands in 
 assert.match(scenes, /bag_duo: \{\n\s+set: 'dream_gym', wear: 'kit', dpad: false, roles: \{ fighter: \{\}, pip: \{\} \}, make: \(T, o\) => new T\.DuoTrial/);
 assert.match(scenes, /GymReturnCore\.bagPoseAt\(/); assert.match(read('adventure/story/gym-return-core.js'), /function bagPoseAt\(base, th\)/);
 console.log('bag-duo: ok', { perfect: perfect.value, sloppy: sloppy.value });
+// gloves stop on the leather (owner 2026-11-21: "the hands of players are inside the bag"): at the top of each swing the bag's centre is
+// at least reach + glove + bag radius from the puncher; the punch rises only to its contact phase (measured in qa/gotr-0106/contact.cjs)
+{ const BB = require('../adventure/story/bag-break-core.js');
+  const m = scenes.match(/R0 = ([\d.]+), ARM = ([\d.]+)/), table = scenes.match(/CONTACT = \{ straight: \[([\d.]+), ([\d.]+)\], hook: \[([\d.]+), ([\d.]+)\], uppercut: \[([\d.]+), ([\d.]+)\] \}/);
+  assert.ok(m && table, 'contact table'); const R0 = +m[1], ARM = +m[2];
+  for (const [i, k] of [[1, 'straight'], [3, 'hook'], [5, 'uppercut']]) { const phase = +table[i], reach = +table[i + 1], d = Math.min(.6, Math.max(0, R0 - reach - .06 - BB.BAG.r));
+    assert.ok(phase > .3 && phase < .42, k + ' stops at its contact phase, before full extension'); assert.ok(R0 - ARM * Math.sin(Math.asin(d / ARM)) >= reach + .06 + BB.BAG.r - 1e-9, k + ' glove would enter the bag'); }
+  assert.match(scenes, /phase: age < C \? \.14 \+ age \/ C \* \(hit - \.14\) : hit - /, 'the Fighter\'s punch rises to contact and pulls back');
+  assert.ok(T.DUO.contact > 0, 'the bag waits for the glove'); }
+console.log('bag-duo contact: ok');
