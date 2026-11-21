@@ -1254,6 +1254,12 @@ function waterfront(W) {
   });
   for (let x = 33; x < 115; x += 6.2) addInst(W, 'palms', { x, y: BLOCK_Y, z: lerp(31.1, coastZ(x).z, .62), s: rnd(.95, 1.2) });
   for (let x = 36; x < 115; x += 8.4) lamp(W, x, BLOCK_Y, 31.7, Math.PI);
+  // Low shade trees on the landward edge, away from the road, existing lamps and palm line.
+  for (const x of [42.1, 53.9, 68.3, 80.5, 93.9, 109.2]) {
+    const z = 32.85;
+    if (coastZ(x).z - z < 2.1 || W.inst.palms.some(p => Math.hypot(p.x - x, p.z - z) < 1.65)) continue;
+    addInst(W, 'trees', { x, y: BLOCK_Y, z, s: .87, sy: .86, ry: x * .29, color: '#79a154' });
+  }
   // beach life
   const ucol = ['#e8473b', '#f2c14e', '#2fa59a', '#ffffff', '#3c7fc0', '#f07f3c', '#d63d6d'];
   for (let x = 33; x < 114; x += rnd(1.6, 3.2)) {
@@ -1619,6 +1625,12 @@ function downtownLandmarks(W) {
     gloveGold(W, pz.x, BLOCK_Y + 2.45, pz.z, fr.ry);
     for (let k = 0; k < 8; k++) { const a = k / 8 * TAU; addInst(W, 'palms', { x: pz.x + Math.cos(a) * 4.2, y: BLOCK_Y, z: pz.z + Math.sin(a) * 4.2, s: rnd(.85, 1) }); }
     for (let k = 0; k < 16; k++) { const a = rnd(0, TAU), r = rnd(2.8, 5); addInst(W, 'people', { x: pz.x + Math.cos(a) * r, y: BLOCK_Y, z: pz.z + Math.sin(a) * r, s: 1, color: pick(PAL.car) }); }
+    // Keep the radial walkways and the golden glove open, planting only the corners.
+    for (const [sx, sz] of [[-1,-1], [1,-1], [-1,1], [1,1]]) {
+      const [x, z] = fr.p(sx * (pz.w / 2 - 1.55), sz * (pz.d / 2 - 1.55));
+      if (W.inst.palms.some(p => Math.hypot(p.x - x, p.z - z) < 1.65)) continue;
+      addInst(W, 'trees', { x, y: BLOCK_Y, z, s: sx === sz ? 1.02 : .92, sy: sx === sz ? .88 : 1.07, ry: 1 + .7 * sx + .3 * sz, color: '#77974e' });
+    }
     pool(W, pz.x, pz.z, 4, '#ffe2a8', .5); glow(W, pz.x, BLOCK_Y + 1.8, pz.z, '#ffd36a', 3, .5);
   }
 }
