@@ -67,10 +67,14 @@ const server = http.createServer((req,res) => {
         window.__gymTraining = []; window.__gymEnds = [];
         const ctx = window.__gymCtx = { store:g.store, startFight:g.startFight, startTraining: (...args) => { window.__gymTraining.push(args[0].mode); return g.startTraining(...args); }, change:a => { const r = g.store.gameAction(a); if (r.ok) g.apply?.(); return r.ok; } };
         const play = StoryScenes.play;
-        StoryScenes.play = (scene,options) => scene !== id ? play(scene,options) : play(scene,{
-          ...options, timeScale:2.5,
-          onDone: result => { window.__gymEnds.push(result); options.onDone(result); }
-        });
+        StoryScenes.play = (scene,options) => {
+          if (scene !== id) return play(scene,options);
+          const playback = window.__gymPlayback = {
+            ...options, timeScale:2.5,
+            onDone: result => { window.__gymEnds.push(result); options.onDone(result); }
+          };
+          return play(scene,playback);
+        };
         for (const id of AdventureProgress.dreamSteps) {
           if (id === step) break;
           if (!AdventureOldTown.devSkip(ctx,id)) return id;
@@ -109,7 +113,7 @@ const server = http.createServer((req,res) => {
           // Pause only after the real film advances to the target frame; never seek.
           const run = DreamScenes.debug, frame = run.frame;
           run.frame = delta => {
-            if (run.t >= t) { window.__gymCaptureReady = true; frame(0); }
+            if (run.t >= t) window.__gymCaptureReady = true;
             else frame(delta);
           };
           window.__gymResumeFrame = () => { run.frame = frame; };
@@ -130,14 +134,26 @@ const server = http.createServer((req,res) => {
       } else {
         await wait(() => DreamScenes.debug?.t >= 7.1 && DreamScenes.debug?.rigs.fighter.root.position.z < 2.75);
       }
+      assert.equal(await page.evaluate(() => window.__gymTraining.length),0,'the drill starts only after the tail');
+      console.log('PASS witnessed real touch-through and post-dialogue motion: ' + id);
+      // The motion is already witnessed above; run only the remaining tail faster on this CPU-only test.
+      // Do not seek, force the callback, or alter normal playback speed in the game.
+      await page.evaluate(() => { window.__gymPlayback.timeScale = 8; });
       const mode = step === 'bag_drill' ? 'heavy' : 'pads';
       const assertHandoff = async (n,skipped) => {
-        await wait(n => window.__gymEnds.length >= n && window.__gymTraining.length >= n && !DreamScenes.playing && !!app.engine.career.active,n);
+        try {
+          await page.waitForFunction(n => window.__gymEnds.length >= n && window.__gymTraining.length >= n && !DreamScenes.playing && !!app.engine.career.active,n,{timeout:90000});
+        } catch (failure) {
+          const state = await page.evaluate(() => ({scene:DreamScenes.playing,t:DreamScenes.debug?.t,ack:DreamScenes.debug?.ack,phase:DreamScenes.debug?.phase,ends:window.__gymEnds,training:window.__gymTraining,active:app.engine.career.active?.mode,mode:app.engine.targetMode}));
+          console.error('GYM FILM HANDOFF STATE ' + id + ': ' + JSON.stringify({n,state,errors}));
+          throw failure;
+        }
         assert.deepEqual(await page.evaluate(() => ({training:window.__gymTraining,ends:window.__gymEnds.map(e => [e.skipped,e.error || null]),active:app.engine.career.active.mode,dialog:!!document.querySelector('dialog.dream-scene[open]')})),
           {training:Array(n).fill(mode),ends:n === 1 ? [[false,null]] : [[false,null],[skipped,null]],active:mode,dialog:false});
         assert.equal(await page.evaluate(step => StoryFlow.doneOf(ringfighterGame.store.game(),StoryFlow.find(step)),step),false,'the film does not complete the drill');
       };
       await assertHandoff(1,false);
+      console.log('PASS natural film handoff: ' + step);
       assert.equal(await page.evaluate(({step,id}) => {
         AdventureOldTown.leave();
         localStorage.removeItem('gotr-scene-' + id);
