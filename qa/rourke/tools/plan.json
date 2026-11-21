@@ -1,0 +1,131 @@
+{
+ "size": [
+  402,
+  690
+ ],
+ "frames": [
+  {
+   "name": "rourke-head-front",
+   "who": [
+    "rourke"
+   ],
+   "pose": "stand",
+   "look": {
+    "yaw": 0,
+    "pitch": 0
+   },
+   "cam": {
+    "yaw": 0.0,
+    "look": [
+     0,
+     1.95,
+     0.17
+    ],
+    "dist": 2.35,
+    "lift": 0.12,
+    "fov": 30
+   }
+  },
+  {
+   "name": "rourke-head-three-quarter",
+   "who": [
+    "rourke"
+   ],
+   "pose": "stand",
+   "look": {
+    "yaw": 0,
+    "pitch": 0
+   },
+   "cam": {
+    "yaw": 0.72,
+    "look": [
+     0,
+     1.95,
+     0.17
+    ],
+    "dist": 2.35,
+    "lift": 0.12,
+    "fov": 30
+   }
+  },
+  {
+   "name": "rourke-head-profile",
+   "who": [
+    "rourke"
+   ],
+   "pose": "stand",
+   "look": {
+    "yaw": 0,
+    "pitch": 0
+   },
+   "cam": {
+    "yaw": 1.5707963267948966,
+    "look": [
+     0,
+     1.95,
+     0.17
+    ],
+    "dist": 2.35,
+    "lift": 0.12,
+    "fov": 30
+   }
+  },
+  {
+   "name": "rourke-head-talk",
+   "who": [
+    "rourke"
+   ],
+   "pose": "talk",
+   "talkAmount": 1,
+   "look": {
+    "yaw": 0,
+    "pitch": 0
+   },
+   "cam": {
+    "yaw": 0.9,
+    "look": [
+     0,
+     1.95,
+     0.17
+    ],
+    "dist": 2.35,
+    "lift": 0.12,
+    "fov": 30
+   }
+  },
+  {
+   "name": "rourke-body-film",
+   "who": [
+    "rourke"
+   ],
+   "pose": "stand",
+   "cam": {
+    "yaw": 0.55,
+    "look": [
+     0,
+     1.02,
+     0
+    ],
+    "dist": 6.4,
+    "lift": 0.3
+   }
+  },
+  {
+   "name": "rourke-body-back",
+   "who": [
+    "rourke"
+   ],
+   "pose": "stand",
+   "cam": {
+    "yaw": 2.57610597594363,
+    "look": [
+     0,
+     1.02,
+     0
+    ],
+    "dist": 6.4,
+    "lift": 0.3
+   }
+  }
+ ]
+}
