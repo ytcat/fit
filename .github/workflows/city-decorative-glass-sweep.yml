@@ -1,0 +1,65 @@
+name: Decorative city and training glass sweep
+on:
+  pull_request:
+    paths:
+      - 'adventure/story/**'
+      - 'club-world.js'
+      - 'qa/city-frontage-glass/**'
+      - '.github/workflows/city-decorative-glass-sweep.yml'
+permissions:
+  contents: read
+jobs:
+  sweep:
+    if: github.head_ref == 'wip/city-street-frontage-glass-v180-review'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: 6338eb7f14d9e6b006e22aad1f01b73a39fe3f19
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          tools="$RUNNER_TEMP/fit-playwright"
+          npm install --prefix "$tools" --no-save playwright@1.56.1
+          "$tools/node_modules/.bin/playwright" install --with-deps chromium
+          echo "NODE_PATH=$tools/node_modules" >> "$GITHUB_ENV"
+          sudo apt-get install -y python3-pil
+      - name: Compare decorative glass and native Foundry back-view taps at 402 x 690
+        run: |
+          node tests/shop-window-depth.test.cjs
+          node tests/club-world.test.cjs
+          mkdir -p "$RUNNER_TEMP/decorative-glass"
+          export OUT_DIR="$RUNNER_TEMP/decorative-glass" WAIT=1 TOUCH=1 SINGLE=1
+          python3 -m http.server 8671 --bind 127.0.0.1 --directory baseline > "$OUT_DIR/baseline.log" 2>&1 &
+          a=$!
+          python3 -m http.server 8672 --bind 127.0.0.1 > "$OUT_DIR/review.log" 2>&1 &
+          b=$!
+          trap 'kill "$a" "$b"' EXIT
+          for side in before after; do
+            port=8671; if [ "$side" = after ]; then port=8672; fi
+            APP_URL=http://127.0.0.1:$port/ node qa/city-frontage-glass/foundry.cjs "$side"
+            APP_URL=http://127.0.0.1:$port/ CLIP=dream_opening SHOTS=bruno:28.45 node qa/city-frontage-glass/compare.cjs "$side-bruno"
+            APP_URL=http://127.0.0.1:$port/ CLIP=dream_otto_shop SHOTS=inside:12.2 node qa/city-frontage-glass/compare.cjs "$side-otto-inside"
+          done
+          node --input-type=commonjs <<'NODE'
+          const fs = require('node:fs'), a = require('node:assert/strict');
+          const read = n => JSON.parse(fs.readFileSync(process.env.OUT_DIR + '/' + n + '.json'));
+          a.deepEqual(read('after-foundry').n, Array(2).fill({alpha:.29,depthWrite:false}));
+          for (const [mode,m] of [['bruno','Bruno exterior door glass'],['otto-inside','Otto interior decorative window']]) {
+            const b=read('before-'+mode), c=read('after-'+mode);
+            a.ok(!c.log.some(x=>x.startsWith('PAGEERROR') || /shader error/i.test(x)));
+            a.ok(!b.frames[0].decorative.includes(m) && c.frames[0].decorative.includes(m));
+            a.equal(b.frames[0].legacyDoor,false);a.equal(c.frames[0].legacyDoor,true);
+            a.ok(c.frames[0].calls-b.frames[0].calls <= 2);
+            console.log(mode,b.frames[0].calls,c.frames[0].calls,b.frames[0].triangles,c.frames[0].triangles);
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: city-decorative-glass-sweep
+          path: ${{ runner.temp }}/decorative-glass
