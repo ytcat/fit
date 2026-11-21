@@ -1,71 +1,41 @@
-// GOTR-0099 side job A "Clean the gym": the mop-lanes rules (lanes, the beat window, big streaks, stains, the bag pendulum,
-// ducking and slipping, stars from marks), the job's pay in the save, the step wiring, and in the browser the job itself:
-// street clothes and bare hands in the gym, the mop held in an everyday pose (never the guard), the mirrored root kept, the
-// step completed with a star and paid, everything given back after.
+// GOTR-0099: direct floor sweeping, saved wage, story wiring and real touch projects onto the 3D work area.
 const assert = require('assert/strict'), fs = require('fs'), path = require('path'), http = require('http'), vm = require('vm');
 const M = require('../adventure/story/mop-core.js'), A = require('../adventure-progress.js'), D = require('../game-domain.js'), SF = require('../adventure/story-flow.js'), ST = require('../adventure/story.js');
-const R = M.MOP, run = (g, s) => { for (let t = 0; t < s - 1e-9; t += 1 / 120) g.step(1 / 120); return g; };
-const quiet = o => ({ ...R, ...o, bag: { ...R.bag, first: 999 } }); // no bag unless asked
+process.chdir(path.join(__dirname,'..'));
 
-// ---- lanes and footwork: left / right step along the lane, up slips to the other lane, the edges hold
+// No time pressure, no progress from a tap, no bridge from outside/cancel, and free movement to any stain.
 {
-  const g = new M.MopTrial(quiet({ gap: [99, 99] })); g.nextWet = 99;
-  assert.deepEqual([g.f.lane, g.f.spot], [R.start.lane, R.start.spot]);
-  g.key('left', true); assert.equal(g.view().phase, 'move'); run(g, R.move + .02); assert.equal(g.f.spot, R.start.spot - 1);
-  assert.ok(Math.abs(g.view().body.x - (R.x0 + (R.start.spot - 1) * R.dx)) < 1e-6, 'the Fighter stands on the spot');
-  g.key('up', true); run(g, R.slip / 2 - .02); assert.equal(g.body().lane, R.start.lane, 'halfway through a Slip he still counts in the old lane');
-  run(g, R.slip / 2 + .04); assert.equal(g.f.lane, 1 - R.start.lane); assert.ok(Math.abs(g.body().z - (R.zLane[1 - R.start.lane] - R.reachZ)) < 1e-6);
-  for (let i = 0; i < 9; i++) { g.key('left', true); run(g, R.move + .02); } assert.equal(g.f.spot, 0, 'the lane ends at spot 0');
-  g.key('right', true); g.key('right', true); run(g, 2 * R.move + .1); assert.equal(g.f.spot, 2, 'a step pressed during a step is kept (one queued)');
+  const g=new M.MopTrial(), [x,z]=M.MOP.spots[0];
+  for(let i=0;i<10000;i++) g.step(1/120);
+  assert.equal(g.done,false); assert.equal(g.marks,0); assert.equal(g.finish(),false);
+  assert.equal(g.begin({x:100,z}),false);
+  assert.equal(g.begin({x,z}),true); g.drag({x,z}); assert.equal(g.marks,0);
+  g.drag({x:100,z}); g.drag({x:x+.4,z}); assert.equal(g.marks,0);
+  g.begin({x:x-.4,z}); g.release(); g.drag({x:x+.4,z}); assert.equal(g.marks,0);
+  g.begin({x:x-.45,z:z+.1}); g.drag({x:x+.45,z:z+.1});
+  assert.ok(g.marks>0 && g.marks<25); const k=g.removed;
+  g.drag({x:x-.45,z:z+.1}); assert.equal(g.removed,k,'wiping the same strip again cannot score twice');
+  g.release();
+  const kbd=new M.MopTrial(), p={...kbd.point}; kbd.key('right',true); kbd.step(.05);
+  assert.ok(kbd.point.x>p.x); assert.equal(kbd.marks,0,'keyboard movement alone does not wipe');
 }
-// ---- the beat: the push lands every stroke after arriving; a tap within the window wipes, outside it smears
-{
-  const g = new M.MopTrial(quiet({ gap: [99, 99] })); g.nextWet = 99;
-  g.wet.push({ id: 1, lane: g.f.lane, spot: g.f.spot, t0: 0, life: 30, state: 'wet', wipes: 1, big: false, len: 1, turn: 0 }, { id: 2, lane: g.f.lane, spot: g.f.spot + 1, t0: 0, life: 30, state: 'wet', wipes: 2, big: true, len: 1, turn: 0 });
-  run(g, R.stroke * .5); assert.equal(g.view().on, 1); assert.equal(g.view().open, false);
-  g.key('straight', true); assert.equal(g.smears, 1, 'off the beat: a smear'); assert.equal(g.streak, 0); assert.equal(g.wet[0].state, 'wet');
-  run(g, R.whiff); const b = g.beat(); run(g, Math.max(0, -b.d)); // to the landing push
-  assert.ok(Math.abs(g.beat().d) <= R.window && g.view().open, 'the ring is closed at the landing push');
-  g.key('straight', true); assert.equal(g.wet[0].state, 'clean'); assert.equal(g.cleaned, 1); assert.equal(g.flash.type, 'perfect'); assert.equal(g.score, R.pts.perfect);
-  g.key('right', true); run(g, R.move + .02); assert.equal(g.view().on, 2);
-  run(g, Math.max(R.whiff, R.stroke - R.move - .04)); run(g, Math.max(0, -g.beat().d)); g.key('straight', true);
-  assert.equal(g.wet[1].state, 'wet', 'a big streak needs a second wipe'); assert.equal(g.wet[1].wipes, 1);
-  run(g, Math.max(R.whiff, R.stroke - .02)); run(g, Math.max(0, -g.beat().d)); g.key('straight', true);
-  assert.equal(g.wet[1].state, 'clean'); assert.equal(g.cleaned, 2); assert.equal(g.streak, 2);
-  assert.equal(g.score, R.pts.perfect + R.pts.perfect + R.pts.big, 'big streak bonus');
+function scrub(g,[x,z]) {
+  for(const offset of [-.18,0,.18]){
+    g.begin({x:x-.42,z:z+offset}); g.drag({x:x+.42,z:z+offset});g.release();
+  }
 }
-// ---- streaks appear (the first two next to the Fighter), set into stains (combo lost), never more than maxWet at once
 {
-  const g = new M.MopTrial(quiet({})); run(g, 2.2);
-  const first = g.wet.slice(0, 2); assert.ok(first.length === 2 && first.every(w => w.lane === R.start.lane && Math.abs(w.spot - R.start.spot) === 1), 'the first streaks lie next to him');
-  run(g, 20); assert.ok(g.wet.filter(w => w.state === 'wet').length <= R.maxWet); assert.ok(g.stains > 0, 'unwiped streaks set'); assert.equal(g.streak, 0);
-  assert.ok(g.wet.filter(w => w.state === 'stain').every(w => g.t - w.until < 2.5), 'stains fade out of the list');
-}
-// ---- the bag: a real pendulum (half period pi*sqrt(L/g)), it knocks a Fighter standing in its lane, ducking or slipping avoids it
-{
-  const half = Math.PI * Math.sqrt(R.bag.length / M.G), p = M.pendulum(R.bag, half / 2);
-  assert.ok(Math.abs(p.half - half) < 1e-9 && Math.abs(p.th - R.bag.theta) < 1e-9, 'out to the full angle at a quarter period');
-  assert.equal(M.pendulum(R.bag, half + .01).th, 0, 'back in Bruno\'s hands after one half period');
-  assert.ok(p.bottom > R.bag.head, 'at the top of its arc the bag passes over a standing head'); assert.ok(M.pendulum(R.bag, .05).bottom < R.bag.head, 'near the bottom it meets the head');
-  const shove = (act, spot = 0) => { const g = new M.MopTrial({ ...R, gap: [99, 99], bag: { ...R.bag, first: .5 } }); g.nextWet = 99; g.f.spot = spot; run(g, .52); assert.equal(g.bag.phase, 'warn'); const lane = g.bag.lane; g.f.lane = lane;
-    if (act === 'slip') { run(g, R.bag.warn - .4); g.key('up', true); } run(g, R.bag.warn - (act === 'slip' ? R.bag.warn - .4 : 0) - .02);
-    for (let i = 0; i < 400 && !g.stunned() && g.bag; i++) { if (act === 'duck' && !g.ducking() && g.bag.phase === 'swing') { const v = g.view(); if (Math.abs(v.bag.x - v.body.x) < .9) g.key('down', true); } g.step(1 / 120); } return g; };
-  const hit = shove('stand'); assert.equal(hit.knocks, 1, 'standing in its lane at the end: knocked'); assert.ok(hit.stunned()); assert.equal(hit.streak, 0); hit.key('left', true); assert.equal(hit.f.from, null, 'no steps while stunned');
-  const duck = shove('duck'); assert.equal(duck.knocks, 0, 'ducked under it'); assert.equal(duck.dodges, 1); assert.equal(duck.streak, 1, 'the dodge counts in the combo');
-  const slip = shove('slip'); assert.equal(slip.knocks, 0, 'slipped to the other lane'); assert.equal(slip.dodges, 1);
-  const far = shove('stand', R.spots - 1); assert.equal(far.knocks, 0, 'the far end of the lane is out of its reach');
-}
-// ---- a whole shift: 50 s, stars from marks (score / 100), hard mode faster; pay by stars, equal to the save's wage table
-{
-  const g = new M.MopTrial(); run(g, R.duration + .1); assert.ok(g.done); const r = g.result(A.starsFor);
-  assert.equal(r.missionId, 'clean_gym'); assert.equal(r.metric, 'marks'); assert.equal(r.value, Math.floor(r.score / 100)); assert.equal(r.stars, A.starsFor('clean_gym', r.value)); assert.equal(r.stars, 0, 'nobody mopped');
-  assert.deepEqual(A.missions.find(m => m.id === 'clean_gym').thresholds, [25, 50, 75]);
-  assert.deepEqual([A.starsFor('clean_gym', 24), A.starsFor('clean_gym', 25), A.starsFor('clean_gym', 50), A.starsFor('clean_gym', 75)], [0, 1, 2, 3]);
-  assert.deepEqual([...M.PAY], [...D.jobs.clean_gym]); assert.deepEqual([1, 2, 3].map(M.pay), [6, 10, 15]); assert.ok(M.pay(3) < 20, 'a job pays little');
-  // an old save (stand-in: steps 8/14/20) keeps its stars on the new scale; a record that matches neither scale is still refused
-  const old = A.fresh(); old.missions.clean_gym = { stars: 2, value: 15, plays: 3 }; A.validate(old); assert.deepEqual(old.missions.clean_gym, { stars: 2, value: 50, plays: 3 });
-  const bad = A.fresh(); bad.missions.clean_gym = { stars: 3, value: 15, plays: 1 }; assert.throws(() => A.validate(bad));
-  const h = new M.MopTrial(undefined, { hard: true }); assert.ok(h.nextBag < new M.MopTrial().nextBag);
+  const g=new M.MopTrial();
+  for(const s of M.MOP.spots.slice(0,3)) scrub(g,s);
+  assert.equal(g.marks,30); assert.ok(g.finish()); assert.equal(g.finish(),false);
+  for(const s of M.MOP.spots) scrub(g,s);
+  assert.equal(g.marks,30,'finished shift is immutable'); assert.equal(g.result(A.starsFor).stars,1);
+  const all=new M.MopTrial(); for(const s of M.MOP.spots) scrub(all,s);
+  assert.equal(all.marks,100); assert.equal(all.done,true); assert.equal(all.result(A.starsFor).stars,3);
+  assert.equal(new M.MopTrial().marks,0,'fresh shifts have fresh dirt');
+  assert.deepEqual([...M.PAY], [...D.jobs.clean_gym]);
+  const old=A.fresh(); old.missions.clean_gym={stars:2,value:15,plays:3}; A.validate(old);
+  assert.deepEqual(old.missions.clean_gym,{stars:2,value:50,plays:3},'legacy save migration unchanged');
 }
 // ---- the wage in the save: only after a recorded shift, coins by its stars, repeatable, forged entries rejected
 {
@@ -98,70 +68,128 @@ const quiet = o => ({ ...R, ...o, bag: { ...R.bag, first: 999 } }); // no bag un
   const html = fs.readFileSync('index.html', 'utf8'); assert.ok(html.indexOf('adventure/story/mop-core.js') > html.indexOf('adventure/story/trials-core.js') && html.indexOf('adventure/story/mop-game.js') > html.indexOf('adventure/story/story-scenes.js'), 'load order');
   const man = fs.readFileSync('offline-manifest.json', 'utf8'); assert.ok(man.includes('mop-core.js') && man.includes('mop-game.js'), 'offline manifest');
 }
-// ---- the picture's contract (no browser): street clothes in the gym, Bruno, Mop label, the Fighter posed only through DreamPose.civil
-{
-  const win = { StoryScenes: { games: {} } }, ctx = { window: win, THREE: require('../assets/vendor/three.min.js'), console }; vm.runInNewContext(fs.readFileSync('adventure/story/mop-game.js', 'utf8'), ctx);
-  const gm = win.StoryScenes.games.clean_gym; assert.ok(gm, 'registered'); assert.equal(gm.set, 'dream_gym'); assert.equal(gm.place, 'gym'); assert.equal(gm.wear, 'street', 'a job: street clothes, no gloves');
-  assert.deepEqual(Object.keys(gm.roles), ['fighter', 'bruno']); assert.deepEqual([...gm.pads], ['straight']); assert.equal(gm.padWords('he').straight, 'מגב');
-  for (const l of ['en', 'he', 'ru']) for (const k of ['up', 'down', 'left', 'right']) assert.ok(gm.words[l].caps[k], l + ' ' + k);
-  const src = fs.readFileSync('adventure/story/mop-game.js', 'utf8'); assert.ok(!/'guard'|guardCover|\.update\(/.test(src), 'never the guard, never the fight controller directly');
-  const sc = fs.readFileSync('adventure/story/story-scenes.js', 'utf8'); assert.match(sc, /wear = game\?\.wear \|\| C\.outfitFor\(placeKind\)/); assert.match(sc, /c\.root\.scale\.set\(-1, 1, 1\)/);
-}
-console.log('PASS clean-gym rules, pendulum bag, stars, wage, step wiring');
 
-// ---- in the browser (skips without Playwright): the job through the real step
-let chromium; try { ({ chromium } = require('playwright')); } catch { try { ({ chromium } = require('/opt/node-tools/node_modules/playwright')); } catch { console.log('SKIP browser part: Playwright is not installed'); process.exit(0); } }
+{
+  const win={StoryScenes:{games:{}}}, ctx={window:win,THREE:require('../assets/vendor/three.min.js'),console};
+  vm.runInNewContext(fs.readFileSync('adventure/story/mop-game.js','utf8'),ctx);
+  const g=win.StoryScenes.games.clean_gym;
+  assert.ok(g.direct && g.mount); assert.equal(g.set,'dream_gym'); assert.equal(g.wear,'street');
+  assert.deepEqual(Object.keys(g.roles),['fighter','bruno']);
+  for(const l of ['en','he','ru']) for(const k of ['title','goal','help','keyboard','finish']) assert.ok(g.words[l][k]);
+}
+console.log('PASS clean-gym direct sweep, no timer, safe input, old saves, wages and story wiring');
+
+if(process.argv.includes('--static-only')&&process.env.GOTR_REQUIRE_MOP_BROWSER!=='1') process.exit(0);
+let chromium;
+try { ({chromium}=require('playwright')); } catch {
+  try { ({chromium}=require('/opt/node-tools/node_modules/playwright')); } catch {
+    if(process.env.GOTR_REQUIRE_MOP_BROWSER==='1') throw Error('Required Chromium mop coverage needs Playwright');
+    console.log('SKIP browser part: Playwright is not installed'); process.exit(0);
+  }
+}
 const ROOT = process.cwd(), TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webp': 'image/webp', '.png': 'image/png', '.svg': 'image/svg+xml', '.wav': 'audio/wav', '.woff2': 'font/woff2', '.glb': 'model/gltf-binary', '.bin': 'application/octet-stream' };
 const server = http.createServer((q, r) => { let f = path.normalize(path.join(ROOT, decodeURIComponent(q.url.split('?')[0]))); if (!f.startsWith(ROOT)) { r.writeHead(403); r.end(); return; } if (f.endsWith(path.sep) || f === ROOT) f = path.join(f, 'index.html');
   fs.readFile(f, (err, data) => { if (err) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': TYPES[path.extname(f)] || 'application/octet-stream', 'Cache-Control': 'no-store' }); r.end(data); }); });
 (async () => {
-  await new Promise(r => server.listen(0, '127.0.0.1', r)); const url = `http://127.0.0.1:${server.address().port}/`;
-  const browser = await chromium.launch({ args: ['--no-sandbox', '--enable-unsafe-swiftshader'] });
+  await new Promise(r=>server.listen(0,'127.0.0.1',r)); const url='http://127.0.0.1:'+server.address().port+'/';
+  const browser=await chromium.launch({executablePath:process.env.GOTR_CHROMIUM||undefined,args:['--no-sandbox','--enable-unsafe-swiftshader']});
   try {
-    const p = await browser.newPage({ viewport: { width: 402, height: 690 } }), errors = []; p.on('pageerror', x => errors.push(x.message));
-    const wait = (f, a) => p.waitForFunction(f, a, { timeout: 300000 });
-    await p.addInitScript(() => { try { if (!sessionStorage.getItem('qa')) { localStorage.clear(); sessionStorage.setItem('qa', '1'); } localStorage.setItem('shadowbox-language', 'en'); localStorage.setItem('gotr.adv.nointro', '1'); } catch { /* none */ } });
-    await p.goto(url, { timeout: 300000 }); await wait(() => window.ringfighterGame && window.MopGame && window.StoryScenes?.games?.clean_gym);
-    await wait(() => document.querySelector('dialog.career-welcome[open]'));
-    await p.evaluate(() => { const d = document.querySelector('dialog.career-welcome[open]'); d.querySelector('input').value = 'Mop QA'; d.querySelector('button[type=submit]').click(); });
-    await wait(() => app.engine.coach?.anatomy); await p.evaluate(() => window.StoryScenes?.stop?.()); await p.waitForTimeout(800);
-    const before = await p.evaluate(() => ({ scale: app.engine.coach.root.scale.toArray(), outfit: StoryCast.outfitOf(app.engine.coach), coins: GameDomain.wallet(ringfighterGame.store.current().game).coins }));
-    await p.evaluate(() => { const st = ringfighterGame.store; ringfighterGame.close(); window.__done = null; window.__res = null; const S = StoryScenes, play = S.play; S.play = (id, o) => play.call(S, id, { ...o, onDone: r => { window.__res = r; o.onDone(r); } });
-      AdventureOldTown.launch({ store: st, startTraining: ringfighterGame.startTraining, startFight: ringfighterGame.startFight, change: a => { const r = st.gameAction(a); if (r.ok) ringfighterGame.apply?.(); return r.ok; } }, 'clean_gym'); });
-    await wait(() => StoryScenes.debug?.sim && app.engine.fightIQDemo === StoryScenes.debug);
-    const inGame = await p.evaluate(async () => {
-      const run = StoryScenes.debug, g = run.sim, c = app.engine.coach, br = StoryCast.rig('bruno', app.engine); run.intro = 0;
-      // stand on a streak and render a frame at the landing push: the mop pose, both hands on the handle
-      g.wet.push({ id: 99, lane: g.f.lane, spot: g.f.spot, t0: g.t, life: 30, state: 'wet', wipes: 1, big: false, len: 1, turn: 0 }); for (let i = 0; i < 80; i++) g.step(1 / 120);
-      run.frame(1 / 60); const j = c.joints, P = n => j[n].getWorldPosition(new THREE.Vector3()), chest = P('chest'), hR = P('handR'), hL = P('handL'), head = P('head');
-      const tutorial = document.querySelector('.story-tutorial .story-say')?.textContent || '';
-      return { outfit: StoryCast.outfitOf(c), gloves: !!(c.gloveMeshes?.L?.visible || c.gloveMeshes?.R?.visible), scale: c.root.scale.toArray(), bruno: br.root.parent === c.root.parent, brunoScale: br.root.scale.toArray(),
-        hands: [hR.y, hL.y], chest: chest.y, head: head.y, handsGap: hR.distanceTo(hL), reachAhead: Math.min(hR.z, hL.z) - chest.z, wear: run.wear, place: run.place, tutorial, mop: !!run.sim && !!app.engine.fightIQDemo, stats: StoryScenes.stats() };
-    });
-    assert.equal(inGame.outfit, 'street', 'street clothes for the job'); assert.equal(inGame.gloves, false, 'bare hands'); assert.deepEqual(inGame.scale, [-1, 1, 1], 'mirrored root (GOTR-0074)');
-    assert.equal(inGame.place, 'gym'); assert.equal(inGame.wear, 'street'); assert.ok(inGame.bruno, 'Bruno is in the hall'); assert.deepEqual(inGame.brunoScale, [-1, 1, 1]);
-    assert.ok(inGame.hands.every(y => y < inGame.chest + .05), 'no guard: both hands below the chest on the mop handle ' + JSON.stringify(inGame));
-    assert.ok(inGame.handsGap > .25 && inGame.handsGap < .75, 'two hands apart on one handle'); assert.ok(/Floor's yours/.test(inGame.tutorial), "Bruno's line in the tutorial");
-    // play a whole shift with a simple autopilot on the rules and finish the step
-    const res = await p.evaluate(async () => {
-      const run = StoryScenes.debug, g = run.sim; let plan = null, next = 0;
-      while (!g.done) { g.step(1 / 120); if (g.t < next) continue; const v = g.view(); if (['stunned', 'move', 'duck'].includes(v.phase)) continue;
-        if (v.bag && v.bag.lane === v.body.lane && v.bag.phase === 'swing' && Math.abs(v.bag.x - v.body.x) < .95) { g.key('down', true); next = g.t + .1; continue; }
-        if (v.on != null) { if (plan == null) plan = g.t + (1 - v.strokeK) * v.stroke - .02; if (g.t >= plan) { g.key('straight', true); plan = null; next = g.t + .05; } continue; }
-        plan = null; const w = v.wet.filter(x => x.state === 'wet').sort((a, c) => a.left - c.left)[0]; if (!w) continue; if (w.lane !== v.f.lane) g.key('up', true); else g.key(w.spot < v.f.spot ? 'left' : 'right', true); next = g.t + .06; }
-      run.frame(1 / 60); await new Promise(r => setTimeout(r, 300)); const r = run.result;
-      return { value: r.value, stars: r.stars, pay: r.pay, cleaned: r.cleaned, saved: run.saved?.ok, end: document.querySelector('.story-result .story-say')?.textContent || '', payLine: document.querySelector('.story-result-pay')?.textContent || '' };
-    });
-    assert.ok(res.saved, 'the shift is saved'); assert.ok(res.stars >= 1, 'the autopilot earns a star: ' + JSON.stringify(res)); assert.equal(res.pay, [0, 6, 10, 15][res.stars]); assert.ok(res.payLine.includes(String(res.pay)));
-    assert.ok(res.end.includes('Bruno'), "Bruno's reaction line on the result");
-    await p.evaluate(() => document.querySelector('.story-result .story-btn-main').click());
-    await wait(() => !StoryScenes.playing && window.__res);
-    await p.waitForTimeout(1500);
-    const after = await p.evaluate(() => { const g = ringfighterGame.store.current().game; return { scale: app.engine.coach.root.scale.toArray(), outfit: StoryCast.outfitOf(app.engine.coach), done: StoryFlow.doneOf(g, StoryFlow.find('clean_gym')), stars: g.adventure.missions.clean_gym?.stars, coins: GameDomain.wallet(g).coins, jobs: g.ledger.filter(t => t.rule === 'job-pay-v1').length, journal: AdventureStory.journal().filter(l => l.id === 'clean_gym').map(l => l.kind) }; });
-    assert.deepEqual(after.scale, before.scale, 'root scale given back'); assert.equal(after.outfit, before.outfit, 'the kit is back after the job');
-    assert.equal(after.done, true, 'side job A is done'); assert.equal(after.stars, res.stars); assert.equal(after.jobs, 1); assert.equal(after.coins - before.coins, res.pay, 'paid once');
-    assert.ok(after.journal.includes('job') && after.journal.some(k => /^job_\d$/.test(k)), "Bruno's lines are in the journal: " + after.journal);
-    assert.deepEqual(errors, [], 'no page errors');
-    console.log('PASS browser: clean-gym job', JSON.stringify({ res, stats: inGame.stats }));
+    const p=await browser.newPage({viewport:{width:402,height:690},hasTouch:true,isMobile:true}), errors=[];
+    p.on('pageerror',e=>errors.push(e.message));
+    const CDP=await p.context().newCDPSession(p);
+    const touch=(type,a=[])=>CDP.send('Input.dispatchTouchEvent',{type,touchPoints:a.map(({x,y})=>({x,y,id:1}))});
+    const wait=(fn,a)=>p.waitForFunction(fn,a,{timeout:90000});
+    const art=process.env.GOTR_MOP_ARTIFACTS;
+    const shot=async name=>{ if(art){fs.mkdirSync(art,{recursive:true});await p.screenshot({path:path.join(art,name+'.png'),timeout:60000});} };
+    await p.addInitScript(()=>{localStorage.setItem('shadowbox-language','en');localStorage.setItem('gotr.adv.nointro','1');});
+    await p.goto(url); await wait(()=>window.ringfighterGame?.store&&window.MopGame&&window.StoryScenes?.games.clean_gym);
+    if(await p.locator('dialog.career-welcome[open]').count()){
+      await p.locator('dialog.career-welcome[open] input').fill('Mop QA');
+      await p.locator('dialog.career-welcome[open] button[type=submit]').tap();
+    }
+    await wait(()=>app.engine.coach?.anatomy&&ringfighterGame.store.game());
+    await p.evaluate(()=>{StoryScenes?.stop();ringfighterGame.close();});
+    const begin=async ()=>{
+      await p.evaluate(()=>{
+        const rg=ringfighterGame, st=rg.store; rg.close();
+        for(const d of document.querySelectorAll('dialog[open]')) d.close();
+        const change=a=>{const r=st.gameAction(a);if(r.ok)rg.apply?.();return r.ok;};
+        for(const step of ['dream_arrival','dream_gym_talk','first_brick']){
+          const s=StoryFlow.find(step);
+          if(!StoryFlow.doneOf(st.game(),s)) change({type:'adventure',adventure:'story',step,outcome:step==='first_brick'?'lost':undefined});
+        }
+        if(!StoryFlow.playable(st.game(),'clean_gym')) throw Error('normal side job not unlocked by first Brick bout');
+        AdventureOldTown.start({store:st,startTraining:rg.startTraining,startFight:rg.startFight,change},'clean_gym');
+      });
+      if(await p.locator('#sfBeat .sf-beat-main').count()) await p.locator('#sfBeat .sf-beat-main').tap();
+      await wait(()=>StoryScenes.debug?.sim&&StoryScenes.debug.projectFloor&&app.engine.fightIQDemo===StoryScenes.debug&&StoryScenes.stats()?.calls);
+    };
+    const state=()=>p.evaluate(()=>({marks:StoryScenes.debug?.sim?.marks,progress:document.querySelector('.story-mop-bar')?.getAttribute('aria-valuenow'),coins:GameDomain.wallet(ringfighterGame.store.game()).coins,wages:ringfighterGame.store.game().ledger.filter(t=>t.rule==='job-pay-v1').length}));
+    const before=await p.evaluate(()=>({scale:app.engine.coach.root.scale.toArray(),outfit:StoryCast.outfitOf(app.engine.coach),parent:app.engine.stage.parentElement.id,coins:GameDomain.wallet(ringfighterGame.store.game()).coins}));
+    await begin();
+    const inGame=await p.evaluate(()=>({
+      outfit:StoryCast.outfitOf(app.engine.coach),
+      oldControls:!!document.querySelector('dialog[data-game=clean_gym] .fighter-pad'),
+      bags:app.engine.coach.root.parent?.children.some(x=>/Mop lanes/.test(x.name)),
+      projected:window.MopCore.MOP.spots.map(([x,z])=>{const p=StoryScenes.debug.projectFloor(x,z);return {...p,hit:document.elementFromPoint(p.x,p.y)?.classList.contains('story-mop-surface')};}),
+      h:innerHeight,w:innerWidth
+    }));
+    assert.equal(inGame.outfit,'street'); assert.equal(inGame.oldControls,false); assert.equal(inGame.bags,false);
+    assert.ok(inGame.projected.every(a=>a.x>22&&a.x<inGame.w-22&&a.y>100&&a.y<inGame.h-95&&a.hit),'all stains are drag targets');
+    await shot('01-dirty-floor');
+    const [x,z]=M.MOP.spots[0], project=(x,z)=>p.evaluate(([x,z])=>StoryScenes.debug.projectFloor(x,z),[x,z]);
+    const center=await project(x,z), right=await project(x+.41,z);
+    await touch('touchStart',[{x:6,y:140}]); await touch('touchMove',[center]); await touch('touchEnd');
+    assert.equal((await state()).marks,0,'drag beginning outside the floor cannot clean');
+    await touch('touchStart',[center]); await touch('touchCancel'); await touch('touchMove',[right]).catch(()=>{}); await touch('touchEnd').catch(()=>{});
+    assert.equal((await state()).marks,0,'tap/cancel cannot clean');
+    const wipe=async ([x,z],rows=[-.18,0,.18])=>{
+      for(const dz of rows){
+        const [a,b]=await p.evaluate(([x,z])=>[-.42,.42].map(dx=>StoryScenes.debug.projectFloor(x+dx,z)),[x,z+dz]);
+        await touch('touchStart',[a]); await touch('touchMove',[b]); await touch('touchEnd');
+      }
+    };
+    await wipe(M.MOP.spots[0]);
+    await wait(()=>Number(document.querySelector('.story-mop-bar')?.getAttribute('aria-valuenow'))>=5);
+    const dirty=await state(); assert.ok(dirty.marks>=5); assert.equal(dirty.coins,before.coins);
+    await shot('02-mid-sweep');
+    await p.locator('dialog[data-game=clean_gym] .story-retry').tap(); await wait(()=>StoryScenes.debug.sim.marks===0);
+    await p.locator('dialog[data-game=clean_gym] .story-quit:not(.story-retry)').tap(); await wait(()=>!StoryScenes.playing);
+    assert.deepEqual(await state().then(t=>[t.coins,t.wages]),[before.coins,0],'quit and retry do not pay');
+    await begin();
+    await p.setViewportSize({width:690,height:402});
+    await wait(()=>innerWidth===690);
+    await p.setViewportSize({width:402,height:690});
+    await wait(()=>innerWidth===402&&document.querySelector('.story-mop-surface'));
+    for(const s of M.MOP.spots.slice(0,6)) await wipe(s);
+    await wait(()=>Number(document.querySelector('.story-mop-bar')?.getAttribute('aria-valuenow'))>=25);
+    const ongoing=await state(); assert.ok(ongoing.marks>=25&&ongoing.marks<=63,JSON.stringify(ongoing)); assert.equal(ongoing.coins,before.coins);
+    await p.locator('.story-mop-finish').tap();
+    await wait(()=>StoryScenes.debug?.result?.finished&&document.querySelector('.story-result-pay'));
+    const got=await p.evaluate(()=>({stars:StoryScenes.debug.result.stars,pay:StoryScenes.debug.result.pay,saved:StoryScenes.debug.saved?.ok}));
+    assert.ok(got.saved); assert.equal(got.pay,M.PAY[got.stars]); assert.ok(got.pay>=6);
+    await shot('03-shift-complete');
+    await p.locator('.story-result .story-btn-main').tap(); await wait(()=>!StoryScenes.playing);
+    const after=await p.evaluate(()=>({
+      scale:app.engine.coach.root.scale.toArray(),outfit:StoryCast.outfitOf(app.engine.coach),parent:app.engine.stage.parentElement.id,
+      done:StoryFlow.doneOf(ringfighterGame.store.game(),StoryFlow.find('clean_gym')),
+      coins:GameDomain.wallet(ringfighterGame.store.game()).coins,
+      wages:ringfighterGame.store.game().ledger.filter(t=>t.rule==='job-pay-v1').length
+    }));
+    assert.deepEqual(after.scale,before.scale);assert.equal(after.outfit,before.outfit);assert.equal(after.parent,before.parent);
+    assert.equal(after.done,true);assert.equal(after.wages,1);assert.equal(after.coins-before.coins,got.pay);
+    const best=await p.evaluate(()=>ringfighterGame.store.game().adventure.missions.clean_gym.stars);
+    await begin();
+    assert.equal((await state()).marks,0);
+    for(const s of M.MOP.spots.slice(-3)) await wipe(s);
+    await wait(()=>Number(document.querySelector('.story-mop-bar')?.getAttribute('aria-valuenow'))>=25);
+    await p.locator('.story-mop-finish').tap();
+    await wait(()=>StoryScenes.debug?.result?.finished&&document.querySelector('.story-result-pay'));
+    const replay=await p.evaluate(()=>({paid:StoryScenes.debug.result.pay,stars:StoryScenes.debug.result.stars,best:ringfighterGame.store.game().adventure.missions.clean_gym.stars}));
+    assert.equal(replay.paid,6); assert.equal(replay.stars,1); assert.equal(replay.best,best);
+    await p.locator('.story-result .story-btn-main').tap(); await wait(()=>!StoryScenes.playing);
+    assert.deepEqual(await state().then(o=>[o.coins,o.wages]),[after.coins+6,2]);
+    assert.deepEqual(errors,[]);
+    console.log('PASS browser: clean-gym job',JSON.stringify({device:'402x690 touch',partial:ongoing.marks,got,replay}));
   } finally { await browser.close(); server.close(); }
-})().catch(e => { console.error(e); process.exit(1); });
+})().catch(e=>{console.error(e);process.exit(1);});

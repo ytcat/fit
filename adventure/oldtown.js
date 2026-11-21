@@ -20,7 +20,7 @@
     const l = lang(), jab = term('Jab'), cross = term('Cross'), roll = term('Roll'), hook = term('Hook'), guard = term('Guard'), slip = term('Slip'), shadow = term('Shadowboxing');
     const t = {
       // GOTR-0078 "The Dream"
-      clean_gym: L(`Mop lanes: ${n} marks in a 50-second shift, duck Bruno's bags`, `מסלולי מגב: ${n} נקודות במשמרת של 50 שניות, להתכופף מהשקים של ברונו`, `Дорожки со шваброй: ${n} очков за 50-секундную смену, ныряй под мешки Бруно`),
+      clean_gym: L(`Clean at least ${n}% of the gym floor`, `נקו לפחות ${n}% מרצפת האולם`, `Очистите хотя бы ${n}% пола зала`),
       night_shadow: L(`${n} punches in 45 seconds of ${shadow}`, `${n} מכות ב-45 שניות של ${shadow}`, `${n} ударов за 45 секунд ${shadow}`),
       night_bag: L(`Reach the power mark ${n} times`, `הגיעו לסימן העוצמה ${n} פעמים`, `Достигните отметки силы ${n} раз`),
       bag_drill: L(`${n} hits on the new bag in 40 seconds`, `${n} פגיעות בשק החדש ב-40 שניות`, `${n} ударов по новому мешку за 40 секунд`),
@@ -63,7 +63,7 @@
     first_brick: { kind: 'story_fight', place: 'gym', brick: true, any: true, after: 'dream_after_brick', rounds: 1, roundSeconds: 60, restSeconds: 0, opponent: L('Brick', 'בריק', 'Брик'),
       // Much stronger than the Fighter on day one (a regular partner is 0.85-1.15 power/tempo): a loss is expected, a win possible.
       foe: { power: 1.4, tempo: 1.18, skill: .1 } },
-    clean_gym: { kind: 'scene', scene: 'clean_gym' }, // GOTR-0099 side job A: the mop-lanes skill game in Bruno's Gym (adventure/story/mop-game.js)
+    clean_gym: { kind: 'scene', scene: 'clean_gym' }, // GOTR-0099 side job A: direct floor cleaning in Bruno's Gym (adventure/story/mop-game.js)
     night_shadow: { kind: 'training', mode: 'none', duration: 45, frame: (r, f) => { if (playerOn()) r.value += (f.swings || []).filter(x => x.actor === 'lion').length; } },
     night_bag: { kind: 'training', mode: 'heavy', duration: 60, after: 'dream_bag_break', imp: (r, h) => { if (powerHit(h)) r.value++; } },
     dream_apology: { kind: 'film', scene: 'dream_apology' }, // GOTR-0096: the morning in the gym (market-core.js); chains into the market

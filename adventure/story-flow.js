@@ -28,9 +28,9 @@
           goal: L('Fight Brick. Win or lose, the story goes on.', 'הילחמו בבריק. בניצחון או בהפסד, הסיפור ממשיך.', 'Бой с Бриком. Победа или поражение — история продолжается.'),
           unlock: L('a job, a bed and the night gym', 'עבודה, מיטה והאולם בלילה', 'работа, койка и ночной зал') }),
       S('clean_gym', L('Clean the gym', 'לנקות את האולם', 'Уборка зала'),
-        L('Your job: mop on the beat, duck the bags. Small pay.', 'העבודה שלכם: לנגב בקצב ולהתכופף מהשקים. שכר קטן.', 'Твоя работа: мыть пол в такт и нырять под мешки. Плата небольшая.'),
+        L('Drag the mop over the dirty spots. Small pay.', 'גררו את המגב על הכתמים. שכר קטן.', 'Проведи шваброй по грязным пятнам. Плата небольшая.'),
         L("Took the job: cleaning Bruno's gym.", 'קיבלתם את העבודה: לנקות את האולם של ברונו.', 'Взялся за работу: убирать зал Бруно.'),
-        { side: true, after: 'first_brick', who: 'bruno', beat: 'A' }), // GOTR-0099: the mop-lanes game itself (adventure/story/mop-game.js)
+        { side: true, after: 'first_brick', who: 'bruno', beat: 'A' }), // GOTR-0099: direct floor cleaning (adventure/story/mop-game.js)
       S('night_shadow', L('Night Shadowboxing', 'Shadowboxing בלילה', 'Shadowboxing ночью'),
         L('Night, the gym is empty. Just you and your shadow.', 'לילה, האולם ריק. רק אתם והצל.', 'Ночь, зал пуст. Только ты и твоя тень.'),
         L('Trained Shadowboxing alone at night.', 'התאמנתם Shadowboxing לבד בלילה.', 'Ночью в одиночку тренировал Shadowboxing.'),
