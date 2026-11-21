@@ -76,7 +76,9 @@
       if (keep.bin(-6.0, 6.5)) bin(-6.0, 6.5); planter(7.6, 8.9, 1.6); planter(-9.4, 8.9, 1.6); planter(13, 8.9);
       // street furniture along the walk
       for (const x of [-22, -9, 8.5, 13.4, 31.5, 44]) if (keep.lamp(x, 4.15)) lamp(x, 4.15); for (const x of [-15, 2, 16, 33.6, 46]) if (keep.lamp(x, -4.15)) lamp(x, -4.15);
-      tree(-14, 5.6); tree(11.6, 5.4, 4.4); tree(28, 5.6, 4.2); tree(40, 5.5); tree(-26, 5.6, 4.3); tree(-6.4, -5.4); tree(6.6, -5.3, 4.3); tree(17.4, -5.4, 4.5); tree(34.6, -5.4, 4.2); tree(44, -5.4);
+      tree(-14, 5.6); tree(11.6, 5.4, 4.4); tree(28, 5.6, 4.2); tree(40, 5.5); tree(-26, 5.6, 4.3); tree(-6.4, -5.4);
+      if (!city?.tree) tree(6.6, -5.3, 4.3);
+      tree(17.4, -5.4, 4.5); tree(34.6, -5.4, 4.2); tree(44, -5.4);
       if (keep.bin(14.6, 8.6)) bin(14.6, 8.6); bin(31.3, -7.3); planter(21.4, -7.6, 1.5); planter(32.9, -7.6); planter(-2.4, -7.6, 1.5); planter(16.8, 8.9);
       for (const x of [19.7, 24.7]) { bollard(x, 4.0); bollard(x, -4.0); }
       car(-16, -2.45, '#3b7dd8', -lane); if (!city?.car) car(8.4, -2.45, '#f4f1ea', -lane); else c.shade(8.4, -2.45, 4.5, 2.1, true); car(35.5, -2.45, '#45b39d', -lane); car(30, 2.45, '#d9473b', lane); car(44, 2.45, '#f2b632', lane); // parked with the traffic

@@ -16,13 +16,14 @@
  * The GPU copies are disposed when the set is disposed; the parsed models stay cached for a replay. */
 (() => {
   const FILES = {
+    tree: './assets/street/ch01-trees/street-tree-low.glb',
     car: './assets/street/ch01-car/compact-car.glb',
     bus: './assets/street/ch01-bus/gloryland-bus.glb',
     station: './assets/street/ch01-station/gloryland-station.glb',
     oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb',
     hazelStall: './assets/street/ch01-market/hazel-fruit-stall.glb'
   };
-  const OPENING_MODELS = ['car', 'bus', 'station', 'oldtown'];
+  const OPENING_MODELS = ['tree', 'car', 'bus', 'station', 'oldtown'];
   const WAIT_MS = 5000, TIRE_R = .515, HALF = Math.PI;
   const LAYOUT = {
     patches: [-17, 3, 23],              // centres of the 20 m road / kerb / paving modules; kerb face at z 3.45, paving to z 8.3
@@ -104,6 +105,31 @@
       if (m.transparent) o.renderOrder = 2; m.needsUpdate = true;
     });
     const put = (o, x, y, z, ry) => { o.position.set(x, y, z); o.rotation.y = ry; o.updateMatrix(); group.add(o); return o; };
+    let treeMixer;
+    if (city?.tree) {
+      // Give each film instance its own bones so playback leaves the cached GLTF intact.
+      const template = city.tree.scene, tree = template.clone(true);
+      const sources = [], copies = [];
+      template.traverse(node => sources.push(node));
+      tree.traverse(node => copies.push(node));
+      const clones = new Map(sources.map((node, index) => [node, copies[index]]));
+      template.traverse(node => {
+        if (!node.isSkinnedMesh) return;
+        const skeleton = node.skeleton.clone();
+        skeleton.bones = node.skeleton.bones.map(bone => clones.get(bone));
+        clones.get(node).bind(skeleton, node.bindMatrix);
+        c.disposables.push(skeleton);
+      });
+      tree.name = 'Old Town street tree';
+      put(shadows(tree, false), 6.6, 0, -5.3, 0);
+      const breeze = city.tree.animations.find(clip => clip.name === 'Breeze');
+      if (breeze) {
+        treeMixer = new THREE.AnimationMixer(tree);
+        treeMixer.clipAction(breeze).play();
+        c.disposables.push({ dispose() { treeMixer.stopAllAction(); treeMixer.uncacheRoot(tree); } });
+      }
+      handle.active = true;
+    }
     if (city?.car) {
       const car = city.car.scene.clone(true);
       car.name = 'Old Town compact';
@@ -155,8 +181,9 @@
     }
     group.traverse(o => { if (o !== group && o.parent === group) o.matrixAutoUpdate = false; });
     const v = new THREE.Vector3();
-    /** Per frame: bus wheels and doors from the film, and the cheap distance rules (bus seats, house interiors). */
+    /** Per frame: tree breeze, bus wheels and doors, and distance-based detail. */
     handle.frame = (s, camera) => {
+      if (treeMixer && Number.isFinite(s?.t)) treeMixer.setTime(s.t);
       const b = handle.bus;
       if (b) { b.roll(); if (s?.props?.doorClip) b.door(s.props.doorClip[0]); if (camera) { const d = camera.position.distanceTo(v.set(b.wrap.position.x, 1.2, b.wrap.position.z)); for (const m of b.inside) m.visible = d < L.busInsideDist; } }
       if (camera) for (const h of handle.houses) { const d = camera.position.distanceTo(h.centre); for (const m of h.detail) m.visible = d < L.detailDist; for (const m of h.trim) m.visible = d < L.trimDist; }
