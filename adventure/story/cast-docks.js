@@ -55,7 +55,7 @@
   function headForm(x, y, z, out) {
     const z0 = z, s = x < 0 ? -1 : 1, fade = smooth((y + .095) / .05);
     { const ax0 = Math.abs(x), w = band(ax0, .03, .155, .012) * band(y, .1, .25, .02) * smooth((z - .04) / .03);
-      if (w > 0) { const fill = lerp(rowAt(Z06, y), rowAt(Z14, y), (ax0 - .06) / .08) - .004; if (z < fill + .03) z = lerp(z, Math.max(z, fill) - .03 * smooth((z - fill) / .03), w); } }
+      if (w > 0) { const fill = lerp(rowAt(Z06, y), rowAt(Z14, y), (ax0 - .06) / .08) - .004; if (z < fill) z = lerp(z, fill - (fill - z) * .12, w); } }
     // 1. the long snout: everything in front of the eyes is drawn forward
     const vm = smooth((y + .13) / .05) * (1 - smooth((y - .37) / .05)), dzb = z - ZB, g = dzb * smooth((dzb + .03) / .08);
     let Z = z + KS * g * vm;
@@ -74,7 +74,7 @@
     Z += .025 * smooth((-z - .08) / .08) * smooth(y / .1);
     X += s * .018 * bell(z, .0, .09) * bell(y, .01, .07);                                   // jaw muscles behind the gape
     // the cranium behind the eyes is wrapped onto a smooth, boxy shell: a croc's flat skull table, no trace of the lion's ear sockets
-    { const cx = X, cy = Y - .035, cz = Z, n = 2.4, F = Math.pow(Math.abs(cx / .2) ** n + Math.abs(cy / .165) ** n + Math.abs(cz / .15) ** n, 1 / n), w = smooth((Y - .02) / .08) * smooth((.07 - Z) / .09);
+    { const cx = X, cy = Y - .035, cz = Z, n = 2.4, F = Math.pow(Math.abs(cx / (.19 - .035 * smooth(-cy / .12))) ** n + Math.abs(cy / .165) ** n + Math.abs(cz / (.15 - .03 * smooth(-cy / .12))) ** n, 1 / n), w = smooth((Y + .05) / .17) * smooth((.07 - Z) / .1);
       if (F > 1e-4 && w > 0) { X = lerp(X, cx / F, w); Y = lerp(Y, cy / F + .035, w); Z = lerp(Z, cz / F, w); }
       Y -= .055 * smooth((-Z - .0) / .12) * smooth((Y - .04) / .1); }                         // the top line runs back and down into the neck
     // 5. bumps in the final shape: the nostril dome on the tip, the eye turrets, bony brows, snout ridges
@@ -126,9 +126,9 @@
       d += .006 * neckRow; tone *= 1 - .15 * neckRow;
       // countershading: dark olive on top, mid olive down the sides, the lower jaw yellow, cream under it and down the front of the throat
       const lowerJaw = smooth((lipY - .004 - hy) / .012) * smooth((hz - .04) / .08), under = smooth((lipY - .05 - hy) / .03) * smooth((hz - .02) / .08);
-      const throat = neck * smooth((p.z + .01) / .08) * (1 - smooth((ax - .08) / .08));
-      c.copy(OLIVE).lerp(MOSS, .55 * smooth((lipY + .07 - hy) / .06) * smooth((ahx - .05) / .05)).lerp(JAW, clamp(lowerJaw * .9)).lerp(CREAM, clamp(Math.max(under, throat)));
-      c.lerp(BLOT, .6 * blot(p, .03, 21) * (1 - lowerJaw) * (1 - throat) * smooth((ahx - .03) / .04));
+      const throat = neck * smooth((p.z + .01) / .08) * (1 - smooth((ax - .1) / .08));
+      c.copy(OLIVE).lerp(MOSS, .35 + .5 * smooth((lipY + .07 - hy) / .06) * smooth((ahx - .05) / .05)).lerp(JAW, clamp(lowerJaw * .9)).lerp(CREAM, clamp(Math.max(under, throat)));
+      c.lerp(BLOT, .5 * blot(p, .03, 21) * (1 - lowerJaw) * (1 - throat) * smooth((ahx - .03) / .04));
       c.multiplyScalar(1.2); gl = .55;
     } else if (arm > .5) {
       // arms (rest pose: out along x): dark on top, pale underneath, fine scales, a few blotches; the wraps cover the hands
@@ -137,7 +137,7 @@
       c.copy(OLIVE).lerp(MOSS, .5 * smooth((p.z + .02) / .06)).lerp(JAW, .8 * pale).lerp(BLOT, .5 * blot(p, .045, 23) * (1 - pale));
     } else if (p.y > .92) {
       // trunk: square belly scales in rows down the front, keeled scutes in rows down the back, fine flank scales between
-      const front = smooth((p.z - .0) / .06), belly = front * (1 - smooth((ax - .105) / .05)), back = smooth((-p.z - .02) / .06) * (1 - smooth((ax - .15) / .03));
+      const front = smooth((p.z - .0) / .06), belly = front * (1 - smooth((ax - (.13 + .05 * bell(p.y, 1.45, .12))) / .06)), back = smooth((-p.z - .02) / .06) * (1 - smooth((ax - .15) / .03));
       if (belly > .5) { const k = grid(p.x + .5, p.y, .034, .028, .5); crease = 1 - smooth(k.e / .16); tone = .95 + .08 * k.id; d = .0012 * (1 - crease); deep = .25; }
       else if (back > .5) { const k = grid(ax, p.y, .052, .046, 0); crease = 1 - smooth(k.e / .14); tone = .82 + .3 * k.id; const keel = bell(k.fu, .5, .12) * band(k.fv, .15, .85, .1); d = (.0032 + .0055 * keel) * (1 - crease); deep = .5; }
       else { const k = cells(p.x, p.y, p.z, .028, .026, .028, .75, 13); crease = 1 - smooth((k.f2 - k.f1) / .2); tone = .88 + .24 * k.id; d = .0014 * (1 - crease); deep = .4; }
@@ -153,7 +153,7 @@
   }
   /** Taubin smoothing (no shrinking) of the masked part of the skin: irons the lion's face creases (eye sockets, nose, whisker pads)
    *  out of the stretched snout while its overall form stays. Welded vertices (seams) move together. */
-  function iron(g, maskOf, rounds = 16) {
+  function iron(g, maskOf, rounds = 16, shrink = false) {
     const P = g.attributes.position, n = P.count, rep = new Int32Array(n), map = new Map(), p = V();
     for (let i = 0; i < n; i++) { const k = Math.round(P.getX(i) * 20000) + ':' + Math.round(P.getY(i) * 20000) + ':' + Math.round(P.getZ(i) * 20000), r = map.get(k); if (r == null) { map.set(k, i); rep[i] = i; } else rep[i] = r; }
     const mask = new Float32Array(n), nbs = new Map(), idx = g.index.array;
@@ -161,7 +161,7 @@
     for (let t = 0; t < idx.length; t += 3) for (let k = 0; k < 3; k++) { const a = rep[idx[t + k]], b = rep[idx[t + (k + 1) % 3]]; if (a === b || !(mask[a] > 0 || mask[b] > 0)) continue; for (const [u, v] of [[a, b], [b, a]]) { let l = nbs.get(u); if (!l) nbs.set(u, l = new Set()); l.add(v); } }
     const ids = [...nbs.keys()].filter(i => mask[i] > 0), pos = new Float32Array(P.array), next = new Float32Array(ids.length * 3);
     for (let r = 0; r < rounds * 2; r++) {
-      const f = r % 2 ? -.53 : .5;
+      const f = r % 2 && !shrink ? -.53 : .5;
       ids.forEach((i, k) => { let x = 0, y = 0, z = 0, m = 0; for (const j of nbs.get(i)) { x += pos[j * 3]; y += pos[j * 3 + 1]; z += pos[j * 3 + 2]; m++; } const w = f * mask[i]; next[k * 3] = pos[i * 3] + (x / m - pos[i * 3]) * w; next[k * 3 + 1] = pos[i * 3 + 1] + (y / m - pos[i * 3 + 1]) * w; next[k * 3 + 2] = pos[i * 3 + 2] + (z / m - pos[i * 3 + 2]) * w; });
       ids.forEach((i, k) => { pos[i * 3] = next[k * 3]; pos[i * 3 + 1] = next[k * 3 + 1]; pos[i * 3 + 2] = next[k * 3 + 2]; });
     }
@@ -216,7 +216,7 @@
   /** Heavy navy-grey work canvas, double orange stitching, darker knee patches, the bib of the overalls rolled down over the waist
    *  and its front panel folded down over the fly, the straps tied round the waist; turned-up hems over the boots. Bare above. */
   function rourkeClothes(rig) {
-    const canvas = lin('#2f3846'), worn = lin('#55617a'), patch = lin('#262c36'), thread = lin('#c47a2c'), seam = lin('#1a1f27'), strap = lin('#3b4556'), tmp = new THREE.Color();
+    const canvas = lin('#2b3139'), worn = lin('#4e535a'), patch = lin('#22272e'), thread = lin('#8a6a40'), seam = lin('#16191e'), strap = lin('#383f49'), tmp = new THREE.Color();
     const G = rig.castGlossOf = new Float32Array(rig.skin.geometry.attributes.position.count), S = rig.castScaleGloss; let i = -1;
     return v => {
       i++; const ax = Math.abs(v.x), s = v.x < 0 ? -1 : 1; G[i] = S ? S[i] : .4;
@@ -239,10 +239,10 @@
         const seamL = bell(Math.abs(ang), 0, .05) * smooth((ax - .2) / .03), stitch = bell(Math.abs(Math.abs(ang) - .07), 0, .012) * smooth((ax - .2) / .03) * (.5 + .5 * Math.sign(Math.sin(v.y * 420)));
         const knee = band(v.y, .45, .62, .01) * (1 - smooth((Math.abs(v.x - s * cx) - .07) / .008)) * smooth((v.z - .0) / .03), kneeEdge = knee * (1 - smooth((Math.min(Math.abs(v.y - .45), Math.abs(v.y - .62), Math.abs(.07 - Math.abs(v.x - s * cx))) - .004) / .004));
         const fade = .45 * bell(v.y, .76, .13) * front * bell(ax, cx, .08), hem = 1 - smooth((v.y - .175) / .02), hemLine = bell(v.y, .175, .006);
-        const c = tmp.copy(canvas).lerp(worn, clamp(fade + .3 * hem)).lerp(patch, knee * .8).lerp(seam, clamp(seamL * .6 + hemLine * .7 + pocketEdge * .6 + bibEdge * .5)).lerp(thread, clamp(stitch * .9 + kneeEdge * .8 + bibEdge * .5)).clone();
+        const c = tmp.copy(canvas).lerp(worn, clamp(fade + .3 * hem)).lerp(patch, knee * .8).lerp(seam, clamp(seamL * .6 + hemLine * .7 + pocketEdge * .6 + bibEdge * .5)).lerp(thread, clamp(stitch * .6 + kneeEdge * .45 + bibEdge * .5)).clone();
         c.multiplyScalar(1 - .07 * Math.sin(v.y * 820 + ax * 300) * Math.sin(v.y * 90 + ax * 50));
         const crease = .003 * Math.sin(v.y * 100 + ang * 3) * bell(v.y, .3, .14) + .004 * Math.sin(v.y * 60) * bell(v.y, .55, .05) * front;
-        return { d: .016 + .009 * hem + crease + .006 * bib + .002 * knee + .002 * pocket, c, move: v.y < .93 ? trouser(v, lerp(.124, .136, smooth((v.y - .5) / .4)), smooth((.93 - v.y) / .1)) : tube(v, .33, .27, .25, .5 * smooth((1.06 - v.y) / .05), -.01) };
+        return { d: .016 + .009 * hem + crease + .011 * bib + .002 * knee + .002 * pocket, c, move: v.y < .93 ? trouser(v, lerp(.124, .136, smooth((v.y - .5) / .4)), smooth((.93 - v.y) / .1)) : tube(v, .33, .27, .25, .5 * smooth((1.06 - v.y) / .05), -.01) };
       }
       const c = tmp.copy(canvas).lerp(worn, .2).clone(); return { d: .016, c, move: tube(v, .33, .27, .25, .5, -.01) };
     };
@@ -251,15 +251,15 @@
   /* ---------------------------------------------------------------- eyes: high on the skull, yellow-green, vertical slit, bony lids */
   function eye(rig, s, x, y, z, o) {
     const m = mats(rig), head = rig.joints.head, r = o.size, q = new THREE.Euler(o.pitch || 0, s * (o.yaw || 0), s * (o.roll || 0));
-    const ball = rig.ellipsoid(head, m.wet, V(s * x, y, z), V(r, r * .86, r * .78)); ball.rotation.copy(q); ball.userData.eye = true; ball.userData.mane = true; ball.name = 'Rourke: eye';
+    const ball = rig.ellipsoid(head, m.wet, V(s * x, y, z), V(r, r * .86, r * .78)); ball.rotation.copy(q); ball.userData.eye = true; ball.userData.mane = true; ball.userData.storyPart = true; ball.name = 'Rourke: eye';
     const iris = m.iris || (m.iris = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(o.iris), roughness: .18, clearcoat: .8, emissive: new THREE.Color(o.iris).multiplyScalar(.12) }));
-    const kid = (mat, p, sc) => { const k = new THREE.Mesh(ball.geometry, mat); k.position.set(...p); k.scale.set(...sc); ball.add(k); return k; };
+    const kid = (mat, p, sc) => { const k = new THREE.Mesh(ball.geometry, mat); k.position.set(...p); k.scale.set(...sc); k.userData.storyPart = true; ball.add(k); return k; };
     kid(iris, [0, 0, .5], [.94, .94, .58]); kid(m.black, [0, 0, .95], [.13, .8, .16]); // a vertical slit pupil
     kid(m.glint, [-.3, .34, 1.02], [.13, .15, .08]); kid(m.glint, [.26, -.3, 1.0], [.05, .06, .04]);
     // heavy bony lids: the upper one juts out over the eye like a brow, the lower one is a thick rim
     const lm = m.lid || (m.lid = new THREE.MeshStandardMaterial({ color: o.lid, roughness: .7 }));
-    const up = rig.ellipsoid(head, lm, V(s * x, y + r * .55, z - r * .05), V(r * 1.25, r * .55, r * 1.05)), lo = rig.ellipsoid(head, lm, V(s * x, y - r * .7, z - r * .1), V(r * 1.12, r * .38, r * .92));
-    for (const L of [up, lo]) { L.rotation.copy(q); L.userData.mane = true; L.name = 'Rourke: eyelid'; } up.rotation.x -= .25; up.rotation.z += s * .12; lo.rotation.x += .1;
+    const up = rig.ellipsoid(head, lm, V(s * x, y + r * .5, z - r * .12), V(r * 1.12, r * .46, r * .95)), lo = rig.ellipsoid(head, lm, V(s * x, y - r * .62, z - r * .12), V(r * 1.05, r * .34, r * .88));
+    for (const L of [up, lo]) { L.rotation.copy(q); L.userData.mane = true; L.userData.storyPart = true; L.name = 'Rourke: eyelid'; } up.rotation.x -= .25; up.rotation.z += s * .12; lo.rotation.x += .1;
     return ball;
   }
 
@@ -298,14 +298,14 @@
     const m = mats(rig), j = rig.joints, H = V(0, .99, 0), L = p => p.clone().sub(H), B = (x, y) => seat(rig, x, y, false, .02);
     const K = new Parts(), M = new Parts(), strap = '#3b4556', zf = B(0, 1.07) + .01;
     K.sph(L(V(0, 1.07, zf + .012)), V(.03, .024, .02), strap, [0, 0, .3]); K.sph(L(V(-.012, 1.068, zf + .028)), V(.016, .014, .012), '#434e60', [0, 0, -.4]);
-    for (const sd of [-1, 1]) K.ribbon([L(V(sd * .01, 1.06, zf + .018)), L(V(sd * .03, 1.0, B(sd * .03, 1.0) + .024)), L(V(sd * .036, .93, B(sd * .036, .93) + .022))], .034, .006, strap, V(1, 0, 0), 12, 6);
-    for (const sd of [-1, 1]) { const y = .925, x = sd * .036, z = B(x, y) + .026; M.box(L(V(x, y, z)), V(.04, .03, .008), '#a9adb3'); M.box(L(V(x, y, z + .004)), V(.022, .012, .006), '#7d8288'); }
+    for (const sd of [-1, 1]) K.ribbon([L(V(sd * .012, 1.06, zf + .018)), L(V(sd * .034, 1.0, B(sd * .034, 1.0) + .03)), L(V(sd * .04, .93, B(sd * .04, .93) + .03))], .044, .007, strap, V(1, 0, 0), 12, 6);
+    for (const sd of [-1, 1]) { const y = .925, x = sd * .04, z = B(x, y) + .034; M.box(L(V(x, y, z)), V(.04, .03, .008), '#a9adb3'); M.box(L(V(x, y, z + .004)), V(.022, .012, .006), '#7d8288'); }
     j.hips.add(meshOf(K, 'Rourke: overall straps knot', m.cloth)); j.hips.add(meshOf(M, 'Rourke: overall buckles', m.metal));
   }
 
   /* ---------------------------------------------------------------- the tail: thick, tapered, scaled, a double crest becoming one */
   function tailGeometry() {
-    const path = new THREE.CatmullRomCurve3([V(0, .0, -.04), V(0, -.11, -.3), V(.02, -.36, -.57), V(.05, -.62, -.78), V(.09, -.8, -.92), V(.13, -.9, -.99)]);
+    const path = new THREE.CatmullRomCurve3([V(0, .0, -.04), V(0, -.1, -.27), V(.015, -.31, -.49), V(.04, -.53, -.66), V(.07, -.69, -.78), V(.1, -.77, -.84)]);
     const RINGS = 150, AROUND = 30, ROWS = 46, COLS = 16, pos = [], col = [], idx = [], c = new THREE.Color();
     const back = lin('#36421f'), side = lin('#55622e'), under = lin('#cfc589'), band2 = lin('#20271a');
     for (let i = 0; i <= RINGS; i++) {
@@ -326,9 +326,9 @@
         col.push(c.r, c.g, c.b);
       }
     }
-    for (let i = 0; i < RINGS; i++) for (let k = 0; k < AROUND; k++) { const a = i * AROUND + k, b = i * AROUND + (k + 1) % AROUND, d = a + AROUND, e = b + AROUND; idx.push(a, d, b, b, d, e); }
+    for (let i = 0; i < RINGS; i++) for (let k = 0; k < AROUND; k++) { const a = i * AROUND + k, b = i * AROUND + (k + 1) % AROUND, d = a + AROUND, e = b + AROUND; idx.push(a, b, d, b, e, d); }
     const tip = pos.length / 3, end = path.getPoint(1).addScaledVector(path.getTangent(1), .012); pos.push(end.x, end.y, end.z); col.push(back.r * .7, back.g * .7, back.b * .7);
-    for (let k = 0; k < AROUND; k++) idx.push(RINGS * AROUND + k, tip, RINGS * AROUND + (k + 1) % AROUND);
+    for (let k = 0; k < AROUND; k++) idx.push(RINGS * AROUND + k, RINGS * AROUND + (k + 1) % AROUND, tip);
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); geo.setIndex(idx); geo.computeVertexNormals(); geo.computeBoundingSphere();
     return geo;
   }
@@ -341,7 +341,7 @@
   }
   function install(rig) {
     const base = rig.updateMane.bind(rig), settle = SC.market?.settle;
-    rig.updateMane = time => { base(time); settle?.(rig, time); mouthParts(rig, rig.anatomy?.value?.[12] || 0); for (const o of rig.castKit || []) if (o.visible) o.visible = false; };
+    rig.updateMane = time => { base(time); settle?.(rig, time); mouthParts(rig, rig.anatomy?.value?.[12] || 0); if (rig.castKit) for (const o of kitList(rig)) if (o.visible) o.visible = false; };
     const dummy = new THREE.Object3D(); dummy.visible = false;
     rig.faceActing = { inner: dummy, lip: new THREE.Object3D(), eyes: (rig.facialRest || []).filter(f => f.eye), brows: [] };
     for (const m of [rig.celebrationSmile, rig.painMouth]) if (m) { m.geometry = new THREE.BufferGeometry(); m.geometry.setAttribute('position', new THREE.Float32BufferAttribute([], 3)); }
@@ -356,7 +356,7 @@
   /* ================================================================ ROURKE */
   const ROURKE = {
     id: 'rourke', fur: '#3d4a24', light: '#d9d09a', talkGain: .65,
-    build: { torso: .09, depth: .09, belly: .025, bellyY: 1.18, chest: .018, arm: .12, leg: .1, neck: .7, hips: .03, back: .025, traps: .06 }, // the lion fighter's body, a few percent heavier than Fang
+    build: { torso: .09, depth: .08, belly: .07, bellyY: 1.2, bellyH: .2, chest: -.022, arm: .12, leg: .1, neck: .7, hips: .03, back: .025, traps: .06 }, // the lion fighter's body, a few percent heavier than Fang
     headForm,
     sculpt(rig) {
       const g = rig.skin.geometry; reshapeLocal(g, p => bulk(p, ROURKE.build));
@@ -366,8 +366,12 @@
           for (let c = 0; c < 3; c++) { if (D) D.array[i * 4 + c] = Math.round(D.array[i * 4 + c] * k); if (DN) DN.array[i * 4 + c] = Math.round(DN.array[i * 4 + c] * k); if (MA) MA.array[i * 3 + c] = Math.round(MA.array[i * 3 + c] * k); }
           if (DN) DN.array[i * 4 + 3] = Math.round(DN.array[i * 4 + 3] * k); }
         for (const a of [D, DN, MA]) if (a) a.needsUpdate = true; }
-      iron(g, p => { if (p.y < 1.72) return 0; const [hx, hy, hz] = hc(p); return smooth((hz - .1) / .06) * smooth((hy + .06) / .04) * (1 - .5 * bell(Math.abs(hx), .1, .03) * bell(hz, .12, .04)); }, 60);
+      // where the lion's eye pits were filled the skin is crumpled: relax it, then iron the whole face and skull (no shrinking)
+      iron(g, p => { if (p.y < 1.72) return 0; const [hx, hy, hz] = hc(p), ax = Math.abs(hx); return band(hz, .15, .44, .04) * band(hy, .07, .25, .03) * band(ax, .015, .175, .02); }, 6, true);
+      iron(g, p => { if (p.y < 1.72) return 0; const [hx, hy, hz] = hc(p); return Math.max(smooth((hz - .1) / .06) * smooth((hy + .06) / .04) * (1 - .5 * bell(Math.abs(hx), .1, .03) * bell(hz, .12, .04)), .6 * smooth((hy - .02) / .06) * smooth((.08 - hz) / .06)); }, 60);
       scaleSkin(rig);
+      // the lion's own mouth morph (anatomy channel 12 over its short muzzle) would sag the snout top in speech: cleared on the head
+      { const M = g.attributes.avatarMuscle, MN = g.attributes.avatarMuscleNormal, P = g.attributes.position; if (M) for (let i = 0; i < P.count; i++) if (P.getY(i) > 1.7) { M.setXYZ(i, 0, 0, 0); if (MN) MN.setXYZ(i, 0, 0, 0); } }
       rig.castJawVerts = jaw(rig, { from: .02, to: ZT, ramp: .1, back: -.06, width: .26, hinge: [.075, -.02], angle: .2, depth: .012, depthZ: .006, band: .006, throat: .12, lips: '#4a4a26', inner: '#7a3a34' });
       rig.castBase = dress(g, rourkeClothes(rig), { relax: 22 }); use(g, rig.castBase); gloss(rig, rig.castGlossOf, .42);
       rig.castWear = 'work';
@@ -375,7 +379,7 @@
     face(rig) {
       const head = rig.joints.head, m = mats(rig);
       // eyes high on the skull, on the turrets, looking out sideways and forward from under the bony lids
-      for (const s of [-1, 1]) { const ex = .1, ez = .122, ey = topAt(rig, s * ex, ez) - .008; eye(rig, s, ex, ey, ez, { size: .031, iris: '#b8c43a', lid: '#55652f', yaw: .62, pitch: -.42, roll: -.1 }); }
+      for (const s of [-1, 1]) { const ex = .1, ez = .122, ey = topAt(rig, s * ex, ez) - .008; eye(rig, s, ex, ey - .006, ez, { size: .031, iris: '#b8c43a', lid: '#5f6f35', yaw: .62, pitch: -.42, roll: -.1 }); }
       // the nostrils: two crescent slits on the dome at the tip of the snout
       const N = new Parts(), nz = TIP - .04, ny = topAt(rig, 0, nz);
       for (const sd of [-1, 1]) { N.sph(V(sd * .014, ny - .002, nz), V(.009, .005, .012), '#0b0b07', [.2, sd * .4, 0]); N.sph(V(sd * .019, ny - .001, nz - .002), V(.004, .006, .012), '#56632f', [.2, sd * .4, 0]); }
@@ -393,6 +397,10 @@
           const hz = .17 + (TIP - .17 - .018) * (k / 16) ** .92, ly = lip(hz); if (s < 0 && k === 6) continue; // a gap: one lost on the docks
           const x = sideAt(rig, ly + .008, hz, s) - .004, big = k === 4 || k === 10 || k === 11 ? 1.35 : 1, chip = rnd() < .18 ? .6 : 1;
           tooth(upper, V(s * x * HS, (ly + .01) * HS, hz * HS), V(s * .2, -1, .05 * (rnd() - .5)), (.022 + .011 * rnd()) * big * chip * HS, .0072 * big * HS, ivory[Math.floor(rnd() * 4)]);
+        }
+        for (const [fx, len] of [[.016, .02], [.036, .026], [.056, .03], [.074, .022]]) { // round the front of the snout
+          const ly = lip(TIP - .02) + .004, z = seat(rig, fx, ly + .008) - .006; if (!(z > .3)) continue;
+          tooth(upper, V(s * fx * HS, (ly + .008) * HS, z * HS), V(s * .12, -1, .18), len * HS, .0062 * HS, ivory[Math.floor(rnd() * 4)]);
         }
         for (const [hz, len, r] of [[TIP - .055, .036, .0075], [TIP - .1, .022, .0055], [.3, .02, .005], [.21, .024, .0058], [.15, .02, .005]]) {
           const ly = lip(hz), x = sideAt(rig, ly - .012, hz, s) + .001, root = V(s * x * HS, (ly - .01) * HS, hz * HS).sub(hingeAt);
