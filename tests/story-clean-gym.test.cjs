@@ -104,7 +104,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     await p.addInitScript(()=>{localStorage.setItem('shadowbox-language','en');localStorage.setItem('gotr.adv.nointro','1');});
     await p.goto(url); await wait(()=>window.ringfighterGame?.store&&window.MopGame&&window.StoryScenes?.games.clean_gym);
     if(await p.locator('dialog.career-welcome[open]').count()){
-      await p.locator('dialog.career-welcome[open] input').fill('Mop QA');
+      await p.locator('dialog.career-welcome[open] input[name=player]').fill('Mop QA');
       await p.locator('dialog.career-welcome[open] button[type=submit]').tap();
     }
     await wait(()=>app.engine.coach?.anatomy&&ringfighterGame.store.game());

@@ -93,6 +93,7 @@ jobs:
           "$tools/node_modules/.bin/playwright" install --with-deps chromium
           printf 'NODE_PATH=%s\n' "$tools/node_modules" >> "$GITHUB_ENV"
       - name: Verify Chromium and WebGL can start
+        id: chromium-ready
         shell: bash
         run: |
           node <<'JS'
@@ -109,11 +110,26 @@ jobs:
             }
           })().catch(error => { console.error(error); process.exitCode = 1; });
           JS
-      - name: Run five existing browser test paths (no skips)
+      - name: Verify real touchscreen mopping (no skips)
         shell: bash
         env:
           GOTR_MOP_ARTIFACTS: ${{ runner.temp }}/fit-mop-qa
           GOTR_REQUIRE_MOP_BROWSER: '1'
+        run: |
+          node tests/story-clean-gym.test.cjs 2>&1 | tee "$RUNNER_TEMP/mop.log"
+          if grep -Eiq '^[[:space:]]*SKIP([[:space:]]|:)' "$RUNNER_TEMP/mop.log"; then exit 1; fi
+          grep -Fq 'PASS browser: clean-gym job' "$RUNNER_TEMP/mop.log"
+      - name: Keep phone-size gym cleaning evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gym-cleaning-402x690
+          path: ${{ runner.temp }}/fit-mop-qa/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Run four remaining browser test paths (no skips)
+        if: ${{ !cancelled() && steps.chromium-ready.outcome == 'success' }}
+        shell: bash
         run: |
           # These scripts serve their own loopback copy of the checked-out game.
           unset APP_URL
@@ -132,20 +148,11 @@ jobs:
             echo "::endgroup::"
           done <<'TESTS'
           tests/dream-market-films.test.cjs|PASS browser: films at their steps
-          tests/story-clean-gym.test.cjs|PASS browser: clean-gym job
           tests/dream-bag-break.test.cjs|PASS browser: plays once
           tests/shop-preview-body.test.cjs|measurements, body drawn in every one
           tests/dream-street-life.test.cjs|PASS street film quality switch
           TESTS
           exit "$result"
-      - name: Keep phone-size gym cleaning evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gym-cleaning-402x690
-          path: ${{ runner.temp }}/fit-mop-qa/
-          if-no-files-found: ignore
-          retention-days: 7
   validate:
     runs-on: ubuntu-latest
     needs: [regressions, browser-regressions]
