@@ -105,7 +105,8 @@
     Sets.register('dream_shop', c => {
       const { PAL, C, P, M, S, box, cyl, house, road, pave, joints, curb, dashes, tree, lamp, bin, planter, shade, objects, glow: G, pool, add } = c;
       // ---- the street front (x -12 .. 12)
-      road(-40, 40, -.12, 7.6); dashes(-40, 40, 3.7); pave(-40, 40, -14, -.12); joints(-30, 30, -4.3, -.4); curb(-40, 40, -.24); pave(-40, 40, 7.6, 18);
+      // the street ends at x 34: the shop room (x 35.8 .. 44.6) has its own floor at the pavement height; overlapping them flickered (GOTR-0102)
+      road(-40, 34, -.12, 7.6); dashes(-40, 34, 3.7); pave(-40, 34, -14, -.12); joints(-30, 30, -4.3, -.4); curb(-40, 34, -.24); pave(-40, 34, 7.6, 18);
       house({ style: 'plaster', x: -9.6, z: -9.4, w: 11, d: 10, floors: 3, tint: PAL.oldTown[1], roof: 'hip', roofColor: C(PAL.terracotta[1]), shop: true, awning: PAL.awning[2] });
       house({ style: 'brick', x: 0, z: -9.4, w: 7.6, d: 10, floors: 2, tint: '#7c5a48', roof: 'flat', shop: true, shopTint: C('#efe3cc') });
       house({ style: 'apartment', x: 9.8, z: -9.4, w: 11.6, d: 10, floors: 4, tint: PAL.apartment[0], roof: 'flat' });
@@ -117,8 +118,20 @@
       box(S, 0, 0, fz + .02, 7.4, 3.25, .1, '#1f3a4a'); // painted shop front
       box(S, .9, 0, fz + .06, 1.18, 2.35, .08, '#2b2420'); box(S, .9, .04, fz + .1, .98, 2.22, .05, '#7a2f26'); box(S, .9, 1.15, fz + .14, .72, .9, .02, '#9fc3e6'); box(S, 1.27, 1.0, fz + .16, .05, .16, .05, '#e0b84d'); // door
       box(S, .9, 0, fz + .2, 1.4, .1, .5, '#b3a892'); // step
-      for (const [wx, ww] of [[-1.85, 2.9], [2.75, 1.7]]) { // display windows: glass, frame, sill; gloves and a bag behind
-        box(S, wx, .55, fz + .08, ww, 1.85, .06, '#2b2420'); G.add(P.box, M(wx, .62, fz + .16, ww - .14, 1.7, .02), C('#cfe3ee')); /* glass 4 cm proud of the frame face (fz+.11): coplanar faces flickered, phones have less depth precision */ box(S, wx, .55, fz + .12, ww + .1, .08, .14, '#3a2b24');
+      // display windows (GOTR-0101/0102): a shallow lit display box in front of the shop front, see-through glass on the street side
+      const glassMat = new THREE.MeshStandardMaterial({ color: '#d6ecf5', roughness: .08, metalness: .25, transparent: true, opacity: .16, depthWrite: false });
+      const sheenMat = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .15, depthWrite: false, toneMapped: false });
+      const GZ = fz + .44; // glass plane, clear of the gloves (to fz + .26) and the bag (to fz + .37)
+      for (const [wx, ww] of [[-1.85, 2.9], [2.75, 1.7]]) {
+        box(S, wx, .55, fz + .08, ww, 1.85, .06, '#4a3a2e'); // the shop interior seen through the glass
+        box(S, wx, 2.08, fz + .12, ww - .14, .03, .14, '#8a6446'); if (ww > 2) box(S, wx, 1.12, fz + .12, ww - .14, .03, .14, '#8a6446'); // shelves (none across the bag)
+        for (let k = 0; k < Math.floor(ww / .42); k++) box(S, wx - ww / 2 + .2 + k * .42, 2.11, fz + .12, .24, .16 + (k % 3) * .04, .12, ['#c9a46a', '#d9473b', '#e9e2cc', '#2f6fc0'][k % 4]); // boxes on the top shelf
+        G.add(P.box, M(wx, 2.3, fz + .14, ww - .2, .025, .05), C('#ffe9b8')); // the display light under the header
+        box(S, wx - ww / 2 + .035, .55, (fz + .05 + GZ) / 2, .07, 1.85, GZ - fz - .05, '#3a2b24'); box(S, wx + ww / 2 - .035, .55, (fz + .05 + GZ) / 2, .07, 1.85, GZ - fz - .05, '#3a2b24'); // side posts
+        box(S, wx, 2.32, (fz + .05 + GZ) / 2, ww, .08, GZ - fz - .05, '#3a2b24'); // header
+        box(S, wx, .55, (fz + .05 + GZ + .04) / 2, ww + .1, .08, GZ + .04 - fz - .05, '#3a2b24'); // sill
+        const glass = add(new THREE.Mesh(new THREE.PlaneGeometry(ww - .14, 1.69), glassMat), false, false); glass.position.set(wx, .63 + 1.69 / 2, GZ); glass.renderOrder = 2; glass.name = 'shop window glass';
+        for (const [dx, wdt] of [[-.18, .16], [.12, .07]]) { const sh = add(new THREE.Mesh(new THREE.PlaneGeometry(wdt, 1.5), sheenMat), false, false); sh.position.set(wx + dx * ww, .63 + 1.69 / 2, GZ + .002); sh.rotation.z = -.5; sh.renderOrder = 3; sh.name = 'shop window sheen'; }
       }
       for (let k = 0; k < 4; k++) { const gx = -3 + k * .72, col = ['#d9473b', '#2f6fc0', '#1d1f24', '#f4c152'][k]; for (const s of [-1, 1]) S.add(P.sph, M(gx + s * .12, 1.55 + (k % 2) * .18, fz + .16, .11, .14, .1), C(col)); cyl(S, gx, 1.72 + (k % 2) * .18, fz + .16, .006, .3, '#e9e2cc', P.cyl6); }
       cyl(S, 2.75, .7, fz + .2, .17, .95, '#2f6fc0', P.cyl12); cyl(S, 2.75, 1.65, fz + .2, .01, .55, '#aab2bc', P.cyl6);
@@ -131,7 +144,7 @@
 
       // ---- the interior (x 36 .. 44.4, z -3.2 .. 3.6, 3.2 m high)
       const X0 = 36, X1 = 44.4, Z0 = -3.2, Z1 = 3.6, H = 3.2, A = new c.K.Batch();
-      box(A, (X0 + X1) / 2, -.3, (Z0 + Z1) / 2, X1 - X0, .3, Z1 - Z0, '#9a7452'); for (let x = X0 + .2; x < X1; x += .2) box(A, x, -.002, (Z0 + Z1) / 2, .01, .004, Z1 - Z0, '#7e5d40');
+      box(A, (X0 + X1) / 2, -.3, (Z0 + Z1) / 2, X1 - X0, .3, Z1 - Z0, '#9a7452'); for (let x = X0 + .2; x < X1; x += .2) box(A, x, 0, (Z0 + Z1) / 2, .01, .006, Z1 - Z0, '#7e5d40');
       const wall = (x, z, w, d) => { box(A, x, 0, z, w, .14, d, '#3a2b24'); box(A, x, .14, z, w, 1.0, d, '#5a4436'); box(A, x, 1.14, z, w + .02, .05, d + .02, '#3a2b24'); box(A, x, 1.19, z, w, H - 1.19, d, '#e9dcc0'); };
       wall((X0 + X1) / 2, Z0 - .1, X1 - X0, .2); wall(X0 - .1, (Z0 + Z1) / 2, .2, Z1 - Z0); wall((X0 + X1) / 2, Z1 + .1, X1 - X0, .2);
       wall(X1 + .1, -1.0, .2, 4.4); wall(X1 + .1, 2.95, .2, 1.3); box(A, X1 + .1, 2.3, 1.45, .2, H - 2.3, 1.7, '#e9dcc0'); // right wall with the street door
@@ -141,7 +154,15 @@
       const arch = c.movable(A, 'shop room'); arch.castShadow = false;
       // counter with a glass case of wraps and mouthguards, a till
       box(S, 41.3, 0, -1.45, 2.6, .95, .62, '#6b4630', 0, { ao: .25 }); box(S, 41.3, .95, -1.45, 2.7, .05, .7, '#8a6446'); box(S, 41.3, .1, -1.13, 2.4, .7, .02, '#4a3026');
-      G.add(P.box, M(41.0, .55, -1.12, 1.4, .3, .01), C('#d6e8f1')); for (let k = 0; k < 6; k++) box(S, 40.45 + k * .22, .58, -1.25, .14, .06, .14, ['#d9473b', '#f4f1ea', '#2f6fc0', '#1d1f24', '#f4c152', '#d9473b'][k]);
+      { // the glass case in front of the counter (GOTR-0102): wraps and mouthguards on a lit shelf behind see-through glass
+        const z0 = -1.12, z1 = -.92, x0 = 40.25, x1 = 41.75, y0 = .48, y1 = .9;
+        box(S, (x0 + x1) / 2, y0 - .04, (z0 + z1) / 2, x1 - x0 + .06, .04, z1 - z0 + .02, '#3a2b24'); box(S, (x0 + x1) / 2, y1, (z0 + z1) / 2, x1 - x0 + .06, .04, z1 - z0 + .02, '#3a2b24'); // base and lid
+        for (const x of [x0, x1]) box(S, x, y0, (z0 + z1) / 2, .03, y1 - y0, z1 - z0, '#3a2b24'); // ends
+        G.add(P.box, M((x0 + x1) / 2, y1 - .025, (z0 + z1) / 2 - .04, x1 - x0 - .1, .015, .03), C('#ffe9b8')); // case light
+        for (let k = 0; k < 6; k++) box(S, 40.45 + k * .22, y0, -1.03, .14, .06, .14, ['#d9473b', '#f4f1ea', '#2f6fc0', '#1d1f24', '#f4c152', '#d9473b'][k]);
+        const g = add(new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0 - .03, y1 - y0), glassMat), false, false); g.position.set((x0 + x1) / 2, (y0 + y1) / 2, z1); g.renderOrder = 2; g.name = 'counter case glass';
+        const sh = add(new THREE.Mesh(new THREE.PlaneGeometry(.06, .4), sheenMat), false, false); sh.position.set(x0 + .45, (y0 + y1) / 2, z1 + .002); sh.rotation.z = -.5; sh.renderOrder = 3; sh.name = 'counter case sheen';
+      }
       box(S, 42.2, 1.0, -1.55, .38, .22, .3, '#3b4350'); box(S, 42.2, 1.22, -1.62, .3, .14, .06, '#1d1f24'); box(S, 41.5, 1.0, -1.4, .28, .08, .2, '#f4f1ea'); // till, a box of tape
       // glove wall behind the counter: pegboard, pairs of gloves hanging by their laces, a few head guards
       box(S, 41.1, 1.05, Z0 + .02, 4.6, 1.95, .04, '#c9a77a'); for (let x = 39.0; x < 43.4; x += .2) for (let y = 1.15; y < 2.95; y += .2) box(S, x, y, Z0 + .045, .02, .02, .005, '#8a6446');

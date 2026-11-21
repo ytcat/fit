@@ -957,6 +957,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Old saves:** a `clean_gym` record from the stand-in (steps, 8/14/20) is moved on load to the lowest marks of the same stars (`adventure-progress.js` rescale), so it keeps its stars and still validates.
 - **Limits:** Swiftshader only; the mop pose and audio not checked on a phone.
 
+### GOTR-0102 — Otto's Corner: windows look white; part of the shop floor flickers
+- **Reported:** 2026-11-21 (owner, after v1.76: "the windows are now white. Make them look transparent"; "the player goes into the shop, part of the floor is flickering as well")
+- **Status:** READY FOR QA — v1.77 (not checked on a phone)
+- **Causes:** (1) the window glass was an opaque, unlit light-blue box (glow batch), so it read as a white panel; the counter's "glass case" was the same and sat 5 mm from the counter front. (2) the street pavement of the `dream_shop` set ran from x −40 to 40, under the shop room (x 36–44.4) at exactly the floor height (y 0), so the x 36–40 strip of the floor z-fought with the pavement.
+- **Fix (`adventure/story/market-sets.js`):** each display window is a shallow lit display box (warm interior, shelves, boxes, display light, side posts, header, sill) with a transparent glass plane (MeshStandardMaterial, opacity 0.16) 44 cm in front of the shop front and two faint reflection streaks; the counter case is a real box with the goods on a lit shelf behind transparent glass; the street ground ends at x 34; plank lines stand 6 mm above the floor. Test `tests/shop-window-depth.test.cjs`. Evidence `qa/gotr-0102/windows-v176-vs-v177.webp`, `counter-case.webp`, `floor-before-after.webp` (live v1.76 code vs fix, consecutive frames at 402×690); tool `qa/gotr-0101/otto-flicker.cjs` (TIMES=…).
+
 ### GOTR-0101 — Otto's Corner: the display windows flicker
 - **Reported:** 2026-11-21 (owner; worked on in a ChatGPT session that ran out of usage — no commit reached GitHub)
 - **Status:** READY FOR QA — fixed on `claude/ecstatic-clarke-9as2ak` (v1.76 candidate, not published)
