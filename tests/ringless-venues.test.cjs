@@ -5,7 +5,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 process.chdir(path.join(__dirname,'..'));
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;
 global.document={createElement:()=>({getContext:()=>new Proxy({measureText:text=>({width:text.length*25}),createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)})},{get:(o,k)=>o[k]||(()=>{})})})};
-for(const file of ['boxing-routines.js','boxing-footwear.js','boxing-coach-v2.js','contact-response.js','training-arena.js','boxing-fight.js','fight-referee.js','gym-details.js','fight-arena.js','club-world.js','adventure/story/story-cast.js'])vm.runInThisContext(fs.readFileSync(file,'utf8'),{filename:file});
+for(const file of ['boxing-routines.js','boxing-footwear.js','boxing-coach-v2.js','contact-response.js','training-arena.js','boxing-fight.js','fight-referee.js','gym-details.js','fight-arena.js','club-world.js','adventure/story/lion-paws.js','adventure/story/story-cast.js'])vm.runInThisContext(fs.readFileSync(file,'utf8'),{filename:file});
 const sets=require('../arena-sets.js');window.ArenaSets=sets;
 const R=require('../ringless-venues.js'),venues=require('../game-venues.js');
 assert.equal(window.RinglessVenues,R);
