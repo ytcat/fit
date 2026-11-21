@@ -5,16 +5,16 @@
 //      SINGLE=1 writes each frame as its own picture too, WAIT=0 does not wait for the city assets before the film starts.
 // Writes qa/gotr-0089/<name>.webp and qa/gotr-0089/<name>.json (calls / triangles of every frame, console errors).
 const { chromium } = require('playwright'), fs = require('fs'), path = require('path'), { execFileSync } = require('child_process');
-const URL = process.env.APP_URL || 'http://127.0.0.1:8489/', OUT = path.join(__dirname, '..');
+const URL = process.env.APP_URL || 'http://127.0.0.1:8489/', OUT = process.env.OUT_DIR || path.join(__dirname, '..');
 const DEF = 'dive:map:3.1,sky:2.6,arrives:5.6,doors:8.0,step-off:8.6,face:11.0,street:14.0,walk:17.6,ahead:21.0,crossing:24.6,gym:30.5';
 (async () => {
   const [name = 'film', w = 402, h = 690] = process.argv.slice(2);
   const shots = (process.env.SHOTS || DEF).split(',').map(s => { const q = s.split(':'); return q.length === 3 ? { label: q[0], map: true, t: +q[2] } : { label: q[0], t: +q[1] }; });
-  const b = await chromium.launch({ args: ['--no-sandbox', '--enable-unsafe-swiftshader'] });
-  const p = await b.newPage({ viewport: { width: +w, height: +h } }), log = [], glb = [];
+  const b = await chromium.launch({ args: ['--no-sandbox', '--enable-unsafe-swiftshader', '--use-gl=angle', '--use-angle=swiftshader'] });
+  const p = await b.newPage({ viewport: { width: +w, height: +h }, ...(process.env.TOUCH === '1' ? { isMobile: true, hasTouch: true, serviceWorkers: 'block' } : {}) }), log = [], glb = [];
   p.on('pageerror', e => log.push('PAGEERROR ' + e.message)); p.on('console', m => { if (['error', 'warning'].includes(m.type())) log.push(m.type() + ' ' + m.text().slice(0, 240)); });
   await p.addInitScript(() => { try { localStorage.setItem('gotr.adv.nointro', '1'); } catch { /* private mode */ } });
-  await p.route('**/*.glb', r => { glb.push(r.request().url().split('/').pop()); return process.env.BLOCK ? r.abort() : r.continue(); });
+  await p.route('**/*.glb', r => { glb.push(r.request().url().split('/').pop()); return process.env.BLOCK === '1' || (process.env.BLOCK === 'tree' && r.request().url().includes('street-tree-low.glb')) ? r.abort() : r.continue(); });
   await p.goto(URL, { timeout: 300000 });
   await p.waitForFunction(() => window.ringfighterGame && app.engine.coach?.anatomy && window.DreamScenes && window.StoryCast, null, { timeout: 300000 });
   await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); setInterval(() => document.querySelectorAll('dialog[open]:not(.dream-scene)').forEach(d => d.close()), 300); });
@@ -27,7 +27,7 @@ const DEF = 'dive:map:3.1,sky:2.6,arrives:5.6,doors:8.0,step-off:8.6,face:11.0,s
     if (s.map) await p.evaluate(t => { DreamScenes.debug.mapT = t; }, s.t); else await p.evaluate(t => DreamScenes.seek(t), s.t);
     await wait(); if (!s.map) { await p.evaluate(t => DreamScenes.seek(t), s.t); await wait(); }
     const png = path.join(OUT, `.${name}-${frames.length}.png`); await p.screenshot({ path: png, timeout: 300000 }); files.push(png);
-    const st = await p.evaluate(() => { const d = DreamScenes.debug, f = d.rigs?.fighter, o = d.set?.objects; return { ...DreamScenes.stats(), t: +d.t.toFixed(2), city: !!o?.city?.active, fighter: f && f.root.visible ? f.root.position.toArray().map(v => +v.toFixed(3)) : null, bus: o?.bus ? +o.bus.position.x.toFixed(2) : null }; });
+    const st = await p.evaluate(() => { const d = DreamScenes.debug, f = d.rigs?.fighter, o = d.set?.objects; const trees = d.set?.group.getObjectByName('city art (GLB)')?.children.filter(n => /^Old Town .*tree$/.test(n.name)).map(n => [n.name,n.visible]) || []; return { ...DreamScenes.stats(), trees, t: +d.t.toFixed(2), city: !!o?.city?.active, fighter: f && f.root.visible ? f.root.position.toArray().map(v => +v.toFixed(3)) : null, bus: o?.bus ? +o.bus.position.x.toFixed(2) : null }; });
     frames.push({ label: s.label, ...st }); console.log(s.label, JSON.stringify(st));
   }
   const done = await p.evaluate(() => { StoryScenes.stop(); const r = app.engine.renderer.info; return { playing: DreamScenes.playing, geometries: r.memory.geometries, textures: r.memory.textures }; });
