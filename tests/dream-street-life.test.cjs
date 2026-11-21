@@ -55,7 +55,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     assert.ok(hi.stats.calls <= 250, 'draw calls within the phone budget: ' + hi.stats.calls);
     await p.evaluate(() => StoryScenes.stop());
     const lo = await run('low'); console.log('low', JSON.stringify(lo));
-    assert.ok(!lo.stats.shadows && !lo.sunCasts, 'quality low: no shadow pass'); assert.equal(lo.stats.life.level, 1, 'low: clouds and litter only');
+    assert.ok(!lo.enabled && !lo.stats.shadows && !lo.sunCasts, 'quality low: no shadow pass'); assert.equal(lo.stats.life.level, 1, 'low: clouds and litter only');
     assert.ok(lo.stats.calls < hi.stats.calls && lo.stats.triangles < hi.stats.triangles, 'low draws less: ' + lo.stats.calls + '/' + lo.stats.triangles + ' vs ' + hi.stats.calls + '/' + hi.stats.triangles);
     await p.evaluate(() => { StoryScenes.stop(); DreamScenes.quality('auto'); });
     const after = await p.evaluate(() => { const c = app.engine.coach, sm = app.engine.renderer.shadowMap; let n = 0, proxy = 0; c.root.traverseVisible(o => { if (o.isMesh && o.castShadow) n++; }); c.root.traverse(o => { if (o.name === 'shadow stand-in') proxy++; }); return { enabled: sm.enabled, type: sm.type, cast: n, proxy }; });
