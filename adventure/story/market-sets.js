@@ -39,6 +39,10 @@
       let hx = -46; row.forEach(([style, w, floors, tint, roofC], i) => { house({ style, x: hx + w / 2, z: -10.4, w, d: 10, floors, tint: style === 'apartment' ? PAL.apartment[1] : PAL.market[tint % PAL.market.length], roof: style === 'apartment' ? 'flat' : 'hip', roofColor: C(PAL.terracotta[roofC]), shop: i % 3 !== 2, awning: PAL.awning[(i + 1) % 6] }); hx += w; });
       hx = -40; [['plaster', 12, 2, 2], ['brick', 14, 3, 5], ['plaster', 12, 2, 1], ['brick', 13, 3, 3], ['plaster', 12, 2, 6], ['plaster', 12, 3, 4]].forEach(([style, w, floors, tint], i) => { house({ style, x: hx + w / 2, z: 15.5, w, d: 10, floors, tint: PAL.market[tint % PAL.market.length], roof: 'hip', roofColor: C(PAL.terracotta[i % 6]), ry: Math.PI, shop: i % 2 === 0, awning: PAL.awning[i % 6] }); hx += w; });
       c.skyline(-46); c.plinth(-48, 48, -5.32);
+      // Framed shop displays behind the market lane. The window backs are solid so
+      // the existing map façades never reveal an unbuilt interior or the sky.
+      for (const x of [-8.35, -2.74, 3.40, 8.15]) c.displayBay(x, .45, -5.27, 1.65, 1.72);
+
       // a stall: posts, counter with a skirt, striped awning with a scalloped valance, crates of fruit on the counter
       const stall = (x, [a, b], goods, w = 3.0, own) => {
         const zb = -4.3, zf = -2.45, ya = 2.95, yf = 2.32, n = 8, c1 = C(a), c2 = C(b), wood = '#8a6446';
