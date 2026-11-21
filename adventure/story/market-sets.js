@@ -118,7 +118,7 @@
       box(S, .9, 0, fz + .06, 1.18, 2.35, .08, '#2b2420'); box(S, .9, .04, fz + .1, .98, 2.22, .05, '#7a2f26'); box(S, .9, 1.15, fz + .14, .72, .9, .02, '#9fc3e6'); box(S, 1.27, 1.0, fz + .16, .05, .16, .05, '#e0b84d'); // door
       box(S, .9, 0, fz + .2, 1.4, .1, .5, '#b3a892'); // step
       for (const [wx, ww] of [[-1.85, 2.9], [2.75, 1.7]]) { // display windows: glass, frame, sill; gloves and a bag behind
-        box(S, wx, .55, fz + .08, ww, 1.85, .06, '#2b2420'); G.add(P.box, M(wx, .62, fz + .1, ww - .14, 1.7, .02), C('#cfe3ee')); box(S, wx, .55, fz + .12, ww + .1, .08, .14, '#3a2b24');
+        box(S, wx, .55, fz + .08, ww, 1.85, .06, '#2b2420'); G.add(P.box, M(wx, .62, fz + .16, ww - .14, 1.7, .02), C('#cfe3ee')); /* glass 4 cm proud of the frame face (fz+.11): coplanar faces flickered, phones have less depth precision */ box(S, wx, .55, fz + .12, ww + .1, .08, .14, '#3a2b24');
       }
       for (let k = 0; k < 4; k++) { const gx = -3 + k * .72, col = ['#d9473b', '#2f6fc0', '#1d1f24', '#f4c152'][k]; for (const s of [-1, 1]) S.add(P.sph, M(gx + s * .12, 1.55 + (k % 2) * .18, fz + .16, .11, .14, .1), C(col)); cyl(S, gx, 1.72 + (k % 2) * .18, fz + .16, .006, .3, '#e9e2cc', P.cyl6); }
       cyl(S, 2.75, .7, fz + .2, .17, .95, '#2f6fc0', P.cyl12); cyl(S, 2.75, 1.65, fz + .2, .01, .55, '#aab2bc', P.cyl6);

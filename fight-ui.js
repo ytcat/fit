@@ -65,7 +65,14 @@
    const actions=make('div','fight-result-actions'),details=make('button','workout-tool',w().details),again=make('button','workout-tool',w().new);details.onclick=()=>detail(view);again.onclick=configure;if(story(view))actions.append(details);else actions.append(details,again);panel.append(actions); // a story fight goes on with the story's own Next button; New fight only in free fights
   }
   function hide(){hud.hidden=panel.hidden=health.hidden=banner.hidden=skip.hidden=true;document.body?.classList?.toggle?.('fight-over',false);last='';for(const actor in corners)corners[actor].last=null;}
-  e.onFightEvent=event=>{if(event.type==='announcement')app.audio.applause?.();else app.audio.bell(event.type==='final-bell'?'final':event.kind||'start');};
+  // Approved recordings play only when their exact file has loaded; otherwise the existing sounds play unchanged.
+  const approvedAudio=window.ApprovedFightAudio;
+  const loadApproved=()=>{try{approvedAudio?.preload(app.audio);}catch(_){}};loadApproved();document.addEventListener?.('pointerdown',loadApproved,{passive:true});
+  e.onFightEvent=event=>{
+   if(event.type==='announcement'){if(!approvedAudio?.handle(event,app))app.audio.applause?.();}
+   else if(event.type==='bell'&&event.kind==='start'){app.audio.bell('start');approvedAudio?.handle(event,app);} // referee command once, in the player's language
+   else if(!approvedAudio?.handle(event,app))app.audio.bell(event.type==='final-bell'?'final':event.kind||'start');
+  };
   window.fightUI={configure,detail,render,hide,words:()=>w()};
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
