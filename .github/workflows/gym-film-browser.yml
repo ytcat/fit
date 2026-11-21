@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   gym-film-browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
     env:
       NODE_PATH: /tmp/gotr-gym-qa/node_modules
