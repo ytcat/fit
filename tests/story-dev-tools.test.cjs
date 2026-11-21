@@ -25,6 +25,7 @@ for (const channel of ['live', undefined]) {
   assert.deepEqual(OT.devSkipAction('first_brick'), { type: 'adventure', adventure: 'story', step: 'first_brick', outcome: 'lost' });
   assert.deepEqual(OT.devSkipAction('market_robber'), { type: 'adventure', adventure: 'story', step: 'market_robber', outcome: 'won' });
   assert.deepEqual(OT.devSkipAction('dream_arrival'), { type: 'adventure', adventure: 'story', step: 'dream_arrival' });
+  assert.equal(OT.devSkipAction('clean_gym'),null,'no fake pass for required cleaning');
   assert.deepEqual(OT.devSkipAction('night_shadow'), { type: 'adventure', adventure: 'mission', missionId: 'night_shadow', measured: { landed: 20 } });
   assert.deepEqual(OT.devSkipAction('brick'), { type: 'adventure', adventure: 'boss', bossId: 'brick', won: true });
   const s = new C.CareerStore(mem()); s.create('Dev'); const coins0 = D.wallet(s.game()).coins;
@@ -32,7 +33,8 @@ for (const channel of ['live', undefined]) {
   assert.equal(s.gameAction(OT.devSkipAction('docks_fight')).ok, true, 'dev: a later story event can be recorded first');
   for (let i = 0; i < 20; i++) { const cur = SF.state(s.game(), 1).current; if (!cur) break; const r = s.gameAction(OT.devSkipAction(cur.id)); assert.equal(r.ok, true, cur.id + ': ' + r.error); }
   const st = SF.state(s.game(), 1); assert.equal(st.complete, true, 'chapter 1 finished by skips'); assert.equal(SF.firstBrick(s.game()), 'lost');
-  for (const m of st.main.filter(x => !x.event && !x.boss)) assert.equal(m.stars, 1, m.id + ' minimum pass = 1 star');
+  assert.equal(st.main.find(x=>x.id==='clean_gym').status,'optional','already advanced developer fixture retains its legitimate earlier progress');
+  for (const m of st.main.filter(x => !x.event && !x.boss && x.status!=='optional')) assert.equal(m.stars, 1, m.id + ' minimum pass = 1 star');
   assert.ok(D.ownsGear(s.game(), 'heavy_bag'), 'the bag is granted'); assert.equal(D.wallet(s.game()).coins, coins0 + D.storyRewards.market_robber + D.storyRewards.docks_fight, 'the bag cost nothing; the fight rewards are paid');
   assert.equal(SF.chapterOpen(s.game(), 2), true);
   globalThis.APP_VERSION = undefined;
