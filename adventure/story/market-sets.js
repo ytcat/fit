@@ -39,6 +39,10 @@
       let hx = -46; row.forEach(([style, w, floors, tint, roofC], i) => { house({ style, x: hx + w / 2, z: -10.4, w, d: 10, floors, tint: style === 'apartment' ? PAL.apartment[1] : PAL.market[tint % PAL.market.length], roof: style === 'apartment' ? 'flat' : 'hip', roofColor: C(PAL.terracotta[roofC]), shop: i % 3 !== 2, awning: PAL.awning[(i + 1) % 6] }); hx += w; });
       hx = -40; [['plaster', 12, 2, 2], ['brick', 14, 3, 5], ['plaster', 12, 2, 1], ['brick', 13, 3, 3], ['plaster', 12, 2, 6], ['plaster', 12, 3, 4]].forEach(([style, w, floors, tint], i) => { house({ style, x: hx + w / 2, z: 15.5, w, d: 10, floors, tint: PAL.market[tint % PAL.market.length], roof: 'hip', roofColor: C(PAL.terracotta[i % 6]), ry: Math.PI, shop: i % 2 === 0, awning: PAL.awning[i % 6] }); hx += w; });
       c.skyline(-46); c.plinth(-48, 48, -5.32);
+      // Framed shop displays behind the market lane. The window backs are solid so
+      // the existing map façades never reveal an unbuilt interior or the sky.
+      for (const x of [-8.35, -2.74, 3.40, 8.15]) c.displayBay(x, .45, -5.27, 1.65, 1.72);
+
       // a stall: posts, counter with a skirt, striped awning with a scalloped valance, crates of fruit on the counter
       const stall = (x, [a, b], goods, w = 3.0, own) => {
         const zb = -4.3, zf = -2.45, ya = 2.95, yf = 2.32, n = 8, c1 = C(a), c2 = C(b), wood = '#8a6446';
@@ -64,8 +68,14 @@
       [-22, -16.5, -11, -5.5, 0, 5.5, 11, 16.5, 22].forEach((x, i) => {
         if (x !== 0) stall(x, AW[i % AW.length], [FRUIT[i % 7], FRUIT[(i + 2) % 7], FRUIT[(i + 4) % 7]], i % 3 === 1 ? 3.6 : 3.0);
       });
-      if (c.opts.city?.hazelStall) {
-        objects.city = window.CityAssets.dress(c, c.opts.city);
+      const city = c.opts.city, art = window.CityAssets;
+      const marketTrees = art?.MARKET_TREES || [{ x: -2.9, z: -4.45, h: 4 }, { x: 3.25, z: -4.6, h: 4.1 }];
+      if (art && (city?.hazelStall || city?.tree)) objects.city = art.dress(c, city, marketTrees);
+      for (const { x, z, h } of marketTrees) {
+        if (!city?.tree) tree(x, z, h);
+        else shade(x, z, 1.5, 1.15);
+      }
+      if (city?.hazelStall) {
         shade(0, -3.3, 3.6, 2.4);
       } else {
         stall(0, ['#4f8f5a', '#fff4e0'], ['#c9d65a', '#f2c14e', '#c9d65a'], 3.6, true);
@@ -116,8 +126,29 @@
       c.skyline(-42);
       const fz = -4.4; // the shop front
       box(S, 0, 0, fz + .02, 7.4, 3.25, .1, '#1f3a4a'); // painted shop front
-      box(S, .9, 0, fz + .06, 1.18, 2.35, .08, '#2b2420'); box(S, .9, .04, fz + .1, .98, 2.22, .05, '#7a2f26'); box(S, .9, 1.15, fz + .14, .72, .9, .02, '#9fc3e6'); box(S, 1.27, 1.0, fz + .16, .05, .16, .05, '#e0b84d'); // door
+      box(S, .9, 0, fz + .06, 1.18, 2.35, .08, '#2b2420'); box(S, .9, .04, fz + .1, .98, 2.22, .05, '#7a2f26'); box(S, 1.27, 1.0, fz + .16, .05, .16, .05, '#e0b84d'); // door
       box(S, .9, 0, fz + .2, 1.4, .1, .5, '#b3a892'); // step
+      // A lightly obscured reflective pane over the existing door. No display,
+      // fake room, extra backing, or change to the door's surrounding geometry.
+      const doorTint = new THREE.ShaderMaterial({
+        transparent: true, depthWrite: false, opacity: .29,
+        uniforms: { tint: { value: new THREE.Color('#b8d5e4') }, strength: { value: .29 } },
+        vertexShader: 'varying vec2 paneUV; void main(){ paneUV = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+        fragmentShader: `
+          uniform vec3 tint; uniform float strength; varying vec2 paneUV;
+          void main() {
+            float axis = paneUV.x + .54 * paneUV.y;
+            float sheen = smoothstep(.49,.57,axis) * (1.0 - smoothstep(.61,.71,axis));
+            float sky = smoothstep(.20,.93,paneUV.y);
+            gl_FragColor = vec4(tint, strength + .12 * sheen + .06 * sky);
+            #include <tonemapping_fragment>
+            #include <encodings_fragment>
+          }`
+      });
+      const doorPane = add(new THREE.Mesh(new THREE.PlaneGeometry(.72,.90), doorTint), false, false);
+      doorPane.position.set(.9,1.60,fz + .153);
+      doorPane.name = 'Otto exterior tinted door glass'; doorPane.renderOrder = 2;
+
       // display windows (GOTR-0101/0102): a shallow lit display box in front of the shop front, see-through glass on the street side
       const glassMat = new THREE.MeshStandardMaterial({ color: '#d6ecf5', roughness: .08, metalness: .25, transparent: true, opacity: .16, depthWrite: false });
       const sheenMat = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .15, depthWrite: false, toneMapped: false });

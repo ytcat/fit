@@ -30,6 +30,10 @@
     Object.freeze({ name: 'Old Town compact tree', x: 11.6, z: 5.4, h: 4.4, yaw: 2.2, scale: [.74, .88, .81], phase: .7 }),
     Object.freeze({ name: 'Old Town spreading tree', x: 17.4, z: -5.4, h: 4.5, yaw: -1.3, scale: [1.17, .92, 1.03], phase: 1.6 })
   ]);
+  const MARKET_TREES = Object.freeze([
+    Object.freeze({ name: 'Market west tree', x: -2.9, z: -4.45, h: 4.0, yaw: 1.8, scale: [.74, .83, .75], phase: 1.1 }),
+    Object.freeze({ name: 'Market east tree', x: 3.25, z: -4.6, h: 4.1, yaw: -.6, scale: [.91, .88, .79], phase: 2.2 })
+  ]);
   const OPENING_MODELS = ['tree', 'car', 'bus', 'station', 'oldtown'];
   const WAIT_MS = 5000, TIRE_R = .515, HALF = Math.PI;
   const LAYOUT = {
@@ -44,7 +48,7 @@
     houses: [['brick', -12.6, -8.2, 0], ['plaster', 2.4, -8.2, 0], ['plaster', 6.2, 10.4, HALF], ['brick', 13.1, 10.4, HALF]],
     replaced: { far: [-11, .6], near: [9.5] }, // generated house slots (x) the prototypes stand in
     fill: [{ style: 'plaster', x: -5.1, w: 7.0, floors: 3, tint: 0, roof: 4 }], // a generated house between the two far prototypes
-    detailDist: 15, trimDist: 22, busInsideDist: 9
+    detailDist: 15, trimDist: 22, busInsideDist: 9, busSilhouetteDist: 24
   };
   const cache = new Map(); // name -> { state, promise, gltf, error }
   let makeLoader = () => new THREE.GLTFLoader();
@@ -99,7 +103,7 @@
     tex.dispose(); return rt;
   }
 
-  function dress(c, city) {
+  function dress(c, city, treeSites = ARRIVAL_TREES) {
     const L = LAYOUT, group = new THREE.Group(), handle = { active: false, bus: null, station: false, oldtown: false, parts: [], houses: [] };
     group.name = 'city art (GLB)'; c.group.add(group);
     const used = [], env = environment(c.opts?.renderer), aniso = c.opts?.renderer ? Math.min(4, c.opts.renderer.capabilities.getMaxAnisotropy()) : 1;
@@ -113,7 +117,7 @@
     });
     const put = (o, x, y, z, ry) => { o.position.set(x, y, z); o.rotation.y = ry; o.updateMatrix(); group.add(o); return o; };
     const trees = [], treeClip = new THREE.Frustum(), treeVP = new THREE.Matrix4();
-    if (city?.tree) for (const site of ARRIVAL_TREES) {
+    if (city?.tree) for (const site of treeSites) {
       // Give each film instance its own bones so playback leaves the cached GLTF intact.
       const template = city.tree.scene, tree = template.clone(true);
       const sources = [], copies = [];
@@ -165,7 +169,17 @@
       const doors = clip ? mixer.clipAction(clip) : null; if (doors) { doors.setLoop(THREE.LoopOnce, 1); doors.clampWhenFinished = true; doors.play(); doors.paused = true; doors.time = 0; mixer.update(0); }
       const wheels = ['Front_curb_wheel', 'Front_road_wheel', 'Rear_curb_wheel', 'Rear_road_wheel'].map(n => model.getObjectByName(n)).filter(Boolean);
       const inside = []; model.traverse(o => { if (o.isMesh && /upholstery|handrails/.test(o.material.name) && /^Body/.test(o.name)) inside.push(o); });
-      const bus = { wrap, model, mixer, doors, wheels, inside, x0: null, dist: 0, clipT: 0 };
+      // The authored cabin is 7.6k triangles. Keep a 288-triangle seat silhouette at street distance
+      // instead of leaving clear windows over an empty coach. No part touches the GLB animation nodes.
+      const lite = new c.K.Batch();
+      for (const x of [-4.15,-2.85,-1.55,-.25,1.1,2.45]) for (const z of [-.73,.73]) {
+        c.box(lite,x,1.05,z,.44,.15,.56,'#405f61');
+        c.box(lite,x-.18,1.17,z,.14,.52,.55,'#4c6a6b');
+      }
+      const cabinLOD = new THREE.Mesh(lite.geometry(),new THREE.MeshStandardMaterial({ vertexColors:true,roughness:.92 }));
+      cabinLOD.name = 'bus cabin distant seat silhouette';
+      cabinLOD.visible = false; model.add(cabinLOD); c.disposables.push(cabinLOD.geometry,cabinLOD.material);
+      const bus = { wrap, model, mixer, doors, wheels, inside, cabinLOD, x0: null, dist: 0, clipT: 0 };
       /** Wheels roll by the distance driven: the model faces -x in the street, so driving toward -x is forward. */
       bus.roll = () => { if (bus.x0 == null) bus.x0 = wrap.position.x; bus.dist = bus.x0 - wrap.position.x; const a = wheelAngle(bus.dist); for (const w of wheels) w.rotation.z = a; };
       bus.door = t => { if (!doors) return; const tt = Math.max(0, Math.min(clip.duration, t)); if (tt === bus.clipT) return; bus.clipT = tt; doors.time = tt; mixer.update(0); };
@@ -205,7 +219,15 @@
         if (tree.root.visible && Number.isFinite(s?.t)) tree.mixer?.setTime(s.t + tree.phase);
       }
       const b = handle.bus;
-      if (b) { b.roll(); if (s?.props?.doorClip) b.door(s.props.doorClip[0]); if (camera) { const d = camera.position.distanceTo(v.set(b.wrap.position.x, 1.2, b.wrap.position.z)); for (const m of b.inside) m.visible = d < L.busInsideDist; } }
+      if (b) { b.roll(); if (s?.props?.doorClip) b.door(s.props.doorClip[0]); if (camera) {
+        // Measure from the visible cabin, not its midpoint eleven metres across:
+        // a close passenger-door or windscreen view still needs proper seats and rails.
+        const nearX = Math.min(b.wrap.position.x+4.3,Math.max(b.wrap.position.x-4.3,camera.position.x));
+        const d = camera.position.distanceTo(v.set(nearX,1.55,b.wrap.position.z));
+        const full = d < L.busInsideDist;
+        for (const m of b.inside) m.visible = full;
+        b.cabinLOD.visible = !full && d < L.busSilhouetteDist;
+      } }
       if (camera) for (const h of handle.houses) { const d = camera.position.distanceTo(h.centre); for (const m of h.detail) m.visible = d < L.detailDist; for (const m of h.trim) m.visible = d < L.trimDist; }
     };
     const isCity = o => { for (let p = o; p; p = p.parent) if (p === group || p === handle.bus?.wrap) return true; return false; };
@@ -225,7 +247,7 @@
   }
 
   window.CityAssets = {
-    FILES, LAYOUT, ARRIVAL_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, wheelAngle,
+    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, wheelAngle,
     get: n => cache.get(n)?.gltf || null,
     _setLoader(f) { makeLoader = f || defaultLoader; cache.clear(); } // tests
   };
