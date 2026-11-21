@@ -40,7 +40,7 @@ jobs:
           trap 'kill "$a" "$b"' EXIT
           for side in before after; do
             port=8671; if [ "$side" = after ]; then port=8672; fi
-            MAP_URL=http://127.0.0.1:$port/adventure/map-preview.html SHADOW=1024 node qa/gotr-0008/map/capture.cjs "$OUT_DIR" "$side-map:overview:day:402:690" > "$OUT_DIR/$side-map.jsonl"
+            MAP_URL=http://127.0.0.1:$port/adventure/map-preview.html SHADOW=1024 node qa/gotr-0008/map/capture.cjs "$OUT_DIR" "$side-map:market:day:402:690" > "$OUT_DIR/$side-map.jsonl"
             APP_URL=http://127.0.0.1:$port/ SHOTS='street:14.0,ahead:20.0' node qa/gotr-0089/tools/film.cjs "$side-oldtown"
             APP_URL=http://127.0.0.1:$port/ CLIP=dream_market_robbery SHOTS='opening:1.3,faceoff:11.2' node qa/gotr-0089/tools/film.cjs "$side-market"
           done
