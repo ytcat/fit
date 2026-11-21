@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.75 | 2026-11-21 | | Chapter 1 films 9 and 10 in the gym: "The New Bag" (the Fighter and Mack hit the new bag from both sides, the bag swings) and "The Offer" (Bruno proposes the unofficial fight), each leading into its drill. The referee shouts the approved "Fight!" recording in English, Hebrew or Russian at the start bell (bell, punch and KO sounds unchanged until their approved files are added). Low-quality street films no longer draw shadows. Stricter browser checks in CI. |
 | v1.74 | 2026-11-21 | | The authored Old Town tree sways in the Chapter 1 opening. The generated tree is used if the model is unavailable. Includes the artwork already integrated in v1.72 and v1.73. |
 | v1.73 | 2026-11-20 | `bf7e79a` | Hazel's modeled fruit stall appears in the Market Row robbery and reward scenes, with the generated stall as a fallback. The apology film preloads the model (`577bd22`). Restores GitHub regression validation. |
 | v1.72 | 2026-11-20 | `2419d9a` | Old Town arrival uses the authored compact car with a generated fallback. |
