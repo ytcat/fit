@@ -1,0 +1,38 @@
+name: Live v1.70 observational QA
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'qa/live-v170/**'
+      - '.github/workflows/live-v170-qa.yml'
+permissions:
+  contents: read
+jobs:
+  live-v170-observe:
+    name: Playwright test of public v1.70 (no deployment)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated Playwright tools
+        run: |
+          mkdir -p /tmp/gotr-qa
+          cd /tmp/gotr-qa
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run read-only player tests against live version
+        env:
+          NODE_PATH: /tmp/gotr-qa/node_modules
+          APP_URL: https://ytcat.github.io/fit/
+          QA_OUTPUT: qa/live-v170/output
+        run: node qa/live-v170/smoke.cjs
+      - name: Upload diagnostics and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gotr-live-v170-qa
+          path: qa/live-v170/output/
+          if-no-files-found: warn
