@@ -123,7 +123,11 @@
           if(a>last) span(last,a,z,1.6,1.26);
           if (door !== 'entry') {
             span(a,b,z,1.6,.17,trim); span(a,b,z,2.56,.30);
-            if(door) span((a+b)/2-.04,(a+b)/2+.04,z,1.77,.79,trim);
+            if(door) {
+              // These are mechanical doors: lower kick panels stay solid; only the upper leaves are glazed.
+              span(a,b,side*1.24,.57,1.05,trim);
+              span((a+b)/2-.04,(a+b)/2+.04,z,1.62,.94,trim);
+            }
             vehiclePane(PANE,(a+b)/2,1.77,side*1.258,b-a,.79,side<0?Math.PI:0);
           }
           last=b;

@@ -52,7 +52,7 @@ const shots=[
             cam.position.fromArray(s.camera.pos); cam.lookAt(...s.camera.look);
             model.wrap.position.x=s.props.bus[0]; live.objects.city.frame(s,cam);
           } else if(shot==='bus-mid'){
-            model.wrap.position.x=-1; cam.position.set(3.3,2.35,14.4); cam.lookAt(-1,1.55,1.9);cam.fov=42;live.objects.city.frame({},cam);
+            model.wrap.position.x=-1; cam.position.set(14.5,3.0,4.9); cam.lookAt(-1,1.55,1.9);cam.fov=42;live.objects.city.frame({},cam);
           } else if(shot==='compact-car'){
             cam.position.set(12.0,2.1,1.25);cam.lookAt(8.4,1.0,-2.45);cam.fov=46;
           } else if(shot==='standalone-bus'){
