@@ -15,11 +15,11 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   // ---- loader: one request per file (cache), a failure falls back and is retried later, a slow file never blocks
   const calls = {}, pending = [];
   CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop(); calls[n] = (calls[n] || 0) + 1; if (/bus|hazel/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
-  assert.deepEqual(CA.status(), { car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle' });
+  assert.deepEqual(CA.status(), { tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle' });
   const t0 = Date.now(), r1 = await CA.ready(60);
   assert.ok(Date.now() - t0 < 400, 'ready() returns after its timeout even while a file is still loading');
-  assert.ok(r1.bus && r1.station === null && r1.oldtown === null, 'only what is ready is used');
-  assert.deepEqual(CA.status(), { car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', hazelStall: 'idle' });
+  assert.ok(r1.bus && r1.tree === null && r1.station === null && r1.oldtown === null, 'only what is ready is used');
+  assert.deepEqual(CA.status(), { tree: 'loading', car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', hazelStall: 'idle' });
   await CA.ready(30); await CA.preload(['bus']);
   assert.equal(calls['gloryland-bus.glb'], 1, 'the bus is fetched once (cache)'); assert.equal(calls['gloryland-oldtown.glb'], 1, 'a slow file is not requested twice');
   assert.equal(calls['gloryland-station.glb'], 2, 'a failed file is tried again next time');
@@ -35,6 +35,27 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   // ---- the real models (the page's r128 GLTFLoader)
   const parse = f => new Promise((ok, err) => { const b = fs.readFileSync(f); new THREE.GLTFLoader().parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength), './', ok, err); });
   const bus = await parse('assets/street/ch01-bus/gloryland-bus.glb'), station = await parse('assets/street/ch01-station/gloryland-station.glb');
+  const tree = await parse(CA.FILES.tree);
+  const treeSet = { group: new THREE.Group(), objects: {}, disposables: [] };
+  const treeArt = CA.dress(treeSet, { tree });
+  const treeInstance = treeSet.group.getObjectByName('Old Town street tree');
+  assert.ok(treeArt.active && treeInstance && treeArt.stats().triangles <= 20000, 'tree uses the street geometry budget');
+  const sourceBones = [], instanceBones = [];
+  tree.scene.traverse(node => { if (node.isBone) sourceBones.push(node); });
+  treeInstance.traverse(node => {
+    if (node.isBone) instanceBones.push(node);
+    if (node.isSkinnedMesh) assert.ok(node.skeleton.bones.every(bone => treeInstance.getObjectById(bone.id)), 'skin binds to the instance');
+  });
+  assert.equal(instanceBones.length, 3, 'the tree has the authored three-bone rig');
+  const templatePose = sourceBones.map(bone => bone.quaternion.clone());
+  treeArt.frame({ t: 0 });
+  const initialPose = instanceBones.map(bone => bone.quaternion.clone());
+  treeArt.frame({ t: 1 });
+  assert.ok(instanceBones.some((bone, i) => bone.quaternion.angleTo(initialPose[i]) > .001), 'the breeze animates the instance');
+  assert.ok(sourceBones.every((bone, i) => bone.quaternion.equals(templatePose[i])), 'the cached tree keeps its initial pose');
+  treeArt.frame({ t: 0 });
+  assert.ok(instanceBones.every((bone, i) => bone.quaternion.equals(initialPose[i])), 'replaying the first frame resets the pose');
+  for (const disposable of treeSet.disposables) disposable.dispose();
   const hazelStall = await parse('assets/street/ch01-market/hazel-fruit-stall.glb');
   const marketSet = { group: new THREE.Group(), objects: {}, disposables: [] };
   const marketArt = CA.dress(marketSet, { hazelStall });
