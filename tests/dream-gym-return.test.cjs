@@ -79,13 +79,13 @@ const server = http.createServer((req,res) => {
       assert.deepEqual(visible,{distinct:true,species:'rabbit',bag:'new',overlay:true});
       if (process.env.GOTR_GYM_ARTIFACTS) {
         fs.mkdirSync(process.env.GOTR_GYM_ARTIFACTS,{recursive:true});
-        await page.evaluate(t => DreamScenes.seek(t),step === 'bag_drill' ? 7.25 : 4.65);
-        await page.waitForTimeout(500);
+        await page.evaluate(t => DreamScenes.seek(t),step === 'bag_drill' ? 7.12 : 4.65);
+        await page.waitForTimeout(140);
         await page.screenshot({path:path.join(process.env.GOTR_GYM_ARTIFACTS,id + '.png')});
       }
       if (step === 'bag_drill') await page.locator('dialog.dream-scene .dream-skip').click();
       else await page.keyboard.press('Escape');
-      await wait(() => !!window.__gymTraining && !DreamScenes.playing);
+      await wait(() => !!window.__gymTraining && !DreamScenes.playing && !!window.app?.engine?.career?.active);
       assert.equal(await page.evaluate(() => window.__gymTraining.mode),step === 'bag_drill' ? 'heavy' : 'pads');
       assert.equal(await page.evaluate(step => StoryFlow.doneOf(ringfighterGame.store.game(),StoryFlow.find(step)),step),false,'skipping film does not complete training');
       assert.deepEqual(errors,[]);

@@ -118,7 +118,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       try { set = window.StorySets.build(scene0.set, scene, { renderer: e.renderer, shadows: !!e.renderer.shadowMap?.enabled, city }); } finally { if (scene0.gymBag && BB) BB.force = force0; }
       if (street && hi && set.sun) { set.sun.shadow.mapSize.set(2048, 2048); set.sun.shadow.radius = 3; set.sun.shadow.camera.layers.enable(window.StreetLife?.SHADOW_LAYER ?? 1); }
       if (set.objects.city?.bus && C.withCity) scene0 = C.withCity(scene0);
-      if (scene0.gymBag && set.objects.oldBag?.state === 'new') gymBagBase = set.objects.oldBag.sample;
+      if (scene0.gymStrikes && set.objects.oldBag?.state === 'new') gymBagBase = set.objects.oldBag.sample;
       if (scene0.set === 'dream_gym') tuneInterior(); else if (scene.fog) { scene.fog.near = 34; scene.fog.far = 210; } // the towers down the street stay readable through the haze
       for (const [key, a] of Object.entries(scene0.actors)) {
         const c = a.rig === 'fighter' ? e.coach : Cast().rig(a.rig, e); if (!c) throw Error('rig ' + a.rig);
@@ -209,7 +209,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
         // turn in place: the body comes round over a few steps of time instead of snapping to the new direction
         let ry = a.ry; const prev = turn.get(c); if (prev != null && dt > 0) { let d = a.ry - prev; d = Math.atan2(Math.sin(d), Math.cos(d)); ry = prev + d * (1 - Math.exp(-dt * (a.walking ? 9 : 5))); } turn.set(c, ry);
         c.root.position.set(a.x, a.y || 0, a.z); c.root.rotation.set(0, ry, 0); c.root.updateMatrixWorld(true);
-        const gymPunch = scene0.gymBag && window.GymReturnCore?.punch(k, run.t);
+        const gymPunch = scene0.gymStrikes && window.GymReturnCore?.punch(k, run.t);
         if (gymPunch) {
           c.update(gymPunch.phase * 1.22, gymPunch.move, 'one_two', { simulationTime: run.clock, keepFaceClear: true, guardCover: 1, power: 1.15, recoil: 0, advance: 0, contactDrive: 0 });
           Pose().reset(c);

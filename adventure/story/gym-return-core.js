@@ -14,7 +14,7 @@
   const line = (id, i, t) => ({ t, ...Story.lines[id].intro[i], hold: true });
   const scenes = {
     dream_new_bag: {
-      set: 'dream_gym', place: 'gym', chapter: 1, tap: true, duration: 13.4, gymBag: true,
+      set: 'dream_gym', place: 'gym', chapter: 1, tap: true, duration: 13.4, gymBag: 'new', gymStrikes: true,
       outfit: { fighter: 'kit', pip: 'kit' },
       actors: {
         fighter: { rig: 'fighter', keys: [
@@ -26,7 +26,7 @@
           { t: 1.5, x: x - X, z, face: [x,z] }, { t: 6.4, look: [x,1.56,z], act: 'guard' }, { t: 11.65, act: 'idle', look: 'fighter' }
         ] },
         bruno: { rig: 'bruno', keys: [
-          { t: 0, x: x -.3, z: z + 1.35, face: 'fighter', look: 'fighter' },
+          { t: 0, x: x -.3, z: z - 1.35, face: 'fighter', look: 'fighter' },
           { t: 2.1, arms: { R: 'open' } }, { t: 3.7, arms: {}, look: 'pip' },
           { t: 6.4, face: [x,z], look: [x,1.55,z] }, { t: 11.65, look: 'fighter' }
         ] }
@@ -40,7 +40,7 @@
       lines: [line('bag_drill',0,2.1), line('bag_drill',1,4.5)]
     },
     dream_offer: {
-      set: 'dream_gym', place: 'gym', chapter: 1, tap: true, duration: 9,
+      set: 'dream_gym', place: 'gym', chapter: 1, tap: true, duration: 9, gymBag: 'new',
       outfit: { fighter: 'kit', pip: 'kit' },
       actors: {
         fighter: { rig: 'fighter', keys: [
