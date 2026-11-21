@@ -1,0 +1,41 @@
+name: Vehicle glass browser review
+on:
+  pull_request:
+    paths:
+      - 'adventure/story/city-assets.js'
+      - 'adventure/story/story-sets.js'
+      - 'adventure/story/dream-sets.js'
+      - 'qa/vehicle-glass/**'
+      - '.github/workflows/vehicle-glass-review.yml'
+permissions:
+  contents: read
+jobs:
+  vehicle-glass:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    env:
+      NODE_PATH: /tmp/gotr-vehicle-qa/node_modules
+      GLASS_ARTIFACTS: qa-vehicle-glass
+      GLASS_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Fetch comparison baseline
+        run: git fetch --no-tags --depth=1 origin "$GLASS_BASE_SHA"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --prefix /tmp/gotr-vehicle-qa --no-save playwright@1.56.1
+          /tmp/gotr-vehicle-qa/node_modules/.bin/playwright install --with-deps chromium
+      - name: Render same-camera before and after at 402×690
+        run: node qa/vehicle-glass/compare.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vehicle-glass-402x690
+          path: qa-vehicle-glass/
+          if-no-files-found: error
+          retention-days: 7
