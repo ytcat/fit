@@ -14,6 +14,15 @@ Keep subagent output concise and avoid uncontrolled parallelism. All production 
 - Push each checkpoint to a Git remote authorized for its contents and confirm the remote branch points to the exact commit. Fit's GitHub repository is public. Use an approved private destination for private drafts or media. If a push is unavailable, provide a verified downloadable Git bundle and say the checkpoint is local. Save important review clips and source assets from temporary directories to an authorized durable location.
 - Report the branch, commit SHA, backup location, and next step after each checkpoint. Record verification and release status separately. Creating a checkpoint does not authorize merging or deploying it.
 
+## Publishing while other agents work in parallel (Claude and ChatGPT/Codex)
+
+Before every publish to `main` (the live site https://ytcat.github.io/fit/):
+1. `git fetch origin`; read the live `version.js` (https://ytcat.github.io/fit/version.js) and `origin/main:version.js`. They must match; if not, a publish is still deploying: wait and re-check.
+2. Merge `origin/main` into the release branch. Check open pull requests and recent branches of the other agent for version numbers already taken.
+3. The new version = highest of live, `main` and any taken number + 1. Bump `version.js`, `index.html` `version.js?v=`, `offline-worker.js`, `scripts/build_offline_manifest.py`, then regenerate `offline-manifest.json` (`tests/offline-version-match.test.cjs` checks them).
+4. Run the full suite on the merged tree. Immediately before merging, fetch again; if `main` moved, merge and test again.
+5. After publishing, confirm the live `version.js` shows the new number and record it in `docs/glory-of-the-ring/RELEASES.md`.
+
 ## Mandatory continuous user feedback intake (Glory of the Ring)
 
 At the START of every new task/session, open and review [`docs/glory-of-the-ring/FEEDBACK_BACKLOG.md`](docs/glory-of-the-ring/FEEDBACK_BACKLOG.md) before planning or changing code. It is the single source of truth for user-submitted fixes, corrections and feature requests. Check its OPEN, TRIAGE, IN PROGRESS and BLOCKED entries against the current code and the user's current priority. Codex must re-read the latest version before work and update statuses with actual commits/QA evidence when done. Preserve the full backlog and coordinate with other agents; avoid overwrite races or duplicate work. A user report is a request to investigate, not proof of root cause. Consult [Glory of the Ring PRD entry](GLORY_OF_THE_RING_START_HERE.md) for product requirements. Do not claim Codex reads updates automatically outside a launched session.
