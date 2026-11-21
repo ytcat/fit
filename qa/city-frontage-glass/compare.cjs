@@ -22,7 +22,7 @@ const DEF = 'dive:map:3.1,sky:2.6,arrives:5.6,doors:8.0,step-off:8.6,face:11.0,s
   if (process.env.TOUCH === '1') await p.evaluate(() => DreamScenes.quality('low'));
   const city = process.env.WAIT === '0' ? null : await p.evaluate(clip => window.CityAssets ? window.CityAssets.preload(clip.startsWith('dream_market') ? ['hazelStall', 'tree'] : undefined).then(() => window.CityAssets.status()) : null, CLIP);
   const frames = [], files = [], wait = async () => { const n0 = await p.evaluate(() => app.engine.renderer.info.render.frame); await p.waitForFunction(n => app.engine.renderer.info.render.frame >= n + 3, n0, { timeout: 90000 }); };
-  const start = map => p.evaluate(({ map, clip }) => { window.__done = null; StoryScenes.stop(); StoryScenes.play(clip, { noMap: !map, timeScale: .05, onDone: r => { window.__done = r; } }); }, { map, clip: CLIP });
+  const start = map => p.evaluate(({ map, clip }) => { window.__done = null; StoryScenes.stop(); StoryScenes.play(clip, { noMap: !map, owned: clip === 'dream_otto_shop', timeScale: .05, onDone: r => { window.__done = r; } }); }, { map, clip: CLIP });
   let mode = null;
   for (const s of shots) {
     if (mode !== !!s.map) { mode = !!s.map; await start(mode); await p.waitForFunction(() => DreamScenes.debug && DreamScenes.debug.phase !== 'load', null, { timeout: 90000 }); }
