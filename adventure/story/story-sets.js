@@ -134,7 +134,31 @@
       const a = x - w / 2 + .085, b = x + w / 2 - .085, c = y + .076, d = y + h - .076, p = z + depth + .035;
       frontagePanes.push(a,c,p,b,c,p,b,d,p,a,c,p,b,d,p,a,d,p);
     }
-    const ctx = { id, group, opts, displayBay, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
+    let reflectiveMat;
+    // Decorative panes only. Backed display glass is a separate helper/material.
+    const reflectivePane = (name, x, y, z, w, h, facing = 1) => {
+        reflectiveMat ||= new THREE.ShaderMaterial({
+          transparent: true, depthWrite: false, opacity: .29,
+          uniforms: { tint: { value: new THREE.Color('#b8d5e4') }, strength: { value: .29 } },
+          vertexShader: 'varying vec2 paneUV; void main(){ paneUV = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+          fragmentShader: `
+            uniform vec3 tint; uniform float strength; varying vec2 paneUV;
+            void main() {
+              float axis = paneUV.x + .54 * paneUV.y;
+              float sheen = smoothstep(.49,.57,axis) * (1.0 - smoothstep(.61,.71,axis));
+              float sky = smoothstep(.20,.93,paneUV.y);
+              gl_FragColor = vec4(tint, strength + .12 * sheen + .06 * sky);
+              #include <tonemapping_fragment>
+              #include <encodings_fragment>
+            }`
+        });
+      const pane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), reflectiveMat);
+      pane.castShadow = pane.receiveShadow = false; group.add(pane); disposables.push(pane.geometry);
+      if (!disposables.includes(reflectiveMat)) disposables.push(reflectiveMat);
+      pane.position.set(x, y, z); if (facing < 0) pane.rotation.y = Math.PI;
+      pane.name = name; pane.renderOrder = 2; return pane;
+    };
+    const ctx = { id, group, opts, displayBay, reflectivePane, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline };
     const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) }, evening = focus.time === 'evening';
 
     if (frontagePanes.length) {
@@ -246,7 +270,7 @@
     c.skyline(-44); c.plinth(-44, 4.2, -3.52); c.plinth(5.8, 10.1, -3.52); c.plinth(11.9, 44, -3.52); c.shade(-14.2, 2.1, 6.4, 2.4, true); c.shade(-4.25, -1.2, .7, 1.5);
     picto('book', 0, 4.6, -3.55); picto('flower', -19.6, 4.6, -3.55);
     // door: frame, leaf with a window, brass handle, step, mat, wall lantern, the opening bell
-    box(S, 11, 0, -3.64, 1.66, 2.56, .14, '#3a2b24'); box(S, 11, .02, -3.52, 1.3, 2.3, .07, '#6b4630'); box(S, 11, 1.25, -3.47, .86, .8, .03, '#33485c'); box(S, 11, 1.62, -3.455, .86, .2, .02, '#587891'); box(S, 11, .25, -3.47, .9, .7, .03, '#5a3a28');
+    box(S, 11, 0, -3.64, 1.66, 2.56, .14, '#3a2b24'); box(S, 11, .02, -3.52, 1.3, 2.3, .07, '#6b4630'); c.reflectivePane('Legacy gym exterior door glass', 11, 1.65, -3.468, .86, .8); box(S, 11, .25, -3.47, .9, .7, .03, '#5a3a28');
     box(S, 11.48, 1.02, -3.44, .06, .22, .07, '#e0b84d'); box(S, 11, 0, -3.3, 2.1, .1, .62, '#cfc6b6'); box(S, 11, .1, -3.1, 1.3, .02, .5, '#7a3b34');
     box(S, 12.25, 2.25, -3.5, .06, .06, .3, '#2f3640'); cyl(S, 12.25, 1.92, -3.3, .12, .3, '#fff0c4', P.cyl6); S.add(P.cone6, M(12.25, 2.22, -3.3, .18, .14, .18), C('#2f3640'));
     box(S, 9.75, 2.05, -3.45, .05, .05, .34, '#2f3640'); cyl(S, 9.75, 1.98, -3.26, .012, .1, '#2f3640', P.cyl6); S.add(P.cone8, M(9.75, 1.72, -3.26, .14, .26, .14), C('#e0b84d')); cyl(S, 9.75, 1.7, -3.26, .15, .03, '#c99a2e', P.cyl8); cyl(S, 9.75, 1.5, -3.26, .008, .22, '#8a6446', P.cyl6);
