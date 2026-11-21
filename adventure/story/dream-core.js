@@ -53,7 +53,7 @@
   /** Next time the timeline must stop and wait for a tap after time t (a line with hold), or Infinity. */
   const SETTLE = .9;
   function holdAfter(scene, t) { for (const l of scene.lines || []) if (l.hold && l.t + SETTLE > t - 1e-6) return l.t + SETTLE; return Infinity; }
-  const RIGS = ['fighter', 'bruno', 'brick', 'fang', 'hazel', 'otto']; // story-cast.js + cast-market.js (GOTR-0092)
+  const RIGS = ['fighter', 'bruno', 'brick', 'fang', 'hazel', 'otto', 'pip']; // story-cast.js + cast-market.js (GOTR-0092)
   function validate(scene) {
     const e = [], sorted = (k, n) => { if (!k?.length) e.push(n + ' empty'); for (let i = 1; i < (k || []).length; i++) if (k[i].t < k[i - 1].t) e.push(n + ' keys not sorted'); };
     if (!(scene.duration > 0)) e.push('duration'); if (!scene.set) e.push('set'); sorted(scene.camera, 'camera');

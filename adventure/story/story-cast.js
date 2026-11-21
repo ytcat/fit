@@ -585,10 +585,10 @@
   /* ---------------------------------------------------------------- rigs */
   const cache = {};
   function rig(id, engine) {
-    const def = DEFS[id]; if (!def) return null;
+    const def = DEFS[id]; if (!def && id !== 'pip') return null;
     if (cache[id]) return cache[id];
     const e = engine || window.app?.engine, data = e?.roster?.data || e?.arena?.data; if (!data || !window.LionCoach) return null;
-    const c = new window.LionCoach(data, { species: 'lion', cast: def }); c.root.name = 'Story character ' + id;
+    const c = new window.LionCoach(data, id === 'pip' ? { species: 'rabbit' } : { species: 'lion', cast: def }); c.root.name = 'Story character ' + id;
     if (c.bodyFurOff && c.bodyFur) c.bodyFur.visible = false;
     return (cache[id] = c);
   }
