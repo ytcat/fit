@@ -24,10 +24,10 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     await p.waitForFunction(() => app.engine.fightIQDemo?.sim && app.engine.fightIQDemo.memo?.props, null, { timeout: 300000 });
     // after every rendered frame: the closest glove to the leather; the keyboard bot answers swings 1 and 2 when the ring closes
     await p.evaluate(() => {
-      const run = app.engine.fightIQDemo, f0 = run.frame, V = () => new THREE.Vector3(), M = window.__bag = { worst: 9, contacts: [], frames: 0, cue: 0 };
+      const run = app.engine.fightIQDemo, f0 = run.frame, V = () => new THREE.Vector3(), M = window.__bag = { worst: 9, contacts: {}, frames: 0, cue: 0 };
       run.frame = d => { f0(d); const s = run.sim, v = s.view(), L = run.memo.props.mesh; L.updateMatrixWorld(true); const inv = L.matrixWorld.clone().invert(), u = L.userData;
         let gap = 9; for (const side of ['L', 'R']) { const q = run.rigs.fighter.joints['hand' + side].getWorldPosition(V()).applyMatrix4(inv); if (Math.abs(q.y) < u.h) gap = Math.min(gap, Math.hypot(q.x, q.z) - u.r - .06); }
-        M.frames++; M.worst = Math.min(M.worst, gap); const c = s.punch?.contact; if (c && s.t >= c.t && s.t < c.t + .07) M.contacts.push(+gap.toFixed(3));
+        M.frames++; M.worst = Math.min(M.worst, gap); const c = s.punch?.contact; if (c && s.t >= c.t && s.t < c.t + .07) M.contacts[s.i] = Math.min(M.contacts[s.i] ?? 9, +gap.toFixed(3)); // closest the glove is while the hit lands (the bag then flies off it)
         if (!document.querySelector('.story-cue').hidden) M.cue++;
         if (s.i >= 1 && s.i < 3 && v.prompt && v.prompt !== 'back' && !s.punch && s.t >= v.due) for (const type of ['keydown', 'keyup']) window.dispatchEvent(new KeyboardEvent(type, { key: { straight: 'j', hook: 'k', uppercut: 'l' }[v.type], bubbles: true })); };
     });
@@ -40,7 +40,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     console.log('bag trial', JSON.stringify({ hits: out.hits, mistakes: out.mistakes, worst: +out.worst.toFixed(3), contacts: out.contacts, frames: out.frames, cue: out.cue, links: out.links, brick: out.brick, kit: out.kit, calls: out.stats?.calls }));
     assert.equal(out.mistakes, 0, 'every press when the ring closes lands: ' + out.log.join(' ')); assert.equal(out.hits, 3);
     assert.ok(out.worst > -.03, 'a glove never goes into the bag: ' + out.worst);
-    assert.ok(out.contacts.length >= 2 && out.contacts.every(g => g < .04), 'the glove is on the leather when the hit counts: ' + out.contacts);
+    const touch = Object.values(out.contacts); assert.ok(touch.length === 3 && touch.every(g => g < .04 && g > -.03), 'the glove is on the leather when the hit counts: ' + JSON.stringify(out.contacts));
     assert.equal(out.brick, 'brick', 'Brick is the bulldog of the story cast'); assert.equal(out.kit, 'kit', 'gloves on'); assert.ok(out.links >= 8, 'a chain: ' + out.links); assert.ok(out.cue > 0, 'the ring cue shows');
     assert.deepEqual(errors, []);
     console.log('PASS story-bag-trial: tap and keys land when the ring closes, gloves stop on the leather');
