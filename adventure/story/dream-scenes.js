@@ -22,6 +22,8 @@
    * (people, a dog, pigeons); 'low' = contact shadows only, clouds and litter; 'auto' (default) starts high and drops to low
    * when the first second of the film runs below ~30 fps (a phone that cannot keep up). Kept per device. */
   const QKEY = 'gotr.film.quality', QUALITIES = ['auto', 'high', 'low'];
+  // The light of each place (render-look.js). The Docks keep their own tuned night (docks-sets.js).
+  const LOOK_OF = { dream_street: 'day', dream_market: 'market', dream_shop: 'shop', dream_gym: 'gym', dream_gym_floor: 'gym', dream_gym_ring: 'gym' };
   let quality = 'auto'; try { const q = localStorage.getItem(QKEY); if (QUALITIES.includes(q)) quality = q; } catch { /* private mode */ }
   const BOX = [['jab', .5], ['cross', .58], ['guard', .4], ['jab', .46], ['hook', .6], ['guard', .8]], BOX_T = BOX.reduce((n, x) => n + x[1], 0);
 
@@ -78,7 +80,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     const walkAPI = id === 'dream_opening' && window.StreetWalkPrototype?.enabled(location.search) ? window.StreetWalkPrototype : null;
     let walk = null, resumeKey = null;
     if (walkAPI) try { resumeKey = e.career?.store?.current?.()?.id; } catch { /* no profile */ }
-    let life = null, proxies = [], castWas = [], shadowWas = null, hi = false, perf = { n: 0, sum: 0 };
+    let life = null, proxies = [], castWas = [], shadowWas = null, hi = false, perf = { n: 0, sum: 0 }, rlook = null, lookPerf = { n: 0, sum: 0 }, sunDir = null;
     let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false, props = null, gymBagBase = null;
     let ottoVisual = null, ottoWasDrawn = false;
     function releaseOtto() {
@@ -111,6 +113,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       for (const b of blobs) scene?.remove(b.mesh); if (blobs.length) { blobs[0].mesh.geometry.dispose(); blobs[0].mesh.material.map.dispose(); blobs[0].mesh.material.dispose(); } blobs = [];
       if (floorBag) { scene?.remove(floorBag); floorBag.geometry.dispose(); floorBag = null; }
       try { map?.dispose(); } catch { /* already gone */ } map = null; mapScene = null;
+      try { rlook?.dispose(); } catch (x) { console.warn('render look', x); } rlook = null;
       set?.dispose(); set = null;
       if (stageMove) { stageMove.placeholder.replaceWith(stageMove.stage); stageMove.stage.classList.remove('game-preview-live', 'story-live'); stageMove.stage.style.pointerEvents = stageMove.pe; stageMove = null; window.dispatchEvent(new Event('resize')); }
       if (oldFit) { e.fitCameraToModel = oldFit; oldFit = null; }
@@ -199,6 +202,13 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       const stage = e.stage || document.getElementById('stageContainer');
       if (stage) { const placeholder = document.createComment('dream stage'); stage.before(placeholder); stageMove = { stage, placeholder, pe: stage.style.pointerEvents }; stage.style.pointerEvents = 'none'; host.append(stage); stage.classList.add('game-preview-live', 'story-live'); }
       oldFit = e.fitCameraToModel; e.fitCameraToModel = () => {};
+      // Render realism (2026-11-22): image-based light for the place (render-look.js); 'low' keeps the plain lights
+      const lookId = LOOK_OF[scene0.set] === 'gym' && scene0.evening ? 'gym_evening' : LOOK_OF[scene0.set];
+      let fx = 0, fz = 0, fn = 0; try { for (const a of Object.values(C.sample(scene0, Math.min(2, scene0.duration)).actors || {})) if (a && a.act !== 'off' && Number.isFinite(a.x)) { fx += a.x; fz += a.z; fn++; } } catch { /* no actors */ }
+      const ld = lookId && window.RenderLook?.LOOKS?.[lookId]?.sunDir; // indoors the sun comes through the windows (every tier: no cost)
+      if (ld && set.sun) { sunDir = V(...ld).normalize(); set.sun.position.copy(set.sun.target.position).addScaledVector(sunDir, 40); }
+      if (lookId && window.RenderLook) try { rlook = window.RenderLook.attach(scene, e.renderer, { look: lookId, high: quality !== 'low', sun: set.sun, focus: fn ? [fx / fn, fz / fn] : null }); } catch (x) { console.warn('render look', x); rlook = null; }
+      run.look = rlook; // QA: run.look.high(bool)
       run.frame = frame; e.fightIQDemo = run; busy.remove(); window.dispatchEvent(new Event('resize'));
       if (walkAPI && (run.walkIntroSkipped || walkAPI.resumePoint(resumeKey))) walkStart();
       else if (scene0.intro === 'map' && !opts.noMap && !reduced) startMap(); else run.phase = 'play';
@@ -316,12 +326,14 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       // camera
       lens(s.camera.fov);
       if (walk) walk.view(look,realtime,run.clock); else { camera.position.fromArray(s.camera.pos); look.fromArray(s.camera.look); camera.lookAt(look); }
-      if (hi && set.sun) { // the sun's shadow box covers what this shot sees near the camera: between the lens and the subject
+      if (set.sun && (hi || rlook?.isHigh && set.sun.castShadow && e.renderer.shadowMap.enabled)) { // the sun's shadow box covers what this shot sees near the camera: between the lens and the subject (indoors too on a high look: same map, a box fitted to the shot instead of the whole set)
         const d = Math.hypot(look.x - camera.position.x, look.z - camera.position.z), k = Math.min(1, 9 / Math.max(1e-3, d)) * .55, r = Math.max(7, Math.min(18, d * .55 + 4)), sc = set.sun.shadow.camera;
         set.focus(camera.position.x + (look.x - camera.position.x) * k, camera.position.z + (look.z - camera.position.z) * k, r);
         if (Math.abs(sc.right - r) > r * .15) { sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.updateProjectionMatrix(); }
       } else set.focus(look.x, look.z);
+      if (sunDir && set.sun) { set.sun.position.copy(set.sun.target.position).addScaledVector(sunDir, 40); } // indoors: the light comes through the windows
       if (life) { const f = rigs.fighter?.root; life.update(dt, run.t, f && f.visible ? f.position : null); }
+      if (quality === 'auto' && !hi && rlook?.isHigh && run.phase === 'play' && lookPerf.n < 60) { lookPerf.n++; if (lookPerf.n > 12) lookPerf.sum += Math.max(0, delta || 0); if (lookPerf.n === 60 && lookPerf.sum / 48 > 1 / 30) { rlook.high(false); run.quality = 'low (auto)'; } }
       if (quality === 'auto' && hi && run.phase === 'play' && perf.n < 60) { perf.n++; if (perf.n > 12) perf.sum += Math.max(0, delta || 0); if (perf.n === 60 && perf.sum / 48 > 1 / 30) lowQuality(); }
       o.city?.frame(s, camera); // GOTR-0089: model bus wheels and doors, distance detail
       // Characters outside the shot are not drawn (2026-11-22: each story rig is 0.25-0.5 M triangles and every film drew all of them,
@@ -346,7 +358,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (!walk && s.done && !ended) { ended = true; setTimeout(() => finish({ skipped: !!run.skipping }), 250); }
     }
     /** This device cannot keep up: contact shadows only, no street people and birds (clouds and litter stay). */
-    function lowQuality() { hi = false; if (set?.sun) set.sun.castShadow = false; e.renderer.shadowMap.enabled = false; life?.level(1); for (const b of blobs) b.mesh.material.opacity = .6; run.quality = 'low (auto)'; }
+    function lowQuality() { hi = false; rlook?.high(false); if (set?.sun) set.sun.castShadow = false; e.renderer.shadowMap.enabled = false; life?.level(1); for (const b of blobs) b.mesh.material.opacity = .6; run.quality = 'low (auto)'; }
     Object.defineProperty(run, 'rigs', { get: () => rigs }); Object.defineProperty(run, 'set', { get: () => set }); Object.defineProperty(run, 'scene', { get: () => scene }); Object.defineProperty(run, 'camera', { get: () => camera }); // read-only, for QA probes
     run.seek = t => { if (walk) return; turn.clear(); if (ottoVisual) { resetOtto(); lineKey = ''; } run.t = clamp(t, 0, scene0.duration); run.ack = scene0.lines.reduce((n, q, i) => q.t + C.SETTLE < run.t ? i : n, -1); if (run.phase === 'map') { run.phase = 'play'; fade.style.opacity = '0'; try { map?.dispose(); } catch { /* ignore */ } map = null; } for (const c of Object.values(rigs)) Pose().reset(c); };
     return true;

@@ -1,0 +1,48 @@
+{
+ "root": "/home/user/fit/.claude/worktrees/agent-a3b411e2ca7945615",
+ "quality": "high",
+ "errors": [],
+ "cases": {
+  "ring": {
+   "rows": [
+    {
+     "calls": 476,
+     "triangles": 1125368,
+     "programs": 61,
+     "textures": 33,
+     "geometries": 418,
+     "renderMs": 1244.2,
+     "renderMin": 1142.3,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "hall",
+      "high": true,
+      "env": true
+     },
+     "t": 2
+    },
+    {
+     "calls": 473,
+     "triangles": 1126844,
+     "programs": 61,
+     "textures": 33,
+     "geometries": 419,
+     "renderMs": 1165.4,
+     "renderMin": 1118.8,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "hall",
+      "high": true,
+      "env": true
+     },
+     "t": 4.5
+    }
+   ],
+   "pace": null
+  }
+ }
+}

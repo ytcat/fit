@@ -1,0 +1,371 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/before",
+ "quality": "high",
+ "errors": [],
+ "cases": {
+  "dream_opening": {
+   "rows": [
+    {
+     "calls": 179,
+     "triangles": 576217,
+     "programs": 52,
+     "textures": 58,
+     "geometries": 276,
+     "renderMs": 603,
+     "renderMin": 455,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 7.3,
+     "stats": {
+      "calls": 179,
+      "triangles": 576217,
+      "quality": "high",
+      "shadows": true
+     }
+    },
+    {
+     "calls": 214,
+     "triangles": 627452,
+     "programs": 54,
+     "textures": 65,
+     "geometries": 296,
+     "renderMs": 523.9,
+     "renderMin": 456.2,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 20.5,
+     "stats": {
+      "calls": 214,
+      "triangles": 627452,
+      "quality": "high",
+      "shadows": true
+     }
+    },
+    {
+     "calls": 92,
+     "triangles": 409912,
+     "programs": 56,
+     "textures": 70,
+     "geometries": 301,
+     "renderMs": 404.5,
+     "renderMin": 290,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 29.5,
+     "stats": {
+      "calls": 92,
+      "triangles": 409912,
+      "quality": "high",
+      "shadows": true
+     }
+    }
+   ],
+   "pace": {
+    "median": 683.3,
+    "p90": 1166.6
+   }
+  },
+  "dream_market_robbery": {
+   "rows": [
+    {
+     "calls": 76,
+     "triangles": 470299,
+     "programs": 47,
+     "textures": 53,
+     "geometries": 238,
+     "renderMs": 589.4,
+     "renderMin": 546.2,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 2,
+     "stats": {
+      "calls": 76,
+      "triangles": 470299,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 106,
+     "triangles": 846990,
+     "programs": 49,
+     "textures": 53,
+     "geometries": 276,
+     "renderMs": 969.5,
+     "renderMin": 840.8,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 5,
+     "stats": {
+      "calls": 106,
+      "triangles": 846990,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 136,
+     "triangles": 892365,
+     "programs": 49,
+     "textures": 53,
+     "geometries": 278,
+     "renderMs": 1083.9,
+     "renderMin": 831.5,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 11,
+     "stats": {
+      "calls": 136,
+      "triangles": 892365,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 143,
+     "triangles": 1183021,
+     "programs": 49,
+     "textures": 53,
+     "geometries": 286,
+     "renderMs": 1498.6,
+     "renderMin": 1232.7,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 15,
+     "stats": {
+      "calls": 141,
+      "triangles": 1181309,
+      "quality": "high",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 1666.6,
+    "p90": 2616.6
+   }
+  },
+  "dream_otto_shop": {
+   "rows": [
+    {
+     "calls": 165,
+     "triangles": 425113,
+     "programs": 53,
+     "textures": 45,
+     "geometries": 443,
+     "renderMs": 362.4,
+     "renderMin": 268,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 4,
+     "stats": {
+      "calls": 165,
+      "triangles": 425113,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 59,
+     "triangles": 348712,
+     "programs": 53,
+     "textures": 47,
+     "geometries": 444,
+     "renderMs": 404.7,
+     "renderMin": 335.7,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 14,
+     "stats": {
+      "calls": 59,
+      "triangles": 348712,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 241,
+     "triangles": 514891,
+     "programs": 53,
+     "textures": 47,
+     "geometries": 445,
+     "renderMs": 499,
+     "renderMin": 366.9,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 26,
+     "stats": {
+      "calls": 241,
+      "triangles": 514891,
+      "quality": "high",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 866.6,
+    "p90": 1133.4
+   }
+  },
+  "dream_gym_talk": {
+   "rows": [
+    {
+     "calls": 94,
+     "triangles": 696434,
+     "programs": 60,
+     "textures": 33,
+     "geometries": 410,
+     "renderMs": 737.7,
+     "renderMin": 656.8,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 4,
+     "stats": {
+      "calls": 94,
+      "triangles": 696434,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 177,
+     "triangles": 1056395,
+     "programs": 60,
+     "textures": 35,
+     "geometries": 412,
+     "renderMs": 1168.2,
+     "renderMin": 1043,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 15,
+     "stats": {
+      "calls": 177,
+      "triangles": 1056395,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 62,
+     "triangles": 600718,
+     "programs": 60,
+     "textures": 36,
+     "geometries": 415,
+     "renderMs": 868.7,
+     "renderMin": 618.4,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 30,
+     "stats": {
+      "calls": 62,
+      "triangles": 600718,
+      "quality": "high",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 1033.4,
+    "p90": 1749.9
+   }
+  },
+  "ring": {
+   "rows": [
+    {
+     "calls": 476,
+     "triangles": 1125368,
+     "programs": 78,
+     "textures": 45,
+     "geometries": 644,
+     "renderMs": 1654.5,
+     "renderMin": 1034.7,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 2
+    },
+    {
+     "calls": 472,
+     "triangles": 1125884,
+     "programs": 78,
+     "textures": 45,
+     "geometries": 644,
+     "renderMs": 1397.5,
+     "renderMin": 1058.6,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 4.5
+    }
+   ],
+   "pace": {
+    "median": 2150,
+    "p90": 3533.1
+   }
+  },
+  "street": {
+   "rows": [
+    {
+     "calls": 108,
+     "triangles": 680080,
+     "programs": 80,
+     "textures": 41,
+     "geometries": 539,
+     "renderMs": 711.2,
+     "renderMin": 641.2,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 2
+    },
+    {
+     "calls": 109,
+     "triangles": 679837,
+     "programs": 80,
+     "textures": 41,
+     "geometries": 540,
+     "renderMs": 653.2,
+     "renderMin": 574.2,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": null,
+     "t": 4.5
+    }
+   ],
+   "pace": {
+    "median": 1583.3,
+    "p90": 2466.6
+   }
+  }
+ }
+}

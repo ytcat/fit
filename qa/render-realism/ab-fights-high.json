@@ -1,0 +1,83 @@
+{
+ "quality": "high",
+ "rounds": 6,
+ "errors": [],
+ "cases": {
+  "ring": {
+   "renderOn": 1269.6,
+   "renderOff": 1145.6,
+   "ratio": 1.108,
+   "bestOn": 1143.9,
+   "bestOff": 995,
+   "bestRatio": 1.15,
+   "paceOn": 1499.9,
+   "paceOff": 1316.6,
+   "samplesOn": [
+    1234.1,
+    1170.3,
+    1240.8,
+    1281.9,
+    1269.6,
+    1337.7
+   ],
+   "samplesOff": [
+    1148.9,
+    1187.4,
+    1138.9,
+    1095.3,
+    1109.6,
+    1145.6
+   ],
+   "info": {
+    "on": {
+     "calls": 470,
+     "triangles": 1124784,
+     "programs": 60
+    },
+    "off": {
+     "calls": 470,
+     "triangles": 1124784,
+     "programs": 60
+    }
+   }
+  },
+  "street": {
+   "renderOn": 769,
+   "renderOff": 663.4,
+   "ratio": 1.159,
+   "bestOn": 670.4,
+   "bestOff": 595.8,
+   "bestRatio": 1.125,
+   "paceOn": 866.7,
+   "paceOff": 783.4,
+   "samplesOn": [
+    769.4,
+    779.8,
+    769,
+    746.7,
+    737,
+    757
+   ],
+   "samplesOff": [
+    656.3,
+    718,
+    651.5,
+    663.4,
+    686.1,
+    622.1
+   ],
+   "info": {
+    "on": {
+     "calls": 113,
+     "triangles": 677417,
+     "programs": 62
+    },
+    "off": {
+     "calls": 107,
+     "triangles": 677405,
+     "programs": 62
+    }
+   }
+  }
+ }
+}

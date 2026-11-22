@@ -16,6 +16,7 @@
   <script src="./practice-layout.js?v=3" defer></script>
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
+  <script src="./render-look.js?v=20261122rl1"></script>
 
   <script src="./boxing-routines.js?v=2026111105"></script>
   <script src="./boxing-input.js?v=2026112296"></script>
@@ -46,7 +47,7 @@
   <script src="./adventure-progress.js?v=2026112298"></script>
   <script src="./game-domain.js?v=2026112307"></script>
   <script src="./career-progress.js?v=2026111306"></script>
-  <script src="./game-presentation.js?v=2026111315"></script>
+  <script src="./game-presentation.js?v=20261122rl1"></script>
   <script src="./approved-fight-audio.js?v=2026112176"></script>
   <script src="./fight-ui.js?v=2026112176" defer></script>
   <script src="./training-controls.js?v=2026111112" defer></script>
@@ -128,7 +129,7 @@
   <script src="./adventure/story/street-life.js?v=2026111406" defer></script>
   <script src="./adventure/story/street-walk.js?v=2026112311" defer></script>
   <script src="./adventure/story/otto-civilian.js?v=otto492e63" defer></script>
-  <script src="./adventure/story/dream-scenes.js?v=2026112315" defer></script>
+  <script src="./adventure/story/dream-scenes.js?v=2026112317" defer></script>
   <script src="./adventure/story/gym-fight.js?v=20261122arm2" defer></script>
   <script src="./adventure/story/mop-core.js?v=20261122night" defer></script>
   <script src="./adventure/story/mop-game.js?v=20261122night" defer></script>
@@ -542,6 +543,8 @@
 
         this.scene.traverse(n=>{if(n.isMesh && n.material.color)n.material.color.convertSRGBToLinear();});
         this.world=new ClubWorld(this);
+        // Render realism (2026-11-22): image-based light, contact shadows without a shadow pass, the shadow box fitted to the ring.
+        try{this.renderLook=window.RenderLook?.engine(this)||null;}catch(error){console.warn('render look',error);this.renderLook=null;}
         this.initControls();
         this.cameraDirector=window.CameraDirector?new CameraDirector(this):null;
         this.occlusionGuard=window.OcclusionGuard?new OcclusionGuard(this):null;
