@@ -62,7 +62,7 @@
     impulse: { straight: 24, hook: 28, uppercut: 22 }, hit: { straight: [-1, 0, 0], hook: [-.82, 0, .57], uppercut: [-.64, .77, 0] }, // N s along the punch (+ = toward the Fighter)
     windup: [1.05, .55], release: [.42, .27], depth: [.2, .12], reach: { straight: .5, uppercut: .75 }, // depth: how far the leather comes inside the punch's path (an uppercut is close range)
     bite: { windup: .55, release: .3, depth: .12 },
-    range: { straight: [0, 0], hook: [.22, 0], uppercut: [.3, -.12] }, // where the Fighter stands for the call (m toward the bag, m sideways): in for the Hook, in and to the left for the rear Uppercut (clear of his lead guard)
+    range: { straight: [0, 0], hook: [.22, 0], uppercut: [.55, -.26] }, shift: .4, // where the Fighter stands for the call (m toward the bag, m sideways) and how long the step takes: in for the Hook, in close and to the left for the rear Uppercut (the bag's bottom clear of his lead hand)
     perfect: .085, hold: .07, clear: .04, chest: [.2, 1.36], back: .42, step: .26, stay: .62, catchAfter: .25, dt: 1 / 120
   });
   /** The bag's physics, pure: state { a1, w1, a2, w2, p, wp, s, ws } = chain angle, bag angle (+ toward the Fighter, rad), their
@@ -112,7 +112,7 @@
       this.call(0, -.2, true);
     }
     /** The Fighter's root offset along the drill line at time t (a step back and the step in again). */
-    stanceAt(t, k) { const s = this.stance; return s ? lerp(s.from[k], s.to[k], smooth01((t - s.at) / this.r.step)) : 0; }
+    stanceAt(t, k) { const s = this.stance; return s ? lerp(s.from[k], s.to[k], smooth01((t - s.at) / this.r.shift)) : 0; }
     stanceX(t) { return this.stanceAt(t, 0); }
     fighterZ(t) { return this.stanceAt(t, 1); }
     fighterX(t) { const d = this.dodge, r = this.r, st = this.stanceX(t); if (!d || t < d.at) return st; const u = t - d.at; return st - r.back * (u < r.step ? smooth01(u / r.step) : u < r.step + r.stay ? 1 : 1 - smooth01((u - r.step - r.stay) / r.step)); }
@@ -166,7 +166,7 @@
     /** How far inside the called punch's path the leather comes at state q (negative = the glove would sink in). */
     punchGap(q, type, fx = 0, fz = 0) { const move = type === 'straight' ? 'jab' : this.moveFor(type, true), hp = [0, 0, 0]; let best = 9; handAt(move, .46, hp); hp[0] += fx; hp[2] += fz; if (this.phys.leather(q, hp).gap > .6) return 9; for (let ph = .3; ph <= PH.land + 1e-9; ph += .02) { handAt(move, ph, hp); hp[0] += fx; hp[2] += fz; best = Math.min(best, this.phys.leather(q, hp).gap - this.r.glove); } return best; }
     /** The Fighter's body points the bag can run into (both guard gloves, the chest), shifted by a step back. */
-    bodyPoints(fx, move, fz = 0) { const r = this.r, pts = [[fx + r.chest[0], r.chest[1], fz, 0], ...GUARD.map(g => [fx + g[0], g[1], fz + g[2], r.glove])]; if (move) for (const o of OTHER[move].slice(5, 9)) pts.push([fx + o[0], o[1], fz + o[2], r.glove]); return pts; }
+    bodyPoints(fx, move, fz = 0) { const r = this.r, pts = [[fx + r.chest[0], r.chest[1], fz, 0], ...GUARD.map(g => [fx + g[0], g[1], fz + g[2], r.glove])]; if (move) for (const o of [...OTHER[move], ...HANDS[move].slice(0, 4)]) pts.push([fx + o[0], o[1], fz + o[2], r.glove]); return pts; } // the other hand all along the punch, and the striking hand as it winds up
     /** Gap between the leather and the Fighter's guard or chest (negative = the bag is in him); with the point it would meet. */
     bodyGap(q, fx, out, move, fz = 0) { let best = 9; for (const b of this.bodyPoints(fx, move, fz)) { const L = this.phys.leather(q, b); if (!L.inside) continue; const gp = L.gap - b[3]; if (gp < best) { best = gp; if (out) { out.e = this.r.d - L.y; out.pt = b; } } } return best; }
     /** Where and when a punch pressed at tp meets the leather on the predicted swing (null: it falls short / goes past). */
@@ -228,7 +228,7 @@
     view() {
       const sw = this.sw, r = this.r, v = this.base(), q = this.bagAt(this.t), fx = this.fighterX(this.t), fz = this.fighterZ(this.t), p = this.punch;
       const dodge = this.dodge && this.t - this.dodge.at < r.step * 2 + r.stay ? { u: this.t - this.dodge.at, x: fx } : null, st = this.stance;
-      const stepIn = st && this.t - st.at < r.step && Math.hypot(st.to[0] - st.from[0], st.to[1] - st.from[1]) > .01 ? { u: (this.t - st.at) / r.step, delta: st.to[0] - st.from[0], dz: st.to[1] - st.from[1] } : null; // footwork to the call's range
+      const stepIn = st && this.t - st.at < r.shift && Math.hypot(st.to[0] - st.from[0], st.to[1] - st.from[1]) > .01 ? { u: (this.t - st.at) / r.shift, delta: st.to[0] - st.from[0], dz: st.to[1] - st.from[1] } : null; // footwork to the call's range
       if (!sw || sw.state === 'end' || this.done) return { ...v, phase: 'end', i: this.i, total: r.swings, mistakes: this.mistakes, hits: this.hits, prompt: null, progress: 1, bag: q, fx, fz, punch: p, dodge, stepIn };
       const live = !sw.verdict && !sw.bite, open = live && !p && sw.open != null && this.t >= sw.open && this.t <= sw.close;
       const k = sw.verdict ? 1 : this.t < sw.release ? 0 : clamp((this.t - sw.release) / Math.max(.05, sw.due - sw.release));

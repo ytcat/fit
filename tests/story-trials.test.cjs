@@ -24,6 +24,14 @@ for (const R of [T.BAG, T.ECHO, T.BARRAGE, T.CUTOFF, T.BET]) { const m = A.missi
   const g = new T.BagTrial(), landed = []; let n = 0;
   while (!g.done && n++ < 30000) { const v = g.view(); ideal(g, v); const p = g.punch; g.step(DT); if (p && p.contact && !p.checked && g.t >= p.contact.t) { p.checked = true; const L = g.phys.leather(g.bagAt(p.contact.t - 1e-6), p.contact.hand); landed.push(L.gap - R.glove); } }
   assert.equal(landed.length, R.swings); for (const gap of landed) assert.ok(gap <= .001 && gap > -.006, 'glove on the leather: ' + gap);
+  // neither hand ever goes into the leather over a clean run: the striking hand (out, on the leather, back), the other hand all along
+  // the punch, both guard hands between punches (the rules' hand paths are the rig's, measured in the running trial)
+  { const g2 = new T.BagTrial(), at = (Tb, ph) => { const u = Math.min(11, Math.max(0, (ph - T.PH.start) / T.PH.step)), i = Math.min(10, Math.floor(u)), f = u - i; return Tb[i].map((x, k) => x + (Tb[i + 1][k] - x) * f); }; let worst = 9, n2 = 0;
+    while (!g2.done && n2++ < 30000) { ideal(g2, g2.view()); const p = g2.punch, q = g2.bagAt(g2.t), fx = g2.fighterX(g2.t), fz = g2.fighterZ(g2.t), c = p?.contact, tau = p ? g2.t - p.at : 0;
+      const ph = !p ? null : c ? (tau < c.tau ? T.PH.start + tau * T.PH.rate : tau < c.tau + R.hold ? c.ph : c.ph - (c.ph - T.PH.start) * Math.min(1, (tau - c.tau - R.hold) / .22)) : Math.min(.58, T.PH.start + tau * T.PH.rate);
+      for (const h of p ? [at(T.HANDS[p.move], ph), at(T.OTHER[p.move], ph)] : T.GUARD) worst = Math.min(worst, g2.phys.leather(q, [h[0] + fx, h[1], h[2] + fz]).gap - R.glove);
+      g2.step(DT); }
+    assert.ok(worst > -.003, 'no glove inside the bag: ' + worst.toFixed(3)); }
   // the call is the range: the bag stops furthest from the Fighter for a Straight, closer for a Hook (he steps in), closest for an
   // Uppercut; the swings stay moderate and nothing comes into the guard
   const apex = type => { const h = new T.BagTrial(); h.types[0] = type; h.i = 0; h.call(0, -.2); let s = h.sw.start, body = 9; for (let k = 0; k < 300; k++) { s = h.phys.step(s, DT); body = Math.min(body, h.bodyGap(s, h.sw.stance[0], null, h.moveFor(type, true), h.sw.stance[1])); if (s.w1 <= 0 && k > 4) break; } const ax = h.phys.axis(s); return { a: s.a1, range: ax.ring[0] + R.d * ax.u[0] - h.sw.stance[0], body, win: h.sw.close - h.sw.open }; };

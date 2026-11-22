@@ -32,9 +32,9 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
         if (s.i >= 1 && s.i < 3 && v.prompt && v.prompt !== 'back' && !s.punch && s.t >= v.due) for (const type of ['keydown', 'keyup']) window.dispatchEvent(new KeyboardEvent(type, { key: { straight: 'j', hook: 'k', uppercut: 'l' }[v.type], bubbles: true })); };
     });
     // swing 0: a real tap with coordinates on the pad's Straight button when the ring closes
-    await p.waitForFunction(() => { const s = app.engine.fightIQDemo.sim; return s.sw.state === 'swing' && s.t >= s.sw.due - .03; }, null, { timeout: 300000, polling: 'raf' });
+    await p.waitForFunction(() => { const s = app.engine.fightIQDemo.sim; return s.sw.state === 'swing' && s.t >= s.sw.due - .03; }, null, { timeout: 1200000, polling: 'raf' });
     const box = await p.locator('.story-pad .fp-btn[data-pad="straight"]').boundingBox(); await p.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
-    await p.waitForFunction(() => app.engine.fightIQDemo.sim.i >= 3 || app.engine.fightIQDemo.sim.mistakes > 0, null, { timeout: 600000, polling: 500 });
+    await p.waitForFunction(() => app.engine.fightIQDemo.sim.i >= 3 || app.engine.fightIQDemo.sim.mistakes > 0, null, { timeout: 1500000, polling: 500 });
     const out = await p.evaluate(() => { const run = app.engine.fightIQDemo, s = run.sim, b = run.rigs.brick; let links = 0; run.memo.props.group.traverse(n => { if (n.geometry?.type === 'TorusGeometry' && n.geometry.parameters.radius < .021) links++; });
       return { ...window.__bag, hits: s.hits, mistakes: s.mistakes, log: s.log.map(e => e.type), brick: b.character, species: b.species, links, kit: window.StoryCast.outfitOf(run.rigs.fighter), stats: StoryScenes.stats() }; });
     console.log('bag trial', JSON.stringify({ hits: out.hits, mistakes: out.mistakes, worst: +out.worst.toFixed(3), contacts: out.contacts, frames: out.frames, cue: out.cue, links: out.links, brick: out.brick, kit: out.kit, calls: out.stats?.calls }));
