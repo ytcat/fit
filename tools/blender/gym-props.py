@@ -140,8 +140,9 @@ def skipping_ropes():
 
 
 def wall_clock():
-    lathe('rim', [(.0, 0), (.27, 0), (.27, .035), (.285, .045), (.285, .07), (.262, .075)], '#1d1f24', segs=32)
-    lathe('face', [(.262, .055), (.0, .055)], '#f7f0dc', 'matte', segs=32, cap_bot=False, cap_top=False)
+    # an open bezel (no top cap: the face shows through), the face disc facing +z before the turn
+    lathe('rim', [(.0, 0), (.27, 0), (.27, .035), (.285, .045), (.285, .07), (.268, .078), (.258, .062)], '#1d1f24', segs=32, cap_top=False)
+    lathe('face', [(.258, .056), (.0, .056)], '#f7f0dc', 'matte', segs=32, cap_bot=False, cap_top=False)
     for i in range(12):
         a = 2 * math.pi * i / 12; box('tick', (.012, .045 if i % 3 == 0 else .025, .004), (math.sin(a) * .22, math.cos(a) * .22, .058), '#1d1f24', 'matte', bevel=0, rot=(0, 0, -a))
     box('hour hand', (.016, .13, .004), (math.sin(-.7) * .06, math.cos(-.7) * .06, .062), '#1d1f24', bevel=0, rot=(0, 0, .7))

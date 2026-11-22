@@ -12,6 +12,8 @@
 #       lantern - street-lamp glass: lit at dusk, pale glass by day (the game decides by the set's time of day)
 #     The game merges every instance of every prop into these few meshes: no per-prop draw calls.
 # Everything is deterministic (fixed seeds, no time-based input): re-running a script rebuilds identical files.
+# Delivery: the offline worker keeps assets/street/*.glb in a runtime cache keyed by path (ignoring ?v=), so a CHANGED model
+# needs a new file name (and CityAssets.FILES in adventure/story/city-assets.js), or phones keep the old one.
 import bpy, bmesh, math, os, random
 from mathutils import Vector, Matrix
 
