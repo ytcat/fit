@@ -39,11 +39,11 @@
   // GOTR-0078 "The Dream" (docs/adventure/CHAPTER1_SCRIPT_V2.md): the measured beats of the new chapter 1. The older chapter-1
   // missions above stay valid in saves (and still count for stars and level) but are no longer story steps.
   M('clean_gym',1,'home_gym','help',null,'marks',[25,50,75],'Clean the gym','לנקות את האולם','Уборка зала'),
-  M('night_shadow',1,'home_gym','training','speed','landed',[20,35,50],'Night Shadowboxing','Shadowboxing בלילה','Shadowboxing ночью'),
-  M('night_bag',1,'home_gym','training','power','powerMarks',[1,3,5],'The old heavy bag','השק הכבד הישן','Старый тяжёлый мешок'),
+  M('night_shadow',1,'home_gym','training','speed','combos',[10,18,26],'Night Shadowboxing','Shadowboxing בלילה','Shadowboxing ночью'),
+  M('night_bag',1,'home_gym','training','power','combos',[10,18,26],'The old heavy bag','השק הכבד הישן','Старый тяжёлый мешок'),
   M('bag_drill',1,'home_gym','training','stamina','landed',[15,25,35],'Two-sided bag drill','תרגיל שק משני הצדדים','Мешок с двух сторон'),
-  M('fight_prep',1,'home_gym','training','speed','dodges',[4,7,10],'Fight preparation','הכנה לקרב','Подготовка к бою'),
-  M('advanced_training',1,'home_gym','training','power','combos',[1,2,3],'Advanced training','אימון מתקדם','Продвинутая тренировка'),
+  M('fight_prep',1,'home_gym','training','speed','combos',[10,18,26],'Fight preparation','הכנה לקרב','Подготовка к бою'),
+  M('advanced_training',1,'home_gym','training','power','combos',[8,14,20],'Advanced training','אימון מתקדם','Продвинутая тренировка'),
   M('curb_footwork',2,'street_fight','training','speed','marks',[5,8,12],'Curb footwork','עבודת רגליים על המדרכה','Работа ног у бордюра'),
   M('rooftop_balloons',2,'street_fight','funny',null,'dodges',[6,9,12],'Rooftop water balloons','בלוני מים מהגג','Водяные шарики с крыши'),
   M('whistle_chase',2,'street_fight','funny',null,'secondsToFinish',[40,30,20],"The coach's whistle",'משרוקית המאמן','Свисток тренера'),
