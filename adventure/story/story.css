@@ -72,6 +72,14 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 @keyframes story-now{from{transform:scale(1)}to{transform:scale(1.14)}}
 .story-ring{position:absolute;left:50%;top:50%;width:132px;height:46px;margin:0;border:2px solid currentColor;border-radius:40px;opacity:.55;pointer-events:none;transform:translate(-50%,-50%)}
 .story-prompt[data-now=true] .story-ring{opacity:1;box-shadow:0 0 18px currentColor}
+/* GOTR-0077: a ring in the scene where the glove will meet the leather; it closes as the moment comes and lights up while a press lands */
+.story-cue{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;color:#fff;z-index:1}
+.story-cue[hidden]{display:none}
+.story-cue i{position:absolute;left:0;top:0;width:40px;height:40px;border:3px solid currentColor;border-radius:50%;box-shadow:0 0 0 1px rgb(0 0 0/.5),inset 0 0 0 1px rgb(0 0 0/.35)}
+.story-cue b{position:absolute;left:0;top:0;width:10px;height:10px;border-radius:50%;background:currentColor;transform:translate(-50%,-50%);box-shadow:0 0 0 2px rgb(0 0 0/.45)}
+.story-cue[data-kind=straight]{color:#ff5a66}.story-cue[data-kind=hook]{color:#7db4ff}.story-cue[data-kind=uppercut]{color:#ffc94d}
+.story-cue[data-now=true] i{border-width:5px;box-shadow:0 0 16px currentColor,0 0 0 1px rgb(0 0 0/.5)}
+.story-cue[data-now=true] b{width:18px;height:18px}
 .story-pop{position:absolute;top:31%;inset-inline:0;text-align:center;font-size:clamp(20px,5.4vw,30px);font-weight:800;pointer-events:none;text-shadow:0 2px 4px #000,0 0 12px #000;animation:story-popup .7s ease-out forwards}
 .story-pop[data-kind=good]{color:#fff}.story-pop[data-kind=gold]{color:var(--gr-gold,#f4c152)}.story-pop[data-kind=bad]{color:var(--gr-danger,#ff5d5d)}
 @keyframes story-popup{from{opacity:0;transform:translateY(14px) scale(.8)}20%{opacity:1;transform:none}to{opacity:0;transform:translateY(-34px)}}
