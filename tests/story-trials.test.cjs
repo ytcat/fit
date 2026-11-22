@@ -8,23 +8,55 @@ const play = (g, bot, max = 200) => { let n = 0; while (!g.done && n++ < max / D
 const tap = (g, k) => { g.key(k, true); g.key(k, false); };
 for (const R of [T.BAG, T.ECHO, T.BARRAGE, T.CUTOFF, T.BET]) { const m = A.missions.find(x => x.id === R.missionId); assert.ok(m, R.missionId); assert.equal(m.metric, R.metric, R.missionId + ' records the mission metric'); }
 
-// ---- Brick's bag: the right punch at the peak of the swing
+// ---- Brick's bag (GOTR-0077): a real swinging bag; the punch lands where the glove meets the leather
 {
-  const ace = play(new T.BagTrial(), (g, v) => { if (v.phase === 'swing' && v.k >= .995) tap(g, v.type); }), r = ace.result(starsFor);
-  assert.equal(r.finished, true); assert.equal(r.value, 0); assert.equal(r.hits, T.BAG.swings); assert.equal(r.stars, 3); assert.equal(r.streak, T.BAG.swings);
-  assert.ok(r.time >= 25 && r.time <= 60, 'a 25-60 s trial: ' + r.time); assert.ok(r.score > T.BAG.swings * 150, 'streak multiplier: ' + r.score);
-  const g = new T.BagTrial(); assert.ok(g.period(T.BAG.swings - 1) < g.period(0) * .65, 'tempo ramps');
-  assert.deepEqual(new Set(g.types).size, 3, 'all three punches are called for');
-  // wrong punch: a mistake, the bag comes back; a dodge saves the second mistake
-  const w = new T.BagTrial(); while (w.view().k < .995) w.step(DT); tap(w, w.sw.type === 'hook' ? 'straight' : 'hook'); assert.equal(w.mistakes, 1); assert.equal(w.streak, 0);
-  while (w.view().phase !== 'back') w.step(DT); assert.equal(w.view().prompt, 'dodge'); while (w.view().back < .6) w.step(DT); tap(w, 'left'); while (w.i === 0) w.step(DT); assert.equal(w.mistakes, 1, 'slipped the returning bag'); assert.equal(w.dodged, 1);
-  // doing nothing: every swing is missed and lands
-  const lazy = play(new T.BagTrial(), () => {}).result(starsFor); assert.equal(lazy.value, T.BAG.swings * 2); assert.equal(lazy.stars, 0);
-  // too early is a mistake; pressing before the swing starts is ignored
-  const e = new T.BagTrial(); e.step(.2); tap(e, e.sw.type); assert.equal(e.mistakes, 1); assert.equal(e.flash.type, 'early');
-  const hard = play(new T.BagTrial(undefined, { hard: true }), (g2, v) => { if (v.phase === 'swing' && v.k >= .995) tap(g2, v.type); }).result(starsFor);
-  assert.equal(hard.hard, true); assert.ok(hard.time < r.time * .9, 'hard is faster'); assert.equal(hard.value, 0);
-  assert.deepEqual(play(new T.BagTrial(), (g2, v) => { if (v.phase === 'swing' && v.k >= .995) tap(g2, v.type); }).result(starsFor), r, 'deterministic');
+  const R = T.BAG, PUNCHES = ['straight', 'hook', 'uppercut'], ideal = (g, v) => { if (v.prompt && v.prompt !== 'back' && !g.punch && g.t >= v.due) tap(g, v.type); }, back = (g, v) => { if (v.phase === 'bite' && !v.hold && (!g.dodge || g.t > g.dodge.at + 1.3)) tap(g, 'left'); };
+  const ace = play(new T.BagTrial(), ideal), r = ace.result(starsFor);
+  assert.equal(r.finished, true); assert.equal(r.value, 0); assert.equal(r.hits, R.swings); assert.equal(r.stars, 3); assert.equal(r.streak, R.swings);
+  assert.ok(r.time >= 25 && r.time <= 60, 'a 25-60 s trial: ' + r.time); assert.ok(r.score > R.swings * 150, 'streak multiplier: ' + r.score);
+  assert.deepEqual(new Set(ace.types).size, 3, 'all three punches are called for');
+  // the same bag as the picture (bag-break-core.js BAG) and a real pendulum: small swings keep the rigid pendulum's period
+  const B = require('../adventure/story/bag-break-core.js').BAG; assert.deepEqual([R.r, R.h, R.d], [B.r, B.h, B.ring], 'rules and picture share the bag');
+  const P = T.bagPhysics(); let q = { a1: .05, w1: 0, a2: .05, w2: 0, p: 0, wp: 0, s: 0, ws: 0 }, last = 0, cross = [];
+  let amp = 0; for (let n = 0; n < 1200; n++) { const q2 = P.step(q, DT); if (q.a1 > 0 && q2.a1 <= 0) cross.push(n * DT); q = q2; if (n > 1200 - 300) amp = Math.max(amp, Math.abs(q.a1)); }
+  const T2 = cross[1] - cross[0]; assert.ok(Math.abs(T2 / P.period - 1) < .03, `period ${T2.toFixed(3)} s vs ${P.period.toFixed(3)} s`); assert.ok(amp < .05 && amp > .025, 'light damping, the swing dies out slowly: ' + amp.toFixed(3));
+  // every hit is decided at the glove: at the moment the rules land it the striking hand is on the leather (within 5 mm), never inside
+  const g = new T.BagTrial(), landed = []; let n = 0;
+  while (!g.done && n++ < 30000) { const v = g.view(); ideal(g, v); const p = g.punch; g.step(DT); if (p && p.contact && !p.checked && g.t >= p.contact.t) { p.checked = true; const L = g.phys.leather(g.bagAt(p.contact.t - 1e-6), p.contact.hand); landed.push(L.gap - R.glove); } }
+  assert.equal(landed.length, R.swings); for (const gap of landed) assert.ok(gap <= .001 && gap > -.006, 'glove on the leather: ' + gap);
+  // neither hand ever goes into the leather over a clean run: the striking hand (out, on the leather, back), the other hand all along
+  // the punch, both guard hands between punches (the rules' hand paths are the rig's, measured in the running trial)
+  { const g2 = new T.BagTrial(), at = (Tb, ph) => { const u = Math.min(11, Math.max(0, (ph - T.PH.start) / T.PH.step)), i = Math.min(10, Math.floor(u)), f = u - i; return Tb[i].map((x, k) => x + (Tb[i + 1][k] - x) * f); }; let worst = 9, n2 = 0;
+    while (!g2.done && n2++ < 30000) { ideal(g2, g2.view()); const p = g2.punch, q = g2.bagAt(g2.t), fx = g2.fighterX(g2.t), fz = g2.fighterZ(g2.t), c = p?.contact, tau = p ? g2.t - p.at : 0;
+      const ph = !p ? null : c ? (tau < c.tau ? T.PH.start + tau * T.PH.rate : tau < c.tau + R.hold ? c.ph : c.ph - (c.ph - T.PH.start) * Math.min(1, (tau - c.tau - R.hold) / .22)) : Math.min(.58, T.PH.start + tau * T.PH.rate);
+      for (const h of p ? [at(T.HANDS[p.move], ph), at(T.OTHER[p.move], ph)] : T.GUARD) worst = Math.min(worst, g2.phys.leather(q, [h[0] + fx, h[1], h[2] + fz]).gap - R.glove);
+      g2.step(DT); }
+    assert.ok(worst > -.003, 'no glove inside the bag: ' + worst.toFixed(3)); }
+  // the call is the range: the bag stops furthest from the Fighter for a Straight, closer for a Hook (he steps in), closest for an
+  // Uppercut; the swings stay moderate and nothing comes into the guard
+  const apex = type => { const h = new T.BagTrial(); h.types[0] = type; h.i = 0; h.call(0, -.2); let s = h.sw.start, body = 9; for (let k = 0; k < 300; k++) { s = h.phys.step(s, DT); body = Math.min(body, h.bodyGap(s, h.sw.stance[0], null, h.moveFor(type, true), h.sw.stance[1])); if (s.w1 <= 0 && k > 4) break; } const ax = h.phys.axis(s); return { a: s.a1, range: ax.ring[0] + R.d * ax.u[0] - h.sw.stance[0], body, win: h.sw.close - h.sw.open }; };
+  const st = apex('straight'), hk = apex('hook'), up = apex('uppercut');
+  assert.ok(st.range > hk.range + .1 && hk.range > up.range + .05, `range at the top of the swing ${st.range.toFixed(2)} > ${hk.range.toFixed(2)} > ${up.range.toFixed(2)} m`);
+  for (const x of [st, hk, up]) assert.ok(x.a > .2 && x.a < .55, 'a heavy bag swing, not a wild one: ' + x.a.toFixed(2) + ' rad'); for (const x of [st, hk, up]) assert.ok(x.body >= R.clear - .005, 'clear of the guard: ' + x.body);
+  for (const x of [st, hk, up]) assert.ok(x.win >= .35 && x.win <= .8, 'a fair press window: ' + x.win.toFixed(2));
+  // a first-time player who presses when the ring closes, up to 0.15 s off either way, lands the first three swings
+  for (const off of [-.15, -.08, 0, .08]) { const f = new T.BagTrial(); play(f, (g2, v) => { if (v.prompt && v.prompt !== 'back' && !g2.punch && g2.t >= v.due + off && g2.i < 3) tap(g2, v.type); }, 12); assert.ok(f.hits >= 2 && f.log.some(e => e.type === 'hit' || e.type === 'perfect'), `offset ${off}: ${f.hits} hits in the first swings`); }
+  // wrong punch: a mistake and the bag comes back; stepping back saves the second mistake, standing still is "bagged"
+  const w = new T.BagTrial(); while (!w.view().open) w.step(DT); tap(w, w.sw.type === 'hook' ? 'straight' : 'hook'); while (!w.sw.verdict) w.step(DT);
+  assert.equal(w.mistakes, 1); assert.equal(w.streak, 0); assert.equal(w.flash.type, 'wrong');
+  while (!w.sw.bite) w.step(DT); assert.equal(w.view().prompt, 'back'); assert.equal(w.i, 0, 'the bite belongs to the same swing');
+  while (w.view().hold) w.step(DT); tap(w, 'left'); while (w.i === 0) w.step(DT); assert.equal(w.mistakes, 1, 'stepped back from the returning bag'); assert.equal(w.dodged, 1);
+  const s2 = new T.BagTrial(); while (!s2.view().open) s2.step(DT); tap(s2, s2.sw.type === 'hook' ? 'straight' : 'hook'); while (s2.i === 0) s2.step(DT); assert.equal(s2.mistakes, 2); assert.equal(s2.bitten, 1);
+  // doing nothing: every swing goes by and every bite lands
+  const lazy = play(new T.BagTrial(), () => {}).result(starsFor); assert.equal(lazy.value, R.swings * 2); assert.equal(lazy.stars, 0);
+  // too early (the glove runs out before the bag comes) is a mistake judged when the punch ends; one punch per swing: mashing loses
+  const e = new T.BagTrial(); e.step(.2); tap(e, e.sw.type); for (let k = 0; k < 40; k++) e.step(DT); assert.equal(e.mistakes, 1); assert.equal(e.flash.type, 'early');
+  const mash = play(new T.BagTrial(), (g2, v) => { if (!g2.punch) tap(g2, PUNCHES[Math.floor(g2.t * 7) % 3]); back(g2, v); }).result(starsFor); assert.ok(mash.value >= 12, 'mashing does not earn a medal: ' + mash.value);
+  // a punch takes the bag: right after a hit it moves away from the Fighter
+  const k = new T.BagTrial(); while (!k.hits) { ideal(k, k.view()); k.step(DT); } k.step(.05); assert.ok(k.view().bag.w1 < -.1, 'the bag swings away: ' + k.view().bag.w1);
+  // hard: faster and tighter, still clean for a perfect player; deterministic
+  const hard = play(new T.BagTrial(undefined, { hard: true }), ideal).result(starsFor); assert.equal(hard.hard, true); assert.ok(hard.time < r.time * .95, `hard is faster: ${hard.time} vs ${r.time}`); assert.equal(hard.value, 0);
+  assert.deepEqual(play(new T.BagTrial(), ideal).result(starsFor), r, 'deterministic');
 }
 // ---- Sleep talker: repeat the growing combo
 {

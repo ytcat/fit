@@ -94,7 +94,7 @@
    const straight=move==='jab'||move==='cross',upper=move.includes('uppercut');
    const hook=move==='hook'||move==='rear_hook';
    // GOTR-0032: hooks get the fight's drive (power 1.32, contact drive .05) so the arc still accelerates at the mitt.
-   return {hookSwing:move.includes('hook')?.26:undefined,advance:straight?.02:boxerAdvance[move]??.025,contactDrive:move==='jab'?.015:upper?.025:0,shoulderCover:straight?.055:0,armReachMargin:straight?straightReachMargin:undefined,stepLift:boxerAdvance[move]?.036:undefined,guardTightness:1,power:1.15,straightRecovery:.25};
+   return {hookSwing:move.includes('hook')?.17:undefined,advance:straight?.02:boxerAdvance[move]??.025,contactDrive:move==='jab'?.015:upper?.025:0,shoulderCover:straight?.055:0,armReachMargin:straight?straightReachMargin:undefined,stepLift:boxerAdvance[move]?.036:undefined,guardTightness:1,power:1.15,straightRecovery:.25};
   }
   // The coach reads the boxer's reach once per session: where the striking
   // shoulder finishes each straight and how long the unlocked arm is.
@@ -311,7 +311,7 @@
    // GOTR-0032: aim at where the face would be without its recoil (the glove drives on instead of chasing the
    // retreating pad) and, for hooks and uppercuts, a few centimetres through it so the glove arrives with speed.
    const palmWorld=(pad.userData.palm||V(0,0,1)).clone().transformDirection(trainer.root.matrixWorld),aim=worldTarget.clone().addScaledVector(palmWorld,(pad.userData.recoil||0)-(spec.attack?driveThrough[spec.move]||0:0)),target=hero.root.worldToLocal(aim);
-   hero.update(spec.phase*1.22,spec.move,'one_two',{stance:1,simulationTime:time,deferVisuals:this.deferVisuals,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,planUppercut:spec.move.includes('uppercut'),uppercutBagTarget:spec.move.includes('uppercut')?[target.x,target.y-.18,target.z-.02]:undefined,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,...this.boxerDrive(spec.move),poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
+   hero.update(spec.phase*1.22,spec.move,'one_two',{stance:1,cheekGuard:true,actionKey:(spec.rest?'rest:':'')+spec.move+':'+spec.index,simulationTime:time,deferVisuals:this.deferVisuals,duckDepth:hero.species==='rabbit'?.24:.16,earFold:hook&&spec.move==='roll'?.58*Math.sin(Math.PI*phase)**2:0,guardElbowBack:.5,keepFaceClear:true,guardCover:manual?1:0,guardHeight:manual?1.72:undefined,guardStyle:spec.guardStyle,brace:spec.brace,defenceSide:spec.defenceSide,stepDirection:spec.stepDirection,stepAdvance:spec.stepAdvance,planUppercut:spec.move.includes('uppercut'),uppercutBagTarget:spec.move.includes('uppercut')?[target.x,target.y-.18,target.z-.02]:undefined,knuckleTarget:target.toArray(),strikeHeight:target.y,planStraight:true,...this.boxerDrive(spec.move),poseOverlay:this.finalizeBoxer});this.arena.group.updateMatrixWorld(true);
    const dt=this.last<0?0:t-this.last;
    if(spec.attack){
     if(spec.phase>.2&&this.once('swing'+spec.index))frame.swings.push({actor:'lion',move:spec.move});

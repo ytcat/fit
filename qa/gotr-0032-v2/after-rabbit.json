@@ -1,0 +1,537 @@
+{
+ "species": "rabbit",
+ "pads": {
+  "singles": {
+   "jab": {
+    "move": "jab",
+    "contact": true,
+    "toContactMs": 200,
+    "approach": 9.81,
+    "closing": 5,
+    "peak": 9.83,
+    "elbow": 164.6,
+    "hipTurn": 15.6,
+    "shoulderTurn": 25.4,
+    "transfer": 14.1,
+    "heel": 0,
+    "snapMs": 167,
+    "dvMax": 2.6,
+    "dvAt": "knR@50ms",
+    "dvGuard": 2.6,
+    "pops": 0,
+    "popCm": 7.9
+   },
+   "cross": {
+    "move": "cross",
+    "contact": true,
+    "toContactMs": 225,
+    "approach": 11.04,
+    "closing": 4.05,
+    "peak": 17.2,
+    "elbow": 167.4,
+    "hipTurn": 42.4,
+    "shoulderTurn": 101.1,
+    "transfer": 12.1,
+    "heel": 2.9,
+    "snapMs": 250,
+    "dvMax": 6.22,
+    "dvAt": "knR@158ms",
+    "dvGuard": 1.73,
+    "pops": 0,
+    "popCm": 8.3
+   },
+   "hook": {
+    "move": "hook",
+    "contact": true,
+    "toContactMs": 242,
+    "approach": 7.74,
+    "closing": 5,
+    "peak": 8.07,
+    "elbow": 84.2,
+    "hipTurn": 30,
+    "shoulderTurn": 47.9,
+    "transfer": 25,
+    "heel": 1.8,
+    "snapMs": 275,
+    "dvMax": 4.89,
+    "dvAt": "elR@367ms",
+    "dvGuard": 4.12,
+    "pops": 3,
+    "popCm": 16.4
+   },
+   "rear_hook": {
+    "move": "rear_hook",
+    "contact": true,
+    "toContactMs": 258,
+    "approach": 7.19,
+    "closing": 5,
+    "peak": 9.83,
+    "elbow": 88.5,
+    "hipTurn": 34.5,
+    "shoulderTurn": 87.9,
+    "transfer": 30.5,
+    "heel": 2.5,
+    "snapMs": 250,
+    "dvMax": 5.97,
+    "dvAt": "elR@367ms",
+    "dvGuard": 5.04,
+    "pops": 5,
+    "popCm": 17.5
+   },
+   "uppercut": {
+    "move": "uppercut",
+    "contact": true,
+    "toContactMs": 342,
+    "approach": 12.72,
+    "closing": 4.92,
+    "peak": 14.64,
+    "elbow": 68.1,
+    "hipTurn": 12,
+    "shoulderTurn": 52.3,
+    "transfer": 28,
+    "heel": 1.7,
+    "snapMs": 283,
+    "dvMax": 2.85,
+    "dvAt": "knL@375ms",
+    "dvGuard": 1.43,
+    "pops": 1,
+    "popCm": 7.4
+   },
+   "rear_uppercut": {
+    "move": "rear_uppercut",
+    "contact": true,
+    "toContactMs": 350,
+    "approach": 8.43,
+    "closing": 4.95,
+    "peak": 13.2,
+    "elbow": 94.7,
+    "hipTurn": 17,
+    "shoulderTurn": 59.6,
+    "transfer": 28.5,
+    "heel": 3.4,
+    "snapMs": 317,
+    "dvMax": 2.96,
+    "dvAt": "elR@342ms",
+    "dvGuard": 1.83,
+    "pops": 0,
+    "popCm": 7.9
+   }
+  },
+  "rapid": [
+   {
+    "gap": 0.12,
+    "dvMax": 8.08,
+    "where": {
+     "seq": "uppercut-rear_hook-cross",
+     "track": "elR",
+     "move": "cross",
+     "ms": 1442,
+     "vBefore": 7.35,
+     "vAfter": 1.4
+    },
+    "pops": 46,
+    "popList": [
+     {
+      "track": "el0",
+      "i": 594,
+      "dv": 5.94
+     },
+     {
+      "track": "el0",
+      "i": 1391,
+      "dv": 5.91
+     },
+     {
+      "track": "el1",
+      "i": 2395,
+      "dv": 5.8
+     },
+     {
+      "track": "kn0",
+      "i": 1824,
+      "dv": 5.78
+     },
+     {
+      "track": "el1",
+      "i": 1858,
+      "dv": 5.66
+     },
+     {
+      "track": "el0",
+      "i": 1574,
+      "dv": 5.48
+     }
+    ],
+    "refused": 3,
+    "pressed": 30,
+    "p99": 3.16,
+    "p999": 6.17
+   },
+   {
+    "gap": 0.18,
+    "dvMax": 8.08,
+    "where": {
+     "seq": "uppercut-rear_hook-cross",
+     "track": "elR",
+     "move": "cross",
+     "ms": 1442,
+     "vBefore": 7.35,
+     "vAfter": 1.4
+    },
+    "pops": 48,
+    "popList": [
+     {
+      "track": "el0",
+      "i": 594,
+      "dv": 5.94
+     },
+     {
+      "track": "el0",
+      "i": 1391,
+      "dv": 5.91
+     },
+     {
+      "track": "el1",
+      "i": 2546,
+      "dv": 5.8
+     },
+     {
+      "track": "kn0",
+      "i": 1975,
+      "dv": 5.78
+     },
+     {
+      "track": "el1",
+      "i": 2009,
+      "dv": 5.66
+     },
+     {
+      "track": "el0",
+      "i": 1652,
+      "dv": 5.48
+     }
+    ],
+    "refused": 1,
+    "pressed": 30,
+    "p99": 3.14,
+    "p999": 6.17
+   },
+   {
+    "gap": 0.25,
+    "dvMax": 8.08,
+    "where": {
+     "seq": "uppercut-rear_hook-cross",
+     "track": "elR",
+     "move": "cross",
+     "ms": 1442,
+     "vBefore": 7.35,
+     "vAfter": 1.4
+    },
+    "pops": 48,
+    "popList": [
+     {
+      "track": "el0",
+      "i": 594,
+      "dv": 5.94
+     },
+     {
+      "track": "el0",
+      "i": 1391,
+      "dv": 5.91
+     },
+     {
+      "track": "el1",
+      "i": 2546,
+      "dv": 5.8
+     },
+     {
+      "track": "kn0",
+      "i": 1975,
+      "dv": 5.78
+     },
+     {
+      "track": "el1",
+      "i": 2009,
+      "dv": 5.66
+     },
+     {
+      "track": "el0",
+      "i": 1652,
+      "dv": 5.48
+     }
+    ],
+    "refused": 1,
+    "pressed": 30,
+    "p99": 3.14,
+    "p999": 6.17
+   }
+  ]
+ },
+ "heavy": {
+  "singles": {
+   "jab": {
+    "move": "jab",
+    "contact": true,
+    "toContactMs": 167,
+    "approach": 11.76,
+    "closing": 10.33,
+    "peak": 11.76,
+    "elbow": 130.3,
+    "hipTurn": 15.6,
+    "shoulderTurn": 24.2,
+    "transfer": 17,
+    "heel": 0,
+    "snapMs": 150,
+    "dvMax": 3.04,
+    "dvAt": "knL@125ms",
+    "dvGuard": 1.44,
+    "pops": 1,
+    "popCm": 0
+   },
+   "cross": {
+    "move": "cross",
+    "contact": true,
+    "toContactMs": 183,
+    "approach": 16.02,
+    "closing": 12.6,
+    "peak": 21.73,
+    "elbow": 122.5,
+    "hipTurn": 42.5,
+    "shoulderTurn": 99.5,
+    "transfer": 17.7,
+    "heel": 2.9,
+    "snapMs": 175,
+    "dvMax": 8.56,
+    "dvAt": "knR@142ms",
+    "dvGuard": 1.84,
+    "pops": 1,
+    "popCm": 0
+   },
+   "hook": {
+    "move": "hook",
+    "contact": true,
+    "toContactMs": 233,
+    "approach": 6.76,
+    "closing": 5.27,
+    "peak": 10.64,
+    "elbow": 94,
+    "hipTurn": 32.6,
+    "shoulderTurn": 51.2,
+    "transfer": 38,
+    "heel": 0,
+    "snapMs": 267,
+    "dvMax": 4.34,
+    "dvAt": "elR@225ms",
+    "dvGuard": 3.65,
+    "pops": 4,
+    "popCm": 0
+   },
+   "rear_hook": {
+    "move": "rear_hook",
+    "contact": true,
+    "toContactMs": 250,
+    "approach": 6.38,
+    "closing": 5.03,
+    "peak": 12.58,
+    "elbow": 89.7,
+    "hipTurn": 33.7,
+    "shoulderTurn": 86.4,
+    "transfer": 38,
+    "heel": 2.5,
+    "snapMs": 233,
+    "dvMax": 4.78,
+    "dvAt": "knL@83ms",
+    "dvGuard": 4.78,
+    "pops": 4,
+    "popCm": 0
+   },
+   "uppercut": {
+    "move": "uppercut",
+    "contact": true,
+    "toContactMs": 292,
+    "approach": 6.3,
+    "closing": 3.91,
+    "peak": 13.46,
+    "elbow": 85.9,
+    "hipTurn": 11.3,
+    "shoulderTurn": 48.7,
+    "transfer": 48.2,
+    "heel": 0,
+    "snapMs": 258,
+    "dvMax": 3.8,
+    "dvAt": "elL@233ms",
+    "dvGuard": 1.67,
+    "pops": 0,
+    "popCm": 0
+   },
+   "rear_uppercut": {
+    "move": "rear_uppercut",
+    "contact": true,
+    "toContactMs": 283,
+    "approach": 6.92,
+    "closing": 4.92,
+    "peak": 12.05,
+    "elbow": 99.6,
+    "hipTurn": 17,
+    "shoulderTurn": 59.9,
+    "transfer": 48.2,
+    "heel": 1.4,
+    "snapMs": 258,
+    "dvMax": 3,
+    "dvAt": "elR@167ms",
+    "dvGuard": 2.02,
+    "pops": 0,
+    "popCm": 0
+   }
+  },
+  "rapid": [
+   {
+    "gap": 0.12,
+    "dvMax": 9.67,
+    "where": {
+     "seq": "uppercut-rear_hook-cross",
+     "track": "elR",
+     "move": "cross",
+     "ms": 1442,
+     "vBefore": 10.79,
+     "vAfter": 1.14
+    },
+    "pops": 76,
+    "popList": [
+     {
+      "track": "el1",
+      "i": 1862,
+      "dv": 9.67
+     },
+     {
+      "track": "el1",
+      "i": 2375,
+      "dv": 9.25
+     },
+     {
+      "track": "el1",
+      "i": 1599,
+      "dv": 7.9
+     },
+     {
+      "track": "el0",
+      "i": 822,
+      "dv": 6.17
+     },
+     {
+      "track": "el1",
+      "i": 585,
+      "dv": 5.6
+     },
+     {
+      "track": "kn1",
+      "i": 1973,
+      "dv": 5.56
+     }
+    ],
+    "refused": 3,
+    "pressed": 30,
+    "p99": 4.05,
+    "p999": 8.13
+   },
+   {
+    "gap": 0.18,
+    "dvMax": 8.56,
+    "where": {
+     "seq": "jab-hook-cross-hook",
+     "track": "knR",
+     "move": "cross",
+     "ms": 1225,
+     "vBefore": 10.47,
+     "vAfter": 18.92
+    },
+    "pops": 74,
+    "popList": [
+     {
+      "track": "el0",
+      "i": 1869,
+      "dv": 7.13
+     },
+     {
+      "track": "el0",
+      "i": 822,
+      "dv": 6.17
+     },
+     {
+      "track": "el1",
+      "i": 1392,
+      "dv": 5.79
+     },
+     {
+      "track": "el1",
+      "i": 585,
+      "dv": 5.6
+     },
+     {
+      "track": "el1",
+      "i": 2502,
+      "dv": 5.54
+     },
+     {
+      "track": "el1",
+      "i": 1358,
+      "dv": 5.52
+     }
+    ],
+    "refused": 1,
+    "pressed": 30,
+    "p99": 3.92,
+    "p999": 7.3
+   },
+   {
+    "gap": 0.25,
+    "dvMax": 8.56,
+    "where": {
+     "seq": "jab-hook-cross-hook",
+     "track": "knR",
+     "move": "cross",
+     "ms": 1225,
+     "vBefore": 10.47,
+     "vAfter": 18.92
+    },
+    "pops": 78,
+    "popList": [
+     {
+      "track": "el0",
+      "i": 1869,
+      "dv": 7.13
+     },
+     {
+      "track": "el0",
+      "i": 822,
+      "dv": 6.17
+     },
+     {
+      "track": "el1",
+      "i": 1392,
+      "dv": 5.79
+     },
+     {
+      "track": "el1",
+      "i": 585,
+      "dv": 5.6
+     },
+     {
+      "track": "el1",
+      "i": 2502,
+      "dv": 5.54
+     },
+     {
+      "track": "el1",
+      "i": 1358,
+      "dv": 5.52
+     }
+    ],
+    "refused": 0,
+    "pressed": 30,
+    "p99": 3.89,
+    "p999": 7.3
+   }
+  ]
+ }
+}

@@ -1,0 +1,1012 @@
+{
+ "base": "37247bc",
+ "browser": "157.0.8103.78",
+ "viewport": "402x690",
+ "physicalPhone": false,
+ "results": [
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 10,
+   "file": "before-pads-jab-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 18,
+   "file": "before-pads-jab-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 24,
+   "file": "before-pads-jab-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 30,
+   "file": "before-pads-jab-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 44,
+   "file": "before-pads-jab-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "jab",
+   "contactTick": 25
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 10,
+   "file": "before-pads-cross-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 18,
+   "file": "before-pads-cross-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 24,
+   "file": "before-pads-cross-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 30,
+   "file": "before-pads-cross-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 44,
+   "file": "before-pads-cross-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "cross",
+   "contactTick": 28
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 10,
+   "file": "before-pads-hook-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 18,
+   "file": "before-pads-hook-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 24,
+   "file": "before-pads-hook-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 30,
+   "file": "before-pads-hook-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 44,
+   "file": "before-pads-hook-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "hook",
+   "contactTick": 32
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 10,
+   "file": "before-pads-rear_hook-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 18,
+   "file": "before-pads-rear_hook-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 24,
+   "file": "before-pads-rear_hook-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 30,
+   "file": "before-pads-rear_hook-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 44,
+   "file": "before-pads-rear_hook-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_hook",
+   "contactTick": 35
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 10,
+   "file": "before-pads-uppercut-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 18,
+   "file": "before-pads-uppercut-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 24,
+   "file": "before-pads-uppercut-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 30,
+   "file": "before-pads-uppercut-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 44,
+   "file": "before-pads-uppercut-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "uppercut",
+   "contactTick": 42
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 10,
+   "file": "before-pads-rear_uppercut-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 18,
+   "file": "before-pads-rear_uppercut-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 24,
+   "file": "before-pads-rear_uppercut-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 30,
+   "file": "before-pads-rear_uppercut-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 44,
+   "file": "before-pads-rear_uppercut-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "contactTick": 43
+  },
+  {
+   "version": "before",
+   "mode": "pads",
+   "errors": []
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 10,
+   "file": "after-pads-jab-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 18,
+   "file": "after-pads-jab-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 24,
+   "file": "after-pads-jab-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 30,
+   "file": "after-pads-jab-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "jab",
+   "tick": 44,
+   "file": "after-pads-jab-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "jab",
+   "contactTick": 25
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 10,
+   "file": "after-pads-cross-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 18,
+   "file": "after-pads-cross-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 24,
+   "file": "after-pads-cross-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 30,
+   "file": "after-pads-cross-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "cross",
+   "tick": 44,
+   "file": "after-pads-cross-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "cross",
+   "contactTick": 28
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 10,
+   "file": "after-pads-hook-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 18,
+   "file": "after-pads-hook-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 24,
+   "file": "after-pads-hook-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 30,
+   "file": "after-pads-hook-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "hook",
+   "tick": 44,
+   "file": "after-pads-hook-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "hook",
+   "contactTick": 30
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 10,
+   "file": "after-pads-rear_hook-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 18,
+   "file": "after-pads-rear_hook-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 24,
+   "file": "after-pads-rear_hook-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 30,
+   "file": "after-pads-rear_hook-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_hook",
+   "tick": 44,
+   "file": "after-pads-rear_hook-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_hook",
+   "contactTick": 32
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 10,
+   "file": "after-pads-uppercut-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 18,
+   "file": "after-pads-uppercut-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 24,
+   "file": "after-pads-uppercut-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 30,
+   "file": "after-pads-uppercut-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "uppercut",
+   "tick": 44,
+   "file": "after-pads-uppercut-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "uppercut",
+   "contactTick": 42
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 10,
+   "file": "after-pads-rear_uppercut-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 18,
+   "file": "after-pads-rear_uppercut-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 24,
+   "file": "after-pads-rear_uppercut-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 30,
+   "file": "after-pads-rear_uppercut-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "tick": 44,
+   "file": "after-pads-rear_uppercut-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "move": "rear_uppercut",
+   "contactTick": 43
+  },
+  {
+   "version": "after",
+   "mode": "pads",
+   "errors": []
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 10,
+   "file": "before-heavy-jab-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 18,
+   "file": "before-heavy-jab-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 24,
+   "file": "before-heavy-jab-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 30,
+   "file": "before-heavy-jab-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 44,
+   "file": "before-heavy-jab-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "jab",
+   "contactTick": 22
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 10,
+   "file": "before-heavy-cross-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 18,
+   "file": "before-heavy-cross-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 24,
+   "file": "before-heavy-cross-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 30,
+   "file": "before-heavy-cross-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 44,
+   "file": "before-heavy-cross-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "cross",
+   "contactTick": 23
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 10,
+   "file": "before-heavy-hook-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 18,
+   "file": "before-heavy-hook-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 24,
+   "file": "before-heavy-hook-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 30,
+   "file": "before-heavy-hook-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 44,
+   "file": "before-heavy-hook-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "hook",
+   "contactTick": 28
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 10,
+   "file": "before-heavy-rear_hook-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 18,
+   "file": "before-heavy-rear_hook-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 24,
+   "file": "before-heavy-rear_hook-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 30,
+   "file": "before-heavy-rear_hook-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 44,
+   "file": "before-heavy-rear_hook-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "contactTick": 29
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 10,
+   "file": "before-heavy-uppercut-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 18,
+   "file": "before-heavy-uppercut-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 24,
+   "file": "before-heavy-uppercut-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 30,
+   "file": "before-heavy-uppercut-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 44,
+   "file": "before-heavy-uppercut-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "uppercut",
+   "contactTick": 35
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 10,
+   "file": "before-heavy-rear_uppercut-10.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 18,
+   "file": "before-heavy-rear_uppercut-18.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 24,
+   "file": "before-heavy-rear_uppercut-24.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 30,
+   "file": "before-heavy-rear_uppercut-30.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 44,
+   "file": "before-heavy-rear_uppercut-44.png"
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "contactTick": 35
+  },
+  {
+   "version": "before",
+   "mode": "heavy",
+   "errors": []
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 10,
+   "file": "after-heavy-jab-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 18,
+   "file": "after-heavy-jab-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 24,
+   "file": "after-heavy-jab-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 30,
+   "file": "after-heavy-jab-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "jab",
+   "tick": 44,
+   "file": "after-heavy-jab-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "jab",
+   "contactTick": 21
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 10,
+   "file": "after-heavy-cross-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 18,
+   "file": "after-heavy-cross-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 24,
+   "file": "after-heavy-cross-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 30,
+   "file": "after-heavy-cross-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "cross",
+   "tick": 44,
+   "file": "after-heavy-cross-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "cross",
+   "contactTick": 23
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 10,
+   "file": "after-heavy-hook-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 18,
+   "file": "after-heavy-hook-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 24,
+   "file": "after-heavy-hook-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 30,
+   "file": "after-heavy-hook-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "hook",
+   "tick": 44,
+   "file": "after-heavy-hook-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "hook",
+   "contactTick": 28
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 10,
+   "file": "after-heavy-rear_hook-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 18,
+   "file": "after-heavy-rear_hook-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 24,
+   "file": "after-heavy-rear_hook-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 30,
+   "file": "after-heavy-rear_hook-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "tick": 44,
+   "file": "after-heavy-rear_hook-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_hook",
+   "contactTick": 31
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 10,
+   "file": "after-heavy-uppercut-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 18,
+   "file": "after-heavy-uppercut-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 24,
+   "file": "after-heavy-uppercut-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 30,
+   "file": "after-heavy-uppercut-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "uppercut",
+   "tick": 44,
+   "file": "after-heavy-uppercut-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "uppercut",
+   "contactTick": 35
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 10,
+   "file": "after-heavy-rear_uppercut-10.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 18,
+   "file": "after-heavy-rear_uppercut-18.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 24,
+   "file": "after-heavy-rear_uppercut-24.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 30,
+   "file": "after-heavy-rear_uppercut-30.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "tick": 44,
+   "file": "after-heavy-rear_uppercut-44.png"
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "move": "rear_uppercut",
+   "contactTick": 34
+  },
+  {
+   "version": "after",
+   "mode": "heavy",
+   "errors": []
+  }
+ ]
+}
