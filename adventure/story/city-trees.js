@@ -78,7 +78,7 @@
         inside(T.end, .95); tips.push(T.end);
       }
     }
-    // ---- crown: dark inner masses, then leaf clumps at the twig tips and spread over the shell
+    // ---- crown: leaf clumps at the twig tips, spread over the shell and (darker) deeper inside
     const pal = F.leaves.map(col), light = p => { const h = Math.min(1, Math.max(0, (p.y - (cen.y - rad.y)) / (2 * rad.y))), x = (p.x - cen.x) / rad.x, y = (p.y - cen.y) / rad.y, z = (p.z - cen.z) / rad.z, r = Math.min(1, Math.hypot(x, y, z)); return (.55 + .42 * h) * (.6 + .42 * r); };
     const anchors = [...tips];
     while (anchors.length < F.clumps) { // shell points (more round the sides and the top than underneath), then inner ones

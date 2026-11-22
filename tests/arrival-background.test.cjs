@@ -83,6 +83,8 @@ const parse = f => new Promise((ok, err) => { const b = fs.readFileSync(f); new 
   assert.match(dream, /if \(!window\.CityAssets\?\.dresses\(city, site\)\) tree\(site\.x, site\.z, site\.h, site\.form === 'broad' \? 'broad' : 'upright'\)/);
   assert.match(dream, /for \(const \[x, color\] of \[\[-16, '#3b7dd8'\], \[8\.4, '#f4f1ea'\]\]\) if \(!city\?\.car\) car\(x, -2\.45, color, -lane\); else c\.shade\(x, -2\.45, 4\.5, 2\.1, true\)/);
   assert.equal((dream.match(/car\(-16/g) || []).length, 0, 'no second, unconditional blue car');
+  const carLine = dream.split('\n').find(l => l.includes("[[-16, '#3b7dd8'], [8.4, '#f4f1ea']]"));
+  assert.match(carLine.split('//')[0], /car\(35\.5, -2\.45, '#45b39d', -lane\); car\(30, 2\.45, '#d9473b', lane\); car\(44, 2\.45, '#f2b632', lane\);/, 'the other parked cars are still built (not in a comment)');
   assert.match(market, /if \(!city\?\.tree\) tree\(x, z, h, 'upright'\)/); assert.match(market, /tree\(x, z, h, 'upright'\); \/\/ Market Row/); assert.match(market, /tree\(-6\.2, -1\.2, 4\.2, 'upright'\); tree\(15\.5, -1\.2, 4\.4, 'upright'\)/);
   assert.match(story, /tree\(x, z, h, 'upright'\); \/\* Market Row/, 'the evening market alley is Market Row too');
   assert.match(story, /const tree = \(x, z, h = 4\.6, form = 'broad'\) => \{\n\s+if \(window\.CityTrees\) CityTrees\.add\(S, treeLeaves, form, \{ x, z, h \}\);\n\s+else \{/, 'one tree or the other, never both');

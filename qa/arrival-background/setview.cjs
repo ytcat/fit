@@ -17,6 +17,7 @@ const server = http.createServer((q, r) => {
   await p.addInitScript(() => { try { localStorage.setItem('gotr.adv.nointro', '1'); } catch { } });
   await p.goto(`http://localhost:${server.address().port}/`, { timeout: 300000 });
   await p.waitForFunction(() => window.StorySets && window.CityAssets && window.DreamSets, null, { timeout: 300000 });
+  await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); setInterval(() => document.querySelectorAll('dialog[open]').forEach(d => d.close()), 300); });
   await p.evaluate(() => CityAssets.ready(120000, Object.keys(CityAssets.FILES)).then(() => StorySets.ready()));
   await p.evaluate(() => { const cv = document.createElement('canvas'); cv.id = 'qa-view'; cv.style.cssText = 'position:fixed;inset:0;width:402px;height:690px;z-index:99999'; document.body.appendChild(cv); const r = new THREE.WebGLRenderer({ canvas: cv, antialias: true }); r.setSize(402, 690, false); r.outputEncoding = THREE.sRGBEncoding; r.toneMapping = THREE.ACESFilmicToneMapping; r.shadowMap.enabled = true; window.__qa = { r }; });
   for (let i = 0; i < views.length; i++) {
@@ -27,11 +28,11 @@ const server = http.createServer((q, r) => {
       const set = StorySets.build(v.set, scene, { renderer: r, shadows: true, city });
       const cam = new THREE.PerspectiveCamera(v.fov, 402 / 690, .1, 400); cam.position.fromArray(v.pos); cam.lookAt(new THREE.Vector3(...v.look));
       set.focus(v.look[0], v.look[2], 16); set.objects.city?.frame?.({ t: 1 }, cam);
-      r.render(scene, cam); const t0 = performance.now(); for (let k = 0; k < 5; k++) r.render(scene, cam); const ms = (performance.now() - t0) / 5;
+      const gl = r.getContext(), px = new Uint8Array(4); r.render(scene, cam); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); const t0 = performance.now(); for (let k = 0; k < 5; k++) { r.shadowMap.needsUpdate = true; r.render(scene, cam); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); } const ms = (performance.now() - t0) / 5;
       const info = { calls: r.info.render.calls, triangles: r.info.render.triangles, ms: +ms.toFixed(0) };
       window.__qa.dispose = () => set.dispose(); return info;
     }, v);
-    await p.screenshot({ path: path.join(out, `${tag}-${i}.png`) }); console.log(JSON.stringify({ i, ...v, ...row }));
+    await p.waitForTimeout(400); await p.screenshot({ path: path.join(out, `${tag}-${i}.png`) }); console.log(JSON.stringify({ i, ...v, ...row }));
     await p.evaluate(() => window.__qa.dispose());
   }
   await b.close(); server.close();

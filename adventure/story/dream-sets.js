@@ -85,7 +85,7 @@
       tree(34.6, -5.4, 4.2); tree(44, -5.4);
       if (keep.bin(14.6, 8.6)) bin(14.6, 8.6); bin(31.3, -7.3); planter(21.4, -7.6, 1.5); planter(32.9, -7.6); planter(-2.4, -7.6, 1.5); planter(16.8, 8.9);
       for (const x of [19.7, 24.7]) { bollard(x, 4.0); bollard(x, -4.0); }
-      for (const [x, color] of [[-16, '#3b7dd8'], [8.4, '#f4f1ea']]) if (!city?.car) car(x, -2.45, color, -lane); else c.shade(x, -2.45, 4.5, 2.1, true); // the compact-car model stands here (LAYOUT.cars) car(35.5, -2.45, '#45b39d', -lane); car(30, 2.45, '#d9473b', lane); car(44, 2.45, '#f2b632', lane); // parked with the traffic
+      for (const [x, color] of [[-16, '#3b7dd8'], [8.4, '#f4f1ea']]) if (!city?.car) car(x, -2.45, color, -lane); else c.shade(x, -2.45, 4.5, 2.1, true); /* the compact-car model stands here (LAYOUT.cars) */ car(35.5, -2.45, '#45b39d', -lane); car(30, 2.45, '#d9473b', lane); car(44, 2.45, '#f2b632', lane); // parked with the traffic
       // newspaper stand and cafe tables on the near pavement (things to walk past)
       box(S, 10.2, 0, 8.7, 1.5, 1.0, .5, '#3c7fc0'); box(S, 10.2, 1.0, 8.7, 1.6, .06, .6, '#254f86'); for (let k = 0; k < 4; k++) box(S, 9.65 + k * .37, .25, 8.42, .3, .5, .03, ['#f7f0dc', '#e63946', '#f4c152', '#f7f0dc'][k]);
       for (const x of [16.2, 18.2]) { c.shade(x, 8.4, 1.3, 1.3); cyl(S, x, 0, 8.4, .04, .72, '#3d4654', P.cyl6); cyl(S, x, .72, 8.4, .42, .04, '#f7f0dc', P.cyl12); cyl(S, x, 0, 8.4, .22, .03, '#3d4654', P.cyl8); for (const d of [-.65, .65]) { box(S, x + d, 0, 8.4, .36, .45, .36, '#c9653d'); box(S, x + d + Math.sign(d) * .17, .45, 8.4, .04, .42, .36, '#c9653d'); } }
