@@ -18,7 +18,8 @@ const CASES = [
   ['ring2', `()=>{__ctx.change({type:'venue',venueId:'championship'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'low_orbit:double_biceps'],
   ['street', `()=>AdventureOldTown.storyFightStart(__ctx,'market_robber')`, 'side_track:point_crowd'],
   ['docks', `()=>AdventureOldTown.storyFightStart(__ctx,'docks_fight')`, 'overhead_drop:chest_pound'],
-  ['basement', `()=>{__ctx.change({type:'venue',venueId:'underground'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'front_low:shuffle']
+  ['basement', `()=>{__ctx.change({type:'venue',venueId:'underground'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'front_low:shuffle'],
+  ['gym', `()=>AdventureOldTown.storyFightStart(__ctx,'first_brick')`, 'side_track:chest_pound']
 ];
 const FRAMES = [['dip', 'dip'], [.015, 'contact'], [.09, 'impact (slow)'], [.18, 'slow'], [.55, 'fall'], [1.25, 'down'], [2.3, 'blackout'], [2.95, 'celebrate'], [3.8, 'celebrate'], [4.8, 'celebrate'], ['end', 'ending']];
 server.listen(0, async () => {

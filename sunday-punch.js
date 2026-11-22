@@ -331,6 +331,7 @@
     const m = view.match, r = m.result, sp = view.sundayPunch || (view.sundayPunch = {});
     if (!sp.begun) begin(view);
     if (sp.skip && sp.skipAt == null) sp.skipAt = m.time;
+    if (sp.skip && !r.finisherSkipped) m.skipFinisher(); // skipped during the dip: the result does not wait for a film nobody sees
     const u = sp.skip ? END + (m.time - sp.skipAt) : Math.max(0, m.time - r.finisherTime), metrics = {}, a = view.arena;
     a.group.updateMatrixWorld(true);
     metrics[sp.fallen] = poseFallen(view, sp.fallen, Math.min(u, sp.fall.crawls ? 14 : T.settle + 3));
