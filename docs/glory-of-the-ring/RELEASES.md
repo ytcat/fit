@@ -8,6 +8,7 @@ v1.0 is the build found on 2026-11-10 before this series (`180ecef`). Times are 
 
 | Version | Published | Commit | What changed |
 |---|---|---|---|
+| v1.85 | 2026-11-22 | | A fight paused during a Burst no longer looks frozen: any fight button (or the new "Paused — tap to continue" sign) resumes it. Before the first Brick fight Bruno no longer stands inside the two fighters (GOTR-0110). |
 | v1.84 | 2026-11-22 | | The rematch with Brick is fought in the ring of Bruno's Gym with the neighbourhood standing round it and Bruno refereeing, the same place as the Fight Night film (GOTR-0108). Films draw about half as much: characters outside the shot are skipped and distant bodies use a lighter surface, e.g. Fight Night 2.1 M → 1.0 M triangles a frame (GOTR-0109). |
 | v1.83 | 2026-11-22 | | Bruno's Gym entrance: the door's glass shows the dim gym behind it (a lamp, a bag on its chain) through clear glass instead of a pale frosted panel, and the flat painted pane beside the door is now a framed glass sidelight (GOTR-0107). |
 | v1.82 | 2026-11-21 | | Two-sided drill: the gloves stop on the leather instead of going into the bag (both the Fighter and Mack; the bag comes in just far enough for the called punch) (GOTR-0106). Reflective glass on Bruno's gym door, Otto's door and front window and the training hall's entrance doors (ChatGPT, reviewed). |

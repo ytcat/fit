@@ -58,6 +58,7 @@
    return v;
   }
   function press(){
+   if(!e.isPlaying&&e.player?.resumeFight?.())return true; // a paused fight resumes on the Burst button too
    const m=match();if(!m||suspended()||!e.isPlaying)return false;const ok=m.requestBurst?.(actor());hideTip();
    if(ok){e.lastRenderStamp=null;e.onInputState?.();}paint();return ok;
   }

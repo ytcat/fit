@@ -42,7 +42,11 @@
    else{this.queue.push(...commands);if(!this.current)this.combo={id,step:1,total:commands.length};this.frame(this.now());accepted=true;}
    if(accepted){this.engine.isPlaying=true;this.engine.lastRenderStamp=null;this.engine.onInputState?.();}return accepted;
   }
+  // A paused fight resumes on any fight button, also when the move itself is refused (owner, 2026-11-22: paused during a Burst the
+  // punches were refused, so nothing resumed the bout and it looked frozen). Returns true when it resumed.
+  resumeFight(){const e=this.engine;if(e.isPlaying||window.ringfighterGame?.isModalOpen||!this.enabled||!e.arena?.fightView?.match||e.arena.fightView.match.result)return false;e.isPlaying=true;e.lastRenderStamp=null;e.onInputState?.();window.app?.updatePlayBtnText?.();return true;}
   press(id){
+   if(this.resumeFight())return true; // the first tap only resumes; the next one punches
    if(combos[id])return this.pressCombo(id);
    const definition=definitions[id];if(!definition||!this.canAct())return false;
    const speed=(this.engine.targetMode||this.engine.arena?.mode)==='speed';
