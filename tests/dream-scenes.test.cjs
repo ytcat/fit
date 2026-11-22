@@ -172,7 +172,7 @@ console.log('dream scenes ok');
   const html = fs.readFileSync('index.html', 'utf8'), manifest = fs.readFileSync('offline-manifest.json', 'utf8');
   assert.ok(html.includes('./adventure/story/gym-fight.js?v=') && manifest.includes('adventure/story/gym-fight.js'), 'gym-fight.js is loaded and cached offline');
   assert.ok(/first_brick: \{ kind: 'story_fight', place: 'gym'/.test(fs.readFileSync('adventure/oldtown.js', 'utf8')), 'the first Brick fight asks for the gym floor');
-  assert.ok(/fightOptions\?\.place==='gym'&&window\.StoryGymFight/.test(fs.readFileSync('fight-arena.js', 'utf8')), 'the fight view installs the gym floor');
+  assert.ok(/gymPlace=this\.engine\.fightOptions\?\.place;if\(\(gymPlace==='gym'\|\|gymPlace==='gym_ring'\)&&window\.StoryGymFight\)/.test(fs.readFileSync('fight-arena.js', 'utf8')), 'the fight view installs the gym floor (and the gym ring for the rematch)');
   assert.ok(/Sets\.register\('dream_gym_floor', gym\(true\)\)/.test(fs.readFileSync('adventure/story/dream-sets.js', 'utf8')), 'the gym set has a floor-fight variant with the mat');
   window.StorySets = { ready: () => new Promise(() => {}) }; vm.runInThisContext(fs.readFileSync('adventure/story/gym-fight.js', 'utf8'));
   const G = () => new THREE.Group(), rhino = { root: G(), update() { throw Error('the rhino must not referee'); } }, lion = { root: G() }, rabbit = { root: G() };
