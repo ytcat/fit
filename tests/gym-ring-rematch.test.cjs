@@ -11,8 +11,11 @@ assert.match(arena, /gymPlace==='gym'\|\|gymPlace==='gym_ring'/); assert.match(a
 assert.match(corner, /\(!!v\.gymFight&&!v\.gymFight\.ring\)/, 'the gym ring keeps ring corners');
 assert.match(sets, /Sets\.register\('dream_gym_ring', gym\('ring'\)\)/); assert.match(sets, /if \(floorFight !== 'ring'\) \{/); assert.match(sets, /if \(floorFight === true\) \{ \/\/ the sparring mat/);
 assert.match(gym, /function install\(view, mode = 'floor'\)/); assert.match(gym, /Sets\.build\(ring \? 'dream_gym_ring' : 'dream_gym_floor'/);
-assert.match(gym, /const WATCHERS = \[\{ id: 'hazel'/); assert.match(gym, /pin\(e\.world\?\.arena, \(\) => false\); pin\(view\.audience\?\.root, \(\) => false\);/);
+assert.match(gym, /const CROWD = \{ inner: ([\d.]+), rows: 2/); assert.match(gym, /window\.ArenaSets\.people\(\{ \.\.\.CROWD, g: RING_FLOOR/, 'the neighbourhood is venue-crowd people, not story rigs');
+assert.ok(!/Cast\.rig\('hazel'|WATCHERS/.test(gym), 'no full story rigs at ringside (performance)');
+assert.match(gym, /pin\(e\.world\?\.arena, \(\) => false\); pin\(view\.audience\?\.root, \(\) => false\);/);
+assert.match(read('arena-sets.js'), /function people\(o=\{\}\)\{/);
 assert.match(gym, /for \(const o of pinned\) \{ delete o\.visible; o\.visible = true; \}/, 'everything pinned is released on dispose');
-// the neighbours stand outside the intro fly-around and the ropes
-for (const m of gym.matchAll(/\{ id: '(\w+)', x: (-?[\d.]+), z: (-?[\d.]+) \}/g)) assert.ok(Math.hypot(+m[2], +m[3]) > 3.2, m[1] + ' too close to the ring');
+// the crowd stands outside the ropes and apron (posts at 1.65, apron 1.83)
+assert.ok(+gym.match(/const CROWD = \{ inner: ([\d.]+)/)[1] > 3.2, 'crowd too close to the ring');
 console.log('gym-ring-rematch: ok');

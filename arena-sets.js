@@ -726,6 +726,17 @@
  // Spectator prototypes for tests and QA: the parts of one person at a level of detail.
  const spectators=Object.freeze({species:Object.keys(SPECIES),outfits:Object.keys(OUTFIT),poses:{stand:Object.keys(POSES.stand),seat:Object.keys(POSES.seat)},levels:LOD.length,
   parts:({tier=2,species='lion',seated=false,pose,mirror=false,outfit='tee',legPose,hat=null}={})=>({body:bodyProto(tier,seated,pose||(seated?'knees':'idle'),mirror,outfit,legPose||(seated?'seat':'stand')),head:headProto(tier,species),hat:hat?hatProto(tier,hat,species):null})});
- const api=Object.freeze({ids:Object.freeze(Object.keys(builders)),has:id=>Object.prototype.hasOwnProperty.call(builders,id),build,spectators});
+ // A ring of standing spectators on its own, outside any venue (the Chapter 1 rematch in Bruno's Gym, adventure/story/gym-fight.js):
+ // the same people and detail levels as the venue crowds, lit by the given lamps (baked into the vertex colours like every set).
+ function people(o={}){
+  const k=new Kit();k.atlas=new Atlas(32,32);k.ambient=o.ambient||{sky:[.5,.44,.36],ground:[.22,.18,.14]};for(const l of o.lights||[])k.lights.push(l);
+  const style=o.style||{cloth:['#3d5a7a','#7a3b34','#4f6b4a','#8a7a4c','#3a3f4c','#6b4a6e','#9a5a2c','#2f3f4a','#b0a48c','#5a2f3a'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.34,wear:{tee:3.5,hoodie:3.5,jacket:3},caps:.25};
+  k.crowd({seed:o.seed||17,round:true,rows:o.rows||2,inner:o.inner||3.5,step:o.step||.56,spacing:o.spacing||.6,rise:0,g:o.g||0,style,thin:o.thin??.25,skip:o.skip});
+  const made=k.finish('people');k.atlas.paint({lang:'en',title:''});made.group.name='Spectators';
+  const crowd=made.sectors.flatMap(s=>s.crowd);
+  return {group:made.group,sectors:made.sectors,triangles:made.triangles,people:made.people,sway(t){crowd.forEach((m,j)=>{m.position.y=.014*Math.sin(t*2.3+j*2.4);});},
+   dispose(){made.group.parent?.remove(made.group);for(const g of made.geometries)g.dispose();for(const m of Object.values(made.materials))m.dispose();k.atlas.texture.dispose();}};
+ }
+ const api=Object.freeze({ids:Object.freeze(Object.keys(builders)),has:id=>Object.prototype.hasOwnProperty.call(builders,id),build,spectators,people});
  if(typeof module!=='undefined')module.exports=api;else window.ArenaSets=api;
 })();
