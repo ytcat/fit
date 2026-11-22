@@ -929,12 +929,13 @@
     // GOTR-0027: see the call in update(). Root-space wrists; only the arms are re-solved, only inside the decay window.
     inertialize(key,palmTarget,gloves,poles,setErrors){
       const j=this.joints,I=this.inertia||(this.inertia={key:null,time:null,active:false,L:{out:null,vel:V(),x0:V(),v0:V(),t0:-1},R:{out:null,vel:V(),x0:V(),v0:V(),t0:-1}});
-      const now=this.renderTime,dt=Number.isFinite(I.time)?now-I.time:NaN,continuous=dt>0&&dt<.1,w=45,errors=[null,null];
-      const switched=continuous&&key!=null&&I.key!=null&&key!==I.key;I.key=key;I.time=now;I.active=false;
+      const now=this.renderTime,dt=Number.isFinite(I.time)?now-I.time:NaN,again=Math.abs(dt)<=1e-4,continuous=again||dt>0&&dt<.1,w=45,errors=[null,null];
+      // A second evaluation at the same instant (planning passes) reuses the state instead of reading a zero time step.
+      const switched=!again&&continuous&&key!=null&&I.key!=null&&key!==I.key;if(!again){I.key=key;I.time=now;}I.active=false;
       [['L',0],['R',1]].forEach(([side,index])=>{
         const h=I[side],raw=this.point(j['hand'+side]);
-        if(!continuous||!h.out){h.out=raw.clone();h.vel.set(0,0,0);h.t0=-1;return;}
-        if(switched){h.x0.copy(h.out).addScaledVector(h.vel,dt).sub(raw);h.v0.copy(h.vel);h.t0=now-dt;}
+        if(!continuous||!h.out||again&&h.t0<0){if(!again||!h.out){h.out=raw.clone();h.vel.set(0,0,0);h.t0=-1;}return;}
+        if(switched){h.x0.copy(h.out).addScaledVector(h.vel,dt).sub(raw).clampLength(0,.35);h.v0.copy(h.vel).clampLength(0,20);h.t0=now-dt;}
         const age=now-h.t0;
         if(h.t0>=0&&age<.3){
           const e=Math.exp(-w*age),offset=h.x0.clone().add(h.v0.clone().addScaledVector(h.x0,w).multiplyScalar(age)).multiplyScalar(e);
@@ -943,7 +944,7 @@
             errors[index]=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],target,pole.lengthSq()>1e-8?pole:poles[index]);
             gloves[index]=this.orientGlove(side,gloves[index].turn,palmTarget);}
         }
-        const out=this.point(j['hand'+side]);h.vel.copy(out).sub(h.out).multiplyScalar(1/dt);h.out.copy(out);
+        if(!again){const out=this.point(j['hand'+side]);h.vel.copy(out).sub(h.out).multiplyScalar(1/dt);h.out.copy(out);}
       });
       setErrors(errors);
     }
@@ -1596,7 +1597,9 @@
         pole.copy(guided);
       }
       // The compact guard is close to the shoulders: never ask for a wrist inside the folded-arm limit.
-      if(leadStance>0)for(const [side,hand] of [['L',lead],['R',rear]]){this.root.updateMatrixWorld(true);const shoulder=this.point(j['arm'+side]),near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(d<near&&d>1e-6)hand.copy(shoulder).addScaledVector(hand.clone().sub(shoulder),near/d);}
+      // (GOTR-0027: the offset is taken before the wrist is moved; copying the shoulder first collapsed the wrist onto the
+      // shoulder for a tick whenever this limit applied, a 0.5 m pop of the lead uppercut in rapid sequences.)
+      if(leadStance>0)for(const [side,hand] of [['L',lead],['R',rear]]){this.root.updateMatrixWorld(true);const shoulder=this.point(j['arm'+side]),near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(d<near&&d>1e-6){const arm=hand.clone().sub(shoulder);hand.copy(shoulder).addScaledVector(arm,near/d);}}
       // GOTR-0032 (cheekGuard): the guard and the chambered fist stay on the arm's reach while the trunk turns hard.
       if(cheekGuard)for(const [side,hand] of [['L',lead],['R',rear]]){this.root.updateMatrixWorld(true);const shoulder=this.point(j['arm'+side]),reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.003,arm=hand.clone().sub(shoulder);if(arm.length()>reach)hand.copy(shoulder).add(arm.setLength(reach));}
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
