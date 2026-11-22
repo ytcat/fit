@@ -66,9 +66,9 @@
   he:{pad:'שליטה במתאגרף',move:'תנועה והגנה',punch:'מכות',straight:'ישרה',hook:'הוק',uppercut:'אפרקאט',guard:'הגנה',tap:'מכה',double:'כפול',triple:'שלישייה',forward:'פנימה',back:'החוצה',slip:'התחמקות',roll:'התכופפות',stepIn:'צעד פנימה',stepOut:'צעד החוצה',slipFull:'התחמקות (לסירוגין)',rollFull:'התכופפות מתחת למכה',lead:'יד קדמית',rear:'יד אחורית',hold:'החזיקו כדי להמשיך להגן',combos:'שילובים',hands:'הידיים מתחלפות לבד: קדמית, אחורית, קדמית…'},
   ru:{pad:'Управление боксёром',move:'Передвижение и защита',punch:'Удары',straight:'Прямой',hook:'Хук',uppercut:'Апперкот',guard:'Защита',tap:'Удар',double:'Двойка',triple:'Тройка',forward:'Вперёд',back:'Назад',slip:'Уклон',roll:'Нырок',stepIn:'Шаг вперёд',stepOut:'Шаг назад',slipFull:'Уклон (поочерёдно)',rollFull:'Нырок под удар',lead:'передняя рука',rear:'задняя рука',hold:'держите, чтобы защищаться',combos:'Серии',hands:'Руки чередуются сами: передняя, задняя, передняя…'}
  };
- Object.assign(WORDS.en,{finisherHelp:'Finisher: a knockout Uppercut. Ready when the Opponent is hurt and Burst is full; a miss or a block spends the Burst'});
- Object.assign(WORDS.he,{finisherHelp:'מכת סיום: \u2068Uppercut\u2069 של נוקאאוט. מוכנה כשהיריב פגוע ו-\u2068Burst\u2069 מלא; החטאה או חסימה מבזבזות את ה-\u2068Burst\u2069'});
- Object.assign(WORDS.ru,{finisherHelp:'Добивающий удар: нокаутирующий Uppercut. Готов, когда соперник потрясён и Burst полон; промах или блок тратят Burst'});
+  Object.assign(WORDS.en,{finisherHelp:'Super Punch: a knockout Uppercut. Ready when the Opponent is below half health and Burst is full; a miss or a block spends the Burst'});
+ Object.assign(WORDS.he,{finisherHelp:'מכת סיום: \u2068Uppercut\u2069 של נוקאאוט. מוכנה כשליריב נשארה פחות מחצי בריאות ו-\u2068Burst\u2069 מלא; החטאה או חסימה מבזבזות את ה-\u2068Burst\u2069'});
+ Object.assign(WORDS.ru,{finisherHelp:'Добивающий удар: нокаутирующий Uppercut. Готов, когда у соперника меньше половины здоровья и Burst полон; промах или блок тратят Burst'});
  // GOTR-0075: what Guard does, said where it applies ({g} = the Guard button's own label, {r} = the Duck label).
  // Fights: a punch that lands on the gloves or arms is blocked: no health lost, Burst charges. Sparring: blocks count as defence.
  // Mitts: the Coach's swing is ducked, not blocked. Bag, dummy, speed bag, shadowboxing: nothing hits back.

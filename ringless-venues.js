@@ -18,7 +18,7 @@
  // Anything left on the hands that is not the outfit's own (Shop gloves re-shown after the outfit, a training mitt).
  function handGear(c) { const out = []; for (const s of ['L', 'R']) for (const o of c.joints['hand' + s]?.children || []) if (!o.isBone && !o.userData.storyPart) out.push(o); return out; }
  function install(view, id) {
-  if (!view || !view.ring || !isRingless(id) || view.gymFight) return false;
+  if (!view || !view.ring || !isRingless(id) || view.gymFight || view.ringlessDone) return false; // ringlessDone: the story moved on from this bout (release(engine, true))
   if (view.ringless) { if (view.ringless.id === id) { enforce(view); return false; } uninstall(view); }
   const st = { id, ring: view.ring.visible, referee: view.referee.root.visible, dressed: [], hidden: new Map() };
   view.ringless = st;
@@ -60,7 +60,9 @@
   if (view.ringless) uninstall(view);
   return false;
  }
- function release(engine) { const view = engine?.arena?.fightView; if (view?.ringless) uninstall(view); }
+ // final: the story has moved on from this bout (an after-film, a story scene, the next drill): give every rig back its own
+ // gear and outfit now, and never dress this finished bout again, even while its set stays on screen behind the story.
+ function release(engine, final = false) { const view = engine?.arena?.fightView; if (!view) return; if (final) view.ringlessDone = true; if (view.ringless) uninstall(view); }
  const api = Object.freeze({ ids: Object.freeze(Object.keys(PLACES)), isRingless, outfitFor, install, uninstall, enforce, sync, release });
  if (typeof module !== 'undefined') module.exports = api;
  if (typeof window !== 'undefined') window.RinglessVenues = api;

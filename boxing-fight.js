@@ -19,11 +19,11 @@
  // recovery step during which the fighter cannot defend and the opponent does not pause to reset.
  const burst={sequence:[['jab','head'],['cross','head'],['hook','body'],['rear_uppercut','head'],['hook','head']],tempo:.76,perSecond:.11,hit:.25,defence:.17,recover:.7,stamina:.08,durations:{jab:.64,cross:.70,hook:.78,rear_hook:.78,uppercut:.84,rear_uppercut:.84}};
  // GOTR-0088 Finisher "Super Punch" (id sunday_punch): one dipping, rising rear Uppercut under the chin, available when the Opponent is hurt
- // (health under `hurt`) AND the fighter's Burst meter is full. Pressing it spends the whole Burst at once (a miss or a block
+ // (health under `hurt`: half, owner 2026-11-22 "I'm not getting to the situation that I can use it"; 25 % came only seconds before a KO) AND the fighter's Burst meter is full. Pressing it spends the whole Burst at once (a miss or a block
  // wastes it). A clean head contact knocks the Opponent out cold: KO, no count. Owned per actor (options.finishers), so a
  // boss can be given its own finisher later through the same requestFinisher(actor) hook. `hold` = game seconds the result
  // waits (phase clock frozen) after the knockout so the knockout film plays out before the cards/ceremony (= super-punch-film.js FILM.hold: punch, fall, blackout, celebration); `duration` = the move.
- const finishers={sunday_punch:{id:'sunday_punch',move:'rear_uppercut',target:'head',hurt:25,duration:1.32,hold:5.3,stamina:.10,read:.30,opening:.75}};
+ const finishers={sunday_punch:{id:'sunday_punch',move:'rear_uppercut',target:'head',hurt:50,duration:1.32,hold:5.3,stamina:.10,read:.30,opening:.75}};
  const presets={three:{rounds:3,roundSeconds:20,restSeconds:20},club:{rounds:2,roundSeconds:20,restSeconds:20},six:{rounds:1,roundSeconds:40,restSeconds:10},title:{rounds:1,roundSeconds:60,restSeconds:10},exhibition:{rounds:2,roundSeconds:20,restSeconds:20},quick:{rounds:1,roundSeconds:20,restSeconds:0}};
  class BoxingFight {
   constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor,adventureEdge,finishers:owned}={}){
@@ -85,7 +85,7 @@
    const f=this.fighters[actor];if(!f)return null;const ids=(this.finisherOwned[actor]||[]).filter(k=>finishers[k]);id=id&&ids.includes(id)?id:ids[0];
    if(!id)return {status:'none',id:null};const spec=finishers[id],op=this.fighters[other(actor)],b=f.burst;
    const status=this.result||this.phase!=='round'&&this.phase!=='count'?'over':this.phase==='count'||f.down||op.down?'down':f.finisher.order?'queued':f.action?.finisher?'active':b.run||b.order?'busy':this.time<b.open?'recover':b.charge<1?'charging':op.condition>=spec.hurt?'healthy':'ready';
-   return {status,id,charge:b.charge,hurt:op.condition<spec.hurt,threshold:spec.hurt,used:f.finisher.used};
+   return {status,id,charge:b.charge,hurt:op.condition<spec.hurt,threshold:spec.hurt,opponent:op.condition,used:f.finisher.used};
   }
   // One press: spends the full Burst at once and throws the finisher at the next action boundary (now, if the fighter is free).
   requestFinisher(actor,id){
