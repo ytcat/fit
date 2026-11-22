@@ -939,7 +939,8 @@
         if(h.t0>=0&&age<.3){
           const e=Math.exp(-w*age),offset=h.x0.clone().add(h.v0.clone().addScaledVector(h.x0,w).multiplyScalar(age)).multiplyScalar(e);
           if(offset.lengthSq()>1e-8){I.active=true;const shoulder=this.point(j['arm'+side]),elbow=this.point(j['elbow'+side]),pole=elbow.sub(shoulder);
-            errors[index]=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],raw.add(offset),pole.lengthSq()>1e-8?pole:poles[index]);
+            const upper=j['elbow'+side].position.length(),lower=j['hand'+side].position.length(),target=raw.add(offset).sub(shoulder).clampLength(foldedArmReach(upper,lower)+.002,upper+lower-.003).add(shoulder);
+            errors[index]=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],target,pole.lengthSq()>1e-8?pole:poles[index]);
             gloves[index]=this.orientGlove(side,gloves[index].turn,palmTarget);}
         }
         const out=this.point(j['hand'+side]);h.vel.copy(out).sub(h.out).multiplyScalar(1/dt);h.out.copy(out);
@@ -1234,7 +1235,7 @@
           // and the glove starts home right after the target instead of resting on it.
           const hookBack=cheekGuard?.50:.57;
           // GOTR-0024: drive and arc carry their speed into the target (cruise).
-          const driveHook=cruise((phase-.23)/(cheekGuard?.15:.24))*(1-smooth((phase-hookBack)/(cheekGuard?.18:.22)));
+          const driveHook=cruise((phase-.23)/(cheekGuard?.19:.24))*(1-smooth((phase-hookBack)/(cheekGuard?.18:.22)));
           const equipment=options.target||options.knuckleTarget;
           const swing=(equipment?cruise:smooth)((phase-(equipment?.19:.17))/(equipment?options.hookSwing??.32:.40));
           const active=smooth((phase-.12)/(equipment?.32:.24))*(1-smooth((phase-hookBack)/(cheekGuard?.18:.24)));
@@ -1242,7 +1243,7 @@
           crouch=.035*load+.016*driveHook;
           // GOTR-0032 (cheekGuard): the lead hook turns the hips and ribs as far as the rear hook does (it also has to undo the
           // bladed guard, which ate most of its turn).
-          const turnUp=cheekGuard&&s===-1?1.3:1;
+          const turnUp=cheekGuard&&s===-1?1.15:1;
           hipYaw=-s*(.48*turnUp*driveHook-.18*load);
           chestYaw=-s*(.38*turnUp*driveHook-.22*load);
           shift=-s*(.047*driveHook-.018*load);
@@ -1596,6 +1597,8 @@
       }
       // The compact guard is close to the shoulders: never ask for a wrist inside the folded-arm limit.
       if(leadStance>0)for(const [side,hand] of [['L',lead],['R',rear]]){this.root.updateMatrixWorld(true);const shoulder=this.point(j['arm'+side]),near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(d<near&&d>1e-6)hand.copy(shoulder).addScaledVector(hand.clone().sub(shoulder),near/d);}
+      // GOTR-0032 (cheekGuard): the guard and the chambered fist stay on the arm's reach while the trunk turns hard.
+      if(cheekGuard)for(const [side,hand] of [['L',lead],['R',rear]]){this.root.updateMatrixWorld(true);const shoulder=this.point(j['arm'+side]),reach=j['elbow'+side].position.length()+j['hand'+side].position.length()-.003,arm=hand.clone().sub(shoulder);if(arm.length()>reach)hand.copy(shoulder).add(arm.setLength(reach));}
       let le=this.solve(j.armL,j.elbowL,j.handL,lead,leadPole);
       let re=this.solve(j.armR,j.elbowR,j.handR,rear,rearPole);
       const gloves=[this.orientGlove('L',leadTurn,palmTarget),this.orientGlove('R',rearTurn,palmTarget)];
