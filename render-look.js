@@ -244,11 +244,13 @@
       // no shadow pass, or a built ringless venue (street, basement, docks): its floor is baked (unlit), it takes no shadow
       let n = 0; const shadowless = (!e.renderer.shadowMap.enabled || !!view?.ringless) && !e.lookOff; // lookOff: QA switch (before / after in one page)
       const rigs = view?.coaches ? [...new Set(Object.values(view.coaches))] : e.activeModel === e.coach?.root ? [e.coach] : [];
-      if (view?.referee?.root?.visible && view.referee.joints) rigs.push(view.referee);
+      if (view?.referee?.root?.visible && !view.ringless) rigs.push(view.referee); // the referee (fight-referee.js) has no foot joints: one shadow under him
       if (shadowless) for (const c of rigs) {
-        if (!c?.root?.visible || !c.joints?.footL || !c.joints?.footR) continue;
+        if (!c?.root?.visible) continue;
         let hidden = false; for (let q = c.root; q; q = q.parent) if (!q.visible) { hidden = true; break; } if (hidden) continue;
-        c.joints.footL.getWorldPosition(fa); c.joints.footR.getWorldPosition(fb); c.root.getWorldPosition(rp);
+        c.root.getWorldPosition(rp);
+        if (!c.joints?.footL || !c.joints?.footR) { const m = blob(n++); m.position.set(rp.x, rp.y + .014, rp.z); m.scale.set(.85, 1, .65); m.visible = true; continue; }
+        c.joints.footL.getWorldPosition(fa); c.joints.footR.getWorldPosition(fb);
         const floor = rp.y + .012;
         for (const f of [fa, fb]) { const m = blob(n++); const lift = Math.max(0, f.y - floor - .08); m.position.set(f.x, floor + .002, f.z); const s = .34 + lift * .5; m.scale.set(s, 1, s); m.material.opacity = .55; m.visible = lift < .5; }
         const body = blob(n++); body.position.set((fa.x + fb.x) / 2, floor, (fa.z + fb.z) / 2); const w = Math.max(.7, fa.distanceTo(fb) + .45); body.scale.set(w, 1, w * .75); body.visible = true;
