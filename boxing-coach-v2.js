@@ -893,7 +893,7 @@
       return reachable.distanceTo(target);
     }
 
-    orientGlove(side,turn,palmTarget) {
+    orientGlove(side,turn,palmTarget,roll=null) {
       // Mesh anatomy: -Y is wrist-to-knuckles; +Z is palm, with a mirrored thumb.
       // A direction-only quaternion leaves roll undefined (especially near 180°).
       // Build the entire anatomical frame: wrist stays collinear with forearm,
@@ -911,7 +911,10 @@
       const fallback=project(V(0,0,1));
       const safeNeutral=neutral.lengthSq()>1e-8?neutral:fallback;
       const safeDown=downward.lengthSq()>1e-8?downward:safeNeutral;
-      const angle=Math.atan2(distal.dot(safeNeutral.clone().cross(safeDown)),safeNeutral.dot(safeDown));
+      let angle=Math.atan2(distal.dot(safeNeutral.clone().cross(safeDown)),safeNeutral.dot(safeDown));
+      // arm-fixes (opt-in, story poses): roll = { L, R } keeps the angle continuous where it crosses +-180 deg (angle*turn jumped
+      // there: the glove spun over in one frame) and then eases it back to the usual branch, so the hand turns, never flips.
+      if(roll){const last=roll[side];if(Number.isFinite(last)){const raw=angle;angle=last+Math.atan2(Math.sin(raw-last),Math.cos(raw-last));angle+=clamp(raw-angle,-.04,.04);}roll[side]=angle;}
       // Uppercuts finish with the knuckles over the forearm, never with a
       // sideways-flared glove. Preserve the anatomical wrist axis and roll
       // the thumb toward the torso during the upward drive.
@@ -1567,7 +1570,19 @@
         // GOTR-0098: the raised arm goes straight up from its own shoulder beside the head (elbow almost straight), not
         // across the body to a fixed point.
         const sh=this.point(j['arm'+side]),reach=(j['elbow'+side].position.length()+j['hand'+side].position.length())*.975;
-        hand.lerp(sh.clone().add(V((side==='L'?-1:1)*.05,reach,.03)),lift);(side==='L'?leadPole:rearPole).lerp(V(0,-.25,-1),lift); // the little bend that is left points back
+        // arm-fixes: the wrist travels on an arc round the shoulder, out to the side (toward the referee who holds it) and up,
+        // with the arm opening steadily; a straight line from the guard to the top passed beside the shoulder with the elbow
+        // folded shut (150 deg) and the elbow swung from down through out to behind (up to 20 deg per frame). The elbow
+        // points out to the side all the way, so the little bend left at the top brings the fist over the head.
+        if(lift>0){
+          const s=side==='L'?-1:1,u=smooth(lift),d0=hand.clone().sub(sh),n0=d0.clone().normalize(),top=V(s*.09,Math.sqrt(reach*reach-.009),.03),nT=top.clone().normalize(),nM=V(s*.78,.42,.30).normalize();
+          const slerp=(a,b,k)=>{const th=Math.acos(clamp(a.dot(b),-1,1)),sn=Math.sin(th);return sn<1e-4?a.clone().lerp(b,k).normalize():a.clone().multiplyScalar(Math.sin((1-k)*th)/sn).addScaledVector(b,Math.sin(k*th)/sn);};
+          const dir=slerp(slerp(n0,nM,u),slerp(nM,nT,u),u).normalize(); // a spherical Bezier: an even sweep, no fast middle
+          hand.copy(sh).addScaledVector(dir,d0.length()+(top.length()-d0.length())*smooth(Math.min(1,lift*1.25)));
+          // one fixed pole for the whole lift (out, down, a little back): it reads as "down" while the arm is out to the side
+          // and as "out" once the arm is up, so the elbow never swings through behind the shoulder
+          const pole=side==='L'?leadPole:rearPole;pole.normalize().lerp(V(s*.65,-1,-.15).normalize(),smooth(Math.min(1,lift*3))).normalize();
+        }
         leadTurn=rearTurn=.35;
       }
       if(move==='speedbag'&&options.speedBagTargets){
