@@ -24,10 +24,12 @@ for (const R of [T.BAG, T.ECHO, T.BARRAGE, T.CUTOFF, T.BET]) { const m = A.missi
   const g = new T.BagTrial(), landed = []; let n = 0;
   while (!g.done && n++ < 30000) { const v = g.view(); ideal(g, v); const p = g.punch; g.step(DT); if (p && p.contact && !p.checked && g.t >= p.contact.t) { p.checked = true; const L = g.phys.leather(g.bagAt(p.contact.t - 1e-6), p.contact.hand); landed.push(L.gap - R.glove); } }
   assert.equal(landed.length, R.swings); for (const gap of landed) assert.ok(gap <= .001 && gap > -.006, 'glove on the leather: ' + gap);
-  // the swing tells the range: a Straight swing stays further out than a Hook, an Uppercut comes closest; nothing comes into the guard
-  const apex = type => { const h = new T.BagTrial(); h.types[0] = type; h.i = 0; h.call(0, -.2); let s = h.sw.start, body = 9; for (let k = 0; k < 300; k++) { s = h.phys.step(s, DT); body = Math.min(body, h.bodyGap(s, 0)); if (s.w1 <= 0 && k > 4) break; } return { a: s.a1, body, win: h.sw.close - h.sw.open }; };
+  // the call is the range: the bag stops furthest from the Fighter for a Straight, closer for a Hook (he steps in), closest for an
+  // Uppercut; the swings stay moderate and nothing comes into the guard
+  const apex = type => { const h = new T.BagTrial(); h.types[0] = type; h.i = 0; h.call(0, -.2); let s = h.sw.start, body = 9; for (let k = 0; k < 300; k++) { s = h.phys.step(s, DT); body = Math.min(body, h.bodyGap(s, h.sw.stance[0], null, h.moveFor(type, true), h.sw.stance[1])); if (s.w1 <= 0 && k > 4) break; } const ax = h.phys.axis(s); return { a: s.a1, range: ax.ring[0] + R.d * ax.u[0] - h.sw.stance[0], body, win: h.sw.close - h.sw.open }; };
   const st = apex('straight'), hk = apex('hook'), up = apex('uppercut');
-  assert.ok(st.a < hk.a && hk.a < up.a, `apex angles ${st.a.toFixed(2)} < ${hk.a.toFixed(2)} < ${up.a.toFixed(2)}`); for (const x of [st, hk, up]) assert.ok(x.body >= R.clear - .005, 'clear of the guard: ' + x.body);
+  assert.ok(st.range > hk.range + .1 && hk.range > up.range + .05, `range at the top of the swing ${st.range.toFixed(2)} > ${hk.range.toFixed(2)} > ${up.range.toFixed(2)} m`);
+  for (const x of [st, hk, up]) assert.ok(x.a > .2 && x.a < .55, 'a heavy bag swing, not a wild one: ' + x.a.toFixed(2) + ' rad'); for (const x of [st, hk, up]) assert.ok(x.body >= R.clear - .005, 'clear of the guard: ' + x.body);
   for (const x of [st, hk, up]) assert.ok(x.win >= .35 && x.win <= .8, 'a fair press window: ' + x.win.toFixed(2));
   // a first-time player who presses when the ring closes, up to 0.15 s off either way, lands the first three swings
   for (const off of [-.15, -.08, 0, .08]) { const f = new T.BagTrial(); play(f, (g2, v) => { if (v.prompt && v.prompt !== 'back' && !g2.punch && g2.t >= v.due + off && g2.i < 3) tap(g2, v.type); }, 12); assert.ok(f.hits >= 2 && f.log.some(e => e.type === 'hit' || e.type === 'perfect'), `offset ${off}: ${f.hits} hits in the first swings`); }

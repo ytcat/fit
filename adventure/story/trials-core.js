@@ -36,15 +36,22 @@
   // short or a late one is a mistake, and Brick shoves the bag back at you: step back (left) or it hits you (a second mistake).
   // Frame: metres, the Fighter's root at x = 0 (before a step back) facing +x, y up, z sideways (lead hand at -z). The bag's
   // angles are + toward the Fighter. value = mistakes (adventure-progress.js heavy_bag_van thresholds 12 / 6 / 0).
-  // Striking hand (joint) per punch phase .14, .18 ... .58 of the game rig in kit facing +x (story-scenes.js PUNCH_OPT; measured in
-  // the browser with qa/gotr-0077, the same poses the trial shows). The punch phase runs .14 + (t - press) * .8 / .38.
+  // Striking hand (joint) per punch phase .14, .18 ... .58 of the game rig in kit facing +x, thrown from the guard (story-scenes.js
+  // PUNCH_OPT; measured inside the running trial with qa/gotr-0077/hands.cjs: the uppercut's path depends on the pose before it). The punch phase runs .14 + (t - press) * .8 / .38.
   const HANDS = Object.freeze({
     jab: [[.522, 1.764, -.128], [.522, 1.763, -.128], [.536, 1.759, -.129], [.58, 1.751, -.129], [.622, 1.752, -.126], [.809, 1.744, -.111], [.999, 1.736, -.092], [1.092, 1.732, -.082], [1.092, 1.732, -.082], [1.086, 1.732, -.082], [1.023, 1.735, -.088], [.88, 1.741, -.102]],
     cross: [[.478, 1.746, .129], [.478, 1.743, .129], [.499, 1.738, .125], [.567, 1.725, .105], [.654, 1.724, .073], [.765, 1.741, .051], [1.003, 1.734, .029], [1.12, 1.731, .019], [1.12, 1.731, .019], [1.113, 1.731, .02], [1.036, 1.733, .027], [.854, 1.739, .043]],
     hook: [[.458, 1.751, -.158], [.475, 1.726, -.211], [.418, 1.709, -.291], [.333, 1.694, -.377], [.352, 1.683, -.418], [.573, 1.675, -.32], [.722, 1.675, -.146], [.807, 1.675, .025], [.859, 1.675, .184], [.861, 1.675, .225], [.86, 1.675, .237], [.858, 1.675, .237]],
-    rear_uppercut: [[.433, 1.508, .193], [.396, 1.496, .2], [.433, 1.507, .193], [.456, 1.505, .193], [.447, 1.507, .193], [.461, 1.513, .186], [.528, 1.552, .136], [.577, 1.571, .107], [.592, 1.577, .099], [.593, 1.577, .098], [.591, 1.577, .098], [.574, 1.579, .098]]
+    rear_uppercut: [[.274, 1.229, .243], [.268, 1.153, .246], [.267, 1.122, .237], [.276, 1.153, .213], [.306, 1.231, .18], [.364, 1.337, .142], [.44, 1.447, .107], [.511, 1.539, .08], [.56, 1.603, .061], [.589, 1.64, .05], [.602, 1.662, .044], [.588, 1.678, .041]]
   });
-  const GUARD = Object.freeze([[.501, 1.786, -.129], [.424, 1.779, .126]]); // both hands in the guard, same rig and frame
+  // the other hand during each punch (same phases): it rides up and forward a little, the bag must stay clear of it too
+  const OTHER = Object.freeze({
+    jab: [[.479, 1.75, .129], [.479, 1.749, .129], [.485, 1.747, .129], [.499, 1.743, .127], [.518, 1.739, .126], [.567, 1.731, .127], [.581, 1.712, .133], [.581, 1.706, .135], [.581, 1.706, .135], [.58, 1.707, .134], [.573, 1.717, .131], [.556, 1.733, .125]],
+    cross: [[.521, 1.759, -.128], [.521, 1.757, -.128], [.527, 1.754, -.132], [.532, 1.752, -.147], [.554, 1.751, -.167], [.577, 1.725, -.197], [.575, 1.68, -.213], [.574, 1.667, -.214], [.574, 1.667, -.214], [.574, 1.67, -.213], [.57, 1.685, -.206], [.563, 1.726, -.186]],
+    hook: [[.491, 1.718, .117], [.504, 1.696, .105], [.509, 1.69, .102], [.513, 1.691, .103], [.509, 1.714, .12], [.514, 1.741, .139], [.513, 1.748, .16], [.515, 1.714, .184], [.517, 1.68, .2], [.52, 1.661, .202], [.52, 1.661, .201], [.518, 1.662, .2]],
+    rear_uppercut: [[.513, 1.631, -.032], [.511, 1.586, -.009], [.525, 1.599, -.034], [.542, 1.632, -.08], [.552, 1.669, -.127], [.55, 1.702, -.168], [.542, 1.727, -.196], [.535, 1.74, -.211], [.532, 1.745, -.216], [.532, 1.745, -.216], [.532, 1.745, -.215], [.533, 1.747, -.208]]
+  });
+  const GUARD = Object.freeze([[.527, 1.767, -.127], [.484, 1.753, .129]]); // both hands in the guard, same rig and frame
   const smooth01 = u => { u = clamp(u); return u * u * (3 - 2 * u); };
   const PH = Object.freeze({ start: .14, step: .04, rate: .8 / .38, land: .5 }); // a glove that has not met the leather by phase .5 has missed
   function handAt(move, ph, out = [0, 0, 0]) { const T = HANDS[move], u = clamp((ph - PH.start) / PH.step, 0, T.length - 1), i = Math.min(T.length - 2, Math.floor(u)), f = u - i; for (let k = 0; k < 3; k++) out[k] = lerp(T[i][k], T[i + 1][k], f); return out; }
@@ -55,6 +62,7 @@
     impulse: { straight: 24, hook: 28, uppercut: 22 }, hit: { straight: [-1, 0, 0], hook: [-.82, 0, .57], uppercut: [-.64, .77, 0] }, // N s along the punch (+ = toward the Fighter)
     windup: [1.05, .55], release: [.42, .27], depth: [.2, .12], reach: { straight: .5, uppercut: .75 }, // depth: how far the leather comes inside the punch's path (an uppercut is close range)
     bite: { windup: .55, release: .3, depth: .12 },
+    range: { straight: [0, 0], hook: [.22, 0], uppercut: [.3, -.12] }, // where the Fighter stands for the call (m toward the bag, m sideways): in for the Hook, in and to the left for the rear Uppercut (clear of his lead guard)
     perfect: .085, hold: .07, clear: .04, chest: [.2, 1.36], back: .42, step: .26, stay: .62, catchAfter: .25, dt: 1 / 120
   });
   /** The bag's physics, pure: state { a1, w1, a2, w2, p, wp, s, ws } = chain angle, bag angle (+ toward the Fighter, rad), their
@@ -104,13 +112,17 @@
       this.call(0, -.2, true);
     }
     /** The Fighter's root offset along the drill line at time t (a step back and the step in again). */
-    fighterX(t) { const d = this.dodge, r = this.r; if (!d || t < d.at) return 0; const u = t - d.at; return -r.back * (u < r.step ? smooth01(u / r.step) : u < r.step + r.stay ? 1 : 1 - smooth01((u - r.step - r.stay) / r.step)); }
+    stanceAt(t, k) { const s = this.stance; return s ? lerp(s.from[k], s.to[k], smooth01((t - s.at) / this.r.step)) : 0; }
+    stanceX(t) { return this.stanceAt(t, 0); }
+    fighterZ(t) { return this.stanceAt(t, 1); }
+    fighterX(t) { const d = this.dodge, r = this.r, st = this.stanceX(t); if (!d || t < d.at) return st; const u = t - d.at; return st - r.back * (u < r.step ? smooth01(u / r.step) : u < r.step + r.stay ? 1 : 1 - smooth01((u - r.step - r.stay) / r.step)); }
     /** Brick catches the bag (at `angle`) and starts the next swing: a call, or the bite after a mistake. */
     call(at, angle, first = false) {
       const r = this.r, i = this.i, bite = !!this.biteNext; this.biteNext = false;
       const u = i / (r.swings - 1), wind = (bite ? r.bite.windup : lerp(r.windup[0], r.windup[1], u) / this.k) + (first ? .35 : 0);
       const A0 = bite ? r.bite.release : lerp(r.release[0], r.release[1], u) * (this.hard ? .9 : 1), depth = bite ? r.bite.depth : lerp(r.depth[0], r.depth[1], u) * (this.hard ? .8 : 1) * (r.reach[this.types[i]] || 1);
-      this.sw = { i, type: bite ? 'bite' : this.types[i], bite, t0: at, from: angle, fromP: this.q.p, A0, release: at + wind, depth, state: 'hold', verdict: null };
+      const stance = bite ? [0, 0] : r.range[this.types[i]] || [0, 0]; this.stance = { from: [this.stanceX(at), this.fighterZ(at)], to: stance, at };
+      this.sw = { i, type: bite ? 'bite' : this.types[i], bite, stance, t0: at, from: angle, fromP: this.q.p, A0, release: at + wind, depth, state: 'hold', verdict: null };
       this.path = null; this.punch = null; this.q = { ...this.q, a1: angle, w1: 0, a2: angle, w2: 0, wp: 0, ws: 0 };
       this.plan(this.sw);
     }
@@ -120,8 +132,8 @@
       const r = this.r, start = { a1: -sw.A0, w1: 0, a2: -sw.A0, w2: 0, p: 0, wp: 0, s: this.q.s, ws: 0 };
       // How the swing ends up, released from A0 with a shove of w0 rad/s, up to the top of the swing: > 0 while the leather stays
       // short of `depth` inside the called punch's path and clear of the guard; a bite comes `depth` into the guard or the chest.
-      const fly = (A0, w0) => { let q = { ...start, a1: -A0, a2: -A0, w1: w0, w2: w0 }, reach = 9, body = 9; for (let n = 0; n < 400; n++) { q = this.phys.step(q, r.dt); body = Math.min(body, this.bodyGap(q, 0)); if (!sw.bite) reach = Math.min(reach, this.punchGap(q, sw.type)); if (q.w1 <= 0 && n > 4) break; } return sw.bite ? body + sw.depth : Math.min(reach + sw.depth, body - r.clear); };
-      const SHOVE = .3, key = [sw.bite ? 'bite' : sw.type, sw.A0, sw.depth, r.pivot, r.chain].join('|'), known = SOLVED.get(key); let lo, hi;
+      const fly = (A0, w0) => { let q = { ...start, a1: -A0, a2: -A0, w1: w0, w2: w0 }, reach = 9, body = 9; for (let n = 0; n < 400; n++) { q = this.phys.step(q, r.dt); body = Math.min(body, this.bodyGap(q, sw.stance[0], null, sw.bite ? null : this.moveFor(sw.type, true), sw.stance[1])); if (!sw.bite) reach = Math.min(reach, this.punchGap(q, sw.type, sw.stance[0], sw.stance[1])); if (q.w1 <= 0 && n > 4) break; } return sw.bite ? body + sw.depth : Math.min(reach + sw.depth, body - r.clear); };
+      const SHOVE = .3, key = [sw.bite ? 'bite' : sw.type, sw.A0, sw.depth, sw.stance.join(), r.pivot, r.chain].join('|'), known = SOLVED.get(key); let lo, hi;
       if (known) [sw.A0, sw.w0] = known; // the same swing was solved before (each swing of a run, and every run, is the same physics)
       else if (fly(sw.A0, SHOVE) < 0) { lo = .02; hi = sw.A0; for (let k = 0; k < 22; k++) { const mid = (lo + hi) / 2; if (fly(mid, SHOVE) < 0) hi = mid; else lo = mid; } sw.A0 = (lo + hi) / 2; sw.w0 = SHOVE; } // a short swing: he pulls it back less
       else { lo = SHOVE; hi = 6; for (let k = 0; k < 22; k++) { const mid = (lo + hi) / 2; if (fly(sw.A0, mid) > 0) lo = mid; else hi = mid; } sw.w0 = (lo + hi) / 2; } // a long one: a harder shove
@@ -152,20 +164,20 @@
     }
     moveFor(type, peek = false) { if (type === 'uppercut') return 'rear_uppercut'; if (type !== 'straight') return type; const n = peek ? this.straights : this.straights++; return n % 2 ? 'cross' : 'jab'; }
     /** How far inside the called punch's path the leather comes at state q (negative = the glove would sink in). */
-    punchGap(q, type) { const move = type === 'straight' ? 'jab' : this.moveFor(type, true), hp = [0, 0, 0]; let best = 9; if (this.phys.leather(q, handAt(move, .46, hp)).gap > .6) return 9; for (let ph = .3; ph <= PH.land + 1e-9; ph += .02) { handAt(move, ph, hp); best = Math.min(best, this.phys.leather(q, hp).gap - this.r.glove); } return best; }
+    punchGap(q, type, fx = 0, fz = 0) { const move = type === 'straight' ? 'jab' : this.moveFor(type, true), hp = [0, 0, 0]; let best = 9; handAt(move, .46, hp); hp[0] += fx; hp[2] += fz; if (this.phys.leather(q, hp).gap > .6) return 9; for (let ph = .3; ph <= PH.land + 1e-9; ph += .02) { handAt(move, ph, hp); hp[0] += fx; hp[2] += fz; best = Math.min(best, this.phys.leather(q, hp).gap - this.r.glove); } return best; }
     /** The Fighter's body points the bag can run into (both guard gloves, the chest), shifted by a step back. */
-    bodyPoints(fx) { const r = this.r; return [[fx + r.chest[0], r.chest[1], r.pivot[2], 0], ...GUARD.map(g => [fx + g[0], g[1], g[2], r.glove])]; }
+    bodyPoints(fx, move, fz = 0) { const r = this.r, pts = [[fx + r.chest[0], r.chest[1], fz, 0], ...GUARD.map(g => [fx + g[0], g[1], fz + g[2], r.glove])]; if (move) for (const o of OTHER[move].slice(5, 9)) pts.push([fx + o[0], o[1], fz + o[2], r.glove]); return pts; }
     /** Gap between the leather and the Fighter's guard or chest (negative = the bag is in him); with the point it would meet. */
-    bodyGap(q, fx, out) { let best = 9; for (const b of this.bodyPoints(fx)) { const L = this.phys.leather(q, b); if (!L.inside) continue; const gp = L.gap - b[3]; if (gp < best) { best = gp; if (out) { out.e = this.r.d - L.y; out.pt = b; } } } return best; }
+    bodyGap(q, fx, out, move, fz = 0) { let best = 9; for (const b of this.bodyPoints(fx, move, fz)) { const L = this.phys.leather(q, b); if (!L.inside) continue; const gp = L.gap - b[3]; if (gp < best) { best = gp; if (out) { out.e = this.r.d - L.y; out.pt = b; } } } return best; }
     /** Where and when a punch pressed at tp meets the leather on the predicted swing (null: it falls short / goes past). */
     contact(move, tp) {
-      const r = this.r, hp = [0, 0, 0], at = tau => { const t = tp + tau, ph = PH.start + tau * PH.rate; handAt(move, ph, hp); hp[0] += this.fighterX(t); const L = this.phys.leather(this.bagAt(t), hp); return { t, ph, tau, L, on: L.inside && L.gap <= r.glove }; };
+      const r = this.r, hp = [0, 0, 0], at = tau => { const t = tp + tau, ph = PH.start + tau * PH.rate; handAt(move, ph, hp); hp[0] += this.fighterX(t); hp[2] += this.fighterZ(t); const L = this.phys.leather(this.bagAt(t), hp); return { t, ph, tau, L, on: L.gap <= r.glove && L.y < r.h + r.glove }; }; // the side or the bottom of the bag (an uppercut from below), not the straps above it
       const h = r.dt / 2; if (at(0).on) return null; // the bag is already on the glove: no room to punch (a jam, not a hit)
       for (let tau = h; ; tau += h) {
         if (PH.start + tau * PH.rate > PH.land) return null;
         if (!at(tau).on) continue;
         let lo = tau - h, hi = tau; for (let k = 0; k < 12; k++) { const mid = (lo + hi) / 2; if (at(mid).on) hi = mid; else lo = mid; } // the glove moves ~4 cm per step: find where it meets the leather
-        const c = at(hi); return { t: c.t, ph: c.ph, tau: hi, y: c.L.y, dir: c.L.dir, e: r.d - c.L.y, hand: hp.slice() };
+        const c = at(hi); return { t: c.t, ph: c.ph, tau: hi, y: c.L.y, dir: c.L.dir, e: r.d - clamp(c.L.y, -r.h, r.h), hand: hp.slice() };
       }
     }
     key(k, down) {
@@ -196,7 +208,7 @@
       if (sw.state === 'swing' && !sw.verdict && !sw.bite && !(p && !p.over) && this.t > (sw.close ?? sw.apex) + .02) this.miss('late');
       // the bite: the bag swings into the guard unless the Fighter stepped back
       if (sw.bite && sw.state === 'swing' && !sw.verdict) {
-        const q = this.bagAt(this.t), at = {}, gap = this.bodyGap(q, this.fighterX(this.t), at);
+        const q = this.bagAt(this.t), at = {}, gap = this.bodyGap(q, this.fighterX(this.t), at, null, this.fighterZ(this.t));
         if (gap <= 0) { const e = at.e, pv = this.phys.pointVel(q, e);
           if (pv.v > 0) { this.q = this.phys.kick(q, [-1.35 * pv.v * pv.mass, 0, 0], e); this.predict(this.t, this.q); } sw.verdict = 'bagged'; sw.verdictAt = this.t; this.bitten++; this.mistakes++; this.fail('bagged'); }
         else if (this.t > sw.apex + .05) { sw.verdict = 'dodge'; sw.verdictAt = this.t; this.dodged++; this.flash = { type: 'dodge', pts: 0, t: this.t }; this.event('dodge'); }
@@ -214,14 +226,15 @@
       return this;
     }
     view() {
-      const sw = this.sw, r = this.r, v = this.base(), q = this.bagAt(this.t), fx = this.fighterX(this.t), p = this.punch;
-      const dodge = this.dodge && this.t - this.dodge.at < r.step * 2 + r.stay ? { u: this.t - this.dodge.at, x: fx } : null;
-      if (!sw || sw.state === 'end' || this.done) return { ...v, phase: 'end', i: this.i, total: r.swings, mistakes: this.mistakes, hits: this.hits, prompt: null, progress: 1, bag: q, fx, punch: p, dodge };
+      const sw = this.sw, r = this.r, v = this.base(), q = this.bagAt(this.t), fx = this.fighterX(this.t), fz = this.fighterZ(this.t), p = this.punch;
+      const dodge = this.dodge && this.t - this.dodge.at < r.step * 2 + r.stay ? { u: this.t - this.dodge.at, x: fx } : null, st = this.stance;
+      const stepIn = st && this.t - st.at < r.step && Math.hypot(st.to[0] - st.from[0], st.to[1] - st.from[1]) > .01 ? { u: (this.t - st.at) / r.step, delta: st.to[0] - st.from[0], dz: st.to[1] - st.from[1] } : null; // footwork to the call's range
+      if (!sw || sw.state === 'end' || this.done) return { ...v, phase: 'end', i: this.i, total: r.swings, mistakes: this.mistakes, hits: this.hits, prompt: null, progress: 1, bag: q, fx, fz, punch: p, dodge, stepIn };
       const live = !sw.verdict && !sw.bite, open = live && !p && sw.open != null && this.t >= sw.open && this.t <= sw.close;
       const k = sw.verdict ? 1 : this.t < sw.release ? 0 : clamp((this.t - sw.release) / Math.max(.05, sw.due - sw.release));
       const phase = sw.bite ? (sw.verdict ? 'back' : 'bite') : sw.verdict === 'hit' ? 'hit' : sw.verdict ? 'missed' : sw.state;
       return { ...v, phase, type: sw.bite ? null : sw.type, bite: sw.bite, hold: sw.state === 'hold', k, open, due: sw.due, apex: sw.apex, release: sw.release, i: this.i, total: r.swings, mistakes: this.mistakes, hits: this.hits, progress: this.i / r.swings,
-        prompt: sw.bite ? (sw.verdict ? null : 'back') : live ? sw.type : null, bag: q, fx, punch: p, dodge, verdict: sw.verdict, depth: sw.depth };
+        prompt: sw.bite ? (sw.verdict ? null : 'back') : live ? sw.type : null, bag: q, fx, fz, punch: p, dodge, stepIn, verdict: sw.verdict, depth: sw.depth };
     }
     result(starsFor) { return { ...this.finish(starsFor, this.mistakes, this.i >= this.r.swings), hits: this.hits, dodged: this.dodged, bitten: this.bitten }; }
   }
@@ -441,6 +454,6 @@
     result(starsFor) { return { ...this.finish(starsFor, this.landed), landed: this.landed, misses: this.misses, perfects: this.perfects }; }
   }
 
-  const api = { PUNCH, rng, Trial, BAG, BagTrial, HANDS, GUARD, PH, handAt, bagPhysics, ECHO, EchoTrial, BARRAGE, BarrageTrial, CUTOFF, CutoffTrial, BET, BetTrial, DUO, DuoTrial };
+  const api = { PUNCH, rng, Trial, BAG, BagTrial, HANDS, OTHER, GUARD, PH, handAt, bagPhysics, ECHO, EchoTrial, BARRAGE, BarrageTrial, CUTOFF, CutoffTrial, BET, BetTrial, DUO, DuoTrial };
   if (typeof module !== 'undefined') module.exports = api; else window.StoryTrials = api;
 })();

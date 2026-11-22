@@ -7,7 +7,7 @@
 //   OFFSETS=-.4,-.3,... press offsets (s) cycled over the swings (default: a sweep)   TS=.5 game time scale (finer frames)
 //   SHOTS=a,b,c   pictures at these game times (paused frame)     PAD=1  first presses as real taps on the pad buttons (coordinates)
 //   HUMAN=1  the bot presses when the coming bag gets within the punch's range of the guard glove (what a player sees), not at "due"
-//   SWINGS=n stop after n swings (default all)
+//   SWINGS=n stop after n swings (default all)   BACK=1 step back (left) from the bite after a miss
 const { chromium } = require('playwright'), http = require('http'), fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '../..'), out = process.argv[2] || path.join(__dirname, 'run'); fs.mkdirSync(out, { recursive: true });
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.glb': 'model/gltf-binary', '.wav': 'audio/wav', '.opus': 'audio/ogg', '.m4a': 'audio/mp4' };
@@ -20,7 +20,7 @@ const server = http.createServer((q, r) => { let f = path.join(root, decodeURICo
   const offsets = (process.env.OFFSETS || '-.5,-.4,-.3,-.2,-.1,0,.1,.2,.3').split(',').map(Number);
   await p.evaluate(([ts]) => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); window.__res = null; StoryScenes.play('carry_bag', { noIntro: true, timeScale: ts, onDone: r => { window.__res = r; } }); }, [+(process.env.TS || .5)]);
   await p.waitForFunction(() => app.engine.fightIQDemo?.sim && app.engine.fightIQDemo.frame, null, { timeout: 300000 });
-  await p.evaluate(([offsets, human, pad, swings]) => {
+  await p.evaluate(([offsets, human, pad, swings, back]) => {
     const V = () => new THREE.Vector3(), run = app.engine.fightIQDemo, key = { straight: 'j', hook: 'k', uppercut: 'l' }, log = window.__log = [], frames = window.__frames = [];
     const leather = () => { const o = run.memo?.bagMesh || null; if (o) return o; let best = null; run.rigs.fighter.root.parent.traverse(n => { if (n.name === 'heavy bag' || n.name === 'Heavy bag leather') best = n.name === 'Heavy bag leather' ? n : best || n; }); return best; };
     const swing = s => s.sw || s.c || null, due = s => swing(s)?.due ?? swing(s)?.peak, idOf = s => s.i ?? 0, inRange = { straight: .55, hook: .4, uppercut: .2 };
@@ -38,6 +38,7 @@ const server = http.createServer((q, r) => { let f = path.join(root, decodeURICo
       if (last && s.t - last.at <= .45) { last.minGap = Math.min(last.minGap, gap); if (gap <= .01 && last.touchAt == null) last.touchAt = +(s.t - last.at).toFixed(3); }
       if (v.flash && last && v.flash.t >= last.at - 1e-6 && !last.verdict) last.verdict = v.flash.type;
       // the bot
+      if (back && v.phase === 'bite' && !v.hold && (!s.dodge || s.t > s.dodge.at + 1.3) && s.t > sw.release + .12) for (const type of ['keydown', 'keyup']) window.dispatchEvent(new KeyboardEvent(type, { key: 'ArrowLeft', bubbles: true }));
       if (!sw || window.__padMode || s.done) return; const i = idOf(s);
       if (window.__swings && i >= window.__swings) return;
       if (sw.__pressed) return;
@@ -48,7 +49,7 @@ const server = http.createServer((q, r) => { let f = path.join(root, decodeURICo
       if (fire) { sw.__pressed = true; last = { i, type, at: s.t, off: +(s.t - due(s)).toFixed(3), minGap: 9, gapAtPress: +gap.toFixed(3) }; log.push(last); press(key[type]); last.verdict = s.view().flash && s.view().flash.t >= last.at - 1e-6 ? s.view().flash.type : null; }
     };
     window.__swings = swings || 0;
-  }, [offsets, !!process.env.HUMAN, !!process.env.PAD, +(process.env.SWINGS || 0)]);
+  }, [offsets, !!process.env.HUMAN, !!process.env.PAD, +(process.env.SWINGS || 0), !!process.env.BACK]);
   if (process.env.PAD) {
     // real taps with coordinates on the story pad's punch buttons, timed from game state polled by the test (3 swings)
     await p.evaluate(() => { window.__padMode = true; });

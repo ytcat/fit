@@ -242,13 +242,14 @@
     const d = v.dodge; let ringStep = null;
     if (d && d.u < R.step) ringStep = { phase: d.u / R.step, ease: smooth(d.u / R.step), weight: 1, turn: 0, delta: [0, 0, -R.back] };
     else if (d && d.u > R.step + R.stay && d.u < R.step * 2 + R.stay) { const k = (d.u - R.step - R.stay) / R.step; ringStep = { phase: k, ease: smooth(k), weight: 1, turn: 0, delta: [0, 0, R.back] }; }
+    else if (v.stepIn) ringStep = { phase: v.stepIn.u, ease: smooth(v.stepIn.u), weight: 1, turn: 0, delta: [v.stepIn.dz, 0, v.stepIn.delta] }; // in to the call's range (or back out); rig x = world +z here (mirrored root facing +x)
     if (ringStep) base.ringStep = ringStep;
     let ph = null;
     if (p) {
       const tau = t - p.at, c0 = p.contact;
       if (c0) ph = tau < c0.tau ? PH0 + tau * PRATE : tau < c0.tau + R.hold ? c0.ph : c0.ph - (c0.ph - PH0) * smooth((tau - c0.tau - R.hold) / .22);
       else { ph = Math.min(.94, PH0 + tau * PRATE); // a miss: the punch runs out and comes back; the leather pushes a glove that is still out of the way
-        const hp = [0, 0, 0]; while (ph > T.PH.land && ph < .62 && x.sim.phys.leather(v.bag, (T.handAt(p.move, Math.min(ph, .58), hp), hp[0] += v.fx, hp)).gap < R.glove) ph += .01; }
+        const hp = [0, 0, 0]; while (ph > T.PH.land && ph < .62 && x.sim.phys.leather(v.bag, (T.handAt(p.move, Math.min(ph, .58), hp), hp[0] += v.fx, hp[2] += v.fz || 0, hp)).gap < R.glove) ph += .01; }
       if (tau > .5 || (c0 && tau > c0.tau + R.hold + .22)) ph = null;
     }
     if (ph != null) c.update(ph * 1.22, p.move, 'one_two', base);
@@ -276,7 +277,7 @@
   function bagFrame(x, v, dt) {
     const T = Trials(), R = T.BAG, f = x.rigs.fighter, b = x.rigs.brick, props = x.memo.props ||= bagProps(x.scene);
     props.pose(v.bag);
-    x.place(f, { x: BAGF.x + (v.fx || 0), z: BAGF.z, ry: Math.PI / 2 }); x.place(b, { x: BAGF.x + R.brick, z: BAGF.z + R.pivot[2], ry: -Math.PI / 2 });
+    x.place(f, { x: BAGF.x + (v.fx || 0), z: BAGF.z + (v.fz || 0), ry: Math.PI / 2 }); x.place(b, { x: BAGF.x + R.brick, z: BAGF.z + R.pivot[2], ry: -Math.PI / 2 });
     bagFighter(f, x, v, props); bagBrick(b, x, v, props, dt);
     // the leather gives where the glove lands, then springs back (the bag's own dent: bag-break.js)
     const pc = v.punch?.contact, B = props.bag;
@@ -294,7 +295,7 @@
       const key = v.i + '|' + v.due; if (x.memo.cueKey !== key) { x.memo.cueKey = key; const c0 = x.sim.contact(x.sim.moveFor(v.type, true), v.due); x.memo.cuePos = c0 ? props.world(c0.hand).toArray() : null; }
       if (x.memo.cuePos) cue = { pos: x.memo.cuePos, k: v.k, now: !!v.open, kind: v.type };
     }
-    return { pos: [9.45, 1.85, 3.5], look: [9.7, 1.32, BAGF.z], fit: [f, b], cue };
+    return { pos: [9.5, 1.85, 4.05], look: [9.62, 1.3, BAGF.z], fit: [f, b], cue }; // wide enough for the step back: the camera does not have to back off
   }
   const T_PUNCH = ['straight', 'hook', 'uppercut'];
   const pw = (g, k, l) => W[l].punch[k];
