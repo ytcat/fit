@@ -190,7 +190,7 @@
   function tickRun(frame, dt) {
     const r = run, d = r.def, e = window.app.engine; placeStrip();
     if (d.kind === 'training') {
-      d.frame?.(r, frame, dt); if (r.caller) { r.caller.step(dt); r.value = r.caller.value; paintCalls(); } paintStrip();
+      d.frame?.(r, frame, dt); if (r.caller) { r.caller.step(dt); r.value = Math.max(r.value, r.caller.value); paintCalls(); } paintStrip();
       const a = e.career.active;
       if (a) { r.session = a.id; if (!r.early && r.value >= r.target) { r.early = true; setTimeout(() => { if (run === r && !r.ended) e.career.finish(); }, 700); } }
       else if (r.session) finishRun();

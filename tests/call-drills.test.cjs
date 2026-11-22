@@ -36,6 +36,15 @@ assert.deepStrictEqual(['jab', 'cross', 'hook', 'rear_hook', 'uppercut', 'rear_u
 // wiring
 const town = read('adventure/oldtown.js'), html = read('index.html');
 assert.match(town, /run\.caller\.input\(window\.CallCore\.moveOf\(String\(id\)\)\)/, 'real presses feed the drill');
-assert.match(town, /if \(r\.caller\) \{ r\.caller\.step\(dt\); r\.value = r\.caller\.value; paintCalls\(\); \}/);
+assert.match(town, /if \(r\.caller\) \{ r\.caller\.step\(dt\); r\.value = Math\.max\(r\.value, r\.caller\.value\); paintCalls\(\); \}/);
 assert.ok(html.indexOf('call-core.js') > 0 && html.indexOf('call-core.js') < html.indexOf('oldtown.js'));
+// saves from v1.86 and earlier (old metrics) stay valid and keep their stars until a new play earns at least as many
+{ const old = { night_shadow: { stars: 1, value: 20, plays: 1 }, night_bag: { stars: 3, value: 5, plays: 2 }, fight_prep: { stars: 2, value: 7, plays: 1 }, advanced_training: { stars: 1, value: 1, plays: 1 } };
+  const a = A.fresh(); Object.assign(a.missions, old, { clean_gym: { stars: 1, value: 25, plays: 1 } }); const v = A.validate(JSON.parse(JSON.stringify(a)));
+  for (const [id, r] of Object.entries(old)) assert.equal(v.missions[id].stars, r.stars, id + ': old stars kept');
+  const forged = A.fresh(); forged.missions.night_bag = { stars: 2, value: 5, plays: 1 }; assert.throws(() => A.validate(forged), /stars do not match/, 'a record matching neither rule is refused');
+  const g = { adventure: v }, keep = v.missions.night_bag;
+  A.recordMission(g, 'night_bag', { combos: 12 }, true); assert.deepEqual([keep.stars, keep.value, keep.plays], [3, 5, 3], 'a 1-star play does not lower an old 3-star record');
+  A.recordMission(g, 'night_bag', { combos: 27 }, true); assert.deepEqual([keep.stars, keep.value], [3, 27], 'a new 3-star play replaces it');
+}
 console.log('call-drills: ok');

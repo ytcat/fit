@@ -26,7 +26,7 @@ for (const channel of ['live', undefined]) {
   assert.deepEqual(OT.devSkipAction('market_robber'), { type: 'adventure', adventure: 'story', step: 'market_robber', outcome: 'won' });
   assert.deepEqual(OT.devSkipAction('dream_arrival'), { type: 'adventure', adventure: 'story', step: 'dream_arrival' });
   assert.equal(OT.devSkipAction('clean_gym'),null,'no fake pass for required cleaning');
-  assert.deepEqual(OT.devSkipAction('night_shadow'), { type: 'adventure', adventure: 'mission', missionId: 'night_shadow', measured: { landed: 20 } });
+  assert.deepEqual(OT.devSkipAction('night_shadow'), { type: 'adventure', adventure: 'mission', missionId: 'night_shadow', measured: { combos: 10 } });
   assert.deepEqual(OT.devSkipAction('brick'), { type: 'adventure', adventure: 'boss', bossId: 'brick', won: true });
   const s = new C.CareerStore(mem()); s.create('Dev'); const coins0 = D.wallet(s.game()).coins;
   // out of order: a later step can be finished first (any step startable)
