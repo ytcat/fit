@@ -20,7 +20,8 @@ const CASES = [
   ['street2', `()=>{__ctx.change({type:'venue',venueId:'street'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'low_orbit:arms_up'],
   ['docks', `()=>AdventureOldTown.storyFightStart(__ctx,'docks_fight')`, 'overhead_drop:chest_pound'],
   ['basement', `()=>{__ctx.change({type:'venue',venueId:'underground'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'front_low:shuffle'],
-  ['gym', `()=>AdventureOldTown.storyFightStart(__ctx,'first_brick')`, 'side_track:chest_pound']
+  ['gym', `()=>AdventureOldTown.storyFightStart(__ctx,'first_brick')`, 'side_track:chest_pound'],
+  ['ring-rabbit', `()=>{__ctx.change({type:'venue',venueId:'championship'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'front_low:point_crowd', 'rabbit'], // the rabbit lands it on the lion
 ];
 const FRAMES = [['dip', 'dip'], [.015, 'contact'], [.09, 'impact (slow)'], [.18, 'slow'], [.55, 'fall'], [1.25, 'down'], [2.3, 'blackout'], [2.95, 'celebrate'], [3.8, 'celebrate'], [4.8, 'celebrate'], ['end', 'ending']];
 server.listen(0, async () => {
@@ -51,7 +52,7 @@ server.listen(0, async () => {
       fallenLow: fallen ? low(v.coaches[fallen]) : null, strikerLow: striker ? low(v.coaches[striker]) : null, black: document.querySelector('.sp-black')?.style.opacity, cheer: v.ringless?.set?.cheer ?? null, close: v.ringless?.set?.close ?? null, dent: fallen ? v.coaches[fallen].surfaceUniforms?.dent.value.w : null, bars: document.querySelector('.sp-film')?.className, camToStriker: +app.engine.camera.position.distanceTo(v.coaches[window.__striker].root.getWorldPosition(new THREE.Vector3())).toFixed(2), camToFallen: +app.engine.camera.position.distanceTo(v.coaches[window.__striker === 'lion' ? 'rabbit' : 'lion'].root.getWorldPosition(new THREE.Vector3())).toFixed(2) };
   });
   const sheets = [];
-  for (const [name, start, film] of CASES) {
+  for (const [name, start, film, who] of CASES) {
     if (only.length && !only.includes(name)) continue;
     const t0 = Date.now();
     await boot();
@@ -61,11 +62,11 @@ server.listen(0, async () => {
     await until(`()=>app.engine.arena.fightView.match.phase==='round'&&app.engine.arena.fightView.match.time>2`, 3000);
     // the player's Fighter owns the finisher; the Opponent hurt and the Burst full (as the bout would make it)
     const forced = process.env.FILM || film;
-    await p.evaluate(forced => {
-      const v = app.engine.arena.fightView, m = v.match, s = v.careerEntry?.species || m.playerActor || 'lion', o = s === 'lion' ? 'rabbit' : 'lion';
+    await p.evaluate(([forced, who]) => {
+      const v = app.engine.arena.fightView, m = v.match, s = who || v.careerEntry?.species || m.playerActor || 'lion', o = s === 'lion' ? 'rabbit' : 'lion';
       m.finisherOwned = { ...(m.finisherOwned || {}), [s]: ['sunday_punch'] }; m.fighters[o].condition = 18; m.fighters[s].burst.charge = 1; window.__striker = s;
       if (forced) { const [camera, celebrate] = forced.split(':'), place = v.ringless?.id || (v.gymFight ? 'gym' : 'ring'), opp = v.coaches[o].character || o; v.sundayPunch = v.sundayPunch || {}; v.sundayPunch.film = { ...SuperPunchFilm.choose({ seed: m.seed, place, venue: place, opponent: opp, striker: s, last: null }), camera, celebrate }; }
-    }, forced);
+    }, [forced, who]);
     const shots = [];
     // a Super Punch can miss or be blocked (bare hands are smaller than gloves): then the bout goes on and the player tries again
     for (let attempt = 0; attempt < 5; attempt++) {

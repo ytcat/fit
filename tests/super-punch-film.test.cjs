@@ -66,22 +66,22 @@ const F=SuperPunchFilm,V=(x,y,z)=>new THREE.Vector3(x,y,z);
  const skinLow=c=>{let lo=Infinity;const p=c.skin.geometry.attributes.position;c.root.updateMatrixWorld(true);for(let i=0;i<p.count;i+=6)lo=Math.min(lo,c.root.localToWorld(c.skinPoint(c.skin,i)).y);return lo;};
  const clearOfBody=(c,label)=>{const prof=DreamPose.profile(c);c.root.updateMatrixWorld(true);for(const s of ['L','R']){const q=c.root.worldToLocal(c.joints['hand'+s].getWorldPosition(V())),d=DreamPose.clearance(c,prof,q,.03,0,s);assert.ok(!d||d.length()<.03,label+': hand '+s+' through the body '+(d&&d.length().toFixed(3)));
   assert.ok(c.joints['hand'+s].getWorldPosition(V()).distanceTo(c.joints.head.localToWorld(V(0,.12,.04)))>.15,label+': fist '+s+' through the head');}};
- for(const [venue,seed] of [[null,5],['docks',9]]){
+ for(const [venue,seed,species] of [[null,5,'lion'],['docks',9,'lion'],[null,13,'rabbit']]){const S=species,O=S==='lion'?'rabbit':'lion';
   store.clear();
-  const coach=new LionCoach(data,{species:'lion'}),e={coach,scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(50,.58,.1,100),animTime:0,fitCameraToModel(){}};e.demoModel=coach.root;e.scene.add(coach.root);
-  const arena=e.arena=new TrainingArena(e,data);e.fightOptions={seed,preset:'quick',finishers:{lion:['sunday_punch']}};arena.setTarget('fight');
+  const coach=new LionCoach(data,{species}),e={coach,scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(50,.58,.1,100),animTime:0,fitCameraToModel(){}};e.demoModel=coach.root;e.scene.add(coach.root);
+  const arena=e.arena=new TrainingArena(e,data);e.fightOptions={seed,preset:'quick',finishers:{[S]:['sunday_punch']}};arena.setTarget('fight');
   const v=arena.fightView,m=v.match,set={cheer:0,close:0};
   if(venue){assert.ok(RinglessVenues.install(v,venue));v.ringless.set=set;}
   while(m.phase==='intro')v.step();for(let i=0;i<40;i++)v.step();
-  m.fighters.rabbit.condition=18;m.fighters.lion.burst.charge=1;let k=0;while(!m.requestFinisher('lion')&&k++<120)v.step();
+  m.fighters[O].condition=18;m.fighters[S].burst.charge=1;let k=0;while(!m.requestFinisher(S)&&k++<120)v.step();
   // the film runs through the arena's update (wall clock -> fight clock with the slow motion), as in the game
   let wall=v.tick/60;const tick=()=>{wall+=1/60;v.update(wall);};
   for(let i=0;i<400&&!m.result;i++)tick();
   assert.ok(m.result?.finisher,(venue||'ring')+': the Super Punch lands');const sp=v.sundayPunch;
   // slow motion from the contact: fight time advances at SLOW_HIT per wall second right after the impact
   const t0=m.time,w0=wall;for(let i=0;i<12;i++)tick();assert.ok((m.time-t0)/(wall-w0)<.2,'slow motion after the contact: '+((m.time-t0)/(wall-w0)).toFixed(2));
-  assert.ok(v.coaches.rabbit.surfaceDent||m.time-m.result.finisherTime>.45,'the jaw dent is on');
-  const fallen=v.coaches.rabbit,winner=v.coaches.lion;let refSeen=false;
+  assert.ok(v.coaches[O].surfaceDent||m.time-m.result.finisherTime>.45,'the jaw dent is on');
+  const fallen=v.coaches[O],winner=v.coaches[S];let refSeen=false;
   while(m.time-m.result.finisherTime<F.FILM.hold+.2){tick();const u=m.time-m.result.finisherTime;
    if(u>F.FILM.celebrate+.4){assert.ok(skinLow(winner)>-.012,'winner: feet on the floor, not through it');if(venue)assert.equal(v.referee.root.visible,false,'no referee in a ringless fight');else refSeen=refSeen||v.referee.root.visible;}}
   if(!venue)assert.ok(refSeen,'ring: the referee is there for the celebration');
@@ -90,9 +90,9 @@ const F=SuperPunchFilm,V=(x,y,z)=>new THREE.Vector3(x,y,z);
   const hand=winner.joints[sp.striker.raise==='R'?'handR':'handL'].getWorldPosition(V());
   if(venue){assert.equal(v.referee.root.visible,false,'nobody comes to raise his hand');assert.ok(set.close>.5&&set.cheer>=1,'the dock crowd cheers and closes in: '+JSON.stringify(set));assert.equal(sp.film.ending.raise,false);}
   else{const ref=v.referee.root.getWorldPosition(V()),w=winner.root.getWorldPosition(V());assert.ok(v.referee.root.visible&&Math.hypot(ref.x-w.x,ref.z-w.z)<1.3,'ring: the referee beside the winner');assert.ok(hand.y>1.75,'ring: the winner\'s arm raised high ('+hand.y.toFixed(2)+')');}
-  console.log(venue||'ring','film',sp.film.camera,sp.film.celebrate,sp.film.ending.id,{raisedHand:+hand.y.toFixed(2),crowd:venue?set:null});
+  console.log(S,venue||'ring','film',sp.film.camera,sp.film.celebrate,sp.film.ending.id,{raisedHand:+hand.y.toFixed(2),crowd:venue?set:null});
   // every celebration on the rig: hands clear of the torso and the head, the feet on the floor
-  if(!venue){for(const name of F.CELEBRATIONS){sp.film={...sp.film,celebrate:name};for(let i=0;i<70;i++){tick();if(i%10===9){clearOfBody(winner,name);assert.ok(skinLow(winner)>-.015&&skinLow(winner)<.12,name+': on the floor');}}}console.log('PASS every celebration clear of the body on the lion');}
+  if(!venue){for(const name of F.CELEBRATIONS){sp.film={...sp.film,celebrate:name};for(let i=0;i<70;i++){tick();if(i%10===9){clearOfBody(winner,name);assert.ok(skinLow(winner)>-.015&&skinLow(winner)<.12,name+': on the floor');}}}console.log('PASS every celebration clear of the body on the',S);}
   arena.setTarget('none');for(const r of [winner,fallen])assert.equal(r.root.scale.x,-1);
  }
  console.log('PASS rigs: ring raises the hand, docks without a referee (crowd closes in), slow motion from contact, squash on');

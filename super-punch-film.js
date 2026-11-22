@@ -91,7 +91,7 @@
   const tightIn = (f, u) => f < 0 ? smooth((f + .35) / .3) : 1 - smooth((f - 1.7) / .9);
   const SHOTS = {
     side_track: (f, u) => ({ az: u == null ? -.14 : lerp(-.14, .10, smooth(u / .9)), h: u == null ? .62 : lerp(.62, 1.40, smooth((u - .7) / 1.1)), tight: tightIn(f, u) * .8, dk: 1 }),
-    low_orbit: (f, u) => ({ az: f < 0 ? -.60 : lerp(-.60, .32, smooth(f / 2.4)), h: u == null || u < .4 ? .36 : lerp(.36, 1.45, smooth((u - .4) / .9)), tight: tightIn(f, u) * .65, dk: 1 }), // sweeps a quarter round the punch, then rises over the fall (never behind the winner, who would hide it)
+    low_orbit: (f, u) => ({ az: f < 0 ? -.30 : lerp(-.30, .50, smooth(f / 2.4)), h: u == null || u < .4 ? .36 : lerp(.36, 1.45, smooth((u - .4) / .9)), tight: tightIn(f, u) * .65, dk: 1 }), // sweeps a quarter round the punch, then rises over the fall (never behind the winner, who would hide it)
     shoulder_push: (f, u) => ({ az: f < 0 ? .80 : lerp(.80, .45, smooth((f - 1.9) / 1.2)), h: u == null || u < .4 ? 1.92 : lerp(1.92, 2.15, smooth((u - .4) / .9)), tight: tightIn(f, u), dk: f < 0 ? 1.35 : lerp(1.35, 1.0, smooth(f / 1.7)) + .3 * smooth((f - 1.8) / 1.0) }),
     overhead_drop: (f, u) => { const up = u == null ? 0 : smooth((u - .3) / .9); return { az: lerp(.25, .55, up), h: null, el: lerp(-.04, 1.18, up), tight: tightIn(f, u) * (1 - up), dk: 1 }; },
     front_low: (f, u) => ({ az: f < 0 ? .30 : lerp(.30, .05, smooth((f - 1.6) / 1.4)), h: u == null || u < .5 ? .44 : lerp(.44, 1.30, smooth((u - .5) / 1.1)), tight: tightIn(f, u) * .9, dk: .95 }) // low, three-quarter on the face past the punching arm

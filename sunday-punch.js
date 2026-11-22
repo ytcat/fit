@@ -212,10 +212,15 @@
     const spots = [1, -1].map(k => { const p = mid.clone().addScaledVector(across, k * 1.05).addScaledVector(along, -.25); return { p, k, out: Math.max(0, (view.ringless ? Math.hypot(p.x, p.z) : Math.max(Math.abs(p.x), Math.abs(p.z))) - bound) }; }).sort((a, b) => a.out - b.out || a.p.length() - b.p.length());
     const spot = spots[0]; let W = spot.p.clone(); if (spot.out > 0) W.multiplyScalar((W.length() - spot.out) / W.length()); W.y = 0;
     // he faces the lens, which looks at him over the fallen body (turned a little per fight so the body lies across the picture)
-    const toBody = mid.clone().sub(W).setY(0).normalize(), turn = .38 * pick.mirror; let camDir = toBody.clone().applyAxisAngle(V(0, 1, 0), turn);
+    // ringless: the lens stays inside the circle of people (2.75 m), so it looks from the side with more room, and the body lies
+    // to one side of the picture rather than across the lens
+    const room = (P, d) => { const b = P.x * d.x + P.z * d.z, c = P.x * P.x + P.z * P.z - 2.75 * 2.75; return -b + Math.sqrt(Math.max(0, b * b - c)); };
+    const roomier = (a, b) => !view.ringless || room(W, a) >= Math.min(2.6, room(W, b)) ? a : b;
+    const toBody = mid.clone().sub(W).setY(0).normalize(), turn = (view.ringless ? .85 : .38) * pick.mirror;
+    let camDir = roomier(toBody.clone().applyAxisAngle(V(0, 1, 0), turn), toBody.clone().applyAxisAngle(V(0, 1, 0), -turn));
     // street endings: he stands at the beaten man's feet, seen from the side, so the man is seen dragging himself away from him
     const feet = rest.clone().addScaledVector(along, -.95); feet.y = 0;
-    if (end.fallen === 'crawl' && Math.hypot(feet.x, feet.z) < bound) { W = feet; camDir = across.clone().multiplyScalar(pick.mirror).addScaledVector(along, .35).normalize(); }
+    if (end.fallen === 'crawl' && Math.hypot(feet.x, feet.z) < bound) { W = feet; const sideOf = k => across.clone().multiplyScalar(k).addScaledVector(along, .35).normalize(); camDir = roomier(sideOf(pick.mirror), sideOf(-pick.mirror)); }
     sp.striker = { actor: striker, start: sStart, yaw: sc.ringYaw ?? 0, options: { ...(view.poseOptions?.[striker] || {}) }, phase: clamp((action ? (r.finisherTime - action.start) / action.duration : .4)), corner: W, dist: 0,
       spot: W, camDir, celebYaw: Math.atan2(camDir.x, camDir.z), raise: striker === 'lion' ? 'R' : 'L' };
     delete sp.striker.options.hitReaction; delete sp.striker.options.plantedContacts; delete sp.striker.options.contactReturn; delete sp.striker.options.ringStep; delete sp.striker.options.blockCover;
@@ -380,8 +385,9 @@
     if (celebrating) {
       const s = sp.striker, W = view.cast.localToWorld(s.spot.clone()), D = view.cast.localToWorld(s.spot.clone().add(s.camDir)).sub(W).setY(0).normalize();
       dir = D; const right = up.clone().cross(dir).normalize();
-      pts = [W.clone(), W.clone().setY(2.28), W.clone().addScaledVector(right, .62).setY(1.75), W.clone().addScaledVector(right, -.62).setY(1.75)];
-      add(pts, fc, ['head', 'hips']);
+      const sw = view.coaches[s.actor], top = Math.max(2.28, sw.joints.head.getWorldPosition(V()).y + (sw.species === "rabbit" ? .72 : .45)); // the rabbit's ears in the picture too
+      pts = [W.clone(), W.clone().setY(top), W.clone().addScaledVector(right, .62).setY(1.75), W.clone().addScaledVector(right, -.62).setY(1.75)];
+      add(pts, fc, pick.ending.fallen === 'crawl' ? ['hips'] : ['head', 'hips']); // the man dragging himself away may leave the picture
       const judged = pick.ending.raise && m.phase === 'ceremony' && !m.finisherHold() && view.referee?.root && (view.referee.root.visible || view.referee.isBruno);
       if (judged) { const rr = view.referee.root; pts.push(rr.localToWorld(V(0, 2.25, 0)), rr.localToWorld(V(0, 0, 0))); }
     } else {
