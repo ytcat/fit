@@ -48,7 +48,7 @@ const parse = f => new Promise((ok, err) => { const b = fs.readFileSync(f); new 
   const car = await parse(CA.FILES.car);
   const set = (extra = {}) => ({ group: new THREE.Group(), objects: {}, disposables: [], opts: {}, ...extra });
   const c = set(), h = CA.dress(c, { car, bus: null });
-  const cars = c.group.getObjectByName('city art (GLB)').children.filter(o => /^Old Town compact/.test(o.name));
+  const cars = c.group.getObjectByName('city art (GLB)').children.filter(o => /^Old Town compact/.test(o.name) && !/\(far\)$/.test(o.name));
   assert.equal(cars.length, 2, 'two parked models');
   const at = o => new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());
   const blue = cars.find(o => o.name.includes('#3b7dd8')), white = cars.find(o => o !== blue);
@@ -60,6 +60,15 @@ const parse = f => new Promise((ok, err) => { const b = fs.readFileSync(f); new 
   const paint = o => o.children.find(m => /enamel/.test(m.material.name)).material;
   assert.notEqual(paint(blue), paint(white)); assert.ok(paint(blue).color.b > paint(blue).color.r * 2, 'the blue car is painted blue');
   assert.equal(blue.rotation.y, white.rotation.y, 'parked the same way as the white car (with the traffic)');
+  // far copy (welded per facing): one of the two is drawn, chosen by the camera's distance; never a re-index of a drawn mesh
+  const tris = o => { let n = 0; o.traverse(m => { if (m.isMesh) n += m.geometry.index.count / 3; }); return n; };
+  assert.equal(h.cars.length, 2); const bc = h.cars.find(k => k.full === blue);
+  assert.ok(tris(bc.far) < tris(blue) * .45 && tris(bc.far) > 4000, 'far copy ' + tris(bc.far) + ' of ' + tris(blue));
+  assert.ok(Math.abs(new THREE.Box3().setFromObject(bc.far).max.y - new THREE.Box3().setFromObject(blue).max.y) < .05, 'same silhouette height');
+  const cam = new THREE.PerspectiveCamera(); cam.position.set(5.9, 1.2, 6.9); h.frame({}, cam); // the arrival close-up: 24 m from the blue car
+  assert.ok(!bc.full.visible && bc.far.visible, 'far copy in the arrival shot');
+  cam.position.set(-12, 1.6, 2); h.frame({}, cam); assert.ok(bc.full.visible && !bc.far.visible, 'full car close by');
+  assert.equal(bc.far.children[0].material, bc.full.children[0].material, 'the far copy shares the materials');
   // parked direction follows the generated car it replaces (dir = -lane): turned half a turn without the model bus (lane 1)
   assert.equal(blue.rotation.y, Math.PI);
   assert.equal(h.trees.length, 1, 'the broad arrival tree is planted by the dressing'); assert.equal(h.trees[0].name, 'Old Town round tree');

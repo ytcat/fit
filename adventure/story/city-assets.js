@@ -52,7 +52,7 @@
     // (budget: four instances; the Fighter alone submits ~340k triangles, so the street keeps generated houses in between)
     // parked compacts (the GLB; the generated car is built only where no model stands): [x, z, body colour or null]
     // turned like the generated car they replace (parked with the traffic), merged per material (one draw call each)
-    cars: [[8.4, -2.45, null], [-16, -2.45, '#3b7dd8']],
+    cars: [[8.4, -2.45, null], [-16, -2.45, '#3b7dd8']], carDetailDist: 14, carFarCell: .075, // beyond 14 m the welded far copy
     houses: [['brick', -12.6, -8.2, 0], ['plaster', 2.4, -8.2, 0], ['plaster', 6.2, 10.4, HALF], ['brick', 13.1, 10.4, HALF]],
     replaced: { far: [-11, .6], near: [9.5] }, // generated house slots (x) the prototypes stand in
     fill: [{ style: 'plaster', x: -5.1, w: 7.0, floors: 3, tint: 0, roof: 4 }], // a generated house between the two far prototypes
@@ -103,6 +103,27 @@
     });
     carParts.set(gltf, parts); return parts;
   }
+  /** The far copy of a parked car: its vertices welded on a grid of `cell` metres (normals averaged), collapsed triangles
+   * dropped. Built once per loaded model; shown instead of the full car beyond LAYOUT.carDetailDist (never a re-index of a
+   * drawn mesh: two meshes, one visible). */
+  const carFar = new WeakMap();
+  function clustered(gltf, cell) {
+    let far = carFar.get(gltf); if (far) return far;
+    far = staticCar(gltf).map(({ material, geometry }) => {
+      const P = geometry.attributes.position, N = geometry.attributes.normal, I = geometry.index, cells = new Map(), rep = new Uint32Array(P.count), pos = [], nor = [], cnt = [];
+      for (let i = 0; i < P.count; i++) {
+        const x = P.getX(i), y = P.getY(i), z = P.getZ(i), key = Math.floor(x / cell) + ',' + Math.floor(y / cell) + ',' + Math.floor(z / cell) + ',' + Math.round(N.getX(i) * 1.4) + Math.round(N.getY(i) * 1.4) + Math.round(N.getZ(i) * 1.4); // facing kept apart: no inner and outer skin averaged
+        let k = cells.get(key); if (k === undefined) { k = cnt.length; cells.set(key, k); cnt.push(0); pos.push(0, 0, 0); nor.push(0, 0, 0); }
+        rep[i] = k; cnt[k]++; pos[k * 3] += x; pos[k * 3 + 1] += y; pos[k * 3 + 2] += z; nor[k * 3] += N.getX(i); nor[k * 3 + 1] += N.getY(i); nor[k * 3 + 2] += N.getZ(i);
+      }
+      for (let k = 0; k < cnt.length; k++) { for (let j = 0; j < 3; j++) pos[k * 3 + j] /= cnt[k]; const l = Math.hypot(nor[k * 3], nor[k * 3 + 1], nor[k * 3 + 2]); if (l > 1e-6) for (let j = 0; j < 3; j++) nor[k * 3 + j] /= l; else nor[k * 3 + 1] = 1; }
+      const idx = [];
+      for (let t = 0; t < I.count; t += 3) { const a = rep[I.getX(t)], b = rep[I.getX(t + 1)], c = rep[I.getX(t + 2)]; if (a !== b && b !== c && a !== c) idx.push(a, b, c); }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setIndex(idx); g.computeBoundingSphere();
+      return { material, geometry: g };
+    }).filter(p => p.geometry.index.count > 0);
+    carFar.set(gltf, far); return far;
+  }
 
   /* ---------------------------------------------------------------- pure helpers */
   /** Wheel roll (radians about the model's z axis) for a signed distance driven forward along the model's +x. */
@@ -135,7 +156,7 @@
   }
 
   function dress(c, city, treeSites = ARRIVAL_TREES) {
-    const L = LAYOUT, group = new THREE.Group(), handle = { active: false, bus: null, station: false, oldtown: false, parts: [], houses: [], trees: [] };
+    const L = LAYOUT, group = new THREE.Group(), handle = { active: false, bus: null, station: false, oldtown: false, parts: [], houses: [], trees: [], cars: [] };
     group.name = 'city art (GLB)'; c.group.add(group);
     const used = [], env = environment(c.opts?.renderer), aniso = c.opts?.renderer ? Math.min(4, c.opts.renderer.capabilities.getMaxAnisotropy()) : 1;
     for (const [k, g] of Object.entries(city || {})) if (g) used.push(g);
@@ -190,15 +211,20 @@
       handle.active = true;
     }
     if (city?.car) {
-      const parts = staticCar(city.car);
-      c.disposables.push({ dispose() { for (const part of parts) part.geometry.dispose(); } });
+      const parts = staticCar(city.car), far = clustered(city.car, L.carFarCell);
+      c.disposables.push({ dispose() { for (const part of [...parts, ...far]) part.geometry.dispose(); } });
       for (const [x, z, tint] of L.cars) {
-        const car = new THREE.Group(); car.name = tint ? 'Old Town compact ' + tint : 'Old Town compact';
-        for (const { material, geometry } of parts) {
-          let m = material; if (tint && /enamel/.test(material.name)) { m = material.clone(); m.color.set(tint); m.color.convertSRGBToLinear(); c.disposables.push(m); }
-          const mesh = new THREE.Mesh(geometry, m); mesh.name = car.name + ' · ' + material.name; mesh.renderOrder = material.transparent ? 2 : 0; mesh.castShadow = false; mesh.receiveShadow = true; car.add(mesh);
-        }
-        put(car, x, -.15, z, city.bus ? 0 : HALF); // as the generated car: dir = -lane (lane -1 with the model bus)
+        const name = tint ? 'Old Town compact ' + tint : 'Old Town compact', paint = new Map();
+        const build = (list, label) => {
+          const car = new THREE.Group(); car.name = name + label;
+          for (const { material, geometry } of list) {
+            let m = material; if (tint && /enamel/.test(material.name)) { if (!paint.has(material)) { const p = material.clone(); p.color.set(tint); p.color.convertSRGBToLinear(); c.disposables.push(p); paint.set(material, p); } m = paint.get(material); }
+            const mesh = new THREE.Mesh(geometry, m); mesh.name = name + ' · ' + material.name; mesh.renderOrder = material.transparent ? 2 : 0; mesh.castShadow = false; mesh.receiveShadow = true; car.add(mesh);
+          }
+          return put(car, x, -.15, z, city.bus ? 0 : HALF); // as the generated car: dir = -lane (lane -1 with the model bus)
+        };
+        const full = build(parts, ''), distant = build(far, ' (far)'); distant.visible = false;
+        handle.cars.push({ full, far: distant, centre: new THREE.Vector3(x, .6, z) });
       }
       handle.active = true;
     }
@@ -277,6 +303,7 @@
         for (const m of b.inside) m.visible = full;
         b.cabinLOD.visible = !full && d < L.busSilhouetteDist;
       } }
+      if (camera) for (const car of handle.cars) { const near = camera.position.distanceTo(car.centre) < L.carDetailDist; car.full.visible = near; car.far.visible = !near; }
       if (camera) for (const h of handle.houses) { const d = camera.position.distanceTo(h.centre); for (const m of h.detail) m.visible = d < L.detailDist; for (const m of h.trim) m.visible = d < L.trimDist; }
     };
     const isCity = o => { for (let p = o; p; p = p.parent) if (p === group || p === handle.bus?.wrap) return true; return false; };
