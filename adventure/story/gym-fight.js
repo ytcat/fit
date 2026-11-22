@@ -25,6 +25,9 @@
     view.gymFight = st;
     rhino.root.visible = false;
     bruno.root.parent?.remove(bruno.root); bruno.root.scale.set(1, 1, 1); bruno.root.visible = true; view.cast.add(bruno.root); Pose.reset(bruno);
+    // his referee spot from the first frame (fight-arena.js pose() puts the referee at 1.13, -.83 once the round is posed); the intro
+    // ran before that with Bruno at the centre of the mat, inside both fighters (owner, 2026-11-22)
+    bruno.root.position.set(1.13, 0, -.83); bruno.root.rotation.set(0, -.55, 0); bruno.root.updateMatrixWorld(true); Pose.civil(bruno, { t: 0, dt: 0, dist: 0, arms: { L: 'hips', R: 'hips' } });
     const bLod = bruno.skin?.geometry?.userData?.lod, bIdx = bruno.skin?.geometry?.index; if (bLod?.lo) bruno.skin.geometry.setIndex(bLod.lo); // the referee is never in close-up: unsubdivided body (a quarter of the triangles, boxing-coach-v2.js meshFrom) // scale 1 inside the mirrored cast, like the fighters
     const hide = () => { if (view.ring && !ring) view.ring.visible = false; if (view.audience?.root) view.audience.root.visible = false; if (e.world?.arena) e.world.arena.visible = false; }; // the club arena's stands and seats too
     // The club hall must stay hidden from the first frame (the bout's intro, a 360° fly-around, runs before the referee's first update,
