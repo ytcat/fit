@@ -123,13 +123,14 @@
   const CALL_WORD = { straight: 'Straight', hook: 'Hook', uppercut: 'Uppercut', slip: 'Slip', duck: L('Duck', 'התכופפות', 'Нырок') };
   function paintCalls() {
     const r = run, host = window.app?.engine?.stage; let box = document.getElementById('advCalls');
-    if (!r?.caller || r.ended || !host) { box?.remove(); return; }
+    if (!r?.caller || r.ended || !host) { box?.remove(); document.body.classList.remove('adv-calling'); return; }
+    document.body.classList.add('adv-calling');
     if (!box) { box = mk('div', 'adv-calls'); box.id = 'advCalls'; box.setAttribute('aria-live', 'polite'); host.append(box); }
     const v = r.caller.view(), key = [v.seq?.join() || '', v.at, v.waiting, v.flash ? v.flash.ok + '' + v.flash.t : '', lang(), Math.round(v.share * 40)].join('|'); if (box.dataset.key === key) return; box.dataset.key = key;
     box.replaceChildren(); box.dir = 'ltr';
     if (v.seq) {
       const row = mk('div', 'adv-calls-row');
-      v.seq.forEach((m, i) => { const w = CALL_WORD[m], c = mk('span', `adv-call adv-call-${m}${i < v.at ? ' adv-call-done' : i === v.at ? ' adv-call-now' : ''}`, typeof w === 'string' ? term(w) : T(w)); row.append(c); });
+      v.seq.forEach((m, i) => { const w = CALL_WORD[m], c = mk('span', `adv-call adv-call-${m}${i < v.at ? ' adv-call-done' : i === v.at ? ' adv-call-now' : ''}`, (m === 'slip' ? '↑ ' : m === 'duck' ? '↓ ' : '') + (typeof w === 'string' ? term(w) : T(w))); row.append(c); }); // Slip/Duck chips carry the D-pad arrow that does them
       if (v.power) row.append(mk('span', 'adv-call adv-call-power' + (v.waiting ? ' adv-call-now' : ''), L('Power!', 'עוצמה!', 'Мощно!')[lang()]));
       const bar = mk('div', 'adv-calls-bar'), fill = mk('i'); fill.style.width = (v.share * 100).toFixed(0) + '%'; bar.append(fill); box.append(row, bar);
     } else if (v.flash) box.append(mk('div', 'adv-calls-flash ' + (v.flash.ok ? 'ok' : 'bad'), v.flash.ok ? '✓' : '✕'));
@@ -226,7 +227,7 @@
 
   const mk = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   const btn = (text, fn, cls) => { const b = mk('button', cls || 'game-button adv-go', text); b.type = 'button'; b.onclick = fn; return b; };
-  function cleanup() { run?.ui?.root.remove(); document.getElementById('advNext')?.remove(); document.getElementById('advCalls')?.remove(); }
+  function cleanup() { run?.ui?.root.remove(); document.getElementById('advNext')?.remove(); document.getElementById('advCalls')?.remove(); document.body.classList.remove('adv-calling'); }
   function backToTown() {
     cleanup(); window.BagBreak?.training?.(false); const keep = run; run = null; void keep;
     const pin = keep?.id ? CH[chapterOfId(keep.id)]?.pin : null;
@@ -313,7 +314,7 @@
   function abort() { if (!run) return; restoreCast(run); const e = window.app.engine; if (run.def.kind === 'lesson') window.AcademyStage?.stop(); run.ended = true; try { e.career.finish(); } catch { /* none active */ } backToTown(); }
 
   function finishRun() {
-    const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove(); document.getElementById('advCalls')?.remove();
+    const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove(); document.getElementById('advCalls')?.remove(); document.body.classList.remove('adv-calling');
     const store = r.ctx.store, before = A().statPoints(store.game()), res = store.gameAction({ type: 'adventure', adventure: 'mission', missionId: r.id, measured: { [r.mission.metric]: r.value } });
     const after = A().statPoints(store.game()), w = W();
     if (!res.ok) toast(w.err + res.error, 'bad');

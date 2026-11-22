@@ -135,10 +135,17 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 @media (prefers-reduced-motion:reduce){.story-mop-bar i{transition:none}}
 .story-pad .fp-zone[hidden]{display:none!important} /* a punches-only skill game (bag_duo, GOTR-0106) */
 /* The coach's call in a training (adventure/oldtown.js paintCalls, call-core.js): chips in order, a time bar, a tick or a cross */
-.adv-calls{position:absolute;left:50%;top:30%;transform:translateX(-50%);z-index:30;display:flex;flex-direction:column;align-items:center;gap:.35rem;pointer-events:none;max-width:94%}
-.adv-calls-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.3rem}
-.adv-call{padding:.32rem .62rem;border-radius:999px;font-weight:800;font-size:.95rem;color:#fff;background:rgba(12,14,20,.72);border:2px solid rgba(255,255,255,.28);opacity:.75;transition:transform .12s,opacity .12s}
-.adv-call-straight{border-color:#ff5a66}.adv-call-hook{border-color:#5aa2ff}.adv-call-uppercut{border-color:#ffc94d}.adv-call-slip,.adv-call-duck{border-color:#7ee0b2}.adv-call-power{border-color:#ff8a3d;color:#ffcf9e}
+.adv-calls{position:absolute;left:2%;right:2%;top:58%;z-index:30;display:flex;flex-direction:column;align-items:center;gap:.35rem;pointer-events:none}
+/* while the coach calls combos, the mitt station's own move text (career-interface.js .career-drill-cue) would be a second, different instruction */
+body.adv-calling .career-drill-cue{display:none!important}
+.adv-calls-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.25rem}
+/* the chips wear the colours of the pad buttons that make the move (fighter-pad.css --fp-c): Straight red (filled, like its
+   button), Hook orange, Uppercut yellow (dark with the coloured ring), Slip/Duck blue like the pressed D-pad, with its arrow */
+.adv-call{padding:.26rem .5rem;border-radius:999px;font-weight:800;font-size:.84rem;white-space:nowrap;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.55);background:radial-gradient(circle at 50% 26%,#2c3546,#1a2230 70%);border:2.5px solid rgba(255,255,255,.28);opacity:.78;transition:transform .12s,opacity .12s}
+.adv-call-straight{background:linear-gradient(180deg,#e63946,#b01321);border-color:rgba(0,0,0,.35)}
+.adv-call-hook{border-color:#ff8a1f}.adv-call-uppercut{border-color:#f5c02e}
+.adv-call-slip,.adv-call-duck{border-color:#3b82f6;color:#cfe0ff}
+.adv-call-power{border-color:#fff;color:#fff;background:rgba(255,255,255,.12)}
 .adv-call-now{opacity:1;transform:scale(1.12);box-shadow:0 0 0 3px rgba(255,255,255,.18)}
 .adv-call-done{opacity:.55;background:rgba(60,200,120,.55)}
 .adv-calls-bar{width:min(220px,60vw);height:5px;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden}
