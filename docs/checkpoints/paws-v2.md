@@ -41,7 +41,28 @@ Branch `agent/paws-v2` (from `origin/claude/ecstatic-clarke-9as2ak` = live v1.84
   `probe.cjs`, `pairs.py` (before/after sheets).
 
 ## Numbers
-See the report / GOTR-0100 entry (triangles per paw, build times, test results).
+- Triangles per paw: bare 5,600 (5,080 skin + 520 claws; doe 5,600 skin), wrapped 3,950-4,550 (incl. ~1,500 cloth); one mesh and
+  one draw call per paw. Before: 5,360 per hand (Fighter, Bruno, Hazel, Otto), Fang 11,300, Rourke 11,220 + 4,164 wraps (two meshes).
+  Street fight vs Fang, whole frame (SwiftShader, 402x690): 707-746 k after vs 690-756 k before.
+- Sizes (lion): relaxed 0.177 x 0.235 m, fist 0.165 m wide (old hand 0.094 x 0.15 m).
+- Build time per shape (node on this machine): ~0.3-0.9 s; in the browser this runs in the worker.
+
+## Checks
+- `node tests/paws.test.cjs` PASS (every species x shape x side: one connected skin, <= 6,000 triangles, claws rooted in the
+  fingertips, mirror and outward winding; wraps; pose -> shape; shared geometry; every call site; index.html order; offline pack).
+- `bash scripts/run-tests.sh -j 2 story cast paw street docks market fight ringless dream offline-version`: files=38 fails=0
+  (888 s). An earlier run with film renders in parallel had rourke-cast and story-clean-gym time out; both pass alone and in the
+  clean run.
+- `node tests/story-arm-clearance.test.cjs` PASS (it caught the full grip on the bag strap going into the chest: strap -> relaxed).
+
+## Evidence
+`qa/paws/*-before-after.webp` (before = live v1.84, after = this branch; headless Chromium/SwiftShader, the game's renderer):
+close-up sheets per character (`fighter`, `fighter-wraps`, `pip`, `bruno`, `fang`, `hazel`, `otto`, `rourke`): back, palm and 3/4
+of both paws, relaxed and fist, plus six gesture body shots; film frames at 402x690 and a close view from the film camera
+(`dream_opening` 9.84/21.66, `dream_gym_talk` 8.25/13.75/19.25, `dream_market_reward` 1.63/11.38, `dream_otto_shop` 15.53/19.97,
+`dream_docks` 7.5/22.5); `fight-street-fang-*` (guard and punch, game view and close render). Re-render with the tools in
+`qa/paws/tools/` (close-ups: `node qa/paws/tools/closeup.cjs <dir>`; films: `CLOSE=<actor> node qa/paws/tools/film.cjs <dir> <scene> <t,t>`;
+fight: `node qa/paws/tools/fight.cjs <dir> street fang`; pairs: `python3 qa/paws/tools/pairs.py <before> <after> <out>`).
 
 ## Next
 - Owner review of `qa/paws/*.webp`. If accepted: integrator merges and releases (bump version, manifest, worker).
