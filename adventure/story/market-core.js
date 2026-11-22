@@ -224,7 +224,7 @@
      * the display (the bag front-right of him), reaches out to the side of it, bends his knees ("Lift with your legs!"), lifts it
      * off the hook onto his right shoulder with his hand on the leather all the way (market-sets.js CARRY), turns and walks out. */
     dream_otto_shop: {
-      set: 'dream_shop', place: 'shop', duration: 38.7, chapter: 1, tap: true, outfit: { fighter: 'street' }, buy: { t: 21.8 },
+      set: 'dream_shop', place: 'shop', duration: 39.1, chapter: 1, tap: true, outfit: { fighter: 'street' }, buy: { t: 21.8 },
       carry: { heavybag: [{ t: 0, on: 'display', yaw: Math.PI / 2 }, { t: 24.8, on: 'reach' }, { t: 26.9, on: 'lift' }, { t: 27.9, on: 'shoulder' }] }, // yaw: the bag's +x = his right side at the pickup
       camera: [
         { t: 0, pos: [-5.6, 1.45, 3.4], look: [-.6, 2.0, -4.2] },                              // the street: Otto's Corner
@@ -244,9 +244,9 @@
         { t: 23.8, cut: true, pos: [SHOP - .25, 1.5, -1.38], look: [SHOP - .85, 1.45, .7], fov: 40 }, // from behind his right: the pickup, the lift
         { t: 29.4, pos: [SHOP - .2, 1.55, -1.33], look: [SHOP - .8, 1.5, .8], fov: 40, ease: 'linear' },
         { t: 29.4, cut: true, pos: [SHOP - .5, 1.8, 3.3], look: [SHOP - 1.0, 1.45, 1.8], fov: 40 }, // he comes round and carries it to the door
-        { t: 33.4, pos: [SHOP - .2, 1.8, 3.3], look: [SHOP + 2.8, 1.45, .9], fov: 40, ease: 'smooth' },
-        { t: 33.4, cut: true, pos: [5.6, 1.5, 1.6], look: [1.6, 1.5, -2.6] },                  // out on the street, toward the gym
-        { t: 38.7, pos: [5.0, 1.6, 2.0], look: [6.8, 1.35, -2.3], ease: 'linear' }                // pans with him to the end (he left the frame before, GOTR-0103)
+        { t: 33.8, pos: [SHOP - .2, 1.8, 3.3], look: [SHOP + 2.8, 1.45, .9], fov: 40, ease: 'smooth' },
+        { t: 33.8, cut: true, pos: [5.6, 1.5, 1.6], look: [1.6, 1.5, -2.6] },                  // out on the street, toward the gym
+        { t: 39.1, pos: [5.0, 1.6, 2.0], look: [6.8, 1.35, -2.3], ease: 'linear' }                // pans with him to the end (he left the frame before, GOTR-0103)
       ],
       actors: {
         fighter: { rig: 'fighter', keys: [
@@ -262,14 +262,14 @@
           { t: 19.6, look: 'otto' },
           { t: 22.5, arms: { R: 'fist' } },                                                      // "Deal!"
           { t: 23.8, x: SHOP + .35, z: .65, arms: {} },
-          { t: 24.8, x: SHOP - .71, z: .92, face: [SHOP - 1.71, .92], look: [SHOP - 1.15, 1.35, .45] }, // the bag hangs front-right of him (its middle 0.44 m ahead, 0.47 m to his right)
+          { t: 24.8, x: SHOP - .75, z: .92, face: [SHOP - 1.75, .92], look: [SHOP - 1.15, 1.35, .45] }, // the bag hangs front-right of him (its middle 0.40 m ahead, 0.47 m to his right)
           { t: 25.8, drop: .07, lean: .05 },                                                     // knees bent, hand on the bag
           { t: 26.9, drop: 0, lean: 0, look: { yaw: 0, pitch: 0 } },                             // the lift (with his legs)
-          { t: 28.4, x: SHOP - .71, z: .92 },
-          ...arc(28.4, 30.0, [SHOP - .71, 1.49], .57, 0, Math.PI),                              // comes round to the door in a few steps
-          { t: 33.4, x: SHOP + 3.55, z: 1.45 },
-          { t: 33.4, x: .9, z: -3.4, jump: true },                                               // out of the door
-          { t: 38.7, x: 7.2, z: -2.2 }
+          { t: 28.4, x: SHOP - .75, z: .92 },
+          ...arc(28.4, 30.4, [SHOP - .75, 1.49], .57, 0, Math.PI, 16),                              // comes round to the door in a few steps
+          { t: 33.8, x: SHOP + 3.55, z: 1.45 },
+          { t: 33.8, x: .9, z: -3.4, jump: true },                                               // out of the door
+          { t: 39.1, x: 7.2, z: -2.2 }
         ] },
         otto: { rig: 'otto', keys: [
           { t: 0, x: SHOP + 1.25, z: -2.2, face: [SHOP + 1.25, 0], arms: { L: 'hips', R: 'hips' }, look: { yaw: 0, pitch: -.2 } },
@@ -298,7 +298,7 @@
         { t: 21.0, who: 'otto', text: L("{price} coins, and she's yours.", '{price} מטבעות, והוא שלך.', '{price} монет — и он твой.') },
         { t: 22.5, who: 'fighter', hold: true, text: L('Deal! Here you go.', 'סגרנו! הנה.', 'По рукам! Держите.') },
         { t: 26.0, who: 'otto', hold: true, text: L('Lift with your legs, champ!', 'תרים עם הרגליים, אלוף!', 'Поднимай ногами, чемпион!') },
-        { t: 34.2, who: 'fighter', text: L("Bruno's going to love this.", 'ברונו הולך לאהוב את זה.', 'Бруно это понравится.') }
+        { t: 34.6, who: 'fighter', text: L("Bruno's going to love this.", 'ברונו הולך לאהוב את זה.', 'Бруно это понравится.') }
       ]
     }
   };

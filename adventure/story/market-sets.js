@@ -227,8 +227,8 @@
    * (the old target put the wrist over the bag with the elbow folded behind the shoulder, and the bag appeared on the
    * shoulder in one frame). Everything is a function of the scene time, so playback, seeking and the tap-to-continue
    * pauses give the same picture. */
-  const BAG_R = .235, HAND_R = BAG_R + .07; // the wrist off the bag's axis: radius + the thickness of the paw under the wrist (measured: the palm on the leather)
-  const CARRY = Object.freeze({ reach: .9, unhook: .045, settle: .45, mid: [.17, .345, -.045], tilt: .2, arc: .12, grip: Object.freeze({ out: HAND_R, a: 1.31, along: .06 }), pole: [1, -.4, -.05] });
+  const BAG_R = .235, HAND_R = BAG_R + .065; // the wrist off the bag's axis: radius + the thickness of the paw under the wrist (measured: the palm on the leather)
+  const CARRY = Object.freeze({ reach: .9, unhook: .045, settle: .45, mid: [.17, .345, -.045], tilt: .2, arc: .12, grip: Object.freeze({ out: HAND_R, a: 1.48, along: .14 }), pole: [1, -.4, -.05] });
   const DreamPoseHang = () => window.DreamPose?.GESTURES?.hang || { h: [.335, .985, .055], pole: [.25, -.1, -1], palm: [-1, 0, 0] }; // the right hand hanging (DreamPose rig space)
   function create({ scene, set, rigs, carry }) {
     const Cast = window.StoryCast, items = [], m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), UP = V(0, 1, 0);
@@ -289,7 +289,7 @@
         const A = V(...H.h), B = rig.root.worldToLocal(bagPose(rig, t).p.clone()), W = V(Math.max(C.x, B.x + BAG_R) + .22, A.y + .1, A.z - .02);
         return A.multiplyScalar((1 - u) * (1 - u)).addScaledVector(W, 2 * u * (1 - u)).addScaledVector(C, u * u).toArray();
       };
-      return { R: { at, w: smooth(u / .2), pole: pole.toArray(), palm: pal.toArray(), turn: .35 + .2 * u, paw: u > .85 ? 'open' : 'relaxed' }, tilt: CARRY.tilt * first.lift };
+      return { R: { at, w: smooth(u / .2), pole: pole.toArray(), palm: pal.toArray(), turn: .35 + .2 * u, paw: 'relaxed' }, tilt: CARRY.tilt * first.lift };
     }
     const wp = V(), wq = new THREE.Quaternion(), ws = V(1, 1, 1);
     function frame(t) {

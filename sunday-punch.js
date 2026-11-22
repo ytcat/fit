@@ -317,7 +317,8 @@
   // gym the referee / Bruno walks to the winner and raises his arm; in ringless venues nobody does and he keeps celebrating.
   function ceremonyPose(view, metrics, u) {
     const sp = view.sundayPunch, m = view.match, s = sp.striker, coach = view.coaches[s.actor], ref = view.referee, judged = sp.film.ending.raise && (ref.root.visible || ref.isBruno || sp.refHidden);
-    const reveal = m.phase === 'ceremony', raise = judged && reveal ? clamp((m.phaseTime - .4) / 1.5) : 0;
+    // arm-fixes: the referee / Bruno reaches for the wrist, lifts it with the winner, holds it and lets go (RhinoReferee.raiseAt)
+    const reveal = m.phase === 'ceremony', at = window.RhinoReferee?.raiseAt ? RhinoReferee.raiseAt(m.phaseTime) : { raise: clamp((m.phaseTime - .4) / 1.5), hold: 1 }, raise = judged && reveal ? at.raise : 0, hold = judged && reveal ? at.hold : 0;
     const dt = s.lastT != null ? Math.max(0, m.time - s.lastT) : 0; s.lastT = m.time;
     celebratePose(view, Math.max(u, T.celebrate), metrics, dt, raise);
     view.cast.updateMatrixWorld(true);
@@ -332,7 +333,7 @@
     if (!ref.isBruno) refStep(ref, sp.ref.cdist / .62, step > .004 ? 1 : 0); // he walks to the winner too
     view.cast.updateMatrixWorld(true);
     const hand = coach.joints[s.actor === 'lion' ? 'handR' : 'handL'].getWorldPosition(V());
-    ref.update(m.time, raise > 0 ? hand : null, s.actor === 'lion' ? -1 : 1, { lookAt: coach.joints.head.getWorldPosition(V()) });
+    ref.update(m.time, hold > 0 ? hand : null, s.actor === 'lion' ? -1 : 1, { lookAt: coach.joints.head.getWorldPosition(V()), hold });
   }
   // FightArena.pose while the bout ends on a finisher.
   function pose(view) {

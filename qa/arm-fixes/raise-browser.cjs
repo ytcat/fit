@@ -21,8 +21,8 @@ fs.mkdirSync(out, { recursive: true });
     window.__close = () => {
       const c = v.coaches[win], side = win === 'lion' ? 'R' : 'L', sh = c.joints['arm' + side].getWorldPosition(new THREE.Vector3()), ref = v.referee.root.getWorldPosition(new THREE.Vector3());
       const toCam = e.camera.position.clone().sub(sh).setY(0).normalize(), toRef = ref.clone().sub(c.root.getWorldPosition(new THREE.Vector3())).setY(0).normalize();
-      const cam = window.__cam || (window.__cam = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, .05, 60));
-      cam.position.copy(sh).addScaledVector(toCam, 1.9).addScaledVector(toRef, .55).add(new THREE.Vector3(0, .1, 0)); cam.lookAt(sh.x, sh.y + .3, sh.z); cam.updateProjectionMatrix();
+      const cam = window.__cam || (window.__cam = new THREE.PerspectiveCamera(44, innerWidth / innerHeight, .05, 60));
+      cam.position.copy(sh).addScaledVector(toCam, 2.3).addScaledVector(toRef, .45).add(new THREE.Vector3(0, .05, 0)); cam.lookAt(sh.x, sh.y + .2, sh.z); cam.updateProjectionMatrix();
       return draw(cam);
     };
     window.__phone = () => draw(e.camera);
