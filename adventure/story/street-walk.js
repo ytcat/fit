@@ -11,6 +11,50 @@
     [20.35, 28.4, -6.12, -4.28], // far pavement
     [26.16, 27.84, -7.34, -5.55] // entrance, between the planters and away from the steps
   ];
+  // Masked/offline prototype caps are labelled separately from curbs, street furniture and the gym entrance.
+  // Positions are on the stock collision seam; frame depth lies wholly outside editable pedestrian space.
+  const BLOCKS = Object.freeze([
+    ['station-west',0,0,-1], ['station-east',0,1,1],
+    ['gym-west',2,0,-1], ['gym-east',2,1,1]
+  ].map(([id,box,end,out]) => Object.freeze({id,x:BOXES[box][end],z0:BOXES[box][2],z1:BOXES[box][3],out})));
+  function boundaryMesh(T) {
+    const p=[],n=[],c=[],v=new T.Vector3(), normal=new T.Vector3();
+    const indexed=new T.BoxGeometry(), unit=indexed.toNonIndexed();
+    indexed.dispose();
+    const pos=unit.attributes.position, ns=unit.attributes.normal;
+    const paint={iron:new T.Color('#273c43').convertSRGBToLinear(),
+      white:new T.Color('#efece2').convertSRGBToLinear(), red:new T.Color('#9f4139').convertSRGBToLinear()};
+    function box(x,y,z,a,b,d,mat){
+      const q=paint[mat];
+      for(let i=0;i<pos.count;i++){
+        v.fromBufferAttribute(pos,i);normal.fromBufferAttribute(ns,i);
+        p.push(x+v.x*a,y+v.y*b,z+v.z*d);
+        n.push(normal.x,normal.y,normal.z);c.push(q.r,q.g,q.b);
+      }
+    }
+    for(const {x,z0,z1,out} of BLOCKS){
+      // Mid-height movable barricade, not the ground-level illuminated completion ring.
+      const center=(z0+z1)/2, len=z1-z0, rail=x+out*.09;
+      for(const z of [z0+.10,z1-.10]){
+        box(rail,.418,z,.12,.836,.10,'iron');
+        box(x+out*.16,.036,z,.30,.072,.22,'iron');
+        box(rail,.84,z,.137,.035,.118,'white');
+      }
+      box(rail,.32,center,.08,.12,len,'iron');
+      box(rail,.715,center,.085,.174,len,'red');
+      const w=len/7;
+      for(let i=0;i<7;i++) if(i%2===0)box(x+out*.044,.715,z0+w*(i+.5),.010,.155,w*.93,'white');
+    }
+    unit.dispose();
+    const geo=new T.BufferGeometry();
+    geo.setAttribute('position', new T.Float32BufferAttribute(p,3));
+    geo.setAttribute('normal', new T.Float32BufferAttribute(n,3));
+    geo.setAttribute('color', new T.Float32BufferAttribute(c,3));
+    geo.computeBoundingSphere();
+    const mesh=new T.Mesh(geo,new T.MeshStandardMaterial({vertexColors:true,roughness:.86,metalness:0}));
+    mesh.name='Physical pedestrian boundary (walk prototype only)';
+    return mesh;
+  }
   const TREE = [11.6, 5.4], signs = [[5.2, 3.95], [19.7, 4], [24.7, 4], [19.7, -4], [24.7, -4]];
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const gap = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -135,6 +179,7 @@
     const rim = surface(new T.RingGeometry(.64,.74,40),0x91fff2,.98);
     const pulse = surface(new T.RingGeometry(.73,.77,40),0x55ffe3,.5);
     rim.position.y = .007; pulse.position.y = .014; scene.add(ring);
+    const boundaries=boundaryMesh(T); scene.add(boundaries);
     function frame(dt) {
       const p = new Set(Array.from(pressed,code=>keys[code]));
       const x = Number(p.has('right'))-Number(p.has('left')), y = Number(p.has('up'))-Number(p.has('down'));
@@ -160,13 +205,14 @@
     }
     function close(complete) {
       abort.abort(); clear(); layer.remove(); delete dialog.dataset.walk;
+      scene.remove(boundaries); boundaries.geometry.dispose(); boundaries.material.dispose();
       scene.remove(ring); for (const m of ring.children) { m.geometry.dispose(); m.material.dispose(); }
       if (complete && key) try { sessionStorage.removeItem(key); } catch { /* unavailable */ }
       else save();
     }
     return { s, frame, view, close };
   }
-  const api = { START, TARGET, RADIUS, FOV, DIST, DEFAULT_ZOOM, SPEED, introSkip, stickInput, DEADZONE, STICK_TRAVEL, RIGHT, UP, enabled, allowed, route, state, move, open, resumePoint };
+  const api = { BLOCKS, boundaryMesh, START, TARGET, RADIUS, FOV, DIST, DEFAULT_ZOOM, SPEED, introSkip, stickInput, DEADZONE, STICK_TRAVEL, RIGHT, UP, enabled, allowed, route, state, move, open, resumePoint };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else window.StreetWalkPrototype = api;
 })();
