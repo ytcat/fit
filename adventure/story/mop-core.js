@@ -17,7 +17,7 @@
     minX: .05, maxX: 3.25, minZ: -1.7, maxZ: 1.6, cell: .05,         // the floor between the ring corner and the bag mat
     radius: .2, core: .11,                                            // the string mop's footprint on the floor (m)
     bucket: Object.freeze({ x: 3.5, z: 1.92, r: .34 }),                // the mop bucket at the front right corner, just off the floor area
-    time: 80, bonusCap: 20, rinseTime: 1.0, dry: 7,                   // seconds: the shift, the most bonus time, a rinse (+ the walk to the bucket), wet floor drying
+    time: 90, bonusCap: 20, rinseTime: 1.0, dry: 7,                   // seconds: the shift, the most bonus time, a rinse (+ the walk to the bucket), wet floor drying
     speed: 2.2,                                                       // m/s: the mop head follows the finger no faster than this (he walks after it)
     capacity: 1 / 4,                                                  // a clean mop holds about a quarter of the floor's dirt
     smearFrom: .62,                                                   // mop load where it starts to smear
@@ -145,7 +145,7 @@
       if (this._marks >= 100) this.end(false);
     }
     wipeAt(x, z, ds, ux, uz) {
-      const C = MOP.cell, R = MOP.radius, cap = this.start * MOP.capacity, eff = clamp(1 - this.load * .82, .12, 1), rate = .17 * eff * Math.min(1.6, ds / .025);
+      const C = MOP.cell, R = MOP.radius, cap = this.start * MOP.capacity, eff = clamp(1 - this.load * .82, .12, 1), rate = .2 * eff * Math.min(1.6, ds / .025);
       const smear = this.load > MOP.smearFrom ? (this.load - MOP.smearFrom) / (1 - MOP.smearFrom) * .5 : 0;
       const i0 = Math.max(0, Math.floor((x - R - MOP.minX) / C)), i1 = Math.min(NX - 1, Math.floor((x + R - MOP.minX) / C));
       const j0 = Math.max(0, Math.floor((z - R - MOP.minZ) / C)), j1 = Math.min(NZ - 1, Math.floor((z + R - MOP.minZ) / C));

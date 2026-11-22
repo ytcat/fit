@@ -191,8 +191,12 @@
     const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
     const art = mk(FW, FH), view = mk(FW, FH), mask = mk(sim.nx, sim.nz), wet = mk(sim.nx, sim.nz), rough = mk(sim.nx, sim.nz);
     const a = art.getContext('2d'), v = view.getContext('2d'), mc = mask.getContext('2d'), wc = wet.getContext('2d'), rc = rough.getContext('2d');
-    const mi = mc.createImageData(sim.nx, sim.nz), wi = wc.createImageData(sim.nx, sim.nz), ri = rc.createImageData(sim.nx, sim.nz);
+    const wm = mk(sim.nx, sim.nz), wmc = wm.getContext('2d'), wmi = wmc.createImageData(sim.nx, sim.nz), mi = mc.createImageData(sim.nx, sim.nz), wi = wc.createImageData(sim.nx, sim.nz), ri = rc.createImageData(sim.nx, sim.nz);
     drawStains(a, sim.stains, X, Z, sx);
+    const sheen = mk(FW, FH), sc = sheen.getContext('2d'), sheenArt = mk(FW, FH), sa = sheenArt.getContext('2d'); // soft streaks of reflected light on wet boards
+    { let r = 3; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647; sa.lineCap = 'round';
+      for (let i = 0; i < 70; i++) { const x = rnd() * FW, y = rnd() * FH, l = 30 + rnd() * 90, g = sa.createLinearGradient(x, y - l / 2, x, y + l / 2); g.addColorStop(0, 'rgba(190,210,240,0)'); g.addColorStop(.5, `rgba(205,222,248,${.5 + rnd() * .5})`); g.addColorStop(1, 'rgba(190,210,240,0)'); sa.strokeStyle = g; sa.lineWidth = 2 + rnd() * 6; sa.beginPath(); sa.moveTo(x, y - l / 2); sa.lineTo(x + (rnd() - .5) * 10, y + l / 2); sa.stroke(); }
+      sa.globalCompositeOperation = 'source-in'; sa.fillStyle = 'rgba(205,222,248,.55)'; sa.fillRect(0, 0, FW, FH); }
     const map = own(new THREE.CanvasTexture(view)); map.encoding = THREE.sRGBEncoding; map.anisotropy = 4;
     const rmap = own(new THREE.CanvasTexture(rough));
     const mat = own(new THREE.MeshStandardMaterial({ map, roughnessMap: rmap, roughness: 1, metalness: 0, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
@@ -217,13 +221,15 @@
         for (let k = 0; k < n; k++) {
           const d = D[k], wt = sim.wet(k), q = k * 4;
           md[q] = md[q + 1] = md[q + 2] = 255; md[q + 3] = 255 * clamp((d - .02) * 1.35);
-          wd[q] = 26; wd[q + 1] = 17; wd[q + 2] = 9; wd[q + 3] = 255 * .36 * wt * (1 - clamp(d * 2));
+          wd[q] = 26; wd[q + 1] = 17; wd[q + 2] = 9; wd[q + 3] = 255 * .22 * wt * (1 - clamp(d * 2)); wmi.data[q + 3] = 255 * wt * (1 - clamp(d * 2));
           rd[q] = rd[q + 1] = rd[q + 2] = 255 * (1 - .86 * wt * (1 - clamp(d * 2))); rd[q + 3] = 255;
         }
-        mc.putImageData(mi, 0, 0); wc.putImageData(wi, 0, 0); rc.putImageData(ri, 0, 0);
+        mc.putImageData(mi, 0, 0); wc.putImageData(wi, 0, 0); wmc.putImageData(wmi, 0, 0); rc.putImageData(ri, 0, 0);
         v.globalCompositeOperation = 'copy'; v.imageSmoothingEnabled = true; v.drawImage(art, 0, 0);
         v.globalCompositeOperation = 'destination-in'; v.drawImage(mask, 0, 0, FW, FH);
         v.globalCompositeOperation = 'source-over'; v.drawImage(wet, 0, 0, FW, FH);
+        sc.globalCompositeOperation = 'copy'; sc.drawImage(sheenArt, 0, 0); sc.globalCompositeOperation = 'destination-in'; sc.drawImage(wm, 0, 0, FW, FH); // the sheen only where it is wet
+        v.drawImage(sheen, 0, 0);
         map.needsUpdate = true; rmap.needsUpdate = true;
       }
     };
@@ -376,7 +382,7 @@
         else { phase = 'lift'; m.head.y = .47 + (k - .85) / .15 * .05; }
       }
     } else {
-      const want = Core().atBucket(v.point) ? .3 : x.sim.lift ? .16 : 0, k = reduced ? 1 : 1 - Math.exp(-dt * 30);
+      const want = m.stretch > .5 ? 0 : Core().atBucket(v.point) ? .3 : x.sim.lift ? .16 : 0, k = reduced ? 1 : 1 - Math.exp(-dt * 30);
       if (m.stretch > .5) { const front = f.root.localToWorld(V(.12, 0, .42)); m.head.x += (front.x - m.head.x) * Math.min(1, dt * 3); m.head.z += (front.z - m.head.z) * Math.min(1, dt * 3); }
       else { m.head.x += (target.x - m.head.x) * k; m.head.z += (target.z - m.head.z) * k; }
       m.head.y += (want - m.head.y) * (1 - Math.exp(-dt * 14)); if (m.head.y < .002) m.head.y = 0; // on the boards: contact, never under them
@@ -386,9 +392,10 @@
     const want = m.body.clone(), dx = m.head.x - want.x, dz = m.head.z - want.z, c0 = -.3, side = .24; // the mop a little to his right (world -x as he faces the camera)
     if (dx > c0 + side) want.x = m.head.x - c0 - side; else if (dx < c0 - side) want.x = m.head.x - c0 + side;
     if (dz > 1.1) want.z = m.head.z - 1.1; else if (dz < .85) want.z = m.head.z - .85; // the handle at ~55 degrees
-    const before = m.body.clone(), mv = want.clone().sub(m.body), maxStep = 1.6 * dt; if (mv.length() > maxStep) mv.setLength(maxStep);
+    const atPail = phase !== 'mop' || Core().atBucket(v.point); if (atPail) want.set(R.bucket.x - .42, 0, R.bucket.z - .78); // at the bucket: behind it and to its left
+    const before = m.body.clone(), mv = want.clone().sub(m.body), maxStep = 2.2 * dt; if (mv.length() > maxStep) mv.setLength(maxStep);
     m.body.add(mv); const bodyVel = m.body.clone().sub(before).divideScalar(Math.max(.016, dt));
-    const yaw = clamp(Math.atan2(m.head.x - m.body.x + .3, Math.max(.25, m.head.z - m.body.z)) * .7, -.7, .7); // square to the work: the mop's home is at his right
+    const yaw = atPail ? -.15 : clamp(Math.atan2(m.head.x - m.body.x + .3, Math.max(.25, m.head.z - m.body.z)) * .7, -.7, .7); // square to the work: the mop's home is at his right
     m.yaw += (yaw - m.yaw) * Math.min(1, dt * 4);
     f.root.position.copy(m.body); f.root.rotation.set(0, m.yaw, 0); f.root.updateMatrixWorld(true);
     // feet: planted on the boards (world), one step at a time to the work stance
@@ -397,7 +404,7 @@
     const swinging = ['L', 'R'].find(k => m.feet[k].u < .9); // the next step may start as the other foot lands
     for (const k of ['L', 'R']) {
       const F = m.feet[k], s = k === 'L' ? -1 : 1;
-      if (F.u < 1) { F.u = Math.min(1, F.u + dt / .27); F.p.lerpVectors(F.from, F.to, F.u * F.u * (3 - 2 * F.u)); F.lift = .065 * Math.sin(Math.PI * F.u); continue; }
+      if (F.u < 1) { F.u = Math.min(1, F.u + dt / .25); F.p.lerpVectors(F.from, F.to, F.u * F.u * (3 - 2 * F.u)); F.lift = .065 * Math.sin(Math.PI * F.u); continue; }
       F.lift = 0;
       const home = homeOf(s); if (swinging || F.p.distanceTo(home) < .12) continue;
       const other = m.feet[k === 'L' ? 'R' : 'L'], mine = F.p.distanceTo(home), theirs = other.p.distanceTo(homeOf(-s));
@@ -421,18 +428,18 @@
     // (right) hand further down the line toward the socket, as far down as the right arm reaches (30..44 cm apart)
     const shL = f.point(f.joints.armL), shR = f.point(f.joints.armR), arm = f.joints.elbowL.position.length() + f.joints.handL.position.length();
     const T = V(clamp(-.02 + (S.x - .3) * .1, -.1, .06), shL.y - .38 - .08 * m.bend - .05 * press + .12 * st, shL.z + .3 + .06 * reach), axis = S.clone().sub(T).normalize();
-    let u = .42, low = T.clone().addScaledVector(axis, u); while (u > .14 && low.distanceTo(shR) > .93 * arm) { u -= .02; low = T.clone().addScaledVector(axis, u); } // as far down the stick as the arm reaches
+    let u = .42, low = T.clone().addScaledVector(axis, u); while (u > .1 && low.distanceTo(shR) > .93 * arm) { u -= .02; low = T.clone().addScaledVector(axis, u); } // as far down the stick as the arm reaches
     const gripOff = m.gripOff || { L: V(), R: V() }, ride = V(0, .972 - f.joints.hips.position.y, 0), aimL = T.clone().sub(gripOff.L).add(ride), aimR = low.clone().sub(gripOff.R).add(ride); // DreamPose lets the hands ride with the pelvis: take its drop back out // last frame's grip offset (the grip sits inside the paw)
     const reachT = st > .5 ? { L: aimL.toArray() } : { L: aimL.toArray(), R: aimR.toArray() };
     Pose.civil(f, { t, dt, walk: 0, feet, arms: { L: 'pole', R: st > .5 ? 'hips' : 'pole' }, reach: reachT, lean, drop, twist, hipYaw: -.3 * twist, shift,
       look: { yaw: clamp(Math.atan2(S.x, Math.max(.2, S.z)) - twist, -.6, .6) * (1 - st), pitch: -.45 * (1 - st) + .32 * st - .1 * m.bend } });
     // the handle is laid through both real grips; where it meets the socket height is the mop head (within 15 cm of
-    // where the core cleans: the soft dirt mask hides that); otherwise it runs from the socket through the top hand
+    // where the core cleans, 24 cm while he is still walking after it); otherwise from the socket through the top hand
     const gT = f.joints.handL.localToWorld(V(0, -.07, .02)), gL = f.joints.handR.localToWorld(V(0, -.07, .02));
     m.err = { L: f.point(f.joints.handL).distanceTo(aimL.clone().sub(ride)), R: st > .5 ? 0 : f.point(f.joints.handR).distanceTo(aimR.clone().sub(ride)) };
     m.gripOff = { L: f.root.worldToLocal(gT.clone()).sub(f.point(f.joints.handL)), R: f.root.worldToLocal(gL.clone()).sub(f.point(f.joints.handR)) };
     let hAxis = gT.clone().sub(socketW).normalize(), sock = socketW.clone(), both = false;
-    if (st <= .5) { const d = gT.clone().sub(gL); if (d.y > .05 && d.length() > .1) { const k = (gL.y - socketW.y) / d.y, at = gL.clone().addScaledVector(d, -k); if (at.distanceTo(socketW) < .15) { sock = at; hAxis = d.normalize(); both = true; } } }
+    if (st <= .5) { const d = gT.clone().sub(gL); if (d.y > .05 && d.length() > .1) { const k = (gL.y - socketW.y) / d.y, at = gL.clone().addScaledVector(d, -k); if (at.distanceTo(socketW) < .24) { sock = at; hAxis = d.normalize(); both = true; } } }
     const end = gT.clone().addScaledVector(hAxis, .12), len = sock.distanceTo(end);
     M.handle.position.copy(sock).lerp(end, .5); M.handle.scale.set(1, len, 1); M.handle.quaternion.setFromUnitVectors(V(0, 1, 0), hAxis);
     M.cap.position.copy(end); M.cap.quaternion.copy(M.handle.quaternion);

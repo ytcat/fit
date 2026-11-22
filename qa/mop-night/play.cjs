@@ -27,20 +27,20 @@ const { open, launchShift, frames } = require('./launch.cjs'), path = require('p
         const [x0, x1] = row % 2 ? [R.maxX - .1, R.minX + .1] : [R.minX + .1, R.maxX - .1];
         if (await marks() >= goal || await p.evaluate(() => StoryScenes.debug.sim.done)) return;
         await touch('touchStart', [await proj(x0, z)]); await headAt(x0, z);
-        for (let k = 1; k <= 6; k++) {
-          const x = x0 + (x1 - x0) * k / 6; await touch('touchMove', [await proj(x, z)]); await headAt(x, z, .12);
-          if (await marks() >= goal) break;
-          if (await p.evaluate(() => StoryScenes.debug.sim.load > .5)) { await touch('touchEnd'); await rinse(); await touch('touchStart', [await proj(x, z)]); await headAt(x, z); }
-          if (!pics.mid && await marks() >= 12) { await shot('after-02-mopping'); pics.mid = 1; }
+        for (let k = 1; k <= 4; k++) { // a quick player: one look at the floor per segment
+          const x = x0 + (x1 - x0) * k / 4; await touch('touchMove', [await proj(x, z)]); await headAt(x, z, .15);
+          const st = await p.evaluate(() => { const s = StoryScenes.debug.sim; return { marks: s.marks, load: s.load, done: s.done }; });
+          if (st.marks >= goal || st.done) break;
+          if (st.load > .5) { await touch('touchEnd'); await rinse(); await touch('touchStart', [await proj(x, z)]); await headAt(x, z); }
+          if (!pics.mid && st.marks >= 12) { await shot('after-02-mopping'); pics.mid = 1; }
         }
         await touch('touchEnd');
       }
     };
     const relaunch = () => p.evaluate(() => { const rg = ringfighterGame, st = rg.store; for (const d of document.querySelectorAll('dialog[open]')) d.close(); AdventureOldTown.closeBeat?.(); AdventureOldTown.launch({ store: st, startTraining: rg.startTraining, startFight: rg.startFight, change: a => st.gameAction(a).ok }, 'clean_gym'); });
     for (const [i, goal] of [25, 50, 75].entries()) {
-      const before = await save();
-      if (i === 0) await launchShift(p); else { await relaunch(); await p.waitForFunction(() => StoryScenes.debug?.sim && StoryScenes.debug.projectFloor && StoryScenes.stats()?.calls && StoryScenes.debug.sim.marks === 0, null, { timeout: 120000 }); }
-      await frames(p, 4);
+      console.log('shift', i, 'launch'); if (i === 0) await launchShift(p); else { await relaunch(); await p.waitForFunction(() => StoryScenes.debug?.sim && StoryScenes.debug.projectFloor && StoryScenes.stats()?.calls && StoryScenes.debug.sim.marks === 0, null, { timeout: 120000 }); }
+      await frames(p, 4); const before = await save(); // the story steps before the shift are done; nothing paid yet
       if (i === 0) { assert.equal(before.current, 'clean_gym'); await shot('after-01-start-note'); }
       const t0 = Date.now(); await mop(goal);
       const m = await marks(), left = await p.evaluate(() => StoryScenes.debug.sim.left);

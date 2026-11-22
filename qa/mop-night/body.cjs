@@ -57,8 +57,8 @@ const { open, launchShift, frames } = require('./launch.cjs'), path = require('p
     const res = { frames: log.length, mopFrames: mop.length, bothGrips: both, hand: { median: pct(handErr, .5), p95: pct(handErr, .95), max: pct(handErr, 1), under15mm: +(handErr.filter(e => e < .015).length / handErr.length).toFixed(3) },
       plantedSpans: spans, footDriftMax: { L: +slide.L.toFixed(4), R: +slide.R.toFixed(4) }, steps: log.at(-1).steps, handleToTorsoMin: Math.min(...log.map(q => q.body)),
       twist: [Math.min(...log.map(q => q.twist)), Math.max(...log.map(q => q.twist))], lean: [Math.min(...log.map(q => q.lean)), Math.max(...log.map(q => q.lean))], drop: [Math.min(...log.map(q => q.drop)), Math.max(...log.map(q => q.drop))],
-      headY: { mopMax: Math.max(...mop.map(q => q.head[1])), mopMin: Math.min(...mop.map(q => q.head[1])) }, phases: [...new Set(log.map(q => q.phase))], errors };
-    fs.writeFileSync(path.join(out, 'body.json'), JSON.stringify({ res, shots }, null, 1));
+      headOff: { median: pct(mop.map(q => q.headOff), .5), p95: pct(mop.map(q => q.headOff), .95) }, apart: { median: pct(mop.map(q => q.apart), .5) }, headY: { mopMax: Math.max(...mop.map(q => q.head[1])), mopMin: Math.min(...mop.map(q => q.head[1])) }, phases: [...new Set(log.map(q => q.phase))], errors };
+    fs.writeFileSync(path.join(out, 'body.json'), JSON.stringify({ res, shots, log: log.map(q => ({ t: +q.t.toFixed(2), phase: q.phase, both: q.both, top: q.top, low: q.low, headOff: q.headOff, apart: q.apart, steps: q.steps, feet: q.feet.map(f => f.planted) })) }));
     console.log(JSON.stringify(res));
   } finally { await close(); }
 })().catch(e => { console.error(e); process.exit(1); });
