@@ -598,7 +598,7 @@
     hands(rig, '#8d5c3a', '#2e2220', { k: .92, cuff: '#8d5c3a' });
     shoes(rig, { upper: '#4a2b22', toe: '#3c231c', sole: '#2a1c18', welt: '#2a1c18', strap: '#3c231c', scale: .9, glossy: true });
     // the handbag in her left hand, hanging by its handles (kept upright; swings a little)
-    const bag = new THREE.Group(); bag.name = 'Hazel: handbag'; j.handL.add(bag); bag.position.set(0, -.11, .02); bag.userData.storyPart = true;
+    const bag = new THREE.Group(); bag.name = 'Hazel: handbag'; j.handL.add(bag); rig.pawHold = { L: bag }; // her paw closes round the handles while she holds it (paws.js) bag.position.set(0, -.11, .02); bag.userData.storyPart = true;
     const Hb = new Parts(), tan = '#7b4425';
     Hb.box(V(0, -.16, 0), V(.2, .15, .075), tan); Hb.box(V(0, -.095, 0), V(.205, .03, .079), '#6a3a20'); Hb.ribbon([V(-.1, -.235, .039), V(.1, -.235, .039)], .004, .003, '#4e2a16', V(0, 1, 0), 4, 4);
     Hb.ribbon([V(-.06, -.09, 0), V(-.04, -.01, 0), V(0, .015, 0), V(.04, -.01, 0), V(.06, -.09, 0)], .012, .008, '#5a3019', V(0, 0, 1), 18, 6);
@@ -765,7 +765,7 @@
     if (!rig?.castFight) return null; u = clamp(u);
     if (u < .3) { wear(rig, 'jacket'); return { arms: { L: 'hang', R: 'hang' }, lean: -.06 * smooth(u / .3), look: { yaw: 0, pitch: -.1 * smooth(u / .3) } }; }
     wear(rig, 'fight');
-    const held = rig.castJacketHeld || (rig.castJacketHeld = (() => { const h = jacketProp(rig, false), grp = new THREE.Group(); grp.name = 'Fang: held jacket'; grp.add(h); h.position.set(0, -.02, 0); rig.joints.handR.add(grp); grp.position.set(0, -.12, .02); grp.userData.storyPart = true; (rig.castSprings || []).push({ o: grp, rest: grp.quaternion.clone(), k: 1, kind: 'bag' }); return grp; })());
+    const held = rig.castJacketHeld || (rig.castJacketHeld = (() => { const h = jacketProp(rig, false), grp = new THREE.Group(); grp.name = 'Fang: held jacket'; rig.pawHold = { ...rig.pawHold, R: grp }; grp.add(h); h.position.set(0, -.02, 0); rig.joints.handR.add(grp); grp.position.set(0, -.12, .02); grp.userData.storyPart = true; (rig.castSprings || []).push({ o: grp, rest: grp.quaternion.clone(), k: 1, kind: 'bag' }); return grp; })());
     const ground = rig.castJacketGround || (rig.castJacketGround = jacketProp(rig, true));
     held.visible = u < .62;
     const host = rig.root.parent || rig.root; if (ground.parent !== host) host.add(ground);

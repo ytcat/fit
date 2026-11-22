@@ -16,7 +16,7 @@
  * renderTime); without a fresh stamp (a fight, a drill, any boxing pose) the paw is a fist. rig.pawOverride = { L, R } wins (QA).
  * API: Paws.attach(rig, { species?, fur?, pad?, wraps?, name? }) -> [meshL, meshR]
  *      Paws.shapeFor(gesture) ; Paws.build(species, shape, side, { wraps }) -> { geometry, stats } (shared, do not dispose)
- *      Paws.species ; Paws.shapes ; Paws.speciesOf(rig) */
+ *      Paws.species ; Paws.shapes ; Paws.speciesOf(rig) ; rig.pawHold = { L|R: object } -> a grip while that object is shown */
 (() => {
   const G = typeof self !== 'undefined' ? self : globalThis, T = G.THREE || null, WORKER = typeof WorkerGlobalScope !== 'undefined' && G instanceof WorkerGlobalScope;
   if (!T && !WORKER) return;
@@ -53,7 +53,7 @@
   const FINGERS = [{ x: -.0435, y: -.106, len: [.047, .031, .026], r: .0150 }, { x: -.0145, y: -.111, len: [.051, .034, .027], r: .0156 },
     { x: .0145, y: -.109, len: [.049, .032, .026], r: .0150 }, { x: .0425, y: -.101, len: [.041, .027, .023], r: .0136 }];
   const SWITCH_CLAW = { fist: .55, grip: .75, point: .7 }; // claws drawn in when the hand closes (retractile; a fighter's fist keeps them in)
-  const GESTURE = { hang: 'relaxed', strap: 'grip', open: 'open', fist: 'fist', point: 'point', hips: 'relaxed', thumb: 'point', chin: 'grip', cross: 'relaxed', cross2: 'relaxed',
+  const GESTURE = { hang: 'relaxed', strap: 'open', open: 'open', fist: 'fist', point: 'point', hips: 'relaxed', thumb: 'point', chin: 'grip', cross: 'relaxed', cross2: 'relaxed',
     pound: 'fist', shrug: 'open', count: 'open', wave: 'open', low: 'open', carry: 'grip', head: 'relaxed' };
   const shapeFor = g => GESTURE[g] || 'relaxed';
 
@@ -451,7 +451,7 @@
   const norm = (species, shape) => [LOOK[species] ? species : 'lion', SHAPES[shape] ? shape : 'fist'];
   const isReady = (species, shape, wraps) => CACHE.has(keyOf(...norm(species, shape), wraps) + '|L');
   /** Asks the worker for a shape (no-op when it is ready, on its way, or there is no worker). */
-  function request(species, shape, wraps) { [species, shape] = norm(species, shape); const key = keyOf(species, shape, wraps); if (CACHE.has(key + '|L') || PENDING.has(key)) return false; const w = workerOf(); if (!w) return false; PENDING.add(key); w.postMessage({ key, species, shape, wraps: !!wraps }); return true; }
+  function request(species, shape, wraps) { [species, shape] = norm(species, shape); const key = keyOf(species, shape, wraps); if (CACHE.has(key + '|L')) return false; if (PENDING.has(key)) return true; const w = workerOf(); if (!w) return false; PENDING.add(key); w.postMessage({ key, species, shape, wraps: !!wraps }); return true; } // true: on its way
   function mirror(L) { // the right hand: x mirrored, winding flipped
     const pos = L.pos.slice(), nor = L.nor.slice(), idx = L.idx.slice();
     for (let i = 0; i < pos.length; i += 3) { pos[i] = -pos[i]; nor[i] = -nor[i]; }
@@ -510,6 +510,7 @@
   /** Which shape the paw should show this frame. */
   function wanted(rig, side) {
     const o = rig.pawOverride?.[side]; if (o) return SHAPES[o] ? o : 'fist';
+    const h = rig.pawHold?.[side]; if (h && h.visible && h.parent) return 'grip'; // something held by its handle (Hazel's handbag, Fang's jacket)
     const p = rig.pawPose; return p && p.time === rig.renderTime && SHAPES[p[side]] ? p[side] : 'fist';
   }
   /** Big bare paws on both hand joints. Returns [L, R]. o: { species, fur (coat override), fallback (coat if the skin has none),
@@ -528,7 +529,7 @@
       const choose = () => {
         if (!sampled) { sampled = true; const c = coatOf(rig, o.fallback); if (c.getHex() !== coat.getHex()) { coat = c; for (const p of out) p.userData.shape = null; } }
         let want = wanted(rig, side);
-        if (!isReady(species, want, wraps)) { request(species, want, wraps); const alt = [st.shape, ...ORDER].find(s => isReady(species, s, wraps)); if (alt) want = alt; } // never wait: the nearest ready shape until it comes
+        if (!isReady(species, want, wraps) && request(species, want, wraps)) { const alt = [st.shape, ...ORDER].find(s => isReady(species, s, wraps)); if (alt) want = alt; } // never wait for the worker: the nearest ready shape until it comes (no worker: built here)
         if (want !== st.shape && !st.via) { const far = Math.abs(SWITCH[want] - SWITCH[st.shape]) > 1; if (far && !rig.pawOverride && isReady(species, 'grip', wraps)) { st.via = 'grip'; st.until = now() + 55; st.final = want; } else st.shape = want; } // a hand that opens or closes passes the half-closed hand (~2 frames)
         if (st.via && (now() >= st.until || want !== st.final)) { st.shape = want; st.via = null; }
         const show = st.via || st.shape; if (m.userData.shape !== show) { m.geometry = geometry(species, show, side, coat, { wraps }); m.userData.shape = show; }
@@ -540,7 +541,7 @@
     return out;
   }
   /** Asks the worker for every shape of a species (built here instead when there is no worker and `now` is set). */
-  function warm(species, o = {}) { for (const sh of ORDER) if (!request(species, sh, o.wraps) && o.now) for (const s of ['L', 'R']) build(species, sh, s, o); }
+  function warm(species, o = {}) { for (const sh of ORDER) if (!request(species, sh, o.wraps) && o.now && !isReady(species, sh, o.wraps)) for (const s of ['L', 'R']) build(species, sh, s, o); }
   // the Fighter's paws (lion, rabbit) are made in the background once the game has loaded, before the first street scene
   if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') window.addEventListener('load', () => setTimeout(() => { for (const [sp, sh] of [['lion', 'relaxed'], ['lion', 'fist'], ['bear', 'relaxed'], ['rabbit', 'relaxed'], ['lion', 'grip'], ['rabbit', 'fist']]) request(sp, sh, false); }, 2500)); // the Fighter (lion or rabbit) and Bruno, before the first street or gym scene
 
