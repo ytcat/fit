@@ -10,6 +10,8 @@
  *   walk         0..1 how much of the walk cycle shows (0 = standing)
  *   arms         { L, R }: gesture name per arm (GESTURES) ; look: { yaw, pitch } head turn (radians, + = to the rig's +x / up)
  *   lean         forward lean (radians) ; talk 0..1 mouth ; nod 0..1 ; drop metres the pelvis sinks (step down, sitting back)
+ *   twist, hipYaw  optional (radians, default 0): the thorax's turn and the pelvis's turn (work: the mop sweep) ; shift: pelvis
+ *                sideways over one foot (metres, rig x) ; feet { L, R }: [x, y, z, yaw?] ankle stands in rig space (y = lift)
  *   dt           frame time for smoothing (0 = jump to the pose)
  *   paws         { L, R }: paw shape override (relaxed | open | point | grip | fist); by default the gesture picks it (Paws.shapeFor,
  *                an exact reach holds a grip) and rig.pawPose = { L, R, time: renderTime } tells adventure/story/paws.js (GOTR-0100)
@@ -36,7 +38,8 @@
     count: { h: [.3, 1.6, .34], pole: [.9, -.6, -.1], palm: [-1, 0, 0], turn: .4 },          // the referee's count
     wave: { h: [.40, 1.93, .12], pole: [1, -.3, -.2], palm: [0, 0, 1], turn: .5 },           // hand up: hello
     low: { h: [.30, 1.02, .16], pole: [.4, -.3, -1], palm: [-1, 0, 0], turn: .4 },         // offering a hand low
-    carry: { h: [.31, .93, .06], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 }       // straight arm with a weight (bag handles)
+    carry: { h: [.31, .93, .06], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 },      // straight arm with a weight (bag handles)
+    pole: { h: [.2, 1.05, .4], pole: [.85, -.55, -.15], palm: [-1, 0, .3], turn: .5 }       // both hands on a stick in front (the mop): elbows out and down
   };
   const mem = new WeakMap();
   const memo = rig => { let m = mem.get(rig); if (!m) { m = { corr: { L: null, R: null }, roll: { L: null, R: null }, hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
@@ -145,7 +148,7 @@
         else { const a = stance(DUTY - 1e-6, STRIDE).z - (pg - DUTY) * STRIDE, b = stance(0, STRIDE).z + (1 - pg) * STRIDE, o0 = gnd(g.x, a - back - BALL, a), o1 = gnd(g.x, b - back, b + fore); ow = Math.max(lerp(o0, o1, o1 > o0 ? smooth(g.u / .55) : smooth((g.u - .35) / .5)), gnd(g.x, g.z - back - .03, g.z + fore + .03)); } // never through the step it passes over
         off = lerp(gnd(sx, sz - back, sz + fore), ow, w);
       }
-      const yawF = s * lerp(st.toes ?? .16, .07, w);
+      const yawF = stand && stand[3] != null ? stand[3] : s * lerp(st.toes ?? .16, .07, w); // a planted foot keeps its own turn when the body turns over it
       if (g.planted) { // the toed-out foot: heel and ball lie along its own (turned) axis, the pivot stays on its spot
         const sy = Math.sin(yawF), cy = Math.cos(yawF), [oy, oz] = rot(-G.sole, g.ball ? BALL : -G.heel, g.pitch), L = g.ball ? G.heel + BALL : 0;
         g.x = g.x + L * sy - oz * sy; g.z = g.hz + L * cy - oz * cy; g.y = -oy;
@@ -160,14 +163,15 @@
     // leg takes the weight, and shifts 2 cm over the stance foot
     const hips = j.hips, pL = phase, yaw = .085 * Math.cos(pL * tau) * w, roll = -.06 * Math.sin((pL + .15) * tau) * w, hb = (pL * 2) % 1, bob = hb < .16 ? -.3 * Math.sin(Math.PI * hb / .16) : hb < .5 ? smooth((hb - .16) / .34) : 1 - smooth((hb - .5) / .5); // the knee gives a little as the heel takes the weight (dip at loading)
     const sway = -.02 * Math.sin((pL - .05) * tau) * w + .012 * shift;
-    hips.rotation.set(0, yaw, roll + .02 * shift); hips.position.set(sway, HIP, .012 * w);
+    const twist = st.twist || 0, hipYaw = st.hipYaw || 0; // work (the mop, GOTR-0099): the thorax turns toward the job, the pelvis a little the other way
+    hips.rotation.set(0, yaw + hipYaw, roll + .02 * shift); hips.position.set(sway + (st.shift || 0), HIP, .012 * w); // shift: the weight over one foot (rig x)
     c.root.updateMatrixWorld(true);
     let y = lerp(HIP + .004 * breath * idle, WALK_Y + BOB * bob, w) - (m.drop || 0) + (plans[0].off + plans[1].off) / 2;
     for (const p of plans) { const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .998 : 1.02), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz))); } // never past the legs' reach
     hips.position.y = y;
     const stoop = c.cast?.stoop ?? (c.character === 'bruno' ? .085 : 0), lean = m.lean + .04 * w + stoop; // the old champion carries his years in his back
     // the thorax turns against the pelvis and keeps the shoulders level; neck and head take the turn back out (head steady)
-    j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .85, -roll * .5 - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * 1.0, -roll * .35 - .008 * shift);
+    j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .85 + (twist - hipYaw) * .45, -roll * .5 - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * 1.0 + (twist - hipYaw) * .55, -roll * .35 - .008 * shift);
     j.neck.position.copy(c.neckRest); j.neck.rotation.set(-m.pitch * .4 - (lean - stoop * .4) * .5, m.yaw * .4 + yaw * .4, 0);
     const nod = (st.nod || 0) * .06 * Math.sin(t * 6.5) + (st.talk || 0) * .025 * Math.sin(t * 9.1) + (st.listen || 0) * .05 * Math.max(0, Math.sin(t * 1.9 + 1)) ** 4;
     j.head.rotation.set(.03 - m.pitch * .6 - lean * .4 + nod + .012 * w * Math.cos(2 * tau * (pL - .02)), m.yaw * .6 + yaw * .45, (st.tilt || 0) + (st.reach?.tilt || 0) + (st.listen || 0) * .05 + .012 * shift - roll * .15);

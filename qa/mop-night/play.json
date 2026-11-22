@@ -1,0 +1,137 @@
+{
+ "shifts": [
+  {
+   "goal": 25,
+   "marksAtFinish": 26,
+   "timeLeft": 79.4,
+   "result": {
+    "missionId": "clean_gym",
+    "metric": "marks",
+    "value": 26,
+    "score": 26,
+    "stars": 1,
+    "streak": 4,
+    "cleaned": 0,
+    "zones": 3,
+    "smears": 0,
+    "rinses": 1,
+    "left": 79,
+    "lightsOut": false,
+    "finished": true,
+    "pay": 6,
+    "saved": true
+   },
+   "before": {
+    "stars": 0,
+    "coins": 0,
+    "wages": 0,
+    "current": "clean_gym"
+   },
+   "after": {
+    "stars": 1,
+    "value": 26,
+    "coins": 6,
+    "wages": 1,
+    "current": "night_shadow"
+   },
+   "realSeconds": 86
+  },
+  {
+   "goal": 50,
+   "marksAtFinish": 51,
+   "timeLeft": 67,
+   "result": {
+    "missionId": "clean_gym",
+    "metric": "marks",
+    "value": 51,
+    "score": 51,
+    "stars": 2,
+    "streak": 10,
+    "cleaned": 0,
+    "zones": 3,
+    "smears": 0,
+    "rinses": 3,
+    "left": 66,
+    "lightsOut": false,
+    "finished": true,
+    "pay": 10,
+    "saved": true
+   },
+   "before": {
+    "stars": 1,
+    "value": 26,
+    "coins": 6,
+    "wages": 1,
+    "current": "night_shadow"
+   },
+   "after": {
+    "stars": 2,
+    "value": 51,
+    "coins": 16,
+    "wages": 2,
+    "current": "night_shadow"
+   },
+   "realSeconds": 198
+  },
+  {
+   "goal": 75,
+   "marksAtFinish": 75,
+   "timeLeft": 56.3,
+   "result": {
+    "missionId": "clean_gym",
+    "metric": "marks",
+    "value": 75,
+    "score": 75,
+    "stars": 3,
+    "streak": 17,
+    "cleaned": 0,
+    "zones": 3,
+    "smears": 0,
+    "rinses": 5,
+    "left": 56,
+    "lightsOut": false,
+    "finished": true,
+    "pay": 15,
+    "saved": true
+   },
+   "before": {
+    "stars": 2,
+    "value": 51,
+    "coins": 16,
+    "wages": 2,
+    "current": "night_shadow"
+   },
+   "after": {
+    "stars": 3,
+    "value": 75,
+    "coins": 31,
+    "wages": 3,
+    "current": "night_shadow"
+   },
+   "realSeconds": 322
+  }
+ ],
+ "errors": [],
+ "lightsOut": {
+  "missionId": "clean_gym",
+  "metric": "marks",
+  "value": 0,
+  "score": 0,
+  "stars": 0,
+  "streak": 0,
+  "cleaned": 0,
+  "zones": 3,
+  "smears": 0,
+  "rinses": 0,
+  "left": 0,
+  "lightsOut": true,
+  "finished": false
+ },
+ "final": {
+  "stars": 3,
+  "value": 75,
+  "coins": 31,
+  "wages": 3,
+  "current": "night_shadow"
+ }
+}
