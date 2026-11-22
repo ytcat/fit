@@ -80,6 +80,8 @@ const sum = (scene, f) => { let n = 0; scene.traverse(o => { if (o.isHemisphereL
   e.renderer.shadowMap.enabled = false; scene.onBeforeRender(e.renderer, scene, null); assert.equal(shown(), 6, 'two feet and a body per fighter');
   const ref = new THREE.Group(); scene.add(ref); e.arena.fightView.referee = { root: ref }; scene.onBeforeRender(e.renderer, scene, null); assert.equal(shown(), 7, 'and one under the referee'); e.arena.fightView.referee = null; scene.remove(ref);
   e.renderer.shadowMap.enabled = true; e.arena.fightView.ringless = { id: 'street' }; scene.onBeforeRender(e.renderer, scene, null); assert.equal(shown(), 6, 'baked venue floor: contact shadows');
+  assert.equal(RL.current(scene).high, true, 'environment at the default level'); e.qualityLevel = 1; scene.onBeforeRender(e.renderer, scene, null); flush(); assert.equal(RL.current(scene).high, false, 'level 1 gives the environment up'); assert.equal(scene.environment, null);
+  e.qualityLevel = 3; scene.onBeforeRender(e.renderer, scene, null); flush(); assert.equal(RL.current(scene).high, true);
   e.arena.fightView = null; e.activeModel = null; scene.onBeforeRender(e.renderer, scene, null); assert.equal(shown(), 0); assert.equal(key.shadow.camera.right, 5, 'training: the hall box');
   E.dispose(); assert.equal(Object.hasOwn(scene, 'onBeforeRender'), false); let extra = 0; scene.traverse(o => { if (o.name === 'contact shadow' || o.name === 'RenderLook' || (o.isLight && o !== hemi && o !== key)) extra++; }); assert.equal(extra, 0);
 }

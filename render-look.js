@@ -15,8 +15,8 @@
  *     changes (no environment, the hemisphere lights untouched); sun: a DirectionalLight whose direction brightens the sky
  *     round it; handle.high(bool), handle.dispose() (everything back as found), handle.stats().
  *   RenderLook.engine(engine) -> the engine's handle: look per place (ring hall, built venue sets), environment only while the
- *     adaptive quality keeps the shadow pass (level >= 1), contact shadows under the fighters' feet at level 0 (no shadow
- *     pass), the key light's shadow box fitted to the ring in a fight.
+ *     adaptive quality is at level 2 or more (shadow pass, pixel ratio >= 1.25), contact shadows where no real shadow falls
+ *     (level 0: no shadow pass; built ringless venues: a baked floor), the key light's shadow box fitted to the ring in a fight.
  *   RenderLook.current(scene) -> { look, high, env } or null (QA).
  * Materials: only MeshStandard / MeshPhysical take the environment (three's rule); envMapIntensity per material family
  * (FAMILY); a material that brought its own small environment (the city models) uses the look's while it is attached. */
@@ -50,7 +50,7 @@
       rig: { lamps: [[-2.4, 3.3, 3.4], [2.6, 3.3, 3.6], [7.2, 3.3, -.6], [-6, 3.3, 5.5], [6, 3.3, 5.5]], n: 1, c: '#ffc988', I: 2.4, d: 7.5 } },
     // the engine's own hall (training and the stock ring): a dark hall, a lit truss over the ring, warm and cool rims
     hall: { share: .75, room: { centre: [0, 1.2, 0], walls: '#3a4048', wall: 1, floor: '#2a2e34', ceil: '#15181c' },
-      panels: [{ at: [0, 5.2, 0], w: 3.2, h: 3.2, c: '#fff6e8', L: 1.6, up: true }, { at: [-3, 4.2, -3.5], w: 1.2, h: .5, c: '#ffe8cc', L: 2.4 }, { at: [3, 4.2, -3.5], w: 1.2, h: .5, c: '#e6eeff', L: 2.4 },
+      panels: [{ at: [0, 5.2, 0], w: 2.6, h: 2.6, c: '#fff6e8', L: .8, up: true }, { at: [-3, 4.2, -3.5], w: 1.2, h: .5, c: '#ffe8cc', L: 1.6 }, { at: [3, 4.2, -3.5], w: 1.2, h: .5, c: '#e6eeff', L: 1.6 },
         { at: [0, 3.6, 5.5], w: 3, h: .8, c: '#fff4e0', L: 1.2 }] },
     // built venues (arena-sets.js): their walls are baked, so only the fighters and the ring take this
     street_night: { share: .7, skyline: { near: '#2a2a33', far: '#1a1c26', lit: .05, shade: .02, top: .3, windows: '#ffb86a' },
@@ -226,6 +226,9 @@
     if (!e?.scene || !e.renderer) return null;
     const venueId = () => { const set = e.world?.arena?.children?.find(n => n.userData?.arenaSet); return set?.visible !== false && e.world?.arena?.visible !== false ? (set?.name || '').replace(/^Arena set /, '') : ''; };
     let handle = null, lookId = '';
+    // The environment costs ~10-25 % of a frame's render time (SwiftShader proxy): it is on from adaptive level 2 (shadow pass and
+    // a pixel ratio of 1.25) up; a device that has to go below that gives it up first, before the shadow pass.
+    const envLevel = () => (e.qualityLevel ?? 3) >= 2;
     const blobs = new THREE.Group(); blobs.name = 'RenderLook contact shadows'; e.scene.add(blobs);
     let blobMat = null, blobGeo = null; const pool = [];
     function blob(i) {
@@ -270,15 +273,15 @@
       const fight = !!e.arena?.fightView;
       { // every frame: a children scan of the arena group and two comparisons
         const v = venueId(), want = v ? (LOOKS[v] ? v : 'hall') : 'hall';
-        if (want !== lookId) { lookId = want; const hi = handle ? handle.isHigh : (e.qualityLevel ?? 3) > 0; handle?.dispose(); handle = attach(e.scene, e.renderer, { look: want, high: false, noHook: true }); if (handle && hi) requestAnimationFrame(() => handle?.high(true)); }
-        const hi = (e.qualityLevel ?? 3) > 0 && !e.lookOff; if (handle && hi !== handle.isHigh) requestAnimationFrame(() => handle?.high(hi));
+        if (want !== lookId) { lookId = want; const hi = handle ? handle.isHigh : envLevel(); handle?.dispose(); handle = attach(e.scene, e.renderer, { look: want, high: false, noHook: true }); if (handle && hi) requestAnimationFrame(() => handle?.high(true)); }
+        const hi = envLevel() && !e.lookOff; if (handle && hi !== handle.isHigh) requestAnimationFrame(() => handle?.high(hi));
       }
       handle?.tick();
       fitShadow(fight);
       feet();
     };
     e.scene.onBeforeRender = hook;
-    lookId = 'hall'; handle = attach(e.scene, e.renderer, { look: 'hall', high: (e.qualityLevel ?? 3) > 0, noHook: true });
+    lookId = 'hall'; handle = attach(e.scene, e.renderer, { look: 'hall', high: envLevel(), noHook: true });
     return { get handle() { return handle; }, get look() { return lookId; }, dispose() { handle?.dispose(); if (e.scene.onBeforeRender === hook) { if (own) e.scene.onBeforeRender = before; else delete e.scene.onBeforeRender; } e.scene.remove(blobs); blobMat?.map.dispose(); blobMat?.dispose(); blobGeo?.dispose(); } };
   }
 
