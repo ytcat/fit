@@ -19,7 +19,7 @@ for mode in ['pads', 'heavy']:
             # 7 frames: from 4 frames (12 ticks) before contact to 2 frames after, every 3 ticks
             c = contact if contact is not None else 27
             ticks = [r['tick'] for r in shots]
-            want = [t for t in ticks if c - 15 <= t <= c + 8][:8]
+            want = ticks
             tiles, last, moved = [], None, []
             for r in shots:
                 if r['tick'] not in want:

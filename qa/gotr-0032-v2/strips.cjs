@@ -2,7 +2,7 @@
    headless Chromium (software GL), 402x690. "before" serves the motion files from QA_BASE (default 37247bc, v1.87).
    Input goes through window.fighterPad.press ('straight' | 'hook' | 'uppercut'); the rear hand is chosen the way the pad
    does it (a second press soon after a lead press). The page clock is paused and stepped by hand at 120 Hz, so both
-   versions show the same instants. Frames every 3 ticks from the press; contact tick recorded per punch.
+   versions show the same instants. Frames at TICKS after the press (default 10,18,24,30,44; the deferred skins are synced before each picture); contact tick recorded per punch.
    Usage (repo root): node qa/gotr-0032-v2/strips.cjs [outdir]   env CASES=pads,heavy QA_BASE=<sha>
    Then: python3 -I qa/gotr-0032-v2/compose.py */
 const fs=require('fs'),path=require('path'),http=require('http'),{execFileSync}=require('child_process'),{chromium}=require('playwright');
@@ -22,18 +22,19 @@ async function open(browser,version,url){
 server.listen(0,async()=>{const url=`http://127.0.0.1:${server.address().port}/`,browser=await chromium.launch({args:['--enable-unsafe-swiftshader']}),results=[];try{
  for(const mode of (process.env.CASES||'pads,heavy').split(','))for(const version of ['before','after']){
   const {page,errors}=await open(browser,version,url);
-  await page.evaluate(mode=>{const e=app.engine;ringfighterGame.startTraining({mode,play:true});document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+  await page.evaluate(mode=>{const e=app.engine;ringfighterGame.startTraining({mode,play:true,setupOnly:true});document.querySelectorAll('dialog[open]').forEach(d=>d.close());
    setInterval(()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()),300);e.isPlaying=false;let t=e.animTime;
-   window.__s={step(){t+=1/120;e.animTime=t;return e.arena.update(t,e.technique,e.currentAnim);},shot(){e.world?.update?.(e.animTime,mode);e.renderer.render(e.scene,e.camera);},
-    press(kind,rear){const pad=window.fighterPad;if(!pad.shown){pad.paint?.(true);}pad.hands.reset();if(rear)pad.hands.commit('lead',performance.now());return pad.press(kind,'qa');}};
+   window.__s={step(){t+=1/120;e.animTime=t;return e.arena.update(t,e.technique,e.currentAnim);},shot(){for(const c of [e.coach,e.arena.careerDrill?.trainer,e.arena.rabbit])c?.syncSkin?.();e.world?.update?.(e.animTime,mode);e.renderer.render(e.scene,e.camera);},
+    press(kind,rear){const pad=window.fighterPad;if(!pad.shown){pad.paint?.(true);}pad.hands.reset();if(rear)pad.hands.commit('lead',performance.now());const ok=pad.press(kind,'qa');e.isPlaying=false;return ok;}};
    window.fighterPad.paint?.(true);},mode);
   for(const [move,kind,rear] of punches){
-   const r=await page.evaluate(([kind,rear])=>{e=app.engine;e.player.reset();for(let i=0;i<90;i++)__s.step();const ok=__s.press(kind,rear),id=e.player.current?.move||e.player.queue[0]?.move;return {ok,id,shown:window.fighterPad.shown};},[kind,rear]);
+   const r=await page.evaluate(([kind,rear])=>{const e=app.engine;e.isPlaying=false;if(ringfighterGame.isModalOpen)ringfighterGame.close();document.querySelectorAll('dialog[open]').forEach(d=>d.close());e.player.reset();for(let i=0;i<90;i++)__s.step();const ok=__s.press(kind,rear),id=e.player.current?.move||e.player.queue[0]?.move;return {ok,id,shown:window.fighterPad.shown,enabled:e.player.enabled,mode:e.targetMode,modal:ringfighterGame.isModalOpen};},[kind,rear]);
    if(!r.ok||r.id!==move){results.push({version,mode,move,error:'press failed',r});console.log(version,mode,move,'press failed',JSON.stringify(r));continue;}
    let contact=null;
-   for(let k=0;k<=57;k+=3){
-    const c=await page.evaluate(n=>{let hit=null;for(let i=0;i<n;i++){const f=__s.step();if((f.contacts||[]).some(c=>c.actor==='lion'&&c.receiver!=='lion'))hit=i;}__s.shot();return hit;},k?3:0);
-    if(c!=null&&contact==null)contact=k-3+c+1;
+   const ticks=(process.env.TICKS||'10,18,24,30,44').split(',').map(Number);let at=0;
+   for(const k of ticks){
+    const c=await page.evaluate(n=>{let hit=null;for(let i=0;i<n;i++){const f=__s.step();if(hit==null&&(f.contacts||[]).some(c=>c.actor==='lion'&&c.receiver!=='lion'))hit=i;}__s.shot();return hit;},k-at);
+    if(c!=null&&contact==null)contact=at+c+1;at=k;
     const file=path.join(out,`${version}-${mode}-${move}-${String(k).padStart(2,'0')}.png`);await page.locator('#boxerCanvas').screenshot({path:file});
     results.push({version,mode,move,tick:k,file:path.basename(file)});
    }
