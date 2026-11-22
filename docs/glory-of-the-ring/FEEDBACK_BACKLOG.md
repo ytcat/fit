@@ -984,7 +984,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0114 — Super Punch: a fighting-game knockout film per fight, a winner's celebration, endings that fit the place
 - **Reported:** 2026-11-22 (owner: "change the sunday punch to Super Punch … it should create a video of this punch and it should be different per fight. like in street fighter or mortal combat … when the hand touches the opponent it becomes slow motion and the opponent got the punch with his face get smashed and he falls and blackout. and the player is doing some kind of yeah or show muscles or dance … during fight on the street like in the market there is not judge so there also no one to raise the winners hand, think about similar fighting scenarios ending based on the scene and story")
-- **Status:** IN PROGRESS — branch `agent/super-punch` (rename keeps the save id `sunday_punch`)
+- **Status:** READY FOR QA — v1.90 (merged from `agent/super-punch` 8409724; evidence `qa/super-punch/*.webp`; the face squash is subtle at phone framing; not checked on a phone)
 
 ### GOTR-0113 — Orange spots on the Fighter's hoodie in the market (shoulders, under the arms)
 - **Reported:** 2026-11-22 (owner: "Something is wrong with Liron shirt when he's going in the market. there are orange spots under his arms and in his shoulders")
