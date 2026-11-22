@@ -870,7 +870,7 @@
         if(document.hidden)return;
         // The welcome name card covers the game: keep the last frame instead of re-rendering ~0.5 M triangles behind it every
         // frame (it starved taps on slow devices; PR #38 Chromium touch gate, story-clean-gym). Rendering resumes when it closes.
-        if(this.lastRenderStamp&&document.querySelector('dialog.career-welcome[open]'))return;
+        if(this.lastRenderStamp&&document.querySelector?.('dialog.career-welcome[open]'))return;
         if(this.fightIQDemo){this.fightIQDemo.frame(delta);return;}
         this.cameraDirector?.update(delta);
         if(this.isPlaying||this.qualityLock>=0)this.updateQuality(this.pace?this.pace.raw:delta);
