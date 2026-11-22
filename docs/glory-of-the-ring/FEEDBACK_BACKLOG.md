@@ -788,7 +788,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0077 — "Brick's bag" trial: hard to hit properly; scene must look and move realistically
 - **Reported:** 2026-11-12 (v1.47, story step 2: the swinging bag trial with two characters)
-- **Status:** OPEN — P1 (queued; starts when an agent slot frees)
+- **Status:** IN PROGRESS — 2026-11-22 branch `agent/brick-bag-trial` (owner asked again). Earlier: OPEN — P1 (queued; starts when an agent slot frees)
 - **Owner's words:** "This is a good task, but I'm not managing to hit properly. Something doesn't work right, so improve the usability and experience and graphics around this… the scene, the theme, the movement, everything has to be more realistic, the movements more smooth, and shadows. Add better design of the street, the road, the bag, everything."
 - **Acceptance:** (1) input: find why hits do not register (timing window, touch target, missing feedback) with measurements; a first-time player lands a hit within the first 3 swings; clear cue for the right moment and clear hit / miss feedback; works with the punch pad on a phone. (2) motion: bag swings with real pendulum physics, reacts to each hit; the Fighter's punch connects with the bag (no gap, no pass-through); smooth 60 fps motion of all characters. (3) look: street set with a real road, kerb, pavement, building fronts, street lamp, shadows for every character and the bag; a believable heavy bag (chain, swivel, leather, seams). Phone pictures before/after shown to the owner.
 
@@ -816,7 +816,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0081 — Character portraits look childish; "Pip" is not a coach's name
 - **Reported:** 2026-11-13 (crop of the story line portrait: a flat cartoon rabbit face in a gold ring next to "Coach Pip")
-- **Status:** OPEN — P1
+- **Status:** IN PROGRESS — 2026-11-22 branch `agent/paws-portraits`. Earlier: OPEN — P1
 - **Request:** portraits must look designed, not kids' style; change the names — "Pip" is not a good coach name.
 - **Plan:** portraits rendered from the real 3D heads (lit three-quarter view, dark vignette, thin metal ring), one per character; the story Coach is Bruno (GOTR-0078); the rabbit mitt holder is renamed **Mack**; every "Pip" text, id shown to players and journal line updated in EN/HE/RU.
 - **Progress 2026-11-14 (branch `agent/dream-flow`, not released):** players see **Mack** / מאק / Мак everywhere (internal id `pip` kept; test `adventure-story` scans the player-visible sources and story data for Pip/פיפ/Пип). `adventure/portraits.js`: portraits rendered once per session from the real 3D heads with the game renderer (three-quarter view, studio light, gloves hidden, dark vignette), cached as images; thin brushed-metal ring with a coloured accent arc; 3D today: the Fighter, Mack, Bruno and Brick (agent/dream-1 StoryCast); monogram badges for Fang, Mrs. Hazel, Otto, Slick, Rourke, Vix, King Hyena, Dash and the chapter-2 extras; neutral silhouette if render-to-image fails. 42 px in story lines, 56 px in the quest panel, 2x pixels. Evidence `qa/gotr-0081/` (EN+HE, 402×690 at 2x).
@@ -967,6 +967,10 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** READY FOR QA — v1.80 (not checked on a phone)
 - **Done:** `adventure/story/docks-core.js`: `dream_docks` (beat 10, before the bare-knuckle fight: night, in through the quay door and a lane in the crowd, cash on the drum, "No ring, no gloves… this is illegal" / "Your call" / "I didn't come this far to walk away", Rourke waiting) and `dream_docks_after` (win: Rourke pays the purse = the step reward; loss: his jibe); `dream_fight_night` (beat 12: evening gym, Mrs. Hazel, Otto and Mack round the ring, Brick in it; variant for a won first fight) and `dream_chapter_end` (Bruno: "real gear and a real league", Brick: "Good fight, champ"). Set `dream_docks` (`docks-sets.js`) is the fight venue itself at night. New character Rourke (crocodile, `adventure/story/cast-docks.js`, code-built head, interim like Fang) plays the films and is the Docks opponent. Wiring: story-flow scenes, oldtown `docks_fight` cast/after, `BOSS_SCENE.brick`. Tests `tests/docks-films.test.cjs`, `tests/rourke-cast.test.cjs`; pictures `qa/films-11-12/`, `qa/rourke/`. FILMS.md updated (films 5–10, A and F1–F3 were already live).
 - **Remaining:** the rematch fight itself still runs in the chapter arena, not in Bruno's Gym; Rourke's straight-on front view reads a little blobby (hand-made head later); the story portrait for Rourke is still a letter badge (speaker id `hook`).
+
+### GOTR-0114 — Super Punch: a fighting-game knockout film per fight, a winner's celebration, endings that fit the place
+- **Reported:** 2026-11-22 (owner: "change the sunday punch to Super Punch … it should create a video of this punch and it should be different per fight. like in street fighter or mortal combat … when the hand touches the opponent it becomes slow motion and the opponent got the punch with his face get smashed and he falls and blackout. and the player is doing some kind of yeah or show muscles or dance … during fight on the street like in the market there is not judge so there also no one to raise the winners hand, think about similar fighting scenarios ending based on the scene and story")
+- **Status:** IN PROGRESS — branch `agent/super-punch` (rename keeps the save id `sunday_punch`)
 
 ### GOTR-0113 — Orange spots on the Fighter's hoodie in the market (shoulders, under the arms)
 - **Reported:** 2026-11-22 (owner: "Something is wrong with Liron shirt when he's going in the market. there are orange spots under his arms and in his shoulders")
