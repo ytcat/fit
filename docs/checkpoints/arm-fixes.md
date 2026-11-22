@@ -33,8 +33,25 @@ Base: `a42fa83` (v1.91 candidate, `claude/ecstatic-clarke-9as2ak`). Not merged, 
   stands 0.6 m beside the winner (was 0.82: his arm fell 13 cm short of the lion's wrist); the V raise tops at 1.93 m.
 - Tests: `tests/otto-carry.test.cjs` (rewritten: plays the pickup on the rig in node), `tests/referee-raise-motion.test.cjs` (new).
 
-## Measurements (60 fps)
-See the report in the final hand-off / `docs/glory-of-the-ring/FEEDBACK_BACKLOG.md` (GOTR-0103, GOTR-0098 follow-ups).
+## Measurements (60 fps; browser = Chromium SwiftShader 402x690)
+Otto carry, lion / rabbit identical within 0.1 except where noted (`otto-carry.cjs` + `phases.cjs`):
+| | v1.91 | now |
+|---|---|---|
+| bag step per frame | 161 cm (appears on the shoulder) | <= 1.7 cm lift, 3.7-4.2 cm walking |
+| paw to leather while held | -11.7 (inside) .. +4.8 cm | +0.1 .. +0.8 cm (lift, settle, walk) |
+| wrist turn per frame | 45.6 deg | <= 2.9 (lift), 5.8 (the reach) |
+| upper-arm twist per frame | 55 deg | <= 2.0 (lift), 7.0 (the reach) |
+| elbow (carrying) | back 0.97, 29 cm behind the chest | out 0.57, down 0.8, back <= 0.22, 2-9 cm ahead of the chest |
+| body inside the bag | 23 cm (head) | none while carried; 1.9 cm (mane/hood) for a moment in the lift |
+| right arm inside the bag | 9.5 cm | sleeve/forearm 3.1-3.8 cm while carried, 6.7 cm briefly in the lift |
+Referee raise, ring (node `raise-probe.cjs`, lion / rabbit): grip jump 44 cm -> 3.7 / 3.9 cm per frame; grip held within
+0 / 2.3 cm; wrist 8.2 / 20.1 -> 4.6 / 6.0 deg per frame; upper arm 11 / 20 -> 4.3 / 5.7; elbow bend on the way up 150 -> 78 / 88
+deg (no fold); at the top the elbow points out (0.98) instead of back (1.0); release 5.4-6.2 s, arm stays up.
+Super Punch ring ending (node `super-raise-node.cjs`): held within 1.7 / 1.0 cm (was 14.2 / 0); a 155-178 deg one-frame glove
+flip removed. Gym (Bruno, browser `super-raise.cjs gym-plain`): Bruno holds the wrist from 1.3 s (mid-lift) to the story's
+cut at 3.2 s (0 cm); before this branch's fix the rising wrist was read as the count and he chopped instead.
+Skin pinch (CPU skinning, shoulder/upper-arm triangles under 35 % of their guard area at the top): 611 -> 850 (lion),
+534 -> 696 (rabbit); the GPU shoulder correctives are not in this count; the close-ups show no kink (raise-top.webp).
 
 ## QA tools (qa/arm-fixes/)
 - `otto-carry.cjs <lion|rabbit> <outdir> [from] [to]` (SHOTS=t,t,..): steps the shop film at 60 fps, per-frame contact /
@@ -50,3 +67,11 @@ See the report in the final hand-off / `docs/glory-of-the-ring/FEEDBACK_BACKLOG.
 - Not done: the left hand does not help lift the 36 kg bag; the right forearm/sleeve rests up to 3.7 cm into the leather
   while carried (6.7 cm briefly in the lift); Super Punch: the referee's arm still switches pose at the film -> ceremony hand-off
   (pre-existing), one 10.7 deg wrist step when the raise starts.
+
+## Checks (2026-11-22, on 922112f)
+- `bash scripts/run-tests.sh -j 2 otto market referee sunday super fight gym dream`: files=31 fails=1
+  (`story-clean-gym`: Playwright `locator.fill` timeout; it fails the same way on the v1.91 base `a42fa83` here).
+  The first run on 6b6c792 also failed `fight-corner-break` (cornerman paw 0.185 m from the head, limit 0.2): fixed in
+  922112f (the eased clearance push no longer applies to exact array reach targets); passes alone and in the rerun.
+- `tests/offline-version-match.test.cjs` ok. New/rewritten: `tests/otto-carry.test.cjs`, `tests/referee-raise-motion.test.cjs`.
+- Not checked on a phone; pictures from SwiftShader. Next: integrator review, merge with PR #35, full suite, phone check.
