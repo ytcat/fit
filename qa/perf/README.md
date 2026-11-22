@@ -25,3 +25,11 @@ is venue-crowd people (33k triangles) instead of three story characters (~1M); t
 
 Still above the ~450k phone estimate: the six-character gym films (~1M), the market and two-sided-drill films (~0.7M). Remaining
 large items per character: kit shorts 70k, boxing gloves 64k each, head detail ~65k. Not measured on a physical phone.
+
+## v1.86 correction
+
+The light-body index swap was removed: after a film the Fighter's body vanished on the owner's iPhone (mitt drill after "The Offer",
+v1.84). Swapping a skinned body's triangle index after it has been drawn is not reliable on every GPU, so no body is re-indexed now.
+Only the off-screen culling stays. Means after the correction (`films.json`): Fight Night 1.77 M, chapter end 1.43 M, new bag 1.28 M,
+offer 1.24 M, market robbery 0.92 M, docks 0.87 M. A safe lighter body (a separate low-detail mesh built once, never swapped under a
+drawn mesh) is the next step for phone performance.

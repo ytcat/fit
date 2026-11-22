@@ -8,119 +8,119 @@
   {
    "id": "dream_opening",
    "worst": {
-    "tris": 436761,
+    "tris": 430172,
     "calls": 111,
     "t": 7.9
    },
-   "mean": 345748
+   "mean": 340257
   },
   {
    "id": "dream_gym_talk",
    "worst": {
-    "tris": 683586,
+    "tris": 1049082,
     "calls": 173,
     "t": 33
    },
-   "mean": 634371
+   "mean": 783366
   },
   {
    "id": "dream_after_brick",
    "worst": {
-    "tris": 596712,
-    "calls": 99,
-    "t": 10
+    "tris": 1146752,
+    "calls": 190,
+    "t": 6
    },
-   "mean": 536746
+   "mean": 966452
   },
   {
    "id": "dream_apology",
    "worst": {
-    "tris": 521929,
+    "tris": 698088,
     "calls": 125,
     "t": 2.9
    },
-   "mean": 400179
+   "mean": 580730
   },
   {
    "id": "dream_market_robbery",
    "worst": {
-    "tris": 879669,
+    "tris": 1238576,
     "calls": 174,
     "t": 7.8
    },
-   "mean": 651409
+   "mean": 922236
   },
   {
    "id": "dream_market_reward",
    "worst": {
-    "tris": 808960,
+    "tris": 1167867,
     "calls": 172,
     "t": 23.8
    },
-   "mean": 726417
+   "mean": 934132
   },
   {
    "id": "dream_otto_shop",
    "worst": {
-    "tris": 545897,
+    "tris": 722056,
     "calls": 121,
     "t": 20.7
    },
-   "mean": 493484
+   "mean": 640283
   },
   {
    "id": "dream_new_bag",
    "worst": {
-    "tris": 738077,
+    "tris": 1283789,
     "calls": 321,
     "t": 3.4
    },
-   "mean": 737597
+   "mean": 1283309
   },
   {
    "id": "dream_offer",
    "worst": {
-    "tris": 738089,
+    "tris": 1283801,
     "calls": 322,
     "t": 5.3
    },
-   "mean": 692045
+   "mean": 1237757
   },
   {
    "id": "dream_fight_night",
    "worst": {
-    "tris": 1297242,
+    "tris": 2391198,
     "calls": 459,
     "t": 1.8
    },
-   "mean": 980930
+   "mean": 1771826
   },
   {
    "id": "dream_chapter_end",
    "worst": {
-    "tris": 1157991,
+    "tris": 1523487,
     "calls": 250,
     "t": 11.7
    },
-   "mean": 946397
+   "mean": 1432881
   },
   {
    "id": "dream_docks",
    "worst": {
-    "tris": 697783,
-    "calls": 72,
-    "t": 14
+    "tris": 963061,
+    "calls": 112,
+    "t": 2
    },
-   "mean": 592198
+   "mean": 869615
   },
   {
    "id": "dream_docks_after",
    "worst": {
-    "tris": 663787,
-    "calls": 76,
-    "t": 9.9
+    "tris": 978416,
+    "calls": 121,
+    "t": 15.6
    },
-   "mean": 470037
+   "mean": 869286
   }
  ],
  "errors": []
