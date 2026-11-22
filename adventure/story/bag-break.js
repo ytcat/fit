@@ -233,7 +233,8 @@
       if (run.closed) return;
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 120);
       const shadows = !!e.renderer.shadowMap?.enabled, was = force; force = 'hanging';
-      try { set = window.StorySets.build(scene0.set, scene, { renderer: e.renderer, shadows }); } finally { force = was; }
+      const gymProps = window.CityAssets?.get?.('gymProps'); window.CityAssets?.preload?.(['gymProps']); // the Blender gym props when already loaded (never waited for)
+      try { set = window.StorySets.build(scene0.set, scene, { renderer: e.renderer, shadows, city: gymProps ? { gymProps } : undefined }); } finally { force = was; }
       hang = set.objects.oldBag; if (!hang) throw Error('the gym has no old bag');
       night(shadows); light = lamp(scene, hang, shadows); fx = particles(scene, hang, C.track().events);
       c = e.coach; borrowed = borrow(c); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.root.scale.set(-1, 1, 1); c.maneInitialized = false; Pose().reset(c); // always the mirrored root (GOTR-0074 / GOTR-0085)

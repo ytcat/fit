@@ -85,6 +85,7 @@
       tree(34.6, -5.4, 4.2); tree(44, -5.4);
       if (keep.bin(14.6, 8.6)) bin(14.6, 8.6); bin(31.3, -7.3); planter(21.4, -7.6, 1.5); planter(32.9, -7.6); planter(-2.4, -7.6, 1.5); planter(16.8, 8.9);
       for (const x of [19.7, 24.7]) { bollard(x, 4.0); bollard(x, -4.0); }
+      c.prop('Hydrant', -11.6, 0, 4.42, Math.PI); c.prop('Hydrant', 18.7, 0, -4.5, 0); // with the Blender props only: on the kerb, off the walk and the camera paths
       for (const [x, color] of [[-16, '#3b7dd8'], [8.4, '#f4f1ea']]) if (!city?.car) car(x, -2.45, color, -lane); else c.shade(x, -2.45, 4.5, 2.1, true); /* the compact-car model stands here (LAYOUT.cars) */ car(35.5, -2.45, '#45b39d', -lane); car(30, 2.45, '#d9473b', lane); car(44, 2.45, '#f2b632', lane); // parked with the traffic
       // newspaper stand and cafe tables on the near pavement (things to walk past)
       box(S, 10.2, 0, 8.7, 1.5, 1.0, .5, '#3c7fc0'); box(S, 10.2, 1.0, 8.7, 1.6, .06, .6, '#254f86'); for (let k = 0; k < 4; k++) box(S, 9.65 + k * .37, .25, 8.42, .3, .5, .03, ['#f7f0dc', '#e63946', '#f4c152', '#f7f0dc'][k]);
@@ -102,7 +103,7 @@
       board(c, "BRUNO'S GYM", gx + .55, 3.38, gz + .2, 3.3, .82); sign('gym', gx - 1.7, 3.38, gz + .2, 1.1, .82);
       box(S, gx - 3.4, 3.0, gz + .64, .05, .05, .9, '#2f3640'); box(S, gx - 3.4, 2.3, gz + .96, .06, .62, .7, '#0d1118'); sign('gym', gx - 3.365, 2.6, gz + .96, .66, .46, Math.PI / 2); sign('gym', gx - 3.435, 2.6, gz + .96, .66, .46, -Math.PI / 2);
       for (const side of [-1, 1]) c.displayBay(gx + side * 2.9, .32, gz + .16, 1.7, 1.7, 'gym', .30); // framed trophy/equipment displays
-      c.shade(gx + 3.3, gz + .9, 1.9, .8); box(S, gx + 3.3, .4, gz + .8, 1.6, .06, .4, '#9a7350'); for (const d of [-.7, .7]) box(S, gx + 3.3 + d, 0, gz + .8, .06, .4, .36, '#3d4654');
+      c.shade(gx + 3.3, gz + .9, 1.9, .8); if (!c.prop('Bench', gx + 3.3, 0, gz + .86)) { box(S, gx + 3.3, .4, gz + .8, 1.6, .06, .4, '#9a7350'); for (const d of [-.7, .7]) box(S, gx + 3.3 + d, 0, gz + .8, .06, .4, .36, '#3d4654'); } // the Blender park bench (its back clear of the display bay)
       planter(gx - 2.2, gz + .9); planter(gx + 2.0, gz + .9);
 
       if (!city?.bus) {
@@ -168,28 +169,31 @@
       const bag = (x, z, col, len = 1.15) => { const y1 = 1.02 + len, y0 = 1.02, ch = H - .32 - y1; c.shade(x, z, .8, .8); cyl(S, x, y0, z, .2, len, col, P.cyl20); cyl(S, x, y1 - .1, z, .206, .1, '#1d1f24', P.cyl20); cyl(S, x, y0, z, .206, .08, '#1d1f24', P.cyl20); cyl(S, x, y0 + len * .45, z, .203, .16, '#e9e4d6', P.cyl20); for (let k = 0; k < 4; k++) box(S, x + Math.cos(k * TAU / 4) * .1 * (1 - .0), y1, z + Math.sin(k * TAU / 4) * .1, .016, .5, .016, '#aab2bc'); cyl(S, x, y1 + .5, z, .018, ch - .5, '#8f98a4', P.cyl6); };
       if (!window.BagBreak?.dress?.(c)) bag(5.6, -2.5, '#8f2f22'); /* the old bag: hanging, on the floor or new (GOTR-0087, bag-break.js) */ bag(7.9, -4.4, '#2b2f3a', 1.3); bag(8.6, -1.2, '#7a5238', 1.0);
       box(S, 6.8, 0, -3.0, 5.4, .03, 4.6, '#3b4350'); for (let x = 4.2; x < 9.6; x += 1.35) box(S, x, .031, -3.0, .02, .003, 4.6, '#2a2f38');
-      box(S, 2.6, 2.2, ZB + .5, 1.1, .08, 1.0, '#5b3a2a'); box(S, 2.6, 1.3, ZB + .08, .9, 1.0, .08, '#5b3a2a'); S.add(P.sph, M(2.6, 1.93, ZB + .55, .14, .2, .14), C('#8f2f22')); cyl(S, 2.6, 2.1, ZB + .55, .03, .1, '#aab2bc', P.cyl6); // speed bag
+      // Blender props (tools/blender/gym-props.py) where their model is ready, else the generated pieces (c.prop: never both)
+      if (!c.prop('Speed_bag', 2.6, 0, ZB)) { box(S, 2.6, 2.2, ZB + .5, 1.1, .08, 1.0, '#5b3a2a'); box(S, 2.6, 1.3, ZB + .08, .9, 1.0, .08, '#5b3a2a'); S.add(P.sph, M(2.6, 1.93, ZB + .55, .14, .2, .14), C('#8f2f22')); cyl(S, 2.6, 2.1, ZB + .55, .03, .1, '#aab2bc', P.cyl6); } // speed bag
       // ---- right wall: lockers, bench, water cooler; left wall: glove rack, weights, medicine balls
-      for (let k = 0; k < 6; k++) { const z = 4.4 + k * .62, col = ['#4f7a5a', '#3c5c45', '#4f7a5a', '#55657a', '#4f7a5a', '#3c5c45'][k]; box(S, X - .36, 0, z, .6, 1.95, .58, col); box(S, X - .67, 1.45, z, .02, .24, .34, '#2a2f38'); box(S, X - .67, .95, z + .2, .03, .12, .04, '#c9ccd2'); }
-      c.shade(X - 1.9, 6.0, .8, 2.6); box(S, X - 1.9, .42, 6.0, .42, .06, 2.4, '#9a7350'); for (const d of [-1, 1]) box(S, X - 1.9, 0, 6.0 + d, .38, .42, .06, '#3d4654');
-      box(S, 9.6, 0, ZB + .5, .4, 1.0, .4, '#e8f1f5'); cyl(S, 9.6, 1.0, ZB + .5, .17, .46, '#9fd0ee', P.cyl12); cyl(S, 9.6, 1.46, ZB + .5, .09, .1, '#9fd0ee', P.cyl8);
-      box(S, -X + .28, 1.5, 5.2, .1, .06, 2.6, '#5b3a2a'); for (let k = 0; k < 5; k++) { const z = 4.2 + k * .5, col = ['#d9473b', '#2f6fc0', '#1d1f24', '#d9473b', '#f4c152'][k]; S.add(P.sph, M(-X + .42, 1.32, z, .11, .15, .12), C(col)); cyl(S, -X + .42, 1.42, z, .012, .1, '#3b4350', P.cyl6); }
-      for (let k = 0; k < 3; k++) { S.add(P.sph, M(-X + .7 + (k % 2) * .5, .22, 7.4 + k * .5, .22, .22, .22), C(['#7a5238', '#3b4350', '#8f2f22'][k])); }
-      box(S, -X + .55, 0, 9.2, .5, .5, 1.5, '#3b4350'); for (let k = 0; k < 4; k++) { cyl(S, -X + .55, .55, 8.7 + k * .34, .09, .3, '#2a2f38', P.cyl8, 0, Math.PI / 2); }
+      if (!c.prop('Lockers', X - .36, 0, 4.4 + 2.5 * .62, -Math.PI / 2)) for (let k = 0; k < 6; k++) { const z = 4.4 + k * .62, col = ['#4f7a5a', '#3c5c45', '#4f7a5a', '#55657a', '#4f7a5a', '#3c5c45'][k]; box(S, X - .36, 0, z, .6, 1.95, .58, col); box(S, X - .67, 1.45, z, .02, .24, .34, '#2a2f38'); box(S, X - .67, .95, z + .2, .03, .12, .04, '#c9ccd2'); }
+      c.shade(X - 1.9, 6.0, .8, 2.6); if (!c.prop('Gym_bench', X - 1.9, 0, 6.0, Math.PI / 2)) { box(S, X - 1.9, .42, 6.0, .42, .06, 2.4, '#9a7350'); for (const d of [-1, 1]) box(S, X - 1.9, 0, 6.0 + d, .38, .42, .06, '#3d4654'); }
+      if (!c.prop('Water_cooler', 9.6, 0, ZB + .5)) { box(S, 9.6, 0, ZB + .5, .4, 1.0, .4, '#e8f1f5'); cyl(S, 9.6, 1.0, ZB + .5, .17, .46, '#9fd0ee', P.cyl12); cyl(S, 9.6, 1.46, ZB + .5, .09, .1, '#9fd0ee', P.cyl8); }
+      if (!c.prop('Glove_rack', -X, 0, 5.2, Math.PI / 2)) { box(S, -X + .28, 1.5, 5.2, .1, .06, 2.6, '#5b3a2a'); for (let k = 0; k < 5; k++) { const z = 4.2 + k * .5, col = ['#d9473b', '#2f6fc0', '#1d1f24', '#d9473b', '#f4c152'][k]; S.add(P.sph, M(-X + .42, 1.32, z, .11, .15, .12), C(col)); cyl(S, -X + .42, 1.42, z, .012, .1, '#3b4350', P.cyl6); } }
+      if (!c.prop('Medicine_balls', -X + .7, 0, 7.4)) for (let k = 0; k < 3; k++) { S.add(P.sph, M(-X + .7 + (k % 2) * .5, .22, 7.4 + k * .5, .22, .22, .22), C(['#7a5238', '#3b4350', '#8f2f22'][k])); }
+      if (!c.prop('Dumbbell_rack', -X + .55, 0, 9.2, Math.PI / 2)) { box(S, -X + .55, 0, 9.2, .5, .5, 1.5, '#3b4350'); for (let k = 0; k < 4; k++) { cyl(S, -X + .55, .55, 8.7 + k * .34, .09, .3, '#2a2f38', P.cyl8, 0, Math.PI / 2); } }
+      c.prop('Kettlebells', -X + .5, 0, 10.75, Math.PI / 2); c.prop('Skipping_ropes', -X, 0, 2.9, Math.PI / 2); // model only: kettlebells by the rack, ropes on hooks
       // ---- back wall between the windows: old fight posters, the champion's photo and belt, clock, bell
       const poster = (x, y, w, h, bg, bar) => { box(S, x, y, ZB + .01, w + .08, h + .08, .03, '#3a2b24'); box(S, x, y + .04, ZB + .03, w, h, .02, bg); box(S, x, y + h * .62, ZB + .045, w * .8, h * .16, .01, bar); box(S, x, y + h * .2, ZB + .045, w * .6, h * .08, .01, '#2a2f38'); S.add(P.sph, M(x, y + h * .46, ZB + .05, w * .16, h * .12, .01), C('#2a2f38')); };
       poster(-5.7, 1.75, .8, 1.15, '#f3ead8', '#d9473b'); poster(-1.9, 1.75, .8, 1.15, '#f4c152', '#1f3559'); poster(1.9, 2.75, .7, 1.0, '#e9e2cc', '#2f6fc0'); poster(5.7, 1.75, .8, 1.15, '#f3ead8', '#3c5c45');
       box(S, 0, 2.0, ZB + .01, 1.5, 1.1, .04, '#5b3a2a'); box(S, 0, 2.06, ZB + .035, 1.36, .98, .02, '#d6cbb4'); S.add(P.sph, M(0, 2.62, ZB + .05, .2, .22, .02), C('#6f4a31')); box(S, 0, 2.1, ZB + .05, .5, .36, .02, '#6f4a31'); // the champion, years ago
       box(S, 0, 1.52, ZB + .06, 1.3, .2, .06, '#8f2f22'); S.add(P.cyl12, M(0, 1.62, ZB + .12, .2, .05, .2, 0, Math.PI / 2), C('#f4c152')); for (const s of [-1, 1]) S.add(P.cyl8, M(s * .42, 1.62, ZB + .11, .1, .04, .1, 0, Math.PI / 2), C('#e0b84d')); // his belt
-      S.add(P.cyl12, M(-9.4, 3.3, ZB + .04, .34, .06, .34, 0, Math.PI / 2), C('#f7f0dc')); box(S, -9.4, 3.3, ZB + .08, .03, .26, .02, '#1d1f24'); box(S, -9.3, 3.3, ZB + .08, .2, .03, .02, '#1d1f24');
-      S.add(P.hemi, M(9.5, 2.6, ZB + .12, .16, .14, .16, 0, Math.PI / 2), C('#e0b84d')); box(S, 9.5, 2.3, ZB + .04, .3, .5, .04, '#5b3a2a');
+      if (!c.prop('Wall_clock', -9.4, 3.3, ZB)) { S.add(P.cyl12, M(-9.4, 3.3, ZB + .04, .34, .06, .34, 0, Math.PI / 2), C('#f7f0dc')); box(S, -9.4, 3.3, ZB + .08, .03, .26, .02, '#1d1f24'); box(S, -9.3, 3.3, ZB + .08, .2, .03, .02, '#1d1f24'); }
+      if (!c.prop('Ring_bell', 9.5, 2.3, ZB)) { S.add(P.hemi, M(9.5, 2.6, ZB + .12, .16, .14, .16, 0, Math.PI / 2), C('#e0b84d')); box(S, 9.5, 2.3, ZB + .04, .3, .5, .04, '#5b3a2a'); }
       // store room door (right of the ring) and Bruno's office door
       for (const [x, lab] of [[1.2, '#f4c152'], [8.4, '#9fc3e6']]) { box(S, x, 0, ZB + .01, 1.16, 2.2, .06, '#3a2b24'); box(S, x, .03, ZB + .04, .98, 2.08, .04, '#6b4630'); box(S, x + .38, 1.02, ZB + .09, .05, .16, .05, '#e0b84d'); box(S, x, 1.7, ZB + .07, .5, .16, .01, lab); }
       // stool, bucket and towel near the ring corner, a mop against the wall
-      cyl(S, -1.3, 0, -1.0, .2, .5, '#8f2f22', P.cyl12); cyl(S, -1.3, .5, -1.0, .23, .05, '#1d1f24', P.cyl12); cyl(S, -.75, 0, -1.3, .17, .32, '#aab2bc', P.cyl12, 0, 0, .2); box(S, -.75, .3, -1.3, .3, .03, .22, '#f1ece0');
+      if (!c.prop('Corner_stool', -1.3, 0, -1.0)) { cyl(S, -1.3, 0, -1.0, .2, .5, '#8f2f22', P.cyl12); cyl(S, -1.3, .5, -1.0, .23, .05, '#1d1f24', P.cyl12); }
+      if (!c.prop('Bucket_towel', -.75, 0, -1.3, .5)) { cyl(S, -.75, 0, -1.3, .17, .32, '#aab2bc', P.cyl12, 0, 0, .2); box(S, -.75, .3, -1.3, .3, .03, .22, '#f1ece0'); }
       cyl(S, 3.4, 0, ZB + .35, .02, 1.6, '#c9a36a', P.cyl6, .18); box(S, 3.4, 0, ZB + .62, .34, .08, .14, '#d8d2c4');
       // hanging lamps: enamel shades, bright bulbs, warm pools on the floor
-      pool(0, 1.0, 2.8, '#ffe2a8'); for (const [x, z] of [[-4.6, -3.3], [-2.4, 3.4], [2.6, 3.6], [7.2, -.6], [-6, 5.5], [6, 5.5]]) { cyl(S, x, 3.6, z, .012, H - 3.6, '#2a2f38', P.cyl6); S.add(P.cone8, M(x, 3.42, z, .46, .26, .46), C('#2f5d4a')); G.add(P.sph, M(x, 3.44, z, .1, .1, .1), C('#fff3cf')); pool(x, z, 2.6, '#ffe2a8'); }
+      pool(0, 1.0, 2.8, '#ffe2a8'); for (const [x, z] of [[-4.6, -3.3], [-2.4, 3.4], [2.6, 3.6], [7.2, -.6], [-6, 5.5], [6, 5.5]]) { if (!c.prop('Pendant_lamp', x, 3.42, z, x)) { cyl(S, x, 3.6, z, .012, H - 3.6, '#2a2f38', P.cyl6); S.add(P.cone8, M(x, 3.42, z, .46, .26, .46), C('#2f5d4a')); G.add(P.sph, M(x, 3.44, z, .1, .1, .1), C('#fff3cf')); } pool(x, z, 2.6, '#ffe2a8'); }
       if (floorFight === true) { // the sparring mat of the first fight: the size of a ring canvas, taped edge, no ropes
         const [mx, mz] = [1.5, 2.0]; box(S, mx, 0, mz, 3.9, .035, 3.9, '#27364b'); box(S, mx, .035, mz, 3.5, .004, 3.5, '#33475f'); for (const [dx, dz, w, d] of [[0, 1.78, 3.6, .06], [0, -1.78, 3.6, .06], [1.78, 0, .06, 3.6], [-1.78, 0, .06, 3.6]]) box(S, mx + dx, .039, mz + dz, w, .003, d, '#f4f1ea'); box(S, mx, .039, mz, .5, .003, .5, '#8f2f22'); }
       return { x: 0, z: 0, r: 13 };

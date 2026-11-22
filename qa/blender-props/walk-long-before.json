@@ -1,0 +1,85 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/before",
+ "scene": "dream_opening",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "i": 0,
+   "step": "start",
+   "calls": 107,
+   "triangles": 459465,
+   "phase": "walk",
+   "quality": "high",
+   "shadows": true,
+   "set": {
+    "meshes": 202,
+    "triangles": 407374
+   },
+   "city": {
+    "meshes": 165,
+    "triangles": 264856
+   }
+  },
+  {
+   "i": 1,
+   "step": {
+    "k": "right",
+    "ms": 14000
+   },
+   "calls": 107,
+   "triangles": 451208,
+   "phase": "walk",
+   "quality": "high",
+   "shadows": true,
+   "set": {
+    "meshes": 198,
+    "triangles": 397878
+   },
+   "city": {
+    "meshes": 156,
+    "triangles": 235742
+   }
+  },
+  {
+   "i": 2,
+   "step": {
+    "k": "right",
+    "ms": 14000
+   },
+   "calls": 110,
+   "triangles": 465024,
+   "phase": "walk",
+   "quality": "high",
+   "shadows": true,
+   "set": {
+    "meshes": 204,
+    "triangles": 407974
+   },
+   "city": {
+    "meshes": 162,
+    "triangles": 245838
+   }
+  },
+  {
+   "i": 3,
+   "step": {
+    "k": "up",
+    "ms": 14000
+   },
+   "calls": 109,
+   "triangles": 464248,
+   "phase": "walk",
+   "quality": "high",
+   "shadows": true,
+   "set": {
+    "meshes": 208,
+    "triangles": 417470
+   },
+   "city": {
+    "meshes": 166,
+    "triangles": 255334
+   }
+  }
+ ]
+}
