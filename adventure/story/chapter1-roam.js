@@ -11,6 +11,40 @@
    view=new T.PerspectiveCamera(40,1,.05,125), center=new T.Vector3(), next=new T.Vector3(), analog=[0,0], key=new Set();
  let last=0,lastSave=0,zoom=1.12,zoomTarget=1.12,shoulder=0;
  const gateBtn=$('door'), stick=$('stick'), thumb=stick.querySelector('i');
+ const navApi=window.Chapter1RoamNav, nav=navApi.create(W), select=$('destination'), arrow=$('waypoint-arrow'), distance=$('waypoint-distance'), storyReturn=$('story-return');
+ const suggested=new URLSearchParams(window.location.search).get('destination'), nativeHandoff=document.documentElement?.dataset.nativeHandoff==='1';
+ let chosen=Object.hasOwn(navApi.TARGETS,suggested)?suggested:(select.value||'bruno'), guided=null, lastRoute=null, routeAt=-Infinity;
+ select.value=chosen;
+ const foot=new T.Vector3(), ahead=new T.Vector3();
+ function navRing(scene,t){
+  const g=new T.Group();g.name='Optional exploration waypoint';g.position.set(t.x,W.height(t.zone,t.x,t.z)+.022,t.z);
+  function mesh(geo,opacity){const mat=new T.MeshBasicMaterial({color:0x5ce6d8,opacity,transparent:true,depthWrite:false,toneMapped:false,polygonOffset:true,polygonOffsetFactor:-2});
+   const m=new T.Mesh(geo,mat);m.rotation.x=-Math.PI/2;m.renderOrder=3;g.add(m);return m;}
+  const disc=mesh(new T.CircleGeometry(.69,40),.14), rim=mesh(new T.RingGeometry(.65,.73,40),.95), pulse=mesh(new T.RingGeometry(.76,.79,40),.46);
+  rim.position.y=.006;pulse.position.y=.012;scene.add(g);
+  return {frame(t){const k=reduced?0:.5+.5*Math.sin(t*4.6);pulse.scale.setScalar(1+.24*k);pulse.material.opacity=.46-.35*k;disc.material.opacity=.12+.10*k;},dispose(){scene.remove(g);for(const m of g.children){m.geometry.dispose();m.material.dispose();}}};
+ }
+ function setWaypoint(){
+  if(zone){zone.navRing?.dispose();zone.navRing=null;
+   const t=navApi.TARGETS[chosen];if(t?.zone===zone.id)zone.navRing=navRing(zone.scene,t);}
+  guided=null;lastRoute=null;routeAt=-Infinity;distance.textContent='';arrow.hidden=true;storyReturn.hidden=true;
+ }
+ select.addEventListener('change',()=>{chosen=Object.hasOwn(navApi.TARGETS,select.value)?select.value:'';setWaypoint();});
+ function guide(ms){
+  if(!chosen)return;
+  if(!lastRoute||lastRoute.id!==s.id||Math.hypot(lastRoute.x-s.x,lastRoute.z-s.z)>.27||ms-routeAt>1000){
+   if(ms-routeAt>130){guided=nav.plan(s,chosen);lastRoute={id:s.id,x:s.x,z:s.z};routeAt=ms;}
+  }
+  storyReturn.hidden=!(nativeHandoff&&guided?.arrived&&chosen===suggested);
+  if(!guided){distance.textContent='אין מסלול ליעד';arrow.hidden=true;return;}
+  if(guided.arrived){distance.textContent='הגעת ליעד';arrow.hidden=true;return;}
+  distance.textContent='כ־'+Math.max(1,Math.round(guided.metres))+' מ׳';
+  const dx=guided.next.x-s.x,dz=guided.next.z-s.z,len=Math.hypot(dx,dz);
+  if(len<.025){arrow.hidden=true;return;}
+  const y=W.height(s.id,s.x,s.z);view.updateMatrixWorld(true);
+  foot.set(s.x,y,s.z).project(view);ahead.set(s.x+dx/len,y,s.z+dz/len).project(view);
+  arrow.style.transform='rotate('+Math.atan2(foot.y-ahead.y,(ahead.x-foot.x)*view.aspect)+'rad)';arrow.hidden=false;
+ }
  function save(){if(!zone||busy)return;try{localStorage.setItem(W.SAVE,W.serialize(s));}catch{}}
  function down(ev){
   if(['ArrowRight','ArrowLeft','ArrowUp','ArrowDown','KeyD','KeyA','KeyW','KeyS'].includes(ev.code)){ev.preventDefault();if(!busy)key.add(ev.code);}
@@ -84,7 +118,7 @@
   if(id==='docks')set.objects.tune?.(scene,set);
   const markers=districtMarkers(id,scene);
   const traffic=window.Chapter1Traffic?.create?.({THREE:T,scene,id,cityAssets:window.CityAssets})||null;
-  return {id,scene,set,markers,traffic,close(){traffic?.dispose?.();markers.dispose();set.dispose();}};
+  return {id,scene,set,markers,traffic,close(){this.navRing?.dispose();traffic?.dispose?.();markers.dispose();set.dispose();}};
  }
  // The stage can change size before/without a window resize (browser chrome, orientation or embedding).
  let sizing=null;
@@ -128,7 +162,7 @@
   groundY=rig.root.position.y;shoulder=s.ry;
   DreamPose.reset(rig);poseTime=0;pose(true);
   $('zone').textContent=names[s.id];gateBtn.hidden=true;
-  previous?.close();
+  previous?.close();setWaypoint();
  }
  async function enter(){
   if(busy||!zone)return;
@@ -155,7 +189,7 @@
    shoulder+=Math.atan2(Math.sin(s.ry-shoulder),Math.cos(s.ry-shoulder))*u;
    rig.root.position.set(s.x,groundY,s.z);rig.root.rotation.y=shoulder;
    DreamPose.civil(rig,{t:poseTime,dt,dist:s.dist,walk:+s.walking,ground:(x,z)=>W.height(s.id,x,z),arms:{},look:{yaw:0,pitch:0}});
-   next.set(s.x,.70+groundY,s.z);center.lerp(next,reduced?1:1-Math.exp(-dt*10));pose();
+   next.set(s.x,.70+groundY,s.z);center.lerp(next,reduced?1:1-Math.exp(-dt*10));pose();guide(ms);zone.navRing?.frame(poseTime);
    const gate=W.nearby(s);gateBtn.hidden=!gate;
    if(gate)gateBtn.textContent='מעבר אל '+names[gate.to];
    if(ms-lastSave>650){lastSave=ms;save();}
@@ -179,5 +213,5 @@
  }catch(error){
   console.error(error);$('notice').textContent='תצוגת הבדיקה אינה זמינה במכשיר הזה (WebGL או נתוני המשחק).';
  }
- window.Chapter1Review={snapshot:()=>({s:{...s},zone:zone?.id,busy,zoom,traffic:zone?.traffic?.snapshot?.()||null,gate:W.nearby(s)?.id||null})};
+ window.Chapter1Review={snapshot:()=>({s:{...s},zone:zone?.id,busy,zoom,traffic:zone?.traffic?.snapshot?.()||null,waypoint:{chosen,metres:guided?.metres??null,arrived:!!guided?.arrived,visibleRing:!!zone?.navRing},gate:W.nearby(s)?.id||null})};
 })();
