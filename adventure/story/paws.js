@@ -479,7 +479,7 @@
       const m = e.m, X = [m[0], m[1], m[2]], Y = [m[3], m[4], m[5]], Z = [m[6], m[7], m[8]], c = [e.cx, e.cy, e.cz], o = pos.length / 3, LAT = 5;
       for (let i = 0; i <= LAT; i++) { const th = i / LAT * Math.PI; for (let q = 0; q < RING; q++) { const ph = q / RING * Math.PI * 2, l = [Math.sin(th) * Math.cos(ph), Math.cos(th), Math.sin(th) * Math.sin(ph)];
         const p = add(add(add(c, X, l[0] * e.rx), Y, l[1] * e.ry), Z, l[2] * e.rz), n = nrm(add(add(scl(X, l[0] / e.rx), Y, l[1] / e.ry), Z, l[2] / e.rz)); vert(p, n, pn, null, padTone); } }
-      for (let i = 0; i < LAT; i++) for (let q = 0; q < RING; q++) { const p0 = o + i * RING + q, p1 = o + i * RING + (q + 1) % RING; idx.push(p0, p0 + RING, p1, p1, p0 + RING, p1 + RING); }
+      for (let i = 0; i < LAT; i++) for (let q = 0; q < RING; q++) { const p0 = o + i * RING + q, p1 = o + i * RING + (q + 1) % RING; idx.push(p0, p1, p0 + RING, p1, p1 + RING, p0 + RING); } // outward winding
     };
     const cone2 = q => [[q.ax, q.ay, q.az], [q.ax + q.bax, q.ay + q.bay, q.az + q.baz]], Zp = [0, 0, 1];
     { const [a, b] = cone2(A.base.wrist); capsule(a, b, A.base.wrist.r1, A.base.wrist.r2, Zp); }
