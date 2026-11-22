@@ -39,3 +39,10 @@ body.sunday-punch-on .bout-announcement,body.sunday-punch-on .fp-guard-tip,body.
 .sp-caption .sp-scene{font-style:normal;font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgb(0 0 0/.9);max-width:86vw}
 .sp-caption .sp-scene:empty{display:none}
 @media (prefers-reduced-motion:reduce){.sp-film .sp-lines.on{opacity:.3}.sp-film .sp-bar{transition:none}}
+/* what the dim button still needs (Burst %, or the Opponent's health down to half) */
+.fighter-pad .fp-finisher{flex-direction:column;gap:0}
+.fighter-pad .fp-finisher .fp-finisher-name{white-space:nowrap;line-height:1.05;font-size:calc(10.5px*var(--u))}
+.fighter-pad .fp-finisher{padding:0 calc(13px*var(--u)) 0 calc(5px*var(--u))}
+@media (hover:none){.fighter-pad .fp-finisher{padding:0 calc(5px*var(--u))}.fighter-pad .fp-finisher .fp-key{display:none}}
+.fighter-pad .fp-finisher .fp-finisher-need{font-size:calc(8.5px*var(--u));max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:700;opacity:.9;line-height:1.1;white-space:nowrap}
+.fighter-pad .fp-finisher .fp-finisher-need:empty{display:none}

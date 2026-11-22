@@ -16,8 +16,8 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  while(m.phase==='intro')m.advance(.1);
  assert.equal(m.finisherState('lion').status,'charging');
  m.fighters.lion.burst.charge=1;assert.equal(m.finisherState('lion').status,'healthy','full Burst but the Opponent is not hurt');assert.equal(m.requestFinisher('lion'),false);
- m.fighters.rabbit.condition=26;assert.equal(m.finisherState('lion').status,'healthy','26 % is not hurt');
- m.fighters.rabbit.condition=24;m.fighters.lion.burst.charge=.99;assert.equal(m.finisherState('lion').status,'charging','hurt but Burst not full');
+ m.fighters.rabbit.condition=51;assert.equal(m.finisherState('lion').status,'healthy','51 % is not hurt');assert.equal(m.finisherState('lion').opponent,51,'the pad shows how far the Opponent still has to go');
+ m.fighters.rabbit.condition=49;m.fighters.lion.burst.charge=.99;assert.equal(m.finisherState('lion').status,'charging','hurt (under half) but Burst not full');
  m.fighters.lion.burst.charge=1;assert.equal(m.finisherState('lion').status,'ready');
  m.fighters.lion.action=null;const used=m.fighters.lion.burst.used;
  assert.equal(m.requestFinisher('lion'),true);assert.equal(m.fighters.lion.burst.charge,0,'pressing spends the whole Burst');assert.equal(m.fighters.lion.burst.used,used+1);
@@ -42,7 +42,7 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  const lit=pad.finisherView({status:'ready'},{mode:'fight',readyAt:1000,now:2000});assert.ok(lit.show&&lit.enabled&&lit.lit&&lit.pulse,'lit and pulsing when ready');
  assert.equal(pad.finisherView({status:'ready'},{mode:'fight',readyAt:1000,now:1000+pad.PULSE_MS+1}).pulse,false,'pulses for a few seconds only');
  const dim=pad.finisherView({status:'healthy'},{mode:'fight'});assert.ok(dim.show&&!dim.enabled&&!dim.lit);
- console.log('PASS availability: hurt (<25 %) + full Burst; spent on press; block and miss keep it spent; pad rule');
+ console.log('PASS availability: hurt (<50 %) + full Burst; spent on press; block and miss keep it spent; pad rule');
 }
 
 /* 2. ownership: Shop or story, saved like other owned moves; old saves load */
@@ -59,9 +59,9 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  const saved=JSON.parse(JSON.stringify(g));Domain.validate(saved,profile);assert.deepEqual(Domain.finishersOwned(saved),['sunday_punch'],'kept through save/load');
  const forged=JSON.parse(JSON.stringify(g));forged.ledger.find(t=>t.id==='purchase:finisher:sunday_punch').coins=-1;assert.throws(()=>Domain.validate(forged,profile),/Invalid finisher purchase/);
  dev();const d=Domain.fresh(profile);const free=Domain.action(d,{type:'finisher-buy',finisherId:'sunday_punch'});assert.equal(free.free,true,'free in the development build');Domain.validate(JSON.parse(JSON.stringify(d)),profile);live();
- // story: earned when the step before the Brick rematch (advanced_training) is finished
- const s=Domain.fresh(profile);assert.equal(Adventure.dreamSteps[Adventure.dreamSteps.indexOf('brick')-1],item.earn);
- assert.equal(Domain.ownsFinisher(s,'sunday_punch'),false);s.adventure.missions.advanced_training={stars:1,value:1,plays:1};assert.equal(Domain.ownsFinisher(s,'sunday_punch'),true,'Bruno teaches it before the rematch');
+ // story: earned at the first talk with Bruno, before the first fight (owner 2026-11-22: it must be reachable early)
+ const s=Domain.fresh(profile);assert.equal(item.earn,'dream_gym_talk');assert.ok(Adventure.dreamSteps.indexOf(item.earn)<Adventure.dreamSteps.indexOf('first_brick'),'owned before the first fight');
+ assert.equal(Domain.ownsFinisher(s,'sunday_punch'),false);s.adventure.story.done.push('dream_gym_talk');assert.equal(Domain.ownsFinisher(s,'sunday_punch'),true,'Bruno shows it at the first talk');
  Domain.validate(JSON.parse(JSON.stringify(s)),profile);
  // an older save (no finisher anywhere, no adventure story) still validates unchanged
  const old=Domain.fresh(profile);delete old.adventure;Domain.validate(old,profile);assert.deepEqual(Domain.finishersOwned(old),[]);
