@@ -93,11 +93,19 @@
       }
       box(S, x, -.003, z, 1.3, .012, 1.3, '#8c7a63'); box(S, x, .0, z, 1.42, .05, .08, '#b9ad98'); for (const d of [-.67, .67]) { box(S, x + d, 0, z, .08, .05, 1.42, '#b9ad98'); box(S, x, 0, z + d, 1.42, .05, .08, '#b9ad98'); }
     };
+    // Blender props (tools/blender/*-props.py via CityAssets.propKit, when their model is ready): prop(name, x, y, z, ry, sx)
+    // places one and returns true, else false and the caller builds its generated piece (never both). Matte parts join the
+    // street batch, glossy parts one shared mesh, bulbs the glow batch; lantern glass glows at dusk and is pale glass by day.
+    const kit = window.CityAssets?.propKit?.(opts.city) || null, GL = new K.Batch(), LN = new K.Batch(), lanterns = [], placed = {};
+    const prop = (name, x, y, z, ry = 0, sx = 1) => {
+      const parts = kit?.get(name); if (!parts) return false;
+      CityAssets.placeProp(parts, M(x, y, z, sx, 1, 1, ry), { gloss: GL, matte: S, glow: G, lantern: LN }); placed[name] = (placed[name] || 0) + 1; return true;
+    };
     // Old Town lantern post
-    const lamp = (x, z) => { shade(x, z, .5, .5); cyl(S, x, 0, z, .14, .5, '#2f3640', P.cyl8); cyl(S, x, .5, z, .06, 3.1, '#2f3640', P.cyl6); cyl(S, x, 3.55, z, .12, .06, '#2f3640', P.cyl6); cyl(S, x, 3.61, z, .19, .36, '#fff0c4', P.cyl6); S.add(P.cone6, M(x, 3.97, z, .28, .2, .28), C('#2f3640')); cyl(S, x, 4.17, z, .03, .1, '#2f3640', P.cyl6); box(S, x + .22, 3.2, z, .5, .04, .04, '#2f3640'); };
-    const bin = (x, z) => { shade(x, z, .7, .7); cyl(S, x, 0, z, .26, .82, '#4f7a5a', P.cyl8); cyl(S, x, .82, z, .3, .07, '#3c5c45', P.cyl8); cyl(S, x, .3, z, .275, .05, '#3c5c45', P.cyl8); };
-    const planter = (x, z, w = 1.1) => { shade(x, z, w + .25, .75); box(S, x, 0, z, w, .46, .5, '#b5643e', 0, { ao: .28 }); box(S, x, .44, z, w + .06, .06, .56, '#c97250'); for (let k = 0; k < 3; k++) S.add(P.ico, M(x - w * .3 + k * w * .3, .58, z, .3, .26, .26, k), C(PAL.leaf[(k * 2 + 1) % PAL.leaf.length])); for (const [d, c] of [[-.35, '#ff8fb1'], [.05, '#ffd166'], [.38, '#ff8fb1']]) S.add(P.ico, M(x + d, .78, z + .08, .07, .07, .07), C(c)); };
-    const bollard = (x, z) => { cyl(S, x, 0, z, .08, .8, '#3b4350', P.cyl6); cyl(S, x, .8, z, .1, .06, '#f4c152', P.cyl6); };
+    const lamp = (x, z) => { shade(x, z, .5, .5); if (prop('Lamp', x, 0, z)) { lanterns.push([x, z]); return; } cyl(S, x, 0, z, .14, .5, '#2f3640', P.cyl8); cyl(S, x, .5, z, .06, 3.1, '#2f3640', P.cyl6); cyl(S, x, 3.55, z, .12, .06, '#2f3640', P.cyl6); cyl(S, x, 3.61, z, .19, .36, '#fff0c4', P.cyl6); S.add(P.cone6, M(x, 3.97, z, .28, .2, .28), C('#2f3640')); cyl(S, x, 4.17, z, .03, .1, '#2f3640', P.cyl6); box(S, x + .22, 3.2, z, .5, .04, .04, '#2f3640'); };
+    const bin = (x, z) => { shade(x, z, .7, .7); if (prop('Bin', x, 0, z)) return; cyl(S, x, 0, z, .26, .82, '#4f7a5a', P.cyl8); cyl(S, x, .82, z, .3, .07, '#3c5c45', P.cyl8); cyl(S, x, .3, z, .275, .05, '#3c5c45', P.cyl8); };
+    const planter = (x, z, w = 1.1) => { shade(x, z, w + .25, .75); if (w > 1.3 ? prop('Planter_wide', x, 0, z, 0, w / 1.6) : prop('Planter', x, 0, z, 0, w / 1.1)) return; box(S, x, 0, z, w, .46, .5, '#b5643e', 0, { ao: .28 }); box(S, x, .44, z, w + .06, .06, .56, '#c97250'); for (let k = 0; k < 3; k++) S.add(P.ico, M(x - w * .3 + k * w * .3, .58, z, .3, .26, .26, k), C(PAL.leaf[(k * 2 + 1) % PAL.leaf.length])); for (const [d, c] of [[-.35, '#ff8fb1'], [.05, '#ffd166'], [.38, '#ff8fb1']]) S.add(P.ico, M(x + d, .78, z + .08, .07, .07, .07), C(c)); };
+    const bollard = (x, z) => { if (prop('Bollard', x, 0, z)) return; cyl(S, x, 0, z, .08, .8, '#3b4350', P.cyl6); cyl(S, x, .8, z, .1, .06, '#f4c152', P.cyl6); };
     const wheel = (B, x, y, z, r, w) => { B.add(P.cyl12, M(x, y, z - w / 2, r, w, r, 0, Math.PI / 2), C('#1c1f25')); B.add(P.cyl12, M(x, y, z - w / 2 - .012, r * .62, w + .024, r * .62, 0, Math.PI / 2), C('#c9ccd2')); B.add(P.cyl8, M(x, y, z - w / 2 - .03, r * .2, w + .06, r * .2, 0, Math.PI / 2), C('#6b7280')); };
     // A single thin pane batch, not tinted boxes (six faces), and no write to the depth buffer.
     const parkedGlass = new K.Batch();
@@ -244,10 +252,15 @@
       pane.position.set(x, y, z); if (facing < 0) pane.rotation.y = Math.PI;
       pane.name = name; pane.renderOrder = 2; return pane;
     };
-    const ctx = { id, group, opts, displayBay, doorInterior, reflectivePane, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, treeParts, lamp, bin, planter, bollard, wheel, car, movable, add, skyline, vehiclePane, mountVehicleGlass, busCabin };
+    const ctx = { id, group, opts, prop, displayBay, doorInterior, reflectivePane, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, treeParts, lamp, bin, planter, bollard, wheel, car, movable, add, skyline, vehiclePane, mountVehicleGlass, busCabin };
     const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) }, evening = focus.time === 'evening';
 
     if (parkedGlass.tris) mountVehicleGlass(parkedGlass, group, 'parked car cabin glass');
+    if (LN.tris) { // lantern glass: lit at dusk (glow batch and a warm pool under each lamp), clear pale glass by day
+      if (evening) { G.p.push(...LN.p); G.n.push(...LN.n); G.c.push(...LN.c); for (const [x, z] of lanterns) pool(x, z, 2.2, '#ffcf8a'); }
+      else { const glass = C('#c9d4d6'); GL.p.push(...LN.p); GL.n.push(...LN.n); for (let i = 0; i < LN.c.length; i += 3) GL.c.push(LN.c[i] * .2 + glass.r * .8, LN.c[i + 1] * .2 + glass.g * .8, LN.c[i + 2] * .2 + glass.b * .8); }
+    }
+    if (GL.tris) { const gm = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .42, metalness: 0 }), g = add(new THREE.Mesh(GL.geometry(), gm)); g.name = 'props (gloss)'; g.matrixAutoUpdate = false; g.updateMatrix(); }
     if (treeLeaves.p.length) { const leaves = window.CityTrees.mesh(treeLeaves, 'street tree leaves', 'leaf'); add(leaves, true, true); leaves.matrixAutoUpdate = false; leaves.updateMatrix(); }
 
     if (frontagePanes.length) {
@@ -293,7 +306,7 @@
     aim(focus.x, focus.z);
     scene.add(group);
     function stats() { let meshes = 0, tris = 0; group.traverse(o => { if (!o.isMesh || !o.visible) return; meshes++; const g = o.geometry; tris += (g.index ? g.index.count : g.attributes.position.count) / 3; }); return { meshes, triangles: Math.round(tris) }; }
-    return { id, group, objects, sun, focus: aim, stats, dispose() { scene.remove(group); for (const d of new Set(disposables)) d?.dispose?.(); scene.fog = null; scene.background = null; } };
+    return { id, group, objects, sun, focus: aim, stats, props: placed, dispose() { scene.remove(group); for (const d of new Set(disposables)) d?.dispose?.(); scene.fog = null; scene.background = null; } };
   }
 
   /* ---------------------------------------------------------------- bus-stop street corner */

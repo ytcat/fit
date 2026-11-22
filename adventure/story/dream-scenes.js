@@ -157,8 +157,10 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     const city = window.CityAssets;
     let cityWait = null;
     if (city && scene0.set === 'dream_street') cityWait = city.ready();
-    if (city && id === 'dream_apology') city.preload(['hazelStall', 'tree']);
-    if (city && scene0.set === 'dream_market') cityWait = city.ready(undefined, ['hazelStall', 'tree']);
+    if (city && id === 'dream_apology') city.preload(['hazelStall', 'tree', 'props']);
+    if (city && scene0.set === 'dream_market') cityWait = city.ready(undefined, ['hazelStall', 'tree', 'props']);
+    if (city && scene0.set === 'dream_shop') cityWait = city.ready(undefined, ['props']); // Blender street props (lamps, bins, planters)
+    if (city && /^dream_gym/.test(scene0.set)) cityWait = city.ready(undefined, ['gymProps']); // Blender gym props (gym-props.py)
     if (cityWait) cityWait = cityWait.catch(() => null);
     Promise.all([window.StorySets.ready(), cityWait]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
       if (run.closed) return;

@@ -10,6 +10,9 @@
  *   CityAssets.LAYOUT                                          where the models go; dream-sets.js skips what they replace
  *   CityAssets.dresses(city, site) -> boolean                  whether dress() plants that tree site (else the set does)
  *   CityAssets.wheelAngle(distance) / doorClipTime(...)        pure helpers (tests/city-assets.test.cjs)
+ *   CityAssets.propKit(city) -> Map name -> parts | null      the Blender props (tools/blender/*-props.py) of the ready models
+ *   CityAssets.placeProp(parts, matrix, batches)               appends one prop instance to the set's merged batches
+ *       (story-sets.js ctx.prop / lamp / bin / planter / bollard: the model or the generated piece, never both)
  *
  * Street frame (dream-sets.js): x along the street, the stop's pavement and the camera on +z, road at y -0.15, pavement 0.
  * The models were authored with their pavement on -z (bus doors on -Z), so every model is turned half a turn about y
@@ -22,8 +25,12 @@
     bus: './assets/street/ch01-bus/gloryland-bus.glb',
     station: './assets/street/ch01-station/gloryland-station.glb',
     oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb',
-    hazelStall: './assets/street/ch01-market/hazel-fruit-stall.glb'
+    hazelStall: './assets/street/ch01-market/hazel-fruit-stall.glb',
+    // Blender props (tools/blender/street-props.py, gym-props.py): one node per prop, vertex-coloured, four material classes
+    props: './assets/street/ch01-props/gloryland-street-props.glb',
+    gymProps: './assets/street/ch01-props/gloryland-gym-props.glb'
   };
+  const PROP_FILES = ['props', 'gymProps'], PROP_CLASSES = ['gloss', 'matte', 'glow', 'lantern'];
   // One authored asset/download and three silhouettes (form 'street': the GLB). Keep these on the arrival street only;
   // positions match the generated trees so a cold/offline load keeps a complete street (dream-sets.js plants the
   // generated tree for every site this dressing does not, see dresses()).
@@ -39,7 +46,7 @@
     Object.freeze({ name: 'Market west tree', form: 'street', x: -2.9, z: -4.45, h: 4.0, yaw: 1.8, scale: [.74, .83, .75], phase: 1.1 }),
     Object.freeze({ name: 'Market east tree', form: 'street', x: 3.25, z: -4.6, h: 4.1, yaw: -.6, scale: [.91, .88, .79], phase: 2.2 })
   ]);
-  const OPENING_MODELS = ['tree', 'car', 'bus', 'station', 'oldtown'];
+  const OPENING_MODELS = ['tree', 'car', 'bus', 'station', 'oldtown', 'props'];
   const WAIT_MS = 5000, TIRE_R = .515, HALF = Math.PI;
   const LAYOUT = {
     patches: [-17, 3, 23],              // centres of the 20 m road / kerb / paving modules; kerb face at z 3.45, paving to z 8.3
@@ -125,6 +132,56 @@
     carFar.set(gltf, far); return far;
   }
 
+  /* ---------------------------------------------------------------- Blender props: merged into the set's batches */
+  /** Each prop node of a loaded props model as triangle soup per material class, in the node's own frame (built once per
+   * model): { gloss|matte|glow|lantern: { p, n, c } } (linear vertex colours). Placing a prop copies these arrays: the set
+   * draws all its props with its street batch (matte), one glossy mesh, its glow batch and (lanterns) one of the two. */
+  const propParts = new WeakMap();
+  function parseProps(gltf) {
+    let out = propParts.get(gltf); if (out) return out;
+    out = new Map(); gltf.scene.updateMatrixWorld(true);
+    const rel = new THREE.Matrix4(), inv = new THREE.Matrix4(), nm = new THREE.Matrix3(), v = new THREE.Vector3();
+    for (const node of gltf.scene.children) {
+      const parts = {}; inv.copy(node.matrixWorld).invert();
+      node.traverse(o => {
+        if (!o.isMesh || !o.geometry?.attributes?.position) return;
+        const g = o.geometry, P = g.attributes.position, N = g.attributes.normal, Cc = g.attributes.color, I = g.index, cls = PROP_CLASSES.includes(o.material?.name) ? o.material.name : 'matte';
+        const q = parts[cls] ||= { p: [], n: [], c: [] }; rel.multiplyMatrices(inv, o.matrixWorld); nm.getNormalMatrix(rel);
+        const n = I ? I.count : P.count;
+        for (let k = 0; k < n; k++) {
+          const i = I ? I.getX(k) : k;
+          v.fromBufferAttribute(P, i).applyMatrix4(rel); q.p.push(v.x, v.y, v.z);
+          if (N) v.fromBufferAttribute(N, i).applyMatrix3(nm).normalize(); else v.set(0, 1, 0); q.n.push(v.x, v.y, v.z);
+          if (Cc) q.c.push(Cc.getX(i), Cc.getY(i), Cc.getZ(i)); else q.c.push(1, 1, 1);
+        }
+      });
+      for (const q of Object.values(parts)) for (const k of ['p', 'n', 'c']) q[k] = new Float32Array(q[k]);
+      out.set(node.name, parts);
+    }
+    propParts.set(gltf, out); return out;
+  }
+  function propKit(city) {
+    let kit = null;
+    for (const k of PROP_FILES) { const g = city?.[k]; if (g?.scene) for (const [name, parts] of parseProps(g)) (kit ||= new Map()).set(name, parts); }
+    return kit;
+  }
+  /** One instance: parts transformed by matrix (scale allowed) appended to batches { gloss, matte, glow, lantern } (K.Batch). */
+  function placeProp(parts, matrix, batches) {
+    const e = matrix.elements, nm = new THREE.Matrix3().getNormalMatrix(matrix).elements; let tris = 0;
+    for (const [cls, q] of Object.entries(parts)) {
+      const B = batches[cls] || batches.matte; if (!B) continue; const P = q.p, N = q.n, C = q.c;
+      for (let i = 0; i < P.length; i += 3) {
+        const x = P[i], y = P[i + 1], z = P[i + 2], a = N[i], b = N[i + 1], c = N[i + 2];
+        B.p.push(e[0] * x + e[4] * y + e[8] * z + e[12], e[1] * x + e[5] * y + e[9] * z + e[13], e[2] * x + e[6] * y + e[10] * z + e[14]);
+        const nx = nm[0] * a + nm[3] * b + nm[6] * c, ny = nm[1] * a + nm[4] * b + nm[7] * c, nz = nm[2] * a + nm[5] * b + nm[8] * c, l = Math.hypot(nx, ny, nz) || 1;
+        B.n.push(nx / l, ny / l, nz / l); B.c.push(C[i], C[i + 1], C[i + 2]);
+        if (B.uv) B.uv.push(0, 0); if (B.t) B.t.push(1, 1, 1);
+      }
+      tris += P.length / 9;
+    }
+    return tris;
+  }
+
   /* ---------------------------------------------------------------- pure helpers */
   /** Wheel roll (radians about the model's z axis) for a signed distance driven forward along the model's +x. */
   const wheelAngle = dist => -dist / TIRE_R;
@@ -159,7 +216,7 @@
     const L = LAYOUT, group = new THREE.Group(), handle = { active: false, bus: null, station: false, oldtown: false, parts: [], houses: [], trees: [], cars: [] };
     group.name = 'city art (GLB)'; c.group.add(group);
     const used = [], env = environment(c.opts?.renderer), aniso = c.opts?.renderer ? Math.min(4, c.opts.renderer.capabilities.getMaxAnisotropy()) : 1;
-    for (const [k, g] of Object.entries(city || {})) if (g) used.push(g);
+    for (const [k, g] of Object.entries(city || {})) if (g && !PROP_FILES.includes(k)) used.push(g); // props: copied into the set's batches
     // materials: sRGB colour maps come from the loader; metals get the small environment, the ground better filtering
     for (const g of used) g.scene.traverse(o => {
       if (!o.isMesh) return; const m = o.material;
@@ -323,7 +380,7 @@
   }
 
   window.CityAssets = {
-    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, dresses, wheelAngle,
+    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, dresses, wheelAngle, propKit, placeProp,
     get: n => cache.get(n)?.gltf || null,
     _setLoader(f) { makeLoader = f || defaultLoader; cache.clear(); } // tests
   };
