@@ -208,7 +208,7 @@
       // for a single frame (a 2.5 cm hand pop and an 8 deg shoulder jump as he stopped beside Otto's bag). The push is eased in
       // over ~40 ms and out over ~100 ms.
       const push = target.clone().sub(asked), had = m.corr[side];
-      if (st.dt > 0 && had) {
+      if (st.dt > 0 && had && !(rr && !ro)) { // not for an exact array target (the corner, the mop, the count keep their exact clearance)
         had.lerp(push, 1 - Math.exp(-st.dt * (push.lengthSq() > had.lengthSq() ? 25 : 10)));
         if (had.distanceTo(push) > .002) { target.copy(asked).add(had); err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], target, cleared.pole || aPole); orient(); }
       } else m.corr[side] = push;
