@@ -44,5 +44,26 @@ Branch `agent/mop-night` (from `claude/ecstatic-clarke-9as2ak` a42fa83, the v1.9
   `play.cjs` (bot: 1, 2, 3 stars, rinses with the Rinse button, checks save/wage/story), `body.cjs` + `strips.py` (whole-body
   metrics and frame strips: phone, side, 3/4), `grip-probe.cjs`, `lang.cjs`, `look.cjs`.
 
-## Status / next
-- See the latest numbers in the final section.
+## Evidence (402×690, Chromium + SwiftShader; review media in `qa/mop-night/`)
+- `sheet-before-after.webp` (v1.91 day game with Bruno vs the night shift), `sheet-after-play.webp` (dirty mop + pulsing
+  Rinse, wring at the bucket, 3-star result, lights out), single frames `after-*.webp`, `after-lang-he.webp`, `after-lang-ru.webp`.
+- `play.cjs` bot with real CDP touch drags and the Rinse button (`play.json`): shift 1 from the story 26 % → 1 star, +6,
+  story moves to `night_shadow`; replay 51 % → 2 stars, +10; replay 75 % → 3 stars, +15 (56 s left, 5 rinses, 0 smears);
+  saved `missions.clean_gym` = 3 stars / 75; a time-out at 0 % → lights out, no stars, nothing saved or paid; no page errors.
+- Whole body (`body.cjs`, `body.json`, strips `body-strip-sweep|walk|rinse.webp`: phone framing, side, 3/4): planted-foot
+  drift ≤ 1 mm (42 planted spans, 40 steps); both grips within 1.5 cm of the handle axis in 79 % of mopping frames (median
+  0, p95 14 cm — the misses are while he walks after a fast stroke); drawn head vs cleaning point median 1.5 cm, p95 21 cm;
+  handle never closer than 31 cm to hips/spine/chest; chest turn -0.57..0.28 rad, lean up to 0.8 rad, pelvis drop up to
+  0.29 m (dunk); rinse phases carry → dunk → wring → lift seen; stretch seen.
+- Rules balance (node, `shift()` bot rows): 75 % in ~43–55 s of 90 s with rinses; never rinsing ≈ 21 % (no star).
+
+## Checks
+- `node tests/story-clean-gym.test.cjs` (rules + 402×690 touch through the story): PASS; `tests/story-flow`, `offline-version-match`, `pose-contract`: PASS.
+- `bash scripts/run-tests.sh -j 2 clean gym story dream mop`: files=19 fails=0 (709 s; an earlier run on a loaded machine failed story-clean-gym at the welcome card tap and story-flow on the step text length: both fixed).
+
+## Limitations / next
+- Not checked on a physical iPhone (SwiftShader only); the handwriting font of the note falls back to a serif in headless Chromium.
+- The lion's broad shoulders and short arms keep the two grips only ~15 cm apart on the stick (lower hand as low as it reaches).
+- Area bonuses ("by the ring/bags/middle clean") need ≥ 88 % of an area; the bot's 75 % runs did not clear one.
+- No audio for the mop yet (no squeak, no bucket splash).
+- Next: owner check on a phone; if approved, merge into the release branch (not done here: no merge, no version bump).
