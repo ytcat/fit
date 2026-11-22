@@ -65,7 +65,7 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 .story-progress i{display:block;height:100%;width:0;background:var(--gr-gold,#f4c152);transition:width .2s linear}
 .story-retry{inset-inline-end:50px;font-size:18px}
 .story-prompt{top:19%}
-.story-prompt[data-kind=straight]{color:#ff5a66}.story-prompt[data-kind=hook]{color:#7db4ff}.story-prompt[data-kind=uppercut]{color:#ffc94d}
+.story-prompt[data-kind=straight]{color:#ff5a66}.story-prompt[data-kind=hook]{color:#ff9a3c}.story-prompt[data-kind=uppercut]{color:#ffc94d}
 .story-prompt[data-kind=warn]{color:var(--gr-warning,#f5a524)}.story-prompt[data-kind=clock]{color:#fff;font-variant-numeric:tabular-nums}
 .story-prompt[data-kind=repeat]{color:#fff;letter-spacing:.2em}
 .story-prompt[data-now=true] .story-prompt-text{animation:story-now .16s ease-in-out infinite alternate}
@@ -77,7 +77,7 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 .story-cue[hidden]{display:none}
 .story-cue i{position:absolute;left:0;top:0;width:40px;height:40px;border:3px solid currentColor;border-radius:50%;box-shadow:0 0 0 1px rgb(0 0 0/.5),inset 0 0 0 1px rgb(0 0 0/.35)}
 .story-cue b{position:absolute;left:0;top:0;width:10px;height:10px;border-radius:50%;background:currentColor;transform:translate(-50%,-50%);box-shadow:0 0 0 2px rgb(0 0 0/.45)}
-.story-cue[data-kind=straight]{color:#ff5a66}.story-cue[data-kind=hook]{color:#7db4ff}.story-cue[data-kind=uppercut]{color:#ffc94d}
+.story-cue[data-kind=straight]{color:#ff5a66}.story-cue[data-kind=hook]{color:#ff9a3c}.story-cue[data-kind=uppercut]{color:#ffc94d}
 .story-cue[data-now=true] i{border-width:5px;box-shadow:0 0 16px currentColor,0 0 0 1px rgb(0 0 0/.5)}
 .story-cue[data-now=true] b{width:18px;height:18px}
 .story-pop{position:absolute;top:31%;inset-inline:0;text-align:center;font-size:clamp(20px,5.4vw,30px);font-weight:800;pointer-events:none;text-shadow:0 2px 4px #000,0 0 12px #000;animation:story-popup .7s ease-out forwards}
@@ -93,8 +93,8 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 .story-tutorial-count{display:block;font-size:40px;font-weight:800;color:#fff}
 .story-pad .fp-arrow[data-idle=true]{opacity:.45}
 .story-pad .fp-arrow[data-ghost=true],.story-pad .fp-btn[data-ghost=true]{animation:story-pulse .22s ease-in-out infinite alternate;outline:2px dashed #fff;outline-offset:-4px}
-.story-pad .fp-btn[data-punch=hook]{box-shadow:inset 0 0 0 calc(2px*var(--u)) rgb(90 162 255/.75),inset 0 2px 1px rgb(255 255 255/.12),inset 0 -5px 10px rgb(0 0 0/.4),0 calc(6px*var(--u)) calc(16px*var(--u)) rgb(0 0 0/.5)}
-.story-pad .fp-btn[data-punch=uppercut]{box-shadow:inset 0 0 0 calc(2px*var(--u)) rgb(255 201 77/.8),inset 0 2px 1px rgb(255 255 255/.12),inset 0 -5px 10px rgb(0 0 0/.4),0 calc(6px*var(--u)) calc(16px*var(--u)) rgb(0 0 0/.5)}
+.story-pad .fp-btn[data-punch=hook]{box-shadow:inset 0 0 0 calc(2px*var(--u)) rgb(255 138 31/.8),inset 0 2px 1px rgb(255 255 255/.12),inset 0 -5px 10px rgb(0 0 0/.4),0 calc(6px*var(--u)) calc(16px*var(--u)) rgb(0 0 0/.5)}
+.story-pad .fp-btn[data-punch=uppercut]{box-shadow:inset 0 0 0 calc(2px*var(--u)) rgb(245 192 46/.8),inset 0 2px 1px rgb(255 255 255/.12),inset 0 -5px 10px rgb(0 0 0/.4),0 calc(6px*var(--u)) calc(16px*var(--u)) rgb(0 0 0/.5)}
 .story-pad .fp-btn[data-active=true]{animation:story-pulse .3s ease-in-out infinite alternate;transform:scale(1.08)}
 .story-pad .fp-btn .fp-key{display:none}
 @media (hover:hover) and (pointer:fine){.story-pad .fp-btn .fp-key{display:block}}

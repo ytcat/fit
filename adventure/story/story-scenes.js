@@ -155,7 +155,7 @@
   }
 
   /* ---------------------------------------------------------------- skill trials (presentation; rules are in trials-core.js) */
-  const PCOL = { straight: '#ff5a66', hook: '#5aa2ff', uppercut: '#ffc94d' };
+  const PCOL = { straight: '#ff5a66', hook: '#ff8a1f', uppercut: '#f5c02e' }; // the main pad's colours (fighter-pad.css)
   const ease = k => smooth(k);
   /** The Fighter's body follows the last input for a moment: punches, Slip, duck (the controller's roll), side step. */
   function fighterAct(c, x, o = {}) {
