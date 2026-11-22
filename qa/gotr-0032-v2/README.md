@@ -85,8 +85,8 @@ instead of the old 0.20 m, which was only met with the glove inside the muzzle.
 frames 10/18/24/30/44 ticks (120 Hz) after the press, input through `window.fighterPad.press`. The skins are synced
 before each picture (the mitt station defers them between render ticks, which is why the 2026-11-11 attempt showed no
 motion). What they show: the rear glove stays at the chin during the jab, hook and uppercut instead of jumping in front
-of the muzzle; the lead glove comes back to the face during the cross; hooks land with the trunk turned. Stills do not
-show speed; the tables do.
+of the muzzle; the lead glove comes back to the face during the cross; hooks land with the trunk turned. At the bag (camera behind the Fighter, small figure) before and after look almost
+the same in stills; the difference there is in the per-tick numbers. Stills do not show speed; the tables do.
 
 ## Not done / limits
 - Hooks reach 7.2-7.7 m/s at the mitt (target 8-10); jab, cross and uppercut hip turn unchanged; the bag jab meets the

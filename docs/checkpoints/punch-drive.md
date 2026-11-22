@@ -27,5 +27,15 @@ the mitt by a growing fraction, so the glove braked to ~5 m/s on contact.
 `qa/gotr-0032-v2/measure.cjs` (per punch and rapid sequences), `trace.cjs`, `guard-cheek.cjs`, `strips.cjs` + `compose.py`
 (browser frames). `before-*.json/log` = 37247bc, `after-*.json/log` = this branch.
 
+## Checks
+- `bash scripts/run-tests.sh -j 2 coach pose mitt pads bag stance training`: files=13 fails=0 (final code 8e068b5+).
+- Extra set (heavy-reference compact orthodox shoulder punch-feel contact career-drills fluid foot-plant generated
+  fight-guard sunday dream): 23 files, 1 fail (contact: sparring guarded blocks) -> fixed by excluding sparring, contact
+  passes alone afterwards. Full suite NOT run.
+- `tests/offline-version-match.test.cjs` ok (version still 1.87).
+- Media: `qa/gotr-0032-v2/pads-before-after.webp`, `heavy-before-after.webp`; raw frames were in the session scratchpad
+  (regenerate with `node qa/gotr-0032-v2/strips.cjs <dir>`, ~1 h on a loaded machine).
+
 ## Next
-- Finish browser strips, after-measurements for lion and rabbit, full relevant test run; backlog entries GOTR-0032/0027.
+- Review; hooks still below 8 m/s; bag jab first-contact elbow 130 deg; jab/cross/uppercut hip turn unchanged; fights and
+  sparring could adopt `cheekGuard` after their own contact tests are retimed. Run the full suite before any merge.
