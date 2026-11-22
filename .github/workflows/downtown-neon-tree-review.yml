@@ -1,0 +1,60 @@
+name: Downtown and Neon map tree review
+on:
+  pull_request:
+    paths:
+      - 'adventure/gloryland-map.js'
+      - '.github/workflows/downtown-neon-tree-review.yml'
+permissions:
+  contents: read
+jobs:
+  map-evidence:
+    if: github.head_ref == 'wip/downtown-neon-map-trees-v180-review'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: 9961b9d54c08827715ec667121d84445c4fb461d
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          tools="$RUNNER_TEMP/fit-playwright"
+          npm install --prefix "$tools" --no-save playwright@1.56.1
+          "$tools/node_modules/.bin/playwright" install --with-deps chromium
+          echo "NODE_PATH=$tools/node_modules" >> "$GITHUB_ENV"
+      - name: Capture both map districts at 402 x 690
+        run: |
+          node --check adventure/gloryland-map.js
+          out="$RUNNER_TEMP/map-tree-evidence"
+          mkdir -p "$out"
+          export OUT_DIR="$out" SHADOW=1024
+          python3 -m http.server 8671 --bind 127.0.0.1 --directory baseline > "$out/base-server.log" 2>&1 &
+          a=$!
+          python3 -m http.server 8672 --bind 127.0.0.1 > "$out/review-server.log" 2>&1 &
+          b=$!
+          trap 'kill "$a" "$b"' EXIT
+          for side in before after; do
+            port=8671; if [ "$side" = after ]; then port=8672; fi
+            MAP_URL=http://127.0.0.1:$port/adventure/map-preview.html node qa/gotr-0008/map/capture.cjs "$out" "$side-downtown:downtown:day:402:690" "$side-neon:neon:day:402:690" > "$out/$side.jsonl"
+          done
+          node --input-type=commonjs <<'NODE'
+          const assert = require('node:assert/strict'), fs = require('node:fs');
+          const rows = side => fs.readFileSync(process.env.OUT_DIR + '/' + side + '.jsonl', 'utf8').trim().split('\n').map(JSON.parse);
+          const before = rows('before'), after = rows('after');
+          assert.equal(after.length, 2);
+          for (const [i, row] of after.entries()) {
+            const b = before[i], dt = row.triangles - b.triangles, dc = row.calls - b.calls, di = row.instances - b.instances;
+            console.log(row.view, 'instances', di, 'triangle delta', dt, 'draw delta', dc);
+            assert.ok(di > 0 && di <= 10 && dt > 0 && dt <= 500);
+            assert.equal(dc, 0);
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: downtown-neon-map-tree-review
+          path: ${{ runner.temp }}/map-tree-evidence
+          retention-days: 14
