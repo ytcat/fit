@@ -161,7 +161,8 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     await p.addInitScript(() => { localStorage.setItem('shadowbox-language', 'en'); localStorage.setItem('gotr.adv.nointro', '1'); });
     await p.goto(url); await wait(() => window.ringfighterGame?.store && window.MopGame && window.StoryScenes?.games.clean_gym);
     for (let k = 0; k < 120 && !(await p.evaluate(() => !!ringfighterGame.store.game())); k++) { // the welcome card (it can open late under load): a name, Start
-      await p.evaluate(() => { const d = document.querySelector('dialog.career-welcome[open]'), i = d?.querySelector('input[name=player]'); if (!i) return; i.value = 'Mop QA'; i.dispatchEvent(new Event('input', { bubbles: true })); d.querySelector('form')?.requestSubmit(); });
+      // a real touchscreen tap on Start (PR #38 gate: never replace it with a scripted submit or a mouse click)
+      if (await p.locator('dialog.career-welcome[open]').count()) { await p.locator('dialog.career-welcome[open] input[name=player]').fill('Mop QA'); await p.locator('dialog.career-welcome[open] button[type=submit]').tap(); }
       await p.waitForTimeout(1000);
     }
     await wait(() => app.engine.coach?.anatomy && ringfighterGame.store.game());
