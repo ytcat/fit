@@ -16,7 +16,12 @@
  * renderTime); without a fresh stamp (a fight, a drill, any boxing pose) the paw is a fist. rig.pawOverride = { L, R } wins (QA).
  * API: Paws.attach(rig, { species?, fur?, pad?, wraps?, name? }) -> [meshL, meshR]
  *      Paws.shapeFor(gesture) ; Paws.build(species, shape, side, { wraps }) -> { geometry, stats } (shared, do not dispose)
- *      Paws.species ; Paws.shapes ; Paws.speciesOf(rig) ; rig.pawHold = { L|R: object } -> a grip while that object is shown */
+ *      Paws.species ; Paws.shapes ; Paws.speciesOf(rig) ; rig.pawHold = { L|R: object } -> a grip while that object is shown
+ *      Paws.prefetch(['fang', 'hazel'] | [{ who, wraps }], { prio, shapes }) -> asks the workers for a coming scene's paws first
+ * Phones (follow-up): shapes are only built in background workers (two on 4+ cores, in priority order); the page never builds one
+ * during play. Until a shape is ready a paw shows the nearest ready shape or a quick stand-in (the same anatomy in capsules and
+ * ellipsoids, a few ms); a paw small on screen draws a low-detail version (~900 triangles, no claws) made in the same worker job.
+ * Paws.debug counts worker builds, page builds (should stay empty in a browser) and geometry swaps. */
 (() => {
   const G = typeof self !== 'undefined' ? self : globalThis, T = G.THREE || null, WORKER = typeof WorkerGlobalScope !== 'undefined' && G instanceof WorkerGlobalScope;
   if (!T && !WORKER) return;
@@ -393,27 +398,17 @@
   }
   function surface(field, lo, hi, target, h = H) { const s = largest(surfaceNets(field, lo, hi, h)); const r = s.tri.length / 3 > target ? decimate(s.pos, s.tri, target) : s; project(field, r.pos, 2, .0015); r.dropped = s.dropped; r.netTris = s.tri.length / 3 + s.dropped; return r; }
   function normalsOf(field, pos) { const n = new Float32Array(pos.length); for (let i = 0; i < pos.length; i += 3) { const g = grad(field, pos[i], pos[i + 1], pos[i + 2]); n[i] = g[0]; n[i + 1] = g[1]; n[i + 2] = g[2]; } return n; }
-  const BUDGET = 5600, WRAP_SKIN = 3950, WRAP_CLOTH = 1500;
-  function buildLeft(species, shapeName, wraps) {
-    const t0 = now(), A = anatomy(species, shapeName), F = fieldOf(A), clawTris = A.claws.length * 104;
-    const paw = surface(F.field, F.lo, F.hi, (wraps ? WRAP_SKIN : BUDGET) - clawTris), skinPieces = components(paw.tri, paw.pos.length / 3);
-    const nor = normalsOf(F.field, paw.pos), ao = occlusion(F.field, paw.pos, nor), pt = paint(A, F, paw.pos, nor);
-    let wrap = null;
-    if (wraps) { // drop the skin under the cloth, add the cloth
-      const W = wrapField(A, F), keep = [];
-      for (let i = 0; i < paw.pos.length / 3; i++) { const w = W(paw.pos[i * 3], paw.pos[i * 3 + 1], paw.pos[i * 3 + 2]); if (w < .0012) { const k = .0024 * smooth((.0012 - w) / .0015); paw.pos[i * 3] -= nor[i * 3] * k; paw.pos[i * 3 + 1] -= nor[i * 3 + 1] * k; paw.pos[i * 3 + 2] -= nor[i * 3 + 2] * k; } } // the skin at the cloth edge tucks under it (no fur poking through the cotton)
-      for (let t = 0; t < paw.tri.length; t += 3) { const v = [paw.tri[t], paw.tri[t + 1], paw.tri[t + 2]]; if (v.every(i => W(paw.pos[i * 3], paw.pos[i * 3 + 1], paw.pos[i * 3 + 2]) < -.0012)) continue; keep.push(...v); }
-      paw.tri = Int32Array.from(keep);
-      wrap = surface(W, [F.lo[0] - .012, -.135 * A.S, F.lo[2] - .012], [F.hi[0] + .012, .075, F.hi[2] + .012], WRAP_CLOTH); wrap.nor = normalsOf(W, wrap.pos); wrap.ao = occlusion(W, wrap.pos, wrap.nor);
-    }
-    // assemble: skin, claws, cloth. Colour recipe per vertex: base (palm side, AO in), coatW (how much is base), streak (x coat), gloss
-    const pos = [], nrmA = [], base = [], coatW = [], streak = [], gl = [], idx = [], nSkin = paw.pos.length / 3;
+  const BUDGET = 5600, WRAP_SKIN = 3950, WRAP_CLOTH = 1500, LOD_SKIN = 900, LOD_CLOTH = 300;
+  /** Flat arrays of one paw: skin, claws (optional), cloth. Colour recipe per vertex: base (palm side, AO in), coatW (how much is
+   *  base), streak (x coat), gloss. skin: { pos, tri, nor, ao, pt (paint()) }; wrap: { pos, tri, nor, ao } or null. */
+  function pack(A, skin, claws, wrap) {
+    const pos = [], nrmA = [], base = [], coatW = [], streak = [], gl = [], idx = [], nSkin = skin.pos.length / 3, pt = skin.pt, nor = skin.nor, ao = skin.ao;
     for (let i = 0; i < nSkin; i++) {
-      pos.push(paw.pos[i * 3], paw.pos[i * 3 + 1], paw.pos[i * 3 + 2]); nrmA.push(nor[i * 3], nor[i * 3 + 1], nor[i * 3 + 2]);
+      pos.push(skin.pos[i * 3], skin.pos[i * 3 + 1], skin.pos[i * 3 + 2]); nrmA.push(nor[i * 3], nor[i * 3 + 1], nor[i * 3 + 2]);
       const a = .42 + .58 * ao[i]; base.push(pt.col[i * 4] * a, pt.col[i * 4 + 1] * a, pt.col[i * 4 + 2] * a); coatW.push(pt.col[i * 4 + 3]); streak.push(pt.streak[i * 3] * a, pt.streak[i * 3 + 1] * a, pt.streak[i * 3 + 2] * a); gl.push(pt.gloss[i]);
     }
-    for (const v of paw.tri) idx.push(v);
-    const cl = { pos: [], nor: [], tri: [], claw: [] }; for (const c of A.claws) clawMesh(c, cl);
+    for (const v of skin.tri) idx.push(v);
+    const cl = { pos: [], nor: [], tri: [], claw: [] }; if (claws) for (const c of A.claws) clawMesh(c, cl);
     const c0 = typeof A.L.claw0 === 'string' ? lin(A.L.claw0) : null, c1 = c0 ? lin(A.L.claw1) : null, off = pos.length / 3;
     for (let i = 0; i < cl.pos.length / 3; i++) { pos.push(cl.pos[i * 3], cl.pos[i * 3 + 1], cl.pos[i * 3 + 2]); nrmA.push(cl.nor[i * 3], cl.nor[i * 3 + 1], cl.nor[i * 3 + 2]); const u = smooth(cl.claw[i] * 1.15); base.push(lerp(c0.r, c1.r, u), lerp(c0.g, c1.g, u), lerp(c0.b, c1.b, u)); coatW.push(1); streak.push(0, 0, 0); gl.push(.85); }
     for (const v of cl.tri) idx.push(v + off);
@@ -428,50 +423,169 @@
       }
       for (const v of wrap.tri) idx.push(v + o2);
     }
-    const stats = { triangles: idx.length / 3, skin: paw.tri.length / 3, claws: cl.tri.length / 3, wraps: wrap ? wrap.tri.length / 3 : 0, skinPieces, dropped: paw.dropped, netTris: paw.netTris, ms: Math.round(now() - t0) };
-    return { pos: Float32Array.from(pos), nor: Float32Array.from(nrmA), base: Float32Array.from(base), coatW: Float32Array.from(coatW), streak: Float32Array.from(streak), gloss: Float32Array.from(gl), idx: Uint32Array.from(idx), nSkin, stats };
+    return { pos: Float32Array.from(pos), nor: Float32Array.from(nrmA), base: Float32Array.from(base), coatW: Float32Array.from(coatW), streak: Float32Array.from(streak), gloss: Float32Array.from(gl), idx: Uint32Array.from(idx), nSkin, claws: cl.tri.length / 3 };
   }
-  const BUFS = d => [d.pos.buffer, d.nor.buffer, d.base.buffer, d.coatW.buffer, d.streak.buffer, d.gloss.buffer, d.idx.buffer];
+  /** The left paw at full detail, with its low-detail version in `lod` (~900 skin triangles, no claws; for distant characters). */
+  function buildLeft(species, shapeName, wraps) {
+    const t0 = now(), A = anatomy(species, shapeName), F = fieldOf(A), clawTris = A.claws.length * 104;
+    const paw = surface(F.field, F.lo, F.hi, (wraps ? WRAP_SKIN : BUDGET) - clawTris), skinPieces = components(paw.tri, paw.pos.length / 3);
+    const nor = normalsOf(F.field, paw.pos), ao = occlusion(F.field, paw.pos, nor), pt = paint(A, F, paw.pos, nor);
+    let wrap = null, W = null;
+    if (wraps) { // drop the skin under the cloth, add the cloth
+      W = wrapField(A, F); const keep = [];
+      for (let i = 0; i < paw.pos.length / 3; i++) { const w = W(paw.pos[i * 3], paw.pos[i * 3 + 1], paw.pos[i * 3 + 2]); if (w < .0012) { const k = .0024 * smooth((.0012 - w) / .0015); paw.pos[i * 3] -= nor[i * 3] * k; paw.pos[i * 3 + 1] -= nor[i * 3 + 1] * k; paw.pos[i * 3 + 2] -= nor[i * 3 + 2] * k; } } // the skin at the cloth edge tucks under it (no fur poking through the cotton)
+      for (let t = 0; t < paw.tri.length; t += 3) { const v = [paw.tri[t], paw.tri[t + 1], paw.tri[t + 2]]; if (v.every(i => W(paw.pos[i * 3], paw.pos[i * 3 + 1], paw.pos[i * 3 + 2]) < -.0012)) continue; keep.push(...v); }
+      paw.tri = Int32Array.from(keep);
+      wrap = surface(W, [F.lo[0] - .012, -.135 * A.S, F.lo[2] - .012], [F.hi[0] + .012, .075, F.hi[2] + .012], WRAP_CLOTH); wrap.nor = normalsOf(W, wrap.pos); wrap.ao = occlusion(W, wrap.pos, wrap.nor);
+    }
+    const full = pack(A, { pos: paw.pos, tri: paw.tri, nor, ao, pt }, true, wrap);
+    full.stats = { triangles: full.idx.length / 3, skin: paw.tri.length / 3, claws: full.claws, wraps: wrap ? wrap.tri.length / 3 : 0, skinPieces, dropped: paw.dropped, netTris: paw.netTris, ms: 0 };
+    // low detail: the same surface collapsed further (it keeps its outline), shaded again from the field
+    const ls = decimate(Float64Array.from(paw.pos), Int32Array.from(paw.tri), Math.round(LOD_SKIN * (wraps ? WRAP_SKIN / BUDGET : 1))), ln = normalsOf(F.field, ls.pos);
+    let lw = null; if (wrap) { lw = decimate(Float64Array.from(wrap.pos), Int32Array.from(wrap.tri), LOD_CLOTH); lw.nor = normalsOf(W, lw.pos); lw.ao = occlusion(W, lw.pos, lw.nor); }
+    full.lod = pack(A, { pos: ls.pos, tri: ls.tri, nor: ln, ao: occlusion(F.field, ls.pos, ln), pt: paint(A, F, ls.pos, ln) }, false, lw);
+    full.lod.stats = { triangles: full.lod.idx.length / 3, lod: true };
+    full.stats.ms = Math.round(now() - t0);
+    return full;
+  }
+  const BUFS = d => [d.pos.buffer, d.nor.buffer, d.base.buffer, d.coatW.buffer, d.streak.buffer, d.gloss.buffer, d.idx.buffer, ...(d.lod ? BUFS(d.lod) : [])];
 
   /* ---------------------------------------------------------------- in a worker: build on request, hand the arrays back */
   if (WORKER) { G.onmessage = e => { const q = e.data || {}; try { const d = buildLeft(q.species, q.shape, q.wraps); G.postMessage({ key: q.key, d }, BUFS(d)); } catch (x) { G.postMessage({ key: q.key, error: String(x && x.message || x) }); } }; return; }
 
-  /* ---------------------------------------------------------------- on the page: a cache filled by the worker (or built here) */
-  const CACHE = new Map(), PENDING = new Set(), keyOf = (species, shape, wraps) => species + '|' + shape + '|' + (wraps ? 'w' : 'b');
-  let worker = null, workerDead = !SRC || typeof Worker === 'undefined';
-  function workerOf() {
-    if (worker || workerDead) return worker;
-    try {
-      worker = new Worker(SRC);
-      worker.onmessage = e => { const { key, d } = e.data || {}; PENDING.delete(key); if (d && !CACHE.has(key + '|L')) CACHE.set(key + '|L', d); };
-      worker.onerror = ev => { ev?.preventDefault?.(); workerDead = true; worker = null; PENDING.clear(); }; // e.g. offline without the file: build on the page
-    } catch (x) { workerDead = true; worker = null; }
-    return worker;
+  /* ---------------------------------------------------------------- quick stand-in (on the page, a few ms)
+   * Until the worker has delivered a shape, the paw shows this: the same anatomy (palm, knuckles, finger chains, thumb, pads,
+   * claws) as low-poly capsules and ellipsoids with the same colour recipe (coat on the back, palm and pads underneath). It is only
+   * a stand-in for a few seconds; the real surface replaces it as soon as it is ready. No field is evaluated here. */
+  function quickLeft(species, shapeName, wraps) {
+    const t0 = now(), A = anatomy(species, shapeName), L = A.L, S = A.S, palmC = lin(L.palm), padC = lin(L.pad);
+    const pos = [], nor = [], base = [], coatW = [], streak = [], gl = [], idx = [];
+    // w: 0 coat .. 1 palm colour; pn: the palm direction of this part
+    const vert = (p, n, pn, c, padTone) => {
+      pos.push(p[0], p[1], p[2]); nor.push(n[0], n[1], n[2]);
+      const fur = smooth((-p[1] - .012) / .05), w = padTone ? 1 : smooth((dot(n, pn) - .2) / .35) * fur;
+      const col = padTone ? padC : c || palmC; base.push(col.r, col.g, col.b); coatW.push(w); streak.push(1, 1, 1); gl.push(padTone ? .5 * padTone : 0);
+    };
+    const RING = 8;
+    const capsule = (a, b, r1, r2, pn) => { // a round-ended tapered tube: rings on the two end spheres
+      const u = nrm(sub(b, a)), v = nrm(Math.abs(u[0]) < .9 ? cross(u, [1, 0, 0]) : cross(u, [0, 1, 0])), w = cross(u, v), o = pos.length / 3, rows = [];
+      for (const [phi, c, r] of [[-1.2, a, r1], [-.6, a, r1], [0, a, r1], [0, b, r2], [.6, b, r2], [1.2, b, r2]]) rows.push([phi, c, r]);
+      for (const [phi, c, r] of rows) for (let q = 0; q < RING; q++) { const t = q / RING * Math.PI * 2, n = add(add(scl(u, Math.sin(phi)), v, Math.cos(phi) * Math.cos(t)), w, Math.cos(phi) * Math.sin(t)); vert(add(c, n, r), n, pn); }
+      const tipA = pos.length / 3; vert(add(a, u, -r1), scl(u, -1), pn); const tipB = pos.length / 3; vert(add(b, u, r2), u, pn);
+      for (let k = 0; k < rows.length - 1; k++) for (let q = 0; q < RING; q++) { const p0 = o + k * RING + q, p1 = o + k * RING + (q + 1) % RING; idx.push(p0, p1, p0 + RING, p1, p1 + RING, p0 + RING); }
+      for (let q = 0; q < RING; q++) { idx.push(tipA, o + (q + 1) % RING, o + q); const l = o + (rows.length - 1) * RING; idx.push(tipB, l + q, l + (q + 1) % RING); }
+    };
+    const ellipsoid = (e, pn, padTone) => { // e: an ell() of the anatomy (centre, radii, frame rows)
+      const m = e.m, X = [m[0], m[1], m[2]], Y = [m[3], m[4], m[5]], Z = [m[6], m[7], m[8]], c = [e.cx, e.cy, e.cz], o = pos.length / 3, LAT = 5;
+      for (let i = 0; i <= LAT; i++) { const th = i / LAT * Math.PI; for (let q = 0; q < RING; q++) { const ph = q / RING * Math.PI * 2, l = [Math.sin(th) * Math.cos(ph), Math.cos(th), Math.sin(th) * Math.sin(ph)];
+        const p = add(add(add(c, X, l[0] * e.rx), Y, l[1] * e.ry), Z, l[2] * e.rz), n = nrm(add(add(scl(X, l[0] / e.rx), Y, l[1] / e.ry), Z, l[2] / e.rz)); vert(p, n, pn, null, padTone); } }
+      for (let i = 0; i < LAT; i++) for (let q = 0; q < RING; q++) { const p0 = o + i * RING + q, p1 = o + i * RING + (q + 1) % RING; idx.push(p0, p1, p0 + RING, p1, p1 + RING, p0 + RING); } // outward winding
+    };
+    const cone2 = q => [[q.ax, q.ay, q.az], [q.ax + q.bax, q.ay + q.bay, q.az + q.baz]], Zp = [0, 0, 1];
+    { const [a, b] = cone2(A.base.wrist); capsule(a, b, A.base.wrist.r1, A.base.wrist.r2, Zp); }
+    for (const [q] of A.base.list) if (q.k === 0) { const [a, b] = cone2(q); capsule(a, b, q.r1, q.r2, Zp); } else if (q.k === 1) ellipsoid(q, Zp);
+    for (const [q] of A.base.tops) ellipsoid(q, Zp);
+    for (const c of A.chains) c.segs.forEach((s, i) => { const [a, b] = cone2(s); capsule(a, b, s.r1, s.r2, c.nor[i]); });
+    for (const p of A.pads) { const e = p.p, inflate = { ...e, rx: e.rx * 1.08, ry: e.ry * 1.08, rz: e.rz * 1.25 }; ellipsoid(inflate, Zp, p.tone); }
+    const nSkin = pos.length / 3, cl = { pos: [], nor: [], tri: [], claw: [] }; for (const c of A.claws) clawMesh(c, cl);
+    const c0 = typeof L.claw0 === 'string' ? lin(L.claw0) : null, c1 = c0 ? lin(L.claw1) : null, off = pos.length / 3;
+    for (let i = 0; i < cl.pos.length / 3; i++) { pos.push(cl.pos[i * 3], cl.pos[i * 3 + 1], cl.pos[i * 3 + 2]); nor.push(cl.nor[i * 3], cl.nor[i * 3 + 1], cl.nor[i * 3 + 2]); const u = smooth(cl.claw[i] * 1.15); base.push(lerp(c0.r, c1.r, u), lerp(c0.g, c1.g, u), lerp(c0.b, c1.b, u)); coatW.push(1); streak.push(0, 0, 0); gl.push(.85); }
+    for (const v of cl.tri) idx.push(v + off);
+    if (wraps) { // the cloth: a sleeve on the wrist and a flattened shell over the palm and knuckles
+      const cloth = lin('#d9d2c4'), o = pos.length / 3, n0 = pos.length / 3; void o; void n0;
+      const before = pos.length / 3; capsule([0, .066, 0], [0, -.004, 0], .0612, .0552, Zp); ellipsoid({ cx: .002 * S, cy: -.052 * S, cz: .004, rx: .061 * S, ry: .072 * S, rz: .037 * S, m: [1, 0, 0, 0, 1, 0, 0, 0, 1] }, Zp);
+      for (let i = before; i < pos.length / 3; i++) { base[i * 3] = cloth.r; base[i * 3 + 1] = cloth.g; base[i * 3 + 2] = cloth.b; coatW[i] = 1; streak[i * 3] = streak[i * 3 + 1] = streak[i * 3 + 2] = 0; gl[i] = 0; }
+    }
+    const d = { pos: Float32Array.from(pos), nor: Float32Array.from(nor), base: Float32Array.from(base), coatW: Float32Array.from(coatW), streak: Float32Array.from(streak), gloss: Float32Array.from(gl), idx: Uint32Array.from(idx), nSkin };
+    d.stats = { triangles: idx.length / 3, quick: true, ms: +(now() - t0).toFixed(2) }; return d;
+  }
+
+  /* ---------------------------------------------------------------- on the page: a cache filled by background workers
+   * Shapes are built in Web Workers (the same file), in priority order: 0 a shape wanted on screen now, 1 a character just made
+   * or a scene about to start (Paws.prefetch), 2 the rest of a character's shapes, 3 the warm-up after page load. Until a shape is
+   * ready the paw shows the nearest ready shape of its species, or the quick stand-in: a film or a fight never waits for a field
+   * (0.3-0.9 s per shape on a desktop, several seconds on a phone). Without Worker support (node tests) shapes are built right
+   * here on demand, as before; if the worker fails to start in a browser, shapes are built here one at a time between frames. */
+  const CACHE = new Map(), QUICK = new Map(), QUEUE = new Map(), PENDING = new Set(), FAILED = new Set(), keyOf = (species, shape, wraps) => species + '|' + shape + '|' + (wraps ? 'w' : 'b');
+  const SYNC = !SRC || typeof Worker === 'undefined', debug = { worker: 0, workerMs: 0, page: [], quick: 0, quickMs: 0, lod: 0, full: 0 }; // page: shapes built on the page [key, ms]; quick/lod/full: geometry swaps
+  const MAXW = Math.max(1, Math.min(2, ((typeof navigator !== 'undefined' && navigator.hardwareConcurrency) || 2) - 2));
+  let workers = [], workerDead = SYNC, seq = 0, idleT = null;
+  function spawn() {
+    let w = null;
+    try { w = new Worker(SRC); } catch (x) { return null; }
+    w.job = null;
+    w.onmessage = e => { const { key, d } = e.data || {}; w.job = null; PENDING.delete(key); if (d) { if (!CACHE.has(key + '|L')) CACHE.set(key + '|L', d); debug.worker++; debug.workerMs += d.stats?.ms || 0; } else FAILED.add(key); pump(); };
+    w.onerror = ev => { ev?.preventDefault?.(); die(); }; // e.g. offline without the file: build here between frames
+    return w;
+  }
+  function die() {
+    workerDead = true;
+    for (const w of workers) { if (w.job) { PENDING.delete(w.job.key); QUEUE.set(w.job.key, w.job); } try { w.terminate(); } catch (x) { /* gone */ } }
+    workers = []; PENDING.clear(); pump();
+  }
+  const next = () => { let best = null; for (const j of QUEUE.values()) if (!best || j.prio < best.prio || (j.prio === best.prio && j.seq < best.seq)) best = j; if (best) QUEUE.delete(best.key); return best; };
+  function pump() {
+    if (SYNC) return;
+    if (workerDead) { // one shape at a time on the page, between frames
+      if (idleT || !QUEUE.size) return;
+      idleT = setTimeout(() => { idleT = null; const j = next(); if (j && !CACHE.has(j.key + '|L')) { const t0 = now(); try { CACHE.set(j.key + '|L', buildLeft(j.species, j.shape, j.wraps)); } catch (x) { FAILED.add(j.key); } debug.page.push([j.key, Math.round(now() - t0)]); } pump(); }, 120);
+      return;
+    }
+    while (QUEUE.size) {
+      let w = workers.find(x => !x.job);
+      if (!w) { if (workers.length >= MAXW) return; w = spawn(); if (!w) { die(); return; } workers.push(w); }
+      const j = next(); PENDING.add(j.key); w.job = j; w.postMessage({ key: j.key, species: j.species, shape: j.shape, wraps: j.wraps });
+    }
   }
   const norm = (species, shape) => [LOOK[species] ? species : 'lion', SHAPES[shape] ? shape : 'fist'];
   const isReady = (species, shape, wraps) => CACHE.has(keyOf(...norm(species, shape), wraps) + '|L');
-  /** Asks the worker for a shape (no-op when it is ready, on its way, or there is no worker). */
-  function request(species, shape, wraps) { [species, shape] = norm(species, shape); const key = keyOf(species, shape, wraps); if (CACHE.has(key + '|L')) return false; if (PENDING.has(key)) return true; const w = workerOf(); if (!w) return false; PENDING.add(key); w.postMessage({ key, species, shape, wraps: !!wraps }); return true; } // true: on its way
+  /** Asks for a shape in the background (prio: 0 now .. 3 warm-up; a later ask with a lower number moves it up the queue).
+   *  Returns true while it is on its way, false when it is ready, failed or there is no worker (node: built on demand). */
+  function request(species, shape, wraps, prio = 2) {
+    [species, shape] = norm(species, shape); const key = keyOf(species, shape, wraps);
+    if (CACHE.has(key + '|L') || FAILED.has(key) || SYNC) return false;
+    if (PENDING.has(key)) return true;
+    const j = QUEUE.get(key); if (j) j.prio = Math.min(j.prio, prio); else QUEUE.set(key, { key, species, shape, wraps: !!wraps, prio, seq: seq++ });
+    pump(); return true;
+  }
+  /** Asks for the paws of the characters a coming scene needs, ahead of the warm-up. who: character ids (bruno, fang, hazel,
+   *  otto, rourke), species names, or { who, wraps }. o.shapes (default all, relaxed first), o.prio (default 1). */
+  function prefetch(who, o = {}) {
+    for (const w of [].concat(who || [])) {
+      const id = typeof w === 'string' ? w : w?.who, sp = CHAR[id] || (LOOK[id] ? id : null); if (!sp) continue;
+      const wraps = !!(w?.wraps || id === 'rourke'); for (const sh of o.shapes || ORDER) request(sp, sh, wraps, o.prio ?? 1);
+    }
+  }
   function mirror(L) { // the right hand: x mirrored, winding flipped
     const pos = L.pos.slice(), nor = L.nor.slice(), idx = L.idx.slice();
     for (let i = 0; i < pos.length; i += 3) { pos[i] = -pos[i]; nor[i] = -nor[i]; }
     for (let t = 0; t < idx.length; t += 3) { const v = idx[t + 1]; idx[t + 1] = idx[t + 2]; idx[t + 2] = v; }
-    return { ...L, pos, nor, idx };
+    return { ...L, pos, nor, idx, lod: L.lod ? mirror(L.lod) : undefined };
   }
-  /** The shared data of one paw (built here now if neither the cache nor the worker has it). */
+  /** The shared data of one paw (built here now if neither the cache nor the worker has it: node tests and QA; the game's paws
+   *  never call this for a shape that is not ready). */
   function build(species, shape, side, o = {}) {
     [species, shape] = norm(species, shape); const wraps = !!o.wraps, key = keyOf(species, shape, wraps);
-    let L = CACHE.get(key + '|L'); if (!L) { L = buildLeft(species, shape, wraps); CACHE.set(key + '|L', L); }
+    let L = CACHE.get(key + '|L'); if (!L) { const t0 = now(); L = buildLeft(species, shape, wraps); CACHE.set(key + '|L', L); if (!SYNC) debug.page.push([key, Math.round(now() - t0)]); }
     if (side !== 'R') return L;
     let R = CACHE.get(key + '|R'); if (!R) { R = mirror(L); CACHE.set(key + '|R', R); } return R;
   }
+  /** The quick stand-in of a shape (made here, a few ms). */
+  function quick(species, shape, side, o = {}) {
+    [species, shape] = norm(species, shape); const key = keyOf(species, shape, o.wraps);
+    let L = QUICK.get(key + '|L'); if (!L) { L = quickLeft(species, shape, !!o.wraps); QUICK.set(key + '|L', L); debug.quickMs += L.stats.ms; }
+    if (side !== 'R') return L;
+    let R = QUICK.get(key + '|R'); if (!R) { R = mirror(L); QUICK.set(key + '|R', R); } return R;
+  }
   const geoCache = new Map();
-  /** A BufferGeometry for one paw in one coat: position/normal/index/uv/gloss shared across coats, colour per coat. */
+  /** A BufferGeometry for one paw in one coat: position/normal/index/uv/gloss shared across coats, colour per coat.
+   *  o: { wraps, detail: 'full' (default) | 'lod' (distant) | 'quick' (the stand-in) }. */
   function geometry(species, shape, side, coat, o = {}) {
     [species, shape] = norm(species, shape);
-    const key = species + '|' + shape + '|' + side + '|' + (o.wraps ? 'w' : 'b'), coatKey = key + '|' + coat.getHexString();
+    const detail = o.detail === 'quick' || o.detail === 'lod' ? o.detail : 'full', key = species + '|' + shape + '|' + side + '|' + (o.wraps ? 'w' : 'b') + (detail === 'full' ? '' : '|' + detail), coatKey = key + '|' + coat.getHexString();
     let g = geoCache.get(coatKey); if (g) return g;
-    const d = build(species, shape, side, o); let shared = geoCache.get(key);
+    let d = detail === 'quick' ? quick(species, shape, side, o) : build(species, shape, side, o); if (detail === 'lod') d = d.lod || d;
+    let shared = geoCache.get(key);
     if (!shared) {
       const uv = new Float32Array(d.pos.length / 3 * 2); for (let i = 0; i < d.pos.length / 3; i++) { uv[i * 2] = (d.pos[i * 3] + d.pos[i * 3 + 2] * .8) * 2; uv[i * 2 + 1] = d.pos[i * 3 + 1] * 2; }
       shared = { position: new T.BufferAttribute(d.pos, 3), normal: new T.BufferAttribute(d.nor, 3), uv: new T.BufferAttribute(uv, 2), gloss: new T.BufferAttribute(d.gloss, 1), index: new T.BufferAttribute(d.idx, 1) }; geoCache.set(key, shared);
@@ -479,7 +593,7 @@
     const n = d.pos.length / 3, col = new Float32Array(n * 3), cc = [coat.r, coat.g, coat.b];
     for (let i = 0; i < n; i++) { const w = d.coatW[i]; for (let k = 0; k < 3; k++) col[i * 3 + k] = lerp(d.streak[i * 3 + k] * cc[k], d.base[i * 3 + k], w); }
     g = new T.BufferGeometry(); g.setIndex(shared.index); g.setAttribute('position', shared.position); g.setAttribute('normal', shared.normal); g.setAttribute('uv', shared.uv); g.setAttribute('pawGloss', shared.gloss); g.setAttribute('color', new T.BufferAttribute(col, 3));
-    g.computeBoundingSphere(); g.boundingSphere.radius += .01; g.userData.paw = { species, shape, side, wraps: !!o.wraps, stats: d.stats };
+    g.computeBoundingSphere(); g.boundingSphere.radius += .01; g.userData.paw = { species, shape, side, wraps: !!o.wraps, detail, stats: d.stats };
     geoCache.set(coatKey, g); return g;
   }
 
@@ -513,39 +627,63 @@
     const h = rig.pawHold?.[side]; if (h && h.visible && h.parent) return 'grip'; // something held by its handle (Hazel's handbag, Fang's jacket)
     const p = rig.pawPose; return p && p.time === rig.renderTime && SHAPES[p[side]] ? p[side] : 'fist';
   }
+  // Detail by size on screen: a paw under 3 % of the view height (~20 px on a phone) draws the low-detail paw, back to full above 4 %.
+  const LOD_IN = .03, LOD_OUT = .04, PAW_SIZE = .2, _a = new T.Vector3(), _b = new T.Vector3();
+  function farFrom(m, cam, was) {
+    if (!cam?.isPerspectiveCamera) return false;
+    _a.setFromMatrixPosition(m.matrixWorld); _b.setFromMatrixPosition(cam.matrixWorld);
+    const view = 2 * _a.distanceTo(_b) * Math.tan(cam.fov * Math.PI / 360) / (cam.zoom || 1), frac = PAW_SIZE / Math.max(view, 1e-6);
+    return was ? frac < LOD_OUT : frac < LOD_IN;
+  }
   /** Big bare paws on both hand joints. Returns [L, R]. o: { species, fur (coat override), fallback (coat if the skin has none),
    *  wraps, name }. Pads, palm and claws are the species' own (a caller's pad colour is not used). Without `fur` the coat is
-   *  sampled again when the paw is first drawn (cast characters are painted after their hands are made). The first shape is
-   *  built here if it is not ready; the others come from the worker, and until one is ready the nearest ready shape shows. */
+   *  sampled again when the paw is first drawn (cast characters are painted after their hands are made). Nothing is built here:
+   *  the shapes come from the workers (the one on screen first); until one is ready the nearest ready shape shows, or the quick
+   *  stand-in. Each paw has a detail marker just before it on the hand joint (an LOD hook the renderer calls with each camera)
+   *  that switches it to the low-detail paw when it is small on screen. */
   function attach(rig, o = {}) {
     const species = norm(o.species || speciesOf(rig), 'fist')[0], wraps = !!o.wraps, out = [];
     let coat = o.fur ? color(o.fur) : coatOf(rig, o.fallback), sampled = !!o.fur;
-    for (const sh of ORDER) request(species, sh, wraps);
-    const first = ORDER.find(sh => isReady(species, sh, wraps)) || 'relaxed';
+    const ready = sh => SYNC || isReady(species, sh, wraps);
+    request(species, wanted(rig, 'L'), wraps, 1); for (const sh of ORDER) request(species, sh, wraps, 2);
     for (const side of ['L', 'R']) {
-      const m = new T.Mesh(geometry(species, first, side, coat, { wraps }), material(rig)); m.name = o.name || 'Bare hand'; m.castShadow = true; m.receiveShadow = false;
+      const st = { shape: null, via: null, until: 0, final: null, far: false };
+      const m = new T.Mesh(undefined, material(rig)); m.name = o.name || 'Bare hand'; m.castShadow = true; m.receiveShadow = false;
       m.userData.storyPart = true; m.userData.mane = true; m.userData.paw = { species, side, wraps }; if (wraps) m.userData.wraps = true;
-      const st = { shape: first, via: null, until: 0, final: null };
-      const choose = () => {
-        if (!sampled) { sampled = true; const c = coatOf(rig, o.fallback); if (c.getHex() !== coat.getHex()) { coat = c; for (const p of out) p.userData.shape = null; } }
-        let want = wanted(rig, side);
-        if (!isReady(species, want, wraps) && request(species, want, wraps)) { const alt = [st.shape, ...ORDER].find(s => isReady(species, s, wraps)); if (alt) want = alt; } // never wait for the worker: the nearest ready shape until it comes (no worker: built here)
-        if (want !== st.shape && !st.via) { const far = Math.abs(SWITCH[want] - SWITCH[st.shape]) > 1; if (far && !rig.pawOverride && isReady(species, 'grip', wraps)) { st.via = 'grip'; st.until = now() + 55; st.final = want; } else st.shape = want; } // a hand that opens or closes passes the half-closed hand (~2 frames)
-        if (st.via && (now() >= st.until || want !== st.final)) { st.shape = want; st.via = null; }
-        const show = st.via || st.shape; if (m.userData.shape !== show) { m.geometry = geometry(species, show, side, coat, { wraps }); m.userData.shape = show; }
+      const show = sh => { // the geometry for a shape: full or low detail when it is ready, else the quick stand-in
+        const real = ready(sh), detail = !real ? 'quick' : st.far ? 'lod' : 'full', key = sh + '|' + detail;
+        if (m.userData.pawKey !== key) { m.geometry = geometry(species, sh, side, coat, { wraps, detail }); m.userData.pawKey = key; debug[detail]++; }
+        m.userData.shape = sh; m.userData.pawDetail = detail;
       };
+      const choose = () => {
+        if (!sampled) { sampled = true; const c = coatOf(rig, o.fallback); if (c.getHex() !== coat.getHex()) { coat = c; for (const p of out) p.userData.pawKey = null; } }
+        let want = wanted(rig, side);
+        if (!ready(want)) { request(species, want, wraps, 0); const alt = [st.shape, ...ORDER].find(s => s && ready(s)); if (alt) want = alt; } // never wait for the worker: the nearest ready shape until it comes, else the stand-in
+        if (want !== st.shape && !st.via) { const far = Math.abs(SWITCH[want] - SWITCH[st.shape]) > 1; if (far && !rig.pawOverride && ready('grip')) { st.via = 'grip'; st.until = now() + 55; st.final = want; } else st.shape = want; } // a hand that opens or closes passes the half-closed hand (~2 frames)
+        if (st.via && (now() >= st.until || want !== st.final)) { st.shape = want; st.via = null; }
+        show(st.via || st.shape);
+      };
+      st.shape = ORDER.find(sh => isReady(species, sh, wraps)) || (SYNC ? 'relaxed' : wanted(rig, side)); show(st.shape);
       const base = T.Mesh.prototype.updateMatrixWorld;
       m.updateMatrixWorld = function (force) { if (this.visible) { try { choose(); } catch (x) { /* keep the last shape */ } } return base.call(this, force); };
-      m.userData.shape = first; rig.joints['hand' + side].add(m); out.push(m);
+      const lod = new T.Object3D(); lod.name = 'Paw detail'; lod.userData.storyPart = true; lod.userData.pawDetail = true;
+      Object.defineProperty(lod, 'isLOD', { value: true }); lod.autoUpdate = true; // the renderer calls update(camera) on it while projecting, before the paw after it
+      lod.update = cam => { if (!m.visible || !m.parent) return; const far = farFrom(m, cam, st.far); if (far !== st.far) { st.far = far; try { show(m.userData.shape); } catch (x) { /* keep it */ } } };
+      rig.joints['hand' + side].add(lod, m); out.push(m);
     }
     return out;
   }
-  /** Asks the worker for every shape of a species (built here instead when there is no worker and `now` is set). */
-  function warm(species, o = {}) { for (const sh of ORDER) if (!request(species, sh, o.wraps) && o.now && !isReady(species, sh, o.wraps)) for (const s of ['L', 'R']) build(species, sh, s, o); }
-  // the Fighter's paws (lion, rabbit) are made in the background once the game has loaded, before the first street scene
-  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') window.addEventListener('load', () => setTimeout(() => { for (const [sp, sh] of [['lion', 'relaxed'], ['lion', 'fist'], ['bear', 'relaxed'], ['rabbit', 'relaxed'], ['lion', 'grip'], ['rabbit', 'fist']]) request(sp, sh, false); }, 2500)); // the Fighter (lion or rabbit) and Bruno, before the first street or gym scene
+  /** Asks the workers for every shape of a species (built here instead when there is no worker and `now` is set). */
+  function warm(species, o = {}) { for (const sh of ORDER) if (!request(species, sh, o.wraps, o.prio ?? 3) && o.now && !isReady(species, sh, o.wraps)) for (const s of ['L', 'R']) build(species, sh, s, o); }
+  // After the game has loaded: the Fighter's paws (his species) and Bruno's, before the first street or gym scene. Everyone else is
+  // asked for when they are made or when a scene that needs them is coming (Paws.prefetch).
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') window.addEventListener('load', () => setTimeout(() => {
+    const fighter = window.app?.engine?.coach?.species === 'rabbit' ? 'rabbit' : 'lion';
+    for (const sh of ['relaxed', 'fist', 'grip', 'open', 'point']) request(fighter, sh, false, 3);
+    for (const sh of ['relaxed', 'open', 'point', 'grip', 'fist']) request('bear', sh, false, 3);
+  }, 2500));
 
-  const api = { attach, build, geometry, warm, request, isReady, shapeFor, speciesOf, coatOf, material, components, LOOK, SHAPES, GESTURE, BUDGET, species: Object.keys(LOOK), shapes: ORDER.slice(), _anatomy: anatomy, _field: fieldOf, _pending: () => PENDING.size, get worker() { return !!worker; } };
+  const api = { attach, build, geometry, quick, warm, request, prefetch, isReady, shapeFor, speciesOf, coatOf, material, components, LOOK, SHAPES, GESTURE, BUDGET, LOD: { in: LOD_IN, out: LOD_OUT }, species: Object.keys(LOOK), shapes: ORDER.slice(), debug, _anatomy: anatomy, _field: fieldOf, _pending: () => PENDING.size + QUEUE.size, get worker() { return workers.length > 0; }, get sync() { return SYNC; } };
   if (typeof window !== 'undefined') window.Paws = api;
   if (typeof module !== 'undefined') module.exports = api;
 })();

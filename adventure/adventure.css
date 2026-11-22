@@ -90,3 +90,4 @@
 @keyframes adv-title{0%{opacity:0;transform:translateY(8px)}15%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.adv-title-card{animation:none}}
 .adv-card:not(.open){overflow:hidden;overflow:clip}
+.adv-fact .adv-bust.sp-portrait.adv-fact-face{--sp:26px;width:var(--sp);height:var(--sp);padding:1.5px}

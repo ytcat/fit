@@ -653,6 +653,8 @@
         const pic = mk('div', 'sf-pic'), St = window.AdventureStory; pic.append(St.bust(cur.who), mk('strong', 'sf-pic-name', T(St.who[cur.who].name)));
         quest.append(pic);
       }
+      // GOTR-0100 follow-up (phones): the paws of the coming scene start building in the background while the panel is read
+      try { if (!window.DreamScenes?.prefetch?.(cur.scene || cur.id) && cur.who) window.Paws?.prefetch?.([cur.who === 'hook' ? 'rourke' : cur.who], { prio: 2 }); } catch { /* paws are optional */ }
       quest.append(kicker(`${chLine} — ${fill(w.stepOf, { i: cur.n, n: st.total })}`), mk('h4', 'sf-title', T(cur.title)), mk('p', 'sf-why', T(cur.why)), mk('p', 'sf-goal', goalLine(cur)));
       if (cur.stand) quest.append(mk('p', 'sf-stand', standLine(cur).text));
       const u = F.unlocks(cur.id), opens = [u.next ? T(F.find(u.next).title) : null, u.extra ? T(u.extra) : null].filter(Boolean);
