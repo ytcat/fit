@@ -3,7 +3,7 @@
 // skip, short breaks, no break in single-round bouts, no stool through the ropes.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');global.THREE=require('../assets/vendor/three.min.js');global.window=global;
 global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,key)=>key==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
-for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js','boxing-fight.js','fight-referee.js','fight-arena.js','boxing-footwear.js','adventure/story/story-cast.js','adventure/story/street-wear.js','adventure/story/dream-pose.js','fight-corner.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
+for(const f of ['boxing-routines.js','boxing-coach-v2.js','contact-response.js','training-arena.js','boxing-fight.js','fight-referee.js','fight-arena.js','boxing-footwear.js','adventure/story/paws.js', 'adventure/story/story-cast.js','adventure/story/street-wear.js','adventure/story/dream-pose.js','fight-corner.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'));
 const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
 const data=JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')),coach=new LionCoach(data),e={scene:new THREE.Scene(),camera:new THREE.PerspectiveCamera(38,.6,.1,100),coach,animTime:0,technique:'guard',currentAnim:'one_two',fitCameraToModel(){}};
 e.demoModel=coach.root;e.scene.add(coach.root);const arena=e.arena=new TrainingArena(e,data);

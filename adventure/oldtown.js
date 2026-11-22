@@ -6,6 +6,9 @@
   const L = (en, he, ru) => ({ en, he, ru });
   const A = () => window.AdventureProgress, G = () => window.GotrGlossary;
   const POWER_MARK = .7; // the power meter's "strong" level (power-meter.js STRONG)
+  // Coach-called bag combos: the last punch must land clean. The pad alternates the hands, so a jab lands ~0.6 and a cross ~0.83
+  // (measured in the night training); 0.55 accepts either when it lands square and rejects glancing hits on the swinging bag (0.2-0.45).
+  const CALL_POWER = .55;
   const copy = {
     en: { startStory: 'Start the story ▶', startCh: 'Start ▶', cont: 'Continue story ▶ {t}', goTo: 'Go to {c} ▶', step: 'Step {n} of 5', recap: 'Story so far', chWord: 'Chapter', chDone: 'Chapter {n} complete', goal1: "Earn your place in Bruno's gym and beat Brick.", goal2: "Win the street's respect and beat King Hyena.",  challenge: 'Challenge {b} ▶', challengeNeed: 'Challenge {b} (Level {n} needed · you are Level {l}) ▶', fightB: 'Fight {b}', nextCh: '{c} unlocked ▶',  journal: 'Story journal', jEmpty: 'No story lines seen yet.', beat: 'Story beat',  next: 'Next mission: {t} ▶', retry: 'Retry for ★★★', map: 'Old Town map', brickGo: 'Challenge Brick ▶', brickNeed: 'Challenge Brick (Level {n} needed · you are Level {l}) ▶', market: 'Market Row unlocked ▶', xp: '+{n} XP', coins: '+{n} ◈',  coach: 'Coach Bruno, bear', missions: "Coach Bruno's missions", stars: 'stars', goal: '3 stars', best: 'Best', start: 'Start', replay: 'Replay', soon: 'Coming soon', type: { training: 'Training', funny: 'Funny', help: 'Help' }, boss: 'Boss', fl: 'Fighter Level', entry: 'Entry Level', chance: 'Chance', fight: 'Fight Brick', won: 'Beaten', warnT: 'Big difference: low chance to win', warnGo: 'Fight anyway', warnBack: 'Train first', locked: 'Locked. Reach Level {n} to challenge Brick.', quit: 'Quit mission', back: 'Back to Old Town', again: 'Try again', rematch: 'Rematch', result: 'Result', newStars: '+{n} stars', noStars: 'No new stars', measured: 'Measured', level: 'Fighter Level {a} → {b}', stat: { power: 'Power', speed: 'Speed', stamina: 'Stamina' }, none: 'Not enough yet for a star. Try again.', bossWin: 'You beat Brick!', bossLoss: 'Brick won this one. Losing costs nothing.', open: 'Market Row is open.', err: 'Could not save the result: ', noStart: 'This activity could not start right now.', mission: 'Mission' },
     he: { startStory: 'להתחיל את הסיפור ◀', startCh: 'להתחיל ◀', cont: 'להמשיך בסיפור ◀ {t}', goTo: 'ללכת אל {c} ◀', step: 'שלב {n} מתוך 5', recap: 'עד כה בסיפור', chWord: 'פרק', chDone: 'פרק {n} הושלם', goal1: 'הרוויחו את מקומכם באולם של ברונו ונצחו את בריק.', goal2: 'זכו בכבוד הרחוב ונצחו את מלך הצבועים.',  challenge: 'לאתגר את {b} ◀', challengeNeed: 'לאתגר את {b} (נדרשת רמה {n} · אתם ברמה {l}) ◀', fightB: 'להילחם ב{b}', nextCh: '{c} נפתח ◀',  journal: 'יומן הסיפור', jEmpty: 'עוד לא נראו שורות סיפור.', beat: 'שלב בסיפור',  next: 'המשימה הבאה: {t} ◀', retry: 'שוב ל-★★★', map: 'מפת העיר העתיקה', brickGo: 'לאתגר את בריק ◀', brickNeed: 'לאתגר את בריק (נדרשת רמה {n} · אתם ברמה {l}) ◀', market: 'שדרת השוק נפתחה ◀', xp: '+{n} ניסיון', coins: '+{n} ◈',  coach: 'המאמן ברונו, דוב', missions: 'המשימות של המאמן ברונו', stars: 'כוכבים', goal: '3 כוכבים', best: 'שיא', start: 'התחלה', replay: 'שוב', soon: 'בקרוב', type: { training: 'אימון', funny: 'מצחיק', help: 'עזרה' }, boss: 'בוס', fl: 'רמת לוחם', entry: 'רמת כניסה', chance: 'סיכוי', fight: 'להילחם בבריק', won: 'ניצחתם', warnT: 'פער גדול: סיכוי נמוך לנצח', warnGo: 'להילחם בכל זאת', warnBack: 'קודם להתאמן', locked: 'נעול. הגיעו לרמה {n} כדי לאתגר את בריק.', quit: 'יציאה מהמשימה', back: 'חזרה לעיר העתיקה', again: 'עוד פעם', rematch: 'קרב חוזר', result: 'תוצאה', newStars: '+{n} כוכבים', noStars: 'אין כוכבים חדשים', measured: 'נמדד', level: 'רמת לוחם {a} ← {b}', stat: { power: 'כוח', speed: 'מהירות', stamina: 'סיבולת' }, none: 'עדיין לא מספיק לכוכב. נסו שוב.', bossWin: 'ניצחתם את בריק!', bossLoss: 'בריק ניצח הפעם. הפסד לא עולה כלום.', open: 'שדרת השוק פתוחה.', err: 'לא ניתן לשמור את התוצאה: ', noStart: 'לא ניתן להתחיל את הפעילות כרגע.', mission: 'משימה' },
@@ -21,11 +24,11 @@
     const t = {
       // GOTR-0078 "The Dream"
       clean_gym: L(`Clean at least ${n}% of the gym floor`, `נקו לפחות ${n}% מרצפת האולם`, `Очистите хотя бы ${n}% пола зала`),
-      night_shadow: L(`${n} punches in 45 seconds of ${shadow}`, `${n} מכות ב-45 שניות של ${shadow}`, `${n} ударов за 45 секунд ${shadow}`),
-      night_bag: L(`Reach the power mark ${n} times`, `הגיעו לסימן העוצמה ${n} פעמים`, `Достигните отметки силы ${n} раз`),
+      night_shadow: L(`${shadow}: hit ${n} called combos`, `${shadow}: בצעו ${n} צירופים שנקראו`, `${shadow}: выполните ${n} названных серий`),
+      night_bag: L(`Hit ${n} called combos, finish each with power`, `בצעו ${n} צירופים שנקראו, סיימו כל אחד בעוצמה`, `Выполните ${n} названных серий, каждую закончите мощно`),
       bag_drill: L(`${n} hits on the new bag in 40 seconds`, `${n} פגיעות בשק החדש ב-40 שניות`, `${n} ударов по новому мешку за 40 секунд`),
-      fight_prep: L(`${n} defences on the mitts (${slip}, ${roll})`, `${n} הגנות על הכפות (${slip}, ${roll})`, `${n} защит на лапах (${slip}, ${roll})`),
-      advanced_training: L(`Counter after the ${slip}: ${n} clean runs`, `מכת נגד אחרי ${slip}: ${n} חזרות נקיות`, `Контратака после ${slip}: ${n} чистых повтора`),
+      fight_prep: L(`Mitts: ${n} called combos with ${slip} and Duck`, `כפות: ${n} צירופים שנקראו עם ${slip} והתכופפות`, `Лапы: ${n} названных серий со ${slip} и нырком`),
+      advanced_training: L(`Defend, then counter: ${n} called combos`, `הגנה ואז מכת נגד: ${n} צירופים שנקראו`, `Защита и контратака: ${n} названных серий`),
       first_stance: L(`Block ${n} partner punches with your ${guard}`, `חסמו ${n} מכות של בן הזוג עם ${guard}`, `Отбейте ${n} ударов партнёра, держа ${guard}`),
       one_two_mitts: L(`${n} clean ${jab}-${cross} hits on the mitts`, `${n} פגיעות נקיות של ${jab}-${cross} בכפות`, `${n} чистых попаданий ${jab}-${cross} по лапам`),
       bag_power: L(`Reach the power mark ${n} times`, `הגיעו לסימן העוצמה ${n} פעמים`, `Достигните отметки силы ${n} раз`),
@@ -63,15 +66,16 @@
       // Much stronger than the Fighter on day one (a regular partner is 0.85-1.15 power/tempo): a loss is expected, a win possible.
       foe: { power: 1.4, tempo: 1.18, skill: .1 } },
     clean_gym: { kind: 'scene', scene: 'clean_gym' }, // GOTR-0099 side job A: direct floor cleaning in Bruno's Gym (adventure/story/mop-game.js)
-    night_shadow: { kind: 'training', mode: 'none', duration: 45, frame: (r, f) => { if (playerOn()) r.value += (f.swings || []).filter(x => x.actor === 'lion').length; } },
-    night_bag: { kind: 'training', mode: 'heavy', duration: 60, after: 'dream_bag_break', imp: (r, h) => { if (powerHit(h)) r.value++; } },
+    // Coach-called combos (owner 2026-11-22, adventure/story/call-core.js): the player's real presses must follow the call in order and in time
+    night_shadow: { kind: 'training', mode: 'none', duration: 40, calls: 'shadow' },
+    night_bag: { kind: 'training', mode: 'heavy', duration: 45, calls: 'bag', after: 'dream_bag_break', imp: (r, h) => { const p = window.PowerMeter?.power(h, 'heavy'); if (playerOn() && p != null && p >= CALL_POWER && h.actor === 'lion') r.caller?.power(); } },
     dream_apology: { kind: 'film', scene: 'dream_apology' }, // GOTR-0096: the morning in the gym (market-core.js); chains into the market
     market_robber: { kind: 'story_fight', venue: 'street', cast: 'fang', after: 'dream_market_reward', rounds: 1, roundSeconds: 45, restSeconds: 0, opponent: L('Fang', 'פאנג', 'Фанг'), foe: { power: 1.05, tempo: 1.02, skill: .02 } },
     buy_heavy_bag: { kind: 'buy', item: 'heavy_bag', film: 'dream_otto_shop' }, // the purchase is confirmed inside the film (GOTR-0096)
     bag_drill: { kind: 'scene', scene: 'bag_duo' }, // GOTR-0106: the two-sided drill with Mack is a skill game (story-scenes.js bag_duo, trials-core.js DuoTrial)
-    fight_prep: { kind: 'training', mode: 'pads', duration: 60, frame: (r, f) => { if (playerOn() && f.defences > 0) r.value += f.defences; } },
+    fight_prep: { kind: 'training', mode: 'pads', duration: 45, calls: 'mitts' },
     docks_fight: { kind: 'story_fight', venue: 'docks', cast: 'rourke', after: 'dream_docks_after', rounds: 2, roundSeconds: 30, restSeconds: 8, opponent: L('Rourke', 'רורק', 'Рурк'), foe: { power: 1.12, tempo: 1.06, skill: .05 } },
-    advanced_training: { kind: 'lesson', comboId: 'counter_chain' },
+    advanced_training: { kind: 'training', mode: 'pads', duration: 40, calls: 'counter' },
     // ---- older chapter-1 missions (GOTR-0069 list): still valid in saves, no longer story steps
     heavy_bag_van: { kind: 'scene', scene: 'carry_bag' },
     snoring_guard: { kind: 'scene', scene: 'snoring_guard' }, // GOTR-0056 / GOTR-0061 skill trials in the story sets (adventure/story/story-scenes.js)
@@ -114,6 +118,21 @@
     txt.className = 'adv-goal-text'; bar.className = 'adv-goal-bar'; bar.append(fillBar); quit.type = 'button'; quit.className = 'adv-goal-quit'; quit.textContent = '×';
     quit.setAttribute('aria-label', W().quit); quit.title = W().quit; quit.onclick = () => abort();
     root.append(txt, bar, quit); (window.app?.engine?.stage||document.body).append(root); r.ui = { root, txt, fillBar };
+  }
+  // The coach's call (call-core.js): the moves as big chips in order, done ones filled, a bar for the time left; ✓ / ✕ after each call.
+  const CALL_WORD = { straight: 'Straight', hook: 'Hook', uppercut: 'Uppercut', slip: 'Slip', duck: L('Duck', 'התכופפות', 'Нырок') };
+  function paintCalls() {
+    const r = run, host = window.app?.engine?.stage; let box = document.getElementById('advCalls');
+    if (!r?.caller || r.ended || !host) { box?.remove(); return; }
+    if (!box) { box = mk('div', 'adv-calls'); box.id = 'advCalls'; box.setAttribute('aria-live', 'polite'); host.append(box); }
+    const v = r.caller.view(), key = [v.seq?.join() || '', v.at, v.waiting, v.flash ? v.flash.ok + '' + v.flash.t : '', lang(), Math.round(v.share * 40)].join('|'); if (box.dataset.key === key) return; box.dataset.key = key;
+    box.replaceChildren(); box.dir = 'ltr';
+    if (v.seq) {
+      const row = mk('div', 'adv-calls-row');
+      v.seq.forEach((m, i) => { const w = CALL_WORD[m], c = mk('span', `adv-call adv-call-${m}${i < v.at ? ' adv-call-done' : i === v.at ? ' adv-call-now' : ''}`, typeof w === 'string' ? term(w) : T(w)); row.append(c); });
+      if (v.power) row.append(mk('span', 'adv-call adv-call-power' + (v.waiting ? ' adv-call-now' : ''), L('Power!', 'עוצמה!', 'Мощно!')[lang()]));
+      const bar = mk('div', 'adv-calls-bar'), fill = mk('i'); fill.style.width = (v.share * 100).toFixed(0) + '%'; bar.append(fill); box.append(row, bar);
+    } else if (v.flash) box.append(mk('div', 'adv-calls-flash ' + (v.flash.ok ? 'ok' : 'bad'), v.flash.ok ? '✓' : '✕'));
   }
   function paintStrip() {
     const r = run; if (!r?.ui?.fillBar) return; // story fights and boss strips have no goal bar (they paint their own text)
@@ -161,7 +180,7 @@
       if (run && !run.ended) try { tickRun(frame, dt); } catch (x) { console.warn('adventure', x); }
       return out;
     };
-    const pl = e.player; if (pl && typeof pl.press === 'function' && !pl.advStepHook) { pl.advStepHook = true; const orig = pl.press; pl.press = function (id, ...a) { const ok = orig.call(this, id, ...a); if (ok && run && !run.ended && run.def.steps && /^step/.test(String(id))) { run.value++; paintStrip(); } return ok; }; }
+    const pl = e.player; if (pl && typeof pl.press === 'function' && !pl.advStepHook) { pl.advStepHook = true; const orig = pl.press; pl.press = function (id, ...a) { const ok = orig.call(this, id, ...a); if (ok && run && !run.ended && run.caller && playerOn()) { run.caller.input(window.CallCore.moveOf(String(id))); paintCalls(); } if (ok && run && !run.ended && run.def.steps && /^step/.test(String(id))) { run.value++; paintStrip(); } return ok; }; }
     const prevFight = c.onFight; c.onFight = function (view) {
       const out = prevFight.call(this, view);
       if (run && !run.ended && (run.def.kind === 'fight' || run.def.kind === 'boss' || run.def.kind === 'story_fight') && view === run.view && view.match?.result) try { fightDone(view); } catch (x) { console.warn('adventure', x); }
@@ -171,7 +190,7 @@
   function tickRun(frame, dt) {
     const r = run, d = r.def, e = window.app.engine; placeStrip();
     if (d.kind === 'training') {
-      d.frame?.(r, frame, dt); paintStrip();
+      d.frame?.(r, frame, dt); if (r.caller) { r.caller.step(dt); r.value = Math.max(r.value, r.caller.value); paintCalls(); } paintStrip();
       const a = e.career.active;
       if (a) { r.session = a.id; if (!r.early && r.value >= r.target) { r.early = true; setTimeout(() => { if (run === r && !r.ended) e.career.finish(); }, 700); } }
       else if (r.session) finishRun();
@@ -207,7 +226,7 @@
 
   const mk = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   const btn = (text, fn, cls) => { const b = mk('button', cls || 'game-button adv-go', text); b.type = 'button'; b.onclick = fn; return b; };
-  function cleanup() { run?.ui?.root.remove(); document.getElementById('advNext')?.remove(); }
+  function cleanup() { run?.ui?.root.remove(); document.getElementById('advNext')?.remove(); document.getElementById('advCalls')?.remove(); }
   function backToTown() {
     cleanup(); window.BagBreak?.training?.(false); const keep = run; run = null; void keep;
     const pin = keep?.id ? CH[chapterOfId(keep.id)]?.pin : null;
@@ -294,7 +313,7 @@
   function abort() { if (!run) return; restoreCast(run); const e = window.app.engine; if (run.def.kind === 'lesson') window.AcademyStage?.stop(); run.ended = true; try { e.career.finish(); } catch { /* none active */ } backToTown(); }
 
   function finishRun() {
-    const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove();
+    const r = run; if (!r || r.ended) return; r.ended = true; r.ui?.root.remove(); document.getElementById('advCalls')?.remove();
     const store = r.ctx.store, before = A().statPoints(store.game()), res = store.gameAction({ type: 'adventure', adventure: 'mission', missionId: r.id, measured: { [r.mission.metric]: r.value } });
     const after = A().statPoints(store.game()), w = W();
     if (!res.ok) toast(w.err + res.error, 'bad');
@@ -310,7 +329,8 @@
   function begin(ctx, id) {
     const mission = A().missions.find(m => m.id === id), def = DEFS[id]; if (!mission || !def) return false;
     cleanup(); run = { id, mission, def, ctx, value: 0, target: mission.thresholds[2], ended: false };
-    hook(); strip(run); paintStrip(); return true;
+    if (def.calls && window.CallCore) run.caller = new window.CallCore.CallDrill(def.calls, { time: def.duration });
+    hook(); strip(run); paintStrip(); paintCalls(); return true;
   }
   // GOTR-0056: story scenes are seen once per browser (a replay of the step shows the short lines instead).
   const seen = k => { try { return localStorage.getItem('gotr-scene-' + k) === '1'; } catch { return false; } };

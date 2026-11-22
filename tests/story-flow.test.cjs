@@ -64,8 +64,8 @@ const DREAM = ['dream_arrival', 'dream_gym_talk', 'first_brick', 'clean_gym', 'n
 {
   const g = g0(); for (const id of ['dream_arrival', 'dream_gym_talk']) ev(g, id); ev(g, 'first_brick', 'lost');
   rec(g,'clean_gym',25);
-  rec(g, 'night_shadow', 19); assert.equal(F.state(g, 1).current.id, 'night_shadow', 'no star: still current');
-  rec(g, 'night_shadow', 20); rec(g, 'night_bag', 1); ev(g, 'dream_apology');
+  rec(g, 'night_shadow', 9); assert.equal(F.state(g, 1).current.id, 'night_shadow', 'no star: still current');
+  rec(g, 'night_shadow', 10); rec(g, 'night_bag', 10); ev(g, 'dream_apology');
   assert.throws(() => ev(g, 'market_robber', 'lost'), /Win the fight/); assert.equal(F.state(g, 1).current.id, 'market_robber');
   ev(g, 'market_robber', 'won'); assert.equal(F.state(g, 1).current.id, 'buy_heavy_bag');
 }
@@ -78,7 +78,7 @@ const DREAM = ['dream_arrival', 'dream_gym_talk', 'first_brick', 'clean_gym', 'n
     const mem = { v: new Map(), getItem(k) { return this.v.get(k) || null; }, setItem(k, x) { this.v.set(k, x); } };
     const s = new CareerStore(mem); s.create('Coins'); const act = a => s.gameAction({ type: 'adventure', adventure: 'story', ...a });
     for (const step of ['dream_arrival', 'dream_gym_talk']) assert.equal(act({ step }).ok, true); assert.equal(act({ step: 'first_brick', outcome: 'lost' }).ok, true);
-    for (const [id, v] of [['clean_gym',25], ['night_shadow', 20], ['night_bag', 1]]) assert.equal(s.gameAction({ type: 'adventure', adventure: 'mission', missionId: id, measured: v }).ok, true);
+    for (const [id, v] of [['clean_gym',25], ['night_shadow', 10], ['night_bag', 10]]) assert.equal(s.gameAction({ type: 'adventure', adventure: 'mission', missionId: id, measured: v }).ok, true);
     assert.equal(act({ step: 'dream_apology' }).ok, true);
     const c0 = D.wallet(s.game()).coins;
     assert.equal(act({ step: 'buy_heavy_bag' }).ok, false, 'the bag cannot be bought before the market');

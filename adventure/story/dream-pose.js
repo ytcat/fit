@@ -11,6 +11,8 @@
  *   arms         { L, R }: gesture name per arm (GESTURES) ; look: { yaw, pitch } head turn (radians, + = to the rig's +x / up)
  *   lean         forward lean (radians) ; talk 0..1 mouth ; nod 0..1 ; drop metres the pelvis sinks (step down, sitting back)
  *   dt           frame time for smoothing (0 = jump to the pose)
+ *   paws         { L, R }: paw shape override (relaxed | open | point | grip | fist); by default the gesture picks it (Paws.shapeFor,
+ *                an exact reach holds a grip) and rig.pawPose = { L, R, time: renderTime } tells adventure/story/paws.js (GOTR-0100)
  * DreamPose.STRIDE  metres per walk cycle (two steps). DreamPose.feet(rig) -> world positions of both foot balls (QA: sliding).
  * Rig axes: +z forward, +y up; the side called L is at -x. */
 (() => {
@@ -176,9 +178,10 @@
       footTargets.push({ side: p.side, error: err, ankle: ankle.toArray(), pivot: 0, lift: p.y - ANKLE, contact: [p.x, 0, p.z + BALL] });
     }
     // arms: gesture targets, smoothed; while walking the hanging arm swings against its leg
-    const gloves = [], handErrors = [];
+    const gloves = [], handErrors = [], paws = { time: c.renderTime }; // GOTR-0100: the paw shape for each gesture (adventure/story/paws.js reads it this frame)
     for (const side of ['L', 'R']) {
       const s = side === 'L' ? -1 : 1, name = st.arms?.[side] || 'hang', g = GESTURES[name] || GESTURES.hang, swing = (name === 'hang' ? 1 : name === 'carry' ? .25 : 0) * w * (s < 0 ? -1 : 1) * Math.cos((phase - .04) * tau); // the arm swings against its own leg
+      paws[side] = st.paws?.[side] || (st.reach?.[side] ? 'grip' : (window.Paws?.shapeFor(name) || 'relaxed')); // an exact reach holds something (the mop): a grip
       const hand = st.reach?.[side] ? V(...st.reach[side]) : mirror(g.h, s), pole = mirror(g.pole, s), palm = mirror(g.palm, s); // reach: an exact hand target in rig space
       hand.z += swing > 0 ? .21 * swing : .15 * swing; hand.y += (swing > 0 ? .055 : .015) * Math.abs(swing) + .004 * breath * idle; hand.x += s * (.012 * w) - s * .015 * Math.max(0, swing); // from the shoulder: ~22 deg forward with the elbow a little more bent, ~15 deg back
       if (name !== 'hang' && name !== 'carry' && name !== 'strap' && name !== 'hips' && name !== 'cross' && name !== 'cross2') { const beat = (st.talk || 0) * Math.sin(t * 5.3 + s); hand.y += .022 * beat; hand.z += .018 * beat; } // the hand moves with the words
@@ -188,6 +191,7 @@
       if (name === 'strap') { const ch = j.chest, M = new THREE.Matrix4().copy(c.root.matrixWorld).invert().multiply(ch.matrixWorld); target.copy(m.hand[side]).sub(restOf(c, ch)).applyMatrix4(M); } // the hand on the strap moves with the chest
       let glove = null; handErrors.push(clearArm(c, side, target, m.pole[side], name === 'strap', () => (glove = c.orientGlove(side, m.turn[side], m.palm[side])))); gloves.push(glove); // the strap hand rests on the strap; the last orientation is returned
     }
+    c.pawPose = paws;
     const bag = c.storyCast?.bagBody; if (bag) bag.rotation.z = -.5 + .045 * Math.sin(phase * tau * 2) * w;
     return { gloves, handErrors, footTargets };
   }

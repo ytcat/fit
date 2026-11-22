@@ -39,11 +39,11 @@
   // GOTR-0078 "The Dream" (docs/adventure/CHAPTER1_SCRIPT_V2.md): the measured beats of the new chapter 1. The older chapter-1
   // missions above stay valid in saves (and still count for stars and level) but are no longer story steps.
   M('clean_gym',1,'home_gym','help',null,'marks',[25,50,75],'Clean the gym','לנקות את האולם','Уборка зала'),
-  M('night_shadow',1,'home_gym','training','speed','landed',[20,35,50],'Night Shadowboxing','Shadowboxing בלילה','Shadowboxing ночью'),
-  M('night_bag',1,'home_gym','training','power','powerMarks',[1,3,5],'The old heavy bag','השק הכבד הישן','Старый тяжёлый мешок'),
+  M('night_shadow',1,'home_gym','training','speed','combos',[10,18,26],'Night Shadowboxing','Shadowboxing בלילה','Shadowboxing ночью'),
+  M('night_bag',1,'home_gym','training','power','combos',[10,18,26],'The old heavy bag','השק הכבד הישן','Старый тяжёлый мешок'),
   M('bag_drill',1,'home_gym','training','stamina','landed',[15,25,35],'Two-sided bag drill','תרגיל שק משני הצדדים','Мешок с двух сторон'),
-  M('fight_prep',1,'home_gym','training','speed','dodges',[4,7,10],'Fight preparation','הכנה לקרב','Подготовка к бою'),
-  M('advanced_training',1,'home_gym','training','power','combos',[1,2,3],'Advanced training','אימון מתקדם','Продвинутая тренировка'),
+  M('fight_prep',1,'home_gym','training','speed','combos',[10,18,26],'Fight preparation','הכנה לקרב','Подготовка к бою'),
+  M('advanced_training',1,'home_gym','training','power','combos',[8,14,20],'Advanced training','אימון מתקדם','Продвинутая тренировка'),
   M('curb_footwork',2,'street_fight','training','speed','marks',[5,8,12],'Curb footwork','עבודת רגליים על המדרכה','Работа ног у бордюра'),
   M('rooftop_balloons',2,'street_fight','funny',null,'dodges',[6,9,12],'Rooftop water balloons','בלוני מים מהגג','Водяные шарики с крыши'),
   M('whistle_chase',2,'street_fight','funny',null,'secondsToFinish',[40,30,20],"The coach's whistle",'משרוקית המאמן','Свисток тренера'),
@@ -81,6 +81,11 @@
   const m=missionOf(missionId);if(!m||!bound(value))return 0;const lower=metrics[m.metric].lower;
   return m.thresholds.reduce((n,t)=>n+((lower?value<=t:value>=t)?1:0),0);
  }
+ // GOTR-0112 (v1.87): these trainings became coach-called combos (metric 'combos'). Saves from v1.86 and earlier keep the
+ // result measured the old way (landed / powerMarks / dodges / combos), with these thresholds: such a record stays valid and
+ // its stars are kept until a new play earns at least as many.
+ const LEGACY=Object.freeze({night_shadow:[20,35,50],night_bag:[1,3,5],fight_prep:[4,7,10],advanced_training:[1,2,3]});
+ const legacyStars=(missionId,value)=>LEGACY[missionId]&&bound(value)?LEGACY[missionId].reduce((n,t)=>n+(value>=t?1:0),0):-1;
  const better=(m,a,b)=>metrics[m.metric].lower?a<b:a>b;
  const adv=g=>g?.adventure||null;
  const stars=g=>Object.values(adv(g)?.missions||{}).reduce((n,r)=>n+r.stars,0);
@@ -129,7 +134,7 @@
   const raw=measured&&typeof measured==='object'?measured[m.metric]:measured;if(!bound(raw))fail('Invalid measured value.');
   const value=round1(raw),earned=starsFor(m.id,value),rec=g.adventure.missions[m.id],before=rec?.stars||0,levelBefore=level(g);
   if(!rec){if(earned>0)g.adventure.missions[m.id]={stars:earned,value,plays:1};}
-  else{rec.plays=Math.min(1e6,rec.plays+1);if(better(m,value,rec.value)){rec.value=value;rec.stars=earned;}}
+  else{rec.plays=Math.min(1e6,rec.plays+1);if(earned>rec.stars||earned===rec.stars&&better(m,value,rec.value)){rec.value=value;rec.stars=earned;}}
   const best=g.adventure.missions[m.id]?.stars||0;
   return {missionId:m.id,stars:earned,best,improved:best>before,newStars:best-before,levelBefore,level:level(g)};
  }
@@ -170,7 +175,7 @@
   migrate(a);rescale(a);
   if(!object(a,['version','missions','bosses','story'])||!object(a.story,['done','firstBrick'])||!Array.isArray(a.story.done)||new Set(a.story.done).size!==a.story.done.length||a.story.done.some(id=>!dreamSteps.includes(id)||id==='brick')||!(a.story.firstBrick===undefined||['lost','won'].includes(a.story.firstBrick))||a.story.done.includes('first_brick')&&!a.story.firstBrick||!object(a.missions,missions.map(m=>m.id))||!object(a.bosses,bosses.map(b=>b.id)))fail('Invalid adventure progress.');
   for(const [id,r] of Object.entries(a.missions)){
-   if(!object(r,['stars','value','plays'])||!Number.isSafeInteger(r.plays)||r.plays<1||r.plays>1e6||!bound(r.value)||r.value!==round1(r.value)||!Number.isSafeInteger(r.stars)||r.stars<1||r.stars>3||starsFor(id,r.value)!==r.stars)fail('Mission stars do not match the recorded result.');}
+   if(!object(r,['stars','value','plays'])||!Number.isSafeInteger(r.plays)||r.plays<1||r.plays>1e6||!bound(r.value)||r.value!==round1(r.value)||!Number.isSafeInteger(r.stars)||r.stars<1||r.stars>3||starsFor(id,r.value)!==r.stars&&legacyStars(id,r.value)!==r.stars)fail('Mission stars do not match the recorded result.');}
   const g={adventure:a};
   for(const [id,r] of Object.entries(a.bosses)){const b=bossOf(id);
    if(!object(r,['wins','losses','free'])||![r.wins,r.losses].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=1e6)||typeof r.free!=='boolean'||r.free&&r.wins===0)fail('Invalid boss record.');

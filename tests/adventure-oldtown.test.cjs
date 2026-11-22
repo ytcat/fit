@@ -117,19 +117,17 @@ for (const m of A.missions.filter(x => x.chapter <= 2)) for (const lang of ['en'
 {
   const SF = require('../adventure/story-flow.js');
   const kinds = Object.fromEntries(SF.all(1).map(s => [s.id, s.boss ? 'boss' : D[s.id].kind]));
-  assert.deepEqual(kinds, { dream_arrival: 'film', dream_gym_talk: 'film', first_brick: 'story_fight', clean_gym: 'scene', night_shadow: 'training', night_bag: 'training', dream_apology: 'film', market_robber: 'story_fight', buy_heavy_bag: 'buy', bag_drill: 'scene', fight_prep: 'training', docks_fight: 'story_fight', advanced_training: 'lesson', brick: 'boss' });
+  assert.deepEqual(kinds, { dream_arrival: 'film', dream_gym_talk: 'film', first_brick: 'story_fight', clean_gym: 'scene', night_shadow: 'training', night_bag: 'training', dream_apology: 'film', market_robber: 'story_fight', buy_heavy_bag: 'buy', bag_drill: 'scene', fight_prep: 'training', docks_fight: 'story_fight', advanced_training: 'training', brick: 'boss' });
   assert.equal(D.dream_arrival.scene, 'dream_opening'); assert.equal(D.dream_gym_talk.scene, 'dream_gym_talk'); assert.equal(D.first_brick.after, 'dream_after_brick');
   assert.equal(D.first_brick.any, true, 'a loss vs Brick advances'); assert.ok(!D.market_robber.any && !D.docks_fight.any, 'the street fights must be won');
   // Brick on day one: clearly stronger than any regular partner (power/tempo 0.85-1.15 before the multiplier) and than the rematch boss.
   assert.ok(D.first_brick.foe.power >= 1.35 && D.first_brick.foe.tempo >= 1.15 && D.first_brick.foe.skill >= .1);
   assert.ok(D.first_brick.foe.power > OT.BOSS.brick.power && D.first_brick.foe.tempo > OT.BOSS.brick.tempo);
-  assert.equal(D.docks_fight.venue, 'docks'); assert.equal(D.market_robber.venue, 'street'); assert.equal(D.advanced_training.comboId, 'counter_chain');
+  assert.equal(D.docks_fight.venue, 'docks'); assert.equal(D.market_robber.venue, 'street'); assert.equal(D.advanced_training.calls, 'counter');
   window.app.engine.player.enabled = true;
-  const sh = run('night_shadow'); D.night_shadow.frame(sh, { swings: [{ actor: 'lion' }, { actor: 'rabbit' }, { actor: 'lion' }] }); assert.equal(sh.value, 2, 'only the Fighter\'s punches count');
-  window.app.engine.player.enabled = false; D.night_shadow.frame(sh, { swings: [{ actor: 'lion' }] }); assert.equal(sh.value, 2, 'Auto does not count'); window.app.engine.player.enabled = true;
-  assert.equal(D.bag_drill.scene, 'bag_duo', 'beat 8 is the two-sided drill game with Mack (GOTR-0106)');
-  const nb = run('night_bag'); D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 100, blocked: false }); D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 30, blocked: false }); assert.equal(nb.value, 1);
-  const fp = run('fight_prep'); D.fight_prep.frame(fp, { defences: 2 }); assert.equal(fp.value, 2);
+  // coach-called combos (owner 2026-11-22): the four trainings run CallCore drills; the heavy bag's power hits confirm a call's last punch
+  for (const [id, kind] of [['night_shadow', 'shadow'], ['night_bag', 'bag'], ['fight_prep', 'mitts'], ['advanced_training', 'counter']]) { assert.equal(D[id].calls, kind, id + ' is a called-combo drill'); assert.ok(D[id].duration <= 45, id + ' is short'); assert.ok(!D[id].frame, id + ' no longer counts raw presses'); }
+  { let n = 0; const nb = { caller: { power: () => n++ } }; D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 100, blocked: false }); D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 30, blocked: false }); D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 66, blocked: false }); assert.equal(n, 2, 'a clean jab (0.6) or a cross confirms; a glancing hit does not'); }
   window.app.lang = 'en'; assert.equal(OT.chapterTitle(1), 'Chapter 1 · The Dream'); assert.equal(OT.chapterTitle(2), 'Chapter 2 · Junior League');
   window.app.lang = 'he'; assert.ok(/החלום/.test(OT.chapterTitle(1)) && !/אף אחד/.test(OT.chapterTitle(1))); window.app.lang = 'ru'; assert.ok(/Мечта/.test(OT.chapterTitle(1))); window.app.lang = 'en';
 }

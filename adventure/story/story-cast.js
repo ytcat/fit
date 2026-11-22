@@ -449,16 +449,15 @@
     return list;
   }
   function hideKit(rig, groups) { const k = kitParts(rig); for (const gname of groups) for (const o of k[gname] || []) o.visible = false; }
-  /** Bare hands: a soft closed paw with a thumb, in the fur colour, on the hand joints (hand frame: -y to the knuckles, +z palm). */
-  function bareHands(rig, fur, pad) {
-    const out = [];
-    for (const s of [-1, 1]) {
-      const P = new Parts();
-      P.sph(V(0, -.052, .002), V(.047, .062, .034), fur); P.sph(V(0, -.108, .012), V(.043, .036, .030), fur, [.35, 0, 0]); // palm and loosely curled fingers
-      for (let k = 0; k < 4; k++) P.sph(V(-.032 + k * .0213, -.128, .014 + (k === 0 || k === 3 ? -.003 : 0)), V(.0125, .02, .015), fur, [.5, 0, 0]);
-      P.sph(V(s * -.043, -.062, .02), V(.016, .034, .017), fur, [.2, 0, s * .45]); // thumb on the inside
-      P.sph(V(0, -.07, .033), V(.024, .026, .006), pad); P.cyl(V(0, .0, 0), V(.043, .06, .037), fur);
-      const m = P.mesh('Bare hand'); rig.joints['hand' + (s < 0 ? 'L' : 'R')].add(m); out.push(m);
+  /** Bare hands (GOTR-0100): the character's own animal paws from adventure/story/paws.js (one continuous surface per paw: fingers,
+   *  pads, claws; relaxed / open / point / grip / fist by the pose), coat sampled from the forearm (fur is the fallback), species
+   *  from the character. o.wraps: white hand wraps over the wrist, palm and knuckles in the same mesh. Returns [L, R]. */
+  function bareHands(rig, fur, pad, o = {}) {
+    if (window.Paws) return window.Paws.attach(rig, { fur: o.fur, fallback: fur, pad, wraps: !!o.wraps, species: o.species });
+    const out = []; // no paw builder loaded: a plain closed hand
+    for (const s of ['L', 'R']) {
+      const P = new Parts(); P.sph(V(0, -.06, .004), V(.05, .07, .036), fur); P.cyl(V(0, 0, 0), V(.045, .06, .04), fur); const m = P.mesh('Bare hand'); rig.joints['hand' + s].add(m); out.push(m);
+      if (o.wraps) { const W = new Parts(); W.cyl(V(0, -.03, 0), V(.054, .09, .044), '#e2dccf'); const w = W.mesh('Hand wraps'); w.userData.wraps = true; rig.joints['hand' + s].add(w); out.push(w); }
     }
     return out;
   }
@@ -532,8 +531,7 @@
     },
     parts(rig, add) {
       const f = FUR[rig.species] || FUR.lion;
-      for (const m of bareHands(rig, f.fur, f.pad)) add(m);
-      for (const sd of ['L', 'R']) { const P = new Parts(); for (let k = 0; k < 4; k++) P.tor(V(0, -.012 - k * .024, 0), V(.047 - k * .001, .04, .05), '#f1ece0', [Math.PI / 2, 0, 0]); P.sph(V(0, -.098, .008), V(.048, .03, .034), '#f1ece0', [.35, 0, 0]); const m = P.mesh('Hand wraps'); rig.joints['hand' + sd].add(m); add(m); }
+      for (const m of bareHands(rig, f.fur, f.pad, { wraps: true })) add(m); // the paws in white wraps (wrist, palm, knuckles; fingers free): one mesh per hand
       for (const m of shoes(rig, { upper: '#3b3e46', toe: '#2a2d33', sole: '#c9c0ae', lace: '#d8d2c4' })) add(m);
     }
   };
