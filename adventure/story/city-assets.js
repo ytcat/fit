@@ -147,12 +147,14 @@
         if (!o.isMesh || !o.geometry?.attributes?.position) return;
         const g = o.geometry, P = g.attributes.position, N = g.attributes.normal, Cc = g.attributes.color, I = g.index, cls = PROP_CLASSES.includes(o.material?.name) ? o.material.name : 'matte';
         const q = parts[cls] ||= { p: [], n: [], c: [] }; rel.multiplyMatrices(inv, o.matrixWorld); nm.getNormalMatrix(rel);
+        // r128 getX() does not denormalize: COLOR_0 is exported as normalized unsigned short (or byte)
+        const cs = !Cc?.normalized ? 1 : Cc.array instanceof Uint16Array ? 1 / 65535 : Cc.array instanceof Uint8Array ? 1 / 255 : 1;
         const n = I ? I.count : P.count;
         for (let k = 0; k < n; k++) {
           const i = I ? I.getX(k) : k;
           v.fromBufferAttribute(P, i).applyMatrix4(rel); q.p.push(v.x, v.y, v.z);
           if (N) v.fromBufferAttribute(N, i).applyMatrix3(nm).normalize(); else v.set(0, 1, 0); q.n.push(v.x, v.y, v.z);
-          if (Cc) q.c.push(Cc.getX(i), Cc.getY(i), Cc.getZ(i)); else q.c.push(1, 1, 1);
+          if (Cc) q.c.push(Cc.getX(i) * cs, Cc.getY(i) * cs, Cc.getZ(i) * cs); else q.c.push(1, 1, 1);
         }
       });
       for (const q of Object.values(parts)) for (const k of ['p', 'n', 'c']) q[k] = new Float32Array(q[k]);

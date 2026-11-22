@@ -87,11 +87,9 @@ def glove_rack():
 def medicine_balls():
     for (x, y, c, s) in ((0, 0, '#7a5238', 1), (.5, -.5, '#3b4350', 2), (0, -1.0, '#8f2f22', 3)):
         sphere('ball', .22, (x, y, .22), c, 'matte', sub=3, seed=s, var=.03)
-        lathe('seam', [(.222, -.012), (.224, 0), (.222, .012)], '#1d1f24', 'matte', segs=32, cap_bot=False, cap_top=False)
-        bpy.context.object.data.transform(Matrix.Rotation(math.pi / 2, 4, 'X') if s % 2 else Matrix.Rotation(math.pi / 2, 4, 'Y'))
-        bpy.context.object.data.transform(Matrix.Translation((x, y, .22)))
-        lathe('seam', [(.222, -.012), (.224, 0), (.222, .012)], '#1d1f24', 'matte', segs=32, cap_bot=False, cap_top=False)
-        bpy.context.object.data.transform(Matrix.Translation((x, y, .22)))
+        for turn in (Matrix.Rotation(math.pi / 2, 4, 'X' if s % 2 else 'Y'), Matrix.Identity(4)):  # two seams at right angles
+            seam = lathe('seam', [(.221, -.01), (.2235, 0), (.221, .01)], '#1d1f24', 'matte', segs=32, cap_bot=False, cap_top=False)
+            seam.data.transform(Matrix.Translation((x, y, .22)) @ turn)
     return .45, 1.2
 
 
@@ -123,8 +121,8 @@ def dumbbell_rack():
 def kettlebells():
     for k, (c, s) in enumerate((('#2f6fc0', .82), ('#f4c152', .92), ('#d9473b', 1.05))):
         x = -.36 + k * .36
-        lathe('bell', [(.0, 0), (.07 * s, 0), (.1 * s, .02 * s), (.115 * s, .08 * s), (.11 * s, .14 * s), (.08 * s, .19 * s), (.04 * s, .212 * s), (0, .216 * s)], c, segs=18)
-        bpy.context.object.data.transform(Matrix.Translation((x, 0, 0)))
+        bell = lathe('bell', [(.0, 0), (.07 * s, 0), (.1 * s, .02 * s), (.115 * s, .08 * s), (.11 * s, .14 * s), (.08 * s, .19 * s), (.04 * s, .212 * s), (0, .216 * s)], c, segs=18)
+        bell.data.transform(Matrix.Translation((x, 0, 0)))
         tube('handle', [(x - .07 * s, 0, .17 * s), (x - .06 * s, 0, .27 * s), (x, 0, .3 * s), (x + .06 * s, 0, .27 * s), (x + .07 * s, 0, .17 * s)], .017 * s, '#2a2d33', res=4, bres=2)
     return .32, 1.0
 
@@ -173,10 +171,9 @@ def speed_bag():
         tube('top bracket', [(x, -.04, 2.2), (x, -.9, 2.2)], .016, STEEL, res=2, bres=1)
     cyl('swivel plate', .05, .015, (0, -.55, 2.19), col=CHROME, segs=12)
     cyl('swivel', .012, .05, (0, -.55, 2.14), col=CHROME, segs=8)
-    lathe('bag', [(.0, 1.82), (.05, 1.83), (.095, 1.88), (.11, 1.95), (.1, 2.02), (.07, 2.08), (.035, 2.12), (.012, 2.14), (0, 2.145)], '#8f2f22', segs=20)
-    bpy.context.object.data.transform(Matrix.Translation((0, -.55, 0)))
-    lathe('seam', [(.112, 1.948), (.113, 1.955), (.112, 1.962)], '#5d1c15', 'matte', segs=20, cap_bot=False, cap_top=False)
-    bpy.context.object.data.transform(Matrix.Translation((0, -.55, 0)))
+    for part in (lathe('bag', [(.0, 1.82), (.05, 1.83), (.095, 1.88), (.11, 1.95), (.1, 2.02), (.07, 2.08), (.035, 2.12), (.012, 2.14), (0, 2.145)], '#8f2f22', segs=20),
+                 lathe('seam', [(.112, 1.948), (.113, 1.955), (.112, 1.962)], '#5d1c15', 'matte', segs=20, cap_bot=False, cap_top=False)):
+        part.data.transform(Matrix.Translation((0, -.55, 0)))
     return 2.3, 1.1
 
 
