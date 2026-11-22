@@ -295,7 +295,7 @@
       const key = v.i + '|' + v.due; if (x.memo.cueKey !== key) { x.memo.cueKey = key; const c0 = x.sim.contact(x.sim.moveFor(v.type, true), v.due); x.memo.cuePos = c0 ? props.world(c0.hand).toArray() : null; }
       if (x.memo.cuePos) cue = { pos: x.memo.cuePos, k: v.k, now: !!v.open, kind: v.type };
     }
-    return { pos: [9.5, 1.85, 4.05], look: [9.62, 1.3, BAGF.z], fit: [f, b], cue }; // wide enough for the step back: the camera does not have to back off
+    return { pos: [9.35, 1.85, 4.1], look: [9.5, 1.3, BAGF.z], fit: [f, b], cue }; // wide enough for the step back: the camera does not have to back off
   }
   const T_PUNCH = ['straight', 'hook', 'uppercut'];
   const pw = (g, k, l) => W[l].punch[k];
