@@ -50,7 +50,11 @@ next phone bottleneck (not in scope here). SwiftShader + 4x throttling is not a 
 
 ## Checks
 - `node tests/paws.test.cjs` PASS; `node tests/paws-phone.test.cjs` (new) PASS; `node tests/portraits.test.cjs` (new) PASS.
-- Suite: see the result line below.
+- `bash scripts/run-tests.sh -j 2 paw portrait story cast`: files=15 fails=2 (523 s): `story-clean-gym` (known flaky: welcome dialog
+  timeout) and `rourke-cast` (the Docks bout counted 28 frames in 200 s, needs 60). Both also fail on unmodified v1.87 in this
+  container (base copy: rourke-cast 17 frames, story-clean-gym the same welcome-dialog timeout); rourke-cast passed the bout once alone
+  (82 frames) and failed it once (2 frames): SwiftShader frame rate, not the paws.
+- `bash scripts/run-tests.sh -j 2 dream market docks offline adventure ringless street oldtown`: files=13 fails=0 (1050 s).
 
 ## Evidence
 - `qa/paws-perf/before.json`, `after.json` (long tasks), `qa/paws-perf/detail-sheet.webp` (full / low / stand-in, and full vs low at
