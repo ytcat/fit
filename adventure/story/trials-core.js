@@ -94,6 +94,7 @@
     const period = 2 * Math.PI * Math.sqrt(Ip / (m * g * L)); // small swings, rigid chain
     return { step, axis, leather, kick, pointVel, period, consts: { a, d, Ic, Ip, L } };
   };
+  const SOLVED = new Map(); // swing key -> [release angle, shove]: solving costs a few ms, a phone would drop a frame at every catch
   class BagTrial extends Trial {
     constructor(rules = BAG, opts) {
       super(rules, opts); const R = rng(rules.seed + (this.hard ? 9 : 0));
@@ -120,16 +121,20 @@
       // How the swing ends up, released from A0 with a shove of w0 rad/s, up to the top of the swing: > 0 while the leather stays
       // short of `depth` inside the called punch's path and clear of the guard; a bite comes `depth` into the guard or the chest.
       const fly = (A0, w0) => { let q = { ...start, a1: -A0, a2: -A0, w1: w0, w2: w0 }, reach = 9, body = 9; for (let n = 0; n < 400; n++) { q = this.phys.step(q, r.dt); body = Math.min(body, this.bodyGap(q, 0)); if (!sw.bite) reach = Math.min(reach, this.punchGap(q, sw.type)); if (q.w1 <= 0 && n > 4) break; } return sw.bite ? body + sw.depth : Math.min(reach + sw.depth, body - r.clear); };
-      const SHOVE = .3; let lo, hi;
-      if (fly(sw.A0, SHOVE) < 0) { lo = .02; hi = sw.A0; for (let k = 0; k < 40; k++) { const mid = (lo + hi) / 2; if (fly(mid, SHOVE) < 0) hi = mid; else lo = mid; } sw.A0 = (lo + hi) / 2; sw.w0 = SHOVE; } // a short swing: he pulls it back less
-      else { lo = SHOVE; hi = 6; for (let k = 0; k < 40; k++) { const mid = (lo + hi) / 2; if (fly(sw.A0, mid) > 0) lo = mid; else hi = mid; } sw.w0 = (lo + hi) / 2; } // a long one: a harder shove
+      const SHOVE = .3, key = [sw.bite ? 'bite' : sw.type, sw.A0, sw.depth, r.pivot, r.chain].join('|'), known = SOLVED.get(key); let lo, hi;
+      if (known) [sw.A0, sw.w0] = known; // the same swing was solved before (each swing of a run, and every run, is the same physics)
+      else if (fly(sw.A0, SHOVE) < 0) { lo = .02; hi = sw.A0; for (let k = 0; k < 22; k++) { const mid = (lo + hi) / 2; if (fly(mid, SHOVE) < 0) hi = mid; else lo = mid; } sw.A0 = (lo + hi) / 2; sw.w0 = SHOVE; } // a short swing: he pulls it back less
+      else { lo = SHOVE; hi = 6; for (let k = 0; k < 22; k++) { const mid = (lo + hi) / 2; if (fly(sw.A0, mid) > 0) lo = mid; else hi = mid; } sw.w0 = (lo + hi) / 2; } // a long one: a harder shove
+      if (!known) SOLVED.set(key, [sw.A0, sw.w0]);
       start.a1 = start.a2 = -sw.A0; sw.start = { ...start, w1: sw.w0, w2: sw.w0 };
       this.predict(sw.release, sw.start);
       let apex = null; for (let k = 1; k < this.path.q.length; k++) if (this.path.q[k].w1 <= 0 && this.path.q[k - 1].w1 > 0) { apex = this.path.t0 + k * r.dt; break; }
       sw.apex = apex ?? sw.release + .9; sw.flight = sw.apex - sw.release;
       if (!sw.bite) { // the press window: every press whose glove meets the leather while the punch is still going out
         const move = this.moveFor(sw.type, true); let open = null, close = null, due = null, bestD = 9;
-        for (let tp = sw.release - .3; tp < sw.apex + .6; tp += r.dt) { const c = this.contact(move, tp); if (!c) continue; open ??= tp; close = tp; const dd = Math.abs(c.t - sw.apex); if (dd < bestD) { bestD = dd; due = tp; } }
+        const probe = tp => { const c = this.contact(move, tp); if (!c) return; if (open == null || tp < open) open = tp; if (close == null || tp > close) close = tp; const dd = Math.abs(c.t - sw.apex); if (dd < bestD) { bestD = dd; due = tp; } };
+        for (let tp = sw.release - .3; tp < sw.apex + .6; tp += r.dt * 3) probe(tp); // coarse, then fine around the edges and the best press
+        if (open != null) for (const c0 of [open, close, due]) for (let k = -3; k <= 3; k++) probe(c0 + k * r.dt);
         sw.open = open; sw.close = close; sw.due = due ?? sw.apex - .12;
       } else { sw.due = sw.apex - .25; sw.open = sw.release; sw.close = sw.apex; }
     }
@@ -147,7 +152,7 @@
     }
     moveFor(type, peek = false) { if (type === 'uppercut') return 'rear_uppercut'; if (type !== 'straight') return type; const n = peek ? this.straights : this.straights++; return n % 2 ? 'cross' : 'jab'; }
     /** How far inside the called punch's path the leather comes at state q (negative = the glove would sink in). */
-    punchGap(q, type) { const move = type === 'straight' ? 'jab' : this.moveFor(type, true), hp = [0, 0, 0]; let best = 9; for (let ph = .3; ph <= PH.land + 1e-9; ph += .02) { handAt(move, ph, hp); best = Math.min(best, this.phys.leather(q, hp).gap - this.r.glove); } return best; }
+    punchGap(q, type) { const move = type === 'straight' ? 'jab' : this.moveFor(type, true), hp = [0, 0, 0]; let best = 9; if (this.phys.leather(q, handAt(move, .46, hp)).gap > .6) return 9; for (let ph = .3; ph <= PH.land + 1e-9; ph += .02) { handAt(move, ph, hp); best = Math.min(best, this.phys.leather(q, hp).gap - this.r.glove); } return best; }
     /** The Fighter's body points the bag can run into (both guard gloves, the chest), shifted by a step back. */
     bodyPoints(fx) { const r = this.r; return [[fx + r.chest[0], r.chest[1], r.pivot[2], 0], ...GUARD.map(g => [fx + g[0], g[1], g[2], r.glove])]; }
     /** Gap between the leather and the Fighter's guard or chest (negative = the bag is in him); with the point it would meet. */

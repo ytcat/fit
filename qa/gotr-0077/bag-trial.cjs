@@ -6,7 +6,7 @@
 //   node qa/gotr-0077/bag-trial.cjs <outdir>
 //   OFFSETS=-.4,-.3,... press offsets (s) cycled over the swings (default: a sweep)   TS=.5 game time scale (finer frames)
 //   SHOTS=a,b,c   pictures at these game times (paused frame)     PAD=1  first presses as real taps on the pad buttons (coordinates)
-//   HUMAN=1  the bot presses when the leather first comes within the punch's reach (what a player sees), not at "due"
+//   HUMAN=1  the bot presses when the coming bag gets within the punch's range of the guard glove (what a player sees), not at "due"
 //   SWINGS=n stop after n swings (default all)
 const { chromium } = require('playwright'), http = require('http'), fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '../..'), out = process.argv[2] || path.join(__dirname, 'run'); fs.mkdirSync(out, { recursive: true });
@@ -23,7 +23,7 @@ const server = http.createServer((q, r) => { let f = path.join(root, decodeURICo
   await p.evaluate(([offsets, human, pad, swings]) => {
     const V = () => new THREE.Vector3(), run = app.engine.fightIQDemo, key = { straight: 'j', hook: 'k', uppercut: 'l' }, log = window.__log = [], frames = window.__frames = [];
     const leather = () => { const o = run.memo?.bagMesh || null; if (o) return o; let best = null; run.rigs.fighter.root.parent.traverse(n => { if (n.name === 'heavy bag' || n.name === 'Heavy bag leather') best = n.name === 'Heavy bag leather' ? n : best || n; }); return best; };
-    const swing = s => s.sw || s.c || null, due = s => s.due ?? swing(s)?.peak, idOf = s => s.i ?? 0;
+    const swing = s => s.sw || s.c || null, due = s => swing(s)?.due ?? swing(s)?.peak, idOf = s => s.i ?? 0, inRange = { straight: .55, hook: .4, uppercut: .2 };
     const press = k => { for (const type of ['keydown', 'keyup']) window.dispatchEvent(new KeyboardEvent(type, { key: k, bubbles: true })); };
     let last = null;
     const f0 = run.frame;
@@ -43,7 +43,7 @@ const server = http.createServer((q, r) => { let f = path.join(root, decodeURICo
       if (sw.__pressed) return;
       const type = sw.type; if (!key[type]) return;
       let fire = false;
-      if (human) { if (v.phase === 'swing' || v.phase === 'toward') { if (gap < .12 && gap > -.5 && v.k > .3) fire = true; } }
+      if (human) { if (v.phase === 'swing' && gap < inRange[type] && gap < (sw.__gap ?? 9)) fire = true; sw.__gap = gap; } // the bag is in range for this punch and still coming
       else { const off = offsets[i % offsets.length]; if (s.t >= due(s) + off) fire = true; }
       if (fire) { sw.__pressed = true; last = { i, type, at: s.t, off: +(s.t - due(s)).toFixed(3), minGap: 9, gapAtPress: +gap.toFixed(3) }; log.push(last); press(key[type]); last.verdict = s.view().flash && s.view().flash.t >= last.at - 1e-6 ? s.view().flash.type : null; }
     };
@@ -53,7 +53,7 @@ const server = http.createServer((q, r) => { let f = path.join(root, decodeURICo
     // real taps with coordinates on the story pad's punch buttons, timed from game state polled by the test (3 swings)
     await p.evaluate(() => { window.__padMode = true; });
     for (let n = 0; n < 3; n++) {
-      const info = await p.waitForFunction(n => { const s = app.engine.fightIQDemo?.sim, sw = s?.sw || s?.c; if (!s || (s.i ?? 0) !== n || !sw) return null; const d = s.due ?? sw.peak; return s.t >= d - .06 ? { type: sw.type, t: s.t, due: d } : null; }, n, { timeout: 120000, polling: 'raf' }).then(h => h.jsonValue());
+      const info = await p.waitForFunction(n => { const s = app.engine.fightIQDemo?.sim, sw = s?.sw || s?.c; if (!s || (s.i ?? 0) !== n || !sw) return null; const d = sw.due ?? sw.peak; return s.t >= d - .06 ? { type: sw.type, t: s.t, due: d } : null; }, n, { timeout: 120000, polling: 'raf' }).then(h => h.jsonValue());
       const box = await p.locator(`.story-pad .fp-btn[data-pad="${info.type}"]`).boundingBox();
       await p.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
       const after = await p.evaluate(() => { const s = app.engine.fightIQDemo.sim, v = s.view(); return { t: s.t, flash: v.flash, hits: s.hits, mistakes: s.mistakes }; });

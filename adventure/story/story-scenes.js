@@ -274,7 +274,7 @@
   }
   const PH0 = .14, PRATE = .8 / .38; // punch phase at the press and per second (trials-core.js PH)
   function bagFrame(x, v, dt) {
-    const T = Trials(), R = T.BAG, f = x.rigs.fighter, b = x.rigs.brick, props = x.memo.bagProps ||= bagProps(x.scene);
+    const T = Trials(), R = T.BAG, f = x.rigs.fighter, b = x.rigs.brick, props = x.memo.props ||= bagProps(x.scene);
     props.pose(v.bag);
     x.place(f, { x: BAGF.x + (v.fx || 0), z: BAGF.z, ry: Math.PI / 2 }); x.place(b, { x: BAGF.x + R.brick, z: BAGF.z + R.pivot[2], ry: -Math.PI / 2 });
     bagFighter(f, x, v, props); bagBrick(b, x, v, props, dt);
@@ -286,7 +286,8 @@
     }
     const dn = x.memo.dent;
     if (B && dn) { const age = x.t - dn.t0, depth = .045 * dn.k * (age < R.hold ? 1 : Math.exp(-(age - R.hold) / .07)), fold = .02 * dn.k * Math.exp(-age / .12) * Math.cos(age * 30);
-      if (age > .5) { B.dent(null); x.memo.dent = null; } else B.dent({ y: dn.y, ax: dn.ax, az: dn.az, depth }, fold); }
+      if (age > .5) { B.dent(null); x.memo.dent = null; props.dented = false; } else { B.dent({ y: dn.y, ax: dn.ax, az: dn.az, depth }, fold); props.dented = true; } }
+    else if (B && props.dented) { B.dent(null); props.dented = false; } // a restart in the middle of a dent
     // where the glove will meet the leather on this swing: the ring closes there
     let cue = null;
     if (v.prompt && v.prompt !== 'back') {
@@ -343,7 +344,7 @@
       hud: (v, g, l) => ({ goal: `${g.goal} · ${Math.min(v.i + 1, v.total)}/${v.total} · ${g.count} ${v.mistakes}`, prompt: v.prompt === 'back' ? g.back : v.prompt ? pw(g, v.prompt, l) : '', arrow: v.prompt === 'back' ? 'left' : v.prompt || '', kind: v.prompt === 'back' ? 'warn' : v.prompt || '', ring: v.prompt && v.prompt !== 'back' ? v.k : -1, now: !!v.open || (v.phase === 'bite' && !v.hold) }),
       detail: (r, g) => `${g.count} ${r.value} · ${r.time} s`,
       frame(x, v, dt) { return bagFrame(x, v, dt); },
-      dispose({ scene, memo }) { const P = memo.bagProps; if (!P) return; scene?.remove(P.group); P.dispose(); memo.bagProps = null; }
+      dispose({ scene, memo }) { const P = memo.props; if (!P) return; scene?.remove(P.group); P.dispose(); memo.props = null; }
     },
     // Sleep talker: the night guard mumbles combos in his sleep; the lamps light in that order; repeat it on the bag.
     snoring_guard: {
@@ -576,7 +577,7 @@
     }
 
     /* ---- skill trial: 3 s tutorial, fixed-step rules, hit-stop, the game's own frame, HUD with the fighter pad */
-    function restart(nextHard = hard) { directInput?.clear(); hard = nextHard; ui.result?.remove(); ui.result = null; run.result = null; run.saved = null; sim = game.make(Trials(), { hard }); memo = {}; acts = 0; run.intro = 0; run.freeze = 0; run.flashT = -1; ui.promptKey = null; ui.d.dataset.hard = String(hard); }
+    function restart(nextHard = hard) { directInput?.clear(); hard = nextHard; ui.result?.remove(); ui.result = null; run.result = null; run.saved = null; sim = game.make(Trials(), { hard }); memo = memo.props ? { props: memo.props } : {}; acts = 0; run.intro = 0; run.freeze = 0; run.flashT = -1; ui.promptKey = null; ui.d.dataset.hard = String(hard); }
     function gameFrame(dt) {
       if (run.intro > 0) run.intro = Math.max(0, run.intro - dt);
       else if (run.freeze > 0) run.freeze -= dt; // hit-stop: the world holds for a moment on a clean hit
