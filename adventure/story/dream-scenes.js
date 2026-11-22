@@ -50,6 +50,7 @@
   function prefetch(id, prio = 2) { const s = Core()?.variant?.(id); if (s) pawsFor(s, window.app?.engine, prio); return !!s; }
 
   function play(id, opts = {}) {
+    window.RinglessVenues?.release(window.app?.engine, true); // a film takes over from any street/Docks bout (gloves and outfit back first)
     const C = Core(), e = window.app?.engine, done = typeof opts.onDone === 'function' ? opts.onDone : () => {};
     let scene0 = C?.variant(id, opts.outcome); // re-staged once the set is built when the city models are in it (GOTR-0089)
     const fail = error => { setTimeout(() => done({ id, skipped: true, error }), 0); return false; };

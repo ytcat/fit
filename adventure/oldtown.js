@@ -592,6 +592,7 @@
     if (res?.ok && res.coins) toast(fill(W().coins, { n: res.coins }), 'coin');
     pendingAfter = true; const at = { ok: d.any ? !!res?.ok : won && !!res?.ok, won, coins: res?.ok ? res.coins : 0 };
     const after = () => { pendingAfter = false; openMap(pin, () => afterBeat(r.id, at)); };
+    window.RinglessVenues?.release(window.app?.engine, true); // the street/Docks bout is over: gloves, outfit and hand gear back on the Fighter
     const S = window.StoryScenes;
     if (d.after && res?.ok && S && (S.sceneIds || []).includes(d.after)) setTimeout(() => { restoreCast(r); rg()?.close?.(); S.play(d.after, { outcome: won ? 'win' : 'loss', onDone: after }); }, 600); // Brick stays in the room until the scene takes over
     else { restoreCast(r); setTimeout(after, 1200); }

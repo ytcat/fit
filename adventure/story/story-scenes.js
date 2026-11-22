@@ -444,6 +444,7 @@
 
   /* ---------------------------------------------------------------- runner */
   function play(id, opts = {}) {
+    window.RinglessVenues?.release(window.app?.engine, true); // a story scene takes over from any street/Docks bout: the Fighter gets his own gloves back
     if (window.DreamScenes?.has(id)) return window.DreamScenes.play(id, opts); // Chapter 1 "The Dream" (GOTR-0078): dream-scenes.js
     if (window.BagBreak?.has(id)) return window.BagBreak.play(id, opts); // beat 4, the old bag breaks (GOTR-0087): bag-break.js
     const C = Core(), e = window.app?.engine, done = typeof opts.onDone === 'function' ? opts.onDone : () => {};
