@@ -172,6 +172,7 @@
       const { spec, key } = specNow(scan()); if (key === h.key && h.env) return;
       const rt = envFor(renderer, key, spec); const oldKey = h.key;
       h.env = rt; h.key = rt ? key : ''; if (oldKey) release(oldKey);
+      h.ambient = Math.PI * lum(spec.sky); // upward irradiance the environment's sky carries (the moved share)
       scene.environment = rt ? rt.texture : h.envWas; sync();
     }
     function materials() {
@@ -180,7 +181,12 @@
         for (const m of Array.isArray(o.material) ? o.material : [o.material]) {
           if (!m || !m.isMeshStandardMaterial || h.saved.has(m)) continue;
           h.saved.set(m, { envMap: m.envMap, i: m.envMapIntensity });
-          if (h.isHigh && h.env) { if (m.envMap) { m.envMap = null; m.needsUpdate = true; } m.envMapIntensity = family(m) * (m.userData.renderLookScale ?? 1); }
+          if (!(h.isHigh && h.env)) continue;
+          let k = family(m) * (m.userData.renderLookScale ?? 1);
+          // A material that brought its own small sky (the city models, city-assets.js: a bright gradient, mean upward radiance
+          // ~0.5, at envMapIntensity i) was tuned with that light ON TOP of the hemisphere; it keeps the same ambient level here.
+          if (m.envMap) { k *= Math.min(5, 1 + Math.PI * .5 * m.envMapIntensity / Math.max(.05, h.ambient)); m.envMap = null; m.needsUpdate = true; }
+          m.envMapIntensity = k;
         }
       });
     }

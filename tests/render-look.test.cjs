@@ -34,6 +34,7 @@ const sum = (scene, f) => { let n = 0; scene.traverse(o => { if (o.isHemisphereL
   // materials: one environment for all; families
   scene.onBeforeRender(renderer, scene, null); scene.onBeforeRender(renderer, scene, null);
   assert.equal(city.envMap, null, 'the city material takes the set environment while attached');
+  { const up = .54 * share * (.2126 * .77 + .7152 * .86 + .0722 * 1); assert.ok(Math.abs(city.envMapIntensity - (1 + Math.PI * .5 * .35 / (Math.PI * up / Math.PI))) < .15, 'its own sky\'s ambient is kept: ' + city.envMapIntensity); }
   assert.equal(metal.envMapIntensity, 1.15); assert.equal(fur.envMapIntensity, .92); assert.equal(nose.envMapIntensity, .5);
   // a change of the place's light rebuilds the environment outside the render, and the anti light follows at once
   hemi.intensity = .7; for (let k = 0; k < 31; k++) scene.onBeforeRender(renderer, scene, null);
