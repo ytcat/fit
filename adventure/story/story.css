@@ -141,6 +141,36 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 @media (hover:hover) and (pointer:fine){.story-mop-keyboard{display:block}}
 @media (max-height:440px){.story-mop-hud{padding:7px 11px;top:5px}.story-mop-title{font-size:17px}.story-mop-footer{bottom:4px;padding:4px 8px}.story-mop-footer .story-mop-finish{min-height:36px;margin-top:4px}.story-mop-help{font-size:12px}}
 @media (prefers-reduced-motion:reduce){.story-mop-bar i{transition:none}}
+/* The night shift (mop-game.js): clock and mop gauge in the HUD card, the rinse button on the bucket, Bruno's note, pops, lights out */
+.story-scene[data-game=clean_gym] .story-mop-hud{background:#0b1220e6;border-color:#7d93c45c}
+.story-scene[data-game=clean_gym] .story-mop-bar i{background:#9fd8ff}
+.mop-night-chips{display:flex;align-items:center;gap:10px;margin-top:8px}
+.mop-night-clock{font:800 15px/1 ui-monospace,Menlo,Consolas,monospace;color:#ffe2a8;padding:3px 7px;border-radius:7px;background:#ffffff14;min-width:44px;text-align:center}
+.mop-night-clock::before{content:'\263E';margin-inline-end:5px;color:#c9d6ff;font-family:system-ui,sans-serif}
+.mop-night-clock[data-late=true]{color:#ff9d7a;animation:mop-late 1s steps(2) infinite}
+.mop-night-gauge{display:flex;align-items:center;gap:6px;flex:1;min-width:0;font-size:12px;color:#c9d6ee}
+.mop-night-gauge b{font-weight:700}
+.mop-night-meter{flex:1;height:7px;border-radius:6px;background:#ffffff26;overflow:hidden;max-width:96px}
+.mop-night-meter i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#d9cdb2,#f6f1e2);transition:width .15s linear}
+.mop-night-gauge[data-dirty=true] .mop-night-meter i{background:linear-gradient(90deg,#6d5d45,#9a8668)}
+.mop-night-gauge[data-dirty=true] b{color:#ffb38a}
+.mop-night-rinse{position:absolute;left:0;top:0;z-index:3;transform:translate(-50%,-100%);min-width:64px;min-height:40px;padding:6px 12px;border-radius:20px;border:2px solid #f2c230;background:#1a1d24d9;color:#ffe08a;font:800 14px/1 system-ui,sans-serif;box-shadow:0 2px 10px #0009;touch-action:manipulation;cursor:pointer}
+.mop-night-rinse[data-dirty=true]{background:#f2c230;color:#1d1a10;animation:mop-pulse .8s ease-in-out infinite alternate}
+.mop-night-rinse:disabled{opacity:.5}
+.mop-night-rinse[hidden],.mop-night-note[hidden]{display:none}
+.mop-night-note{position:absolute;z-index:3;top:calc(max(11px,env(safe-area-inset-top)) + 128px);inset-inline:0;margin-inline:auto;width:min(270px,calc(100% - 48px));padding:10px 14px 12px;background:#f3ead2;color:#3a2c1c;border-radius:3px;transform:rotate(-2.2deg);box-shadow:0 6px 18px #000a;pointer-events:none;font-family:'Segoe Print','Bradley Hand','Comic Sans MS',cursive}
+.mop-night-note strong{display:block;font:800 11px/1.2 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8a5a2b;margin-bottom:4px}
+.mop-night-note p{margin:0;font-size:15px;line-height:1.3}
+.mop-night-note::before{content:'';position:absolute;top:-7px;left:50%;width:46px;height:14px;margin-left:-23px;background:#e9dcb4cc;transform:rotate(3deg)}
+.mop-night-pops{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.mop-night-pop{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font:800 15px/1.1 system-ui,sans-serif;color:#eaffef;text-shadow:0 1px 3px #000,0 0 10px #000;animation:mop-pop 1.1s ease-out forwards}
+.mop-night-pop[data-kind=bad]{color:#ffb0a0}.mop-night-pop[data-kind=gold]{color:#ffe08a;font-size:17px}.mop-night-pop[data-kind=calm]{color:#cfe6ff}
+.mop-night-dark{position:absolute;inset:0;z-index:2;background:#000;opacity:0;pointer-events:none;transition:opacity .9s ease-in}
+.mop-night-dark[data-on=true]{opacity:.45}
+@keyframes mop-pop{0%{opacity:0;margin-top:6px}15%{opacity:1}100%{opacity:0;margin-top:-34px}}
+@keyframes mop-pulse{to{transform:translate(-50%,-100%) scale(1.07)}}
+@keyframes mop-late{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.mop-night-pop,.mop-night-rinse[data-dirty=true],.mop-night-clock[data-late=true]{animation:none}.mop-night-dark{transition:none}}
 .story-pad .fp-zone[hidden]{display:none!important} /* a punches-only skill game (bag_duo, GOTR-0106) */
 /* The coach's call in a training (adventure/oldtown.js paintCalls, call-core.js): chips in order, a time bar, a tick or a cross */
 .adv-calls{position:absolute;left:2%;right:2%;top:58%;z-index:30;display:flex;flex-direction:column;align-items:center;gap:.35rem;pointer-events:none}

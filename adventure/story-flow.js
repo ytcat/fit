@@ -28,7 +28,7 @@
           goal: L('Fight Brick. Win or lose, the story goes on.', 'הילחמו בבריק. בניצחון או בהפסד, הסיפור ממשיך.', 'Бой с Бриком. Победа или поражение — история продолжается.'),
           unlock: L('a job and a bed', 'עבודה ומיטה', 'работа и койка') }),
       S('clean_gym', L('Clean the gym', 'לנקות את האולם', 'Уборка зала'),
-        L('Drag the mop over the dirty spots. Small pay.', 'גררו את המגב על הכתמים. שכר קטן.', 'Проведи шваброй по грязным пятнам. Плата небольшая.'),
+        L('Night, the gym is empty. Mop the floor before the lights go out. Small pay.', 'לילה, האולם ריק. נגבו את הרצפה לפני שהאורות כבים. שכר קטן.', 'Ночь, зал пуст. Вымой пол, пока не погас свет. Плата небольшая.'),
         L("Took the job: cleaning Bruno's gym.", 'קיבלתם את העבודה: לנקות את האולם של ברונו.', 'Взялся за работу: убирать зал Бруно.'),
         { who: 'bruno', beat: 'A', goal: L('Clean at least 25% to finish the first shift.', 'נקו לפחות 25% כדי לסיים את המשמרת הראשונה.', 'Очисти не меньше 25%, чтобы закончить первую смену.'), unlock: L('the gym at night', 'האולם בלילה', 'ночной зал') }), // GOTR-0099: direct floor cleaning (adventure/story/mop-game.js)
       S('night_shadow', L('Night Shadowboxing', 'Shadowboxing בלילה', 'Shadowboxing ночью'),
