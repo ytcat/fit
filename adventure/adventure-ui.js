@@ -168,7 +168,10 @@
         const stars = A.missions.filter(m => m.chapter === chap).reduce((n, m) => n + (g.adventure?.missions[m.id]?.stars || 0), 0);
         const d = el('div', 'adv-glance');
         const fact = (icon, text, label) => { const f = el('span', 'adv-fact'); f.append(el('i', '', icon), document.createTextNode(text)); f.title = label; f.setAttribute('aria-label', label); return f; };
-        d.append(fact(COACH_ICON[cinfo.coach] || '🐾', T(info.coach).split(/[,·]/)[0], `${w.coach}: ${T(info.coach)}`), fact('🥊', `Lv ${info.level}`, `${w.boss}: ${T(info.boss)} · ${w.entry} ${info.level}`), fact('★', `${stars}/${A.missions.filter(m => m.chapter === chap).length * 3}`, ''));
+        // GOTR-0081: the coach as a small portrait (3D render or monogram badge in the metal ring) instead of an emoji
+        const coachName = T(info.coach).split(/[,·]/)[0].trim(), coachFact = fact(COACH_ICON[cinfo.coach] || '🐾', coachName, `${w.coach}: ${T(info.coach)}`);
+        if (window.StoryPortraits) { try { const pic = window.StoryPortraits.el(cinfo.coach, { name: coachName.replace(/^(Coach|המאמן|Тренер)\s+/i, '') }); pic.classList.add('adv-fact-face'); coachFact.querySelector('i').replaceWith(pic); } catch { /* keep the icon */ } }
+        d.append(coachFact, fact('🥊', `Lv ${info.level}`, `${w.boss}: ${T(info.boss)} · ${w.entry} ${info.level}`), fact('★', `${stars}/${A.missions.filter(m => m.chapter === chap).length * 3}`, ''));
         card.append(d, progressBar(chap));
       } else if (info.sub && p.kind !== 'chapter') card.append(el('p', 'adv-sub-line', T(info.sub)));
       const town = (p.id === 'oldtown' || p.id === 'market') && window.AdventureOldTown ? AdventureOldTown.render(ctx, { select: id => { const q = map?.places.find(z => z.id === id); if (q) select(q); }, chapter: p.id === 'market' ? 2 : 1, expand: () => { card.classList.add('open'); handle.setAttribute('aria-expanded', 'true'); } }) : null;

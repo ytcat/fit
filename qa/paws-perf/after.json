@@ -1,0 +1,171 @@
+{
+ "root": "/home/user/fit/.claude/worktrees/agent-af2700cb1f644e53a",
+ "rate": 4,
+ "scenarios": {
+  "opening": {
+   "windows": {
+    "dream_opening": {
+     "count": 95,
+     "totalMs": 28985,
+     "maxMs": 5340,
+     "over250": 19,
+     "over1000": 3,
+     "top": [
+      5340,
+      2762,
+      2175,
+      788,
+      762
+     ],
+     "seconds": 30.5
+    }
+   },
+   "whole": {
+    "count": 124,
+    "totalMs": 80324,
+    "maxMs": 16840,
+    "over250": 32,
+    "over1000": 8,
+    "top": [
+     16840,
+     13571,
+     9552,
+     5340,
+     2963
+    ],
+    "seconds": 1000000000
+   },
+   "paws": {
+    "worker": 10,
+    "workerMs": 8867,
+    "page": [],
+    "quick": 0,
+    "quickMs": 0,
+    "lod": 0,
+    "full": 6
+   },
+   "pawMainBuilds": null,
+   "lastFrameTriangles": 494126
+  },
+  "market": {
+   "windows": {
+    "dream_market_robbery": {
+     "count": 12,
+     "totalMs": 32795,
+     "maxMs": 23958,
+     "over250": 9,
+     "over1000": 3,
+     "top": [
+      23958,
+      3040,
+      1624,
+      779,
+      731
+     ],
+     "seconds": 33.1
+    },
+    "dream_market_reward": {
+     "count": 21,
+     "totalMs": 30104,
+     "maxMs": 10245,
+     "over250": 21,
+     "over1000": 5,
+     "top": [
+      10245,
+      4031,
+      1335,
+      1229,
+      1003
+     ],
+     "seconds": 30.3
+    },
+    "dream_otto_shop": {
+     "count": 98,
+     "totalMs": 29899,
+     "maxMs": 1766,
+     "over250": 52,
+     "over1000": 3,
+     "top": [
+      1766,
+      1493,
+      1374,
+      587,
+      498
+     ],
+     "seconds": 30.6
+    }
+   },
+   "whole": {
+    "count": 165,
+    "totalMs": 145713,
+    "maxMs": 23958,
+    "over250": 99,
+    "over1000": 18,
+    "top": [
+     23958,
+     16263,
+     10839,
+     10245,
+     9114
+    ],
+    "seconds": 1000000000
+   },
+   "paws": {
+    "worker": 25,
+    "workerMs": 22086,
+    "page": [],
+    "quick": 5,
+    "quickMs": 61.900000000000006,
+    "lod": 40,
+    "full": 913
+   },
+   "pawMainBuilds": null,
+   "lastFrameTriangles": 494126
+  },
+  "fight": {
+   "windows": {
+    "fight-street-fang": {
+     "count": 33,
+     "totalMs": 46886,
+     "maxMs": 17223,
+     "over250": 33,
+     "over1000": 6,
+     "top": [
+      17223,
+      7373,
+      1261,
+      1223,
+      1115
+     ],
+     "seconds": 47.3
+    }
+   },
+   "whole": {
+    "count": 58,
+    "totalMs": 102360,
+    "maxMs": 18348,
+    "over250": 45,
+    "over1000": 11,
+    "top": [
+     18348,
+     17223,
+     14227,
+     12557,
+     7373
+    ],
+    "seconds": 1000000000
+   },
+   "paws": {
+    "worker": 15,
+    "workerMs": 16006,
+    "page": [],
+    "quick": 4,
+    "quickMs": 26.5,
+    "lod": 4,
+    "full": 0
+   },
+   "pawMainBuilds": null,
+   "lastFrameTriangles": 752968
+  }
+ }
+}

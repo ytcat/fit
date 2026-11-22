@@ -47,4 +47,9 @@ assert.ok(html.indexOf('call-core.js') > 0 && html.indexOf('call-core.js') < htm
   A.recordMission(g, 'night_bag', { combos: 12 }, true); assert.deepEqual([keep.stars, keep.value, keep.plays], [3, 5, 3], 'a 1-star play does not lower an old 3-star record');
   A.recordMission(g, 'night_bag', { combos: 27 }, true); assert.deepEqual([keep.stars, keep.value], [3, 27], 'a new 3-star play replaces it');
 }
+// owner 2026-11-22: the combo chips have the colours of the pad buttons that make the moves
+{ const pad = read('fighter-pad.css'), css = read('adventure/story/story.css'), col = (src, re) => (src.match(re) || [])[1];
+  assert.strictEqual(col(css, /\.adv-call-hook\{border-color:(#[0-9a-f]{6})/), col(pad, /\.fp-btn\[data-pad=hook\]\{--fp-c:(#[0-9a-f]{6})/), 'hook chip = hook button');
+  assert.strictEqual(col(css, /\.adv-call-uppercut\{border-color:(#[0-9a-f]{6})/), col(pad, /\.fp-btn\[data-pad=uppercut\]\{--fp-c:(#[0-9a-f]{6})/), 'uppercut chip = uppercut button');
+  assert.match(css, /\.adv-call-straight\{background:linear-gradient\(180deg,#e63946,#b01321\)/, 'straight chip = the red Straight button'); }
 console.log('call-drills: ok');

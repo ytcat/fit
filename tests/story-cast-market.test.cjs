@@ -136,6 +136,6 @@ assert.equal(hazel.cast.stoop > 0, true, 'Mrs. Hazel stands a little stooped');
 const html = fs.readFileSync('index.html', 'utf8'), manifest = fs.readFileSync('offline-manifest.json', 'utf8');
 assert.ok(/\.\/adventure\/story\/cast-market\.js\?v=\d+/.test(html) && manifest.includes('adventure/story/cast-market.js'), 'cast-market.js is loaded and cached offline');
 assert.ok(html.indexOf('story-cast.js') < html.indexOf('cast-market.js') && html.indexOf('cast-market.js') < html.indexOf('dream-scenes.js'), 'load order');
-const portraits = fs.readFileSync('adventure/portraits.js', 'utf8'); assert.ok(/S\.ids\.includes\(id\)/.test(portraits), 'portraits render every StoryCast character as a 3D head');
+const portraits = fs.readFileSync('adventure/portraits.js', 'utf8'); assert.ok(/S\.ids\.includes\((id|c)\)/.test(portraits), 'portraits render every StoryCast character as a 3D head');
 const hooks = fs.readFileSync('docs/adventure/DREAM_HOOKS.md', 'utf8'); for (const w of ["'fang'", "'hazel'", "'otto'", 'cast-market.js']) assert.ok(hooks.includes(w), 'hooks doc names ' + w);
 console.log('market cast ok');

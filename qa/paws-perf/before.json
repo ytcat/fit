@@ -1,0 +1,159 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/base",
+ "rate": 4,
+ "scenarios": {
+  "opening": {
+   "windows": {
+    "dream_opening": {
+     "count": 89,
+     "totalMs": 29062,
+     "maxMs": 5421,
+     "over250": 14,
+     "over1000": 3,
+     "top": [
+      5421,
+      3554,
+      1843,
+      605,
+      586
+     ],
+     "seconds": 30.5
+    }
+   },
+   "whole": {
+    "count": 119,
+    "totalMs": 89392,
+    "maxMs": 23739,
+    "over250": 30,
+    "over1000": 8,
+    "top": [
+     23739,
+     12499,
+     11080,
+     5421,
+     3554
+    ],
+    "seconds": 1000000000
+   },
+   "paws": null,
+   "pawMainBuilds": null,
+   "lastFrameTriangles": 494126
+  },
+  "market": {
+   "windows": {
+    "dream_market_robbery": {
+     "count": 10,
+     "totalMs": 47060,
+     "maxMs": 38103,
+     "over250": 8,
+     "over1000": 6,
+     "top": [
+      38103,
+      3138,
+      1194,
+      1192,
+      1163
+     ],
+     "seconds": 47.4
+    },
+    "dream_market_reward": {
+     "count": 23,
+     "totalMs": 30330,
+     "maxMs": 13176,
+     "over250": 23,
+     "over1000": 2,
+     "top": [
+      13176,
+      2435,
+      838,
+      804,
+      799
+     ],
+     "seconds": 30.5
+    },
+    "dream_otto_shop": {
+     "count": 105,
+     "totalMs": 29780,
+     "maxMs": 1563,
+     "over250": 47,
+     "over1000": 2,
+     "top": [
+      1563,
+      1472,
+      744,
+      577,
+      551
+     ],
+     "seconds": 30.3
+    }
+   },
+   "whole": {
+    "count": 173,
+    "totalMs": 164787,
+    "maxMs": 38103,
+    "over250": 98,
+    "over1000": 18,
+    "top": [
+     38103,
+     18285,
+     14455,
+     13176,
+     7137
+    ],
+    "seconds": 1000000000
+   },
+   "paws": null,
+   "pawMainBuilds": {
+    "dream_market_robbery": [
+     "wolf|relaxed|b 4897ms",
+     "doe|relaxed|b 1441ms"
+    ],
+    "dream_market_reward": [
+     "otter|relaxed|b 2011ms"
+    ],
+    "dream_otto_shop": []
+   },
+   "lastFrameTriangles": 494126
+  },
+  "fight": {
+   "windows": {
+    "fight-street-fang": {
+     "count": 3,
+     "totalMs": 50045,
+     "maxMs": 29354,
+     "over250": 3,
+     "over1000": 2,
+     "top": [
+      29354,
+      19974,
+      717
+     ],
+     "seconds": 50.2
+    }
+   },
+   "whole": {
+    "count": 27,
+    "totalMs": 83455,
+    "maxMs": 29354,
+    "over250": 14,
+    "over1000": 6,
+    "top": [
+     29354,
+     19974,
+     14908,
+     9089,
+     2958
+    ],
+    "seconds": 1000000000
+   },
+   "paws": null,
+   "pawMainBuilds": {
+    "fight-street-fang": [
+     "wolf|relaxed|b 2228ms",
+     "lion|relaxed|b 4462ms"
+    ]
+   },
+   "lastFrameTriangles": 780033
+  }
+ }
+}
