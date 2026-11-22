@@ -75,12 +75,26 @@
 d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.focus({ preventScroll: true });
     const run = { id, closed: false, t: 0, clock: 0, ack: -1, waiting: false, shot: 0, lineIndex: -1, phase: 'load', mapT: 0, bought: !!opts.owned, buying: false };
     current = run;
+    const walkAPI = id === 'dream_opening' && window.StreetWalkPrototype?.enabled(location.search) ? window.StreetWalkPrototype : null;
+    let walk = null, resumeKey = null;
+    if (walkAPI) try { resumeKey = e.career?.store?.current?.()?.id; } catch { /* no profile */ }
     let life = null, proxies = [], castWas = [], shadowWas = null, hi = false, perf = { n: 0, sum: 0 };
     let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false, props = null, gymBagBase = null;
+    let ottoVisual = null, ottoWasDrawn = false;
+    function releaseOtto() {
+      try { ottoVisual?.detach(); } catch (x) { console.warn('otto art cleanup', x); }
+      ottoVisual = null; ottoWasDrawn = false;
+    }
+    function resetOtto() {
+      try { ottoVisual?.reset(); } catch (x) { console.warn('otto art reset', x); releaseOtto(); }
+      ottoWasDrawn = false;
+    }
     const look = V(), turn = new Map(), jacketAt = {}, cullFr = new THREE.Frustum(), cullVP = new THREE.Matrix4(), cullS = new THREE.Sphere(); // the time of each actor's jacket-off key (Fang, GOTR-0096)
     for (const [k, a] of Object.entries(scene0.actors || {})) { const j = a.keys.find(q => q.act === 'jacketoff'); if (j) jacketAt[k] = j.t; }
     const finish = (result = {}) => {
       if (run.closed) return; run.closed = true; if (current === run) current = null;
+      try { walk?.close(!!(result.arrived || (result.skipped && !result.replaced && !result.error))); } catch (x) { console.warn('dream walk', x); }
+      walk = null;
       try { cleanup(); } catch (x) { console.warn('dream', x); }
       d.close?.(); d.remove(); window.removeEventListener('keydown', onKey);
       done({ id, skipped: false, ...(scene0.outcome ? { outcome: scene0.outcome } : {}), ...(scene0.buy ? { bought: run.bought } : {}), ...result });
@@ -88,6 +102,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     run.finish = finish;
     function cleanup() {
       if (e.fightIQDemo === run) e.fightIQDemo = null;
+      releaseOtto();
       props?.dispose(); props = null;
       try { life?.dispose(); } catch { /* gone */ } life = null; for (const p of proxies) p.userData.dispose(); proxies = []; for (const [o, v, r] of castWas) { o.castShadow = v; o.receiveShadow = r; } castWas = [];
       if (shadowWas) { Object.assign(e.renderer.shadowMap, shadowWas); shadowWas = null; }
@@ -102,7 +117,22 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       e.lastPoseStamp = null; e.lastRenderStamp = null;
     }
     // ---- input: Skip always; tap / Space / Enter = next line in a conversation
-    const skipNow = () => { if (run.closed) return; if (id === 'dream_opening' && run.phase !== 'load' && run.t < scene0.duration - 1.3 && !run.skipping) { run.skipping = true; run.phase = 'play'; fade.style.opacity = '0'; run.t = scene0.duration - 1.2; for (const c of Object.values(rigs)) Pose().reset(c); } else finish({ skipped: true }); };
+    const walkStart = () => {
+      run.phase = 'play'; fade.style.opacity = '0'; run.t = walkAPI.START;
+      try { map?.dispose(); } catch { /* already gone */ } map = null; mapScene = null;
+      for (const c of Object.values(rigs)) Pose().reset(c);
+    };
+    if (walkAPI) skip.textContent = ({ en:'Skip intro', he:'דלג על הפתיחה', ru:'Пропустить вступление' })[lang()] + ' ▸▸';
+    const skipNow = () => {
+      if (run.closed) return;
+      if (walkAPI) {
+        const action = walkAPI.introSkip(run.phase);
+        if (action === 'ignore' || run.walkIntroSkipped) return;
+        run.walkIntroSkipped = true;
+        if (action === 'start') walkStart();
+        return;
+      }
+      if (id === 'dream_opening' && run.phase !== 'load' && run.t < scene0.duration - 1.3 && !run.skipping) { run.skipping = true; run.phase = 'play'; fade.style.opacity = '0'; run.t = scene0.duration - 1.2; for (const c of Object.values(rigs)) Pose().reset(c); } else finish({ skipped: true }); };
     const advance = () => {
       if (!scene0.tap || run.phase !== 'play') return; const i = run.lineIndex; if (i < 0 || i <= run.ack || !scene0.lines[i].hold) return;
       run.ack = i; run.waiting = false;
@@ -147,6 +177,11 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
         if (scene0.outfit?.[key]) Cast().outfit(c, scene0.outfit[key]);
         if (c.castFight) Cast().market?.wear(c, 'jacket'); // Fang starts in his jacket
       }
+      // Otto's alternate artwork is default only where the owner reviewed it.
+      if (rigs.otto && (id === 'dream_otto_shop' || id === 'dream_market_reward')) {
+        try { ottoVisual = window.OttoCivilian?.attach(id, 'otto', rigs.otto); }
+        catch (x) { console.warn('otto art unavailable; keeping stock rig', x); }
+      }
       if (scene0.carry && window.MarketProps) props = window.MarketProps.create({ scene, set, rigs, carry: scene0.carry });
       if (street && window.StreetLife) { // GOTR-0097: a living street; the characters cast their sun shadow through a light stand-in
         // (fuller than the body, so the body does not receive shadows while it is used: it would shade itself)
@@ -163,7 +198,8 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (stage) { const placeholder = document.createComment('dream stage'); stage.before(placeholder); stageMove = { stage, placeholder, pe: stage.style.pointerEvents }; stage.style.pointerEvents = 'none'; host.append(stage); stage.classList.add('game-preview-live', 'story-live'); }
       oldFit = e.fitCameraToModel; e.fitCameraToModel = () => {};
       run.frame = frame; e.fightIQDemo = run; busy.remove(); window.dispatchEvent(new Event('resize'));
-      if (scene0.intro === 'map' && !opts.noMap && !reduced) startMap(); else run.phase = 'play';
+      if (walkAPI && (run.walkIntroSkipped || walkAPI.resumePoint(resumeKey))) walkStart();
+      else if (scene0.intro === 'map' && !opts.noMap && !reduced) startMap(); else run.phase = 'play';
     }).catch(x => { console.warn('dream', x); finish({ skipped: true, error: String(x?.message || x) }); });
 
     /** Indoors: softer sun through the windows, more bounce, no sky fog. */
@@ -201,6 +237,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     }
     function lens(fovKey) {
       const size = e.renderer.getSize(new THREE.Vector2()), aspect = Math.max(.2, size.x / Math.max(1, size.y));
+      if (walk) { if (camera.aspect !== aspect || camera.fov !== walkAPI.FOV) { camera.aspect = aspect; camera.fov = walkAPI.FOV; camera.updateProjectionMatrix(); } return; }
       let v = Math.min(66, Math.max(36, 2 * Math.atan(.345 / aspect) * 180 / Math.PI)); if (fovKey) v *= fovKey / 36;
       if (camera.aspect !== aspect || Math.abs(camera.fov - v) > .01) { camera.aspect = aspect; camera.fov = v; camera.updateProjectionMatrix(); }
     }
@@ -215,22 +252,32 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     }
     function frame(delta) {
       if (run.closed) return;
-      const dt = Math.min(Math.max(delta || 0, 0), .05) * (opts.timeScale || 1); run.clock += dt;
+      const realtime = Math.min(Math.max(delta || 0, 0), .05), dt = realtime * (opts.timeScale || 1); run.clock += walk ? realtime : dt;
       if (run.phase === 'map') return mapFrame(dt);
       if (run.fadeIn > 0) { run.fadeIn -= dt; fade.style.opacity = String(clamp(run.fadeIn / .7)); }
       // the timeline: runs on, except that a conversation waits at each line for a tap
       let limit = scene0.duration; run.waiting = false;
       if (scene0.tap) for (let i = run.ack + 1; i < scene0.lines.length; i++) if (scene0.lines[i].hold) { limit = Math.min(limit, scene0.lines[i].t + C.SETTLE); break; }
       const atBuy = !!scene0.buy && !run.bought && scene0.buy.t <= limit; if (atBuy) limit = scene0.buy.t; // the shop waits for the purchase
-      run.t = Math.min(run.t + dt, limit); if (scene0.tap && run.t >= limit && limit < scene0.duration && !atBuy) run.waiting = true;
+      if (walkAPI && !walk && !run.skipping && run.t + dt >= walkAPI.START) {
+        run.t = walkAPI.START;
+        walk = walkAPI.open({ dialog:d, scene, camera, actor:C.sample(scene0,run.t).actors.fighter, lang:lang(), reduced, resumeKey });
+        skip.hidden = true;
+        run.phase = 'walk'; window.dispatchEvent(new Event('resize'));
+      }
+      if (!walk) run.t = Math.min(run.t + dt, limit); else walk.frame(realtime);
+      if (scene0.tap && run.t >= limit && limit < scene0.duration && !atBuy) run.waiting = true;
       buyBtn.hidden = !(atBuy && run.t >= limit && !run.closed); sub.style.paddingBottom = buyBtn.hidden ? '' : '52px'; // the line sits above the Buy button
-      const s = C.sample(scene0, run.t); run.shot = s.camera.shot; run.lineIndex = s.lineIndex;
+      const s = C.sample(scene0, run.t);
+      if (walk) { const a = walk.s; a.y = C.groundAt(scene0,a.x,a.z,run.t); Object.assign(s.actors.fighter, a, { act:'idle', look:null }); }
+      run.shot = s.camera.shot; run.lineIndex = s.lineIndex;
       // lines
       const l = s.line, key = l ? s.lineIndex + '|' + lang() : '';
       if (key !== lineKey) { lineKey = key; lineAt = run.clock; sub.dataset.who = l ? l.who : ''; name.textContent = l ? speaker(l.who, e) : ''; text.textContent = l ? l.text[lang()] || l.text.en : ''; sub.classList.remove('in'); if (l) { void sub.offsetWidth; sub.classList.add('in'); } }
       sub.dataset.wait = String(run.waiting);
       const talking = l && run.clock - lineAt < Math.min(3, .6 + (l.text[lang()] || l.text.en).length * .055) ? l.who : null;
       // actors
+      let ottoState = null;
       for (const [k, a] of Object.entries(s.actors)) {
         const c = rigs[k]; if (!c) continue; c.root.visible = a.act !== 'off'; if (!c.root.visible) continue;
         // turn in place: the body comes round over a few steps of time instead of snapping to the new direction
@@ -252,7 +299,9 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
           Pose().civil(c, { t: run.clock, dt, dist: a.dist, walk: 0, arms: p.arms || {}, look: p.look || lookFor(a, k, s), lean: p.lean || 0, talk: talking === k ? 1 : 0, listen: talking && talking !== k ? 1 : 0, nod: 0 });
         } else {
           const tired = a.act === 'tired';
-          Pose().civil(c, { t: run.clock, dt, dist: a.dist, ground: scene0.ground ? (gx, gz) => C.groundAt(scene0, gx, gz, run.t) : null, walk: a.walking ? 1 : 0, arms: a.arms || {}, reach: props?.reach(k, run.t), look: lookFor(a, k, s), lean: (a.lean || 0) + (tired ? .03 * Math.sin(run.clock * 3.4) : 0), drop: a.drop || 0, talk: talking === k ? 1 : 0, listen: talking && talking !== k ? 1 : 0, nod: 0 });
+          const state = { t: run.clock, dt, dist: a.dist, ground: scene0.ground ? (gx, gz) => C.groundAt(scene0, gx, gz, run.t) : null, walk: a.walking ? 1 : 0, arms: a.arms || {}, reach: props?.reach(k, run.t), look: lookFor(a, k, s), lean: (a.lean || 0) + (tired ? .03 * Math.sin(run.clock * 3.4) : 0), drop: a.drop || 0, talk: talking === k ? 1 : 0, listen: talking && talking !== k ? 1 : 0, nod: 0 };
+          Pose().civil(c, state);
+          if (k === 'otto' && ottoVisual) ottoState = state;
         }
       }
       // props, bag
@@ -263,7 +312,8 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (o.doors && s.props.doors) for (const m of o.doors) m.position.x = m.userData.shut + (m.userData.open - m.userData.shut) * smooth(s.props.doors[0]);
       if (s.bag && rigs.fighter) { Cast().bag(rigs.fighter, s.bag.on === 'shoulder' && rigs.fighter.root.visible ? 'shoulder' : 'off'); if (floorBag) { floorBag.visible = s.bag.on === 'floor'; if (floorBag.visible) { floorBag.position.set(s.bag.at[0], .135, s.bag.at[1]); floorBag.rotation.y = s.bag.at[2] || 0; } } }
       // camera
-      lens(s.camera.fov); camera.position.fromArray(s.camera.pos); look.fromArray(s.camera.look); camera.lookAt(look);
+      lens(s.camera.fov);
+      if (walk) walk.view(look,realtime,run.clock); else { camera.position.fromArray(s.camera.pos); look.fromArray(s.camera.look); camera.lookAt(look); }
       if (hi && set.sun) { // the sun's shadow box covers what this shot sees near the camera: between the lens and the subject
         const d = Math.hypot(look.x - camera.position.x, look.z - camera.position.z), k = Math.min(1, 9 / Math.max(1e-3, d)) * .55, r = Math.max(7, Math.min(18, d * .55 + 4)), sc = set.sun.shadow.camera;
         set.focus(camera.position.x + (look.x - camera.position.x) * k, camera.position.z + (look.z - camera.position.z) * k, r);
@@ -276,18 +326,27 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       // e.g. Fight Night 2.4 M a frame). A generous sphere round each body; larger when the sun casts shadows into the shot.
       camera.updateMatrixWorld(); cullVP.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); cullFr.setFromProjectionMatrix(cullVP);
       for (const c of Object.values(rigs)) if (c.root.visible) { cullS.center.set(c.root.position.x, c.root.position.y + 1.0, c.root.position.z); cullS.radius = hi ? 3.2 : 1.7; if (!cullFr.intersectsSphere(cullS)) c.root.visible = false; }
+      if (ottoVisual) {
+        const drawn = !!(ottoState && rigs.otto.root.visible);
+        try {
+          if (drawn) ottoVisual.update(ottoState, l, run.clock - lineAt);
+          else if (ottoWasDrawn) ottoVisual.reset();
+          ottoWasDrawn = drawn;
+        } catch (x) { console.warn('otto art failed; returning to stock rig', x); releaseOtto(); }
+      }
       // (v1.84 also swapped distant bodies to a lighter triangle index; removed in v1.86: after a film the Fighter's body vanished on an
       // iPhone — swapping a skinned mesh's index after it was drawn is not reliable on every GPU. Bodies are never re-indexed now.)
       for (const b of blobs) { const r = b.c.root, small = b.c.small; b.mesh.visible = r.visible; b.mesh.position.set(r.position.x - .16, (small ? 0 : r.position.y) + .014, r.position.z - .2); b.mesh.rotation.y = .7; b.mesh.scale.set(small ? .95 : 1.75, 1, small ? .6 : 1.05); } // shadows lie on the ground the actor stands on (bus floor, road)
       if (e.renderer.shadowMap?.enabled) e.renderer.shadowMap.needsUpdate = true;
       e.renderer.render(scene, camera);
-      const info = e.renderer.info.render; lastStats = { phase: 'play', calls: info.calls, triangles: info.triangles, set: set.stats(), shot: run.shot, quality: run.quality || quality, shadows: !!(hi && set.sun?.castShadow), ...(life ? { life: life.stats() } : {}), ...(o.city ? { city: o.city.stats() } : {}) };
-      if (s.done && !ended) { ended = true; setTimeout(() => finish({ skipped: !!run.skipping }), 250); }
+      const info = e.renderer.info.render; lastStats = { phase: walk ? 'walk' : 'play', calls: info.calls, triangles: info.triangles, set: set.stats(), shot: run.shot, quality: run.quality || quality, shadows: !!(hi && set.sun?.castShadow), ...(life ? { life: life.stats() } : {}), ...(o.city ? { city: o.city.stats() } : {}) };
+      if (walk?.s.arrived && !ended) { ended = true; setTimeout(() => finish({ arrived:true }), 180); }
+      if (!walk && s.done && !ended) { ended = true; setTimeout(() => finish({ skipped: !!run.skipping }), 250); }
     }
     /** This device cannot keep up: contact shadows only, no street people and birds (clouds and litter stay). */
     function lowQuality() { hi = false; if (set?.sun) set.sun.castShadow = false; e.renderer.shadowMap.enabled = false; life?.level(1); for (const b of blobs) b.mesh.material.opacity = .6; run.quality = 'low (auto)'; }
     Object.defineProperty(run, 'rigs', { get: () => rigs }); Object.defineProperty(run, 'set', { get: () => set }); Object.defineProperty(run, 'scene', { get: () => scene }); Object.defineProperty(run, 'camera', { get: () => camera }); // read-only, for QA probes
-    run.seek = t => { turn.clear(); run.t = clamp(t, 0, scene0.duration); run.ack = scene0.lines.reduce((n, q, i) => q.t + C.SETTLE < run.t ? i : n, -1); if (run.phase === 'map') { run.phase = 'play'; fade.style.opacity = '0'; try { map?.dispose(); } catch { /* ignore */ } map = null; } for (const c of Object.values(rigs)) Pose().reset(c); };
+    run.seek = t => { if (walk) return; turn.clear(); if (ottoVisual) { resetOtto(); lineKey = ''; } run.t = clamp(t, 0, scene0.duration); run.ack = scene0.lines.reduce((n, q, i) => q.t + C.SETTLE < run.t ? i : n, -1); if (run.phase === 'map') { run.phase = 'play'; fade.style.opacity = '0'; try { map?.dispose(); } catch { /* ignore */ } map = null; } for (const c of Object.values(rigs)) Pose().reset(c); };
     return true;
   }
 
