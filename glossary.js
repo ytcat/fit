@@ -3,12 +3,12 @@
 (() => {
  const game='Glory of the Ring';
  // Boxing terms, written as the player sees them. Longer phrases first so the audit removes them whole.
- const terms=[game,'Shadowboxing','Shadowbox','Sparring','Lead hook','Rear hook','Lead uppercut','Rear uppercut','Slip left','Slip right','Uppercut','Hook','Jab','Cross','Slip','Roll','Guard','Combos','Combo','KO','Burst','VS','First Rhythm','Corner Turn','Counter Chain','Thunder Arc','Rolling Return','School Signature','Sunday Punch'];
+ const terms=[game,'Shadowboxing','Shadowbox','Sparring','Lead hook','Rear hook','Lead uppercut','Rear uppercut','Slip left','Slip right','Uppercut','Hook','Jab','Cross','Slip','Roll','Guard','Combos','Combo','KO','Burst','VS','First Rhythm','Corner Turn','Counter Chain','Thunder Arc','Rolling Return','School Signature','Super Punch'];
  // Move ids whose shown name is a glossary term (the technique table's English column).
  const moves={jab:'Jab',cross:'Cross',hook:'Lead hook',rear_hook:'Rear hook',uppercut:'Lead uppercut',rear_uppercut:'Rear uppercut',slip:'Slip right',slip_left:'Slip left',slip_right:'Slip right',roll:'Roll',guard:'Guard'};
  const combos={first_rhythm:'First Rhythm',corner_turn:'Corner Turn',counter_chain:'Counter Chain',thunder_arc:'Thunder Arc',rolling_return:'Rolling Return',school_signature:'School Signature'};
  // GOTR-0088 finisher names are move names: Latin in every language.
- const finishers={sunday_punch:'Sunday Punch'};
+ const finishers={sunday_punch:'Super Punch'};
  const stations={none:'Shadowboxing',rabbit:'Sparring'};
  // Inside Hebrew text an English term is a first-strong isolate, so punctuation stays where it belongs.
  const isolate=text=>'⁨'+text+'⁩';

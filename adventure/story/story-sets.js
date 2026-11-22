@@ -7,7 +7,7 @@
  *   StorySets.ready() -> Promise                      loads the map script for its building kit
  *   StorySets.build(id, scene, { renderer, shadows }) -> { id, group, objects, focus(x, z, r), stats(), dispose() }
  *   StorySets.register(id, ctx => focus)              a new set. ctx = { K, PAL, C, S (street batch, metres), objects,
- *       box, cyl, house, road, pave, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, sign, picto, movable(batch, name) }
+ *       box, cyl, house, road, pave, curb, dashes, tree(x, z, h, 'broad' | 'upright'), treeParts { wood, leaf }, lamp, bin, planter, bollard, wheel, car, sign, picto, movable(batch, name) }
  *       glow (batch of unlit bright things: bulbs, lantern glass), pool(x, z, r, hex) (light pool on the ground)
  *       group (the set's root), opts (the build options; opts.city = ready city models, see city-assets.js)
  *       return { x, z, r, time?: 'morning' | 'evening' } (where the sun's shadow box starts; evening = low orange sun,
@@ -80,10 +80,17 @@
     const joints = (x0, x1, z0, z1) => { for (let x = Math.ceil(x0 / 2) * 2; x < x1; x += 2) box(S, x, -.004, (z0 + z1) / 2, .04, .008, z1 - z0, '#cfc5b2'); for (let z = Math.ceil(z0 / 2) * 2; z < z1; z += 2) box(S, (x0 + x1) / 2, -.004, z, x1 - x0, .008, .04, '#cfc5b2'); };
     const curb = (x0, x1, z) => { box(S, (x0 + x1) / 2, -.2, z, x1 - x0, .21, .24, PAL.curb); box(S, (x0 + x1) / 2, -.151, z + (z > 0 ? -.3 : .3), x1 - x0, .012, .34, '#4c5463'); };
     const dashes = (x0, x1, z) => { for (let x = x0; x < x1; x += 4) box(S, x + 1, -.149, z, 2, .01, .14, PAL.line); };
-    const tree = (x, z, h = 4.6) => {
+    // Street trees (owner 2026-11-22): branching trees with leafy crowns from city-trees.js, by neighbourhood as on the
+    // Gloryland map: 'broad' (Old Town shade trees, the default) or 'upright' (Market Row). The bark joins the street batch,
+    // all the leaves of the set become one double-sided mesh. Without city-trees.js: the old four-ball tree.
+    const treeLeaves = { p: [], n: [], c: [] }, treeParts = { wood: S, leaf: treeLeaves };
+    const tree = (x, z, h = 4.6, form = 'broad') => {
+      if (window.CityTrees) CityTrees.add(S, treeLeaves, form, { x, z, h });
+      else {
       cyl(S, x, 0, z, .15, h * .52, PAL.trunk, P.cyl6); cyl(S, x, 0, z, .24, .25, '#7a5a3f', P.cyl6);
       const L = PAL.leaf, k = Math.abs(Math.round(x * 3));
       S.add(P.ico1, M(x, h * .62, z, 1.3, 1.25, 1.3, x), C(L[k % L.length])); S.add(P.ico1, M(x + .62, h * .78, z - .25, .85, .8, .85, 1), C(L[(k + 2) % L.length])); S.add(P.ico1, M(x - .55, h * .74, z + .3, .8, .75, .8, 2), C(L[(k + 1) % L.length])); S.add(P.ico1, M(x + .1, h * .95, z, .7, .6, .7, 3), C(L[(k + 4) % L.length]));
+      }
       box(S, x, -.003, z, 1.3, .012, 1.3, '#8c7a63'); box(S, x, .0, z, 1.42, .05, .08, '#b9ad98'); for (const d of [-.67, .67]) { box(S, x + d, 0, z, .08, .05, 1.42, '#b9ad98'); box(S, x, 0, z + d, 1.42, .05, .08, '#b9ad98'); }
     };
     // Old Town lantern post
@@ -237,10 +244,11 @@
       pane.position.set(x, y, z); if (facing < 0) pane.rotation.y = Math.PI;
       pane.name = name; pane.renderOrder = 2; return pane;
     };
-    const ctx = { id, group, opts, displayBay, doorInterior, reflectivePane, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, lamp, bin, planter, bollard, wheel, car, movable, add, skyline, vehiclePane, mountVehicleGlass, busCabin };
+    const ctx = { id, group, opts, displayBay, doorInterior, reflectivePane, signMat, disposables, shade, plinth, glow: G, pool, K, PAL, C, P, M, S, W, objects, box, cyl, house, sign, picto, road, pave, joints, curb, dashes, tree, treeParts, lamp, bin, planter, bollard, wheel, car, movable, add, skyline, vehiclePane, mountVehicleGlass, busCabin };
     const focus = { r: 11, ...(SETS[id] || SETS.gymfront)(ctx) }, evening = focus.time === 'evening';
 
     if (parkedGlass.tris) mountVehicleGlass(parkedGlass, group, 'parked car cabin glass');
+    if (treeLeaves.p.length) { const leaves = window.CityTrees.mesh(treeLeaves, 'street tree leaves', 'leaf'); add(leaves, true, true); leaves.matrixAutoUpdate = false; leaves.updateMatrix(); }
 
     if (frontagePanes.length) {
       const g = new THREE.BufferGeometry();
@@ -435,7 +443,7 @@
       S.add(P.ico1, M(x + 1.0, .2, z + .25, .3, .26, .26, i), C('#c9b08a')); shade(x + .1, z, 1.9, 1.2);
     });
     for (const x of [-30, -18.4, -1, 11, 25.4, 37]) post(x, -1.95);
-    tree(-36.5, 4.6, 4.4); tree(-13, 5.4, 4.2); tree(6, 5.2, 4.6); tree(19.5, 5.5, 4.2); tree(38, 4.8, 4.4); bin(-19.6, -3.9); bin(14.6, -3.9); planter(-2, 5.6, 1.6); planter(10, 5.9, 1.6); planter(-24, 5.8, 1.6);
+    for (const [x, z, h] of [[-36.5, 4.6, 4.4], [-13, 5.4, 4.2], [6, 5.2, 4.6], [19.5, 5.5, 4.2], [38, 4.8, 4.4]]) tree(x, z, h, 'upright'); /* Market Row: narrow street trees (map) */ bin(-19.6, -3.9); bin(14.6, -3.9); planter(-2, 5.6, 1.6); planter(10, 5.9, 1.6); planter(-24, 5.8, 1.6);
     // string lights and bunting across the alley
     const BULB = ['#ffd27a', '#ff9d6b', '#fff0c4', '#ffb347'], FLAG = ['#e8473b', '#f2b632', '#2fa59a', '#3c7fc0', '#d63d6d', '#fff4e0'];
     [-34, -26, -19, -11.5, -4, 4.5, 12, 20, 27, 35].forEach((x, i) => {

@@ -21,9 +21,9 @@
  ].map(c=>({...c,price:{first_rhythm:0,corner_turn:20,counter_chain:40,thunder_arc:40,rolling_return:70,school_signature:120}[c.id],species:[...species],allowedModes:['training','fight'],slotCost:1}));
  const comboPurchase=id=>'purchase:combo:'+id;
  // GOTR-0088 Finishers (moves category of the Shop). Owned when bought (ledger 'purchase:finisher:<id>', a grant in the development
- // build) OR earned in the story (adventure step `earn` finished: Bruno teaches the Sunday Punch before the Brick rematch).
+ // build) OR earned in the story (adventure step `earn` finished: Bruno teaches the Super Punch before the Brick rematch).
  // Ownership is DERIVED from the ledger and the story, so no new save field and no migration is needed.
- const finishers=Object.freeze([Object.freeze({id:'sunday_punch',name:'Sunday Punch',finisher:true,price:150,earn:'advanced_training',sequence:Object.freeze(['rear_uppercut']),species:Object.freeze([...species])})]);
+ const finishers=Object.freeze([Object.freeze({id:'sunday_punch',name:'Super Punch',finisher:true,price:150,earn:'advanced_training',sequence:Object.freeze(['rear_uppercut']),species:Object.freeze([...species])})]);
  const finisherPurchase=id=>'purchase:finisher:'+id;
  const ownsFinisher=(g,id)=>{const f=finishers.find(x=>x.id===id);if(!f||!g)return false;return !!(g.ledger?.some(t=>t.id===finisherPurchase(id))||adventureRules?.dreamDone?.(g,f.earn)||adventureRules?.bossWon?.(g,'brick'));};
  const finishersOwned=g=>finishers.filter(f=>ownsFinisher(g,f.id)).map(f=>f.id);

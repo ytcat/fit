@@ -40,11 +40,12 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   const treeArt = CA.dress(treeSet, { tree });
   const treeInstance = treeSet.group.getObjectByName('Old Town street tree');
   assert.ok(treeArt.active && treeInstance && treeArt.stats().triangles <= 59000, 'three trees use a bounded geometry budget');
-  const models = CA.ARRIVAL_TREES.map(p => treeSet.group.getObjectByName(p.name));
+  const authored = CA.ARRIVAL_TREES.filter(p => p.form === 'street'); // the 'broad' site is city-trees.js (tests/arrival-background.test.cjs)
+  const models = authored.map(p => treeSet.group.getObjectByName(p.name));
   assert.equal(models.filter(Boolean).length, 3);
   assert.equal(new Set(models.map(o => o.scale.toArray().join(','))).size, 3);
   for (const [i, model] of models.entries()) {
-    const site = CA.ARRIVAL_TREES[i];
+    const site = authored[i];
     assert.deepEqual(model.position.toArray(), [site.x, 0, site.z]);
     const meshes = root => { const found = []; root.traverse(o => { if (o.isSkinnedMesh) found.push(o); }); return found; };
     meshes(model).forEach((mesh, j) => {

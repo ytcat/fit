@@ -104,7 +104,7 @@
   dpad.append(face,hub);left.append(dpad);
   const skills=make('div','fp-skills'),burstSlot=make('div','fp-burst-slot'),chips=make('div','fp-chips');
   // GOTR-0088: the Finisher ("Sunday Punch" — a move name, Latin in every language) above Burst.
-  const finisher=make('button','fp-finisher');finisher.type='button';finisher.hidden=true;finisher.dir='ltr';const finName=make('span','fp-finisher-name');finName.textContent='Sunday Punch';const finKey=make('kbd','fp-key');finKey.textContent='F';finKey.setAttribute('aria-hidden','true');finisher.append(finName,finKey);
+  const finisher=make('button','fp-finisher');finisher.type='button';finisher.hidden=true;finisher.dir='ltr';const finName=make('span','fp-finisher-name');finName.textContent='Super Punch';const finKey=make('kbd','fp-key');finKey.textContent='F';finKey.setAttribute('aria-hidden','true');finisher.append(finName,finKey);
   skills.append(finisher,burstSlot,chips);let finReadyAt=null;
   const arc=make('div','fp-arc'),buttons={};
   for(const id of ['uppercut','guard','hook','straight']){
@@ -292,7 +292,7 @@
    put(dpad,'data-disabled',String(!can));
    {const m=finisherMatch(),st=m?.finisherState?.(p.actor()),readyNow=st?.status==='ready';if(readyNow&&finReadyAt==null)finReadyAt=now;if(!readyNow)finReadyAt=null;
     const fv=finisherView(st,{mode:e.targetMode,readyAt:finReadyAt,now});if(finisher.hidden===fv.show)finisher.hidden=!fv.show;
-    if(fv.show){off(finisher,!fv.enabled||!can&&!readyNow);put(finisher,'data-state',fv.reason);put(finisher,'data-lit',String(fv.lit));put(finisher,'data-pulse',String(fv.pulse));put(finisher,'aria-label','Sunday Punch — '+(t.finisherHelp||WORDS.en.finisherHelp));put(finisher,'title',t.finisherHelp||WORDS.en.finisherHelp);}}
+    if(fv.show){off(finisher,!fv.enabled||!can&&!readyNow);put(finisher,'data-state',fv.reason);put(finisher,'data-lit',String(fv.lit));put(finisher,'data-pulse',String(fv.pulse));put(finisher,'aria-label','Super Punch — '+(t.finisherHelp||WORDS.en.finisherHelp));put(finisher,'title',t.finisherHelp||WORDS.en.finisherHelp);}}
    paintChips();layout();
   }
   // The camera director keeps placing the camera; in portrait the pad only shifts and widens the lens (setFrame).

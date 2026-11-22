@@ -40,10 +40,10 @@
   // Real-time effects, applied just before drawing and removed right after, so the camera director,
   // the side/front locks and the orbit controls keep their own camera state untouched.
   beforeRender(delta){
-   const dt=Math.min(.05,Math.max(0,delta||0)),cam=this.engine.camera;
-   if(this.points.visible){let alive=false;const p=this.pos,v=this.vel,c=this.col;
-    for(let i=0;i<COUNT;i++){if(this.age[i]>=LIFE)continue;alive=true;const j=i*3,before=this.age[i];this.age[i]+=dt;const fade=Math.max(0,1-this.age[i]/LIFE)/Math.max(1e-3,1-before/LIFE);
-     v[j+1]-=9.8*dt;for(let a=0;a<3;a++){p[j+a]+=v[j+a]*dt;v[j+a]*=.97;c[j+a]*=fade;}}
+   const dt=Math.min(.05,Math.max(0,delta||0)),cam=this.engine.camera,pt=dt*(this.slowmo>0&&this.slowmo<1?this.slowmo:1); // pt: particle time (the Super Punch film slows it down, super-punch.js)
+   if(this.points.visible){let alive=false;const p=this.pos,v=this.vel,c=this.col,drag=pt<dt?Math.pow(.97,pt/Math.max(1e-4,dt)):.97;
+    for(let i=0;i<COUNT;i++){if(this.age[i]>=LIFE)continue;alive=true;const j=i*3,before=this.age[i];this.age[i]+=pt;const fade=Math.max(0,1-this.age[i]/LIFE)/Math.max(1e-3,1-before/LIFE);
+     v[j+1]-=9.8*pt;for(let a=0;a<3;a++){p[j+a]+=v[j+a]*pt;v[j+a]*=drag;c[j+a]*=fade;}}
     if(!alive){this.points.visible=false;c.fill(0);}
     this.points.geometry.attributes.position.needsUpdate=true;this.points.geometry.attributes.color.needsUpdate=true;}
    if(this.kick&&cam){const k=this.kick;k.t+=dt;if(k.t>.16){this.kick=null;}else{

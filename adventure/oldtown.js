@@ -206,7 +206,9 @@
   }
   // Fight finished (sparring mission or the boss bout): the verdict stays visible for a moment, then the result card opens.
   function fightDone(view) {
-    const r = run; if (r.fightDone) return; r.fightDone = true;
+    const r = run; if (r.fightDone) return;
+    if (view.match?.finisherHold?.()) return; // the Super Punch film (knockout, blackout, celebration) plays to its end first; called again next frame
+    r.fightDone = true;
     if (r.def.kind === 'boss') { setTimeout(() => bossDone(view), 1500); return; }
     if (r.def.kind === 'story_fight') { const t0 = performance.now(), wait = () => { const m = view.match; if (!m || m.phase !== 'ceremony' || m.phaseTime >= 3.2 || performance.now() - t0 > 7000) storyFightDone(view); else setTimeout(wait, 150); }; setTimeout(wait, 1500); return; } // the referee raises the winner's arm before the story goes on (GOTR-0083)
     const entry = view.careerEntry, m = view.match, totals = m.result.totals || m.totals, sp = entry.species, me = totals[sp], opp = totals[sp === 'lion' ? 'rabbit' : 'lion'], won = m.result.winner === sp, d = r.def;

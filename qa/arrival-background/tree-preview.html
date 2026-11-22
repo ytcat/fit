@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Street trees</title>
+<style>html,body{margin:0;background:#e9dcc6}canvas{display:block}</style></head>
+<body>
+<!-- Street trees side by side in the story sets' morning light (qa/arrival-background/trees.cjs screenshots it).
+     Left to right: the old generated round tree, the new 'broad' (Old Town), the new 'upright' (Market Row), the authored GLB. -->
+<script src="../../assets/vendor/three.min.js"></script>
+<script src="../../assets/vendor/GLTFLoader.js"></script>
+<script src="../../adventure/story/city-trees.js"></script>
+<script>
+const W = innerWidth, H = innerHeight, r = new THREE.WebGLRenderer({ antialias: true }); r.setSize(W, H); r.outputEncoding = THREE.sRGBEncoding; r.toneMapping = THREE.ACESFilmicToneMapping; r.shadowMap.enabled = true; document.body.appendChild(r.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#b9d3ea').convertSRGBToLinear(); scene.fog = new THREE.Fog(0xf3dfc4, 30, 110);
+const hemi = new THREE.HemisphereLight(0xc4dcff, 0xdcb98c, .54), sun = new THREE.DirectionalLight(0xffd7a3, 2.05); sun.position.set(.58 * 40, .44 * 40, .68 * 40); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -12, near: 1, far: 100 }); sun.shadow.camera.updateProjectionMatrix(); sun.shadow.bias = -.0007; sun.shadow.normalBias = .05;
+scene.add(hemi, sun, new THREE.AmbientLight(0xffffff, .05));
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 40).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: new THREE.Color('#d8cfbf').convertSRGBToLinear(), roughness: .9 })); ground.receiveShadow = true; scene.add(ground);
+const C = h => new THREE.Color(h).convertSRGBToLinear();
+// the old generated tree (story-sets.js tree(), v1.87)
+function oldTree(x, z, h = 4.6) {
+  const g = new THREE.Group(), L = ['#5fae4e', '#4f9e45', '#6fbb55', '#4a9a52', '#7cc05a'], k = Math.abs(Math.round(x * 3)), ico = new THREE.IcosahedronGeometry(1, 1).translate(0, 0, 0);
+  const m = c => new THREE.MeshStandardMaterial({ color: C(c), roughness: .82, flatShading: true });
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, h * .52, 6).translate(0, h * .26, 0), m('#8a6446')); g.add(trunk);
+  for (const [dx, y, dz, s, i] of [[0, .62, 0, [1.3, 1.25, 1.3], 0], [.62, .78, -.25, [.85, .8, .85], 2], [-.55, .74, .3, [.8, .75, .8], 1], [.1, .95, 0, [.7, .6, .7], 4]]) { const b = new THREE.Mesh(ico, m(L[(k + i) % L.length])); b.position.set(dx, h * y, dz); b.scale.set(...s); g.add(b); }
+  g.traverse(o => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }); g.position.set(x, 0, z); scene.add(g);
+}
+const view = new URLSearchParams(location.search), az = +(view.get('az') || 0);
+oldTree(-9, 0);
+const wood = { p: [], n: [], c: [] }, leaf = { p: [], n: [], c: [] };
+CityTrees.add(wood, leaf, 'broad', { x: -3, z: 0, h: 4.6, yaw: az });
+CityTrees.add(wood, leaf, 'upright', { x: 3, z: 0, h: 4.4, yaw: az });
+scene.add(CityTrees.mesh(wood, 'wood', 'wood'), CityTrees.mesh(leaf, 'leaves', 'leaf'));
+new THREE.GLTFLoader().load('../../assets/street/ch01-trees/street-tree-low.glb', g => { g.scene.position.set(9, 0, 0); g.scene.rotation.y = az; g.scene.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; o.frustumCulled = false; } }); scene.add(g.scene); window.glbReady = true; }, undefined, () => { window.glbReady = true; });
+const cam = new THREE.PerspectiveCamera(+(view.get('fov') || 32), W / H, .1, 200), d = +(view.get('dist') || 30), el = +(view.get('el') || .08);
+cam.position.set(0, 2.4 + d * Math.sin(el), d * Math.cos(el)); cam.lookAt(0, 2.6, 0);
+(function loop() { r.render(scene, cam); window.drawn = (window.drawn || 0) + 1; requestAnimationFrame(loop); })();
+window.info = () => ({ calls: r.info.render.calls, triangles: r.info.render.triangles });
+</script></body></html>

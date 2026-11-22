@@ -1,0 +1,23 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Parked car LOD</title><base href="/"><style>html,body{margin:0;background:#e9dcc6}canvas{display:block}</style></head>
+<body>
+<!-- The blue parked compact (CityAssets.dress) full and its welded far copy side by side: ?dist=24&fov=33 (qa/arrival-background/cars.cjs) -->
+<script src="./assets/vendor/three.min.js"></script>
+<script src="./assets/vendor/GLTFLoader.js"></script>
+<script src="./adventure/story/city-trees.js"></script>
+<script src="./adventure/story/city-assets.js"></script>
+<script>
+const W = innerWidth, H = innerHeight, r = new THREE.WebGLRenderer({ antialias: true }); r.setSize(W, H); r.outputEncoding = THREE.sRGBEncoding; r.toneMapping = THREE.ACESFilmicToneMapping; document.body.appendChild(r.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#b9d3ea').convertSRGBToLinear();
+const sun = new THREE.DirectionalLight(0xffd7a3, 2.05); sun.position.set(23, 18, 27); scene.add(new THREE.HemisphereLight(0xc4dcff, 0xdcb98c, .54), sun, new THREE.AmbientLight(0xffffff, .05));
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 40).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: new THREE.Color('#4d5360').convertSRGBToLinear(), roughness: .9 })); ground.position.y = -.15; scene.add(ground);
+const q = new URLSearchParams(location.search), d = +(q.get('dist') || 24), fov = +(q.get('fov') || 33);
+CityAssets.ready(60000, ['car']).then(city => {
+  const c = { group: new THREE.Group(), objects: {}, disposables: [], opts: { renderer: r } }; scene.add(c.group);
+  const h = CityAssets.dress(c, city), blue = h.cars[1];
+  blue.full.visible = true; blue.far.visible = true; blue.far.position.x += 4.6; blue.far.updateMatrix();
+  const cam = new THREE.PerspectiveCamera(fov, W / H, .1, 300), look = new THREE.Vector3(-16 + 2.3, .5, -2.45);
+  cam.position.set(look.x + d * .35, 1.6, look.z + d * .94); cam.lookAt(look);
+  r.render(scene, cam); window.done = true;
+});
+</script></body></html>
