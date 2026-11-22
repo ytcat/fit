@@ -44,3 +44,9 @@ slice: real modelled props (headless Blender 5.2) instead of primitive box/cylin
 - Not done: the training gym in `club-world.js` (own primitive lockers/dumbbells, separate builder, not shared with dream-sets);
   docks / old busstop-gymfront-market sets (no city models passed: generated fallback as before).
 - Rebuild: `<venv>/bin/python tools/blender/street-props.py -- assets/street/ch01-props qa/blender-props` (same for gym-props.py).
+
+## Checks run (2026-11-22)
+- `bash scripts/run-tests.sh -j 2 city street dream market gym offline arrival props` -> files=14 fails=0 (784 s), includes
+  tests/blender-props, city-assets, arrival-background, offline-version-match, dream-bag-break, story-clean-gym.
+- Browser (Playwright/Chromium swiftshader, 402x690): dream_opening, dream_market_robbery, dream_gym_talk, walking; high and
+  low; zero page errors after. Walking route and positions identical before/after (`walk-long-high-before-after.webp`).
