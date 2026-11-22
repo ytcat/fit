@@ -64,8 +64,8 @@ Tools: `capture.cjs` (ROOT=<tree> QUALITY=high|low), `ab.cjs`, `fallbacks.cjs`, 
 ## Checks
 `node tests/render-look.test.cjs` (new: share moved exactly, sky/ground radiance, families, city ambient kept, low = nothing,
 practical lamps, hooks, engine contact shadows / level threshold / shadow box, film wiring). Full suite
-`bash scripts/run-tests.sh -j 2` on 086ea93's predecessor tree: files=149 fails=1 (story-clean-gym, known flaky under load;
-passes alone). SUITE_FINAL
+`bash scripts/run-tests.sh -j 2`: on the final tree (e2137b0) files=149 fails=0 (1526 s); an earlier run under heavy machine
+load (2c9d035) had story-clean-gym failing (known flaky under load; passed alone).
 
 ## Limits / next
 - Not checked on a physical phone. SwiftShader runs the GPU work on the CPU; the high look's ~10-20 % is an estimate of the
