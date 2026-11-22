@@ -76,14 +76,16 @@
       if (keep.bin(-6.0, 6.5)) bin(-6.0, 6.5); planter(7.6, 8.9, 1.6); planter(-9.4, 8.9, 1.6); planter(13, 8.9);
       // street furniture along the walk
       for (const x of [-22, -9, 8.5, 13.4, 31.5, 44]) if (keep.lamp(x, 4.15)) lamp(x, 4.15); for (const x of [-15, 2, 16, 33.6, 46]) if (keep.lamp(x, -4.15)) lamp(x, -4.15);
-      tree(-14, 5.6); tree(28, 5.6, 4.2); tree(40, 5.5); tree(-26, 5.6, 4.3); tree(-6.4, -5.4);
-      if (!city?.tree) for (const { x, z, h } of window.CityAssets?.ARRIVAL_TREES || [
-        { x: 6.6, z: -5.3, h: 4.3 }, { x: 11.6, z: 5.4, h: 4.4 }, { x: 17.4, z: -5.4, h: 4.5 }
-      ]) tree(x, z, h);
+      // Old Town street trees: broad shade trees (city-trees.js) with the authored narrow tree at three places. The arrival
+      // sites are CityAssets' (city-assets.js); each is planted once, by the city dressing or here (never both).
+      tree(-14, 5.6); tree(28, 5.6, 4.2); tree(40, 5.5); tree(-26, 5.6, 4.3);
+      for (const site of window.CityAssets?.ARRIVAL_TREES || [
+        { x: 6.6, z: -5.3, h: 4.3 }, { x: 11.6, z: 5.4, h: 4.4 }, { x: 17.4, z: -5.4, h: 4.5 }, { x: -6.4, z: -5.4, h: 4.6, form: 'broad' }
+      ]) if (!window.CityAssets?.dresses(city, site)) tree(site.x, site.z, site.h, site.form === 'broad' ? 'broad' : 'upright');
       tree(34.6, -5.4, 4.2); tree(44, -5.4);
       if (keep.bin(14.6, 8.6)) bin(14.6, 8.6); bin(31.3, -7.3); planter(21.4, -7.6, 1.5); planter(32.9, -7.6); planter(-2.4, -7.6, 1.5); planter(16.8, 8.9);
       for (const x of [19.7, 24.7]) { bollard(x, 4.0); bollard(x, -4.0); }
-      car(-16, -2.45, '#3b7dd8', -lane); if (!city?.car) car(8.4, -2.45, '#f4f1ea', -lane); else c.shade(8.4, -2.45, 4.5, 2.1, true); car(35.5, -2.45, '#45b39d', -lane); car(30, 2.45, '#d9473b', lane); car(44, 2.45, '#f2b632', lane); // parked with the traffic
+      for (const [x, color] of [[-16, '#3b7dd8'], [8.4, '#f4f1ea']]) if (!city?.car) car(x, -2.45, color, -lane); else c.shade(x, -2.45, 4.5, 2.1, true); // the compact-car model stands here (LAYOUT.cars) car(35.5, -2.45, '#45b39d', -lane); car(30, 2.45, '#d9473b', lane); car(44, 2.45, '#f2b632', lane); // parked with the traffic
       // newspaper stand and cafe tables on the near pavement (things to walk past)
       box(S, 10.2, 0, 8.7, 1.5, 1.0, .5, '#3c7fc0'); box(S, 10.2, 1.0, 8.7, 1.6, .06, .6, '#254f86'); for (let k = 0; k < 4; k++) box(S, 9.65 + k * .37, .25, 8.42, .3, .5, .03, ['#f7f0dc', '#e63946', '#f4c152', '#f7f0dc'][k]);
       for (const x of [16.2, 18.2]) { c.shade(x, 8.4, 1.3, 1.3); cyl(S, x, 0, 8.4, .04, .72, '#3d4654', P.cyl6); cyl(S, x, .72, 8.4, .42, .04, '#f7f0dc', P.cyl12); cyl(S, x, 0, 8.4, .22, .03, '#3d4654', P.cyl8); for (const d of [-.65, .65]) { box(S, x + d, 0, 8.4, .36, .45, .36, '#c9653d'); box(S, x + d + Math.sign(d) * .17, .45, 8.4, .04, .42, .36, '#c9653d'); } }

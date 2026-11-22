@@ -6,8 +6,9 @@
  *   CityAssets.ready(ms?, names?) -> Promise                  each requested model a loaded glTF or null, after at most ms
  *   CityAssets.status() -> { bus: 'idle' | 'loading' | 'ready' | 'failed', ... }
  *   CityAssets.dress(ctx, city) -> handle                      called by the street and market builders with ready models
- *       handle { active, bus, station, oldtown, frame(sample, camera), stats(), dispose() }  (objects.city of the set)
+ *       handle { active, bus, station, oldtown, trees, frame(sample, camera), stats(), dispose() }  (objects.city of the set)
  *   CityAssets.LAYOUT                                          where the models go; dream-sets.js skips what they replace
+ *   CityAssets.dresses(city, site) -> boolean                  whether dress() plants that tree site (else the set does)
  *   CityAssets.wheelAngle(distance) / doorClipTime(...)        pure helpers (tests/city-assets.test.cjs)
  *
  * Street frame (dream-sets.js): x along the street, the stop's pavement and the camera on +z, road at y -0.15, pavement 0.
@@ -23,16 +24,20 @@
     oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb',
     hazelStall: './assets/street/ch01-market/hazel-fruit-stall.glb'
   };
-  // One authored asset/download and three silhouettes. Keep these on the arrival street only;
-  // positions match the procedural trees so a cold/offline load keeps a complete street.
+  // One authored asset/download and three silhouettes (form 'street': the GLB). Keep these on the arrival street only;
+  // positions match the generated trees so a cold/offline load keeps a complete street (dream-sets.js plants the
+  // generated tree for every site this dressing does not, see dresses()).
+  // Form 'broad' (owner 2026-11-22): the round shade tree behind the Fighter as he steps off the bus, now a branching
+  // broadleaf with a leafy crown from city-trees.js (same place; the generated set kept it as four green balls).
   const ARRIVAL_TREES = Object.freeze([
-    Object.freeze({ name: 'Old Town street tree', x: 6.6, z: -5.3, h: 4.3, yaw: 0, scale: [1, 1, 1], phase: 0 }),
-    Object.freeze({ name: 'Old Town compact tree', x: 11.6, z: 5.4, h: 4.4, yaw: 2.2, scale: [.74, .88, .81], phase: .7 }),
-    Object.freeze({ name: 'Old Town spreading tree', x: 17.4, z: -5.4, h: 4.5, yaw: -1.3, scale: [1.17, .92, 1.03], phase: 1.6 })
+    Object.freeze({ name: 'Old Town street tree', form: 'street', x: 6.6, z: -5.3, h: 4.3, yaw: 0, scale: [1, 1, 1], phase: 0 }),
+    Object.freeze({ name: 'Old Town compact tree', form: 'street', x: 11.6, z: 5.4, h: 4.4, yaw: 2.2, scale: [.74, .88, .81], phase: .7 }),
+    Object.freeze({ name: 'Old Town spreading tree', form: 'street', x: 17.4, z: -5.4, h: 4.5, yaw: -1.3, scale: [1.17, .92, 1.03], phase: 1.6 }),
+    Object.freeze({ name: 'Old Town round tree', form: 'broad', x: -6.4, z: -5.4, h: 4.6, yaw: .55, scale: [1, 1, 1], phase: 0 })
   ]);
   const MARKET_TREES = Object.freeze([
-    Object.freeze({ name: 'Market west tree', x: -2.9, z: -4.45, h: 4.0, yaw: 1.8, scale: [.74, .83, .75], phase: 1.1 }),
-    Object.freeze({ name: 'Market east tree', x: 3.25, z: -4.6, h: 4.1, yaw: -.6, scale: [.91, .88, .79], phase: 2.2 })
+    Object.freeze({ name: 'Market west tree', form: 'street', x: -2.9, z: -4.45, h: 4.0, yaw: 1.8, scale: [.74, .83, .75], phase: 1.1 }),
+    Object.freeze({ name: 'Market east tree', form: 'street', x: 3.25, z: -4.6, h: 4.1, yaw: -.6, scale: [.91, .88, .79], phase: 2.2 })
   ]);
   const OPENING_MODELS = ['tree', 'car', 'bus', 'station', 'oldtown'];
   const WAIT_MS = 5000, TIRE_R = .515, HALF = Math.PI;
@@ -45,6 +50,9 @@
     bins: [[-6.0, 6.5, HALF], [14.6, 8.6, HALF]],
     // Old Town prototypes: front wall centre at pavement height; far side faces +z, near side is turned to face -z
     // (budget: four instances; the Fighter alone submits ~340k triangles, so the street keeps generated houses in between)
+    // parked compacts (the GLB; the generated car is built only where no model stands): [x, z, body colour or null]
+    // turned like the generated car they replace (parked with the traffic), merged per material (one draw call each)
+    cars: [[8.4, -2.45, null], [-16, -2.45, '#3b7dd8']],
     houses: [['brick', -12.6, -8.2, 0], ['plaster', 2.4, -8.2, 0], ['plaster', 6.2, 10.4, HALF], ['brick', 13.1, 10.4, HALF]],
     replaced: { far: [-11, .6], near: [9.5] }, // generated house slots (x) the prototypes stand in
     fill: [{ style: 'plaster', x: -5.1, w: 7.0, floors: 3, tint: 0, roof: 4 }], // a generated house between the two far prototypes
@@ -72,6 +80,29 @@
     return Promise.race([all, new Promise(r => setTimeout(r, ms))]).then(pick, pick);
   }
   const status = () => Object.fromEntries(names().map(n => [n, cache.get(n)?.state || 'idle']));
+  /** Whether dress(ctx, city, sites) plants this tree site (the generated set plants exactly the others: never both). */
+  const dresses = (city, site) => !city ? false : (site.form || 'street') === 'street' ? !!city.tree : !!window.CityTrees;
+  /** The parked car model merged into one mesh per material (built once per loaded model; it never moves). */
+  const carParts = new WeakMap();
+  function staticCar(gltf) {
+    let parts = carParts.get(gltf); if (parts) return parts;
+    const by = new Map(); gltf.scene.updateMatrixWorld(true);
+    gltf.scene.traverse(o => { if (o.isMesh && o.geometry?.attributes?.position) { if (!by.has(o.material)) by.set(o.material, []); by.get(o.material).push(o); } });
+    const p = new THREE.Vector3(), nm = new THREE.Matrix3();
+    parts = [...by].map(([material, list]) => {
+      let nv = 0, ni = 0; for (const o of list) { const g = o.geometry; nv += g.attributes.position.count; ni += g.index ? g.index.count : g.attributes.position.count; }
+      const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), idx = nv > 65535 ? new Uint32Array(ni) : new Uint16Array(ni); let v0 = 0, i0 = 0;
+      for (const o of list) {
+        const g = o.geometry, P = g.attributes.position, N = g.attributes.normal; nm.getNormalMatrix(o.matrixWorld);
+        for (let k = 0; k < P.count; k++) { p.fromBufferAttribute(P, k).applyMatrix4(o.matrixWorld); pos[(v0 + k) * 3] = p.x; pos[(v0 + k) * 3 + 1] = p.y; pos[(v0 + k) * 3 + 2] = p.z; if (N) { p.fromBufferAttribute(N, k).applyMatrix3(nm).normalize(); nor[(v0 + k) * 3] = p.x; nor[(v0 + k) * 3 + 1] = p.y; nor[(v0 + k) * 3 + 2] = p.z; } }
+        if (g.index) for (let k = 0; k < g.index.count; k++) idx[i0 + k] = g.index.getX(k) + v0; else for (let k = 0; k < P.count; k++) idx[i0 + k] = k + v0;
+        v0 += P.count; i0 += g.index ? g.index.count : P.count;
+      }
+      const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geometry.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); geometry.setIndex(new THREE.BufferAttribute(idx, 1)); geometry.computeBoundingSphere();
+      return { material, geometry };
+    });
+    carParts.set(gltf, parts); return parts;
+  }
 
   /* ---------------------------------------------------------------- pure helpers */
   /** Wheel roll (radians about the model's z axis) for a signed distance driven forward along the model's +x. */
@@ -104,7 +135,7 @@
   }
 
   function dress(c, city, treeSites = ARRIVAL_TREES) {
-    const L = LAYOUT, group = new THREE.Group(), handle = { active: false, bus: null, station: false, oldtown: false, parts: [], houses: [] };
+    const L = LAYOUT, group = new THREE.Group(), handle = { active: false, bus: null, station: false, oldtown: false, parts: [], houses: [], trees: [] };
     group.name = 'city art (GLB)'; c.group.add(group);
     const used = [], env = environment(c.opts?.renderer), aniso = c.opts?.renderer ? Math.min(4, c.opts.renderer.capabilities.getMaxAnisotropy()) : 1;
     for (const [k, g] of Object.entries(city || {})) if (g) used.push(g);
@@ -118,6 +149,7 @@
     const put = (o, x, y, z, ry) => { o.position.set(x, y, z); o.rotation.y = ry; o.updateMatrix(); group.add(o); return o; };
     const trees = [], treeClip = new THREE.Frustum(), treeVP = new THREE.Matrix4();
     if (city?.tree) for (const site of treeSites) {
+      if ((site.form || 'street') !== 'street') continue;
       // Give each film instance its own bones so playback leaves the cached GLTF intact.
       const template = city.tree.scene, tree = template.clone(true);
       const sources = [], copies = [];
@@ -147,10 +179,27 @@
       }
       handle.active = true;
     }
+    // procedural shade trees (city-trees.js): into the set's own tree batches when it has them (bark with the street,
+    // one leaf mesh for every tree of the set), else one bark and one leaf mesh for these sites
+    const planted = treeSites.filter(site => (site.form || 'street') !== 'street' && dresses(city, site));
+    if (planted.length) {
+      const own = c.treeParts ? null : { wood: { p: [], n: [], c: [] }, leaf: { p: [], n: [], c: [] } }, into = c.treeParts || own;
+      for (const site of planted) CityTrees.add(into.wood, into.leaf, site.form, site);
+      if (own) for (const kind of ['wood', 'leaf']) { const m = CityTrees.mesh(own[kind], 'city trees (' + kind + ')', kind); m.receiveShadow = true; m.castShadow = kind === 'leaf'; group.add(m); c.disposables.push(m.geometry, m.material); }
+      handle.trees = planted.map(site => ({ name: site.name, form: site.form, x: site.x, z: site.z }));
+      handle.active = true;
+    }
     if (city?.car) {
-      const car = city.car.scene.clone(true);
-      car.name = 'Old Town compact';
-      put(shadows(car, false), 8.4, -.15, -2.45, city.bus ? 0 : HALF);
+      const parts = staticCar(city.car);
+      c.disposables.push({ dispose() { for (const part of parts) part.geometry.dispose(); } });
+      for (const [x, z, tint] of L.cars) {
+        const car = new THREE.Group(); car.name = tint ? 'Old Town compact ' + tint : 'Old Town compact';
+        for (const { material, geometry } of parts) {
+          let m = material; if (tint && /enamel/.test(material.name)) { m = material.clone(); m.color.set(tint); m.color.convertSRGBToLinear(); c.disposables.push(m); }
+          const mesh = new THREE.Mesh(geometry, m); mesh.name = car.name + ' · ' + material.name; mesh.renderOrder = material.transparent ? 2 : 0; mesh.castShadow = false; mesh.receiveShadow = true; car.add(mesh);
+        }
+        put(car, x, -.15, z, city.bus ? 0 : HALF); // as the generated car: dir = -lane (lane -1 with the model bus)
+      }
       handle.active = true;
     }
     if (city?.hazelStall) {
@@ -247,7 +296,7 @@
   }
 
   window.CityAssets = {
-    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, wheelAngle,
+    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, dresses, wheelAngle,
     get: n => cache.get(n)?.gltf || null,
     _setLoader(f) { makeLoader = f || defaultLoader; cache.clear(); } // tests
   };
