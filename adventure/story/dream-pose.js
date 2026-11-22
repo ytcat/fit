@@ -39,7 +39,7 @@
     carry: { h: [.31, .93, .06], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 }       // straight arm with a weight (bag handles)
   };
   const mem = new WeakMap();
-  const memo = rig => { let m = mem.get(rig); if (!m) { m = { hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
+  const memo = rig => { let m = mem.get(rig); if (!m) { m = { corr: { L: null, R: null }, hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
   const mirror = (a, s) => V(a[0] * s, a[1], a[2]);
 
   /* The walk cycle from human gait (GOTR-0097). Phase 0 = this leg's heel strike; stance 0..DUTY, swing DUTY..1; double
@@ -107,7 +107,7 @@
     const pts = []; if (!box.isEmpty()) { const lo = box.min, hi = box.max, mid = box.getCenter(V()); for (const x of [lo.x, mid.x, hi.x]) for (const y of [lo.y, mid.y, hi.y]) for (const z of [lo.z, mid.z, hi.z]) if ((x !== mid.x) + (y !== mid.y) + (z !== mid.z) >= 2) pts.push(V(x, y, z).lerp(mid, .12)); }
     handBoxes.set(hand, { key, pts }); return pts;
   }
-  function clearArm(c, side, target, pole, rest = false, orient = () => {}) {
+  function clearArm(c, side, target, pole, rest = false, orient = () => {}, out = null) {
     const j = c.joints, prof = profile(c), glove = c.gloveMeshes?.[side]?.visible, hr = glove ? .11 : .05, t = target.clone(), pl = pole.clone();
     let err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl); orient();
     for (let it = 0; it < 6; it++) {
@@ -121,7 +121,7 @@
       const reach = (j['elbow' + side].position.length() + j['hand' + side].position.length()) * .985, off = t.clone().sub(sh); if (off.length() > reach) t.copy(sh).addScaledVector(off.normalize(), reach); // never past the arm's reach
       err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl); orient();
     }
-    target.copy(t); return err;
+    target.copy(t); if (out) out.pole = pl; return err;
   }
 
   function overlay(c, st, m) {
@@ -199,7 +199,17 @@
         c.root.updateMatrixWorld(true); const at = typeof ro.at === 'function' ? ro.at(c) : ro.at;
         if (at) { target.lerp(V(...at), rw); if (ro.pole) aPole = aPole.clone().lerp(V(...ro.pole).normalize(), rw).normalize(); if (ro.palm) aPalm = aPalm.clone().lerp(V(...ro.palm).normalize(), rw).normalize(); if (ro.turn != null) aTurn = lerp(aTurn, ro.turn, rw); }
       }
-      let glove = null; handErrors.push(clearArm(c, side, target, aPole, name === 'strap' || !!(ro?.rest && rw > 0), () => (glove = c.orientGlove(side, aTurn, aPalm)))); gloves.push(glove); // the strap hand rests on the strap; the last orientation is returned
+      let glove = null; const asked = target.clone(), cleared = {}, orient = () => (glove = c.orientGlove(side, aTurn, aPalm));
+      let err = clearArm(c, side, target, aPole, name === 'strap' || !!(ro?.rest && rw > 0), orient, cleared); // the strap hand rests on the strap; the last orientation is returned
+      // arm-fixes: the body clearance switches between the trunk's bones by height, so the push it gives the hand could appear
+      // for a single frame (a 2.5 cm hand pop and an 8 deg shoulder jump as he stopped beside Otto's bag). The push is eased in
+      // over ~40 ms and out over ~100 ms.
+      const push = target.clone().sub(asked), had = m.corr[side];
+      if (st.dt > 0 && had) {
+        had.lerp(push, 1 - Math.exp(-st.dt * (push.lengthSq() > had.lengthSq() ? 25 : 10)));
+        if (had.distanceTo(push) > .002) { target.copy(asked).add(had); err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], target, cleared.pole || aPole); orient(); }
+      } else m.corr[side] = push;
+      handErrors.push(err); gloves.push(glove);
     }
     c.pawPose = paws;
     const bag = c.storyCast?.bagBody; if (bag) bag.rotation.z = -.5 + .045 * Math.sin(phase * tau * 2) * w;

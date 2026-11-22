@@ -322,9 +322,9 @@
  }
  /* arm-fixes: one timing for the winner's hand raise (ring, gym, Super Punch endings), from the start of the ceremony (s):
   * the referee reaches for the wrist (0-0.5 s), takes it, lifts it with the fighter (0.55-2.05 s), holds it high and lets go
-  * at 5.4 s (his hand back to his side by 6.0 s); the winner keeps his arm up. raise = the fighter's lift 0..1 (linear, the
+  * at 5.4 s (his hand back to his side by 6.2 s); the winner keeps his arm up. raise = the fighter's lift 0..1 (linear, the
   * pose eases it), hold = the referee's grip 0..1. */
- RhinoReferee.RAISE=Object.freeze({reach:.5,lift:.55,liftFor:1.5,release:5.4,releaseFor:.6});
+ RhinoReferee.RAISE=Object.freeze({reach:.5,lift:.55,liftFor:1.5,release:5.4,releaseFor:.8});
  RhinoReferee.raiseAt=t=>{const R=RhinoReferee.RAISE;return {raise:clamp((t-R.lift)/R.liftFor,0,1),hold:t<0?0:clamp(t/R.reach,0,1)*(1-clamp((t-R.release)/R.releaseFor,0,1))};};
  window.RhinoReferee=RhinoReferee;window.FightAudience=FightAudience;
 })();

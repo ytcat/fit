@@ -228,7 +228,7 @@
    * shoulder in one frame). Everything is a function of the scene time, so playback, seeking and the tap-to-continue
    * pauses give the same picture. */
   const BAG_R = .235, HAND_R = BAG_R + .065; // the wrist off the bag's axis: radius + the thickness of the paw under the wrist (measured: the palm on the leather)
-  const CARRY = Object.freeze({ reach: .9, unhook: .045, settle: .45, mid: [.17, .345, -.045], tilt: .2, arc: .12, grip: Object.freeze({ out: HAND_R, a: 1.48, along: .14 }), pole: [1, -.4, -.05] });
+  const CARRY = Object.freeze({ reach: 1.1, unhook: .045, settle: .45, mid: [.17, .345, -.045], tilt: .2, arc: .12, grip: Object.freeze({ out: HAND_R, a: 1.48, along: .14 }), pole: [1, -.4, -.05] });
   const DreamPoseHang = () => window.DreamPose?.GESTURES?.hang || { h: [.335, .985, .055], pole: [.25, -.1, -1], palm: [-1, 0, 0] }; // the right hand hanging (DreamPose rig space)
   function create({ scene, set, rigs, carry }) {
     const Cast = window.StoryCast, items = [], m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), UP = V(0, 1, 0);

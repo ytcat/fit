@@ -225,7 +225,7 @@
      * off the hook onto his right shoulder with his hand on the leather all the way (market-sets.js CARRY), turns and walks out. */
     dream_otto_shop: {
       set: 'dream_shop', place: 'shop', duration: 39.1, chapter: 1, tap: true, outfit: { fighter: 'street' }, buy: { t: 21.8 },
-      carry: { heavybag: [{ t: 0, on: 'display', yaw: Math.PI / 2 }, { t: 24.8, on: 'reach' }, { t: 26.9, on: 'lift' }, { t: 27.9, on: 'shoulder' }] }, // yaw: the bag's +x = his right side at the pickup
+      carry: { heavybag: [{ t: 0, on: 'display', yaw: Math.PI / 2 }, { t: 24.95, on: 'reach' }, { t: 26.9, on: 'lift' }, { t: 27.9, on: 'shoulder' }] }, // yaw: the bag's +x = his right side at the pickup
       camera: [
         { t: 0, pos: [-5.6, 1.45, 3.4], look: [-.6, 2.0, -4.2] },                              // the street: Otto's Corner
         { t: 4.4, pos: [-4.4, 1.4, 2.4], look: [.4, 2.1, -4.2], ease: 'smooth' },
@@ -263,7 +263,7 @@
           { t: 22.5, arms: { R: 'fist' } },                                                      // "Deal!"
           { t: 23.8, x: SHOP + .35, z: .65, arms: {} },
           { t: 24.8, x: SHOP - .75, z: .92, face: [SHOP - 1.75, .92], look: [SHOP - 1.15, 1.35, .45] }, // the bag hangs front-right of him (its middle 0.40 m ahead, 0.47 m to his right)
-          { t: 25.8, drop: .07, lean: .05 },                                                     // knees bent, hand on the bag
+          { t: 26.0, drop: .07, lean: .05 },                                                     // knees bent, hand on the bag
           { t: 26.9, drop: 0, lean: 0, look: { yaw: 0, pitch: 0 } },                             // the lift (with his legs)
           { t: 28.4, x: SHOP - .75, z: .92 },
           ...arc(28.4, 30.4, [SHOP - .75, 1.49], .57, 0, Math.PI, 16),                              // comes round to the door in a few steps
