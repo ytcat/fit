@@ -137,6 +137,7 @@
     g.computeBoundingBox();return g;
   }
 
+  const hookFit=.85; // GOTR-0032: share of a fitted hook's swing at which the glove meets the target
   class LionCoach {
     constructor(data,options={}) {
       this.species=options.species||'lion';this.cast=options.cast||null;this.character=this.cast?.id||null; // GOTR-0078: story characters (adventure/story/story-cast.js) reshape and dress the same rig
@@ -969,7 +970,14 @@
         glove=this.orientGlove(side,glove.turn,palmTarget);
       }
       if(memory){
-        const wanted=this.point(hand).sub(start),previous=memory[side],change=wanted.clone().sub(previous),limited=fresh||free?wanted.clone():previous.clone().add(change.clampLength(0,.035));
+        const wanted=this.point(hand).sub(start),previous=memory[side],change=wanted.clone().sub(previous);
+        let limited=fresh||free?wanted.clone():previous.clone().add(change.clampLength(0,.035));
+        // GOTR-0027 (cheekGuard): the striking glove follows its clearance through a critically damped spring (~14 ms)
+        // instead of taking it in one tick: a clearance that appears or vanishes for a tick no longer pops the glove.
+        const vel=memory.vel||(memory.vel={L:V(),R:V(),time:{}}),last=vel.time[side],dt=Number.isFinite(last)?this.renderTime-last:NaN;vel.time[side]=this.renderTime;
+        if(free&&this.cheekGuard&&!fresh&&dt>0&&dt<.1){const w=70,e=Math.exp(-w*dt),x0=previous.clone().sub(wanted),v0=vel[side].clone(),k=v0.clone().addScaledVector(x0,w);
+          limited=wanted.clone().add(x0.clone().addScaledVector(k,dt).multiplyScalar(e));vel[side].copy(v0.addScaledVector(k,-w*dt).multiplyScalar(e));}
+        else if(dt>0&&dt<.1)vel[side].copy(limited).sub(previous).multiplyScalar(1/dt);else vel[side].set(0,0,0);
         if(limited.distanceToSquared(wanted)>1e-8)error=place(limited);memory[side].copy(limited);
       }
       return {glove,error};
@@ -1126,21 +1134,19 @@
       // cheek for any punch (it covers while the rear hand throws) and for an active block or brace.
       const punch=['jab','hook','uppercut','cross','rear_hook','rear_uppercut'].includes(move),block=clamp(options.guardStyle?options.brace??1:options.blockCover||0);
       // Both gloves hold the compact guard only between actions; any action uses the proven technique geometry.
-      // GOTR-0032/GOTR-0027 (options.cheekGuard, Fighter in training): during a punch the guard glove stays at its cheek
-      // (rear glove where the stance holds it; the lead glove comes back to the lead cheek while the rear hand throws)
-      // and the striking glove leaves from and returns to an open guard. The old cover put both gloves inside the muzzle
-      // and the face clearance then walked them out by 15-27 cm per tick (rate-limited), which made the guard hand swing,
-      // the punch start with a hitch and the uppercut jump in its chamber.
+      // GOTR-0032/GOTR-0027 (options.cheekGuard, the Fighter in training): the striking glove leaves from its open guard
+      // and comes straight back to it, and the guard glove moves to a cover point in front of the chin that is already clear
+      // of the face. The old cover put both gloves inside the muzzle and the face clearance then walked them out by 15-27 cm
+      // (rate-limited per tick), which swung the guard hand, put a hitch into every punch and made the uppercut jump.
       const strikeSide=punch?(['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L'):'',cheekGuard=!!options.cheekGuard&&!!strikeSide&&(options.stance??0)>0;
-      const leadCheek=cheekGuard&&strikeSide==='R'?(1-stanceWeight)*(1-block):0;
-      const held=(options.stance??0)*(1-block),leadStance=cheekGuard&&strikeSide==='L'?held:stanceWeight*(1-block),rearStance=cheekGuard?held:leadStance;
+      const held=(options.stance??0)*(1-block),leadStance=cheekGuard&&strikeSide==='L'?held:stanceWeight*(1-block),rearStance=cheekGuard&&strikeSide==='R'?held:stanceWeight*(1-block);
       this.cheekGuard=cheekGuard?(strikeSide==='L'?'R':'L'):'';
       // Stagger the neutral guard; close cover still protects the cheek.
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
       // GOTR-0051 compact guard: in the stance both gloves sit close to the face, beside the muzzle in front of the
       // cheeks (lead a little ahead at eye/cheek height, rear at the jaw), forearms upright, elbows in front of the ribs.
-      const leadBase=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(cheekGuard&&strikeSide==='L'?0:guardCover)),leadGuard=leadBase.clone().lerp(V(-.17,1.70,.60),leadStance).lerp(V(-.22,1.70,.42),leadCheek);
-      const rearBase=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(cheekGuard&&strikeSide==='R'?0:guardCover)),rearGuard=rearBase.clone().lerp(options.cheekGuard?V(.33,1.68,.265):V(.26,1.70,.23),rearStance);
+      const leadBase=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(guardCover)),leadGuard=cheekGuard?V(-.17,1.70,.60).lerp(V(-.25,1.71,.40),1-leadStance):leadBase.clone().lerp(V(-.17,1.70,.60),leadStance);
+      const rearBase=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(guardCover)),rearGuard=cheekGuard?V(.33,1.68,.265).lerp(V(.28,1.71,.37),1-rearStance):rearBase.clone().lerp(options.cheekGuard?V(.33,1.68,.265):V(.26,1.70,.23),rearStance);
       // How far each glove currently sits from its technique guard because of the open stance (root space):
       // the fight's reach planner removes it, so a straight is planned on the line the fist will really travel.
       this.stanceShift={L:leadGuard.clone().sub(leadBase).toArray(),R:rearGuard.clone().sub(rearBase).toArray()};
@@ -1203,11 +1209,14 @@
           // follows the body through a forward arc; it is never first parked
           // at 90 degrees and then spun around a stationary shoulder.
           const load=smooth((phase-.06)/.16)*(1-smooth((phase-.24)/.14));
+          // GOTR-0032 (cheekGuard): the trainee's hip and rib turn drives the arc faster (0.15 of the action instead of 0.24)
+          // and the glove starts home right after the target instead of resting on it.
+          const hookBack=cheekGuard?.50:.57;
           // GOTR-0024: drive and arc carry their speed into the target (cruise).
-          const driveHook=cruise((phase-.23)/.24)*(1-smooth((phase-.57)/.22));
+          const driveHook=cruise((phase-.23)/(cheekGuard?.15:.24))*(1-smooth((phase-hookBack)/.22));
           const equipment=options.target||options.knuckleTarget;
           const swing=(equipment?cruise:smooth)((phase-(equipment?.19:.17))/(equipment?options.hookSwing??.32:.40));
-          const active=smooth((phase-.12)/(equipment?.32:.24))*(1-smooth((phase-.57)/.24));
+          const active=smooth((phase-.12)/(equipment?.32:.24))*(1-smooth((phase-hookBack)/.24));
           const rotation=driveHook-.28*load;
           crouch=.035*load+.016*driveHook;
           hipYaw=-s*(.48*driveHook-.18*load);
@@ -1216,7 +1225,7 @@
           forward=-.025*load+.075*driveHook;
           pelvisRoll=-s*.028*rotation;trunkRoll=-s*.050*rotation;
           trunkPitch=.035*load+.020*driveHook;
-          hookState={s,swing,active,rotation:driveHook,load};
+          hookState={s,swing,active,rotation:driveHook,load,release:1-smooth((phase-hookBack)/.24)};
           if(s===-1){leadTurn=active;leadPole.lerp(V(-1,-.35,equipment?.30:.65),active);leadPivot=(equipment?.62:.72)*driveHook-.10*load;rearPivot=.08*driveHook;}
           else {rearTurn=active;rearPole.lerp(V(1,-.35,equipment?.30:.65),active);rearPivot=-(equipment?.62:.72)*driveHook+.10*load;leadPivot=-.08*driveHook;}
 
@@ -1469,7 +1478,7 @@
           target.z=shoulder.z+axis.z*lower+Math.sqrt(Math.max(.0036,upper*upper-dx*dx-dy*dy));
         }
         const guard=(side==='L'?leadGuard:rearGuard).clone().add(headShift);
-        const load=(options.upperLoad?V(...options.upperLoad):V(side==='L'?-.23:.23,options.upperLoadHeight??1.18,options.uppercutBagTarget?.08:.36)).add(guardShift);
+        const load=(options.upperLoad?V(...options.upperLoad):V(side==='L'?-.23:cheekGuard?.36:.23,options.upperLoadHeight??1.18,options.uppercutBagTarget?.08:.36)).add(guardShift);
         const release=options.uppercutBagTarget?smooth((phase-.49)/.25):recover;
         // One continuous load/rise/recovery path. A second endpoint blend
         // pulled the wrist in opposite directions during guard recovery.
@@ -1505,6 +1514,11 @@
         if(!fitted)target.z=.235+.5*(front+Math.sqrt(front*front+.0004));
         const chamber=hand.clone().add(V(s*.035,fitted?-.025:-.005,fitted?-.015:.15));
         hand.lerp(chamber,load).lerp(target,active);
+        // GOTR-0032 (cheekGuard): where the authored arc ends, so the knuckle fit below can shift the whole arc onto the
+        // target by a fixed offset instead of pulling the wrist in by a growing fraction (which braked the glove).
+        // The arc is fitted at 3/4 of the swing: the glove meets the target while the arc still sweeps on (follow-through).
+        if(cheekGuard&&options.knuckleTarget){const fit=hookFit,r1=lerp(.34,.47,fit),end=V(s*(.58-.95*fit),-.10+.14*fit,.65+.40*fit).normalize(),h1=lerp(1.61,options.strikeHeight??1.75,fit),dy1=clamp(h1-shoulder.y,-r1*.75,r1*.75);
+          hookState.arcEnd=shoulder.clone().addScaledVector(end,Math.sqrt(Math.max(.01,r1*r1-dy1*dy1)));hookState.arcEnd.y=shoulder.y+dy1;}
       }
       // Target practice adapts reach to the physical target. Keep the existing
       // loading, footwork and body drive; constrain the wrist to arm length.
@@ -1571,7 +1585,11 @@
         const targetHand=planStraight?V(...options.knuckleTarget).addScaledVector(V(...options.knuckleTarget).sub(this.point(j['arm'+side])).normalize(),-.204):hand;
         // The strike envelope already has zero endpoint velocity. A cube-root
         // easing here had an infinite slope at full extension and snapped IK.
-        const weight=planStraight?1:amount;
+        let weight=planStraight?1:amount;
+        // GOTR-0032 (cheekGuard): fitted hooks move the authored arc onto the target by one offset that grows with the
+        // swing, so the glove keeps the arc's speed into the mitt or bag (the fraction fit braked it to a stop on contact).
+        if(hookState?.arcEnd){const wrist=this.point(j['hand'+side]),offset=V(...options.knuckleTarget).sub(hookState.arcEnd).sub(V(...gloves[index].strikePoint).sub(wrist));
+          const u=clamp(hookState.swing/hookFit);targetHand.addScaledVector(offset,(1-(1-u)*(1-u))*hookState.release);weight=0;}
         let targetPole=pole;
         for(let iteration=0;iteration<3;iteration++){
           if(!planStraight||iteration)targetHand.addScaledVector(V(...options.knuckleTarget).sub(V(...gloves[index].strikePoint)),weight);
@@ -1607,8 +1625,15 @@
           const ready=(index?rearGuard:leadGuard).clone().add(guardShift),shoulder=this.point(j['arm'+side]);
           // Keep the loaded fist in front of the protracting shoulder. Passing
           // behind it makes the elbow orbit a near-vertical IK axis at launch.
-          ready.z=Math.max(ready.z,shoulder.z+.12);
-          hand.copy(ready).lerp(targetHand,amount);
+          // GOTR-0027 (cheekGuard): a smooth maximum; the hard one switched on mid-drive and doubled the fist's speed in a tick.
+          if(cheekGuard){const d=shoulder.z+.12-ready.z;ready.z+=.5*(d+Math.sqrt(d*d+.0036));}else ready.z=Math.max(ready.z,shoulder.z+.12);
+          // GOTR-0032 (cheekGuard): from the open guard the fist first gets onto the shoulder-target line and then drives
+          // along it (the sideways part of the start offset closes quadratically), so it lands on a long arm instead of
+          // arriving at an angle with the elbow still bent.
+          // (Out only: the way home is the plain line, which keeps the returning glove beside the face.)
+          if(cheekGuard&&handPhase<.42){const line=targetHand.clone().sub(shoulder).normalize(),off=ready.clone().sub(targetHand),along=line.clone().multiplyScalar(off.dot(line));
+            hand.copy(targetHand).addScaledVector(along,1-amount).addScaledVector(off.sub(along),(1-amount)*(1-amount));}
+          else hand.copy(ready).lerp(targetHand,amount);
           {const near=foldedArmReach(j['elbow'+side].position.length(),j['hand'+side].position.length())+.006,d=hand.distanceTo(shoulder);if(leadStance>0&&d<near){const dx=hand.x-shoulder.x,dy=hand.y-shoulder.y;hand.z=Math.max(hand.z,shoulder.z+Math.sqrt(Math.max(0,near*near-dx*dx-dy*dy)));}}
           const error=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],hand,pole);if(index)re=error;else le=error;
           gloves[index]=this.orientGlove(side,index?rearTurn:leadTurn,palmTarget);

@@ -94,7 +94,7 @@
    const straight=move==='jab'||move==='cross',upper=move.includes('uppercut');
    const hook=move==='hook'||move==='rear_hook';
    // GOTR-0032: hooks get the fight's drive (power 1.32, contact drive .05) so the arc still accelerates at the mitt.
-   return {hookSwing:move.includes('hook')?.26:undefined,advance:straight?.02:boxerAdvance[move]??.025,contactDrive:move==='jab'?.015:upper?.025:0,shoulderCover:straight?.055:0,armReachMargin:straight?straightReachMargin:undefined,stepLift:boxerAdvance[move]?.036:undefined,guardTightness:1,power:1.15,straightRecovery:.25};
+   return {hookSwing:move.includes('hook')?.17:undefined,advance:straight?.02:boxerAdvance[move]??.025,contactDrive:move==='jab'?.015:upper?.025:0,shoulderCover:straight?.055:0,armReachMargin:straight?straightReachMargin:undefined,stepLift:boxerAdvance[move]?.036:undefined,guardTightness:1,power:1.15,straightRecovery:.25};
   }
   // The coach reads the boxer's reach once per session: where the striking
   // shoulder finishes each straight and how long the unlocked arm is.
