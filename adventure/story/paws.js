@@ -53,7 +53,7 @@
   const FINGERS = [{ x: -.0435, y: -.106, len: [.047, .031, .026], r: .0150 }, { x: -.0145, y: -.111, len: [.051, .034, .027], r: .0156 },
     { x: .0145, y: -.109, len: [.049, .032, .026], r: .0150 }, { x: .0425, y: -.101, len: [.041, .027, .023], r: .0136 }];
   const SWITCH_CLAW = { fist: .55, grip: .75, point: .7 }; // claws drawn in when the hand closes (retractile; a fighter's fist keeps them in)
-  const GESTURE = { hang: 'relaxed', strap: 'open', open: 'open', fist: 'fist', point: 'point', hips: 'relaxed', thumb: 'point', chin: 'grip', cross: 'relaxed', cross2: 'relaxed',
+  const GESTURE = { hang: 'relaxed', strap: 'relaxed', open: 'open', fist: 'fist', point: 'point', hips: 'relaxed', thumb: 'point', chin: 'grip', cross: 'relaxed', cross2: 'relaxed',
     pound: 'fist', shrug: 'open', count: 'open', wave: 'open', low: 'open', carry: 'grip', head: 'relaxed' };
   const shapeFor = g => GESTURE[g] || 'relaxed';
 

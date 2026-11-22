@@ -57,7 +57,7 @@ for (const sp of ['lion', 'rabbit', 'croc']) for (const sh of ['relaxed', 'fist'
 
 // ---- shapes follow the pose
 assert.equal(Paws.shapeFor('hang'), 'relaxed'); assert.equal(Paws.shapeFor('fist'), 'fist'); assert.equal(Paws.shapeFor('pound'), 'fist'); assert.equal(Paws.shapeFor('point'), 'point');
-assert.equal(Paws.shapeFor('wave'), 'open'); assert.equal(Paws.shapeFor('carry'), 'grip'); assert.equal(Paws.shapeFor('strap'), 'open'); // the palm lies on the strap: curled fingers would go into the chest assert.equal(Paws.shapeFor('nonsense'), 'relaxed');
+assert.equal(Paws.shapeFor('wave'), 'open'); assert.equal(Paws.shapeFor('carry'), 'grip'); assert.equal(Paws.shapeFor('strap'), 'relaxed'); // loosely on the strap: a full grip would curl the fingers into the chest assert.equal(Paws.shapeFor('nonsense'), 'relaxed');
 const fakeRig = (species = 'lion') => { const root = new THREE.Group(), joints = { handL: new THREE.Bone(), handR: new THREE.Bone() }; root.add(joints.handL, joints.handR); return { root, joints, species, renderTime: 0 }; };
 {
   const rig = fakeRig(), [pl, pr] = Paws.attach(rig, { fallback: '#b98143' });

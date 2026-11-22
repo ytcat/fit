@@ -20,6 +20,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     await p.waitForFunction(() => window.ringfighterGame && app.engine.coach?.anatomy && window.StoryCast?.market && window.StoryCast?.docks && window.DreamScenes, null, { timeout: 300000 });
     await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); setInterval(() => document.querySelectorAll('dialog[open]:not(.dream-scene)').forEach(d => d.close()), 300); });
     await p.addInitScript(() => {}); await p.evaluate(() => { window.filmRigs = () => { const e = app.engine, sc = e.coach?.root.parent, out = []; if (!sc?.isScene) return out; for (const o of sc.children) { const hL = o.getObjectByName?.('handL'), hR = o.getObjectByName?.('handR'); if (o.visible && hL && hR) out.push([o === e.coach.root ? 'fighter' : o.name.replace('Story character ', ''), { root: o, joints: { handL: hL, handR: hR } }]); } return out; }; }); // the rigs in the film's scene
+    await p.evaluate(() => { const r = app.engine.renderer, render = r.render.bind(r); r.render = (sc, cam) => { if (sc !== app.engine.scene && cam?.isPerspectiveCamera && !r.getRenderTarget()) window.__filmCam = cam; return render(sc, cam); }; }); // remember the film camera
     await p.evaluate(([id, outcome]) => StoryScenes.play(id, { outcome: outcome || undefined, onDone: () => { }, onBuy: () => true }), [SCENE, OUTCOME || '']);
     await p.waitForFunction(() => DreamScenes.debug && DreamScenes.debug.phase === 'play', null, { timeout: 300000 });
     // every paw shape ready before the pictures (the worker builds them in the background)
@@ -34,7 +35,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
       const file = path.join(OUT, `${SCENE}-${String(i).padStart(2, '0')}-${t}.png`); await p.screenshot({ path: file }); console.log(file, info);
       if (process.env.CLOSE) {
         const url = await p.evaluate(([who, dist]) => {
-          const T = THREE, e = app.engine, r = e.renderer, c = new Map(filmRigs()).get(who); if (!c) return null; const fwd = new T.Vector3(0, 0, 1).transformDirection(c.root.matrixWorld).setY(0).normalize(), side = new T.Vector3(-fwd.z, 0, fwd.x), cam0 = { position: c.root.getWorldPosition(new T.Vector3()).addScaledVector(fwd, 3).addScaledVector(side, +(window.__side || .8)).setY(1.5) };
+          const T = THREE, e = app.engine, r = e.renderer, c = new Map(filmRigs()).get(who); if (!c) return null; const cam0 = window.__filmCam || { position: c.root.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 1.5, 3)) }; // toward the film's own camera
           const W = 402, H = 690, rt = new T.WebGLRenderTarget(W, H, { samples: 4 }); rt.texture.encoding = T.sRGBEncoding; const buf = new Uint8Array(W * H * 4);
           const a = c.joints.handL.getWorldPosition(new T.Vector3()), bb = c.joints.handR.getWorldPosition(new T.Vector3()), mid = a.clone().add(bb).multiplyScalar(.5), span = Math.max(.35, a.distanceTo(bb));
           const dir = cam0.position.clone().sub(mid).normalize(), cam = new T.PerspectiveCamera(30, W / H, .03, 60); cam.position.copy(mid).addScaledVector(dir, span * (+dist || 1.6) + .5); cam.lookAt(mid);
