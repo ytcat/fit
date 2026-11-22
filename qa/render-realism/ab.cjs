@@ -1,6 +1,6 @@
 // Render realism: paired cost of the new look in ONE page (the shared QA machine's load drifts too much for two runs to be
 // compared): the same held frame is drawn with the look on and off, alternately, ROUNDS times; each sample is the median
-// of 8 renders finished by a 1-pixel read. Also the rAF interval with CDP CPU throttling 4x, on and off.
+// of 8 renders finished by a 1-pixel read (and the best render, the least disturbed by other load: bestRatio). Also the rAF interval with CDP CPU throttling 4x, on and off.
 // usage: QUALITY=high|low node qa/render-realism/ab.cjs <out.json> [cases]
 //   films: on/off = DreamScenes.debug.look.high(); fights: engine.renderLook.handle.high() plus engine.lookOff (contact shadows)
 const { chromium, devices } = require('playwright');
@@ -29,7 +29,7 @@ const server = http.createServer((q, r) => {
     const sample = (film) => p.evaluate(async film => {
       const r = app.engine.renderer, gl = r.getContext(), px = new Uint8Array(4), scene = film ? DreamScenes.debug.scene : app.engine.scene, cam = film ? DreamScenes.debug.camera : app.engine.camera, rt = [];
       for (let k = 0; k < 10; k++) { const t0 = performance.now(); if (r.shadowMap.enabled) r.shadowMap.needsUpdate = true; r.render(scene, cam); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); if (k >= 2) rt.push(performance.now() - t0); }
-      rt.sort((a, b) => a - b); const i = r.info; return { ms: rt[rt.length >> 1], calls: i.render.calls, triangles: i.render.triangles, programs: i.programs.length };
+      rt.sort((a, b) => a - b); const i = r.info; return { ms: rt[rt.length >> 1], min: rt[0], calls: i.render.calls, triangles: i.render.triangles, programs: i.programs.length };
     }, film);
     const paced = async () => { await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 }); const d = await p.evaluate(() => new Promise(res => { const d = []; let last = 0, n = 0; const step = now => { if (last) d.push(now - last); last = now; if (++n <= 16) requestAnimationFrame(step); else res(d); }; requestAnimationFrame(step); })); await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 }); d.sort((a, b) => a - b); return d[d.length >> 1]; };
     for (const id of list) {
@@ -47,16 +47,17 @@ const server = http.createServer((q, r) => {
         await frames(25);
       }
       const set = on => p.evaluate(([film, on]) => { if (film) DreamScenes.debug.look?.high(on); else { const e = app.engine; e.lookOff = !on; e.renderLook?.handle?.high(on && e.qualityLevel > 0); e.lastRenderStamp = null; } }, [film, on]);
-      const on = [], off = [], pOn = [], pOff = []; let info = {};
+      const on = [], off = [], mOn = [], mOff = [], pOn = [], pOff = []; let info = {};
       for (let k = 0; k < ROUNDS; k++) for (const state of k % 2 ? [false, true] : [true, false]) {
-        await set(state); await frames(2); const s = await sample(film); (state ? on : off).push(s.ms); info[state ? 'on' : 'off'] = { calls: s.calls, triangles: s.triangles, programs: s.programs };
+        await set(state); await frames(2); const s = await sample(film); (state ? on : off).push(s.ms); (state ? mOn : mOff).push(s.min); info[state ? 'on' : 'off'] = { calls: s.calls, triangles: s.triangles, programs: s.programs };
       }
       if (film) await p.evaluate(() => { clearInterval(DreamScenes.debug.hold); }); else await p.evaluate(() => { app.engine.isPlaying = true; });
       for (let k = 0; k < 2; k++) for (const state of [true, false]) { await set(state); await frames(2); (state ? pOn : pOff).push(await paced()); }
       await set(true);
       if (film) { await p.evaluate(() => DreamScenes.stop()); await p.waitForFunction(() => !DreamScenes.debug, null, { timeout: 60000 }).catch(() => { }); } else await p.evaluate(() => { app.engine.isPlaying = false; try { ringfighterGame.close?.(); } catch { } });
       const med = a => { const s = [...a].sort((x, y) => x - y); return +s[s.length >> 1].toFixed(1); };
-      result.cases[id] = { renderOn: med(on), renderOff: med(off), ratio: +(med(on) / med(off)).toFixed(3), paceOn: med(pOn), paceOff: med(pOff), samplesOn: on.map(x => +x.toFixed(1)), samplesOff: off.map(x => +x.toFixed(1)), info };
+      const lo = a => +Math.min(...a).toFixed(1);
+      result.cases[id] = { renderOn: med(on), renderOff: med(off), ratio: +(med(on) / med(off)).toFixed(3), bestOn: lo(mOn), bestOff: lo(mOff), bestRatio: +(lo(mOn) / lo(mOff)).toFixed(3), paceOn: med(pOn), paceOff: med(pOff), samplesOn: on.map(x => +x.toFixed(1)), samplesOff: off.map(x => +x.toFixed(1)), info };
       console.log(id, JSON.stringify(result.cases[id]));
     }
   } catch (x) { console.error(x); result.fatal = String(x); }

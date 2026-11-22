@@ -10,7 +10,8 @@
  * lamps, the bright sky, the dark street canyon) and that every material gets reflections (gloves, metal, glass, eyes).
  *
  *   RenderLook.attach(scene, renderer, { look, high, sun, share }) -> handle | null
- *     look: 'day' | 'gym' | 'gym_evening' | 'shop' | 'hall' | 'street_night' | ... (LOOKS below); high: false = nothing
+ *     look: 'day' | 'gym' | 'gym_evening' | 'shop' | 'hall' | 'street_night' | ... (LOOKS below; a look may set its own tone
+ *     mapping exposure, given back on low and on dispose); high: false = nothing
  *     changes (no environment, the hemisphere lights untouched); sun: a DirectionalLight whose direction brightens the sky
  *     round it; handle.high(bool), handle.dispose() (everything back as found), handle.stats().
  *   RenderLook.engine(engine) -> the engine's handle: look per place (ring hall, built venue sets), environment only while the
@@ -33,9 +34,9 @@
     evening: { share: .75, skyline: { near: '#9a6a58', far: '#4a4660', lit: .2, shade: .06, top: .3, windows: '#ffcf8a' }, sunGlow: 1.2 },
     // Otto's shop (room x 36..44.4, z -3.2..3.6): cream walls, open street door (+x), front window (+z), three warm lamps
     shop: { share: .85, room: { centre: [40.2, 1.5, .2], walls: '#e9dcc0', wall: 1, floor: '#9a7452', ceil: '#d8ceb8' },
-      panels: [{ at: [44.5, 1.2, 1.45], w: 1.1, h: 2.3, c: '#eef4ff', L: 1.6 }, { at: [39.2, 1.85, 3.6], w: 2.4, h: 1.5, c: '#e8f2ff', L: 1.1 },
-        { at: [38.6, 2.55, -1.4], w: .35, h: .25, c: '#ffd9a0', L: 5 }, { at: [41.4, 2.55, -.6], w: .35, h: .25, c: '#ffd9a0', L: 5 }, { at: [41.0, 2.55, 2.2], w: .35, h: .25, c: '#ffd9a0', L: 5 }],
-      rig: { lamps: [[38.6, 2.45, -1.4], [41.4, 2.45, -.6], [41.0, 2.45, 2.2]], n: 2, c: '#ffd29a', I: 1.6, d: 6 } },
+      panels: [{ at: [44.5, 1.2, 1.45], w: 1.1, h: 2.3, c: '#eef4ff', L: 1.2 }, { at: [39.2, 1.85, 3.6], w: 2.4, h: 1.5, c: '#e8f2ff', L: .85 },
+        { at: [38.6, 2.55, -1.4], w: .35, h: .25, c: '#ffd9a0', L: 4 }, { at: [41.4, 2.55, -.6], w: .35, h: .25, c: '#ffd9a0', L: 4 }, { at: [41.0, 2.55, 2.2], w: .35, h: .25, c: '#ffd9a0', L: 4 }],
+      rig: { lamps: [[38.6, 2.45, -1.4], [41.4, 2.45, -.6], [41.0, 2.45, 2.2]], n: 2, c: '#ffd29a', I: 1.1, d: 6 }, exposure: .97 },
     // Bruno's gym (x -11..11, z -7.5..12, 5.4 high): tall windows on the back and right walls, six enamel lamps
     gym: { share: .85, room: { centre: [0, 1.5, 1.5], walls: '#e6dcc6', wall: 1, floor: '#a9825a', ceil: '#d8ceb8', dado: '#8c4a3a' },
       panels: [[-7.6, -7.5], [-3.8, -7.5], [3.8, -7.5], [7.6, -7.5]].map(([x, z]) => ({ at: [x, 1.9 + 1.25, z], w: 1.9, h: 2.5, c: '#eaf4ff', L: 1.5 }))
@@ -62,7 +63,7 @@
   // the Shop preview studio (game-presentation.js): dark backdrop, a big softbox on the key side, a cool rim strip behind
   LOOKS.studio = { share: .7, room: { centre: [0, 1.2, 0], walls: '#2b313a', wall: .8, floor: '#3a404a', ceil: '#1d2229' },
     panels: [{ at: [2.2, 3.4, 3.4], w: 2.2, h: 2.2, c: '#fff4e6', L: 1.4 }, { at: [-3, 2, 2.4], w: 1.6, h: 1.6, c: '#dbe6ff', L: .5 }, { at: [-1.5, 3.2, -4], w: .5, h: 2.6, c: '#e6eeff', L: 1.6 }] };
-  LOOKS.underground = LOOKS.street_night; LOOKS.regional = LOOKS.boxing_club; LOOKS.championship = LOOKS.arena;
+  LOOKS.street = LOOKS.underground = LOOKS.docks = LOOKS.street_night; LOOKS.regional = LOOKS.boxing_club; LOOKS.championship = LOOKS.arena; // built venue ids (arena-sets.js)
 
   // ---- material families: one environment is one light, so most families take it at 1; metals lean in a little (their
   // only light is the reflection), fur and skin slightly less (no oily sheen on a coat).
@@ -139,7 +140,7 @@
   function attach(scene, renderer, opts = {}) {
     if (!scene || !renderer || !LOOKS[opts.look]) return null;
     handles.get(scene)?.dispose();
-    const look = LOOKS[opts.look], share = opts.share ?? look.share, group = new THREE.Group(); group.name = 'RenderLook'; scene.add(group);
+    const look = LOOKS[opts.look], share = opts.share ?? look.share, exposure = opts.exposure ?? look.exposure, group = new THREE.Group(); group.name = 'RenderLook'; scene.add(group);
     const h = { scene, look: opts.look, isHigh: false, env: null, key: '', anti: new Map(), saved: new Map(), frame: 0, envWas: scene.environment, exposureWas: renderer.toneMappingExposure, pending: false };
     h.sunDir = look.sunDir ? V(...look.sunDir).normalize() : null;
     // practical lights of the place (high only): the lamps nearest the action, warm, no shadows
@@ -205,8 +206,8 @@
       on = !!on; if (on === h.isHigh) return h;
       h.isHigh = on;
       for (const l of practicals) l.visible = on;
-      if (on) { refresh(); materials(); if (opts.exposure) { h.exposureWas = renderer.toneMappingExposure; renderer.toneMappingExposure = opts.exposure; } }
-      else { unMaterials(); if (h.key) release(h.key); h.key = ''; h.env = null; scene.environment = h.envWas; if (opts.exposure) renderer.toneMappingExposure = h.exposureWas; sync(); }
+      if (on) { refresh(); materials(); if (exposure) { h.exposureWas = renderer.toneMappingExposure; renderer.toneMappingExposure = exposure; } }
+      else { unMaterials(); if (h.key) release(h.key); h.key = ''; h.env = null; scene.environment = h.envWas; if (exposure) renderer.toneMappingExposure = h.exposureWas; sync(); }
       return h;
     };
     h.stats = () => ({ look: h.look, high: h.isHigh, env: !!h.env, anti: h.anti.size, materials: h.saved.size, practicals: practicals.length, key: h.key });

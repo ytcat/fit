@@ -82,6 +82,8 @@ const sum = (scene, f) => { let n = 0; scene.traverse(o => { if (o.isHemisphereL
   e.arena.fightView = null; e.activeModel = null; scene.onBeforeRender(e.renderer, scene, null); assert.equal(shown(), 0); assert.equal(key.shadow.camera.right, 5, 'training: the hall box');
   E.dispose(); assert.equal(Object.hasOwn(scene, 'onBeforeRender'), false); let extra = 0; scene.traverse(o => { if (o.name === 'contact shadow' || o.name === 'RenderLook' || (o.isLight && o !== hemi && o !== key)) extra++; }); assert.equal(extra, 0);
 }
+// ---- every built venue has a look
+for (const v of ['street', 'underground', 'docks', 'boxing_club', 'regional', 'championship']) assert.ok(RL.LOOKS[v], 'look for venue ' + v);
 // ---- the films wire it per place and give it back
 {
   const src = fs.readFileSync('adventure/story/dream-scenes.js', 'utf8');
