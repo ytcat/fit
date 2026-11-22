@@ -32,15 +32,15 @@ server.listen(0, async () => {
   const ready = () => p.waitForFunction(() => window.ringfighterGame && app.engine.coach?.anatomy && window.SuperPunchFilm && window.DreamPose, null, { timeout: 600000 });
   await p.goto(base, { timeout: 600000 }); await ready();
   await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); if (!app.engine.career.store.current()) app.engine.career.store.create('Ring QA'); });
-  await p.reload(); await ready();
-  await p.evaluate(() => {
+  // every case on a freshly loaded page (no story strip, after-film or map left over from the case before)
+  const boot = async () => { await p.reload(); await ready(); await p.evaluate(() => {
     setInterval(() => document.querySelectorAll('dialog[open]:not(.dream-scene):not(.story-scene)').forEach(d => d.close()), 400);
     const rg = window.ringfighterGame; window.__ctx = { store: rg.store, startTraining: rg.startTraining, startFight: rg.startFight, change: a => { const r = rg.store.gameAction(a); if (r.ok) rg.apply?.(); return r.ok; } };
     const e = app.engine;
     // one 60 Hz step of the engine's clock (no drawing): the bout, the film hooks, the venue set and the career/story hooks
     window.__tick = () => { e.animTime += 1 / 60; const f = e.arena.update(e.animTime, e.technique, e.currentAnim); e.career?.onFrame?.(f, 1 / 60); e.world?.update?.(e.animTime, e.arena?.mode || 'none'); };
     window.__until = async (cond, max = 2400) => { for (let i = 0; i < max; i++) { if (cond()) return true; if (e.cameraDirector?.holdsClock) { e.cameraDirector.skipIntro?.(); } window.__tick(); if (i % 30 === 29) await new Promise(r => setTimeout(r, 0)); } return cond(); };
-  });
+  }); };
   const frames = async n => { const n0 = await p.evaluate(() => app.engine.renderer.info.render.frame); await p.evaluate(() => { app.engine.lastRenderStamp = null; }); await p.waitForFunction(a => app.engine.renderer.info.render.frame >= a[0] + a[1], [n0, n], { timeout: 600000 }); };
   const until = async (src, max) => { const ok = await p.evaluate(([s, m]) => window.__until(new Function('return (' + s + ')')(), m), [src, max]); if (!ok) { console.log('events', await p.evaluate(() => JSON.stringify(app.engine.arena.fightView.match.events.filter(x => /finisher|knock|final/.test(x.type)).slice(-6)))); throw new Error('not reached: ' + src); } };
   const probe = () => p.evaluate(() => {
@@ -54,9 +54,8 @@ server.listen(0, async () => {
   for (const [name, start, film] of CASES) {
     if (only.length && !only.includes(name)) continue;
     const t0 = Date.now();
-    // the story's after-film of the previous case (e.g. Mrs. Hazel's bag after the market fight) must not cover this one
-    await p.evaluate(async () => { for (let i = 0; i < 8; i++) { try { StoryScenes.stop(); } catch { } await new Promise(r => setTimeout(r, 350)); } });
-    await p.evaluate(() => { try { AdventureOldTown.leave?.(); } catch { } try { ringfighterGame.close?.(); } catch { } document.querySelectorAll('dialog[open]').forEach(d => d.close()); });
+    await boot();
+    await p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); });
     await p.evaluate(`(${start})()`); await p.waitForFunction(() => app.engine.arena?.fightView?.match, null, { timeout: 600000 });
     await p.evaluate(() => { app.engine.isPlaying = true; app.engine.speed = 0; if (app.engine.player) app.engine.player.enabled = false; });
     await until(`()=>app.engine.arena.fightView.match.phase==='round'&&app.engine.arena.fightView.match.time>2`, 3000);

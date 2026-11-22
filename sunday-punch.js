@@ -401,7 +401,10 @@
     const centre = c0.clone().addScaledVector(right, (minX + maxX) / 2).addScaledVector(camUp, (minY + maxY) / 2 + (u == null ? -.05 : .02));
     const margin = lerp(u == null ? 1.18 : 1.24, 1.12, k), dist = (Math.max(((maxX - minX) / 2 + lerp(.22, .10, k)) * margin / th, ((maxY - minY) / 2 + lerp(.18, .08, k)) * margin / tv) + .3) * (sh?.dk ?? 1);
     // the gym room is small (hanging bags just off the mat): past the cap the lens widens instead of backing into the props
-    const cap = view.gymFight ? 5.2 : 7.5, goal = { c: centre, d: clamp(dist, lerp(2.4, 1.25, k), cap), fov: dist > cap ? THREE.MathUtils.radToDeg(2 * Math.atan(tv * (dist - .3) / (cap - .3))) : FOV };
+    let cap = view.gymFight ? 5.2 : 7.5;
+    // ringless venues: the lens stays inside the circle of people and props (2.75 m from the middle); past it the lens widens
+    if (view.ringless) { const p = centre.clone().sub(view.cast.getWorldPosition(V())).setY(0), dh = dir.clone().setY(0), a = dh.lengthSq(), b = p.dot(dh), disc = b * b - a * (p.lengthSq() - 2.75 * 2.75); if (a > 1e-4 && disc > 0) cap = Math.max(1.6, Math.min(cap, (-b + Math.sqrt(disc)) / a)); }
+    const goal = { c: centre, d: clamp(dist, lerp(2.4, 1.25, k), cap), fov: dist > cap ? THREE.MathUtils.radToDeg(2 * Math.atan(tv * (dist - .3) / (cap - .3))) : FOV };
     if (!sp.cam || sp.cut) { sp.cam = { c: goal.c.clone(), d: goal.d, fov: goal.fov }; sp.cut = false; }
     else { const kk = 1 - Math.exp(-Math.max(0, dt) / .35); sp.cam.c.lerp(goal.c, kk); sp.cam.d = lerp(sp.cam.d, goal.d, kk); sp.cam.fov = lerp(sp.cam.fov ?? FOV, goal.fov, kk); }
     cam.fov = Math.min(75, sp.cam.fov);
