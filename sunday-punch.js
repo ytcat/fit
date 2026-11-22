@@ -1,27 +1,36 @@
-/* GOTR-0088 "Sunday Punch": the knockout presentation of the Finisher (rules in boxing-fight.js, the punch itself in
- * fight-arena.js / boxing-coach-v2.js). Everything here runs on the game rigs in real time, inside the mirrored ring cast:
- *  - slow motion (~0.3x) from the dip to the impact and just after it (FightArena.update maps wall time to fight time);
- *  - the knocked-out fall: head snaps back, the feet leave the canvas, the body goes limp and falls flat on its back,
- *    one arm flops, a short settle, eyes closed, jaw slack. The rest height is calibrated on the rig's own final pose and a
- *    support pass keeps every limb above the canvas, so the body neither floats nor sinks;
- *  - the striker follows through, turns away and walks to a neutral corner; the referee (Coach Bruno in the gym fight)
- *    waves it off without a count, then raises the winner's arm;
- *  - a low side camera, impact flash, sweat spray, canvas dust, a deep impact, the landing thud and the crowd.
+/* GOTR-0088 Finisher, shown to the player as "Super Punch" (renamed 2026-11-22; ids, saves and this file name keep
+ * `sunday_punch`): the knockout film of the Finisher (rules in boxing-fight.js, the punch itself in fight-arena.js /
+ * boxing-coach-v2.js, what differs per fight in super-punch-film.js). Everything runs on the game rigs in real time, inside the
+ * mirrored ring cast (no video files):
+ *  - a camera choreography picked per fight (low orbit, over-the-shoulder push-in, side tracking, overhead drop, low front) and
+ *    letterbox bars; a touch of slow motion on the dip, then very slow motion from the moment the glove meets the jaw;
+ *  - the face takes it: the head snaps back and turns, the jaw and cheek squash on the impact (a skin dent that rebounds and
+ *    wobbles), the mouth opens, sweat sprays in slow motion, a flash and speed lines;
+ *  - the knocked-out fall: the feet leave the canvas, the body goes limp and falls flat on its back, one arm flops, a short settle,
+ *    eyes closed, jaw slack. The rest height is calibrated on the rig's own final pose and a support pass keeps every limb above
+ *    the canvas, so the body neither floats nor sinks;
+ *  - the referee (Coach Bruno in the gym) waves it off without a count; in ringless venues nobody does;
+ *  - a blackout with the K.O. beat, then the winner's celebration (super-punch-film.js) and the scene's ending: in the ring and the
+ *    gym the referee / Bruno raises the winner's hand; on the street the crowd cheers and the beaten man drags himself away, at the
+ *    Docks the crowd closes in, in the basement it roars;
+ *  - a deep impact, the landing thud, canvas dust and the crowd.
  * Rig roots keep scale 1 inside the mirrored cast (the view's dispose gives them back -1, as for every bout).
  * The match result waits while it plays (BoxingFight.finisherHold); a tap skips it once the player has seen it once. */
 (() => {
   const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t, smooth = t => { t = clamp(t); return t * t * (3 - 2 * t); };
-  const SEEN = 'gotr-sunday-punch-seen', SLOW = .3, FOV = 50;
-  // Fall timeline in fight seconds after the impact.
-  const T = { snap: .06, air: .24, land: .80, flop: 1.02, settle: 1.6, refWalk: [.12, 1.15], wave: [1.15, 2.55], turn: [.9, 1.25], walk: [1.25, 2.85] };
+  const Film = (typeof window !== 'undefined' && window.SuperPunchFilm) || (typeof require === 'function' ? require('./super-punch-film.js') : null);
+  const F = Film.FILM, SEEN = 'gotr-sunday-punch-seen', SLOW = Film.SLOW_HIT, FOV = 50;
+  // Fall timeline in fight seconds after the impact (referee, blackout and celebration times: super-punch-film.js FILM).
+  const T = { snap: .06, air: .24, land: .80, flop: 1.02, settle: 1.6, refWalk: F.refWalk, wave: F.wave, follow: .9, celebrate: F.celebrate };
+  const END = F.hold + 1; // where a skip jumps to
   const other = a => a === 'lion' ? 'rabbit' : 'lion';
-  // Slow motion: the dip and drive, the impact and a little after it run at SLOW, then ease back to real time.
+  // Slow motion: a touch slow on the dip and drive, very slow from the glove contact, back to real time as the body goes.
   function timeScale(view) {
     const m = view.match, sp = view.sundayPunch; if (!m || sp?.skip) return 1;
     const r = m.result;
-    if (r?.finisher) { const u = m.time - r.finisherTime; return u < .25 ? SLOW : u < .62 ? lerp(SLOW, 1, smooth((u - .25) / .37)) : 1; }
-    for (const a of ['lion', 'rabbit']) { const act = m.fighters[a].action; if (act?.finisher && !act.recorded) return m.time - act.start < .05 ? lerp(1, SLOW, (m.time - act.start) / .05) : SLOW; }
+    if (r?.finisher) return Film.timeScale(m.time - r.finisherTime, true);
+    for (const a of ['lion', 'rabbit']) { const act = m.fighters[a].action; if (act?.finisher && !act.recorded) return m.time - act.start < .05 ? lerp(1, Film.SLOW_DIP, (m.time - act.start) / .05) : Film.SLOW_DIP; }
     return 1;
   }
 
@@ -45,12 +54,17 @@
     const limp = smooth((u - .08) / .45), rest = smooth((u - T.land) / (T.settle - T.land));
     // the whole body rotates back about the heels: a little in the air, then like a falling tree (accelerating), flat at landing
     const tilt = u < T.air ? -.20 * smooth(air) : -.20 - (Math.PI / 2 - .20) * s * s;
-    return { u, snap, air, s, landed, after, bounce, limp, rest, tilt };
+    // the impact jolt: the head is knocked round, away from the glove, for a moment (the face takes it)
+    const jolt = snap * (1 - smooth((u - .08) / .5));
+    // street endings: he comes to and drags himself away on his elbows (super-punch-film.js crawl)
+    const crawl = ctx?.crawls ? Film.crawl(u) : { up: 0, drag: 0, push: 0, cycle: 0 };
+    return { u, snap, air, s, landed, after, bounce, limp, rest, tilt, jolt, crawl };
   }
   // Overlay for the controller (update(..., {poseOverlay})): pelvis, spine, head, legs and both limp arms for this frame.
   function koOverlay(c, st, ctx) {
-    const j = c.joints, { u, snap, s, landed, bounce, limp, rest } = st, flop = ctx.flop, sg = flop === 'L' ? -1 : 1;
-    const breathe = landed ? Math.sin(u * 2.1) * .012 * rest : 0;
+    const j = c.joints, { u, snap, s, landed, bounce, limp, rest, jolt } = st, flop = ctx.flop, sg = flop === 'L' ? -1 : 1;
+    const up = st.crawl?.up || 0, push = st.crawl?.push || 0; // coming to (street endings): up on the elbows, pushing with the heels
+    const breathe = landed ? Math.sin(u * 2.1) * .012 * rest * (1 + 2 * up) : 0;
     // pelvis: in the air the hips are carried up and back by the blow; falling, the knees give a little; flat on the back at rest
     const knee = .10 * limp * (1 - rest) + .05 * rest;
     j.hips.position.set(0, .935 - knee * .35, -.02 * limp);
@@ -58,13 +72,16 @@
     // trunk: thrown back by the uppercut (extension), then lying flat; a slight rebound on landing
     const arch = -.16 * snap * (1 - rest) - .08 * s * (1 - rest);
     const adj = ctx.adj || { spine: 0, neck: 0, hand: { L: 0, R: 0 }, foot: { L: 0, R: 0 } };
-    j.spine.rotation.set(arch * .6 - .04 * rest + adj.spine * rest + breathe, .04 * limp * sg, .03 * limp * sg);
-    j.chest.rotation.set(arch * .5 - .03 * rest - breathe, .03 * limp * sg, .02 * limp * sg);
+    // coming to: the trunk curls up off the canvas (forward flexion lifts the chest of a man on his back), swaying with each push
+    j.spine.rotation.set(arch * .6 - .04 * rest + adj.spine * rest + breathe + .50 * up + .05 * push, .04 * limp * sg, .03 * limp * sg + .05 * up * Math.sin(u * 1.3));
+    j.chest.rotation.set(arch * .5 - .03 * rest - breathe + .30 * up, .03 * limp * sg, .02 * limp * sg);
     for (const side of ['L', 'R']) { const k = side === 'L' ? -1 : 1, sc = j['scapula' + side]; if (sc) { sc.position.set(k * .17, .17 + .02 * limp * (1 - rest), -.06); sc.rotation.set(0, 0, 0); } }
     // head: snaps back with the chin lifted, lags the fall, bumps the canvas, then rolls to one side (toward the camera)
     const roll = smooth((u - (T.land + .10)) / .55);
-    j.neck.position.copy(c.neckRest); j.neck.rotation.set(-.30 * snap * (1 - .6 * rest) + .18 * bounce + adj.neck * rest, .10 * roll * ctx.face, 0);
-    j.head.rotation.set(-.55 * snap * (1 - .7 * rest) - .10 * s * (1 - rest) + .22 * bounce - .05 * rest, .55 * roll * ctx.face, .14 * roll * ctx.face);
+    // (jolt: knocked round away from the glove on the impact; up: lifted, hanging and rolling groggily as he comes to)
+    const groggy = up * Math.sin(u * 1.7), keep = 1 - up;
+    j.neck.position.copy(c.neckRest); j.neck.rotation.set((-.30 * snap * (1 - .6 * rest) + .18 * bounce + adj.neck * rest) * keep + .30 * up, .10 * roll * ctx.face * keep - .18 * jolt * ctx.hit, .10 * jolt * ctx.hit);
+    j.head.rotation.set((-.55 * snap * (1 - .7 * rest) - .10 * s * (1 - rest) + .22 * bounce - .05 * rest) * keep + .18 * up, (.55 * roll * ctx.face) * keep + .30 * groggy - .34 * jolt * ctx.hit, (.14 * roll * ctx.face) * keep + .12 * groggy + .20 * jolt * ctx.hit);
     c.root.updateMatrixWorld(true);
     // legs: feet stay at the heels' pivot (they lift with the body, then slide out), knees buckle a little, toes fall outward at rest
     const footTargets = [];
@@ -73,10 +90,12 @@
       const stand = V(k * .118, .12, k * -.03 + (side === 'L' ? .10 : -.06));
       const lying = V(k * (.20 + (side === ctx.bentLeg ? -.04 : .02)), side === ctx.bentLeg ? .30 : .10, side === ctx.bentLeg ? .02 : -.11);
       lying.z += adj.foot[side];
-      const ankle = stand.lerp(lying, smooth((u - .15) / .75));
-      const out = k * .55 * rest, toePitch = lerp(0, side === ctx.bentLeg ? .25 : -.30, rest) + .20 * limp * (1 - rest);
+      // coming to: both knees up, the heels planted near the hips and dug in on each push
+      const tuck = V(k * .19, .50 - .07 * push * (side === 'L' ? 1 : .7), -.07 + adj.foot[side] * .5);
+      const ankle = stand.lerp(lying, smooth((u - .15) / .75)).lerp(tuck, up);
+      const out = k * .55 * rest * (1 - up), toePitch = lerp(lerp(0, side === ctx.bentLeg ? .25 : -.30, rest) + .20 * limp * (1 - rest), 1.35, up); // sole flat on the canvas
       const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(toePitch, out, 0, 'YXZ'));
-      const err = c.solve(j['thigh' + side], j['knee' + side], foot, ankle, V(k * .10, .05, 1)); c.orient(foot, q);
+      const err = c.solve(j['thigh' + side], j['knee' + side], foot, ankle, V(k * .10, .05, 1).lerp(V(k * .15, -.2, 1), up).normalize()); c.orient(foot, q);
       if (foot.userData.bootAnkle) foot.userData.bootAnkle.quaternion.setFromUnitVectors(V(0, 1, 0), c.point(j['knee' + side]).sub(ankle).normalize().applyQuaternion(q.clone().invert()));
       footTargets.push({ side, error: err, ankle: ankle.toArray(), pivot: 0, lift: 1, contact: ankle.toArray() });
     }
@@ -90,10 +109,13 @@
       const hand = guard.clone().lerp(fling, a * (1 - b)).lerp(lie, b);
       if (isFlop && u > landAt) { const w = u - landAt; hand.z += .07 * Math.exp(-w / .09) * Math.abs(Math.sin(w * 26)); } // the glove bounces off the canvas
       hand.z += breathe * .5;
-      // the elbow bends in the plane of the canvas once down (an elbow pointing into the floor would prop the body up)
-      const pole = V(k * .2, -.4, -1).lerp(isFlop ? V(k * .35, -1, .25) : V(k * 1, -.35, .25), b);
+      // coming to: propped on both elbows, the forearms flat on the canvas beside the hips
+      if (up > 0) hand.lerp(V(k * .27, 1.02 - .03 * push, -.03 + adj.hand[side] * .5), up);
+      // the elbow bends in the plane of the canvas once down (an elbow pointing into the floor would prop the body up);
+      // propped up, it points down into the canvas behind him
+      const pole = V(k * .2, -.4, -1).lerp(isFlop ? V(k * .35, -1, .25) : V(k * 1, -.35, .25), b).lerp(V(k * .45, .35, -1), up);
       handErrors.push(c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], hand, pole.normalize()));
-      gloves.push(c.orientGlove(side, .3 * limp, V(0, lerp(-1, 0, limp), lerp(0, -1, limp)).normalize()));
+      gloves.push(c.orientGlove(side, .3 * limp, V(0, lerp(-1, 0, limp), lerp(0, -1, limp)).lerp(V(0, 0, -1), up).normalize()));
     }
     return { gloves, handErrors, footTargets };
   }
@@ -102,23 +124,27 @@
     const sp = view.sundayPunch, ctx = sp.fall, coach = view.coaches[actor], st = fallState(u, ctx);
     const travel = .16 * smooth(u / T.air) + .24 * smooth((u - T.air) / (T.land - T.air + .2)), twist = ctx.twist * smooth((u - .1) / (T.land - .1));
     const root = coach.root, back = V(-Math.sin(ctx.yaw + twist), 0, -Math.cos(ctx.yaw + twist));
-    root.position.copy(ctx.start).addScaledVector(back, travel).add(ctx.shift.clone().multiplyScalar(smooth(u / T.land)));
+    root.position.copy(ctx.start).addScaledVector(back, travel + Math.min(st.crawl.drag, ctx.maxDrag ?? 0)).add(ctx.shift.clone().multiplyScalar(smooth(u / T.land))); // drag: dragging himself away, head first
     root.quaternion.setFromEuler(new THREE.Euler(st.tilt, ctx.yaw + twist, 0, 'YXZ'));
     const lift = .075 * Math.sin(Math.PI * clamp(u / T.air)), restY = ctx.restY ?? .2;
     root.position.y = st.landed ? restY + .035 * Math.abs(st.bounce) * Math.exp(-st.after / .2) : lift + restY * Math.sin(-st.tilt) ** 2 * smooth(st.s);
     const t = view.match.time;
     const metrics = coach.update(t, 'guard', 'one_two', { simulationTime: t, keepFaceClear: false, poseOverlay: rig => koOverlay(rig, st, ctx) });
+    // the face takes it: the jaw and cheek squash under the glove, rebound and wobble (a skin dent in the bind pose)
+    const dent = Film.squash(u); coach.surfaceDent = dent > 1e-4 && ctx.dent ? { point: ctx.dent.point, normal: ctx.dent.normal, depth: dent } : null;
     // support: never below the canvas while falling; flat on it (not hovering) once landed
     const low = lowest(coach), floor = Math.min(.004, ctx.supportLow ?? .004);
     if (low < floor) { root.position.y += floor - low; coach.syncSkin(); }
-    face(coach, u);
+    const su = coach.surfaceUniforms; if (su?.dent) { const d = coach.surfaceDent; su.dent.value.set(d?.point[0] || 0, d?.point[1] || 0, d?.point[2] || 0, d?.depth || 0); if (d) su.dentNormal.value.fromArray(d.normal); }
+    face(coach, u, st.crawl.up);
     return metrics;
   }
-  // Eyes closed, jaw slack (the face controller ran inside update; these come after it).
-  function face(coach, u) {
-    const shut = smooth((u - .05) / .12), f = coach.faceActing;
+  // Eyes closed, jaw slack (the face controller ran inside update; these come after it). On the impact the mouth is knocked
+  // open; coming to (street endings), the eyes half open.
+  function face(coach, u, up = 0) {
+    const shut = smooth((u - .05) / .12) * (1 - .55 * up), f = coach.faceActing;
     for (const eye of f?.eyes || coach.facialRest?.filter(x => x.eye) || []) eye.part.scale.y = eye.sy * Math.max(.06, 1 - shut * .94);
-    if (f?.inner) { const jaw = .55 * smooth((u - .15) / .4); f.inner.visible = jaw > .08; f.inner.scale.y = .001 + .018 * jaw; f.lip.position.y = -.018 * jaw; }
+    if (f?.inner) { const jaw = Math.max(.55 * smooth((u - .15) / .4) * (1 - .5 * up), .95 * smooth(u / .03) * (1 - smooth((u - .10) / .25))); f.inner.visible = jaw > .08; f.inner.scale.y = .001 + .018 * jaw; f.lip.position.y = -.018 * jaw; }
     if (coach.painMouth) coach.painMouth.visible = false;
   }
   // Lowest world y of the deformed skin (sampled) and of the boots and gloves: what really touches the canvas.
@@ -167,43 +193,78 @@
     // which way the head rolls: toward the camera side of the body
     const cam = view.cast.worldToLocal(view.engine.camera.position.clone()), side = V(Math.cos(yaw), 0, -Math.sin(yaw));
     const face = side.dot(cam.clone().sub(start)) > 0 ? 1 : -1;
-    sp.fall = { yaw, start, twist, shift, guard, flop: face > 0 ? 'R' : 'L', bentLeg: face > 0 ? 'L' : 'R', face };
-    // the striker: where he stood, his punch options at the impact, and the neutral corner farthest from the fallen fighter
+    // this fight's film (super-punch-film.js): camera choreography, celebration and the scene's ending
+    const pick = filmFor(view, striker);
+    if (!sp.filmSaved) { sp.filmSaved = true; Film.writeLast(pick); }
+    const end = pick.ending, along = V(-Math.sin(yaw + twist), 0, -Math.cos(yaw + twist)), across = V(Math.cos(yaw + twist), 0, -Math.sin(yaw + twist));
+    // the struck side of the face (the glove's side in the Opponent's head frame) and the jaw dent in the bind pose of the head
+    const glove = fc.joints.head.worldToLocal(sc.joints.handR.getWorldPosition(V())), hit = glove.x < 0 ? -1 : 1;
+    const hi = fc.bones.indexOf(fc.joints.head), bind = hi >= 0 ? fc.skeleton.boneInverses[hi].clone().invert() : null;
+    const chin = (typeof FightArena !== 'undefined' && FightArena.chin) || [0, -.04, .20];
+    const dent = bind ? { point: V(chin[0] + hit * .022, chin[1] - .012, chin[2] - .035).applyMatrix4(bind).toArray(), normal: V(hit * .42, -.80, .42).normalize().applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(bind)).toArray() } : null;
+    // the street ending: he comes to and drags himself head first toward the people, never into them
+    const rest = start.clone().add(shift).addScaledVector(along, .40), limit = view.ringless ? 2.35 : 1.42;
+    let maxDrag = 0; if (end.fallen === 'crawl') { for (let d = 0; d <= 1.6; d += .05) { const h = rest.clone().addScaledVector(along, 1.85 + d); if ((view.ringless ? Math.hypot(h.x, h.z) : Math.max(Math.abs(h.x), Math.abs(h.z))) > limit) break; maxDrag = d; } }
+    sp.fall = { yaw, start, twist, shift, guard, flop: face > 0 ? 'R' : 'L', bentLeg: face > 0 ? 'L' : 'R', face, hit, dent, crawls: end.fallen === 'crawl', maxDrag };
+    // the striker: where he stood, his punch options at the impact; after the blackout he celebrates beside the fallen fighter
     const action = r.finisherAction, sStart = sc.root.position.clone(); sStart.y = 0;
-    const land = start.clone().add(shift).addScaledVector(V(-Math.sin(yaw + twist), 0, -Math.cos(yaw + twist)), 1.2);
-    const corners = [[-1, -1], [-1, 1], [1, -1], [1, 1]].map(([x, z]) => V(x * 1.05, 0, z * 1.05));
-    const corner = corners.sort((a, b) => b.distanceTo(land) - a.distanceTo(land) + .5 * (a.distanceTo(sStart) - b.distanceTo(sStart)))[0];
-    sp.striker = { actor: striker, start: sStart, yaw: sc.ringYaw ?? 0, options: { ...(view.poseOptions?.[striker] || {}) }, phase: clamp((action ? (r.finisherTime - action.start) / action.duration : .4)), corner, dist: 0 };
+    const mid = rest.clone().addScaledVector(along, .85), bound = view.ringless ? 1.7 : 1.15;
+    const spots = [1, -1].map(k => { const p = mid.clone().addScaledVector(across, k * 1.05).addScaledVector(along, -.25); return { p, k, out: Math.max(0, (view.ringless ? Math.hypot(p.x, p.z) : Math.max(Math.abs(p.x), Math.abs(p.z))) - bound) }; }).sort((a, b) => a.out - b.out || a.p.length() - b.p.length());
+    const spot = spots[0], W = spot.p.clone(); if (spot.out > 0) W.multiplyScalar((W.length() - spot.out) / W.length()); W.y = 0;
+    // he faces the lens, which looks at him over the fallen body (turned a little per fight so the body lies across the picture)
+    const toBody = mid.clone().sub(W).setY(0).normalize(), turn = .38 * pick.mirror, camDir = toBody.clone().applyAxisAngle(V(0, 1, 0), turn);
+    sp.striker = { actor: striker, start: sStart, yaw: sc.ringYaw ?? 0, options: { ...(view.poseOptions?.[striker] || {}) }, phase: clamp((action ? (r.finisherTime - action.start) / action.duration : .4)), corner: W, dist: 0,
+      spot: W, camDir, celebYaw: Math.atan2(camDir.x, camDir.z), raise: striker === 'lion' ? 'R' : 'L' };
     delete sp.striker.options.hitReaction; delete sp.striker.options.plantedContacts; delete sp.striker.options.contactReturn; delete sp.striker.options.ringStep; delete sp.striker.options.blockCover;
     if (sp.striker.options.uppercutBagTarget) { const t = sp.striker.options.uppercutBagTarget.slice(); t[1] += .34; t[2] += .06; sp.striker.options.uppercutBagTarget = t; }
-    sp.ref = { start: view.referee.root.position.clone(), yaw: view.referee.root.rotation.y };
+    // the referee (or Bruno) during the celebration: by the fallen fighter's head, on the winner's side of the body
+    const by = rest.clone().addScaledVector(along, 1.6).addScaledVector(across, spot.k * .85); by.x = clamp(by.x, -1.4, 1.4); by.z = clamp(by.z, -1.4, 1.4); by.y = 0;
+    sp.ref = { start: view.referee.root.position.clone(), yaw: view.referee.root.rotation.y, by };
     calibrate(view, fallen);
     sp.begun = true; sp.fallen = fallen;
   }
+  // DreamPose.civil with both gloves in the metrics (dream-pose.js v1.69 no longer returns them from its overlay; the bout's
+  // contact pass needs both fists). Without DreamPose (node tests, old builds): the controller's winner pose.
+  function civil(coach, state) {
+    const Pose = typeof window !== 'undefined' && window.DreamPose;
+    if (!Pose) return coach.update(state.t, 'guard', 'one_two', { stance: 1, simulationTime: state.t, presentation: { mode: 'winner', side: 'R', raise: 1 } });
+    Film.register(Pose);
+    const mt = Pose.civil(coach, state);
+    if (mt && !(mt.gloves?.length === 2)) mt.gloves = ['L', 'R'].map(sd => coach.orientGlove(sd, .6, V(0, 0, -1)));
+    return mt;
+  }
   function strikerPose(view, u, metrics) {
     const sp = view.sundayPunch, s = sp.striker, coach = view.coaches[s.actor], m = view.match, root = coach.root;
-    const toCorner = s.corner.clone().sub(s.start); toCorner.y = 0; const len = toCorner.length(), heading = Math.atan2(toCorner.x, toCorner.z);
-    if (u < T.turn[0]) {
+    if (u < T.follow) {
       // follow-through: the glove keeps rising past where the chin was, then comes home to the guard
       const p = u < .45 ? lerp(s.phase, .58, smooth(u / .45)) : lerp(.58, 1, smooth((u - .45) / .5));
       root.position.copy(s.start); root.quaternion.setFromEuler(new THREE.Euler(0, s.yaw, 0, 'YXZ'));
       metrics[s.actor] = coach.update(p * 1.22, 'rear_uppercut', 'one_two', { ...s.options, simulationTime: m.time });
       return;
     }
-    // he looks down at him, turns away and walks to a neutral corner
-    const w = clamp((u - T.walk[0]) / (T.walk[1] - T.walk[0])), along = len * (w < 1 ? smooth(w) * .98 + .02 * w : 1), turn = smooth((u - T.turn[0]) / (T.turn[1] - T.turn[0]));
-    const dyaw = Math.atan2(Math.sin(heading - s.yaw), Math.cos(heading - s.yaw)), yaw = s.yaw + dyaw * turn;
-    root.position.copy(s.start).addScaledVector(toCorner.normalize(), along);
-    root.quaternion.setFromEuler(new THREE.Euler(0, yaw, 0, 'YXZ'));
     const dt = s.lastT != null ? Math.max(0, m.time - s.lastT) : 0; s.lastT = m.time;
-    s.dist = along; const walking = u > T.walk[0] && u < T.walk[1] + .2 ? 1 : 0;
+    if (u >= T.celebrate) { celebratePose(view, u, metrics, dt); return; }
+    // he stands over him and looks down at him, gloves still up (until the blackout)
+    root.position.copy(s.start); root.quaternion.setFromEuler(new THREE.Euler(0, s.yaw, 0, 'YXZ'));
     const fallenHead = view.coaches[sp.fallen].joints.head.getWorldPosition(V()), look = root.worldToLocal(fallenHead.clone());
-    const Pose = window.DreamPose;
-    if (Pose) metrics[s.actor] = Pose.civil(coach, { t: m.time, dt, dist: along, walk: walking, arms: { L: 'fist', R: 'fist' }, reach: { L: [-.16, 1.40, .30], R: [.16, 1.40, .30] }, // gloves up at chest height
-      look: u < T.walk[0] ? { yaw: clamp(Math.atan2(look.x, look.z), -1, 1), pitch: -.35 } : null, lean: .04 });
-    else metrics[s.actor] = coach.update(m.time, 'step', 'one_two', { simulationTime: m.time });
-    // dream-pose.js (v1.69) no longer returns the gloves from its overlay: rebuild them so the bout's contact pass has both fists
-    const mt = metrics[s.actor]; if (mt && !(mt.gloves?.length === 2)) mt.gloves = ['L', 'R'].map(sd => coach.orientGlove(sd, .6, V(0, 0, -1)));
+    metrics[s.actor] = civil(coach, { t: m.time, dt, dist: 0, walk: 0, arms: { L: 'fist', R: 'fist' }, reach: { L: [-.16, 1.40, .30], R: [.16, 1.40, .30] }, // gloves up at chest height
+      look: { yaw: clamp(Math.atan2(look.x, look.z), -1, 1), pitch: -.35 }, lean: .04 });
+  }
+  // The winner after the blackout (super-punch-film.js celebrate), beside the fallen fighter, facing the lens. raise 0..1: the
+  // referee lifts his arm (ring and gym endings): that arm goes straight up, the other fist pumps.
+  function celebratePose(view, u, metrics, dt, raise = 0) {
+    const sp = view.sundayPunch, s = sp.striker, coach = view.coaches[s.actor], m = view.match, root = coach.root, pick = sp.film;
+    let c = Math.max(0, u - T.celebrate); if (c > 4.6) c = 1.0 + (c - 4.6) % 3.6; // ringless endings keep celebrating with the crowd
+    const st = Film.celebrate(pick.celebrate, c, pick.mirror);
+    if (raise > 0) {
+      const side = s.raise, k = side === 'R' ? 1 : -1, o = side === 'R' ? 'L' : 'R', r = smooth(raise);
+      st.arms[side] = 'yeah'; st.reach[side] = [k * .26, lerp(1.62, 2.04, r), lerp(.26, .10, r)]; st.paws[side] = 'fist';
+      st.arms[o] = 'fist'; st.reach[o] = [-k * .16, 1.42 + .035 * Math.sin(m.time * 7) * r, .30]; st.paws[o] = 'fist';
+      st.lift = 0; st.feet = null; st.yaw *= 1 - r; st.drop *= 1 - r; st.look = { yaw: 0, pitch: .18 }; st.talk = .5 * r;
+    }
+    root.position.copy(s.spot); root.position.y = st.lift;
+    root.quaternion.setFromEuler(new THREE.Euler(0, s.celebYaw + st.yaw, 0, 'YXZ'));
+    metrics[s.actor] = civil(coach, { t: m.time, dt, dist: 0, walk: 0, arms: st.arms, reach: st.reach, paws: st.paws, look: st.look, lean: st.lean, drop: st.drop, talk: st.talk, feet: st.feet });
   }
   // The rhino referee has one trouser mesh and separate shoes: his walk steps the shoes under the trousers with a body bob and sway.
   function refStep(ref, phase, amount) {
@@ -215,6 +276,13 @@
     const sp = view.sundayPunch, ref = view.referee, root = ref.root, m = view.match, fallen = view.coaches[sp.fallen];
     if (!root.visible && !ref.isBruno) return; // ringless venues (GOTR-0065): no referee, nobody counts or waves
     const chest = view.cast.worldToLocal(fallen.joints.chest.getWorldPosition(V())); chest.y = 0;
+    if (u >= T.celebrate) { // after the blackout: by the fallen fighter's head, watching him, while the winner celebrates
+      const by = sp.ref.by, lookAt = fallen.joints.head.getWorldPosition(V()); root.position.copy(by); root.rotation.set(0, Math.atan2(chest.x - by.x, chest.z - by.z), 0);
+      if (!ref.isBruno) refStep(ref, 0, 0);
+      view.cast.updateMatrixWorld(true);
+      if (ref.isBruno) ref.update(m.time, null, 1, { lookAt, waveOff: { t: 0, w: 0 }, walk: { dist: 0, w: 0 } }); else ref.update(m.time, null, 1, { lookAt, alert: .4 });
+      return;
+    }
     // beyond the body as the camera sees it (decided once), so he faces the lens over the fallen fighter
     if (!sp.ref.side) { const side = V(Math.cos(sp.fall.yaw), 0, -Math.sin(sp.fall.yaw)), camAt = view.cast.worldToLocal(view.engine.camera.position.clone()).sub(chest).setY(0); if (side.dot(camAt) > 0) side.negate(); sp.ref.side = side; }
     const spot = chest.clone().addScaledVector(sp.ref.side, .9);
@@ -235,13 +303,15 @@
     for (const s of [-1, 1]) grip[s] = root.localToWorld(V(lerp(s * .36, s * (.05 - .44 * c), wave), lerp(1.04, 2.08 + .05 * Math.abs(c), wave), lerp(.12, .22, wave)));
     ref.update(m.time, grip, 1, { lookAt, alert: .9 });
   }
-  // After the knockout has played out: the fallen fighter stays down, the referee raises the winner's arm at his corner.
-  function ceremonyPose(view, metrics) {
-    const sp = view.sundayPunch, m = view.match, s = sp.striker, coach = view.coaches[s.actor], root = coach.root, reveal = m.phase === 'ceremony', raise = reveal ? clamp((m.phaseTime - .4) / 1.5) : 0;
-    root.position.copy(s.corner); const centre = V(0, 0, 0).sub(s.corner), yaw = Math.atan2(centre.x, centre.z); root.quaternion.setFromEuler(new THREE.Euler(0, yaw, 0, 'YXZ'));
-    metrics[s.actor] = coach.update(m.time, 'guard', 'one_two', { stance: 1, simulationTime: m.time, presentation: { mode: 'winner', side: s.actor === 'lion' ? 'R' : 'L', raise } });
+  // After the knockout has played out: the fallen fighter stays down (or drags himself away on the street); in the ring and the
+  // gym the referee / Bruno walks to the winner and raises his arm; in ringless venues nobody does and he keeps celebrating.
+  function ceremonyPose(view, metrics, u) {
+    const sp = view.sundayPunch, m = view.match, s = sp.striker, coach = view.coaches[s.actor], ref = view.referee, judged = sp.film.ending.raise && (ref.root.visible || ref.isBruno);
+    const reveal = m.phase === 'ceremony', raise = judged && reveal ? clamp((m.phaseTime - .4) / 1.5) : 0;
+    const dt = s.lastT != null ? Math.max(0, m.time - s.lastT) : 0; s.lastT = m.time;
+    celebratePose(view, Math.max(u, T.celebrate), metrics, dt, raise);
     view.cast.updateMatrixWorld(true);
-    const ref = view.referee; if (!ref.root.visible && !ref.isBruno) return;
+    if (!judged) return;
     const handAt = view.cast.worldToLocal(coach.joints[s.actor === 'lion' ? 'handR' : 'handL'].getWorldPosition(V())).sub(s.corner).setY(0);
     // beside the winner across the picture (camera right/left), on the side of the arm he raises
     const camRight = V(1, 0, 0).applyQuaternion(view.engine.camera.quaternion), across = view.cast.worldToLocal(view.cast.getWorldPosition(V()).add(camRight)).sub(view.cast.worldToLocal(view.cast.getWorldPosition(V()))).setY(0).normalize();
@@ -258,11 +328,13 @@
   function pose(view) {
     const m = view.match, r = m.result, sp = view.sundayPunch || (view.sundayPunch = {});
     if (!sp.begun) begin(view);
-    const u = sp.skip ? T.walk[1] + 1 : Math.max(0, m.time - r.finisherTime), metrics = {}, a = view.arena;
+    if (sp.skip && sp.skipAt == null) sp.skipAt = m.time;
+    const u = sp.skip ? END + (m.time - sp.skipAt) : Math.max(0, m.time - r.finisherTime), metrics = {}, a = view.arena;
     a.group.updateMatrixWorld(true);
-    metrics[sp.fallen] = poseFallen(view, sp.fallen, Math.min(u, T.settle + 3));
+    metrics[sp.fallen] = poseFallen(view, sp.fallen, Math.min(u, sp.fall.crawls ? 14 : T.settle + 3));
     if (m.finisherHold() && !sp.skip) { strikerPose(view, u, metrics); refereePose(view, u); }
-    else { if (!sp.striker.done) { sp.striker.done = true; sp.striker.corner = view.coaches[sp.striker.actor].root.position.clone().setY(0); } ceremonyPose(view, metrics); }
+    else ceremonyPose(view, metrics, u);
+    crowd(view, u);
     view.audience?.update(m.time, true);
     a.group.updateMatrixWorld(true);
     view.metrics = metrics; view.specs = { lion: { move: 'guard', phase: .35, attack: false, id: 0 }, rabbit: { move: 'guard', phase: .35, attack: false, id: 0 } };
@@ -288,35 +360,59 @@
       if (blocked(side) && !blocked(side.clone().negate())) side.negate();
       sp.axis = { line, side };
     }
-    const u = r?.finisher ? (sp.skip ? 9 : m.time - r.finisherTime) : -1;
-    // what must stay in the picture
-    const pts = [];
-    const add = (coach, names) => { for (const n of names) { const p = coach.joints[n].getWorldPosition(V()); if (n === 'head') p.y += .26; if (n.startsWith('foot')) p.y = Math.max(0, p.y - .1); pts.push(p); } };
-    add(fc, ['head', 'hips', 'footL', 'footR', 'handL', 'handR']);
-    if (u < 1.3 || u > 2.9) add(sc, ['head', 'footL', 'footR', 'handR']); else if (u < 2.1) add(sc, ['hips']);
-    if (u > 2.9 && view.referee?.root?.visible !== false) { const rr = view.referee.root; pts.push(rr.localToWorld(V(0, 2.25, 0)), rr.localToWorld(V(0, 0, 0))); } // the result: winner and referee/Bruno whole // the winner at his corner comes back into the picture for the result
+    const u = r?.finisher ? (sp.skip ? END + (m.time - (sp.skipAt ?? m.time)) : m.time - r.finisherTime) : null;
+    const act = ['lion', 'rabbit'].map(a => m.fighters[a].action).find(x => x?.finisher);
+    if (u != null && u >= 0) sp.filmT = (sp.filmT || 0) + Math.max(0, dt); // film clock: wall seconds since the glove met the jaw
+    const f = u == null ? (act ? m.time - act.start - .75 : -1) : sp.filmT, pick = filmFor(view, striker);
     const fov = THREE.MathUtils.degToRad(cam.fov), tv = Math.tan(fov / 2), th = tv * Math.max(.2, cam.aspect);
     const { side, line } = sp.axis, up = V(0, 1, 0);
-    // a low profile view from the striker's punching side, a touch in front of him, so the rising glove is seen meeting the
-    // underside of the jaw; then it swings round as the body falls, so the fall reads across the picture
-    const swing = u < 0 ? -.14 : lerp(-.14, .10, smooth(u / .9)), flat = side.clone().multiplyScalar(Math.cos(swing)).addScaledVector(line, -Math.sin(swing));
-    const height = u < 0 ? .62 : lerp(.62, 1.40, smooth((u - .7) / 1.1)); // then it rises to look down on the body on the canvas
-    const dir = flat.clone().normalize(), right = up.clone().cross(dir).normalize(), camUp = up.clone();
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity; const c0 = V();
-    for (const p of pts) c0.add(p); c0.divideScalar(pts.length);
-    for (const p of pts) { const d = p.clone().sub(c0), x = d.dot(right), y = d.dot(camUp); minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
-    const centre = c0.clone().addScaledVector(right, (minX + maxX) / 2).addScaledVector(camUp, (minY + maxY) / 2 + (u < 0 ? -.05 : .02));
-    const margin = u < 0 ? 1.18 : 1.24, dist = Math.max(((maxX - minX) / 2 + .22) * margin / th, ((maxY - minY) / 2 + .18) * margin / tv) + .3;
+    // after the blackout cut: the winner's celebration, seen over the fallen body (and the referee once he comes to raise the hand)
+    const celebrating = u != null && (sp.skip || u >= F.black[1] + .08) && sp.striker?.spot;
+    if (celebrating && !sp.celebCut) { sp.celebCut = true; sp.cut = true; }
+    let dir, pts, tight = [], sh = null;
+    const add = (list, coach, names) => { for (const n of names) { const p = coach.joints[n].getWorldPosition(V()); if (n === 'head') p.y += .26; if (n.startsWith('foot')) p.y = Math.max(0, p.y - .1); list.push(p); } };
+    if (celebrating) {
+      const s = sp.striker, W = view.cast.localToWorld(s.spot.clone()), D = view.cast.localToWorld(s.spot.clone().add(s.camDir)).sub(W).setY(0).normalize();
+      dir = D; const right = up.clone().cross(dir).normalize();
+      pts = [W.clone(), W.clone().setY(2.28), W.clone().addScaledVector(right, .62).setY(1.75), W.clone().addScaledVector(right, -.62).setY(1.75)];
+      add(pts, fc, ['head', 'hips']);
+      const judged = pick.ending.raise && m.phase === 'ceremony' && !m.finisherHold() && view.referee?.root && (view.referee.root.visible || view.referee.isBruno);
+      if (judged) { const rr = view.referee.root; pts.push(rr.localToWorld(V(0, 2.25, 0)), rr.localToWorld(V(0, 0, 0))); }
+    } else {
+      // the choreography of the punch and the fall (super-punch-film.js SHOTS), round the line between the fighters
+      sh = Film.shot(pick.camera, f, u);
+      const flat = side.clone().multiplyScalar(Math.cos(sh.az)).addScaledVector(line, -Math.sin(sh.az)).normalize();
+      dir = sh.el != null ? flat.multiplyScalar(Math.cos(sh.el)).addScaledVector(up, Math.sin(sh.el)).normalize() : flat;
+      pts = []; add(pts, fc, ['head', 'hips', 'footL', 'footR', 'handL', 'handR']);
+      if (u == null || u < 1.3) add(pts, sc, ['head', 'footL', 'footR', 'handR']); else if (u < 2.1) add(pts, sc, ['hips']);
+      // close-up on the impact: both faces and the punching glove
+      tight = [fc.joints.head.localToWorld(V(0, .14, .05)), fc.joints.head.localToWorld(V(0, -.12, .1)), fc.joints.chest.getWorldPosition(V()), sc.joints.handR.getWorldPosition(V()), sc.joints.head.localToWorld(V(0, .12, 0))];
+    }
+    const right = up.clone().cross(dir).normalize(), camUp = dir.clone().cross(right).normalize();
+    const bounds = list => { const c0 = V(); for (const p of list) c0.add(p); c0.divideScalar(list.length); let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity; for (const p of list) { const d = p.clone().sub(c0), x = d.dot(right), y = d.dot(camUp); minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); } return { c0, minX, maxX, minY, maxY }; };
+    const wide = bounds(pts), k = sh ? clamp(sh.tight) : 0, close = k > 0 ? bounds(tight) : wide, mix = (a, b) => lerp(a, b, k);
+    const minX = mix(wide.minX, close.minX), maxX = mix(wide.maxX, close.maxX), minY = mix(wide.minY, close.minY), maxY = mix(wide.maxY, close.maxY), c0 = wide.c0.clone().lerp(close.c0, k);
+    const centre = c0.clone().addScaledVector(right, (minX + maxX) / 2).addScaledVector(camUp, (minY + maxY) / 2 + (u == null ? -.05 : .02));
+    const margin = lerp(u == null ? 1.18 : 1.24, 1.12, k), dist = (Math.max(((maxX - minX) / 2 + lerp(.22, .10, k)) * margin / th, ((maxY - minY) / 2 + lerp(.18, .08, k)) * margin / tv) + .3) * (sh?.dk ?? 1);
     // the gym room is small (hanging bags just off the mat): past the cap the lens widens instead of backing into the props
-    const cap = view.gymFight ? 5.2 : 7.5, goal = { c: centre, d: clamp(dist, 2.4, cap), fov: dist > cap ? THREE.MathUtils.radToDeg(2 * Math.atan(tv * (dist - .3) / (cap - .3))) : FOV };
+    const cap = view.gymFight ? 5.2 : 7.5, goal = { c: centre, d: clamp(dist, lerp(2.4, 1.25, k), cap), fov: dist > cap ? THREE.MathUtils.radToDeg(2 * Math.atan(tv * (dist - .3) / (cap - .3))) : FOV };
     if (!sp.cam || sp.cut) { sp.cam = { c: goal.c.clone(), d: goal.d, fov: goal.fov }; sp.cut = false; }
-    else { const k = 1 - Math.exp(-Math.max(0, dt) / .35); sp.cam.c.lerp(goal.c, k); sp.cam.d = lerp(sp.cam.d, goal.d, k); sp.cam.fov = lerp(sp.cam.fov ?? FOV, goal.fov, k); }
+    else { const kk = 1 - Math.exp(-Math.max(0, dt) / .35); sp.cam.c.lerp(goal.c, kk); sp.cam.d = lerp(sp.cam.d, goal.d, kk); sp.cam.fov = lerp(sp.cam.fov ?? FOV, goal.fov, kk); }
     cam.fov = Math.min(75, sp.cam.fov);
     const position = sp.cam.c.clone().addScaledVector(dir, sp.cam.d);
-    position.y = height; // low lens, looking up at the punch
+    if (celebrating) position.y = 1.28; else if (sh.h != null) position.y = sh.h; // low lens, looking up at the punch; eye level for the celebration
+    if (sp.ceiling === undefined) { let top = 0; view.engine.scene?.traverse?.(n => { const c = n.userData?.cameraCeiling; if (c > 0 && n.visible !== false && (!top || c < top)) top = c; }); sp.ceiling = top || null; }
+    if (sp.ceiling && position.y > sp.ceiling) position.y = sp.ceiling; // the overhead drop stays under the basement's pipes
     cam.position.copy(position); cam.zoom = 1; cam.up.set(0, 1, 0); cam.lookAt(sp.cam.c); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
-    const grid = []; for (let i = 0; i <= 4; i++) for (let k = 0; k <= 4; k++) grid.push(c0.clone().addScaledVector(right, lerp(minX, maxX, i / 4)).addScaledVector(camUp, lerp(minY, maxY, k / 4)));
+    const grid = []; for (let i = 0; i <= 4; i++) for (let j = 0; j <= 4; j++) grid.push(c0.clone().addScaledVector(right, lerp(minX, maxX, i / 4)).addScaledVector(camUp, lerp(minY, maxY, j / 4)));
     clearView(view, position, grid.concat([fc.joints.head, fc.joints.hips, sc.joints.head, sc.joints.handR].map(b => b.getWorldPosition(V()))));
+  }
+  // This fight's film (camera, celebration, ending), chosen once per bout view from the fight itself (super-punch-film.js choose).
+  function filmFor(view, striker) {
+    const sp = view.sundayPunch || (view.sundayPunch = {}); if (sp.film) return sp.film;
+    const fallen = other(striker), fc = view.coaches[fallen], sc = view.coaches[striker];
+    const place = view.ringless?.id || (view.gymFight ? 'gym' : 'ring'), venue = view.ringless?.id || (view.gymFight ? 'gym' : (typeof window !== 'undefined' && window.app?.engine?.career?.store?.game?.()?.venue) || 'ring');
+    return (sp.film = Film.choose({ seed: view.match.seed, venue, place, opponent: fc?.character || fallen, striker: sc?.character || striker }));
   }
   // Ropes, posts and corner pads between the lens and the fighters are hidden while the cinematic runs (like a film crew's
   // camera inside the ropes); everything is shown again when it ends.
@@ -348,8 +444,28 @@
     cam.position.copy(sp.saved.p); cam.quaternion.copy(sp.saved.q); cam.zoom = sp.saved.zoom; cam.fov = sp.saved.fov; cam.updateProjectionMatrix(); cam.updateMatrixWorld(); sp.saved = null;
     for (const part of sp.hidden || []) part.visible = true; sp.hidden?.clear();
     const rf = view.referee?.sundayFeet; if (rf) for (const f of rf) f.o.position.copy(f.p); if (view.referee?.root && !view.referee.isBruno) view.referee.root.rotation.z = 0;
+    sp.axis = null; sp.cam = null; sp.filmT = 0; sp.celebCut = false; sp.ceiling = undefined; // a later finisher in this bout frames afresh
+    if (view.engine.impactFx) view.engine.impactFx.slowmo = 1;
+    filmOverlay(view, null);
   }
-  function audio() { return window.app?.audio; }
+  function audio() { return typeof window !== 'undefined' ? window.app?.audio : null; }
+  // The people round a ringless fight (the venue set's crowd, arena-sets.js tick): they cheer from the knockout; at the Docks they
+  // close in round the winner; in the basement they roar. Ring venues: the arena audience cheers as before (FightAudience).
+  function crowd(view, u) {
+    const set = view.ringless?.set, end = view.sundayPunch.film?.ending; if (!set || !end) return;
+    const after = smooth((u - T.celebrate + .2) / .6);
+    set.cheer = lerp(u > .05 ? .45 : 0, end.crowd === 'roar' ? 1.6 : 1, after);
+    set.close = end.crowd === 'close' ? .8 * smooth((u - T.celebrate) / 2.6) : 0;
+  }
+  // Letterbox bars while the film plays, the blackout with the K.O. beat, speed lines on the impact (super-punch-film.js overlay).
+  function filmOverlay(view, u) {
+    if (typeof document === 'undefined' || !document.getElementById) return;
+    const stage = document.getElementById('stageContainer'); if (!stage) return;
+    const sp = view.sundayPunch || {}, m = view.match, on = u !== null && presenting(view) && !sp.skip && (!m.result?.finisher || m.finisherHold());
+    const b = on && u != null ? Film.blackout(u) : { black: 0, ko: false };
+    if (!on && !stage.querySelector('.sp-film')) return;
+    Film.overlay(stage, { bars: on, black: b.black, ko: b.ko, lines: on && u != null && u >= 0 && u < .2 });
+  }
   function effects(view, events) {
     const e = view.engine, sp = view.sundayPunch, fx = e.impactFx, au = audio(), gym = !!view.gymFight;
     for (const ev of events) {
@@ -358,10 +474,17 @@
         sp.koAt = ev.time;
         const fallen = view.coaches[ev.receiver], chin = fallen.joints.head.localToWorld(V(0, .02, .2)), striker = view.coaches[ev.actor];
         const n = chin.clone().sub(striker.joints.chest.getWorldPosition(V())).setY(0).normalize().add(V(0, 1.2, 0)).normalize();
-        try { fx?.spray(chin.toArray(), n.toArray(), 1.6, 'head'); fx?.spray(chin.toArray(), n.toArray(), 1.2, 'head'); if (fx) fx.kick = { t: 0, amp: .05, phase: 0 }; } catch { }
+        // sweat flies off the face in a wide fan (in slow motion: impact-fx.js follows the film's time scale)
+        try { for (const [v, side] of [[1.9, 0], [1.5, .5], [1.3, -.5]]) { const dn = n.clone().add(V(side, 0, -side).multiplyScalar(.6)).normalize(); fx?.spray(chin.toArray(), dn.toArray(), v, 'head'); } if (fx) fx.kick = { t: 0, amp: .06, phase: 0 }; } catch { }
         flash(e);
         try { au?.playSample?.('body-2', .8, .55, 0, 520); au?.playSample?.('pad', .62, .80, .002, 3600); au?.playSample?.('body-1', .5, .66, .012, 900); if (!gym) au?.playSample?.('applause', .62, .94, .25); } catch { }
       }
+    }
+    // the crowd at the celebration (not in the gym: Bruno's room is quiet); the basement roars
+    const r = view.match.result;
+    if (sp?.begun && !sp.cheered && r?.finisher && view.match.time - r.finisherTime >= T.celebrate + .2 && !sp.skip) {
+      sp.cheered = true; const end = sp.film?.ending;
+      try { if (end?.crowd) { au?.playSample?.('applause', end.crowd === 'roar' ? .85 : .7, end.crowd === 'roar' ? .82 : 1, 0); au?.playSample?.('clap-' + (1 + (view.match.seed % 3)), .35, 1, .15); if (end.crowd !== 'cheer') au?.playSample?.('applause', .5, .7, .35); } } catch { }
     }
     // the landing thud and canvas dust
     if (sp?.begun && !sp.landed && view.match.result?.finisher && view.match.time - view.match.result.finisherTime >= T.land) {
@@ -390,8 +513,10 @@
       const out = baseUpdate.call(this, time - (sp.shift || 0));
       const fresh = this.match.events.filter(x => x.id > (sp.cursor ?? cursor) && x.type.startsWith('finisher')); sp.cursor = this.match.events.length ? this.match.events[this.match.events.length - 1].id : 0;
       if (fresh.length) effects(this, fresh); else if (sp.begun) effects(this, []);
-      const active = presenting(this);
+      const active = presenting(this), r = this.match.result;
+      if (this.engine?.impactFx) this.engine.impactFx.slowmo = active ? timeScale(this) : 1; // sweat drops fly in slow motion too
       if (active) camera(this, dt); else if (sp.saved) restoreCamera(this);
+      if (active) filmOverlay(this, r?.finisher ? (sp.skip ? null : this.match.time - r.finisherTime) : undefined);
       return out;
     };
     P.dispose = function (...args) { restoreCamera(this); return baseDispose.apply(this, args); };
@@ -402,7 +527,7 @@
     if (m.result?.finisher) return true;
     return ['lion', 'rabbit'].some(a => m.fighters[a].action?.finisher && !m.fighters[a].action.recorded);
   }
-  const api = { install, timeScale, fallState, koOverlay, poseFallen, lowest, skinLowest, presenting, T, SLOW, SEEN };
+  const api = { install, timeScale, fallState, koOverlay, poseFallen, lowest, skinLowest, presenting, filmFor, T, SLOW, SEEN, END, film: Film };
   if (typeof module !== 'undefined') module.exports = api;
   if (typeof window !== 'undefined') { window.SundayPunch = api; if (window.FightArena) install(window.FightArena); }
 
@@ -412,7 +537,7 @@
     const app = window.app, e = app?.engine, stage = document.getElementById('stageContainer'); if (!e || !stage) { if ((boot.n = (boot.n || 0) + 1) < 100) setTimeout(boot, 200); return; }
     if (window.FightArena) install(window.FightArena);
     const cap = document.createElement('div'); cap.className = 'sp-caption'; cap.hidden = true; cap.setAttribute('role', 'status');
-    const title = document.createElement('strong'); title.textContent = 'Super Punch'; title.dir = 'ltr'; const hint = document.createElement('span'); cap.append(title, hint); stage.append(cap);
+    const title = document.createElement('strong'); title.textContent = 'Super Punch'; title.dir = 'ltr'; const scene = document.createElement('em'); scene.className = 'sp-scene'; const hint = document.createElement('span'); cap.append(title, scene, hint); stage.append(cap);
     const SKIP = { en: 'Tap to skip', he: 'הקישו לדילוג', ru: 'Нажмите, чтобы пропустить' };
     let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch { }
     let marked = false;
@@ -420,8 +545,10 @@
     setInterval(() => {
       const v = view(), m = v?.match, r = m?.result, on = !!(v && SundayPunch.presenting(v) && (r?.finisher ? m.finisherHold() : true));
       document.body.classList.toggle('sunday-punch-on', on);
-      const show = on && !!r?.finisher && m.time - r.finisherTime > .25;
+      const u = r?.finisher ? m.time - r.finisherTime : -1, show = on && !!r?.finisher && u > .25 && Film.blackout(u).black < .2; // the K.O. beat has the black screen to itself
       if (cap.hidden === show) cap.hidden = !show;
+      // after the blackout, ringless scenes say who stops it there (nobody): the crowd (super-punch-film.js ENDINGS / STORY)
+      const line = u >= F.black[2] && v?.sundayPunch?.film?.ending?.line; scene.textContent = line ? (line[app.lang] || line.en) : ''; scene.dir = document.documentElement.dir || 'ltr';
       hint.textContent = seen && on ? (SKIP[app.lang] || SKIP.en) : '';
       if (r?.finisher && !marked && !m.finisherHold()) { marked = true; seen = true; try { localStorage.setItem(SEEN, '1'); } catch { } }
       if (!r?.finisher) marked = false;

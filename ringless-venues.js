@@ -44,6 +44,7 @@
  function uninstall(view) {
   const st = view?.ringless; if (!st) return;
   view.ringless = null;
+  if (st.set) { st.set.cheer = 0; st.set.close = 0; } // the crowd back to its everyday sway
   if (st.dispose && view.dispose !== st.dispose) view.dispose = st.dispose;
   view.ring.visible = st.ring;
   if (view.referee?.root && !view.referee.isBruno) view.referee.root.visible = st.referee;
@@ -55,7 +56,7 @@
  function sync(engine, set) {
   const view = engine?.arena?.fightView; if (!view) return false;
   const want = set && set.mood?.ring === false ? set.id : null;
-  if (want) return install(view, want) || !!view.ringless;
+  if (want) { const out = install(view, want) || !!view.ringless; if (view.ringless) view.ringless.set = set; return out; } // the set: its crowd cheers / closes in at a Super Punch ending (super-punch.js crowd)
   if (view.ringless) uninstall(view);
   return false;
  }

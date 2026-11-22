@@ -720,7 +720,8 @@
   return {id,lang,group:made.group,mood,ring:mood.ring!==false,sectors:made.sectors,stats:{triangles:made.triangles,meshes:made.meshes,texture:[k.atlas.w,k.atlas.h],people:made.people},
    setLang(next){if(next===this.lang)return;this.lang=next;paint(next);},
    // cx,cz: unit direction from the ring to the camera in arena space.
-   tick(cx,cz,time){for(const [i,s] of made.sectors.entries()){s.group.visible=s.x*cx+s.z*cz<.12;if(!s.group.visible)continue;for(const [j,mesh] of s.crowd.entries())mesh.position.y=.014*Math.sin(time*2.3+i*1.7+j*2.4);}},
+   // cheer 0..: the people bounce (a Super Punch knockout, super-punch.js crowd); close metres: they step in toward the fight.
+   tick(cx,cz,time){const ch=this.cheer||0,cl=this.close||0;for(const [i,s] of made.sectors.entries()){s.group.visible=s.x*cx+s.z*cz<.12;if(!s.group.visible)continue;for(const [j,mesh] of s.crowd.entries()){mesh.position.y=.014*Math.sin(time*2.3+i*1.7+j*2.4)+(ch?.055*ch*Math.abs(Math.sin(time*(6.2+.7*(j%3))+i*1.3+j*2.1)):0);if(cl||mesh.position.x||mesh.position.z){mesh.position.x=-s.x*cl;mesh.position.z=-s.z*cl;}}}},
    dispose(){if(disposed)return;disposed=true;made.group.parent?.remove(made.group);for(const g of made.geometries)g.dispose();for(const m of Object.values(made.materials))m.dispose();k.atlas.texture.dispose();}};
  }
  // Spectator prototypes for tests and QA: the parts of one person at a level of detail.
