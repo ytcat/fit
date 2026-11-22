@@ -8,7 +8,9 @@ const http = require('http'), fs = require('fs'), path = require('path');
 const root = path.resolve(process.env.ROOT || path.join(__dirname, '../..')), outFile = path.resolve(process.argv[2] || 'ab.json');
 const quality = process.env.QUALITY || 'high', ROUNDS = +(process.env.ROUNDS || 5);
 const CASES = { dream_opening: 20.5, dream_market_robbery: 11, dream_otto_shop: 14, dream_gym_talk: 15, ring: { venue: 'default', seed: 78, t: 3 }, street: { venue: 'street', seed: 74, t: 3 } };
-const list = (process.argv[3] || Object.keys(CASES).join(',')).split(',').filter(Boolean);
+// At low the films never switch the look on (quality 'low' = the plain lights): switching it on there would measure the high
+// look, so low compares the fights only (the contact shadows at level 0 and on baked floors).
+const list = (process.argv[3] || Object.keys(CASES).join(',')).split(',').filter(Boolean).filter(id => quality !== 'low' || typeof CASES[id] !== 'number');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.glb': 'model/gltf-binary', '.jpg': 'image/jpeg' };
 const server = http.createServer((q, r) => {
   let f = path.join(root, decodeURIComponent(q.url.split('?')[0])); if (f.endsWith('/')) f += 'index.html';
@@ -25,6 +27,8 @@ const server = http.createServer((q, r) => {
     await p.waitForFunction(() => window.ringfighterGame && app.engine.coach?.anatomy && window.StoryCast?.market && window.DreamScenes && window.CityAssets, null, { timeout: 600000 });
     await p.evaluate(q => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); setInterval(() => document.querySelectorAll('dialog[open]:not(.dream-scene)').forEach(d => d.close()), 300); if (!app.engine.career.store.current()) app.engine.career.store.create('Render QA'); app.engine.qualityLock = q === 'low' ? 0 : 6; app.engine.updateQuality(0); }, quality);
     await p.evaluate(() => CityAssets.ready(240000, Object.keys(CityAssets.FILES)).catch(() => null));
+    // fights: the engine skips drawing an unchanged paused frame, so draw by hand (and let rAF callbacks run in between)
+    const drawn = n => p.evaluate(async n => { const e = app.engine; for (let i = 0; i < n; i++) { e.renderer.render(e.scene, e.camera); await new Promise(r => requestAnimationFrame(r)); } }, n);
     const frames = async n => { const n0 = await p.evaluate(() => app.engine.renderer.info.render.frame); await p.waitForFunction(([n0, n]) => app.engine.renderer.info.render.frame >= n0 + n, [n0, n], { timeout: 300000 }); };
     const sample = (film) => p.evaluate(async film => {
       const r = app.engine.renderer, gl = r.getContext(), px = new Uint8Array(4), scene = film ? DreamScenes.debug.scene : app.engine.scene, cam = film ? DreamScenes.debug.camera : app.engine.camera, rt = [];
@@ -44,15 +48,15 @@ const server = http.createServer((q, r) => {
         await p.evaluate(([v, seed]) => { try { ringfighterGame.close?.(); } catch { } const rg = window.ringfighterGame; const r = rg.store.gameAction({ type: 'venue', venueId: v }); if (r.ok) rg.apply?.(); app.engine.fightOptions = { seed }; rg.startFight({ watch: true, rounds: 1, roundSeconds: 60, restSeconds: 0 }); }, [spec.venue, spec.seed]);
         await p.waitForFunction(() => app.engine.arena?.fightView?.match, null, { timeout: 600000 });
         await p.evaluate(async t => { const e = app.engine, r = e.renderer.render; e.renderer.render = () => { }; try { for (let n = 0; n < 6000; n++) { const m = e.arena.fightView.match; if (m.phase === 'round' && m.time > t) break; if (!e.isPlaying || e.cameraDirector?.holdsClock) { e.isPlaying = true; e.cameraDirector?.skipIntro?.(); await new Promise(q => setTimeout(q, 20)); continue; } e.animTime += 1 / 60; e.arena.update(e.animTime); } } finally { e.renderer.render = r; e.isPlaying = false; e.lastRenderStamp = null; } }, spec.t);
-        await frames(25);
+        await drawn(25);
       }
       const set = on => p.evaluate(([film, on]) => { if (film) DreamScenes.debug.look?.high(on); else { const e = app.engine; e.lookOff = !on; e.renderLook?.handle?.high(on && e.qualityLevel > 0); e.lastRenderStamp = null; } }, [film, on]);
       const on = [], off = [], mOn = [], mOff = [], pOn = [], pOff = []; let info = {};
       for (let k = 0; k < ROUNDS; k++) for (const state of k % 2 ? [false, true] : [true, false]) {
-        await set(state); await frames(2); const s = await sample(film); (state ? on : off).push(s.ms); (state ? mOn : mOff).push(s.min); info[state ? 'on' : 'off'] = { calls: s.calls, triangles: s.triangles, programs: s.programs };
+        await set(state); if (film) await frames(2); else await drawn(3); const s = await sample(film); (state ? on : off).push(s.ms); (state ? mOn : mOff).push(s.min); info[state ? 'on' : 'off'] = { calls: s.calls, triangles: s.triangles, programs: s.programs };
       }
       if (film) await p.evaluate(() => { clearInterval(DreamScenes.debug.hold); }); else await p.evaluate(() => { app.engine.isPlaying = true; });
-      for (let k = 0; k < 2; k++) for (const state of [true, false]) { await set(state); await frames(2); (state ? pOn : pOff).push(await paced()); }
+      for (let k = 0; k < 2; k++) for (const state of [true, false]) { await set(state); if (film) await frames(2); else await drawn(3); (state ? pOn : pOff).push(await paced()); }
       await set(true);
       if (film) { await p.evaluate(() => DreamScenes.stop()); await p.waitForFunction(() => !DreamScenes.debug, null, { timeout: 60000 }).catch(() => { }); } else await p.evaluate(() => { app.engine.isPlaying = false; try { ringfighterGame.close?.(); } catch { } });
       const med = a => { const s = [...a].sort((x, y) => x - y); return +s[s.length >> 1].toFixed(1); };

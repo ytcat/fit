@@ -1,0 +1,536 @@
+{
+ "dream_opening-high": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 101.3,
+    "rms": 43.1,
+    "clipped%": 0.0,
+    "crushed%": 0.65
+   },
+   "after": {
+    "mean": 103.9,
+    "rms": 41.2,
+    "clipped%": 0.0,
+    "crushed%": 0.0
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 99.9,
+    "rms": 49.0,
+    "clipped%": 0.0,
+    "crushed%": 0.1
+   },
+   "after": {
+    "mean": 102.9,
+    "rms": 47.5,
+    "clipped%": 0.0,
+    "crushed%": 0.01
+   }
+  },
+  {
+   "frame": 2,
+   "before": {
+    "mean": 46.0,
+    "rms": 38.5,
+    "clipped%": 0.0,
+    "crushed%": 16.01
+   },
+   "after": {
+    "mean": 46.5,
+    "rms": 37.3,
+    "clipped%": 0.0,
+    "crushed%": 13.38
+   }
+  }
+ ],
+ "dream_market_robbery-high": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 95.4,
+    "rms": 42.9,
+    "clipped%": 0.0,
+    "crushed%": 0.07
+   },
+   "after": {
+    "mean": 97.8,
+    "rms": 41.4,
+    "clipped%": 0.0,
+    "crushed%": 0.01
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 79.2,
+    "rms": 48.6,
+    "clipped%": 0.0,
+    "crushed%": 4.95
+   },
+   "after": {
+    "mean": 81.0,
+    "rms": 47.4,
+    "clipped%": 0.0,
+    "crushed%": 3.18
+   }
+  },
+  {
+   "frame": 2,
+   "before": {
+    "mean": 76.3,
+    "rms": 49.3,
+    "clipped%": 0.0,
+    "crushed%": 5.25
+   },
+   "after": {
+    "mean": 77.9,
+    "rms": 48.6,
+    "clipped%": 0.0,
+    "crushed%": 3.2
+   }
+  },
+  {
+   "frame": 3,
+   "before": {
+    "mean": 67.6,
+    "rms": 49.0,
+    "clipped%": 0.0,
+    "crushed%": 8.34
+   },
+   "after": {
+    "mean": 69.6,
+    "rms": 48.8,
+    "clipped%": 0.0,
+    "crushed%": 6.84
+   }
+  }
+ ],
+ "dream_otto_shop-high": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 87.5,
+    "rms": 54.6,
+    "clipped%": 0.0,
+    "crushed%": 4.56
+   },
+   "after": {
+    "mean": 89.8,
+    "rms": 51.5,
+    "clipped%": 0.0,
+    "crushed%": 0.36
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 102.3,
+    "rms": 56.9,
+    "clipped%": 0.0,
+    "crushed%": 1.42
+   },
+   "after": {
+    "mean": 112.6,
+    "rms": 56.5,
+    "clipped%": 0.0,
+    "crushed%": 0.04
+   }
+  },
+  {
+   "frame": 2,
+   "before": {
+    "mean": 82.7,
+    "rms": 53.8,
+    "clipped%": 0.0,
+    "crushed%": 3.6
+   },
+   "after": {
+    "mean": 94.0,
+    "rms": 55.2,
+    "clipped%": 0.0,
+    "crushed%": 0.76
+   }
+  }
+ ],
+ "dream_gym_talk-high": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 120.7,
+    "rms": 64.3,
+    "clipped%": 0.0,
+    "crushed%": 0.38
+   },
+   "after": {
+    "mean": 116.3,
+    "rms": 62.3,
+    "clipped%": 0.0,
+    "crushed%": 0.11
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 86.8,
+    "rms": 61.7,
+    "clipped%": 0.0,
+    "crushed%": 0.55
+   },
+   "after": {
+    "mean": 86.7,
+    "rms": 60.0,
+    "clipped%": 0.0,
+    "crushed%": 0.31
+   }
+  },
+  {
+   "frame": 2,
+   "before": {
+    "mean": 100.4,
+    "rms": 58.1,
+    "clipped%": 0.0,
+    "crushed%": 0.72
+   },
+   "after": {
+    "mean": 97.5,
+    "rms": 55.9,
+    "clipped%": 0.0,
+    "crushed%": 0.16
+   }
+  }
+ ],
+ "ring-high": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 59.5,
+    "rms": 49.5,
+    "clipped%": 0.0,
+    "crushed%": 0.58
+   },
+   "after": {
+    "mean": 62.3,
+    "rms": 50.4,
+    "clipped%": 0.0,
+    "crushed%": 0.44
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 60.7,
+    "rms": 49.6,
+    "clipped%": 0.0,
+    "crushed%": 0.63
+   },
+   "after": {
+    "mean": 63.5,
+    "rms": 50.8,
+    "clipped%": 0.0,
+    "crushed%": 0.49
+   }
+  }
+ ],
+ "street-high": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 66.4,
+    "rms": 48.1,
+    "clipped%": 0.07,
+    "crushed%": 1.15
+   },
+   "after": {
+    "mean": 66.3,
+    "rms": 48.1,
+    "clipped%": 0.07,
+    "crushed%": 1.17
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 62.5,
+    "rms": 44.7,
+    "clipped%": 0.08,
+    "crushed%": 1.07
+   },
+   "after": {
+    "mean": 63.0,
+    "rms": 45.2,
+    "clipped%": 0.07,
+    "crushed%": 1.06
+   }
+  }
+ ],
+ "dream_opening-low": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 123.1,
+    "rms": 40.3,
+    "clipped%": 0.0,
+    "crushed%": 0.0
+   },
+   "after": {
+    "mean": 123.1,
+    "rms": 40.4,
+    "clipped%": 0.0,
+    "crushed%": 0.0
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 119.1,
+    "rms": 46.2,
+    "clipped%": 0.0,
+    "crushed%": 0.1
+   },
+   "after": {
+    "mean": 119.1,
+    "rms": 46.2,
+    "clipped%": 0.0,
+    "crushed%": 0.1
+   }
+  },
+  {
+   "frame": 2,
+   "before": {
+    "mean": 73.1,
+    "rms": 47.0,
+    "clipped%": 0.0,
+    "crushed%": 1.54
+   },
+   "after": {
+    "mean": 73.1,
+    "rms": 47.0,
+    "clipped%": 0.0,
+    "crushed%": 1.53
+   }
+  }
+ ],
+ "dream_market_robbery-low": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 125.3,
+    "rms": 38.7,
+    "clipped%": 0.0,
+    "crushed%": 0.01
+   },
+   "after": {
+    "mean": 125.3,
+    "rms": 38.7,
+    "clipped%": 0.0,
+    "crushed%": 0.01
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 107.1,
+    "rms": 51.7,
+    "clipped%": 0.0,
+    "crushed%": 4.16
+   },
+   "after": {
+    "mean": 107.2,
+    "rms": 51.7,
+    "clipped%": 0.0,
+    "crushed%": 4.14
+   }
+  },
+  {
+   "frame": 2,
+   "before": {
+    "mean": 94.9,
+    "rms": 49.5,
+    "clipped%": 0.0,
+    "crushed%": 3.39
+   },
+   "after": {
+    "mean": 94.9,
+    "rms": 49.6,
+    "clipped%": 0.0,
+    "crushed%": 3.35
+   }
+  },
+  {
+   "frame": 3,
+   "before": {
+    "mean": 82.4,
+    "rms": 53.5,
+    "clipped%": 0.0,
+    "crushed%": 7.93
+   },
+   "after": {
+    "mean": 82.4,
+    "rms": 53.5,
+    "clipped%": 0.0,
+    "crushed%": 7.93
+   }
+  }
+ ],
+ "dream_otto_shop-low": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 91.8,
+    "rms": 52.0,
+    "clipped%": 0.0,
+    "crushed%": 0.3
+   },
+   "after": {
+    "mean": 91.8,
+    "rms": 52.0,
+    "clipped%": 0.0,
+    "crushed%": 0.3
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 105.8,
+    "rms": 55.5,
+    "clipped%": 0.0,
+    "crushed%": 0.26
+   },
+   "after": {
+    "mean": 105.7,
+    "rms": 55.5,
+    "clipped%": 0.0,
+    "crushed%": 0.26
+   }
+  },
+  {
+   "frame": 2,
+   "before": {
+    "mean": 88.3,
+    "rms": 55.9,
+    "clipped%": 0.0,
+    "crushed%": 3.1
+   },
+   "after": {
+    "mean": 88.3,
+    "rms": 55.9,
+    "clipped%": 0.0,
+    "crushed%": 3.09
+   }
+  }
+ ],
+ "dream_gym_talk-low": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 122.1,
+    "rms": 63.4,
+    "clipped%": 0.0,
+    "crushed%": 0.08
+   },
+   "after": {
+    "mean": 116.3,
+    "rms": 63.6,
+    "clipped%": 0.0,
+    "crushed%": 0.3
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 87.3,
+    "rms": 61.7,
+    "clipped%": 0.0,
+    "crushed%": 0.51
+   },
+   "after": {
+    "mean": 84.9,
+    "rms": 61.4,
+    "clipped%": 0.0,
+    "crushed%": 0.53
+   }
+  },
+  {
+   "frame": 2,
+   "before": {
+    "mean": 103.1,
+    "rms": 57.6,
+    "clipped%": 0.0,
+    "crushed%": 0.71
+   },
+   "after": {
+    "mean": 98.2,
+    "rms": 57.3,
+    "clipped%": 0.0,
+    "crushed%": 1.62
+   }
+  }
+ ],
+ "ring-low": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 60.7,
+    "rms": 50.7,
+    "clipped%": 0.0,
+    "crushed%": 0.21
+   },
+   "after": {
+    "mean": 60.2,
+    "rms": 50.1,
+    "clipped%": 0.0,
+    "crushed%": 0.21
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 62.8,
+    "rms": 51.8,
+    "clipped%": 0.0,
+    "crushed%": 0.34
+   },
+   "after": {
+    "mean": 61.8,
+    "rms": 51.2,
+    "clipped%": 0.0,
+    "crushed%": 0.28
+   }
+  }
+ ],
+ "street-low": [
+  {
+   "frame": 0,
+   "before": {
+    "mean": 67.3,
+    "rms": 48.0,
+    "clipped%": 0.07,
+    "crushed%": 1.06
+   },
+   "after": {
+    "mean": 69.3,
+    "rms": 49.3,
+    "clipped%": 0.07,
+    "crushed%": 0.97
+   }
+  },
+  {
+   "frame": 1,
+   "before": {
+    "mean": 64.0,
+    "rms": 45.3,
+    "clipped%": 0.07,
+    "crushed%": 0.9
+   },
+   "after": {
+    "mean": 64.0,
+    "rms": 45.4,
+    "clipped%": 0.07,
+    "crushed%": 0.89
+   }
+  }
+ ]
+}

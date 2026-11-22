@@ -1,0 +1,439 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/rr/tree2",
+ "quality": "high",
+ "errors": [],
+ "cases": {
+  "dream_opening": {
+   "rows": [
+    {
+     "calls": 179,
+     "triangles": 576217,
+     "programs": 83,
+     "textures": 61,
+     "geometries": 278,
+     "renderMs": 777.3,
+     "renderMin": 590.1,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "day",
+      "high": true,
+      "env": true
+     },
+     "t": 7.3,
+     "stats": {
+      "calls": 178,
+      "triangles": 574897,
+      "quality": "high",
+      "shadows": true
+     }
+    },
+    {
+     "calls": 214,
+     "triangles": 627452,
+     "programs": 85,
+     "textures": 68,
+     "geometries": 298,
+     "renderMs": 659.3,
+     "renderMin": 493.5,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "day",
+      "high": true,
+      "env": true
+     },
+     "t": 20.5,
+     "stats": {
+      "calls": 214,
+      "triangles": 627452,
+      "quality": "high",
+      "shadows": true
+     }
+    },
+    {
+     "calls": 92,
+     "triangles": 409912,
+     "programs": 87,
+     "textures": 73,
+     "geometries": 303,
+     "renderMs": 821,
+     "renderMin": 442.9,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "day",
+      "high": true,
+      "env": true
+     },
+     "t": 29.5,
+     "stats": {
+      "calls": 92,
+      "triangles": 409912,
+      "quality": "high",
+      "shadows": true
+     }
+    }
+   ],
+   "pace": {
+    "median": 866.5,
+    "p90": 2016.6
+   }
+  },
+  "dream_market_robbery": {
+   "rows": [
+    {
+     "calls": 76,
+     "triangles": 470299,
+     "programs": 81,
+     "textures": 56,
+     "geometries": 242,
+     "renderMs": 1496.5,
+     "renderMin": 662.1,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "market",
+      "high": true,
+      "env": true
+     },
+     "t": 2,
+     "stats": {
+      "calls": 76,
+      "triangles": 470299,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 106,
+     "triangles": 846990,
+     "programs": 83,
+     "textures": 56,
+     "geometries": 281,
+     "renderMs": 3679.6,
+     "renderMin": 1680.1,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "market",
+      "high": true,
+      "env": true
+     },
+     "t": 5,
+     "stats": {
+      "calls": 106,
+      "triangles": 846990,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 136,
+     "triangles": 892365,
+     "programs": 83,
+     "textures": 56,
+     "geometries": 283,
+     "renderMs": 3502.3,
+     "renderMin": 2102.2,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "market",
+      "high": true,
+      "env": true
+     },
+     "t": 11,
+     "stats": {
+      "calls": 136,
+      "triangles": 892365,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 142,
+     "triangles": 1182781,
+     "programs": 83,
+     "textures": 56,
+     "geometries": 291,
+     "renderMs": 4195.3,
+     "renderMin": 2618.7,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "market",
+      "high": true,
+      "env": true
+     },
+     "t": 15,
+     "stats": {
+      "calls": 140,
+      "triangles": 1181069,
+      "quality": "high",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 3383.2,
+    "p90": 5983
+   }
+  },
+  "dream_otto_shop": {
+   "rows": [
+    {
+     "calls": 163,
+     "triangles": 160261,
+     "programs": 99,
+     "textures": 48,
+     "geometries": 448,
+     "renderMs": 501.5,
+     "renderMin": 197.9,
+     "env": true,
+     "exposure": 0.97,
+     "shadowMap": true,
+     "look": {
+      "look": "shop",
+      "high": true,
+      "env": true
+     },
+     "t": 4,
+     "stats": {
+      "calls": 165,
+      "triangles": 425113,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 59,
+     "triangles": 348712,
+     "programs": 99,
+     "textures": 50,
+     "geometries": 449,
+     "renderMs": 671.7,
+     "renderMin": 367,
+     "env": true,
+     "exposure": 0.97,
+     "shadowMap": true,
+     "look": {
+      "look": "shop",
+      "high": true,
+      "env": true
+     },
+     "t": 14,
+     "stats": {
+      "calls": 59,
+      "triangles": 348712,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 241,
+     "triangles": 514891,
+     "programs": 99,
+     "textures": 50,
+     "geometries": 450,
+     "renderMs": 626.1,
+     "renderMin": 573.7,
+     "env": true,
+     "exposure": 0.97,
+     "shadowMap": true,
+     "look": {
+      "look": "shop",
+      "high": true,
+      "env": true
+     },
+     "t": 26,
+     "stats": {
+      "calls": 241,
+      "triangles": 514891,
+      "quality": "high",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 983.4,
+    "p90": 1483.4
+   }
+  },
+  "dream_gym_talk": {
+   "rows": [
+    {
+     "calls": 94,
+     "triangles": 696434,
+     "programs": 105,
+     "textures": 36,
+     "geometries": 415,
+     "renderMs": 784,
+     "renderMin": 739.9,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "gym",
+      "high": true,
+      "env": true
+     },
+     "t": 4,
+     "stats": {
+      "calls": 94,
+      "triangles": 696434,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 177,
+     "triangles": 1056395,
+     "programs": 105,
+     "textures": 38,
+     "geometries": 417,
+     "renderMs": 1267.9,
+     "renderMin": 1016.9,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "gym",
+      "high": true,
+      "env": true
+     },
+     "t": 15,
+     "stats": {
+      "calls": 177,
+      "triangles": 1056395,
+      "quality": "high",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 62,
+     "triangles": 600718,
+     "programs": 105,
+     "textures": 39,
+     "geometries": 419,
+     "renderMs": 819.3,
+     "renderMin": 723.7,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "gym",
+      "high": true,
+      "env": true
+     },
+     "t": 30,
+     "stats": {
+      "calls": 62,
+      "triangles": 600718,
+      "quality": "high",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 1316.6,
+    "p90": 2200
+   }
+  },
+  "ring": {
+   "rows": [
+    {
+     "calls": 476,
+     "triangles": 1125368,
+     "programs": 126,
+     "textures": 47,
+     "geometries": 648,
+     "renderMs": 1203.4,
+     "renderMin": 1089.8,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "hall",
+      "high": true,
+      "env": true
+     },
+     "t": 2
+    },
+    {
+     "calls": 472,
+     "triangles": 1126396,
+     "programs": 126,
+     "textures": 47,
+     "geometries": 649,
+     "renderMs": 1288.9,
+     "renderMin": 1200.5,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "hall",
+      "high": true,
+      "env": true
+     },
+     "t": 4.5
+    }
+   ],
+   "pace": {
+    "median": 2266.5,
+    "p90": 2766.6
+   }
+  },
+  "street": {
+   "rows": [
+    {
+     "calls": 114,
+     "triangles": 680092,
+     "programs": 139,
+     "textures": 43,
+     "geometries": 546,
+     "renderMs": 768.7,
+     "renderMin": 643.9,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "street",
+      "high": true,
+      "env": true
+     },
+     "t": 2
+    },
+    {
+     "calls": 113,
+     "triangles": 677417,
+     "programs": 139,
+     "textures": 43,
+     "geometries": 546,
+     "renderMs": 783.9,
+     "renderMin": 687.6,
+     "env": true,
+     "exposure": 1.05,
+     "shadowMap": true,
+     "look": {
+      "look": "street",
+      "high": true,
+      "env": true
+     },
+     "t": 4.5
+    }
+   ],
+   "pace": {
+    "median": 1000,
+    "p90": 1216.5
+   }
+  }
+ }
+}

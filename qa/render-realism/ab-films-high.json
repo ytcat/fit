@@ -1,0 +1,160 @@
+{
+ "quality": "high",
+ "rounds": 6,
+ "errors": [],
+ "cases": {
+  "dream_opening": {
+   "renderOn": 555.7,
+   "renderOff": 439,
+   "ratio": 1.266,
+   "bestOn": 455,
+   "bestOff": 410.2,
+   "bestRatio": 1.109,
+   "paceOn": 699.9,
+   "paceOff": 550,
+   "samplesOn": [
+    555.7,
+    522.7,
+    504.8,
+    566,
+    589.2,
+    470.3
+   ],
+   "samplesOff": [
+    436.2,
+    439,
+    432.1,
+    424.5,
+    488,
+    515.8
+   ],
+   "info": {
+    "on": {
+     "calls": 213,
+     "triangles": 627452,
+     "programs": 77
+    },
+    "off": {
+     "calls": 213,
+     "triangles": 627452,
+     "programs": 77
+    }
+   }
+  },
+  "dream_market_robbery": {
+   "renderOn": 1169.2,
+   "renderOff": 1062.9,
+   "ratio": 1.1,
+   "bestOn": 943.4,
+   "bestOff": 839.2,
+   "bestRatio": 1.124,
+   "paceOn": 1533.3,
+   "paceOff": 1366.6,
+   "samplesOn": [
+    1149.9,
+    1301.9,
+    1216.2,
+    1011.4,
+    1169.2,
+    1046.2
+   ],
+   "samplesOff": [
+    1109.1,
+    999.8,
+    1062.9,
+    1187.6,
+    1043.9,
+    1041.1
+   ],
+   "info": {
+    "on": {
+     "calls": 136,
+     "triangles": 892365,
+     "programs": 69
+    },
+    "off": {
+     "calls": 134,
+     "triangles": 890385,
+     "programs": 69
+    }
+   }
+  },
+  "dream_otto_shop": {
+   "renderOn": 376.6,
+   "renderOff": 293.5,
+   "ratio": 1.283,
+   "bestOn": 303.3,
+   "bestOff": 251.1,
+   "bestRatio": 1.208,
+   "paceOn": 500,
+   "paceOff": 466.6,
+   "samplesOn": [
+    410.5,
+    354.3,
+    350.5,
+    332.4,
+    376.6,
+    414.1
+   ],
+   "samplesOff": [
+    307,
+    293.5,
+    297.8,
+    259.1,
+    282.3,
+    281
+   ],
+   "info": {
+    "on": {
+     "calls": 59,
+     "triangles": 348712,
+     "programs": 82
+    },
+    "off": {
+     "calls": 59,
+     "triangles": 348712,
+     "programs": 82
+    }
+   }
+  },
+  "dream_gym_talk": {
+   "renderOn": 1036.7,
+   "renderOff": 988.4,
+   "ratio": 1.049,
+   "bestOn": 968.3,
+   "bestOff": 863,
+   "bestRatio": 1.122,
+   "paceOn": 1149.9,
+   "paceOff": 850,
+   "samplesOn": [
+    1109.9,
+    1142.2,
+    1036.7,
+    1018.7,
+    1028.1,
+    999
+   ],
+   "samplesOff": [
+    1049.5,
+    956.3,
+    997.2,
+    977.9,
+    988.4,
+    895.3
+   ],
+   "info": {
+    "on": {
+     "calls": 176,
+     "triangles": 1055435,
+     "programs": 93
+    },
+    "off": {
+     "calls": 177,
+     "triangles": 1056395,
+     "programs": 93
+    }
+   }
+  }
+ },
+ "fatal": "TimeoutError: page.waitForFunction: Timeout 300000ms exceeded."
+}

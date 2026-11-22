@@ -1,0 +1,439 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/rr/tree-after",
+ "quality": "low",
+ "errors": [],
+ "cases": {
+  "dream_opening": {
+   "rows": [
+    {
+     "calls": 170,
+     "triangles": 572371,
+     "programs": 49,
+     "textures": 52,
+     "geometries": 265,
+     "renderMs": 622.9,
+     "renderMin": 430.5,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "day",
+      "high": false,
+      "env": false
+     },
+     "t": 7.3,
+     "stats": {
+      "calls": 169,
+      "triangles": 571051,
+      "quality": "low",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 205,
+     "triangles": 623606,
+     "programs": 51,
+     "textures": 59,
+     "geometries": 287,
+     "renderMs": 671.7,
+     "renderMin": 365.2,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "day",
+      "high": false,
+      "env": false
+     },
+     "t": 20.5,
+     "stats": {
+      "calls": 205,
+      "triangles": 623606,
+      "quality": "low",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 84,
+     "triangles": 406066,
+     "programs": 53,
+     "textures": 64,
+     "geometries": 293,
+     "renderMs": 695.5,
+     "renderMin": 243.4,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "day",
+      "high": false,
+      "env": false
+     },
+     "t": 29.5,
+     "stats": {
+      "calls": 84,
+      "triangles": 406066,
+      "quality": "low",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 683.3,
+    "p90": 1549.9
+   }
+  },
+  "dream_market_robbery": {
+   "rows": [
+    {
+     "calls": 76,
+     "triangles": 470299,
+     "programs": 46,
+     "textures": 46,
+     "geometries": 241,
+     "renderMs": 802,
+     "renderMin": 650.3,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "market",
+      "high": false,
+      "env": false
+     },
+     "t": 2,
+     "stats": {
+      "calls": 76,
+      "triangles": 470299,
+      "quality": "low",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 106,
+     "triangles": 846990,
+     "programs": 47,
+     "textures": 46,
+     "geometries": 279,
+     "renderMs": 1183.4,
+     "renderMin": 714.1,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "market",
+      "high": false,
+      "env": false
+     },
+     "t": 5,
+     "stats": {
+      "calls": 106,
+      "triangles": 846990,
+      "quality": "low",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 136,
+     "triangles": 892365,
+     "programs": 47,
+     "textures": 46,
+     "geometries": 281,
+     "renderMs": 1004.9,
+     "renderMin": 678.8,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "market",
+      "high": false,
+      "env": false
+     },
+     "t": 11,
+     "stats": {
+      "calls": 136,
+      "triangles": 892365,
+      "quality": "low",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 144,
+     "triangles": 1183261,
+     "programs": 47,
+     "textures": 46,
+     "geometries": 290,
+     "renderMs": 2567.3,
+     "renderMin": 1354.9,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "market",
+      "high": false,
+      "env": false
+     },
+     "t": 15,
+     "stats": {
+      "calls": 143,
+      "triangles": 1183021,
+      "quality": "low",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 1499.9,
+    "p90": 2349.9
+   }
+  },
+  "dream_otto_shop": {
+   "rows": [
+    {
+     "calls": 165,
+     "triangles": 425113,
+     "programs": 51,
+     "textures": 37,
+     "geometries": 434,
+     "renderMs": 326.5,
+     "renderMin": 224.2,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "shop",
+      "high": false,
+      "env": false
+     },
+     "t": 4,
+     "stats": {
+      "calls": 165,
+      "triangles": 425113,
+      "quality": "low",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 59,
+     "triangles": 348712,
+     "programs": 51,
+     "textures": 39,
+     "geometries": 447,
+     "renderMs": 360.1,
+     "renderMin": 249.1,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "shop",
+      "high": false,
+      "env": false
+     },
+     "t": 14,
+     "stats": {
+      "calls": 59,
+      "triangles": 348712,
+      "quality": "low",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 241,
+     "triangles": 514891,
+     "programs": 51,
+     "textures": 39,
+     "geometries": 449,
+     "renderMs": 419.2,
+     "renderMin": 273.5,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "shop",
+      "high": false,
+      "env": false
+     },
+     "t": 26,
+     "stats": {
+      "calls": 241,
+      "triangles": 514891,
+      "quality": "low",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 700,
+    "p90": 1766.6
+   }
+  },
+  "dream_gym_talk": {
+   "rows": [
+    {
+     "calls": 94,
+     "triangles": 696434,
+     "programs": 58,
+     "textures": 24,
+     "geometries": 397,
+     "renderMs": 2023.2,
+     "renderMin": 809.5,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "gym",
+      "high": false,
+      "env": false
+     },
+     "t": 4,
+     "stats": {
+      "calls": 94,
+      "triangles": 696434,
+      "quality": "low",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 178,
+     "triangles": 1057355,
+     "programs": 58,
+     "textures": 26,
+     "geometries": 415,
+     "renderMs": 1170.9,
+     "renderMin": 866.6,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "gym",
+      "high": false,
+      "env": false
+     },
+     "t": 15,
+     "stats": {
+      "calls": 178,
+      "triangles": 1057355,
+      "quality": "low",
+      "shadows": false
+     }
+    },
+    {
+     "calls": 62,
+     "triangles": 600718,
+     "programs": 58,
+     "textures": 27,
+     "geometries": 418,
+     "renderMs": 587,
+     "renderMin": 478.2,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "gym",
+      "high": false,
+      "env": false
+     },
+     "t": 30,
+     "stats": {
+      "calls": 62,
+      "triangles": 600718,
+      "quality": "low",
+      "shadows": false
+     }
+    }
+   ],
+   "pace": {
+    "median": 1350,
+    "p90": 2033.3
+   }
+  },
+  "ring": {
+   "rows": [
+    {
+     "calls": 482,
+     "triangles": 1125380,
+     "programs": 76,
+     "textures": 36,
+     "geometries": 649,
+     "renderMs": 2301.5,
+     "renderMin": 1024.8,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "hall",
+      "high": false,
+      "env": false
+     },
+     "t": 2
+    },
+    {
+     "calls": 477,
+     "triangles": 1124936,
+     "programs": 76,
+     "textures": 36,
+     "geometries": 649,
+     "renderMs": 1863,
+     "renderMin": 866.1,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "hall",
+      "high": false,
+      "env": false
+     },
+     "t": 4.5
+    }
+   ],
+   "pace": {
+    "median": 2166.6,
+    "p90": 3183.2
+   }
+  },
+  "street": {
+   "rows": [
+    {
+     "calls": 114,
+     "triangles": 680092,
+     "programs": 78,
+     "textures": 32,
+     "geometries": 545,
+     "renderMs": 828.1,
+     "renderMin": 412.4,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "hall",
+      "high": false,
+      "env": false
+     },
+     "t": 2
+    },
+    {
+     "calls": 113,
+     "triangles": 677417,
+     "programs": 78,
+     "textures": 32,
+     "geometries": 545,
+     "renderMs": 666.7,
+     "renderMin": 386.4,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "hall",
+      "high": false,
+      "env": false
+     },
+     "t": 4.5
+    }
+   ],
+   "pace": {
+    "median": 1233.2,
+    "p90": 1749.9
+   }
+  }
+ }
+}

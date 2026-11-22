@@ -1,0 +1,78 @@
+{
+ "webgl1": {
+  "engine": {
+   "webgl2": false,
+   "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+   "look": {
+    "look": "hall",
+    "high": false,
+    "env": false
+   },
+   "antiVisible": 0,
+   "frames": 49
+  },
+  "film": {
+   "look": {
+    "look": "gym",
+    "high": true,
+    "env": true
+   },
+   "antiVisible": 1,
+   "lamps": 2,
+   "stats": {
+    "calls": 133
+   }
+  },
+  "after": {
+   "done": {
+    "id": "dream_gym_talk",
+    "skipped": true
+   },
+   "strayLamps": 0,
+   "look": {
+    "look": "hall",
+    "high": false,
+    "env": false
+   }
+  },
+  "errors": []
+ },
+ "no-pmrem": {
+  "engine": {
+   "webgl2": true,
+   "glVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+   "look": {
+    "look": "hall",
+    "high": false,
+    "env": false
+   },
+   "antiVisible": 0,
+   "frames": 16
+  },
+  "film": {
+   "look": {
+    "look": "gym",
+    "high": true,
+    "env": false
+   },
+   "antiVisible": 0,
+   "lamps": 2,
+   "stats": {
+    "calls": 133
+   }
+  },
+  "after": {
+   "done": {
+    "id": "dream_gym_talk",
+    "skipped": true
+   },
+   "strayLamps": 0,
+   "look": {
+    "look": "hall",
+    "high": false,
+    "env": false
+   }
+  },
+  "errors": []
+ }
+}
