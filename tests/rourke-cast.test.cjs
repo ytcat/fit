@@ -8,7 +8,7 @@ const assert = require('node:assert/strict'), fs = require('node:fs'), vm = requ
 process.chdir(path.join(__dirname, '..'));
 global.THREE = require('../assets/vendor/three.min.js'); global.window = global;
 global.document = { createElement: () => ({ getContext: () => new Proxy({}, { get: (_, key) => key === 'createImageData' ? ((w, h) => ({ data: new Uint8ClampedArray(w * h * 4) })) : () => {} }) }) };
-for (const f of ['boxing-routines.js', 'avatar-anatomy.js', 'avatar-detail.js', 'boxing-footwear.js', 'boxing-coach-v2.js', 'adventure/story/story-cast.js', 'adventure/story/cast-market.js', 'adventure/story/cast-docks.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'), { filename: f });
+for (const f of ['boxing-routines.js', 'avatar-anatomy.js', 'avatar-detail.js', 'boxing-footwear.js', 'boxing-coach-v2.js', 'adventure/story/paws.js', 'adventure/story/story-cast.js', 'adventure/story/cast-market.js', 'adventure/story/cast-docks.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'), { filename: f });
 
 // ---- registered after the market cast, without replacing anyone
 assert.deepEqual(StoryCast.ids, ['bruno', 'brick', 'fang', 'hazel', 'otto', 'rourke'], 'ids');
@@ -76,7 +76,7 @@ c.anatomy.value[12] = 0; StoryCast.talk(c, 0); assert.ok(hinge.rotation.x === 0 
 // ---- clothes: the same in films and fights (outfit() leaves him alone), bare wrapped hands, work boots, no kit
 const kitShown = () => { const k = StoryCast.kitParts(c); return ['gloves', 'shorts', 'boots', 'trim', 'fur'].flatMap(n => k[n] || []).filter(o => o && shown(o, c.root)); };
 assert.deepEqual(kitShown(), [], 'no boxing kit'); assert.ok(!c.gloveMeshes.L.visible && !c.gloveMeshes.R.visible && !c.shorts.visible);
-for (const s of ['L', 'R']) { const names = c.joints['hand' + s].children.filter(o => o.visible).map(o => o.name); assert.ok(names.includes('Bare hand') && names.includes('Hand wraps'), 'bare scaly hand in white wraps ' + s); assert.ok(c.joints['foot' + s].children.some(o => o.visible && o.name === 'Rourke: work boot'), 'work boot ' + s); }
+for (const s of ['L', 'R']) { const names = c.joints['hand' + s].children.filter(o => o.visible).map(o => o.name); assert.ok(names.includes('Bare hand') && (names.includes('Hand wraps') || c.joints['hand' + s].children.some(o => o.visible && o.userData.wraps)), 'bare scaly hand in white wraps ' + s); assert.ok(c.joints['foot' + s].children.some(o => o.visible && o.name === 'Rourke: work boot'), 'work boot ' + s); }
 assert.ok(c.joints.hips.children.some(o => o.name === 'Rourke: overall straps knot'), 'the overall straps tied round the waist');
 assert.equal(StoryCast.outfit(c, 'track_wraps'), true); assert.equal(StoryCast.outfit(c, 'kit'), true); assert.deepEqual(kitShown(), [], 'outfit() does not put the kit back');
 
@@ -176,7 +176,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
         if (m && m.phase === 'round' && view.ringless?.id === 'docks') {
           out.frames++; out.ringless++; if (e.arena.rabbit === c) out.opponent++;
           c.root.traverse(o => { if (o.isMesh && shown(o) && !o.userData.storyPart && o !== c.skin) out.kit.add(o.name || o.geometry.type); });
-          if (['L', 'R'].every(s => c.joints['hand' + s].children.some(o => o.visible && o.name === 'Hand wraps'))) out.hands++;
+          if (['L', 'R'].every(s => c.joints['hand' + s].children.some(o => o.visible && (o.name === 'Hand wraps' || o.userData.wraps)))) out.hands++;
           const a = m.fighters.rabbit.action; if (a?.attack) out.punches.add(a.move);
         }
         if (out.frames >= 240 || performance.now() - t0 > 200000) { resolve({ ...out, kit: [...out.kit], punches: [...out.punches] }); return; }

@@ -196,16 +196,9 @@
   }
 
   /* ---------------------------------------------------------------- hands, shoes */
-  function hands(rig, fur, pad, o = {}) {
-    for (const s of [-1, 1]) {
-      const P = new Parts();
-      P.sph(V(0, -.052, .002), V(.047 * (o.k || 1), .062, .034 * (o.k || 1)), fur); P.sph(V(0, -.106, .012), V(.044 * (o.k || 1), .036, .031), fur, [.35, 0, 0]);
-      for (let k = 0; k < 4; k++) { const fx = -.032 + k * .0213; P.sph(V(fx * (o.k || 1), -.128, .014 + (k === 0 || k === 3 ? -.003 : 0)), V(.0128, .021, .016), fur, [.5, 0, 0]); if (o.claw) P.sph(V(fx * (o.k || 1), -.146, .024), V(.0045, .011, .006), o.claw, [.9, 0, 0]); if (o.knuckle) P.sph(V(fx * (o.k || 1), -.124, -.004), V(.011, .006, .008), o.knuckle); }
-      P.sph(V(s * -.043, -.062, .02), V(.016, .034, .017), fur, [.2, 0, s * .45]); if (o.claw) P.sph(V(s * -.052, -.094, .03), V(.0045, .01, .006), o.claw, [.6, 0, s * .45]);
-      P.sph(V(0, -.07, .033), V(.024, .026, .006), pad); P.cyl(V(0, 0, 0), V(.043, .06, .037), o.cuff || fur);
-      const m = meshOf(P, 'Bare hand', mats(rig).parts); rig.joints['hand' + (s < 0 ? 'L' : 'R')].add(m);
-    }
-  }
+  /** Bare hands (GOTR-0100): the character's own paws from adventure/story/paws.js via StoryCast.bareHands (wolf, doe, otter:
+   *  fingers, pads, claws or hoof-like tips; the coat from the forearm, `fur` is the fallback; relaxed / open / point / grip / fist by the pose). */
+  function hands(rig, fur, pad) { return SC.bareHands(rig, fur, pad); }
   /** Shoes / boots on the foot joints (foot frame: sole at y = -0.08, toes toward +z). o: { upper, toe, sole, welt, lace?, shaft?, buckle?, heel? } */
   function shoes(rig, o) {
     const mt = mats(rig);

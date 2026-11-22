@@ -300,23 +300,9 @@
   }
 
   /* ---------------------------------------------------------------- hands in white wraps, work boots */
-  function hands(rig) {
-    const scale = '#4b5a2c', dark = '#353f1f', pad = '#b8ad7c', claw = '#221d14', wrap = '#eeeae0', wrapShade = '#d8d2c2';
-    for (const s of [-1, 1]) {
-      const P = new Parts(), W = new Parts(), k = 1.08;
-      // a broad scaly hand, thick fingers curled into a fist, dark claws; the palm pale
-      P.sph(V(0, -.054, .002), V(.05 * k, .064, .036 * k), scale); P.sph(V(0, -.11, .013), V(.047 * k, .037, .032), dark, [.35, 0, 0]);
-      for (let f = 0; f < 4; f++) { const fx = (-.033 + f * .022) * k; P.sph(V(fx, -.131, .016 + (f === 0 || f === 3 ? -.003 : 0)), V(.0135, .022, .017), scale, [.5, 0, 0]); P.sph(V(fx, -.14, .034), V(.006, .009, .011), claw, [1.1, 0, 0]); P.sph(V(fx, -.127, -.006), V(.011, .007, .009), dark); }
-      P.sph(V(s * -.046, -.064, .021), V(.017, .036, .018), scale, [.2, 0, s * .45]); P.sph(V(s * -.056, -.097, .032), V(.006, .01, .008), claw, [.7, 0, s * .45]);
-      P.sph(V(0, -.072, .035), V(.026, .028, .006), pad);
-      // wraps: turns round the wrist laid at alternating angles, a band across the knuckles, a turn between thumb and fingers
-      for (let t = 0; t < 5; t++) W.tor(V(0, -.004 - t * .019, 0), V(.05 * k - t * .0006, .046, .053), t % 2 ? wrapShade : wrap, [Math.PI / 2 + (t % 2 ? .22 : -.22), 0, 0]);
-      W.sph(V(0, -.1, .005), V(.053 * k, .028, .039), wrap, [.35, 0, 0]); W.tor(V(0, -.098, .006), V(.054 * k, .05, .04), wrapShade, [Math.PI / 2 + .35, 0, 0]);
-      W.ribbon([V(s * -.05, -.02, .01), V(s * -.035, -.07, .038), V(0, -.098, .04), V(s * .045, -.09, .02)], .022, .004, wrap, V(0, 0, 1), 12, 6);
-      const hand = joint => rig.joints['hand' + (s < 0 ? 'L' : 'R')].add(joint);
-      hand(meshOf(P, 'Bare hand', mats(rig).scales)); hand(meshOf(W, 'Hand wraps', mats(rig).cloth));
-    }
-  }
+  /** Rourke's hands (GOTR-0100): broad scaly crocodile paws (thick fingers, blunt dark claws, a pebbled pale palm) from
+   *  adventure/story/paws.js, in white wraps over the wrist, palm and knuckles with the fingers free: one mesh per hand. */
+  function hands(rig) { return SC.bareHands(rig, '#4b5a2c', '#b8ad7c', { wraps: true, species: 'croc' }); }
   function boots(rig) {
     const m = mats(rig), o = { upper: '#5b3d24', toe: '#3e2a19', sole: '#1c1a17', welt: '#2c2620', lace: '#c9b48a' };
     for (const s of ['L', 'R']) {
