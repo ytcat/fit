@@ -37,9 +37,13 @@ const server = http.createServer((q, r) => {
     const file = path.join(out, `${tag}-${quality}-${String(i).padStart(2, '0')}.png`); await p.screenshot({ path: file });
     const row = await p.evaluate(async ([t, probes]) => {
       const s = DreamScenes.stats() || {}, run = DreamScenes.debug, scene = run.scene;
-      // hold the shot and time 24 frames (the film is re-seeked to t every frame)
-      const ms = await new Promise(res => { const d = []; let last = 0, n = 0; const step = now => { DreamScenes.seek(t); if (last) d.push(now - last); last = now; if (++n <= 24) requestAnimationFrame(step); else res(d); }; requestAnimationFrame(step); });
+      // hold the shot and time 12 frames (the film is re-seeked to t every frame)
+      const ms = await new Promise(res => { const d = []; let last = 0, n = 0; const step = now => { DreamScenes.seek(t); if (last) d.push(now - last); last = now; if (++n <= 12) requestAnimationFrame(step); else res(d); }; requestAnimationFrame(step); });
       ms.sort((a, b) => a - b);
+      // render cost alone: the same frame (with its shadow pass) drawn 8 times, each finished with a 1-pixel read
+      const r = app.engine.renderer, gl = r.getContext(), px = new Uint8Array(4), rt = [];
+      for (let k = 0; k < 8; k++) { const t0 = performance.now(); if (r.shadowMap.enabled) r.shadowMap.needsUpdate = true; r.render(scene, run.camera); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); rt.push(performance.now() - t0); }
+      rt.sort((a, b) => a - b);
       const v = new THREE.Vector3(), found = {};
       scene.updateMatrixWorld(true);
       scene.traverse(o => {
@@ -47,7 +51,7 @@ const server = http.createServer((q, r) => {
         const pos = o.geometry.attributes.position, step = Math.max(1, Math.floor(pos.count / 60000));
         for (const pr of probes) { let n = 0; for (let k = 0; k < pos.count; k += step) { v.fromBufferAttribute(pos, k); if (o.isSkinnedMesh) o.boneTransform?.(k, v); v.applyMatrix4(o.matrixWorld); if (v.y > pr.y && Math.hypot(v.x - pr.x, v.z - pr.z) < pr.r) n += step; } if (n) { const key = pr.name; (found[key] ||= {})[(o.name || '(unnamed)') + (o.parent?.name ? ' < ' + o.parent.name : '')] = n; } }
       });
-      return { t, calls: s.calls, triangles: s.triangles, shot: s.shot, quality: s.quality, shadows: s.shadows, city: s.city, msMedian: +ms[ms.length >> 1].toFixed(1), msP90: +ms[Math.floor(ms.length * .9)].toFixed(1), probe: found };
+      return { t, calls: s.calls, triangles: s.triangles, shot: s.shot, quality: s.quality, shadows: s.shadows, city: s.city, msMedian: +ms[ms.length >> 1].toFixed(1), msP90: +ms[Math.floor(ms.length * .9)].toFixed(1), renderMs: +rt[3].toFixed(1), renderMin: +rt[0].toFixed(1), probe: found };
     }, [t, probes]);
     rows.push(row); console.log(JSON.stringify(row));
   }

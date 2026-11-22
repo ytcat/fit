@@ -14,12 +14,12 @@
  *   CityTrees.mesh(store, name, kind)            one Mesh from a collector: kind 'wood' (bark) or 'leaf' (double-sided
  *                                                foliage with a gentle breeze in the vertex shader)
  *   CityTrees.triangles(form)                    triangles of one tree (tests, budgets)
- * About 2.5k triangles a tree; a set merges all its trees into one wood and one leaf mesh (two draw calls in all). */
+ * About 3.2k triangles a broad tree, 2k an upright one; a set merges all its trees into one wood and one leaf mesh (two draw calls in all). */
 (() => {
   const REF = 4.6, TAU = Math.PI * 2;
   const FORMS = {
     broad: { ref: 4.6, trunk: 1.95, r0: .15, crown: [0, 3.2, 0], rad: [2.0, 1.45, 1.85], limbs: 5, lean: [.8, 1.12], limb: [1.25, 1.55], twigs: [2, 3], twig: [.6, .9],
-      clumps: 132, inner: 30, perClump: [8, 10], leafLen: [.26, .38], seed: 7,
+      clumps: 150, inner: 34, perClump: [8, 10], leafLen: [.3, .42], seed: 7,
       leaves: ['#6a9a3e', '#77a646', '#5b8a37', '#86b250', '#6f9c40', '#62923b'], bark: ['#6e5642', '#5b4636'] },
     upright: { ref: 4.4, trunk: 1.45, r0: .12, crown: [0, 3.05, 0], rad: [1.02, 1.78, 1.0], limbs: 4, lean: [.32, .55], limb: [1.2, 1.5], twigs: [2, 3], twig: [.5, .75],
       clumps: 92, inner: 18, perClump: [8, 10], leafLen: [.22, .32], seed: 19,
