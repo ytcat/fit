@@ -20,9 +20,9 @@ async function open({ lang = 'en', width = 402, height = 690 } = {}) {
   await p.addInitScript(l => { try { localStorage.setItem('shadowbox-language', l); localStorage.setItem('gotr.adv.nointro', '1'); } catch { } }, lang);
   await p.goto(`http://127.0.0.1:${server.address().port}/`, { timeout: 300000 });
   await p.waitForFunction(() => window.ringfighterGame?.store && window.StoryScenes?.games?.clean_gym && window.AdventureOldTown, null, { timeout: 300000 });
-  if (await p.locator('dialog.career-welcome[open]').count()) {
-    await p.locator('dialog.career-welcome[open] input[name=player]').fill('Mop QA');
-    await p.locator('dialog.career-welcome[open] button[type=submit]').click();
+  for (let k = 0; k < 120 && !(await p.evaluate(() => !!ringfighterGame.store.game())); k++) { // the welcome card: a name, Start
+    await p.evaluate(() => { const d = document.querySelector('dialog.career-welcome[open]'), i = d?.querySelector('input[name=player]'); if (!i) return; i.value = 'Mop QA'; i.dispatchEvent(new Event('input', { bubbles: true })); d.querySelector('form')?.requestSubmit(); });
+    await p.waitForTimeout(1000);
   }
   await p.waitForFunction(() => app.engine.coach?.anatomy && ringfighterGame.store.game(), null, { timeout: 300000 });
   await p.evaluate(() => { StoryScenes?.stop(); ringfighterGame.close(); });

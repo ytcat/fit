@@ -259,14 +259,15 @@
         c.restore();
       } else {
         const hx = Math.cos(st.a) * st.len / 2, hz = Math.sin(st.a) * st.len / 2, x0 = X(st.x - hx), y0 = Z(st.z - hz), x1 = X(st.x + hx), y1 = Z(st.z + hz), mx = (x0 + x1) / 2 - Math.sin(st.a) * st.bend * s, my = (y0 + y1) / 2 + Math.cos(st.a) * st.bend * s;
-        c.lineCap = 'round';
-        for (const [wk, al] of [[1.9, .28], [1.25, .55], [.7, .85]]) { c.strokeStyle = `rgba(22,18,16,${al})`; c.lineWidth = Math.max(1, st.w * s * wk); c.beginPath(); c.moveTo(x0, y0); c.quadraticCurveTo(mx, my, x1, y1); c.stroke(); }
+        c.lineCap = 'round'; // a rubber streak: soft edge, darker core, thinner at the ends
+        const path = () => { c.beginPath(); if (st.arc) c.arc(x, y, st.r * s, st.a, st.a + st.span); else { c.moveTo(x0, y0); c.quadraticCurveTo(mx, my, x1, y1); } };
+        for (const [wk, al] of [[2.2, .1], [1.3, .26], [.65, .5]]) { c.strokeStyle = `rgba(24,20,19,${al})`; c.lineWidth = Math.max(.8, st.w * s * wk); path(); c.stroke(); }
       }
     }
   }
 
   /* ------------------------------------------------------------ the mop (handle, socket, strands) and the bucket */
-  const STRANDS = 34, SEG = 6;
+  const STRANDS = 46, SEG = 6;
   function mopMesh(own, parent) {
     const handle = new THREE.Mesh(own(new THREE.CylinderGeometry(.0145, .0145, 1, 10)), own(new THREE.MeshStandardMaterial({ color: '#b88a58', roughness: .55 })));
     handle.castShadow = true; handle.name = 'mop handle'; parent.add(handle);
@@ -279,8 +280,10 @@
     const geo = own(new THREE.BufferGeometry()); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.setIndex(idx);
     const strandMat = own(new THREE.MeshStandardMaterial({ color: '#efe9d8', vertexColors: true, roughness: .95, side: THREE.DoubleSide }));
     const strands = new THREE.Mesh(geo, strandMat); strands.frustumCulled = false; strands.castShadow = true; strands.name = 'mop strands'; parent.add(strands);
-    const tips = Array.from({ length: STRANDS }, (_, s) => { const a = s / STRANDS * Math.PI * 2 + Math.sin(s * 5.1) * .12, len = .16 + .05 * ((s * 7) % 5) / 4; return { a, len, root: V(), tip: null, sway: s * 1.37 }; });
-    return { handle, cap, socket, band, strands, strandMat, pos, tips, geo };
+    const tips = Array.from({ length: STRANDS }, (_, s) => { const a = s / STRANDS * Math.PI * 2 + Math.sin(s * 5.1) * .35, len = .09 + .06 * ((s * 7) % 5) / 4 + .02 * Math.sin(s * 2.3); return { a, len, root: V(), tip: null, sway: s * 1.37, curl: Math.sin(s * 3.7) * .5 }; });
+    const discTex = own(canvasTex(64, 64, (c, W) => { const g = c.createRadialGradient(W / 2, W / 2, 2, W / 2, W / 2, W / 2); g.addColorStop(0, 'rgba(32,24,16,.55)'); g.addColorStop(.6, 'rgba(32,24,16,.35)'); g.addColorStop(1, 'rgba(32,24,16,0)'); c.fillStyle = g; c.fillRect(0, 0, W, W); }));
+    const disc = new THREE.Mesh(own(new THREE.PlaneGeometry(.36, .36).rotateX(-Math.PI / 2)), own(new THREE.MeshBasicMaterial({ map: discTex, transparent: true, depthWrite: false }))); disc.renderOrder = 3; disc.name = 'wet mop on the boards'; parent.add(disc); // the soaked cotton mass under the strands
+    return { handle, cap, socket, band, strands, strandMat, pos, tips, geo, disc };
   }
   /** Strands from the band at the socket to the boards: they splay round the head and trail behind the stroke. */
   function strandsFrame(M, head, vel, t, dt, reduced, lifted, spin = 0) {
@@ -292,12 +295,12 @@
       const rest = lifted > .02 ? V(head.x + ca * .07, Math.max(.015, head.y - .3 + .06 * Math.abs(sa)), head.z + sa * .07)
         : V(head.x + ca * s.len + trail.x * (1 + .4 * Math.cos(s.a * 3)) - sa * sway, .016 + .004 * (i % 3), head.z + sa * s.len + trail.z * (1 + .4 * Math.cos(s.a * 3)) + ca * sway);
       s.tip = s.tip ? s.tip.lerp(rest, k) : rest.clone();
-      ctrl.set(root.x + ca * .07, Math.max(.02, Math.min(root.y, s.tip.y + .03)), root.z + sa * .07);
+      ctrl.set(root.x + Math.cos(s.a + spin + s.curl) * .06, Math.max(.022, Math.min(root.y, s.tip.y + .035)), root.z + Math.sin(s.a + spin + s.curl) * .06);
       for (let q = 0; q <= SEG; q++) {
         const u = q / SEG, a = (1 - u) * (1 - u), b = 2 * u * (1 - u), c = u * u;
         p.set(root.x * a + ctrl.x * b + s.tip.x * c, root.y * a + ctrl.y * b + s.tip.y * c, root.z * a + ctrl.z * b + s.tip.z * c);
         dirv.set(2 * (1 - u) * (ctrl.x - root.x) + 2 * u * (s.tip.x - ctrl.x), 0, 2 * (1 - u) * (ctrl.z - root.z) + 2 * u * (s.tip.z - ctrl.z)); if (dirv.lengthSq() < 1e-8) dirv.set(ca, 0, sa);
-        side.crossVectors(dirv, up).normalize().multiplyScalar(.0085 * (1.15 - .4 * u));
+        side.crossVectors(dirv, up).normalize().multiplyScalar(.013 * (1.1 - .3 * u));
         const o = ((i * (SEG + 1)) + q) * 6; P[o] = p.x - side.x; P[o + 1] = p.y; P[o + 2] = p.z - side.z; P[o + 3] = p.x + side.x; P[o + 4] = p.y + .002; P[o + 5] = p.z + side.z;
       }
     });
@@ -327,7 +330,7 @@
       c.font = '900 52px Arial,sans-serif'; c.textAlign = 'center'; c.fillText('!', W / 2, 104);
       c.lineWidth = 6; c.beginPath(); c.arc(42, 150, 10, 0, 7); c.moveTo(42, 160); c.lineTo(66, 176); c.moveTo(48, 166); c.lineTo(90, 158); c.stroke(); c.beginPath(); c.ellipse(80, 178, 26, 4, 0, 0, 7); c.fill();
     }));
-    const sign = new THREE.Group(); sign.position.set(-.32, 0, 1.4); sign.rotation.y = .5; parent.add(sign);
+    const sign = new THREE.Group(); sign.position.set(.2, 0, 2.05); sign.rotation.y = .5; parent.add(sign);
     const signMat = own(new THREE.MeshStandardMaterial({ map: signTex, roughness: .5, side: THREE.DoubleSide })), leaf = own(new THREE.PlaneGeometry(.3, .58));
     for (const s of [-1, 1]) { const m = new THREE.Mesh(leaf, signMat); m.position.set(0, .28, s * .09); m.rotation.x = -s * .3; m.castShadow = true; sign.add(m); }
     return { g, water, waterMat };
@@ -358,7 +361,7 @@
   function mopBody(x, v, dt, m, R) {
     const f = x.rigs.fighter, Pose = window.DreamPose, t = x.t, reduced = x.reduced, M = x.scene.userData.mop.M;
     const target = V(v.point.x, 0, v.point.z), last = m.head ? m.head.clone() : target.clone();
-    if (!m.head) { m.head = target.clone(); m.body = V(target.x, 0, target.z - .7); m.yaw = 0; }
+    if (!m.head) { m.head = target.clone(); m.body = V(target.x + .3, 0, target.z - .95); m.yaw = 0; }
     m.idle = v.active || v.rinsing ? 0 : (m.idle || 0) + dt;
     const stretch = !v.rinsing && (x.over || (v.started && v.left < 15 && m.idle > 1.2)) ? 1 : 0;
     m.stretch = (m.stretch || 0) + (stretch - (m.stretch || 0)) * Math.min(1, dt * 3);
@@ -380,58 +383,67 @@
     }
     const vel = m.head.clone().sub(last).divideScalar(Math.max(.016, dt)); vel.y = 0;
     // body: keep the mop in front; turn to face it
-    const want = m.body.clone(), dx = m.head.x - want.x, dz = m.head.z - want.z, side = .35;
-    if (dx > side) want.x = m.head.x - side; else if (dx < -side) want.x = m.head.x + side;
-    if (dz > .85) want.z = m.head.z - .85; else if (dz < .55) want.z = m.head.z - .55;
-    const before = m.body.clone(), mv = want.clone().sub(m.body), maxStep = 1.7 * dt; if (mv.length() > maxStep) mv.setLength(maxStep);
+    const want = m.body.clone(), dx = m.head.x - want.x, dz = m.head.z - want.z, c0 = -.3, side = .24; // the mop a little to his right (world -x as he faces the camera)
+    if (dx > c0 + side) want.x = m.head.x - c0 - side; else if (dx < c0 - side) want.x = m.head.x - c0 + side;
+    if (dz > 1.1) want.z = m.head.z - 1.1; else if (dz < .85) want.z = m.head.z - .85; // the handle at ~55 degrees
+    const before = m.body.clone(), mv = want.clone().sub(m.body), maxStep = 1.6 * dt; if (mv.length() > maxStep) mv.setLength(maxStep);
     m.body.add(mv); const bodyVel = m.body.clone().sub(before).divideScalar(Math.max(.016, dt));
-    const yaw = clamp(Math.atan2(m.head.x - m.body.x, Math.max(.25, m.head.z - m.body.z)) * .7, -.7, .7);
+    const yaw = clamp(Math.atan2(m.head.x - m.body.x + .3, Math.max(.25, m.head.z - m.body.z)) * .7, -.7, .7); // square to the work: the mop's home is at his right
     m.yaw += (yaw - m.yaw) * Math.min(1, dt * 4);
     f.root.position.copy(m.body); f.root.rotation.set(0, m.yaw, 0); f.root.updateMatrixWorld(true);
     // feet: planted on the boards (world), one step at a time to the work stance
     const homeOf = s => f.root.localToWorld(V(s * .155, 0, s * -.06)); // wide stance, right foot a little back
     if (!m.feet) m.feet = { L: { p: homeOf(-1), u: 1 }, R: { p: homeOf(1), u: 1 } };
-    const swinging = ['L', 'R'].find(k => m.feet[k].u < 1);
+    const swinging = ['L', 'R'].find(k => m.feet[k].u < .9); // the next step may start as the other foot lands
     for (const k of ['L', 'R']) {
       const F = m.feet[k], s = k === 'L' ? -1 : 1;
-      if (F.u < 1) { F.u = Math.min(1, F.u + dt / .3); F.p.lerpVectors(F.from, F.to, F.u * F.u * (3 - 2 * F.u)); F.lift = .065 * Math.sin(Math.PI * F.u); continue; }
+      if (F.u < 1) { F.u = Math.min(1, F.u + dt / .27); F.p.lerpVectors(F.from, F.to, F.u * F.u * (3 - 2 * F.u)); F.lift = .065 * Math.sin(Math.PI * F.u); continue; }
       F.lift = 0;
-      const home = homeOf(s); if (swinging || F.p.distanceTo(home) < .13) continue;
+      const home = homeOf(s); if (swinging || F.p.distanceTo(home) < .12) continue;
       const other = m.feet[k === 'L' ? 'R' : 'L'], mine = F.p.distanceTo(home), theirs = other.p.distanceTo(homeOf(-s));
       if (theirs > mine + .03 && other.u >= 1) continue; // the foot left furthest behind goes first
-      F.from = F.p.clone(); F.to = home.addScaledVector(bodyVel, .18); F.to.y = 0; F.u = 0; m.steps = (m.steps || 0) + 1; break;
+      F.from = F.p.clone(); F.to = home.addScaledVector(bodyVel, .22); F.to.y = 0; F.u = 0; m.steps = (m.steps || 0) + 1; break;
     }
     const swing = ['L', 'R'].find(k => m.feet[k].u < 1), planted = swing === 'L' ? 1 : swing === 'R' ? -1 : 0;
     const feet = {}; for (const k of ['L', 'R']) { const q = f.root.worldToLocal(V(m.feet[k].p.x, 0, m.feet[k].p.z)); feet[k] = [q.x, m.feet[k].lift, q.z]; }
     // the work: where the socket is in the rig frame, how hard he pushes, the sweep
     const socketW = V(m.head.x, m.head.y + .1, m.head.z), S = f.root.worldToLocal(socketW.clone());
-    const lv = f.root.worldToLocal(f.root.position.clone().add(vel)), reach = clamp((S.z - .55) / .35), push = clamp(lv.z * .12, -.08, .1), sweep = reduced ? 0 : clamp(lv.x * .1, -.18, .18);
+    const lv = f.root.worldToLocal(f.root.position.clone().add(vel)), reach = clamp((S.z - .85) / .25), push = clamp(lv.z * .12, -.08, .1), sweep = reduced ? 0 : clamp(lv.x * .1, -.18, .18);
     const bend = phase === 'dunk' ? 1 : phase === 'wring' ? .8 : phase === 'carry' ? .2 : 0;
     m.bend = (m.bend || 0) + (bend - (m.bend || 0)) * Math.min(1, dt * 6);
     const st = m.stretch, act = clamp(1 - Math.min(1, m.idle / 1.5) * .5);
-    const twistT = (clamp(Math.atan2(S.x, Math.max(.2, S.z)) * .85, -.55, .55) + sweep) * (1 - st), twist = m.twist = (m.twist || 0) + (twistT - (m.twist || 0)) * Math.min(1, dt * 8);
-    const lean = (.26 + .22 * reach + push) * act * (1 - st) + .26 * m.bend - .14 * st;
+    m.tb = clamp((m.tb ?? -.1) + ((m.err?.L || 0) - (m.err?.R || 0)) * 3 * dt, -.32, .12); // turns the chest until both hands reach the stick
+    const twistT = (clamp(Math.atan2(S.x - .3, Math.max(.2, S.z)) * .85, -.55, .55) + m.tb + sweep) * (1 - st), twist = m.twist = (m.twist || 0) + (twistT - (m.twist || 0)) * Math.min(1, dt * 8);
+    const lean = (.36 + .12 * reach + push) * (.6 + .4 * act) * (1 - st) + .2 * m.bend - .14 * st; // bent over the work
     const drop = .07 + .05 * reach + .17 * m.bend + .07 * press - .04 * st;
     const shift = clamp(S.x * .06, -.045, .045) * (1 - st) + planted * .035;
-    // hands: top hand at the chest on the line from the socket, the lower hand further down that line (nearest its shoulder)
-    const A = V(clamp(S.x * .25, -.14, .14) + twist * .06, 1.06 - .12 * m.bend - .06 * press + .1 * st, .24 + .04 * reach), axis = A.clone().sub(S).normalize();
-    const sh = f.point(f.joints.armR); let low = null, bd = 9;
-    for (let u = .28; u <= .52; u += .02) { const q = A.clone().addScaledVector(axis, -u), d = q.distanceTo(sh); if (d < bd) { bd = d; low = q; } }
-    const reachT = st > .5 ? { L: A.toArray() } : { L: A.toArray(), R: low.toArray() };
-    Pose.civil(f, { t, dt, walk: 0, feet, arms: { L: 'low', R: st > .5 ? 'hips' : 'low' }, reach: reachT, lean, drop, twist, hipYaw: -.3 * twist, shift,
+    // hands: the top (left) hand in front of the chest, placed from the shoulder so the arm can hold it there; the lower
+    // (right) hand further down the line toward the socket, as far down as the right arm reaches (30..44 cm apart)
+    const shL = f.point(f.joints.armL), shR = f.point(f.joints.armR), arm = f.joints.elbowL.position.length() + f.joints.handL.position.length();
+    const T = V(clamp(-.02 + (S.x - .3) * .1, -.1, .06), shL.y - .38 - .08 * m.bend - .05 * press + .12 * st, shL.z + .3 + .06 * reach), axis = S.clone().sub(T).normalize();
+    let u = .42, low = T.clone().addScaledVector(axis, u); while (u > .14 && low.distanceTo(shR) > .93 * arm) { u -= .02; low = T.clone().addScaledVector(axis, u); } // as far down the stick as the arm reaches
+    const gripOff = m.gripOff || { L: V(), R: V() }, ride = V(0, .972 - f.joints.hips.position.y, 0), aimL = T.clone().sub(gripOff.L).add(ride), aimR = low.clone().sub(gripOff.R).add(ride); // DreamPose lets the hands ride with the pelvis: take its drop back out // last frame's grip offset (the grip sits inside the paw)
+    const reachT = st > .5 ? { L: aimL.toArray() } : { L: aimL.toArray(), R: aimR.toArray() };
+    Pose.civil(f, { t, dt, walk: 0, feet, arms: { L: 'pole', R: st > .5 ? 'hips' : 'pole' }, reach: reachT, lean, drop, twist, hipYaw: -.3 * twist, shift,
       look: { yaw: clamp(Math.atan2(S.x, Math.max(.2, S.z)) - twist, -.6, .6) * (1 - st), pitch: -.45 * (1 - st) + .32 * st - .1 * m.bend } });
-    // the handle through both real grips, down to the socket height; the head sits under it
+    // the handle is laid through both real grips; where it meets the socket height is the mop head (within 15 cm of
+    // where the core cleans: the soft dirt mask hides that); otherwise it runs from the socket through the top hand
     const gT = f.joints.handL.localToWorld(V(0, -.07, .02)), gL = f.joints.handR.localToWorld(V(0, -.07, .02));
+    m.err = { L: f.point(f.joints.handL).distanceTo(aimL.clone().sub(ride)), R: st > .5 ? 0 : f.point(f.joints.handR).distanceTo(aimR.clone().sub(ride)) };
+    m.gripOff = { L: f.root.worldToLocal(gT.clone()).sub(f.point(f.joints.handL)), R: f.root.worldToLocal(gL.clone()).sub(f.point(f.joints.handR)) };
     let hAxis = gT.clone().sub(socketW).normalize(), sock = socketW.clone(), both = false;
-    if (st <= .5) { const d = gT.clone().sub(gL); if (d.y > .05) { const k = (gL.y - socketW.y) / d.y, at = gL.clone().addScaledVector(d, -k); if (at.distanceTo(socketW) < .07) { sock = at; hAxis = d.normalize(); both = true; } } }
+    if (st <= .5) { const d = gT.clone().sub(gL); if (d.y > .05 && d.length() > .1) { const k = (gL.y - socketW.y) / d.y, at = gL.clone().addScaledVector(d, -k); if (at.distanceTo(socketW) < .15) { sock = at; hAxis = d.normalize(); both = true; } } }
     const end = gT.clone().addScaledVector(hAxis, .12), len = sock.distanceTo(end);
     M.handle.position.copy(sock).lerp(end, .5); M.handle.scale.set(1, len, 1); M.handle.quaternion.setFromUnitVectors(V(0, 1, 0), hAxis);
     M.cap.position.copy(end); M.cap.quaternion.copy(M.handle.quaternion);
     M.socket.position.copy(sock).addScaledVector(hAxis, -.02); M.socket.quaternion.copy(M.handle.quaternion);
-    if (both) { m.head.x = sock.x; m.head.z = sock.z; }
-    M.band.position.set(m.head.x, m.head.y + .055, m.head.z);
+    const vis = m.vis = V(sock.x, m.head.y, sock.z); // the head drawn where the handle meets the boards
+    M.band.position.set(vis.x, vis.y + .055, vis.z);
+    M.disc.position.set(vis.x, .014, vis.z); M.disc.visible = vis.y < .05;
     const lineDist = q => { const o = q.clone().sub(sock), a = o.dot(hAxis); return o.addScaledVector(hAxis, -a).length(); };
-    m.qa = { phase, both, top: +lineDist(gT).toFixed(4), low: st > .5 ? null : +lineDist(gL).toFixed(4), handle: +len.toFixed(3), twist: +twist.toFixed(3), lean: +lean.toFixed(3), drop: +drop.toFixed(3), steps: m.steps || 0,
+    const segDist = q => { const o = q.clone().sub(sock), a = clamp(o.dot(hAxis), 0, len); return o.addScaledVector(hAxis, -a).length(); }, body = Math.min(...['hips', 'spine', 'chest'].map(k => segDist(f.joints[k].getWorldPosition(V()))));
+    m.qa = { phase, both, body: +body.toFixed(3), headOff: +Math.hypot(sock.x - socketW.x, sock.z - socketW.z).toFixed(3), apart: +gT.distanceTo(gL).toFixed(3), jL: +f.point(f.joints.handL).distanceTo(aimL.clone().sub(ride)).toFixed(3), jR: +f.point(f.joints.handR).distanceTo(aimR.clone().sub(ride)).toFixed(3),
+      top: +lineDist(gT).toFixed(4), low: st > .5 ? null : +lineDist(gL).toFixed(4), handle: +len.toFixed(3), twist: +twist.toFixed(3), lean: +lean.toFixed(3), drop: +drop.toFixed(3), steps: m.steps || 0,
       feet: ['L', 'R'].map(k => ({ planted: m.feet[k].u >= 1, world: f.joints['foot' + k].getWorldPosition(V()).toArray().map(n => +n.toFixed(4)) })), head: m.head.toArray().map(n => +n.toFixed(3)), stretch: +st.toFixed(2) };
     m.gripErr = m.qa.low ?? 0; m.handleLen = len;
     return vel;
@@ -461,7 +473,7 @@
       if (P.F.last !== v.revision ? v.clock - P.F.at > 1 / 24 : drying && v.clock - P.F.at > 1 / 8) { P.F.paint(sim); P.F.last = v.revision; P.F.at = v.clock; }
       // ---- the mop head and the Fighter's whole body (mopBody: steps, twist, lean, knees, hands on the handle)
       const M = P.M, vel = mopBody(x, v, dt, m, R);
-      strandsFrame(M, m.head, vel, t, dt, reduced, m.head.y, m.spin || 0);
+      strandsFrame(M, m.vis || m.head, vel, t, dt, reduced, m.head.y, m.spin || 0);
       M.strandMat.color.set('#efe9d8').lerp(new THREE.Color('#6d6252'), clamp(v.load * 1.1));
       P.Bk.waterMat.color.set('#6f9aa6').lerp(new THREE.Color('#6b5a44'), clamp(v.rinses * .12 + (v.rinsing ? v.load * .2 : 0)));
       // ---- lamp: sways a little; flickers in the last ten seconds; goes out with the time
@@ -476,7 +488,7 @@
         if (e.n < (m.seen || 0)) continue; m.seen = e.n + 1;
         if (e.type === 'stroke' || e.type === 'zone') {
           const n = e.type === 'zone' ? 6 : 2;
-          for (let i = 0; i < n; i++) { const s = P.sparks.find(q => t - q.t0 > .8) || P.sparks[0]; s.t0 = t; const zx = e.type === 'zone' ? e.x + (Math.random() - .5) * 1.6 : m.head.x - vel.x * .05 + (Math.random() - .5) * .8, zz = e.type === 'zone' ? e.z + (Math.random() - .5) * 1.2 : m.head.z + (Math.random() - .5) * .5; s.s.position.set(zx, .05, zz); }
+          for (let i = 0; i < n; i++) { const s = P.sparks.find(q => t - q.t0 > .8) || P.sparks[0]; s.t0 = t; const zx = e.type === 'zone' ? e.x + (Math.random() - .5) * 1.6 : m.head.x - vel.x * .05 + (Math.random() - .5) * .8, zz = e.type === 'zone' ? e.z + (Math.random() - .5) * 1.2 : m.head.z + (Math.random() - .5) * .5; s.s.position.set(zx, .03, zz); }
         }
         if (!O) continue;
         const w = O.w, hx = m.head.x, hz = m.head.z;
@@ -485,19 +497,19 @@
         else if (e.type === 'rinsed') O.pop(w.rinsed, 'calm', R.bucket.x, R.bucket.z);
         else if (e.type === 'zone') O.pop((w.zone[e.zone] || '') + (e.bonus ? '  ' + fill(w.sec, { n: e.bonus }) : ''), 'gold', e.x, e.z);
       }
-      for (const s of P.sparks) { const a = t - s.t0; s.s.visible = a < .8 && !reduced; if (s.s.visible) { const k = Math.sin(Math.PI * a / .8); s.s.scale.setScalar(.06 + .14 * k); s.s.material.opacity = k; } }
+      for (const s of P.sparks) { const a = t - s.t0; s.s.visible = a < .8 && !reduced; if (s.s.visible) { const k = Math.sin(Math.PI * a / .8); s.s.scale.setScalar(.03 + .07 * k); s.s.material.opacity = k; } }
       // ---- overlay: clock, mop gauge, the rinse button on the bucket, the note until the first stroke
       if (O) {
         const txt = timeText(v.left); if (O.clock.textContent !== txt) O.clock.textContent = txt;
         O.clock.dataset.late = String(v.started && v.left < 10); O.gFill.style.width = Math.round(100 * (1 - v.load)) + '%'; O.gauge.dataset.dirty = String(!!v.dirty);
-        const b = O.project(R.bucket.x, R.bucket.z, .62), hostR = O.rinse.parentElement?.getBoundingClientRect();
-        if (hostR) { const half = (O.rinse.offsetWidth || 70) / 2 + 6; O.rinse.style.left = clamp(b.x - hostR.left, half, hostR.width - half).toFixed(0) + 'px'; O.rinse.style.top = clamp(b.y - hostR.top, 150, hostR.height - 110).toFixed(0) + 'px'; }
+        const b = O.project(R.bucket.x, R.bucket.z, .95), hostR = O.rinse.parentElement?.getBoundingClientRect();
+        if (hostR) { const half = (O.rinse.offsetWidth || 70) / 2 + 6; O.rinse.style.left = clamp(b.x - hostR.left, half, hostR.width - half).toFixed(0) + 'px'; O.rinse.style.top = clamp(b.y - hostR.top - 8, 150, hostR.height - 110).toFixed(0) + 'px'; }
         O.rinse.dataset.dirty = String(!!v.dirty); O.rinse.disabled = !!x.over || v.rinsing > 0; O.rinse.hidden = !!x.over;
         O.note.hidden = v.started || !!x.over; O.dark.dataset.on = String(!!v.lightsOut);
       }
       // the whole floor, the bucket and the window wall in view on a narrow phone
       const qaCam = window.__mopNightCam; if (qaCam) return { pos: qaCam.pos, look: qaCam.look, fit: [], minHorizontal: qaCam.minHorizontal || 40 }; // QA frame strips (side, 3/4)
-      return { pos: [1.65, 5.4, 3.3], look: [1.65, 0, -.55], fit: [], minHorizontal: 44 };
+      return { pos: [1.65, 4.9, 3.9], look: [1.65, .3, -.85], fit: [], minHorizontal: 44 };
     }
   };
   function register() { if (window.StoryScenes?.games && !window.StoryScenes.games.clean_gym) window.StoryScenes.games.clean_gym = game; }

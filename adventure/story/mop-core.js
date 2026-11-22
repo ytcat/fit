@@ -14,18 +14,18 @@
   const PAY = Object.freeze([0, 6, 10, 15]);
   const MOP = Object.freeze({
     missionId: 'clean_gym', metric: 'marks',
-    minX: .05, maxX: 3.25, minZ: -2.3, maxZ: 1.6, cell: .05,         // the floor between the ring corner and the bag mat
+    minX: .05, maxX: 3.25, minZ: -1.7, maxZ: 1.6, cell: .05,         // the floor between the ring corner and the bag mat
     radius: .2, core: .11,                                            // the string mop's footprint on the floor (m)
-    bucket: Object.freeze({ x: 3.62, z: 1.2, r: .36 }),                // the mop bucket at the front right, just off the floor area
-    time: 90, bonusCap: 20, rinseTime: 1.0, dry: 7,                   // seconds: the shift, the most bonus time, a rinse (+ the walk to the bucket), wet floor drying
-    speed: 3.0,                                                       // m/s: the mop head follows the finger no faster than this
+    bucket: Object.freeze({ x: 3.5, z: 1.92, r: .34 }),                // the mop bucket at the front right corner, just off the floor area
+    time: 80, bonusCap: 20, rinseTime: 1.0, dry: 7,                   // seconds: the shift, the most bonus time, a rinse (+ the walk to the bucket), wet floor drying
+    speed: 2.2,                                                       // m/s: the mop head follows the finger no faster than this (he walks after it)
     capacity: 1 / 4,                                                  // a clean mop holds about a quarter of the floor's dirt
     smearFrom: .62,                                                   // mop load where it starts to smear
     strokeLen: .7,                                                    // a long stroke (m) can count for the streak
     zones: Object.freeze([
-      Object.freeze({ id: 'ring', x0: .05, x1: 1.65, z0: -2.3, z1: -0.45 }),
-      Object.freeze({ id: 'bags', x0: 1.65, x1: 3.25, z0: -2.3, z1: -0.45 }),
-      Object.freeze({ id: 'floor', x0: .05, x1: 3.25, z0: -0.45, z1: 1.6 })
+      Object.freeze({ id: 'ring', x0: .05, x1: 1.65, z0: -1.7, z1: -0.17 }),
+      Object.freeze({ id: 'bags', x0: 1.65, x1: 3.25, z0: -1.7, z1: -0.17 }),
+      Object.freeze({ id: 'floor', x0: .05, x1: 3.25, z0: -0.17, z1: 1.6 })
     ])
   });
   const NX = Math.round((MOP.maxX - MOP.minX) / MOP.cell), NZ = Math.round((MOP.maxZ - MOP.minZ) / MOP.cell), CLEAN = .03;
@@ -42,7 +42,7 @@
     // laid out on a 4.2 x 4.0 m plan (x -0.45..3.75, z -2.2..1.8), then fitted to the floor
     const out = { push: s => { s.x = MOP.minX + (s.x + .45) * (MOP.maxX - MOP.minX) / 4.2; s.z = MOP.minZ + (s.z + 2.2) * (MOP.maxZ - MOP.minZ) / 4; if (s.drops) for (const d of s.drops) { d.x = MOP.minX + (d.x + .45) * (MOP.maxX - MOP.minX) / 4.2; d.z = MOP.minZ + (d.z + 2.2) * (MOP.maxZ - MOP.minZ) / 4; } raw.push(s); } };
     const keep = (x, z, m = .12) => x > -.45 + m && x < 3.75 - m && z > -2.2 + m && z < 1.8 - m;
-    const scuff = (x0, x1, z0, z1, n) => { for (let i = 0; i < n; i++) { const x = between(x0, x1), z = between(z0, z1), a = between(0, Math.PI), len = between(.12, .32), bend = between(-.05, .05); if (keep(x, z)) out.push({ kind: 'scuff', x, z, a, len, bend, w: between(.012, .02) }); } };
+    const scuff = (x0, x1, z0, z1, n) => { for (let i = 0; i < n; i++) { const x = between(x0, x1), z = between(z0, z1), a = between(0, Math.PI), len = between(.1, .26), bend = between(-.04, .04); if (keep(x, z)) out.push({ kind: 'scuff', x, z, a, len, bend, w: between(.008, .014) }); } };
     const chalk = (x, z, rad) => { if (keep(x, z, .05)) out.push({ kind: 'chalk', x, z, r: rad, a: between(0, Math.PI), squash: between(.55, .9), seed: Math.floor(r() * 1e9) }); };
     const sweat = (x, z, rad, n) => { const drops = []; for (let i = 0; i < n; i++) { const a = r() * Math.PI * 2, d = Math.sqrt(r()) * rad; drops.push({ x: x + Math.cos(a) * d, z: z + Math.sin(a) * d, r: between(.009, .024) }); } out.push({ kind: 'sweat', x, z, r: rad, drops }); };
     const prints = (x0, z0, x1, z1, n, bendBy) => { // a walk: left and right shoes on either side of a gently curving line
@@ -59,7 +59,7 @@
     // by the bags: chalk where the gloves were taped, the pivot scuffs of footwork round the bag, drops
     chalk(between(2.6, 3.0), between(-1.95, -1.65), between(.3, .38)); chalk(between(3.2, 3.5), between(-1.0, -.7), between(.2, .26));
     sweat(between(2.0, 2.4), between(-1.3, -.95), .2, 8);
-    for (let i = 0; i < 4; i++) { const cx = between(1.9, 3.45), cz = between(-2.0, -.6); for (let k = 0; k < 3; k++) { const a = between(0, Math.PI * 2), len = between(.1, .22); out.push({ kind: 'scuff', x: cx + Math.cos(a) * .07, z: cz + Math.sin(a) * .07, a: a + Math.PI / 2, len, bend: between(.04, .07), w: between(.012, .018) }); } }
+    for (let i = 0; i < 4; i++) { const cx = between(1.9, 3.45), cz = between(-2.0, -.6); for (let k = 0; k < 3; k++) out.push({ kind: 'scuff', arc: true, x: cx, z: cz, r: between(.06, .13), a: between(0, Math.PI * 2), span: between(.7, 1.5), len: .3, bend: 0, w: between(.008, .013) }); } // pivots: arcs round the ball of the foot
     // the middle: someone walked across in street shoes after the rain; a sweat trail from the ring to the lockers
     prints(-.25, -.15, 3.5, 1.45, 14, .35);
     sweat(between(.7, 1.1), between(.7, 1.1), .24, 10); sweat(between(2.4, 2.9), between(.05, .35), .18, 7);
@@ -99,7 +99,8 @@
         if (s.kind === 'chalk') { const u = (dx * ca + dz * sa) / s.r, v = (-dx * sa + dz * ca) / (s.r * s.squash), d = Math.hypot(u, v); c = Math.pow(clamp(1.05 - d), .6); amount = .7; tough = 1.25; }
         else if (s.kind === 'sweat') { for (const q of s.drops) c = Math.max(c, clamp(1 - (Math.hypot(x - q.x, z - q.z) - q.r) / .035)); amount = .75; tough = .85; }
         else if (s.kind === 'print') { const u = dx * ca + dz * sa, v = -dx * sa + dz * ca, sole = Math.hypot((u - .045) / .09, v / .05), heel = Math.hypot((u + .1) / .05, v / .045); c = clamp((1.25 - Math.min(sole, heel)) / .45); amount = .8 * s.fade; tough = .62; }
-        else { const hx = ca * s.len / 2, hz = sa * s.len / 2, d = segDist(x, z, s.x - hx, s.z - hz, s.x + hx, s.z + hz); c = clamp(1 - (d - s.w) / .035); amount = .9; tough = .36; }
+        else if (s.arc) { const ang = Math.atan2(dz, dx), da = Math.atan2(Math.sin(ang - s.a - s.span / 2), Math.cos(ang - s.a - s.span / 2)), on = Math.abs(da) <= s.span / 2, d = on ? Math.abs(Math.hypot(dx, dz) - s.r) : Math.min(...[s.a, s.a + s.span].map(q => Math.hypot(dx - Math.cos(q) * s.r, dz - Math.sin(q) * s.r))); c = clamp(1 - (d - s.w) / .035); amount = .85; tough = .36; }
+        else { const hx = ca * s.len / 2, hz = sa * s.len / 2, d = segDist(x, z, s.x - hx, s.z - hz, s.x + hx, s.z + hz); c = clamp(1 - (d - s.w) / .035); amount = .85; tough = .36; }
         if (c <= 0) continue;
         const k = j * NX + i; this.dirt[k] = Math.min(1, this.dirt[k] + c * amount); this.tough[k] = Math.min(this.tough[k], tough);
       }
