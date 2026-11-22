@@ -34,7 +34,7 @@ fs.mkdirSync(out, { recursive: true });
         if (done) break;
       }
     } else await p.evaluate(s => app.engine.arena.fightView.match.finish(s, 'KO', true), striker);
-    const ok = await p.evaluate(() => __until(() => { const m = app.engine.arena.fightView.match; return m.phase === 'ceremony' && !(m.finisherHold?.()); }, 6000));
+    const ok = await p.evaluate(() => __until(() => app.engine.arena.fightView.match.phase === 'ceremony', 6000));
     if (!ok) { console.log(name, 'no ceremony'); await h.close(); continue; }
     await p.evaluate(([s]) => {
       const e = app.engine, v = e.arena.fightView, R = e.renderer, render = R.render.bind(R); R.render = () => { };
@@ -47,7 +47,7 @@ fs.mkdirSync(out, { recursive: true });
         const sh = c.root.worldToLocal(j['arm' + side].getWorldPosition(new V())), el = c.root.worldToLocal(j['elbow' + side].getWorldPosition(new V())), ha = c.root.worldToLocal(wrist.clone());
         const u = ha.clone().sub(sh).normalize(), off = el.clone().sub(sh); off.sub(u.clone().multiplyScalar(off.dot(u))); off.normalize();
         const q = j['hand' + side].getWorldQuaternion(new THREE.Quaternion());
-        const r = { pt: +m.phaseTime.toFixed(3), gap: +(grip.distanceTo(wrist) * 100).toFixed(1), gripStep: prev ? +(grip.distanceTo(new V(...prev.g)) * 100).toFixed(2) : 0, wristStep: prev ? +(wrist.distanceTo(new V(...prev.w)) * 100).toFixed(2) : 0,
+        const r = { pt: +m.phaseTime.toFixed(3), hold: !!m.finisherHold?.(), gap: +(grip.distanceTo(wrist) * 100).toFixed(1), gripStep: prev ? +(grip.distanceTo(new V(...prev.g)) * 100).toFixed(2) : 0, wristStep: prev ? +(wrist.distanceTo(new V(...prev.w)) * 100).toFixed(2) : 0,
           wristJump: prev ? +(2 * Math.acos(Math.min(1, Math.abs(q.dot(new THREE.Quaternion(...prev.q))))) * 57.3).toFixed(2) : 0, elbow: { out: +(off.x * (side === 'R' ? 1 : -1)).toFixed(2), back: +(-off.z).toFixed(2), down: +(-off.y).toFixed(2) }, up: +(ha.y - sh.y).toFixed(2),
           g: grip.toArray(), w: wrist.toArray(), q: q.toArray() };
         return r;
@@ -56,7 +56,7 @@ fs.mkdirSync(out, { recursive: true });
         const cam = window.__cam || (window.__cam = new THREE.PerspectiveCamera(44, innerWidth / innerHeight, .05, 60)); cam.position.copy(sh).addScaledVector(toCam, 2.3).addScaledVector(toRef, .45).add(new V(0, .05, 0)); cam.lookAt(sh.x, sh.y + .2, sh.z); cam.updateProjectionMatrix(); return __draw(cam); };
     }, [striker]);
     const rows = []; let prev = null; const shots = TIMES.slice();
-    for (let n = 0; n < 60 * 7; n++) {
+    for (let n = 0; n < 60 * 7.5; n++) {
       const r = await p.evaluate(pr => { __tick(); return __probe(pr); }, prev); rows.push(r); prev = r;
       if (shots.length && r.pt >= shots[0]) { const t = shots.shift(), tag = `${name}-${t.toFixed(2)}`;
         const save = (f, url) => fs.writeFileSync(path.join(out, f), Buffer.from(url.split(',')[1], 'base64'));

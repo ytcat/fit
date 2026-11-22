@@ -893,7 +893,7 @@
       return reachable.distanceTo(target);
     }
 
-    orientGlove(side,turn,palmTarget) {
+    orientGlove(side,turn,palmTarget,roll=null) {
       // Mesh anatomy: -Y is wrist-to-knuckles; +Z is palm, with a mirrored thumb.
       // A direction-only quaternion leaves roll undefined (especially near 180°).
       // Build the entire anatomical frame: wrist stays collinear with forearm,
@@ -911,7 +911,10 @@
       const fallback=project(V(0,0,1));
       const safeNeutral=neutral.lengthSq()>1e-8?neutral:fallback;
       const safeDown=downward.lengthSq()>1e-8?downward:safeNeutral;
-      const angle=Math.atan2(distal.dot(safeNeutral.clone().cross(safeDown)),safeNeutral.dot(safeDown));
+      let angle=Math.atan2(distal.dot(safeNeutral.clone().cross(safeDown)),safeNeutral.dot(safeDown));
+      // arm-fixes (opt-in, story poses): roll = { L, R } keeps the angle continuous where it crosses +-180 deg (angle*turn jumped
+      // there: the glove spun over in one frame) and then eases it back to the usual branch, so the hand turns, never flips.
+      if(roll){const last=roll[side];if(Number.isFinite(last)){const raw=angle;angle=last+Math.atan2(Math.sin(raw-last),Math.cos(raw-last));angle+=clamp(raw-angle,-.04,.04);}roll[side]=angle;}
       // Uppercuts finish with the knuckles over the forearm, never with a
       // sideways-flared glove. Preserve the anatomical wrist axis and roll
       // the thumb toward the torso during the upward drive.

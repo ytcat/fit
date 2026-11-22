@@ -39,8 +39,11 @@
     carry: { h: [.31, .93, .06], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 }       // straight arm with a weight (bag handles)
   };
   const mem = new WeakMap();
-  const memo = rig => { let m = mem.get(rig); if (!m) { m = { corr: { L: null, R: null }, hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
+  const memo = rig => { let m = mem.get(rig); if (!m) { m = { corr: { L: null, R: null }, roll: { L: null, R: null }, hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
   const mirror = (a, s) => V(a[0] * s, a[1], a[2]);
+  /** Turns direction a (in place) k of the way to direction b round their common axis: a lerp of two near-opposite
+   *  directions passed through zero and the hand flipped over in one frame (155 deg at the start of the Super Punch raise). */
+  const turnTo = (a, b, k) => { const la = a.length() || 1, n = b.clone().normalize(), u = a.clone().divideScalar(la), c = clamp(u.dot(n), -1, 1); if (c > .999) return a.lerp(b, k); let ax = u.clone().cross(n); if (ax.lengthSq() < 1e-8) { ax = u.clone().cross(V(0, 1, 0)); if (ax.lengthSq() < 1e-8) ax = u.clone().cross(V(1, 0, 0)); } return a.copy(u.applyAxisAngle(ax.normalize(), Math.acos(c) * k).multiplyScalar(lerp(la, b.length(), k))); };
 
   /* The walk cycle from human gait (GOTR-0097). Phase 0 = this leg's heel strike; stance 0..DUTY, swing DUTY..1; double
    * support 0..0.12 and 0.50..0.62 (each foot is on the ground 62 % of the cycle, so one foot is always down, never airborne).
@@ -191,7 +194,7 @@
       hand.z += swing > 0 ? .21 * swing : .15 * swing; hand.y += (swing > 0 ? .055 : .015) * Math.abs(swing) + .004 * breath * idle; hand.x += s * (.012 * w) - s * .015 * Math.max(0, swing); // from the shoulder: ~22 deg forward with the elbow a little more bent, ~15 deg back
       if (name !== 'hang' && name !== 'carry' && name !== 'strap' && name !== 'hips' && name !== 'cross' && name !== 'cross2') { const beat = (st.talk || 0) * Math.sin(t * 5.3 + s); hand.y += .022 * beat; hand.z += .018 * beat; } // the hand moves with the words
       const k = st.dt > 0 && m.hand[side] ? 1 - Math.exp(-st.dt * 9) : 1;
-      m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? m.pole[side].lerp(pole, k) : pole; m.palm[side] = m.palm[side] ? m.palm[side].lerp(palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
+      m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? turnTo(m.pole[side], pole, k) : pole; m.palm[side] = m.palm[side] ? turnTo(m.palm[side], palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
       const target = m.hand[side].clone(); target.y += hips.position.y - HIP; // hands ride with the pelvis
       if (name === 'strap') { const ch = j.chest, M = new THREE.Matrix4().copy(c.root.matrixWorld).invert().multiply(ch.matrixWorld); target.copy(m.hand[side]).sub(restOf(c, ch)).applyMatrix4(M); } // the hand on the strap moves with the chest
       let aPole = m.pole[side], aPalm = m.palm[side], aTurn = m.turn[side];
@@ -199,7 +202,7 @@
         c.root.updateMatrixWorld(true); const at = typeof ro.at === 'function' ? ro.at(c) : ro.at;
         if (at) { target.lerp(V(...at), rw); if (ro.pole) aPole = aPole.clone().lerp(V(...ro.pole).normalize(), rw).normalize(); if (ro.palm) aPalm = aPalm.clone().lerp(V(...ro.palm).normalize(), rw).normalize(); if (ro.turn != null) aTurn = lerp(aTurn, ro.turn, rw); }
       }
-      let glove = null; const asked = target.clone(), cleared = {}, orient = () => (glove = c.orientGlove(side, aTurn, aPalm));
+      let glove = null; const asked = target.clone(), cleared = {}, orient = () => (glove = c.orientGlove(side, aTurn, aPalm, m.roll));
       let err = clearArm(c, side, target, aPole, name === 'strap' || !!(ro?.rest && rw > 0), orient, cleared); // the strap hand rests on the strap; the last orientation is returned
       // arm-fixes: the body clearance switches between the trunk's bones by height, so the push it gives the hand could appear
       // for a single frame (a 2.5 cm hand pop and an 8 deg shoulder jump as he stopped beside Otto's bag). The push is eased in

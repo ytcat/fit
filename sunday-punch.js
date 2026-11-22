@@ -268,7 +268,11 @@
     const st = Film.celebrate(pick.celebrate, c, pick.mirror);
     if (raise > 0) {
       const side = s.raise, k = side === 'R' ? 1 : -1, o = side === 'R' ? 'L' : 'R', r = smooth(raise);
-      st.arms[side] = 'yeah'; st.reach[side] = [k * lerp(.30, .60, r), lerp(1.62, 2.0, r), lerp(.26, .14, r)]; st.paws[side] = 'fist'; // up and out, toward the referee
+      // arm-fixes: from where the celebration had that hand (blended over ~0.4 s, it used to switch in a frame) up and out toward
+      // the referee
+      const was = st.reach[side], up = [k * lerp(.30, .56, r), lerp(1.62, 1.93, r), lerp(.26, .14, r)], b = smooth(Math.min(1, raise * 4));
+      const base = Array.isArray(was) ? was : ((window.DreamPose?.GESTURES?.[st.arms[side]] || { h: [.335, .985, .055] }).h).map((v, i) => i ? v : v * k); // the celebration's hand (its gesture's spot when it has no exact target)
+      st.arms[side] = 'yeah'; st.reach[side] = base.map((v, i) => lerp(v, up[i], b)); st.paws[side] = 'fist';
       st.arms[o] = 'fist'; st.reach[o] = [-k * .16, 1.42 + .035 * Math.sin(m.time * 7) * r, .30]; st.paws[o] = 'fist';
       st.lift = 0; st.feet = null; st.yaw *= 1 - r; st.drop *= 1 - r; st.look = { yaw: 0, pitch: .18 }; st.talk = .5 * r;
     }
@@ -326,7 +330,7 @@
     const handAt = view.cast.worldToLocal(coach.joints[s.actor === 'lion' ? 'handR' : 'handL'].getWorldPosition(V())).sub(s.corner).setY(0);
     // beside the winner across the picture (camera right/left), on the side of the arm he raises
     const camRight = V(1, 0, 0).applyQuaternion(view.engine.camera.quaternion), across = view.cast.worldToLocal(view.cast.getWorldPosition(V()).add(camRight)).sub(view.cast.worldToLocal(view.cast.getWorldPosition(V()))).setY(0).normalize();
-    if (across.dot(handAt) < 0) across.negate(); const beside = s.corner.clone().addScaledVector(across, .82);
+    if (across.dot(handAt) < 0) across.negate(); const beside = s.corner.clone().addScaledVector(across, .6); // arm-fixes: close enough to keep hold of the raised wrist (at 0.82 m his arm fell 13 cm short of the lion's)
     if (!sp.ref.cer) sp.ref.cer = ref.root.position.clone();
     const before = sp.ref.cer.clone(); sp.ref.cer.lerp(beside, .06); const step = before.distanceTo(sp.ref.cer); sp.ref.cdist = (sp.ref.cdist || 0) + step;
     ref.root.position.copy(sp.ref.cer); ref.root.position.y = 0; ref.root.rotation.set(0, Math.atan2(s.corner.x - ref.root.position.x, s.corner.z - ref.root.position.z), 0);

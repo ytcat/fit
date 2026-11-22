@@ -489,7 +489,7 @@
      const angle=Math.atan2(now.axis.dot(previous.clone().cross(now.bend)),previous.dot(now.bend));
      const pole=previous.applyAxisAngle(now.axis,clamp(angle,-dt*12,dt*12));
      coach.solve(coach.joints['arm'+side],coach.joints['elbow'+side],coach.joints['hand'+side],coach.point(coach.joints['hand'+side]),pole);
-     const i=side==='R'?1:0,glove=coach.metrics.gloves[i];coach.metrics.gloves[i]=coach.orientGlove(side,glove.turn,V(...glove.palmTarget));
+     const i=side==='R'?1:0,glove=coach.metrics.gloves[i];coach.metrics.gloves[i]=coach.orientGlove(side,glove.turn,V(...glove.palmTarget),(this.gloveRoll||(this.gloveRoll={}))[actor]||(this.gloveRoll[actor]={})); // arm-fixes: no glove flip where its roll crosses 180 deg
     }
    }
    for(const coach of Object.values(this.coaches))coach.syncSkin();
