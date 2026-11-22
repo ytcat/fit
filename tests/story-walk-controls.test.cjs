@@ -21,6 +21,24 @@ global.window=new EventTarget();window.THREE=T;global.document=new EventTarget()
 const kv=new Map();global.sessionStorage={getItem:k=>kv.get(k),setItem:(k,v)=>kv.set(k,v),removeItem:k=>kv.delete(k)};
 function fire(o,name,p={}){const e=new Event(name,{cancelable:true});Object.assign(e,p);o.dispatchEvent(e);}
 const dialog=new Node(), scene=new T.Scene(),camera=new T.PerspectiveCamera(40,402/690,.01,100),actor={x:3.5,z:5}; const api=W.open({dialog,scene,camera,actor,lang:'he',resumeKey:'test'});
+const barriers=scene.children.find(o=>o.name==='Physical pedestrian boundary (walk prototype only)');
+assert.ok(barriers?.isMesh);
+assert.equal(barriers.geometry.attributes.position.count / 3,576);
+assert.deepEqual(W.BLOCKS.map(b=>[b.x,b.z0,b.z1]),[[2.15,4.28,6.65],[24.35,4.28,6.65],[20.35,-6.12,-4.28],[28.4,-6.12,-4.28]]);
+const screenInput=(dx,dz)=>[dx*W.RIGHT[0]+dz*W.RIGHT[1],dx*W.UP[0]+dz*W.UP[1]];
+const verts=barriers.geometry.attributes.position;
+for(const [i,b] of W.BLOCKS.entries()){
+ const mid=(b.z0+b.z1)*.5, p=W.state(b.x-b.out*2,mid);
+ for(let v=i*432;v<(i+1)*432;v++)assert.ok((verts.getX(v)-b.x)*b.out>.007);
+ assert.ok(W.allowed(p.x,p.z)); assert.ok(!W.allowed(b.x+b.out*.03,mid));
+ for(let j=0;j<100;j++)W.move(p,...screenInput(b.out,0),.018);
+ assert.ok(Math.abs(p.x-b.x)<.041);
+ const edge=p.x; for(let j=0;j<100;j++)W.move(p,...screenInput(-b.out,0),.006);
+ assert.ok((p.x-edge)*b.out<-.5&&W.allowed(p.x,p.z));
+}
+let disposed=0;
+barriers.geometry.addEventListener('dispose',()=>disposed++);
+barriers.material.addEventListener('dispose',()=>disposed++);
 const [layer]=dialog.children,[pad,zoom,hud]=layer.children;
 assert.equal(layer.dir,'ltr'); assert.ok(pad.attrs['aria-label']?.length);
 fire(pad,'pointerdown',{pointerId:9,pointerType:'touch',clientX:99,clientY:213});api.frame(.02);
@@ -30,6 +48,6 @@ fire(window,'keydown',{code:'KeyD'});api.frame(.02); assert.ok(api.s.dist>d);
 fire(window,'blur');const d2=api.s.dist;api.frame(.02);assert.equal(api.s.dist,d2);
 const look=new T.Vector3();api.view(look,.02,1); assert.ok(camera.position.y>look.y);
 assert.match(hud.children[1].textContent,/^\d+ מ׳$/);
-api.close(false);assert.equal(scene.children.length,0);assert.equal(dialog.children.length,0);assert.ok(W.resumePoint('test'));
+api.close(false);assert.equal(disposed,2);assert.equal(scene.children.length,0);assert.equal(dialog.children.length,0);assert.ok(W.resumePoint('test'));
 const css=fs.readFileSync('adventure/story/dream.css','utf8');assert.match(css,/left:max\(12px,env\(safe-area-inset-left\)\)/);assert.match(css,/width:clamp\(96px,28vw,126px\)/);
 console.log('story-walk-controls: flag, city/fallback route, ring, Hebrew HUD, radial analog/cancel/multi-touch, independent zoom, keyboard/blur, camera/resume PASS (mock DOM)');
