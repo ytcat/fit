@@ -34,6 +34,8 @@ fs.mkdirSync(out, { recursive: true });
         if (done) break;
       }
     } else await p.evaluate(s => app.engine.arena.fightView.match.finish(s, 'KO', true), striker);
+    // the story goes on at ceremony 3.2 s or after 7 s of real time (adventure/oldtown.js); this QA steps slower than real time
+    await p.evaluate(() => { const t = performance.now(); performance.now = () => t; });
     const ok = await p.evaluate(() => __until(() => app.engine.arena.fightView.match.phase === 'ceremony', 6000));
     if (!ok) { console.log(name, 'no ceremony'); await h.close(); continue; }
     await p.evaluate(([s]) => {
