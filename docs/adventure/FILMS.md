@@ -34,7 +34,7 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 
 | # | Film | What it shows | State |
 |---|---|---|---|
-| F1 | Sunday Punch (finisher, GOTR-0088) | Dip, rising rear Uppercut under the chin, slow motion, Opponent lifted and falls out cold; earned at the end of Chapter 1 or bought | **Live** v1.71 |
+| F1 | Super Punch (finisher, GOTR-0088; was "Sunday Punch") | Dip, rising rear Uppercut under the chin, slow motion from the glove contact, the face squashes and the head snaps, the Opponent falls out cold, blackout with K.O., then the winner celebrates (arms up, double biceps, shuffle, chest pound, pointing at the crowd); camera choreography and celebration differ per fight (`super-punch-film.js`); ring/gym: referee or Bruno raises the hand; street, docks, basement: no referee, the crowd ends it (Fang drags himself away, the dock crowd closes in, the basement roars); earned at the end of Chapter 1 or bought | **Live** v1.71; film variants **Ready for QA** on `agent/super-punch` (pictures `qa/super-punch/`) |
 | F2 | Corner break (GOTR-0076) | Between rounds: walk to the corner, cornerman brings the stool (corner colour), towel, water bottle; stool removed at the bell | **Live** v1.67, polish v1.70 |
 | F3 | Knockout fall | Believable fall to the canvas, no floating or clipping; referee or Coach waves it off | **Live** v1.71 (with F1) |
 | F4 | Fight intro and result | Intro, VS, result ceremony with score cards only on a decision | **Live** (v1.49) |

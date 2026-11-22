@@ -4,7 +4,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 global.THREE=require('../assets/vendor/three.min.js');global.window=global;global.document={createElement:()=>({getContext:()=>new Proxy({},{get:(_,k)=>k==='createImageData'?((w,h)=>({data:new Uint8ClampedArray(w*h*4)})):()=>{}})})};
 global.EQUIPMENT_SURFACES=JSON.parse(fs.readFileSync('assets/models/equipment-surfaces-r76.json'));
-for(const f of ['boxing-routines.js','avatar-anatomy.js','avatar-detail.js','boxing-coach-v2.js','contact-response.js','training-arena.js','boxing-fight.js','fight-referee.js','fight-arena.js','ringless-venues.js','sunday-punch.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'),{filename:f});
+for(const f of ['boxing-routines.js','avatar-anatomy.js','avatar-detail.js','boxing-coach-v2.js','contact-response.js','training-arena.js','boxing-fight.js','fight-referee.js','fight-arena.js','ringless-venues.js','super-punch-film.js','sunday-punch.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'),{filename:f});
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 
 /* 1. availability */
@@ -52,7 +52,7 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  const live=()=>{globalThis.APP_VERSION={channel:'live'};},dev=()=>{globalThis.APP_VERSION={channel:'dev'};};
  live();let g=Domain.fresh(profile);assert.deepEqual(Domain.finishersOwned(g),[]);
  assert.throws(()=>Domain.action(g,{type:'finisher-buy',finisherId:'sunday_punch'}),/Not enough coins/);
- const item=Domain.finishers.find(f=>f.id==='sunday_punch');assert.ok(item.price>0&&item.name==='Sunday Punch','price shown');
+ const item=Domain.finishers.find(f=>f.id==='sunday_punch');assert.ok(item.price>0&&item.name==='Super Punch','price shown');
  g.ledger.push({id:'reward:x',type:'earn',coins:item.price+5,xp:0,species:'lion',activityId:'x',rule:'activity-v1'});g.processed.push('x');g.history.push({id:'x',transactionId:'reward:x',mode:'fight',species:'lion',control:'play',seconds:20,hits:1,attempts:1,defences:0,jumps:0,result:'win',xp:0,coins:item.price+5});
  const r=Domain.action(g,{type:'finisher-buy',finisherId:'sunday_punch'});assert.equal(r.free,false);assert.equal(Domain.wallet(g).coins,5);assert.deepEqual(Domain.finishersOwned(g),['sunday_punch']);
  assert.throws(()=>Domain.action(g,{type:'finisher-buy',finisherId:'sunday_punch'}),/Already owned/);
@@ -68,7 +68,7 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  // Shop card: price, buy action, owned state
  const Shop=require('../game-shell.js');assert.equal(Shop.kind(item),'finisher');assert.deepEqual(Shop.buy(item),{type:'finisher-buy',finisherId:'sunday_punch'});
  assert.equal(Shop.state(item,Domain.fresh(profile),item.price),'price');assert.equal(Shop.state(item,Domain.fresh(profile),0),'short');assert.equal(Shop.state(item,g,0),'equipped');assert.equal(Shop.wear(item,g),null);
- assert.ok(require('../glossary.js').terms.includes('Sunday Punch'),'a move name: Latin in every language');
+ assert.ok(require('../glossary.js').terms.includes('Super Punch'),'a move name: Latin in every language');
  console.log('PASS ownership: Shop (price, free in dev) or story step',item.earn,'; saved in the ledger; old saves load');
 }
 
@@ -94,19 +94,24 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
   assert.equal(m.result.method,'KO');assert.equal(m.result.winner,striker);assert.equal(m.result.finisher,'sunday_punch');assert.ok(m.fighters[fallen].condition<=0);
   assert.ok(!m.events.some(e=>e.type==='knockdown'),'no count');
   assert.ok(m.finisherHold()&&m.snapshot().finisher.hold,'the result waits while the knockout plays');const phaseTime=m.phaseTime;
-  const c=v.coaches[fallen],start=c.root.position.clone();let peakLift=0,minDuring=Infinity;
-  while(m.time-m.result.finisherTime<4.2){v.step();const u=m.time-m.result.finisherTime;
+  const c=v.coaches[fallen],start=c.root.position.clone();let peakLift=0,minDuring=Infinity,rest=null;
+  // the whole film: punch, fall, blackout and celebration (Super Punch, super-punch-film.js FILM.hold) before the result goes on
+  while(m.time-m.result.finisherTime<SuperPunchFilm.FILM.hold+.3){v.step();const u=m.time-m.result.finisherTime;
    if(u<.24)peakLift=Math.max(peakLift,Math.min(c.joints.footL.getWorldPosition(V()).y,c.joints.footR.getWorldPosition(V()).y));
    if(Math.round(u*60)%9===0){minDuring=Math.min(minDuring,skinLow(c));for(const r of Object.values(v.coaches))assert.equal(r.root.scale.x,1);}
+   // at rest on the canvas after the settle (before a street ending lets him come to: FILM.wake)
+   if(!rest&&u>=2.9)rest={root:c.root.position.clone().setY(0),pelvis:c.joints.hips.getWorldPosition(V()).y,head:c.joints.head.getWorldPosition(V()).y,low:skinLow(c),chest:c.joints.chest.getWorldPosition(V()).y};
   }
+  assert.ok(2.9<SuperPunchFilm.FILM.wake,'rest measured before he comes to');
   assert.ok(!m.finisherHold()&&m.phaseTime>0&&phaseTime<.05,'the phase clock waited, then the result went on');
-  const pelvis=c.joints.hips.getWorldPosition(V()).y,head=c.joints.head.getWorldPosition(V()).y,low=skinLow(c),chest=c.joints.chest.getWorldPosition(V()).y;
-  console.log(species,venue||'ring','fallen',fallen,{pelvis:+pelvis.toFixed(3),chest:+chest.toFixed(3),head:+head.toFixed(3),skinLow:+low.toFixed(3),minDuringFall:+minDuring.toFixed(3),feetOffCanvas:+peakLift.toFixed(3),travel:+start.distanceTo(c.root.position).toFixed(2)});
+  const {pelvis,head,low,chest}=rest;
+  console.log(species,venue||'ring','fallen',fallen,{pelvis:+pelvis.toFixed(3),chest:+chest.toFixed(3),head:+head.toFixed(3),skinLow:+low.toFixed(3),minDuringFallAndEnding:+minDuring.toFixed(3),feetOffCanvas:+peakLift.toFixed(3),travel:+start.distanceTo(c.root.position).toFixed(2)});
   assert.ok(pelvis>.05&&pelvis<.30,'pelvis rests low, on the canvas');assert.ok(head>.05&&head<.36,'head down on the canvas');assert.ok(Math.abs(pelvis-head)<.2,'lying flat');
   assert.ok(low>=-.006,'no part sinks through the canvas');assert.ok(low<=.02,'not hovering: the body touches the canvas');assert.ok(minDuring>=-.03,'no sinking while falling');
   assert.ok(peakLift>.17,'the feet leave the canvas briefly (ankles above their standing height)');
-  // still lying through the ceremony
-  for(let i=0;i<120;i++)v.step();assert.ok(c.joints.hips.getWorldPosition(V()).y<.31,'stays down');
+  // still down through the ceremony (on the street he comes to and drags himself away on his elbows, the pelvis on the ground)
+  for(let i=0;i<120;i++){v.step();if(i%20===0)assert.ok(skinLow(c)>=-.01,'nothing through the canvas while he comes to');}assert.ok(c.joints.hips.getWorldPosition(V()).y<.31,'stays down');
+  if(venue==='street'){const h=c.joints.head.getWorldPosition(V()).y;assert.ok(v.sundayPunch.film.ending.fallen==='crawl'&&h>.4,'street: up on his elbows');const moved=rest.root.distanceTo(c.root.position.clone().setY(0)),max=v.sundayPunch.fall.maxDrag;console.log('street crawl',{moved:+moved.toFixed(2),max:+max.toFixed(2),head:+h.toFixed(2)});assert.ok(max>.2&&moved>Math.min(.3,max)*.9,'street: drags himself away, head first, short of the people');}
   const ends=[...Object.values(v.coaches)];arena.setTarget('none');for(const r of ends)assert.equal(r.root.scale.x,-1,'root scale restored (-1) when the bout view goes');
   checked++;
  }

@@ -18,12 +18,12 @@
  // multiplier: faster gloves score through the normal contact solver, and the burst ends in a committed
  // recovery step during which the fighter cannot defend and the opponent does not pause to reset.
  const burst={sequence:[['jab','head'],['cross','head'],['hook','body'],['rear_uppercut','head'],['hook','head']],tempo:.76,perSecond:.11,hit:.25,defence:.17,recover:.7,stamina:.08,durations:{jab:.64,cross:.70,hook:.78,rear_hook:.78,uppercut:.84,rear_uppercut:.84}};
- // GOTR-0088 Finisher "Sunday Punch": one dipping, rising rear Uppercut under the chin, available when the Opponent is hurt
+ // GOTR-0088 Finisher "Super Punch" (id sunday_punch): one dipping, rising rear Uppercut under the chin, available when the Opponent is hurt
  // (health under `hurt`) AND the fighter's Burst meter is full. Pressing it spends the whole Burst at once (a miss or a block
  // wastes it). A clean head contact knocks the Opponent out cold: KO, no count. Owned per actor (options.finishers), so a
  // boss can be given its own finisher later through the same requestFinisher(actor) hook. `hold` = game seconds the result
- // waits (phase clock frozen) after the knockout so the fall plays out before the cards/ceremony; `duration` = the move.
- const finishers={sunday_punch:{id:'sunday_punch',move:'rear_uppercut',target:'head',hurt:25,duration:1.32,hold:3.0,stamina:.10,read:.30,opening:.75}};
+ // waits (phase clock frozen) after the knockout so the knockout film plays out before the cards/ceremony (= super-punch-film.js FILM.hold: punch, fall, blackout, celebration); `duration` = the move.
+ const finishers={sunday_punch:{id:'sunday_punch',move:'rear_uppercut',target:'head',hurt:25,duration:1.32,hold:5.3,stamina:.10,read:.30,opening:.75}};
  const presets={three:{rounds:3,roundSeconds:20,restSeconds:20},club:{rounds:2,roundSeconds:20,restSeconds:20},six:{rounds:1,roundSeconds:40,restSeconds:10},title:{rounds:1,roundSeconds:60,restSeconds:10},exhibition:{rounds:2,roundSeconds:20,restSeconds:20},quick:{rounds:1,roundSeconds:20,restSeconds:0}};
  class BoxingFight {
   constructor({seed=1,preset='club',rounds,roundSeconds,restSeconds,careerStats,careerActor,adventureEdge,finishers:owned}={}){
