@@ -63,8 +63,11 @@
 
   // ---- material families: one environment is one light, so most families take it at 1; metals lean in a little (their
   // only light is the reflection), fur and skin slightly less (no oily sheen on a coat).
+  const lum = c => .2126 * c.r + .7152 * c.g + .0722 * c.b;
   function family(m) {
     if (m.metalness >= .45) return 1.15;
+    // wet dark leather (noses, lips): its sharp highlights stay, the blurred room in it would read as grey plastic
+    if (m.isMeshPhysicalMaterial && m.clearcoat > 0 && m.color && lum(m.color) < .13 && !m.map) return .5;
     if (m.vertexColors && m.roughness >= .85) return .92; // fur / painted skin streams
     return 1;
   }
@@ -90,8 +93,8 @@
     const centre = V(...(spec.room?.centre || [0, 1.5, 0]));
     if (spec.room) { // the room round the horizon carries the hemisphere's energy in the room's own colours: walls between sky and
       // ground, the floor at the ground's level, the ceiling a little under the sky's; a darker dado band
-      const r = spec.room, tint = h => { const c = lin(h), l = .2126 * c.r + .7152 * c.g + .0722 * c.b; return c.multiplyScalar(1 / Math.max(.02, l)); };
-      const mid = new THREE.Color().copy(spec.sky).lerp(spec.ground, .5), lum = c => .2126 * c.r + .7152 * c.g + .0722 * c.b;
+      const r = spec.room, tint = h => { const c = lin(h), l = lum(c); return c.multiplyScalar(1 / Math.max(.02, l)).lerp(new THREE.Color(1, 1, 1), .5); }; // half the room's hue: bounce, not paint
+      const mid = new THREE.Color().copy(spec.sky).lerp(spec.ground, .5);
       const wallC = tint(r.walls).multiplyScalar(lum(mid) * (r.wall ?? 1)), floorC = tint(r.floor).multiplyScalar(lum(spec.ground) * (r.floorGain ?? 1)), ceilC = tint(r.ceil).multiplyScalar(lum(spec.sky) * (r.ceilGain ?? .7));
       const ring = new THREE.Mesh(new THREE.CylinderGeometry(R * .6, R * .6, R * .55, 24, 1, true), basic(wallC)); ring.position.y = R * .12; s.add(ring); disposables.push(ring.geometry);
       if (r.dado) { const d = new THREE.Mesh(new THREE.CylinderGeometry(R * .59, R * .59, R * .1, 24, 1, true), basic(tint(r.dado).multiplyScalar(lum(mid) * .6))); d.position.y = -R * .1; s.add(d); disposables.push(d.geometry); }
@@ -226,9 +229,11 @@
       return pool[i];
     }
     const fa = V(), fb = V(), rp = V();
-    function feet() { // contact shadows when there is no shadow pass: one soft ellipse under each foot and one under the body
-      let n = 0; const shadowless = !e.renderer.shadowMap.enabled && !e.lookOff; // lookOff: QA switch (before / after in one page)
-      const view = e.arena?.fightView, rigs = view?.coaches ? [...new Set(Object.values(view.coaches))] : e.activeModel === e.coach?.root ? [e.coach] : [];
+    function feet() { // contact shadows where no real shadow falls: one soft ellipse under each foot and one under the body
+      const view = e.arena?.fightView;
+      // no shadow pass, or a built ringless venue (street, basement, docks): its floor is baked (unlit), it takes no shadow
+      let n = 0; const shadowless = (!e.renderer.shadowMap.enabled || !!view?.ringless) && !e.lookOff; // lookOff: QA switch (before / after in one page)
+      const rigs = view?.coaches ? [...new Set(Object.values(view.coaches))] : e.activeModel === e.coach?.root ? [e.coach] : [];
       if (view?.referee?.root?.visible && view.referee.joints) rigs.push(view.referee);
       if (shadowless) for (const c of rigs) {
         if (!c?.root?.visible || !c.joints?.footL || !c.joints?.footR) continue;
@@ -248,11 +253,10 @@
       if (c.left !== want.l || c.right !== want.r || c.top !== want.t || c.bottom !== want.b) { c.left = want.l; c.right = want.r; c.top = want.t; c.bottom = want.b; c.updateProjectionMatrix(); }
     }
     const before = e.scene.onBeforeRender, own = Object.prototype.hasOwnProperty.call(e.scene, 'onBeforeRender');
-    let frame = 0;
     const hook = function (...a) {
       before.apply(this, a);
       const fight = !!e.arena?.fightView;
-      if (++frame % 20 === 1) {
+      { // every frame: a children scan of the arena group and two comparisons
         const v = venueId(), want = v ? (LOOKS[v] ? v : 'hall') : 'hall';
         if (want !== lookId) { lookId = want; const hi = handle ? handle.isHigh : (e.qualityLevel ?? 3) > 0; handle?.dispose(); handle = attach(e.scene, e.renderer, { look: want, high: false, noHook: true }); if (handle && hi) requestAnimationFrame(() => handle?.high(true)); }
         const hi = (e.qualityLevel ?? 3) > 0 && !e.lookOff; if (handle && hi !== handle.isHigh) requestAnimationFrame(() => handle?.high(hi));
