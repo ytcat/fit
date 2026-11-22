@@ -13,7 +13,7 @@ Branch `agent/super-punch` (from v1.87 `37247bc`). Not merged, no version bump (
 - `node tests/sunday-punch.test.cjs` PASS (hold loop now `FILM.hold`, rest measured before the street wake-up, street crawl asserted).
 - `node tests/super-punch-film.test.cjs` (new) PASS: variants per seed/venue, no repeat of the last film, endings (no referee / no raise in every ringless venue), timing, celebrations clear of torso and head on lion and rabbit rigs, ring raise (hand 2.0 m) and docks crowd closing in without a referee.
 - `offline-version-match`, `arena-sets`, `ringless-venues`, `fighter-pad`, `game-domain`, `story-flow`, `adventure-oldtown`, `impact-power`, `arena-crowd` PASS.
-- `bash scripts/run-tests.sh -j 2 sunday fight ringless story gym`: see the final report (earlier run 34 files, 1 fail = `story-clean-gym`, a browser tap timeout under load, unrelated).
+- `bash scripts/run-tests.sh -j 2 sunday fight ringless story gym` on the final tree: 34 files, 1 fail = `tests/story-clean-gym.test.cjs` (a browser tap timeout on the welcome dialog under machine load, known flaky); rerun alone it PASSES. So 34/34 pass.
 
 ## Pictures (Chromium + SwiftShader, 402x690; `node qa/super-punch/film.cjs [outDir] [cases]`)
 `qa/super-punch/ring-shoulder_push-arms_up.webp`, `ring-low_orbit-double_biceps.webp`, `ring-rabbit-front_low-point_crowd.webp`, `gym-bruno-side_track-chest_pound.webp`, `street-fang-side_track-point_crowd.webp`, `street-low_orbit-arms_up.webp`, `docks-rourke-overhead_drop-chest_pound.webp`, `basement-front_low-shuffle.webp`, `face-impact.webp`. Each sheet: dip, contact, slow motion, fall, down, blackout, three celebration frames, ending.
