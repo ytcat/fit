@@ -80,7 +80,7 @@
   function squash(u) {
     if (!(u >= 0) || u > .45) return 0;
     const inn = smooth(u / .018), decay = Math.exp(-u / .085);
-    return .034 * inn * decay * (Math.cos(u * Math.PI * 2 * 6.5) * .75 + .25);
+    return .046 * inn * decay * (Math.cos(u * Math.PI * 2 * 6.5) * .75 + .25);
   }
 
   /* ---------- camera choreographies ----------
@@ -92,7 +92,7 @@
   const SHOTS = {
     side_track: (f, u) => ({ az: u == null ? -.14 : lerp(-.14, .10, smooth(u / .9)), h: u == null ? .62 : lerp(.62, 1.40, smooth((u - .7) / 1.1)), tight: tightIn(f, u) * .8, dk: 1 }),
     low_orbit: (f, u) => ({ az: f < 0 ? -.55 : lerp(-.55, .95, smooth(f / 2.6)), h: u == null || u < .55 ? .36 : lerp(.36, 1.15, smooth((u - .55) / 1.0)), tight: tightIn(f, u) * .65, dk: 1 }),
-    shoulder_push: (f, u) => ({ az: f < 0 ? 1.15 : lerp(1.15, .55, smooth((f - 1.9) / 1.2)), h: u == null || u < .4 ? 1.62 : lerp(1.62, 1.95, smooth((u - .4) / .9)), tight: tightIn(f, u), dk: f < 0 ? 1.12 : lerp(1.12, .78, smooth(f / 1.7)) + .3 * smooth((f - 1.8) / 1.0) }),
+    shoulder_push: (f, u) => ({ az: f < 0 ? .80 : lerp(.80, .45, smooth((f - 1.9) / 1.2)), h: u == null || u < .4 ? 1.92 : lerp(1.92, 2.15, smooth((u - .4) / .9)), tight: tightIn(f, u), dk: f < 0 ? 1.35 : lerp(1.35, 1.0, smooth(f / 1.7)) + .3 * smooth((f - 1.8) / 1.0) }),
     overhead_drop: (f, u) => { const up = u == null ? 0 : smooth((u - .3) / .9); return { az: lerp(.25, .55, up), h: null, el: lerp(-.04, 1.18, up), tight: tightIn(f, u) * (1 - up), dk: 1 }; },
     front_low: (f, u) => ({ az: f < 0 ? .62 : lerp(.62, .30, smooth((f - 1.6) / 1.4)), h: u == null || u < .5 ? .46 : lerp(.46, 1.25, smooth((u - .5) / 1.1)), tight: tightIn(f, u) * .9, dk: .95 })
   };
@@ -103,7 +103,7 @@
   const pulse = (c, at, len) => { const k = (c - at) / len; return k > 0 && k < 1 ? Math.sin(Math.PI * k) : 0; };
   // Extra arm shapes for the IK (elbow pole and palm per gesture), registered with DreamPose (only names that are not there yet).
   const GESTURES = {
-    yeah: { h: [.30, 2.08, .12], pole: [1, -.2, -.45], palm: [0, 0, 1], turn: .5 },     // fist over the head
+    yeah: { h: [.60, 2.00, .16], pole: [1, -.15, -.3], palm: [0, 0, 1], turn: .5 },     // fist thrown up and out: the arms make a V (a straight arm clears the mane)
     flex: { h: [.42, 1.70, .02], pole: [1, -.25, -.35], palm: [-1, 0, 0], turn: .7 },   // double biceps: elbow out at the shoulder
     pump: { h: [.20, 1.45, .32], pole: [.8, -.6, -.2], palm: [0, 0, -1], turn: .6 },     // fists pumping at the chest (the shuffle)
     sky: { h: [.40, 2.02, .45], pole: [.9, -.3, -.4], palm: [0, -1, 0], turn: .4 }      // arm up and out: pointing at the crowd
@@ -117,7 +117,7 @@
     const rise = smooth(c / .35);
     if (name === 'arms_up') { // "yeah!": both fists thrown up, two hops, fists shaking, shouting at the sky
       const cyc = c % 2.4, hop = c < 1.2 ? pulse(c, .30, .40) + pulse(c, .78, .40) : 0, shake = .028 * Math.sin(c * 15) * rise;
-      for (const s of ['L', 'R']) set(s, 'yeah', P(lerp(.22, .30, rise), lerp(1.42, 2.08, rise) + shake * (s === 'R' ? 1 : -1), lerp(.30, .10, rise)));
+      for (const s of ['L', 'R']) set(s, 'yeah', P(lerp(.22, .60, rise), lerp(1.42, 2.00, rise) + shake * (s === 'R' ? 1 : -1), lerp(.30, .16, rise)));
       st.lift = .075 * hop; st.drop = .05 * (pulse(c, .18, .22) + pulse(c, .66, .22) + pulse(c, 1.10, .2)); st.look.pitch = .38 * rise; st.talk = .85 * pulse(cyc, .2, 1.6) + .3 * pulse(cyc, 1.9, .4); st.lean = -.04 * rise;
     } else if (name === 'double_biceps') { // both arms up and bent, fists by the ears, squeezing; chest out, a roar
       const sq = c > .45 ? .5 + .5 * Math.sin((c - .45) * 7.5) : 0;
@@ -128,7 +128,7 @@
       st.feet = { L: [-.13, .025 * Math.max(0, Math.cos(c * w)) * k, .11 * s1 * k], R: [.13, .025 * Math.max(0, -Math.cos(c * w)) * k, -.11 * s1 * k] };
       st.drop = (.05 + .02 * Math.abs(s1)) * k; st.yaw = .16 * Math.sin(c * w / 2) * k; st.look.pitch = .08;
       set('L', 'pump', P(.20, 1.45 + .07 * s1 * k, .32)); set('R', 'pump', P(.20, 1.45 - .07 * s1 * k, .32));
-      if (c > 1.5) { const up = smooth((c - 1.5) / .3); set(A, 'yeah', P(lerp(.20, .30, up), lerp(1.45, 2.06, up), lerp(.32, .12, up))); st.talk = .7 * up; }
+      if (c > 1.5) { const up = smooth((c - 1.5) / .3); set(A, 'yeah', P(lerp(.20, .60, up), lerp(1.45, 2.00, up), lerp(.32, .16, up))); st.talk = .7 * up; }
     } else if (name === 'chest_pound') { // fist into the chest three times, then both arms spread wide with a roar
       const beats = [.30, .74, 1.18], hit = beats.reduce((a, b, i) => Math.max(a, (i % 2 ? 0 : 1) * pulse(c, b - .16, .3)), 0), hit2 = pulse(c, beats[1] - .16, .3);
       const fist = (amt) => P(lerp(.24, .10, amt), lerp(1.52, 1.43, amt), lerp(.50, .27, amt));

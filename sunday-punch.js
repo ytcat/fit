@@ -217,8 +217,10 @@
       spot: W, camDir, celebYaw: Math.atan2(camDir.x, camDir.z), raise: striker === 'lion' ? 'R' : 'L' };
     delete sp.striker.options.hitReaction; delete sp.striker.options.plantedContacts; delete sp.striker.options.contactReturn; delete sp.striker.options.ringStep; delete sp.striker.options.blockCover;
     if (sp.striker.options.uppercutBagTarget) { const t = sp.striker.options.uppercutBagTarget.slice(); t[1] += .34; t[2] += .06; sp.striker.options.uppercutBagTarget = t; }
-    // the referee (or Bruno) during the celebration: by the fallen fighter's head, on the winner's side of the body
-    const by = rest.clone().addScaledVector(along, 1.6).addScaledVector(across, spot.k * .85); by.x = clamp(by.x, -1.4, 1.4); by.z = clamp(by.z, -1.4, 1.4); by.y = 0;
+    // the referee (or Bruno) during the celebration: a step behind the winner and to one side (never between the lens and him),
+    // on the side nearer the middle of the ring
+    const lateral = V(-camDir.z, 0, camDir.x), byAt = k => W.clone().addScaledVector(camDir, -.55).addScaledVector(lateral, k * 1.0);
+    const by = [byAt(1), byAt(-1)].sort((a, b) => Math.max(Math.abs(a.x), Math.abs(a.z)) - Math.max(Math.abs(b.x), Math.abs(b.z)))[0]; by.x = clamp(by.x, -1.4, 1.4); by.z = clamp(by.z, -1.4, 1.4); by.y = 0;
     sp.ref = { start: view.referee.root.position.clone(), yaw: view.referee.root.rotation.y, by };
     calibrate(view, fallen);
     sp.begun = true; sp.fallen = fallen;
@@ -258,7 +260,7 @@
     const st = Film.celebrate(pick.celebrate, c, pick.mirror);
     if (raise > 0) {
       const side = s.raise, k = side === 'R' ? 1 : -1, o = side === 'R' ? 'L' : 'R', r = smooth(raise);
-      st.arms[side] = 'yeah'; st.reach[side] = [k * .26, lerp(1.62, 2.04, r), lerp(.26, .10, r)]; st.paws[side] = 'fist';
+      st.arms[side] = 'yeah'; st.reach[side] = [k * lerp(.30, .60, r), lerp(1.62, 2.0, r), lerp(.26, .14, r)]; st.paws[side] = 'fist'; // up and out, toward the referee
       st.arms[o] = 'fist'; st.reach[o] = [-k * .16, 1.42 + .035 * Math.sin(m.time * 7) * r, .30]; st.paws[o] = 'fist';
       st.lift = 0; st.feet = null; st.yaw *= 1 - r; st.drop *= 1 - r; st.look = { yaw: 0, pitch: .18 }; st.talk = .5 * r;
     }
@@ -274,7 +276,7 @@
   }
   function refereePose(view, u) {
     const sp = view.sundayPunch, ref = view.referee, root = ref.root, m = view.match, fallen = view.coaches[sp.fallen];
-    if (!root.visible && !ref.isBruno) return; // ringless venues (GOTR-0065): no referee, nobody counts or waves
+    if (!root.visible && !ref.isBruno && !sp.refHidden) return; // ringless venues (GOTR-0065): no referee, nobody counts or waves
     const chest = view.cast.worldToLocal(fallen.joints.chest.getWorldPosition(V())); chest.y = 0;
     if (u >= T.celebrate) { // after the blackout: by the fallen fighter's head, watching him, while the winner celebrates
       const by = sp.ref.by, lookAt = fallen.joints.head.getWorldPosition(V()); root.position.copy(by); root.rotation.set(0, Math.atan2(chest.x - by.x, chest.z - by.z), 0);
@@ -306,7 +308,7 @@
   // After the knockout has played out: the fallen fighter stays down (or drags himself away on the street); in the ring and the
   // gym the referee / Bruno walks to the winner and raises his arm; in ringless venues nobody does and he keeps celebrating.
   function ceremonyPose(view, metrics, u) {
-    const sp = view.sundayPunch, m = view.match, s = sp.striker, coach = view.coaches[s.actor], ref = view.referee, judged = sp.film.ending.raise && (ref.root.visible || ref.isBruno);
+    const sp = view.sundayPunch, m = view.match, s = sp.striker, coach = view.coaches[s.actor], ref = view.referee, judged = sp.film.ending.raise && (ref.root.visible || ref.isBruno || sp.refHidden);
     const reveal = m.phase === 'ceremony', raise = judged && reveal ? clamp((m.phaseTime - .4) / 1.5) : 0;
     const dt = s.lastT != null ? Math.max(0, m.time - s.lastT) : 0; s.lastT = m.time;
     celebratePose(view, Math.max(u, T.celebrate), metrics, dt, raise);
@@ -406,6 +408,16 @@
     cam.position.copy(position); cam.zoom = 1; cam.up.set(0, 1, 0); cam.lookAt(sp.cam.c); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
     const grid = []; for (let i = 0; i <= 4; i++) for (let j = 0; j <= 4; j++) grid.push(c0.clone().addScaledVector(right, lerp(minX, maxX, i / 4)).addScaledVector(camUp, lerp(minY, maxY, j / 4)));
     clearView(view, position, grid.concat([fc.joints.head, fc.joints.hips, sc.joints.head, sc.joints.handR].map(b => b.getWorldPosition(V()))));
+    refereeClear(view, position, celebrating ? [] : [fc.joints.head, fc.joints.chest, sc.joints.handR, fc.joints.hips].map(b => b.getWorldPosition(V())));
+  }
+  // The referee (or Bruno) walking over must not fill the lens during the punch and the fall: while he stands between the lens
+  // and the fighters (a 0.35 m column, 2.1 m tall) he is left out of the picture; he is always back for the celebration.
+  function refereeClear(view, eye, targets) {
+    const ref = view.referee, sp = view.sundayPunch; if (!ref?.root || view.ringless) return;
+    const p = ref.root.getWorldPosition(V()), fwd = V(0, 0, -1).applyQuaternion(view.engine.camera.quaternion), near = Math.hypot(eye.x - p.x, eye.z - p.z);
+    let block = near < .55 || targets.length > 0 && near < 1.5 && fwd.dot(p.clone().setY(eye.y).sub(eye)) > 0; // right in front of the lens: he would fill a third of the picture
+    for (const t of targets) { if (block) break; const dx = t.x - eye.x, dz = t.z - eye.z, len2 = dx * dx + dz * dz; if (len2 < 1e-6) continue; const k = clamp(((p.x - eye.x) * dx + (p.z - eye.z) * dz) / len2), x = eye.x + dx * k, z = eye.z + dz * k, y = lerp(eye.y, t.y, k); if (k > .02 && k < .97 && Math.hypot(p.x - x, p.z - z) < .35 && y < 2.1) block = true; }
+    if (block) { if (ref.root.visible) { ref.root.visible = false; sp.refHidden = true; } } else if (sp.refHidden) { ref.root.visible = true; sp.refHidden = false; }
   }
   // This fight's film (camera, celebration, ending), chosen once per bout view from the fight itself (super-punch-film.js choose).
   function filmFor(view, striker) {
@@ -445,6 +457,7 @@
     for (const part of sp.hidden || []) part.visible = true; sp.hidden?.clear();
     const rf = view.referee?.sundayFeet; if (rf) for (const f of rf) f.o.position.copy(f.p); if (view.referee?.root && !view.referee.isBruno) view.referee.root.rotation.z = 0;
     sp.axis = null; sp.cam = null; sp.filmT = 0; sp.celebCut = false; sp.ceiling = undefined; // a later finisher in this bout frames afresh
+    if (sp.refHidden && view.referee?.root) { view.referee.root.visible = true; sp.refHidden = false; }
     if (view.engine.impactFx) view.engine.impactFx.slowmo = 1;
     filmOverlay(view, null);
   }
