@@ -102,7 +102,7 @@
   // Chapter data (GOTR-0058): venue, map pin, boss and the boss's look/strength. Chapter 2: Market Row, the Street arena, King Hyena.
   const CH = { 1: { venue: 'default', pin: 'oldtown', boss: 'brick' }, 2: { venue: 'street', pin: 'market', boss: 'king_hyena' } };
   const BOSS = {
-    brick: { chapter: 1, name: L('Brick', 'בריק', 'Брик'), power: 1.08, tempo: 1.03, skill: .04 },
+    brick: { chapter: 1, name: L('Brick', 'בריק', 'Брик'), power: 1.08, tempo: 1.03, skill: .04, place: 'gym_ring' }, // fight night in Bruno's Gym (gym-fight.js ring mode)
     king_hyena: { chapter: 2, name: L('King Hyena', 'מלך הצבועים', 'Король гиен'), power: 1.14, tempo: 1.08, skill: .07 }
   };
   const chapterOfId = id => A().missions.find(m => m.id === id)?.chapter || BOSS[id]?.chapter || 1;
@@ -155,7 +155,7 @@
   function hook() {
     const e = window.app?.engine; if (hooked || !e?.career || !e.onImpact) return;
     hooked = true;
-    const prevImpact = e.onImpact; e.onImpact = function (hit) { prevImpact?.call(this, hit); if (run && !run.ended) try { DEFS[run.id].imp?.(run, hit); paintStrip(); } catch (x) { console.warn('adventure', x); } };
+    const prevImpact = e.onImpact; e.onImpact = function (hit) { prevImpact?.call(this, hit); if (run && !run.ended) try { DEFS[run.id]?.imp?.(run, hit); paintStrip(); } catch (x) { console.warn('adventure', x); } };
     const c = e.career, prevFrame = c.onFrame; c.onFrame = function (frame, dt) {
       const out = prevFrame.call(this, frame, dt); watchNext();
       if (run && !run.ended) try { tickRun(frame, dt); } catch (x) { console.warn('adventure', x); }
@@ -497,7 +497,7 @@
     cleanup(); run = { id: bossId, def: { kind: 'boss' }, ctx, ended: false, mission: { titles: b.names, metric: 'wins' }, value: 0, target: 1 };
     hook(); ctx.change({ type: 'venue', venueId: CH[cfg.chapter].venue });
     if (bossId === 'brick') castBrick(run);
-    ctx.startFight({ preset: 'quick', rounds: 2, roundSeconds: 30, restSeconds: 8 });
+    ctx.startFight({ preset: 'quick', rounds: 2, roundSeconds: 30, restSeconds: 8, ...(cfg.place ? { place: cfg.place } : {}) });
     const view = e.arena?.fightView; if (!view) { restoreCast(run); run = null; return; }
     run.view = view; view.storyFight = true; const entry = view.careerEntry, m = view.match, foe = m.fighters[entry.species === 'lion' ? 'rabbit' : 'lion'];
     if (entry) entry.opponentName = cfg.name[lang()];

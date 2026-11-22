@@ -4,20 +4,40 @@
  * this file only swaps what is seen around the two fighters.
  *
  * fight-arena.js calls StoryGymFight.install(view) when the fight was started with { place: 'gym' } (e.fightOptions.place).
+ * Ring mode (install(view, 'ring'), { place: 'gym_ring' }): the Chapter 1 rematch on fight night (docs/adventure/FILMS.md film 12).
+ * The game's own ring stays (posts, ropes, canvas: the bout's corners and break work as in any ring); Bruno's Gym is built round
+ * it without its practice ring, the room's floor at the foot of the ring platform; Bruno referees from inside the ropes; Mrs. Hazel,
+ * Otto and Mack watch from ringside and cheer.
  * Everything is undone when the view is disposed: the rhino referee goes back (and is disposed by the view as usual),
  * Bruno's cached rig is detached untouched, the gym set is disposed. */
 (() => {
   const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
-  const CENTRE = [1.5, 2.0]; // where the mat lies in the gym set (dream-sets.js, 'dream_gym_floor')
-  function install(view) {
-    const e = view.engine, arena = view.arena, Cast = window.StoryCast, Pose = window.DreamPose, Sets = window.StorySets;
+  const CENTRE = [1.5, 2.0]; // where the mat lies in the gym set (dream-sets.js, 'dream_gym_floor'); the ring stands on the same spot
+  const RING_FLOOR = -.31;    // the foot of the game's ring platform (fight-arena.js apron): the gym floor in ring mode
+  // the neighbours at ringside (arena coordinates, the ring at the origin), behind the ring as the bout's camera usually sees it
+  const WATCHERS = [{ id: 'hazel', x: -3.0, z: -3.4 }, { id: 'pip', x: .3, z: -4.2 }, { id: 'otto', x: 3.25, z: -3.2 }]; // outside the intro fly-around
+  function install(view, mode = 'floor') {
+    const e = view.engine, arena = view.arena, Cast = window.StoryCast, Pose = window.DreamPose, Sets = window.StorySets, ring = mode === 'ring';
     if (!Cast || !Pose || !Sets || view.gymFight) return false;
     const bruno = Cast.rig('bruno', e); if (!bruno) return false;
-    const rhino = view.referee, st = { set: null, gone: false, last: null, hidden: [] };
+    const rhino = view.referee, st = { set: null, gone: false, last: null, hidden: [], ring, watchers: [] };
     view.gymFight = st;
     rhino.root.visible = false;
     bruno.root.parent?.remove(bruno.root); bruno.root.scale.set(1, 1, 1); bruno.root.visible = true; view.cast.add(bruno.root); Pose.reset(bruno); // scale 1 inside the mirrored cast, like the fighters
-    const hide = () => { if (view.ring) view.ring.visible = false; if (view.audience?.root) view.audience.root.visible = false; if (e.world?.arena) e.world.arena.visible = false; }; // the club arena's stands and seats too
+    const hide = () => { if (view.ring && !ring) view.ring.visible = false; if (view.audience?.root) view.audience.root.visible = false; if (e.world?.arena) e.world.arena.visible = false; }; // the club arena's stands and seats too
+    // ring mode: the neighbours at ringside (StoryCast rigs, in the arena group, not the mirrored bout cast)
+    // The club hall must stay hidden from the first frame (the bout's intro, a 360° fly-around, runs before the referee's first update,
+    // and the world re-shows its arena every frame): while the gym fight lasts the hall and the stand crowd report themselves hidden.
+    // A neighbour standing between the camera and the ring steps out of the picture the same way (no one blocks the fight).
+    const pinned = [], pin = (o, get) => { if (!o) return; Object.defineProperty(o, 'visible', { configurable: true, get, set() {} }); pinned.push(o); };
+    pin(e.world?.arena, () => false); pin(view.audience?.root, () => false);
+    const cv = V(), wv = V(), blocks = c => { const cam = e.camera; if (!cam) return false; c.root.getWorldPosition(wv); wv.y += 1.3; view.cast.getWorldPosition(cv); cv.y += 1.2;
+      const toW = wv.sub(cam.position), toC = cv.sub(cam.position), dw = toW.length(), dc = toC.length(); return dw < dc && (dw < 2.2 || toW.angleTo(toC) < .38); };
+    if (ring) for (const w of WATCHERS) { const c = Cast.rig(w.id, e); if (!c || c === bruno) continue; c.root.parent?.remove(c.root); c.root.scale.set(-1, 1, 1); c.root.position.set(w.x, RING_FLOOR, w.z); c.root.rotation.set(0, Math.atan2(-w.x, -w.z), 0); arena.group.add(c.root); Pose.reset(c); pin(c.root, () => !st.gone && !blocks(c)); st.watchers.push({ c, w, seed: st.watchers.length * 1.7 }); }
+    const cheer = (time, dt) => { // they follow the fight and cheer now and then; after a knockdown or the result all arms go up
+      const m = view.match, big = m && (m.phase === 'count' || !!m.result);
+      for (const { c, w, seed } of st.watchers) { const k = (Math.sin(time * .9 + seed * 3.1) + 1) / 2, up = big || k > .82;
+        Pose.civil(c, { t: time, dt, dist: 0, arms: up ? (seed % 2 < 1 ? { L: 'fist', R: 'fist' } : { R: 'wave' }) : (w.id === 'otto' ? { L: 'hips', R: 'hips' } : {}), look: { yaw: .25 * Math.sin(time * .7 + seed), pitch: .18 }, talk: up ? 1 : 0, nod: 0 }); } };
     hide();
     const p = V();
     view.referee = {
@@ -25,6 +45,7 @@
       update(time, grip, side, o = {}) {
         hide();
         const dt = st.last != null && time > st.last ? Math.min(.05, time - st.last) : 0; st.last = time;
+        if (st.watchers.length) cheer(time, dt);
         bruno.root.updateMatrixWorld(true);
         const state = { t: time, dt, dist: 0, arms: { L: 'hips', R: 'hips' }, look: null };
         if (o.lookAt) { p.copy(o.lookAt); bruno.root.worldToLocal(p); state.look = { yaw: Math.atan2(p.x, p.z), pitch: Math.atan2(p.y - 1.9, Math.hypot(p.x, p.z)) }; }
@@ -67,8 +88,8 @@
     const proxy = { add: g => arena.group.add(g), remove: g => arena.group.remove(g), background: null, fog: null };
     Sets.ready().then(() => {
       if (st.gone) return; window.DreamSets?.register();
-      const set = Sets.build('dream_gym_floor', proxy, { renderer: e.renderer, shadows: false }); st.set = set;
-      set.group.position.set(-CENTRE[0], 0, -CENTRE[1]);
+      const set = Sets.build(ring ? 'dream_gym_ring' : 'dream_gym_floor', proxy, { renderer: e.renderer, shadows: false }); st.set = set;
+      set.group.position.set(-CENTRE[0], ring ? RING_FLOOR : 0, -CENTRE[1]);
       const lights = []; set.group.traverse(o => { if (o.isLight) lights.push(o); }); for (const l of lights) l.parent.remove(l);
       set.group.add(new THREE.HemisphereLight(0xfff1dc, 0x9a7a5c, .55));
       // anything else the arena shows round the ring (venue dressing) stays outside the room's walls; hide what is inside them
@@ -76,13 +97,14 @@
     }).catch(x => console.warn('gym fight', x));
     const dispose = view.dispose;
     view.dispose = function (...args) {
-      st.gone = true; view.referee = rhino; rhino.root.visible = true; if (e.world?.arena) e.world.arena.visible = e.world.mode === 'fight';
+      st.gone = true; for (const o of pinned) { delete o.visible; o.visible = true; } view.referee = rhino; rhino.root.visible = true; if (e.world?.arena) e.world.arena.visible = e.world.mode === 'fight';
       bruno.root.parent?.remove(bruno.root); bruno.root.scale.set(-1, 1, 1); Pose.reset(bruno);
+      for (const { c } of st.watchers) { c.root.parent?.remove(c.root); c.root.scale.set(-1, 1, 1); c.root.position.set(0, 0, 0); c.root.rotation.set(0, 0, 0); Pose.reset(c); } st.watchers.length = 0;
       for (const o of st.hidden) o.visible = true;
       try { st.set?.dispose(); } catch (x) { console.warn('gym fight', x); }
       view.gymFight = null; return dispose.apply(this, args);
     };
     return true;
   }
-  window.StoryGymFight = { install, CENTRE };
+  window.StoryGymFight = { install, CENTRE, RING_FLOOR, WATCHERS };
 })();
