@@ -127,7 +127,7 @@ for (const m of A.missions.filter(x => x.chapter <= 2)) for (const lang of ['en'
   window.app.engine.player.enabled = true;
   // coach-called combos (owner 2026-11-22): the four trainings run CallCore drills; the heavy bag's power hits confirm a call's last punch
   for (const [id, kind] of [['night_shadow', 'shadow'], ['night_bag', 'bag'], ['fight_prep', 'mitts'], ['advanced_training', 'counter']]) { assert.equal(D[id].calls, kind, id + ' is a called-combo drill'); assert.ok(D[id].duration <= 45, id + ' is short'); assert.ok(!D[id].frame, id + ' no longer counts raw presses'); }
-  { let n = 0; const nb = { caller: { power: () => n++ } }; D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 100, blocked: false }); D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 30, blocked: false }); assert.equal(n, 1, 'only a power hit confirms'); }
+  { let n = 0; const nb = { caller: { power: () => n++ } }; D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 100, blocked: false }); D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 30, blocked: false }); D.night_bag.imp(nb, { actor: 'lion', receiver: 'heavy', impulse: 66, blocked: false }); assert.equal(n, 2, 'a clean jab (0.6) or a cross confirms; a glancing hit does not'); }
   window.app.lang = 'en'; assert.equal(OT.chapterTitle(1), 'Chapter 1 · The Dream'); assert.equal(OT.chapterTitle(2), 'Chapter 2 · Junior League');
   window.app.lang = 'he'; assert.ok(/החלום/.test(OT.chapterTitle(1)) && !/אף אחד/.test(OT.chapterTitle(1))); window.app.lang = 'ru'; assert.ok(/Мечта/.test(OT.chapterTitle(1))); window.app.lang = 'en';
 }
