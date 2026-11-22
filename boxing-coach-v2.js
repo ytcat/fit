@@ -1126,13 +1126,21 @@
       // cheek for any punch (it covers while the rear hand throws) and for an active block or brace.
       const punch=['jab','hook','uppercut','cross','rear_hook','rear_uppercut'].includes(move),block=clamp(options.guardStyle?options.brace??1:options.blockCover||0);
       // Both gloves hold the compact guard only between actions; any action uses the proven technique geometry.
-      const leadStance=stanceWeight*(1-block),rearStance=leadStance;
+      // GOTR-0032/GOTR-0027 (options.cheekGuard, Fighter in training): during a punch the guard glove stays at its cheek
+      // (rear glove where the stance holds it; the lead glove comes back to the lead cheek while the rear hand throws)
+      // and the striking glove leaves from and returns to an open guard. The old cover put both gloves inside the muzzle
+      // and the face clearance then walked them out by 15-27 cm per tick (rate-limited), which made the guard hand swing,
+      // the punch start with a hitch and the uppercut jump in its chamber.
+      const strikeSide=punch?(['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L'):'',cheekGuard=!!options.cheekGuard&&!!strikeSide&&(options.stance??0)>0;
+      const leadCheek=cheekGuard&&strikeSide==='R'?(1-stanceWeight)*(1-block):0;
+      const held=(options.stance??0)*(1-block),leadStance=cheekGuard&&strikeSide==='L'?held:stanceWeight*(1-block),rearStance=cheekGuard?held:leadStance;
+      this.cheekGuard=cheekGuard?(strikeSide==='L'?'R':'L'):'';
       // Stagger the neutral guard; close cover still protects the cheek.
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
       // GOTR-0051 compact guard: in the stance both gloves sit close to the face, beside the muzzle in front of the
       // cheeks (lead a little ahead at eye/cheek height, rear at the jaw), forearms upright, elbows in front of the ribs.
-      const leadBase=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(guardCover)),leadGuard=leadBase.clone().lerp(V(-.17,1.70,.60),leadStance);
-      const rearBase=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(guardCover)),rearGuard=rearBase.clone().lerp(V(.26,1.70,.23),rearStance);
+      const leadBase=V(lerp(-(options.guardWidth??.185),-.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.395,.265,guardTightness)).add(V(.055,.12,.020).multiplyScalar(cheekGuard&&strikeSide==='L'?0:guardCover)),leadGuard=leadBase.clone().lerp(V(-.17,1.70,.60),leadStance).lerp(V(-.22,1.70,.42),leadCheek);
+      const rearBase=V(lerp(options.guardWidth??.18,.15,guardTightness),lerp(options.guardHeight??1.68,1.70,guardTightness),lerp(.255,.235,guardTightness)).add(V(-.055,.12,.020).multiplyScalar(cheekGuard&&strikeSide==='R'?0:guardCover)),rearGuard=rearBase.clone().lerp(options.cheekGuard?V(.33,1.68,.265):V(.26,1.70,.23),rearStance);
       // How far each glove currently sits from its technique guard because of the open stance (root space):
       // the fight's reach planner removes it, so a straight is planned on the line the fist will really travel.
       this.stanceShift={L:leadGuard.clone().sub(leadBase).toArray(),R:rearGuard.clone().sub(rearBase).toArray()};
@@ -1643,7 +1651,7 @@
       this.faceBlock=block>=.99; // an explicit block is taken at once
       this.faceFree=move==='speedbag'?'LR':['jab','hook','uppercut'].includes(move)?'L':['cross','rear_hook','rear_uppercut'].includes(move)?'R':'';
       if(move==='speedbag'||options.keepFaceClear)for(const [index,side,pole] of [[0,'L',leadPole],[1,'R',rearPole]]){
-        const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole,index&&rearStance>.5?{cheek:true}:null);gloves[index]=safe.glove; // GOTR-0074: only the rear glove hugs the cheek; the lead glove is out in front
+        const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole,index&&rearStance>.5&&this.cheekGuard!=='L'?{cheek:true}:null);gloves[index]=safe.glove; // GOTR-0074: only the rear glove hugs the cheek; the lead glove is out in front
         if(index)re=safe.error;else le=safe.error;
       }
       // Arena-space spring guides retain inertia under head/root acceleration; orbit adds no force.
