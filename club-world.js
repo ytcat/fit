@@ -103,12 +103,31 @@
    const bench=(g,x)=>{this.box(g,'Studio oak bench',[2.25,.10,.46],[x,.48,.72],m.wood);for(const dx of [-.9,.9])this.box(g,'Studio bench leg',[.08,.48,.38],[x+dx,.2,.72],m.steel);};
    const rack=(g,x)=>{for(const dx of [-.7,.7])this.box(g,'Storage upright',[.07,1.35,.43],[x+dx,.64,.35],m.steel);for(const y of [.22,.76,1.25])this.box(g,'Storage shelf',[1.55,.055,.46],[x,y,.35],m.dark);};
    // A complete entrance/reception wall faces the original decorated back wall.
+   // This is a finish over the existing closed doors, not a new room beyond them.
+   // both door panes in one mesh (the hall stays under its batched mesh budget, tests/character-selection.test.cjs)
+   const paneAt = x => { const g = new THREE.PlaneGeometry(.88, 1.3); g.translate(x, 1.6, .108); return g; }, panes = [paneAt(-.60), paneAt(.60)];
+   const decorativeDoorGeo = new THREE.BufferGeometry(); { const pos = [], uv = [], nor = [], idx = []; let base = 0; for (const g of panes) { pos.push(...g.attributes.position.array); uv.push(...g.attributes.uv.array); nor.push(...g.attributes.normal.array); idx.push(...Array.from(g.index.array, i => i + base)); base += g.attributes.position.count; g.dispose(); } decorativeDoorGeo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); decorativeDoorGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); decorativeDoorGeo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); decorativeDoorGeo.setIndex(idx); }
+   const decorativeDoorMat = new THREE.ShaderMaterial({
+          transparent: true, depthWrite: false, opacity: .29,
+          uniforms: { tint: { value: new THREE.Color('#b8d5e4') }, strength: { value: .29 } },
+          vertexShader: 'varying vec2 paneUV; void main(){ paneUV = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+          fragmentShader: `
+            uniform vec3 tint; uniform float strength; varying vec2 paneUV;
+            void main() {
+              float axis = paneUV.x + .54 * paneUV.y;
+              float sheen = smoothstep(.49,.57,axis) * (1.0 - smoothstep(.61,.71,axis));
+              float sky = smoothstep(.20,.93,paneUV.y);
+              gl_FragColor = vec4(tint, strength + .12 * sheen + .06 * sky);
+              #include <tonemapping_fragment>
+              #include <encodings_fragment>
+            }`
+        });
    for(const x of [-.60,.60]){
     this.box(front,'Entrance door',[1.12,2.4,.09],[x,1.2,.04],m.blue);
-    this.box(front,'Door glass',[.88,1.3,.025],[x,1.6,.10],m.wall);
     this.box(front,'Door lower panel',[.88,.62,.025],[x,.46,.10],m.dark);
     this.box(front,'Door handle',[.035,.30,.05],[x+(x<0?.40:-.40),1.1,.15],m.gold);
    }
+   { const pane=new THREE.Mesh(decorativeDoorGeo,decorativeDoorMat);pane.name='Door glass';pane.renderOrder=2;front.add(pane); }
    for(const x of [-1.23,0,1.23])this.box(front,'Door frame',[.065,2.5,.14],[x,1.25,.08],m.steel);
    this.box(front,'Door header',[2.55,.08,.14],[0,2.48,.08],m.steel);sign(front,'GLORY OF THE RING','WELCOME TO THE FOUNDRY',0,3.05,3.2);
    bench(front,-3.0);rack(front,3.2);

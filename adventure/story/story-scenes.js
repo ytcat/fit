@@ -192,11 +192,22 @@
       hud: (v, g, l) => ({ goal: `${g.goal} · ${g.count} ${v.landed} · ${Math.ceil(v.left || 0)} s`, prompt: v.prompt ? pw(g, v.prompt, l) + (v.double ? ` ×${v.need - v.hits}` : '') : '', arrow: v.prompt || '', kind: v.prompt || '', ring: v.phase === 'toward' ? v.k : -1, now: !!v.open }),
       detail: (r, g) => `${g.count} ${r.value} · ${g.miss} ${r.misses} · ${r.time} s`,
       frame(x, v) {
-        const P = window.BagBreakCore.PLACE, X = 1.03 * P.stand, f = x.rigs.fighter, m = x.rigs.pip, bag = x.set.objects.oldBag;
-        x.place(f, { x: P.x + X, z: P.z, ry: -Math.PI / 2 }); x.place(m, { x: P.x - X, z: P.z, ry: Math.PI / 2 }); fighterAct(f, x);
-        if (v.mackHit) pose(m, { act: 'move', move: { straight: 'cross', hook: 'hook', uppercut: 'uppercut' }[v.type] || 'cross', phase: Math.min(.97, .14 + v.mackAge / .3 * .8) }, x.t, { options: { guardCover: 1, power: 1.15, recoil: 0, advance: 0, contactDrive: 0 } });
+        // Contact without the glove going into the bag (owner, 2026-11-21: "the hands of players are inside the bag"). Measured in the game
+        // (rig facing the bag): forward hand reach at the punch phase where the glove meets the leather — Straight 0.90 m at 0.36, Hook
+        // 0.80 m at 0.40, Uppercut 0.715 m at 0.38 (measured during play, glove edge included). Both stand R0 from the bag's rest point; at the top of each swing the bag comes in just
+        // far enough for that punch to touch it (centre at reach + glove 0.06 + bag radius); the punch rises to that phase, holds on the
+        // leather and pulls back. Mack always answers with a Straight. Swing angle about the mount, 1.57 m above the gloves.
+        const P = window.BagBreakCore.PLACE, B = window.BagBreakCore.BAG, R0 = 1.45, ARM = 1.57, f = x.rigs.fighter, m = x.rigs.pip, bag = x.set.objects.oldBag;
+        const CONTACT = { straight: [.36, .90], hook: [.40, .80], uppercut: [.38, .715] }, amp = ([, reach]) => Math.asin(Math.min(.6, Math.max(0, R0 - reach - .06 - B.r)) / ARM);
+        x.place(f, { x: P.x + R0, z: P.z, ry: -Math.PI / 2 }); x.place(m, { x: P.x - R0, z: P.z, ry: Math.PI / 2 });
+        const a = x.memo.act, age = a ? x.t - a.t : 9, C = window.StoryTrials.DUO.contact, opt = { options: { guardCover: 1, power: 1.2, recoil: 0, advance: 0, contactDrive: 0 } };
+        if (a && T_PUNCH.includes(a.k) && age < C + .3) { const hit = CONTACT[a.k][0]; pose(f, { act: 'move', move: { straight: a.n % 2 ? 'jab' : 'cross', hook: 'hook', uppercut: 'uppercut' }[a.k], phase: age < C ? .14 + age / C * (hit - .14) : hit - Math.min(1, Math.max(0, age - C - .05) / .25) * (hit - .14) }, x.t, opt); }
+        else pose(f, { act: v.phase === 'end' ? 'idle' : 'guard' }, x.t);
+        // trial mackPhase runs .14 -> .375 (contact) -> .14; scaled to the Straight's contact phase
+        if (v.mackPhase != null) pose(m, { act: 'move', move: 'cross', phase: .14 + (Math.min(.375, v.mackPhase) - .14) / (.375 - .14) * (CONTACT.straight[0] - .14) }, x.t, opt);
         else pose(m, { act: v.phase === 'end' ? 'idle' : 'guard' }, x.t);
-        if (bag?.pose && bag.sample) { x.memo.base ||= bag.sample; bag.pose(window.GymReturnCore.bagPoseAt(x.memo.base, .2 * (v.swing ?? 0))); } // + toward Mack
+        const sw = v.swing ?? 0, th = sw > 0 ? amp(CONTACT.straight) * sw : amp(CONTACT[v.type] || CONTACT.straight) * sw; // + toward Mack, - toward the Fighter
+        if (bag?.pose && bag.sample) { x.memo.base ||= bag.sample; bag.pose(window.GymReturnCore.bagPoseAt(x.memo.base, th)); }
         return { pos: [P.x, 1.6, P.z + 3.7], look: [P.x, 1.3, P.z], fit: [f, m] };
       }
     },
@@ -344,7 +355,7 @@
       ui.d.close?.(); ui.d.remove(); window.removeEventListener('keydown', onKey); window.removeEventListener('keyup', onKey);
       done({ id, ...result });
     };
-    run.finish = finish; Object.defineProperty(run, 'sim', { get: () => sim });
+    run.finish = finish; Object.defineProperty(run, 'sim', { get: () => sim }); Object.defineProperty(run, 'rigs', { get: () => rigs }); Object.defineProperty(run, 'memo', { get: () => memo }); // read-only, for QA probes
     function cleanup() {
       directInput?.dispose(); directInput = null;
       if (e.fightIQDemo === run) e.fightIQDemo = null;

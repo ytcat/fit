@@ -229,7 +229,7 @@
   // cycles some calls are a double (the same punch twice, the second `doubleGap` after the first). A miss breaks the streak and
   // the bag swings on to Mack, who keeps the rhythm. value = landed (bag hits on the beat): adventure-progress.js bag_drill
   // thresholds 15 / 25 / 35.
-  const DUO = Object.freeze({ missionId: 'bag_drill', metric: 'landed', time: 40, period: [1.65, 1.0], window: .24, perfect: .085, doubleFrom: 8, doubleEvery: 2, doubleGap: .34, doubleWindow: .17, seed: 53 });
+  const DUO = Object.freeze({ missionId: 'bag_drill', metric: 'landed', time: 40, period: [1.55, .94], window: .24, perfect: .085, doubleFrom: 8, doubleEvery: 2, doubleGap: .34, doubleWindow: .17, contact: .1, seed: 53 }); // contact: s from the press to glove on leather (punch phase .14 -> .375 of .38 s)
   class DuoTrial extends Trial {
     constructor(rules = DUO, opts) { super(rules, opts); this.R = rng(rules.seed + (this.hard ? 7 : 0)); this.cycle = 0; this.landed = 0; this.misses = 0; this.perfects = 0; this.start(.9); }
     period() { return lerp(this.r.period[0], this.r.period[1], clamp(this.t / this.r.time)) / this.k; }
@@ -247,7 +247,7 @@
       if (k === c.type && d <= this.win) {
         c.hits++; this.landed++; const perfect = d <= this.r.perfect; if (perfect) this.perfects++;
         this.gain(perfect ? 150 : 100, perfect ? 'perfect' : 'hit'); c.state = c.hits >= c.need ? 'answered' : 'toward';
-        if (c.hits >= c.need) { c.answered = this.t; c.back = this.t + this.period() / 2; } // the bag flies back to Mack from the Fighter's hit
+        if (c.hits >= c.need) { c.answered = this.t + this.r.contact; c.back = c.answered + this.period() / 2; } // the bag flies back to Mack once the glove lands
       } else { c.state = 'missed'; this.misses++; this.fail(k !== c.type ? 'wrong' : this.t < this.due ? 'early' : 'late'); }
     }
     step(dt) {
@@ -266,13 +266,13 @@
       if (!c || this.done) return { ...v, phase: 'end', landed: this.landed, misses: this.misses, left: 0, progress: 1, prompt: null };
       // bag angle along the drill line: +1 = at Mack's side (just hit), -1 = at the top of the swing toward the Fighter
       let swing;
-      if (c.state === 'answered') swing = -Math.cos(Math.PI * clamp((this.t - c.answered) / (c.back - c.answered)));
+      if (c.state === 'answered') swing = this.t < c.answered ? -1 : -Math.cos(Math.PI * clamp((this.t - c.answered) / (c.back - c.answered))); // held at the top until the glove lands
       else if (this.t < c.peak) swing = Math.cos(Math.PI * clamp((this.t - c.mack) / (c.peak - c.mack)));
       else swing = c.state === 'missed' || c.hits < c.need ? -Math.cos(Math.PI * clamp((this.t - c.peak) / (c.back - c.peak))) : -1;
       const open = (c.state === 'toward') && Math.abs(this.t - this.due) <= this.win;
       return { ...v, phase: c.state, type: c.type, need: c.need, hits: c.hits, double: c.need > 1, swing, k: clamp((this.t - c.mack) / Math.max(.01, this.due - c.mack)), open,
         landed: this.landed, misses: this.misses, perfects: this.perfects, cycle: this.cycle, left: Math.max(0, r.time - this.t), progress: clamp(this.t / r.time),
-        mackHit: this.t >= c.mack && this.t - c.mack < .3, mackAge: this.t - c.mack, prompt: c.state === 'toward' || c.state === 'mack' ? c.type : null };
+        mackHit: this.t >= c.mack && this.t - c.mack < .3, mackAge: this.t - c.mack, mackPhase: this.t >= c.mack && this.t - c.mack < .3 ? .375 - clamp((this.t - c.mack - .05) / .25) * .235 : c.back - this.t < .1 && c.state !== 'toward' && c.state !== 'mack' ? .14 + (1 - clamp((c.back - this.t) / .1)) * .235 : null, prompt: c.state === 'toward' || c.state === 'mack' ? c.type : null };
     }
     result(starsFor) { return { ...this.finish(starsFor, this.landed), landed: this.landed, misses: this.misses, perfects: this.perfects }; }
   }
