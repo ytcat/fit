@@ -59,9 +59,10 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     current = run;
     let life = null, proxies = [], castWas = [], shadowWas = null, hi = false, perf = { n: 0, sum: 0 };
     let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false, props = null, gymBagBase = null;
-    const look = V(), turn = new Map(), jacketAt = {}; // the time of each actor's jacket-off key (Fang, GOTR-0096)
+    const look = V(), turn = new Map(), jacketAt = {}, cullFr = new THREE.Frustum(), cullVP = new THREE.Matrix4(), cullS = new THREE.Sphere(), lodRigs = new Set(); // the time of each actor's jacket-off key (Fang, GOTR-0096)
     for (const [k, a] of Object.entries(scene0.actors || {})) { const j = a.keys.find(q => q.act === 'jacketoff'); if (j) jacketAt[k] = j.t; }
     const finish = (result = {}) => {
+      for (const c of lodRigs) { const g = c.skin?.geometry, L = g?.userData?.lod; if (L?.hi && g.index !== L.hi) g.setIndex(L.hi); } lodRigs.clear(); // full surfaces back for the fight and the game
       if (run.closed) return; run.closed = true; if (current === run) current = null;
       try { cleanup(); } catch (x) { console.warn('dream', x); }
       d.close?.(); d.remove(); window.removeEventListener('keydown', onKey);
@@ -254,6 +255,16 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (life) { const f = rigs.fighter?.root; life.update(dt, run.t, f && f.visible ? f.position : null); }
       if (quality === 'auto' && hi && run.phase === 'play' && perf.n < 60) { perf.n++; if (perf.n > 12) perf.sum += Math.max(0, delta || 0); if (perf.n === 60 && perf.sum / 48 > 1 / 30) lowQuality(); }
       o.city?.frame(s, camera); // GOTR-0089: model bus wheels and doors, distance detail
+      // Characters outside the shot are not drawn (2026-11-22: each story rig is 0.25-0.5 M triangles and every film drew all of them,
+      // e.g. Fight Night 2.4 M a frame). A generous sphere round each body; larger when the sun casts shadows into the shot.
+      camera.updateMatrixWorld(); cullVP.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); cullFr.setFromProjectionMatrix(cullVP);
+      for (const c of Object.values(rigs)) if (c.root.visible) { cullS.center.set(c.root.position.x, c.root.position.y + 1.0, c.root.position.z); cullS.radius = hi ? 3.2 : 1.7; if (!cullFr.intersectsSphere(cullS)) c.root.visible = false; }
+      // A body smaller than ~110 % of the frame height (all but extreme close-ups: compared side by side at 402x690, qa/perf) draws the unsubdivided triangles (a quarter of the count, same vertices,
+      // skinning, clothes and muscle streams: boxing-coach-v2.js meshFrom lod); close-ups keep the full surface.
+      const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+      for (const c of Object.values(rigs)) { const g = c.skin?.geometry, L = g?.userData?.lod; if (!L || !c.root.visible) continue; L.hi ||= g.index; lodRigs.add(c);
+        const d = Math.max(.1, camera.position.distanceTo(cullS.center.set(c.root.position.x, c.root.position.y + 1.0, c.root.position.z))), share = 2.1 / (2 * d * tanH), want = share < (window.__lodShare ?? 1.1) ? L.lo : L.hi; // __lodShare: QA override
+        if (g.index !== want) g.setIndex(want); }
       for (const b of blobs) { const r = b.c.root, small = b.c.small; b.mesh.visible = r.visible; b.mesh.position.set(r.position.x - .16, (small ? 0 : r.position.y) + .014, r.position.z - .2); b.mesh.rotation.y = .7; b.mesh.scale.set(small ? .95 : 1.75, 1, small ? .6 : 1.05); } // shadows lie on the ground the actor stands on (bus floor, road)
       if (e.renderer.shadowMap?.enabled) e.renderer.shadowMap.needsUpdate = true;
       e.renderer.render(scene, camera);

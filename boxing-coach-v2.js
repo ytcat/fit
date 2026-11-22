@@ -68,7 +68,7 @@
     ctx.putImageData(pixels,0,0);const map=new THREE.CanvasTexture(canvas);map.wrapS=map.wrapT=THREE.RepeatWrapping;map.repeat.set(4,4);map.anisotropy=4;roughnessMap.cache.set(kind,map);return map;
   }
   function meshFrom(data,refine=false) {
-    let armBlend=data.armBlend?.slice();
+    let armBlend=data.armBlend?.slice();const baseIndex=refine&&data.normal?data.index.slice():null; // the unsubdivided triangles: same vertices (midpoints are appended), a quarter of the triangles
     if(refine&&data.normal) {
       // Phong subdivision projects edge midpoints onto the two endpoint tangent
       // planes. Smooth silhouettes without subdividing a faceted linear surface.
@@ -93,7 +93,10 @@
     else g.computeVertexNormals();
     const uv=[];
     for(let i=0;i<data.position.length;i+=3) uv.push(data.position[i]*2,data.position[i+1]*2);
-    g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));return g;
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+    // level of detail for distant bodies (story films, adventure/story/dream-scenes.js): swap the index; every vertex stream is shared
+    if(baseIndex)g.userData.lod={lo:new THREE.BufferAttribute(Uint32Array.from(baseIndex),1),hi:null};
+    return g;
   }
 
   // Joined, smooth leather volumes. Build once per coach; no external assets or

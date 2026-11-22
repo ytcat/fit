@@ -24,7 +24,8 @@
     const rhino = view.referee, st = { set: null, gone: false, last: null, hidden: [], ring, crowd: null };
     view.gymFight = st;
     rhino.root.visible = false;
-    bruno.root.parent?.remove(bruno.root); bruno.root.scale.set(1, 1, 1); bruno.root.visible = true; view.cast.add(bruno.root); Pose.reset(bruno); // scale 1 inside the mirrored cast, like the fighters
+    bruno.root.parent?.remove(bruno.root); bruno.root.scale.set(1, 1, 1); bruno.root.visible = true; view.cast.add(bruno.root); Pose.reset(bruno);
+    const bLod = bruno.skin?.geometry?.userData?.lod, bIdx = bruno.skin?.geometry?.index; if (bLod?.lo) bruno.skin.geometry.setIndex(bLod.lo); // the referee is never in close-up: unsubdivided body (a quarter of the triangles, boxing-coach-v2.js meshFrom) // scale 1 inside the mirrored cast, like the fighters
     const hide = () => { if (view.ring && !ring) view.ring.visible = false; if (view.audience?.root) view.audience.root.visible = false; if (e.world?.arena) e.world.arena.visible = false; }; // the club arena's stands and seats too
     // The club hall must stay hidden from the first frame (the bout's intro, a 360° fly-around, runs before the referee's first update,
     // and the world re-shows its arena every frame): while the gym fight lasts the hall and the stand crowd report themselves hidden.
@@ -93,7 +94,7 @@
     const dispose = view.dispose;
     view.dispose = function (...args) {
       st.gone = true; for (const o of pinned) { delete o.visible; o.visible = true; } view.referee = rhino; rhino.root.visible = true; if (e.world?.arena) e.world.arena.visible = e.world.mode === 'fight';
-      bruno.root.parent?.remove(bruno.root); bruno.root.scale.set(-1, 1, 1); Pose.reset(bruno);
+      bruno.root.parent?.remove(bruno.root); bruno.root.scale.set(-1, 1, 1); Pose.reset(bruno); if (bLod?.lo && bIdx) bruno.skin.geometry.setIndex(bIdx);
       try { st.crowd?.dispose(); } catch (x) { console.warn('gym fight', x); } st.crowd = null;
       for (const o of st.hidden) o.visible = true;
       try { st.set?.dispose(); } catch (x) { console.warn('gym fight', x); }
