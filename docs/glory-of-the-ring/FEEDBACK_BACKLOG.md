@@ -964,6 +964,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Done:** `adventure/story/docks-core.js`: `dream_docks` (beat 10, before the bare-knuckle fight: night, in through the quay door and a lane in the crowd, cash on the drum, "No ring, no gloves… this is illegal" / "Your call" / "I didn't come this far to walk away", Rourke waiting) and `dream_docks_after` (win: Rourke pays the purse = the step reward; loss: his jibe); `dream_fight_night` (beat 12: evening gym, Mrs. Hazel, Otto and Mack round the ring, Brick in it; variant for a won first fight) and `dream_chapter_end` (Bruno: "real gear and a real league", Brick: "Good fight, champ"). Set `dream_docks` (`docks-sets.js`) is the fight venue itself at night. New character Rourke (crocodile, `adventure/story/cast-docks.js`, code-built head, interim like Fang) plays the films and is the Docks opponent. Wiring: story-flow scenes, oldtown `docks_fight` cast/after, `BOSS_SCENE.brick`. Tests `tests/docks-films.test.cjs`, `tests/rourke-cast.test.cjs`; pictures `qa/films-11-12/`, `qa/rourke/`. FILMS.md updated (films 5–10, A and F1–F3 were already live).
 - **Remaining:** the rematch fight itself still runs in the chapter arena, not in Bruno's Gym; Rourke's straight-on front view reads a little blobby (hand-made head later); the story portrait for Rourke is still a letter badge (speaker id `hook`).
 
+### GOTR-0108 — The Brick rematch should be fought in Bruno's Gym, like the Fight Night film
+- **Reported:** 2026-11-22 (owner approved the plan: "Go ahead with 1 and 2")
+- **Status:** READY FOR QA — v1.84 (not checked on a phone)
+- **Done:** `adventure/story/gym-fight.js` ring mode (`{ place: 'gym_ring' }`, boss `brick` in `adventure/oldtown.js`): the game's ring stays; Bruno's Gym (`dream_gym_ring`, without its practice ring) is built round it at the foot of the platform; Bruno referees; two loose rows of the venue-crowd people (`arena-sets.js people()`, 33k triangles) stand round the ring, the near side stepping out of the camera like venue stands; the club hall stays hidden from the first frame; ring corners for the break. Test `tests/gym-ring-rematch.test.cjs`; playthrough of the real story path `qa/gym-ring-rematch/rematch.cjs`, frames `qa/gym-ring-rematch/rematch-frames.webp`.
+
+### GOTR-0109 — Film performance on phones
+- **Reported:** 2026-11-22 (plan item 2, owner approved)
+- **Status:** READY FOR QA — v1.84 (not measured on a phone)
+- **Done:** every story film drew all its characters at full detail (each 0.25–0.5 M triangles). Now off-screen characters are skipped and bodies below extreme close-up use the unsubdivided body triangles (same vertices and streams); the gym-fight referee too. Film means: Fight Night 2.11 → 0.98 M, chapter end 2.00 → 0.95 M, new bag 1.28 → 0.74 M, market robbery 1.14 → 0.65 M (table `qa/perf/README.md`, tool `qa/perf/films.cjs`, test `tests/film-performance.test.cjs`).
+- **Remaining:** the six-character gym films ~1 M and the market/drill films ~0.7 M are still above the ~450k phone estimate; next candidates: kit shorts (70k), gloves (64k each), head detail (~65k) per character.
+
 ### GOTR-0107 — Bruno's gym door is not fixed yet
 - **Reported:** 2026-11-22 (owner, after v1.82)
 - **Status:** READY FOR QA — v1.83 (not checked on a phone)
