@@ -964,6 +964,12 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Done:** `adventure/story/docks-core.js`: `dream_docks` (beat 10, before the bare-knuckle fight: night, in through the quay door and a lane in the crowd, cash on the drum, "No ring, no gloves… this is illegal" / "Your call" / "I didn't come this far to walk away", Rourke waiting) and `dream_docks_after` (win: Rourke pays the purse = the step reward; loss: his jibe); `dream_fight_night` (beat 12: evening gym, Mrs. Hazel, Otto and Mack round the ring, Brick in it; variant for a won first fight) and `dream_chapter_end` (Bruno: "real gear and a real league", Brick: "Good fight, champ"). Set `dream_docks` (`docks-sets.js`) is the fight venue itself at night. New character Rourke (crocodile, `adventure/story/cast-docks.js`, code-built head, interim like Fang) plays the films and is the Docks opponent. Wiring: story-flow scenes, oldtown `docks_fight` cast/after, `BOSS_SCENE.brick`. Tests `tests/docks-films.test.cjs`, `tests/rourke-cast.test.cjs`; pictures `qa/films-11-12/`, `qa/rourke/`. FILMS.md updated (films 5–10, A and F1–F3 were already live).
 - **Remaining:** the rematch fight itself still runs in the chapter arena, not in Bruno's Gym; Rourke's straight-on front view reads a little blobby (hand-made head later); the story portrait for Rourke is still a letter badge (speaker id `hook`).
 
+### GOTR-0107 — Bruno's gym door is not fixed yet
+- **Reported:** 2026-11-22 (owner, after v1.82)
+- **Status:** READY FOR QA — v1.83 (not checked on a phone)
+- **Cause:** the v1.82 door glass (ChatGPT's reflective pane, 29% tint) lay over the solid brown door leaf, so it read as a pale frosted sticker; beside the door the painted shopfront showed a flat blue-grey pane that looked like an unfinished second door.
+- **Fix:** `story-sets.js` `doorInterior` (a dim room behind the glass: floor, a lamp, a hanging bag, a poster) and a clear variant of the pane (`reflectivePane(..., strength 0.08)`); `dream-sets.js`: on Bruno's door and on a new framed glass sidelight over the painted pane; the legacy gym front gets the same door. Test `tests/gym-door-glass.test.cjs`; pictures `qa/gym-door/before-after.webp` (top v1.82, bottom fix), `qa/gym-door/opening-film.webp`.
+
 ### GOTR-0106 — The two-sided drill is only normal bag training, not a game
 - **Reported:** 2026-11-21 (owner: "Is the two-sided drill built? I see only normal bag training and not a game")
 - **Status:** READY FOR QA — v1.81 (not checked on a phone)
