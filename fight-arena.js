@@ -183,7 +183,7 @@
   }
 
   pose(){
-   const m=this.match,a=this.arena,ceremony=m.phase==='scoring'||m.phase==='ceremony',reveal=m.phase==='ceremony',raise=reveal?clamp((m.phaseTime-.4)/1.5):0;
+   const m=this.match,a=this.arena,ceremony=m.phase==='scoring'||m.phase==='ceremony',reveal=m.phase==='ceremony',raiseAt=reveal&&window.RhinoReferee?.raiseAt?RhinoReferee.raiseAt(m.phaseTime):{raise:reveal?clamp((m.phaseTime-.4)/1.5):0,hold:1},raise=raiseAt.raise;
    if(ceremony&&!this.lineupStart)this.lineupStart=Object.fromEntries(['lion','rabbit'].map(actor=>[actor,{position:this.coaches[actor].root.position.clone(),yaw:this.coaches[actor].ringYaw??this.coaches[actor].root.rotation.y}]));
    const travel=this.ringTravel();
    const lineup=ceremony?clamp((reveal?10:m.phaseTime)/2):0,ease=lineup*lineup*(3-2*lineup);
@@ -302,7 +302,7 @@
    if(reveal&&!m.result.winner)grip={'-1':this.coaches.lion.joints.handR.getWorldPosition(V()),'1':this.coaches.rabbit.joints.handL.getWorldPosition(V())};
    if(m.phase==='count'){grip=this.referee.root.localToWorld(V(.32,1.76,.27));side=1;}
    const leftReaction=this.reaction('lion')?.amount||0,rightReaction=this.reaction('rabbit')?.amount||0;
-   this.referee.update(m.time,grip,side,{lookAt:ceremony?null:this.coaches[leftReaction>rightReaction?'lion':'rabbit'].joints.head.getWorldPosition(V()),alert:Math.max(leftReaction,rightReaction)});this.audience.update(m.time,reveal);
+   this.referee.update(m.time,grip,side,{lookAt:ceremony?null:this.coaches[leftReaction>rightReaction?'lion':'rabbit'].joints.head.getWorldPosition(V()),alert:Math.max(leftReaction,rightReaction),hold:reveal?raiseAt.hold:1});this.audience.update(m.time,reveal);
    if(corner)this.corner.after();
    // Crowd occlusion is determined in WORLD space, not by fixed side IDs.
    // Hide every spectator in the camera-facing half of the arena, including

@@ -11,7 +11,7 @@
  *   and the new heavy bag of the scene scripts (carry), moved between hands, the ground, the display and the Fighter's shoulder.
  * World: metres, y up, the camera side is +z. */
 (() => {
-  const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z), clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+  const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z), clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, smooth = t => { t = clamp(t); return t * t * (3 - 2 * t); };
   function signTexture(text, w = 512, h = 128, bg = '#1d2b3a', fg = '#f4c152', font = 900) {
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
     g.fillStyle = bg; g.fillRect(0, 0, w, h); g.strokeStyle = fg; g.lineWidth = Math.max(4, h * .05); g.strokeRect(h * .06, h * .06, w - h * .12, h - h * .12);
@@ -216,7 +216,20 @@
     g.traverse(o => { if (o.isMesh) o.castShadow = true; }); g.userData.storyPart = true;
     return { group: g, dispose: () => { g.traverse(o => o.geometry?.dispose()); leather.dispose(); cord.dispose(); } };
   }
-  const HAND_R = .235 + .075; // bag radius + half a hand + the reach the arm falls short by: the carrying hand's centre stays outside the leather
+  /* The new heavy bag from Otto's display to the Fighter's right shoulder (arm-fixes, after GOTR-0103). heavybag keys:
+   *   { on: 'display', yaw }   hangs at set.objects.display, turned by yaw (its +x = his right side when he picks it up)
+   *   { on: 'reach' }          he stands with the bag front-right and his right hand goes out to the side of it (REACH s)
+   *   { on: 'lift' }           to the next key: the bag comes off the hook (UNHOOK), tips over (its top falls back over his
+   *                            shoulder) and rises onto the shoulder while the hand stays on the same spot of the leather
+   *   { on: 'shoulder' }       it rides the chest (breathing, the walk), settles in SETTLE s; the hand stays on it
+   * The hand is a contact on the bag (DreamPose reach object): the wrist sits GRIP.out off the bag's axis on its outer side,
+   * GRIP.along in front of its middle, so the palm lies on the leather and the elbow points out and down beside the bag
+   * (the old target put the wrist over the bag with the elbow folded behind the shoulder, and the bag appeared on the
+   * shoulder in one frame). Everything is a function of the scene time, so playback, seeking and the tap-to-continue
+   * pauses give the same picture. */
+  const BAG_R = .235, HAND_R = BAG_R + .07; // the wrist off the bag's axis: radius + the thickness of the paw under the wrist (measured: the palm on the leather)
+  const CARRY = Object.freeze({ reach: .9, unhook: .045, settle: .45, mid: [.17, .345, -.045], tilt: .2, arc: .12, grip: Object.freeze({ out: HAND_R, a: 1.31, along: .06 }), pole: [1, -.4, -.05] });
+  const DreamPoseHang = () => window.DreamPose?.GESTURES?.hang || { h: [.335, .985, .055], pole: [.25, -.1, -1], palm: [-1, 0, 0] }; // the right hand hanging (DreamPose rig space)
   function create({ scene, set, rigs, carry }) {
     const Cast = window.StoryCast, items = [], m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), UP = V(0, 1, 0);
     const byRig = id => Object.keys(rigs).find(k => rigs[k].character === id || k === id);
@@ -229,14 +242,54 @@
     let heavy = null;
     if (carry.heavybag && window.BagBreak?.bag) { const b = window.BagBreak.bag({ worn: false }); scene.add(b.group); heavy = { b, keys: carry.heavybag, local: null }; }
     const holderOf = on => on && rigs[byRig(on)] ? rigs[byRig(on)] : null;
-    /** Hand targets in rig space for the actors that carry the heavy bag on the shoulder. */
+    // ---- the heavy bag (see CARRY): its pose in the world at time t for the Fighter rig c (a frame: position + quaternion)
+    const keyIndex = t => { const k = heavy.keys; let i = 0; for (let n = 1; n < k.length; n++) if (k[n].t <= t) i = n; else break; return i; };
+    const display = () => { const D = set?.objects?.display, k0 = heavy.keys.find(k => k.on === 'display'); return D ? { p: V(D.x, D.y, D.z), q: new THREE.Quaternion().setFromAxisAngle(UP, k0?.yaw || 0) } : null; };
+    /** On the shoulder this frame: fixed to the chest (its middle CARRY.mid from the right shoulder joint at rest), lying
+     *  fore and aft with its top behind him, its +x to his right. World frame. */
+    function shoulderPose(c) {
+      const j = c.joints, R = c.root, P = window.DreamPose, M = new THREE.Matrix4().copy(R.matrixWorld).invert().multiply(j.chest.matrixWorld);
+      const rig = P.restOf(c, j.armR).add(V(...CARRY.mid)).sub(P.restOf(c, j.chest)).applyMatrix4(M); // rig space, riding the chest
+      const axis = V(0, 0, -1).transformDirection(M), side = V(1, 0, 0).transformDirection(M), Rw = R.matrixWorld;
+      const Y = axis.transformDirection(Rw), X0 = side.transformDirection(Rw), X = X0.addScaledVector(Y, -X0.dot(Y)).normalize(), Z = X.clone().cross(Y);
+      return { p: R.localToWorld(rig), q: new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z)) };
+    }
+    /** Where the bag is at time t (world), how far it is lifted (0..1) and how far the hand has gone to it (0..1). */
+    function bagPose(c, t) {
+      const i = keyIndex(t), k = heavy.keys[i], next = heavy.keys[i + 1], D = display();
+      if (k.on === 'display' || !D) return D ? { ...D, lift: 0, hand: 0 } : null;
+      if (k.on === 'reach') return { ...D, lift: 0, hand: smooth((t - k.t) / CARRY.reach) };
+      const E = shoulderPose(c);
+      if (k.on === 'lift') {
+        const u = clamp((t - k.t) / Math.max(.05, (next ? next.t : k.t + 1) - k.t)), up = CARRY.unhook * smooth(u / .15), r = smooth((u - .08) / .92), m = smooth(u);
+        // the middle: up off the hook first, then an arc that rises in front of him and comes back onto the shoulder
+        const S = D.p.clone().setY(D.p.y + up), C = S.clone().lerp(E.p, .5); C.y = Math.max(S.y, E.p.y) + .06;
+        const out = E.p.clone().sub(c.root.getWorldPosition(V())).setY(0).normalize(); C.addScaledVector(out, CARRY.arc); // wide of his head (and mane) on the way up
+        const p = S.clone().multiplyScalar((1 - m) * (1 - m)).addScaledVector(C, 2 * m * (1 - m)).addScaledVector(E.p, m * m);
+        return { p, q: D.q.clone().slerp(E.q, r), lift: m, hand: 1 };
+      }
+      const s = clamp((t - k.t) / CARRY.settle); E.p.y -= .018 * Math.sin(Math.PI * s) * (1 - s); // it settles into the shoulder
+      return { ...E, lift: 1, hand: 1 };
+    }
+    /** The hand's spot on the leather, in bag space (x = his right, y = the bag's axis toward its top, z = up once it lies on the
+     *  shoulder): GRIP.a from the top on his right side, over the top-outer curve, GRIP.along in front of the middle. */
+    const gripLocal = () => V(CARRY.grip.out * Math.sin(CARRY.grip.a), -CARRY.grip.along, CARRY.grip.out * Math.cos(CARRY.grip.a));
+    /** Hand targets (DreamPose reach objects) for the actor that carries the heavy bag. */
     function reach(actor, t) {
-      if (!heavy || rigs[actor] !== holderOf('fighter') || at(heavy.keys, t).on !== 'shoulder') return null;
-      // the hand on the outside of the bag (GOTR-0103): 69 degrees down from the top on the side away from the head, its centre
-      // HAND_R off the bag's axis so the palm rests on the leather; the old target (17 cm off a 23.5 cm bag) put the hand inside it
-      const c = heavy.local; if (!c) return { R: [.32, 1.84, .34] };
-      const o = heavy.out, a = 1.2, d = HAND_R;
-      return { R: [c.x + o.x * Math.sin(a) * d, c.y + Math.cos(a) * d, c.z + o.z * Math.sin(a) * d + .2] };
+      if (!heavy || rigs[actor] !== holderOf('fighter')) return null;
+      const c = rigs[actor], k = heavy.keys[keyIndex(t)]; if (k.on === 'display') return null;
+      const first = bagPose(c, t); if (!first || first.hand <= 0) return null;
+      const spot = (rig, b) => rig.root.worldToLocal(gripLocal().applyQuaternion(b.q).add(b.p)); // rig space
+      const centre = c.root.worldToLocal(first.p.clone()), palm = centre.clone().sub(spot(c, first)).normalize(), u = first.hand;
+      const H = DreamPoseHang(), pole = V(...H.pole).lerp(V(...CARRY.pole).normalize(), u).normalize(), pal = V(...H.palm).lerp(palm, u).normalize();
+      // the reach: from the hanging hand out to the side of the bag and round onto its outer face (a curve that stays clear of
+      // the leather: a straight line went through the bag), then on the leather; evaluated after the trunk is posed
+      const at = rig => {
+        const C = spot(rig, bagPose(rig, t)); if (u >= 1) return C.toArray();
+        const A = V(...H.h), B = rig.root.worldToLocal(bagPose(rig, t).p.clone()), W = V(Math.max(C.x, B.x + BAG_R) + .22, A.y + .1, A.z - .02);
+        return A.multiplyScalar((1 - u) * (1 - u)).addScaledVector(W, 2 * u * (1 - u)).addScaledVector(C, u * u).toArray();
+      };
+      return { R: { at, w: smooth(u / .2), pole: pole.toArray(), palm: pal.toArray(), turn: .35 + .2 * u, paw: u > .85 ? 'open' : 'relaxed' }, tilt: CARRY.tilt * first.lift };
     }
     const wp = V(), wq = new THREE.Quaternion(), ws = V(1, 1, 1);
     function frame(t) {
@@ -254,17 +307,11 @@
         } else o.visible = false;
       }
       if (heavy) {
-        const k = at(heavy.keys, t), g = heavy.b.group;
-        if (k.on === 'display' && set?.objects?.display) { const D = set.objects.display; g.visible = true; g.position.set(D.x, D.y, D.z); g.quaternion.identity(); }
-        else if (k.on === 'shoulder' && holderOf('fighter')) {
-          const c = holderOf('fighter'), r = c.root; r.updateMatrixWorld(true);
-          const sR = c.joints.scapulaR.getWorldPosition(V()), sL = c.joints.scapulaL.getWorldPosition(V()), side = sR.clone().sub(sL).setY(0).normalize(), fwd = V(0, 0, 1).applyQuaternion(r.quaternion).setY(0).normalize();
-          const B = window.BagBreakCore?.BAG || { r: .235 };
-          g.position.copy(sR).addScaledVector(side, .02).addScaledVector(UP, B.r + .1).addScaledVector(fwd, -.08);
-          q.setFromUnitVectors(UP, fwd); g.quaternion.copy(q); g.visible = true;
-          heavy.local = r.worldToLocal(g.position.clone());
-          heavy.out = r.worldToLocal(g.position.clone().add(side)).sub(heavy.local).setY(0).normalize(); // away from the head, in rig space
-        } else g.visible = false;
+        const g = heavy.b.group, c = holderOf('fighter'), k = heavy.keys[keyIndex(t)];
+        if (c && c.root.visible === false && k.on !== 'display') { g.visible = false; return; }
+        if (c) c.root.updateMatrixWorld(true);
+        const b = c ? bagPose(c, t) : k.on === 'display' ? display() : null;
+        if (b) { g.position.copy(b.p); g.quaternion.copy(b.q); g.visible = true; } else g.visible = false;
       }
     }
     function dispose() {

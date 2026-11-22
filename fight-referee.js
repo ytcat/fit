@@ -275,10 +275,14 @@
    this.expression={blink,alert,gaze:this.gaze};
    this.head.rotation.x=Math.sin(time*.47)*.015;
    this.root.updateMatrixWorld(true);
+   // arm-fixes: context.hold 0..1 (default 1) is how far the hand has gone from his side to the grip: the pickup and the
+   // release of the winner's wrist are a reach, not a jump (it used to land on the wrist in one frame, 44 cm).
+   const hold=clamp(context.hold??1,0,1),easeHold=hold*hold*(3-2*hold);
    for(const s of [-1,1]){
      const held=grip?.isVector3?(s===side?grip:null):grip?.[s];
-     const shoulder=V(s*.315,1.49,0);
-     const goal=held?this.root.worldToLocal(held.clone()):V(s*.365,1.04,.12);
+     const shoulder=V(s*.315,1.49,0),rest=V(s*.365,1.04,.12);
+     const goal=held?rest.clone().lerp(this.root.worldToLocal(held.clone()),easeHold):rest;
+     if(held&&easeHold<1)goal.x+=s*.10*Math.sin(Math.PI*easeHold); // the open hand comes round from the side, clear of the fighter's forearm
      const v=goal.clone().sub(shoulder),dist=clamp(v.length(),.10,.79);
      const direction=v.normalize(),upper=.395,fore=.405;
      const along=(upper*upper-fore*fore+dist*dist)/(2*dist);
@@ -290,11 +294,9 @@
      const mesh=this.arms[s];mesh.arm.userData.pose(shoulder,elbow,wrist);mesh.points={shoulder,elbow,wrist}; // root space (GOTR-0098 clearance test)
      mesh.wrist.position.copy(wrist);
      const palmForward=V(0,0,1);
-     const up=held?wrist.clone().sub(elbow).normalize():V(0,1,0);
-     if(Math.abs(up.dot(palmForward))>.95)up.set(0,1,0);
-     const right=new THREE.Vector3().crossVectors(up,palmForward).normalize();
-     const corrected=new THREE.Vector3().crossVectors(palmForward,right).normalize();
-     mesh.wrist.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right,corrected,palmForward));
+     const frame=up=>{if(Math.abs(up.dot(palmForward))>.95)up=V(0,1,0);const right=new THREE.Vector3().crossVectors(up,palmForward).normalize(),corrected=new THREE.Vector3().crossVectors(palmForward,right).normalize();return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(right,corrected,palmForward));};
+     const q=frame(V(0,1,0));if(held)q.slerp(frame(wrist.clone().sub(elbow).normalize()),easeHold); // the hand turns onto the forearm line as it takes the grip
+     mesh.wrist.quaternion.copy(q);
    }
    this.root.updateMatrixWorld(true);
   }
@@ -318,5 +320,11 @@
   }
   update(t,applaud){for(const [i,h] of this.hands.entries())for(const [j,p] of h.pair.entries()){const spread=applaud?.025+.055*(.5+.5*Math.sin(t*15+i)): .10;p.position.set(h.x+(j?1:-1)*spread,(applaud?1.08:.92)+h.y,h.z+.15);}}
  }
+ /* arm-fixes: one timing for the winner's hand raise (ring, gym, Super Punch endings), from the start of the ceremony (s):
+  * the referee reaches for the wrist (0-0.5 s), takes it, lifts it with the fighter (0.55-2.05 s), holds it high and lets go
+  * at 5.4 s (his hand back to his side by 6.0 s); the winner keeps his arm up. raise = the fighter's lift 0..1 (linear, the
+  * pose eases it), hold = the referee's grip 0..1. */
+ RhinoReferee.RAISE=Object.freeze({reach:.5,lift:.55,liftFor:1.5,release:5.4,releaseFor:.6});
+ RhinoReferee.raiseAt=t=>{const R=RhinoReferee.RAISE;return {raise:clamp((t-R.lift)/R.liftFor,0,1),hold:t<0?0:clamp(t/R.reach,0,1)*(1-clamp((t-R.release)/R.releaseFor,0,1))};};
  window.RhinoReferee=RhinoReferee;window.FightAudience=FightAudience;
 })();
