@@ -91,7 +91,9 @@
 
       // ---- Bruno's Gym: door, glove board, name sign, hanging board, bench outside
       const gx = 27, gz = -8.24;
-      box(S, gx, 0, gz, 1.66, 2.56, .14, '#3a2b24'); box(S, gx, .02, gz + .12, 1.3, 2.3, .07, '#6b4630'); c.reflectivePane('Bruno exterior door glass', gx, 1.65, gz + .183, .86, .8); box(S, gx, .25, gz + .17, .9, .7, .03, '#5a3a28');
+      box(S, gx, 0, gz, 1.66, 2.56, .14, '#3a2b24'); box(S, gx, .02, gz + .12, 1.3, 2.3, .07, '#6b4630'); c.doorInterior(gx, 1.25, gz + .156, .86, .8); c.reflectivePane('Bruno exterior door glass', gx, 1.65, gz + .183, .86, .8, 1, .08);
+      // the painted shopfront showed a flat blue-grey pane beside the door; a glazed sidelight with the room behind it replaces it (owner, 2026-11-22)
+      { const sx = gx - 1.25, sw = .8; box(S, sx, .28, gz + .06, sw + .1, 2.14, .04, '#3a2b24'); c.doorInterior(sx, .4, gz + .082, sw - .06, 1.92); c.reflectivePane('Bruno sidelight glass', sx, .4 + .96, gz + .1, sw - .06, 1.92, 1, .08); } box(S, gx, .25, gz + .17, .9, .7, .03, '#5a3a28');
       box(S, gx + .48, 1.02, gz + .2, .06, .22, .07, '#e0b84d'); box(S, gx, 0, gz + .34, 2.1, .1, .62, '#cfc6b6'); box(S, gx, .1, gz + .54, 1.3, .02, .5, '#7a3b34');
       for (const s of [-1, 1]) { box(S, gx + s * 1.25, 2.25, gz + .14, .06, .06, .3, '#2f3640'); cyl(S, gx + s * 1.25, 1.92, gz + .34, .12, .3, '#fff0c4', P.cyl6); S.add(P.cone6, M(gx + s * 1.25, 2.22, gz + .34, .18, .14, .18), C('#2f3640')); }
       box(S, gx, 2.86, gz + .08, 4.6, 1.02, .1, '#0d1118'); box(S, gx, 2.78, gz + .34, 4.9, .08, .5, '#8f2f22'); box(S, gx, 3.9, gz + .1, 4.9, .08, .3, '#8f2f22');
