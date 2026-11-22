@@ -203,8 +203,10 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       // Render realism (2026-11-22): image-based light for the place (render-look.js); 'low' keeps the plain lights
       const lookId = LOOK_OF[scene0.set] === 'gym' && scene0.evening ? 'gym_evening' : LOOK_OF[scene0.set];
       let fx = 0, fz = 0, fn = 0; try { for (const a of Object.values(C.sample(scene0, Math.min(2, scene0.duration)).actors || {})) if (a && a.act !== 'off' && Number.isFinite(a.x)) { fx += a.x; fz += a.z; fn++; } } catch { /* no actors */ }
+      const ld = lookId && window.RenderLook?.LOOKS?.[lookId]?.sunDir; // indoors the sun comes through the windows (every tier: no cost)
+      if (ld && set.sun) { sunDir = V(...ld).normalize(); set.sun.position.copy(set.sun.target.position).addScaledVector(sunDir, 40); }
       if (lookId && window.RenderLook) try { rlook = window.RenderLook.attach(scene, e.renderer, { look: lookId, high: quality !== 'low', sun: set.sun, focus: fn ? [fx / fn, fz / fn] : null }); } catch (x) { console.warn('render look', x); rlook = null; }
-      sunDir = rlook?.sunDir || null; run.look = rlook; // QA: run.look.high(bool)
+      run.look = rlook; // QA: run.look.high(bool)
       run.frame = frame; e.fightIQDemo = run; busy.remove(); window.dispatchEvent(new Event('resize'));
       if (walkAPI && (run.walkIntroSkipped || walkAPI.resumePoint(resumeKey))) walkStart();
       else if (scene0.intro === 'map' && !opts.noMap && !reduced) startMap(); else run.phase = 'play';
@@ -322,7 +324,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       // camera
       lens(s.camera.fov);
       if (walk) walk.view(look,realtime,run.clock); else { camera.position.fromArray(s.camera.pos); look.fromArray(s.camera.look); camera.lookAt(look); }
-      if (hi && set.sun) { // the sun's shadow box covers what this shot sees near the camera: between the lens and the subject
+      if (set.sun && (hi || rlook?.isHigh && set.sun.castShadow && e.renderer.shadowMap.enabled)) { // the sun's shadow box covers what this shot sees near the camera: between the lens and the subject (indoors too on a high look: same map, a box fitted to the shot instead of the whole set)
         const d = Math.hypot(look.x - camera.position.x, look.z - camera.position.z), k = Math.min(1, 9 / Math.max(1e-3, d)) * .55, r = Math.max(7, Math.min(18, d * .55 + 4)), sc = set.sun.shadow.camera;
         set.focus(camera.position.x + (look.x - camera.position.x) * k, camera.position.z + (look.z - camera.position.z) * k, r);
         if (Math.abs(sc.right - r) > r * .15) { sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.updateProjectionMatrix(); }

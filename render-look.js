@@ -59,6 +59,9 @@
     arena: { share: .75, room: { centre: [0, 1.2, 0], walls: '#141824', wall: .6, floor: '#101218', ceil: '#05060a' },
       panels: [{ at: [0, 7, 0], w: 4, h: 4, c: '#ffffff', L: 2.0, up: true }, { at: [-8, 5, 0], w: 3, h: .6, c: '#ff6a6a', L: 1.2 }, { at: [8, 5, 0], w: 3, h: .6, c: '#6a8aff', L: 1.2 }] }
   };
+  // the Shop preview studio (game-presentation.js): dark backdrop, a big softbox on the key side, a cool rim strip behind
+  LOOKS.studio = { share: .7, room: { centre: [0, 1.2, 0], walls: '#2b313a', wall: .8, floor: '#3a404a', ceil: '#1d2229' },
+    panels: [{ at: [2.2, 3.4, 3.4], w: 2.2, h: 2.2, c: '#fff4e6', L: 1.4 }, { at: [-3, 2, 2.4], w: 1.6, h: 1.6, c: '#dbe6ff', L: .5 }, { at: [-1.5, 3.2, -4], w: .5, h: 2.6, c: '#e6eeff', L: 1.6 }] };
   LOOKS.underground = LOOKS.street_night; LOOKS.regional = LOOKS.boxing_club; LOOKS.championship = LOOKS.arena;
 
   // ---- material families: one environment is one light, so most families take it at 1; metals lean in a little (their
