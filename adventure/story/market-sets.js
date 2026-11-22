@@ -72,7 +72,7 @@
       const marketTrees = art?.MARKET_TREES || [{ x: -2.9, z: -4.45, h: 4 }, { x: 3.25, z: -4.6, h: 4.1 }];
       if (art && (city?.hazelStall || city?.tree)) objects.city = art.dress(c, city, marketTrees);
       for (const { x, z, h } of marketTrees) {
-        if (!city?.tree) tree(x, z, h);
+        if (!city?.tree) tree(x, z, h, 'upright'); // the authored narrow tree, else a generated narrow one
         else shade(x, z, 1.5, 1.15);
       }
       if (city?.hazelStall) {
@@ -97,7 +97,8 @@
         }
         cyl(S, x + .7 * (i % 2 ? 1 : -1), 0, z1, .06, y0, '#3b4350', P.cyl6);
       });
-      tree(-30, 5.4, 4.4); tree(-6.5, 5.6, 4.2); tree(9.5, 5.4, 4.6); tree(28, 5.5, 4.2); bin(-14.2, -4.6); bin(14.2, -4.6); planter(-3.5, 6.0, 1.6); planter(7.5, 6.2, 1.6); planter(-20, 6.0, 1.6);
+      for (const [x, z, h] of [[-30, 5.4, 4.4], [-6.5, 5.6, 4.2], [9.5, 5.4, 4.6], [28, 5.5, 4.2]]) tree(x, z, h, 'upright'); // Market Row: narrow street trees (map)
+      bin(-14.2, -4.6); bin(14.2, -4.6); planter(-3.5, 6.0, 1.6); planter(7.5, 6.2, 1.6); planter(-20, 6.0, 1.6);
       // stall keepers and shoppers, kept far from the camera (simple figures: the real cast is the three rigs)
       const SIL = ['#5a6c8a', '#8a5a5a', '#5a8a6c', '#8a7a5a', '#6c5a8a', '#7a8a9a'], SKIN = ['#c9a27a', '#a8825c', '#8a6a4a', '#d8b48c'];
       const person = (x, z, i, h = 1, ry = 0) => {
@@ -153,7 +154,7 @@
       { const x0 = -3.6, x1 = 3.6, n = 14, zf2 = fz + 1.25, y0 = 2.85, y1 = 2.4; for (let k = 0; k < n; k++) { const a = x0 + (x1 - x0) * k / n, b = x0 + (x1 - x0) * (k + 1) / n, col = C(k % 2 ? '#fff4e0' : '#7a2f26'), lo = col.clone().multiplyScalar(.8); S.quad([a, y1, zf2], [b, y1, zf2], [b, y0, fz + .1], [a, y0, fz + .1], col, lo); S.quad([a, y0, fz + .1], [b, y0, fz + .1], [b, y1, zf2], [a, y1, zf2], lo, lo); box(S, (a + b) / 2, y1 - .2, zf2, b - a, .2, .02, k % 2 ? '#fff4e0' : '#7a2f26'); } }
       board(c, "OTTO'S CORNER", 0, 3.45, fz + .1, 4.2, .62, 0, ['#14202b', '#f4c152']);
       box(S, 3.0, 2.95, fz + .1, .05, .05, .7, '#2f3640'); board(c, 'BOXING', 3.0, 2.62, fz + .78, .7, .32, Math.PI / 2, ['#7a2f26', '#fff4e0']); board(c, 'BOXING', 3.0, 2.62, fz + .78, .7, .32, -Math.PI / 2, ['#7a2f26', '#fff4e0']);
-      for (const x of [-11, 8.5, 18]) lamp(x, -.9); tree(-6.2, -1.2, 4.2); tree(15.5, -1.2, 4.4); /* was x 6: its crown filled the last shot as he walks out with the bag (GOTR-0103) */ bin(4.6, -3.9); planter(-4.3, -3.95, 1.3); planter(13.6, -3.95, 1.3);
+      for (const x of [-11, 8.5, 18]) lamp(x, -.9); tree(-6.2, -1.2, 4.2, 'upright'); tree(15.5, -1.2, 4.4, 'upright'); /* was x 6: its crown filled the last shot as he walks out with the bag (GOTR-0103) */ bin(4.6, -3.9); planter(-4.3, -3.95, 1.3); planter(13.6, -3.95, 1.3);
       c.car?.(-8, 1.35, '#3b7dd8', 1); c.car?.(12, 1.35, '#45b39d', 1);
 
       // ---- the interior (x 36 .. 44.4, z -3.2 .. 3.6, 3.2 m high)
