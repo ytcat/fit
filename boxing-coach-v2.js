@@ -926,6 +926,26 @@
 
     // A conservative padded-glove envelope against the skull and muzzle.
     // Move the speed-bag recovery in front of the head, never through it.
+    // GOTR-0027: see the call in update(). Root-space wrists; only the arms are re-solved, only inside the decay window.
+    inertialize(key,palmTarget,gloves,poles,setErrors){
+      const j=this.joints,I=this.inertia||(this.inertia={key:null,time:null,active:false,L:{out:null,vel:V(),x0:V(),v0:V(),t0:-1},R:{out:null,vel:V(),x0:V(),v0:V(),t0:-1}});
+      const now=this.renderTime,dt=Number.isFinite(I.time)?now-I.time:NaN,continuous=dt>0&&dt<.1,w=45,errors=[null,null];
+      const switched=continuous&&key!=null&&I.key!=null&&key!==I.key;I.key=key;I.time=now;I.active=false;
+      [['L',0],['R',1]].forEach(([side,index])=>{
+        const h=I[side],raw=this.point(j['hand'+side]);
+        if(!continuous||!h.out){h.out=raw.clone();h.vel.set(0,0,0);h.t0=-1;return;}
+        if(switched){h.x0.copy(h.out).addScaledVector(h.vel,dt).sub(raw);h.v0.copy(h.vel);h.t0=now-dt;}
+        const age=now-h.t0;
+        if(h.t0>=0&&age<.3){
+          const e=Math.exp(-w*age),offset=h.x0.clone().add(h.v0.clone().addScaledVector(h.x0,w).multiplyScalar(age)).multiplyScalar(e);
+          if(offset.lengthSq()>1e-8){I.active=true;const shoulder=this.point(j['arm'+side]),elbow=this.point(j['elbow'+side]),pole=elbow.sub(shoulder);
+            errors[index]=this.solve(j['arm'+side],j['elbow'+side],j['hand'+side],raw.add(offset),pole.lengthSq()>1e-8?pole:poles[index]);
+            gloves[index]=this.orientGlove(side,gloves[index].turn,palmTarget);}
+        }
+        const out=this.point(j['hand'+side]);h.vel.copy(out).sub(h.out).multiplyScalar(1/dt);h.out.copy(out);
+      });
+      setErrors(errors);
+    }
     clearOwnFace(side,glove,palmTarget,pole,reference=null) {
       const j=this.joints,hand=j['hand'+side],head=j.head;
       // GOTR-0027: the clearance a guard glove needs can switch between ~0 and ~23 cm from one tick to the next
@@ -1120,7 +1140,7 @@
       const kineticLoad=smooth((phase-.045)/.14)*(1-smooth((phase-.23)/.14));
       const kineticPower=move==='jab'?.35:move==='cross'?.75:1;
 
-      const recover=smooth((phase-.50)/.32);
+      let recover=smooth((phase-.50)/.32);
       const j=this.joints,hips=j.hips,chest=j.chest;
       let hipYaw=0,chestYaw=0,crouch=0,shift=0,forward=0,leadPivot=0,rearPivot=0;
       let trunkPitch=0,trunkRoll=0,pelvisRoll=0,shoulderLoad=0,shoulderSide=0;
@@ -1141,6 +1161,7 @@
       const strikeSide=punch?(['cross','rear_hook','rear_uppercut'].includes(move)?'R':'L'):'',cheekGuard=!!options.cheekGuard&&!!strikeSide&&(options.stance??0)>0;
       const held=(options.stance??0)*(1-block),leadStance=cheekGuard&&strikeSide==='L'?held:stanceWeight*(1-block),rearStance=cheekGuard&&strikeSide==='R'?held:stanceWeight*(1-block);
       this.cheekGuard=cheekGuard?(strikeSide==='L'?'R':'L'):'';
+      if(cheekGuard&&move.includes('uppercut'))recover=smooth((phase-.50)/.26); // GOTR-0032: quicker snap home
       // Stagger the neutral guard; close cover still protects the cheek.
       // GOTR-0051: lead glove forward at eye/cheek height, rear glove back at the chin (orthodox guard).
       // GOTR-0051 compact guard: in the stance both gloves sit close to the face, beside the muzzle in front of the
@@ -1213,19 +1234,22 @@
           // and the glove starts home right after the target instead of resting on it.
           const hookBack=cheekGuard?.50:.57;
           // GOTR-0024: drive and arc carry their speed into the target (cruise).
-          const driveHook=cruise((phase-.23)/(cheekGuard?.15:.24))*(1-smooth((phase-hookBack)/.22));
+          const driveHook=cruise((phase-.23)/(cheekGuard?.15:.24))*(1-smooth((phase-hookBack)/(cheekGuard?.18:.22)));
           const equipment=options.target||options.knuckleTarget;
           const swing=(equipment?cruise:smooth)((phase-(equipment?.19:.17))/(equipment?options.hookSwing??.32:.40));
-          const active=smooth((phase-.12)/(equipment?.32:.24))*(1-smooth((phase-hookBack)/.24));
+          const active=smooth((phase-.12)/(equipment?.32:.24))*(1-smooth((phase-hookBack)/(cheekGuard?.18:.24)));
           const rotation=driveHook-.28*load;
           crouch=.035*load+.016*driveHook;
-          hipYaw=-s*(.48*driveHook-.18*load);
-          chestYaw=-s*(.38*driveHook-.22*load);
+          // GOTR-0032 (cheekGuard): the lead hook turns the hips and ribs as far as the rear hook does (it also has to undo the
+          // bladed guard, which ate most of its turn).
+          const turnUp=cheekGuard&&s===-1?1.3:1;
+          hipYaw=-s*(.48*turnUp*driveHook-.18*load);
+          chestYaw=-s*(.38*turnUp*driveHook-.22*load);
           shift=-s*(.047*driveHook-.018*load);
           forward=-.025*load+.075*driveHook;
           pelvisRoll=-s*.028*rotation;trunkRoll=-s*.050*rotation;
           trunkPitch=.035*load+.020*driveHook;
-          hookState={s,swing,active,rotation:driveHook,load,release:1-smooth((phase-hookBack)/.24)};
+          hookState={s,swing,active,rotation:driveHook,load,release:1-smooth((phase-hookBack)/(cheekGuard?.18:.24))};
           if(s===-1){leadTurn=active;leadPole.lerp(V(-1,-.35,equipment?.30:.65),active);leadPivot=(equipment?.62:.72)*driveHook-.10*load;rearPivot=.08*driveHook;}
           else {rearTurn=active;rearPole.lerp(V(1,-.35,equipment?.30:.65),active);rearPivot=-(equipment?.62:.72)*driveHook+.10*load;leadPivot=-.08*driveHook;}
 
@@ -1679,6 +1703,11 @@
         const safe=this.clearOwnFace(side,gloves[index],palmTarget,pole,index&&rearStance>.5&&this.cheekGuard!=='L'?{cheek:true}:null);gloves[index]=safe.glove; // GOTR-0074: only the rear glove hugs the cheek; the lead glove is out in front
         if(index)re=safe.error;else le=safe.error;
       }
+      // GOTR-0027 (cheekGuard): inertialization of action switches. When the caller's action key changes (a linked punch
+      // starts while the last one returns, a punch hands over to the guard), each wrist keeps the position and velocity it
+      // had and the difference to the new pose decays critically damped (~0.1 s), instead of jumping to the new pose.
+      if(options.cheekGuard&&options.actionKey!=null)this.inertialize(options.actionKey,palmTarget,gloves,[leadPole,rearPole],e=>{if(e[0]!=null)le=e[0];if(e[1]!=null)re=e[1];});
+      else if(this.inertia)this.inertia.time=null;
       // Arena-space spring guides retain inertia under head/root acceleration; orbit adds no force.
       // Seek/teleport resets avoid integrating stale state or a whole hidden tab.
       const overlay=options.poseOverlay?.(this);

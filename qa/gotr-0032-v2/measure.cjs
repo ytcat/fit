@@ -5,7 +5,7 @@
      elbow     elbow angle of the striking arm at contact (deg)
      hipTurn / shoulderTurn  max change of the hip line / shoulder line yaw from the guard up to contact (deg)
      transfer  pelvis travel toward the target from the guard up to contact (cm); heel = rear-foot lift (cm)
-     snapMs    time from contact until the striking knuckle is back within 6 cm of its guard position
+     snapMs    time from contact until the striking knuckle is back within 6 cm of its guard position, relative to the head
      dvMax     largest per-tick velocity change of any knuckle/elbow, excluding the contact tick and the 3 after (m/s per tick)
      dvGuard   same for the non-striking (guard) knuckle; pops = isolated one-tick spikes (dv > 2.5 m/s, neighbours < half)
      popCm     mitt recoil / bag displacement peak (cm)
@@ -22,7 +22,7 @@ function sampler(e){
  return ()=>{c.root.updateMatrixWorld(true);const k=i=>c.root.localToWorld(V(...c.metrics.gloves[i].strikePoint));
   const fwd=V(0,0,1).transformDirection(c.root.matrixWorld);fwd.y=0;fwd.normalize();
   const yaw=(a,b)=>{const d=W(b).sub(W(a));return Math.atan2(d.x,d.z);};
-  return {kn:[k(0),k(1)],el:[W(j.elbowL),W(j.elbowR)],sh:[W(j.armL),W(j.armR)],hips:W(j.hips),
+  return {kn:[k(0),k(1)],el:[W(j.elbowL),W(j.elbowR)],sh:[W(j.armL),W(j.armR)],hips:W(j.hips),head:W(j.head),
    hipYaw:yaw(j.thighL,j.thighR),shYaw:yaw(j.armL,j.armR),fwd,feet:[W(j.footL),W(j.footR)],
    elbowAngle:[0,1].map(i=>{const s=i?'R':'L',a=W(j['arm'+s]),b=W(j['elbow'+s]),h=W(j['hand'+s]);return deg(a.sub(b).angleTo(h.sub(b)));})};};
 }
@@ -56,7 +56,8 @@ function single(target,species,move,keep){
  const sp=i=>F[i].kn[side].distanceTo(F[i-1].kn[side])/dt;let peak=0;const end=ci>0?ci:F.length;for(let i=i0+1;i<end;i++)peak=Math.max(peak,sp(i));
  const at=ci>0?ci:i0+Math.round(.32/dt),c=F[at];
  let hipTurn=0,shTurn=0,transfer=0,heel=0;for(let i=i0;i<=at;i++){hipTurn=Math.max(hipTurn,ang(F[i].hipYaw,g.hipYaw));shTurn=Math.max(shTurn,ang(F[i].shYaw,g.shYaw));transfer=Math.max(transfer,F[i].hips.clone().sub(g.hips).dot(g.fwd));heel=Math.max(heel,F[i].feet[1].y-g.feet[1].y);}
- let snap=null;if(ci>0)for(let i=ci+1;i<F.length;i++)if(F[i].kn[side].distanceTo(g.kn[side])<.06){snap=(i-ci)*dt*1000;break;}
+ // snap: back within 6 cm of the guard position relative to the head (a step in or out does not count against it)
+ let snap=null;const rel=f=>f.kn[side].clone().sub(f.head);if(ci>0)for(let i=ci+1;i<F.length;i++)if(rel(F[i]).distanceTo(rel(g))<.06){snap=(i-ci)*dt*1000;break;}
  const scan=jerkScan(F,i0,F.length,i=>nearContact(F,i)),guard=scan.list.filter(x=>x.h!==side&&x.k==='kn');
  let popPeak=0;for(let i=i0;i<F.length;i++)popPeak=Math.max(popPeak,F[i].pop);
  const out={move,contact:ci>0,toContactMs:ci>0?Math.round((ci-i0)*dt*1000):null,approach:ci>0?r2(sp(ci-1)):null,closing:ci>0?r2(F[ci].contacts[0].speed):null,peak:r2(peak),elbow:r1(c.elbowAngle[side]),
