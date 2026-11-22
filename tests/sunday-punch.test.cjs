@@ -52,7 +52,7 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  const live=()=>{globalThis.APP_VERSION={channel:'live'};},dev=()=>{globalThis.APP_VERSION={channel:'dev'};};
  live();let g=Domain.fresh(profile);assert.deepEqual(Domain.finishersOwned(g),[]);
  assert.throws(()=>Domain.action(g,{type:'finisher-buy',finisherId:'sunday_punch'}),/Not enough coins/);
- const item=Domain.finishers.find(f=>f.id==='sunday_punch');assert.ok(item.price>0&&item.name==='Sunday Punch','price shown');
+ const item=Domain.finishers.find(f=>f.id==='sunday_punch');assert.ok(item.price>0&&item.name==='Super Punch','price shown');
  g.ledger.push({id:'reward:x',type:'earn',coins:item.price+5,xp:0,species:'lion',activityId:'x',rule:'activity-v1'});g.processed.push('x');g.history.push({id:'x',transactionId:'reward:x',mode:'fight',species:'lion',control:'play',seconds:20,hits:1,attempts:1,defences:0,jumps:0,result:'win',xp:0,coins:item.price+5});
  const r=Domain.action(g,{type:'finisher-buy',finisherId:'sunday_punch'});assert.equal(r.free,false);assert.equal(Domain.wallet(g).coins,5);assert.deepEqual(Domain.finishersOwned(g),['sunday_punch']);
  assert.throws(()=>Domain.action(g,{type:'finisher-buy',finisherId:'sunday_punch'}),/Already owned/);
@@ -68,7 +68,7 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  // Shop card: price, buy action, owned state
  const Shop=require('../game-shell.js');assert.equal(Shop.kind(item),'finisher');assert.deepEqual(Shop.buy(item),{type:'finisher-buy',finisherId:'sunday_punch'});
  assert.equal(Shop.state(item,Domain.fresh(profile),item.price),'price');assert.equal(Shop.state(item,Domain.fresh(profile),0),'short');assert.equal(Shop.state(item,g,0),'equipped');assert.equal(Shop.wear(item,g),null);
- assert.ok(require('../glossary.js').terms.includes('Sunday Punch'),'a move name: Latin in every language');
+ assert.ok(require('../glossary.js').terms.includes('Super Punch'),'a move name: Latin in every language');
  console.log('PASS ownership: Shop (price, free in dev) or story step',item.earn,'; saved in the ledger; old saves load');
 }
 

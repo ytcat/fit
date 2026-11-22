@@ -412,7 +412,7 @@
     const app = window.app, e = app?.engine, stage = document.getElementById('stageContainer'); if (!e || !stage) { if ((boot.n = (boot.n || 0) + 1) < 100) setTimeout(boot, 200); return; }
     if (window.FightArena) install(window.FightArena);
     const cap = document.createElement('div'); cap.className = 'sp-caption'; cap.hidden = true; cap.setAttribute('role', 'status');
-    const title = document.createElement('strong'); title.textContent = 'Sunday Punch'; title.dir = 'ltr'; const hint = document.createElement('span'); cap.append(title, hint); stage.append(cap);
+    const title = document.createElement('strong'); title.textContent = 'Super Punch'; title.dir = 'ltr'; const hint = document.createElement('span'); cap.append(title, hint); stage.append(cap);
     const SKIP = { en: 'Tap to skip', he: 'הקישו לדילוג', ru: 'Нажмите, чтобы пропустить' };
     let seen = false; try { seen = localStorage.getItem(SEEN) === '1'; } catch { }
     let marked = false;
