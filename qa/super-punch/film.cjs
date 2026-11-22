@@ -17,6 +17,7 @@ const CASES = [
   ['ring', `()=>{__ctx.change({type:'venue',venueId:'championship'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'shoulder_push:arms_up'],
   ['ring2', `()=>{__ctx.change({type:'venue',venueId:'championship'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'low_orbit:double_biceps'],
   ['street', `()=>AdventureOldTown.storyFightStart(__ctx,'market_robber')`, 'side_track:point_crowd'],
+  ['street2', `()=>{__ctx.change({type:'venue',venueId:'street'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'low_orbit:arms_up'],
   ['docks', `()=>AdventureOldTown.storyFightStart(__ctx,'docks_fight')`, 'overhead_drop:chest_pound'],
   ['basement', `()=>{__ctx.change({type:'venue',venueId:'underground'});ringfighterGame.startFight({watch:true,rounds:1,roundSeconds:60,restSeconds:0});}`, 'front_low:shuffle'],
   ['gym', `()=>AdventureOldTown.storyFightStart(__ctx,'first_brick')`, 'side_track:chest_pound']
@@ -53,7 +54,9 @@ server.listen(0, async () => {
   for (const [name, start, film] of CASES) {
     if (only.length && !only.includes(name)) continue;
     const t0 = Date.now();
-    await p.evaluate(() => { try { AdventureOldTown.leave?.(); } catch { } try { ringfighterGame.close?.(); } catch { } document.querySelectorAll('dialog[open]:not(.story-scene)').forEach(d => d.close()); });
+    // the story's after-film of the previous case (e.g. Mrs. Hazel's bag after the market fight) must not cover this one
+    await p.evaluate(async () => { for (let i = 0; i < 8; i++) { try { StoryScenes.stop(); } catch { } await new Promise(r => setTimeout(r, 350)); } });
+    await p.evaluate(() => { try { AdventureOldTown.leave?.(); } catch { } try { ringfighterGame.close?.(); } catch { } document.querySelectorAll('dialog[open]').forEach(d => d.close()); });
     await p.evaluate(`(${start})()`); await p.waitForFunction(() => app.engine.arena?.fightView?.match, null, { timeout: 600000 });
     await p.evaluate(() => { app.engine.isPlaying = true; app.engine.speed = 0; if (app.engine.player) app.engine.player.enabled = false; });
     await until(`()=>app.engine.arena.fightView.match.phase==='round'&&app.engine.arena.fightView.match.time>2`, 3000);
@@ -77,7 +80,7 @@ server.listen(0, async () => {
     }
     for (const [at, label] of FRAMES) {
       if (at === 'dip') continue;
-      else if (at === 'end') await until(`()=>{const m=app.engine.arena.fightView.match;return !m.finisherHold()&&m.phase==='ceremony'&&m.phaseTime>2.2}`, 1800);
+      else if (at === 'end') await until(`()=>{const m=app.engine.arena.fightView.match;return !m.finisherHold()&&m.phase==='ceremony'&&m.phaseTime>(app.engine.arena.fightView.storyFight?.6:2.2)}`, 1800);
       else await until(`()=>{const m=app.engine.arena.fightView.match;return m.result?.finisher&&m.time-m.result.finisherTime>=${at}}`, 2400);
       await frames(2);
       const pr = await probe(); console.log(name, label, JSON.stringify(pr));

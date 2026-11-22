@@ -73,8 +73,8 @@
     const arch = -.16 * snap * (1 - rest) - .08 * s * (1 - rest);
     const adj = ctx.adj || { spine: 0, neck: 0, hand: { L: 0, R: 0 }, foot: { L: 0, R: 0 } };
     // coming to: the trunk curls up off the canvas (forward flexion lifts the chest of a man on his back), swaying with each push
-    j.spine.rotation.set(arch * .6 - .04 * rest + adj.spine * rest + breathe + .50 * up + .05 * push, .04 * limp * sg, .03 * limp * sg + .05 * up * Math.sin(u * 1.3));
-    j.chest.rotation.set(arch * .5 - .03 * rest - breathe + .30 * up, .03 * limp * sg, .02 * limp * sg);
+    j.spine.rotation.set(arch * .6 - .04 * rest + adj.spine * rest + breathe + .36 * up + .05 * push, .04 * limp * sg, .03 * limp * sg + .05 * up * Math.sin(u * 1.3));
+    j.chest.rotation.set(arch * .5 - .03 * rest - breathe + .20 * up, .03 * limp * sg, .02 * limp * sg);
     for (const side of ['L', 'R']) { const k = side === 'L' ? -1 : 1, sc = j['scapula' + side]; if (sc) { sc.position.set(k * .17, .17 + .02 * limp * (1 - rest), -.06); sc.rotation.set(0, 0, 0); } }
     // head: snaps back with the chin lifted, lags the fall, bumps the canvas, then rolls to one side (toward the camera)
     const roll = smooth((u - (T.land + .10)) / .55);
@@ -210,9 +210,12 @@
     const action = r.finisherAction, sStart = sc.root.position.clone(); sStart.y = 0;
     const mid = rest.clone().addScaledVector(along, .85), bound = view.ringless ? 1.7 : 1.15;
     const spots = [1, -1].map(k => { const p = mid.clone().addScaledVector(across, k * 1.05).addScaledVector(along, -.25); return { p, k, out: Math.max(0, (view.ringless ? Math.hypot(p.x, p.z) : Math.max(Math.abs(p.x), Math.abs(p.z))) - bound) }; }).sort((a, b) => a.out - b.out || a.p.length() - b.p.length());
-    const spot = spots[0], W = spot.p.clone(); if (spot.out > 0) W.multiplyScalar((W.length() - spot.out) / W.length()); W.y = 0;
+    const spot = spots[0]; let W = spot.p.clone(); if (spot.out > 0) W.multiplyScalar((W.length() - spot.out) / W.length()); W.y = 0;
     // he faces the lens, which looks at him over the fallen body (turned a little per fight so the body lies across the picture)
-    const toBody = mid.clone().sub(W).setY(0).normalize(), turn = .38 * pick.mirror, camDir = toBody.clone().applyAxisAngle(V(0, 1, 0), turn);
+    const toBody = mid.clone().sub(W).setY(0).normalize(), turn = .38 * pick.mirror; let camDir = toBody.clone().applyAxisAngle(V(0, 1, 0), turn);
+    // street endings: he stands at the beaten man's feet, seen from the side, so the man is seen dragging himself away from him
+    const feet = rest.clone().addScaledVector(along, -.95); feet.y = 0;
+    if (end.fallen === 'crawl' && Math.hypot(feet.x, feet.z) < bound) { W = feet; camDir = across.clone().multiplyScalar(pick.mirror).addScaledVector(along, .35).normalize(); }
     sp.striker = { actor: striker, start: sStart, yaw: sc.ringYaw ?? 0, options: { ...(view.poseOptions?.[striker] || {}) }, phase: clamp((action ? (r.finisherTime - action.start) / action.duration : .4)), corner: W, dist: 0,
       spot: W, camDir, celebYaw: Math.atan2(camDir.x, camDir.z), raise: striker === 'lion' ? 'R' : 'L' };
     delete sp.striker.options.hitReaction; delete sp.striker.options.plantedContacts; delete sp.striker.options.contactReturn; delete sp.striker.options.ringStep; delete sp.striker.options.blockCover;
@@ -409,15 +412,15 @@
     cam.position.copy(position); cam.zoom = 1; cam.up.set(0, 1, 0); cam.lookAt(sp.cam.c); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
     const grid = []; for (let i = 0; i <= 4; i++) for (let j = 0; j <= 4; j++) grid.push(c0.clone().addScaledVector(right, lerp(minX, maxX, i / 4)).addScaledVector(camUp, lerp(minY, maxY, j / 4)));
     clearView(view, position, grid.concat([fc.joints.head, fc.joints.hips, sc.joints.head, sc.joints.handR].map(b => b.getWorldPosition(V()))));
-    refereeClear(view, position, celebrating ? [] : [fc.joints.head, fc.joints.chest, sc.joints.handR, fc.joints.hips].map(b => b.getWorldPosition(V())));
+    refereeClear(view, position, celebrating ? [] : [fc.joints.head, fc.joints.chest, sc.joints.handR, fc.joints.hips, sc.joints.head, sc.joints.hips, sc.joints.chest].map(b => b.getWorldPosition(V())));
   }
   // The referee (or Bruno) walking over must not fill the lens during the punch and the fall: while he stands between the lens
-  // and the fighters (a 0.35 m column, 2.1 m tall) he is left out of the picture; he is always back for the celebration.
+  // and the fighters (a 0.4 m column, 2.1 m tall) or right in front of it he is left out of the picture; he is always back for the celebration.
   function refereeClear(view, eye, targets) {
     const ref = view.referee, sp = view.sundayPunch; if (!ref?.root || view.ringless) return;
     const p = ref.root.getWorldPosition(V()), fwd = V(0, 0, -1).applyQuaternion(view.engine.camera.quaternion), near = Math.hypot(eye.x - p.x, eye.z - p.z);
     let block = near < .55 || targets.length > 0 && near < 1.5 && fwd.dot(p.clone().setY(eye.y).sub(eye)) > 0; // right in front of the lens: he would fill a third of the picture
-    for (const t of targets) { if (block) break; const dx = t.x - eye.x, dz = t.z - eye.z, len2 = dx * dx + dz * dz; if (len2 < 1e-6) continue; const k = clamp(((p.x - eye.x) * dx + (p.z - eye.z) * dz) / len2), x = eye.x + dx * k, z = eye.z + dz * k, y = lerp(eye.y, t.y, k); if (k > .02 && k < .97 && Math.hypot(p.x - x, p.z - z) < .35 && y < 2.1) block = true; }
+    for (const t of targets) { if (block) break; const dx = t.x - eye.x, dz = t.z - eye.z, len2 = dx * dx + dz * dz; if (len2 < 1e-6) continue; const k = clamp(((p.x - eye.x) * dx + (p.z - eye.z) * dz) / len2), x = eye.x + dx * k, z = eye.z + dz * k, y = lerp(eye.y, t.y, k); if (k > .02 && k < .97 && Math.hypot(p.x - x, p.z - z) < .42 && y < 2.1) block = true; }
     if (block) { if (ref.root.visible) { ref.root.visible = false; sp.refHidden = true; } } else if (sp.refHidden) { ref.root.visible = true; sp.refHidden = false; }
   }
   // This fight's film (camera, celebration, ending), chosen once per bout view from the fight itself (super-punch-film.js choose).
@@ -433,7 +436,7 @@
     const ring = view.ring; const sp = view.sundayPunch, ray = new THREE.Ray(), hit = V(), box = new THREE.Box3();
     sp.hidden = sp.hidden || new Set(); const hide = new Set(), corners = [];
     const boxBlocks = () => { box.expandByScalar(.04); if (box.containsPoint(eye)) return true; for (const t of targets) { ray.origin.copy(eye); ray.direction.copy(t).sub(eye); const far = ray.direction.length(); ray.direction.divideScalar(far); if (ray.intersectBox(box, hit) && hit.distanceTo(eye) < far - .25) return true; } return false; };
-    const blocks = part => { box.setFromObject(part).expandByScalar(.04); for (const t of targets) { ray.origin.copy(eye); ray.direction.copy(t).sub(eye); const far = ray.direction.length(); ray.direction.divideScalar(far); if (ray.intersectBox(box, hit) && hit.distanceTo(eye) < far - .25) return true; } return false; };
+    const blocks = part => { box.setFromObject(part).expandByScalar(.04); if (box.distanceToPoint(eye) < .8) return true; /* a post right by the lens */ for (const t of targets) { ray.origin.copy(eye); ray.direction.copy(t).sub(eye); const far = ray.direction.length(); ray.direction.divideScalar(far); if (ray.intersectBox(box, hit) && hit.distanceTo(eye) < far - .25) return true; } return false; };
     const cornerOf = part => { const p = part.position; return Math.abs(Math.abs(p.x) - 1.65) < .2 && Math.abs(Math.abs(p.z) - 1.65) < .2 ? Math.sign(p.x) + ',' + Math.sign(p.z) : null; };
     if (ring?.visible) for (const part of ring.children) { if (!part.isMesh || part.position.y < -.05 && !cornerOf(part)) continue; if (blocks(part)) { hide.add(part); const c = cornerOf(part); if (c) corners.push(c); } }
     if (ring?.visible) for (const part of ring.children) if (corners.includes(cornerOf(part))) hide.add(part); // a corner goes as a whole: post, pads and turnbuckles
