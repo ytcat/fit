@@ -33,6 +33,22 @@
   const borrow = c => ({ c, parent: c.root.parent, pos: c.root.position.clone(), q: c.root.quaternion.clone(), scale: c.root.scale.clone(), visible: c.root.visible });
   function giveBack(b) { const r = b.c.root; r.parent?.remove(r); if (b.parent) b.parent.add(r); r.position.copy(b.pos); r.quaternion.copy(b.q); r.scale.copy(b.scale); r.visible = b.visible; b.c.maneInitialized = false; }
 
+  // Paws (GOTR-0100 follow-up, phones): the bare-handed characters of a film are asked from the paw workers before its set is
+  // built, so the shapes are ready (or nearly) when the cast appears. Kit (gloves) needs no paws; Brick and Mack wear gloves.
+  const BARE = ['bruno', 'fang', 'hazel', 'otto', 'rourke'];
+  function pawsFor(scene0, e, prio = 1) {
+    const P = window.Paws; if (!P?.prefetch || !scene0?.actors) return;
+    const who = [];
+    for (const [k, a] of Object.entries(scene0.actors)) {
+      const fit = scene0.outfit?.[k];
+      if (a.rig === 'fighter') { if (fit && fit !== 'kit') who.push({ who: e?.coach?.species === 'rabbit' ? 'rabbit' : 'lion', wraps: fit === 'track_wraps' }); }
+      else if (BARE.includes(a.rig)) who.push(a.rig);
+    }
+    try { P.prefetch(who, { prio }); } catch (x) { /* paws are optional */ }
+  }
+  /** Asks for the paws of a coming film (the story panel calls this for the current step); prio 2 by default. */
+  function prefetch(id, prio = 2) { const s = Core()?.variant?.(id); if (s) pawsFor(s, window.app?.engine, prio); return !!s; }
+
   function play(id, opts = {}) {
     const C = Core(), e = window.app?.engine, done = typeof opts.onDone === 'function' ? opts.onDone : () => {};
     let scene0 = C?.variant(id, opts.outcome); // re-staged once the set is built when the city models are in it (GOTR-0089)
@@ -44,6 +60,7 @@
     if (window.StoryScenes?.playing && window.StoryScenes.playing !== id) window.StoryScenes.stop();
     if (e.fightIQDemo) return fail('busy');
     window.DreamSets?.register(); window.MarketSets?.register();
+    pawsFor(scene0, e, 1); // GOTR-0100 follow-up: the film's paws first in the worker queue, while its set and city models load
     const reduced = opts.reducedMotion ?? !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches, w = W[lang()];
     // ---- overlay: bars, subtitle in the bottom bar, Skip
     const d = el('dialog', 'story-scene dream-scene'); d.dir = lang() === 'he' ? 'rtl' : 'ltr'; d.dataset.kind = 'dream'; d.dataset.tap = String(!!scene0.tap);
@@ -274,7 +291,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
   }
 
   window.DreamScenes = {
-    play, has: id => !!Core()?.scenes[id],
+    play, prefetch, has: id => !!Core()?.scenes[id],
     get ids() { return Core()?.ids || []; },
     get playing() { return current ? current.id : null; },
     stop() { current?.finish({ skipped: true }); },
