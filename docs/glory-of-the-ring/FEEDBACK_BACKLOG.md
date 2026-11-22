@@ -986,7 +986,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported:** 2026-11-22 (owner: "I need better options to execute the super punch. I'm not getting to the situation that I can use it.")
 - **Status:** READY FOR QA — v1.91 (not checked on a phone)
 - **Cause (measured in Chromium, market street fight, bot at a human pace):** at that story step the finisher was not owned at all (earned only at `advanced_training`, near the end of Chapter 1, or bought for 150 coins), so the button never showed; and when owned, "hurt" meant under 25 % health, reached ~31 s into a 45 s fight, seconds before a normal KO.
-- **Fix:** earned at `dream_gym_talk` (Bruno shows it at the first talk, story line EN/HE/RU), ready under 50 % health with a full Burst (`boxing-fight.js` hurt 50), the dim button shows what is missing ("Burst 66%" / "Foe 66→50%"), and the name fits on phones. Re-measured: owned in the market fight, ready at 9 s, lit gold; landing rate on the rigs 11/12 calm, 9/12 mid-exchange (3 blocked by a guard already up).
+- **Fix:** earned at `dream_gym_talk` (Bruno shows it at the first talk, story line EN/HE/RU), ready under 50 % health with a full Burst (`boxing-fight.js` hurt 50), the button is grey until ready and lights up gold (owner: "I don't need description for super punch. just ungrey it when it's ready" — the "Burst %/Foe %" line was removed), and the name fits on phones. Re-measured: owned in the market fight, ready at 9 s, lit gold; landing rate on the rigs 11/12 calm, 9/12 mid-exchange (3 blocked by a guard already up).
 
 ### GOTR-0116 — The Lion has no hands in the two-sided drill
 - **Reported:** 2026-11-22 (owner, iPhone screenshot of the two-sided drill: "Where are lion hands?")
