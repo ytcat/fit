@@ -1,0 +1,127 @@
+{
+ "samples": 6,
+ "viewport": [
+  402,
+  690
+ ],
+ "rows": [
+  {
+   "id": "dream_opening",
+   "worst": {
+    "tris": 436761,
+    "calls": 111,
+    "t": 7.9
+   },
+   "mean": 345748
+  },
+  {
+   "id": "dream_gym_talk",
+   "worst": {
+    "tris": 683586,
+    "calls": 173,
+    "t": 33
+   },
+   "mean": 634371
+  },
+  {
+   "id": "dream_after_brick",
+   "worst": {
+    "tris": 596712,
+    "calls": 99,
+    "t": 10
+   },
+   "mean": 536746
+  },
+  {
+   "id": "dream_apology",
+   "worst": {
+    "tris": 521929,
+    "calls": 125,
+    "t": 2.9
+   },
+   "mean": 400179
+  },
+  {
+   "id": "dream_market_robbery",
+   "worst": {
+    "tris": 879669,
+    "calls": 174,
+    "t": 7.8
+   },
+   "mean": 651409
+  },
+  {
+   "id": "dream_market_reward",
+   "worst": {
+    "tris": 808960,
+    "calls": 172,
+    "t": 23.8
+   },
+   "mean": 726417
+  },
+  {
+   "id": "dream_otto_shop",
+   "worst": {
+    "tris": 545897,
+    "calls": 121,
+    "t": 20.7
+   },
+   "mean": 493484
+  },
+  {
+   "id": "dream_new_bag",
+   "worst": {
+    "tris": 738077,
+    "calls": 321,
+    "t": 3.4
+   },
+   "mean": 737597
+  },
+  {
+   "id": "dream_offer",
+   "worst": {
+    "tris": 738089,
+    "calls": 322,
+    "t": 5.3
+   },
+   "mean": 692045
+  },
+  {
+   "id": "dream_fight_night",
+   "worst": {
+    "tris": 1297242,
+    "calls": 459,
+    "t": 1.8
+   },
+   "mean": 980930
+  },
+  {
+   "id": "dream_chapter_end",
+   "worst": {
+    "tris": 1157991,
+    "calls": 250,
+    "t": 11.7
+   },
+   "mean": 946397
+  },
+  {
+   "id": "dream_docks",
+   "worst": {
+    "tris": 697783,
+    "calls": 72,
+    "t": 14
+   },
+   "mean": 592198
+  },
+  {
+   "id": "dream_docks_after",
+   "worst": {
+    "tris": 663787,
+    "calls": 76,
+    "t": 9.9
+   },
+   "mean": 470037
+  }
+ ],
+ "errors": []
+}

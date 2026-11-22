@@ -152,6 +152,7 @@
       win(-7.6, ZB, 0); win(-3.8, ZB, 0); win(3.8, ZB, 0); win(7.6, ZB, 0); win(X, -3, 1); win(X, 2, 1); win(-X, 1, -1);
       const arch = movable(A, 'gym hall'); arch.castShadow = false;
 
+      if (floorFight !== 'ring') { // the gym-ring fight (gym-fight.js) brings the game's own ring instead
       // ---- the ring (back left): platform, apron, canvas, padded posts, three ropes a side, steps
       const rx = -4.6, rz = -3.3, R = 2.9, top = .92;
       c.shade(rx, rz, R * 2 + .9, R * 2 + .9);
@@ -160,6 +161,7 @@
       [[-1, -1, '#d9473b'], [1, -1, '#f4f1ea'], [-1, 1, '#f4f1ea'], [1, 1, '#2f6fc0']].forEach(([a, b, col]) => { const px = rx + a * R, pz = rz + b * R; cyl(S, px, top, pz, .07, 1.5, '#3b4350', P.cyl8); box(S, px - a * .1, top + .32, pz - b * .1, .2, 1.1, .2, col); });
       for (const y of [.5, .85, 1.2]) for (const s of [-1, 1]) { box(S, rx, top + y, rz + s * (R - .12), R * 2 - .2, .035, .035, s > 0 && y === .85 ? '#d9473b' : '#f4f1ea'); box(S, rx + s * (R - .12), top + y, rz, .035, .035, R * 2 - .2, y === .85 ? '#2f6fc0' : '#f4f1ea'); }
       for (let k = 0; k < 3; k++) box(S, rx + 1.2, 0, rz + R + .42 + (2 - k) * .3, 1.2, (k + 1) * .29, .3, '#5b3a2a'); // steps on the camera side
+      }
       // ---- heavy bags on a beam (back right), speed bag, floor mats
       const bag = (x, z, col, len = 1.15) => { const y1 = 1.02 + len, y0 = 1.02, ch = H - .32 - y1; c.shade(x, z, .8, .8); cyl(S, x, y0, z, .2, len, col, P.cyl20); cyl(S, x, y1 - .1, z, .206, .1, '#1d1f24', P.cyl20); cyl(S, x, y0, z, .206, .08, '#1d1f24', P.cyl20); cyl(S, x, y0 + len * .45, z, .203, .16, '#e9e4d6', P.cyl20); for (let k = 0; k < 4; k++) box(S, x + Math.cos(k * TAU / 4) * .1 * (1 - .0), y1, z + Math.sin(k * TAU / 4) * .1, .016, .5, .016, '#aab2bc'); cyl(S, x, y1 + .5, z, .018, ch - .5, '#8f98a4', P.cyl6); };
       if (!window.BagBreak?.dress?.(c)) bag(5.6, -2.5, '#8f2f22'); /* the old bag: hanging, on the floor or new (GOTR-0087, bag-break.js) */ bag(7.9, -4.4, '#2b2f3a', 1.3); bag(8.6, -1.2, '#7a5238', 1.0);
@@ -186,11 +188,11 @@
       cyl(S, 3.4, 0, ZB + .35, .02, 1.6, '#c9a36a', P.cyl6, .18); box(S, 3.4, 0, ZB + .62, .34, .08, .14, '#d8d2c4');
       // hanging lamps: enamel shades, bright bulbs, warm pools on the floor
       pool(0, 1.0, 2.8, '#ffe2a8'); for (const [x, z] of [[-4.6, -3.3], [-2.4, 3.4], [2.6, 3.6], [7.2, -.6], [-6, 5.5], [6, 5.5]]) { cyl(S, x, 3.6, z, .012, H - 3.6, '#2a2f38', P.cyl6); S.add(P.cone8, M(x, 3.42, z, .46, .26, .46), C('#2f5d4a')); G.add(P.sph, M(x, 3.44, z, .1, .1, .1), C('#fff3cf')); pool(x, z, 2.6, '#ffe2a8'); }
-      if (floorFight) { // the sparring mat of the first fight: the size of a ring canvas, taped edge, no ropes
+      if (floorFight === true) { // the sparring mat of the first fight: the size of a ring canvas, taped edge, no ropes
         const [mx, mz] = [1.5, 2.0]; box(S, mx, 0, mz, 3.9, .035, 3.9, '#27364b'); box(S, mx, .035, mz, 3.5, .004, 3.5, '#33475f'); for (const [dx, dz, w, d] of [[0, 1.78, 3.6, .06], [0, -1.78, 3.6, .06], [1.78, 0, .06, 3.6], [-1.78, 0, .06, 3.6]]) box(S, mx + dx, .039, mz + dz, w, .003, d, '#f4f1ea'); box(S, mx, .039, mz, .5, .003, .5, '#8f2f22'); }
       return { x: 0, z: 0, r: 13 };
     };
-    Sets.register('dream_gym', gym(false)); Sets.register('dream_gym_floor', gym(true));
+    Sets.register('dream_gym', gym(false)); Sets.register('dream_gym_floor', gym(true)); Sets.register('dream_gym_ring', gym('ring'));
   }
   if (window.StorySets) register(); else window.addEventListener('DOMContentLoaded', register);
   window.DreamSets = { register };

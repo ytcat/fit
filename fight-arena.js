@@ -58,7 +58,7 @@
    for(const coach of Object.values(this.coaches)){coach.root.scale.x=1;this.cast.add(coach.root);}
    this.referee=new RhinoReferee();this.cast.add(this.referee.root);this.audience=new FightAudience(arena.group);
    // GOTR-0083: a story fight on the gym floor (no ring, ropes or crowd; Coach Bruno referees). adventure/story/gym-fight.js
-   if(this.engine.fightOptions?.place==='gym'&&window.StoryGymFight)queueMicrotask(()=>{try{if(this.arena.fightView===this||!this.arena.fightView)window.StoryGymFight.install(this);}catch(error){console.warn('gym fight',error);}});
+   const gymPlace=this.engine.fightOptions?.place;if((gymPlace==='gym'||gymPlace==='gym_ring')&&window.StoryGymFight)queueMicrotask(()=>{try{if(this.arena.fightView===this||!this.arena.fightView)window.StoryGymFight.install(this,gymPlace==='gym_ring'?'ring':'floor');}catch(error){console.warn('gym fight',error);}});
    this.ring=new THREE.Group();arena.group.add(this.ring);
    // Raised canvas and apron make the ring a complete visible platform.
    const canvas=new THREE.Mesh(new THREE.BoxGeometry(3.48,.16,3.48),new THREE.MeshStandardMaterial({color:0x263449,roughness:.92,side:THREE.DoubleSide}));
