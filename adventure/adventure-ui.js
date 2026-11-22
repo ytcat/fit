@@ -162,6 +162,11 @@
       titles.append(el('h3', '', T(info.name)), el('p', 'adv-kicker', p.kind === 'side' ? `${w.sq} · ${w.chapter} ${zone?.chapter || ''}` : p.kind === 'place' ? w.place : `${w.chapter} ${p.chapter} · ${T(info.sub)}`));
       head.append(titles, button('×', () => { card.hidden = true; }, 'adv-card-close'));
       card.append(head);
+      if (p.id === 'oldtown' && chap === 1) {
+        const roam = button(T(L('Free walk · Chapter 1', 'הליכה חופשית · פרק 1', 'Свободная прогулка · Глава 1')), () => window.location.assign('./chapter1-roam.html'), 'game-button adv-go adv-alt adv-primary');
+        roam.title = T(L('Optional mode. Internet connection required; no story progress.', 'מצב נפרד. נדרש אינטרנט; המשימות לא מתקדמות.', 'Отдельный режим. Нужен интернет; сюжет не меняется.'));
+        card.append(roam);
+      }
       // icons instead of sentences: coach, boss level, stars
       const story = (p.id === 'oldtown' || p.id === 'market') && !!window.AdventureOldTown && !!window.StoryFlow; // GOTR-0069: the quest panel carries progress and level
       if (info.coach && cinfo && !story) {
