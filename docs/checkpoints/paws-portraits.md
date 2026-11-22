@@ -42,6 +42,11 @@ next phone bottleneck (not in scope here). SwiftShader + 4x throttling is not a 
   frame of 0.8 m at a three-quarter view (heads keep their true relative size; a rabbit's ear tips may leave the frame); off-stage
   rigs (and the Fighter outside a fight/film) stand in a neutral pose (arms down, head straight) for the picture, gloves hidden;
   short lighting (key from the far side, cool rim, soft fill) on a dark vignette; 168 px images (sharp at 56 css px on 3x phones).
+- **Review fix (integrator, 2026-11-22):** the frame is now fitted to the head itself, not a fixed scale: the skin vertices bound to
+  the head bone (posed, above the jaw) and the rigid parts on the head (eyes, nose, teeth, cap, ears) are projected; the face sets
+  the size (~70 % of the frame width, a long snout up to 86 %) a little above the middle, and the frame grows until the top of the
+  head (ears, crown, mane) is inside with space above (rabbit ear tips may leave it; ears sticking far out sideways may touch the
+  ring). Rourke is seen from further round (yaw 1.05 rad, camera a little higher) so his snout and eyes show instead of his chest.
 - Map place card (later chapters): the coach shows as a small portrait/monogram badge instead of an emoji.
 - "Pip": already renamed **Mack** (מאק / Мак) everywhere players see it since v1.54 (internal id `pip` kept for saves); checked
   again in the browser (no visible Pip in EN/HE) and by `tests/adventure-story.test.cjs`.
