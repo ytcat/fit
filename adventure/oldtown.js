@@ -36,7 +36,7 @@
       rope_rhythm: L(`${n} seconds of rope in rhythm`, `${n} שניות חבל בקצב`, `${n} секунд скакалки в ритме`),
       teach_the_kid: L(`Show the ${jab}-${cross} cleanly ${n} times`, `הדגימו ${jab}-${cross} נקי ${n} פעמים`, `Покажите ${jab}-${cross} чисто: ${n} раза`),
       snoring_guard: L(`Sleep talker: repeat ${n} combos he mumbles`, `מדבר מתוך שינה: חזרו על ${n} רצפים שהוא ממלמל`, `Говорун во сне: повторите ${n} серий`), // GOTR-0061 skill trials
-      heavy_bag_van: L(`Brick's bag: hit every swing at its peak (${n} misses for gold)`, `השק של בריק: פגעו בכל תנופה בשיא (${n} החטאות לזהב)`, `Мешок Брика: бейте в верхней точке (${n} промахов для золота)`),
+      heavy_bag_van: L(`Brick's bag: meet every swing with the punch he calls (${n} misses for gold)`, `השק של בריק: פגשו כל תנופה במכה שהוא קורא (${n} החטאות לזהב)`, `Мешок Брика: встречайте каждый замах названным ударом (${n} промахов для золота)`),
       rooftop_balloons: L(`Rooftop barrage: stay dry (${n} for gold)`, `מטח מהגגות: הישארו יבשים (${n} לזהב)`, `Обстрел с крыш: останьтесь сухим (${n} для золота)`),
       whistle_chase: L(`Cut him off: corner the raccoon 5 times in ${n} seconds`, `לחסום אותו: דחקו את הדביבון לפינה 5 פעמים ב-${n} שניות`, `Отрежь путь: загоните енота в угол 5 раз за ${n} секунд`),
       grandma_groceries: L(`The hustler's bet: ${n} clean hits on real openings`, `ההימור של הנוכל: ${n} פגיעות נקיות בפתחים אמיתיים`, `Пари жулика: ${n} чистых попаданий в настоящие окна`),

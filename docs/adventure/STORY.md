@@ -53,7 +53,7 @@ A chapter is an ordered list of numbered steps; one is current, finished steps (
 
 **Old chapter 1 list (GOTR-0069, replaced by "The Dream"; kept for the save mapping above)** — arrival in Gloryland → earn a place in Pip's gym → Brick.
 1. Pip's trial — One-two on the mitts (before: arrival scene). Unlocks a corner in Pip's gym.
-2. Brick's bag — skill trial: hit the swinging bag at its peak (before: Brick scene).
+2. Brick's bag — skill trial: Brick swings the heavy bag at you; meet it with the punch he calls, the hit counts where the glove meets the leather; after a miss step back from the bite (GOTR-0077; before: Brick scene).
 3. Pillow hands — Bag power test, Brick's "you punch like a pillow".
 4. The night guard — Sleep talker trial; unlocks the gym at dawn.
 5. Pip's nephew — teach the kid a Jab-Cross; unlocks your own locker. Side after it: Rope at dawn (Stamina).

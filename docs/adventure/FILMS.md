@@ -45,7 +45,7 @@ States: **Live** (released) · **Built** (on a branch, not released) · **In wor
 |---|---|---|
 | `arrival`, `brick`, `dash`, `boss_intro`, `boss_outro` | 1 (old story) | **Old** — replaced in the step list by The Dream; kept for Market Row references |
 | `vix_intro`, `whistle_theft`, `dash_circle`, `hyena_intro`, `hyena_outro` | 2 (Market Row) | **Old** — Chapter 2 becomes "Junior League"; redo when its script exists |
-| Trials: `carry_bag` (Brick's bag), `snoring_guard`, `rooftop_barrage`, `cut_him_off`, `hustlers_bet` | 1–2 | **Live** — everyday pose and outfit rule since v1.55; Brick's bag easier since v1.53 |
+| Trials: `carry_bag` (Brick's bag), `snoring_guard`, `rooftop_barrage`, `cut_him_off`, `hustlers_bet` | 1–2 | **Live** — everyday pose and outfit rule since v1.55; Brick's bag easier since v1.53; rebuilt on `agent/brick-bag-trial` (GOTR-0077: real pendulum, contact-true hits, boom stand, Brick the bulldog) |
 
 ## Next in order
 

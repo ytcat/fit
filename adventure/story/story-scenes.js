@@ -23,9 +23,9 @@
   const Core = () => window.StoryCore;
   const term = (x, l) => window.GotrGlossary ? window.GotrGlossary.term(x, l) : x;
   const W = {
-    en: { skip: 'Tap to skip', quit: 'Quit', again: 'Try again', next: 'Continue', none: 'No medal yet', medal: ['', 'Bronze', 'Silver', 'Gold'], score: 'Score', best: 'Best', newBest: 'New best!', streak: 'Best streak', hardGo: 'Hard mode', hardTag: 'Hard', hardNew: 'Hard mode unlocked', retry: 'Restart', ready: 'Get ready', punch: { straight: 'Straight', hook: 'Hook', uppercut: 'Uppercut' }, saveErr: 'Could not save the result: ', dir: { up: 'Up', down: 'Down', left: 'Left', right: 'Right' } },
-    he: { skip: 'הקישו כדי לדלג', quit: 'יציאה', again: 'עוד פעם', next: 'המשך', none: 'עדיין בלי מדליה', medal: ['', 'ארד', 'כסף', 'זהב'], score: 'ניקוד', best: 'שיא', newBest: 'שיא חדש!', streak: 'הרצף הטוב', hardGo: 'מצב קשה', hardTag: 'קשה', hardNew: 'מצב קשה נפתח', retry: 'מחדש', ready: 'היכונו', punch: { straight: 'ישרה', hook: 'הוק', uppercut: 'אפרקאט' }, saveErr: 'לא ניתן לשמור את התוצאה: ', dir: { up: 'למעלה', down: 'למטה', left: 'שמאלה', right: 'ימינה' } },
-    ru: { skip: 'Нажмите, чтобы пропустить', quit: 'Выйти', again: 'Ещё раз', next: 'Дальше', none: 'Пока без медали', medal: ['', 'Бронза', 'Серебро', 'Золото'], score: 'Очки', best: 'Рекорд', newBest: 'Новый рекорд!', streak: 'Лучшая серия', hardGo: 'Сложный режим', hardTag: 'Сложно', hardNew: 'Открыт сложный режим', retry: 'Заново', ready: 'Приготовьтесь', punch: { straight: 'Прямой', hook: 'Хук', uppercut: 'Апперкот' }, saveErr: 'Не удалось сохранить результат: ', dir: { up: 'Вверх', down: 'Вниз', left: 'Влево', right: 'Вправо' } }
+    en: { skip: 'Tap to skip', quit: 'Quit', again: 'Try again', next: 'Continue', none: 'No medal yet', medal: ['', 'Bronze', 'Silver', 'Gold'], score: 'Score', best: 'Best', newBest: 'New best!', streak: 'Best streak', hardGo: 'Hard mode', hardTag: 'Hard', hardNew: 'Hard mode unlocked', retry: 'Restart', ready: 'Get ready', why: { early: 'Too early', late: 'Too late', wrong: 'Wrong punch', bagged: 'Bagged!' }, punch: { straight: 'Straight', hook: 'Hook', uppercut: 'Uppercut' }, saveErr: 'Could not save the result: ', dir: { up: 'Up', down: 'Down', left: 'Left', right: 'Right' } },
+    he: { skip: 'הקישו כדי לדלג', quit: 'יציאה', again: 'עוד פעם', next: 'המשך', none: 'עדיין בלי מדליה', medal: ['', 'ארד', 'כסף', 'זהב'], score: 'ניקוד', best: 'שיא', newBest: 'שיא חדש!', streak: 'הרצף הטוב', hardGo: 'מצב קשה', hardTag: 'קשה', hardNew: 'מצב קשה נפתח', retry: 'מחדש', ready: 'היכונו', why: { early: 'מוקדם מדי', late: 'מאוחר מדי', wrong: 'מכה לא נכונה', bagged: 'השק פגע!' }, punch: { straight: 'ישרה', hook: 'הוק', uppercut: 'אפרקאט' }, saveErr: 'לא ניתן לשמור את התוצאה: ', dir: { up: 'למעלה', down: 'למטה', left: 'שמאלה', right: 'ימינה' } },
+    ru: { skip: 'Нажмите, чтобы пропустить', quit: 'Выйти', again: 'Ещё раз', next: 'Дальше', none: 'Пока без медали', medal: ['', 'Бронза', 'Серебро', 'Золото'], score: 'Очки', best: 'Рекорд', newBest: 'Новый рекорд!', streak: 'Лучшая серия', hardGo: 'Сложный режим', hardTag: 'Сложно', hardNew: 'Открыт сложный режим', retry: 'Заново', ready: 'Приготовьтесь', why: { early: 'Рано', late: 'Поздно', wrong: 'Не тот удар', bagged: 'Мешок попал!' }, punch: { straight: 'Прямой', hook: 'Хук', uppercut: 'Апперкот' }, saveErr: 'Не удалось сохранить результат: ', dir: { up: 'Вверх', down: 'Вниз', left: 'Влево', right: 'Вправо' } }
   };
   const lang = () => W[window.app?.lang] ? window.app.lang : 'en', w = () => W[lang()];
   const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -49,9 +49,9 @@
     const paint = (m, hex) => { if (!m?.color) return; if (!m.userData.storyBase) m.userData.storyBase = m.color.clone(); if (hex) m.color.set(hex).convertSRGBToLinear(); else m.color.copy(m.userData.storyBase); };
     for (const side of ['L', 'R']) paint(c.gloveMeshes?.[side]?.material, look?.gloves); paint(c.shorts?.material, look?.shorts);
   }
-  function rigFor(role, e, used) {
+  function rigFor(role, e, used, a = {}) {
     if (role === 'fighter') return e.coach;
-    if (!looks[role] && window.StoryCast?.ids?.includes(role)) return window.StoryCast.rig(role, e); // GOTR-0099: Coach Bruno in a skill game (his own clothes)
+    if ((!looks[role] || a.cast) && window.StoryCast?.ids?.includes(role)) return window.StoryCast.rig(role, e); // GOTR-0099: Coach Bruno in a skill game (his own clothes); GOTR-0077: Brick the bulldog at his bag
     const species = role === 'pip' ? 'rabbit' : e.coach.species === 'rabbit' ? 'lion' : 'rabbit', free = c => c && c !== e.coach && c.root && !inScene(c, e.scene) && !used.includes(c);
     if (!looks[role]) { const b = [e.arena?.padTrainers?.[species], species !== e.coach.species ? e.roster?.get?.(species) : null].find(free); if (b) return b; }
     const pool = cast[species] || (cast[species] = []); let c = pool.find(x => !used.includes(x));
@@ -177,6 +177,126 @@
     if (!x.memo.lamps) { const g = new THREE.SphereGeometry(.11, 12, 8); x.memo.lamps = T_PUNCH.map((k, i) => { const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ toneMapped: false })); m.position.set(at[0], at[1], at[2] + (i - 1) * .52); x.scene.add(m); x.extras.push(m); return m; }); }
     return (lit, dim = .16) => x.memo.lamps.forEach((m, i) => m.material.color.set(PCOL[T_PUNCH[i]]).multiplyScalar(lit === T_PUNCH[i] ? 1 : dim));
   }
+  /* ---------------------------------------------------------------- Brick's bag: stand, swivel, chain, the bag and both bodies (GOTR-0077) */
+  const BAGF = Object.freeze({ x: 8.35, z: -1.55 }); // where the Fighter stands in the set 'gymfront' (the origin of the rules' frame)
+  const PUNCH_OPT = Object.freeze({ guardCover: 1, power: 1.2, recoil: 0, advance: 0, contactDrive: 0 }); // the options the hand paths in trials-core.js were measured with
+  const UPV = V(0, 1, 0);
+  /** The boom stand on the pavement (upright behind the bag, out of the camera's way), swivel, chain and the new heavy bag. */
+  function bagProps(scene) {
+    const R = Trials().BAG, P = V(BAGF.x + R.pivot[0], R.pivot[1], BAGF.z + R.pivot[2]), group = new THREE.Group(); group.name = "Brick's bag stand";
+    const lin = hex => new THREE.Color(hex).convertSRGBToLinear(), geos = [], mats = [];
+    const mat = (hex, roughness, metalness) => { const m = new THREE.MeshStandardMaterial({ color: lin(hex), roughness, metalness }); mats.push(m); return m; };
+    const frame = mat('#23272e', .48, .55), rubber = mat('#141518', .92, 0), iron = mat('#2b2e33', .5, .55), steel = mat('#aab2bc', .34, .85), red = mat('#a4262c', .5, .2);
+    const add = (g, m, x, y, z, parent = group) => { geos.push(g); const n = new THREE.Mesh(g, m); n.position.set(x, y, z); n.castShadow = n.receiveShadow = true; parent.add(n); return n; };
+    const T8 = .08, top = 3.0, postZ = P.z - 1.05, boomY = top - T8 / 2, boomZ0 = postZ - .05, boomZ1 = P.z + .12;
+    add(new THREE.BoxGeometry(T8, top, T8), frame, P.x, top / 2, postZ);                                                     // upright
+    add(new THREE.BoxGeometry(T8, T8, boomZ1 - boomZ0), frame, P.x, boomY, (boomZ0 + boomZ1) / 2);                         // boom over the bag
+    add(new THREE.BoxGeometry(.004 + T8, .012, .08), red, P.x, boomY + T8 / 2 + .006, boomZ1 - .06);                      // red end cap
+    const brace = add(new THREE.BoxGeometry(.05, Math.hypot(.6, .6), .05), frame, P.x, top - .38, postZ + .3); brace.rotation.x = Math.PI / 4; // diagonal brace
+    add(new THREE.BoxGeometry(1.5, .07, .1), frame, P.x, .035, postZ);                                                       // H base: cross bar
+    for (const s of [-1, 1]) {
+      add(new THREE.BoxGeometry(.09, .07, 1.25), frame, P.x + s * .7, .035, postZ + .25);                                   // legs
+      for (const z of [postZ - .33, postZ + .83]) add(new THREE.CylinderGeometry(.05, .055, .03, 14), rubber, P.x + s * .7, .015, z); // feet
+      const horn = add(new THREE.CylinderGeometry(.025, .025, .34, 12), steel, P.x + s * .36, .2, postZ - .02); horn.rotation.z = Math.PI / 2; // weight horn
+      for (const k of [0, 1]) { const pl = add(new THREE.CylinderGeometry(.19 - k * .04, .19 - k * .04, .045, 28), iron, P.x + s * (.25 + k * .05), .2, postZ - .02); pl.rotation.z = Math.PI / 2; } // plates
+    }
+    add(new THREE.BoxGeometry(.2, .18, .05), frame, P.x, top - .3, postZ + .045);                                            // gusset
+    // swivel under the boom: eye plate, swivel body, shackle; the chain hangs from the shackle (the pivot)
+    add(new THREE.BoxGeometry(.1, .012, .1), iron, P.x, boomY - T8 / 2 - .006, P.z);
+    add(new THREE.CylinderGeometry(.022, .022, .07, 14), steel, P.x, P.y + .095, P.z);
+    add(new THREE.TorusGeometry(.024, .006, 8, 16), steel, P.x, P.y + .035, P.z);
+    const B = window.BagBreak?.bag?.({ worn: false }) || null, bag = B ? B.group : add(new THREE.CylinderGeometry(R.r, R.r, R.h * 2, 32), red, 0, 0, 0);
+    if (B) { group.add(bag); bag.traverse(n => { if (n.isMesh) n.castShadow = n.receiveShadow = true; }); B.body.userData = { r: R.r, h: R.h, cy: 0 }; }
+    else { bag.name = 'Heavy bag leather'; bag.userData = { r: R.r, h: R.h, cy: 0 }; }
+    const linkG = new THREE.TorusGeometry(.0205, .0058, 6, 14), n = Math.max(4, Math.round(R.chain / .044)), links = []; geos.push(linkG);
+    for (let i = 0; i < n; i++) { const l = new THREE.Mesh(linkG, steel); l.scale.set(1, 1.5, 1); l.castShadow = true; group.add(l); links.push(l); }
+    // soft shade on the pavement under the bag (keeps it grounded when the device has shadows off)
+    const cv = document.createElement('canvas'); cv.width = cv.height = 64; const g2 = cv.getContext('2d'), gr = g2.createRadialGradient(32, 32, 2, 32, 32, 32); gr.addColorStop(0, 'rgba(20,14,8,.9)'); gr.addColorStop(1, 'rgba(20,14,8,0)'); g2.fillStyle = gr; g2.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(cv), blobM = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, opacity: .35, toneMapped: false }); mats.push(blobM);
+    const blob = add(new THREE.PlaneGeometry(.75, .75).rotateX(-Math.PI / 2), blobM, P.x, .013, P.z); blob.castShadow = blob.receiveShadow = false; blob.renderOrder = 1;
+    scene.add(group);
+    const ring = V(), centre = V(), up = V(), tmp = V(), qT = new THREE.Quaternion(), qS = new THREE.Quaternion(), twist = new THREE.Quaternion().setFromAxisAngle(UPV, Math.PI / 2);
+    const lateral = (pt, p) => { const dy = P.y - pt.y; pt.z += Math.sin(p) * dy; pt.y = P.y - dy * Math.cos(p); return pt; };
+    /** Places bag and chain from a rules state { a1, a2, p, s } (angles + toward the Fighter, i.e. toward -x). */
+    function pose(q) {
+      ring.set(P.x - R.chain * Math.sin(q.a1), P.y - R.chain * Math.cos(q.a1), P.z); centre.set(ring.x - R.d * Math.sin(q.a2), ring.y - R.d * Math.cos(q.a2), P.z);
+      lateral(ring, q.p); lateral(centre, q.p); up.copy(ring).sub(centre).normalize();
+      bag.position.copy(centre); qT.setFromUnitVectors(UPV, up); qS.setFromAxisAngle(UPV, q.s || 0); bag.quaternion.copy(qT).multiply(qS);
+      for (let i = 0; i < links.length; i++) { const l = links[i]; l.position.lerpVectors(P, ring, (i + .5) / links.length); tmp.copy(P).sub(ring).normalize(); l.quaternion.setFromUnitVectors(UPV, tmp); if (i % 2) l.quaternion.multiply(twist); }
+      blob.position.set(centre.x, .013, centre.z); const k = Math.max(0, 1 - Math.hypot(centre.x - P.x, centre.z - P.z) / 1.6); blob.material.opacity = .18 + .2 * k;
+      bag.updateMatrixWorld(true);
+    }
+    /** A world point on the leather: `y` up the bag from its centre, `ang` round it from the side facing +x (Brick's side). */
+    function leatherPoint(y, ang, out = V()) {
+      const xp = tmp.set(1, 0, 0).addScaledVector(up, -up.x).normalize(), zp = V().crossVectors(xp, up).normalize();
+      return out.copy(centre).addScaledVector(up, y).addScaledVector(xp, R.r * Math.cos(ang)).addScaledVector(zp, R.r * Math.sin(ang));
+    }
+    /** Rules point -> world. */
+    const world = (pt, out = V()) => out.set(BAGF.x + pt[0], pt[1], BAGF.z + pt[2]);
+    return { group, bag: B, mesh: B ? B.body : bag, pose, leatherPoint, world, pivot: P, centre, up,
+      dispose() { if (B) B.dispose(); for (const g of geos) g.dispose(); for (const m of mats) m.dispose(); tex.dispose(); } };
+  }
+  /** The Fighter at the bag: guard, the punch driven by the rules (out to the leather, a short hold, back), the step back, the knock. */
+  function bagFighter(c, x, v, props) {
+    const T = Trials(), R = T.BAG, p = v.punch, t = x.t, base = { simulationTime: t, keepFaceClear: true, ...PUNCH_OPT };
+    const d = v.dodge; let ringStep = null;
+    if (d && d.u < R.step) ringStep = { phase: d.u / R.step, ease: smooth(d.u / R.step), weight: 1, turn: 0, delta: [0, 0, -R.back] };
+    else if (d && d.u > R.step + R.stay && d.u < R.step * 2 + R.stay) { const k = (d.u - R.step - R.stay) / R.step; ringStep = { phase: k, ease: smooth(k), weight: 1, turn: 0, delta: [0, 0, R.back] }; }
+    else if (v.stepIn) ringStep = { phase: v.stepIn.u, ease: smooth(v.stepIn.u), weight: 1, turn: 0, delta: [v.stepIn.dz, 0, v.stepIn.delta] }; // in to the call's range (or back out); rig x = world +z here (mirrored root facing +x)
+    if (ringStep) base.ringStep = ringStep;
+    let ph = null;
+    if (p) {
+      const tau = t - p.at, c0 = p.contact;
+      if (c0) ph = tau < c0.tau ? PH0 + tau * PRATE : tau < c0.tau + R.hold ? c0.ph : c0.ph - (c0.ph - PH0) * smooth((tau - c0.tau - R.hold) / .22);
+      else { ph = Math.min(.94, PH0 + tau * PRATE); // a miss: the punch runs out and comes back; the leather pushes a glove that is still out of the way
+        const hp = [0, 0, 0]; while (ph > T.PH.land && ph < .62 && x.sim.phys.leather(v.bag, (T.handAt(p.move, Math.min(ph, .58), hp), hp[0] += v.fx, hp[2] += v.fz || 0, hp)).gap < R.glove) ph += .01; }
+      if (tau > .5 || (c0 && tau > c0.tau + R.hold + .22)) ph = null;
+    }
+    if (ph != null) c.update(ph * 1.22, p.move, 'one_two', base);
+    else c.update(t, 'guard', 'one_two', base);
+    const fl = v.flash, age = fl ? v.t - fl.t : 9;
+    if (fl?.type === 'bagged' && age < .6 && !x.reduced) { const k = Math.sin(Math.PI * Math.min(1, age / .6)); c.root.position.x -= .12 * k; c.root.rotation.z = .07 * Math.sin(age * 28) * (1 - age / .6); c.root.updateMatrixWorld(true); }
+  }
+  /** Brick: hands on the leather while he holds and winds the bag up, the shove, ready hands, and he meets the bag coming back. */
+  function bagBrick(c, x, v, props, dt) {
+    const P = window.DreamPose; if (!P) { pose(c, { act: 'idle' }, x.t); return; }
+    const q = v.bag, since = x.t - (v.release ?? -9), holding = v.hold || since < .16, back = q.w1 < -.15 && q.a1 < .25;
+    let reach = null, lean = .05;
+    const near = (y, ang) => props.leatherPoint(y, ang);
+    if (holding || back) {
+      const pts = [near(.12, .62), near(-.02, -.62)], sh = ['L', 'R'].map(s => c.joints['arm' + s].getWorldPosition(V()));
+      const a = pts[0].distanceTo(sh[0]) + pts[1].distanceTo(sh[1]) <= pts[1].distanceTo(sh[0]) + pts[0].distanceTo(sh[1]) ? pts : [pts[1], pts[0]];
+      const far = a.some((pt, i) => pt.distanceTo(sh[i]) > .78); // out of his reach: hands wait in front instead
+      if (!far || holding) { reach = { L: c.root.worldToLocal(a[0].clone()).toArray(), R: c.root.worldToLocal(a[1].clone()).toArray() }; lean = holding ? .16 : .1; }
+    }
+    if (!reach) reach = { L: [-.2, 1.38, .36], R: [.2, 1.4, .36] };
+    const fl = v.flash, jeer = fl && fl.type === 'bagged' && v.t - fl.t < 1.1;
+    P.civil(c, { t: x.t, dt: dt || 0, arms: { L: 'wave', R: 'wave' }, reach, paws: { L: 'open', R: 'open' }, lean, look: { yaw: 0, pitch: -.08 }, nod: jeer ? 1 : 0, talk: jeer ? .6 : null, wide: .15 });
+  }
+  const PH0 = .14, PRATE = .8 / .38; // punch phase at the press and per second (trials-core.js PH)
+  function bagFrame(x, v, dt) {
+    const T = Trials(), R = T.BAG, f = x.rigs.fighter, b = x.rigs.brick, props = x.memo.props ||= bagProps(x.scene);
+    props.pose(v.bag);
+    x.place(f, { x: BAGF.x + (v.fx || 0), z: BAGF.z + (v.fz || 0), ry: Math.PI / 2 }); x.place(b, { x: BAGF.x + R.brick, z: BAGF.z + R.pivot[2], ry: -Math.PI / 2 });
+    bagFighter(f, x, v, props); bagBrick(b, x, v, props, dt);
+    // the leather gives where the glove lands, then springs back (the bag's own dent: bag-break.js)
+    const pc = v.punch?.contact, B = props.bag;
+    if (B && pc && x.t >= pc.t && x.memo.dentFor !== v.punch) {
+      const hand = f.joints['hand' + (/^(cross|rear_)/.test(v.punch.move) ? 'R' : 'L')].getWorldPosition(V()), l = B.group.worldToLocal(hand), r = Math.hypot(l.x, l.z) || 1;
+      x.memo.dentFor = v.punch; x.memo.dent = { y: Math.max(-R.h + .08, Math.min(R.h - .08, l.y)), ax: l.x / r, az: l.z / r, t0: pc.t, k: v.punch.k === 'hook' ? 1.15 : 1 };
+    }
+    const dn = x.memo.dent;
+    if (B && dn) { const age = x.t - dn.t0, depth = .045 * dn.k * (age < R.hold ? 1 : Math.exp(-(age - R.hold) / .07)), fold = .02 * dn.k * Math.exp(-age / .12) * Math.cos(age * 30);
+      if (age > .5) { B.dent(null); x.memo.dent = null; props.dented = false; } else { B.dent({ y: dn.y, ax: dn.ax, az: dn.az, depth }, fold); props.dented = true; } }
+    else if (B && props.dented) { B.dent(null); props.dented = false; } // a restart in the middle of a dent
+    // where the glove will meet the leather on this swing: the ring closes there
+    let cue = null;
+    if (v.prompt && v.prompt !== 'back') {
+      const key = v.i + '|' + v.due; if (x.memo.cueKey !== key) { x.memo.cueKey = key; const c0 = x.sim.contact(x.sim.moveFor(v.type, true), v.due); x.memo.cuePos = c0 ? props.world(c0.hand).toArray() : null; }
+      if (x.memo.cuePos) cue = { pos: x.memo.cuePos, k: v.k, now: !!v.open, kind: v.type };
+    }
+    return { pos: [9.35, 1.85, 4.1], look: [9.5, 1.3, BAGF.z], fit: [f, b], cue }; // wide enough for the step back: the camera does not have to back off
+  }
   const T_PUNCH = ['straight', 'hook', 'uppercut'];
   const pw = (g, k, l) => W[l].punch[k];
   const games = {
@@ -211,28 +331,21 @@
         return { pos: [P.x, 1.6, P.z + 3.7], look: [P.x, 1.3, P.z], fit: [f, m] };
       }
     },
-    // Brick's bag: Brick shoves the heavy bag; hit it at the peak of the swing with the punch its swing calls for.
+    // Brick's bag (GOTR-0077): Brick swings the new heavy bag at the Fighter from a boom stand on the pavement; throw the punch he
+    // calls so the glove meets the leather (trials-core.js BagTrial: a real chain-and-bag pendulum, the hit is decided where the
+    // glove touches). Miss and he shoves it back: step back. The rules work in the Fighter's frame (root at the origin facing +x);
+    // here that frame sits at BAGF in the street, so a rules point (x, y, z) is the world point (BAGF.x + x, y, BAGF.z + z).
     carry_bag: {
-      set: 'gymfront', roles: { fighter: {}, brick: { rig: 'brick' } }, make: (T, o) => new T.BagTrial(undefined, o), pads: T_PUNCH, ghost: ['straight', 'hook', 'uppercut', 'left'],
+      set: 'gymfront', roles: { fighter: { wear: 'kit' }, brick: { rig: 'brick', cast: true } }, make: (T, o) => new T.BagTrial(undefined, o), pads: T_PUNCH, ghost: ['straight', 'hook', 'uppercut', 'left'],
       words: {
-        en: { title: "Brick's bag", goal: 'Hit the bag at the peak of its swing', count: 'Misses', help: 'The swing tells you the punch. Mistimed? Slip or duck: it comes back.', dodge: 'It is coming back!', caps: { up: '', down: 'Duck', left: 'Slip', right: '' } },
-        he: { title: 'השק של בריק', goal: 'פגעו בשק בשיא התנופה', count: 'החטאות', help: 'התנופה מגלה איזו מכה. פספסתם? Slip או התכופפו: הוא חוזר.', dodge: 'הוא חוזר!', caps: { up: '', down: 'להתכופף', left: 'Slip', right: '' } },
-        ru: { title: 'Мешок Брика', goal: 'Бейте по мешку в верхней точке замаха', count: 'Промахи', help: 'Замах подсказывает удар. Не успели? Slip или нырок: мешок вернётся.', dodge: 'Он возвращается!', caps: { up: '', down: 'Нырок', left: 'Slip', right: '' } }
+        en: { title: "Brick's bag", goal: 'Hit the bag as it swings in', count: 'Misses', help: 'Brick swings the bag at you and calls the punch. Throw it so the glove meets the leather as the ring closes on the bag. Miss, and he shoves it back: step back (←).', back: 'Step back!', caps: { up: '', down: '', left: 'Back', right: '' } },
+        he: { title: 'השק של בריק', goal: 'הכו בשק כשהוא מתנדנד אליכם', count: 'החטאות', help: 'בריק מנדנד אליכם את השק וקורא את המכה. זרקו אותה כך שהכפפה פוגשת את העור כשהטבעת נסגרת על השק. פספסתם? הוא דוחף אותו בחזרה: צעד אחורה (←).', back: 'צעד אחורה!', caps: { up: '', down: '', left: 'אחורה', right: '' } },
+        ru: { title: 'Мешок Брика', goal: 'Бейте мешок, когда он летит к вам', count: 'Промахи', help: 'Брик раскачивает мешок на вас и называет удар. Бейте так, чтобы перчатка встретила кожу, когда кольцо сомкнётся на мешке. Промах — он толкнёт мешок обратно: шаг назад (←).', back: 'Шаг назад!', caps: { up: '', down: '', left: 'Назад', right: '' } }
       },
-      hud: (v, g, l) => ({ goal: `${g.goal} · ${v.i}/${v.total} · ${g.count} ${v.mistakes}`, prompt: v.prompt === 'dodge' ? g.dodge : v.prompt ? pw(g, v.prompt, l) : '', arrow: v.prompt === 'dodge' ? 'left' : v.prompt || '', kind: v.prompt === 'dodge' ? 'warn' : v.prompt || '', ring: v.phase === 'swing' ? v.k : -1, now: !!v.open }),
+      hud: (v, g, l) => ({ goal: `${g.goal} · ${Math.min(v.i + 1, v.total)}/${v.total} · ${g.count} ${v.mistakes}`, prompt: v.prompt === 'back' ? g.back : v.prompt ? pw(g, v.prompt, l) : '', arrow: v.prompt === 'back' ? 'left' : v.prompt || '', kind: v.prompt === 'back' ? 'warn' : v.prompt || '', ring: v.prompt && v.prompt !== 'back' ? v.k : -1, now: !!v.open || (v.phase === 'bite' && !v.hold) }),
       detail: (r, g) => `${g.count} ${r.value} · ${r.time} s`,
-      frame(x, v) {
-        const f = x.rigs.fighter, b = x.rigs.brick, PX = 10.05, PZ = -1.4, st = x.set.objects.stand;
-        x.place(f, { x: 8.55, z: PZ, ry: Math.PI / 2 }); x.place(b, { x: 11.75, z: PZ, ry: -Math.PI / 2 }); fighterAct(f, x);
-        if (st) { st.visible = true; st.position.set(PX, 0, PZ); }
-        const yaw = v.type === 'hook' ? .95 : v.type === 'uppercut' ? -.55 : 0, L = v.type === 'uppercut' ? 1.36 : 1.2;
-        const th = v.phase === 'swing' ? -0.55 + 1.05 * ease(v.k) : v.phase === 'hit' ? x.memo.th + (-0.7 - x.memo.th) * Math.min(1, (x.t - x.memo.hitAt) / .22) : v.phase === 'missed' ? .5 : v.phase === 'back' ? .5 - Math.sin(v.back * Math.PI) * .8 + v.back * .14 : -.1;
-        if (v.phase !== 'hit') { x.memo.th = th; x.memo.hitAt = x.t; }
-        hangBag(x.set.objects.bag, PX, 2.56, PZ, L, th, v.phase === 'swing' || v.phase === 'missed' ? yaw : yaw * (1 - (v.back || 1)));
-        const fl = v.flash, jeer = fl && fl.type === 'bagged' && v.t - fl.t < 1;
-        pose(b, jeer ? { act: 'laugh', actT: v.t - fl.t } : v.phase === 'swing' && v.k < .45 ? { act: 'point', actT: v.k * .9 } : { act: 'idle' }, x.t, { reduced: x.reduced });
-        return { pos: [9.5, 1.6, 3.5], look: [9.9, 1.3, PZ], fit: [f, b] };
-      }
+      frame(x, v, dt) { return bagFrame(x, v, dt); },
+      dispose({ scene, memo }) { const P = memo.props; if (!P) return; scene?.remove(P.group); P.dispose(); memo.props = null; }
     },
     // Sleep talker: the night guard mumbles combos in his sleep; the lamps light in that order; repeat it on the bag.
     snoring_guard: {
@@ -394,10 +507,10 @@
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 220);
       set = window.StorySets.build(game ? game.set : scene0.set, scene, { renderer: e.renderer, shadows: !!e.renderer.shadowMap?.enabled });
       for (const [key, a] of Object.entries(game ? game.roles : scene0.actors)) {
-        const c = rigFor(a.rig || key, e, borrowed.map(b => b.c));
+        const c = rigFor(a.rig || key, e, borrowed.map(b => b.c), a), wearOf = a.wear || wear;
         borrowed.push(borrow(c)); scene.add(c.root); c.root.visible = true; c.root.rotation.set(0, 0, 0); c.root.scale.set(-1, 1, 1); /* GOTR-0074: fighters are mirrored at the root; a plain scale of 1 tears the skin */ c.maneInitialized = false; rigs[key] = c;
-        window.DreamPose?.reset(c); if (window.StoryCast) { window.StoryCast.outfit(c, wear, { tint: looks[a.rig || key]?.shorts }); dressed.push(c); } // clothes follow the place (kit and gloves only in the gym and the ring)
-        if (a.mitts && window.TrainingGear && wear === 'kit') mitts.push(window.TrainingGear.mitt(c, 'L'), window.TrainingGear.mitt(c, 'R'));
+        window.DreamPose?.reset(c); if (window.StoryCast) { window.StoryCast.outfit(c, wearOf, { tint: looks[a.rig || key]?.shorts }); dressed.push(c); } // clothes follow the place (kit and gloves only in the gym and the ring; a role may say otherwise: the Fighter's gloves at Brick's bag)
+        if (a.mitts && window.TrainingGear && wearOf === 'kit') mitts.push(window.TrainingGear.mitt(c, 'L'), window.TrainingGear.mitt(c, 'R'));
       }
       if (game) { sim = game.make(Trials(), { hard }); run.intro = opts.noIntro || direct ? 0 : 3; }
       // Soft contact shade under every character: keeps feet on the ground when the device has turned shadows off.
@@ -465,7 +578,7 @@
     }
 
     /* ---- skill trial: 3 s tutorial, fixed-step rules, hit-stop, the game's own frame, HUD with the fighter pad */
-    function restart(nextHard = hard) { directInput?.clear(); hard = nextHard; ui.result?.remove(); ui.result = null; run.result = null; run.saved = null; sim = game.make(Trials(), { hard }); memo = {}; acts = 0; run.intro = 0; run.freeze = 0; run.flashT = -1; ui.promptKey = null; ui.d.dataset.hard = String(hard); }
+    function restart(nextHard = hard) { directInput?.clear(); hard = nextHard; ui.result?.remove(); ui.result = null; run.result = null; run.saved = null; sim = game.make(Trials(), { hard }); memo = memo.props ? { props: memo.props } : {}; acts = 0; run.intro = 0; run.freeze = 0; run.flashT = -1; ui.promptKey = null; ui.d.dataset.hard = String(hard); }
     function gameFrame(dt) {
       if (run.intro > 0) run.intro = Math.max(0, run.intro - dt);
       else if (run.freeze > 0) run.freeze -= dt; // hit-stop: the world holds for a moment on a clean hit
@@ -473,10 +586,20 @@
       const v = sim.view(), fl = v.flash;
       if (fl && fl.t !== run.flashT) { run.flashT = fl.t; pop(fl); if (['hit', 'perfect', 'reflect', 'catch', 'combo', 'double'].includes(fl.type) && !reduced) run.freeze = fl.type === 'hit' ? .05 : .09; }
       const shot = game.frame({ set, scene, rigs, sim, view: v, t: run.t, reduced, memo, extras, place, over: !!run.result, overAt: run.overAt || 0 }, v, dt);
-      const edge = aimCamera(shot, .86); paintHud(v); return edge;
+      const edge = aimCamera(shot, .86); paintHud(v); paintCue(shot.cue); return edge;
+    }
+    /** A ring in the world (where the glove will meet the leather) that closes as the moment comes: k 0 -> 1; now = press now. */
+    function paintCue(c) {
+      const n = ui.cue; if (!n) return;
+      if (!c || run.result || run.intro > 0) { if (!n.hidden) n.hidden = true; return; }
+      const p = _p.fromArray(c.pos).project(camera), r = e.renderer.domElement.getBoundingClientRect(), box = ui.d.getBoundingClientRect();
+      if (p.z > 1) { n.hidden = true; return; }
+      n.hidden = false; n.dataset.kind = c.kind || ''; n.dataset.now = String(!!c.now);
+      n.style.transform = `translate(${(r.left - box.left + (p.x + 1) / 2 * r.width).toFixed(1)}px,${(r.top - box.top + (1 - p.y) / 2 * r.height).toFixed(1)}px)`;
+      n.firstChild.style.transform = `translate(-50%,-50%) scale(${(1 + 2.2 * (1 - Math.min(1, c.k))).toFixed(3)})`; n.firstChild.style.opacity = String((.35 + .65 * Math.min(1, c.k)).toFixed(2));
     }
     function pop(fl) {
-      const good = ['hit', 'perfect', 'reflect', 'catch', 'combo', 'dodge', 'double'].includes(fl.type), n = el('div', 'story-pop', fl.type === 'note' ? '' : good ? (fl.type === 'perfect' ? '★ ' : '') + (fl.pts ? '+' + fl.pts : '✓') + (fl.mult > 1 ? ' ×' + fl.mult : '') : '✕');
+      const good = ['hit', 'perfect', 'reflect', 'catch', 'combo', 'dodge', 'double'].includes(fl.type), why = w().why[fl.type], n = el('div', 'story-pop', fl.type === 'note' ? '' : good ? (fl.type === 'perfect' ? '★ ' : '') + (fl.pts ? '+' + fl.pts : '✓') + (fl.mult > 1 ? ' ×' + fl.mult : '') : '✕' + (why ? ' ' + why : ''));
       if (fl.type === 'note') return; n.dataset.kind = good ? (fl.type === 'perfect' || fl.type === 'reflect' || fl.type === 'double' ? 'gold' : 'good') : 'bad'; ui.d.append(n); setTimeout(() => n.remove(), 700);
       if (!good && !reduced) { ui.d.classList.remove('shake'); void ui.d.offsetWidth; ui.d.classList.add('shake'); }
     }
@@ -527,7 +650,8 @@
         right.append(arc); pad.append(right);
       }
       hud.append(goal, score, bar);
-      ui.d.append(hud, prompt, help, pad, again, quit); ui.d.dataset.hard = String(hard); Object.assign(ui, { goal, score, prompt, ring, pIcon, pText, help, pad, dpad, arrows, keys, hud, barFill });
+      const cue = el('div', 'story-cue'); cue.hidden = true; cue.append(el('i'), el('b')); cue.setAttribute('aria-hidden', 'true');
+      ui.d.append(cue, hud, prompt, help, pad, again, quit); ui.d.dataset.hard = String(hard); Object.assign(ui, { goal, score, prompt, ring, pIcon, pText, help, pad, dpad, arrows, keys, hud, barFill, cue });
     }
     function paintHud(v) {
       const h = game.hud(v, gw, L), intro = run.intro > 0;

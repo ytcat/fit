@@ -1,0 +1,164 @@
+{
+ "log": [
+  {
+   "i": 0,
+   "type": "straight",
+   "at": 1.224999999999998,
+   "off": -0.475,
+   "minGap": -0.14264387309040522,
+   "gapAtPress": 0.486,
+   "verdict": "early",
+   "touchAt": 0.1
+  },
+  {
+   "i": 1,
+   "type": "hook",
+   "at": 4.124999999999995,
+   "off": -0.39,
+   "minGap": 0.15956987222938898,
+   "gapAtPress": 0.614,
+   "verdict": "early"
+  },
+  {
+   "i": 2,
+   "type": "uppercut",
+   "at": 7.000000000000138,
+   "off": -0.292,
+   "minGap": 0.198117759770912,
+   "gapAtPress": 0.418,
+   "verdict": "early"
+  },
+  {
+   "i": 3,
+   "type": "straight",
+   "at": 9.850000000000081,
+   "off": -0.177,
+   "minGap": 0.31613455187055933,
+   "gapAtPress": 0.305,
+   "verdict": "hit"
+  },
+  {
+   "i": 4,
+   "type": "straight",
+   "at": 11.574999999999983,
+   "off": -0.098,
+   "minGap": 0.33955197517188357,
+   "gapAtPress": 0.279,
+   "verdict": "hit"
+  },
+  {
+   "i": 5,
+   "type": "hook",
+   "at": 13.374999999999881,
+   "off": 0.017,
+   "minGap": 0.4184069778590885,
+   "gapAtPress": 0.558,
+   "verdict": "perfect"
+  },
+  {
+   "i": 6,
+   "type": "hook",
+   "at": 15.224999999999776,
+   "off": 0.107,
+   "minGap": 0.4184069778590885,
+   "gapAtPress": 0.558,
+   "verdict": "hit"
+  },
+  {
+   "i": 7,
+   "type": "uppercut",
+   "at": 17.149999999999668,
+   "off": 0.222,
+   "minGap": 0.3546086955148156,
+   "gapAtPress": 0.344,
+   "verdict": "hit"
+  },
+  {
+   "i": 8,
+   "type": "straight",
+   "at": 19.124999999999556,
+   "off": 0.312,
+   "minGap": 0.2539377303144325,
+   "gapAtPress": 0.448,
+   "verdict": "bagged"
+  },
+  {
+   "i": 9,
+   "type": "hook",
+   "at": 20.82499999999946,
+   "off": -0.487,
+   "minGap": 0.15956987222938898,
+   "gapAtPress": 0.693,
+   "verdict": "early"
+  },
+  {
+   "i": 10,
+   "type": "straight",
+   "at": 23.374999999999314,
+   "off": -0.388,
+   "minGap": -0.14264387309040105,
+   "gapAtPress": 0.507,
+   "verdict": "early",
+   "touchAt": 0.1
+  },
+  {
+   "i": 11,
+   "type": "uppercut",
+   "at": 25.89999999999917,
+   "off": -0.282,
+   "minGap": 0.198117759770918,
+   "gapAtPress": 0.457,
+   "verdict": "early"
+  },
+  {
+   "i": 12,
+   "type": "straight",
+   "at": 28.37499999999903,
+   "off": -0.183,
+   "minGap": 0.3556705995097123,
+   "gapAtPress": 0.336,
+   "verdict": "hit"
+  },
+  {
+   "i": 13,
+   "type": "uppercut",
+   "at": 29.749999999998952,
+   "off": -0.088,
+   "minGap": 0.3735347070026523,
+   "gapAtPress": 0.357,
+   "verdict": "perfect"
+  },
+  {
+   "i": 14,
+   "type": "hook",
+   "at": 31.17499999999887,
+   "off": 0.002,
+   "minGap": 0.41840697785907793,
+   "gapAtPress": 0.56,
+   "verdict": "perfect"
+  },
+  {
+   "i": 15,
+   "type": "uppercut",
+   "at": 32.67499999999879,
+   "off": 0.117,
+   "minGap": 0.3546086955148156,
+   "gapAtPress": 0.343,
+   "verdict": "hit"
+  }
+ ],
+ "result": {
+  "missionId": "heavy_bag_van",
+  "metric": "mistakes",
+  "value": 14,
+  "score": 1150,
+  "streak": 5,
+  "time": 33,
+  "hard": false,
+  "stars": 0,
+  "finished": true,
+  "hits": 9,
+  "dodged": 0
+ },
+ "fps": null
+}

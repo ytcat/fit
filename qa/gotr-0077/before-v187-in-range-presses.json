@@ -1,0 +1,36 @@
+{
+ "log": [
+  {
+   "i": 0,
+   "type": "straight",
+   "at": 1.1499999999999984,
+   "off": -0.55,
+   "minGap": -0.14264387309040522,
+   "gapAtPress": 0.544,
+   "verdict": "early",
+   "touchAt": 0.1
+  },
+  {
+   "i": 3,
+   "type": "straight",
+   "at": 9.5250000000001,
+   "off": -0.502,
+   "minGap": -0.17542063502976954,
+   "gapAtPress": 0.534,
+   "verdict": "early",
+   "touchAt": 0.1
+  },
+  {
+   "i": 4,
+   "type": "straight",
+   "at": 12.224999999999946,
+   "off": -0.495,
+   "minGap": -0.14264387309040716,
+   "gapAtPress": 0.539,
+   "verdict": "early",
+   "touchAt": 0.1
+  }
+ ],
+ "result": null,
+ "fps": null
+}
