@@ -83,7 +83,7 @@ function shift(g, goal = 101, rinseAt = .55, gap = .25) {
   assert.equal(idle.done, true); assert.equal(idle.lightsOut, true); assert.equal(idle.finished, false); assert.equal(idle.result(A.starsFor).stars, 0);
   const one = new M.MopTrial({ seed: 8 }); shift(one, 25); assert.ok(one.marks >= 25 && one.marks < 50, String(one.marks)); assert.ok(one.finish()); assert.equal(one.finish(), false);
   const m = one.marks; shift(one, 101); assert.equal(one.marks, m, 'finished shift is immutable'); assert.equal(one.result(A.starsFor).stars, 1);
-  const best = new M.MopTrial({ seed: 8 }); shift(best, 101); const r = best.result(A.starsFor);
+  const best = new M.MopTrial({ seed: 8 }); shift(best, 101); if (!best.done) assert.ok(best.finish(), "Finish shift"); const r = best.result(A.starsFor);
   assert.ok(best.done && r.finished && r.stars === 3, JSON.stringify(r)); assert.equal(r.smears, 0, 'rinsing in time: no smears');
   const lazy = new M.MopTrial({ seed: 8 }); shift(lazy, 101, 2); assert.ok(lazy.smears > 0 && lazy.marks < r.value - 20, 'never rinsing smears the floor: ' + lazy.marks);
   assert.deepEqual(Object.keys(r).sort(), ['cleaned', 'finished', 'left', 'lightsOut', 'metric', 'missionId', 'rinses', 'score', 'smears', 'stars', 'streak', 'value', 'zones']);

@@ -154,7 +154,7 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 .mop-night-meter i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#d9cdb2,#f6f1e2);transition:width .15s linear}
 .mop-night-gauge[data-dirty=true] .mop-night-meter i{background:linear-gradient(90deg,#6d5d45,#9a8668)}
 .mop-night-gauge[data-dirty=true] b{color:#ffb38a}
-.mop-night-rinse{position:absolute;left:0;top:0;z-index:3;transform:translate(-50%,-100%);min-width:64px;min-height:40px;padding:6px 12px;border-radius:20px;border:2px solid #f2c230;background:#1a1d24d9;color:#ffe08a;font:800 14px/1 system-ui,sans-serif;box-shadow:0 2px 10px #0009;touch-action:manipulation;cursor:pointer}
+.mop-night-rinse{position:absolute;left:0;top:0;z-index:3;transform:translate(-50%,-50%);min-width:58px;min-height:40px;padding:6px 10px;border-radius:20px;border:2px solid #f2c230;background:#1a1d24d9;color:#ffe08a;font:800 14px/1 system-ui,sans-serif;box-shadow:0 2px 10px #0009;touch-action:manipulation;cursor:pointer}
 .mop-night-rinse[data-dirty=true]{background:#f2c230;color:#1d1a10;animation:mop-pulse .8s ease-in-out infinite alternate}
 .mop-night-rinse:disabled{opacity:.5}
 .mop-night-rinse[hidden],.mop-night-note[hidden]{display:none}
@@ -168,7 +168,7 @@ dialog.story-scene,dialog.story-scene[open]{inset:0!important;width:100vw!import
 .mop-night-dark{position:absolute;inset:0;z-index:2;background:#000;opacity:0;pointer-events:none;transition:opacity .9s ease-in}
 .mop-night-dark[data-on=true]{opacity:.45}
 @keyframes mop-pop{0%{opacity:0;margin-top:6px}15%{opacity:1}100%{opacity:0;margin-top:-34px}}
-@keyframes mop-pulse{to{transform:translate(-50%,-100%) scale(1.07)}}
+@keyframes mop-pulse{to{transform:translate(-50%,-50%) scale(1.07)}}
 @keyframes mop-late{50%{opacity:.45}}
 @media (prefers-reduced-motion:reduce){.mop-night-pop,.mop-night-rinse[data-dirty=true],.mop-night-clock[data-late=true]{animation:none}.mop-night-dark{transition:none}}
 .story-pad .fp-zone[hidden]{display:none!important} /* a punches-only skill game (bag_duo, GOTR-0106) */

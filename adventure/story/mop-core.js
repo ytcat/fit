@@ -14,18 +14,18 @@
   const PAY = Object.freeze([0, 6, 10, 15]);
   const MOP = Object.freeze({
     missionId: 'clean_gym', metric: 'marks',
-    minX: .05, maxX: 3.25, minZ: -1.7, maxZ: 1.6, cell: .05,         // the floor between the ring corner and the bag mat
+    minX: .15, maxX: 3.15, minZ: -1.7, maxZ: 1.6, cell: .05,         // the floor between the ring corner and the bag mat
     radius: .2, core: .11,                                            // the string mop's footprint on the floor (m)
-    bucket: Object.freeze({ x: 3.5, z: 1.92, r: .34 }),                // the mop bucket at the front right corner, just off the floor area
+    bucket: Object.freeze({ x: 1.65, z: 2.08, r: .3 }),                // the mop bucket in front of the floor (camera side), in view at the bottom
     time: 90, bonusCap: 20, rinseTime: 1.0, dry: 7,                   // seconds: the shift, the most bonus time, a rinse (+ the walk to the bucket), wet floor drying
     speed: 2.2,                                                       // m/s: the mop head follows the finger no faster than this (he walks after it)
     capacity: 1 / 4,                                                  // a clean mop holds about a quarter of the floor's dirt
     smearFrom: .62,                                                   // mop load where it starts to smear
     strokeLen: .7,                                                    // a long stroke (m) can count for the streak
     zones: Object.freeze([
-      Object.freeze({ id: 'ring', x0: .05, x1: 1.65, z0: -1.7, z1: -0.17 }),
-      Object.freeze({ id: 'bags', x0: 1.65, x1: 3.25, z0: -1.7, z1: -0.17 }),
-      Object.freeze({ id: 'floor', x0: .05, x1: 3.25, z0: -0.17, z1: 1.6 })
+      Object.freeze({ id: 'ring', x0: .15, x1: 1.65, z0: -1.7, z1: -0.17 }),
+      Object.freeze({ id: 'bags', x0: 1.65, x1: 3.15, z0: -1.7, z1: -0.17 }),
+      Object.freeze({ id: 'floor', x0: .15, x1: 3.15, z0: -0.17, z1: 1.6 })
     ])
   });
   const NX = Math.round((MOP.maxX - MOP.minX) / MOP.cell), NZ = Math.round((MOP.maxZ - MOP.minZ) / MOP.cell), CLEAN = .03;
@@ -175,7 +175,7 @@
     checkZones() {
       MOP.zones.forEach((q, k) => {
         if (this.zoneDone[k] || !this.startZone[k]) return;
-        if (this.residual(k) <= this.startZone[k] * .06) { this.zoneDone[k] = true; const add = Math.min(3, MOP.bonusCap - this.bonus); if (add > 0) { this.bonus += add; this.left += add; } this.emit('zone', { zone: q.id, bonus: add, x: (q.x0 + q.x1) / 2, z: (q.z0 + q.z1) / 2 }); }
+        if (this.residual(k) <= this.startZone[k] * .12) { this.zoneDone[k] = true; const add = Math.min(3, MOP.bonusCap - this.bonus); if (add > 0) { this.bonus += add; this.left += add; } this.emit('zone', { zone: q.id, bonus: add, x: (q.x0 + q.x1) / 2, z: (q.z0 + q.z1) / 2 }); }
       });
     }
     /** Rinse and wring the mop in the bucket: a clean mop after MOP.rinseTime seconds. */

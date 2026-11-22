@@ -54,7 +54,8 @@ const { open, launchShift, frames } = require('./launch.cjs'), path = require('p
     const slide = { L: 0, R: 0 }; let spans = 0;
     for (const k of [0, 1]) { let a = null; for (const q of log) { const f = q.feet[k]; if (f.planted) { if (!a) { a = f.world; spans++; } slide[k ? 'R' : 'L'] = Math.max(slide[k ? 'R' : 'L'], Math.hypot(f.world[0] - a[0], f.world[2] - a[2])); } else a = null; } }
     const pct = (a, q) => { const s = [...a].sort((x, y) => x - y); return +s[Math.min(s.length - 1, Math.floor(q * s.length))].toFixed(4); };
-    const res = { frames: log.length, mopFrames: mop.length, bothGrips: both, hand: { median: pct(handErr, .5), p95: pct(handErr, .95), max: pct(handErr, 1), under15mm: +(handErr.filter(e => e < .015).length / handErr.length).toFixed(3) },
+    const onStick = mop.filter(q => q.top < .015 && q.low < .015).length;
+    const res = { onStick: +(onStick / mop.length).toFixed(3), frames: log.length, mopFrames: mop.length, bothGrips: both, hand: { median: pct(handErr, .5), p95: pct(handErr, .95), max: pct(handErr, 1), under15mm: +(handErr.filter(e => e < .015).length / handErr.length).toFixed(3) },
       plantedSpans: spans, footDriftMax: { L: +slide.L.toFixed(4), R: +slide.R.toFixed(4) }, steps: log.at(-1).steps, handleToTorsoMin: Math.min(...log.map(q => q.body)),
       twist: [Math.min(...log.map(q => q.twist)), Math.max(...log.map(q => q.twist))], lean: [Math.min(...log.map(q => q.lean)), Math.max(...log.map(q => q.lean))], drop: [Math.min(...log.map(q => q.drop)), Math.max(...log.map(q => q.drop))],
       headOff: { median: pct(mop.map(q => q.headOff), .5), p95: pct(mop.map(q => q.headOff), .95) }, apart: { median: pct(mop.map(q => q.apart), .5) }, headY: { mopMax: Math.max(...mop.map(q => q.head[1])), mopMin: Math.min(...mop.map(q => q.head[1])) }, phases: [...new Set(log.map(q => q.phase))], errors };

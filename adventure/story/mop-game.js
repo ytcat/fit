@@ -19,7 +19,7 @@
       rinse: 'לשטוף', mop: 'מגב', clock: 'כיבוי אורות', stroke: 'משיכה נקייה', smear: 'מריחה! שטפו את המגב', rinsed: 'מגב נקי', dirty: 'המגב מלוכלך', sec: '+{n} שנ׳',
       zone: { ring: 'פינת הזירה נקייה', bags: 'אזור השקים נקי', floor: 'המרכז נקי' }, lightsOut: 'האורות כבו', noteTitle: 'פתק על הדלת',
       note: 'הרצפה עד חצות. האורות כבים לבד. כשהמגב מאפיר, תשטוף אותו. — ב.', detail: '{p}% נקי · אזורים {a}/{b} · מריחות {s} · שטיפות {r}' },
-    ru: { title: 'Ночная смена', goal: 'Чистый пол', help: 'Ведите, чтобы мыть. Нажмите на ведро, чтобы прополоскать.', keyboard: 'Стрелки — движение, пробел — мыть, R — прополоскать.', finish: 'Закончить', pay: 'Оплата +{n} ◈',
+    ru: { title: 'Ночная смена', goal: 'Чистый пол', help: 'Веди шваброй по полу. Ведро — прополоскать.', keyboard: 'Стрелки — движение, пробел — мыть, R — прополоскать.', finish: 'Закончить', pay: 'Оплата +{n} ◈',
       rinse: 'Прополоскать', mop: 'Швабра', clock: 'Свет погаснет', stroke: 'Чистый проход', smear: 'Разводы! Прополощи швабру', rinsed: 'Швабра чистая', dirty: 'Швабра грязная', sec: '+{n} с',
       zone: { ring: 'У ринга чисто', bags: 'У мешков чисто', floor: 'Середина чистая' }, lightsOut: 'Свет погас', noteTitle: 'Записка на двери',
       note: 'Пол — до полуночи. Свет гаснет сам. Посереет швабра — прополощи. — Б.', detail: '{p}% чисто · зоны {a}/{b} · разводы {s} · полоскания {r}' }
@@ -52,8 +52,8 @@
     const clear = () => { const id = active; active = null; getSim()?.clearInput(); if (id != null && surface.hasPointerCapture?.(id)) surface.releasePointerCapture(id); };
     const onDown = e => {
       if (active !== null || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
-      if (nearBucket(e.clientX, e.clientY)) { e.preventDefault(); getSim()?.rinse(); return; }
       const p = point(e.clientX, e.clientY);
+      if ((!p || !Core().inFloor(p)) && nearBucket(e.clientX, e.clientY)) { e.preventDefault(); getSim()?.rinse(); return; } // the floor wins over the bucket
       if (!p || !getSim()?.begin(p)) return;
       active = e.pointerId; e.preventDefault(); surface.focus({ preventScroll: true }); surface.setPointerCapture?.(active);
     };
@@ -325,7 +325,7 @@
     cyl(-.12, .74, .14, .012, .5, '#8e97a1', .35); box(-.12, .97, .22, .03, .03, .14, '#2a2d33');
     parts.push([new THREE.TorusGeometry(.17, .008, 6, 16, Math.PI), mat4(.06, .36, 0, 0, Math.PI / 2, 0), '#8e97a1']);
     for (const [x, z] of [[-.2, -.14], [.2, -.14], [-.2, .14], [.2, .14]]) cyl(x, .025, z, .025, .03, '#1c1e22', 0, Math.PI / 2);
-    const g = new THREE.Group(); g.position.set(B.x, 0, B.z); g.rotation.y = -.5; g.name = 'mop bucket'; parent.add(g);
+    const g = new THREE.Group(); g.position.set(B.x, 0, B.z); g.rotation.y = -.25; g.name = 'mop bucket'; parent.add(g);
     const tub = new THREE.Mesh(own(merge(parts)), own(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .45 }))); tub.castShadow = true; g.add(tub);
     const waterMat = own(new THREE.MeshStandardMaterial({ color: '#6f9aa6', roughness: .12, metalness: .1 }));
     const water = new THREE.Mesh(own(new THREE.PlaneGeometry(.44, .32).rotateX(-Math.PI / 2)), waterMat); water.position.set(.04, .3, 0); g.add(water);
@@ -336,7 +336,7 @@
       c.font = '900 52px Arial,sans-serif'; c.textAlign = 'center'; c.fillText('!', W / 2, 104);
       c.lineWidth = 6; c.beginPath(); c.arc(42, 150, 10, 0, 7); c.moveTo(42, 160); c.lineTo(66, 176); c.moveTo(48, 166); c.lineTo(90, 158); c.stroke(); c.beginPath(); c.ellipse(80, 178, 26, 4, 0, 0, 7); c.fill();
     }));
-    const sign = new THREE.Group(); sign.position.set(.2, 0, 2.05); sign.rotation.y = .5; parent.add(sign);
+    const sign = new THREE.Group(); sign.position.set(.05, 0, 2.0); sign.rotation.y = .5; parent.add(sign);
     const signMat = own(new THREE.MeshStandardMaterial({ map: signTex, roughness: .5, side: THREE.DoubleSide })), leaf = own(new THREE.PlaneGeometry(.3, .58));
     for (const s of [-1, 1]) { const m = new THREE.Mesh(leaf, signMat); m.position.set(0, .28, s * .09); m.rotation.x = -s * .3; m.castShadow = true; sign.add(m); }
     return { g, water, waterMat };
@@ -389,13 +389,14 @@
     }
     const vel = m.head.clone().sub(last).divideScalar(Math.max(.016, dt)); vel.y = 0;
     // body: keep the mop in front; turn to face it
-    const want = m.body.clone(), dx = m.head.x - want.x, dz = m.head.z - want.z, c0 = -.3, side = .24; // the mop a little to his right (world -x as he faces the camera)
+    const want = m.body.clone(), dx = m.head.x - want.x, dz = m.head.z - want.z, c0 = -.3, side = .3; // the mop a little to his right (world -x as he faces the camera)
     if (dx > c0 + side) want.x = m.head.x - c0 - side; else if (dx < c0 - side) want.x = m.head.x - c0 + side;
-    if (dz > 1.1) want.z = m.head.z - 1.1; else if (dz < .85) want.z = m.head.z - .85; // the handle at ~55 degrees
-    const atPail = phase !== 'mop' || Core().atBucket(v.point); if (atPail) want.set(R.bucket.x - .42, 0, R.bucket.z - .78); // at the bucket: behind it and to its left
-    const before = m.body.clone(), mv = want.clone().sub(m.body), maxStep = 2.2 * dt; if (mv.length() > maxStep) mv.setLength(maxStep);
+    if (dz > 1.15) want.z = m.head.z - 1.15; else if (dz < .8) want.z = m.head.z - .8; // the handle at ~55 degrees
+    const atPail = phase !== 'mop' || Core().atBucket(v.point); if (atPail) want.set(R.bucket.x + .12, 0, R.bucket.z - .78); // at the bucket: just behind it, facing it (and the camera)
+    const lag = m.feet ? Math.max(...['L', 'R'].map((k, i) => m.feet[k].p.distanceTo(f.root.localToWorld(V(i ? .155 : -.155, 0, i ? -.06 : .06))))) : 0; // the body waits for a foot left far behind
+    const before = m.body.clone(), mv = want.clone().sub(m.body), maxStep = (lag > .42 ? 1.0 : 2.2) * dt; if (mv.length() > maxStep) mv.setLength(maxStep);
     m.body.add(mv); const bodyVel = m.body.clone().sub(before).divideScalar(Math.max(.016, dt));
-    const yaw = atPail ? -.15 : clamp(Math.atan2(m.head.x - m.body.x + .3, Math.max(.25, m.head.z - m.body.z)) * .7, -.7, .7); // square to the work: the mop's home is at his right
+    const yaw = atPail ? 0 : clamp(Math.atan2(m.head.x - m.body.x + .3, Math.max(.25, m.head.z - m.body.z)) * .7, -.7, .7); // square to the work: the mop's home is at his right
     m.yaw += (yaw - m.yaw) * Math.min(1, dt * 4);
     f.root.position.copy(m.body); f.root.rotation.set(0, m.yaw, 0); f.root.updateMatrixWorld(true);
     // feet: planted on the boards (world), one step at a time to the work stance
@@ -406,7 +407,7 @@
       const F = m.feet[k], s = k === 'L' ? -1 : 1;
       if (F.u < 1) { F.u = Math.min(1, F.u + dt / .25); F.p.lerpVectors(F.from, F.to, F.u * F.u * (3 - 2 * F.u)); F.lift = .065 * Math.sin(Math.PI * F.u); continue; }
       F.lift = 0;
-      const home = homeOf(s); if (swinging || F.p.distanceTo(home) < .12) continue;
+      const home = homeOf(s), far = F.p.distanceTo(home); if ((swinging && !(far > .42 && m.feet[swinging].u > .5)) || far < .14) continue;
       const other = m.feet[k === 'L' ? 'R' : 'L'], mine = F.p.distanceTo(home), theirs = other.p.distanceTo(homeOf(-s));
       if (theirs > mine + .03 && other.u >= 1) continue; // the foot left furthest behind goes first
       F.from = F.p.clone(); F.to = home.addScaledVector(bodyVel, .22); F.to.y = 0; F.u = 0; m.steps = (m.steps || 0) + 1; break;
@@ -421,25 +422,27 @@
     const st = m.stretch, act = clamp(1 - Math.min(1, m.idle / 1.5) * .5);
     m.tb = clamp((m.tb ?? -.1) + ((m.err?.L || 0) - (m.err?.R || 0)) * 3 * dt, -.32, .12); // turns the chest until both hands reach the stick
     const twistT = (clamp(Math.atan2(S.x - .3, Math.max(.2, S.z)) * .85, -.55, .55) + m.tb + sweep) * (1 - st), twist = m.twist = (m.twist || 0) + (twistT - (m.twist || 0)) * Math.min(1, dt * 8);
-    const lean = (.36 + .12 * reach + push) * (.6 + .4 * act) * (1 - st) + .2 * m.bend - .14 * st; // bent over the work
+    m.lb = clamp((m.lb || 0) + ((m.err?.R || 0) - .012) * 2 * dt, 0, .22); // bends further when the lower hand falls short of the stick
+    const lean = (.36 + m.lb + .12 * reach + push) * (.6 + .4 * act) * (1 - st) + .2 * m.bend - .14 * st; // bent over the work
     const drop = .07 + .05 * reach + .17 * m.bend + .07 * press - .04 * st;
     const shift = clamp(S.x * .06, -.045, .045) * (1 - st) + planted * .035;
     // hands: the top (left) hand in front of the chest, placed from the shoulder so the arm can hold it there; the lower
     // (right) hand further down the line toward the socket, as far down as the right arm reaches (30..44 cm apart)
     const shL = f.point(f.joints.armL), shR = f.point(f.joints.armR), arm = f.joints.elbowL.position.length() + f.joints.handL.position.length();
     const T = V(clamp(-.02 + (S.x - .3) * .1, -.1, .06), shL.y - .38 - .08 * m.bend - .05 * press + .12 * st, shL.z + .3 + .06 * reach), axis = S.clone().sub(T).normalize();
-    let u = .42, low = T.clone().addScaledVector(axis, u); while (u > .1 && low.distanceTo(shR) > .93 * arm) { u -= .02; low = T.clone().addScaledVector(axis, u); } // as far down the stick as the arm reaches
+    let u = .42, low = T.clone().addScaledVector(axis, u); while (u > .08 && low.distanceTo(shR) > .93 * arm) { u -= .02; low = T.clone().addScaledVector(axis, u); } // as far down the stick as the arm reaches
+    if (low.distanceTo(shR) > .97 * arm) { let best = 9; for (let w = 0; w <= .4; w += .02) { const q = T.clone().addScaledVector(axis, w), d = q.distanceTo(shR); if (d < best) { best = d; low = q; } } } // out of reach: the nearest grip on the stick
     const gripOff = m.gripOff || { L: V(), R: V() }, ride = V(0, .972 - f.joints.hips.position.y, 0), aimL = T.clone().sub(gripOff.L).add(ride), aimR = low.clone().sub(gripOff.R).add(ride); // DreamPose lets the hands ride with the pelvis: take its drop back out // last frame's grip offset (the grip sits inside the paw)
     const reachT = st > .5 ? { L: aimL.toArray() } : { L: aimL.toArray(), R: aimR.toArray() };
     Pose.civil(f, { t, dt, walk: 0, feet, arms: { L: 'pole', R: st > .5 ? 'hips' : 'pole' }, reach: reachT, lean, drop, twist, hipYaw: -.3 * twist, shift,
       look: { yaw: clamp(Math.atan2(S.x, Math.max(.2, S.z)) - twist, -.6, .6) * (1 - st), pitch: -.45 * (1 - st) + .32 * st - .1 * m.bend } });
-    // the handle is laid through both real grips; where it meets the socket height is the mop head (within 15 cm of
-    // where the core cleans, 24 cm while he is still walking after it); otherwise from the socket through the top hand
+    // the handle is laid through both real grips; where it meets the socket height is the mop head (usually within a few cm
+    // of where the core cleans, up to 30 cm while he is still walking after it); otherwise from the socket through the top hand
     const gT = f.joints.handL.localToWorld(V(0, -.07, .02)), gL = f.joints.handR.localToWorld(V(0, -.07, .02));
     m.err = { L: f.point(f.joints.handL).distanceTo(aimL.clone().sub(ride)), R: st > .5 ? 0 : f.point(f.joints.handR).distanceTo(aimR.clone().sub(ride)) };
     m.gripOff = { L: f.root.worldToLocal(gT.clone()).sub(f.point(f.joints.handL)), R: f.root.worldToLocal(gL.clone()).sub(f.point(f.joints.handR)) };
     let hAxis = gT.clone().sub(socketW).normalize(), sock = socketW.clone(), both = false;
-    if (st <= .5) { const d = gT.clone().sub(gL); if (d.y > .05 && d.length() > .1) { const k = (gL.y - socketW.y) / d.y, at = gL.clone().addScaledVector(d, -k); if (at.distanceTo(socketW) < .24) { sock = at; hAxis = d.normalize(); both = true; } } }
+    if (st <= .5) { const d = gT.clone().sub(gL); if (d.y > .03 && d.length() > .05) { const k = (gL.y - socketW.y) / d.y, at = gL.clone().addScaledVector(d, -k); if (at.distanceTo(socketW) < .3) { sock = at; hAxis = d.normalize(); both = true; } } }
     const end = gT.clone().addScaledVector(hAxis, .12), len = sock.distanceTo(end);
     M.handle.position.copy(sock).lerp(end, .5); M.handle.scale.set(1, len, 1); M.handle.quaternion.setFromUnitVectors(V(0, 1, 0), hAxis);
     M.cap.position.copy(end); M.cap.quaternion.copy(M.handle.quaternion);
@@ -509,8 +512,8 @@
       if (O) {
         const txt = timeText(v.left); if (O.clock.textContent !== txt) O.clock.textContent = txt;
         O.clock.dataset.late = String(v.started && v.left < 10); O.gFill.style.width = Math.round(100 * (1 - v.load)) + '%'; O.gauge.dataset.dirty = String(!!v.dirty);
-        const b = O.project(R.bucket.x, R.bucket.z, .95), hostR = O.rinse.parentElement?.getBoundingClientRect();
-        if (hostR) { const half = (O.rinse.offsetWidth || 70) / 2 + 6; O.rinse.style.left = clamp(b.x - hostR.left, half, hostR.width - half).toFixed(0) + 'px'; O.rinse.style.top = clamp(b.y - hostR.top - 8, 150, hostR.height - 110).toFixed(0) + 'px'; }
+        const b = O.project(R.bucket.x + .62, R.bucket.z + .05, .25), hostR = O.rinse.parentElement?.getBoundingClientRect();
+        if (hostR) { const half = (O.rinse.offsetWidth || 70) / 2 + 6; O.rinse.style.left = clamp(b.x - hostR.left, half, hostR.width - half).toFixed(0) + 'px'; const foot = O.rinse.parentElement.querySelector('.story-mop-footer'), fTop = foot && !foot.hidden ? foot.getBoundingClientRect().top - hostR.top : hostR.height; O.rinse.style.top = clamp(b.y - hostR.top - 8, 150, Math.min(hostR.height - 110, fTop - 26)).toFixed(0) + 'px'; } // above the footer
         O.rinse.dataset.dirty = String(!!v.dirty); O.rinse.disabled = !!x.over || v.rinsing > 0; O.rinse.hidden = !!x.over;
         O.note.hidden = v.started || !!x.over; O.dark.dataset.on = String(!!v.lightsOut);
       }
