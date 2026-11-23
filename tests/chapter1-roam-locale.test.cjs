@@ -4,9 +4,9 @@ const L=require('../adventure/story/chapter1-roam-locale');
 const html=src('chapter1-roam.html'), main=src('index.html'), manifest=JSON.parse(src('offline-manifest.json')).urls;
 const roam=src('adventure/story/chapter1-roam.js'), css=src('adventure/story/chapter1-roam.css');
 const handoff=src('adventure/adventure-ui.js').match(/const params = new URLSearchParams\(\{lang\}\);.*?window.location.assign\('\.\/chapter1-roam\.html\?' \+ params\);/s)[0];
-const carried=src('club-interface.js').match(/const carried=window.location.hash===.*?catch\(_\)\{\}/s)[0];
+const carried=src('club-interface.js').match(/const carried=window\.location\?\.hash===.*?catch\(_\)\{\}/s)[0];
 function launch(lang,eligible){let href;vm.runInNewContext(handoff,{URLSearchParams,lang:['en','he','ru'].includes(lang)?lang:'en',target:eligible?'otto':null,token:null,window:{location:{assign(x){href=x;}}}});return new URL(href,'https://example.invalid/game/index.html');}
-function native(url,stored){const calls=[];vm.runInNewContext(carried,{URLSearchParams,window:{location:new URL(url,'https://example.invalid/game/'),},app:{setLanguage(x){calls.push(x)}},copy:{en:1,he:1,ru:1},localStorage:{getItem(){if(stored instanceof Error)throw stored;return stored;}}});return calls;}
+function native(url,stored){const calls=[];vm.runInNewContext(carried,{URLSearchParams,window:url==null?{}:{location:new URL(url,'https://example.invalid/game/')},app:{setLanguage(x){calls.push(x)}},copy:{en:1,he:1,ru:1},localStorage:{getItem(){if(stored instanceof Error)throw stored;return stored;}}});return calls;}
 for(const lang of ['en','he','ru']){
  const u=launch(lang,true),l=L.locale(L.resolve(u.search,()=>lang==='he'?'en':'he',['ru']));
  assert.equal(u.pathname,'/game/chapter1-roam.html');
@@ -32,6 +32,8 @@ assert.equal(L.resolve('?lang=ru-RU',()=> 'he',['en']),'ru');
 assert.equal(L.resolve('?lang=%3Cscript%3E',k=>{assert.equal(k,'shadowbox-language');return 'he-IL';},['en']),'he');
 assert.equal(L.resolve('',()=>{throw Error('blocked');},['fr-CA','iw-IL','en']),'he');
 assert.equal(L.resolve('',()=> 'constructor',['ja']),'en');
+assert.deepEqual(native(undefined,'ru'),['ru'],'no Location falls back to the saved preference');
+assert.deepEqual(native(undefined,new Error('blocked storage')),[],'no Location or storage leaves startup language unchanged');
 assert.deepEqual(native('./index.html?lang=ru','he'),['he']);
 assert.deepEqual(native('./index.html?lang=constructor#chapter1-story','he'),['he']);
 assert.deepEqual(native('./index.html#chapter1-story','constructor'),[]);
