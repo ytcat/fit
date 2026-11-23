@@ -171,7 +171,9 @@
           };
           const eligible = Object.hasOwn(target, current) && flow.playable(g, current) &&
             !window.AdventureProgress?.blockedByGymShift?.(g, current) && (!step.boss || !flow.gate(g, 1));
-          window.location.assign('./chapter1-roam.html' + (eligible ? '?destination=' + target[current] : ''));
+          const params = new URLSearchParams({lang: ['en','he','ru'].includes(app.lang) ? app.lang : 'en'});
+          if (eligible) params.set('destination', target[current]);
+          window.location.assign('./chapter1-roam.html?' + params);
         }, 'game-button adv-go adv-alt adv-primary');
         roam.title = T(L('Optional mode. Internet connection required; no story progress.', 'מצב נפרד. נדרש אינטרנט; המשימות לא מתקדמות.', 'Отдельный режим. Нужен интернет; сюжет не меняется.'));
         card.append(roam);

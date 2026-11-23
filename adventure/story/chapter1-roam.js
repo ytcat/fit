@@ -2,7 +2,7 @@
 (async function(){
  'use strict';
  const W=window.Chapter1World,T=window.THREE,$=id=>document.getElementById(id);
- const names={oldtown:'העיר העתיקה',market:'שדרת השוק',otto:'החנות של אוטו',docks:'רציף הנמל'};
+ const locale=window.Chapter1RoamLocale, words=locale.words, names=words.districts;
  const load=async p=>{const r=await fetch(p);if(!r.ok)throw Error('HTTP '+r.status+' for '+p);return r.json();};
  const reduced=!!window.matchMedia?.('(prefers-reduced-motion:reduce)').matches;
  let renderer, rig, zone=null, s=W.spawn(), busy=true, stopped=false, anim=0, poseTime=0, groundY=0, yaw=-1, activePointer=null;
@@ -36,9 +36,9 @@
    if(ms-routeAt>130){guided=nav.plan(s,chosen);lastRoute={id:s.id,x:s.x,z:s.z};routeAt=ms;}
   }
   storyReturn.hidden=!(nativeHandoff&&guided?.arrived&&chosen===suggested);
-  if(!guided){distance.textContent='אין מסלול ליעד';arrow.hidden=true;return;}
-  if(guided.arrived){distance.textContent='הגעת ליעד';arrow.hidden=true;return;}
-  distance.textContent='כ־'+Math.max(1,Math.round(guided.metres))+' מ׳';
+  if(!guided){distance.textContent=words.noRoute;arrow.hidden=true;return;}
+  if(guided.arrived){distance.textContent=words.arrived;arrow.hidden=true;return;}
+  distance.textContent=locale.distance(guided.metres);
   const dx=guided.next.x-s.x,dz=guided.next.z-s.z,len=Math.hypot(dx,dz);
   if(len<.025){arrow.hidden=true;return;}
   const y=W.height(s.id,s.x,s.z);view.updateMatrixWorld(true);
@@ -70,7 +70,7 @@
  function paintSign(text){
   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=100;
   const g=canvas.getContext('2d');g.fillStyle='#162f38';g.fillRect(4,4,504,92);g.strokeStyle='#92d3cb';g.lineWidth=7;g.strokeRect(5,5,502,90);
-  g.font='bold 41px system-ui, sans-serif';g.textAlign='center';g.textBaseline='middle';g.direction='rtl';g.fillStyle='#f4f1e0';g.fillText(text,256,50,466);
+  g.font='bold 41px system-ui, sans-serif';g.textAlign='center';g.textBaseline='middle';g.direction=locale.dir;g.fillStyle='#f4f1e0';g.fillText(text,256,50,466);
   const tex=new T.CanvasTexture(canvas);tex.encoding=T.sRGBEncoding;return tex;
  }
  function districtMarkers(id,scene){
@@ -169,7 +169,7 @@
   const g=W.nearby(s);if(!g)return;const at=W.transfer(s,g.id);if(!at)return;
   save();busy=true;clear();gateBtn.hidden=true;fade.classList.add('active');
   try{const newZone=await build(at.id);if(!reduced)await animDelay(180);mount(newZone,at);$('notice').hidden=true;}
-  catch(error){console.error(error);$('notice').textContent='לא הצלחנו לטעון את האזור. אפשר לנסות שוב.';$('notice').hidden=false;}
+  catch(error){console.error(error);$('notice').textContent=words.loadError;$('notice').hidden=false;}
   finally{busy=false;fade.classList.remove('active');save();}
  }
  gateBtn.onclick=enter;
@@ -191,7 +191,7 @@
    DreamPose.civil(rig,{t:poseTime,dt,dist:s.dist,walk:+s.walking,ground:(x,z)=>W.height(s.id,x,z),arms:{},look:{yaw:0,pitch:0}});
    next.set(s.x,.70+groundY,s.z);center.lerp(next,reduced?1:1-Math.exp(-dt*10));pose();guide(ms);zone.navRing?.frame(poseTime);
    const gate=W.nearby(s);gateBtn.hidden=!gate;
-   if(gate)gateBtn.textContent='מעבר אל '+names[gate.to];
+   if(gate)gateBtn.textContent=locale.gate(gate.to);
    if(ms-lastSave>650){lastSave=ms;save();}
   }
   renderer.render(zone.scene,view);
@@ -201,7 +201,7 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.45));renderer.outputEncoding=T.sRGBEncoding;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
   $('stage').append(renderer.domElement);startSizing();
-  renderer.domElement.addEventListener('webglcontextlost',ev=>{ev.preventDefault();clear();busy=true;$('notice').textContent='הדפדפן עצר את התצוגה. יש לרענן כדי להמשיך.';$('notice').hidden=false;});
+  renderer.domElement.addEventListener('webglcontextlost',ev=>{ev.preventDefault();clear();busy=true;$('notice').textContent=words.contextLost;$('notice').hidden=false;});
   DreamSets.register();MarketSets.register();DocksSets.register();
   const [data,correct,surfaces]=await Promise.all([load('./assets/models/coach-surface-v2.json'),load('./assets/models/shoulder-correctives-v2.json'),load('./assets/models/equipment-surfaces-r76.json'),StorySets.ready()]);
   data.shoulderCorrectives=correct;window.EQUIPMENT_SURFACES=surfaces;
@@ -211,7 +211,7 @@
   busy=false;$('notice').hidden=true;fade.classList.remove('active');
   anim=requestAnimationFrame(frame);
  }catch(error){
-  console.error(error);$('notice').textContent='תצוגת הבדיקה אינה זמינה במכשיר הזה (WebGL או נתוני המשחק).';
+  console.error(error);$('notice').textContent=words.unavailable;
  }
  window.Chapter1Review={snapshot:()=>({s:{...s},zone:zone?.id,busy,zoom,traffic:zone?.traffic?.snapshot?.()||null,waypoint:{chosen,metres:guided?.metres??null,arrived:!!guided?.arrived,visibleRing:!!zone?.navRing},gate:W.nearby(s)?.id||null})};
 })();

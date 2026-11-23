@@ -91,7 +91,10 @@
   });
   // Persist only preferences. A refresh never resumes a stale fight or hidden timer.
   for(const id of ['langEN','langHE','langRU'])byId(id).addEventListener('click',()=>{try{localStorage.setItem('shadowbox-language',app.lang);}catch(_){}});
-  try{const lang=localStorage.getItem('shadowbox-language');if(copy[lang])app.setLanguage(lang);}catch(_){}
+  // A return from free roam may carry the active language even when preferences could not be saved.
+  const carried=window.location.hash==='#chapter1-story'?new URLSearchParams(window.location.search).get('lang'):null;
+  if(['en','he','ru'].includes(carried))app.setLanguage(carried);
+  else try{const lang=localStorage.getItem('shadowbox-language');if(Object.hasOwn(copy,lang))app.setLanguage(lang);}catch(_){}
   paint();
   window.clubInterface={paint,returnToGym};
  }
