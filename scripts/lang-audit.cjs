@@ -69,7 +69,7 @@ function build(toks) {
   const root = { kind: 'root', items: [], parent: null }; let g = root;
   for (const t of toks) {
     if (t.t === 'p' && (t.v === '(' || t.v === '[' || t.v === '{' || t.v === '${')) {
-      const ng = { kind: t.v, items: [], parent: g, a: t.a }, it = g.items, n1 = it[it.length - 1], n2 = it[it.length - 2], n3 = it[it.length - 3];
+      const ng = { kind: t.v, items: [], parent: g, a: t.a }, it = g.items, n1 = it[it.length - 1], n2 = it[it.length - 2], n3 = it[it.length - 3]; ng.prev = n1;
       // W.he = {…} / Object.assign(words.he, {…}) / W['he'] = […]: the group is that language's
       if (n1 && n1.t === 'p' && (n1.v === '=' || n1.v === ',') && n2 && (n2.t === 'id' || n2.t === 's') && LANGS.includes(n2.v) && n3 && n3.t === 'p' && n3.v === '.') ng.key = n2.v;
       if (n1 && n1.t === 'p' && (n1.v === '=' || n1.v === ',') && n2 && n2.items && n2.kind === '[' && n2.items.length === 1 && n2.items[0].t === 's' && LANGS.includes(n2.items[0].v)) ng.key = n2.items[0].v;
@@ -103,7 +103,7 @@ const LANGS = ['en', 'he', 'ru'];
 const descend = function* (items) { for (const x of items) { if (x.items) yield* descend(x.items); else yield x; } };
 // The statement (or argument list / array / object value) that holds a token: the place to look for its translations.
 function segmentOf(t) {
-  let g = t.g, node = t;
+  let g = t.g || t.parent, node = t;
   // climb through template ${} and small wrapping groups
   const parentItem = x => { const p = x.parent || x.g; return p; };
   for (;;) {
@@ -141,8 +141,12 @@ function auditJs(file, src, base = 0, whole = src) {
       const he = HE.test(v), ru = RU.test(v), keys = keyPath(t);
       const okKey = he ? keys.some(isHe) : keys.some(isRu);
       if (!okKey) {
-        const seg = segmentOf(t); let other = false;
-        for (const x of descend(seg)) if (x.t === 's' && x !== t && (he ? RU.test(x.v) : HE.test(x.v))) { other = true; break; }
+        // look for the other language in the statement / argument list / entry around it, then around the objects that hold it
+        let other = false, node = t;
+        for (let up = 0; up < 4 && node && !other; up++) {
+          for (const x of descend(segmentOf(node))) if (x.t === 's' && x !== t && (he ? RU.test(x.v) : HE.test(x.v))) { other = true; break; }
+          node = (node.g || node.parent); if (!node || node.kind === 'root') break;
+        }
         if (!other && !(he && ru)) add(he ? 'he-only' : 'ru-only', t, v);
       }
     }
@@ -155,7 +159,7 @@ function auditJs(file, src, base = 0, whole = src) {
     if (g.isObject) {
       const ks = keysOf(g), have = LANGS.filter(l => ks.includes(l));
       const langish = have.length >= 2 || (have.length === 1 && have[0] !== 'en' && ks.length <= 2);
-      if (langish && have.length < 3) {
+      if (langish && (!have.includes("he") || !have.includes("ru"))) { // English may come from the defaults; Hebrew and Russian may not
         const anyText = g.entries.some(e => e.value && LANGS.includes(e.key) && [...descend(e.value)].some(x => x.t === 's' && /\p{L}/u.test(x.v)));
         if (anyText) out.push({ file, line: lineOf(whole, g.a), rule: 'lang-map', text: `missing ${LANGS.filter(l => !have.includes(l)).join(',')} (has ${have.join(',')})` });
       }
@@ -196,10 +200,16 @@ function auditJs(file, src, base = 0, whole = src) {
     if (strs.length && args !== 3 && strs.some(x => /\p{L}/u.test(x.v))) add('lang-map', t, `L() with ${args} argument(s): ${strs[0].v}`);
   }
   // English-only display data: {title: 'Night shift'} with no language around it
-  const DATA_KEYS = new Set(['title', 'label', 'text', 'hint', 'caption', 'line', 'note', 'tip', 'help', 'msg', 'message', 'desc', 'description', 'subtitle', 'button', 'cta', 'goal', 'aria', 'heading', 'toast', 'body', 'say', 'sub', 'prompt', 'question', 'answer', 'blurb', 'lead', 'detail', 'name']);
+  // `name` is left out: in this code base it names meshes and ids; shown names come from language tables.
+  const DATA_KEYS = new Set(['title', 'label', 'text', 'hint', 'caption', 'line', 'note', 'tip', 'help', 'msg', 'message', 'desc', 'description', 'subtitle', 'button', 'cta', 'goal', 'aria', 'heading', 'toast', 'body', 'say', 'sub', 'prompt', 'question', 'answer', 'blurb', 'lead', 'detail']);
+  // English words that the file translates through a table keyed by the English text ({'HOME GYM': ['…', '…']})
+  const tableKeys = new Set();
+  const collectKeys = g => { if (g.isObject) for (const e of g.entries) if (e.key != null && e.value && [...descend(e.value)].some(x => x.t === 's' && (HE.test(x.v) || RU.test(x.v)))) tableKeys.add(e.key); for (const x of g.items) if (x.items) collectKeys(x); };
+  collectKeys(root);
   for (const t of toks) {
     if (t.t !== 's' || !t.key || !DATA_KEYS.has(t.key) || HE.test(t.v) || RU.test(t.v) || !/[A-Za-z]{2,}\s+[A-Za-z]{2,}/.test(glossary.strip(t.v))) continue;
-    if (t.key === 'name' && !/\s[a-z]/.test(t.v)) continue; // proper names (people, places) stay as they are
+    if (tableKeys.has(t.v) || !/[A-Za-z]{2,}\s+[A-Za-z]{2,}/.test(t.v.replace(/GLORY OF THE RING/gi, ' '))) continue;
+    if (t.g.prev && t.g.prev.t === 'p' && /^(\|\||\?\?)$/.test(t.g.prev.v)) continue; // English defaults after the language table
     const keys = keyPath(t); if (keys.some(k => LANGS.includes(k))) continue;
     const seg = segmentOf(t); if ([...descend(seg)].some(x => x.t === 's' && (HE.test(x.v) || RU.test(x.v)))) continue;
     const ent = t.g.entries?.find(e => e.value && e.value.includes(t)); if (ent && ent.value.length !== 1) continue; // a whole literal value only
@@ -221,12 +231,20 @@ function auditJs(file, src, base = 0, whole = src) {
     const t = toks[k];
     // x.textContent = 'Text'  /  x.title = 'Text'
     if (t.t === 'id' && SINK_PROPS.has(t.v) && toks[k - 1]?.v === '.' && (toks[k + 1]?.v === '=' || toks[k + 1]?.v === '+=')) {
-      const val = toks[k + 2], next = toks[k + 3];
-      const whole1 = !next || next.t === 'p' && /^[;,)}\]]$/.test(next.v) || next.t === 'id';
-      if (val && val.t === 's' && whole1) {
+      // the literals of the assigned expression itself (a ternary or a concatenation), not those passed to a function in it
+      const top = t.g; let depth = 0;
+      for (let j = k + 2; j < toks.length; j++) {
+        const val = toks[j]; if (val.g !== top) continue; // inside a call, an index or an object: someone else picks the words
+        if (val.t === 'p' && /^[;,]$/.test(val.v)) break; if (val.t === 'p' && /^[)}\]]$/.test(val.v)) break;
+        if (val.t === 'id' && /^(const|let|var|if|for|return)$/.test(val.v)) break;
+        if (val.t !== 's') continue; const nxt = toks[j + 1];
+        if (nxt && (nxt.v === '[' || nxt.v === '.')) continue; // a lookup key ('x'[...], 'a'.split)
+        if (toks[j - 1] && /^(===|!==|==|!=)$/.test(toks[j - 1].v) || nxt && /^(===|!==|==|!=)$/.test(nxt.v)) continue; // a comparison
+        if (toks[j - 1] && /^(\|\||\?\?)$/.test(toks[j - 1].v)) continue; // a last-resort fallback after the localized words
         const text = t.v === 'innerHTML' ? htmlText(val.v) : val.v;
-        if (t.v === 'label' && !/\s/.test(text)) continue;
+        if (t.v === 'label' && !/\s/.test(text) || /[{};]/.test(text) && /:/.test(text)) continue; // a one-word label key or a style sheet
         if (visibleLatin(text) && !HE.test(text) && !RU.test(text)) add('en-sink', val, `${t.v} = ${text}`);
+        depth++; if (depth > 6) break;
       }
     }
     // setAttribute('aria-label', 'Text')
@@ -245,7 +263,7 @@ function auditJs(file, src, base = 0, whole = src) {
     }
     // an HTML string with dir/lang fixed, or English text between tags
     if (t.t === 's' && /<\/?(div|span|p|b|i|em|strong|small|button|label|h[1-6]|li|ul|ol|a|section|header|footer|article|figure|figcaption|img|svg|dialog|form|input|select|option|details|summary|table|tr|td|th|br|kbd|mark|output|progress|meter|nav|aside|main|text|tspan|title)\b[^>]*>/i.test(t.v)) {
-      const text = t.v.replace(/<(script|style)[\s\S]*?<\/\1>/g, ' ').replace(/<[^>]*>/g, '\u0000').split('\u0000').map(s => s.trim()).filter(s => s && visibleLatin(s) && !HE.test(s) && !RU.test(s) && !/^[\w-]+=/.test(s));
+      const text = t.v.replace(/<(script|style)[\s\S]*?<\/\1>/g, ' ').replace(/<[^>]*>/g, '\u0000').split('\u0000').map(s => s.trim()).filter(s => s && visibleLatin(s) && !HE.test(s) && !RU.test(s) && !/[="]/.test(s));
       for (const s of text) add('en-sink', t, `markup text: ${s}`);
     }
   }
@@ -259,6 +277,17 @@ function auditCss(file, src) {
   return out;
 }
 
+// ids whose text the scripts write: byId('x').textContent = …, getElementById('x').innerText = …, const n = byId('x'); n.textContent = …
+let _written = null;
+function writtenIds() {
+  if (_written) return _written; _written = new Set();
+  for (const f of listFiles()) {
+    if (f.endsWith('.css')) continue; const s = fs.readFileSync(path.join(ROOT, f), 'utf8');
+    for (const m of s.matchAll(/(?:getElementById|byId)\(\s*['"]([\w-]+)['"]\s*\)\s*(?:\.(?:textContent|innerText|innerHTML)\s*=|\??\.replaceChildren\()/g)) _written.add(m[1]);
+    for (const m of s.matchAll(/(?:const|let|var)\s+(\w+)\s*=\s*(?:document\.getElementById|byId)\(\s*['"]([\w-]+)['"]\s*\)/g)) if (new RegExp('\\b' + m[1] + '\\.(?:textContent|innerText|innerHTML)\\s*=').test(s)) _written.add(m[2]);
+  }
+  return _written;
+}
 function auditHtml(file, src) {
   const out = [];
   // inline scripts
@@ -276,8 +305,10 @@ function auditHtml(file, src) {
   for (const m of body.matchAll(/>([^<>]+)</g)) {
     const s = m[1].replace(/\s+/g, ' ').trim(); if (!s || /^&[a-z]+;$/.test(s)) continue;
     if (visibleLatin(s) || HE.test(s) || RU.test(s)) {
-      const before = body.slice(0, m.index + 1), tagm = before.match(/<([a-z][\w-]*)\b([^>]*)>$/i);
-      out.push({ file, line: lineOf(src, off + m.index), rule: 'html-text', text: s.slice(0, 100), id: tagm && (tagm[2].match(/\sid\s*=\s*"([^"]+)"/) || [])[1] || null });
+      const before = body.slice(0, m.index + 1), tagm = before.match(/<([a-z][\w-]*)\b([^>]*)>$/i), id = tagm && (tagm[2].match(/\sid\s*=\s*"([^"]+)"/) || [])[1] || null;
+      // placeholder text that the scripts replace in the player's language (setLanguage, the [data-technique] buttons, paint())
+      if (id && writtenIds().has(id) || tagm && /\sdata-technique=/.test(tagm[2])) continue;
+      out.push({ file, line: lineOf(src, off + m.index), rule: 'html-text', text: s.slice(0, 100), id });
     }
   }
   return out;

@@ -121,7 +121,7 @@
     root.append(txt, bar, quit); (window.app?.engine?.stage||document.body).append(root); r.ui = { root, txt, fillBar };
   }
   // The coach's call (call-core.js): the moves as big chips in order, done ones filled, a bar for the time left; ✓ / ✕ after each call.
-  const CALL_WORD = { straight: 'Straight', hook: 'Hook', uppercut: 'Uppercut', slip: 'Slip', duck: L('Duck', 'התכופפות', 'Нырок') };
+  const CALL_WORD = { straight: L('Straight', 'ישרה', 'Прямой'), hook: 'Hook', uppercut: 'Uppercut', slip: 'Slip', duck: L('Duck', 'התכופפות', 'Нырок') };
   function paintCalls() {
     const r = run, host = window.app?.engine?.stage; let box = document.getElementById('advCalls');
     if (!r?.caller || r.ended || !host) { box?.remove(); document.body.classList.remove('adv-calling'); return; }

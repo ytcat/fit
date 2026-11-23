@@ -211,7 +211,7 @@
       if (!renderer) return;
       if (map) map.dispose();
       const g = game(), A = P(), chNow = g && A ? (A.chapters.findIndex(c => !A.bossWon(g, c.boss)) + 1 || 5) : 1, low = (navigator.deviceMemory && navigator.deviceMemory < 4) || /[?&]gfx=low/.test(location.search); // GOTR-0061 city-gfx hook
-      map = GlorylandMap.build(scene, { time: time === 'night' ? 'night' : ({ 1: 'morning', 2: 'evening' })[chNow] || 'day', renderer, quality: low ? 'low' : 'high' }); map.setCurrent?.(CHAPTER_PIN[chNow]); modal.dataset.grade = map.time || time; makePins(); apply();
+      map = GlorylandMap.build(scene, { time: time === 'night' ? 'night' : ({ 1: 'morning', 2: 'evening' })[chNow] || 'day', renderer, quality: low ? 'low' : 'high', lang }); map.setCurrent?.(CHAPTER_PIN[chNow]); modal.dataset.grade = map.time || time; makePins(); apply();
     }
     // input: drag to pan, wheel / pinch to zoom
     const ptrs = new Map(); let pinch0 = 0, dist0 = 0, moved = 0;

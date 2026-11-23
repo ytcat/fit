@@ -33,9 +33,11 @@ function collect([lang, typed, terms]) {
     const text = n.nodeValue.replace(/\s+/g, ' ').trim(); if (!text || !/\p{L}/u.test(text)) continue;
     const el = n.parentElement; if (!shown(el)) continue;
     if (foreign(text) && !seen.has('t' + text)) { seen.add('t' + text); words.push({ text: text.slice(0, 140), at: where(el) }); }
-    const dir = getComputedStyle(el).direction;
-    if (lang === 'he' && HE.test(text) && dir === 'ltr' && !seen.has('d' + text)) { seen.add('d' + text); dirs.push({ text: text.slice(0, 80), at: where(el), dir }); }
-    if (lang !== 'he' && dir === 'rtl' && !seen.has('d' + text)) { seen.add('d' + text); dirs.push({ text: text.slice(0, 80), at: where(el), dir }); }
+    // The layout stays left-to-right in every language (owner, 2026-11-23): a box that holds other boxes must not be RTL.
+    // A Hebrew line must still read right-to-left in its own box (unicode-bidi:plaintext or dir=auto), or its punctuation jumps.
+    const cs = getComputedStyle(el), dir = cs.direction;
+    for (let e = el; e && e !== document.documentElement; e = e.parentElement) { if (getComputedStyle(e).direction === 'rtl' && e.children.length && !seen.has('d' + where(e))) { seen.add('d' + where(e)); dirs.push({ text: 'RTL box: ' + text.slice(0, 60), at: where(e), dir: 'rtl' }); break; } }
+    if (lang === 'he' && HE.test(text) && dir === 'ltr' && cs.unicodeBidi !== 'plaintext' && /[.,!?:;)(\-–—…"'״׳]\s*$|^\s*[.,!?:;)(\-–—…"']/.test(text) && !seen.has('b' + text)) { seen.add('b' + text); dirs.push({ text: 'LTR line: ' + text.slice(0, 60), at: where(el), dir }); }
     const r = el.getBoundingClientRect();
     if ((r.right > innerWidth + 2 || r.left < -2) && !seen.has('s' + text)) { seen.add('s' + text); spill.push({ text: text.slice(0, 60), at: where(el), left: Math.round(r.left), right: Math.round(r.right) }); }
   }

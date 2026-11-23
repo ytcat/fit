@@ -1,0 +1,17 @@
+{
+  "about": "Deliberate single-language findings of scripts/lang-audit.cjs (owner rule 2026-11-23: nothing is specific to one language). Each entry needs a reason; tests/lang-generic.test.cjs fails on a finding not listed here and on an entry that no longer matches anything.",
+  "entries": [
+    { "file": "index.html", "rule": "html-text", "match": "EN", "reason": "The language switcher names each language in that language (EN / עב / РУ)." },
+    { "file": "index.html", "rule": "html-text", "match": "עב", "reason": "The language switcher names each language in that language (EN / עב / РУ)." },
+    { "file": "index.html", "rule": "html-text", "match": "РУ", "reason": "The language switcher names each language in that language (EN / עב / РУ)." },
+    { "file": "index.html", "rule": "html-text", "match": "Pause", "reason": "Placeholder; updatePlayBtnText() writes the button in the player's language at start and on every language change." },
+    { "file": "career-interface.js", "rule": "en-sink", "match": "Player", "reason": "Initial label; paint() writes the player's name or w.player in the player's language straight after." },
+    { "file": "career-interface.js", "rule": "en-sink", "match": "Progress to next rank", "reason": "Initial label; paint() sets aria-label to w.progress in the player's language." },
+    { "file": "club-interface.js", "rule": "en-sink", "match": "aria-label: Main", "reason": "Initial label; paint() sets the navigation's aria-label from the EN/HE/RU table." },
+    { "file": "club-interface.js", "rule": "en-sink", "match": "L / R", "reason": "Initial mark; paint() writes it from the EN/HE/RU table (Lion / Rabbit)." },
+    { "file": "club-interface.js", "rule": "en-sink", "match": "Fit", "reason": "Initial label; paint() writes the zoom buttons from the EN/HE/RU table (zoomFit.textContent = z[3])." },
+    { "file": "practice-layout.js", "rule": "en-sink", "match": "Close controls", "reason": "Initial label; update() (run at once and on every language change) sets it from the EN/HE/RU table." },
+    { "file": "practice-layout.js", "rule": "en-sink", "match": "Boxing techniques", "reason": "Initial label; update() (run at once and on every language change) sets it from the EN/HE/RU table." },
+    { "file": "adventure/gloryland-map.js", "rule": "en-data", "match": "sub: ", "reason": "Internal place data of the map module; the map card shows adventure-ui.js PLACES[id].sub in EN/HE/RU." }
+  ]
+}
