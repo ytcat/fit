@@ -988,7 +988,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0118 — Free walk across the whole town, in every language
 - **Reported:** 2026-11-23 (owner: "Free work should not be Hebrew only. It was an example. should be on every language. Set nothing in this game is special to language. All generic. The free work is very important part of this game. It has to be implemented in the next version everywhere over town")
-- **Status:** IN PROGRESS — P0 for the next version. Free roam (PR #38, v1.92) covers four Chapter 1 districts on a separate Hebrew-only page that needs a network connection. Target: the whole Gloryland town, inside the game, in EN/HE/RU with the player's direction, offline. Rule recorded in AGENTS.md ("Languages").
+- **Status:** IN PROGRESS — P0 for the next version. Free roam (PR #38, v1.92) covers four Chapter 1 districts on a separate Hebrew-only page that needs a network connection. Target: the whole Gloryland town, inside the game, in EN/HE/RU, layout always left-to-right (owner 2026-11-23: Hebrew does not change sides), offline. Rule recorded in AGENTS.md ("Languages").
 
 ### GOTR-0117 — Super Punch: "I'm not getting to the situation that I can use it"
 - **Reported:** 2026-11-22 (owner: "I need better options to execute the super punch. I'm not getting to the situation that I can use it.")
