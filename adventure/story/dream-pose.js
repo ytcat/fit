@@ -10,6 +10,8 @@
  *   walk         0..1 how much of the walk cycle shows (0 = standing)
  *   arms         { L, R }: gesture name per arm (GESTURES) ; look: { yaw, pitch } head turn (radians, + = to the rig's +x / up)
  *   lean         forward lean (radians) ; talk 0..1 mouth ; nod 0..1 ; drop metres the pelvis sinks (step down, sitting back)
+ *   twist, hipYaw  optional (radians, default 0): the thorax's turn and the pelvis's turn (work: the mop sweep) ; shift: pelvis
+ *                sideways over one foot (metres, rig x) ; feet { L, R }: [x, y, z, yaw?] ankle stands in rig space (y = lift)
  *   dt           frame time for smoothing (0 = jump to the pose)
  *   paws         { L, R }: paw shape override (relaxed | open | point | grip | fist); by default the gesture picks it (Paws.shapeFor,
  *                an exact reach holds a grip) and rig.pawPose = { L, R, time: renderTime } tells adventure/story/paws.js (GOTR-0100)
@@ -36,11 +38,15 @@
     count: { h: [.3, 1.6, .34], pole: [.9, -.6, -.1], palm: [-1, 0, 0], turn: .4 },          // the referee's count
     wave: { h: [.40, 1.93, .12], pole: [1, -.3, -.2], palm: [0, 0, 1], turn: .5 },           // hand up: hello
     low: { h: [.30, 1.02, .16], pole: [.4, -.3, -1], palm: [-1, 0, 0], turn: .4 },         // offering a hand low
-    carry: { h: [.31, .93, .06], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 }       // straight arm with a weight (bag handles)
+    carry: { h: [.31, .93, .06], pole: [.25, -.1, -1], palm: [-1, 0, 0], turn: .35 },      // straight arm with a weight (bag handles)
+    pole: { h: [.2, 1.05, .4], pole: [.85, -.55, -.15], palm: [-1, 0, .3], turn: .5 }       // both hands on a stick in front (the mop): elbows out and down
   };
   const mem = new WeakMap();
-  const memo = rig => { let m = mem.get(rig); if (!m) { m = { hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
+  const memo = rig => { let m = mem.get(rig); if (!m) { m = { corr: { L: null, R: null }, roll: { L: null, R: null }, hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
   const mirror = (a, s) => V(a[0] * s, a[1], a[2]);
+  /** Turns direction a (in place) k of the way to direction b round their common axis: a lerp of two near-opposite
+   *  directions passed through zero and the hand flipped over in one frame (155 deg at the start of the Super Punch raise). */
+  const turnTo = (a, b, k) => { const la = a.length() || 1, n = b.clone().normalize(), u = a.clone().divideScalar(la), c = clamp(u.dot(n), -1, 1); if (c > .999) return a.lerp(b, k); let ax = u.clone().cross(n); if (ax.lengthSq() < 1e-8) { ax = u.clone().cross(V(0, 1, 0)); if (ax.lengthSq() < 1e-8) ax = u.clone().cross(V(1, 0, 0)); } return a.copy(u.applyAxisAngle(ax.normalize(), Math.acos(c) * k).multiplyScalar(lerp(la, b.length(), k))); };
 
   /* The walk cycle from human gait (GOTR-0097). Phase 0 = this leg's heel strike; stance 0..DUTY, swing DUTY..1; double
    * support 0..0.12 and 0.50..0.62 (each foot is on the ground 62 % of the cycle, so one foot is always down, never airborne).
@@ -107,7 +113,7 @@
     const pts = []; if (!box.isEmpty()) { const lo = box.min, hi = box.max, mid = box.getCenter(V()); for (const x of [lo.x, mid.x, hi.x]) for (const y of [lo.y, mid.y, hi.y]) for (const z of [lo.z, mid.z, hi.z]) if ((x !== mid.x) + (y !== mid.y) + (z !== mid.z) >= 2) pts.push(V(x, y, z).lerp(mid, .12)); }
     handBoxes.set(hand, { key, pts }); return pts;
   }
-  function clearArm(c, side, target, pole, rest = false, orient = () => {}) {
+  function clearArm(c, side, target, pole, rest = false, orient = () => {}, out = null) {
     const j = c.joints, prof = profile(c), glove = c.gloveMeshes?.[side]?.visible, hr = glove ? .11 : .05, t = target.clone(), pl = pole.clone();
     let err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl); orient();
     for (let it = 0; it < 6; it++) {
@@ -117,11 +123,11 @@
       if (!dh && !dm && !de && !du) break;
       const arm = [de, du, dm].filter(Boolean).reduce((a, d) => d.lengthSq() > a.lengthSq() ? d : a, V());
       t.add(dh && dh.lengthSq() > arm.lengthSq() ? dh : arm).add(dh && arm.lengthSq() ? dh.clone().multiplyScalar(.3) : V());
-      if (arm.lengthSq()) pl.lerp(arm.clone().normalize(), .5).normalize();
+      if (arm.lengthSq()) pl.lerp(arm.clone().normalize(), .5 * clamp(arm.length() / .03)).normalize(); // turned out as far as the arm intrudes (a fixed half turn switched on and off between frames: a 28 deg shoulder pop, arm-fixes)
       const reach = (j['elbow' + side].position.length() + j['hand' + side].position.length()) * .985, off = t.clone().sub(sh); if (off.length() > reach) t.copy(sh).addScaledVector(off.normalize(), reach); // never past the arm's reach
       err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], t, pl); orient();
     }
-    target.copy(t); return err;
+    target.copy(t); if (out) out.pole = pl; return err;
   }
 
   function overlay(c, st, m) {
@@ -142,7 +148,7 @@
         else { const a = stance(DUTY - 1e-6, STRIDE).z - (pg - DUTY) * STRIDE, b = stance(0, STRIDE).z + (1 - pg) * STRIDE, o0 = gnd(g.x, a - back - BALL, a), o1 = gnd(g.x, b - back, b + fore); ow = Math.max(lerp(o0, o1, o1 > o0 ? smooth(g.u / .55) : smooth((g.u - .35) / .5)), gnd(g.x, g.z - back - .03, g.z + fore + .03)); } // never through the step it passes over
         off = lerp(gnd(sx, sz - back, sz + fore), ow, w);
       }
-      const yawF = s * lerp(st.toes ?? .16, .07, w);
+      const yawF = stand && stand[3] != null ? stand[3] : s * lerp(st.toes ?? .16, .07, w); // a planted foot keeps its own turn when the body turns over it
       if (g.planted) { // the toed-out foot: heel and ball lie along its own (turned) axis, the pivot stays on its spot
         const sy = Math.sin(yawF), cy = Math.cos(yawF), [oy, oz] = rot(-G.sole, g.ball ? BALL : -G.heel, g.pitch), L = g.ball ? G.heel + BALL : 0;
         g.x = g.x + L * sy - oz * sy; g.z = g.hz + L * cy - oz * cy; g.y = -oy;
@@ -157,17 +163,18 @@
     // leg takes the weight, and shifts 2 cm over the stance foot
     const hips = j.hips, pL = phase, yaw = .085 * Math.cos(pL * tau) * w, roll = -.06 * Math.sin((pL + .15) * tau) * w, hb = (pL * 2) % 1, bob = hb < .16 ? -.3 * Math.sin(Math.PI * hb / .16) : hb < .5 ? smooth((hb - .16) / .34) : 1 - smooth((hb - .5) / .5); // the knee gives a little as the heel takes the weight (dip at loading)
     const sway = -.02 * Math.sin((pL - .05) * tau) * w + .012 * shift;
-    hips.rotation.set(0, yaw, roll + .02 * shift); hips.position.set(sway, HIP, .012 * w);
+    const twist = st.twist || 0, hipYaw = st.hipYaw || 0; // work (the mop, GOTR-0099): the thorax turns toward the job, the pelvis a little the other way
+    hips.rotation.set(0, yaw + hipYaw, roll + .02 * shift); hips.position.set(sway + (st.shift || 0), HIP, .012 * w); // shift: the weight over one foot (rig x)
     c.root.updateMatrixWorld(true);
     let y = lerp(HIP + .004 * breath * idle, WALK_Y + BOB * bob, w) - (m.drop || 0) + (plans[0].off + plans[1].off) / 2;
     for (const p of plans) { const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .998 : 1.02), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz))); } // never past the legs' reach
     hips.position.y = y;
     const stoop = c.cast?.stoop ?? (c.character === 'bruno' ? .085 : 0), lean = m.lean + .04 * w + stoop; // the old champion carries his years in his back
     // the thorax turns against the pelvis and keeps the shoulders level; neck and head take the turn back out (head steady)
-    j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .85, -roll * .5 - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * 1.0, -roll * .35 - .008 * shift);
+    j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .85 + (twist - hipYaw) * .45, -roll * .5 - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * 1.0 + (twist - hipYaw) * .55, -roll * .35 - .008 * shift);
     j.neck.position.copy(c.neckRest); j.neck.rotation.set(-m.pitch * .4 - (lean - stoop * .4) * .5, m.yaw * .4 + yaw * .4, 0);
     const nod = (st.nod || 0) * .06 * Math.sin(t * 6.5) + (st.talk || 0) * .025 * Math.sin(t * 9.1) + (st.listen || 0) * .05 * Math.max(0, Math.sin(t * 1.9 + 1)) ** 4;
-    j.head.rotation.set(.03 - m.pitch * .6 - lean * .4 + nod + .012 * w * Math.cos(2 * tau * (pL - .02)), m.yaw * .6 + yaw * .45, (st.tilt || 0) + (st.listen || 0) * .05 + .012 * shift - roll * .15);
+    j.head.rotation.set(.03 - m.pitch * .6 - lean * .4 + nod + .012 * w * Math.cos(2 * tau * (pL - .02)), m.yaw * .6 + yaw * .45, (st.tilt || 0) + (st.reach?.tilt || 0) + (st.listen || 0) * .05 + .012 * shift - roll * .15);
     for (const side of ['L', 'R']) { const s = side === 'L' ? -1 : 1; j['scapula' + side].position.set(s * .17, .17, -.06); j['scapula' + side].rotation.set(0, 0, 0); }
     c.root.updateMatrixWorld(true);
     const footTargets = [];
@@ -181,15 +188,35 @@
     const gloves = [], handErrors = [], paws = { time: c.renderTime }; // GOTR-0100: the paw shape for each gesture (adventure/story/paws.js reads it this frame)
     for (const side of ['L', 'R']) {
       const s = side === 'L' ? -1 : 1, name = st.arms?.[side] || 'hang', g = GESTURES[name] || GESTURES.hang, swing = (name === 'hang' ? 1 : name === 'carry' ? .25 : 0) * w * (s < 0 ? -1 : 1) * Math.cos((phase - .04) * tau); // the arm swings against its own leg
-      paws[side] = st.paws?.[side] || (st.reach?.[side] ? 'grip' : (window.Paws?.shapeFor(name) || 'relaxed')); // an exact reach holds something (the mop): a grip
-      const hand = st.reach?.[side] ? V(...st.reach[side]) : mirror(g.h, s), pole = mirror(g.pole, s), palm = mirror(g.palm, s); // reach: an exact hand target in rig space
+      // reach[side]: an array = the hand target in rig space (smoothed like a gesture); an object { at: [x, y, z] | (rig) =>
+      // [x, y, z], w 0..1, pole?, palm?, turn?, paw? } = a contact taken after the gesture: the hand goes w of the way from
+      // the gesture to `at`, exactly (not smoothed), so a hand on a moving prop stays on it (arm-fixes); a function is
+      // evaluated now, after the trunk is posed, so a target on the body moves with it this frame
+      const rr = st.reach?.[side], ro = rr && !Array.isArray(rr) && typeof rr === 'object' ? rr : null, rw = ro ? clamp(ro.w ?? 1) : 0;
+      paws[side] = st.paws?.[side] || (ro ? (ro.paw && rw > .5 ? ro.paw : rw > .5 ? 'grip' : (window.Paws?.shapeFor(name) || 'relaxed')) : rr ? 'grip' : (window.Paws?.shapeFor(name) || 'relaxed')); // an exact reach holds something (the mop): a grip
+      const hand = rr && !ro ? V(...rr) : mirror(g.h, s), pole = mirror(g.pole, s), palm = mirror(g.palm, s); // reach: an exact hand target in rig space
       hand.z += swing > 0 ? .21 * swing : .15 * swing; hand.y += (swing > 0 ? .055 : .015) * Math.abs(swing) + .004 * breath * idle; hand.x += s * (.012 * w) - s * .015 * Math.max(0, swing); // from the shoulder: ~22 deg forward with the elbow a little more bent, ~15 deg back
       if (name !== 'hang' && name !== 'carry' && name !== 'strap' && name !== 'hips' && name !== 'cross' && name !== 'cross2') { const beat = (st.talk || 0) * Math.sin(t * 5.3 + s); hand.y += .022 * beat; hand.z += .018 * beat; } // the hand moves with the words
       const k = st.dt > 0 && m.hand[side] ? 1 - Math.exp(-st.dt * 9) : 1;
-      m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? m.pole[side].lerp(pole, k) : pole; m.palm[side] = m.palm[side] ? m.palm[side].lerp(palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
+      m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? turnTo(m.pole[side], pole, k) : pole; m.palm[side] = m.palm[side] ? turnTo(m.palm[side], palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
       const target = m.hand[side].clone(); target.y += hips.position.y - HIP; // hands ride with the pelvis
       if (name === 'strap') { const ch = j.chest, M = new THREE.Matrix4().copy(c.root.matrixWorld).invert().multiply(ch.matrixWorld); target.copy(m.hand[side]).sub(restOf(c, ch)).applyMatrix4(M); } // the hand on the strap moves with the chest
-      let glove = null; handErrors.push(clearArm(c, side, target, m.pole[side], name === 'strap', () => (glove = c.orientGlove(side, m.turn[side], m.palm[side])))); gloves.push(glove); // the strap hand rests on the strap; the last orientation is returned
+      let aPole = m.pole[side], aPalm = m.palm[side], aTurn = m.turn[side];
+      if (ro && rw > 0) {
+        c.root.updateMatrixWorld(true); const at = typeof ro.at === 'function' ? ro.at(c) : ro.at;
+        if (at) { target.lerp(V(...at), rw); if (ro.pole) aPole = aPole.clone().lerp(V(...ro.pole).normalize(), rw).normalize(); if (ro.palm) aPalm = aPalm.clone().lerp(V(...ro.palm).normalize(), rw).normalize(); if (ro.turn != null) aTurn = lerp(aTurn, ro.turn, rw); }
+      }
+      let glove = null; const asked = target.clone(), cleared = {}, orient = () => (glove = c.orientGlove(side, aTurn, aPalm, m.roll));
+      let err = clearArm(c, side, target, aPole, name === 'strap' || !!(ro?.rest && rw > 0), orient, cleared); // the strap hand rests on the strap; the last orientation is returned
+      // arm-fixes: the body clearance switches between the trunk's bones by height, so the push it gives the hand could appear
+      // for a single frame (a 2.5 cm hand pop and an 8 deg shoulder jump as he stopped beside Otto's bag). The push is eased in
+      // over ~40 ms and out over ~100 ms.
+      const push = target.clone().sub(asked), had = m.corr[side];
+      if (st.dt > 0 && had && !(rr && !ro)) { // not for an exact array target (the corner, the mop, the count keep their exact clearance)
+        had.lerp(push, 1 - Math.exp(-st.dt * (push.lengthSq() > had.lengthSq() ? 25 : 10)));
+        if (had.distanceTo(push) > .002) { target.copy(asked).add(had); err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], target, cleared.pole || aPole); orient(); }
+      } else m.corr[side] = push;
+      handErrors.push(err); gloves.push(glove);
     }
     c.pawPose = paws;
     const bag = c.storyCast?.bagBody; if (bag) bag.rotation.z = -.5 + .045 * Math.sin(phase * tau * 2) * w;
@@ -210,5 +237,5 @@
   /** Forgets the smoothed pose (new scene, or the rig went back to the game). */
   function reset(c) { mem.delete(c); }
 
-  window.DreamPose = { civil, feet, reset, GESTURES, STRIDE, DUTY, step, profile, clearance };
+  window.DreamPose = { civil, feet, reset, GESTURES, STRIDE, DUTY, step, profile, clearance, restOf };
 })();

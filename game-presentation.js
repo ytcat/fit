@@ -85,8 +85,8 @@
  // exactly as they were.
  const STUDIO_TURN=-.42; // the Fighter's yaw in the studio: lead shoulder toward the camera (three-quarter view)
  function studioTexture(draw,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;}
- function buildStudio(source){
-  const scene=new THREE.Scene();scene.name='Shop preview studio';scene.background=new THREE.Color(0x1d2229);scene.fog=new THREE.Fog(0x1d2229,40,60);scene.environment=source?.environment||null;
+ function buildStudio(source,renderer){
+  const scene=new THREE.Scene();scene.name='Shop preview studio';scene.background=new THREE.Color(0x1d2229);scene.fog=new THREE.Fog(0x1d2229,40,60);scene.environment=null;
   const back=new THREE.Mesh(new THREE.PlaneGeometry(26,14),new THREE.MeshBasicMaterial({fog:false,map:studioTexture((g,w,h)=>{const r=g.createRadialGradient(w/2,h*.62,8,w/2,h*.62,w*.55);r.addColorStop(0,'#4a525e');r.addColorStop(.55,'#2b313a');r.addColorStop(1,'#1d2229');g.fillStyle=r;g.fillRect(0,0,w,h);},256,128)}));
   back.position.set(0,5,-6);
   const floor=new THREE.Mesh(new THREE.CircleGeometry(9,48),new THREE.MeshBasicMaterial({fog:false,transparent:true,depthWrite:false,map:studioTexture((g,w,h)=>{const r=g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);r.addColorStop(0,'rgba(0,0,0,.55)');r.addColorStop(.035,'rgba(0,0,0,.35)');r.addColorStop(.07,'rgba(96,104,116,.9)');r.addColorStop(.22,'rgba(66,73,83,.85)');r.addColorStop(1,'rgba(29,34,41,0)');g.fillStyle=r;g.fillRect(0,0,w,h);},256,256)}));
@@ -95,7 +95,9 @@
   const rim=new THREE.DirectionalLight(0xdfe8ff,1.6);rim.position.set(-1.5,3.5,-4);
   scene.add(back,floor,key,fill,rim,new THREE.HemisphereLight(0xdbeaff,0x3a3631,.55));
   const camera=new THREE.PerspectiveCamera(30,1,.05,80);camera.name='Shop preview camera';
-  return {scene,camera,dispose(){for(const m of [back,floor]){m.geometry.dispose();m.material.map.dispose();m.material.dispose();}}};
+  // Render realism (2026-11-22): a studio environment (softbox, rim strip) when the game's picture has one, so gloves, belts and metal reflect.
+  let look=null;try{look=source?.environment&&renderer&&window.RenderLook?window.RenderLook.attach(scene,renderer,{look:'studio',high:true,noHook:true}):null;}catch(error){look=null;}
+  return {scene,camera,dispose(){look?.dispose();look=null;for(const m of [back,floor]){m.geometry.dispose();m.material.map.dispose();m.material.dispose();}}};
  }
  // The posed body as drawn, as points: skinned meshes sampled through their bones (the bind-pose box of a skinned mesh is the
  // T-pose), rigid parts (mane, gloves, boots) by their vertices. Hidden parts are ignored. Projecting the points (not a box,
@@ -123,7 +125,7 @@
    // GOTR-0072: the preview shows the Fighter as the game poses it now, never a pose (or a skin position) left by a story scene.
    if(engine.arena?.repose)engine.arena.repose();else{engine.lastPoseStamp=null;engine.lastRenderStamp=null;}
    const root=engine.coach.root;this.rig={root,parent:root.parent,index:root.parent?root.parent.children.indexOf(root):-1,position:root.position.clone(),quaternion:root.quaternion.clone(),scale:root.scale.clone(),visible:root.visible};
-   const e0=engine;this.studio=buildStudio(engine.scene);this.scene=engine.scene;this.gameCamera=engine.camera;this.studio.camera.aspect=c.aspect;
+   const e0=engine;this.studio=buildStudio(engine.scene,engine.renderer);this.scene=engine.scene;this.gameCamera=engine.camera;this.studio.camera.aspect=c.aspect;
    this.studio.scene.add(root);this.place();this.studio.scene.onBeforeRender=()=>{if(this.closed)return;this.place();const k=[e0.lastPoseStamp,this.studio.camera.aspect.toFixed(3)].join('|');if(k!==this.fitKey)this.frame();};
    engine.scene=this.studio.scene;engine.camera=this.studio.camera;engine.coach.maneInitialized=false;
    container.append(this.stage);this.stage.classList.add('game-preview-live');this.frame();requestAnimationFrame(()=>{if(this.closed)return;window.dispatchEvent(new Event('resize'));this.frame();});

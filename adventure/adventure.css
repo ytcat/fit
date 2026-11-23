@@ -91,3 +91,8 @@
 @media (prefers-reduced-motion:reduce){.adv-title-card{animation:none}}
 .adv-card:not(.open){overflow:hidden;overflow:clip}
 .adv-fact .adv-bust.sp-portrait.adv-fact-face{--sp:26px;width:var(--sp);height:var(--sp);padding:1.5px}
+/* Owner 2026-11-22 (iPhone screenshot): the place card is collapsed by default and must not cover most of the screen; the
+   Continue button is enough. Collapsed: the title row and the first primary story button only; the handle opens the rest
+   (picture, step text, goal, Free walk, Skip, progress). */
+.adv-card:not(.open) .sf-quest>:not(.sf-primary),.adv-card:not(.open) .sf-quest>.sf-primary~.sf-primary{display:none}
+.adv-card:not(.open)>.adv-primary:not(.sf-primary),.adv-card:not(.open)>.adv-recap,.adv-card:not(.open)>.adv-goal-line{display:none}

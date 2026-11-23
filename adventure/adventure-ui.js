@@ -162,6 +162,20 @@
       titles.append(el('h3', '', T(info.name)), el('p', 'adv-kicker', p.kind === 'side' ? `${w.sq} · ${w.chapter} ${zone?.chapter || ''}` : p.kind === 'place' ? w.place : `${w.chapter} ${p.chapter} · ${T(info.sub)}`));
       head.append(titles, button('×', () => { card.hidden = true; }, 'adv-card-close'));
       card.append(head);
+      if (p.id === 'oldtown' && chap === 1) {
+        const roam = button(T(L('Free walk · Chapter 1', 'הליכה חופשית · פרק 1', 'Свободная прогулка · Глава 1')), () => {
+          // Suggest only a geographic waypoint for the stock current step. Never start or complete it here.
+          const g = game(), flow = window.StoryFlow, step = flow?.state(g, 1)?.current, current = step?.id, target = {
+            dream_gym_talk:'bruno', first_brick:'bruno', clean_gym:'bruno', night_shadow:'bruno', night_bag:'bruno', dream_apology:'bruno',
+            market_robber:'market', buy_heavy_bag:'otto', bag_drill:'bruno', fight_prep:'bruno', docks_fight:'docks', advanced_training:'bruno', brick:'bruno'
+          };
+          const eligible = Object.hasOwn(target, current) && flow.playable(g, current) &&
+            !window.AdventureProgress?.blockedByGymShift?.(g, current) && (!step.boss || !flow.gate(g, 1));
+          window.location.assign('./chapter1-roam.html' + (eligible ? '?destination=' + target[current] : ''));
+        }, 'game-button adv-go adv-alt adv-primary');
+        roam.title = T(L('Optional mode. Internet connection required; no story progress.', 'מצב נפרד. נדרש אינטרנט; המשימות לא מתקדמות.', 'Отдельный режим. Нужен интернет; сюжет не меняется.'));
+        card.append(roam);
+      }
       // icons instead of sentences: coach, boss level, stars
       const story = (p.id === 'oldtown' || p.id === 'market') && !!window.AdventureOldTown && !!window.StoryFlow; // GOTR-0069: the quest panel carries progress and level
       if (info.coach && cinfo && !story) {

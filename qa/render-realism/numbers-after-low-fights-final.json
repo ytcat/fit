@@ -1,0 +1,89 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/rr/tree3",
+ "quality": "low",
+ "errors": [],
+ "cases": {
+  "ring": {
+   "rows": [
+    {
+     "calls": 486,
+     "triangles": 1125742,
+     "programs": 61,
+     "textures": 32,
+     "geometries": 418,
+     "renderMs": 679.5,
+     "renderMin": 628.9,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "hall",
+      "high": false,
+      "env": false
+     },
+     "t": 2
+    },
+    {
+     "calls": 479,
+     "triangles": 1125002,
+     "programs": 61,
+     "textures": 32,
+     "geometries": 418,
+     "renderMs": 733.6,
+     "renderMin": 677,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "hall",
+      "high": false,
+      "env": false
+     },
+     "t": 4.5
+    }
+   ],
+   "pace": null
+  },
+  "street": {
+   "rows": [
+    {
+     "calls": 114,
+     "triangles": 680092,
+     "programs": 62,
+     "textures": 28,
+     "geometries": 318,
+     "renderMs": 409.3,
+     "renderMin": 361.6,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "street",
+      "high": false,
+      "env": false
+     },
+     "t": 2
+    },
+    {
+     "calls": 113,
+     "triangles": 677417,
+     "programs": 62,
+     "textures": 28,
+     "geometries": 318,
+     "renderMs": 390.7,
+     "renderMin": 363.8,
+     "env": false,
+     "exposure": 1.05,
+     "shadowMap": false,
+     "look": {
+      "look": "street",
+      "high": false,
+      "env": false
+     },
+     "t": 4.5
+    }
+   ],
+   "pace": null
+  }
+ }
+}

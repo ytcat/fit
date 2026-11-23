@@ -73,11 +73,14 @@
         if (st.walk) { const k = 1 - Math.exp(-3 * dt); st.walk.lerp(root.position, k); if (st.walk.distanceTo(root.position) < .02) st.walk = null; else root.position.copy(st.walk); } // back to his place
         if (grip && grip.isVector3) {
           p.copy(grip); bruno.root.worldToLocal(p);
-          if (Math.hypot(p.x, p.z) < .6 && p.y > 1.5) { const beat = time % 1; state.arms = { L: 'hips', R: 'count' }; state.reach = { R: [.3, 1.62 - .22 * Math.min(1, beat * 4) * (1 - Math.min(1, Math.max(0, beat - .25) * 3)), .34] }; state.look = { yaw: 0, pitch: -.35 }; state.lean = .12; } // the count: the arm chops down once a second
+          if (m?.phase !== 'ceremony' && Math.hypot(p.x, p.z) < .6 && p.y > 1.5) { /* arm-fixes: never in the ceremony (the winner's wrist coming up beside him read as the count) */ const beat = time % 1; state.arms = { L: 'hips', R: 'count' }; state.reach = { R: [.3, 1.62 - .22 * Math.min(1, beat * 4) * (1 - Math.min(1, Math.max(0, beat - .25) * 3)), .34] }; state.look = { yaw: 0, pitch: -.35 }; state.lean = .12; } // the count: the arm chops down once a second
           else { // the winner's wrist, held high (GOTR-0098): Bruno's arms are shorter than the rhino's, so he steps toward the winner
-            const arm = p.x >= 0 ? 'R' : 'L', s = arm === 'R' ? 1 : -1, step = Math.max(0, Math.min(.42, Math.abs(p.x) - .30));
+            const k = Math.min(1, Math.max(0, o.hold ?? 1)), w = k * k * (3 - 2 * k), arm = p.x >= 0 ? 'R' : 'L', s = arm === 'R' ? 1 : -1, step = Math.max(0, Math.min(.42, Math.abs(p.x) - .30)) * w; // he steps in as he reaches (it was a jump)
             if (step > 0) { root.position.add(V(s * step, 0, 0).applyQuaternion(root.quaternion)); root.updateMatrixWorld(true); p.copy(grip); root.worldToLocal(p); }
-            state.arms = { [arm]: 'wave', [arm === 'R' ? 'L' : 'R']: 'hips' }; state.reach = { [arm]: [p.x, p.y, p.z] }; }
+            // arm-fixes: an exact contact on the wrist, reached from his hip over o.hold (the pickup and the release), so it does
+            // not trail the lifting wrist (a smoothed target lagged behind it); the elbow out to the side, as in his wave
+
+            state.arms = { L: 'hips', R: 'hips' }; state.reach = { [arm]: { at: [p.x, p.y, p.z], w, pole: [s, -.3, -.2], palm: [0, 0, 1], turn: .5, paw: 'grip' } }; }
         } else if (grip) state.arms = { L: 'open', R: 'open' }; // a draw: both palms out
         Pose.civil(bruno, state);
       }
