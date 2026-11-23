@@ -2,7 +2,7 @@
 (async function(){
  'use strict';
  const W=window.Chapter1World,T=window.THREE,$=id=>document.getElementById(id);
- const names={oldtown:'העיר העתיקה',market:'שדרת השוק',otto:'החנות של אוטו',docks:'רציף הנמל'};
+ const locale=window.Chapter1RoamLocale, words=locale.words, names=words.districts;
  const load=async p=>{const r=await fetch(p);if(!r.ok)throw Error('HTTP '+r.status+' for '+p);return r.json();};
  const reduced=!!window.matchMedia?.('(prefers-reduced-motion:reduce)').matches;
  let renderer, rig, zone=null, s=W.spawn(), busy=true, stopped=false, anim=0, poseTime=0, groundY=0, yaw=-1, activePointer=null;
@@ -12,7 +12,9 @@
  let last=0,lastSave=0,zoom=1.12,zoomTarget=1.12,shoulder=0;
  const gateBtn=$('door'), stick=$('stick'), thumb=stick.querySelector('i');
  const navApi=window.Chapter1RoamNav, nav=navApi.create(W), select=$('destination'), arrow=$('waypoint-arrow'), distance=$('waypoint-distance'), storyReturn=$('story-return');
- const suggested=new URLSearchParams(window.location.search).get('destination'), nativeHandoff=document.documentElement?.dataset.nativeHandoff==='1';
+ const params=new URLSearchParams(window.location.search), suggested=params.get('destination'), nativeHandoff=document.documentElement?.dataset.nativeHandoff==='1';
+ const walkToken=params.get('walk'), story=window.Chapter1StoryWalk;
+ let storyWalk=nativeHandoff&&story?.walking(walkToken,suggested);
  let chosen=Object.hasOwn(navApi.TARGETS,suggested)?suggested:(select.value||'bruno'), guided=null, lastRoute=null, routeAt=-Infinity;
  select.value=chosen;
  const foot=new T.Vector3(), ahead=new T.Vector3();
@@ -29,16 +31,28 @@
    const t=navApi.TARGETS[chosen];if(t?.zone===zone.id)zone.navRing=navRing(zone.scene,t);}
   guided=null;lastRoute=null;routeAt=-Infinity;distance.textContent='';arrow.hidden=true;storyReturn.hidden=true;
  }
- select.addEventListener('change',()=>{chosen=Object.hasOwn(navApi.TARGETS,select.value)?select.value:'';setWaypoint();});
- function guide(ms){
+ select.addEventListener('change',()=>{if(storyWalk){story.cancel(walkToken);storyWalk=null;}
+  chosen=Object.hasOwn(navApi.TARGETS,select.value)?select.value:'';setWaypoint();});
+ function guide(ms, previous){
   if(!chosen)return;
+  if(storyWalk){
+   const target=navApi.TARGETS[chosen];
+   if(story.entered(previous,s,target,navApi.RADIUS)){
+    storyWalk=null;
+    if(story.arrival(walkToken,chosen)){
+     const url=new URL(storyReturn.href);
+     url.searchParams.set('arrival',walkToken);
+     save(); stopped=true; window.location.assign(url.href); return;
+    }
+   }
+  }
   if(!lastRoute||lastRoute.id!==s.id||Math.hypot(lastRoute.x-s.x,lastRoute.z-s.z)>.27||ms-routeAt>1000){
    if(ms-routeAt>130){guided=nav.plan(s,chosen);lastRoute={id:s.id,x:s.x,z:s.z};routeAt=ms;}
   }
   storyReturn.hidden=!(nativeHandoff&&guided?.arrived&&chosen===suggested);
-  if(!guided){distance.textContent='אין מסלול ליעד';arrow.hidden=true;return;}
-  if(guided.arrived){distance.textContent='הגעת ליעד';arrow.hidden=true;return;}
-  distance.textContent='כ־'+Math.max(1,Math.round(guided.metres))+' מ׳';
+  if(!guided){distance.textContent=words.noRoute;arrow.hidden=true;return;}
+  if(guided.arrived){distance.textContent=words.arrived;arrow.hidden=true;return;}
+  distance.textContent=locale.distance(guided.metres);
   const dx=guided.next.x-s.x,dz=guided.next.z-s.z,len=Math.hypot(dx,dz);
   if(len<.025){arrow.hidden=true;return;}
   const y=W.height(s.id,s.x,s.z);view.updateMatrixWorld(true);
@@ -70,7 +84,7 @@
  function paintSign(text){
   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=100;
   const g=canvas.getContext('2d');g.fillStyle='#162f38';g.fillRect(4,4,504,92);g.strokeStyle='#92d3cb';g.lineWidth=7;g.strokeRect(5,5,502,90);
-  g.font='bold 41px system-ui, sans-serif';g.textAlign='center';g.textBaseline='middle';g.direction='rtl';g.fillStyle='#f4f1e0';g.fillText(text,256,50,466);
+  g.font='bold 41px system-ui, sans-serif';g.textAlign='center';g.textBaseline='middle';g.direction=locale.dir;g.fillStyle='#f4f1e0';g.fillText(text,256,50,466);
   const tex=new T.CanvasTexture(canvas);tex.encoding=T.sRGBEncoding;return tex;
  }
  function districtMarkers(id,scene){
@@ -169,7 +183,7 @@
   const g=W.nearby(s);if(!g)return;const at=W.transfer(s,g.id);if(!at)return;
   save();busy=true;clear();gateBtn.hidden=true;fade.classList.add('active');
   try{const newZone=await build(at.id);if(!reduced)await animDelay(180);mount(newZone,at);$('notice').hidden=true;}
-  catch(error){console.error(error);$('notice').textContent='לא הצלחנו לטעון את האזור. אפשר לנסות שוב.';$('notice').hidden=false;}
+  catch(error){console.error(error);$('notice').textContent=words.loadError;$('notice').hidden=false;}
   finally{busy=false;fade.classList.remove('active');save();}
  }
  gateBtn.onclick=enter;
@@ -181,6 +195,7 @@
     ud=Number(key.has('ArrowUp')||key.has('KeyW'))-Number(key.has('ArrowDown')||key.has('KeyS'));
    const h=lr||ud?lr:analog[0], v=lr||ud?ud:analog[1], delta=yaw-W.YAW;
    const x=h*Math.cos(delta)-v*Math.sin(delta),q=v*Math.cos(delta)+h*Math.sin(delta);
+   const previous=storyWalk?{id:s.id,x:s.x,z:s.z}:null;
    W.move(s,x,q,dt,(id,x,z)=>zone.traffic?.blocks?.(id,x,z)||false);
    zone.traffic?.update?.(dt,s);
    poseTime+=dt;zoom+=(zoomTarget-zoom)*(reduced?1:1-Math.exp(-dt*11));
@@ -189,9 +204,9 @@
    shoulder+=Math.atan2(Math.sin(s.ry-shoulder),Math.cos(s.ry-shoulder))*u;
    rig.root.position.set(s.x,groundY,s.z);rig.root.rotation.y=shoulder;
    DreamPose.civil(rig,{t:poseTime,dt,dist:s.dist,walk:+s.walking,ground:(x,z)=>W.height(s.id,x,z),arms:{},look:{yaw:0,pitch:0}});
-   next.set(s.x,.70+groundY,s.z);center.lerp(next,reduced?1:1-Math.exp(-dt*10));pose();guide(ms);zone.navRing?.frame(poseTime);
+   next.set(s.x,.70+groundY,s.z);center.lerp(next,reduced?1:1-Math.exp(-dt*10));pose();guide(ms,previous);zone.navRing?.frame(poseTime);
    const gate=W.nearby(s);gateBtn.hidden=!gate;
-   if(gate)gateBtn.textContent='מעבר אל '+names[gate.to];
+   if(gate)gateBtn.textContent=locale.gate(gate.to);
    if(ms-lastSave>650){lastSave=ms;save();}
   }
   renderer.render(zone.scene,view);
@@ -201,7 +216,7 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.45));renderer.outputEncoding=T.sRGBEncoding;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
   $('stage').append(renderer.domElement);startSizing();
-  renderer.domElement.addEventListener('webglcontextlost',ev=>{ev.preventDefault();clear();busy=true;$('notice').textContent='הדפדפן עצר את התצוגה. יש לרענן כדי להמשיך.';$('notice').hidden=false;});
+  renderer.domElement.addEventListener('webglcontextlost',ev=>{ev.preventDefault();clear();busy=true;$('notice').textContent=words.contextLost;$('notice').hidden=false;});
   DreamSets.register();MarketSets.register();DocksSets.register();
   const [data,correct,surfaces]=await Promise.all([load('./assets/models/coach-surface-v2.json'),load('./assets/models/shoulder-correctives-v2.json'),load('./assets/models/equipment-surfaces-r76.json'),StorySets.ready()]);
   data.shoulderCorrectives=correct;window.EQUIPMENT_SURFACES=surfaces;
@@ -211,7 +226,7 @@
   busy=false;$('notice').hidden=true;fade.classList.remove('active');
   anim=requestAnimationFrame(frame);
  }catch(error){
-  console.error(error);$('notice').textContent='תצוגת הבדיקה אינה זמינה במכשיר הזה (WebGL או נתוני המשחק).';
+  console.error(error);$('notice').textContent=words.unavailable;
  }
  window.Chapter1Review={snapshot:()=>({s:{...s},zone:zone?.id,busy,zoom,traffic:zone?.traffic?.snapshot?.()||null,waypoint:{chosen,metres:guided?.metres??null,arrived:!!guided?.arrived,visibleRing:!!zone?.navRing},gate:W.nearby(s)?.id||null})};
 })();
