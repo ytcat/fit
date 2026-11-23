@@ -684,7 +684,7 @@
       const can = s.status !== 'locked' || (devMode() && s.id !== 'clean_gym' && !A_.blockedByGymShift(g,s.id)), row = mk('li', `sf-step sf-${s.status}${s.side ? ' sf-side' : ''}`), b = can ? btn('', () => before(ctx, s.id, { force: s.status === 'locked' }), 'sf-step-b') : mk('div', 'sf-step-b');
       if (!can) b.setAttribute('aria-disabled', 'true');
       const markTxt = s.status === 'done' ? '✓' : s.status === 'locked' ? '🔒' : s.side || s.status === 'optional' ? '✦' : String(s.n);
-      const state = s.status === 'done' ? (s.boss ? W0.won : s.event ? w.done : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? (lang() === 'he' ? '◀' : '▶') : s.status === 'optional' ? T(L('Optional','לא חובה','По желанию')) : w.side;
+      const state = s.status === 'done' ? (s.boss ? W0.won : s.event ? w.done : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? '▶' : s.status === 'optional' ? T(L('Optional','לא חובה','По желанию')) : w.side;
       b.append(mk('span', 'sf-mark', markTxt), mk('span', 'sf-name', `${s.side ? w.side + ' · ' : s.n + '. '}${T(s.title)}`), mk('span', 'sf-state', state));
       if (can) b.setAttribute('aria-label', `${s.side ? w.side : s.n}. ${T(s.title)} · ${state}`);
       row.append(b); list.append(row);

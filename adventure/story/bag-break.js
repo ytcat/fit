@@ -197,7 +197,7 @@
     const scene0 = C.scene, w = W[lang()], P = C.PLACE, B = C.BAG;
     if (!Pose().GESTURES.head) Pose().GESTURES.head = { h: [.19, 1.985, .035], pole: [1, .3, -.25], palm: [-.6, -.8, 0], turn: .5 }; // both hands on the head: "...uh oh"
     // ---- overlay: bars, the line in the bottom bar, Skip (same parts as the Dream scenes)
-    const d = el('dialog', 'story-scene dream-scene'); d.dir = lang() === 'he' ? 'rtl' : 'ltr'; d.dataset.kind = 'dream'; d.dataset.scene = id; d.dataset.tap = 'false';
+    const d = el('dialog', 'story-scene dream-scene'); d.dir = 'ltr'; d.dataset.kind = 'dream'; d.dataset.scene = id; d.dataset.tap = 'false';
     const host = el('div', 'story-host'), busy = el('div', 'story-busy', '…'), sub = el('div', 'dream-sub'), name = el('strong', 'dream-name'), text = el('p', 'dream-text'), skip = el('button', 'dream-skip', w.skip + ' ▸▸');
     sub.setAttribute('role', 'status'); sub.setAttribute('aria-live', 'polite'); skip.type = 'button'; sub.append(name, text);
     d.append(host, el('div', 'story-vignette'), el('div', 'dream-bar dream-bar-top'), el('div', 'dream-bar dream-bar-bottom'), busy, sub, skip); document.body.append(d);

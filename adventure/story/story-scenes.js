@@ -111,7 +111,7 @@
 
   /* ---------------------------------------------------------------- overlay and speech lines */
   function overlay(kind) {
-    const d = el('dialog', 'story-scene'); d.dir = lang() === 'he' ? 'rtl' : 'ltr'; d.dataset.kind = kind;
+    const d = el('dialog', 'story-scene'); d.dir = 'ltr'; d.dataset.kind = kind;
     const vignette = el('div', 'story-vignette'), host = el('div', 'story-host'), lineBox = el('div', 'story-line'), hint = el('div', 'story-hint', kind === 'game' ? '' : w().skip), busy = el('div', 'story-busy', '…');
     lineBox.setAttribute('role', 'status'); lineBox.setAttribute('aria-live', 'polite');
     d.append(host, vignette); if (kind === 'scene') d.append(el('div', 'story-bar story-bar-top'), el('div', 'story-bar story-bar-bottom'));
@@ -607,7 +607,7 @@
     /** One spoken line inside the tutorial or the result (portrait, name, words): never a box over the scene. */
     function said(l) {
       const p = el('p', 'story-say'); p.dataset.who = l.who; const bust = window.AdventureStory?.bust?.(l.who); if (bust) { bust.classList.add('story-face'); p.append(bust); }
-      const name = (window.AdventureStory?.who?.[l.who]?.name || {})[L] || ''; p.append(el('strong', 'story-name', name), el('span', 'story-text', l.text[L] || l.text.en)); p.dir = 'auto';
+      const name = (window.AdventureStory?.who?.[l.who]?.name || {})[L] || ''; p.append(el('strong', 'story-name', name), el('span', 'story-text', l.text[L] || l.text.en));
       try { if (l.kind) window.AdventureStory?.mark?.(l.id || id, l.kind, 0); } catch { /* journal is optional */ }
       return p;
     }

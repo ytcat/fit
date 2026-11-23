@@ -32,7 +32,7 @@ for(const lang of ['he','ru','en']) {
 }
 app.engine.technique='combo';app.setLanguage('he');
 assert.equal(app.engine.technique,'combo');assert.equal(app.engine.animTime,.57);
-assert.equal(document.documentElement.dir,'rtl');
+assert.equal(document.documentElement.dir,'ltr','the layout stays left-to-right in Hebrew (owner, 2026-11-23)');assert.equal(document.documentElement.lang,'he');
 console.log('PASS language changes preserve technique, frozen pose and combination time');
 app.engine.isPlaying=true;app.toggle();assert.equal(app.engine.isPlaying,false);assert.equal(app.isActive,false);
 app.toggle();assert.equal(app.engine.isPlaying,true);assert.equal(app.clock,180,'continuous play must not start a round timer');

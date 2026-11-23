@@ -286,7 +286,6 @@
     /* TRILINGUAL DICTIONARY */
     const I18N = {
       en: {
-        dir: 'ltr',
         title: "Glory of the Ring",
         subtitle: "BOXING GYM",
         round: "Round",
@@ -339,7 +338,6 @@
         ]
       },
       he: {
-        dir: 'rtl',
         title: "שאדובוקס 3D",
         subtitle: "אולם אגרוף",
         round: "סיבוב",
@@ -392,7 +390,6 @@
         ]
       },
       ru: {
-        dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
         subtitle: "БОКСЁРСКИЙ ЗАЛ",
         round: "Раунд",
@@ -1209,7 +1206,7 @@
         this.lang = langCode;
         const dict = I18N[langCode];
 
-        document.documentElement.dir = dict.dir;
+        document.documentElement.dir = 'ltr'; // the layout stays left-to-right in every language (owner, 2026-11-23); Hebrew lines read right-to-left inside their own boxes (design-tokens.css)
         document.documentElement.lang = langCode;
 
         document.getElementById('appTitle').innerText = dict.title;
