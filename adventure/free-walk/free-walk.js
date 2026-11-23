@@ -20,7 +20,7 @@
   const TIME_KEY = 'gotr.freewalk.time.v1';
   const STORY_IDS = ['bruno', 'market_stall', 'otto', 'docks_quay'];
   const PLACE_IDS = ['oldtown', 'market', 'docks', 'downtown', 'neon', 'dome', 'hill', 'tech', 'fair', 'cove', 'fort'];
-  const PITCH = .9, DIST = 9.4, FOV = 42, YAW0 = .24; // the map's own view direction, closer
+  const PITCH = .46, DIST = 7.6, FOV = 48, YAW0 = .24; // the map's own view direction, behind the Fighter at street level
   let run = null, loader = null;
 
   const app = () => window.app, engine = () => window.app?.engine, game = () => window.ringfighterGame;
@@ -40,13 +40,16 @@
   const write = (k, v) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } };
 
   /** The Chapter 1 waypoint of the current step (the same rules as the v1.92 roam): a place, only when that step may be played now. */
-  function storyDestination() {
+  function storyNow() {
     try {
-      const g = game()?.store?.game?.(), flow = window.StoryFlow, step = flow?.state(g, 1)?.current, id = step?.id, target = Core().storyTarget(id);
-      if (!target || !flow.playable(g, id) || window.AdventureProgress?.blockedByGymShift?.(g, id) || (step.boss && flow.gate(g, 1))) return null;
-      return target;
+      const g = game()?.store?.game?.(), flow = window.StoryFlow, step = flow?.state(g, 1)?.current, id = step?.id, target = Core().storyTarget(id), profile = profileId();
+      if (!profile || !target || !flow.playable(g, id) || window.AdventureProgress?.blockedByGymShift?.(g, id) || (step.boss && flow.gate(g, 1))) return null;
+      return { profile, step: id, target, boss: !!step.boss };
     } catch { return null; }
   }
+  const storyDestination = () => storyNow()?.target || null;
+  let ticketBox = null;
+  const tickets = () => ticketBox || (ticketBox = Core().storyWalk(() => window.sessionStorage, () => Date.now(), () => Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2, '0')).join(''), storyNow));
   function timeOfDay() {
     const pick = read(TIME_KEY); if (pick === 'day' || pick === 'night') return pick;
     return game()?.store?.game?.()?.adventureTime === 'night' ? 'night' : 'day';
@@ -68,7 +71,7 @@
     // ---- overlay (left-to-right in every language; each text line dir="auto")
     const d = el('dialog', 'story-scene free-walk'); d.lang = lang(); d.dataset.kind = 'walk';
     const host = el('div', 'story-host'), hud = el('div', 'fw-hud'), title = el('small', 'fw-title', t('title')), zone = el('strong', 'fw-zone', ''), help = el('span', 'fw-help', t('help'));
-    hud.append(title, zone, help);
+    hud.append(title, zone, help); setTimeout(() => hud.classList.add('quiet'), 8000); // the rule line, then only the district
     const exit = el('button', 'fw-exit', t('exit')); exit.type = 'button'; exit.setAttribute('aria-label', t('exitLabel')); exit.onclick = () => close('map');
     const timeSeg = el('div', 'fw-time'), dayB = el('button', 'fw-seg', t('day')), nightB = el('button', 'fw-seg', t('night'));
     dayB.type = nightB.type = 'button'; timeSeg.append(dayB, nightB);
@@ -85,6 +88,8 @@
     Object.assign(R, { d, host, zone, select, arrow, dist, back, notice, fade, stick, thumb, dayB, nightB });
     // destinations: the story places first, then every district of the map
     const story = opts.story ? (opts.destination || storyDestination()) : null; R.story = story;
+    // a deliberately marked story place: a one-time ticket (entering its ring opens that step once, through the quest card)
+    const arm = target => { if (R.ticket) tickets().cancel(R.ticket.nonce); R.ticket = target ? tickets().arm(target) : null; R.prevD = null; };
     const opt = (v, text) => { const o = document.createElement('option'); o.value = v; o.textContent = text; return o; };
     select.append(opt('', t('none')));
     const g1 = document.createElement('optgroup'); g1.label = t('title'); for (const id of STORY_IDS) g1.append(opt(id, targetName(id)));
@@ -92,7 +97,8 @@
     select.append(g1, g2);
     R.destination = opts.destination && (STORY_IDS.includes(opts.destination) || PLACE_IDS.includes(opts.destination)) ? opts.destination : story;
     select.value = R.destination || '';
-    select.addEventListener('change', () => { R.destination = select.value || null; R.route = null; R.last.guide = -1; ring(); });
+    select.addEventListener('change', () => { R.destination = select.value || null; R.route = null; R.last.guide = -1; ring(); arm(STORY_IDS.includes(R.destination) ? R.destination : null); });
+    if (story && R.destination === story) arm(story); else tickets().clear();
     // input
     const down = ev => {
       if (R.closed) return;
@@ -193,22 +199,39 @@
     m.position.set(at.x, R.town.grid.height(at.x, at.z) + .04, at.z); m.renderOrder = 3; R.ringMesh = m; R.town.scene.add(m);
   }
   function place(snap) {
-    const R = run, k = R.zoom, cp = Math.cos(PITCH), sp = Math.sin(PITCH), d = DIST * k;
-    const goal = new THREE.Vector3(R.s.x, R.groundY + .95, R.s.z);
+    const R = run, d = DIST * R.zoom;
+    const goal = new THREE.Vector3(R.s.x, R.groundY + 1.25, R.s.z);
     if (snap) R.center.copy(goal); else R.center.lerp(goal, .18);
-    // never inside a building: march along the view ray over the town's height field and stop short of anything taller
-    const g = R.town.grid, ox = R.center.x, oy = R.center.y, oz = R.center.z, sx = Math.sin(R.yaw) * cp, sz = Math.cos(R.yaw) * cp;
-    let free = d; for (let k = 1; k <= 16; k++) { const f = d * k / 16; if (g.top(ox + sx * f, oz + sz * f) > oy + sp * f - .35) { free = Math.max(2.2, d * (k - 1.5) / 16); break; } }
-    R.camD = snap || !R.camD || free < R.camD ? free : R.camD + (free - R.camD) * .06;
-    const D = R.camD;
-    R.camera.position.set(ox + sx * D, oy + sp * D, oz + sz * D);
-    R.camera.lookAt(R.center);
+    // Never inside the town: march along the view ray over the height field. Rising ground (a hill, a ramp: walkable) lifts
+    // the camera over it; a building or wall (not walkable) brings it closer to the Fighter.
+    const g = R.town.grid, ox = R.center.x, oy = R.center.y, oz = R.center.z;
+    const probe = (yaw, pitch) => { const cp = Math.cos(pitch), sp = Math.sin(pitch); for (let k = 1; k <= 16; k++) { const f = d * k / 16, x = ox + Math.sin(yaw) * cp * f, z = oz + Math.cos(yaw) * cp * f; if (g.top(x, z) > oy + sp * f - .4) return { k, ground: g.allowed(x, z) }; } return null; };
+    // the player's own view first; a wall or stall right behind the Fighter swings the camera a little round instead
+    let best = null;
+    for (const off of [0, .35, -.35, .7, -.7, 1.05, -1.05]) {
+      const yaw = R.yaw + off; let pitch = PITCH, hit = probe(yaw, pitch);
+      while (hit && hit.ground && pitch < 1.25) { pitch += .08; hit = probe(yaw, pitch); }
+      const free = hit ? Math.max(2.2, d * (hit.k - 1.5) / 16) : d, c = { off, pitch, free };
+      if (!best || free > best.free + .5) best = c;
+      if (free >= d * .6) { best = c; break; }
+    }
+    const target = R.yaw + best.off;
+    R.camYaw = snap || R.camYaw === undefined ? target : R.camYaw + Math.atan2(Math.sin(target - R.camYaw), Math.cos(target - R.camYaw)) * .08;
+    R.camP = snap || !R.camP ? best.pitch : R.camP + (best.pitch - R.camP) * .1;
+    R.camD = snap || !R.camD || best.free < R.camD ? best.free : R.camD + (best.free - R.camD) * .06;
+    const D = R.camD, cp = Math.cos(R.camP), sp = Math.sin(R.camP);
+    R.camera.position.set(ox + Math.sin(R.camYaw) * cp * D, oy + sp * D, oz + Math.cos(R.camYaw) * cp * D);
+    R.camera.lookAt(ox, oy + .2, oz);
   }
   function guide(ms) {
     const R = run, town = R.town, at = R.destination && town.targets[R.destination], C = Core();
     if (!at) { R.dist.textContent = ''; R.arrow.hidden = true; R.back.hidden = true; R.arrived = false; return; }
     const straight = Math.hypot(at.x - R.s.x, at.z - R.s.z);
     R.arrived = straight <= C.ARRIVE;
+    if (R.ticket && R.ticket.target === R.destination) {
+      const entered = tickets().entered(R.prevD, straight); R.prevD = straight;
+      if (entered) { const t = tickets().consume(R.ticket.nonce); R.ticket = null; if (t) { R.launched = t.step; setTimeout(() => close('quest', t), 0); return; } }
+    }
     R.back.hidden = !(R.arrived && R.story && R.destination === R.story);
     if (R.arrived) { R.dist.textContent = t('arrived'); R.arrow.hidden = true; return; }
     // the streets' route (the map's own street router, the same one that draws the Adventure route dots)
@@ -233,13 +256,22 @@
     const e = R.e, C = Core(), town = R.town, dt = Math.min(Math.max(delta || 0, 0), .05), ms = performance.now();
     const cv = e.renderer.domElement, w = cv.clientWidth || cv.width, h = cv.clientHeight || cv.height;
     if (w && h && Math.abs(R.camera.aspect - w / h) > .002) { R.camera.aspect = w / h; R.camera.updateProjectionMatrix(); }
-    if (!R.busy && dt > 0) {
+    if (!R.busy && dt > 0) step(dt, ms, true);
+    const t0 = performance.now();
+    e.renderer.render(town.scene, R.camera);
+    const info = e.renderer.info.render, P = R.perf; P.calls = info.calls; P.tris = info.triangles;
+    const raw = Math.max(0, delta || 0); if (raw > 0 && raw < 1) { P.n++; P.sum += raw; P.max = Math.max(P.max, raw); P.cpu = performance.now() - t0; }
+  }
+  /** One step of the walk (input, movement, traffic, people, the Fighter's pose, the camera, the HUD). QA calls it without a render. */
+  function step(dt, ms, pose) {
+    const R = run, C = Core(), town = R.town;
+    {
       const K = R.keys, lr = (K.has('ArrowRight') || K.has('KeyD') ? 1 : 0) - (K.has('ArrowLeft') || K.has('KeyA') ? 1 : 0), ud = (K.has('ArrowUp') || K.has('KeyW') ? 1 : 0) - (K.has('ArrowDown') || K.has('KeyS') ? 1 : 0);
       const hIn = lr || ud ? lr : R.analog[0], vIn = lr || ud ? ud : R.analog[1], mag = Math.hypot(hIn, vIn);
       R.full = mag > .93 ? R.full + dt : 0; // held all the way: a brisk walk after a moment
       const brisk = K.has('ShiftLeft') || K.has('ShiftRight') || R.full > .8;
       if (K.has('KeyQ')) R.yaw += dt * 1.6; if (K.has('KeyE')) R.yaw -= dt * 1.6;
-      const [vx, vz] = C.velocity(hIn, vIn, R.yaw, C.SPEED * (brisk ? 1.55 : 1));
+      const [vx, vz] = C.velocity(hIn, vIn, R.camYaw ?? R.yaw, C.SPEED * (brisk ? 1.55 : 1));
       town.grid.move(R.s, vx, vz, dt, town.blocked);
       town.update(dt, R.s, R.camera);
       R.poseT += dt; R.zoom += (R.zoomTarget - R.zoom) * (1 - Math.exp(-dt * 10));
@@ -248,7 +280,7 @@
       R.turn += Math.atan2(Math.sin(R.s.ry - R.turn), Math.cos(R.s.ry - R.turn)) * (1 - Math.exp(-dt * 10));
       const c = R.rig; c.root.position.set(R.s.x, R.groundY, R.s.z); c.root.rotation.set(0, R.turn, 0);
       R.walkAmt = (R.walkAmt || 0) + ((R.s.walking ? 1 : 0) - (R.walkAmt || 0)) * (1 - Math.exp(-dt * 8));
-      window.DreamPose?.civil?.(c, { t: R.poseT, dt, dist: R.s.dist, walk: R.walkAmt, ground: (x, z) => town.grid.height(x, z), arms: {}, look: { yaw: 0, pitch: 0 } });
+      if (pose) window.DreamPose?.civil?.(c, { t: R.poseT, dt, dist: R.s.dist, walk: R.walkAmt, ground: (x, z) => town.grid.height(x, z), arms: {}, look: { yaw: 0, pitch: 0 } });
       R.blob.position.set(R.s.x, R.groundY + .03, R.s.z);
       if (R.ringMesh) { const k = .5 + .5 * Math.sin(R.poseT * 4); R.ringMesh.material.opacity = .55 + .4 * k; R.ringMesh.scale.setScalar(1 + .08 * k); }
       place(false);
@@ -256,12 +288,15 @@
       if (ms - R.last.guide > 200) { R.last.guide = ms; guide(ms); }
       if (ms - R.last.save > 1000) { R.last.save = ms; save(); }
     }
-    const t0 = performance.now();
-    e.renderer.render(town.scene, R.camera);
-    const info = e.renderer.info.render, P = R.perf; P.calls = info.calls; P.tris = info.triangles;
-    if (dt > 0) { P.n++; P.sum += dt; P.max = Math.max(P.max, dt); P.cpu = performance.now() - t0; }
   }
-  function close(how = 'map') {
+  /** QA: walk with the stick held at (h, v) for the given seconds of game time, in 1/30 s steps, without drawing. */
+  function qaWalk(h, v, seconds) {
+    const R = run; if (!R?.town || R.busy) return null;
+    const keep = R.analog; R.analog = [h, v]; let ms = performance.now();
+    for (let k = 0; k < Math.round(seconds * 30); k++) { ms += 1000 / 30; step(1 / 30, ms, false); }
+    R.analog = keep; step(1 / 30, ms + 34, true); return snapshot();
+  }
+  function close(how = 'map', ticket = null) {
     const R = run; if (!R || R.closed) return; R.closed = true; save(); run = null;
     const e = R.e, c = R.rig;
     try {
@@ -282,7 +317,12 @@
       e.lastPoseStamp = null; e.lastRenderStamp = null;
     } catch (x) { console.warn('free walk close', x); }
     R.d.close?.(); R.d.remove(); window.dispatchEvent(new Event('resize'));
+    if (R.ticket) tickets().cancel(R.ticket.nonce);
     if (how === 'quiet') return;
+    if (how === 'quest' && ticket) { // the quest card's own action for that step (its confirmations, films and rewards)
+      game()?.open?.('adventure', { onReady: h => { h.select?.('oldtown'); setTimeout(() => h.story?.(ticket), 350); } });
+      return;
+    }
     if (how === 'story') { try { history.replaceState(history.state, '', location.pathname + location.search + '#chapter1-story'); } catch { /* history unavailable */ } }
     game()?.home?.();
   }
@@ -290,7 +330,7 @@
     const R = run; if (!R) return null;
     const P = R.perf;
     return { s: R.s && { x: +R.s.x.toFixed(2), z: +R.s.z.toFixed(2), ry: +R.s.ry.toFixed(3), walking: !!R.s.walking }, busy: !!R.busy, district: R.district || null, zone: R.zone.textContent,
-      time: R.time, destination: R.destination, story: R.story, arrived: R.arrived, storyReturn: !R.back.hidden, distance: R.dist.textContent, yaw: R.yaw, zoom: R.zoom,
+      time: R.time, destination: R.destination, story: R.story, ticket: R.ticket ? R.ticket.step : null, launched: R.launched || null, arrived: R.arrived, storyReturn: !R.back.hidden, distance: R.dist.textContent, yaw: R.camYaw ?? R.yaw, zoom: R.zoom,
       perf: { frames: P.n, meanMs: P.n ? +(P.sum / P.n * 1000).toFixed(1) : null, maxMs: +(P.max * 1000).toFixed(1), calls: P.calls, triangles: P.tris, cpuMs: P.cpu && +P.cpu.toFixed(1), buildMs: R.buildMs },
       town: R.town?.snapshot() || null };
   }
@@ -302,10 +342,10 @@
       if (!game()?.home || !engine()?.coach?.root || !profileId()) { setTimeout(go, 500); return; }
       try { history.replaceState(history.state, '', location.pathname + location.search); } catch { /* history unavailable */ }
       const dest = m[1] && Core().STORY_TARGETS && Object.values(Core().STORY_TARGETS).includes(m[1]) ? m[1] : null;
-      open({ start: 'resume', destination: dest || undefined, story: !!dest && dest === storyDestination() });
+      open({ start: 'resume', destination: dest || undefined }); // a waypoint only: a link never arms a story start
     };
     setTimeout(go, 800);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fromHash, { once: true }); else fromHash();
-  window.FreeWalk = { open, close, storyDestination, snapshot, get playing() { return !!run; }, STORY_IDS, PLACE_IDS, MAP_SRC };
+  window.FreeWalk = { open, close, storyDestination, storyNow, tickets, snapshot, qa: { walk: qaWalk, set yaw(v) { if (run) run.yaw = v; }, teleport(x, z) { if (run?.town?.grid.allowed(x, z)) { run.s.x = x; run.s.z = z; return true; } return false; }, get town() { return run?.town || null; } }, get playing() { return !!run; }, STORY_IDS, PLACE_IDS, MAP_SRC };
 })();

@@ -175,6 +175,34 @@
     market_robber: 'market_stall', buy_heavy_bag: 'otto', bag_drill: 'bruno', fight_prep: 'bruno', docks_fight: 'docks_quay', advanced_training: 'bruno', brick: 'bruno' });
   const storyTarget = step => Object.hasOwn(STORY_TARGETS, step) ? STORY_TARGETS[step] : null;
   const ARRIVE = 4; // metres
+  /* ---- the story walk: a one-time ticket (owner/integrator 2026-11-23). When the player deliberately marks the place of the
+   * current Chapter 1 step (still playable), walking into that place's ring opens that step ONCE, through the game's own
+   * quest action. Ordinary walking, any other marker, a locked step, a stale or reused ticket never start anything.
+   * storage: sessionStorage-like ; now() ms ; nonce() 32 hex ; eligible() -> { profile, step, target, boss } | null (live). */
+  const TICKET_KEY = 'gotr.freewalk.story.v1', TICKET_AGE = 30 * 60 * 1000;
+  function storyWalk(storage, now, nonce, eligible) {
+    const read = () => { try { const t = JSON.parse(storage().getItem(TICKET_KEY)); return t && /^[0-9a-f]{32}$/.test(t.nonce) && typeof t.profile === 'string' && t.profile && finite(t.created) && now() >= t.created && now() - t.created <= TICKET_AGE && STORY_TARGETS[t.step] === t.target ? t : null; } catch { return null; } };
+    const clear = () => { try { storage().removeItem(TICKET_KEY); return true; } catch { return false; } };
+    const same = (a, b) => !!a && !!b && a.profile === b.profile && a.step === b.step && a.target === b.target;
+    return {
+      /** The player marked `target` on purpose: a ticket when it is the live current step's place (not a boss), else none. */
+      arm(target) {
+        clear(); const cur = eligible(); if (!cur || cur.boss || cur.target !== target) return null;
+        let n; try { n = nonce(); } catch { return null; } if (!/^[0-9a-f]{32}$/.test(n)) return null;
+        const t = { profile: cur.profile, step: cur.step, target: cur.target, nonce: n, created: now() };
+        try { storage().setItem(TICKET_KEY, JSON.stringify(t)); } catch { return null; }
+        return t;
+      },
+      cancel(n) { const t = read(); if (!n || t?.nonce === n) clear(); },
+      clear,
+      /** Physically walked in: outside the ring the frame before, inside now (a spot saved inside the ring is not an entry). */
+      entered: (before, after, radius = ARRIVE) => finite(before) && finite(after) && before > radius && after <= radius,
+      /** Burns the ticket (always) and returns it only if it is this run's and still the live current step. */
+      consume(n) { const t = read(); if (!t || t.nonce !== n) return null; if (!clear()) return null; return same(t, eligible()) ? t : null; },
+      still: t => same(t, eligible()),
+      read
+    };
+  }
 
   /* ---------------------------------------------------------------- traffic: one car on one lane
    * car: { s (m along the lane), speed, lane: { len }, cruise }, player: lane-local { u (along, from the car's lane start), v (across) } or null,
@@ -235,6 +263,6 @@
   }
 
   const api = { COPY, LANGS, text, langOf, walkGrid, blockDiscs, grid, velocity, SAVE_PREFIX, LEGACY_KEY, saveKey, serialize, restore, legacyPlace,
-    district, STORY_TARGETS, storyTarget, ARRIVE, CAR, carStep, carHits, roadGraph, lanePose, nextEdge, SPEED: 2.22 };
+    district, STORY_TARGETS, storyTarget, ARRIVE, storyWalk, TICKET_KEY, CAR, carStep, carHits, roadGraph, lanePose, nextEdge, SPEED: 2.22 };
   if (typeof module === 'object' && module.exports) module.exports = api; else root.FreeWalkCore = api;
 })(typeof window !== 'undefined' ? window : globalThis);

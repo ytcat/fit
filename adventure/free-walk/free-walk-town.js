@@ -199,34 +199,75 @@
       for (let i = walkers.length - 1; i >= 0; i--) { const w = walkers[i]; if (Math.hypot(w.x - p.x, w.z - p.z) > 95) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); walkers.splice(i, 1); } }
       if (walkers.length < MAX_WALKERS) { const w = spawnWalker(p, walkers.length < 3 ? 8 : 30, 80); if (w) walkers.push(w); }
       for (const w of walkers) {
-        const at0 = loopAt(w.loop, w.d), ahead = loopAt(w.loop, w.d + Math.sign(w.v) * 1.4);
-        const close = Math.hypot(ahead.x - p.x, ahead.z - p.z) < 1.1 || Math.hypot(at0.x - p.x, at0.z - p.z) < .9;
-        const v = close ? 0 : w.v; w.d += v * dt; if (v) w.ph += Math.abs(v) * dt / (SL.WALK_STRIDE || 1.42);
-        const q = loopAt(w.loop, w.d); w.x = q.x; w.z = q.z;
-        const ry = q.ry + (w.v < 0 ? Math.PI : 0);
-        w.m.position.set(q.x, grid.allowed(q.x, q.z) ? grid.height(q.x, q.z) : landY, q.z); w.m.rotation.y = ry;
-        SL.walkPose(w.m, w.ph, v ? 1 : 0);
+        // a walker meeting the player steps aside (to the side away from the player) and slows; nobody blocks anybody
+        const at0 = loopAt(w.loop, w.d), dir = Math.sign(w.v), fx = Math.sin(at0.ry) * dir, fz = Math.cos(at0.ry) * dir;
+        const px = p.x - at0.x, pz = p.z - at0.z, along = px * fx + pz * fz, across = px * fz - pz * fx, near = Math.hypot(px, pz) < 2.4 && along > -.6;
+        const want = near ? (across > 0 ? -.85 : .85) : 0; w.side = (w.side || 0) + (want - (w.side || 0)) * Math.min(1, dt * 4);
+        const v = w.v * (near ? .55 : 1); w.d += v * dt; w.ph += Math.abs(v) * dt / (SL.WALK_STRIDE || 1.42);
+        const q = loopAt(w.loop, w.d), qf = [Math.sin(q.ry) * dir, Math.cos(q.ry) * dir], ox = qf[1] * w.side, oz = -qf[0] * w.side;
+        let x = q.x + ox, z = q.z + oz; if (!grid.allowed(x, z)) { x = q.x; z = q.z; }
+        w.x = x; w.z = z;
+        w.m.position.set(x, grid.allowed(x, z) ? grid.height(x, z) : landY, z); w.m.rotation.y = q.ry + (w.v < 0 ? Math.PI : 0) + w.side * .25 * dir;
+        SL.walkPose(w.m, w.ph, 1);
       }
     }
-    const walkerBlocked = (x, z) => walkers.some(w => w.x !== undefined && Math.hypot(w.x - x, w.z - z) < .45);
+    /* ---- pigeons: small flocks pecking on open pavement near the player; they burst up and away when the player comes close
+     * (StreetLife's pigeon shapes and flight; three instanced meshes in all) */
+    const FLOCKS = 3, PER = 6, NB = FLOCKS * PER, flocks = [], birds = [];
+    let bodyM = null, wingM = [];
+    if (SL?.birdGeometry && SL?.wingGeometry) {
+      bodyM = new T.InstancedMesh(own(SL.birdGeometry()), own(new T.MeshStandardMaterial({ vertexColors: true, roughness: .8 })), NB);
+      const wm = own(new T.MeshStandardMaterial({ color: 0x7d8290, roughness: .85, side: T.DoubleSide }));
+      wingM = [-1, 1].map(s => new T.InstancedMesh(own(SL.wingGeometry(s)), wm, NB));
+      for (const m of [bodyM, ...wingM]) { m.frustumCulled = false; m.name = 'pigeons'; scene.add(m); }
+      for (let i = 0; i < NB; i++) birds.push({ f: Math.floor(i / PER), dx: (R() - .5) * 1.8, dz: (R() - .5) * 1.2, ry: R() * 6.28, ph: R() * 10, a: (R() - .5) * 1.6, up: 1.4 + R(), out: 1.6 + R(), delay: R() * .25 });
+    }
+    function openSpot(p) { // a walkable, open spot (2 m around) 12-40 m from the player
+      for (let k = 0; k < 40; k++) {
+        const a = R() * 6.283, d = 12 + R() * 28, x = p.x + Math.cos(a) * d, z = p.z + Math.sin(a) * d;
+        if ([[0, 0], [1.6, 0], [-1.6, 0], [0, 1.2], [0, -1.2]].every(([u, v]) => grid.allowed(x + u, z + v))) return { x, z, y: grid.height(x, z), flushed: -1, t: 0 };
+      }
+      return null;
+    }
+    const Mb = new T.Matrix4(), Wb = new T.Matrix4(), Wt = new T.Matrix4(), Pb = new T.Vector3(), Eb = new T.Euler(), Qb = new T.Quaternion(), ONE = new T.Vector3(1, 1, 1), ZERO = new T.Matrix4().makeScale(0, 0, 0);
+    function updateBirds(dt, p) {
+      if (!bodyM) return;
+      for (let f = 0; f < FLOCKS; f++) {
+        let F = flocks[f];
+        if (F) { F.t += dt; if (F.flushed < 0 && Math.hypot(F.x - p.x, F.z - p.z) < (SL.FLUSH || 2.6) + .6) { F.flushed = F.t; F.from = { x: p.x, z: p.z }; } }
+        if (!F || Math.hypot(F.x - p.x, F.z - p.z) > 70 || (F.flushed >= 0 && F.t - F.flushed > 6)) { F = flocks[f] = openSpot(p); }
+      }
+      birds.forEach((b, i) => {
+        const F = flocks[b.f]; let flap = 0;
+        if (!F) { bodyM.setMatrixAt(i, ZERO); wingM[0].setMatrixAt(i, ZERO); wingM[1].setMatrixAt(i, ZERO); return; }
+        const x0 = F.x + b.dx, z0 = F.z + b.dz, t = F.t, u = F.flushed < 0 ? -1 : t - F.flushed - b.delay;
+        if (u < 0) { const pk = Math.max(0, Math.sin(t * 3.1 + b.ph)) ** 6; Pb.set(x0 + .08 * Math.sin(t * .4 + b.ph), F.y + .06, z0 + .06 * Math.cos(t * .33 + b.ph)); Eb.set(.5 * pk, b.ry + .4 * Math.sin(t * .25 + b.ph), 0); }
+        else { const away = Math.atan2(x0 - F.from.x, z0 - F.from.z) + b.a, k = Math.min(u, 4.5); Pb.set(x0 + Math.sin(away) * (b.out * k + .4 * k * k), F.y + .06 + b.up * k + .25 * k * k, z0 + Math.cos(away) * (b.out * k + .4 * k * k)); Eb.set(-.5 * Math.min(1, u * 3), away, 0); flap = 1; }
+        Qb.setFromEuler(Eb); Mb.compose(Pb, Qb, ONE); const gone = u > 4.5; bodyM.setMatrixAt(i, gone ? ZERO : Mb);
+        const beat = flap ? Math.sin(time * 42 + b.ph) * 1.1 : 0;
+        [-1, 1].forEach((s, w) => { Wb.makeRotationZ(s * -beat).premultiply(Wt.makeTranslation(s * .035, .045, 0)); const m = Mb.clone().multiply(Wb); wingM[w].setMatrixAt(i, gone || !flap ? ZERO : m); });
+      });
+      bodyM.instanceMatrix.needsUpdate = true; for (const w of wingM) w.instanceMatrix.needsUpdate = true;
+    }
 
     let time = 0;
     function update(dt, p, camera) {
       time += dt;
-      updateCars(dt, p); updateWalkers(dt, p);
+      updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
       map.update(dt, camera, renderer);
     }
     function snapshot() {
       return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length,
-        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0) }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, msHeight: Math.round(msHeight), map: map.stats() };
+        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0) }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), map: map.stats() };
     }
     function dispose() {
       for (const w of walkers) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); } walkers.length = 0;
       if (carMesh) { scene.remove(carMesh); carMesh.dispose?.(); }
+      for (const m of [bodyM, ...wingM]) if (m) { scene.remove(m); m.dispose?.(); }
       for (const x of owned) x.dispose?.();
       map.dispose();
     }
-    return { scene, map, grid, places, targets, roads, night, update, blocked: (x, z) => blocked(x, z) || walkerBlocked(x, z), snapshot, dispose, S };
+    return { scene, map, grid, places, targets, roads, night, update, blocked, snapshot, dispose, S };
   }
   window.FreeWalkTown = { build, S, CELL, BOUNDS, REACH };
 })();
