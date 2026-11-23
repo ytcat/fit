@@ -442,7 +442,7 @@ function build(scene, opts = {}) {
   const SCALE = opts.scale > 0 ? opts.scale : 1; // the free walk shows the same town in metres (3 m per map unit)
   const W = { disposables, scale: SCALE, walk: !!opts.walk,
     NIGHT, group, debugGrid: !!opts.debugGrid,
-    solid: new Batch(), ground: new Batch(), marks: new Batch(), glowSolid: new Batch(), beams: new Batch(),
+    solid: new Batch(), overhead: new Batch(), ground: new Batch(), marks: new Batch(), glowSolid: new Batch(), beams: new Batch(),
     facade: {}, inst: {}, glow: { p: [], c: [], s: [], ph: [] }, pools: [], signs: [], places: [], blocks: [], roads: [], streets: [], cars: [],
     reserve: [], animated: [], paint: [], occ: [], beamList: [], ao: new Batch(), movers: [], low: LOW, time: TIME,
     cloudU: !NIGHT && !LOW ? { value: 0, scale: SCALE } : null
@@ -463,6 +463,7 @@ function build(scene, opts = {}) {
   const add = (mesh, cast = true, recv = true) => { mesh.castShadow = cast; mesh.receiveShadow = recv; mesh.matrixAutoUpdate = false; mesh.updateMatrix(); group.add(mesh); disposables.push(mesh.geometry, mesh.material); if (W.cloudU && mesh.material.isMeshStandardMaterial && recv) withClouds(mesh.material, W.cloudU); return mesh; };
   const solidMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0 });
   add(new THREE.Mesh(W.solid.geometry(), solidMat)).name = 'solid';
+  if (W.overhead.tris) add(new THREE.Mesh(W.overhead.geometry(), solidMat)).name = 'overhead'; // free walk: things people walk under (left out of the ground read from above)
   const gm = groundMaterial(groundTex, SCALE); disposables.push(groundTex);
   if (NIGHT) gm.color.setRGB(.62, .7, .95);
   add(new THREE.Mesh(W.ground.geometry(), gm), false, true).name = 'ground';
@@ -1694,7 +1695,7 @@ function harborDome(W) {
   if (W.NIGHT) for (let k = 0; k < 28; k++) { const a = k / 28 * TAU; glow(W, x + Math.cos(a) * (R2 + .3), yb + 1.3, z + Math.sin(a) * (R2 + .3), '#7fe3ff', 1.2, .8); }
   // bridge from the quay
   const dx = x - bx, dz = z - bz, L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, len = L - r + .4, ry = Math.atan2(ux, uz);
-  const deckY = 1.15, mid = [bx + ux * len / 2, bz + uz * len / 2];
+  const deckY = W.walk ? .7 : 1.15, mid = [bx + ux * len / 2, bz + uz * len / 2]; // free walk: the deck meets the platform level
   W.solid.add(P.box, M(mid[0], deckY, mid[1], 3.2, .35, len + .6, ry), C('#e9e3d6'));
   W.solid.add(P.box, M(mid[0], deckY + .35, mid[1], 2.4, .02, len + .6, ry), C(PAL.asphalt));
   for (const s of [-1.5, 1.5]) W.solid.add(P.box, M(mid[0] + Math.cos(ry) * s, deckY + .35, mid[1] - Math.sin(ry) * s, .14, .4, len + .6, ry), C('#f4f1ea'));
@@ -1833,6 +1834,9 @@ function oldFort(W) {
   const walls = [[[-hw, hd], [hw, hd]], [[hw, hd], [hw, -hd]], [[hw, -hd], [-hw, -hd]], [[-hw, -hd], [-hw, hd]]];
   for (const [a, b] of walls) {
     const A = p(...a), Bp = p(...b), len = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]), mx = (A[0] + Bp[0]) / 2, mz = (A[1] + Bp[1]) / 2, ang = Math.atan2(Bp[0] - A[0], Bp[1] - A[1]);
+    if (W.walk && a[0] === hw && b[0] === hw) { // free walk: the gate wall has its passage open (the gatehouse below is an arch)
+      for (const [z0, z1] of [[.62, hd], [-hd, -.62]]) { const q = p(hw, (z0 + z1) / 2); B.add(P.box, M(q[0], y, q[1], t, wallH, z1 - z0, ang), stone, { ao: .3 }); }
+    } else
     B.add(P.box, M(mx, y, mz, t, wallH, len, ang), stone, { ao: .3 });
     const n = Math.floor(len / .75);
     for (let k = 0; k < n; k++) { if (k % 2) continue; const f = (k + .5) / n; B.add(P.box, M(lerp(A[0], Bp[0], f), y + wallH, lerp(A[1], Bp[1], f), t + .04, .38, .42, ang), stoneD); }
@@ -1855,10 +1859,11 @@ function oldFort(W) {
   for (let k = -2; k <= 2; k++) { const q = p(-hw - .2, k * 1.7), r = p(-hw - 1.4, k * 1.7); rod(B, [q[0], y + 1.6, q[1]], [r[0], y + 1.75, r[1]], .16, C('#2a2d33')); }
   // gatehouse to the east and the ramp down to the town
   const g = p(hw, 0);
-  B.add(P.box, M(g[0], y, g[1], 1.6, 3.1, 3.2, fr.ry), stone, { ao: .3 });
-  for (let k = 0; k < 3; k++) { const q = frame(g[0], g[1], fr.ry).p(0, -1.2 + k * 1.2); B.add(P.box, M(q[0], y + 3.1, q[1], 1.7, .38, .42, fr.ry), stoneD); }
+  if (W.walk) { const gf = frame(g[0], g[1], fr.ry); for (const sz of [-1, 1]) { const q = gf.p(0, sz * 1.1); B.add(P.box, M(q[0], y, q[1], 1.6, 3.1, 1, fr.ry), stone, { ao: .3 }); } } // free walk: an open gateway (no lintel: the town's walkable ground is read from above)
+  else B.add(P.box, M(g[0], y, g[1], 1.6, 3.1, 3.2, fr.ry), stone, { ao: .3 });
+  for (let k = 0; k < 3; k++) { if (W.walk && k === 1) continue; const q = frame(g[0], g[1], fr.ry).p(0, -1.2 + k * 1.2); B.add(P.box, M(q[0], y + 3.1, q[1], 1.7, .38, .42, fr.ry), stoneD); }
   const gd = frame(g[0], g[1], fr.ry).p(.81, 0);
-  W.solid.add(P.box, M(gd[0], y, gd[1], .04, 1.8, 1.3, fr.ry), C('#3a2f26'));
+  if (!W.walk) W.solid.add(P.box, M(gd[0], y, gd[1], .04, 1.8, 1.3, fr.ry), C('#3a2f26'));
   const r0 = p(hw + 1.2, 0), r1 = [r0[0] + 13.5 * Math.cos(fr.ry) + 1, r0[1] - 13.5 * Math.sin(fr.ry) + 3.5];
   const dx = r1[0] - r0[0], dz = r1[1] - r0[1], L = Math.hypot(dx, dz), nx = -dz / L * 1.2, nz = dx / L * 1.2;
   const ry0 = top + .02, ry1 = LAND_Y + .02;
@@ -1867,6 +1872,7 @@ function oldFort(W) {
     B.quadF([r0[0] + nx * s * 1.1, ry0 + .45, r0[1] + nz * s * 1.1], [r1[0] + nx * s * 1.1, ry1 + .45, r1[1] + nz * s * 1.1], [r1[0] + nx * s * 1.1, -1, r1[1] + nz * s * 1.1], [r0[0] + nx * s * 1.1, -1, r0[1] + nz * s * 1.1], stone, stoneD, [nx * s, 0, nz * s]);
     B.quadF([r0[0] + nx * s * .95, ry0 + .45, r0[1] + nz * s * .95], [r1[0] + nx * s * .95, ry1 + .45, r1[1] + nz * s * .95], [r1[0] + nx * s * 1.1, ry1 + .45, r1[1] + nz * s * 1.1], [r0[0] + nx * s * 1.1, ry0 + .45, r0[1] + nz * s * 1.1], stoneD, stoneD, [0, 1, 0]);
   }
+  if (W.walk) { const q = p(hw + .95, 0); B.add(P.box, M(q[0], y - .6, q[1], 1.5, .62, 2.4, fr.ry), C('#cbbfa6')); } // free walk: a landing from the ramp into the gate
   W.fortRampEnd = r1;
   for (let k = 0; k < 9; k++) { const a = rnd(0, TAU), rr = rnd(2, 9); const q = [FORT.x + Math.cos(a) * rr - 3, FORT.z + Math.sin(a) * rr]; if (inPoly(q[0], q[1], ring.map(v => [v[0], v[2]])) && Math.abs(fr.p(0, 0)[0] - q[0]) + Math.abs(fr.p(0, 0)[1] - q[1]) > 9) addInst(W, 'pines', { x: q[0], y: top, z: q[1], s: rnd(.7, 1) }); }
   // lighthouse on the seaward tip
@@ -1914,6 +1920,18 @@ function pirateCove(W) {
   const jy = .55;
   W.solid.add(P.box, M(cx + 13.4, jy, cz + 1.4, 7.2, .14, 1.3), C('#a7835c'));
   for (let k = 0; k < 6; k++) for (const s of [-.55, .55]) W.solid.add(P.cyl6, M(cx + 10.2 + k * 1.3, -1, cz + 1.4 + s, .1, jy + 1.05, .1), C('#6e5139'));
+  // GOTR-0118: a boardwalk from the nearest shore out to the jetty, and a ramp from the jetty onto the island: the cove is
+  // reachable on foot (drawn on the map too, so the map and the walk show the same town)
+  { const end = [cx + 17, cz + 1.4], deckTop = jy + .14; let best = null, bd = 1e9;
+    for (let i = 0; i < LAND.length; i++) { const a = LAND[i], b = LAND[(i + 1) % LAND.length], dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz, t = l ? clamp(((end[0] - a[0]) * dx + (end[1] - a[1]) * dz) / l, 0, 1) : 0, q = [a[0] + dx * t, a[1] + dz * t], d = Math.hypot(q[0] - end[0], q[1] - end[1]); if (d < bd) { bd = d; best = q; } }
+    const ux = (end[0] - best[0]) / bd, uz = (end[1] - best[1]) / bd, start = [best[0] - ux * 3, best[1] - uz * 3], len = Math.hypot(end[0] - start[0], end[1] - start[1]), ry = Math.atan2(ux, uz), mid = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+    W.solid.add(P.box, M(mid[0], jy, mid[1], 1.3, .14, len, ry), C('#a7835c'));
+    for (let d = 4; d < len; d += 1.6) for (const s of [-.55, .55]) W.solid.add(P.cyl6, M(start[0] + ux * d + uz * s, -1, start[1] + uz * d - ux * s, .1, jy + 1.05, .1), C('#6e5139'));
+    const r0 = [start[0] - ux * 3.2, start[1] - uz * 3.2], nx = -uz * .65, nz = ux * .65;
+    W.solid.quadF([r0[0] - nx, LAND_Y, r0[1] - nz], [start[0] - nx, deckTop, start[1] - nz], [start[0] + nx, deckTop, start[1] + nz], [r0[0] + nx, LAND_Y, r0[1] + nz], C('#a7835c'), C('#a7835c'), [0, 1, 0]);
+    const j0 = [cx + 9.8, cz + 1.4], j1 = [cx + 7, cz + 1.4];
+    W.solid.quadF([j1[0], LAND_Y, j1[1] - .65], [j0[0], deckTop, j0[1] - .65], [j0[0], deckTop, j0[1] + .65], [j1[0], LAND_Y, j1[1] + .65], C('#a7835c'), C('#a7835c'), [0, 1, 0]);
+    occupy(W, 'line', [[start, end], 2]); }
   pirateShip(W, cx + 16, cz + 7, -1.05, 1.3);
   sign(W, { text: 'PIRATE COVE', x: cx + 10.4, y: 2.0, z: cz + 2.2, ry: .2, h: .45, style: 'board', bg: '#5a3a26', fg: '#f4c152', glow: '#ffb84a', edge: '#3a2416', board: .06 });
   rod(W.solid, [cx + 10.4, jy, cz + 2.2], [cx + 10.4, 1.55, cz + 2.2], .05, C('#5a3a26'));
@@ -1957,9 +1975,9 @@ const y0Deck = () => 1.21;
 function techPier(W) {
   const B = W.solid, white = C('#f4f6f8'), deck = C('#8e9eae'), cyan = '#2de0ff', x0 = TECH.x;
   // walkway from the promenade
-  const wz0 = coastZ(x0).z - .4, wz1 = 49.6;
+  const wz0 = coastZ(x0).z - .4, wz1 = W.walk ? 50.5 : 49.6; // free walk: the walkway reaches the platform
   B.add(P.box, M(x0, .85, (wz0 + wz1) / 2, 3.2, .3, wz1 - wz0, 0), deck, { top: C('#8d9cab') });
-  if (W.walk) B.quadF([x0 - 1.3, LAND_Y, wz0 - 3.4], [x0 - 1.3, 1.0, wz0 + .05], [x0 + 1.3, 1.0, wz0 + .05], [x0 + 1.3, LAND_Y, wz0 - 3.4], deck, deck, [0, 1, 0]); // free walk: a ramp up from the promenade
+  if (W.walk) B.quadF([x0 - 1.3, LAND_Y, wz0 - 4.2], [x0 - 1.3, 1.16, wz0 + .05], [x0 + 1.3, 1.16, wz0 + .05], [x0 + 1.3, LAND_Y, wz0 - 4.2], deck, deck, [0, 1, 0]); // free walk: a ramp up from the promenade
   for (let z = wz0 + 2; z < wz1; z += 2.4) for (const s of [-1.3, 1.3]) B.add(P.cyl6, M(x0 + s, -1, z, .12, 1.9, .12), C('#9aa3ad'));
   for (const s of [-1.55, 1.55]) neon(W, [[x0 + s, 1.3, wz0 + .6], [x0 + s, 1.3, wz1]], cyan, .05, .25);
   // platform
@@ -1999,7 +2017,7 @@ function techPier(W) {
   // entrance arch with sign
   const az = coastZ(x0).z - 1.6;
   for (const s of [-1.9, 1.9]) beam(B, [x0 + s, BLOCK_Y, az], [x0 + s, BLOCK_Y + 2.9, az], .22, white);
-  B.add(P.box, M(x0, BLOCK_Y + 2.9, az, 4.4, .55, .35), white);
+  (W.walk ? W.overhead : B).add(P.box, M(x0, BLOCK_Y + 2.9, az, 4.4, .55, .35), white);
   sign(W, { text: 'TECH PIER', x: x0, y: BLOCK_Y + 3.38, z: az + .2, ry: 0, h: .44, style: 'letters', fg: '#1aa3c4', glow: cyan, outline: 'rgba(255,255,255,.95)' });
   for (let k = 0; k < 10; k++) addInst(W, 'people', { x: px + rnd(-9, 9), y: y, z: pz + rnd(-5, 5), s: 1, color: pick(PAL.car) });
   pool(W, px, pz, 7, '#6fe8ff', .16, y + .02);

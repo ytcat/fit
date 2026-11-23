@@ -183,7 +183,7 @@
   }
   function startState(town) {
     const C = Core(), o = run.opts, id = profileId(), raw = read(C.saveKey(id));
-    const at = o.start && o.start !== 'resume' ? (town.targets[o.start] || null) : null;
+    const at = o.start && o.start !== 'resume' ? (town.places.find(p => p.id === o.start)?.spawn || town.targets[o.start] || null) : null;
     if (at) return { x: at.x, z: at.z, ry: Math.PI, dist: 0, walking: false };
     const legacy = !raw ? C.legacyPlace(read(C.LEGACY_KEY)) : null; // the v1.92 Chapter 1 roam: start in the same district
     const fallback = town.targets[legacy || o.destination || 'oldtown'] || town.places[0].spawn;

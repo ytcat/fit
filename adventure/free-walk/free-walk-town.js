@@ -109,7 +109,7 @@
     const grid = C.grid({ ...field, walk });
 
     /* ---- districts, landmarks and story waypoints (metres) */
-    const near = (x, z) => grid.nearest(x, z, 120) || { x, z };
+    const near = (x, z) => grid.nearest(x, z, 400) || { x, z };
     // a district starts on its nearest street crossing (open view), the landmark itself is the place to walk to
     const roads = C.roadGraph(segs.map(s => { const dx = s.b[0] - s.a[0], dz = s.b[1] - s.a[1], l = Math.hypot(dx, dz) || 1, e = s.ext; return { a: [s.a[0] - dx / l * e, s.a[1] - dz / l * e], b: [s.b[0] + dx / l * e, s.b[1] + dz / l * e], w: s.w }; }), 2.2);
     const crossing = (x, z) => { let best = null, bd = 75; for (const n of roads.nodes) { const d = Math.hypot(n.x - x, n.z - z); if (d < bd && grid.allowed(n.x, n.z)) { bd = d; best = n; } } return best ? { x: best.x, z: best.z } : null; };
@@ -117,7 +117,7 @@
     const L = lay.landmarks, mf = lay.marketFrame, mat2 = (u, w) => [(mf.o[0] + mf.U[0] * u + mf.Wv[0] * w) * S, (mf.o[1] + mf.U[1] * u + mf.Wv[1] * w) * S];
     const mc = mat2(22, 0), otto = mat2(44, 4.4), gym = L.homeGym ? [L.homeGym.x * S, L.homeGym.z * S] : [places[0].x, places[0].z], quay = L.hangar ? [L.hangar.x * S, (L.hangar.z + 4) * S] : [places[2].x, places[2].z];
     const targets = { bruno: near(gym[0], gym[1]), market_stall: near(mc[0], mc[1]), otto: near(otto[0], otto[1]), docks_quay: near(quay[0], quay[1]) };
-    for (const p of places) targets[p.id] = p.spawn;
+    for (const p of places) targets[p.id] = p.door; // walking to a district leads to its landmark; opening there starts on a street nearby (spawn)
     { // Otto's shop: a localized board on two posts at the market's east end (the shop of Chapter 1)
       const fr = Math.atan2(mf.U[0], mf.U[1]), at = mat2(44, 3.8), y = grid.height(targets.otto.x, targets.otto.z);
       const tex = own(signTexture(C.text(lang, 'ottoSign'))), board = new T.Mesh(own(new T.PlaneGeometry(2.6, .65)), own(new T.MeshStandardMaterial({ map: tex, roughness: .7, side: T.DoubleSide })));
