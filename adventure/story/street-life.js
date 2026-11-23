@@ -189,5 +189,5 @@
     mesh.userData.dispose = () => { mesh.parent?.remove(mesh); geo.dispose(); mesh.material.dispose(); }; return mesh;
   }
 
-  window.StreetLife = { build, shadowProxy, pigeonState, walkers, pigeons, FLUSH, SHADOW_LAYER, walkerAt };
+  window.StreetLife = { build, shadowProxy, pigeonState, walkers, pigeons, FLUSH, SHADOW_LAYER, walkerAt, walker, walkPose, dog, trotPose, WALK_STRIDE }; // walker/walkPose: the town's pedestrians in the free walk
 })();

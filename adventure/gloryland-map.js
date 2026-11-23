@@ -60,7 +60,9 @@ function polyDist(x, z, P, closed = true) {
 }
 
 /* ------------------------------------------------------------------ constants and palette */
-const LAND_Y = 0.4, CURB = 0.14, BLOCK_Y = LAND_Y + CURB, FLOOR = 0.95;
+const LAND_Y = 0.4, FLOOR = 0.95;
+// The curb is 0.14 on the map (reads at map distance); the free walk builds the same town with a walkable curb (opts.curb).
+let CURB = 0.14, BLOCK_Y = LAND_Y + CURB;
 const GROUND = { x0: -116, z0: -90, w: 232, h: 160 };   // painted ground texture covers this rectangle
 
 const PAL = {
@@ -307,10 +309,10 @@ function facadeMaterial(tex, night, rough, glassK = .18) {
   return mat;
 }
 /** Ground material: samples the painted ground texture from world position (no per-vertex uv needed). */
-function groundMaterial(tex) {
+function groundMaterial(tex, k = 1) {
   const mat = new THREE.MeshStandardMaterial({ map: tex, vertexColors: true, roughness: 0.95, metalness: 0 });
   mat.onBeforeCompile = sh => {
-    sh.uniforms.gRect = { value: new THREE.Vector4(GROUND.x0, GROUND.z0, GROUND.w, GROUND.h) };
+    sh.uniforms.gRect = { value: new THREE.Vector4(GROUND.x0 * k, GROUND.z0 * k, GROUND.w * k, GROUND.h * k) };
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vGW;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvGW = ( modelMatrix * vec4( transformed, 1.0 ) ).xz;');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vGW;\nuniform vec4 gRect;')
@@ -319,10 +321,10 @@ function groundMaterial(tex) {
   mat.customProgramCacheKey = () => 'gl-ground';
   return mat;
 }
-function waterMaterial(distTex, rect, night) {
+function waterMaterial(distTex, rect, night, scale = 1) {
   const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: night ? 0.32 : 0.38, metalness: 0.0 });
   const u = {
-    wDist: { value: distTex }, wRect: { value: new THREE.Vector4(...rect) }, wTime: { value: 0 },
+    wDist: { value: distTex }, wRect: { value: new THREE.Vector4(...rect) }, wTime: { value: 0 }, wScale: { value: scale },
     wShallow: { value: C(night ? '#1f6f86' : '#63d8d0') }, wMid: { value: C(night ? '#12466a' : '#22a0c0') },
     wDeep: { value: C(night ? '#0b2c4f' : '#1a78ae') }, wAbyss: { value: C(night ? '#08203d' : '#15558c') },
     wFoam: { value: C(night ? '#9fc4d8' : '#ffffff') }
@@ -330,8 +332,8 @@ function waterMaterial(distTex, rect, night) {
   mat.userData.u = u;
   mat.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, u);
-    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vWW;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWW = ( modelMatrix * vec4( transformed, 1.0 ) ).xz;');
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vWW; uniform float wScale;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWW = ( modelMatrix * vec4( transformed, 1.0 ) ).xz / wScale;');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
 varying vec2 vWW; uniform sampler2D wDist; uniform vec4 wRect; uniform float wTime;
 uniform vec3 wShallow, wMid, wDeep, wAbyss, wFoam;
@@ -415,14 +417,14 @@ const GRADES = {
 };
 /** Drifting cloud shadows: one shared time uniform, a few sines per fragment, added to any lit material. */
 function withClouds(mat, u) {
-  const prev = mat.onBeforeCompile, key = mat.customProgramCacheKey && prev ? mat.customProgramCacheKey() : '';
+  const prev = mat.onBeforeCompile, key = mat.customProgramCacheKey && prev ? mat.customProgramCacheKey() : '', k = 0.021 / u.scale;
   mat.onBeforeCompile = (sh, r) => {
     if (prev) prev(sh, r);
-    sh.uniforms.cTime = u;
+    sh.uniforms.cTime = u; sh.uniforms.cScale = { value: k };
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vCl;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\n{ vec4 cw = vec4( transformed, 1.0 );\n#ifdef USE_INSTANCING\n cw = instanceMatrix * cw;\n#endif\n vCl = ( modelMatrix * cw ).xz; }');
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vCl; uniform float cTime;')
-      .replace('#include <dithering_fragment>', '{ vec2 q = vCl * 0.021 + vec2( cTime * 0.016, cTime * 0.009 ); float c = sin( q.x * 1.9 + sin( q.y * 1.3 ) ) * sin( q.y * 2.3 + sin( q.x * 1.1 ) ) + 0.45 * sin( q.x * 4.1 - q.y * 3.3 ); gl_FragColor.rgb *= 1.0 - 0.17 * smoothstep( 0.3, 0.85, c ); }\n#include <dithering_fragment>');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vCl; uniform float cTime; uniform float cScale;')
+      .replace('#include <dithering_fragment>', '{ vec2 q = vCl * cScale + vec2( cTime * 0.016, cTime * 0.009 ); float c = sin( q.x * 1.9 + sin( q.y * 1.3 ) ) * sin( q.y * 2.3 + sin( q.x * 1.1 ) ) + 0.45 * sin( q.x * 4.1 - q.y * 3.3 ); gl_FragColor.rgb *= 1.0 - 0.17 * smoothstep( 0.3, 0.85, c ); }\n#include <dithering_fragment>');
   };
   mat.customProgramCacheKey = () => 'cl|' + key;
   return mat;
@@ -431,16 +433,19 @@ function build(scene, opts = {}) {
   const TIME = GRADES[opts.time] ? opts.time : 'day', GR = GRADES[TIME], LOW = opts.quality === 'low';
   const NIGHT = TIME === 'night';
   R = mulberry(opts.seed || 20261111);
+  CURB = opts.curb > 0 && opts.curb < .14 ? opts.curb : .14; BLOCK_Y = LAND_Y + CURB;
+  SIGN_LANG = SIGN_TEXT[opts.lang] ? opts.lang : 'en';
   initProtos();
   const aniso = opts.renderer ? Math.min(8, opts.renderer.capabilities.getMaxAnisotropy()) : 4;
   const group = new THREE.Group(); group.name = 'Gloryland map (' + (NIGHT ? 'night' : 'day') + ')';
   const disposables = [];
-  const W = { disposables,
+  const SCALE = opts.scale > 0 ? opts.scale : 1; // the free walk shows the same town in metres (3 m per map unit)
+  const W = { disposables, scale: SCALE, walk: !!opts.walk,
     NIGHT, group, debugGrid: !!opts.debugGrid,
     solid: new Batch(), ground: new Batch(), marks: new Batch(), glowSolid: new Batch(), beams: new Batch(),
-    facade: {}, inst: {}, glow: { p: [], c: [], s: [], ph: [] }, pools: [], signs: [], places: [], blocks: [], roads: [], cars: [],
+    facade: {}, inst: {}, glow: { p: [], c: [], s: [], ph: [] }, pools: [], signs: [], places: [], blocks: [], roads: [], streets: [], cars: [],
     reserve: [], animated: [], paint: [], occ: [], beamList: [], ao: new Batch(), movers: [], low: LOW, time: TIME,
-    cloudU: !NIGHT && !LOW ? { value: 0 } : null
+    cloudU: !NIGHT && !LOW ? { value: 0, scale: SCALE } : null
   };
   for (const s of Object.keys(FACADE)) W.facade[s] = new Batch({ uv: true, tint: true });
 
@@ -458,7 +463,7 @@ function build(scene, opts = {}) {
   const add = (mesh, cast = true, recv = true) => { mesh.castShadow = cast; mesh.receiveShadow = recv; mesh.matrixAutoUpdate = false; mesh.updateMatrix(); group.add(mesh); disposables.push(mesh.geometry, mesh.material); if (W.cloudU && mesh.material.isMeshStandardMaterial && recv) withClouds(mesh.material, W.cloudU); return mesh; };
   const solidMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0 });
   add(new THREE.Mesh(W.solid.geometry(), solidMat)).name = 'solid';
-  const gm = groundMaterial(groundTex); disposables.push(groundTex);
+  const gm = groundMaterial(groundTex, SCALE); disposables.push(groundTex);
   if (NIGHT) gm.color.setRGB(.62, .7, .95);
   add(new THREE.Mesh(W.ground.geometry(), gm), false, true).name = 'ground';
   const marksMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
@@ -499,6 +504,7 @@ function build(scene, opts = {}) {
     sc.left = -radius; sc.right = radius; sc.top = radius; sc.bottom = -radius; sc.updateProjectionMatrix();
   }
   focusShadows(0, -5, 130);
+  group.scale.setScalar(SCALE);
   scene.add(group);
 
   let t = 0;
@@ -508,7 +514,7 @@ function build(scene, opts = {}) {
     if (W.waterMat) W.waterMat.userData.u.wTime.value = t;
     if (W.glowMat) {
       W.glowMat.uniforms.uTime.value = t;
-      if (camera && renderer) { const h = renderer.domElement.height; W.glowMat.uniforms.uScale.value = h / (2 * Math.tan(camera.fov * Math.PI / 360)); }
+      if (camera && renderer) { const h = renderer.domElement.height; W.glowMat.uniforms.uScale.value = SCALE * h / (2 * Math.tan(camera.fov * Math.PI / 360)); }
     }
     for (const a of W.animated) a(t, dt);
   }
@@ -529,6 +535,12 @@ function build(scene, opts = {}) {
     time: TIME, quality: LOW ? 'low' : 'high', setCurrent,
     group, places: W.places, route: (a, b) => streetRoute(W, a, b), sun, hemi, fogColor, night: NIGHT, focusShadows, update, stats,
     bounds: { x0: -108, x1: 108, z0: -74, z1: 66 },
+    // The town plan for street level (adventure/free-walk): blocks, road ribbons, street segments between blocks, the
+    // instanced props (trees, lamps, ...: { mesh, list }), the coast and the named landmarks. Map units, y up.
+    layout: { blocks: W.blocks, roads: W.roads, streets: W.streets, land: LAND, landY: LAND_Y, blockY: BLOCK_Y, scale: SCALE,
+      inst: W.instMeshes || {}, marketFrame: W.marketFrame, landmarks: { homeGym: W.homeGym, marketHall: W.marketHall, hangar: W.hangar, boxingClub: W.boxingClub, dome: W.dome, arena: W.arena, fort: W.fort, cove: W.cove, tech: W.tech, fair: W.fair, neonSign: W.neonSign } },
+    meshes: Object.fromEntries(group.children.filter(o => o.name).map(o => [o.name, o])),
+    animate: step => W.animated.push(step),
     dispose() { scene.remove(group); for (const d of disposables) d && d.dispose && d.dispose(); }
   };
 }
@@ -676,7 +688,7 @@ function buildWater(W, add, disposables) {
   for (let y = 0; y < h; y++) flipped.set(data.subarray(y * w * 4, (y + 1) * w * 4), (h - 1 - y) * w * 4);
   const tex = new THREE.DataTexture(flipped, w, h, THREE.RGBAFormat);
   tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearFilter; tex.needsUpdate = true; disposables.push(tex);
-  const mat = waterMaterial(tex, rect, W.NIGHT); W.waterMat = mat;
+  const mat = waterMaterial(tex, rect, W.NIGHT, W.scale); W.waterMat = mat;
   const geo = new THREE.PlaneGeometry(1400, 1400, 1, 1).rotateX(-Math.PI / 2);
   const mesh = add(new THREE.Mesh(geo, mat), false, true); mesh.name = 'sea';
 }
@@ -1099,7 +1111,23 @@ const SIGN_FONT = '"Inter Display","Inter","Arial Black",Impact,system-ui,sans-s
 let _measure = null;
 function textW(text, px) { if (!_measure) _measure = canvas(8, 8).getContext('2d'); _measure.font = `900 ${px}px ${SIGN_FONT}`; return _measure.measureText(text).width; }
 /** Register a sign. o: { text, x, y (top), z, ry, h, style: 'board'|'letters'|'blade', fg, bg, glow, board (depth), boardColor, flat } */
+// Every sign reads in the player's language (owner rule 2026-11-23: nothing is specific to one language). build(..., { lang }).
+const SIGN_TEXT = {
+  en: {},
+  he: { 'BOXING CLUB': 'מועדון אגרוף', BOXING: 'אגרוף', 'CHAMPIONSHIP ARENA': 'זירת האליפות', 'CITY SPORTS HALL': 'היכל הספורט', 'DOCKSIDE HANGAR': 'האנגר בנמל',
+    GYM: 'חדר כושר', 'HARBOR DOME': 'כיפת הנמל', 'HAUNTED HOUSE': 'בית רדוף', 'HOME GYM': 'אולם הבית', MARKET: 'שוק', 'MIDNIGHT FAIR': 'יריד חצות',
+    'NEON STRIP': 'רצועת הניאון', 'PIRATE COVE': 'מפרץ הפיראטים', 'TECH PIER': 'מזח הטכנולוגיה', 'THE BASEMENT': 'המרתף',
+    HOTEL: 'מלון', 'GLORY INN': 'מלון גלורי', DINER: 'דיינר', 'OPEN 24H': 'פתוח 24/7', ARCADE: 'ארקייד', PLAY: 'שחקו', DANCE: 'ריקודים', 'KO BAR': 'בר נוקאאוט',
+    SURF: 'גלישה', TACOS: 'טאקו', MOTEL: 'מוטל', VACANCY: 'יש חדרים', CINEMA: 'קולנוע', TONIGHT: 'הערב' },
+  ru: { 'BOXING CLUB': 'БОКСЁРСКИЙ КЛУБ', BOXING: 'БОКС', 'CHAMPIONSHIP ARENA': 'АРЕНА ЧЕМПИОНАТА', 'CITY SPORTS HALL': 'ГОРОДСКОЙ СПОРТЗАЛ', 'DOCKSIDE HANGAR': 'ПОРТОВЫЙ АНГАР',
+    GYM: 'ЗАЛ', 'HARBOR DOME': 'КУПОЛ ГАВАНИ', 'HAUNTED HOUSE': 'ДОМ С ПРИЗРАКАМИ', 'HOME GYM': 'ДОМАШНИЙ ЗАЛ', MARKET: 'РЫНОК', 'MIDNIGHT FAIR': 'ПОЛУНОЧНАЯ ЯРМАРКА',
+    'NEON STRIP': 'НЕОНОВАЯ НАБЕРЕЖНАЯ', 'PIRATE COVE': 'ПИРАТСКАЯ БУХТА', 'TECH PIER': 'ТЕХНОПИРС', 'THE BASEMENT': 'ПОДВАЛ',
+    HOTEL: 'ОТЕЛЬ', 'GLORY INN': 'ГЛОРИ ИНН', DINER: 'КАФЕ', 'OPEN 24H': '24 ЧАСА', ARCADE: 'ИГРЫ', PLAY: 'ИГРАЙ', DANCE: 'ТАНЦЫ', 'KO BAR': 'КО-БАР',
+    SURF: 'СЁРФ', TACOS: 'ТАКО', MOTEL: 'МОТЕЛЬ', VACANCY: 'ЕСТЬ МЕСТА', CINEMA: 'КИНО', TONIGHT: 'СЕГОДНЯ' }
+};
+let SIGN_LANG = 'en';
 function sign(W, o) {
+  const local = SIGN_TEXT[SIGN_LANG][o.text]; if (local) o = { ...o, text: local, rtl: SIGN_LANG === 'he' };
   const FS = 56, pad = o.style === 'letters' ? 11 : 20;
   if (o.style === 'blade') { o.cw = 88; o.ch = o.text.length * 60 + 2 * pad; }
   else { o.cw = Math.ceil(textW(o.text, FS) * 0.9 + 2 * pad); o.ch = 86; }
@@ -1116,7 +1144,7 @@ function drawSign(c, s, night) {
   c.save(); c.translate(s.ax, s.ay);
   const font = `900 ${s.fs}px ${SIGN_FONT}`;
   const text = (fill, blur, mode) => {
-    c.font = font; c.textBaseline = 'middle'; c.textAlign = 'center'; c.shadowBlur = blur; c.shadowColor = blur ? gl : 'transparent';
+    c.font = font; c.direction = s.rtl ? 'rtl' : 'ltr'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.shadowBlur = blur; c.shadowColor = blur ? gl : 'transparent';
     const put = (t, x, y) => { if (mode === 'stroke') c.strokeText(t, x, y); else c.fillText(t, x, y); };
     if (mode === 'stroke') { c.strokeStyle = fill; c.lineWidth = 8; c.lineJoin = 'round'; } else c.fillStyle = fill;
     if (s.style === 'blade') [...s.text].forEach((ch, i) => put(ch, s.cw / 2, s.pad + 31 + i * 60));
@@ -1670,6 +1698,11 @@ function harborDome(W) {
   W.solid.add(P.box, M(mid[0], deckY, mid[1], 3.2, .35, len + .6, ry), C('#e9e3d6'));
   W.solid.add(P.box, M(mid[0], deckY + .35, mid[1], 2.4, .02, len + .6, ry), C(PAL.asphalt));
   for (const s of [-1.5, 1.5]) W.solid.add(P.box, M(mid[0] + Math.cos(ry) * s, deckY + .35, mid[1] - Math.sin(ry) * s, .14, .4, len + .6, ry), C('#f4f1ea'));
+  if (W.walk) { // street level (free walk): a ramp from the quay up to the deck, so the dome can be reached on foot
+    const a = [bx - ux * 4.2, bz - uz * 4.2], b = [bx + ux * .1, bz + uz * .1], nx = -uz * 1.2, nz = ux * 1.2, top = deckY + .37;
+    W.solid.quadF([a[0] - nx, LAND_Y, a[1] - nz], [b[0] - nx, top, b[1] - nz], [b[0] + nx, top, b[1] + nz], [a[0] + nx, LAND_Y, a[1] + nz], C(PAL.asphalt), C(PAL.asphalt), [0, 1, 0]);
+    for (const s of [-1, 1]) W.solid.quadF([a[0] + nx * s, LAND_Y - .2, a[1] + nz * s], [b[0] + nx * s, top - .2, b[1] + nz * s], [b[0] + nx * s, top, b[1] + nz * s], [a[0] + nx * s, LAND_Y, a[1] + nz * s], C('#e9e3d6'), C('#e9e3d6'), [nx * s, 0, nz * s]);
+  }
   for (let k = 1; k < 4; k++) { const f = k / 4, px = bx + ux * len * f, pz = bz + uz * len * f; W.solid.add(P.box, M(px, -1, pz, 2.6, deckY + 1, .8, ry), C('#d6cfc1')); }
   for (let k = 0; k <= 4; k++) { const f = k / 4, px = bx + ux * len * f, pz = bz + uz * len * f; lamp(W, px + Math.cos(ry) * 1.35, deckY + .35, pz - Math.sin(ry) * 1.35, ry + Math.PI / 2); }
   W.dome = { x, z, top: yb + 1.25 + R2 * .62 + 1.2 };
@@ -1926,6 +1959,7 @@ function techPier(W) {
   // walkway from the promenade
   const wz0 = coastZ(x0).z - .4, wz1 = 49.6;
   B.add(P.box, M(x0, .85, (wz0 + wz1) / 2, 3.2, .3, wz1 - wz0, 0), deck, { top: C('#8d9cab') });
+  if (W.walk) B.quadF([x0 - 1.3, LAND_Y, wz0 - 3.4], [x0 - 1.3, 1.0, wz0 + .05], [x0 + 1.3, 1.0, wz0 + .05], [x0 + 1.3, LAND_Y, wz0 - 3.4], deck, deck, [0, 1, 0]); // free walk: a ramp up from the promenade
   for (let z = wz0 + 2; z < wz1; z += 2.4) for (const s of [-1.3, 1.3]) B.add(P.cyl6, M(x0 + s, -1, z, .12, 1.9, .12), C('#9aa3ad'));
   for (const s of [-1.55, 1.55]) neon(W, [[x0 + s, 1.3, wz0 + .6], [x0 + s, 1.3, wz1]], cyan, .05, .25);
   // platform
@@ -2212,6 +2246,7 @@ function buildTraffic(W) {
     const { def, blocks, at } = g, st = def.street, has = (i, j) => blocks.some(b => b.i === i && b.j === j);
     const seg = (u0, w0, u1, w1) => {
       const a = at(u0, w0), b = at(u1, w1), dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, nx = -uz, nz = ux;
+      W.streets.push({ a, b, w: st, district: def.name });
       if (st >= 3.6) dashes([a[0] + ux * 1.2, a[1] + uz * 1.2], [b[0] - ux * 1.2, b[1] - uz * 1.2]);
       if (st >= 2.9) for (const [e, s] of [[a, 1], [b, -1]]) { const cx = e[0] + ux * s * .55, cz = e[1] + uz * s * .55, n = Math.floor((st - .5) / .45); for (let k = 0; k < n; k++) { const o = (k - (n - 1) / 2) * .45; stripe(cx + nx * o, cz + nz * o, ux, uz, .75, .22); } }
       if (st >= 2.9) { const n = def.name === 'downtown' ? rint(1, 3) : rint(0, 2); for (let k = 0; k < n; k++) { const t = rnd(.2, .8), dir = chance(.5) ? 1 : -1, off = dir * st / 4, x = lerp(a[0], b[0], t) + nx * off, z = lerp(a[1], b[1], t) + nz * off; car(x, z, Math.atan2(ux * dir, uz * dir)); } }
@@ -2349,6 +2384,7 @@ function buildInstances(W, add) {
       if (moving) { if (o.mv.type === 'orbit') { o.mv.cx = o.x - Math.cos(o.mv.ph) * o.mv.r; o.mv.cz = o.z - Math.sin(o.mv.ph) * o.mv.r; } W.movers.push({ mesh, i, o }); }
     });
     mesh.name = k + (moving ? ' moving' : ''); if (moving) mesh.frustumCulled = false; add(mesh, def.shadow !== false && !moving, !def.basic);
+    (W.instMeshes = W.instMeshes || {})[mesh.name] = { mesh, list };
   }
 }
 /** Life: cars, tram, walkers, boats and birds follow simple lane or orbit paths; one matrix write each per frame. */
@@ -2552,7 +2588,7 @@ function spokeLights(wh) {
   return b.geometry();
 }
 
-root.GlorylandMap = { GRADES, gradeForChapter: n => ({ 1: 'morning', 2: 'evening', 3: 'night', 4: 'night', 5: 'night' })[n] || 'day', build, LAND_Y, BLOCK_Y, PAL,
+root.GlorylandMap = { GRADES, SIGN_TEXT, gradeForChapter: n => ({ 1: 'morning', 2: 'evening', 3: 'night', 4: 'night', 5: 'night' })[n] || 'day', build, LAND_Y, BLOCK_Y, PAL,
   // Building pieces for small street-scale story sets (adventure/story/story-sets.js). W = { solid: Batch, facade: { style: Batch({ uv, tint }) } }.
   kit: { Batch, M, P, initProtos, FACADE, paintFacades, facadeMaterial, building, awnings, frame, C, seed: s => { R = mulberry(s); } } };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,0 +1,31 @@
+/* Free walk (GOTR-0118). Left-to-right in every language (owner 2026-11-23): physical left/right, never inline start/end. */
+.free-walk{font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;color:#f6f1de;direction:ltr}
+.free-walk button{color:#fff;font:inherit;min-height:44px;min-width:44px;border-radius:14px;border:1px solid #93adb4;background:#172834df;cursor:pointer;touch-action:manipulation}
+.free-walk button:focus-visible,.free-walk select:focus-visible{outline:3px solid #86d1c4;outline-offset:2px}
+.free-walk button:disabled{opacity:.35}
+.fw-hud{position:absolute;z-index:2;left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));display:grid;gap:1px;max-width:min(52vw,300px);background:#14212bd9;border:1px solid #6a838b;border-radius:13px;padding:8px 11px;pointer-events:none}
+.fw-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#86d1c4}
+.fw-zone{font-size:19px;line-height:1.15}
+.fw-help{font-size:10.5px;color:#cad9db;line-height:1.25}
+.fw-exit{position:absolute;z-index:3;right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:0 14px;background:#a4d9cf!important;color:#0d232b!important;border-color:#d5fff5!important;font-weight:800}
+.fw-time{position:absolute;z-index:2;right:max(10px,env(safe-area-inset-right));top:calc(max(10px,env(safe-area-inset-top)) + 52px);display:flex;gap:4px}
+.fw-time .fw-seg{min-height:34px;min-width:0;padding:0 10px;font-size:12px;border-radius:10px}
+.fw-time .fw-seg[aria-pressed=true]{background:#86d1c4;color:#0d232b;border-color:#d5fff5}
+.fw-nav{position:absolute;z-index:2;left:max(10px,env(safe-area-inset-left));top:calc(max(10px,env(safe-area-inset-top)) + 84px);width:min(52vw,230px);display:grid;gap:3px;background:#14212be9;border:1px solid #6a838b;border-radius:12px;padding:6px 8px}
+.fw-nav-label{font-size:10px;color:#a4d9cf}
+.fw-select{font:inherit;font-size:12.5px;color:#fff;background:#203844;border:1px solid #607b85;border-radius:8px;padding:5px 4px;width:100%;min-height:32px}
+.fw-nav-status{min-height:22px;display:flex;align-items:center;gap:7px;font-size:13px}
+.fw-arrow{display:grid;place-items:center;width:22px;height:22px;color:#8be5d9;font-size:19px;transform-origin:center;flex:none}
+.fw-arrow[hidden]{display:none}
+.fw-stick{position:absolute;z-index:2;left:max(14px,env(safe-area-inset-left));bottom:max(20px,env(safe-area-inset-bottom));width:clamp(100px,29vw,132px);aspect-ratio:1;border:2px solid #94bdc6;background:#162a35ba;border-radius:50%;touch-action:none}
+.fw-stick i{position:absolute;left:50%;top:50%;width:44%;height:44%;transform:translate(-50%,-50%);border-radius:50%;background:#e3f2ecbd;border:1px solid #d3ffef;pointer-events:none}
+.fw-zoom{position:absolute;z-index:2;right:max(14px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));display:grid;gap:8px;font-size:24px}
+.fw-story{position:absolute;z-index:3;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);max-width:52vw;padding:6px 12px;background:#f4c152!important;color:#16120a!important;border-color:#ffe6a3!important;font-weight:800}
+.fw-story[hidden]{display:none}
+.fw-fade{position:absolute;inset:0;z-index:4;pointer-events:none;background:#141e25;opacity:0;transition:opacity .2s ease}
+.fw-fade.active{opacity:1}
+.fw-notice{position:absolute;z-index:5;left:50%;top:47%;transform:translate(-50%,-50%);margin:0;padding:10px 15px;text-align:center;background:#15232c;max-width:85vw;border-radius:11px;color:#fff3e0}
+.fw-notice[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.fw-fade{transition:none}}
+/* entry on the Adventure map */
+.adv-walk{white-space:nowrap}

@@ -16,7 +16,7 @@
  *       balloon, balloon2 (gold), pigeon, crate, crate2, bar, bar2, basket } (hidden until a scene or trial uses them)
  * World: metres, y up, the street runs along x, the camera side is +z. Walking surfaces are at y = 0, the road at -0.15. */
 (() => {
-  const MAP_SRC = './adventure/gloryland-map.js?v=20261121city181';
+  const MAP_SRC = './adventure/gloryland-map.js?v=20261123walk1';
   let loader = null;
   function ready() {
     if (window.GlorylandMap?.kit) return Promise.resolve();
