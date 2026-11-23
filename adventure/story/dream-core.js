@@ -30,20 +30,36 @@
     return { pos: mix(a.pos, b.pos, k), look: mix(a.look, b.look, k), shot, fov: a.fov || b.fov ? lerp(a.fov || 36, b.fov || a.fov || 36, k) : 0 }; // a key without fov is the normal lens (36), not 0 (GOTR-0097: the face shot opened on an extreme zoom)
   }
   function prop(keys, t) { const i = at(keys, t), a = keys[i], b = keys[i + 1]; if (!b || t <= a.t) return a.v.slice(); return mix(a.v, b.v, (EASE[b.ease] || EASE.smooth)((t - a.t) / Math.max(1e-6, b.t - a.t))); }
-  /** One actor at time t. A key without x / z stays where the previous key was. */
-  function actor(keys, t) {
+  /** Integral of smoothstep (0 at 0, 1/2 at 1): distance covered while the speed eases in over a unit time. */
+  const rampArea = x => { x = clamp(x); return x * x * x - x * x * x * x / 2; };
+  /** One actor at time t. A key without x / z stays where the previous key was. ramp (seconds, optional, ch1-motion): a walk
+   *  that starts from standing speeds up over `ramp` s and one that ends standing slows down over `ramp` s (smoothstep speed),
+   *  over the whole run of consecutive walking segments; the run still starts and ends at its key times (a little faster in
+   *  between). A walk that starts or ends at a jump (a cut) keeps its full speed there. Without ramp: constant speed per segment. */
+  function actor(keys, t, ramp = 0) {
     let x = keys[0].x || 0, z = keys[0].z || 0, y = keys[0].y || 0, dist = 0; const held = { face: 0, arms: null, look: null, act: 'idle', lean: 0, drop: 0 }, pts = [];
     for (const k of keys) { if (k.x != null) x = k.x; if (k.z != null) z = k.z; if (k.y != null) y = k.y; pts.push({ t: k.t, x, z, y, jump: !!k.jump }); }
-    const i = at(keys, t); for (let k = 0; k <= i; k++) for (const f of Object.keys(held)) if (keys[k][f] != null) held[f] = keys[k][f];
+    const i0 = at(keys, t); for (let k = 0; k <= i0; k++) for (const f of Object.keys(held)) if (keys[k][f] != null) held[f] = keys[k][f];
+    const moves = k => k >= 0 && k + 1 < pts.length && !pts[k + 1].jump && pts[k + 1].t > pts[k].t && Math.hypot(pts[k + 1].x - pts[k].x, pts[k + 1].z - pts[k].z) > 1e-3;
+    let tw = t, rate = 1, i = i0, easing = false;
+    if (ramp > 0 && moves(i0) && t > pts[i0].t) { // time warp over the run of walking segments round this one
+      let r0 = i0, r1 = i0; while (moves(r0 - 1)) r0--; while (moves(r1 + 1)) r1++;
+      const t0 = pts[r0].t, T = pts[r1 + 1].t - t0, rin = r0 > 0 && !pts[r0].jump, rout = !(r1 + 2 < pts.length && pts[r1 + 2].jump);
+      const ta = Math.min(ramp, T / ((rin && rout) ? 2.5 : 1.5)), lost = ta / 2 * ((rin ? 1 : 0) + (rout ? 1 : 0)), k = T / Math.max(1e-6, T - lost), tau = t - t0;
+      let g = tau; if (rin && tau < ta) g = ta * rampArea(tau / ta); else if (rin) g = tau - ta / 2;
+      if (rout && tau > T - ta) g = (T - lost) - ta * rampArea((T - tau) / ta);
+      tw = t0 + clamp(g * k, 0, T); easing = (rin && tau < ta) || (rout && tau > T - ta); rate = k * (rin && tau < ta ? EASE.smooth(tau / ta) : rout && tau > T - ta ? EASE.smooth((T - tau) / ta) : 1);
+      i = r0; while (i < r1 && pts[i + 1].t <= tw) i++;
+    }
     for (let k = 0; k < i; k++) if (!pts[k + 1].jump) dist += Math.hypot(pts[k + 1].x - pts[k].x, pts[k + 1].z - pts[k].z);
     const a = pts[i], b = pts[i + 1]; let px = a.x, pz = a.z, py = a.y, walking = false, dir = null, speed = 0;
-    if (b && !b.jump && t > a.t) { const u = clamp((t - a.t) / Math.max(1e-6, b.t - a.t)), d = Math.hypot(b.x - a.x, b.z - a.z); px = lerp(a.x, b.x, u); pz = lerp(a.z, b.z, u); py = lerp(a.y, b.y, EASE.smooth(u)); if (d > 1e-3) { walking = true; dist += d * u; dir = Math.atan2(b.x - a.x, b.z - a.z); speed = d / Math.max(1e-6, b.t - a.t); } }
-    return { x: px, y: py, z: pz, walking, dist, dir, speed, ...held, actT: t - keys[i].t };
+    if (b && !b.jump && tw > a.t) { const u = clamp((tw - a.t) / Math.max(1e-6, b.t - a.t)), d = Math.hypot(b.x - a.x, b.z - a.z); px = lerp(a.x, b.x, u); pz = lerp(a.z, b.z, u); py = lerp(a.y, b.y, EASE.smooth(u)); if (d > 1e-3) { walking = true; dist += d * u; dir = Math.atan2(b.x - a.x, b.z - a.z); speed = d / Math.max(1e-6, b.t - a.t) * rate; } }
+    return { x: px, y: py, z: pz, walking, dist, dir, speed, easing, ...held, actT: t - keys[i0].t }; // easing: speeding up or slowing down (ramp)
   }
   const visible = (lines, t) => { let n = -1; for (let i = 0; i < (lines || []).length; i++) if (lines[i].t <= t && t < (lines[i].t + (lines[i].dur ?? 1e9)) && (i + 1 >= lines.length || t < lines[i + 1].t)) n = i; return n; };
   function sample(scene, t) {
     t = clamp(t, 0, scene.duration); const actors = {}, props = {};
-    for (const [id, a] of Object.entries(scene.actors || {})) actors[id] = actor(a.keys, t);
+    for (const [id, a] of Object.entries(scene.actors || {})) actors[id] = actor(a.keys, t, a.ramp ?? scene.ramp ?? 0);
     // facing: walking direction, else an angle, a point or another actor
     for (const a of Object.values(actors)) { const f = a.face, p = typeof f === 'string' ? actors[f] && [actors[f].x, actors[f].z] : Array.isArray(f) ? f : null; a.ry = a.walking ? a.dir : p ? Math.atan2(p[0] - a.x, p[1] - a.z) : +f || 0; }
     for (const [id, keys] of Object.entries(scene.props || {})) props[id] = prop(keys, t);
@@ -79,17 +95,24 @@
       bus: [{ t: 0, v: [BUS_STOP + 56.6] }, { t: 2.2, v: [BUS_STOP + 28.6], ease: 'linear' }, { t: 6.7, v: [BUS_STOP], ease: 'out' }, { t: 10.7, v: [BUS_STOP] }, { t: 15.4, v: [BUS_STOP - 71], ease: 'in' }],
       doorClip: [{ t: 0, v: [0] }, { t: 6.7, v: [0] }, { t: 7.6, v: [1.3], ease: 'linear' }, { t: 9.3, v: [3.0], ease: 'linear' }, { t: 10.63, v: [4.33], ease: 'linear' }] // opens once stopped, fully open before his first step (GOTR-0097)
     },
-    // GOTR-0097: one even walk from the floor marker over the kerb marker to the door spot (1.14 m/s, a careful step down).
-    // Unseen in the bus he takes his last half step to the door (2.01 -> 2.5): that sets the step phase so the right foot
-    // lands on the entry tread and the left one on the pavement; the feet find the steps through `ground`
+    // GOTR-0097: one even walk from the floor marker over the kerb marker to the door spot, a careful step down; the feet
+    // find the floor, the tread and the pavement through `ground`.
+    // ch1-motion: no stop in the doorway. He walks down the aisle to the door as the bus stops (unseen until 7.3; the doors
+    // are fully open at 7.6, before he is at the floor marker), speeds up from standing and slows into the stop (actor ramp), watches the step down,
+    // then on the kerb his eyes go to the town first, his shoulders follow and his last steps and two pivot steps
+    // (dream-pose plant) bring his feet round: no slide, no hop, no pause in the air
     fighter: [
-      { t: 0, x: 2.75, z: 2.01, y: .57, act: 'off', face: 0, arms: { R: 'strap' } },
-      { t: 6.9, x: 2.75, z: 2.01 },
-      { t: 7.25, x: 2.75, z: 2.5 },
-      { t: 7.3, act: 'idle', face: 0 },
-      { t: 7.7, x: 2.75, z: 2.5, y: .57 },                                                // the floor marker
-      { t: 8.88, x: 2.75, z: 3.85, y: 0 },                                                // the kerb marker
-      { t: 9.45, x: 2.75, z: 4.5, y: 0 }
+      // keys inside a walk carry their place on the line (a key without x / z would stop him there); made with
+      // qa/ch1-motion/stepoff-keys.cjs 6.6 9.47: the step phase puts the left foot mid-tread and the right one on the pavement
+      { t: 0, x: 2.75, z: 1.43, y: .57, act: 'off', face: 0, arms: { R: 'strap' }, look: { yaw: 0, pitch: -.05 } },
+      { t: 6.6, x: 2.75, z: 1.43 },                                                       // sets off down the aisle as the bus stops
+      { t: 7.3, x: 2.75, z: 2.179, act: 'idle', face: 0 },
+      { t: 7.6, x: 2.75, z: 2.5, y: .57 },                                                // the floor marker (doors fully open)
+      { t: 8.021, x: 2.75, z: 2.95, y: .422, look: { yaw: 0, pitch: -.4 } },              // eyes on the step
+      { t: 8.629, x: 2.75, z: 3.6, y: .051, look: { yaw: .15, pitch: -.15 } },
+      { t: 8.862, x: 2.75, z: 3.85, y: 0 },                                               // the kerb marker
+      { t: 9.003, x: 2.75, z: 4, look: [30, 5.4, -6] },                                    // up the street to the town
+      { t: 9.47, x: 2.75, z: 4.5, y: 0 }
     ],
     // what the feet stand on (world boxes, the highest wins; elsewhere the pavement, y 0): the bus floor and its entry tread
     // (bus model markers: floor y 0.57 to z ~2.85, tread y 0.26 to the body side at z 3.15), the road (y -0.15) between the kerbs
@@ -112,6 +135,7 @@
     /* Beat 0. Map dive, the bus pulls in, the Fighter steps off with his bag, looks up at the city, walks to Bruno's Gym. */
     dream_opening: {
       set: 'dream_street', place: 'street', intro: 'map', duration: 31.5, chapter: 1, outfit: { fighter: 'street' }, bag: [{ t: 0, on: 'shoulder' }],
+      plant: true,                                                                         // ch1-motion: feet stay where they stand (dream-pose plant)
       camera: [
         { t: 0, pos: [-24, 40, 5], look: [-2, 0, 3] },                                        // down from the sky
         { t: 4.6, pos: [9.6, 2.7, 10.4], look: [.4, 1.5, 3.4] },
@@ -131,19 +155,20 @@
         { t: 31.5, pos: [25.0, 1.45, -2.6], look: [26.9, 2.5, -8], ease: 'smooth' }
       ],
       actors: {
-        fighter: { rig: 'fighter', keys: [
+        fighter: { rig: 'fighter', ramp: .45, keys: [                                       // ramp: starts and stops ease in and out (ch1-motion)
           { t: 0, x: 2.75, z: 2.5, y: .26, act: 'off', face: 0, arms: { R: 'strap' } },
           { t: 7.3, act: 'idle', face: 0 },
           { t: 7.9, x: 2.75, z: 2.5, y: .26 },
           { t: 8.75, x: 2.75, z: 3.55, y: .0 },                                               // one step down to the kerb
-          { t: 9.5, x: DOOR[0], z: DOOR[1], face: [30, -6], look: { yaw: 0, pitch: .12 } },
+          { t: 9.5, x: DOOR[0], z: DOOR[1], face: [30, -6], look: [30, 5.4, -6] },            // the gaze stays on the town while the body comes round
           { t: 10.2, look: { yaw: -.25, pitch: .34 } },                                        // up at the towers
           { t: 11.6, look: { yaw: .3, pitch: .3 } },
           { t: 13.2, look: { yaw: 0, pitch: .3 } },
-          { t: 14.8, look: { yaw: 0, pitch: .05 }, arms: { R: 'strap' } },
+          { t: 14.3, look: [9, 1.75, 7.6], arms: { R: 'strap' } },                              // eyes first along the pavement he is about to take
+          { t: 14.8 },                                                                           // then he sets off (speeding up: ramp)
           { t: 15.6, x: 3.5, z: 5.0 },
           { t: 19.2, x: 7.6, z: 6.9 },
-          { t: 19.2, x: 15.4, z: 7.1, jump: true },
+          { t: 19.2, x: 15.4, z: 7.1, jump: true, look: { yaw: 0, pitch: .05 } },
           { t: 22.6, x: 19.65, z: 7.1 },
           { t: 22.6, x: 21.5, z: 2.9, y: -.15, jump: true },                                // on the road (GOTR-0089: not 15 cm above it)
           { t: 26.2, x: 23.4, z: -1.2, look: { yaw: .2, pitch: .1 } },
