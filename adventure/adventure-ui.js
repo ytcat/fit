@@ -163,20 +163,32 @@
       head.append(titles, button('×', () => { card.hidden = true; }, 'adv-card-close'));
       card.append(head);
       if (p.id === 'oldtown' && chap === 1) {
-        const roam = button(T(L('Free walk · Chapter 1', 'הליכה חופשית · פרק 1', 'Свободная прогулка · Глава 1')), () => {
-          // Suggest only a geographic waypoint for the stock current step. Never start or complete it here.
-          const g = game(), flow = window.StoryFlow, step = flow?.state(g, 1)?.current, current = step?.id, target = {
-            dream_gym_talk:'bruno', first_brick:'bruno', clean_gym:'bruno', night_shadow:'bruno', night_bag:'bruno', dream_apology:'bruno',
-            market_robber:'market', buy_heavy_bag:'otto', bag_drill:'bruno', fight_prep:'bruno', docks_fight:'docks', advanced_training:'bruno', brick:'bruno'
-          };
-          const eligible = Object.hasOwn(target, current) && flow.playable(g, current) &&
-            !window.AdventureProgress?.blockedByGymShift?.(g, current) && (!step.boss || !flow.gate(g, 1));
-          const params = new URLSearchParams({lang: ['en','he','ru'].includes(app.lang) ? app.lang : 'en'});
-          if (eligible) params.set('destination', target[current]);
+        const walk = window.Chapter1StoryWalk, flow = window.StoryFlow;
+        const nearest = walk?.eligible(store, flow, P());
+        const go = (target, token) => {
+          const params = new URLSearchParams({lang});
+          if(target) params.set('destination',target);
+          if(token) params.set('walk',token);
           window.location.assign('./chapter1-roam.html?' + params);
+        };
+        const roam = button(T(L('Free walk · Chapter 1', 'הליכה חופשית · פרק 1', 'Свободная прогулка · Глава 1')), () => {
+          walk?.clear(); go(walk?.eligible(store, flow, P())?.target);
         }, 'game-button adv-go adv-alt adv-primary');
         roam.title = T(L('Optional mode. Internet connection required; no story progress.', 'מצב נפרד. נדרש אינטרנט; המשימות לא מתקדמות.', 'Отдельный режим. Нужен интернет; сюжет не меняется.'));
         card.append(roam);
+        if (nearest) {
+          const step = flow.find(nearest.step);
+          const guided = button(T(L('Walk to story objective', 'הליכה ליעד בסיפור', 'Идти к сюжетной цели')) + ' · ' + T(step?.title), () => {
+            const ticket = walk.arm(nearest.step, store, flow, P());
+            if(ticket) go(ticket.target,ticket.nonce);
+            else {
+              const hint=T(L('Story walk is no longer available. Reopen the map and try again.', 'ההליכה ליעד בסיפור אינה זמינה כעת. פתחו את המפה מחדש ונסו שוב.', 'Маршрут к сюжетной цели больше недоступен. Откройте карту заново и повторите попытку.'));
+              guided.replaceWith(el('p','adv-status',hint));
+            }
+          }, 'game-button adv-go adv-primary');
+          guided.title = T(L('Entering the destination ring opens the current story step.', 'כניסה למעגל ביעד תפתח את שלב הסיפור הנוכחי.', 'Войдите в круг у цели, чтобы открыть текущий этап сюжета.'));
+          card.append(guided);
+        }
       }
       // icons instead of sentences: coach, boss level, stars
       const story = (p.id === 'oldtown' || p.id === 'market') && !!window.AdventureOldTown && !!window.StoryFlow; // GOTR-0069: the quest panel carries progress and level
@@ -253,7 +265,9 @@
       window.addEventListener('resize', resize);
       // Owner rule: the map is never stretched. Re-fit whenever the map box changes size (sheet expand/collapse, rotation, browser bars).
       if (typeof ResizeObserver !== 'undefined') { const ro = new ResizeObserver(() => resize()); ro.observe(stage); stage.__ro = ro; }
-      ctx.onReady?.({ route: playRoute, map, cam, select: id => { const p = map.places.find(q => q.id === id); if (p) select(p); }, pins: () => pins.map(q => q.el) });
+      ctx.onReady?.({ route: playRoute, map, cam, select: id => { const p = map.places.find(q => q.id === id); if (p) select(p); }, pins: () => pins.map(q => q.el),
+        arrived: ticket => alive && window.Chapter1StoryWalk?.matches(ticket,store,window.StoryFlow,P()) && window.AdventureOldTown?.before(ctx,ticket.step)
+      });
       raf = requestAnimationFrame(frame);
       setTimeout(() => { if (alive) checkRoute(); }, 900);
       setTimeout(() => { if (alive) window.AdventureOldTown?.onOpen?.(ctx); }, 400);
