@@ -107,6 +107,14 @@
     for (const [name, r] of Object.entries(TRUNK)) for (const o of lay.inst[name]?.list || []) discs.push([o.x * S, o.z * S, r * (o.s || 1)]);
     C.blockDiscs(walk, field, discs);
     const pockets = C.keepConnected(walk, field.nx, field.nz, seeds); // pockets closed by trunks and posts are not walkable
+    // tree crowns (instanced, not in the height field): a coarse top map so the camera keeps out of the leaves
+    const CC = 2, cnx = Math.ceil(field.nx * CELL / CC), cnz = Math.ceil(field.nz * CELL / CC), crowns = new Float32Array(cnx * cnz).fill(-1e9);
+    for (const [name, [r0, h0]] of Object.entries({ trees: [1.0, 2.9], pines: [.9, 2.7], palms: [1.5, 3.4] })) for (const o of lay.inst[name]?.list || []) {
+      const sc = o.s || 1, r = r0 * sc * S, top = ((o.y || 0) + h0 * sc) * S, x = o.x * S, z = o.z * S;
+      for (let cj = Math.max(0, Math.floor((z - r - field.z0) / CC)); cj <= Math.min(cnz - 1, Math.floor((z + r - field.z0) / CC)); cj++)
+        for (let ci = Math.max(0, Math.floor((x - r - field.x0) / CC)); ci <= Math.min(cnx - 1, Math.floor((x + r - field.x0) / CC)); ci++) { const k = cj * cnx + ci; if (top > crowns[k]) crowns[k] = top; }
+    }
+    const canopy = (x, z) => { const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC); return i < 0 || j < 0 || i >= cnx || j >= cnz ? -1e9 : crowns[j * cnx + i]; };
     const grid = C.grid({ ...field, walk });
 
     /* ---- districts, landmarks and story waypoints (metres) */
@@ -114,7 +122,7 @@
     // a district starts on its nearest street crossing (open view), the landmark itself is the place to walk to
     const roads = C.roadGraph(segs.map(s => { const dx = s.b[0] - s.a[0], dz = s.b[1] - s.a[1], l = Math.hypot(dx, dz) || 1, e = s.ext; return { a: [s.a[0] - dx / l * e, s.a[1] - dz / l * e], b: [s.b[0] + dx / l * e, s.b[1] + dz / l * e], w: s.w }; }), 2.2);
     const crossing = (x, z) => { let best = null, bd = 75; for (const n of roads.nodes) { const d = Math.hypot(n.x - x, n.z - z); if (d < bd && grid.allowed(n.x, n.z)) { bd = d; best = n; } } return best ? { x: best.x, z: best.z } : null; };
-    const places = map.places.map(p => { const x = p.anchor.x * S, z = p.anchor.z * S; return { id: p.id, kind: p.kind, x, z, r: (REACH[p.id] || 24) * S, spawn: crossing(x, z) || near(x, z), door: near(x, z) }; });
+    const places = map.places.map(p => { const x = p.anchor.x * S, z = p.anchor.z * S; const door = near(x, z), cross = crossing(x, z); return { id: p.id, kind: p.kind, x, z, r: (REACH[p.id] || 24) * S, spawn: cross && Math.hypot(cross.x - x, cross.z - z) < 45 ? cross : door, door }; });
     const L = lay.landmarks, mf = lay.marketFrame, mat2 = (u, w) => [(mf.o[0] + mf.U[0] * u + mf.Wv[0] * w) * S, (mf.o[1] + mf.U[1] * u + mf.Wv[1] * w) * S];
     const mc = mat2(22, 0), otto = mat2(44, 4.4), gym = L.homeGym ? [L.homeGym.x * S, L.homeGym.z * S] : [places[0].x, places[0].z], quay = L.hangar ? [L.hangar.x * S, (L.hangar.z + 4) * S] : [places[2].x, places[2].z];
     const targets = { bruno: near(gym[0], gym[1]), market_stall: near(mc[0], mc[1]), otto: near(otto[0], otto[1]), docks_quay: near(quay[0], quay[1]) };
@@ -268,7 +276,7 @@
       for (const x of owned) x.dispose?.();
       map.dispose();
     }
-    return { scene, map, grid, places, targets, roads, night, update, blocked, snapshot, dispose, S };
+    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, S };
   }
   window.FreeWalkTown = { build, S, CELL, BOUNDS, REACH };
 })();

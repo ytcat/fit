@@ -76,7 +76,7 @@
     const timeSeg = el('div', 'fw-time'), dayB = el('button', 'fw-seg', t('day')), nightB = el('button', 'fw-seg', t('night'));
     dayB.type = nightB.type = 'button'; timeSeg.append(dayB, nightB);
     const nav = el('section', 'fw-nav'), label = el('label', 'fw-nav-label', t('walkTo')), select = document.createElement('select'), status = el('div', 'fw-nav-status'), arrow = el('span', 'fw-arrow', '➤'), dist = el('strong', 'fw-dist', '');
-    select.className = 'fw-select'; select.id = 'fw-destination'; select.dir = 'auto'; label.htmlFor = select.id; arrow.setAttribute('aria-hidden', 'true'); arrow.hidden = true; status.append(arrow, dist); nav.append(label, select, status);
+    select.className = 'fw-select'; select.id = 'fw-destination'; label.htmlFor = select.id; arrow.setAttribute('aria-hidden', 'true'); arrow.hidden = true; status.append(arrow, dist); nav.append(label, select, status);
     const stick = el('div', 'fw-stick'), thumb = el('i'); stick.append(thumb); stick.setAttribute('role', 'group'); stick.setAttribute('aria-label', t('stick'));
     const zoomBox = el('aside', 'fw-zoom'), plus = el('button', '', '+'), minus = el('button', '', '−'); plus.type = minus.type = 'button'; plus.setAttribute('aria-label', t('zoomIn')); minus.setAttribute('aria-label', t('zoomOut')); zoomBox.append(plus, minus);
     const back = el('button', 'fw-story', t('storyReturn')); back.type = 'button'; back.hidden = true; back.onclick = () => close('story');
@@ -205,7 +205,9 @@
     // Never inside the town: march along the view ray over the height field. Rising ground (a hill, a ramp: walkable) lifts
     // the camera over it; a building or wall (not walkable) brings it closer to the Fighter.
     const g = R.town.grid, ox = R.center.x, oy = R.center.y, oz = R.center.z;
-    const probe = (yaw, pitch) => { const cp = Math.cos(pitch), sp = Math.sin(pitch); for (let k = 1; k <= 16; k++) { const f = d * k / 16, x = ox + Math.sin(yaw) * cp * f, z = oz + Math.cos(yaw) * cp * f; if (g.top(x, z) > oy + sp * f - .4) return { k, ground: g.allowed(x, z) }; } return null; };
+    // the camera body has a size: each sample along the ray checks 0.6 m round it (a thin wall between samples is still seen)
+    const solidAt = (x, y, z) => { for (const [a, b] of [[0, 0], [.6, 0], [-.6, 0], [0, .6], [0, -.6]]) if (Math.max(g.top(x + a, z + b), R.town.canopy?.(x + a, z + b) ?? -1e9) > y) return true; return false; };
+    const probe = (yaw, pitch) => { const cp = Math.cos(pitch), sp = Math.sin(pitch); for (let k = 1; k <= 24; k++) { const f = d * k / 24, x = ox + Math.sin(yaw) * cp * f, z = oz + Math.cos(yaw) * cp * f; if (solidAt(x, oy + sp * f - .4, z)) return { k: k * 16 / 24, ground: g.allowed(x, z) }; } return null; };
     // the player's own view first; a wall or stall right behind the Fighter swings the camera a little round instead
     let best = null;
     for (const off of [0, .35, -.35, .7, -.7, 1.05, -1.05]) {
@@ -347,5 +349,5 @@
     setTimeout(go, 800);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fromHash, { once: true }); else fromHash();
-  window.FreeWalk = { open, close, storyDestination, storyNow, tickets, snapshot, qa: { walk: qaWalk, set yaw(v) { if (run) run.yaw = v; }, teleport(x, z) { if (run?.town?.grid.allowed(x, z)) { run.s.x = x; run.s.z = z; return true; } return false; }, get town() { return run?.town || null; } }, get playing() { return !!run; }, STORY_IDS, PLACE_IDS, MAP_SRC };
+  window.FreeWalk = { open, close, storyDestination, storyNow, tickets, snapshot, qa: { walk: qaWalk, set yaw(v) { if (run) { run.yaw = v; run.camYaw = v; } }, view() { if (!run?.town) return null; const g = run.town.grid, s = run.s, y = g.height(s.x, s.z); let best = 0, bd = -1; for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2; let d = 0; while (d < 80 && g.top(s.x - Math.sin(a) * (d + 1), s.z - Math.cos(a) * (d + 1)) < y + 2.5) d++; if (d > bd) { bd = d; best = a; } } run.yaw = run.camYaw = best; return { yaw: best, open: bd }; }, teleport(x, z) { if (run?.town?.grid.allowed(x, z)) { run.s.x = x; run.s.z = z; return true; } return false; }, get town() { return run?.town || null; } }, get playing() { return !!run; }, STORY_IDS, PLACE_IDS, MAP_SRC };
 })();

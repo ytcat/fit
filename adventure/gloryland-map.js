@@ -463,7 +463,7 @@ function build(scene, opts = {}) {
   const add = (mesh, cast = true, recv = true) => { mesh.castShadow = cast; mesh.receiveShadow = recv; mesh.matrixAutoUpdate = false; mesh.updateMatrix(); group.add(mesh); disposables.push(mesh.geometry, mesh.material); if (W.cloudU && mesh.material.isMeshStandardMaterial && recv) withClouds(mesh.material, W.cloudU); return mesh; };
   const solidMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0 });
   add(new THREE.Mesh(W.solid.geometry(), solidMat)).name = 'solid';
-  if (W.overhead.tris) add(new THREE.Mesh(W.overhead.geometry(), solidMat)).name = 'overhead'; // free walk: things people walk under (left out of the ground read from above)
+  if (W.overhead.tris) add(new THREE.Mesh(W.overhead.geometry(), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0 }))).name = 'overhead'; // own material: add() decorates each material once // free walk: things people walk under (left out of the ground read from above)
   const gm = groundMaterial(groundTex, SCALE); disposables.push(groundTex);
   if (NIGHT) gm.color.setRGB(.62, .7, .95);
   add(new THREE.Mesh(W.ground.geometry(), gm), false, true).name = 'ground';

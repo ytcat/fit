@@ -4,7 +4,7 @@
 set -u
 cd "$(dirname "$0")/../.."
 out="${1:-qa/free-walk-city/out}"; mkdir -p "$out"
-timeout 3000 node qa/free-walk-city/tour.cjs "$out" en
+[ -z "${SKIP_TOUR:-}" ] && timeout 3000 node qa/free-walk-city/tour.cjs "$out" en
 for l in en he ru; do timeout 1800 node qa/free-walk-city/walk.cjs "$out" "$l"; done
 timeout 1800 node qa/free-walk-city/walk.cjs "$out/night" he oldtown,neon,fair night
 timeout 2400 node qa/free-walk-city/story.cjs "$out" en

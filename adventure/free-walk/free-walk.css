@@ -1,5 +1,6 @@
 /* Free walk (GOTR-0118). Left-to-right in every language (owner 2026-11-23): physical left/right, never inline start/end. */
-.free-walk{font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;color:#f6f1de;direction:ltr}
+.free-walk{font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;color:#f6f1de;direction:ltr;text-align:left}
+.free-walk :not(button)[dir=auto]{text-align:left}
 .free-walk button{color:#fff;font:inherit;min-height:44px;min-width:44px;border-radius:14px;border:1px solid #93adb4;background:#172834df;cursor:pointer;touch-action:manipulation}
 .free-walk button:focus-visible,.free-walk select:focus-visible{outline:3px solid #86d1c4;outline-offset:2px}
 .free-walk button:disabled{opacity:.35}

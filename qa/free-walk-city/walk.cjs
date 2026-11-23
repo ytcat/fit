@@ -31,6 +31,9 @@ fs.mkdirSync(out, { recursive: true });
     await key('ArrowUp', 2000); await key('ArrowRight', 1000);
     await p.waitForTimeout(500);
     const after = await snap();
+    // frame the shot: the longest open view from here, and a destination so the arrow and the distance show
+    await p.evaluate(id => { const sel = document.querySelector('.fw-select'); sel.value = id === 'oldtown' ? 'docks' : 'oldtown'; sel.dispatchEvent(new Event('change')); FreeWalk.qa.view(); }, id);
+    await p.waitForTimeout(2500);
     await p.screenshot({ path: `${out}/${lang}-${id}.png` });
     report[id] = { ok, stickMoved, start: at.s, end: after.s, moved: +Math.hypot(after.s.x - at.s.x, after.s.z - at.s.z).toFixed(1), zone: after.zone, district: after.district, cars: after.town.cars.length, walkers: after.town.walkers, perf: after.perf };
     console.log(id, JSON.stringify(report[id]));
