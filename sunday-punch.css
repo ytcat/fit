@@ -26,6 +26,8 @@
 @keyframes sp-title{from{opacity:0;transform:scale(1.6)}to{opacity:1;transform:scale(1)}}
 /* while it plays, the round's text overlays stand aside */
 body.sunday-punch-on .bout-announcement,body.sunday-punch-on .fp-guard-tip,body.sunday-punch-on .burst-tip{visibility:hidden}
+/* the knockout film has the screen to itself: no mission line or ringside buttons over the SUPER PUNCH title (v1.92 check) */
+body.sunday-punch-on .adv-goal,body.sunday-punch-on #gameModes .gm-edge,body.sunday-punch-on .ringside-toolbar,body.sunday-punch-on .ringside-toolbar *,body.sunday-punch-on .ringside-playback,body.sunday-punch-on .camera-lock-toggle{opacity:0!important;pointer-events:none!important;transition:opacity .2s}
 /* Super Punch film (super-punch-film.js overlay): letterbox bars, speed lines on the impact, the blackout with the K.O. beat */
 .sp-film{position:absolute;inset:0;z-index:14;pointer-events:none;overflow:hidden}
 .sp-film .sp-bar{position:absolute;left:0;right:0;height:8.5%;background:#000;transform:scaleY(0);transition:transform .35s ease-out}
