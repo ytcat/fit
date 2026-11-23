@@ -106,6 +106,7 @@
     const discs = [];
     for (const [name, r] of Object.entries(TRUNK)) for (const o of lay.inst[name]?.list || []) discs.push([o.x * S, o.z * S, r * (o.s || 1)]);
     C.blockDiscs(walk, field, discs);
+    const pockets = C.keepConnected(walk, field.nx, field.nz, seeds); // pockets closed by trunks and posts are not walkable
     const grid = C.grid({ ...field, walk });
 
     /* ---- districts, landmarks and story waypoints (metres) */
@@ -258,7 +259,7 @@
     }
     function snapshot() {
       return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length,
-        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0) }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), map: map.stats() };
+        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), map: map.stats() };
     }
     function dispose() {
       for (const w of walkers) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); } walkers.length = 0;

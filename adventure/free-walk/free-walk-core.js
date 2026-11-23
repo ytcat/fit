@@ -93,6 +93,23 @@
       for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) if (Math.hypot(x0 + (i + .5) * cell - x, z0 + (j + .5) * cell - z) <= r + cell * .5) walk[j * nx + i] = 0;
     }
   }
+  /** Drops walkable cells that the seeds cannot reach any more (pockets closed by tree trunks or posts). 8-neighbour,
+   * the same moves the body can make (a diagonal only between two open sides). */
+  function keepConnected(walk, nx, nz, seeds) {
+    const n = nx * nz, seen = new Uint8Array(n), queue = new Int32Array(n); let h = 0, t = 0;
+    for (const k of seeds) if (k >= 0 && k < n && walk[k] && !seen[k]) { seen[k] = 1; queue[t++] = k; }
+    while (h < t) {
+      const k = queue[h++], i = k % nx, j = (k - i) / nx;
+      for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+        if (!di && !dj) continue; const a = i + di, b = j + dj; if (a < 0 || b < 0 || a >= nx || b >= nz) continue;
+        const q = b * nx + a; if (seen[q] || !walk[q]) continue;
+        if (di && dj && (!walk[j * nx + a] || !walk[b * nx + i])) continue;
+        seen[q] = 1; queue[t++] = q;
+      }
+    }
+    let dropped = 0; for (let k = 0; k < n; k++) if (walk[k] && !seen[k]) { walk[k] = 0; dropped++; }
+    return dropped;
+  }
   /** spec: { x0, z0, cell, nx, nz, heights, walk } -> lookups and movement on the grid. */
   function grid(spec) {
     const { x0, z0, cell, nx, nz, heights, walk } = spec;
@@ -126,7 +143,8 @@
       s.walking = false; if (!finite(dt) || dt <= 0 || !finite(vx) || !finite(vz)) return s;
       const speed = Math.hypot(vx, vz); if (speed < 1e-4) return s;
       const T = Math.min(dt, .1), n = Math.max(1, Math.ceil(speed * T / (cell * .4))), h = T / n, ox = s.x, oz = s.z;
-      const free = (x, z) => allowed(x, z) && !blocked(x, z);
+      // a moving obstacle (a car) never traps the body: from inside its footprint the body may step out
+      const inside = !!blocked(s.x, s.z), free = (x, z) => allowed(x, z) && (inside || !blocked(x, z)); // (from inside: free to step out)
       for (let k = 0; k < n; k++) {
         const x = s.x + vx * h, z = s.z + vz * h;
         if (free(x, z)) { s.x = x; s.z = z; } else if (free(x, s.z)) s.x = x; else if (free(s.x, z)) s.z = z;
@@ -262,7 +280,7 @@
     return { e: w[0].k, dir: w[0].d };
   }
 
-  const api = { COPY, LANGS, text, langOf, walkGrid, blockDiscs, grid, velocity, SAVE_PREFIX, LEGACY_KEY, saveKey, serialize, restore, legacyPlace,
+  const api = { COPY, LANGS, text, langOf, walkGrid, blockDiscs, keepConnected, grid, velocity, SAVE_PREFIX, LEGACY_KEY, saveKey, serialize, restore, legacyPlace,
     district, STORY_TARGETS, storyTarget, ARRIVE, storyWalk, TICKET_KEY, CAR, carStep, carHits, roadGraph, lanePose, nextEdge, SPEED: 2.22 };
   if (typeof module === 'object' && module.exports) module.exports = api; else root.FreeWalkCore = api;
 })(typeof window !== 'undefined' ? window : globalThis);

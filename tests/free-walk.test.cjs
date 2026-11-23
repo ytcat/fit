@@ -53,6 +53,13 @@ assert.ok(/direction:ltr/.test(src('adventure/free-walk/free-walk.css')) && !/in
   assert.ok(Math.abs(g.height(12.6, 4.6) - 1.35) < .01 && Math.abs(g.height(4, 4) - 1.2) < 1e-5);
   assert.ok(g.top(7, 4.5) === 12, 'the camera sees roofs');
   const n = g.nearest(7, 4.6); assert.ok(n && g.allowed(n.x, n.z));
+  // a car footprint never traps the body: from inside it the body steps out; from outside it does not walk in
+  const car = (x, z) => Math.abs(x - 3) < 1 && Math.abs(z - 3) < 1, inCar = { x: 3, z: 3, ry: 0, dist: 0 };
+  for (let k = 0; k < 30; k++) g.move(inCar, 2, 0, 1 / 30, car); assert.ok(inCar.x > 4, 'steps out of a car footprint');
+  const atCar = { x: 1.5, z: 3, ry: 0, dist: 0 }; for (let k = 0; k < 30; k++) g.move(atCar, 2, 0, 1 / 30, car); assert.ok(atCar.x <= 2, 'does not walk into a car');
+  // a pocket closed by posts is dropped
+  const w2 = Uint8Array.from(walk); C.blockDiscs(w2, { x0: 0, z0: 0, cell: .5, nx, nz }, [[2.5, 1.5, .9]]); w2[3 * nx + 5] = 1;
+  const dropped = C.keepConnected(w2, nx, nz, [12 * nx + 2]); assert.ok(dropped >= 1 && w2[3 * nx + 5] === 0, 'enclosed cell dropped');
   // the stick is camera-relative: forward goes away from the camera
   const [vx, vz] = C.velocity(0, 1, 0, 2); assert.ok(Math.abs(vx) < 1e-9 && Math.abs(vz + 2) < 1e-9);
   const [rx, rz] = C.velocity(1, 0, Math.PI / 2, 2); assert.ok(Math.abs(rx) < 1e-9 && Math.abs(rz + 2) < 1e-9);
