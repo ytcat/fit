@@ -71,7 +71,7 @@ const STEPS = [
   ['film', true, `${closeAll}; StoryScenes.play('dream_gym_talk', { onDone(){} })`, 6000, `window.DreamScenes?.debug?.phase==='play'`, `DreamScenes.seek(7)`, 2500],
   ['film-2', false, `DreamScenes.seek(16)`, 2500],
   ['film-3', false, `DreamScenes.seek(30)`, 2500],
-  ['market-film', false, `${closeAll}; StoryScenes.play('dream_apology', { onDone(){} })`, 6000, `window.DreamScenes?.debug?.phase==='play'`, `DreamScenes.seek(8)`, 2500],
+  ['market-film', true, `${closeAll}; StoryScenes.play('dream_market_reward', { onDone(){} })`, 6000, `window.DreamScenes?.debug?.phase==='play'`, `DreamScenes.seek(12.6)`, 2500],
   ['story-film', false, `${closeAll}; StoryScenes.play('arrival', { onDone(){} })`, 7000],
   ['training-calls', true, `${closeAll}; ${CTX}; AdventureOldTown.launch(__ctx, 'night_bag')`, 6000, `!!document.querySelector('#advCalls .adv-call')`],
   ['story-fight', true, `${closeAll}; ${CTX}; ${tick}; AdventureOldTown.storyFightStart(__ctx, 'market_robber')`, 5000, `!!app.engine.arena?.fightView?.match`, `app.engine.isPlaying=true; app.engine.speed=0; if(app.engine.player) app.engine.player.enabled=false; const m=app.engine.arena.fightView.match; let k=0; while(m.phase!=='round'&&k<60){__tick(60);k++;} __tick(120);`, 2500],

@@ -1,0 +1,82 @@
+{
+ "date": "2026-11-23",
+ "base": "436afd1 (v1.92 + owner Languages rule)",
+ "static": {
+  "before": {
+   "total": 131,
+   "byRule": {
+    "rtl": 35,
+    "en-data": 29,
+    "canvas-text": 30,
+    "en-sink": 33,
+    "html-text": 4
+   }
+  },
+  "after": {
+   "total": 20,
+   "byRule": {
+    "en-data": 5,
+    "canvas-text": 4,
+    "en-sink": 7,
+    "html-text": 4
+   },
+   "notAllowListed": 0
+  }
+ },
+ "sweep": {
+  "states": 30,
+  "viewport": "402x690 touch",
+  "before": {
+   "en": {
+    "foreign": 0,
+    "direction": 0,
+    "offscreen": 0,
+    "html": [
+     "ltr/en"
+    ]
+   },
+   "he": {
+    "foreign": 7,
+    "direction": 118,
+    "offscreen": 0,
+    "html": [
+     "rtl/he"
+    ]
+   },
+   "ru": {
+    "foreign": 7,
+    "direction": 0,
+    "offscreen": 0,
+    "html": [
+     "ltr/ru"
+    ]
+   }
+  },
+  "after": {
+   "en": {
+    "foreign": 0,
+    "direction": 0,
+    "offscreen": 0,
+    "html": [
+     "ltr/en"
+    ]
+   },
+   "he": {
+    "foreign": 0,
+    "direction": 0,
+    "offscreen": 0,
+    "html": [
+     "ltr/he"
+    ]
+   },
+   "ru": {
+    "foreign": 0,
+    "direction": 0,
+    "offscreen": 0,
+    "html": [
+     "ltr/ru"
+    ]
+   }
+  }
+ }
+}
