@@ -21,11 +21,18 @@ fs.mkdirSync(out, { recursive: true });
     const at = await snap();
     // walk: keys forward 3 s, then right 2 s
     const key = async (k, ms) => { await p.keyboard.down(k); await p.waitForTimeout(ms); await p.keyboard.up(k); };
-    await key('ArrowUp', 3000); await key('ArrowRight', 1500);
+    // a real touch on the stick (CDP touch events -> pointer events), held up for 4 s, then the keys
+    const box = await p.$eval('.fw-stick', e => { const b = e.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; });
+    const cdp = await ctx.newCDPSession(p), touch = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y, id: 1 }] });
+    const s0 = await snap();
+    await touch('touchStart', box.x, box.y); for (let k = 1; k <= 8; k++) { await touch('touchMove', box.x, box.y - 5 * k); await p.waitForTimeout(30); }
+    await p.waitForTimeout(4000); const mid = await snap(); await touch('touchEnd');
+    const stickMoved = +Math.hypot(mid.s.x - s0.s.x, mid.s.z - s0.s.z).toFixed(2);
+    await key('ArrowUp', 2000); await key('ArrowRight', 1000);
     await p.waitForTimeout(500);
     const after = await snap();
     await p.screenshot({ path: `${out}/${lang}-${id}.png` });
-    report[id] = { ok, start: at.s, end: after.s, moved: +Math.hypot(after.s.x - at.s.x, after.s.z - at.s.z).toFixed(1), zone: after.zone, district: after.district, cars: after.town.cars.length, walkers: after.town.walkers, perf: after.perf };
+    report[id] = { ok, stickMoved, start: at.s, end: after.s, moved: +Math.hypot(after.s.x - at.s.x, after.s.z - at.s.z).toFixed(1), zone: after.zone, district: after.district, cars: after.town.cars.length, walkers: after.town.walkers, perf: after.perf };
     console.log(id, JSON.stringify(report[id]));
   }
   fs.writeFileSync(`${out}/${lang}-report.json`, JSON.stringify({ lang, report, errors: errs.slice(0, 10) }, null, 1));

@@ -197,7 +197,7 @@
     }
     function updateWalkers(dt, p) {
       for (let i = walkers.length - 1; i >= 0; i--) { const w = walkers[i]; if (Math.hypot(w.x - p.x, w.z - p.z) > 95) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); walkers.splice(i, 1); } }
-      if (walkers.length < MAX_WALKERS) { const w = spawnWalker(p, walkers.length < 3 ? 8 : 30, 80); if (w) walkers.push(w); }
+      if (walkers.length < (opts.quality === 'low' ? 6 : MAX_WALKERS)) { const w = spawnWalker(p, walkers.length < 3 ? 8 : 30, 80); if (w) walkers.push(w); }
       for (const w of walkers) {
         // a walker meeting the player steps aside (to the side away from the player) and slows; nobody blocks anybody
         const at0 = loopAt(w.loop, w.d), dir = Math.sign(w.v), fx = Math.sin(at0.ry) * dir, fz = Math.cos(at0.ry) * dir;

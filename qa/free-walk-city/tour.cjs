@@ -24,11 +24,12 @@ fs.mkdirSync(out, { recursive: true });
       dist[t0] = 0; q[tl++] = t0;
       while (h < tl) { const k = q[h++], i = k % nx; for (const n of [i > 0 ? k - 1 : -1, i < nx - 1 ? k + 1 : -1, k - nx, k + nx]) if (n >= 0 && n < N && dist[n] < 0 && G.walk[n]) { dist[n] = dist[k] + 1; q[tl++] = n; } }
       const s0 = FreeWalk.snapshot().s, k0 = G.idx(s0.x, s0.z); if (dist[k0] < 0) return { target, reached: false, why: 'no path on foot' };
-      let walked = 0, secs = 0, prev = s0;
+      let walked = 0, secs = 0, prev = s0, stuck = 0, bestD = Infinity;
       for (let it = 0; it < 700; it++) {
         const s = FreeWalk.snapshot().s; if (Math.hypot(t.x - s.x, t.z - s.z) <= 3.5) return { target, reached: true, path: Math.round(dist[k0] * G.cell), walked: Math.round(walked), secs: Math.round(secs) };
         let k = G.idx(s.x, s.z); if (k < 0 || dist[k] < 0) { const n = G.nearest(s.x, s.z); k = G.idx(n.x, n.z); }
-        for (let step = 0; step < 8; step++) { let best = k; for (const n of [k - 1, k + 1, k - nx, k + nx, k - nx - 1, k - nx + 1, k + nx - 1, k + nx + 1]) if (n >= 0 && n < N && dist[n] >= 0 && dist[n] < dist[best]) best = n; if (best === k) break; k = best; }
+        if (dist[k] < bestD) { bestD = dist[k]; stuck = 0; } else stuck++;
+        const look = (it % 10 < 5 && stuck > 6) ? 1 : 8; for (let step = 0; step < look; step++) { let best = k; for (const n of [k - 1, k + 1, k - nx, k + nx, k - nx - 1, k - nx + 1, k + nx - 1, k + nx + 1]) if (n >= 0 && n < N && dist[n] >= 0 && dist[n] < dist[best]) best = n; if (best === k) break; k = best; }
         const ax = G.x0 + (k % nx + .5) * G.cell, az = G.z0 + (Math.floor(k / nx) + .5) * G.cell; let dx = ax - s.x, dz = az - s.z; const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
         const Y = FreeWalk.snapshot().yaw, fx = -Math.sin(Y), fz = -Math.cos(Y), rx = Math.cos(Y), rz = -Math.sin(Y);
         FreeWalk.qa.walk(dx * rx + dz * rz, dx * fx + dz * fz, .4); secs += .4;
