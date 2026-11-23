@@ -12,6 +12,10 @@
     { "file": "club-interface.js", "rule": "en-sink", "match": "Fit", "reason": "Initial label; paint() writes the zoom buttons from the EN/HE/RU table (zoomFit.textContent = z[3])." },
     { "file": "practice-layout.js", "rule": "en-sink", "match": "Close controls", "reason": "Initial label; update() (run at once and on every language change) sets it from the EN/HE/RU table." },
     { "file": "practice-layout.js", "rule": "en-sink", "match": "Boxing techniques", "reason": "Initial label; update() (run at once and on every language change) sets it from the EN/HE/RU table." },
+    { "file": "arena-sets.js", "rule": "canvas-text", "match": "label: GLORY", "reason": "The game name split over two lines of a stencil (GLORY / OF THE RING); the game name stays Latin in every language (glossary.js)." },
+    { "file": "arena-sets.js", "rule": "canvas-text", "match": "label: OF THE RING", "reason": "The game name split over two lines of a stencil (GLORY / OF THE RING); the game name stays Latin in every language (glossary.js)." },
+    { "file": "arena-sets.js", "rule": "canvas-text", "match": "label: GOTR 204815", "reason": "A shipping-container owner code (ISO 6346 style marking), not words." },
+    { "file": "arena-sets.js", "rule": "canvas-text", "match": "label: 22G1", "reason": "A shipping-container size/type code and load marking (ISO 6346 style), not words." },
     { "file": "adventure/gloryland-map.js", "rule": "en-data", "match": "sub: ", "reason": "Internal place data of the map module; the map card shows adventure-ui.js PLACES[id].sub in EN/HE/RU." }
   ]
 }

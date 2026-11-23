@@ -50,7 +50,7 @@
   for(const id of ['camFront','camSide','camBack'])byId(id).addEventListener('click',()=>selectedCamera(id));
   const returnToGym=()=>{window.trainingControls.chooseTarget(lastPractice);paint();};gymNav.onclick=returnToGym;returnButton.onclick=returnToGym;
   fightNav.onclick=()=>{if(e.targetMode!=='fight')lastPractice=e.targetMode||'none';window.fightUI.configure();};
-  const setLanguage=app.setLanguage.bind(app);app.setLanguage=lang=>{setLanguage(lang);e.world?.relabel?.(lang);window.GymDetails?.relabel?.(lang);paint();};
+  const setLanguage=app.setLanguage.bind(app);app.setLanguage=lang=>{setLanguage(lang);e.world?.relabel?.(lang);window.GymDetails?.relabel?.(lang);window.GotrGlossary?.relabel?.(lang);paint();};
   const previousReady=e.onImpact;e.onImpact=hit=>{previousReady?.(hit);stage.classList.toggle('club-contact',!hit.blocked);clearTimeout(contactTimer);contactTimer=setTimeout(()=>stage.classList.remove('club-contact'),110);};let contactTimer;
   let previousMode,previousState;
   function paint(){

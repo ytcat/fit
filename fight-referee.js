@@ -206,8 +206,10 @@
    const badgeCanvas=document.createElement('canvas');badgeCanvas.width=512;badgeCanvas.height=256;
    const badgeCtx=badgeCanvas.getContext('2d');badgeCtx.fillStyle='#19222b';badgeCtx.fillRect(0,0,512,256);
    badgeCtx.strokeStyle='#c7ab70';badgeCtx.lineWidth=10;badgeCtx.strokeRect(10,10,492,236);
-   badgeCtx.fillStyle='#e4c98f';badgeCtx.font='bold 58px sans-serif';badgeCtx.textAlign='center';badgeCtx.fillText('OFFICIAL',256,150);
-   const badgeMap=new THREE.CanvasTexture(badgeCanvas);badgeMap.encoding=THREE.sRGBEncoding;
+   // the badge in the player's language (owner rule 2026-11-23); GotrGlossary.relabel repaints it on a language change
+   const badgeWords={en:'OFFICIAL',he:'שופט',ru:'СУДЬЯ'},paintBadge=lang=>{badgeCtx.fillStyle='#19222b';badgeCtx.fillRect(20,20,472,216);badgeCtx.fillStyle='#e4c98f';badgeCtx.font='bold 58px sans-serif';badgeCtx.textAlign='center';badgeCtx.direction=lang==='he'?'rtl':'ltr';badgeCtx.fillText(badgeWords[lang]||badgeWords.en,256,150);};
+   let badgeLang=window.app?.lang||'en';paintBadge(badgeLang);
+   const badgeMap=new THREE.CanvasTexture(badgeCanvas);window.GotrGlossary?.onLanguage?.(lang=>{if(lang===badgeLang)return;badgeLang=lang;paintBadge(lang);badgeMap.needsUpdate=true;});badgeMap.encoding=THREE.sRGBEncoding;
    const badgeMaterial=mat(0xffffff,.8,{map:badgeMap,bumpMap:detail,bumpScale:.0004});
    panel(.17,1.40,.102,.058,badgeMaterial,.005).name='Embroidered official badge';
    // One deformation surface per arm. The sleeve and bare forearm are

@@ -20,6 +20,9 @@
  }
  // The venues' signs and posters in the player's language (owner rule 2026-11-23); the game name and KO stay Latin (glossary.js).
  const SIGN_WORDS={
+  'GLORY OF THE RING  •  EST. ROUND ONE':['GLORY OF THE RING  •  מאז הסיבוב הראשון','GLORY OF THE RING  •  С ПЕРВОГО РАУНДА'],
+  'GLORY OF THE RING  •  FIGHT NIGHT':['GLORY OF THE RING  •  ערב קרבות','GLORY OF THE RING  •  ВЕЧЕР БОЁВ'],
+  'GLORY OF THE RING  •  REGIONAL SERIES':['GLORY OF THE RING  •  הסדרה האזורית','GLORY OF THE RING  •  РЕГИОНАЛЬНАЯ СЕРИЯ'],
   'EXIT':['יציאה','ВЫХОД'],
   'TONIGHT':['הערב','СЕГОДНЯ'],
   'FIGHT NIGHT':['ערב קרבות','ВЕЧЕР БОЁВ'],
@@ -567,7 +570,7 @@
   const fixtures=[];for(const z of [-3.2,3.2])for(const x of [-5.4,-1.8,1.8,5.4])fixtures.push([x,z]);
   for(const [x,z] of fixtures)k.lights.push({x,y:C-.6,z,c:[1,.95,.85],power:1.25,r:3.4,aim:[0,-1,0],cone:[-.15,.6]});
   const A=k.atlas,brick=brickCell(A);
-  const sign=A.cell(448,92,(c,w,h,L)=>{c.fillStyle='#22382e';c.fillRect(0,0,w,h);c.strokeStyle='#d8caa4';c.lineWidth=3;c.strokeRect(6,6,w-12,h-12);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.42,44,'#eadfbe',w-40,900);label(c,'GLORY OF THE RING  •  EST. ROUND ONE',w/2,h*.78,15,'#c9a23a',w-40,800);});
+  const sign=A.cell(448,92,(c,w,h,L)=>{c.fillStyle='#22382e';c.fillRect(0,0,w,h);c.strokeStyle='#d8caa4';c.lineWidth=3;c.strokeRect(6,6,w-12,h-12);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.42,44,'#eadfbe',w-40,900);label(c,SW(L,'GLORY OF THE RING  •  EST. ROUND ONE'),w/2,h*.78,15,'#c9a23a',w-40,800);});
   const fightPoster=A.cell(128,176,(c,w,h,L)=>{c.fillStyle='#e2d6b8';c.fillRect(0,0,w,h);c.fillStyle='#8f231f';c.fillRect(8,8,w-16,40);label(c,SW(L,'FIGHT NIGHT'),w/2,29,20,'#f4ead0',w-24,900);gloves(c,w/2,92,17,'#8f231f');label(c,'GLORY',w/2,138,24,'#1c1a18',w-20,900);label(c,'OF THE RING',w/2,160,15,'#1c1a18',w-20,900);});
   const trainPoster=A.cell(128,176,(c,w,h,L)=>{c.fillStyle='#1f3550';c.fillRect(0,0,w,h);c.strokeStyle='#e0c89c';c.lineWidth=3;c.strokeRect(7,7,w-14,h-14);label(c,SW(L,'TRAIN'),w/2,46,32,'#e0c89c',w-24,900);label(c,SW(L,'HARD'),w/2,82,32,'#e0c89c',w-24,900);c.fillStyle='#c9a23a';c.fillRect(30,104,w-60,4);label(c,SW(L,'STAY'),w/2,128,22,'#fff',w-24,900);label(c,SW(L,'HUMBLE'),w/2,153,22,'#fff',w-24,900);});
   const rules=A.cell(104,136,(c,w,h,L)=>{c.fillStyle='#efe9da';c.fillRect(0,0,w,h);label(c,SW(L,'CLUB RULES'),w/2,18,13,'#8f231f',w-12,900);c.fillStyle='#55504a';for(let i=0;i<7;i++){c.fillRect(12,36+i*13,6,6);c.fillRect(24,37+i*13,58-((i*23)%30),4);}});
@@ -623,7 +626,7 @@
   k.lights.push({x:1.5,y:3,z:-HZ-4,c:[.5,.62,1],power:2.2,r:7,wrap:.6},{x:HX+4,y:3,z:0,c:[.5,.62,1],power:2.0,r:7,wrap:.6});
   const A=k.atlas,rib=ribCell(A);
   const number=A.cell(160,176,(c,w,h)=>{label(c,'3',w/2,h*.47,168,'#e9e6dc',w-10,900);});
-  const board=A.cell(448,92,(c,w,h,L)=>{c.fillStyle='#e9dfc6';c.fillRect(0,0,w,h);c.fillStyle='#1c2a3c';c.fillRect(0,0,w,10);c.fillRect(0,h-10,w,10);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.42,42,'#1c2a3c',w-36,900);label(c,'GLORY OF THE RING  •  FIGHT NIGHT',w/2,h*.75,16,'#b8442a',w-40,800);});
+  const board=A.cell(448,92,(c,w,h,L)=>{c.fillStyle='#e9dfc6';c.fillRect(0,0,w,h);c.fillStyle='#1c2a3c';c.fillRect(0,0,w,10);c.fillRect(0,h-10,w,10);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.42,42,'#1c2a3c',w-36,900);label(c,SW(L,'GLORY OF THE RING  •  FIGHT NIGHT'),w/2,h*.75,16,'#b8442a',w-40,800);});
   const code=A.cell(160,40,(c,w,h)=>{label(c,'GOTR 204815',w/2,h*.36,19,'#f1efe8',w-10,900);label(c,'22G1  •  MAX 30T',w/2,h*.76,11,'#f1efe8',w-10,700);});
   const hazard=A.cell(128,24,(c,w,h)=>{c.fillStyle='#e0b81e';c.fillRect(0,0,w,h);c.fillStyle='#17181a';for(let i=-1;i<9;i++){c.beginPath();c.moveTo(i*24,h);c.lineTo(i*24+12,h);c.lineTo(i*24+24,0);c.lineTo(i*24+12,0);c.fill();}});
   // Floor inside and the quay outside, lane paint, hazard square and puddles.
@@ -694,7 +697,7 @@
   for(const [x,z] of panels)k.lights.push({x,y:C-.5,z,c:[1,.99,.96],power:1.2,r:5,aim:[0,-1,0],cone:[-.1,.6]});
   const A=k.atlas,crowdA=peopleCell(A,5),crowdB=peopleCell(A,12);
   const score=A.cell(256,112,(c,w,h,L)=>{c.fillStyle='#0c0d0f';c.fillRect(0,0,w,h);label(c,SW(L,'FIGHT NIGHT'),w/2,20,19,'#ffb02e',w-20,900);label(c,SW(L,'RED'),44,50,15,'#ff5a4a',60,900);label(c,SW(L,'BLUE'),w-46,50,15,'#5a9aff',60,900);label(c,'0',44,82,40,'#ffb02e',50,900,'monospace');label(c,'0',w-46,82,40,'#ffb02e',50,900,'monospace');label(c,SW(L,'ROUND'),w/2,52,13,'#ffb02e',70,900);label(c,'1',w/2,82,40,'#ffb02e',50,900,'monospace');});
-  const board=A.cell(448,84,(c,w,h,L)=>{c.fillStyle='#f1efe8';c.fillRect(0,0,w,h);c.fillStyle='#2b4f86';c.fillRect(0,0,w,12);c.fillStyle='#a3262a';c.fillRect(0,h-12,w,12);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.44,38,'#1c2a3c',w-36,900);label(c,'GLORY OF THE RING  •  REGIONAL SERIES',w/2,h*.74,14,'#a3262a',w-40,800);});
+  const board=A.cell(448,84,(c,w,h,L)=>{c.fillStyle='#f1efe8';c.fillRect(0,0,w,h);c.fillStyle='#2b4f86';c.fillRect(0,0,w,12);c.fillStyle='#a3262a';c.fillRect(0,h-12,w,12);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.44,38,'#1c2a3c',w-36,900);label(c,SW(L,'GLORY OF THE RING  •  REGIONAL SERIES'),w/2,h*.74,14,'#a3262a',w-40,800);});
   const pennant=back=>A.cell(72,176,(c,w,h,L)=>{c.fillStyle=back;c.beginPath();c.moveTo(0,0);c.lineTo(w,0);c.lineTo(w,h-30);c.lineTo(w/2,h);c.lineTo(0,h-30);c.fill();label(c,'★',w/2,26,26,'#f1c75a',w-8,900);c.save();c.translate(w/2,h*.52);c.rotate(-PI/2);label(c,SW(L,'CHAMPIONS'),0,1,24,'#fff',h-80,900);c.restore();});
   const penRed=pennant('#a3262a'),penBlue=pennant('#2b4f86');
   // Sports floor with court lines; the ring stands on the centre circle.

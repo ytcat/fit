@@ -23,7 +23,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 // Runs in the page: what the player sees that is not in `lang`.
 function collect([lang, typed, terms]) {
   const HE = /[֐-׿]/, RU = /[Ѐ-ӿ]/;
-  const strip = t => { let s = t.replace(/[⁦-⁩‎‏]/g, '').replace(/\bv?\d+(\.\d+)+\b/g, ''); for (const name of [...typed, ...terms]) s = s.split(name).join(' '); return s; };
+  const strip = t => { let s = t.replace(/[⁦-⁩‎‏]/g, '').replace(/\bv?\d+(\.\d+)+\b/g, ''); for (const name of [...typed, ...terms]) s = s.split(name).join(' '); return s.replace(/(^|[^A-Za-z])[A-Z](?=[^A-Za-z]|$)/g, '$1 '); }; // single key letters (R, J, K, L) name keyboard keys
   const foreign = t => { const s = strip(t); if (lang === 'en') return HE.test(s) || RU.test(s); if (lang === 'he') return /[A-Za-z]/.test(s) || RU.test(s); return /[A-Za-z]/.test(s) || HE.test(s); };
   const shown = el => { if (!el || el.closest('script,style,noscript,template,#langEN,#langHE,#langRU')) return false; if (el.checkVisibility && !el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth; };
   const where = el => { const parts = []; for (let e = el; e && e !== document.body && parts.length < 3; e = e.parentElement) parts.unshift(e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (typeof e.className === 'string' && e.className ? '.' + e.className.trim().split(/\s+/)[0] : '')); return parts.join('>'); };
@@ -68,10 +68,11 @@ const STEPS = [
   ['history', false, `${closeAll}; ringfighterGame.open('history')`, 1500],
   ['loadouts', false, `${closeAll}; ringfighterGame.open('lab')`, 1500],
   ['story-card', true, `${closeAll}; ringfighterGame.home?.(); setTimeout(()=>{ const S=AdventureStory; const id=S.order.find(i=>S.lines[i]&&Object.keys(S.lines[i]).length); S.show(id, Object.keys(S.lines[id])[0]); }, 1500)`, 3500],
-  ['film', true, `${closeAll}; StoryScenes.play('dream_arrival', { onDone(){} })`, 6000, `window.DreamScenes?.debug?.phase==='play'`, `DreamScenes.seek(7)`, 2500],
+  ['film', true, `${closeAll}; StoryScenes.play('dream_gym_talk', { onDone(){} })`, 6000, `window.DreamScenes?.debug?.phase==='play'`, `DreamScenes.seek(7)`, 2500],
   ['film-2', false, `DreamScenes.seek(16)`, 2500],
   ['film-3', false, `DreamScenes.seek(30)`, 2500],
   ['market-film', false, `${closeAll}; StoryScenes.play('dream_apology', { onDone(){} })`, 6000, `window.DreamScenes?.debug?.phase==='play'`, `DreamScenes.seek(8)`, 2500],
+  ['story-film', false, `${closeAll}; StoryScenes.play('arrival', { onDone(){} })`, 7000],
   ['training-calls', true, `${closeAll}; ${CTX}; AdventureOldTown.launch(__ctx, 'night_bag')`, 6000, `!!document.querySelector('#advCalls .adv-call')`],
   ['story-fight', true, `${closeAll}; ${CTX}; ${tick}; AdventureOldTown.storyFightStart(__ctx, 'market_robber')`, 5000, `!!app.engine.arena?.fightView?.match`, `app.engine.isPlaying=true; app.engine.speed=0; if(app.engine.player) app.engine.player.enabled=false; const m=app.engine.arena.fightView.match; let k=0; while(m.phase!=='round'&&k<60){__tick(60);k++;} __tick(120);`, 2500],
   ['super-punch', true, `const v=app.engine.arena.fightView,m=v.match,s=m.playerActor||'lion',o=s==='lion'?'rabbit':'lion'; window.__s=s; m.finisherOwned={...(m.finisherOwned||{}),[s]:['sunday_punch']}; for(let a=0;a<6&&!m.result;a++){ m.fighters[o].condition=Math.min(m.fighters[o].condition,18); m.fighters[s].burst.charge=1; let k=0; while(!(m.fighters[s].action?.finisher||m.requestFinisher(s))&&k<900){__tick(1);k++;} k=0; while(!m.result&&k<120){__tick(1);k++;} } let k=0; while(m.result?.finisher&&m.time-m.result.finisherTime<3.6&&k<600){__tick(1);k++;}`, 2500],

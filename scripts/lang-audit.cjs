@@ -9,6 +9,7 @@
 //                       direction:rtl. The layout stays left-to-right in every language (owner, 2026-11-23); Hebrew lines
 //                       read right-to-left inside their own boxes (design-tokens.css). Canvas text (ctx.direction) is text.
 //   css-text            CSS `content:` with letters
+//   canvas-text         English painted into a texture (fillText / strokeText / label(c, 'EXIT')): in-world signs
 // Terms the game keeps in English on purpose come from glossary.js (GOTR-0046); other deliberate cases are listed with
 // a reason in tests/lang-allow.json. usage: node scripts/lang-audit.cjs [--json out.json] [--all] [files…]
 'use strict';
@@ -129,7 +130,7 @@ function keyPath(t) { const keys = []; if (t.key) keys.push(t.key); let g = t.g;
 function markGroupKeys(root) { const visit = g => { if (g.isObject) for (const e of g.entries) if (e.value) for (const v of e.value) if (v.items && !v.key) v.key = e.key; for (const x of g.items) if (x.items) visit(x); }; visit(root); }
 
 const isHe = k => k === 'he' || k === 'iw', isRu = k => k === 'ru';
-const visibleLatin = s => { const t = glossary.strip(String(s)).replace(/\$\{[^}]*\}/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/<[^>]*>/g, ' '); return /[A-Za-z]{2,}/.test(t) || /\b[A-Za-z]\b/.test(t) && /\s/.test(t.trim()); };
+const visibleLatin = s => { const t = glossary.strip(String(s).replace(/GLORY OF THE RING/gi, ' ')).replace(/\$\{[^}]*\}/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/<[^>]*>/g, ' '); return /[A-Za-z]{2,}/.test(t) || /\b[A-Za-z]\b/.test(t) && /\s/.test(t.trim()); };
 const lineOf = (src, a) => src.slice(0, a).split('\n').length;
 
 function auditJs(file, src, base = 0, whole = src) {
@@ -253,6 +254,11 @@ function auditJs(file, src, base = 0, whole = src) {
       if (name?.t === 's' && toks[k + 3]?.v === ',' && val?.t === 's' && close?.v === ')') {
         if (SINK_ATTRS.has(name.v) && english(val)) add('en-sink', val, `${name.v}: ${val.v}`);
       }
+    }
+    // words painted into a texture: ctx.fillText('EXIT', …), strokeText, label(c, 'EXIT', …) — in-world signs and posters
+    if (t.t === 'id' && /^(fillText|strokeText|label)$/.test(t.v) && toks[k + 1]?.v === '(') {
+      const a = toks[k + 2], b = toks[k + 3], c = toks[k + 4], txt = t.v === 'label' ? (b?.v === ',' ? c : null) : a;
+      if (txt && txt.t === 's' && (t.v !== 'label' || a?.t === 'id' && /^(c|g|x|ctx)$/.test(a.v)) && visibleLatin(txt.v) && /[A-Za-z]{2,}/.test(txt.v.replace(/GLORY OF THE RING/gi, '')) && !HE.test(txt.v) && !RU.test(txt.v) && !tableKeys.has(txt.v)) add('canvas-text', txt, `${t.v}: ${txt.v}`);
     }
     // document.createTextNode('Text')
     if (t.t === 'id' && t.v === 'createTextNode' && toks[k + 1]?.v === '(' && english(toks[k + 2]) && toks[k + 3]?.v === ')') add('en-sink', toks[k + 2], toks[k + 2].v);

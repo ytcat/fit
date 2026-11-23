@@ -28,6 +28,7 @@ assert.ok(probe('keys', "const W={en:{a:'Hi',b:'Go'},he:{a:'היי',b:'לך'},ru
 assert.ok(probe('sink', "b.textContent='Start the round';b.setAttribute('aria-label','Close menu');").filter(r => r === 'en-sink').length === 2, 'English into textContent / aria-label is found');
 assert.ok(probe('tern', "b.textContent=on?'Freeze motion':'Play motion';").filter(r => r === 'en-sink').length === 2, 'English in a ternary is found');
 assert.ok(probe('rtl', "d.dir=lang==='he'?'rtl':'ltr';").includes('rtl'), "a dialog set to 'rtl' is found");
+assert.ok(probe('canvas', "g.fillText('OPEN 24H',1,2);label(c,'FIGHT NIGHT',1,2);").filter(r => r === 'canvas-text').length === 2, 'English painted into a sign is found');
 assert.deepEqual(probe('ok', "const W={en:{a:'Hi'},he:{a:'היי'},ru:{a:'Привет'}};const L=(en,he,ru)=>({en,he,ru});const x=L('Go','לך','Иди');b.textContent=W[l].a;b.textContent=({he:'הקפאה',ru:'Стоп'})[l]||'Freeze';c.direction=l==='he'?'rtl':'ltr';"), [], 'translated text and canvas text direction pass');
 const css = path.join(root, 'tests', '.lang-probe.css'); fs.writeFileSync(css, '[dir=rtl] .x{left:0}.y{direction:rtl}');
 try { assert.equal(A.auditFile(path.relative(root, css)).filter(x => x.rule === 'rtl').length, 2, 'RTL CSS is found'); } finally { fs.unlinkSync(css); }
