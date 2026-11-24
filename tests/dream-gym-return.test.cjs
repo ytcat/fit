@@ -63,6 +63,7 @@ const server = http.createServer((req,res) => {
       await wait(() => window.app?.engine?.coach?.anatomy);
       const seeded = await page.evaluate(({step,id}) => {
         StoryScenes.stop();
+        if (window.FreeWalk) window.FreeWalk.available = () => false; // GOTR-0122: the film chain without the story walk (device fallback); walks: tests/story-walk.test.cjs
         const g = ringfighterGame;
         window.__gymTraining = []; window.__gymEnds = [];
         const ctx = window.__gymCtx = { store:g.store, startFight:g.startFight, startTraining: (...args) => { window.__gymTraining.push(args[0].mode); return g.startTraining(...args); }, change:a => { const r = g.store.gameAction(a); if (r.ok) g.apply?.(); return r.ok; } };

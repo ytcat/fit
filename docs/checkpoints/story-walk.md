@@ -51,7 +51,12 @@ GOTR-0120, walk gait GOTR-0121): `step()` keeps the gait's `DreamPose.pace` befo
   falls back to the direct step exactly once, walked = no second walk, arrival film cut at 15.6 s only before a walk);
   `tests/free-walk.test.cjs` (updated: story-led ticket, no selector / Day-Night); `tests/story-walk-controls.test.cjs`
   (updated: the `?walkPrototype=1` flag is gone).
-- Targeted run `bash scripts/run-tests.sh -j 1 free-walk story dream market otto clean opening lang-generic offline-version-match walk-gait`: see the result line in the report below.
+- Targeted run `bash scripts/run-tests.sh -j 1 free-walk story dream market otto clean opening lang-generic offline-version-match walk-gait`
+  (after the merge): files=26, fails=3. `dream-gym-return` and `dream-market-films` called `AdventureOldTown.before()` on steps
+  that now open a story walk first; they pin the film chain, so they now run it with `FreeWalk.available = () => false` (the device
+  fallback, which chains the films directly as before): both pass alone. `otto-carry` ("no shoulder jump: 6.8 deg in a frame")
+  fails the same way on the release branch 0852c79 itself (extracted with git archive): from the walk-gait merge, not this branch.
+  `story-clean-gym` (real touchscreen tap, untouched) passes.
 - Real playthrough `qa/story-walk/play.cjs` (Playwright Chromium + SwiftShader, new profile, real save):
   phone 402x690 EN, HE, RU: all six walks open where the film ended (or from the quest card after a dev-skipped fight),
   show the objective + arrow + distance, the stick is driven by REAL CDP touch events for 6 s at each start (1.2-4.2 m walked
