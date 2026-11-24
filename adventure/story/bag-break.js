@@ -33,7 +33,8 @@
     for (const py of [66, 446]) { x.fillStyle = 'rgba(18,7,5,.85)'; x.fillRect(0, py - 3, 1024, 6); stitch(0, py - 9, 1024, py - 9); stitch(0, py + 10, 1024, py + 10); }
     x.fillStyle = worn ? 'rgba(28,12,8,.55)' : 'rgba(10,14,24,.5)'; x.fillRect(0, 0, 1024, 54); x.fillRect(0, 458, 1024, 54);
     // stencil on the side that faces the hall (u = .5)
-    x.save(); x.textAlign = 'center'; x.fillStyle = worn ? 'rgba(226,205,160,.42)' : 'rgba(244,193,82,.9)'; x.font = '900 46px sans-serif'; x.fillText(worn ? "BRUNO'S" : 'GLORY', 598, 150); x.font = '700 20px sans-serif'; x.fillText(worn ? 'G Y M  ·  OLD TOWN' : 'OLD TOWN', 598, 180); x.restore();
+    x.save(); x.textAlign = 'center'; x.fillStyle = worn ? 'rgba(226,205,160,.42)' : 'rgba(244,193,82,.9)'; x.font = '900 46px sans-serif'; const l = lang(), stamp = { en: ["BRUNO'S", 'G Y M  ·  OLD TOWN', 'OLD TOWN'], he: ['ברונו', 'אולם  ·  העיר העתיקה', 'העיר העתיקה'], ru: ['БРУНО', 'ЗАЛ  ·  СТАРЫЙ ГОРОД', 'СТАРЫЙ ГОРОД'] }[l]; x.direction = l === 'he' ? 'rtl' : 'ltr'; // the stamp in the player's language; GLORY is the bag's brand
+    x.fillText(worn ? stamp[0] : 'GLORY', 598, 150); x.font = '700 20px sans-serif'; x.fillText(worn ? stamp[1] : stamp[2], 598, 180); x.restore();
     if (worn) {
       // the strike zone on the Fighter's side (u = .25): scuffed pale, cracked, patched with tape
       for (let i = 0; i < 26; i++) { x.fillStyle = `rgba(214,170,140,${.035 + rnd() * .03})`; x.beginPath(); x.ellipse(256 + (rnd() - .5) * 40, 228 + (rnd() - .5) * 50, 34 + rnd() * 52, 46 + rnd() * 70, rnd(), 0, 7); x.fill(); }
@@ -197,7 +198,7 @@
     const scene0 = C.scene, w = W[lang()], P = C.PLACE, B = C.BAG;
     if (!Pose().GESTURES.head) Pose().GESTURES.head = { h: [.19, 1.985, .035], pole: [1, .3, -.25], palm: [-.6, -.8, 0], turn: .5 }; // both hands on the head: "...uh oh"
     // ---- overlay: bars, the line in the bottom bar, Skip (same parts as the Dream scenes)
-    const d = el('dialog', 'story-scene dream-scene'); d.dir = lang() === 'he' ? 'rtl' : 'ltr'; d.dataset.kind = 'dream'; d.dataset.scene = id; d.dataset.tap = 'false';
+    const d = el('dialog', 'story-scene dream-scene'); d.dir = 'ltr'; d.dataset.kind = 'dream'; d.dataset.scene = id; d.dataset.tap = 'false';
     const host = el('div', 'story-host'), busy = el('div', 'story-busy', '…'), sub = el('div', 'dream-sub'), name = el('strong', 'dream-name'), text = el('p', 'dream-text'), skip = el('button', 'dream-skip', w.skip + ' ▸▸');
     sub.setAttribute('role', 'status'); sub.setAttribute('aria-live', 'polite'); skip.type = 'button'; sub.append(name, text);
     d.append(host, el('div', 'story-vignette'), el('div', 'dream-bar dream-bar-top'), el('div', 'dream-bar dream-bar-bottom'), busy, sub, skip); document.body.append(d);

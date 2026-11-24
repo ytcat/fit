@@ -27,7 +27,7 @@
   document.querySelector('.workout-next')?.remove();
   ['camFront','camBack','camSide','prevBtn','nextBtn'].map(id=>document.getElementById(id))
     .forEach(button=>button.addEventListener('click',()=>dialog.close()));
-  const update=()=>{const labels={en:['Controls','Practice controls','Close controls'],he:['אפשרויות','אפשרויות תרגול','סגירת אפשרויות'],ru:['Управление','Настройки тренировки','Закрыть настройки']}[app.lang]||['Controls','Practice controls','Close controls'];open.textContent=labels[0];title.textContent=labels[1];close.setAttribute('aria-label',labels[2]);};
+  const update=()=>{const labels={en:['Controls','Practice controls','Close controls','Boxing techniques'],he:['אפשרויות','אפשרויות תרגול','סגירת אפשרויות','טכניקות אגרוף'],ru:['Управление','Настройки тренировки','Закрыть настройки','Техники бокса']}[app.lang]||['Controls','Practice controls','Close controls','Boxing techniques'];open.textContent=labels[0];title.textContent=labels[1];close.setAttribute('aria-label',labels[2]);techniques.setAttribute('aria-label',labels[3]);};
   const setLanguage=app.setLanguage.bind(app);app.setLanguage=lang=>{setLanguage(lang);update();};update();
  }
  if(document.readyState==='loading'||!window.app)document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

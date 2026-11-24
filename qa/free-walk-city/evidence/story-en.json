@@ -1,0 +1,30 @@
+{
+ "result": {
+  "step": "market_robber",
+  "target": "market_stall",
+  "A": {
+   "walk": {
+    "reached": true
+   },
+   "launches": 0,
+   "ticket": null,
+   "saveUnchanged": true
+  },
+  "B": {
+   "button": "Walk here · Market fruit stall",
+   "armed": "market_robber",
+   "walk": {
+    "reached": true
+   },
+   "launches": [
+    "market_robber"
+   ],
+   "playing": "dream_market_robbery"
+  },
+  "C": {
+   "launches": 1,
+   "ticket": null
+  }
+ },
+ "errors": []
+}

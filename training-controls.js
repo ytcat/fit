@@ -117,7 +117,7 @@
     b.append(make('strong','',value==='sync'?w().sync:w().variable),make('span','',value==='sync'?w().syncHelp:w().variableHelp));
     b.onclick=()=>{e.practiceTiming=value;e.practiceSeed=Math.floor(Math.random()*4294967295);e.animTime=0;e.arena?.setTarget(e.targetMode||'none');paint();d.close();};grid.append(b);
    }
-   const credits=make('a','audio-credits','Audio credits');credits.href='./assets/audio/ATTRIBUTION.md';credits.target='_blank';credits.rel='noopener';
+   const credits=make('a','audio-credits',({he:'קרדיטים לצלילים',ru:'Авторы звуков'})[app.lang]||'Audio credits');credits.href='./assets/audio/ATTRIBUTION.md';credits.target='_blank';credits.rel='noopener';
    d.append(grid,credits);d.showModal();
   };
   speed.onclick=()=>{

@@ -16,7 +16,7 @@
       const m = e.arena?.fightView?.match, want = e.targetMode === 'fight' && !!m && !m.result && !e.isPlaying && !window.ringfighterGame?.isModalOpen && !e.fightIQDemo && !document.querySelector('dialog.story-scene[open]');
       if (!want) { if (sign && !sign.hidden) sign.hidden = true; return; }
       if (!sign) sign = make(); const host = e.stage || document.getElementById('stageContainer'); if (host && sign.parentElement !== host) host.append(sign);
-      const l = W[app.lang] ? app.lang : 'en'; if (l !== lang) { lang = l; sign.querySelector('strong').textContent = W[l][0]; sign.querySelector('.fight-paused-hint').textContent = W[l][1]; sign.dir = l === 'he' ? 'rtl' : 'ltr'; sign.setAttribute('aria-label', W[l].join('. ')); }
+      const l = W[app.lang] ? app.lang : 'en'; if (l !== lang) { lang = l; sign.querySelector('strong').textContent = W[l][0]; sign.querySelector('.fight-paused-hint').textContent = W[l][1]; sign.dir = 'ltr'; sign.setAttribute('aria-label', W[l].join('. ')); }
       if (sign.hidden) sign.hidden = false;
     };
     requestAnimationFrame(tick);
