@@ -139,6 +139,7 @@
     const stage = e.stage || document.getElementById('stageContainer');
     if (stage) { const ph = document.createComment('free walk stage'); stage.before(ph); R.stageMove = { stage, ph, pe: stage.style.pointerEvents }; stage.style.pointerEvents = 'none'; host.append(stage); stage.classList.add('game-preview-live', 'story-live'); }
     R.oldFit = e.fitCameraToModel; e.fitCameraToModel = () => {};
+    if (!e.fightIQDemo) e.fightIQDemo = R.hold = { frame() {} }; // walk-town-look: the arena is not drawn behind the loading cover
     R.camera = new THREE.PerspectiveCamera(FOV, 1, .1, 520);
     R.onLost = ev => { ev.preventDefault?.(); notice.textContent = t('lost'); notice.hidden = false; R.lost = true; };
     e.renderer.domElement.addEventListener('webglcontextlost', R.onLost);
@@ -164,10 +165,17 @@
       try {
         if (prev) { prev.scene.remove(c.root, R.blob); if (R.ringMesh) prev.scene.remove(R.ringMesh); prev.dispose(); }
         const t0 = performance.now();
-        await window.FreeWalkTown.prepare?.(6000); // the films' street kit and models (walk-town-look); never longer than 6 s
+        // walk-town-look: the films' street kit and models (never longer than 6 s), the build, then the GPU warm-up in slices;
+        // the cover shows how far it got
+        const say = f => { notice.textContent = t('loading') + ' ' + Math.round(f * 100) + '%'; };
+        await window.FreeWalkTown.prepare?.(6000, f => say(f * .3));
         if (R.closed) return false;
-        R.town = window.FreeWalkTown.build({ renderer: e.renderer, time: R.opts.look || grade(R.time), quality: lowTier() ? 'low' : 'high', lang: lang() });
+        say(.3); await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+        const town = window.FreeWalkTown.build({ renderer: e.renderer, time: R.opts.look || grade(R.time), quality: lowTier() ? 'low' : 'high', lang: lang(), defer: true });
         R.buildMs = Math.round(performance.now() - t0);
+        say(.4); await town.ready?.(f => say(.4 + f * .6), () => !R.closed);
+        if (R.closed) { town.dispose(); return false; }
+        R.town = town;
       } catch (x) { console.warn('free walk', x); R.town = null; R.busy = false; return false; } // the map button still leaves cleanly
       const town = R.town;
       if (!R.s) R.s = startState(town);
@@ -305,7 +313,7 @@
     const R = run; if (!R || R.closed) return; R.closed = true; save(); run = null;
     const e = R.e, c = R.rig;
     try {
-      if (e.fightIQDemo === R) e.fightIQDemo = null;
+      if (e.fightIQDemo === R || (R.hold && e.fightIQDemo === R.hold)) e.fightIQDemo = null;
       R.unlisten?.(); e.renderer.domElement.removeEventListener('webglcontextlost', R.onLost);
       if (c) {
         c.root.parent?.remove(c.root);

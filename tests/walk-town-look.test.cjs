@@ -81,9 +81,19 @@ const HE = /[֐-׿]/, RU = /[Ѐ-ӿ]/;
  * the same town parked between opens in a session */
 {
   const t = src('adventure/free-walk/free-walk-town.js');
-  assert.match(t, /renderer\.compile\(scene, cam\)/); assert.match(t, /renderer\.initTexture/); assert.match(t, /renderer\.setViewport\(0, 0, 1, 1\)/);
-  assert.match(t, /ms\.warm = warm\(\)/); assert.ok(!/SL\.walker\(/.test(t.slice(t.indexOf('function spawnWalker'), t.indexOf('function updateWalkers'))), 'no walker is made while walking');
-  assert.match(t, /function park\(\)/); assert.match(t, /function resume\(\)/); assert.match(t, /PARK_MS = 180000/);
+  assert.match(t, /renderer\.initTexture/); assert.match(t, /renderer\.setViewport\(0, 0, 1, 1\)/);
+  assert.match(t, /if \(!opts\.defer\) ms\.warm = warm\(\)/, 'a caller without ready() still gets the whole warm-up');
+  // the first open (GOTR-0120 round 3): the warm-up in slices behind the cover, one object per program, the GPU awaited with
+  // a fence polled without blocking (the page and the cover's progress stay alive), everything drawn once at the end
+  const rd = t.slice(t.indexOf('function ready('), t.indexOf('if (!opts.defer)'));
+  assert.match(rd, /representatives\(\)/); assert.match(rd, /slice\(reps\.slice\(i, i \+ PER\), false\)/); assert.match(rd, /slice\(null, true\)/); assert.match(rd, /if \(!alive\(\)\) return false/);
+  assert.match(t, /gl\.fenceSync\(gl\.SYNC_GPU_COMMANDS_COMPLETE, 0\)/); assert.match(t, /gl\.clientWaitSync\(f, 0, 0\)/, 'the fence is polled, never waited on');
+  assert.match(t, /cam\.layers\.set\(WARM_LAYER\)/, 'a slice picks its objects by layer (every light stays: the programs are the walk\'s)');
+  const fw = src('adventure/free-walk/free-walk.js');
+  assert.match(fw, /defer: true \}\);/); assert.match(fw, /await town\.ready\?\.\(f => say\(\.4 \+ f \* \.6\), \(\) => !R\.closed\)/);
+  assert.match(fw, /notice\.textContent = t\('loading'\) \+ ' ' \+ Math\.round\(f \* 100\) \+ '%'/, 'the cover shows how far the loading got (digits: every language)');
+  assert.match(fw, /e\.fightIQDemo = R\.hold = \{ frame\(\) \{\} \}/); assert.match(fw, /R\.hold && e\.fightIQDemo === R\.hold\)\) e\.fightIQDemo = null/, 'the arena is not drawn behind the cover, and the engine gets its frame back on close'); assert.ok(!/SL\.walker\(/.test(t.slice(t.indexOf('function spawnWalker'), t.indexOf('function updateWalkers'))), 'no walker is made while walking');
+  assert.match(t, /function park\(\)/); assert.match(t, /function resume\(defer\)/); assert.match(t, /PARK_MS = 180000/);
 }
 
 /* ---- wiring: scripts in order with matching versions; the map's ?v everywhere the same; the models stay out of the offline pack */
@@ -95,6 +105,6 @@ const HE = /[֐-׿]/, RU = /[Ѐ-ӿ]/;
   const man = JSON.parse(src('offline-manifest.json')).urls;
   for (const k of ['free-walk-look.js', 'free-walk-sets.js']) assert.ok(man.some(u => u.includes(k)), k + ' offline');
   assert.ok(!man.some(u => /assets\/street\//.test(u)), 'street models stay out of the offline pack');
-  assert.match(src('adventure/free-walk/free-walk.js'), /await window\.FreeWalkTown\.prepare\?\.\(6000\)/);
+  assert.match(src('adventure/free-walk/free-walk.js'), /await window\.FreeWalkTown\.prepare\?\.\(6000, f => say\(f \* \.3\)\)/);
 }
 console.log('walk-town-look: ok');

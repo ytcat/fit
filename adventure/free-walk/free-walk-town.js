@@ -14,8 +14,9 @@
  * full screen resolution, the films' light for the story's time of day, a sun shadow round the player, image-based light,
  * sharper facades with windows that have depth), and the merged meshes are cut into tiles so only what is near is drawn.
  *
- *   FreeWalkTown.prepare(ms) -> Promise   the films' kit and street models (at most ms; call before build)
- *   FreeWalkTown.build({ renderer, time: 'morning' | 'day' | 'evening' | 'night', quality, lang }) -> town
+ *   FreeWalkTown.prepare(ms, progress?) -> Promise   the films' kit and street models (at most ms; call before build)
+ *   FreeWalkTown.build({ renderer, time: 'morning' | 'day' | 'evening' | 'night', quality, lang, defer }) -> town
+ *     defer: the GPU warm-up is left to town.ready(progress(f), alive()) -> Promise (in slices, the page never frozen)
  *     town.scene, town.grid (FreeWalkCore.grid), town.places [{ id, x, z, r, spawn }], town.targets { id: { x, z } },
  *     town.update(dt, player {x, z}, camera), town.blocked(x, z) (cars), town.snapshot(), town.dispose()
  *     town.views { gym, busstop, market, otto, docks, basement: { x, z, yaw } } (the films' views of the story places),
@@ -301,26 +302,79 @@
 
     let time = 0;
     /* ---- nothing is compiled, uploaded or allocated for the first time while walking: every program (the town's, the
-     * Fighter's in every outfit piece, a walker's), every texture and every vertex buffer is made here, behind the walk's
-     * loading cover: renderer.compile with the walk's lights, then one draw of everything into a one-pixel viewport. */
-    function warm() {
-      const t0 = performance.now(), saved = [], rig = window.app?.engine?.coach?.root, home = rig?.parent || null;
+     * Fighter's in every outfit piece, a walker's), every texture and every vertex buffer is made behind the walk's loading
+     * cover, by drawing everything once into a one-pixel viewport (the walk's lights, the shadow pass included).
+     * The first open measured 27-31 s to the first frame in SwiftShader, 17 s of it GPU work queued by that single draw (the
+     * GPU building a pipeline for each of ~80 programs) that then froze the page with the cover up. ready() does the same work
+     * in slices: one object per program (a handful of programs a slice), waiting for the GPU after each slice without
+     * blocking (a fence), then everything once (vertex buffers, textures), reporting progress for the cover. warm() is the
+     * same in one go (no WebGL2 fences, or a caller without ready()). */
+    const RIG = () => window.app?.engine?.coach?.root || null, WARM_LAYER = 31;
+    const gl = renderer.getContext?.(), fences = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+    const drawable = o => (o.isMesh || o.isPoints || o.isLine || o.isSprite) && o.material;
+    function slice(list, shadow) { // draws list (or everything) once into a one-pixel viewport, then puts every object back
+      const rig = RIG(), home = rig?.parent || null, saved = [];
       if (rig && home !== scene) scene.add(rig);
-      scene.traverse(o => { if (o.isLight || o === scene) return; saved.push([o, o.visible, o.frustumCulled]); o.visible = true; o.frustumCulled = false; });
-      const cam = new T.PerspectiveCamera(60, 1, .1, 3000); cam.position.set(0, 400, 1); cam.lookAt(0, 0, 0); cam.updateMatrixWorld();
-      try {
-        renderer.compile(scene, cam);
-        if (renderer.initTexture) scene.traverse(o => { for (const m of [].concat(o.material || [])) for (const k of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap', 'aoMap', 'envMap']) if (m[k]?.isTexture && !m[k].isRenderTargetTexture) renderer.initTexture(m[k]); });
-        const vp = renderer.getViewport(new T.Vector4()); renderer.setViewport(0, 0, 1, 1); renderer.shadowMap.needsUpdate = true;
-        try { renderer.render(scene, cam); } finally { renderer.setViewport(vp); }
-      } catch (x) { console.warn('walk warm-up', x); }
+      const cam = new T.PerspectiveCamera(60, 1, .1, 3000); cam.position.set(0, 400, 1); cam.lookAt(0, 0, 0); cam.updateMatrixWorld(); cam.layers.set(WARM_LAYER);
+      const pick = list ? new Set(list) : null;
+      // every instanced mesh draws at least one instance (a car or a pigeon not yet in the street still gets its pipeline)
+      scene.traverse(o => { if (o === scene) return; saved.push([o, o.visible, o.frustumCulled, o.layers.mask, o.isInstancedMesh ? o.count : -1]); o.visible = true; o.frustumCulled = false; if (o.isInstancedMesh && o.count === 0) o.count = 1; if (o.isLight || !pick || pick.has(o) || !drawable(o)) o.layers.enable(WARM_LAYER); });
+      const vp = renderer.getViewport(new T.Vector4());
+      try { renderer.setViewport(0, 0, 1, 1); if (shadow) renderer.shadowMap.needsUpdate = true; renderer.render(scene, cam); }
+      catch (x) { console.warn('walk warm-up', x); }
       finally {
-        for (const [o, v, f] of saved) { o.visible = v; o.frustumCulled = f; }
+        renderer.setViewport(vp);
+        for (const [o, v, f, m, n] of saved) { o.visible = v; o.frustumCulled = f; o.layers.mask = m; if (n >= 0) o.count = n; }
         if (rig && home !== scene) { if (home) home.add(rig); else scene.remove(rig); }
       }
-      return Math.round(performance.now() - t0);
     }
-    ms.warm = warm(); mark('total');
+    function textures() { if (renderer.initTexture) scene.traverse(o => { for (const m of [].concat(o.material || [])) for (const k of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap', 'aoMap', 'envMap']) if (m[k]?.isTexture && !m[k].isRenderTargetTexture) renderer.initTexture(m[k]); }); }
+    function warm() { const t0 = performance.now(); try { textures(); } catch (x) { console.warn('walk warm-up', x); } slice(null, true); return Math.round(performance.now() - t0); }
+    // one object for each program it can need (material, instanced, coloured instances, skinned, morphed)
+    function representatives() {
+      const seen = new Map(), rig = RIG();
+      const visit = o => { if (!drawable(o)) return; for (const m of [].concat(o.material)) { const k = m.uuid + (o.isInstancedMesh ? 'i' : '') + (o.instanceColor ? 'c' : '') + (o.isSkinnedMesh ? 's' : '') + (o.geometry?.morphAttributes?.position ? 'm' : '') + (o.isPoints ? 'p' : o.isLine ? 'l' : o.isSprite ? 'r' : ''); if (!seen.has(k)) seen.set(k, o); } };
+      scene.traverse(visit); if (rig && rig.parent !== scene) rig.traverse(visit);
+      return [...new Set(seen.values())];
+    }
+    // the browser updates a fence's state once a frame: poll on the frame clock (a hidden page falls back to a timer)
+    const next = f => { if (document.hidden) setTimeout(f, 30); else requestAnimationFrame(() => f()); };
+    const settle = (alive, max = 30000) => new Promise(done => { // the GPU has finished what was sent (never blocks the page)
+      if (!fences) { done(); return; }
+      let f = null; try { f = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0); gl.flush(); } catch { done(); return; }
+      const t0 = performance.now(), poll = () => {
+        let s = gl.WAIT_FAILED; try { s = gl.clientWaitSync(f, 0, 0); } catch { /* context lost */ }
+        if (s === gl.TIMEOUT_EXPIRED && alive() && performance.now() - t0 < max) { next(poll); return; }
+        try { gl.deleteSync(f); } catch { /* gone */ } done();
+      };
+      next(poll);
+    });
+    let warming = null;
+    function ready(progress = () => {}, alive = () => true) {
+      if (warming) return warming;
+      const t0 = performance.now(), say = f => { try { progress(Math.max(0, Math.min(1, f))); } catch { /* the cover is gone */ } };
+      warming = (async () => {
+        if (!fences) { ms.warm = warm(); say(1); return true; }
+        // the programs a handful of objects at a time without the shadow pass (each slice has a fixed cost: few, large
+        // slices), then everything once with the shadow pass (its depth programs, every vertex buffer and texture)
+        const reps = representatives(), PER = 24, n = Math.ceil(reps.length / PER) + 2, log = ms.warmLog = []; let k = 0, a = performance.now(), c = a;
+        say(0); await settle(alive); log.push(['build', Math.round(performance.now() - a)]);
+        for (let i = 0; i < reps.length; i += PER) {
+          if (!alive()) return false;
+          a = performance.now(); slice(reps.slice(i, i + PER), false); c = performance.now(); await settle(alive);
+          log.push([Math.round(c - a), Math.round(performance.now() - c), renderer.info.programs?.length || 0]); say(++k / n);
+        }
+        if (!alive()) return false;
+        try { textures(); } catch (x) { console.warn('walk warm-up', x); } await settle(alive); say(++k / n);
+        if (!alive()) return false;
+        a = performance.now(); slice(null, true); c = performance.now(); await settle(alive); log.push(['all', Math.round(c - a), Math.round(performance.now() - c), renderer.info.programs?.length || 0]); say(1);
+        ms.warm = Math.round(performance.now() - t0); ms.warmSlices = k + 1; ms.programs = renderer.info.programs?.length || 0;
+        return true;
+      })().finally(() => { const w = warming; setTimeout(() => { if (warming === w) warming = null; }, 0); });
+      return warming;
+    }
+    if (!opts.defer) ms.warm = warm();
+    mark('total');
     function update(dt, p, camera) {
       time += dt;
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
@@ -342,11 +396,11 @@
       const seen = new Set(); // GPU copies only: geometry, textures (the arrays and images stay; three uploads them again)
       scene.traverse(o => { if (o.geometry && !seen.has(o.geometry)) { seen.add(o.geometry); o.geometry.dispose(); } for (const m of [].concat(o.material || [])) for (const k of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap', 'aoMap']) if (m[k]?.isTexture && !seen.has(m[k])) { seen.add(m[k]); m[k].dispose(); } });
     }
-    function resume() {
+    function resume(defer) { // defer: the caller warms up with ready()
       const t0 = performance.now(); parkedAt = 0;
       try { look = Look?.attach({ renderer, scene, map, time: hour, tier }) || null; } catch (x) { console.warn('walk look', x); look = null; }
       try { dress = Sets?.dressing?.({ map, scene, city: window.CityAssets?.cached?.(['props'], false), time: hour, tier }) || null; } catch (x) { console.warn('walk dressing', x); dress = null; }
-      ms.resumed = Math.round(performance.now() - t0); ms.warm = warm(); ms.resumeTotal = Math.round(performance.now() - t0);
+      ms.resumed = Math.round(performance.now() - t0); if (!defer) ms.warm = warm(); ms.resumeTotal = Math.round(performance.now() - t0);
     }
     function dispose() {
       for (const m of [...pool, ...walkers.map(w => w.m)]) { scene.remove(m); m.geometry.dispose(); m.material.dispose(); m.skeleton?.dispose?.(); } walkers.length = 0; pool.length = 0;
@@ -360,7 +414,7 @@
       map.dispose();
     }
     const tileMeshes = () => map.group.children.filter(o => o.userData.tileOf);
-    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, park, resume, S, tier,
+    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, park, resume, ready, S, tier,
       views: places3d?.views || {}, look: () => look?.stats() || null, quality: level => look?.lock(level), settled: () => Promise.resolve(true) };
   }
   /** Builds the town; on any failure everything made so far is released and the error is passed on (the mode shows a notice). */
@@ -370,7 +424,7 @@
   function drop() { if (!parked) return; clearTimeout(parked.timer); const t = parked.town; parked = null; try { t.destroy(); } catch (x) { console.warn('free walk town', x); } }
   function build(opts = {}) {
     const key = [opts.time, Core().langOf(opts.lang), opts.quality === 'low' ? 'low' : 'high'].join('|');
-    if (parked && parked.key === key && parked.renderer === opts.renderer) { const t = parked.town; clearTimeout(parked.timer); parked = null; t.resume(); return t; }
+    if (parked && parked.key === key && parked.renderer === opts.renderer) { const t = parked.town; clearTimeout(parked.timer); parked = null; t.resume(opts.defer); return t; }
     drop();
     const keep = {};
     let town;
@@ -387,7 +441,18 @@
   /** The films' kit and street models before a build (never longer than ms; a build without them uses the generated pieces). */
   // one wait shared by every caller of the same open: the mode starts it as the walk opens (with the map script's download)
   // and waits for it before the build, so the models load while the map script loads
-  let preparing = null;
-  const prepare = (ms = 6000) => { if (!window.FreeWalkSets) return Promise.resolve(false); if (!preparing) { preparing = window.FreeWalkSets.prepare(ms).finally(() => setTimeout(() => { preparing = null; }, 0)); } return preparing; };
+  // A settled wait is kept for a while (a second call in the same open must not wait the whole budget again); progress(f) is
+  // told the share of the models (and the kit) that is ready while it waits.
+  let preparing = null, settledAt = 0;
+  function prepare(ms = 6000, progress) {
+    if (!window.FreeWalkSets) return Promise.resolve(false);
+    if (preparing && settledAt && performance.now() - settledAt > 20000) preparing = null;
+    if (!preparing) { settledAt = 0; const p = preparing = window.FreeWalkSets.prepare(ms); p.finally(() => { if (preparing === p) settledAt = performance.now(); }); }
+    if (typeof progress === 'function' && !settledAt) {
+      const list = window.FreeWalkSets.MODELS || [], tell = () => { const st = window.CityAssets?.status?.() || {}; const n = list.filter(k => st[k] === 'ready' || st[k] === 'failed').length + (window.GlorylandMap?.kit ? 1 : 0); try { progress(n / (list.length + 1)); } catch { /* gone */ } };
+      tell(); const id = setInterval(tell, 150); preparing.finally(() => { clearInterval(id); tell(); });
+    }
+    return preparing;
+  }
   window.FreeWalkTown = { build, prepare, drop, S, CELL, BOUNDS, REACH, get parked() { return parked ? parked.key : null; } };
 })();

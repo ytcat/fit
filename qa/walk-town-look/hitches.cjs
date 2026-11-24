@@ -37,7 +37,7 @@ const server = http.createServer((q, r) => {
       FreeWalk.open({ start: 'oldtown', look: 'morning' });
       const poll = () => {
         const run = app.engine.fightIQDemo, s = FreeWalk.snapshot();
-        if (run && s && !s.busy && run.frame && !run.__wrapped) {
+        if (run && run.d && s && !s.busy && run.frame && !run.__wrapped) { // (run.d: the walk itself, not the stub that holds the engine while it loads)
           const orig = run.frame, r = app.engine.renderer.info; run.__wrapped = true;
           run.frame = d => { const a = performance.now(), pr = r.programs?.length || 0, tx = r.memory.textures; orig(d); const ms = performance.now() - a; if (first === null) first = a - t0; frames.push({ ms: +ms.toFixed(1), programs: (r.programs?.length || 0) - pr, textures: r.memory.textures - tx }); if (frames.length >= 40) { run.frame = orig; run.__wrapped = false; res({ openToFirstFrame: Math.round(first), first40: frames, build: s.town?.build || null, buildMs: s.perf.buildMs }); } };
         } else setTimeout(poll, 20);
