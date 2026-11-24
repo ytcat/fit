@@ -51,5 +51,18 @@ like in the video ... Make everything more realistic ... the style of, let's say
 - Tests (targeted, -j 1): walk-town-look, free-walk, city-assets, blender-props, blender-props-2, arrival-background,
   lang-generic, offline-version-match: 8 files, 0 fails.
 
+## Evidence so far
+- `qa/walk-town-look/sheet-phone-morning.webp`: before (v1.94) | after | the films' frame, at Bruno's Gym, the bus stop,
+  Market Row (Hazel), Otto's Corner, the Docks; 402x690 at DPR 3, morning, ladder pinned at the top level.
+  The docks picture in this sheet predates the hangar gable fix (commit 28b13a2): re-capture.
+- Numbers (`numbers-*-phone-morning.json`, SwiftShader): before pixel ratio 1 (402x690 buffer), 82-90 calls, 472-552k
+  triangles, no shadow, no environment, build 1.2 s; after pixel ratio 2 (804x1380), 115-139 calls, 538-778k triangles
+  (before the far-plane and tree-count cut of 28b13a2), shadow 2048 + environment, held frame 0.57-0.70 s at ratio 1 /
+  1.0-1.5 s at ratio 2 (SwiftShader), build 4.9 s (the map build plus the sets; models cached).
+
 ## Next
-- Finish the evidence run (sheets for phone/PC, morning/evening/night, low tier), numbers table, final checkpoint.
+- Run `qa/walk-town-look/run-all.sh <scratch> <git archive of 67ddca4>` (was running when the session ended): phone/PC
+  morning/evening/night after, before baselines with render ms, the light path; then `sheet.py` per size/time.
+- Check the evening and night pictures (lit windows, lamps), PC framing, and the walk tour on foot
+  (`node qa/free-walk-city/tour.cjs <out> en bruno,market_stall,otto,market,docks_quay`: not finished in this session).
+- Not checked on a physical phone. The camera framing is agent/story-walk's (QA zooms out with the walk's own key).
