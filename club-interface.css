@@ -55,3 +55,17 @@ html:has(.club-app){background:var(--gr-bg)}body.club-app{height:100dvh;min-heig
 .club-app .club-brand #appSubtitle[data-version]::after{content:'\00a0\00b7\00a0\2066' attr(data-version) '\2069';text-transform:none;letter-spacing:.4px;color:var(--gr-text-muted,#9aa7bb);font-weight:700;white-space:nowrap}
 /* Owner 2026-11-11: subtitle was cut under a two-line title on phones. Keep one short line: version only. */
 @media (max-width:520px){.club-app .club-brand #appTitle{line-height:1.12}.club-app .club-brand #appSubtitle{font-size:0;letter-spacing:0;margin-top:2px;white-space:nowrap}.club-app .club-brand #appSubtitle[data-version]::after{content:attr(data-version);font-size:10px;letter-spacing:.4px}}
+/* Owner 2026-11-23: the logo and "Glory of the Ring" are one locked square picture (assets/brand/logo-square.svg) that never
+   wraps, whatever the player's name length, coin balance or language; the version sits on its lower edge. The old title text
+   stays for screen readers only. */
+.club-app .club-brand.club-brand-square{flex:none;min-width:0;width:auto;gap:0}
+.club-app .club-brand-square #appTitle,.club-app .club-brand-square #appSubtitle{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0!important}
+.club-app .club-brand-square .club-mark{position:relative;flex:none;width:46px;height:46px;filter:drop-shadow(0 2px 5px rgb(0 0 0/.5))}
+.club-app .club-brand-square .club-ver{position:absolute;left:0;right:0;bottom:.5px;text-transform:none;text-align:center;padding:0;background:none;border:0;color:#101624;font:900 8px/1 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;letter-spacing:.3px;white-space:nowrap;direction:ltr}
+@media(max-width:700px){.club-app .club-brand-square .club-mark{width:42px;height:42px}}
+/* Phones: the header grid gave the logo column minmax(0,1fr) and the ribbon 'auto', so a long name or a large number squeezed the
+   title into three lines (and now pushed the ribbon over the logo). The logo column keeps its size; the ribbon shrinks instead. */
+@media(max-width:800px){
+ .game-enabled.club-app .club-header{grid-template-columns:auto minmax(0,1fr)!important}
+ .game-enabled.club-app .club-head-tools{min-width:0;justify-content:flex-end;overflow:hidden}
+}
