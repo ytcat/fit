@@ -1,4 +1,4 @@
-# Checkpoint: story walks (GOTR-0120)
+# Checkpoint: story walks (GOTR-0122)
 
 Branch `agent/story-walk` from `origin/claude/ecstatic-clarke-9as2ak` 67ddca4 (v1.94). Not merged, no version bump, no PR.
 Owner requests 2026-11-25: the free walk is always available and part of the story; after a film the player walks to the next

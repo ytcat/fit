@@ -1,4 +1,4 @@
-// Story walk QA (GOTR-0120): the free walk as it was before this branch (v1.94): the full phone view and a close-up of the
+// Story walk QA (GOTR-0122): the free walk as it was before this branch (v1.94): the full phone view and a close-up of the
 // joystick idle and held (a real CDP touch). node qa/story-walk/before.cjs <out dir>
 const { chromium } = require('playwright'), fs = require('fs');
 const { serve, boot } = require('../free-walk-city/serve.cjs');

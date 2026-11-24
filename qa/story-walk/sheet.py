@@ -1,4 +1,4 @@
-"""Contact sheets for the story-walk QA (GOTR-0120): one row per walk (start, near the ring, the step it started) per device and
+"""Contact sheets for the story-walk QA (GOTR-0122): one row per walk (start, near the ring, the step it started) per device and
 language, and the joystick close-ups before/after. python3 qa/story-walk/sheet.py <shots dir> <out dir>"""
 import sys, os, glob
 from PIL import Image, ImageDraw

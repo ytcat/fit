@@ -28,7 +28,7 @@
 .fw-nav-status:has(.fw-dist:empty){display:none}
 .fw-help{transition:opacity .6s ease,max-height .6s ease;max-height:4.2em;overflow:hidden}
 .fw-nav.quiet .fw-help{opacity:0;max-height:0}
-/* GOTR-0120 the stick (owner 2026-11-25: "Even the joystick looks bad"): a floating stick in the lower-left area. It rests at a
+/* GOTR-0122 the stick (owner 2026-11-25: "Even the joystick looks bad"): a floating stick in the lower-left area. It rests at a
    fixed spot (the hint), dim when idle; a touch anywhere in the area brings it under the thumb; the knob has depth and a glow
    shows the direction. Colours: the game's HUD (fighter-pad.css: deep navy glass, info blue, white ink). */
 .fw-pad{position:absolute;z-index:2;left:0;bottom:0;width:58%;height:46%;touch-action:none;-webkit-user-select:none;user-select:none}
@@ -53,7 +53,7 @@
 .fw-keys{position:absolute;z-index:2;left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));margin:0;max-width:min(60vw,420px);padding:7px 11px;font-size:12px;line-height:1.3;color:#e8eef6;background:#14212bd0;border:1px solid #6a838b;border-radius:10px;pointer-events:none}
 .fw-keys[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){.fw-pad .fw-stick,.fw-pad .fw-knob{transition:none!important}}
-/* GOTR-0120 the persistent entry in the top bar */
+/* GOTR-0122 the persistent entry in the top bar */
 .fw-entry{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:36px;min-width:40px;padding:0 10px;border-radius:10px;border:1px solid #3b8f83;background:#0f2a2a;color:#a4f0e2;font:800 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer;touch-action:manipulation;white-space:nowrap}
 .fw-entry:active{transform:scale(.95)}
 .fw-entry:disabled{opacity:.4;cursor:default}

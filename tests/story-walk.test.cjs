@@ -1,4 +1,4 @@
-// GOTR-0120 story walks (owner 2026-11-25): the Chapter 1 sequence of walks, the one-time start, resume, the device fallback,
+// GOTR-0122 story walks (owner 2026-11-25): the Chapter 1 sequence of walks, the one-time start, resume, the device fallback,
 // the story-led walk (no selector, no Day/Night) and every word in EN / HE / RU.
 'use strict';
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path');

@@ -3,7 +3,7 @@
  * game's renderer (the engine's demo hook, like the story films), the stick, keys and zoom, the district name, the story's
  * destination with an arrow and the distance, and the way back to the map.
  *
- * GOTR-0120 (owner 2026-11-25): the walk is part of the story, not a separate toy.
+ * GOTR-0122 (owner 2026-11-25): the walk is part of the story, not a separate toy.
  *   - The destination is always set by the game from the current story step (no selector), with a short objective line;
  *     the light follows the story (no Day/Night buttons): FreeWalkCore.storyTime(step, chapter).
  *   - Story walks: when the next Chapter 1 step happens at another place than where the last film ended
@@ -27,7 +27,7 @@
   const Core = () => window.FreeWalkCore;
   const STORY_IDS = ['bruno', 'market_stall', 'otto', 'docks_quay'];
   const PLACE_IDS = ['oldtown', 'market', 'docks', 'downtown', 'neon', 'dome', 'hill', 'tech', 'fair', 'cove', 'fort'];
-  // GOTR-0120 (owner: "It has to be zoom out"): a wide chase view, behind and above the Fighter, showing the street round him
+  // GOTR-0122 (owner: "It has to be zoom out"): a wide chase view, behind and above the Fighter, showing the street round him
   const PITCH = .6, DIST = 11.5, FOV = 50, YAW0 = .24, ZOOM_MIN = .55, ZOOM_MAX = 1.45;
   let run = null, loader = null;
 
@@ -125,7 +125,7 @@
     const nav = el('section', 'fw-nav'), goal = el('strong', 'fw-goal', goalText), status = el('div', 'fw-nav-status'), arrow = el('span', 'fw-arrow', '➤'), dist = el('strong', 'fw-dist', ''), help = el('span', 'fw-help', t(plan.target ? 'walkHelp' : 'help'));
     arrow.setAttribute('aria-hidden', 'true'); arrow.hidden = true; status.append(arrow, dist); nav.append(goal, status, help); nav.hidden = !goalText;
     setTimeout(() => nav.classList.add('quiet'), 9000); // the how-to line, then only the objective and the distance
-    // the stick (GOTR-0120 redesign): a floating stick in the lower-left area, resting at a fixed spot; keys on a computer
+    // the stick (GOTR-0122 redesign): a floating stick in the lower-left area, resting at a fixed spot; keys on a computer
     const pad = el('div', 'fw-pad'), stick = el('div', 'fw-stick'), glow = el('span', 'fw-glow'), ticks = el('span', 'fw-ticks'), thumb = el('i', 'fw-knob');
     stick.append(ticks, glow, thumb); pad.append(stick); stick.setAttribute('role', 'group'); stick.setAttribute('aria-label', t('stick'));
     const keysHint = el('p', 'fw-keys', t('keysHint')); const touch = touchDevice(); pad.hidden = !touch; keysHint.hidden = touch; d.dataset.input = touch ? 'touch' : 'keys';
@@ -314,7 +314,7 @@
     // the camera over it; a building or wall (not walkable) brings it closer to the Fighter.
     const g = R.town.grid, ox = R.center.x, oy = R.center.y, oz = R.center.z;
     // the camera body has a size: each sample along the ray checks 0.6 m round it (a thin wall between samples is still seen)
-    // GOTR-0120: 0 free, 1 a wall (not walkable), 2 rising ground (walkable: lift the view), 3 only a tree crown. The sample
+    // GOTR-0122: 0 free, 1 a wall (not walkable), 2 rising ground (walkable: lift the view), 3 only a tree crown. The sample
     // that hits decides (before, a wall 0.6 m beside a walkable centre counted as rising ground and tipped the view top-down).
     const solidAt = (x, y, z) => { let s = 0; for (const [a, b] of [[0, 0], [.6, 0], [-.6, 0], [0, .6], [0, -.6]]) { if (g.top(x + a, z + b) > y) { if (!g.allowed(x + a, z + b)) return 1; s = 2; } else if (!s && (R.town.canopy?.(x + a, z + b) ?? -1e9) > y) s = 3; } return s; };
     const probe = (yaw, pitch) => { const cp = Math.cos(pitch), sp = Math.sin(pitch); for (let k = 1; k <= 24; k++) { const f = d * k / 24, x = ox + Math.sin(yaw) * cp * f, z = oz + Math.cos(yaw) * cp * f, h = solidAt(x, oy + sp * f - .4, z); if (h) return { k: k * 16 / 24, ground: h >= 2, crown: h === 3 }; } return null; };
@@ -388,7 +388,7 @@
       const brisk = K.has('ShiftLeft') || K.has('ShiftRight') || R.full > .8;
       if (K.has('KeyQ')) R.yaw += dt * 1.6; if (K.has('KeyE')) R.yaw -= dt * 1.6;
       if (K.has('KeyQ') || K.has('KeyE')) R.dragAt = ms;
-      // GOTR-0120 chase camera (owner: GTA-style, behind and above): while he walks, the view comes round behind him unless
+      // GOTR-0122 chase camera (owner: GTA-style, behind and above): while he walks, the view comes round behind him unless
       // the player turned it in the last 1.5 s
       if (R.s.walking && ms - (R.dragAt || -1e9) > 1500) { const d = Math.atan2(Math.sin(R.s.ry + Math.PI - R.yaw), Math.cos(R.s.ry + Math.PI - R.yaw)); R.yaw += d * (1 - Math.exp(-dt * 1.3)) * (R.walkAmt || 0); }
       const [vx, vz] = C.velocity(hIn, vIn, R.camYaw ?? R.yaw, C.SPEED * (brisk ? 1.55 : 1));
@@ -400,7 +400,7 @@
       R.turn += Math.atan2(Math.sin(R.s.ry - R.turn), Math.cos(R.s.ry - R.turn)) * (1 - Math.exp(-dt * 10));
       const c = R.rig; c.root.position.set(R.s.x, R.groundY, R.s.z); c.root.rotation.set(0, R.turn, 0);
       R.walkAmt = (R.walkAmt || 0) + ((R.s.walking ? 1 : 0) - (R.walkAmt || 0)) * (1 - Math.exp(-dt * 8));
-      // GOTR-0120 carry: the duffel's strap in his right hand, or his right hand on the heavy bag (market-sets.js reach)
+      // GOTR-0122 carry: the duffel's strap in his right hand, or his right hand on the heavy bag (market-sets.js reach)
       if (pose) { c.root.updateMatrixWorld(true); window.DreamPose?.civil?.(c, { t: R.poseT, dt, dist: R.s.dist, walk: R.walkAmt, ground: (x, z) => town.grid.height(x, z), arms: R.carry === 'duffel' ? { R: 'strap' } : {}, reach: R.props?.reach?.('fighter', 100) || undefined, look: { yaw: 0, pitch: 0 } }); R.props?.frame(100, dt); }
       R.blob.position.set(R.s.x, R.groundY + .03, R.s.z);
       if (R.ringMesh) { const k = .5 + .5 * Math.sin(R.poseT * 4); R.ringMesh.material.opacity = .55 + .4 * k; R.ringMesh.scale.setScalar(1 + .08 * k); }
@@ -458,7 +458,7 @@
       town: R.town?.snapshot() || null };
   }
 
-  /* ---- GOTR-0120: the persistent entry in the top bar (phone and computer): an icon and a short word, in the player's
+  /* ---- GOTR-0122: the persistent entry in the top bar (phone and computer): an icon and a short word, in the player's
    * language. Disabled (with the reason) while a film, a fight, a timed round or a mission run holds the screen. */
   const ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13" cy="4" r="2"/><path d="M10.5 21l2-6 2.5 2.5V22M8 11l3.5-3 3 2.5 2.5 1.5M11.5 8l-1.8 6.5-2.7 1"/></svg>';
   let entry = null, entryKey = '';

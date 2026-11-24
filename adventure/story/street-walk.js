@@ -1,5 +1,5 @@
 /* Chapter 1 walking prototype (the arrival film's street set). World metres; route follows the existing pavement and zebra crossing.
- * GOTR-0120: the ?walkPrototype=1 film hand-over is retired. The story now goes on as a walk in the whole town after the film
+ * GOTR-0122: the ?walkPrototype=1 film hand-over is retired. The story now goes on as a walk in the whole town after the film
  * (adventure/free-walk/free-walk.js story walks; the arrival film ends with opts.until). What stays in use: stickInput (the
  * free-walk stick and the chapter1-roam page) and the set-level walk helpers covered by tests/story-walk-controls.test.cjs. */
 (() => {

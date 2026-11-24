@@ -42,7 +42,7 @@
     otto: L('Otto’s shop', 'החנות של אוטו', 'Лавка Отто'),
     docks_quay: L('Docks quay', 'רציף הנמל', 'Причал'),
     ottoSign: L('OTTO’S', 'אוטו', 'У ОТТО'),
-    // GOTR-0120 story walks: the objective line of each walk (keyed by the step the walk leads to) and the story HUD
+    // GOTR-0122 story walks: the objective line of each walk (keyed by the step the walk leads to) and the story HUD
     goal_dream_gym_talk: L('Walk to Bruno’s gym', 'לכו לחדר הכושר של ברונו', 'Иди в зал Бруно'),
     goal_market_robber: L('Walk to the market', 'לכו לשוק', 'Иди на рынок'),
     goal_buy_heavy_bag: L('Walk to Otto’s shop for a new bag', 'לכו לחנות של אוטו לקנות שק חדש', 'Иди в лавку Отто за новым мешком'),
@@ -207,7 +207,7 @@
     market_robber: 'market_stall', buy_heavy_bag: 'otto', bag_drill: 'bruno', fight_prep: 'bruno', docks_fight: 'docks_quay', advanced_training: 'bruno', brick: 'bruno' });
   const storyTarget = step => Object.hasOwn(STORY_TARGETS, step) ? STORY_TARGETS[step] : null;
   const ARRIVE = 4; // metres
-  /* ---- GOTR-0120 story walks (owner 2026-11-25): whenever the next Chapter 1 step happens at another place than where the
+  /* ---- GOTR-0122 story walks (owner 2026-11-25): whenever the next Chapter 1 step happens at another place than where the
    * last film ended, the story goes on as a walk. Keyed by the step the walk leads to: from = where the film before it ends
    * (bus_stop: the arrival film ends when the Fighter has stepped off the bus), to = that step's place, carry = what the
    * Fighter carries (his duffel off the bus; the new heavy bag on his shoulder out of Otto's), after = the step it follows.

@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'), fs=require('node:fs'), W=require('../adventure/story/street-walk.js'), C=require('../adventure/story/dream-core.js');
 const T=require('../assets/vendor/three.min.js');
-// GOTR-0120: the ?walkPrototype=1 film hand-over is retired (story walks in the town replace it): no flag, no film hook
+// GOTR-0122: the ?walkPrototype=1 film hand-over is retired (story walks in the town replace it): no flag, no film hook
 assert.equal(W.enabled,undefined); assert.equal(W.introSkip,undefined);
 assert.ok(!/walkPrototype|StreetWalkPrototype\?\.enabled/.test(fs.readFileSync(__dirname+'/../adventure/story/dream-scenes.js','utf8').replace(/Replaces the \?walkPrototype=1[^\n]*/,'')));
 assert.deepEqual(W.stickInput(.3,.3,18),[0,0]);

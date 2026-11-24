@@ -57,7 +57,7 @@
     let scene0 = C?.variant(id, opts.outcome); // re-staged once the set is built when the city models are in it (GOTR-0089)
     const fail = error => { setTimeout(() => done({ id, skipped: true, error }), 0); return false; };
     if (!scene0) return fail('unknown scene');
-    // GOTR-0120 story walks: opts.until ends the film early (the arrival film ends once the Fighter has stepped off the bus and
+    // GOTR-0122 story walks: opts.until ends the film early (the arrival film ends once the Fighter has stepped off the bus and
     // sets off; the player walks on to the gym in the town). Replaces the ?walkPrototype=1 in-film walk (street-walk.js).
     const cut = opts.until > 0 && opts.until < scene0.duration; if (cut) scene0 = { ...scene0, duration: opts.until };
     const price = opts.price ?? window.GameDomain?.gear?.find(x => x.id === 'heavy_bag')?.price ?? 90; if (window.MarketCore) scene0 = window.MarketCore.fill(scene0, price); // GOTR-0096: the reward and the shop name the price
@@ -259,7 +259,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (scene0.tap) for (let i = run.ack + 1; i < scene0.lines.length; i++) if (scene0.lines[i].hold) { limit = Math.min(limit, scene0.lines[i].t + C.SETTLE); break; }
       const atBuy = !!scene0.buy && !run.bought && scene0.buy.t <= limit; if (atBuy) limit = scene0.buy.t; // the shop waits for the purchase
       run.t = Math.min(run.t + dt, limit);
-      if (cut && run.t > scene0.duration - .6) fade.style.opacity = String(clamp((run.t - (scene0.duration - .6)) / .6)); // GOTR-0120: the film hands over to the town walk
+      if (cut && run.t > scene0.duration - .6) fade.style.opacity = String(clamp((run.t - (scene0.duration - .6)) / .6)); // GOTR-0122: the film hands over to the town walk
       if (scene0.tap && run.t >= limit && limit < scene0.duration && !atBuy) run.waiting = true;
       buyBtn.hidden = !(atBuy && run.t >= limit && !run.closed); sub.style.paddingBottom = buyBtn.hidden ? '' : '52px'; // the line sits above the Buy button
       const s = C.sample(scene0, run.t);

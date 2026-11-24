@@ -1,4 +1,4 @@
-// Story walks (GOTR-0120): a real playthrough of the Chapter 1 walks from a NEW profile, with a real save.
+// Story walks (GOTR-0122): a real playthrough of the Chapter 1 walks from a NEW profile, with a real save.
 //   node qa/story-walk/play.cjs <out dir> [lang=en] [device=phone|pc] [walks=1,2,3,4,5,6] [resume=1]
 // phone: 402x690 with touch; the stick is driven by REAL touch events (CDP Input.dispatchTouchEvent) for the first stretch of
 //        every walk; pc: 1366x768 without touch; the walk is driven by REAL key presses (keyboard.down/up).
@@ -110,7 +110,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
       await shot(p, `walk${n}-resumed`); await p.evaluate(() => { window.__field = null; }); await steer();
     }
     w.near = await walkOn(7); await wait(1600); await shot(p, `walk${n}-near`);
-    await p.evaluate(() => { window.__launches = []; const o = AdventureOldTown.start; AdventureOldTown.start = (c, id) => { window.__launches.push(id); return o(c, id); }; });
+    await p.evaluate(() => { window.__launches = []; if (AdventureOldTown.start.qa) return; const o = AdventureOldTown.start; AdventureOldTown.start = (c, id) => { window.__launches.push(id); return o(c, id); }; AdventureOldTown.start.qa = true; }); // wrapped once per page
     w.enter = await walkOn(1.2);
     await p.waitForFunction(() => window.__launches.length > 0, null, { timeout: 60000 }).catch(() => {});
     await p.waitForFunction(() => window.StoryScenes?.playing || window.AdventureOldTown?.run || document.getElementById('sfBeat'), null, { timeout: 120000 }).catch(() => {});
@@ -141,7 +141,10 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   if (WALKS.includes(3)) { await fresh(); report.skip3 = await skipTo('buy_heavy_bag'); report.quest3 = await tapQuest(); await doWalk(3, 'buy_heavy_bag'); }
   if (WALKS.includes(4)) { // Otto's film started by walk 3 (or here from the card): Buy, then Skip
     if (!WALKS.includes(3)) { await fresh(); await skipTo('buy_heavy_bag'); await p.evaluate(() => FreeWalk.arrive('buy_heavy_bag')); await p.evaluate(cj => AdventureOldTown.start(eval(cj), 'buy_heavy_bag'), ctxJs); }
-    await p.waitForSelector('dialog.dream-scene .dream-buy:not([hidden])', { timeout: 240000 }); await wait(800); await shot(p, 'walk4-otto-buy');
+    await p.waitForSelector('dialog.dream-scene', { timeout: 240000 });
+    for (let i = 0; i < 200 && !await p.$('dialog.dream-scene .dream-buy:not([hidden])'); i++) { // the shop film waits at each spoken line for a tap
+      if (DEV === 'phone') await p.touchscreen.tap(200, 300); else await p.mouse.click(683, 360); await wait(1500); }
+    await wait(800); await shot(p, 'walk4-otto-buy');
     if (DEV === 'phone') await p.tap('dialog.dream-scene .dream-buy'); else await p.click('dialog.dream-scene .dream-buy');
     await tapSkip(); await doWalk(4, 'bag_drill');
   }

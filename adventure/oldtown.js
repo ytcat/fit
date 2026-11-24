@@ -373,7 +373,7 @@
   const said = (id, kind, variant) => (window.AdventureStory?.pick?.(id, kind, variant) || window.AdventureStory?.lines[id]?.[kind] || []).map(l => ({ who: l.who, text: T(l.text) }));
   const coins = () => { try { return window.GameDomain?.wallet(rg().store.game()).coins ?? 0; } catch { return 0; } };
   const kickerOf = (g, s) => { const st = SF().state(g, s.chapter); return `${fill(FW().chapter, { n: s.chapter, c: T(SF().titles[s.chapter]) })} — ${s.side ? FW().side : fill(FW().stepOf, { i: st.main.find(m => m.id === s.id)?.n || 1, n: st.total })}`; };
-  // ---- GOTR-0120 story walks (owner 2026-11-25): when the next Chapter 1 step happens at another place than where the last
+  // ---- GOTR-0122 story walks (owner 2026-11-25): when the next Chapter 1 step happens at another place than where the last
   // film ended (FreeWalkCore.STORY_WALKS), the story goes on as a walk in the town: free walk opens where the film ended, the
   // destination set, and walking into its ring starts the step once (free-walk.js ticket -> start -> before, walk now done).
   // A device that cannot show the walk gets the old direct transition (the walk is marked done), so the story never blocks.
@@ -397,7 +397,7 @@
   function before(ctx, id, o = {}) {
     closeBeat(); const s = SF()?.find(id), g = ctx.store.game(); if (!s || !g) return false;
     if (A().blockedByGymShift(g,id) || (!SF().playable(g,id) && (!o.force || id === 'clean_gym'))) return false;
-    if (!o.walked && walkGate(id)) return true; // GOTR-0120: the step happens at another place: walk there first
+    if (!o.walked && walkGate(id)) return true; // GOTR-0122: the step happens at another place: walk there first
     const d = DEFS[id];
     if (d?.kind === 'film') { launch(ctx, id); return true; }
     if (d?.kind === 'buy') { shop(ctx, id); return true; }
@@ -429,14 +429,14 @@
   function playFilm(ctx, id) {
     const S = window.StoryScenes, d = DEFS[id], s = SF().find(id), g = ctx.store.game(), fresh = !snaps[id]?.done;
     const finish = res => { recordStory(ctx, id); filmDone(ctx, id, res, fresh); };
-    const until = id === 'dream_arrival' && fresh && FWalk()?.willWalk?.('dream_gym_talk') ? OPENING_CUT : undefined; // GOTR-0120
+    const until = id === 'dream_arrival' && fresh && FWalk()?.willWalk?.('dream_gym_talk') ? OPENING_CUT : undefined; // GOTR-0122
     if (S && (S.sceneIds || []).includes(d.scene)) { rg()?.close?.(); mark(d.scene); S.play(d.scene, { onDone: finish, until }); return; }
     const fb = SF().firstBrick(g);
     conversation(g, s, [said(id, 'intro', fb), said(id, 'outro', fb)], () => finish({ id, skipped: true, fallback: true }));
   }
   function filmDone(ctx, id, res, fresh) {
     const i = A().dreamSteps.indexOf(id), next = A().dreamSteps[i + 1];
-    if (fresh && next && walkGate(next)) return; // GOTR-0120: arrival -> walk to the gym; the apology -> walk to the market
+    if (fresh && next && walkGate(next)) return; // GOTR-0122: arrival -> walk to the gym; the apology -> walk to the market
     if (fresh && next && DEFS[next]?.kind === 'film') { snaps[next] = { done: SF().doneOf(ctx.store.game(), SF().find(next)), stars: 0, level: A().level(ctx.store.game()) }; playFilm(ctx, next); return; }
     if (fresh && next === 'first_brick') { launch(ctx, next); return; }
     if (fresh && next === 'market_robber' && before(ctx, next)) return; // beat 5 -> the robbery film -> the street fight (GOTR-0096)
@@ -451,7 +451,7 @@
     if (!o.counter && film && S && (S.sceneIds || []).includes(film) && (owned || free || have >= price)) {
       let bought = false; rg()?.close?.(); mark(film);
       S.play(film, { owned, price, onBuy: () => { const res = recordStory(ctx, id); bought = !!res.ok; return bought; },
-        onDone: () => { if (bought && walkOn()) return; openMap(CH[1].pin, () => bought || owned ? afterBeat(id, { ok: true, bought }) : shop(ctx, id, { counter: true })); } }); // GOTR-0120: bought -> carry it to the gym
+        onDone: () => { if (bought && walkOn()) return; openMap(CH[1].pin, () => bought || owned ? afterBeat(id, { ok: true, bought }) : shop(ctx, id, { counter: true })); } }); // GOTR-0122: bought -> carry it to the gym
       return;
     }
     const short = !free && have < price, info = [goalLine(s), { text: fill(w.have, { c: have }) }, short ? { text: fill(w.short, { k: price - have }), cls: 'sf-beat-gate' } : null, standLine(s)];
@@ -613,7 +613,7 @@
     const res = d.any || won ? recordStory(ctx, r.id, won ? 'won' : 'lost') : null;
     if (res?.ok && res.coins) toast(fill(W().coins, { n: res.coins }), 'coin');
     pendingAfter = true; const at = { ok: d.any ? !!res?.ok : won && !!res?.ok, won, coins: res?.ok ? res.coins : 0 };
-    const after = () => { pendingAfter = false; if (at.ok && walkOn()) return; openMap(pin, () => afterBeat(r.id, at)); }; // GOTR-0120
+    const after = () => { pendingAfter = false; if (at.ok && walkOn()) return; openMap(pin, () => afterBeat(r.id, at)); }; // GOTR-0122
     window.RinglessVenues?.release(window.app?.engine, true); // the street/Docks bout is over: gloves, outfit and hand gear back on the Fighter
     const S = window.StoryScenes;
     if (d.after && res?.ok && S && (S.sceneIds || []).includes(d.after)) setTimeout(() => { restoreCast(r); rg()?.close?.(); S.play(d.after, { outcome: won ? 'win' : 'loss', onDone: after }); }, 600); // Brick stays in the room until the scene takes over
@@ -642,7 +642,7 @@
     play();
     return true;
   }
-  // GOTR-0120: the player quit in the middle of a story walk (the walk was open when the page went away): back into it.
+  // GOTR-0122: the player quit in the middle of a story walk (the walk was open when the page went away): back into it.
   function resumeWalk() {
     if (walkResumed) return false; const w = FWalk()?.storyWalk?.(); if (!w?.record?.open) return false;
     walkResumed = true;
@@ -704,7 +704,7 @@
         const more = mk('div', 'sf-more'); if (gt.steps[1]) more.append(btn(`${names[1]} ▶`, () => before(ctx, gt.steps[1]), 'game-button adv-go adv-alt sf-small'));
         if (A_.freeMode()) more.append(btn(w.fightAnyway, () => before(ctx, cur.id, { force: true }), 'game-button adv-go adv-alt sf-small'));
         if (more.children.length) quest.append(more);
-      } else if (FWalk()?.storyWalk?.()?.step === cur.id && window.FreeWalkCore) { quest.append(primary(`${window.FreeWalkCore.text(lang(), 'goal_' + cur.id)} ▶`, () => before(ctx, cur.id))); // GOTR-0120
+      } else if (FWalk()?.storyWalk?.()?.step === cur.id && window.FreeWalkCore) { quest.append(primary(`${window.FreeWalkCore.text(lang(), 'goal_' + cur.id)} ▶`, () => before(ctx, cur.id))); // GOTR-0122
       } else { const k = DEFS[cur.id]?.kind; quest.append(primary(k === 'film' ? w.watch : k === 'story_fight' || cur.boss ? w.fight : st.doneCount === 0 && !st.side.some(s => s.done) ? w.start : w.cont, () => before(ctx, cur.id))); }
       // Owner (development build only): skip the current step with its minimum passing result, to reach every task quickly.
       if (devSkipAction(cur.id)) quest.append(btn(w.devSkip, () => devSkip(ctx, cur.id), 'game-button adv-go adv-alt sf-small sf-dev-skip'));
