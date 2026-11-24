@@ -300,14 +300,15 @@
     // the camera over it; a building or wall (not walkable) brings it closer to the Fighter.
     const g = R.town.grid, ox = R.center.x, oy = R.center.y, oz = R.center.z;
     // the camera body has a size: each sample along the ray checks 0.6 m round it (a thin wall between samples is still seen)
-    // 0 free, 1 solid (a wall, rising ground), 2 only a tree crown (GOTR-0120: crowns no longer tip the wide view top-down)
-    const solidAt = (x, y, z) => { let s = 0; for (const [a, b] of [[0, 0], [.6, 0], [-.6, 0], [0, .6], [0, -.6]]) { if (g.top(x + a, z + b) > y) return 1; if ((R.town.canopy?.(x + a, z + b) ?? -1e9) > y) s = 2; } return s; };
-    const probe = (yaw, pitch) => { const cp = Math.cos(pitch), sp = Math.sin(pitch); for (let k = 1; k <= 24; k++) { const f = d * k / 24, x = ox + Math.sin(yaw) * cp * f, z = oz + Math.cos(yaw) * cp * f, h = solidAt(x, oy + sp * f - .4, z); if (h) return { k: k * 16 / 24, ground: g.allowed(x, z), crown: h === 2 }; } return null; };
+    // GOTR-0120: 0 free, 1 a wall (not walkable), 2 rising ground (walkable: lift the view), 3 only a tree crown. The sample
+    // that hits decides (before, a wall 0.6 m beside a walkable centre counted as rising ground and tipped the view top-down).
+    const solidAt = (x, y, z) => { let s = 0; for (const [a, b] of [[0, 0], [.6, 0], [-.6, 0], [0, .6], [0, -.6]]) { if (g.top(x + a, z + b) > y) { if (!g.allowed(x + a, z + b)) return 1; s = 2; } else if (!s && (R.town.canopy?.(x + a, z + b) ?? -1e9) > y) s = 3; } return s; };
+    const probe = (yaw, pitch) => { const cp = Math.cos(pitch), sp = Math.sin(pitch); for (let k = 1; k <= 24; k++) { const f = d * k / 24, x = ox + Math.sin(yaw) * cp * f, z = oz + Math.cos(yaw) * cp * f, h = solidAt(x, oy + sp * f - .4, z); if (h) return { k: k * 16 / 24, ground: h >= 2, crown: h === 3 }; } return null; };
     // the player's own view first; a wall or stall right behind the Fighter swings the camera a little round instead
     let best = null;
     for (const off of [0, .35, -.35, .7, -.7, 1.05, -1.05]) {
       const yaw = R.yaw + off; let pitch = PITCH, hit = probe(yaw, pitch);
-      while (hit && hit.ground && pitch < (hit.crown ? .9 : 1.25)) { pitch += .08; hit = probe(yaw, pitch); } // over rising ground; over a crown only a little (then closer)
+      while (hit && pitch < (hit.crown ? .9 : hit.ground ? 1.25 : .98)) { pitch += .08; hit = probe(yaw, pitch); } // over rising ground; over a wall or a crown only a little higher (then closer)
       const free = hit ? Math.max(2.2, d * (hit.k - 1.5) / 16) : d, c = { off, pitch, free };
       if (!best || free > best.free + .5) best = c;
       if (free >= d * .6) { best = c; break; }
@@ -347,7 +348,7 @@
     let len = bd, next = R.route[best], acc = 0;
     for (let i = best; i < R.route.length - 1; i++) { const a = R.route[i], b = R.route[i + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]); len += l; if (acc < 9) { acc += l; next = b; } }
     if (straight < 14) next = [at.x, at.z];
-    R.dist.textContent = t('metres', { n: Math.max(1, Math.round(Math.max(straight, Math.min(len, straight * 3)))) });
+    R.dist.textContent = t('metres', { n: Math.max(1, Math.round(straight < 14 ? straight : Math.max(straight, Math.min(len, straight * 3)))) }); // close by: straight there
     const dx = next[0] - R.s.x, dz = next[1] - R.s.z, l = Math.hypot(dx, dz); if (l < .05) { R.arrow.hidden = true; return; }
     const y = R.groundY, A = new THREE.Vector3(R.s.x, y, R.s.z).project(R.camera), B = new THREE.Vector3(R.s.x + dx / l, y, R.s.z + dz / l).project(R.camera);
     R.arrow.style.transform = 'rotate(' + Math.atan2(A.y - B.y, (B.x - A.x) * R.camera.aspect) + 'rad)'; R.arrow.hidden = false;
@@ -452,13 +453,17 @@
     const label = on ? t('entryLabel') : t('entryBusy'); entry.setAttribute('aria-label', label); entry.title = label;
   }
   function mountEntry() {
-    if (entry) return;
-    const lang0 = document.getElementById('langEN'), group = lang0?.parentElement?.parentElement; if (!group) return;
+    if (entry) { // the top bar is rebuilt by the game shell (club-interface.js): keep the button in its tools row
+      const tools = document.querySelector('header .club-head-tools'); if (tools && entry.parentElement !== tools) tools.prepend(entry); return;
+    }
+    // the game's top bar: its tools row (Fighter level, Shop, profile), once the club shell has built it (never the header's
+    // first child: club-interface.js takes that one as the brand)
+    const group = document.querySelector('header .club-head-tools'); if (!group) { setTimeout(mountEntry, 400); return; }
     entry = document.createElement('button'); entry.type = 'button'; entry.id = 'freeWalkBtn'; entry.className = 'fw-entry';
     entry.innerHTML = ICON; const word = el('span', 'fw-entry-word', ''); entry.append(word);
     entry.addEventListener('click', () => { if (!entry.disabled) open({ start: 'resume' }); });
     group.prepend(entry); paintEntry();
-    setInterval(paintEntry, 600);
+    setInterval(() => { mountEntry(); paintEntry(); }, 600);
     const hook = () => { const a = app(); if (!a?.setLanguage) { setTimeout(hook, 500); return; } if (a.setLanguage.fwEntry) return; const prev = a.setLanguage.bind(a); a.setLanguage = function (l) { const r = prev(l); entryKey = ''; paintEntry(); return r; }; a.setLanguage.fwEntry = true; };
     hook();
   }

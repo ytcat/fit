@@ -54,9 +54,9 @@
 .fw-keys[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){.fw-pad .fw-stick,.fw-pad .fw-knob{transition:none!important}}
 /* GOTR-0120 the persistent entry in the top bar */
-.fw-entry{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 8px;border-radius:8px;border:1px solid #3b8f83;background:#0f2a2a;color:#a4f0e2;font:800 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.fw-entry{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:36px;min-width:40px;padding:0 10px;border-radius:10px;border:1px solid #3b8f83;background:#0f2a2a;color:#a4f0e2;font:800 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer;touch-action:manipulation;white-space:nowrap}
 .fw-entry:active{transform:scale(.95)}
 .fw-entry:disabled{opacity:.4;cursor:default}
 .fw-entry[hidden]{display:none}
 .fw-entry svg{flex:none}
-@media (max-width:360px){.fw-entry-word{display:none}}
+@media (max-width:520px){.fw-entry{padding:0 9px}.fw-entry-word{display:none}} /* phones: the walking figure only (its label is the aria-label / title) */

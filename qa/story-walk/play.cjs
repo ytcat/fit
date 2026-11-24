@@ -41,9 +41,9 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   const ctxJs = `({ store: ringfighterGame.store, startFight: ringfighterGame.startFight, startTraining: ringfighterGame.startTraining, change: a => { const r = ringfighterGame.store.gameAction(a); if (r.ok) ringfighterGame.apply?.(); return r.ok; } })`;
   // the game's development skip for every step before `step` that is not done yet
   const skipTo = step => p.evaluate(([step, cj]) => { const g = ringfighterGame, ctx = eval(cj);
-    for (const id of AdventureProgress.dreamSteps) { if (id === step) break; if (AdventureProgress.dreamDone(g.store.game(), id)) continue;
-      if (id === 'clean_gym') { g.store.gameAction({ type: 'adventure', adventure: 'mission', missionId: 'clean_gym', measured: { marks: 25 } }); continue; }
-      if (!AdventureOldTown.devSkip(ctx, id)) return 'skip failed ' + id; }
+    for (const id of AdventureProgress.dreamSteps) { if (id === step) break;
+      if (!AdventureProgress.dreamDone(g.store.game(), id) && !AdventureOldTown.devSkip(ctx, id)) return 'skip failed ' + id;
+      if (id === 'first_brick' && AdventureProgress.blockedByGymShift(g.store.game(), 'night_shadow')) g.store.gameAction({ type: 'adventure', adventure: 'mission', missionId: 'clean_gym', measured: { marks: 25 } }); } // the gym shift (not a dream step; dev skip has none for it)
     document.querySelectorAll('dialog[open]').forEach(d => d.close()); AdventureOldTown.closeBeat(); return StoryFlow.state(g.store.game(), 1).current?.id; }, [step, ctxJs]);
   const walkOpen = () => p.waitForFunction(() => FreeWalk.snapshot() && !FreeWalk.snapshot().busy && FreeWalk.snapshot().walk, null, { timeout: 300000 });
   // the stick direction (camera frame, h right / v forward) toward the target, from a distance field over the walk grid
@@ -77,11 +77,13 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   }
   // the rest of the way with the game's own movement (no drawing), until `stop` metres from the target or the walk closes
   const walkOn = stop => p.evaluate(async stop => {
-    const town = FreeWalk.qa.town, G = town.grid, nx = G.nx, N = nx * G.nz;
-    for (let it = 0; it < 2500 && FreeWalk.playing; it++) {
+    const town = FreeWalk.qa.town, G = town.grid, nx = G.nx, N = nx * G.nz; let bestD = Infinity, stuck = 0;
+    for (let it = 0; it < 3000 && FreeWalk.playing; it++) {
       const snap = FreeWalk.snapshot(), t = town.targets[snap.destination], s = snap.s; if (Math.hypot(t.x - s.x, t.z - s.z) <= stop) return { left: Math.hypot(t.x - s.x, t.z - s.z) };
       const dist = window.__field.dist; let k = G.idx(s.x, s.z); if (k < 0 || dist[k] < 0) { const n = G.nearest(s.x, s.z); k = G.idx(n.x, n.z); }
-      for (let st = 0; st < 8; st++) { let best = k; for (const n of [k - 1, k + 1, k - nx, k + nx]) if (n >= 0 && n < N && dist[n] >= 0 && dist[n] < dist[best]) best = n; if (best === k) break; k = best; }
+      if (dist[k] < bestD) { bestD = dist[k]; stuck = 0; } else stuck++;
+      const look = (it % 10 < 5 && stuck > 6) ? 1 : 8; // stuck on a corner: aim at the next cell only for a while
+      for (let st = 0; st < look; st++) { let best = k; for (const n of [k - 1, k + 1, k - nx, k + nx]) if (n >= 0 && n < N && dist[n] >= 0 && dist[n] < dist[best]) best = n; if (best === k) break; k = best; }
       const ax = G.x0 + (k % nx + .5) * G.cell, az = G.z0 + (Math.floor(k / nx) + .5) * G.cell; let dx = ax - s.x, dz = az - s.z; const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
       const Y = snap.yaw; const r = FreeWalk.qa.walk(dx * Math.cos(Y) - dz * Math.sin(Y), -dx * Math.sin(Y) - dz * Math.cos(Y), .2); if (r?.closed) return { closed: true, launched: r.launched };
       if (it % 40 === 39) await new Promise(r => setTimeout(r, 0));
@@ -92,14 +94,15 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   async function doWalk(n, expect) {
     cur = n; const w = { n, step: expect };
     await walkOpen(); await wait(1800);
-    Object.assign(w, await p.evaluate(() => { const s = FreeWalk.snapshot(); return { walk: s.walk, goal: s.goal, destination: s.destination, distance: s.distance, carry: s.carry, time: s.time, zone: s.zone, ticket: s.ticket, camDist: s.camDist && +s.camDist.toFixed(1), arrow: !document.querySelector('.fw-arrow').hidden, entry: getComputedStyle(document.querySelector('.fw-pad')).display, keys: !document.querySelector('.fw-keys').hidden }; }));
+    Object.assign(w, await p.evaluate(() => { const s = FreeWalk.snapshot(); return { walk: s.walk, goal: s.goal, destination: s.destination, distance: s.distance, carry: s.carry, time: s.time, zone: s.zone, ticket: s.ticket, camDist: s.camDist && +s.camDist.toFixed(1), camPitch: s.camPitch && +s.camPitch.toFixed(2), arrow: !document.querySelector('.fw-arrow').hidden, entry: getComputedStyle(document.querySelector('.fw-pad')).display, keys: !document.querySelector('.fw-keys').hidden }; }));
     await shot(p, `walk${n}-start`);
     w.realInputMetres = await realInput(DEV === 'phone' ? 6 : 6);
     await steer();
     if (RESUME && n === 2) { // quit in the middle of the walk (page reload), come back: the walk resumes at the same spot with the same destination
       await p.evaluate(() => FreeWalk.qa.walk(0, 0, .1));
       const before = await p.evaluate(() => FreeWalk.snapshot().s);
-      await load(false); await closeAll(); await p.evaluate(() => ringfighterGame.home());
+      await load(false); // the game boots to its home; the walk left open reopens by itself (AdventureOldTown.onOpen -> resumeWalk)
+      if (!await p.waitForFunction(() => FreeWalk.playing, null, { timeout: 30000 }).then(() => true, () => false)) { w.resumeNeededHome = true; await closeAll(); await p.evaluate(() => ringfighterGame.home()); }
       await walkOpen(); await wait(1500);
       const after = await p.evaluate(() => ({ s: FreeWalk.snapshot().s, walk: FreeWalk.snapshot().walk, destination: FreeWalk.snapshot().destination }));
       w.resume = { before, after, moved: Math.round(Math.hypot(after.s.x - before.x, after.s.z - before.z) * 100) / 100, same: after.walk === expect };

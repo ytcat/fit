@@ -645,7 +645,12 @@
   // GOTR-0120: the player quit in the middle of a story walk (the walk was open when the page went away): back into it.
   function resumeWalk() {
     if (walkResumed) return false; const w = FWalk()?.storyWalk?.(); if (!w?.record?.open) return false;
-    walkResumed = true; setTimeout(() => { if (!window.StoryScenes?.playing && !FWalk()?.playing && !run) walkGate(w.step); }, 300); return true;
+    walkResumed = true;
+    const go = (k = 0) => { // at boot the Fighter's rig may still be loading: try again (up to a minute), never over a film or a run
+      if (window.StoryScenes?.playing || FWalk()?.playing || (run && !run.ended) || FWalk()?.storyWalk?.()?.step !== w.step) return;
+      if (!walkGate(w.step) && k < 120) setTimeout(() => go(k + 1), 500);
+    };
+    setTimeout(go, 300); return true;
   }
   function chapterIntro(n) { const k = 'ch' + n; if (seen(k) || !window.AdventureStory?.lines['chapter_' + n]) return; mark(k); window.AdventureStory.show('chapter_' + n, 'intro'); }
   const stamp = () => { lsSet('gotr.adv.last', String(Date.now())); };
