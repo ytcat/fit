@@ -238,6 +238,89 @@
     g.traverse(o => { if (o.isMesh) o.castShadow = true; }); g.userData.storyPart = true;
     return { group: g, dispose: () => { g.traverse(o => o.geometry?.dispose()); leather.dispose(); cord.dispose(); } };
   }
+  // Geometry for a few personal effects: a coin purse, folded note and small key-ring.
+  const SPILL = [
+    { delay: .025, v: [.56, .63, -.24], ground: .035, spin: 2.6 },
+    { delay: .072, v: [-.43, .58, -.44], ground: .015, spin: -4.5 },
+    { delay: .105, v: [.50, .45, .19], ground: .024, spin: 4.8 }
+  ];
+  function spillMesh(scene) {
+    const objects = SPILL.map((_, i) => {
+      const g = new THREE.Group(); g.name = 'Handbag contents'; g.userData.handbagSpill = true; g.visible = false; scene.add(g);
+      const add = (geo, c, y = 0, x = 0, z = 0) => { const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+        color: new THREE.Color(c).convertSRGBToLinear(), roughness: .72
+      })); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; };
+      if (i === 0) {
+        const leather = add(new THREE.SphereGeometry(.052, 12, 8), '#315f6c'); leather.scale.set(1, .62, .78);
+        add(new THREE.BoxGeometry(.050, .009, .010), '#e0bf79', .025, .008);
+      } else if (i === 1) {
+        add(new THREE.BoxGeometry(.091, .011, .059), '#eee0b4');
+        add(new THREE.BoxGeometry(.074, .001, .005), '#b58b63', .006, 0, -.01);
+      } else {
+        const ring = add(new THREE.TorusGeometry(.019, .0045, 6, 12), '#e2ba72', 0, -.027); ring.rotation.x = Math.PI * .5;
+        add(new THREE.BoxGeometry(.059, .009, .013), '#c7d0d4', 0, .017);
+        add(new THREE.BoxGeometry(.014, .009, .022), '#e1e2db', 0, .040, .006);
+      }
+      return g;
+    });
+    return { objects, dispose() { for (const g of objects) { scene.remove(g); for (const m of g.children) { m.geometry.dispose(); m.material.dispose(); } } } };
+  }
+
+  // The local shell's real vertices set the lowest available contact, including the clasp and handles.
+  // Rotation support can be evaluated from the local AABB corners (conservative by a few millimetres).
+  function dropBounds(obj) {
+    const box = new THREE.Box3(); obj.traverse(m => {
+      if (!m.geometry) return;
+      m.geometry.computeBoundingBox(); m.updateMatrix(); box.union(m.geometry.boundingBox.clone().applyMatrix4(m.matrix));
+    });
+    return [box.min.x,box.max.x].flatMap(x=>[box.min.y,box.max.y].flatMap(y=>[box.min.z,box.max.z].map(z=>V(x,y,z))));
+  }
+  function makeDrop(key, obj, scene) {
+    const seed=V(...key.fallFrom), from=new THREE.Quaternion(), to=new THREE.Quaternion(), tmp=V(), q=new THREE.Quaternion(), p=V();
+    const corners=dropBounds(obj), spit=spillMesh(scene), yAxis=V(0,1,0);
+    let anchor=null, last=null, time=-Infinity;
+    const end=to.setFromEuler(new THREE.Euler(0,key.at[2],1.58,'YXZ'));
+    const floor=q=>.006-Math.min(...corners.map(v=>tmp.copy(v).applyQuaternion(q).y));
+    const endY=floor(end), gravity=9.81;
+    function pose(state,u) {
+      const hit=state.hit, v=clamp(u/hit);
+      q.copy(state.q).slerp(end,smooth(v));
+      const floorY=floor(q), drift=smooth(v), bump=Math.max(0,u-hit);
+      const y=state.p.y-gravity*u*u/2;
+      p.set(state.p.x+(key.at[0]-state.p.x)*drift,
+        u<hit?Math.max(floorY,y):endY+Math.max(0,.61*bump-.5*gravity*bump*bump),
+        state.p.z+(key.at[1]-state.p.z)*drift);
+    }
+    function held(t, position, rotation) {
+      last={ t, p:position.clone(), q:rotation.clone() };anchor=null;time=t;
+      for(const o of spit.objects)o.visible=false;
+    }
+    function frame(t, heldNow) {
+      if(t<time-1e-6)anchor=null;
+      time=t;
+      if(!anchor) {
+        // Live playback crosses the release with the actual solved paw. The authored measured anchor is for forward seeks.
+        const ref=last&&key.t-last.t<=.085&&last.t<=key.t&&t-last.t<=.10?last:
+          heldNow&&t-key.t<.075?heldNow:{p:seed,q:from.setFromAxisAngle(yAxis,key.fallFrom[3])};
+        const hit=Math.sqrt(2*Math.max(.05,ref.p.y-endY)/gravity);
+        anchor={p:ref.p.clone(),q:ref.q.clone(),hit};
+      }
+      const u=Math.max(0,t-key.t);pose(anchor,u);obj.position.copy(p);obj.quaternion.copy(q);obj.visible=true;
+      for(let i=0;i<spit.objects.length;i++) {
+        const o=spit.objects[i], d=SPILL[i], start=anchor.hit+d.delay, elapsed=u-start;
+        o.visible=elapsed>=0;if(!o.visible)continue;
+        pose(anchor,start);
+        // Starts inside the turned bag's mouth, then follows a short hop and damped slide.
+        const mouth=tmp.set(0,-.083,.023).applyQuaternion(q).add(p);
+        const ground=d.ground, airborne=(d.v[1]+Math.sqrt(d.v[1]**2+2*gravity*Math.max(0,mouth.y-ground)))/gravity;
+        const roll=Math.max(0,elapsed-airborne), r=Math.min(elapsed,airborne)+.24*(1-Math.exp(-roll*8));
+        o.position.set(mouth.x+d.v[0]*r,Math.max(ground,mouth.y+d.v[1]*elapsed-.5*gravity*elapsed*elapsed),mouth.z+d.v[2]*r);
+        const spin=(1-Math.exp(-elapsed*6))*d.spin;
+        o.rotation.set(.12*Math.sin(spin)*Math.exp(-roll*10),spin,.68*Math.sin(spin)*Math.exp(-roll*10));
+      }
+    }
+    return { held, frame, dispose:spit.dispose, hide(){for(const o of spit.objects)o.visible=false;} };
+  }
   /* The new heavy bag from Otto's display to the Fighter's right shoulder (arm-fixes, after GOTR-0103). heavybag keys:
    *   { on: 'display', yaw }   hangs at set.objects.display, turned by yaw (its +x = his right side when he picks it up)
    *   { on: 'reach' }          he stands with the bag front-right and his right hand goes out to the side of it (REACH s)
@@ -258,7 +341,9 @@
     // the handbag: Mrs. Hazel's own prop, given back exactly as found
     if (carry.handbag) {
       const hk = byRig('hazel'), obj = hk ? Cast?.market?.handbag(rigs[hk]) : null;
-      if (obj) items.push({ name: 'handbag', obj, keys: carry.handbag, hang: .0, ground: .02, home: { parent: obj.parent, pos: obj.position.clone(), q: obj.quaternion.clone(), visible: obj.visible, auto: obj.matrixAutoUpdate } });
+      const key=carry.handbag.find(k=>k.fallFrom);
+      if (obj) items.push({ name: 'handbag', obj, keys: carry.handbag, hang: .0, ground: .02,
+        drop:key?makeDrop(key,obj,scene):null, home: { parent: obj.parent, pos: obj.position.clone(), q: obj.quaternion.clone(), visible: obj.visible, auto: obj.matrixAutoUpdate } });
     }
     if (carry.pouch) { const p = pouchMesh(); scene.add(p.group); items.push({ name: 'pouch', obj: p.group, keys: carry.pouch, hang: .02, ground: .06, own: p }); }
     let heavy = null;
@@ -296,8 +381,23 @@
     /** The hand's spot on the leather, in bag space (x = his right, y = the bag's axis toward its top, z = up once it lies on the
      *  shoulder): GRIP.a from the top on his right side, over the top-outer curve, GRIP.along in front of the middle. */
     const gripLocal = () => V(CARRY.grip.out * Math.sin(CARRY.grip.a), -CARRY.grip.along, CARRY.grip.out * Math.cos(CARRY.grip.a));
-    /** Hand targets (DreamPose reach objects) for the actor that carries the heavy bag. */
-    function reach(actor, t) {
+    /* Handovers (ch1-motion): an item that passes from one actor's hand to another's: both hands come to a point between them
+     * (in the last 0.7 s before the key), the item changes hands there, and they let go (0.35 s). Without this the handbag
+     * and the reward pouch jumped 1.5 m from one hand to the other. */
+    const HAND_IN = .7, HAND_OUT = .35;
+    function handover(actor, t) {
+      const me = rigs[actor]; if (!me) return null;
+      for (const it of items) for (let i = 1; i < it.keys.length; i++) {
+        const a = it.keys[i - 1], b = it.keys[i], A = holderOf(a.on), B = holderOf(b.on); if (!A || !B || A === B || (me !== A && me !== B)) continue;
+        const w = smooth((t - (b.t - HAND_IN)) / HAND_IN) * (1 - smooth((t - b.t) / HAND_OUT)); if (w <= 0) continue;
+        const side = me === A ? a.hand || 'R' : b.hand || 'R', mid = () => { const p = A.joints['arm' + (a.hand || 'R')].getWorldPosition(V()), q = B.joints['arm' + (b.hand || 'R')].getWorldPosition(V()); return p.add(q).multiplyScalar(.5).setY(1.3); }; // between the two shoulders, at chest height
+        return { [side]: { at: rig => rig.root.worldToLocal(mid()).toArray(), w, paw: 'grip' } };
+      }
+      return null;
+    }
+    /** Hand targets (DreamPose reach objects): the heavy bag's carrier, else a handover. */
+    function reach(actor, t) { return heavyReach(actor, t) || handover(actor, t); }
+    function heavyReach(actor, t) {
       if (!heavy || rigs[actor] !== holderOf('fighter')) return null;
       const c = rigs[actor], k = heavy.keys[keyIndex(t)]; if (k.on === 'display') return null;
       const first = bagPose(c, t); if (!first || first.hand <= 0) return null;
@@ -322,11 +422,20 @@
           // hangs upright under the hand, turned with the holder (independent of the wrist and of the mirrored root)
           holder.root.updateMatrixWorld(true); hand.getWorldPosition(wp); wp.y -= it.hang + .02;
           wq.setFromAxisAngle(UP, holder.root.rotation.y); m4.compose(wp, wq, ws);
-          o.matrixAutoUpdate = false; o.matrix.copy(hand.matrixWorld).invert().multiply(m4); o.matrixWorldNeedsUpdate = true; o.visible = true;
+          o.matrixAutoUpdate = false; o.matrix.copy(hand.matrixWorld).invert().multiply(m4); o.matrixWorldNeedsUpdate = true; o.visible = true; it.drop?.held(t,wp,wq);
         } else if (k.on === 'ground') {
           if (o.parent !== scene) scene.add(o);
-          o.matrixAutoUpdate = true; o.position.set(k.at[0], it.ground + .2, k.at[1]); o.rotation.set(0, k.at[2] || 0, it.name === 'handbag' ? 1.35 : 0); o.visible = true; // the handbag lies on its side
-        } else o.visible = false;
+          o.matrixAutoUpdate = true;
+          if(it.drop&&k.fallFrom) {
+            const old=holderOf(it.keys[it.keys.indexOf(k)-1]?.on); let now=null;
+            if(old&&t-k.t<.075) {
+              old.root.updateMatrixWorld(true);old.joints['hand'+(it.keys[it.keys.indexOf(k)-1]?.hand||'R')].getWorldPosition(wp);
+              wp.y-=it.hang+.02;wq.setFromAxisAngle(UP,old.root.rotation.y);now={p:wp,q:wq};
+            }
+            it.drop.frame(t,now);continue;
+          }
+          o.position.set(k.at[0], it.ground + .2, k.at[1]); o.rotation.set(0, k.at[2] || 0, it.name === 'handbag' ? 1.35 : 0); o.visible = true; // the handbag lies on its side
+        } else { o.visible = false;it.drop?.hide(); }
       }
       if (heavy) {
         const g = heavy.b.group, c = holderOf('fighter'), k = heavy.keys[keyIndex(t)];
@@ -338,7 +447,7 @@
     }
     function dispose() {
       for (const it of items) {
-        const o = it.obj;
+        const o = it.obj; it.drop?.dispose();
         if (it.home) { o.parent?.remove(o); it.home.parent?.add(o); o.position.copy(it.home.pos); o.quaternion.copy(it.home.q); o.scale.set(1, 1, 1); o.visible = it.home.visible; o.matrixAutoUpdate = it.home.auto; o.updateMatrix(); }
         else { o.parent?.remove(o); it.own?.dispose(); }
       }

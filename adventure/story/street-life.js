@@ -82,7 +82,8 @@
   const walkers = [
     { id: 'rabbit in a coat', x0: 6, z: -6.3, v: 1.25, ears: 'long', fur: '#e9e1d4', muzzle: '#f5efe6', top: '#3f6b8c', legs: '#2e3440', shoes: '#4a3428', coat: true, sleeve: true },
     { id: 'bear with a shopping bag', x0: 38, z: -5.1, v: -1.1, fur: '#7a5236', muzzle: '#a7805e', top: '#c8a24a', legs: '#3d4b5c', shoes: '#222', sleeve: false, bag: '#e6dccb' },
-    { id: 'cat with a dog', x0: -14, z: -5.0, v: 1.15, fur: '#d58a3c', muzzle: '#f0d2a8', top: '#8f3b3b', legs: '#262a33', shoes: '#ddd', sleeve: true, dog: '#c79257' },
+    { id: 'cat with a dog', x0: -14, z: -5.0, v: 1.15, fur: '#d58a3c', muzzle: '#f0d2a8', top: '#8f3b3b', legs: '#262a33', shoes: '#ddd', sleeve: true, dog: '#c79257',
+      townsperson: { species: 'fox', outfit: 'jacket', fur: '#c9743a', muzzle: '#f2ece2', top: '#8f3b3b', shirt: '#e8e2d6', legs: '#2b2f3a', shoes: '#e8e2d6', dog: '#c79257', side: -1, seed: .3 } }, // ch1-motion: a fox townswoman and her dog on a leash (dog-walker.js); the old figure without ArenaSets
     { id: 'dog in a suit', x0: 52, z: -6.5, v: -1.3, fur: '#9a9a9a', muzzle: '#cfcfcf', top: '#2c3138', legs: '#2c3138', shoes: '#111', sleeve: true }
   ];
   const LOOP = [-34, 66], WALK_STRIDE = 1.42;
@@ -134,7 +135,11 @@
     // litter and leaves (one mesh)
     const lm = own(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })), lg = own(litter(rnd(31))), lit = new THREE.Mesh(lg, lm); lit.name = 'leaves and litter'; lit.receiveShadow = true; group.add(lit);
     // walkers (and the dog)
-    const people = walkers.map(w => { const m = walker(w); own(m.geometry); own(m.material); group.add(m); let d = null; if (w.dog) { d = dog(w.dog); own(d.geometry); own(d.material); group.add(d); } return { w, m, d }; });
+    const people = walkers.map(w => {
+      const dw = w.townsperson && window.DogWalker ? (() => { try { return window.DogWalker.build(w.townsperson); } catch (x) { console.warn('dog walker', x); return null; } })() : null;
+      if (dw) { group.add(dw.group); owned.push({ dispose: dw.dispose }); return { w, dw, m: dw.person, d: dw.dog }; }
+      const m = walker(w); own(m.geometry); own(m.material); group.add(m); let d = null; if (w.dog) { d = dog(w.dog); own(d.geometry); own(d.material); group.add(d); } return { w, m, d };
+    });
     const leash = own(new THREE.BufferGeometry().setFromPoints([V(), V()])), leashLine = new THREE.Line(leash, own(new THREE.LineBasicMaterial({ color: 0x2b2420 }))); group.add(leashLine);
     // pigeons
     const total = pigeons.reduce((n, f) => n + f.n, 0), bm = own(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .8 })), wm = own(new THREE.MeshStandardMaterial({ color: 0x7d8290, roughness: .85, side: THREE.DoubleSide }));
@@ -143,13 +148,14 @@
     const track = opts.track ? opts.track.slice() : [], live = !opts.track; const birds = []; for (const f of pigeons) { const r = rnd(f.seed); for (let k = 0; k < f.n; k++) birds.push({ f, x: f.x + (r() - .5) * 1.6, z: f.z + (r() - .5) * 1.0, ry: r() * TAU, ph: r() * 10, fly: { a: (r() - .5) * 1.6, up: 2.2 + r() * 1.4, out: 3 + r() * 3, delay: r() * .35 } }); }
     let lastT = -1, level = opts.level ?? 2;
     const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), S1 = V(1, 1, 1), P = V(), W = new THREE.Matrix4();
-    function setLevel(n) { level = n; for (const p of people) { p.m.visible = n >= 2; if (p.d) p.d.visible = n >= 2; } leashLine.visible = n >= 2; for (const m of [body, ...wings]) m.visible = n >= 2; for (const c of clouds) c.visible = n >= 1; lit.visible = n >= 1; }
+    function setLevel(n) { level = n; for (const p of people) { p.m.visible = n >= 2; if (p.d) p.d.visible = n >= 2; if (p.dw) p.dw.group.visible = n >= 2; } leashLine.visible = n >= 2 && people.some(p => p.d && !p.dw); for (const m of [body, ...wings]) m.visible = n >= 2; for (const c of clouds) c.visible = n >= 1; lit.visible = n >= 1; }
     setLevel(level);
     function update(dt, t, fighter) {
       for (const c of clouds) c.position.x = c.userData.x0 + t * 1.1; // wind from the west, slow
       if (level < 2) return;
-      for (const { w, m, d } of people) {
-        const p = walkerAt(w, t); m.position.set(p.x, 0, p.z); m.rotation.y = p.ry; walkPose(m, p.dist / WALK_STRIDE + w.x0 * .13);
+      for (const { w, m, d, dw } of people) {
+        const p = walkerAt(w, t);
+        if (dw) { dw.update(t, { ...p, speed: Math.abs(w.v) }); continue; } m.position.set(p.x, 0, p.z); m.rotation.y = p.ry; walkPose(m, p.dist / WALK_STRIDE + w.x0 * .13);
         if (d) { const off = w.v > 0 ? 1.15 : -1.15, dx = p.x + off, dz = p.z - .55; d.position.set(dx, 0, dz); d.rotation.y = p.ry; trotPose(d, p.dist / .62, t); m.updateMatrixWorld(true); const hand = m.userData.bones.foreL.localToWorld(V(-.02, -.28, .02)); leash.attributes.position.setXYZ(0, hand.x, hand.y, hand.z); leash.attributes.position.setXYZ(1, dx + off * .2, .5, dz); leash.attributes.position.needsUpdate = true; }
       }
       if (live) { if (t < lastT - 1e-6) track.length = 0; if (fighter) track.push([t, fighter.x, fighter.z]); } lastT = t;
@@ -170,7 +176,8 @@
     }
     function stats() { let meshes = 0, tris = 0; group.traverse(o => { if (!o.visible || !(o.isMesh || o.isSprite)) return; meshes++; const g = o.geometry; tris += ((g.index ? g.index.count : g.attributes.position.count) / 3) * (o.isInstancedMesh ? o.count : 1); }); return { meshes, triangles: Math.round(tris), level }; }
     function dispose() { scene.remove(group); for (const o of owned) o?.dispose?.(); }
-    return { group, update, level: setLevel, stats, dispose, clouds, people, birds };
+    const probe = () => people.find(p => p.dw)?.dw.probe() || null; // QA (qa/ch1-motion/measure.cjs): the dog walker's feet, paws and leash
+    return { group, update, level: setLevel, stats, dispose, clouds, people, birds, probe };
   }
 
   /* ---------------------------------------------------------------- a character's shadow stand-in */

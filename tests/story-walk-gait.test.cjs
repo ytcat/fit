@@ -20,7 +20,7 @@ const knee = (c, s) => { const j = c.joints, a = c.point(j['thigh' + s]), b = c.
 // cadence of the opening film's walks
 {
   const sc = Core.withCity(Core.scenes.dream_opening), speeds = [];
-  for (let t = 7.8; t < 29.4; t += .05) { const a = Core.sample(sc, t).actors.fighter; if (a.walking) speeds.push(a.speed); }
+  for (let t = 7.8; t < 29.4; t += .05) { const a = Core.sample(sc, t).actors.fighter; if (a.walking && !a.easing) speeds.push(a.speed); } // ch1-motion: not while a start or a stop eases in or out (actor ramp; DreamPose plant keeps a step rhythm there)
   const lo = Math.min(...speeds), hi = Math.max(...speeds); console.log('film walking speeds', lo.toFixed(2), '-', hi.toFixed(2), 'm/s -> steps/s', (2 * lo / S).toFixed(2), '-', (2 * hi / S).toFixed(2));
   for (const v of speeds) { const cad = 2 * v / S; assert.ok(cad > 1.7 && cad < 2.2, 'cadence ' + cad.toFixed(2) + ' steps/s at ' + v.toFixed(2) + ' m/s'); }
   const main = speeds.filter(v => v > 1.2 && v < 1.32); assert.ok(main.length > 100 && main.every(v => 2 * v / S >= 1.8 && 2 * v / S <= 2.0), 'the long walks (1.25 m/s): 1.8-2 steps/s');
@@ -73,7 +73,7 @@ for (const species of ['lion', 'rabbit']) for (const wear of ['street', 'kit']) 
   P.reset(c); c.root.scale.set(-1, 1, 1); let worstIn = 0, worstAir = 0; const onTread = new Set();
   for (let t = 7.3; t <= 9.9; t += 1 / 30) {
     const a = Core.sample(sc, t).actors.fighter; c.root.position.set(a.x, a.y, a.z); c.root.rotation.set(0, a.walking ? a.dir : 0, 0); c.root.updateMatrixWorld(true);
-    P.civil(c, { t, dt: t > 7.3 ? 1 / 30 : 0, dist: a.dist, walk: a.walking ? 1 : 0, arms: a.arms || {}, ground: (x, z) => ground(x, z, t) });
+    P.civil(c, { t, dt: t > 7.3 ? 1 / 30 : 0, plant: !!sc.plant, dist: a.dist, walk: a.walking ? 1 : 0, arms: a.arms || {}, ground: (x, z) => ground(x, z, t) }); // as the film poses him (ch1-motion: planted feet)
     c.root.updateMatrixWorld(true); let low = 9;
     for (const s of ['L', 'R']) for (const k of ['heel', 'ball']) { const q = sole(c, s, k), g = ground(q.x, q.z, t); worstIn = Math.max(worstIn, g - q.y); low = Math.min(low, q.y - g); if (Math.abs(g - .26) < 1e-6 && q.y - g < .01) onTread.add(s); }
     worstAir = Math.max(worstAir, low);
