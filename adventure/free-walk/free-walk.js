@@ -391,7 +391,8 @@
       // GOTR-0122 chase camera (owner: GTA-style, behind and above): while he walks, the view comes round behind him unless
       // the player turned it in the last 1.5 s
       if (R.s.walking && ms - (R.dragAt || -1e9) > 1500) { const d = Math.atan2(Math.sin(R.s.ry + Math.PI - R.yaw), Math.cos(R.s.ry + Math.PI - R.yaw)); R.yaw += d * (1 - Math.exp(-dt * 1.3)) * (R.walkAmt || 0); }
-      const [vx, vz] = C.velocity(hIn, vIn, R.camYaw ?? R.yaw, C.SPEED * (brisk ? 1.55 : 1));
+      let [vx, vz] = C.velocity(hIn, vIn, R.camYaw ?? R.yaw, C.SPEED * (brisk ? 1.55 : 1));
+      if (window.DreamPose?.pace) [vx, vz] = window.DreamPose.pace(R.pace || (R.pace = {}), vx, vz, R.turn, dt); // walk-gait: a heavy man's start, stop and turn (DreamPose.pace)
       town.grid.move(R.s, vx, vz, dt, town.blocked);
       town.update(dt, R.s, R.camera);
       R.poseT += dt; R.zoom += (R.zoomTarget - R.zoom) * (1 - Math.exp(-dt * 10));
@@ -400,8 +401,8 @@
       R.turn += Math.atan2(Math.sin(R.s.ry - R.turn), Math.cos(R.s.ry - R.turn)) * (1 - Math.exp(-dt * 10));
       const c = R.rig; c.root.position.set(R.s.x, R.groundY, R.s.z); c.root.rotation.set(0, R.turn, 0);
       R.walkAmt = (R.walkAmt || 0) + ((R.s.walking ? 1 : 0) - (R.walkAmt || 0)) * (1 - Math.exp(-dt * 8));
-      // GOTR-0122 carry: the duffel's strap in his right hand, or his right hand on the heavy bag (market-sets.js reach)
-      if (pose) { c.root.updateMatrixWorld(true); window.DreamPose?.civil?.(c, { t: R.poseT, dt, dist: R.s.dist, walk: R.walkAmt, ground: (x, z) => town.grid.height(x, z), arms: R.carry === 'duffel' ? { R: 'strap' } : {}, reach: R.props?.reach?.('fighter', 100) || undefined, look: { yaw: 0, pitch: 0 } }); R.props?.frame(100, dt); }
+      // GOTR-0122 carry: the duffel's strap in his right hand, or his right hand on the heavy bag (market-sets.js reach); walk-gait: plant, walk flag
+      if (pose) { c.root.updateMatrixWorld(true); window.DreamPose?.civil?.(c, { t: R.poseT, dt, plant: true, dist: R.s.dist, walk: R.s.walking ? 1 : 0, ground: (x, z) => town.grid.height(x, z), arms: R.carry === 'duffel' ? { R: 'strap' } : {}, reach: R.props?.reach?.('fighter', 100) || undefined, look: { yaw: 0, pitch: 0 } }); R.props?.frame(100, dt); }
       R.blob.position.set(R.s.x, R.groundY + .03, R.s.z);
       if (R.ringMesh) { const k = .5 + .5 * Math.sin(R.poseT * 4); R.ringMesh.material.opacity = .55 + .4 * k; R.ringMesh.scale.setScalar(1 + .08 * k); }
       place(false);

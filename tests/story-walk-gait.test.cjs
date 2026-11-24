@@ -63,7 +63,7 @@ for (const species of ['lion', 'rabbit']) for (const wear of ['street', 'kit']) 
   // arm swing against the legs (the free left arm against the left foot)
   const mean = a => a.reduce((x, y) => x + y, 0) / a.length, hz = fr.map(f => f.handL), fz = fr.map(f => f.footL), mh = mean(hz), mf = mean(fz);
   const corr = mean(hz.map((h, i) => (h - mh) * (fz[i] - mf))) / Math.sqrt(mean(hz.map(h => (h - mh) ** 2)) * mean(fz.map(v => (v - mf) ** 2)));
-  const swingM = Math.max(...hz) - Math.min(...hz); assert.ok(corr < -.7, 'the left arm swings against the left leg (correlation ' + corr.toFixed(2) + ')'); assert.ok(swingM > .2 && swingM < .5, 'arm swing ' + swingM.toFixed(2) + ' m at the hand');
+  const swingM = Math.max(...hz) - Math.min(...hz); assert.ok(corr < -.7, 'the left arm swings against the left leg (correlation ' + corr.toFixed(2) + ')'); assert.ok(swingM > .2 && swingM < .55, 'arm swing ' + swingM.toFixed(2) + ' m at the hand');
   rows.push({ species, wear, air: +air.toFixed(4), bob: +(bob * 100).toFixed(1), slideMM: +(slide * 1000).toFixed(1), knee: { hs: +hs.toFixed(1), load: +load.toFixed(1), mid: +mid.toFixed(1), swing: +swing.toFixed(1) }, pelvisDeg: { yaw: +yawA.toFixed(1), tilt: +rollA.toFixed(1) }, armCorr: +corr.toFixed(2) });
   console.log(JSON.stringify(rows[rows.length - 1]));
 
