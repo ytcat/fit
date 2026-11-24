@@ -121,7 +121,7 @@
     hud.append(title, zone);
     const exit = el('button', 'fw-exit', t('exit')); exit.type = 'button'; exit.setAttribute('aria-label', t('exitLabel')); exit.onclick = () => close('map');
     // the objective: set by the game from the story (owner 2026-11-25: "The game should select for me")
-    const goalText = walk ? t('goal_' + walk.step) : plan.target ? t('goalPlace', { place: targetName(plan.target) }) : plan.done ? t('goalDone') : '';
+    const goalOf = () => walk ? t('goal_' + walk.step) : plan.target ? t('goalPlace', { place: targetName(plan.target) }) : plan.done ? t('goalDone') : '', goalText = goalOf();
     const nav = el('section', 'fw-nav'), goal = el('strong', 'fw-goal', goalText), status = el('div', 'fw-nav-status'), arrow = el('span', 'fw-arrow', '➤'), dist = el('strong', 'fw-dist', ''), help = el('span', 'fw-help', t(plan.target ? 'walkHelp' : 'help'));
     arrow.setAttribute('aria-hidden', 'true'); arrow.hidden = true; status.append(arrow, dist); nav.append(goal, status, help); nav.hidden = !goalText;
     setTimeout(() => nav.classList.add('quiet'), 9000); // the how-to line, then only the objective and the distance
@@ -137,6 +137,13 @@
     d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.focus({ preventScroll: true });
     d.addEventListener('cancel', ev => { ev.preventDefault(); close('map'); });
     Object.assign(R, { d, host, zone, goal, nav, arrow, dist, back, notice, fade, stick, thumb, glow, pad });
+    // the player's language can change while walking (or be applied after a resumed walk opened at boot): every line follows it
+    R.relabel = () => {
+      d.lang = lang(); title.textContent = t('title'); exit.textContent = t('exit'); exit.setAttribute('aria-label', t('exitLabel'));
+      goal.textContent = goalOf(); help.textContent = t(plan.target ? 'walkHelp' : 'help'); keysHint.textContent = t('keysHint'); back.textContent = t('storyReturn');
+      stick.setAttribute('aria-label', t('stick')); plus.setAttribute('aria-label', t('zoomIn')); minus.setAttribute('aria-label', t('zoomOut'));
+      if (!notice.hidden) notice.textContent = t(R.lost ? 'lost' : 'loading'); R.zone.textContent = ''; R.last.hud = -1; R.last.guide = -1;
+    };
     // the story ticket: entering the ring of the current step's place opens that step once (re-checked live). A story walk
     // without session storage keeps its ticket in memory (still re-checked live), so the story never blocks.
     const live = storyNow();
@@ -483,7 +490,7 @@
     entry.addEventListener('click', () => { if (!entry.disabled) open({ start: 'resume' }); });
     group.prepend(entry); paintEntry();
     setInterval(() => { mountEntry(); paintEntry(); }, 600);
-    const hook = () => { const a = app(); if (!a?.setLanguage) { setTimeout(hook, 500); return; } if (a.setLanguage.fwEntry) return; const prev = a.setLanguage.bind(a); a.setLanguage = function (l) { const r = prev(l); entryKey = ''; paintEntry(); return r; }; a.setLanguage.fwEntry = true; };
+    const hook = () => { const a = app(); if (!a?.setLanguage) { setTimeout(hook, 500); return; } if (a.setLanguage.fwEntry) return; const prev = a.setLanguage.bind(a); a.setLanguage = function (l) { const r = prev(l); entryKey = ''; paintEntry(); try { run?.relabel?.(); } catch (x) { console.warn('free walk language', x); } return r; }; a.setLanguage.fwEntry = true; };
     hook();
   }
   // a link from outside the game (the old chapter1-roam.html page): index.html#free-walk[=destination] (the story sets the destination)

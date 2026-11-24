@@ -35,7 +35,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
     await p.waitForFunction(() => window.ringfighterGame && app.engine.coach?.anatomy && window.FreeWalk && window.AdventureOldTown, null, { timeout: 300000 });
     await p.waitForFunction(() => document.querySelector('dialog.career-welcome[open]') || ringfighterGame.store.current(), null, { timeout: 120000 });
     if (first) await p.evaluate(() => { const d = document.querySelector('dialog.career-welcome[open]'); if (d) { d.querySelector('input').value = 'Story Walk QA'; d.querySelector('button[type=submit]').click(); } }); // QA setup only
-    await wait(1500); await p.evaluate(l => app.setLanguage(l), LANG);
+    await wait(1500); await p.evaluate(l => { app.setLanguage(l); try { localStorage.setItem('shadowbox-language', l); } catch { } }, LANG); // as the language buttons keep it
   }
   const closeAll = () => p.evaluate(() => { document.querySelectorAll('dialog[open]').forEach(d => { if (!d.classList.contains('free-walk')) d.close(); }); window.AdventureOldTown.closeBeat(); });
   const ctxJs = `({ store: ringfighterGame.store, startFight: ringfighterGame.startFight, startTraining: ringfighterGame.startTraining, change: a => { const r = ringfighterGame.store.gameAction(a); if (r.ok) ringfighterGame.apply?.(); return r.ok; } })`;

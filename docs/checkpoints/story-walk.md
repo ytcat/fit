@@ -1,6 +1,6 @@
 # Checkpoint: story walks (GOTR-0122)
 
-Branch `agent/story-walk` from `origin/claude/ecstatic-clarke-9as2ak` 67ddca4 (v1.94). Not merged, no version bump, no PR.
+Branch `agent/story-walk` from `origin/claude/ecstatic-clarke-9as2ak` 67ddca4 (v1.94), release branch 0852c79 merged in. Backlog GOTR-0122. Not merged, no version bump, no PR.
 Owner requests 2026-11-25: the free walk is always available and part of the story; after a film the player walks to the next
 place with the joystick; wide default camera; no Day/Night buttons (the light follows the story); no destination selector (the
 game sets it); a better joystick.
@@ -38,8 +38,43 @@ The "Next" / quest card button of a step whose walk is due reads the objective (
 - `adventure/story/street-walk.js`: `enabled`/`introSkip` removed (flag retired); `stickInput` stays (free walk, roam page).
 - No edits in `index.html` other than `?v=` bumps; none in `game-shell.js` / `adventure-ui.js`.
 
-## Checks
-(see below; updated per checkpoint)
+Later additions on the same files: a GTA-style chase camera (the view comes round behind him while he walks, unless the player
+turned it in the last 1.5 s; Q/E and drag still turn it), a story walk that starts at a door starts 4 m out of it with the camera
+turned to the open side (`openYaw`), the distance close by is the straight distance, and the HUD follows a language change made
+while walking (`R.relabel`, hooked to `app.setLanguage`). Merged `origin/claude/ecstatic-clarke-9as2ak` 0852c79 (bus doors
+GOTR-0120, walk gait GOTR-0121): `step()` keeps the gait's `DreamPose.pace` before `grid.move` and `plant: true`,
+`walk: R.s.walking ? 1 : 0` in the civil call, plus this branch's chase camera, `arms`/`reach` carry and `props.frame`.
 
-## Next
-(see below)
+## Checks
+- Pure tests: `tests/story-walk.test.cjs` (new: sequence of walks vs `dreamSteps`, walk due/once/resume record, older saves,
+  story light, bus stop, EN/HE/RU copy, wiring, and oldtown.js in a stub page: gate opens the walk, a walk that cannot start
+  falls back to the direct step exactly once, walked = no second walk, arrival film cut at 15.6 s only before a walk);
+  `tests/free-walk.test.cjs` (updated: story-led ticket, no selector / Day-Night); `tests/story-walk-controls.test.cjs`
+  (updated: the `?walkPrototype=1` flag is gone).
+- Targeted run `bash scripts/run-tests.sh -j 1 free-walk story dream market otto clean opening lang-generic offline-version-match walk-gait`: see the result line in the report below.
+- Real playthrough `qa/story-walk/play.cjs` (Playwright Chromium + SwiftShader, new profile, real save):
+  phone 402x690 EN, HE, RU: all six walks open where the film ended (or from the quest card after a dev-skipped fight),
+  show the objective + arrow + distance, the stick is driven by REAL CDP touch events for 6 s at each start (1.2-4.2 m walked
+  at SwiftShader frame rates), then the game's own movement (`FreeWalk.qa.walk`) into the ring; each ring started its step
+  exactly once (`launches` = 1 per walk: gym talk film, robbery film, Otto film, new-bag film, Docks film, advanced training beat);
+  the walk record is `arrived` afterwards. Walk 2 is quit mid-way (page reload): it reopens by itself at the same spot (moved 0 m)
+  with the same destination. Otto's film: Buy tapped, then the walk back carries the heavy bag on his shoulder. Light: morning,
+  the Docks walks at night. After the walks the top-bar entry opens a story-led walk ("Story: Bruno's gym"), no `<select>`, no Day/Night.
+  PC 1366x768 EN (walks 1, 2 with resume, 4): real arrow keys move him, the stick is hidden and the keys line shown; same results.
+  No page errors in any run.
+- Evidence `qa/story-walk/evidence/`: `sheet-{phone-en,phone-he,phone-ru,pc-en}.webp` (per walk: start, near the ring, the step
+  it started), `sheet-*-entry-resume.webp` (top-bar entry, the resumed walk, the quest card button, Otto's Buy, the story-led
+  walk), `joystick-before-after.webp`, JSON reports. `qa/story-walk/before/` = v1.94 free walk and stick.
+  Note: the EN pictures of walks 1-2 were taken before the door start / chase camera polish (walk 2 starts close on his back);
+  HE/RU/PC show the final behaviour. All pictures predate the merged walk gait.
+
+## Limits / next
+- Not checked on a real phone. SwiftShader frame rates: most of each walk is moved by the game's movement function, not real time.
+- The camera still comes close among market stalls and under umbrellas (umbrellas are not in the camera's crown map:
+  free-walk-town.js, the town agent's file).
+- Losing the afterBeat after the reward / Docks / Otto films: the walk opens at once (no "Unlocked ..." line); coins and the
+  purchase are still toasted by the fight / the film.
+- The old `qa/free-walk-city/story.cjs` uses the removed destination selector (superseded by `qa/story-walk/play.cjs`).
+- An ordinary free walk now arms the ring of the current step's place (the story sets the destination): walking into it starts
+  that step once per walk.
+- Next: integrator review/merge; then a phone check of the touch stick and the chase camera.
