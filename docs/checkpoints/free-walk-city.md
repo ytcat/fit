@@ -29,7 +29,7 @@ full re-run: `bash qa/free-walk-city/run-all.sh <out>` (about 1.5 h in SwiftShad
 
 ## Checks
 - `node tests/free-walk.test.cjs` (languages, no literal UI text, LTR, signs, walk grid, car rule, road graph, ticket, offline pack).
-- Full suite: see the final report of this session.
+- Full suite `bash scripts/run-tests.sh -j 2` (2026-11-24, this branch at 49b27b4): files=154, fails=4. otto-civilian-lifecycle and reference-motion pass when run alone (load). rourke-cast ("the bout ran (0 frames)") and story-clean-gym (welcome-card tap times out) fail the same way on the unmodified release branch 644f85a in this container; story-clean-gym also fails on v1.92 a9e8ef1 here: environment, not this branch.
 - `tour.cjs`: from Old Town on foot to all 14 destinations (4 story places + 11 district landmarks): all reached (`evidence/tour-en.json`).
 - `walk.cjs` EN/HE/RU: 11/11 districts each, real touch stick moves the Fighter, keys move, district names localized, no page errors.
 - `story.cjs` (real save at `market_robber`): ordinary walk 0 launches and save unchanged; card button (real tap) -> ticket ->
