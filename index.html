@@ -13,12 +13,12 @@
        page shows but the logo and a loading line; the welcome name card stays usable above it. gotrBoot.mode() is the last
        mode the player chose ('adventure' default, 'train' after Modes > Training or a free fight); done() lifts the cover. */
     (function(){var d=document.documentElement,q='',K='gotr.mode',off=false,t=0;try{q=location.search;}catch(e){}
-     function done(){if(off)return;off=true;clearTimeout(t);d.removeAttribute('data-boot');}
+     function done(){if(off)return;off=true;clearTimeout(t);try{d.removeAttribute('data-boot');}catch(e){}}
      function mode(m){try{if(m==='adventure'||m==='train')localStorage.setItem(K,m);return localStorage.getItem(K)==='train'?'train':'adventure';}catch(e){return 'adventure';}}
      // no profile yet: the cover waits for the welcome card (its close lifts it); without a card it lifts after 3 s
      function welcome(){setTimeout(function(){if(!document.querySelector('dialog.career-welcome[open]'))done();},3000);}
      window.gotrBoot={done:done,mode:mode,welcome:welcome};
-     if(/[?&]game=classic\b/.test(q)){off=true;return;}
+     if(/[?&]game=classic\b/.test(q)||!d||!d.setAttribute){off=true;return;}
      d.setAttribute('data-boot','');d.setAttribute('data-boot-text',window.uiSay('Loading…','טוען…','Загрузка…'));
      t=setTimeout(done,30000);})(); // never a permanent cover, whatever fails
   </script>

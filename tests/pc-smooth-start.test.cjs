@@ -61,7 +61,7 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     }
     await p.waitForFunction(() => !document.documentElement.hasAttribute('data-boot') && ringfighterGame.modalTab === 'adventure', null, { timeout: 60000 });
     // reload as a returning Adventure player: the first thing shown after the cover is the Adventure home
-    const watch = () => p.addInitScript(() => { window.__boot = []; const d = document.documentElement; new MutationObserver(() => { if (!d.hasAttribute('data-boot') && !window.__lift) window.__lift = { tab: window.ringfighterGame?.modalTab || null, gym: !!window.ringfighterGame && !window.ringfighterGame.modalTab }; }).observe(d, { attributes: true, attributeFilter: ['data-boot'] }); });
+    const watch = () => p.addInitScript(() => { new MutationObserver(() => { const d = document.documentElement; if (d && window.__seen && !d.hasAttribute('data-boot') && !window.__lift) window.__lift = { tab: window.ringfighterGame?.modalTab || null, gym: !!window.ringfighterGame && !window.ringfighterGame.modalTab }; if (d?.hasAttribute('data-boot')) window.__seen = true; }).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-boot'] }); });
     await p.close(); p = await ctx.newPage(); p.on('pageerror', e => errors.push(e.message)); await watch();
     await p.goto(url); await p.waitForFunction(() => window.__lift, null, { timeout: 180000 });
     assert.deepEqual(await p.evaluate(() => window.__lift), { tab: 'adventure', gym: false }, 'Adventure player: the cover lifts on the Adventure home');
