@@ -130,8 +130,90 @@
     target.copy(t); if (out) out.pole = pl; return err;
   }
 
+  /* ---------------------------------------------------------------- planted feet (ch1-motion; opt-in: state.plant)
+   * The gait and the standing pose say where each ankle should go; this layer decides where it IS, in the world:
+   *  - a foot on the ground stays exactly where it stands: no sliding when the body starts, stops, slows down or turns;
+   *  - in the walk, each swing carries the foot from where it really is to where the gait lands it (the difference fades out
+   *    over the swing), so the first steps out of a stand and the last ones into it are real steps;
+   *  - standing, a foot more than 7 cm or 20 deg from where the stance wants it takes a step (one foot at a time, 0.26-0.42 s,
+   *    lifted 3.5-7 cm, heel first off and heel first down, the pelvis over the other foot): he turns on the spot step by step.
+   * Returns the pelvis shift toward the standing foot (rig x). A seek (dt 0), a pause or a cut that moves him > 0.8 m starts over. */
+  const P_TOL = .07, P_YTOL = .35, CAD_MIN = .72, wrapA = a => Math.atan2(Math.sin(a), Math.cos(a));
+  function plant(c, st, m, plans, w, gnd) {
+    const R = c.root; R.updateMatrixWorld(true);
+    const o = R.localToWorld(V()), t = st.t || 0, dt = st.dt > 0 ? st.dt : 0, gait = w > .5 && (st.walk || 0) > 0; // he stopped: what is in the air finishes as a step
+    const worldYaw = y => { const d = R.localToWorld(V(Math.sin(y), 0, Math.cos(y))).sub(o); return Math.atan2(d.x, d.z); };
+    const localYaw = y => { const d = R.worldToLocal(o.clone().add(V(Math.sin(y), 0, Math.cos(y)))); return Math.atan2(d.x, d.z); };
+    if (!m.plant || Math.abs(t - m.plant.t) > .25) m.plant = { t, L: null, R: null }; // a still frame (dt 0) keeps the feet; DreamPose.reset (a seek) starts over
+    m.plant.t = t;
+    const want = {};
+    for (const p of plans) {
+      const d = R.localToWorld(V(p.x, 0, p.z)); d.y = 0; want[p.side] = { d, yaw: worldYaw(p.yaw) };
+      const F = m.plant[p.side];
+      if (!F || Math.hypot(F.A.x - d.x, F.A.z - d.z) > .8) m.plant[p.side] = { A: d.clone(), yaw: want[p.side].yaw, swing: null, gp: false, O: V(), Oy: 0 };
+    }
+    const contactOff = (ly, th, ball) => R.localToWorld(V(0, -G.sole, ball ? BALL : -G.heel).applyQuaternion(footQ(ly, th))).sub(o); // ankle -> heel / ball, world
+    const offAt = A => { if (!gnd) return 0; const l = R.worldToLocal(V(A.x, o.y, A.z)); return gnd(l.x, l.z - G.heel - .01, l.z + BALL); };
+    let support = 0;
+    for (const p of plans) {
+      const F = m.plant[p.side], other = m.plant[p.side === 'L' ? 'R' : 'L'], { d, yaw: dy } = want[p.side];
+      const standStep = (off, oy) => (F.settle = false, { kind: 'stand', A0: F.A.clone(), yaw0: F.yaw, O0: F.A.clone().sub(d), Y0: wrapA(F.yaw - dy), k: 0, dur: clamp(.24 + off * .6 + oy * .08, .26, .42), h: clamp(off * .45, .035, .07) });
+      if (F.swing?.kind === 'gait' && !gait && (F.swing.kk ?? 0) > .85 && F.swing.kc == null) { // he stopped as this foot came down: it lands here, heel first
+        const th = Math.min(0, p.pitch); F.swing = null; F.settle = true; F.ball = false; F.sp = th; F.C = F.A.clone().add(contactOff(localYaw(F.yaw), th, false));
+      }
+      if (F.swing?.kind === 'gait' && !gait) F.swing = standStep(Math.hypot(F.A.x - d.x, F.A.z - d.z), Math.abs(wrapA(F.yaw - dy))); // he stopped in mid-swing: the foot finishes as a step
+      if (!F.swing) {
+        if (gait && !p.planted && !other.swing) F.swing = { kind: 'gait', A0: F.A.clone(), yaw0: F.yaw, O0: F.A.clone().sub(d), Y0: wrapA(F.yaw - dy), u0: Math.min(p.u || 0, .95), g0: offAt(F.A) + R.position.y };
+        else if (gait && !other.swing && Math.hypot(F.A.x - d.x, F.A.z - d.z) > .3) F.swing = standStep(Math.hypot(F.A.x - d.x, F.A.z - d.z), Math.abs(wrapA(F.yaw - dy))); // it missed its swing (the other foot was stepping): a catch-up step
+        else if (!gait && !((st.walk || 0) > 0) && !other.swing && !(F.settle && Math.abs(F.sp) > .06)) { const off = Math.hypot(F.A.x - d.x, F.A.z - d.z), oy = Math.abs(wrapA(F.yaw - dy)); if (off > P_TOL || oy > P_YTOL) F.swing = standStep(off, oy); }
+      }
+      let lift = 0, pitch = null;
+      if (F.swing) {
+        const S = F.swing; let k;
+        if (S.kind === 'gait') k = p.planted ? 1 : clamp(((p.u || 0) - S.u0) / Math.max(.05, 1 - S.u0));
+        else { S.k += dt / S.dur; k = clamp(S.k); lift = S.h * Math.sin(Math.PI * k) ** .7; pitch = .22 * Math.sin(2 * Math.PI * k); support = -p.s * .03 * Math.sin(Math.PI * k); }
+        S.kk = k; if (S.kind === 'stand') { const e = smooth((k - .15) / .7); F.A.copy(S.A0).lerp(d, e); F.yaw = S.yaw0 + wrapA(dy - S.yaw0) * e; } // from where it stood to where it is wanted now
+        else if (S.hold) F.A.copy(S.hold); else if (k < .12) { S.O0.copy(S.A0).sub(d); S.Y0 = wrapA(S.yaw0 - dy); F.A.copy(S.A0); F.yaw = S.yaw0; } // toe-off: the ball stays on its spot (the body may be turning)
+        else { const e = 1 - smooth((k - .12) / .88); F.A.copy(d).addScaledVector(S.O0, e); F.yaw = dy + S.Y0 * e; if (k >= 1) S.hold = F.A.clone(); } // then the gait's own swing, with what is left of the difference fading out // over its spot, still coming down: it stays over that spot
+        if (k >= 1 && (S.kc == null || S.q >= 1)) { F.swing = null; F.gp = false; F.settle = false; F.C = null; F.sp = 0; } // landed: nothing of the last stance carries over // a step down lands when it has come down
+      } else if (gait) { // planted in the walk: the point it rolls over (heel, then ball) stays on its spot; the ankle goes round it
+        if (!p.planted) p.pitch = clamp(p.pitch, 0, .5); // held on its toes or flat (below)
+        const ball = p.pitch > .02, off = contactOff(localYaw(F.yaw), p.pitch, ball);
+        if (!F.gp || F.ball !== ball) { F.C = F.A.clone().add(off); F.gp = true; F.ball = ball; }
+        F.A.copy(F.C).sub(off); F.settle = ball; F.sp = p.pitch;
+      } else { // planted, standing: it stays where it is, flat; a foot stopped on its toes lowers its heel round the ball
+        F.gp = false;
+        if (F.settle && F.C && Math.abs(F.sp) > .01) { F.sp *= Math.exp(-dt * 9); pitch = F.sp; F.A.copy(F.C).sub(contactOff(localYaw(F.yaw), F.sp, F.ball)); } else { F.settle = false; pitch = 0; }
+      }
+      const loc = R.worldToLocal(V(F.A.x, o.y, F.A.z)), offA = gnd ? gnd(loc.x, loc.z - G.heel - .01, loc.z + BALL) : 0;
+      if (!F.swing && gait && !p.planted) { const th = clamp(p.pitch, 0, .5); p.pitch = th; p.y = offA + G.sole * Math.cos(th) + BALL * Math.sin(th); p.off = offA; } // waits on its toes for the other foot to land
+      else if (F.swing?.kind !== 'gait') { p.y = p.y - p.off + offA + lift; p.off = offA; if (pitch != null) p.pitch = pitch; }
+      else { // a walking swing over a step: from the height it left to the height it lands on, never through the edge it passes
+        const S = F.swing, k = S.kk, land = R.localToWorld(V(p.s * GAIT_X, 0, step(0, p.s, STRIDE).z + (1 - (p.u || 0)) * (1 - DUTY) * STRIDE * w)), g0 = S.g0 - R.position.y, g1 = offAt(land); S.down = g1 < g0 - .05; // land: where this step will come down (the body goes on for 1 - u of the swing)
+        const edge = gnd ? gnd(loc.x, loc.z - (S.down ? -.01 : G.heel + .04), loc.z + BALL + .03) : 0; // stepping down, the toes go down first
+        if (S.down && S.kc == null && edge < g0 - .05) { S.kc = k; S.qt = 0; } // stepping down: it comes down (in 0.2 s) once the toes are past the edge
+        if (S.kc != null) S.qt += dt;
+        const q = S.kc != null ? smooth(S.qt / .3) : S.down ? 0 : g1 > g0 ? smooth(k / .55) : smooth((k - .3) / .7), ow = Math.max(lerp(g0, g1, q), edge); S.q = q;
+        p.y = p.y - p.off + ow + .02 * smooth(k / .2) * (1 - smooth((k - .82) / .18)); p.off = ow; p.hoff = S.down ? lerp(g0, g1, smooth(Math.max(k, q))) : lerp(g0, g1, smooth(k)); if (S.down && q > 0) p.pitch = Math.max(p.pitch, .38 * Math.sin(Math.PI * Math.min(1, q * 1.15)));
+      }
+      p.x = loc.x; p.z = loc.z; p.yaw = localYaw(F.yaw); p.planted = !F.swing;
+    }
+    return support;
+  }
+
   function overlay(c, st, m) {
-    const j = c.joints, t = st.t || 0, w = m.walk, phase = ((st.dist || 0) / STRIDE) % 1, tau = Math.PI * 2, sw = Math.sin(phase * tau), cw = Math.cos(phase * tau);
+    // plant (ch1-motion): the step phase is integrated, and never slower than CAD_MIN cycles a second while he walks, so a
+    // walk that speeds up from standing or slows into a stop takes short steps at a near-normal rhythm instead of one long
+    // step in slow motion (a foot that hung in the air); the planted foot holds its own spot (plant), so this cannot slide
+    let phase;
+    if (st.plant && (st.walk || 0) > 0 && !m.going && m.plant?.L && m.plant?.R) { // setting off from standing: the foot further back steps first (its swing starts now)
+      const R0 = c.root; R0.updateMatrixWorld(true); const zl = R0.worldToLocal(m.plant.L.A.clone().setY(R0.position.y)).z, zr = R0.worldToLocal(m.plant.R.A.clone().setY(R0.position.y)).z;
+      m.ph = Math.floor(m.ph || 0) + (zl <= zr ? DUTY : DUTY - .5 + 1) + 1e-3;
+    }
+    m.going = st.plant && (st.walk || 0) > 0;
+    if (st.plant) { const d = st.dist || 0; if (m.pd == null) m.ph = d / STRIDE; else if (st.dt > 0) { const dd = Math.max(0, d - m.pd); m.ph += Math.max(dd / STRIDE, (st.walk || 0) > 0 && dd > 1e-6 ? st.dt * CAD_MIN : 0); } m.pd = d; phase = ((m.ph % 1) + 1) % 1; }
+    else phase = ((st.dist || 0) / STRIDE) % 1;
+    const j = c.joints, t = st.t || 0, w = m.walk, tau = Math.PI * 2, sw = Math.sin(phase * tau), cw = Math.cos(phase * tau);
     const breath = Math.sin(t * 1.7 + (c.character ? 1.3 : 0)), idle = 1 - w, shift = Math.sin(t * .43 + (c.character === 'bruno' ? 2 : 0)) * idle;
     // legs: stand targets blended with the walk cycle. st.ground(x, z) -> world height under a point (steps: the bus floor,
     // its tread, the kerb): each foot stands on what is under it; a planted foot keeps its step, a swinging foot clears the
@@ -156,25 +238,32 @@
         const sy = Math.sin(yawF), cy = Math.cos(yawF), L = G.heel + BALL, o0 = rot(-G.sole, BALL, G.toe)[1], o1 = rot(-G.sole, -G.heel, -G.hs)[1], k = smooth(g.u);
         g.x += lerp((L - o0) * sy, -o1 * sy, k); g.z += lerp((L - o0) * (cy - 1), -o1 * (cy - 1), k);
       }
-      plans.push({ side, s, off, x: lerp(sx, g.x, w), y: lerp(sy, g.y, w) + off, z: lerp(sz, g.z, w), pitch: g.pitch * w, yaw: yawF, planted: g.planted || w < .5 });
+      plans.push({ side, s, off, x: lerp(sx, g.x, w), y: lerp(sy, g.y, w) + off, z: lerp(sz, g.z, w), pitch: g.pitch * w, yaw: yawF, planted: g.planted || w < .5, u: g.u });
     }
+    const support = st.plant ? plant(c, st, m, plans, w, gnd) : 0;
     // pelvis (GOTR-0097): nearly level. A small bob, lowest just after each heel strike (double support), highest at
     // mid-stance; it turns +-5 deg (the hip of the leading leg forward), drops +-3.5 deg on the swing side while the other
     // leg takes the weight, and shifts 2 cm over the stance foot
     const hips = j.hips, pL = phase, yaw = .085 * Math.cos(pL * tau) * w, roll = -.06 * Math.sin((pL + .15) * tau) * w, hb = (pL * 2) % 1, bob = hb < .16 ? -.3 * Math.sin(Math.PI * hb / .16) : hb < .5 ? smooth((hb - .16) / .34) : 1 - smooth((hb - .5) / .5); // the knee gives a little as the heel takes the weight (dip at loading)
     const sway = -.02 * Math.sin((pL - .05) * tau) * w + .012 * shift;
     const twist = st.twist || 0, hipYaw = st.hipYaw || 0; // work (the mop, GOTR-0099): the thorax turns toward the job, the pelvis a little the other way
-    hips.rotation.set(0, yaw + hipYaw, roll + .02 * shift); hips.position.set(sway + (st.shift || 0), HIP, .012 * w); // shift: the weight over one foot (rig x)
+    hips.rotation.set(0, yaw + hipYaw, roll + .02 * shift); hips.position.set(sway + (st.shift || 0) + support, HIP, .012 * w); // shift: the weight over one foot (rig x); support: over the standing foot during a step (plant)
     c.root.updateMatrixWorld(true);
-    let y = lerp(HIP + .004 * breath * idle, WALK_Y + BOB * bob, w) - (m.drop || 0) + (plans[0].off + plans[1].off) / 2;
+    let ho = ((plans[0].hoff ?? plans[0].off) + (plans[1].hoff ?? plans[1].off)) / 2; // the ground under the feet; plant: the body goes down a step (or up) over ~0.2 s, the knees take it
+    if (st.plant) { ho = m.ho == null || !(st.dt > 0) ? ho : m.ho + (ho - m.ho) * (1 - Math.exp(-st.dt * 12)); m.ho = ho; }
+    let y = lerp(HIP + .004 * breath * idle, WALK_Y + BOB * bob, w) - (m.drop || 0) + ho;
     for (const p of plans) { const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .998 : 1.02), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz))); } // never past the legs' reach
+    if (st.plant) { if (m.hy != null && st.dt > 0 && y > m.hy) y = m.hy + (y - m.hy) * (1 - Math.exp(-st.dt * 10)); m.hy = y; } // plant: the body rises back smoothly (it may always sink: the legs reach)
     hips.position.y = y;
     const stoop = c.cast?.stoop ?? (c.character === 'bruno' ? .085 : 0), lean = m.lean + .04 * w + stoop; // the old champion carries his years in his back
     // the thorax turns against the pelvis and keeps the shoulders level; neck and head take the turn back out (head steady)
-    j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .85 + (twist - hipYaw) * .45, -roll * .5 - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * 1.0 + (twist - hipYaw) * .55, -roll * .35 - .008 * shift);
-    j.neck.position.copy(c.neckRest); j.neck.rotation.set(-m.pitch * .4 - (lean - stoop * .4) * .5, m.yaw * .4 + yaw * .4, 0);
+    // plant (ch1-motion): the shoulders follow the gaze a little (a third of the head turn is taken by the spine and chest,
+    // the neck and head the rest: the same gaze), so eyes, shoulders and then the feet turn in that order
+    const gz = st.plant ? .32 * m.yaw : 0;
+    j.spine.rotation.set(.02 + lean * .5 + .008 * breath, -yaw * .85 + (twist - hipYaw) * .45 + gz * .4, -roll * .5 - .012 * shift); j.chest.rotation.set(.015 + lean * .5 - .012 * breath, -yaw * 1.0 + (twist - hipYaw) * .55 + gz * .6, -roll * .35 - .008 * shift);
+    j.neck.position.copy(c.neckRest); j.neck.rotation.set(-m.pitch * .4 - (lean - stoop * .4) * .5, (m.yaw - gz) * .4 + yaw * .4, 0);
     const nod = (st.nod || 0) * .06 * Math.sin(t * 6.5) + (st.talk || 0) * .025 * Math.sin(t * 9.1) + (st.listen || 0) * .05 * Math.max(0, Math.sin(t * 1.9 + 1)) ** 4;
-    j.head.rotation.set(.03 - m.pitch * .6 - lean * .4 + nod + .012 * w * Math.cos(2 * tau * (pL - .02)), m.yaw * .6 + yaw * .45, (st.tilt || 0) + (st.reach?.tilt || 0) + (st.listen || 0) * .05 + .012 * shift - roll * .15);
+    j.head.rotation.set(.03 - m.pitch * .6 - lean * .4 + nod + .012 * w * Math.cos(2 * tau * (pL - .02)), (m.yaw - gz) * .6 + yaw * .45, (st.tilt || 0) + (st.reach?.tilt || 0) + (st.listen || 0) * .05 + .012 * shift - roll * .15);
     for (const side of ['L', 'R']) { const s = side === 'L' ? -1 : 1; j['scapula' + side].position.set(s * .17, .17, -.06); j['scapula' + side].rotation.set(0, 0, 0); }
     c.root.updateMatrixWorld(true);
     const footTargets = [];

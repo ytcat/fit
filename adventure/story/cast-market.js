@@ -236,7 +236,7 @@
       else if (s.kind === 'tail') { const H = st.hipLag; tmpE.set(clamp(-H.z * 1.4, -.4, .4) + sway, 0, clamp(H.x * 1.8, -.5, .5) + Math.sin(time * .9) * .05 * s.k); s.o.quaternion.copy(s.rest).multiply(tmpQ.setFromEuler(tmpE)); }
       else if (s.kind === 'bag') { // hangs from the hand by its handles: gravity in rig space, with a little swing
         s.o.parent.updateWorldMatrix(true, false); const pw = s.o.parent.getWorldQuaternion(new THREE.Quaternion()), rw = rig.root.getWorldQuaternion(new THREE.Quaternion());
-        s.o.quaternion.copy(pw.invert().multiply(rw)).multiply(tmpQ.setFromEuler(tmpE.set(clamp(-st.hipLag.z * 1.2, -.35, .35), 0, clamp(st.hipLag.x * 1.2, -.35, .35))));
+        s.o.quaternion.copy(pw.invert().multiply(rw)).multiply(tmpQ.setFromEuler(tmpE.set(clamp(-st.hipLag.z * 1.2, -.35, .35), s.yaw || 0, clamp(st.hipLag.x * 1.2, -.35, .35), 'YXZ'))); // yaw: turned in the hand (the jacket hangs edge-on beside him)
       }
     }
   }
@@ -248,7 +248,7 @@
   /** Face acting on the rig's own update: lag, the jaw parts from the anatomy channel the fight drives (a hit opens the mouth too). */
   function install(rig) {
     const base = rig.updateMane.bind(rig);
-    rig.updateMane = time => { base(time); settle(rig, time); mouthParts(rig, rig.anatomy?.value?.[12] || 0); };
+    rig.updateMane = time => { base(time); settle(rig, time); mouthParts(rig, rig.anatomy?.value?.[12] || 0); if (rig.castHead) headGround(rig, time); };
     // the lion's default mouth parts sit where a lion's mouth is: these faces open their own jaw instead
     if (!rig.castMouth) rig.castMouth = { show: [], talk: rig.cast?.talkGain ?? .7 };
     const dummy = new THREE.Object3D(); dummy.visible = false;
@@ -263,7 +263,7 @@
 
   /* ================================================================ FANG: big grey wolf, rocker jacket, gold chain, ripped jeans */
   const FANG = {
-    id: 'fang', fur: '#7d7c7b', light: '#d6d0c4',
+    id: 'fang', fur: '#767a7e', light: '#d6d0c4',
     build: { torso: .07, depth: .07, belly: 0, chest: .015, arm: .1, leg: .08, neck: .6, hips: .02, back: .02, traps: .05 }, // the lion fighter's body (muscle relief kept), a heavyweight's few percent bigger
     stoop: 0, talkGain: .8,
     headForm(x, y, z, out) {
@@ -288,10 +288,10 @@
     },
     coat(p, h, c) {
       const [hx, hy, hz] = h, ax = Math.abs(p.x);
-      const grey = lin('#73716f'), dark = lin('#34353a'), pale = lin('#d3cabb'), tan = lin('#8a6f52'), mz = lin('#5a5049'), throat = lin('#9b958c');
+      const grey = lin('#6c7074'), dark = lin('#2f3439'), pale = lin('#d3cabb'), tan = lin('#8a6f52'), mz = lin('#5a5049'), throat = lin('#9a9894');
       c.copy(grey).lerp(dark, clamp((p.y > 1.74 ? .3 : .6) * smooth((-p.z + .02) / .14) + .3 * smooth((p.y - 1.9) / .2)));
-      if (p.y < 1.74 && p.y > .95 && ax < .3) c.lerp(lin('#a49d93'), .7 * bell(p.x, 0, .085) * smooth((p.z - .03) / .07) * band(p.y, 1.0, 1.72, .08)); // pale chest and belly
-      if (ax > .22 && p.y > 1.3 && p.y < 1.8) c.lerp(lin('#5a595b'), .55 + .25 * smooth((ax - .5) / .3)); // darker, grizzled arms: the muscle shading reads on them
+      if (p.y < 1.74 && p.y > .95 && ax < .3) c.lerp(lin('#a3a19d'), .7 * bell(p.x, 0, .085) * smooth((p.z - .03) / .07) * band(p.y, 1.0, 1.72, .08)); // pale chest and belly
+      if (ax > .22 && p.y > 1.3 && p.y < 1.8) c.lerp(lin('#53585d'), .55 + .25 * smooth((ax - .5) / .3)); // darker, grizzled arms: the muscle shading reads on them
       if (p.y > 1.72 && (p.y > 1.8 || ax < .2)) { // the head and neck only (the rest-pose arms and the raised traps lie at this height too)
         const ahx = Math.abs(hx), muzzle = smooth((hz - .26) / .05);
         const under = smooth((.075 - hy) / .05) * smooth((hz - .05) / .1) + smooth((.13 - hy) / .08) * smooth((ahx - .12) / .05) * smooth((hz + .02) / .1) * .8; // pale cheeks, lips and throat
@@ -362,13 +362,111 @@
       if (rig.definition?.look) rig.definition.look.value.multiplyScalar(1.5); // muscle lines read on grey fur like the lion's on tawny
       // bushy tail: a tapered core hidden in long locks
       const tl = new THREE.Group(); tl.name = 'Fang: tail'; rig.tail.add(tl); tl.position.set(0, -.04, -.2); const core = new Parts(), path = [V(0, 0, 0), V(0, -.12, -.1), V(.04, -.32, -.16), V(.08, -.52, -.12)], curve = new THREE.CatmullRomCurve3(path);
-      core.ribbon(path, .07, .07, '#5a5a5e', V(1, 0, 0), 20, 10); tl.add(meshOf(core, 'Fang: tail core', m.parts));
-      const roots = [], rr = rnd(9); for (let k = 0; k < 520; k++) { const u = rr(), q = curve.getPoint(u), t = curve.getTangent(u), a = rr() * Math.PI * 2, side = V(1, 0, 0).addScaledVector(t, -t.x).normalize(), nn = side.clone().applyAxisAngle(t, a); roots.push({ p: q.clone().addScaledVector(nn, .032 * (1 - .4 * u)), n: nn, colour: lin(u > .85 ? '#1e1e22' : nn.z > .2 ? '#a9a39a' : '#66666b'), len: 1 - .3 * u, flow: t.clone() }); }
+      core.ribbon(path, .07, .07, '#4e5358', V(1, 0, 0), 20, 10); tl.add(meshOf(core, 'Fang: tail core', m.parts));
+      const roots = [], rr = rnd(9); for (let k = 0; k < 520; k++) { const u = rr(), q = curve.getPoint(u), t = curve.getTangent(u), a = rr() * Math.PI * 2, side = V(1, 0, 0).addScaledVector(t, -t.x).normalize(), nn = side.clone().applyAxisAngle(t, a); roots.push({ p: q.clone().addScaledVector(nn, .032 * (1 - .4 * u)), n: nn, colour: lin(u > .85 ? '#1e1e22' : nn.z > .2 ? '#a5a4a0' : '#5c6166'), len: 1 - .3 * u, flow: t.clone() }); }
       tl.add(locksAt(roots, { len: .11, width: .03, lift: .25, droop: .05, material: m.fur, flow: () => V(0, -1, 0), name: 'Fang: tail fur' }));
       rig.castSprings.push({ o: tl, rest: tl.quaternion.clone(), k: 1, kind: 'tail' });
       install(rig);
+      authoredHead(rig);
     }
   };
+
+  /* ---------------------------------------------------------------- Fang's authored head (TRELLIS.2; owner 2026-11-24: "fang looks good") */
+  // assets/characters/fang/fang-head.glb, made by tools/blender/fang_head_game.py from assets/characters/fang/trellis/: head, ears and
+  // neck ruff as one static mesh (~16k triangles, one 1024 px JPEG), already in the head joint's frame (metres, +Z toward the nose,
+  // origin at the joint), so it is simply a child of the head joint and turns, nods, jolts and falls with it. Loaded once per page,
+  // shared by every Fang rig (clones share geometry and material). The code-built head stays until the file is ready, and stays if
+  // it fails: never both. When the model is on, the code head's parts are taken off the render layers (their own `visible` flags,
+  // which the face acting and the teeth switch, are left alone) and the skin's head and neck above the collar are folded into the
+  // middle of the model (positions of both outfits, edited in place and restored exactly), so no second face pokes through it.
+  // The mouth stays closed: the jaw channel still runs on the hidden skin, nothing shows it.
+  const HEAD_URL = './assets/characters/fang/fang-head.glb?v=2026112402';
+  const headFile = { state: 'idle', promise: null, scene: null }, headRigs = new Set();
+  function loadHead() {
+    if (headFile.promise && headFile.state !== 'failed') return headFile.promise;
+    headFile.state = 'loading';
+    headFile.promise = new Promise(res => {
+      let L; try { L = new THREE.GLTFLoader(); } catch (x) { res(null); return; }
+      L.load(HEAD_URL, g => res(g), undefined, x => { console.warn('Fang head', x?.message || x?.type || x); res(null); });
+    }).then(g => {
+      let ok = false; g?.scene?.traverse(o => { if (o.isMesh && o.geometry?.attributes.position?.count) ok = true; });
+      headFile.state = ok ? 'ready' : 'failed'; headFile.scene = ok ? g.scene : null;
+      if (ok) for (const r of headRigs) headOn(r, r.castHead?.want !== false);
+      return headFile.scene;
+    }, () => { headFile.state = 'failed'; return null; });
+    return headFile.promise;
+  }
+  /** Starts (or retries) the download; resolves after the model is on every Fang rig, or after ms (default 5 s), never rejects. */
+  function headReady(ms = 5000) { return Promise.race([loadHead(), new Promise(r => setTimeout(r, ms))]).then(() => headFile.state); }
+  function authoredHead(rig) { headRigs.add(rig); rig.castHead = { on: false, want: true, group: null, hidden: [], skin: null }; if (headFile.state === 'ready') headOn(rig, true); else loadHead(); }
+  /** Puts the authored head on (true) or back to the code-built one (false). Returns whether the authored head is on. */
+  function headOn(rig, on = true) {
+    const h = rig?.castHead; if (!h) return false; h.want = !!on;
+    if (on && (h.on || !headFile.scene)) return h.on;
+    if (!on && !h.on) return false;
+    const head = rig.joints.head;
+    if (on) {
+      const group = h.group || (h.group = (() => {
+        const g = new THREE.Group(), m = headFile.scene.clone(true); g.name = 'Fang: authored head'; g.userData.storyPart = true; g.userData.mane = true; g.add(m);
+        g.traverse(o => { o.userData.storyPart = true; o.userData.mane = true; if (o.isMesh) { o.name = 'Fang: authored head'; o.castShadow = true; o.receiveShadow = true; } });
+        return g;
+      })());
+      h.hidden = []; for (const c of head.children) if (c !== group) c.traverse(o => { if (o.isMesh || o.isLine || o.isPoints || o.isSprite) { h.hidden.push([o, o.layers.mask]); o.layers.disableAll(); } });
+      skinHead(rig, true); head.add(group); h.on = true;
+    } else {
+      h.group?.parent?.remove(h.group); for (const [o, mask] of h.hidden) o.layers.mask = mask; h.hidden = []; skinHead(rig, false); h.on = false;
+    }
+    return h.on;
+  }
+  /** Knocked down on his back the model's ears and the long ruff behind the skull would go through the ground: while the head joint
+   *  is low, the model nods about the joint (chin toward the chest, or back) by the smallest angle that keeps it above the ground,
+   *  eased in and out; what a nod of up to 0.64 rad cannot clear is lifted (up to 14 cm: the head rests on its ruff). Probe: every 24th vertex of the model, head-joint frame. */
+  const NOD = [0, .08, -.08, .16, -.16, .24, -.24, .32, .4, .48, .56, .64], nodQ = new THREE.Matrix4(), nodM = new THREE.Matrix4(), nodV = V();
+  function headGround(rig, time) {
+    const h = rig.castHead, g = h.group; if (!h.on || !g) { if (g) { g.rotation.x = 0; g.position.set(0, 0, 0); } return; }
+    const dt = h.t == null ? 1 / 30 : Math.min(.1, Math.max(0, time - h.t)); h.t = time;
+    const head = rig.joints.head; head.updateWorldMatrix(true, false); rig.root.getWorldPosition(tmpV); const ground = tmpV.y, m = head.matrixWorld;
+    let want = 0, lift = 0;
+    if (m.elements[13] - ground < .75) {
+      const pts = h.probe || (h.probe = (() => { const out = []; g.traverse(o => { if (!o.isMesh) return; const P = o.geometry.attributes.position; for (let i = 0; i < P.count; i += 24) out.push(V().fromBufferAttribute(P, i)); }); return out; })());
+      const low = a => { nodM.multiplyMatrices(m, nodQ.makeRotationX(a)); let y = 1e9; for (const p of pts) { nodV.copy(p).applyMatrix4(nodM); if (nodV.y < y) y = nodV.y; } return y - ground; };
+      let best = 0, bestLow = -1e9;
+      for (const a of NOD) { const l = low(a); if (l >= -.02) { best = a; bestLow = l; break; } if (l > bestLow) { best = a; bestLow = l; } }
+      want = best; lift = clamp(-.02 - bestLow, 0, .14); // what the nod cannot clear: the head rests on its ruff, raised off the ground
+    }
+    const k = Math.min(1, dt * 6); h.nod = (h.nod || 0) + (want - (h.nod || 0)) * k; h.lift = (h.lift || 0) + (lift - (h.lift || 0)) * k;
+    g.rotation.x = Math.abs(h.nod) < 1e-4 ? 0 : h.nod;
+    if (h.lift > 1e-4) { nodV.set(0, h.lift, 0).transformDirection(nodQ.copy(m).invert()).multiplyScalar(h.lift); g.position.copy(nodV); } else g.position.set(0, 0, 0);
+  }
+  // the skin above the collar (head and neck bones) folds toward the neck axis: fully on the head, fading out down to the collar
+  const FOLD = { from: 1.79, to: 1.85, amount: .62 };
+  function skinHead(rig, on) {
+    const g = rig.skin.geometry, h = rig.castHead, attrs = [...new Set([g.attributes.position, rig.castBase?.position, rig.castFight?.position].filter(Boolean))];
+    if (!h.skin) {
+      const P = attrs[0], SI = g.attributes.skinIndex.array, SW = g.attributes.skinWeight.array, nb = rig.bones.indexOf(rig.joints.neck), hb = rig.bones.indexOf(rig.joints.head), idx = [], k = [];
+      let z0 = 1e9, z1 = -1e9;
+      for (let i = 0; i < P.count; i++) {
+        const y = P.getY(i); if (y < FOLD.from) continue; let w = 0; for (let j = 0; j < 4; j++) { const b = SI[i * 4 + j]; if (b === nb || b === hb) w += SW[i * 4 + j]; } if (w < .5) continue;
+        idx.push(i); k.push(FOLD.amount * smooth((y - FOLD.from) / (FOLD.to - FOLD.from)));
+        if (y < FOLD.from + .03 && Math.abs(P.getX(i)) < .04) { z0 = Math.min(z0, P.getZ(i)); z1 = Math.max(z1, P.getZ(i)); }
+      }
+      h.skin = { idx: Uint32Array.from(idx), k: Float32Array.from(k), zc: z0 < z1 ? (z0 + z1) / 2 : 0, saved: new Map() };
+    }
+    const s = h.skin;
+    for (const A of attrs) {
+      const a = A.array;
+      if (on) {
+        if (s.saved.has(A)) continue; const keep = new Float32Array(s.idx.length * 3);
+        for (let n = 0; n < s.idx.length; n++) { const o = s.idx[n] * 3, f = 1 - s.k[n]; keep[n * 3] = a[o]; keep[n * 3 + 1] = a[o + 1]; keep[n * 3 + 2] = a[o + 2]; a[o] *= f; a[o + 2] = s.zc + (a[o + 2] - s.zc) * f; }
+        s.saved.set(A, keep);
+      } else {
+        const keep = s.saved.get(A); if (!keep) continue;
+        for (let n = 0; n < s.idx.length; n++) { const o = s.idx[n] * 3; a[o] = keep[n * 3]; a[o + 1] = keep[n * 3 + 1]; a[o + 2] = keep[n * 3 + 2]; }
+        s.saved.delete(A);
+      }
+      A.needsUpdate = true;
+    }
+  }
   const grabStreams = g => { const o = {}; for (const k of SWAP) if (g.attributes[k]) o[k] = g.attributes[k]; return o; };
   const reshapeLocal = (g, fn) => { const P = g.attributes.position, p = V(); for (let i = 0; i < P.count; i++) { p.fromBufferAttribute(P, i); fn(p); P.setXYZ(i, p.x, p.y, p.z); } P.needsUpdate = true; g.computeBoundingBox(); g.computeBoundingSphere(); };
   /** A point on the head surface in head-joint local rest metres: (hx, hy) head coordinates, dz pushed along +z from the front surface,
@@ -379,7 +477,7 @@
   /** Fang's clothes on the skin: black leather rocker jacket (open, wide lapels, shoulder yoke, quilted creases at the elbows, belted
    *  hem, zipped cuffs) over a charcoal T-shirt; ripped faded-black jeans. Sets rig.castGlossOf (leather is glossy). */
   function fangClothes(rig, fight = false) {
-    const leather = lin('#242024'), worn = lin('#4a4446'), seamC = lin('#0c0a0c'), tee = lin('#3a3d44'), teeRib = lin('#22242a'), denim = lin('#2f3542'), fadeC = lin('#5f6779'), thread = lin('#d9d6cc'), fur = lin('#6f6e6d'), tmp = new THREE.Color();
+    const leather = lin('#242024'), worn = lin('#4a4446'), seamC = lin('#0c0a0c'), tee = lin('#3a3d44'), teeRib = lin('#22242a'), denim = lin('#2f3542'), fadeC = lin('#5f6779'), thread = lin('#d9d6cc'), fur = lin('#696d71'), tmp = new THREE.Color();
     const G = rig.castGlossOf = new Float32Array(rig.skin.geometry.attributes.position.count); let i = -1;
     return v => {
       i++; const ax = Math.abs(v.x), s = v.x < 0 ? -1 : 1;
@@ -457,7 +555,7 @@
     j.chest.add(meshOf(C, 'Fang: gold chain', m.gold));
     // cuff zips on the forearms
     for (const s of [-1, 1]) { const Z = new Parts(), side = s < 0 ? 'L' : 'R'; Z.ribbon([V(s * .2, -.05, -.0), V(s * .27, -.068, .0)].map(q => q.clone()), .006, .004, '#9aa0a8', V(0, 0, 1), 6, 6); Z.box(V(s * .272, -.07, 0), V(.008, .012, .005), '#c3c8cf'); const cz = meshOf(Z, 'Fang: cuff zip', m.metal); j['elbow' + side].add(cz); jacket.push(cz); }
-    hands(rig, '#6f6e6d', '#1c1a1d', { claw: '#1a1718', knuckle: '#5c5b5c', k: 1.05, cuff: '#6f6e6d' });
+    hands(rig, '#696d71', '#1c1a1d', { claw: '#1a1718', knuckle: '#575b5f', k: 1.05, cuff: '#696d71' });
     // fight body only: fur on the forearms (on the forearm bone, rooted on the bare skin of the fight streams)
     const g = rig.skin.geometry, keep = grabStreams(g); use(g, rig.castFight); rig.castFightParts = [];
     for (const s of [-1, 1]) {
@@ -758,21 +856,42 @@
     }
     const m = meshOf(P, ground ? 'Fang: jacket on the ground' : 'Fang: jacket in the hand', mats(rig).glossy); m.userData.mane = false; return m;
   }
-  /** The jacket-off beat before the street fight, u = 0..1 (about 2 s): shrugs it off the shoulders, swings it off the arm, tosses it
-   *  to the ground, rolls his shoulders. Returns the DreamPose state for this moment ({ arms, lean, look }); pose with DreamPose.civil.
-   *  The tossed jacket stays on the ground (world space, next to him) until wear(rig, 'jacket'). */
+  /** The jacket-off beat before the street fight, u = 0..1 (MarketCore.JACKET_T, 2.2 s). ch1-motion (PR #40: no clipping, no
+   *  teleport): both hands go to the lapels and he rolls his shoulders back (u < J_CUT; the film cuts to the close shot there);
+   *  then the jacket is in his right hand, hanging edge-on beside his leg; he swings it out and lets go (u .45); it flies in an
+   *  arc to the pavement behind his right side and lands there as the heap (u .6), where it stays (world space) until
+   *  wear(rig, 'jacket'); he rolls his shoulders. Pure in u (a seek gives the same picture). Returns the DreamPose state. */
+  const J_CUT = .346, J_LET = .45, J_LAND = .6, J_SPOT = [.62, -.18], J_TURN = 2.2; // J_CUT: with the beat at 14.19 s in dream_market_robbery the jacket changes hands on the cut at 14.95 s
   function jacketOff(rig, u) {
     if (!rig?.castFight) return null; u = clamp(u);
-    if (u < .3) { wear(rig, 'jacket'); return { arms: { L: 'hang', R: 'hang' }, lean: -.06 * smooth(u / .3), look: { yaw: 0, pitch: -.1 * smooth(u / .3) } }; }
-    wear(rig, 'fight');
-    const held = rig.castJacketHeld || (rig.castJacketHeld = (() => { const h = jacketProp(rig, false), grp = new THREE.Group(); grp.name = 'Fang: held jacket'; rig.pawHold = { ...rig.pawHold, R: grp }; grp.add(h); h.position.set(0, -.02, 0); rig.joints.handR.add(grp); grp.position.set(0, -.12, .02); grp.userData.storyPart = true; (rig.castSprings || []).push({ o: grp, rest: grp.quaternion.clone(), k: 1, kind: 'bag' }); return grp; })());
+    const host = rig.root.parent || rig.root;
+    const held = rig.castJacketHeld || (rig.castJacketHeld = (() => { const h = jacketProp(rig, false), grp = new THREE.Group(); grp.name = 'Fang: held jacket'; grp.add(h); h.position.set(0, -.02, 0); grp.userData.storyPart = true; grp.userData.spring = { o: grp, rest: new THREE.Quaternion(), k: 1, kind: 'bag', yaw: Math.PI / 2 }; return grp; })());
     const ground = rig.castJacketGround || (rig.castJacketGround = jacketProp(rig, true));
-    held.visible = u < .62;
-    const host = rig.root.parent || rig.root; if (ground.parent !== host) host.add(ground);
-    ground.visible = u >= .62;
-    if (u >= .62 && !ground.userData.placed) { rig.root.updateMatrixWorld(true); const at = rig.root.localToWorld(V(-.55, 0, .35)); host.worldToLocal(at); ground.position.set(at.x, host === rig.root ? 0 : at.y, at.z); ground.rotation.set(0, rig.root.rotation.y + .7, 0); ground.userData.placed = true; }
-    if (u < .62) ground.userData.placed = false;
-    if (u < .62) return { arms: { L: 'hang', R: u < .45 ? 'low' : 'shrug' }, lean: -.03, look: { yaw: -.3, pitch: .05 } };
+    const inHand = on => { // the held jacket under the right hand (its spring: hangs edge-on), or free in the world (the flight)
+      const sp = rig.castSprings || (rig.castSprings = []), i = sp.indexOf(held.userData.spring);
+      if (on) { if (held.parent !== rig.joints.handR) { rig.joints.handR.add(held); held.position.set(0, -.12, .02); held.quaternion.identity(); held.scale.set(1, 1, 1); } if (i < 0) sp.push(held.userData.spring); rig.pawHold = { ...rig.pawHold, R: held }; }
+      else { if (i >= 0) sp.splice(i, 1); if (rig.pawHold?.R === held) rig.pawHold = { ...rig.pawHold, R: null }; }
+    };
+    rig.root.updateMatrixWorld(true);
+    const spot = () => rig.root.localToWorld(V(J_SPOT[0], 0, J_SPOT[1]));
+    if (u < J_CUT) { // hands to the lapels, shoulders back
+      wear(rig, 'jacket'); inHand(true); held.visible = false; ground.visible = false; ground.userData.placed = false; held.userData.from = null;
+      const k = smooth(u / .18); return { arms: { L: k > .5 ? 'fist' : 'hang', R: k > .5 ? 'fist' : 'hang' }, lean: -.07 * smooth(u / J_CUT), look: { yaw: 0, pitch: -.12 * k } };
+    }
+    wear(rig, 'fight');
+    if (!ground.userData.placed) { if (ground.parent !== host) host.add(ground); const at = spot(); host.worldToLocal(at); ground.position.set(at.x, host === rig.root ? 0 : at.y + .005, at.z); ground.rotation.set(0, rig.root.rotation.y + J_TURN, 0); ground.userData.placed = true; }
+    ground.visible = u >= J_LAND;
+    if (u < J_LET) { inHand(true); held.visible = true; held.userData.from = null; return { arms: { L: 'hang', R: u < .36 ? 'low' : 'shrug' }, lean: -.03, look: { yaw: -.25, pitch: .02 } }; }
+    if (u < J_LAND) { // the flight: from where his hand let go to the heap's place, turning to lie flat
+      if (!held.userData.from) { inHand(true); held.visible = true; rig.root.updateMatrixWorld(true); held.updateMatrixWorld(true); const p = V(), q = new THREE.Quaternion(), sc = V(); held.matrixWorld.decompose(p, q, sc); held.userData.from = { p, q }; }
+      inHand(false); if (held.parent !== host) host.add(held);
+      const f = held.userData.from, s = (u - J_LET) / (J_LAND - J_LET), e = smooth(s), Q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, rig.root.rotation.y + J_TURN, 0, 'YXZ')), to = spot().setY(.03).sub(V(0, -.27 * .55, 0).applyQuaternion(Q)); // its middle (0.27 m under the collar, flattened) comes down where the heap lies
+      const w = f.p.clone().lerp(to, s); w.y = f.p.y + (to.y - f.p.y) * s + .6 * s * (1 - s); // a throw: out and a little up, then down (a parabola in time, ~4.5 m/s at the pavement)
+      host.updateMatrixWorld(true); const lp = host.worldToLocal(w.clone()), hq = host.getWorldQuaternion(new THREE.Quaternion()).invert();
+      held.position.copy(lp); held.quaternion.copy(hq.multiply(f.q.clone().slerp(Q, e))); held.scale.set(1, 1 - .45 * smooth((s - .6) / .4), 1); held.visible = true;
+      return { arms: { L: 'hang', R: 'point' }, lean: .02, look: { yaw: -.5, pitch: .15 } };
+    }
+    inHand(false); held.visible = false; held.userData.from = null;
     if (u < .8) return { arms: { L: 'hang', R: 'point' }, lean: .02, look: { yaw: -.5, pitch: .15 } };
     const roll = Math.sin((u - .8) / .2 * Math.PI * 2); return { arms: { L: 'shrug', R: 'shrug' }, lean: .04 * roll, look: { yaw: .1 * roll, pitch: -.05 } };
   }
@@ -780,8 +899,9 @@
   const baseOpponent = SC.asOpponent;
   SC.asOpponent = (engine, id) => {
     const restore = baseOpponent(engine, id); if (id !== 'fang') return restore;
-    const c = SC.rig(id, engine); wear(c, 'fight');
+    const c = SC.rig(id, engine); wear(c, 'fight'); if (headFile.state !== 'ready') loadHead(); // a failed head download is tried again
     return () => { restore(); wear(c, 'jacket'); };
   };
-  SC.market = { ids: Object.keys(DEFS), barehanded: ['fang'], handbag: rig => rig?.castProps?.handbag || null, wear, jacketOff, settle, version: 2 };
+  SC.market = { ids: Object.keys(DEFS), barehanded: ['fang'], handbag: rig => rig?.castProps?.handbag || null, wear, jacketOff, settle, version: 3,
+    head: { url: HEAD_URL, load: loadHead, ready: headReady, on: headOn, state: () => headFile.state } };
 })();

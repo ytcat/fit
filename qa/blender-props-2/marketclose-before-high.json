@@ -1,0 +1,62 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/base",
+ "scene": "dream_market_robbery",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "t": 1,
+   "calls": 11,
+   "triangles": 335613,
+   "closeup": {
+    "pos": [
+     -14.2,
+     1.55,
+     -0.3
+    ],
+    "look": [
+     -16.5,
+     0.95,
+     -3.1
+    ],
+    "fov": 44
+   }
+  },
+  {
+   "t": 1,
+   "calls": 12,
+   "triangles": 338809,
+   "closeup": {
+    "pos": [
+     -8.2,
+     1.25,
+     -0.4
+    ],
+    "look": [
+     -9.4,
+     0.5,
+     -2.1
+    ],
+    "fov": 45
+   }
+  },
+  {
+   "t": 1,
+   "calls": 19,
+   "triangles": 359239,
+   "closeup": {
+    "pos": [
+     -1.6,
+     1.35,
+     0.2
+    ],
+    "look": [
+     -3,
+     0.6,
+     -2.6
+    ],
+    "fov": 46
+   }
+  }
+ ]
+}

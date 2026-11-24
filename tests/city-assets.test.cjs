@@ -15,11 +15,11 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   // ---- loader: one request per file (cache), a failure falls back and is retried later, a slow file never blocks
   const calls = {}, pending = [];
   CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop(); calls[n] = (calls[n] || 0) + 1; if (/bus|hazel/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
-  assert.deepEqual(CA.status(), { tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle', props: 'idle', gymProps: 'idle' });
+  assert.deepEqual(CA.status(), { tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle', props: 'idle', gymProps: 'idle', marketProps: 'idle', dockProps: 'idle', ringProps: 'idle', stopProps: 'idle' });
   const t0 = Date.now(), r1 = await CA.ready(60);
   assert.ok(Date.now() - t0 < 400, 'ready() returns after its timeout even while a file is still loading');
   assert.ok(r1.bus && r1.tree === null && r1.station === null && r1.oldtown === null, 'only what is ready is used');
-  assert.deepEqual(CA.status(), { tree: 'loading', car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', hazelStall: 'idle', props: 'loading', gymProps: 'idle' }); // the street props join the opening preload, the gym's do not
+  assert.deepEqual(CA.status(), { tree: 'loading', car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', hazelStall: 'idle', props: 'loading', gymProps: 'idle', marketProps: 'idle', dockProps: 'idle', ringProps: 'idle', stopProps: 'loading' }); // the street and bus-stop props join the opening preload, the gym's, market's, docks' and ring's do not
   await CA.ready(30); await CA.preload(['bus']);
   assert.equal(calls['gloryland-bus.glb'], 1, 'the bus is fetched once (cache)'); assert.equal(calls['gloryland-oldtown.glb'], 1, 'a slow file is not requested twice');
   assert.equal(calls['gloryland-station.glb'], 2, 'a failed file is tried again next time');
@@ -157,10 +157,12 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
 
   // ---- phones: the ~19 MB of models are never precached by the offline pack (runtime cache on first use only)
   const manifest = JSON.parse(fs.readFileSync('offline-manifest.json', 'utf8')), worker = fs.readFileSync('offline-worker.js', 'utf8'), html = fs.readFileSync('index.html', 'utf8');
-  assert.ok(!manifest.urls.some(u => /\.glb|assets\/street\//.test(u)), 'no city model in the offline manifest');
+  assert.ok(!manifest.urls.some(u => /assets\/street\//.test(u)), 'no city model in the offline manifest');
+  // the only models in the pack are the small authored character heads (Fang: ~0.8 MB), never a city model
+  for (const u of manifest.urls.filter(u => /\.glb/.test(u))) { assert.ok(/^\.\/assets\/characters\/[a-z]+\/[a-z]+-head\.glb\?v=\d+$/.test(u), 'only character heads are precached: ' + u); assert.ok(fs.statSync(u.slice(2).split('?')[0]).size < 1.5e6, 'a precached head stays small: ' + u); }
   assert.ok(manifest.urls.some(u => /adventure\/story\/city-assets\.js\?v=/.test(u)), 'the loader script itself is offline');
   assert.ok(/city-assets\.js\?v=\d+/.test(html) && html.indexOf('city-assets.js') < html.indexOf('dream-sets.js') && html.indexOf('GLTFLoader.js') < html.indexOf('city-assets.js'), 'load order');
-  assert.ok(!/\.glb/.test(fs.readFileSync('scripts/build_offline_manifest.py', 'utf8')), 'the manifest builder does not add models');
+  assert.ok(!/assets\/street|\.glb'\)|glob\('\*\.glb/.test(fs.readFileSync('scripts/build_offline_manifest.py', 'utf8')), 'the manifest builder does not add city models');
   assert.ok(worker.includes('\\/assets\\/street\\/') && /caches\.open\(STREET\)/.test(worker), 'the offline worker keeps a model after first use (runtime cache)');
   assert.ok(/CityAssets\?\.preload\(\)/.test(fs.readFileSync('adventure/oldtown.js', 'utf8')), 'preload when the Adventure opens the first time');
   console.log('city assets: ok', JSON.stringify({ walkChecks: n, solids: solids.length }));

@@ -1,0 +1,88 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/base",
+ "scene": "dream_market_robbery",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "t": 1,
+   "calls": 77,
+   "triangles": 480485,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 161760
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  },
+  {
+   "t": 5,
+   "calls": 107,
+   "triangles": 857176,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 161760
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  },
+  {
+   "t": 8,
+   "calls": 177,
+   "triangles": 1240014,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 161760
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  },
+  {
+   "t": 11.5,
+   "calls": 137,
+   "triangles": 902551,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 161760
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  },
+  {
+   "t": 17.5,
+   "calls": 139,
+   "triangles": 909456,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 161760
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  }
+ ]
+}

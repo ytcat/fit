@@ -1,0 +1,56 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/base",
+ "scene": "dream_opening",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "t": 7.3,
+   "calls": 180,
+   "triangles": 604471,
+   "phase": "play",
+   "quality": "high",
+   "shadows": true,
+   "set": {
+    "meshes": 211,
+    "triangles": 453356
+   },
+   "city": {
+    "meshes": 173,
+    "triangles": 310627
+   }
+  },
+  {
+   "t": 8.5,
+   "calls": 168,
+   "triangles": 564987,
+   "phase": "play",
+   "quality": "high",
+   "shadows": true,
+   "set": {
+    "meshes": 211,
+    "triangles": 453356
+   },
+   "city": {
+    "meshes": 168,
+    "triangles": 291009
+   }
+  },
+  {
+   "t": 9.8,
+   "calls": 127,
+   "triangles": 512660,
+   "phase": "play",
+   "quality": "high",
+   "shadows": true,
+   "set": {
+    "meshes": 211,
+    "triangles": 453356
+   },
+   "city": {
+    "meshes": 163,
+    "triangles": 271391
+   }
+  }
+ ]
+}

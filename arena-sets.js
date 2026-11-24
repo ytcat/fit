@@ -270,6 +270,22 @@
    }
    if(g.index){const I=g.index;for(let i=0;i<I.count;i++)b.idx.push(first+I.getX(i));}else for(let i=0;i<P.count;i++)b.idx.push(first+i);
   }
+  // A Blender prop (tools/blender/dock-props.py, ring-props.py via CityAssets.propKit) baked like every piece: each vertex keeps its
+  // own linear paint, lit by the set's lamps; bulbs (glow/lantern class) go unlit into o.glow (default 'glow'). false: no model.
+  prop(key,name,x,y,z,ry=0,s=1,o={}){
+   const parts=this.kit&&this.kit.get(name);if(!parts)return false;
+   const m=this.m(x,y,z,0,ry,0,(o.sx||1)*s,s,s),v=this.v,n=this.n,w=this.atlas.white,gain=o.gain||1;this.nm.getNormalMatrix(m);
+   for(const [cls,q] of Object.entries(parts)){
+    const b=this.buffer(cls==='glow'||cls==='lantern'?(o.glow||'glow'):key),lit=b.kind==='lit',first=b.pos.length/3,P=q.p,N=q.n,C=q.c;
+    for(let i=0;i<P.length;i+=3){
+     v.set(P[i],P[i+1],P[i+2]).applyMatrix4(m);n.set(N[i],N[i+1],N[i+2]).applyMatrix3(this.nm).normalize();
+     let r=C[i]*gain,g=C[i+1]*gain,c=C[i+2]*gain;if(lit){const L=this.shade(v,n);r*=L[0];g*=L[1];c*=L[2];}
+     b.pos.push(v.x,v.y,v.z);b.col.push(r,g,c);b.uv.push(w[0],w[1]);b.idx.push(first+i/3);
+    }
+    this.propTris=(this.propTris||0)+P.length/9;
+   }
+   (this.placed||(this.placed={}))[name]=(this.placed[name]||0)+1;return true;
+  }
   box(key,w,h,d,x,y,z,color,ry=0,o){this.add(key,T.box,this.m(x,y,z,o&&o.rx||0,ry,o&&o.rz||0,w,h,d),color,o);}
   tube(key,r,h,x,y,z,color,o){this.add(key,T.tube,this.m(x,y,z,o&&o.rx||0,o&&o.ry||0,o&&o.rz||0,r,h,r),color,o);}
   cone(key,top,bottom,h,x,y,z,color,o){this.add(key,taper(top,bottom,o&&o.seg||8,o&&o.open),this.m(x,y,z,o&&o.rx||0,o&&o.ry||0,o&&o.rz||0,1,h,1),color,o);}
@@ -286,7 +302,7 @@
   // Closest spectators first: the finest level of detail that still fits the set's triangle budget, everyone else the next one down.
   flushPeople(){
    const list=this.people||[];this.people=[];if(!list.length)return;
-   let used=0;for(const b of this.buffers.values())used+=b.idx.length/3;
+   let used=-(this.propTris||0);for(const b of this.buffers.values())used+=b.idx.length/3; // Blender props come on top: the crowd keeps its detail
    const tri=g=>g.index.count/3,plans=list.map(planPerson),costs=list.map((sp,i)=>{const pl=plans[i];return [0,1,2].map(t=>tri(bodyProto(t,pl.seated,pl.pose,pl.mirror,pl.outfit,pl.legPose))+tri(headProto(t,pl.species))+(pl.hat?tri(hatProto(t,pl.hat,pl.species)):0)+(sp.glow?12:0));});
    const tiers=list.map(()=>0);let spare=this.peopleBudget-used-costs.reduce((s,c)=>s+c[0],0);
    const order=list.map((sp,i)=>i).sort((a,b)=>list[a].prio-list[b].prio),front=order.filter(i=>list[i].prio<=list[order[0]].prio+.45);
@@ -514,7 +530,8 @@
   k.quad('shell',44,44,0,G,0,dark,{rx:-PI/2,sx:22,sy:22});k.quad('shell',12.4,12.4,0,G+.004,0,carpet,{rx:-PI/2,sx:12,sy:12});
   for(const [x,z,ry] of [[0,-2.72,0],[0,2.72,PI],[2.72,0,-PI/2],[-2.72,0,PI/2]]){k.box('s'+sector(x,z),ry%PI?.1:5.3,.62,ry%PI?5.3:.1,x*1.012,G+.31,z*1.012,black);k.tiled('g'+sector(x,z),5.2,.52,x,G+.33,z,[1,1,1],ribbon,[5.2,.52],{ry});}
   // Judges' tables.
-  for(const [x,z,ry] of [[3.25,1.2,PI/2],[-3.25,-1.2,PI/2],[1.2,3.25,0]]){const key='s'+sector(x,z);k.box(key,1.9,.74,.62,x,G+.37,z,lin('#d9d9de'),ry);k.quad(key,1.5,.46,x-Math.sign(x)*(ry?.315:0),G+.4,z-(ry?0:.315),[1.5,1.5,1.5],{ry:ry?-Math.sign(x)*PI/2:PI,uv:press});}
+  // (ring-props.py where loaded: the cloth-covered table toward the ring, the timekeeper with the bell and the clock at the third)
+  for(const [x,z,ry,name] of [[3.25,1.2,PI/2,'Judges_table'],[-3.25,-1.2,PI/2,'Judges_table'],[1.2,3.25,0,'Timekeeper_table']]){const key='s'+sector(x,z),face=ry?-Math.sign(x)*PI/2:PI,m=k.prop(key,name,x,G,z,face),d=m?.326:.315;if(!m)k.box(key,1.9,.74,.62,x,G+.37,z,lin('#d9d9de'),ry);k.quad(key,1.5,.46,x-Math.sign(x)*(ry?d:0),G+.4,z-(ry?0:d),[1.5,1.5,1.5],{ry:face,uv:press});}
   // Ringside chairs with seated guests.
   const style={cloth:['#2c3550','#6a2a30','#e3ded2','#3f5f4c','#8a6a2c','#4a4a56','#1d2330','#7c4f73','#b5483c','#3c6c8c'].map(lin),fur:FUR,legs:DARK_LEGS,cheer:.3,seated:true,wear:{jacket:5.5,tee:2,hoodie:2.5},caps:.08};
   const aisle=(x,z)=>z<0&&Math.abs(x)<1.55;
@@ -608,8 +625,11 @@
   {const x=-5.6,z=HZ-.8;k.box('shell',1.9,.06,.4,x,G+.5,z,steel);k.box('shell',1.9,.06,.4,x,G+.95,z,steel);for(const dx of [-.9,.9])k.box('shell',.06,1.0,.4,x+dx,G+.5,z,steel);for(let i=0;i<5;i++)for(const y of [.6,1.05])k.tube('shell',.07,.3,x-.7+i*.35,G+y,z,black,{rz:PI/2});}
   [[4.2,HZ-.9,'#8f231f'],[4.6,HZ-.75,'#27405c'],[3.85,HZ-.7,'#c9a23a']].forEach(([x,z,c])=>k.ball('shell',.17,.17,.17,x,G+.17,z,lin(c)));
   // Corner stool, bucket and ring steps.
-  k.tube('shell',.17,.04,2.35,G+.5,2.35,lin('#8f231f'));k.tube('shell',.03,.5,2.35,G+.25,2.35,steel);k.tube('shell',.13,.28,2.75,G+.14,2.05,lin('#8a9099'));
-  k.box('s'+sector(-2.35,-2.2),.7,.16,.5,-2.35,G+.08,-2.25,wood);k.box('s'+sector(-2.35,-2.2),.7,.16,.26,-2.35,G+.24,-2.13,wood);
+  // Blender ringside props where loaded (ring-props.py; k.prop false = the generated piece, never both)
+  if(!k.prop('shell','Ring_stool',2.35,G,2.35,.6)){k.tube('shell',.17,.04,2.35,G+.5,2.35,lin('#8f231f'));k.tube('shell',.03,.5,2.35,G+.25,2.35,steel);}
+  if(!k.prop('shell','Water_bucket',2.75,G,2.05,2.4))k.tube('shell',.13,.28,2.75,G+.14,2.05,lin('#8a9099'));
+  if(!k.prop('s'+sector(-2.35,-2.2),'Ring_steps',-2.35,G,-2.2,PI)){k.box('s'+sector(-2.35,-2.2),.7,.16,.5,-2.35,G+.08,-2.25,wood);k.box('s'+sector(-2.35,-2.2),.7,.16,.26,-2.35,G+.24,-2.13,wood);}
+  k.prop('s'+sector(-6.9,1.2),'Towel_rack',-6.9,G,1.2,PI/2); // model only: a towel rail by the lockers
   // A few members watching from the apron and the mats.
   const style={cloth:['#8f9499','#27405c','#7a2a24','#d9d5cb','#2f4a3c','#1d1d20','#c9a23a','#5a6068'].map(lin),fur:FUR,legs:DARK_LEGS.concat(['#6a6f76','#27405c'].map(lin)),cheer:.2,wear:{tee:4.5,hoodie:3.5,jacket:2},caps:.25};
   k.crowd({seed:53,rows:2,inner:2.8,step:.7,spacing:.82,g:G,style,thin:.52});
@@ -619,7 +639,9 @@
 
  // ---------------------------------------------------------------- docks hangar
  function docks(k){
-  const G=-.015,HX=15,HZ=11,E=7,R=9.6,SKY=0x0d1326,sky=lin('#0d1326'),concrete=lin('#585b5f'),steel=lin('#59636c'),black=lin('#15171a'),yellow=lin('#d0aa1e'),paints=['#8a3a2a','#2f5a80','#3f6a48','#b8642a','#6a6f76','#7a2f3a','#2f6a70'].map(lin);
+  const G=-.015,HX=15,HZ=11,E=7,R=9.6,SKY=0x0d1326,sky=lin('#0d1326'),concrete=lin('#585b5f'),steel=lin('#59636c'),black=lin('#15171a'),yellow=lin('#d0aa1e'),HEX=['#8a3a2a','#2f5a80','#3f6a48','#b8642a','#6a6f76','#7a2f3a','#2f6a70'],paints=HEX.map(lin);
+  // Blender props where the model is loaded (dock-props.py; k.prop false = the generated piece, never both): the drum paint nearest each colour
+  const DRUM={'#8a3a2a':'red','#2f5a80':'blue','#3f6a48':'green','#b8642a':'rust','#6a6f76':'blue','#7a2f3a':'red','#2f6a70':'green'},drum=(key,x,z,hex,ry)=>k.prop(key,'Oil_drum_'+(DRUM[hex]||'rust'),x,G,z,ry);
   k.ambient={sky:[.018,.022,.036],ground:[.022,.019,.016]};
   const bays=[];for(const x of [-8,0,8])for(const z of [-4.6,4.6])bays.push([x,z]);
   for(const [x,z] of bays)k.lights.push({x,y:6.3,z,c:[1,.68,.36],power:4.4,r:4.4,aim:[0,-1,0],cone:[.05,.7]});
@@ -636,7 +658,7 @@
   k.disc('shell',2.5,0,G+.003,0,lin('#4a5058'));k.mark(2.34,G+.008,yellow,{w:.09,gap:4});
   for(let i=0;i<4;i++)k.quad('shell',1.4,.24,-2.1+i*1.4,G+.005,-6.2,[1,1,1],{rx:-PI/2,uv:hazard});
   k.lights.push({x:0,y:3.4,z:0,c:[1,.86,.6],power:3.2,r:2.6,wrap:.35,aim:[0,-1,0],cone:[-.2,.5]});
-  k.box('shell',.02,E-3.55,.02,0,(E+3.55)/2,0,black);k.cone('shell',.06,.32,.24,0,3.48,0,lin('#c9a020'),{seg:10});k.ball('glow',.18,.035,.18,0,3.36,0,[1,.9,.66]);
+  k.box('shell',.02,E-3.55,.02,0,(E+3.55)/2,0,black);if(!k.prop('shell','Work_lamp',0,3.36,0)){k.cone('shell',.06,.32,.24,0,3.48,0,lin('#c9a020'),{seg:10});k.ball('glow',.18,.035,.18,0,3.36,0,[1,.9,.66]);}
   k.beam('add',0,3.35,0,.18,2.4,3.36,[.075,.06,.036],{seg:16,curve:1.25});
   for(const [x,z,r] of [[5.2,3.8,1.1],[-6.1,-2.2,.8],[2.2,-7.6,1.3],[-3.8,6.9,.9],[9.6,-1.5,1.0]])k.disc('shell',r,x,G+.003,z,lin('#34373b'));
   // Corrugated walls with two open doors (quay side -Z, yard side +X).
@@ -675,14 +697,15 @@
   stand(-11.2,-3.4,PI/2,2,[0,1]);stand(-11.2,3.2,PI/2,1,[3]);stand(-8.3,7.9,0,1,[2]);stand(-1.8,8.6,0,2,[4,0]);stand(4.9,8.6,0,1,[1]);stand(11.3,7.6,PI/2,2,[5,3]);stand(11.4,-8.6,0,2,[6,2]);stand(-9.6,-9.0,0,1,[3]);
   // Forklift, pallets, drums and bollards.
   {const x=-7.3,z=-6.0,key='s'+sector(x,z);k.box(key,1.15,.75,1.9,x,G+.62,z,yellow);k.box(key,1.05,.06,1.1,x,G+2.05,z-.2,black);for(const dx of [-.5,.5])for(const dz of [-.7,.3])k.box(key,.05,1.1,.05,x+dx,G+1.5,z+dz,black);for(const dx of [-.3,.3]){k.box(key,.08,2.4,.08,x+dx,G+1.3,z+1.0,black);k.box(key,.1,.05,1.0,x+dx,G+.12,z+1.5,steel);}for(const dx of [-.58,.58])for(const dz of [-.6,.6])k.tube(key,.26,.2,x+dx,G+.26,z+dz,black,{rz:PI/2});}
-  const pallet=(x,z,n,c)=>{const key='s'+sector(x,z);k.box(key,1.2,.14,1.0,x,G+.07,z,lin('#8a7052'));for(let i=0;i<n;i++)k.box(key,1.05,.62,.9,x,G+.45+i*.63,z,lin(c),.08*i);};
+  const pallet=(x,z,n,c)=>{const key='s'+sector(x,z);if(!k.prop(key,'Pallet',x,G,z))k.box(key,1.2,.14,1.0,x,G+.07,z,lin('#8a7052'));for(let i=0;i<n;i++)if(!k.prop(key,'Cargo',x,G+.144+i*.62,z,.08*i))k.box(key,1.05,.62,.9,x,G+.45+i*.63,z,lin(c),.08*i);};
   pallet(7.2,5.6,2,'#7b6248');pallet(8.6,5.9,1,'#8a7a5c');pallet(-6.2,5.4,2,'#6a5a48');pallet(6.6,-8.4,1,'#7b6248');
-  for(const [x,z,c] of [[5.6,6.9,'#2f5a80'],[6.2,7.2,'#8a3a2a'],[-5.3,-8.6,'#2f5a80'],[9.9,3.6,'#8a3a2a']])k.tube('s'+sector(x,z),.29,.88,x,G+.44,z,lin(c));
-  for(const x of [-4,0,4,8])k.tube('shell',.16,.5,x,G+.25,-HZ-3.4,yellow);
+  for(const [x,z,c] of [[5.6,6.9,'#2f5a80'],[6.2,7.2,'#8a3a2a'],[-5.3,-8.6,'#2f5a80'],[9.9,3.6,'#8a3a2a']])if(!drum('s'+sector(x,z),x,z,c,x))k.tube('s'+sector(x,z),.29,.88,x,G+.44,z,lin(c));
+  for(const x of [-4,0,4,8])if(!k.prop('shell','Mooring_bollard',x,G,-HZ-3.4,x))k.tube('shell',.16,.5,x,G+.25,-HZ-3.4,yellow);
+  for(const [x,z,ry] of [[-2.6,-9.9,.4],[4.6,-10.1,2.1],[2.0,-14.2,-1.0]])k.prop('s'+sector(x,z),'Rope_coil',x,G,z,ry); // model only: coiled mooring ropes by the quay door
   // Dock crew in a loose circle round the fighters, between stacked crates and drums (GOTR-0065).
   const edge=[[.8,2],[2.4,1],[3.9,2],[5.5,1]];
-  for(const [a,h] of edge){const x=Math.sin(a)*2.78,z=Math.cos(a)*2.78,key='s'+sector(x,z);for(let i=0;i<h;i++)k.box(key,.62,.46,.62,x,G+.23+i*.46,z,lin(['#8a7052','#7b6248','#6a5a48'][(i+Math.round(a))%3]),a+i*.3);}
-  for(const a of [1.6,4.7]){const x=Math.sin(a)*2.9,z=Math.cos(a)*2.9;k.tube('s'+sector(x,z),.29,.88,x,G+.44,z,paints[Math.round(a)%paints.length]);}
+  for(const [a,h] of edge){const x=Math.sin(a)*2.78,z=Math.cos(a)*2.78,key='s'+sector(x,z);for(let i=0;i<h;i++)if(!k.prop(key,'Dock_crate',x,G+i*.497,z,a+i*.3,.69))k.box(key,.62,.46,.62,x,G+.23+i*.46,z,lin(['#8a7052','#7b6248','#6a5a48'][(i+Math.round(a))%3]),a+i*.3);}
+  for(const a of [1.6,4.7]){const x=Math.sin(a)*2.9,z=Math.cos(a)*2.9,i=Math.round(a)%paints.length;if(!drum('s'+sector(x,z),x,z,HEX[i],a))k.tube('s'+sector(x,z),.29,.88,x,G+.44,z,paints[i]);}
   // Chapter 1 beat 10: the purse, banded notes stacked on the drum by the circle ("cash on a barrel").
   {const a=1.6,x=Math.sin(a)*2.9,z=Math.cos(a)*2.9,key='s'+sector(x,z);for(let i=0;i<3;i++){k.box(key,.17,.035,.08,x-.04+i*.05,G+.9+i*.036,z+(i%2)*.03-.02,lin('#5f8a5a'),.3*i);k.box(key,.03,.037,.082,x-.04+i*.05,G+.9+i*.036,z+(i%2)*.03-.02,lin('#e0d6b8'),.3*i);}}
   k.crowd({seed:83,round:true,rows:2,inner:3.1,step:.58,spacing:.56,rise:.05,g:G,style,thin:.1,lights:{p:.1,colors:[lin('#ffd08a'),lin('#e8f1ff')]},skip:(x,z)=>edge.some(([a])=>Math.hypot(x-Math.sin(a)*2.78,z-Math.cos(a)*2.78)<.6)||[1.6,4.7].some(a=>Math.hypot(x-Math.sin(a)*2.9,z-Math.cos(a)*2.9)<.45)||(z<0&&Math.abs(x-.15)<.62)}); // a lane through the crowd from the quay door (Chapter 1 beat 10: they walk in)
@@ -736,18 +759,23 @@
   // Tripod floodlights at the corners: a modest production.
   for(const [x,z] of [[4.4,4.4],[-4.4,4.4],[4.4,-4.4],[-4.4,-4.4]]){const key='s'+sector(x,z);k.tube(key,.035,3.5,x,G+1.75,z,black);for(const a of [0,2.1,4.2])k.box(key,.03,.9,.03,x+Math.cos(a)*.3,G+.42,z+Math.sin(a)*.3,black,0,{rz:Math.cos(a)*.6,rx:-Math.sin(a)*.6});k.box(key,.7,.34,.14,x*.99,G+3.55,z*.99,black,Math.atan2(-x,-z));k.box('g'+sector(x,z),.6,.26,.02,x*.972,G+3.55,z*.972,[1,.98,.92],Math.atan2(-x,-z));}
   // Judges' table.
-  k.box('s'+sector(-3.3,0),.62,.74,2.2,-3.3,G+.37,0,lin('#e1e1e4'));
+  if(!k.prop('s'+sector(-3.3,0),'Timekeeper_table',-3.3,G,0,PI/2,1,{sx:2.2/1.9}))k.box('s'+sector(-3.3,0),.62,.74,2.2,-3.3,G+.37,0,lin('#e1e1e4'));
   return {background:0x15181d,fog:[30,80],lights:{hemi:[0xeef4ff,.5,0x5a4a38],key:[0xffffff,2.8],fill:[0xa6c9ff,.65],rimA:[0xf4f4f4,2],rimB:[0xf4f4f4,2],a:[0xfff0d8,1.3],b:[0xdde8ff,1.3]}};
  }
 
  const builders={underground,street,championship,boxing_club:boxingClub,docks,regional};
- function build(id,lang,title){
-  const k=new Kit(),mood=builders[id](k),made=k.finish(id),paint=l=>k.atlas.paint({lang:l,title:title&&(title[l]||title.en)||''});paint(lang);
+ // Blender props for a venue (CityAssets, adventure/story/city-assets.js): only models already loaded (a set is built at once and never
+ // waits); a missing one starts loading for the next build. Story sets pass their own kit (docks-sets.js).
+ const PROP_FILES={docks:['dockProps'],boxing_club:['ringProps'],championship:['ringProps'],regional:['ringProps']};
+ function cachedKit(id){const CA=typeof window!=='undefined'&&window.CityAssets,files=PROP_FILES[id];if(!files||!CA?.cached||!CA.propKit)return null;try{return CA.propKit(CA.cached(files));}catch(e){return null;}}
+ function build(id,lang,title,o={}){
+  const k=new Kit();k.kit=o.kit!==undefined?o.kit:cachedKit(id);
+  const mood=builders[id](k),made=k.finish(id),paint=l=>k.atlas.paint({lang:l,title:title&&(title[l]||title.en)||''});paint(lang);
   if(k.ceiling)made.group.userData.cameraCeiling=k.ceiling-.9; // clear of beams, pipes and lamps hung from the slab
   if(k.cameraRadius)made.group.userData.cameraRadius=k.cameraRadius;
   let disposed=false;
   // mood.ring===false (GOTR-0065): the fight is staged on the floor; ringless-venues.js hides the ring hardware and the referee.
-  return {id,lang,group:made.group,mood,ring:mood.ring!==false,sectors:made.sectors,stats:{triangles:made.triangles,meshes:made.meshes,texture:[k.atlas.w,k.atlas.h],people:made.people},
+  return {id,lang,group:made.group,mood,ring:mood.ring!==false,sectors:made.sectors,stats:{triangles:made.triangles,meshes:made.meshes,texture:[k.atlas.w,k.atlas.h],people:made.people,props:k.placed||{}},
    setLang(next){if(next===this.lang)return;this.lang=next;paint(next);},
    // cx,cz: unit direction from the ring to the camera in arena space.
    // cheer 0..: the people bounce (a Super Punch knockout, super-punch.js crowd); close metres: they step in toward the fight.

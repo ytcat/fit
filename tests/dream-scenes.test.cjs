@@ -31,7 +31,7 @@ assert.equal(C.sample(film, 6).props.doors[0], 0); assert.equal(C.sample(film, 8
 assert.equal(C.sample(film, 5).actors.fighter.act, 'off'); near(C.sample(film, 7.5).actors.fighter.y, .26, 1e-9, 'on the bus floor'); near(C.sample(film, 9).actors.fighter.y, 0, 1e-9, 'on the pavement');
 const end = C.sample(film, film.duration).actors.fighter; near(end.x, C.places.GYM[0], .6, 'at the gym door'); near(end.z, C.places.GYM[1], .6, 'at the gym door');
 assert.equal(C.sample(film, film.duration).camera.shot, 6, 'seven shots'); assert.equal(C.sample(film, 9.59).camera.shot, 0); assert.equal(C.sample(film, 9.6).camera.shot, 1, 'a cut jumps');
-for (let t = 15.7; t < 29.3; t += .3) { const a = C.sample(film, t).actors.fighter; if (a.walking) assert.ok(a.speed > .9 && a.speed < 1.6, 'walking pace at ' + t.toFixed(1) + ': ' + a.speed.toFixed(2)); }
+for (let t = 15.7; t < 29.3; t += .3) { const a = C.sample(film, t).actors.fighter; if (a.walking) assert.ok((a.speed > .9 || a.easing) && a.speed < 1.6, 'walking pace at ' + t.toFixed(1) + ': ' + a.speed.toFixed(2)); } // ch1-motion: he slows into a stop over the actor ramp
 let d0 = -1; for (let t = 0; t <= film.duration; t += .05) { const d = C.sample(film, t).actors.fighter.dist; assert.ok(d >= d0 - 1e-9, 'distance never runs back'); d0 = d; }
 
 // ---- hooks wired into the page and the scene player

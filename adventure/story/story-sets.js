@@ -97,9 +97,9 @@
     // places one and returns true, else false and the caller builds its generated piece (never both). Matte parts join the
     // street batch, glossy parts one shared mesh, bulbs the glow batch; lantern glass glows at dusk and is pale glass by day.
     const kit = window.CityAssets?.propKit?.(opts.city) || null, GL = new K.Batch(), LN = new K.Batch(), lanterns = [], placed = {};
-    const prop = (name, x, y, z, ry = 0, sx = 1) => {
+    const prop = (name, x, y, z, ry = 0, sx = 1, s = 1) => { // s: uniform scale on top of sx (round 2: crates, baskets)
       const parts = kit?.get(name); if (!parts) return false;
-      CityAssets.placeProp(parts, M(x, y, z, sx, 1, 1, ry), { gloss: GL, matte: S, glow: G, lantern: LN }); placed[name] = (placed[name] || 0) + 1; return true;
+      CityAssets.placeProp(parts, M(x, y, z, sx * s, s, s, ry), { gloss: GL, matte: S, glow: G, lantern: LN }); placed[name] = (placed[name] || 0) + 1; return true;
     };
     // Old Town lantern post
     const lamp = (x, z) => { shade(x, z, .5, .5); if (prop('Lamp', x, 0, z)) { lanterns.push([x, z]); return; } cyl(S, x, 0, z, .14, .5, '#2f3640', P.cyl8); cyl(S, x, .5, z, .06, 3.1, '#2f3640', P.cyl6); cyl(S, x, 3.55, z, .12, .06, '#2f3640', P.cyl6); cyl(S, x, 3.61, z, .19, .36, '#fff0c4', P.cyl6); S.add(P.cone6, M(x, 3.97, z, .28, .2, .28), C('#2f3640')); cyl(S, x, 4.17, z, .03, .1, '#2f3640', P.cyl6); box(S, x + .22, 3.2, z, .5, .04, .04, '#2f3640'); };
