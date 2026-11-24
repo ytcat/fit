@@ -66,6 +66,7 @@
     if (!e?.renderer || !e.coach?.root || !window.FreeWalkTown || !C || e.fightIQDemo) return false;
     if (!profileId()) { game()?.home?.(); return false; }
     game()?.close?.();
+    window.FreeWalkTown?.prepare?.(6000); // walk-town-look: the films' street models load alongside the map script
     const R = run = { closed: false, opts, e, time: timeOfDay(), zoom: 1, zoomTarget: 1, yaw: YAW0, keys: new Set(), analog: [0, 0], full: 0, poseT: 0, last: { save: 0, hud: -1, guide: -1 }, perf: { n: 0, sum: 0, max: 0, calls: 0, tris: 0 }, destination: null, story: null, arrived: false };
     R.wasPlaying = e.isPlaying; e.isPlaying = false;
     // ---- overlay (left-to-right in every language; each text line dir="auto")

@@ -50,6 +50,10 @@ const HE = /[֐-׿]/, RU = /[Ѐ-ӿ]/;
 {
   const L = Look.LEVELS; assert.ok(L.length >= 3);
   for (let i = 1; i < L.length; i++) assert.ok(L[i][0] >= L[i - 1][0] && L[i][1] >= L[i - 1][1], 'each level up costs more');
+  for (let i = 1; i < L.length; i++) assert.ok(L[i][2] <= L[i - 1][2], 'each level up refreshes the shadow at least as often');
+  // no shader changes while walking: a ladder step only sets the pixel ratio and the shadow map size / refresh
+  const look = src('adventure/free-walk/free-walk-look.js'), set = look.slice(look.indexOf('function set(level)'), look.indexOf('set(look.locked ?? top);'));
+  assert.ok(!/sm\.enabled\s*=|castShadow\s*=|rlook\?\.high|rebuild\(\)/.test(set), 'a ladder step rebuilds no program');
   assert.equal(L[L.length - 1][0], 2, 'the top level draws at up to 2x (iPhone 3x screens: two thirds of native, not a third)');
   assert.ok(L[0][0] >= 1.25, 'even the floor draws above the engine minimum');
   for (const t of ['morning', 'evening']) { const l = Look.LIGHTS[t]; assert.ok(l.hemi && l.sun && l.sky && l.fog && l.look, t); }
@@ -71,6 +75,15 @@ const HE = /[֐-׿]/, RU = /[Ѐ-ӿ]/;
   const r = Look.clip(g, [{ x: 30, z: 30, ry: 0, hw: 10, hd: 10 }], 2); let left = 0; for (const t of g.children) left += t.geometry.attributes.position.count / 3;
   assert.ok(r.tris > 0 && left === 3000 - r.tris, 'clip removes inside the footprint');
   const low = Look.clip(g, [{ x: 150, z: 150, ry: 0, hw: 10, hd: 10 }], 100); assert.equal(low.tris, 0, 'below yMin (the pavement) nothing goes');
+}
+
+/* ---- no first-time work while walking: everything compiled, uploaded and allocated behind the loading cover; walkers pooled;
+ * the same town parked between opens in a session */
+{
+  const t = src('adventure/free-walk/free-walk-town.js');
+  assert.match(t, /renderer\.compile\(scene, cam\)/); assert.match(t, /renderer\.initTexture/); assert.match(t, /renderer\.setViewport\(0, 0, 1, 1\)/);
+  assert.match(t, /ms\.warm = warm\(\)/); assert.ok(!/SL\.walker\(/.test(t.slice(t.indexOf('function spawnWalker'), t.indexOf('function updateWalkers'))), 'no walker is made while walking');
+  assert.match(t, /function park\(\)/); assert.match(t, /function resume\(\)/); assert.match(t, /PARK_MS = 180000/);
 }
 
 /* ---- wiring: scripts in order with matching versions; the map's ?v everywhere the same; the models stay out of the offline pack */

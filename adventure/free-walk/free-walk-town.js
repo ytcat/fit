@@ -385,6 +385,9 @@
   }
   window.addEventListener?.('pagehide', drop);
   /** The films' kit and street models before a build (never longer than ms; a build without them uses the generated pieces). */
-  const prepare = (ms = 6000) => window.FreeWalkSets ? window.FreeWalkSets.prepare(ms) : Promise.resolve(false);
+  // one wait shared by every caller of the same open: the mode starts it as the walk opens (with the map script's download)
+  // and waits for it before the build, so the models load while the map script loads
+  let preparing = null;
+  const prepare = (ms = 6000) => { if (!window.FreeWalkSets) return Promise.resolve(false); if (!preparing) { preparing = window.FreeWalkSets.prepare(ms).finally(() => setTimeout(() => { preparing = null; }, 0)); } return preparing; };
   window.FreeWalkTown = { build, prepare, drop, S, CELL, BOUNDS, REACH, get parked() { return parked ? parked.key : null; } };
 })();
