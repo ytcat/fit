@@ -191,14 +191,14 @@
       }
       if (F.swing?.kind === 'gait' && !gait) F.swing = standStep(Math.hypot(F.A.x - d.x, F.A.z - d.z), Math.abs(wrapA(F.yaw - dy))); // he stopped in mid-swing: the foot finishes as a step
       if (!F.swing) {
-        if (gait && !p.planted && (!other.swing || (jog && other.swing.kind === 'gait'))) F.swing = { kind: 'gait', A0: F.A.clone(), yaw0: F.yaw, O0: F.A.clone().sub(d), Y0: wrapA(F.yaw - dy), u0: Math.min(p.u || 0, .95), g0: offAt(F.A) + R.position.y };
+        if (gait && !p.planted && (!other.swing || (other.swing.kind === 'gait' && (jog || (other.swing.kk ?? 0) >= .999)))) F.swing = { kind: 'gait', A0: F.A.clone(), yaw0: F.yaw, O0: F.A.clone().sub(d), Y0: wrapA(F.yaw - dy), u0: Math.min(p.u || 0, .95), g0: offAt(F.A) + R.position.y };
         else if (gait && (!other.swing || Math.hypot(F.A.x - d.x, F.A.z - d.z) > .6) && Math.hypot(F.A.x - d.x, F.A.z - d.z) > .3) F.swing = standStep(Math.hypot(F.A.x - d.x, F.A.z - d.z), Math.abs(wrapA(F.yaw - dy))); // it missed its swing (the other foot was stepping): a catch-up step
         else if (!gait && !((st.walk || 0) > 0) && !other.swing && !(F.settle && Math.abs(F.sp) > .06)) { const off = Math.hypot(F.A.x - d.x, F.A.z - d.z), oy = Math.abs(wrapA(F.yaw - dy)); if (off > P_TOL || oy > P_YTOL) F.swing = standStep(off, oy); }
       }
       let lift = 0, pitch = null;
       if (F.swing) {
         const S = F.swing; let k;
-        if (S.kind === 'gait') k = p.planted ? 1 : clamp(((p.u || 0) - S.u0) / Math.max(.05, 1 - S.u0));
+        if (S.kind === 'gait') { S.tt = (S.tt || 0) + dt; k = Math.min(p.planted ? 1 : clamp(((p.u || 0) - S.u0) / Math.max(.05, 1 - S.u0)), S.u0 > .4 ? S.tt / .2 : 1); } // walk-gait: a swing joined late (the other foot was stepping) still takes ~0.2 s, it does not jump to its spot
         else { S.k += dt / S.dur; k = clamp(S.k); lift = S.h * Math.sin(Math.PI * k) ** .7; pitch = .22 * Math.sin(2 * Math.PI * k); support = -p.s * .03 * Math.sin(Math.PI * k); }
         S.kk = k; const was = F.A.clone(); if (S.kind === 'stand') { const e = smooth((k - .15) / .7); F.A.copy(S.A0).lerp(d, e); F.yaw = S.yaw0 + wrapA(dy - S.yaw0) * e; } // from where it stood to where it is wanted now
         else if (S.hold) F.A.copy(S.hold); else if (k < .12) { S.O0.copy(S.A0).sub(d); S.Y0 = wrapA(S.yaw0 - dy); F.A.copy(S.A0); F.yaw = S.yaw0; } // toe-off: the ball stays on its spot (the body may be turning)

@@ -32,7 +32,7 @@ function run(course, species = 'lion', opts = {}) {
     c.root.position.set(s.x, 0, s.z); c.root.rotation.set(0, turn, 0);
     walkAmt += ((d > 1e-5 ? 1 : 0) - walkAmt) * (1 - Math.exp(-dt * 8));
     const st = old ? { t, dt, dist: s.dist, walk: walkAmt, ground: () => 0, arms: {}, look: { yaw: 0, pitch: 0 } }
-      : { t, dt, plant: true, dist: s.dist, walk: walkAmt, ground: () => 0, arms: {}, look: { yaw: 0, pitch: 0 } };
+      : { t, dt, plant: true, dist: s.dist, walk: d > 1e-5 ? 1 : 0, ground: () => 0, arms: {}, look: { yaw: 0, pitch: 0 } };
     DreamPose.civil(c, st);
     rows.push({ ...grab(c, THREE, +t.toFixed(4)), v });
   }
