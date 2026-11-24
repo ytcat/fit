@@ -66,3 +66,24 @@ like in the video ... Make everything more realistic ... the style of, let's say
 - Check the evening and night pictures (lit windows, lamps), PC framing, and the walk tour on foot
   (`node qa/free-walk-city/tour.cjs <out> en bruno,market_stall,otto,market,docks_quay`: not finished in this session).
 - Not checked on a physical phone. The camera framing is agent/story-walk's (QA zooms out with the walk's own key).
+
+## Round 2 (integrator review: hitches, build time, docks)
+- Hitch causes found (qa/walk-town-look/hitches.cjs, real rAF frames, route gym -> Hazel -> Docks quay): new walkers were built
+  while walking (body, skeleton, bone texture: +1 texture +geometry, up to 164 ms frames); the ladder switched the shadow
+  pass and the image-based light (program rebuilds); first draws of far pieces (uploads); the trees/lamps refresh did all
+  kinds in one frame (26 ms).
+- Fixes: warm-up behind the loading cover (renderer.compile with the walk's lights incl. the Fighter in every outfit piece,
+  initTexture for every texture, one draw of everything into a 1-pixel viewport); walkers pooled (10 made at build);
+  ladder steps only change pixel ratio and shadow-map size/refresh (shadow pass and environment fixed per tier: no program
+  ever rebuilt while walking); trees/lamps refresh one kind a frame with precomputed positions; one facade paint (the map
+  paints sharp/lit itself: GlorylandMap.build facadeScale / litWindows); the town is parked between opens (GPU copies
+  freed, rebuilt in ~0.6 s instead of ~6.8 s in SwiftShader; dropped after 3 min / pagehide / on <4 GB devices); the
+  models start loading as the walk opens (FreeWalkTown.prepare shared; one line in free-walk.js open()).
+- Measured (SwiftShader PC, STEP 8 m/frame, loaded machine; JS time of the walk's frame): after the fixes 0 new programs
+  and 0 new textures while walking (before the pool: 22 textures, longest 164 ms); remaining spikes have no GPU-object
+  event (machine load / GPU-process backpressure); town update median 0.4 ms. Final STEP 1.2 runs (phone + PC, before and
+  after) were started in a scratch chain (`hit-chain.sh`) and are not recorded here yet.
+- Docks: the map's hangar end cap faced inward (black from the quay): cut out (FreeWalkSets cuts), gable with door leaves,
+  a lit hall with crates and the painted circle; view moved. Needs the final picture.
+- Next: run `node qa/walk-town-look/hitches.cjs <out> after|before phone|pc` (ROOT=<git archive of 67ddca4> for before),
+  then `qa/walk-town-look/run-all.sh` for the picture set, sheets with sheet.py.
