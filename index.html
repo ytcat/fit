@@ -6,8 +6,8 @@
   <script>
     /* The player's language from the first paint (owner rule 2026-11-23): html lang follows the setting, the layout stays
        left-to-right in every language. uiSay(en, he, ru) picks a status line before or after app.setLanguage. */
-    (function(){var l='en';try{l=localStorage.getItem('shadowbox-language')||'en';}catch(e){}if(l!=='he'&&l!=='ru')l='en';document.documentElement.lang=l;
-     window.uiSay=function(en,he,ru){var c=(window.app&&window.app.lang)||document.documentElement.lang;return c==='he'?he:c==='ru'?ru:en;};})();
+    (function(){var l='en';try{l=localStorage.getItem('shadowbox-language')||'en';}catch(e){}if(l!=='he'&&l!=='ru')l='en';try{document.documentElement.lang=l;}catch(e){}
+     window.uiSay=function(en,he,ru){var c=(window.app&&window.app.lang)||(document.documentElement||{}).lang||l;return c==='he'?he:c==='ru'?ru:en;};})();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; img-src 'self' blob: data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'" />
@@ -134,7 +134,7 @@
   <script src="./adventure/story/docks-sets.js?v=2026112180" defer></script>
   <script src="./adventure/story/street-life.js?v=2026111406" defer></script>
   <script src="./adventure/story/street-walk.js?v=2026112311" defer></script>
-  <script src="./adventure/story/otto-civilian.js?v=20261123lang" defer></script>
+  <script src="./adventure/story/otto-civilian.js?v=otto492e63-lang" defer></script>
   <script src="./adventure/story/dream-scenes.js?v=20261123lang" defer></script>
   <script src="./adventure/story/gym-fight.js?v=20261122arm2" defer></script>
   <script src="./adventure/story/mop-core.js?v=20261122night" defer></script>
