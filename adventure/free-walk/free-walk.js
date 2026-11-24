@@ -183,7 +183,7 @@
     // drag on the view turns the camera round the Fighter
     let dragId = null, dragX = 0;
     host.addEventListener('pointerdown', ev => { if (dragId !== null) return; dragId = ev.pointerId; dragX = ev.clientX; host.setPointerCapture?.(ev.pointerId); });
-    host.addEventListener('pointermove', ev => { if (ev.pointerId !== dragId) return; R.yaw -= (ev.clientX - dragX) * .008; dragX = ev.clientX; });
+    host.addEventListener('pointermove', ev => { if (ev.pointerId !== dragId) return; R.yaw -= (ev.clientX - dragX) * .008; dragX = ev.clientX; R.dragAt = performance.now(); });
     for (const k of ['pointerup', 'pointercancel', 'lostpointercapture']) host.addEventListener(k, ev => { if (ev.pointerId === dragId) dragId = null; });
     host.addEventListener('wheel', ev => { ev.preventDefault(); zoomBy(ev.deltaY > 0 ? .1 : -.1); }, { passive: false });
     function zoomBy(a) { R.zoomTarget = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round((R.zoomTarget + a) * 100) / 100)); plus.disabled = R.zoomTarget <= ZOOM_MIN; minus.disabled = R.zoomTarget >= ZOOM_MAX; }
@@ -231,7 +231,7 @@
       c.root.visible = true; c.root.rotation.set(0, R.s.ry, 0); c.root.scale.set(-1, 1, 1); c.maneInitialized = false;
       try { window.StoryCast?.outfit?.(c, 'street'); } catch (x) { console.warn('free walk outfit', x); }
       window.DreamPose?.reset?.(c); R.groundY = town.grid.height(R.s.x, R.s.z); R.turn = R.s.ry;
-      if (R.faceRoute) { R.yaw = R.camYaw = R.s.ry + Math.PI; R.faceRoute = false; } // the camera behind him, looking where he goes
+      if (R.faceRoute) { R.yaw = R.camYaw = openYaw(town, R.s, R.s.ry + Math.PI); R.faceRoute = false; } // behind him, looking where he goes (turned to the open side by a wall)
       c.root.position.set(R.s.x, R.groundY, R.s.z);
       takeCarry(town);
       R.center = new THREE.Vector3(R.s.x, R.groundY + .9, R.s.z); place(true);
@@ -265,13 +265,27 @@
       const rec = R.walk.record;
       if (rec && rec.phase === 'walk' && Number.isFinite(rec.x) && town.grid.allowed(rec.x, rec.z)) { R.faceRoute = true; return { x: rec.x, z: rec.z, ry: rec.ry || 0, dist: 0, walking: false, restored: true }; }
       const at = town.targets[R.walk.from];
-      if (at) { const ry = routeHeading(town, at, town.targets[R.walk.to]); R.faceRoute = true; return { x: at.x, z: at.z, ry, dist: 0, walking: false }; }
+      if (at) { // out of the doorway he came from: a few steps on toward where he goes
+        const ry = routeHeading(town, at, town.targets[R.walk.to]), step = R.walk.from === 'bus_stop' ? 0 : 4, x = at.x + Math.sin(ry) * step, z = at.z + Math.cos(ry) * step, ok = town.grid.allowed(x, z);
+        R.faceRoute = true; return { x: ok ? x : at.x, z: ok ? z : at.z, ry, dist: 0, walking: false };
+      }
     }
     const at = o.start && o.start !== 'resume' ? (town.places.find(p => p.id === o.start)?.spawn || town.targets[o.start] || null) : null;
     if (at) return { x: at.x, z: at.z, ry: Math.PI, dist: 0, walking: false };
     const legacy = !raw ? C.legacyPlace(read(C.LEGACY_KEY)) : null; // the v1.92 Chapter 1 roam: start in the same district
     const fallback = town.targets[legacy || R.destination || 'oldtown'] || town.places[0].spawn;
     return C.restore(raw, town.grid, { x: fallback.x, z: fallback.z, ry: Math.PI });
+  }
+  /** The camera yaw nearest to `base` (within about 90 degrees) with the most open view of the Fighter at s: a story walk
+   *  that starts at a door begins with the street in view, not the wall behind him. */
+  function openYaw(town, s, base) {
+    const g = town.grid, y = g.height(s.x, s.z) + 1.25, cp = Math.cos(PITCH), sp = Math.sin(PITCH); let best = base, bf = -Infinity;
+    for (let k = -8; k <= 8; k++) {
+      const yaw = base + k * .2; let f = 1;
+      for (; f < DIST; f += .5) { const x = s.x + Math.sin(yaw) * cp * f, z = s.z + Math.cos(yaw) * cp * f, h = y + sp * f - .4; if (g.top(x, z) > h || (town.canopy?.(x, z) ?? -1e9) > h) break; }
+      const score = Math.min(f, DIST) - Math.abs(k) * .25; if (score > bf) { bf = score; best = yaw; }
+    }
+    return best;
   }
   /** The heading from a to the street route toward b (about 8 m on), the Fighter's facing at the start of a story walk. */
   function routeHeading(town, a, b) {
@@ -373,6 +387,10 @@
       R.full = mag > .93 ? R.full + dt : 0; // held all the way: a brisk walk after a moment
       const brisk = K.has('ShiftLeft') || K.has('ShiftRight') || R.full > .8;
       if (K.has('KeyQ')) R.yaw += dt * 1.6; if (K.has('KeyE')) R.yaw -= dt * 1.6;
+      if (K.has('KeyQ') || K.has('KeyE')) R.dragAt = ms;
+      // GOTR-0120 chase camera (owner: GTA-style, behind and above): while he walks, the view comes round behind him unless
+      // the player turned it in the last 1.5 s
+      if (R.s.walking && ms - (R.dragAt || -1e9) > 1500) { const d = Math.atan2(Math.sin(R.s.ry + Math.PI - R.yaw), Math.cos(R.s.ry + Math.PI - R.yaw)); R.yaw += d * (1 - Math.exp(-dt * 1.3)) * (R.walkAmt || 0); }
       const [vx, vz] = C.velocity(hIn, vIn, R.camYaw ?? R.yaw, C.SPEED * (brisk ? 1.55 : 1));
       town.grid.move(R.s, vx, vz, dt, town.blocked);
       town.update(dt, R.s, R.camera);

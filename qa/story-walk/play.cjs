@@ -83,9 +83,10 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
       const dist = window.__field.dist; let k = G.idx(s.x, s.z); if (k < 0 || dist[k] < 0) { const n = G.nearest(s.x, s.z); k = G.idx(n.x, n.z); }
       if (dist[k] < bestD) { bestD = dist[k]; stuck = 0; } else stuck++;
       const look = (it % 10 < 5 && stuck > 6) ? 1 : 8; // stuck on a corner: aim at the next cell only for a while
-      for (let st = 0; st < look; st++) { let best = k; for (const n of [k - 1, k + 1, k - nx, k + nx]) if (n >= 0 && n < N && dist[n] >= 0 && dist[n] < dist[best]) best = n; if (best === k) break; k = best; }
+      for (let st = 0; st < look; st++) { let best = k; for (const n of [k - 1, k + 1, k - nx, k + nx, k - nx - 1, k - nx + 1, k + nx - 1, k + nx + 1]) if (n >= 0 && n < N && dist[n] >= 0 && dist[n] < dist[best]) best = n; if (best === k) break; k = best; }
+      if (stuck > 25 && stuck % 25 < 4) { const a = Math.random() * 6.283; FreeWalk.qa.walk(Math.cos(a), Math.sin(a), .5); continue; } // wedged on a stall or a passer-by: a step aside, then on
       const ax = G.x0 + (k % nx + .5) * G.cell, az = G.z0 + (Math.floor(k / nx) + .5) * G.cell; let dx = ax - s.x, dz = az - s.z; const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
-      const Y = snap.yaw; const r = FreeWalk.qa.walk(dx * Math.cos(Y) - dz * Math.sin(Y), -dx * Math.sin(Y) - dz * Math.cos(Y), .2); if (r?.closed) return { closed: true, launched: r.launched };
+      const Y = snap.yaw; const r = FreeWalk.qa.walk(dx * Math.cos(Y) - dz * Math.sin(Y), -dx * Math.sin(Y) - dz * Math.cos(Y), .3); if (r?.closed) return { closed: true, launched: r.launched };
       if (it % 40 === 39) await new Promise(r => setTimeout(r, 0));
     }
     return { closed: !FreeWalk.playing };
