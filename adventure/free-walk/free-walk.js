@@ -132,7 +132,7 @@
     plus.onclick = () => zoomBy(-.15); minus.onclick = () => zoomBy(.15);
     const paintTime = () => { dayB.setAttribute('aria-pressed', String(R.time === 'day')); nightB.setAttribute('aria-pressed', String(R.time === 'night')); };
     dayB.onclick = () => setTime('day'); nightB.onclick = () => setTime('night'); paintTime();
-    async function setTime(v) { if (v === R.time || R.busy) return; R.time = v; write(TIME_KEY, v); paintTime(); await buildTown(); }
+    async function setTime(v) { if (v === R.time || R.busy) return; R.time = v; write(TIME_KEY, v); paintTime(); if (!await buildTown()) fail(); }
 
     // ---- the stage: the game's canvas moves into the overlay (as in the films)
     const stage = e.stage || document.getElementById('stageContainer');
@@ -165,7 +165,7 @@
         const t0 = performance.now();
         R.town = window.FreeWalkTown.build({ renderer: e.renderer, time: grade(R.time), quality: lowTier() ? 'low' : 'high', lang: lang() });
         R.buildMs = Math.round(performance.now() - t0);
-      } catch (x) { console.warn('free walk', x); R.busy = false; return false; }
+      } catch (x) { console.warn('free walk', x); R.town = null; R.busy = false; return false; } // the map button still leaves cleanly
       const town = R.town;
       if (!R.s) R.s = startState(town);
       if (!town.grid.allowed(R.s.x, R.s.z)) { const n = town.grid.nearest(R.s.x, R.s.z); if (n) { R.s.x = n.x; R.s.z = n.z; } }

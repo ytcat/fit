@@ -81,10 +81,11 @@
     const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
   }
 
-  function build(opts = {}) {
+  function buildTown(opts = {}, keep = {}) {
     const C = Core(), T = THREE, renderer = opts.renderer, lang = C.langOf(opts.lang);
     const scene = new T.Scene(), owned = [], own = x => { owned.push(x); return x; };
     const map = GlorylandMap.build(scene, { time: opts.time || 'day', renderer, quality: opts.quality === 'low' ? 'low' : 'high', curb: .05, lang, scale: S, walk: true, shadowSize: 512 });
+    keep.map = map; keep.scene = scene;
     const lay = map.layout, landY = lay.landY * S;
     map.sun.castShadow = false;
     const night = map.night;
@@ -116,6 +117,8 @@
     }
     const canopy = (x, z) => { const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC); return i < 0 || j < 0 || i >= cnx || j >= cnz ? -1e9 : crowns[j * cnx + i]; };
     const grid = C.grid({ ...field, walk });
+    // a device that cannot read the height field back (or renders it wrong) gets a clean failure, never a walk inside walls
+    let open = 0; for (let k = 0; k < walk.length; k += 7) open += walk[k]; if (open * 7 < 100000) throw Error('free walk: the town could not be measured on this device');
 
     /* ---- districts, landmarks and story waypoints (metres) */
     const near = (x, z) => grid.nearest(x, z, 400) || { x, z };
@@ -277,6 +280,11 @@
       map.dispose();
     }
     return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, S };
+  }
+  /** Builds the town; on any failure everything made so far is released and the error is passed on (the mode shows a notice). */
+  function build(opts = {}) {
+    const keep = {};
+    try { return buildTown(opts, keep); } catch (x) { try { keep.map?.dispose(); } catch { /* already gone */ } throw x; }
   }
   window.FreeWalkTown = { build, S, CELL, BOUNDS, REACH };
 })();
