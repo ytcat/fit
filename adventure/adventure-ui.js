@@ -3,7 +3,7 @@
  * buttons that open the matching existing activity. The map script is loaded and built only when the
  * tab opens, and everything (renderer, GPU memory, listeners) is released when the dialog closes. */
 (() => {
-  const MAP_SRC = './adventure/gloryland-map.js?v=20261123lang';
+  const MAP_SRC = './adventure/gloryland-map.js?v=20261124m1';
   const L = (en, he, ru) => ({ en, he, ru });
   const copy = {
     en: { loading: 'Building Gloryland…', failed: 'The map could not start on this device.', chapter: 'Chapter', side: 'Side zone', place: 'Chapter 4 place', coach: 'Coach', boss: 'Boss', entry: 'entry level', soon: 'Missions are coming next. For now everything is open: train or fight here freely.', sideSoon: 'Side missions come later. You can still fight a free bout.', train: 'Train', fight: 'Fight', day: 'Day', night: 'Night', all: 'Whole city', hint: 'Tap a place to travel there.', close: 'Back to map', more: 'Details', sq: 'Side quest', sqNote: 'Optional bonus zone' },
@@ -42,6 +42,9 @@
     card.hidden = true; card.setAttribute('aria-live', 'polite');
     const tools = el('div', 'adv-tools'), seg = el('div', 'adv-seg'), dayB = button(w.day, () => setTime('day'), 'adv-seg-b'), nightB = button(w.night, () => setTime('night'), 'adv-seg-b'), allB = button(w.all, () => { card.hidden = true; fly(home()); }, 'adv-chip');
     seg.append(dayB, nightB); tools.append(seg, allB);
+    // GOTR-0118: free walk across the whole town, any time (resumes where the player last walked)
+    const FWC = window.FreeWalkCore, walkB = window.FreeWalk && FWC ? button(FWC.text(lang, 'freeWalk'), () => window.FreeWalk.open({ start: 'resume' }), 'adv-chip adv-walk') : null;
+    if (walkB) { walkB.title = FWC.text(lang, 'freeWalkHint'); tools.append(walkB); }
     stage.append(status, pinsEl, tools);
     modal.append(stage, card, el('p', 'adv-hint', w.hint));
     let alive = true, renderer = null, scene = null, camera = null, map = null, raf = 0, goal = null, time = store.game()?.adventureTime === 'night' ? 'night' : 'day', last = 0, dirty = true, idleAt = performance.now();
@@ -162,19 +165,10 @@
       titles.append(el('h3', '', T(info.name)), el('p', 'adv-kicker', p.kind === 'side' ? `${w.sq} · ${w.chapter} ${zone?.chapter || ''}` : p.kind === 'place' ? w.place : `${w.chapter} ${p.chapter} · ${T(info.sub)}`));
       head.append(titles, button('×', () => { card.hidden = true; }, 'adv-card-close'));
       card.append(head);
-      if (p.id === 'oldtown' && chap === 1) {
-        const roam = button(T(L('Free walk · Chapter 1', 'הליכה חופשית · פרק 1', 'Свободная прогулка · Глава 1')), () => {
-          // Suggest only a geographic waypoint for the stock current step. Never start or complete it here.
-          const g = game(), flow = window.StoryFlow, step = flow?.state(g, 1)?.current, current = step?.id, target = {
-            dream_gym_talk:'bruno', first_brick:'bruno', clean_gym:'bruno', night_shadow:'bruno', night_bag:'bruno', dream_apology:'bruno',
-            market_robber:'market', buy_heavy_bag:'otto', bag_drill:'bruno', fight_prep:'bruno', docks_fight:'docks', advanced_training:'bruno', brick:'bruno'
-          };
-          const eligible = Object.hasOwn(target, current) && flow.playable(g, current) &&
-            !window.AdventureProgress?.blockedByGymShift?.(g, current) && (!step.boss || !flow.gate(g, 1));
-          window.location.assign('./chapter1-roam.html' + (eligible ? '?destination=' + target[current] : ''));
-        }, 'game-button adv-go adv-alt adv-primary');
-        roam.title = T(L('Optional mode. Internet connection required; no story progress.', 'מצב נפרד. נדרש אינטרנט; המשימות לא מתקדמות.', 'Отдельный режим. Нужен интернет; сюжет не меняется.'));
-        card.append(roam);
+      if (window.FreeWalk && window.FreeWalkCore) { // GOTR-0118: walk this district (every place; no step starts, nothing is spent or saved in the game)
+        const FWC = window.FreeWalkCore, story = p.id === 'oldtown' && chap === 1 ? window.FreeWalk.storyDestination() : null;
+        const walk = button(story ? `${FWC.text(lang, 'walkHere')} · ${FWC.text(lang, story)}` : FWC.text(lang, 'walkHere'), () => window.FreeWalk.open(story ? { start: 'oldtown', destination: story, story: true } : { start: p.id }), 'game-button adv-go adv-alt adv-primary adv-walk');
+        walk.title = FWC.text(lang, 'freeWalkHint'); walk.dataset.walk = p.id; card.append(walk);
       }
       // icons instead of sentences: coach, boss level, stars
       const story = (p.id === 'oldtown' || p.id === 'market') && !!window.AdventureOldTown && !!window.StoryFlow; // GOTR-0069: the quest panel carries progress and level
@@ -251,7 +245,9 @@
       window.addEventListener('resize', resize);
       // Owner rule: the map is never stretched. Re-fit whenever the map box changes size (sheet expand/collapse, rotation, browser bars).
       if (typeof ResizeObserver !== 'undefined') { const ro = new ResizeObserver(() => resize()); ro.observe(stage); stage.__ro = ro; }
-      ctx.onReady?.({ route: playRoute, map, cam, select: id => { const p = map.places.find(q => q.id === id); if (p) select(p); }, pins: () => pins.map(q => q.el) });
+      ctx.onReady?.({ route: playRoute, map, cam, select: id => { const p = map.places.find(q => q.id === id); if (p) select(p); }, pins: () => pins.map(q => q.el),
+        // GOTR-0118: a story walk that walked into its place's ring (a one-time ticket, re-checked live) opens that step through the quest action
+        story: ticket => alive && !window.StoryScenes?.playing && !window.app?.engine?.fightIQDemo && !!window.FreeWalk?.tickets?.().still(ticket) && !!window.AdventureOldTown?.start && (window.AdventureOldTown.start(ctx, ticket.step), true) }); // never on top of a film or another mode
       raf = requestAnimationFrame(frame);
       setTimeout(() => { if (alive) checkRoute(); }, 900);
       setTimeout(() => { if (alive) window.AdventureOldTown?.onOpen?.(ctx); }, 400);
