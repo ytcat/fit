@@ -1,0 +1,134 @@
+{
+ "lang": "en",
+ "device": "phone",
+ "walks": [
+  {
+   "n": 4,
+   "step": "bag_drill",
+   "walk": "bag_drill",
+   "goal": "Carry the new bag back to Bruno’s gym",
+   "destination": "bruno",
+   "distance": "76 m",
+   "carry": "heavybag",
+   "time": "morning",
+   "zone": "Market Row",
+   "ticket": "bag_drill",
+   "camDist": 11.5,
+   "camPitch": 0.68,
+   "arrow": true,
+   "entry": "block",
+   "keys": false,
+   "realInputMetres": 2.7,
+   "near": {
+    "left": 6.732406701915746
+   },
+   "enter": {
+    "left": 0.7402702209328652
+   },
+   "launches": [
+    "bag_drill"
+   ],
+   "after": {
+    "playing": "dream_new_bag",
+    "run": null,
+    "beat": false,
+    "record": "{\"step\":\"bag_drill\",\"phase\":\"arrived\",\"open\":false,\"t\":1795554164183}"
+   }
+  },
+  {
+   "n": 5,
+   "step": "docks_fight",
+   "walk": "docks_fight",
+   "goal": "Walk to the Docks for the underground fight",
+   "destination": "docks_quay",
+   "distance": "372 m",
+   "carry": null,
+   "time": "night",
+   "zone": "Old Town",
+   "ticket": "docks_fight",
+   "camDist": 11.5,
+   "camPitch": 0.6,
+   "arrow": true,
+   "entry": "block",
+   "keys": false,
+   "realInputMetres": 3.2,
+   "near": {
+    "left": 6.488451279003336
+   },
+   "enter": {
+    "left": 0.9021086409075211
+   },
+   "launches": [
+    "docks_fight"
+   ],
+   "after": {
+    "playing": "dream_docks",
+    "run": null,
+    "beat": false,
+    "record": "{\"step\":\"docks_fight\",\"phase\":\"arrived\",\"open\":false,\"t\":1795554304081}"
+   }
+  },
+  {
+   "n": 6,
+   "step": "advanced_training",
+   "walk": "advanced_training",
+   "goal": "Walk back to Bruno’s gym",
+   "destination": "bruno",
+   "distance": "376 m",
+   "carry": null,
+   "time": "night",
+   "zone": "The Docks",
+   "ticket": "advanced_training",
+   "camDist": 11.5,
+   "camPitch": 0.6,
+   "arrow": true,
+   "entry": "block",
+   "keys": false,
+   "realInputMetres": 1.3,
+   "near": {
+    "left": 6.931702532567295
+   },
+   "enter": {
+    "left": 0.9476286192385732
+   },
+   "launches": [
+    "advanced_training"
+   ],
+   "after": {
+    "playing": null,
+    "run": null,
+    "beat": true,
+    "record": "{\"step\":\"advanced_training\",\"phase\":\"arrived\",\"open\":false,\"t\":1795554425429}"
+   }
+  }
+ ],
+ "errors": [],
+ "entry": {
+  "text": "Walk",
+  "label": "Free walk through the town",
+  "disabled": false,
+  "hidden": false,
+  "rect": [
+   117,
+   5,
+   40,
+   36
+  ]
+ },
+ "skip5": "docks_fight",
+ "quest5": "Walk to the Docks for the underground fight ▶",
+ "skip6": "advanced_training",
+ "quest6": "Walk back to Bruno’s gym ▶",
+ "entryAfter": {
+  "disabled": false,
+  "text": "Walk"
+ },
+ "plain": {
+  "walk": null,
+  "goal": "Story: Bruno’s gym",
+  "destination": "bruno",
+  "time": "night",
+  "selector": false,
+  "dayNight": false
+ }
+}

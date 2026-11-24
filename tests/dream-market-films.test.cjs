@@ -79,6 +79,9 @@ const server = http.createServer((q, r) => { let f = path.normalize(path.join(RO
     const before = await rigState();
     // dev: finish the steps up to beat 5 with their minimum pass (the development build's own skip)
     const ctx = () => p.evaluate(() => { window.__ctx = { store: ringfighterGame.store, startTraining: ringfighterGame.startTraining, startFight: ringfighterGame.startFight, change: a => { const r = ringfighterGame.store.gameAction(a); if (r.ok) ringfighterGame.apply?.(); return r.ok; } }; });
+    // GOTR-0122: this test pins the film chain itself (the device fallback: no free walk, the films chain directly as before);
+    // the story walks between the films are covered by tests/story-walk.test.cjs and qa/story-walk/play.cjs
+    await p.evaluate(() => { if (window.FreeWalk) window.FreeWalk.available = () => false; });
     await ctx(); await p.evaluate(() => { window.__plays = []; const S = StoryScenes, play = S.play; S.play = (id, o) => { window.__plays.push(id); return play.call(S, id, o); }; });
     for (const id of ['dream_arrival','dream_gym_talk','first_brick','clean_gym','night_shadow','night_bag']) assert.ok(await p.evaluate(id => id==='clean_gym'
       ? __ctx.store.gameAction({type:'adventure',adventure:'mission',missionId:id,measured:{marks:25}}).ok

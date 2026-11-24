@@ -112,7 +112,10 @@ assert.equal(C.district(100, 0, [{ id: 'a', x: 0, z: 0, r: 30 }]), null);
   // the mode wires it: a marker change re-arms or cancels, entry consumes, the map launches through AdventureOldTown.start only after a live re-check
   const fw = src('adventure/free-walk/free-walk.js'), ui = src('adventure/adventure-ui.js');
   assert.match(fw, /tickets\(\)\.entered\(R\.prevD, straight\)/); assert.match(fw, /tickets\(\)\.consume\(R\.ticket\.nonce\)/);
-  assert.match(fw, /arm\(STORY_IDS\.includes\(R\.destination\) \? R\.destination : null\)/);
+  // GOTR-0122 (owner 2026-11-25): the game sets the destination from the story (no selector, no Day/Night): the ticket is armed
+  // for the live current step's place only, never for a boss
+  assert.match(fw, /if \(live && !live\.boss && live\.target === R\.destination\) \{ R\.ticket = tickets\(\)\.arm\(live\.target\)/);
+  assert.ok(!/createElement\('select'\)|fw-select|fw-time|TIME_KEY/.test(fw), 'no destination selector and no Day/Night buttons');
   assert.match(ui, /story: ticket => alive && !window\.StoryScenes\?\.playing && !window\.app\?\.engine\?\.fightIQDemo && !!window\.FreeWalk\?\.tickets\?\.\(\)\.still\(ticket\) && !!window\.AdventureOldTown\?\.start && \(window\.AdventureOldTown\.start\(ctx, ticket\.step\), true\)/);
   assert.ok(!/gameAction|recordStory|devSkip/.test(fw), 'the walk never writes the game save itself');
 }

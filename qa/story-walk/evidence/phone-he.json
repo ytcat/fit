@@ -1,0 +1,257 @@
+{
+ "lang": "he",
+ "device": "phone",
+ "walks": [
+  {
+   "n": 1,
+   "step": "dream_gym_talk",
+   "walk": "dream_gym_talk",
+   "goal": "לכו לחדר הכושר של ברונו",
+   "destination": "bruno",
+   "distance": "87 מ׳",
+   "carry": "duffel",
+   "time": "morning",
+   "zone": "העיר העתיקה",
+   "ticket": "dream_gym_talk",
+   "camDist": 11.5,
+   "camPitch": 0.84,
+   "arrow": true,
+   "entry": "block",
+   "keys": false,
+   "realInputMetres": 3.6,
+   "near": {
+    "left": 6.636000301386377
+   },
+   "enter": {
+    "left": 0.5608029957123974
+   },
+   "launches": [
+    "dream_gym_talk"
+   ],
+   "after": {
+    "playing": "dream_gym_talk",
+    "run": null,
+    "beat": false,
+    "record": "{\"step\":\"dream_gym_talk\",\"phase\":\"arrived\",\"open\":false,\"t\":1795554620594}"
+   }
+  },
+  {
+   "n": 2,
+   "step": "market_robber",
+   "walk": "market_robber",
+   "goal": "לכו לשוק",
+   "destination": "market_stall",
+   "distance": "76 מ׳",
+   "carry": null,
+   "time": "morning",
+   "zone": "העיר העתיקה",
+   "ticket": "market_robber",
+   "camDist": 11.5,
+   "camPitch": 0.6,
+   "arrow": true,
+   "entry": "block",
+   "keys": false,
+   "realInputMetres": 3.6,
+   "resume": {
+    "before": {
+     "x": 149.91,
+     "z": -115.88,
+     "ry": -1.562,
+     "walking": false
+    },
+    "after": {
+     "s": {
+      "x": 149.91,
+      "z": -115.88,
+      "ry": -1.562,
+      "walking": false
+     },
+     "walk": "market_robber",
+     "destination": "market_stall"
+    },
+    "moved": 0,
+    "same": true
+   },
+   "near": {
+    "left": 6.749851850226054
+   },
+   "enter": {
+    "left": 0.769220384545281
+   },
+   "launches": [
+    "market_robber"
+   ],
+   "after": {
+    "playing": "dream_market_robbery",
+    "run": null,
+    "beat": false,
+    "record": "{\"step\":\"market_robber\",\"phase\":\"arrived\",\"open\":false,\"t\":1795554778567}"
+   }
+  },
+  {
+   "n": 3,
+   "step": "buy_heavy_bag",
+   "walk": "buy_heavy_bag",
+   "goal": "לכו לחנות של אוטו לקנות שק חדש",
+   "destination": "otto",
+   "distance": "74 מ׳",
+   "carry": null,
+   "time": "morning",
+   "zone": "שדרת השוק",
+   "ticket": "buy_heavy_bag",
+   "camDist": 11.5,
+   "camPitch": 0.92,
+   "arrow": true,
+   "entry": "block",
+   "keys": false,
+   "realInputMetres": 4.2,
+   "near": {
+    "left": 6.4575227448302375
+   },
+   "enter": {
+    "left": 1.0034440691936986
+   },
+   "launches": [
+    "buy_heavy_bag"
+   ],
+   "after": {
+    "playing": "dream_otto_shop",
+    "run": null,
+    "beat": false,
+    "record": "{\"step\":\"buy_heavy_bag\",\"phase\":\"arrived\",\"open\":false,\"t\":1795554882670}"
+   }
+  },
+  {
+   "n": 4,
+   "step": "bag_drill",
+   "walk": "bag_drill",
+   "goal": "סחבו את השק החדש בחזרה לחדר הכושר של ברונו",
+   "destination": "bruno",
+   "distance": "76 מ׳",
+   "carry": "heavybag",
+   "time": "morning",
+   "zone": "שדרת השוק",
+   "ticket": "bag_drill",
+   "camDist": 11.5,
+   "camPitch": 0.68,
+   "arrow": true,
+   "entry": "block",
+   "keys": false,
+   "realInputMetres": 3.4,
+   "near": {
+    "left": 6.75239957348497
+   },
+   "enter": {
+    "left": 0.7502666192761079
+   },
+   "launches": [
+    "bag_drill",
+    "bag_drill"
+   ],
+   "after": {
+    "playing": "dream_new_bag",
+    "run": null,
+    "beat": false,
+    "record": "{\"step\":\"bag_drill\",\"phase\":\"arrived\",\"open\":false,\"t\":1795555042152}"
+   }
+  },
+  {
+   "n": 5,
+   "step": "docks_fight",
+   "walk": "docks_fight",
+   "goal": "לכו לנמל לקרב המחתרת",
+   "destination": "docks_quay",
+   "distance": "372 מ׳",
+   "carry": null,
+   "time": "night",
+   "zone": "העיר העתיקה",
+   "ticket": "docks_fight",
+   "camDist": 11.5,
+   "camPitch": 0.6,
+   "arrow": true,
+   "entry": "block",
+   "keys": false,
+   "realInputMetres": 2.5,
+   "near": {
+    "left": 6.351724175371599
+   },
+   "enter": {
+    "left": 0.9349331526906015
+   },
+   "launches": [
+    "docks_fight"
+   ],
+   "after": {
+    "playing": "dream_docks",
+    "run": null,
+    "beat": false,
+    "record": "{\"step\":\"docks_fight\",\"phase\":\"arrived\",\"open\":false,\"t\":1795555198996}"
+   }
+  },
+  {
+   "n": 6,
+   "step": "advanced_training",
+   "walk": "advanced_training",
+   "goal": "חזרו לחדר הכושר של ברונו",
+   "destination": "bruno",
+   "distance": "376 מ׳",
+   "carry": null,
+   "time": "night",
+   "zone": "הנמל",
+   "ticket": "advanced_training",
+   "camDist": 11.5,
+   "camPitch": 0.6,
+   "arrow": true,
+   "entry": "block",
+   "keys": false,
+   "realInputMetres": 1.2,
+   "near": {
+    "left": 6.6649005994088135
+   },
+   "enter": {
+    "left": 0.9479451460923276
+   },
+   "launches": [
+    "advanced_training"
+   ],
+   "after": {
+    "playing": null,
+    "run": null,
+    "beat": true,
+    "record": "{\"step\":\"advanced_training\",\"phase\":\"arrived\",\"open\":false,\"t\":1795555329495}"
+   }
+  }
+ ],
+ "errors": [],
+ "entry": {
+  "text": "הליכה",
+  "label": "הליכה חופשית בעיר",
+  "disabled": false,
+  "hidden": false,
+  "rect": [
+   64,
+   5,
+   40,
+   36
+  ]
+ },
+ "skip2": "dream_apology",
+ "skip3": "buy_heavy_bag",
+ "quest3": "לכו לחנות של אוטו לקנות שק חדש ▶",
+ "skip5": "docks_fight",
+ "quest5": "לכו לנמל לקרב המחתרת ▶",
+ "skip6": "advanced_training",
+ "quest6": "חזרו לחדר הכושר של ברונו ▶",
+ "entryAfter": {
+  "disabled": false,
+  "text": "הליכה"
+ },
+ "plain": {
+  "walk": null,
+  "goal": "סיפור: חדר הכושר של ברונו",
+  "destination": "bruno",
+  "time": "night",
+  "selector": false,
+  "dayNight": false
+ }
+}

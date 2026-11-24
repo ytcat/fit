@@ -9,7 +9,7 @@
  *     only the ones near the player exist;
  *   - a fine grain on the painted ground (asphalt, paving) so it holds up close.
  * Draw calls stay flat (the map is ~30 merged meshes) and nothing is rebuilt while walking.
- * The look (owner 2026-11-25, GOTR-0120): the story places are the films' street (free-walk-sets.js: Bruno's Gym and the bus
+ * The look (owner 2026-11-25, GOTR-0125): the story places are the films' street (free-walk-sets.js: Bruno's Gym and the bus
  * stop, Market Row round Hazel's stall, Otto's Corner, the Docks), the picture is drawn like the films (free-walk-look.js:
  * full screen resolution, the films' light for the story's time of day, a sun shadow round the player, image-based light,
  * sharper facades with windows that have depth), and the merged meshes are cut into tiles so only what is near is drawn.
@@ -128,9 +128,25 @@
     if (places3d) discs.push(...places3d.discs);
     C.blockDiscs(walk, field, discs);
     const pockets = C.keepConnected(walk, field.nx, field.nz, seeds); // pockets closed by trunks and posts are not walkable
-    // tree crowns (instanced, not in the height field): a coarse top map so the camera keeps out of the leaves
+    // tree crowns, market umbrellas and the sets' awnings and stall roofs (not in the height field: a person walks under them):
+    // a coarse top map so the camera keeps out of the leaves and does not slip under a roof
     const CC = 2, cnx = Math.ceil(field.nx * CELL / CC), cnz = Math.ceil(field.nz * CELL / CC), crowns = new Float32Array(cnx * cnz).fill(-1e9);
-    for (const [name, [r0, h0]] of Object.entries({ trees: [1.0, 2.9], pines: [.9, 2.7], palms: [1.5, 3.4] })) for (const o of lay.inst[name]?.list || []) {
+    const crown = (x, z, top) => { const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC); if (i < 0 || j < 0 || i >= cnx || j >= cnz) return; const k = j * cnx + i; if (top > crowns[k]) crowns[k] = top; };
+    if (places3d) { // the sets' overhead batches: awnings, stall roofs (the near-level faces of them; not the bunting or the wires, which hang)
+      const A = new T.Vector3(), B = new T.Vector3(), Cv = new T.Vector3(), E1 = new T.Vector3(), E2 = new T.Vector3(), N = new T.Vector3(), Q3 = new T.Vector3();
+      for (const st of places3d.sets) { st.set.group.updateMatrixWorld(true); st.set.group.traverse(o => {
+        if (!o.isMesh || o.name !== 'overhead' || !o.geometry?.attributes?.position) return;
+        const P = o.geometry.attributes.position, I = o.geometry.index, n = I ? I.count : P.count;
+        for (let t = 0; t + 2 < n; t += 3) {
+          const ia = I ? I.getX(t) : t, ib = I ? I.getX(t + 1) : t + 1, ic = I ? I.getX(t + 2) : t + 2;
+          A.fromBufferAttribute(P, ia).applyMatrix4(o.matrixWorld); B.fromBufferAttribute(P, ib).applyMatrix4(o.matrixWorld); Cv.fromBufferAttribute(P, ic).applyMatrix4(o.matrixWorld);
+          N.crossVectors(E1.subVectors(B, A), E2.subVectors(Cv, A)); const area = N.length() / 2; if (area < .04 || Math.abs(N.y) < .5 * N.length()) continue;
+          const top = Math.max(A.y, B.y, Cv.y), steps = Math.min(40, Math.ceil(Math.max(E1.length(), E2.length()) / .5));
+          for (let u = 0; u <= steps; u++) for (let v = 0; u + v <= steps; v++) { Q3.copy(A).addScaledVector(E1, u / steps).addScaledVector(E2, v / steps); crown(Q3.x, Q3.z, top); }
+        }
+      }); }
+    }
+    for (const [name, [r0, h0]] of Object.entries({ trees: [1.0, 2.9], pines: [.9, 2.7], palms: [1.5, 3.4], umbrellas: [.66, 1.1] })) for (const o of lay.inst[name]?.list || []) {
       const sc = o.s || 1, r = r0 * sc * S, top = ((o.y || 0) + h0 * sc) * S, x = o.x * S, z = o.z * S;
       for (let cj = Math.max(0, Math.floor((z - r - field.z0) / CC)); cj <= Math.min(cnz - 1, Math.floor((z + r - field.z0) / CC)); cj++)
         for (let ci = Math.max(0, Math.floor((x - r - field.x0) / CC)); ci <= Math.min(cnx - 1, Math.floor((x + r - field.x0) / CC)); ci++) { const k = cj * cnx + ci; if (top > crowns[k]) crowns[k] = top; }

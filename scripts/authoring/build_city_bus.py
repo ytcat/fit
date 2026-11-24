@@ -289,13 +289,25 @@ empty('Entry_curb_marker',(4.49,1.95,.15),root)
 empty('Entry_floor_marker',(4.49,.60,.72),root)
 
 # Panel service seams, latches, reflectors, fleet graphics.
+# Kerb side (+Y): nothing of the static body may lie where a door leaf swings out (owner 2026-11-25: the fleet name hung
+# in the air in the open middle doors). The shipped GLB got the same change from patch_bus_door_parts.py.
+in_door=lambda x0,x1:any(x0<b and x1>a for a,b in door_ranges)
 for side in (-1,1):
     for x in [-4.78,-4.2,-2.3,-1.15,.3,1.3,2.45,3.8]:
         if side>0 and any(a<x<b for a,b in door_ranges):continue
         box('service panel join',(x,side*1.254,.91),(.009,.008,.83),'dark',.002)
-        box('service hatch latch',(x+.13,side*1.267,1.24),(.085,.018,.022),'metal',.004)
-    for x in (-4.72,-1.3,1.4,4.87):box('side marker',(x,side*1.277,.58),(.12,.02,.04),'amber',.012)
-    lettering('fleet name','GLORYLAND TRANSIT',(-.05,side*1.278,1.18),.16,'cream',(math.pi/2,0,math.pi if side>0 else 0))
+        lx=x+.13
+        if side>0 and in_door(lx-.0425,lx+.0425):lx=x-.13 # the latch goes on the other side of its seam, not on the door
+        box('service hatch latch',(lx,side*1.267,1.24),(.085,.018,.022),'metal',.004)
+    for x in (-4.72,-1.3,1.4,4.87):
+        if side>0 and in_door(x-.06,x+.06):
+            # a marker on a door leaf belongs to that leaf (hinge empties are built above, at frame 1 they are closed)
+            entrance=next(i for i,(a,b) in enumerate(door_ranges) if a<x<b);lo,hi=door_ranges[entrance]
+            pivot=doors[entrance*2+(0 if x<(lo+hi)/2 else 1)];hinge=pivot.location
+            box('side marker',(x-hinge.x,side*1.277-hinge.y,.58-hinge.z),(.12,.02,.04),'amber',.012,pivot)
+        else:box('side marker',(x,side*1.277,.58),(.12,.02,.04),'amber',.012)
+    # kerb side: on the panel between the middle and the front doors (the road side keeps the centre of the coach)
+    lettering('fleet name','GLORYLAND TRANSIT',(-.05 if side<0 else 1.55,side*1.278,1.18),.16,'cream',(math.pi/2,0,math.pi if side>0 else 0))
     lettering('fleet number','012',(-4.6,side*1.278,1.31),.11,'cream',(math.pi/2,0,math.pi if side>0 else 0))
 for z in [.74+i*.07 for i in range(8)]:box('rear side cooling grille',(-4.62,-1.271,z),(.72,.012,.025),'dark',.006)
 

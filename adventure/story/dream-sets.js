@@ -123,7 +123,7 @@
       for (const s of [-1, 1]) { box(B, 5.42, .6, s * .88, .04, .2, .42, '#fff6d8'); box(B, 5.42, .62, s * .52, .04, .12, .16, '#ffb52e'); box(B, -5.42, .7, s * .9, .04, .3, .3, '#d9473b'); box(B, 5.2, 2.0, s * 1.42, .08, .34, .2, dark); for (const x of [-3.35, 2.35]) { wheel(B, x, .5, s * 1.16 + (s > 0 ? .32 : 0), .5, .32); box(B, x, .98, s * 1.262, 1.3, .1, .02, dark); } }
       box(B, 5.48, .3, 0, .14, .22, 2.52, dark); box(B, -5.48, .3, 0, .14, .22, 2.52, dark);
       const bus = movable(B, 'bus'); bus.position.set(-62, -.15, 1.9); objects.bus = bus; c.mountVehicleGlass(panes, bus, 'bus cabin glass');
-      const BS = new K.Batch({ uv: true }); sign('route', -.4, 1.0, 1.262, 2.0, .42, 0, BS); sign('route', 5.45, 2.66, 0, 1.8, .36, Math.PI / 2, BS);
+      const BS = new K.Batch({ uv: true }); sign('route', .65, 1.0, 1.262, 2.0, .42, 0, BS); /* the route board between the middle door (x -2.1..-0.9) and the front wheel arch (1.7), not over the door */ sign('route', 5.45, 2.66, 0, 1.8, .36, Math.PI / 2, BS);
       const boards = new THREE.Mesh(BS.geometry(), c.signMat); bus.add(boards); c.disposables.push(boards.geometry);
       objects.doors = [-1, 1].map(s => {
         const D = new K.Batch(), pane = new K.Batch();

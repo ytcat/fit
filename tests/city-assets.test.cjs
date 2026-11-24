@@ -14,7 +14,7 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
 (async () => {
   // ---- loader: one request per file (cache), a failure falls back and is retried later, a slow file never blocks
   const calls = {}, pending = [];
-  CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop(); calls[n] = (calls[n] || 0) + 1; if (/bus|hazel/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
+  CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop().split('?')[0]; calls[n] = (calls[n] || 0) + 1; if (/bus|hazel/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
   assert.deepEqual(CA.status(), { tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle', props: 'idle', gymProps: 'idle', marketProps: 'idle', dockProps: 'idle', ringProps: 'idle', stopProps: 'idle' });
   const t0 = Date.now(), r1 = await CA.ready(60);
   assert.ok(Date.now() - t0 < 400, 'ready() returns after its timeout even while a file is still loading');
@@ -102,6 +102,19 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   c.group.updateMatrixWorld(true);
   const m = h.bus.model.matrixWorld; assert.ok(m.determinant() > 0, 'never mirrored'); h.bus.model.traverse(o => assert.ok(o.scale.x > 0 && o.scale.y > 0 && o.scale.z > 0, 'positive scale ' + o.name));
   near(h.bus.wrap.position.y, -.15, 1e-9, 'root at road level'); near(new THREE.Box3().setFromObject(h.bus.model).min.y, -.15, .01, 'tyres on the road');
+  // owner 2026-11-25: nothing of the static body lies over a kerb-side door opening (the fleet name hung in the air in the open
+  // middle doors); what is on a leaf is that leaf's child and swings with it (scripts/authoring/patch_bus_door_parts.py)
+  {
+    const inv = new THREE.Matrix4().copy(h.bus.model.matrixWorld).invert(), v = new THREE.Vector3(), over = {};
+    h.bus.model.getObjectByName('Body').traverse(o => { if (!o.isMesh) return; const pos = o.geometry.attributes.position;
+      for (let k = 0; k < pos.count; k++) { v.fromBufferAttribute(pos, k).applyMatrix4(o.matrixWorld).applyMatrix4(inv);
+        for (const [lo, hi] of [[-1.02, .22], [3.86, 5.12]]) if (v.x > lo + .03 && v.x < hi - .03 && v.y > .42 && v.y < 2.66 && v.z < -1.24) over[o.name] = (over[o.name] || 0) + 1; } });
+    assert.deepEqual(over, {}, 'static body parts over the kerb-side doors');
+    const marker = h.bus.model.getObjectByName('Entry_right_door').children.find(o => o.isMesh && /amber indicators/.test(o.material.name)); // node 'Entry_right_door__12 amber indicators'
+    assert.ok(marker?.isMesh && marker.parent.name === 'Entry_right_door', 'the front side marker is on the door leaf');
+    const at = t => { h.bus.door(t); h.bus.model.updateMatrixWorld(true); return new THREE.Box3().setFromObject(marker).getCenter(new THREE.Vector3()).applyMatrix4(inv); };
+    const shut = at(0); near(shut.x, 4.87, .01, 'marker where it was (closed)'); near(shut.y, .58, .01, 'marker height'); assert.ok(at(1.3).distanceTo(shut) > .3, 'the marker swings out with its leaf'); at(0);
+  }
   const realGlass=[]; h.bus.model.traverse(o => { if(o.isMesh && o.material.name.includes('safety glass')) realGlass.push(o); });
   assert.equal(realGlass.length,5,'door leaves and the main coach keep their authored glass');
   assert.ok(realGlass.every(o=>o.material.transparent && !o.material.depthWrite && o.material.opacity<.3 && !o.castShadow));
@@ -164,6 +177,8 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   assert.ok(/city-assets\.js\?v=\d+/.test(html) && html.indexOf('city-assets.js') < html.indexOf('dream-sets.js') && html.indexOf('GLTFLoader.js') < html.indexOf('city-assets.js'), 'load order');
   assert.ok(!/assets\/street|\.glb'\)|glob\('\*\.glb/.test(fs.readFileSync('scripts/build_offline_manifest.py', 'utf8')), 'the manifest builder does not add city models');
   assert.ok(worker.includes('\\/assets\\/street\\/') && /caches\.open\(STREET\)/.test(worker), 'the offline worker keeps a model after first use (runtime cache)');
+  assert.ok(/street\.match\(event\.request\)/.test(worker) && /street\.delete\(event\.request,\{ignoreSearch:true\}\)/.test(worker), 'a new ?v= of a street model replaces the cached older copy');
+  assert.ok(/gloryland-bus\.glb\?v=\d+/.test(fs.readFileSync('adventure/story/city-assets.js', 'utf8')), 'the bus model URL carries its version');
   assert.ok(/CityAssets\?\.preload\(\)/.test(fs.readFileSync('adventure/oldtown.js', 'utf8')), 'preload when the Adventure opens the first time');
   console.log('city assets: ok', JSON.stringify({ walkChecks: n, solids: solids.length }));
 })().catch(e => { console.error(e); process.exit(1); });

@@ -1,4 +1,4 @@
-# Checkpoint: walk-town-look (GOTR-0120)
+# Checkpoint: walk-town-look (GOTR-0125)
 
 Branch `agent/walk-town-look` from `origin/claude/ecstatic-clarke-9as2ak` (67ddca4 = v1.94). Not merged, not released.
 

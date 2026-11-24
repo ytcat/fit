@@ -8,7 +8,26 @@
        left-to-right in every language. uiSay(en, he, ru) picks a status line before or after app.setLanguage. */
     (function(){var l='en';try{l=localStorage.getItem('shadowbox-language')||'en';}catch(e){}if(l!=='he'&&l!=='ru')l='en';try{document.documentElement.lang=l;}catch(e){}
      window.uiSay=function(en,he,ru){var c=(window.app&&window.app.lang)||(document.documentElement||{}).lang||l;return c==='he'?he:c==='ru'?ru:en;};})();
+    /* Boot cover (owner 2026-11-25: "the game starts with player training and after a second it disappears and adventure
+       starts"). From the first paint until the game shell has chosen the player's mode (game-shell.js boot), nothing of the
+       page shows but the logo and a loading line; the welcome name card stays usable above it. gotrBoot.mode() is the last
+       mode the player chose ('adventure' default, 'train' after Modes > Training or a free fight); done() lifts the cover. */
+    (function(){var d=document.documentElement,q='',K='gotr.mode',off=false,t=0;try{q=location.search;}catch(e){}
+     function done(){if(off)return;off=true;clearTimeout(t);try{d.removeAttribute('data-boot');}catch(e){}}
+     function mode(m){try{if(m==='adventure'||m==='train')localStorage.setItem(K,m);return localStorage.getItem(K)==='train'?'train':'adventure';}catch(e){return 'adventure';}}
+     // no profile yet: the cover waits for the welcome card (its close lifts it); without a card it lifts after 3 s
+     function welcome(){setTimeout(function(){if(!document.querySelector('dialog.career-welcome[open]'))done();},3000);}
+     window.gotrBoot={done:done,mode:mode,welcome:welcome};
+     if(/[?&]game=classic\b/.test(q)||!d||!d.setAttribute){off=true;return;}
+     d.setAttribute('data-boot','');d.setAttribute('data-boot-text',window.uiSay('Loading…','טוען…','Загрузка…'));
+     t=setTimeout(done,30000);})(); // never a permanent cover, whatever fails
   </script>
+  <link rel="preload" href="./assets/brand/logo-square.svg?v=2026112304" as="image">
+  <style>
+    html[data-boot] body{visibility:hidden}
+    html[data-boot] dialog.career-welcome{visibility:visible}
+    html[data-boot]::after{content:attr(data-boot-text);position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;padding-top:150px;box-sizing:border-box;background:#090c11 url(./assets/brand/logo-square.svg?v=2026112304) center calc(50% - 40px)/112px 112px no-repeat;color:#a9b2bf;font:600 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.03em;unicode-bidi:plaintext}
+  </style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; img-src 'self' blob: data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'" />
   <meta name="theme-color" content="#090c11" />
@@ -109,7 +128,7 @@
   <script src="./adventure/portraits.js?v=2026112401" defer></script>
   <script src="./adventure/story.js?v=20261122night" defer></script>
   <link rel="stylesheet" href="./adventure/story/story.css?v=20261124m1">
-  <link rel="stylesheet" href="./adventure/free-walk/free-walk.css?v=20261124m2">
+  <link rel="stylesheet" href="./adventure/free-walk/free-walk.css?v=20261125sw1">
   <link rel="stylesheet" href="./adventure/story/dream.css?v=20261124m1">
   <script src="./adventure/story/call-core.js?v=20261124m1" defer></script>
   <script src="./adventure/story/trials-core.js?v=20261124m1" defer></script>
@@ -123,27 +142,27 @@
   <script src="./adventure/story/cast-market.js?v=20261125m4" defer></script>
   <script src="./adventure/story/cast-docks.js?v=2026112295" defer></script>
   <script src="./adventure/story/street-wear.js?v=2026111404" defer></script>
-  <script src="./adventure/story/dream-pose.js?v=2026112401" defer></script>
+  <script src="./adventure/story/dream-pose.js?v=20261125g2" defer></script>
   <script src="./adventure/story/bag-break-core.js?v=2026111318" defer></script>
   <script src="./adventure/story/gym-return-core.js?v=2026112183" defer></script>
   <script src="./adventure/story/docks-core.js?v=2026112180" defer></script>
-  <script src="./adventure/story/bag-break.js?v=20261123lang" defer></script>
+  <script src="./adventure/story/bag-break.js?v=20261125pcs" defer></script>
   <script src="./adventure/story/city-trees.js?v=20261122arrival1" defer></script>
-  <script src="./adventure/story/city-assets.js?v=20261125props2" defer></script>
-  <script src="./adventure/story/dream-sets.js?v=20261125props2" defer></script>
+  <script src="./adventure/story/city-assets.js?v=20261125busdoor" defer></script>
+  <script src="./adventure/story/dream-sets.js?v=20261125busdoor" defer></script>
   <script src="./adventure/story/market-sets.js?v=20261125m4" defer></script>
   <script src="./adventure/story/docks-sets.js?v=20261125props2" defer></script>
   <script src="./adventure/story/dog-walker.js?v=2026112501m" defer></script>
   <script src="./adventure/story/street-life.js?v=20261125m4" defer></script>
-  <script src="./adventure/story/street-walk.js?v=2026112311" defer></script>
+  <script src="./adventure/story/street-walk.js?v=20261125sw1" defer></script>
   <script src="./adventure/story/otto-civilian.js?v=otto492e63-lang" defer></script>
-  <script src="./adventure/story/dream-scenes.js?v=20261125m4" defer></script>
+  <script src="./adventure/story/dream-scenes.js?v=20261125m5" defer></script>
   <script src="./adventure/story/gym-fight.js?v=20261125props2" defer></script>
   <script src="./adventure/story/mop-core.js?v=20261122night" defer></script>
   <script src="./adventure/story/mop-game.js?v=20261123lang" defer></script>
   <script src="./adventure/story-flow.js?v=2026112316" defer></script>
-  <script src="./adventure/oldtown.js?v=20261124m1" defer></script>
-  <script src="./adventure/free-walk/free-walk-core.js?v=20261124m1" defer></script>
+  <script src="./adventure/oldtown.js?v=20261125sw1" defer></script>
+  <script src="./adventure/free-walk/free-walk-core.js?v=20261125sw1" defer></script>
   <script src="./adventure/free-walk/free-walk-look.js?v=20261125wt1" defer></script>
   <script src="./adventure/free-walk/free-walk-sets.js?v=20261125wt1" defer></script>
   <script src="./adventure/free-walk/free-walk-town.js?v=20261126wt3" defer></script>
@@ -151,8 +170,8 @@
   <script src="./adventure/adventure-ui.js?v=20261125wt1" defer></script>
   <link rel="prefetch" href="./adventure/gloryland-map.js?v=20261125wt1">
   <link rel="stylesheet" href="./modes-menu.css?v=20261124m1">
-  <script src="./modes-menu.js?v=20261124m1" defer></script>
-  <script src="./game-shell.js?v=20261124m1" defer></script>
+  <script src="./modes-menu.js?v=20261125pcs" defer></script>
+  <script src="./game-shell.js?v=20261125pcs" defer></script>
 
   <style>
     html, body {

@@ -1,0 +1,129 @@
+{
+ "root": "/home/user/fit/.claude/worktrees/agent-a4407f10bf97ecd28",
+ "viewport": [
+  402,
+  690
+ ],
+ "errors": [],
+ "film": [
+  {
+   "t": 6.9,
+   "file": "after-phone-film-6.90.png",
+   "stats": {
+    "calls": 183,
+    "triangles": 608057,
+    "shot": 0
+   }
+  },
+  {
+   "t": 7.3,
+   "file": "after-phone-film-7.30.png",
+   "stats": {
+    "calls": 182,
+    "triangles": 607625,
+    "shot": 0
+   }
+  },
+  {
+   "t": 7.6,
+   "file": "after-phone-film-7.60.png",
+   "stats": {
+    "calls": 180,
+    "triangles": 598893,
+    "shot": 0
+   }
+  },
+  {
+   "t": 8.4,
+   "file": "after-phone-film-8.40.png",
+   "stats": {
+    "calls": 170,
+    "triangles": 568733,
+    "shot": 0
+   }
+  },
+  {
+   "t": 9.9,
+   "file": "after-phone-film-9.90.png",
+   "stats": {
+    "calls": 134,
+    "triangles": 531791,
+    "shot": 1
+   }
+  }
+ ],
+ "close": [
+  {
+   "view": "middle",
+   "state": "closed",
+   "clipT": 0,
+   "file": "after-phone-close-middle-closed.png"
+  },
+  {
+   "view": "front",
+   "state": "closed",
+   "clipT": 0,
+   "file": "after-phone-close-front-closed.png"
+  },
+  {
+   "view": "oblique",
+   "state": "closed",
+   "clipT": 0,
+   "file": "after-phone-close-oblique-closed.png"
+  },
+  {
+   "view": "side",
+   "state": "closed",
+   "clipT": 0,
+   "file": "after-phone-close-side-closed.png"
+  },
+  {
+   "view": "middle",
+   "state": "opening",
+   "clipT": 0.65,
+   "file": "after-phone-close-middle-opening.png"
+  },
+  {
+   "view": "front",
+   "state": "opening",
+   "clipT": 0.65,
+   "file": "after-phone-close-front-opening.png"
+  },
+  {
+   "view": "oblique",
+   "state": "opening",
+   "clipT": 0.65,
+   "file": "after-phone-close-oblique-opening.png"
+  },
+  {
+   "view": "side",
+   "state": "opening",
+   "clipT": 0.65,
+   "file": "after-phone-close-side-opening.png"
+  },
+  {
+   "view": "middle",
+   "state": "open",
+   "clipT": 1.3,
+   "file": "after-phone-close-middle-open.png"
+  },
+  {
+   "view": "front",
+   "state": "open",
+   "clipT": 1.3,
+   "file": "after-phone-close-front-open.png"
+  },
+  {
+   "view": "oblique",
+   "state": "open",
+   "clipT": 1.3,
+   "file": "after-phone-close-oblique-open.png"
+  },
+  {
+   "view": "side",
+   "state": "open",
+   "clipT": 1.3,
+   "file": "after-phone-close-side-open.png"
+  }
+ ]
+}
