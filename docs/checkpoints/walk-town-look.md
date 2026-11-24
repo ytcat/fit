@@ -36,9 +36,20 @@ like in the video ... Make everything more realistic ... the style of, let's say
 - `index.html`: two new scripts, ?v bumps (map, story-sets, adventure-ui, free walk); MAP_SRC in adventure-ui.js,
   story-sets.js, free-walk.js = `gloryland-map.js?v=20261125wt1`; `offline-manifest.json` regenerated.
 
+- Also: the town's trees and lamps within 64 m of the player are drawn as the films' trees (city-trees.js, instanced,
+  22 broad + 14 upright at most) and the Blender street lamp (32 at most); the map's low copies hide meanwhile.
+- The Docks: the map's barrel vault is open at its ends (street level showed its black inside): the set adds the corrugated
+  gable with the quay door, the hall behind it, work lamps, crates, drums, pallets, rope and a localized sign.
+- Camera far plane set to the haze's end (+30 m) by the look (the walk's camera object, no other camera change).
+- English lettering modelled into the Old Town / stop GLBs (CORNER COFFEE, BAKERY, the shelter's poster and timetable)
+  is hidden in HE/RU; the two shop names are painted on boards in the player's language.
+
 ## QA
-- Scripts: `qa/walk-town-look/shots.cjs` (screens + renderer numbers per spot), `qa/walk-town-look/probe.cjs` (top views).
+- `qa/walk-town-look/shots.cjs` (screens + renderer numbers per spot; ZOOM key presses for a wider view; pinned ladder level),
+  `qa/walk-town-look/probe.cjs` (top views), `qa/walk-town-look/run-all.sh` (every capture, two chains),
+  `qa/walk-town-look/sheet.py` (before | after | film sheets).
+- Tests (targeted, -j 1): walk-town-look, free-walk, city-assets, blender-props, blender-props-2, arrival-background,
+  lang-generic, offline-version-match: 8 files, 0 fails.
 
 ## Next
-- Check every picture against the films, iterate; general street dressing (lamps, trees, props) away from the story places;
-  numbers before/after; tests; backlog GOTR-0120.
+- Finish the evidence run (sheets for phone/PC, morning/evening/night, low tier), numbers table, final checkpoint.
