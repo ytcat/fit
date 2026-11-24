@@ -164,7 +164,7 @@
 
     /* ---- the picture: tiles of the merged meshes (view and shadow culling), the films' light and the quality ladder */
     if (Look && places3d?.marks?.length) try { Look.clip(map.group, places3d.marks, -Infinity, /^$/, /^road marks$/); } catch (x) { console.warn('walk marks', x); }
-    let tiles = 0; if (Look && tier !== 'low') try { tiles = Look.tile(map.group, 96).length; } catch (x) { console.warn('walk tiles', x); }
+    let tiles = 0; if (Look) try { tiles = Look.tile(map.group, 96).length; } catch (x) { console.warn('walk tiles', x); }
     let look = null; if (Look) try { look = Look.attach({ renderer, scene, map, time: hour, tier }); keep.look = look; } catch (x) { console.warn('walk look', x); look = null; }
     // the town's own trees and lamps near the player in the films' detail (the map's low copies far away)
     let dress = null; if (Sets?.dressing) try { dress = Sets.dressing({ map, scene, city: window.CityAssets?.cached?.(['props'], false), time: hour, tier }); keep.dress = dress; } catch (x) { console.warn('walk dressing', x); dress = null; }

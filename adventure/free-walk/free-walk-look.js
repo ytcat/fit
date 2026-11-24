@@ -104,7 +104,7 @@
       const s = name.slice(7), t = tex[s]; if (!t) continue;
       const old = m.material, fm = K.facadeMaterial(t, lit, s === 'office' ? .45 : s === 'deco' ? .7 : .85, s === 'office' ? .75 : s === 'deco' ? .3 : .12);
       if (lit && !map.night) fm.emissiveIntensity = 1.5; // dusk: the films' lit windows (story-sets.js)
-      if (renderer?.capabilities?.isWebGL2 !== false) relief(fm, s, map.layout?.scale || 3);
+      if (sharp >= 2 && renderer?.capabilities?.isWebGL2 !== false) relief(fm, s, map.layout?.scale || 3); // the light path keeps flat facades
       m.material = fm; old.map?.dispose?.(); old.emissiveMap?.dispose?.(); old.dispose();
       out.push(t.map, fm); if (t.emissive) out.push(t.emissive);
     }
@@ -208,6 +208,9 @@
     let rlook = null;
     try { rlook = window.RenderLook?.attach(scene, renderer, { look: L.look, high: !low, sun }) || null; } catch (x) { console.warn('walk look', x); rlook = null; }
 
+    // three r128 keeps a program built with (or without) the shadow code when the pass is switched: rebuild the town's and the
+    // Fighter's materials (the rig joins the scene after the build and goes back to the engine after the walk)
+    const rebuild = () => { const touch = o => { for (const m of [].concat(o.material || [])) m.needsUpdate = true; }; scene.traverse(touch); window.app?.engine?.coach?.root?.traverse(touch); };
     // ---- the ladder
     const lockParam = /[?&]walkq=(\d)/.exec(location.search);
     const look = { level: -1, locked: lockParam ? Math.min(top, +lockParam[1]) : null, samples: [], clock: 0, dwell: 0, hold: 0, fails: 0 };
@@ -217,7 +220,7 @@
       renderer.setPixelRatio(Math.min(dpr, ratio));
       if (shadow) { if (sun.shadow.mapSize.x !== shadow) { sun.shadow.mapSize.set(shadow, shadow); sun.shadow.map?.dispose(); sun.shadow.map = null; } }
       sun.castShadow = !!shadow; sm.enabled = !!shadow; sm.type = THREE.PCFSoftShadowMap; sm.autoUpdate = true;
-      if (wasShadow !== sm.enabled) scene.traverse(o => { for (const m of [].concat(o.material || [])) m.needsUpdate = true; }); // programs with / without the shadow code
+      if (wasShadow !== sm.enabled) rebuild(); // programs with / without the shadow code
       try { rlook?.high(env); } catch { /* cosmetic */ }
       look.level = level; look.dwell = 0; aim(aimAt ? aimAt[0] : 0, aimAt ? aimAt[1] : 0, true);
     }
@@ -242,7 +245,7 @@
       renderer.setPixelRatio(was.ratio);
       const back = sm.enabled !== was.shadow; sm.enabled = was.shadow; sm.type = was.type; sm.autoUpdate = was.auto;
       sun.shadow.map?.dispose(); sun.shadow.map = null;
-      if (back) scene.traverse(o => { for (const m of [].concat(o.material || [])) m.needsUpdate = true; });
+      if (back) rebuild();
       for (const x of own) x.dispose?.();
     };
     look.sunDir = dir;

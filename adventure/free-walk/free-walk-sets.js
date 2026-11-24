@@ -80,7 +80,7 @@
     }
     if (kind === 'stall' || kind === 'umbrella' || kind === 'crate') {
       const mf = W.marketFrame; if (!mf) return false; const [u0, w0] = marketUW(mf, x, z), u = o?.u ?? u0, w = o?.w ?? w0;
-      return (u > MARKET_U[0] && u < MARKET_U[1]) || (w > .5 && Math.abs(u - OTTO_U) < 3.6); // Hazel's stretch; the row's side in front of Otto's door
+      return (u > MARKET_U[0] && u < MARKET_U[1]) || ((w > .5 || kind === 'umbrella') && Math.abs(u - OTTO_U) < 4.6); // Hazel's stretch; the row's side in front of Otto's door
     }
     return false;
   }
@@ -154,8 +154,8 @@
     Sets.register('walk_gym', c => {
       const { PAL, C, P, M, S: B, box, cyl, house, sign, lamp, bin, planter, bollard, tree, shade, joints } = c, X = extras(c), FZ = 9.5;
       // pavement: the block's pavement widened by 0.85 m over the road (to 13.6) with a kerb, slabs with joints up to the houses
-      box(B, 0, -.152, 13.175, 28.5, .162, .85, '#c3bfb6'); box(B, 0, -.18, 13.48, 28.5, .19, .24, PAL.curb); box(B, 0, -.151, 13.75, 28.5, .006, .3, '#4c5463');
-      for (const s of [-1, 1]) box(B, s * 14.13, -.18, 13.18, .24, .19, .85, PAL.curb);
+      box(B, 0, -.152, 13.175, 28.5, .162, .85, '#c3bfb6'); box(B, 0, -.18, 13.48, 28.5, .19, .24, '#b9b4aa'); box(B, 0, -.151, 13.75, 28.5, .006, .3, '#4c5463');
+      for (const s of [-1, 1]) box(B, s * 14.13, -.18, 13.18, .24, .19, .85, '#b9b4aa');
       box(B, 0, 0, 11.6, 28.5, .01, 4.0, '#c3bfb6'); box(B, -9.5, 0, 7.75, 6.5, .01, 3.5, '#c3bfb6');
       joints(-14, 14, FZ + .1, 13.5); joints(-12.6, -6.4, 6.1, FZ);
       // Bruno's Gym (the films' house and front, dream-sets.js), 11.8 m wide
