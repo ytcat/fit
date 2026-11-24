@@ -41,6 +41,10 @@ the layout stays left-to-right in every language ("Hebrew will not change sides 
   `qa/lang-audit/sweep-before.json`, `qa/lang-audit/sweep-after.json`, screenshots `qa/lang-audit/{before,after}/<lang>-<screen>.webp`,
   sheets `qa/lang-audit/sheet-<lang>-before-after.webp`.
 
+## Resume 2026-11-24
+- Paused by the owner on 2026-11-23 (24baa93); merged the release branch (square header logo 45fdcf8, 644f85a) in
+  9d6ffa9: the header keeps the new logo, its tooltip is localized, nothing mirrors in Hebrew.
+
 ## Not done / next
 - Free walk (`chapter1-roam.html`, `adventure/story/chapter1-roam*.js`, `street-walk.js`) is out of scope (another agent);
   issues listed in the report.
