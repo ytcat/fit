@@ -173,8 +173,8 @@
         { t: 8.2, pos: [1.85, 1.7, 1.9], look: [-.85, 1.6, .55], fov: 29, ease: 'linear' },
         { t: 8.2, cut: true, pos: [-1.2, 1.55, 4.9], look: [1.3, 1.3, -.4] },                 // Otto comes over from his corner
         { t: 12.2, pos: [-1.0, 1.55, 4.5], look: [1.0, 1.3, -.3], ease: 'smooth' },
-        { t: 12.2, cut: true, pos: [-2.2, 1.6, 3.3], look: [.2, 1.3, -.1], fov: 34 },        // past the Fighter, on Mrs. Hazel: the reward
-        { t: 16.2, pos: [-2.1, 1.6, 3.15], look: [.2, 1.3, -.1], fov: 33, ease: 'linear' },
+        { t: 12.2, cut: true, pos: [-1.65, 1.6, 3.4], look: [-.1, 1.3, -.05], fov: 34 },     // past the Fighter, on Mrs. Hazel: the reward (ch1-motion: she stands closer to him now)
+        { t: 16.2, pos: [-1.55, 1.6, 3.25], look: [-.1, 1.3, -.05], fov: 33, ease: 'linear' },
         { t: 16.2, cut: true, pos: [.3, 1.3, 2.6], look: [-.85, 1.68, .55], fov: 30 },        // low on the Fighter: "exactly a new bag"
         { t: 20.2, pos: [.25, 1.3, 2.45], look: [-.85, 1.7, .55], fov: 28, ease: 'linear' },
         { t: 20.2, cut: true, pos: [-.4, 1.65, 5.2], look: [.5, 1.3, -.3] },                  // the three of them
@@ -310,7 +310,7 @@
   for (const id of ['dream_market_robbery', 'dream_market_reward']) Object.assign(scenes[id], { plant: true, ramp: .4 });
   // the bag and the reward pass from hand to hand (market-sets.js handover): Mrs. Hazel steps up to the Fighter first, so their
   // hands can meet between them (they stood 1.6 m apart: the bag jumped from his hand to hers)
-  scenes.dream_market_reward.actors.hazel.keys.splice(1, 0, { t: .4, x: .55, z: -.25 }, { t: 1.5, x: -.26, z: .1 });
+  scenes.dream_market_reward.actors.hazel.keys.splice(1, 0, { t: .4, x: .55, z: -.25 }, { t: 1.5, x: .02, z: .05 });
   scenes.dream_market_robbery.actors.fang.ramp = scenes.dream_market_reward.actors.otto.ramp = .2; // Fang runs off with the bag, Otto hurries over (2.1 m/s): a short speed-up keeps them under a jog
   // The reward line names the price; filled when the scene plays (the price lives in game-domain.js).
   const fill = (scene, price) => price == null ? scene : { ...scene, lines: scene.lines.map(l => ({ ...l, text: Object.fromEntries(Object.entries(l.text).map(([k, v]) => [k, String(v).replace(/\{price\}/g, String(price))])) })) };

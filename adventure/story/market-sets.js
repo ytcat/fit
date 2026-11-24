@@ -372,7 +372,7 @@
       for (const it of items) for (let i = 1; i < it.keys.length; i++) {
         const a = it.keys[i - 1], b = it.keys[i], A = holderOf(a.on), B = holderOf(b.on); if (!A || !B || A === B || (me !== A && me !== B)) continue;
         const w = smooth((t - (b.t - HAND_IN)) / HAND_IN) * (1 - smooth((t - b.t) / HAND_OUT)); if (w <= 0) continue;
-        const side = me === A ? a.hand || 'R' : b.hand || 'R', mid = () => { const p = A.joints['arm' + (a.hand || 'R')].getWorldPosition(V()), q = B.joints['arm' + (b.hand || 'R')].getWorldPosition(V()); return p.add(q).multiplyScalar(.5).setY(1.22); }; // between the two shoulders, at chest height
+        const side = me === A ? a.hand || 'R' : b.hand || 'R', mid = () => { const p = A.joints['arm' + (a.hand || 'R')].getWorldPosition(V()), q = B.joints['arm' + (b.hand || 'R')].getWorldPosition(V()); return p.add(q).multiplyScalar(.5).setY(1.3); }; // between the two shoulders, at chest height
         return { [side]: { at: rig => rig.root.worldToLocal(mid()).toArray(), w, paw: 'grip' } };
       }
       return null;
