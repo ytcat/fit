@@ -273,7 +273,8 @@
       R.full = mag > .93 ? R.full + dt : 0; // held all the way: a brisk walk after a moment
       const brisk = K.has('ShiftLeft') || K.has('ShiftRight') || R.full > .8;
       if (K.has('KeyQ')) R.yaw += dt * 1.6; if (K.has('KeyE')) R.yaw -= dt * 1.6;
-      const [vx, vz] = C.velocity(hIn, vIn, R.camYaw ?? R.yaw, C.SPEED * (brisk ? 1.55 : 1));
+      let [vx, vz] = C.velocity(hIn, vIn, R.camYaw ?? R.yaw, C.SPEED * (brisk ? 1.55 : 1));
+      if (window.DreamPose?.pace) [vx, vz] = window.DreamPose.pace(R.pace || (R.pace = {}), vx, vz, R.turn, dt); // walk-gait: a heavy man's start, stop and turn (DreamPose.pace)
       town.grid.move(R.s, vx, vz, dt, town.blocked);
       town.update(dt, R.s, R.camera);
       R.poseT += dt; R.zoom += (R.zoomTarget - R.zoom) * (1 - Math.exp(-dt * 10));
@@ -282,7 +283,7 @@
       R.turn += Math.atan2(Math.sin(R.s.ry - R.turn), Math.cos(R.s.ry - R.turn)) * (1 - Math.exp(-dt * 10));
       const c = R.rig; c.root.position.set(R.s.x, R.groundY, R.s.z); c.root.rotation.set(0, R.turn, 0);
       R.walkAmt = (R.walkAmt || 0) + ((R.s.walking ? 1 : 0) - (R.walkAmt || 0)) * (1 - Math.exp(-dt * 8));
-      if (pose) window.DreamPose?.civil?.(c, { t: R.poseT, dt, dist: R.s.dist, walk: R.walkAmt, ground: (x, z) => town.grid.height(x, z), arms: {}, look: { yaw: 0, pitch: 0 } });
+      if (pose) window.DreamPose?.civil?.(c, { t: R.poseT, dt, plant: true, dist: R.s.dist, walk: R.walkAmt, ground: (x, z) => town.grid.height(x, z), arms: {}, look: { yaw: 0, pitch: 0 } });
       R.blob.position.set(R.s.x, R.groundY + .03, R.s.z);
       if (R.ringMesh) { const k = .5 + .5 * Math.sin(R.poseT * 4); R.ringMesh.material.opacity = .55 + .4 * k; R.ringMesh.scale.setScalar(1 + .08 * k); }
       place(false);
