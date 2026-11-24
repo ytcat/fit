@@ -215,7 +215,7 @@
       if (!c.prop('Shop_shelf', X0, 0, 2.3, Math.PI / 2)) for (const y of [.5, 1.05, 1.6]) { box(S, X0 + .25, y, 2.3, .42, .04, 2.0, '#8a6446'); for (let k = 0; k < 5; k++) box(S, X0 + .25, y + .04, 1.5 + k * .4, .3, .2 + (k % 2) * .05, .32, ['#f4f1ea', '#d9473b', '#1d1f24', '#2f6fc0', '#f4c152'][(k + Math.round(y * 10)) % 5]); }
       for (let k = 0; k < 3; k++) cyl(S, 43.9, .9, -2.6 + k * .3, .1, .05, ['#d9473b', '#2f6fc0', '#f4c152'][k], P.cyl12, Math.PI / 2);
       if (!c.prop('Shop_bench', 43.5, 0, 2.9)) { box(S, 43.5, .42, 2.9, 1.3, .06, .42, '#9a7350'); for (const d of [-.55, .55]) box(S, 43.5 + d, 0, 2.9, .06, .42, .38, '#3d4654'); }
-      c.prop('Shop_cartons', 36.48, 0, -2.88, .1); // model only: stock in the back corner, under the first bag
+      c.prop('Shop_cartons', 36.3, 0, -2.88, Math.PI / 2 + .05); // model only: stock in the back corner, along the wall beside the first bag
       board(c, "OTTO'S CORNER · EST. 1979", 41.2, 2.85, Z0 + .06, 2.6, .24, 0, ['#14202b', '#f4c152']);
       // ceiling lamps with warm pools
       for (const [lx, lz] of [[38.6, -1.4], [41.4, -.6], [41.0, 2.2]]) { if (!c.prop('Shop_lamp', lx, 2.55, lz, lx)) { cyl(S, lx, 2.7, lz, .01, H - 2.7, '#2a2f38', P.cyl6); S.add(P.cone8, M(lx, 2.55, lz, .32, .2, .32), C('#2f4a3d')); G.add(P.sph, M(lx, 2.57, lz, .08, .08, .08), C('#fff3cf')); } pool(lx, lz, 2.2, '#ffe2a8', .005); }
