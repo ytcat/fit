@@ -10,7 +10,8 @@
     const Sets = window.StorySets; if (!Sets || !window.ArenaSets?.has?.('docks') || Sets.ids().includes('dream_docks')) return;
     Sets.register('dream_docks', c => {
       const lang = ['en', 'he', 'ru'].includes(window.app?.lang) ? window.app.lang : 'en';
-      const made = window.ArenaSets.build('docks', lang, NAMES);
+      const city = c.opts?.city, kit = city?.dockProps && window.CityAssets?.propKit ? window.CityAssets.propKit({ dockProps: city.dockProps }) : undefined; // the film waited for them (dream-scenes.js)
+      const made = window.ArenaSets.build('docks', lang, NAMES, kit ? { kit } : {}); // no kit: arena-sets.js uses what is loaded
       c.group.add(made.group); c.disposables.push({ dispose: () => made.dispose() });
       const crowd = made.sectors.flatMap(s => s.crowd);
       // the crowd sways while anything renders (a never-culled, invisible helper drives it from the render loop)

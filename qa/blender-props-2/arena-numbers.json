@@ -1,0 +1,106 @@
+{
+ "docks": {
+  "before": {
+   "triangles": 56895,
+   "meshes": 38,
+   "crowdTiers": [
+    11,
+    75,
+    20
+   ]
+  },
+  "after": {
+   "triangles": 72537,
+   "meshes": 38,
+   "crowdTiers": [
+    7,
+    79,
+    20
+   ],
+   "props": {
+    "Work_lamp": 1,
+    "Pallet": 4,
+    "Cargo": 6,
+    "Oil_drum_blue": 2,
+    "Oil_drum_red": 3,
+    "Mooring_bollard": 4,
+    "Rope_coil": 3,
+    "Dock_crate": 6,
+    "Oil_drum_green": 1
+   }
+  }
+ },
+ "boxing_club": {
+  "before": {
+   "triangles": 30802,
+   "meshes": 23,
+   "crowdTiers": [
+    0,
+    0,
+    38
+   ]
+  },
+  "after": {
+   "triangles": 33128,
+   "meshes": 23,
+   "crowdTiers": [
+    0,
+    0,
+    38
+   ],
+   "props": {
+    "Ring_stool": 1,
+    "Water_bucket": 1,
+    "Ring_steps": 1,
+    "Towel_rack": 1
+   }
+  }
+ },
+ "regional": {
+  "before": {
+   "triangles": 55408,
+   "meshes": 30,
+   "crowdTiers": [
+    0,
+    0,
+    66
+   ]
+  },
+  "after": {
+   "triangles": 56180,
+   "meshes": 30,
+   "crowdTiers": [
+    0,
+    0,
+    66
+   ],
+   "props": {
+    "Timekeeper_table": 1
+   }
+  }
+ },
+ "championship": {
+  "before": {
+   "triangles": 56996,
+   "meshes": 35,
+   "crowdTiers": [
+    184,
+    20,
+    0
+   ]
+  },
+  "after": {
+   "triangles": 58408,
+   "meshes": 35,
+   "crowdTiers": [
+    184,
+    20,
+    0
+   ],
+   "props": {
+    "Judges_table": 2,
+    "Timekeeper_table": 1
+   }
+  }
+ }
+}

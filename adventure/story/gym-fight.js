@@ -89,7 +89,8 @@
     const proxy = { add: g => arena.group.add(g), remove: g => arena.group.remove(g), background: null, fog: null };
     Sets.ready().then(() => {
       if (st.gone) return; window.DreamSets?.register();
-      const set = Sets.build(ring ? 'dream_gym_ring' : 'dream_gym_floor', proxy, { renderer: e.renderer, shadows: false }); st.set = set;
+      const city = window.CityAssets?.cached?.(ring ? ['gymProps', 'ringProps'] : ['gymProps']) || null; // the Blender gym and ringside props already loaded by the films (never waited for)
+      const set = Sets.build(ring ? 'dream_gym_ring' : 'dream_gym_floor', proxy, { renderer: e.renderer, shadows: false, city }); st.set = set;
       set.group.position.set(-CENTRE[0], ring ? RING_FLOOR : 0, -CENTRE[1]);
       const lights = []; set.group.traverse(o => { if (o.isLight) lights.push(o); }); for (const l of lights) l.parent.remove(l);
       set.group.add(new THREE.HemisphereLight(0xfff1dc, 0x9a7a5c, .55));

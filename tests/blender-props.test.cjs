@@ -91,8 +91,8 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} vs ${b}
 
   // ---- delivery: the models are fetched by the page loader and kept by the offline worker's street cache after first use
   const html = fs.readFileSync('index.html', 'utf8'), scenes = fs.readFileSync('adventure/story/dream-scenes.js', 'utf8');
-  assert.match(scenes, /dream_gym\/\.test\(scene0\.set\)\) cityWait = city\.ready\(undefined, \['gymProps'\]\)/);
-  assert.match(scenes, /city\.ready\(undefined, \['hazelStall', 'tree', 'props'\]\)/);
+  assert.match(scenes, /dream_gym\/\.test\(scene0\.set\)\) \{? ?cityWait = city\.ready\(undefined, \['gymProps'\]\)/);
+  assert.match(scenes, /city\.ready\(undefined, \['hazelStall', 'tree', 'props'(, 'marketProps')?\]\)/);
   assert.ok(html.indexOf('city-assets.js?v=') < html.indexOf('story-sets.js?v=') || /CityAssets\?\.propKit/.test(fs.readFileSync('adventure/story/story-sets.js', 'utf8')), 'story-sets reads CityAssets lazily at build time');
   console.log('blender-props: ok', JSON.stringify(report));
 })().catch(e => { console.error(e); process.exit(1); });

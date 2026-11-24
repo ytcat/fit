@@ -45,12 +45,12 @@ def oil_drum(col, seed):
     """A 200 l steel drum: rolled rims, two rolling hoops, a top with two bungs; paint chipped toward rust."""
     prof = [(.0, 0), (.27, 0), (.285, .012), (.285, .03), (.278, .04), (.278, .27), (.29, .285), (.29, .3), (.278, .315), (.278, .56),
             (.29, .575), (.29, .59), (.278, .605), (.278, .84), (.285, .85), (.285, .875), (.272, .88), (.262, .872), (.262, .862), (.0, .862)]
-    d = lathe('drum', prof, col, 'gloss', segs=20, var=.08, seed=seed)
+    d = lathe('drum', prof, col, 'gloss', segs=16, var=.08, seed=seed)
     jitter(d, .003, seed)
     for k, (x, y, r) in enumerate(((.13, .06, .03), (-.12, -.08, .022))): cyl('bung', r, .015, (x, y, .862), col=tint(col, .8) if isinstance(col, str) else col, segs=8)
     rnd = random.Random(seed)
     for k in range(5):  # rust streaks and scuffs near the rims
-        a = rnd.uniform(0, 6.28); z = rnd.choice((.06, .33, .6, .8)); box('rust', (.006, .07, rnd.uniform(.05, .15)), (math.cos(a) * .281, math.sin(a) * .281, z), '#6a3a22', 'matte', bevel=0, rot=(0, 0, a))
+        a = rnd.uniform(0, 6.28); z = rnd.choice((.06, .33, .6, .8)); box('rust', (.005, .035, rnd.uniform(.03, .1)), (math.cos(a) * .281, math.sin(a) * .281, z), '#6a3a22', 'matte', bevel=0, rot=(0, 0, a))
     return .9, .6
 
 
@@ -64,7 +64,7 @@ def rope_coil():
         t = 2 * math.pi * (turns + i / 12); r = .31 - .03 * i / 12
         pts.append((math.cos(t) * r, math.sin(t) * r, .04 + .004 * math.sin(i)))
     pts += [(.33 + .1, -.05, .016), (.6, -.1, .016), (.72, .02, .016)]
-    tube('rope', pts, .016, '#c9b08a', 'matte', res=2, bres=1, var=.06, seed=5)
+    tube('rope', pts, .016, '#c9b08a', 'matte', res=1, bres=1, var=.06, seed=5)
     return .2, .9
 
 

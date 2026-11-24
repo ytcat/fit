@@ -12,6 +12,7 @@
  *   CityAssets.wheelAngle(distance) / doorClipTime(...)        pure helpers (tests/city-assets.test.cjs)
  *   CityAssets.propKit(city) -> Map name -> parts | null      the Blender props (tools/blender/*-props.py) of the ready models
  *   CityAssets.placeProp(parts, matrix, batches)               appends one prop instance to the set's merged batches
+ *   CityAssets.cached(names) -> { name: glTF | null }         what is loaded now (no wait); starts loading the rest for next time
  *       (story-sets.js ctx.prop / lamp / bin / planter / bollard: the model or the generated piece, never both)
  *
  * Street frame (dream-sets.js): x along the street, the stop's pavement and the camera on +z, road at y -0.15, pavement 0.
@@ -28,9 +29,14 @@
     hazelStall: './assets/street/ch01-market/hazel-fruit-stall.glb',
     // Blender props (tools/blender/street-props.py, gym-props.py): one node per prop, vertex-coloured, four material classes
     props: './assets/street/ch01-props/gloryland-street-props.glb',
-    gymProps: './assets/street/ch01-props/gloryland-gym-props.glb'
+    gymProps: './assets/street/ch01-props/gloryland-gym-props.glb',
+    // round 2 (tools/blender/market-props.py, dock-props.py, ring-props.py, stop-props.py; KHR_mesh_quantization byte normals/colours)
+    marketProps: './assets/street/ch01-props/gloryland-market-props.glb', // Market Row and Otto's shop
+    dockProps: './assets/street/ch01-props/gloryland-dock-props.glb',     // the Dockside Hangar (arena-sets.js docks)
+    ringProps: './assets/street/ch01-props/gloryland-ring-props.glb',     // ringside: built venues and Bruno's Gym on fight night
+    stopProps: './assets/street/ch01-props/gloryland-stop-props.glb'      // the bus stop's ticket machine (opening film)
   };
-  const PROP_FILES = ['props', 'gymProps'], PROP_CLASSES = ['gloss', 'matte', 'glow', 'lantern'];
+  const PROP_FILES = ['props', 'gymProps', 'marketProps', 'dockProps', 'ringProps', 'stopProps'], PROP_CLASSES = ['gloss', 'matte', 'glow', 'lantern'];
   // One authored asset/download and three silhouettes (form 'street': the GLB). Keep these on the arrival street only;
   // positions match the generated trees so a cold/offline load keeps a complete street (dream-sets.js plants the
   // generated tree for every site this dressing does not, see dresses()).
@@ -46,7 +52,7 @@
     Object.freeze({ name: 'Market west tree', form: 'street', x: -2.9, z: -4.45, h: 4.0, yaw: 1.8, scale: [.74, .83, .75], phase: 1.1 }),
     Object.freeze({ name: 'Market east tree', form: 'street', x: 3.25, z: -4.6, h: 4.1, yaw: -.6, scale: [.91, .88, .79], phase: 2.2 })
   ]);
-  const OPENING_MODELS = ['tree', 'car', 'bus', 'station', 'oldtown', 'props'];
+  const OPENING_MODELS = ['tree', 'car', 'bus', 'station', 'oldtown', 'props', 'stopProps'];
   const WAIT_MS = 5000, TIRE_R = .515, HALF = Math.PI;
   const LAYOUT = {
     patches: [-17, 3, 23],              // centres of the 20 m road / kerb / paving modules; kerb face at z 3.45, paving to z 8.3
@@ -168,6 +174,13 @@
     return kit;
   }
   /** One instance: parts transformed by matrix (scale allowed) appended to batches { gloss, matte, glow, lantern } (K.Batch). */
+  /** The models of `list` that are loaded now ({ name: glTF | null }), without waiting; the missing ones start loading for the
+   * next build (sets built synchronously, e.g. arena-sets.js and gym-fight.js, never wait for a download). */
+  function cached(list, fetch = true) {
+    const out = {};
+    for (const n of list) { const e = cache.get(n); out[n] = e?.state === 'ready' ? e.gltf : null; if (!out[n] && fetch && FILES[n] && e?.state !== 'loading') try { load(n).catch(() => {}); } catch { } }
+    return out;
+  }
   function placeProp(parts, matrix, batches) {
     const e = matrix.elements, nm = new THREE.Matrix3().getNormalMatrix(matrix).elements; let tris = 0;
     for (const [cls, q] of Object.entries(parts)) {
@@ -382,7 +395,7 @@
   }
 
   window.CityAssets = {
-    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, dresses, wheelAngle, propKit, placeProp,
+    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, dresses, wheelAngle, propKit, placeProp, cached,
     get: n => cache.get(n)?.gltf || null,
     _setLoader(f) { makeLoader = f || defaultLoader; cache.clear(); } // tests
   };

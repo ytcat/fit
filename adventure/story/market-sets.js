@@ -24,6 +24,9 @@
   }
   const R = (i, a, b) => a + (b - a) * (Math.abs(Math.sin(i * 12.9898) * 43758.5453) % 1); // repeatable scatter
   const FRUIT = ['#f08a3c', '#d9473b', '#7bc06b', '#f2c14e', '#8e5fa8', '#e84a3d', '#c9d65a'];
+  // the Blender crate (tools/blender/market-props.py) for each generated fruit colour
+  const KIND = { '#f08a3c': 'oranges', '#d9473b': 'apples', '#e84a3d': 'apples', '#7bc06b': 'limes', '#f2c14e': 'lemons', '#8e5fa8': 'plums', '#c9d65a': 'pears' };
+  const fruitCrate = hex => 'Fruit_crate_' + (KIND[hex] || 'apples');
 
   function register() {
     const Sets = window.StorySets; if (!Sets || Sets.ids().includes('dream_market')) return;
@@ -46,9 +49,12 @@
       // a stall: posts, counter with a skirt, striped awning with a scalloped valance, crates of fruit on the counter
       const stall = (x, [a, b], goods, w = 3.0, own) => {
         const zb = -4.3, zf = -2.45, ya = 2.95, yf = 2.32, n = 8, c1 = C(a), c2 = C(b), wood = '#8a6446';
-        for (const sx of [-1, 1]) { box(S, x + sx * (w / 2 - .06), 0, zb + .1, .08, ya, .08, wood); box(S, x + sx * (w / 2 - .06), 0, zf - .1, .08, yf, .08, wood); }
-        box(S, x, 0, -3.15, w - .2, .86, 1.0, '#a97c55', 0, { ao: .3 }); box(S, x, .86, -3.15, w, .06, 1.12, '#c29a6f'); box(S, x, .16, -2.62, w - .2, .56, .03, a);
-        for (let k = 0; k < 6; k++) box(S, x - w / 2 + .3 + k * (w - .6) / 5, .12, -2.6, .03, .62, .02, '#7e5b3c'); // slats of the skirt
+        const modelled = c.prop('Stall_counter', x, 0, -3.15, 0, w / 3); // Blender counter, posts and awning frame (the cloth stays generated)
+        if (!modelled) {
+          for (const sx of [-1, 1]) { box(S, x + sx * (w / 2 - .06), 0, zb + .1, .08, ya, .08, wood); box(S, x + sx * (w / 2 - .06), 0, zf - .1, .08, yf, .08, wood); }
+          box(S, x, 0, -3.15, w - .2, .86, 1.0, '#a97c55', 0, { ao: .3 }); box(S, x, .86, -3.15, w, .06, 1.12, '#c29a6f'); box(S, x, .16, -2.62, w - .2, .56, .03, a);
+          for (let k = 0; k < 6; k++) box(S, x - w / 2 + .3 + k * (w - .6) / 5, .12, -2.6, .03, .62, .02, '#7e5b3c'); // slats of the skirt
+        }
         for (let k = 0; k < n; k++) {
           const x0 = x - w / 2 - .15 + k * (w + .3) / n, x1 = x0 + (w + .3) / n, col = k % 2 ? c2 : c1, lo = col.clone().multiplyScalar(.82);
           S.quad([x0, yf, zf], [x1, yf, zf], [x1, ya, zb], [x0, ya, zb], col, lo); S.quad([x0, ya, zb], [x1, ya, zb], [x1, yf, zf], [x0, yf, zf], lo, lo);
@@ -56,7 +62,9 @@
         }
         shade(x, -3.05, w + .6, 2.4);
         goods.forEach((hex, i) => {
-          const gx = x - w / 2 + .5 + i * ((w - 1) / Math.max(1, goods.length - 1)); box(S, gx, .92, -3.1, .62, .2, .78, '#9c7448', R(i + x, -.1, .1));
+          const gx = x - w / 2 + .5 + i * ((w - 1) / Math.max(1, goods.length - 1));
+          if (c.prop(fruitCrate(hex), gx, modelled ? .915 : .92, -3.1, R(i + x, -.1, .1))) return;
+          box(S, gx, .92, -3.1, .62, .2, .78, '#9c7448', R(i + x, -.1, .1));
           for (let k = 0; k < 12; k++) S.add(P.ico1, M(gx - .2 + (k % 3) * .2, 1.13 + (k % 2) * .035 + (k > 8 ? .07 : 0), -3.4 + Math.floor(k / 3) * .2, .095, .1, .095, k), C(hex).multiplyScalar(R(k + i + x, .82, 1.12)));
         });
         if (own) { // Mrs. Hazel's stall: scales, a chalk price board, pears in front
@@ -82,10 +90,16 @@
         board(c, "HAZEL'S FRUIT", 0, 2.62, -2.42, 1.6, .3, 0, ['#fff4e0', '#3c6b45']);
       }
       // crates of fruit stacked in front of the stalls (not in the walking lane)
-      const crate = (x, y, z, s, hex, ry = 0, i = 0) => { S.add(P.box, M(x, y, z, s, s * .62, s * .78, ry), C('#a97c55'), { ao: .3 }); S.add(P.box, M(x, y + s * .5, z, s * 1.03, s * .07, s * .8, ry), C('#7e5b3c')); for (let k = 0; k < 6; k++) S.add(P.ico1, M(x - s * .3 + (k % 3) * s * .3, y + s * .66, z - s * .17 + Math.floor(k / 3) * s * .34, s * .17, s * .17, s * .17, k + i), C(hex).multiplyScalar(R(k + i, .85, 1.1))); };
+      const crate = (x, y, z, s, hex, ry = 0, i = 0) => { if (c.prop(fruitCrate(hex), x, y ? .25 : 0, z, ry, 1, s / .6)) return; S.add(P.box, M(x, y, z, s, s * .62, s * .78, ry), C('#a97c55'), { ao: .3 }); S.add(P.box, M(x, y + s * .5, z, s * 1.03, s * .07, s * .8, ry), C('#7e5b3c')); for (let k = 0; k < 6; k++) S.add(P.ico1, M(x - s * .3 + (k % 3) * s * .3, y + s * .66, z - s * .17 + Math.floor(k / 3) * s * .34, s * .17, s * .17, s * .17, k + i), C(hex).multiplyScalar(R(k + i, .85, 1.1))); };
       crate(-1.05, 0, -2.05, .55, '#c9d65a', .1, 1); crate(-.45, 0, -2.0, .5, '#f2c14e', -.2, 2); crate(-.8, .35, -2.1, .46, '#d9473b', .3, 3);
       [[-12.4, -2.0], [-7.2, -2.1], [4.0, -2.0], [8.2, -2.15], [13.6, -2.0], [19.0, -2.1]].forEach(([x, z], i) => { crate(x, 0, z, .55, FRUIT[i % 7], i * .4, i); crate(x + .55, 0, z - .1, .5, FRUIT[(i + 3) % 7], i * .7 + .3, i + 5); if (i % 2) crate(x + .25, .35, z - .05, .45, FRUIT[(i + 5) % 7], i, i + 9); shade(x + .2, z, 1.6, 1.0); });
-      for (const [x, z] of [[-9.5, -2.0], [6.9, -2.2], [17.6, -2.0]]) { cyl(S, x, 0, z, .3, .8, '#8a5a38', P.cyl12); cyl(S, x, .25, z, .315, .06, '#3b4350', P.cyl12); cyl(S, x, .6, z, .315, .06, '#3b4350', P.cyl12); S.add(P.ico1, M(x + .7, .2, z + .1, .3, .24, .26, x), C('#c9b08a')); }
+      for (const [x, z] of [[-9.5, -2.0], [6.9, -2.2], [17.6, -2.0]]) { // a barrel of apples and a sack of potatoes
+        const bm = c.prop('Barrel', x, 0, z, x), sm = c.prop('Sack', x + .7, 0, z + .1, x); if (bm && sm) continue;
+        if (!bm) { cyl(S, x, 0, z, .3, .8, '#8a5a38', P.cyl12); cyl(S, x, .25, z, .315, .06, '#3b4350', P.cyl12); cyl(S, x, .6, z, .315, .06, '#3b4350', P.cyl12); } if (!sm) S.add(P.ico1, M(x + .7, .2, z + .1, .3, .24, .26, x), C('#c9b08a')); }
+      // model only (round 2, no generated counterpart): chalk price boards, baskets of fruit and a hand cart, all off the walking lane
+      for (const [x, z, ry] of [[-16.2, -2.15, .15], [10.6, -2.2, -.2], [22.9, -2.15, .1]]) c.prop('Price_board', x, 0, z, ry);
+      for (const [x, z, k] of [[-6.6, -2.25, 'apples'], [4.75, -2.35, 'pears'], [14.8, -2.25, 'oranges']]) c.prop('Basket_' + k, x, 0, z, x);
+      c.prop('Hand_cart', -3.2, 0, -2.55, 0);
       // bunting across the row (day: flags, no bulbs) on posts
       const FLAG = ['#e8473b', '#f2b632', '#2fa59a', '#3c7fc0', '#d63d6d', '#fff4e0'];
       [-19, -8.5, 2.6, 13.6].forEach((x, i) => {
@@ -168,7 +182,8 @@
       c.reflectivePane('Otto interior decorative window', 39.2, 1.85, Z1 - .022, 2.4, 1.5, -1); box(A, 39.2, 1.04, Z1 - .06, 2.6, .08, .12, '#3a2b24'); box(A, 39.2, 1.1, Z1 - .04, .05, 1.5, .03, '#3a2b24'); // front window
       const arch = c.movable(A, 'shop room'); arch.castShadow = false;
       // counter with a glass case of wraps and mouthguards, a till
-      box(S, 41.3, 0, -1.45, 2.6, .95, .62, '#6b4630', 0, { ao: .25 }); box(S, 41.3, .95, -1.45, 2.7, .05, .7, '#8a6446'); box(S, 41.3, .1, -1.13, 2.4, .7, .02, '#4a3026');
+      // Blender pieces (tools/blender/market-props.py) where the model is ready, else the generated ones (c.prop: never both)
+      if (!c.prop('Shop_counter', 41.3, 0, -1.45)) { box(S, 41.3, 0, -1.45, 2.6, .95, .62, '#6b4630', 0, { ao: .25 }); box(S, 41.3, .95, -1.45, 2.7, .05, .7, '#8a6446'); box(S, 41.3, .1, -1.13, 2.4, .7, .02, '#4a3026'); }
       { // the glass case in front of the counter (GOTR-0102): wraps and mouthguards on a lit shelf behind see-through glass
         const z0 = -1.12, z1 = -.92, x0 = 40.25, x1 = 41.75, y0 = .48, y1 = .9;
         box(S, (x0 + x1) / 2, y0 - .04, (z0 + z1) / 2, x1 - x0 + .06, .04, z1 - z0 + .02, '#3a2b24'); box(S, (x0 + x1) / 2, y1, (z0 + z1) / 2, x1 - x0 + .06, .04, z1 - z0 + .02, '#3a2b24'); // base and lid
@@ -178,8 +193,9 @@
         const g = add(new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0 - .03, y1 - y0), glassMat), false, false); g.position.set((x0 + x1) / 2, (y0 + y1) / 2, z1); g.renderOrder = 2; g.name = 'counter case glass';
         const sh = add(new THREE.Mesh(new THREE.PlaneGeometry(.06, .4), sheenMat), false, false); sh.position.set(x0 + .45, (y0 + y1) / 2, z1 + .002); sh.rotation.z = -.5; sh.renderOrder = 3; sh.name = 'counter case sheen';
       }
-      box(S, 42.2, 1.0, -1.55, .38, .22, .3, '#3b4350'); box(S, 42.2, 1.22, -1.62, .3, .14, .06, '#1d1f24'); box(S, 41.5, 1.0, -1.4, .28, .08, .2, '#f4f1ea'); // till, a box of tape
+      if (!c.prop('Cash_register', 42.2, .95, -1.55)) { box(S, 42.2, 1.0, -1.55, .38, .22, .3, '#3b4350'); box(S, 42.2, 1.22, -1.62, .3, .14, .06, '#1d1f24'); } box(S, 41.5, 1.0, -1.4, .28, .08, .2, '#f4f1ea'); // till, a box of tape
       // glove wall behind the counter: pegboard, pairs of gloves hanging by their laces, a few head guards
+      if (!c.prop('Glove_wall', 41.1, 0, Z0)) {
       box(S, 41.1, 1.05, Z0 + .02, 4.6, 1.95, .04, '#c9a77a'); for (let x = 39.0; x < 43.4; x += .2) for (let y = 1.15; y < 2.95; y += .2) box(S, x, y, Z0 + .045, .02, .02, .005, '#8a6446');
       const GLOVE = ['#d9473b', '#2f6fc0', '#1d1f24', '#f4c152', '#f4f1ea', '#c0392b', '#3a7d44', '#8f2f22'];
       for (let r = 0; r < 3; r++) for (let k = 0; k < 6; k++) {
@@ -188,19 +204,21 @@
         for (const s of [-1, 1]) { S.add(P.sph, M(gx + s * .1, gy - .17, Z0 + .14, .095, .125, .09, s * .2), col); S.add(P.sph, M(gx + s * .1 - s * .06, gy - .14, Z0 + .2, .05, .06, .05), col.clone().multiplyScalar(.9)); cyl(S, gx + s * .1, gy - .32, Z0 + .14, .07, .1, '#f4f1ea', P.cyl8); }
         cyl(S, gx, gy - .06, Z0 + .07, .006, .08, '#e9e2cc', P.cyl6);
       }
+      }
       // heavy bags on chains along the left wall, the new one on display in front of them
       for (const [bx, bz, col, len] of [[37.0, -2.3, '#1d1f24', 1.1], [37.0, -1.1, '#8f2f22', 1.0], [37.05, .1, '#2b3a55', 1.2]]) { cyl(S, bx, 1.0, bz, .2, len, col, P.cyl20); cyl(S, bx, 1.0 + len - .08, bz, .205, .08, '#141418', P.cyl20); cyl(S, bx, 1.0, bz, .205, .07, '#141418', P.cyl20); cyl(S, bx, 1.0 + len, bz, .012, H - 1.0 - len, '#aab2bc', P.cyl6); c.shade(bx, bz, .7, .7); }
       const D = { x: 38.85, y: 1.54, z: .45 }; objects.display = D; c.shade(D.x, D.z, .8, .8);
       cyl(S, D.x, D.y + .93, D.z, .012, H - D.y - .93, '#aab2bc', P.cyl6); box(S, D.x, H - .04, D.z, .14, .04, .14, '#3b4350'); // its chain and ceiling plate stay
       const price = window.GameDomain?.gear?.find(x => x.id === 'heavy_bag')?.price ?? 90;
-      box(S, D.x + .55, 0, D.z + .25, .04, 1.1, .04, '#3b4350'); board(c, `${price} ◈`, D.x + .55, 1.22, D.z + .27, .42, .26, 0, ['#fff4e0', '#7a2f26']);
+      if (!c.prop('Display_stand', D.x + .55, 0, D.z + .25)) box(S, D.x + .55, 0, D.z + .25, .04, 1.1, .04, '#3b4350'); board(c, `${price} ◈`, D.x + .55, 1.22, D.z + .27, .42, .26, 0, ['#fff4e0', '#7a2f26']);
       // shelves on the left wall by the window: shoe boxes, tape, skipping ropes; a bench
-      for (const y of [.5, 1.05, 1.6]) { box(S, X0 + .25, y, 2.3, .42, .04, 2.0, '#8a6446'); for (let k = 0; k < 5; k++) box(S, X0 + .25, y + .04, 1.5 + k * .4, .3, .2 + (k % 2) * .05, .32, ['#f4f1ea', '#d9473b', '#1d1f24', '#2f6fc0', '#f4c152'][(k + Math.round(y * 10)) % 5]); }
+      if (!c.prop('Shop_shelf', X0, 0, 2.3, Math.PI / 2)) for (const y of [.5, 1.05, 1.6]) { box(S, X0 + .25, y, 2.3, .42, .04, 2.0, '#8a6446'); for (let k = 0; k < 5; k++) box(S, X0 + .25, y + .04, 1.5 + k * .4, .3, .2 + (k % 2) * .05, .32, ['#f4f1ea', '#d9473b', '#1d1f24', '#2f6fc0', '#f4c152'][(k + Math.round(y * 10)) % 5]); }
       for (let k = 0; k < 3; k++) cyl(S, 43.9, .9, -2.6 + k * .3, .1, .05, ['#d9473b', '#2f6fc0', '#f4c152'][k], P.cyl12, Math.PI / 2);
-      box(S, 43.5, .42, 2.9, 1.3, .06, .42, '#9a7350'); for (const d of [-.55, .55]) box(S, 43.5 + d, 0, 2.9, .06, .42, .38, '#3d4654');
+      if (!c.prop('Shop_bench', 43.5, 0, 2.9)) { box(S, 43.5, .42, 2.9, 1.3, .06, .42, '#9a7350'); for (const d of [-.55, .55]) box(S, 43.5 + d, 0, 2.9, .06, .42, .38, '#3d4654'); }
+      c.prop('Shop_cartons', 36.48, 0, -2.88, .1); // model only: stock in the back corner, under the first bag
       board(c, "OTTO'S CORNER · EST. 1979", 41.2, 2.85, Z0 + .06, 2.6, .24, 0, ['#14202b', '#f4c152']);
       // ceiling lamps with warm pools
-      for (const [lx, lz] of [[38.6, -1.4], [41.4, -.6], [41.0, 2.2]]) { cyl(S, lx, 2.7, lz, .01, H - 2.7, '#2a2f38', P.cyl6); S.add(P.cone8, M(lx, 2.55, lz, .32, .2, .32), C('#2f4a3d')); G.add(P.sph, M(lx, 2.57, lz, .08, .08, .08), C('#fff3cf')); pool(lx, lz, 2.2, '#ffe2a8', .005); }
+      for (const [lx, lz] of [[38.6, -1.4], [41.4, -.6], [41.0, 2.2]]) { if (!c.prop('Shop_lamp', lx, 2.55, lz, lx)) { cyl(S, lx, 2.7, lz, .01, H - 2.7, '#2a2f38', P.cyl6); S.add(P.cone8, M(lx, 2.55, lz, .32, .2, .32), C('#2f4a3d')); G.add(P.sph, M(lx, 2.57, lz, .08, .08, .08), C('#fff3cf')); } pool(lx, lz, 2.2, '#ffe2a8', .005); }
       return { x: 0, z: -2, r: 12 };
     });
   }

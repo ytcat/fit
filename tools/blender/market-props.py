@@ -122,10 +122,10 @@ def price_board():
             for k, (w, x) in enumerate(((.3, -.02), (.2, -.07), (.26, -.04), (.14, -.1))):
                 box('chalk', (w, .004, .018), (x, -.024, .64 - k * .1), '#f3ead8', 'matte', bevel=0)
             for k in range(3): box('chalk price', (.06, .004, .03), (.14, -.024, .54 - k * .1), '#ffd166', 'matte', bevel=0)
-        mat = Matrix.Translation((0, 0, .77)) @ Matrix.Rotation(side * .22, 4, 'X') @ Matrix.Translation((0, 0, -.77))
+        mat = Matrix.Translation((0, 0, .77 - .016)) @ Matrix.Rotation(side * .22, 4, 'X') @ Matrix.Translation((0, 0, -.77))  # feet on the floor
         for ob in free_parts():
             if ob.name not in before and ob.type == 'MESH': ob.data.transform(mat)
-    tube('hinge', [(-.24, 0, .77), (.24, 0, .77)], .01, STEEL, res=1, bres=1)
+    tube('hinge', [(-.24, 0, .754), (.24, 0, .754)], .01, STEEL, res=1, bres=1)
     return .8, .5
 
 
@@ -274,7 +274,7 @@ def shop_lamp():
 
 
 PROPS = [(f'Fruit_crate_{k}', (lambda k=k, i=i: fruit_crate(k, 11 + i))) for i, k in enumerate(FRUIT)] + [
-    ('Stall_counter', stall_counter), ('Barrel', barrel), ('Sack', sack), ('Basket', basket), ('Price_board', price_board), ('Hand_cart', hand_cart),
+    ('Stall_counter', stall_counter), ('Barrel', barrel), ('Sack', sack)] + [(f'Basket_{k}', (lambda k=k, i=i: basket(k, 21 + i))) for i, k in enumerate(('apples', 'pears', 'oranges'))] + [('Price_board', price_board), ('Hand_cart', hand_cart),
     ('Shop_counter', shop_counter), ('Cash_register', cash_register), ('Glove_wall', glove_wall), ('Shop_shelf', shop_shelf),
     ('Display_stand', display_stand), ('Shop_cartons', shop_cartons), ('Shop_bench', shop_bench), ('Shop_lamp', shop_lamp)]
 WALL = {'Glove_wall', 'Shop_shelf'}
