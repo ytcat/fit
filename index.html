@@ -8,7 +8,25 @@
        left-to-right in every language. uiSay(en, he, ru) picks a status line before or after app.setLanguage. */
     (function(){var l='en';try{l=localStorage.getItem('shadowbox-language')||'en';}catch(e){}if(l!=='he'&&l!=='ru')l='en';try{document.documentElement.lang=l;}catch(e){}
      window.uiSay=function(en,he,ru){var c=(window.app&&window.app.lang)||(document.documentElement||{}).lang||l;return c==='he'?he:c==='ru'?ru:en;};})();
+    /* Boot cover (owner 2026-11-25: "the game starts with player training and after a second it disappears and adventure
+       starts"). From the first paint until the game shell has chosen the player's mode (game-shell.js boot), nothing of the
+       page shows but the logo and a loading line; the welcome name card stays usable above it. gotrBoot.mode() is the last
+       mode the player chose ('adventure' default, 'train' after Modes > Training or a free fight); done() lifts the cover. */
+    (function(){var d=document.documentElement,q='',K='gotr.mode',off=false,t=0;try{q=location.search;}catch(e){}
+     function done(){if(off)return;off=true;clearTimeout(t);d.removeAttribute('data-boot');}
+     function mode(m){try{if(m==='adventure'||m==='train')localStorage.setItem(K,m);return localStorage.getItem(K)==='train'?'train':'adventure';}catch(e){return 'adventure';}}
+     // no profile yet: the cover waits for the welcome card (its close lifts it); without a card it lifts after 3 s
+     function welcome(){setTimeout(function(){if(!document.querySelector('dialog.career-welcome[open]'))done();},3000);}
+     window.gotrBoot={done:done,mode:mode,welcome:welcome};
+     if(/[?&]game=classic\b/.test(q)){off=true;return;}
+     d.setAttribute('data-boot','');d.setAttribute('data-boot-text',window.uiSay('Loading…','טוען…','Загрузка…'));
+     t=setTimeout(done,30000);})(); // never a permanent cover, whatever fails
   </script>
+  <style>
+    html[data-boot] body{visibility:hidden}
+    html[data-boot] dialog.career-welcome{visibility:visible}
+    html[data-boot]::after{content:attr(data-boot-text);position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;padding-top:150px;box-sizing:border-box;background:#090c11 url(./assets/brand/logo-square.svg?v=2026112304) center calc(50% - 40px)/112px 112px no-repeat;color:#a9b2bf;font:600 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.03em;unicode-bidi:plaintext}
+  </style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; img-src 'self' blob: data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'" />
   <meta name="theme-color" content="#090c11" />

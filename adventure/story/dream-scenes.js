@@ -48,8 +48,40 @@
     }
     try { P.prefetch(who, { prio }); } catch (x) { /* paws are optional */ }
   }
-  /** Asks for the paws of a coming film (the story panel calls this for the current step); prio 2 by default. */
-  function prefetch(id, prio = 2) { const s = Core()?.variant?.(id); if (s) pawsFor(s, window.app?.engine, prio); return !!s; }
+  const MARKET_MODELS = ['hazelStall', 'tree', 'props', 'marketProps'], FILM_PIXELS = 1920 * 1080 * 1.2;
+  const hasFang = s => Object.values(s?.actors || {}).some(a => a?.rig === 'fang');
+  /** The authored models a film's set waits for (CityAssets names). */
+  const modelsFor = s => s.set === 'dream_street' ? null /* the opening list (CityAssets default) */ : s.set === 'dream_market' ? MARKET_MODELS : s.set === 'dream_shop' ? ['props', 'marketProps'] : /^dream_gym/.test(s.set || '') ? ['gymProps'] : s.set === 'dream_docks' ? ['dockProps'] : [];
+  /** Asks for what a coming film needs (the story panel calls this for the current step; prio 2 by default): the paws, and the
+   *  models and Fang's head, downloaded and parsed while the panel is read instead of while the film waits or plays. */
+  function prefetch(id, prio = 2) {
+    const s = Core()?.variant?.(id); if (!s) return false;
+    pawsFor(s, window.app?.engine, prio);
+    try { const m = modelsFor(s); if (m === null || m.length) window.CityAssets?.preload(m || undefined); if (hasFang(s) || id === 'dream_apology') window.StoryCast?.market?.head?.load(); } catch (x) { /* optional */ }
+    return true;
+  }
+
+  /** Median frame time above 1/30 s: the device cannot keep up (see the 'auto' picture quality). */
+  const slow = dts => { const a = dts.slice().sort((x, y) => x - y); return a.length > 0 && a[a.length >> 1] > 1 / 30; };
+  /* Warm-up (owner 2026-11-25, "on pc the video stuck all the time"): every material, shadow pass and texture of a film was
+   * compiled and uploaded the first time it came into a shot, in the middle of the film: 0.5-1.3 s freezes at the cut to the
+   * street and in later shots (shader compilation is slow on Windows/ANGLE). Before the first frame, while the film still shows
+   * its loading dots, the whole set is compiled and drawn once into a tiny off-screen target with everything shown and nothing
+   * culled (lights keep their own state, so the programs are the film's own). Returns the milliseconds spent. */
+  function warmUp(r, scene, camera) {
+    if (!r?.compile || !scene || !camera || !THREE.WebGLRenderTarget) return 0;
+    const t0 = performance.now(), shown = [], culled = [], prev = r.getRenderTarget(), sm = r.shadowMap;
+    let rt = null;
+    try {
+      scene.traverse(o => { if (o.isLight) return; if (!o.visible) { shown.push(o); o.visible = true; } if (o.frustumCulled) { culled.push(o); o.frustumCulled = false; } });
+      r.compile(scene, camera);
+      rt = new THREE.WebGLRenderTarget(16, 16); rt.texture.encoding = r.outputEncoding; // same output encoding: same programs as the canvas
+      if (sm) sm.needsUpdate = true;
+      r.setRenderTarget(rt); r.render(scene, camera);
+    } catch (x) { console.warn('film warm-up', x); }
+    finally { r.setRenderTarget(prev); rt?.dispose(); for (const o of shown) o.visible = false; for (const o of culled) o.frustumCulled = true; }
+    return performance.now() - t0;
+  }
 
   function play(id, opts = {}) {
     window.RinglessVenues?.release(window.app?.engine, true); // a film takes over from any street/Docks bout (gloves and outfit back first)
@@ -79,9 +111,9 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     const walkAPI = id === 'dream_opening' && window.StreetWalkPrototype?.enabled(location.search) ? window.StreetWalkPrototype : null;
     let walk = null, resumeKey = null;
     if (walkAPI) try { resumeKey = e.career?.store?.current?.()?.id; } catch { /* no profile */ }
-    let life = null, proxies = [], castWas = [], shadowWas = null, hi = false, perf = { n: 0, sum: 0 }, rlook = null, lookPerf = { n: 0, sum: 0 }, sunDir = null;
+    let life = null, proxies = [], castWas = [], shadowWas = null, hi = false, perf = { n: 0, dts: [] }, rlook = null, lookPerf = { n: 0, dts: [] }, sunDir = null;
     let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false, props = null, gymBagBase = null;
-    let ottoVisual = null, ottoWasDrawn = false;
+    let ottoVisual = null, ottoWasDrawn = false, ratioWas = null;
     function releaseOtto() {
       try { ottoVisual?.detach(); } catch (x) { console.warn('otto art cleanup', x); }
       ottoVisual = null; ottoWasDrawn = false;
@@ -114,6 +146,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       try { map?.dispose(); } catch { /* already gone */ } map = null; mapScene = null;
       try { rlook?.dispose(); } catch (x) { console.warn('render look', x); } rlook = null;
       set?.dispose(); set = null;
+      if (ratioWas) { e.renderer.setPixelRatio(ratioWas); ratioWas = null; }
       if (stageMove) { stageMove.placeholder.replaceWith(stageMove.stage); stageMove.stage.classList.remove('game-preview-live', 'story-live'); stageMove.stage.style.pointerEvents = stageMove.pe; stageMove = null; window.dispatchEvent(new Event('resize')); }
       if (oldFit) { e.fitCameraToModel = oldFit; oldFit = null; }
       e.lastPoseStamp = null; e.lastRenderStamp = null;
@@ -159,17 +192,19 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     const city = window.CityAssets;
     let cityWait = null;
     if (city && scene0.set === 'dream_street') cityWait = city.ready();
-    if (city && id === 'dream_apology') city.preload(['hazelStall', 'tree', 'props', 'marketProps']);
     if (city && scene0.set === 'dream_market') cityWait = city.ready(undefined, ['hazelStall', 'tree', 'props', 'marketProps']);
     if (city && scene0.set === 'dream_shop') cityWait = city.ready(undefined, ['props', 'marketProps']); // Blender street props (lamps, bins, planters), Otto's shop (market-props.py)
-    if (city && /^dream_gym/.test(scene0.set)) { cityWait = city.ready(undefined, ['gymProps']); city.preload(['ringProps']); } // Blender gym props (gym-props.py); ringside props for the fight-night ring (gym-fight.js, never waited for)
+    if (city && /^dream_gym/.test(scene0.set)) cityWait = city.ready(undefined, ['gymProps']); // Blender gym props (gym-props.py)
     if (city && scene0.set === 'dream_docks') cityWait = city.ready(undefined, ['dockProps']); // the hangar's crates, drums, ropes (dock-props.py; arena-sets.js reads the cache)
     if (cityWait) cityWait = cityWait.catch(() => null);
-    // Fang's authored head (cast-market.js): fetched on the way to the market, waited for (at most 5 s) when he is in the film
+    // What the NEXT film needs is fetched and parsed now, while this one loads (at most the same 5 s, in parallel): a model or
+    // Fang's head arriving in the middle of a film froze it while the file was parsed (owner 2026-11-25, PC). The morning in the
+    // gym leads straight into the market (street props, Hazel's stall, Fang's authored head); a gym film into fight night (ringside props).
+    const nextWait = !city ? null : id === 'dream_apology' ? city.ready(undefined, MARKET_MODELS) : /^dream_gym/.test(scene0.set) ? city.ready(undefined, ['ringProps']) : null;
+    // Fang's authored head (cast-market.js): waited for (at most 5 s) when he is in the film or in the next one
     const fangHead = window.StoryCast?.market?.head;
-    if (fangHead && id === 'dream_apology') fangHead.load();
-    const headWait = fangHead && Object.values(scene0.actors || {}).some(a => a?.rig === 'fang') ? fangHead.ready(5000).catch(() => null) : null;
-    Promise.all([window.StorySets.ready(), cityWait, headWait]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
+    const headWait = fangHead && (id === 'dream_apology' || hasFang(scene0)) ? fangHead.ready(5000).catch(() => null) : null;
+    Promise.all([window.StorySets.ready(), cityWait, headWait, nextWait && nextWait.catch(() => null)]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
       if (run.closed) return;
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 260);
       const street = scene0.set === 'dream_street' && !!e.renderer.shadowMap; hi = street && quality !== 'low';
@@ -206,6 +241,9 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       const stage = e.stage || document.getElementById('stageContainer');
       if (stage) { const placeholder = document.createComment('dream stage'); stage.before(placeholder); stageMove = { stage, placeholder, pe: stage.style.pointerEvents }; stage.style.pointerEvents = 'none'; host.append(stage); stage.classList.add('game-preview-live', 'story-live'); }
       oldFit = e.fitCameraToModel; e.fitCameraToModel = () => {};
+      // Big high-density screens (owner 2026-11-25, PC): a full-screen film draws at most FILM_PIXELS device pixels (1080p at 120 %);
+      // 1080p and smaller screens at 100 % keep their full resolution. Restored when the film ends.
+      { const r0 = e.renderer.getPixelRatio(), cap = Math.max(1, Math.sqrt(FILM_PIXELS / Math.max(1, innerWidth * innerHeight))); if (r0 > cap + .01) { ratioWas = r0; e.renderer.setPixelRatio(cap); } }
       // Render realism (2026-11-22): image-based light for the place (render-look.js); 'low' keeps the plain lights
       const lookId = LOOK_OF[scene0.set] === 'gym' && scene0.evening ? 'gym_evening' : LOOK_OF[scene0.set];
       let fx = 0, fz = 0, fn = 0; try { for (const a of Object.values(C.sample(scene0, Math.min(2, scene0.duration)).actors || {})) if (a && a.act !== 'off' && Number.isFinite(a.x)) { fx += a.x; fz += a.z; fn++; } } catch { /* no actors */ }
@@ -213,6 +251,10 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (ld && set.sun) { sunDir = V(...ld).normalize(); set.sun.position.copy(set.sun.target.position).addScaledVector(sunDir, 40); }
       if (lookId && window.RenderLook) try { rlook = window.RenderLook.attach(scene, e.renderer, { look: lookId, high: quality !== 'low', sun: set.sun, focus: fn ? [fx / fn, fz / fn] : null }); } catch (x) { console.warn('render look', x); rlook = null; }
       run.look = rlook; // QA: run.look.high(bool)
+      // warm-up from the first shot (see warmUp): the shoulder bag is built now too, not in the first frame that shows it
+      if (scene0.bag && rigs.fighter) { Cast().bag(rigs.fighter, 'shoulder'); Cast().bag(rigs.fighter, 'off'); }
+      try { const s0 = C.sample(scene0, 0); camera.position.fromArray(s0.camera.pos); camera.lookAt(look.fromArray(s0.camera.look)); camera.updateMatrixWorld(); set.focus?.(look.x, look.z); } catch { /* the default camera */ }
+      run.warm = Math.round(warmUp(e.renderer, scene, camera));
       run.frame = frame; e.fightIQDemo = run; busy.remove(); window.dispatchEvent(new Event('resize'));
       if (walkAPI && (run.walkIntroSkipped || walkAPI.resumePoint(resumeKey))) walkStart();
       else if (scene0.intro === 'map' && !opts.noMap && !reduced) startMap(); else run.phase = 'play';
@@ -235,7 +277,10 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       try {
         const GM = window.GlorylandMap; mapScene = new THREE.Scene(); mapCam = new THREE.PerspectiveCamera(30, 1, 2, 1600);
         map = GM.build(mapScene, { time: 'morning', renderer: e.renderer, quality: 'low' });
-        const p = map.places.find(q => q.id === 'oldtown') || map.places[0]; run.mapTo = { x: p.focus.x, z: p.focus.z }; run.phase = 'map'; run.mapT = 0;
+        const p = map.places.find(q => q.id === 'oldtown') || map.places[0]; run.mapTo = { x: p.focus.x, z: p.focus.z }; run.mapT = 0;
+        mapCam.position.set(34 + Math.sin(.24) * Math.cos(.9) * 250, Math.sin(.9) * 250, -14 + Math.cos(.24) * Math.cos(.9) * 250); mapCam.lookAt(34, 0, -14); mapCam.updateMatrixWorld();
+        run.warmMap = Math.round(warmUp(e.renderer, mapScene, mapCam)); // the dive has no first-use freezes either
+        run.phase = 'map';
       } catch (x) { console.warn('dream map', x); try { map?.dispose(); } catch { /* ignore */ } map = null; run.phase = 'play'; }
     }
     const MAP_T = 3.4;
@@ -338,8 +383,10 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       } else set.focus(look.x, look.z);
       if (sunDir && set.sun) { set.sun.position.copy(set.sun.target.position).addScaledVector(sunDir, 40); } // indoors: the light comes through the windows
       if (life) { const f = rigs.fighter?.root; life.update(dt, run.t, f && f.visible ? f.position : null); }
-      if (quality === 'auto' && !hi && rlook?.isHigh && run.phase === 'play' && lookPerf.n < 60) { lookPerf.n++; if (lookPerf.n > 12) lookPerf.sum += Math.max(0, delta || 0); if (lookPerf.n === 60 && lookPerf.sum / 48 > 1 / 30) { rlook.high(false); run.quality = 'low (auto)'; } }
-      if (quality === 'auto' && hi && run.phase === 'play' && perf.n < 60) { perf.n++; if (perf.n > 12) perf.sum += Math.max(0, delta || 0); if (perf.n === 60 && perf.sum / 48 > 1 / 30) lowQuality(); }
+      // 'auto' drops to low only when the device is steadily slow: the median of 48 frame times, so a few long frames (a model
+      // arriving, a first-use texture) cannot switch a capable PC to low and recompile every material in the middle of a shot.
+      if (quality === 'auto' && !hi && rlook?.isHigh && run.phase === 'play' && lookPerf.n < 60) { lookPerf.n++; if (lookPerf.n > 12) lookPerf.dts.push(Math.max(0, delta || 0)); if (lookPerf.n === 60 && slow(lookPerf.dts)) { rlook.high(false); run.quality = 'low (auto)'; } }
+      if (quality === 'auto' && hi && run.phase === 'play' && perf.n < 60) { perf.n++; if (perf.n > 12) perf.dts.push(Math.max(0, delta || 0)); if (perf.n === 60 && slow(perf.dts)) lowQuality(); }
       o.city?.frame(s, camera); // GOTR-0089: model bus wheels and doors, distance detail
       // Characters outside the shot are not drawn (2026-11-22: each story rig is 0.25-0.5 M triangles and every film drew all of them,
       // e.g. Fight Night 2.4 M a frame). A generous sphere round each body; larger when the sun casts shadows into the shot.
@@ -370,7 +417,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
   }
 
   window.DreamScenes = {
-    play, prefetch, has: id => !!Core()?.scenes[id],
+    play, prefetch, warm: warmUp, has: id => !!Core()?.scenes[id],
     get ids() { return Core()?.ids || []; },
     get playing() { return current ? current.id : null; },
     stop() { current?.finish({ skipped: true }); },
