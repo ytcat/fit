@@ -70,6 +70,13 @@ const H = StoryCast.market.head, FILE = 'assets/characters/fang/fang-head.glb';
   // poses: the model rides the head joint (talk, walk, fight, KO): its world matrix is the joint's
   for (const st of [{ t: 1, talk: 1 }, { t: 2, walk: 1, dist: 2 }]) { DreamPose.civil(c, { dt: 1 / 30, ...st }); StoryCast.talk(c, .8); c.root.updateMatrixWorld(true); assert.ok(model.matrixWorld.equals(head.matrixWorld), 'follows the head'); }
   for (const [mv, ex] of [['guard', {}], ['cross', {}], ['guard', { down: true, presentation: { mode: 'loser', raise: 0 } }]]) { c.update(1.3, mv, 'one_two', { simulationTime: 1.3, ...ex }); c.root.updateMatrixWorld(true); assert.ok(model.matrixWorld.equals(head.matrixWorld)); }
+  // knocked down on his back: the model nods/lifts so its ears and ruff do not go through the ground; standing again it returns
+  const lowest = () => { c.root.updateMatrixWorld(true); let y = 1e9; const P = mesh.geometry.attributes.position, v = new THREE.Vector3(); for (let i = 0; i < P.count; i += 7) y = Math.min(y, v.fromBufferAttribute(P, i).applyMatrix4(mesh.matrixWorld).y); return y; };
+  DreamPose.civil(c, { t: 1, dt: 1 / 30, dist: 0 }); c.root.position.set(0, 0, 0); c.root.rotation.set(-Math.PI / 2, 0, 0); c.root.position.y = .25; c.root.updateMatrixWorld(true);
+  const sunk = lowest(); for (let k = 1; k <= 40; k++) c.updateMane(10 + k / 30); const rested = lowest();
+  assert.ok(rested > sunk + .1, 'lying down the head is raised off the ground (nod + lift): ' + sunk.toFixed(3) + ' -> ' + rested.toFixed(3));
+  c.root.rotation.set(0, 0, 0); c.root.position.set(0, 0, 0); DreamPose.civil(c, { t: 2, dt: 1 / 30, dist: 0 }); for (let k = 1; k <= 60; k++) c.updateMane(12 + k / 30);
+  assert.ok(Math.abs(model.rotation.x) < .01 && model.position.length() < .005, 'standing: the model sits on the joint again');
   // offline: the page's URL is in the pack; films with Fang wait for the head
   const manifest = JSON.parse(fs.readFileSync('offline-manifest.json', 'utf8')); assert.ok(manifest.urls.includes(H.url), 'precached under the URL the page asks for');
   assert.ok(/fangHead\.ready\(5000\)/.test(fs.readFileSync('adventure/story/dream-scenes.js', 'utf8')), 'films with Fang wait for it');

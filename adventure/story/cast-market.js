@@ -248,7 +248,7 @@
   /** Face acting on the rig's own update: lag, the jaw parts from the anatomy channel the fight drives (a hit opens the mouth too). */
   function install(rig) {
     const base = rig.updateMane.bind(rig);
-    rig.updateMane = time => { base(time); settle(rig, time); mouthParts(rig, rig.anatomy?.value?.[12] || 0); };
+    rig.updateMane = time => { base(time); settle(rig, time); mouthParts(rig, rig.anatomy?.value?.[12] || 0); if (rig.castHead) headGround(rig, time); };
     // the lion's default mouth parts sit where a lion's mouth is: these faces open their own jaw instead
     if (!rig.castMouth) rig.castMouth = { show: [], talk: rig.cast?.talkGain ?? .7 };
     const dummy = new THREE.Object3D(); dummy.visible = false;
@@ -417,6 +417,26 @@
       h.group?.parent?.remove(h.group); for (const [o, mask] of h.hidden) o.layers.mask = mask; h.hidden = []; skinHead(rig, false); h.on = false;
     }
     return h.on;
+  }
+  /** Knocked down on his back the model's ears and the long ruff behind the skull would go through the ground: while the head joint
+   *  is low, the model nods about the joint (chin toward the chest, or back) by the smallest angle that keeps it above the ground,
+   *  eased in and out; what a nod of up to 0.64 rad cannot clear is lifted (up to 14 cm: the head rests on its ruff). Probe: every 24th vertex of the model, head-joint frame. */
+  const NOD = [0, .08, -.08, .16, -.16, .24, -.24, .32, .4, .48, .56, .64], nodQ = new THREE.Matrix4(), nodM = new THREE.Matrix4(), nodV = V();
+  function headGround(rig, time) {
+    const h = rig.castHead, g = h.group; if (!h.on || !g) { if (g) { g.rotation.x = 0; g.position.set(0, 0, 0); } return; }
+    const dt = h.t == null ? 1 / 30 : Math.min(.1, Math.max(0, time - h.t)); h.t = time;
+    const head = rig.joints.head; head.updateWorldMatrix(true, false); rig.root.getWorldPosition(tmpV); const ground = tmpV.y, m = head.matrixWorld;
+    let want = 0, lift = 0;
+    if (m.elements[13] - ground < .75) {
+      const pts = h.probe || (h.probe = (() => { const out = []; g.traverse(o => { if (!o.isMesh) return; const P = o.geometry.attributes.position; for (let i = 0; i < P.count; i += 24) out.push(V().fromBufferAttribute(P, i)); }); return out; })());
+      const low = a => { nodM.multiplyMatrices(m, nodQ.makeRotationX(a)); let y = 1e9; for (const p of pts) { nodV.copy(p).applyMatrix4(nodM); if (nodV.y < y) y = nodV.y; } return y - ground; };
+      let best = 0, bestLow = -1e9;
+      for (const a of NOD) { const l = low(a); if (l >= -.02) { best = a; bestLow = l; break; } if (l > bestLow) { best = a; bestLow = l; } }
+      want = best; lift = clamp(-.02 - bestLow, 0, .14); // what the nod cannot clear: the head rests on its ruff, raised off the ground
+    }
+    const k = Math.min(1, dt * 6); h.nod = (h.nod || 0) + (want - (h.nod || 0)) * k; h.lift = (h.lift || 0) + (lift - (h.lift || 0)) * k;
+    g.rotation.x = Math.abs(h.nod) < 1e-4 ? 0 : h.nod;
+    if (h.lift > 1e-4) { nodV.set(0, h.lift, 0).transformDirection(nodQ.copy(m).invert()).multiplyScalar(h.lift); g.position.copy(nodV); } else g.position.set(0, 0, 0);
   }
   // the skin above the collar (head and neck bones) folds toward the neck axis: fully on the head, fading out down to the collar
   const FOLD = { from: 1.79, to: 1.85, amount: .62 };
