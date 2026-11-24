@@ -1,0 +1,140 @@
+{
+ "root": "/home/user/fit/.claude/worktrees/agent-a39ae78c04691f8d9",
+ "scene": "dream_docks",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "t": 1,
+   "calls": 111,
+   "triangles": 937781,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 72539
+   }
+  },
+  {
+   "t": 6,
+   "calls": 105,
+   "triangles": 704214,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 72539
+   }
+  },
+  {
+   "t": 10,
+   "calls": 106,
+   "triangles": 942148,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 72539
+   }
+  },
+  {
+   "t": 14,
+   "calls": 68,
+   "triangles": 879827,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 72539
+   }
+  },
+  {
+   "t": 20,
+   "calls": 46,
+   "triangles": 825954,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 72539
+   }
+  },
+  {
+   "t": 10,
+   "calls": 25,
+   "triangles": 780594,
+   "closeup": {
+    "pos": [
+     1.2,
+     1.6,
+     1.6
+    ],
+    "look": [
+     2.9,
+     0.5,
+     -0.1
+    ],
+    "fov": 50
+   }
+  },
+  {
+   "t": 10,
+   "calls": 10,
+   "triangles": 753859,
+   "closeup": {
+    "pos": [
+     4.6,
+     1.7,
+     3.6
+    ],
+    "look": [
+     6.8,
+     0.5,
+     6.3
+    ],
+    "fov": 50
+   }
+  },
+  {
+   "t": 10,
+   "calls": 10,
+   "triangles": 749330,
+   "closeup": {
+    "pos": [
+     1,
+     1.7,
+     -7.8
+    ],
+    "look": [
+     2.5,
+     0.3,
+     -12.5
+    ],
+    "fov": 50
+   }
+  },
+  {
+   "t": 10,
+   "calls": 19,
+   "triangles": 774327,
+   "closeup": {
+    "pos": [
+     0.9,
+     2.6,
+     1.2
+    ],
+    "look": [
+     0,
+     3.3,
+     0
+    ],
+    "fov": 50
+   }
+  }
+ ]
+}

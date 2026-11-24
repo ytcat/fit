@@ -1,0 +1,68 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/base",
+ "scene": "dream_docks",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "t": 1,
+   "calls": 111,
+   "triangles": 927646,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 56897
+   }
+  },
+  {
+   "t": 6,
+   "calls": 105,
+   "triangles": 689960,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 56897
+   }
+  },
+  {
+   "t": 10,
+   "calls": 106,
+   "triangles": 929214,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 56897
+   }
+  },
+  {
+   "t": 14,
+   "calls": 68,
+   "triangles": 871080,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 56897
+   }
+  },
+  {
+   "t": 20,
+   "calls": 46,
+   "triangles": 814039,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 56897
+   }
+  }
+ ]
+}

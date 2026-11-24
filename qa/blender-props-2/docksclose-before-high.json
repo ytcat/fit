@@ -1,0 +1,80 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/base",
+ "scene": "dream_docks",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "t": 10,
+   "calls": 24,
+   "triangles": 768332,
+   "closeup": {
+    "pos": [
+     1.2,
+     1.6,
+     1.6
+    ],
+    "look": [
+     2.9,
+     0.5,
+     -0.1
+    ],
+    "fov": 50
+   }
+  },
+  {
+   "t": 10,
+   "calls": 10,
+   "triangles": 746056,
+   "closeup": {
+    "pos": [
+     4.6,
+     1.7,
+     3.6
+    ],
+    "look": [
+     6.8,
+     0.5,
+     6.3
+    ],
+    "fov": 50
+   }
+  },
+  {
+   "t": 10,
+   "calls": 9,
+   "triangles": 743235,
+   "closeup": {
+    "pos": [
+     1,
+     1.7,
+     -7.8
+    ],
+    "look": [
+     2.5,
+     0.3,
+     -12.5
+    ],
+    "fov": 50
+   }
+  },
+  {
+   "t": 10,
+   "calls": 19,
+   "triangles": 764462,
+   "closeup": {
+    "pos": [
+     0.9,
+     2.6,
+     1.2
+    ],
+    "look": [
+     0,
+     3.3,
+     0
+    ],
+    "fov": 50
+   }
+  }
+ ]
+}

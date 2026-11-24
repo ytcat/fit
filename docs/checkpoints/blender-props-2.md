@@ -47,6 +47,37 @@ ringside and the bus stop, with the same pattern as round 1 (`docs/checkpoints/b
   generated, never both; at most one more draw call per story set; arena sets: same mesh count), the films' waits.
 - `tests/blender-props.test.cjs`: two regexes widened for the new ready lists.
 
+## Evidence so far (qa/blender-props-2/, 402x690 swiftshader, high quality; PAUSED 2026-11-24 for the v1.93 release)
+- Sheets: `market|shop|docks-before-after.webp` (film shots) and `closeups-market|shop|docks-before-after.webp`; raw numbers
+  `*-high.json` (zero page errors in every run); arena-set numbers `arena-numbers.json` (node, `arena-tiers.cjs`).
+- Renderer (film shots, before -> after): market robbery calls equal, triangles +30k (480k->510k ... 1240k->1270k, ~+3 %);
+  Otto's shop calls +1 (the glossy prop mesh), triangles -8k (the generated glove spheres were heavier); docks calls equal,
+  triangles +10..14k (~+1.5 %). Arena sets (node): docks 38 meshes either way, 56.9k -> 72.5k triangles, crowd detail kept;
+  boxing club +2.3k, regional +0.8k, championship +1.4k, no extra meshes.
+- Looked at critically: market counters, crates, barrels, sacks, cart and price boards grounded and in scale; no duplicates.
+  Shop: fixed after review - the cartons stood right under the first bag (moved along the wall, commit 'cartons'); the shop
+  sheet above still shows the OLD carton place (re-capture pending).
+- NOT yet captured: dream_opening after (ticket machine), ring fights after, and valid ring-fight before close-ups (the first
+  fight.cjs aimed at the wrong group; fixed: venue close-ups now look across the ring because arena-sets hides the near sectors).
+
+## Tests (2026-11-24)
+- `bash scripts/run-tests.sh -j 2 city street dream market docks props offline arrival fight` -> files=31 fails=1
+  (city-assets: status() expectations lacked the four new files; fixed and re-run alone: ok).
+- `bash scripts/run-tests.sh -j 2 arena venue ringless roam gym bag super chapter1 city-assets` -> files=20 fails=1:
+  story-clean-gym.test.cjs (browser run timed out waiting for the career-welcome dialog at load average ~23; looks
+  load-related, NOT yet re-run or compared on the base) - re-run it first.
+- `node tests/blender-props-2.test.cjs`, `blender-props.test.cjs`, `arena-sets.test.cjs`, `city-assets.test.cjs`: ok.
+
+## Next commands (resume)
+1. `timeout 900 node tests/story-clean-gym.test.cjs` (and on the base tree if it fails again).
+2. Captures (scripts in qa/blender-props-2; cameras in the handoff below):
+   `SCENE=dream_opening TIMES=7.3,8.5,9.8,9.8 CAM=";;;-3.4,1.4,4.0|-4.7,0.9,6.3|45" node qa/blender-props-2/capture.cjs <out> opening-after`,
+   `SCENE=dream_otto_shop TIMES=1.5,5.5,9,15.5,25,9,9,9 CAM=";;;;;41.3,1.65,1.2|41.4,1.4,-2.6|50;39.6,1.6,0.6|36.4,1.1,2.4|50;39.0,1.5,-0.6|36.6,0.6,-2.6|50" ... shop-after`,
+   `node qa/blender-props-2/fight.cjs <out> fight-after` and `ROOT=<base tree> node qa/blender-props-2/fight.cjs <out> fight-before`,
+   then `python3 qa/blender-props-2/sheets.py <out> qa/blender-props-2`. Use a unique scratch dir (other agents share it) and
+   run_in_background with a long timeout.
+3. Backlog: add the round-2 line under GOTR-0066 in FEEDBACK_BACKLOG.md once the evidence is complete.
+
 ## Remaining / next
 - Venue fights (free fights in Boxing Club / Regional / Championship / Docks): the set is built at once, so the very first
   build of a session uses the generated pieces while ringProps/dockProps load; the next build has the models. Story fights at the

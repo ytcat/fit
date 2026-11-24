@@ -7,13 +7,14 @@ const root = path.resolve(process.env.ROOT || path.join(__dirname, '../..')), ou
 const places = (process.argv[4] || 'gym_ring,boxing_club,regional,championship,docks').split(',');
 fs.mkdirSync(out, { recursive: true });
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.glb': 'model/gltf-binary', '.wav': 'audio/wav', '.opus': 'audio/ogg', '.m4a': 'audio/mp4', '.jpg': 'image/jpeg' };
-// close-ups in arena space (the ring at the origin): [camera, look-at, fov]
+// close-ups in the set's own space (venues: arena-sets.js coordinates; gym_ring: dream-sets.js gym coordinates): [camera, look-at, fov]
+// Venue sets hide the sectors on the camera's side (arena-sets.js tick), so the venue close-ups look across the ring (long lens).
 const CLOSE = {
-  gym_ring: [[-1.6, 1.25, 2.4], [-5.2, .2, -.4], 42],     // the timekeeper's table, the towel rail and the spare buckets (gym x -3.7, centre 1.5, 2.0)
-  boxing_club: [[.8, 1.0, .9], [2.5, -.1, 2.2], 48],       // corner stool and bucket
-  regional: [[-.6, 1.1, 1.6], [-3.3, .2, 0], 44],           // the timekeeper's table
-  championship: [[.2, 1.0, 1.2], [1.2, .2, 3.25], 46],      // the timekeeper's table with the bell and clock
-  docks: [[1.4, 1.75, 1.4], [2.0, .4, 2.6], 52]             // crates and drums round the circle, the work lamp above
+  gym_ring: [[-6.2, 1.9, 4.2], [-3.8, .6, 1.6], 45],       // from behind the timekeeper: his table, the towel rail and the spare buckets
+  boxing_club: [[4.0, 2.2, .5], [2.5, -.2, 2.2], 50],      // corner stool and bucket (kept in the always-shown shell mesh)
+  regional: [[2.0, 2.2, -.5], [-3.3, .3, 0], 22],           // across the ring: the timekeeper's table
+  championship: [[-.5, 2.2, -2.0], [1.2, .3, 3.25], 22],    // across the ring: the timekeeper's table with the bell and clock
+  docks: [[-2.0, 1.8, -1.0], [2.4, .4, 1.0], 24]            // across the circle: crates and drums
 };
 const server = http.createServer((q, r) => {
   let f = path.join(root, decodeURIComponent(q.url.split('?')[0])); if (f.endsWith('/')) f += 'index.html';
@@ -33,18 +34,19 @@ const server = http.createServer((q, r) => {
     await p.evaluate(place => {
       const e = app.engine; document.querySelectorAll('dialog[open]').forEach(d => d.close());
       const gym = place === 'gym_ring'; e.career.store.gameAction({ type: 'venue', venueId: gym ? 'default' : place });
-      e.fightOptions = gym ? { seed: 74, place: 'gym_ring' } : { seed: 74 }; ringfighterGame.quick(); document.querySelectorAll('dialog[open]').forEach(d => d.close());
+      e.fightOptions = { seed: 74 }; if (gym) ringfighterGame.startFight({ preset: 'quick', rounds: 2, roundSeconds: 30, restSeconds: 8, place: 'gym_ring' }); else ringfighterGame.quick(); document.querySelectorAll('dialog[open]').forEach(d => d.close());
       if (!gym) GameVenues.apply(e, place, app.lang);
     }, place);
     await p.waitForTimeout(place === 'gym_ring' ? 6000 : 2500);
-    const shot = async (kind, cam) => p.evaluate(([cam]) => {
+    const shot = async (kind, cam) => p.evaluate(([cam, place]) => {
       const e = app.engine, c = e.camera, r = e.renderer, s = { p: c.position.toArray(), q: c.quaternion.toArray(), zoom: c.zoom, fov: c.fov };
-      if (cam) { const g = e.arena.group, a = g.localToWorld(new THREE.Vector3(...cam[0])), l = g.localToWorld(new THREE.Vector3(...cam[1])); c.position.copy(a); c.zoom = 1; c.fov = cam[2]; c.lookAt(l); c.updateProjectionMatrix(); c.updateMatrixWorld(true); }
+      const g = e.arena?.fightView?.gymFight?.set?.group || e.scene.getObjectByName('Arena set ' + place) || e.arena.group; g.updateMatrixWorld(true);
+      if (cam) { const a = g.localToWorld(new THREE.Vector3(...cam[0])), l = g.localToWorld(new THREE.Vector3(...cam[1])); c.position.copy(a); c.zoom = 1; c.fov = cam[2]; c.lookAt(l); c.updateProjectionMatrix(); c.updateMatrixWorld(true); }
       e.world.update(e.animTime, 'fight'); e.arena.fightView?.pose?.(); r.render(e.scene, c);
       const info = { calls: r.info.render.calls, triangles: r.info.render.triangles }, url = e.canvas.toDataURL('image/png');
       if (cam) { c.position.fromArray(s.p); c.quaternion.fromArray(s.q); c.zoom = s.zoom; c.fov = s.fov; c.updateProjectionMatrix(); }
       return { info, url: url.split(',')[1] };
-    }, [cam]);
+    }, [cam, place]);
     const f = await shot('fight'), k = await shot('close', CLOSE[place]);
     fs.writeFileSync(path.join(out, `${tag}-${place}-fight.png`), Buffer.from(f.url, 'base64')); fs.writeFileSync(path.join(out, `${tag}-${place}-close.png`), Buffer.from(k.url, 'base64'));
     const extra = await p.evaluate(() => { const v = app.engine.arena.fightView, g = v?.gymFight?.set; return { gymSetProps: g?.props || null }; });

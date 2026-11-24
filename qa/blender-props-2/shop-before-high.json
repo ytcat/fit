@@ -1,0 +1,68 @@
+{
+ "root": "/tmp/claude-0/-home-user-fit/dc5f509a-6322-5869-8a0f-174eebc5fce8/scratchpad/base",
+ "scene": "dream_otto_shop",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "t": 1.5,
+   "calls": 77,
+   "triangles": 389190,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 42402
+   }
+  },
+  {
+   "t": 5.5,
+   "calls": 171,
+   "triangles": 434721,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 42402
+   }
+  },
+  {
+   "t": 9,
+   "calls": 220,
+   "triangles": 507601,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 42402
+   }
+  },
+  {
+   "t": 15.5,
+   "calls": 242,
+   "triangles": 510407,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 42402
+   }
+  },
+  {
+   "t": 25,
+   "calls": 241,
+   "triangles": 517937,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 42402
+   }
+  }
+ ]
+}

@@ -1,0 +1,122 @@
+{
+ "root": "/home/user/fit/.claude/worktrees/agent-a39ae78c04691f8d9",
+ "scene": "dream_otto_shop",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "t": 1.5,
+   "calls": 77,
+   "triangles": 377310,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 30522
+   }
+  },
+  {
+   "t": 5.5,
+   "calls": 172,
+   "triangles": 427163,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 30522
+   }
+  },
+  {
+   "t": 9,
+   "calls": 221,
+   "triangles": 500043,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 30522
+   }
+  },
+  {
+   "t": 15.5,
+   "calls": 243,
+   "triangles": 502849,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 30522
+   }
+  },
+  {
+   "t": 25,
+   "calls": 242,
+   "triangles": 510379,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 27,
+    "triangles": 30522
+   }
+  },
+  {
+   "t": 9,
+   "calls": 219,
+   "triangles": 499543,
+   "closeup": {
+    "pos": [
+     41.3,
+     1.65,
+     1.2
+    ],
+    "look": [
+     41.4,
+     1.4,
+     -2.6
+    ],
+    "fov": 50
+   }
+  },
+  {
+   "t": 9,
+   "calls": 38,
+   "triangles": 315926,
+   "closeup": {
+    "pos": [
+     39.6,
+     1.6,
+     0.6
+    ],
+    "look": [
+     36.4,
+     1.1,
+     2.4
+    ],
+    "fov": 50
+   }
+  },
+  {
+   "t": 9,
+   "calls": 32,
+   "triangles": 312712,
+   "closeup": {
+    "pos": [
+     39,
+     1.5,
+     -0.6
+    ],
+    "look": [
+     36.6,
+     0.6,
+     -2.6
+    ],
+    "fov": 50
+   }
+  }
+ ]
+}

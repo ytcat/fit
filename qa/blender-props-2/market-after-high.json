@@ -1,0 +1,142 @@
+{
+ "root": "/home/user/fit/.claude/worktrees/agent-a39ae78c04691f8d9",
+ "scene": "dream_market_robbery",
+ "quality": "high",
+ "errors": [],
+ "rows": [
+  {
+   "t": 1,
+   "calls": 77,
+   "triangles": 510093,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 191368
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  },
+  {
+   "t": 5,
+   "calls": 107,
+   "triangles": 886784,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 191368
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  },
+  {
+   "t": 8,
+   "calls": 177,
+   "triangles": 1269622,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 191368
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  },
+  {
+   "t": 11.5,
+   "calls": 137,
+   "triangles": 932159,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 191368
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  },
+  {
+   "t": 17.5,
+   "calls": 139,
+   "triangles": 939064,
+   "phase": "play",
+   "quality": "high",
+   "shadows": false,
+   "set": {
+    "meshes": 41,
+    "triangles": 191368
+   },
+   "city": {
+    "meshes": 32,
+    "triangles": 95250
+   }
+  },
+  {
+   "t": 1,
+   "calls": 12,
+   "triangles": 368417,
+   "closeup": {
+    "pos": [
+     -14.2,
+     1.55,
+     -0.3
+    ],
+    "look": [
+     -16.5,
+     0.95,
+     -3.1
+    ],
+    "fov": 44
+   }
+  },
+  {
+   "t": 1,
+   "calls": 12,
+   "triangles": 368417,
+   "closeup": {
+    "pos": [
+     -8.2,
+     1.25,
+     -0.4
+    ],
+    "look": [
+     -9.4,
+     0.5,
+     -2.1
+    ],
+    "fov": 45
+   }
+  },
+  {
+   "t": 1,
+   "calls": 19,
+   "triangles": 388847,
+   "closeup": {
+    "pos": [
+     -1.6,
+     1.35,
+     0.2
+    ],
+    "look": [
+     -3,
+     0.6,
+     -2.6
+    ],
+    "fov": 46
+   }
+  }
+ ]
+}
