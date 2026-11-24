@@ -5,7 +5,7 @@
 Bisects the bust just below the neck ruff, scales and moves it into Fang's head-joint frame (metres; +Y up, +Z toward the nose,
 origin = the head joint the rig turns the head about), decimates it to a phone budget and writes a self-contained GLB with one
 JPEG base-colour map (<= 1024 px). The TRELLIS metallic/roughness map is replaced by constant values (it is matte fur, metal 0).
-Parameters (head-joint frame): scale (m per source unit), dy, dz (offset after scaling), cut (y of the cut, head frame),
+Parameters (head-joint frame): desat (0..1, blue taken out of the coat), gain (brightness), scale (m per source unit), dy, dz (offset after scaling), cut (y of the cut, head frame),
 tilt (cut plane rises toward the nose by tilt * z), tris (target triangles), quality (JPEG). Prints a JSON report line 'REPORT'.
 """
 import bpy, bmesh, sys, json, math, os
@@ -14,7 +14,7 @@ from mathutils import Vector
 
 argv = sys.argv[sys.argv.index('--') + 1:]
 src, out = argv[0], argv[1]
-P = dict(scale=.9, dy=.075, dz=-.03, cut=-.17, tilt=0.0, tris=16000, quality=86, rough=.82, size=1024)
+P = dict(scale=.88, dy=.075, dz=-.03, cut=-.285, tilt=0.0, tris=16000, quality=86, rough=.82, size=1024, desat=.7, gain=1.06)
 for a in argv[2:]:
     k, v = a.split('='); P[k] = type(P[k])(v) if k in P else float(v)
 
@@ -74,6 +74,13 @@ if mr is not None:
     px = np.array(mr.pixels[:]).reshape(-1, 4)
     stats = dict(rough_mean=float(px[:, 1].mean()), rough_std=float(px[:, 1].std()), metal_mean=float(px[:, 2].mean()), metal_max=float(px[:, 2].max()))
 if base.size[0] > P['size']: base.scale(P['size'], P['size'])
+# colour: the TRELLIS coat is blue-teal; Fang's body is a cool grey wolf. Take most of the blue out of the coat (luminance kept, a little lighter)
+if P['desat'] > 0 or P['gain'] != 1:
+    px = np.array(base.pixels[:]).reshape(-1, 4)
+    L = (px[:, :3] * [.2126, .7152, .0722]).sum(1, keepdims=True)
+    blue = np.clip((px[:, 2:3] - px[:, 0:1]) / .06, 0, 1)  # only the cool coat: the amber eyes and the warm nose keep their colour
+    px[:, :3] = np.clip((L + (px[:, :3] - L) * (1 - P['desat'] * blue)) * (1 + (P['gain'] - 1) * blue), 0, 1)
+    base.pixels = px.ravel().tolist(); base.update()
 base.file_format = 'JPEG'
 mat = bpy.data.materials.new('Fang head fur'); mat.use_nodes = True
 nt = mat.node_tree; bsdf = nt.nodes['Principled BSDF']

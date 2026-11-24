@@ -263,7 +263,7 @@
 
   /* ================================================================ FANG: big grey wolf, rocker jacket, gold chain, ripped jeans */
   const FANG = {
-    id: 'fang', fur: '#7d7c7b', light: '#d6d0c4',
+    id: 'fang', fur: '#767a7e', light: '#d6d0c4',
     build: { torso: .07, depth: .07, belly: 0, chest: .015, arm: .1, leg: .08, neck: .6, hips: .02, back: .02, traps: .05 }, // the lion fighter's body (muscle relief kept), a heavyweight's few percent bigger
     stoop: 0, talkGain: .8,
     headForm(x, y, z, out) {
@@ -288,10 +288,10 @@
     },
     coat(p, h, c) {
       const [hx, hy, hz] = h, ax = Math.abs(p.x);
-      const grey = lin('#73716f'), dark = lin('#34353a'), pale = lin('#d3cabb'), tan = lin('#8a6f52'), mz = lin('#5a5049'), throat = lin('#9b958c');
+      const grey = lin('#6c7074'), dark = lin('#2f3439'), pale = lin('#d3cabb'), tan = lin('#8a6f52'), mz = lin('#5a5049'), throat = lin('#9a9894');
       c.copy(grey).lerp(dark, clamp((p.y > 1.74 ? .3 : .6) * smooth((-p.z + .02) / .14) + .3 * smooth((p.y - 1.9) / .2)));
-      if (p.y < 1.74 && p.y > .95 && ax < .3) c.lerp(lin('#a49d93'), .7 * bell(p.x, 0, .085) * smooth((p.z - .03) / .07) * band(p.y, 1.0, 1.72, .08)); // pale chest and belly
-      if (ax > .22 && p.y > 1.3 && p.y < 1.8) c.lerp(lin('#5a595b'), .55 + .25 * smooth((ax - .5) / .3)); // darker, grizzled arms: the muscle shading reads on them
+      if (p.y < 1.74 && p.y > .95 && ax < .3) c.lerp(lin('#a3a19d'), .7 * bell(p.x, 0, .085) * smooth((p.z - .03) / .07) * band(p.y, 1.0, 1.72, .08)); // pale chest and belly
+      if (ax > .22 && p.y > 1.3 && p.y < 1.8) c.lerp(lin('#53585d'), .55 + .25 * smooth((ax - .5) / .3)); // darker, grizzled arms: the muscle shading reads on them
       if (p.y > 1.72 && (p.y > 1.8 || ax < .2)) { // the head and neck only (the rest-pose arms and the raised traps lie at this height too)
         const ahx = Math.abs(hx), muzzle = smooth((hz - .26) / .05);
         const under = smooth((.075 - hy) / .05) * smooth((hz - .05) / .1) + smooth((.13 - hy) / .08) * smooth((ahx - .12) / .05) * smooth((hz + .02) / .1) * .8; // pale cheeks, lips and throat
@@ -362,8 +362,8 @@
       if (rig.definition?.look) rig.definition.look.value.multiplyScalar(1.5); // muscle lines read on grey fur like the lion's on tawny
       // bushy tail: a tapered core hidden in long locks
       const tl = new THREE.Group(); tl.name = 'Fang: tail'; rig.tail.add(tl); tl.position.set(0, -.04, -.2); const core = new Parts(), path = [V(0, 0, 0), V(0, -.12, -.1), V(.04, -.32, -.16), V(.08, -.52, -.12)], curve = new THREE.CatmullRomCurve3(path);
-      core.ribbon(path, .07, .07, '#5a5a5e', V(1, 0, 0), 20, 10); tl.add(meshOf(core, 'Fang: tail core', m.parts));
-      const roots = [], rr = rnd(9); for (let k = 0; k < 520; k++) { const u = rr(), q = curve.getPoint(u), t = curve.getTangent(u), a = rr() * Math.PI * 2, side = V(1, 0, 0).addScaledVector(t, -t.x).normalize(), nn = side.clone().applyAxisAngle(t, a); roots.push({ p: q.clone().addScaledVector(nn, .032 * (1 - .4 * u)), n: nn, colour: lin(u > .85 ? '#1e1e22' : nn.z > .2 ? '#a9a39a' : '#66666b'), len: 1 - .3 * u, flow: t.clone() }); }
+      core.ribbon(path, .07, .07, '#4e5358', V(1, 0, 0), 20, 10); tl.add(meshOf(core, 'Fang: tail core', m.parts));
+      const roots = [], rr = rnd(9); for (let k = 0; k < 520; k++) { const u = rr(), q = curve.getPoint(u), t = curve.getTangent(u), a = rr() * Math.PI * 2, side = V(1, 0, 0).addScaledVector(t, -t.x).normalize(), nn = side.clone().applyAxisAngle(t, a); roots.push({ p: q.clone().addScaledVector(nn, .032 * (1 - .4 * u)), n: nn, colour: lin(u > .85 ? '#1e1e22' : nn.z > .2 ? '#a5a4a0' : '#5c6166'), len: 1 - .3 * u, flow: t.clone() }); }
       tl.add(locksAt(roots, { len: .11, width: .03, lift: .25, droop: .05, material: m.fur, flow: () => V(0, -1, 0), name: 'Fang: tail fur' }));
       rig.castSprings.push({ o: tl, rest: tl.quaternion.clone(), k: 1, kind: 'tail' });
       install(rig);
@@ -380,7 +380,7 @@
   // which the face acting and the teeth switch, are left alone) and the skin's head and neck above the collar are folded into the
   // middle of the model (positions of both outfits, edited in place and restored exactly), so no second face pokes through it.
   // The mouth stays closed: the jaw channel still runs on the hidden skin, nothing shows it.
-  const HEAD_URL = './assets/characters/fang/fang-head.glb?v=2026112401';
+  const HEAD_URL = './assets/characters/fang/fang-head.glb?v=2026112402';
   const headFile = { state: 'idle', promise: null, scene: null }, headRigs = new Set();
   function loadHead() {
     if (headFile.promise && headFile.state !== 'failed') return headFile.promise;
@@ -457,7 +457,7 @@
   /** Fang's clothes on the skin: black leather rocker jacket (open, wide lapels, shoulder yoke, quilted creases at the elbows, belted
    *  hem, zipped cuffs) over a charcoal T-shirt; ripped faded-black jeans. Sets rig.castGlossOf (leather is glossy). */
   function fangClothes(rig, fight = false) {
-    const leather = lin('#242024'), worn = lin('#4a4446'), seamC = lin('#0c0a0c'), tee = lin('#3a3d44'), teeRib = lin('#22242a'), denim = lin('#2f3542'), fadeC = lin('#5f6779'), thread = lin('#d9d6cc'), fur = lin('#6f6e6d'), tmp = new THREE.Color();
+    const leather = lin('#242024'), worn = lin('#4a4446'), seamC = lin('#0c0a0c'), tee = lin('#3a3d44'), teeRib = lin('#22242a'), denim = lin('#2f3542'), fadeC = lin('#5f6779'), thread = lin('#d9d6cc'), fur = lin('#696d71'), tmp = new THREE.Color();
     const G = rig.castGlossOf = new Float32Array(rig.skin.geometry.attributes.position.count); let i = -1;
     return v => {
       i++; const ax = Math.abs(v.x), s = v.x < 0 ? -1 : 1;
@@ -535,7 +535,7 @@
     j.chest.add(meshOf(C, 'Fang: gold chain', m.gold));
     // cuff zips on the forearms
     for (const s of [-1, 1]) { const Z = new Parts(), side = s < 0 ? 'L' : 'R'; Z.ribbon([V(s * .2, -.05, -.0), V(s * .27, -.068, .0)].map(q => q.clone()), .006, .004, '#9aa0a8', V(0, 0, 1), 6, 6); Z.box(V(s * .272, -.07, 0), V(.008, .012, .005), '#c3c8cf'); const cz = meshOf(Z, 'Fang: cuff zip', m.metal); j['elbow' + side].add(cz); jacket.push(cz); }
-    hands(rig, '#6f6e6d', '#1c1a1d', { claw: '#1a1718', knuckle: '#5c5b5c', k: 1.05, cuff: '#6f6e6d' });
+    hands(rig, '#696d71', '#1c1a1d', { claw: '#1a1718', knuckle: '#575b5f', k: 1.05, cuff: '#696d71' });
     // fight body only: fur on the forearms (on the forearm bone, rooted on the bare skin of the fight streams)
     const g = rig.skin.geometry, keep = grabStreams(g); use(g, rig.castFight); rig.castFightParts = [];
     for (const s of [-1, 1]) {
