@@ -14,7 +14,7 @@ const CLOSE = {
   boxing_club: [[4.0, 2.2, .5], [2.5, -.2, 2.2], 50],      // corner stool and bucket (kept in the always-shown shell mesh)
   regional: [[2.0, 2.2, -.5], [-3.3, .3, 0], 22],           // across the ring: the timekeeper's table
   championship: [[-.5, 2.2, -2.0], [1.2, .3, 3.25], 22],    // across the ring: the timekeeper's table with the bell and clock
-  docks: [[-2.0, 1.8, -1.0], [2.4, .4, 1.0], 24]            // across the circle: crates and drums
+  docks: [[-.6, 3.4, -.6], [2.0, .3, 1.94], 40]            // from above the circle: crates, drums and the work lamp's pool
 };
 const server = http.createServer((q, r) => {
   let f = path.join(root, decodeURIComponent(q.url.split('?')[0])); if (f.endsWith('/')) f += 'index.html';
@@ -42,8 +42,11 @@ const server = http.createServer((q, r) => {
       const e = app.engine, c = e.camera, r = e.renderer, s = { p: c.position.toArray(), q: c.quaternion.toArray(), zoom: c.zoom, fov: c.fov };
       const g = e.arena?.fightView?.gymFight?.set?.group || e.scene.getObjectByName('Arena set ' + place) || e.arena.group; g.updateMatrixWorld(true);
       if (cam) { const a = g.localToWorld(new THREE.Vector3(...cam[0])), l = g.localToWorld(new THREE.Vector3(...cam[1])); c.position.copy(a); c.zoom = 1; c.fov = cam[2]; c.lookAt(l); c.updateProjectionMatrix(); c.updateMatrixWorld(true); }
-      e.world.update(e.animTime, 'fight'); e.arena.fightView?.pose?.(); r.render(e.scene, c);
+      e.world.update(e.animTime, 'fight'); e.arena.fightView?.pose?.();
+      const v = e.arena.fightView, actors = cam && v ? [...new Set([...Object.values(v.coaches || {}).map(x => x.root), v.referee?.root].filter(Boolean))] : [], shown = actors.map(a => a.visible);
+      actors.forEach(a => { a.visible = false; }); r.render(e.scene, c); // close-ups: the fighters and the referee hidden (they stand between the camera and the ringside)
       const info = { calls: r.info.render.calls, triangles: r.info.render.triangles }, url = e.canvas.toDataURL('image/png');
+      actors.forEach((a, i) => { a.visible = shown[i]; });
       if (cam) { c.position.fromArray(s.p); c.quaternion.fromArray(s.q); c.zoom = s.zoom; c.fov = s.fov; c.updateProjectionMatrix(); }
       return { info, url: url.split(',')[1] };
     }, [cam, place]);

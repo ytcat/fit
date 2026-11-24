@@ -47,36 +47,27 @@ ringside and the bus stop, with the same pattern as round 1 (`docs/checkpoints/b
   generated, never both; at most one more draw call per story set; arena sets: same mesh count), the films' waits.
 - `tests/blender-props.test.cjs`: two regexes widened for the new ready lists.
 
-## Evidence so far (qa/blender-props-2/, 402x690 swiftshader, high quality; PAUSED 2026-11-24 for the v1.93 release)
-- Sheets: `market|shop|docks-before-after.webp` (film shots) and `closeups-market|shop|docks-before-after.webp`; raw numbers
-  `*-high.json` (zero page errors in every run); arena-set numbers `arena-numbers.json` (node, `arena-tiers.cjs`).
-- Renderer (film shots, before -> after): market robbery calls equal, triangles +30k (480k->510k ... 1240k->1270k, ~+3 %);
-  Otto's shop calls +1 (the glossy prop mesh), triangles -8k (the generated glove spheres were heavier); docks calls equal,
-  triangles +10..14k (~+1.5 %). Arena sets (node): docks 38 meshes either way, 56.9k -> 72.5k triangles, crowd detail kept;
-  boxing club +2.3k, regional +0.8k, championship +1.4k, no extra meshes.
-- Looked at critically: market counters, crates, barrels, sacks, cart and price boards grounded and in scale; no duplicates.
-  Shop: fixed after review - the cartons stood right under the first bag (moved along the wall, commit 'cartons'); the shop
-  sheet above still shows the OLD carton place (re-capture pending).
-- NOT yet captured: dream_opening after (ticket machine), ring fights after, and valid ring-fight before close-ups (the first
-  fight.cjs aimed at the wrong group; fixed: venue close-ups now look across the ring because arena-sets hides the near sectors).
+## Evidence (qa/blender-props-2/, 402x690 swiftshader, high quality; complete 2026-11-25 after the v1.93 merge)
+- Film sheets: `market|shop|docks|opening-before-after.webp`; close-ups `closeups-market|shop|docks|opening-before-after.webp`;
+  ring fights `ring-fight-before-after.webp` (the fight view) and `ring-close-before-after.webp` (ringside; fighters hidden for
+  the close-ups because venue sets hide the sectors on the camera's side). Raw numbers `*-high.json`; zero page errors in all
+  14 browser runs. Arena numbers (node) `arena-numbers.json` via `arena-tiers.cjs`. Before = base 719e9bc, after = this branch.
+- Renderer before -> after: market robbery calls equal, triangles +30k (~3 %); Otto's shop calls +1 (glossy prop mesh), -8k
+  triangles; docks film calls equal, +10..14k; opening (ticket machine) +1 call, +1k; ring fights (fight view) calls equal:
+  gym ring 1283k -> 1277k (animation noise), boxing club +1.6k, regional -0.8k, championship +0.4k, docks fight +14k.
+  Arena sets (node): no extra meshes; docks 56.9k -> 72.5k triangles with the crowd's detail kept.
+- Reviewed: market counters/crates/barrels/sacks/cart/price boards grounded, in scale, off the lane; shop cartons moved out from
+  under the first bag (verified in the new close-up); ticket machine at the generated place and size; timekeeper's tables with bell
+  and clock; stacked dock crates and drums with the cash on the drum. No duplicates with the fallback, no z-fighting seen.
+- No painted lettering on any new prop (chalk strokes, blank labels, bar digits): lang-generic passes.
 
-## Tests (2026-11-24)
-- `bash scripts/run-tests.sh -j 2 city street dream market docks props offline arrival fight` -> files=31 fails=1
-  (city-assets: status() expectations lacked the four new files; fixed and re-run alone: ok).
-- `bash scripts/run-tests.sh -j 2 arena venue ringless roam gym bag super chapter1 city-assets` -> files=20 fails=1:
-  story-clean-gym.test.cjs (browser run timed out waiting for the career-welcome dialog at load average ~23; looks
-  load-related, NOT yet re-run or compared on the base) - re-run it first.
-- `node tests/blender-props-2.test.cjs`, `blender-props.test.cjs`, `arena-sets.test.cjs`, `city-assets.test.cjs`: ok.
-
-## Next commands (resume)
-1. `timeout 900 node tests/story-clean-gym.test.cjs` (and on the base tree if it fails again).
-2. Captures (scripts in qa/blender-props-2; cameras in the handoff below):
-   `SCENE=dream_opening TIMES=7.3,8.5,9.8,9.8 CAM=";;;-3.4,1.4,4.0|-4.7,0.9,6.3|45" node qa/blender-props-2/capture.cjs <out> opening-after`,
-   `SCENE=dream_otto_shop TIMES=1.5,5.5,9,15.5,25,9,9,9 CAM=";;;;;41.3,1.65,1.2|41.4,1.4,-2.6|50;39.6,1.6,0.6|36.4,1.1,2.4|50;39.0,1.5,-0.6|36.6,0.6,-2.6|50" ... shop-after`,
-   `node qa/blender-props-2/fight.cjs <out> fight-after` and `ROOT=<base tree> node qa/blender-props-2/fight.cjs <out> fight-before`,
-   then `python3 qa/blender-props-2/sheets.py <out> qa/blender-props-2`. Use a unique scratch dir (other agents share it) and
-   run_in_background with a long timeout.
-3. Backlog: add the round-2 line under GOTR-0066 in FEEDBACK_BACKLOG.md once the evidence is complete.
+## Tests (2026-11-25, after merging origin/claude/ecstatic-clarke-9as2ak 60d658d = v1.93; targeted, one at a time)
+- PASS: lang-generic, offline-version-match, city-assets, blender-props-2, blender-props, arena-sets, dream-scenes,
+  dream-market-films, docks-films, dream-bag-break, dream-gym-return, arrival-background.
+- story-clean-gym: failed 2x on this branch, then PASSED (190 s, real touch tap unchanged). The released tree 60d658d
+  itself passed once and failed once with the same timeout (welcome card's Start "not stable"), so it is flaky, not caused here.
+- Merge: index.html took v1.93's and re-bumped the eight changed scripts to `?v=20261125props2`; offline-manifest.json
+  regenerated. version.js / offline worker untouched.
 
 ## Remaining / next
 - Venue fights (free fights in Boxing Club / Regional / Championship / Docks): the set is built at once, so the very first
