@@ -224,3 +224,52 @@ def render(objs, show, path, h, w=None, cam_dir=(.72, -.9), res=420, samples=40,
     scn.render.filepath = path; bpy.ops.render.render(write_still=True)
     for n in ('__floor', '__wall', '__sun', '__area', '__cam', '__tgt'):
         if n in bpy.data.objects: bpy.data.objects.remove(bpy.data.objects[n])
+
+
+# ---- round 2 helpers (market, shop, docks, ring, stop props): new functions only, round 1 output is unchanged
+def free_parts():
+    return [o for o in bpy.context.scene.objects if o.get('done') is None and not o.name.startswith('__')]
+
+
+def moved(fn, at=(0, 0, 0), rz=0.0, scale=1.0, *a, **k):
+    """Builds fn(*a, **k) and moves just the parts it created: scaled, turned rz about Z, then put at `at`."""
+    before = set(o.name for o in free_parts()); out = fn(*a, **k)
+    mat = Matrix.Translation(Vector(at)) @ Matrix.Rotation(rz, 4, 'Z') @ Matrix.Scale(scale, 4)
+    for ob in free_parts():
+        if ob.name in before: continue
+        if ob.type == 'MESH': ob.data.transform(mat)
+        else: ob.matrix_world = mat @ ob.matrix_world
+    return out
+
+
+def heap(name, w, d, z0, rise, r, col, seed=0, nx=8, ny=6, var=.1, round_=False):
+    """A bumpy mound of small round goods (fruit, potatoes) filling a w x d rectangle (or an ellipse with round_): a grid
+    lifted by a dome of `rise` and bumps about the size of one piece (radius r). Edges sit at z0."""
+    rnd = random.Random(seed); verts, faces = [], []
+    ph = [rnd.uniform(0, 6.28) for _ in range(4)]
+    for j in range(ny + 1):
+        for i in range(nx + 1):
+            u, v = i / nx * 2 - 1, j / ny * 2 - 1
+            if round_:
+                a = math.atan2(v, u); m = max(abs(u), abs(v)); x, y = math.cos(a) * m * w / 2, math.sin(a) * m * d / 2; e = m
+            else: x, y = u * w / 2, v * d / 2; e = max(abs(u), abs(v))
+            dome = rise * (1 - e ** 3)
+            bump = r * .45 * (math.sin(x / r * 1.9 + ph[0]) * math.sin(y / r * 1.9 + ph[1]) + .5 * math.sin((x + y) / r * 2.7 + ph[2]))
+            verts.append((x, y, z0 + max(0, dome + bump * (1 - e ** 4))))
+    for j in range(ny):
+        for i in range(nx): a = j * (nx + 1) + i; faces.append((a, a + 1, a + nx + 2, a + nx + 1))
+    ob = poly(name, verts, faces, col, 'matte', smooth=True, var=var, seed=seed)
+    return ob
+
+
+def jitter(ob, amount, seed, axes=(1, 1, 1)):
+    """Radial-ish random displacement of a mesh's vertices (lumpy sacks, worn edges): deterministic."""
+    rnd = random.Random(seed)
+    for v in ob.data.vertices:
+        v.co.x += rnd.uniform(-amount, amount) * axes[0]; v.co.y += rnd.uniform(-amount, amount) * axes[1]; v.co.z += rnd.uniform(-amount, amount) * axes[2]
+    return ob
+
+
+def tint(h, k):
+    """A linear colour from hex h scaled by k (per-piece variation)."""
+    c = srgb(h); return (min(1, c[0] * k), min(1, c[1] * k), min(1, c[2] * k))
