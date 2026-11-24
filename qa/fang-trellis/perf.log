@@ -1,0 +1,4 @@
+film auto {"size":[402,524],"off":{"calls":116,"tris":838453,"geos":244,"tex":28,"medianMs":2452,"meanMs":2647.2},"on":{"calls":88,"tris":748336,"geos":244,"tex":28,"medianMs":2467.4,"meanMs":2440.4}}
+film low {"size":[402,524],"off":{"calls":116,"tris":838453,"geos":244,"tex":27,"medianMs":923.9,"meanMs":960.4},"on":{"calls":88,"tris":748336,"geos":244,"tex":27,"medianMs":1158.8,"meanMs":1175.7}}
+fight auto {"size":[386,627],"off":{"calls":120,"tris":762663,"geos":244,"tex":21,"medianMs":821.9,"meanMs":821.4},"on":{"calls":95,"tris":679146,"geos":244,"tex":21,"medianMs":723.5,"meanMs":960.3}}
+DONE
