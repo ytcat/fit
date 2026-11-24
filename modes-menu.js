@@ -52,7 +52,7 @@
     if (id === 'world' || id === 'learn') { g.open(id); return; }
     if (id === 'train') { // free training at the last station, with the station picker open
       const fromActivity = g.activity && !g.modalTab && e.targetMode !== 'fight' && !window.AdventureOldTown?.run;
-      window.AdventureOldTown?.leave?.(); g.close(); g.activity = true;
+      window.AdventureOldTown?.leave?.(); g.close(); g.activity = true; window.gotrBoot?.mode('train'); // the next start opens in the gym
       if (!fromActivity) window.clubInterface?.returnToGym();
       document.getElementById('openTrainingDrawer')?.click();
       return;
@@ -61,7 +61,7 @@
     if (!window.fightUI) { window.AdventureOldTown?.leave?.(); g.quick(); return; }
     const before = e.fightOptions; window.fightUI.configure();
     const d = [...document.querySelectorAll('dialog.fight-dialog[open]')].pop();
-    d?.addEventListener('close', () => { if (e.fightOptions === before) return; const wasModal = !!g.modalTab; window.AdventureOldTown?.leave?.(); g.close(); g.activity = true; if (wasModal) { e.isPlaying = true; e.lastRenderStamp = null; window.app.updatePlayBtnText?.(); } }, { once: true });
+    d?.addEventListener('close', () => { if (e.fightOptions === before) return; window.gotrBoot?.mode('train'); const wasModal = !!g.modalTab; window.AdventureOldTown?.leave?.(); g.close(); g.activity = true; if (wasModal) { e.isPlaying = true; e.lastRenderStamp = null; window.app.updatePlayBtnText?.(); } }, { once: true });
   }
   // Owner (GOTR-0063 follow-up): no tab row and no station toolbar over the stage. The button sits at the stage's inline-end edge,
   // below any top HUD line it would cross (fight health bars, mission strip, power meter); on the home map it sits under the header.
@@ -178,7 +178,7 @@
     document.addEventListener('keydown', ev => { if (open && ev.key === 'Escape') { setOpen(false); fab.focus(); } });
     // A new or switched profile (welcome / profile dialog closed) lands on the Adventure home.
     let pid = rg().store.current()?.id || null;
-    const hook = n => n.addEventListener('close', () => setTimeout(() => { const id = rg().store.current()?.id || null; if (id && (id !== pid || (!rg().activity && !rg().modalTab))) rg().home(); pid = id; }, 0), { once: true });
+    const hook = n => n.addEventListener('close', () => setTimeout(() => { const id = rg().store.current()?.id || null; if (id && (id !== pid || (!rg().activity && !rg().modalTab))) rg().home(); pid = id; window.gotrBoot?.done(); }, 0), { once: true }); // the boot cover stays over the welcome card until its mode is known
     document.querySelectorAll('dialog.career-welcome').forEach(hook);
     new MutationObserver(muts => { for (const m of muts) for (const n of m.addedNodes) if (n.nodeType === 1 && n.matches?.('dialog.career-welcome')) hook(n); }).observe(document.body, { childList: true });
     window.addEventListener('resize', place); setInterval(paint, 300); setInterval(paintRound, 250); paint();
