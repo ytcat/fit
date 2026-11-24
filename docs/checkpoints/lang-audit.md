@@ -45,6 +45,12 @@ the layout stays left-to-right in every language ("Hebrew will not change sides 
 - Paused by the owner on 2026-11-23 (24baa93); merged the release branch (square header logo 45fdcf8, 644f85a) in
   9d6ffa9: the header keeps the new logo, its tooltip is localized, nothing mirrors in Hebrew.
 
+- Final sweep on the merged tree: EN/HE/RU 0 foreign texts, 0 direction faults, html `ltr` in all three (counts.json).
+- Full suite (`bash scripts/run-tests.sh -j 2`, machine load ~20 on 4 cores from other agents): 154 files, 4 failures;
+  fixed 2 caused here (reference-motion: head script needed a guard for a document without documentElement;
+  otto-civilian-lifecycle: pinned cache key, now `otto492e63-lang`). story-clean-gym (welcome-card fill timeout) and
+  rourke-cast ("the bout ran (0 frames)") fail the same way on the untouched base tree (436afd1) under the same load.
+
 ## Not done / next
 - Free walk (`chapter1-roam.html`, `adventure/story/chapter1-roam*.js`, `street-walk.js`) is out of scope (another agent);
   issues listed in the report.
