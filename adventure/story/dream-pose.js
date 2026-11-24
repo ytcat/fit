@@ -42,7 +42,7 @@
     pole: { h: [.2, 1.05, .4], pole: [.85, -.55, -.15], palm: [-1, 0, .3], turn: .5 }       // both hands on a stick in front (the mop): elbows out and down
   };
   const mem = new WeakMap();
-  const memo = rig => { let m = mem.get(rig); if (!m) { m = { corr: { L: null, R: null }, roll: { L: null, R: null }, hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
+  const memo = rig => { let m = mem.get(rig); if (!m) { m = { cpole: { L: null, R: null }, corr: { L: null, R: null }, roll: { L: null, R: null }, hand: { L: null, R: null }, pole: { L: null, R: null }, palm: { L: null, R: null }, turn: { L: .35, R: .35 }, yaw: 0, pitch: 0, walk: 0, lean: 0, drop: 0, last: -1 }; mem.set(rig, m); } return m; };
   const mirror = (a, s) => V(a[0] * s, a[1], a[2]);
   /** Turns direction a (in place) k of the way to direction b round their common axis: a lerp of two near-opposite
    *  directions passed through zero and the hand flipped over in one frame (155 deg at the start of the Super Punch raise). */
@@ -335,7 +335,7 @@
     for (const p of plans) { if (!p.planted && !p.down && (p.k ?? (w > .5 ? p.u : 1) ?? 1) < .7) continue; const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .998 : 1.02), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz)) - (start.y - hips.position.y)); } // (walk-gait: from the hip joint itself; the pelvis tilt raises one by up to 1.5 cm) // never past the legs' reach
     y = Math.max(y, y0 - .12); // walk-gait: a foot left out of reach (a sudden start) never drags the body to the ground
     if (st.plant) { const def = y0 - y; m.def = m.def != null && dt > 0 && def < m.def ? m.def + (def - m.def) * (1 - Math.exp(-dt * 10)) : m.def != null && dt > 0 ? Math.min(def, m.def + .75 * dt) : def; y = y0 - m.def; } // plant: what the legs' reach took off comes back smoothly (the gait's own bob is not damped); walk-gait: and it is taken in at most ~0.75 m/s (no sudden hip drop when a step lands far ahead)
-    if (st.plant && dt > 0 && m.yw != null) y = Math.max(y, m.yw - 1.2 * dt - R.position.y); // walk-gait: the body never falls faster than ~1.2 m/s (a step down off the bus: it sinks, it does not drop)
+    if (st.plant && dt > 0 && m.yw != null) y = clamp(y, m.yw - 1.2 * dt - R.position.y, m.yw + .6 * dt - R.position.y + Math.max(0, R.position.y - (m.ry ?? R.position.y))); m.ry = R.position.y; // walk-gait: the body never falls faster than ~1.2 m/s (a step down off the bus: it sinks, it does not drop) nor rises faster than 0.6 m/s over its feet (the first step out of a stand)
     if (st.plant) m.yw = y + R.position.y;
     hips.position.y = y; if (DreamPose.debug) c.gaitDebug = { ho, drop: m.drop, hoffs: plans.map(p => [p.off, p.hoff, p.down]), om: m.om, bank, y0, y, phase, P, plans: plans.map(p => ({ x: p.x, y: p.y, z: p.z, planted: p.planted, u: p.u })), pl: ['L', 'R'].map(k => { const F = m.plant?.[k]; return F && { A: F.A.toArray().map(v => +v.toFixed(3)), k: F.swing?.kk, kind: F.swing?.kind }; }) };
     // the heavy chest and shoulders ride the pelvis on a soft spring: they settle a little after each heel strike, lift after
@@ -399,8 +399,12 @@
       const push = target.clone().sub(asked), had = m.corr[side];
       if (dt > 0 && had && !(rr && !ro)) { // not for an exact array target (the corner, the mop, the count keep their exact clearance)
         had.lerp(push, 1 - Math.exp(-dt * (push.lengthSq() > had.lengthSq() ? 25 : 10)));
-        if (had.distanceTo(push) > .002) { target.copy(asked).add(had); err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], target, cleared.pole || aPole); orient(); }
-      } else m.corr[side] = push;
+        // the elbow turned out by the clearance is eased the same way: the upper-arm check switches on at a set height, and the
+        // turn it gave the elbow came in one frame (a 6.8 deg shoulder jump as he walked to Otto's display, walk-gait arm swing)
+        const want = cleared.pole || aPole, cp = m.cpole[side], tp = cp ? turnTo(cp, want, 1 - Math.exp(-dt * 12)).normalize() : (m.cpole[side] = want.clone());
+        if (had.distanceTo(push) > .002 || tp.angleTo(want) > .01) { target.copy(asked).add(had); err = c.solve(j['arm' + side], j['elbow' + side], j['hand' + side], target, tp); orient(); }
+      } else { m.corr[side] = push; m.cpole[side] = (cleared.pole || aPole).clone(); }
+      if (DreamPose.debug) (c.armDebug || (c.armDebug = {}))[side] = { asked: asked.toArray(), target: target.toArray(), pole: (cleared.pole || aPole).toArray(), aPole: aPole.toArray(), free, sw };
       handErrors.push(err); gloves.push(glove);
     }
     c.pawPose = paws;

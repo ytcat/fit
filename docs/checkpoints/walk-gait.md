@@ -48,3 +48,15 @@ Film metrics (browser, `qa/ch1-motion/measure.cjs`): see GOTR-0121.
 
 ## Next
 Owner review of the strips and clips; phone check; merge into the next release candidate (integrator).
+
+## fix/otto-arm (2026-11-25, on the release branch after the merge)
+- `tests/otto-carry.test.cjs` "no shoulder jump: 6.8 deg" (limit 6.5) at t=24.750 in dream_otto_shop: root cause = the arm
+  clearance's elbow turn-out (`clearArm` pole) switched on in one frame when the upper-arm check (`sh.y - el.y > .12`) began
+  to apply on the larger back swing; the hand push was eased, the pole was not. Fix: the cleared pole is eased like the push
+  (`m.cpole`, 12/s). Shoulder jump now <= 2.7 deg per frame (60 fps); test unchanged.
+- Film hip numbers: the pelvis rises at most 0.6 m/s over its feet in plant mode (opening first step in the aisle 2.6 -> 2.0 cm
+  per frame). The step-down stays capped at 4 cm/frame (v1.94: 6.1; a lower cap leaves a foot 3.3 cm above the tread). The
+  robbery chase-start dip (2.2-2.4 cm/frame) is the brisk walk's own pelvis curve, left as is.
+- `?v=20261125g2` for dream-pose.js, manifest regenerated.
+- Tests `-j 1 otto-carry walk-gait-speed story-walk-gait story-walk free-walk dream-scenes story-scenes story-arm-clearance
+  story-cast-market` -> files=9 fails=0; offline-version-match ok.
