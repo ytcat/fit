@@ -460,7 +460,9 @@ function build(scene, opts = {}) {
 
   /* ---- materials and meshes */
   const groundTex = paintGround(W);
-  const facadeTex = paintFacades(NIGHT, aniso);
+  // free walk: windows lit at dusk too (opts.litWindows) and the facades painted sharper (opts.facadeScale, the films' scale)
+  const LIT = NIGHT || !!opts.litWindows, FS = opts.facadeScale > 1 ? opts.facadeScale : 0;
+  const facadeTex = paintFacades(LIT, aniso, FS ? (s => s === 'shop' ? FS * 1.5 : FS) : undefined);
   const add = (mesh, cast = true, recv = true) => { mesh.castShadow = cast; mesh.receiveShadow = recv; mesh.matrixAutoUpdate = false; mesh.updateMatrix(); group.add(mesh); disposables.push(mesh.geometry, mesh.material); if (W.cloudU && mesh.material.isMeshStandardMaterial && recv) withClouds(mesh.material, W.cloudU); return mesh; };
   const solidMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0 });
   add(new THREE.Mesh(W.solid.geometry(), solidMat)).name = 'solid';
@@ -472,7 +474,8 @@ function build(scene, opts = {}) {
   add(new THREE.Mesh(W.marks.geometry(), marksMat), false, true).name = 'road marks';
   for (const s of Object.keys(FACADE)) {
     if (!W.facade[s].tris) continue;
-    const mat = facadeMaterial(facadeTex[s], NIGHT, s === 'office' ? 0.45 : s === 'deco' ? 0.7 : 0.85, s === 'office' ? .75 : s === 'deco' ? .3 : .12);
+    const mat = facadeMaterial(facadeTex[s], LIT, s === 'office' ? 0.45 : s === 'deco' ? 0.7 : 0.85, s === 'office' ? .75 : s === 'deco' ? .3 : .12);
+    if (LIT && !NIGHT) mat.emissiveIntensity = 1.5; // dusk (the story sets' lit windows)
     disposables.push(facadeTex[s].map); if (facadeTex[s].emissive) disposables.push(facadeTex[s].emissive);
     add(new THREE.Mesh(W.facade[s].geometry(), mat)).name = 'facade ' + s;
   }

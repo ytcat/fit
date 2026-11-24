@@ -15,7 +15,7 @@
  *   FreeWalkLook.attach({ renderer, scene, map, time, tier }) -> look
  *     look.update(dt, player {x, z}, camera)   per frame: shadow box, adaptive quality
  *     look.level / look.lock(level | null) / look.stats() / look.dispose()   (everything back as found)
- *   FreeWalkLook.facades(map, { renderer, lit, sharp })      repaint the map's facades (sharper, lit windows) with window depth
+ *   FreeWalkLook.facades(map, { renderer, sharp })           window depth on the map's facades
  *   FreeWalkLook.relief(material, style, S)                  window depth on any kit facade material
  *   FreeWalkLook.tile(group, size)                           cut merged meshes into tiles of `size` metres (view and shadow culling)
  *   FreeWalkLook.clip(group, rects, yMin, keep, only)        remove map triangles / instances inside oriented rectangles (metres)
@@ -30,8 +30,10 @@
     evening: { hemi: [0x8f9cff, 0x7a4f3c, .46], sun: [0xff9450, 1.85], dir: [-.72, .3, .62], amb: .05, sky: [[0, '#27306e'], [.3, '#5a4a92'], [.5, '#b2648f'], [.66, '#f28a52'], [.8, '#ffc27a'], [1, '#f0a763']], fog: [0xd08a64, 30, 210], look: 'evening', lit: true },
     night: { keep: true, fog: [null, 60, 260], look: 'street_night', lit: true }
   };
-  // quality ladder (highest last): [pixel-ratio cap, shadow map size (0 = no shadow pass), image-based light]
-  const LEVELS = [[1.25, 0, false], [1.5, 0, true], [1.75, 1024, true], [2, 2048, true]];
+  // quality ladder (highest last): [pixel-ratio cap, shadow map size, shadow redrawn every n frames]. A step never changes a
+  // shader (no program is rebuilt while walking: no hitch): the shadow pass and the image-based light are fixed per device
+  // tier when the walk opens (the light path has neither), a step only trades pixels and shadow refreshes.
+  const LEVELS = [[1.25, 1024, 3], [1.5, 1024, 2], [1.75, 1024, 1], [2, 2048, 1]];
   const SHADOW_R = 38; // metres round the player covered by the sun's shadow
   const WIN = { // the glass of each facade style in its 128 px cell (x0, y0 from the top-left, x1, y1) and its depth behind the wall (m)
     plaster: [44, 26, 84, 88, .3], brick: [42, 30, 86, 90, .3], apartment: [22, 30, 106, 86, .26], office: [5, 4, 123, 98, .14],
@@ -92,23 +94,12 @@
     return mat;
   }
 
-  /** The map's facades painted again: `sharp` x the map's texture scale (the films paint theirs at 2), lit windows when `lit`
-   * (evening and night), and window depth. Returns the new textures (disposed with the look). */
-  function facades(map, { renderer, lit = false, sharp = 2 } = {}) {
-    const K = window.GlorylandMap?.kit; if (!K) return [];
-    const meshes = Object.entries(map.meshes).filter(([n, m]) => n.startsWith('facade ') && m.isMesh);
-    const used = new Set(meshes.map(([n]) => n.slice(7)));
-    const aniso = renderer ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 4;
-    const tex = K.paintFacades(lit, aniso, s => used.has(s) ? (s === 'shop' ? sharp + 1 : sharp) : 0), out = [];
-    for (const [name, m] of meshes) {
-      const s = name.slice(7), t = tex[s]; if (!t) continue;
-      const old = m.material, fm = K.facadeMaterial(t, lit, s === 'office' ? .45 : s === 'deco' ? .7 : .85, s === 'office' ? .75 : s === 'deco' ? .3 : .12);
-      if (lit && !map.night) fm.emissiveIntensity = 1.5; // dusk: the films' lit windows (story-sets.js)
-      if (sharp >= 2 && renderer?.capabilities?.isWebGL2 !== false) relief(fm, s, map.layout?.scale || 3); // the light path keeps flat facades
-      m.material = fm; old.map?.dispose?.(); old.emissiveMap?.dispose?.(); old.dispose();
-      out.push(t.map, fm); if (t.emissive) out.push(t.emissive);
-    }
-    return out;
+  /** Window depth on the map's facades (the map paints them sharper and lit itself: GlorylandMap.build facadeScale /
+   * litWindows, one paint). Skipped on the light path and without WebGL 2. */
+  function facades(map, { renderer, sharp = 2 } = {}) {
+    if (sharp < 2 || renderer?.capabilities?.isWebGL2 === false) return [];
+    for (const [name, m] of Object.entries(map.meshes)) if (name.startsWith('facade ') && m.isMesh) relief(m.material, name.slice(7), map.layout?.scale || 3);
+    return [];
   }
 
   /** Cuts each merged (non-indexed) mesh of `group` into square tiles of `size` metres, so the view and the shadow pass only
@@ -179,7 +170,7 @@
     const L = LIGHTS[time] || LIGHTS.day, S = map.layout?.scale || 3, sm = renderer.shadowMap;
     const was = { ratio: renderer.getPixelRatio(), shadow: sm.enabled, type: sm.type, auto: sm.autoUpdate, bg: scene.background, fog: scene.fog };
     const own = [], dpr = Math.max(1, window.devicePixelRatio || 1), low = tier === 'low';
-    const top = low ? 1 : LEVELS.length - 1;
+    const top = low ? 1 : LEVELS.length - 1, shadows = !low;
     // ---- light of the time of day
     const sun = map.sun, hemi = map.hemi, amb = map.group.children.find(o => o.isAmbientLight);
     let dir = new THREE.Vector3(...(L.dir || [.45, .8, -.4])).normalize();
@@ -198,13 +189,13 @@
     function aim(x, z, force) {
       const texel = 2 * SHADOW_R / Math.max(512, sun.shadow.mapSize.x), q = texel * 8; // move in whole texel steps (no edge crawl)
       const ax = Math.round(x / q) * q, az = Math.round(z / q) * q;
-      if (!force && aimAt && Math.hypot(ax - aimAt[0], az - aimAt[1]) < 3) return; aimAt = [ax, az];
+      if (!force && aimAt && Math.hypot(ax - aimAt[0], az - aimAt[1]) < 3) return; aimAt = [ax, az]; renderer.shadowMap.needsUpdate = true;
       sun.target.position.set(ax / S, 0, az / S); sun.target.updateMatrixWorld();
       sun.position.set((ax + dir.x * 120) / S, dir.y * 120 / S, (az + dir.z * 120) / S); sun.updateMatrixWorld();
       sc.left = -SHADOW_R; sc.right = SHADOW_R; sc.top = SHADOW_R; sc.bottom = -SHADOW_R; sc.near = 5; sc.far = 260; sc.updateProjectionMatrix();
     }
     aim(0, 0, true);
-    // image-based light of the films (render-look.js); switched with the ladder
+    // image-based light of the films (render-look.js), fixed for the walk (the light path keeps the plain lights)
     let rlook = null;
     try { rlook = window.RenderLook?.attach(scene, renderer, { look: L.look, high: !low, sun }) || null; } catch (x) { console.warn('walk look', x); rlook = null; }
 
@@ -214,14 +205,14 @@
     // ---- the ladder
     const lockParam = /[?&]walkq=(\d)/.exec(location.search);
     const look = { level: -1, locked: lockParam ? Math.min(top, +lockParam[1]) : null, samples: [], clock: 0, dwell: 0, hold: 0, fails: 0 };
+    { const wasShadow = sm.enabled; sun.castShadow = shadows; sm.enabled = shadows; sm.type = THREE.PCFSoftShadowMap; sm.autoUpdate = false; sm.needsUpdate = true; if (wasShadow !== sm.enabled) rebuild(); }
+    let every = 1, tick = 0;
     function set(level) {
       level = Math.max(0, Math.min(top, level)); if (level === look.level) return;
-      const [ratio, shadow, env] = LEVELS[level], wasShadow = sm.enabled;
+      const [ratio, size, n] = LEVELS[level];
       renderer.setPixelRatio(Math.min(dpr, ratio));
-      if (shadow) { if (sun.shadow.mapSize.x !== shadow) { sun.shadow.mapSize.set(shadow, shadow); sun.shadow.map?.dispose(); sun.shadow.map = null; } }
-      sun.castShadow = !!shadow; sm.enabled = !!shadow; sm.type = THREE.PCFSoftShadowMap; sm.autoUpdate = true;
-      if (wasShadow !== sm.enabled) rebuild(); // programs with / without the shadow code
-      try { rlook?.high(env); } catch { /* cosmetic */ }
+      if (shadows && sun.shadow.mapSize.x !== size) { sun.shadow.mapSize.set(size, size); sun.shadow.map?.dispose(); sun.shadow.map = null; } // a uniform, no new program
+      every = n; sm.needsUpdate = true;
       look.level = level; look.dwell = 0; aim(aimAt ? aimAt[0] : 0, aimAt ? aimAt[1] : 0, true);
     }
     set(look.locked ?? top);
@@ -229,6 +220,7 @@
     const far = (L.fog?.[2] || 260) + 30; // nothing past the haze is drawn (the town's far tiles cost triangles and show only fog)
     look.update = (dt, p, camera) => {
       if (p) aim(p.x, p.z);
+      if (shadows && ++tick % every === 0) sm.needsUpdate = true;
       if (camera?.isPerspectiveCamera && camera.far > far + 1) { camera.far = far; camera.updateProjectionMatrix(); }
       // adaptive quality from the real frame interval (not the clamped step): one step down when 90 % of frames are slower
       // than ~40 fps, one step back up after a long run of fast frames; a step that failed waits longer each time

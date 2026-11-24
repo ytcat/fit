@@ -306,8 +306,11 @@
         const wall = c.add(new THREE.Mesh(new THREE.ShapeGeometry(sh), new THREE.MeshStandardMaterial({ map: tex, color: '#9fb0bc', roughness: .55, metalness: .35, side: THREE.DoubleSide })));
         wall.position.set(0, 0, -.12); wall.name = 'hangar gable'; wall.userData.fwSolid = true;
         box(B, 0, DH, -.05, DW * 2 + .5, .35, .3, '#5f6b74'); for (const s2 of [-1, 1]) box(B, s2 * (DW + .1), 0, -.05, .3, DH, .3, '#5f6b74'); // door frame
-        const D = 9; box(B, 0, -.02, -D / 2 - .1, DW * 2, .03, D, '#4a4c50'); box(B, 0, 0, -D - .2, DW * 2, DH, .2, lit ? '#2c2a2a' : '#3a3e44'); box(B, 0, DH, -D / 2 - .1, DW * 2, .2, D, '#2a2d33');
-        for (const s2 of [-1, 1]) box(B, s2 * DW, 0, -D / 2 - .1, .2, DH, D, '#3c4048');
+        // the hall is in the vault's shade: light walls and floor (corrugated sheet, concrete) so it reads as a hall, not a hole
+        const D = 9; box(B, 0, -.02, -D / 2 - .1, DW * 2, .03, D, '#9a958a'); box(B, 0, 0, -D - .2, DW * 2, DH, .2, lit ? '#6a5e52' : '#a9b3bb'); box(B, 0, DH, -D / 2 - .1, DW * 2, .2, D, '#7d858c');
+        for (const s2 of [-1, 1]) box(B, s2 * DW, 0, -D / 2 - .1, .2, DH, D, '#9aa5ae');
+        for (let k = -3; k <= 3; k++) box(B, k * 2.2, 0, -D - .05, .12, DH, .12, '#6f7a83'); // the back wall's frame
+        for (const x of [-6.6, 6.6]) for (let k = 0; k < 3; k++) box(B, x, 2.2 + k * 2.4, -D - .02, 1.2, .9, .05, lit ? '#f0c070' : '#dfe9ef'); // high windows
         for (const [x, z, n] of [[-5.6, -6.5, 2], [-4.6, -7.4, 1], [5.2, -6.8, 2], [6.2, -5.2, 1]]) for (let k = 0; k < n; k++) c.prop('Dock_crate', x + k * .2, k * .72, z, k * .3) || box(B, x, k * .72, z, .9, .7, .9, '#8a6a48');
         for (const x of [-4.5, 0, 4.5]) { cyl(B, x, DH - 1.6, -4.5, .02, 1.4, '#2a2d33', P.cyl6); G.add(P.box, M(x, DH - 1.75, -4.5, .5, .12, .5), C(lit ? '#ffb45a' : '#c9b48a')); if (lit) pool(x, -4.5, 3.2, '#ff9c40'); }
         box(B, 0, 0, -6, 4, .02, 4, '#c9a640'); // the painted circle's edge in the hall (the fight venue of the films)
@@ -374,7 +377,7 @@
     }
     // QA / story views: where to stand and which way the camera looks (yaw: the camera's side of the player)
     const v = (name, id, lx, lz, turn = 0) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); views[name] = { x: p.x, z: p.z, yaw: f.ry + turn }; };
-    v('gym', 'gym', -.35, 12.2); v('busstop', 'gym', -9.0, 13.1, .25); v('market', 'market', 0, 1.0); v('otto', 'otto', .9, 2.6); v('docks', 'docks', 0, 3.2); v('basement', 'basement', 0, 4.0);
+    v('gym', 'gym', -.35, 12.2); v('busstop', 'gym', -9.0, 13.1, .25); v('market', 'market', 0, 1.0); v('otto', 'otto', .9, 2.6); v('docks', 'docks', 3.5, 4.4, .55); v('basement', 'basement', 0, 4.0);
     // trunks and posts are thin: they block the walk as discs
     const disc = (id, lx, lz, r) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); discs.push([p.x, p.z, r]); };
     for (const [x, z] of [[-4.6, 13.05], [6.2, 13.05], [-13.0, 12.9]]) disc('gym', x, z, .25); disc('gym', 11.4, 12.35, .45);
@@ -411,8 +414,10 @@
     function kind(src, parts, place, MAX) {
       if (!src?.mesh || !src.list?.length || !parts.length) return;
       const orig = src.list.map((o, i) => { const m = new THREE.Matrix4(); src.mesh.getMatrixAt(i, m); return m; });
+      // positions and the detailed piece's turn and size, worked out once (the refresh only measures distances)
+      const xs = new Float32Array(src.list.length), zs = new Float32Array(src.list.length), q = src.list.map((o, i) => { xs[i] = o.x * S; zs[i] = o.z * S; return orig[i].elements[0] !== 0 ? place(o, xs[i], zs[i]) : null; });
       const meshes = parts.map(({ geometry, material, cast = true, before }) => { const im = new THREE.InstancedMesh(geometry, material, MAX); im.count = 0; im.frustumCulled = false; im.castShadow = cast; im.receiveShadow = true; im.name = 'street detail'; if (before) im.onBeforeRender = before; scene.add(im); made.push(im); return im; });
-      kinds.push({ src, orig, meshes, place, MAX, shown: new Set() });
+      kinds.push({ src, orig, meshes, xs, zs, q, MAX, shown: new Set() });
     }
     // trees: the Old Town shade tree, Market Row's narrow tree (by district, as on the map)
     for (const form of ['broad', 'upright']) {
@@ -434,12 +439,14 @@
       made.push(...Object.values(mats).map(m => ({ dispose: () => m.dispose() })));
       kind(inst.lamps, parts, o => ({ s: 1, ry: (o.ry || 0) + Math.PI / 2 }), 32);
     }
-    let at = null;
+    let at = null, turn = 0;
     function update(p) {
-      if (at && Math.hypot(p.x - at.x, p.z - at.z) < 6) return; at = { x: p.x, z: p.z };
-      for (const k of kinds) {
-        const near = [];
-        k.src.list.forEach((o, i) => { const x = o.x * S, z = o.z * S, d = Math.hypot(x - p.x, z - p.z); if (d < reach && k.orig[i].elements[0] !== 0) { const q = k.place(o, x, z); if (q) near.push({ i, d, x, y: (o.y || 0) * S, z, q }); } });
+      // one kind a frame (trees, then the other trees, then lamps), after every 6 m walked: no frame does it all
+      if (turn === 0) { if (at && Math.hypot(p.x - at.x, p.z - at.z) < 6) return; at = { x: p.x, z: p.z }; }
+      const k = kinds[turn]; turn = (turn + 1) % Math.max(1, kinds.length); if (!k) return;
+      {
+        const near = [], r2 = reach * reach, list = k.src.list;
+        for (let i = 0; i < list.length; i++) { if (!k.q[i]) continue; const dx = k.xs[i] - at.x, dz = k.zs[i] - at.z, d2 = dx * dx + dz * dz; if (d2 < r2) near.push({ i, d: d2, x: k.xs[i], y: (list[i].y || 0) * S, z: k.zs[i], q: k.q[i] }); }
         near.sort((a, b) => a.d - b.d); near.length = Math.min(near.length, k.MAX);
         const now = new Set(near.map(n => n.i));
         for (const i of k.shown) if (!now.has(i)) k.src.mesh.setMatrixAt(i, k.orig[i]);

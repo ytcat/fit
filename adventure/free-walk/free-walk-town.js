@@ -93,17 +93,19 @@
     const C = Core(), T = THREE, renderer = opts.renderer, lang = C.langOf(opts.lang);
     const scene = new T.Scene(), owned = [], own = x => { owned.push(x); return x; };
     const hour = ['morning', 'day', 'evening', 'night'].includes(opts.time) ? opts.time : 'day', tier = opts.quality === 'low' ? 'low' : 'high';
-    const Sets = window.FreeWalkSets, Look = window.FreeWalkLook;
-    const map = GlorylandMap.build(scene, { time: hour, renderer, quality: tier, curb: .05, lang, scale: S, walk: true, shadowSize: 1024, skip: Sets?.skip });
+    const Sets = window.FreeWalkSets, Look = window.FreeWalkLook, ms = { start: performance.now() }, mark = k => { ms[k] = Math.round(performance.now() - ms.start); };
+    const map = GlorylandMap.build(scene, { time: hour, renderer, quality: tier, curb: .05, lang, scale: S, walk: true, shadowSize: 1024, skip: Sets?.skip, facadeScale: tier === 'low' ? 0 : 2, litWindows: hour === 'evening' });
     keep.map = map; keep.scene = scene;
     const lay = map.layout, landY = lay.landY * S;
     map.sun.castShadow = false;
     const night = map.night;
     scene.fog = new T.Fog(map.fogColor, night ? 70 : 110, night ? 300 : 420);
     // the films' look: facades painted sharper with windows that have depth (lit at dusk and at night), the story places
-    if (Look) try { for (const x of Look.facades(map, { renderer, lit: hour === 'evening' || night, sharp: tier === 'low' ? 1 : 2 })) own(x); } catch (x) { console.warn('walk facades', x); }
+    if (Look) try { Look.facades(map, { renderer, sharp: tier === 'low' ? 1 : 2 }); } catch (x) { console.warn('walk facades', x); }
     let places3d = null;
+    mark('map');
     if (Sets) try { places3d = Sets.build({ map, scene, renderer, time: hour, lang, tier }); keep.sets = places3d; } catch (x) { console.warn('walk sets', x); places3d = null; }
+    mark('sets');
     // at night the street is lit for a person: a cool moon fill and a warm street-lamp light that follows the player (one point light)
     let lamp = null; if (night) { scene.add(new T.HemisphereLight(0x8fa3d8, 0x2a2438, .7)); lamp = new T.PointLight(0xffd9a8, 1.6, 16, 1.6); scene.add(lamp); }
     for (const [name, m] of Object.entries(map.meshes)) if (STREET_LIFE.has(name)) m.visible = false;
@@ -164,6 +166,7 @@
 
     /* ---- the picture: tiles of the merged meshes (view and shadow culling), the films' light and the quality ladder */
     if (Look && places3d?.marks?.length) try { Look.clip(map.group, places3d.marks, -Infinity, /^$/, /^road marks$/); } catch (x) { console.warn('walk marks', x); }
+    mark('walkable');
     let tiles = 0; if (Look) try { tiles = Look.tile(map.group, 96).length; } catch (x) { console.warn('walk tiles', x); }
     let look = null; if (Look) try { look = Look.attach({ renderer, scene, map, time: hour, tier }); keep.look = look; } catch (x) { console.warn('walk look', x); look = null; }
     // the town's own trees and lamps near the player in the films' detail (the map's low copies far away)
@@ -224,7 +227,8 @@
         if (good / n > .93) { let len = 0; for (let k = 0; k < 4; k++) len += Math.hypot(pts[(k + 1) % 4][0] - pts[k][0], pts[(k + 1) % 4][1] - pts[k][1]); loops.push({ pts, len, x: b.x * S, z: b.z * S }); break; }
       }
     }
-    const SL = window.StreetLife, looks = SL?.walkers || [], walkers = [];
+    const SL = window.StreetLife, looks = SL?.walkers || [], walkers = [], pool = [];
+    if (SL?.walker) for (let k = 0; k < MAX_WALKERS; k++) { const look = looks[k % Math.max(1, looks.length)] || {}; const m = SL.walker({ ...look, bag: k % 3 === 0 ? look.bag : null }); m.frustumCulled = true; m.visible = false; scene.add(m); pool.push(m); }
     function loopAt(L0, d) {
       d = ((d % L0.len) + L0.len) % L0.len;
       for (let k = 0; k < 4; k++) { const A = L0.pts[k], B = L0.pts[(k + 1) % 4], l = Math.hypot(B[0] - A[0], B[1] - A[1]); if (d <= l) { const t = d / l; return { x: A[0] + (B[0] - A[0]) * t, z: A[1] + (B[1] - A[1]) * t, ry: Math.atan2(B[0] - A[0], B[1] - A[1]) }; } d -= l; }
@@ -233,13 +237,15 @@
     function spawnWalker(p, minD, maxD) {
       if (!SL?.walker || !loops.length) return null;
       const near = loops.filter(l => { const d = Math.hypot(l.x - p.x, l.z - p.z); return d > minD && d < maxD; }); if (!near.length) return null;
-      const loop = near[Math.floor(R() * near.length)], look = looks[Math.floor(R() * looks.length)] || {};
-      const m = SL.walker({ ...look, bag: R() < .3 ? look.bag : null }); m.frustumCulled = true; scene.add(m);
+      const loop = near[Math.floor(R() * near.length)];
+      // a person from the pool made behind the loading cover (making one while walking - its body, skeleton and bone texture -
+      // was a visible hitch): the pool is shuffled so the street does not repeat the same order
+      if (!pool.length) return null; const m = pool.splice(Math.floor(R() * pool.length), 1)[0]; m.visible = true;
       return { m, loop, d: R() * loop.len, v: (.95 + R() * .45) * (R() < .5 ? 1 : -1), ph: R(), wait: 0 };
     }
     function updateWalkers(dt, p) {
-      for (let i = walkers.length - 1; i >= 0; i--) { const w = walkers[i]; if (Math.hypot(w.x - p.x, w.z - p.z) > 95) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); walkers.splice(i, 1); } }
-      if (walkers.length < (opts.quality === 'low' ? 6 : MAX_WALKERS)) { const w = spawnWalker(p, walkers.length < 3 ? 8 : 30, 80); if (w) walkers.push(w); }
+      for (let i = walkers.length - 1; i >= 0; i--) { const w = walkers[i]; if (Math.hypot(w.x - p.x, w.z - p.z) > 95) { w.m.visible = false; pool.push(w.m); walkers.splice(i, 1); } }
+      if (walkers.length < (opts.quality === 'low' ? 6 : MAX_WALKERS) && pool.length) { const w = spawnWalker(p, walkers.length < 3 ? 8 : 30, 80); if (w) walkers.push(w); }
       for (const w of walkers) {
         // a walker meeting the player steps aside (to the side away from the player) and slows; nobody blocks anybody
         const at0 = loopAt(w.loop, w.d), dir = Math.sign(w.v), fx = Math.sin(at0.ry) * dir, fz = Math.cos(at0.ry) * dir;
@@ -293,6 +299,27 @@
     }
 
     let time = 0;
+    /* ---- nothing is compiled, uploaded or allocated for the first time while walking: every program (the town's, the
+     * Fighter's in every outfit piece, a walker's), every texture and every vertex buffer is made here, behind the walk's
+     * loading cover: renderer.compile with the walk's lights, then one draw of everything into a one-pixel viewport. */
+    function warm() {
+      const t0 = performance.now(), saved = [], rig = window.app?.engine?.coach?.root, home = rig?.parent || null;
+      if (rig && home !== scene) scene.add(rig);
+      scene.traverse(o => { if (o.isLight || o === scene) return; saved.push([o, o.visible, o.frustumCulled]); o.visible = true; o.frustumCulled = false; });
+      const cam = new T.PerspectiveCamera(60, 1, .1, 3000); cam.position.set(0, 400, 1); cam.lookAt(0, 0, 0); cam.updateMatrixWorld();
+      try {
+        renderer.compile(scene, cam);
+        if (renderer.initTexture) scene.traverse(o => { for (const m of [].concat(o.material || [])) for (const k of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap', 'aoMap', 'envMap']) if (m[k]?.isTexture && !m[k].isRenderTargetTexture) renderer.initTexture(m[k]); });
+        const vp = renderer.getViewport(new T.Vector4()); renderer.setViewport(0, 0, 1, 1); renderer.shadowMap.needsUpdate = true;
+        try { renderer.render(scene, cam); } finally { renderer.setViewport(vp); }
+      } catch (x) { console.warn('walk warm-up', x); }
+      finally {
+        for (const [o, v, f] of saved) { o.visible = v; o.frustumCulled = f; }
+        if (rig && home !== scene) { if (home) home.add(rig); else scene.remove(rig); }
+      }
+      return Math.round(performance.now() - t0);
+    }
+    ms.warm = warm(); mark('total');
     function update(dt, p, camera) {
       time += dt;
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
@@ -302,10 +329,26 @@
     }
     function snapshot() {
       return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length,
-        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, look: look?.stats() || null, dressing: dress?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), map: map.stats() };
+        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, look: look?.stats() || null, dressing: dress?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), build: { ...ms, start: undefined }, parked: !!parkedAt, map: map.stats() };
+    }
+    /* ---- the same town again in this session (owner: the walk is opened often): closing parks it (its GPU copies freed, the
+     * built town kept in memory for a few minutes); opening with the same time of day, language and tier resumes it. */
+    let parkedAt = 0;
+    function park() {
+      parkedAt = performance.now();
+      try { look?.dispose(); } catch (x) { console.warn('walk look dispose', x); } look = null;
+      try { dress?.dispose(); } catch (x) { console.warn('walk dressing dispose', x); } dress = null;
+      const seen = new Set(); // GPU copies only: geometry, textures (the arrays and images stay; three uploads them again)
+      scene.traverse(o => { if (o.geometry && !seen.has(o.geometry)) { seen.add(o.geometry); o.geometry.dispose(); } for (const m of [].concat(o.material || [])) for (const k of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap', 'aoMap']) if (m[k]?.isTexture && !seen.has(m[k])) { seen.add(m[k]); m[k].dispose(); } });
+    }
+    function resume() {
+      const t0 = performance.now(); parkedAt = 0;
+      try { look = Look?.attach({ renderer, scene, map, time: hour, tier }) || null; } catch (x) { console.warn('walk look', x); look = null; }
+      try { dress = Sets?.dressing?.({ map, scene, city: window.CityAssets?.cached?.(['props'], false), time: hour, tier }) || null; } catch (x) { console.warn('walk dressing', x); dress = null; }
+      ms.resumed = Math.round(performance.now() - t0); ms.warm = warm(); ms.resumeTotal = Math.round(performance.now() - t0);
     }
     function dispose() {
-      for (const w of walkers) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); } walkers.length = 0;
+      for (const m of [...pool, ...walkers.map(w => w.m)]) { scene.remove(m); m.geometry.dispose(); m.material.dispose(); m.skeleton?.dispose?.(); } walkers.length = 0; pool.length = 0;
       if (carMesh) { scene.remove(carMesh); carMesh.dispose?.(); }
       for (const m of [bodyM, ...wingM]) if (m) { scene.remove(m); m.dispose?.(); }
       try { look?.dispose(); } catch (x) { console.warn('walk look dispose', x); }
@@ -316,15 +359,31 @@
       map.dispose();
     }
     const tileMeshes = () => map.group.children.filter(o => o.userData.tileOf);
-    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, S,
+    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, park, resume, S, tier,
       views: places3d?.views || {}, look: () => look?.stats() || null, quality: level => look?.lock(level), settled: () => Promise.resolve(true) };
   }
   /** Builds the town; on any failure everything made so far is released and the error is passed on (the mode shows a notice). */
+  let parked = null; // { key, town, timer }: the last town, kept for PARK_MS after the walk closed
+  const PARK_MS = 180000;
+  const smallDevice = () => (navigator.deviceMemory && navigator.deviceMemory < 4) || /[?&]gfx=low/.test(location.search);
+  function drop() { if (!parked) return; clearTimeout(parked.timer); const t = parked.town; parked = null; try { t.destroy(); } catch (x) { console.warn('free walk town', x); } }
   function build(opts = {}) {
+    const key = [opts.time, Core().langOf(opts.lang), opts.quality === 'low' ? 'low' : 'high'].join('|');
+    if (parked && parked.key === key && parked.renderer === opts.renderer) { const t = parked.town; clearTimeout(parked.timer); parked = null; t.resume(); return t; }
+    drop();
     const keep = {};
-    try { return buildTown(opts, keep); } catch (x) { try { keep.dress?.dispose(); keep.look?.dispose(); keep.sets?.dispose(); keep.map?.dispose(); } catch { /* already gone */ } throw x; }
+    let town;
+    try { town = buildTown(opts, keep); } catch (x) { try { keep.dress?.dispose(); keep.look?.dispose(); keep.sets?.dispose(); keep.map?.dispose(); } catch { /* already gone */ } throw x; }
+    // the mode calls dispose() when the walk closes: the town is parked instead (released for good later, or on a small device now)
+    const destroy = town.dispose; town.destroy = destroy;
+    town.dispose = () => {
+      if (smallDevice() || town.tier === 'low') { destroy(); return; }
+      drop(); town.park(); parked = { key, town, renderer: opts.renderer, timer: setTimeout(drop, PARK_MS) };
+    };
+    return town;
   }
+  window.addEventListener?.('pagehide', drop);
   /** The films' kit and street models before a build (never longer than ms; a build without them uses the generated pieces). */
   const prepare = (ms = 6000) => window.FreeWalkSets ? window.FreeWalkSets.prepare(ms) : Promise.resolve(false);
-  window.FreeWalkTown = { build, prepare, S, CELL, BOUNDS, REACH };
+  window.FreeWalkTown = { build, prepare, drop, S, CELL, BOUNDS, REACH, get parked() { return parked ? parked.key : null; } };
 })();
