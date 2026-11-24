@@ -1,0 +1,182 @@
+{
+ "tag": "after",
+ "size": "phone",
+ "dpr": 3,
+ "time": "night",
+ "gfx": "high",
+ "errors": [],
+ "spots": {
+  "gym": {
+   "calls": 134,
+   "triangles": 572327,
+   "renderMsAtRatio1": 453.3,
+   "textures": 91,
+   "geometries": 549,
+   "programs": 76,
+   "renderMs": 995.9,
+   "renderMin": 934.1,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2717,
+   "heap": 326,
+   "town": {
+    "time": "night",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "street_night"
+   },
+   "spot": {
+    "x": 159.01114559682358,
+    "z": -118.07085590567769,
+    "yaw": -0.02
+   }
+  },
+  "busstop": {
+   "calls": 139,
+   "triangles": 548972,
+   "renderMsAtRatio1": 462.9,
+   "textures": 91,
+   "geometries": 549,
+   "programs": 76,
+   "renderMs": 945.3,
+   "renderMin": 876.2,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2717,
+   "heap": 326,
+   "town": {
+    "time": "night",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "street_night"
+   },
+   "spot": {
+    "x": 150.3448767391337,
+    "z": -117.3440243665751,
+    "yaw": 0.23
+   }
+  },
+  "market": {
+   "calls": 128,
+   "triangles": 702345,
+   "renderMsAtRatio1": 494.4,
+   "textures": 91,
+   "geometries": 551,
+   "programs": 76,
+   "renderMs": 868.6,
+   "renderMin": 819.4,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2717,
+   "heap": 326,
+   "town": {
+    "time": "night",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "street_night"
+   },
+   "spot": {
+    "x": 116.82127162924402,
+    "z": -67.04417503242146,
+    "yaw": -0.06
+   }
+  },
+  "otto": {
+   "calls": 119,
+   "triangles": 577474,
+   "renderMsAtRatio1": 436.9,
+   "textures": 91,
+   "geometries": 551,
+   "programs": 76,
+   "renderMs": 861.6,
+   "renderMin": 829.3,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2717,
+   "heap": 326,
+   "town": {
+    "time": "night",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "street_night"
+   },
+   "spot": {
+    "x": 181.26445072071084,
+    "z": -54.15671335119277,
+    "yaw": 3.081592653589793
+   }
+  },
+  "docks": {
+   "calls": 117,
+   "triangles": 519479,
+   "renderMsAtRatio1": 404.7,
+   "textures": 91,
+   "geometries": 551,
+   "programs": 76,
+   "renderMs": 741.4,
+   "renderMin": 728.3,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2717,
+   "heap": 326,
+   "town": {
+    "time": "night",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "street_night"
+   },
+   "spot": {
+    "x": -38.3,
+    "z": 157.2,
+    "yaw": 0.45
+   }
+  }
+ },
+ "bootMs": 6467,
+ "openMs": 27872
+}

@@ -1,0 +1,114 @@
+{
+ "tag": "after",
+ "size": "phone",
+ "dpr": 3,
+ "time": "morning",
+ "gfx": "high",
+ "errors": [],
+ "spots": {
+  "gym": {
+   "calls": 133,
+   "triangles": 577676,
+   "renderMsAtRatio1": 466,
+   "textures": 76,
+   "geometries": 523,
+   "programs": 77,
+   "renderMs": 897.2,
+   "renderMin": 870.6,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2914,
+   "heap": 326,
+   "town": {
+    "time": "morning",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "day"
+   },
+   "spot": {
+    "x": 159.01114559682358,
+    "z": -118.07085590567769,
+    "yaw": -0.02
+   }
+  },
+  "market": {
+   "calls": 130,
+   "triangles": 713323,
+   "renderMsAtRatio1": 482.9,
+   "textures": 76,
+   "geometries": 525,
+   "programs": 77,
+   "renderMs": 860,
+   "renderMin": 823.3,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2914,
+   "heap": 326,
+   "town": {
+    "time": "morning",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "day"
+   },
+   "spot": {
+    "x": 116.82127162924402,
+    "z": -67.04417503242146,
+    "yaw": -0.06
+   }
+  },
+  "otto": {
+   "calls": 116,
+   "triangles": 571505,
+   "renderMsAtRatio1": 443,
+   "textures": 76,
+   "geometries": 525,
+   "programs": 77,
+   "renderMs": 856.2,
+   "renderMin": 814.4,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2914,
+   "heap": 326,
+   "town": {
+    "time": "morning",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "day"
+   },
+   "spot": {
+    "x": 181.26445072071084,
+    "z": -54.15671335119277,
+    "yaw": 3.081592653589793
+   }
+  }
+ },
+ "bootMs": 6875,
+ "openMs": 24102
+}

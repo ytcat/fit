@@ -87,3 +87,49 @@ like in the video ... Make everything more realistic ... the style of, let's say
   a lit hall with crates and the painted circle; view moved. Needs the final picture.
 - Next: run `node qa/walk-town-look/hitches.cjs <out> after|before phone|pc` (ROOT=<git archive of 67ddca4> for before),
   then `qa/walk-town-look/run-all.sh` for the picture set, sheets with sheet.py.
+
+## Round 3 (first open, hitches, pictures; merged with the release branch e7fd602)
+- Renumbered GOTR-0125 (GOTR-0120..0124 are taken on the release branch). Merged `origin/claude/ecstatic-clarke-9as2ak`
+  (story walks, walk gait, PC film warm-up, start cover); free-walk.js kept both: prepare() calls, `time: R.opts.look || R.time`
+  (QA override), `qa.camera`, plus round 3's lines below.
+- First open, where the 28 s went (SwiftShader phone, `qa/walk-town-look/open-time.cjs`: timeline, long tasks, cover text):
+  ~2.5 s models + kit (downloads already parallel; GLB parse on the main thread), 4-8 s build (map, sets, walkable incl.
+  the height-field readback, warm-up compile), then ~15-17 s of GPU work queued by the warm-up's single 1-px draw of
+  everything (SwiftShader builds a pipeline per program: ~80 programs) which blocked the page at the next frame (one
+  10-15 s long task with the cover up and no progress). The machine load (5-9 on 4 cores) inflated all of it: the same
+  tree measures 16-18 s at load 1-2.
+- Changes: free-walk.js puts a stub in `engine.fightIQDemo` while loading (the arena, ~0.5 M triangles, is no longer
+  drawn behind the cover; close() clears it); the cover reads "Building the town… n%" (models 0-30 %, build 40 %, warm-up
+  40-100 %; digits only, every language); `FreeWalkTown.prepare(ms, progress)` (a settled wait is kept 20 s: a second call
+  in the same open no longer waits the whole budget again) with the budget now 4 s from the open; `build({ defer: true })`
+  + `town.ready(progress, alive)`: one renderer.compile of every program and the textures, then the first draw of one
+  object per program in two slices, then everything once with the shadow pass, the GPU awaited with a WebGL2 fence
+  polled on the frame clock (never blocking); no WebGL2 or a caller without defer: the old one-shot warm-up. Instanced
+  meshes with no instance yet (cars, pigeons) draw one during the warm-up.
+- Measured, same machine back to back (`open-ab10-*`): round 2 17.8 s to the first frame, longest freeze 10.7 s, one
+  cover text; round 3 17.2 s, longest freeze 5.3 s, 6 progress steps (these include ~1.5 s the merged story walk adds at
+  open). More, smaller slices cost more in SwiftShader (each slice ~0.5-1.5 s of fixed GPU work): 10-25 slices measured
+  +4-6 s, so two.
+- Hitches (`hitches.cjs`, STEP 1.2 m/frame gym -> Hazel -> Docks quay, 363 frames, JS time of the walk frame; load 0.5-1.4):
+  after phone (DPR 3, ratio 2) 0 frames > 50 ms, longest 22.9 ms (38.1 in the earlier run); after PC 1366x768 0 > 50,
+  longest 21.1; before (67ddca4) phone 0 > 50, longest 28.5 (9 textures made while walking); before PC 0 > 50, longest
+  30.3 (13 textures). After: 0 programs, 0 textures made while walking. The first frame after the cover still compiles
+  2 programs (~250 ms: the contact shadow / ring / carried bag added by free-walk.js after the warm-up).
+  Pre-merge run under load 4.5: 1 frame of 106 ms, none > 150.
+- Camera (story-walk's note): market umbrellas and the sets' overhead batches (awnings, stall roofs; not bunting or wires)
+  are in a fine roof map read by `town.canopy()`; roofs within 3 m of the player do not count (at Hazel's counter the
+  first version dropped the camera onto his head; now it rises over the stalls).
+- Pictures: `qa/walk-town-look/sheet-{phone,pc}-{morning,evening,night}.webp`, `sheet-phone-low.webp` (before v1.94 |
+  after | film; no "before" evening exists: grey tiles). Looked at each: market fixed (above), docks shows the quay,
+  gable and lit hall end, no black void; remaining: the map's black bollards stand in the water at the quay edge (also
+  in v1.94), the gym's upper windows read very bright at dusk/night, the docks view is steep (the chase camera is
+  story-walk's). Pictures are EN only (HE/RU signs covered by tests/walk-town-look.test.cjs, not re-shot).
+- Reachability (`qa/free-walk-city/tour.cjs`, en): bruno, market_stall, otto, market, docks_quay, docks, downtown, dome,
+  cove reached in one run; fort, hill, fair, neon, tech reported "no path on foot" from where the cove leg stopped (the
+  player's final cell is off the walk grid there), and were all reached walking from Old Town in a second run
+  (fort 438 m, hill 441, fair 483, neon 112, tech 165); cove from Tech Pier ran out of the tour's time 16 m short.
+  `qa/walk-town-look/round3/tour.txt`.
+- Tests: `bash scripts/run-tests.sh -j 1 walk-town-look free-walk city-assets blender-props blender-props-2
+  arrival-background lang-generic offline-version-match`: 8 files, 0 fails.
+- Next: physical phone check; optionally warm the free-walk.js pieces added after ready() (blob, ring, carry); the
+  integrator merges (no version bump done here).
