@@ -1,8 +1,8 @@
-# pc-smooth-start evidence (GOTR-0121 films stuck on PC, GOTR-0122 start flash)
+# pc-smooth-start evidence (GOTR-0123 films stuck on PC, GOTR-0124 start flash)
 
 Branch `agent/pc-smooth-start`, base v1.94 (67ddca4). Handoff: `docs/checkpoints/pc-smooth-start.md`.
 
-## Start (GOTR-0122)
+## Start (GOTR-0124)
 
 Sheets of the first 8 s after a reload (video at 4 frames per second, 1366x768 unless named; SwiftShader is slow, so the
 whole start takes longer than on a PC; the first white frames are the browser before the page's first paint, in both versions):
@@ -16,7 +16,7 @@ whole start takes longer than on a PC; the first white frames are the browser be
 - `cover-ru-1920x1080.png` (cover in Russian), `cover-welcome-en-1366x768.png`, `cover-welcome-he-402x690.png` (a new player:
   the welcome card above the cover, no training page behind it).
 
-## Films (GOTR-0121)
+## Films (GOTR-0123)
 
 `tools/filmperf.cjs` plays each Chapter 1 film in the real app with `StoryScenes.play` (no seek), taps each waiting line, presses
 Buy, and records every frame: wall time between frames, the time inside the film's own frame (JS), and how many shader programs,
