@@ -15,7 +15,7 @@
  * World: metres, x east, z south, y up. */
 (() => {
   'use strict';
-  const MAP_SRC = './adventure/gloryland-map.js?v=20261124m1';
+  const MAP_SRC = './adventure/gloryland-map.js?v=20261125wt1';
   const Core = () => window.FreeWalkCore;
   const TIME_KEY = 'gotr.freewalk.time.v1';
   const STORY_IDS = ['bruno', 'market_stall', 'otto', 'docks_quay'];
@@ -163,7 +163,9 @@
       try {
         if (prev) { prev.scene.remove(c.root, R.blob); if (R.ringMesh) prev.scene.remove(R.ringMesh); prev.dispose(); }
         const t0 = performance.now();
-        R.town = window.FreeWalkTown.build({ renderer: e.renderer, time: grade(R.time), quality: lowTier() ? 'low' : 'high', lang: lang() });
+        await window.FreeWalkTown.prepare?.(6000); // the films' street kit and models (walk-town-look); never longer than 6 s
+        if (R.closed) return false;
+        R.town = window.FreeWalkTown.build({ renderer: e.renderer, time: R.opts.look || grade(R.time), quality: lowTier() ? 'low' : 'high', lang: lang() });
         R.buildMs = Math.round(performance.now() - t0);
       } catch (x) { console.warn('free walk', x); R.town = null; R.busy = false; return false; } // the map button still leaves cleanly
       const town = R.town;
@@ -349,5 +351,5 @@
     setTimeout(go, 800);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fromHash, { once: true }); else fromHash();
-  window.FreeWalk = { open, close, storyDestination, storyNow, tickets, snapshot, qa: { walk: qaWalk, set yaw(v) { if (run) { run.yaw = v; run.camYaw = v; } }, view() { if (!run?.town) return null; const g = run.town.grid, s = run.s, y = g.height(s.x, s.z); let best = 0, bd = -1; for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2; let d = 0; while (d < 80 && g.top(s.x - Math.sin(a) * (d + 1), s.z - Math.cos(a) * (d + 1)) < y + 2.5) d++; if (d > bd) { bd = d; best = a; } } run.yaw = run.camYaw = best; return { yaw: best, open: bd }; }, teleport(x, z) { if (run?.town?.grid.allowed(x, z)) { run.s.x = x; run.s.z = z; return true; } return false; }, get town() { return run?.town || null; } }, get playing() { return !!run; }, STORY_IDS, PLACE_IDS, MAP_SRC };
+  window.FreeWalk = { open, close, storyDestination, storyNow, tickets, snapshot, qa: { walk: qaWalk, set yaw(v) { if (run) { run.yaw = v; run.camYaw = v; } }, view() { if (!run?.town) return null; const g = run.town.grid, s = run.s, y = g.height(s.x, s.z); let best = 0, bd = -1; for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2; let d = 0; while (d < 80 && g.top(s.x - Math.sin(a) * (d + 1), s.z - Math.cos(a) * (d + 1)) < y + 2.5) d++; if (d > bd) { bd = d; best = a; } } run.yaw = run.camYaw = best; return { yaw: best, open: bd }; }, teleport(x, z) { if (run?.town?.grid.allowed(x, z)) { run.s.x = x; run.s.z = z; return true; } return false; }, get town() { return run?.town || null; }, get camera() { return run?.camera || null; } }, get playing() { return !!run; }, STORY_IDS, PLACE_IDS, MAP_SRC };
 })();

@@ -9,10 +9,17 @@
  *     only the ones near the player exist;
  *   - a fine grain on the painted ground (asphalt, paving) so it holds up close.
  * Draw calls stay flat (the map is ~30 merged meshes) and nothing is rebuilt while walking.
+ * The look (owner 2026-11-25, GOTR-0120): the story places are the films' street (free-walk-sets.js: Bruno's Gym and the bus
+ * stop, Market Row round Hazel's stall, Otto's Corner, the Docks), the picture is drawn like the films (free-walk-look.js:
+ * full screen resolution, the films' light for the story's time of day, a sun shadow round the player, image-based light,
+ * sharper facades with windows that have depth), and the merged meshes are cut into tiles so only what is near is drawn.
  *
- *   FreeWalkTown.build({ renderer, time, quality, lang }) -> town
+ *   FreeWalkTown.prepare(ms) -> Promise   the films' kit and street models (at most ms; call before build)
+ *   FreeWalkTown.build({ renderer, time: 'morning' | 'day' | 'evening' | 'night', quality, lang }) -> town
  *     town.scene, town.grid (FreeWalkCore.grid), town.places [{ id, x, z, r, spawn }], town.targets { id: { x, z } },
  *     town.update(dt, player {x, z}, camera), town.blocked(x, z) (cars), town.snapshot(), town.dispose()
+ *     town.views { gym, busstop, market, otto, docks, basement: { x, z, yaw } } (the films' views of the story places),
+ *     town.look() (picture settings), town.quality(level | null) (pin the look's ladder; QA), town.settled() -> Promise
  * World: metres, x east, z south, y up. */
 (() => {
   'use strict';
@@ -22,6 +29,7 @@
   const REACH = { oldtown: 30, market: 28, docks: 34, downtown: 44, neon: 40, dome: 18, hill: 30, tech: 22, fair: 24, cove: 22, fort: 24 }; // map units
   const STREET_LIFE = new Set(['people', 'people moving', 'cars', 'cars moving', 'trams moving', 'carlights moving']); // replaced at street level
   const SOLID = name => name === 'solid' || name === 'ground' || name === 'lit' || name === 'containers' || name.startsWith('facade ');
+  const solidMesh = o => o.isMesh && (SOLID(o.name) || o.userData.fwSolid === true); // the map's solid batches and the story sets' walls and floors
   const TRUNK = { trees: .45, pines: .42, palms: .32, lamps: .2, bushes: .6, umbrellas: .22 }; // metres per unit instance scale
   const MAX_CARS = 12, MAX_WALKERS = 10;
   const rng = seed => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
@@ -35,7 +43,7 @@
     const rt = new T.WebGLRenderTarget(nx, nz, { minFilter: T.NearestFilter, magFilter: T.NearestFilter, depthBuffer: true, stencilBuffer: false });
     const mat = new T.MeshDepthMaterial({ depthPacking: T.RGBADepthPacking, side: T.DoubleSide });
     const shown = [];
-    scene.traverse(o => { if ((o.isMesh || o.isPoints || o.isSprite || o.isLine) && o.visible) { shown.push(o); o.visible = o.isMesh && SOLID(o.name); } });
+    scene.traverse(o => { if ((o.isMesh || o.isPoints || o.isSprite || o.isLine) && o.visible) { shown.push(o); o.visible = solidMesh(o); } });
     const was = { override: scene.overrideMaterial, fog: scene.fog, bg: scene.background, target: renderer.getRenderTarget(), clear: renderer.getClearColor(new T.Color()), alpha: renderer.getClearAlpha(), auto: renderer.shadowMap.autoUpdate, sm: renderer.shadowMap.enabled };
     const buf = new Uint8Array(nx * nz * 4);
     try {
@@ -84,12 +92,18 @@
   function buildTown(opts = {}, keep = {}) {
     const C = Core(), T = THREE, renderer = opts.renderer, lang = C.langOf(opts.lang);
     const scene = new T.Scene(), owned = [], own = x => { owned.push(x); return x; };
-    const map = GlorylandMap.build(scene, { time: opts.time || 'day', renderer, quality: opts.quality === 'low' ? 'low' : 'high', curb: .05, lang, scale: S, walk: true, shadowSize: 512 });
+    const hour = ['morning', 'day', 'evening', 'night'].includes(opts.time) ? opts.time : 'day', tier = opts.quality === 'low' ? 'low' : 'high';
+    const Sets = window.FreeWalkSets, Look = window.FreeWalkLook;
+    const map = GlorylandMap.build(scene, { time: hour, renderer, quality: tier, curb: .05, lang, scale: S, walk: true, shadowSize: 1024, skip: Sets?.skip });
     keep.map = map; keep.scene = scene;
     const lay = map.layout, landY = lay.landY * S;
     map.sun.castShadow = false;
     const night = map.night;
     scene.fog = new T.Fog(map.fogColor, night ? 70 : 110, night ? 300 : 420);
+    // the films' look: facades painted sharper with windows that have depth (lit at dusk and at night), the story places
+    if (Look) try { for (const x of Look.facades(map, { renderer, lit: hour === 'evening' || night, sharp: tier === 'low' ? 1 : 2 })) own(x); } catch (x) { console.warn('walk facades', x); }
+    let places3d = null;
+    if (Sets) try { places3d = Sets.build({ map, scene, renderer, time: hour, lang, tier }); keep.sets = places3d; } catch (x) { console.warn('walk sets', x); places3d = null; }
     // at night the street is lit for a person: a cool moon fill and a warm street-lamp light that follows the player (one point light)
     let lamp = null; if (night) { scene.add(new T.HemisphereLight(0x8fa3d8, 0x2a2438, .7)); lamp = new T.PointLight(0xffd9a8, 1.6, 16, 1.6); scene.add(lamp); }
     for (const [name, m] of Object.entries(map.meshes)) if (STREET_LIFE.has(name)) m.visible = false;
@@ -108,6 +122,7 @@
     const walk = C.walkGrid(field.heights, field.nx, field.nz, { step: .32, sea: .15, seeds, erode: 1 });
     const discs = [];
     for (const [name, r] of Object.entries(TRUNK)) for (const o of lay.inst[name]?.list || []) discs.push([o.x * S, o.z * S, r * (o.s || 1)]);
+    if (places3d) discs.push(...places3d.discs);
     C.blockDiscs(walk, field, discs);
     const pockets = C.keepConnected(walk, field.nx, field.nz, seeds); // pockets closed by trunks and posts are not walkable
     // tree crowns (instanced, not in the height field): a coarse top map so the camera keeps out of the leaves
@@ -132,7 +147,13 @@
     const mc = mat2(22, 0), otto = mat2(44, 4.4), gym = L.homeGym ? [L.homeGym.x * S, L.homeGym.z * S] : [places[0].x, places[0].z], quay = L.hangar ? [L.hangar.x * S, (L.hangar.z + 4) * S] : [places[2].x, places[2].z];
     const targets = { bruno: near(gym[0], gym[1]), market_stall: near(mc[0], mc[1]), otto: near(otto[0], otto[1]), docks_quay: near(quay[0], quay[1]) };
     for (const p of places) targets[p.id] = p.door; // walking to a district leads to its landmark; opening there starts on a street nearby (spawn)
-    { // Otto's shop: a localized board on two posts at the market's east end (the shop of Chapter 1)
+    { // the story places of the films' street: in front of Bruno's door, at Hazel's counter, at Otto's door
+      const F = places3d?.frames, at = (f, lx, lz) => { const c = Math.cos(f.ry), s = Math.sin(f.ry), x = f.x + lx * c + lz * s, z = f.z - lx * s + lz * c; return grid.allowed(x, z) ? { x, z } : near(x, z); };
+      if (F?.gym) targets.bruno = at(F.gym, -.35, 11.4);
+      if (F?.market) targets.market_stall = at(F.market, 0, -2.3);
+      if (F?.otto) targets.otto = at(F.otto, .9, 1.5);
+    }
+    if (!places3d?.frames?.otto) { // Otto's shop: a localized board on two posts at the market's east end (the shop of Chapter 1)
       const fr = Math.atan2(mf.U[0], mf.U[1]), at = mat2(44, 3.8), y = grid.height(targets.otto.x, targets.otto.z);
       const tex = own(signTexture(C.text(lang, 'ottoSign'))), board = new T.Mesh(own(new T.PlaneGeometry(2.6, .65)), own(new T.MeshStandardMaterial({ map: tex, roughness: .7, side: T.DoubleSide })));
       board.position.set(at[0], y + 2.35, at[1]); board.rotation.y = fr + Math.PI / 2; board.name = 'Otto sign';
@@ -140,6 +161,10 @@
       for (const s of [-1.15, 1.15]) { const p = new T.Mesh(postG, postM); p.position.set(at[0] + Math.sin(fr + Math.PI / 2) * s, y + 1.2, at[1] + Math.cos(fr + Math.PI / 2) * s); scene.add(p); }
       scene.add(board); C.blockDiscs(walk, field, [[at[0], at[1], .25]]);
     }
+
+    /* ---- the picture: tiles of the merged meshes (view and shadow culling), the films' light and the quality ladder */
+    let tiles = 0; if (Look && tier !== 'low') try { tiles = Look.tile(map.group, 96).length; } catch (x) { console.warn('walk tiles', x); }
+    let look = null; if (Look) try { look = Look.attach({ renderer, scene, map, time: hour, tier }); keep.look = look; } catch (x) { console.warn('walk look', x); look = null; }
 
     /* ---- traffic */
     const carSrc = map.meshes.cars, cars = [], R = rng(1234);
@@ -270,24 +295,32 @@
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
       if (lamp) lamp.position.set(p.x - 1.2, (grid.allowed(p.x, p.z) ? grid.height(p.x, p.z) : landY) + 4.2, p.z + 1.5);
       map.update(dt, camera, renderer);
+      look?.update(dt, p, camera); places3d?.update(p, camera);
     }
     function snapshot() {
       return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length,
-        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), map: map.stats() };
+        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, look: look?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), map: map.stats() };
     }
     function dispose() {
       for (const w of walkers) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); } walkers.length = 0;
       if (carMesh) { scene.remove(carMesh); carMesh.dispose?.(); }
       for (const m of [bodyM, ...wingM]) if (m) { scene.remove(m); m.dispose?.(); }
+      try { look?.dispose(); } catch (x) { console.warn('walk look dispose', x); }
+      try { places3d?.dispose(); } catch (x) { console.warn('walk sets dispose', x); }
       for (const x of owned) x.dispose?.();
+      for (const m of tileMeshes()) m.geometry.dispose();
       map.dispose();
     }
-    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, S };
+    const tileMeshes = () => map.group.children.filter(o => o.userData.tileOf);
+    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, S,
+      views: places3d?.views || {}, look: () => look?.stats() || null, quality: level => look?.lock(level), settled: () => Promise.resolve(true) };
   }
   /** Builds the town; on any failure everything made so far is released and the error is passed on (the mode shows a notice). */
   function build(opts = {}) {
     const keep = {};
-    try { return buildTown(opts, keep); } catch (x) { try { keep.map?.dispose(); } catch { /* already gone */ } throw x; }
+    try { return buildTown(opts, keep); } catch (x) { try { keep.look?.dispose(); keep.sets?.dispose(); keep.map?.dispose(); } catch { /* already gone */ } throw x; }
   }
-  window.FreeWalkTown = { build, S, CELL, BOUNDS, REACH };
+  /** The films' kit and street models before a build (never longer than ms; a build without them uses the generated pieces). */
+  const prepare = (ms = 6000) => window.FreeWalkSets ? window.FreeWalkSets.prepare(ms) : Promise.resolve(false);
+  window.FreeWalkTown = { build, prepare, S, CELL, BOUNDS, REACH };
 })();
