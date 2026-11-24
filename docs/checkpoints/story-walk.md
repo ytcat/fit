@@ -66,7 +66,8 @@ GOTR-0120, walk gait GOTR-0121): `step()` keeps the gait's `DreamPose.pace` befo
   it started), `sheet-*-entry-resume.webp` (top-bar entry, the resumed walk, the quest card button, Otto's Buy, the story-led
   walk), `joystick-before-after.webp`, JSON reports. `qa/story-walk/before/` = v1.94 free walk and stick.
   Note: the EN pictures of walks 1-2 were taken before the door start / chase camera polish (walk 2 starts close on his back);
-  HE/RU/PC show the final behaviour. All pictures predate the merged walk gait.
+  HE/RU/PC show the final behaviour. HE and RU walk 2 (quit and resume) were re-run after the gait merge and the language fix
+  (resumed at the same spot, moved 0.07 m, in the player's language); the other pictures predate the merged walk gait.
 
 ## Limits / next
 - Not checked on a real phone. SwiftShader frame rates: most of each walk is moved by the game's movement function, not real time.
