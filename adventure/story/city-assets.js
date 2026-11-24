@@ -138,6 +138,35 @@
     carFar.set(gltf, far); return far;
   }
 
+  /* The stall's chalk lettering (HAZEL'S / FRUIT & GREENS on the front board, PER KG on the price boards; modelled in
+     Blender) in the player's language (owner rule 2026-11-23): in Hebrew and Russian the modelled letters are hidden and
+     the same words are chalked on a plane in their place, one label per board (boards found from gaps along x). */
+  const HAZEL_SIGN = { he: { name: ['הייזל', 'פירות וירקות'], unit: ['לקילו'] }, ru: { name: ['ХЕЙЗЕЛ', 'ФРУКТЫ И ЗЕЛЕНЬ'], unit: ['ЗА КГ'] } };
+  function hazelSign(root) {
+    const lang = window.app?.lang, words = HAZEL_SIGN[lang]; if (!words) return;
+    const find = re => { let m = null; root.traverse(o => { if (!m && o.isMesh && o.material?.name === 'chalk and scale dial' && re.test(o.name)) m = o; }); return m; };
+    chalk(find(/^Stall_structure/), words.name, lang); // the 'Hazel name' mesh under the canopy
+    chalk(find(/^Produce_display/), words.unit, lang); // the 'price unit' lettering on the small slates
+  }
+  function chalk(src, lines, lang) {
+    if (!src) return; const geo0 = src.geometry; geo0.computeBoundingBox();
+    const b = geo0.boundingBox, w = b.max.x - b.min.x, h = b.max.z - b.min.z, P = geo0.attributes.position;
+    // boards: runs of letters along x separated by more than 6 cm
+    const xs = []; for (let i = 0; i < P.count; i++) xs.push(P.getX(i)); xs.sort((p, q) => p - q);
+    const boards = []; let a = xs[0]; for (let i = 1; i <= xs.length; i++) if (i === xs.length || xs[i] - xs[i - 1] > .06) { boards.push([a, xs[i - 1]]); a = xs[i]; }
+    const S = 1024 / w, cv = document.createElement('canvas'); cv.width = 1024; cv.height = Math.max(16, Math.round(h * S));
+    const g = cv.getContext('2d'); g.fillStyle = '#' + src.material.color.getHexString(); g.textAlign = 'center'; g.textBaseline = 'middle'; g.direction = lang === 'he' ? 'rtl' : 'ltr';
+    for (const [x0, x1] of boards) {
+      const cx = (x0 + x1) / 2 - b.min.x, bw = Math.max(x1 - x0, .04) * S * 1.1;
+      if (lines.length === 1) { g.font = `800 ${Math.round(cv.height * .8)}px sans-serif`; g.fillText(lines[0], cx * S, cv.height / 2, bw); }
+      else { g.font = `900 ${Math.round(cv.height * .4)}px sans-serif`; g.fillText(lines[0], cx * S, cv.height * .3, bw); g.font = `700 ${Math.round(cv.height * .24)}px sans-serif`; g.fillText(lines[1], cx * S, cv.height * .74, bw); }
+    }
+    const tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4;
+    const geo = new THREE.PlaneGeometry(w, h); geo.rotateX(-Math.PI / 2); geo.translate((b.min.x + b.max.x) / 2, b.max.y + .0008, (b.min.z + b.max.z) / 2); // the top line at -z, like the modelled letters
+    const plane = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: .95, side: THREE.DoubleSide }));
+    plane.name = src.name + ' (' + lang + ')'; plane.position.copy(src.position); plane.quaternion.copy(src.quaternion); plane.scale.copy(src.scale);
+    src.parent.add(plane); src.visible = false;
+  }
   /* ---------------------------------------------------------------- Blender props: merged into the set's batches */
   /** Each prop node of a loaded props model as triangle soup per material class, in the node's own frame (built once per
    * model): { gloss|matte|glow|lantern: { p, n, c } } (linear vertex colours). Placing a prop copies these arrays: the set
@@ -302,7 +331,7 @@
     }
     if (city?.hazelStall) {
       const stall = city.hazelStall.scene.clone(true);
-      stall.name = "Hazel's fruit stall";
+      stall.name = "Hazel's fruit stall"; hazelSign(stall);
       put(shadows(stall, false), 0, 0, -3.3, 0);
       handle.active = true;
     }

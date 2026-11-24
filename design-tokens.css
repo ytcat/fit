@@ -115,4 +115,10 @@
   --gr-ease:.15s ease;
 }
 /* Uppercase tracking does not suit Hebrew letterforms. */
-[dir=rtl],:lang(he){--gr-label-spacing:0}
+body:lang(he){--gr-label-spacing:0}
+/* Owner, 2026-11-23: "Hebrew will not change sides anywhere. Left to right will be kept." The page, panels, rows, pads and
+   text alignment stay left-to-right in every language (html dir="ltr" always; no [dir=rtl] rules). A Hebrew line still
+   reads right-to-left inside its own box: every element takes its paragraph direction from its first letter (as
+   dir="auto" would) without changing `direction`, so flex/grid order and left/right placement are the same as in English. */
+:lang(he) body{text-align:left}
+:lang(he) body *{unicode-bidi:plaintext}

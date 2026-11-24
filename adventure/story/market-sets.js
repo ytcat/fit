@@ -12,10 +12,14 @@
  * World: metres, y up, the camera side is +z. */
 (() => {
   const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z), clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, smooth = t => { t = clamp(t); return t * t * (3 - 2 * t); };
+  // Shop signs in the player's language (owner rule 2026-11-23), painted when the set is built.
+  const SIGN_WORDS = { "HAZEL'S FRUIT": ['הפירות של הייזל', 'ФРУКТЫ ХЕЙЗЕЛ'], "OTTO'S CORNER": ['הפינה של אוטו', 'УГОЛОК ОТТО'], 'BOXING': ['אגרוף', 'БОКС'], "OTTO'S CORNER · EST. 1979": ['הפינה של אוטו · מאז 1979', 'УГОЛОК ОТТО · С 1979'] };
+  const signWord = text => { const t = SIGN_WORDS[text], l = (['he', 'ru'].includes(window.app?.lang) ? window.app.lang : 'en'); return t && l === 'he' ? t[0] : t && l === 'ru' ? t[1] : text; };
   function signTexture(text, w = 512, h = 128, bg = '#1d2b3a', fg = '#f4c152', font = 900) {
+    text = signWord(text);
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
     g.fillStyle = bg; g.fillRect(0, 0, w, h); g.strokeStyle = fg; g.lineWidth = Math.max(4, h * .05); g.strokeRect(h * .06, h * .06, w - h * .12, h - h * .12);
-    g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `${font} ${Math.round(h * .46)}px "Inter Display","Inter","Arial Black",Impact,system-ui,sans-serif`; g.fillText(text, w / 2, h / 2 + 3, w - h * .5);
+    g.fillStyle = fg; g.textAlign = 'center'; g.direction = /[\u0590-\u05FF]/.test(text) ? 'rtl' : 'ltr'; g.textBaseline = 'middle'; g.font = `${font} ${Math.round(h * .46)}px "Inter Display","Inter","Arial Black",Impact,system-ui,sans-serif`; g.fillText(text, w / 2, h / 2 + 3, w - h * .5);
     const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
   }
   function board(c, text, x, y, z, w, h, ry = 0, colors = []) {

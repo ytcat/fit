@@ -18,10 +18,10 @@
 .training-bar .training-speed{flex:0 0 68px;color:var(--gr-text);font-variant-numeric:tabular-nums}
 .training-dialog{margin:auto;width:min(94vw,640px);max-height:88dvh;overflow:auto;padding:18px;background:var(--gr-surface);color:var(--gr-text);border:1px solid var(--gr-border);border-radius:20px}
 .training-dialog::backdrop{background:var(--gr-scrim);backdrop-filter:blur(7px)}
-.equipment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.equipment-choice{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px;border:1px solid var(--gr-border);border-radius:14px;text-align:start;background:var(--gr-surface-2)}
+.equipment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.equipment-choice{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px;border:1px solid var(--gr-border);border-radius:14px;text-align:left;background:var(--gr-surface-2)}
 .equipment-choice[aria-pressed=true],.routine-choice[aria-pressed=true]{border-color:var(--gr-accent);background:var(--gr-accent-soft)}
 .equipment-choice strong{font-size:14px}.equipment-hint{font-size:12px;line-height:1.45;color:var(--gr-text-muted)}.equipment-icon{width:42px;height:42px;color:var(--gr-accent-text)}.equipment-icon svg{width:100%;height:100%}
-.routine-grid{display:grid;gap:8px}.routine-choice{display:flex;flex-direction:column;gap:6px;padding:13px;text-align:start;background:var(--gr-surface-2);border:1px solid var(--gr-border);border-radius:12px}.routine-choice strong{font-size:14px}.routine-choice span{font-size:12px;line-height:1.4;color:var(--gr-text-muted)}
+.routine-grid{display:grid;gap:8px}.routine-choice{display:flex;flex-direction:column;gap:6px;padding:13px;text-align:left;background:var(--gr-surface-2);border:1px solid var(--gr-border);border-radius:12px}.routine-choice strong{font-size:14px}.routine-choice span{font-size:12px;line-height:1.4;color:var(--gr-text-muted)}
 .training-dialog button:focus-visible,.training-bar button:focus-visible{outline:2px solid var(--gr-focus);outline-offset:2px}.training-bar button:disabled,.practice-techniques button:disabled{opacity:.4;cursor:default}
 .practice-current #comboCodes{font-size:13px;max-width:42%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.practice-current #comboCues{max-width:70%;font-size:11px}.practice-actions #playBtn{background:var(--gr-surface-3);color:var(--gr-text);box-shadow:none;letter-spacing:0}
 @media(max-height:650px){.training-bar>button{min-height:32px}.practice-clear .practice-actions #playBtn,.practice-clear .practice-actions #openPracticeControls{padding:7px}.training-bar{gap:5px}}
@@ -48,4 +48,3 @@
 .training-bar .training-timing{flex:0 0 88px;color:var(--gr-text);font-size:11px}
 @media(max-width:430px){.training-bar{gap:4px}.training-bar .training-speed{flex-basis:47px}.training-bar>.fight-launch{flex-basis:42px}.training-bar .training-timing{flex-basis:70px}.training-bar>button{padding:6px 4px;font-size:10px}}
 .stage-sound{position:absolute;top:10px;left:10px;z-index:12;padding:7px 10px;border:1px solid var(--gr-border-strong);border-radius:10px;background:var(--gr-scene-chip-strong);color:var(--gr-text);font:600 11px system-ui;min-height:36px;touch-action:manipulation}
-[dir=rtl] .stage-sound{left:auto;right:10px}

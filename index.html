@@ -3,17 +3,23 @@
 <head>
     <link rel="icon" href="./assets/favicon.svg?v=2026111101">
   <meta charset="UTF-8" />
+  <script>
+    /* The player's language from the first paint (owner rule 2026-11-23): html lang follows the setting, the layout stays
+       left-to-right in every language. uiSay(en, he, ru) picks a status line before or after app.setLanguage. */
+    (function(){var l='en';try{l=localStorage.getItem('shadowbox-language')||'en';}catch(e){}if(l!=='he'&&l!=='ru')l='en';try{document.documentElement.lang=l;}catch(e){}
+     window.uiSay=function(en,he,ru){var c=(window.app&&window.app.lang)||(document.documentElement||{}).lang||l;return c==='he'?he:c==='ru'?ru:en;};})();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob: data:; img-src 'self' blob: data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'" />
   <meta name="theme-color" content="#090c11" />
   <title>Glory of the Ring — Boxing Gym</title>
   <meta name="description" content="Glory of the Ring, your interactive 3D boxing gym. Box as a lion or a rabbit, master combinations in the gym, and watch fight night in the arena." />
 
-  <link rel="stylesheet" href="./design-tokens.css?v=2026111012" />
+  <link rel="stylesheet" href="./design-tokens.css?v=20261123lang" />
   <link rel="stylesheet" href="./assets/app.css?v=2026111012" />
-  <link rel="stylesheet" href="./workout-experience.css?v=2026111012" />
+  <link rel="stylesheet" href="./workout-experience.css?v=20261123lang" />
   <script src="./workout-experience.js?v=1" defer></script>
-  <script src="./practice-layout.js?v=3" defer></script>
+  <script src="./practice-layout.js?v=20261123lang" defer></script>
   <script src="./assets/vendor/three.min.js"></script>
   <script src="./assets/vendor/GLTFLoader.js"></script>
   <script src="./render-look.js?v=20261122rl1"></script>
@@ -28,10 +34,10 @@
   <script src="./boxing-pose.js?v=2026110720"></script>
   <script src="./boxing-coach-v2.js?v=20261122arm2"></script>
   <script src="./contact-response.js?v=2026110406"></script>
-  <script src="./gym-details.js?v=2026110905"></script>
+  <script src="./gym-details.js?v=20261123lang"></script>
   <script src="./training-arena.js?v=2026112202"></script>
   <script src="./boxing-fight.js?v=2026112307"></script>
-  <script src="./fight-referee.js?v=20261122arm1"></script>
+  <script src="./fight-referee.js?v=20261123lang"></script>
   <script src="./fight-arena.js?v=20261122arm2"></script>
   <script src="./fight-corner.js?v=2026112288"></script>
   <script src="./training-gear.js?v=2026110801"></script>
@@ -40,7 +46,7 @@
   <script src="./fight-iq.js?v=2026110801"></script>
   <script src="./game-accessories.js?v=2026111111"></script>
   <script src="./game-venues.js?v=2026111401"></script>
-  <script src="./arena-sets.js?v=20261124props2"></script>
+  <script src="./arena-sets.js?v=20261125props2"></script>
   <script src="./ringless-venues.js?v=2026112306"></script>
   <script src="./game-tournament.js?v=2026111112"></script>
   <script src="./academy-lesson.js?v=2026111011"></script>
@@ -49,66 +55,67 @@
   <script src="./career-progress.js?v=2026111306"></script>
   <script src="./game-presentation.js?v=20261122rl1"></script>
   <script src="./approved-fight-audio.js?v=2026112176"></script>
-  <script src="./fight-ui.js?v=2026112176" defer></script>
-  <script src="./training-controls.js?v=2026111112" defer></script>
+  <script src="./fight-ui.js?v=20261123lang" defer></script>
+  <script src="./training-controls.js?v=20261123lang" defer></script>
   <script src="./character-roster.js?v=2026110607"></script>
-  <script src="./glossary.js?v=2026112210"></script>
+  <script src="./glossary.js?v=20261123lang"></script>
   <script src="./ring-camera.js?v=2026111013"></script>
   <script src="./camera-director.js?v=2026111402"></script>
   <script src="./occlusion-guard.js?v=2026111302"></script>
-  <script src="./club-world.js?v=2026112185"></script>
-  <link rel="stylesheet" href="./club-interface.css?v=2026112304" />
-  <script src="./version.js?v=2026112292"></script>
-  <script src="./club-interface.js?v=2026112304" defer></script>
+  <script src="./club-world.js?v=20261123lang"></script>
+  <link rel="stylesheet" href="./club-interface.css?v=20261124lang" />
+  <script src="./version.js?v=2026112493"></script>
+  <script src="./club-interface.js?v=20261124lang" defer></script>
   <link rel="stylesheet" href="./ringfighter-controls.css?v=2026111012" />
   <script src="./ringfighter-controls.js?v=2026111112" defer></script>
   <script src="./burst-ui.js?v=2026112296" defer></script>
-  <script src="./fight-pause.js?v=2026112296" defer></script>
-  <link rel="stylesheet" href="./career-interface.css?v=2026111012">
-  <script src="./career-interface.js?v=2026111406" defer></script>
+  <script src="./fight-pause.js?v=20261123lang" defer></script>
+  <link rel="stylesheet" href="./career-interface.css?v=20261123lang">
+  <script src="./career-interface.js?v=20261123lang" defer></script>
   <script src="./fight-presentation.js?v=2026111406" defer></script>
-  <link rel="stylesheet" href="./ringside-layout.css?v=2026111012">
-  <script src="./ringside-layout.js?v=2026111112" defer></script>
-  <link rel="stylesheet" href="./game-shell.css?v=2026111012">
-  <link rel="stylesheet" href="./adventure/adventure.css?v=2026112314">
-  <link rel="stylesheet" href="./adventure/oldtown.css?v=2026111315">
-  <link rel="stylesheet" href="./design-system.css?v=2026111012">
-  <link rel="stylesheet" href="./shop.css?v=2026111111">
-  <link rel="stylesheet" href="./fight-hud.css?v=2026112296">
+  <link rel="stylesheet" href="./ringside-layout.css?v=20261123lang">
+  <script src="./ringside-layout.js?v=20261123lang" defer></script>
+  <link rel="stylesheet" href="./game-shell.css?v=20261123lang">
+  <link rel="stylesheet" href="./adventure/adventure.css?v=20261123lang">
+  <link rel="stylesheet" href="./adventure/oldtown.css?v=20261123lang">
+  <link rel="stylesheet" href="./design-system.css?v=20261123lang">
+  <link rel="stylesheet" href="./shop.css?v=20261123lang">
+  <link rel="stylesheet" href="./fight-hud.css?v=20261123lang">
   <link rel="stylesheet" href="./arena-gallery.css?v=2026111016">
   <script src="./game-world-art.js?v=2026111112" defer></script>
   <script src="./game-tournament-ui.js?v=2026111112" defer></script>
   <script src="./game-world-ui.js?v=2026111112" defer></script>
   <script src="./fight-iq-demo.js?v=2026111011" defer></script>
   <script src="./fight-iq-ui.js?v=2026111112" defer></script>
-  <link rel="stylesheet" href="./academy.css?v=2026111011">
+  <link rel="stylesheet" href="./academy.css?v=20261123lang">
   <link rel="stylesheet" href="./camera.css?v=2026111013">
   <link rel="stylesheet" href="./burst.css?v=2026111105">
-  <link rel="stylesheet" href="./player-first.css?v=2026111112">
+  <link rel="stylesheet" href="./player-first.css?v=20261123lang">
   <link rel="stylesheet" href="./fighter-pad.css?v=2026112299">
   <link rel="stylesheet" href="./sunday-punch.css?v=2026112401">
   <link rel="stylesheet" href="./fighter-stats.css?v=2026111122">
-  <script src="./academy-stage.js?v=2026111011" defer></script>
-  <script src="./fighter-pad.js?v=2026112309" defer></script>
+  <script src="./academy-stage.js?v=20261123lang" defer></script>
+  <script src="./fighter-pad.js?v=20261123lang" defer></script>
   <link rel="stylesheet" href="./power-meter.css?v=2026111112">
   <script src="./power-meter.js?v=2026111112" defer></script>
-  <link rel="stylesheet" href="./stage-hud.css?v=2026111406">
+  <link rel="stylesheet" href="./stage-hud.css?v=20261123lang">
   <script src="./impact-fx.js?v=2026112210" defer></script>
   <script src="./super-punch-film.js?v=2026112210" defer></script>
   <script src="./sunday-punch.js?v=20261122arm2" defer></script>
   <script src="./game-resume.js?v=2026110902" defer></script>
   <script src="./game-resume-ui.js?v=2026111112" defer></script>
   <script src="./game-venues-ui.js?v=2026110905" defer></script>
-  <script src="./fighter-stats.js?v=2026111113" defer></script>
+  <script src="./fighter-stats.js?v=20261123lang" defer></script>
   <script src="./adventure/portraits.js?v=2026112302" defer></script>
   <script src="./adventure/story.js?v=20261122night" defer></script>
-  <link rel="stylesheet" href="./adventure/story/story.css?v=2026112316">
-  <link rel="stylesheet" href="./adventure/story/dream.css?v=20261122-walkui1">
-  <script src="./adventure/story/call-core.js?v=2026112298" defer></script>
-  <script src="./adventure/story/trials-core.js?v=2026112299" defer></script>
-  <script src="./adventure/story/story-core.js?v=2026111308" defer></script>
-  <script src="./adventure/story/story-sets.js?v=20261124props2" defer></script>
-  <script src="./adventure/story/story-scenes.js?v=2026112306" defer></script>
+  <link rel="stylesheet" href="./adventure/story/story.css?v=20261124m1">
+  <link rel="stylesheet" href="./adventure/free-walk/free-walk.css?v=20261124m2">
+  <link rel="stylesheet" href="./adventure/story/dream.css?v=20261124m1">
+  <script src="./adventure/story/call-core.js?v=20261124m1" defer></script>
+  <script src="./adventure/story/trials-core.js?v=20261124m1" defer></script>
+  <script src="./adventure/story/story-core.js?v=20261124m1" defer></script>
+  <script src="./adventure/story/story-sets.js?v=20261125props2" defer></script>
+  <script src="./adventure/story/story-scenes.js?v=20261124m1" defer></script>
   <script src="./adventure/story/dream-core.js?v=2026112180" defer></script>
   <script src="./adventure/story/market-core.js?v=20261122arm1" defer></script>
   <script src="./adventure/story/paws.js?v=20261122pp2" defer></script>
@@ -120,26 +127,29 @@
   <script src="./adventure/story/bag-break-core.js?v=2026111318" defer></script>
   <script src="./adventure/story/gym-return-core.js?v=2026112183" defer></script>
   <script src="./adventure/story/docks-core.js?v=2026112180" defer></script>
-  <script src="./adventure/story/bag-break.js?v=20261122props1" defer></script>
+  <script src="./adventure/story/bag-break.js?v=20261123lang" defer></script>
   <script src="./adventure/story/city-trees.js?v=20261122arrival1" defer></script>
-  <script src="./adventure/story/city-assets.js?v=20261124props2" defer></script>
-  <script src="./adventure/story/dream-sets.js?v=20261124props2" defer></script>
-  <script src="./adventure/story/market-sets.js?v=20261124props2" defer></script>
-  <script src="./adventure/story/docks-sets.js?v=20261124props2" defer></script>
-  <script src="./adventure/story/street-life.js?v=2026111406" defer></script>
+  <script src="./adventure/story/city-assets.js?v=20261125props2" defer></script>
+  <script src="./adventure/story/dream-sets.js?v=20261125props2" defer></script>
+  <script src="./adventure/story/market-sets.js?v=20261125props2" defer></script>
+  <script src="./adventure/story/docks-sets.js?v=20261125props2" defer></script>
+  <script src="./adventure/story/street-life.js?v=20261123walk1" defer></script>
   <script src="./adventure/story/street-walk.js?v=2026112311" defer></script>
-  <script src="./adventure/story/otto-civilian.js?v=otto492e63" defer></script>
-  <script src="./adventure/story/dream-scenes.js?v=20261124props2" defer></script>
-  <script src="./adventure/story/gym-fight.js?v=20261124props2" defer></script>
+  <script src="./adventure/story/otto-civilian.js?v=otto492e63-lang" defer></script>
+  <script src="./adventure/story/dream-scenes.js?v=20261125props2" defer></script>
+  <script src="./adventure/story/gym-fight.js?v=20261125props2" defer></script>
   <script src="./adventure/story/mop-core.js?v=20261122night" defer></script>
-  <script src="./adventure/story/mop-game.js?v=20261122night" defer></script>
+  <script src="./adventure/story/mop-game.js?v=20261123lang" defer></script>
   <script src="./adventure/story-flow.js?v=2026112316" defer></script>
-  <script src="./adventure/oldtown.js?v=2026112306" defer></script>
-  <script src="./adventure/adventure-ui.js?v=2026112313" defer></script>
-  <link rel="prefetch" href="./adventure/gloryland-map.js?v=20261121city181">
-  <link rel="stylesheet" href="./modes-menu.css?v=2026111312">
-  <script src="./modes-menu.js?v=2026111212" defer></script>
-  <script src="./game-shell.js?v=2026112313" defer></script>
+  <script src="./adventure/oldtown.js?v=20261124m1" defer></script>
+  <script src="./adventure/free-walk/free-walk-core.js?v=20261124m1" defer></script>
+  <script src="./adventure/free-walk/free-walk-town.js?v=20261124m1" defer></script>
+  <script src="./adventure/free-walk/free-walk.js?v=20261124m1" defer></script>
+  <script src="./adventure/adventure-ui.js?v=20261124m1" defer></script>
+  <link rel="prefetch" href="./adventure/gloryland-map.js?v=20261124m1">
+  <link rel="stylesheet" href="./modes-menu.css?v=20261124m1">
+  <script src="./modes-menu.js?v=20261124m1" defer></script>
+  <script src="./game-shell.js?v=20261124m1" defer></script>
 
   <style>
     html, body {
@@ -286,7 +296,6 @@
     /* TRILINGUAL DICTIONARY */
     const I18N = {
       en: {
-        dir: 'ltr',
         title: "Glory of the Ring",
         subtitle: "BOXING GYM",
         round: "Round",
@@ -339,7 +348,6 @@
         ]
       },
       he: {
-        dir: 'rtl',
         title: "שאדובוקס 3D",
         subtitle: "אולם אגרוף",
         round: "סיבוב",
@@ -392,7 +400,6 @@
         ]
       },
       ru: {
-        dir: 'ltr',
         title: "ШЭДОУБОКС 3D",
         subtitle: "БОКСЁРСКИЙ ЗАЛ",
         round: "Раунд",
@@ -492,9 +499,9 @@
         } catch(error) {
           // Keep the controls usable instead of aborting application startup.
           const notice=document.createElement('p');notice.id='renderingNotice';notice.className='rendering-notice';
-          notice.textContent='3D rendering is unavailable in this browser. Open this app in a browser with WebGL enabled.';
+          notice.textContent=uiSay('3D rendering is unavailable in this browser. Open this app in a browser with WebGL enabled.','התלת־ממד לא זמין בדפדפן הזה. פתחו את המשחק בדפדפן עם WebGL.','3D недоступно в этом браузере. Откройте игру в браузере с WebGL.');
           this.stage.append(notice);
-          document.getElementById('modelStatusText').textContent='WebGL unavailable';
+          document.getElementById('modelStatusText').textContent=uiSay('WebGL unavailable','WebGL לא זמין','WebGL недоступен');
           this.initControls();
           return;
         }
@@ -557,7 +564,7 @@
         document.getElementById('defaultCoach').onclick=()=>this.roster?.select('lion');
         document.getElementById('motionPause').onclick=()=>{
           this.isPlaying=!this.isPlaying;
-          document.getElementById('motionPause').textContent=this.isPlaying?'Freeze motion':'Play motion';
+          document.getElementById('motionPause').textContent=this.isPlaying?uiSay('Freeze motion','הקפאת תנועה','Остановить движение'):uiSay('Play motion','הפעלת תנועה','Запустить движение');
         };
 
         this.clock = new THREE.Clock();
@@ -586,7 +593,7 @@
         } catch(error) {
           console.error(error);
           this.loadError=true;
-          document.getElementById('modelStatusText').textContent='Fighter could not load. Please reload.';
+          document.getElementById('modelStatusText').textContent=uiSay('Fighter could not load. Please reload.','המתאגרף לא נטען. טענו את הדף מחדש.','Боксёр не загрузился. Перезагрузите страницу.');
           window.dispatchEvent(new CustomEvent('shadowbox-load-error'));
         }
       }
@@ -601,7 +608,7 @@
         this.coach.update(0,this.technique,this.currentAnim);
         if(this.arena&&this.arena.mode!=='none'){this.arena.setTarget(this.arena.mode);return;}
         this.fitCameraToModel(this.demoModel);
-        document.getElementById('modelStatusText').textContent=(this.coach.species==='rabbit'?'Rabbit':'Lion')+' · ready to train';
+        document.getElementById('modelStatusText').textContent=this.coach.species==='rabbit'?uiSay('Rabbit · ready to train','ארנב · מוכן לאימון','Кролик · готов к тренировке'):uiSay('Lion · ready to train','אריה · מוכן לאימון','Лев · готов к тренировке');
         document.getElementById('modelStatusDot').className='w-1.5 h-1.5 rounded-full bg-emerald-400';
       }
 
@@ -656,13 +663,13 @@
             };
           });
           if (file) this.loadAvatarFile(file);
-          else document.getElementById('modelStatusText').textContent='No saved avatar on this device · using the lion fighter';
+          else document.getElementById('modelStatusText').textContent=uiSay('No saved avatar on this device · using the lion fighter','אין דמות שמורה במכשיר · משחקים עם האריה','На устройстве нет сохранённого аватара · играем львом');
         } catch(e) { console.warn('Saved avatar unavailable:',e); }
       }
 
       loadAvatarFile(file) {
         if(!file.name.toLowerCase().endsWith('.glb')) {
-          document.getElementById('modelStatusText').textContent='Use a self-contained .glb file';return;
+          document.getElementById('modelStatusText').textContent=uiSay('Use a self-contained .glb file','השתמשו בקובץ ‎.glb‏ עצמאי','Нужен самостоятельный файл .glb');return;
         }
         const url=URL.createObjectURL(file);
         const loader=new THREE.GLTFLoader();
@@ -671,13 +678,13 @@
           if(this.activeModel!==this.demoModel) {
             const clips=gltf.animations||[];
             document.getElementById('modelStatusText').innerText=clips.length
-              ? file.name+' · '+clips.length+' moves'
-              : file.name+' · rig only';
+              ? file.name+' · '+clips.length+uiSay(' moves',' תנועות',' движений')
+              : file.name+uiSay(' · rig only',' · שלד בלבד',' · только скелет');
           }
           URL.revokeObjectURL(url);
         },undefined,error=>{
           console.warn('Avatar loading failed',error);
-          document.getElementById('modelStatusText').innerText='Could not load avatar';
+          document.getElementById('modelStatusText').innerText=uiSay('Could not load avatar','הדמות לא נטענה','Не удалось загрузить аватар');
           URL.revokeObjectURL(url);
         });
       }
@@ -698,12 +705,12 @@
         ];
 
         const tryLoad = (idx) => {
-          if (idx >= candidateUrls.length) { statusText.innerText = 'Animated training boxer (built-in)'; statusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400'; return; }
+          if (idx >= candidateUrls.length) { statusText.innerText = uiSay('Animated training boxer (built-in)','מתאגרף אימון מונפש (מובנה)','Анимированный боксёр (встроенный)'); statusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400'; return; }
           const url = candidateUrls[idx];
           loader.load(url, (gltf) => {
             this.bindSkeletalModel(gltf);
             statusDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400";
-            statusText.innerText = `3D model: ${url.split('/').pop()}`;
+            statusText.innerText = uiSay('3D model: ','מודל תלת־ממד: ','3D-модель: ') + url.split('/').pop();
           }, undefined, () => {
             tryLoad(idx + 1); // Try next candidate
           });
@@ -746,7 +753,7 @@
         this.scene.add(this.activeModel);
         this.fitCameraToModel(this.activeModel);
         if (!this.mixer) {
-          document.getElementById('modelStatusText').innerText = 'Avatar needs authored clips · using the lion fighter';
+          document.getElementById('modelStatusText').innerText = uiSay('Avatar needs authored clips · using the lion fighter','לדמות חסרות תנועות · משחקים עם האריה','Аватару нужны готовые анимации · играем львом');
           this.scene.remove(this.activeModel);
           this.activeModel = this.demoModel;
           this.scene.add(this.demoModel);
@@ -766,7 +773,7 @@
         const matching = Object.keys(this.actions).find(k => normalized(k) === normalized(name));
         const next = this.actions[matching] || this.actions.Idle_Guard;
         document.getElementById('modelStatusText').textContent=matching
-          ? 'Uploaded avatar · '+matching : 'Avatar has no '+name+' clip';
+          ? uiSay('Uploaded avatar · ','דמות שהועלתה · ','Загруженный аватар · ')+matching : uiSay('Avatar has no '+name+' clip','לדמות אין תנועת '+name,'У аватара нет анимации '+name);
         if(!next) {if(this.activeAction)this.activeAction.stop();this.activeAction=null;return;}
         if (next && (next !== this.activeAction || beat!==this.clipBeat)) {
           this.clipBeat=beat;
@@ -1154,7 +1161,7 @@
               b.classList.toggle('text-white',!selected);
             });
             this.renderTechnique();
-            document.getElementById('motionPause').textContent='Freeze motion';
+            document.getElementById('motionPause').textContent=uiSay('Freeze motion','הקפאת תנועה','Остановить движение');
           });
         });
 
@@ -1209,8 +1216,9 @@
         this.lang = langCode;
         const dict = I18N[langCode];
 
-        document.documentElement.dir = dict.dir;
+        document.documentElement.dir = 'ltr'; // the layout stays left-to-right in every language (owner, 2026-11-23); Hebrew lines read right-to-left inside their own boxes (design-tokens.css)
         document.documentElement.lang = langCode;
+        document.title = 'Glory of the Ring — ' + ({ en: 'Boxing Gym', he: 'אולם אגרוף', ru: 'Боксёрский зал' }[langCode] || 'Boxing Gym');
 
         document.getElementById('appTitle').innerText = dict.title;
         document.getElementById('appSubtitle').innerText = dict.subtitle;
@@ -1265,7 +1273,7 @@
         this.engine.isPlaying=!this.engine.isPlaying;
         this.isActive=false;
         this.updatePlayBtnText();
-        document.getElementById('motionPause').textContent=this.engine.isPlaying?'Freeze motion':'Play motion';
+        document.getElementById('motionPause').textContent=this.engine.isPlaying?uiSay('Freeze motion','הקפאת תנועה','Остановить движение'):uiSay('Play motion','הפעלת תנועה','Запустить движение');
       }
 
       tick() {

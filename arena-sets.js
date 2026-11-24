@@ -18,8 +18,38 @@
   cell(w,h,draw){if(this.x+w>this.w){this.x=0;this.y+=this.row+2;this.row=0;}const x=this.x,y=this.y;this.x+=w+2;this.row=Math.max(this.row,h);if(y+h>this.h)console.warn('Arena atlas overflow');this.jobs.push({x,y,w,h,draw});return [(x+1)/this.w,1-(y+h-1)/this.h,(x+w-1)/this.w,1-(y+1)/this.h];}
   paint(L){const c=this.canvas.getContext('2d');c.clearRect(0,0,this.w,this.h);c.fillStyle='#fff';c.fillRect(0,0,20,20);for(const j of this.jobs){c.save();c.translate(j.x,j.y);c.beginPath();c.rect(0,0,j.w,j.h);c.clip();c.direction='ltr';c.textAlign='center';c.textBaseline='middle';j.draw(c,j.w,j.h,L);c.restore();}this.texture.needsUpdate=true;}
  }
- // Fit one line of text inside a cell.
- function label(c,text,x,y,size,color,maxWidth,weight=800,family='sans-serif'){c.fillStyle=color;c.font=`${weight} ${size}px ${family}`;while(maxWidth&&size>8&&c.measureText(text).width>maxWidth)c.font=`${weight} ${--size}px ${family}`;c.fillText(text,x,y);return size;}
+ // The venues' signs and posters in the player's language (owner rule 2026-11-23); the game name and KO stay Latin (glossary.js).
+ const SIGN_WORDS={
+  'GLORY OF THE RING  •  EST. ROUND ONE':['GLORY OF THE RING  •  מאז הסיבוב הראשון','GLORY OF THE RING  •  С ПЕРВОГО РАУНДА'],
+  'GLORY OF THE RING  •  FIGHT NIGHT':['GLORY OF THE RING  •  ערב קרבות','GLORY OF THE RING  •  ВЕЧЕР БОЁВ'],
+  'GLORY OF THE RING  •  REGIONAL SERIES':['GLORY OF THE RING  •  הסדרה האזורית','GLORY OF THE RING  •  РЕГИОНАЛЬНАЯ СЕРИЯ'],
+  'EXIT':['יציאה','ВЫХОД'],
+  'TONIGHT':['הערב','СЕГОДНЯ'],
+  'FIGHT NIGHT':['ערב קרבות','ВЕЧЕР БОЁВ'],
+  'TRAIN':['להתאמן','ТРЕНИРУЙСЯ'],
+  'HARD':['קשה','УПОРНО'],
+  'STAY':['להישאר','ОСТАВАЙСЯ'],
+  'HUMBLE':['צנועים','СКРОМНЫМ'],
+  'CLUB RULES':['כללי המועדון','ПРАВИЛА КЛУБА'],
+  'CHAMPIONSHIP':['אליפות','ЧЕМПИОНАТ'],
+  'CHAMPIONS':['אלופים','ЧЕМПИОНЫ'],
+  'WINNER':['מנצח','ПОБЕДИТЕЛЬ'],
+  'ROUND':['סיבוב','РАУНД'],
+  'RED':['אדום','КРАСНЫЙ'],
+  'BLUE':['כחול','СИНИЙ'],
+  'RED CORNER':['הפינה האדומה','КРАСНЫЙ УГОЛ'],
+  'BLUE CORNER':['הפינה הכחולה','СИНИЙ УГОЛ'],
+  'NIGHT':['לילה','НОЧЬ'],
+  'RING ST':['רח׳ הזירה','УЛ. РИНГОВАЯ'],
+  'STAYS ON':['נשאר דולק','НЕ ГАСНЕТ'],
+  'BAKERY':['מאפייה','ПЕКАРНЯ'],
+  'CORNER DINER':['הדיינר בפינה','ЗАКУСОЧНАЯ'],
+  'LAUNDRY 24':['מכבסה 24','ПРАЧЕЧНАЯ 24'],
+  'BARBER':['מספרה','ПАРИКМАХЕРСКАЯ'],
+  'B2':['קומה ‎-2','Б2']};
+ const SW=(L,en)=>{const t=SIGN_WORDS[en],l=L&&L.lang;return t&&l==='he'?t[0]:t&&l==='ru'?t[1]:en;};
+ // Fit one line of text inside a cell (Hebrew is drawn right-to-left inside its own line).
+ function label(c,text,x,y,size,color,maxWidth,weight=800,family='sans-serif'){c.direction=/[\u0590-\u05FF]/.test(text)?'rtl':'ltr';c.fillStyle=color;c.font=`${weight} ${size}px ${family}`;while(maxWidth&&size>8&&c.measureText(text).width>maxWidth)c.font=`${weight} ${--size}px ${family}`;c.fillText(text,x,y);return size;}
 
  // ---------------------------------------------------------------- spectators
  // Owner 2026-11-21: "the crowd is just geometric figures". Each spectator is an anthropomorphic animal (lion, rabbit, bear, wolf,
@@ -348,10 +378,10 @@
   k.lights.push({x:H-.5,y:2.3,z:-3.2,c:[.2,1,.45],power:.9,r:1.2},{x:-H+.5,y:2.3,z:3.2,c:[.2,1,.45],power:.9,r:1.2});
   const A=k.atlas,title=A.cell(480,112,(c,w,h,L)=>{c.direction=L.lang==='he'?'rtl':'ltr';c.lineJoin='round';c.strokeStyle='rgba(20,18,16,.9)';c.lineWidth=10;c.font='900 78px sans-serif';let size=78;while(size>20&&c.measureText(L.title).width>w-36)c.font=`900 ${--size}px sans-serif`;c.strokeText(L.title,w/2,h*.46);c.fillStyle='#e9e2d2';c.fillText(L.title,w/2,h*.46);c.fillStyle='#e9e2d2';for(let i=0;i<7;i++)c.fillRect(40+i*61,h*.46+size*.36,5,8+((i*37)%19));});
   const stencil=A.cell(336,56,(c,w,h)=>{label(c,'GLORY OF THE RING',w/2,h/2,40,'#c9a02c',w-16,900);});
-  const exit=A.cell(112,48,(c,w,h)=>{c.fillStyle='#0c3a1f';c.fillRect(0,0,w,h);c.strokeStyle='#7dffae';c.lineWidth=3;c.strokeRect(4,4,w-8,h-8);label(c,'EXIT',w/2,h/2+1,28,'#9bffc0',w-18,900);});
+  const exit=A.cell(112,48,(c,w,h,L)=>{c.fillStyle='#0c3a1f';c.fillRect(0,0,w,h);c.strokeStyle='#7dffae';c.lineWidth=3;c.strokeRect(4,4,w-8,h-8);label(c,SW(L,'EXIT'),w/2,h/2+1,28,'#9bffc0',w-18,900);});
   const chain=A.cell(128,128,(c,w,h)=>{c.strokeStyle='#b9c0c6';c.lineWidth=4.2;c.beginPath();for(let i=-8;i<=16;i++){c.moveTo(i*16,0);c.lineTo(i*16+h,h);c.moveTo(i*16,0);c.lineTo(i*16-h,h);}c.stroke();});
-  const poster=A.cell(128,176,(c,w,h)=>{c.fillStyle='#d9cfb4';c.fillRect(0,0,w,h);c.fillStyle='#7a1f1b';c.fillRect(8,8,w-16,44);label(c,'TONIGHT',w/2,31,26,'#f0e6cc',w-26,900);c.fillStyle='#1c1a18';c.beginPath();c.arc(w/2-22,96,19,0,PI*2);c.arc(w/2+22,96,19,0,PI*2);c.fill();c.fillRect(w/2-39,108,34,20);c.fillRect(w/2+5,108,34,20);label(c,'WINNER',w/2,142,20,'#1c1a18',w-20,900);label(c,'STAYS ON',w/2,162,17,'#7a1f1b',w-20,900);});
-  const level=A.cell(176,96,(c,w,h)=>{label(c,'B2',54,h/2,74,'#d8d2c2',90,900);c.fillStyle='#d8d2c2';c.beginPath();c.moveTo(104,h/2-12);c.lineTo(140,h/2-12);c.lineTo(140,h/2-26);c.lineTo(170,h/2);c.lineTo(140,h/2+26);c.lineTo(140,h/2+12);c.lineTo(104,h/2+12);c.fill();});
+  const poster=A.cell(128,176,(c,w,h,L)=>{c.fillStyle='#d9cfb4';c.fillRect(0,0,w,h);c.fillStyle='#7a1f1b';c.fillRect(8,8,w-16,44);label(c,SW(L,'TONIGHT'),w/2,31,26,'#f0e6cc',w-26,900);c.fillStyle='#1c1a18';c.beginPath();c.arc(w/2-22,96,19,0,PI*2);c.arc(w/2+22,96,19,0,PI*2);c.fill();c.fillRect(w/2-39,108,34,20);c.fillRect(w/2+5,108,34,20);label(c,SW(L,'WINNER'),w/2,142,20,'#1c1a18',w-20,900);label(c,SW(L,'STAYS ON'),w/2,162,17,'#7a1f1b',w-20,900);});
+  const level=A.cell(176,96,(c,w,h,L)=>{label(c,SW(L,'B2'),54,h/2,74,'#d8d2c2',90,900);c.fillStyle='#d8d2c2';c.beginPath();c.moveTo(104,h/2-12);c.lineTo(140,h/2-12);c.lineTo(140,h/2-26);c.lineTo(170,h/2);c.lineTo(140,h/2+26);c.lineTo(140,h/2+12);c.lineTo(104,h/2+12);c.fill();});
   // Shell: floor, low ceiling, inward-facing walls.
   k.quad('shell',26,26,0,G,0,concrete,{rx:-PI/2,sx:26,sy:26});
   k.quad('shell',2*H,2*H,0,C,0,soot,{rx:PI/2,sx:10,sy:10});
@@ -416,11 +446,11 @@
   const shops=[{x:-10.4,w:6.2,h:8.6,wall:'#6f4a3c',sign:'BAKERY',ink:'#ffe9b8',back:'#7a2d22',glow:[1,.78,.46]},{x:-3.6,w:7.2,h:10.4,wall:'#5c6470',sign:'CORNER DINER',ink:'#fff',back:'#b3262c',glow:[1,.62,.52]},{x:3.5,w:6.8,h:7.6,wall:'#7d6a52',sign:'LAUNDRY 24',ink:'#eaffff',back:'#156a78',glow:[.55,.9,1]},{x:10.3,w:6.6,h:9.6,wall:'#4f5a4a',sign:'BARBER',ink:'#fff',back:'#2c3f7a',glow:[.9,.85,1]}];
   for(const s of shops)for(const side of [-1,1])k.lights.push({x:side*s.x,y:1.5,z:-side*(FACE-1.3),c:s.glow,power:1.1,r:2.0,wrap:.5});
   const A=k.atlas;
-  for(const s of shops)s.cell=A.cell(240,44,(c,w,h)=>{c.fillStyle=s.back;c.fillRect(0,0,w,h);c.strokeStyle=s.ink;c.lineWidth=2;c.strokeRect(4,4,w-8,h-8);label(c,s.sign,w/2,h/2+1,27,s.ink,w-28,900);});
+  for(const s of shops)s.cell=A.cell(240,44,(c,w,h,L)=>{c.fillStyle=s.back;c.fillRect(0,0,w,h);c.strokeStyle=s.ink;c.lineWidth=2;c.strokeRect(4,4,w-8,h-8);label(c,SW(L,s.sign),w/2,h/2+1,27,s.ink,w-28,900);});
   const front=A.cell(128,96,(c,w,h)=>{c.fillStyle='#f4e3b6';c.fillRect(0,0,w,h);c.fillStyle='rgba(120,70,30,.55)';for(let i=0;i<4;i++)c.fillRect(8+i*30,h-34-(i%2)*10,22,34+(i%2)*10);c.fillStyle='rgba(255,255,255,.5)';c.fillRect(0,0,w,14);c.fillStyle='#2a2320';c.fillRect(0,0,w,4);c.fillRect(0,h-5,w,5);c.fillRect(0,0,4,h);c.fillRect(w-4,0,4,h);c.fillRect(w/2-2,0,4,h);});
   const windows=A.cell(96,96,(c,w,h)=>{const lit=['#f6d58a','#0e1626','#111a2b','#9fc4e8','#0e1626','#f2b866','#111a2b','#0e1626','#f6d58a'];for(let i=0;i<9;i++){c.fillStyle='#3d3a36';c.fillRect((i%3)*32+3,Math.floor(i/3)*32+3,26,26);c.fillStyle=lit[i];c.fillRect((i%3)*32+6,Math.floor(i/3)*32+6,20,20);c.fillStyle='rgba(0,0,0,.35)';c.fillRect((i%3)*32+15,Math.floor(i/3)*32+6,2,20);}});
   const banner=A.cell(416,84,(c,w,h,L)=>{c.fillStyle='#e9dfc6';c.fillRect(0,0,w,h);c.fillStyle='#b3262c';c.fillRect(0,0,w,9);c.fillRect(0,h-9,w,9);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.40,40,'#1b1d22',w-30,900);label(c,'GLORY OF THE RING',w/2,h*.74,17,'#b3262c',w-40,800);});
-  const plate=A.cell(128,36,(c,w,h)=>{c.fillStyle='#1d4c8f';c.fillRect(0,0,w,h);c.strokeStyle='#fff';c.lineWidth=2;c.strokeRect(3,3,w-6,h-6);label(c,'RING ST',w/2,h/2+1,21,'#fff',w-16,900);});
+  const plate=A.cell(128,36,(c,w,h,L)=>{c.fillStyle='#1d4c8f';c.fillRect(0,0,w,h);c.strokeStyle='#fff';c.lineWidth=2;c.strokeRect(3,3,w-6,h-6);label(c,SW(L,'RING ST'),w/2,h/2+1,21,'#fff',w-16,900);});
   // Road, kerbs, pavements and paint.
   k.quad('shell',44,2*KERB,0,G,0,asphalt,{rx:-PI/2,sx:44,sy:12});
   for(const s of [-1,1]){k.box('shell',44,.16,FACE-KERB+.4,0,G+.08,s*(KERB+(FACE-KERB+.4)/2),paving);k.quad('shell',44,FACE-KERB,0,G+.162,s*(KERB+(FACE-KERB)/2),paving,{rx:-PI/2,sx:44,sy:2});k.box('shell',44,.17,.14,0,G+.085,s*KERB,lin('#b9b5ab'));}
@@ -490,9 +520,9 @@
   const A=k.atlas;
   const laurel=(c,x,y,r,color)=>{c.strokeStyle=color;c.lineWidth=Math.max(2,r*.12);for(const s of [-1,1]){c.beginPath();c.arc(x,y,r,PI/2+s*.25,PI/2+s*2.3,s<0);c.stroke();for(let i=0;i<5;i++){const a=PI/2+s*(.5+i*.42);c.beginPath();c.ellipse(x+Math.cos(a)*r*1.12,y+Math.sin(a)*r*1.12,r*.2,r*.09,a+s*.9,0,PI*2);c.fillStyle=color;c.fill();}}};
   const screen=A.cell(512,224,(c,w,h,L)=>{c.fillStyle='#070b18';c.fillRect(0,0,w,h);c.fillStyle='#a3141b';c.beginPath();c.moveTo(0,0);c.lineTo(w*.34,0);c.lineTo(w*.2,h);c.lineTo(0,h);c.fill();c.fillStyle='#123a9c';c.beginPath();c.moveTo(w,0);c.lineTo(w*.66,0);c.lineTo(w*.8,h);c.lineTo(w,h);c.fill();laurel(c,w/2,h*.36,46,'#f1c75a');label(c,'★',w/2,h*.37,44,'#f1c75a',60,900);label(c,'GLORY OF THE RING',w/2,h*.70,40,'#ffffff',w*.6,900);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.88,25,'#f1c75a',w*.56,800);});
-  const side=(back,word)=>A.cell(96,288,(c,w,h)=>{c.fillStyle=back;c.fillRect(0,0,w,h);c.fillStyle='rgba(255,255,255,.14)';for(let i=0;i<6;i++)c.fillRect(0,i*52+((i*17)%9),w,14);c.save();c.translate(w/2,h/2);c.rotate(-PI/2);label(c,word,0,2,54,'#fff',h-30,900);c.restore();});
+  const side=(back,word)=>A.cell(96,288,(c,w,h,L)=>{c.fillStyle=back;c.fillRect(0,0,w,h);c.fillStyle='rgba(255,255,255,.14)';for(let i=0;i<6;i++)c.fillRect(0,i*52+((i*17)%9),w,14);c.save();c.translate(w/2,h/2);c.rotate(-PI/2);label(c,SW(L,word),0,2,54,'#fff',h-30,900);c.restore();});
   const red=side('#a3141b','RED CORNER'),blue=side('#123a9c','BLUE CORNER');
-  const board=A.cell(256,144,(c,w,h)=>{c.fillStyle='#05070d';c.fillRect(0,0,w,h);c.strokeStyle='#f1c75a';c.lineWidth=4;c.strokeRect(5,5,w-10,h-10);label(c,'CHAMPIONSHIP',w/2,h*.33,30,'#f1c75a',w-30,900);label(c,'NIGHT',w/2,h*.62,42,'#fff',w-30,900);label(c,'GLORY OF THE RING',w/2,h*.86,15,'#9fb6ff',w-30,800);});
+  const board=A.cell(256,144,(c,w,h,L)=>{c.fillStyle='#05070d';c.fillRect(0,0,w,h);c.strokeStyle='#f1c75a';c.lineWidth=4;c.strokeRect(5,5,w-10,h-10);label(c,SW(L,'CHAMPIONSHIP'),w/2,h*.33,30,'#f1c75a',w-30,900);label(c,SW(L,'NIGHT'),w/2,h*.62,42,'#fff',w-30,900);label(c,'GLORY OF THE RING',w/2,h*.86,15,'#9fb6ff',w-30,800);});
   const ribbon=A.cell(512,30,(c,w,h)=>{c.fillStyle='#0a1024';c.fillRect(0,0,w,h);for(let i=0;i<2;i++){label(c,'GLORY OF THE RING',w*(.25+i*.5)-22,h/2+1,19,'#fff',w*.36,900);label(c,'★',w*(.25+i*.5)+104,h/2+1,18,'#f1c75a',30,900);}});
   const crowdA=peopleCell(A,3),crowdB=peopleCell(A,8);
   const press=A.cell(128,40,(c,w,h)=>{c.fillStyle='#e9e9ee';c.fillRect(0,0,w,h);label(c,'GLORY OF THE RING',w/2,h/2+1,13,'#123a9c',w-12,900);});
@@ -557,10 +587,10 @@
   const fixtures=[];for(const z of [-3.2,3.2])for(const x of [-5.4,-1.8,1.8,5.4])fixtures.push([x,z]);
   for(const [x,z] of fixtures)k.lights.push({x,y:C-.6,z,c:[1,.95,.85],power:1.25,r:3.4,aim:[0,-1,0],cone:[-.15,.6]});
   const A=k.atlas,brick=brickCell(A);
-  const sign=A.cell(448,92,(c,w,h,L)=>{c.fillStyle='#22382e';c.fillRect(0,0,w,h);c.strokeStyle='#d8caa4';c.lineWidth=3;c.strokeRect(6,6,w-12,h-12);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.42,44,'#eadfbe',w-40,900);label(c,'GLORY OF THE RING  •  EST. ROUND ONE',w/2,h*.78,15,'#c9a23a',w-40,800);});
-  const fightPoster=A.cell(128,176,(c,w,h)=>{c.fillStyle='#e2d6b8';c.fillRect(0,0,w,h);c.fillStyle='#8f231f';c.fillRect(8,8,w-16,40);label(c,'FIGHT NIGHT',w/2,29,20,'#f4ead0',w-24,900);gloves(c,w/2,92,17,'#8f231f');label(c,'GLORY',w/2,138,24,'#1c1a18',w-20,900);label(c,'OF THE RING',w/2,160,15,'#1c1a18',w-20,900);});
-  const trainPoster=A.cell(128,176,(c,w,h)=>{c.fillStyle='#1f3550';c.fillRect(0,0,w,h);c.strokeStyle='#e0c89c';c.lineWidth=3;c.strokeRect(7,7,w-14,h-14);label(c,'TRAIN',w/2,46,32,'#e0c89c',w-24,900);label(c,'HARD',w/2,82,32,'#e0c89c',w-24,900);c.fillStyle='#c9a23a';c.fillRect(30,104,w-60,4);label(c,'STAY',w/2,128,22,'#fff',w-24,900);label(c,'HUMBLE',w/2,153,22,'#fff',w-24,900);});
-  const rules=A.cell(104,136,(c,w,h)=>{c.fillStyle='#efe9da';c.fillRect(0,0,w,h);label(c,'CLUB RULES',w/2,18,13,'#8f231f',w-12,900);c.fillStyle='#55504a';for(let i=0;i<7;i++){c.fillRect(12,36+i*13,6,6);c.fillRect(24,37+i*13,58-((i*23)%30),4);}});
+  const sign=A.cell(448,92,(c,w,h,L)=>{c.fillStyle='#22382e';c.fillRect(0,0,w,h);c.strokeStyle='#d8caa4';c.lineWidth=3;c.strokeRect(6,6,w-12,h-12);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.42,44,'#eadfbe',w-40,900);label(c,SW(L,'GLORY OF THE RING  •  EST. ROUND ONE'),w/2,h*.78,15,'#c9a23a',w-40,800);});
+  const fightPoster=A.cell(128,176,(c,w,h,L)=>{c.fillStyle='#e2d6b8';c.fillRect(0,0,w,h);c.fillStyle='#8f231f';c.fillRect(8,8,w-16,40);label(c,SW(L,'FIGHT NIGHT'),w/2,29,20,'#f4ead0',w-24,900);gloves(c,w/2,92,17,'#8f231f');label(c,'GLORY',w/2,138,24,'#1c1a18',w-20,900);label(c,'OF THE RING',w/2,160,15,'#1c1a18',w-20,900);});
+  const trainPoster=A.cell(128,176,(c,w,h,L)=>{c.fillStyle='#1f3550';c.fillRect(0,0,w,h);c.strokeStyle='#e0c89c';c.lineWidth=3;c.strokeRect(7,7,w-14,h-14);label(c,SW(L,'TRAIN'),w/2,46,32,'#e0c89c',w-24,900);label(c,SW(L,'HARD'),w/2,82,32,'#e0c89c',w-24,900);c.fillStyle='#c9a23a';c.fillRect(30,104,w-60,4);label(c,SW(L,'STAY'),w/2,128,22,'#fff',w-24,900);label(c,SW(L,'HUMBLE'),w/2,153,22,'#fff',w-24,900);});
+  const rules=A.cell(104,136,(c,w,h,L)=>{c.fillStyle='#efe9da';c.fillRect(0,0,w,h);label(c,SW(L,'CLUB RULES'),w/2,18,13,'#8f231f',w-12,900);c.fillStyle='#55504a';for(let i=0;i<7;i++){c.fillRect(12,36+i*13,6,6);c.fillRect(24,37+i*13,58-((i*23)%30),4);}});
   // Timber floor with seams and rubber mats under the bags.
   k.quad('shell',2*HX,2*HZ,0,G,0,wood,{rx:-PI/2,sx:15,sy:13});
   for(let x=-HX+.6;x<HX;x+=.6)k.quad('shell',.016,2*HZ,x,G+.003,0,lin('#5a422c'),{rx:-PI/2,sy:6});
@@ -618,7 +648,7 @@
   k.lights.push({x:1.5,y:3,z:-HZ-4,c:[.5,.62,1],power:2.2,r:7,wrap:.6},{x:HX+4,y:3,z:0,c:[.5,.62,1],power:2.0,r:7,wrap:.6});
   const A=k.atlas,rib=ribCell(A);
   const number=A.cell(160,176,(c,w,h)=>{label(c,'3',w/2,h*.47,168,'#e9e6dc',w-10,900);});
-  const board=A.cell(448,92,(c,w,h,L)=>{c.fillStyle='#e9dfc6';c.fillRect(0,0,w,h);c.fillStyle='#1c2a3c';c.fillRect(0,0,w,10);c.fillRect(0,h-10,w,10);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.42,42,'#1c2a3c',w-36,900);label(c,'GLORY OF THE RING  •  FIGHT NIGHT',w/2,h*.75,16,'#b8442a',w-40,800);});
+  const board=A.cell(448,92,(c,w,h,L)=>{c.fillStyle='#e9dfc6';c.fillRect(0,0,w,h);c.fillStyle='#1c2a3c';c.fillRect(0,0,w,10);c.fillRect(0,h-10,w,10);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.42,42,'#1c2a3c',w-36,900);label(c,SW(L,'GLORY OF THE RING  •  FIGHT NIGHT'),w/2,h*.75,16,'#b8442a',w-40,800);});
   const code=A.cell(160,40,(c,w,h)=>{label(c,'GOTR 204815',w/2,h*.36,19,'#f1efe8',w-10,900);label(c,'22G1  •  MAX 30T',w/2,h*.76,11,'#f1efe8',w-10,700);});
   const hazard=A.cell(128,24,(c,w,h)=>{c.fillStyle='#e0b81e';c.fillRect(0,0,w,h);c.fillStyle='#17181a';for(let i=-1;i<9;i++){c.beginPath();c.moveTo(i*24,h);c.lineTo(i*24+12,h);c.lineTo(i*24+24,0);c.lineTo(i*24+12,0);c.fill();}});
   // Floor inside and the quay outside, lane paint, hazard square and puddles.
@@ -689,9 +719,9 @@
   const panels=[];for(const x of [-8.5,0,8.5])for(const z of [-5,0,5])panels.push([x,z]);
   for(const [x,z] of panels)k.lights.push({x,y:C-.5,z,c:[1,.99,.96],power:1.2,r:5,aim:[0,-1,0],cone:[-.1,.6]});
   const A=k.atlas,crowdA=peopleCell(A,5),crowdB=peopleCell(A,12);
-  const score=A.cell(256,112,(c,w,h)=>{c.fillStyle='#0c0d0f';c.fillRect(0,0,w,h);label(c,'FIGHT NIGHT',w/2,20,19,'#ffb02e',w-20,900);label(c,'RED',44,50,15,'#ff5a4a',60,900);label(c,'BLUE',w-46,50,15,'#5a9aff',60,900);label(c,'0',44,82,40,'#ffb02e',50,900,'monospace');label(c,'0',w-46,82,40,'#ffb02e',50,900,'monospace');label(c,'ROUND',w/2,52,13,'#ffb02e',70,900);label(c,'1',w/2,82,40,'#ffb02e',50,900,'monospace');});
-  const board=A.cell(448,84,(c,w,h,L)=>{c.fillStyle='#f1efe8';c.fillRect(0,0,w,h);c.fillStyle='#2b4f86';c.fillRect(0,0,w,12);c.fillStyle='#a3262a';c.fillRect(0,h-12,w,12);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.44,38,'#1c2a3c',w-36,900);label(c,'GLORY OF THE RING  •  REGIONAL SERIES',w/2,h*.74,14,'#a3262a',w-40,800);});
-  const pennant=back=>A.cell(72,176,(c,w,h)=>{c.fillStyle=back;c.beginPath();c.moveTo(0,0);c.lineTo(w,0);c.lineTo(w,h-30);c.lineTo(w/2,h);c.lineTo(0,h-30);c.fill();label(c,'★',w/2,26,26,'#f1c75a',w-8,900);c.save();c.translate(w/2,h*.52);c.rotate(-PI/2);label(c,'CHAMPIONS',0,1,24,'#fff',h-80,900);c.restore();});
+  const score=A.cell(256,112,(c,w,h,L)=>{c.fillStyle='#0c0d0f';c.fillRect(0,0,w,h);label(c,SW(L,'FIGHT NIGHT'),w/2,20,19,'#ffb02e',w-20,900);label(c,SW(L,'RED'),44,50,15,'#ff5a4a',60,900);label(c,SW(L,'BLUE'),w-46,50,15,'#5a9aff',60,900);label(c,'0',44,82,40,'#ffb02e',50,900,'monospace');label(c,'0',w-46,82,40,'#ffb02e',50,900,'monospace');label(c,SW(L,'ROUND'),w/2,52,13,'#ffb02e',70,900);label(c,'1',w/2,82,40,'#ffb02e',50,900,'monospace');});
+  const board=A.cell(448,84,(c,w,h,L)=>{c.fillStyle='#f1efe8';c.fillRect(0,0,w,h);c.fillStyle='#2b4f86';c.fillRect(0,0,w,12);c.fillStyle='#a3262a';c.fillRect(0,h-12,w,12);c.direction=L.lang==='he'?'rtl':'ltr';label(c,L.title,w/2,h*.44,38,'#1c2a3c',w-36,900);label(c,SW(L,'GLORY OF THE RING  •  REGIONAL SERIES'),w/2,h*.74,14,'#a3262a',w-40,800);});
+  const pennant=back=>A.cell(72,176,(c,w,h,L)=>{c.fillStyle=back;c.beginPath();c.moveTo(0,0);c.lineTo(w,0);c.lineTo(w,h-30);c.lineTo(w/2,h);c.lineTo(0,h-30);c.fill();label(c,'★',w/2,26,26,'#f1c75a',w-8,900);c.save();c.translate(w/2,h*.52);c.rotate(-PI/2);label(c,SW(L,'CHAMPIONS'),0,1,24,'#fff',h-80,900);c.restore();});
   const penRed=pennant('#a3262a'),penBlue=pennant('#2b4f86');
   // Sports floor with court lines; the ring stands on the centre circle.
   k.quad('shell',2*HX,2*HZ,0,G,0,court,{rx:-PI/2,sx:13,sy:10});
