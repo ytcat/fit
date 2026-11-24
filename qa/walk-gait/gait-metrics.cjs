@@ -31,7 +31,7 @@ const wrap = a => Math.atan2(Math.sin(a), Math.cos(a)), deg = r => r * 180 / Mat
 const half = a => a.length ? (Math.max(...a) - Math.min(...a)) / 2 : NaN, r1 = v => Number.isFinite(v) ? +v.toFixed(1) : v, r2 = v => Number.isFinite(v) ? +v.toFixed(2) : v;
 function gait(all, { from = -Infinity, to = Infinity, ground = () => 0 } = {}) {
   const rows = all.filter(r => r.t >= from - 1e-9 && r.t <= to + 1e-9); if (rows.length < 3) return null;
-  const low = f => { const h = f.heel[1] - ground(f.heel[0], f.heel[2]), b = f.ball[1] - ground(f.ball[0], f.ball[2]); return h < b ? { y: h, p: f.heel } : { y: b, p: f.ball }; };
+  const low = f => { const h = f.heel[1] - (f.gh ?? ground(f.heel[0], f.heel[2])), b = f.ball[1] - (f.gb ?? ground(f.ball[0], f.ball[2])); return h < b ? { y: h, p: f.heel } : { y: b, p: f.ball }; };
   const td = [[], []], slides = []; let slideMax = 0, slideAt = null, air = 0, flight = 0, dropMax = 0; const up = [false, false];
   const travelAt = (i) => { const a = rows[Math.max(0, i - 2)], b = rows[Math.min(rows.length - 1, i + 2)]; const d = Math.hypot(b.x - a.x, b.z - a.z); return d > 1e-3 ? Math.atan2(b.x - a.x, b.z - a.z) : rows[i].fwd; };
   const P = { pelvis: [], shoulder: [], x: [], roll: [], obl: [], flexL: [], flexR: [], elL: [], elR: [], handL: [], handR: [], bob: [], sway: [], lean: [], hy: [], hp: [], tailY: [] };

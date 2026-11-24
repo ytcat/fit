@@ -65,7 +65,7 @@
    * the body lowest at mid-stance. params(v) holds every number; at 1.25 m/s (and when the speed is unknown) it is exactly the
    * GOTR-0097 walk. */
   const G = { hs: .30, flat: .10, heelOff: .34, toe: .75, heel: .065, sole: ANKLE, lift: .085 };
-  const LEG_V = 1.25, RUN_A = 2.6, RUN_B = 3.1, PACE_UP = 4.5, PACE_DOWN = 7;
+  const LEG_V = 1.25, RUN_A = 2.6, RUN_B = 3.1, PACE_UP = 4.5, PACE_DOWN = 5.5;
   /** Stride (m per cycle, two steps) at ground speed v (m/s): the walk's, and the jog's above RUN_A..RUN_B. */
   const strideWalk = v => Math.min(STRIDE * Math.pow(v / LEG_V, .6), STRIDE + .45 * (v - LEG_V)), strideRun = v => STRIDE * Math.pow(v / LEG_V, .6);
   function params(v) {
@@ -221,7 +221,7 @@
       if (!F.swing && gait && !p.planted) { const th = clamp(p.pitch, 0, .5); p.pitch = th; p.y = offA + G.sole * Math.cos(th) + BALL * Math.sin(th); p.off = offA; } // waits on its toes for the other foot to land
       else if (F.swing?.kind !== 'gait') { p.y = p.y - p.off + offA + lift; p.off = offA; if (pitch != null) p.pitch = pitch; }
       else { // a walking swing over a step: from the height it left to the height it lands on, never through the edge it passes
-        const S = F.swing, k = S.kk, land = R.localToWorld(V(p.s * GAIT_X, 0, step(0, p.s, GP).z + (1 - (p.u || 0)) * (1 - GP.D) * GP.S * w)), g0 = S.g0 - R.position.y, g1 = offAt(land); S.down = g1 < g0 - .05; // land: where this step will come down (the body goes on for 1 - u of the swing)
+        const S = F.swing, k = S.kk, land = R.localToWorld(V(p.s * GAIT_X, 0, step(0, p.s, GP).z + (1 - (p.u || 0)) * (1 - GP.D) * GP.S * w)), g0 = S.g0 - R.position.y, g1 = offAt(land); S.down = g1 < g0 - .05; p.down = S.down; // (walk-gait: a foot stepping down still sets the pelvis height) // land: where this step will come down (the body goes on for 1 - u of the swing)
         const edge = gnd ? gnd(loc.x, loc.z - (S.down ? -.01 : G.heel + .04), loc.z + BALL + .03) : 0; // stepping down, the toes go down first
         if (S.down && S.kc == null && edge < g0 - .05) { S.kc = k; S.qt = 0; } // stepping down: it comes down (in 0.2 s) once the toes are past the edge
         if (S.kc != null) S.qt += dt;
@@ -240,7 +240,7 @@
    * the hand target and the elbow pole in rig space for the arm whose shoulder joint is at sh. */
   function armSwing(c, side, sh, P, sw) {
     const s = side === 'L' ? -1 : 1, j = c.joints, r = P.r, qp = P.qp;
-    const th = lerp(-.07 + .01 * qp, -.02, r) + lerp(.28 + .14 * qp, .48, r) * sw, ab = lerp(.15, .2, r) + .03 * Math.max(0, -sw);
+    const th = lerp(-.07 + .01 * qp, -.02, r) + lerp(.25 + .16 * qp, .48, r) * sw, ab = lerp(.15, .2, r) + .03 * Math.max(0, -sw);
     const e = lerp(.24 + .14 * qp, 1.12, r) + lerp(.38 + .26 * qp, .5, r) * (sw + 1) / 2, ir = lerp(.12, .38, r) * (.5 + .5 * Math.max(0, sw));
     const U = V(s * Math.sin(ab), -Math.cos(ab) * Math.cos(th), Math.cos(ab) * Math.sin(th)).normalize();
     const n = V(0, 0, 1).addScaledVector(U, -U.z).normalize(), mid = V(-s, 0, 0).addScaledVector(U, s * U.x).addScaledVector(n, s * n.x).normalize(); // forward of the upper arm, and toward the body
@@ -274,7 +274,7 @@
     else if (dt > 0) { const dd = Math.max(0, d - m.pd); m.ph += (st.plant ? Math.max(dd / P.S, walking && (dd > 1e-6 || m.plant?.L?.swing?.kind === 'gait' || m.plant?.R?.swing?.kind === 'gait') ? dt * CAD_MIN : 0) : dd / P.S) + (walking && dd > 1e-6 ? dt * clamp(Math.abs(m.om || 0) * .3, 0, .9) : 0); } // walk-gait: a turn is taken in quicker, shorter steps (the feet keep up with the body coming round)
     if (st.plant && dt > 0 && walking && m.plant?.L && m.plant?.R) { // walk-gait: a planted foot left too far behind (setting off, speeding up) brings the next step sooner instead of dragging the body down
       R.updateMatrixWorld(true); let far = 0; for (const k of ['L', 'R']) { const F = m.plant[k]; if (!F.swing) far = Math.max(far, -R.worldToLocal(F.A.clone().setY(R.position.y)).z - .5); }
-      if (far > 0) m.ph += dt * clamp(far * 9, 0, 1.4);
+      if (far > 0 && !m.plant.L.swing?.down && !m.plant.R.swing?.down) m.ph += dt * clamp(far * 9, 0, 1.4); // (not while a foot steps down a kerb or a bus step: that step comes down in its own time)
     }
     m.pd = d; const phase = ((m.ph % 1) + 1) % 1;
     const legs = m.legs || (m.legs = { L: {}, R: {} });
@@ -331,10 +331,10 @@
     if (st.plant) { ho = m.ho == null || !(dt > 0) ? ho : m.ho + (ho - m.ho) * (1 - Math.exp(-dt * 12)); m.ho = ho; }
     const y0 = lerp(HIP + .004 * breath * idle, P.Y + P.bob * bob, w) - (m.drop || 0) + ho - .02 * Math.abs(Math.sin(bank));
     let y = y0;
-    for (const p of plans) { if (!p.planted && (p.k ?? (w > .5 ? p.u : 1) ?? 1) < .7) continue; const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .998 : 1.02), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz)) - (start.y - hips.position.y)); } // (walk-gait: from the hip joint itself; the pelvis tilt raises one by up to 1.5 cm) // never past the legs' reach
+    for (const p of plans) { if (!p.planted && !p.down && (p.k ?? (w > .5 ? p.u : 1) ?? 1) < .7) continue; const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .998 : 1.02), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz)) - (start.y - hips.position.y)); } // (walk-gait: from the hip joint itself; the pelvis tilt raises one by up to 1.5 cm) // never past the legs' reach
     y = Math.max(y, y0 - .12); // walk-gait: a foot left out of reach (a sudden start) never drags the body to the ground
     if (st.plant) { const def = y0 - y; m.def = m.def != null && dt > 0 && def < m.def ? m.def + (def - m.def) * (1 - Math.exp(-dt * 10)) : def; y = y0 - m.def; } // plant: what the legs' reach took off comes back smoothly (the gait's own bob is not damped)
-    hips.position.y = y; if (DreamPose.debug) c.gaitDebug = { y0, y, phase, P, plans: plans.map(p => ({ x: p.x, y: p.y, z: p.z, planted: p.planted, u: p.u })), pl: ['L', 'R'].map(k => { const F = m.plant?.[k]; return F && { A: F.A.toArray().map(v => +v.toFixed(3)), k: F.swing?.kk, kind: F.swing?.kind }; }) };
+    hips.position.y = y; if (DreamPose.debug) c.gaitDebug = { om: m.om, bank, y0, y, phase, P, plans: plans.map(p => ({ x: p.x, y: p.y, z: p.z, planted: p.planted, u: p.u })), pl: ['L', 'R'].map(k => { const F = m.plant?.[k]; return F && { A: F.A.toArray().map(v => +v.toFixed(3)), k: F.swing?.kk, kind: F.swing?.kind }; }) };
     // the heavy chest and shoulders ride the pelvis on a soft spring: they settle a little after each heel strike, lift after
     const hv = dt > 0 && m.hy != null ? (y - m.hy) / dt : 0, ha = dt > 0 && m.hv != null ? clamp((hv - m.hv) / dt, -30, 30) : 0; m.hy = y; m.hv = hv;
     const jig = m.jig || (m.jig = { x: 0, v: 0 }); if (dt > 0) spring(jig, 0, dt, 3.4, .32, -ha * w); else { jig.x = 0; jig.v = 0; } const jy = clamp(jig.x, -.012, .012);
@@ -352,7 +352,7 @@
     // shoulder roll: the shoulder of the arm going forward comes forward and a little up, the other one back (the fight rig
     // moves the same joint up to 9.5 cm in a punch); both settle with the chest's spring
     const armSw = s => s * Math.cos((phase - .04) * tau); // +1: this arm fully forward (against its own leg)
-    for (const side of ['L', 'R']) { const s = side === 'L' ? -1 : 1, a = armSw(s) * w, hw = m.hw?.[side] ?? 1; j['arm' + side].position.set(s * .30, .26 + (.006 * a + jy) * hw, lerp(.017, .026, P.r) * a * hw); }
+    for (const side of ['L', 'R']) { const s = side === 'L' ? -1 : 1, a = armSw(s) * w, hw = m.hw?.[side] ?? 1; j['arm' + side].position.set(s * .30, .26 + (.006 * a + jy) * hw, lerp(.014 + .005 * qp, .026, P.r) * a * hw); }
     // the tail (lion): follows the pelvis with a lag and a little overshoot, lifted when he jogs
     if (c.tail && c.tail.children.length) { const tl = m.tail || (m.tail = { x: 0, v: 0 }), tp = m.tailP || (m.tailP = { x: 0, v: 0 }); if (dt > 0) { spring(tl, -yaw * 1.3 - sway * 2.2, dt, 1.6, .38); spring(tp, -hv * .35 + .14 * P.r * w, dt, 2.2, .45); } else { tl.x = -yaw * 1.3; tp.x = 0; tl.v = tp.v = 0; } c.tail.rotation.y = lerp(c.tail.rotation.y, clamp(tl.x, -.35, .35), w); c.tail.rotation.x = clamp(tp.x, -.15, .25) * w; }
     c.root.updateMatrixWorld(true);
