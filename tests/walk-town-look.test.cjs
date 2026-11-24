@@ -105,6 +105,6 @@ const HE = /[֐-׿]/, RU = /[Ѐ-ӿ]/;
   const man = JSON.parse(src('offline-manifest.json')).urls;
   for (const k of ['free-walk-look.js', 'free-walk-sets.js']) assert.ok(man.some(u => u.includes(k)), k + ' offline');
   assert.ok(!man.some(u => /assets\/street\//.test(u)), 'street models stay out of the offline pack');
-  assert.match(src('adventure/free-walk/free-walk.js'), /await window\.FreeWalkTown\.prepare\?\.\(6000, f => say\(f \* \.3\)\)/);
+  assert.match(src('adventure/free-walk/free-walk.js'), /await window\.FreeWalkTown\.prepare\?\.\(4000, f => say\(f \* \.3\)\)/);
 }
 console.log('walk-town-look: ok');

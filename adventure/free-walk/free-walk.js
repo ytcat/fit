@@ -66,7 +66,7 @@
     if (!e?.renderer || !e.coach?.root || !window.FreeWalkTown || !C || e.fightIQDemo) return false;
     if (!profileId()) { game()?.home?.(); return false; }
     game()?.close?.();
-    window.FreeWalkTown?.prepare?.(6000); // walk-town-look: the films' street models load alongside the map script
+    window.FreeWalkTown?.prepare?.(4000); // walk-town-look: the films' street models load alongside the map script
     const R = run = { closed: false, opts, e, time: timeOfDay(), zoom: 1, zoomTarget: 1, yaw: YAW0, keys: new Set(), analog: [0, 0], full: 0, poseT: 0, last: { save: 0, hud: -1, guide: -1 }, perf: { n: 0, sum: 0, max: 0, calls: 0, tris: 0 }, destination: null, story: null, arrived: false };
     R.wasPlaying = e.isPlaying; e.isPlaying = false;
     // ---- overlay (left-to-right in every language; each text line dir="auto")
@@ -165,10 +165,10 @@
       try {
         if (prev) { prev.scene.remove(c.root, R.blob); if (R.ringMesh) prev.scene.remove(R.ringMesh); prev.dispose(); }
         const t0 = performance.now();
-        // walk-town-look: the films' street kit and models (never longer than 6 s), the build, then the GPU warm-up in slices;
+        // walk-town-look: the films' street kit and models (never longer than 4 s from the open: a later open has them cached), the build, then the GPU warm-up in slices;
         // the cover shows how far it got
         const say = f => { notice.textContent = t('loading') + ' ' + Math.round(f * 100) + '%'; };
-        await window.FreeWalkTown.prepare?.(6000, f => say(f * .3));
+        await window.FreeWalkTown.prepare?.(4000, f => say(f * .3));
         if (R.closed) return false;
         say(.3); await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
         const town = window.FreeWalkTown.build({ renderer: e.renderer, time: R.opts.look || grade(R.time), quality: lowTier() ? 'low' : 'high', lang: lang(), defer: true });
