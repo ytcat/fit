@@ -43,7 +43,8 @@ Raw runs: session scratchpad `wg/` (not durable).
 ## Checks
 `node tests/story-walk-gait.test.cjs`, `node tests/walk-gait-speed.test.cjs`, `node tests/story-arm-clearance.test.cjs`
 pass; targeted run `bash scripts/run-tests.sh -j 1 story-walk-gait walk-gait-speed free-walk dream-scenes story-scenes
-story-mirror story-arm-clearance offline-version-match`: see the report / commit message.
+story-mirror story-arm-clearance offline-version-match` -> files=8 fails=0 (150 s). Full suite not run.
+Film metrics (browser, `qa/ch1-motion/measure.cjs`): see GOTR-0120.
 
 ## Next
 Owner review of the strips and clips; phone check; merge into the next release candidate (integrator).
