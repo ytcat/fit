@@ -121,7 +121,7 @@
     root.append(txt, bar, quit); (window.app?.engine?.stage||document.body).append(root); r.ui = { root, txt, fillBar };
   }
   // The coach's call (call-core.js): the moves as big chips in order, done ones filled, a bar for the time left; ✓ / ✕ after each call.
-  const CALL_WORD = { straight: 'Straight', hook: 'Hook', uppercut: 'Uppercut', slip: 'Slip', duck: L('Duck', 'התכופפות', 'Нырок') };
+  const CALL_WORD = { straight: L('Straight', 'ישרה', 'Прямой'), hook: 'Hook', uppercut: 'Uppercut', slip: 'Slip', duck: L('Duck', 'התכופפות', 'Нырок') };
   function paintCalls() {
     const r = run, host = window.app?.engine?.stage; let box = document.getElementById('advCalls');
     if (!r?.caller || r.ended || !host) { box?.remove(); document.body.classList.remove('adv-calling'); return; }
@@ -684,7 +684,7 @@
       const can = s.status !== 'locked' || (devMode() && s.id !== 'clean_gym' && !A_.blockedByGymShift(g,s.id)), row = mk('li', `sf-step sf-${s.status}${s.side ? ' sf-side' : ''}`), b = can ? btn('', () => before(ctx, s.id, { force: s.status === 'locked' }), 'sf-step-b') : mk('div', 'sf-step-b');
       if (!can) b.setAttribute('aria-disabled', 'true');
       const markTxt = s.status === 'done' ? '✓' : s.status === 'locked' ? '🔒' : s.side || s.status === 'optional' ? '✦' : String(s.n);
-      const state = s.status === 'done' ? (s.boss ? W0.won : s.event ? w.done : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? (lang() === 'he' ? '◀' : '▶') : s.status === 'optional' ? T(L('Optional','לא חובה','По желанию')) : w.side;
+      const state = s.status === 'done' ? (s.boss ? W0.won : s.event ? w.done : starsText(s.stars)) : s.status === 'locked' ? w.locked : s.status === 'current' ? '▶' : s.status === 'optional' ? T(L('Optional','לא חובה','По желанию')) : w.side;
       b.append(mk('span', 'sf-mark', markTxt), mk('span', 'sf-name', `${s.side ? w.side + ' · ' : s.n + '. '}${T(s.title)}`), mk('span', 'sf-state', state));
       if (can) b.setAttribute('aria-label', `${s.side ? w.side : s.n}. ${T(s.title)} · ${state}`);
       row.append(b); list.append(row);

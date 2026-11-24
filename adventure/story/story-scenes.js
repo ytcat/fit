@@ -24,8 +24,8 @@
   const term = (x, l) => window.GotrGlossary ? window.GotrGlossary.term(x, l) : x;
   const W = {
     en: { skip: 'Tap to skip', quit: 'Quit', again: 'Try again', next: 'Continue', none: 'No medal yet', medal: ['', 'Bronze', 'Silver', 'Gold'], score: 'Score', best: 'Best', newBest: 'New best!', streak: 'Best streak', hardGo: 'Hard mode', hardTag: 'Hard', hardNew: 'Hard mode unlocked', retry: 'Restart', ready: 'Get ready', why: { early: 'Too early', late: 'Too late', wrong: 'Wrong punch', bagged: 'Bagged!' }, punch: { straight: 'Straight', hook: 'Hook', uppercut: 'Uppercut' }, saveErr: 'Could not save the result: ', dir: { up: 'Up', down: 'Down', left: 'Left', right: 'Right' } },
-    he: { skip: 'הקישו כדי לדלג', quit: 'יציאה', again: 'עוד פעם', next: 'המשך', none: 'עדיין בלי מדליה', medal: ['', 'ארד', 'כסף', 'זהב'], score: 'ניקוד', best: 'שיא', newBest: 'שיא חדש!', streak: 'הרצף הטוב', hardGo: 'מצב קשה', hardTag: 'קשה', hardNew: 'מצב קשה נפתח', retry: 'מחדש', ready: 'היכונו', why: { early: 'מוקדם מדי', late: 'מאוחר מדי', wrong: 'מכה לא נכונה', bagged: 'השק פגע!' }, punch: { straight: 'ישרה', hook: 'הוק', uppercut: 'אפרקאט' }, saveErr: 'לא ניתן לשמור את התוצאה: ', dir: { up: 'למעלה', down: 'למטה', left: 'שמאלה', right: 'ימינה' } },
-    ru: { skip: 'Нажмите, чтобы пропустить', quit: 'Выйти', again: 'Ещё раз', next: 'Дальше', none: 'Пока без медали', medal: ['', 'Бронза', 'Серебро', 'Золото'], score: 'Очки', best: 'Рекорд', newBest: 'Новый рекорд!', streak: 'Лучшая серия', hardGo: 'Сложный режим', hardTag: 'Сложно', hardNew: 'Открыт сложный режим', retry: 'Заново', ready: 'Приготовьтесь', why: { early: 'Рано', late: 'Поздно', wrong: 'Не тот удар', bagged: 'Мешок попал!' }, punch: { straight: 'Прямой', hook: 'Хук', uppercut: 'Апперкот' }, saveErr: 'Не удалось сохранить результат: ', dir: { up: 'Вверх', down: 'Вниз', left: 'Влево', right: 'Вправо' } }
+    he: { skip: 'הקישו כדי לדלג', quit: 'יציאה', again: 'עוד פעם', next: 'המשך', none: 'עדיין בלי מדליה', medal: ['', 'ארד', 'כסף', 'זהב'], score: 'ניקוד', best: 'שיא', newBest: 'שיא חדש!', streak: 'הרצף הטוב', hardGo: 'מצב קשה', hardTag: 'קשה', hardNew: 'מצב קשה נפתח', retry: 'מחדש', ready: 'היכונו', why: { early: 'מוקדם מדי', late: 'מאוחר מדי', wrong: 'מכה לא נכונה', bagged: 'השק פגע!' }, punch: { straight: 'ישרה', hook: '\u2068Hook\u2069', uppercut: '\u2068Uppercut\u2069' }, saveErr: 'לא ניתן לשמור את התוצאה: ', dir: { up: 'למעלה', down: 'למטה', left: 'שמאלה', right: 'ימינה' } },
+    ru: { skip: 'Нажмите, чтобы пропустить', quit: 'Выйти', again: 'Ещё раз', next: 'Дальше', none: 'Пока без медали', medal: ['', 'Бронза', 'Серебро', 'Золото'], score: 'Очки', best: 'Рекорд', newBest: 'Новый рекорд!', streak: 'Лучшая серия', hardGo: 'Сложный режим', hardTag: 'Сложно', hardNew: 'Открыт сложный режим', retry: 'Заново', ready: 'Приготовьтесь', why: { early: 'Рано', late: 'Поздно', wrong: 'Не тот удар', bagged: 'Мешок попал!' }, punch: { straight: 'Прямой', hook: 'Hook', uppercut: 'Uppercut' }, saveErr: 'Не удалось сохранить результат: ', dir: { up: 'Вверх', down: 'Вниз', left: 'Влево', right: 'Вправо' } }
   };
   const lang = () => W[window.app?.lang] ? window.app.lang : 'en', w = () => W[lang()];
   const reducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -111,7 +111,7 @@
 
   /* ---------------------------------------------------------------- overlay and speech lines */
   function overlay(kind) {
-    const d = el('dialog', 'story-scene'); d.dir = lang() === 'he' ? 'rtl' : 'ltr'; d.dataset.kind = kind;
+    const d = el('dialog', 'story-scene'); d.dir = 'ltr'; d.dataset.kind = kind;
     const vignette = el('div', 'story-vignette'), host = el('div', 'story-host'), lineBox = el('div', 'story-line'), hint = el('div', 'story-hint', kind === 'game' ? '' : w().skip), busy = el('div', 'story-busy', '…');
     lineBox.setAttribute('role', 'status'); lineBox.setAttribute('aria-live', 'polite');
     d.append(host, vignette); if (kind === 'scene') d.append(el('div', 'story-bar story-bar-top'), el('div', 'story-bar story-bar-bottom'));
@@ -607,7 +607,7 @@
     /** One spoken line inside the tutorial or the result (portrait, name, words): never a box over the scene. */
     function said(l) {
       const p = el('p', 'story-say'); p.dataset.who = l.who; const bust = window.AdventureStory?.bust?.(l.who); if (bust) { bust.classList.add('story-face'); p.append(bust); }
-      const name = (window.AdventureStory?.who?.[l.who]?.name || {})[L] || ''; p.append(el('strong', 'story-name', name), el('span', 'story-text', l.text[L] || l.text.en)); p.dir = 'auto';
+      const name = (window.AdventureStory?.who?.[l.who]?.name || {})[L] || ''; p.append(el('strong', 'story-name', name), el('span', 'story-text', l.text[L] || l.text.en));
       try { if (l.kind) window.AdventureStory?.mark?.(l.id || id, l.kind, 0); } catch { /* journal is optional */ }
       return p;
     }

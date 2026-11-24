@@ -94,7 +94,7 @@ body #fightResults{flex-wrap:wrap;row-gap:3px}
    (b) The last-seconds countdown sits centred in the top band under the round bar. It was cut at the left edge: left:auto
        (career-interface.css) + right:auto (above) + translateX(-50%) (game-shell.css) put half of it outside the stage. */
 /* Centred in the free part of the band: the edge tools (Auto, settings, modes; ~160 px) sit at the inline-end side. */
-#stageContainer{--hud-band-mid:calc(50% - 80px)}[dir=rtl] #stageContainer,#stageContainer[dir=rtl]{--hud-band-mid:calc(50% + 80px)}
+#stageContainer{--hud-band-mid:calc(50% - 80px)}
 #stageContainer .bout-announcement[data-kind=countdown]{top:calc(var(--hud-status-top) + 26px)!important;left:var(--hud-band-mid)!important;max-width:calc(100% - 184px)!important;right:auto!important;transform:translateX(-50%)!important;width:max-content;max-width:calc(100% - 16px);display:flex;align-items:baseline;justify-content:center;gap:7px;padding:0!important;white-space:nowrap;animation:none}
 #stageContainer .bout-announcement[data-kind=countdown] strong{display:inline;font-size:22px!important;line-height:1;color:var(--gr-warning,#f4c152)}
 #stageContainer .bout-announcement[data-kind=countdown] span{display:inline;margin:0!important;font-size:10px!important}

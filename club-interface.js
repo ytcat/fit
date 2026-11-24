@@ -14,7 +14,7 @@
   const app=window.app;if(!app||!window.trainingControls)return;const e=app.engine,w=()=>copy[app.lang]||copy.en;
   const byId=id=>document.getElementById(id),body=document.body,header=document.querySelector('header'),stage=byId('stageContainer'),footer=document.querySelector('footer');
   body.classList.add('club-app');header.classList.add('club-header');
-  const brand=header.firstElementChild;brand.classList.add('club-brand');if(window.APP_VERSION){const sub=byId('appSubtitle');sub.dataset.version='v'+APP_VERSION.number;sub.title='Version '+APP_VERSION.number+' · '+APP_VERSION.date;}const mark=el('span','club-mark');mark.innerHTML='<img src="./assets/brand/logo-gloves.svg?v=2026111101" alt="" width="44" height="44" decoding="async">';brand.prepend(mark);
+  const brand=header.firstElementChild;brand.classList.add('club-brand');if(window.APP_VERSION){const sub=byId('appSubtitle');sub.dataset.version='v'+APP_VERSION.number;sub.title=({he:'גרסה ',ru:'Версия '}[app.lang]||'Version ')+APP_VERSION.number+' · '+APP_VERSION.date;}const mark=el('span','club-mark');mark.innerHTML='<img src="./assets/brand/logo-square.svg?v=2026112304" alt="Glory of the Ring" width="44" height="44" decoding="async">';if(window.APP_VERSION){const ver=el('span','club-ver');ver.textContent='v'+APP_VERSION.number;mark.append(ver);}brand.prepend(mark);brand.classList.add('club-brand-square');// owner 2026-11-23: the logo and name are one square picture that never wraps
   const nav=el('nav','club-navigation');nav.setAttribute('aria-label','Main');const gymNav=el('button'),fightNav=el('button');gymNav.type=fightNav.type='button';nav.append(gymNav,fightNav);header.append(nav);
   const headTools=el('div','club-head-tools');headTools.append(byId('stageSound'),byId('openPracticeControls'));header.append(headTools);
   const workspace=el('div','club-workspace'),sidebar=el('aside','club-sidebar'),studio=el('div','club-studio');workspace.append(sidebar,studio);header.after(workspace);
@@ -50,11 +50,11 @@
   for(const id of ['camFront','camSide','camBack'])byId(id).addEventListener('click',()=>selectedCamera(id));
   const returnToGym=()=>{window.trainingControls.chooseTarget(lastPractice);paint();};gymNav.onclick=returnToGym;returnButton.onclick=returnToGym;
   fightNav.onclick=()=>{if(e.targetMode!=='fight')lastPractice=e.targetMode||'none';window.fightUI.configure();};
-  const setLanguage=app.setLanguage.bind(app);app.setLanguage=lang=>{setLanguage(lang);paint();};
+  const setLanguage=app.setLanguage.bind(app);app.setLanguage=lang=>{setLanguage(lang);e.world?.relabel?.(lang);window.GymDetails?.relabel?.(lang);window.GotrGlossary?.relabel?.(lang);paint();};
   const previousReady=e.onImpact;e.onImpact=hit=>{previousReady?.(hit);stage.classList.toggle('club-contact',!hit.blocked);clearTimeout(contactTimer);contactTimer=setTimeout(()=>stage.classList.remove('club-contact'),110);};let contactTimer;
   let previousMode,previousState;
   function paint(){
-   const t=w(),mode=e.targetMode||'none',fight=mode==='fight',species=e.coach?.species||CoachRoster.preferred();
+   const t=w(),mode=e.targetMode||'none',fight=mode==='fight',species=e.coach?.species||CoachRoster.preferred();if(window.APP_VERSION)byId('appSubtitle').title=({he:'גרסה ',ru:'Версия '}[app.lang]||'Version ')+APP_VERSION.number+' · '+APP_VERSION.date;
    if(previousMode!==undefined&&previousMode!==mode)selectedCamera(mode==='none'&&!e.viewControls?.yaw?'camFront':'');
    if(!fight)lastPractice=mode;
    body.dataset.scene=fight?'arena':'gym';body.dataset.training=mode;body.dataset.character=species;
@@ -67,9 +67,9 @@
    for(const [key,v] of Object.entries(equipmentButtons)){v.name.textContent=key==='rabbit'?t.partner:t[key];v.button.setAttribute('aria-pressed',String(key===mode));v.button.disabled=!e.arena;}
    locationEyebrow.textContent=fight?t.fight:t.gym;locationTitle.textContent=fight?t.arenaName:t.gymName;
    status.textContent=!e.coach?t.loading:e.isPlaying?t.live:t.paused;status.dataset.playing=String(!!e.coach&&e.isPlaying);status.setAttribute('aria-label',status.textContent);
-   railLabel.textContent=t.skills;viewLabel.textContent=t.view;stance.textContent=fight?'LION  /  RABBIT':t.stance;keyboard.textContent=t.space;keyboard.title=t.keyHelp;
+   railLabel.textContent=t.skills;viewLabel.textContent=t.view;stance.textContent=fight?({he:'אריה  /  ארנב',ru:'ЛЕВ  /  КРОЛИК'}[app.lang]||'LION  /  RABBIT'):t.stance;keyboard.textContent=t.space;keyboard.title=t.keyHelp;
    byId('camFront').textContent=t.front;byId('camSide').textContent=t.side;byId('camBack').textContent=t.back;
-   const z=({en:['Zoom out','Zoom in','Fit view','Fit'],he:['הרחקה','קירוב','התאמת תצוגה','התאם'],ru:['Отдалить','Приблизить','Вписать вид','Вписать']})[app.lang]||['Zoom out','Zoom in','Fit view','Fit'];for(const [i,b] of [zoomOut,zoomIn,zoomFit].entries()){b.title=z[i];b.setAttribute('aria-label',z[i]);}zoomFit.textContent=z[3];
+   const z=({en:['Zoom out','Zoom in','Fit view','Fit'],he:['הרחקה','קירוב','התאמת תצוגה','התאם'],ru:['Отдалить','Приблизить','Вписать вид','Вписать']})[app.lang]||['Zoom out','Zoom in','Fit view','Fit'];for(const [i,b] of [zoomOut,zoomIn,zoomFit].entries()){b.title=z[i];b.setAttribute('aria-label',z[i]);}zoomFit.textContent=z[3];fightMark.textContent=({he:'אריה  /  ארנב',ru:'Л  /  К'}[app.lang]||'L  /  R');nav.setAttribute('aria-label',({he:'ניווט ראשי',ru:'Главное меню'}[app.lang]||'Main'));
    byId('playBtn').setAttribute('aria-pressed',String(e.isPlaying));byId('playBtn').dataset.playing=String(e.isPlaying);byId('motionPause').textContent=e.isPlaying?t.freeze:t.play;
    byId('defaultCoach').textContent=t.lion;returnButton.textContent=t.return;fightInfoText.textContent=e.player?.enabled?({en:'You control your fighter. The opponent attacks and defends on its own.',he:'אתם שולטים במתאגרף. היריב תוקף ומתגונן בעצמו.',ru:'Вы управляете бойцом. Соперник атакует и защищается сам.'}[app.lang]):t.fightNote;fightInfo.hidden=!fight;
    loading.hidden=!!e.coach||!!byId('renderingNotice');loading.querySelector('p').textContent=e.loadError?({en:'The boxer could not load. Reload to try again.',he:'טעינת המתאגרף נכשלה. טענו מחדש כדי לנסות שוב.',ru:'Боксёр не загрузился. Обновите страницу.'}[app.lang]):t.loading;

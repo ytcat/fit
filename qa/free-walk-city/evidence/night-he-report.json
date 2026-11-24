@@ -1,0 +1,96 @@
+{
+ "lang": "he",
+ "report": {
+  "oldtown": {
+   "ok": true,
+   "stickMoved": 1.71,
+   "start": {
+    "x": 140.51,
+    "z": -113.39,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": 140.09,
+    "z": -116.07,
+    "ry": 1.811,
+    "walking": false
+   },
+   "moved": 2.7,
+   "zone": "העיר העתיקה",
+   "district": "oldtown",
+   "cars": 12,
+   "walkers": 10,
+   "perf": {
+    "frames": 54,
+    "meanMs": 384.9,
+    "maxMs": 983.2,
+    "calls": 90,
+    "triangles": 545193,
+    "cpuMs": 5,
+    "buildMs": 1612
+   }
+  },
+  "neon": {
+   "ok": true,
+   "stickMoved": 2.16,
+   "start": {
+    "x": 208.5,
+    "z": 16.5,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": 207.85,
+    "z": 12.44,
+    "ry": 1.811,
+    "walking": false
+   },
+   "moved": 4.1,
+   "zone": "רצועת הניאון",
+   "district": "neon",
+   "cars": 12,
+   "walkers": 10,
+   "perf": {
+    "frames": 55,
+    "meanMs": 325.8,
+    "maxMs": 949.9,
+    "calls": 95,
+    "triangles": 545887,
+    "cpuMs": 7.3,
+    "buildMs": 1693
+   }
+  },
+  "fair": {
+   "ok": true,
+   "stickMoved": 1.61,
+   "start": {
+    "x": 285.75,
+    "z": -45.25,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": 285.44,
+    "z": -47.85,
+    "ry": 1.764,
+    "walking": false
+   },
+   "moved": 2.6,
+   "zone": "יריד חצות",
+   "district": "fair",
+   "cars": 12,
+   "walkers": 0,
+   "perf": {
+    "frames": 46,
+    "meanMs": 403.2,
+    "maxMs": 766.7,
+    "calls": 91,
+    "triangles": 556953,
+    "cpuMs": 2.2,
+    "buildMs": 1423
+   }
+  }
+ },
+ "errors": []
+}

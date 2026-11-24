@@ -21,7 +21,10 @@
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
   const seam=mesh(parent,g,material(color));seam.name='Fine stitched seams';return seam;
  }
+ const relabels=[];
  const api={
+  /** Repaints the printed words in another language (club-interface.js on app.setLanguage). */
+  relabel(lang){for(const r of relabels)r(lang);},
   ring(root){
    const fabric=surface('canvas');fabric.repeat.set(18,18);
    const ropes=new Map();
@@ -37,8 +40,12 @@
     mesh(root,new THREE.BoxGeometry(.016,.001,2.96),tape,V(side*1.48,.002,0));mesh(root,new THREE.BoxGeometry(2.96,.001,.016),tape,V(0,.002,side*1.48));
     for(let i=0;i<62;i++){const a=-1.42+i*.046;points.push(V(side*1.46,.003,a),V(a,.003,side*1.46));}
    }stitches(root,points,0x6c7e8a);
-   const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d');x.clearRect(0,0,1024,512);x.textAlign='center';x.fillStyle='rgba(205,220,231,.18)';x.font='900 112px sans-serif';x.fillText('GLORY OF THE RING',512,245,920);x.font='600 30px sans-serif';x.fillText('TRAIN  •  MOVE  •  BOX',512,305);
-   const print=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false,opacity:.8});const label=mesh(root,new THREE.PlaneGeometry(1.9,.95),print,V(0,.004,0));label.rotation.x=-Math.PI/2;label.castShadow=false;label.name='Printed canvas mark';
+   // The canvas print under the ring in the player's language (owner rule 2026-11-23); the game name stays Latin.
+   const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d'),motto={en:'TRAIN  •  MOVE  •  BOX',he:'להתאמן  •  לזוז  •  להתאגרף',ru:'ТРЕНИРУЙСЯ  •  ДВИГАЙСЯ  •  БОКСИРУЙ'};
+   const paint=lang=>{x.clearRect(0,0,1024,512);x.textAlign='center';x.direction=lang==='he'?'rtl':'ltr';x.fillStyle='rgba(205,220,231,.18)';x.font='900 112px sans-serif';x.fillText('GLORY OF THE RING',512,245,920);x.font='600 30px sans-serif';x.fillText(motto[lang]||motto.en,512,305,920);};
+   let shown=window.app?.lang||'en';paint(shown);const tex=new THREE.CanvasTexture(c);
+   relabels.push(lang=>{if(lang===shown)return;shown=lang;paint(lang);tex.needsUpdate=true;});
+   const print=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,opacity:.8});const label=mesh(root,new THREE.PlaneGeometry(1.9,.95),print,V(0,.004,0));label.rotation.x=-Math.PI/2;label.castShadow=false;label.name='Printed canvas mark';
   },
   heavy(root){
    const swing=root.userData.swing,points=[];

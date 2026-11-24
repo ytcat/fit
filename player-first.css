@@ -20,7 +20,7 @@
 @media (max-height:520px){
  .career-welcome .career-dialog-intro{display:none}
  .career-welcome .career-fighter-picker{margin-top:4px}
- .career-fighter{grid-template-columns:auto 1fr;justify-items:start;align-items:center;column-gap:10px;row-gap:0;padding:6px 10px;text-align:start}
+ .career-fighter{grid-template-columns:auto 1fr;justify-items:start;align-items:center;column-gap:10px;row-gap:0;padding:6px 10px;text-align:left}
  .career-fighter img{grid-row:span 2;max-width:56px}
  .career-welcome .career-create{margin:8px 0 2px;gap:8px}
 }

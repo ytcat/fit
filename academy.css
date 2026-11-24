@@ -78,7 +78,6 @@
 .academy-hud[data-phase=watch] .academy-box[data-state=done]{opacity:.7}
 /* Tempo: the bar under the next box drains over the allowed pause. */
 .academy-box[data-timed=true]::after{content:"";position:absolute;left:4px;right:4px;bottom:2px;height:3px;border-radius:2px;background:var(--gr-warning,#f5a524);transform-origin:left;transform:scaleX(var(--academy-left,1));transition:transform .09s linear}
-[dir=rtl] .academy-box[data-timed=true]::after{transform-origin:right}
 .academy-row[data-flash=miss]{animation:academy-shake .4s}
 .academy-row[data-flash=miss] .academy-box{border-color:var(--gr-danger,#ff5d5d);background:#ff5d5d4d;background:color-mix(in srgb,var(--gr-danger,#ff5d5d) 30%,transparent);color:var(--gr-text,#f3f6fb);box-shadow:none}
 .academy-bar{display:flex;align-items:center;gap:6px;min-width:0;min-height:var(--gr-control-h-s,36px)}

@@ -1,0 +1,136 @@
+{
+ "total": 20,
+ "byRule": {
+  "en-data": 5,
+  "canvas-text": 4,
+  "en-sink": 7,
+  "html-text": 4
+ },
+ "allowed": 0,
+ "findings": [
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2130,
+   "rule": "en-data",
+   "text": "sub: Home Gym · morning"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2132,
+   "rule": "en-data",
+   "text": "sub: Street fights · evening"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2134,
+   "rule": "en-data",
+   "text": "sub: The Basement · Dockside Hangar"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2136,
+   "rule": "en-data",
+   "text": "sub: Boxing Club · City Sports Hall"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2142,
+   "rule": "en-data",
+   "text": "sub: Championship Arena · stadium lights"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 574,
+   "rule": "canvas-text",
+   "text": "label: GLORY"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 574,
+   "rule": "canvas-text",
+   "text": "label: OF THE RING"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 630,
+   "rule": "canvas-text",
+   "text": "label: GOTR 204815"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 630,
+   "rule": "canvas-text",
+   "text": "label: 22G1 • MAX 30T"
+  },
+  {
+   "file": "career-interface.js",
+   "line": 30,
+   "rule": "en-sink",
+   "text": "Player"
+  },
+  {
+   "file": "career-interface.js",
+   "line": 32,
+   "rule": "en-sink",
+   "text": "aria-label: Progress to next rank"
+  },
+  {
+   "file": "club-interface.js",
+   "line": 18,
+   "rule": "en-sink",
+   "text": "aria-label: Main"
+  },
+  {
+   "file": "club-interface.js",
+   "line": 37,
+   "rule": "en-sink",
+   "text": "L / R"
+  },
+  {
+   "file": "club-interface.js",
+   "line": 43,
+   "rule": "en-sink",
+   "text": "Fit"
+  },
+  {
+   "file": "index.html",
+   "line": 187,
+   "rule": "html-text",
+   "text": "EN",
+   "id": "langEN"
+  },
+  {
+   "file": "index.html",
+   "line": 188,
+   "rule": "html-text",
+   "text": "עב",
+   "id": "langHE"
+  },
+  {
+   "file": "index.html",
+   "line": 189,
+   "rule": "html-text",
+   "text": "РУ",
+   "id": "langRU"
+  },
+  {
+   "file": "index.html",
+   "line": 281,
+   "rule": "html-text",
+   "text": "Pause",
+   "id": "playBtn"
+  },
+  {
+   "file": "practice-layout.js",
+   "line": 9,
+   "rule": "en-sink",
+   "text": "aria-label: Close controls"
+  },
+  {
+   "file": "practice-layout.js",
+   "line": 12,
+   "rule": "en-sink",
+   "text": "aria-label: Boxing techniques"
+  }
+ ]
+}

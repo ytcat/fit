@@ -35,7 +35,7 @@ const server=http.createServer((req,res)=>{
       await page.evaluate(()=>document.getElementById('motionPause').click());
       const before=await page.evaluate(()=>app.engine.animTime);await page.waitForTimeout(100);
       assert.equal(await page.evaluate(()=>app.engine.animTime),before,'motion freeze');
-      await page.evaluate(()=>document.getElementById('langHE').click());assert.equal(await page.locator('html').getAttribute('dir'),'rtl');
+      await page.evaluate(()=>document.getElementById('langHE').click());assert.equal(await page.locator('html').getAttribute('dir'),'ltr');
       await page.evaluate(()=>{document.getElementById('langRU').click();document.getElementById('langEN').click()});
       for(const mode of ['heavy','dummy','rabbit','fight']){
         const result=await page.evaluate(mode=>{

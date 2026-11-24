@@ -26,3 +26,9 @@ Before every publish to `main` (the live site https://ytcat.github.io/fit/):
 ## Mandatory continuous user feedback intake (Glory of the Ring)
 
 At the START of every new task/session, open and review [`docs/glory-of-the-ring/FEEDBACK_BACKLOG.md`](docs/glory-of-the-ring/FEEDBACK_BACKLOG.md) before planning or changing code. It is the single source of truth for user-submitted fixes, corrections and feature requests. Check its OPEN, TRIAGE, IN PROGRESS and BLOCKED entries against the current code and the user's current priority. Codex must re-read the latest version before work and update statuses with actual commits/QA evidence when done. Preserve the full backlog and coordinate with other agents; avoid overwrite races or duplicate work. A user report is a request to investigate, not proof of root cause. Consult [Glory of the Ring PRD entry](GLORY_OF_THE_RING_START_HERE.md) for product requirements. Do not claim Codex reads updates automatically outside a launched session.
+
+## Languages (owner rule, 2026-11-23)
+
+Nothing in the game is specific to one language. Every player-visible text exists in all supported languages (EN/HE/RU) and follows the player's language setting in every mode, page and film. An example given in one language is only an example: implement it in all languages. Never ship single-language UI.
+
+Layout direction is always left-to-right, in every language (owner, 2026-11-23: "Hebrew will not change sides anywhere. Left to right will be kept"). Do not mirror layouts, panels, controls or the pad for Hebrew and never set `dir="rtl"` on containers; Hebrew text still reads naturally inside its own line (use `dir="auto"` or bidi isolation on individual text elements only where punctuation would otherwise jump).
