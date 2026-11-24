@@ -328,6 +328,14 @@
     const RIG = () => window.app?.engine?.coach?.root || null, WARM_LAYER = 31;
     const gl = renderer.getContext?.(), fences = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
     const drawable = o => (o.isMesh || o.isPoints || o.isLine || o.isSprite) && o.material;
+    function compileAll() { // every program at once (the renderer's own compile: cheaper than compiling them draw by draw)
+      const rig = RIG(), home = rig?.parent || null, saved = [];
+      if (rig && home !== scene) scene.add(rig);
+      scene.traverse(o => { if (o.isLight || o === scene) return; saved.push([o, o.visible]); o.visible = true; });
+      const cam = new T.PerspectiveCamera(60, 1, .1, 3000); cam.position.set(0, 400, 1); cam.lookAt(0, 0, 0); cam.updateMatrixWorld();
+      try { renderer.compile(scene, cam); } catch (x) { console.warn('walk warm-up', x); }
+      finally { for (const [o, v] of saved) o.visible = v; if (rig && home !== scene) { if (home) home.add(rig); else scene.remove(rig); } }
+    }
     function slice(list, shadow) { // draws list (or everything) once into a one-pixel viewport, then puts every object back
       const rig = RIG(), home = rig?.parent || null, saved = [];
       if (rig && home !== scene) scene.add(rig);
@@ -371,17 +379,18 @@
       const t0 = performance.now(), say = f => { try { progress(Math.max(0, Math.min(1, f))); } catch { /* the cover is gone */ } };
       warming = (async () => {
         if (!fences) { ms.warm = warm(); say(1); return true; }
-        // the programs a handful of objects at a time without the shadow pass (each slice has a fixed cost: few, large
-        // slices), then everything once with the shadow pass (its depth programs, every vertex buffer and texture)
-        const reps = representatives(), PER = 24, n = Math.ceil(reps.length / PER) + 2, log = ms.warmLog = []; let k = 0, a = performance.now(), c = a;
+        // every program compiled and every texture uploaded at once, then the GPU's first draw of each program a few at a time
+        // without the shadow pass (each slice has a fixed cost: few, large slices), then everything once with the shadow
+        // pass (its depth programs, every vertex buffer)
+        const reps = representatives(), PER = Math.max(8, Math.ceil(reps.length / 2)), n = Math.ceil(reps.length / PER) + 2, log = ms.warmLog = []; let k = 0, a = performance.now(), c = a;
         say(0); await settle(alive); log.push(['build', Math.round(performance.now() - a)]);
+        a = performance.now(); compileAll(); try { textures(); } catch (x) { console.warn('walk warm-up', x); } c = performance.now(); await settle(alive); log.push(['compile', Math.round(c - a), Math.round(performance.now() - c), renderer.info.programs?.length || 0]); say(++k / n);
+        if (!alive()) return false;
         for (let i = 0; i < reps.length; i += PER) {
           if (!alive()) return false;
           a = performance.now(); slice(reps.slice(i, i + PER), false); c = performance.now(); await settle(alive);
           log.push([Math.round(c - a), Math.round(performance.now() - c), renderer.info.programs?.length || 0]); say(++k / n);
         }
-        if (!alive()) return false;
-        try { textures(); } catch (x) { console.warn('walk warm-up', x); } await settle(alive); say(++k / n);
         if (!alive()) return false;
         a = performance.now(); slice(null, true); c = performance.now(); await settle(alive); log.push(['all', Math.round(c - a), Math.round(performance.now() - c), renderer.info.programs?.length || 0]); say(1);
         ms.warm = Math.round(performance.now() - t0); ms.warmSlices = k + 1; ms.programs = renderer.info.programs?.length || 0;

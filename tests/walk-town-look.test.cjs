@@ -86,7 +86,7 @@ const HE = /[֐-׿]/, RU = /[Ѐ-ӿ]/;
   // the first open (GOTR-0125 round 3): the warm-up in slices behind the cover, one object per program, the GPU awaited with
   // a fence polled without blocking (the page and the cover's progress stay alive), everything drawn once at the end
   const rd = t.slice(t.indexOf('function ready('), t.indexOf('if (!opts.defer)'));
-  assert.match(rd, /representatives\(\)/); assert.match(rd, /slice\(reps\.slice\(i, i \+ PER\), false\)/); assert.match(rd, /slice\(null, true\)/); assert.match(rd, /if \(!alive\(\)\) return false/);
+  assert.match(rd, /representatives\(\)/); assert.match(rd, /compileAll\(\)/); assert.match(t, /renderer\.compile\(scene, cam\)/); assert.match(rd, /slice\(reps\.slice\(i, i \+ PER\), false\)/); assert.match(rd, /slice\(null, true\)/); assert.match(rd, /if \(!alive\(\)\) return false/);
   assert.match(t, /gl\.fenceSync\(gl\.SYNC_GPU_COMMANDS_COMPLETE, 0\)/); assert.match(t, /gl\.clientWaitSync\(f, 0, 0\)/, 'the fence is polled, never waited on');
   assert.match(t, /cam\.layers\.set\(WARM_LAYER\)/, 'a slice picks its objects by layer (every light stays: the programs are the walk\'s)');
   const fw = src('adventure/free-walk/free-walk.js');
