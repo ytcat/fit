@@ -294,7 +294,24 @@
 
     /* ---------------- The Docks: the hangar's quay door (frame: the door, +z toward the quay) */
     Sets.register('walk_docks', c => {
-      const { C, P, M, S: B, box, cyl, shade, glow: G, pool } = c, X = extras(c);
+      const { C, P, M, S: B, box, cyl, shade, glow: G, pool } = c, X = extras(c), lit = night(X.time);
+      // the hangar's front (the map's barrel vault is open at its ends: seen from the quay it showed the dark inside of the
+      // vault): a corrugated gable with the big quay door, the hall behind it (floor, walls, roof, crates, the sodium lamps)
+      { const R = 14.4, H0 = 4.2, H1 = 11.8, DW = 7.8, DH = 9.6, sh = new THREE.Shape();
+        sh.moveTo(-R, 0); sh.lineTo(-DW, 0); sh.lineTo(-DW, DH); sh.lineTo(DW, DH); sh.lineTo(DW, 0); sh.lineTo(R, 0); sh.lineTo(R, H0);
+        for (let k = 1; k <= 24; k++) { const a = k / 24 * Math.PI; sh.lineTo(R * Math.cos(a), H0 + H1 * Math.sin(a)); }
+        sh.lineTo(-R, 0);
+        const cv = document.createElement('canvas'); cv.width = 64; cv.height = 4; const g = cv.getContext('2d'); for (let x = 0; x < 64; x++) { const v = 150 + 50 * Math.cos(x / 64 * Math.PI * 4); g.fillStyle = `rgb(${v | 0},${v + 12 | 0},${v + 22 | 0})`; g.fillRect(x, 0, 1, 4); }
+        const tex = new THREE.CanvasTexture(cv); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 8; c.disposables.push(tex);
+        const wall = c.add(new THREE.Mesh(new THREE.ShapeGeometry(sh), new THREE.MeshStandardMaterial({ map: tex, color: '#9fb0bc', roughness: .55, metalness: .35, side: THREE.DoubleSide })));
+        wall.position.set(0, 0, -.12); wall.name = 'hangar gable'; wall.userData.fwSolid = true;
+        box(B, 0, DH, -.05, DW * 2 + .5, .35, .3, '#5f6b74'); for (const s2 of [-1, 1]) box(B, s2 * (DW + .1), 0, -.05, .3, DH, .3, '#5f6b74'); // door frame
+        const D = 9; box(B, 0, -.02, -D / 2 - .1, DW * 2, .03, D, '#4a4c50'); box(B, 0, 0, -D - .2, DW * 2, DH, .2, lit ? '#2c2a2a' : '#3a3e44'); box(B, 0, DH, -D / 2 - .1, DW * 2, .2, D, '#2a2d33');
+        for (const s2 of [-1, 1]) box(B, s2 * DW, 0, -D / 2 - .1, .2, DH, D, '#3c4048');
+        for (const [x, z, n] of [[-5.6, -6.5, 2], [-4.6, -7.4, 1], [5.2, -6.8, 2], [6.2, -5.2, 1]]) for (let k = 0; k < n; k++) c.prop('Dock_crate', x + k * .2, k * .72, z, k * .3) || box(B, x, k * .72, z, .9, .7, .9, '#8a6a48');
+        for (const x of [-4.5, 0, 4.5]) { cyl(B, x, DH - 1.6, -4.5, .02, 1.4, '#2a2d33', P.cyl6); G.add(P.box, M(x, DH - 1.75, -4.5, .5, .12, .5), C(lit ? '#ffb45a' : '#c9b48a')); if (lit) pool(x, -4.5, 3.2, '#ff9c40'); }
+        box(B, 0, 0, -6, 4, .02, 4, '#c9a640'); // the painted circle's edge in the hall (the fight venue of the films)
+      }
       const put = (name, x, z, ry = 0, y = 0, s = 1) => c.prop(name, x, y, z, ry, 1, s) || (box(B, x, y, z, .9 * s, .7 * s, .9 * s, '#8a6a48', ry), false);
       for (const [x, z, ry] of [[-11.5, 2.2, .1], [-10.4, 2.4, -.2], [-11.1, 3.4, .3]]) put('Pallet', x, z, ry);
       for (const [x, z, ry, y] of [[-11.5, 2.2, .1, .14], [-10.6, 2.3, -.15, .14], [-11.1, 2.25, .05, .86], [-12.6, 3.6, .4, 0], [-9.3, 4.1, -.3, 0]]) put('Dock_crate', x, z, ry, y);
@@ -303,11 +320,11 @@
       put('Rope_coil', 7.4, 4.0, .6); put('Rope_coil', -7.8, 4.4, -.2);
       // work lamps on posts each side of the door (the hangar's sodium light)
       for (const s of [-1, 1]) {
-        const x = s * 4.6; cyl(B, x, 0, .9, .07, 3.1, '#3b4350', P.cyl8); box(B, x, 3.05, .9, .5, .06, .1, '#3b4350');
+        const x = s * 8.7; cyl(B, x, 0, .9, .07, 3.1, '#3b4350', P.cyl8); box(B, x, 3.05, .9, .5, .06, .1, '#3b4350');
         if (!c.prop('Work_lamp', x, 3.1, 1.0, s * .4)) box(B, x, 2.9, 1.0, .3, .2, .3, '#2a2d33');
         G.add(P.box, M(x, 2.92, 1.08, .26, .06, .2), C('#ffcf8a')); if (night(X.time)) pool(x * .8, 2.6, 3.4, '#ffbf70');
       }
-      board(c, X.lang, 'DOCKSIDE HANGAR', -4.6, 4.1, .14, 3.4, .55, 0, '#1d2430', '#f4c152');
+      board(c, X.lang, 'DOCKSIDE HANGAR', 0, 10.55, .14, 6.2, .95, 0, '#1d2430', '#f4c152');
       shade(0, 2.4, 9, 4);
       X.overhead();
       return { x: 0, z: 3, r: 12, time: night(X.time) ? 'evening' : undefined };
@@ -357,14 +374,14 @@
     }
     // QA / story views: where to stand and which way the camera looks (yaw: the camera's side of the player)
     const v = (name, id, lx, lz, turn = 0) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); views[name] = { x: p.x, z: p.z, yaw: f.ry + turn }; };
-    v('gym', 'gym', -.35, 12.2); v('busstop', 'gym', -9.0, 13.1, .25); v('market', 'market', 0, 1.0); v('otto', 'otto', .9, 2.6); v('docks', 'docks', 0, 5.0); v('basement', 'basement', 0, 4.0);
+    v('gym', 'gym', -.35, 12.2); v('busstop', 'gym', -9.0, 13.1, .25); v('market', 'market', 0, 1.0); v('otto', 'otto', .9, 2.6); v('docks', 'docks', 0, 3.2); v('basement', 'basement', 0, 4.0);
     // trunks and posts are thin: they block the walk as discs
     const disc = (id, lx, lz, r) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); discs.push([p.x, p.z, r]); };
     for (const [x, z] of [[-4.6, 13.05], [6.2, 13.05], [-13.0, 12.9]]) disc('gym', x, z, .25); disc('gym', 11.4, 12.35, .45);
     for (const [x, z] of [[-17.5, -11.2], [0, -11.2], [17.5, -11.2], [-9, 11.2], [9, 11.2]]) disc('market', x, z, .25);
     for (const [x, z] of [[-12, -8.9], [12.5, -9.0], [-6.8, 8.8], [17.5, 8.9]]) disc('market', x, z, .4);
     for (const x of [-18, -6, 6, 18]) for (const z of [-10.6, 10.6]) disc('market', x + .8 * (Math.abs(x) === 6 ? 1 : -1) * Math.sign(z), z, .2);
-    disc('otto', -4.9, 1.6, .25); for (const s of [-1, 1]) disc('docks', s * 4.6, .9, .25); disc('basement', -3.2, .5, .2);
+    disc('otto', -4.9, 1.6, .25); for (const s of [-1, 1]) disc('docks', s * 8.7, .9, .25); disc('basement', -3.2, .5, .2);
     const V = new THREE.Vector3();
     function update(p, camera) {
       for (const s of sets) {
@@ -384,7 +401,7 @@
    * lamp): the nearest ones (within `reach` m, at most MAX of each) are drawn as instances of the detailed pieces and their
    * low map copies are hidden; the rest of the town keeps the map's. Refreshed when the player has moved a few metres.
    * Positions, trunks and collision are the map's (nothing moves). */
-  function dressing({ map, scene, city, time = 'morning', tier = 'high', reach = 80 } = {}) {
+  function dressing({ map, scene, city, time = 'morning', tier = 'high', reach = 64 } = {}) {
     if (tier === 'low' || !window.CityTrees) return null;
     const L = map.layout, inst = L.inst || {}, made = [], M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), P = new THREE.Vector3(), SC = new THREE.Vector3(), ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
     const kinds = [];
@@ -402,7 +419,7 @@
       const T = window.CityTrees.template(form), wood = window.CityTrees.mesh(T.wood, 'tree wood', 'wood'), leaf = window.CityTrees.mesh(T.leaf, 'tree leaves', 'leaf');
       const up = form === 'upright';
       kind(inst.trees, [{ geometry: wood.geometry, material: wood.material }, { geometry: leaf.geometry, material: leaf.material, before: leaf.onBeforeRender }],
-        (o, x, z) => (inMarket(x, z) === up) ? { s: (o.s || 1) * (up ? 1.75 : 1.6) * (.92 + .16 * hash(x, z)), ry: hash(z, x) * 6.283 } : null, up ? 40 : 56);
+        (o, x, z) => (inMarket(x, z) === up) ? { s: (o.s || 1) * (up ? 1.75 : 1.6) * (.92 + .16 * hash(x, z)), ry: hash(z, x) * 6.283 } : null, up ? 14 : 22);
     }
     // street lamps: the Blender lamp (street-props.py); lantern glass lit at dusk and at night
     const kit = window.CityAssets?.propKit?.(city), lampParts = kit?.get('Lamp');
@@ -415,7 +432,7 @@
         parts.push({ geometry: g, material: mats[cls] || mats.matte, cast: cls === 'matte' });
       }
       made.push(...Object.values(mats).map(m => ({ dispose: () => m.dispose() })));
-      kind(inst.lamps, parts, o => ({ s: 1, ry: (o.ry || 0) + Math.PI / 2 }), 40);
+      kind(inst.lamps, parts, o => ({ s: 1, ry: (o.ry || 0) + Math.PI / 2 }), 32);
     }
     let at = null;
     function update(p) {

@@ -226,8 +226,10 @@
     }
     set(look.locked ?? top);
     let last = 0;
+    const far = (L.fog?.[2] || 260) + 30; // nothing past the haze is drawn (the town's far tiles cost triangles and show only fog)
     look.update = (dt, p, camera) => {
       if (p) aim(p.x, p.z);
+      if (camera?.isPerspectiveCamera && camera.far > far + 1) { camera.far = far; camera.updateProjectionMatrix(); }
       // adaptive quality from the real frame interval (not the clamped step): one step down when 90 % of frames are slower
       // than ~40 fps, one step back up after a long run of fast frames; a step that failed waits longer each time
       const now = performance.now(), raw = last ? (now - last) / 1000 : 0; last = now;
