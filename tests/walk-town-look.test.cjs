@@ -94,7 +94,7 @@ const HE = /[֐-׿]/, RU = /[Ѐ-ӿ]/;
   assert.match(fw, /notice\.textContent = t\('loading'\) \+ ' ' \+ Math\.round\(f \* 100\) \+ '%'/, 'the cover shows how far the loading got (digits: every language)');
   assert.match(fw, /e\.fightIQDemo = R\.hold = \{ frame\(\) \{\} \}/); assert.match(fw, /R\.hold && e\.fightIQDemo === R\.hold\)\) e\.fightIQDemo = null/, 'the arena is not drawn behind the cover, and the engine gets its frame back on close'); assert.ok(!/SL\.walker\(/.test(t.slice(t.indexOf('function spawnWalker'), t.indexOf('function updateWalkers'))), 'no walker is made while walking');
   // the chase camera keeps out of market umbrellas and the sets' awnings / stall roofs (story-walk note): they are in the crown map
-  assert.match(t, /umbrellas: \[\.66, 1\.1\]/); assert.match(t, /o\.name !== 'overhead'/);
+  assert.match(t, /lay\.inst\.umbrellas/); assert.match(t, /o\.name !== 'overhead'/); assert.match(t, /ROOF_NEAR = 3/);
   assert.match(t, /function park\(\)/); assert.match(t, /function resume\(defer\)/); assert.match(t, /PARK_MS = 180000/);
 }
 

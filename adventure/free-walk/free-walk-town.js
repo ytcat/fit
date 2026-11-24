@@ -131,7 +131,10 @@
     // tree crowns, market umbrellas and the sets' awnings and stall roofs (not in the height field: a person walks under them):
     // a coarse top map so the camera keeps out of the leaves and does not slip under a roof
     const CC = 2, cnx = Math.ceil(field.nx * CELL / CC), cnz = Math.ceil(field.nz * CELL / CC), crowns = new Float32Array(cnx * cnz).fill(-1e9);
-    const crown = (x, z, top) => { const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC); if (i < 0 || j < 0 || i >= cnx || j >= cnz) return; const k = j * cnx + i; if (top > crowns[k]) crowns[k] = top; };
+    // roofs a person walks under (awnings, stall roofs, umbrellas): their own fine map (0.5 m cells); the ones within ROOF_NEAR
+    // of the player do not count (he stands under or at his own stall's roof: the camera goes over it, not down onto his head)
+    const roofs = new Map(), ROOF_NEAR = 3, near0 = { x: NaN, z: NaN };
+    const crown = (x, z, top) => { const i = Math.floor((x - field.x0) / CELL), j = Math.floor((z - field.z0) / CELL); if (i < 0 || j < 0 || i >= field.nx || j >= field.nz) return; const k = j * field.nx + i; if (!(roofs.get(k) >= top)) roofs.set(k, top); };
     if (places3d) { // the sets' overhead batches: awnings, stall roofs (the near-level faces of them; not the bunting or the wires, which hang)
       const A = new T.Vector3(), B = new T.Vector3(), Cv = new T.Vector3(), E1 = new T.Vector3(), E2 = new T.Vector3(), N = new T.Vector3(), Q3 = new T.Vector3();
       for (const st of places3d.sets) { st.set.group.updateMatrixWorld(true); st.set.group.traverse(o => {
@@ -146,12 +149,18 @@
         }
       }); }
     }
-    for (const [name, [r0, h0]] of Object.entries({ trees: [1.0, 2.9], pines: [.9, 2.7], palms: [1.5, 3.4], umbrellas: [.66, 1.1] })) for (const o of lay.inst[name]?.list || []) {
+    for (const o of lay.inst.umbrellas?.list || []) { const sc = o.s || 1, r = .5 * sc * S, top = ((o.y || 0) + 1.1 * sc) * S; for (let dz = -r; dz <= r; dz += CELL) for (let dx = -r; dx <= r; dx += CELL) if (dx * dx + dz * dz <= r * r) crown(o.x * S + dx, o.z * S + dz, top); }
+    for (const [name, [r0, h0]] of Object.entries({ trees: [1.0, 2.9], pines: [.9, 2.7], palms: [1.5, 3.4] })) for (const o of lay.inst[name]?.list || []) {
       const sc = o.s || 1, r = r0 * sc * S, top = ((o.y || 0) + h0 * sc) * S, x = o.x * S, z = o.z * S;
       for (let cj = Math.max(0, Math.floor((z - r - field.z0) / CC)); cj <= Math.min(cnz - 1, Math.floor((z + r - field.z0) / CC)); cj++)
         for (let ci = Math.max(0, Math.floor((x - r - field.x0) / CC)); ci <= Math.min(cnx - 1, Math.floor((x + r - field.x0) / CC)); ci++) { const k = cj * cnx + ci; if (top > crowns[k]) crowns[k] = top; }
     }
-    const canopy = (x, z) => { const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC); return i < 0 || j < 0 || i >= cnx || j >= cnz ? -1e9 : crowns[j * cnx + i]; };
+    const canopy = (x, z) => {
+      const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC), c = i < 0 || j < 0 || i >= cnx || j >= cnz ? -1e9 : crowns[j * cnx + i];
+      if (!roofs.size || !(Math.hypot(x - near0.x, z - near0.z) >= ROOF_NEAR)) return c; // (before the first step: no roofs)
+      const fi = Math.floor((x - field.x0) / CELL), fj = Math.floor((z - field.z0) / CELL), r = fi < 0 || fj < 0 || fi >= field.nx || fj >= field.nz ? undefined : roofs.get(fj * field.nx + fi);
+      return r === undefined || r < c ? c : r;
+    };
     const grid = C.grid({ ...field, walk });
     // a device that cannot read the height field back (or renders it wrong) gets a clean failure, never a walk inside walls
     let open = 0; for (let k = 0; k < walk.length; k += 7) open += walk[k]; if (open * 7 < 100000) throw Error('free walk: the town could not be measured on this device');
@@ -403,6 +412,7 @@
     function update(dt, p, camera) {
       time += dt;
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
+      near0.x = p.x; near0.z = p.z;
       if (lamp) lamp.position.set(p.x - 1.2, (grid.allowed(p.x, p.z) ? grid.height(p.x, p.z) : landY) + 4.2, p.z + 1.5);
       map.update(dt, camera, renderer);
       look?.update(dt, p, camera); places3d?.update(p, camera); dress?.update(p);
