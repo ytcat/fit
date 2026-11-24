@@ -113,7 +113,7 @@ assert.equal(C.district(100, 0, [{ id: 'a', x: 0, z: 0, r: 30 }]), null);
   const fw = src('adventure/free-walk/free-walk.js'), ui = src('adventure/adventure-ui.js');
   assert.match(fw, /tickets\(\)\.entered\(R\.prevD, straight\)/); assert.match(fw, /tickets\(\)\.consume\(R\.ticket\.nonce\)/);
   assert.match(fw, /arm\(STORY_IDS\.includes\(R\.destination\) \? R\.destination : null\)/);
-  assert.match(ui, /story: ticket => alive && !!window\.FreeWalk\?\.tickets\?\.\(\)\.still\(ticket\) && !!window\.AdventureOldTown\?\.start && \(window\.AdventureOldTown\.start\(ctx, ticket\.step\), true\)/);
+  assert.match(ui, /story: ticket => alive && !window\.StoryScenes\?\.playing && !window\.app\?\.engine\?\.fightIQDemo && !!window\.FreeWalk\?\.tickets\?\.\(\)\.still\(ticket\) && !!window\.AdventureOldTown\?\.start && \(window\.AdventureOldTown\.start\(ctx, ticket\.step\), true\)/);
   assert.ok(!/gameAction|recordStory|devSkip/.test(fw), 'the walk never writes the game save itself');
 }
 

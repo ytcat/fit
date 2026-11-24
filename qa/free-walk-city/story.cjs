@@ -54,7 +54,7 @@ const walkTo = (p, target) => p.evaluate(target => {
   result.B.armed = await p.evaluate(() => FreeWalk.snapshot().ticket);
   await p.waitForTimeout(800); await p.screenshot({ path: `${out}/story-${lang}-B-walk.png` });
   result.B.walk = await walkTo(p, target);
-  await p.waitForTimeout(6000);
+  await p.waitForFunction(() => __launches.length > 0, null, { timeout: 60000 }).catch(() => {}); await p.waitForTimeout(4000); // the map is built first, then the step opens
   result.B.launches = await p.evaluate(() => __launches.slice());
   result.B.playing = await p.evaluate(() => window.StoryScenes?.playing || window.DreamScenes?.playing || document.querySelector('dialog[open]')?.className || null);
   await p.screenshot({ path: `${out}/story-${lang}-B-launched.png` });

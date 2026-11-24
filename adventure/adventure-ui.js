@@ -247,7 +247,7 @@
       if (typeof ResizeObserver !== 'undefined') { const ro = new ResizeObserver(() => resize()); ro.observe(stage); stage.__ro = ro; }
       ctx.onReady?.({ route: playRoute, map, cam, select: id => { const p = map.places.find(q => q.id === id); if (p) select(p); }, pins: () => pins.map(q => q.el),
         // GOTR-0118: a story walk that walked into its place's ring (a one-time ticket, re-checked live) opens that step through the quest action
-        story: ticket => alive && !!window.FreeWalk?.tickets?.().still(ticket) && !!window.AdventureOldTown?.start && (window.AdventureOldTown.start(ctx, ticket.step), true) });
+        story: ticket => alive && !window.StoryScenes?.playing && !window.app?.engine?.fightIQDemo && !!window.FreeWalk?.tickets?.().still(ticket) && !!window.AdventureOldTown?.start && (window.AdventureOldTown.start(ctx, ticket.step), true) }); // never on top of a film or another mode
       raf = requestAnimationFrame(frame);
       setTimeout(() => { if (alive) checkRoute(); }, 900);
       setTimeout(() => { if (alive) window.AdventureOldTown?.onOpen?.(ctx); }, 400);

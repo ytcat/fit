@@ -90,6 +90,8 @@
     map.sun.castShadow = false;
     const night = map.night;
     scene.fog = new T.Fog(map.fogColor, night ? 70 : 110, night ? 300 : 420);
+    // at night the street is lit for a person: a cool moon fill and a warm street-lamp light that follows the player (one point light)
+    let lamp = null; if (night) { scene.add(new T.HemisphereLight(0x8fa3d8, 0x2a2438, .7)); lamp = new T.PointLight(0xffd9a8, 1.6, 16, 1.6); scene.add(lamp); }
     for (const [name, m] of Object.entries(map.meshes)) if (STREET_LIFE.has(name)) m.visible = false;
     if (map.meshes.ground) groundGrain(map.meshes.ground.material);
 
@@ -266,6 +268,7 @@
     function update(dt, p, camera) {
       time += dt;
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
+      if (lamp) lamp.position.set(p.x - 1.2, (grid.allowed(p.x, p.z) ? grid.height(p.x, p.z) : landY) + 4.2, p.z + 1.5);
       map.update(dt, camera, renderer);
     }
     function snapshot() {
