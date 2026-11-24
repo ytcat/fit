@@ -300,13 +300,14 @@
     // the camera over it; a building or wall (not walkable) brings it closer to the Fighter.
     const g = R.town.grid, ox = R.center.x, oy = R.center.y, oz = R.center.z;
     // the camera body has a size: each sample along the ray checks 0.6 m round it (a thin wall between samples is still seen)
-    const solidAt = (x, y, z) => { for (const [a, b] of [[0, 0], [.6, 0], [-.6, 0], [0, .6], [0, -.6]]) if (Math.max(g.top(x + a, z + b), R.town.canopy?.(x + a, z + b) ?? -1e9) > y) return true; return false; };
-    const probe = (yaw, pitch) => { const cp = Math.cos(pitch), sp = Math.sin(pitch); for (let k = 1; k <= 24; k++) { const f = d * k / 24, x = ox + Math.sin(yaw) * cp * f, z = oz + Math.cos(yaw) * cp * f; if (solidAt(x, oy + sp * f - .4, z)) return { k: k * 16 / 24, ground: g.allowed(x, z) }; } return null; };
+    // 0 free, 1 solid (a wall, rising ground), 2 only a tree crown (GOTR-0120: crowns no longer tip the wide view top-down)
+    const solidAt = (x, y, z) => { let s = 0; for (const [a, b] of [[0, 0], [.6, 0], [-.6, 0], [0, .6], [0, -.6]]) { if (g.top(x + a, z + b) > y) return 1; if ((R.town.canopy?.(x + a, z + b) ?? -1e9) > y) s = 2; } return s; };
+    const probe = (yaw, pitch) => { const cp = Math.cos(pitch), sp = Math.sin(pitch); for (let k = 1; k <= 24; k++) { const f = d * k / 24, x = ox + Math.sin(yaw) * cp * f, z = oz + Math.cos(yaw) * cp * f, h = solidAt(x, oy + sp * f - .4, z); if (h) return { k: k * 16 / 24, ground: g.allowed(x, z), crown: h === 2 }; } return null; };
     // the player's own view first; a wall or stall right behind the Fighter swings the camera a little round instead
     let best = null;
     for (const off of [0, .35, -.35, .7, -.7, 1.05, -1.05]) {
       const yaw = R.yaw + off; let pitch = PITCH, hit = probe(yaw, pitch);
-      while (hit && hit.ground && pitch < 1.25) { pitch += .08; hit = probe(yaw, pitch); }
+      while (hit && hit.ground && pitch < (hit.crown ? .9 : 1.25)) { pitch += .08; hit = probe(yaw, pitch); } // over rising ground; over a crown only a little (then closer)
       const free = hit ? Math.max(2.2, d * (hit.k - 1.5) / 16) : d, c = { off, pitch, free };
       if (!best || free > best.free + .5) best = c;
       if (free >= d * .6) { best = c; break; }
@@ -433,7 +434,7 @@
     const R = run; if (!R) return null;
     const P = R.perf;
     return { s: R.s && { x: +R.s.x.toFixed(2), z: +R.s.z.toFixed(2), ry: +R.s.ry.toFixed(3), walking: !!R.s.walking }, busy: !!R.busy, district: R.district || null, zone: R.zone.textContent,
-      time: R.time, destination: R.destination, story: R.story, walk: R.walk ? R.walk.step : null, goal: R.goal.textContent, carry: R.carry || null, ticket: R.ticket ? R.ticket.step : null, launched: R.launched || null, arrived: R.arrived, storyReturn: !R.back.hidden, distance: R.dist.textContent, yaw: R.camYaw ?? R.yaw, zoom: R.zoom, camDist: R.camD,
+      time: R.time, destination: R.destination, story: R.story, walk: R.walk ? R.walk.step : null, goal: R.goal.textContent, carry: R.carry || null, ticket: R.ticket ? R.ticket.step : null, launched: R.launched || null, arrived: R.arrived, storyReturn: !R.back.hidden, distance: R.dist.textContent, yaw: R.camYaw ?? R.yaw, zoom: R.zoom, camDist: R.camD, camPitch: R.camP,
       perf: { frames: P.n, meanMs: P.n ? +(P.sum / P.n * 1000).toFixed(1) : null, maxMs: +(P.max * 1000).toFixed(1), calls: P.calls, triangles: P.tris, cpuMs: P.cpu && +P.cpu.toFixed(1), buildMs: R.buildMs },
       town: R.town?.snapshot() || null };
   }
