@@ -158,7 +158,10 @@
       const rig = rigOf(id, e2), head = window.StoryCast?.market?.head;
       // Fang's authored head may still be downloading: wait for it (at most a few seconds) so the picture is not cached with the old head
       if (rig?.castHead && !rig.castHead.on && head?.state?.() === 'loading' && !go.waited) { go.waited = true; head.ready(6000).then(() => go(tries)); return; }
+      const stale = !!rig?.castHead && !rig.castHead.on && head?.state?.() === 'loading';
       finish(rig ? render(rig, e2) : null);
+      // it arrived later: drawn again, and the portraits on screen take the new picture
+      if (stale) head.load().then(() => { if (!rig.castHead.on || waiting.has(k)) return; cache.delete(k); for (const el of document.querySelectorAll('.sp-portrait')) if (el.dataset.who === id && el.isConnected) attach(el, id); });
     };
     const finish = url => {
       cache.set(k, url || 'fail'); (url ? debug.renders : debug.fails).push(k);
