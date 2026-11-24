@@ -2,6 +2,7 @@
 // feet, hips, gaze, shoulders and walking direction; optional pictures at given times.
 // usage: SCENE=dream_opening T0=6.8 T1=16 DT=0.0333 SHOTS="7.4,8.2" OUT=qa/ch1-motion/x node qa/ch1-motion/measure.cjs
 //   ROOT=<dir to serve> (default: this checkout) ; QUALITY=high|low ; WALK=1 adds ?walkPrototype=1 (the native walk handoff at 15.6 s)
+//   CAM=x,y,z,lx,ly,lz[,fov] pictures from a QA camera instead of the film's (same frame)
 //   prints a summary per actor and writes OUT.json (per-frame rows) and OUT-<t>.png
 // Metrics (world metres, per frame at DT):
 //   slide      horizontal travel of a foot's lowest contact point (ball or heel) while it stays within 1.5 cm of the ground
@@ -37,7 +38,7 @@ const server = http.createServer((q, r) => {
   await p.evaluate(() => { const r = DreamScenes.debug; r.__frame = r.frame; r.frame = () => { }; DreamScenes.seek(0); });
   await p.evaluate(([t0]) => { const r = DreamScenes.debug; DreamScenes.seek(Math.max(0, t0 - 1.5)); for (let i = 0; i < 45; i++) r.__frame(1 / 30); }, [T0]);
   const rows = [], shots = SHOTS.slice().sort((a, b) => a - b);
-  let t = await p.evaluate(() => DreamScenes.debug.t);
+  let t = await p.evaluate(() => { const r = DreamScenes.debug; r.__c0 = r.clock - r.t; return r.t; }); // t: film time, or (in the player's walk, where the film clock stops) the film time it would be
   while (t < T1 - 1e-6) {
     const next = shots.length ? Math.min(T1, shots[0]) : T1, n = Math.max(1, Math.round((next - t) / DT));
     const chunk = await p.evaluate(([n, dt]) => {
@@ -45,7 +46,7 @@ const server = http.createServer((q, r) => {
       const scene0 = r.scene0 || (r.set?.objects?.city?.bus ? C.withCity(C.variant(r.id)) : C.variant(r.id));
       for (let i = 0; i < n; i++) {
         r.__frame(dt); if (r.closed) break;
-        const row = { t: +r.t.toFixed(4), shot: r.shot, a: {} };
+        const row = { t: +(r.clock - r.__c0).toFixed(4), film: +r.t.toFixed(4), phase: r.phase, shot: r.shot, a: {} };
         for (const [k, c] of Object.entries(r.rigs)) {
           const R = c.root; if (!R.parent) continue; R.updateMatrixWorld(true); const j = c.joints, hidden = (() => { for (let o = R; o; o = o.parent) if (!o.visible) return true; return false; })();
           const yawOf = o => { const a = o.localToWorld(V(0, 0, 0)), f = o.localToWorld(V(0, 0, 1)); return Math.atan2(f.x - a.x, f.z - a.z); };
@@ -60,7 +61,7 @@ const server = http.createServer((q, r) => {
       return out;
     }, [n, DT]);
     rows.push(...chunk); t = chunk.length ? chunk[chunk.length - 1].t : T1;
-    if (shots.length && t >= shots[0] - DT / 2) { const s = shots.shift(); await p.evaluate(() => DreamScenes.debug.__frame(0)); await p.screenshot({ path: `${OUT}-${s.toFixed(2)}.png` }); }
+    if (shots.length && t >= shots[0] - DT / 2) { const s = shots.shift(); await p.evaluate(cam => { const r = DreamScenes.debug; r.__frame(0); if (cam) { const [x, y, z, lx, ly, lz, fov] = cam.split(',').map(Number); r.camera.position.set(x, y, z); r.camera.lookAt(lx, ly, lz); if (fov) { r.camera.fov = fov; r.camera.updateProjectionMatrix(); } app.engine.renderer.render(r.scene, r.camera); } }, process.env.CAM || ''); /* CAM: a QA close-up of the same frame */ await p.screenshot({ path: `${OUT}-${s.toFixed(2)}.png` }); }
     if (!chunk.length) break;
   }
   fs.writeFileSync(OUT + '.json', JSON.stringify({ scene: SCENE, root, dt: DT, errors, rows }));

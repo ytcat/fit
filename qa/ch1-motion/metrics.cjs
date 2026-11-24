@@ -32,10 +32,10 @@ function summary(rows) {
   return res;
 }
 function lifeSummary(rows) {
-  const s = { frames: rows.length, leashMin: Infinity, leashMax: 0, leashStretch: 0, leashHit: 0, footSlideMax: 0, pawSlideMax: 0 };
+  const s = { frames: rows.length, chordMin: Infinity, chordMax: 0, drawnMin: Infinity, drawnMax: 0, leashLength: 0, leashClearMin: Infinity, leashGroundMin: Infinity, footSlideMax: 0, pawSlideMax: 0 };
   let prev = null;
   for (const r of rows) {
-    const L = r.life; if (L.leash) { s.leashMin = Math.min(s.leashMin, L.leash.span); s.leashMax = Math.max(s.leashMax, L.leash.span); s.leashStretch = Math.max(s.leashStretch, L.leash.span - (L.leash.length || L.leash.span)); s.leashHit = Math.max(s.leashHit, L.leash.hit || 0); }
+    const L = r.life; if (L.leash) { const q = L.leash; s.chordMin = Math.min(s.chordMin, q.span); s.chordMax = Math.max(s.chordMax, q.span); s.drawnMin = Math.min(s.drawnMin, q.drawn); s.drawnMax = Math.max(s.drawnMax, q.drawn); s.leashLength = q.length; s.leashClearMin = Math.min(s.leashClearMin, q.clear); s.leashGroundMin = Math.min(s.leashGroundMin, q.ground); } // clear: leash centre line to her legs / body and the dog's body, minus their radii
     if (prev && L.feet && prev.feet) for (let k = 0; k < L.feet.length; k++) { const a = prev.feet[k], b = L.feet[k]; if (a[1] < .015 && b[1] < .015) s.footSlideMax = Math.max(s.footSlideMax, Math.hypot(b[0] - a[0], b[2] - a[2])); }
     if (prev && L.paws && prev.paws) for (let k = 0; k < L.paws.length; k++) { const a = prev.paws[k], b = L.paws[k]; if (a[1] < .012 && b[1] < .012) s.pawSlideMax = Math.max(s.pawSlideMax, Math.hypot(b[0] - a[0], b[2] - a[2])); }
     prev = L;
