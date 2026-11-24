@@ -1,0 +1,652 @@
+{
+"rows": [
+{
+"id": "dream_opening",
+"W": 1366,
+"H": 768,
+"warm": 2697,
+"warmMap": 361,
+"js_over50": 3,
+"js_over100": 1,
+"js_max": 360.4,
+"js_p95": 16.6,
+"js_median": 5.1,
+"load_ms": 21098,
+"frames": 177,
+"film_s": 98.4,
+"over50": 177,
+"over100": 177,
+"over250": 171,
+"max": 7033.1,
+"p95": 1149.9,
+"median": 400,
+"timedOut": false,
+"result": {
+"id": "dream_opening",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": [
+{
+"i": 25,
+"dt": 566.6,
+"js": 61.8,
+"phase": "play",
+"t": 1.8,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 76,
+"dt": 1033.4,
+"js": 360.4,
+"phase": "play",
+"t": 12,
+"shot": 1,
+"newPrograms": 33,
+"newTex": -1,
+"newGeo": 0
+},
+{
+"i": 80,
+"dt": 400,
+"js": 67.5,
+"phase": "play",
+"t": 12.8,
+"shot": 2,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_gym_talk",
+"W": 1366,
+"H": 768,
+"warm": 602,
+"js_over50": 1,
+"js_over100": 0,
+"js_max": 53.7,
+"js_p95": 21.5,
+"js_median": 7.4,
+"load_ms": 10380,
+"frames": 73,
+"film_s": 61,
+"over50": 73,
+"over100": 73,
+"over250": 73,
+"max": 1383.2,
+"p95": 1150,
+"median": 866.6,
+"timedOut": false,
+"result": {
+"id": "dream_gym_talk",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": [
+{
+"i": 62,
+"dt": 833.3,
+"js": 53.7,
+"phase": "play",
+"t": 36.4,
+"shot": 8,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_after_brick",
+"W": 1366,
+"H": 768,
+"warm": 49,
+"js_over50": 1,
+"js_over100": 0,
+"js_max": 61.7,
+"js_p95": 22.5,
+"js_median": 10.5,
+"load_ms": 1453,
+"frames": 53,
+"film_s": 62.1,
+"over50": 53,
+"over100": 53,
+"over250": 53,
+"max": 1583.3,
+"p95": 1433.3,
+"median": 1183.3,
+"timedOut": false,
+"result": {
+"id": "dream_after_brick",
+"skipped": false,
+"outcome": "loss"
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": [
+{
+"i": 14,
+"dt": 1200,
+"js": 61.7,
+"phase": "play",
+"t": 3,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_bag_break",
+"W": 1366,
+"H": 768,
+"warm": 387,
+"js_over50": 0,
+"js_over100": 0,
+"js_max": 29.6,
+"js_p95": 11.9,
+"js_median": 4.5,
+"load_ms": 4351,
+"frames": 74,
+"film_s": 37.1,
+"over50": 74,
+"over100": 74,
+"over250": 74,
+"max": 1083.3,
+"p95": 666.5,
+"median": 500,
+"timedOut": false,
+"result": {
+"id": "dream_bag_break",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": []
+},
+{
+"id": "dream_apology",
+"W": 1366,
+"H": 768,
+"warm": 46,
+"js_over50": 0,
+"js_over100": 0,
+"js_max": 22.8,
+"js_p95": 15.7,
+"js_median": 7,
+"load_ms": 5548,
+"frames": 80,
+"film_s": 47.5,
+"over50": 80,
+"over100": 80,
+"over250": 80,
+"max": 816.5,
+"p95": 783.3,
+"median": 599.9,
+"timedOut": false,
+"result": {
+"id": "dream_apology",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": []
+},
+{
+"id": "dream_market_robbery",
+"W": 1366,
+"H": 768,
+"warm": 662,
+"js_over50": 2,
+"js_over100": 0,
+"js_max": 62.9,
+"js_p95": 39.8,
+"js_median": 8.9,
+"load_ms": 9934,
+"frames": 96,
+"film_s": 100.7,
+"over50": 96,
+"over100": 96,
+"over250": 96,
+"max": 2066.6,
+"p95": 1233.3,
+"median": 1083.2,
+"timedOut": false,
+"result": {
+"id": "dream_market_robbery",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": [
+{
+"i": 8,
+"dt": 550,
+"js": 59.6,
+"phase": "play",
+"t": 1.8,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 33,
+"dt": 1083.3,
+"js": 62.9,
+"phase": "play",
+"t": 6.8,
+"shot": 2,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_market_reward",
+"W": 1366,
+"H": 768,
+"warm": 593,
+"js_over50": 2,
+"js_over100": 0,
+"js_max": 68.4,
+"js_p95": 55.3,
+"js_median": 14.2,
+"load_ms": 4470,
+"frames": 37,
+"film_s": 33.2,
+"over50": 37,
+"over100": 37,
+"over250": 37,
+"max": 1650,
+"p95": 1016.6,
+"median": 883.3,
+"timedOut": false,
+"result": {
+"id": "dream_market_reward",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": [
+{
+"i": 15,
+"dt": 816.5,
+"js": 55.3,
+"phase": "play",
+"t": 9.2,
+"shot": 2,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 31,
+"dt": 833.3,
+"js": 68.4,
+"phase": "play",
+"t": 20.8,
+"shot": 5,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_otto_shop",
+"W": 1366,
+"H": 768,
+"warm": 145,
+"js_over50": 3,
+"js_over100": 0,
+"js_max": 95,
+"js_p95": 42.3,
+"js_median": 12.5,
+"load_ms": 1439,
+"frames": 102,
+"film_s": 42.2,
+"over50": 102,
+"over100": 102,
+"over250": 102,
+"max": 783.3,
+"p95": 583.4,
+"median": 400,
+"timedOut": false,
+"result": {
+"id": "dream_otto_shop",
+"skipped": false,
+"bought": true
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": [
+{
+"i": 63,
+"dt": 499.9,
+"js": 95,
+"phase": "play",
+"t": 21.8,
+"shot": 5,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 68,
+"dt": 483.3,
+"js": 54.9,
+"phase": "play",
+"t": 22.8,
+"shot": 6,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 87,
+"dt": 483.3,
+"js": 53.1,
+"phase": "play",
+"t": 36.6,
+"shot": 9,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_new_bag",
+"W": 1366,
+"H": 768,
+"warm": 161,
+"js_over50": 1,
+"js_over100": 0,
+"js_max": 53.8,
+"js_p95": 26.4,
+"js_median": 9.6,
+"load_ms": 5391,
+"frames": 62,
+"film_s": 73.2,
+"over50": 62,
+"over100": 62,
+"over250": 62,
+"max": 1649.9,
+"p95": 1466.7,
+"median": 1133.4,
+"timedOut": false,
+"result": {
+"id": "dream_new_bag",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": [
+{
+"i": 2,
+"dt": 1033.3,
+"js": 53.8,
+"phase": "play",
+"t": 0.6,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_offer",
+"W": 1366,
+"H": 768,
+"warm": 93,
+"js_over50": 0,
+"js_over100": 0,
+"js_max": 20.8,
+"js_p95": 14.4,
+"js_median": 10.1,
+"load_ms": 2052,
+"frames": 38,
+"film_s": 46.4,
+"over50": 38,
+"over100": 38,
+"over250": 38,
+"max": 1633.2,
+"p95": 1516.7,
+"median": 1183.4,
+"timedOut": false,
+"result": {
+"id": "dream_offer",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": []
+},
+{
+"id": "dream_docks",
+"W": 1366,
+"H": 768,
+"warm": 785,
+"js_over50": 5,
+"js_over100": 0,
+"js_max": 81.5,
+"js_p95": 50.2,
+"js_median": 8.6,
+"load_ms": 16667,
+"frames": 81,
+"film_s": 85.6,
+"over50": 81,
+"over100": 81,
+"over250": 81,
+"max": 4233.1,
+"p95": 1816.6,
+"median": 966.7,
+"timedOut": false,
+"result": {
+"id": "dream_docks",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": [
+{
+"i": 1,
+"dt": 4233.1,
+"js": 68.8,
+"phase": "play",
+"t": 0.4,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 3,
+"dt": 1200.1,
+"js": 81.5,
+"phase": "play",
+"t": 0.8,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 4,
+"dt": 1999.8,
+"js": 61.9,
+"phase": "play",
+"t": 1,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 17,
+"dt": 1216.7,
+"js": 62.5,
+"phase": "play",
+"t": 3.6,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 25,
+"dt": 733.2,
+"js": 50.2,
+"phase": "play",
+"t": 5.2,
+"shot": 1,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_docks_after",
+"W": 1366,
+"H": 768,
+"warm": 77,
+"js_over50": 0,
+"js_over100": 0,
+"js_max": 19.9,
+"js_p95": 15.2,
+"js_median": 7.7,
+"load_ms": 1735,
+"frames": 48,
+"film_s": 50.9,
+"over50": 48,
+"over100": 48,
+"over250": 48,
+"max": 1666.7,
+"p95": 1450,
+"median": 1100,
+"timedOut": false,
+"result": {
+"id": "dream_docks_after",
+"skipped": false,
+"outcome": "win"
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": []
+},
+{
+"id": "dream_fight_night",
+"W": 1366,
+"H": 768,
+"warm": 265,
+"js_over50": 1,
+"js_over100": 0,
+"js_max": 52.3,
+"js_p95": 35.5,
+"js_median": 14.1,
+"load_ms": 4502,
+"frames": 67,
+"film_s": 123.6,
+"over50": 67,
+"over100": 67,
+"over250": 67,
+"max": 2599.9,
+"p95": 2366.6,
+"median": 1833.4,
+"timedOut": false,
+"result": {
+"id": "dream_fight_night",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": [
+{
+"i": 21,
+"dt": 1733.3,
+"js": 52.3,
+"phase": "play",
+"t": 4.4,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_chapter_end",
+"W": 1366,
+"H": 768,
+"warm": 50,
+"js_over50": 0,
+"js_over100": 0,
+"js_max": 38,
+"js_p95": 23.8,
+"js_median": 13.3,
+"load_ms": 2050,
+"frames": 43,
+"film_s": 63.3,
+"over50": 43,
+"over100": 43,
+"over250": 43,
+"max": 2066.6,
+"p95": 1833.3,
+"median": 1433.3,
+"timedOut": false,
+"result": {
+"id": "dream_chapter_end",
+"skipped": false
+},
+"stats": {
+"quality": "low (auto)",
+"shadows": false
+},
+"long": []
+}
+],
+"errs": [
+"console: [.WebGL-0x1acc016f1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+"console: [.WebGL-0x1acc016f1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+"console: [.WebGL-0x1acc016f1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+"console: [.WebGL-0x1acc016f1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+]
+}

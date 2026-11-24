@@ -29,7 +29,7 @@ also for a player whose last chosen mode was Training (no mode was remembered at
   dots. Exposed as `DreamScenes.warm`; `bag-break.js` uses it too.
 - 'auto' quality uses the **median** of 48 frame times (`slow()`), so a few long frames cannot drop a capable PC; on a device that
   really is slow, the switch rebuilds every material at once (one pause instead of one per later shot) and the next films of the
-  visit start low (no switch at all).
+  same kind in this visit (street with sun shadows / indoor image lighting) start low (no switch at all).
 - What the next film needs is fetched and parsed while the current one loads: the apology waits (max 5 s, in parallel) for the market
   models and Fang's head; gym films for the ringside props. `DreamScenes.prefetch` (called by the story panel) now also starts the
   film's models and Fang's head.
@@ -46,19 +46,21 @@ first line, two early returns), `modes-menu.js` (three one-line additions). `adv
 
 ## Numbers (SwiftShader: relative only)
 
-Tables per film before/after in `qa/pc-smooth-start/README.md` (402×690 and 1366×768). Summary at 402×690 over 14 films: shader
-programs compiled in the middle of a film 123 (in 29 frames) → 33 (in 1 frame: the deliberate one-time rebuild when SwiftShader is
-found slow; a capable PC does not take that path); longest
-JS frame per film e.g. opening 1310 → 509 ms, gym talk 477 → 110, fight night 1055 → 28, Otto's shop 444 → 95, reward 920 → 108.
-The loading dots before a film last longer in SwiftShader (the compile/upload work now happens there: opening 10 → 29 s, gym talk
-7 → 16 s); on a real GPU this is the shader compile time that used to interrupt the film.
+Tables per film before/after in `qa/pc-smooth-start/README.md` (402×690 and 1366×768, 14 films). Shader programs compiled in
+the middle of a film: 402×690 123 (in 29 frames) → 33 (in 1 frame), 1366×768 96 (19 frames) → 33 (1 frame); the one left is the
+deliberate one-time rebuild when SwiftShader is found slow, which a capable PC does not take. Longest JS frame per film (402 / 1366):
+opening 1310 → 509 / 1150 → 360 ms, gym talk 477 → 110 / 572 → 54, fight night 1055 → 28 / 421 → 52, Otto's shop 444 → 95 /
+393 → 95, robbery 520 → 390 / 577 → 63. Wall-time frames are all > 50 ms in SwiftShader at both sizes (software rasterising), so
+the >50/>100 counts do not separate; the longest wall frame fell in 12 of 14 films at 1366 and 8 of 14 at 402 (e.g. fight night 14.1 → 4.8 s, gym talk 11.6 →
+1.4 s at 1366). The loading dots before a film last longer in SwiftShader (the work moved there: opening 10–11 → 21–29 s, docks
+6–10 → 17–20 s); on a real GPU this is mostly the shader compile time that used to interrupt the film.
 
 ## Checks
 
 - `node tests/pc-smooth-start.test.cjs` (new: static + real Chromium boot of an Adventure and a Training player) — pass.
 - `bash scripts/run-tests.sh -j 1 dream story opening market free-walk clean app browser lang-generic offline-version-match render-look fang-head film-performance paws-phone otto-civilian blender-props pc-smooth shop-preview timed-round`:
-  34 files, 31 pass on the first run under load 10 (other agent); the 3 failures fixed or re-run: `app.test` (head script now safe
-  without a DOM), `pc-smooth-start` (test observer fix), `story-clean-gym` passed 3/3 re-runs (real touchscreen tap kept).
+  final tree: 34 files, 0 failures (1628 s). An earlier run under load 10 (another agent) failed 3; fixed: `app.test` (head script
+  safe without a DOM), `pc-smooth-start` (test observer); `story-clean-gym` passed every re-run, real touchscreen tap kept.
 - Evidence: `qa/pc-smooth-start/` (boot sheets before/after, cover in EN/HE/RU, frame tables, the measuring scripts).
 - Not checked on a real PC GPU or phone; SwiftShader times are relative.
 

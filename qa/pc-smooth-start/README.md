@@ -68,3 +68,62 @@ Long JS frames (> 50 ms) with what was new in them (programs = shader programs c
 - after dream_otto_shop: t=4.47s 95.2 ms (+0 programs, +0 tex); t=4.57s 60 ms (+0 programs, +0 tex); t=18.3s 53.1 ms (+0 programs, +0 tex); t=35.8s 83.7 ms (+0 programs, +0 tex)
 - after dream_new_bag: t=0.6s 55.8 ms (+0 programs, +0 tex); t=1.3s 183.5 ms (+0 programs, +0 tex)
 - after dream_offer: t=5.05s 131.4 ms (+0 programs, +0 tex)
+
+### PC size 1366x768 (TS=4)
+
+Wall frame time between frames (SwiftShader software GPU, so absolute values are not a PC's): frames over 50 / 100 ms, longest, p95, median.  
+JS = time spent inside the film's own frame (pose, camera, draw submission, first-use shader compiles and uploads): the part a real GPU does not hide.  
+Load = from play() to the first film frame (black screen with the loading dots).
+
+| film | frames | wall >50 ms | wall >100 ms | wall max | wall p95 | JS >50 ms | JS >100 ms | JS max | JS p95 | load ms | quality at end |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| dream_opening | 175 → 177 | 175 → 177 | 175 → 177 | 6316 → 7033 | 1116 → 1150 | 3 → 3 | 3 → 1 | 1150 → 360 | 18 → 17 | 11185 → 21098 | low (auto) → low (auto) |
+| dream_gym_talk | 73 → 73 | 73 → 73 | 73 → 73 | 11566 → 1383 | 2200 → 1150 | 5 → 1 | 2 → 0 | 572 → 54 | 54 → 22 | 10946 → 10380 | low (auto) → low (auto) |
+| dream_after_brick | 53 → 53 | 53 → 53 | 53 → 53 | 4250 → 1583 | 1933 → 1433 | 0 → 1 | 0 → 0 | 47 → 62 | 26 → 22 | 3113 → 1453 | auto → low (auto) |
+| dream_bag_break | 74 → 74 | 74 → 74 | 74 → 74 | 3950 → 1083 | 583 → 666 | 0 → 0 | 0 → 0 | 11 → 30 | 10 → 12 | 610 → 4351 | auto → low (auto) |
+| dream_apology | 80 → 80 | 80 → 80 | 80 → 80 | 1217 → 816 | 1100 → 783 | 0 → 0 | 0 → 0 | 14 → 23 | 11 → 16 | 2324 → 5548 | low (auto) → low (auto) |
+| dream_market_robbery | 96 → 96 | 96 → 96 | 96 → 96 | 5700 → 2067 | 1633 → 1233 | 4 → 2 | 2 → 0 | 577 → 63 | 25 → 40 | 7438 → 9934 | low (auto) → low (auto) |
+| dream_market_reward | 37 → 37 | 37 → 37 | 37 → 37 | 2716 → 1650 | 1550 → 1017 | 3 → 2 | 1 → 0 | 158 → 68 | 74 → 55 | 6411 → 4470 | auto → low (auto) |
+| dream_otto_shop | 102 → 102 | 102 → 102 | 102 → 102 | 6166 → 783 | 933 → 583 | 5 → 3 | 2 → 0 | 393 → 95 | 41 → 42 | 2998 → 1439 | low (auto) → low (auto) |
+| dream_new_bag | 62 → 62 | 62 → 62 | 62 → 62 | 2233 → 1650 | 1767 → 1467 | 1 → 1 | 1 → 0 | 215 → 54 | 24 → 26 | 4575 → 5391 | low (auto) → low (auto) |
+| dream_offer | 38 → 38 | 38 → 38 | 38 → 38 | 1950 → 1633 | 1900 → 1517 | 0 → 0 | 0 → 0 | 35 → 21 | 17 → 14 | 2300 → 2052 | auto → low (auto) |
+| dream_docks | 80 → 81 | 80 → 81 | 80 → 81 | 6016 → 4233 | 1267 → 1817 | 1 → 5 | 0 → 0 | 53 → 82 | 32 → 50 | 5716 → 16667 | auto → low (auto) |
+| dream_docks_after | 48 → 48 | 48 → 48 | 48 → 48 | 1500 → 1667 | 1367 → 1450 | 0 → 0 | 0 → 0 | 14 → 20 | 14 → 15 | 798 → 1735 | auto → low (auto) |
+| dream_fight_night | 67 → 67 | 67 → 67 | 67 → 67 | 11050 → 2600 | 2600 → 2367 | 1 → 1 | 1 → 0 | 421 → 52 | 31 → 36 | 2349 → 4502 | low (auto) → low (auto) |
+| dream_chapter_end | 42 → 43 | 42 → 43 | 42 → 43 | 2217 → 2067 | 2150 → 1833 | 0 → 0 | 0 → 0 | 21 → 38 | 21 → 24 | 2452 → 2050 | auto → low (auto) |
+
+Long JS frames (> 50 ms) with what was new in them (programs = shader programs compiled, tex = textures uploaded):
+
+- before dream_opening: t=0.2s 1149.9 ms (+13 programs, +12 tex); t=7.4s 1080.3 ms (+10 programs, +1 tex); t=12s 794.5 ms (+16 programs, +-1 tex)
+- before dream_gym_talk: t=1.2s 215.3 ms (+2 programs, +0 tex); t=1.8s 54.1 ms (+0 programs, +0 tex); t=4.6s 53.3 ms (+0 programs, +0 tex); t=32.8s 571.5 ms (+14 programs, +-1 tex); t=36.4s 71.3 ms (+0 programs, +0 tex)
+- before dream_market_robbery: t=1.8s 61.4 ms (+1 programs, +0 tex); t=3.8s 63.2 ms (+0 programs, +0 tex); t=6.8s 267.3 ms (+3 programs, +0 tex); t=12s 576.9 ms (+9 programs, +-1 tex)
+- before dream_market_reward: t=9.2s 158.2 ms (+1 programs, +7 tex); t=9.6s 59 ms (+0 programs, +0 tex); t=13.2s 74.3 ms (+0 programs, +0 tex)
+- before dream_otto_shop: t=4.4s 392.7 ms (+4 programs, +11 tex); t=5s 53.9 ms (+0 programs, +0 tex); t=8.6s 55.6 ms (+0 programs, +0 tex); t=14.6s 53.8 ms (+0 programs, +0 tex); t=21.2s 209.7 ms (+4 programs, +-1 tex)
+- before dream_new_bag: t=13.4s 214.9 ms (+4 programs, +-1 tex)
+- before dream_docks: t=19.7s 52.7 ms (+0 programs, +0 tex)
+- before dream_fight_night: t=20s 420.7 ms (+6 programs, +-1 tex)
+- after dream_opening: t=1.8s 61.8 ms (+0 programs, +0 tex); t=12s 360.4 ms (+33 programs, +-1 tex); t=12.8s 67.5 ms (+0 programs, +0 tex)
+- after dream_gym_talk: t=36.4s 53.7 ms (+0 programs, +0 tex)
+- after dream_after_brick: t=3s 61.7 ms (+0 programs, +0 tex)
+- after dream_market_robbery: t=1.8s 59.6 ms (+0 programs, +0 tex); t=6.8s 62.9 ms (+0 programs, +0 tex)
+- after dream_market_reward: t=9.2s 55.3 ms (+0 programs, +0 tex); t=20.8s 68.4 ms (+0 programs, +0 tex)
+- after dream_otto_shop: t=21.8s 95 ms (+0 programs, +0 tex); t=22.8s 54.9 ms (+0 programs, +0 tex); t=36.6s 53.1 ms (+0 programs, +0 tex)
+- after dream_new_bag: t=0.6s 53.8 ms (+0 programs, +0 tex)
+- after dream_docks: t=0.4s 68.8 ms (+0 programs, +0 tex); t=0.8s 81.5 ms (+0 programs, +0 tex); t=1s 61.9 ms (+0 programs, +0 tex); t=3.6s 62.5 ms (+0 programs, +0 tex); t=5.2s 50.2 ms (+0 programs, +0 tex)
+- after dream_fight_night: t=4.4s 52.3 ms (+0 programs, +0 tex)
+
+### Reading the tables
+
+- Shader programs compiled in the middle of a film, all 14 films: 402x690 123 (in 29 frames) → 33 (1 frame); 1366x768 96 (19
+  frames) → 33 (1 frame). The one left is the deliberate one-time rebuild when 'auto' finds SwiftShader too slow; a capable PC
+  does not take that path (it now needs the *median* frame time above 1/30 s, not the mean that the compile stalls themselves raised).
+- Every long frame before had new programs/textures in it; after, the remaining JS frames over 50 ms have none (noise from the shared
+  machine, posing). Longest JS frame e.g. opening 1310 → 509 ms (402) / 1150 → 360 ms (1366), fight night 1055 → 28 / 421 → 52,
+  gym talk 477 → 110 / 572 → 54, Otto's shop 444 → 95 / 393 → 95.
+- Load (black screen with the loading dots before a film) is longer in SwiftShader: the compile/upload work now happens there,
+  and a software GPU draws the hidden warm-up frame slowly (opening 10 → 21–29 s). On a real GPU this is mostly the shader
+  compilation that used to interrupt the film.
+- "quality at end": in these runs the "after" films started low once an earlier film of the same run had found SwiftShader slow.
+  That rule was refined afterwards to per kind (street films and indoor films separately); `data/verify6-402x690.json`: the first
+  indoor film rebuilds once at t = 8.8 s, the next indoor films start low with no mid-film compile. The wall columns of the "after"
+  runs therefore partly reflect the lower look; the program and JS columns do not depend on it.
