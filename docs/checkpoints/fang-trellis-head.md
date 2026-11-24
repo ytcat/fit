@@ -1,7 +1,9 @@
 # Checkpoint: Fang's TRELLIS.2 head in the game (branch `agent/fang-trellis-head`)
 
 Owner 2026-11-24: "fang looks good" (the TRELLIS.2 head, `assets/characters/fang/trellis/`). Not merged, not released;
-no version bump (the release does that). PAUSED 2026-11-24 by the coordinator (v1.93 release needs the CPU).
+no version bump (the release does that). Paused for v1.93, resumed 2026-11-24 after it went live: merged
+`origin/claude/ecstatic-clarke-9as2ak` (v1.93, 60d658d) in; index.html conflicts resolved (theirs for fighter-stats/otto-civilian,
+re-bumped dream-scenes `20261124fang`), offline manifest theirs + regenerated (version string `v193-20261124` untouched).
 
 ## What changed
 - `tools/blender/fang_head_game.py` -> `assets/characters/fang/fang-head.glb` (run: `<blender venv python> tools/blender/fang_head_game.py
@@ -36,15 +38,13 @@ portrait before/after/cold start, Super Punch KO film vs Fang (after).
   on/off ratios between 0.78 and 1.25 run to run (`perf.log`). No phone measurement.
 
 ## Remaining / next
-1. KO close-ups: `KEEP=1 node qa/fang-trellis/tools/superfilm.cjs <out> street` (the close renders now render the top scene; the
-   first try rendered the rig's parent group only and came out black). Check head on the ground / crawl.
-2. Run the tests (interrupted by the pause, none failed before the kill):
-   `bash scripts/run-tests.sh -j 2 market fang cast story portrait offline` and
-   `node tests/sunday-punch.test.cjs`, `super-punch-film`, `ringless-release`, `city-assets`.
-3. Known look limits: the TRELLIS head is blue-grey while Fang's body/arms stay neutral grey (visible in the tank top fight);
-   mouth stays closed (no jaw/talk on this head, no face squash on the Super Punch impact, the head still jolts with the bone);
-   in the KO-down studio pose the longer muzzle dips into the chest like the old one did.
+- Integrator: full suite on the merged tree before release (not run here by instruction).
+- Known look limits: mouth stays closed (no jaw/talk on this head, no face squash on the Super Punch impact; the head still
+  jolts with the bone); in the studio KO-down pose the longer muzzle dips into the chest like the old one did; frame times
+  on phones not measured.
+- Re-run evidence: `KEEP=1 node qa/fang-trellis/tools/superfilm.cjs <out> street` (prints the model's lowest point per frame).
 
 ## Checks run
-- story-cast-market, portraits, offline-version-match, city-assets, fang-head: ok (individually, before the pause).
-- Full selection started, killed by the pause (no result).
+- After the merge + colour + KO fix: `bash scripts/run-tests.sh -j 1 fang-head story-cast-market portraits offline-version-match
+  city-assets sunday-punch super-punch-film ringless-release dream-market-films lang-generic` -> files=10 fails=0 (330 s).
+- Full suite: not run here (the integrator runs it).
