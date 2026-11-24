@@ -165,6 +165,7 @@
     }
 
     /* ---- the picture: tiles of the merged meshes (view and shadow culling), the films' light and the quality ladder */
+    if (Look && places3d?.cuts?.length) try { for (const c of places3d.cuts) Look.clip(map.group, [c], c.yMin, /^(ground|sea|road marks|clouds)$/); } catch (x) { console.warn('walk cuts', x); }
     if (Look && places3d?.marks?.length) try { Look.clip(map.group, places3d.marks, -Infinity, /^$/, /^road marks$/); } catch (x) { console.warn('walk marks', x); }
     mark('walkable');
     let tiles = 0; if (Look) try { tiles = Look.tile(map.group, 96).length; } catch (x) { console.warn('walk tiles', x); }

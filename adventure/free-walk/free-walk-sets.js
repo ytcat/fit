@@ -306,6 +306,7 @@
         const wall = c.add(new THREE.Mesh(new THREE.ShapeGeometry(sh), new THREE.MeshStandardMaterial({ map: tex, color: '#9fb0bc', roughness: .55, metalness: .35, side: THREE.DoubleSide })));
         wall.position.set(0, 0, -.12); wall.name = 'hangar gable'; wall.userData.fwSolid = true;
         box(B, 0, DH, -.05, DW * 2 + .5, .35, .3, '#5f6b74'); for (const s2 of [-1, 1]) box(B, s2 * (DW + .1), 0, -.05, .3, DH, .3, '#5f6b74'); // door frame
+        for (const s2 of [-1, 1]) { box(B, s2 * (DW + 3.4), 0, .12, 6.4, DH + .3, .16, '#c8452f'); for (let k = 0; k < 7; k++) box(B, s2 * (DW + .5 + k * .95), .2, .22, .06, DH - .2, .04, '#a8392a'); box(B, s2 * (DW + 3.4), DH + .3, .1, 6.6, .12, .3, '#3b4350'); } // the slid-open door leaves on their rail
         // the hall is in the vault's shade: light walls and floor (corrugated sheet, concrete) so it reads as a hall, not a hole
         const D = 9; box(B, 0, -.02, -D / 2 - .1, DW * 2, .03, D, '#9a958a'); box(B, 0, 0, -D - .2, DW * 2, DH, .2, lit ? '#6a5e52' : '#a9b3bb'); box(B, 0, DH, -D / 2 - .1, DW * 2, .2, D, '#7d858c');
         for (const s2 of [-1, 1]) box(B, s2 * DW, 0, -D / 2 - .1, .2, DH, D, '#9aa5ae');
@@ -313,7 +314,7 @@
         for (const x of [-6.6, 6.6]) for (let k = 0; k < 3; k++) box(B, x, 2.2 + k * 2.4, -D - .02, 1.2, .9, .05, lit ? '#f0c070' : '#dfe9ef'); // high windows
         for (const [x, z, n] of [[-5.6, -6.5, 2], [-4.6, -7.4, 1], [5.2, -6.8, 2], [6.2, -5.2, 1]]) for (let k = 0; k < n; k++) c.prop('Dock_crate', x + k * .2, k * .72, z, k * .3) || box(B, x, k * .72, z, .9, .7, .9, '#8a6a48');
         for (const x of [-4.5, 0, 4.5]) { cyl(B, x, DH - 1.6, -4.5, .02, 1.4, '#2a2d33', P.cyl6); G.add(P.box, M(x, DH - 1.75, -4.5, .5, .12, .5), C(lit ? '#ffb45a' : '#c9b48a')); if (lit) pool(x, -4.5, 3.2, '#ff9c40'); }
-        box(B, 0, 0, -6, 4, .02, 4, '#c9a640'); // the painted circle's edge in the hall (the fight venue of the films)
+        for (let k = 0; k < 28; k++) { const a = k / 28 * Math.PI * 2; box(B, 2.4 * Math.cos(a), -.005, -5.6 + 2.4 * Math.sin(a), .55, .012, .12, '#e0b84d', -a); } // the painted circle on the hall floor (the films' fight venue)
       }
       const put = (name, x, z, ry = 0, y = 0, s = 1) => c.prop(name, x, y, z, ry, 1, s) || (box(B, x, y, z, .9 * s, .7 * s, .9 * s, '#8a6a48', ry), false);
       for (const [x, z, ry] of [[-11.5, 2.2, .1], [-10.4, 2.4, -.2], [-11.1, 3.4, .3]]) put('Pallet', x, z, ry);
@@ -377,7 +378,7 @@
     }
     // QA / story views: where to stand and which way the camera looks (yaw: the camera's side of the player)
     const v = (name, id, lx, lz, turn = 0) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); views[name] = { x: p.x, z: p.z, yaw: f.ry + turn }; };
-    v('gym', 'gym', -.35, 12.2); v('busstop', 'gym', -9.0, 13.1, .25); v('market', 'market', 0, 1.0); v('otto', 'otto', .9, 2.6); v('docks', 'docks', 3.5, 4.4, .55); v('basement', 'basement', 0, 4.0);
+    v('gym', 'gym', -.35, 12.2); v('busstop', 'gym', -9.0, 13.1, .25); v('market', 'market', 0, 1.0); v('otto', 'otto', .9, 2.6); v('docks', 'docks', 2.5, 4.2, .45); v('basement', 'basement', 0, 4.0);
     // trunks and posts are thin: they block the walk as discs
     const disc = (id, lx, lz, r) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); discs.push([p.x, p.z, r]); };
     for (const [x, z] of [[-4.6, 13.05], [6.2, 13.05], [-13.0, 12.9]]) disc('gym', x, z, .25); disc('gym', 11.4, 12.35, .45);
@@ -397,7 +398,10 @@
     function dispose() { for (const s of sets) { scene.remove(s.set.group); try { s.set.dispose(); } catch (x) { console.warn('walk set dispose', x); } } sets.length = 0; for (const g of used) disposeGPU(g); }
     // road paint the sets cover (a crossing painted across Market Row's aisle): { x, z, ry, hw, hd } metres
     const marks = F.market ? [{ x: F.market.x, z: F.market.z, ry: F.market.ry, hw: 20, hd: 9.5 }] : [];
-    return { sets, views, discs, marks, update, stats, dispose, frames: F, models: Object.fromEntries(Object.entries(city).map(([k, g]) => [k, !!g])) };
+    // map pieces the sets stand in for, cut out above the ground: the hangar's end (its closing face was dark from the quay: it
+    // faced into the hall), its door quad, side doors and sign at the quay end (the docks set has the gable, door and sign)
+    const cuts = F.docks ? [{ x: F.docks.x, z: F.docks.z, ry: 0, hw: 15, hd: .45, yMin: F.docks.y + .3 }] : [];
+    return { sets, views, discs, marks, cuts, update, stats, dispose, frames: F, models: Object.fromEntries(Object.entries(city).map(([k, g]) => [k, !!g])) };
   }
 
   /** The town's own street trees and lamps near the player, in the films' detail (city-trees.js trees, the Blender street
