@@ -58,15 +58,23 @@ const server = http.createServer((q, r) => {
         return { x: t.x, z: t.z, yaw: v?.yaw ?? null };
       }, [id, TARGET[id], YAW[id]]);
       if (!spot) { result.spots[id] = { missing: true }; continue; }
+      // a wider chase view (ZOOM presses of the walk's zoom-out key; the walk's own default camera is agent/story-walk's)
+      for (let k = 0; k < +(process.env.ZOOM ?? 4); k++) await p.keyboard.press('Minus');
+      await p.evaluate(() => FreeWalk.qa.walk(0, 0, 1.2));
       await p.evaluate(() => FreeWalk.qa.town?.settled?.(60000)).catch(() => null);
       await p.waitForTimeout(1500);
       const file = path.join(out, `${tag}-${size}-${time}-${id}.png`);
       await p.screenshot({ path: file });
       const row = await p.evaluate(() => {
-        const town = FreeWalk.qa.town, e = app.engine, r = e.renderer, cam = FreeWalk.qa.camera, gl = r.getContext(), px = new Uint8Array(4), rt = [];
+        const town = FreeWalk.qa.town, e = app.engine, r = e.renderer, cam = FreeWalk.qa.camera || e.fightIQDemo?.camera, gl = r.getContext(), px = new Uint8Array(4), rt = [];
         for (let k = 0; cam && k < 6; k++) { const t0 = performance.now(); if (r.shadowMap.enabled) r.shadowMap.needsUpdate = true; r.render(town.scene, cam); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); rt.push(performance.now() - t0); }
         rt.sort((a, b) => a - b); const i = r.info, s = FreeWalk.snapshot(); if (!cam) { rt.push(NaN, NaN, NaN, NaN); }
-        return { calls: cam ? i.render.calls : s.perf.calls, triangles: cam ? i.render.triangles : s.perf.triangles, textures: i.memory.textures, geometries: i.memory.geometries, programs: i.programs?.length, renderMs: +rt[3].toFixed(1), renderMin: +rt[0].toFixed(1), pixelRatio: r.getPixelRatio(), drawingBuffer: [r.domElement.width, r.domElement.height], shadow: r.shadowMap.enabled, env: !!town.scene.environment, buildMs: s.perf.buildMs, heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null, town: town.look?.() || null };
+        const calls = i.render.calls, tris = i.render.triangles;
+        // the same frame at pixel ratio 1 (the baseline's ratio): the scene's own cost without the extra pixels
+        const pr0 = r.getPixelRatio(), r1 = []; r.setPixelRatio(1);
+        for (let k = 0; cam && k < 5; k++) { const t0 = performance.now(); if (r.shadowMap.enabled) r.shadowMap.needsUpdate = true; r.render(town.scene, cam); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); r1.push(performance.now() - t0); }
+        r.setPixelRatio(pr0); r1.sort((a, b) => a - b);
+        return { calls: cam ? calls : s.perf.calls, triangles: cam ? tris : s.perf.triangles, renderMsAtRatio1: r1.length ? +r1[2].toFixed(1) : null, textures: i.memory.textures, geometries: i.memory.geometries, programs: i.programs?.length, renderMs: +rt[3].toFixed(1), renderMin: +rt[0].toFixed(1), pixelRatio: r.getPixelRatio(), drawingBuffer: [r.domElement.width, r.domElement.height], shadow: r.shadowMap.enabled, env: !!town.scene.environment, buildMs: s.perf.buildMs, heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null, town: town.look?.() || null };
       });
       row.spot = spot; result.spots[id] = row; console.log(id, JSON.stringify(row));
     }

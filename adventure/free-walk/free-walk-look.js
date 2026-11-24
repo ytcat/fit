@@ -18,7 +18,7 @@
  *   FreeWalkLook.facades(map, { renderer, lit, sharp })      repaint the map's facades (sharper, lit windows) with window depth
  *   FreeWalkLook.relief(material, style, S)                  window depth on any kit facade material
  *   FreeWalkLook.tile(group, size)                           cut merged meshes into tiles of `size` metres (view and shadow culling)
- *   FreeWalkLook.clip(group, rects, yMin)                    remove map triangles / instances inside oriented rectangles (metres)
+ *   FreeWalkLook.clip(group, rects, yMin, keep, only)        remove map triangles / instances inside oriented rectangles (metres)
  *   FreeWalkLook.LIGHTS, FreeWalkLook.LEVELS
  * World: metres, x east, z south, y up. The map group is scaled by S (3 m per map unit). */
 (() => {
@@ -146,13 +146,13 @@
   /** Removes what stands inside the rectangles: triangles of the merged meshes whose centre lies inside and above yMin
    * (metres: the pavement under a building stays), instances (trees, lamps, people...) and glow points. The ground,
    * the sea and the road paint are never cut. Returns the count of triangles and instances removed. */
-  function clip(group, rects, yMin = -Infinity, keep = /^(ground|sea|road marks|clouds)$/) {
+  function clip(group, rects, yMin = -Infinity, keep = /^(ground|sea|road marks|clouds)$/, only = null) {
     if (!rects.length) return { tris: 0, inst: 0 };
     const S = group.scale.x || 1, M4 = new THREE.Matrix4(), V = new THREE.Vector3(), ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
     const hit = (x, y, z) => y * S > yMin && rects.some(r => inside(r, x * S, z * S));
     let tris = 0, inst = 0;
     group.traverse(m => {
-      if (keep.test(m.name) || !m.geometry?.attributes?.position) return;
+      if (keep.test(m.name) || (only && !only.test(m.name)) || !m.geometry?.attributes?.position) return;
       if (m.isInstancedMesh) {
         for (let i = 0; i < m.count; i++) { m.getMatrixAt(i, M4); V.setFromMatrixPosition(M4); V.applyMatrix4(m.matrix); if (M4.elements[0] !== 0 && hit(V.x, V.y + .5, V.z)) { m.setMatrixAt(i, ZERO); inst++; } }
         m.instanceMatrix.needsUpdate = true; return;

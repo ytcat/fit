@@ -28,8 +28,28 @@
   const WORDS = {
     "BRUNO'S GYM": { he: 'האולם של ברונו', ru: 'ЗАЛ БРУНО' }, "HAZEL'S FRUIT": { he: 'הפירות של הייזל', ru: 'ФРУКТЫ ХЕЙЗЕЛ' },
     "OTTO'S CORNER": { he: 'הפינה של אוטו', ru: 'УГОЛОК ОТТО' }, BOXING: { he: 'אגרוף', ru: 'БОКС' },
-    'DOCKSIDE HANGAR': { he: 'ההאנגר בנמל', ru: 'АНГАР В ДОКАХ' }, 'THE BASEMENT': { he: 'המרתף', ru: 'ПОДВАЛ' }
+    'DOCKSIDE HANGAR': { he: 'ההאנגר בנמל', ru: 'АНГАР В ДОКАХ' }, 'THE BASEMENT': { he: 'המרתף', ru: 'ПОДВАЛ' },
+    'CORNER COFFEE': { he: 'קפה פינתי', ru: 'КОФЕ НА УГЛУ' }, BAKERY: { he: 'מאפייה', ru: 'ПЕКАРНЯ' }
   };
+  // modelled English lettering of the Old Town and stop models (merged into their own meshes): in Hebrew and Russian the
+  // letters are hidden and the shop names are painted on a board in their place (the owner's rule: every text in every language)
+  const LETTERING = /^(enamel lettering|shop lettering and brass)$/, SHOP_NAME = { OldTown_plaster_parapet: 'CORNER COFFEE', OldTown_brick_hiproof: 'BAKERY' };
+  function relabel(c, root, lang, name) {
+    if (lang === 'en') return;
+    const hide = []; root.traverse(o => { if (o.isMesh && LETTERING.test(o.material?.name || '')) hide.push(o); });
+    const text = SHOP_NAME[name]; let box = null;
+    root.updateMatrixWorld(true); const inv = new THREE.Matrix4().copy(root.matrixWorld).invert(), v = new THREE.Vector3();
+    for (const o of hide) {
+      o.visible = false; if (!text) continue;
+      const P = o.geometry.attributes.position, m = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld);
+      for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).applyMatrix4(m); if (v.y < 2.1) continue; (box ||= new THREE.Box3()).expandByPoint(v); }
+    }
+    if (!text || !box) return;
+    const w = Math.max(1.2, box.max.x - box.min.x + .2), h = Math.max(.32, box.max.y - box.min.y + .1);
+    const tex = signTexture(word(text, lang), 1024, Math.max(96, Math.round(1024 * h / w)), '#2f4436', '#f1e6c8'), mat = new THREE.MeshStandardMaterial({ map: tex, roughness: .7 });
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); plane.position.set((box.min.x + box.max.x) / 2, (box.min.y + box.max.y) / 2, box.max.z + .012); plane.name = 'shop name ' + text;
+    root.add(plane); c.disposables.push(tex, mat, plane.geometry);
+  }
   const word = (text, lang) => WORDS[text]?.[lang] || text;
   function signTexture(text, w, h, bg, fg) {
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
@@ -58,7 +78,10 @@
       const mf = W.marketFrame; if (mf) { const [u, w] = marketUW(mf, x, z); if (Math.abs(u - OTTO_U) < 1.4 && w > 5 && w < 10.5) return true; } // Otto's building
       return false;
     }
-    if (kind === 'stall' || kind === 'umbrella' || kind === 'crate') { const mf = W.marketFrame; if (!mf) return false; const u = o?.u ?? marketUW(mf, x, z)[0]; return u > MARKET_U[0] && u < MARKET_U[1]; }
+    if (kind === 'stall' || kind === 'umbrella' || kind === 'crate') {
+      const mf = W.marketFrame; if (!mf) return false; const [u0, w0] = marketUW(mf, x, z), u = o?.u ?? u0, w = o?.w ?? w0;
+      return (u > MARKET_U[0] && u < MARKET_U[1]) || (w > .5 && Math.abs(u - OTTO_U) < 3.6); // Hazel's stretch; the row's side in front of Otto's door
+    }
     return false;
   }
 
@@ -110,7 +133,7 @@
       const glbHouse = (name, x, z, ry = 0) => {
         const h = clone(models.city?.oldtown, name); if (!h) return false;
         h.traverse(o => { if (o.isMesh) { o.castShadow = HOUSE_CAST.test(o.material.name) && !o.material.transparent; o.receiveShadow = true; o.userData.fwSolid = !o.material.transparent; } });
-        h.position.set(x, 0, z); h.rotation.y = ry; h.name = 'Old Town house ' + name; c.group.add(h);
+        h.position.set(x, 0, z); h.rotation.y = ry; h.name = 'Old Town house ' + name; c.group.add(h); relabel(c, h, models.lang || 'en', name);
         const detail = [], trim = []; h.traverse(o => { if (!o.isMesh) return; const n = o.material.name; if (/interior|curtain|herbs|flowerpot|room plaster|lamp glow/.test(n)) detail.push(o); else if (/ivory timber|ironwork|zinc|shop timber/.test(n)) trim.push(o); });
         lod.push({ root: h, detail, trim, at: new THREE.Vector3(x, 3, z + 3) });
         return true;
@@ -118,7 +141,7 @@
       const station = (name, x, z, ry = 0, cast = false) => {
         const o = clone(models.city?.station, name); if (!o) return null;
         o.traverse(m => { if (m.isMesh) { m.castShadow = typeof cast === 'function' ? cast(m) : cast; m.receiveShadow = true; m.userData.fwSolid = !m.material.transparent; } });
-        o.position.set(x, 0, z); o.rotation.y = ry; o.name = 'stop ' + name; c.group.add(o); return o;
+        o.position.set(x, 0, z); o.rotation.y = ry; o.name = 'stop ' + name; c.group.add(o); relabel(c, o, models.lang || 'en', name); return o;
       };
       c.objects.fwLod = lod; c.objects.fwStyles = () => Object.keys(K.FACADE).filter(s => c.W.facade[s].tris);
       return { OV, overhead, glbHouse, station, lang: models.lang || 'en', time: models.time };
@@ -131,9 +154,9 @@
     Sets.register('walk_gym', c => {
       const { PAL, C, P, M, S: B, box, cyl, house, sign, lamp, bin, planter, bollard, tree, shade, joints } = c, X = extras(c), FZ = 9.5;
       // pavement: the block's pavement widened by 0.85 m over the road (to 13.6) with a kerb, slabs with joints up to the houses
-      box(B, 0, -.152, 13.175, 28.5, .162, .85, PAL.pave); box(B, 0, -.18, 13.48, 28.5, .19, .24, PAL.curb); box(B, 0, -.151, 13.75, 28.5, .006, .3, '#4c5463');
+      box(B, 0, -.152, 13.175, 28.5, .162, .85, '#c3bfb6'); box(B, 0, -.18, 13.48, 28.5, .19, .24, PAL.curb); box(B, 0, -.151, 13.75, 28.5, .006, .3, '#4c5463');
       for (const s of [-1, 1]) box(B, s * 14.13, -.18, 13.18, .24, .19, .85, PAL.curb);
-      box(B, 0, 0, 11.6, 28.5, .01, 4.0, PAL.pave); box(B, -9.5, 0, 7.75, 6.5, .01, 3.5, PAL.pave);
+      box(B, 0, 0, 11.6, 28.5, .01, 4.0, '#c3bfb6'); box(B, -9.5, 0, 7.75, 6.5, .01, 3.5, '#c3bfb6');
       joints(-14, 14, FZ + .1, 13.5); joints(-12.6, -6.4, 6.1, FZ);
       // Bruno's Gym (the films' house and front, dream-sets.js), 11.8 m wide
       const gx = -.35, gz = FZ - .04;
@@ -233,7 +256,7 @@
         }
         for (const z of [z0, z1]) cyl(B, x + .8 * (i % 2 ? 1 : -1) * (z > 0 ? 1 : -1), 0, z, .06, y0, '#3b4350', P.cyl6);
       });
-      for (const [x, z, h] of [[-12, -8.9, 4.2], [12.5, -9.0, 4.4], [-1.5, 8.8, 4.3], [17.5, 8.9, 4.1]]) tree(x, z, h, 'upright');
+      for (const [x, z, h] of [[-12, -8.9, 4.2], [12.5, -9.0, 4.4], [-6.8, 8.8, 4.3], [17.5, 8.9, 4.1]]) tree(x, z, h, 'upright');
       for (const [x, z] of [[-17.5, -11.2], [0, -11.2], [17.5, -11.2], [-9, 11.2], [9, 11.2]]) lamp(x, z);
       bin(-4.5, -9.6); bin(13.6, 9.6); planter(-15, 9.9, 1.6); planter(4.6, 10.0, 1.6); planter(10.5, -10.0, 1.3);
       X.overhead();
@@ -244,7 +267,7 @@
     Sets.register('walk_otto', c => {
       const { PAL, C, P, M, S: B, box, cyl, house, bin, planter, lamp, glow: G } = c, X = extras(c), fz = 0;
       house({ style: 'brick', x: 0, z: -9.8, w: 9.0, d: 19.6, floors: 2, tint: '#7c5a48', roof: 'flat', shop: true, shopTint: C('#efe3cc') });
-      box(B, 0, 0, fz + .9, 10, .01, 1.8, PAL.pave); c.joints(-4.5, 4.5, .1, 1.8);
+      box(B, 0, 0, fz + .9, 10, .01, 1.8, '#c3bfb6'); c.joints(-4.5, 4.5, .1, 1.8);
       box(B, 0, 0, fz + .02, 7.4, 3.25, .1, '#1f3a4a');
       box(B, .9, 0, fz + .06, 1.18, 2.35, .08, '#2b2420'); box(B, .9, .04, fz + .1, .98, 2.22, .05, '#7a2f26'); box(B, 1.27, 1.0, fz + .16, .05, .16, .05, '#e0b84d');
       box(B, .9, 0, fz + .2, 1.4, .1, .5, '#b3a892'); c.reflectivePane('Otto door glass', .9, 1.60, fz + .153, .72, .90);
@@ -334,12 +357,12 @@
     }
     // QA / story views: where to stand and which way the camera looks (yaw: the camera's side of the player)
     const v = (name, id, lx, lz, turn = 0) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); views[name] = { x: p.x, z: p.z, yaw: f.ry + turn }; };
-    v('gym', 'gym', -.35, 12.2); v('busstop', 'gym', -9.0, 13.1, .25); v('market', 'market', 0, .6); v('otto', 'otto', .9, 2.6); v('docks', 'docks', 0, 5.0); v('basement', 'basement', 0, 4.0);
+    v('gym', 'gym', -.35, 12.2); v('busstop', 'gym', -9.0, 13.1, .25); v('market', 'market', 0, 1.0); v('otto', 'otto', .9, 2.6); v('docks', 'docks', 0, 5.0); v('basement', 'basement', 0, 4.0);
     // trunks and posts are thin: they block the walk as discs
     const disc = (id, lx, lz, r) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); discs.push([p.x, p.z, r]); };
     for (const [x, z] of [[-4.6, 13.05], [6.2, 13.05], [-13.0, 12.9]]) disc('gym', x, z, .25); disc('gym', 11.4, 12.35, .45);
     for (const [x, z] of [[-17.5, -11.2], [0, -11.2], [17.5, -11.2], [-9, 11.2], [9, 11.2]]) disc('market', x, z, .25);
-    for (const [x, z] of [[-12, -8.9], [12.5, -9.0], [-1.5, 8.8], [17.5, 8.9]]) disc('market', x, z, .4);
+    for (const [x, z] of [[-12, -8.9], [12.5, -9.0], [-6.8, 8.8], [17.5, 8.9]]) disc('market', x, z, .4);
     for (const x of [-18, -6, 6, 18]) for (const z of [-10.6, 10.6]) disc('market', x + .8 * (Math.abs(x) === 6 ? 1 : -1) * Math.sign(z), z, .2);
     disc('otto', -4.9, 1.6, .25); for (const s of [-1, 1]) disc('docks', s * 4.6, .9, .25); disc('basement', -3.2, .5, .2);
     const V = new THREE.Vector3();
@@ -352,8 +375,66 @@
     }
     function stats() { const out = {}; for (const s of sets) out[s.id] = s.set.stats(); return out; }
     function dispose() { for (const s of sets) { scene.remove(s.set.group); try { s.set.dispose(); } catch (x) { console.warn('walk set dispose', x); } } sets.length = 0; for (const g of used) disposeGPU(g); }
-    return { sets, views, discs, update, stats, dispose, frames: F, models: Object.fromEntries(Object.entries(city).map(([k, g]) => [k, !!g])) };
+    // road paint the sets cover (a crossing painted across Market Row's aisle): { x, z, ry, hw, hd } metres
+    const marks = F.market ? [{ x: F.market.x, z: F.market.z, ry: F.market.ry, hw: 20, hd: 9.5 }] : [];
+    return { sets, views, discs, marks, update, stats, dispose, frames: F, models: Object.fromEntries(Object.entries(city).map(([k, g]) => [k, !!g])) };
   }
 
-  window.FreeWalkSets = { skip, frames, prepare, build, register, MODELS, WORDS };
+  /** The town's own street trees and lamps near the player, in the films' detail (city-trees.js trees, the Blender street
+   * lamp): the nearest ones (within `reach` m, at most MAX of each) are drawn as instances of the detailed pieces and their
+   * low map copies are hidden; the rest of the town keeps the map's. Refreshed when the player has moved a few metres.
+   * Positions, trunks and collision are the map's (nothing moves). */
+  function dressing({ map, scene, city, time = 'morning', tier = 'high', reach = 80 } = {}) {
+    if (tier === 'low' || !window.CityTrees) return null;
+    const L = map.layout, inst = L.inst || {}, made = [], M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), P = new THREE.Vector3(), SC = new THREE.Vector3(), ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+    const kinds = [];
+    const hash = (x, z) => Math.abs(Math.sin(x * 12.9898 + z * 78.233) * 43758.5453) % 1;
+    const mf = L.marketFrame, inMarket = (x, z) => { const [u, w] = marketUW(mf, x / S, z / S); return u > -6 && u < 56 && Math.abs(w) < 16; };
+    /** One kind: the map's instanced mesh `src` and its list, drawn near by `parts` [{ geometry, material }] instanced. */
+    function kind(src, parts, place, MAX) {
+      if (!src?.mesh || !src.list?.length || !parts.length) return;
+      const orig = src.list.map((o, i) => { const m = new THREE.Matrix4(); src.mesh.getMatrixAt(i, m); return m; });
+      const meshes = parts.map(({ geometry, material, cast = true, before }) => { const im = new THREE.InstancedMesh(geometry, material, MAX); im.count = 0; im.frustumCulled = false; im.castShadow = cast; im.receiveShadow = true; im.name = 'street detail'; if (before) im.onBeforeRender = before; scene.add(im); made.push(im); return im; });
+      kinds.push({ src, orig, meshes, place, MAX, shown: new Set() });
+    }
+    // trees: the Old Town shade tree, Market Row's narrow tree (by district, as on the map)
+    for (const form of ['broad', 'upright']) {
+      const T = window.CityTrees.template(form), wood = window.CityTrees.mesh(T.wood, 'tree wood', 'wood'), leaf = window.CityTrees.mesh(T.leaf, 'tree leaves', 'leaf');
+      const up = form === 'upright';
+      kind(inst.trees, [{ geometry: wood.geometry, material: wood.material }, { geometry: leaf.geometry, material: leaf.material, before: leaf.onBeforeRender }],
+        (o, x, z) => (inMarket(x, z) === up) ? { s: (o.s || 1) * (up ? 1.75 : 1.6) * (.92 + .16 * hash(x, z)), ry: hash(z, x) * 6.283 } : null, up ? 40 : 56);
+    }
+    // street lamps: the Blender lamp (street-props.py); lantern glass lit at dusk and at night
+    const kit = window.CityAssets?.propKit?.(city), lampParts = kit?.get('Lamp');
+    if (lampParts) {
+      const lit = time === 'evening' || time === 'night', parts = [];
+      const mats = { matte: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .8 }), gloss: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .42 }), glow: new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }),
+        lantern: lit ? new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }) : new THREE.MeshStandardMaterial({ color: '#c9d4d6', roughness: .2 }) };
+      for (const [cls, q] of Object.entries(lampParts)) {
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(q.p, 3)); g.setAttribute('normal', new THREE.BufferAttribute(q.n, 3)); g.setAttribute('color', new THREE.BufferAttribute(q.c, 3)); g.computeBoundingSphere();
+        parts.push({ geometry: g, material: mats[cls] || mats.matte, cast: cls === 'matte' });
+      }
+      made.push(...Object.values(mats).map(m => ({ dispose: () => m.dispose() })));
+      kind(inst.lamps, parts, o => ({ s: 1, ry: (o.ry || 0) + Math.PI / 2 }), 40);
+    }
+    let at = null;
+    function update(p) {
+      if (at && Math.hypot(p.x - at.x, p.z - at.z) < 6) return; at = { x: p.x, z: p.z };
+      for (const k of kinds) {
+        const near = [];
+        k.src.list.forEach((o, i) => { const x = o.x * S, z = o.z * S, d = Math.hypot(x - p.x, z - p.z); if (d < reach && k.orig[i].elements[0] !== 0) { const q = k.place(o, x, z); if (q) near.push({ i, d, x, y: (o.y || 0) * S, z, q }); } });
+        near.sort((a, b) => a.d - b.d); near.length = Math.min(near.length, k.MAX);
+        const now = new Set(near.map(n => n.i));
+        for (const i of k.shown) if (!now.has(i)) k.src.mesh.setMatrixAt(i, k.orig[i]);
+        near.forEach((n, j) => { k.src.mesh.setMatrixAt(n.i, ZERO); M4.compose(P.set(n.x, n.y, n.z), Q.setFromEuler(E.set(0, n.q.ry, 0)), SC.setScalar(n.q.s)); for (const m of k.meshes) m.setMatrixAt(j, M4); });
+        for (const m of k.meshes) { m.count = near.length; m.instanceMatrix.needsUpdate = true; }
+        k.src.mesh.instanceMatrix.needsUpdate = true; k.shown = now;
+      }
+    }
+    function dispose() { for (const k of kinds) { for (const i of k.shown) k.src.mesh.setMatrixAt(i, k.orig[i]); k.src.mesh.instanceMatrix.needsUpdate = true; } for (const m of made) { if (m.isObject3D) { scene.remove(m); m.geometry?.dispose(); m.material?.dispose?.(); } else m.dispose(); } }
+    const stats = () => kinds.map(k => ({ kind: k.src.mesh.name, shown: k.shown.size }));
+    return { update, dispose, stats };
+  }
+
+  window.FreeWalkSets = { skip, frames, prepare, build, dressing, register, MODELS, WORDS };
 })();

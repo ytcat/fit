@@ -163,8 +163,11 @@
     }
 
     /* ---- the picture: tiles of the merged meshes (view and shadow culling), the films' light and the quality ladder */
+    if (Look && places3d?.marks?.length) try { Look.clip(map.group, places3d.marks, -Infinity, /^$/, /^road marks$/); } catch (x) { console.warn('walk marks', x); }
     let tiles = 0; if (Look && tier !== 'low') try { tiles = Look.tile(map.group, 96).length; } catch (x) { console.warn('walk tiles', x); }
     let look = null; if (Look) try { look = Look.attach({ renderer, scene, map, time: hour, tier }); keep.look = look; } catch (x) { console.warn('walk look', x); look = null; }
+    // the town's own trees and lamps near the player in the films' detail (the map's low copies far away)
+    let dress = null; if (Sets?.dressing) try { dress = Sets.dressing({ map, scene, city: window.CityAssets?.cached?.(['props'], false), time: hour, tier }); keep.dress = dress; } catch (x) { console.warn('walk dressing', x); dress = null; }
 
     /* ---- traffic */
     const carSrc = map.meshes.cars, cars = [], R = rng(1234);
@@ -295,17 +298,18 @@
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
       if (lamp) lamp.position.set(p.x - 1.2, (grid.allowed(p.x, p.z) ? grid.height(p.x, p.z) : landY) + 4.2, p.z + 1.5);
       map.update(dt, camera, renderer);
-      look?.update(dt, p, camera); places3d?.update(p, camera);
+      look?.update(dt, p, camera); places3d?.update(p, camera); dress?.update(p);
     }
     function snapshot() {
       return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length,
-        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, look: look?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), map: map.stats() };
+        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, look: look?.stats() || null, dressing: dress?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), map: map.stats() };
     }
     function dispose() {
       for (const w of walkers) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); } walkers.length = 0;
       if (carMesh) { scene.remove(carMesh); carMesh.dispose?.(); }
       for (const m of [bodyM, ...wingM]) if (m) { scene.remove(m); m.dispose?.(); }
       try { look?.dispose(); } catch (x) { console.warn('walk look dispose', x); }
+      try { dress?.dispose(); } catch (x) { console.warn('walk dressing dispose', x); }
       try { places3d?.dispose(); } catch (x) { console.warn('walk sets dispose', x); }
       for (const x of owned) x.dispose?.();
       for (const m of tileMeshes()) m.geometry.dispose();
@@ -318,7 +322,7 @@
   /** Builds the town; on any failure everything made so far is released and the error is passed on (the mode shows a notice). */
   function build(opts = {}) {
     const keep = {};
-    try { return buildTown(opts, keep); } catch (x) { try { keep.look?.dispose(); keep.sets?.dispose(); keep.map?.dispose(); } catch { /* already gone */ } throw x; }
+    try { return buildTown(opts, keep); } catch (x) { try { keep.dress?.dispose(); keep.look?.dispose(); keep.sets?.dispose(); keep.map?.dispose(); } catch { /* already gone */ } throw x; }
   }
   /** The films' kit and street models before a build (never longer than ms; a build without them uses the generated pieces). */
   const prepare = (ms = 6000) => window.FreeWalkSets ? window.FreeWalkSets.prepare(ms) : Promise.resolve(false);
