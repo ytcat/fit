@@ -25,6 +25,9 @@
   // The light of each place (render-look.js). The Docks keep their own tuned night (docks-sets.js).
   const LOOK_OF = { dream_street: 'day', dream_market: 'market', dream_shop: 'shop', dream_gym: 'gym', dream_gym_floor: 'gym', dream_gym_ring: 'gym' };
   let quality = 'auto'; try { const q = localStorage.getItem(QKEY); if (QUALITIES.includes(q)) quality = q; } catch { /* private mode */ }
+  // 'auto' found this device too slow in an earlier film of this visit: the next films start low instead of switching (and
+  // recompiling every material) one second into each film. Not kept across visits: a busy moment does not stick for good.
+  let autoLow = false;
   const BOX = [['jab', .5], ['cross', .58], ['guard', .4], ['jab', .46], ['hook', .6], ['guard', .8]], BOX_T = BOX.reduce((n, x) => n + x[1], 0);
 
   function speaker(id, e) {
@@ -207,7 +210,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     Promise.all([window.StorySets.ready(), cityWait, headWait, nextWait && nextWait.catch(() => null)]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
       if (run.closed) return;
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 260);
-      const street = scene0.set === 'dream_street' && !!e.renderer.shadowMap; hi = street && quality !== 'low';
+      const street = scene0.set === 'dream_street' && !!e.renderer.shadowMap; hi = street && quality !== 'low' && !(quality === 'auto' && autoLow); if (quality === 'auto' && autoLow) run.quality = 'low (auto)';
       if (street) { const sm = e.renderer.shadowMap; shadowWas = { enabled: sm.enabled, type: sm.type, autoUpdate: sm.autoUpdate }; sm.enabled = hi; if (hi) sm.type = THREE.PCFSoftShadowMap; }
       const BB = window.BagBreak, force0 = BB?.force; if (scene0.gymBag && BB) BB.force = scene0.gymBag; // beat 5: the old bag lies on the floor
       try { set = window.StorySets.build(scene0.set, scene, { renderer: e.renderer, shadows: !!e.renderer.shadowMap?.enabled, city }); } finally { if (scene0.gymBag && BB) BB.force = force0; }
@@ -249,7 +252,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       let fx = 0, fz = 0, fn = 0; try { for (const a of Object.values(C.sample(scene0, Math.min(2, scene0.duration)).actors || {})) if (a && a.act !== 'off' && Number.isFinite(a.x)) { fx += a.x; fz += a.z; fn++; } } catch { /* no actors */ }
       const ld = lookId && window.RenderLook?.LOOKS?.[lookId]?.sunDir; // indoors the sun comes through the windows (every tier: no cost)
       if (ld && set.sun) { sunDir = V(...ld).normalize(); set.sun.position.copy(set.sun.target.position).addScaledVector(sunDir, 40); }
-      if (lookId && window.RenderLook) try { rlook = window.RenderLook.attach(scene, e.renderer, { look: lookId, high: quality !== 'low', sun: set.sun, focus: fn ? [fx / fn, fz / fn] : null }); } catch (x) { console.warn('render look', x); rlook = null; }
+      if (lookId && window.RenderLook) try { rlook = window.RenderLook.attach(scene, e.renderer, { look: lookId, high: quality !== 'low' && !(quality === 'auto' && autoLow), sun: set.sun, focus: fn ? [fx / fn, fz / fn] : null }); } catch (x) { console.warn('render look', x); rlook = null; }
       run.look = rlook; // QA: run.look.high(bool)
       // warm-up from the first shot (see warmUp): the shoulder bag is built now too, not in the first frame that shows it
       if (scene0.bag && rigs.fighter) { Cast().bag(rigs.fighter, 'shoulder'); Cast().bag(rigs.fighter, 'off'); }
@@ -386,7 +389,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (life) { const f = rigs.fighter?.root; life.update(dt, run.t, f && f.visible ? f.position : null); }
       // 'auto' drops to low only when the device is steadily slow: the median of 48 frame times, so a few long frames (a model
       // arriving, a first-use texture) cannot switch a capable PC to low and recompile every material in the middle of a shot.
-      if (quality === 'auto' && !hi && rlook?.isHigh && run.phase === 'play' && lookPerf.n < 60) { lookPerf.n++; if (lookPerf.n > 12) lookPerf.dts.push(Math.max(0, delta || 0)); if (lookPerf.n === 60 && slow(lookPerf.dts)) { rlook.high(false); run.quality = 'low (auto)'; } }
+      if (quality === 'auto' && !hi && rlook?.isHigh && run.phase === 'play' && lookPerf.n < 60) { lookPerf.n++; if (lookPerf.n > 12) lookPerf.dts.push(Math.max(0, delta || 0)); if (lookPerf.n === 60 && slow(lookPerf.dts)) { rlook.high(false); run.quality = 'low (auto)'; autoLow = true; rewarm(); } }
       if (quality === 'auto' && hi && run.phase === 'play' && perf.n < 60) { perf.n++; if (perf.n > 12) perf.dts.push(Math.max(0, delta || 0)); if (perf.n === 60 && slow(perf.dts)) lowQuality(); }
       o.city?.frame(s, camera); // GOTR-0089: model bus wheels and doors, distance detail
       // Characters outside the shot are not drawn (2026-11-22: each story rig is 0.25-0.5 M triangles and every film drew all of them,
@@ -411,7 +414,9 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (!walk && s.done && !ended) { ended = true; setTimeout(() => finish({ skipped: !!run.skipping }), 250); }
     }
     /** This device cannot keep up: contact shadows only, no street people and birds (clouds and litter stay). */
-    function lowQuality() { hi = false; rlook?.high(false); if (set?.sun) set.sun.castShadow = false; e.renderer.shadowMap.enabled = false; life?.level(1); for (const b of blobs) b.mesh.material.opacity = .6; run.quality = 'low (auto)'; }
+    function lowQuality() { hi = false; rlook?.high(false); if (set?.sun) set.sun.castShadow = false; e.renderer.shadowMap.enabled = false; life?.level(1); for (const b of blobs) b.mesh.material.opacity = .6; run.quality = 'low (auto)'; autoLow = true; rewarm(); }
+    /** After a switch to low: every material of the set rebuilt at once (one pause), not each one when it first comes into a later shot. */
+    function rewarm() { run.warm2 = Math.round(warmUp(e.renderer, scene, camera)); }
     Object.defineProperty(run, 'rigs', { get: () => rigs }); Object.defineProperty(run, 'set', { get: () => set }); Object.defineProperty(run, 'scene', { get: () => scene }); Object.defineProperty(run, 'camera', { get: () => camera }); Object.defineProperty(run, 'life', { get: () => life }); Object.defineProperty(run, 'scene0', { get: () => scene0 }); // read-only, for QA probes
     run.seek = t => { if (walk) return; turn.clear(); if (ottoVisual) { resetOtto(); lineKey = ''; } run.t = clamp(t, 0, scene0.duration); run.ack = scene0.lines.reduce((n, q, i) => q.t + C.SETTLE < run.t ? i : n, -1); if (run.phase === 'map') { run.phase = 'play'; fade.style.opacity = '0'; try { map?.dispose(); } catch { /* ignore */ } map = null; } for (const c of Object.values(rigs)) Pose().reset(c); };
     return true;
