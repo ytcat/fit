@@ -788,7 +788,7 @@
       if (!held.userData.from) { inHand(true); held.visible = true; rig.root.updateMatrixWorld(true); held.updateMatrixWorld(true); const p = V(), q = new THREE.Quaternion(), sc = V(); held.matrixWorld.decompose(p, q, sc); held.userData.from = { p, q }; }
       inHand(false); if (held.parent !== host) host.add(held);
       const f = held.userData.from, s = (u - J_LET) / (J_LAND - J_LET), e = smooth(s), Q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, rig.root.rotation.y + J_TURN, 0, 'YXZ')), to = spot().setY(.03).sub(V(0, -.27 * .55, 0).applyQuaternion(Q)); // its middle (0.27 m under the collar, flattened) comes down where the heap lies
-      const w = f.p.clone().lerp(to, s); w.y = f.p.y + (to.y - f.p.y) * s * s + .18 * Math.sin(Math.PI * s); // thrown out and a little up, then down
+      const w = f.p.clone().lerp(to, s); w.y = f.p.y + (to.y - f.p.y) * s + .6 * s * (1 - s); // a throw: out and a little up, then down (a parabola in time, ~4.5 m/s at the pavement)
       host.updateMatrixWorld(true); const lp = host.worldToLocal(w.clone()), hq = host.getWorldQuaternion(new THREE.Quaternion()).invert();
       held.position.copy(lp); held.quaternion.copy(hq.multiply(f.q.clone().slerp(Q, e))); held.scale.set(1, 1 - .45 * smooth((s - .6) / .4), 1); held.visible = true;
       return { arms: { L: 'hang', R: 'point' }, lean: .02, look: { yaw: -.5, pitch: .15 } };

@@ -36,7 +36,7 @@ const server = http.createServer((q, r) => {
   await p.waitForFunction(() => DreamScenes.debug && DreamScenes.debug.phase && DreamScenes.debug.phase !== 'load' && DreamScenes.debug.frame, null, { timeout: 300000 });
   // take the clock: the engine's own loop stops driving the film, this script steps it
   await p.evaluate(() => { const r = DreamScenes.debug; r.__frame = r.frame; r.frame = () => { }; DreamScenes.seek(0); });
-  await p.evaluate(([t0]) => { const r = DreamScenes.debug; DreamScenes.seek(Math.max(0, t0 - 1.5)); for (let i = 0; i < 45; i++) r.__frame(1 / 30); }, [T0]);
+  await p.evaluate(([t0]) => { const r = DreamScenes.debug; DreamScenes.seek(Math.max(0, t0 - 1.5)); for (let i = 0; i < 45; i++) { r.ack = 999; r.__frame(1 / 30); } }, [T0]);
   const rows = [], shots = SHOTS.slice().sort((a, b) => a - b);
   let t = await p.evaluate(() => { const r = DreamScenes.debug; r.__c0 = r.clock - r.t; return r.t; }); // t: film time, or (in the player's walk, where the film clock stops) the film time it would be
   while (t < T1 - 1e-6) {
@@ -45,7 +45,7 @@ const server = http.createServer((q, r) => {
       const r = DreamScenes.debug, C = window.DreamCore, out = [], V = (x, y, z) => new THREE.Vector3(x, y, z);
       const scene0 = r.scene0 || (r.set?.objects?.city?.bus ? C.withCity(C.variant(r.id)) : C.variant(r.id));
       for (let i = 0; i < n; i++) {
-        r.__frame(dt); if (r.closed) break;
+        r.ack = 999; r.__frame(dt); if (r.closed) break; // conversations do not wait for a tap here
         const row = { t: +(r.clock - r.__c0).toFixed(4), film: +r.t.toFixed(4), phase: r.phase, shot: r.shot, a: {} };
         for (const [k, c] of Object.entries(r.rigs)) {
           const R = c.root; if (!R.parent) continue; R.updateMatrixWorld(true); const j = c.joints, hidden = (() => { for (let o = R; o; o = o.parent) if (!o.visible) return true; return false; })();

@@ -359,8 +359,23 @@
     /** The hand's spot on the leather, in bag space (x = his right, y = the bag's axis toward its top, z = up once it lies on the
      *  shoulder): GRIP.a from the top on his right side, over the top-outer curve, GRIP.along in front of the middle. */
     const gripLocal = () => V(CARRY.grip.out * Math.sin(CARRY.grip.a), -CARRY.grip.along, CARRY.grip.out * Math.cos(CARRY.grip.a));
-    /** Hand targets (DreamPose reach objects) for the actor that carries the heavy bag. */
-    function reach(actor, t) {
+    /* Handovers (ch1-motion): an item that passes from one actor's hand to another's: both hands come to a point between them
+     * (in the last 0.7 s before the key), the item changes hands there, and they let go (0.35 s). Without this the handbag
+     * and the reward pouch jumped 1.5 m from one hand to the other. */
+    const HAND_IN = .7, HAND_OUT = .35;
+    function handover(actor, t) {
+      const me = rigs[actor]; if (!me) return null;
+      for (const it of items) for (let i = 1; i < it.keys.length; i++) {
+        const a = it.keys[i - 1], b = it.keys[i], A = holderOf(a.on), B = holderOf(b.on); if (!A || !B || A === B || (me !== A && me !== B)) continue;
+        const w = smooth((t - (b.t - HAND_IN)) / HAND_IN) * (1 - smooth((t - b.t) / HAND_OUT)); if (w <= 0) continue;
+        const side = me === A ? a.hand || 'R' : b.hand || 'R', mid = () => { const p = A.joints['arm' + (a.hand || 'R')].getWorldPosition(V()), q = B.joints['arm' + (b.hand || 'R')].getWorldPosition(V()); return p.add(q).multiplyScalar(.5).setY(1.22); }; // between the two shoulders, at chest height
+        return { [side]: { at: rig => rig.root.worldToLocal(mid()).toArray(), w, paw: 'grip' } };
+      }
+      return null;
+    }
+    /** Hand targets (DreamPose reach objects): the heavy bag's carrier, else a handover. */
+    function reach(actor, t) { return heavyReach(actor, t) || handover(actor, t); }
+    function heavyReach(actor, t) {
       if (!heavy || rigs[actor] !== holderOf('fighter')) return null;
       const c = rigs[actor], k = heavy.keys[keyIndex(t)]; if (k.on === 'display') return null;
       const first = bagPose(c, t); if (!first || first.hand <= 0) return null;

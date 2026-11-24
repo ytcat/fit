@@ -163,8 +163,8 @@
     dream_market_reward: {
       set: 'dream_market', place: 'street', duration: 26, chapter: 1, tap: true, outfit: { fighter: 'street' },
       carry: {
-        handbag: [{ t: 0, on: 'fighter', hand: 'L' }, { t: 2.3, on: 'hazel', hand: 'L' }],
-        pouch: [{ t: 0, on: 'off' }, { t: 12.0, on: 'hazel', hand: 'R' }, { t: 14.1, on: 'fighter', hand: 'R' }]
+        handbag: [{ t: 0, on: 'fighter', hand: 'R' }, { t: 2.3, on: 'hazel', hand: 'L' }], // ch1-motion: his right hand to her left (the hands on the same side meet)
+        pouch: [{ t: 0, on: 'off' }, { t: 12.0, on: 'hazel', hand: 'R' }, { t: 14.1, on: 'fighter', hand: 'L' }] // her right hand to his left (ch1-motion)
       },
       camera: [
         { t: 0, pos: [-.2, 1.7, 4.6], look: [-.1, 1.3, -.2] },                                // two-shot: the bag goes back
@@ -182,12 +182,12 @@
       ],
       actors: {
         fighter: { rig: 'fighter', keys: [
-          { t: 0, x: -.85, z: .55, face: 'hazel', look: 'hazel', arms: { L: 'low' } },
+          { t: 0, x: -.85, z: .55, face: 'hazel', look: 'hazel', arms: { R: 'low' } },
           { t: 2.6, arms: {} },
           { t: 8.6, look: 'otto' },
           { t: 12.0, look: 'hazel' },
-          { t: 13.8, arms: { R: 'low' } },                                                       // takes the pouch
-          { t: 15.0, arms: { R: 'fist' } },
+          { t: 13.8, arms: { L: 'low' } },                                                       // takes the pouch
+          { t: 15.0, arms: { L: 'fist' } },
           { t: 16.4, arms: { L: 'open', R: 'fist' } },                                          // "That's exactly a new bag!"
           { t: 20.2, arms: {}, look: 'otto' }
         ] },
@@ -308,6 +308,9 @@
   // when someone starts, stops or turns; turns on the spot are taken in steps) and walks and runs speed up from standing and
   // slow into their stop (actor ramp, inside the same key times).
   for (const id of ['dream_market_robbery', 'dream_market_reward']) Object.assign(scenes[id], { plant: true, ramp: .4 });
+  // the bag and the reward pass from hand to hand (market-sets.js handover): Mrs. Hazel steps up to the Fighter first, so their
+  // hands can meet between them (they stood 1.6 m apart: the bag jumped from his hand to hers)
+  scenes.dream_market_reward.actors.hazel.keys.splice(1, 0, { t: .4, x: .55, z: -.25 }, { t: 1.5, x: -.26, z: .1 });
   scenes.dream_market_robbery.actors.fang.ramp = scenes.dream_market_reward.actors.otto.ramp = .2; // Fang runs off with the bag, Otto hurries over (2.1 m/s): a short speed-up keeps them under a jog
   // The reward line names the price; filled when the scene plays (the price lives in game-domain.js).
   const fill = (scene, price) => price == null ? scene : { ...scene, lines: scene.lines.map(l => ({ ...l, text: Object.fromEntries(Object.entries(l.text).map(([k, v]) => [k, String(v).replace(/\{price\}/g, String(price))])) })) };
