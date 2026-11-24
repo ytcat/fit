@@ -198,14 +198,14 @@
       let lift = 0, pitch = null;
       if (F.swing) {
         const S = F.swing; let k;
-        if (S.kind === 'gait') { S.tt = (S.tt || 0) + dt; k = Math.min(p.planted ? 1 : clamp(((p.u || 0) - S.u0) / Math.max(.05, 1 - S.u0)), S.u0 > .4 ? S.tt / .2 : 1); } // walk-gait: a swing joined late (the other foot was stepping) still takes ~0.2 s, it does not jump to its spot
+        if (S.kind === 'gait') { S.tt = (S.tt || 0) + dt; k = Math.min(p.planted ? 1 : clamp(((p.u || 0) - S.u0) / Math.max(.05, 1 - S.u0)), S.u0 > .4 ? S.tt / .2 : 1); if (p.planted && (S.kk ?? 0) < .7) k = Math.min(k, (S.kk ?? 0) + dt / .1); } // walk-gait: a swing joined late (the other foot was stepping) still takes ~0.2 s, it does not jump to its spot
         else { S.k += dt / S.dur; k = clamp(S.k); lift = S.h * Math.sin(Math.PI * k) ** .7; pitch = .22 * Math.sin(2 * Math.PI * k); support = -p.s * .03 * Math.sin(Math.PI * k); }
         S.kk = k; const was = F.A.clone(); if (S.kind === 'stand') { const e = smooth((k - .15) / .7); F.A.copy(S.A0).lerp(d, e); F.yaw = S.yaw0 + wrapA(dy - S.yaw0) * e; } // from where it stood to where it is wanted now
         else if (S.hold) F.A.copy(S.hold); else if (k < .12) { S.O0.copy(S.A0).sub(d); S.Y0 = wrapA(S.yaw0 - dy); F.A.copy(S.A0); F.yaw = S.yaw0; } // toe-off: the ball stays on its spot (the body may be turning)
         else { // walk-gait: in the last third of the swing the spot it comes down on moves with the body but no longer turns with it (a sharp turn swung it round the body: the foot swept sideways as it touched down)
           let dd = d; if (k > .66) { const ry = worldYaw(0); if (S.fy == null) S.fy = ry; const da = wrapA(ry - S.fy) * smooth((k - .66) / .34); if (Math.abs(da) > 1e-4) { const ox = d.x - o.x, oz = d.z - o.z, cs = Math.cos(-da), sn = Math.sin(-da); dd = V(o.x + ox * cs + oz * sn, d.y, o.z - ox * sn + oz * cs); } }
           const e = 1 - smooth((k - .12) / .88); F.A.copy(dd).addScaledVector(S.O0, e); F.yaw = dy + S.Y0 * e; }
-        if (dt > 0 && k > .8 && !S.hold && (S.kind !== 'gait' || Math.abs(m.om || 0) > .4)) { const cap = .006 + .25 * (1 - smooth((k - .8) / .2)) + (S.kind === 'gait' ? .03 * (1 - clamp((Math.abs(m.om) - .4) / 1.2)) : 0), mv = Math.hypot(F.A.x - was.x, F.A.z - was.z); if (mv > cap) { F.A.x = was.x + (F.A.x - was.x) * cap / mv; F.A.z = was.z + (F.A.z - was.z) * cap / mv; } }
+        if (dt > 0 && k > .8 && !S.hold && (S.kind !== 'gait' || Math.abs(m.om || 0) > .4 || ((m.acc || 0) < -1.2 && (m.vq || 0) < 1.2))) { const cap = .006 + .25 * (1 - smooth((k - .8) / .2)) + (S.kind === 'gait' ? .03 * (1 - clamp(Math.max((Math.abs(m.om) - .4) / 1.2, (Math.abs(m.acc || 0) - 1.2) / 2))) : 0), mv = Math.hypot(F.A.x - was.x, F.A.z - was.z); if (mv > cap) { F.A.x = was.x + (F.A.x - was.x) * cap / mv; F.A.z = was.z + (F.A.z - was.z) * cap / mv; } }
         if (S.kind === 'gait' && k >= 1 && !S.hold) S.hold = F.A.clone(); // walk-gait: it slows over its spot as it touches down (a quicker step in a turn, or the body still moving as he stops, would sweep it along the ground) // then the gait's own swing, with what is left of the difference fading out // over its spot, still coming down: it stays over that spot
         if (k >= 1 && (S.kc == null || S.q >= 1)) { F.swing = null; F.gp = false; F.settle = false; F.C = null; F.sp = 0; } // landed: nothing of the last stance carries over // a step down lands when it has come down
       } else if (gait) { // planted in the walk: the point it rolls over (heel, then ball) stays on its spot; the ankle goes round it
@@ -221,12 +221,12 @@
       if (!F.swing && gait && !p.planted) { const th = clamp(p.pitch, 0, .5); p.pitch = th; p.y = offA + G.sole * Math.cos(th) + BALL * Math.sin(th); p.off = offA; } // waits on its toes for the other foot to land
       else if (F.swing?.kind !== 'gait') { p.y = p.y - p.off + offA + lift; p.off = offA; if (pitch != null) p.pitch = pitch; }
       else { // a walking swing over a step: from the height it left to the height it lands on, never through the edge it passes
-        const S = F.swing, k = S.kk, land = R.localToWorld(V(p.s * GAIT_X, 0, step(0, p.s, GP).z + (1 - (p.u || 0)) * (1 - GP.D) * GP.S * w)), g0 = S.g0 - R.position.y, g1 = offAt(land); S.down = g1 < g0 - .05; p.down = S.down; // (walk-gait: a foot stepping down still sets the pelvis height) // land: where this step will come down (the body goes on for 1 - u of the swing)
+        const S = F.swing, k = S.kk, land = R.localToWorld(V(p.s * GAIT_X, 0, step(0, p.s, GP).z + (1 - (p.u || 0)) * (1 - GP.D) * GP.S * w)), g0 = S.g0 - R.position.y, g1 = offAt(land); S.down = g1 < g0 - .05; p.down = S.kc != null; // (walk-gait: a foot stepping down still sets the pelvis height) // land: where this step will come down (the body goes on for 1 - u of the swing)
         const edge = gnd ? gnd(loc.x, loc.z - (S.down ? -.01 : G.heel + .04), loc.z + BALL + .03) : 0; // stepping down, the toes go down first
         if (S.down && S.kc == null && edge < g0 - .05) { S.kc = k; S.qt = 0; } // stepping down: it comes down (in 0.2 s) once the toes are past the edge
         if (S.kc != null) S.qt += dt;
         const q = S.kc != null ? smooth(S.qt / .3) : S.down ? 0 : g1 > g0 ? smooth(k / .55) : smooth((k - .3) / .7), ow = Math.max(lerp(g0, g1, q), edge); S.q = q;
-        p.y = p.y - p.off + ow + .02 * smooth(k / .2) * (1 - smooth((k - .82) / .18)); p.off = ow; p.hoff = S.down ? lerp(g0, g1, smooth(Math.max(k, q))) : lerp(g0, g1, smooth(k)); if (S.down && q > 0) p.pitch = Math.max(p.pitch, .38 * Math.sin(Math.PI * Math.min(1, q * 1.15)));
+        p.y = p.y - p.off + ow + .02 * smooth(k / .2) * (1 - smooth((k - .82) / .18)); p.off = ow; p.hoff = S.down ? lerp(g0, g1, smooth(Math.max(S.kc != null ? k : 0, q))) : lerp(g0, g1, smooth(k)); if (S.down && q > 0) p.pitch = Math.max(p.pitch, .38 * Math.sin(Math.PI * Math.min(1, q * 1.15)));
       }
       p.x = loc.x; p.z = loc.z; p.yaw = localYaw(F.yaw); p.planted = !F.swing; p.k = F.swing ? F.swing.kk : undefined; F.pp = p.pitch;
     }
@@ -259,9 +259,10 @@
     // ground speed (walk-gait): from the distance walked this frame (or st.speed), smoothed; unknown (a seek, the first frame,
     // a caller that never passes dt) = the film walk's 1.25 m/s, i.e. exactly the GOTR-0097 cycle
     const seek = !(dt > 0) && m.pd != null && Math.abs(d - m.pd) > 1e-6;
-    if (dt > 0 && m.pd != null) { const raw = Number.isFinite(st.speed) ? st.speed : Math.max(0, d - m.pd) / dt, v0 = m.v ?? raw; m.v = v0 + (raw - v0) * (1 - Math.exp(-dt * 6)); m.acc = (m.acc || 0) + (((m.v - v0) / dt) - (m.acc || 0)) * (1 - Math.exp(-dt * 5)); }
+    if (dt > 0 && m.pd != null) { const raw = Number.isFinite(st.speed) ? st.speed : Math.max(0, d - m.pd) / dt, v0 = m.v ?? raw; m.v = v0 + (raw - v0) * (1 - Math.exp(-dt * 6)); m.vq = (m.vq ?? raw) + (raw - (m.vq ?? raw)) * (1 - Math.exp(-dt * 15)); m.acc = (m.acc || 0) + (((m.v - v0) / dt) - (m.acc || 0)) * (1 - Math.exp(-dt * 5)); }
     else if (Number.isFinite(st.speed)) m.v = st.speed;
-    const P = params(m.v != null && walking ? Math.max(m.v, .3) : m.v != null && m.v > .3 ? m.v : NaN); m.P = P;
+    const vg = m.v != null ? lerp(Math.min(m.v, m.vq ?? m.v), m.v, smooth((m.v - 1.8) / .8)) : null; // slowing down, the steps shorten at once (the last step into a stop is not a long one)
+    const P = params(vg != null && walking ? Math.max(vg, .3) : vg != null && vg > .3 ? vg : NaN); m.P = P;
     // the step phase: integrated (stride changes with speed). plant (ch1-motion): never slower than CAD_MIN cycles a second
     // while he walks, so a walk that speeds up from standing or slows into a stop takes short steps at a near-normal rhythm
     // instead of one long step in slow motion (a foot that hung in the air); the planted foot holds its own spot (plant)
@@ -316,14 +317,14 @@
     // speeds up, back as it slows; the head looks a little into the turn
     let om = 0; { R.updateMatrixWorld(true); const o = R.localToWorld(V()), fw = R.localToWorld(V(0, 0, 1)).sub(o); if (dt > 0 && m.fw) { const l = R.worldToLocal(o.clone().add(m.fw)); om = -Math.atan2(l.x, l.z) / dt; } m.fw = fw; }
     if (!(dt > 0)) m.om = m.om || 0; else m.om = (m.om || 0) + (clamp(om, -6, 6) - (m.om || 0)) * (1 - Math.exp(-dt * 7));
-    const bank = clamp(Math.atan((m.v || 0) * m.om / 9.81) * .85, -.2, .2) * w, accLean = clamp((m.acc || 0) * .035, -.06, .08) * w;
+    const vb = Math.min(m.v || 0, m.vq || 0), bank = clamp(Math.atan(vb * m.om / 9.81) * .85, -.2, .2) * w * smooth((vb - .8) / .8), accLean = clamp((m.acc || 0) * .035, -.06, .08) * w;
     // pelvis (GOTR-0097): nearly level. A small bob, lowest just after each heel strike (double support), highest at
     // mid-stance; it turns +-5 deg (the hip of the leading leg forward), drops +-3.5 deg on the swing side while the other
     // leg takes the weight, and shifts 2 cm over the stance foot. walk-gait: all of it grows with the pace; jogging, the
     // body is lowest at mid-stance and highest in the flight
     const hips = j.hips, pL = phase, qp = P.qp, yawA = lerp(.085 + .04 * qp, .09, P.r), yaw = yawA * Math.cos(pL * tau) * w, roll = -lerp(.06 + .014 * qp, .065, P.r) * Math.sin((pL + .15) * tau) * w, hb = (pL * 2) % 1;
     const bobW = hb < .16 ? -.3 * Math.sin(Math.PI * hb / .16) : hb < .5 ? smooth((hb - .16) / .34) : 1 - smooth((hb - .5) / .5), bobR = -Math.cos(tau * (hb - P.D)), bob = lerp(bobW, bobR, P.r); // the knee gives a little as the heel takes the weight (dip at loading)
-    const sway = -lerp(.021 - .006 * qp, .011, P.r) * Math.sin((pL - .05) * tau) * w + .012 * shift + .55 * Math.sin(bank);
+    const sway = -lerp(.021 - .006 * qp, .011, P.r) * Math.sin((pL - .05) * tau) * w + .012 * shift + .4 * Math.sin(bank);
     const twist = st.twist || 0, hipYaw = st.hipYaw || 0; // work (the mop, GOTR-0099): the thorax turns toward the job, the pelvis a little the other way
     hips.rotation.set(0, yaw + hipYaw, roll + .02 * shift - .7 * bank); hips.position.set(sway + (st.shift || 0) + support, HIP, (.012 + .02 * P.r) * w); // shift: the weight over one foot (rig x); support: over the standing foot during a step (plant)
     c.root.updateMatrixWorld(true);
@@ -334,7 +335,9 @@
     for (const p of plans) { if (!p.planted && !p.down && (p.k ?? (w > .5 ? p.u : 1) ?? 1) < .7) continue; const start = c.point(j['thigh' + p.side]), reach = (j['knee' + p.side].position.length() + j['foot' + p.side].position.length()) * (p.planted ? .998 : 1.02), dx = start.x - p.x, dz = start.z - p.z; y = Math.min(y, p.y + Math.sqrt(Math.max(.01, reach * reach - dx * dx - dz * dz)) - (start.y - hips.position.y)); } // (walk-gait: from the hip joint itself; the pelvis tilt raises one by up to 1.5 cm) // never past the legs' reach
     y = Math.max(y, y0 - .12); // walk-gait: a foot left out of reach (a sudden start) never drags the body to the ground
     if (st.plant) { const def = y0 - y; m.def = m.def != null && dt > 0 && def < m.def ? m.def + (def - m.def) * (1 - Math.exp(-dt * 10)) : def; y = y0 - m.def; } // plant: what the legs' reach took off comes back smoothly (the gait's own bob is not damped)
-    hips.position.y = y; if (DreamPose.debug) c.gaitDebug = { om: m.om, bank, y0, y, phase, P, plans: plans.map(p => ({ x: p.x, y: p.y, z: p.z, planted: p.planted, u: p.u })), pl: ['L', 'R'].map(k => { const F = m.plant?.[k]; return F && { A: F.A.toArray().map(v => +v.toFixed(3)), k: F.swing?.kk, kind: F.swing?.kind }; }) };
+    if (st.plant && dt > 0 && m.yw != null) y = Math.max(y, m.yw - 1.2 * dt - R.position.y); // walk-gait: the body never falls faster than ~1.2 m/s (a step down off the bus: it sinks, it does not drop)
+    if (st.plant) m.yw = y + R.position.y;
+    hips.position.y = y; if (DreamPose.debug) c.gaitDebug = { ho, drop: m.drop, hoffs: plans.map(p => [p.off, p.hoff, p.down]), om: m.om, bank, y0, y, phase, P, plans: plans.map(p => ({ x: p.x, y: p.y, z: p.z, planted: p.planted, u: p.u })), pl: ['L', 'R'].map(k => { const F = m.plant?.[k]; return F && { A: F.A.toArray().map(v => +v.toFixed(3)), k: F.swing?.kk, kind: F.swing?.kind }; }) };
     // the heavy chest and shoulders ride the pelvis on a soft spring: they settle a little after each heel strike, lift after
     const hv = dt > 0 && m.hy != null ? (y - m.hy) / dt : 0, ha = dt > 0 && m.hv != null ? clamp((hv - m.hv) / dt, -30, 30) : 0; m.hy = y; m.hv = hv;
     const jig = m.jig || (m.jig = { x: 0, v: 0 }); if (dt > 0) spring(jig, 0, dt, 3.4, .32, -ha * w); else { jig.x = 0; jig.v = 0; } const jy = clamp(jig.x, -.012, .012);
