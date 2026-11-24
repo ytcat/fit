@@ -68,23 +68,22 @@
   const TOP_HUD = '#fightHealth,#advGoal,#powerGauge,.academy-hud,.stage-hud-line'
   function place() {
     if (!root) return;
-    const rtl = (document.documentElement.dir || document.body.dir) === 'rtl', head = document.querySelector('header')?.getBoundingClientRect();
+    const head = document.querySelector('header')?.getBoundingClientRect(); // left-to-right in every language (owner, 2026-11-23)
     const home = rg()?.modalTab === 'adventure', st0 = !home && document.getElementById('stageContainer')?.getBoundingClientRect(), st = st0 && st0.height ? st0 : null;
-    const S = 44, M = 8, side = st ? (rtl ? st.left : innerWidth - st.right) + M : 10;
+    const S = 44, M = 8, side = st ? (innerWidth - st.right) + M : 10;
     let top = st ? st.top + M : (head ? head.bottom : 0) + M;
     if (st) { // x-range of the button plus its row of edge icons, then step below every top HUD element it would cross
       const n = edge && !edge.hidden ? [...edge.children].filter(b => !b.hidden).length : 0, wd = S + n * (S + 6) + (n ? 6 : 0);
-      const x0 = rtl ? st.left + M : st.right - M - wd, x1 = x0 + wd;
+      const x0 = st.right - M - wd, x1 = x0 + wd;
       for (const n of document.querySelectorAll(TOP_HUD)) { if (n.hidden || !n.offsetParent) continue; const r = n.getBoundingClientRect(); if (r.width && r.height && r.left < x1 && r.right > x0 && r.top < st.top + st.height * .35 && r.bottom + 6 > top) top = r.bottom + 6; }
     }
     // not enough room for the stack above the right-edge controls (camera lock, pause, pad): open it as a row beside the button instead
     let row = false;
-    if (st) { const x0 = rtl ? st.left + M : st.right - M - S, x1 = x0 + S, need = top + S + ITEMS.length * (S + 6) + 4;
+    if (st) { const x0 = st.right - M - S, x1 = x0 + S, need = top + S + ITEMS.length * (S + 6) + 4;
       for (const n of document.querySelectorAll('#camLock,#playBtn,.fp-zone,#burstControl')) { if (!n.offsetParent) continue; const r = n.getBoundingClientRect(); if (r.width && r.left < x1 && r.right > x0 && r.top > top && r.top < need) row = true; }
       if (need > st.bottom) row = true; }
     root.classList.toggle('gm-row', row);
-    root.style.top = Math.round(Math.max(0, top)) + 'px'; root.style.left = rtl ? Math.round(side) + 'px' : ''; root.style.right = rtl ? '' : Math.round(side) + 'px';
-    root.dir = rtl ? 'rtl' : 'ltr'; root.classList.toggle('gm-rtl', rtl);
+    root.style.top = Math.round(Math.max(0, top)) + 'px'; root.style.left = ''; root.style.right = Math.round(side) + 'px';
     document.body.style.setProperty('--gm-home-top', Math.round(head ? head.bottom : 0) + 'px');
   }
   // Small edge icons for the few training/fight controls that lived in the toolbar: station / fight controls, timed session, Auto.
@@ -124,7 +123,7 @@
     if (round?.phase === 'end' && (now > round.until || now < round.until - 13 || active)) round = active ? { phase: 'run', mode: active.mode, duration: active.duration } : null;
     const show = !!round && !window.AdventureOldTown?.run && edgeOn() && e.targetMode !== 'fight' && !rg()?.modalTab && !document.querySelector('dialog[open]');
     line.hidden = !show; if (!show) { lineKey = ''; return; }
-    const t = RC[lang()], mode = e.targetMode || 'none', rtl = (document.documentElement.dir || document.body.dir) === 'rtl';
+    const t = RC[lang()], mode = e.targetMode || 'none';
     let title, left = '', sub, hint = '', again = false;
     if (round.phase === 'run') {
       title = fill(t.round, { n: active.duration }); left = fill(t.left, { s: Math.max(0, Math.ceil(active.duration - active.seconds)) });
@@ -133,18 +132,18 @@
       title = round.reason === 'stop' ? t.stopped : t.over; again = true;
       sub = (round.mode === 'rope' ? fill(t.jumps, { n: round.jumps || 0 }) : fill(t.hits, { n: round.hits || 0 })) + (round.recap ? ' · ' + round.recap : '');
     }
-    const key = [lang(), title, left, sub, hint, again, rtl].join('|');
-    if (key !== lineKey) { lineKey = key; line.dir = rtl ? 'rtl' : 'ltr'; line.dataset.phase = round.phase;
+    const key = [lang(), title, left, sub, hint, again].join('|');
+    if (key !== lineKey) { lineKey = key; line.dataset.phase = round.phase;
       line.querySelector('.gm-round-name').textContent = title; line.querySelector('.gm-round-left').textContent = left;
       line.querySelector('.gm-round-sub').textContent = sub; const h = line.querySelector('.gm-round-hint'); h.textContent = hint; h.hidden = !hint;
       const a = line.querySelector('.gm-round-again'); a.textContent = t.again; a.hidden = !again; }
     // Top inline-start corner of the stage, beside the edge tools and below the drill cue / power meter when they share the column.
     const sr = st.getBoundingClientRect(), M = 8, busy = [...root.querySelectorAll('.gm-fab,.gm-tool')].filter(n => n.offsetParent).map(n => n.getBoundingClientRect());
-    const edgeX = busy.length ? (rtl ? Math.max(...busy.map(r => r.right)) : Math.min(...busy.map(r => r.left))) : (rtl ? sr.left : sr.right);
-    const width = Math.max(150, Math.min(300, rtl ? sr.right - M - edgeX - M : edgeX - M - sr.left - M)), x0 = rtl ? sr.right - M - width : sr.left + M;
+    const edgeX = busy.length ? Math.min(...busy.map(r => r.left)) : sr.right;
+    const width = Math.max(150, Math.min(300, edgeX - M - sr.left - M)), x0 = sr.left + M;
     let top = sr.top + M;
     for (const n of document.querySelectorAll('.career-drill-cue,#powerGauge')) { if (n.hidden || !n.offsetParent) continue; const r = n.getBoundingClientRect(); if (r.width && r.left < x0 + width && r.right > x0 && r.top < sr.top + sr.height * .3) top = Math.max(top, r.bottom + 6); }
-    line.style.width = Math.round(width) + 'px'; line.style.top = Math.round(top - sr.top) + 'px'; line.style.left = rtl ? '' : M + 'px'; line.style.right = rtl ? M + 'px' : '';
+    line.style.width = Math.round(width) + 'px'; line.style.top = Math.round(top - sr.top) + 'px'; line.style.left = M + 'px'; line.style.right = '';
   }
   function paint() {
     if (!root) return;

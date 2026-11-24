@@ -1,0 +1,336 @@
+{
+ "lang": "ru",
+ "report": {
+  "oldtown": {
+   "ok": true,
+   "stickMoved": 2.17,
+   "start": {
+    "x": 140.51,
+    "z": -113.39,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": 140.07,
+    "z": -117.52,
+    "ry": 1.811,
+    "walking": false
+   },
+   "moved": 4.2,
+   "zone": "Старый город",
+   "district": "oldtown",
+   "cars": 12,
+   "walkers": 10,
+   "perf": {
+    "frames": 69,
+    "meanMs": 291.5,
+    "maxMs": 699.9,
+    "calls": 89,
+    "triangles": 551065,
+    "cpuMs": 2.8,
+    "buildMs": 1189
+   }
+  },
+  "market": {
+   "ok": true,
+   "stickMoved": 2.09,
+   "start": {
+    "x": 124.37,
+    "z": -67.59,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": 122,
+    "z": -70.39,
+    "ry": 2.27,
+    "walking": false
+   },
+   "moved": 3.7,
+   "zone": "Рыночный ряд",
+   "district": "market",
+   "cars": 12,
+   "walkers": 10,
+   "perf": {
+    "frames": 62,
+    "meanMs": 309.1,
+    "maxMs": 883.3,
+    "calls": 89,
+    "triangles": 560861,
+    "cpuMs": 2.2,
+    "buildMs": 739
+   }
+  },
+  "docks": {
+   "ok": true,
+   "stickMoved": 2.39,
+   "start": {
+    "x": -55.75,
+    "z": 136.25,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": -55.51,
+    "z": 132.25,
+    "ry": 1.183,
+    "walking": false
+   },
+   "moved": 4,
+   "zone": "Доки",
+   "district": "docks",
+   "cars": 12,
+   "walkers": 10,
+   "perf": {
+    "frames": 69,
+    "meanMs": 283.8,
+    "maxMs": 466.7,
+    "calls": 94,
+    "triangles": 553033,
+    "cpuMs": 2.1,
+    "buildMs": 749
+   }
+  },
+  "downtown": {
+   "ok": true,
+   "stickMoved": 2.05,
+   "start": {
+    "x": -61.37,
+    "z": -41.51,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": -61.68,
+    "z": -45.13,
+    "ry": 1.811,
+    "walking": false
+   },
+   "moved": 3.6,
+   "zone": "Центр",
+   "district": "downtown",
+   "cars": 12,
+   "walkers": 10,
+   "perf": {
+    "frames": 62,
+    "meanMs": 314.1,
+    "maxMs": 683.3,
+    "calls": 90,
+    "triangles": 551709,
+    "cpuMs": 2.1,
+    "buildMs": 882
+   }
+  },
+  "neon": {
+   "ok": true,
+   "stickMoved": 2.38,
+   "start": {
+    "x": 208.5,
+    "z": 16.5,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": 208,
+    "z": 12.58,
+    "ry": 1.811,
+    "walking": false
+   },
+   "moved": 4,
+   "zone": "Неоновая набережная",
+   "district": "neon",
+   "cars": 12,
+   "walkers": 10,
+   "perf": {
+    "frames": 61,
+    "meanMs": 309.4,
+    "maxMs": 733.3,
+    "calls": 94,
+    "triangles": 552155,
+    "cpuMs": 7,
+    "buildMs": 672
+   }
+  },
+  "dome": {
+   "ok": true,
+   "stickMoved": 1.82,
+   "start": {
+    "x": -186.75,
+    "z": 53.75,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": -187.08,
+    "z": 51.16,
+    "ry": 1.757,
+    "walking": false
+   },
+   "moved": 2.6,
+   "zone": "Купол гавани",
+   "district": "dome",
+   "cars": 12,
+   "walkers": 0,
+   "perf": {
+    "frames": 50,
+    "meanMs": 447,
+    "maxMs": 966.6,
+    "calls": 88,
+    "triangles": 559901,
+    "cpuMs": 3.2,
+    "buildMs": 696
+   }
+  },
+  "hill": {
+   "ok": true,
+   "stickMoved": 1.68,
+   "start": {
+    "x": -41.25,
+    "z": -180.75,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": -40.58,
+    "z": -183.15,
+    "ry": 1.044,
+    "walking": false
+   },
+   "moved": 2.5,
+   "zone": "Холм славы",
+   "district": "hill",
+   "cars": 12,
+   "walkers": 10,
+   "perf": {
+    "frames": 55,
+    "meanMs": 405.4,
+    "maxMs": 799.9,
+    "calls": 88,
+    "triangles": 559901,
+    "cpuMs": 2.6,
+    "buildMs": 1480
+   }
+  },
+  "tech": {
+   "ok": true,
+   "stickMoved": 2.1,
+   "start": {
+    "x": 303.25,
+    "z": 177.75,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": 301.66,
+    "z": 175.02,
+    "ry": 2.528,
+    "walking": false
+   },
+   "moved": 3.2,
+   "zone": "Технопирс",
+   "district": "tech",
+   "cars": 12,
+   "walkers": 0,
+   "perf": {
+    "frames": 65,
+    "meanMs": 289.9,
+    "maxMs": 616.7,
+    "calls": 91,
+    "triangles": 550845,
+    "cpuMs": 2.1,
+    "buildMs": 911
+   }
+  },
+  "fair": {
+   "ok": true,
+   "stickMoved": 2.12,
+   "start": {
+    "x": 285.75,
+    "z": -45.25,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": 285.12,
+    "z": -48.46,
+    "ry": 2.255,
+    "walking": false
+   },
+   "moved": 3.3,
+   "zone": "Полуночная ярмарка",
+   "district": "fair",
+   "cars": 12,
+   "walkers": 0,
+   "perf": {
+    "frames": 59,
+    "meanMs": 342.3,
+    "maxMs": 733.3,
+    "calls": 89,
+    "triangles": 562077,
+    "cpuMs": 3.6,
+    "buildMs": 926
+   }
+  },
+  "cove": {
+   "ok": true,
+   "stickMoved": 1.73,
+   "start": {
+    "x": -234.25,
+    "z": 165.25,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": -235.04,
+    "z": 162.88,
+    "ry": 1.755,
+    "walking": false
+   },
+   "moved": 2.5,
+   "zone": "Пиратская бухта",
+   "district": "cove",
+   "cars": 0,
+   "walkers": 0,
+   "perf": {
+    "frames": 60,
+    "meanMs": 332.1,
+    "maxMs": 949.9,
+    "calls": 87,
+    "triangles": 550757,
+    "cpuMs": 5.2,
+    "buildMs": 645
+   }
+  },
+  "fort": {
+   "ok": true,
+   "stickMoved": 1.73,
+   "start": {
+    "x": -231.89,
+    "z": -151.01,
+    "ry": 3.142,
+    "walking": false
+   },
+   "end": {
+    "x": -232.3,
+    "z": -153.91,
+    "ry": 1.826,
+    "walking": false
+   },
+   "moved": 2.9,
+   "zone": "Старый форт",
+   "district": "fort",
+   "cars": 12,
+   "walkers": 10,
+   "perf": {
+    "frames": 55,
+    "meanMs": 382.8,
+    "maxMs": 700,
+    "calls": 85,
+    "triangles": 554489,
+    "cpuMs": 4,
+    "buildMs": 677
+   }
+  }
+ },
+ "errors": []
+}

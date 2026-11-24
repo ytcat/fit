@@ -73,7 +73,7 @@
     const rinse = el('button', 'mop-night-rinse', w.rinse); rinse.type = 'button';
     rinse.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); getSim()?.rinse(); });
     rinse.addEventListener('click', e => { if (e.detail === 0) getSim()?.rinse(); }); // keyboard / screen reader
-    const note = el('div', 'mop-night-note'); note.append(el('strong', '', w.noteTitle), el('p', '', w.note)); note.dir = 'auto';
+    const note = el('div', 'mop-night-note'); note.append(el('strong', '', w.noteTitle), el('p', '', w.note));
     const dark = el('div', 'mop-night-dark'), pops = el('div', 'mop-night-pops');
     host?.append(dark, pops, note, rinse);
     const O = {

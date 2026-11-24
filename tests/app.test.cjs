@@ -32,7 +32,7 @@ for(const lang of ['he','ru','en']) {
 }
 app.engine.technique='combo';app.setLanguage('he');
 assert.equal(app.engine.technique,'combo');assert.equal(app.engine.animTime,.57);
-assert.equal(document.documentElement.dir,'rtl');
+assert.equal(document.documentElement.dir,'ltr','the layout stays left-to-right in Hebrew (owner, 2026-11-23)');assert.equal(document.documentElement.lang,'he');
 console.log('PASS language changes preserve technique, frozen pose and combination time');
 app.engine.isPlaying=true;app.toggle();assert.equal(app.engine.isPlaying,false);assert.equal(app.isActive,false);
 app.toggle();assert.equal(app.engine.isPlaying,true);assert.equal(app.clock,180,'continuous play must not start a round timer');
@@ -46,7 +46,7 @@ Object.assign(engine,{mixer:{},technique:'uppercut',animTime:0,actions:{Rear_Upp
   activeAction:{stop(){stopped=true;}}});
 engine.playClipForDrill();
 assert.equal(engine.activeAction,null);assert.ok(stopped);
-assert.equal(element('modelStatusText').textContent,'Avatar has no Uppercut clip');
+assert.equal(element('modelStatusText').textContent,'У аватара нет анимации Uppercut','the status line follows the language (Russian here)');
 const action={getClip:()=>({duration:1.22})};
 for(const method of ['reset','setLoop','setEffectiveTimeScale','fadeIn','play'])action[method]=()=>action;
 engine.actions={'Lead Hook':action};engine.technique='hook';engine.playClipForDrill();
@@ -82,7 +82,7 @@ global.THREE={...realThree,WebGLRenderer:class {constructor(){throw new Error('W
 window.addEventListener=()=>{};
 const fallbackEngine=new TestEngine('fallbackCanvas','fallbackStage');
 assert.ok(appended.some(n=>n.id==='renderingNotice'),'renderer failure must show a useful message');
-assert.equal(element('modelStatusText').textContent,'WebGL unavailable');
+assert.equal(element('modelStatusText').textContent,uiSay('WebGL unavailable','WebGL לא זמין','WebGL недоступен'),'the status line follows the language');assert.ok(appended.find(n=>n.id==='renderingNotice').textContent.length>20);
 assert.equal(fallbackEngine.isPlaying,true);
 global.THREE=realThree;
 console.log('PASS graceful WebGL startup failure with usable application controls');

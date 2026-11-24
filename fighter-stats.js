@@ -13,7 +13,7 @@
   root.append(chip,panel);host.prepend(root);
   const state=()=>{const e=window.app?.engine,store=e?.career?.store,p=store?.current(),g=p&&store.game(p),A=window.AdventureProgress;return g&&A?{A,store,p,g,species:e.coach?.species||'lion'}:null;};
   function paint(){
-   const lang=copy[document.documentElement.lang]?document.documentElement.lang:'en',w=copy[lang],s=state();root.dir=lang==='he'?'rtl':'ltr';
+   const lang=copy[document.documentElement.lang]?document.documentElement.lang:'en',w=copy[lang],s=state();root.dir='ltr';
    if(!s){chip.textContent=w.chip;panel.replaceChildren();return;}
    const sum=s.A.summary(s.g),rank=s.store.rank(s.species,s.p).name,max=s.A.rules.maxStat;
    chip.replaceChildren(make('span','fs-label',w.chip+' · '),make('span','fs-level',w.level+' '+sum.level));chip.setAttribute('aria-label',w.chip+' · '+w.level+' '+sum.level);chip.title=w.title;

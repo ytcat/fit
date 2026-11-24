@@ -66,13 +66,12 @@
     pawsFor(scene0, e, 1); // GOTR-0100 follow-up: the film's paws first in the worker queue, while its set and city models load
     const reduced = opts.reducedMotion ?? !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches, w = W[lang()];
     // ---- overlay: bars, subtitle in the bottom bar, Skip
-    const d = el('dialog', 'story-scene dream-scene'); d.dir = lang() === 'he' ? 'rtl' : 'ltr'; d.dataset.kind = 'dream'; d.dataset.tap = String(!!scene0.tap);
+    const d = el('dialog', 'story-scene dream-scene'); d.dir = 'ltr'; d.dataset.kind = 'dream'; d.dataset.tap = String(!!scene0.tap);
     const host = el('div', 'story-host'), busy = el('div', 'story-busy', '…'), fade = el('div', 'dream-fade'), sub = el('div', 'dream-sub'), name = el('strong', 'dream-name'), text = el('p', 'dream-text'), more = el('span', 'dream-more', '▸'), skip = el('button', 'dream-skip', w.skip + ' ▸▸');
     sub.setAttribute('role', 'status'); sub.setAttribute('aria-live', 'polite'); skip.type = 'button'; more.setAttribute('aria-label', w.next); sub.append(name, text, more);
     // GOTR-0096: the purchase in Otto's Corner is confirmed in the scene: a gold button in the bottom bar, under the line
     const buyBtn = el('button', 'dream-buy', w.buy.replace('{p}', price)); buyBtn.type = 'button'; buyBtn.hidden = true;
     Object.assign(buyBtn.style, { position: 'absolute', insetInlineStart: '50%', transform: 'translateX(-50%)', bottom: 'max(10px, env(safe-area-inset-bottom))', minHeight: '44px', padding: '0 22px', border: '0', borderRadius: '22px', background: 'var(--gr-gold,#f4c152)', color: '#16120a', font: 'inherit', fontSize: '16px', fontWeight: '800', letterSpacing: '.02em', cursor: 'pointer', zIndex: '2', touchAction: 'manipulation' });
-    if (d.dir === 'rtl') buyBtn.style.transform = 'translateX(50%)';
     d.append(host, el('div', 'story-vignette'), el('div', 'dream-bar dream-bar-top'), el('div', 'dream-bar dream-bar-bottom'), fade, busy, sub, skip, buyBtn); document.body.append(d);
 d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.focus({ preventScroll: true });
     const run = { id, closed: false, t: 0, clock: 0, ack: -1, waiting: false, shot: 0, lineIndex: -1, phase: 'load', mapT: 0, bought: !!opts.owned, buying: false };

@@ -1,0 +1,803 @@
+{
+ "total": 131,
+ "byRule": {
+  "rtl": 35,
+  "en-data": 29,
+  "canvas-text": 30,
+  "en-sink": 33,
+  "html-text": 4
+ },
+ "allowed": 0,
+ "findings": [
+  {
+   "file": "academy-stage.js",
+   "line": 62,
+   "rule": "rtl",
+   "text": "'rtl' in u.hud.dir.app"
+  },
+  {
+   "file": "academy-stage.js",
+   "line": 151,
+   "rule": "rtl",
+   "text": "'rtl' in h.pill.dir.app"
+  },
+  {
+   "file": "academy.css",
+   "line": 81,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "adventure/adventure.css",
+   "line": 10,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 1325,
+   "rule": "en-data",
+   "text": "text: HOME GYM"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 1499,
+   "rule": "en-data",
+   "text": "text: DOCKSIDE HANGAR"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 1518,
+   "rule": "en-data",
+   "text": "text: THE BASEMENT"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 1581,
+   "rule": "en-data",
+   "text": "text: BOXING CLUB"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 1599,
+   "rule": "en-data",
+   "text": "text: CITY SPORTS HALL"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 1663,
+   "rule": "en-data",
+   "text": "text: HARBOR DOME"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 1761,
+   "rule": "en-data",
+   "text": "text: CHAMPIONSHIP ARENA"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 1885,
+   "rule": "en-data",
+   "text": "text: PIRATE COVE"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 1969,
+   "rule": "en-data",
+   "text": "text: TECH PIER"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2003,
+   "rule": "en-data",
+   "text": "text: HAUNTED HOUSE"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2008,
+   "rule": "en-data",
+   "text": "text: MIDNIGHT FAIR"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2069,
+   "rule": "en-data",
+   "text": "text: NEON STRIP"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2115,
+   "rule": "en-data",
+   "text": "sub: Home Gym · morning"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2117,
+   "rule": "en-data",
+   "text": "sub: Street fights · evening"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2119,
+   "rule": "en-data",
+   "text": "sub: The Basement · Dockside Hangar"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2121,
+   "rule": "en-data",
+   "text": "sub: Boxing Club · City Sports Hall"
+  },
+  {
+   "file": "adventure/gloryland-map.js",
+   "line": 2127,
+   "rule": "en-data",
+   "text": "sub: Championship Arena · stadium lights"
+  },
+  {
+   "file": "adventure/story/bag-break.js",
+   "line": 200,
+   "rule": "rtl",
+   "text": "'rtl' in d.dir.lang"
+  },
+  {
+   "file": "adventure/story/dream-scenes.js",
+   "line": 69,
+   "rule": "rtl",
+   "text": "'rtl' in d.dir.lang"
+  },
+  {
+   "file": "adventure/story/dream-scenes.js",
+   "line": 75,
+   "rule": "rtl",
+   "text": "'rtl' in if.d.dir.buyBtn"
+  },
+  {
+   "file": "adventure/story/dream.css",
+   "line": 21,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "adventure/story/otto-civilian.js",
+   "line": 161,
+   "rule": "canvas-text",
+   "text": "fillText: OTTO’S"
+  },
+  {
+   "file": "adventure/story/story-scenes.js",
+   "line": 114,
+   "rule": "rtl",
+   "text": "'rtl' in d.dir.lang"
+  },
+  {
+   "file": "adventure/story/story-sets.js",
+   "line": 38,
+   "rule": "canvas-text",
+   "text": "fillText: GLORYLAND"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 335,
+   "rule": "canvas-text",
+   "text": "label: EXIT"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 337,
+   "rule": "canvas-text",
+   "text": "label: TONIGHT"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 337,
+   "rule": "canvas-text",
+   "text": "label: WINNER"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 337,
+   "rule": "canvas-text",
+   "text": "label: STAYS ON"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 407,
+   "rule": "canvas-text",
+   "text": "label: RING ST"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 479,
+   "rule": "canvas-text",
+   "text": "label: CHAMPIONSHIP"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 479,
+   "rule": "canvas-text",
+   "text": "label: NIGHT"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 543,
+   "rule": "canvas-text",
+   "text": "label: GLORY OF THE RING • EST. ROUND ONE"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 544,
+   "rule": "canvas-text",
+   "text": "label: FIGHT NIGHT"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 544,
+   "rule": "canvas-text",
+   "text": "label: GLORY"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 544,
+   "rule": "canvas-text",
+   "text": "label: OF THE RING"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 545,
+   "rule": "canvas-text",
+   "text": "label: TRAIN"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 545,
+   "rule": "canvas-text",
+   "text": "label: HARD"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 545,
+   "rule": "canvas-text",
+   "text": "label: STAY"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 545,
+   "rule": "canvas-text",
+   "text": "label: HUMBLE"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 546,
+   "rule": "canvas-text",
+   "text": "label: CLUB RULES"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 599,
+   "rule": "canvas-text",
+   "text": "label: GLORY OF THE RING • FIGHT NIGHT"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 600,
+   "rule": "canvas-text",
+   "text": "label: GOTR 204815"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 600,
+   "rule": "canvas-text",
+   "text": "label: 22G1 • MAX 30T"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 669,
+   "rule": "canvas-text",
+   "text": "label: FIGHT NIGHT"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 669,
+   "rule": "canvas-text",
+   "text": "label: RED"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 669,
+   "rule": "canvas-text",
+   "text": "label: BLUE"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 669,
+   "rule": "canvas-text",
+   "text": "label: ROUND"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 670,
+   "rule": "canvas-text",
+   "text": "label: GLORY OF THE RING • REGIONAL SERIES"
+  },
+  {
+   "file": "arena-sets.js",
+   "line": 671,
+   "rule": "canvas-text",
+   "text": "label: CHAMPIONS"
+  },
+  {
+   "file": "career-interface.js",
+   "line": 34,
+   "rule": "rtl",
+   "text": "'rtl' in d.dir.app.lang"
+  },
+  {
+   "file": "career-interface.js",
+   "line": 41,
+   "rule": "rtl",
+   "text": "'rtl' in d.dir.app.lang"
+  },
+  {
+   "file": "career-interface.js",
+   "line": 30,
+   "rule": "en-sink",
+   "text": "Player"
+  },
+  {
+   "file": "career-interface.js",
+   "line": 32,
+   "rule": "en-sink",
+   "text": "aria-label: Progress to next rank"
+  },
+  {
+   "file": "career-interface.js",
+   "line": 66,
+   "rule": "en-sink",
+   "text": "textContent = s ·"
+  },
+  {
+   "file": "club-interface.css",
+   "line": 34,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "club-interface.css",
+   "line": 34,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "club-interface.css",
+   "line": 34,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "club-interface.css",
+   "line": 45,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "club-interface.js",
+   "line": 17,
+   "rule": "en-sink",
+   "text": "title = Version"
+  },
+  {
+   "file": "club-interface.js",
+   "line": 18,
+   "rule": "en-sink",
+   "text": "aria-label: Main"
+  },
+  {
+   "file": "club-interface.js",
+   "line": 37,
+   "rule": "en-sink",
+   "text": "L / R"
+  },
+  {
+   "file": "club-interface.js",
+   "line": 43,
+   "rule": "en-sink",
+   "text": "Fit"
+  },
+  {
+   "file": "club-interface.js",
+   "line": 70,
+   "rule": "en-sink",
+   "text": "textContent = LION / RABBIT"
+  },
+  {
+   "file": "club-world.js",
+   "line": 63,
+   "rule": "en-data",
+   "text": "title: THE FOUNDRY"
+  },
+  {
+   "file": "club-world.js",
+   "line": 63,
+   "rule": "en-data",
+   "text": "subtitle: GOOD WORK. EVERY ROUND."
+  },
+  {
+   "file": "club-world.js",
+   "line": 64,
+   "rule": "en-data",
+   "text": "title: HANDS UP.|CHIN DOWN."
+  },
+  {
+   "file": "club-world.js",
+   "line": 64,
+   "rule": "en-data",
+   "text": "subtitle: FORM FIRST / POWER FOLLOWS"
+  },
+  {
+   "file": "club-world.js",
+   "line": 65,
+   "rule": "en-data",
+   "text": "title: ONE MORE|ROUND."
+  },
+  {
+   "file": "club-world.js",
+   "line": 65,
+   "rule": "en-data",
+   "text": "subtitle: SHOW UP. PUT IN THE WORK."
+  },
+  {
+   "file": "club-world.js",
+   "line": 95,
+   "rule": "en-data",
+   "text": "subtitle: THE TRAINING ROOM"
+  },
+  {
+   "file": "club-world.js",
+   "line": 147,
+   "rule": "en-data",
+   "text": "title: HANDS UP.|MOVE YOUR FEET."
+  },
+  {
+   "file": "club-world.js",
+   "line": 147,
+   "rule": "en-data",
+   "text": "subtitle: CONTROL BEFORE POWER"
+  },
+  {
+   "file": "club-world.js",
+   "line": 157,
+   "rule": "en-data",
+   "text": "title: STAY LIGHT.|STAY READY."
+  },
+  {
+   "file": "club-world.js",
+   "line": 174,
+   "rule": "en-data",
+   "text": "title: FIGHT NIGHT"
+  },
+  {
+   "file": "club-world.js",
+   "line": 184,
+   "rule": "en-data",
+   "text": "title: GLORY OF THE RING / FIGHT NIGHT"
+  },
+  {
+   "file": "club-world.js",
+   "line": 24,
+   "rule": "canvas-text",
+   "text": "fillText: GLORY OF THE RING / BOXING CLUB"
+  },
+  {
+   "file": "design-system.css",
+   "line": 162,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "design-system.css",
+   "line": 162,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "design-tokens.css",
+   "line": 118,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "fight-hud.css",
+   "line": 14,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "fight-pause.js",
+   "line": 19,
+   "rule": "rtl",
+   "text": "'rtl' in sign.dir.l"
+  },
+  {
+   "file": "fight-referee.js",
+   "line": 209,
+   "rule": "canvas-text",
+   "text": "fillText: OFFICIAL"
+  },
+  {
+   "file": "fight-ui.js",
+   "line": 28,
+   "rule": "rtl",
+   "text": "ip-break[hidden]{display:none}[dir=rtl] .fight-skip-break{left:auto;"
+  },
+  {
+   "file": "fighter-stats.js",
+   "line": 16,
+   "rule": "rtl",
+   "text": "'rtl' in root.dir.lang"
+  },
+  {
+   "file": "game-shell.js",
+   "line": 63,
+   "rule": "rtl",
+   "text": "'rtl' in modal.dir.app.lang"
+  },
+  {
+   "file": "game-shell.js",
+   "line": 85,
+   "rule": "en-sink",
+   "text": "aria-label: Live equipment preview"
+  },
+  {
+   "file": "gym-details.js",
+   "line": 40,
+   "rule": "canvas-text",
+   "text": "fillText: TRAIN • MOVE • BOX"
+  },
+  {
+   "file": "index.html",
+   "line": 342,
+   "rule": "rtl",
+   "text": "'rtl' in"
+  },
+  {
+   "file": "index.html",
+   "line": 495,
+   "rule": "en-sink",
+   "text": "textContent = 3D rendering is unavailable in this browser. Open this app in a browser with WebGL ena"
+  },
+  {
+   "file": "index.html",
+   "line": 497,
+   "rule": "en-sink",
+   "text": "textContent = WebGL unavailable"
+  },
+  {
+   "file": "index.html",
+   "line": 560,
+   "rule": "en-sink",
+   "text": "textContent = Freeze motion"
+  },
+  {
+   "file": "index.html",
+   "line": 560,
+   "rule": "en-sink",
+   "text": "textContent = Play motion"
+  },
+  {
+   "file": "index.html",
+   "line": 589,
+   "rule": "en-sink",
+   "text": "textContent = Fighter could not load. Please reload."
+  },
+  {
+   "file": "index.html",
+   "line": 604,
+   "rule": "en-sink",
+   "text": "textContent = · ready to train"
+  },
+  {
+   "file": "index.html",
+   "line": 659,
+   "rule": "en-sink",
+   "text": "textContent = No saved avatar on this device · using the lion fighter"
+  },
+  {
+   "file": "index.html",
+   "line": 665,
+   "rule": "en-sink",
+   "text": "textContent = Use a self-contained .glb file"
+  },
+  {
+   "file": "index.html",
+   "line": 674,
+   "rule": "en-sink",
+   "text": "innerText = moves"
+  },
+  {
+   "file": "index.html",
+   "line": 675,
+   "rule": "en-sink",
+   "text": "innerText = · rig only"
+  },
+  {
+   "file": "index.html",
+   "line": 680,
+   "rule": "en-sink",
+   "text": "innerText = Could not load avatar"
+  },
+  {
+   "file": "index.html",
+   "line": 701,
+   "rule": "en-sink",
+   "text": "innerText = Animated training boxer (built-in)"
+  },
+  {
+   "file": "index.html",
+   "line": 706,
+   "rule": "en-sink",
+   "text": "innerText = 3D model:"
+  },
+  {
+   "file": "index.html",
+   "line": 749,
+   "rule": "en-sink",
+   "text": "innerText = Avatar needs authored clips · using the lion fighter"
+  },
+  {
+   "file": "index.html",
+   "line": 769,
+   "rule": "en-sink",
+   "text": "textContent = Uploaded avatar ·"
+  },
+  {
+   "file": "index.html",
+   "line": 769,
+   "rule": "en-sink",
+   "text": "textContent = Avatar has no"
+  },
+  {
+   "file": "index.html",
+   "line": 769,
+   "rule": "en-sink",
+   "text": "textContent = clip"
+  },
+  {
+   "file": "index.html",
+   "line": 1157,
+   "rule": "en-sink",
+   "text": "textContent = Freeze motion"
+  },
+  {
+   "file": "index.html",
+   "line": 1268,
+   "rule": "en-sink",
+   "text": "textContent = Freeze motion"
+  },
+  {
+   "file": "index.html",
+   "line": 1268,
+   "rule": "en-sink",
+   "text": "textContent = Play motion"
+  },
+  {
+   "file": "index.html",
+   "line": 181,
+   "rule": "html-text",
+   "text": "EN",
+   "id": "langEN"
+  },
+  {
+   "file": "index.html",
+   "line": 182,
+   "rule": "html-text",
+   "text": "עב",
+   "id": "langHE"
+  },
+  {
+   "file": "index.html",
+   "line": 183,
+   "rule": "html-text",
+   "text": "РУ",
+   "id": "langRU"
+  },
+  {
+   "file": "index.html",
+   "line": 275,
+   "rule": "html-text",
+   "text": "Pause",
+   "id": "playBtn"
+  },
+  {
+   "file": "modes-menu.js",
+   "line": 71,
+   "rule": "rtl",
+   "text": "'rtl' in const.rtl.document.documentElement"
+  },
+  {
+   "file": "modes-menu.js",
+   "line": 87,
+   "rule": "rtl",
+   "text": "'rtl' in root.dir.rtl"
+  },
+  {
+   "file": "modes-menu.js",
+   "line": 127,
+   "rule": "rtl",
+   "text": "'rtl' in if.show.lineKey.return"
+  },
+  {
+   "file": "modes-menu.js",
+   "line": 137,
+   "rule": "rtl",
+   "text": "'rtl' in line.dir.rtl"
+  },
+  {
+   "file": "practice-layout.js",
+   "line": 9,
+   "rule": "en-sink",
+   "text": "aria-label: Close controls"
+  },
+  {
+   "file": "practice-layout.js",
+   "line": 12,
+   "rule": "en-sink",
+   "text": "aria-label: Boxing techniques"
+  },
+  {
+   "file": "ringside-layout.js",
+   "line": 6,
+   "rule": "en-sink",
+   "text": "aria-label: Close training menu"
+  },
+  {
+   "file": "shop.css",
+   "line": 95,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "shop.css",
+   "line": 132,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "shop.css",
+   "line": 140,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "shop.css",
+   "line": 156,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "stage-hud.css",
+   "line": 97,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "stage-hud.css",
+   "line": 97,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  },
+  {
+   "file": "training-controls.js",
+   "line": 120,
+   "rule": "en-sink",
+   "text": "Audio credits"
+  },
+  {
+   "file": "workout-experience.css",
+   "line": 51,
+   "rule": "rtl",
+   "text": "[dir=rtl"
+  }
+ ]
+}

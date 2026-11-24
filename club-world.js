@@ -2,6 +2,34 @@
 (() => {
  const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
  const mat=(color,extra={})=>{const m=new THREE.MeshStandardMaterial({color,roughness:.84,...extra});m.color.convertSRGBToLinear();return m;};
+ // The gym and arena signs and posters in the player's language (owner rule 2026-11-23); the game name stays Latin
+ // (glossary.js). app.setLanguage repaints them (club-interface.js calls relabel).
+ const SIGN_WORDS={
+  'THE FOUNDRY':['בית היציקה','ЛИТЕЙНАЯ'],
+  'GOOD WORK. EVERY ROUND.':['עבודה טובה. כל סיבוב.','ЧЕСТНАЯ РАБОТА. КАЖДЫЙ РАУНД.'],
+  'HANDS UP.|CHIN DOWN.':['ידיים למעלה.|סנטר למטה.','РУКИ ВВЕРХ.|ПОДБОРОДОК ВНИЗ.'],
+  'FORM FIRST  /  POWER FOLLOWS':['קודם טכניקה  /  אחר כך עוצמה','СНАЧАЛА ТЕХНИКА  /  ПОТОМ СИЛА'],
+  'ONE MORE|ROUND.':['עוד|סיבוב.','ЕЩЁ|РАУНД.'],
+  'SHOW UP. PUT IN THE WORK.':['להגיע. לעבוד קשה.','ПРИХОДИ. РАБОТАЙ.'],
+  'SB':['אגס','ГРУША'],
+  'THE TRAINING ROOM':['חדר האימונים','ТРЕНИРОВОЧНЫЙ ЗАЛ'],
+  'WELCOME TO THE FOUNDRY':['ברוכים הבאים לבית היציקה','ДОБРО ПОЖАЛОВАТЬ В ЛИТЕЙНУЮ'],
+  'READY FOR ANOTHER ROUND?':['מוכנים לעוד סיבוב?','ГОТОВ К НОВОМУ РАУНДУ?'],
+  'TRAIN / RESET / RETURN':['להתאמן / לנוח / לחזור','ТРЕНИРУЙСЯ / ОТДЫХАЙ / ВОЗВРАЩАЙСЯ'],
+  'POWER & PRECISION':['עוצמה ודיוק','СИЛА И ТОЧНОСТЬ'],
+  'BAG STATIONS':['עמדות שקים','МЕШКИ'],
+  'HANDS UP.|MOVE YOUR FEET.':['ידיים למעלה.|להזיז רגליים.','РУКИ ВВЕРХ.|ДВИГАЙ НОГАМИ.'],
+  'CONTROL BEFORE POWER':['שליטה לפני עוצמה','КОНТРОЛЬ ВАЖНЕЕ СИЛЫ'],
+  'MOVE & RECOVER':['תנועה והתאוששות','ДВИЖЕНИЕ И ОТДЫХ'],
+  'FOOTWORK / MOBILITY / CONDITIONING':['עבודת רגליים / גמישות / כושר','РАБОТА НОГ / ПОДВИЖНОСТЬ / ВЫНОСЛИВОСТЬ'],
+  'STAY LIGHT.|STAY READY.':['קלים על הרגליים.|תמיד מוכנים.','БУДЬ ЛЁГКИМ.|БУДЬ ГОТОВ.'],
+  'BREATHE / MOVE / RECOVER':['לנשום / לזוז / להתאושש','ДЫШИ / ДВИГАЙСЯ / ВОССТАНАВЛИВАЙСЯ'],
+  'FIGHT NIGHT':['ערב קרבות','ВЕЧЕР БОЁВ'],
+  'LION   /   RABBIT     •     GLORY OF THE RING CHAMPIONSHIP':['אריה   /   ארנב     •     אליפות GLORY OF THE RING','ЛЕВ   /   КРОЛИК     •     ЧЕМПИОНАТ GLORY OF THE RING'],
+  'EARN|YOUR|CORNER':['להרוויח|את|הפינה','ЗАСЛУЖИ|СВОЙ|УГОЛ'],
+  'GLORY OF THE RING  /  FIGHT NIGHT':['GLORY OF THE RING  /  ערב קרבות','GLORY OF THE RING  /  ВЕЧЕР БОЁВ'],
+  'GLORY OF THE RING  /  BOXING CLUB':['GLORY OF THE RING  /  מועדון אגרוף','GLORY OF THE RING  /  БОКСЁРСКИЙ КЛУБ']};
+ const signText=(text,lang)=>{const t=SIGN_WORDS[text];return t&&lang==='he'?t[0]:t&&lang==='ru'?t[1]:text;};
  class ClubWorld {
   constructor(engine){
    this.engine=engine;this.mode='';this.gym=new THREE.Group();this.arena=new THREE.Group();
@@ -12,16 +40,19 @@
    engine.scene.fog=new THREE.Fog(0x171c22,10,27);
    this.buildGym();this.enclose(this.gym,false);this.furnishGym();this.buildArena();this.enclose(this.arena,true);this.batch(this.gym);this.batch(this.arena);this.wallNodes=[];for(const root of [this.gym,this.arena])root.traverse(n=>{if(n.userData.wallZone)this.wallNodes.push(n);});this.update(0,'none');
   }
+  /** Repaints every sign and poster in another language. */
+  relabel(lang){for(const s of this.signs||[])s(lang);}
   box(root,name,size,at,material){const n=new THREE.Mesh(this.boxGeometry,material||this.materials.dark);n.name=name;n.scale.set(...size);n.position.set(...at);n.receiveShadow=true;root.add(n);return n;}
   rod(root,a,b,r,material){const d=b.clone().sub(a),n=new THREE.Mesh(this.cylinderGeometry,material||this.materials.steel);n.position.copy(a).add(b).multiplyScalar(.5);n.scale.set(r,d.length(),r);n.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());root.add(n);return n;}
-  label(root,{name='Club signage',title,subtitle='',width=2,height=1,x=0,y=2,z=-3,color='#dfc291',background='#202b31',accent='#ba6b43',poster=false,resolution=1024}){
+  label(root,{name='Club signage',title:titleEn,subtitle:subtitleEn='',width=2,height=1,x=0,y=2,z=-3,color='#dfc291',background='#202b31',accent='#ba6b43',poster=false,resolution=1024}){
    const canvas=document.createElement('canvas');canvas.width=resolution;canvas.height=Math.round(resolution*height/width);const c=canvas.getContext('2d'),h=Math.round(1024*height/width);c.scale(resolution/1024,resolution/1024);
+   const paint=lang=>{const title=signText(titleEn,lang),subtitle=signText(subtitleEn,lang);c.direction=lang==='he'?'rtl':'ltr';c.clearRect(0,0,1024,h);
    c.fillStyle=background;c.fillRect(0,0,1024,h);c.strokeStyle=color;c.lineWidth=3;c.strokeRect(20,20,984,h-40);
    // Layout from the label's real height so the brand line, title and subtitle never overlap (wide, short wall signs
    // used to draw the 72 px title on top of the brand line). Short signs drop the brand line; a title that is the brand drops it too.
-   const pad=20,brandRow=!poster&&h>=240&&!/GLORY OF THE RING/.test(title),brandSize=Math.round(Math.max(14,Math.min(22,h*.08)));
+   const pad=20,brandRow=!poster&&h>=240&&!/GLORY OF THE RING/.test(titleEn),brandSize=Math.round(Math.max(14,Math.min(22,h*.08)));
    c.textBaseline='middle';
-   if(poster||brandRow){c.fillStyle=accent;c.fillRect(44,pad+22,75,7);c.font=`600 ${brandSize}px sans-serif`;c.textAlign='left';c.fillStyle=color;c.fillText('GLORY OF THE RING  /  BOXING CLUB',44,pad+22+7+brandSize*.9,936);}
+   if(poster||brandRow){c.fillStyle=accent;c.fillRect(44,pad+22,75,7);c.font=`600 ${brandSize}px sans-serif`;c.textAlign='left';c.fillStyle=color;c.fillText(signText('GLORY OF THE RING  /  BOXING CLUB',lang),44,pad+22+7+brandSize*.9,936);}
    if(poster){
     c.save();c.translate(512,h*.44);c.rotate(-.24);c.fillStyle=accent;
     c.beginPath();(c.roundRect||c.rect).call(c,-198,-124,175,208,55);c.fill();c.beginPath();(c.roundRect||c.rect).call(c,23,-124,175,208,55);c.fill();
@@ -35,8 +66,10 @@
     const step=(bottom-top)/lines.length;lines.forEach((line,i)=>c.fillText(line,512,top+step*(i+.5),900));
     if(subtitle){c.font=`500 ${subSize}px sans-serif`;c.fillText(subtitle,512,subY,900);}
    }
-   c.textBaseline='alphabetic';
+   c.textBaseline='alphabetic';};
+   let lang=window.app?.lang||'en';paint(lang);
    const t=new THREE.CanvasTexture(canvas);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;
+   (this.signs||(this.signs=[])).push(next=>{if(next===lang)return;lang=next;paint(next);t.needsUpdate=true;});
    const plane=new THREE.Mesh(new THREE.PlaneGeometry(width,height),new THREE.MeshBasicMaterial({map:t,toneMapped:false}));plane.position.set(x,y,z);plane.name=name;root.add(plane);return plane;
   }
   batch(root){

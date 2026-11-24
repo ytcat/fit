@@ -17,7 +17,10 @@
  const strip=text=>terms.reduce((s,t)=>s.split(t).join(' '),String(text).replace(/[⁨⁩]/g,''));
  // Longest first, so that a phrase (Rolling Return) is removed before a word inside it (Roll).
  terms.sort((a,b)=>b.length-a.length);
- const api={game,terms,moves,combos,finishers,stations,isolate,term,strip};
+ // Words painted into textures (signs, badges) repaint on a language change: onLanguage(fn) registers, relabel(lang) runs them
+ // (club-interface.js calls it from app.setLanguage).
+ const painters=[],onLanguage=fn=>{painters.push(fn);},relabel=lang=>{for(const fn of painters)fn(lang);};
+ const api={game,terms,moves,combos,finishers,stations,isolate,term,strip,onLanguage,relabel};
  if(typeof module!=='undefined'){module.exports=api;return;}
  window.GotrGlossary=api;
  // The shared technique table feeds move buttons, lessons, cues and drill names: keep the English term there.

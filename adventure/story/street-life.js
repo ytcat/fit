@@ -196,5 +196,5 @@
     mesh.userData.dispose = () => { mesh.parent?.remove(mesh); geo.dispose(); mesh.material.dispose(); }; return mesh;
   }
 
-  window.StreetLife = { build, shadowProxy, pigeonState, walkers, pigeons, FLUSH, SHADOW_LAYER, walkerAt };
+  window.StreetLife = { build, shadowProxy, pigeonState, walkers, pigeons, FLUSH, SHADOW_LAYER, walkerAt, walker, walkPose, dog, trotPose, WALK_STRIDE, birdGeometry, wingGeometry }; // walker/walkPose and the pigeon shapes: the town's people and birds in the free walk
 })();

@@ -159,7 +159,7 @@ label.career-secondary{display:inline-flex;align-items:center;cursor:pointer}
 .bout-announcement span{color:var(--gr-accent-text);font-weight:var(--gr-fw-bold)}
 .bout-announcement[data-kind=countdown]{border-radius:var(--gr-radius-m)}
 .bout-announcement[data-kind=countdown] strong{font-family:var(--gr-font);font-style:normal;font-variant-numeric:tabular-nums}
-[dir=rtl] .bout-announcement strong,[dir=rtl] .club-app .fight-knockout{font-style:normal}
+.club-app:lang(he) .bout-announcement strong,.club-app:lang(he) .fight-knockout{font-style:normal}
 .ringside-layout .fight-results{background:var(--gr-scene-chip-strong);border:1px solid var(--gr-scene-line);border-radius:var(--gr-radius-m);box-shadow:var(--gr-shadow-2)}
 .fight-result-title{color:var(--gr-text);font-weight:var(--gr-fw-bold)}
 .club-app .fight-card{background:var(--gr-surface-2);border:1px solid var(--gr-border);border-radius:var(--gr-radius-s)}

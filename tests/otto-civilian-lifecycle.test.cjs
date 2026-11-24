@@ -37,7 +37,7 @@ for(const id of ['dream_otto_shop','dream_market_reward']){
 const m=JSON.parse(fs.readFileSync(root+'/offline-manifest.json','utf8')), read=f=>fs.readFileSync(root+'/'+f,'utf8'), w=read('offline-worker.js'), b=read('scripts/build_offline_manifest.py'), h=read('index.html');
 assert(w.includes('ringfighter-offline-'+m.version)&&w.includes("manifest.version!=='"+m.version+"'")&&b.includes("'version':'"+m.version+"'"));
 for(const f of ['./adventure/story/otto-civilian.js','./adventure/story/dream-scenes.js','./adventure/story/cast-market.js']){const n=m.urls.find(u=>u.split('?')[0]===f);assert(n&&h.includes(n),f+' loaded and in the offline pack (any cache version)');}
-assert(m.urls.includes('./adventure/story/otto-civilian.js?v=otto492e63'),'the approved Otto module');
+assert(m.urls.includes('./adventure/story/otto-civilian.js?v=otto492e63-lang'),'the approved Otto module (492e63; only its woven shop mark follows the language since lang-audit)');
 assert(h.indexOf('dream-pose.js')<h.indexOf('otto-civilian.js')&&h.indexOf('otto-civilian.js')<h.indexOf('dream-scenes.js'));
 const renderer=read('adventure/story/dream-scenes.js'),cull=renderer.indexOf('cullFr.setFromProjectionMatrix'),child=renderer.indexOf('ottoVisual.update(ottoState'),renderAt=renderer.indexOf('e.renderer.render(scene, camera)');
 assert(!/OttoCivilian\?\.enabled|ottoCandidate/.test(renderer), 'no query is required');
