@@ -15,11 +15,11 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   // ---- loader: one request per file (cache), a failure falls back and is retried later, a slow file never blocks
   const calls = {}, pending = [];
   CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop(); calls[n] = (calls[n] || 0) + 1; if (/bus|hazel/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
-  assert.deepEqual(CA.status(), { tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle', props: 'idle', gymProps: 'idle' });
+  assert.deepEqual(CA.status(), { tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle', props: 'idle', gymProps: 'idle', marketProps: 'idle', dockProps: 'idle', ringProps: 'idle', stopProps: 'idle' });
   const t0 = Date.now(), r1 = await CA.ready(60);
   assert.ok(Date.now() - t0 < 400, 'ready() returns after its timeout even while a file is still loading');
   assert.ok(r1.bus && r1.tree === null && r1.station === null && r1.oldtown === null, 'only what is ready is used');
-  assert.deepEqual(CA.status(), { tree: 'loading', car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', hazelStall: 'idle', props: 'loading', gymProps: 'idle' }); // the street props join the opening preload, the gym's do not
+  assert.deepEqual(CA.status(), { tree: 'loading', car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', hazelStall: 'idle', props: 'loading', gymProps: 'idle', marketProps: 'idle', dockProps: 'idle', ringProps: 'idle', stopProps: 'loading' }); // the street and bus-stop props join the opening preload, the gym's, market's, docks' and ring's do not
   await CA.ready(30); await CA.preload(['bus']);
   assert.equal(calls['gloryland-bus.glb'], 1, 'the bus is fetched once (cache)'); assert.equal(calls['gloryland-oldtown.glb'], 1, 'a slow file is not requested twice');
   assert.equal(calls['gloryland-station.glb'], 2, 'a failed file is tried again next time');
