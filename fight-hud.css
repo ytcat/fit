@@ -11,20 +11,19 @@
  font-family:var(--gr-font,system-ui,sans-serif);color:var(--gr-text,#f3f6fb)
 }
 #fightHealth[hidden]{display:none}
-[dir=rtl] #fightHealth{--fh-skew:-14deg}
 /* Plate: a soft scrim behind names and bars, strongest where the text sits. */
 #fightHealth::before{content:'';grid-column:1/-1;grid-row:1;align-self:stretch;z-index:-1;margin:-6px calc(-1*var(--fh-pad)) 0;border-radius:var(--gr-radius-m,12px);background:var(--gr-scene-chip,rgb(9 12 17/.78));background:linear-gradient(to bottom,var(--gr-scene-chip,rgb(9 12 17/.78)),color-mix(in srgb,var(--gr-scene-chip,rgb(9 12 17/.78)) 62%,transparent))}
 
 /* Corners */
-#fightHealth .fight-health-player{grid-row:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding-bottom:8px;text-align:start}
+#fightHealth .fight-health-player{grid-row:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding-bottom:8px;text-align:left}
 #fightHealth .fight-health-player[data-corner=red]{grid-column:1;--fh-corner:var(--fh-red)}
 #fightHealth .fight-health-player[data-corner=blue]{grid-column:3;--fh-corner:var(--fh-blue)}
 #fightHealth .fight-health-head{display:flex;align-items:center;gap:6px;min-width:0;line-height:1.35}
 #fightHealth [data-corner=blue] .fight-health-head{flex-direction:row-reverse}
 #fightHealth .fight-health-head::before{content:'';flex:none;width:3px;height:calc(var(--fh-name) - 1px);border-radius:1px;background:var(--fh-corner)}
 #fightHealth .fight-health-label{flex:0 1 auto;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--fh-name);font-weight:var(--gr-fw-heavy,800);letter-spacing:var(--gr-label-spacing,.08em);text-transform:uppercase;color:var(--gr-text,#f3f6fb);text-shadow:0 1px 2px var(--gr-shadow-color,rgb(0 0 0/.6))}
-#fightHealth .fight-health-value{flex:1 0 auto;text-align:end;font-size:var(--fh-num);font-weight:var(--gr-fw-medium,600);font-variant-numeric:tabular-nums;letter-spacing:.01em;color:var(--gr-text-muted,#9aa7bb);unicode-bidi:isolate;transition:color .2s linear}
-#fightHealth [data-corner=blue] .fight-health-value{text-align:start}
+#fightHealth .fight-health-value{flex:1 0 auto;text-align:right;font-size:var(--fh-num);font-weight:var(--gr-fw-medium,600);font-variant-numeric:tabular-nums;letter-spacing:.01em;color:var(--gr-text-muted,#9aa7bb);unicode-bidi:isolate;transition:color .2s linear}
+#fightHealth [data-corner=blue] .fight-health-value{text-align:left}
 
 /* Bars: remaining health hugs the centre, so the bar drains toward the VS badge. */
 #fightHealth .fight-health-track{position:relative;height:var(--fh-bar);margin:0;border:0;border-radius:2px;overflow:hidden;background:var(--gr-scene-chip-strong,rgb(9 12 17/.92));box-shadow:0 0 0 1px var(--gr-scene-line,rgb(255 255 255/.18));transform:skewX(var(--fh-skew))}

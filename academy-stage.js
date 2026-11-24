@@ -59,7 +59,7 @@
   }
   function render(){
    const L=lesson;if(!L)return;const t=w(),u=L.ui,s=L.validator.state(),watching=L.phase==='watch',title=comboName(L.combo.id);
-   u.hud.dir=app.lang==='he'?'rtl':'ltr';u.hud.lang=app.lang;u.hud.dataset.phase=L.phase;u.hud.setAttribute('aria-label',t.lesson+': '+title);
+   u.hud.dir='ltr';u.hud.lang=app.lang;u.hud.dataset.phase=L.phase;u.hud.setAttribute('aria-label',t.lesson+': '+title);
    L.boxes.forEach((b,i)=>{b.textContent=label(L.combo.sequence[i]);});u.row.setAttribute('aria-label',title);
    u.name.textContent=(L.index+1)+' · '+title;u.name.hidden=!watching;
    u.pips.hidden=watching&&!s.reps;u.pips.setAttribute('aria-label',fill(t.runs,{n:s.reps,total:s.required}));L.pips.forEach((p,i)=>{p.dataset.on=String(i<s.reps);p.textContent=i<s.reps?'✓':'';});
@@ -148,7 +148,7 @@
    if(e.targetMode!=='fight'||!match||match.result||shell()?.isModalOpen||!e.player?.enabled||h.done&&now>h.done+2600||!h.pill.isConnected||!store()?.game()?.combos.fight.includes(h.combo.id)){endHint();return;}
    const button=!h.done&&match.phase==='round'?moveButton(h.combo.controllerId):null;clearGlow(button);button?.classList.add('academy-next');
    const text=h.done?fill(w().used,{name:comboName(h.combo.id)}):button?fill(w().use,{label:button.textContent}):'';
-   if(h.pill.textContent!==text)h.pill.textContent=text;h.pill.hidden=!text;h.pill.dir=app.lang==='he'?'rtl':'ltr';h.pill.dataset.done=String(!!h.done);if(!text)return;
+   if(h.pill.textContent!==text)h.pill.textContent=text;h.pill.hidden=!text;h.pill.dir='ltr';h.pill.dataset.done=String(!!h.done);if(!text)return;
    // Sit under the fight header and page tabs, between the two button rails.
    const box=stage.getBoundingClientRect(),rect=n=>n?.getBoundingClientRect(),visible=r=>r&&r.width&&r.height;
    const above=['#fightHud','#fightHealth','.manual-pages'].map(sel=>rect(document.querySelector(sel))).filter(visible).map(r=>r.bottom);

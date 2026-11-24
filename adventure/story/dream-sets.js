@@ -9,10 +9,13 @@
  * World: metres, y up, the camera side is +z. */
 (() => {
   const TAU = Math.PI * 2;
+  // Signs in the player's language (owner rule 2026-11-23), painted when the set is built.
+  const SIGN_WORDS = { "BRUNO'S GYM": ['האולם של ברונו', 'ЗАЛ БРУНО'] };
   function signTexture(lines, w = 512, h = 128, bg = '#141a26', fg = '#f4c152') {
+    { const t = SIGN_WORDS[lines], l = (['he', 'ru'].includes(window.app?.lang) ? window.app.lang : 'en'); if (t && l !== 'en') lines = l === 'he' ? t[0] : t[1]; }
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
     g.fillStyle = bg; g.fillRect(0, 0, w, h); g.strokeStyle = fg; g.lineWidth = 6; g.strokeRect(7, 7, w - 14, h - 14);
-    g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `900 ${Math.round(h * .5)}px "Inter Display","Inter","Arial Black",Impact,system-ui,sans-serif`; g.fillText(lines, w / 2, h / 2 + 3, w - 60);
+    g.fillStyle = fg; g.textAlign = 'center'; g.direction = /[\u0590-\u05FF]/.test(lines) ? 'rtl' : 'ltr'; g.textBaseline = 'middle'; g.font = `900 ${Math.round(h * .5)}px "Inter Display","Inter","Arial Black",Impact,system-ui,sans-serif`; g.fillText(lines, w / 2, h / 2 + 3, w - 60);
     const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
   }
   function board(c, text, x, y, z, w, h, ry = 0, colors = []) {

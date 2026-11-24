@@ -158,7 +158,7 @@
     rings(p,'Apron waist tie',[[1.071,.198,.151],[1.098,.194,.151]],m.apron,{repeat:[3,4]});
     for(const s of [-1,1])line(p,'Tied canvas ends',[V(0,1.084,-.158),V(s*.047,1.094,-.161),V(s*.071,1.056,-.154),V(s*.031,1.01,-.153)],.007,m.pocket);
     const badge=label(p,'Woven shop mark',.11,.04,g=>{
-      g.fillStyle='#dac9a6';g.fillRect(0,0,512,192);g.strokeStyle='#766046';g.lineWidth=7;g.setLineDash([8,7]);g.strokeRect(11,11,490,170);g.fillStyle='#373f36';g.textAlign='center';g.font='bold 84px Georgia';g.fillText("OTTO’S",256,100);g.font='bold 37px sans-serif';g.fillText('C O R N E R',256,151);
+      g.fillStyle='#dac9a6';g.fillRect(0,0,512,192);g.strokeStyle='#766046';g.lineWidth=7;g.setLineDash([8,7]);g.strokeRect(11,11,490,170);g.fillStyle='#373f36';g.textAlign='center';g.font='bold 84px Georgia';const l=(['he','ru'].includes(window.app?.lang)?window.app.lang:'en'),mark={en:["OTTO’S",'C O R N E R'],he:['אוטו','ה פ י נ ה'],ru:['ОТТО','У Г О Л О К']}[l];g.direction=l==='he'?'rtl':'ltr';g.fillText(mark[0],256,100);g.font='bold 37px sans-serif';g.fillText(mark[1],256,151); // the shop mark in the player's language
     });badge.position.copy(panel(.5,1.448,.003));badge.rotation.x=-.04;badge.scale.x=-1;
     const pencilTop=V(-.105,1.041,.129);line(p,'Carpenter pencil',[V(-.096,.968,.129),pencilTop],.005,m.brass);
     const tip=mesh(p,'Sharpened pencil',new T.ConeGeometry(.005,.014,6),m.welt);tip.position.copy(pencilTop).y+=.006;

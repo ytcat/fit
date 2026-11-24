@@ -438,7 +438,7 @@ function build(scene, opts = {}) {
   const W = { disposables,
     NIGHT, group, debugGrid: !!opts.debugGrid,
     solid: new Batch(), ground: new Batch(), marks: new Batch(), glowSolid: new Batch(), beams: new Batch(),
-    facade: {}, inst: {}, glow: { p: [], c: [], s: [], ph: [] }, pools: [], signs: [], places: [], blocks: [], roads: [], cars: [],
+    lang: ['he', 'ru'].includes(opts.lang) ? opts.lang : 'en', facade: {}, inst: {}, glow: { p: [], c: [], s: [], ph: [] }, pools: [], signs: [], places: [], blocks: [], roads: [], cars: [],
     reserve: [], animated: [], paint: [], occ: [], beamList: [], ao: new Batch(), movers: [], low: LOW, time: TIME,
     cloudU: !NIGHT && !LOW ? { value: 0 } : null
   };
@@ -1096,13 +1096,28 @@ function litQuad(W, a, b, c, d, dir, hexNight, hexDay = '#33445a') {
 function occupy(W, kind, data) { W.occ.push([kind, data]); }
 
 const SIGN_FONT = '"Inter Display","Inter","Arial Black",Impact,system-ui,sans-serif';
+// The town's signs in the player's language (owner rule 2026-11-23: nothing is specific to one language). KO stays Latin
+// (glossary.js). A translated sign keeps the English sign's footprint on the building (smaller letters when longer).
+const SIGN_WORDS = {
+  'GYM': ['אולם', 'ЗАЛ'], 'HOME GYM': ['האולם שלנו', 'РОДНОЙ ЗАЛ'], 'MARKET': ['שוק', 'РЫНОК'],
+  'DOCKSIDE HANGAR': ['ההאנגר בנמל', 'АНГАР В ДОКАХ'], 'THE BASEMENT': ['המרתף', 'ПОДВАЛ'],
+  'BOXING CLUB': ['מועדון אגרוף', 'БОКСЁРСКИЙ КЛУБ'], 'BOXING': ['אגרוף', 'БОКС'], 'CITY SPORTS HALL': ['היכל הספורט', 'ГОРОДСКОЙ СПОРТЗАЛ'],
+  'HARBOR DOME': ['כיפת הנמל', 'КУПОЛ ГАВАНИ'], 'CHAMPIONSHIP ARENA': ['זירת האליפות', 'АРЕНА ЧЕМПИОНАТА'],
+  'PIRATE COVE': ['מפרץ הפיראטים', 'ПИРАТСКАЯ БУХТА'], 'TECH PIER': ['מזח הטכנולוגיה', 'ТЕХНОПИРС'],
+  'HAUNTED HOUSE': ['בית הרוחות', 'ДОМ С ПРИЗРАКАМИ'], 'MIDNIGHT FAIR': ['יריד חצות', 'ПОЛНОЧНАЯ ЯРМАРКА'], 'NEON STRIP': ['שדרת הניאון', 'НЕОНОВАЯ УЛИЦА'],
+  'HOTEL': ['מלון', 'ОТЕЛЬ'], 'GLORY INN': ['מלון גלורי', 'ГЛОРИ ИНН'], 'DINER': ['דיינר', 'ДАЙНЕР'], 'OPEN 24H': ['פתוח 24/7', 'КРУГЛОСУТОЧНО'],
+  'ARCADE': ['משחקייה', 'АРКАДА'], 'PLAY': ['שחקו', 'ИГРАЙ'], 'DANCE': ['ריקודים', 'ТАНЦЫ'], 'KO BAR': ['בר KO', 'KO БАР'],
+  'SURF': ['גלישה', 'СЁРФ'], 'TACOS': ['טאקו', 'ТАКО'], 'MOTEL': ['מוטל', 'МОТЕЛЬ'], 'VACANCY': ['יש חדרים', 'ЕСТЬ МЕСТА'],
+  'CINEMA': ['קולנוע', 'КИНО'], 'TONIGHT': ['הערב', 'СЕГОДНЯ']
+};
+const signText = (W, en) => { const t = SIGN_WORDS[en]; return W.lang === 'he' && t ? t[0] : W.lang === 'ru' && t ? t[1] : en; };
 let _measure = null;
 function textW(text, px) { if (!_measure) _measure = canvas(8, 8).getContext('2d'); _measure.font = `900 ${px}px ${SIGN_FONT}`; return _measure.measureText(text).width; }
 /** Register a sign. o: { text, x, y (top), z, ry, h, style: 'board'|'letters'|'blade', fg, bg, glow, board (depth), boardColor, flat } */
 function sign(W, o) {
-  const FS = 56, pad = o.style === 'letters' ? 11 : 20;
-  if (o.style === 'blade') { o.cw = 88; o.ch = o.text.length * 60 + 2 * pad; }
-  else { o.cw = Math.ceil(textW(o.text, FS) * 0.9 + 2 * pad); o.ch = 86; }
+  const FS = 56, pad = o.style === 'letters' ? 11 : 20, en = o.text; o.text = signText(W, en); o.rtl = W.lang === 'he';
+  if (o.style === 'blade') { o.cw = 88; o.ch = [...o.text].length * 60 + 2 * pad; }
+  else { o.cw = Math.ceil(textW(o.text, FS) * 0.9 + 2 * pad); o.ch = 86; const enW = Math.ceil(textW(en, FS) * 0.9 + 2 * pad); if (o.cw > enW) o.h *= enW / o.cw; }
   o.w = o.h * o.cw / o.ch; o.pad = pad; o.fs = FS;
   if (o.board) {
     const fr = frame(o.x, o.z, o.ry), [bx, bz] = fr.p(0, -o.board / 2);
@@ -1116,7 +1131,7 @@ function drawSign(c, s, night) {
   c.save(); c.translate(s.ax, s.ay);
   const font = `900 ${s.fs}px ${SIGN_FONT}`;
   const text = (fill, blur, mode) => {
-    c.font = font; c.textBaseline = 'middle'; c.textAlign = 'center'; c.shadowBlur = blur; c.shadowColor = blur ? gl : 'transparent';
+    c.font = font; c.textBaseline = 'middle'; c.textAlign = 'center'; c.direction = s.rtl ? 'rtl' : 'ltr'; c.shadowBlur = blur; c.shadowColor = blur ? gl : 'transparent';
     const put = (t, x, y) => { if (mode === 'stroke') c.strokeText(t, x, y); else c.fillText(t, x, y); };
     if (mode === 'stroke') { c.strokeStyle = fill; c.lineWidth = 8; c.lineJoin = 'round'; } else c.fillStyle = fill;
     if (s.style === 'blade') [...s.text].forEach((ch, i) => put(ch, s.cw / 2, s.pad + 31 + i * 60));

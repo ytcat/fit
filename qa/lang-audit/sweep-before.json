@@ -1,0 +1,1198 @@
+{
+ "en": {
+  "foreign": {},
+  "direction": {},
+  "offscreen": {},
+  "errors": [
+   "film: not ready"
+  ],
+  "html": [
+   "ltr/en"
+  ]
+ },
+ "he": {
+  "foreign": {
+   "Fight Academy": {
+    "at": "div.club-studio>div.ringside-toolbar>button.game-button",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "[title] Version 1.92 · 2026-11-22": {
+    "at": "div.flex>div>p#appSubtitle.text-[9px]",
+    "screens": [
+     "welcome",
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "shop",
+     "shop-2",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "market-film",
+     "training-calls",
+     "story-fight",
+     "super-punch",
+     "fight-result",
+     "bag-trial",
+     "mop",
+     "mop-result"
+    ]
+   },
+   "[aria-label] Pause": {
+    "at": "main#stageContainer.relative>div.ringside-playback>button#playBtn.col-span-2",
+    "screens": [
+     "welcome",
+     "modes",
+     "settings",
+     "profile",
+     "film",
+     "film-2",
+     "film-3",
+     "training-calls",
+     "story-fight"
+    ]
+   },
+   "[aria-label] Resume": {
+    "at": "main#stageContainer.relative>div.ringside-playback>button#playBtn.col-span-2",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card"
+    ]
+   },
+   "[aria-label] Live equipment preview": {
+    "at": "dialog.game-dialog>div.game-preview",
+    "screens": [
+     "shop",
+     "shop-2"
+    ]
+   },
+   "⁨Straight⁩": {
+    "at": "div#advCalls.adv-calls>div.adv-calls-row>span.adv-call",
+    "screens": [
+     "training-calls"
+    ]
+   },
+   "[aria-label] גררו כדי לנגב. הקישו על הדלי כדי לשטוף. חצים לתנועה, רווח לחוץ לניגוב, R לשטיפה.": {
+    "at": "dialog.story-scene>div.story-mop-surface",
+    "screens": [
+     "mop"
+    ]
+   }
+  },
+  "direction": {
+   "RTL box: Glory of the Ring": {
+    "at": "header.h-14>div.flex>div",
+    "screens": [
+     "welcome",
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "shop",
+     "shop-2",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "market-film",
+     "training-calls",
+     "story-fight",
+     "super-punch",
+     "fight-result",
+     "bag-trial",
+     "mop",
+     "mop-result"
+    ]
+   },
+   "RTL box: אולם אגרוף": {
+    "at": "header.h-14>div.flex",
+    "screens": [
+     "welcome",
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "shop",
+     "shop-2",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "market-film",
+     "training-calls",
+     "story-fight",
+     "super-punch",
+     "fight-result",
+     "bag-trial",
+     "mop",
+     "mop-result"
+    ]
+   },
+   "RTL box: לוחם": {
+    "at": "header.h-14>div.club-head-tools>div#fighterStats.fs-root",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: בחירת שחקן": {
+    "at": "header.h-14>div.club-head-tools",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: Shadowbox ▾": {
+    "at": "div.club-workspace>div.club-studio>div.ringside-toolbar",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: אימון 15 שנ׳": {
+    "at": "div.club-workspace>div.club-studio",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: אוטומטי": {
+    "at": "div.club-workspace",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: Fight Academy": {
+    "at": "",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: נעילת צד": {
+    "at": "div.club-studio>main#stageContainer.relative>button#camLock.camera-lock-toggle",
+    "screens": [
+     "welcome",
+     "story-fight"
+    ]
+   },
+   "RTL box: מכינים את האולם שלכם": {
+    "at": "div.club-studio>main#stageContainer.relative>div.club-loading",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: אפרקאט, הוק, קרוס": {
+    "at": "div.club-workspace>div.club-studio>main#stageContainer.relative",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: מכות": {
+    "at": "div.club-studio>main#stageContainer.relative>div.manual-pages",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: השהה": {
+    "at": "div.club-studio>main#stageContainer.relative>div.ringside-playback",
+    "screens": [
+     "welcome",
+     "modes",
+     "settings",
+     "profile",
+     "film",
+     "film-2",
+     "film-3",
+     "training-calls",
+     "story-fight"
+    ]
+   },
+   "RTL box: בחרו את המתאגרף שלכם": {
+    "at": "dialog.training-dialog>div.practice-control-heading",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: מתאמנים. לומדים. נלחמים.": {
+    "at": "dialog.training-dialog",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: אריה": {
+    "at": "dialog.training-dialog>div.career-fighter-picker>button.career-fighter",
+    "screens": [
+     "welcome",
+     "settings",
+     "profile"
+    ]
+   },
+   "RTL box: מתמודד מול יריבים ארנבים": {
+    "at": "dialog.training-dialog>div.career-fighter-picker",
+    "screens": [
+     "welcome",
+     "profile"
+    ]
+   },
+   "RTL box: השם שלכם (לא חובה)": {
+    "at": "dialog.training-dialog>form.career-create>label",
+    "screens": [
+     "welcome",
+     "profile"
+    ]
+   },
+   "RTL box: התחלה": {
+    "at": "dialog.training-dialog>form.career-create",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: גיבוי": {
+    "at": "dialog.training-dialog>details.career-backup-group",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "RTL box: רמה 0": {
+    "at": "div.club-head-tools>div#fighterStats.fs-root>button#fighterStatsChip.fs-chip",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "shop",
+     "shop-2",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "market-film",
+     "training-calls",
+     "story-fight",
+     "super-punch",
+     "fight-result",
+     "bag-trial",
+     "mop",
+     "mop-result"
+    ]
+   },
+   "RTL box: חנות": {
+    "at": "header.h-14>div.club-head-tools>button.game-wallet",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "shop",
+     "shop",
+     "shop-2",
+     "shop-2",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "market-film",
+     "training-calls",
+     "story-fight",
+     "super-punch",
+     "fight-result",
+     "bag-trial",
+     "mop",
+     "mop-result"
+    ]
+   },
+   "RTL box: QA": {
+    "at": "header.h-14>div.club-head-tools",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "shop",
+     "shop-2",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "market-film",
+     "training-calls",
+     "story-fight",
+     "story-fight",
+     "super-punch",
+     "super-punch",
+     "fight-result",
+     "bag-trial",
+     "mop",
+     "mop-result"
+    ]
+   },
+   "RTL box: המשך": {
+    "at": "div.club-studio>main#stageContainer.relative>div.ringside-playback",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card"
+    ]
+   },
+   "RTL box: התחמקות": {
+    "at": "div.club-workspace>div.club-studio>main#stageContainer.relative",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "training-calls"
+    ]
+   },
+   "RTL box: פנימה": {
+    "at": "div.club-workspace>div.club-studio",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "training-calls"
+    ]
+   },
+   "RTL box: החוצה": {
+    "at": "div.club-workspace",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "training-calls"
+    ]
+   },
+   "RTL box: התכופפות": {
+    "at": "",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "training-calls"
+    ]
+   },
+   "RTL box: העיר העתיקה": {
+    "at": "button.adv-pin>span.adv-tag>span.adv-txt",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "story-card"
+    ]
+   },
+   "RTL box: שדרת השוק": {
+    "at": "div.adv-pins>button.adv-pin>span.adv-tag",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "story-card"
+    ]
+   },
+   "RTL box: רצועת הניאון": {
+    "at": "div.adv-stage>div.adv-pins>button.adv-pin",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "story-card"
+    ]
+   },
+   "RTL box: גבעת התהילה": {
+    "at": "dialog.game-dialog>div.adv-stage>div.adv-pins",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "story-card"
+    ]
+   },
+   "RTL box: יום": {
+    "at": "div.adv-stage>div.adv-tools>div.adv-seg",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "story-card"
+    ]
+   },
+   "RTL box: לילה": {
+    "at": "dialog.game-dialog>div.adv-stage>div.adv-tools",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "story-card"
+    ]
+   },
+   "RTL box: כל העיר": {
+    "at": "dialog.game-dialog>div.adv-stage",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "story-card"
+    ]
+   },
+   "RTL box: מרכז העיר": {
+    "at": "div.adv-stage>div.adv-pins>button.adv-pin",
+    "screens": [
+     "map-card"
+    ]
+   },
+   "RTL box: לצפות ◀": {
+    "at": "dialog.game-dialog>section.adv-card>section.sf-quest",
+    "screens": [
+     "map-card"
+    ]
+   },
+   "RTL box: מבצר": {
+    "at": "section.adv-card>div.adv-tiles>button.adv-tile",
+    "screens": [
+     "map-card"
+    ]
+   },
+   "RTL box: משימת צד": {
+    "at": "dialog.game-dialog>section.adv-card>div.adv-tiles",
+    "screens": [
+     "map-card"
+    ]
+   },
+   "RTL box: הנמל": {
+    "at": "section.adv-card>div.adv-card-head>div.adv-card-titles",
+    "screens": [
+     "map-card-2",
+     "map-night"
+    ]
+   },
+   "RTL box: הרפתקה": {
+    "at": "div#gameModes.gm-modes>div#gameModesList.gm-list>button.gm-item",
+    "screens": [
+     "modes"
+    ]
+   },
+   "RTL box: אימון": {
+    "at": "div#gameModes.gm-modes>div#gameModesList.gm-list",
+    "screens": [
+     "modes",
+     "world",
+     "loadouts"
+    ]
+   },
+   "RTL box: קרב": {
+    "at": "div#gameModes.gm-modes",
+    "screens": [
+     "modes",
+     "academy",
+     "loadouts"
+    ]
+   },
+   "RTL box: גרסת פיתוח: הכול בחינם. המחירים מראים את העלות בהשקה.": {
+    "at": "dialog.game-dialog",
+    "screens": [
+     "shop",
+     "shop-2",
+     "loadouts"
+    ]
+   },
+   "RTL box: שחקן וגיבוי": {
+    "at": "dialog.game-dialog>div.store-balance",
+    "screens": [
+     "shop",
+     "shop-2"
+    ]
+   },
+   "RTL box: היסטוריה": {
+    "at": "",
+    "screens": [
+     "shop",
+     "shop-2",
+     "history"
+    ]
+   },
+   "RTL box: תצוגה מלאה": {
+    "at": "dialog.game-dialog>div.game-preview",
+    "screens": [
+     "shop",
+     "shop-2"
+    ]
+   },
+   "RTL box: כפפות": {
+    "at": "dialog.game-dialog>div.store-shelf>nav.store-categories",
+    "screens": [
+     "shop",
+     "shop-2"
+    ]
+   },
+   "RTL box: מכנסיים": {
+    "at": "dialog.game-dialog>div.store-shelf",
+    "screens": [
+     "shop",
+     "shop-2"
+    ]
+   },
+   "RTL box: קלאסי": {
+    "at": "div.store-shelf>div.store-products>button.store-product",
+    "screens": [
+     "shop",
+     "shop",
+     "shop-2",
+     "shop-2"
+    ]
+   },
+   "RTL box: ✓ בשימוש": {
+    "at": "dialog.game-dialog>div.store-shelf>div.store-products",
+    "screens": [
+     "shop",
+     "shop-2"
+    ]
+   },
+   "RTL box: אפשרויות תרגול": {
+    "at": "dialog#practiceControls>div.practice-control-heading",
+    "screens": [
+     "settings"
+    ]
+   },
+   "RTL box: השהיית תנועה": {
+    "at": "dialog#practiceControls",
+    "screens": [
+     "settings"
+    ]
+   },
+   "RTL box: אריה · מוכן לאימון": {
+    "at": "dialog#practiceControls>div.practice-control-section>div#modelStatusBadge.px-2",
+    "screens": [
+     "settings"
+    ]
+   },
+   "RTL box: המתאגרף שלכם": {
+    "at": "dialog.training-dialog>div.practice-control-heading",
+    "screens": [
+     "profile"
+    ]
+   },
+   "RTL box: ארנב": {
+    "at": "dialog.training-dialog",
+    "screens": [
+     "profile"
+    ]
+   },
+   "RTL box: שחקנים במכשיר הזה": {
+    "at": "dialog.training-dialog>div.career-player-list",
+    "screens": [
+     "profile"
+    ]
+   },
+   "RTL box: הוספת שחקן": {
+    "at": "dialog.training-dialog>details.career-backup-group",
+    "screens": [
+     "profile",
+     "profile"
+    ]
+   },
+   "RTL box: ייצוא גיבוי": {
+    "at": "dialog.training-dialog>details.career-backup-group>div.career-backup",
+    "screens": [
+     "profile"
+    ]
+   },
+   "RTL box: ייבוא גיבוי": {
+    "at": "details.career-backup-group>div.career-backup>label.career-secondary",
+    "screens": [
+     "profile"
+    ]
+   },
+   "RTL box: בונים את האולם שלכם.": {
+    "at": "dialog.game-dialog>header.game-dialog-head",
+    "screens": [
+     "world"
+    ]
+   },
+   "RTL box: האולם של ⁨QA⁩": {
+    "at": "dialog.game-dialog>section.game-section",
+    "screens": [
+     "world"
+    ]
+   },
+   "RTL box: 0 מטבעות · רמת האולם 1": {
+    "at": "dialog.game-dialog",
+    "screens": [
+     "world"
+    ]
+   },
+   "RTL box: 15 שניות · עבודה על שק": {
+    "at": "section.game-section>div.game-world-grid>article.game-world-card",
+    "screens": [
+     "world"
+    ]
+   },
+   "RTL box: לשחק": {
+    "at": "dialog.game-dialog>section.game-section>div.game-world-grid",
+    "screens": [
+     "world",
+     "story-fight",
+     "fight-result",
+     "bag-trial",
+     "mop",
+     "mop-result"
+    ]
+   },
+   "RTL box: אקדמיית הקרב": {
+    "at": "dialog.game-dialog>header.game-dialog-head",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: צפו": {
+    "at": "section.academy-guide>ol.academy-steps>li.academy-step",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: חזרו ×3": {
+    "at": "div.iq-body>section.academy-guide>ol.academy-steps",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: קונים ⁨Combo⁩ בחנות — או מרוויחים אותו כאן.": {
+    "at": "dialog.game-dialog>div.iq-body",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: שיעורים": {
+    "at": "dialog.game-dialog>div.iq-body>div.academy-courses-head",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: ⁨First Rhythm⁩": {
+    "at": "div.academy-courses>article.academy-course>div.academy-course-head",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: הבא": {
+    "at": "article.academy-course>div.academy-course-head>span.academy-tags",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: חדש": {
+    "at": "div.iq-body>div.academy-courses>article.academy-course",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: ⁨Jab⁩": {
+    "at": "div.academy-courses>article.academy-course>div.academy-moves",
+    "screens": [
+     "academy",
+     "loadouts"
+    ]
+   },
+   "RTL box: ⁨Cross⁩": {
+    "at": "dialog.game-dialog>div.iq-body>div.academy-courses",
+    "screens": [
+     "academy",
+     "loadouts"
+    ]
+   },
+   "RTL box: פותח ⁨Combo⁩": {
+    "at": "div.academy-courses>article.academy-course>p.academy-reward",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: התחלת שיעור": {
+    "at": "dialog.game-dialog",
+    "screens": [
+     "academy"
+    ]
+   },
+   "RTL box: סגנונות זירה": {
+    "at": "dialog.game-dialog>header.game-dialog-head",
+    "screens": [
+     "venues"
+    ]
+   },
+   "RTL box: בחרו את המראה של זירת הקרבות שלכם.": {
+    "at": "dialog.game-dialog",
+    "screens": [
+     "venues"
+    ]
+   },
+   "RTL box: אולם השכונה": {
+    "at": "dialog.game-dialog>div.venue-gallery-grid>button.game-button",
+    "screens": [
+     "venues"
+    ]
+   },
+   "RTL box: ✓ נבחר": {
+    "at": "dialog.game-dialog>div.venue-gallery-grid",
+    "screens": [
+     "venues"
+    ]
+   },
+   "RTL box: האימונים והקרבות שלכם יופיעו כאן.": {
+    "at": "dialog.game-dialog",
+    "screens": [
+     "history"
+    ]
+   },
+   "RTL box: שילובי מהלכים": {
+    "at": "dialog.game-dialog>header.game-dialog-head",
+    "screens": [
+     "loadouts"
+    ]
+   },
+   "RTL box: הקישו קרב או אימון כדי להפעיל.": {
+    "at": "dialog.game-dialog",
+    "screens": [
+     "loadouts"
+    ]
+   },
+   "RTL box: First Rhythm": {
+    "at": "div.loadout-cards>article.loadout-card>div.loadout-card-head",
+    "screens": [
+     "loadouts"
+    ]
+   },
+   "RTL box: השלימו פעילות אחת": {
+    "at": "div.loadouts>div.loadout-cards>article.loadout-card",
+    "screens": [
+     "loadouts"
+    ]
+   },
+   "RTL box: פעילויות שהושלמו": {
+    "at": "div.loadout-cards>article.loadout-card>div.loadout-earn",
+    "screens": [
+     "loadouts"
+    ]
+   },
+   "RTL box: קבל בחינם": {
+    "at": "div.loadout-cards>article.loadout-card>div.loadout-actions",
+    "screens": [
+     "loadouts"
+    ]
+   },
+   "RTL box: אתם": {
+    "at": "dialog.game-dialog>div#advStory.adv-story>p",
+    "screens": [
+     "story-card",
+     "mop-result"
+    ]
+   },
+   "RTL box: אז זאת העיר הגדולה... טוב. למצוא את האולם.": {
+    "at": "dialog.game-dialog>div#advStory.adv-story",
+    "screens": [
+     "story-card"
+    ]
+   },
+   "RTL box: ברונו": {
+    "at": "dialog.story-scene>div.dream-sub",
+    "screens": [
+     "market-film"
+    ]
+   },
+   "RTL box: מה קרה לשק שלי?": {
+    "at": "dialog.story-scene",
+    "screens": [
+     "market-film"
+    ]
+   },
+   "RTL box: דילוג ▸▸": {
+    "at": "",
+    "screens": [
+     "market-film",
+     "fight-result"
+    ]
+   },
+   "RTL box: עוצמה": {
+    "at": "div.club-studio>main#stageContainer.relative>div#powerGauge.gr-power-gauge",
+    "screens": [
+     "training-calls",
+     "story-fight",
+     "story-fight",
+     "super-punch",
+     "super-punch"
+    ]
+   },
+   "RTL box: בצעו 26 צירופים שנקראו, סיימו כל אחד בעוצמה · 0/26 · ☆☆☆": {
+    "at": "div.club-studio>main#stageContainer.relative>div#advGoal.adv-goal",
+    "screens": [
+     "training-calls"
+    ]
+   },
+   "LTR line: עוצמה!": {
+    "at": "div#advCalls.adv-calls>div.adv-calls-row>span.adv-call",
+    "screens": [
+     "training-calls"
+    ]
+   },
+   "RTL box: VS": {
+    "at": "div.club-studio>main#stageContainer.relative>div#fightHealth.fight-health",
+    "screens": [
+     "story-fight",
+     "super-punch"
+    ]
+   },
+   "RTL box: פאנג": {
+    "at": "main#stageContainer.relative>div#fightHealth.fight-health>div.fight-health-player",
+    "screens": [
+     "story-fight",
+     "super-punch"
+    ]
+   },
+   "RTL box: סיבוב 1/1": {
+    "at": "main#stageContainer.relative>div#fightHealth.fight-health>div#fightHud.fight-hud",
+    "screens": [
+     "story-fight"
+    ]
+   },
+   "RTL box: · QA": {
+    "at": "div#fightHealth.fight-health>div#fightHud.fight-hud>span.fight-hud-score",
+    "screens": [
+     "story-fight"
+    ]
+   },
+   "RTL box: · פאנג": {
+    "at": "div.club-workspace>div.club-studio",
+    "screens": [
+     "story-fight"
+    ]
+   },
+   "RTL box: השודד · נצחו בקרב הרחוב": {
+    "at": "div.club-studio>main#stageContainer.relative>div#advGoal.adv-goal",
+    "screens": [
+     "story-fight"
+    ]
+   },
+   "RTL box: נטען": {
+    "at": "div.club-studio>main#stageContainer.relative>button#burstControl.burst-control",
+    "screens": [
+     "story-fight"
+    ]
+   },
+   "RTL box: Super Punch": {
+    "at": "div.club-studio>main#stageContainer.relative>div.sp-caption",
+    "screens": [
+     "super-punch"
+    ]
+   },
+   "RTL box: פאנג על הרצפה. השוק מריע.": {
+    "at": "div.club-workspace>div.club-studio",
+    "screens": [
+     "super-punch"
+    ]
+   },
+   "RTL box: הקרב נגמר": {
+    "at": "div.club-studio>main#stageContainer.relative>button#burstControl.burst-control",
+    "screens": [
+     "super-punch"
+    ]
+   },
+   "RTL box: +10 ניסיון": {
+    "at": "div.club-studio>main#stageContainer.relative>div#advToasts.adv-toasts",
+    "screens": [
+     "super-punch"
+    ]
+   },
+   "RTL box: הכו בשק כשהוא מתנדנד אליכם · 1/16 · החטאות 0": {
+    "at": "dialog.story-scene>div.story-hud",
+    "screens": [
+     "bag-trial"
+    ]
+   },
+   "RTL box: ישרה": {
+    "at": "dialog.story-scene",
+    "screens": [
+     "bag-trial"
+    ]
+   },
+   "RTL box: אחורה": {
+    "at": "",
+    "screens": [
+     "bag-trial"
+    ]
+   },
+   "RTL box: משמרת לילה": {
+    "at": "dialog.story-scene>div.story-mop-hud",
+    "screens": [
+     "mop",
+     "mop-result"
+    ]
+   },
+   "RTL box: רצפה נקייה · 0%": {
+    "at": "dialog.story-scene",
+    "screens": [
+     "mop",
+     "mop-result"
+    ]
+   },
+   "RTL box: מגב": {
+    "at": "div.story-mop-hud>div.mop-night-chips>span.mop-night-gauge",
+    "screens": [
+     "mop",
+     "mop-result"
+    ]
+   },
+   "RTL box: גררו כדי לנגב. הקישו על הדלי כדי לשטוף.": {
+    "at": "dialog.story-scene>div.story-mop-footer",
+    "screens": [
+     "mop"
+    ]
+   },
+   "RTL box: סיום משמרת": {
+    "at": "",
+    "screens": [
+     "mop"
+    ]
+   },
+   "RTL box: פתק על הדלת": {
+    "at": "dialog.story-scene>div.mop-night-note",
+    "screens": [
+     "mop"
+    ]
+   },
+   "RTL box: עדיין בלי מדליה": {
+    "at": "dialog.story-scene>div.story-result",
+    "screens": [
+     "mop-result"
+    ]
+   },
+   "RTL box: שיא 0": {
+    "at": "",
+    "screens": [
+     "mop-result"
+    ]
+   }
+  },
+  "offscreen": {},
+  "errors": [
+   "film: not ready"
+  ],
+  "html": [
+   "rtl/he"
+  ]
+ },
+ "ru": {
+  "foreign": {
+   "Fight Academy": {
+    "at": "div.club-studio>div.ringside-toolbar>button.game-button",
+    "screens": [
+     "welcome"
+    ]
+   },
+   "[title] Version 1.92 · 2026-11-22": {
+    "at": "div.flex>div>p#appSubtitle.text-[9px]",
+    "screens": [
+     "welcome",
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "modes",
+     "shop",
+     "shop-2",
+     "settings",
+     "profile",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card",
+     "film",
+     "film-2",
+     "film-3",
+     "market-film",
+     "training-calls",
+     "story-fight",
+     "super-punch",
+     "fight-result",
+     "bag-trial",
+     "mop",
+     "mop-result"
+    ]
+   },
+   "[aria-label] Pause": {
+    "at": "main#stageContainer.relative>div.ringside-playback>button#playBtn.col-span-2",
+    "screens": [
+     "welcome",
+     "modes",
+     "settings",
+     "profile",
+     "film",
+     "film-2",
+     "film-3",
+     "training-calls",
+     "story-fight"
+    ]
+   },
+   "[aria-label] Resume": {
+    "at": "main#stageContainer.relative>div.ringside-playback>button#playBtn.col-span-2",
+    "screens": [
+     "home",
+     "map-card",
+     "map-card-2",
+     "map-night",
+     "world",
+     "academy",
+     "venues",
+     "history",
+     "loadouts",
+     "story-card"
+    ]
+   },
+   "[aria-label] Live equipment preview": {
+    "at": "dialog.game-dialog>div.game-preview",
+    "screens": [
+     "shop",
+     "shop-2"
+    ]
+   },
+   "Straight": {
+    "at": "div#advCalls.adv-calls>div.adv-calls-row>span.adv-call",
+    "screens": [
+     "training-calls"
+    ]
+   },
+   "[aria-label] Веди шваброй по полу. Ведро — прополоскать. Стрелки — движение, пробел — мыть, R — прополоскать.": {
+    "at": "dialog.story-scene>div.story-mop-surface",
+    "screens": [
+     "mop"
+    ]
+   }
+  },
+  "direction": {},
+  "offscreen": {},
+  "errors": [
+   "film: not ready"
+  ],
+  "html": [
+   "ltr/ru"
+  ]
+ }
+}
