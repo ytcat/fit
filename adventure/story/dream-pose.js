@@ -164,7 +164,8 @@
       if (F.swing?.kind === 'gait' && !gait) F.swing = standStep(Math.hypot(F.A.x - d.x, F.A.z - d.z), Math.abs(wrapA(F.yaw - dy))); // he stopped in mid-swing: the foot finishes as a step
       if (!F.swing) {
         if (gait && !p.planted && !other.swing) F.swing = { kind: 'gait', A0: F.A.clone(), yaw0: F.yaw, O0: F.A.clone().sub(d), Y0: wrapA(F.yaw - dy), u0: Math.min(p.u || 0, .95), g0: offAt(F.A) + R.position.y };
-        else if (!gait && !other.swing && !(F.settle && Math.abs(F.sp) > .06)) { const off = Math.hypot(F.A.x - d.x, F.A.z - d.z), oy = Math.abs(wrapA(F.yaw - dy)); if (off > P_TOL || oy > P_YTOL) F.swing = standStep(off, oy); }
+        else if (gait && !other.swing && Math.hypot(F.A.x - d.x, F.A.z - d.z) > .3) F.swing = standStep(Math.hypot(F.A.x - d.x, F.A.z - d.z), Math.abs(wrapA(F.yaw - dy))); // it missed its swing (the other foot was stepping): a catch-up step
+        else if (!gait && !((st.walk || 0) > 0) && !other.swing && !(F.settle && Math.abs(F.sp) > .06)) { const off = Math.hypot(F.A.x - d.x, F.A.z - d.z), oy = Math.abs(wrapA(F.yaw - dy)); if (off > P_TOL || oy > P_YTOL) F.swing = standStep(off, oy); }
       }
       let lift = 0, pitch = null;
       if (F.swing) {
@@ -174,7 +175,7 @@
         S.kk = k; if (S.kind === 'stand') { const e = smooth((k - .15) / .7); F.A.copy(S.A0).lerp(d, e); F.yaw = S.yaw0 + wrapA(dy - S.yaw0) * e; } // from where it stood to where it is wanted now
         else if (S.hold) F.A.copy(S.hold); else if (k < .12) { S.O0.copy(S.A0).sub(d); S.Y0 = wrapA(S.yaw0 - dy); F.A.copy(S.A0); F.yaw = S.yaw0; } // toe-off: the ball stays on its spot (the body may be turning)
         else { const e = 1 - smooth((k - .12) / .88); F.A.copy(d).addScaledVector(S.O0, e); F.yaw = dy + S.Y0 * e; if (k >= 1) S.hold = F.A.clone(); } // then the gait's own swing, with what is left of the difference fading out // over its spot, still coming down: it stays over that spot
-        if (k >= 1 && (S.kc == null || S.q >= 1)) { F.swing = null; F.gp = false; } // a step down lands when it has come down
+        if (k >= 1 && (S.kc == null || S.q >= 1)) { F.swing = null; F.gp = false; F.settle = false; F.C = null; F.sp = 0; } // landed: nothing of the last stance carries over // a step down lands when it has come down
       } else if (gait) { // planted in the walk: the point it rolls over (heel, then ball) stays on its spot; the ankle goes round it
         if (!p.planted) p.pitch = clamp(p.pitch, 0, .5); // held on its toes or flat (below)
         const ball = p.pitch > .02, off = contactOff(localYaw(F.yaw), p.pitch, ball);
@@ -182,7 +183,7 @@
         F.A.copy(F.C).sub(off); F.settle = ball; F.sp = p.pitch;
       } else { // planted, standing: it stays where it is, flat; a foot stopped on its toes lowers its heel round the ball
         F.gp = false;
-        if (F.settle && Math.abs(F.sp) > .01) { F.sp *= Math.exp(-dt * 9); pitch = F.sp; F.A.copy(F.C).sub(contactOff(localYaw(F.yaw), F.sp, F.ball)); } else { F.settle = false; pitch = 0; }
+        if (F.settle && F.C && Math.abs(F.sp) > .01) { F.sp *= Math.exp(-dt * 9); pitch = F.sp; F.A.copy(F.C).sub(contactOff(localYaw(F.yaw), F.sp, F.ball)); } else { F.settle = false; pitch = 0; }
       }
       const loc = R.worldToLocal(V(F.A.x, o.y, F.A.z)), offA = gnd ? gnd(loc.x, loc.z - G.heel - .01, loc.z + BALL) : 0;
       if (!F.swing && gait && !p.planted) { const th = clamp(p.pitch, 0, .5); p.pitch = th; p.y = offA + G.sole * Math.cos(th) + BALL * Math.sin(th); p.off = offA; } // waits on its toes for the other foot to land
@@ -193,7 +194,7 @@
         if (S.down && S.kc == null && edge < g0 - .05) { S.kc = k; S.qt = 0; } // stepping down: it comes down (in 0.2 s) once the toes are past the edge
         if (S.kc != null) S.qt += dt;
         const q = S.kc != null ? smooth(S.qt / .3) : S.down ? 0 : g1 > g0 ? smooth(k / .55) : smooth((k - .3) / .7), ow = Math.max(lerp(g0, g1, q), edge); S.q = q;
-        p.y = p.y - p.off + ow; p.off = ow; p.hoff = S.down ? lerp(g0, g1, smooth(Math.max(k, q))) : lerp(g0, g1, smooth(k)); if (S.down && q > 0) p.pitch = Math.max(p.pitch, .38 * Math.sin(Math.PI * Math.min(1, q * 1.15)));
+        p.y = p.y - p.off + ow + .02 * smooth(k / .2) * (1 - smooth((k - .82) / .18)); p.off = ow; p.hoff = S.down ? lerp(g0, g1, smooth(Math.max(k, q))) : lerp(g0, g1, smooth(k)); if (S.down && q > 0) p.pitch = Math.max(p.pitch, .38 * Math.sin(Math.PI * Math.min(1, q * 1.15)));
       }
       p.x = loc.x; p.z = loc.z; p.yaw = localYaw(F.yaw); p.planted = !F.swing;
     }
@@ -205,6 +206,11 @@
     // walk that speeds up from standing or slows into a stop takes short steps at a near-normal rhythm instead of one long
     // step in slow motion (a foot that hung in the air); the planted foot holds its own spot (plant), so this cannot slide
     let phase;
+    if (st.plant && (st.walk || 0) > 0 && !m.going && m.plant?.L && m.plant?.R) { // setting off from standing: the foot further back steps first (its swing starts now)
+      const R0 = c.root; R0.updateMatrixWorld(true); const zl = R0.worldToLocal(m.plant.L.A.clone().setY(R0.position.y)).z, zr = R0.worldToLocal(m.plant.R.A.clone().setY(R0.position.y)).z;
+      m.ph = Math.floor(m.ph || 0) + (zl <= zr ? DUTY : DUTY - .5 + 1) + 1e-3;
+    }
+    m.going = st.plant && (st.walk || 0) > 0;
     if (st.plant) { const d = st.dist || 0; if (m.pd == null) m.ph = d / STRIDE; else if (st.dt > 0) { const dd = Math.max(0, d - m.pd); m.ph += Math.max(dd / STRIDE, (st.walk || 0) > 0 && dd > 1e-6 ? st.dt * CAD_MIN : 0); } m.pd = d; phase = ((m.ph % 1) + 1) % 1; }
     else phase = ((st.dist || 0) / STRIDE) % 1;
     const j = c.joints, t = st.t || 0, w = m.walk, tau = Math.PI * 2, sw = Math.sin(phase * tau), cw = Math.cos(phase * tau);

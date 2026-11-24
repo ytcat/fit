@@ -84,7 +84,8 @@ const restore = StoryCast.asOpponent(engine, 'fang'); assert.equal(engine.arena.
   restore2(); assert.equal(fang.castWear, 'jacket'); assert.equal(g.attributes.position, J.position); assert.equal(engine.arena.castOpponent, null);
   // the jacket-off beat: jacket on, then in the hand, then on the ground; ends in fight clothes
   const q0 = StoryCast.market.jacketOff(fang, .1); assert.equal(fang.castWear, 'jacket'); assert.ok(q0.arms);
-  StoryCast.market.jacketOff(fang, .5); assert.equal(fang.castWear, 'fight'); assert.ok(fang.castJacketHeld.visible && !fang.castJacketGround.visible, 'held');
+  StoryCast.market.jacketOff(fang, .4); assert.equal(fang.castWear, 'fight'); assert.ok(fang.castJacketHeld.visible && !fang.castJacketGround.visible, 'held');
+  StoryCast.market.jacketOff(fang, .5); assert.ok(fang.castJacketHeld.visible && fang.castJacketHeld.parent !== fang.joints.handR && !fang.castJacketGround.visible, 'in the air, out of his hand');
   StoryCast.market.jacketOff(fang, .95); assert.ok(!fang.castJacketHeld.visible && fang.castJacketGround.visible, 'tossed to the ground');
   StoryCast.market.wear(fang, 'jacket'); assert.ok(!fang.castJacketGround.visible);
   console.log('Fang: lion move set, identical bones (' + cases.length + ' poses), fight wear, jacket-off beat ok');
@@ -121,7 +122,7 @@ assert.equal(hazel.cast.stoop > 0, true, 'Mrs. Hazel stands a little stooped');
   for (const id of IDS) {
     const c = rigs[id]; assert.equal(c.root.scale.x, -1, id + ': the root is mirrored');
     const poses = { talk: () => DreamPose.civil(c, { t: 3, dist: 0, arms: { L: 'pound', R: 'point' }, look: { yaw: .6, pitch: .1 }, talk: 1 }), walk: () => DreamPose.civil(c, { t: 2, dist: .4, walk: 1 }), guard: () => c.update(1, 'guard', 'one_two', { guardCover: 1 }), punch: () => c.update(.5 * 1.22, 'jab', 'one_two', { power: 1.2 }), hook: () => c.update(.5 * 1.22, 'hook', 'one_two', {}) };
-    if (id === 'fang') Object.assign(poses, { fightGuard: () => { StoryCast.market.wear(c, 'fight'); c.update(1, 'guard', 'one_two', { guardCover: 1 }); }, uppercut: () => c.update(.5 * 1.22, 'rear_uppercut', 'one_two', {}), slip: () => c.update(.5 * 1.22, 'slip', 'one_two', {}), roll: () => c.update(.5 * 1.22, 'roll', 'one_two', {}), hit: () => c.update(1, 'guard', 'one_two', { hitReaction: { part: 'head', amount: 1, side: 1, move: 'cross' } }), down: () => c.update(1, 'guard', 'one_two', { down: 1, presentation: { mode: 'loser', raise: 0 } }), jacketHeld: () => { StoryCast.market.jacketOff(c, .5); DreamPose.civil(c, { t: 2, dist: 0, arms: { R: 'low' } }); } });
+    if (id === 'fang') Object.assign(poses, { fightGuard: () => { StoryCast.market.wear(c, 'fight'); c.update(1, 'guard', 'one_two', { guardCover: 1 }); }, uppercut: () => c.update(.5 * 1.22, 'rear_uppercut', 'one_two', {}), slip: () => c.update(.5 * 1.22, 'slip', 'one_two', {}), roll: () => c.update(.5 * 1.22, 'roll', 'one_two', {}), hit: () => c.update(1, 'guard', 'one_two', { hitReaction: { part: 'head', amount: 1, side: 1, move: 'cross' } }), down: () => c.update(1, 'guard', 'one_two', { down: 1, presentation: { mode: 'loser', raise: 0 } }), jacketHeld: () => { StoryCast.market.jacketOff(c, .4); DreamPose.civil(c, { t: 2, dist: 0, arms: { R: 'low' } }); } });
     for (const [name, f] of Object.entries(poses)) {
       for (let k = 0; k < 3; k++) f(); check(c, id + ' ' + name);
       const home = c.root.parent, cast = new THREE.Group(); cast.scale.x = -1; cast.position.set(.4, 0, -.3); cast.rotation.y = 1.1; cast.add(c.root); f(); check(c, id + ' ' + name + ' (mirrored cast)');

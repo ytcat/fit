@@ -42,10 +42,11 @@
     const i0 = at(keys, t); for (let k = 0; k <= i0; k++) for (const f of Object.keys(held)) if (keys[k][f] != null) held[f] = keys[k][f];
     const moves = k => k >= 0 && k + 1 < pts.length && !pts[k + 1].jump && pts[k + 1].t > pts[k].t && Math.hypot(pts[k + 1].x - pts[k].x, pts[k + 1].z - pts[k].z) > 1e-3;
     let tw = t, rate = 1, i = i0, easing = false;
-    if (ramp > 0 && moves(i0) && t > pts[i0].t) { // time warp over the run of walking segments round this one
-      let r0 = i0, r1 = i0; while (moves(r0 - 1)) r0--; while (moves(r1 + 1)) r1++;
+    const iw = moves(i0) ? i0 : moves(i0 - 1) && t <= pts[i0].t + 1e-9 ? i0 - 1 : -1; // the walking segment at t (a key inside a walk belongs to it too)
+    if (ramp > 0 && iw >= 0) { // time warp over the run of walking segments round this one
+      let r0 = iw, r1 = iw; while (moves(r0 - 1)) r0--; while (moves(r1 + 1)) r1++;
       const t0 = pts[r0].t, T = pts[r1 + 1].t - t0, rin = r0 > 0 && !pts[r0].jump, rout = !(r1 + 2 < pts.length && pts[r1 + 2].jump);
-      const ta = Math.min(ramp, T / ((rin && rout) ? 2.5 : 1.5)), lost = ta / 2 * ((rin ? 1 : 0) + (rout ? 1 : 0)), k = T / Math.max(1e-6, T - lost), tau = t - t0;
+      const ta = Math.min(ramp, T / ((rin && rout) ? 4 : 3)), lost = ta / 2 * ((rin ? 1 : 0) + (rout ? 1 : 0)), k = T / Math.max(1e-6, T - lost), tau = t - t0;
       let g = tau; if (rin && tau < ta) g = ta * rampArea(tau / ta); else if (rin) g = tau - ta / 2;
       if (rout && tau > T - ta) g = (T - lost) - ta * rampArea((T - tau) / ta);
       tw = t0 + clamp(g * k, 0, T); easing = (rin && tau < ta) || (rout && tau > T - ta); rate = k * (rin && tau < ta ? EASE.smooth(tau / ta) : rout && tau > T - ta ? EASE.smooth((T - tau) / ta) : 1);

@@ -236,7 +236,7 @@
       else if (s.kind === 'tail') { const H = st.hipLag; tmpE.set(clamp(-H.z * 1.4, -.4, .4) + sway, 0, clamp(H.x * 1.8, -.5, .5) + Math.sin(time * .9) * .05 * s.k); s.o.quaternion.copy(s.rest).multiply(tmpQ.setFromEuler(tmpE)); }
       else if (s.kind === 'bag') { // hangs from the hand by its handles: gravity in rig space, with a little swing
         s.o.parent.updateWorldMatrix(true, false); const pw = s.o.parent.getWorldQuaternion(new THREE.Quaternion()), rw = rig.root.getWorldQuaternion(new THREE.Quaternion());
-        s.o.quaternion.copy(pw.invert().multiply(rw)).multiply(tmpQ.setFromEuler(tmpE.set(clamp(-st.hipLag.z * 1.2, -.35, .35), 0, clamp(st.hipLag.x * 1.2, -.35, .35))));
+        s.o.quaternion.copy(pw.invert().multiply(rw)).multiply(tmpQ.setFromEuler(tmpE.set(clamp(-st.hipLag.z * 1.2, -.35, .35), s.yaw || 0, clamp(st.hipLag.x * 1.2, -.35, .35), 'YXZ'))); // yaw: turned in the hand (the jacket hangs edge-on beside him)
       }
     }
   }
@@ -758,21 +758,42 @@
     }
     const m = meshOf(P, ground ? 'Fang: jacket on the ground' : 'Fang: jacket in the hand', mats(rig).glossy); m.userData.mane = false; return m;
   }
-  /** The jacket-off beat before the street fight, u = 0..1 (about 2 s): shrugs it off the shoulders, swings it off the arm, tosses it
-   *  to the ground, rolls his shoulders. Returns the DreamPose state for this moment ({ arms, lean, look }); pose with DreamPose.civil.
-   *  The tossed jacket stays on the ground (world space, next to him) until wear(rig, 'jacket'). */
+  /** The jacket-off beat before the street fight, u = 0..1 (MarketCore.JACKET_T, 2.2 s). ch1-motion (PR #40: no clipping, no
+   *  teleport): both hands go to the lapels and he rolls his shoulders back (u < J_CUT; the film cuts to the close shot there);
+   *  then the jacket is in his right hand, hanging edge-on beside his leg; he swings it out and lets go (u .45); it flies in an
+   *  arc to the pavement behind his right side and lands there as the heap (u .6), where it stays (world space) until
+   *  wear(rig, 'jacket'); he rolls his shoulders. Pure in u (a seek gives the same picture). Returns the DreamPose state. */
+  const J_CUT = .346, J_LET = .45, J_LAND = .6, J_SPOT = [.62, -.18], J_TURN = 2.2; // J_CUT: with the beat at 14.19 s in dream_market_robbery the jacket changes hands on the cut at 14.95 s
   function jacketOff(rig, u) {
     if (!rig?.castFight) return null; u = clamp(u);
-    if (u < .3) { wear(rig, 'jacket'); return { arms: { L: 'hang', R: 'hang' }, lean: -.06 * smooth(u / .3), look: { yaw: 0, pitch: -.1 * smooth(u / .3) } }; }
-    wear(rig, 'fight');
-    const held = rig.castJacketHeld || (rig.castJacketHeld = (() => { const h = jacketProp(rig, false), grp = new THREE.Group(); grp.name = 'Fang: held jacket'; rig.pawHold = { ...rig.pawHold, R: grp }; grp.add(h); h.position.set(0, -.02, 0); rig.joints.handR.add(grp); grp.position.set(0, -.12, .02); grp.userData.storyPart = true; (rig.castSprings || []).push({ o: grp, rest: grp.quaternion.clone(), k: 1, kind: 'bag' }); return grp; })());
+    const host = rig.root.parent || rig.root;
+    const held = rig.castJacketHeld || (rig.castJacketHeld = (() => { const h = jacketProp(rig, false), grp = new THREE.Group(); grp.name = 'Fang: held jacket'; grp.add(h); h.position.set(0, -.02, 0); grp.userData.storyPart = true; grp.userData.spring = { o: grp, rest: new THREE.Quaternion(), k: 1, kind: 'bag', yaw: Math.PI / 2 }; return grp; })());
     const ground = rig.castJacketGround || (rig.castJacketGround = jacketProp(rig, true));
-    held.visible = u < .62;
-    const host = rig.root.parent || rig.root; if (ground.parent !== host) host.add(ground);
-    ground.visible = u >= .62;
-    if (u >= .62 && !ground.userData.placed) { rig.root.updateMatrixWorld(true); const at = rig.root.localToWorld(V(-.55, 0, .35)); host.worldToLocal(at); ground.position.set(at.x, host === rig.root ? 0 : at.y, at.z); ground.rotation.set(0, rig.root.rotation.y + .7, 0); ground.userData.placed = true; }
-    if (u < .62) ground.userData.placed = false;
-    if (u < .62) return { arms: { L: 'hang', R: u < .45 ? 'low' : 'shrug' }, lean: -.03, look: { yaw: -.3, pitch: .05 } };
+    const inHand = on => { // the held jacket under the right hand (its spring: hangs edge-on), or free in the world (the flight)
+      const sp = rig.castSprings || (rig.castSprings = []), i = sp.indexOf(held.userData.spring);
+      if (on) { if (held.parent !== rig.joints.handR) { rig.joints.handR.add(held); held.position.set(0, -.12, .02); held.quaternion.identity(); held.scale.set(1, 1, 1); } if (i < 0) sp.push(held.userData.spring); rig.pawHold = { ...rig.pawHold, R: held }; }
+      else { if (i >= 0) sp.splice(i, 1); if (rig.pawHold?.R === held) rig.pawHold = { ...rig.pawHold, R: null }; }
+    };
+    rig.root.updateMatrixWorld(true);
+    const spot = () => rig.root.localToWorld(V(J_SPOT[0], 0, J_SPOT[1]));
+    if (u < J_CUT) { // hands to the lapels, shoulders back
+      wear(rig, 'jacket'); inHand(true); held.visible = false; ground.visible = false; ground.userData.placed = false; held.userData.from = null;
+      const k = smooth(u / .18); return { arms: { L: k > .5 ? 'fist' : 'hang', R: k > .5 ? 'fist' : 'hang' }, lean: -.07 * smooth(u / J_CUT), look: { yaw: 0, pitch: -.12 * k } };
+    }
+    wear(rig, 'fight');
+    if (!ground.userData.placed) { if (ground.parent !== host) host.add(ground); const at = spot(); host.worldToLocal(at); ground.position.set(at.x, host === rig.root ? 0 : at.y + .005, at.z); ground.rotation.set(0, rig.root.rotation.y + J_TURN, 0); ground.userData.placed = true; }
+    ground.visible = u >= J_LAND;
+    if (u < J_LET) { inHand(true); held.visible = true; held.userData.from = null; return { arms: { L: 'hang', R: u < .36 ? 'low' : 'shrug' }, lean: -.03, look: { yaw: -.25, pitch: .02 } }; }
+    if (u < J_LAND) { // the flight: from where his hand let go to the heap's place, turning to lie flat
+      if (!held.userData.from) { inHand(true); held.visible = true; rig.root.updateMatrixWorld(true); held.updateMatrixWorld(true); const p = V(), q = new THREE.Quaternion(), sc = V(); held.matrixWorld.decompose(p, q, sc); held.userData.from = { p, q }; }
+      inHand(false); if (held.parent !== host) host.add(held);
+      const f = held.userData.from, s = (u - J_LET) / (J_LAND - J_LET), e = smooth(s), Q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, rig.root.rotation.y + J_TURN, 0, 'YXZ')), to = spot().setY(.03).sub(V(0, -.27 * .55, 0).applyQuaternion(Q)); // its middle (0.27 m under the collar, flattened) comes down where the heap lies
+      const w = f.p.clone().lerp(to, s); w.y = f.p.y + (to.y - f.p.y) * s * s + .18 * Math.sin(Math.PI * s); // thrown out and a little up, then down
+      host.updateMatrixWorld(true); const lp = host.worldToLocal(w.clone()), hq = host.getWorldQuaternion(new THREE.Quaternion()).invert();
+      held.position.copy(lp); held.quaternion.copy(hq.multiply(f.q.clone().slerp(Q, e))); held.scale.set(1, 1 - .45 * smooth((s - .6) / .4), 1); held.visible = true;
+      return { arms: { L: 'hang', R: 'point' }, lean: .02, look: { yaw: -.5, pitch: .15 } };
+    }
+    inHand(false); held.visible = false; held.userData.from = null;
     if (u < .8) return { arms: { L: 'hang', R: 'point' }, lean: .02, look: { yaw: -.5, pitch: .15 } };
     const roll = Math.sin((u - .8) / .2 * Math.PI * 2); return { arms: { L: 'shrug', R: 'shrug' }, lean: .04 * roll, look: { yaw: .1 * roll, pitch: -.05 } };
   }

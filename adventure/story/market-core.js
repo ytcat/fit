@@ -94,7 +94,7 @@
      * takes his jacket off. The film ends with the two facing each other: the street fight starts (oldtown.js). */
     dream_market_robbery: {
       set: 'dream_market', place: 'street', duration: 18.8, chapter: 1, outfit: { fighter: 'street' },
-      carry: { handbag: [{ t: 0, on: 'hazel', hand: 'L' }, { t: 6.05, on: 'fang', hand: 'L' }, { t: 13.9, on: 'ground', at: [-1.5, .5, .6] }] },
+      carry: { handbag: [{ t: 0, on: 'hazel', hand: 'L' }, { t: 6.05, on: 'fang', hand: 'L' }, { t: 13.9, on: 'ground', at: [-1.73, .33, .6], fallFrom: [-1.978, 1.011, .273, -1.53235] }] },
       camera: [
         { t: 0, pos: [-3.2, 2.5, 8.6], look: [.2, 1.25, -2.4] },                               // Market Row by day
         { t: 3.6, pos: [-2.2, 2.15, 7.4], look: [.8, 1.25, -2.0], ease: 'smooth' },
@@ -104,7 +104,9 @@
         { t: 9.4, pos: [-6.0, 1.5, 2.8], look: [-1.9, 1.3, -.4], ease: 'linear' },
         { t: 9.4, cut: true, pos: [-2.4, 1.55, 3.6], look: [-2.4, 1.48, -.25], fov: 32 },    // side two-shot: the stand-off
         { t: 13.4, pos: [-2.4, 1.55, 3.35], look: [-2.4, 1.48, -.25], fov: 31, ease: 'linear' },
-        { t: 13.4, cut: true, pos: [-4.0, 1.5, 2.0], look: [-1.75, 1.4, -.3], fov: 32 },     // over the Fighter's shoulder: the jacket comes off
+        { t: 13.4, cut: true, pos: [-2.65, 1.6, 4.0], look: [-2.22, .92, .02], fov: 42 },     // continuous view of Fang’s left paw, ground contact and contents
+        { t: 14.95, pos: [-2.65, 1.6, 4.0], look: [-2.22, .92, .02], fov: 42 },
+        { t: 14.95, cut: true, pos: [-4.0, 1.5, 2.0], look: [-1.75, 1.4, -.3], fov: 32 },    // resume the original jacket closeup
         { t: 16.4, pos: [-3.85, 1.48, 1.8], look: [-1.75, 1.38, -.3], fov: 30, ease: 'linear' },
         { t: 16.4, cut: true, pos: [-2.2, .95, 4.4], look: [-2.3, 1.4, -.6] },               // low and wide: Mrs. Hazel behind them
         { t: 18.8, pos: [-2.25, .95, 4.0], look: [-2.3, 1.42, -.6], ease: 'linear' }
@@ -131,7 +133,7 @@
           { t: 8.6, x: -1.75, z: -.25, face: 'fighter', look: 'fighter' },                       // runs, stops short
           { t: 11.2, arms: { L: 'carry', R: 'hips' }, lean: .06 },                               // "Move, kid."
           { t: 13.5, arms: { L: 'low', R: 'hang' }, lean: 0 },                                   // drops the bag
-          { t: 14.0, act: 'jacketoff' },
+          { t: 14.19, act: 'jacketoff' },                                                   // ch1-motion: the jacket changes hands on the cut at 14.95 (cast-market.js J_CUT)
           { t: 16.4, act: 'idle', arms: { L: 'hang', R: 'hang' }, lean: .05, look: 'fighter' }   // "You asked for it."
         ] },
         hazel: { rig: 'hazel', keys: [
@@ -302,6 +304,11 @@
       ]
     }
   };
+  // ch1-motion (PR #40 "Market motion"): in the market street the feet stay where they stand (DreamPose plant: no sliding
+  // when someone starts, stops or turns; turns on the spot are taken in steps) and walks and runs speed up from standing and
+  // slow into their stop (actor ramp, inside the same key times).
+  for (const id of ['dream_market_robbery', 'dream_market_reward']) Object.assign(scenes[id], { plant: true, ramp: .4 });
+  scenes.dream_market_robbery.actors.fang.ramp = scenes.dream_market_reward.actors.otto.ramp = .2; // Fang runs off with the bag, Otto hurries over (2.1 m/s): a short speed-up keeps them under a jog
   // The reward line names the price; filled when the scene plays (the price lives in game-domain.js).
   const fill = (scene, price) => price == null ? scene : { ...scene, lines: scene.lines.map(l => ({ ...l, text: Object.fromEntries(Object.entries(l.text).map(([k, v]) => [k, String(v).replace(/\{price\}/g, String(price))])) })) };
   const api = { scenes, ids: Object.keys(scenes), fill, JACKET_T, places: { BAG_FLOOR, HZ, SHOP } };
