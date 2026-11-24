@@ -286,7 +286,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     const MAP_T = 3.4;
     function mapFrame(dt) {
       run.mapT += dt; const k = smooth(run.mapT / MAP_T), kk = k * k, to = run.mapTo, x = 34 + (to.x - 34) * k, z = -14 + (to.z + 14) * k, dist = 250 * Math.pow(12 / 250, kk), pitch = .9 + .38 * kk, yaw = .24 - .5 * k; // GOTR-0089: steepens as it falls, so it ends above the street, never inside a roof
-      const size = e.renderer.getSize(new THREE.Vector2()); mapCam.aspect = size.x / Math.max(1, size.y); mapCam.fov = mapCam.aspect < .9 ? 44 : 30; mapCam.updateProjectionMatrix();
+      const size = e.renderer.getSize(size2); mapCam.aspect = size.x / Math.max(1, size.y); mapCam.fov = mapCam.aspect < .9 ? 44 : 30; mapCam.updateProjectionMatrix();
       mapCam.position.set(x + Math.sin(yaw) * Math.cos(pitch) * dist, Math.sin(pitch) * dist, z + Math.cos(yaw) * Math.cos(pitch) * dist); mapCam.lookAt(x, 0, z);
       if (mapScene.fog) { mapScene.fog.near = dist * .85; mapScene.fog.far = dist * 2.6 + 120; }
       try { map.focusShadows?.(x, z, Math.max(26, dist * .62)); map.update(dt, mapCam, e.renderer); } catch { /* cosmetic */ }
@@ -297,16 +297,17 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       const info = e.renderer.info.render; lastStats = { phase: 'map', calls: info.calls, triangles: info.triangles };
     }
     function lens(fovKey) {
-      const size = e.renderer.getSize(new THREE.Vector2()), aspect = Math.max(.2, size.x / Math.max(1, size.y));
+      const size = e.renderer.getSize(size2), aspect = Math.max(.2, size.x / Math.max(1, size.y));
       if (walk) { if (camera.aspect !== aspect || camera.fov !== walkAPI.FOV) { camera.aspect = aspect; camera.fov = walkAPI.FOV; camera.updateProjectionMatrix(); } return; }
       let v = Math.min(66, Math.max(36, 2 * Math.atan(.345 / aspect) * 180 / Math.PI)); if (fovKey) v *= fovKey / 36;
       if (camera.aspect !== aspect || Math.abs(camera.fov - v) > .01) { camera.aspect = aspect; camera.fov = v; camera.updateProjectionMatrix(); }
     }
-    const headAt = (a, key) => V(a.x, (a.y || 0) + (rigs[key]?.character === 'brick' ? 1.86 : 1.9) - (a.drop || 0), a.z);
+    const size2 = new THREE.Vector2(), headA = V(), headB = V(), headC = V(); // reused every frame (no garbage per frame and actor)
+    const headAt = (a, key, out = headA) => out.set(a.x, (a.y || 0) + (rigs[key]?.character === 'brick' ? 1.86 : 1.9) - (a.drop || 0), a.z);
     function lookFor(a, key, s) {
       const L = a.look; if (!L) return { yaw: 0, pitch: 0 };
       if (!Array.isArray(L) && typeof L === 'object') return L;
-      const from = headAt(a, key), to = typeof L === 'string' ? (s.actors[L] ? headAt(s.actors[L], L) : null) : V(L[0], L[1], L[2]); if (!to) return { yaw: 0, pitch: 0 };
+      const from = headAt(a, key), to = typeof L === 'string' ? (s.actors[L] ? headAt(s.actors[L], L, headB) : null) : headC.set(L[0], L[1], L[2]); if (!to) return { yaw: 0, pitch: 0 };
       const dx = to.x - from.x, dz = to.z - from.z; let yaw = Math.atan2(dx, dz) - a.ry; yaw = Math.atan2(Math.sin(yaw), Math.cos(yaw));
       if (rigs[key]?.root.scale.x < 0) yaw = -yaw; // a mirrored rig turns its head the other way in its own space
       return { yaw, pitch: Math.atan2(to.y - from.y, Math.hypot(dx, dz)) };
