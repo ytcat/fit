@@ -31,5 +31,5 @@
 /* entry on the Adventure map */
 .adv-walk{white-space:nowrap}
 .fw-nav-status:has(.fw-dist:empty){display:none}
-.fw-help{transition:opacity .6s ease,max-height .6s ease;max-height:3em;overflow:hidden}
+.fw-help{transition:opacity .6s ease,max-height .6s ease;max-height:4.2em;overflow:hidden}
 .fw-hud.quiet .fw-help{opacity:0;max-height:0}
