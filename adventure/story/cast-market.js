@@ -367,8 +367,86 @@
       tl.add(locksAt(roots, { len: .11, width: .03, lift: .25, droop: .05, material: m.fur, flow: () => V(0, -1, 0), name: 'Fang: tail fur' }));
       rig.castSprings.push({ o: tl, rest: tl.quaternion.clone(), k: 1, kind: 'tail' });
       install(rig);
+      authoredHead(rig);
     }
   };
+
+  /* ---------------------------------------------------------------- Fang's authored head (TRELLIS.2; owner 2026-11-24: "fang looks good") */
+  // assets/characters/fang/fang-head.glb, made by tools/blender/fang_head_game.py from assets/characters/fang/trellis/: head, ears and
+  // neck ruff as one static mesh (~16k triangles, one 1024 px JPEG), already in the head joint's frame (metres, +Z toward the nose,
+  // origin at the joint), so it is simply a child of the head joint and turns, nods, jolts and falls with it. Loaded once per page,
+  // shared by every Fang rig (clones share geometry and material). The code-built head stays until the file is ready, and stays if
+  // it fails: never both. When the model is on, the code head's parts are taken off the render layers (their own `visible` flags,
+  // which the face acting and the teeth switch, are left alone) and the skin's head and neck above the collar are folded into the
+  // middle of the model (positions of both outfits, edited in place and restored exactly), so no second face pokes through it.
+  // The mouth stays closed: the jaw channel still runs on the hidden skin, nothing shows it.
+  const HEAD_URL = './assets/characters/fang/fang-head.glb?v=2026112401';
+  const headFile = { state: 'idle', promise: null, scene: null }, headRigs = new Set();
+  function loadHead() {
+    if (headFile.promise && headFile.state !== 'failed') return headFile.promise;
+    headFile.state = 'loading';
+    headFile.promise = new Promise(res => {
+      let L; try { L = new THREE.GLTFLoader(); } catch (x) { res(null); return; }
+      L.load(HEAD_URL, g => res(g), undefined, x => { console.warn('Fang head', x?.message || x?.type || x); res(null); });
+    }).then(g => {
+      let ok = false; g?.scene?.traverse(o => { if (o.isMesh && o.geometry?.attributes.position?.count) ok = true; });
+      headFile.state = ok ? 'ready' : 'failed'; headFile.scene = ok ? g.scene : null;
+      if (ok) for (const r of headRigs) headOn(r, r.castHead?.want !== false);
+      return headFile.scene;
+    }, () => { headFile.state = 'failed'; return null; });
+    return headFile.promise;
+  }
+  /** Starts (or retries) the download; resolves after the model is on every Fang rig, or after ms (default 5 s), never rejects. */
+  function headReady(ms = 5000) { return Promise.race([loadHead(), new Promise(r => setTimeout(r, ms))]).then(() => headFile.state); }
+  function authoredHead(rig) { headRigs.add(rig); rig.castHead = { on: false, want: true, group: null, hidden: [], skin: null }; if (headFile.state === 'ready') headOn(rig, true); else loadHead(); }
+  /** Puts the authored head on (true) or back to the code-built one (false). Returns whether the authored head is on. */
+  function headOn(rig, on = true) {
+    const h = rig?.castHead; if (!h) return false; h.want = !!on;
+    if (on && (h.on || !headFile.scene)) return h.on;
+    if (!on && !h.on) return false;
+    const head = rig.joints.head;
+    if (on) {
+      const group = h.group || (h.group = (() => {
+        const g = new THREE.Group(), m = headFile.scene.clone(true); g.name = 'Fang: authored head'; g.userData.storyPart = true; g.userData.mane = true; g.add(m);
+        g.traverse(o => { o.userData.storyPart = true; o.userData.mane = true; if (o.isMesh) { o.name = 'Fang: authored head'; o.castShadow = true; o.receiveShadow = true; } });
+        return g;
+      })());
+      h.hidden = []; for (const c of head.children) if (c !== group) c.traverse(o => { if (o.isMesh || o.isLine || o.isPoints || o.isSprite) { h.hidden.push([o, o.layers.mask]); o.layers.disableAll(); } });
+      skinHead(rig, true); head.add(group); h.on = true;
+    } else {
+      h.group?.parent?.remove(h.group); for (const [o, mask] of h.hidden) o.layers.mask = mask; h.hidden = []; skinHead(rig, false); h.on = false;
+    }
+    return h.on;
+  }
+  // the skin above the collar (head and neck bones) folds toward the neck axis: fully on the head, fading out down to the collar
+  const FOLD = { from: 1.79, to: 1.85, amount: .62 };
+  function skinHead(rig, on) {
+    const g = rig.skin.geometry, h = rig.castHead, attrs = [...new Set([g.attributes.position, rig.castBase?.position, rig.castFight?.position].filter(Boolean))];
+    if (!h.skin) {
+      const P = attrs[0], SI = g.attributes.skinIndex.array, SW = g.attributes.skinWeight.array, nb = rig.bones.indexOf(rig.joints.neck), hb = rig.bones.indexOf(rig.joints.head), idx = [], k = [];
+      let z0 = 1e9, z1 = -1e9;
+      for (let i = 0; i < P.count; i++) {
+        const y = P.getY(i); if (y < FOLD.from) continue; let w = 0; for (let j = 0; j < 4; j++) { const b = SI[i * 4 + j]; if (b === nb || b === hb) w += SW[i * 4 + j]; } if (w < .5) continue;
+        idx.push(i); k.push(FOLD.amount * smooth((y - FOLD.from) / (FOLD.to - FOLD.from)));
+        if (y < FOLD.from + .03 && Math.abs(P.getX(i)) < .04) { z0 = Math.min(z0, P.getZ(i)); z1 = Math.max(z1, P.getZ(i)); }
+      }
+      h.skin = { idx: Uint32Array.from(idx), k: Float32Array.from(k), zc: z0 < z1 ? (z0 + z1) / 2 : 0, saved: new Map() };
+    }
+    const s = h.skin;
+    for (const A of attrs) {
+      const a = A.array;
+      if (on) {
+        if (s.saved.has(A)) continue; const keep = new Float32Array(s.idx.length * 3);
+        for (let n = 0; n < s.idx.length; n++) { const o = s.idx[n] * 3, f = 1 - s.k[n]; keep[n * 3] = a[o]; keep[n * 3 + 1] = a[o + 1]; keep[n * 3 + 2] = a[o + 2]; a[o] *= f; a[o + 2] = s.zc + (a[o + 2] - s.zc) * f; }
+        s.saved.set(A, keep);
+      } else {
+        const keep = s.saved.get(A); if (!keep) continue;
+        for (let n = 0; n < s.idx.length; n++) { const o = s.idx[n] * 3; a[o] = keep[n * 3]; a[o + 1] = keep[n * 3 + 1]; a[o + 2] = keep[n * 3 + 2]; }
+        s.saved.delete(A);
+      }
+      A.needsUpdate = true;
+    }
+  }
   const grabStreams = g => { const o = {}; for (const k of SWAP) if (g.attributes[k]) o[k] = g.attributes[k]; return o; };
   const reshapeLocal = (g, fn) => { const P = g.attributes.position, p = V(); for (let i = 0; i < P.count; i++) { p.fromBufferAttribute(P, i); fn(p); P.setXYZ(i, p.x, p.y, p.z); } P.needsUpdate = true; g.computeBoundingBox(); g.computeBoundingSphere(); };
   /** A point on the head surface in head-joint local rest metres: (hx, hy) head coordinates, dz pushed along +z from the front surface,
@@ -780,8 +858,9 @@
   const baseOpponent = SC.asOpponent;
   SC.asOpponent = (engine, id) => {
     const restore = baseOpponent(engine, id); if (id !== 'fang') return restore;
-    const c = SC.rig(id, engine); wear(c, 'fight');
+    const c = SC.rig(id, engine); wear(c, 'fight'); if (headFile.state !== 'ready') loadHead(); // a failed head download is tried again
     return () => { restore(); wear(c, 'jacket'); };
   };
-  SC.market = { ids: Object.keys(DEFS), barehanded: ['fang'], handbag: rig => rig?.castProps?.handbag || null, wear, jacketOff, settle, version: 2 };
+  SC.market = { ids: Object.keys(DEFS), barehanded: ['fang'], handbag: rig => rig?.castProps?.handbag || null, wear, jacketOff, settle, version: 3,
+    head: { url: HEAD_URL, load: loadHead, ready: headReady, on: headOn, state: () => headFile.state } };
 })();

@@ -44,7 +44,7 @@
     try { r.setRenderTarget(rt); r.setClearColor(0x000000, 0); r.clear(); r.render(root, cam); const buf = new Uint8Array(S * S * 4); r.readRenderTargetPixels(rt, 0, 0, S, S, buf); return buf; } finally { rt.dispose(); }
   }
   const FOV = 20, TAN = Math.tan(FOV * Math.PI / 360), VIEW = { rourke: [1.05, .2] }; // VIEW: [yaw from the front, camera lift] per character (default three-quarter)
-  const shown = (o, root) => { for (let p = o; p; p = p.parent) { if (!p.visible) return false; if (p === root) return true; } return true; };
+  const shown = (o, root) => { if (o.layers && o.layers.mask === 0) return false; for (let p = o; p; p = p.parent) { if (!p.visible) return false; if (p === root) return true; } return true; };
   // Loose fur and clothes round the head (ruffs, collars, whiskers) widen the silhouette but are not the face: the frame ignores them.
   const LOOSE = /ruff|collar|lapel|whisker|bruis|coat|scarf|mouth interior|tongue/i, FACE = /eye|lid|nose|nostril|teeth|brow|lash|glasses|lens|cap|lip/i;
   /** World points of the head as it stands now: skin vertices of the body skin (and a mane) bound mostly to the head bone or a bone
@@ -55,6 +55,7 @@
     head.traverse(o => { if (o.isBone) bones.add(o); }); bones.add(head);
     root.traverse(o => {
       if (!o.isSkinnedMesh || !o.skeleton || !shown(o, root) || (o !== rig.skin && !/mane/i.test(o.name))) return;
+      if (o === rig.skin && rig.castHead?.on) return; // an authored head model is on (Fang): the skin's own head is folded away inside it
       const idx = new Set(); o.skeleton.bones.forEach((b, i) => { if (bones.has(b)) idx.add(i); }); if (!idx.size) return;
       const g = o.geometry, si = g.attributes.skinIndex, sw = g.attributes.skinWeight, n = g.attributes.position?.count || 0; if (!si || !sw) return;
       const step = Math.max(1, Math.floor(n / 30000)); let k = 0;
@@ -66,6 +67,11 @@
     });
     head.traverse(o => {
       if (!o.isMesh || o.isSkinnedMesh || !o.geometry?.attributes.position || !shown(o, root) || LOOSE.test(o.name)) return;
+      if (rig.castHead?.on && /authored head/i.test(o.name)) { // the model's face (in front of the ears, above the neck ruff) sizes the frame; ears and ruff only the top
+        const P = o.geometry.attributes.position, step = Math.max(1, Math.floor(P.count / 1500)), toHead = new T.Matrix4().copy(head.matrixWorld).invert().multiply(o.matrixWorld), l = new T.Vector3();
+        for (let i = 0; i < P.count; i += step) { l.fromBufferAttribute(P, i); const q = l.clone().applyMatrix4(o.matrixWorld); l.applyMatrix4(toHead); if (l.y < -.06) continue; all.push(q); if (Math.abs(l.x) < .19 && l.y < .3 && l.z > -.02) core.push(q); }
+        parts[o.name] = Math.ceil(P.count / step); return;
+      }
       const P = o.geometry.attributes.position, step = Math.max(1, Math.floor(P.count / 300));
       const face = FACE.test(o.name); for (let i = 0; i < P.count; i += step) { const q = new T.Vector3(P.getX(i), P.getY(i), P.getZ(i)).applyMatrix4(o.matrixWorld); all.push(q); if (face) core.push(q); }
       parts[o.name || 'part'] = (parts[o.name || 'part'] || 0) + Math.ceil(P.count / step);
@@ -149,7 +155,10 @@
     waiting.set(k, new Set());
     const go = (tries = 0) => {
       const e2 = eng(); if (!e2?.renderer || !e2.coach?.anatomy) { if (tries < 60) setTimeout(() => go(tries + 1), 1000); else finish(null); return; }
-      const rig = rigOf(id, e2), url = rig ? render(rig, e2) : null; finish(url);
+      const rig = rigOf(id, e2), head = window.StoryCast?.market?.head;
+      // Fang's authored head may still be downloading: wait for it (at most a few seconds) so the picture is not cached with the old head
+      if (rig?.castHead && !rig.castHead.on && head?.state?.() === 'loading' && !go.waited) { go.waited = true; head.ready(6000).then(() => go(tries)); return; }
+      finish(rig ? render(rig, e2) : null);
     };
     const finish = url => {
       cache.set(k, url || 'fail'); (url ? debug.renders : debug.fails).push(k);

@@ -165,7 +165,11 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     if (city && scene0.set === 'dream_shop') cityWait = city.ready(undefined, ['props']); // Blender street props (lamps, bins, planters)
     if (city && /^dream_gym/.test(scene0.set)) cityWait = city.ready(undefined, ['gymProps']); // Blender gym props (gym-props.py)
     if (cityWait) cityWait = cityWait.catch(() => null);
-    Promise.all([window.StorySets.ready(), cityWait]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
+    // Fang's authored head (cast-market.js): fetched on the way to the market, waited for (at most 5 s) when he is in the film
+    const fangHead = window.StoryCast?.market?.head;
+    if (fangHead && id === 'dream_apology') fangHead.load();
+    const headWait = fangHead && Object.values(scene0.actors || {}).some(a => a?.rig === 'fang') ? fangHead.ready(5000).catch(() => null) : null;
+    Promise.all([window.StorySets.ready(), cityWait, headWait]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
       if (run.closed) return;
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 260);
       const street = scene0.set === 'dream_street' && !!e.renderer.shadowMap; hi = street && quality !== 'low';
