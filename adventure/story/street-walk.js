@@ -1,4 +1,7 @@
-/* Opt-in Chapter 1 walking prototype. World metres; route follows the existing pavement and zebra crossing. */
+/* Chapter 1 walking prototype (the arrival film's street set). World metres; route follows the existing pavement and zebra crossing.
+ * GOTR-0120: the ?walkPrototype=1 film hand-over is retired. The story now goes on as a walk in the whole town after the film
+ * (adventure/free-walk/free-walk.js story walks; the arrival film ends with opts.until). What stays in use: stickInput (the
+ * free-walk stick and the chapter1-roam page) and the set-level walk helpers covered by tests/story-walk-controls.test.cjs. */
 (() => {
   const START = 15.6, TARGET = Object.freeze([27, -6.85]), SPEED = 2.22, RADIUS = .72;
   const NORTH = [22.2, -4.95], SOUTH = [22.2, 5.05], APPROACH = [27, -5.35];
@@ -99,10 +102,6 @@
     he: ['ג׳ויסטיק תנועה (מקשי חצים או WASD)', 'זום פנימה', 'זום החוצה', 'מ׳'],
     ru: ['Стик движения (стрелки или WASD)', 'Приблизить', 'Отдалить', 'м']
   };
-  function enabled(search) { return new URLSearchParams(search).get('walkPrototype') === '1'; }
-  function introSkip(phase) {
-    return phase==='walk' ? 'ignore' : phase==='load' ? 'latch' : 'start';
-  }
   function resumePoint(resumeKey) {
     if (resumeKey) try {
       const p = JSON.parse(sessionStorage.getItem('fit.walkPrototype.v1:' + resumeKey));
@@ -212,7 +211,7 @@
     }
     return { s, frame, view, close };
   }
-  const api = { BLOCKS, boundaryMesh, START, TARGET, RADIUS, FOV, DIST, DEFAULT_ZOOM, SPEED, introSkip, stickInput, DEADZONE, STICK_TRAVEL, RIGHT, UP, enabled, allowed, route, state, move, open, resumePoint };
+  const api = { BLOCKS, boundaryMesh, START, TARGET, RADIUS, FOV, DIST, DEFAULT_ZOOM, SPEED, stickInput, DEADZONE, STICK_TRAVEL, RIGHT, UP, allowed, route, state, move, open, resumePoint };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else window.StreetWalkPrototype = api;
 })();

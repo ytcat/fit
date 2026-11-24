@@ -57,6 +57,9 @@
     let scene0 = C?.variant(id, opts.outcome); // re-staged once the set is built when the city models are in it (GOTR-0089)
     const fail = error => { setTimeout(() => done({ id, skipped: true, error }), 0); return false; };
     if (!scene0) return fail('unknown scene');
+    // GOTR-0120 story walks: opts.until ends the film early (the arrival film ends once the Fighter has stepped off the bus and
+    // sets off; the player walks on to the gym in the town). Replaces the ?walkPrototype=1 in-film walk (street-walk.js).
+    const cut = opts.until > 0 && opts.until < scene0.duration; if (cut) scene0 = { ...scene0, duration: opts.until };
     const price = opts.price ?? window.GameDomain?.gear?.find(x => x.id === 'heavy_bag')?.price ?? 90; if (window.MarketCore) scene0 = window.MarketCore.fill(scene0, price); // GOTR-0096: the reward and the shop name the price
     if (!e?.renderer || !e.coach?.update || !window.StorySets || !Cast() || !Pose()) return fail('engine not ready');
     if (current) current.finish({ skipped: true, replaced: true });
@@ -76,9 +79,6 @@
 d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.focus({ preventScroll: true });
     const run = { id, closed: false, t: 0, clock: 0, ack: -1, waiting: false, shot: 0, lineIndex: -1, phase: 'load', mapT: 0, bought: !!opts.owned, buying: false };
     current = run;
-    const walkAPI = id === 'dream_opening' && window.StreetWalkPrototype?.enabled(location.search) ? window.StreetWalkPrototype : null;
-    let walk = null, resumeKey = null;
-    if (walkAPI) try { resumeKey = e.career?.store?.current?.()?.id; } catch { /* no profile */ }
     let life = null, proxies = [], castWas = [], shadowWas = null, hi = false, perf = { n: 0, sum: 0 }, rlook = null, lookPerf = { n: 0, sum: 0 }, sunDir = null;
     let set = null, scene = null, camera = null, borrowed = [], rigs = {}, stageMove = null, oldFit = null, blobs = [], floorBag = null, map = null, mapScene = null, mapCam = null, lineKey = '', lineAt = 0, ended = false, props = null, gymBagBase = null;
     let ottoVisual = null, ottoWasDrawn = false;
@@ -94,8 +94,6 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     for (const [k, a] of Object.entries(scene0.actors || {})) { const j = a.keys.find(q => q.act === 'jacketoff'); if (j) jacketAt[k] = j.t; }
     const finish = (result = {}) => {
       if (run.closed) return; run.closed = true; if (current === run) current = null;
-      try { walk?.close(!!(result.arrived || (result.skipped && !result.replaced && !result.error))); } catch (x) { console.warn('dream walk', x); }
-      walk = null;
       try { cleanup(); } catch (x) { console.warn('dream', x); }
       d.close?.(); d.remove(); window.removeEventListener('keydown', onKey);
       done({ id, skipped: false, ...(scene0.outcome ? { outcome: scene0.outcome } : {}), ...(scene0.buy ? { bought: run.bought } : {}), ...result });
@@ -119,21 +117,8 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       e.lastPoseStamp = null; e.lastRenderStamp = null;
     }
     // ---- input: Skip always; tap / Space / Enter = next line in a conversation
-    const walkStart = () => {
-      run.phase = 'play'; fade.style.opacity = '0'; run.t = walkAPI.START;
-      try { map?.dispose(); } catch { /* already gone */ } map = null; mapScene = null;
-      for (const c of Object.values(rigs)) Pose().reset(c);
-    };
-    if (walkAPI) skip.textContent = ({ en:'Skip intro', he:'דלג על הפתיחה', ru:'Пропустить вступление' })[lang()] + ' ▸▸';
     const skipNow = () => {
       if (run.closed) return;
-      if (walkAPI) {
-        const action = walkAPI.introSkip(run.phase);
-        if (action === 'ignore' || run.walkIntroSkipped) return;
-        run.walkIntroSkipped = true;
-        if (action === 'start') walkStart();
-        return;
-      }
       if (id === 'dream_opening' && run.phase !== 'load' && run.t < scene0.duration - 1.3 && !run.skipping) { run.skipping = true; run.phase = 'play'; fade.style.opacity = '0'; run.t = scene0.duration - 1.2; for (const c of Object.values(rigs)) Pose().reset(c); } else finish({ skipped: true }); };
     const advance = () => {
       if (!scene0.tap || run.phase !== 'play') return; const i = run.lineIndex; if (i < 0 || i <= run.ack || !scene0.lines[i].hold) return;
@@ -214,8 +199,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (lookId && window.RenderLook) try { rlook = window.RenderLook.attach(scene, e.renderer, { look: lookId, high: quality !== 'low', sun: set.sun, focus: fn ? [fx / fn, fz / fn] : null }); } catch (x) { console.warn('render look', x); rlook = null; }
       run.look = rlook; // QA: run.look.high(bool)
       run.frame = frame; e.fightIQDemo = run; busy.remove(); window.dispatchEvent(new Event('resize'));
-      if (walkAPI && (run.walkIntroSkipped || walkAPI.resumePoint(resumeKey))) walkStart();
-      else if (scene0.intro === 'map' && !opts.noMap && !reduced) startMap(); else run.phase = 'play';
+      if (scene0.intro === 'map' && !opts.noMap && !reduced) startMap(); else run.phase = 'play';
     }).catch(x => { console.warn('dream', x); finish({ skipped: true, error: String(x?.message || x) }); });
 
     /** Indoors: softer sun through the windows, more bounce, no sky fog. */
@@ -253,7 +237,6 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     }
     function lens(fovKey) {
       const size = e.renderer.getSize(new THREE.Vector2()), aspect = Math.max(.2, size.x / Math.max(1, size.y));
-      if (walk) { if (camera.aspect !== aspect || camera.fov !== walkAPI.FOV) { camera.aspect = aspect; camera.fov = walkAPI.FOV; camera.updateProjectionMatrix(); } return; }
       let v = Math.min(66, Math.max(36, 2 * Math.atan(.345 / aspect) * 180 / Math.PI)); if (fovKey) v *= fovKey / 36;
       if (camera.aspect !== aspect || Math.abs(camera.fov - v) > .01) { camera.aspect = aspect; camera.fov = v; camera.updateProjectionMatrix(); }
     }
@@ -268,25 +251,18 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     }
     function frame(delta) {
       if (run.closed) return;
-      const realtime = Math.min(Math.max(delta || 0, 0), .05), dt = realtime * (opts.timeScale || 1); run.clock += walk ? realtime : dt;
+      const realtime = Math.min(Math.max(delta || 0, 0), .05), dt = realtime * (opts.timeScale || 1); run.clock += dt;
       if (run.phase === 'map') return mapFrame(dt);
       if (run.fadeIn > 0) { run.fadeIn -= dt; fade.style.opacity = String(clamp(run.fadeIn / .7)); }
       // the timeline: runs on, except that a conversation waits at each line for a tap
       let limit = scene0.duration; run.waiting = false;
       if (scene0.tap) for (let i = run.ack + 1; i < scene0.lines.length; i++) if (scene0.lines[i].hold) { limit = Math.min(limit, scene0.lines[i].t + C.SETTLE); break; }
       const atBuy = !!scene0.buy && !run.bought && scene0.buy.t <= limit; if (atBuy) limit = scene0.buy.t; // the shop waits for the purchase
-      if (walkAPI && !walk && !run.skipping && run.t + dt >= walkAPI.START) {
-        run.t = walkAPI.START;
-        const from = C.sample(scene0,run.t).actors.fighter; run.walkDist = from.dist || 0;
-        walk = walkAPI.open({ dialog:d, scene, camera, actor:from, lang:lang(), reduced, resumeKey });
-        skip.hidden = true;
-        run.phase = 'walk'; window.dispatchEvent(new Event('resize'));
-      }
-      if (!walk) run.t = Math.min(run.t + dt, limit); else walk.frame(realtime);
+      run.t = Math.min(run.t + dt, limit);
+      if (cut && run.t > scene0.duration - .6) fade.style.opacity = String(clamp((run.t - (scene0.duration - .6)) / .6)); // GOTR-0120: the film hands over to the town walk
       if (scene0.tap && run.t >= limit && limit < scene0.duration && !atBuy) run.waiting = true;
       buyBtn.hidden = !(atBuy && run.t >= limit && !run.closed); sub.style.paddingBottom = buyBtn.hidden ? '' : '52px'; // the line sits above the Buy button
       const s = C.sample(scene0, run.t);
-      if (walk) { const a = walk.s; a.y = C.groundAt(scene0,a.x,a.z,run.t); Object.assign(s.actors.fighter, a, { act:'idle', look:null, dist: a.dist + (run.walkDist || 0) }); } // ch1-motion: the walk goes on from the film's step phase (no foot snap at the handoff)
       run.shot = s.camera.shot; run.lineIndex = s.lineIndex;
       // lines
       const l = s.line, key = l ? s.lineIndex + '|' + lang() : '';
@@ -330,7 +306,7 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       if (s.bag && rigs.fighter) { Cast().bag(rigs.fighter, s.bag.on === 'shoulder' && rigs.fighter.root.visible ? 'shoulder' : 'off'); if (floorBag) { floorBag.visible = s.bag.on === 'floor'; if (floorBag.visible) { floorBag.position.set(s.bag.at[0], .135, s.bag.at[1]); floorBag.rotation.y = s.bag.at[2] || 0; } } }
       // camera
       lens(s.camera.fov);
-      if (walk) walk.view(look,realtime,run.clock); else { camera.position.fromArray(s.camera.pos); look.fromArray(s.camera.look); camera.lookAt(look); }
+      camera.position.fromArray(s.camera.pos); look.fromArray(s.camera.look); camera.lookAt(look);
       if (set.sun && (hi || rlook?.isHigh && set.sun.castShadow && e.renderer.shadowMap.enabled)) { // the sun's shadow box covers what this shot sees near the camera: between the lens and the subject (indoors too on a high look: same map, a box fitted to the shot instead of the whole set)
         const d = Math.hypot(look.x - camera.position.x, look.z - camera.position.z), k = Math.min(1, 9 / Math.max(1e-3, d)) * .55, r = Math.max(7, Math.min(18, d * .55 + 4)), sc = set.sun.shadow.camera;
         set.focus(camera.position.x + (look.x - camera.position.x) * k, camera.position.z + (look.z - camera.position.z) * k, r);
@@ -358,14 +334,13 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
       for (const b of blobs) { const r = b.c.root, small = b.c.small; b.mesh.visible = r.visible; b.mesh.position.set(r.position.x - .16, (small ? 0 : r.position.y) + .014, r.position.z - .2); b.mesh.rotation.y = .7; b.mesh.scale.set(small ? .95 : 1.75, 1, small ? .6 : 1.05); } // shadows lie on the ground the actor stands on (bus floor, road)
       if (e.renderer.shadowMap?.enabled) e.renderer.shadowMap.needsUpdate = true;
       e.renderer.render(scene, camera);
-      const info = e.renderer.info.render; lastStats = { phase: walk ? 'walk' : 'play', calls: info.calls, triangles: info.triangles, set: set.stats(), shot: run.shot, quality: run.quality || quality, shadows: !!(hi && set.sun?.castShadow), ...(life ? { life: life.stats() } : {}), ...(o.city ? { city: o.city.stats() } : {}) };
-      if (walk?.s.arrived && !ended) { ended = true; setTimeout(() => finish({ arrived:true }), 180); }
-      if (!walk && s.done && !ended) { ended = true; setTimeout(() => finish({ skipped: !!run.skipping }), 250); }
+      const info = e.renderer.info.render; lastStats = { phase: 'play', calls: info.calls, triangles: info.triangles, set: set.stats(), shot: run.shot, quality: run.quality || quality, shadows: !!(hi && set.sun?.castShadow), ...(life ? { life: life.stats() } : {}), ...(o.city ? { city: o.city.stats() } : {}) };
+      if (s.done && !ended) { ended = true; setTimeout(() => finish({ skipped: !!run.skipping }), 250); }
     }
     /** This device cannot keep up: contact shadows only, no street people and birds (clouds and litter stay). */
     function lowQuality() { hi = false; rlook?.high(false); if (set?.sun) set.sun.castShadow = false; e.renderer.shadowMap.enabled = false; life?.level(1); for (const b of blobs) b.mesh.material.opacity = .6; run.quality = 'low (auto)'; }
     Object.defineProperty(run, 'rigs', { get: () => rigs }); Object.defineProperty(run, 'set', { get: () => set }); Object.defineProperty(run, 'scene', { get: () => scene }); Object.defineProperty(run, 'camera', { get: () => camera }); Object.defineProperty(run, 'life', { get: () => life }); Object.defineProperty(run, 'scene0', { get: () => scene0 }); // read-only, for QA probes
-    run.seek = t => { if (walk) return; turn.clear(); if (ottoVisual) { resetOtto(); lineKey = ''; } run.t = clamp(t, 0, scene0.duration); run.ack = scene0.lines.reduce((n, q, i) => q.t + C.SETTLE < run.t ? i : n, -1); if (run.phase === 'map') { run.phase = 'play'; fade.style.opacity = '0'; try { map?.dispose(); } catch { /* ignore */ } map = null; } for (const c of Object.values(rigs)) Pose().reset(c); };
+    run.seek = t => { turn.clear(); if (ottoVisual) { resetOtto(); lineKey = ''; } run.t = clamp(t, 0, scene0.duration); run.ack = scene0.lines.reduce((n, q, i) => q.t + C.SETTLE < run.t ? i : n, -1); if (run.phase === 'map') { run.phase = 'play'; fade.style.opacity = '0'; try { map?.dispose(); } catch { /* ignore */ } map = null; } for (const c of Object.values(rigs)) Pose().reset(c); };
     return true;
   }
 

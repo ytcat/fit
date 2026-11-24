@@ -41,7 +41,21 @@
     market_stall: L('Market fruit stall', 'דוכן הפירות בשוק', 'Фруктовый прилавок'),
     otto: L('Otto’s shop', 'החנות של אוטו', 'Лавка Отто'),
     docks_quay: L('Docks quay', 'רציף הנמל', 'Причал'),
-    ottoSign: L('OTTO’S', 'אוטו', 'У ОТТО')
+    ottoSign: L('OTTO’S', 'אוטו', 'У ОТТО'),
+    // GOTR-0120 story walks: the objective line of each walk (keyed by the step the walk leads to) and the story HUD
+    goal_dream_gym_talk: L('Walk to Bruno’s gym', 'לכו לחדר הכושר של ברונו', 'Иди в зал Бруно'),
+    goal_market_robber: L('Walk to the market', 'לכו לשוק', 'Иди на рынок'),
+    goal_buy_heavy_bag: L('Walk to Otto’s shop for a new bag', 'לכו לחנות של אוטו לקנות שק חדש', 'Иди в лавку Отто за новым мешком'),
+    goal_bag_drill: L('Carry the new bag back to Bruno’s gym', 'סחבו את השק החדש בחזרה לחדר הכושר של ברונו', 'Отнеси новый мешок в зал Бруно'),
+    goal_docks_fight: L('Walk to the Docks for the underground fight', 'לכו לנמל לקרב המחתרת', 'Иди в доки на подпольный бой'),
+    goal_advanced_training: L('Walk back to Bruno’s gym', 'חזרו לחדר הכושר של ברונו', 'Возвращайся в зал Бруно'),
+    goalPlace: L('Story: {place}', 'סיפור: {place}', 'История: {place}'),
+    goalDone: L('Chapter complete: walk anywhere', 'הפרק הושלם: אפשר ללכת לכל מקום', 'Глава пройдена: гуляйте где угодно'),
+    walkHelp: L('Walk into the glowing ring to go on with the story.', 'היכנסו לטבעת הזוהרת כדי להמשיך בסיפור.', 'Войдите в светящийся круг, чтобы продолжить историю.'),
+    keysHint: L('Arrow keys or WASD to walk · Shift to hurry · Q/E to turn', 'חצים או WASD להליכה · Shift למהר · Q/E לסובב', 'Стрелки или WASD — идти · Shift — быстрее · Q/E — поворот'),
+    entry: L('Walk', 'הליכה', 'Прогулка'),
+    entryLabel: L('Free walk through the town', 'הליכה חופשית בעיר', 'Свободная прогулка по городу'),
+    entryBusy: L('Free walk opens after the film or fight', 'ההליכה החופשית תיפתח אחרי הסרט או הקרב', 'Прогулка откроется после фильма или боя')
   };
   const LANGS = ['en', 'he', 'ru'];
   const langOf = lang => LANGS.includes(lang) ? lang : 'en';
@@ -193,6 +207,58 @@
     market_robber: 'market_stall', buy_heavy_bag: 'otto', bag_drill: 'bruno', fight_prep: 'bruno', docks_fight: 'docks_quay', advanced_training: 'bruno', brick: 'bruno' });
   const storyTarget = step => Object.hasOwn(STORY_TARGETS, step) ? STORY_TARGETS[step] : null;
   const ARRIVE = 4; // metres
+  /* ---- GOTR-0120 story walks (owner 2026-11-25): whenever the next Chapter 1 step happens at another place than where the
+   * last film ended, the story goes on as a walk. Keyed by the step the walk leads to: from = where the film before it ends
+   * (bus_stop: the arrival film ends when the Fighter has stepped off the bus), to = that step's place, carry = what the
+   * Fighter carries (his duffel off the bus; the new heavy bag on his shoulder out of Otto's), after = the step it follows.
+   * Same-place steps (the gym days, the boss in the gym) have no walk. Pinned by tests/story-walk.test.cjs. */
+  const STORY_WALKS = Object.freeze({
+    dream_gym_talk: Object.freeze({ after: 'dream_arrival', from: 'bus_stop', to: 'bruno', carry: 'duffel' }),
+    market_robber: Object.freeze({ after: 'dream_apology', from: 'bruno', to: 'market_stall' }),
+    buy_heavy_bag: Object.freeze({ after: 'market_robber', from: 'market_stall', to: 'otto' }),
+    bag_drill: Object.freeze({ after: 'buy_heavy_bag', from: 'otto', to: 'bruno', carry: 'heavybag' }),
+    docks_fight: Object.freeze({ after: 'fight_prep', from: 'bruno', to: 'docks_quay' }),
+    advanced_training: Object.freeze({ after: 'docks_fight', from: 'docks_quay', to: 'bruno' })
+  });
+  const walkFor = step => Object.hasOwn(STORY_WALKS, step) ? STORY_WALKS[step] : null;
+  /** Is the walk to `step` still to be walked? record = the profile's walk record (parseWalk), attempted = the save already
+   *  holds a try of that step (an older save that reached the step before walks existed: it is never sent back to walk). */
+  function walkDue(step, record, attempted) {
+    const w = walkFor(step); if (!w) return null;
+    if (record && record.step === step) return record.phase === 'arrived' ? null : w;
+    return attempted ? null : w;
+  }
+  // The walk record (one per profile, localStorage): { step, phase: 'walk' | 'arrived', x?, z?, ry?, open?, t }
+  const WALK_PREFIX = 'gotr.storywalk.v1.';
+  const walkKey = id => WALK_PREFIX + (typeof id === 'string' && id ? id : 'guest');
+  function parseWalk(raw) {
+    let p = null; try { p = typeof raw === 'string' ? JSON.parse(raw) : null; } catch { return null; }
+    if (!p || typeof p !== 'object' || !walkFor(p.step) || (p.phase !== 'walk' && p.phase !== 'arrived')) return null;
+    const out = { step: p.step, phase: p.phase, open: p.open === true, t: finite(p.t) ? p.t : 0 };
+    if (finite(p.x) && finite(p.z)) { out.x = p.x; out.z = p.z; out.ry = finite(p.ry) ? p.ry : 0; }
+    return out;
+  }
+  /** The light of the town while the story stands at `step` (owner 2026-11-25: no Day/Night buttons, the walk follows the
+   *  story): the nights of the old bag and the Docks (and the walk back from them), fight night in the evening, else the
+   *  chapter's own grade (GlorylandMap.gradeForChapter). */
+  const STEP_TIME = Object.freeze({ night_shadow: 'night', night_bag: 'night', docks_fight: 'night', advanced_training: 'night', brick: 'evening' });
+  const CHAPTER_TIME = Object.freeze({ 1: 'morning', 2: 'evening', 3: 'night', 4: 'night', 5: 'night' });
+  const storyTime = (step, chapter) => (step && Object.hasOwn(STEP_TIME, step) ? STEP_TIME[step] : CHAPTER_TIME[chapter] || 'day');
+  /** Where the arrival bus stops in the town: the middle of a street 40-70 m from Bruno's gym (nearest to 52 m), on the kerb
+   *  side toward the gym, at a spot a person can stand on. roads = roadGraph(..), g = grid(..), gym = { x, z }. */
+  function busStop(roads, g, gym) {
+    let best = null, bd = Infinity;
+    for (const e of roads.edges) {
+      if (e.len < 14) continue;
+      const A = roads.nodes[e.a], mx = A.x + e.ux * e.len / 2, mz = A.z + e.uz * e.len / 2, d = Math.hypot(mx - gym.x, mz - gym.z);
+      if (d < 40 || d > 70 || Math.abs(d - 52) >= bd) continue;
+      const side = ((gym.x - mx) * -e.uz + (gym.z - mz) * e.ux) >= 0 ? 1 : -1, off = e.w / 2 + 1.2;
+      const x = mx - e.uz * off * side, z = mz + e.ux * off * side, at = g.allowed(x, z) ? { x, z } : g.nearest(x, z, 6);
+      if (!at) continue;
+      bd = Math.abs(d - 52); best = { x: at.x, z: at.z, ry: Math.atan2(gym.x - at.x, gym.z - at.z) };
+    }
+    return best;
+  }
   /* ---- the story walk: a one-time ticket (owner/integrator 2026-11-23). When the player deliberately marks the place of the
    * current Chapter 1 step (still playable), walking into that place's ring opens that step ONCE, through the game's own
    * quest action. Ordinary walking, any other marker, a locked step, a stale or reused ticket never start anything.
@@ -281,6 +347,6 @@
   }
 
   const api = { COPY, LANGS, text, langOf, walkGrid, blockDiscs, keepConnected, grid, velocity, SAVE_PREFIX, LEGACY_KEY, saveKey, serialize, restore, legacyPlace,
-    district, STORY_TARGETS, storyTarget, ARRIVE, storyWalk, TICKET_KEY, CAR, carStep, carHits, roadGraph, lanePose, nextEdge, SPEED: 2.22 };
+    district, STORY_TARGETS, storyTarget, ARRIVE, storyWalk, STORY_WALKS, walkFor, walkDue, WALK_PREFIX, walkKey, parseWalk, STEP_TIME, storyTime, busStop, TICKET_KEY, CAR, carStep, carHits, roadGraph, lanePose, nextEdge, SPEED: 2.22 };
   if (typeof module === 'object' && module.exports) module.exports = api; else root.FreeWalkCore = api;
 })(typeof window !== 'undefined' ? window : globalThis);
