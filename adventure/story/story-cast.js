@@ -175,12 +175,15 @@
     // GOTR-0127 #7: the armpit folds of the T-pose rest surface are tight concave creases (pectoral / arm root in front, lat /
     // arm root behind). A cloth thickness of 1-3 cm along the normals there crossed itself (Bruno 1,783 crossing triangle
     // pairs at rest, Fang 1,292, Hazel 760, Otto 321): the light cracks along the back and front armpit folds in every pose.
-    // Cloth bridges that crease, so the dressed surface is smoothed there first (the crease fills in), then any triangle the
-    // thickness still turns over is untangled (below).
+    // Now: the thickness goes out along the normals of a smoothed copy of the surface (they no longer converge in a crease),
+    // the two tightest spots (the front fold under the collarbone, the underarm) are filled in a little first, as cloth
+    // bridges them (a wider fill bridged the whole front armpit and that sheet then folded when the arm rose forward), and
+    // any triangle still turned over is untangled (below).
     { const pit = new Float32Array(n);
-      for (let i = 0; i < n; i++) { if (!mask[i]) continue; const ax = Math.abs(pos[i * 3]), y = pos[i * 3 + 1]; pit[i] = mask[i] * smooth((ax - .14) / .06) * (1 - smooth((ax - .40) / .08)) * smooth((y - 1.30) / .08) * (1 - smooth((y - 1.74) / .06)); }
+      for (let i = 0; i < n; i++) { if (!mask[i]) continue; const ax = Math.abs(pos[i * 3]), y = pos[i * 3 + 1]; pit[i] = mask[i] * Math.max(smooth((ax - .14) / .04) * (1 - smooth((ax - .28) / .04)) * smooth((y - 1.50) / .06) * (1 - smooth((y - 1.74) / .04)) * smooth(pos[i * 3 + 2] / .05), smooth((ax - .25) / .03) * (1 - smooth((ax - .39) / .03)) * smooth((y - 1.35) / .03) * (1 - smooth((y - 1.50) / .03))); }
       fill(g, pos, pit, 150); }
     const nor = normals(g, pos, new Float32Array(pos.length));
+    { const sm = new Float32Array(pos), m = new Float32Array(n); for (let i = 0; i < n; i++) m[i] = off[i] ? 1 : 0; relax(g, sm, m, 60); normals(g, sm, nor); } // the thickness follows a smoothed surface's normals
     for (let i = 0; i < n; i++) if (off[i]) { pos[i * 3] += nor[i * 3] * off[i]; pos[i * 3 + 1] += nor[i * 3 + 1] * off[i]; pos[i * 3 + 2] += nor[i * 3 + 2] * off[i]; }
     untangle(g, P.array, pos);
     normals(g, pos, nor);

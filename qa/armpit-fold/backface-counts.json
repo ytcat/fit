@@ -1,0 +1,621 @@
+{
+ "what": "visible back faces (magenta px in patches/lines) in the shoulder region of close-ups: qa/armpit-fold/batch.cjs BACKFACE=1, phone 402x690, both shoulders x front/side/back/below/3/4 x every pose the character does; qa/armpit-fold/count.py",
+ "before": "8aa6ebb",
+ "after": "agent/armpit-fold",
+ "characters": {
+  "brick": {
+   "frames": 260,
+   "total_px": [
+    16756,
+    588
+   ],
+   "frames_with_any": [
+    228,
+    120
+   ],
+   "worst_frame_px": [
+    501,
+    67
+   ],
+   "after_frames_20px_or_more": {
+    "uppercut-shoulderR-back.png": 67,
+    "mop-shoulderR-front.png": 33,
+    "arms_up-shoulderR-back.png": 26,
+    "hook-shoulderR-back.png": 23,
+    "mop-shoulderL-front.png": 20
+   }
+  },
+  "bruno": {
+   "frames": 150,
+   "total_px": [
+    4502,
+    3731
+   ],
+   "frames_with_any": [
+    139,
+    106
+   ],
+   "worst_frame_px": [
+    194,
+    287
+   ],
+   "after_frames_20px_or_more": {
+    "bend-shoulderL-below.png": 287,
+    "bend-shoulderL-q34.png": 133,
+    "bend-shoulderR-below.png": 125,
+    "idle-shoulderR-below.png": 113,
+    "raise-shoulderR-below.png": 113,
+    "bend-shoulderL-side.png": 107,
+    "talk-shoulderL-front.png": 107,
+    "jog-shoulderL-front.png": 103,
+    "mop-shoulderL-front.png": 90,
+    "point-shoulderR-front.png": 89,
+    "walkA-shoulderR-below.png": 89,
+    "jog-shoulderR-below.png": 87,
+    "carry-shoulderL-below.png": 83,
+    "talk-shoulderL-below.png": 81,
+    "mop-shoulderR-front.png": 80,
+    "carry-shoulderR-below.png": 75,
+    "count-shoulderL-below.png": 74,
+    "idle-shoulderL-below.png": 74,
+    "point-shoulderL-below.png": 74,
+    "wave-shoulderL-below.png": 74,
+    "cross_arms-shoulderL-front.png": 73,
+    "bend-shoulderL-front.png": 64,
+    "walkB-shoulderL-below.png": 64,
+    "walkA-shoulderL-front.png": 61,
+    "walkB-shoulderR-front.png": 61,
+    "walkB-shoulderR-below.png": 58,
+    "talk-shoulderR-front.png": 57,
+    "bend-shoulderR-q34.png": 56,
+    "count-shoulderL-front.png": 55,
+    "idle-shoulderL-front.png": 55,
+    "point-shoulderL-front.png": 55,
+    "wave-shoulderL-front.png": 55,
+    "carry-shoulderR-front.png": 50,
+    "walkB-shoulderL-front.png": 46,
+    "idle-shoulderR-front.png": 43,
+    "raise-shoulderR-front.png": 43,
+    "walkA-shoulderR-front.png": 43,
+    "arms_up-shoulderR-front.png": 42,
+    "walkA-shoulderL-below.png": 41,
+    "bend-shoulderR-side.png": 37,
+    "carry-shoulderL-front.png": 37,
+    "jog-shoulderR-front.png": 36,
+    "talk-shoulderR-below.png": 33,
+    "cross_arms-shoulderR-front.png": 31,
+    "point-shoulderR-q34.png": 25,
+    "mop-shoulderL-q34.png": 24,
+    "jog-shoulderL-below.png": 23,
+    "carry-shoulderL-q34.png": 21,
+    "count-shoulderL-q34.png": 21,
+    "idle-shoulderL-q34.png": 21,
+    "point-shoulderL-q34.png": 21,
+    "wave-shoulderL-q34.png": 21,
+    "walkA-shoulderL-q34.png": 20
+   }
+  },
+  "fang-fight": {
+   "frames": 140,
+   "total_px": [
+    9051,
+    1969
+   ],
+   "frames_with_any": [
+    133,
+    117
+   ],
+   "worst_frame_px": [
+    810,
+    74
+   ],
+   "after_frames_20px_or_more": {
+    "down-shoulderR-side.png": 74,
+    "roll-shoulderL-side.png": 74,
+    "roll-shoulderR-side.png": 71,
+    "guard-shoulderR-side.png": 65,
+    "down-shoulderL-side.png": 63,
+    "hit_body-shoulderL-side.png": 55,
+    "hit_head-shoulderR-side.png": 54,
+    "block-shoulderR-side.png": 53,
+    "hit_head-shoulderL-side.png": 53,
+    "rear_uppercut-shoulderL-side.png": 52,
+    "rear_uppercut-shoulderR-side.png": 52,
+    "guard-shoulderL-side.png": 51,
+    "hit_body-shoulderR-side.png": 47,
+    "uppercut-shoulderR-side.png": 43,
+    "block-shoulderL-side.png": 41,
+    "jab-shoulderR-side.png": 40,
+    "slip-shoulderR-side.png": 39,
+    "hook-shoulderR-back.png": 34,
+    "rear_hook-shoulderL-side.png": 29,
+    "slip-shoulderL-side.png": 29,
+    "uppercut-shoulderL-side.png": 29,
+    "cross-shoulderR-q34.png": 27,
+    "rear_hook-shoulderR-q34.png": 27,
+    "uppercut-shoulderL-q34.png": 27,
+    "jab-shoulderL-q34.png": 25,
+    "block-shoulderL-q34.png": 24,
+    "jab-shoulderL-below.png": 24,
+    "cross-shoulderL-side.png": 22,
+    "hit_body-shoulderL-below.png": 20,
+    "hook-shoulderR-side.png": 20,
+    "rear_uppercut-shoulderR-q34.png": 20
+   }
+  },
+  "fang-jacket": {
+   "frames": 130,
+   "total_px": [
+    18377,
+    9601
+   ],
+   "frames_with_any": [
+    129,
+    110
+   ],
+   "worst_frame_px": [
+    831,
+    455
+   ],
+   "after_frames_20px_or_more": {
+    "mop-shoulderR-front.png": 455,
+    "bend-shoulderR-front.png": 383,
+    "talk-shoulderR-front.png": 312,
+    "bend-shoulderR-side.png": 311,
+    "point-shoulderR-side.png": 296,
+    "carry-shoulderR-side.png": 295,
+    "cross_arms-shoulderR-side.png": 295,
+    "idle-shoulderR-side.png": 295,
+    "mop-shoulderR-side.png": 293,
+    "talk-shoulderR-side.png": 287,
+    "idle-shoulderR-front.png": 255,
+    "point-shoulderR-front.png": 252,
+    "carry-shoulderR-front.png": 250,
+    "cross_arms-shoulderR-front.png": 247,
+    "walkB-shoulderR-side.png": 242,
+    "arms_up-shoulderR-front.png": 203,
+    "wave-shoulderR-front.png": 195,
+    "bind-shoulderR-side.png": 178,
+    "walkB-shoulderR-front.png": 174,
+    "walkA-shoulderR-side.png": 167,
+    "bend-shoulderR-back.png": 163,
+    "talk-shoulderR-back.png": 156,
+    "jog-shoulderR-side.png": 143,
+    "mop-shoulderL-front.png": 136,
+    "walkA-shoulderR-front.png": 132,
+    "bend-shoulderR-q34.png": 123,
+    "walkA-shoulderL-front.png": 118,
+    "carry-shoulderL-front.png": 106,
+    "mop-shoulderR-back.png": 103,
+    "walkB-shoulderL-front.png": 101,
+    "arms_up-shoulderR-back.png": 100,
+    "point-shoulderR-back.png": 100,
+    "carry-shoulderR-back.png": 99,
+    "cross_arms-shoulderR-back.png": 99,
+    "idle-shoulderR-back.png": 99,
+    "wave-shoulderR-back.png": 99,
+    "carry-shoulderL-below.png": 93,
+    "carry-shoulderR-below.png": 87,
+    "walkA-shoulderR-below.png": 86,
+    "walkB-shoulderR-below.png": 86,
+    "jog-shoulderR-front.png": 81,
+    "mop-shoulderR-q34.png": 76,
+    "walkB-shoulderL-below.png": 75,
+    "walkA-shoulderL-below.png": 74,
+    "bend-shoulderL-below.png": 73,
+    "cross_arms-shoulderL-front.png": 70,
+    "arms_up-shoulderL-front.png": 68,
+    "idle-shoulderR-below.png": 68,
+    "bind-shoulderR-front.png": 62,
+    "jog-shoulderR-q34.png": 62,
+    "jog-shoulderR-below.png": 59,
+    "walkA-shoulderR-q34.png": 59,
+    "point-shoulderR-q34.png": 56,
+    "bend-shoulderL-front.png": 55,
+    "idle-shoulderL-front.png": 55,
+    "point-shoulderL-front.png": 55,
+    "wave-shoulderL-front.png": 55,
+    "bend-shoulderR-below.png": 53,
+    "walkB-shoulderR-q34.png": 52,
+    "carry-shoulderR-q34.png": 47,
+    "cross_arms-shoulderR-q34.png": 47,
+    "idle-shoulderR-q34.png": 44,
+    "wave-shoulderR-q34.png": 43,
+    "bind-shoulderR-q34.png": 40,
+    "talk-shoulderR-below.png": 39,
+    "jog-shoulderL-front.png": 35,
+    "talk-shoulderR-q34.png": 34,
+    "idle-shoulderL-below.png": 30,
+    "point-shoulderL-below.png": 30,
+    "point-shoulderR-below.png": 30,
+    "wave-shoulderL-below.png": 30,
+    "bind-shoulderL-front.png": 25,
+    "talk-shoulderL-front.png": 24
+   }
+  },
+  "hazel": {
+   "frames": 130,
+   "total_px": [
+    16205,
+    3207
+   ],
+   "frames_with_any": [
+    129,
+    118
+   ],
+   "worst_frame_px": [
+    704,
+    587
+   ],
+   "after_frames_20px_or_more": {
+    "point-shoulderR-side.png": 587,
+    "point-shoulderR-q34.png": 402,
+    "point-shoulderR-front.png": 300,
+    "point-shoulderR-back.png": 180,
+    "point-shoulderR-below.png": 100,
+    "jog-shoulderR-front.png": 76,
+    "mop-shoulderR-front.png": 70,
+    "carry-shoulderR-front.png": 59,
+    "carry-shoulderR-below.png": 55,
+    "bend-shoulderR-below.png": 46,
+    "arms_up-shoulderL-q34.png": 43,
+    "bend-shoulderR-front.png": 40,
+    "walkB-shoulderR-below.png": 40,
+    "walkA-shoulderR-below.png": 39,
+    "cross_arms-shoulderL-front.png": 35,
+    "walkA-shoulderR-front.png": 35,
+    "cross_arms-shoulderL-q34.png": 34,
+    "talk-shoulderR-below.png": 34,
+    "idle-shoulderR-below.png": 32,
+    "bend-shoulderL-below.png": 30,
+    "idle-shoulderL-front.png": 29,
+    "jog-shoulderR-below.png": 29,
+    "point-shoulderL-front.png": 29,
+    "walkB-shoulderR-front.png": 29,
+    "wave-shoulderL-front.png": 29,
+    "arms_up-shoulderL-front.png": 25,
+    "carry-shoulderL-front.png": 25,
+    "mop-shoulderL-front.png": 22,
+    "talk-shoulderR-front.png": 22,
+    "bind-shoulderL-below.png": 21,
+    "idle-shoulderR-front.png": 21,
+    "jog-shoulderL-front.png": 21,
+    "mop-shoulderL-below.png": 21,
+    "walkA-shoulderL-front.png": 21,
+    "arms_up-shoulderL-back.png": 20
+   }
+  },
+  "lion-kit": {
+   "frames": 260,
+   "total_px": [
+    66867,
+    361
+   ],
+   "frames_with_any": [
+    226,
+    83
+   ],
+   "worst_frame_px": [
+    1243,
+    21
+   ],
+   "after_frames_20px_or_more": {
+    "cross_arms-shoulderR-front.png": 21
+   }
+  },
+  "lion-street": {
+   "frames": 260,
+   "total_px": [
+    5911,
+    1500
+   ],
+   "frames_with_any": [
+    244,
+    124
+   ],
+   "worst_frame_px": [
+    90,
+    42
+   ],
+   "after_frames_20px_or_more": {
+    "mop-shoulderR-q34.png": 42,
+    "bend-shoulderR-q34.png": 41,
+    "carry-shoulderR-q34.png": 36,
+    "rear_uppercut-shoulderR-q34.png": 35,
+    "wave-shoulderR-back.png": 34,
+    "jab-shoulderR-q34.png": 32,
+    "talk-shoulderR-q34.png": 31,
+    "cross_arms-shoulderR-front.png": 29,
+    "cross_arms-shoulderR-q34.png": 29,
+    "bend-shoulderR-side.png": 28,
+    "idle-shoulderR-side.png": 28,
+    "point-shoulderR-q34.png": 28,
+    "uppercut-shoulderR-side.png": 28,
+    "carry-shoulderR-side.png": 27,
+    "cross-shoulderR-q34.png": 27,
+    "jog-shoulderR-side.png": 27,
+    "mop-shoulderR-below.png": 27,
+    "mop-shoulderR-front.png": 27,
+    "rear_hook-shoulderR-q34.png": 27,
+    "rear_hook-shoulderR-side.png": 26,
+    "block-shoulderR-side.png": 25,
+    "cross-shoulderR-side.png": 25,
+    "talk-shoulderR-side.png": 25,
+    "guard-shoulderR-side.png": 24,
+    "jog-shoulderR-q34.png": 24,
+    "bend-shoulderR-below.png": 23,
+    "hit_head-shoulderR-q34.png": 22,
+    "down-shoulderR-q34.png": 21,
+    "hook-shoulderR-side.png": 21,
+    "roll-shoulderR-q34.png": 21,
+    "uppercut-shoulderR-q34.png": 21,
+    "walkB-shoulderR-q34.png": 21,
+    "hit_body-shoulderR-q34.png": 20,
+    "walkA-shoulderR-side.png": 20
+   }
+  },
+  "lion-wraps": {
+   "frames": 260,
+   "total_px": [
+    67034,
+    346
+   ],
+   "frames_with_any": [
+    226,
+    91
+   ],
+   "worst_frame_px": [
+    1238,
+    19
+   ],
+   "after_frames_20px_or_more": {}
+  },
+  "otto": {
+   "frames": 130,
+   "total_px": [
+    11712,
+    10537
+   ],
+   "frames_with_any": [
+    130,
+    129
+   ],
+   "worst_frame_px": [
+    451,
+    274
+   ],
+   "after_frames_20px_or_more": {
+    "mop-shoulderR-front.png": 274,
+    "walkA-shoulderR-side.png": 234,
+    "carry-shoulderR-below.png": 223,
+    "idle-shoulderR-below.png": 218,
+    "talk-shoulderR-below.png": 214,
+    "point-shoulderR-front.png": 210,
+    "mop-shoulderR-side.png": 202,
+    "bend-shoulderR-front.png": 201,
+    "talk-shoulderR-side.png": 194,
+    "point-shoulderR-side.png": 192,
+    "carry-shoulderR-side.png": 191,
+    "cross_arms-shoulderR-side.png": 191,
+    "idle-shoulderR-side.png": 191,
+    "walkB-shoulderR-side.png": 188,
+    "walkA-shoulderR-below.png": 187,
+    "arms_up-shoulderR-side.png": 179,
+    "arms_up-shoulderR-below.png": 177,
+    "walkB-shoulderR-below.png": 177,
+    "wave-shoulderR-below.png": 174,
+    "bind-shoulderR-side.png": 171,
+    "walkA-shoulderR-q34.png": 164,
+    "walkB-shoulderR-q34.png": 155,
+    "mop-shoulderR-below.png": 152,
+    "point-shoulderR-q34.png": 152,
+    "talk-shoulderR-front.png": 152,
+    "jog-shoulderR-q34.png": 151,
+    "idle-shoulderR-front.png": 149,
+    "jog-shoulderR-side.png": 147,
+    "mop-shoulderL-front.png": 145,
+    "idle-shoulderR-q34.png": 144,
+    "carry-shoulderR-front.png": 143,
+    "mop-shoulderR-q34.png": 142,
+    "bend-shoulderR-q34.png": 138,
+    "walkA-shoulderR-front.png": 137,
+    "cross_arms-shoulderR-front.png": 135,
+    "wave-shoulderR-q34.png": 135,
+    "bend-shoulderR-side.png": 134,
+    "carry-shoulderR-q34.png": 132,
+    "talk-shoulderR-q34.png": 132,
+    "walkB-shoulderR-front.png": 132,
+    "cross_arms-shoulderR-q34.png": 131,
+    "bind-shoulderR-below.png": 130,
+    "jog-shoulderR-front.png": 126,
+    "bind-shoulderR-q34.png": 123,
+    "arms_up-shoulderR-front.png": 119,
+    "bend-shoulderR-below.png": 109,
+    "jog-shoulderR-below.png": 108,
+    "wave-shoulderR-front.png": 105,
+    "arms_up-shoulderR-back.png": 87,
+    "carry-shoulderR-back.png": 84,
+    "wave-shoulderR-side.png": 84,
+    "bind-shoulderR-back.png": 83,
+    "cross_arms-shoulderR-back.png": 83,
+    "idle-shoulderR-back.png": 83,
+    "point-shoulderR-back.png": 83,
+    "wave-shoulderR-back.png": 83,
+    "cross_arms-shoulderL-front.png": 80,
+    "walkA-shoulderR-back.png": 80,
+    "bind-shoulderR-front.png": 79,
+    "jog-shoulderL-side.png": 78,
+    "jog-shoulderR-back.png": 77,
+    "talk-shoulderR-back.png": 77,
+    "bend-shoulderL-q34.png": 69,
+    "walkA-shoulderL-side.png": 67,
+    "walkB-shoulderR-back.png": 65,
+    "bind-shoulderL-side.png": 63,
+    "walkB-shoulderL-side.png": 49,
+    "bend-shoulderL-front.png": 48,
+    "walkA-shoulderL-front.png": 48,
+    "carry-shoulderL-side.png": 43,
+    "arms_up-shoulderL-side.png": 42,
+    "cross_arms-shoulderL-side.png": 42,
+    "idle-shoulderL-side.png": 42,
+    "point-shoulderL-side.png": 42,
+    "wave-shoulderL-side.png": 42,
+    "bind-shoulderL-back.png": 41,
+    "talk-shoulderL-back.png": 41,
+    "arms_up-shoulderL-back.png": 37,
+    "carry-shoulderL-back.png": 35,
+    "cross_arms-shoulderL-back.png": 35,
+    "idle-shoulderL-back.png": 35,
+    "point-shoulderL-back.png": 35,
+    "walkB-shoulderL-front.png": 35,
+    "wave-shoulderL-back.png": 35,
+    "jog-shoulderL-back.png": 34,
+    "point-shoulderR-below.png": 34,
+    "jog-shoulderL-below.png": 30,
+    "walkA-shoulderL-back.png": 30,
+    "bend-shoulderL-side.png": 29,
+    "jog-shoulderL-front.png": 28,
+    "walkB-shoulderL-back.png": 28,
+    "bend-shoulderR-back.png": 26,
+    "talk-shoulderL-side.png": 26,
+    "mop-shoulderL-below.png": 25,
+    "arms_up-shoulderL-front.png": 21,
+    "mop-shoulderL-q34.png": 20
+   }
+  },
+  "rabbit-kit": {
+   "frames": 260,
+   "total_px": [
+    68550,
+    260
+   ],
+   "frames_with_any": [
+    226,
+    86
+   ],
+   "worst_frame_px": [
+    1206,
+    14
+   ],
+   "after_frames_20px_or_more": {}
+  },
+  "rabbit-street": {
+   "frames": 260,
+   "total_px": [
+    8242,
+    3735
+   ],
+   "frames_with_any": [
+    247,
+    150
+   ],
+   "worst_frame_px": [
+    320,
+    302
+   ],
+   "after_frames_20px_or_more": {
+    "mop-shoulderL-front.png": 302,
+    "bend-shoulderL-front.png": 262,
+    "cross-shoulderL-q34.png": 208,
+    "talk-shoulderL-front.png": 198,
+    "cross_arms-shoulderL-front.png": 153,
+    "arms_up-shoulderL-front.png": 148,
+    "carry-shoulderL-front.png": 148,
+    "idle-shoulderL-front.png": 148,
+    "point-shoulderL-front.png": 148,
+    "wave-shoulderL-front.png": 148,
+    "walkB-shoulderL-front.png": 123,
+    "jog-shoulderL-front.png": 90,
+    "hook-shoulderR-q34.png": 85,
+    "walkA-shoulderL-front.png": 82,
+    "rear_hook-shoulderR-q34.png": 48,
+    "mop-shoulderR-q34.png": 40,
+    "rear_uppercut-shoulderR-q34.png": 39,
+    "bend-shoulderR-q34.png": 33,
+    "jab-shoulderR-q34.png": 32,
+    "carry-shoulderR-q34.png": 30,
+    "cross_arms-shoulderR-front.png": 29,
+    "uppercut-shoulderR-side.png": 29,
+    "wave-shoulderR-back.png": 29,
+    "cross-shoulderR-q34.png": 28,
+    "jog-shoulderR-side.png": 27,
+    "talk-shoulderR-q34.png": 27,
+    "bend-shoulderR-below.png": 26,
+    "cross_arms-shoulderR-q34.png": 26,
+    "rear_hook-shoulderR-side.png": 26,
+    "block-shoulderR-side.png": 25,
+    "cross-shoulderR-side.png": 25,
+    "mop-shoulderR-front.png": 25,
+    "guard-shoulderR-side.png": 24,
+    "walkA-shoulderR-side.png": 24,
+    "point-shoulderR-q34.png": 23,
+    "bend-shoulderR-front.png": 22,
+    "down-shoulderR-q34.png": 22,
+    "hit_head-shoulderR-q34.png": 22,
+    "rear_uppercut-shoulderR-side.png": 22,
+    "hook-shoulderR-side.png": 21,
+    "jog-shoulderR-q34.png": 21,
+    "roll-shoulderR-q34.png": 21,
+    "slip-shoulderL-front.png": 21,
+    "uppercut-shoulderR-q34.png": 21,
+    "hit_body-shoulderR-q34.png": 20
+   }
+  },
+  "rabbit-wraps": {
+   "frames": 140,
+   "total_px": [
+    11585,
+    150
+   ],
+   "frames_with_any": [
+    112,
+    47
+   ],
+   "worst_frame_px": [
+    1047,
+    12
+   ],
+   "after_frames_20px_or_more": {}
+  },
+  "rourke": {
+   "frames": 260,
+   "total_px": [
+    41375,
+    1822
+   ],
+   "frames_with_any": [
+    236,
+    183
+   ],
+   "worst_frame_px": [
+    824,
+    283
+   ],
+   "after_frames_20px_or_more": {
+    "hook-shoulderR-q34.png": 283,
+    "jab-shoulderR-q34.png": 50,
+    "hit_head-shoulderL-back.png": 44,
+    "bind-shoulderL-side.png": 41,
+    "cross_arms-shoulderL-front.png": 40,
+    "guard-shoulderL-back.png": 40,
+    "guard-shoulderR-back.png": 38,
+    "down-shoulderR-back.png": 34,
+    "hit_head-shoulderR-back.png": 29,
+    "cross_arms-shoulderR-below.png": 28,
+    "carry-shoulderL-side.png": 26,
+    "idle-shoulderL-side.png": 26,
+    "point-shoulderL-side.png": 26,
+    "roll-shoulderR-back.png": 26,
+    "wave-shoulderL-side.png": 26,
+    "block-shoulderL-side.png": 25,
+    "cross-shoulderR-below.png": 25,
+    "guard-shoulderL-side.png": 25,
+    "hit_body-shoulderL-q34.png": 25,
+    "cross-shoulderL-side.png": 22,
+    "hit_body-shoulderL-front.png": 21,
+    "cross_arms-shoulderL-side.png": 20,
+    "down-shoulderL-back.png": 20
+   }
+  }
+ }
+}
