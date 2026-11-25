@@ -1,5 +1,5 @@
 {
-  "version": "v196-20261125",
+  "version": "v197-20261125",
   "urls": [
     "./index.html",
     "./fight-iq-content.json",
@@ -53,7 +53,7 @@
     "./occlusion-guard.js?v=2026111302",
     "./club-world.js?v=20261123lang",
     "./club-interface.css?v=20261124lang",
-    "./version.js?v=2026112596",
+    "./version.js?v=2026112597",
     "./club-interface.js?v=20261124lang",
     "./ringfighter-controls.css?v=2026111012",
     "./ringfighter-controls.js?v=2026111112",
