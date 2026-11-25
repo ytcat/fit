@@ -46,4 +46,5 @@ neck-scarf-trials, market-robbery-before-after, market-reward-before-after, film
 - Integrator: full suite before release.
 
 ## Checks run
-See the report / commit message of the last checkpoint.
+- `bash scripts/run-tests.sh -j 1 hazel-head fang-head story-cast-market portraits dream-market-films market-handbag-drop city-assets
+  lang-generic offline-version-match otto-civilian-lifecycle pc-smooth-start` -> files=11 fails=0 (320 s). Full suite not run here.
