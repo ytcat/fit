@@ -371,53 +371,68 @@
     }
   };
 
-  /* ---------------------------------------------------------------- Fang's authored head (TRELLIS.2; owner 2026-11-24: "fang looks good") */
-  // assets/characters/fang/fang-head.glb, made by tools/blender/fang_head_game.py from assets/characters/fang/trellis/: head, ears and
-  // neck ruff as one static mesh (~16k triangles, one 1024 px JPEG), already in the head joint's frame (metres, +Z toward the nose,
-  // origin at the joint), so it is simply a child of the head joint and turns, nods, jolts and falls with it. Loaded once per page,
-  // shared by every Fang rig (clones share geometry and material). The code-built head stays until the file is ready, and stays if
-  // it fails: never both. When the model is on, the code head's parts are taken off the render layers (their own `visible` flags,
-  // which the face acting and the teeth switch, are left alone) and the skin's head and neck above the collar are folded into the
-  // middle of the model (positions of both outfits, edited in place and restored exactly), so no second face pokes through it.
-  // The mouth stays closed: the jaw channel still runs on the hidden skin, nothing shows it.
-  const HEAD_URL = './assets/characters/fang/fang-head.glb?v=2026112402';
-  const headFile = { state: 'idle', promise: null, scene: null }, headRigs = new Set();
-  function loadHead() {
-    if (headFile.promise && headFile.state !== 'failed') return headFile.promise;
-    headFile.state = 'loading';
-    headFile.promise = new Promise(res => {
+  /* ---------------------------------------------------------------- authored heads (TRELLIS.2): Fang (owner 2026-11-24: "fang looks good"),
+   * Mrs. Hazel (owner 2026-11-25: "perfect") */
+  // assets/characters/<id>/<id>-head.glb, made by tools/blender/<id>_head_game.py from assets/characters/<id>/trellis/: the head (with
+  // Fang's ears and neck ruff; with Hazel's ears and the kerchief over her head) as one static mesh (~16k triangles, one 1024 px JPEG), already in
+  // the head joint's frame (metres, +Z toward the nose, origin at the joint), so it is simply a child of the head joint and turns,
+  // nods, jolts and falls with it. Loaded once per page, shared by every rig of that character (clones share geometry and material).
+  // The code-built head stays until the file is ready, and stays if it fails: never both. When the model is on, the code head's
+  // parts are taken off the render layers (their own `visible` flags, which the face acting and the teeth switch, are left alone),
+  // and so are the character's other code head pieces (`hide`: Hazel's skinned headscarf); the skin's head and neck above the
+  // collar are folded into the middle of the model (positions of every outfit stream, edited in place and restored exactly), so
+  // no second face pokes through it. The mouth stays closed: the jaw channel still runs on the hidden skin, nothing shows it.
+  const HEADS = {
+    fang: { url: './assets/characters/fang/fang-head.glb?v=2026112402', label: 'Fang', fold: { from: 1.79, to: 1.85, amount: .62 }, hide: [] },
+    hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112501', label: 'Hazel', fold: { from: 1.78, to: 1.84, amount: .62 }, hide: ['Hazel: headscarf'] }
+  };
+  const headFiles = {};
+  const fileOf = id => headFiles[id] || (headFiles[id] = { id, state: 'idle', promise: null, scene: null, rigs: new Set() });
+  function loadHead(id = 'fang') {
+    const f = fileOf(id), cfg = HEADS[id]; if (!cfg) return Promise.resolve(null);
+    if (f.promise && f.state !== 'failed') return f.promise;
+    f.state = 'loading';
+    f.promise = new Promise(res => {
       let L; try { L = new THREE.GLTFLoader(); } catch (x) { res(null); return; }
-      L.load(HEAD_URL, g => res(g), undefined, x => { console.warn('Fang head', x?.message || x?.type || x); res(null); });
+      L.load(cfg.url, g => res(g), undefined, x => { console.warn(cfg.label + ' head', x?.message || x?.type || x); res(null); });
     }).then(g => {
       let ok = false; g?.scene?.traverse(o => { if (o.isMesh && o.geometry?.attributes.position?.count) ok = true; });
-      headFile.state = ok ? 'ready' : 'failed'; headFile.scene = ok ? g.scene : null;
-      if (ok) for (const r of headRigs) headOn(r, r.castHead?.want !== false);
-      return headFile.scene;
-    }, () => { headFile.state = 'failed'; return null; });
-    return headFile.promise;
+      f.state = ok ? 'ready' : 'failed'; f.scene = ok ? g.scene : null;
+      if (ok) for (const r of f.rigs) headOn(r, r.castHead?.want !== false);
+      return f.scene;
+    }, () => { f.state = 'failed'; return null; });
+    return f.promise;
   }
-  /** Starts (or retries) the download; resolves after the model is on every Fang rig, or after ms (default 5 s), never rejects. */
-  function headReady(ms = 5000) { return Promise.race([loadHead(), new Promise(r => setTimeout(r, ms))]).then(() => headFile.state); }
-  function authoredHead(rig) { headRigs.add(rig); rig.castHead = { on: false, want: true, group: null, hidden: [], skin: null }; if (headFile.state === 'ready') headOn(rig, true); else loadHead(); }
+  /** Starts (or retries) the download; resolves after the model is on every rig of that character, or after ms (default 5 s), never rejects. */
+  function headReady(id = 'fang', ms = 5000) { return Promise.race([loadHead(id), new Promise(r => setTimeout(r, ms))]).then(() => fileOf(id).state); }
+  function authoredHead(rig) {
+    const id = rig.character || rig.cast?.id, f = fileOf(id); if (!HEADS[id]) return;
+    f.rigs.add(rig); rig.castHead = { id, on: false, want: true, group: null, hidden: [], skin: null };
+    if (f.state === 'ready') headOn(rig, true); else loadHead(id);
+  }
   /** Puts the authored head on (true) or back to the code-built one (false). Returns whether the authored head is on. */
   function headOn(rig, on = true) {
     const h = rig?.castHead; if (!h) return false; h.want = !!on;
-    if (on && (h.on || !headFile.scene)) return h.on;
+    const f = fileOf(h.id), cfg = HEADS[h.id];
+    if (on && (h.on || !f.scene)) return h.on;
     if (!on && !h.on) return false;
     const head = rig.joints.head;
     if (on) {
-      const group = h.group || (h.group = (() => {
-        const g = new THREE.Group(), m = headFile.scene.clone(true); g.name = 'Fang: authored head'; g.userData.storyPart = true; g.userData.mane = true; g.add(m);
-        g.traverse(o => { o.userData.storyPart = true; o.userData.mane = true; if (o.isMesh) { o.name = 'Fang: authored head'; o.castShadow = true; o.receiveShadow = true; } });
+      const name = cfg.label + ': authored head', group = h.group || (h.group = (() => {
+        const g = new THREE.Group(), m = f.scene.clone(true); g.name = name; g.userData.storyPart = true; g.userData.mane = true; g.add(m);
+        g.traverse(o => { o.userData.storyPart = true; o.userData.mane = true; if (o.isMesh) { o.name = name; o.castShadow = true; o.receiveShadow = true; } });
         return g;
       })());
-      h.hidden = []; for (const c of head.children) if (c !== group) c.traverse(o => { if (o.isMesh || o.isLine || o.isPoints || o.isSprite) { h.hidden.push([o, o.layers.mask]); o.layers.disableAll(); } });
+      const off = o => { if (o.isMesh || o.isLine || o.isPoints || o.isSprite) { h.hidden.push([o, o.layers.mask]); o.layers.disableAll(); } };
+      h.hidden = []; for (const c of head.children) if (c !== group) c.traverse(off);
+      if (cfg.hide.length) rig.root.traverse(o => { if (cfg.hide.includes(o.name)) off(o); });
       skinHead(rig, true); head.add(group); h.on = true;
     } else {
       h.group?.parent?.remove(h.group); for (const [o, mask] of h.hidden) o.layers.mask = mask; h.hidden = []; skinHead(rig, false); h.on = false;
     }
     return h.on;
   }
+  const headApi = id => ({ id, url: HEADS[id].url, load: () => loadHead(id), ready: (ms = 5000) => headReady(id, ms), on: headOn, state: () => fileOf(id).state });
   /** Knocked down on his back the model's ears and the long ruff behind the skull would go through the ground: while the head joint
    *  is low, the model nods about the joint (chin toward the chest, or back) by the smallest angle that keeps it above the ground,
    *  eased in and out; what a nod of up to 0.64 rad cannot clear is lifted (up to 14 cm: the head rests on its ruff). Probe: every 24th vertex of the model, head-joint frame. */
@@ -439,9 +454,8 @@
     if (h.lift > 1e-4) { nodV.set(0, h.lift, 0).transformDirection(nodQ.copy(m).invert()).multiplyScalar(h.lift); g.position.copy(nodV); } else g.position.set(0, 0, 0);
   }
   // the skin above the collar (head and neck bones) folds toward the neck axis: fully on the head, fading out down to the collar
-  const FOLD = { from: 1.79, to: 1.85, amount: .62 };
   function skinHead(rig, on) {
-    const g = rig.skin.geometry, h = rig.castHead, attrs = [...new Set([g.attributes.position, rig.castBase?.position, rig.castFight?.position].filter(Boolean))];
+    const g = rig.skin.geometry, h = rig.castHead, FOLD = HEADS[h.id].fold, attrs = [...new Set([g.attributes.position, rig.castBase?.position, rig.castFight?.position].filter(Boolean))];
     if (!h.skin) {
       const P = attrs[0], SI = g.attributes.skinIndex.array, SW = g.attributes.skinWeight.array, nb = rig.bones.indexOf(rig.joints.neck), hb = rig.bones.indexOf(rig.joints.head), idx = [], k = [];
       let z0 = 1e9, z1 = -1e9;
@@ -650,6 +664,7 @@
       head.add(meshOf(K, 'Hazel: scarf knot', m.parts));
       hazelOutfit(rig);
       install(rig);
+      authoredHead(rig);
     }
   };
   /** Mrs. Hazel's clothes on the skin: a soft heather cardigan (ribbed hem and cuffs, buttons, patch pockets) open over a plum dress
@@ -899,9 +914,9 @@
   const baseOpponent = SC.asOpponent;
   SC.asOpponent = (engine, id) => {
     const restore = baseOpponent(engine, id); if (id !== 'fang') return restore;
-    const c = SC.rig(id, engine); wear(c, 'fight'); if (headFile.state !== 'ready') loadHead(); // a failed head download is tried again
+    const c = SC.rig(id, engine); wear(c, 'fight'); if (fileOf('fang').state !== 'ready') loadHead('fang'); // a failed head download is tried again
     return () => { restore(); wear(c, 'jacket'); };
   };
   SC.market = { ids: Object.keys(DEFS), barehanded: ['fang'], handbag: rig => rig?.castProps?.handbag || null, wear, jacketOff, settle, version: 3,
-    head: { url: HEAD_URL, load: loadHead, ready: headReady, on: headOn, state: () => headFile.state } };
+    head: headApi('fang'), heads: { fang: headApi('fang'), hazel: headApi('hazel') } };
 })();

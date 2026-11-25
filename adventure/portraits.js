@@ -155,8 +155,8 @@
     waiting.set(k, new Set());
     const go = (tries = 0) => {
       const e2 = eng(); if (!e2?.renderer || !e2.coach?.anatomy) { if (tries < 60) setTimeout(() => go(tries + 1), 1000); else finish(null); return; }
-      const rig = rigOf(id, e2), head = window.StoryCast?.market?.head;
-      // Fang's authored head may still be downloading: wait for it (at most a few seconds) so the picture is not cached with the old head
+      const rig = rigOf(id, e2), head = window.StoryCast?.market?.heads?.[rig?.castHead?.id] || window.StoryCast?.market?.head;
+      // an authored head (Fang, Mrs. Hazel) may still be downloading: wait for it (at most a few seconds) so the picture is not cached with the old head
       if (rig?.castHead && !rig.castHead.on && head?.state?.() === 'loading' && !go.waited) { go.waited = true; head.ready(6000).then(() => go(tries)); return; }
       const stale = !!rig?.castHead && !rig.castHead.on && head?.state?.() === 'loading';
       finish(rig ? render(rig, e2) : null);

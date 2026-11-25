@@ -53,7 +53,9 @@
     try { P.prefetch(who, { prio }); } catch (x) { /* paws are optional */ }
   }
   const MARKET_MODELS = ['hazelStall', 'tree', 'props', 'marketProps'], FILM_PIXELS = 1920 * 1080 * 1.2;
-  const hasFang = s => Object.values(s?.actors || {}).some(a => a?.rig === 'fang');
+  /** Story characters in a film that have an authored head model (cast-market.js: Fang, Mrs. Hazel); the apology film leads
+   *  straight into the market, so it asks for the market's heads too. */
+  const headIds = (s, id) => { const H = window.StoryCast?.market?.heads || {}, out = new Set(Object.values(s?.actors || {}).map(a => a?.rig).filter(r => H[r])); if (id === 'dream_apology') for (const r of ['fang', 'hazel']) if (H[r]) out.add(r); return [...out]; };
   /** The authored models a film's set waits for (CityAssets names). */
   const modelsFor = s => s.set === 'dream_street' ? null /* the opening list (CityAssets default) */ : s.set === 'dream_market' ? MARKET_MODELS : s.set === 'dream_shop' ? ['props', 'marketProps'] : /^dream_gym/.test(s.set || '') ? ['gymProps'] : s.set === 'dream_docks' ? ['dockProps'] : [];
   /** Asks for what a coming film needs (the story panel calls this for the current step; prio 2 by default): the paws, and the
@@ -61,7 +63,7 @@
   function prefetch(id, prio = 2) {
     const s = Core()?.variant?.(id); if (!s) return false;
     pawsFor(s, window.app?.engine, prio);
-    try { const m = modelsFor(s); if (m === null || m.length) window.CityAssets?.preload(m || undefined); if (hasFang(s) || id === 'dream_apology') window.StoryCast?.market?.head?.load(); } catch (x) { /* optional */ }
+    try { const m = modelsFor(s); if (m === null || m.length) window.CityAssets?.preload(m || undefined); for (const r of headIds(s, id)) window.StoryCast.market.heads[r].load(); } catch (x) { /* optional */ }
     return true;
   }
 
@@ -190,9 +192,8 @@ d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.
     // Fang's head arriving in the middle of a film froze it while the file was parsed (owner 2026-11-25, PC). The morning in the
     // gym leads straight into the market (street props, Hazel's stall, Fang's authored head); a gym film into fight night (ringside props).
     const nextWait = !city ? null : id === 'dream_apology' ? city.ready(undefined, MARKET_MODELS) : /^dream_gym/.test(scene0.set) ? city.ready(undefined, ['ringProps']) : null;
-    // Fang's authored head (cast-market.js): waited for (at most 5 s) when he is in the film or in the next one
-    const fangHead = window.StoryCast?.market?.head;
-    const headWait = fangHead && (id === 'dream_apology' || hasFang(scene0)) ? fangHead.ready(5000).catch(() => null) : null;
+    // the authored heads (cast-market.js: Fang, Mrs. Hazel): waited for (at most 5 s) when they are in the film or in the next one
+    const heads = headIds(scene0, id), headWait = heads.length ? Promise.all(heads.map(r => window.StoryCast.market.heads[r].ready(5000))).catch(() => null) : null;
     Promise.all([window.StorySets.ready(), cityWait, headWait, nextWait && nextWait.catch(() => null)]).then(([, city]) => new Promise(r => requestAnimationFrame(() => r(city)))).then(city => {
       if (run.closed) return;
       scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(36, 1, .1, 260);
