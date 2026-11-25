@@ -529,7 +529,7 @@
       if (opening > .5) { const rib = bell(v.y, 1.735, .01), c = tmp.copy(tee).lerp(teeRib, rib).multiplyScalar(1 - .05 * Math.sin(v.y * 700)).clone(); G[i] = 0; return { d: .006 * neckLine + .003 * rib, c, move: v.y < 1.6 ? tube(v, .34, .25, .25, 1, -.005) : null }; }
       // leather: yoke and shoulder seams, side panels, belted hem, cuffs; elbow and waist creases; worn edges
       const hem = band(v.y, 1.0, 1.055, .006), belt = band(v.y, 1.015, 1.045, .004), cuff = smooth((ax - .84) / .015), edge = front * bell(ax, open + .004, .006);
-      const seams = Math.max(bell(ax, .312, .005) * smooth((v.y - 1.42) / .05), bell(v.y, 1.6, .004) * smooth((-v.z) / .04), front * bell(ax, .17, .004) * band(v.y, 1.1, 1.5, .02), bell(v.z, -.01, .004) * smooth((ax - .2) / .04) * (v.arm < .5 ? 1 : 0) * (v.y < 1.45 ? 1 : 0), v.arm > .6 ? bell(Math.atan2(v.z, v.y - 1.615), -1.57, .045) : 0);
+      const seams = Math.max(bell(ax, .312, .010) * smooth((v.y - 1.42) / .05), bell(v.y, 1.6, .004) * smooth((-v.z) / .04), front * bell(ax, .17, .004) * band(v.y, 1.1, 1.5, .02), bell(v.z, -.01, .004) * smooth((ax - .2) / .04) * (v.arm < .5 ? 1 : 0) * (v.y < 1.45 ? 1 : 0), v.arm > .6 ? bell(Math.atan2(v.z, v.y - 1.615), -1.57, .045) : 0);
       const elbow = v.arm > .5 ? bell(ax, .66, .05) : 0, waistC = (1 - v.arm) * bell(v.y, 1.2, .07) * smooth((ax - .1) / .1), wrinkle = (Math.sin(ax * 170) * elbow + Math.sin(v.y * 140 + ax * 20) * waistC * .7);
       const wear = clamp(.15 + .1 * Math.sin(v.y * 37 + ax * 23) * Math.sin(ax * 41 - v.z * 30) + .6 * Math.max(0, wrinkle) + .5 * edge + .35 * smooth((v.y - 1.6) / .1) * smooth(v.z / .05) * bell(ax, .2, .08) + .25 * cuff);
       const c = tmp.copy(leather).lerp(worn, wear).lerp(seamC, clamp(seams * .9 + belt * .3)).clone();
@@ -688,7 +688,7 @@
       if (inside > .5) { const pr = Math.max(0, Math.sin(v.x * 260) * Math.sin(v.y * 260)); return { d: .006 - .004 * smooth((v.y - 1.7) / .05), c: tmp.copy(dress0).lerp(dot, smooth((pr - .8) / .1) * .9).clone() }; }
       const hem = bell(v.y, 1.025, .022) * (1 - v.arm), cuff = smooth((ax - .83) / .025), edge = front * bell(ax, open + .012, .01), knit = .5 + .5 * Math.sin((v.arm > .5 ? ax : v.y) * 560);
       const pocket = front * band(v.y, 1.06, 1.18, .006) * band(ax, .1, .22, .006), pEdge = front * Math.max(bell(v.y, 1.18, .005) * band(ax, .1, .22, .006), band(v.y, 1.06, 1.18, .006) * Math.max(bell(ax, .1, .005), bell(ax, .22, .005)));
-      const seam = Math.max(bell(ax, .315, .006) * smooth((v.y - 1.42) / .05), v.arm > .6 ? bell(Math.atan2(v.z, v.y - 1.615), -1.57, .05) : 0);
+      const seam = Math.max(bell(ax, .315, .010) * smooth((v.y - 1.42) / .05), v.arm > .6 ? bell(Math.atan2(v.z, v.y - 1.615), -1.57, .05) : 0);
       const c = tmp.copy(card).lerp(cardRib, clamp(Math.max(hem, cuff, edge) * (.5 + .5 * knit) + pEdge * .9 + seam * .8)).multiplyScalar(1 - .025 * Math.sin(v.y * 300 + ax * 80) * Math.sin(ax * 320 + v.z * 220)).clone();
       const move = v.arm > .5 ? sleeve(v, lerp(.088, .062, smooth((ax - .40) / .48)), smooth((v.arm - .5) / .35)) : v.y < 1.72 ? tube(v, .25, lerp(.22, .19, smooth((v.y - 1.4) / .3)), lerp(.22, .18, smooth((v.y - 1.55) / .17)), (1 - v.arm * 2) * smooth((1.74 - v.y) / .05)) : null;
       return { d: .016 + .006 * Math.max(hem, cuff) + .004 * pocket + .004 * edge - .008 * smooth((v.y - 1.73) / .04), c, move };

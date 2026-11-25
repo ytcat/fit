@@ -39,7 +39,8 @@
       guard: box('guard', 0), jab: box('jab', .40), cross: box('cross', .42), hook: box('hook', .45), rear_hook: box('rear_hook', .45),
       uppercut: box('uppercut', .42), rear_uppercut: box('rear_uppercut', .42), slip: box('slip', .40), roll: box('roll', .45), step: box('step', .4),
       block: box('guard', 0, { guardCover: 1, cheekGuard: 1 }), hit_head: box('guard', 0, { hitReaction: { part: 'head', amount: 1, side: 1 } }),
-      hit_body: box('guard', 0, { hitReaction: { part: 'body', amount: 1, side: -1 } }), down: box('guard', 0, { down: 1, hitReaction: { part: 'head', amount: .6, side: 1 } })
+      hit_body: box('guard', 0, { hitReaction: { part: 'body', amount: 1, side: -1 } }), down: box('guard', 0, { down: 1, hitReaction: { part: 'head', amount: .6, side: 1 } }),
+      winner: box('guard', 0, { presentation: { mode: 'winner', side: 'R', raise: 1 } }) // the referee raises the winner's arm (sunday-punch, fight end)
     },
     civil: {
       idle: civ({}), talk: civ({ t: 2.3, arms: { L: 'open', R: 'open' }, talk: .6 }), walkA: civ({ t: .3, dist: .45, walk: 1 }), walkB: civ({ t: .7, dist: 1.05, walk: 1 }),
