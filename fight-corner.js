@@ -298,7 +298,7 @@
     const side=G.P.clone().sub(G.seat).setY(0).normalize(),out=G.d.clone().multiplyScalar(.45).addScaledVector(side,.85).normalize(),e=.5;
     const bottom=out.multiplyScalar(Math.cos(e)).add(V(0,Math.sin(e),0)).normalize(),q=new THREE.Quaternion().slerp(new THREE.Quaternion().setFromUnitVectors(V(0,1,0),bottom.clone().negate()),clamp(tilt/1.9));
     p.bottle.position.copy(bottleAt);p.bottle.quaternion.copy(q);
-    p.bottleQ=q;if(cm)hands.R=toRig(V(0,-.27,0).applyQuaternion(q).add(bottleAt)); // the paw holds the bottom: the bottle shows between paw and mouth
+    p.bottleQ=q;if(cm)hands.R=toRig(V(0,-.28,0).applyQuaternion(q).add(bottleAt)); // the paw holds the bottom (28 cm below the spout, the bottle is 28.8 cm): the bottle shows between paw and mouth
    }
    // ---- wipe and talk
    let talk=0,arms={L:'hang',R:'hang'},look=null,wipeAt=null;
@@ -324,7 +324,7 @@
     }
     if(stoolHeld==='both'&&stoolAt){const mid=cast.worldToLocal(rig.joints.handL.getWorldPosition(V())).add(cast.worldToLocal(rig.joints.handR.getWorldPosition(V()))).multiplyScalar(.5).add(V(0,-.03,0));
      const up=n>=T.stoolOut[0]?span(n,[T.stoolOut[0]+.2,T.stoolOut[0]+.35]):1,at=stoolAt.clone().setY(stoolAt.y).lerp(mid,up);if(!ringless)ropeClear(at);p.stool.position.set(at.x,at.y-SEAT,at.z);if(n<T.stoolDrop[0])p.lastHeld=at.clone();p.stool.rotation.set(0,yaw,0);}
-    if(p.bottle.visible&&p.bottleQ){const hand=cast.worldToLocal(rig.joints.handR.getWorldPosition(V()));p.bottle.position.copy(V(0,.27,0).applyQuaternion(p.bottleQ).add(hand));}
+    if(p.bottle.visible&&p.bottleQ){const hand=cast.worldToLocal(rig.joints.handR.getWorldPosition(V()));p.bottle.position.copy(V(0,.28,0).applyQuaternion(p.bottleQ).add(hand));}
    }
    if(!p.cloth){p.cloth=new THREE.Mesh(new THREE.BoxGeometry(.13,.035,.1),this.towelMaterials[actor]);p.cloth.name='Wipe cloth';this.root.add(p.cloth);}
    p.cloth.visible=!!(wipeAt&&rig);if(p.cloth.visible){const paw=cast.worldToLocal(rig.joints.handL.getWorldPosition(V()));p.cloth.position.copy(paw.lerp(wipeAt,.55));p.cloth.rotation.set(0,yaw,0);}
