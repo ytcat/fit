@@ -23,7 +23,7 @@
  * World: metres, x east, z south, y up. */
 (() => {
   'use strict';
-  const MAP_SRC = './adventure/gloryland-map.js?v=20261125wt1';
+  const MAP_SRC = './adventure/gloryland-map.js?v=20261125gl1';
   const Core = () => window.FreeWalkCore;
   const STORY_IDS = ['bruno', 'market_stall', 'otto', 'docks_quay'];
   const PLACE_IDS = ['oldtown', 'market', 'docks', 'downtown', 'neon', 'dome', 'hill', 'tech', 'fair', 'cove', 'fort'];

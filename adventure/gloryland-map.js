@@ -2277,7 +2277,9 @@ function buildTraffic(W) {
     const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz); if (L < .5) return; const ux = dx / L, uz = dz / L, nx = -uz, nz = ux;
     for (let t = .5; t < L - .4; t += 1.6) stripe(a[0] + ux * (t + .4) + nx * off, a[1] + uz * (t + .4) + nz * off, ux, uz, .8, .11, col);
   };
-  const car = (x, z, ry) => { addInst(W, 'cars', { x, y: LAND_Y, z, s: 1, ry, color: pick(PAL.car) }); if (W.NIGHT) { const f = frame(x, z, ry), h = f.p(0, .62), t = f.p(0, -.6); glow(W, h[0], LAND_Y + .3, h[1], '#fff2c8', .9, .8); glow(W, t[0], LAND_Y + .3, t[1], '#ff3a2a', .6, .8); } };
+  // free walk: the parked cars are hidden (street life is its own) and so are their lights (owner: "strange lights while you walk in
+  // the night"); they go to the sink, so the random sequence and the rest of the town stay exactly the same
+  const car = (x, z, ry) => { addInst(W, 'cars', { x, y: LAND_Y, z, s: 1, ry, color: pick(PAL.car) }); if (W.NIGHT) { const L = W.walk ? sinkOf(W) : W, f = frame(x, z, ry), h = f.p(0, .62), t = f.p(0, -.6); glow(L, h[0], LAND_Y + .3, h[1], '#fff2c8', .9, .8); glow(L, t[0], LAND_Y + .3, t[1], '#ff3a2a', .6, .8); } };
   // grid districts: every street segment between or around blocks
   for (const g of W.grids || []) {
     const { def, blocks, at } = g, st = def.street, has = (i, j) => blocks.some(b => b.i === i && b.j === j);
