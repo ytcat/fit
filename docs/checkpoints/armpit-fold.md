@@ -32,11 +32,14 @@ released, no version bump (the ?v= tags of the changed files and `offline-manife
 | hoodie armhole: rest / walk / guard | 740 / 751 / 1,492 | 4 / 11 / 444 |
 | clothes on skin at rest: Bruno / Fang / Hazel / Otto | 1,922 / 1,435 / 1,102 / 204 | 0 / 0 (97 in the collar) / 0 / 0 |
 | visible back faces, magenta px in 260 close-ups (lion / rabbit kit) | 66,867 / 68,550 | 361 / 260 |
-| ... Brick / Rourke / Fang fight / Hazel | 16,756 / 41,375 / 9,051 / 16,205 | 588 / 1,822 / 1,969 / 3,207 |
+| ... Brick / Rourke / Fang fight / Hazel | 16,756 / 41,375 / 9,051 / 16,205 | 588 / 1,831 / 2,062 / 2,537 |
+| ... Bruno / Otto / Fang jacket (lapel fringe #16 included) | 4,502 / 11,712 / 18,377 | 3,256 / 7,222 / 10,503 |
+| clothes on skin, walk: Bruno / Fang / Hazel / Otto | 4,889 / 3,192 / 1,083 / 838 | 1,299 / 1,164 / 22 / 344 |
 Residual crossings are the arm pressed against the chest (hidden in the contact; the back-face check sees none there) and
 thin folds of the thick cloth in the pressed front armpit (Bruno, Fang, Otto; in shadow). Edge stretch in the region, over
-all poses (0.1 % / 99.9 % / max, posed / rest length): lion 0.11 / 5.6 / 34 -> 0.20 / 4.9 / 7.2; Bruno 0.13 / 3.8 / 8.5 ->
-0.21 / 3.3 / 5.0; no character got worse (all 13 in `crossings.json`).
+all poses (0.1 % / 99.9 % / max, posed / rest length): lion 0.11 / 5.6 / 34 -> 0.20 / 4.9 / 7.2; no character's stretch got worse (all 13 in `crossings.json`).
+Bruno's folded-triangle count over all poses is flat (35,503 -> 36,298) while his crossings drop 94,748 -> 19,025: thin
+folds inside the pressed front armpit of the thick cardigan (AUDIT #18).
 
 ## Evidence (`qa/armpit-fold/`)
 - `<character>-before-after.webp`: every character, its poses, the moving shoulder from front / side / back / below / 3/4.
