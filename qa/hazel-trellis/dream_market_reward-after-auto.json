@@ -1,0 +1,56 @@
+{
+ "scene": "dream_market_reward",
+ "tag": "after",
+ "quality": "auto",
+ "head": {
+  "file": "ready",
+  "on": true
+ },
+ "frames": [
+  {
+   "t": 1.2,
+   "calls": 82,
+   "tris": 752536,
+   "geos": 622,
+   "tex": 39,
+   "progs": 92
+  },
+  {
+   "t": 5,
+   "calls": 77,
+   "tris": 736582,
+   "geos": 623,
+   "tex": 39,
+   "progs": 92
+  },
+  {
+   "t": 12.6,
+   "calls": 104,
+   "tris": 770512,
+   "geos": 624,
+   "tex": 39,
+   "progs": 92
+  },
+  {
+   "t": 18,
+   "calls": 73,
+   "tris": 717346,
+   "geos": 626,
+   "tex": 39,
+   "progs": 92
+  }
+ ],
+ "perf": {
+  "frames": 7,
+  "meanMs": 431,
+  "medianMs": 467,
+  "p90Ms": 586.5,
+  "info": {
+   "calls": 82,
+   "tris": 752536,
+   "geos": 626,
+   "tex": 39,
+   "progs": 92
+  }
+ }
+}

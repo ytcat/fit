@@ -1,0 +1,2 @@
+film auto {"size":[402,524],"off":{"calls":126,"tris":803391,"geos":628,"tex":40,"medianMs":726.7,"meanMs":731.9},"on":{"calls":104,"tris":770512,"geos":628,"tex":40,"medianMs":740.1,"meanMs":730},"bare":{"medianMs":734,"meanMs":738.2}}
+film low {"size":[402,524],"off":{"calls":126,"tris":803391,"geos":624,"tex":39,"medianMs":540.8,"meanMs":544.2},"on":{"calls":104,"tris":770512,"geos":624,"tex":39,"medianMs":523.5,"meanMs":534.2},"bare":{"medianMs":556.3,"meanMs":551.7}}
