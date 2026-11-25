@@ -16,3 +16,5 @@ code head as fallback, offline pack) -> targeted tests, full suite, release.
 
 Status 2026-11-25 05:05 UTC: ZeroGPU quota exhausted ("You have exceeded your ZeroGPU runs limit"); retry scheduled 11:06 UTC.
 Then: owner's v1.95 manual-QA findings go into the backlog first.
+
+2026-11-25 11:30 UTC: Hazel done (FLUX seed 505, no antlers; TRELLIS.2 99.7k tris) — source in assets/characters/hazel/trellis, renders qa/hazel-trellis/; sent to the owner for approval. Bruno: FLUX refused (ZeroGPU runs limit) after Hazel; retry scheduled 2026-11-26 11:10 UTC (scratchpad/bruno/gen_bruno.py).
