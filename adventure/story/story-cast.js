@@ -104,6 +104,57 @@
       for (let i = 0; i < n; i++) { const j = rep[i] * 3; pos[i * 3] = next[j]; pos[i * 3 + 1] = next[j + 1]; pos[i * 3 + 2] = next[j + 2]; }
     }
   }
+  /** Laplacian smoothing (step .5 x w) of the vertices with weight w > 0 over `rounds` rounds: relax() for a small region
+   *  (visits only the weighted vertices). It fills concave creases, as cloth bridges them. */
+  function fill(g, pos, w, rounds) {
+    const { rep, start, nb } = topology(g), n = pos.length / 3, list = []; for (let i = 0; i < n; i++) if (rep[i] === i && w[i] > 0 && start[i + 1] > start[i]) list.push(i);
+    if (!list.length) return; const tmp = new Float32Array(list.length * 3);
+    for (let r = 0; r < rounds; r++) {
+      const lam = .5;
+      for (let k = 0; k < list.length; k++) { const i = list[k], a = start[i], b = start[i + 1]; let x = 0, y = 0, z = 0; for (let e = a; e < b; e++) { const j = nb[e] * 3; x += pos[j]; y += pos[j + 1]; z += pos[j + 2]; } const m = 1 / (b - a), t = w[i] * lam; tmp[k * 3] = pos[i * 3] + (x * m - pos[i * 3]) * t; tmp[k * 3 + 1] = pos[i * 3 + 1] + (y * m - pos[i * 3 + 1]) * t; tmp[k * 3 + 2] = pos[i * 3 + 2] + (z * m - pos[i * 3 + 2]) * t; }
+      for (let k = 0; k < list.length; k++) { const i = list[k] * 3; pos[i] = tmp[k * 3]; pos[i + 1] = tmp[k * 3 + 1]; pos[i + 2] = tmp[k * 3 + 2]; }
+    }
+    for (let i = 0; i < n; i++) { const j = rep[i]; if (j !== i && w[j] > 0) { pos[i * 3] = pos[j * 3]; pos[i * 3 + 1] = pos[j * 3 + 1]; pos[i * 3 + 2] = pos[j * 3 + 2]; } }
+  }
+  /** GOTR-0127 #7: the last safety of dress() round the armpits (rest |x| < .62, y 1.2-1.95): a dressed triangle turned more
+   *  than 100 deg from the bare skin's is a fold of the cloth through itself. Its vertices and two rings around them are
+   *  smoothed (Laplacian on the positions) until none is left, at most `rounds` times. base: bare positions, pos: dressed
+   *  (edited in place). Returns the turned triangles left. g: the skin geometry, or { rep, start, nb, index } of another
+   *  surface (the street clothes); opt.pin: vertices that must not move (cut edges). */
+  function untangle(g, base, pos, rounds = 40, opt = {}) {
+    const { rep, start, nb } = g.isBufferGeometry ? topology(g) : g, idx = g.isBufferGeometry ? g.index.array : g.index, n = pos.length / 3, tris = [], bn = [], pin = opt.pin;
+    for (let t = 0; t < idx.length; t += 3) {
+      const a = idx[t] * 3, b = idx[t + 1] * 3, c = idx[t + 2] * 3, ax = Math.abs(base[a]), y = base[a + 1];
+      if (ax > .62 || y < 1.2 || y > 1.95) continue;
+      const ux = base[b] - base[a], uy = base[b + 1] - base[a + 1], uz = base[b + 2] - base[a + 2], vx = base[c] - base[a], vy = base[c + 1] - base[a + 1], vz = base[c + 2] - base[a + 2];
+      const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx, l = Math.hypot(nx, ny, nz); if (l < 1e-12) continue;
+      tris.push(t); bn.push(nx / l, ny / l, nz / l);
+    }
+    const bad = new Uint8Array(n), grow = new Uint8Array(n), q = new Float32Array(pos.length);
+    let left = 0, best = Infinity, stall = 0;
+    for (let r = 0; r <= rounds; r++) {
+      bad.fill(0); left = 0;
+      for (let k = 0; k < tris.length; k++) {
+        const t = tris[k], a = idx[t] * 3, b = idx[t + 1] * 3, c = idx[t + 2] * 3;
+        const ux = pos[b] - pos[a], uy = pos[b + 1] - pos[a + 1], uz = pos[b + 2] - pos[a + 2], vx = pos[c] - pos[a], vy = pos[c + 1] - pos[a + 1], vz = pos[c + 2] - pos[a + 2];
+        const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx, l = Math.hypot(nx, ny, nz);
+        if (l > 1e-14 && (nx * bn[k * 3] + ny * bn[k * 3 + 1] + nz * bn[k * 3 + 2]) / l > -.17) continue;
+        left++; bad[rep[idx[t]]] = bad[rep[idx[t + 1]]] = bad[rep[idx[t + 2]]] = 1;
+      }
+      if (!left || r === rounds) break; if (left < best) { best = left; stall = 0; } else if (++stall >= 6) break; // no progress: stop
+      for (let ring = 0; ring < 2; ring++) { grow.set(bad); for (let i = 0; i < n; i++) if (grow[i]) for (let e = start[i]; e < start[i + 1]; e++) bad[nb[e]] = 1; }
+      q.set(pos);
+      for (let i = 0; i < n; i++) {
+        if (!bad[i] || rep[i] !== i || start[i] === start[i + 1] || (pin && pin[i])) continue;
+        let x = 0, y = 0, z = 0; for (let e = start[i]; e < start[i + 1]; e++) { const j = nb[e] * 3; x += q[j]; y += q[j + 1]; z += q[j + 2]; }
+        const m = 1 / (start[i + 1] - start[i]);
+        pos[i * 3] = lerp(q[i * 3], x * m, .6); pos[i * 3 + 1] = lerp(q[i * 3 + 1], y * m, .6); pos[i * 3 + 2] = lerp(q[i * 3 + 2], z * m, .6);
+      }
+      for (let i = 0; i < n; i++) { const j = rep[i]; if (j !== i) { pos[i * 3] = pos[j * 3]; pos[i * 3 + 1] = pos[j * 3 + 1]; pos[i * 3 + 2] = pos[j * 3 + 2]; } }
+    }
+    if (g.isBufferGeometry) g.userData.untangled = left;
+    return left;
+  }
   /** Loose cloth hangs as a tube: these push a rest-pose point OUT to a smooth tube (never in). Returned as a move [dx, dy, dz]. */
   function tube(v, a, bf, bb, k = 1, zc = -.005) { const dz = v.z - zc, r = Math.hypot(v.x, dz); if (r < 1e-4) return null; const b = dz > 0 ? bf : bb, cx = v.x / r, cz = dz / r, R = a * b / Math.hypot(b * cx, a * cz); return R > r ? [cx * (R - r) * k, 0, cz * (R - r) * k] : null; }
   function sleeve(v, R, k = 1) { const dy = v.y - 1.615, r = Math.hypot(dy, v.z); return r > 1e-4 && R > r ? [0, dy / r * (R - r) * k, v.z / r * (R - r) * k] : null; }
@@ -121,8 +172,20 @@
       if (o.move) { pos[i * 3] += o.move[0]; pos[i * 3 + 1] += o.move[1]; pos[i * 3 + 2] += o.move[2]; }
     }
     if (opt.relax !== 0) relax(g, pos, mask, opt.relax ?? 14);
+    // GOTR-0127 #7: the armpit folds of the T-pose rest surface are tight concave creases (pectoral / arm root in front, lat /
+    // arm root behind). A cloth thickness of 1-3 cm along the normals there crossed itself (Bruno 1,783 crossing triangle
+    // pairs at rest, Fang 1,292, Hazel 760, Otto 321): the light cracks along the back and front armpit folds in every pose.
+    // Now: the thickness goes out along the normals of a smoothed copy of the surface (they no longer converge in a crease),
+    // the two tightest spots (the front fold under the collarbone, the underarm) are filled in a little first, as cloth
+    // bridges them (a wider fill bridged the whole front armpit and that sheet then folded when the arm rose forward), and
+    // any triangle still turned over is untangled (below).
+    { const pit = new Float32Array(n);
+      for (let i = 0; i < n; i++) { if (!mask[i]) continue; const ax = Math.abs(pos[i * 3]), y = pos[i * 3 + 1]; pit[i] = mask[i] * Math.max(smooth((ax - .14) / .04) * (1 - smooth((ax - .28) / .04)) * smooth((y - 1.50) / .06) * (1 - smooth((y - 1.74) / .04)) * smooth(pos[i * 3 + 2] / .05), smooth((ax - .25) / .03) * (1 - smooth((ax - .39) / .03)) * smooth((y - 1.35) / .03) * (1 - smooth((y - 1.50) / .03))); }
+      fill(g, pos, pit, 150); }
     const nor = normals(g, pos, new Float32Array(pos.length));
+    { const sm = new Float32Array(pos), m = new Float32Array(n); for (let i = 0; i < n; i++) m[i] = off[i] ? 1 : 0; relax(g, sm, m, 60); normals(g, sm, nor); } // the thickness follows a smoothed surface's normals
     for (let i = 0; i < n; i++) if (off[i]) { pos[i * 3] += nor[i * 3] * off[i]; pos[i * 3 + 1] += nor[i * 3 + 1] * off[i]; pos[i * 3 + 2] += nor[i * 3 + 2] * off[i]; }
+    untangle(g, P.array, pos);
     normals(g, pos, nor);
     const out = { position: new THREE.BufferAttribute(pos, 3), normal: new THREE.BufferAttribute(nor, 3), color: new THREE.BufferAttribute(col, 3) };
     // no muscle flex, definition lines or cavity shading under cloth
@@ -316,7 +379,7 @@
       }
       const front = smooth((v.z - .02) / .06) * (v.arm < .3 ? 1 : 0), open = .016 + .085 * smooth((v.y - 1.30) / .42), k = 1 - front * (1 - smooth((ax - open) / .02)); // k = 0 in the open front (gym shirt), 1 on the cardigan
       const top = 1 - smooth((v.y - 1.735) / .04), hem = bell(v.y, 1.055, .028) * (1 - v.arm), cuff = smooth((ax - .86) / .02), edge = front * bell(ax, open + .03, .016), knit = .5 + .5 * Math.sin((v.arm > .5 ? ax : v.y) * 520);
-      const seamC = Math.max(bell(ax, .315, .006) * smooth((v.y - 1.42) / .05), front * Math.max(bell(v.y, 1.2, .005) * band(ax, .1, .24, .008), bell(v.y, 1.09, .005) * band(ax, .1, .24, .008), band(v.y, 1.09, 1.2, .006) * Math.max(bell(ax, .1, .005), bell(ax, .24, .005)))); // shoulder seams and two patch pockets
+      const seamC = Math.max(bell(ax, .315, .010) * smooth((v.y - 1.42) / .05), front * Math.max(bell(v.y, 1.2, .005) * band(ax, .1, .24, .008), bell(v.y, 1.09, .005) * band(ax, .1, .24, .008), band(v.y, 1.09, 1.2, .006) * Math.max(bell(ax, .1, .005), bell(ax, .24, .005)))); // shoulder seams and two patch pockets
       const c = tmp.copy(card).lerp(rib, clamp(Math.max(hem, cuff, edge) * (.55 + .45 * knit) + seamC * .9)).multiplyScalar(1 - .07 * Math.sin(v.y * 260 + ax * 90) * Math.sin(ax * 300 + v.z * 200));
       if (k < 1) c.lerp(tmp2.copy(shirt).multiplyScalar(1 - .1 * bell(v.y, 1.75, .02)), 1 - smooth(k / .45));
       const move = v.arm > .5 ? sleeve(v, lerp(.118, .074, smooth((ax - .40) / .48)), smooth((v.arm - .5) / .35)) : v.y < 1.72 ? tube(v, .37, lerp(.37, .23, smooth((v.y - 1.4) / .3)), lerp(.27, .2, smooth((v.y - 1.55) / .17)), (1 - v.arm * 2) * smooth((1.74 - v.y) / .05)) : null;
@@ -422,6 +485,7 @@
       for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i), side = smooth((Math.abs(x) - .2) / .02) * bell(z, -.005, .05), hem = 1 - smooth((y - .752) / .012); c.copy(red).lerp(white, clamp(Math.max(side, hem * .0))); col.set([c.r, c.g, c.b], i * 3); }
       g.setAttribute('color', new THREE.BufferAttribute(col, 3));
       rig.shorts.material.vertexColors = true; rig.shorts.material.color.set(0xffffff); // the cloth material belongs to this rig alone
+      if (rig.shortsPiping) rig.shortsPiping.visible = false; // his trunks carry their own white side stripe (vertex colours)
       for (const m of kitParts(rig).trim) { if (m.geometry.type === 'CylinderGeometry') { m.material = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: .6 }); m.scale.x *= 1 + BRICK.build.torso * .9 + BRICK.build.hips; m.scale.z *= 1 + BRICK.build.depth * .9 + BRICK.build.hips; } else m.visible = false; }
       rig.gloveMeshes.L.material.color.set(BRICK.gloves);
       rig.skin.material.roughness = .8; if (rig.definition?.look) rig.definition.look.value.multiplyScalar(1.45); // short coat with a little sheen; hard muscle lines
@@ -501,7 +565,7 @@
           const pocket = front * band(v.y, 1.10, 1.275, .012) * (1 - smooth((ax - (.185 - (v.y - 1.10) * .28)) / .012)), pocketEdge = front * Math.max(bell(v.y, 1.28, .009) * (1 - smooth((ax - .14) / .01)), bell(ax, .185 - (v.y - 1.10) * .28, .008) * band(v.y, 1.10, 1.28, .01));
           const waist = bell(v.y, 1.2, .14) * (1 - v.arm), wr = v.arm > .5 ? .004 * Math.sin(ax * 62) * bell(ax, .66, .11) : 0; // a few soft folds at the elbow only
           const rib = (hem > .2 || cuff > .2) ? .5 + .5 * Math.sin((cuff > .2 ? Math.atan2(v.z, v.y - 1.62) * 26 : Math.atan2(v.z, v.x) * 44)) : 0;
-          const seamH = Math.max(bell(ax, .315, .006) * smooth((v.y - 1.42) / .05), bell(v.z, -.005, .005) * smooth((ax - .2) / .04) * (1 - v.arm) * (v.y < 1.4 ? 1 : 0), v.arm > .6 ? bell(Math.atan2(v.z, v.y - 1.615), -1.57, .05) : 0);
+          const seamH = Math.max(bell(ax, .315, .010) * smooth((v.y - 1.42) / .05), bell(v.z, -.005, .005) * smooth((ax - .2) / .04) * (1 - v.arm) * (v.y < 1.4 ? 1 : 0), v.arm > .6 ? bell(Math.atan2(v.z, v.y - 1.615), -1.57, .05) : 0);
           const c = tmp.copy(hood).lerp(dark, clamp(Math.max(hem, cuff) * (.45 + .4 * rib) + pocketEdge * .9 + seamH * .75)).clone().multiplyScalar(1 - .07 * Math.sin(v.y * 900 + v.x * 610) * Math.sin(v.z * 770));
           const gather = .0045 * Math.sin(Math.atan2(v.z, v.x) * 13) * bell(v.y, 1.14, .05) * (1 - v.arm);
           const move = v.arm > .5 ? sleeve(v, lerp(.112, .07, smooth((ax - .40) / .48)), smooth((v.arm - .5) / .35)) : v.y < 1.73 ? tube(v, .30, lerp(.262, .19, smooth((v.y - 1.56) / .17)), lerp(.225, .17, smooth((v.y - 1.6) / .13)), (1 - v.arm * 2) * smooth((1.75 - v.y) / .05)) : null;
@@ -604,6 +668,6 @@
     rig, asOpponent, outfit, outfitOf, bag, duffel, talk, groom, groomAll, tufts,
     get outfits() { return Object.keys(OUTFITS); },
     registerOutfit(name, def) { if (name && name !== 'kit' && def) OUTFITS[name] = def; },
-    Parts, seat, dress, bulk, kitParts, bareHands
+    Parts, seat, dress, bulk, kitParts, bareHands, untangle
   };
 })();

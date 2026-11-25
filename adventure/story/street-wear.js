@@ -188,6 +188,10 @@
     const clear = (Xa, part, cmin) => { for (let k = 0; k < part.orig.length; k++) { const i = part.orig[k], d = (Xa[k * 3] - P[i * 3]) * N[i * 3] + (Xa[k * 3 + 1] - P[i * 3 + 1]) * N[i * 3 + 1] + (Xa[k * 3 + 2] - P[i * 3 + 2]) * N[i * 3 + 2], c = cmin(k, i); if (d < c) { Xa[k * 3] += N[i * 3] * (c - d); Xa[k * 3 + 1] += N[i * 3 + 1] * (c - d); Xa[k * 3 + 2] += N[i * 3 + 2] * (c - d); } } };
     const cH = (k, i) => A[i] >= .5 ? .012 : .014;
     for (let r = 0; r < 3; r++) { smoothPos(X, H.G, pinH, r ? 4 : 12); clear(X, H, cH); }
+    // GOTR-0127 #6: where the torso drape meets the sleeve tube under the arm the cloth could still turn over and cross itself
+    // (a groove / slit in the armhole): those spots are smoothed out (StoryCast.untangle), the cut edges stay pinned.
+    if (SC.untangle) { const B = new Float32Array(nH * 3); for (let k = 0; k < nH; k++) { const i = H.orig[k]; B[k * 3] = P[i * 3]; B[k * 3 + 1] = P[i * 3 + 1]; B[k * 3 + 2] = P[i * 3 + 2]; }
+      const T = { rep: Int32Array.from({ length: nH }, (_, k) => k), start: H.G.start, nb: H.G.nb, index: H.tris }; SC.untangle(T, B, X, 40, { pin: pinH }); clear(X, H, cH); }
 
     /* jeans: legs by slices round each leg, the seat and hips round the body; straight below the knee */
     const J = parts.J, nJ = J.orig.length, XJ = new Float32Array(nJ * 3), SJ = new Float32Array(nJ * 3);
@@ -397,7 +401,8 @@
     const NS = 60, ring = k => { const t = k / NS, side = t < .5 ? 1 : -1, tt = t < .5 ? t * 2 : (1 - t) * 2; return { x: side * (w(tt) + .005), z: zOf(tt), tt }; };
     s.grid(NS, 4, (i, j) => { const r = ring(i), lift = .012 * smooth((r.tt - .84) / .16), ys = [ZH + lift + .002, ZH + lift, ZH + .012 + lift * .6, ysTop - .004, ysTop + .007 + .012 * smooth((r.tt - .86) / .1)][j], inset = j === 0 ? .004 : j === 4 ? .002 : 0, k = r.x > 0 ? -1 : 1;
       const col = j === 2 ? C('stripe') : j >= 3 ? C('sole') : C('sole').clone().multiplyScalar(.82); return [V(r.x + k * inset, ys, r.z + (r.tt > .95 ? .004 * (j < 4 ? 1 : 0) : r.tt < .03 ? -.004 : 0)), col]; }, { closedU: true });
-    s.grid(NS, 1, (i, j) => { const r = ring(i), lift = .012 * smooth((r.tt - .84) / .16); return [V(r.x * (j ? .02 : .93), ZH + lift + .002, r.z), C('tread')]; }, { closedU: true, flip: true });
+    // the tread closes on the centre line (avatar-joins: an inner ring at 2 % of the width left a slit along the sole)
+    s.grid(NS, 1, (i, j) => { const r = ring(i), lift = .012 * smooth((r.tt - .84) / .16); return [V(r.x * (j ? 0 : .93), ZH + lift + .002, r.z), C('tread')]; }, { closedU: true, flip: true });
     // tongue: a padded flap rising out of the opening; laces across the eyestay; a heel pull tab; collar padding
     s.grid(6, 8, (i, j) => { const u = i / 6 * 2 - 1, v = j / 8, t = lerp(.52, .33, v), z = zOf(t) - .01 * v, y = ysTop + h(t) + .004 + .012 * v + .004 * (1 - u * u); return [V(u * .026, y, z + .004 * u * u), C('tongue')]; }, { flip: true });
     for (let k = 0; k < 5; k++) { const t = .46 + k * .07, z = zOf(t), y = ysTop + h(t) + .006, hw = .028 - k * .002; s.cord([V(-hw, y - .003, z - .008), V(0, y + .002, z), V(hw, y - .003, z + .008)], .0028, C('lace'), 6, 5); s.cord([V(hw, y - .003, z - .008), V(0, y + .001, z), V(-hw, y - .003, z + .008)], .0028, C('lace'), 6, 5); }
