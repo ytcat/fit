@@ -1,0 +1,143 @@
+{
+ "lion-kit": {
+  "rim": {
+   "worst": 0.452,
+   "steep": 0
+  },
+  "cuff": {
+   "worst": 0,
+   "at": null,
+   "count": 0
+  },
+  "piping": {
+   "worst": 0.065,
+   "at": "down",
+   "pipes": 1
+  }
+ },
+ "rabbit-kit": {
+  "rim": {
+   "worst": 0.452,
+   "steep": 0
+  },
+  "cuff": {
+   "worst": 0,
+   "at": null,
+   "count": 0
+  },
+  "piping": {
+   "worst": 0.065,
+   "at": "down",
+   "pipes": 1
+  }
+ },
+ "brick": {
+  "rim": {
+   "worst": 0.572,
+   "steep": 0
+  },
+  "cuff": {
+   "worst": 0,
+   "at": null,
+   "count": 0
+  },
+  "piping": {
+   "worst": 0,
+   "at": null,
+   "pipes": 0
+  }
+ },
+ "lion-street": {
+  "armhole": {
+   "rest": 1158,
+   "guard": 1193,
+   "jab": 1234,
+   "cross": 1283,
+   "hook": 1183,
+   "rear_hook": 1238,
+   "uppercut": 1219,
+   "rear_uppercut": 1271,
+   "slip": 1230,
+   "roll": 1213,
+   "step": 1193,
+   "block": 1240,
+   "hit_head": 1185,
+   "hit_body": 1228,
+   "down": 1214,
+   "idle": 1137,
+   "talk": 1125,
+   "walkA": 1118,
+   "walkB": 1116,
+   "jog": 1120,
+   "arms_up": 1212,
+   "wave": 1202,
+   "carry": 1172,
+   "mop": 1214,
+   "point": 1227,
+   "cross_arms": 1217,
+   "chin": 1228,
+   "strap": 1160,
+   "bend": 1151,
+   "worst": 1283
+  },
+  "sole": {
+   "open": 0
+  }
+ },
+ "rabbit-street": {
+  "armhole": {
+   "rest": 1159,
+   "guard": 1193,
+   "jab": 1234,
+   "cross": 1283,
+   "hook": 1183,
+   "rear_hook": 1237,
+   "uppercut": 1219,
+   "rear_uppercut": 1269,
+   "slip": 1229,
+   "roll": 1213,
+   "step": 1193,
+   "block": 1240,
+   "hit_head": 1185,
+   "hit_body": 1228,
+   "down": 1214,
+   "idle": 1146,
+   "talk": 1137,
+   "walkA": 1113,
+   "walkB": 1123,
+   "jog": 1120,
+   "arms_up": 1174,
+   "wave": 1202,
+   "carry": 1187,
+   "mop": 1221,
+   "point": 1236,
+   "cross_arms": 1223,
+   "chin": 1238,
+   "strap": 1170,
+   "bend": 1155,
+   "worst": 1283
+  },
+  "sole": {
+   "open": 0
+  }
+ },
+ "bruno": {
+  "armpit": {
+   "idle": 2093,
+   "talk": 1780,
+   "walkA": 2234,
+   "walkB": 2199,
+   "jog": 1488,
+   "arms_up": 2451,
+   "wave": 1878,
+   "carry": 2204,
+   "mop": 2565,
+   "point": 3737,
+   "cross_arms": 3747,
+   "chin": 2814,
+   "strap": 1859,
+   "bend": 2268,
+   "worst": 3747
+  }
+ }
+}

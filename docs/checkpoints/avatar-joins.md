@@ -1,5 +1,6 @@
 # Checkpoint: avatar-joins (GOTR-0127, full audit of every character's joins and deformations)
 
+Status: READY FOR QA for the four fixes; the armpit fold (#5-#7) is open.
 Branch `agent/avatar-joins` (from `origin/claude/ecstatic-clarke-9as2ak`, merged with it again at 249f16c incl. `fix/hazel-neck`).
 Not merged to main, not released, no version bump. Owner rule: AGENTS.md "Avatars and character parts: joins must be checked".
 
@@ -26,8 +27,11 @@ Not merged to main, not released, no version bump. Owner rule: AGENTS.md "Avatar
   STUDIO_SETUP / STUDIO_AFTER run page JS before/after the rig is built (experiments).
 - `python3 qa/avatar-joins/sheet.py grid|pair|tiles ...`: sheets. `node qa/avatar-joins/measure.cjs`: test numbers.
 
-## Checks run
-See the end of this file (updated with the final run).
+## Checks run (2026-11-25, Node, -j 1, all PASS)
+avatar-joins (new, 181 s; fails on the old tree: shorts 2,033 cap facets), coach, avatar-surface, avatar-detail,
+waistband-pelvis, accessory-gear-fit, accessories, story-street-wear, muscle-definition, shoulder-corrective,
+story-cast-market, rourke-cast (incl. its Chromium part), game-presentation, film-performance, lang-generic,
+offline-version-match, knockdown-floor, head-seams. Not the full suite. No physical phone.
 
 ## Next
 - Armpit fold (AUDIT #5-#7): pose-space corrective for the raised arm / a collision-aware axilla pass; hoodie armhole
