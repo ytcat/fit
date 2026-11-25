@@ -25,7 +25,14 @@
   }
   const box = (move, phase, o = {}) => c => c.update(phase * 1.22, move, 'one_two', { simulationTime: phase * 1.22, ...o });
   const civ = st => c => { const D = G.DreamPose; if (!D.GESTURES.__up) D.GESTURES.__up = { h: [.26, 2.12, .12], pole: [.6, -.2, -.6], palm: [0, 0, 1], turn: .4 }; D.reset(c); return D.civil(c, { t: 1, dist: 0, ...st }); };
-  const bind = c => { c.skeleton.pose(); c.root.updateMatrixWorld(true); c.syncSkin(); }; // the bind (rest) pose: arms out
+  // the bind (rest) pose, arms out. Not skeleton.pose(): it copies the hips' WORLD matrix (with the root's mirror) into its
+  // local transform, which leaves a mirrored hips behind for every later pose.
+  const bind = c => {
+    const T = G.THREE, S = c.skeleton; c.root.updateMatrixWorld(true);
+    const world = i => new T.Matrix4().copy(S.boneInverses[i]).invert();
+    S.bones.forEach((b, i) => { const p = b.parent, pi = S.bones.indexOf(p), pw = pi >= 0 ? world(pi) : p.matrixWorld.clone(); new T.Matrix4().copy(pw).invert().multiply(world(i)).decompose(b.position, b.quaternion, b.scale); });
+    c.root.updateMatrixWorld(true); c.syncSkin();
+  };
   const POSES = {
     rest: { bind },
     box: {
