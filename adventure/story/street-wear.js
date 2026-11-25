@@ -188,6 +188,10 @@
     const clear = (Xa, part, cmin) => { for (let k = 0; k < part.orig.length; k++) { const i = part.orig[k], d = (Xa[k * 3] - P[i * 3]) * N[i * 3] + (Xa[k * 3 + 1] - P[i * 3 + 1]) * N[i * 3 + 1] + (Xa[k * 3 + 2] - P[i * 3 + 2]) * N[i * 3 + 2], c = cmin(k, i); if (d < c) { Xa[k * 3] += N[i * 3] * (c - d); Xa[k * 3 + 1] += N[i * 3 + 1] * (c - d); Xa[k * 3 + 2] += N[i * 3 + 2] * (c - d); } } };
     const cH = (k, i) => A[i] >= .5 ? .012 : .014;
     for (let r = 0; r < 3; r++) { smoothPos(X, H.G, pinH, r ? 4 : 12); clear(X, H, cH); }
+    // GOTR-0127 #6: where the torso drape meets the sleeve tube under the arm the cloth could still turn over and cross itself
+    // (a groove / slit in the armhole): those spots are smoothed out (StoryCast.untangle), the cut edges stay pinned.
+    if (SC.untangle) { const B = new Float32Array(nH * 3); for (let k = 0; k < nH; k++) { const i = H.orig[k]; B[k * 3] = P[i * 3]; B[k * 3 + 1] = P[i * 3 + 1]; B[k * 3 + 2] = P[i * 3 + 2]; }
+      const T = { rep: Int32Array.from({ length: nH }, (_, k) => k), start: H.G.start, nb: H.G.nb, index: H.tris }; SC.untangle(T, B, X, 40, { pin: pinH }); clear(X, H, cH); }
 
     /* jeans: legs by slices round each leg, the seat and hips round the body; straight below the knee */
     const J = parts.J, nJ = J.orig.length, XJ = new Float32Array(nJ * 3), SJ = new Float32Array(nJ * 3);

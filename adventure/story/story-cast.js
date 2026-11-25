@@ -119,9 +119,10 @@
   /** GOTR-0127 #7: the last safety of dress() round the armpits (rest |x| < .62, y 1.2-1.95): a dressed triangle turned more
    *  than 100 deg from the bare skin's is a fold of the cloth through itself. Its vertices and two rings around them are
    *  smoothed (Laplacian on the positions) until none is left, at most `rounds` times. base: bare positions, pos: dressed
-   *  (edited in place). Returns the turned triangles left (0 on every cast rig). */
-  function untangle(g, base, pos, rounds = 40) {
-    const { rep, start, nb } = topology(g), idx = g.index.array, n = pos.length / 3, tris = [], bn = [];
+   *  (edited in place). Returns the turned triangles left. g: the skin geometry, or { rep, start, nb, index } of another
+   *  surface (the street clothes); opt.pin: vertices that must not move (cut edges). */
+  function untangle(g, base, pos, rounds = 40, opt = {}) {
+    const { rep, start, nb } = g.isBufferGeometry ? topology(g) : g, idx = g.isBufferGeometry ? g.index.array : g.index, n = pos.length / 3, tris = [], bn = [], pin = opt.pin;
     for (let t = 0; t < idx.length; t += 3) {
       const a = idx[t] * 3, b = idx[t + 1] * 3, c = idx[t + 2] * 3, ax = Math.abs(base[a]), y = base[a + 1];
       if (ax > .62 || y < 1.2 || y > 1.95) continue;
@@ -130,7 +131,7 @@
       tris.push(t); bn.push(nx / l, ny / l, nz / l);
     }
     const bad = new Uint8Array(n), grow = new Uint8Array(n), q = new Float32Array(pos.length);
-    let left = 0, best = Infinity;
+    let left = 0, best = Infinity, stall = 0;
     for (let r = 0; r <= rounds; r++) {
       bad.fill(0); left = 0;
       for (let k = 0; k < tris.length; k++) {
@@ -140,18 +141,18 @@
         if (l > 1e-14 && (nx * bn[k * 3] + ny * bn[k * 3 + 1] + nz * bn[k * 3 + 2]) / l > -.17) continue;
         left++; bad[rep[idx[t]]] = bad[rep[idx[t + 1]]] = bad[rep[idx[t + 2]]] = 1;
       }
-      if (!left || r === rounds || (r > 2 && left >= best)) break; best = Math.min(best, left);
+      if (!left || r === rounds) break; if (left < best) { best = left; stall = 0; } else if (++stall >= 6) break; // no progress: stop
       for (let ring = 0; ring < 2; ring++) { grow.set(bad); for (let i = 0; i < n; i++) if (grow[i]) for (let e = start[i]; e < start[i + 1]; e++) bad[nb[e]] = 1; }
       q.set(pos);
       for (let i = 0; i < n; i++) {
-        if (!bad[i] || rep[i] !== i || start[i] === start[i + 1]) continue;
+        if (!bad[i] || rep[i] !== i || start[i] === start[i + 1] || (pin && pin[i])) continue;
         let x = 0, y = 0, z = 0; for (let e = start[i]; e < start[i + 1]; e++) { const j = nb[e] * 3; x += q[j]; y += q[j + 1]; z += q[j + 2]; }
         const m = 1 / (start[i + 1] - start[i]);
         pos[i * 3] = lerp(q[i * 3], x * m, .6); pos[i * 3 + 1] = lerp(q[i * 3 + 1], y * m, .6); pos[i * 3 + 2] = lerp(q[i * 3 + 2], z * m, .6);
       }
       for (let i = 0; i < n; i++) { const j = rep[i]; if (j !== i) { pos[i * 3] = pos[j * 3]; pos[i * 3 + 1] = pos[j * 3 + 1]; pos[i * 3 + 2] = pos[j * 3 + 2]; } }
     }
-    g.userData.untangled = left;
+    if (g.isBufferGeometry) g.userData.untangled = left;
     return left;
   }
   /** Loose cloth hangs as a tube: these push a rest-pose point OUT to a smooth tube (never in). Returned as a move [dx, dy, dz]. */
@@ -664,6 +665,6 @@
     rig, asOpponent, outfit, outfitOf, bag, duffel, talk, groom, groomAll, tufts,
     get outfits() { return Object.keys(OUTFITS); },
     registerOutfit(name, def) { if (name && name !== 'kit' && def) OUTFITS[name] = def; },
-    Parts, seat, dress, bulk, kitParts, bareHands
+    Parts, seat, dress, bulk, kitParts, bareHands, untangle
   };
 })();

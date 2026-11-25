@@ -46,12 +46,12 @@
   <script src="./boxing-routines.js?v=2026111105"></script>
   <script src="./boxing-input.js?v=2026112296"></script>
   <script src="./avatar-anatomy.js?v=2026111114"></script>
-  <script src="./avatar-detail.js?v=2026111114"></script>
+  <script src="./avatar-detail.js?v=20261125af1"></script>
   <script src="./avatar-shoulder.js?v=2026110504"></script>
   <script src="./boxing-footwear.js?v=2026111102"></script>
   <script src="./padding-deformation.js?v=2026110703"></script>
   <script src="./boxing-pose.js?v=2026110720"></script>
-  <script src="./boxing-coach-v2.js?v=20261125aj1"></script>
+  <script src="./boxing-coach-v2.js?v=20261125af1"></script>
   <script src="./contact-response.js?v=2026110406"></script>
   <script src="./gym-details.js?v=20261123lang"></script>
   <script src="./training-arena.js?v=2026112202"></script>
@@ -138,10 +138,10 @@
   <script src="./adventure/story/dream-core.js?v=2026112501m" defer></script>
   <script src="./adventure/story/market-core.js?v=2026112501m" defer></script>
   <script src="./adventure/story/paws.js?v=20261122pp2" defer></script>
-  <script src="./adventure/story/story-cast.js?v=20261125aj1" defer></script>
+  <script src="./adventure/story/story-cast.js?v=20261125af1" defer></script>
   <script src="./adventure/story/cast-market.js?v=20261125neck" defer></script>
   <script src="./adventure/story/cast-docks.js?v=2026112295" defer></script>
-  <script src="./adventure/story/street-wear.js?v=20261125aj1" defer></script>
+  <script src="./adventure/story/street-wear.js?v=20261125af1" defer></script>
   <script src="./adventure/story/dream-pose.js?v=20261125g2" defer></script>
   <script src="./adventure/story/bag-break-core.js?v=2026111318" defer></script>
   <script src="./adventure/story/gym-return-core.js?v=2026112183" defer></script>
@@ -603,7 +603,7 @@
           const surface=await response.json();
           if(!rabbit.ok)throw new Error('Rabbit surface unavailable');surface.rabbitBody=(await rabbit.json()).body;
           if(new URLSearchParams(location.search).get('shoulderSurface')!=='v1'){
-            try{const r=await fetch('./assets/models/shoulder-correctives-v2.json?v=1');if(r.ok){const corrective=await r.json();if(corrective.version===2&&corrective.armHingeFrame==='posterior-z'&&corrective.species?.lion&&corrective.species?.rabbit)surface.shoulderCorrectives=corrective;}}catch(error){console.warn('Shoulder detail unavailable; using original surface.');}
+            try{const r=await fetch('./assets/models/shoulder-correctives-v2.json?v=2');if(r.ok){const corrective=await r.json();if(corrective.version===2&&corrective.armHingeFrame==='posterior-z'&&corrective.species?.lion&&corrective.species?.rabbit)surface.shoulderCorrectives=corrective;}}catch(error){console.warn('Shoulder detail unavailable; using original surface.');}
           }
           this.coach=new LionCoach(surface,{species:CoachRoster.preferred()});
           this.roster=new CoachRoster(this,surface);
