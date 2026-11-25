@@ -422,6 +422,7 @@
       for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i), side = smooth((Math.abs(x) - .2) / .02) * bell(z, -.005, .05), hem = 1 - smooth((y - .752) / .012); c.copy(red).lerp(white, clamp(Math.max(side, hem * .0))); col.set([c.r, c.g, c.b], i * 3); }
       g.setAttribute('color', new THREE.BufferAttribute(col, 3));
       rig.shorts.material.vertexColors = true; rig.shorts.material.color.set(0xffffff); // the cloth material belongs to this rig alone
+      if (rig.shortsPiping) rig.shortsPiping.visible = false; // his trunks carry their own white side stripe (vertex colours)
       for (const m of kitParts(rig).trim) { if (m.geometry.type === 'CylinderGeometry') { m.material = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: .6 }); m.scale.x *= 1 + BRICK.build.torso * .9 + BRICK.build.hips; m.scale.z *= 1 + BRICK.build.depth * .9 + BRICK.build.hips; } else m.visible = false; }
       rig.gloveMeshes.L.material.color.set(BRICK.gloves);
       rig.skin.material.roughness = .8; if (rig.definition?.look) rig.definition.look.value.multiplyScalar(1.45); // short coat with a little sheen; hard muscle lines

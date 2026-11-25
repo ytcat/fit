@@ -397,7 +397,8 @@
     const NS = 60, ring = k => { const t = k / NS, side = t < .5 ? 1 : -1, tt = t < .5 ? t * 2 : (1 - t) * 2; return { x: side * (w(tt) + .005), z: zOf(tt), tt }; };
     s.grid(NS, 4, (i, j) => { const r = ring(i), lift = .012 * smooth((r.tt - .84) / .16), ys = [ZH + lift + .002, ZH + lift, ZH + .012 + lift * .6, ysTop - .004, ysTop + .007 + .012 * smooth((r.tt - .86) / .1)][j], inset = j === 0 ? .004 : j === 4 ? .002 : 0, k = r.x > 0 ? -1 : 1;
       const col = j === 2 ? C('stripe') : j >= 3 ? C('sole') : C('sole').clone().multiplyScalar(.82); return [V(r.x + k * inset, ys, r.z + (r.tt > .95 ? .004 * (j < 4 ? 1 : 0) : r.tt < .03 ? -.004 : 0)), col]; }, { closedU: true });
-    s.grid(NS, 1, (i, j) => { const r = ring(i), lift = .012 * smooth((r.tt - .84) / .16); return [V(r.x * (j ? .02 : .93), ZH + lift + .002, r.z), C('tread')]; }, { closedU: true, flip: true });
+    // the tread closes on the centre line (avatar-joins: an inner ring at 2 % of the width left a slit along the sole)
+    s.grid(NS, 1, (i, j) => { const r = ring(i), lift = .012 * smooth((r.tt - .84) / .16); return [V(r.x * (j ? 0 : .93), ZH + lift + .002, r.z), C('tread')]; }, { closedU: true, flip: true });
     // tongue: a padded flap rising out of the opening; laces across the eyestay; a heel pull tab; collar padding
     s.grid(6, 8, (i, j) => { const u = i / 6 * 2 - 1, v = j / 8, t = lerp(.52, .33, v), z = zOf(t) - .01 * v, y = ysTop + h(t) + .004 + .012 * v + .004 * (1 - u * u); return [V(u * .026, y, z + .004 * u * u), C('tongue')]; }, { flip: true });
     for (let k = 0; k < 5; k++) { const t = .46 + k * .07, z = zOf(t), y = ysTop + h(t) + .006, hw = .028 - k * .002; s.cord([V(-hw, y - .003, z - .008), V(0, y + .002, z), V(hw, y - .003, z + .008)], .0028, C('lace'), 6, 5); s.cord([V(hw, y - .003, z - .008), V(0, y + .001, z), V(-hw, y - .003, z + .008)], .0028, C('lace'), 6, 5); }
