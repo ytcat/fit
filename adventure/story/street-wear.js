@@ -403,7 +403,7 @@
     const NS = 60, ring = k => { const t = k / NS, side = t < .5 ? 1 : -1, tt = t < .5 ? t * 2 : (1 - t) * 2; return { x: side * (w(tt) + .005), z: zOf(tt), tt }; };
     s.grid(NS, 4, (i, j) => { const r = ring(i), lift = .012 * smooth((r.tt - .84) / .16), ys = [ZH + lift + .002, ZH + lift, ZH + .012 + lift * .6, ysTop - .004, ysTop + .007 + .012 * smooth((r.tt - .86) / .1)][j], inset = j === 0 ? .004 : j === 4 ? .002 : 0, k = r.x > 0 ? -1 : 1;
       const col = j === 2 ? C('stripe') : j >= 3 ? C('sole') : C('sole').clone().multiplyScalar(.82); return [V(r.x + k * inset, ys, r.z + (r.tt > .95 ? .004 * (j < 4 ? 1 : 0) : r.tt < .03 ? -.004 : 0)), col]; }, { closedU: true });
-    s.grid(NS, 1, (i, j) => { const r = ring(i), lift = .012 * smooth((r.tt - .84) / .16); return [V(r.x * (j ? .02 : .93), ZH + lift + .002, r.z), C('tread')]; }, { closedU: true, flip: true });
+    s.grid(NS, 1, (i, j) => { const r = ring(i), lift = .012 * smooth((r.tt - .84) / .16); return [V(r.x * (j ? 0 : .93), ZH + lift + .002, r.z), C('tread')]; }, { closedU: true, flip: true });
     // tongue: a padded flap rising out of the opening; laces across the eyestay; a heel pull tab; collar padding
     s.grid(6, 8, (i, j) => { const u = i / 6 * 2 - 1, v = j / 8, t = lerp(.52, .33, v), z = zOf(t) - .01 * v, y = ysTop + h(t) + .004 + .012 * v + .004 * (1 - u * u); return [V(u * .026, y, z + .004 * u * u), C('tongue')]; }, { flip: true });
     for (let k = 0; k < 5; k++) { const t = .46 + k * .07, z = zOf(t), y = ysTop + h(t) + .006, hw = .028 - k * .002; s.cord([V(-hw, y - .003, z - .008), V(0, y + .002, z), V(hw, y - .003, z + .008)], .0028, C('lace'), 6, 5); s.cord([V(hw, y - .003, z - .008), V(0, y + .001, z), V(-hw, y - .003, z + .008)], .0028, C('lace'), 6, 5); }
@@ -432,14 +432,6 @@
     if (!c.skin || c.skin.n !== geo.attributes.position.count) c.skin = { n: geo.attributes.position.count, ...skinSoup(geo, c.shape, d.all, 0) };
     geo.setAttribute('skinIndex', new THREE.BufferAttribute(c.skin.ids, 4)); geo.setAttribute('skinWeight', new THREE.BufferAttribute(c.skin.ws, 4)); geo.setAttribute('coachLinear', new THREE.BufferAttribute(c.skin.lin, 1)); // shared by every tint
     geo.computeBoundingSphere();
-    // avatar-joins: the hoodie round the armpits follows the skin's connected axillary surface (AvatarSurface) at its own
-    // height over it. Without it the cloth folded through itself behind and in front of the shoulder in the guard, the
-    // punches and the walk (slits and holes along the armpit folds).
-    if (!geo.attributes.avatarLift && window.AvatarSurface?.rest) {
-      const R = window.AvatarSurface.rest(rig), P = geo.attributes.position.array, n = P.length / 3, nH = c.shape.parts.H.orig.length, mask = new Float32Array(n), lift = new Float32Array(n), p = V();
-      for (let v = 0; v < nH; v++) { const m = R.mask(P[v * 3], P[v * 3 + 1]); if (m < .001) continue; mask[v] = m; lift[v] = R.field(p.set(P[v * 3], P[v * 3 + 1], P[v * 3 + 2])); }
-      geo.setAttribute('avatarAxilla', new THREE.BufferAttribute(mask, 1)); geo.setAttribute('avatarLift', new THREE.BufferAttribute(lift, 1));
-    }
     const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .93, metalness: 0, side: THREE.DoubleSide, skinning: true });
     // rig.skinned() installs the rig's dual-quaternion skinning shader (as for the boxing trunks); our own weights replace its
     const m = rigMesh(rig, geo, mat); rig.root.add(m); m.name = 'Street clothes'; m.castShadow = true; m.receiveShadow = true; m.userData.storyPart = true; m.userData.streetCloth = true; m.visible = false;
