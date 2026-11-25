@@ -4,9 +4,9 @@ Scope, nothing else until the owner's manual QA of v1.95 comes back:
 1. **Hazel** (Market Row fruit seller): TRELLIS.2 head like Fang (GOTR-0102 pipeline). Picture: elderly hornless doe,
    red polka-dot kerchief over the head knotted under the chin, closed smile, 3/4 view (`gen_ref.py`, FLUX.1-schnell).
 2. **Bruno** (the coach): rebuild with a TRELLIS.2 head the same way.
-3. **Brick** (Chapter 1 boss, English-bulldog heavyweight; brief docs/adventure/CODEX_BRIEF_BRICK_HEAD.md): never upgraded so far
-   (v1.89 changed only "Brick's bag"). TRELLIS.2 head the same way. Free quota is about 1 TRELLIS run a day, so the three
-   heads may take several days: order Hazel -> Bruno -> Brick.
+3. **Brick: ON HOLD (owner, 2026-11-25: "Dont do brick for now").** ChatGPT's art handoff is on branch
+   `art/review-handoff-2026-11-25` (Brick reference still + video, earlier editable head, body profile; three vehicles).
+   Review only; do not integrate until the owner says so.
 
 Pipeline (free ZeroGPU only; never paid; stop and report the exact step and error if the quota blocks):
 FLUX /infer -> transparent PNG -> TRELLIS.2 /start_session, /preprocess_image, /image_to_3d (resolution 1024),
