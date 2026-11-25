@@ -14,10 +14,10 @@ function auditVariant(name) {
   const arm = c.skin.geometry.attributes.coachArmBlend.array;
   for (const [pose, fn] of Object.entries(poses)) {
     fn(c); c.root.updateMatrixWorld(true); c.syncSkin();
-    const skin = M.skinAll(c, c.skin), res = { skin: M.stretch(c, c.skin, skin) };
+    const skin = M.skinAll(c, c.skin), res = { skin: M.stretch(c, c.skin, skin), crease: { skin: M.creases(c, c.skin, skin) } };
     const cloths = []; c.root.traverse(o => { if (o.isSkinnedMesh && o !== c.skin && shown(o, c.root)) cloths.push(o); });
     res.cloth = {}; const clothPosed = [];
-    for (const m of cloths) { const p = M.skinAll(c, m); clothPosed.push([m, p]); res.cloth[m.name || 'cloth'] = M.stretch(c, m, p); }
+    for (const m of cloths) { const p = M.skinAll(c, m); clothPosed.push([m, p]); res.cloth[m.name || 'cloth'] = M.stretch(c, m, p); if (m !== c.bodyFur) res.crease[m.name || 'cloth'] = M.creases(c, m, p); }
     // the body that hands may not enter: trunk, head and legs (not the arms), skin as drawn plus any skinned clothes over it
     const trunk = M.bodyField(c, skin, i => arm[i] < .3), clothF = clothPosed.filter(([m]) => m !== c.shorts).map(([m, p]) => M.bodyField(c, p, null, m));
     const sd = (x, y, z) => { let best = trunk.sd(x, y, z); for (const f of clothF) { const r = f.sd(x, y, z); if (Math.abs(r.d) < Math.abs(best.d)) best = r; } return best; };
@@ -34,7 +34,7 @@ function auditVariant(name) {
     // rigid parts (not on the hands): gap to the body and depth under it
     res.parts = {};
     c.root.traverse(o => { if (!o.isMesh || o.isSkinnedMesh || !shown(o, c.root) || handOf(c, o) || !o.geometry.attributes.position || o.geometry.attributes.position.count < 20) return;
-      const pts = M.rigidPoints(c, o, Math.max(1, Math.floor(o.geometry.attributes.position.count / 1500))), key = boneOf(c, o) + ':' + (o.name || 'part') + ':' + o.id;
+      const pts = M.rigidPoints(c, o, Math.max(1, Math.floor(o.geometry.attributes.position.count / 300))), key = boneOf(c, o) + ':' + (o.name || 'part') + ':' + o.id;
       res.parts[key] = { gap: M.partGap(field, pts), pen: M.penetration(field, pts) }; });
     out.poses[pose] = res;
   }

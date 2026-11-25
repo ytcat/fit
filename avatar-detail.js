@@ -29,7 +29,7 @@
   }return d;
  }
  vec3 avatarGradient(vec3 p){const float e=.001;return normalize(vec3(avatarField(p+vec3(e,0,0))-avatarField(p-vec3(e,0,0)),avatarField(p+vec3(0,e,0))-avatarField(p-vec3(0,e,0)),avatarField(p+vec3(0,0,e))-avatarField(p-vec3(0,0,e))));}
- vec3 avatarCorrect(vec3 p,inout vec3 n){if(avatarAxilla>.001){vec3 original=p;for(int k=0;k<3;k++)p-=avatarGradient(p)*clamp(avatarField(p),-.04,.04);vec3 delta=p-original;delta*=min(1.0,.035/max(length(delta),.00001));p=original+delta;n=normalize(mix(n,avatarGradient(p),.4));return original+delta*avatarAxilla;}return p;}
+ vec3 avatarCorrect(vec3 p,inout vec3 n){if(avatarAxilla>.001){vec3 original=p;for(int k=0;k<3;k++)p-=avatarGradient(p)*clamp(avatarField(p)-AVATAR_LIFT,-.04,.04);vec3 delta=p-original;delta*=min(1.0,.035/max(length(delta),.00001));p=original+delta;n=normalize(mix(n,avatarGradient(p),.4));return original+delta*avatarAxilla;}return p;}
 
  `;
  const normalFrame='(bindMatrixInverse*vec4(qrotate(coachQ,(bindMatrix*vec4(normal,0.0)).xyz),0.0)).xyz';
@@ -46,11 +46,14 @@
     const previous=material.onBeforeCompile;
     material.onBeforeCompile=shader=>{
      previous(shader);shader.uniforms.avatarChest=coach.surfaceUniforms.chest;shader.uniforms.avatarShoulder=coach.surfaceUniforms.shoulder;shader.uniforms.avatarElbow=coach.surfaceUniforms.elbow;shader.uniforms.avatarFurDrift=coach.surfaceUniforms.fur;shader.uniforms.avatarDent=coach.surfaceUniforms.dent;shader.uniforms.avatarDentNormal=coach.surfaceUniforms.dentNormal;
-     shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\n'+glsl+(mesh.geometry.attributes.avatarFurFlex?`\nuniform vec3 avatarFurDrift[${coach.bones.length}];attribute float avatarFurFlex;`:''));
+     // avatar-joins: a garment over the skin (street clothes) follows the same connected axillary surface at its own height
+     // over it (avatarLift: the field value of its rest position), so the cloth folds with the skin instead of through itself.
+     const lift=Boolean(mesh.geometry.attributes.avatarLift);
+     shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\n'+(lift?'attribute float avatarLift;\n#define AVATAR_LIFT avatarLift\n':'#define AVATAR_LIFT 0.0\n')+glsl+(mesh.geometry.attributes.avatarFurFlex?`\nuniform vec3 avatarFurDrift[${coach.bones.length}];attribute float avatarFurFlex;`:''));
      shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvec3 dentDelta=transformed-avatarDent.xyz;transformed-=avatarDentNormal*avatarDent.w*exp(-dot(dentDelta,dentDelta)/.012);');
      shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`vec3 avatarN=normalize(${normalFrame});transformed=avatarCorrect(transformed,avatarN);\n${mesh.geometry.attributes.avatarFurFlex?'vec3 furDrift=vec3(0.0);for(int k=0;k<4;k++)furDrift+=skinWeight[k]*avatarFurDrift[int(skinIndex[k])];transformed+=furDrift*avatarFurFlex*avatarFurFlex;':''}\n${material===mesh.material?'#ifndef FLAT_SHADED\nif(avatarAxilla>.001)vNormal=normalize(normalMatrix*normalize(mix(objectNormal,avatarN,avatarAxilla)));\n#endif':''}\n#include <project_vertex>`);
     };
-    material.customProgramCacheKey=()=>`animal-connected-r79-frame-${coach.bones.length}-${body}-${Boolean(mesh.geometry.attributes.avatarFurFlex)}`;
+    material.customProgramCacheKey=()=>`animal-connected-r79-frame-${coach.bones.length}-${body}-${Boolean(mesh.geometry.attributes.avatarFurFlex)}-${Boolean(mesh.geometry.attributes.avatarLift)}`;
    }
    window.AvatarAnatomy?.install(mesh,coach,body);window.ShoulderCorrective?.install(mesh,coach,body);
   },
@@ -111,12 +114,18 @@
   dent(p,coach){const d=coach.surfaceUniforms?.dent.value;if(d?.w){const distance=(p.x-d.x)**2+(p.y-d.y)**2+(p.z-d.z)**2;p.addScaledVector(coach.surfaceUniforms.dentNormal.value,-d.w*Math.exp(-distance/.012));}return p;},
   correct(p,coach,index,g){
    const w=g.attributes.avatarAxilla?.getX(index)||0;
-   if(w>=.001){const origin=p.clone();for(let k=0;k<3;k++)p.addScaledVector(grad(p,coach.surfaceUniforms),-Math.max(-.04,Math.min(.04,field(p,coach.surfaceUniforms))));const delta=p.clone().sub(origin).clampLength(0,.035);p.copy(origin).addScaledVector(delta,w);}
+   if(w>=.001){const origin=p.clone(),lift=g.attributes.avatarLift?.getX(index)||0;for(let k=0;k<3;k++)p.addScaledVector(grad(p,coach.surfaceUniforms),-Math.max(-.04,Math.min(.04,field(p,coach.surfaceUniforms)-lift)));const delta=p.clone().sub(origin).clampLength(0,.035);p.copy(origin).addScaledVector(delta,w);}
 
    const flex=g.attributes.avatarFurFlex?.getX(index)||0;
    if(flex){const ids=g.attributes.skinIndex,weights=g.attributes.skinWeight;for(let k=0;k<4;k++)p.addScaledVector(coach.surfaceUniforms.fur.value[ids.array[index*4+k]],weights.array[index*4+k]*flex*flex);}
    return window.ShoulderCorrective?.correct(p,coach,index,g)||p;
   }
+ };
+ /** The connected axillary field at the bind pose (rest), for garments: { field(p) (root frame), mask(x, y) as the skin's }. */
+ api.rest=coach=>{
+  const skin=coach.skin,inv=skin.bindMatrixInverse,at=name=>new THREE.Matrix4().copy(inv).multiply(new THREE.Matrix4().copy(coach.skeleton.boneInverses[coach.bones.indexOf(coach.joints[name])]).invert());
+  const u={chest:{value:at('chest').invert()},shoulder:{value:['L','R'].map(s=>V().setFromMatrixPosition(at('arm'+s)))},elbow:{value:['L','R'].map(s=>V().setFromMatrixPosition(at('elbow'+s)))}};
+  return {field:p=>field(p,u),mask:(x,y)=>{x=Math.abs(x);return smooth((x-.18)/.07)*(1-smooth((x-.44)/.10))*smooth((y-1.34)/.09)*(1-smooth((y-1.67)/.10));}};
  };
  window.AvatarSurface=api;
 })();

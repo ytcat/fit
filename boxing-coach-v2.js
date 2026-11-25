@@ -187,8 +187,7 @@
       this.sculptHead();this.cast?.sculpt?.(this);
       // A continuous saddle at the crotch with two separate, open leg hems.
       // The previous solid ellipsoid bridge stretched into a flap between legs.
-      if(!LionCoach.shortsGeometry){
-        const field=p=>{
+      const field=LionCoach.shortsField||(LionCoach.shortsField=p=>{
           const hip=(Math.hypot(p.x/.260,(p.y-1.025)/.185,p.z/.194)-1)*.185;
           let d=hip;
           for(const side of [-1,1]){
@@ -199,13 +198,26 @@
             const leg=(Math.hypot((p.x-x)/rx,p.z/rz,Math.max(0,(p.y-.90)/.17))-1)*Math.min(rx,rz);
             const h=Math.max(.025-Math.abs(d-leg),0)/.025;d=Math.min(d,leg)-h*h*.025*.25;
           }
-          return Math.max(d,.735-p.y,p.y-1.085);
-        };
-        const source=leatherSurface(field,[-.34,.715,-.21],[.34,1.105,.21],.009),p=source.attributes.position,n=source.attributes.normal,uv=source.attributes.uv,positions=[],normals=[],uvs=[];
+          return d;
+        });
+      if(!LionCoach.shortsGeometry){
+        // avatar-joins: the fabric is extracted past both openings and cut exactly at the waist (1.085, under the
+        // waistband) and the leg hems (.735). Capping the field there and dropping the flat caps left the cells that
+        // straddle the corner: a saw-tooth hem and a jagged rim under the waistband (seen from below and at the waist).
+        const HEM=.735,TOP=1.085;
+        const source=leatherSurface(field,[-.34,HEM-.03,-.21],[.34,TOP+.03,.21],.009),p=source.attributes.position,n=source.attributes.normal,uv=source.attributes.uv,positions=[],normals=[],uvs=[];
+        const at=i=>[p.getX(i),p.getY(i),p.getZ(i),n.getX(i),n.getY(i),n.getZ(i),uv.getX(i),uv.getY(i)];
+        // points within 0.1 mm of a cut sit on it (no slivers); a cut edge's new points lie exactly on the plane
+        const snap=v=>{if(Math.abs(v[1]-HEM)<1e-4)v[1]=HEM;else if(Math.abs(v[1]-TOP)<1e-4)v[1]=TOP;return v;};
+        const cut=(poly,plane,keep)=>{const out=[];for(let k=0;k<poly.length;k++){const a=poly[k],b=poly[(k+1)%poly.length],da=keep*(a[1]-plane),db=keep*(b[1]-plane);if(da>=0)out.push(a);if(da*db<0){const t=da/(da-db),v=a.map((x,j)=>x+(b[j]-x)*t);v[1]=plane;out.push(v);}}return out;};
+        const area=(a,b,c)=>Math.hypot((b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]),(b[2]-a[2])*(c[0]-a[0])-(b[0]-a[0])*(c[2]-a[2]),(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]));
         for(let i=0;i<p.count;i+=3){
-          const flat=y=>[0,1,2].every(k=>Math.abs(p.getY(i+k)-y)<.00001);
-          if(flat(.735)||flat(1.085))continue;
-          for(let k=0;k<3;k++){positions.push(p.getX(i+k),p.getY(i+k),p.getZ(i+k));normals.push(n.getX(i+k),n.getY(i+k),n.getZ(i+k));uvs.push(uv.getX(i+k),uv.getY(i+k));}
+          let poly=[snap(at(i)),snap(at(i+1)),snap(at(i+2))];
+          const clipped=!poly.every(v=>v[1]>=HEM&&v[1]<=TOP);if(clipped){poly=cut(cut(poly,HEM,1),TOP,-1);if(poly.length<3)continue;}
+          for(let k=1;k+1<poly.length;k++){
+            if(clipped&&area(poly[0],poly[k],poly[k+1])<1e-10)continue;
+            for(const v of [poly[0],poly[k],poly[k+1]]){const l=Math.hypot(v[3],v[4],v[5])||1;positions.push(v[0],v[1],v[2]);normals.push(v[3]/l,v[4]/l,v[5]/l);uvs.push(v[6],v[7]);}
+          }
         }
         LionCoach.shortsGeometry=new THREE.BufferGeometry();
         LionCoach.shortsGeometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
@@ -213,6 +225,27 @@
         LionCoach.shortsGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
       }
       this.shorts=this.skinned(LionCoach.shortsGeometry.clone(),cloth,false);
+      // Satin side piping on the outside front of each leg, seated 3 mm over the fabric and skinned like it. As a rigid
+      // tube on the thigh bone it sank into the shorts whenever the hip moved off the thigh (a dashed, saw-toothed stripe).
+      if(!LionCoach.pipingGeometry){
+        const parts=[];
+        for(const s of [-1,1]){
+          const rows=[],dir=V(s*Math.cos(.5),0,Math.sin(.5));
+          for(let y=1.05;y>=.738;y-=.012){
+            const cx=s*(.150+(1.0-y)*.07);let lo=0,hi=.3;
+            for(let k=0;k<24;k++){const mid=(lo+hi)/2;if(field(V(cx,y,0).addScaledVector(dir,mid))<0)lo=mid;else hi=mid;}
+            rows.push([V(cx,y,0),hi]);
+          }
+          // a smooth run over the hip (never under the fabric): the moving mean of the depth, at least the surface
+          const points=rows.map(([o,r],i)=>{let a=0,n=0;for(let k=Math.max(0,i-4);k<=Math.min(rows.length-1,i+4);k++){a+=rows[k][1];n++;}return o.clone().addScaledVector(dir,Math.max(r,a/n)+.003);});
+          parts.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),48,.0045,8,false));
+        }
+        const merged=new THREE.BufferGeometry(),pos=[],nor=[],uvs=[];
+        for(const g of parts){const n=g.toNonIndexed();pos.push(...n.attributes.position.array);nor.push(...n.attributes.normal.array);uvs.push(...n.attributes.uv.array);}
+        merged.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));merged.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));merged.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+        LionCoach.pipingGeometry=merged;
+      }
+      this.shortsPiping=this.skinned(LionCoach.pipingGeometry.clone(),new THREE.MeshStandardMaterial({color:0xd8b56c,metalness:.38,roughness:.43,skinning:true}),false);this.shortsPiping.name='Satin side piping';
       this.gold=new THREE.MeshStandardMaterial({color:0xd8b56c,metalness:.38,roughness:.43});
       this.leather=new THREE.MeshStandardMaterial({color:this.species==='rabbit'?0x2758c1:0xad2529,roughness:.54,roughnessMap:roughnessMap('leather'),
         bumpMap:grain,bumpScale:.0011,metalness:0});
@@ -279,12 +312,15 @@
         hand.add(glove);glove.castShadow=true;
         this.gloveMeshes[side]=glove;glove.userData.pressure=0;
         // A flattened oval cuff wraps the wrist; it is not a cylinder handle.
-        const cuffGeometry=new THREE.CylinderGeometry(.058,.061,.068,48,12,true);
-        cuffGeometry.scale(1,1,.86);
+        // avatar-joins: the forearm skin is up to .061 m round at the cuff's elbow end in the punches; the old .058 x .050
+        // oval let it come out through the strap front and back (a ragged fur rim on the black cuff). The elbow end now
+        // opens to .066 x .062 (a cuff the forearm enters); the glove end keeps its .061 x .0525 oval round the glove.
+        const cuffGeometry=new THREE.CylinderGeometry(.066,.061,.068,48,12,true),cuffP=cuffGeometry.attributes.position;
+        for(let i=0,cuffN=cuffGeometry.attributes.normal;i<cuffP.count;i++){const f=lerp(.86,.94,(cuffP.getY(i)+.034)/.068);cuffP.setZ(i,cuffP.getZ(i)*f);const n=V(cuffN.getX(i),cuffN.getY(i),cuffN.getZ(i)/f).normalize();cuffN.setXYZ(i,n.x,n.y,n.z);}
         const cuff=new THREE.Mesh(cuffGeometry,this.black);cuff.name='Oval wrist strap';
         cuff.position.y=.013;hand.add(cuff);
         for(const y of [-.020,.046]){
-          const points=[];for(let i=0;i<=64;i++){const a=i/64*Math.PI*2;points.push(V(Math.cos(a)*.060,y,Math.sin(a)*.052));}
+          const top=y>0,points=[];for(let i=0;i<=64;i++){const a=i/64*Math.PI*2;points.push(V(Math.cos(a)*(top?.0675:.060),y,Math.sin(a)*(top?.0635:.052)));}
           this.curve(hand,points,this.leather,.0015).name='Cuff rolled binding';
         }
         const details=[];
@@ -310,7 +346,7 @@
         for(const [x,y] of [[.016,-.071],[.031,-.074],[.045,-.080]]){
           const dot=new THREE.Mesh(new THREE.SphereGeometry(1,10,6),palmMaterial);dot.position.copy(surface(x,y));dot.scale.set(.0017,.0021,.0008);glove.add(dot);dot.name='Palm ventilation eyelet';
         }
-        this.addLabel(hand,'SB',V(0,.013,-.054),.041,.023).rotation.y=Math.PI;
+        this.addLabel(hand,'SB',V(0,.013,-.0585),.041,.023).rotation.y=Math.PI;
         this.addLabel(hand,'SB',surface(0,-.096,false),.044,.026).rotation.y=Math.PI;
         // All surface details share the foam deformation and mirrored thumb frame.
         // Bake handedness into vertices and winding, so the wrist's local basis
@@ -327,8 +363,6 @@
         glove.userData.deformParts=[glove,...details];
         for(const part of glove.userData.deformParts){part.userData.restPosition=new Float32Array(part.geometry.attributes.position.array);part.userData.restNormal=new Float32Array(part.geometry.attributes.normal.array);}
         this.addBoot(this.joints['foot'+side]);
-        // Satin side piping follows each thigh, rather than floating beside it.
-        this.curve(this.joints['thigh'+side],[V(s*.125,.055,.075),V(s*.15,-.10,.08),V(s*.15,-.25,.08)],this.gold,.006);
       }
       if(this.cast?.face)this.cast.face(this);else if(this.species==='rabbit')this.addRabbitFace();else {this.addFace();this.addMane();}
       this.fitFaceToSkull();

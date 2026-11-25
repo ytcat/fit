@@ -31,13 +31,15 @@ async function open() {
 async function run(out, variant, poses, joins, views) {
   const { p, close } = await open();
   // paws and the TRELLIS heads come from workers / downloads: wait for them
+  if (process.env.STUDIO_SETUP) await p.evaluate(process.env.STUDIO_SETUP); // QA experiments: e.g. window.__ajData = { ...app.engine.roster.data, shoulderCorrectives: null }
   await p.evaluate(async name => {
-    const e = app.engine, c = window.__aj = AJ.make(name, e.roster.data, e); const v = AJ.VARIANTS[name];
+    const e = app.engine, c = window.__aj = AJ.make(name, window.__ajData || e.roster.data, e); const v = AJ.VARIANTS[name];
     if (v.cast && StoryCast.market?.heads?.[v.cast]) await StoryCast.market.heads[v.cast].ready(30000);
     const sp = Paws.speciesOf(c), wraps = v.outfit === 'track_wraps' || v.cast === 'rourke';
     for (const sh of Paws.shapes) Paws.request(sp, sh, wraps, 0);
     const t0 = performance.now(); while (performance.now() - t0 < 90000 && !Paws.shapes.every(sh => Paws.isReady(sp, sh, wraps))) await new Promise(r => setTimeout(r, 250));
   }, variant);
+  if (process.env.STUDIO_AFTER) await p.evaluate(process.env.STUDIO_AFTER); // QA experiments on the built rig (window.__aj)
   const list = await p.evaluate(({ name, poses, joins, views, JOINS, VIEWS }) => {
     const e = app.engine, T = THREE, r = e.renderer, c = window.__aj, scene = new T.Scene(), frames = [];
     scene.background = new T.Color('#9aa6b4').convertSRGBToLinear();

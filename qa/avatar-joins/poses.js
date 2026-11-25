@@ -25,7 +25,9 @@
   }
   const box = (move, phase, o = {}) => c => c.update(phase * 1.22, move, 'one_two', { simulationTime: phase * 1.22, ...o });
   const civ = st => c => { const D = G.DreamPose; if (!D.GESTURES.__up) D.GESTURES.__up = { h: [.26, 2.12, .12], pole: [.6, -.2, -.6], palm: [0, 0, 1], turn: .4 }; D.reset(c); return D.civil(c, { t: 1, dist: 0, ...st }); };
+  const bind = c => { c.skeleton.pose(); c.root.updateMatrixWorld(true); c.syncSkin(); }; // the bind (rest) pose: arms out
   const POSES = {
+    rest: { bind },
     box: {
       guard: box('guard', 0), jab: box('jab', .40), cross: box('cross', .42), hook: box('hook', .45), rear_hook: box('rear_hook', .45),
       uppercut: box('uppercut', .42), rear_uppercut: box('rear_uppercut', .42), slip: box('slip', .40), roll: box('roll', .45), step: box('step', .4),
@@ -40,7 +42,7 @@
     },
     ref: { count: civ({ arms: { R: 'count' } }), raise: civ({ arms: { L: '__up' } }) }
   };
-  function posesFor(name) { const out = {}; for (const s of VARIANTS[name].sets) Object.assign(out, POSES[s]); return out; }
+  function posesFor(name) { const out = { ...POSES.rest }; for (const s of VARIANTS[name].sets) Object.assign(out, POSES[s]); return out; }
   const api = { VARIANTS, POSES, posesFor, make };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else G.AJ = api;
 })(typeof window !== 'undefined' ? window : globalThis);

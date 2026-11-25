@@ -188,6 +188,12 @@
     const clear = (Xa, part, cmin) => { for (let k = 0; k < part.orig.length; k++) { const i = part.orig[k], d = (Xa[k * 3] - P[i * 3]) * N[i * 3] + (Xa[k * 3 + 1] - P[i * 3 + 1]) * N[i * 3 + 1] + (Xa[k * 3 + 2] - P[i * 3 + 2]) * N[i * 3 + 2], c = cmin(k, i); if (d < c) { Xa[k * 3] += N[i * 3] * (c - d); Xa[k * 3 + 1] += N[i * 3 + 1] * (c - d); Xa[k * 3 + 2] += N[i * 3 + 2] * (c - d); } } };
     const cH = (k, i) => A[i] >= .5 ? .012 : .014;
     for (let r = 0; r < 3; r++) { smoothPos(X, H.G, pinH, r ? 4 : 12); clear(X, H, cH); }
+    // avatar-joins: the armhole. Where the torso drape meets the sleeve tube, the clearance pushes the cloth out along the
+    // body's normals, which converge in the front and back armpit folds: a groove ran down the shoulder (already at rest)
+    // and folded through itself into slits and holes behind the shoulder in the guard and the walk. Smooth it into one round
+    // shoulder; the body under it is not drawn, so it only needs a few millimetres of clearance there.
+    { const m = new Float32Array(nH); for (let k = 0; k < nH; k++) { const i = H.orig[k], y = P[i * 3 + 1]; m[k] = bell(A[i], .45, .38) * smooth((y - 1.28) / .08) * (1 - smooth((y - 1.76) / .04)); }
+      for (let r = 0; r < 3; r++) { smoothPos(X, H.G, pinH, 90, .55, -.57, m); clear(X, H, (k, i) => lerp(cH(k, i), .006, m[k])); } }
 
     /* jeans: legs by slices round each leg, the seat and hips round the body; straight below the knee */
     const J = parts.J, nJ = J.orig.length, XJ = new Float32Array(nJ * 3), SJ = new Float32Array(nJ * 3);
@@ -426,6 +432,14 @@
     if (!c.skin || c.skin.n !== geo.attributes.position.count) c.skin = { n: geo.attributes.position.count, ...skinSoup(geo, c.shape, d.all, 0) };
     geo.setAttribute('skinIndex', new THREE.BufferAttribute(c.skin.ids, 4)); geo.setAttribute('skinWeight', new THREE.BufferAttribute(c.skin.ws, 4)); geo.setAttribute('coachLinear', new THREE.BufferAttribute(c.skin.lin, 1)); // shared by every tint
     geo.computeBoundingSphere();
+    // avatar-joins: the hoodie round the armpits follows the skin's connected axillary surface (AvatarSurface) at its own
+    // height over it. Without it the cloth folded through itself behind and in front of the shoulder in the guard, the
+    // punches and the walk (slits and holes along the armpit folds).
+    if (!geo.attributes.avatarLift && window.AvatarSurface?.rest) {
+      const R = window.AvatarSurface.rest(rig), P = geo.attributes.position.array, n = P.length / 3, nH = c.shape.parts.H.orig.length, mask = new Float32Array(n), lift = new Float32Array(n), p = V();
+      for (let v = 0; v < nH; v++) { const m = R.mask(P[v * 3], P[v * 3 + 1]); if (m < .001) continue; mask[v] = m; lift[v] = R.field(p.set(P[v * 3], P[v * 3 + 1], P[v * 3 + 2])); }
+      geo.setAttribute('avatarAxilla', new THREE.BufferAttribute(mask, 1)); geo.setAttribute('avatarLift', new THREE.BufferAttribute(lift, 1));
+    }
     const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .93, metalness: 0, side: THREE.DoubleSide, skinning: true });
     // rig.skinned() installs the rig's dual-quaternion skinning shader (as for the boxing trunks); our own weights replace its
     const m = rigMesh(rig, geo, mat); rig.root.add(m); m.name = 'Street clothes'; m.castShadow = true; m.receiveShadow = true; m.userData.storyPart = true; m.userData.streetCloth = true; m.visible = false;

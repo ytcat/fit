@@ -105,6 +105,37 @@ function bodyField(c, posed, keep = null, mesh = c.skin) {
   return { sd, posed, nor, count: pts.length };
 }
 
+/** A cover (cuff, boot, shorts, collar ...) as a field: posed vertex positions `pts` (Float32Array) with normals from its
+ *  triangles (idx: triangle vertex ids into pts). outside(x,y,z) -> { s: height over the nearest cover vertex along its normal,
+ *  t: distance across it } — a body point under the cover's span with s > 0 pokes through it. */
+function coverField(pts, idx) {
+  const n = pts.length / 3, nor = new Float32Array(n * 3);
+  for (let t = 0; t < idx.length; t += 3) {
+    const i = idx[t] * 3, j = idx[t + 1] * 3, k = idx[t + 2] * 3;
+    const ux = pts[j] - pts[i], uy = pts[j + 1] - pts[i + 1], uz = pts[j + 2] - pts[i + 2], vx = pts[k] - pts[i], vy = pts[k + 1] - pts[i + 1], vz = pts[k + 2] - pts[i + 2];
+    const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx; for (const q of [i, j, k]) { nor[q] += nx; nor[q + 1] += ny; nor[q + 2] += nz; }
+  }
+  // weld coincident vertices (UV seams of cylinders) so the normal is the surface's
+  const weld = new Map(); for (let i = 0; i < n; i++) { const key = Math.round(pts[i * 3] * 5e4) + ':' + Math.round(pts[i * 3 + 1] * 5e4) + ':' + Math.round(pts[i * 3 + 2] * 5e4), w = weld.get(key); if (w == null) weld.set(key, [i]); else w.push(i); }
+  for (const list of weld.values()) if (list.length > 1) { let x = 0, y = 0, z = 0; for (const i of list) { x += nor[i * 3]; y += nor[i * 3 + 1]; z += nor[i * 3 + 2]; } for (const i of list) { nor[i * 3] = x; nor[i * 3 + 1] = y; nor[i * 3 + 2] = z; } }
+  const cell = .02, grid = new Map();
+  for (let i = 0; i < n; i++) { const l = Math.hypot(nor[i * 3], nor[i * 3 + 1], nor[i * 3 + 2]); if (l < 1e-12) continue; nor[i * 3] /= l; nor[i * 3 + 1] /= l; nor[i * 3 + 2] /= l; const key = Math.floor(pts[i * 3] / cell) + ',' + Math.floor(pts[i * 3 + 1] / cell) + ',' + Math.floor(pts[i * 3 + 2] / cell); (grid.get(key) || grid.set(key, []).get(key)).push(i); }
+  return { outside(x, y, z) {
+    const x0 = Math.floor(x / cell), y0 = Math.floor(y / cell), z0 = Math.floor(z / cell); let best = -1, bd = 1e9;
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) for (const i of grid.get((x0 + dx) + ',' + (y0 + dy) + ',' + (z0 + dz)) || []) { const d = (pts[i * 3] - x) ** 2 + (pts[i * 3 + 1] - y) ** 2 + (pts[i * 3 + 2] - z) ** 2; if (d < bd) { bd = d; best = i; } }
+    if (best < 0) return null; const dx = x - pts[best * 3], dy = y - pts[best * 3 + 1], dz = z - pts[best * 3 + 2], s = dx * nor[best * 3] + dy * nor[best * 3 + 1] + dz * nor[best * 3 + 2];
+    return { s, t: Math.sqrt(Math.max(0, bd - s * s)), i: best };
+  } };
+}
+/** Body vertices (posed, ids `cand`) that come out through a cover: height over it > `tol` within `span` across its surface. */
+function pokeThrough(field, posed, cand, tol = .002, span = .006) {
+  let n = 0, worst = 0, at = null;
+  for (const i of cand) { const r = field.outside(posed[i * 3], posed[i * 3 + 1], posed[i * 3 + 2]); if (!r || r.t > span || r.s <= tol) continue; n++; if (r.s > worst) { worst = r.s; at = [posed[i * 3], posed[i * 3 + 1], posed[i * 3 + 2]].map(v => +v.toFixed(3)); } }
+  return { count: n, worst: +worst.toFixed(4), at };
+}
+/** Triangle vertex ids of a mesh (indexed or not). */
+function triIds(mesh) { const g = mesh.geometry; return g.index ? g.index.array : Uint32Array.from({ length: g.attributes.position.count }, (_, i) => i); }
+
 /** Vertices of a rigid (bone-attached) mesh in the rig root's frame. Paws/LOD hooks included as they are drawn. */
 function rigidPoints(c, mesh, step = 1) {
   c.root.updateMatrixWorld(true); const inv = c.root.matrixWorld.clone().invert(), m = inv.multiply(mesh.matrixWorld), P = mesh.geometry.attributes.position, out = [], v = V();
@@ -120,4 +151,4 @@ function penetration(field, pts) {
 /** Smallest distance from the part to the body (a gap > 0 means it floats). */
 function partGap(field, pts) { let g = Infinity; for (let i = 0; i < pts.length; i += 3) { const r = field.sd(pts[i], pts[i + 1], pts[i + 2], 3); if (Math.abs(r.d) < g) g = Math.abs(r.d); } return +g.toFixed(4); }
 
-module.exports = { V, boneNames, dominant, skinAll, drawnTris, stretch, creases, edgeFaces, bodyField, rigidPoints, penetration, partGap };
+module.exports = { V, boneNames, dominant, skinAll, drawnTris, stretch, creases, edgeFaces, coverField, pokeThrough, triIds, bodyField, rigidPoints, penetration, partGap };
