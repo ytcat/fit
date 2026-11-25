@@ -1,0 +1,56 @@
+{
+ "scene": "dream_market_robbery",
+ "tag": "after",
+ "quality": "auto",
+ "head": {
+  "file": "ready",
+  "on": true
+ },
+ "frames": [
+  {
+   "t": 1.5,
+   "calls": 24,
+   "tris": 390246,
+   "geos": 687,
+   "tex": 38,
+   "progs": 88
+  },
+  {
+   "t": 4.8,
+   "calls": 40,
+   "tris": 718240,
+   "geos": 691,
+   "tex": 38,
+   "progs": 88
+  },
+  {
+   "t": 7,
+   "calls": 99,
+   "tris": 1052332,
+   "geos": 697,
+   "tex": 38,
+   "progs": 88
+  },
+  {
+   "t": 9.5,
+   "calls": 89,
+   "tris": 779840,
+   "geos": 698,
+   "tex": 38,
+   "progs": 88
+  }
+ ],
+ "perf": {
+  "frames": 14,
+  "meanMs": 235.4,
+  "medianMs": 253.4,
+  "p90Ms": 282.2,
+  "info": {
+   "calls": 24,
+   "tris": 390246,
+   "geos": 698,
+   "tex": 38,
+   "progs": 88
+  }
+ }
+}

@@ -79,6 +79,6 @@ const H = StoryCast.market.head, FILE = 'assets/characters/fang/fang-head.glb';
   assert.ok(Math.abs(model.rotation.x) < .01 && model.position.length() < .005, 'standing: the model sits on the joint again');
   // offline: the page's URL is in the pack; films with Fang wait for the head
   const manifest = JSON.parse(fs.readFileSync('offline-manifest.json', 'utf8')); assert.ok(manifest.urls.includes(H.url), 'precached under the URL the page asks for');
-  assert.ok(/fangHead\.ready\(5000\)/.test(fs.readFileSync('adventure/story/dream-scenes.js', 'utf8')), 'films with Fang wait for it');
+  assert.ok(/market\.heads\[r\]\.ready\(5000\)/.test(fs.readFileSync('adventure/story/dream-scenes.js', 'utf8')), 'films with Fang wait for it');
   console.log('fang head ok', JSON.stringify({ tris, bytes: glb.length, folded, deep: deep.length }));
 })().catch(e => { console.error(e); process.exit(1); });

@@ -30,8 +30,9 @@ const html = read('index.html'), shell = read('game-shell.js'), modes = read('mo
   assert.match(dream, /if \(o\.isLight\) return;/, 'lights keep their state (same programs as the film)');
   assert.ok(!/perf\.sum \/ 48|lookPerf\.sum \/ 48/.test(dream), 'no mean-based quality drop'); assert.match(dream, /slow\(perf\.dts\)/); assert.match(dream, /slow\(lookPerf\.dts\)/);
   assert.match(dream, /id === 'dream_apology' \? city\.ready\(undefined, MARKET_MODELS\)/);
-  assert.match(dream, /fangHead && \(id === 'dream_apology' \|\| hasFang\(scene0\)\) \? fangHead\.ready\(5000\)/);
-  assert.match(dream, /window\.StoryCast\?\.market\?\.head\?\.load\(\)/, 'the story panel prefetch starts Fang\'s head');
+  assert.match(dream, /heads = headIds\(scene0, id\), headWait = heads\.length \? Promise\.all\(heads\.map\(r => window\.StoryCast\.market\.heads\[r\]\.ready\(5000\)\)\)/);
+  assert.match(dream, /if \(id === 'dream_apology'\) for \(const r of \['fang', 'hazel'\]\)/, 'the apology film asks for the market heads');
+  assert.match(dream, /for \(const r of headIds\(s, id\)\) window\.StoryCast\.market\.heads\[r\]\.load\(\)/, 'the story panel prefetch starts the authored heads');
   assert.match(dream, /ratioWas = r0; e\.renderer\.setPixelRatio\(cap\)/); assert.match(dream, /if \(ratioWas\) \{ e\.renderer\.setPixelRatio\(ratioWas\); ratioWas = null; \}/, 'pixel ratio restored');
   assert.match(bag, /window\.DreamScenes\?\.warm\?\.\(e\.renderer, scene, camera\)/);
   for (const [f, s] of [['dream-scenes.js', dream], ['bag-break.js', bag]]) assert.ok(!/setIndex\(/.test(s), f + ': no index swaps');
