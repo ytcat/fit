@@ -2281,13 +2281,14 @@ function buildTraffic(W) {
   // the night"); they go to the sink, so the random sequence and the rest of the town stay exactly the same
   const car = (x, z, ry) => { addInst(W, 'cars', { x, y: LAND_Y, z, s: 1, ry, color: pick(PAL.car) }); if (W.NIGHT) { const L = W.walk ? sinkOf(W) : W, f = frame(x, z, ry), h = f.p(0, .62), t = f.p(0, -.6); glow(L, h[0], LAND_Y + .3, h[1], '#fff2c8', .9, .8); glow(L, t[0], LAND_Y + .3, t[1], '#ff3a2a', .6, .8); } };
   // grid districts: every street segment between or around blocks
+  const zebras = []; // pedestrian crossings, drawn after every grid (see below)
   for (const g of W.grids || []) {
     const { def, blocks, at } = g, st = def.street, has = (i, j) => blocks.some(b => b.i === i && b.j === j);
     const seg = (u0, w0, u1, w1) => {
       const a = at(u0, w0), b = at(u1, w1), dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, nx = -uz, nz = ux;
       W.streets.push({ a, b, w: st, district: def.name });
       if (st >= 3.6) dashes([a[0] + ux * 1.2, a[1] + uz * 1.2], [b[0] - ux * 1.2, b[1] - uz * 1.2]);
-      if (st >= 2.9) for (const [e, s] of [[a, 1], [b, -1]]) { const cx = e[0] + ux * s * .55, cz = e[1] + uz * s * .55, n = Math.floor((st - .5) / .45); for (let k = 0; k < n; k++) { const o = (k - (n - 1) / 2) * .45; stripe(cx + nx * o, cz + nz * o, ux, uz, .75, .22); } }
+      if (st >= 2.9) for (const [e, s] of [[a, 1], [b, -1]]) zebras.push({ cx: e[0] + ux * s * .55, cz: e[1] + uz * s * .55, ux, uz, nx, nz, n: Math.floor((st - .5) / .45) });
       if (st >= 2.9) { const n = def.name === 'downtown' ? rint(1, 3) : rint(0, 2); for (let k = 0; k < n; k++) { const t = rnd(.2, .8), dir = chance(.5) ? 1 : -1, off = dir * st / 4, x = lerp(a[0], b[0], t) + nx * off, z = lerp(a[1], b[1], t) + nz * off; car(x, z, Math.atan2(ux * dir, uz * dir)); } }
     };
     for (const b of blocks) {
@@ -2297,6 +2298,22 @@ function buildTraffic(W) {
       seg(b.u0, down ? (b.w1 + down.w0) / 2 : b.w1 + st / 2, b.u1, down ? (b.w1 + down.w0) / 2 : b.w1 + st / 2);
       if (!has(b.i, b.j - 1)) seg(b.u0, b.w0 - st / 2, b.u1, b.w0 - st / 2);
     }
+  }
+  // Pedestrian crossings. Where two districts' streets run side by side and overlap (the Neon Strip and the park edge: two
+  // 9 m streets 4.5 m apart), each drew its own crossing at the same junction, 0.3 m apart and interleaved: stepped, broken
+  // stripes (owner 2026-11-25: "Broken cross road"). Crossings across the same road at the same junction become one,
+  // evenly spaced over their joint width; a crossing on its own is drawn exactly as before.
+  const joined = [];
+  for (const z of zebras) {
+    const half = (z.n - 1) / 2 * .45;
+    const d = joined.find(d => { if (Math.abs(d.ux * z.ux + d.uz * z.uz) < .995) return false; const dx = z.cx - d.cx, dz = z.cz - d.cz, along = dx * d.ux + dz * d.uz, side = dx * d.nx + dz * d.nz; return Math.abs(along) < .6 && side - half < d.hi + .3 && side + half > d.lo - .3; });
+    if (!d) { joined.push({ cx: z.cx, cz: z.cz, ux: z.ux, uz: z.uz, nx: z.nx, nz: z.nz, lo: -half, hi: half, along: 0, count: 1 }); continue; }
+    const dx = z.cx - d.cx, dz = z.cz - d.cz, side = dx * d.nx + dz * d.nz;
+    d.lo = Math.min(d.lo, side - half); d.hi = Math.max(d.hi, side + half); d.along += dx * d.ux + dz * d.uz; d.count++;
+  }
+  for (const d of joined) {
+    const n = Math.round((d.hi - d.lo) / .45) + 1, step = n > 1 ? (d.hi - d.lo) / (n - 1) : 0, sh = d.along / d.count, cx = d.cx + d.ux * sh, cz = d.cz + d.uz * sh;
+    for (let k = 0; k < n; k++) { const o = d.lo + k * step; stripe(cx + d.nx * o, cz + d.nz * o, d.ux, d.uz, .75, .22); }
   }
   // main roads
   for (const r of W.roads) {
