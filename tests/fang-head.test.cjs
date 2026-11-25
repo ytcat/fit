@@ -51,7 +51,7 @@ const H = StoryCast.market.head, FILE = 'assets/characters/fang/fang-head.glb';
     const a = A.array, r = P0[k];
     for (let i = 0; i < A.count; i++) {
       const moved = a[i * 3] !== r[i * 3] || a[i * 3 + 2] !== r[i * 3 + 2];
-      if (P0.base[i * 3 + 1] < 1.79) { assert.ok(!moved, 'no change below the collar'); below++; continue; }
+      if (P0.base[i * 3 + 1] < 1.775) { assert.ok(!moved, 'no change below the jacket collar (the fold eases in from 1.775)'); below++; continue; }
       if (!moved) continue; folded++; if (box.containsPoint(new THREE.Vector3(-a[i * 3], a[i * 3 + 1] - 1.84, a[i * 3 + 2]))) inside++;
     }
   }
