@@ -1,0 +1,182 @@
+{
+ "tag": "after",
+ "size": "phone",
+ "dpr": 3,
+ "time": "evening",
+ "gfx": "high",
+ "errors": [],
+ "spots": {
+  "gym": {
+   "calls": 135,
+   "triangles": 578244,
+   "renderMsAtRatio1": 479.5,
+   "textures": 91,
+   "geometries": 530,
+   "programs": 78,
+   "renderMs": 927.6,
+   "renderMin": 924.1,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 3336,
+   "heap": 326,
+   "town": {
+    "time": "evening",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "evening"
+   },
+   "spot": {
+    "x": 159.01114559682358,
+    "z": -118.07085590567769,
+    "yaw": -0.02
+   }
+  },
+  "busstop": {
+   "calls": 139,
+   "triangles": 556264,
+   "renderMsAtRatio1": 554.6,
+   "textures": 91,
+   "geometries": 530,
+   "programs": 78,
+   "renderMs": 1030.3,
+   "renderMin": 938.1,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 3336,
+   "heap": 326,
+   "town": {
+    "time": "evening",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "evening"
+   },
+   "spot": {
+    "x": 150.3448767391337,
+    "z": -117.3440243665751,
+    "yaw": 0.23
+   }
+  },
+  "market": {
+   "calls": 110,
+   "triangles": 678634,
+   "renderMsAtRatio1": 636.7,
+   "textures": 91,
+   "geometries": 532,
+   "programs": 78,
+   "renderMs": 1190.9,
+   "renderMin": 1162.4,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 3336,
+   "heap": 326,
+   "town": {
+    "time": "evening",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "evening"
+   },
+   "spot": {
+    "x": 116.82127162924402,
+    "z": -67.04417503242146,
+    "yaw": -0.06
+   }
+  },
+  "otto": {
+   "calls": 117,
+   "triangles": 571507,
+   "renderMsAtRatio1": 473.1,
+   "textures": 91,
+   "geometries": 532,
+   "programs": 78,
+   "renderMs": 983.2,
+   "renderMin": 905.1,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 3336,
+   "heap": 326,
+   "town": {
+    "time": "evening",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "evening"
+   },
+   "spot": {
+    "x": 181.26445072071084,
+    "z": -54.15671335119277,
+    "yaw": 3.081592653589793
+   }
+  },
+  "docks": {
+   "calls": 114,
+   "triangles": 526132,
+   "renderMsAtRatio1": 414,
+   "textures": 91,
+   "geometries": 532,
+   "programs": 78,
+   "renderMs": 803.8,
+   "renderMin": 775.5,
+   "pixelRatio": 2,
+   "drawingBuffer": [
+    804,
+    1380
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 3336,
+   "heap": 326,
+   "town": {
+    "time": "evening",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 2,
+    "shadow": 2048,
+    "env": true,
+    "look": "evening"
+   },
+   "spot": {
+    "x": -38.3,
+    "z": 157.2,
+    "yaw": 0.45
+   }
+  }
+ },
+ "bootMs": 6567,
+ "openMs": 27219
+}

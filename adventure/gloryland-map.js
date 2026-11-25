@@ -444,7 +444,8 @@ function build(scene, opts = {}) {
     solid: new Batch(), overhead: new Batch(), ground: new Batch(), marks: new Batch(), glowSolid: new Batch(), beams: new Batch(),
     lang: ['he', 'ru'].includes(opts.lang) ? opts.lang : 'en', facade: {}, inst: {}, glow: { p: [], c: [], s: [], ph: [] }, pools: [], signs: [], places: [], blocks: [], roads: [], streets: [], cars: [],
     reserve: [], animated: [], paint: [], occ: [], beamList: [], ao: new Batch(), movers: [], low: LOW, time: TIME,
-    cloudU: !NIGHT && !LOW ? { value: 0, scale: SCALE } : null
+    cloudU: !NIGHT && !LOW ? { value: 0, scale: SCALE } : null,
+    skip: typeof opts.skip === 'function' ? opts.skip : null // free walk: (x, z, kind, o, W) -> true leaves a piece out (a detailed set stands there)
   };
   for (const s of Object.keys(FACADE)) W.facade[s] = new Batch({ uv: true, tint: true });
 
@@ -455,10 +456,13 @@ function build(scene, opts = {}) {
   buildVegetation(W);
   civicPlanting(W);
   buildTraffic(W);
+  W.sink = null;
 
   /* ---- materials and meshes */
   const groundTex = paintGround(W);
-  const facadeTex = paintFacades(NIGHT, aniso);
+  // free walk: windows lit at dusk too (opts.litWindows) and the facades painted sharper (opts.facadeScale, the films' scale)
+  const LIT = NIGHT || !!opts.litWindows, FS = opts.facadeScale > 1 ? opts.facadeScale : 0;
+  const facadeTex = paintFacades(LIT, aniso, FS ? (s => s === 'shop' ? FS * 1.5 : FS) : undefined);
   const add = (mesh, cast = true, recv = true) => { mesh.castShadow = cast; mesh.receiveShadow = recv; mesh.matrixAutoUpdate = false; mesh.updateMatrix(); group.add(mesh); disposables.push(mesh.geometry, mesh.material); if (W.cloudU && mesh.material.isMeshStandardMaterial && recv) withClouds(mesh.material, W.cloudU); return mesh; };
   const solidMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0 });
   add(new THREE.Mesh(W.solid.geometry(), solidMat)).name = 'solid';
@@ -470,7 +474,8 @@ function build(scene, opts = {}) {
   add(new THREE.Mesh(W.marks.geometry(), marksMat), false, true).name = 'road marks';
   for (const s of Object.keys(FACADE)) {
     if (!W.facade[s].tris) continue;
-    const mat = facadeMaterial(facadeTex[s], NIGHT, s === 'office' ? 0.45 : s === 'deco' ? 0.7 : 0.85, s === 'office' ? .75 : s === 'deco' ? .3 : .12);
+    const mat = facadeMaterial(facadeTex[s], LIT, s === 'office' ? 0.45 : s === 'deco' ? 0.7 : 0.85, s === 'office' ? .75 : s === 'deco' ? .3 : .12);
+    if (LIT && !NIGHT) mat.emissiveIntensity = 1.5; // dusk (the story sets' lit windows)
     disposables.push(facadeTex[s].map); if (facadeTex[s].emissive) disposables.push(facadeTex[s].emissive);
     add(new THREE.Mesh(W.facade[s].geometry(), mat)).name = 'facade ' + s;
   }
@@ -731,7 +736,21 @@ function plate(W, pts, y0 = LAND_Y, y1 = BLOCK_Y, side) {
 /* ------------------------------------------------------------------ buildings */
 const roofCol = () => C(pick(PAL.terracotta));
 /** Box building with textured walls. o: {x,z,ry,w,d,y0,floors,style,tint,shop:[sides],shopTint,roof,roofColor,roofH,parapet,ao} */
+/** Where a left-out piece goes (opts.skip): a throwaway copy of W's batches and lists. The piece is still generated, so the
+ * random sequence (and with it the rest of the town) is exactly the same as without the option. */
+function sinkOf(W) {
+  if (W.sinking) return W;
+  if (W.sink) return W.sink;
+  const s = Object.create(W); s.sinking = true;
+  for (const k of Object.keys(W)) { const v = W[k]; if (v instanceof Batch) s[k] = new Batch({ uv: !!v.uv, tint: !!v.t }); else if (Array.isArray(v)) s[k] = []; }
+  s.facade = {}; for (const st of Object.keys(W.facade)) s.facade[st] = new Batch({ uv: true, tint: true });
+  s.inst = {}; s.glow = { p: [], c: [], s: [], ph: [] };
+  W.sink = s; return s;
+}
+const left = (W, x, z, kind, o) => !!(W.skip && !W.sinking && W.skip(x, z, kind, o, W));
+const outFor = (W, x, z, kind, o) => left(W, x, z, kind, o) ? sinkOf(W) : W;
 function building(W, o) {
+  W = outFor(W, o.x, o.z, 'building', o);
   const st = FACADE[o.style], fr = frame(o.x, o.z, o.ry || 0), hw = o.w / 2, hd = o.d / 2, y0 = o.y0 ?? BLOCK_Y;
   const shopH = o.shop ? FACADE.shop.floor : 0;
   const top = y0 + shopH + o.floors * st.floor;
@@ -1022,9 +1041,9 @@ function rowHouses(W, b, fr, palette, fMin, fMax, skip) {
       else if (r.side === 1) { lx = r.fixed; lz = -mid; rot = Math.PI / 2; } else { lx = r.fixed; lz = mid; rot = -Math.PI / 2; }
       if (skip && skip(lx, lz)) { pos += wdt; continue; }
       const [x, z] = fr.p(lx, lz), floors = rint(fMin, fMax), roof = chance(.62) ? 'hip' : 'gable';
-      const shopFront = r.side === 0 && chance(.35);
-      const top = building(W, { x, z, ry: fr.ry + rot, w: wdt - .02, d: dpt, floors, style: chance(.18) ? 'brick' : 'plaster', tint: C(pick(palette)), roof, roofColor: roofCol(), roofH: rnd(.9, 1.3), shop: shopFront, shopTint: C(pick(palette)), awning: pick(PAL.awning) });
-      if (chance(.45)) { const f2 = frame(x, z, fr.ry + rot); W.solid.add(P.box, M(...xyz(f2, rnd(-wdt / 3, wdt / 3), top + .2, rnd(-.6, .6)), .35, .9, .35, f2.ry), C('#b9a99a')); }
+      const shopFront = r.side === 0 && chance(.35), T = outFor(W, x, z, 'building', null);
+      const top = building(T, { x, z, ry: fr.ry + rot, w: wdt - .02, d: dpt, floors, style: chance(.18) ? 'brick' : 'plaster', tint: C(pick(palette)), roof, roofColor: roofCol(), roofH: rnd(.9, 1.3), shop: shopFront, shopTint: C(pick(palette)), awning: pick(PAL.awning) });
+      if (chance(.45)) { const f2 = frame(x, z, fr.ry + rot); T.solid.add(P.box, M(...xyz(f2, rnd(-wdt / 3, wdt / 3), top + .2, rnd(-.6, .6)), .35, .9, .35, f2.ry), C('#b9a99a')); }
       pos += wdt;
     }
   }
@@ -1342,26 +1361,26 @@ function homeGym(W) {
   // the rest of the block keeps its row houses
   rowHouses(W, b, fr, PAL.oldTown, 2, 3, (x, z) => x < lx + gw / 2 + .2 && z > lz - gd / 2 - .2);
   const [x, z] = fr.p(lx, lz), g = frame(x, z, fr.ry);
-  const brick = C('#b4503d');
-  const top = building(W, { x, z, ry: fr.ry, w: gw, d: gd, floors: 2, style: 'brick', tint: brick, shop: true, shopTint: C('#8f3a2f'), roofColor: C('#a9a397'), parapetColor: C('#8f3a2f'), rooftop: false });
+  const brick = C('#b4503d'), D = outFor(W, x, z, 'homegym', null); // D: left out at street level where the walk's own gym front stands
+  const top = building(D, { x, z, ry: fr.ry, w: gw, d: gd, floors: 2, style: 'brick', tint: brick, shop: true, shopTint: C('#8f3a2f'), roofColor: C('#a9a397'), parapetColor: C('#8f3a2f'), rooftop: false });
   W.homeGym = { x, z, top };
   // rooftop billboard: GYM
   const p = (a, b2) => g.p(a, b2);
-  for (const sx of [-1.6, 1.6]) { const [px, pz] = p(sx, gd / 2 - .6); beam(W.solid, [px, top, pz], [px, top + 1.2, pz], .14, C('#3a3f48')); }
-  { const [sx, sz] = p(0, gd / 2 - .45); sign(W, { text: 'GYM', x: sx, y: top + 2.95, z: sz, ry: fr.ry, h: 1.9, style: 'board', bg: '#e11d2e', fg: '#ffffff', glow: '#ff3344', board: .18, boardColor: '#f2efe8' }); }
+  for (const sx of [-1.6, 1.6]) { const [px, pz] = p(sx, gd / 2 - .6); beam(D.solid, [px, top, pz], [px, top + 1.2, pz], .14, C('#3a3f48')); }
+  { const [sx, sz] = p(0, gd / 2 - .45); sign(D, { text: 'GYM', x: sx, y: top + 2.95, z: sz, ry: fr.ry, h: 1.9, style: 'board', bg: '#e11d2e', fg: '#ffffff', glow: '#ff3344', board: .18, boardColor: '#f2efe8' }); }
   // fascia sign over the shop windows
-  { const [sx, sz] = p(-.6, gd / 2 + .05); sign(W, { text: 'HOME GYM', x: sx, y: BLOCK_Y + 1.3, z: sz, ry: fr.ry, h: .5, style: 'letters', fg: '#f4c152', glow: '#ffcf5a' }); }
-  { const [cx2, cz2] = p(1.6, gd / 2 + .55); W.solid.add(P.box, M(cx2, BLOCK_Y + 1.02, cz2, 1.9, .1, 1.1, fr.ry, -.12), C('#e11d2e')); for (const s2 of [-.85, .85]) { const [qx, qz] = p(1.6 + s2, gd / 2 + 1.05); beam(W.solid, [qx, BLOCK_Y, qz], [qx, BLOCK_Y + .96, qz], .05, C('#2a2d33')); } glow(W, cx2, BLOCK_Y + .9, cz2, '#ffd9a0', 1.8, .7); }
-  for (let k = 0; k < 6; k++) { const [qx, qz] = p(rnd(-2.5, 3), gd / 2 + rnd(1.3, 2.3)); addInst(W, 'people', { x: qx, y: BLOCK_Y, z: qz, s: 1, color: pick(['#e11d2e', '#1f2633', '#f4c152', '#ffffff', '#2b62d9']) }); }
+  { const [sx, sz] = p(-.6, gd / 2 + .05); sign(D, { text: 'HOME GYM', x: sx, y: BLOCK_Y + 1.3, z: sz, ry: fr.ry, h: .5, style: 'letters', fg: '#f4c152', glow: '#ffcf5a' }); }
+  { const [cx2, cz2] = p(1.6, gd / 2 + .55); D.solid.add(P.box, M(cx2, BLOCK_Y + 1.02, cz2, 1.9, .1, 1.1, fr.ry, -.12), C('#e11d2e')); for (const s2 of [-.85, .85]) { const [qx, qz] = p(1.6 + s2, gd / 2 + 1.05); beam(D.solid, [qx, BLOCK_Y, qz], [qx, BLOCK_Y + .96, qz], .05, C('#2a2d33')); } glow(D, cx2, BLOCK_Y + .9, cz2, '#ffd9a0', 1.8, .7); }
+  for (let k = 0; k < 6; k++) { const [qx, qz] = p(rnd(-2.5, 3), gd / 2 + rnd(1.3, 2.3)); addInst(D, 'people', { x: qx, y: BLOCK_Y, z: qz, s: 1, color: pick(['#e11d2e', '#1f2633', '#f4c152', '#ffffff', '#2b62d9']) }); }
   // giant boxing glove hanging from a bracket at the front-right corner
   const [bx0, bz0] = p(gw / 2, gd / 2 - .25), [bx1, bz1] = p(gw / 2 + 1.45, gd / 2 - .25);
   const yb = BLOCK_Y + FACADE.shop.floor + FACADE.brick.floor * 1.75;
-  beam(W.solid, [bx0, yb, bz0], [bx1, yb, bz1], .12, C('#2e3238'));
-  beam(W.solid, [bx0, yb - .9, bz0], [bx1 - .5, yb, bz1 - (bz1 - bz0) * .35], .08, C('#2e3238'));
-  rod(W.solid, [bx1, yb, bz1], [bx1, yb - .35, bz1], .03, C('#9aa0a8'));
-  glove(W, bx1, yb - .35, bz1, fr.ry + .5, 1.3);
+  beam(D.solid, [bx0, yb, bz0], [bx1, yb, bz1], .12, C('#2e3238'));
+  beam(D.solid, [bx0, yb - .9, bz0], [bx1 - .5, yb, bz1 - (bz1 - bz0) * .35], .08, C('#2e3238'));
+  rod(D.solid, [bx1, yb, bz1], [bx1, yb - .35, bz1], .03, C('#9aa0a8'));
+  glove(D, bx1, yb - .35, bz1, fr.ry + .5, 1.3);
   W.homeGym.glove = [bx1, yb - 1.4, bz1];
-  glow(W, bx1, yb - 1.2, bz1, '#ff4050', 3.2, .55); pool(W, bx1, bz1, 2.6, '#ff6070', .45);
+  glow(D, bx1, yb - 1.2, bz1, '#ff4050', 3.2, .55); pool(D, bx1, bz1, 2.6, '#ff6070', .45);
   // workout yard on the open side: heavy bag frame, tyres, bench
   const [yx, yz] = p(gw / 2 + 1.5, -.4);
   const yf = frame(yx, yz, fr.ry);
@@ -1430,20 +1449,21 @@ function marketRow(W) {
   for (const w of [-1.55, 1.55]) for (let u = .5; u < 49.5; u += 2.45) {
     if (chance(.12)) continue;
     const [x, z] = at(u, w), f = frame(x, z, ry + (w > 0 ? Math.PI : 0)), [ac, bc] = pick(PAL.awning).map(C);
+    const T = outFor(W, x, z, 'stall', { u, w });
     const p = (lx, ly, lz) => { const q = f.p(lx, lz); return [q[0], BLOCK_Y + ly, q[1]]; };
-    W.solid.add(P.box, M(...p(0, 0, 0), 1.7, .62, .8, f.ry), C('#9c7350'));
-    W.solid.add(P.box, M(...p(0, .62, 0), 1.76, .05, .86, f.ry), C('#c79c6c'));
-    for (let k = 0; k < 4; k++) W.solid.add(P.ico, M(...p(-.6 + k * .4, .7, rnd(-.15, .15)), .17, .12, .17, rnd(0, 3)), C(pick(fruit)));
-    for (const [sx, sz] of [[-.82, -.4], [.82, -.4], [-.82, .55], [.82, .55]]) beam(W.solid, p(sx, 0, sz), p(sx, sz > 0 ? 1.45 : 1.65, sz), .05, C('#6b5a48'));
+    T.solid.add(P.box, M(...p(0, 0, 0), 1.7, .62, .8, f.ry), C('#9c7350'));
+    T.solid.add(P.box, M(...p(0, .62, 0), 1.76, .05, .86, f.ry), C('#c79c6c'));
+    for (let k = 0; k < 4; k++) T.solid.add(P.ico, M(...p(-.6 + k * .4, .7, rnd(-.15, .15)), .17, .12, .17, rnd(0, 3)), C(pick(fruit)));
+    for (const [sx, sz] of [[-.82, -.4], [.82, -.4], [-.82, .55], [.82, .55]]) beam(T.solid, p(sx, 0, sz), p(sx, sz > 0 ? 1.45 : 1.65, sz), .05, C('#6b5a48'));
     const n = 6;
-    for (let k = 0; k < n; k++) { const a = -.9 + k * 1.8 / n, bb = a + 1.8 / n; W.solid.quadF(p(a, 1.68, -.5), p(bb, 1.68, -.5), p(bb, 1.4, .72), p(a, 1.4, .72), k % 2 ? bc : ac, k % 2 ? bc : ac, sub3(p(0, 2, .6), p(0, 1, -.2))); }
-    if (chance(.8)) addInst(W, 'people', { x: x + rnd(-1, 1), y: BLOCK_Y, z: z + rnd(-.6, .6) * (w > 0 ? -1 : 1) + (w > 0 ? -1.3 : 1.3) * Math.cos(ry), s: 1, color: pick(PAL.car) });
+    for (let k = 0; k < n; k++) { const a = -.9 + k * 1.8 / n, bb = a + 1.8 / n; T.solid.quadF(p(a, 1.68, -.5), p(bb, 1.68, -.5), p(bb, 1.4, .72), p(a, 1.4, .72), k % 2 ? bc : ac, k % 2 ? bc : ac, sub3(p(0, 2, .6), p(0, 1, -.2))); }
+    if (chance(.8)) addInst(T, 'people', { x: x + rnd(-1, 1), y: BLOCK_Y, z: z + rnd(-.6, .6) * (w > 0 ? -1 : 1) + (w > 0 ? -1.3 : 1.3) * Math.cos(ry), s: 1, color: pick(PAL.car) });
   }
   for (let k = 0; k < 150; k++) { const u = rnd(-.5, 49.5), wv = chance(.6) ? rnd(-.7, .7) : pick([-1, 1]) * rnd(2.5, 3.2), [x, z] = at(u, wv), o = { x, y: BLOCK_Y, z, s: rnd(.95, 1.05), color: pick(PAL.car) };
     if (k % 3 === 0) { const u0 = Math.max(0, u - rnd(4, 12)), u1 = Math.min(49, u + rnd(4, 12)); o.mv = { type: 'lane', a: at(u0, wv), b: at(u1, wv), off: .22, speed: rnd(.3, .55), s0: u - u0 }; }
     addInst(W, 'people', o); }
-  for (let u = 3.7; u < 48; u += rnd(4, 7)) { const [x, z] = at(u, 0); addInst(W, 'umbrellas', { x, y: BLOCK_Y, z, s: rnd(1.1, 1.3), color: pick(['#e8473b', '#f2c14e', '#2fa59a', '#ffffff', '#f07f3c']) }); }
-  for (let u = 1; u < 49; u += 2.2) for (const w of [-3.15, 3.15]) if (chance(.45)) { const [x, z] = at(u, w); W.solid.add(P.box, M(x, BLOCK_Y, z, .45, .3, .35, rnd(0, 1)), C(pick(['#b98a5a', '#9c7350', '#c9a06a']))); W.solid.add(P.ico, M(x, BLOCK_Y + .33, z, .16, .1, .14), C(pick(['#e2574c', '#f2c14e', '#7bc06b', '#f08a3c']))); }
+  for (let u = 3.7; u < 48; u += rnd(4, 7)) { const [x, z] = at(u, 0); addInst(outFor(W, x, z, 'umbrella', { u, w: 0 }), 'umbrellas', { x, y: BLOCK_Y, z, s: rnd(1.1, 1.3), color: pick(['#e8473b', '#f2c14e', '#2fa59a', '#ffffff', '#f07f3c']) }); }
+  for (let u = 1; u < 49; u += 2.2) for (const w of [-3.15, 3.15]) if (chance(.45)) { const [x, z] = at(u, w), T = outFor(W, x, z, 'crate', { u, w }); T.solid.add(P.box, M(x, BLOCK_Y, z, .45, .3, .35, rnd(0, 1)), C(pick(['#b98a5a', '#9c7350', '#c9a06a']))); T.solid.add(P.ico, M(x, BLOCK_Y + .33, z, .16, .1, .14), C(pick(['#e2574c', '#f2c14e', '#7bc06b', '#f08a3c']))); }
   // string lights zig-zag over the street
   for (let u = 1.5; u < 49; u += 4.2) {
     const a = at(u, -3.7), b = at(u + 2.1, 3.7), ya = BLOCK_Y + 2.9, n = 9;

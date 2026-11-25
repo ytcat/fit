@@ -1,0 +1,148 @@
+{
+ "tag": "after",
+ "size": "pc",
+ "dpr": 1,
+ "time": "evening",
+ "gfx": "high",
+ "errors": [],
+ "spots": {
+  "gym": {
+   "calls": 168,
+   "triangles": 600856,
+   "renderMsAtRatio1": 977.1,
+   "textures": 93,
+   "geometries": 533,
+   "programs": 78,
+   "renderMs": 939.1,
+   "renderMin": 933.3,
+   "pixelRatio": 1,
+   "drawingBuffer": [
+    1366,
+    768
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2895,
+   "heap": 347,
+   "town": {
+    "time": "evening",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 1,
+    "shadow": 2048,
+    "env": true,
+    "look": "evening"
+   },
+   "spot": {
+    "x": 159.01114559682358,
+    "z": -118.07085590567769,
+    "yaw": -0.02
+   }
+  },
+  "market": {
+   "calls": 111,
+   "triangles": 680017,
+   "renderMsAtRatio1": 931.4,
+   "textures": 93,
+   "geometries": 535,
+   "programs": 78,
+   "renderMs": 1143.3,
+   "renderMin": 902,
+   "pixelRatio": 1,
+   "drawingBuffer": [
+    1366,
+    768
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2895,
+   "heap": 347,
+   "town": {
+    "time": "evening",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 1,
+    "shadow": 2048,
+    "env": true,
+    "look": "evening"
+   },
+   "spot": {
+    "x": 116.82127162924402,
+    "z": -67.04417503242146,
+    "yaw": -0.06
+   }
+  },
+  "otto": {
+   "calls": 126,
+   "triangles": 577392,
+   "renderMsAtRatio1": 766,
+   "textures": 93,
+   "geometries": 535,
+   "programs": 78,
+   "renderMs": 777.2,
+   "renderMin": 698.4,
+   "pixelRatio": 1,
+   "drawingBuffer": [
+    1366,
+    768
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2895,
+   "heap": 347,
+   "town": {
+    "time": "evening",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 1,
+    "shadow": 2048,
+    "env": true,
+    "look": "evening"
+   },
+   "spot": {
+    "x": 181.26445072071084,
+    "z": -54.15671335119277,
+    "yaw": 3.081592653589793
+   }
+  },
+  "docks": {
+   "calls": 123,
+   "triangles": 536905,
+   "renderMsAtRatio1": 743.5,
+   "textures": 93,
+   "geometries": 535,
+   "programs": 78,
+   "renderMs": 677.1,
+   "renderMin": 657.5,
+   "pixelRatio": 1,
+   "drawingBuffer": [
+    1366,
+    768
+   ],
+   "shadow": true,
+   "env": true,
+   "buildMs": 2895,
+   "heap": 347,
+   "town": {
+    "time": "evening",
+    "level": 3,
+    "locked": 3,
+    "top": 3,
+    "pixelRatio": 1,
+    "shadow": 2048,
+    "env": true,
+    "look": "evening"
+   },
+   "spot": {
+    "x": -38.3,
+    "z": 157.2,
+    "yaw": 0.45
+   }
+  }
+ },
+ "bootMs": 6823,
+ "openMs": 31246
+}

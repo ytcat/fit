@@ -9,17 +9,12 @@
 .fw-zone{font-size:19px;line-height:1.15}
 .fw-help{font-size:10.5px;color:#cad9db;line-height:1.25}
 .fw-exit{position:absolute;z-index:3;right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:0 14px;background:#a4d9cf!important;color:#0d232b!important;border-color:#d5fff5!important;font-weight:800}
-.fw-time{position:absolute;z-index:2;right:max(10px,env(safe-area-inset-right));top:calc(max(10px,env(safe-area-inset-top)) + 52px);display:flex;gap:4px}
-.fw-time .fw-seg{min-height:34px;min-width:0;padding:0 10px;font-size:12px;border-radius:10px}
-.fw-time .fw-seg[aria-pressed=true]{background:#86d1c4;color:#0d232b;border-color:#d5fff5}
-.fw-nav{position:absolute;z-index:2;left:max(10px,env(safe-area-inset-left));top:calc(max(10px,env(safe-area-inset-top)) + 84px);width:min(52vw,230px);display:grid;gap:3px;background:#14212be9;border:1px solid #6a838b;border-radius:12px;padding:6px 8px}
-.fw-nav-label{font-size:10px;color:#a4d9cf}
-.fw-select{font:inherit;font-size:12.5px;color:#fff;background:#203844;border:1px solid #607b85;border-radius:8px;padding:5px 4px;width:100%;min-height:32px}
+.fw-nav{position:absolute;z-index:2;left:max(10px,env(safe-area-inset-left));top:calc(max(10px,env(safe-area-inset-top)) + 64px);width:min(66vw,300px);display:grid;gap:2px;background:#14212be0;border:1px solid #6a838b;border-radius:12px;padding:7px 10px;pointer-events:none}
+.fw-nav[hidden]{display:none}
+.fw-goal{font-size:14px;line-height:1.2;color:#ffe6a3}
 .fw-nav-status{min-height:22px;display:flex;align-items:center;gap:7px;font-size:13px}
 .fw-arrow{display:grid;place-items:center;width:22px;height:22px;color:#8be5d9;font-size:19px;transform-origin:center;flex:none}
 .fw-arrow[hidden]{display:none}
-.fw-stick{position:absolute;z-index:2;left:max(14px,env(safe-area-inset-left));bottom:max(20px,env(safe-area-inset-bottom));width:clamp(100px,29vw,132px);aspect-ratio:1;border:2px solid #94bdc6;background:#162a35ba;border-radius:50%;touch-action:none}
-.fw-stick i{position:absolute;left:50%;top:50%;width:44%;height:44%;transform:translate(-50%,-50%);border-radius:50%;background:#e3f2ecbd;border:1px solid #d3ffef;pointer-events:none}
 .fw-zoom{position:absolute;z-index:2;right:max(14px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));display:grid;gap:8px;font-size:24px}
 .fw-story{position:absolute;z-index:3;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);max-width:52vw;padding:6px 12px;background:#f4c152!important;color:#16120a!important;border-color:#ffe6a3!important;font-weight:800}
 .fw-story[hidden]{display:none}
@@ -32,4 +27,36 @@
 .adv-walk{white-space:nowrap}
 .fw-nav-status:has(.fw-dist:empty){display:none}
 .fw-help{transition:opacity .6s ease,max-height .6s ease;max-height:4.2em;overflow:hidden}
-.fw-hud.quiet .fw-help{opacity:0;max-height:0}
+.fw-nav.quiet .fw-help{opacity:0;max-height:0}
+/* GOTR-0122 the stick (owner 2026-11-25: "Even the joystick looks bad"): a floating stick in the lower-left area. It rests at a
+   fixed spot (the hint), dim when idle; a touch anywhere in the area brings it under the thumb; the knob has depth and a glow
+   shows the direction. Colours: the game's HUD (fighter-pad.css: deep navy glass, info blue, white ink). */
+.fw-pad{position:absolute;z-index:2;left:0;bottom:0;width:58%;height:46%;touch-action:none;-webkit-user-select:none;user-select:none}
+.fw-pad[hidden]{display:none}
+.fw-stick{--s:clamp(108px,31vw,140px);position:absolute;left:max(18px,env(safe-area-inset-left));top:calc(100% - var(--s) - max(26px,env(safe-area-inset-bottom)));width:var(--s);height:var(--s);border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgb(10 16 26/.12) 0 38%,rgb(10 16 26/.38) 66%,rgb(10 16 26/.55) 100%);border:1.5px solid rgb(255 255 255/.3);
+  box-shadow:inset 0 0 0 7px rgb(255 255 255/.05),inset 0 3px 16px rgb(0 0 0/.5),0 8px 22px rgb(0 0 0/.35);-webkit-backdrop-filter:blur(7px) saturate(1.25);backdrop-filter:blur(7px) saturate(1.25);opacity:.55}
+.fw-pad:not(.active) .fw-stick{transition:left .2s ease,top .2s ease,opacity .3s ease,border-color .3s ease}
+.fw-pad.active .fw-stick{opacity:1;border-color:rgb(143 184 255/.7)}
+.fw-ticks{position:absolute;inset:0;pointer-events:none}
+.fw-ticks::before,.fw-ticks::after,.fw-stick::before,.fw-stick::after{content:'';position:absolute;width:0;height:0;border:6px solid transparent;pointer-events:none}
+.fw-ticks::before{left:50%;top:6%;transform:translateX(-50%);border-top:0;border-bottom:7px solid rgb(255 255 255/.6)}
+.fw-ticks::after{left:50%;bottom:6%;transform:translateX(-50%);border-bottom:0;border-top:7px solid rgb(255 255 255/.6)}
+.fw-stick::before{top:50%;left:6%;transform:translateY(-50%);border-left:0;border-right:7px solid rgb(255 255 255/.6)}
+.fw-stick::after{top:50%;right:6%;transform:translateY(-50%);border-right:0;border-left:7px solid rgb(255 255 255/.6)}
+.fw-glow{position:absolute;inset:-2px;border-radius:50%;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 4%,rgb(120 176 255/.85),rgb(59 130 246/.35) 22%,rgb(59 130 246/0) 48%);transition:opacity .12s linear}
+.fw-knob{position:absolute;left:50%;top:50%;width:46%;height:46%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 36% 30%,#ffffff 0,#e6edf7 16%,#a7b4c6 58%,#6b778a 100%);border:1px solid rgb(255 255 255/.6);
+  box-shadow:0 7px 16px rgb(0 0 0/.5),inset 0 -4px 7px rgb(0 0 0/.3),inset 0 2px 3px rgb(255 255 255/.8)}
+.fw-pad:not(.active) .fw-knob{transition:transform .16s ease-out}
+.fw-pad.active .fw-knob{box-shadow:0 7px 16px rgb(0 0 0/.5),inset 0 -4px 7px rgb(0 0 0/.3),inset 0 2px 3px rgb(255 255 255/.8),0 0 0 4px rgb(59 130 246/.35),0 0 18px rgb(96 165 250/.55)}
+.fw-keys{position:absolute;z-index:2;left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));margin:0;max-width:min(60vw,420px);padding:7px 11px;font-size:12px;line-height:1.3;color:#e8eef6;background:#14212bd0;border:1px solid #6a838b;border-radius:10px;pointer-events:none}
+.fw-keys[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.fw-pad .fw-stick,.fw-pad .fw-knob{transition:none!important}}
+/* GOTR-0122 the persistent entry in the top bar */
+.fw-entry{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:36px;min-width:40px;padding:0 10px;border-radius:10px;border:1px solid #3b8f83;background:#0f2a2a;color:#a4f0e2;font:800 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.fw-entry:active{transform:scale(.95)}
+.fw-entry:disabled{opacity:.4;cursor:default}
+.fw-entry[hidden]{display:none}
+.fw-entry svg{flex:none}
+@media (max-width:520px){.fw-entry{padding:0 9px}.fw-entry-word{display:none}} /* phones: the walking figure only (its label is the aria-label / title) */

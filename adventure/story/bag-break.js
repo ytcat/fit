@@ -243,6 +243,7 @@
       const stage = e.stage || document.getElementById('stageContainer');
       if (stage) { const placeholder = document.createComment('bag break stage'); stage.before(placeholder); stageMove = { stage, placeholder, pe: stage.style.pointerEvents }; stage.style.pointerEvents = 'none'; host.append(stage); stage.classList.add('game-preview-live', 'story-live'); }
       oldFit = e.fitCameraToModel; e.fitCameraToModel = () => {};
+      run.warm = Math.round(window.DreamScenes?.warm?.(e.renderer, scene, camera) || 0); // compile and upload everything before the first frame (dream-scenes.js warmUp)
       run.frame = frame; e.fightIQDemo = run; busy.remove(); window.dispatchEvent(new Event('resize')); run.phase = 'play';
     }).catch(x => { console.warn('bag break', x); finish({ skipped: true, error: String(x?.message || x) }); });
 

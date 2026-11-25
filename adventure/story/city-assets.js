@@ -23,7 +23,7 @@
   const FILES = {
     tree: './assets/street/ch01-trees/street-tree-low.glb',
     car: './assets/street/ch01-car/compact-car.glb',
-    bus: './assets/street/ch01-bus/gloryland-bus.glb',
+    bus: './assets/street/ch01-bus/gloryland-bus.glb?v=2026112501', // ?v: door parts fix (the offline worker replaces an older copy)
     station: './assets/street/ch01-station/gloryland-station.glb',
     oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb',
     hazelStall: './assets/street/ch01-market/hazel-fruit-stall.glb',

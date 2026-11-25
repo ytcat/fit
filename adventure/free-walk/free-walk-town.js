@@ -9,10 +9,18 @@
  *     only the ones near the player exist;
  *   - a fine grain on the painted ground (asphalt, paving) so it holds up close.
  * Draw calls stay flat (the map is ~30 merged meshes) and nothing is rebuilt while walking.
+ * The look (owner 2026-11-25, GOTR-0125): the story places are the films' street (free-walk-sets.js: Bruno's Gym and the bus
+ * stop, Market Row round Hazel's stall, Otto's Corner, the Docks), the picture is drawn like the films (free-walk-look.js:
+ * full screen resolution, the films' light for the story's time of day, a sun shadow round the player, image-based light,
+ * sharper facades with windows that have depth), and the merged meshes are cut into tiles so only what is near is drawn.
  *
- *   FreeWalkTown.build({ renderer, time, quality, lang }) -> town
+ *   FreeWalkTown.prepare(ms, progress?) -> Promise   the films' kit and street models (at most ms; call before build)
+ *   FreeWalkTown.build({ renderer, time: 'morning' | 'day' | 'evening' | 'night', quality, lang, defer }) -> town
+ *     defer: the GPU warm-up is left to town.ready(progress(f), alive()) -> Promise (in slices, the page never frozen)
  *     town.scene, town.grid (FreeWalkCore.grid), town.places [{ id, x, z, r, spawn }], town.targets { id: { x, z } },
  *     town.update(dt, player {x, z}, camera), town.blocked(x, z) (cars), town.snapshot(), town.dispose()
+ *     town.views { gym, busstop, market, otto, docks, basement: { x, z, yaw } } (the films' views of the story places),
+ *     town.look() (picture settings), town.quality(level | null) (pin the look's ladder; QA), town.settled() -> Promise
  * World: metres, x east, z south, y up. */
 (() => {
   'use strict';
@@ -22,6 +30,7 @@
   const REACH = { oldtown: 30, market: 28, docks: 34, downtown: 44, neon: 40, dome: 18, hill: 30, tech: 22, fair: 24, cove: 22, fort: 24 }; // map units
   const STREET_LIFE = new Set(['people', 'people moving', 'cars', 'cars moving', 'trams moving', 'carlights moving']); // replaced at street level
   const SOLID = name => name === 'solid' || name === 'ground' || name === 'lit' || name === 'containers' || name.startsWith('facade ');
+  const solidMesh = o => o.isMesh && (SOLID(o.name) || o.userData.fwSolid === true); // the map's solid batches and the story sets' walls and floors
   const TRUNK = { trees: .45, pines: .42, palms: .32, lamps: .2, bushes: .6, umbrellas: .22 }; // metres per unit instance scale
   const MAX_CARS = 12, MAX_WALKERS = 10;
   const rng = seed => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
@@ -35,7 +44,7 @@
     const rt = new T.WebGLRenderTarget(nx, nz, { minFilter: T.NearestFilter, magFilter: T.NearestFilter, depthBuffer: true, stencilBuffer: false });
     const mat = new T.MeshDepthMaterial({ depthPacking: T.RGBADepthPacking, side: T.DoubleSide });
     const shown = [];
-    scene.traverse(o => { if ((o.isMesh || o.isPoints || o.isSprite || o.isLine) && o.visible) { shown.push(o); o.visible = o.isMesh && SOLID(o.name); } });
+    scene.traverse(o => { if ((o.isMesh || o.isPoints || o.isSprite || o.isLine) && o.visible) { shown.push(o); o.visible = solidMesh(o); } });
     const was = { override: scene.overrideMaterial, fog: scene.fog, bg: scene.background, target: renderer.getRenderTarget(), clear: renderer.getClearColor(new T.Color()), alpha: renderer.getClearAlpha(), auto: renderer.shadowMap.autoUpdate, sm: renderer.shadowMap.enabled };
     const buf = new Uint8Array(nx * nz * 4);
     try {
@@ -84,12 +93,20 @@
   function buildTown(opts = {}, keep = {}) {
     const C = Core(), T = THREE, renderer = opts.renderer, lang = C.langOf(opts.lang);
     const scene = new T.Scene(), owned = [], own = x => { owned.push(x); return x; };
-    const map = GlorylandMap.build(scene, { time: opts.time || 'day', renderer, quality: opts.quality === 'low' ? 'low' : 'high', curb: .05, lang, scale: S, walk: true, shadowSize: 512 });
+    const hour = ['morning', 'day', 'evening', 'night'].includes(opts.time) ? opts.time : 'day', tier = opts.quality === 'low' ? 'low' : 'high';
+    const Sets = window.FreeWalkSets, Look = window.FreeWalkLook, ms = { start: performance.now() }, mark = k => { ms[k] = Math.round(performance.now() - ms.start); };
+    const map = GlorylandMap.build(scene, { time: hour, renderer, quality: tier, curb: .05, lang, scale: S, walk: true, shadowSize: 1024, skip: Sets?.skip, facadeScale: tier === 'low' ? 0 : 2, litWindows: hour === 'evening' });
     keep.map = map; keep.scene = scene;
     const lay = map.layout, landY = lay.landY * S;
     map.sun.castShadow = false;
     const night = map.night;
     scene.fog = new T.Fog(map.fogColor, night ? 70 : 110, night ? 300 : 420);
+    // the films' look: facades painted sharper with windows that have depth (lit at dusk and at night), the story places
+    if (Look) try { Look.facades(map, { renderer, sharp: tier === 'low' ? 1 : 2 }); } catch (x) { console.warn('walk facades', x); }
+    let places3d = null;
+    mark('map');
+    if (Sets) try { places3d = Sets.build({ map, scene, renderer, time: hour, lang, tier }); keep.sets = places3d; } catch (x) { console.warn('walk sets', x); places3d = null; }
+    mark('sets');
     // at night the street is lit for a person: a cool moon fill and a warm street-lamp light that follows the player (one point light)
     let lamp = null; if (night) { scene.add(new T.HemisphereLight(0x8fa3d8, 0x2a2438, .7)); lamp = new T.PointLight(0xffd9a8, 1.6, 16, 1.6); scene.add(lamp); }
     for (const [name, m] of Object.entries(map.meshes)) if (STREET_LIFE.has(name)) m.visible = false;
@@ -108,16 +125,42 @@
     const walk = C.walkGrid(field.heights, field.nx, field.nz, { step: .32, sea: .15, seeds, erode: 1 });
     const discs = [];
     for (const [name, r] of Object.entries(TRUNK)) for (const o of lay.inst[name]?.list || []) discs.push([o.x * S, o.z * S, r * (o.s || 1)]);
+    if (places3d) discs.push(...places3d.discs);
     C.blockDiscs(walk, field, discs);
     const pockets = C.keepConnected(walk, field.nx, field.nz, seeds); // pockets closed by trunks and posts are not walkable
-    // tree crowns (instanced, not in the height field): a coarse top map so the camera keeps out of the leaves
+    // tree crowns, market umbrellas and the sets' awnings and stall roofs (not in the height field: a person walks under them):
+    // a coarse top map so the camera keeps out of the leaves and does not slip under a roof
     const CC = 2, cnx = Math.ceil(field.nx * CELL / CC), cnz = Math.ceil(field.nz * CELL / CC), crowns = new Float32Array(cnx * cnz).fill(-1e9);
+    // roofs a person walks under (awnings, stall roofs, umbrellas): their own fine map (0.5 m cells); the ones within ROOF_NEAR
+    // of the player do not count (he stands under or at his own stall's roof: the camera goes over it, not down onto his head)
+    const roofs = new Map(), ROOF_NEAR = 3, near0 = { x: NaN, z: NaN };
+    const crown = (x, z, top) => { const i = Math.floor((x - field.x0) / CELL), j = Math.floor((z - field.z0) / CELL); if (i < 0 || j < 0 || i >= field.nx || j >= field.nz) return; const k = j * field.nx + i; if (!(roofs.get(k) >= top)) roofs.set(k, top); };
+    if (places3d) { // the sets' overhead batches: awnings, stall roofs (the near-level faces of them; not the bunting or the wires, which hang)
+      const A = new T.Vector3(), B = new T.Vector3(), Cv = new T.Vector3(), E1 = new T.Vector3(), E2 = new T.Vector3(), N = new T.Vector3(), Q3 = new T.Vector3();
+      for (const st of places3d.sets) { st.set.group.updateMatrixWorld(true); st.set.group.traverse(o => {
+        if (!o.isMesh || o.name !== 'overhead' || !o.geometry?.attributes?.position) return;
+        const P = o.geometry.attributes.position, I = o.geometry.index, n = I ? I.count : P.count;
+        for (let t = 0; t + 2 < n; t += 3) {
+          const ia = I ? I.getX(t) : t, ib = I ? I.getX(t + 1) : t + 1, ic = I ? I.getX(t + 2) : t + 2;
+          A.fromBufferAttribute(P, ia).applyMatrix4(o.matrixWorld); B.fromBufferAttribute(P, ib).applyMatrix4(o.matrixWorld); Cv.fromBufferAttribute(P, ic).applyMatrix4(o.matrixWorld);
+          N.crossVectors(E1.subVectors(B, A), E2.subVectors(Cv, A)); const area = N.length() / 2; if (area < .04 || Math.abs(N.y) < .5 * N.length()) continue;
+          const top = Math.max(A.y, B.y, Cv.y), steps = Math.min(40, Math.ceil(Math.max(E1.length(), E2.length()) / .5));
+          for (let u = 0; u <= steps; u++) for (let v = 0; u + v <= steps; v++) { Q3.copy(A).addScaledVector(E1, u / steps).addScaledVector(E2, v / steps); crown(Q3.x, Q3.z, top); }
+        }
+      }); }
+    }
+    for (const o of lay.inst.umbrellas?.list || []) { const sc = o.s || 1, r = .5 * sc * S, top = ((o.y || 0) + 1.1 * sc) * S; for (let dz = -r; dz <= r; dz += CELL) for (let dx = -r; dx <= r; dx += CELL) if (dx * dx + dz * dz <= r * r) crown(o.x * S + dx, o.z * S + dz, top); }
     for (const [name, [r0, h0]] of Object.entries({ trees: [1.0, 2.9], pines: [.9, 2.7], palms: [1.5, 3.4] })) for (const o of lay.inst[name]?.list || []) {
       const sc = o.s || 1, r = r0 * sc * S, top = ((o.y || 0) + h0 * sc) * S, x = o.x * S, z = o.z * S;
       for (let cj = Math.max(0, Math.floor((z - r - field.z0) / CC)); cj <= Math.min(cnz - 1, Math.floor((z + r - field.z0) / CC)); cj++)
         for (let ci = Math.max(0, Math.floor((x - r - field.x0) / CC)); ci <= Math.min(cnx - 1, Math.floor((x + r - field.x0) / CC)); ci++) { const k = cj * cnx + ci; if (top > crowns[k]) crowns[k] = top; }
     }
-    const canopy = (x, z) => { const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC); return i < 0 || j < 0 || i >= cnx || j >= cnz ? -1e9 : crowns[j * cnx + i]; };
+    const canopy = (x, z) => {
+      const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC), c = i < 0 || j < 0 || i >= cnx || j >= cnz ? -1e9 : crowns[j * cnx + i];
+      if (!roofs.size || !(Math.hypot(x - near0.x, z - near0.z) >= ROOF_NEAR)) return c; // (before the first step: no roofs)
+      const fi = Math.floor((x - field.x0) / CELL), fj = Math.floor((z - field.z0) / CELL), r = fi < 0 || fj < 0 || fi >= field.nx || fj >= field.nz ? undefined : roofs.get(fj * field.nx + fi);
+      return r === undefined || r < c ? c : r;
+    };
     const grid = C.grid({ ...field, walk });
     // a device that cannot read the height field back (or renders it wrong) gets a clean failure, never a walk inside walls
     let open = 0; for (let k = 0; k < walk.length; k += 7) open += walk[k]; if (open * 7 < 100000) throw Error('free walk: the town could not be measured on this device');
@@ -132,7 +175,13 @@
     const mc = mat2(22, 0), otto = mat2(44, 4.4), gym = L.homeGym ? [L.homeGym.x * S, L.homeGym.z * S] : [places[0].x, places[0].z], quay = L.hangar ? [L.hangar.x * S, (L.hangar.z + 4) * S] : [places[2].x, places[2].z];
     const targets = { bruno: near(gym[0], gym[1]), market_stall: near(mc[0], mc[1]), otto: near(otto[0], otto[1]), docks_quay: near(quay[0], quay[1]) };
     for (const p of places) targets[p.id] = p.door; // walking to a district leads to its landmark; opening there starts on a street nearby (spawn)
-    { // Otto's shop: a localized board on two posts at the market's east end (the shop of Chapter 1)
+    { // the story places of the films' street: in front of Bruno's door, at Hazel's counter, at Otto's door
+      const F = places3d?.frames, at = (f, lx, lz) => { const c = Math.cos(f.ry), s = Math.sin(f.ry), x = f.x + lx * c + lz * s, z = f.z - lx * s + lz * c; return grid.allowed(x, z) ? { x, z } : near(x, z); };
+      if (F?.gym) targets.bruno = at(F.gym, -.35, 11.4);
+      if (F?.market) targets.market_stall = at(F.market, 0, -2.3);
+      if (F?.otto) targets.otto = at(F.otto, .9, 1.5);
+    }
+    if (!places3d?.frames?.otto) { // Otto's shop: a localized board on two posts at the market's east end (the shop of Chapter 1)
       const fr = Math.atan2(mf.U[0], mf.U[1]), at = mat2(44, 3.8), y = grid.height(targets.otto.x, targets.otto.z);
       const tex = own(signTexture(C.text(lang, 'ottoSign'))), board = new T.Mesh(own(new T.PlaneGeometry(2.6, .65)), own(new T.MeshStandardMaterial({ map: tex, roughness: .7, side: T.DoubleSide })));
       board.position.set(at[0], y + 2.35, at[1]); board.rotation.y = fr + Math.PI / 2; board.name = 'Otto sign';
@@ -140,6 +189,15 @@
       for (const s of [-1.15, 1.15]) { const p = new T.Mesh(postG, postM); p.position.set(at[0] + Math.sin(fr + Math.PI / 2) * s, y + 1.2, at[1] + Math.cos(fr + Math.PI / 2) * s); scene.add(p); }
       scene.add(board); C.blockDiscs(walk, field, [[at[0], at[1], .25]]);
     }
+
+    /* ---- the picture: tiles of the merged meshes (view and shadow culling), the films' light and the quality ladder */
+    if (Look && places3d?.cuts?.length) try { for (const c of places3d.cuts) Look.clip(map.group, [c], c.yMin, /^(ground|sea|road marks|clouds)$/); } catch (x) { console.warn('walk cuts', x); }
+    if (Look && places3d?.marks?.length) try { Look.clip(map.group, places3d.marks, -Infinity, /^$/, /^road marks$/); } catch (x) { console.warn('walk marks', x); }
+    mark('walkable');
+    let tiles = 0; if (Look) try { tiles = Look.tile(map.group, 96).length; } catch (x) { console.warn('walk tiles', x); }
+    let look = null; if (Look) try { look = Look.attach({ renderer, scene, map, time: hour, tier }); keep.look = look; } catch (x) { console.warn('walk look', x); look = null; }
+    // the town's own trees and lamps near the player in the films' detail (the map's low copies far away)
+    let dress = null; if (Sets?.dressing) try { dress = Sets.dressing({ map, scene, city: window.CityAssets?.cached?.(['props'], false), time: hour, tier }); keep.dress = dress; } catch (x) { console.warn('walk dressing', x); dress = null; }
 
     /* ---- traffic */
     const carSrc = map.meshes.cars, cars = [], R = rng(1234);
@@ -196,7 +254,8 @@
         if (good / n > .93) { let len = 0; for (let k = 0; k < 4; k++) len += Math.hypot(pts[(k + 1) % 4][0] - pts[k][0], pts[(k + 1) % 4][1] - pts[k][1]); loops.push({ pts, len, x: b.x * S, z: b.z * S }); break; }
       }
     }
-    const SL = window.StreetLife, looks = SL?.walkers || [], walkers = [];
+    const SL = window.StreetLife, looks = SL?.walkers || [], walkers = [], pool = [];
+    if (SL?.walker) for (let k = 0; k < MAX_WALKERS; k++) { const look = looks[k % Math.max(1, looks.length)] || {}; const m = SL.walker({ ...look, bag: k % 3 === 0 ? look.bag : null }); m.frustumCulled = true; m.visible = false; scene.add(m); pool.push(m); }
     function loopAt(L0, d) {
       d = ((d % L0.len) + L0.len) % L0.len;
       for (let k = 0; k < 4; k++) { const A = L0.pts[k], B = L0.pts[(k + 1) % 4], l = Math.hypot(B[0] - A[0], B[1] - A[1]); if (d <= l) { const t = d / l; return { x: A[0] + (B[0] - A[0]) * t, z: A[1] + (B[1] - A[1]) * t, ry: Math.atan2(B[0] - A[0], B[1] - A[1]) }; } d -= l; }
@@ -205,13 +264,15 @@
     function spawnWalker(p, minD, maxD) {
       if (!SL?.walker || !loops.length) return null;
       const near = loops.filter(l => { const d = Math.hypot(l.x - p.x, l.z - p.z); return d > minD && d < maxD; }); if (!near.length) return null;
-      const loop = near[Math.floor(R() * near.length)], look = looks[Math.floor(R() * looks.length)] || {};
-      const m = SL.walker({ ...look, bag: R() < .3 ? look.bag : null }); m.frustumCulled = true; scene.add(m);
+      const loop = near[Math.floor(R() * near.length)];
+      // a person from the pool made behind the loading cover (making one while walking - its body, skeleton and bone texture -
+      // was a visible hitch): the pool is shuffled so the street does not repeat the same order
+      if (!pool.length) return null; const m = pool.splice(Math.floor(R() * pool.length), 1)[0]; m.visible = true;
       return { m, loop, d: R() * loop.len, v: (.95 + R() * .45) * (R() < .5 ? 1 : -1), ph: R(), wait: 0 };
     }
     function updateWalkers(dt, p) {
-      for (let i = walkers.length - 1; i >= 0; i--) { const w = walkers[i]; if (Math.hypot(w.x - p.x, w.z - p.z) > 95) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); walkers.splice(i, 1); } }
-      if (walkers.length < (opts.quality === 'low' ? 6 : MAX_WALKERS)) { const w = spawnWalker(p, walkers.length < 3 ? 8 : 30, 80); if (w) walkers.push(w); }
+      for (let i = walkers.length - 1; i >= 0; i--) { const w = walkers[i]; if (Math.hypot(w.x - p.x, w.z - p.z) > 95) { w.m.visible = false; pool.push(w.m); walkers.splice(i, 1); } }
+      if (walkers.length < (opts.quality === 'low' ? 6 : MAX_WALKERS) && pool.length) { const w = spawnWalker(p, walkers.length < 3 ? 8 : 30, 80); if (w) walkers.push(w); }
       for (const w of walkers) {
         // a walker meeting the player steps aside (to the side away from the player) and slows; nobody blocks anybody
         const at0 = loopAt(w.loop, w.d), dir = Math.sign(w.v), fx = Math.sin(at0.ry) * dir, fz = Math.cos(at0.ry) * dir;
@@ -265,29 +326,168 @@
     }
 
     let time = 0;
+    /* ---- nothing is compiled, uploaded or allocated for the first time while walking: every program (the town's, the
+     * Fighter's in every outfit piece, a walker's), every texture and every vertex buffer is made behind the walk's loading
+     * cover, by drawing everything once into a one-pixel viewport (the walk's lights, the shadow pass included).
+     * The first open measured 27-31 s to the first frame in SwiftShader, 17 s of it GPU work queued by that single draw (the
+     * GPU building a pipeline for each of ~80 programs) that then froze the page with the cover up. ready() does the same work
+     * in slices: one object per program (a handful of programs a slice), waiting for the GPU after each slice without
+     * blocking (a fence), then everything once (vertex buffers, textures), reporting progress for the cover. warm() is the
+     * same in one go (no WebGL2 fences, or a caller without ready()). */
+    const RIG = () => window.app?.engine?.coach?.root || null, WARM_LAYER = 31;
+    const gl = renderer.getContext?.(), fences = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+    const drawable = o => (o.isMesh || o.isPoints || o.isLine || o.isSprite) && o.material;
+    function compileAll() { // every program at once (the renderer's own compile: cheaper than compiling them draw by draw)
+      const rig = RIG(), home = rig?.parent || null, saved = [];
+      if (rig && home !== scene) scene.add(rig);
+      scene.traverse(o => { if (o.isLight || o === scene) return; saved.push([o, o.visible]); o.visible = true; });
+      const cam = new T.PerspectiveCamera(60, 1, .1, 3000); cam.position.set(0, 400, 1); cam.lookAt(0, 0, 0); cam.updateMatrixWorld();
+      try { renderer.compile(scene, cam); } catch (x) { console.warn('walk warm-up', x); }
+      finally { for (const [o, v] of saved) o.visible = v; if (rig && home !== scene) { if (home) home.add(rig); else scene.remove(rig); } }
+    }
+    function slice(list, shadow) { // draws list (or everything) once into a one-pixel viewport, then puts every object back
+      const rig = RIG(), home = rig?.parent || null, saved = [];
+      if (rig && home !== scene) scene.add(rig);
+      const cam = new T.PerspectiveCamera(60, 1, .1, 3000); cam.position.set(0, 400, 1); cam.lookAt(0, 0, 0); cam.updateMatrixWorld(); cam.layers.set(WARM_LAYER);
+      const pick = list ? new Set(list) : null;
+      // every instanced mesh draws at least one instance (a car or a pigeon not yet in the street still gets its pipeline)
+      scene.traverse(o => { if (o === scene) return; saved.push([o, o.visible, o.frustumCulled, o.layers.mask, o.isInstancedMesh ? o.count : -1]); o.visible = true; o.frustumCulled = false; if (o.isInstancedMesh && o.count === 0) o.count = 1; if (o.isLight || !pick || pick.has(o) || !drawable(o)) o.layers.enable(WARM_LAYER); });
+      const vp = renderer.getViewport(new T.Vector4());
+      try { renderer.setViewport(0, 0, 1, 1); if (shadow) renderer.shadowMap.needsUpdate = true; renderer.render(scene, cam); }
+      catch (x) { console.warn('walk warm-up', x); }
+      finally {
+        renderer.setViewport(vp);
+        for (const [o, v, f, m, n] of saved) { o.visible = v; o.frustumCulled = f; o.layers.mask = m; if (n >= 0) o.count = n; }
+        if (rig && home !== scene) { if (home) home.add(rig); else scene.remove(rig); }
+      }
+    }
+    function textures() { if (renderer.initTexture) scene.traverse(o => { for (const m of [].concat(o.material || [])) for (const k of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap', 'aoMap', 'envMap']) if (m[k]?.isTexture && !m[k].isRenderTargetTexture) renderer.initTexture(m[k]); }); }
+    function warm() { const t0 = performance.now(); try { textures(); } catch (x) { console.warn('walk warm-up', x); } slice(null, true); return Math.round(performance.now() - t0); }
+    // one object for each program it can need (material, instanced, coloured instances, skinned, morphed)
+    function representatives() {
+      const seen = new Map(), rig = RIG();
+      const visit = o => { if (!drawable(o)) return; for (const m of [].concat(o.material)) { const k = m.uuid + (o.isInstancedMesh ? 'i' : '') + (o.instanceColor ? 'c' : '') + (o.isSkinnedMesh ? 's' : '') + (o.geometry?.morphAttributes?.position ? 'm' : '') + (o.isPoints ? 'p' : o.isLine ? 'l' : o.isSprite ? 'r' : ''); if (!seen.has(k)) seen.set(k, o); } };
+      scene.traverse(visit); if (rig && rig.parent !== scene) rig.traverse(visit);
+      return [...new Set(seen.values())];
+    }
+    // the browser updates a fence's state once a frame: poll on the frame clock (a hidden page falls back to a timer)
+    const next = f => { if (document.hidden) setTimeout(f, 30); else requestAnimationFrame(() => f()); };
+    const settle = (alive, max = 30000) => new Promise(done => { // the GPU has finished what was sent (never blocks the page)
+      if (!fences) { done(); return; }
+      let f = null; try { f = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0); gl.flush(); } catch { done(); return; }
+      const t0 = performance.now(), poll = () => {
+        let s = gl.WAIT_FAILED; try { s = gl.clientWaitSync(f, 0, 0); } catch { /* context lost */ }
+        if (s === gl.TIMEOUT_EXPIRED && alive() && performance.now() - t0 < max) { next(poll); return; }
+        try { gl.deleteSync(f); } catch { /* gone */ } done();
+      };
+      next(poll);
+    });
+    let warming = null;
+    function ready(progress = () => {}, alive = () => true) {
+      if (warming) return warming;
+      const t0 = performance.now(), say = f => { try { progress(Math.max(0, Math.min(1, f))); } catch { /* the cover is gone */ } };
+      warming = (async () => {
+        if (!fences) { ms.warm = warm(); say(1); return true; }
+        // every program compiled and every texture uploaded at once, then the GPU's first draw of each program a few at a time
+        // without the shadow pass (each slice has a fixed cost: few, large slices), then everything once with the shadow
+        // pass (its depth programs, every vertex buffer)
+        const reps = representatives(), PER = Math.max(8, Math.ceil(reps.length / 2)), n = Math.ceil(reps.length / PER) + 2, log = ms.warmLog = []; let k = 0, a = performance.now(), c = a;
+        say(0); await settle(alive); log.push(['build', Math.round(performance.now() - a)]);
+        a = performance.now(); compileAll(); try { textures(); } catch (x) { console.warn('walk warm-up', x); } c = performance.now(); await settle(alive); log.push(['compile', Math.round(c - a), Math.round(performance.now() - c), renderer.info.programs?.length || 0]); say(++k / n);
+        if (!alive()) return false;
+        for (let i = 0; i < reps.length; i += PER) {
+          if (!alive()) return false;
+          a = performance.now(); slice(reps.slice(i, i + PER), false); c = performance.now(); await settle(alive);
+          log.push([Math.round(c - a), Math.round(performance.now() - c), renderer.info.programs?.length || 0]); say(++k / n);
+        }
+        if (!alive()) return false;
+        a = performance.now(); slice(null, true); c = performance.now(); await settle(alive); log.push(['all', Math.round(c - a), Math.round(performance.now() - c), renderer.info.programs?.length || 0]); say(1);
+        ms.warm = Math.round(performance.now() - t0); ms.warmSlices = k + 1; ms.programs = renderer.info.programs?.length || 0;
+        return true;
+      })().finally(() => { const w = warming; setTimeout(() => { if (warming === w) warming = null; }, 0); });
+      return warming;
+    }
+    if (!opts.defer) ms.warm = warm();
+    mark('total');
     function update(dt, p, camera) {
       time += dt;
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
+      near0.x = p.x; near0.z = p.z;
       if (lamp) lamp.position.set(p.x - 1.2, (grid.allowed(p.x, p.z) ? grid.height(p.x, p.z) : landY) + 4.2, p.z + 1.5);
       map.update(dt, camera, renderer);
+      look?.update(dt, p, camera); places3d?.update(p, camera); dress?.update(p);
     }
     function snapshot() {
       return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length,
-        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), map: map.stats() };
+        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, look: look?.stats() || null, dressing: dress?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), build: { ...ms, start: undefined }, parked: !!parkedAt, map: map.stats() };
+    }
+    /* ---- the same town again in this session (owner: the walk is opened often): closing parks it (its GPU copies freed, the
+     * built town kept in memory for a few minutes); opening with the same time of day, language and tier resumes it. */
+    let parkedAt = 0;
+    function park() {
+      parkedAt = performance.now();
+      try { look?.dispose(); } catch (x) { console.warn('walk look dispose', x); } look = null;
+      try { dress?.dispose(); } catch (x) { console.warn('walk dressing dispose', x); } dress = null;
+      const seen = new Set(); // GPU copies only: geometry, textures (the arrays and images stay; three uploads them again)
+      scene.traverse(o => { if (o.geometry && !seen.has(o.geometry)) { seen.add(o.geometry); o.geometry.dispose(); } for (const m of [].concat(o.material || [])) for (const k of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap', 'aoMap']) if (m[k]?.isTexture && !seen.has(m[k])) { seen.add(m[k]); m[k].dispose(); } });
+    }
+    function resume(defer) { // defer: the caller warms up with ready()
+      const t0 = performance.now(); parkedAt = 0;
+      try { look = Look?.attach({ renderer, scene, map, time: hour, tier }) || null; } catch (x) { console.warn('walk look', x); look = null; }
+      try { dress = Sets?.dressing?.({ map, scene, city: window.CityAssets?.cached?.(['props'], false), time: hour, tier }) || null; } catch (x) { console.warn('walk dressing', x); dress = null; }
+      ms.resumed = Math.round(performance.now() - t0); if (!defer) ms.warm = warm(); ms.resumeTotal = Math.round(performance.now() - t0);
     }
     function dispose() {
-      for (const w of walkers) { scene.remove(w.m); w.m.geometry.dispose(); w.m.material.dispose(); } walkers.length = 0;
+      for (const m of [...pool, ...walkers.map(w => w.m)]) { scene.remove(m); m.geometry.dispose(); m.material.dispose(); m.skeleton?.dispose?.(); } walkers.length = 0; pool.length = 0;
       if (carMesh) { scene.remove(carMesh); carMesh.dispose?.(); }
       for (const m of [bodyM, ...wingM]) if (m) { scene.remove(m); m.dispose?.(); }
+      try { look?.dispose(); } catch (x) { console.warn('walk look dispose', x); }
+      try { dress?.dispose(); } catch (x) { console.warn('walk dressing dispose', x); }
+      try { places3d?.dispose(); } catch (x) { console.warn('walk sets dispose', x); }
       for (const x of owned) x.dispose?.();
+      for (const m of tileMeshes()) m.geometry.dispose();
       map.dispose();
     }
-    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, S };
+    const tileMeshes = () => map.group.children.filter(o => o.userData.tileOf);
+    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, park, resume, ready, S, tier,
+      views: places3d?.views || {}, look: () => look?.stats() || null, quality: level => look?.lock(level), settled: () => Promise.resolve(true) };
   }
   /** Builds the town; on any failure everything made so far is released and the error is passed on (the mode shows a notice). */
+  let parked = null; // { key, town, timer }: the last town, kept for PARK_MS after the walk closed
+  const PARK_MS = 180000;
+  const smallDevice = () => (navigator.deviceMemory && navigator.deviceMemory < 4) || /[?&]gfx=low/.test(location.search);
+  function drop() { if (!parked) return; clearTimeout(parked.timer); const t = parked.town; parked = null; try { t.destroy(); } catch (x) { console.warn('free walk town', x); } }
   function build(opts = {}) {
+    const key = [opts.time, Core().langOf(opts.lang), opts.quality === 'low' ? 'low' : 'high'].join('|');
+    if (parked && parked.key === key && parked.renderer === opts.renderer) { const t = parked.town; clearTimeout(parked.timer); parked = null; t.resume(opts.defer); return t; }
+    drop();
     const keep = {};
-    try { return buildTown(opts, keep); } catch (x) { try { keep.map?.dispose(); } catch { /* already gone */ } throw x; }
+    let town;
+    try { town = buildTown(opts, keep); } catch (x) { try { keep.dress?.dispose(); keep.look?.dispose(); keep.sets?.dispose(); keep.map?.dispose(); } catch { /* already gone */ } throw x; }
+    // the mode calls dispose() when the walk closes: the town is parked instead (released for good later, or on a small device now)
+    const destroy = town.dispose; town.destroy = destroy;
+    town.dispose = () => {
+      if (smallDevice() || town.tier === 'low') { destroy(); return; }
+      drop(); town.park(); parked = { key, town, renderer: opts.renderer, timer: setTimeout(drop, PARK_MS) };
+    };
+    return town;
   }
-  window.FreeWalkTown = { build, S, CELL, BOUNDS, REACH };
+  window.addEventListener?.('pagehide', drop);
+  /** The films' kit and street models before a build (never longer than ms; a build without them uses the generated pieces). */
+  // one wait shared by every caller of the same open: the mode starts it as the walk opens (with the map script's download)
+  // and waits for it before the build, so the models load while the map script loads
+  // A settled wait is kept for a while (a second call in the same open must not wait the whole budget again); progress(f) is
+  // told the share of the models (and the kit) that is ready while it waits.
+  let preparing = null, settledAt = 0;
+  function prepare(ms = 6000, progress) {
+    if (!window.FreeWalkSets) return Promise.resolve(false);
+    if (preparing && settledAt && performance.now() - settledAt > 20000) preparing = null;
+    if (!preparing) { settledAt = 0; const p = preparing = window.FreeWalkSets.prepare(ms); p.finally(() => { if (preparing === p) settledAt = performance.now(); }); }
+    if (typeof progress === 'function' && !settledAt) {
+      const list = window.FreeWalkSets.MODELS || [], tell = () => { const st = window.CityAssets?.status?.() || {}; const n = list.filter(k => st[k] === 'ready' || st[k] === 'failed').length + (window.GlorylandMap?.kit ? 1 : 0); try { progress(n / (list.length + 1)); } catch { /* gone */ } };
+      tell(); const id = setInterval(tell, 150); preparing.finally(() => { clearInterval(id); tell(); });
+    }
+    return preparing;
+  }
+  window.FreeWalkTown = { build, prepare, drop, S, CELL, BOUNDS, REACH, get parked() { return parked ? parked.key : null; } };
 })();

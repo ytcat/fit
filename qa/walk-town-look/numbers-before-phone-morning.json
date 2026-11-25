@@ -1,0 +1,132 @@
+{
+ "tag": "before",
+ "size": "phone",
+ "dpr": 3,
+ "time": "morning",
+ "gfx": "high",
+ "errors": [],
+ "spots": {
+  "gym": {
+   "calls": 89,
+   "triangles": 551097,
+   "textures": 30,
+   "geometries": 204,
+   "programs": 51,
+   "renderMs": null,
+   "renderMin": null,
+   "pixelRatio": 1,
+   "drawingBuffer": [
+    402,
+    690
+   ],
+   "shadow": false,
+   "env": false,
+   "buildMs": 1229,
+   "heap": 215,
+   "town": null,
+   "spot": {
+    "x": 156.75,
+    "z": -118.25,
+    "yaw": null
+   }
+  },
+  "busstop": {
+   "calls": 90,
+   "triangles": 552025,
+   "textures": 31,
+   "geometries": 205,
+   "programs": 51,
+   "renderMs": null,
+   "renderMin": null,
+   "pixelRatio": 1,
+   "drawingBuffer": [
+    402,
+    690
+   ],
+   "shadow": false,
+   "env": false,
+   "buildMs": 1229,
+   "heap": 215,
+   "town": null,
+   "spot": {
+    "x": 156.75,
+    "z": -118.25,
+    "yaw": null
+   }
+  },
+  "market": {
+   "calls": 82,
+   "triangles": 541353,
+   "textures": 33,
+   "geometries": 205,
+   "programs": 51,
+   "renderMs": null,
+   "renderMin": null,
+   "pixelRatio": 1,
+   "drawingBuffer": [
+    402,
+    690
+   ],
+   "shadow": false,
+   "env": false,
+   "buildMs": 1229,
+   "heap": 215,
+   "town": null,
+   "spot": {
+    "x": 116.75,
+    "z": -68.25,
+    "yaw": null
+   }
+  },
+  "otto": {
+   "calls": 40,
+   "triangles": 500463,
+   "textures": 34,
+   "geometries": 208,
+   "programs": 52,
+   "renderMs": null,
+   "renderMin": null,
+   "pixelRatio": 1,
+   "drawingBuffer": [
+    402,
+    690
+   ],
+   "shadow": false,
+   "env": false,
+   "buildMs": 1229,
+   "heap": 215,
+   "town": null,
+   "spot": {
+    "x": 181.75,
+    "z": -54.25,
+    "yaw": null
+   }
+  },
+  "docks": {
+   "calls": 34,
+   "triangles": 472127,
+   "textures": 36,
+   "geometries": 206,
+   "programs": 51,
+   "renderMs": null,
+   "renderMin": null,
+   "pixelRatio": 1,
+   "drawingBuffer": [
+    402,
+    690
+   ],
+   "shadow": false,
+   "env": false,
+   "buildMs": 1229,
+   "heap": 215,
+   "town": null,
+   "spot": {
+    "x": -40.75,
+    "z": 153.75,
+    "yaw": null
+   }
+  }
+ },
+ "bootMs": 51682,
+ "openMs": 15683
+}

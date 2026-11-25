@@ -1,0 +1,623 @@
+{
+ "tag": "ab10-after",
+ "size": "phone",
+ "dpr": 3,
+ "load": 1.31,
+ "errors": [],
+ "open1": {
+  "rafs": 25,
+  "anims": [],
+  "openToFirstFrame": 17184,
+  "shownAt": 18110,
+  "events": [
+   {
+    "t": 2,
+    "k": "prepare start"
+   },
+   {
+    "t": 2,
+    "k": "kit start"
+   },
+   {
+    "t": 25,
+    "k": "kit end"
+   },
+   {
+    "t": 82,
+    "k": "models",
+    "status": {
+     "tree": "idle",
+     "car": "idle",
+     "bus": "idle",
+     "station": "loading",
+     "oldtown": "loading",
+     "hazelStall": "loading",
+     "props": "ready",
+     "gymProps": "idle",
+     "marketProps": "loading",
+     "dockProps": "ready",
+     "ringProps": "idle",
+     "stopProps": "ready"
+    }
+   },
+   {
+    "t": 87,
+    "k": "prepare start"
+   },
+   {
+    "t": 138,
+    "k": "models",
+    "status": {
+     "tree": "idle",
+     "car": "idle",
+     "bus": "idle",
+     "station": "loading",
+     "oldtown": "loading",
+     "hazelStall": "loading",
+     "props": "ready",
+     "gymProps": "idle",
+     "marketProps": "ready",
+     "dockProps": "ready",
+     "ringProps": "idle",
+     "stopProps": "ready"
+    }
+   },
+   {
+    "t": 308,
+    "k": "models",
+    "status": {
+     "tree": "idle",
+     "car": "idle",
+     "bus": "idle",
+     "station": "loading",
+     "oldtown": "loading",
+     "hazelStall": "ready",
+     "props": "ready",
+     "gymProps": "idle",
+     "marketProps": "ready",
+     "dockProps": "ready",
+     "ringProps": "idle",
+     "stopProps": "ready"
+    }
+   },
+   {
+    "t": 384,
+    "k": "prepare end"
+   },
+   {
+    "t": 384,
+    "k": "prepare end"
+   },
+   {
+    "t": 393,
+    "k": "build start"
+   },
+   {
+    "t": 1246,
+    "k": "first render",
+    "ms": 5
+   },
+   {
+    "t": 2420,
+    "k": "build end"
+   },
+   {
+    "t": 4364,
+    "k": "models",
+    "status": {
+     "tree": "idle",
+     "car": "idle",
+     "bus": "idle",
+     "station": "ready",
+     "oldtown": "ready",
+     "hazelStall": "ready",
+     "props": "ready",
+     "gymProps": "idle",
+     "marketProps": "ready",
+     "dockProps": "ready",
+     "ringProps": "idle",
+     "stopProps": "ready"
+    }
+   },
+   {
+    "t": 16527,
+    "k": "outfit start"
+   },
+   {
+    "t": 16937,
+    "k": "outfit end"
+   },
+   {
+    "t": 16937,
+    "k": "pose reset start"
+   },
+   {
+    "t": 16937,
+    "k": "pose reset end"
+   },
+   {
+    "t": 16952,
+    "k": "ready"
+   },
+   {
+    "t": 16953,
+    "k": "first frame start"
+   },
+   {
+    "t": 16953,
+    "k": "engine frame start"
+   },
+   {
+    "t": 17184,
+    "k": "engine frame end",
+    "ms": 230
+   },
+   {
+    "t": 17184,
+    "k": "first frame end",
+    "ms": 230,
+    "programs": 2,
+    "textures": 1,
+    "geometries": 5,
+    "calls": 103
+   },
+   {
+    "t": 18093,
+    "k": "engine frame start"
+   },
+   {
+    "t": 18109,
+    "k": "engine frame end",
+    "ms": 16
+   }
+  ],
+  "longTasks": [
+   {
+    "t": 201,
+    "ms": 64
+   },
+   {
+    "t": 393,
+    "ms": 2028
+   },
+   {
+    "t": 2463,
+    "ms": 1899
+   },
+   {
+    "t": 4364,
+    "ms": 978
+   },
+   {
+    "t": 5388,
+    "ms": 5288
+   },
+   {
+    "t": 10677,
+    "ms": 4651
+   },
+   {
+    "t": 15331,
+    "ms": 1194
+   },
+   {
+    "t": 16526,
+    "ms": 413
+   },
+   {
+    "t": 16953,
+    "ms": 1138
+   }
+  ],
+  "longTotal": 17653,
+  "resources": [
+   {
+    "name": "gloryland-oldtown.glb",
+    "start": 4,
+    "end": 158,
+    "kb": 8790
+   },
+   {
+    "name": "gloryland-station.glb",
+    "start": 4,
+    "end": 156,
+    "kb": 6649
+   },
+   {
+    "name": "hazel-fruit-stall.glb",
+    "start": 4,
+    "end": 63,
+    "kb": 2679
+   },
+   {
+    "name": "gloryland-street-props.glb",
+    "start": 4,
+    "end": 18,
+    "kb": 582
+   },
+   {
+    "name": "gloryland-market-props.glb",
+    "start": 5,
+    "end": 44,
+    "kb": 1076
+   },
+   {
+    "name": "gloryland-dock-props.glb",
+    "start": 5,
+    "end": 27,
+    "kb": 252
+   },
+   {
+    "name": "gloryland-stop-props.glb",
+    "start": 5,
+    "end": 32,
+    "kb": 34
+   }
+  ],
+  "notes": [
+   {
+    "t": 82,
+    "text": "Building the town…"
+   },
+   {
+    "t": 138,
+    "text": "Building the town… 15%"
+   },
+   {
+    "t": 308,
+    "text": "Building the town… 22%"
+   },
+   {
+    "t": 4364,
+    "text": "Building the town… 40%"
+   },
+   {
+    "t": 15329,
+    "text": "Building the town… 70%"
+   },
+   {
+    "t": 16952,
+    "text": ""
+   }
+  ],
+  "modelsBefore": {
+   "tree": "idle",
+   "car": "idle",
+   "bus": "idle",
+   "station": "idle",
+   "oldtown": "idle",
+   "hazelStall": "idle",
+   "props": "idle",
+   "gymProps": "idle",
+   "marketProps": "idle",
+   "dockProps": "idle",
+   "ringProps": "idle",
+   "stopProps": "idle"
+  },
+  "build": {
+   "map": 623,
+   "sets": 1030,
+   "walkable": 1759,
+   "total": 2026,
+   "warmLog": [
+    [
+     "build",
+     1943
+    ],
+    [
+     "compile",
+     978,
+     46,
+     74
+    ],
+    [
+     53,
+     5236,
+     76
+    ],
+    [
+     31,
+     4625,
+     76
+    ],
+    [
+     "all",
+     78,
+     1114,
+     78
+    ]
+   ],
+   "warm": 14106,
+   "warmSlices": 4,
+   "programs": 78
+  },
+  "buildMs": 2334
+ },
+ "programs": {
+  "n": 80,
+  "by": {
+   "MeshBasicMaterial": 11,
+   "MeshDepthMaterial": 7,
+   "MeshStandardMaterial": 56,
+   "MeshPhysicalMaterial": 4,
+   "ShaderMaterial": 2
+  },
+  "keys": [
+   "MeshBasicMaterial basic,highp,true,true,3002,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,false,false,false,false,false,true,false,false,false,0,true,false,false,0,0,0,0,0,0,0,0,false,2,0,true,0,false,true,0,0,false,false,false,false,3000,2,function(){}",
+   "MeshDepthMaterial depth,highp,true,true,3000,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,0,true,false,false,0,0,0,0,0,0,0,0,true,2,4,true,0,false,true,0,0,3201,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,true,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshBasicMaterial basic,highp,true,true,3001,false,false,true,3001,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,false,false,true,false,true,true,false,false,false,0,true,false,false,2,2,0,2,0,1,0,0,true,2,0,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshBasicMaterial basic,highp,true,true,3001,true,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,false,false,false,false,true,true,false,false,false,0,true,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshDepthMaterial depth,highp,true,true,3000,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,0,true,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,true,0,0,3201,false,false,false,3001,2,function(){}-padding-r90",
+   "MeshDepthMaterial depth,highp,true,true,3000,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,1024,true,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,true,0,0,3201,false,false,false,3001,2,animal-connected-r79-frame-19-true-false-anatomy78-false-def3-guard-shoulder-v1",
+   "MeshDepthMaterial depth,highp,true,true,3000,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,1024,true,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,3201,false,false,false,3001,2,animal-connected-r79-frame-19-false-false-anatomy78-false-def0",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,true,1024,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,animal-connected-r79-frame-19-true-false-anatomy78-false-def3-guard-shoulder-v1",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,true,false,false,false,false,false,true,false,true,true,false,false,true,1024,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,animal-connected-r79-frame-19-false-false-anatomy78-false-def0",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,true,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshPhysicalMaterial physical,STANDARD,PHYSICAL,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshPhysicalMaterial physical,STANDARD,PHYSICAL,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshBasicMaterial basic,highp,true,true,3001,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,false,false,false,false,true,true,false,false,false,0,true,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,true,1024,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,animal-connected-r79-frame-19-true-true-anatomy78-true-def3-guard-shoulder-v1",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,true,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}-padding-r90",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}-padding-r90",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,true,1024,true,false,false,false,2,2,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,animal-connected-r79-frame-19-false-false-anatomy78-false-def0",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,true,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,false,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,2,2,0,2,0,1,0,0,false,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshBasicMaterial basic,highp,true,true,3001,false,false,true,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,false,false,true,false,true,true,false,false,false,0,true,false,false,2,2,0,2,0,1,0,0,false,2,0,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,cl|function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-grain|cl|gl-ground",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-relief|plaster|cl|gl-facade",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-relief|brick|cl|gl-facade",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-relief|apartment|cl|gl-facade",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-relief|office|cl|gl-facade",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-relief|deco|cl|gl-facade",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-relief|industrial|cl|gl-facade",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-relief|shop|cl|gl-facade",
+   "MeshBasicMaterial basic,highp,true,true,3001,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,true,false,false,false,true,false,false,false,false,0,true,false,false,1,0,0,2,0,1,0,0,true,2,0,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,cl|gl-waterd",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,true,true,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,cl|function(){}",
+   "MeshBasicMaterial basic,highp,true,true,3001,true,true,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,true,false,false,false,true,true,false,false,false,0,true,false,false,1,0,0,2,0,1,0,0,true,2,0,true,0,true,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,true,true,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,cl|function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0.5,false,false,0,0,false,false,false,false,3001,2,cl|function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,true,true,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshBasicMaterial basic,highp,true,true,3001,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,true,false,false,false,true,false,false,false,false,0,true,false,false,1,0,0,2,0,1,0,0,true,2,0,true,0,true,false,0,0,false,false,false,false,3001,2,function(){}",
+   "ShaderMaterial \n            uniform vec3 tint; uniform float strength; varying vec2 paneUV;\n            void main() {\n              float axis = paneUV.x + .54 * paneUV.y;\n              float sheen = smoothstep(.49,.57,axis) * (1.0 - smoothstep(.61,.71,axis));\n              float sky = smoothstep(.20,.93,paneUV.y);\n              gl_FragColor = vec4(tint, strength + .12 * sheen + .06 * sky);\n              #include <tonemapping_fragment>\n              #include <encodings_fragment>\n            },varying vec2 paneUV; void main(){ paneUV = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,true,false,true,false,false,false,false,false,true,true,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,function foliage(sh) {\n    sh.uniforms.uSway = SWAY;\n    sh.vertexShader = 'uniform float uSway;\\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\\n  float swH = clamp((position.y - 1.8) / 3.0, 0.0, 1.0), swP = dot(pos",
+   "MeshBasicMaterial basic,highp,true,true,3001,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,false,false,false,false,true,true,false,false,false,0,true,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshBasicMaterial basic,highp,true,true,3001,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,true,false,false,false,true,true,false,false,false,0,true,false,false,1,0,0,2,0,1,0,0,true,2,0,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-relief|brick|gl-facade",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,fw-relief|shop|gl-facade",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,true,false,true,false,false,false,false,false,false,false,false,false,true,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,true,true,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,true,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,true,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,function foliage(sh) {\n    sh.uniforms.uSway = SWAY;\n    sh.vertexShader = 'uniform float uSway;\\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\\n  float swH = clamp((position.y - 1.8) / 3.0, 0.0, 1.0), swP = dot(posi",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,true,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,true,1024,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,true,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshPhysicalMaterial physical,STANDARD,PHYSICAL,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshPhysicalMaterial physical,STANDARD,PHYSICAL,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,true,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,true,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}-padding-r90",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}-padding-r90",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,true,1024,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,animal-connected-r79-frame-19-true-false-anatomy78-false-def3-guard-shoulder-v1",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,true,false,false,false,false,false,true,false,true,true,false,false,true,1024,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,animal-connected-r79-frame-19-false-false-anatomy78-false-def0",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,true,1024,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,animal-connected-r79-frame-19-true-true-anatomy78-true-def3-guard-shoulder-v1",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,true,3001,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,true,false,false,true,1024,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,animal-connected-r79-frame-19-false-false-anatomy78-false-def0",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,false,false,false,true,false,false,false,false,false,false,false,false,false,true,false,false,false,true,true,false,false,true,1024,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,false,false,false,false,3001,2,animal-connected-r79-frame-19-false-false-anatomy78-false-def0",
+   "MeshDepthMaterial depth,highp,true,true,3000,true,true,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,0,true,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,true,0,0,3201,false,false,false,3001,2,function(){}",
+   "ShaderMaterial uniform sampler2D t2D;\nvarying vec2 vUv;\nvoid main() {\n\tvec4 texColor = texture2D( t2D, vUv );\n\tgl_FragColor = mapTexelToLinear( texColor );\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n},varying vec2 vUv;\nuniform mat3 uvTransform;\nvoid main() {\n\tvUv = ( uvTransform * vec3( uv, 1 ) ).xy;\n\tgl_Position = vec4( position.xy, 1.0, 1.0 );\n},highp,true,true,3001,false,false,true,3001,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,true,false,false,false,false,0,true,false,fa",
+   "MeshDepthMaterial depth,highp,true,true,3000,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,1024,true,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,true,0,0,3201,false,false,false,3001,2,function(){}",
+   "MeshDepthMaterial depth,highp,true,true,3000,false,false,false,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,1024,true,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,true,false,0,0,3201,false,false,false,3001,2,animal-connected-r79-frame-19-false-false-anatomy78-false-def0",
+   "MeshStandardMaterial physical,STANDARD,highp,true,true,3001,false,false,false,3000,false,3000,true,306,3002,true,false,3000,false,false,3000,true,false,false,true,false,false,false,false,false,false,false,false,false,true,false,true,false,true,true,false,false,false,0,true,false,false,false,1,0,0,2,0,1,0,0,true,2,4,true,0,false,false,0,0,false,false,false,false,3001,2,paws-v2",
+   "MeshBasicMaterial basic,highp,true,true,3001,false,false,true,3000,false,3000,false,3000,false,false,3000,false,false,3000,false,false,false,false,false,false,false,false,false,false,false,false,false,0,false,false,true,false,true,true,false,false,false,0,true,false,false,1,0,0,2,0,1,0,0,true,2,0,true,0,false,false,0,0,false,false,false,false,3001,2,function(){}"
+  ]
+ },
+ "open2": {
+  "rafs": 18,
+  "anims": null,
+  "openToFirstFrame": 5517,
+  "shownAt": 6289,
+  "events": [
+   {
+    "t": 0,
+    "k": "prepare start"
+   },
+   {
+    "t": 0,
+    "k": "kit start"
+   },
+   {
+    "t": 16,
+    "k": "kit end"
+   },
+   {
+    "t": 16,
+    "k": "prepare end"
+   },
+   {
+    "t": 61,
+    "k": "prepare start"
+   },
+   {
+    "t": 61,
+    "k": "prepare end"
+   },
+   {
+    "t": 71,
+    "k": "build start"
+   },
+   {
+    "t": 77,
+    "k": "first render",
+    "ms": 0
+   },
+   {
+    "t": 257,
+    "k": "build end"
+   },
+   {
+    "t": 3958,
+    "k": "outfit start"
+   },
+   {
+    "t": 3958,
+    "k": "outfit end"
+   },
+   {
+    "t": 3958,
+    "k": "pose reset start"
+   },
+   {
+    "t": 3958,
+    "k": "pose reset end"
+   },
+   {
+    "t": 3970,
+    "k": "engine frame start"
+   },
+   {
+    "t": 3992,
+    "k": "engine frame end",
+    "ms": 22
+   },
+   {
+    "t": 5507,
+    "k": "ready"
+   },
+   {
+    "t": 5508,
+    "k": "first frame start"
+   },
+   {
+    "t": 5517,
+    "k": "first frame end",
+    "ms": 8,
+    "programs": 0,
+    "textures": 0,
+    "geometries": 0,
+    "calls": 106
+   }
+  ],
+  "longTasks": [
+   {
+    "t": 71,
+    "ms": 187
+   },
+   {
+    "t": 258,
+    "ms": 2028
+   },
+   {
+    "t": 2288,
+    "ms": 276
+   },
+   {
+    "t": 2619,
+    "ms": 105
+   },
+   {
+    "t": 2725,
+    "ms": 628
+   },
+   {
+    "t": 3354,
+    "ms": 602
+   },
+   {
+    "t": 3969,
+    "ms": 807
+   },
+   {
+    "t": 4777,
+    "ms": 719
+   }
+  ],
+  "longTotal": 5352,
+  "resources": [],
+  "notes": [
+   {
+    "t": 62,
+    "text": "Building the town… 30%"
+   },
+   {
+    "t": 2564,
+    "text": "Building the town… 40%"
+   },
+   {
+    "t": 3354,
+    "text": "Building the town… 70%"
+   },
+   {
+    "t": 3960,
+    "text": ""
+   }
+  ],
+  "modelsBefore": {
+   "tree": "idle",
+   "car": "idle",
+   "bus": "idle",
+   "station": "ready",
+   "oldtown": "ready",
+   "hazelStall": "ready",
+   "props": "ready",
+   "gymProps": "idle",
+   "marketProps": "ready",
+   "dockProps": "ready",
+   "ringProps": "idle",
+   "stopProps": "ready"
+  },
+  "build": {
+   "map": 623,
+   "sets": 1030,
+   "walkable": 1759,
+   "total": 2026,
+   "warmLog": [
+    [
+     "build",
+     2030
+    ],
+    [
+     "compile",
+     276,
+     55,
+     95
+    ],
+    [
+     10,
+     95,
+     95
+    ],
+    [
+     18,
+     612,
+     95
+    ],
+    [
+     "all",
+     15,
+     589,
+     95
+    ]
+   ],
+   "warm": 3701,
+   "warmSlices": 4,
+   "programs": 95,
+   "resumed": 184,
+   "resumeTotal": 184
+  },
+  "buildMs": 196
+ }
+}

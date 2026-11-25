@@ -1,0 +1,174 @@
+{
+"rows": [
+{
+"id": "dream_bag_break",
+"W": 402,
+"H": 690,
+"js_over50": 5,
+"js_over100": 0,
+"js_max": 96.2,
+"js_p95": 18.9,
+"js_median": 4.7,
+"load_ms": 870,
+"frames": 148,
+"film_s": 79.1,
+"over50": 148,
+"over100": 148,
+"over250": 129,
+"max": 6316.5,
+"p95": 1066.6,
+"median": 416.6,
+"timedOut": false,
+"result": {
+"id": "dream_bag_break",
+"skipped": false
+},
+"stats": null,
+"long": [
+{
+"i": 7,
+"dt": 383.3,
+"js": 57.1,
+"phase": "play",
+"t": 0.8,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 14,
+"dt": 583.4,
+"js": 96.2,
+"phase": "play",
+"t": 1.5,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 20,
+"dt": 1766.6,
+"js": 91.8,
+"phase": "play",
+"t": 2.1,
+"shot": 0,
+"newPrograms": 1,
+"newTex": 1,
+"newGeo": 1
+},
+{
+"i": 82,
+"dt": 250,
+"js": 82.3,
+"phase": "play",
+"t": 8.3,
+"shot": 5,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 91,
+"dt": 1599.9,
+"js": 50.1,
+"phase": "play",
+"t": 9.2,
+"shot": 5,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_docks",
+"W": 402,
+"H": 690,
+"js_over50": 2,
+"js_over100": 0,
+"js_max": 58.3,
+"js_p95": 25.4,
+"js_median": 7.5,
+"load_ms": 10400,
+"frames": 157,
+"film_s": 117.2,
+"over50": 157,
+"over100": 157,
+"over250": 157,
+"max": 6683.1,
+"p95": 999.9,
+"median": 683.3,
+"timedOut": false,
+"result": {
+"id": "dream_docks",
+"skipped": false
+},
+"stats": {
+"quality": "auto",
+"shadows": false
+},
+"long": [
+{
+"i": 4,
+"dt": 1766.6,
+"js": 58.3,
+"phase": "play",
+"t": 0.5,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+},
+{
+"i": 5,
+"dt": 1516.7,
+"js": 53.8,
+"phase": "play",
+"t": 0.6,
+"shot": 0,
+"newPrograms": 0,
+"newTex": 0,
+"newGeo": 0
+}
+]
+},
+{
+"id": "dream_docks_after",
+"W": 402,
+"H": 690,
+"js_over50": 0,
+"js_over100": 0,
+"js_max": 30.7,
+"js_p95": 15.6,
+"js_median": 6.8,
+"load_ms": 594,
+"frames": 90,
+"film_s": 68.5,
+"over50": 90,
+"over100": 90,
+"over250": 90,
+"max": 1049.9,
+"p95": 983.3,
+"median": 800,
+"timedOut": false,
+"result": {
+"id": "dream_docks_after",
+"skipped": false,
+"outcome": "win"
+},
+"stats": {
+"quality": "auto",
+"shadows": false
+},
+"long": []
+}
+],
+"errs": [
+"console: [.WebGL-0x2a2c001c1000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+"console: [.WebGL-0x2a2c001c1000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+"console: [.WebGL-0x2a2c001c1000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+"console: [.WebGL-0x2a2c001c1000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+]
+}
