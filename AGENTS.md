@@ -32,3 +32,11 @@ At the START of every new task/session, open and review [`docs/glory-of-the-ring
 Nothing in the game is specific to one language. Every player-visible text exists in all supported languages (EN/HE/RU) and follows the player's language setting in every mode, page and film. An example given in one language is only an example: implement it in all languages. Never ship single-language UI.
 
 Layout direction is always left-to-right, in every language (owner, 2026-11-23: "Hebrew will not change sides anywhere. Left to right will be kept"). Do not mirror layouts, panels, controls or the pad for Hebrew and never set `dir="rtl"` on containers; Hebrew text still reads naturally inside its own line (use `dir="auto"` or bidi isolation on individual text elements only where punctuation would otherwise jump).
+
+## Avatars and character parts: joins must be checked (owner rule, 2026-11-25)
+
+Owner: "for all your work on avatars, check those kind of things ... how it make sense that you change the head and not check that it is not fit smoothly on the body". Any change to a character's head, body, hands, clothes or props is not done, and must not be merged or released, until every join between parts is checked:
+- Look at each seam (head–neck–collar, neck–shoulders, wrists–gloves/paws, waist–trousers, ankles–shoes, hair/kerchief/cap–ears, held props–hands) from the front, side, back, below (camera at chest height looking up) and 3/4, at phone size, in the rest pose and in motion (talk, walk, guard, punch, reach, knockdown where they occur). Close-ups, not only full-body shots.
+- Fail on: visible cut edges, rims, flares or fringes; gaps or see-through slits; parts poking through clothes or skin; doubled parts (old + new); colour or texture steps across a seam; floating pieces.
+- Add an automated check where possible (e.g. the lowest ring of a new head mesh must stay inside the body/collar in every tested pose; no vertex of one part outside its allowed envelope).
+- The report and the owner's before/after pictures must include these seam close-ups. A seam nobody looked at is a failed check, not a pass.
