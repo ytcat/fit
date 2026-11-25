@@ -164,7 +164,7 @@
    if(Math.abs(c.fov-fov)>1e-6){c.fov=fov;c.updateProjectionMatrix();}}
   place(p){
    const c=this.engine.camera,l=this.limits(),stage=l.stage&&this.engine.arena?.mode!=='none'?l.stage:null;let cy=p.cy,dist=l.radius&&this.mode==='intro'?Math.min(p.dist,l.radius):p.dist;
-   if(stage){stage.updateMatrixWorld?.(true);const s=stageFit({...p,dist},stage.userData.cameraStage,stage.matrixWorld);dist=s.dist;cy=s.cy;this.lens(s.lens);}else this.lens(1);
+   if(stage){stage.updateWorldMatrix?.(true,false);const s=stageFit({...p,dist},stage.userData.cameraStage,stage.matrixWorld);dist=s.dist;cy=s.cy;this.lens(s.lens);}else this.lens(1);
    if(l.top)cy=Math.min(cy,l.top);
    c.position.set(p.lx+Math.sin(p.angle)*dist,cy,p.lz+Math.cos(p.angle)*dist);c.lookAt(p.lx,Math.min(p.ly,cy),p.lz);c.updateMatrixWorld(true);
   }

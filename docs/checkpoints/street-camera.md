@@ -14,4 +14,6 @@ Branch `agent/street-camera` (from `origin/claude/ecstatic-clarke-9as2ak` ad1247
 - WIP: first run of the test; tune rooms; screenshots `qa/street-camera/`; backlog entry.
 
 ## Checks
-- (pending)
+- NONE run. Stopped by the owner 2026-11-25 (pause for a few days) mid-work; last uncommitted edits saved as WIP.
+- Untested: tests/ringless-camera.test.cjs has never passed or been run to completion. Do not merge before running it,
+  the camera tests, ringless-story-end, rourke-cast, fight-result-raise and the before/after screenshots (393x852).

@@ -55,14 +55,14 @@ function measure(group,label){
  out.inside=enclosed(c,list);
  for(const a of ['lion','rabbit'])for(const j of ['head','chest']){
   const p=view.coaches[a].joints[j].getWorldPosition(V()),d=p.clone().sub(c),len=d.length();d.normalize();ray.set(c,d);ray.near=0;ray.far=Math.max(0,len-.18);
-  const hit=ray.intersectObjects(list,false)[0];if(hit)out.blocked.push(`${a} ${j} at ${hit.distance.toFixed(2)} m`);
+  const hit=ray.intersectObjects(list,false)[0];if(hit)out.blocked.push(`${a} ${j} at ${hit.distance.toFixed(2)} m by ${hit.object.name} at ${group.worldToLocal(hit.point.clone()).toArray().map(n=>n.toFixed(2))}`);
  }
  return out;
 }
 function frame(dt,fight=true){
  const d=e.cameraDirector;d.update(dt);if(!d.holdsClock)e.animTime+=dt;
  if(fight)e.arena.update(e.animTime,e.technique,e.currentAnim);
- e.world.update(e.animTime,'fight');e.camera.updateMatrixWorld(true);e.scene.onBeforeRender(null,e.scene,e.camera);
+ e.world.update(e.animTime,'fight');e.scene.updateMatrixWorld(true);e.camera.updateMatrixWorld(true);e.scene.onBeforeRender(null,e.scene,e.camera);
 }
 // The fighters anywhere on the floor circle (the bout keeps them inside 2.3 m): circling, closing, separating.
 function place(i){
@@ -73,13 +73,13 @@ function place(i){
 }
 
 const report=[];let failures=0;
-for(const id of ['street','docks','underground']){
+for(const id of (process.env.RINGLESS_CAMERA_ONLY||'street,docks,underground').split(',')){
  venues.apply(e,id,'en');const group=e.world.arena.children.find(n=>n.userData.arenaSet);assert.ok(group,id+' set built');group.userData.setId=id;
  for(const [screen,aspect] of ASPECTS){
   e.camera.aspect=aspect;e.camera.fov=38;e.camera.zoom=1;e.camera.updateProjectionMatrix();stored.clear();
-  e.viewControls.yaw=0;e.arena.group.rotation.y=.9;e.animTime=0;
+  e.viewControls.yaw=0;e.arena.group.rotation.y=e.world.arena.rotation.y=.9;e.animTime=0;
   e.cameraDirector=new CameraDirector(e);
-  e.arena.setTarget('fight');e.arena.group.rotation.y=.9;e.world.update(0,'fight');
+  e.arena.setTarget('fight');e.arena.group.rotation.y=e.world.arena.rotation.y=.9;e.world.update(0,'fight');
   const samples={intro:[],free:[],lock:[],ceremony:[]};
   // 1. the intro orbit, every frame
   let n=0;frame(STEP);assert.equal(e.cameraDirector.mode,'intro',id+' '+screen+': the intro orbit runs');assert.ok(e.arena.fightView.ringless,id+' is ringless');
