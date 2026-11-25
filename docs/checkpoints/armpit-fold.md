@@ -48,7 +48,7 @@ folds inside the pressed front armpit of the thick cardigan (AUDIT #18).
 - `backface-counts.json` (visible back faces per frame, before / after), `crossings.json` (per character and pose).
 
 ## Tests
-`tests/armpit-fold.test.cjs` (new, ~80 s; fails on the old tree: first failure "torso relief continuous across |x| 0.3 ...
+Re-run on the final tree (14f80d6), all 17 PASS. `tests/armpit-fold.test.cjs` (new, ~80 s; fails on the old tree: first failure "torso relief continuous across |x| 0.3 ...
 11.1 mm apart"; old values also break every other gate). Ran -j 1, all PASS: armpit-fold, avatar-joins, shoulder-corrective,
 muscle-definition, coach, avatar-surface, avatar-detail, avatar-normal-frame, shoulder-motion, story-street-wear,
 story-cast-market, rourke-cast, accessory-gear-fit, head-seams, knockdown-floor, film-performance, offline-version-match.
