@@ -1,11 +1,12 @@
 // qa/armpit-fold/backface.js — page snippet (STUDIO_AFTER for qa/avatar-joins/studio.cjs): paints every VISIBLE BACK FACE of the
 // skin (and of the clothes) in the shoulder/armpit region pure magenta. A closed, unfolded surface seen from outside shows only
 // front faces, so any magenta pixel is skin folded through itself, a pin-hole or a slit (cloth open edges far from the shoulder
-// - hems, cuffs, the hood opening - are outside the region). Fur, mane and hair are left as they are (double-sided by design).
+// - hems, cuffs, the hood opening - are outside the region). Fur, mane, hair and flat straps are left as they are (double-sided
+// by design).
 // Region: rest |x| .14-.56, y 1.22-1.92 (the armpit, deltoid, pectoral and back-of-armpit folds of every rig).
 (() => {
   const c = window.__aj, list = [c.skin];
-  c.root.traverse(o => { if (o.isSkinnedMesh && o !== c.skin && o !== c.bodyFur && !o.userData.mane && o.material && !Array.isArray(o.material)) list.push(o); });
+  c.root.traverse(o => { if (o.isSkinnedMesh && o !== c.skin && o !== c.bodyFur && !o.userData.mane && !/strap|duffel|bag|piping/i.test(o.name) && o.material && !Array.isArray(o.material)) list.push(o); });
   for (const m of list) {
     const mat = m.material, prev = mat.onBeforeCompile, key = mat.customProgramCacheKey;
     mat.side = THREE.DoubleSide;
