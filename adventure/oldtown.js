@@ -614,10 +614,13 @@
     if (res?.ok && res.coins) toast(fill(W().coins, { n: res.coins }), 'coin');
     pendingAfter = true; const at = { ok: d.any ? !!res?.ok : won && !!res?.ok, won, coins: res?.ok ? res.coins : 0 };
     const after = () => { pendingAfter = false; if (at.ok && walkOn()) return; openMap(pin, () => afterBeat(r.id, at)); }; // GOTR-0122
-    window.RinglessVenues?.release(window.app?.engine, true); // the street/Docks bout is over: gloves, outfit and hand gear back on the Fighter
+    // The street/Docks bout keeps its ringless look (no ring, no referee, bare hands, street clothes) until the next screen covers
+    // it: gloves, outfit and hand gear go back in the same task that opens the film or the map, so no frame shows the ring or the
+    // boxing kit in the street (owner report on v1.97: after the KO of Fang the ring, the referee and the gloves came back).
+    const handBack = () => window.RinglessVenues?.release(window.app?.engine, true);
     const S = window.StoryScenes;
-    if (d.after && res?.ok && S && (S.sceneIds || []).includes(d.after)) setTimeout(() => { restoreCast(r); rg()?.close?.(); S.play(d.after, { outcome: won ? 'win' : 'loss', onDone: after }); }, 600); // Brick stays in the room until the scene takes over
-    else { restoreCast(r); setTimeout(after, 1200); }
+    if (d.after && res?.ok && S && (S.sceneIds || []).includes(d.after)) setTimeout(() => { handBack(); restoreCast(r); rg()?.close?.(); S.play(d.after, { outcome: won ? 'win' : 'loss', onDone: after }); }, 600); // Brick stays in the room until the scene takes over
+    else setTimeout(() => { handBack(); restoreCast(r); after(); }, 1200);
   }
   // ---- story flow (GOTR-0060): title cards, first open, Continue button, chapter goal, recap ----
   const CH_TITLE = { 1: L('The Dream', 'החלום', 'Мечта'), 2: L('Junior League', 'ליגת הנוער', 'Юниорская лига'), 3: L('The Underground', 'המחתרת', 'Подполье'), 4: L('Rising', 'בדרך למעלה', 'Восхождение'), 5: L('The Championship', 'האליפות', 'Чемпионат') };
