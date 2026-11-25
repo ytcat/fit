@@ -430,16 +430,22 @@
       const bell=(v,c,r)=>Math.exp(-(((v-c)/r)**2));
       for(let i=0;i<p.count;i++) {
         let x=p.getX(i),y=p.getY(i),z=p.getZ(i);
-        if(Math.abs(x)<.30&&y>1.12&&y<1.70) {
-          const edge=bell(x,0,.27),front=smooth((z-.04)/.09),back=smooth((-z-.04)/.08);
+        // GOTR-0127 #5/#7: the torso relief used to end at a hard border (|x| .30, y 1.12 / 1.70). The 7 % chest
+        // widening jumped ~2 cm there, so the front and back axillary folds of the REST surface folded through
+        // themselves (436 crossing triangle pairs: the crack and pin-holes along the deltoid-pectoral and back
+        // armpit lines, worse with the arm raised, and the cracks in clothes painted on the skin). The relief now
+        // fades out across the axilla (|x| .24-.36) and at its top and bottom: monotonic in x, no step anywhere.
+        const torso=(1-smooth((Math.abs(x)-.24)/.12))*smooth((y-1.08)/.07)*(1-smooth((y-1.66)/.10));
+        if(torso>0) {
+          const edge=bell(x,0,.27)*torso,front=smooth((z-.04)/.09),back=smooth((-z-.04)/.08);
           const abs=(bell(x,.070,.045)+bell(x,-.070,.045))*(bell(y,1.22,.045)+bell(y,1.32,.045)+bell(y,1.41,.042));
           const pec=(bell(x,.14,.095)+bell(x,-.14,.095))*bell(y,1.54,.075);
           const blades=(bell(x,.15,.07)+bell(x,-.15,.07))*bell(y,1.53,.12);
           const serratus=bell(Math.abs(x),.225,.038)*(bell(y,1.37,.022)+bell(y,1.435,.022)+bell(y,1.495,.020));
           z+=front*(.020*abs+.032*pec+.009*serratus-.008*bell(x,0,.018)*bell(y,1.40,.25))*edge;
           z-=back*(.028*blades+.012*bell(Math.abs(x),.22,.055)*bell(y,1.42,.13)-.010*bell(x,0,.025)*bell(y,1.45,.24))*edge;
-          x+=Math.sign(x)*.008*bell(Math.abs(x),.19,.06)*bell(y,1.28,.15);
-          x*=1+.070*bell(y,1.56,.14)-.035*bell(y,1.22,.12);
+          x+=Math.sign(x)*.008*bell(Math.abs(x),.19,.06)*bell(y,1.28,.15)*torso;
+          x*=1+(.070*bell(y,1.56,.14)-.035*bell(y,1.22,.12))*torso;
         }
         // Rounded quadriceps and calf bellies, tapered at the knee and ankle.
         if(y<.95&&y>.20&&Math.abs(x)>.08&&Math.abs(x)<.32) {
