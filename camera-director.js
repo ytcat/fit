@@ -20,6 +20,27 @@
  function fitDistance(width,height,fov,aspect){const t=Math.tan(fov*Math.PI/360);return Math.max(height/(2*t),width/(2*t*Math.max(.2,aspect)))*1.10+.45;}
  // Orbit pose at intro progress u (0..1) around the pose the intro must end on. At u=1 it IS that pose.
  function introPose(end,u){const r=1-Math.sin(Math.min(1,Math.max(0,u))*Math.PI/2);return {lx:end.lx,ly:end.ly+INTRO.lookRise*r,lz:end.lz,angle:end.angle-INTRO.turn*r,dist:end.dist+INTRO.pullBack*r,cy:end.cy+INTRO.rise*Math.pow(r,1.3)};}
+ // GOTR-0129: a ringless set (the Street, the Docks hangar, the Basement) has no grandstand to stand behind: facades, parked cars,
+ // awnings, container stands and walls stand where a portrait phone would push the camera (10-13 m back). Such a set declares
+ // the floor the camera may stand over (set.userData.cameraStage: room = polygon in set space, inside the walls and clear of
+ // cars and props; top = highest lens, under banners, lamps and hooks; rise = how much higher per metre of distance, to look
+ // over the heads of the people round the fight; pitch = steepest broadcast angle; lens = widest lens, as a zoom-out factor).
+ // The camera keeps its direction and never leaves that floor; the distance it loses it takes back by rising up to that angle,
+ // then by widening the lens. Every quantity is continuous in the pose, so an orbit or a follow never jumps.
+ function stageFit(p,spec,matrix){
+  const inv=new THREE.Matrix4().copy(matrix).invert(),o=new THREE.Vector3(p.lx,0,p.lz).applyMatrix4(inv),d=new THREE.Vector3(Math.sin(p.angle),0,Math.cos(p.angle)).transformDirection(inv);
+  // Distance from the look point along the camera's bearing to the edge of the room (first crossing of the polygon).
+  const room=spec.room;let exit=Infinity;
+  for(let i=0;i<room.length;i++){const a=room[i],b=room[(i+1)%room.length],ex=b[0]-a[0],ez=b[1]-a[1],den=d.x*ez-d.z*ex;if(Math.abs(den)<1e-9)continue;
+   const ax=a[0]-o.x,az=a[1]-o.z,t=(ax*ez-az*ex)/den,u=(ax*d.z-az*d.x)/den;if(t>=0&&u>=0&&u<=1&&t<exit)exit=t;}
+  if(!Number.isFinite(exit))exit=p.dist;
+  const ly=p.ly,need=Math.hypot(p.dist,Math.max(0,p.cy-ly)),dist=Math.max(0,Math.min(p.dist,exit)),top=spec.top||Infinity;
+  let cy=Math.max(p.cy,ly+(spec.rise||0)*dist);
+  if(dist<p.dist)cy=Math.max(cy,ly+Math.min(Math.sqrt(Math.max(0,need*need-dist*dist)),dist*(spec.pitch||0)));
+  cy=Math.min(cy,top);
+  const lens=Math.min(spec.lens||1,Math.max(1,need/Math.max(.1,Math.hypot(dist,cy-ly))));
+  return {dist,cy,lens};
+ }
  class CameraDirector {
   constructor(engine){
    this.engine=engine;this.mode='free';this.locked=false;this.pose=null;this.side=1;this.subjectKey='';this.direction=null;this.intro=null;this.seenFight=null;this.savedZoom=1;this.settleZoom=false;this.lang='';this.last='';
@@ -87,7 +108,7 @@
    let len=Math.hypot(fx,fz);if(len<.2){const y=a.group?a.group.rotation.y:0;fx=Math.sin(y);fz=Math.cos(y);len=1;}fx/=len;fz/=len;
    const mx=P.reduce((t,p)=>t+p.x,0)/P.length,mz=P.reduce((t,p)=>t+p.z,0)/P.length,gap=P.length>1?Math.hypot(P[1].x-P[0].x,P[1].z-P[0].z):0;
    const c=e.camera,width=ceremony?Math.max(2.8,gap+1.6):1.9,frame=ceremony?2.75:(e.coach.species==='rabbit'?3.12:2.86);
-   const free=this.freePose(),dist=Math.min(12.5,fitDistance(width,frame,c.fov,c.aspect));
+   const free=this.freePose(),dist=Math.min(12.5,fitDistance(width,frame,this.fov(),c.aspect));
    return {key:ceremony?'ceremony':'rope-front',goal:{lx:mx,ly:free.ly,lz:mz,angle:Math.atan2(fx,fz),dist,cy:free.cy+(ceremony?Math.max(0,dist-5.2)*.42:0)}};
   }
   // True side view: perpendicular to the line between the subjects, both framed with reach to spare.
@@ -113,7 +134,7 @@
    this.direction={x:dx,z:dz};
    const width=Math.max(2.4,b?gap+1.0:2.4);
    // Look height and camera height are the station's own free framing: the tilt is the one the player knows.
-   const free=this.freePose(),dist=Math.min(12.5,fitDistance(width,s.frame,c.fov,c.aspect));
+   const free=this.freePose(),dist=Math.min(12.5,fitDistance(width,s.frame,this.fov(),c.aspect));
    // A narrow (portrait) screen pushes the camera back behind the arena's grandstand: rise with distance to see over it.
    return {lx:mx,ly:free.ly,lz:mz,angle:Math.atan2(this.side*dz,-this.side*dx),dist,cy:free.cy+(s.key==='fight'?Math.max(0,dist-5.2)*.42:0)};
   }
@@ -131,9 +152,30 @@
   // A built arena can declare camera limits on its set group: a low ceiling (the Basement) and a radius
   // that keeps the intro orbit inside interior walls. Without them the orbit rises above the slab or passes
   // behind partitions and the screen goes black. Rechecked once a second.
-  limits(){const now=typeof performance!=='undefined'?performance.now():Date.now();if(!(now-this.limitsAt<1000)){this.limitsAt=now;let top=0,radius=0;this.engine.scene?.traverse?.(n=>{const u=n.userData;if(!u||n.visible===false)return;if(u.cameraCeiling>0&&(!top||u.cameraCeiling<top))top=u.cameraCeiling;if(u.cameraRadius>0&&(!radius||u.cameraRadius<radius))radius=u.cameraRadius;});this.limitsNow={top,radius};}return this.limitsNow||{top:0,radius:0};}
+  // GOTR-0129: a ringless set also declares its camera floor (cameraStage, see stageFit); the node is kept to read its placement.
+  limits(){const now=typeof performance!=='undefined'?performance.now():Date.now();if(!(now-this.limitsAt<1000)){this.limitsAt=now;let top=0,radius=0,stage=null;this.engine.scene?.traverse?.(n=>{const u=n.userData;if(!u||n.visible===false)return;if(u.cameraCeiling>0&&(!top||u.cameraCeiling<top))top=u.cameraCeiling;if(u.cameraRadius>0&&(!radius||u.cameraRadius<radius))radius=u.cameraRadius;if(u.cameraStage&&!stage&&this.shown(n))stage=n;});this.limitsNow={top,radius,stage};}return this.limitsNow||{top:0,radius:0,stage:null};}
+  shown(n){for(let q=n;q;q=q.parent)if(q.visible===false)return false;return true;}
   ceiling(){return this.limits().top;}
-  place(p){const c=this.engine.camera,l=this.limits(),cy=l.top?Math.min(p.cy,l.top):p.cy,dist=l.radius&&this.mode==='intro'?Math.min(p.dist,l.radius):p.dist;c.position.set(p.lx+Math.sin(p.angle)*dist,cy,p.lz+Math.cos(p.angle)*dist);c.lookAt(p.lx,Math.min(p.ly,cy),p.lz);c.updateMatrixWorld(true);}
+  // The lens the framing is computed with: the camera's own, not the one widened for a ringless set.
+  fov(){return this.lensBase||this.engine.camera.fov;}
+  // Widen (k > 1) or give back the lens; the camera's own field of view is restored exactly.
+  lens(k){const c=this.engine.camera;if(!(k>1.0005)&&!this.lensBase)return;if(!this.lensBase)this.lensBase=c.fov;
+   const fov=k>1.0005?2*Math.atan(Math.tan(this.lensBase*Math.PI/360)*k)*180/Math.PI:this.lensBase;if(!(k>1.0005))this.lensBase=null;
+   if(Math.abs(c.fov-fov)>1e-6){c.fov=fov;c.updateProjectionMatrix();}}
+  place(p){
+   const c=this.engine.camera,l=this.limits(),stage=l.stage&&this.engine.arena?.mode!=='none'?l.stage:null;let cy=p.cy,dist=l.radius&&this.mode==='intro'?Math.min(p.dist,l.radius):p.dist;
+   if(stage){stage.updateMatrixWorld?.(true);const s=stageFit({...p,dist},stage.userData.cameraStage,stage.matrixWorld);dist=s.dist;cy=s.cy;this.lens(s.lens);}else this.lens(1);
+   if(l.top)cy=Math.min(cy,l.top);
+   c.position.set(p.lx+Math.sin(p.angle)*dist,cy,p.lz+Math.cos(p.angle)*dist);c.lookAt(p.lx,Math.min(p.ly,cy),p.lz);c.updateMatrixWorld(true);
+  }
+  // Free orbit in a ringless set: RingCamera keeps the player's orbit, the camera itself stays on the set's floor.
+  staged(){const l=this.limits();return !!(l.stage&&this.engine.arena?.mode!=='none'&&this.engine.viewControls?.offset);}
+  freeStage(){
+   const v=this.engine.viewControls,c=this.engine.camera;
+   if(!this.staged()){if(this.freeStaged||this.lensBase){this.freeStaged=false;this.lens(1);v.apply();return this.moved('free');}return false;}
+   this.freeStaged=true;const p=this.freePose();this.place(p);
+   return this.moved(['stage',p.lx,p.ly,p.lz,p.angle,p.dist,p.cy,c.zoom,c.fov].map(n=>typeof n==='number'?n.toFixed(5):n).join());
+  }
   startIntro(){this.intro={t:0,seconds:INTRO.seconds};if(this.mode==='free')this.savedZoom=this.engine.camera.zoom;this.mode='intro';this.pose=null;if(this.hint)this.hint.hidden=false;}
   // A tap ends the orbit: the camera takes the short way from where it is to the fight framing.
   skipIntro(){
@@ -144,10 +186,10 @@
   // Called once per displayed frame, before drawing. Returns true when the camera moved.
   update(dt){
    const e=this.engine,c=e.camera,v=e.viewControls;if(!c||!v||!v.target||!v.offset)return false;
-   this.paint();dt=Math.min(Math.max(dt||0,0),.05);if(this.suspended){if(this.mode==='intro')this.skipIntro();return false;}
+   this.paint();dt=Math.min(Math.max(dt||0,0),.05);if(this.suspended){if(this.mode==='intro')this.skipIntro();this.lens(1);return false;}
    const fight=e.arena&&e.arena.mode==='fight'?e.arena.fightView:null;
    if(fight!==this.seenFight){
-    this.seenFight=fight;
+    this.seenFight=fight;this.limitsAt=-Infinity; // a new bout may stand in a new set: read its camera limits now
     if(this.mode==='intro'&&!fight)this.skipIntro();
     if(fight&&fight.match&&fight.match.phase==='intro'&&!(fight.match.time>.05)&&!this.reducedMotion())this.startIntro();
    }
@@ -155,14 +197,14 @@
    if(this.mode==='free'){
     if(!this.locked&&ceremony&&this.stagedFight!==fight&&this.subjects()){this.stagedFight=fight;this.engage();this.autoStaged=true;}
     else if(!this.locked&&cornerBreak&&(this.stagedBreak?.fight!==fight||this.stagedBreak.round!==breakKey)&&this.subjects()){this.stagedBreak={fight,round:breakKey};this.engage();this.autoStaged=true;}
-    else{if(!this.locked||!this.subjects())return false;this.engage();}
+    else{if(!this.locked||!this.subjects())return this.freeStage();this.engage();}
    }
    if(this.mode==='lock'&&this.autoStaged&&(this.locked||!(ceremony||cornerBreak))){this.autoStaged=false;if(!this.locked)this.mode='release';}
    let pose;
    if(this.mode==='intro'){
     const i=this.intro;i.t+=dt;
     const end=this.locked?this.follow(dt,!this.pose):this.freePose();pose=introPose(end,i.t/i.seconds);
-    if(i.t>=i.seconds){this.intro=null;if(this.hint)this.hint.hidden=true;if(this.locked){this.mode='lock';this.pose=end;}else{this.mode='free';this.pose=null;v.apply();return this.moved('free');}}
+    if(i.t>=i.seconds){this.intro=null;if(this.hint)this.hint.hidden=true;if(this.locked){this.mode='lock';this.pose=end;}else{this.mode='free';this.pose=null;v.apply();return this.freeStage()||this.moved('free');}}
    }else if(this.mode==='lock'){
     pose=this.follow(dt);
     if(this.settleZoom){c.zoom+=(1-c.zoom)*ease(dt,.3);if(Math.abs(c.zoom-1)<.004){c.zoom=1;this.settleZoom=false;}c.updateProjectionMatrix();}
@@ -171,7 +213,7 @@
     const g=this.freePose(),p=this.pose||g;
     for(const key of ['lx','ly','lz','cy','dist'])damp(p,key,g[key],.22,dt);damp(p,'angle',g.angle,.22,dt,true);
     c.zoom+=(this.savedZoom-c.zoom)*ease(dt,.16);c.updateProjectionMatrix();pose=p;
-    if(Math.abs(wrap(g.angle-p.angle))<.004&&Math.abs(g.dist-p.dist)<.01&&Math.hypot(g.lx-p.lx,g.ly-p.ly,g.lz-p.lz,g.cy-p.cy)<.01){this.mode='free';this.pose=null;c.zoom=this.savedZoom;c.updateProjectionMatrix();v.apply();return this.moved('free');}
+    if(Math.abs(wrap(g.angle-p.angle))<.004&&Math.abs(g.dist-p.dist)<.01&&Math.hypot(g.lx-p.lx,g.ly-p.ly,g.lz-p.lz,g.cy-p.cy)<.01){this.mode='free';this.pose=null;c.zoom=this.savedZoom;c.updateProjectionMatrix();v.apply();return this.freeStage()||this.moved('free');}
    }
    if(!pose)return false;this.place(pose);
    return this.moved([pose.lx,pose.ly,pose.lz,pose.angle,pose.dist,pose.cy,c.zoom].map(n=>n.toFixed(5)).join());

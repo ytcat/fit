@@ -371,6 +371,8 @@
  function underground(k){
   const G=-.015,H=8.5,C=3.25,concrete=lin('#6f6d69'),wall=lin('#5d5b57'),soot=lin('#33322f'),rust=lin('#7a4a36'),steel=lin('#6d7378'),yellow=lin('#c9a02c'),black=lin('#17181a');
   k.ceiling=C;k.cameraRadius=6; // cameras stay under the low slab and inside the room's partitions (read by camera-director.js)
+  // GOTR-0129: the camera floor (camera-director.js stageFit): inside the chain-link square's outer people, clear of the drums and crates by the walls.
+  k.cameraStage={room:[[-6.2,-4],[-4,-6.2],[4,-6.2],[6.2,-4],[6.2,4],[4,6.2],[-4,6.2],[-6.2,4]],rise:.2,pitch:.2,lens:1.6};
   k.ambient={sky:[.006,.006,.008],ground:[.018,.016,.014]};
   k.lights.push({x:0,y:2.9,z:0,c:[1,.94,.80],power:4.0,r:2.4,wrap:.35,aim:[0,-1,0],cone:[-.25,.45]});
   const bulbs=[[4.35,4.35],[-4.35,4.35],[4.35,-4.35],[-4.35,-4.35],[0,6.7],[0,-6.7],[6.7,0],[-6.7,0]];
@@ -438,6 +440,9 @@
  // ---------------------------------------------------------------- street
  function street(k){
   const G=-.015,KERB=6.3,FACE=9.2,asphalt=lin('#4c4f58'),paving=lin('#8f8c86'),white=lin('#d9d9d2'),black=lin('#16171a'),steel=lin('#50565c'),SKY=0x121a36,sky=lin('#121a36');
+  // GOTR-0129: the camera floor (camera-director.js stageFit): between the facades and the parked cars' far edge, up the street to the last shops,
+  // under the banners strung across it (bottom 3.2 m); it rises over the people round the fight and widens the lens on a tall phone.
+  k.cameraStage={room:[[-11.5,-5.6],[-9.5,-7.2],[9.5,-7.2],[11.5,-5.6],[11.5,5.6],[9.5,7.2],[-9.5,7.2],[-11.5,5.6]],top:3.1,rise:.2,pitch:.27,lens:1.55};
   k.ambient={sky:[.022,.03,.062],ground:[.012,.011,.014]};
   const lamps=[[5.4,-KERB-.25],[-5.4,-KERB-.25],[5.4,KERB+.25],[-5.4,KERB+.25]];
   for(const [x,z] of lamps)k.lights.push({x,y:5.0,z:z*.86,c:[1,.56,.2],power:4.4,r:3.4,wrap:.3,aim:[0,-1,0],cone:[.1,.8]});
@@ -640,6 +645,8 @@
  // ---------------------------------------------------------------- docks hangar
  function docks(k){
   const G=-.015,HX=15,HZ=11,E=7,R=9.6,SKY=0x0d1326,sky=lin('#0d1326'),concrete=lin('#585b5f'),steel=lin('#59636c'),black=lin('#15171a'),yellow=lin('#d0aa1e'),HEX=['#8a3a2a','#2f5a80','#3f6a48','#b8642a','#6a6f76','#7a2f3a','#2f6a70'],paints=HEX.map(lin);
+  // GOTR-0129: the camera floor (camera-director.js stageFit): inside the container stands, clear of the forklift corner, under the crane hook (3.8 m).
+  k.cameraStage={room:[[-9.4,-2.2],[-4.6,-6.2],[9.4,-6.2],[9.4,6.2],[-9.4,6.2]],top:3.5,rise:.2,pitch:.27,lens:1.55};
   // Blender props where the model is loaded (dock-props.py; k.prop false = the generated piece, never both): the drum paint nearest each colour
   const DRUM={'#8a3a2a':'red','#2f5a80':'blue','#3f6a48':'green','#b8642a':'rust','#6a6f76':'blue','#7a2f3a':'red','#2f6a70':'green'},drum=(key,x,z,hex,ry)=>k.prop(key,'Oil_drum_'+(DRUM[hex]||'rust'),x,G,z,ry);
   k.ambient={sky:[.018,.022,.036],ground:[.022,.019,.016]};
@@ -773,6 +780,7 @@
   const mood=builders[id](k),made=k.finish(id),paint=l=>k.atlas.paint({lang:l,title:title&&(title[l]||title.en)||''});paint(lang);
   if(k.ceiling)made.group.userData.cameraCeiling=k.ceiling-.9; // clear of beams, pipes and lamps hung from the slab
   if(k.cameraRadius)made.group.userData.cameraRadius=k.cameraRadius;
+  if(k.cameraStage)made.group.userData.cameraStage=k.cameraStage; // GOTR-0129: where the camera may stand in a ringless set
   let disposed=false;
   // mood.ring===false (GOTR-0065): the fight is staged on the floor; ringless-venues.js hides the ring hardware and the referee.
   return {id,lang,group:made.group,mood,ring:mood.ring!==false,sectors:made.sectors,stats:{triangles:made.triangles,meshes:made.meshes,texture:[k.atlas.w,k.atlas.h],people:made.people,props:k.placed||{}},
