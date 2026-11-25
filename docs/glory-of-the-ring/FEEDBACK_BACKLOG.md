@@ -1038,6 +1038,41 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Evidence:** `qa/hazel-trellis/` (studio before/after, neck seams, robbery and reward films before/after with head close-ups, portrait). Draw calls -22 and -33k triangles when she is on screen. Test `tests/hazel-head.test.cjs`.
 - **Owner follow-up on v1.96 (2026-11-25, Hazel's side view): "what is in her neck?"** — READY FOR QA on `fix/hazel-neck` (handoff `docs/checkpoints/hazel-neck-fix.md`). Found: the ragged ring under her jaw was her own body skin (the code jaw starts right above the cardigan and was only partly folded under the model); her model also kept the scarf's holes and flared rim near the collar. Fang had the same skin fault under his jaw (jacket and fight top). Fixed: the skin above the neckline/collar goes into a column inside each model's neck (dress neckline slopes in to meet Hazel's neck); Hazel's model has a clean neck tube in her neck's own colours below the jaw, the scarf rim removed; face, kerchief and drape unchanged. New `tests/head-seams.test.cjs` checks the joins in every tested pose (Fang 11 poses incl. punches and the knockdown; Hazel 93 film/talk/walk poses) and fails on v1.96. Evidence `qa/hazel-trellis/neck-fix-before-after.webp`, `hazel-seams-before-after.webp`, `fang-seams-jacket-before-after.webp`, `fang-seams-fight-before-after.webp`.
 
+### GOTR-0138 — Market robbery film: Fang does not read as snatching the bag, fleeing Hazel, and being stopped
+- **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone; reminder of an earlier remark: "I don't like how Fang come and get the bag. Doesn't look he's coming taking the bag by force and then running from Hazel and then the player is stopping him suddenly. It doesn't look like this at all").
+- **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
+- **Wanted:** a clear, believable beat: Fang approaches and grabs Hazel's bag by force, runs away from her, the Fighter cuts him off and stops him (not a sudden stop). Film `dream_market_robbery` (adventure/story/market-core.js / dream-scenes.js).
+
+### GOTR-0137 — Replace the mopping mini-game (clean_gym) with something more interesting
+- **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "I think we need to change the mopping game, its very bad, maybe we should build some other game inside, something that is related but more interesting and intriguing").
+- **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
+- **Needed first:** a short design proposal (2–3 related, more engaging mini-game options for the gym chore beat) for the owner to choose. tests/story-clean-gym.test.cjs (real touchscreen tap) must keep passing or be replaced with an equal real-tap test.
+
+### GOTR-0136 — Free walk HUD: no "Free walk" label, Run button, go-to-destination button, zoom buttons higher
+- **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "take off the free walk text when you free walk and move the zoom buttons up. Instead of zoom buttons add run button that will make him run. Also add get to destination button somewhere to skip free walk").
+- **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
+- **Wanted:** hide the FREE WALK / district card while walking; a Run button (hold or toggle) in the zoom buttons' place; zoom controls moved higher; a "go to destination" button that skips the walk to the story's next place (EN/HE/RU, LTR).
+
+### GOTR-0135 — Free walk camera: super zoom into the lion's hair near objects
+- **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "If i get close to object it do super zoom into the lion and i see his hair only and not the street at all, for example it happens a lot in the market").
+- **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
+- **Likely area:** the walk camera's collision pull-in (free-walk.js camera vs stalls/awnings). Expect: the camera keeps a minimum distance / goes up or fades occluders instead of collapsing onto the head.
+
+### GOTR-0134 — Free walk movement: faster walk, accurate direction arrow, objects block the way
+- **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "The walk in the street has to be faster, and arrows that show direction have to be more accurate, there a lot of objects in the street that holding the walk like after docs fight i barely managed to get out of the hangar" and "Improve how i can walk between objects, when i do between market stands i cannot easily pass").
+- **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
+- **Points:** walk speed up (FreeWalkCore SPEED 2.22 m/s); the guidance arrow should point along the walkable route, not straight-line; collision too tight (Docks hangar exit after the Docks fight, gaps between Market Row stalls): widen passages / slide along obstacles.
+
+### GOTR-0133 — Free walk joystick sticks and goes the wrong way
+- **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "You have issues with joystick, it stuck a lot and sometimes you move up and it goes right").
+- **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
+- **Points:** the stick sticks (touch end/cancel not releasing, or the floating stick re-anchoring); input direction vs camera yaw mismatch (up moves right). Reproduce with real touch events on a phone-size page.
+
+### GOTR-0132 — Free walk: cars drive through the market; cars are still boxes
+- **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "you shouldnt have cars driving the market. Cars are stil just squares").
+- **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
+- **Points:** no traffic on Market Row's pedestrian aisle/market streets (free-walk-town.js car spawning on the map's streets); replace the box cars with real car models (the films' city cars exist in CityAssets).
+
 ### GOTR-0131 — Free walk: broken pedestrian crossing on the Neon Strip
 - **Reported:** 2026-11-25 (owner, iPhone, the night walk to the Docks, Neon Strip: "Broken cross road" — doubled, stepped zebra stripes).
 - **Status:** FIXED on `claude/ecstatic-clarke-9as2ak` (not released).
