@@ -4,7 +4,7 @@ const { open, save } = require('./serve.cjs'), fs = require('fs'), path = requir
 (async () => {
   const out = process.argv[2], plan = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
   const { p, close } = await open();
-  const st = await p.evaluate(w => StoryCast.market.heads[w].ready(20000), plan.who || 'fang');
+  const st = await p.evaluate(async w => { StoryCast.rig(w, app.engine); const t0 = performance.now(); let s; do { s = await StoryCast.market.heads[w].ready(20000); } while (s !== 'ready' && performance.now() - t0 < 120000); return s; }, plan.who || 'fang'); if (st !== 'ready') throw Error('head not loaded: ' + st);
   console.log('head state', st);
   const res = await p.evaluate(async plan => {
     const e = app.engine, T = THREE, r = e.renderer, [W, H] = plan.size, scene = new T.Scene(), frames = [];

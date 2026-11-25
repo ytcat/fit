@@ -54,7 +54,7 @@ const Core = require('../adventure/story/dream-core'), M = require('../adventure
   let folded = 0, deep = 0, out = 0;
   for (let i = 0; i < a.length / 3; i++) {
     const moved = a[i * 3] !== P0[i * 3] || a[i * 3 + 2] !== P0[i * 3 + 2];
-    if (P0[i * 3 + 1] < 1.78) { assert.ok(!moved, 'no change below the collar'); continue; }
+    if (P0[i * 3 + 1] < 1.745) { assert.ok(!moved, 'no change below the neckline (the fold eases in from 1.745)'); continue; }
     if (moved) folded++;
     if (moved && P0[i * 3 + 1] > 1.86) { deep++; if (!box.containsPoint(new THREE.Vector3(-a[i * 3], a[i * 3 + 1] - 1.84, a[i * 3 + 2]))) out++; }
   }

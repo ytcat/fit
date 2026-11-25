@@ -383,8 +383,10 @@
   // collar are folded into the middle of the model (positions of every outfit stream, edited in place and restored exactly), so
   // no second face pokes through it. The mouth stays closed: the jaw channel still runs on the hidden skin, nothing shows it.
   const HEADS = {
-    fang: { url: './assets/characters/fang/fang-head.glb?v=2026112402', label: 'Fang', fold: { from: 1.79, to: 1.85, amount: .62 }, hide: [] },
-    hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112501', label: 'Hazel', fold: { from: 1.78, to: 1.84, amount: .62 }, hide: ['Hazel: headscarf'] }
+    fang: { url: './assets/characters/fang/fang-head.glb?v=2026112402', label: 'Fang', fold: { from: 1.775, to: 1.805, column: { zc: -.12, rx: .17, rz: .16, margin: .55, maxX: .3 } }, hide: [] },
+    hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112502', label: 'Hazel', fold: { from: 1.745, to: 1.775, column: { zc: -.03, rx: .085, rz: .09, margin: .85, maxX: .16 } }, hide: ['Hazel: headscarf'] }
+    // Hazel's code jaw starts right above her cardigan (y 1.77-1.81, front z to 0.3): her skin above the neckline goes into a column inside
+    // the model's neck, eased in from 1.745 so the dress neckline slopes in to meet it (owner 2026-11-25: "what is in her neck?")
   };
   const headFiles = {};
   const fileOf = id => headFiles[id] || (headFiles[id] = { id, state: 'idle', promise: null, scene: null, rigs: new Set() });
@@ -432,11 +434,11 @@
     }
     return h.on;
   }
-  const headApi = id => ({ id, url: HEADS[id].url, load: () => loadHead(id), ready: (ms = 5000) => headReady(id, ms), on: headOn, state: () => fileOf(id).state });
+  const headApi = id => ({ id, url: HEADS[id].url, cfg: HEADS[id], load: () => loadHead(id), ready: (ms = 5000) => headReady(id, ms), on: headOn, state: () => fileOf(id).state });
   /** Knocked down on his back the model's ears and the long ruff behind the skull would go through the ground: while the head joint
    *  is low, the model nods about the joint (chin toward the chest, or back) by the smallest angle that keeps it above the ground,
    *  eased in and out; what a nod of up to 0.64 rad cannot clear is lifted (up to 14 cm: the head rests on its ruff). Probe: every 24th vertex of the model, head-joint frame. */
-  const NOD = [0, .08, -.08, .16, -.16, .24, -.24, .32, .4, .48, .56, .64], nodQ = new THREE.Matrix4(), nodM = new THREE.Matrix4(), nodV = V();
+  const NOD = [0, .08, -.08, .16, -.16, .24, -.24, .32, .4, .48, .56, .64, .72, .8, .88, .96], nodQ = new THREE.Matrix4(), nodM = new THREE.Matrix4(), nodV = V();
   function headGround(rig, time) {
     const h = rig.castHead, g = h.group; if (!h.on || !g) { if (g) { g.rotation.x = 0; g.position.set(0, 0, 0); } return; }
     const dt = h.t == null ? 1 / 30 : Math.min(.1, Math.max(0, time - h.t)); h.t = time;
@@ -459,12 +461,19 @@
     if (!h.skin) {
       const P = attrs[0], SI = g.attributes.skinIndex.array, SW = g.attributes.skinWeight.array, nb = rig.bones.indexOf(rig.joints.neck), hb = rig.bones.indexOf(rig.joints.head), idx = [], k = [];
       let z0 = 1e9, z1 = -1e9;
+      const C = FOLD.column;
       for (let i = 0; i < P.count; i++) {
-        const y = P.getY(i); if (y < FOLD.from) continue; let w = 0; for (let j = 0; j < 4; j++) { const b = SI[i * 4 + j]; if (b === nb || b === hb) w += SW[i * 4 + j]; } if (w < .5) continue;
+        const y = P.getY(i); if (y < FOLD.from) continue;
+        if (C) { // into a column inside the model's neck (an ellipse round x 0, z C.zc), eased in from the collar: the old jaw and throat never show under the model's jaw
+          const x = P.getX(i), z = P.getZ(i); if (Math.abs(x) > C.maxX && y < FOLD.to + .02) continue; // maxX keeps the shoulders out; the whole head goes in
+          const e = Math.hypot(x / C.rx, (z - C.zc) / C.rz) / C.margin; if (e <= 1) continue;
+          idx.push(i); k.push((1 - 1 / e) * smooth((y - FOLD.from) / (FOLD.to - FOLD.from))); continue;
+        }
+        let w = 0; for (let j = 0; j < 4; j++) { const b = SI[i * 4 + j]; if (b === nb || b === hb) w += SW[i * 4 + j]; } if (w < .5) continue;
         idx.push(i); k.push(FOLD.amount * smooth((y - FOLD.from) / (FOLD.to - FOLD.from)));
         if (y < FOLD.from + .03 && Math.abs(P.getX(i)) < .04) { z0 = Math.min(z0, P.getZ(i)); z1 = Math.max(z1, P.getZ(i)); }
       }
-      h.skin = { idx: Uint32Array.from(idx), k: Float32Array.from(k), zc: z0 < z1 ? (z0 + z1) / 2 : 0, saved: new Map() };
+      h.skin = { idx: Uint32Array.from(idx), k: Float32Array.from(k), zc: C ? C.zc : z0 < z1 ? (z0 + z1) / 2 : 0, saved: new Map() };
     }
     const s = h.skin;
     for (const A of attrs) {
