@@ -1,7 +1,8 @@
 // Bruno as the referee of a gym-ring fight (adventure/story/gym-fight.js), in the real game at 402x690: node gymfight.cjs <outDir>
 // env BEFORE=1: the head GLB answers 404 (the code head). Saves the game view in the round, then the referee's own poses driven
 // through view.referee.update (the count over a fallen fighter, the winner's wrist held high), each as a whole-figure view and a
-// close-up of the head-neck-collar join from the front 3/4 and from below (camera at chest height looking up).
+// close-up of the head-neck-collar join from the front 3/4, from below (camera at chest height looking up) and from behind; the
+// fighters are hidden for these views (they stand between the camera and the referee).
 const { open } = require('./serve.cjs'), fs = require('fs'), path = require('path');
 (async () => {
   const OUT = process.argv[2], tag = process.env.BEFORE ? 'before' : 'after'; fs.mkdirSync(OUT, { recursive: true });
@@ -19,13 +20,15 @@ const { open } = require('./serve.cjs'), fs = require('fs'), path = require('pat
     const grab = (cam, w = W, h = H) => { const t2 = new T.WebGLRenderTarget(w, h, { samples: 4 }); t2.texture.encoding = T.sRGBEncoding; const bb = new Uint8Array(w * h * 4); r.setRenderTarget(t2); r.render(e.scene, cam); r.readRenderTargetPixels(t2, 0, 0, w, h, bb); r.setRenderTarget(null); t2.dispose();
       const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const cx = cv.getContext('2d'), img = cx.createImageData(w, h); for (let y = 0; y < h; y++) img.data.set(bb.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4); cx.putImageData(img, 0, 0); return cv.toDataURL('image/png'); };
     const views = (name) => {
+      const fighters = Object.values(v.coaches || {}).map(x => x.root), shown = fighters.map(f => f.visible); fighters.forEach(f => { f.visible = false; }); // the fighters stand between the camera and the referee: hidden for these views
       b.root.updateMatrixWorld(true); const hp = b.joints.head.getWorldPosition(new T.Vector3()), fwd = new T.Vector3(0, 0, 1).applyQuaternion(b.root.getWorldQuaternion(new T.Quaternion())).setY(0).normalize(), side = new T.Vector3(-fwd.z, 0, fwd.x);
       const cam = new T.PerspectiveCamera(30, W / H, .03, 80);
-      cam.position.copy(hp).addScaledVector(fwd, 5.2).addScaledVector(side, 1.6).add(new T.Vector3(0, -.6, 0)); cam.lookAt(hp.x, hp.y - .75, hp.z); out.push([name + '-body', grab(cam)]);
+      cam.position.copy(hp).addScaledVector(fwd, 2.7).addScaledVector(side, .9).add(new T.Vector3(0, -.15, 0)); cam.fov = 40; cam.updateProjectionMatrix(); /* inside the crowd ring */ cam.lookAt(hp.x, hp.y - .55, hp.z); out.push([name + '-body', grab(cam)]);
       const c2 = new T.PerspectiveCamera(30, 1, .03, 80); const n = hp.clone().add(new T.Vector3(0, -.08, 0));
       c2.position.copy(n).addScaledVector(fwd, 1.0).addScaledVector(side, .7).add(new T.Vector3(0, .05, 0)); c2.lookAt(n); out.push([name + '-neck-q34', grab(c2, 300, 300)]);
       c2.position.copy(n).addScaledVector(fwd, .75).addScaledVector(side, .2).add(new T.Vector3(0, -.55, 0)); c2.lookAt(n); out.push([name + '-neck-below', grab(c2, 300, 300)]);
       c2.position.copy(n).addScaledVector(fwd, -1.0).addScaledVector(side, -.5).add(new T.Vector3(0, .1, 0)); c2.lookAt(n); out.push([name + '-neck-back', grab(c2, 300, 300)]);
+      fighters.forEach((f, i) => { f.visible = shown[i]; });
     };
     views('stand');
     // the count: the match reads as a knockdown of the Opponent for the referee's update (restored right after)
@@ -35,7 +38,8 @@ const { open } = require('./serve.cjs'), fs = require('fs'), path = require('pat
     views('count');
     m.phase = keep.phase; m.downActor = keep.downActor;
     // the winner's wrist held high (the ceremony): grip = the Fighter's right hand raised
-    const wrist = v.coaches.lion.joints.handR.getWorldPosition(new T.Vector3()); const g = wrist.clone(); g.y = Math.max(g.y, 2.05);
+    // the winner beside him (as in the ceremony): his wrist 0.6 m to Bruno's side, a little in front, held high
+    b.root.updateMatrixWorld(true); const g = b.root.localToWorld(new T.Vector3(.6, 2.0, .25));
     for (let k = 0; k < 40; k++) ref.update(200 + k / 30, g, 1, { hold: Math.min(1, k / 20) });
     views('raise');
     rt.dispose(); return out;

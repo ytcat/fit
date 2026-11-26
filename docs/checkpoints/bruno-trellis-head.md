@@ -33,9 +33,30 @@ Not merged, not released, no version bump.
   point, hips, shrug, looks, referee count, wrist held high both sides, wave-off); negative controls: the v1.96 fold (59 vertices out,
   3.1 cm) and the head without its neck tube (`BRUNO_GLB=<tube=0 build>`: 59 vertices out at the back of the neck, 3.3 cm).
 
-## Join checks (evidence in `qa/bruno-head/`, tools in `qa/bruno-head/tools/`)
-See the sheets listed in the backlog entry GOTR-0139. Probe `node qa/bruno-head/tools/paw-head.cjs`: paws vs the head model in all
-nine films and the referee poses (after the chin fix: 0 in the films).
+## Join checks (evidence in `qa/bruno-head/`, tools in `qa/bruno-head/tools/`, sheets rebuilt by `make_sheets.sh`)
+- `seams-{stand,talk,walk,point,count,raise}-before-after.webp`: head-neck-collar close-ups at 402x690 renderer settings, front, side,
+  back, below (camera at chest height looking up), 3/4, back 3/4; top row the code head, bottom the model.
+- `body-before-after.webp` (whole figure front/3/4/side/back), `referee-face-before-after.webp` (count, wrist held high beside him,
+  point; face front and 3/4), `towel-cord-before-after.webp`, `chin-gesture-before-after.webp`, `head-source-vs-game.webp` (Blender:
+  source vs game; eyes/brows close: cracks gone), `portrait-before-after.webp`.
+- Real game: `film-gymtalk.webp` + `film-gymtalk-close.webp` (gym talk before/after), `film-apology.webp` (apology film before/after
+  with head close-ups; hand to chin at 22 s), `gym-referee-before-after.webp` (Bruno as the gym-ring referee: game view; whole,
+  neck 3/4, below, behind with the fighters hidden).
+- Probe `node qa/bruno-head/tools/paw-head.cjs`: paws vs the model in all nine films (every 0.5 s) and the referee poses: 0 inside
+  after the chin fix (1.2 cm in the gym talk and 3.9 cm in the apology film before it). Towel/whistle: the towel's crest and the cord
+  ends lie inside the neck base (see limits).
+- Draw calls with Bruno on screen (gym talk, same frames): 180/174 -> 160/154; triangles -36k.
+
+## Checks run
+- `bash scripts/run-tests.sh -j 1 bruno-head head-seams hazel-head fang-head avatar-joins armpit-fold story-cast-market rourke-cast
+  gym-ring-rematch gym-door-glass dream-gym-return dream-scenes dream-market-films dream-bag-break docks-films story-clean-gym
+  offline-version-match pc-smooth-start portraits paws.test sunday-punch fight-corner-break story-flow adventure-story city-assets
+  lang-generic super-punch-film fight-pause` -> files=28 fails=0 (1323 s). Then `node tests/bruno-head.test.cjs` (with the chin
+  check) and `node tests/offline-version-match.test.cjs` again: ok.
+- head-seams negative controls: `BRUNO_GLB=<build with tube=0> ONLY=bruno node tests/head-seams.test.cjs` fails (59 vertices out,
+  3.3 cm); the in-test v1.96 fold control: 59 vertices out, 3.1 cm.
+- `tools/blender/bruno_head_game.py` with its defaults reproduces the shipped GLB byte for byte (sha1 1ea1246c).
+- Full suite: not run here (integrator).
 
 ## Remaining / known limits
 - The towel's crest over the left shoulder runs into the base of the neck (story-cast.js routes it at y ~1.82 over x -0.07..-0.24,
