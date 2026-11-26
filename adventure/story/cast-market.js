@@ -387,7 +387,7 @@
     hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112502', label: 'Hazel', fold: { from: 1.745, to: 1.775, column: { zc: -.03, rx: .085, rz: .09, margin: .85, maxX: .16 } }, hide: ['Hazel: headscarf'] },
     // Hazel's code jaw starts right above her cardigan (y 1.77-1.81, front z to 0.3): her skin above the neckline goes into a column inside
     // the model's neck, eased in from 1.745 so the dress neckline slopes in to meet it (owner 2026-11-25: "what is in her neck?")
-    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112603', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .215, rz: .2, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385], waveOff: { x0: .47, amp: .09, z: .22 } }, eyes: [[-.0733, .2087, .2473], [.0734, .2081, .2472]] }
+    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112604', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .215, rz: .2, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385], waveOff: { x0: .47, amp: .09, z: .22 } }, eyes: [[-.0691, .1932, .2432], [.0695, .1927, .2427]], face: { jaw: .8, blink: 1.25 } }
     // Coach Bruno (story-cast.js; owner 2026-11-26: "yes"): his ears, flat cap, brows, eyes, nose, mouth and cheek ruff are all children
     // of the head joint and leave with the code head; his whistle and cord stay, his towel is swapped (brunoTowel). The model's neck
     // tube (tools/blender/bruno_head_game.py: centre z 0, 0.2 x 0.15/0.17 at the collar, tapering to the nape) goes down into the
@@ -429,6 +429,9 @@
     if (on) {
       const name = cfg.label + ': authored head', group = h.group || (h.group = (() => {
         const g = new THREE.Group(), m = f.scene.clone(true); g.name = name; g.userData.storyPart = true; g.userData.mane = true; g.add(m);
+        // the parts the face acting moves (Bruno, round 5): meshes with a 'jaw' morph, the eyelids (nodes named *Lid*, turned about x)
+        const face = g.userData.face = { jaw: [], lids: [] };
+        m.traverse(o => { const k = o.morphTargetDictionary?.jaw; if (k !== undefined) { o.morphTargetInfluences.fill(0); face.jaw.push([o, k]); } if (/Lid[LR]$/.test(o.name)) face.lids.push([o, o.quaternion.clone()]); if (o.isMesh) o.userData.part = o.name; });
         g.traverse(o => { o.userData.storyPart = true; o.userData.mane = true; if (o.isMesh) { o.name = name; o.castShadow = true; o.receiveShadow = true; } });
         return g;
       })());
@@ -461,6 +464,18 @@
     const k = Math.min(1, dt * 6); h.nod = (h.nod || 0) + (want - (h.nod || 0)) * k; h.lift = (h.lift || 0) + (lift - (h.lift || 0)) * k;
     g.rotation.x = Math.abs(h.nod) < 1e-4 ? 0 : h.nod;
     if (h.lift > 1e-4) { nodV.set(0, h.lift, 0).transformDirection(nodQ.copy(m).invert()).multiplyScalar(h.lift); g.position.copy(nodV); } else g.position.set(0, 0, 0);
+  }
+  /** The authored head's face acting (Bruno, round 5): the jaw morph opens with his speech (StoryCast.talk drives the code mouth's
+   *  inner part: its height is the amount) or a hit (anatomy channel 12), eased; the lids blink on the rigs' own blink rhythm. */
+  const faceQ = new THREE.Quaternion(), X_AXIS = new THREE.Vector3(1, 0, 0);
+  function headFace(rig, time) {
+    const h = rig.castHead, F = h?.on && h.group?.userData.face; if (!F || (!F.jaw.length && !F.lids.length)) return;
+    const cfg = HEADS[h.id].face || {}, fa = rig.faceActing, talk = fa?.inner?.visible ? clamp((fa.inner.scale.y - .001) / .016) : 0;
+    const want = Math.max(talk * (cfg.jaw ?? .8), rig.anatomy?.value?.[12] || 0), dt = time - (h.faceT ?? time); h.faceT = time;
+    h.jaw = (h.jaw || 0) + (want - (h.jaw || 0)) * (dt > 0 ? Math.min(1, dt * 18) : 1);
+    for (const [o, k] of F.jaw) o.morphTargetInfluences[k] = h.jaw;
+    const ph = ((time % 4.6) + 4.6) % 4.6, blink = ph > 4.4 ? Math.sin((ph - 4.4) / .2 * Math.PI) ** 2 : 0;
+    for (const [o, q0] of F.lids) o.quaternion.copy(q0).multiply(faceQ.setFromAxisAngle(X_AXIS, blink * (cfg.blink ?? 1.25)));
   }
   // the skin above the collar (head and neck bones) folds toward the neck axis: fully on the head, fading out down to the collar
   function skinHead(rig, on) {
@@ -934,7 +949,7 @@
     BRUNO.finish = function (rig) {
       finish.call(this, rig);
       const base = rig.updateMane.bind(rig);
-      rig.updateMane = time => { base(time); if (rig.castHead) headGround(rig, time); };
+      rig.updateMane = time => { base(time); if (rig.castHead) { headGround(rig, time); headFace(rig, time); } };
       brunoTowel(rig);
       authoredHead(rig);
     };

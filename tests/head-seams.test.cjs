@@ -31,7 +31,8 @@ const SPEC = {
 };
 const V196 = { fang: { from: 1.79, to: 1.85, amount: .62 }, hazel: { from: 1.78, to: 1.84, amount: .62 }, bruno: { from: 1.79, to: 1.85, amount: .62 } /* the generic v1.96 fold, as the other heads had it */ };
 
-function modelOf(c) { let m = null; c.joints.head.getObjectByName(c.castHead.group.name).traverse(o => { if (o.isMesh) m = o; }); return m; }
+// the skin of the model (Bruno's file also carries eyes, a mouth and fur cards: node brunoHead is the skin); one-mesh heads: that mesh
+function modelOf(c) { let m = null, skin = null; c.joints.head.getObjectByName(c.castHead.group.name).traverse(o => { if (o.isMesh) { m = o; if (o.userData.part === 'brunoHead') skin = o; } }); return skin || m; }
 /** The model's surface as cross-sections round the axis: bins of 1 cm height x 6 degrees -> max radius (head frame). */
 function sections(c, spec) {
   const m = modelOf(c), P = m.geometry.attributes.position, toHead = new THREE.Matrix4().copy(c.joints.head.matrixWorld).invert().multiply(m.matrixWorld), v = V(), bins = new Map();

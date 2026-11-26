@@ -5,7 +5,8 @@
 const { open, save } = require('./serve.cjs'), fs = require('fs'), path = require('path');
 (async () => {
   const out = process.argv[2], plan = JSON.parse(fs.readFileSync(process.argv[3], 'utf8')), who = plan.who || 'bruno';
-  const { p, close } = await open();
+  // env HEAD_FILE=<glb>: that file served as the head (an earlier build, for before/after rows)
+  const { p, close } = await open({ alias: process.env.HEAD_FILE ? { [who + '-head.glb']: path.resolve(process.env.HEAD_FILE) } : null });
   const st = await p.evaluate(async w => { StoryCast.rig(w, app.engine); const t0 = performance.now(); let s; do { s = await StoryCast.market.heads[w].ready(20000); } while (s !== 'ready' && performance.now() - t0 < 120000); return s; }, who);
   if (st !== 'ready') throw Error('head not loaded: ' + st);
   console.log('head state', st);

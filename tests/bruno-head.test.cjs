@@ -19,19 +19,27 @@ const V = (...v) => new THREE.Vector3(...v);
 
 const report = {};
 (async () => {
-  // ---- the file: one mesh, phone budget, one JPEG <= 1024 px, static, nothing the r128 loader cannot read
+  // ---- the file (round 5, the look pass): the skin (node brunoHead: base colour <= 2048 px, the source's relief as a normal map, a
+  // roughness map, no metal) with a 'jaw' morph; the mouth (jaw morph); two eyes with lids; alpha-tested fur cards; phone budget
   const glb = fs.readFileSync(FILE), json = JSON.parse(glb.slice(20, 20 + glb.readUInt32LE(12)).toString('utf8'));
-  assert.ok(glb.length < 1.0e6, 'small file: ' + glb.length);
-  assert.ok(!json.extensionsRequired?.length, 'no required extensions'); assert.equal(json.meshes.length, 1, 'one mesh'); assert.equal(json.materials.length, 1);
-  assert.equal(json.images.length, 2, 'base colour + the eyes\' glow'); assert.ok(json.images.every(i => i.mimeType === 'image/jpeg')); assert.ok(!json.animations?.length && !json.skins?.length, 'static');
-  assert.ok(json.materials[0].emissiveTexture && json.materials[0].pbrMetallicRoughness.baseColorTexture, 'an emissive map (the eyes read in the films\' shadowed sockets)');
-  assert.ok(!json.materials[0].pbrMetallicRoughness?.metallicRoughnessTexture && !(json.materials[0].pbrMetallicRoughness?.metallicFactor > 0), 'no metal map, no metal');
-  const tris = json.meshes[0].primitives.reduce((n, p) => n + json.accessors[p.indices].count / 3, 0); assert.ok(tris >= 12000 && tris <= 18000, 'triangles ' + tris);
-  const bin = 20 + glb.readUInt32LE(12) + 8, bv = json.bufferViews[json.images[0].bufferView], img = glb.slice(bin + (bv.byteOffset || 0), bin + (bv.byteOffset || 0) + bv.byteLength);
+  assert.ok(glb.length < 1.5e6, 'file under 1.5 MB: ' + glb.length);
+  assert.ok(!json.extensionsRequired?.length, 'no required extensions'); assert.ok(!json.animations?.length && !json.skins?.length, 'no animations or skins');
+  const nodeOf = n => json.nodes.find(q => q.name === n), meshOf = n => json.meshes[nodeOf(n)?.mesh];
+  const skinMesh = meshOf('brunoHead'); assert.ok(skinMesh && skinMesh.primitives.length === 1, 'the skin: one primitive');
+  const skinMat = json.materials[skinMesh.primitives[0].material], pbr = skinMat.pbrMetallicRoughness;
+  assert.ok(pbr.baseColorTexture && skinMat.normalTexture && pbr.metallicRoughnessTexture && !(pbr.metallicFactor > 0), 'colour, normal and roughness maps, no metal');
+  const imgOf = ti => json.images[json.textures[ti].source];
+  assert.ok(imgOf(pbr.baseColorTexture.index).mimeType === 'image/jpeg' && imgOf(skinMat.normalTexture.index).mimeType === 'image/jpeg', 'JPEG colour and normal maps');
+  for (const n of ['brunoHead', 'brunoMouth', 'brunoFur']) assert.ok(meshOf(n)?.extras?.targetNames?.includes('jaw'), n + ': a jaw morph');
+  for (const sd of ['L', 'R']) { const e = nodeOf('brunoEye' + sd); assert.ok(e && e.children?.map(k => json.nodes[k].name).sort().join() === ['brunoEyeBall' + sd, 'brunoGlint' + sd, 'brunoLid' + sd].sort().join(), 'eye ' + sd + ': ball, catch-light, lid'); }
+  const furMat = json.materials[meshOf('brunoFur').primitives[0].material]; assert.ok(furMat.alphaMode === 'MASK' && furMat.doubleSided, 'fur cards: alpha-tested, two-sided (no sorting)');
+  const triOf = m => m.primitives.reduce((n, p) => n + json.accessors[p.indices].count / 3, 0), allTris = json.meshes.reduce((n, m) => n + triOf(m), 0);
+  assert.ok(triOf(skinMesh) >= 18000 && triOf(skinMesh) <= 24000 && allTris <= 27000, 'triangles: skin ' + triOf(skinMesh) + ', all ' + allTris);
+  const bin = 20 + glb.readUInt32LE(12) + 8, bv = json.bufferViews[imgOf(pbr.baseColorTexture.index).bufferView], img = glb.slice(bin + (bv.byteOffset || 0), bin + (bv.byteOffset || 0) + bv.byteLength);
   let at = 2, size = null; assert.equal(img.readUInt16BE(0), 0xffd8, 'a JPEG');
   while (at < img.length && !size) { const m = img.readUInt16BE(at), len = img.readUInt16BE(at + 2); if (m >= 0xffc0 && m <= 0xffc3) size = [img.readUInt16BE(at + 7), img.readUInt16BE(at + 5)]; at += 2 + len; }
-  assert.ok(size && size[0] <= 1024 && size[1] <= 1024, 'texture at most 1024 px: ' + size);
-  const pos = json.accessors[json.meshes[0].primitives[0].attributes.POSITION], [x0, y0, z0] = pos.min, [x1, y1, z1] = pos.max;
+  assert.ok(size && size[0] <= 2048 && size[1] <= 2048, 'texture at most 2048 px: ' + size);
+  const pos = json.accessors[skinMesh.primitives[0].attributes.POSITION], [x0, y0, z0] = pos.min, [x1, y1, z1] = pos.max;
   assert.ok(z1 > .34 && z1 < .42, 'snout forward (+Z), a little past the code head\'s nose (0.35): ' + z1);
   assert.ok(x1 > .21 && x1 < .3 && Math.abs(x0 + x1) < .02, 'ears to the sides, centred: ' + x0 + '..' + x1);
   assert.ok(Math.abs(y0 + .2) < .005, 'the neck tube ends inside the body at -0.2: ' + y0);
@@ -58,10 +66,17 @@ const report = {};
   mode = 'ok'; assert.equal(await H.ready(20000), 'ready'); assert.ok(requests.filter(u => /bruno/.test(u)).length >= 2 && requests.every(u => u === H.url), 'retried, same URL');
   assert.equal(c.castHead.on, true);
   const model = head.getObjectByName('Bruno: authored head'); assert.ok(model && model.parent === head, 'a child of the head joint');
-  let mesh = null; model.traverse(o => { if (o.isMesh) mesh = o; }); assert.ok(mesh.castShadow && mesh.layers.mask === 1 && mesh.material.metalness === 0 && mesh.material.map?.encoding === THREE.sRGBEncoding);
+  let mesh = null; model.traverse(o => { if (o.userData.part === 'brunoHead') mesh = o; }); assert.ok(mesh.castShadow && mesh.layers.mask === 1 && mesh.material.metalness === 0 && mesh.material.map?.encoding === THREE.sRGBEncoding);
   assert.ok(code.every(o => o.layers.mask === 0), 'every code head part off the render layers: no doubled ears, cap, brows or ruff');
   assert.deepEqual(rest.map(o => o.layers.mask), restMasks, 'nothing else changes: whistle, buttons, paws, shoes, clothes'); assert.ok(keep.every(o => o.layers.mask === 1));
-  assert.ok(mesh.material.emissiveMap && cfgEyes(), 'the eyes\' glow map and the pupil positions (QA, tests/bruno-head-eyes)');
+  assert.ok(mesh.material.normalMap && cfgEyes(), 'the relief map and the pupil positions (QA, tests/bruno-head-eyes)');
+  // the face acts: talking opens the jaw (skin, mouth and the chin's fur together), the lids blink on the rigs' rhythm
+  { const F = c.castHead.group.userData.face; assert.ok(F.jaw.length >= 3 && F.lids.length === 2, 'jaw meshes ' + F.jaw.length + ', lids ' + F.lids.length);
+    StoryCast.talk(c, 1); for (let k = 0; k < 10; k++) c.updateMane(1 + k / 30); const open = F.jaw.map(([o, k]) => o.morphTargetInfluences[k]);
+    StoryCast.talk(c, 0); for (let k = 0; k < 20; k++) c.updateMane(2 + k / 30); const shut = F.jaw.map(([o, k]) => o.morphTargetInfluences[k]);
+    assert.ok(open.every(v => v > .5) && shut.every(v => v < .05), 'jaw opens with speech and closes: ' + open.map(v => v.toFixed(2)) + ' / ' + shut.map(v => v.toFixed(2)));
+    const q0 = F.lids[0][0].quaternion.clone(); c.updateMane(4.5); const shutLid = F.lids[0][0].quaternion.angleTo(q0); c.updateMane(4.0);
+    assert.ok(shutLid > 1 && F.lids[0][0].quaternion.angleTo(F.lids[0][1]) < 1e-6, 'the lids close on a blink (' + shutLid.toFixed(2) + ' rad) and open again'); report.face = { open: +open[0].toFixed(2), lid: +shutLid.toFixed(2) }; }
   // the towel: with the model its part of the merged towel-and-whistle mesh is not drawn (whistle and cord are) and the towel that
   // crosses the shoulder outside the model's neck shows; with the code head, the other way round
   const towel = c.root.getObjectByName('Bruno: towel (authored head)'), merged = keep[0];
@@ -167,18 +182,37 @@ const report = {};
     // faces inside the model's own neck (the bust's neck cone and its inner shell, inside the tube: turned toward the neck's axis below
     // the jaw line) are never seen and are not the surface a towel could touch
     const hidden = new Uint8Array(MI.length / 3); { const P = MPs, a = V(), b = V(), d = V(); for (let t = 0; t < MI.length; t += 3) { a.fromBufferAttribute(P, MI[t]); b.fromBufferAttribute(P, MI[t + 1]); d.fromBufferAttribute(P, MI[t + 2]); const cy = (a.y + b.y + d.y) / 3, cx = (a.x + b.x + d.x) / 3, cz = (a.z + b.z + d.z) / 3; tri.set(a, b, d); const n = tri.getNormal(V()); if (cy < .03 && Math.hypot(cx, cz) > .1 && (cx * n.x + cz * n.z) * ws < 0) hidden[t / 3] = 1; } } if (process.env.CONTACT_DEBUG) console.log('model winding (cap top votes)', outward);
+    let fur = null; model.traverse(o => { if (o.userData.part === 'brunoFur') fur = o; });
+    const SK = c.skin.geometry, SKP = SK.attributes.position, skinNear = [], inNear = new Uint8Array(SKP.count);
+    const folded = new Uint8Array(SKP.count); { const F = c.castHead.skin; for (let j = 0; j < F.idx.length; j++) if (F.k[j] > 0) folded[F.idx[j]] = 1; } // the skin head folded inside the model is not a surface
+    for (let i = 0; i < SKP.count; i++) { const y = SKP.getY(i); if (!folded[i] && y > 1.45 && y < 2.0 && Math.abs(SKP.getX(i)) < .4) { skinNear.push(i); inNear[i] = 1; } }
+    const skinTris = []; { const I = SK.index.array; for (let t = 0; t < I.length; t += 3) if (inNear[I[t]] && inNear[I[t + 1]] && inNear[I[t + 2]]) skinTris.push(I[t], I[t + 1], I[t + 2]); }
     const contact = () => {
       c.syncSkin(); window.AvatarAnatomy?.update(c); c.root.updateMatrixWorld(true);
       const tp = new Array(src.length); for (const k of outIdx) tp[k] = c.skinPoint(T.alt, k);
       const box = new THREE.Box3(); for (const k of outIdx) box.expandByPoint(tp[k]); box.expandByScalar(.02);
-      const hp = new Array(MPs.count); for (let i = 0; i < MPs.count; i++) hp[i] = V().fromBufferAttribute(MPs, i).applyMatrix4(mesh.matrixWorld);
+      const hp = new Array(MPs.count), MT = mg.morphAttributes.position?.[0], MIF = mesh.morphTargetInfluences?.[0] || 0; for (let i = 0; i < MPs.count; i++) { hp[i] = V().fromBufferAttribute(MPs, i); if (MT) hp[i].addScaledVector(V().fromBufferAttribute(MT, i), MIF); hp[i].applyMatrix4(mesh.matrixWorld); }
       const hbox = new THREE.Box3(); for (const v of hp) hbox.expandByPoint(v); hbox.expandByScalar(.02);
       const hTris = []; for (let t = 0; t < MI.length; t += 3) { const a = hp[MI[t]]; if (box.containsPoint(a) && !hidden[t / 3]) hTris.push(MI[t], MI[t + 1], MI[t + 2]); }
       const hg = grid(hp, hTris), tgd = grid(tp, topTris); let towelIn = 0, towelDeep = 0, headIn = 0, headDeep = 0;
       const mh = Math.sign(mesh.matrixWorld.determinant()) * ws, mt = Math.sign(T.alt.matrixWorld.determinant()); // a mirrored root turns the world winding over
       for (const k of outIdx) { const p = tp[k]; if (!hbox.containsPoint(p)) continue; const r = nearest(p, hp, hTris, hg); if (r && r.d < .03 && r.s * mh < -.001) { towelIn++; towelDeep = Math.max(towelDeep, -r.s * mh); if (process.env.CONTACT_DEBUG > 1 && towelIn < 4) { const iv = new THREE.Matrix4().copy(c.joints.head.matrixWorld).invert(), nq = r.n.clone().transformDirection(iv); console.log('  nearest model point (head frame)', r.q.clone().applyMatrix4(iv).toArray().map(x => +x.toFixed(3)), 'normal', nq.toArray().map(x => +x.toFixed(2)), 'model vertex', hTris[r.t]); } if (process.env.CONTACT_DEBUG > 1 && towelIn < 4) console.log('  towel in head: rest', V().fromBufferAttribute(tg.attributes.position, k).toArray().map(x => +x.toFixed(3)), 'head frame', p.clone().applyMatrix4(new THREE.Matrix4().copy(c.joints.head.matrixWorld).invert()).toArray().map(x => +x.toFixed(3)), 'dist', r.d.toFixed(3)); } }
       for (let i = 0; i < hp.length; i++) { const p = hp[i]; if (!box.containsPoint(p)) continue; const r = nearest(p, tp, topTris, tgd); if (r && r.s * mt < -.001 && r.s * mt > -.007 && r.d < .012) { headIn++; headDeep = Math.max(headDeep, -r.s * mt); if (process.env.CONTACT_DEBUG > 1 && headIn < 4) console.log('  head in towel: head frame', V().fromBufferAttribute(MPs, i).toArray().map(x => +x.toFixed(3)), 'under the towel top by', (-r.s * mt).toFixed(4)); } }
-      return { towelIn, towelDeep, headIn, headDeep };
+      // the fur cards (round 5): none of their vertices under the towel's top surface or inside the body's skin (collar, cardigan),
+      // with the jaw where the face acting has it
+      let furIn = 0, furDeep = 0, furSkin = 0, furSkinDeep = 0;
+      if (fur) {
+        const FP = fur.geometry.attributes.position, mt = fur.geometry.morphAttributes.position?.[0], inf = fur.morphTargetInfluences?.[0] || 0, fp = [];
+        for (let i = 0; i < FP.count; i++) { const v = V().fromBufferAttribute(FP, i); if (mt) v.addScaledVector(V().fromBufferAttribute(mt, i), inf); fp.push(v.applyMatrix4(fur.matrixWorld)); }
+        const sp = new Map(); for (const i of skinNear) sp.set(i, c.skinPoint(c.skin, i)); const spts = []; for (const [i, v] of sp) spts[i] = v;
+        const sg = grid(spts, skinTris); let wsk = 0; for (let t = 0; t < skinTris.length; t += 3) { const A = spts[skinTris[t]]; if (A.z > .12 && Math.abs(A.x) < .1 && A.y > 1.3 && A.y < 1.5) { tri.set(A, spts[skinTris[t + 1]], spts[skinTris[t + 2]]); wsk += Math.sign(tri.getNormal(V()).z); } }
+        wsk = wsk >= 0 ? 1 : -1;
+        for (const p of fp) {
+          if (box.containsPoint(p)) { const r = nearest(p, tp, topTris, tgd); if (r && r.s < -.001 && r.s > -.015 && r.d < .015) { furIn++; furDeep = Math.max(furDeep, -r.s); } }
+          const q = nearest(p, spts, skinTris, sg); if (q && q.d < .02 && q.s * wsk < -.002) { furSkin++; furSkinDeep = Math.max(furSkinDeep, -q.s * wsk); }
+        }
+      }
+      return { towelIn, towelDeep, headIn, headDeep, furIn, furDeep, furSkin, furSkinDeep };
     };
     const frames = [];
     for (const [mod, ids] of [[Core, ['dream_gym_talk']], [require('../adventure/story/docks-core'), ['dream_docks', 'dream_fight_night']]]) for (const id of ids) {
@@ -189,12 +223,14 @@ const report = {};
     }
     const POSE = { talk: { talk: 1, arms: { R: 'open' } }, walk: { walk: 1 }, point: { arms: { R: 'point' } }, hips: { arms: { L: 'hips', R: 'hips' } }, shrug: { arms: { L: 'shrug', R: 'shrug' } }, 'look left': { look: { yaw: .7, pitch: 0 } }, 'look right': { look: { yaw: -.7, pitch: 0 } }, 'look down': { look: { yaw: 0, pitch: -.5 } }, 'look up': { look: { yaw: 0, pitch: .35 } }, chin: { arms: { L: 'hips', R: 'chin' } }, cross: { arms: { L: 'cross', R: 'cross2' } } };
     for (const [nm, st] of Object.entries(POSE)) { DreamPose.reset(c); for (let k = 0; k < 30; k++) { const t = 2 + k / 30; DreamPose.civil(c, { t, dt: 1 / 30, dist: st.walk ? t * 1.25 : 0, ...st }); if (st.talk) StoryCast.talk(c, 1); c.updateMane(t); } frames.push(['pose ' + nm, contact()]); }
-    const worst = frames.reduce((w, [n, r]) => ({ towelIn: w.towelIn + r.towelIn, headIn: w.headIn + r.headIn, towelDeep: Math.max(w.towelDeep, r.towelDeep), headDeep: Math.max(w.headDeep, r.headDeep), at: r.towelIn || r.headIn ? w.at.concat(n) : w.at }), { towelIn: 0, headIn: 0, towelDeep: 0, headDeep: 0, at: [] });
+    const worst = frames.reduce((w, [n, r]) => ({ towelIn: w.towelIn + r.towelIn, headIn: w.headIn + r.headIn, towelDeep: Math.max(w.towelDeep, r.towelDeep), headDeep: Math.max(w.headDeep, r.headDeep), furIn: w.furIn + r.furIn, furSkin: w.furSkin + r.furSkin, furDeep: Math.max(w.furDeep, r.furDeep, r.furSkinDeep), at: r.towelIn || r.headIn || r.furIn || r.furSkin ? w.at.concat(n) : w.at }), { towelIn: 0, headIn: 0, towelDeep: 0, headDeep: 0, furIn: 0, furSkin: 0, furDeep: 0, at: [] });
     if (process.env.CONTACT_DEBUG) for (const [n, r] of frames) if (r.towelIn || r.headIn) console.log('contact', n, JSON.stringify(r));
     assert.ok(frames.length > 40, 'walking frames and poses checked: ' + frames.length);
     assert.equal(worst.towelIn, 0, 'no towel vertex inside the head (' + worst.towelIn + ', deepest ' + worst.towelDeep.toFixed(3) + ' m at ' + worst.at.slice(0, 3) + ')');
     assert.equal(worst.headIn, 0, 'no head vertex inside the towel (' + worst.headIn + ', deepest ' + worst.headDeep.toFixed(3) + ' m at ' + worst.at.slice(0, 3) + ')');
-    report.contact = { frames: frames.length, towelIn: worst.towelIn, headIn: worst.headIn };
+    assert.ok(fur, 'the fur cards are probed');
+    assert.equal(worst.furIn + worst.furSkin, 0, 'no fur card inside the towel (' + worst.furIn + ') or the body (' + worst.furSkin + '), deepest ' + worst.furDeep.toFixed(3) + ' m at ' + worst.at.slice(0, 3));
+    report.contact = { frames: frames.length, towelIn: worst.towelIn, headIn: worst.headIn, furIn: worst.furIn, furSkin: worst.furSkin };
     DreamPose.reset(c);
   }
 
@@ -219,6 +255,6 @@ const report = {};
   assert.ok(/id === 'dream_opening' && H\.bruno\) out\.add\('bruno'\)/.test(dream), 'the opening asks for his head (the gym talk follows)');
   for (const [mod, id] of [[Core, 'dream_gym_talk'], [require('../adventure/story/docks-core'), 'dream_fight_night']]) assert.ok(Object.values(mod.scenes[id].actors).some(x => x.rig === 'bruno'), id + ' has Bruno');
   assert.ok(/market\?\.heads\?\.\[rig\?\.castHead\?\.id\]/.test(fs.readFileSync('adventure/portraits.js', 'utf8')), 'the portrait waits for his head');
-  const html = fs.readFileSync('index.html', 'utf8'); assert.ok(/cast-market\.js\?v=20261126br4/.test(html) && /dream-scenes\.js\?v=20261126br/.test(html), 'changed scripts re-fetched');
-  console.log('bruno head ok', JSON.stringify({ ...report, tris, bytes: glb.length, folded, deep, poses: n, lowEye: +lowEye.toFixed(3), talkNod: +talkNod.toFixed(3), lying: [+sunk.toFixed(3), +rested.toFixed(3)] }));
+  const html = fs.readFileSync('index.html', 'utf8'); assert.ok(/cast-market\.js\?v=20261126br5/.test(html) && /dream-scenes\.js\?v=20261126br/.test(html), 'changed scripts re-fetched');
+  console.log('bruno head ok', JSON.stringify({ ...report, tris: allTris, bytes: glb.length, folded, deep, poses: n, lowEye: +lowEye.toFixed(3), talkNod: +talkNod.toFixed(3), lying: [+sunk.toFixed(3), +rested.toFixed(3)] }));
 })().catch(e => { console.error(e); process.exit(1); });

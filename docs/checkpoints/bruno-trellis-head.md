@@ -4,6 +4,24 @@ Owner 2026-11-26: approved the TRELLIS.2 head ("yes"). Branch from `origin/claud
 Not merged, not released, no version bump. Round 2 (2026-11-26): main's review "NOT ready" (eyes vanish in the films, too big / a
 mask on the shoulders, towel sliver at the neck, ragged brim, plain neck colour) addressed below.
 
+## Round 5 (owner: "Bruno looked terrible ... improve the new one ... much more natural with more face details"): LOOK PASS, look sheets only
+- Head (`tools/blender/bruno_head_game.py`, defaults = the shipped file): the 98k source's relief baked as a normal map (1024),
+  the face unwrapped separately with 50% of the atlas, colour baked at 2048; real eyes (glossy ball, amber iris, pupil,
+  catch-light, upper lid with a lash rim that blinks); dark chocolate fur (darker crown/back, warmer cheeks), warm cream muzzle
+  and brows, wet slate nose (roughness .28, highlight), soft-sheen lips (roughness map); 122 alpha-tested fur cards (cheeks,
+  chin front, ear rims, nape; MASK, two-sided, same as the cast's alpha-test materials); the muzzle cut along the lip line, a
+  dark mouth pocket with upper teeth and tongue, a `jaw` morph on skin/mouth/fur; scale .63 -> .6 (chin and neck kept). Skin
+  20k triangles, all 25k; 1.43 MB.
+- Page (`adventure/story/cast-market.js`): `headFace` drives the jaw morph from his speech (StoryCast.talk's code mouth) or a hit,
+  eased, and the lids blink on the rigs' rhythm (4.6 s); `HEADS.bruno.eyes` re-measured, `face: { jaw, blink }`; part names kept
+  in `userData.part`. Cache keys: head `?v=2026112604`, cast-market.js `?v=20261126br5` (no game version bump).
+- Tests: `tests/bruno-head.test.cjs` (file layout, jaw opens/closes with speech, lids blink, contact now also: no fur card inside
+  the towel or the body, with the jaw where speech puts it; head vs towel still 0/0 over 97 frames); `tests/head-seams.test.cjs`
+  probes the skin mesh (`brunoHead`).
+- Look sheets (`qa/bruno-head/look-studio.webp`, `look-films.webp`, `look-films-close.webp`; `tools/make_look_sheets.sh`,
+  `plan-look.json`). Join sheets NOT redone this round (main: look sheets first).
+- Measured: see the report in GOTR-0139.
+
 ## Round 4 (main's review: jowl into the towel when walking; frayed towel hem beside the whistle)
 - Jowl, fixed at the contact on both sides: (b) the head (`tools/blender/bruno_head_game.py`): the cheek fur below the jaw line
   (head-frame y < `jowl_y` -0.005) wider than `jowl_x` 0.165 is drawn in over `jowl_len` 0.035 (300 vertices); the neck tube slimmer
