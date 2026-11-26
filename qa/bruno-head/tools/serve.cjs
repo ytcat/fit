@@ -5,6 +5,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applic
 async function open(o = {}) {
   const server = http.createServer((q, r) => { let f = path.normalize(path.join(ROOT, decodeURIComponent(q.url.split('?')[0]))); if (!f.startsWith(ROOT)) { r.writeHead(403); r.end(); return; } if (f.endsWith(path.sep)) f = path.join(f, 'index.html');
     if (o.block && o.block.some(b => f.includes(b))) { r.writeHead(404); r.end(); return; }
+    if (o.alias) for (const [k, v] of Object.entries(o.alias)) if (f.includes(k)) f = v; // serve another file under this name (QA: an earlier head)
     fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' }); r.end(d); }); });
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const b = await chromium.launch({ args: ['--no-sandbox', '--enable-unsafe-swiftshader', '--use-gl=angle', '--use-angle=swiftshader'] });

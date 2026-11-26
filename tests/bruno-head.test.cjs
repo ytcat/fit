@@ -13,7 +13,7 @@ global.self = global; vm.runInThisContext(fs.readFileSync('assets/vendor/GLTFLoa
 const RealLoader = THREE.GLTFLoader; let mode = 'fail'; const requests = [];
 THREE.GLTFLoader = class { load(url, ok, _p, err) { requests.push(url); if (mode === 'fail' || !/bruno/.test(url)) { setTimeout(() => err(Error('404')), 1); return; } const b = fs.readFileSync(url.replace(/^\.\//, '').split('?')[0]); new RealLoader().parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.length), '', ok, err); } };
 for (const f of ['boxing-routines.js', 'avatar-anatomy.js', 'avatar-detail.js', 'avatar-shoulder.js', 'boxing-footwear.js', 'padding-deformation.js', 'boxing-pose.js', 'boxing-coach-v2.js', 'adventure/story/paws.js', 'adventure/story/story-cast.js', 'adventure/story/street-wear.js', 'adventure/story/cast-market.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'), { filename: f });
-const H = StoryCast.market.heads.bruno, FILE = 'assets/characters/bruno/bruno-head.glb';
+const H = StoryCast.market.heads.bruno, FILE = 'assets/characters/bruno/bruno-head.glb', cfgEyes = () => Array.isArray(H.cfg.eyes) && H.cfg.eyes.length === 2;
 const Core = require('../adventure/story/dream-core');
 const V = (...v) => new THREE.Vector3(...v);
 
@@ -22,7 +22,8 @@ const V = (...v) => new THREE.Vector3(...v);
   const glb = fs.readFileSync(FILE), json = JSON.parse(glb.slice(20, 20 + glb.readUInt32LE(12)).toString('utf8'));
   assert.ok(glb.length < 1.0e6, 'small file: ' + glb.length);
   assert.ok(!json.extensionsRequired?.length, 'no required extensions'); assert.equal(json.meshes.length, 1, 'one mesh'); assert.equal(json.materials.length, 1);
-  assert.equal(json.images.length, 1); assert.equal(json.images[0].mimeType, 'image/jpeg'); assert.ok(!json.animations?.length && !json.skins?.length, 'static');
+  assert.equal(json.images.length, 2, 'base colour + the eyes\' glow'); assert.ok(json.images.every(i => i.mimeType === 'image/jpeg')); assert.ok(!json.animations?.length && !json.skins?.length, 'static');
+  assert.ok(json.materials[0].emissiveTexture && json.materials[0].pbrMetallicRoughness.baseColorTexture, 'an emissive map (the eyes read in the films\' shadowed sockets)');
   assert.ok(!json.materials[0].pbrMetallicRoughness?.metallicRoughnessTexture && !(json.materials[0].pbrMetallicRoughness?.metallicFactor > 0), 'no metal map, no metal');
   const tris = json.meshes[0].primitives.reduce((n, p) => n + json.accessors[p.indices].count / 3, 0); assert.ok(tris >= 12000 && tris <= 18000, 'triangles ' + tris);
   const bin = 20 + glb.readUInt32LE(12) + 8, bv = json.bufferViews[json.images[0].bufferView], img = glb.slice(bin + (bv.byteOffset || 0), bin + (bv.byteOffset || 0) + bv.byteLength);
@@ -31,9 +32,9 @@ const V = (...v) => new THREE.Vector3(...v);
   assert.ok(size && size[0] <= 1024 && size[1] <= 1024, 'texture at most 1024 px: ' + size);
   const pos = json.accessors[json.meshes[0].primitives[0].attributes.POSITION], [x0, y0, z0] = pos.min, [x1, y1, z1] = pos.max;
   assert.ok(z1 > .34 && z1 < .42, 'snout forward (+Z), a little past the code head\'s nose (0.35): ' + z1);
-  assert.ok(x1 > .22 && x1 < .3 && Math.abs(x0 + x1) < .02, 'ears to the sides, centred: ' + x0 + '..' + x1);
-  assert.ok(y1 > .44 && y1 < .53, 'cap on top: ' + y1); assert.ok(Math.abs(y0 + .2) < .005, 'the neck tube ends inside the body at -0.2: ' + y0);
-  assert.ok(z0 > -.36 && z0 < -.28, 'back of the head: ' + z0);
+  assert.ok(x1 > .21 && x1 < .3 && Math.abs(x0 + x1) < .02, 'ears to the sides, centred: ' + x0 + '..' + x1);
+  assert.ok(Math.abs(y0 + .2) < .005, 'the neck tube ends inside the body at -0.2: ' + y0);
+  assert.ok(z0 > -.32 && z0 < -.24, 'back of the head: ' + z0);
 
   // ---- fallback: the download fails -> the code head stays, nothing hidden, no model
   const data = JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')), engine = { roster: { data }, arena: { models: {} } };
@@ -41,6 +42,10 @@ const V = (...v) => new THREE.Vector3(...v);
   const c = StoryCast.rig('bruno', engine); await H.ready(2000);
   const head = c.joints.head, code = []; for (const o of head.children) o.traverse(q => { if (q.isMesh) code.push(q); });
   for (const n of ['Bruno: ears, nose, flat cap', 'Bruno: brows', 'Bruno: cheek and neck ruff']) assert.ok(code.some(o => o.name === n), 'the code head has ' + n);
+  // owner review 2026-11-26 ("too big ... a mask on the shoulders"): the model's top within 3 cm of the code head's (its cap), head-joint frame
+  c.root.updateMatrixWorld(true); const capMesh = head.getObjectByName('Bruno: ears, nose, flat cap'), toHead = new THREE.Matrix4().copy(head.matrixWorld).invert().multiply(capMesh.matrixWorld);
+  let codeTop = -9; { const P = capMesh.geometry.attributes.position, v = V(); for (let i = 0; i < P.count; i++) codeTop = Math.max(codeTop, v.fromBufferAttribute(P, i).applyMatrix4(toHead).y); }
+  assert.ok(y1 - codeTop <= .03 && y1 - codeTop > -.03, 'head height: model top ' + y1.toFixed(3) + ' vs code head ' + codeTop.toFixed(3));
   const rest = []; c.root.traverse(o => { if ((o.isMesh || o.isLine) && !code.includes(o)) rest.push(o); });
   const keep = ['Bruno: towel and whistle', 'Bruno: buttons'].map(n => c.root.getObjectByName(n)); assert.ok(keep.every(Boolean), 'towel, whistle and buttons on the chest');
   const P0 = c.castBase.position.array.slice(), restMasks = rest.map(o => o.layers.mask);
@@ -54,7 +59,14 @@ const V = (...v) => new THREE.Vector3(...v);
   const model = head.getObjectByName('Bruno: authored head'); assert.ok(model && model.parent === head, 'a child of the head joint');
   let mesh = null; model.traverse(o => { if (o.isMesh) mesh = o; }); assert.ok(mesh.castShadow && mesh.layers.mask === 1 && mesh.material.metalness === 0 && mesh.material.map?.encoding === THREE.sRGBEncoding);
   assert.ok(code.every(o => o.layers.mask === 0), 'every code head part off the render layers: no doubled ears, cap, brows or ruff');
-  assert.deepEqual(rest.map(o => o.layers.mask), restMasks, 'nothing else changes: towel, whistle, buttons, paws, shoes, clothes'); assert.ok(keep.every(o => o.layers.mask === 1));
+  assert.deepEqual(rest.map(o => o.layers.mask), restMasks, 'nothing else changes: whistle, buttons, paws, shoes, clothes'); assert.ok(keep.every(o => o.layers.mask === 1));
+  assert.ok(mesh.material.emissiveMap && cfgEyes(), 'the eyes\' glow map and the pupil positions (QA, tests/bruno-head-eyes)');
+  // the towel: with the model its part of the merged towel-and-whistle mesh is not drawn (whistle and cord are) and the towel that
+  // crosses the shoulder outside the model's neck shows; with the code head, the other way round
+  const towel = c.root.getObjectByName('Bruno: towel (authored head)'), merged = keep[0];
+  assert.ok(towel && towel.visible && merged.geometry.drawRange.start > 1000 && merged.geometry.drawRange.start < merged.geometry.attributes.position.count, 'towel swapped: draw from ' + merged.geometry.drawRange.start);
+  { let e = 9; const P = towel.geometry.attributes.position, v = V(); for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); if (v.y + 1.36 > 1.74) e = Math.min(e, Math.hypot(v.x / .2, v.z / (v.z < 0 ? .17 : .15))); }
+    assert.ok(e > 1.02, 'over the shoulder the towel stays outside the neck tube (0.2 wide, 0.15/0.17 deep at the collar): ' + e.toFixed(3)); }
   const vis = code.map(o => o.visible);
   // the skin's head and neck above the collar fold into the model; nothing below the cardigan's neckline moves
   const a = c.castBase.position.array, box = new THREE.Box3().setFromBufferAttribute(mesh.geometry.attributes.position); box.expandByScalar(-.01);
@@ -68,6 +80,7 @@ const V = (...v) => new THREE.Vector3(...v);
   assert.ok(folded > 8000, 'skin head folded: ' + folded); assert.ok(out / deep < .01, 'the folded skin head lies inside the model: ' + out + ' of ' + deep);
   // off: exactly as before; on again
   assert.equal(H.on(c, false), false); assert.ok(!model.parent && code.every(o => o.layers.mask === 1), 'code head back');
+  assert.ok(!towel.visible && merged.geometry.drawRange.start === 0, 'the code head\'s towel back');
   assert.deepEqual(c.castBase.position.array, P0, 'skin restored exactly'); assert.deepEqual(code.map(o => o.visible), vis, 'visible flags untouched');
   assert.equal(H.on(c, true), true); assert.equal(H.on(c, true), true, 'idempotent'); assert.equal(head.children.filter(o => o.name === 'Bruno: authored head').length, 1);
 
@@ -121,6 +134,6 @@ const V = (...v) => new THREE.Vector3(...v);
   assert.ok(/id === 'dream_opening' && H\.bruno\) out\.add\('bruno'\)/.test(dream), 'the opening asks for his head (the gym talk follows)');
   for (const [mod, id] of [[Core, 'dream_gym_talk'], [require('../adventure/story/docks-core'), 'dream_fight_night']]) assert.ok(Object.values(mod.scenes[id].actors).some(x => x.rig === 'bruno'), id + ' has Bruno');
   assert.ok(/market\?\.heads\?\.\[rig\?\.castHead\?\.id\]/.test(fs.readFileSync('adventure/portraits.js', 'utf8')), 'the portrait waits for his head');
-  const html = fs.readFileSync('index.html', 'utf8'); assert.ok(/cast-market\.js\?v=20261126br/.test(html) && /dream-scenes\.js\?v=20261126br/.test(html), 'changed scripts re-fetched');
+  const html = fs.readFileSync('index.html', 'utf8'); assert.ok(/cast-market\.js\?v=20261126br2/.test(html) && /dream-scenes\.js\?v=20261126br/.test(html), 'changed scripts re-fetched');
   console.log('bruno head ok', JSON.stringify({ tris, bytes: glb.length, folded, deep, poses: n, lowEye: +lowEye.toFixed(3), talkNod: +talkNod.toFixed(3), lying: [+sunk.toFixed(3), +rested.toFixed(3)] }));
 })().catch(e => { console.error(e); process.exit(1); });

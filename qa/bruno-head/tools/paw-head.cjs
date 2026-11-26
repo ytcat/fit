@@ -20,16 +20,16 @@ const V = (...v) => new THREE.Vector3(...v);
   const MP = mesh.geometry.attributes.position, MN = mesh.geometry.attributes.normal, mv = [], mn = [];
   for (let i = 0; i < MP.count; i += 2) { mv.push(V().fromBufferAttribute(MP, i)); mn.push(V().fromBufferAttribute(MN, i)); }
   const parts = []; for (const s of ['L', 'R']) c.joints['hand' + s].traverse(o => { if (o.isMesh && o.geometry.attributes.position) parts.push(['paw ' + s, o]); });
-  const tw = c.root.getObjectByName('Bruno: towel and whistle'); parts.push(['towel+whistle', tw]);
+  const tw = c.root.getObjectByName('Bruno: towel and whistle'), alt = c.root.getObjectByName('Bruno: towel (authored head)'); parts.push(['cord+whistle', tw]); if (alt) parts.push(['towel', alt]);
   const inv = new THREE.Matrix4(), v = V(), d = V();
   const probe = () => {
     c.root.updateMatrixWorld(true); inv.copy(mesh.matrixWorld).invert(); const W = {};
     for (const [nm, o] of parts) { let worst = W[nm.split(' ')[0]] || { depth: 0 };
       if (!o.visible) continue; const P = o.geometry.attributes.position, m = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld);
-      for (let i = 0; i < P.count; i += 3) {
+      for (let i = o.geometry.drawRange.start || 0; i < P.count; i += 3) {
         v.fromBufferAttribute(P, i).applyMatrix4(m); let best = 1e9, k = -1;
         for (let j = 0; j < mv.length; j++) { const q = mv[j], dd = (q.x - v.x) ** 2 + (q.y - v.y) ** 2 + (q.z - v.z) ** 2; if (dd < best) { best = dd; k = j; } }
-        if (best > .04 * .04) continue; const depth = -d.copy(v).sub(mv[k]).dot(mn[k]);
+        if (best > .04 * .04 || (process.env.SKIP_LOW && v.y < -.09)) continue; const depth = -d.copy(v).sub(mv[k]).dot(mn[k]);
         if (depth > .003 && depth > worst.depth) worst = { depth: +depth.toFixed(3), part: nm, at: v.toArray().map(x => +x.toFixed(3)) };
       }
       W[nm.split(' ')[0]] = worst;

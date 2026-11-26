@@ -19,14 +19,22 @@ Node 'brunoHead'. What is different, and why:
     gaps between charts are refilled from each chart's interior; that padded texture is baked onto the new layout (rays from the
     game surface to the source) with `margin` px of extended edges, so no seam on the phone samples a neighbouring island. Thin
     dark lines left inside the light areas are filled from their light neighbours (`crack`); bake rays that missed are filled too.
+  * Size (main review 2026-11-26: "too big ... a mask on the shoulders"): scale 0.63 m per source unit, the chin at head-frame y
+    -0.05: the cap's top is 2.4 cm above the code head's (it was 7 cm).
   * The neck. The source bust ends in a long fur cone under the chin, cut on a slant, with ragged fur tips. Below `cut` it is gone;
-    a clean neck tube (centre z `neck_zc`, half-widths `neck_rx`, `neck_rz`) runs from inside the skull (`neck_top`) down into the
-    body (`neck_bottom`). Above the collar (`neck_y`) its back and sides widen toward the occiput and the cheek fur (`nape_rz`,
-    `nape_rx`, a squarer back `nape_n`: a bear's thick nape, no hollow under the skull); under the collar it narrows (`shrink_from`,
-    `shrink_len`, `neck_shrink`) so it never shows through the open cardigan front. The bust's cut rim lies inside the tube and the
-    body: what shows is the head's surface running into a round neck, never an open edge. Its colours: the head's own fur sampled
-    round the neck above the collar, in a band of `band` px at the bottom of the atlas (the head's UVs sit above it).
+    a clean neck tube (centre z `neck_zc`, front half-depth `neck_rz`) runs from inside the skull (`neck_top`) down into the body
+    (`neck_bottom`). From the collar (`neck_y`: `neck_rx` wide, back `neck_rzb`) it tapers to the nape (`mid_y`: `mid_rx`,
+    `mid_rzb`: a visible neck under the skull from behind) and widens again into the skull (`nape_rx`, `nape_rz`); under the collar
+    it narrows (`shrink_from`, `shrink_len`, `neck_shrink`) so it never shows through the open cardigan front. The bust's cut rim
+    lies inside the tube and the body. Its colours: the head's own fur sampled round the jaw line, with fur strands of the head
+    fur's own contrast (`strands`), in a band of `band` px at the bottom of the atlas (the head's UVs sit above it).
     tube=0 leaves the tube out (the negative control of tests/head-seams.test.cjs).
+  * Eyes (main review: "eyes vanish in the game ... he looks eyeless"): each pupil found in the bake (darkest texels round the
+    eye), the iris (`iris_r` round it, the source's own shape) lifted (`iris_gain`, warmed by `iris_mix`), the pupil dark, a
+    catch-light painted (`catch_r`); iris and catch-light also go into an emissive map (`iris_glow`, `catch_glow`) so they read in
+    the films' shadowed sockets. The pupil positions are printed (REPORT eyes) for HEADS.bruno.eyes (QA and tests).
+  * The cap brim (main review: "the dark ragged band under the brim"): its underside and front edge get one even colour from the
+    cap's top (`brim_dark`, `brim_edge`).
   * Colour. The source fur is near black (as dark as the FLUX picture); Bruno's body fur is #6f4a31. The dark fur texels (not the
     cap, found by position; not the cream muzzle and brows, the nose or the eyes) move to the body's fur colour: median matched per
     channel, the texture's own variation kept at `fur_contrast` (clamped at `fur_lo`: the darkest streaks read as smudges once the
@@ -39,9 +47,9 @@ from mathutils import Vector
 
 argv = sys.argv[sys.argv.index('--') + 1:]
 src, out = argv[0], argv[1]
-P = dict(scale=.70, dy=.153, dz=.03, cut=-.12, tris=14600, quality=86, rough=.85, size=1024,
-         neck_top=.13, neck_y=-.07, neck_zc=0.0, neck_rx=.2, neck_rz=.15, neck_bottom=-.2, neck_shrink=.75, shrink_from=-.075, shrink_len=.06, seg=48,
-         fur=1.0, fur_contrast=.65, fur_rgb='6f4a31', eyes=1.4, eye_x=.122, eye_z=.108, eye_rx=.065, eye_rz=.05, crack=1, inpaint=1, band=40, margin=16, smooth=30, uv_angle=66.0, uv_margin=.004, remesh=.003, solid=.012, strands=0.0, nape_rz=.26, nape_rx=.23, nape_n=3.5, fur_lo=.55, tube=1, debug='')
+P = dict(scale=.63, dy=.1327, dz=.055, cut=-.12, tris=14600, quality=86, rough=.85, size=1024,
+         neck_top=.1, neck_y=-.07, neck_zc=0.0, neck_rx=.2, neck_rz=.15, neck_rzb=.17, mid_y=-.01, mid_rx=.17, mid_rzb=.15, neck_bottom=-.2, neck_shrink=.75, shrink_from=-.075, shrink_len=.06, seg=48,
+         fur=1.0, fur_contrast=.65, fur_rgb='6f4a31', eyes=1.4, eye_x=.122, eye_z=.108, eye_rx=.065, eye_rz=.05, crack=1, inpaint=1, band=64, margin=16, smooth=30, uv_angle=66.0, uv_margin=.004, remesh=.003, solid=.012, strands=.9, nape_rz=.24, nape_rx=.2, iris_r=.0135, pupil_r=.0048, catch_r=.0036, iris_gain=2.2, iris_mix=.45, iris_glow=.35, catch_glow=.95, brim_dark=.62, brim_edge=.8, fur_lo=.55, tube=1, debug='')
 for a in argv[2:]:
     k, v = a.split('='); P[k] = type(P[k])(v)
 s = P['scale']
@@ -169,6 +177,9 @@ me.materials.clear()
 POS = bpy.data.images.new('pos', W, H, float_buffer=True); POS.colorspace_settings.name = 'Non-Color'
 bake_into(L, POS, lambda nt, e: nt.links.new(nt.nodes.new('ShaderNodeNewGeometry').outputs['Position'], e.inputs['Color']), P['margin'])
 pos = pixels(POS)[..., :3]; sx, sy, sz = to_src(pos)
+NRM = bpy.data.images.new('nrm', W, H, float_buffer=True); NRM.colorspace_settings.name = 'Non-Color'
+bake_into(L, NRM, lambda nt, e: nt.links.new(nt.nodes.new('ShaderNodeNewGeometry').outputs['Normal'], e.inputs['Color']), P['margin'])
+nrm = pixels(NRM)[..., :3]  # blender coords: z up, -y toward the nose
 used = np.abs(pos).sum(-1) > 0
 col = pixels(B0)[..., :3].copy()
 miss = (col.sum(-1) == 0) & used; missed = int(miss.sum())  # bake rays that found no source surface: filled from their neighbours
@@ -211,6 +222,42 @@ k = (fur_w * P['fur'])[..., None]
 col = np.clip(col * (1 - k) + fur_col * k, 0, 1)
 col = np.clip(col * (1 + (P['eyes'] - 1) * eye_w[..., None]), 0, 1)
 fur_after = np.median(col[sel], axis=0)
+lum = col @ LUM
+fur_rel = float(np.std(lum[sel]) / max(1e-4, np.median(lum[sel])))  # the fur's own strand contrast, for the neck strip
+
+# ---- 5b. the eyes read under the heavy brows (owner review 2026-11-26: "eyes vanish in the films, he looks eyeless"): each pupil
+#          found as the darkest texels round the eye centre; the iris (source shape, `iris_r` round the pupil) lifted `iris_gain` and
+#          warmed, the pupil kept dark, a small catch-light painted up and to one side; the iris and the catch-light also go into an
+#          emissive map (`iris_glow`, `catch_glow`) so they read in the films' shadowed sockets. Nothing else glows.
+emis = np.zeros_like(col); eyes = []
+SM = lambda d, r, e: np.clip((r - d) / e + .5, 0, 1)  # soft disc
+for side in (-1, 1):
+    near = used & (sy < -.08) & (np.hypot(sx - side * P['eye_x'], sz - P['eye_z']) < .045)
+    thr = np.quantile(lum[near], .12); dark = near & (lum <= thr)
+    c3 = pos[dark].mean(0); c3 = pos[dark][np.argmin(np.linalg.norm(pos[dark] - c3, axis=-1))]  # the dark texel nearest their middle: on the surface
+    d = np.linalg.norm(pos - c3, axis=-1) * used
+    d[~used] = 9
+    iris = SM(d, P['iris_r'], .003) * (nrm[..., 1] < .2)  # front-facing (blender -y is forward)
+    pupil = SM(d, P['pupil_r'], .002) * iris
+    catch_at = c3 + np.array([side * -.002 + .003, -.004, .0055])  # up, a little to the viewer's left, toward the surface
+    catch = SM(np.linalg.norm(pos - catch_at, axis=-1), P['catch_r'], .0015) * iris
+    lifted = np.clip(col * P['iris_gain'], 0, 1) * (1 - P['iris_mix']) + np.array([.46, .30, .16], np.float32) * P['iris_mix']
+    ring = (iris * (1 - pupil))[..., None]
+    col = col * (1 - ring) + lifted * ring
+    col = col * (1 - pupil[..., None]) + np.array([.035, .028, .024], np.float32) * pupil[..., None]
+    col = col * (1 - catch[..., None]) + np.array([.96, .94, .9], np.float32) * catch[..., None]
+    emis = np.maximum(emis, lifted * ring * P['iris_glow']); emis = np.maximum(emis, np.ones(3, np.float32) * catch[..., None] * P['catch_glow'])
+    eyes.append(dict(side=side, pupil_head=[round(float(c3[0]), 4), round(float(c3[2]), 4), round(float(-c3[1]), 4)], iris_texels=int((iris > .5).sum()), catch_texels=int((catch > .5).sum())))
+
+# ---- 5c. the cap brim (owner review: "the dark ragged band under the brim"): its underside (facing down) and its front edge get one
+#          even colour from the cap's own top (`brim_dark`, `brim_edge` of it); the shading of the light does the rest
+cap_top = np.median(col[cap & (nrm[..., 2] > .6) & used], axis=0)
+under = cap & used & (nrm[..., 2] < -.05)
+edge = cap & used & ~under & (np.abs(nrm[..., 2]) < .35) & (sy < -.2) & (sz < .315)
+for m_, k_ in ((under, P['brim_dark']), (edge, P['brim_edge'])):
+    w_ = m_.astype(np.float32); w_ = np.clip(box3(w_) / 9, 0, 1) * m_  # soft at the region's own border
+    col = col * (1 - w_[..., None]) + (cap_top * k_)[None, None, :] * w_[..., None]
+brim = dict(cap_top=np.round(cap_top, 3).tolist(), under=int(under.sum()), edge=int(edge.sum()))
 
 # ---- 6. the neck tube (a separate surface, its UVs in the band at the bottom of the atlas)
 X0, Y0, PW, PH = 2, 2, W - 4, BAND - 6
@@ -218,13 +265,14 @@ bm = bmesh.new(); bm.from_mesh(me); uvl = bm.loops.layers.uv.active
 seg = P['seg']; zc, rx, rz = P['neck_zc'], P['neck_rx'], P['neck_rz']
 ys = list(np.arange(P['neck_top'], P['neck_y'], -.02)) + [P['neck_y']] + list(np.arange(P['neck_y'] - .02, P['neck_bottom'], -.02)) + [P['neck_bottom']]
 def kk(y): return 1.0 if y >= P['shrink_from'] else 1 - (1 - P['neck_shrink']) * min(1, (P['shrink_from'] - y) / P['shrink_len'])  # narrower under the collar: never through the open cardigan front
-def up(y): t = min(1, max(0, (y - P['neck_y']) / (P['neck_top'] - P['neck_y']))); return t * t * (3 - 2 * t)
-def ring_pt(j, y):  # above the collar the back and sides widen toward the occiput and the jaw (a bear's thick nape, no hollow under the skull)
-    a = 2 * math.pi * j / seg; c, sn = math.cos(a), math.sin(a); u = up(y)
-    rzz = rz + (P['nape_rz'] - rz) * u if c < 0 else rz
-    rxx = rx + (P['nape_rx'] - rx) * u * max(0.0, min(1.0, (.3 - c) / .5))
-    if c < 0:  # the back half squarer toward the top (a superellipse): it fills the corners under the occiput and the cheek fur
-        e = 2 / (2 + (P['nape_n'] - 2) * u); c = -abs(c) ** e; sn = math.copysign(abs(sn) ** e, sn)
+def sm(t): t = min(1.0, max(0.0, t)); return t * t * (3 - 2 * t)
+def prof(y, a, b, c):  # collar (neck_y) -> mid_y -> neck_top: a at the collar, b at the nape's narrowest, c inside the skull
+    if y <= P['mid_y']: return a + (b - a) * sm((y - P['neck_y']) / (P['mid_y'] - P['neck_y']))
+    return b + (c - b) * sm((y - P['mid_y']) / (P['neck_top'] - P['mid_y']))
+def ring_pt(j, y):  # a neck that tapers from the collar to the nape (visible under the skull from behind), then widens into the skull
+    a = 2 * math.pi * j / seg; c, sn = math.cos(a), math.sin(a)
+    rxx = prof(y, rx, P['mid_rx'], P['nape_rx']) if y > P['neck_y'] else rx
+    rzz = (prof(y, P['neck_rzb'], P['mid_rzb'], P['nape_rz']) if y > P['neck_y'] else P['neck_rzb']) if c < 0 else rz
     return Vector((sn * rxx * kk(y), -(zc + c * rzz * kk(y)), y))
 if not P['tube']: ys = ys[:2]  # tube=0 (negative control for tests/head-seams): only a stub inside the skull, the raw cut shows
 rings = [[bm.verts.new(ring_pt(j, y)) for j in range(seg)] for y in ys]
@@ -260,7 +308,7 @@ def texel(uv): return col[min(H - 1, max(0, int(uv.y * H))), min(W - 1, max(0, i
 ring_col = []
 for j in range(seg):
     a = 2 * math.pi * j / seg; acc_c = []
-    for y in (P['neck_y'] + .03, P['neck_y'] + .05, P['neck_y'] + .07):
+    for y in (P['neck_y'] + .07, P['neck_y'] + .1, P['neck_y'] + .13):  # the jaw line and the cheeks the neck meets (not the bust's dark lower cone)
         q = Vector((math.sin(a) * rx * 1.4, -(zc + math.cos(a) * rz * 1.4), y))
         loc, nrm, idx, dist = tree.find_nearest(q)
         if idx is None or idx >= len(headfaces): continue
@@ -268,14 +316,20 @@ for j in range(seg):
         uv = sum((l[uvl].uv * wgt for l, wgt in zip(f.loops, wts)), Vector((0, 0))); acc_c.append(texel(uv))
     ring_col.append(np.mean(acc_c, 0) if acc_c else fur_after)
 tmp.free()
-ring_col = np.array(ring_col)
+ring_col = np.array(ring_col) * .7 + fur_after * .3  # steadier: a third of the matched fur colour
 for _ in range(6): ring_col = (np.roll(ring_col, 1, 0) + 2 * ring_col + np.roll(ring_col, -1, 0)) / 4
-rng = np.random.default_rng(7); streak = rng.normal(0, 1, PW)
-for _ in range(6): streak = (np.roll(streak, 1) + 2 * streak + np.roll(streak, -1)) / 4
-streak /= max(1e-6, streak.std())
+# the neck's fur (owner review: "give it the fur texture, not a plain colour"): strands of the head fur's own contrast (`strands` of
+# it), long along the neck (a texel is ~1 mm across and ~5 mm along the tube), on the colours round the neck
+rng = np.random.default_rng(7); nz_ = rng.normal(0, 1, (PH + 4, PW))
+for _ in range(2): nz_ = (np.roll(nz_, 1, 1) + 2 * nz_ + np.roll(nz_, -1, 1)) / 4
+for _ in range(3): nz_ = (np.roll(nz_, 1, 0) + 2 * nz_ + np.roll(nz_, -1, 0)) / 4
+fine = rng.normal(0, 1, (PH + 4, PW)); fine = (np.roll(fine, 1, 0) + fine + np.roll(fine, -1, 0)) / 3
+nz_ = nz_ / max(1e-6, nz_.std()) * .75 + fine / max(1e-6, fine.std()) * .45; nz_ /= max(1e-6, nz_.std())
+amp = P['strands'] * fur_rel
 for cx in range(PW):
     t = cx / (PW - 1) * seg; k0 = int(t) % seg; k1 = (k0 + 1) % seg; fr = t - int(t)
-    col[Y0 - 2:Y0 + PH + 2, X0 + cx] = np.clip((ring_col[k0] * (1 - fr) + ring_col[k1] * fr) * (1 + P['strands'] * streak[cx]), 0, 1)
+    base_c = ring_col[k0] * (1 - fr) + ring_col[k1] * fr
+    col[Y0 - 2:Y0 + PH + 2, X0 + cx] = np.clip(base_c[None, :] * (1 + amp * np.clip(nz_[:, cx], -2.5, 2.5))[:, None], 0, 1)
 col[Y0 - 2:Y0 + PH + 2, X0 - 2:X0] = col[Y0 - 2:Y0 + PH + 2, X0:X0 + 1]; col[Y0 - 2:Y0 + PH + 2, X0 + PW:X0 + PW + 2] = col[Y0 - 2:Y0 + PH + 2, X0 + PW - 1:X0 + PW]
 bm.to_mesh(me); bm.free()
 neck_tris = 2 * len(tube)
@@ -295,9 +349,15 @@ mat = bpy.data.materials.new('Bruno head'); nt = mat.node_tree if mat.node_tree 
 bsdf = next(n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED'); tex = nt.nodes.new('ShaderNodeTexImage'); tex.image = B
 nt.links.new(tex.outputs['Color'], bsdf.inputs['Base Color'])
 bsdf.inputs['Roughness'].default_value = P['rough']; bsdf.inputs['Metallic'].default_value = 0
+E = bpy.data.images.new('Bruno eyes glow', W, H); E.colorspace_settings.name = 'sRGB'
+eimg = np.ones((H, W, 4), np.float32); eimg[..., :3] = np.clip(emis, 0, 1); E.pixels = eimg.ravel().tolist(); E.update()
+if P['size'] < W: E.scale(P['size'], P['size'])
+E.file_format = 'JPEG'
+etex = nt.nodes.new('ShaderNodeTexImage'); etex.image = E
+nt.links.new(etex.outputs['Color'], bsdf.inputs['Emission Color']); bsdf.inputs['Emission Strength'].default_value = 1.0
 me.materials.clear(); me.materials.append(mat)
 bpy.data.objects.remove(S, do_unlink=True)
-for im in (cov, POS, T1, B0): bpy.data.images.remove(im)
+for im in (cov, POS, NRM, T1, B0): bpy.data.images.remove(im)
 
 co = np.array([tuple(v.co) for v in me.vertices]); Hf = np.stack([co[:, 0], co[:, 2], -co[:, 1]], 1)
 tris = sum(len(p.vertices) - 2 for p in me.polygons)
@@ -309,4 +369,4 @@ bpy.ops.export_scene.gltf(filepath=out, export_format='GLB', use_selection=False
 print('REPORT ' + json.dumps(dict(params=P, source_tris=src_tris, after_cut=cut_tris, head_tris=head_tris, neck_tris=neck_tris, tris=tris, verts=len(me.vertices),
                                   covered=round(covered, 3), uv_islands=n_islands, bake_missed=missed, inpainted_texels=filled, cracks_filled=crack_n, strip=[X0, Y0, PW, PH],
                                   fur=dict(median_before=np.round(med, 3).tolist(), after=np.round(fur_after, 3).tolist()), neck_colours=np.round(ring_col[::8], 3).tolist(),
-                                  eye_texels=int((eye_w > .5).sum()), cap_texels=int(cap.sum()), bounds=[Hf.min(0).round(4).tolist(), Hf.max(0).round(4).tolist()], bytes=os.path.getsize(out))))
+                                  eye_texels=int((eye_w > .5).sum()), eyes=eyes, brim=brim, fur_rel=round(fur_rel, 3), cap_texels=int(cap.sum()), bounds=[Hf.min(0).round(4).tolist(), Hf.max(0).round(4).tolist()], bytes=os.path.getsize(out))))

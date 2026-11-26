@@ -387,11 +387,13 @@
     hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112502', label: 'Hazel', fold: { from: 1.745, to: 1.775, column: { zc: -.03, rx: .085, rz: .09, margin: .85, maxX: .16 } }, hide: ['Hazel: headscarf'] },
     // Hazel's code jaw starts right above her cardigan (y 1.77-1.81, front z to 0.3): her skin above the neckline goes into a column inside
     // the model's neck, eased in from 1.745 so the dress neckline slopes in to meet it (owner 2026-11-25: "what is in her neck?")
-    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112601', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .2, rz: .15, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385] } }
+    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112602', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .2, rz: .15, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385] }, eyes: [[-.0732, .2062, .2461], [.0742, .2075, .2468]] }
     // Coach Bruno (story-cast.js; owner 2026-11-26: "yes"): his ears, flat cap, brows, eyes, nose, mouth and cheek ruff are all children
-    // of the head joint and leave with the code head; his towel and whistle hang from the chest joint and stay. The model's neck tube
-    // (centre z 0, half-widths 0.2 x 0.15, tools/blender/bruno_head_game.py) goes down into the cardigan collar (1.775): the skin above
-    // the collar goes into a column well inside it, eased in from 1.75 so the cardigan's neckline meets the neck
+    // of the head joint and leave with the code head; his whistle and cord stay, his towel is swapped (brunoTowel). The model's neck
+    // tube (tools/blender/bruno_head_game.py: centre z 0, 0.2 x 0.15/0.17 at the collar, tapering to the nape) goes down into the
+    // cardigan collar (1.775): the skin above the collar goes into a column well inside it, eased in from 1.75 so the cardigan's
+    // neckline meets the neck. gestures.chin: the hand-to-chin gesture under the model's chin (the code head's target put the paw
+    // 1-4 cm into the muzzle). eyes: the pupils (head-joint frame, from the script's REPORT) for QA and tests/bruno-head-eyes.
   };
   const headFiles = {};
   const fileOf = id => headFiles[id] || (headFiles[id] = { id, state: 'idle', promise: null, scene: null, rigs: new Set() });
@@ -433,9 +435,9 @@
       const off = o => { if (o.isMesh || o.isLine || o.isPoints || o.isSprite) { h.hidden.push([o, o.layers.mask]); o.layers.disableAll(); } };
       h.hidden = []; for (const c of head.children) if (c !== group) c.traverse(off);
       if (cfg.hide.length) rig.root.traverse(o => { if (cfg.hide.includes(o.name)) off(o); });
-      skinHead(rig, true); head.add(group); h.on = true; if (cfg.gestures) rig.gestureAt = cfg.gestures;
+      skinHead(rig, true); head.add(group); h.on = true; if (cfg.gestures) rig.gestureAt = cfg.gestures; if (h.id === 'bruno') towelOn(rig, true);
     } else {
-      h.group?.parent?.remove(h.group); for (const [o, mask] of h.hidden) o.layers.mask = mask; h.hidden = []; skinHead(rig, false); h.on = false; if (rig.gestureAt === cfg.gestures) rig.gestureAt = null;
+      h.group?.parent?.remove(h.group); for (const [o, mask] of h.hidden) o.layers.mask = mask; h.hidden = []; skinHead(rig, false); h.on = false; if (rig.gestureAt === cfg.gestures) rig.gestureAt = null; if (h.id === 'bruno') towelOn(rig, false);
     }
     return h.on;
   }
@@ -933,8 +935,45 @@
       finish.call(this, rig);
       const base = rig.updateMane.bind(rig);
       rig.updateMane = time => { base(time); if (rig.castHead) headGround(rig, time); };
+      brunoTowel(rig);
       authoredHead(rig);
     };
+  }
+  /** Bruno's towel with the authored head (owner review 2026-11-26: "the white sliver and the hard cut line" where the towel met the
+   *  neck): his towel (story-cast.js) crosses the shoulder at the base of the neck, x -0.07..-0.24, inside the model's neck tube
+   *  (r 0.2 at the collar). While the model is on, the towel's part of his merged towel-and-whistle mesh is not drawn (draw range
+   *  from the cord on; whistle and cord stay) and this towel shows instead: the same terry cloth, same path down the chest and the
+   *  back, but over the shoulder it moves out onto the trapezius beside the neck (centre x -0.262, 0.13 wide, tilted with the
+   *  shoulder's slope), so its inner edge stays outside the neck (x <= -0.197). Built once at the rig's build, rest pose. */
+  function brunoTowel(rig) {
+    const orig = rig.root.getObjectByName('Bruno: towel and whistle'); if (!orig || rig.castTowel) return;
+    const C = orig.geometry.attributes.color, red = lin('#b3261e'); let cord = 0;
+    for (let i = 0; i < C.count; i++) if (Math.abs(C.getX(i) - red.r) < .01 && Math.abs(C.getY(i) - red.g) < .01 && Math.abs(C.getZ(i) - red.b) < .01) { cord = i; break; }
+    const P = rig.skin.geometry.attributes.position;
+    const crest = (x, z, rx, rz, below) => { let best = 0; for (let i = 0; i < P.count; i++) { const y = P.getY(i); if (y > below || y < best || Math.abs(P.getX(i) - x) > rx || Math.abs(P.getZ(i) - z) > rz) continue; best = y; } return best; };
+    const tx = -.155, cx = -.283, Wd = .13, sag = k => .012 * Math.sin(k * 2.3), T = [];
+    const W = (x, y, back) => seat(rig, x, y, false, .02, back, .04);
+    const xs = y => y < 1.6 ? tx : lerp(tx, -.235, smooth((y - 1.6) / .085));
+    for (const [k, y] of [1.33, 1.39, 1.45, 1.51, 1.57, 1.63, 1.68].entries()) { const x = xs(y) + sag(k); T.push(V(x, y, W(x, y) + .03)); }
+    for (const z of [.11, .04, -.04, -.11]) T.push(V(cx, crest(cx, z, .02, .04, 1.79) + .025, z));
+    for (const [k, y] of [1.68, 1.61, 1.54, 1.47, 1.4].entries()) { const x = xs(y) - sag(k); T.push(V(x, y, W(x, y, true) - .03)); }
+    const hIn = crest(-.2, 0, .025, .06, 1.79), hOut = crest(-.33, 0, .025, .06, 1.79), slope = Math.max(0, (hIn - hOut) / .13), sh = V(-slope, 1, 0).normalize();
+    const TL = T.map(q => q.clone().sub(V(0, 1.36, 0)));
+    const normal = q => { const k = smooth((q.y - .27) / .06); return V(0, 0, q.z > 0 ? 1 : -1).multiplyScalar(1 - k).addScaledVector(sh, k).normalize(); };
+    const curve = new THREE.CatmullRomCurve3(TL);
+    const Pt = new Parts();
+    Pt.ribbon(TL, Wd, .026, '#f3eee2', V(1, 0, 0), 44, 14, normal);
+    // the rolled edges: the same path moved along the cloth's own width direction
+    const n = 44, pts = curve.getPoints(n), edges = [[], []];
+    for (let i = 0; i <= n; i++) { const t = curve.getTangent(i / n), sd = t.clone().cross(normal(pts[i])).normalize(); edges[0].push(pts[i].clone().addScaledVector(sd, -Wd / 2 + .003)); edges[1].push(pts[i].clone().addScaledVector(sd, Wd / 2 - .003)); }
+    for (const e of edges) Pt.ribbon(e, .02, .032, '#e9e3d5', V(1, 0, 0), 44, 8, normal);
+    for (const [a, b] of [[0, 1], [15, 14]]) { const q = T[a].clone().lerp(T[b], .4).sub(V(0, 1.36, 0)); Pt.ribbon([q.clone().add(V(-Wd / 2, 0, a ? -.009 : .009)), q.clone().add(V(Wd / 2, 0, a ? -.009 : .009))], .03, .004, '#4f7fb3', V(0, 1, 0), 4, 6); } // blue stripe at both ends
+    const m = Pt.mesh('Bruno: towel (authored head)'); m.visible = false; rig.joints.chest.add(m);
+    rig.castTowel = { orig, alt: m, cord };
+  }
+  function towelOn(rig, on) {
+    const t = rig.castTowel; if (!t) return;
+    t.orig.geometry.setDrawRange(on ? t.cord : 0, Infinity); t.alt.visible = !!on;
   }
   // the street fight: Fang takes the Opponent slot in his fight clothes (tank top, bare fists); back in the jacket afterwards
   const baseOpponent = SC.asOpponent;

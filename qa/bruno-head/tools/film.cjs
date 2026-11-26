@@ -3,9 +3,11 @@
 // a frame-time sample (3 s of playback from the first time).
 const { open, save } = require('./serve.cjs'), fs = require('fs'), path = require('path');
 (async () => {
-  const [OUT, SCENE, TIMES, OUTCOME] = process.argv.slice(2), tag = process.env.BEFORE ? 'before' : 'after';
+  const [OUT, SCENE, TIMES, OUTCOME] = process.argv.slice(2), tag = process.env.TAG || (process.env.BEFORE ? 'before' : 'after');
   fs.mkdirSync(OUT, { recursive: true });
-  const { p, close } = await open({ block: process.env.BEFORE ? [(process.env.WHO || 'bruno') + '-head.glb'] : null });
+  // env HEAD_FILE=<glb> serves that file as the head (an earlier build), EYES='[[x,y,z],[x,y,z]]' its pupils (head-joint frame)
+  const { p, close } = await open({ block: process.env.BEFORE ? [(process.env.WHO || 'bruno') + '-head.glb'] : null, alias: process.env.HEAD_FILE ? { [(process.env.WHO || 'bruno') + '-head.glb']: process.env.HEAD_FILE } : null });
+  if (process.env.EYES) await p.evaluate(e => { StoryCast.market.heads[window.__who || 'bruno'].cfg.eyes = JSON.parse(e); }, process.env.EYES);
   await p.evaluate(w => { window.__who = w; }, process.env.WHO || 'bruno');
   if (process.env.QUALITY) await p.evaluate(q => DreamScenes.quality(q), process.env.QUALITY);
   await p.evaluate(() => { setInterval(() => document.querySelectorAll('dialog[open]:not(.dream-scene)').forEach(d => d.close()), 300); const r = app.engine.renderer, render = r.render.bind(r); r.render = (sc, cam) => { if (sc !== app.engine.scene && cam?.isPerspectiveCamera && !r.getRenderTarget()) { window.__filmCam = cam; window.__filmScene = sc; } const out = render(sc, cam); if (!r.getRenderTarget() && sc === window.__filmScene) window.__info = { calls: r.info.render.calls, tris: r.info.render.triangles, geos: r.info.memory.geometries, tex: r.info.memory.textures, progs: r.info.programs?.length }; return out; }; });
@@ -27,9 +29,18 @@ const { open, save } = require('./serve.cjs'), fs = require('fs'), path = requir
       const h = c.joints.head.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, .05, 0)), dir = cam0.position.clone().sub(h); dir.y = Math.max(dir.y, .1 * dir.length()); dir.normalize();
       const cam = new T.PerspectiveCamera(30, 1, .03, 60); cam.position.copy(h).addScaledVector(dir, 1.9); cam.lookAt(h);
       r.setRenderTarget(rt); r.render(c.root.parent, cam); r.readRenderTargetPixels(rt, 0, 0, W, H, buf); r.setRenderTarget(null);
+      // the eyes in this picture: the pupil centres (authored head: cfg.eyes in the head-joint frame; code head: its eye parts),
+      // projected; mean and max luminance (0..255, display values) of a 9x9 px window round each; facing: the eye looks toward the camera
+      const head = c.joints.head, hc = StoryCast.market.heads[window.__who]?.cfg, eyesW = c.castHead?.on && hc?.eyes ? hc.eyes.map(q => new T.Vector3(...q).applyMatrix4(head.matrixWorld)) : (c.facialRest || []).filter(f => f.eye).map(f => f.part.getWorldPosition(new T.Vector3())).slice(0, 2);
+      const fwd = new T.Vector3(0, 0, 1).transformDirection(head.matrixWorld);
+      const eyes = eyesW.map(q => { const v = q.clone().project(cam), px = Math.round((v.x + 1) / 2 * W), py = Math.round((1 - v.y) / 2 * H), facing = -fwd.dot(q.clone().sub(cam.position).normalize()); let sum = 0, n = 0, mx = 0;
+        for (let y = py - 4; y <= py + 4; y++) for (let x = px - 4; x <= px + 4; x++) { if (x < 0 || y < 0 || x >= W || y >= H) continue; const o = ((H - 1 - y) * W + x) * 4, l = .2126 * buf[o] + .7152 * buf[o + 1] + .0722 * buf[o + 2]; sum += l; n++; if (l > mx) mx = l; }
+        return { px, py, facing: +facing.toFixed(2), mean: n ? +(sum / n).toFixed(1) : null, max: +mx.toFixed(0) }; });
+      window.__eyes = eyes;
       const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const cx = cv.getContext('2d'), img = cx.createImageData(W, H); for (let y = 0; y < H; y++) img.data.set(buf.subarray((H - 1 - y) * W * 4, (H - y) * W * 4), y * W * 4); cx.putImageData(img, 0, 0); rt.dispose(); return cv.toDataURL('image/png');
     });
     if (url) save(path.join(OUT, name + '-close.png'), url);
+    const eyes = url ? await p.evaluate(() => window.__eyes) : null; report.frames[report.frames.length - 1].eyes = eyes; if (eyes) console.log(name, 'eyes', JSON.stringify(eyes));
     console.log(name, JSON.stringify(info));
   }
   // frame time: play 3 s from the first time (rAF deltas) after a short warm-up
