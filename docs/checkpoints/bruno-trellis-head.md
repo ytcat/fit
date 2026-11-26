@@ -24,7 +24,9 @@ mask on the shoulders, towel sliver at the neck, ragged brim, plain neck colour)
   `jowl-walk-before-after.webp` (rows code head / reviewed round 3 / now; walk at 3 moments, side, 3/4, below) and
   `towel-hem-front.webp`. `head-source-vs-game.webp` and `gym-referee-before-after.webp` are from round 3 (Blender/gym renders
   not redone; the change is below the jaw).
-- Checks: see "Checks run (round 4)" below.
+- Checks (round 4, final files): the same 29 related tests one at a time (`scripts/run-tests.sh -j 1 ...`, list under "Checks run
+  (round 2)") -> files=29 fails=0 (1336 s), incl. bruno-head (contact 97 frames 0/0), bruno-head-eyes, head-seams (Bruno 229
+  poses). Not checked on a physical phone. Full suite: integrator.
 
 ## Round 3 (main's review: towel and wave-off)
 - Towel (`adventure/story/cast-market.js` `brunoTowel`, `BRUNO_TOWEL`): the rigid ribbon replacement is gone. With the model on, ONE
