@@ -1,72 +1,78 @@
 # Checkpoint: Coach Bruno's TRELLIS.2 head in the game (branch `agent/bruno-head`, GOTR-0139)
 
 Owner 2026-11-26: approved the TRELLIS.2 head ("yes"). Branch from `origin/claude/ecstatic-clarke-9as2ak` 7a6baa8.
-Not merged, not released, no version bump.
+Not merged, not released, no version bump. Round 2 (2026-11-26): main's review "NOT ready" (eyes vanish in the films, too big / a
+mask on the shoulders, towel sliver at the neck, ragged brim, plain neck colour) addressed below.
 
 ## What changed
-- `tools/blender/bruno_head_game.py` -> `assets/characters/bruno/bruno-head.glb` (defaults; run:
-  `<blender venv python> tools/blender/bruno_head_game.py -- assets/characters/bruno/trellis/bruno-head-trellis-source.glb assets/characters/bruno/bruno-head.glb`):
-  - 98.4k -> 16.2k triangles (head 14.6k + neck tube 1.6k), one 1024 px JPEG, roughness 0.85, metal 0, 0.48 MB.
-  - Frame: scale 0.70 m/unit, dy 0.153, dz 0.03 (snout tip z 0.39, code nose 0.35; cap top y 0.50, code cap 0.42; ears x +-0.26).
-    The TRELLIS head is taller than the code head (bigger forehead and cap), so Bruno is ~7 cm taller at the cap.
-  - The source is thin walls (two sheets ~1.5 mm apart, the cap in layers): weld + decimate stopped at ~29k. It is thickened inward,
-    voxel-remeshed, cut at head-frame y -0.12, decimated, re-UV'd (Smart UV Project on a smoothed copy: 110 islands) and the colour
-    re-baked from the source.
-  - Cracks: they were the source atlas's chart borders (dark speckle texels sampled along every UV seam). Chart borders inpainted from
-    each chart's interior before the bake; the new atlas has 16 px extended margins; thin dark lines left in the light areas filled.
-  - Neck: the source's slanted fur cone and ragged tips are gone; a clean tube from inside the skull into the body (-0.2), widening
-    toward the occiput above the collar (thick bear nape, no hollow under the skull), narrower under the collar (never through the
-    open cardigan front). The bust's cut rim lies inside the tube and the body.
-  - Colour: dark fur median matched per channel to his body (#6f4a31), variation softened; cap, muzzle, brows, nose kept; the eyes
-    keep their own colours and their dark texels are lifted x1.4 (the first recolour had turned them into flat fur: fixed).
-- `adventure/story/cast-market.js`: `HEADS.bruno` (fold column zc 0, rx .2, rz .15, margin .7, from 1.75 to 1.78, maxX .2); Bruno's
-  `finish` (story-cast.js def) is wrapped: `authoredHead(rig)` + the ground rule on his update. Every code head part is a child of
-  the head joint (ears/nose/flat cap, brows, eyes, mouth, cheek ruff, brow tufts) and leaves the render layers; towel, whistle,
-  buttons, paws, shoes, clothes untouched. `gestures.chin` (with the model on): the hand-to-chin gesture sits under the new, lower
-  and longer chin (was 1-4 cm inside the muzzle in the gym talk and the apology film). `StoryCast.market.heads.bruno`.
-- `adventure/story/dream-pose.js`: `rig.gestureAt[name]` overrides a gesture's hand target (only Bruno's chin uses it).
-- `adventure/story/dream-scenes.js`: films with Bruno wait up to 5 s (generic `headIds`); the opening asks for his head (the gym
-  talk follows).
-- Offline pack: `./assets/characters/bruno/bruno-head.glb?v=2026112601` (builder + regenerated manifest, version string untouched).
-- `index.html`: `?v=20261126br` for cast-market.js, dream-scenes.js, dream-pose.js.
-- Tests: new `tests/bruno-head.test.cjs`; `tests/head-seams.test.cjs` covers Bruno (227 poses: nine films every second, talk, walk,
-  point, hips, shrug, looks, referee count, wrist held high both sides, wave-off); negative controls: the v1.96 fold (59 vertices out,
-  3.1 cm) and the head without its neck tube (`BRUNO_GLB=<tube=0 build>`: 59 vertices out at the back of the neck, 3.3 cm).
+- `tools/blender/bruno_head_game.py` -> `assets/characters/bruno/bruno-head.glb?v=2026112602` (defaults; run:
+  `<blender venv python> tools/blender/bruno_head_game.py -- assets/characters/bruno/trellis/bruno-head-trellis-source.glb assets/characters/bruno/bruno-head.glb`;
+  reproduces the shipped file byte for byte, sha1 b59d3859):
+  - 98.4k -> 16.1k triangles (head 14.6k + neck 1.5k), base colour JPEG 1024 + an emissive JPEG 1024 (black but the eyes), 0.49 MB.
+  - Geometry: the source is thin walls (two sheets ~1.5 mm apart, the cap in layers): thickened inward, voxel-remeshed, cut at
+    head-frame y -0.12, decimated, re-UV'd (Smart UV Project on a smoothed copy) and the colour re-baked from the source.
+  - Size (round 2): scale 0.63 (was 0.70): cap top at head-frame y 0.448, the code head's cap 0.424 (+2.4 cm; was +7 cm); snout
+    tip z 0.38 (code nose 0.35); ears x +-0.23.
+  - Eyes (round 2): each pupil found in the bake; the iris (source shape) lifted x2.2 and warmed, the pupil dark, a catch-light
+    painted; iris (x0.35) and catch-light (x0.95) also in the emissive map. Measured in the films (below).
+  - Cracks: the source atlas's chart borders, inpainted before the bake; 16 px extended margins in the new atlas.
+  - Neck (round 2): a tube from inside the skull into the body that tapers from the collar (0.2 wide, back 0.17) to a nape under the
+    skull (0.17 / 0.15 at y -0.01), then widens into the skull; narrower under the collar. Fur texture (strands at the head fur's own
+    contrast) on the colours of the jaw line; the bust's cut rim lies inside the tube and the body.
+  - Brim (round 2): the lip's vertices smoothed (8 passes, 621 vertices: the remesh had left it lumpy), the underside and front edge
+    one even colour from the cap's top (x0.78 / x0.85).
+  - Colour: dark fur median matched per channel to his body (#6f4a31), variation softened; cap, muzzle, brows, nose kept.
+- `adventure/story/cast-market.js`: `HEADS.bruno` (fold column zc 0, rx .2, rz .15, margin .7, from 1.75 to 1.78, maxX .2;
+  `gestures.chin`; `eyes`: the pupils for QA/tests). Bruno's `finish` (story-cast.js def) is wrapped: `brunoTowel(rig)`,
+  `authoredHead(rig)`, the ground rule. Every code head part is a head-joint child and leaves the render layers.
+  - Towel (round 2): with the model on, the towel's part of the merged towel-and-whistle mesh is not drawn (draw range from the cord;
+    whistle and cord stay) and `Bruno: towel (authored head)` shows: same terry cloth and path down the chest and the back, but over
+    the shoulder it lies on the trapezius beside the neck (centre x -0.283, 0.13 wide, tilted with the shoulder): no contact with the
+    neck. Code head back: the original towel back. story-cast.js unchanged.
+- `adventure/story/dream-pose.js`: `rig.gestureAt[name]` overrides a gesture's hand target (Bruno's chin with the model).
+- `adventure/story/dream-scenes.js`: films with Bruno wait up to 5 s; the opening asks for his head (the gym talk follows).
+- Offline pack: `./assets/characters/bruno/bruno-head.glb?v=2026112602` (builder + regenerated manifest, version string untouched).
+- `index.html`: cast-market.js `?v=20261126br2`, dream-scenes.js and dream-pose.js `?v=20261126br`.
+- Tests: `tests/bruno-head.test.cjs` (round 2: two JPEGs + emissive map, model top within 3 cm of the code head's cap, towel swap
+  and towel outside the neck tube, chin paw out of the muzzle), new `tests/bruno-head-eyes.test.cjs` (real page: gym talk 13 s,
+  each eye mean luminance >= 25 and a catch-light >= 110; the reviewed build fails: 5.3), `tests/head-seams.test.cjs` covers Bruno
+  (227 poses; fails with the v1.96 fold: 103 vertices out, 3.1 cm; and with the head built without its tube).
 
-## Join checks (evidence in `qa/bruno-head/`, tools in `qa/bruno-head/tools/`, sheets rebuilt by `make_sheets.sh`)
-- `seams-{stand,talk,walk,point,count,raise}-before-after.webp`: head-neck-collar close-ups at 402x690 renderer settings, front, side,
-  back, below (camera at chest height looking up), 3/4, back 3/4; top row the code head, bottom the model.
-- `body-before-after.webp` (whole figure front/3/4/side/back), `referee-face-before-after.webp` (count, wrist held high beside him,
-  point; face front and 3/4), `towel-cord-before-after.webp`, `chin-gesture-before-after.webp`, `head-source-vs-game.webp` (Blender:
-  source vs game; eyes/brows close: cracks gone), `portrait-before-after.webp`.
-- Real game: `film-gymtalk.webp` + `film-gymtalk-close.webp` (gym talk before/after), `film-apology.webp` (apology film before/after
-  with head close-ups; hand to chin at 22 s), `gym-referee-before-after.webp` (Bruno as the gym-ring referee: game view; whole,
-  neck 3/4, below, behind with the fighters hidden).
-- Probe `node qa/bruno-head/tools/paw-head.cjs`: paws vs the model in all nine films (every 0.5 s) and the referee poses: 0 inside
-  after the chin fix (1.2 cm in the gym talk and 3.9 cm in the apology film before it). Towel/whistle: the towel's crest and the cord
-  ends lie inside the neck base (see limits).
-- Draw calls with Bruno on screen (gym talk, same frames): 180/174 -> 160/154; triangles -36k.
+## Measured (round 2)
+- Eyes, 9x9 px round each pupil in the film close-ups (402x402 from the film camera's side), facing frames, mean/max luminance:
+  gym talk 13/21/33 s: code head 38.6-62.6/225; reviewed build 2.5-27.5/15-104; now 33.5-46.4/112-213. Apology 6/22 s: code head
+  30-61/225; reviewed 1.9-8.8/13-51; now 39.9-44.2/203-215.
+- Head top +2.4 cm over the code head's cap (limit 3 cm, test). Portrait: the cap clears the top edge.
+- Paw probe `qa/bruno-head/tools/paw-head.cjs` (nine films every 0.5 s + referee poses): paws 0 inside, towel 0 inside the head.
+- Draw calls (gym talk, same frames): 180/174 -> 160/154; triangles -37k.
 
-## Checks run
+## Join checks (evidence in `qa/bruno-head/`, tools in `qa/bruno-head/tools/`, sheets rebuilt by `make_sheets.sh <render dir>`)
+- `seams-{stand,talk,walk,point,count,raise}-before-after.webp`: front, side, back, below (camera at chest height looking up), 3/4,
+  back 3/4; top the code head, bottom the model.
+- `body-before-after.webp`, `referee-face-before-after.webp`, `towel-cord-before-after.webp`, `towel-arm-before-after.webp` (left
+  arm raised as referee, wave-off), `chin-gesture-before-after.webp`, `head-source-vs-game.webp`, `portrait-before-after.webp`.
+- Real game: `film-gym_talk-eyes.webp`, `film-apology-eyes.webp` (rows code head / reviewed build / now, eye luminance in the labels),
+  `film-gym_talk-frames.webp`, `film-apology-frames.webp` (402x690 framing), `gym-referee-before-after.webp`.
+
+## Checks run (round 2, on the final files)
 - `bash scripts/run-tests.sh -j 1 bruno-head head-seams hazel-head fang-head avatar-joins armpit-fold story-cast-market rourke-cast
   gym-ring-rematch gym-door-glass dream-gym-return dream-scenes dream-market-films dream-bag-break docks-films story-clean-gym
   offline-version-match pc-smooth-start portraits paws.test sunday-punch fight-corner-break story-flow adventure-story city-assets
-  lang-generic super-punch-film fight-pause` -> files=28 fails=0 (1323 s). Then `node tests/bruno-head.test.cjs` (with the chin
-  check) and `node tests/offline-version-match.test.cjs` again: ok.
-- head-seams negative controls: `BRUNO_GLB=<build with tube=0> ONLY=bruno node tests/head-seams.test.cjs` fails (59 vertices out,
-  3.3 cm); the in-test v1.96 fold control: 59 vertices out, 3.1 cm.
-- `tools/blender/bruno_head_game.py` with its defaults reproduces the shipped GLB byte for byte (sha1 1ea1246c).
+  lang-generic super-punch-film fight-pause` -> files=29 fails=0 (1391 s; bruno-head matches bruno-head and bruno-head-eyes).
+- Negative controls: `BRUNO_GLB=<v2026112601 build> EYES='[[-0.082,0.236,0.243],[0.082,0.236,0.243]]' node tests/bruno-head-eyes.test.cjs`
+  fails (eye mean 5.3); `BRUNO_GLB=<build with tube=0> ONLY=bruno node tests/head-seams.test.cjs` fails (239 vertices out, 6.9 cm);
+  the in-test v1.96 fold: 103 vertices out, 3.1 cm.
+- The script with its defaults reproduces the shipped GLB byte for byte (sha1 b59d3859).
 - Full suite: not run here (integrator).
 
 ## Remaining / known limits
-- The towel's crest over the left shoulder runs into the base of the neck (story-cast.js routes it at y ~1.82 over x -0.07..-0.24,
-  inside the neck before as well, where the code head's cheek ruff covered it). With the model the towel meets the neck in a clean
-  line with a small white sliver at the crossing in close-ups. Lowering the crest made it worse (towel through the shoulder); left.
-- The referee's Sunday Punch wave-off (gym-fight.js) sweeps a paw through the side of the head at the crossing, with the code head
-  as well (pre-existing motion); not changed here.
-- No jaw on this head: the mouth stays in its closed smile; the head nods with the words (DreamPose talk), the hidden jaw channel runs.
-- The eyes are deep-set as in the source: visible as dark sockets with the iris, not bright.
-- Bruno's head is larger and taller than the code head (film framing checked on the gym talk; other films not re-rendered).
+- The referee's Sunday Punch wave-off sweeps a paw across the head (code head too; motion unchanged). With his left arm raised the
+  towel (rigid on the chest) arches off the shoulder, as the code head's towel does.
+- No jaw: closed smile, the head nods with the words. The eyes are still deep-set and small at film distance; they read (iris and
+  catch-light), not big.
+- The towel now crosses the chest more diagonally (it goes out to the shoulder); a small cream fleck at its lower front edge is the
+  same part that shows at the old towel's edge (pre-existing).
+- The remesh softened the fur relief; the dark fur streaks at the back of the head (source) remain, softened.
 
 ## Next
 - Integrator: full suite before release.

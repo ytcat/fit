@@ -387,7 +387,7 @@
     hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112502', label: 'Hazel', fold: { from: 1.745, to: 1.775, column: { zc: -.03, rx: .085, rz: .09, margin: .85, maxX: .16 } }, hide: ['Hazel: headscarf'] },
     // Hazel's code jaw starts right above her cardigan (y 1.77-1.81, front z to 0.3): her skin above the neckline goes into a column inside
     // the model's neck, eased in from 1.745 so the dress neckline slopes in to meet it (owner 2026-11-25: "what is in her neck?")
-    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112602', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .2, rz: .15, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385] }, eyes: [[-.0732, .2062, .2461], [.0742, .2075, .2468]] }
+    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112602', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .2, rz: .15, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385] }, eyes: [[-.0757, .2079, .2467], [.0743, .2065, .2463]] }
     // Coach Bruno (story-cast.js; owner 2026-11-26: "yes"): his ears, flat cap, brows, eyes, nose, mouth and cheek ruff are all children
     // of the head joint and leave with the code head; his whistle and cord stay, his towel is swapped (brunoTowel). The model's neck
     // tube (tools/blender/bruno_head_game.py: centre z 0, 0.2 x 0.15/0.17 at the collar, tapering to the nape) goes down into the

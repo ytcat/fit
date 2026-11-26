@@ -21,6 +21,15 @@ python3 "$S" "$Q/head-source-vs-game.webp" "TRELLIS.2 source (top) and the game 
   "$R/srchead/front.png" "source front" "$R/srchead/side.png" "source side" "$R/srchead/back.png" "source back" "$R/srceye/front.png" "source eyes/brows" \
   "$R/finalhead/front.png" "game front" "$R/finalhead/side.png" "game side (neck tube)" "$R/finalhead/back.png" "game back (nape)" "$R/finaleye/front.png" "game eyes/brows"
 python3 "$S" "$Q/portrait-before-after.webp" "Story portrait: before (code head), after (model), cold start" 300 300 3 "$R/final/portrait-before.png" "before" "$R/final/portrait-after.png" "after" "$R/final/portrait-cold-first.png" "cold start first draw"
-cp "$R/film-gymtalk.webp" "$R/film-gymtalk-close.webp" "$R/film-apology.webp" "$R/gym-sheet.webp" "$Q/" 2>/dev/null || true
-mv -f "$Q/gym-sheet.webp" "$Q/gym-referee-before-after.webp" 2>/dev/null || true
+args=""; for tag in before after; do for v in raiseL-front raiseL-back waveoff; do args="$args $R/final/$v-$tag.png $v-$tag"; done; done
+python3 "$S" "$Q/towel-arm-before-after.webp" "Towel with his left arm raised (referee, winner on his left) and the wave-off: top before, bottom after" 300 300 3 $args
+# films: rows code head / the reviewed build (v2026112601) / this build; the close-ups carry the eye luminance (mean, max of 9x9 px)
+for sc in "dream_gym_talk 5 13 21 33" "dream_apology 6 14 22 30"; do set -- $sc; id=$1; shift
+  args=""; for tag in before v1 after; do i=0; for t in "$@"; do f="$R/films2/$id-$tag-0$i-$t-close.png"; lab=$(python3 -c "import json,sys;r=json.load(open('$R/films2/$id-$tag-auto.json'));e=[f for f in r['frames'] if f['t']==$t][0].get('eyes') or [];print('$tag $t s eyes '+' '.join('%s/%s'%(x['mean'],x['max']) for x in e if x['facing']>.5) )"); args="$args $f \"$lab\""; i=$((i+1)); done; done
+  eval python3 "$S" "$Q/film-${id#dream_}-eyes.webp" "\"${id#dream_} film, head close-ups from the film camera: rows code head, reviewed build (dark sockets), this build; labels: eye mean/max luminance\"" 300 300 4 $args
+  args=""; for tag in before after; do i=0; for t in "$@"; do f=$(ls $R/films2/$id-$tag-0$i-$t.png); args="$args $f $tag-${t}s"; i=$((i+1)); done; done
+  python3 "$S" "$Q/film-${id#dream_}-frames.webp" "${id#dream_} film at 402x690 (framing): top code head, bottom this build" 201 345 4 $args
+done
+cp "$R/gym-sheet.webp" "$Q/gym-referee-before-after.webp" 2>/dev/null || true
+rm -f "$Q/film-gymtalk.webp" "$Q/film-gymtalk-close.webp" "$Q/film-apology.webp" "$Q/film-gym_talk.webp"
 ls -la "$Q"/*.webp

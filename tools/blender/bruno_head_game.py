@@ -33,8 +33,9 @@ Node 'brunoHead'. What is different, and why:
     eye), the iris (`iris_r` round it, the source's own shape) lifted (`iris_gain`, warmed by `iris_mix`), the pupil dark, a
     catch-light painted (`catch_r`); iris and catch-light also go into an emissive map (`iris_glow`, `catch_glow`) so they read in
     the films' shadowed sockets. The pupil positions are printed (REPORT eyes) for HEADS.bruno.eyes (QA and tests).
-  * The cap brim (main review: "the dark ragged band under the brim"): its underside and front edge get one even colour from the
-    cap's top (`brim_dark`, `brim_edge`).
+  * The cap brim (main review: "the dark ragged band under the brim"): the remesh left its lip lumpy, so the lip's vertices are
+    smoothed (`brim_smooth` passes), and its underside and front edge get one even colour from the cap's top (`brim_dark`,
+    `brim_edge`).
   * Colour. The source fur is near black (as dark as the FLUX picture); Bruno's body fur is #6f4a31. The dark fur texels (not the
     cap, found by position; not the cream muzzle and brows, the nose or the eyes) move to the body's fur colour: median matched per
     channel, the texture's own variation kept at `fur_contrast` (clamped at `fur_lo`: the darkest streaks read as smudges once the
@@ -49,7 +50,7 @@ argv = sys.argv[sys.argv.index('--') + 1:]
 src, out = argv[0], argv[1]
 P = dict(scale=.63, dy=.1327, dz=.055, cut=-.12, tris=14600, quality=86, rough=.85, size=1024,
          neck_top=.1, neck_y=-.07, neck_zc=0.0, neck_rx=.2, neck_rz=.15, neck_rzb=.17, mid_y=-.01, mid_rx=.17, mid_rzb=.15, neck_bottom=-.2, neck_shrink=.75, shrink_from=-.075, shrink_len=.06, seg=48,
-         fur=1.0, fur_contrast=.65, fur_rgb='6f4a31', eyes=1.4, eye_x=.122, eye_z=.108, eye_rx=.065, eye_rz=.05, crack=1, inpaint=1, band=64, margin=16, smooth=30, uv_angle=66.0, uv_margin=.004, remesh=.003, solid=.012, strands=.9, nape_rz=.24, nape_rx=.2, iris_r=.0135, pupil_r=.0048, catch_r=.0036, iris_gain=2.2, iris_mix=.45, iris_glow=.35, catch_glow=.95, brim_dark=.62, brim_edge=.8, fur_lo=.55, tube=1, debug='')
+         fur=1.0, fur_contrast=.65, fur_rgb='6f4a31', eyes=1.4, eye_x=.122, eye_z=.108, eye_rx=.065, eye_rz=.05, crack=1, inpaint=1, band=64, margin=16, smooth=30, uv_angle=66.0, uv_margin=.004, remesh=.003, solid=.012, strands=.9, nape_rz=.24, nape_rx=.2, iris_r=.0135, pupil_r=.0048, catch_r=.0036, iris_gain=2.2, iris_mix=.45, iris_glow=.35, catch_glow=.95, brim_dark=.78, brim_edge=.85, brim_smooth=8, fur_lo=.55, tube=1, debug='')
 for a in argv[2:]:
     k, v = a.split('='); P[k] = type(P[k])(v)
 s = P['scale']
@@ -146,6 +147,12 @@ for _ in range(4):
     if head_tris <= P['tris'] * 1.03: break
     m = L.modifiers.new('dec', 'DECIMATE'); m.decimate_type = 'COLLAPSE'; m.ratio = P['tris'] / head_tris; m.use_collapse_triangulate = True
     bpy.ops.object.modifier_apply(modifier=m.name); head_tris = sum(len(p.vertices) - 2 for p in me.polygons)
+# the brim's lip: the voxels left it lumpy (a ragged dark edge over the eyes in close-ups); its vertices are smoothed in place
+bm = bmesh.new(); bm.from_mesh(me)
+def in_brim(co): x, y, z = co.x / s, (co.y + P['dz']) / s, (co.z - P['dy']) / s; return abs(x) < .33 and y < -.1 and .22 < z < .335
+lip = [v for v in bm.verts if in_brim(v.co)]
+for _ in range(P['brim_smooth']): bmesh.ops.smooth_vert(bm, verts=lip, factor=.5, use_axis_x=True, use_axis_y=True, use_axis_z=True)
+bm.to_mesh(me); bm.free(); brim_verts = len(lip)
 
 # ---- 3. new UVs with margins: Smart UV Project on a smoothed copy (the fur relief would split it into thousands of islands; same
 #         topology, so its UVs map corner for corner), into v BAND/H..1 (the band below holds the neck's colours)
@@ -257,7 +264,7 @@ edge = cap & used & ~under & (np.abs(nrm[..., 2]) < .35) & (sy < -.2) & (sz < .3
 for m_, k_ in ((under, P['brim_dark']), (edge, P['brim_edge'])):
     w_ = m_.astype(np.float32); w_ = np.clip(box3(w_) / 9, 0, 1) * m_  # soft at the region's own border
     col = col * (1 - w_[..., None]) + (cap_top * k_)[None, None, :] * w_[..., None]
-brim = dict(cap_top=np.round(cap_top, 3).tolist(), under=int(under.sum()), edge=int(edge.sum()))
+brim = dict(smoothed_verts=brim_verts, cap_top=np.round(cap_top, 3).tolist(), under=int(under.sum()), edge=int(edge.sum()))
 
 # ---- 6. the neck tube (a separate surface, its UVs in the band at the bottom of the atlas)
 X0, Y0, PW, PH = 2, 2, W - 4, BAND - 6
