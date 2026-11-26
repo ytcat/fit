@@ -21,6 +21,11 @@ mask on the shoulders, towel sliver at the neck, ragged brim, plain neck colour)
 - Look sheets (`qa/bruno-head/look-studio.webp`, `look-films.webp`, `look-films-close.webp`; `tools/make_look_sheets.sh`,
   `plan-look.json`). Join sheets NOT redone this round (main: look sheets first).
 - Measured: see the report in GOTR-0139.
+- Round 5b (main's look review: nose, body match, brows, cards): nose normal map replaced by pebbling + two nostrils, roughness
+  .4; brows pushed in 5 mm, cream trimmed and dimmed 18%; fuller card strands (they vanished in the mips) and 20 front jowl cards;
+  `bodyTint` (cast-market.js): while the model head is on, Bruno's paws (a tinted copy of the paw material) and bare wrists (skin
+  colours, |x| .917-.945) take `HEADS.bruno.bodyFur` #4f3f34; the code head restores them. Paw vs cheek under the film light
+  (gym talk 13 s): dE 0.8 (code head 5.6). Tests: bruno-head adds the paw/wrist tint and its restore.
 
 ## Round 4 (main's review: jowl into the towel when walking; frayed towel hem beside the whistle)
 - Jowl, fixed at the contact on both sides: (b) the head (`tools/blender/bruno_head_game.py`): the cheek fur below the jaw line

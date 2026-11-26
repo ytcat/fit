@@ -77,6 +77,13 @@ const report = {};
     assert.ok(open.every(v => v > .5) && shut.every(v => v < .05), 'jaw opens with speech and closes: ' + open.map(v => v.toFixed(2)) + ' / ' + shut.map(v => v.toFixed(2)));
     const q0 = F.lids[0][0].quaternion.clone(); c.updateMane(4.5); const shutLid = F.lids[0][0].quaternion.angleTo(q0); c.updateMane(4.0);
     assert.ok(shutLid > 1 && F.lids[0][0].quaternion.angleTo(F.lids[0][1]) < 1e-6, 'the lids close on a blink (' + shutLid.toFixed(2) + ' rad) and open again'); report.face = { open: +open[0].toFixed(2), lid: +shutLid.toFixed(2) }; }
+  // his paws and bare wrists in the model head's fur colour while the model is on; the code head keeps the old colours
+  { const paws = []; for (const sd of ['L', 'R']) c.joints['hand' + sd].traverse(o => { if (o.isMesh && o.userData.paw) paws.push(o); });
+    const C = c.skin.geometry.attributes.color, before = C.array.slice();
+    assert.ok(paws.length === 2 && paws.every(o => /head fur/.test(o.material.name)) && c.castHead.furSaved?.length > 20, 'paws and wrists in the head\'s fur colour');
+    H.on(c, false); assert.ok(paws.every(o => !/head fur/.test(o.material.name)) && !c.castHead.furSaved, 'code head: the old paw colour');
+    let moved = 0; for (let i = 0; i < before.length; i++) if (Math.abs(before[i] - C.array[i]) > 1e-6) moved++; assert.ok(moved > 0, 'wrists back to the old colour');
+    H.on(c, true); assert.ok(paws.every(o => /head fur/.test(o.material.name)), 'and tinted again'); }
   // the towel: with the model its part of the merged towel-and-whistle mesh is not drawn (whistle and cord are) and the towel that
   // crosses the shoulder outside the model's neck shows; with the code head, the other way round
   const towel = c.root.getObjectByName('Bruno: towel (authored head)'), merged = keep[0];

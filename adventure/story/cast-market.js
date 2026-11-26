@@ -387,7 +387,7 @@
     hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112502', label: 'Hazel', fold: { from: 1.745, to: 1.775, column: { zc: -.03, rx: .085, rz: .09, margin: .85, maxX: .16 } }, hide: ['Hazel: headscarf'] },
     // Hazel's code jaw starts right above her cardigan (y 1.77-1.81, front z to 0.3): her skin above the neckline goes into a column inside
     // the model's neck, eased in from 1.745 so the dress neckline slopes in to meet it (owner 2026-11-25: "what is in her neck?")
-    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112604', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .215, rz: .2, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385], waveOff: { x0: .47, amp: .09, z: .22 } }, eyes: [[-.0691, .1932, .2432], [.0695, .1927, .2427]], face: { jaw: .8, blink: 1.25 } }
+    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112604', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .215, rz: .2, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385], waveOff: { x0: .47, amp: .09, z: .22 } }, eyes: [[-.0692, .194, .2435], [.0694, .1933, .2428]], face: { jaw: .8, blink: 1.25 }, bodyFur: '#4f3f34' }
     // Coach Bruno (story-cast.js; owner 2026-11-26: "yes"): his ears, flat cap, brows, eyes, nose, mouth and cheek ruff are all children
     // of the head joint and leave with the code head; his whistle and cord stay, his towel is swapped (brunoTowel). The model's neck
     // tube (tools/blender/bruno_head_game.py: centre z 0, 0.2 x 0.15/0.17 at the collar, tapering to the nape) goes down into the
@@ -438,9 +438,9 @@
       const off = o => { if (o.isMesh || o.isLine || o.isPoints || o.isSprite) { h.hidden.push([o, o.layers.mask]); o.layers.disableAll(); } };
       h.hidden = []; for (const c of head.children) if (c !== group) c.traverse(off);
       if (cfg.hide.length) rig.root.traverse(o => { if (cfg.hide.includes(o.name)) off(o); });
-      skinHead(rig, true); head.add(group); h.on = true; if (cfg.gestures) rig.gestureAt = cfg.gestures; if (h.id === 'bruno') towelOn(rig, true);
+      skinHead(rig, true); head.add(group); h.on = true; if (cfg.gestures) rig.gestureAt = cfg.gestures; if (h.id === 'bruno') towelOn(rig, true); if (cfg.bodyFur) bodyTint(rig, cfg.bodyFur, true);
     } else {
-      h.group?.parent?.remove(h.group); for (const [o, mask] of h.hidden) o.layers.mask = mask; h.hidden = []; skinHead(rig, false); h.on = false; if (rig.gestureAt === cfg.gestures) rig.gestureAt = null; if (h.id === 'bruno') towelOn(rig, false);
+      h.group?.parent?.remove(h.group); for (const [o, mask] of h.hidden) o.layers.mask = mask; h.hidden = []; skinHead(rig, false); h.on = false; if (rig.gestureAt === cfg.gestures) rig.gestureAt = null; if (h.id === 'bruno') towelOn(rig, false); if (cfg.bodyFur) bodyTint(rig, cfg.bodyFur, false);
     }
     return h.on;
   }
@@ -464,6 +464,31 @@
     const k = Math.min(1, dt * 6); h.nod = (h.nod || 0) + (want - (h.nod || 0)) * k; h.lift = (h.lift || 0) + (lift - (h.lift || 0)) * k;
     g.rotation.x = Math.abs(h.nod) < 1e-4 ? 0 : h.nod;
     if (h.lift > 1e-4) { nodV.set(0, h.lift, 0).transformDirection(nodQ.copy(m).invert()).multiplyScalar(h.lift); g.position.copy(nodV); } else g.position.set(0, 0, 0);
+  }
+  /** The body's visible fur (his paws: the rest is under his clothes) in the model head's fur colour while the model is on (Bruno,
+   *  main review round 5: the paws were lighter and more orange than the head); the paws' own material is swapped for a tinted copy
+   *  (the shared paw material and the code head's look are untouched) and put back when the code head returns. */
+  function bodyTint(rig, hex, on) {
+    const h = rig.castHead, g = rig.skin.geometry, P = rig.castBase?.position || g.attributes.position;
+    const coat = window.Paws?.coatOf?.(rig, SC.defs?.[rig.character]?.fur) || new THREE.Color(1, 1, 1), want = new THREE.Color(hex).convertSRGBToLinear();
+    const f = [want.r / Math.max(1e-4, coat.r), want.g / Math.max(1e-4, coat.g), want.b / Math.max(1e-4, coat.b)];
+    // the skin's bare wrist between the sleeve's cuff and the paw (|x| 0.917-0.945 at rest, past the cuff; the paws sample their coat further out)
+    if (on && !h.furSaved) {
+      h.furSaved = [];
+      for (const C of new Set([g.attributes.color, rig.castBase?.color, rig.castFight?.color].filter(Boolean))) {
+        if (C.count !== P.count) continue;
+        for (let i = 0; i < P.count; i++) { const ax = Math.abs(P.getX(i)); if (ax > .917 && ax < .945 && P.getY(i) > 1.4) { h.furSaved.push([C, i, C.getX(i), C.getY(i), C.getZ(i)]); C.setXYZ(i, C.getX(i) * f[0], C.getY(i) * f[1], C.getZ(i) * f[2]); } }
+        C.needsUpdate = true;
+      }
+    } else if (!on && h.furSaved) { for (const [C, i, r, gg, b] of h.furSaved) { C.setXYZ(i, r, gg, b); C.needsUpdate = true; } h.furSaved = null; }
+    for (const s of ['L', 'R']) rig.joints['hand' + s]?.traverse(o => {
+      if (!o.isMesh || !o.userData.paw) return;
+      if (!on) { if (o.userData.furBase) { o.material = o.userData.furBase; o.userData.furBase = null; } return; }
+      if (o.userData.furBase) return;
+      const base = o.material, m = base.clone();
+      m.onBeforeCompile = base.onBeforeCompile; m.customProgramCacheKey = base.customProgramCacheKey; m.name = base.name + ' (head fur)';
+      m.color.setRGB(...f); o.userData.furBase = base; o.material = m;
+    });
   }
   /** The authored head's face acting (Bruno, round 5): the jaw morph opens with his speech (StoryCast.talk drives the code mouth's
    *  inner part: its height is the amount) or a hit (anatomy channel 12), eased; the lids blink on the rigs' own blink rhythm. */
