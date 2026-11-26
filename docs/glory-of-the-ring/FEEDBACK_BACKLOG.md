@@ -1040,10 +1040,17 @@ User tested the published build. Wording below is the user's request, lightly cl
 
 ### GOTR-0139 — Coach Bruno's TRELLIS.2 head in the game
 - **Reported:** 2026-11-26 (owner approved the TRELLIS.2 head render with "yes"; fit it like Hazel and Fang).
-- **Status:** REJECTED by the owner, 2026-11-26, after the in-game pictures: "From your pictures, I don't like his head. Bruno looked terrible". Do NOT merge `agent/bruno-head` (last commit `21b45a2`, kept for reference only). Bruno keeps the code head.
-- **What was built:** a 16k-triangle head with a re-baked texture and readable eyes, a neck tube, a flat towel, his own chin and wave-off gestures. Join tests passed. Pictures are in `qa/bruno-head/` on that branch.
-- **Why it failed (main's reading of the pictures):** in the game it reads as a dark rubber mask, bigger and heavier than his body, with small deep-set eyes. It does not match the style of the rest of the cast. Passing the join checks did not make it look good.
-- **Lesson:** before fitting a generated head, show the owner in-game film close-ups of it (a quick mock-up placed on the body in the film light), not only the studio render.
+- **Status:** IN PROGRESS on `agent/bruno-head`. Not merged.
+- **Owner, 2026-11-26, on the round-4 pictures:** "From your pictures, I don't like his head. Bruno looked terrible". Then: "No, don't keep his old head. I need you to improve the new one. I want him to look much more natural with more face details."
+- **What is done (joins):** the head joins pass the checks up to round 4 (`21b45a2`): neck tube, flat towel, chin and wave-off gestures. Pictures are in `qa/bruno-head/`.
+- **Look pass (now):**
+  - the source's surface detail back as a normal map;
+  - more of the texture for the face;
+  - real eyes;
+  - natural fur colour and a fur silhouette;
+  - a glossy nose, and a mouth that opens when he talks;
+  - his head's size and weight matched to his body.
+- **Approval step:** film close-ups go to the owner before the joins are checked again and before any merge.
 
 ### GOTR-0138 — Market robbery film: Fang does not read as snatching the bag, fleeing Hazel, and being stopped
 - **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone; reminder of an earlier remark: "I don't like how Fang come and get the bag. Doesn't look he's coming taking the bag by force and then running from Hazel and then the player is stopping him suddenly. It doesn't look like this at all").
