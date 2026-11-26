@@ -1,0 +1,295 @@
+"""Coach Bruno's game head from the owner-approved TRELLIS.2 source (assets/characters/bruno/trellis/bruno-head-trellis-source.glb,
+owner 2026-11-26: "yes").
+
+    <blender-python> tools/blender/bruno_head_game.py -- <source.glb> <out.glb> [key=value ...]
+
+Like tools/blender/hazel_head_game.py and fang_head_game.py: the bust is scaled and moved into Bruno's head-joint frame (metres;
++Y up, +Z toward the nose, origin = the head joint), welded, decimated to a phone budget (the source UVs kept) and written with one
+JPEG base-colour map (<= 1024 px), constant roughness and no metal (the TRELLIS metal map is ~1 everywhere: an artifact on fur).
+Node 'brunoHead'.
+
+  * The neck. The source bust ends in a long fur cone under the chin, cut on a slant, with ragged fur tips. It is cut off at
+    `cut` (head-frame y, a few cm under the collar), and a clean elliptic neck tube (centre z `neck_zc`, half-widths `neck_rx`,
+    `neck_rz`) goes from inside the skull (`neck_top`) down into the body (`neck_bottom`), narrowing below the collar (`neck_y`) by
+    `neck_shrink` so it never shows through the open cardigan front. The tube is wider than the bust's own neck at the cut, so the
+    cut rim lies inside it (hidden, and inside the body): what shows is the head's own surface running into a round neck, never an
+    open edge. Its colours: the head's own fur sampled round the neck just above the collar (light throat in front if there is one,
+    brown at the sides and back), as a strip in a free corner of the atlas, with faint vertical strands.
+  * Cracks. The fine crack lines on the light muzzle and brows were the source atlas's chart borders: the texels on each chart's
+    edge are dark speckle, and every UV seam sampled them. Coverage of the source UVs is baked, the edge texels (`inpaint` px) and
+    the gaps between charts are refilled from each chart's interior (padding), so seams sample their own chart. Thin dark lines
+    left inside the light areas are filled from their light neighbours (`crack`).
+  * Colour. The source fur is near black (as dark as the FLUX picture); Bruno's body fur is #6f4a31. The dark fur texels (not the
+    cap, found by position; not the cream muzzle and brows, the nose or the eyes) move to the body's fur colour: median matched per
+    channel, the texture's own variation kept at `fur_contrast` (strands and shading stay, the blotches of a 3x gain do not). The
+    eyes sit deep under the heavy brows: the dark texels round them are lifted by `eyes` (x brightness); nothing else changes.
+Prints a JSON report line 'REPORT'.
+"""
+import bpy, bmesh, sys, json, os, math
+import numpy as np
+from mathutils import Vector
+
+argv = sys.argv[sys.argv.index('--') + 1:]
+src, out = argv[0], argv[1]
+P = dict(scale=.70, dy=.153, dz=.03, cut=-.10, tris=14600, quality=86, rough=.85, size=1024,
+         neck_top=.09, neck_y=-.07, neck_zc=0.0, neck_rx=.2, neck_rz=.15, neck_bottom=-.2, neck_shrink=.8, shrink_from=-.11, seg=48,
+         fur=1.0, fur_contrast=.65, fur_rgb='6f4a31', eyes=1.4, eye_x=.122, eye_z=.108, eye_rx=.065, eye_rz=.05, crack=1, inpaint=1, band=40, margin=16, smooth=30, uv_angle=66.0, uv_margin=.004, remesh=.003, solid=.012, strands=.03, debug='')
+for a in argv[2:]:
+    k, v = a.split('='); P[k] = type(P[k])(v)
+s = P['scale']
+def to_head(x, y, z):  # source (Blender, z up, -y forward) -> the head frame kept as Blender coords (export: y up = z, +z = -y)
+    return Vector((x * s, y * s - P['dz'], z * s + P['dy']))
+def to_src(b):  # Blender coords in the head frame -> source units
+    return (b[..., 0] / s, (b[..., 1] + P['dz']) / s, (b[..., 2] - P['dy']) / s)
+
+for o in list(bpy.data.objects): bpy.data.objects.remove(o, do_unlink=True)
+bpy.ops.import_scene.gltf(filepath=src)
+S = [o for o in bpy.context.scene.objects if o.type == 'MESH'][0]
+src_tris = sum(len(p.vertices) - 2 for p in S.data.polygons)
+mw = S.matrix_world.copy(); S.parent = None; S.data.transform(mw); S.matrix_world.identity()
+for o in list(bpy.context.scene.objects):
+    if o is not S: bpy.data.objects.remove(o, do_unlink=True)
+S.name = 'source'
+for v in S.data.vertices: v.co = to_head(*v.co)
+old = S.data.materials[0]
+T0 = next(n.image for n in old.node_tree.nodes if n.type == 'TEX_IMAGE' and any(l.to_socket.name == 'Base Color' for l in n.outputs[0].links))
+W, H = T0.size
+
+scn = bpy.context.scene; scn.render.engine = 'CYCLES'; scn.cycles.device = 'CPU'; scn.cycles.samples = 1
+def emit_material(name, colour_node):
+    m = bpy.data.materials.new(name); nt = m.node_tree if m.node_tree else (setattr(m, 'use_nodes', True) or m.node_tree)
+    for n in list(nt.nodes): nt.nodes.remove(n)
+    o = nt.nodes.new('ShaderNodeOutputMaterial'); e = nt.nodes.new('ShaderNodeEmission'); e.inputs['Strength'].default_value = 1
+    nt.links.new(e.outputs[0], o.inputs['Surface']); colour_node(nt, e)
+    return m
+def bake_into(ob, img, colour_node, margin):
+    keep = list(ob.data.materials); m = emit_material('bake', colour_node); nt = m.node_tree
+    t = nt.nodes.new('ShaderNodeTexImage'); t.image = img
+    for n in nt.nodes: n.select = False
+    t.select = True; nt.nodes.active = t
+    ob.data.materials.clear(); ob.data.materials.append(m)
+    bpy.ops.object.select_all(action='DESELECT'); ob.select_set(True); bpy.context.view_layer.objects.active = ob
+    bpy.ops.object.bake(type='EMIT', margin=margin, margin_type='EXTEND', use_selected_to_active=False, use_clear=True)
+    ob.data.materials.clear()
+    for k in keep: ob.data.materials.append(k)
+def pixels(img): return np.array(img.pixels[:], dtype=np.float32).reshape(img.size[1], img.size[0], 4)
+def box3(a):  # 3x3 box sum (edges clamped)
+    p = np.pad(a, [(1, 1), (1, 1)] + [(0, 0)] * (a.ndim - 2), mode='edge'); h, w = a.shape[:2]
+    return sum(p[dy:dy + h, dx:dx + w] for dy in range(3) for dx in range(3))
+LUM = np.array([.2126, .7152, .0722], np.float32)
+
+# ---- 1. the source texture's chart borders (the cracks): coverage of the source UVs, the edge texels and the gaps refilled from
+#         each chart's interior, so a seam samples its own chart
+cov = bpy.data.images.new('coverage', W, H, float_buffer=True); cov.colorspace_settings.name = 'Non-Color'
+bake_into(S, cov, lambda nt, e: e.inputs['Color'].__setattr__('default_value', (1, 1, 1, 1)), 0)
+valid = pixels(cov)[..., 0] > .99; covered = float(valid.mean())
+for _ in range(P['inpaint']): valid &= box3(valid.astype(np.float32)) > 8.5
+T = pixels(T0).copy(); T[..., 3] = 1
+w = valid.astype(np.float32); acc = T[..., :3] * w[..., None]; filled = 0
+for _ in range(512):
+    todo = w == 0
+    if not todo.any(): break
+    ws, cs = box3(w), box3(acc); new = todo & (ws > 0)
+    acc[new] = cs[new] / ws[new][:, None]; w[new] = 1; filled += int(new.sum())
+T[..., :3] = acc
+T1 = bpy.data.images.new('source padded', W, H); T1.pixels = T.ravel().tolist(); T1.update()
+def source_tex(nt, e):
+    t = nt.nodes.new('ShaderNodeTexImage'); t.image = T1; nt.links.new(t.outputs['Color'], e.inputs['Color'])
+S.data.materials.clear(); S.data.materials.append(emit_material('source', source_tex))
+
+# ---- 2. the game mesh: welded (glTF seam splits), cut under the collar, loose fur tips dropped, decimated without UV constraints
+#         (the source's hundreds of UV charts held the collapse at ~29k triangles; the colour comes back by a bake)
+L = bpy.data.objects.new('brunoHead', S.data.copy()); scn.collection.objects.link(L); me = L.data
+while me.uv_layers: me.uv_layers.remove(me.uv_layers[0])
+if P['remesh'] > 0:  # one closed skin of the same shape (the source has 1.1k open edges and 2.8k edges of 3+ faces: fur cards, doubled shells)
+    bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active = L; L.select_set(True)
+    # the source is all thin walls (head, cap, ears: two sheets ~1.5 mm apart, the cap in several layers): thickened inward first,
+    # or the voxels lose them (holes in the cap)
+    so = L.modifiers.new('solid', 'SOLIDIFY'); so.thickness = P['solid']; so.offset = -1; so.use_rim = True; bpy.ops.object.modifier_apply(modifier=so.name)
+    rm = L.modifiers.new('remesh', 'REMESH'); rm.mode = 'VOXEL'; rm.voxel_size = P['remesh']; rm.adaptivity = 0; bpy.ops.object.modifier_apply(modifier=rm.name)
+bm = bmesh.new(); bm.from_mesh(me)
+bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=1e-5)
+bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], plane_co=Vector((0, 0, P['cut'])), plane_no=Vector((0, 0, 1)), clear_inner=True)
+bm.verts.ensure_lookup_table(); seen, islands = set(), []
+for v in bm.verts:
+    if v in seen: continue
+    st, isl = [v], []; seen.add(v)
+    while st:
+        q = st.pop(); isl.append(q)
+        for e in q.link_edges:
+            u = e.other_vert(q)
+            if u not in seen: seen.add(u); st.append(u)
+    islands.append(isl)
+islands.sort(key=len, reverse=True)
+small = [v for isl in islands[1:] if len(isl) < 60 or P['remesh'] > 0 for v in isl]  # remeshed: the inner bubbles go too
+bmesh.ops.delete(bm, geom=small, context='VERTS')
+bm.to_mesh(me); bm.free()
+cut_tris = head_tris = sum(len(p.vertices) - 2 for p in me.polygons)
+bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active = L; L.select_set(True)
+for _ in range(4):
+    if head_tris <= P['tris'] * 1.03: break
+    m = L.modifiers.new('dec', 'DECIMATE'); m.decimate_type = 'COLLAPSE'; m.ratio = P['tris'] / head_tris; m.use_collapse_triangulate = True
+    bpy.ops.object.modifier_apply(modifier=m.name); head_tris = sum(len(p.vertices) - 2 for p in me.polygons)
+
+# ---- 3. new UVs with margins: Smart UV Project on a smoothed copy (the fur relief would split it into thousands of islands; same
+#         topology, so its UVs map corner for corner), into v BAND/H..1 (the band below holds the neck's colours)
+BAND = P['band']; V0 = BAND / H
+Ls = bpy.data.objects.new('smooth', me.copy()); scn.collection.objects.link(Ls)
+bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active = Ls; Ls.select_set(True)
+sm = Ls.modifiers.new('sm', 'SMOOTH'); sm.factor = 1.0; sm.iterations = P['smooth']; bpy.ops.object.modifier_apply(modifier=sm.name)
+Ls.data.uv_layers.new(name='UVMap')
+bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
+bpy.ops.uv.smart_project(angle_limit=math.radians(P['uv_angle']), island_margin=P['uv_margin'], area_weight=0.0, correct_aspect=True, scale_to_bounds=False)
+bpy.ops.object.mode_set(mode='OBJECT')
+uvs = np.zeros(len(Ls.data.loops) * 2, np.float32); Ls.data.uv_layers[0].data.foreach_get('uv', uvs); uvs = uvs.reshape(-1, 2)
+uvs[:, 1] = V0 + uvs[:, 1] * (1 - V0)
+from bpy_extras import bmesh_utils
+bmi = bmesh.new(); bmi.from_mesh(Ls.data)
+for f in bmi.faces: f.select = True
+n_islands = len(bmesh_utils.bmesh_linked_uv_islands(bmi, bmi.loops.layers.uv.active)); bmi.free()
+bpy.data.objects.remove(Ls, do_unlink=True)
+me.uv_layers.new(name='UVMap'); me.uv_layers[0].data.foreach_set('uv', uvs.ravel())
+
+# ---- 4. the padded source texture baked onto the new layout (rays from the game surface to the source), and every texel's place
+B0 = bpy.data.images.new('baked', W, H); B0.colorspace_settings.name = 'sRGB'
+keep = list(me.materials); tm = emit_material('target', lambda nt, e: None); t = tm.node_tree.nodes.new('ShaderNodeTexImage'); t.image = B0
+for n in tm.node_tree.nodes: n.select = False
+t.select = True; tm.node_tree.nodes.active = t; me.materials.clear(); me.materials.append(tm)
+bpy.ops.object.select_all(action='DESELECT'); S.select_set(True); L.select_set(True); bpy.context.view_layer.objects.active = L
+bpy.ops.object.bake(type='EMIT', margin=P['margin'], margin_type='EXTEND', use_selected_to_active=True, cage_extrusion=.012, max_ray_distance=.03, use_clear=True)
+me.materials.clear()
+POS = bpy.data.images.new('pos', W, H, float_buffer=True); POS.colorspace_settings.name = 'Non-Color'
+bake_into(L, POS, lambda nt, e: nt.links.new(nt.nodes.new('ShaderNodeNewGeometry').outputs['Position'], e.inputs['Color']), P['margin'])
+pos = pixels(POS)[..., :3]; sx, sy, sz = to_src(pos)
+used = np.abs(pos).sum(-1) > 0
+col = pixels(B0)[..., :3].copy()
+miss = (col.sum(-1) == 0) & used; missed = int(miss.sum())  # bake rays that found no source surface: filled from their neighbours
+w = (~miss & used).astype(np.float32); acc = col * w[..., None]
+for _ in range(64):
+    todo = miss & (w == 0)
+    if not todo.any(): break
+    ws, cs = box3(w), box3(acc); new = todo & (ws > 0)
+    acc[new] = cs[new] / ws[new][:, None]; w[new] = 1
+col = np.where(miss[..., None], acc, col)
+
+# ---- 4. cracks left inside the light areas: thin dark lines a few texels wide, filled from their light neighbours
+lum = col @ LUM; crack_n = 0
+for _ in range(P['crack'] * 3):
+    L5 = np.pad(lum, 2, mode='edge'); h, w_ = lum.shape
+    sh = lambda dy, dx: L5[2 + dy:2 + dy + h, 2 + dx:2 + dx + w_]
+    ridge = np.zeros(lum.shape, bool)
+    for dy, dx in [(0, 2), (2, 0), (2, 2), (2, -2), (0, 1), (1, 0), (1, 1), (1, -1)]:
+        a, b2 = sh(dy, dx), sh(-dy, -dx)
+        ridge |= (np.minimum(a, b2) - lum > .045) & (a > .4) & (b2 > .4)
+    good = ((lum > .4) & ~ridge).astype(np.float32); cs = box3(col * good[..., None]); ws = box3(good)
+    fix = ridge & (ws > 2); crack_n += int(fix.sum())
+    col[fix] = cs[fix] / ws[fix][:, None]; lum = col @ LUM
+
+# ---- 5. colour: the dark fur toward the body's fur (median per channel, variation compressed), the eyes lifted
+cap = ((sz > .335) & (np.abs(sx) < .27)) | ((sz > .25) & (sy < -.18) & (np.abs(sx) < .3))  # crown and peak, not the ears beside them
+cap &= ~((np.abs(sx) > .245) & (sz > .2) & (np.abs(sy) < .17))
+r_, b_ = col[..., 0], col[..., 2]
+fur_w = np.clip((.30 - lum) / .08, 0, 1) * np.clip((r_ - b_ + .02) / .03, 0, 1) * (~cap)
+eye_d = np.hypot((np.abs(sx) - P['eye_x']) / P['eye_rx'], (sz - P['eye_z']) / P['eye_rz'])  # the eye and its dark socket (source units)
+eye_zone = np.clip((1.15 - eye_d) / .35, 0, 1) * (sy < -.1)
+eye_w = eye_zone * np.clip((.4 - lum) / .1, 0, 1)  # the dark texels in it (iris, pupil, socket), not the cream brow above
+fur_w = fur_w * (1 - eye_zone)  # the eyes keep their own colours (the fur recolour turned them into flat brown fur)
+tgt = np.array([int(P['fur_rgb'][i:i + 2], 16) / 255 for i in (0, 2, 4)], np.float32)
+sel = (fur_w > .8) & used
+med = np.median(col[sel], axis=0)
+ratio = np.maximum(col, 1e-4) / np.maximum(med, 1e-4)
+fur_col = tgt * ratio ** P['fur_contrast']  # the median lands on the body's colour; darker/lighter strands keep a softened contrast
+k = (fur_w * P['fur'])[..., None]
+col = np.clip(col * (1 - k) + fur_col * k, 0, 1)
+col = np.clip(col * (1 + (P['eyes'] - 1) * eye_w[..., None]), 0, 1)
+fur_after = np.median(col[sel], axis=0)
+
+# ---- 6. the neck tube (a separate surface, its UVs in the band at the bottom of the atlas)
+X0, Y0, PW, PH = 2, 2, W - 4, BAND - 6
+bm = bmesh.new(); bm.from_mesh(me); uvl = bm.loops.layers.uv.active
+seg = P['seg']; zc, rx, rz = P['neck_zc'], P['neck_rx'], P['neck_rz']
+ys = list(np.arange(P['neck_top'], P['neck_y'], -.02)) + [P['neck_y']] + list(np.arange(P['neck_y'] - .02, P['neck_bottom'], -.02)) + [P['neck_bottom']]
+def kk(y): return 1.0 if y >= P['shrink_from'] else 1 - (1 - P['neck_shrink']) * min(1, (P['shrink_from'] - y) / (P['shrink_from'] - P['neck_bottom']))
+rings = [[bm.verts.new(Vector((math.sin(2 * math.pi * j / seg) * rx * kk(y), -(zc + math.cos(2 * math.pi * j / seg) * rz * kk(y)), y))) for j in range(seg)] for y in ys]
+tube = []
+for r in range(len(rings) - 1):
+    for j in range(seg):
+        f = bm.faces.new((rings[r][j], rings[r + 1][j], rings[r + 1][(j + 1) % seg], rings[r][(j + 1) % seg])); f.smooth = True; tube.append((f, r, j))
+bm.normal_update()
+for f, r, j in tube:
+    cm = f.calc_center_median()
+    if f.normal.dot(Vector((cm.x, cm.y + zc, 0))) < 0: f.normal_flip()
+    for l in f.loops:
+        jv = next(q for q in range(seg) for rr in (r, r + 1) if rings[rr][q] is l.vert)
+        rv = r if any(rings[r][q] is l.vert for q in range(seg)) else r + 1
+        t = jv / seg
+        if j == seg - 1 and jv == 0: t = 1.0  # the last column closes the ring at the strip's far end
+        l[uvl].uv = Vector(((X0 + .5 + t * (PW - 1)) / W, (Y0 + .5 + (PH - 1) * (1 - rv / (len(rings) - 1))) / H))
+# the strip's colours: the head's fur sampled round the neck a little above the collar, along each column's direction
+bm.faces.ensure_lookup_table()
+from mathutils.bvhtree import BVHTree
+from mathutils.interpolate import poly_3d_calc
+headfaces = [f for f in bm.faces if f not in set(x[0] for x in tube)]
+tmp = bmesh.new(); vmap = {}
+for f in headfaces:
+    vs = []
+    for v in f.verts:
+        if v not in vmap: vmap[v] = tmp.verts.new(v.co)
+        vs.append(vmap[v])
+    try: tmp.faces.new(vs)
+    except ValueError: pass
+tmp.faces.ensure_lookup_table(); tree = BVHTree.FromBMesh(tmp)
+def texel(uv): return col[min(H - 1, max(0, int(uv.y * H))), min(W - 1, max(0, int(uv.x * W)))]
+ring_col = []
+for j in range(seg):
+    a = 2 * math.pi * j / seg; acc_c = []
+    for y in (P['neck_y'] + .03, P['neck_y'] + .05, P['neck_y'] + .07):
+        q = Vector((math.sin(a) * rx * 1.4, -(zc + math.cos(a) * rz * 1.4), y))
+        loc, nrm, idx, dist = tree.find_nearest(q)
+        if idx is None or idx >= len(headfaces): continue
+        f = headfaces[idx]; wts = poly_3d_calc([v.co for v in f.verts], loc)
+        uv = sum((l[uvl].uv * wgt for l, wgt in zip(f.loops, wts)), Vector((0, 0))); acc_c.append(texel(uv))
+    ring_col.append(np.mean(acc_c, 0) if acc_c else fur_after)
+tmp.free()
+ring_col = np.array(ring_col)
+for _ in range(3): ring_col = (np.roll(ring_col, 1, 0) + 2 * ring_col + np.roll(ring_col, -1, 0)) / 4
+rng = np.random.default_rng(7); streak = rng.normal(0, 1, PW)
+for _ in range(6): streak = (np.roll(streak, 1) + 2 * streak + np.roll(streak, -1)) / 4
+streak /= max(1e-6, streak.std())
+for cx in range(PW):
+    t = cx / (PW - 1) * seg; k0 = int(t) % seg; k1 = (k0 + 1) % seg; fr = t - int(t)
+    col[Y0 - 2:Y0 + PH + 2, X0 + cx] = np.clip((ring_col[k0] * (1 - fr) + ring_col[k1] * fr) * (1 + P['strands'] * streak[cx]), 0, 1)
+col[Y0 - 2:Y0 + PH + 2, X0 - 2:X0] = col[Y0 - 2:Y0 + PH + 2, X0:X0 + 1]; col[Y0 - 2:Y0 + PH + 2, X0 + PW:X0 + PW + 2] = col[Y0 - 2:Y0 + PH + 2, X0 + PW - 1:X0 + PW]
+bm.to_mesh(me); bm.free()
+neck_tris = 2 * len(tube)
+for poly in me.polygons: poly.use_smooth = True  # the head too (the remesh came out flat-shaded: facets on the cheeks)
+
+# ---- 7. material and export
+B = bpy.data.images.new('Bruno head', W, H); B.colorspace_settings.name = 'sRGB'
+img = np.ones((H, W, 4), np.float32); img[..., :3] = col; B.pixels = img.ravel().tolist(); B.update()
+if P['size'] < W: B.scale(P['size'], P['size'])
+B.file_format = 'JPEG'
+if P['debug']:
+    os.makedirs(P['debug'], exist_ok=True)
+    for im, name in ((cov, 'coverage'), (T1, 'source-padded'), (B0, 'baked'), (B, 'final')):
+        im.filepath_raw = os.path.join(P['debug'], name + '.png'); im.file_format = 'PNG'; im.save()
+    B.file_format = 'JPEG'
+mat = bpy.data.materials.new('Bruno head'); nt = mat.node_tree if mat.node_tree else (setattr(mat, 'use_nodes', True) or mat.node_tree)
+bsdf = next(n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED'); tex = nt.nodes.new('ShaderNodeTexImage'); tex.image = B
+nt.links.new(tex.outputs['Color'], bsdf.inputs['Base Color'])
+bsdf.inputs['Roughness'].default_value = P['rough']; bsdf.inputs['Metallic'].default_value = 0
+me.materials.clear(); me.materials.append(mat)
+bpy.data.objects.remove(S, do_unlink=True)
+for im in (cov, POS, T1, B0): bpy.data.images.remove(im)
+
+co = np.array([tuple(v.co) for v in me.vertices]); Hf = np.stack([co[:, 0], co[:, 2], -co[:, 1]], 1)
+tris = sum(len(p.vertices) - 2 for p in me.polygons)
+os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+bpy.ops.export_scene.gltf(filepath=out, export_format='GLB', use_selection=False, export_yup=True, export_apply=True,
+                          export_texcoords=True, export_normals=True, export_tangents=False, export_materials='EXPORT',
+                          export_image_format='JPEG', export_jpeg_quality=P['quality'], export_animations=False, export_skins=False,
+                          export_morph=False, export_extras=False, export_cameras=False, export_lights=False)
+print('REPORT ' + json.dumps(dict(params=P, source_tris=src_tris, after_cut=cut_tris, head_tris=head_tris, neck_tris=neck_tris, tris=tris, verts=len(me.vertices),
+                                  covered=round(covered, 3), uv_islands=n_islands, bake_missed=missed, inpainted_texels=filled, cracks_filled=crack_n, strip=[X0, Y0, PW, PH],
+                                  fur=dict(median_before=np.round(med, 3).tolist(), after=np.round(fur_after, 3).tolist()), neck_colours=np.round(ring_col[::8], 3).tolist(),
+                                  eye_texels=int((eye_w > .5).sum()), cap_texels=int(cap.sum()), bounds=[Hf.min(0).round(4).tolist(), Hf.max(0).round(4).tolist()], bytes=os.path.getsize(out))))

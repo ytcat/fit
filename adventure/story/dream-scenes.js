@@ -53,9 +53,10 @@
     try { P.prefetch(who, { prio }); } catch (x) { /* paws are optional */ }
   }
   const MARKET_MODELS = ['hazelStall', 'tree', 'props', 'marketProps'], FILM_PIXELS = 1920 * 1080 * 1.2;
-  /** Story characters in a film that have an authored head model (cast-market.js: Fang, Mrs. Hazel); the apology film leads
-   *  straight into the market, so it asks for the market's heads too. */
-  const headIds = (s, id) => { const H = window.StoryCast?.market?.heads || {}, out = new Set(Object.values(s?.actors || {}).map(a => a?.rig).filter(r => H[r])); if (id === 'dream_apology') for (const r of ['fang', 'hazel']) if (H[r]) out.add(r); return [...out]; };
+  /** Story characters in a film that have an authored head model (cast-market.js: Fang, Mrs. Hazel, Coach Bruno); the apology film
+   *  leads straight into the market, so it asks for the market's heads too, and the opening (arrival) for Bruno's, who meets the
+   *  Fighter at the gym next. */
+  const headIds = (s, id) => { const H = window.StoryCast?.market?.heads || {}, out = new Set(Object.values(s?.actors || {}).map(a => a?.rig).filter(r => H[r])); if (id === 'dream_apology') for (const r of ['fang', 'hazel']) if (H[r]) out.add(r); if (id === 'dream_opening' && H.bruno) out.add('bruno'); return [...out]; };
   /** The authored models a film's set waits for (CityAssets names). */
   const modelsFor = s => s.set === 'dream_street' ? null /* the opening list (CityAssets default) */ : s.set === 'dream_market' ? MARKET_MODELS : s.set === 'dream_shop' ? ['props', 'marketProps'] : /^dream_gym/.test(s.set || '') ? ['gymProps'] : s.set === 'dream_docks' ? ['dockProps'] : [];
   /** Asks for what a coming film needs (the story panel calls this for the current step; prio 2 by default): the paws, and the

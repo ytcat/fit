@@ -372,7 +372,7 @@
   };
 
   /* ---------------------------------------------------------------- authored heads (TRELLIS.2): Fang (owner 2026-11-24: "fang looks good"),
-   * Mrs. Hazel (owner 2026-11-25: "perfect") */
+   * Mrs. Hazel (owner 2026-11-25: "perfect"), Coach Bruno (owner 2026-11-26: "yes") */
   // assets/characters/<id>/<id>-head.glb, made by tools/blender/<id>_head_game.py from assets/characters/<id>/trellis/: the head (with
   // Fang's ears and neck ruff; with Hazel's ears and the kerchief over her head) as one static mesh (~16k triangles, one 1024 px JPEG), already in
   // the head joint's frame (metres, +Z toward the nose, origin at the joint), so it is simply a child of the head joint and turns,
@@ -384,9 +384,14 @@
   // no second face pokes through it. The mouth stays closed: the jaw channel still runs on the hidden skin, nothing shows it.
   const HEADS = {
     fang: { url: './assets/characters/fang/fang-head.glb?v=2026112402', label: 'Fang', fold: { from: 1.775, to: 1.805, column: { zc: -.12, rx: .17, rz: .16, margin: .55, maxX: .3 } }, hide: [] },
-    hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112502', label: 'Hazel', fold: { from: 1.745, to: 1.775, column: { zc: -.03, rx: .085, rz: .09, margin: .85, maxX: .16 } }, hide: ['Hazel: headscarf'] }
+    hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112502', label: 'Hazel', fold: { from: 1.745, to: 1.775, column: { zc: -.03, rx: .085, rz: .09, margin: .85, maxX: .16 } }, hide: ['Hazel: headscarf'] },
     // Hazel's code jaw starts right above her cardigan (y 1.77-1.81, front z to 0.3): her skin above the neckline goes into a column inside
     // the model's neck, eased in from 1.745 so the dress neckline slopes in to meet it (owner 2026-11-25: "what is in her neck?")
+    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112601', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .2, rz: .15, margin: .7, maxX: .2 } }, hide: [] }
+    // Coach Bruno (story-cast.js; owner 2026-11-26: "yes"): his ears, round cap, brows, eyes, nose, mouth and cheek ruff are all children
+    // of the head joint and leave with the code head; his towel and whistle hang from the chest joint and stay. The model's neck tube
+    // (centre z 0, half-widths 0.2 x 0.15, tools/blender/bruno_head_game.py) goes down into the cardigan collar (1.775): the skin above
+    // the collar goes into a column well inside it, eased in from 1.75 so the cardigan's neckline meets the neck
   };
   const headFiles = {};
   const fileOf = id => headFiles[id] || (headFiles[id] = { id, state: 'idle', promise: null, scene: null, rigs: new Set() });
@@ -919,6 +924,18 @@
     if (u < .8) return { arms: { L: 'hang', R: 'point' }, lean: .02, look: { yaw: -.5, pitch: .15 } };
     const roll = Math.sin((u - .8) / .2 * Math.PI * 2); return { arms: { L: 'shrug', R: 'shrug' }, lean: .04 * roll, look: { yaw: .1 * roll, pitch: -.05 } };
   }
+  // Coach Bruno is built by story-cast.js: the same authored-head path at the end of his build (the code head stays until the file
+  // is ready, never both), and the ground rule on his own update
+  const BRUNO = SC.defs.bruno;
+  if (BRUNO && !BRUNO.castHeadHook) {
+    const finish = BRUNO.finish; BRUNO.castHeadHook = true;
+    BRUNO.finish = function (rig) {
+      finish.call(this, rig);
+      const base = rig.updateMane.bind(rig);
+      rig.updateMane = time => { base(time); if (rig.castHead) headGround(rig, time); };
+      authoredHead(rig);
+    };
+  }
   // the street fight: Fang takes the Opponent slot in his fight clothes (tank top, bare fists); back in the jacket afterwards
   const baseOpponent = SC.asOpponent;
   SC.asOpponent = (engine, id) => {
@@ -927,5 +944,5 @@
     return () => { restore(); wear(c, 'jacket'); };
   };
   SC.market = { ids: Object.keys(DEFS), barehanded: ['fang'], handbag: rig => rig?.castProps?.handbag || null, wear, jacketOff, settle, version: 3,
-    head: headApi('fang'), heads: { fang: headApi('fang'), hazel: headApi('hazel') } };
+    head: headApi('fang'), heads: { fang: headApi('fang'), hazel: headApi('hazel'), bruno: headApi('bruno') } };
 })();
