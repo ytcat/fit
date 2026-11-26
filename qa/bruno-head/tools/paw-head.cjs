@@ -55,8 +55,10 @@ const V = (...v) => new THREE.Vector3(...v);
   }
   c.root.scale.set(1, 1, 1);
   for (const [nm, st] of [['count', { arms: { L: 'hips', R: 'count' }, reach: { R: [.3, 1.5, .38] }, look: { yaw: 0, pitch: -.45 }, lean: .2 }], ['raise R', { arms: { L: 'hips', R: 'hips' }, reach: { R: { at: [.55, 2.0, .25], w: 1, pole: [1, -.3, -.2], palm: [0, 0, 1], turn: .5, paw: 'grip' } } }], ['raise L', { arms: { L: 'hips', R: 'hips' }, reach: { L: { at: [-.55, 2.0, .25], w: 1, pole: [-1, -.3, -.2], palm: [0, 0, 1], turn: .5, paw: 'grip' } } }], ['point', { arms: { R: 'point' } }], ['shrug', { arms: { L: 'shrug', R: 'shrug' } }], ['neck', { arms: { R: 'neck' } }],
-    ...[0, .25, .5, .75, 1, 1.25].map(ph => { const k = Math.sin(ph * Math.PI * 2 * 1.4 / 1.4 * 1), z = +(process.env.WAVEZ || .22); // adventure/story/gym-fight.js waveOff (w = 1)
-      return ['wave-off ' + ph, { arms: { L: 'count', R: 'count' }, reach: { L: [-1 * (.05 - .40 * k), 2.02 + .04 * Math.abs(k), z], R: [1 * (.05 - .40 * k), 2.02 + .04 * Math.abs(k), z] }, lean: .04, look: { yaw: 0, pitch: -.3 } }]; })]) {
+    // the referee's Sunday Punch wave-off (adventure/story/gym-fight.js, w = 1): both hands high, x = s * (x0 - amp * c), c over its whole
+    // swing; x0/amp: the rig's own arc (gestureAt.waveOff, Bruno with the authored head) or gym-fight's default (0.05, 0.40)
+    ...[-1, -.75, -.5, -.25, 0, .25, .5, .75, 1].map(k => { const arc = c.gestureAt?.waveOff || { x0: .05, amp: .40, z: .22 }, z = arc.z;
+      return ['wave-off c=' + k, { arms: { L: 'count', R: 'count' }, reach: { L: [-1 * (arc.x0 - arc.amp * k), 2.02 + .04 * Math.abs(k), z], R: [1 * (arc.x0 - arc.amp * k), 2.02 + .04 * Math.abs(k), z] }, lean: .04, look: { yaw: 0, pitch: -.3 } }]; })]) {
     for (let k = 0; k < 20; k++) DreamPose.civil(c, { t: 4 + k / 30, dt: 1 / 30, dist: 0, ...st });
     console.log('pose', nm, JSON.stringify(probe()));
   }

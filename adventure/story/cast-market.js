@@ -387,7 +387,7 @@
     hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112502', label: 'Hazel', fold: { from: 1.745, to: 1.775, column: { zc: -.03, rx: .085, rz: .09, margin: .85, maxX: .16 } }, hide: ['Hazel: headscarf'] },
     // Hazel's code jaw starts right above her cardigan (y 1.77-1.81, front z to 0.3): her skin above the neckline goes into a column inside
     // the model's neck, eased in from 1.745 so the dress neckline slopes in to meet it (owner 2026-11-25: "what is in her neck?")
-    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112602', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .2, rz: .15, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385] }, eyes: [[-.0757, .2079, .2467], [.0743, .2065, .2463]] }
+    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112602', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .23, rz: .2, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385], waveOff: { x0: .47, amp: .09, z: .22 } }, eyes: [[-.0757, .2079, .2467], [.0743, .2065, .2463]] }
     // Coach Bruno (story-cast.js; owner 2026-11-26: "yes"): his ears, flat cap, brows, eyes, nose, mouth and cheek ruff are all children
     // of the head joint and leave with the code head; his whistle and cord stay, his towel is swapped (brunoTowel). The model's neck
     // tube (tools/blender/bruno_head_game.py: centre z 0, 0.2 x 0.15/0.17 at the collar, tapering to the nape) goes down into the
@@ -939,38 +939,121 @@
       authoredHead(rig);
     };
   }
-  /** Bruno's towel with the authored head (owner review 2026-11-26: "the white sliver and the hard cut line" where the towel met the
-   *  neck): his towel (story-cast.js) crosses the shoulder at the base of the neck, x -0.07..-0.24, inside the model's neck tube
-   *  (r 0.2 at the collar). While the model is on, the towel's part of his merged towel-and-whistle mesh is not drawn (draw range
-   *  from the cord on; whistle and cord stay) and this towel shows instead: the same terry cloth, same path down the chest and the
-   *  back, but over the shoulder it moves out onto the trapezius beside the neck (centre x -0.262, 0.13 wide, tilted with the
-   *  shoulder's slope), so its inner edge stays outside the neck (x <= -0.197). Built once at the rig's build, rest pose. */
+  /** Bruno's towel with the authored head (main review 2026-11-26: the old towel crossed the shoulder at the base of the neck, inside
+   *  the model's neck tube; a rigid replacement stood off the shoulder as a hoop and read as a sash). While the model is on, the
+   *  towel's part of his merged towel-and-whistle mesh is not drawn (draw range from the cord on; whistle and cord stay) and this one
+   *  shows: ONE layer of terry cloth on his cardigan, a skinned shell that copies the body's own bone weights (like Hazel's
+   *  headscarf), so it lies flat on the chest, over the trapezius beside the neck and down the back and follows the shoulder when the
+   *  arm rises. The band: centre x -0.155 on the chest and the back (as the old towel, 0.15 wide), easing out to -0.262 and gathered
+   *  to 0.11 wide over the shoulder, between the neck tube (r 0.2) and the arm's root (the raised arm's skin must not rise over it); the ends hang straight down (front to y 1.33, back to 1.40) and are closed
+   *  (the shell's walls); no arm skin (coachArmBlend) and nothing above the collar line. Its boundary vertices are relaxed along the
+   *  boundary so the hems are straight, not the skin's triangle steps. Built once, at rest. */
   function brunoTowel(rig) {
     const orig = rig.root.getObjectByName('Bruno: towel and whistle'); if (!orig || rig.castTowel) return;
-    const C = orig.geometry.attributes.color, red = lin('#b3261e'); let cord = 0;
-    for (let i = 0; i < C.count; i++) if (Math.abs(C.getX(i) - red.r) < .01 && Math.abs(C.getY(i) - red.g) < .01 && Math.abs(C.getZ(i) - red.b) < .01) { cord = i; break; }
-    const P = rig.skin.geometry.attributes.position;
-    const crest = (x, z, rx, rz, below) => { let best = 0; for (let i = 0; i < P.count; i++) { const y = P.getY(i); if (y > below || y < best || Math.abs(P.getX(i) - x) > rx || Math.abs(P.getZ(i) - z) > rz) continue; best = y; } return best; };
-    const tx = -.155, cx = -.283, Wd = .13, sag = k => .012 * Math.sin(k * 2.3), T = [];
-    const W = (x, y, back) => seat(rig, x, y, false, .02, back, .04);
-    const xs = y => y < 1.6 ? tx : lerp(tx, -.235, smooth((y - 1.6) / .085));
-    for (const [k, y] of [1.33, 1.39, 1.45, 1.51, 1.57, 1.63, 1.68].entries()) { const x = xs(y) + sag(k); T.push(V(x, y, W(x, y) + .03)); }
-    for (const z of [.11, .04, -.04, -.11]) T.push(V(cx, crest(cx, z, .02, .04, 1.79) + .025, z));
-    for (const [k, y] of [1.68, 1.61, 1.54, 1.47, 1.4].entries()) { const x = xs(y) - sag(k); T.push(V(x, y, W(x, y, true) - .03)); }
-    const hIn = crest(-.2, 0, .025, .06, 1.79), hOut = crest(-.33, 0, .025, .06, 1.79), slope = Math.max(0, (hIn - hOut) / .13), sh = V(-slope, 1, 0).normalize();
-    const TL = T.map(q => q.clone().sub(V(0, 1.36, 0)));
-    const normal = q => { const k = smooth((q.y - .27) / .06); return V(0, 0, q.z > 0 ? 1 : -1).multiplyScalar(1 - k).addScaledVector(sh, k).normalize(); };
-    const curve = new THREE.CatmullRomCurve3(TL);
-    const Pt = new Parts();
-    Pt.ribbon(TL, Wd, .026, '#f3eee2', V(1, 0, 0), 44, 14, normal);
-    // the rolled edges: the same path moved along the cloth's own width direction
-    const n = 44, pts = curve.getPoints(n), edges = [[], []];
-    for (let i = 0; i <= n; i++) { const t = curve.getTangent(i / n), sd = t.clone().cross(normal(pts[i])).normalize(); edges[0].push(pts[i].clone().addScaledVector(sd, -Wd / 2 + .003)); edges[1].push(pts[i].clone().addScaledVector(sd, Wd / 2 - .003)); }
-    for (const e of edges) Pt.ribbon(e, .02, .032, '#e9e3d5', V(1, 0, 0), 44, 8, normal);
-    for (const [a, b] of [[0, 1], [15, 14]]) { const q = T[a].clone().lerp(T[b], .4).sub(V(0, 1.36, 0)); Pt.ribbon([q.clone().add(V(-Wd / 2, 0, a ? -.009 : .009)), q.clone().add(V(Wd / 2, 0, a ? -.009 : .009))], .03, .004, '#4f7fb3', V(0, 1, 0), 4, 6); } // blue stripe at both ends
-    const m = Pt.mesh('Bruno: towel (authored head)'); m.visible = false; rig.joints.chest.add(m);
-    rig.castTowel = { orig, alt: m, cord };
+    const C0 = orig.geometry.attributes.color, red = lin('#b3261e'); let cord = 0;
+    for (let i = 0; i < C0.count; i++) if (Math.abs(C0.getX(i) - red.r) < .01 && Math.abs(C0.getY(i) - red.g) < .01 && Math.abs(C0.getZ(i) - red.b) < .01) { cord = i; break; }
+    const g = rig.skin.geometry, P = g.attributes.position, N = g.attributes.normal, AB = g.attributes.coachArmBlend, idx = g.index.array, topo = g.userData.storyTopo, rep = topo ? topo.rep : null, n0 = P.count;
+    const SI = g.attributes.skinIndex, SW = g.attributes.skinWeight, CL = g.attributes.coachLinear;
+    const T = BRUNO_TOWEL, cx = y => T.x0 + (T.x1 - T.x0) * smooth((y - T.bend) / T.bendLen), terry = lin('#f3eee2'), hem = lin('#ddd6c6'), blue = lin('#4f7fb3'), tmp = new THREE.Color();
+    const p = V(), n = V(), info = new Array(n0);
+    for (let i = 0; i < n0; i++) {
+      if (rep && rep[i] !== i) continue; p.fromBufferAttribute(P, i); n.fromBufferAttribute(N, i);
+      if (p.x > 0 || p.y > T.top || (AB && AB.getX(i) > T.arm) || n.y < -.35) continue;
+      const ax = -p.x, front = p.z > 0, hw = T.hw + (T.hwTop - T.hw) * smooth((p.y - 1.6) / .12), u = (ax - cx(p.y)) / hw; if (Math.abs(u) > 1) continue;
+      if (front ? p.y < T.front : p.y < T.back) continue;
+      const end = front ? p.y - T.front : p.y - T.back, stripe = end > .025 && end < .05, edge = smooth((Math.abs(u) - .8) / .2);
+      const c = tmp.copy(stripe ? blue : terry).lerp(hem, stripe ? 0 : edge * .6).multiplyScalar(1 - .05 * Math.sin(p.y * 900 + ax * 700) * Math.sin(p.z * 800)).clone();
+      info[i] = { d: T.d + .004 * edge, c };
+    }
+    const R = i => rep ? rep[i] : i, out = new Map(), inn = new Map(), pos = [], col = [], si = [], sw = [], cl = [], tri = [], src = []; let towelTurned = -1;
+    const vert = (i, inner) => {
+      const m = inner ? inn : out; if (m.has(i)) return m.get(i); const r = info[i], d = inner ? .002 : r.d, k = pos.length / 3;
+      p.fromBufferAttribute(P, i); if (nS.has(i)) n.copy(nS.get(i)); else n.fromBufferAttribute(N, i); pos.push(p.x + n.x * d, p.y + n.y * d, p.z + n.z * d); const c = inner ? r.c.clone().multiplyScalar(.8) : r.c; col.push(c.r, c.g, c.b);
+      si.push(SI.getX(i), SI.getY(i), SI.getZ(i), SI.getW(i)); sw.push(SW.getX(i), SW.getY(i), SW.getZ(i), SW.getW(i)); cl.push(CL ? CL.getX(i) : 0); src.push(inner ? -1 - i : i); m.set(i, k); return k;
+    };
+    const edges = new Map(), faces = [];
+    for (let t = 0; t < idx.length; t += 3) {
+      const a = R(idx[t]), b = R(idx[t + 1]), c = R(idx[t + 2]); if (a === b || b === c || a === c || !info[a] || !info[b] || !info[c]) continue;
+      faces.push([a, b, c]);
+    }
+    // one piece only: the largest connected set of faces (no stray islands of cloth)
+    const parent = new Map(), find = x => { while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); } return x; };
+    for (const f of faces) for (const v of f) if (!parent.has(v)) parent.set(v, v);
+    for (const [a, b, c] of faces) { parent.set(find(b), find(a)); parent.set(find(c), find(a)); }
+    const size = new Map(); for (const [a] of faces) { const r = find(a); size.set(r, (size.get(r) || 0) + 1); }
+    let main = null, best = -1; for (const [r, k] of size) if (k > best) { best = k; main = r; }
+    // the offset follows a smoothed normal (the cloth stream's own normals are noisy at the shoulder crest: offsetting along them
+    // turned 224 of the towel's triangles inside out at rest)
+    const nS = new Map(), adjS = new Map();
+    for (const [a, b, c] of faces) { if (find(a) !== main) continue; for (const [x, y] of [[a, b], [b, c], [c, a]]) { if (!adjS.has(x)) adjS.set(x, new Set()); if (!adjS.has(y)) adjS.set(y, new Set()); adjS.get(x).add(y); adjS.get(y).add(x); } }
+    for (const i of adjS.keys()) nS.set(i, V().fromBufferAttribute(N, i));
+    for (let it = 0; it < T.smoothN; it++) { const nx = new Map(); for (const [i, nb] of adjS) { const v = nS.get(i).clone(); for (const j of nb) v.add(nS.get(j)); nx.set(i, v.normalize()); } for (const [i, v] of nx) nS.set(i, v); }
+    for (const [a, b, c] of faces) {
+      if (find(a) !== main) continue;
+      tri.push(vert(a), vert(b), vert(c));
+      for (const [x, y] of [[a, b], [b, c], [c, a]]) { const key = x < y ? x + ':' + y : y + ':' + x, e = edges.get(key); if (e) e.n++; else edges.set(key, { u: x, v: y, n: 1 }); }
+    }
+    // the skin has rows of sliver triangles along the crease at the front of the shoulder top (edges of 1-2 mm); on the cloth they
+    // turn over in any pose. The cloth's interior vertices are relaxed in its own plane (`tangent` passes: toward the mean of their
+    // neighbours, the normal part removed), so its triangles are even; each keeps its bones (a few mm along the surface)
+    { const no = pos.length / 3, isB = new Uint8Array(no), ed = new Map(), adj = Array.from({ length: no }, () => new Set()), nrm = new Array(no);
+      for (let t = 0; t < tri.length; t += 3) for (const [a, b] of [[tri[t], tri[t + 1]], [tri[t + 1], tri[t + 2]], [tri[t + 2], tri[t]]]) { const k = a < b ? a + ':' + b : b + ':' + a; ed.set(k, (ed.get(k) || 0) + 1); adj[a].add(b); adj[b].add(a); }
+      for (const [k, n] of ed) if (n === 1) for (const v of k.split(':')) isB[+v] = 1;
+      for (const [i, k] of out) nrm[k] = nS.get(i) || V().fromBufferAttribute(N, i);
+      const p0 = pos.slice(0, no * 3); // each vertex stays within `tangentMax` of where it was made (its bones are that point's)
+      for (let it = 0; it < T.tangent; it++) { const nx = [];
+        for (let k = 0; k < no; k++) { if (isB[k] || !adj[k].size) continue; let mx = 0, my = 0, mz = 0; for (const j of adj[k]) { mx += pos[j * 3]; my += pos[j * 3 + 1]; mz += pos[j * 3 + 2]; } const m = adj[k].size, dv = V(mx / m - pos[k * 3], my / m - pos[k * 3 + 1], mz / m - pos[k * 3 + 2]), nn = nrm[k]; dv.addScaledVector(nn, -dv.dot(nn)); nx.push([k, dv.multiplyScalar(.5)]); }
+        for (const [k, dv] of nx) { pos[k * 3] += dv.x; pos[k * 3 + 1] += dv.y; pos[k * 3 + 2] += dv.z; const o = V(pos[k * 3] - p0[k * 3], pos[k * 3 + 1] - p0[k * 3 + 1], pos[k * 3 + 2] - p0[k * 3 + 2]); if (o.length() > T.tangentMax) { o.setLength(T.tangentMax); pos[k * 3] = p0[k * 3] + o.x; pos[k * 3 + 1] = p0[k * 3 + 1] + o.y; pos[k * 3 + 2] = p0[k * 3 + 2] + o.z; } } }
+    }
+    // straight hems: boundary vertices relaxed along the boundary (outer and inner layer alike)
+    const bnd = [...edges.values()].filter(e => e.n === 1), nb = new Map();
+    for (const e of bnd) { if (!nb.has(e.u)) nb.set(e.u, []); if (!nb.has(e.v)) nb.set(e.v, []); nb.get(e.u).push(e.v); nb.get(e.v).push(e.u); }
+    const orig0 = new Map(); // a hem vertex moves at most `tangentMax` from where it was made
+    const relax = (map, it) => { for (let k = 0; k < it; k++) { const nxt = []; for (const [i, list] of nb) { if (list.length !== 2 || !map.has(i) || !map.has(list[0]) || !map.has(list[1])) continue; const o = map.get(i) * 3, A = map.get(list[0]) * 3, B = map.get(list[1]) * 3; nxt.push([o, [0, 1, 2].map(q => pos[o + q] * .5 + (pos[A + q] + pos[B + q]) * .25)]); } for (const [o, v] of nxt) { if (!orig0.has(o)) orig0.set(o, [pos[o], pos[o + 1], pos[o + 2]]); const z = orig0.get(o), dd = Math.hypot(v[0] - z[0], v[1] - z[1], v[2] - z[2]), kf = dd > T.tangentMax ? T.tangentMax / dd : 1; for (let q = 0; q < 3; q++) pos[o + q] = z[q] + (v[q] - z[q]) * kf; } } };
+    relax(out, T.relax);
+    // no triangle of the cloth turned inside out by the offset (concave crease at the shoulder crest): story-cast's untangle, on the
+    // towel's own top surface against the cardigan under it
+    { const no = out.size, base = new Float32Array(no * 3), top = Float32Array.from(pos.slice(0, no * 3)), q = V();
+      for (const [i, k] of out) { q.fromBufferAttribute(P, i); base[k * 3] = q.x; base[k * 3 + 1] = q.y; base[k * 3 + 2] = q.z; }
+      const deg = new Int32Array(no + 1), lists = Array.from({ length: no }, () => new Set());
+      for (let t = 0; t < tri.length; t += 3) for (const [a, b] of [[tri[t], tri[t + 1]], [tri[t + 1], tri[t + 2]], [tri[t + 2], tri[t]]]) { lists[a].add(b); lists[b].add(a); }
+      for (let k = 0; k < no; k++) deg[k + 1] = deg[k] + lists[k].size; const nbA = new Int32Array(deg[no]); lists.forEach((l, k) => { let o = deg[k]; for (const j of l) nbA[o++] = j; });
+      const pin = new Uint8Array(no); for (const i of nb.keys()) if (out.has(i)) pin[out.get(i)] = 1; // the hems stay where relax put them
+      towelTurned = SC.untangle({ rep: Int32Array.from({ length: no }, (_, k) => k), start: deg, nb: nbA, index: Uint32Array.from(tri) }, base, top, 60, { pin });
+      for (let k = 0; k < no * 3; k++) pos[k] = top[k]; }
+    for (const e of bnd) { const A = vert(e.u), B = vert(e.v), Ai = vert(e.u, true), Bi = vert(e.v, true); tri.push(A, Ai, B, B, Ai, Bi); } // closed hems and ends
+    relax(inn, T.relax);
+    // cloth, not skin: the bone weights are smoothed over the towel (`smoothW` passes), so it spans the skin's tight creases at the
+    // shoulder top (where arms-down skin folds over itself) instead of folding with them
+    { const nvt = pos.length / 3, adj = Array.from({ length: nvt }, () => new Set());
+      for (let t = 0; t < tri.length; t += 3) for (const [a, b] of [[tri[t], tri[t + 1]], [tri[t + 1], tri[t + 2]], [tri[t + 2], tri[t]]]) { adj[a].add(b); adj[b].add(a); }
+      let W = Array.from({ length: nvt }, (_, k) => { const m = new Map(); for (let q = 0; q < 4; q++) if (sw[k * 4 + q] > 0) m.set(si[k * 4 + q], (m.get(si[k * 4 + q]) || 0) + sw[k * 4 + q]); return m; }), L = cl.slice();
+      for (let it = 0; it < T.smoothW; it++) {
+        W = W.map((m, k) => { const o = new Map(m); for (const [b, w] of o) o.set(b, w * .5); const nb = [...adj[k]], f = .5 / Math.max(1, nb.length); for (const j of nb) for (const [b, w] of W[j]) o.set(b, (o.get(b) || 0) + w * f); return o; });
+        L = L.map((v, k) => { const nb = [...adj[k]]; return nb.length ? v * .5 + nb.reduce((a, j) => a + L[j], 0) * .5 / nb.length : v; });
+      }
+      W.forEach((m, k) => { const top = [...m].sort((a, b) => b[1] - a[1]).slice(0, 4), tot = top.reduce((a, q) => a + q[1], 0) || 1; for (let q = 0; q < 4; q++) { si[k * 4 + q] = top[q] ? top[q][0] : 0; sw[k * 4 + q] = top[q] ? top[q][1] / tot : 0; } cl[k] = L[k]; });
+    }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(pos.length / 3 * 2).fill(0), 2)); geo.setIndex(tri); geo.computeVertexNormals();
+    // the same surface deformation as the cardigan under it (main review round 3: with an arm raised the cardigan came through the
+    // towel): the skin's shader also moves it by the anatomy morph, the muscle definition and mass, and the shoulder corrective. The
+    // towel is installed as a body surface whose per-vertex data come from the skin vertex it was made from (the fur path: roots,
+    // avatarFurFlex 0, so no fur drift), and then takes the dressed stream's own (cloth-reduced) morph, definition and mass rows.
+    const roots = Uint32Array.from(src, q => q < 0 ? -1 - q : q), nv = roots.length;
+    const copy = (name, A = g.attributes[name]) => { if (!A) return null; const sz = A.itemSize, arr = new A.array.constructor(nv * sz); for (let k = 0; k < nv; k++) for (let q = 0; q < sz; q++) arr[k * sz + q] = A.array[roots[k] * sz + q]; return new THREE.BufferAttribute(arr, sz, A.normalized); };
+    if (AB) geo.setAttribute('coachArmBlend', copy('coachArmBlend'));
+    geo.setAttribute('avatarFurFlex', new THREE.Float32BufferAttribute(new Float32Array(nv), 1)); geo.userData.furRoots = roots; geo.userData.shoulderRoots = roots;
+    const colours = geo.attributes.color, m = rig.skinned(geo, vmat({ roughness: .95, side: THREE.DoubleSide, skinning: true }), true);
+    geo.setAttribute('color', colours);
+    geo.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(si, 4)); geo.setAttribute('skinWeight', new THREE.Float32BufferAttribute(sw, 4)); geo.setAttribute('coachLinear', new THREE.Float32BufferAttribute(cl, 1));
+    for (const k of ['avatarMuscle', 'avatarMuscleNormal', 'avatarDefinition', 'avatarDefinitionNormal', 'avatarMass']) { const A = copy(k); if (A && geo.attributes[k]) geo.setAttribute(k, A); }
+    m.name = 'Bruno: towel (authored head)'; m.userData.storyPart = true; m.castShadow = true; m.receiveShadow = true; m.visible = false;
+    rig.castTowel = { orig, alt: m, cord, turned: towelTurned, src: Int32Array.from(src), outer: out.size, faces: tri.length / 3, islands: size.size, hemVerts: nb.size }; // src: the skin vertex of each towel vertex (inner layer: -1 - index)
   }
+  // the towel band (rest coordinates, Bruno's left: x < 0): centre |x| x0 on the chest and back, easing to x1 over the shoulder from
+  // y `bend` over `bendLen`; half width hw, gathered to hwTop over the shoulder (between the neck, r 0.2, and the arm's root ~0.32); the front end at y `front`, the back end at `back`; top: the collar line; d: cloth offset
+  const BRUNO_TOWEL = { x0: .155, x1: .262, bend: 1.64, bendLen: .12, hw: .075, hwTop: .056, front: 1.33, back: 1.40, top: 1.772, d: .01, relax: 6, smoothW: 12, smoothN: 25, tangent: 12, tangentMax: .005, arm: .05 };
   function towelOn(rig, on) {
     const t = rig.castTowel; if (!t) return;
     t.orig.geometry.setDrawRange(on ? t.cord : 0, Infinity); t.alt.visible = !!on;

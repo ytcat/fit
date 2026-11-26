@@ -49,7 +49,7 @@ from mathutils import Vector
 argv = sys.argv[sys.argv.index('--') + 1:]
 src, out = argv[0], argv[1]
 P = dict(scale=.63, dy=.1327, dz=.055, cut=-.12, tris=14600, quality=86, rough=.85, size=1024,
-         neck_top=.1, neck_y=-.07, neck_zc=0.0, neck_rx=.2, neck_rz=.15, neck_rzb=.17, mid_y=-.01, mid_rx=.17, mid_rzb=.15, neck_bottom=-.2, neck_shrink=.75, shrink_from=-.075, shrink_len=.06, seg=48,
+         neck_top=.1, neck_y=-.07, neck_zc=0.0, neck_rx=.2, neck_rz=.15, neck_rzb=.17, mid_y=-.01, mid_rx=.17, mid_rzb=.15, neck_bottom=-.2, neck_shrink=.72, shrink_from=-.065, shrink_len=.06, seg=48,
          fur=1.0, fur_contrast=.65, fur_rgb='6f4a31', eyes=1.4, eye_x=.122, eye_z=.108, eye_rx=.065, eye_rz=.05, crack=1, inpaint=1, band=64, margin=16, smooth=30, uv_angle=66.0, uv_margin=.004, remesh=.003, solid=.012, strands=.9, nape_rz=.24, nape_rx=.2, iris_r=.0135, pupil_r=.0048, catch_r=.0036, iris_gain=2.2, iris_mix=.45, iris_glow=.35, catch_glow=.95, brim_dark=.78, brim_edge=.85, brim_smooth=8, fur_lo=.55, tube=1, debug='')
 for a in argv[2:]:
     k, v = a.split('='); P[k] = type(P[k])(v)
@@ -271,7 +271,11 @@ X0, Y0, PW, PH = 2, 2, W - 4, BAND - 6
 bm = bmesh.new(); bm.from_mesh(me); uvl = bm.loops.layers.uv.active
 seg = P['seg']; zc, rx, rz = P['neck_zc'], P['neck_rx'], P['neck_rz']
 ys = list(np.arange(P['neck_top'], P['neck_y'], -.02)) + [P['neck_y']] + list(np.arange(P['neck_y'] - .02, P['neck_bottom'], -.02)) + [P['neck_bottom']]
-def kk(y): return 1.0 if y >= P['shrink_from'] else 1 - (1 - P['neck_shrink']) * min(1, (P['shrink_from'] - y) / P['shrink_len'])  # narrower under the collar: never through the open cardigan front
+def kk(y, c=1.0): # narrower under the collar at the front only (never through the open cardigan front); the sides and back stay full,
+    # so no step shows where the collar sits lower (arm raised, head up; main review round 3)
+    if y >= P['shrink_from']: return 1.0
+    f = max(0.0, min(1.0, (c - .2) / .5)); t = min(1.0, (P['shrink_from'] - y) / P['shrink_len']); t = t * t * (3 - 2 * t)
+    return 1 - (1 - P['neck_shrink']) * t * f
 def sm(t): t = min(1.0, max(0.0, t)); return t * t * (3 - 2 * t)
 def prof(y, a, b, c):  # collar (neck_y) -> mid_y -> neck_top: a at the collar, b at the nape's narrowest, c inside the skull
     if y <= P['mid_y']: return a + (b - a) * sm((y - P['neck_y']) / (P['mid_y'] - P['neck_y']))
@@ -280,7 +284,7 @@ def ring_pt(j, y):  # a neck that tapers from the collar to the nape (visible un
     a = 2 * math.pi * j / seg; c, sn = math.cos(a), math.sin(a)
     rxx = prof(y, rx, P['mid_rx'], P['nape_rx']) if y > P['neck_y'] else rx
     rzz = (prof(y, P['neck_rzb'], P['mid_rzb'], P['nape_rz']) if y > P['neck_y'] else P['neck_rzb']) if c < 0 else rz
-    return Vector((sn * rxx * kk(y), -(zc + c * rzz * kk(y)), y))
+    k_ = kk(y, math.cos(a)); return Vector((sn * rxx * k_, -(zc + c * rzz * k_), y))
 if not P['tube']: ys = ys[:2]  # tube=0 (negative control for tests/head-seams): only a stub inside the skull, the raw cut shows
 rings = [[bm.verts.new(ring_pt(j, y)) for j in range(seg)] for y in ys]
 tube = []

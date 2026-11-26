@@ -67,7 +67,10 @@
           if (o.walk) { state.dist = o.walk.dist; state.walk = o.walk.w; }
           if (w < .01) { state.arms = { L: 'hang', R: 'hang' }; Pose.civil(bruno, state); return; }
           state.arms = { L: 'count', R: 'count' }; state.reach = {};
-          for (const [side, s] of [['L', -1], ['R', 1]]) state.reach[side] = [mix(s * .30, s * (.05 - .40 * c)), mix(1.10, 2.02 + .04 * Math.abs(c)), mix(.20, .22)];
+          // the arc: gym-fight's own (the hands cross over the head), or the rig's (gestureAt.waveOff: Bruno with the authored head
+          // waves them beside it, so no paw sweeps through the head)
+          const arc = bruno.gestureAt?.waveOff || { x0: .05, amp: .40, z: .22 };
+          for (const [side, s] of [['L', -1], ['R', 1]]) state.reach[side] = [mix(s * .30, s * (arc.x0 - arc.amp * c)), mix(1.10, 2.02 + .04 * Math.abs(c)), mix(.20, arc.z)];
           state.lean = .04; state.look = { yaw: 0, pitch: -.3 }; Pose.civil(bruno, state); return;
         }
         if (st.walk) { const k = 1 - Math.exp(-3 * dt); st.walk.lerp(root.position, k); if (st.walk.distanceTo(root.position) < .02) st.walk = null; else root.position.copy(st.walk); } // back to his place

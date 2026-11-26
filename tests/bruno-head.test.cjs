@@ -17,6 +17,7 @@ const H = StoryCast.market.heads.bruno, FILE = 'assets/characters/bruno/bruno-he
 const Core = require('../adventure/story/dream-core');
 const V = (...v) => new THREE.Vector3(...v);
 
+const report = {};
 (async () => {
   // ---- the file: one mesh, phone budget, one JPEG <= 1024 px, static, nothing the r128 loader cannot read
   const glb = fs.readFileSync(FILE), json = JSON.parse(glb.slice(20, 20 + glb.readUInt32LE(12)).toString('utf8'));
@@ -65,7 +66,7 @@ const V = (...v) => new THREE.Vector3(...v);
   // crosses the shoulder outside the model's neck shows; with the code head, the other way round
   const towel = c.root.getObjectByName('Bruno: towel (authored head)'), merged = keep[0];
   assert.ok(towel && towel.visible && merged.geometry.drawRange.start > 1000 && merged.geometry.drawRange.start < merged.geometry.attributes.position.count, 'towel swapped: draw from ' + merged.geometry.drawRange.start);
-  { let e = 9; const P = towel.geometry.attributes.position, v = V(); for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); if (v.y + 1.36 > 1.74) e = Math.min(e, Math.hypot(v.x / .2, v.z / (v.z < 0 ? .17 : .15))); }
+  { let e = 9; const P = towel.geometry.attributes.position, v = V(); for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); if (v.y > 1.74) e = Math.min(e, Math.hypot(v.x / .2, v.z / (v.z < 0 ? .17 : .15))); }
     assert.ok(e > 1.02, 'over the shoulder the towel stays outside the neck tube (0.2 wide, 0.15/0.17 deep at the collar): ' + e.toFixed(3)); }
   const vis = code.map(o => o.visible);
   // the skin's head and neck above the collar fold into the model; nothing below the cardigan's neckline moves
@@ -108,10 +109,45 @@ const V = (...v) => new THREE.Vector3(...v);
   // the hand-to-chin gesture (gym talk "That's me", the apology film): the paw under the model's longer, lower chin, never inside it
   // (with the code head's target the paw went up to 4 cm into the muzzle); the gesture target goes back with the code head
   const MP = mesh.geometry.attributes.position, MN = mesh.geometry.attributes.normal, mv = [], mn = []; for (let i = 0; i < MP.count; i += 2) { mv.push(V().fromBufferAttribute(MP, i)); mn.push(V().fromBufferAttribute(MN, i)); }
-  const inside = () => { c.root.updateMatrixWorld(true); const inv = new THREE.Matrix4().copy(mesh.matrixWorld).invert(); let worst = 0; c.joints.handR.traverse(o => { if (!o.isMesh || !o.visible) return; const P = o.geometry.attributes.position, m = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld), v = V(); for (let i = 0; i < P.count; i += 3) { v.fromBufferAttribute(P, i).applyMatrix4(m); let best = 1e9, k = -1; for (let j = 0; j < mv.length; j++) { const d = mv[j].distanceToSquared(v); if (d < best) { best = d; k = j; } } if (best < .0016) worst = Math.max(worst, -v.clone().sub(mv[k]).dot(mn[k])); } }); return worst; };
+  const inside = (hands = ['handR']) => { c.root.updateMatrixWorld(true); const inv = new THREE.Matrix4().copy(mesh.matrixWorld).invert(); let worst = 0; for (const hj of hands) c.joints[hj].traverse(o => { if (!o.isMesh || !o.visible) return; const P = o.geometry.attributes.position, m = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld), v = V(); for (let i = 0; i < P.count; i += 3) { v.fromBufferAttribute(P, i).applyMatrix4(m); let best = 1e9, k = -1; for (let j = 0; j < mv.length; j++) { const d = mv[j].distanceToSquared(v); if (d < best) { best = d; k = j; } } if (best < .0016) worst = Math.max(worst, -v.clone().sub(mv[k]).dot(mn[k])); } }); return worst; };
   let chinIn = 0; for (const talk of [0, 1]) for (let k = 0; k < 30; k++) { DreamPose.civil(c, { t: 6 + k / 15, dt: 1 / 15, dist: 0, talk, arms: { L: 'hips', R: 'chin' }, look: { yaw: 0, pitch: 0 } }); chinIn = Math.max(chinIn, inside()); }
   assert.ok(chinIn < .004, 'hand to the chin: the paw stays out of the muzzle (' + chinIn.toFixed(3) + ' m inside)');
   assert.ok(c.gestureAt?.chin, 'his own chin target while the model is on'); H.on(c, false); assert.ok(!c.gestureAt, 'the code head\'s target with the code head'); H.on(c, true);
+  // the referee's Sunday Punch wave-off (gym-fight.js): with the model his own arc beside the head (gestureAt.waveOff); over the
+  // whole swing no paw inside the head (gym-fight's default arc crosses the hands over the head: up to 4 cm inside)
+  const arc = c.gestureAt.waveOff; assert.ok(arc && /bruno\.gestureAt\?\.waveOff/.test(fs.readFileSync('adventure/story/gym-fight.js', 'utf8')), 'the referee uses his own wave-off arc');
+  let waveIn = 0; for (let q = -1; q <= 1.001; q += .25) { for (let k = 0; k < 20; k++) DreamPose.civil(c, { t: 4 + k / 30, dt: 1 / 30, dist: 0, arms: { L: 'count', R: 'count' }, reach: { L: [-(arc.x0 - arc.amp * q), 2.02 + .04 * Math.abs(q), arc.z], R: [arc.x0 - arc.amp * q, 2.02 + .04 * Math.abs(q), arc.z] }, lean: .04, look: { yaw: 0, pitch: -.3 } }); waveIn = Math.max(waveIn, inside(['handL', 'handR'])); }
+  assert.ok(waveIn < .004, 'wave-off: no paw inside the head (' + waveIn.toFixed(3) + ' m)');
+  // the towel (main review round 3): ONE piece, one layer, closed; lying on the cardigan over the shoulder in stand, left arm raised and
+  // walk, with the shader's own deformation (rig.skinPoint: DQ + linear + anatomy morph): every outer vertex 2 mm .. 16 mm over the
+  // cardigan point it was made from; no fold-over: the towel's top-surface triangles keep facing out (turned slivers at the skin's own
+  // crease below 10 mm2 in all)
+  { const T = c.castTowel, tg = T.alt.geometry, I = tg.index.array, nvt = tg.attributes.position.count, par = Int32Array.from({ length: nvt }, (_, i) => i), f = x => { while (par[x] !== x) { par[x] = par[par[x]]; x = par[x]; } return x; };
+    for (let t = 0; t < I.length; t += 3) { par[f(I[t + 1])] = f(I[t]); par[f(I[t + 2])] = f(I[t]); }
+    const roots = new Set(); for (let t = 0; t < I.length; t++) roots.add(f(I[t])); assert.equal(roots.size, 1, 'the towel is one piece');
+    const ecount = new Map(); for (let t = 0; t < I.length; t += 3) for (const [a, b] of [[I[t], I[t + 1]], [I[t + 1], I[t + 2]], [I[t + 2], I[t]]]) { const k = a < b ? a + ':' + b : b + ':' + a; ecount.set(k, (ecount.get(k) || 0) + 1); }
+    let open = 0; for (const [k, n] of ecount) { const [a, b] = k.split(':').map(Number); if (T.src[a] >= 0 && T.src[b] >= 0 && n !== 2) open++; } assert.equal(open, 0, 'closed: every edge of the cloth\'s top surface is shared, the hems and both ends end in a wall (no open edge)');
+    const SI = c.skin.geometry.attributes.skinIndex, NR = c.skin.geometry.attributes.normal, P0 = tg.attributes.position, src = T.src, out = []; for (let k = 0; k < src.length; k++) if (src[k] >= 0 && P0.getY(k) > 1.6) out.push(k);
+    for (const [nm, st] of [['stand', {}], ['left arm raised', { arms: { L: 'hips', R: 'hips' }, reach: { L: { at: [-.55, 2.0, .25], w: 1, pole: [-1, -.3, -.2], palm: [0, 0, 1], turn: .5, paw: 'grip' } } }], ['walk', { walk: 1 }]]) {
+      DreamPose.reset(c); for (let k = 0; k < 30; k++) DreamPose.civil(c, { t: 2 + k / 30, dt: 1 / 30, dist: st.walk ? (2 + k / 30) * 1.25 : 0, ...st }); c.syncSkin(); window.AvatarAnatomy?.update(c);
+      let lo = 9, hi = -9; const posed = [], nrm = [];
+      for (const k of out) { const a = c.skinPoint(T.alt, k), sk = c.skinPoint(c.skin, src[k]), q4 = c.dqReal[SI.getX(src[k])], n = V().fromBufferAttribute(NR, src[k]).applyQuaternion(new THREE.Quaternion(q4.x, q4.y, q4.z, q4.w)).normalize(), h = a.distanceTo(sk) * Math.sign(a.clone().sub(sk).dot(n) + .004); if (h < lo && process.env.FOLD_DEBUG) console.log('low', h.toFixed(4), V().fromBufferAttribute(P0, k).toArray().map(x => +x.toFixed(3)), 'src', V().fromBufferAttribute(c.skin.geometry.attributes.position, src[k]).toArray().map(x => +x.toFixed(3))); lo = Math.min(lo, h); hi = Math.max(hi, h); posed.push(a); nrm.push(n); }
+      assert.ok(lo > .002 && hi < .016, nm + ': the towel lies on the cardigan over the shoulder, ' + lo.toFixed(4) + '..' + hi.toFixed(4) + ' m above it');
+      // no fold-over: every top-surface triangle of the towel still faces the way it faced at rest, turned by its bones (a fold turns
+      // it over); the same count on the cardigan under it, for comparison (the skin's own creases)
+      const pk = new Map(); out.forEach((k, j) => pk.set(k, j)); let folds = 0, faces = 0, under = 0, foldArea = 0; const TSI = tg.attributes.skinIndex, rot = k => { const q4 = c.dqReal[TSI.getX(k)]; return new THREE.Quaternion(q4.x, q4.y, q4.z, q4.w); };
+      const base = new Map(), bp = k => { if (!base.has(k)) base.set(k, c.skinPoint(c.skin, src[k])); return base.get(k); }, SP = c.skin.geometry.attributes.position, rp = i => V().fromBufferAttribute(SP, i);
+      for (let t = 0; t < I.length; t += 3) { const ja = pk.get(I[t]), jb = pk.get(I[t + 1]), jc = pk.get(I[t + 2]); if (ja == null || jb == null || jc == null) continue; faces++;
+        const A = posed[ja], fn = posed[jb].clone().sub(A).cross(posed[jc].clone().sub(A)), R0 = V().fromBufferAttribute(P0, I[t]), rn = V().fromBufferAttribute(P0, I[t + 1]).sub(R0).cross(V().fromBufferAttribute(P0, I[t + 2]).sub(R0)).applyQuaternion(rot(I[t]));
+        if (fn.lengthSq() > 1e-14 && rn.lengthSq() > 1e-14 && fn.dot(rn) < 0) { folds++; foldArea += rn.length() / 2 * 1e6; if (process.env.FOLD_DEBUG) console.log('fold at', R0.toArray().map(x => +x.toFixed(3)), 'area mm2', +(rn.length() / 2 * 1e6).toFixed(2)); }
+        const B0 = bp(I[t]), bn = bp(I[t + 1]).clone().sub(B0).cross(bp(I[t + 2]).clone().sub(B0)), S0 = rp(src[I[t]]), sn = rp(src[I[t + 1]]).sub(S0).cross(rp(src[I[t + 2]]).sub(S0)).applyQuaternion(rot(I[t]));
+        if (bn.lengthSq() > 1e-14 && sn.lengthSq() > 1e-14 && bn.dot(sn) < 0) under++; }
+      if (process.env.FOLD_DEBUG) console.log(nm, 'towel folds', folds, 'cardigan folds under it', under, 'of', faces);
+      assert.ok(faces > 1000 && foldArea < 10, nm + ': no overlapping towel layers (' + folds + ' of ' + faces + ' top-surface triangles turned, ' + foldArea.toFixed(1) + ' mm2 in all: slivers at a crease of the skin, which has ' + under + ' there itself)');
+      report.towel = report.towel || {}; report.towel[nm] = { above: [+lo.toFixed(4), +hi.toFixed(4)], foldedMm2: +foldArea.toFixed(1), folded: folds, skinFolded: under };
+    }
+    DreamPose.reset(c);
+  }
 
   // ---- the gym-fight referee is the same rig (gym-fight.js: Cast.rig('bruno')): the model is on and rides the joint in his poses
   for (const [nm, st] of [['count', { arms: { L: 'hips', R: 'count' }, reach: { R: [.3, 1.5, .38] }, look: { yaw: 0, pitch: -.45 }, lean: .2 }], ['raise', { arms: { L: 'hips', R: 'hips' }, reach: { R: { at: [.55, 2.0, .25], w: 1, pole: [1, -.3, -.2], palm: [0, 0, 1], turn: .5, paw: 'grip' } } }]]) {
@@ -121,7 +157,7 @@ const V = (...v) => new THREE.Vector3(...v);
   assert.ok(/Cast\.rig\('bruno', e\)/.test(fs.readFileSync('adventure/story/gym-fight.js', 'utf8')), 'the referee is the story rig');
   // the ground rule (same as Fang's and Hazel's): lying on his back the model is raised off the ground, standing it sits on the joint again
   const lowest = () => { c.root.updateMatrixWorld(true); let y = 1e9; const P = mesh.geometry.attributes.position, v = V(); for (let i = 0; i < P.count; i += 7) y = Math.min(y, v.fromBufferAttribute(P, i).applyMatrix4(mesh.matrixWorld).y); return y; };
-  DreamPose.civil(c, { t: 1, dt: 1 / 30, dist: 0 }); c.root.position.set(0, .25, 0); c.root.rotation.set(-Math.PI / 2, 0, 0);
+  DreamPose.reset(c); for (let k = 0; k < 30; k++) DreamPose.civil(c, { t: 1 + k / 30, dt: 1 / 30, dist: 0 }); c.root.scale.set(-1, 1, 1); c.root.position.set(0, .25, 0); c.root.rotation.set(-Math.PI / 2, 0, 0);
   const sunk = lowest(); for (let k = 1; k <= 40; k++) c.updateMane(100 + k / 30); const rested = lowest();
   assert.ok(rested > sunk + .03, 'lying down the head is raised: ' + sunk.toFixed(3) + ' -> ' + rested.toFixed(3));
   c.root.rotation.set(0, 0, 0); c.root.position.set(0, 0, 0); DreamPose.civil(c, { t: 2, dt: 1 / 30, dist: 0 }); for (let k = 1; k <= 60; k++) c.updateMane(102 + k / 30);
@@ -135,5 +171,5 @@ const V = (...v) => new THREE.Vector3(...v);
   for (const [mod, id] of [[Core, 'dream_gym_talk'], [require('../adventure/story/docks-core'), 'dream_fight_night']]) assert.ok(Object.values(mod.scenes[id].actors).some(x => x.rig === 'bruno'), id + ' has Bruno');
   assert.ok(/market\?\.heads\?\.\[rig\?\.castHead\?\.id\]/.test(fs.readFileSync('adventure/portraits.js', 'utf8')), 'the portrait waits for his head');
   const html = fs.readFileSync('index.html', 'utf8'); assert.ok(/cast-market\.js\?v=20261126br2/.test(html) && /dream-scenes\.js\?v=20261126br/.test(html), 'changed scripts re-fetched');
-  console.log('bruno head ok', JSON.stringify({ tris, bytes: glb.length, folded, deep, poses: n, lowEye: +lowEye.toFixed(3), talkNod: +talkNod.toFixed(3), lying: [+sunk.toFixed(3), +rested.toFixed(3)] }));
+  console.log('bruno head ok', JSON.stringify({ ...report, tris, bytes: glb.length, folded, deep, poses: n, lowEye: +lowEye.toFixed(3), talkNod: +talkNod.toFixed(3), lying: [+sunk.toFixed(3), +rested.toFixed(3)] }));
 })().catch(e => { console.error(e); process.exit(1); });
