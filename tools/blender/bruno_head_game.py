@@ -2,27 +2,35 @@
 owner 2026-11-26: "yes").
 
     <blender-python> tools/blender/bruno_head_game.py -- <source.glb> <out.glb> [key=value ...]
+    (the shipped file: defaults, assets/characters/bruno/bruno-head.glb)
 
 Like tools/blender/hazel_head_game.py and fang_head_game.py: the bust is scaled and moved into Bruno's head-joint frame (metres;
-+Y up, +Z toward the nose, origin = the head joint), welded, decimated to a phone budget (the source UVs kept) and written with one
-JPEG base-colour map (<= 1024 px), constant roughness and no metal (the TRELLIS metal map is ~1 everywhere: an artifact on fur).
-Node 'brunoHead'.
++Y up, +Z toward the nose, origin = the head joint; `scale`, `dy`, `dz`), brought to a phone budget and written with one JPEG
+base-colour map (<= 1024 px), constant roughness and no metal (the TRELLIS metal map is ~1 everywhere: an artifact on fur).
+Node 'brunoHead'. What is different, and why:
 
-  * The neck. The source bust ends in a long fur cone under the chin, cut on a slant, with ragged fur tips. It is cut off at
-    `cut` (head-frame y, a few cm under the collar), and a clean elliptic neck tube (centre z `neck_zc`, half-widths `neck_rx`,
-    `neck_rz`) goes from inside the skull (`neck_top`) down into the body (`neck_bottom`), narrowing below the collar (`neck_y`) by
-    `neck_shrink` so it never shows through the open cardigan front. The tube is wider than the bust's own neck at the cut, so the
-    cut rim lies inside it (hidden, and inside the body): what shows is the head's own surface running into a round neck, never an
-    open edge. Its colours: the head's own fur sampled round the neck just above the collar (light throat in front if there is one,
-    brown at the sides and back), as a strip in a free corner of the atlas, with faint vertical strands.
+  * Geometry. This source is made of thin walls (head, cap and ears are two sheets ~1.5 mm apart, the cap in several layers; 1.1k
+    open edges, 2.8k edges shared by 3+ faces), so the usual weld + decimate stopped at ~29k triangles. The walls are thickened
+    inward (`solid`) and voxel-remeshed (`remesh`) into one closed skin of the same outer shape, the inner bubbles dropped, cut at
+    `cut` (head-frame y, under the collar) and decimated to `tris`. New UVs (Smart UV Project on a smoothed copy, `smooth`
+    iterations, so the fur relief does not split it into thousands of islands; same topology, so the UVs map corner for corner).
   * Cracks. The fine crack lines on the light muzzle and brows were the source atlas's chart borders: the texels on each chart's
-    edge are dark speckle, and every UV seam sampled them. Coverage of the source UVs is baked, the edge texels (`inpaint` px) and
-    the gaps between charts are refilled from each chart's interior (padding), so seams sample their own chart. Thin dark lines
-    left inside the light areas are filled from their light neighbours (`crack`).
+    edge are dark speckle and every UV seam sampled them. Coverage of the source UVs is baked, the edge texels (`inpaint` px) and the
+    gaps between charts are refilled from each chart's interior; that padded texture is baked onto the new layout (rays from the
+    game surface to the source) with `margin` px of extended edges, so no seam on the phone samples a neighbouring island. Thin
+    dark lines left inside the light areas are filled from their light neighbours (`crack`); bake rays that missed are filled too.
+  * The neck. The source bust ends in a long fur cone under the chin, cut on a slant, with ragged fur tips. Below `cut` it is gone;
+    a clean neck tube (centre z `neck_zc`, half-widths `neck_rx`, `neck_rz`) runs from inside the skull (`neck_top`) down into the
+    body (`neck_bottom`). Above the collar (`neck_y`) its back and sides widen toward the occiput and the cheek fur (`nape_rz`,
+    `nape_rx`, a squarer back `nape_n`: a bear's thick nape, no hollow under the skull); under the collar it narrows (`shrink_from`,
+    `shrink_len`, `neck_shrink`) so it never shows through the open cardigan front. The bust's cut rim lies inside the tube and the
+    body: what shows is the head's surface running into a round neck, never an open edge. Its colours: the head's own fur sampled
+    round the neck above the collar, in a band of `band` px at the bottom of the atlas (the head's UVs sit above it).
+    tube=0 leaves the tube out (the negative control of tests/head-seams.test.cjs).
   * Colour. The source fur is near black (as dark as the FLUX picture); Bruno's body fur is #6f4a31. The dark fur texels (not the
     cap, found by position; not the cream muzzle and brows, the nose or the eyes) move to the body's fur colour: median matched per
-    channel, the texture's own variation kept at `fur_contrast` (strands and shading stay, the blotches of a 3x gain do not). The
-    eyes sit deep under the heavy brows: the dark texels round them are lifted by `eyes` (x brightness); nothing else changes.
+    channel, the texture's own variation kept at `fur_contrast` (clamped at `fur_lo`: the darkest streaks read as smudges once the
+    fur is lighter). The eyes (`eye_*`, source units) keep their own colours and their dark texels are lifted by `eyes`.
 Prints a JSON report line 'REPORT'.
 """
 import bpy, bmesh, sys, json, os, math
@@ -31,9 +39,9 @@ from mathutils import Vector
 
 argv = sys.argv[sys.argv.index('--') + 1:]
 src, out = argv[0], argv[1]
-P = dict(scale=.70, dy=.153, dz=.03, cut=-.10, tris=14600, quality=86, rough=.85, size=1024,
-         neck_top=.09, neck_y=-.07, neck_zc=0.0, neck_rx=.2, neck_rz=.15, neck_bottom=-.2, neck_shrink=.8, shrink_from=-.11, seg=48,
-         fur=1.0, fur_contrast=.65, fur_rgb='6f4a31', eyes=1.4, eye_x=.122, eye_z=.108, eye_rx=.065, eye_rz=.05, crack=1, inpaint=1, band=40, margin=16, smooth=30, uv_angle=66.0, uv_margin=.004, remesh=.003, solid=.012, strands=.03, debug='')
+P = dict(scale=.70, dy=.153, dz=.03, cut=-.12, tris=14600, quality=86, rough=.85, size=1024,
+         neck_top=.13, neck_y=-.07, neck_zc=0.0, neck_rx=.2, neck_rz=.15, neck_bottom=-.2, neck_shrink=.75, shrink_from=-.075, shrink_len=.06, seg=48,
+         fur=1.0, fur_contrast=.65, fur_rgb='6f4a31', eyes=1.4, eye_x=.122, eye_z=.108, eye_rx=.065, eye_rz=.05, crack=1, inpaint=1, band=40, margin=16, smooth=30, uv_angle=66.0, uv_margin=.004, remesh=.003, solid=.012, strands=0.0, nape_rz=.26, nape_rx=.23, nape_n=3.5, fur_lo=.55, tube=1, debug='')
 for a in argv[2:]:
     k, v = a.split('='); P[k] = type(P[k])(v)
 s = P['scale']
@@ -197,7 +205,7 @@ fur_w = fur_w * (1 - eye_zone)  # the eyes keep their own colours (the fur recol
 tgt = np.array([int(P['fur_rgb'][i:i + 2], 16) / 255 for i in (0, 2, 4)], np.float32)
 sel = (fur_w > .8) & used
 med = np.median(col[sel], axis=0)
-ratio = np.maximum(col, 1e-4) / np.maximum(med, 1e-4)
+ratio = np.clip(np.maximum(col, 1e-4) / np.maximum(med, 1e-4), P['fur_lo'], 2.0)  # the darkest streaks read as smudges once the fur is lighter
 fur_col = tgt * ratio ** P['fur_contrast']  # the median lands on the body's colour; darker/lighter strands keep a softened contrast
 k = (fur_w * P['fur'])[..., None]
 col = np.clip(col * (1 - k) + fur_col * k, 0, 1)
@@ -209,8 +217,17 @@ X0, Y0, PW, PH = 2, 2, W - 4, BAND - 6
 bm = bmesh.new(); bm.from_mesh(me); uvl = bm.loops.layers.uv.active
 seg = P['seg']; zc, rx, rz = P['neck_zc'], P['neck_rx'], P['neck_rz']
 ys = list(np.arange(P['neck_top'], P['neck_y'], -.02)) + [P['neck_y']] + list(np.arange(P['neck_y'] - .02, P['neck_bottom'], -.02)) + [P['neck_bottom']]
-def kk(y): return 1.0 if y >= P['shrink_from'] else 1 - (1 - P['neck_shrink']) * min(1, (P['shrink_from'] - y) / (P['shrink_from'] - P['neck_bottom']))
-rings = [[bm.verts.new(Vector((math.sin(2 * math.pi * j / seg) * rx * kk(y), -(zc + math.cos(2 * math.pi * j / seg) * rz * kk(y)), y))) for j in range(seg)] for y in ys]
+def kk(y): return 1.0 if y >= P['shrink_from'] else 1 - (1 - P['neck_shrink']) * min(1, (P['shrink_from'] - y) / P['shrink_len'])  # narrower under the collar: never through the open cardigan front
+def up(y): t = min(1, max(0, (y - P['neck_y']) / (P['neck_top'] - P['neck_y']))); return t * t * (3 - 2 * t)
+def ring_pt(j, y):  # above the collar the back and sides widen toward the occiput and the jaw (a bear's thick nape, no hollow under the skull)
+    a = 2 * math.pi * j / seg; c, sn = math.cos(a), math.sin(a); u = up(y)
+    rzz = rz + (P['nape_rz'] - rz) * u if c < 0 else rz
+    rxx = rx + (P['nape_rx'] - rx) * u * max(0.0, min(1.0, (.3 - c) / .5))
+    if c < 0:  # the back half squarer toward the top (a superellipse): it fills the corners under the occiput and the cheek fur
+        e = 2 / (2 + (P['nape_n'] - 2) * u); c = -abs(c) ** e; sn = math.copysign(abs(sn) ** e, sn)
+    return Vector((sn * rxx * kk(y), -(zc + c * rzz * kk(y)), y))
+if not P['tube']: ys = ys[:2]  # tube=0 (negative control for tests/head-seams): only a stub inside the skull, the raw cut shows
+rings = [[bm.verts.new(ring_pt(j, y)) for j in range(seg)] for y in ys]
 tube = []
 for r in range(len(rings) - 1):
     for j in range(seg):
@@ -252,7 +269,7 @@ for j in range(seg):
     ring_col.append(np.mean(acc_c, 0) if acc_c else fur_after)
 tmp.free()
 ring_col = np.array(ring_col)
-for _ in range(3): ring_col = (np.roll(ring_col, 1, 0) + 2 * ring_col + np.roll(ring_col, -1, 0)) / 4
+for _ in range(6): ring_col = (np.roll(ring_col, 1, 0) + 2 * ring_col + np.roll(ring_col, -1, 0)) / 4
 rng = np.random.default_rng(7); streak = rng.normal(0, 1, PW)
 for _ in range(6): streak = (np.roll(streak, 1) + 2 * streak + np.roll(streak, -1)) / 4
 streak /= max(1e-6, streak.std())

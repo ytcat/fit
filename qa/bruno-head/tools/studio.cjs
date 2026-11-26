@@ -22,7 +22,7 @@ const { open, save } = require('./serve.cjs'), fs = require('fs'), path = requir
       H0.on(c, f.head !== false); DreamPose.reset(c);
       const P = f.pose || 'stand', t1 = f.t ?? 2;
       for (let k = 0; k <= 40; k++) { const t = t1 - (40 - k) / 30;
-        const st = { t, dt: 1 / 30, dist: P === 'walk' ? t * 1.25 : 0, walk: P === 'walk' ? 1 : 0, talk: P === 'talk' ? 1 : 0, arms: f.arms || ARMS[P] || {}, look: f.look || { yaw: 0, pitch: 0 }, lean: f.lean || 0 };
+        const st = { t, dt: 1 / 30, dist: P === 'walk' ? t * 1.25 : 0, walk: P === 'walk' ? 1 : 0, talk: P === 'talk' ? 1 : 0, arms: f.arms || ARMS[P] || {}, look: f.look || { yaw: 0, pitch: 0 }, lean: f.lean || 0 }; if (f.reach) st.reach = f.reach; c.root.scale.set(...(f.root || [-1, 1, 1]));
         if (P === 'count') { const beat = t % 1; st.reach = { R: [.3, 1.6 - .24 * Math.min(1, beat * 4) * (1 - Math.min(1, Math.max(0, beat - .25) * 3)), .38] }; st.look = { yaw: 0, pitch: -.45 }; st.lean = .2; }
         if (P === 'raise') { st.arms = { L: 'hips', R: 'hips' }; st.reach = { R: { at: [.34, 1.98, .22], w: 1, pole: [1, -.3, -.2], palm: [0, 0, 1], turn: .5, paw: 'grip' } }; }
         DreamPose.civil(c, st);

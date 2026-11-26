@@ -1,4 +1,4 @@
-// node tests/head-seams.test.cjs — the joins of the authored heads (Fang, Mrs. Hazel) with their bodies, in every tested pose
+// node tests/head-seams.test.cjs — the joins of the authored heads (Fang, Mrs. Hazel, Coach Bruno) with their bodies, in every tested pose
 // (AGENTS.md "Avatars and character parts: joins must be checked"; owner 2026-11-25 on v1.96: "what is in her neck?").
 //  1. nothing of the body pokes out between the collar and the jaw: every body-skin vertex above the character's collar line lies
 //     inside the head model's own cross-section (same height, same direction round the neck), 5 mm tolerance;
@@ -6,7 +6,11 @@
 //  3. no flare (Hazel): between collar and jaw the model stays within its neck envelope (the kerchief's drape at the back excepted);
 //  4. the check catches the v1.96 faults: with v1.96's skin settings both heads fail check 1 (negative control, in this test).
 // Poses: Fang standing, talking, walking in the jacket; guard, punches, a hit and the knockdown in the fight top. Hazel through her
-// films (robbery and reward, every 0.5 s), talking and walking. Env HAZEL_GLB=<file> runs it on another Hazel model (v1.96: fails).
+// films (robbery and reward, every 0.5 s), talking and walking. Bruno (owner 2026-11-26) through his nine films (every second), talking,
+// walking, pointing, hands on hips, the referee's count and the winner's wrist held high, looking round and down; his bottom rings
+// (the neck tube's end and the bust's cut rim, both meant to sit inside the cardigan) stay inside the body.
+// Env HAZEL_GLB=<file> / BRUNO_GLB=<file> runs it on another model (v1.96 Hazel, or Bruno's head without its neck tube
+// (tools/blender/bruno_head_game.py tube=0): both fail). Env ONLY=bruno checks one character.
 const assert = require('node:assert/strict'), fs = require('node:fs'), vm = require('node:vm'), path = require('node:path');
 process.chdir(path.join(__dirname, '..'));
 global.THREE = require('../assets/vendor/three.min.js'); global.window = global; global.addEventListener = () => {};
@@ -14,7 +18,7 @@ const ctx2d = () => new Proxy({}, { get: (_, k) => k === 'createImageData' ? ((w
 global.document = { createElement: () => ({ getContext: ctx2d }), createElementNS: () => { const l = {}; return { addEventListener: (k, f) => { l[k] = f; }, removeEventListener() {}, set src(v) { setTimeout(() => l.load?.(), 0); } }; } };
 global.self = global; vm.runInThisContext(fs.readFileSync('assets/vendor/GLTFLoader.js', 'utf8'));
 const RealLoader = THREE.GLTFLoader;
-THREE.GLTFLoader = class { load(url, ok, _p, err) { let f = url.replace(/^\.\//, '').split('?')[0]; if (/hazel/.test(f) && process.env.HAZEL_GLB) f = process.env.HAZEL_GLB; const b = fs.readFileSync(f); new RealLoader().parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.length), '', ok, err); } };
+THREE.GLTFLoader = class { load(url, ok, _p, err) { let f = url.replace(/^\.\//, '').split('?')[0]; if (/hazel/.test(f) && process.env.HAZEL_GLB) f = process.env.HAZEL_GLB; if (/bruno/.test(f) && process.env.BRUNO_GLB) f = process.env.BRUNO_GLB; const b = fs.readFileSync(f); new RealLoader().parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.length), '', ok, err); } };
 for (const f of ['boxing-routines.js', 'avatar-anatomy.js', 'avatar-detail.js', 'avatar-shoulder.js', 'boxing-footwear.js', 'padding-deformation.js', 'boxing-pose.js', 'boxing-coach-v2.js', 'adventure/story/paws.js', 'adventure/story/story-cast.js', 'adventure/story/street-wear.js', 'adventure/story/cast-market.js', 'adventure/story/dream-pose.js']) vm.runInThisContext(fs.readFileSync(f, 'utf8'), { filename: f });
 const Core = require('../adventure/story/dream-core'), M = require('../adventure/story/market-core');
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -22,9 +26,10 @@ const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 // (head frame x 0, z), where the model's bottom ring is, and (Hazel) the neck envelope between collar and jaw
 const SPEC = {
   fang: { collar: 1.805, zc: -.12, ringBelow: -.2, ringFront: -.08, ringX: .14 }, // the throat stump; behind and beside it the ruff and mane hang over the shoulders and back by design and their spikes cover the stump
-  hazel: { collar: 1.78, zc: -.06, ringBelow: -.1, ringFront: -9, ringX: 9, envelope: { y: [-.075, -.048], rx: .115, rz: .125, zc: -.064, behind: -.15 } /* below the drape's hem (-0.045) */ }
+  hazel: { collar: 1.78, zc: -.06, ringBelow: -.1, ringFront: -9, ringX: 9, envelope: { y: [-.075, -.048], rx: .115, rz: .125, zc: -.064, behind: -.15 } /* below the drape's hem (-0.045) */ },
+  bruno: { collar: 1.78, zc: 0, ringBelow: -.09, ringFront: -9, ringX: 9 } // the cardigan ends at 1.775; rings: the tube's end (-0.2) and the bust's cut (-0.1)
 };
-const V196 = { fang: { from: 1.79, to: 1.85, amount: .62 }, hazel: { from: 1.78, to: 1.84, amount: .62 } };
+const V196 = { fang: { from: 1.79, to: 1.85, amount: .62 }, hazel: { from: 1.78, to: 1.84, amount: .62 }, bruno: { from: 1.79, to: 1.85, amount: .62 } /* the generic v1.96 fold, as the other heads had it */ };
 
 function modelOf(c) { let m = null; c.joints.head.getObjectByName(c.castHead.group.name).traverse(o => { if (o.isMesh) m = o; }); return m; }
 /** The model's surface as cross-sections round the axis: bins of 1 cm height x 6 degrees -> max radius (head frame). */
@@ -90,7 +95,7 @@ const bandOf = (c, spec) => { const P = c.skin.geometry.attributes.position, out
   const data = JSON.parse(fs.readFileSync('assets/models/coach-surface-v2.json')), engine = { roster: { data }, arena: { models: {} } };
   data.shoulderCorrectives = JSON.parse(fs.readFileSync('assets/models/shoulder-correctives-v2.json')); global.EQUIPMENT_SURFACES = JSON.parse(fs.readFileSync('assets/models/equipment-surfaces-r76.json'));
   const report = {};
-  for (const id of ['fang', 'hazel']) {
+  for (const id of ['fang', 'hazel', 'bruno'].filter(i => !process.env.ONLY || process.env.ONLY.split(',').includes(i))) {
     const c = StoryCast.rig(id, engine), H = StoryCast.market.heads[id], spec = SPEC[id];
     assert.equal(await H.ready(30000), 'ready', id + ' head loads'); assert.ok(c.castHead.on, id + ' head on');
     c.root.scale.set(-1, 1, 1); // the films' and fights' mirrored root
@@ -101,6 +106,16 @@ const bandOf = (c, spec) => { const P = c.skin.geometry.attributes.position, out
       for (const [n, st] of [['stand', {}], ['talk', { talk: 1 }], ['walk', { walk: 1, dist: 1.3 }], ['look', { look: { yaw: .5, pitch: .2 } }]]) pose('jacket ' + n, t => { StoryCast.market.wear(c, 'jacket'); DreamPose.civil(c, { t, dt: 1 / 30, dist: 0, ...st }); if (st.talk) StoryCast.talk(c, .9); });
       for (const [n, mv, ph, ex] of [['guard', 'guard', 0, {}], ['jab', 'jab', .5, {}], ['cross', 'cross', .5, {}], ['hook', 'lead_hook', .55, {}], ['uppercut', 'rear_uppercut', .5, {}], ['hit', 'guard', 0, { hitReaction: { side: 1, power: 1 } }], ['knockdown', 'guard', 0, { down: true, presentation: { mode: 'loser', raise: 0 } }]])
         pose('fight ' + n, t => { StoryCast.market.wear(c, 'fight'); c.update(mv === 'guard' ? t : ph * 1.22, mv, 'one_two', { simulationTime: t, keepFaceClear: true, guardCover: 1, power: 1.15, recoil: 0, advance: 0, contactDrive: 0, ...ex }); DreamPose.reset(c); });
+    } else if (id === 'bruno') {
+      const films = [[require('../adventure/story/dream-core'), ['dream_gym_talk', 'dream_after_brick']], [M, ['dream_apology']], [require('../adventure/story/docks-core'), ['dream_docks', 'dream_docks_after', 'dream_fight_night', 'dream_chapter_end']], [require('../adventure/story/gym-return-core'), ['dream_new_bag', 'dream_offer']]];
+      for (const [mod, ids] of films) for (const sid of ids) { const S = mod.scenes[sid]; for (let t = 0; t <= S.duration; t += 1) { const s = Core.sample(S, t).actors.bruno; if (!s || s.act === 'off') continue; pose(sid + ' ' + t.toFixed(1), () => { DreamPose.civil(c, { t, dt: 1 / 30, dist: s.dist, walk: +s.walking, arms: s.arms, lean: s.lean, drop: s.drop, talk: s.talk ? 1 : 0, look: { yaw: 0, pitch: 0 } }); if (s.talk) StoryCast.talk(c, .8); }); } }
+      for (const [n, st] of [['talk', { talk: 1, arms: { R: 'open' } }], ['walk', { walk: 1 }], ['point', { arms: { R: 'point' } }], ['hips', { arms: { L: 'hips', R: 'hips' } }], ['shrug', { arms: { L: 'shrug', R: 'shrug' } }],
+        ['look left', { look: { yaw: .7, pitch: 0 } }], ['look right', { look: { yaw: -.7, pitch: 0 } }], ['look down', { look: { yaw: 0, pitch: -.5 } }], ['look up', { look: { yaw: 0, pitch: .35 } }]])
+        pose(n, t => { DreamPose.civil(c, { t, dt: 1 / 30, dist: st.walk ? t * 1.25 : 0, ...st }); if (st.talk) StoryCast.talk(c, 1); });
+      // the referee (adventure/story/gym-fight.js): the count over a fallen fighter, the winner's wrist held high, the Sunday Punch wave-off
+      pose('referee count', t => { const beat = t % 1; DreamPose.civil(c, { t, dt: 1 / 30, dist: 0, arms: { L: 'hips', R: 'count' }, reach: { R: [.3, 1.6 - .24 * Math.min(1, beat * 4), .38] }, look: { yaw: 0, pitch: -.45 }, lean: .2 }); });
+      for (const x of [.55, -.55]) pose('referee raise ' + x, t => DreamPose.civil(c, { t, dt: 1 / 30, dist: 0, arms: { L: 'hips', R: 'hips' }, reach: { [x > 0 ? 'R' : 'L']: { at: [x, 2.0, .25], w: 1, pole: [Math.sign(x), -.3, -.2], palm: [0, 0, 1], turn: .5, paw: 'grip' } }, look: { yaw: 0, pitch: .2 } }));
+      pose('referee wave-off', t => { const k = Math.sin(t * Math.PI * 2 * 1.4); DreamPose.civil(c, { t, dt: 1 / 30, dist: 0, arms: { L: 'count', R: 'count' }, reach: { L: [-.05 + .4 * k, 2.05, .22], R: [.05 - .4 * k, 2.05, .22] }, lean: .04, look: { yaw: 0, pitch: -.3 } }); });
     } else {
       for (const sid of ['dream_market_robbery', 'dream_market_reward']) { const S = M.scenes[sid]; for (let t = 0; t <= S.duration; t += .5) { const s = Core.sample(S, t).actors.hazel; if (!s || s.act === 'off') continue; pose(sid + ' ' + t.toFixed(1), () => { DreamPose.civil(c, { t, dt: 1 / 30, dist: s.dist, walk: +s.walking, arms: s.arms, lean: s.lean, talk: s.talk ? 1 : 0, look: { yaw: 0, pitch: 0 } }); if (s.talk) StoryCast.talk(c, .8); }); } }
       pose('talk', t => { DreamPose.civil(c, { t, dt: 1 / 30, dist: 0, talk: 1, arms: { R: 'open' } }); StoryCast.talk(c, 1); });

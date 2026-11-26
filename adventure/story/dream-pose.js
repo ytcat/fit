@@ -379,7 +379,7 @@
       const k = dt > 0 && m.hand[side] ? 1 - Math.exp(-dt * 9) : 1;
       m.hw[side] = lerp(m.hw[side], name === 'hang' && !rr ? 1 : 0, k); const free = m.hw[side] * w; // how much of the free arm swing shows
       paws[side] = st.paws?.[side] || (ro ? (ro.paw && rw > .5 ? ro.paw : rw > .5 ? 'grip' : (window.Paws?.shapeFor(name) || 'relaxed')) : rr ? 'grip' : P.r > .5 && free > .5 ? 'fist' : (window.Paws?.shapeFor(name) || 'relaxed')); // an exact reach holds something (the mop): a grip; a jogging boxer closes his hands
-      const hand = rr && !ro ? V(...rr) : mirror(g.h, s), pole = mirror(g.pole, s), palm = mirror(g.palm, s); // reach: an exact hand target in rig space
+      const hand = rr && !ro ? V(...rr) : mirror(c.gestureAt?.[name] || g.h, s), pole = mirror(g.pole, s), palm = mirror(g.palm, s); // reach: an exact hand target in rig space; gestureAt: a rig's own target for a gesture (Bruno's authored head: the chin is lower and further forward)
       hand.z += carry > 0 ? .21 * carry : .15 * carry; hand.y += (carry > 0 ? .055 : .015) * Math.abs(carry) + .004 * breath * idle; hand.x += s * (.012 * w) - s * .015 * Math.max(0, carry); // a weight in the hand swings a little
       if (name !== 'hang' && name !== 'carry' && name !== 'strap' && name !== 'hips' && name !== 'cross' && name !== 'cross2') { const beat = (st.talk || 0) * Math.sin(t * 5.3 + s); hand.y += .022 * beat; hand.z += .018 * beat; } // the hand moves with the words
       m.hand[side] = m.hand[side] ? m.hand[side].lerp(hand, k) : hand; m.pole[side] = m.pole[side] ? turnTo(m.pole[side], pole, k) : pole; m.palm[side] = m.palm[side] ? turnTo(m.palm[side], palm, k) : palm; m.turn[side] = lerp(m.turn[side], g.turn, k);
