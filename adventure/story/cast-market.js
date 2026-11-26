@@ -387,7 +387,7 @@
     hazel: { url: './assets/characters/hazel/hazel-head.glb?v=2026112502', label: 'Hazel', fold: { from: 1.745, to: 1.775, column: { zc: -.03, rx: .085, rz: .09, margin: .85, maxX: .16 } }, hide: ['Hazel: headscarf'] },
     // Hazel's code jaw starts right above her cardigan (y 1.77-1.81, front z to 0.3): her skin above the neckline goes into a column inside
     // the model's neck, eased in from 1.745 so the dress neckline slopes in to meet it (owner 2026-11-25: "what is in her neck?")
-    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112604', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .215, rz: .2, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385], waveOff: { x0: .47, amp: .09, z: .22 } }, eyes: [[-.0692, .194, .2435], [.0694, .1933, .2428]], face: { jaw: .8, blink: 1.25 }, bodyFur: '#4f3f34' }
+    bruno: { url: './assets/characters/bruno/bruno-head.glb?v=2026112604', label: 'Bruno', fold: { from: 1.75, to: 1.78, column: { zc: 0, rx: .215, rz: .2, margin: .7, maxX: .2 } }, hide: [], gestures: { chin: [.06, 1.645, .385], waveOff: { x0: .47, amp: .09, z: .22 } }, eyes: [[-.0681, .1931, .248], [.07, .1922, .2472]], face: { jaw: .8, blink: 1.25 }, bodyFur: '#4f3f34' }
     // Coach Bruno (story-cast.js; owner 2026-11-26: "yes"): his ears, flat cap, brows, eyes, nose, mouth and cheek ruff are all children
     // of the head joint and leave with the code head; his whistle and cord stay, his towel is swapped (brunoTowel). The model's neck
     // tube (tools/blender/bruno_head_game.py: centre z 0, 0.2 x 0.15/0.17 at the collar, tapering to the nape) goes down into the
@@ -432,6 +432,11 @@
         // the parts the face acting moves (Bruno, round 5): meshes with a 'jaw' morph, the eyelids (nodes named *Lid*, turned about x)
         const face = g.userData.face = { jaw: [], lids: [] };
         m.traverse(o => { const k = o.morphTargetDictionary?.jaw; if (k !== undefined) { o.morphTargetInfluences.fill(0); face.jaw.push([o, k]); } if (/Lid[LR]$/.test(o.name)) face.lids.push([o, o.quaternion.clone()]); if (o.isMesh) o.userData.part = o.name; });
+        // fur cards (Bruno, main review round 5c): faded out where a card faces the camera, so the strands show on the outline only
+        // (alpha-tested: the fade erodes the strands, nothing is blended or sorted)
+        m.traverse(o => { const mt = o.isMesh && o.material; if (!mt || !/fur cards/.test(mt.name) || mt.userData.edgeFade) return; mt.userData.edgeFade = true;
+          mt.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <alphatest_fragment>', 'diffuseColor.a *= 1.0 - smoothstep(.3, .72, abs(dot(normalize(vNormal), normalize(vViewPosition))));\n#include <alphatest_fragment>'); };
+          mt.customProgramCacheKey = () => 'bruno-fur-cards-edge'; });
         g.traverse(o => { o.userData.storyPart = true; o.userData.mane = true; if (o.isMesh) { o.name = name; o.castShadow = true; o.receiveShadow = true; } });
         return g;
       })());

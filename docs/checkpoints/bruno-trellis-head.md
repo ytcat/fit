@@ -26,6 +26,13 @@ mask on the shoulders, towel sliver at the neck, ragged brim, plain neck colour)
   `bodyTint` (cast-market.js): while the model head is on, Bruno's paws (a tinted copy of the paw material) and bare wrists (skin
   colours, |x| .917-.945) take `HEADS.bruno.bodyFur` #4f3f34; the code head restores them. Paw vs cheek under the film light
   (gym talk 13 s): dE 0.8 (code head 5.6). Tests: bruno-head adds the paw/wrist tint and its restore.
+- Round 5c (main's review of look-studio: hatched cheek cards, a forehead seam): cards with light tapered strands coloured per
+  vertex from the fur under each root, varied length/angle/width/spacing, faded in the page where a card faces the camera
+  (`cast-market.js`, fur card material); brow trim by brightness instead of an atlas blur (that blur made the forehead seam); a
+  cross-seam colour blend on every UV seam incl. the neck tube's wrap seam; nose vertices smoothed (the crumples were geometry),
+  slate nose with nostrils on its front; muzzle macro reframed. New `tests/bruno-head-uv-seams.test.cjs`: the colour step across
+  every UV seam of the shipped atlas (decoded in Chromium); round 5b fails it (mean 9.6, worst run 113), this build passes.
+  Eyes: ball r 0.0285, 12 mm proud of the socket, wider iris: 18 / 17 px wide in the gym-talk 21 s close-up.
 
 ## Round 4 (main's review: jowl into the towel when walking; frayed towel hem beside the whistle)
 - Jowl, fixed at the contact on both sides: (b) the head (`tools/blender/bruno_head_game.py`): the cheek fur below the jaw line

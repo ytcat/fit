@@ -60,6 +60,11 @@ Node 'brunoHead'. What is different, and why:
       (`nostril`), roughness `nose_rough` (a broad highlight, not plastic); the brows pushed in (`brow_in`), their cream trimmed at
       the rim (`brow_trim`) and dimmed (`brow_dim`) so they do not hood the eyes; fuller strands and a front jowl ring of cards so the
       outline reads at film distance.
+    - round 5c (main review): the cards' strands are light and tapered with the colour of the fur under each root per vertex
+      (COLOR_0), lengths, angles, widths and spacing vary, and the page fades cards that face the camera (no hatching); the brow cream
+      is trimmed by brightness (`brow_trim`; the earlier blur in the atlas stopped at the islands' edges and left a stripe on the
+      forehead seam); every UV seam, the neck tube's wrap seam too, is blended across (`seam_px`); the nose's vertices are smoothed
+      (`nose_smooth`: the voxels kept the source's crumples), a slate nose with nostrils on its front.
   * Colour. The source fur is near black (as dark as the FLUX picture); Bruno's body fur is #6f4a31. The dark fur texels (not the
     cap, found by position; not the cream muzzle and brows, the nose or the eyes) move to the body's fur colour: median matched per
     channel, the texture's own variation kept at `fur_contrast` (clamped at `fur_lo`: the darkest streaks read as smudges once the
@@ -74,9 +79,9 @@ argv = sys.argv[sys.argv.index('--') + 1:]
 src, out = argv[0], argv[1]
 P = dict(scale=.6, dy=.124, dz=.0524, cut=-.12, tris=20000, quality=86, rough=.85, size=2048, nsize=1024, rsize=256, nquality=90, nstrength=1.0,
          mouth_y=.005, mouth_x=.092, mouth_front=.22, jaw_y=.06, jaw_z=.1, jaw_angle=.13,
-         eye_r=.027, eye_out=.0075, eye_fwd=.55, iris_a=.88, pupil_a=.34, lid_a=.95, lid_r=1.07, glint_r=.0028,
-         fur_crown='3a2e27', fur_cheek='5c4a3f', fur_base='4a3c33', cream='b8a689', nose_rgb='1f2429', cards=1, card_seed=5,
-         face_share=.5, uv_pack_margin=.006, brow_in=.005, brow_dim=.82, brow_trim=.45, nose_rough=.4, pebble=1.0, nostril=1.0,
+         eye_r=.0285, eye_out=.012, eye_fwd=.55, iris_a=1.05, pupil_a=.3, lid_a=.95, lid_r=1.07, glint_r=.0028,
+         fur_crown='3a2e27', fur_cheek='5c4a3f', fur_base='4a3c33', cream='b8a689', nose_rgb='2a3036', cards=1, card_seed=5,
+         face_share=.5, uv_pack_margin=.006, brow_in=.005, seam_px=4.0, nose_smooth=10, brow_dim=.82, brow_trim=.3, nose_rough=.4, pebble=1.0, nostril=1.0,
          neck_top=.1, neck_y=-.07, neck_zc=0.0, neck_rx=.185, neck_rz=.15, neck_rzb=.17, mid_y=-.01, mid_rx=.16, mid_rzb=.15, neck_bottom=-.2, neck_shrink=.72, shrink_from=-.065, shrink_len=.06, seg=48,
          fur=1.0, fur_contrast=.65, fur_rgb='6f4a31', eyes=1.4, eye_x=.122, eye_z=.108, eye_rx=.065, eye_rz=.05, crack=1, inpaint=1, band=64, margin=16, smooth=30, uv_angle=66.0, uv_margin=.004, remesh=.003, solid=.012, strands=.9, nape_rz=.24, nape_rx=.2, iris_r=.0135, pupil_r=.0048, catch_r=.0036, iris_gain=2.2, iris_mix=.45, iris_glow=.32, catch_glow=.95, brim_dark=.78, brim_edge=.85, brim_smooth=8, jowl_x=.165, jowl_y=-.005, jowl_len=.035, fur_lo=.55, tube=1, debug='')
 for a in argv[2:]:
@@ -200,6 +205,12 @@ for v in bm.verts:
     if hz < .15 or not (.2 < hy < .262) or not (.03 < abs(hx) < .165): continue
     w = math.sin(math.pi * (hy - .2) / .062) * min(1.0, (abs(hx) - .03) / .02, (.165 - abs(hx)) / .03)
     v.co -= v.normal * P['brow_in'] * max(0.0, w); brow_n += 1
+bm.to_mesh(me); bm.free()
+# the nose (round 5c): the voxels kept the source's crumpled wrinkles; its vertices are smoothed in place (`nose_smooth` passes), the
+# pebbling comes back in the normal map
+bm = bmesh.new(); bm.from_mesh(me)
+nose_v = [v for v in bm.verts if abs(v.co.x) < .1 and .04 < v.co.z < .2 and -v.co.y > .27]
+for _ in range(P['nose_smooth']): bmesh.ops.smooth_vert(bm, verts=nose_v, factor=.5, use_axis_x=True, use_axis_y=True, use_axis_z=True)
 bm.to_mesh(me); bm.free()
 # the mouth (round 5: "a featureless mouth"; the jaw opens when he talks): the muzzle is cut along the lip line (head-frame y `mouth_y`,
 # |x| < `mouth_x`, the front only) and the cut opened into a slit; the lower lip's copies ride the jaw morph (section 8), the corners
@@ -340,22 +351,22 @@ col = np.clip(col * (1 - light_w[..., None]) + cream * light_w[..., None], 0, 1)
 # the brows smaller and dimmer (main review round 5): the cream above the eyes eroded at its rim (`brow_trim`; the rim goes to the
 # fur round it) and dimmed (`brow_dim`)
 brow_m = (light_w > .05) & (hy_ > .198) & (hy_ < .265) & (hz_ > .12) & (np.abs(hx_) > .035)
-bk = brow_m.astype(np.float32)
-for _ in range(4): bk = box3(bk) / 9
-keep_b = np.clip((bk - P['brow_trim']) / .25, 0, 1) * brow_m; trim_b = (light_w * brow_m) * (1 - keep_b)
+# (round 5c: by brightness, not by a blur in the atlas: that blur stopped at the UV islands' edges and left a stripe on the seam)
+bt = np.quantile(lum[brow_m], P['brow_trim']) if brow_m.any() else .5
+keep_b = np.clip((lum - bt) / .06 + .5, 0, 1) * brow_m; trim_b = (light_w * brow_m) * (1 - keep_b)
 col = col * (1 - trim_b[..., None]) + np.clip(fur_col * 1.05, 0, 1) * trim_b[..., None]
 col = col * (1 - (1 - P['brow_dim']) * keep_b[..., None])
 # the nose: wet dark slate (glossy in the roughness map); the lip line along the mouth's cut, the lower lip a shade darker
-nose_m = used & (np.abs(hx_) < .09) & (hy_ > .035) & (hy_ < .17) & (hz_ > .27) & (lum < .3)
+nose_m = used & (np.abs(hx_) < .095) & (hy_ > .035) & (hy_ < .19) & (hz_ > .26) & (lum < .33) & ((hy_ > .06) | (lum < .2))
 nlum = np.median(lum[nose_m]) if nose_m.any() else .06
 col[nose_m] = np.clip(hexc(P['nose_rgb']) * (np.maximum(lum[nose_m], 1e-4) / nlum)[:, None] ** .7, 0, 1)
 # two clear nostrils on the nose's lower front (from the nose's own extent): darker, pressed in (normal map), less glossy
 ny0 = hy_[nose_m].min() if nose_m.any() else .05
 nostril_w = np.zeros_like(lum)
 for sd_ in (-1, 1):
-    e_ = np.hypot((hx_ - sd_ * .027) / .0125, (hy_ - (ny0 + .019)) / .0075)
+    e_ = np.hypot((hx_ - sd_ * .03) / .016, (hy_ - (ny0 + .032)) / .01)
     nostril_w = np.maximum(nostril_w, np.clip((1.15 - e_) / .3, 0, 1) * nose_m)
-col = col * (1 - .75 * nostril_w[..., None])
+col = col * (1 - .85 * nostril_w[..., None])
 front_m = used & (hz_ > P['mouth_front']) & (np.abs(hx_) < MX + .012)
 lip_d = np.abs(hy_ - MY)
 lipline = front_m * np.clip((.0035 - lip_d) / .0015, 0, 1)
@@ -488,6 +499,36 @@ def to_img(name, arr, size, fmt, colour=True, save=0):  # save: written as a JPE
         im2 = bpy.data.images.load(fp); im2.colorspace_settings.name = 'sRGB' if colour else 'Non-Color'; im2.name = name
         bpy.data.images.remove(im); im = im2
     return im
+# the UV seams (main review round 5c: "a vertical seam down the middle of the forehead"): along every seam edge of the head the two
+# sides are sampled and both brought to their mean, eased out over `seam_px` texels on each side, so no colour step shows where the
+# islands meet (tests/bruno-head-uv-seams.test.cjs measures the step in the shipped atlas)
+def seam_blend(img, px):
+    bms = bmesh.new(); bms.from_mesh(me); ul = bms.loops.layers.uv.active; bms.faces.ensure_lookup_table()
+    acc_ = np.zeros_like(img); wsum = np.zeros(img.shape[:2], np.float32); n_seams = 0
+    def bil(uv):
+        x, y = uv[0] * W - .5, uv[1] * H - .5; x0, y0 = int(math.floor(x)), int(math.floor(y)); fx, fy = x - x0, y - y0
+        x0 = min(W - 2, max(0, x0)); y0 = min(H - 2, max(0, y0))
+        return (img[y0, x0] * (1 - fx) * (1 - fy) + img[y0, x0 + 1] * fx * (1 - fy) + img[y0 + 1, x0] * (1 - fx) * fy + img[y0 + 1, x0 + 1] * fx * fy)
+    for e in bms.edges:
+        if len(e.link_faces) != 2: continue  # the head's seams and the neck tube's wrap seam
+        sides = []
+        for f in e.link_faces:
+            lo = {l.vert: Vector(l[ul].uv) for l in f.loops}; sides.append((lo[e.verts[0]], lo[e.verts[1]]))
+        (a0, a1), (b0, b1) = sides
+        if (a0 - b0).length < 1e-5 and (a1 - b1).length < 1e-5: continue
+        n_seams += 1; steps = max(2, int(max((a1 - a0).length * W, (b1 - b0).length * W)) + 1)
+        for t in np.linspace(0, 1, steps):
+            ua, ub = a0.lerp(a1, t), b0.lerp(b1, t); m_ = (bil(ua) + bil(ub)) / 2
+            for uv in (ua, ub):
+                cx_, cy_ = uv[0] * W, uv[1] * H
+                for yy in range(int(cy_ - px), int(cy_ + px) + 2):
+                    for xx in range(int(cx_ - px), int(cx_ + px) + 2):
+                        if 0 <= xx < W and 0 <= yy < H:
+                            d = math.hypot(xx + .5 - cx_, yy + .5 - cy_)
+                            if d < px: w = (1 - d / px) ** 2; acc_[yy, xx] += m_ * w; wsum[yy, xx] += w
+    bms.free(); k = np.clip(wsum, 0, 1)[..., None]
+    return img * (1 - k) + (acc_ / np.maximum(wsum, 1e-6)[..., None]) * k, n_seams
+col, seam_edges = seam_blend(col, P['seam_px'])
 B = to_img('Bruno head', col, P['size'], 'JPEG', save=P['quality'])
 nv = pixels(NB)[..., :3] * 2 - 1; ln = np.linalg.norm(nv, axis=-1); flat = np.array([0, 0, 1], np.float32)
 bad = (ln < .5) | ~used; normal_missed = int((bad & used).sum())
@@ -507,7 +548,7 @@ def vnoise(p, cell):
                 out_ = out_ + w * G[(i0[..., 0] + dx) % 64, (i0[..., 1] + dy) % 64, (i0[..., 2] + dz) % 64]
     return out_
 nose_soft = box3(box3(nose_m.astype(np.float32))) / 81
-hgt = -2.2 * nostril_w * P['nostril']; on_ = nose_soft > 0
+hgt = -4.0 * nostril_w * P['nostril']; on_ = nose_soft > 0
 hgt[on_] += (np.abs(vnoise(pos[on_], .0022)) * .7 + vnoise(pos[on_], .0045) * .3) * P['pebble'] * nose_soft[on_]
 gu = (np.roll(hgt, -1, 1) - np.roll(hgt, 1, 1)) / 2; gv = (np.roll(hgt, -1, 0) - np.roll(hgt, 1, 0)) / 2
 pn = np.stack([-gu * .9, -gv * .9, np.ones_like(gu)], -1); pn /= np.linalg.norm(pn, axis=-1, keepdims=True)
@@ -621,7 +662,7 @@ for side, c3, nn in sockets:
     M = Matrix((r, u, f)).transposed().to_4x4(); M.translation = cen
     tag = 'L' if side > 0 else 'R'
     E_ = bpy.data.objects.new('brunoEye' + tag, None); scn.collection.objects.link(E_); E_.matrix_world = M
-    A = [0, .1, .2, P['pupil_a'], .4, .55, P['iris_a'], .8, .95, 1.15, 1.4, 1.7, 2.0, 2.4, 2.8, math.pi]; SEG = 32
+    A = sorted({0, .1, .2, P['pupil_a'], .4, .55, P['iris_a'], .8, .95, 1.15, 1.4, 1.7, 2.0, 2.4, 2.8, math.pi}); SEG = 32
     vs = [Vector((0, 0, Rr))]
     for a in A[1:-1]:
         for j in range(SEG): ph = 2 * math.pi * j / SEG; vs.append(Vector((Rr * math.sin(a) * math.cos(ph), Rr * math.sin(a) * math.sin(ph), Rr * math.cos(a))))
@@ -668,41 +709,52 @@ REG = [('cheek', (np.abs(hx) > .13) & (hy > .045) & (hy < .15) & (hz > -.06) & (
         used & (hz_ < -.1) & (hy_ > .04) & (hy_ < .17) & (np.abs(hx_) < .13) & (tx_n[..., 2] < -.5)),
        ('ear', (np.abs(hx) > .19) & (hy > .22) & ((ny > .35) | (np.abs(nx) > .6)), 24, .014, .012, .7, None,
         used & (np.abs(hx_) > .19) & (hy_ > .22))]
-TW, TH = 320, 128; strand = np.zeros((TH, TW, 4), np.float32); cv, cf, cuv, cw = [], [], [], []; cards = {}
-for ci, (nm, mask, cnt, Lc, Wc, tilt, flow, tmask) in enumerate(REG):
-    cc = np.median(col[tmask], axis=0) if tmask.any() else fur_after
-    strand[:, ci * 64:ci * 64 + 64, :3] = cc  # no dark halo where the strands' edges are filtered
-    for k in range(6):  # the strands of this colour's column: tapering, a little wavy, lighter at the tips
-        x0 = ci * 64 + 5 + k * 9.6 + rng.uniform(-2, 2); tl = 1 - rng.uniform(0, .15)
+TW, TH = 320, 128; strand = np.zeros((TH, TW, 4), np.float32); cv, cf, cuv, cw, ccol = [], [], [], [], []; cards = {}
+# round 5c (main review: "hatched scratch marks"): the strands are light grey with soft tapered tips (the colour comes from the fur
+# under each card's root, per vertex: no dark core), lengths, angles, widths and spacing vary, and the page fades the cards that face
+# the camera (cast-market.js), so they show on the outline only
+puv = np.zeros((len(me.polygons), 2)); uvd = me.uv_layers[0].data
+for p_ in me.polygons: puv[p_.index] = np.mean([tuple(uvd[li].uv) for li in range(p_.loop_start, p_.loop_start + p_.loop_total)], axis=0)
+texel_at = lambda i: col[min(H - 1, max(0, int(puv[i][1] * H))), min(W - 1, max(0, int(puv[i][0] * W)))]
+strand[..., :3] = .92
+for ci in range(len(REG)):
+    for k in range(7):  # strands of varied length, tapering to a point, a little wavy, lighter toward the tip
+        x0 = ci * 64 + 4 + k * 8.4 + rng.uniform(-2, 2); tl = 1 - rng.uniform(0, .35); w0 = rng.uniform(5.5, 8.5)
         for v in range(TH):
             t = v / (TH - 1)
             if t > tl: continue
-            wdt = 8.0 * (1 - t / tl) ** .7 + 1.2; xc = x0 + 1.5 * math.sin(t * 3 + k)
+            wdt = w0 * (1 - t / tl) ** .8 + .6; xc = x0 + 1.8 * math.sin(t * 2.6 + k * 1.7)
             for x in range(max(ci * 64, int(xc - wdt / 2)), min(ci * 64 + 64, int(xc + wdt / 2) + 1)):
-                strand[v, x, :3] = np.clip(cc * (.9 + .12 * t) * (1 + .08 * math.sin(x * 1.7 + v * .3)), 0, 1); strand[v, x, 3] = 1
+                strand[v, x, :3] = .86 + .14 * t; strand[v, x, 3] = 1
+for ci, (nm, mask, cnt, Lc, Wc, tilt, flow, tmask) in enumerate(REG):
     if not P['cards'] or not mask.any(): cards[nm] = 0; continue
     ids = np.where(mask)[0]; pick = rng.choice(ids, size=min(len(ids), cnt * 4), replace=False, p=ar_p[ids] / ar_p[ids].sum()); got = []
-    ec = None
     for i in pick:
         if len(got) >= cnt: break
         p_ = np.array([hx[i], hy[i], hz[i]]); n_ = np.array([nx[i], ny[i], nz[i]])
-        if any(np.linalg.norm(p_ - q) < .014 for q in got): continue
+        if rng.uniform() < .2 or any(np.linalg.norm(p_ - q) < rng.uniform(.011, .019) for q in got): continue
         D = np.array(flow, float) if flow else p_ - np.array([np.sign(p_[0]) * .225, .27, -.02])
         t_ = D - n_ * D.dot(n_)
         if np.linalg.norm(t_) < 1e-3: continue
-        t_ /= np.linalg.norm(t_); dd = t_ * math.cos(tilt) + n_ * math.sin(tilt); sv = np.cross(n_, dd); sv /= np.linalg.norm(sv)
-        L_, W_ = Lc * rng.uniform(.8, 1.2), Wc * rng.uniform(.85, 1.15); root = p_ - n_ * .002; tip = root + dd * L_
+        t_ /= np.linalg.norm(t_); a_ = rng.uniform(-.5, .5); t_ = t_ * math.cos(a_) + np.cross(n_, t_) * math.sin(a_)
+        tl_ = tilt + rng.uniform(-.3, .3); dd = t_ * math.cos(tl_) + n_ * math.sin(tl_); sv = np.cross(n_, dd); sv /= np.linalg.norm(sv)
+        L_, W_ = Lc * rng.uniform(.6, 1.35), Wc * rng.uniform(.7, 1.3); root = p_ - n_ * .002; tip = root + dd * L_
         b = len(cv); cv += [root - sv * W_ / 2, root + sv * W_ / 2, tip + sv * W_ * .35, tip - sv * W_ * .35]; cf.append((b, b + 1, b + 2, b + 3))
         u0, u1 = (ci * 64 + 2) / TW, (ci * 64 + 62) / TW; cuv += [(u0, 0), (u1, 0), (u1, 1), (u0, 1)]
+        tc = texel_at(i); ccol += [tc * .97, tc * .97, np.clip(tc * 1.05, 0, 1), np.clip(tc * 1.05, 0, 1)]
         w_ = jaw_w(HB(*root)); cw += [w_] * 4; got.append(p_)
     cards[nm] = len(got)
 ST = bpy.data.images.new('Bruno fur strands', TW, TH, alpha=True); ST.colorspace_settings.name = 'sRGB'; ST.pixels = strand.ravel().tolist(); ST.update(); ST.file_format = 'PNG'
 if cf:
     fm_, fnt, fb = new_mat('Bruno fur cards', cull=False)
     stx = fnt.nodes.new('ShaderNodeTexImage'); stx.image = ST; rnd = fnt.nodes.new('ShaderNodeMath'); rnd.operation = 'ROUND'
-    fnt.links.new(stx.outputs['Color'], fb.inputs['Base Color']); fnt.links.new(stx.outputs['Alpha'], rnd.inputs[0]); fnt.links.new(rnd.outputs[0], fb.inputs['Alpha'])
+    vcn = fnt.nodes.new('ShaderNodeVertexColor'); vcn.layer_name = 'Col'; mix = fnt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'; mix.blend_type = 'MULTIPLY'; mix.inputs['Factor'].default_value = 1.0
+    fnt.links.new(stx.outputs['Color'], mix.inputs[6]); fnt.links.new(vcn.outputs['Color'], mix.inputs[7]); fnt.links.new(mix.outputs[2], fb.inputs['Base Color'])
+    fnt.links.new(stx.outputs['Alpha'], rnd.inputs[0]); fnt.links.new(rnd.outputs[0], fb.inputs['Alpha'])
     fb.inputs['Roughness'].default_value = .9; fb.inputs['Metallic'].default_value = 0
     FO = mk_obj('brunoFur', [HB(*v) for v in cv], cf, [fm_], [0] * len(cf), uvs_=cuv); add_jaw(FO, cw)
+    ca = FO.data.color_attributes.new('Col', 'FLOAT_COLOR', 'POINT')
+    for k_, c_ in enumerate(ccol): ca.data[k_].color = (*srgb_lin(c_).tolist(), 1.0)
 # the jaw on the skin: below the lip cut, in front, fading to nothing at the mouth's corners and toward the throat; the slit's lower
 # copies (their faces lie below the cut) go with it; the neck tube stays
 bmj = bmesh.new(); bmj.from_mesh(me); lower = set()
@@ -730,4 +782,4 @@ except TypeError: bpy.ops.export_scene.gltf(filepath=out, export_format='GLB', u
 print('REPORT ' + json.dumps(dict(params=P, source_tris=src_tris, after_cut=cut_tris, head_tris=head_tris, neck_tris=neck_tris, tris=tris, all_tris=all_tris, verts=len(me.vertices),
                                   covered=round(covered, 3), uv_islands=n_islands, face_share=round(face_share, 3), bake_missed=missed, normal_missed=normal_missed, inpainted_texels=filled, cracks_filled=crack_n, strip=[X0, Y0, PW, PH],
                                   fur=dict(median_before=np.round(med, 3).tolist(), after=np.round(fur_after, 3).tolist()), neck_colours=np.round(ring_col[::8], 3).tolist(),
-                                  eye_texels=int((eye_w > .5).sum()), eyes=eyes, mouth=mouth, cards=cards, brim=brim, fur_rel=round(fur_rel, 3), cap_texels=int(cap.sum()), bounds=[Hf.min(0).round(4).tolist(), Hf.max(0).round(4).tolist()], bytes=os.path.getsize(out))))
+                                  eye_texels=int((eye_w > .5).sum()), eyes=eyes, mouth=mouth, cards=cards, seam_edges=seam_edges, brim=brim, fur_rel=round(fur_rel, 3), cap_texels=int(cap.sum()), bounds=[Hf.min(0).round(4).tolist(), Hf.max(0).round(4).tolist()], bytes=os.path.getsize(out))))
