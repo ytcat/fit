@@ -148,6 +148,55 @@ const report = {};
     }
     DreamPose.reset(c);
   }
+  // the head and the towel never go into each other (main review round 4: walking, the jowl went 2-3 cm into the towel's top corner):
+  // every walking frame of the gym talk, the docks and fight night (every 1/6 s) and the head-seams poses. Exact geometry: the towel
+  // as the shader draws it (rig.skinPoint), the model by its world matrix; a towel vertex is inside the head when the nearest model
+  // triangle's outward normal points away from it (> 1 mm), a head vertex is inside the towel when it lies under the towel's top
+  // surface within the cloth's thickness (> 1 mm under it, less than 7 mm: the towel lies 7-15 mm over the cardigan)
+  { const T = c.castTowel, tg = T.alt.geometry, TI = tg.index.array, src = T.src, mg = mesh.geometry, MI = mg.index.array, MPs = mg.attributes.position;
+    const outIdx = []; for (let k = 0; k < src.length; k++) if (src[k] >= 0) outIdx.push(k);
+    const topTris = []; for (let t = 0; t < TI.length; t += 3) if (src[TI[t]] >= 0 && src[TI[t + 1]] >= 0 && src[TI[t + 2]] >= 0) topTris.push(TI[t], TI[t + 1], TI[t + 2]);
+    const tri = new THREE.Triangle(), q = V(), cell = .025, keyOf = (x, y, z) => Math.floor(x / cell) + ',' + Math.floor(y / cell) + ',' + Math.floor(z / cell);
+    const grid = (pts, tris) => { const g = new Map(); for (let t = 0; t < tris.length; t += 3) { const a = pts[tris[t]], b = pts[tris[t + 1]], d = pts[tris[t + 2]], k = keyOf((a.x + b.x + d.x) / 3, (a.y + b.y + d.y) / 3, (a.z + b.z + d.z) / 3); if (!g.has(k)) g.set(k, []); g.get(k).push(t); } return g; };
+    const nearest = (p, pts, tris, g) => { const [x, y, z] = [Math.floor(p.x / cell), Math.floor(p.y / cell), Math.floor(p.z / cell)]; let best = 1e9, bt = -1, bq = V();
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) for (const t of g.get((x + dx) + ',' + (y + dy) + ',' + (z + dz)) || []) { tri.set(pts[tris[t]], pts[tris[t + 1]], pts[tris[t + 2]]); tri.closestPointToPoint(p, q); const d = q.distanceToSquared(p); if (d < best) { best = d; bt = t; bq.copy(q); } }
+      if (bt < 0) return null; tri.set(pts[tris[bt]], pts[tris[bt + 1]], pts[tris[bt + 2]]); const n = tri.getNormal(V()); return { d: Math.sqrt(best), s: p.clone().sub(bq).dot(n), t: bt, q: bq.clone(), n }; };
+    // the model's winding: outward (checked on the cap's top)
+    let outward = 0; { const P = MPs; for (let t = 0; t < MI.length; t += 3) { const a = V().fromBufferAttribute(P, MI[t]); if (a.y < .3) continue; tri.set(a, V().fromBufferAttribute(P, MI[t + 1]), V().fromBufferAttribute(P, MI[t + 2])); outward += Math.sign(tri.getNormal(V()).dot(a.clone().sub(V(0, .15, 0)))); } }
+    const ws = outward > 0 ? 1 : -1;
+    // faces inside the model's own neck (the bust's neck cone and its inner shell, inside the tube: turned toward the neck's axis below
+    // the jaw line) are never seen and are not the surface a towel could touch
+    const hidden = new Uint8Array(MI.length / 3); { const P = MPs, a = V(), b = V(), d = V(); for (let t = 0; t < MI.length; t += 3) { a.fromBufferAttribute(P, MI[t]); b.fromBufferAttribute(P, MI[t + 1]); d.fromBufferAttribute(P, MI[t + 2]); const cy = (a.y + b.y + d.y) / 3, cx = (a.x + b.x + d.x) / 3, cz = (a.z + b.z + d.z) / 3; tri.set(a, b, d); const n = tri.getNormal(V()); if (cy < .03 && Math.hypot(cx, cz) > .1 && (cx * n.x + cz * n.z) * ws < 0) hidden[t / 3] = 1; } } if (process.env.CONTACT_DEBUG) console.log('model winding (cap top votes)', outward);
+    const contact = () => {
+      c.syncSkin(); window.AvatarAnatomy?.update(c); c.root.updateMatrixWorld(true);
+      const tp = new Array(src.length); for (const k of outIdx) tp[k] = c.skinPoint(T.alt, k);
+      const box = new THREE.Box3(); for (const k of outIdx) box.expandByPoint(tp[k]); box.expandByScalar(.02);
+      const hp = new Array(MPs.count); for (let i = 0; i < MPs.count; i++) hp[i] = V().fromBufferAttribute(MPs, i).applyMatrix4(mesh.matrixWorld);
+      const hbox = new THREE.Box3(); for (const v of hp) hbox.expandByPoint(v); hbox.expandByScalar(.02);
+      const hTris = []; for (let t = 0; t < MI.length; t += 3) { const a = hp[MI[t]]; if (box.containsPoint(a) && !hidden[t / 3]) hTris.push(MI[t], MI[t + 1], MI[t + 2]); }
+      const hg = grid(hp, hTris), tgd = grid(tp, topTris); let towelIn = 0, towelDeep = 0, headIn = 0, headDeep = 0;
+      const mh = Math.sign(mesh.matrixWorld.determinant()) * ws, mt = Math.sign(T.alt.matrixWorld.determinant()); // a mirrored root turns the world winding over
+      for (const k of outIdx) { const p = tp[k]; if (!hbox.containsPoint(p)) continue; const r = nearest(p, hp, hTris, hg); if (r && r.d < .03 && r.s * mh < -.001) { towelIn++; towelDeep = Math.max(towelDeep, -r.s * mh); if (process.env.CONTACT_DEBUG > 1 && towelIn < 4) { const iv = new THREE.Matrix4().copy(c.joints.head.matrixWorld).invert(), nq = r.n.clone().transformDirection(iv); console.log('  nearest model point (head frame)', r.q.clone().applyMatrix4(iv).toArray().map(x => +x.toFixed(3)), 'normal', nq.toArray().map(x => +x.toFixed(2)), 'model vertex', hTris[r.t]); } if (process.env.CONTACT_DEBUG > 1 && towelIn < 4) console.log('  towel in head: rest', V().fromBufferAttribute(tg.attributes.position, k).toArray().map(x => +x.toFixed(3)), 'head frame', p.clone().applyMatrix4(new THREE.Matrix4().copy(c.joints.head.matrixWorld).invert()).toArray().map(x => +x.toFixed(3)), 'dist', r.d.toFixed(3)); } }
+      for (let i = 0; i < hp.length; i++) { const p = hp[i]; if (!box.containsPoint(p)) continue; const r = nearest(p, tp, topTris, tgd); if (r && r.s * mt < -.001 && r.s * mt > -.007 && r.d < .012) { headIn++; headDeep = Math.max(headDeep, -r.s * mt); if (process.env.CONTACT_DEBUG > 1 && headIn < 4) console.log('  head in towel: head frame', V().fromBufferAttribute(MPs, i).toArray().map(x => +x.toFixed(3)), 'under the towel top by', (-r.s * mt).toFixed(4)); } }
+      return { towelIn, towelDeep, headIn, headDeep };
+    };
+    const frames = [];
+    for (const [mod, ids] of [[Core, ['dream_gym_talk']], [require('../adventure/story/docks-core'), ['dream_docks', 'dream_fight_night']]]) for (const id of ids) {
+      const S = mod.scenes[id]; DreamPose.reset(c);
+      for (let t = 0; t <= S.duration; t += 1 / 6) { const st = Core.sample(S, t).actors.bruno; if (!st || st.act === 'off') continue;
+        DreamPose.civil(c, { t, dt: 1 / 6, dist: st.dist, walk: +st.walking, arms: st.arms, lean: st.lean, drop: st.drop, talk: st.talk ? 1 : 0, look: { yaw: 0, pitch: 0 } }); c.updateMane(t);
+        if (st.walking) frames.push([id + ' ' + t.toFixed(2), contact()]); }
+    }
+    const POSE = { talk: { talk: 1, arms: { R: 'open' } }, walk: { walk: 1 }, point: { arms: { R: 'point' } }, hips: { arms: { L: 'hips', R: 'hips' } }, shrug: { arms: { L: 'shrug', R: 'shrug' } }, 'look left': { look: { yaw: .7, pitch: 0 } }, 'look right': { look: { yaw: -.7, pitch: 0 } }, 'look down': { look: { yaw: 0, pitch: -.5 } }, 'look up': { look: { yaw: 0, pitch: .35 } }, chin: { arms: { L: 'hips', R: 'chin' } }, cross: { arms: { L: 'cross', R: 'cross2' } } };
+    for (const [nm, st] of Object.entries(POSE)) { DreamPose.reset(c); for (let k = 0; k < 30; k++) { const t = 2 + k / 30; DreamPose.civil(c, { t, dt: 1 / 30, dist: st.walk ? t * 1.25 : 0, ...st }); if (st.talk) StoryCast.talk(c, 1); c.updateMane(t); } frames.push(['pose ' + nm, contact()]); }
+    const worst = frames.reduce((w, [n, r]) => ({ towelIn: w.towelIn + r.towelIn, headIn: w.headIn + r.headIn, towelDeep: Math.max(w.towelDeep, r.towelDeep), headDeep: Math.max(w.headDeep, r.headDeep), at: r.towelIn || r.headIn ? w.at.concat(n) : w.at }), { towelIn: 0, headIn: 0, towelDeep: 0, headDeep: 0, at: [] });
+    if (process.env.CONTACT_DEBUG) for (const [n, r] of frames) if (r.towelIn || r.headIn) console.log('contact', n, JSON.stringify(r));
+    assert.ok(frames.length > 40, 'walking frames and poses checked: ' + frames.length);
+    assert.equal(worst.towelIn, 0, 'no towel vertex inside the head (' + worst.towelIn + ', deepest ' + worst.towelDeep.toFixed(3) + ' m at ' + worst.at.slice(0, 3) + ')');
+    assert.equal(worst.headIn, 0, 'no head vertex inside the towel (' + worst.headIn + ', deepest ' + worst.headDeep.toFixed(3) + ' m at ' + worst.at.slice(0, 3) + ')');
+    report.contact = { frames: frames.length, towelIn: worst.towelIn, headIn: worst.headIn };
+    DreamPose.reset(c);
+  }
 
   // ---- the gym-fight referee is the same rig (gym-fight.js: Cast.rig('bruno')): the model is on and rides the joint in his poses
   for (const [nm, st] of [['count', { arms: { L: 'hips', R: 'count' }, reach: { R: [.3, 1.5, .38] }, look: { yaw: 0, pitch: -.45 }, lean: .2 }], ['raise', { arms: { L: 'hips', R: 'hips' }, reach: { R: { at: [.55, 2.0, .25], w: 1, pole: [1, -.3, -.2], palm: [0, 0, 1], turn: .5, paw: 'grip' } } }]]) {
@@ -170,6 +219,6 @@ const report = {};
   assert.ok(/id === 'dream_opening' && H\.bruno\) out\.add\('bruno'\)/.test(dream), 'the opening asks for his head (the gym talk follows)');
   for (const [mod, id] of [[Core, 'dream_gym_talk'], [require('../adventure/story/docks-core'), 'dream_fight_night']]) assert.ok(Object.values(mod.scenes[id].actors).some(x => x.rig === 'bruno'), id + ' has Bruno');
   assert.ok(/market\?\.heads\?\.\[rig\?\.castHead\?\.id\]/.test(fs.readFileSync('adventure/portraits.js', 'utf8')), 'the portrait waits for his head');
-  const html = fs.readFileSync('index.html', 'utf8'); assert.ok(/cast-market\.js\?v=20261126br3/.test(html) && /dream-scenes\.js\?v=20261126br/.test(html), 'changed scripts re-fetched');
+  const html = fs.readFileSync('index.html', 'utf8'); assert.ok(/cast-market\.js\?v=20261126br4/.test(html) && /dream-scenes\.js\?v=20261126br/.test(html), 'changed scripts re-fetched');
   console.log('bruno head ok', JSON.stringify({ ...report, tris, bytes: glb.length, folded, deep, poses: n, lowEye: +lowEye.toFixed(3), talkNod: +talkNod.toFixed(3), lying: [+sunk.toFixed(3), +rested.toFixed(3)] }));
 })().catch(e => { console.error(e); process.exit(1); });

@@ -4,6 +4,28 @@ Owner 2026-11-26: approved the TRELLIS.2 head ("yes"). Branch from `origin/claud
 Not merged, not released, no version bump. Round 2 (2026-11-26): main's review "NOT ready" (eyes vanish in the films, too big / a
 mask on the shoulders, towel sliver at the neck, ragged brim, plain neck colour) addressed below.
 
+## Round 4 (main's review: jowl into the towel when walking; frayed towel hem beside the whistle)
+- Jowl, fixed at the contact on both sides: (b) the head (`tools/blender/bruno_head_game.py`): the cheek fur below the jaw line
+  (head-frame y < `jowl_y` -0.005) wider than `jowl_x` 0.165 is drawn in over `jowl_len` 0.035 (300 vertices); the neck tube slimmer
+  (`neck_rx` .185, `mid_rx` .16) and the fold column to match (`HEADS.bruno.fold.column.rx` .215). (a) the towel
+  (`BRUNO_TOWEL.chamfer` .05 from y 1.66 over .09): its inner top corner on the chest is rounded off; `neckIn` .245 above y 1.72
+  keeps the top clear of the neck. The towel itself is not moved; no walk-cycle change.
+- Hem: the towel's inner front hem crossed the cardigan's open-front edge (its furry step, story-cast.js brunoClothes) and frayed
+  there. Its inner edge now stays `openGap` 2 cm outside that edge on the chest: a straight hem from every view
+  (`qa/bruno-head/towel-hem-front.webp`; the ragged green line left of it is the cardigan's own edge on the shirt, same with the
+  code head).
+- Test (`tests/bruno-head.test.cjs`): contact over 97 frames (every walking frame of gym talk, docks and fight night every 1/6 s,
+  plus the head-seams poses), towel as the shader draws it (rig.skinPoint), the model by its world matrix (winding sign-corrected
+  for the mirrored root): towel vertices inside the head 0, head vertices inside the towel 0. Negative control: the same build with
+  `jowl_x=.5` (the old cheek) fails (13 towel vertices inside the head, 3 mm).
+- Versions: head `?v=2026112603` (HEADS.bruno, offline manifest), cast-market.js `?v=20261126br4`; eyes re-measured
+  ([-.0733,.2087,.2473], [.0734,.2081,.2472]). The script reproduces the GLB (sha1 1192c3a4).
+- Sheets redone: all seams, towel-cord, towel-arm, chin, body, referee-face, portrait, gym-talk and apology frames and eyes, new
+  `jowl-walk-before-after.webp` (rows code head / reviewed round 3 / now; walk at 3 moments, side, 3/4, below) and
+  `towel-hem-front.webp`. `head-source-vs-game.webp` and `gym-referee-before-after.webp` are from round 3 (Blender/gym renders
+  not redone; the change is below the jaw).
+- Checks: see "Checks run (round 4)" below.
+
 ## Round 3 (main's review: towel and wave-off)
 - Towel (`adventure/story/cast-market.js` `brunoTowel`, `BRUNO_TOWEL`): the rigid ribbon replacement is gone. With the model on, ONE
   towel: a skinned shell on the cardigan (the body's own bone weights, smoothed over the cloth; installed as a body surface so the
@@ -27,7 +49,7 @@ mask on the shoulders, towel sliver at the neck, ragged brim, plain neck colour)
   referee-face, portrait, gym referee, films (gym talk and apology frames and eye close-ups).
 - Remaining: walking in the films (the head bobs), the model's jowl touches the towel's top corner beside the neck (the probe's
   nearest-vertex measure gives 2-3 cm of towel under the jowl at gym-talk/docks walking frames; seen as the jowl resting on the towel
-  edge); lowering the towel's top 1.7 cm did not change it.
+  edge); lowering the towel's top 1.7 cm did not change it. Fixed in round 4 (above).
 
 ## What changed (rounds 1-2)
 - `tools/blender/bruno_head_game.py` -> `assets/characters/bruno/bruno-head.glb?v=2026112602` (defaults; run:

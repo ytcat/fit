@@ -30,6 +30,11 @@ for sc in "dream_gym_talk 5 13 21 33" "dream_apology 6 14 22 30"; do set -- $sc;
   args=""; for tag in before after; do i=0; for t in "$@"; do f=$(ls $R/films2/$id-$tag-0$i-$t.png); args="$args $f $tag-${t}s"; i=$((i+1)); done; done
   python3 "$S" "$Q/film-${id#dream_}-frames.webp" "${id#dream_} film at 402x690 (framing): top code head, bottom this build" 201 345 4 $args
 done
+# r3 = the reviewed round-3 build (624519f, rendered from an export of that commit with the same plan, names -after -> -r3)
+args=""; for tag in before r3 after; do for t in 2.00 2.27 2.53; do for v in side q34 below; do args="$args $R/final/jowl-walk$t-$v-$tag.png $tag-$t-$v"; done; done; done
+python3 "$S" "$Q/jowl-walk-before-after.webp" "Walking, jowl over the towel (3 moments; side, 3/4, below). Rows: code head / reviewed round 3 (jowl in the towel, frayed hem) / now" 300 300 9 $args
+args=""; for t in walk2.00 walk2.27 walk2.53 stand2.00; do for v in below front q34; do args="$args $R/final/hem-$t-$v.png hem-$t-$v"; done; done
+python3 "$S" "$Q/towel-hem-front.webp" "Towel's front hem beside the whistle cord (after; plan-hem.json): walking at three moments and standing, below at chest height / front / 3-4. The ragged green line left of the towel is the cardigan's own front edge on the shirt (body, same with the code head)" 300 300 6 $args
 cp "$R/gym-sheet.webp" "$Q/gym-referee-before-after.webp" 2>/dev/null || true
 rm -f "$Q/film-gymtalk.webp" "$Q/film-gymtalk-close.webp" "$Q/film-apology.webp" "$Q/film-gym_talk.webp"
 ls -la "$Q"/*.webp

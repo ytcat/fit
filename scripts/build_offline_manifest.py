@@ -12,7 +12,7 @@ urls += ['./assets/club/lion.svg','./assets/club/rabbit.svg','./assets/brand/log
 urls+=['./'+str(p.relative_to(root))+'?v=2026111130' for p in sorted((root/'assets/shop').glob('*.webp'))]
 urls+=['./assets/venues/'+name+'.png?v=2026110905' for name in ['default','neon_strip','harbor_dome','street','boxing_club','underground','docks','regional','championship']]
 # authored character heads (< 1 MB each, unlike the ~19 MB street models): offline play keeps them; same URL as the page requests
-urls+=['./assets/characters/fang/fang-head.glb?v=2026112402','./assets/characters/hazel/hazel-head.glb?v=2026112502','./assets/characters/bruno/bruno-head.glb?v=2026112602']
+urls+=['./assets/characters/fang/fang-head.glb?v=2026112402','./assets/characters/hazel/hazel-head.glb?v=2026112502','./assets/characters/bruno/bruno-head.glb?v=2026112603']
 urls=list(dict.fromkeys(urls))
 for url in urls:
     if not (root/url.split('?')[0]).is_file():

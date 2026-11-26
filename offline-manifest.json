@@ -109,7 +109,7 @@
     "./adventure/story/market-core.js?v=2026112501m",
     "./adventure/story/paws.js?v=20261122pp2",
     "./adventure/story/story-cast.js?v=20261125af1",
-    "./adventure/story/cast-market.js?v=20261126br3",
+    "./adventure/story/cast-market.js?v=20261126br4",
     "./adventure/story/cast-docks.js?v=2026112295",
     "./adventure/story/street-wear.js?v=20261125af1",
     "./adventure/story/dream-pose.js?v=20261126br",
@@ -208,6 +208,6 @@
     "./assets/venues/championship.png?v=2026110905",
     "./assets/characters/fang/fang-head.glb?v=2026112402",
     "./assets/characters/hazel/hazel-head.glb?v=2026112502",
-    "./assets/characters/bruno/bruno-head.glb?v=2026112602"
+    "./assets/characters/bruno/bruno-head.glb?v=2026112603"
   ]
 }
