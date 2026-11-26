@@ -170,6 +170,6 @@ const report = {};
   assert.ok(/id === 'dream_opening' && H\.bruno\) out\.add\('bruno'\)/.test(dream), 'the opening asks for his head (the gym talk follows)');
   for (const [mod, id] of [[Core, 'dream_gym_talk'], [require('../adventure/story/docks-core'), 'dream_fight_night']]) assert.ok(Object.values(mod.scenes[id].actors).some(x => x.rig === 'bruno'), id + ' has Bruno');
   assert.ok(/market\?\.heads\?\.\[rig\?\.castHead\?\.id\]/.test(fs.readFileSync('adventure/portraits.js', 'utf8')), 'the portrait waits for his head');
-  const html = fs.readFileSync('index.html', 'utf8'); assert.ok(/cast-market\.js\?v=20261126br2/.test(html) && /dream-scenes\.js\?v=20261126br/.test(html), 'changed scripts re-fetched');
+  const html = fs.readFileSync('index.html', 'utf8'); assert.ok(/cast-market\.js\?v=20261126br3/.test(html) && /dream-scenes\.js\?v=20261126br/.test(html), 'changed scripts re-fetched');
   console.log('bruno head ok', JSON.stringify({ ...report, tris, bytes: glb.length, folded, deep, poses: n, lowEye: +lowEye.toFixed(3), talkNod: +talkNod.toFixed(3), lying: [+sunk.toFixed(3), +rested.toFixed(3)] }));
 })().catch(e => { console.error(e); process.exit(1); });

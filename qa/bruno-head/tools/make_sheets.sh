@@ -21,8 +21,8 @@ python3 "$S" "$Q/head-source-vs-game.webp" "TRELLIS.2 source (top) and the game 
   "$R/srchead/front.png" "source front" "$R/srchead/side.png" "source side" "$R/srchead/back.png" "source back" "$R/srceye/front.png" "source eyes/brows" \
   "$R/finalhead/front.png" "game front" "$R/finalhead/side.png" "game side (neck tube)" "$R/finalhead/back.png" "game back (nape)" "$R/finaleye/front.png" "game eyes/brows"
 python3 "$S" "$Q/portrait-before-after.webp" "Story portrait: before (code head), after (model), cold start" 300 300 3 "$R/final/portrait-before.png" "before" "$R/final/portrait-after.png" "after" "$R/final/portrait-cold-first.png" "cold start first draw"
-args=""; for tag in before after; do for v in raiseL-front raiseL-back waveoff; do args="$args $R/final/$v-$tag.png $v-$tag"; done; done
-python3 "$S" "$Q/towel-arm-before-after.webp" "Towel with his left arm raised (referee, winner on his left) and the wave-off: top before, bottom after" 300 300 3 $args
+args=""; for tag in before after; do for v in raiseL-front raiseL-back walk waveoff-in waveoff-out; do args="$args $R/final/$v-$tag.png $v-$tag"; done; done
+python3 "$S" "$Q/towel-arm-before-after.webp" "Towel with his left arm raised (referee, winner on his left), walking, and the referee wave-off at both ends of its swing (before: the hands cross over the head; after: his own arc beside it): top before, bottom after" 300 300 5 $args
 # films: rows code head / the reviewed build (v2026112601) / this build; the close-ups carry the eye luminance (mean, max of 9x9 px)
 for sc in "dream_gym_talk 5 13 21 33" "dream_apology 6 14 22 30"; do set -- $sc; id=$1; shift
   args=""; for tag in before v1 after; do i=0; for t in "$@"; do f="$R/films2/$id-$tag-0$i-$t-close.png"; lab=$(python3 -c "import json,sys;r=json.load(open('$R/films2/$id-$tag-auto.json'));e=[f for f in r['frames'] if f['t']==$t][0].get('eyes') or [];print('$tag $t s eyes '+' '.join('%s/%s'%(x['mean'],x['max']) for x in e if x['facing']>.5) )"); args="$args $f \"$lab\""; i=$((i+1)); done; done

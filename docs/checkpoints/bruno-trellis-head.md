@@ -4,7 +4,32 @@ Owner 2026-11-26: approved the TRELLIS.2 head ("yes"). Branch from `origin/claud
 Not merged, not released, no version bump. Round 2 (2026-11-26): main's review "NOT ready" (eyes vanish in the films, too big / a
 mask on the shoulders, towel sliver at the neck, ragged brim, plain neck colour) addressed below.
 
-## What changed
+## Round 3 (main's review: towel and wave-off)
+- Towel (`adventure/story/cast-market.js` `brunoTowel`, `BRUNO_TOWEL`): the rigid ribbon replacement is gone. With the model on, ONE
+  towel: a skinned shell on the cardigan (the body's own bone weights, smoothed over the cloth; installed as a body surface so the
+  anatomy morph, muscle definition, mass and shoulder corrective move it exactly as the cardigan under it). Centre x -0.155 on the
+  chest and back (as before), out to -0.262 and gathered to 0.11 wide over the shoulder between the neck tube and the arm's root
+  (no arm skin under it); both ends hang straight down (front to 1.33, back to 1.40), closed hems and ends, blue stripes; hems
+  straightened, offset along smoothed normals, interior relaxed in its own plane and untangled (story-cast `untangle`), all within
+  5 mm of where each point was made. With the code head the old towel shows (draw range), story-cast.js unchanged.
+- Wave-off (`adventure/story/gym-fight.js`): the arc comes from `bruno.gestureAt.waveOff` when present (Bruno with the model: hands
+  beside the head, x 0.38-0.56, never crossing over it); gym-fight's default arc otherwise.
+- Neck tube: narrows under the collar at the front only (the step showed at the sides with an arm raised); the skin fold column is
+  shallower (rx .23, rz .2 x 0.7) so the shirt and cardigan meet the tube instead of a trench.
+- `index.html`: cast-market.js `?v=20261126br3`, gym-fight.js `?v=20261126br`.
+- Tests (`tests/bruno-head.test.cjs`): towel one piece, its top surface closed (every edge shared, hems and ends walled); in stand,
+  left arm raised and walk (rig.skinPoint, the shader's CPU twin): every outer vertex 7-15.4 mm from the cardigan point it was made
+  from (limit 4-16 mm); fold-over: turned top-surface triangles below 10 mm2 in all (now 0.8 / 1.9 / 5.1 mm2: slivers where the skin
+  itself has 7 / 0 / 22 turned); wave-off over its whole swing: no paw inside the head. head-seams: the wave-off with his arc.
+- Checks (round 3, final files): the same 29 related tests one at a time -> files=29 fails=0 (1384 s). Paw probe: 0 paws inside
+  the head in all nine films and the referee poses incl. the whole wave-off swing. The script reproduces the GLB (sha1 a45ed87f).
+- Sheets redone: seams (6 poses x 6 views), towel-cord, towel-arm (left arm raised, walk, wave-off ends), chin, body,
+  referee-face, portrait, gym referee, films (gym talk and apology frames and eye close-ups).
+- Remaining: walking in the films (the head bobs), the model's jowl touches the towel's top corner beside the neck (the probe's
+  nearest-vertex measure gives 2-3 cm of towel under the jowl at gym-talk/docks walking frames; seen as the jowl resting on the towel
+  edge); lowering the towel's top 1.7 cm did not change it.
+
+## What changed (rounds 1-2)
 - `tools/blender/bruno_head_game.py` -> `assets/characters/bruno/bruno-head.glb?v=2026112602` (defaults; run:
   `<blender venv python> tools/blender/bruno_head_game.py -- assets/characters/bruno/trellis/bruno-head-trellis-source.glb assets/characters/bruno/bruno-head.glb`;
   reproduces the shipped file byte for byte, sha1 b59d3859):
@@ -66,12 +91,10 @@ mask on the shoulders, towel sliver at the neck, ragged brim, plain neck colour)
 - Full suite: not run here (integrator).
 
 ## Remaining / known limits
-- The referee's Sunday Punch wave-off sweeps a paw across the head (code head too; motion unchanged). With his left arm raised the
-  towel (rigid on the chest) arches off the shoulder, as the code head's towel does.
+- The wave-off now waves beside the head (it no longer reads as arms crossing over it).
 - No jaw: closed smile, the head nods with the words. The eyes are still deep-set and small at film distance; they read (iris and
   catch-light), not big.
-- The towel now crosses the chest more diagonally (it goes out to the shoulder); a small cream fleck at its lower front edge is the
-  same part that shows at the old towel's edge (pre-existing).
+- The towel is narrower over the shoulder (11 cm) than on the chest (15 cm), gathered between the neck and the arm.
 - The remesh softened the fur relief; the dark fur streaks at the back of the head (source) remain, softened.
 
 ## Next
