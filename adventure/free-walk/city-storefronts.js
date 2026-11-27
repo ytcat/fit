@@ -91,13 +91,20 @@
     }
     function shop(key,x,z,ry,w,d,paint) {
       const root=add(new T.Group());root.name='Storefront '+key;root.position.set(x,0,z);root.rotation.y=ry;
-      const b=builder(root,key==='bar'), H=2.72, sep=w/2-.99, lx=-.48, span=w-1.12;
+      const isTV=key==='tv', b=builder(root,key==='bar'), H=2.72, sep=w/2-.99;
+      // Use the clear west bay beside the shelter while retaining the roof and floor footprint.
+      const lx=isTV?-1.02:-.48, span=isTV?3.56:w-1.12;
       // The existing façade is left in place; this glazed shop extension has real interior depth.
       b.box(0,.04,d/2,w,.08,d,paint);b.box(0,2.74,d/2,w,.13,d,paint);
       b.box(0,1.37,.045,w,H,.09,key==='tv'?'#192632':'#5e3c31');
       for(const i of [-1,1]) b.box(i*(w/2-.045),1.37,d/2,.09,H,d,paint);
       b.box(0,.20,d,w,.39,.11,paint);b.box(0,2.57,d,w,.24,.11,paint);
       b.box(sep,1.45,d,.075,2.25,.07,paint);b.box(lx,2.32,d,span,.025,.06,paint);
+      if(isTV){
+        const left=lx-span/2, right=lx+span/2;
+        b.box((left-w/2)/2,1.37,d,left+w/2,1.98,.09,paint);
+        b.box((right+sep)/2,1.37,d,sep-right,1.98,.09,paint);
+      }
       b.box(sep+.55,1.36,d-.04,.92,2.2,.085,'#27282d');
       b.box(sep+.30,1.19,d+.018,.035,.22,.035,'#b1956a');
       // Very slight clear display glazing, rather than an opaque fake reflection.
@@ -106,7 +113,7 @@
       const cc=canvas(512,96), ctx=cc.getContext('2d');ctx.fillStyle=paint;ctx.fillRect(0,0,512,96);
       ctx.strokeStyle='#deb577';ctx.lineWidth=2;ctx.strokeRect(5,5,502,86);ctx.fillStyle='#fff0cb';ctx.font='bold 44px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.direction=li===1?'rtl':'ltr';ctx.fillText(TEXT[key][li],256,48,478);
       const st=own(new T.CanvasTexture(cc));st.encoding=T.sRGBEncoding;st.minFilter=T.LinearFilter;st.generateMipmaps=false;
-      const sign=add(new T.Mesh(own(new T.PlaneGeometry(w-.25,.39)),own(new T.MeshBasicMaterial({map:st}))),root);sign.position.set(0,2.93,d+.025);sign.name='Localized shop sign '+key;
+      const sign=add(new T.Mesh(own(new T.PlaneGeometry(isTV?4.35:w-.25,.39)),own(new T.MeshBasicMaterial({map:st}))),root);sign.position.set(isTV?-.62:0,2.93,d+.025);sign.name='Localized shop sign '+key;
       features.push(key);return {root,b,w,d,span,lx};
     }
     let signal=null;
