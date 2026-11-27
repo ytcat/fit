@@ -7,7 +7,7 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
   await boot(p,'http://localhost:'+srv.address().port,'en','Old Town QA');
   await p.evaluate(()=>FreeWalk.open({start:'oldtown',look:'night'}));
   await p.waitForFunction(()=>FreeWalk.qa.town&&!FreeWalk.snapshot().busy,null,{timeout:240000});
-  const report=await p.evaluate(()=>{
+  const report=await p.evaluate(isolate=>{
    const t=FreeWalk.qa.town,r=app.engine.renderer,c=FreeWalk.qa.camera,shots={},meta={};
    const shop=t.scene.getObjectByName('walk set gym'),v=(x,y,z)=>new THREE.Vector3(x,y,z);
    const nodes=[];t.scene.traverse(o=>{if(['light pools','street lamp ground decals','glows','light beams','glow'].includes(o.name)&&o.visible)nodes.push(o);});
@@ -25,7 +25,7 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
     FreeWalk.qa.walk(0,0,.12);
     const eye=shop.localToWorld(v(x,2.9,z)),goal=shop.localToWorld(v(-4,1.2,10));
     frame(range,eye,goal);
-    if(process.env.ISOLATE_LIGHTS) {
+    if(isolate) {
      for(const [key,names] of [['no-decals',['street lamp ground decals']],['no-sprites',['glows','light beams']],['no-set-pools',['light pools']]])frame(range+'-'+key,eye,goal,nodes.filter(o=>names.includes(o.name)));
     }
    }
@@ -55,7 +55,7 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
     meta.car.moved=Math.hypot(q.x-car.x,q.z-car.z);meta.car.stockCount=before.length;meta.car.detail=t.scene.getObjectByName('detailed moving traffic')?.children.map(o=>o.count);
    }
    return {shots,meta,nodes:nodes.map(o=>[o.name,o.parent.name]),pointLights:t.scene.children.filter(o=>o.isPointLight).length};
-  });
+  },!!process.env.ISOLATE_LIGHTS);
   for(const [key,base64] of Object.entries(report.shots))fs.writeFileSync(out+'/'+tag+'-'+key+'.png',Buffer.from(base64,'base64'));
   delete report.shots;report.errors=errors;
   fs.writeFileSync(out+'/'+tag+'.json',JSON.stringify(report,null,2));
