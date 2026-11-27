@@ -6,6 +6,7 @@ const fs=require('node:fs');
 (async()=>{
  const server=await serve(), browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
  const page=await browser.newPage({viewport:{width:402,height:690},isMobile:true,hasTouch:true,deviceScaleFactor:1});
+ page.setDefaultTimeout(20000);
  const errors=[],report={edges:[]};
  page.on('pageerror',e=>errors.push(e.message));
  try{
@@ -17,6 +18,7 @@ const fs=require('node:fs');
    FreeWalk.open({start:'oldtown',look:'day'});
   });
   await page.waitForFunction(()=>FreeWalk.qa.town&&!FreeWalk.snapshot().busy,null,{timeout:300000});
+  console.log('FreeWalk ready');
   const session=await page.context().newCDPSession(page);
   const touch=(type,...points)=>session.send('Input.dispatchTouchEvent',{type,touchPoints:points.map(([x,y,id=1])=>({x,y,id}))});
   const pad=page.locator('.fw-pad'), bounds=await pad.boundingBox(), y=Math.round(bounds.y+100);
@@ -27,24 +29,30 @@ const fs=require('node:fs');
    const a=window.qaTouchValue;return a&&Math.abs(a[0]-h)<.025&&Math.abs(a[1]-v)<.08;
   },[horizontal,vertical]);
   for(const x of [Math.round(bounds.x+2),Math.round(bounds.x+bounds.width-2)]){
+   const hit=await page.evaluate(([x,y])=>document.elementFromPoint(x,y)?.className,[x,y]);
+   console.log('edge start',x,y,hit);
    await touch('touchStart',[x,y]);
    await waitValue(0,0);
    const ring=await page.locator('.fw-stick').boundingBox();
    assert.ok(ring.x>=bounds.x-1&&ring.x+ring.width<=bounds.x+bounds.width+1);
    assert.ok(ring.y>=bounds.y-1&&ring.y+ring.height<=bounds.y+bounds.height+1);
    await touch('touchMove',[x,y-38]);
+   console.log('edge input',await value());
    await waitValue(0,.945);
    report.edges.push({x,vector:await value(),ring});
    await touch('touchCancel');
    assert.equal(await active(),false);
   }
   const x=Math.round(bounds.x+bounds.width-4);
+  await page.evaluate(()=>FreeWalk.qa.view());
   const before=await state();
+  console.log('route start',before);
   await touch('touchStart',[x,y]);
   await touch('touchMove',[x,y-38]);
   await waitValue(0,.945);
   await page.waitForFunction(p=>Math.hypot(FreeWalk.snapshot().s.x-p.x,FreeWalk.snapshot().s.z-p.z)>.6,before);
   const forward=await state();
+  console.log('walk forward',forward);
   await touch('touchMove',[x-35,y-25]);
   await page.waitForFunction(()=>window.qaTouchValue?.[0]<-.5&&window.qaTouchValue?.[1]>.4);
   await page.waitForFunction(p=>{
