@@ -81,7 +81,7 @@
       snapshot: () => nodes.map(({ node, tier, desired }) => ({ name: node.name, tier, desired })),
       dispose() {
         live = false;
-        quay.removeFromParent();
+        group.remove(quay);
         const resources = new Set();
         quay.traverse(o => { if (o.isMesh) { resources.add(o.geometry); resources.add(o.material); } });
         for (const resource of resources) resource.dispose();
