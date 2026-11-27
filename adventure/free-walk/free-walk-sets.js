@@ -23,7 +23,7 @@
 (() => {
   'use strict';
   const S = 3;
-  const PUBLIC_ART = ['harborContainer', 'harborGull', 'ferrisWheel'];
+  const PUBLIC_ART = ['harborGull', 'ferrisWheel'];
   const MODELS = ['oldtown', 'station', 'hazelStall', 'props', 'marketProps', 'dockProps', 'stopProps'];
   // the films' sign words (dream-sets.js, market-sets.js, the map's SIGN_TEXT) in the player's language
   const WORDS = {
@@ -351,7 +351,7 @@
   function prepare(ms = 6000) {
     const kit = window.StorySets?.ready ? window.StorySets.ready().catch(() => null) : Promise.resolve(null);
     const models = window.CityAssets?.ready ? window.CityAssets.ready(ms, [...MODELS, ...PUBLIC_ART]).catch(() => null) : Promise.resolve(null);
-    return Promise.race([Promise.all([kit, models]), new Promise(r => setTimeout(r, ms + 500))]).then(() => true, () => false);
+    return Promise.race([Promise.all([kit, models, window.FreeWalkContainerDetail?.prepare()]), new Promise(r => setTimeout(r, ms + 500))]).then(() => true, () => false);
   }
 
   /** Builds the story places into the walk scene. */

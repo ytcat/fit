@@ -1,0 +1,50 @@
+[
+  {
+    "slug": "harborline",
+    "company": "HARBORLINE",
+    "tag": "GLORYLAND FREIGHT",
+    "prefix": "HLFU",
+    "serial": "402918",
+    "paint": "#277B91",
+    "frame": "#175160",
+    "ink": "#EAE5CE",
+    "mark": "wave",
+    "id": "HLFU 402918 8"
+  },
+  {
+    "slug": "tidemarsh",
+    "company": "TIDEMARSH",
+    "tag": "REGIONAL LOGISTICS",
+    "prefix": "TMLU",
+    "serial": "593207",
+    "paint": "#9D4937",
+    "frame": "#713226",
+    "ink": "#F0E0BB",
+    "mark": "bars",
+    "id": "TMLU 593207 9"
+  },
+  {
+    "slug": "nordquay",
+    "company": "NORDQUAY",
+    "tag": "NORTH COAST SHIPPING",
+    "prefix": "NQSU",
+    "serial": "724681",
+    "paint": "#466452",
+    "frame": "#304537",
+    "ink": "#E7E8CD",
+    "mark": "mountain",
+    "id": "NQSU 724681 4"
+  },
+  {
+    "slug": "sunspoke",
+    "company": "SUNSPOKE",
+    "tag": "ISLAND CARGO",
+    "prefix": "SSCU",
+    "serial": "631046",
+    "paint": "#BE9656",
+    "frame": "#7E663F",
+    "ink": "#352C20",
+    "mark": "sun",
+    "id": "SSCU 631046 9"
+  }
+]

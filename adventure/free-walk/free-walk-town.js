@@ -204,6 +204,7 @@
       return r === undefined || r < c ? c : r;
     };
     const grid = C.grid({ ...field, walk });
+    const containerDetail = window.FreeWalkContainerDetail?.mount(map, S);
     if (night) { const pools = streetLampPools(T, lay.inst.lamps?.list || [], grid.top, own); if (pools) scene.add(pools); }
     // a device that cannot read the height field back (or renders it wrong) gets a clean failure, never a walk inside walls
     let open = 0; for (let k = 0; k < walk.length; k += 7) open += walk[k]; if (open * 7 < 100000) throw Error('free walk: the town could not be measured on this device');
@@ -456,11 +457,12 @@
       time += dt;
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
       near0.x = p.x; near0.z = p.z;
+      containerDetail?.update(p);
       map.update(dt, camera, renderer);
       look?.update(dt, p, camera); places3d?.update(p, camera); dress?.update(p);
     }
     function snapshot() {
-      return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length,
+      return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length, containerDetail: containerDetail?.snapshot() || [],
         grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, look: look?.stats() || null, dressing: dress?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), build: { ...ms, start: undefined }, parked: !!parkedAt, map: map.stats() };
     }
     /* ---- the same town again in this session (owner: the walk is opened often): closing parks it (its GPU copies freed, the
@@ -488,6 +490,7 @@
       try { places3d?.dispose(); } catch (x) { console.warn('walk sets dispose', x); }
       for (const x of owned) x.dispose?.();
       for (const m of tileMeshes()) m.geometry.dispose();
+      containerDetail?.dispose();
       map.dispose();
     }
     const tileMeshes = () => map.group.children.filter(o => o.userData.tileOf);
