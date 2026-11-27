@@ -8,6 +8,21 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
   await p.evaluate(()=>FreeWalk.open({start:'oldtown',look:'evening'}));
   await p.waitForFunction(()=>FreeWalk.qa.town&&!FreeWalk.snapshot().busy,null,{timeout:300000});
   const data=[];
+  const traversal=await p.evaluate(()=>{
+   const t=FreeWalk.qa.town, slot=t.snapshot().containerDetail?.[0];
+   if(!slot)return null;
+   const g=t.grid.nearest(slot.x-3,slot.z-7,20);
+   FreeWalk.qa.teleport(g.x,g.z);
+   const rows=[];
+   for(const direction of [0,Math.PI,0,Math.PI]){
+    FreeWalk.qa.yaw=direction;
+    for(let i=0;i<5;i++){
+     FreeWalk.qa.walk(0,1,1.5);
+     rows.push({position:FreeWalk.snapshot().s,near:t.snapshot().containerDetail.filter(e=>e.near).map(e=>e.id)});
+    }
+   }
+   return rows;
+  });
   for(const [label,d] of [['near',7],['far',34],['return',7],['wheel',28]]){
    const row=await p.evaluate(([label,d])=>{
     const t=FreeWalk.qa.town, r=app.engine.renderer, c=FreeWalk.qa.camera,V=(x,y,z)=>new THREE.Vector3(x,y,z);
@@ -26,6 +41,6 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
    },[label,d]);if(row.png){fs.writeFileSync(out+'/'+tag+'-'+label+'.png',Buffer.from(row.png,'base64'));delete row.png;}
    data.push({label,...row}); console.log(label,JSON.stringify(row));
   }
-  fs.writeFileSync(out+'/'+tag+'.json',JSON.stringify({viewport:[402,690],renderer:'Chromium SwiftShader',data,errors},null,2));
+  fs.writeFileSync(out+'/'+tag+'.json',JSON.stringify({viewport:[402,690],renderer:'Chromium SwiftShader',traversal,data,errors},null,2));
  }finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
