@@ -4,6 +4,7 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
  const p=await b.newPage({viewport:{width:402,height:690},hasTouch:true,deviceScaleFactor:1}),out=process.argv[2],tag=process.argv[3],errors=[];
  p.on('pageerror',e=>errors.push(e.message));
  try{
+  if(process.env.BASE_MAP)await p.route('**/gloryland-map.js?*',r=>r.fulfill({contentType:'text/javascript',path:process.env.BASE_MAP}));
   if(process.env.BLOCK_HATCHBACK)await p.route('**/northline-5-static-mobile.glb',r=>r.abort());
   await boot(p,'http://localhost:'+srv.address().port,'en','Old Town QA');
   await p.evaluate(look=>FreeWalk.open({start:'oldtown',look}),process.env.OLDTOWN_LOOK||'night');
