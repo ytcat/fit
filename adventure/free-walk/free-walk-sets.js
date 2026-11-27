@@ -30,7 +30,9 @@
     "BRUNO'S GYM": { he: 'האולם של ברונו', ru: 'ЗАЛ БРУНО' }, "HAZEL'S FRUIT": { he: 'הפירות של הייזל', ru: 'ФРУКТЫ ХЕЙЗЕЛ' },
     "OTTO'S CORNER": { he: 'הפינה של אוטו', ru: 'УГОЛОК ОТТО' }, BOXING: { he: 'אגרוף', ru: 'БОКС' },
     'DOCKSIDE HANGAR': { he: 'ההאנגר בנמל', ru: 'АНГАР В ДОКАХ' }, 'THE BASEMENT': { he: 'המרתף', ru: 'ПОДВАЛ' },
-    'CORNER COFFEE': { he: 'קפה פינתי', ru: 'КОФЕ НА УГЛУ' }, BAKERY: { he: 'מאפייה', ru: 'ПЕКАРНЯ' }
+    'CORNER COFFEE': { he: 'קפה פינתי', ru: 'КОФЕ НА УГЛУ' }, BAKERY: { he: 'מאפייה', ru: 'ПЕКАРНЯ' },
+    'FISH MARKET': { he: 'דגים טריים', ru: 'СВЕЖАЯ РЫБА' }, 'SPICES & GRAINS': { he: 'תבלינים ודגנים', ru: 'СПЕЦИИ И КРУПЫ' },
+    'OLIVES & PICKLES': { he: 'זיתים וחמוצים', ru: 'ОЛИВКИ И СОЛЕНЬЯ' }, TEXTILES: { he: 'בדים וטקסטיל', ru: 'ТКАНИ И ТЕКСТИЛЬ' }
   };
   // modelled English lettering of the Old Town and stop models (merged into their own meshes): in Hebrew and Russian the
   // letters are hidden and the shop names are painted on a board in their place (the owner's rule: every text in every language)
@@ -205,7 +207,17 @@
       const { PAL, C, P, M, S: B, box, cyl, lamp, bin, planter, tree, shade } = c, X = extras(c), ZC = 4.65;
       /** One of the films' stalls (market-sets.js) at x, its counter centred ZC metres off the aisle on side s (-1 north, +1 south), facing the aisle. */
       const stall = (x, s, [a, b2], goods, w = 3.0) => {
-        const ry = s < 0 ? 0 : Math.PI, to = rot(x, s * ZC, ry), q = (lx, y, lz) => { const [X0, Z0] = to(lx, lz); return [X0, y, Z0]; };
+        const ry = s < 0 ? 0 : Math.PI;
+        const market = window.FreeWalkMarketStalls, id = market?.slots[s + ':' + x];
+        const authored = id ? market.create(c,id,x,s*ZC,ry) : null;
+        if (authored) {
+          (c.objects.marketStalls ||= []).push(authored);
+          const point = rot(x,s*ZC,ry)(0,.86);
+          board(c,X.lang,market.titles[id],point[0],2.078,point[1],.94,.183,ry,'#252728','#f9e9bf');
+          shade(x,s*ZC,3.3,2.05);
+          return;
+        }
+        const to = rot(x, s * ZC, ry), q = (lx, y, lz) => { const [X0, Z0] = to(lx, lz); return [X0, y, Z0]; };
         const zb = -1.15, zf = .7, ya = 2.95, yf = 2.32, n = 8, c1 = C(a), c2 = C(b2), wood = '#8a6446';
         const [cx, cz] = to(0, 0);
         const modelled = c.prop('Stall_counter', cx, 0, cz, ry, w / 3);
@@ -351,7 +363,7 @@
   function prepare(ms = 6000) {
     const kit = window.StorySets?.ready ? window.StorySets.ready().catch(() => null) : Promise.resolve(null);
     const models = window.CityAssets?.ready ? window.CityAssets.ready(ms, [...MODELS, ...PUBLIC_ART]).catch(() => null) : Promise.resolve(null);
-    return Promise.race([Promise.all([kit, models, window.FreeWalkContainerDetail?.prepare(), window.FreeWalkHarborDetail?.prepare(ms)]), new Promise(r => setTimeout(r, ms + 500))]).then(() => true, () => false);
+    return Promise.race([Promise.all([kit, models, window.FreeWalkContainerDetail?.prepare(), window.FreeWalkHarborDetail?.prepare(ms), window.FreeWalkMarketStalls?.prepare()]), new Promise(r => setTimeout(r, ms + 500))]).then(() => true, () => false);
   }
 
   /** Builds the story places into the walk scene. */
@@ -377,7 +389,7 @@
       const fronts = (id === 'gym' || id === 'market') ? window.CityStorefronts?.build({ lang, tier, section: id }) : null;
       if (fronts) g.add(fronts.group);
       scene.add(g);
-      sets.push({ id, set, fronts, frame: f, centre: new THREE.Vector3(f.x, f.y, f.z), lod: set.objects.fwLod || [] });
+      sets.push({ id, set, fronts, frame: f, centre: new THREE.Vector3(f.x, f.y, f.z), stalls: set.objects.marketStalls || [], lod: set.objects.fwLod || [] });
     }
     // QA / story views: where to stand and which way the camera looks (yaw: the camera's side of the player)
     const v = (name, id, lx, lz, turn = 0) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); views[name] = { x: p.x, z: p.z, yaw: f.ry + turn }; };
@@ -395,6 +407,7 @@
         const d = Math.hypot(p.x - s.frame.x, p.z - s.frame.z); s.set.group.visible = d < 260;
         if (!s.set.group.visible || !camera) continue;
         s.fronts?.update(p, camera);
+        if (s.stalls.length) window.FreeWalkMarketStalls?.update(s.stalls,p,tier==='low'?0:2);
         for (const h of s.lod) { V.copy(h.at).applyMatrix4(s.set.group.matrixWorld); const dd = camera.position.distanceTo(V); for (const m of h.detail) m.visible = dd < 16; for (const m of h.trim) m.visible = dd < 26; }
       }
     }
