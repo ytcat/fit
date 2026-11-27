@@ -21,6 +21,12 @@
  * The GPU copies are disposed when the set is disposed; the parsed models stay cached for a replay. */
 (() => {
   const FILES = {
+    harborcranefar: './assets/street/city-review/harbor-v2/crane-far.glb',
+    harborcranemid: './assets/street/city-review/harbor-v2/crane-mid.glb',
+    harborcranenear: './assets/street/city-review/harbor-v2/crane-near.glb',
+    harborshipfar: './assets/street/city-review/harbor-v2/ship-far.glb',
+    harborshipmid: './assets/street/city-review/harbor-v2/ship-mid.glb',
+    harborshipnear: './assets/street/city-review/harbor-v2/ship-near.glb',
     harborContainer: './assets/street/city-review/harborline-container.glb',
     harborGull: './assets/street/city-review/harbor-gull.glb',
     ferrisWheel: './assets/street/city-review/midnight-pier-wheel.glb',

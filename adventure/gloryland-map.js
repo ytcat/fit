@@ -449,6 +449,8 @@ function build(scene, opts = {}) {
   };
   for (const s of Object.keys(FACADE)) W.facade[s] = new Batch({ uv: true, tint: true });
 
+  W.harbor = opts.harbor?.(group, SCALE, LAND_Y);
+  if (W.harbor) disposables.push(W.harbor);
   layoutWorld(W);
   buildLand(W);
   buildDistricts(W);
@@ -539,7 +541,7 @@ function build(scene, opts = {}) {
   setCurrent((W.places.find(q => q.state === 'current') || {}).id);
   return {
     time: TIME, quality: LOW ? 'low' : 'high', setCurrent,
-    group, places: W.places, route: (a, b) => streetRoute(W, a, b), sun, hemi, fogColor, night: NIGHT, focusShadows, update, stats,
+    group, harbor: W.harbor, places: W.places, route: (a, b) => streetRoute(W, a, b), sun, hemi, fogColor, night: NIGHT, focusShadows, update, stats,
     bounds: { x0: -108, x1: 108, z0: -74, z1: 66 },
     // The town plan for street level (adventure/free-walk): blocks, road ribbons, street segments between blocks, the
     // instanced props (trees, lamps, ...: { mesh, list }), the coast and the named landmarks. Map units, y up.
@@ -1523,10 +1525,11 @@ function docks(W) {
       const h = rint(0, 3); for (let k = 0; k < h; k++) addInst(W, 'containers', { x, y: LAND_Y + k * .66, z: z0 + dz, s: 1, ry: Math.PI / 2, color: pick(ccol) });
     }
   }
-  // ship-to-shore cranes
-  for (const cx of [-1, 11]) crane(W, cx);
-  // cargo ship moored at the south quay
-  cargoShip(W, 5, 56.4);
+  // Keep the stock random draws for later landmarks even when the approved quay replaces these batches.
+  const mooring = W.harbor ? { NIGHT: W.NIGHT, solid: new Batch(), glowSolid: new Batch(),
+    glow: { p: [], c: [], s: [], ph: [] }, inst: {} } : W;
+  for (const cx of [-1, 11]) crane(mooring, cx);
+  cargoShip(mooring, 5, 56.4);
   addInst(W, 'tugs', { x: 24, y: 0, z: 59, s: 1, ry: -2.6 }); addInst(W, 'tugs', { x: -16, y: 0, z: 57, s: 1, ry: .4 });
   // bollards and quay lamps
   for (let x = -19; x < 22; x += 2.6) W.solid.add(P.cyl8, M(x, LAND_Y, 52.6, .14, .32, .14), C('#2f3339'));
@@ -2618,7 +2621,7 @@ function buildNightFx(W, add, disposables) {
   pts.matrixAutoUpdate = false; W.group.add(pts); disposables.push(geo, mat);
 }
 
-/** Hero detail at walk distance. Keep the ship-to-shore cranes and freight ship already in the map.
+/** Optional visual details for the walk map.
  * Models are optional assets: cold/offline loads retain all original procedural scenery. */
 function buildHarborArt(W) {
   const art = W.art;

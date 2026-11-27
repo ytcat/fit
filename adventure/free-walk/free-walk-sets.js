@@ -351,7 +351,7 @@
   function prepare(ms = 6000) {
     const kit = window.StorySets?.ready ? window.StorySets.ready().catch(() => null) : Promise.resolve(null);
     const models = window.CityAssets?.ready ? window.CityAssets.ready(ms, [...MODELS, ...PUBLIC_ART]).catch(() => null) : Promise.resolve(null);
-    return Promise.race([Promise.all([kit, models, window.FreeWalkContainerDetail?.prepare()]), new Promise(r => setTimeout(r, ms + 500))]).then(() => true, () => false);
+    return Promise.race([Promise.all([kit, models, window.FreeWalkContainerDetail?.prepare(), window.FreeWalkHarborDetail?.prepare(ms)]), new Promise(r => setTimeout(r, ms + 500))]).then(() => true, () => false);
   }
 
   /** Builds the story places into the walk scene. */

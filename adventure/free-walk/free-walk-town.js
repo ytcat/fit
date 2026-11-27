@@ -137,7 +137,7 @@
     const hour = ['morning', 'day', 'evening', 'night'].includes(opts.time) ? opts.time : 'day', tier = opts.quality === 'low' ? 'low' : 'high';
     const Sets = window.FreeWalkSets, Look = window.FreeWalkLook, ms = { start: performance.now() }, mark = k => { ms[k] = Math.round(performance.now() - ms.start); };
     const art = window.CityAssets?.cached?.(Sets?.PUBLIC_ART || [], false);
-    const map = GlorylandMap.build(scene, { time: hour, renderer, quality: tier, curb: .05, lang, scale: S, walk: true, art, shadowSize: 1024, skip: Sets?.skip, facadeScale: tier === 'low' ? 0 : 2, litWindows: hour === 'evening' });
+    const map = GlorylandMap.build(scene, { time: hour, renderer, quality: tier, curb: .05, lang, scale: S, walk: true, art, harbor: window.FreeWalkHarborDetail?.mount, shadowSize: 1024, skip: Sets?.skip, facadeScale: tier === 'low' ? 0 : 2, litWindows: hour === 'evening' });
     keep.map = map; keep.scene = scene;
     const lay = map.layout, landY = lay.landY * S;
     map.sun.castShadow = false;
@@ -168,6 +168,7 @@
     const discs = [];
     for (const [name, r] of Object.entries(TRUNK)) for (const o of lay.inst[name]?.list || []) discs.push([o.x * S, o.z * S, r * (o.s || 1)]);
     if (places3d) discs.push(...places3d.discs);
+    if (map.harbor) discs.push(...map.harbor.colliders);
     C.blockDiscs(walk, field, discs);
     const pockets = C.keepConnected(walk, field.nx, field.nz, seeds); // pockets closed by trunks and posts are not walkable
     // tree crowns, market umbrellas and the sets' awnings and stall roofs (not in the height field: a person walks under them):
@@ -458,11 +459,12 @@
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
       near0.x = p.x; near0.z = p.z;
       containerDetail?.update(p);
+      map.harbor?.update(p);
       map.update(dt, camera, renderer);
       look?.update(dt, p, camera); places3d?.update(p, camera); dress?.update(p);
     }
     function snapshot() {
-      return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length, containerDetail: containerDetail?.snapshot() || [],
+      return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length, containerDetail: containerDetail?.snapshot() || [], harbor: map.harbor?.snapshot() || [],
         grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, look: look?.stats() || null, dressing: dress?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), build: { ...ms, start: undefined }, parked: !!parkedAt, map: map.stats() };
     }
     /* ---- the same town again in this session (owner: the walk is opened often): closing parks it (its GPU copies freed, the
