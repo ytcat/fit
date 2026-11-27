@@ -18,6 +18,9 @@ async function capture(page, key, reach, offset) {
   camera.position.set(point.x,town.grid.height(point.x,point.z)+1.63,point.z);
   camera.lookAt(shop.localToWorld(v(glass.position.x,1.53,glass.position.z)));
   camera.updateMatrixWorld(true);
+  // Inspect from the player's eye position without looking through the player's own mesh.
+  const player=app.engine.coach.root, wasVisible=player.visible;
+  player.visible=false;
   const target=shop.getObjectByName('12 lively televisions / 12 channels');
   let visibleScreens=null;
   if(target){
@@ -31,7 +34,9 @@ async function capture(page, key, reach, offset) {
    }).filter(Boolean).length;
   }
   renderer.render(town.scene,camera);
-  return {point,visibleScreens,sign:sign.material.map.image.width,lang:document.documentElement.lang,png:renderer.domElement.toDataURL().split(',')[1]};
+  const png=renderer.domElement.toDataURL().split(',')[1];
+  player.visible=wasVisible;
+  return {point,visibleScreens,sign:sign.material.map.image.width,lang:document.documentElement.lang,png};
  },{key,reach,offset});
 }
 
