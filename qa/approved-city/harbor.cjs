@@ -11,7 +11,8 @@ const fs=require('node:fs');
  page.on('request',r=>{if(r.url().includes('/harbor-v2/'))requests.push(r.url().split('/').pop());});
  try {
   await boot(page,'http://localhost:'+server.address().port,'en','Harbor QA');
-  await page.evaluate(()=>FreeWalk.open({start:'oldtown',look:'evening'}));
+  const look=process.env.HARBOR_LOOK||'evening';
+  await page.evaluate(look=>FreeWalk.open({start:'oldtown',look}),look);
   await page.waitForFunction(()=>FreeWalk.qa.town&&!FreeWalk.snapshot().busy,null,{timeout:300000});
   report.initial=await page.evaluate(()=>{
    const {map,grid}=FreeWalk.qa.town;
@@ -25,10 +26,10 @@ const fs=require('node:fs');
   assert.equal(report.initial.deckStock,0,'old deck stacks removed');
   assert.equal(report.initial.legs.filter(p=>p.blocked).length,8,'tier-independent leg collision');
   for(const [name,tier,x,z,eye,target] of [
-   ['far','far',82,97,[82,4,97],[14,10,160]],
-   ['mid','mid',28,111,[-32,5,126],[10,12,155]],
-   ['ship','near',-3,151,[-36,5,150],[17,6,170]],
-   ['gantry','near',-19,143,[-26,4,130],[-3,14,153]]
+   ['far','far',82,97,[126,19,210],[13,12,152]],
+   ['mid','mid',28,111,[-44,12,181],[10,13,152]],
+   ['ship','near',48,152,[67,5.4,155],[22,6.5,169]],
+   ['gantry','near',-19,143,[-32,6,122],[-3,14,153]]
   ]){
    await page.evaluate(([x,z])=>{
     const {grid}=FreeWalk.qa.town,p=grid.nearest(x,z,12);
@@ -61,7 +62,7 @@ const fs=require('node:fs');
    }
    return result;
   });
-  report.requests=requests;report.errors=errors;
+  report.look=look;report.requests=requests;report.errors=errors;
   fs.writeFileSync(out+'/report.json',JSON.stringify(report,null,2));
   assert.equal(new Set(requests).size,requests.length,'a tier is requested at most once');
   assert.deepEqual(errors,[]);
