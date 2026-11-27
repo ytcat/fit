@@ -1,0 +1,27 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const T=require('../assets/vendor/three.min.js');
+const urls=[];let missing=false;
+T.GLTFLoader=class {load(url,done,p,fail){urls.push(url);if(missing&&/fish-mid/.test(url)){fail();return;}done({scene:new T.Group()});}};
+const load=()=>{const win={THREE:T};vm.runInNewContext(fs.readFileSync('adventure/free-walk/market-stall-detail.js','utf8'),{window:win});return win.FreeWalkMarketStalls;};
+(async()=>{
+const M=load(), names=Object.values(M.slots);
+assert.equal(names.length,5);assert.equal(new Set(names).size,5);
+const code=fs.readFileSync('adventure/free-walk/free-walk-sets.js','utf8');
+const m=[...code.matchAll(/(\[[-\d., ]+\])\.forEach\(\(x, i\) => stall\(x, (-?1),/g)];
+assert.equal(m.length,2);
+const eligible=m.flatMap(([,a,s])=>JSON.parse(a).map(x=>s+':'+x));
+assert.equal(eligible.length,12);
+for(const key of Object.keys(M.slots))assert.ok(eligible.includes(key));
+await M.prepare();assert.equal(urls.length,5);assert.ok(urls.every(u=>u.endsWith('-mid.glb')));
+const c={group:new T.Group(),disposables:[]};
+const a=names.map((n,i)=>M.create(c,n,i*4,0,0));assert.equal(c.group.children.length,5);
+M.update(a,{x:4,z:0});await new Promise(r=>setImmediate(r));
+assert.equal(a.filter(o=>o.near).length,2);
+for(const o of a)assert.equal(o.root.children.filter(x=>x.userData.fwSolid).length,5);
+const hi=a.find(o=>o.near);assert.ok(hi.root.children.length>6);assert.equal(hi.root.children[0].visible,false);
+M.update(a,{x:120,z:0});assert.equal(a.filter(o=>o.near).length,0);assert.equal(hi.root.children[0].visible,true);
+missing=true;const off=load();await off.prepare();assert.equal(off.create(c,'fish',0,0,0),null);
+assert.ok(off.create(c,'baker',0,0,0));
+console.log('PASS 12 existing Row stands + Hazel, five in-place variants, cap/tier switches, fixed collision proxies, missing asset fallback');
+})().catch(e=>{console.error(e);process.exitCode=1});

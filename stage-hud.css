@@ -126,6 +126,7 @@ body #fightResults[hidden]{display:none}
 #fightResults .fight-result-actions{position:absolute;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:max-content;max-width:calc(100% - 250px);pointer-events:auto}
 #fightResults .fight-result-actions button{min-height:36px;padding:0 12px;font-size:12px;border-radius:999px;background:var(--hud-chip-strong);border:1px solid var(--hud-line);color:var(--gr-text,#f3f6fb)}
 /* After the result the pad is put away (fighter-pad.js) and the old paged move panel stays hidden too: the bottom band holds the buttons. */
-body.fight-over #manualControls,body.fight-over .manual-controls,body.ringside-layout.fight-over .manual-pages:not([hidden]),body.fight-over .manual-pages,body.fight-over .manual-status{display:none!important}
+/* owner report on v1.97: the Burst button's "Bout over" sat on top of "Round-by-round details" at the result; nothing to burst then */
+body.fight-over .burst-control,body.fight-over #manualControls,body.fight-over .manual-controls,body.ringside-layout.fight-over .manual-pages:not([hidden]),body.fight-over .manual-pages,body.fight-over .manual-status{display:none!important}
 /* GOTR-0086: the display rules above outrank the UA's [hidden] rule, so a hidden result line stayed on screen. */
 #stageContainer .bout-announcement[hidden]{display:none!important}

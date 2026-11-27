@@ -1,0 +1,68 @@
+{
+  "report": {
+    "en-tv-west": {
+      "point": {
+        "x": 147.25,
+        "z": -119.25
+      },
+      "visibleScreens": 12,
+      "sign": 512,
+      "lang": "en"
+    },
+    "en-tv-route": {
+      "point": {
+        "x": 148.75,
+        "z": -116.75
+      },
+      "visibleScreens": 10,
+      "sign": 512,
+      "lang": "en"
+    },
+    "en-bar": {
+      "point": {
+        "x": 169.75,
+        "z": -113.75
+      },
+      "visibleScreens": null,
+      "sign": 512,
+      "lang": "en"
+    },
+    "en-records": {
+      "point": {
+        "x": 103.75,
+        "z": -61.25
+      },
+      "visibleScreens": null,
+      "sign": 512,
+      "lang": "en"
+    },
+    "en-florist": {
+      "point": {
+        "x": 129.75,
+        "z": -74.75
+      },
+      "visibleScreens": null,
+      "sign": 512,
+      "lang": "en"
+    },
+    "he-tv-route": {
+      "point": {
+        "x": 148.75,
+        "z": -116.75
+      },
+      "visibleScreens": 12,
+      "sign": 512,
+      "lang": "he"
+    },
+    "ru-tv-route": {
+      "point": {
+        "x": 148.75,
+        "z": -116.75
+      },
+      "visibleScreens": 12,
+      "sign": 512,
+      "lang": "ru"
+    }
+  },
+  "errors": []
+}

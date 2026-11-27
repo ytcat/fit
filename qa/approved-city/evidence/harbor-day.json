@@ -1,0 +1,297 @@
+{
+  "initial": {
+    "tiers": [
+      {
+        "name": "Harborline gantry (approved) -1",
+        "tier": "far",
+        "desired": "far"
+      },
+      {
+        "name": "Harborline gantry (approved) 11",
+        "tier": "far",
+        "desired": "far"
+      },
+      {
+        "name": "Portward cargo ship (approved)",
+        "tier": "far",
+        "desired": "far"
+      }
+    ],
+    "legs": [
+      {
+        "x": -11,
+        "z": 145.79999999999998,
+        "blocked": true
+      },
+      {
+        "x": -11,
+        "z": 156.5,
+        "blocked": true
+      },
+      {
+        "x": 5,
+        "z": 145.79999999999998,
+        "blocked": true
+      },
+      {
+        "x": 5,
+        "z": 156.5,
+        "blocked": true
+      },
+      {
+        "x": 25,
+        "z": 145.79999999999998,
+        "blocked": true
+      },
+      {
+        "x": 25,
+        "z": 156.5,
+        "blocked": true
+      },
+      {
+        "x": 41,
+        "z": 145.79999999999998,
+        "blocked": true
+      },
+      {
+        "x": 41,
+        "z": 156.5,
+        "blocked": true
+      }
+    ],
+    "deckStock": 0,
+    "quayStock": 140,
+    "requests": [
+      "crane-far.glb",
+      "ship-far.glb"
+    ]
+  },
+  "far": {
+    "tiers": [
+      {
+        "name": "Harborline gantry (approved) -1",
+        "tier": "far",
+        "desired": "far"
+      },
+      {
+        "name": "Harborline gantry (approved) 11",
+        "tier": "mid",
+        "desired": "mid"
+      },
+      {
+        "name": "Portward cargo ship (approved)",
+        "tier": "far",
+        "desired": "far"
+      }
+    ],
+    "visible": [
+      1,
+      1,
+      1
+    ],
+    "player": {
+      "x": 82.25,
+      "z": 97.25,
+      "ry": 3.142,
+      "walking": false
+    },
+    "calls": 96,
+    "triangles": 494014,
+    "resources": {
+      "geometries": 650,
+      "textures": 86
+    }
+  },
+  "mid": {
+    "tiers": [
+      {
+        "name": "Harborline gantry (approved) -1",
+        "tier": "mid",
+        "desired": "mid"
+      },
+      {
+        "name": "Harborline gantry (approved) 11",
+        "tier": "near",
+        "desired": "near"
+      },
+      {
+        "name": "Portward cargo ship (approved)",
+        "tier": "mid",
+        "desired": "mid"
+      }
+    ],
+    "visible": [
+      1,
+      1,
+      1
+    ],
+    "player": {
+      "x": 28.25,
+      "z": 111.25,
+      "ry": 3.142,
+      "walking": false
+    },
+    "calls": 107,
+    "triangles": 524711,
+    "resources": {
+      "geometries": 670,
+      "textures": 86
+    }
+  },
+  "ship": {
+    "tiers": [
+      {
+        "name": "Harborline gantry (approved) -1",
+        "tier": "mid",
+        "desired": "mid"
+      },
+      {
+        "name": "Harborline gantry (approved) 11",
+        "tier": "near",
+        "desired": "near"
+      },
+      {
+        "name": "Portward cargo ship (approved)",
+        "tier": "near",
+        "desired": "near"
+      }
+    ],
+    "visible": [
+      1,
+      1,
+      1
+    ],
+    "player": {
+      "x": 48.25,
+      "z": 152.25,
+      "ry": 3.142,
+      "walking": false
+    },
+    "calls": 83,
+    "triangles": 512491,
+    "resources": {
+      "geometries": 688,
+      "textures": 86
+    }
+  },
+  "gantry": {
+    "tiers": [
+      {
+        "name": "Harborline gantry (approved) -1",
+        "tier": "near",
+        "desired": "near"
+      },
+      {
+        "name": "Harborline gantry (approved) 11",
+        "tier": "mid",
+        "desired": "mid"
+      },
+      {
+        "name": "Portward cargo ship (approved)",
+        "tier": "near",
+        "desired": "near"
+      }
+    ],
+    "visible": [
+      1,
+      1,
+      1
+    ],
+    "player": {
+      "x": -18.75,
+      "z": 143.25,
+      "ry": 3.142,
+      "walking": false
+    },
+    "calls": 132,
+    "triangles": 580514,
+    "resources": {
+      "geometries": 688,
+      "textures": 86
+    }
+  },
+  "walk": [
+    {
+      "x": -18.49,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -17.86,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -17.13,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -16.39,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -15.66,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -14.93,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -14.19,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -13.46,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -12.73,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -12,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -11.26,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    },
+    {
+      "x": -10.53,
+      "z": 143.25,
+      "ry": 1.571,
+      "walking": true
+    }
+  ],
+  "look": "day",
+  "requests": [
+    "crane-far.glb",
+    "ship-far.glb",
+    "crane-mid.glb",
+    "crane-near.glb",
+    "ship-mid.glb",
+    "ship-near.glb"
+  ],
+  "errors": []
+}
