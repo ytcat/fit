@@ -18,3 +18,5 @@ Containers first: 239 placements × 8,683 triangles would be about 2.08M triangl
 - The canonical container source and distance plan were fetched and verified at `d788f079a6c1e82c93b6ffe86aa4bae4dbccd20d` on `wip/city-detail-plan-20261127`, directly above `095d855`. No container tier wiring, crane or ship integration in this QA branch.
 
 English PNGs and raw logs are in `/workspace/fit-v199-delivery/city-qa`. EN/HE/RU browser sweep, direct wheel placement, container near/far runtime, physical iPhone and final release suite are pending.
+
+- Isolated Chromium rerun on runtime SHA `352185bc4313c24f1c869ed5b90eb3aabc037a24` completed with explicit browser PASS. Raw log `fang-solo.log`.
