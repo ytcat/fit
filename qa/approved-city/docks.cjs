@@ -5,7 +5,8 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
  p.on('pageerror',e=>errors.push(e.message));
  try {
   await boot(p,'http://localhost:'+server.address().port,'en','Docks QA');
-  await p.evaluate(()=>FreeWalk.open({start:'oldtown',look:'evening'}));
+  const look=process.env.DOCKS_LOOK||'evening';
+  await p.evaluate(look=>FreeWalk.open({start:'oldtown',look}),look);
   await p.waitForFunction(()=>FreeWalk.qa.town&&!FreeWalk.snapshot().busy,null,{timeout:300000});
   const data=[];
   const traversal=await p.evaluate(()=>{
@@ -26,7 +27,7 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
    return rows;
   });
   if(process.env.DOCKS_WALK_ONLY){
-   fs.writeFileSync(out+'/'+tag+'.json',JSON.stringify({viewport:[402,690],renderer:'Chromium SwiftShader',traversal,errors},null,2));
+   fs.writeFileSync(out+'/'+tag+'.json',JSON.stringify({viewport:[402,690],renderer:'Chromium SwiftShader',look,traversal,errors},null,2));
    return;
   }
   for(const [label,d] of [['near',7],['far',34],['return',7],['wheel',28]]){
@@ -47,6 +48,6 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
    },[label,d]);if(row.png){fs.writeFileSync(out+'/'+tag+'-'+label+'.png',Buffer.from(row.png,'base64'));delete row.png;}
    data.push({label,...row}); console.log(label,JSON.stringify(row));
   }
-  fs.writeFileSync(out+'/'+tag+'.json',JSON.stringify({viewport:[402,690],renderer:'Chromium SwiftShader',traversal,data,errors},null,2));
+  fs.writeFileSync(out+'/'+tag+'.json',JSON.stringify({viewport:[402,690],renderer:'Chromium SwiftShader',look,traversal,data,errors},null,2));
  }finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
