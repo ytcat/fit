@@ -20,7 +20,7 @@ const fs=require('node:fs');
    const {map,scene}=FreeWalk.qa.town,r=app.engine.renderer,c=FreeWalk.qa.camera;
    const ship=scene.getObjectByName('Portward cargo ship (approved)');
    if(!ship)throw Error('Approved ship missing');
-   c.position.set(96,14,219);c.lookAt(13,5,171);c.updateMatrixWorld(true);
+   c.position.set(113,15,250);c.lookAt(15,6,170);c.updateMatrixWorld(true);
    r.render(scene,c);
    return {night:map.night,tiers:map.harbor.snapshot(),png:r.domElement.toDataURL().split(',')[1]};
   });
@@ -28,10 +28,8 @@ const fs=require('node:fs');
   fs.writeFileSync(out+'/night-ship.png',Buffer.from(night.png,'base64'));
   delete night.png;
   fs.writeFileSync(out+'/night-ship.json',JSON.stringify(night,null,2));
-  await online.evaluate(async()=>{
-   await navigator.serviceWorker.register('./offline-worker.js');
-   await navigator.serviceWorker.ready;
-  });
+  if(process.env.NIGHT_CAPTURE_ONLY)return;
+  await online.evaluate(()=>navigator.serviceWorker.register('./offline-worker.js'));
   await online.waitForFunction(()=>navigator.serviceWorker.controller,null,{timeout:90000});
   const cold=await online.evaluate(async()=>{
    const street=await caches.open('ringfighter-street-1');
