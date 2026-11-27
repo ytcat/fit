@@ -15,14 +15,20 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
    FreeWalk.qa.teleport(g.x,g.z);
    const rows=[];
    for(const direction of [0,Math.PI,0,Math.PI]){
-    FreeWalk.qa.yaw=direction;
     for(let i=0;i<5;i++){
-     FreeWalk.qa.walk(0,1,1.5);
+     for(let frame=0;frame<15;frame++){
+      FreeWalk.qa.yaw=direction;
+      FreeWalk.qa.walk(0,1,.1);
+     }
      rows.push({position:FreeWalk.snapshot().s,near:t.snapshot().containerDetail.filter(e=>e.near).map(e=>e.id)});
     }
    }
    return rows;
   });
+  if(process.env.DOCKS_WALK_ONLY){
+   fs.writeFileSync(out+'/'+tag+'.json',JSON.stringify({viewport:[402,690],renderer:'Chromium SwiftShader',traversal,errors},null,2));
+   return;
+  }
   for(const [label,d] of [['near',7],['far',34],['return',7],['wheel',28]]){
    const row=await p.evaluate(([label,d])=>{
     const t=FreeWalk.qa.town, r=app.engine.renderer, c=FreeWalk.qa.camera,V=(x,y,z)=>new THREE.Vector3(x,y,z);
