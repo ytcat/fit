@@ -4,13 +4,14 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
  const p=await b.newPage({viewport:{width:402,height:690},hasTouch:true,deviceScaleFactor:1}),out=process.argv[2],tag=process.argv[3],errors=[];
  p.on('pageerror',e=>errors.push(e.message));
  try{
+  if(process.env.BLOCK_HATCHBACK)await p.route('**/northline-5-static-mobile.glb',r=>r.abort());
   await boot(p,'http://localhost:'+srv.address().port,'en','Old Town QA');
-  await p.evaluate(()=>FreeWalk.open({start:'oldtown',look:'night'}));
+  await p.evaluate(look=>FreeWalk.open({start:'oldtown',look}),process.env.OLDTOWN_LOOK||'night');
   await p.waitForFunction(()=>FreeWalk.qa.town&&!FreeWalk.snapshot().busy,null,{timeout:240000});
   const report=await p.evaluate(isolate=>{
    const t=FreeWalk.qa.town,r=app.engine.renderer,c=FreeWalk.qa.camera,shots={},meta={};
    const shop=t.scene.getObjectByName('walk set gym'),v=(x,y,z)=>new THREE.Vector3(x,y,z);
-   const nodes=[];t.scene.traverse(o=>{if(['light pools','street lamp ground decals','glows','light beams','glow'].includes(o.name)&&o.visible)nodes.push(o);});
+   const nodes=[];t.scene.traverse(o=>{if(['light pools','street lamp ground decals','glows','light beams','glow','current place halo'].includes(o.name)&&o.visible)nodes.push(o);});
    function frame(key,eye,goal,hide=[]){
     c.position.copy(eye);c.lookAt(goal);c.updateMatrixWorld(true);
     for(const o of hide)o.visible=false;
@@ -26,7 +27,7 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
     const eye=shop.localToWorld(v(x,2.9,z)),goal=shop.localToWorld(v(-4,1.2,10));
     frame(range,eye,goal);
     if(isolate) {
-     for(const [key,names] of [['no-decals',['street lamp ground decals']],['no-sprites',['glows','light beams']],['no-set-pools',['light pools']]])frame(range+'-'+key,eye,goal,nodes.filter(o=>names.includes(o.name)));
+     for(const [key,names] of [['no-decals',['street lamp ground decals']],['no-sprites',['glows','light beams']],['no-set-pools',['light pools']],['no-halo',['current place halo']]])frame(range+'-'+key,eye,goal,nodes.filter(o=>names.includes(o.name)));
     }
    }
    const glob=t.scene.getObjectByName('glows');
@@ -52,7 +53,7 @@ const {chromium}=require('playwright'),{serve,boot}=require('../free-walk-city/s
     const q=after.reduce((best,o)=>Math.hypot(o.x-car.x,o.z-car.z)<Math.hypot(best.x-car.x,best.z-car.z)?o:best);
     const y=t.grid.height(q.x,q.z);
     frame('car',v(q.x+4.4,y+2,q.z+5.6),v(q.x,y+.7,q.z));
-    meta.car.moved=Math.hypot(q.x-car.x,q.z-car.z);meta.car.stockCount=before.length;meta.car.detail=t.scene.getObjectByName('detailed moving traffic')?.children.map(o=>o.count);
+    meta.car.moved=Math.hypot(q.x-car.x,q.z-car.z);meta.car.simCount=before.length;meta.car.stockCount=t.scene.getObjectByName('street cars')?.count;meta.car.detail=t.scene.getObjectByName('detailed moving traffic')?.children.map(o=>o.count);
    }
    return {shots,meta,nodes:nodes.map(o=>[o.name,o.parent.name]),pointLights:t.scene.children.filter(o=>o.isPointLight).length};
   },!!process.env.ISOLATE_LIGHTS);

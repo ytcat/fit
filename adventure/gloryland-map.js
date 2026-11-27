@@ -536,8 +536,9 @@ function build(scene, opts = {}) {
     return { meshes, instances: inst, triangles: Math.round(tris) };
   }
   buildMovers(W);
-  const halo = buildHalo(W, disposables);
-  const setCurrent = id => { const p = W.places.find(q => q.id === id); halo.set(p || null); };
+  // The overview beacon is a translucent column; at street level the walk has its own ground cue.
+  const halo = W.walk ? null : buildHalo(W, disposables);
+  const setCurrent = id => halo?.set(W.places.find(q => q.id === id) || null);
   setCurrent((W.places.find(q => q.state === 'current') || {}).id);
   return {
     time: TIME, quality: LOW ? 'low' : 'high', setCurrent,
