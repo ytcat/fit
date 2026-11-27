@@ -167,7 +167,9 @@
     // area moves the stick under the thumb first (a floating stick). It goes back to its resting spot on release.
     let stickId = null, base = null;
     function release(ev) {
-      if (ev && ev.pointerId !== stickId) return; stickId = null; base = null; R.analog = [0, 0];
+      if (ev && ev.pointerId !== stickId) return;
+      const id = stickId; stickId = null; base = null; R.analog = [0, 0];
+      if (id !== null && pad.hasPointerCapture?.(id)) pad.releasePointerCapture(id);
       thumb.style.transform = 'translate(-50%,-50%)'; glow.style.opacity = '0'; stick.style.left = stick.style.top = ''; pad.classList.remove('active');
     }
     function point(ev) {
@@ -182,7 +184,9 @@
       if (Math.hypot(ev.clientX - cx, ev.clientY - cy) <= b.width / 2) base = { x: cx, y: cy, size: b.width };
       else { // float: the stick's centre comes under the thumb (kept inside the area)
         const z = pad.getBoundingClientRect(), h = b.width / 2, x = Math.min(z.right - h, Math.max(z.left + h, ev.clientX)), y = Math.min(z.bottom - h, Math.max(z.top + h, ev.clientY));
-        stick.style.left = (x - z.left - h) + 'px'; stick.style.top = (y - z.top - h) + 'px'; base = { x, y, size: b.width };
+        stick.style.left = (x - z.left - h) + 'px'; stick.style.top = (y - z.top - h) + 'px';
+        // Clamp the drawn ring only. Edge touches start with a neutral gameplay vector.
+        base = { x: ev.clientX, y: ev.clientY, size: b.width };
       }
       pad.classList.add('active'); point(ev);
     });
