@@ -69,6 +69,47 @@
     return { x0, z0, cell: CELL, nx, nz, heights };
   }
 
+  /** Fixed ground decals, clipped against the same measured solid surfaces used by navigation.
+   * Conservative ray limits keep light from spilling through a wall to the surface beyond it. */
+  function streetLampPools(T, lamps, top, own) {
+    const pos = [], uv = [], edge = [], N = 32, reach = 5.6, step = CELL / 2;
+    for (const lamp of lamps) {
+      const a = lamp.ry || 0, x = (lamp.x + Math.sin(a) * .42) * S, z = (lamp.z + Math.cos(a) * .42) * S;
+      const base = top(x, z);
+      if (base < .12 || Math.abs(base - lamp.y * S) > .7) continue;
+      const rays = Array.from({ length: N }, (_, i) => {
+        const t = i * Math.PI * 2 / N, dx = Math.cos(t), dz = Math.sin(t);
+        let r = reach;
+        for (let d = step; d <= reach; d += step) {
+          const y = top(x + dx * d, z + dz * d);
+          if (y < .12 || Math.abs(y - base) > .38) { r = Math.max(0, d - step); break; }
+        }
+        return { dx, dz, r };
+      });
+      const v = (i, r) => {
+        const { dx, dz } = rays[i], X = x + dx * r, Z = z + dz * r;
+        pos.push(X, top(X, Z) + .018, Z); uv.push(dx * r / reach, dz * r / reach); edge.push(r > 0 ? 1 : 0);
+      };
+      for (let i = 0; i < N; i++) {
+        const j = (i + 1) % N, r = Math.min(rays[i].r, rays[j].r);
+        if (r <= step) continue;
+        v(i, 0); v(j, r); v(i, r);
+      }
+    }
+    if (!pos.length) return null;
+    const geometry = own(new T.BufferGeometry());
+    geometry.setAttribute('position', new T.Float32BufferAttribute(pos, 3));
+    geometry.setAttribute('uv', new T.Float32BufferAttribute(uv, 2));
+    geometry.setAttribute('poolEdge', new T.Float32BufferAttribute(edge, 1));
+    const material = own(new T.ShaderMaterial({
+      transparent: true, depthTest: true, depthWrite: false, blending: T.AdditiveBlending,
+      vertexShader: 'attribute float poolEdge; varying float vEdge; varying vec2 vPool; void main() { vPool = uv; vEdge = poolEdge; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: 'varying float vEdge; varying vec2 vPool; void main() { float a = 1.0 - smoothstep(0.0, 1.0, length(vPool)); gl_FragColor = vec4(1.0, 0.82, 0.61, 0.24 * a * a * (1.0 - smoothstep(0.78, 1.0, vEdge))); }'
+    }));
+    const mesh = new T.Mesh(geometry, material); mesh.name = 'street lamp ground decals'; mesh.renderOrder = 3;
+    return mesh;
+  }
+
   /** Fine grain on the painted ground: two octaves of cell noise in world space (asphalt and paving read up close). */
   function groundGrain(mat) {
     const prev = mat.onBeforeCompile, key = mat.customProgramCacheKey ? mat.customProgramCacheKey() : '';
@@ -95,7 +136,8 @@
     const scene = new T.Scene(), owned = [], own = x => { owned.push(x); return x; };
     const hour = ['morning', 'day', 'evening', 'night'].includes(opts.time) ? opts.time : 'day', tier = opts.quality === 'low' ? 'low' : 'high';
     const Sets = window.FreeWalkSets, Look = window.FreeWalkLook, ms = { start: performance.now() }, mark = k => { ms[k] = Math.round(performance.now() - ms.start); };
-    const map = GlorylandMap.build(scene, { time: hour, renderer, quality: tier, curb: .05, lang, scale: S, walk: true, shadowSize: 1024, skip: Sets?.skip, facadeScale: tier === 'low' ? 0 : 2, litWindows: hour === 'evening' });
+    const art = window.CityAssets?.cached?.(Sets?.PUBLIC_ART || [], false);
+    const map = GlorylandMap.build(scene, { time: hour, renderer, quality: tier, curb: .05, lang, scale: S, walk: true, art, shadowSize: 1024, skip: Sets?.skip, facadeScale: tier === 'low' ? 0 : 2, litWindows: hour === 'evening' });
     keep.map = map; keep.scene = scene;
     const lay = map.layout, landY = lay.landY * S;
     map.sun.castShadow = false;
@@ -107,8 +149,8 @@
     mark('map');
     if (Sets) try { places3d = Sets.build({ map, scene, renderer, time: hour, lang, tier }); keep.sets = places3d; } catch (x) { console.warn('walk sets', x); places3d = null; }
     mark('sets');
-    // at night the street is lit for a person: a cool moon fill and a warm street-lamp light that follows the player (one point light)
-    let lamp = null; if (night) { scene.add(new T.HemisphereLight(0x8fa3d8, 0x2a2438, .7)); lamp = new T.PointLight(0xffd9a8, 1.6, 16, 1.6); scene.add(lamp); }
+    // Keep a steady cool fill for character readability, never a warm light attached to the player.
+    if (night) scene.add(new T.HemisphereLight(0x8fa3d8, 0x2a2438, .7));
     for (const [name, m] of Object.entries(map.meshes)) if (STREET_LIFE.has(name)) m.visible = false;
     if (map.meshes.ground) groundGrain(map.meshes.ground.material);
 
@@ -162,6 +204,7 @@
       return r === undefined || r < c ? c : r;
     };
     const grid = C.grid({ ...field, walk });
+    if (night) { const pools = streetLampPools(T, lay.inst.lamps?.list || [], grid.top, own); if (pools) scene.add(pools); }
     // a device that cannot read the height field back (or renders it wrong) gets a clean failure, never a walk inside walls
     let open = 0; for (let k = 0; k < walk.length; k += 7) open += walk[k]; if (open * 7 < 100000) throw Error('free walk: the town could not be measured on this device');
 
@@ -413,7 +456,6 @@
       time += dt;
       updateCars(dt, p); updateWalkers(dt, p); updateBirds(dt, p);
       near0.x = p.x; near0.z = p.z;
-      if (lamp) lamp.position.set(p.x - 1.2, (grid.allowed(p.x, p.z) ? grid.height(p.x, p.z) : landY) + 4.2, p.z + 1.5);
       map.update(dt, camera, renderer);
       look?.update(dt, p, camera); places3d?.update(p, camera); dress?.update(p);
     }

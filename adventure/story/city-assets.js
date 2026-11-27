@@ -21,12 +21,15 @@
  * The GPU copies are disposed when the set is disposed; the parsed models stay cached for a replay. */
 (() => {
   const FILES = {
+    harborContainer: './assets/street/city-review/harborline-container.glb',
+    harborGull: './assets/street/city-review/harbor-gull.glb',
+    ferrisWheel: './assets/street/city-review/midnight-pier-wheel.glb',
     tree: './assets/street/ch01-trees/street-tree-low.glb',
     car: './assets/street/ch01-car/compact-car.glb',
     bus: './assets/street/ch01-bus/gloryland-bus.glb?v=2026112501', // ?v: door parts fix (the offline worker replaces an older copy)
     station: './assets/street/ch01-station/gloryland-station.glb',
     oldtown: './assets/street/ch01-oldtown/gloryland-oldtown.glb',
-    hazelStall: './assets/street/ch01-market/hazel-fruit-stall.glb',
+    hazelStall: './assets/street/ch01-market/hazel-fruit-stall-city.glb',
     // Blender props (tools/blender/street-props.py, gym-props.py): one node per prop, vertex-coloured, four material classes
     props: './assets/street/ch01-props/gloryland-street-props.glb',
     gymProps: './assets/street/ch01-props/gloryland-gym-props.glb',
@@ -147,6 +150,29 @@
     const find = re => { let m = null; root.traverse(o => { if (!m && o.isMesh && o.material?.name === 'chalk and scale dial' && re.test(o.name)) m = o; }); return m; };
     chalk(find(/^Stall_structure/), words.name, lang); // the 'Hazel name' mesh under the canopy
     chalk(find(/^Produce_display/), words.unit, lang); // the 'price unit' lettering on the small slates
+  }
+  function hazelDressingSign(root, c) {
+    let hasBoard = false;
+    root.traverse(o => { if (o.isMesh && /^HazelDressing/.test(o.name) && /sign[ _]chalkboard/.test(o.name)) hasBoard = true; });
+    if (!hasBoard) return;
+    const lang = c.opts?.fw?.lang || c.opts?.lang || window.app?.lang || 'en';
+    const copy = {
+      en: ["HAZEL'S", 'FRESH FRUIT', 'MARKET ROW'],
+      he: ['הייזל', 'פירות טריים', 'רחוב השוק'],
+      ru: ['ХЕЙЗЕЛ', 'СВЕЖИЕ ФРУКТЫ', 'РЫНОЧНЫЙ РЯД']
+    }[lang] || ["HAZEL'S", 'FRESH FRUIT', 'MARKET ROW'];
+    const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#d5c280'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.direction = lang === 'he' ? 'rtl' : 'ltr';
+    for (let i = 0; i < 3; i++) {
+      g.font = (i === 0 ? '800 46' : i === 1 ? '700 31' : '600 25') + 'px sans-serif';
+      g.fillText(copy[i], 128, [64, 129, 209][i], 224);
+    }
+    const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding;
+    const b = new THREE.PlaneGeometry(.54, .56);
+    const m = new THREE.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, roughness: .88 });
+    const label = new THREE.Mesh(b, m); label.name = 'Localized Hazel chalkboard'; label.position.set(.1, .46, .962);
+    root.add(label); c.disposables.push(b, m, t);
   }
   function chalk(src, lines, lang) {
     if (!src) return; const geo0 = src.geometry; geo0.computeBoundingBox();
@@ -331,7 +357,7 @@
     }
     if (city?.hazelStall) {
       const stall = city.hazelStall.scene.clone(true);
-      stall.name = "Hazel's fruit stall"; hazelSign(stall);
+      stall.name = "Hazel's fruit stall"; hazelSign(stall); hazelDressingSign(stall, c);
       put(shadows(stall, false), 0, 0, -3.3, 0);
       handle.active = true;
     }

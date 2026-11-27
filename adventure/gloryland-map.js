@@ -439,7 +439,7 @@ function build(scene, opts = {}) {
   const group = new THREE.Group(); group.name = 'Gloryland map (' + (NIGHT ? 'night' : 'day') + ')';
   const disposables = [];
   const SCALE = opts.scale > 0 ? opts.scale : 1; // the free walk shows the same town in metres (3 m per map unit)
-  const W = { disposables, scale: SCALE, walk: !!opts.walk,
+  const W = { disposables, scale: SCALE, walk: !!opts.walk, art: opts.walk ? opts.art : null,
     NIGHT, group, debugGrid: !!opts.debugGrid,
     solid: new Batch(), overhead: new Batch(), ground: new Batch(), marks: new Batch(), glowSolid: new Batch(), beams: new Batch(),
     lang: ['he', 'ru'].includes(opts.lang) ? opts.lang : 'en', facade: {}, inst: {}, glow: { p: [], c: [], s: [], ph: [] }, pools: [], signs: [], places: [], blocks: [], roads: [], streets: [], cars: [],
@@ -486,6 +486,7 @@ function build(scene, opts = {}) {
   buildSigns(W, add, disposables);
   if (NIGHT) buildNightFx(W, add, disposables);
   buildWheel(W, solidMat, disposables);
+  buildHarborArt(W);
   if (W.clouds && W.clouds.tris) add(new THREE.Mesh(W.clouds.geometry(), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, emissive: new THREE.Color(.16, .17, .19) })), false, false).name = 'clouds';
 
   /* ---- lights and atmosphere */
@@ -1340,7 +1341,10 @@ function wake(W, x, z, ry, sc = 1) {
 function lamp(W, x, y, z, ry = 0) {
   addInst(W, 'lamps', { x, y, z, s: 1, ry });
   const fr = frame(x, z, ry), [hx, hz] = fr.p(0, .42);
-  glow(W, hx, y + 1.62, hz, '#ffd38a', 1.6, .9); pool(W, hx, hz, 2.2, '#ffcf8a', .55, y + .01);
+  // The overhead map keeps its distant glow; Walk adds its own occluded ground pools.
+  // Still consume the same RNG for the street fixture so later scenery placement does not change.
+  glow(W.walk ? sinkOf(W) : W, hx, y + 1.62, hz, '#ffd38a', 1.6, .9);
+  if (!W.walk) pool(W, hx, hz, 2.2, '#ffcf8a', .55, y + .01);
 }
 function lifeguard(W, x) {
   const cz = coastZ(x), o = 4.2, y = beachY(o), px = x + cz.nx * o, pz = cz.z + cz.nz * o, fr = frame(px, pz, 0);
@@ -2106,6 +2110,11 @@ function fairground(W) {
 }
 function ferrisWheel(W, x, z, y0) {
   const ry = .36, f = frame(x, z, ry), Rw = 7.6, H = 9.4, N = 16, B = W.solid;
+  if (W.art?.ferrisWheel && window.MidnightPier) {
+    const pivot = new THREE.Group(); pivot.position.set(x, y0, z); pivot.rotation.y = ry;
+    const authored = window.MidnightPier.mount(W.art.ferrisWheel, pivot);
+    if (authored) { W.wheel = { authored, pivot }; return; }
+  }
   const at = (lx, ly, lz) => { const q = f.p(lx, lz); return [q[0], y0 + ly, q[1]]; };
   for (const s of [-1, 1]) { beam(B, at(-3.4, 0, s * 1.4), at(0, H, s * .55), .3, C('#d9dde4')); beam(B, at(3.4, 0, s * 1.4), at(0, H, s * .55), .3, C('#d9dde4')); beam(B, at(-1.7, H / 2, s * .95), at(1.7, H / 2, s * .95), .16, C('#d9dde4')); }
   rod(B, at(0, H, -.8), at(0, H, .8), .32, C('#b9bfc8'));
@@ -2609,9 +2618,40 @@ function buildNightFx(W, add, disposables) {
   pts.matrixAutoUpdate = false; W.group.add(pts); disposables.push(geo, mat);
 }
 
+/** Hero detail at walk distance. Keep the ship-to-shore cranes and freight ship already in the map.
+ * Models are optional assets: cold/offline loads retain all original procedural scenery. */
+function buildHarborArt(W) {
+  const art = W.art;
+  if (!art) return;
+  const place = (gltf, name, x, y, z, scale, ry = 0, solid = false) => {
+    if (!gltf?.scene) return null;
+    const g = gltf.scene.clone(true); g.name = name; g.position.set(x, y, z); g.rotation.y = ry; g.scale.setScalar(scale);
+    g.traverse(o => { if (o.isMesh) { o.castShadow = solid; o.receiveShadow = true; if (solid) o.userData.fwSolid = true; } });
+    W.group.add(g); return g;
+  };
+  const containers = W.instMeshes?.containers;
+  if (art.harborContainer && containers) {
+    // Replace exactly one near-side, non-stacked box. Never duplicate its collision or ID.
+    const { list, mesh } = containers;
+    let best = -1, dist = Infinity;
+    for (let i = 0; i < list.length; i++) {
+      const o = list[i]; if (o.y !== LAND_Y || o.z !== 41 || list.some(q => q.x === o.x && q.z === o.z && q.y > o.y)) continue;
+      const d = Math.abs(o.x + 2.0); if (d < dist) { best = i; dist = d; }
+    }
+    if (best >= 0) {
+      const o = list[best]; const moved = place(art.harborContainer, 'Harborline container', o.x, o.y - .010, o.z, .240, o.ry, true);
+      if (moved) { mesh.setMatrixAt(best, new THREE.Matrix4().makeScale(0, 0, 0)); mesh.instanceMatrix.needsUpdate = true; }
+    }
+  }
+  // Separate flight/glide and quay-side perching locations. Wings on this version are static.
+  const gull = place(art.harborGull, 'Harbor gull — glide', -10, 3, 53, .34);
+  if (gull) W.animated.push(t => { const a = t * .31; gull.position.set(-9 + 5 * Math.cos(a), 3.4 + .4 * Math.sin(a * 2), 54 + 3.3 * Math.sin(a)); gull.rotation.y = Math.atan2(-5 * Math.sin(a), 3.3 * Math.cos(a)); });
+}
+
 /* ------------------------------------------------------------------ the Ferris wheel (rotating) */
 function buildWheel(W, solidMat, disposables) {
   const wh = W.wheel; if (!wh) return;
+  if (wh.authored) { W.group.add(wh.pivot); W.animated.push(t => wh.authored.update(t)); disposables.push(wh.authored); return; }
   const pivot = new THREE.Group(); pivot.position.set(wh.x, wh.y, wh.z); pivot.rotation.y = wh.ry; W.group.add(pivot);
   const rim = new THREE.Mesh(wh.geo.geometry(), solidMat); rim.castShadow = true; rim.receiveShadow = true; rim.name = 'ferris wheel'; pivot.add(rim); disposables.push(rim.geometry);
   const gm = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .6 }), gg = gondolaGeo();

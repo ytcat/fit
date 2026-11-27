@@ -15,22 +15,22 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   // ---- loader: one request per file (cache), a failure falls back and is retried later, a slow file never blocks
   const calls = {}, pending = [];
   CA._setLoader(() => ({ load(url, ok, _p, err) { const n = url.split('/').pop().split('?')[0]; calls[n] = (calls[n] || 0) + 1; if (/bus|hazel/.test(n)) setTimeout(() => ok({ scene: new THREE.Group(), animations: [] }), 1); else if (/station/.test(n)) setTimeout(() => err(Error('404')), 1); else if (/oldtown/.test(n)) pending.push(ok); } }));
-  assert.deepEqual(CA.status(), { tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle', props: 'idle', gymProps: 'idle', marketProps: 'idle', dockProps: 'idle', ringProps: 'idle', stopProps: 'idle' });
+  assert.deepEqual(CA.status(), { harborContainer: 'idle', harborGull: 'idle', ferrisWheel: 'idle', tree: 'idle', car: 'idle', bus: 'idle', station: 'idle', oldtown: 'idle', hazelStall: 'idle', props: 'idle', gymProps: 'idle', marketProps: 'idle', dockProps: 'idle', ringProps: 'idle', stopProps: 'idle' });
   const t0 = Date.now(), r1 = await CA.ready(60);
   assert.ok(Date.now() - t0 < 400, 'ready() returns after its timeout even while a file is still loading');
   assert.ok(r1.bus && r1.tree === null && r1.station === null && r1.oldtown === null, 'only what is ready is used');
-  assert.deepEqual(CA.status(), { tree: 'loading', car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', hazelStall: 'idle', props: 'loading', gymProps: 'idle', marketProps: 'idle', dockProps: 'idle', ringProps: 'idle', stopProps: 'loading' }); // the street and bus-stop props join the opening preload, the gym's, market's, docks' and ring's do not
+  assert.deepEqual(CA.status(), { harborContainer: 'idle', harborGull: 'idle', ferrisWheel: 'idle', tree: 'loading', car: 'loading', bus: 'ready', station: 'failed', oldtown: 'loading', hazelStall: 'idle', props: 'loading', gymProps: 'idle', marketProps: 'idle', dockProps: 'idle', ringProps: 'idle', stopProps: 'loading' }); // the street and bus-stop props join the opening preload, the gym's, market's, docks' and ring's do not
   await CA.ready(30); await CA.preload(['bus']);
   assert.equal(calls['gloryland-bus.glb'], 1, 'the bus is fetched once (cache)'); assert.equal(calls['gloryland-oldtown.glb'], 1, 'a slow file is not requested twice');
   assert.equal(calls['gloryland-station.glb'], 2, 'a failed file is tried again next time');
   pending[0]({ scene: new THREE.Group(), animations: [] }); await new Promise(r => setTimeout(r, 5));
   assert.equal(CA.status().oldtown, 'ready', 'a late file is ready for the next play');
-  assert.equal(calls['hazel-fruit-stall.glb'], undefined, 'opening preload does not fetch market art');
+  assert.equal(calls['hazel-fruit-stall-city.glb'], undefined, 'opening preload does not fetch market art');
   const market = await CA.ready(60, ['hazelStall']);
   assert.deepEqual(Object.keys(market), ['hazelStall']);
   assert.ok(market.hazelStall);
   await CA.ready(60, ['hazelStall']);
-  assert.equal(calls['hazel-fruit-stall.glb'], 1, 'the market films share the cached model');
+  assert.equal(calls['hazel-fruit-stall-city.glb'], 1, 'the market films share the cached model');
 
   // ---- the real models (the page's r128 GLTFLoader)
   const parse = f => new Promise((ok, err) => { const b = fs.readFileSync(f); new THREE.GLTFLoader().parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength), './', ok, err); });
@@ -83,7 +83,7 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
   treeArt.frame({ t: 0 });
   assert.ok(instanceBones.every((bone, i) => bone.quaternion.equals(initialPose[i])), 'replaying the first frame resets the pose');
   for (const disposable of treeSet.disposables) disposable.dispose();
-  const hazelStall = await parse('assets/street/ch01-market/hazel-fruit-stall.glb');
+  const hazelStall = await parse('assets/street/ch01-market/hazel-fruit-stall-city.glb');
   const marketSet = { group: new THREE.Group(), objects: {}, disposables: [] };
   const marketArt = CA.dress(marketSet, { hazelStall });
   const stall = marketSet.group.getObjectByName("Hazel's fruit stall");

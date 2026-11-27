@@ -23,6 +23,7 @@
 (() => {
   'use strict';
   const S = 3;
+  const PUBLIC_ART = ['harborContainer', 'harborGull', 'ferrisWheel'];
   const MODELS = ['oldtown', 'station', 'hazelStall', 'props', 'marketProps', 'dockProps', 'stopProps'];
   // the films' sign words (dream-sets.js, market-sets.js, the map's SIGN_TEXT) in the player's language
   const WORDS = {
@@ -349,7 +350,7 @@
    * and a later walk uses the models once they are cached). */
   function prepare(ms = 6000) {
     const kit = window.StorySets?.ready ? window.StorySets.ready().catch(() => null) : Promise.resolve(null);
-    const models = window.CityAssets?.ready ? window.CityAssets.ready(ms, MODELS).catch(() => null) : Promise.resolve(null);
+    const models = window.CityAssets?.ready ? window.CityAssets.ready(ms, [...MODELS, ...PUBLIC_ART]).catch(() => null) : Promise.resolve(null);
     return Promise.race([Promise.all([kit, models]), new Promise(r => setTimeout(r, ms + 500))]).then(() => true, () => false);
   }
 
@@ -373,8 +374,10 @@
       // window depth on the set's facades (the same as the town's)
       const styles = set.objects.fwStyles?.() || [], houses = g.children.find(o => o.name === 'houses (map pieces)');
       if (houses && renderer?.capabilities?.isWebGL2 !== false && tier !== 'low') houses.children.slice(1).forEach((m, i) => { if (styles[i] && m.material) window.FreeWalkLook?.relief(m.material, styles[i], S); });
+      const fronts = (id === 'gym' || id === 'market') ? window.CityStorefronts?.build({ lang, tier, section: id }) : null;
+      if (fronts) g.add(fronts.group);
       scene.add(g);
-      sets.push({ id, set, frame: f, centre: new THREE.Vector3(f.x, f.y, f.z), lod: set.objects.fwLod || [] });
+      sets.push({ id, set, fronts, frame: f, centre: new THREE.Vector3(f.x, f.y, f.z), lod: set.objects.fwLod || [] });
     }
     // QA / story views: where to stand and which way the camera looks (yaw: the camera's side of the player)
     const v = (name, id, lx, lz, turn = 0) => { const f = F[id]; if (!f) return; const p = toWorld(f, lx, lz); views[name] = { x: p.x, z: p.z, yaw: f.ry + turn }; };
@@ -391,11 +394,12 @@
       for (const s of sets) {
         const d = Math.hypot(p.x - s.frame.x, p.z - s.frame.z); s.set.group.visible = d < 260;
         if (!s.set.group.visible || !camera) continue;
+        s.fronts?.update(p, camera);
         for (const h of s.lod) { V.copy(h.at).applyMatrix4(s.set.group.matrixWorld); const dd = camera.position.distanceTo(V); for (const m of h.detail) m.visible = dd < 16; for (const m of h.trim) m.visible = dd < 26; }
       }
     }
     function stats() { const out = {}; for (const s of sets) out[s.id] = s.set.stats(); return out; }
-    function dispose() { for (const s of sets) { scene.remove(s.set.group); try { s.set.dispose(); } catch (x) { console.warn('walk set dispose', x); } } sets.length = 0; for (const g of used) disposeGPU(g); }
+    function dispose() { for (const s of sets) { scene.remove(s.set.group); try { s.fronts?.dispose(); s.set.dispose(); } catch (x) { console.warn('walk set dispose', x); } } sets.length = 0; for (const g of used) disposeGPU(g); }
     // road paint the sets cover (a crossing painted across Market Row's aisle): { x, z, ry, hw, hd } metres
     const marks = F.market ? [{ x: F.market.x, z: F.market.z, ry: F.market.ry, hw: 20, hd: 9.5 }] : [];
     // map pieces the sets stand in for, cut out above the ground: the hangar's end (its closing face was dark from the quay: it
@@ -428,7 +432,7 @@
       const T = window.CityTrees.template(form), wood = window.CityTrees.mesh(T.wood, 'tree wood', 'wood'), leaf = window.CityTrees.mesh(T.leaf, 'tree leaves', 'leaf');
       const up = form === 'upright';
       kind(inst.trees, [{ geometry: wood.geometry, material: wood.material }, { geometry: leaf.geometry, material: leaf.material, before: leaf.onBeforeRender }],
-        (o, x, z) => (inMarket(x, z) === up) ? { s: (o.s || 1) * (up ? 1.75 : 1.6) * (.92 + .16 * hash(x, z)), ry: hash(z, x) * 6.283 } : null, up ? 14 : 22);
+        (o, x, z) => (inMarket(x, z) === up) ? { s: (o.s || 1) * (up ? 1.75 : 1.6) * (.92 + .16 * hash(x, z)), ry: hash(z, x) * 6.283, sx: .84 + .33 * hash(x + 4, z), sy: .90 + .23 * hash(x, z + 7) } : null, up ? 14 : 22);
     }
     // street lamps: the Blender lamp (street-props.py); lantern glass lit at dusk and at night
     const kit = window.CityAssets?.propKit?.(city), lampParts = kit?.get('Lamp');
@@ -454,7 +458,7 @@
         near.sort((a, b) => a.d - b.d); near.length = Math.min(near.length, k.MAX);
         const now = new Set(near.map(n => n.i));
         for (const i of k.shown) if (!now.has(i)) k.src.mesh.setMatrixAt(i, k.orig[i]);
-        near.forEach((n, j) => { k.src.mesh.setMatrixAt(n.i, ZERO); M4.compose(P.set(n.x, n.y, n.z), Q.setFromEuler(E.set(0, n.q.ry, 0)), SC.setScalar(n.q.s)); for (const m of k.meshes) m.setMatrixAt(j, M4); });
+        near.forEach((n, j) => { k.src.mesh.setMatrixAt(n.i, ZERO); M4.compose(P.set(n.x, n.y, n.z), Q.setFromEuler(E.set(0, n.q.ry, 0)), SC.set(n.q.s * (n.q.sx || 1), n.q.s * (n.q.sy || 1), n.q.s / (n.q.sx || 1) ** .35)); for (const m of k.meshes) m.setMatrixAt(j, M4); });
         for (const m of k.meshes) { m.count = near.length; m.instanceMatrix.needsUpdate = true; }
         k.src.mesh.instanceMatrix.needsUpdate = true; k.shown = now;
       }
@@ -464,5 +468,5 @@
     return { update, dispose, stats };
   }
 
-  window.FreeWalkSets = { skip, frames, prepare, build, dressing, register, MODELS, WORDS };
+  window.FreeWalkSets = { skip, frames, prepare, build, dressing, register, MODELS, PUBLIC_ART, WORDS };
 })();
