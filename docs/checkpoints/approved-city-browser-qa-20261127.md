@@ -20,3 +20,20 @@ Containers first: 239 placements × 8,683 triangles would be about 2.08M triangl
 English PNGs and raw logs are in `/workspace/fit-v199-delivery/city-qa`. EN/HE/RU browser sweep, direct wheel placement, container near/far runtime, physical iPhone and final release suite are pending.
 
 - Isolated Chromium rerun on runtime SHA `352185bc4313c24f1c869ed5b90eb3aabc037a24` completed with explicit browser PASS. Raw log `fang-solo.log`.
+
+## Container distance detail and anchored dock QA
+
+Runtime and capture target `ff641e208184d46b2d26330f690850d40c982b63`, with the exact four approved liveries and work plan from `d788f079a6c1e82c93b6ffe86aa4bae4dbccd20d`. Four ground-level stock slots receive distinct paint and IDs at the dock aisle. They share one detailed shell and use individual near markings. Entry is 15 m, exit is 19 m, and at most two detailed containers appear at once. The original stock collision is built before any visual swap. Stock rendering remains available if the pack fails to load. Mid/far stock has paint and ribs, and detailed text is near-only. The candidate keeps the applause fix. No TV relocation, new tower crane or cargo ship was included.
+
+The English FreeWalk entry ran at evening in 402×690 touch Chromium with software WebGL. Inspection cameras used the exact Harborline and Midnight Pier anchors. Harborline entered, exited and re-entered at the matched near/far/return views, and the authored wheel was in frame. No page errors were recorded. The far camera is 34 m out, while the corresponding player stands around 23 m out on walkable ground. The first walking probe crossed Harborline's exit and Nordquay's entry, but camera drift prevented retracing the same aisle. Captures and raw measurements are in `qa/approved-city/evidence/`.
+
+| Frame | Baseline draws / triangles | Candidate draws / triangles |
+| --- | ---: | ---: |
+| Near | 57 / 470,163 | 60 / 488,468 |
+| Far | 117 / 553,690 | 108 / 544,775 |
+| Return | 57 / 470,163 | 57 / 467,700 |
+| Wheel | 76 / 490,294 | 76 / 490,294 |
+
+Whole-scene textures stayed at 101. Geometries went from 632 to 636 during the candidate run versus 627 in the baseline. This does not establish allocation stability over long traversals. JSON records four render/readback samples per view. SwiftShader timings do not establish iPhone frame rate. Still captures and state samples do not establish transition smoothness.
+
+The focused container-detail and offline-version-match tests passed on v198. The broader city-assets cache test still rejects street precaches already present at `ec007b8` (gull, Harborline, wheel and Hazel stall). None of the new livery GLBs are added to the precache. Leave the cache-contract mismatch, TV sightline, physical iPhone Safari, daylight transition, EN/HE/RU browser sweep and final release suite open.
