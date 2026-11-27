@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "11m": {
+      "eye": [
+        150.2668819390297,
+        4.25,
+        -113.44480434057544
+      ],
+      "goal": [
+        155.40587263921591,
+        2.55,
+        -120.34341105377482
+      ],
+      "draws": 100,
+      "triangles": 520055
+    },
+    "no-decals": {
+      "eye": [
+        150.2668819390297,
+        4.25,
+        -113.44480434057544
+      ],
+      "goal": [
+        155.40587263921591,
+        2.55,
+        -120.34341105377482
+      ],
+      "draws": 99,
+      "triangles": 518391
+    },
+    "no-sprites": {
+      "eye": [
+        150.2668819390297,
+        4.25,
+        -113.44480434057544
+      ],
+      "goal": [
+        155.40587263921591,
+        2.55,
+        -120.34341105377482
+      ],
+      "draws": 99,
+      "triangles": 520055
+    },
+    "no-set-pools": {
+      "eye": [
+        150.2668819390297,
+        4.25,
+        -113.44480434057544
+      ],
+      "goal": [
+        155.40587263921591,
+        2.55,
+        -120.34341105377482
+      ],
+      "draws": 98,
+      "triangles": 519967
+    },
+    "48m": {
+      "eye": [
+        119.91290573855237,
+        4.25,
+        -96.04836422137703
+      ],
+      "goal": [
+        155.40587263921591,
+        2.55,
+        -120.34341105377482
+      ],
+      "draws": 138,
+      "triangles": 526876
+    },
+    "car": {
+      "eye": [
+        78.35000000000001,
+        3.200027823448181,
+        -131.13
+      ],
+      "goal": [
+        73.95,
+        1.900027823448181,
+        -136.73
+      ],
+      "draws": 64,
+      "triangles": 518234,
+      "moved": 0.8200000000000216,
+      "stockCount": 12
+    }
+  },
+  "nodes": [
+    [
+      "light pools",
+      "Gloryland map (night)"
+    ],
+    [
+      "light beams",
+      "Gloryland map (night)"
+    ],
+    [
+      "glows",
+      "Gloryland map (night)"
+    ],
+    [
+      "glow",
+      "walk set gym"
+    ],
+    [
+      "light pools",
+      "walk set gym"
+    ],
+    [
+      "glow",
+      "walk set market"
+    ],
+    [
+      "light pools",
+      "walk set market"
+    ],
+    [
+      "glow",
+      "walk set otto"
+    ],
+    [
+      "light pools",
+      "walk set otto"
+    ],
+    [
+      "glow",
+      "walk set docks"
+    ],
+    [
+      "light pools",
+      "walk set docks"
+    ],
+    [
+      "glow",
+      "walk set basement"
+    ],
+    [
+      "street lamp ground decals",
+      ""
+    ]
+  ],
+  "pointLights": 0,
+  "errors": []
+}
