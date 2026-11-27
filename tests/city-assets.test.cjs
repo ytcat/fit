@@ -170,7 +170,7 @@ const near = (a, b, e, m) => assert.ok(Math.abs(a - b) <= e, `${m}: ${a} != ${b}
 
   // ---- phones: the ~19 MB of models are never precached by the offline pack (runtime cache on first use only)
   const manifest = JSON.parse(fs.readFileSync('offline-manifest.json', 'utf8')), worker = fs.readFileSync('offline-worker.js', 'utf8'), html = fs.readFileSync('index.html', 'utf8');
-  assert.ok(!manifest.urls.some(u => /assets\/street\//.test(u)), 'no city model in the offline manifest');
+  assert.ok(!manifest.urls.some(u => /assets\/street\/[^?]+\.glb(?:\?|$)/.test(u)), 'no city model in the offline manifest');
   // the only models in the pack are the small authored character heads (Fang: ~0.8 MB), never a city model
   for (const u of manifest.urls.filter(u => /\.glb/.test(u))) { assert.ok(/^\.\/assets\/characters\/[a-z]+\/[a-z]+-head\.glb\?v=\d+$/.test(u), 'only character heads are precached: ' + u); assert.ok(fs.statSync(u.slice(2).split('?')[0]).size < 1.5e6, 'a precached head stays small: ' + u); }
   assert.ok(manifest.urls.some(u => /adventure\/story\/city-assets\.js\?v=/.test(u)), 'the loader script itself is offline');

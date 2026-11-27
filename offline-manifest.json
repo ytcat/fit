@@ -211,10 +211,6 @@
     "./assets/venues/regional.png?v=2026110905",
     "./assets/venues/championship.png?v=2026110905",
     "./assets/characters/fang/fang-head.glb?v=2026112402",
-    "./assets/characters/hazel/hazel-head.glb?v=2026112502",
-    "./assets/street/city-review/harbor-gull.glb",
-    "./assets/street/city-review/harborline-container.glb",
-    "./assets/street/city-review/midnight-pier-wheel.glb",
-    "./assets/street/ch01-market/hazel-fruit-stall-city.glb"
+    "./assets/characters/hazel/hazel-head.glb?v=2026112502"
   ]
 }
