@@ -1011,12 +1011,13 @@
         this.playSample('swing',event.move?.includes('hook')?.12:.08,event.move?.includes('uppercut')?.96:1.02,0,5500);
       }
       sampledApplause() {
-        if(!this.samples.has('clap-1')){if(!this.samples.has('applause'))return false;this.crowdGain=this.playSample('applause',.50,1);return true;}
+        const claps=['clap-1','clap-2','clap-3'].map(id=>this.samples.get(id)).filter(Boolean);
+        if(!claps.length){if(!this.samples.has('applause'))return false;this.crowdGain=this.playSample('applause',.50,1);return true;}
         // The applause is built from single hand claps: 40 people, each with an own tempo, loudness, pitch and seat,
         // joining within the first half second and dropping out one by one, so separate claps stay audible.
         const ctx=this.ctx,rate=ctx.sampleRate,duration=5.2,buffer=ctx.createBuffer(2,Math.ceil(rate*duration),rate),people=40;
         for(let person=0;person<people;person++){
-          const pan=person/(people-1),period=.22+Math.random()*.13,join=Math.random()*Math.random()*.55,leave=2.6+Math.random()*2.3,near=person%8===0?1.9:1,pitch=.86+Math.random()*.3,sample=this.samples.get('clap-'+(1+person%3)).getChannelData(0);
+          const pan=person/(people-1),period=.22+Math.random()*.13,join=Math.random()*Math.random()*.55,leave=2.6+Math.random()*2.3,near=person%8===0?1.9:1,pitch=.86+Math.random()*.3,sample=claps[person%claps.length].getChannelData(0);
           for(let at=join;at<Math.min(leave,duration-.5);at+=period*(.93+Math.random()*.14)){
             const fade=Math.min(1,(leave-at)/.9),power=(.15+Math.random()*.10)*near*(.55+.45*fade),start=Math.floor(at*rate);
             for(let ch=0;ch<2;ch++){

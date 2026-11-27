@@ -20,7 +20,7 @@ const fs=require('node:fs');
     const n=t.grid.nearest(at.x,at.z,15);
     if(n)FreeWalk.qa.teleport(n.x,n.z);
     FreeWalk.qa.walk(0,0,.2);
-    c.position.copy(at.add(v(0,1.63,0)));c.lookAt(goal);c.updateMatrixWorld(true);
+    c.position.copy(at.add(v(0,1.63,0)).add(shop.localToWorld(v(1.25,0,0)).sub(shop.getWorldPosition(v(0,0,0)))));c.lookAt(goal);c.updateMatrixWorld(true);
     const ray=new THREE.Raycaster(c.position,goal.clone().sub(c.position).normalize(),0,c.position.distanceTo(goal)-.01);
     const hit=ray.intersectObject(t.scene,true).filter(h=>h.object.visible&&h.object.material?.transparent!==true).slice(0,4).map(h=>[h.object.name||h.object.parent.name,+h.distance.toFixed(2)]);
     r.render(t.scene,c);const png=r.domElement.toDataURL('image/png').split(',')[1];
