@@ -59,3 +59,9 @@ Keep the QA branch out of main until physical iPhone Safari and release gates ar
 ## Night ship and browser offline replay
 
 Night screenshot on runtime `1e330ec` shows the full Portward hull from an elevated inspection camera. The ship's silhouette and deck are visible in the software-WebGL capture, with darker branding and hull surfaces. The stock fallback was also tested in a separate Chromium replay using the installed app service worker, browser networking disabled, and harbor GLBs missing from cache. Docks opened at night with 91 stock deck containers and 142 quay boxes, no approved harbor group and zero page errors. No worker or lighting code changed. Evidence is in `qa/approved-city/evidence/night-ship.jpg` and `offline-docks.json`.
+
+## GOTR-0133 touchscreen edge control
+
+Runtime `1e330ec` uses the touch-down coordinates for floating stick input and preserves the fixed ring-center behavior for touches inside the resting ring. The ring still clamps to the pad. Release, cancellation, lost pointer capture and blur share the reset path. Free-walk, story-walk-controls and offline-version-match tests passed.
+
+Actual Chromium touchscreen input through CDP at 402×690, with the normal profile and FreeWalk entry, returned `[0, 0.945323]` at both pad edges for the same 38 px straight-up drag. The known baseline right-edge sample was `[0.845, 0.534]`. The player walked forward, changed heading while keeping the same touch down and stopped after release. Touch cancellation and blur cleared the pad. See `qa/approved-city/evidence/touch.json`. No physical iPhone Safari or final release suite ran. Previous Fang and harbor evidence remains in place.

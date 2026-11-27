@@ -1038,6 +1038,11 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Evidence:** `qa/hazel-trellis/` (studio before/after, neck seams, robbery and reward films before/after with head close-ups, portrait). Draw calls -22 and -33k triangles when she is on screen. Test `tests/hazel-head.test.cjs`.
 - **Owner follow-up on v1.96 (2026-11-25, Hazel's side view): "what is in her neck?"** — READY FOR QA on `fix/hazel-neck` (handoff `docs/checkpoints/hazel-neck-fix.md`). Found: the ragged ring under her jaw was her own body skin (the code jaw starts right above the cardigan and was only partly folded under the model); her model also kept the scarf's holes and flared rim near the collar. Fang had the same skin fault under his jaw (jacket and fight top). Fixed: the skin above the neckline/collar goes into a column inside each model's neck (dress neckline slopes in to meet Hazel's neck); Hazel's model has a clean neck tube in her neck's own colours below the jaw, the scarf rim removed; face, kerchief and drape unchanged. New `tests/head-seams.test.cjs` checks the joins in every tested pose (Fang 11 poses incl. punches and the knockdown; Hazel 93 film/talk/walk poses) and fails on v1.96. Evidence `qa/hazel-trellis/neck-fix-before-after.webp`, `hazel-seams-before-after.webp`, `fang-seams-jacket-before-after.webp`, `fang-seams-fight-before-after.webp`.
 
+### GOTR-0133 — FreeWalk touch joystick drifts at pad edges
+- **Status:** BROWSER VERIFIED on `wip/approved-city-browser-qa-20261127`. Physical iPhone Safari remains pending.
+- **Fix:** `1e330ec` separates the floating stick's real touch origin from the visually clamped ring. Release, cancellation and blur reset movement and capture.
+- **Evidence:** `qa/approved-city/evidence/touch.json` records straight-up input at both pad edges and a continuous touch walk, turn and stop at 402×690 in Chromium.
+
 ### GOTR-0131 — Free walk: broken pedestrian crossing on the Neon Strip
 - **Reported:** 2026-11-25 (owner, iPhone, the night walk to the Docks, Neon Strip: "Broken cross road" — doubled, stepped zebra stripes).
 - **Status:** FIXED on `claude/ecstatic-clarke-9as2ak` (not released).
