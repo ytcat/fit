@@ -5,7 +5,7 @@ const {urls} = JSON.parse(fs.readFileSync('offline-manifest.json', 'utf8'));
 const prefix = './assets/street/city-review/container-liveries/';
 const url = 'https://game.test/' + prefix.slice(2) + 'shared-shell.glb';
 const optional = /\/assets\/street\/[^?]+\.glb(?:\?|$)/;
-assert.ok(!urls.some(optional), 'city GLBs are optional; not an entry in the shell install');
+assert.ok(!urls.some(u => optional.test(u)), 'city GLBs are optional; not an entry in the shell install');
 assert.ok(urls.some(u => u.startsWith(prefix) && u.includes('container-liveries.js?v=')), 'optional loader code is cached');
 const cache = new Map(), handler = {};
 let online = false;
