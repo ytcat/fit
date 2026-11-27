@@ -51,6 +51,8 @@
     goal_advanced_training: L('Walk back to Bruno’s gym', 'חזרו לחדר הכושר של ברונו', 'Возвращайся в зал Бруно'),
     goalPlace: L('Story: {place}', 'סיפור: {place}', 'История: {place}'),
     goalDone: L('Chapter complete: walk anywhere', 'הפרק הושלם: אפשר ללכת לכל מקום', 'Глава пройдена: гуляйте где угодно'),
+    lookStick: L('Camera stick: look left, right, up and down', 'ג׳ויסטיק מצלמה: מבט שמאלה, ימינה, למעלה ולמטה', 'Стик камеры: обзор влево, вправо, вверх и вниз'),
+    lookDrag: L('↔ ↕ Drag to look', '↔ ↕ גררו להזזת המצלמה', '↔ ↕ Сдвиг для обзора'),
     walkHelp: L('Walk into the glowing ring to go on with the story.', 'היכנסו לטבעת הזוהרת כדי להמשיך בסיפור.', 'Войдите в светящийся круг, чтобы продолжить историю.'),
     keysHint: L('Arrow keys or WASD to walk · Shift to hurry · Q/E to turn', 'חצים או WASD להליכה · Shift למהר · Q/E לסובב', 'Стрелки или WASD — идти · Shift — быстрее · Q/E — поворот'),
     entry: L('Walk', 'הליכה', 'Прогулка'),
@@ -153,7 +155,7 @@
       return null;
     }
     /** Moves state {x, z, ry, dist, walking} by world velocity (vx, vz) m/s for dt s; slides along walls; blocked(x, z) adds moving obstacles. */
-    function move(s, vx, vz, dt, blocked = () => false) {
+    function move(s, vx, vz, dt, blocked = () => false, steer = '') {
       s.walking = false; if (!finite(dt) || dt <= 0 || !finite(vx) || !finite(vz)) return s;
       const speed = Math.hypot(vx, vz); if (speed < 1e-4) return s;
       const T = Math.min(dt, .1), n = Math.max(1, Math.ceil(speed * T / (cell * .4))), h = T / n, ox = s.x, oz = s.z;
@@ -161,7 +163,26 @@
       const inside = !!blocked(s.x, s.z), free = (x, z) => allowed(x, z) && (inside || !blocked(x, z)); // (from inside: free to step out)
       for (let k = 0; k < n; k++) {
         const x = s.x + vx * h, z = s.z + vz * h;
-        if (free(x, z)) { s.x = x; s.z = z; } else if (free(x, s.z)) s.x = x; else if (free(s.x, z)) s.z = z;
+        if (free(x, z)) { s.x = x; s.z = z; }
+        else if (steer === 'straight') {
+          // Keep a straight touchscreen drag on its line and take the reachable part of the last
+          // substep. Do not run the axis-slide fallback (it can drift along a car or rotate at a corner).
+          let lo = 0, hi = 1; const dx = x - s.x, dz = z - s.z;
+          for (let j = 0; j < 5; j++) { const m = (lo + hi) * .5; if (free(s.x + dx * m, s.z + dz * m)) lo = m; else hi = m; }
+          s.x += dx * lo; s.z += dz * lo;
+          break;
+        } else if (free(x, s.z) && x !== s.x) s.x = x;
+        else if (free(s.x, z) && z !== s.z) s.z = z;
+        else if (steer === 'edge') {
+          // An oblique solid (e.g. a rotated car) can reject both world axes even when a nearby
+          // tangent is open. Allow it only on an explicit lateral/diagonal input, never on ↑ or ↓.
+          const dx = x - s.x, dz = z - s.z;
+          for (const a of [.26, -.26, .52, -.52, .79, -.79, 1.05, -1.05]) {
+            const c = Math.cos(a), t = Math.sin(a);
+            const sx = s.x + (dx * c - dz * t) * c, sz = s.z + (dx * t + dz * c) * c;
+            if (free(sx, sz)) { s.x = sx; s.z = sz; break; }
+          }
+        }
       }
       const d = Math.hypot(s.x - ox, s.z - oz);
       if (d > 1e-5) { s.walking = true; s.dist = (s.dist || 0) + d; }

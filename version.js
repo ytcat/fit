@@ -1,2 +1,2 @@
 /* Player-visible release number. The integrator bumps it on every publish; history in docs/glory-of-the-ring/RELEASES.md. */
-window.APP_VERSION=Object.freeze({number:'1.98',date:'2026-11-25',channel:'dev'});
+window.APP_VERSION=Object.freeze({number:'1.99',date:'2026-11-27',channel:'dev'});

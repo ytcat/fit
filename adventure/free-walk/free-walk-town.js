@@ -172,8 +172,8 @@
     C.blockDiscs(walk, field, discs);
     const pockets = C.keepConnected(walk, field.nx, field.nz, seeds); // pockets closed by trunks and posts are not walkable
     // tree crowns, market umbrellas and the sets' awnings and stall roofs (not in the height field: a person walks under them):
-    // a coarse top map so the camera keeps out of the leaves and does not slip under a roof
-    const CC = 2, cnx = Math.ceil(field.nx * CELL / CC), cnz = Math.ceil(field.nz * CELL / CC), crowns = new Float32Array(cnx * cnz).fill(-1e9);
+    // use vertical bands for camera visibility; a canopy does not occupy the open air beneath it
+    const CC = 2, cnx = Math.ceil(field.nx * CELL / CC), cnz = Math.ceil(field.nz * CELL / CC), crowns = new Float32Array(cnx * cnz).fill(-1e9), crownBases = new Float32Array(cnx * cnz).fill(1e9);
     // roofs a person walks under (awnings, stall roofs, umbrellas): their own fine map (0.5 m cells); the ones within ROOF_NEAR
     // of the player do not count (he stands under or at his own stall's roof: the camera goes over it, not down onto his head)
     const roofs = new Map(), ROOF_NEAR = 3, near0 = { x: NaN, z: NaN };
@@ -195,14 +195,21 @@
     for (const o of lay.inst.umbrellas?.list || []) { const sc = o.s || 1, r = .5 * sc * S, top = ((o.y || 0) + 1.1 * sc) * S; for (let dz = -r; dz <= r; dz += CELL) for (let dx = -r; dx <= r; dx += CELL) if (dx * dx + dz * dz <= r * r) crown(o.x * S + dx, o.z * S + dz, top); }
     for (const [name, [r0, h0]] of Object.entries({ trees: [1.0, 2.9], pines: [.9, 2.7], palms: [1.5, 3.4] })) for (const o of lay.inst[name]?.list || []) {
       const sc = o.s || 1, r = r0 * sc * S, top = ((o.y || 0) + h0 * sc) * S, x = o.x * S, z = o.z * S;
+      const base = ((o.y || 0) + h0 * sc * (name === 'trees' ? .48 : name === 'palms' ? .73 : .27)) * S;
       for (let cj = Math.max(0, Math.floor((z - r - field.z0) / CC)); cj <= Math.min(cnz - 1, Math.floor((z + r - field.z0) / CC)); cj++)
-        for (let ci = Math.max(0, Math.floor((x - r - field.x0) / CC)); ci <= Math.min(cnx - 1, Math.floor((x + r - field.x0) / CC)); ci++) { const k = cj * cnx + ci; if (top > crowns[k]) crowns[k] = top; }
+        for (let ci = Math.max(0, Math.floor((x - r - field.x0) / CC)); ci <= Math.min(cnx - 1, Math.floor((x + r - field.x0) / CC)); ci++) {
+          const dx = field.x0 + (ci + .5) * CC - x, dz = field.z0 + (cj + .5) * CC - z;
+          if (dx * dx + dz * dz > (r + .2) ** 2) continue; // no square exclusion volume at each tree
+          const k = cj * cnx + ci;
+          crowns[k] = Math.max(crowns[k], top); crownBases[k] = Math.min(crownBases[k], base);
+        }
     }
-    const canopy = (x, z) => {
-      const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC), c = i < 0 || j < 0 || i >= cnx || j >= cnz ? -1e9 : crowns[j * cnx + i];
-      if (!roofs.size || !(Math.hypot(x - near0.x, z - near0.z) >= ROOF_NEAR)) return c; // (before the first step: no roofs)
+    const cameraCover = (x, y, z) => {
+      const i = Math.floor((x - field.x0) / CC), j = Math.floor((z - field.z0) / CC), k = i < 0 || j < 0 || i >= cnx || j >= cnz ? -1 : j * cnx + i;
+      if (k >= 0 && y >= crownBases[k] - .25 && y <= crowns[k] + .25) return true;
+      if (!roofs.size || !(Math.hypot(x - near0.x, z - near0.z) >= ROOF_NEAR)) return false; // before the first step: no roofs
       const fi = Math.floor((x - field.x0) / CELL), fj = Math.floor((z - field.z0) / CELL), r = fi < 0 || fj < 0 || fi >= field.nx || fj >= field.nz ? undefined : roofs.get(fj * field.nx + fi);
-      return r === undefined || r < c ? c : r;
+      return r !== undefined && Math.abs(y - r) < .32;
     };
     const grid = C.grid({ ...field, walk });
     const containerDetail = window.FreeWalkContainerDetail?.mount(map, S);
@@ -213,7 +220,12 @@
     /* ---- districts, landmarks and story waypoints (metres) */
     const near = (x, z) => grid.nearest(x, z, 400) || { x, z };
     // a district starts on its nearest street crossing (open view), the landmark itself is the place to walk to
-    const roads = C.roadGraph(segs.map(s => { const dx = s.b[0] - s.a[0], dz = s.b[1] - s.a[1], l = Math.hypot(dx, dz) || 1, e = s.ext; return { a: [s.a[0] - dx / l * e, s.a[1] - dz / l * e], b: [s.b[0] + dx / l * e, s.b[1] + dz / l * e], w: s.w }; }), 2.2);
+    const vehicleSegments = segs.map(s => { const dx = s.b[0] - s.a[0], dz = s.b[1] - s.a[1], l = Math.hypot(dx, dz) || 1, e = s.ext; return { a: [s.a[0] - dx / l * e, s.a[1] - dz / l * e], b: [s.b[0] + dx / l * e, s.b[1] + dz / l * e], w: s.w }; });
+    const roads = C.roadGraph(vehicleSegments, 2.2);
+    // Keep pedestrian connectivity and waypoints on the existing graph. For
+    // movers use only links whose full lane and car footprint miss the plaza.
+    // Allow 2.2 m for endpoint snapping; no post-build edge/index remapping.
+    const trafficRoads = C.roadGraph(vehicleSegments.filter(s => GlorylandMap.marketRoadClear(lay.marketFrame, s.a, s.b, (Math.min(s.w / 4, 2.2) + 2.5 + 2.2) / S, S)), 2.2);
     const crossing = (x, z) => { let best = null, bd = 75; for (const n of roads.nodes) { const d = Math.hypot(n.x - x, n.z - z); if (d < bd && grid.allowed(n.x, n.z)) { bd = d; best = n; } } return best ? { x: best.x, z: best.z } : null; };
     const places = map.places.map(p => { const x = p.anchor.x * S, z = p.anchor.z * S; const door = near(x, z), cross = crossing(x, z); return { id: p.id, kind: p.kind, x, z, r: (REACH[p.id] || 24) * S, spawn: cross && Math.hypot(cross.x - x, cross.z - z) < 45 ? cross : door, door }; });
     const L = lay.landmarks, mf = lay.marketFrame, mat2 = (u, w) => [(mf.o[0] + mf.U[0] * u + mf.Wv[0] * w) * S, (mf.o[1] + mf.U[1] * u + mf.Wv[1] * w) * S];
@@ -249,10 +261,26 @@
     const carMesh = carSrc ? new T.InstancedMesh(carSrc.geometry, carSrc.material, MAX_CARS) : null; // the map's own car, shared geometry
     if (carMesh) { carMesh.name = 'street cars'; carMesh.frustumCulled = false; for (let i = 0; i < MAX_CARS; i++) carMesh.setColorAt(i, new T.Color(1, 1, 1)); carMesh.count = 0; scene.add(carMesh); } // colours first: the colour buffer is sized by the count
     const palette = GlorylandMap.PAL.car.map(h => new T.Color(h).convertSRGBToLinear()), M4 = new T.Matrix4(), Q = new T.Quaternion(), E3 = new T.Euler(), P3 = new T.Vector3(), SC = new T.Vector3(S, S, S);
+    const detail = [];
+    const hatchback = art?.movingHatchback;
+    if (hatchback?.scene && carMesh) {
+      const group = new T.Group(); group.name = 'detailed moving traffic'; scene.add(group);
+      for (const part of window.CityAssets.staticCar(hatchback)) {
+        const paint = part.material.name === 'Deep vermilion pearl';
+        const material = paint ? own(part.material.clone()) : part.material;
+        if (paint) material.color.setRGB(1, 1, 1);
+        const mesh = new T.InstancedMesh(part.geometry, material, 2);
+        if (paint) for (let i = 0; i < 2; i++) mesh.setColorAt(i, new T.Color(1, 1, 1));
+        mesh.count = 0; mesh.frustumCulled = false;
+        group.add(mesh); detail.push({ mesh, paint });
+      }
+    }
+    // The authored bonnet points along +X. Match the lane's +Z heading; the body fits the existing 4.2 × 2 m footprint.
+    const detailPose = new T.Matrix4().makeRotationY(-Math.PI / 2), metres = new T.Vector3(1, 1, 1);
     function spawnCar(px, pz, minD, maxD) {
       for (let k = 0; k < 30; k++) {
-        const e = Math.floor(R() * roads.edges.length), E = roads.edges[e]; if (!E) return null;
-        const A = roads.nodes[E.a], B = roads.nodes[E.b], mx = (A.x + B.x) / 2, mz = (A.z + B.z) / 2, d = Math.hypot(mx - px, mz - pz);
+        const e = Math.floor(R() * trafficRoads.edges.length), E = trafficRoads.edges[e]; if (!E) return null;
+        const A = trafficRoads.nodes[E.a], B = trafficRoads.nodes[E.b], mx = (A.x + B.x) / 2, mz = (A.z + B.z) / 2, d = Math.hypot(mx - px, mz - pz);
         if (d < minD || d > maxD) continue;
         const dir = R() < .5 ? 1 : -1, s = R() * E.len;
         if (cars.some(c => c.e === e && c.dir === dir && Math.abs(c.s - s) < 12)) continue;
@@ -261,25 +289,72 @@
       return null;
     }
     function updateCars(dt, p) {
-      for (let i = cars.length - 1; i >= 0; i--) { const q = C.lanePose(roads, cars[i].e, cars[i].dir, cars[i].s); if (Math.hypot(q.x - p.x, q.z - p.z) > 190) cars.splice(i, 1); }
+      for (let i = cars.length - 1; i >= 0; i--) { const q = C.lanePose(trafficRoads, cars[i].e, cars[i].dir, cars[i].s); if (Math.hypot(q.x - p.x, q.z - p.z) > 190) cars.splice(i, 1); }
       while (cars.length < MAX_CARS) { const c = spawnCar(p.x, p.z, cars.length < 4 ? 25 : 60, 170); if (!c) break; cars.push(c); }
       for (const c of cars) {
-        const E = roads.edges[c.e], q = C.lanePose(roads, c.e, c.dir, c.s);
+        const E = trafficRoads.edges[c.e], q = C.lanePose(trafficRoads, c.e, c.dir, c.s);
         let ahead = Infinity; for (const o of cars) if (o !== c && o.e === c.e && o.dir === c.dir && o.s > c.s) ahead = Math.min(ahead, o.s - c.s);
         // the person in lane coordinates of this street; near a crossing also anyone just in front of the bonnet
         const dx = p.x - q.sx, dz = p.z - q.sz, local = { u: dx * q.ux + dz * q.uz, v: dx * q.rx + dz * q.rz - q.off };
         const fx = p.x - q.x, fz = p.z - q.z, front = fx * q.ux + fz * q.uz, side = Math.abs(fx * q.rx + fz * q.rz);
         const person = front > 0 && front < 7 && side < 2.2 ? { u: c.s + front, v: 0 } : local;
+        // Reserve one outgoing lane for the approach, so a waiting car does not
+        // re-roll the turn every frame. Brake before the edge changes heading.
+        let stopAt = Infinity;
+        if (E.len - c.s < 12) {
+          c.turn ||= C.nextEdge(trafficRoads, c.e, c.dir, R);
+          const exit = C.lanePose(trafficRoads, c.turn.e, c.turn.dir, 0);
+          const ex = p.x - exit.x, ez = p.z - exit.z;
+          const along = ex * exit.ux + ez * exit.uz, across = Math.abs(ex * exit.rx + ez * exit.rz);
+          const length = C.CAR.halfLen + C.CAR.body;
+          if (across < C.CAR.halfWidth + C.CAR.body && along > -length &&
+              along < length + 6) {
+            stopAt = E.len - .1;
+            // Use carStep's ordinary leader braking, but with a virtual stop line.
+            ahead = Math.min(ahead, Math.max(0, stopAt - c.s) + 2 * C.CAR.halfLen + 1.5);
+          }
+        }
+        const previous = c.s;
         C.carStep(c, dt, person, ahead);
-        if (c.s >= E.len) { const n = C.nextEdge(roads, c.e, c.dir, R); c.s -= E.len; c.e = n.e; c.dir = n.dir; }
+        if (Number.isFinite(stopAt) && c.s >= Math.max(previous, stopAt)) {
+          c.s = Math.max(previous, stopAt);
+          c.speed = 0;
+          c.waiting = true;
+        }
+        if (c.s >= E.len) {
+          const n = c.turn || C.nextEdge(trafficRoads, c.e, c.dir, R);
+          c.s -= E.len; c.e = n.e; c.dir = n.dir; c.turn = null;
+        }
       }
       if (!carMesh) return;
-      cars.forEach((c, i) => {
-        const q = C.lanePose(roads, c.e, c.dir, c.s), y = grid.allowed(q.x, q.z) ? grid.height(q.x, q.z) : landY;
+      for (const c of cars) {
+        const q = C.lanePose(trafficRoads, c.e, c.dir, c.s);
         c.x = q.x; c.z = q.z; c.ry = q.ry; c.ux = q.ux; c.uz = q.uz;
-        M4.compose(P3.set(q.x, y, q.z), Q.setFromEuler(E3.set(0, q.ry, 0)), SC); carMesh.setMatrixAt(i, M4); carMesh.setColorAt(i, c.color);
-      });
-      carMesh.count = cars.length; carMesh.instanceMatrix.needsUpdate = true; if (carMesh.instanceColor) carMesh.instanceColor.needsUpdate = true;
+        c.distance = Math.hypot(c.x - p.x, c.z - p.z);
+      }
+      const near = detail.length ? cars.filter(c => c.distance <= (c.detailed ? 52 : 42))
+        .sort((a, b) => a.distance - b.distance).slice(0, 2) : [];
+      let stockCount = 0, detailCount = 0;
+      for (const c of cars) {
+        c.detailed = near.includes(c);
+        const y = grid.allowed(c.x, c.z) ? grid.height(c.x, c.z) : landY;
+        M4.compose(P3.set(c.x, y, c.z), Q.setFromEuler(E3.set(0, c.ry, 0)), c.detailed ? metres : SC);
+        if (c.detailed) {
+          M4.multiply(detailPose);
+          for (const { mesh, paint } of detail) {
+            mesh.setMatrixAt(detailCount, M4);
+            if (paint) mesh.setColorAt(detailCount, c.color);
+          }
+          detailCount++;
+        } else {
+          carMesh.setMatrixAt(stockCount, M4); carMesh.setColorAt(stockCount++, c.color);
+        }
+      }
+      carMesh.count = stockCount; carMesh.instanceMatrix.needsUpdate = true; carMesh.instanceColor.needsUpdate = true;
+      for (const { mesh } of detail) {
+        mesh.count = detailCount; mesh.instanceMatrix.needsUpdate = true;
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      }
     }
     // a stopped (or moving) car is solid for the person
     function blocked(x, z) {
@@ -465,7 +540,7 @@
     }
     function snapshot() {
       return { cars: cars.map(c => ({ x: +(c.x ?? 0).toFixed(2), z: +(c.z ?? 0).toFixed(2), speed: +c.speed.toFixed(2), waiting: !!c.waiting })), walkers: walkers.length, containerDetail: containerDetail?.snapshot() || [], harbor: map.harbor?.snapshot() || [],
-        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length }, loops: loops.length, look: look?.stats() || null, dressing: dress?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), build: { ...ms, start: undefined }, parked: !!parkedAt, map: map.stats() };
+        grid: { nx: grid.nx, nz: grid.nz, cell: CELL, walkable: walk.reduce((n, v) => n + v, 0), pockets }, roads: { nodes: roads.nodes.length, edges: roads.edges.length, trafficEdges: trafficRoads.edges.length }, loops: loops.length, look: look?.stats() || null, dressing: dress?.stats() || null, sets: places3d ? { built: places3d.sets.map(s => s.id), models: places3d.models } : null, tiles, flocks: flocks.filter(Boolean).map(F => ({ x: +F.x.toFixed(1), z: +F.z.toFixed(1), flushed: F.flushed >= 0 })), msHeight: Math.round(msHeight), build: { ...ms, start: undefined }, parked: !!parkedAt, map: map.stats() };
     }
     /* ---- the same town again in this session (owner: the walk is opened often): closing parks it (its GPU copies freed, the
      * built town kept in memory for a few minutes); opening with the same time of day, language and tier resumes it. */
@@ -486,6 +561,8 @@
     function dispose() {
       for (const m of [...pool, ...walkers.map(w => w.m)]) { scene.remove(m); m.geometry.dispose(); m.material.dispose(); m.skeleton?.dispose?.(); } walkers.length = 0; pool.length = 0;
       if (carMesh) { scene.remove(carMesh); carMesh.dispose?.(); }
+      scene.remove(scene.getObjectByName('detailed moving traffic'));
+      for (const { mesh } of detail) { mesh.dispose?.(); mesh.geometry.dispose(); }
       for (const m of [bodyM, ...wingM]) if (m) { scene.remove(m); m.dispose?.(); }
       try { look?.dispose(); } catch (x) { console.warn('walk look dispose', x); }
       try { dress?.dispose(); } catch (x) { console.warn('walk dressing dispose', x); }
@@ -496,7 +573,7 @@
       map.dispose();
     }
     const tileMeshes = () => map.group.children.filter(o => o.userData.tileOf);
-    return { scene, map, grid, canopy, places, targets, roads, night, update, blocked, snapshot, dispose, park, resume, ready, S, tier,
+    return { scene, map, grid, cameraCover, places, targets, roads, trafficRoads, night, update, blocked, snapshot, dispose, park, resume, ready, S, tier,
       views: places3d?.views || {}, look: () => look?.stats() || null, quality: level => look?.lock(level), settled: () => Promise.resolve(true) };
   }
   /** Builds the town; on any failure everything made so far is released and the error is passed on (the mode shows a notice). */

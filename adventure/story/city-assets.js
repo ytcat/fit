@@ -21,6 +21,7 @@
  * The GPU copies are disposed when the set is disposed; the parsed models stay cached for a replay. */
 (() => {
   const FILES = {
+    movingHatchback: './assets/vehicles/northline-review/northline-5-static-mobile.glb',
     harborcranefar: './assets/street/city-review/harbor-v2/crane-far.glb',
     harborcranemid: './assets/street/city-review/harbor-v2/crane-mid.glb',
     harborcranenear: './assets/street/city-review/harbor-v2/crane-near.glb',
@@ -30,6 +31,9 @@
     harborContainer: './assets/street/city-review/harborline-container.glb',
     harborGull: './assets/street/city-review/harbor-gull.glb',
     ferrisWheel: './assets/street/city-review/midnight-pier-wheel.glb',
+    oldParkFountain: './assets/street/city-review/old-town-park-fountain.glb',
+    oldParkBroad: './assets/street/city-review/old-town-park-tree-broad.glb',
+    oldParkUpright: './assets/street/city-review/old-town-park-tree-upright.glb',
     tree: './assets/street/ch01-trees/street-tree-low.glb',
     car: './assets/street/ch01-car/compact-car.glb',
     bus: './assets/street/ch01-bus/gloryland-bus.glb?v=2026112501', // ?v: door parts fix (the offline worker replaces an older copy)
@@ -456,7 +460,7 @@
   }
 
   window.CityAssets = {
-    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, dresses, wheelAngle, propKit, placeProp, cached,
+    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, dresses, wheelAngle, propKit, placeProp, cached, staticCar,
     get: n => cache.get(n)?.gltf || null,
     _setLoader(f) { makeLoader = f || defaultLoader; cache.clear(); } // tests
   };

@@ -23,7 +23,7 @@
 (() => {
   'use strict';
   const S = 3;
-  const PUBLIC_ART = ['harborGull', 'ferrisWheel'];
+  const PUBLIC_ART = ['harborGull', 'ferrisWheel', 'movingHatchback', 'oldParkFountain', 'oldParkBroad', 'oldParkUpright'];
   const MODELS = ['oldtown', 'station', 'hazelStall', 'props', 'marketProps', 'dockProps', 'stopProps'];
   // the films' sign words (dream-sets.js, market-sets.js, the map's SIGN_TEXT) in the player's language
   const WORDS = {
@@ -206,39 +206,66 @@
     Sets.register('walk_market', c => {
       const { PAL, C, P, M, S: B, box, cyl, lamp, bin, planter, tree, shade } = c, X = extras(c), ZC = 4.65;
       /** One of the films' stalls (market-sets.js) at x, its counter centred ZC metres off the aisle on side s (-1 north, +1 south), facing the aisle. */
-      const stall = (x, s, [a, b2], goods, w = 3.0) => {
+      const stall = (x, s, colours, goods, w = 3.0) => {
         const ry = s < 0 ? 0 : Math.PI;
         const market = window.FreeWalkMarketStalls, id = market?.slots[s + ':' + x];
-        const authored = id ? market.create(c,id,x,s*ZC,ry) : null;
-        if (authored) {
-          (c.objects.marketStalls ||= []).push(authored);
-          const point = rot(x,s*ZC,ry)(0,.86);
-          board(c,X.lang,market.titles[id],point[0],2.078,point[1],.94,.183,ry,'#252728','#f9e9bf');
-          shade(x,s*ZC,3.3,2.05);
+        if (!id) {
+          stock(x, s, ry, colours, goods, w, B, X.OV, c.prop, shade);
+          if (x !== 0) c.objects.marketStockSlots = (c.objects.marketStockSlots || 0) + 1;
           return;
         }
+        // Delay the visual swap, not town opening or collision. Independent batches let the
+        // exact old generated stand disappear without touching other stands or its baked blockers.
+        const placeholder = () => {
+          const mat = new THREE.MeshStandardMaterial({ vertexColors:true, roughness:.8, side:THREE.DoubleSide });
+          const base = new c.K.Batch(), top = new c.K.Batch();
+          stock(x, s, ry, colours, goods, w, base, top, () => false, () => {});
+          const fallback = new THREE.Group(); fallback.name = 'Market loading fallback ' + id;
+          for (const batch of [base, top]) if (batch.tris) {
+            const piece = new THREE.Mesh(batch.geometry(),mat);
+            piece.userData.fwSolid=false; piece.receiveShadow=true;
+            fallback.add(piece); c.disposables.push(piece.geometry);
+          }
+          c.disposables.push(mat);
+          c.group.add(fallback); return fallback;
+        };
+        const label = () => {
+          const point = rot(x,s*ZC,ry)(0,.86);
+          const sign=board(c,X.lang,market.titles[id],point[0],2.078,point[1],.94,.183,ry,'#252728','#f9e9bf');
+          sign.userData.fwSolid=false;
+        };
+        const authored = market.create(c,id,x,s*ZC,ry,{placeholder,detachPlaceholder: f => c.group.remove(f),onReady: label});
+        if (authored) {
+          (c.objects.marketStalls ||= []).push(authored);
+          shade(x,s*ZC,3.3,2.05);
+        } else {
+          stock(x, s, ry, colours, goods, w, B, X.OV, c.prop, shade);
+          c.objects.marketStockSlots = (c.objects.marketStockSlots || 0) + 1;
+        }
+      };
+      const stock = (x, s, ry, [a, b2], goods, w, B, OV, prop, shade) => {
         const to = rot(x, s * ZC, ry), q = (lx, y, lz) => { const [X0, Z0] = to(lx, lz); return [X0, y, Z0]; };
         const zb = -1.15, zf = .7, ya = 2.95, yf = 2.32, n = 8, c1 = C(a), c2 = C(b2), wood = '#8a6446';
         const [cx, cz] = to(0, 0);
-        const modelled = c.prop('Stall_counter', cx, 0, cz, ry, w / 3);
+        const modelled = prop('Stall_counter', cx, 0, cz, ry, w / 3);
         if (!modelled) {
           for (const sx of [-1, 1]) { const [px, pz] = to(sx * (w / 2 - .06), zb + .1); box(B, px, 0, pz, .08, ya, .08, wood); const [fx, fz] = to(sx * (w / 2 - .06), zf - .1); box(B, fx, 0, fz, .08, yf, .08, wood); }
           box(B, cx, 0, cz, w - .2, .86, 1.0, '#a97c55', ry, { ao: .3 }); box(B, cx, .86, cz, w, .06, 1.12, '#c29a6f', ry);
         }
         for (let k = 0; k < n; k++) {
           const x0 = -w / 2 - .15 + k * (w + .3) / n, x1 = x0 + (w + .3) / n, col = k % 2 ? c2 : c1, lo = col.clone().multiplyScalar(.82);
-          X.OV.quad(q(x0, yf, zf), q(x1, yf, zf), q(x1, ya, zb), q(x0, ya, zb), col, lo);
-          X.OV.tri(q(x0, yf, zf), q((x0 + x1) / 2, yf - .24, zf), q(x1, yf, zf), col, lo, col);
+          OV.quad(q(x0, yf, zf), q(x1, yf, zf), q(x1, ya, zb), q(x0, ya, zb), col, lo);
+          OV.tri(q(x0, yf, zf), q((x0 + x1) / 2, yf - .24, zf), q(x1, yf, zf), col, lo, col);
         }
         shade(cx, cz, w + .6, 2.4);
         goods.forEach((hex, i) => {
           const [gx, gz] = to(-w / 2 + .5 + i * ((w - 1) / Math.max(1, goods.length - 1)), .05);
-          if (c.prop('Fruit_crate_' + (KIND[hex] || 'apples'), gx, modelled ? .915 : .92, gz, ry + R(i + x, -.1, .1))) return;
+          if (prop('Fruit_crate_' + (KIND[hex] || 'apples'), gx, modelled ? .915 : .92, gz, ry + R(i + x, -.1, .1))) return;
           box(B, gx, .92, gz, .62, .2, .78, '#9c7448', ry);
           for (let k = 0; k < 9; k++) B.add(P.ico1, M(gx - .2 + (k % 3) * .2, 1.13, gz - .2 + Math.floor(k / 3) * .2, .095, .1, .095, k), C(hex).multiplyScalar(R(k + i + x, .82, 1.12)));
         });
         // crates of fruit in front, on the aisle side
-        for (const [lx, k] of [[-.8, 0], [-.2, 1], [.9, 2]]) { const [px, pz] = to(lx, 1.15 + (k % 2) * .1); if (!c.prop('Fruit_crate_' + (KIND[goods[k % goods.length]] || 'apples'), px, 0, pz, ry + R(k + x, -.4, .4), 1, .92)) box(B, px, 0, pz, .5, .3, .4, '#a97c55', ry); }
+        for (const [lx, k] of [[-.8, 0], [-.2, 1], [.9, 2]]) { const [px, pz] = to(lx, 1.15 + (k % 2) * .1); if (!prop('Fruit_crate_' + (KIND[goods[k % goods.length]] || 'apples'), px, 0, pz, ry + R(k + x, -.4, .4), 1, .92)) box(B, px, 0, pz, .5, .3, .4, '#a97c55', ry); }
       };
       const AW = PAL.awning;
       [-16.5, -11, -5.5, 5.5, 11, 16.5].forEach((x, i) => stall(x, -1, AW[i % AW.length], [FRUIT[i % 7], FRUIT[(i + 2) % 7], FRUIT[(i + 4) % 7]], i % 3 === 1 ? 3.6 : 3.0));
@@ -401,8 +428,10 @@
     for (const [x, z] of [[-12, -8.9], [12.5, -9.0], [-6.8, 8.8], [17.5, 8.9]]) disc('market', x, z, .4);
     for (const x of [-18, -6, 6, 18]) for (const z of [-10.6, 10.6]) disc('market', x + .8 * (Math.abs(x) === 6 ? 1 : -1) * Math.sign(z), z, .2);
     disc('otto', -4.9, 1.6, .25); for (const s of [-1, 1]) disc('docks', s * 8.7, .9, .25); disc('basement', -3.2, .5, .2);
+    const bookshop = window.FreeWalkBookshopDetail?.mount(map, scene, lang);
     const V = new THREE.Vector3();
     function update(p, camera) {
+      bookshop?.update(p, camera);
       for (const s of sets) {
         const d = Math.hypot(p.x - s.frame.x, p.z - s.frame.z); s.set.group.visible = d < 260;
         if (!s.set.group.visible || !camera) continue;
@@ -412,13 +441,17 @@
       }
     }
     function stats() { const out = {}; for (const s of sets) out[s.id] = s.set.stats(); return out; }
-    function dispose() { for (const s of sets) { scene.remove(s.set.group); try { s.fronts?.dispose(); s.set.dispose(); } catch (x) { console.warn('walk set dispose', x); } } sets.length = 0; for (const g of used) disposeGPU(g); }
+    function marketStats() {
+      const market = sets.find(s => s.id === 'market');
+      return market ? { stock: market.set.objects.marketStockSlots || 0, authored: market.stalls.filter(s => s.ready).map(s => s.id), fallback: market.stalls.filter(s => !s.ready).map(s => s.id) } : null;
+    }
+    function dispose() { bookshop?.dispose(); for (const s of sets) { scene.remove(s.set.group); try { s.stalls.forEach(o => o.dispose?.()); s.fronts?.dispose(); s.set.dispose(); } catch (x) { console.warn('walk set dispose', x); } } sets.length = 0; for (const g of used) disposeGPU(g); }
     // road paint the sets cover (a crossing painted across Market Row's aisle): { x, z, ry, hw, hd } metres
     const marks = F.market ? [{ x: F.market.x, z: F.market.z, ry: F.market.ry, hw: 20, hd: 9.5 }] : [];
     // map pieces the sets stand in for, cut out above the ground: the hangar's end (its closing face was dark from the quay: it
     // faced into the hall), its door quad, side doors and sign at the quay end (the docks set has the gable, door and sign)
     const cuts = F.docks ? [{ x: F.docks.x, z: F.docks.z, ry: 0, hw: 15, hd: .45, yMin: F.docks.y + .3 }] : [];
-    return { sets, views, discs, marks, cuts, update, stats, dispose, frames: F, models: Object.fromEntries(Object.entries(city).map(([k, g]) => [k, !!g])) };
+    return { sets, views, discs, marks, cuts, update, stats, marketStats, dispose, frames: F, models: Object.fromEntries(Object.entries(city).map(([k, g]) => [k, !!g])) };
   }
 
   /** The town's own street trees and lamps near the player, in the films' detail (city-trees.js trees, the Blender street
