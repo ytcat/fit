@@ -1,0 +1,20 @@
+{
+  "night": true,
+  "tiers": [
+    {
+      "name": "Harborline gantry (approved) -1",
+      "tier": "mid",
+      "desired": "mid"
+    },
+    {
+      "name": "Harborline gantry (approved) 11",
+      "tier": "far",
+      "desired": "far"
+    },
+    {
+      "name": "Portward cargo ship (approved)",
+      "tier": "far",
+      "desired": "far"
+    }
+  ]
+}

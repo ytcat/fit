@@ -1,0 +1,17 @@
+{
+  "replay": {
+    "controlled": true,
+    "online": false,
+    "night": true,
+    "position": {
+      "x": -55.75,
+      "z": 136.25,
+      "ry": 3.142,
+      "walking": false
+    },
+    "approved": false,
+    "deck": 91,
+    "quay": 142
+  },
+  "errors": []
+}
