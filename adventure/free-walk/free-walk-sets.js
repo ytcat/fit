@@ -23,7 +23,7 @@
 (() => {
   'use strict';
   const S = 3;
-  const PUBLIC_ART = ['harborGull', 'ferrisWheel'];
+  const PUBLIC_ART = ['harborGull', 'ferrisWheel', 'movingHatchback'];
   const MODELS = ['oldtown', 'station', 'hazelStall', 'props', 'marketProps', 'dockProps', 'stopProps'];
   // the films' sign words (dream-sets.js, market-sets.js, the map's SIGN_TEXT) in the player's language
   const WORDS = {

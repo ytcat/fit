@@ -249,6 +249,22 @@
     const carMesh = carSrc ? new T.InstancedMesh(carSrc.geometry, carSrc.material, MAX_CARS) : null; // the map's own car, shared geometry
     if (carMesh) { carMesh.name = 'street cars'; carMesh.frustumCulled = false; for (let i = 0; i < MAX_CARS; i++) carMesh.setColorAt(i, new T.Color(1, 1, 1)); carMesh.count = 0; scene.add(carMesh); } // colours first: the colour buffer is sized by the count
     const palette = GlorylandMap.PAL.car.map(h => new T.Color(h).convertSRGBToLinear()), M4 = new T.Matrix4(), Q = new T.Quaternion(), E3 = new T.Euler(), P3 = new T.Vector3(), SC = new T.Vector3(S, S, S);
+    const detail = [];
+    const hatchback = art?.movingHatchback;
+    if (hatchback?.scene && carMesh) {
+      const group = new T.Group(); group.name = 'detailed moving traffic'; scene.add(group);
+      for (const part of window.CityAssets.staticCar(hatchback)) {
+        const paint = part.material.name === 'Deep vermilion pearl';
+        const material = paint ? own(part.material.clone()) : part.material;
+        if (paint) material.color.setRGB(1, 1, 1);
+        const mesh = new T.InstancedMesh(part.geometry, material, 2);
+        if (paint) for (let i = 0; i < 2; i++) mesh.setColorAt(i, new T.Color(1, 1, 1));
+        mesh.count = 0; mesh.frustumCulled = false;
+        group.add(mesh); detail.push({ mesh, paint });
+      }
+    }
+    // The authored bonnet points along +X. Match the lane's +Z heading; the body fits the existing 4.2 × 2 m footprint.
+    const detailPose = new T.Matrix4().makeRotationY(-Math.PI / 2), metres = new T.Vector3(1, 1, 1);
     function spawnCar(px, pz, minD, maxD) {
       for (let k = 0; k < 30; k++) {
         const e = Math.floor(R() * roads.edges.length), E = roads.edges[e]; if (!E) return null;
@@ -274,12 +290,34 @@
         if (c.s >= E.len) { const n = C.nextEdge(roads, c.e, c.dir, R); c.s -= E.len; c.e = n.e; c.dir = n.dir; }
       }
       if (!carMesh) return;
-      cars.forEach((c, i) => {
-        const q = C.lanePose(roads, c.e, c.dir, c.s), y = grid.allowed(q.x, q.z) ? grid.height(q.x, q.z) : landY;
+      for (const c of cars) {
+        const q = C.lanePose(roads, c.e, c.dir, c.s);
         c.x = q.x; c.z = q.z; c.ry = q.ry; c.ux = q.ux; c.uz = q.uz;
-        M4.compose(P3.set(q.x, y, q.z), Q.setFromEuler(E3.set(0, q.ry, 0)), SC); carMesh.setMatrixAt(i, M4); carMesh.setColorAt(i, c.color);
-      });
-      carMesh.count = cars.length; carMesh.instanceMatrix.needsUpdate = true; if (carMesh.instanceColor) carMesh.instanceColor.needsUpdate = true;
+        c.distance = Math.hypot(c.x - p.x, c.z - p.z);
+      }
+      const near = detail.length ? cars.filter(c => c.distance <= (c.detailed ? 52 : 42))
+        .sort((a, b) => a.distance - b.distance).slice(0, 2) : [];
+      let stockCount = 0, detailCount = 0;
+      for (const c of cars) {
+        c.detailed = near.includes(c);
+        const y = grid.allowed(c.x, c.z) ? grid.height(c.x, c.z) : landY;
+        M4.compose(P3.set(c.x, y, c.z), Q.setFromEuler(E3.set(0, c.ry, 0)), c.detailed ? metres : SC);
+        if (c.detailed) {
+          M4.multiply(detailPose);
+          for (const { mesh, paint } of detail) {
+            mesh.setMatrixAt(detailCount, M4);
+            if (paint) mesh.setColorAt(detailCount, c.color);
+          }
+          detailCount++;
+        } else {
+          carMesh.setMatrixAt(stockCount, M4); carMesh.setColorAt(stockCount++, c.color);
+        }
+      }
+      carMesh.count = stockCount; carMesh.instanceMatrix.needsUpdate = true; carMesh.instanceColor.needsUpdate = true;
+      for (const { mesh } of detail) {
+        mesh.count = detailCount; mesh.instanceMatrix.needsUpdate = true;
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      }
     }
     // a stopped (or moving) car is solid for the person
     function blocked(x, z) {
@@ -486,6 +524,8 @@
     function dispose() {
       for (const m of [...pool, ...walkers.map(w => w.m)]) { scene.remove(m); m.geometry.dispose(); m.material.dispose(); m.skeleton?.dispose?.(); } walkers.length = 0; pool.length = 0;
       if (carMesh) { scene.remove(carMesh); carMesh.dispose?.(); }
+      scene.remove(scene.getObjectByName('detailed moving traffic'));
+      for (const { mesh } of detail) { mesh.dispose?.(); mesh.geometry.dispose(); }
       for (const m of [bodyM, ...wingM]) if (m) { scene.remove(m); m.dispose?.(); }
       try { look?.dispose(); } catch (x) { console.warn('walk look dispose', x); }
       try { dress?.dispose(); } catch (x) { console.warn('walk dressing dispose', x); }

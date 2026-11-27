@@ -21,6 +21,7 @@
  * The GPU copies are disposed when the set is disposed; the parsed models stay cached for a replay. */
 (() => {
   const FILES = {
+    movingHatchback: './assets/vehicles/northline-review/northline-5-static-mobile.glb',
     harborcranefar: './assets/street/city-review/harbor-v2/crane-far.glb',
     harborcranemid: './assets/street/city-review/harbor-v2/crane-mid.glb',
     harborcranenear: './assets/street/city-review/harbor-v2/crane-near.glb',
@@ -456,7 +457,7 @@
   }
 
   window.CityAssets = {
-    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, dresses, wheelAngle, propKit, placeProp, cached,
+    FILES, LAYOUT, ARRIVAL_TREES, MARKET_TREES, WAIT_MS, TIRE_R, load, preload, ready, status, dress, dresses, wheelAngle, propKit, placeProp, cached, staticCar,
     get: n => cache.get(n)?.gltf || null,
     _setLoader(f) { makeLoader = f || defaultLoader; cache.clear(); } // tests
   };
