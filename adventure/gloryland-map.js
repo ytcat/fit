@@ -1502,6 +1502,7 @@ function townSquare(W) {
   if (art) {
     const model = art.clone(true);
     model.name = 'Old Town park fountain'; model.position.set(b.x, y, b.z); W.group.add(model);
+    animateParkFountain(W, model);
     const geometry = fountainSolid.geometry(), material = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
     const proxy = new THREE.Mesh(geometry, material); proxy.name = 'Old Town park fountain collision';
     proxy.userData.fwSolid = true; W.group.add(proxy); W.disposables.push(geometry, material);
@@ -1527,6 +1528,67 @@ function townSquare(W) {
   }
   for (let k = 0; k < 7; k++) { const [px, pz] = fr.p(rnd(-b.w / 2 + 1, b.w / 2 - 1), rnd(-b.d / 2 + 1, b.d / 2 - 1)); if (Math.hypot(px - b.x, pz - b.z) > 2.1) addInst(W, 'people', { x: px, y, z: pz, s: 1, color: pick(PAL.car) }); }
   pool(W, b.x, b.z, 3, '#ffd9a0', .4);
+}
+
+/** Flow along the authored jet arcs and expand ripples at their six original impact points. */
+function animateParkFountain(W, model) {
+  const jets = model.getObjectByName('Water jets and droplets • visual');
+  const baked = model.getObjectByName('Contact ripples • visual');
+  if (!jets?.isMesh || !baked?.geometry) return;
+  const vertices = baked.geometry.attributes.position, points = [];
+  // The approved GLB groups two rings of 48 vertices at each impact, in authored order.
+  const verticesPerImpact = 96;
+  if (vertices.count !== 6 * verticesPerImpact) return;
+  for (let i = 0; i < vertices.count; i += verticesPerImpact) {
+    const center = new THREE.Vector3();
+    for (let j = i; j < i + verticesPerImpact; j++) {
+      center.x += vertices.getX(j);
+      center.y += vertices.getY(j);
+      center.z += vertices.getZ(j);
+    }
+    points.push(center.divideScalar(verticesPerImpact));
+  }
+  const jetTime = { value: 0 }, flow = jets.material.clone();
+  flow.onBeforeCompile = shader => {
+    shader.uniforms.fountainTime = jetTime;
+    shader.vertexShader = 'varying vec3 fountainJet;\n' + shader.vertexShader
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nfountainJet = position;');
+    shader.fragmentShader = 'varying vec3 fountainJet; uniform float fountainTime;\n' + shader.fragmentShader
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        float travelled = length(fountainJet.xz);
+        float wave = 0.5 + 0.5 * cos(travelled * 33.0 - fountainTime * 17.0);
+        diffuseColor.rgb *= 0.63 + 0.57 * pow(wave, 3.0);`);
+  };
+  flow.customProgramCacheKey = () => 'old-town-fountain-flow';
+  jets.material = flow;
+
+  const geo = new THREE.RingGeometry(.82, 1, 24).rotateX(-Math.PI / 2);
+  const mat = new THREE.MeshBasicMaterial({ color: 0x9bdae5, transparent: true, opacity: .78,
+    blending: THREE.AdditiveBlending, depthWrite: false });
+  const rings = new THREE.InstancedMesh(geo, mat, points.length * 2);
+  rings.name = 'Moving fountain ripples'; rings.frustumCulled = false;
+  rings.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  baked.visible = false;
+  model.add(rings);
+  W.disposables.push(geo, mat, flow);
+  const matrix = new THREE.Matrix4(), light = new THREE.Color();
+  const update = time => {
+    jetTime.value = time;
+    rings.userData.time = time;
+    points.forEach((point, i) => {
+      for (let j = 0; j < 2; j++) {
+        const phase = (time * .92 + i * .147 + j * .5) % 1;
+        const radius = .035 + .148 * phase;
+        matrix.makeScale(radius, 1, radius).setPosition(point.x, point.y + .001, point.z);
+        rings.setMatrixAt(i * 2 + j, matrix);
+        const fade = Math.min(phase * 10, 1) * (1 - phase) ** 1.45;
+        rings.setColorAt(i * 2 + j, light.setScalar(fade));
+      }
+    });
+    rings.instanceMatrix.needsUpdate = rings.instanceColor.needsUpdate = true;
+  };
+  update(0);
+  W.animated.push(update);
 }
 
 /* ---- Market Row: stalls, string lights, the market hall */
