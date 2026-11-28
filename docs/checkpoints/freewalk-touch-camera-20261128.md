@@ -12,3 +12,9 @@ Physical iPhone Safari and final release verification remain open.
 ## Old Town fountain
 
 The approved fountain GLB had no animation tracks. FreeWalk now animates moving highlights on the existing jet arches and 12 expanding/fading ripple rings at the six authored impact points. The basin, its collision and the fallback are unchanged. In 393×852 Chromium, with the avatar stationary, three samples at 240 ms intervals showed different rendered water frames and ripple sizes, a solid basin, and no WebGL shader or page errors. The GIF is those three actual game frames. Evidence is in `qa/approved-city/evidence/freewalk-20261128/`.
+
+## Fairground browser replay
+
+The final browser probe dispatched Chromium touchscreen events in 393×852 portrait, then advanced the real FreeWalk simulation in fixed 1/30 s steps on a clear Fairground path selected for the rendered heading. A slight sideways variation during the forward drag remained filtered, and the measured lateral drift was under 2 cm. The right stick rotated the camera while the left kept its movement reference. Touch cancellation cleared movement and a new left gesture walked again. No page errors occurred.
+
+The bounded orbit recorded at most 0.1134 rad per simulation step. A solid edge still shortened the boom by up to 1.68 m in one straight-walk step. The simultaneous look segment changed by at most 0.002 m per step. This is a game-step measurement, with no physical device frame-rate or whole-route smoothness claim. See `qa/approved-city/evidence/freewalk-20261128/controls.json`. Main and the deployed version were not changed.
