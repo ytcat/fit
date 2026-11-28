@@ -23,11 +23,19 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
    }
    const plaza=[];
    const square=t.map.layout.blocks.find(b=>b.kind==='square'&&b.district==='oldtown');
-   for(const offset of [[18,8,14],[-17,6,-15]]){
-    c.position.copy(pos).add(new THREE.Vector3(...offset));c.lookAt(pos.clone().add(new THREE.Vector3(0,1,0)));c.updateMatrixWorld(true);
-    r.render(t.scene,c);plaza.push(r.domElement.toDataURL().split(',')[1]);
-   }
    const seatRadius=Math.max(2.9,square.w*.27),angle=square.ang;
+   const local=(x,y,z)=>pos.clone().add(new THREE.Vector3(Math.cos(angle)*x+Math.sin(angle)*z,y,-Math.sin(angle)*x+Math.cos(angle)*z));
+   const view=(eye,goal)=>{
+    c.position.copy(local(...eye));c.lookAt(local(...goal));c.updateMatrixWorld(true);
+    r.render(t.scene,c);plaza.push(r.domElement.toDataURL().split(',')[1]);
+   };
+   const oldFov=c.fov;c.fov=63;c.updateProjectionMatrix();
+   view([0,33,8],[0,0,0]);
+   c.fov=oldFov;c.updateProjectionMatrix();
+   for(const side of [-1,1]){
+    const x=side*seatRadius*3;
+    view([x-side*2.9,3.6,5.6],[x,.75,.95]);
+   }
    const seats=[-1,1].map(side=>!t.grid.allowed(pos.x+side*seatRadius*3*Math.cos(angle),pos.z-side*seatRadius*3*Math.sin(angle)));
    const clear=[-1,1].map(side=>t.grid.allowed(pos.x+side*6.4*Math.sin(angle),pos.z+side*6.4*Math.cos(angle)));
    const lookup=name=>pool.getObjectByName(THREE.PropertyBinding.sanitizeNodeName(name));
