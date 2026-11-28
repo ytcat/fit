@@ -1639,6 +1639,15 @@ function animateParkFountain(W, model) {
     }
     points.push(center.divideScalar(verticesPerImpact));
   }
+  // In the approved GLB each 91-vertex jet group has a 75-vertex arc followed by two static splash spikes.
+  // Draw the arc alone so the animated spray is the only water thrown back up at impact.
+  const arcVertices = 75, groupVertices = 91, index = jets.geometry.index;
+  if (index && jets.geometry.attributes.position.count === points.length * groupVertices) {
+    const arc = jets.geometry.clone();
+    arc.setIndex(Array.from(index.array).filter(vertex => vertex % groupVertices < arcVertices));
+    jets.geometry = arc;
+    W.disposables.push(arc);
+  }
   const jetTime = { value: 0 }, flow = jets.material.clone();
   flow.onBeforeCompile = shader => {
     shader.uniforms.fountainTime = jetTime;

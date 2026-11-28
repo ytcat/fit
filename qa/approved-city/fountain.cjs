@@ -43,7 +43,8 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
    const clear=[-1,1].map(side=>t.grid.allowed(pos.x+side*6.4*Math.sin(angle),pos.z+side*6.4*Math.cos(angle)));
    const lookup=name=>pool.getObjectByName(THREE.PropertyBinding.sanitizeNodeName(name));
    return {frames,wide,plaza,seats,clear,transparent:[lookup('Upper surface of basin water').material.transparent,lookup('Water jets and droplets • visual').material.transparent],trees:t.map.layout.inst.trees.list.filter(o=>o.parkArt).length,ringOverlay:!!t.scene.getObjectByName('Moving fountain ripples'),
-    bakedRipples:lookup('Contact ripples • visual').visible,spray:spray.geometry.attributes.position.count,
+    bakedRipples:lookup('Contact ripples • visual').visible,
+    arcIndices:lookup('Water jets and droplets • visual').geometry.index.count,spray:spray.geometry.attributes.position.count,
     waterMaterial:pool.getObjectByName(THREE.PropertyBinding.sanitizeNodeName('Upper surface of basin water'))?.material.customProgramCacheKey(),collision:!t.grid.allowed(pos.x,pos.z),playerWasStationary:!FreeWalk.snapshot().s.walking};
   });
   const distinctImages=new Set(data.frames.map(f=>f.image)).size;
@@ -56,7 +57,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
   assert.deepEqual(data.seats,[true,true],'both benches block movement');
   assert.deepEqual(data.clear,[true,true],'both main approaches remain open');
   assert.equal(data.trees,4);
-  assert.equal(data.ringOverlay,false);assert.equal(data.bakedRipples,false);assert.equal(data.spray,54);assert.equal(data.waterMaterial,'old-town-fountain-water');assert.ok(data.collision&&data.playerWasStationary);
+  assert.equal(data.ringOverlay,false);assert.equal(data.bakedRipples,false);assert.equal(data.arcIndices,2628);assert.equal(data.spray,54);assert.equal(data.waterMaterial,'old-town-fountain-water');assert.ok(data.collision&&data.playerWasStationary);
   assert.equal(new Set(data.frames.map(f=>f.t)).size,data.frames.length);
   assert.equal(distinctImages,data.frames.length);
   assert.deepEqual(errors,[]);
