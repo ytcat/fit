@@ -1609,7 +1609,7 @@ function detailParkFountain(W, model) {
       .replace('#include <color_fragment>', `#include <color_fragment>
         if (fountainTile.y > .258 && fountainTile.y < .278) {
           vec2 p = fountainTile.xz;
-          float a = sin(dot(p, vec2(26.0, 19.0)) + sin(p.z * 18.0 - fountainWaterClock * 2.2));
+          float a = sin(dot(p, vec2(26.0, 19.0)) + sin(p.y * 18.0 - fountainWaterClock * 2.2));
           float b = sin(dot(p, vec2(-17.0, 33.0)) + sin(p.x * 13.0 + fountainWaterClock * 1.7));
           float caustic = smoothstep(.79, 1.0, 1.0 - abs(a + .53 * b));
           diffuseColor.rgb *= .92 + .18 * caustic;
