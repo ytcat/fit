@@ -8,3 +8,7 @@ Base `6b77e4a`, live v1.99 release record, on `fix/freewalk-touch-camera-2026112
 - The focused Node touch, camera, portrait, FreeWalk, intersection-yield and offline-version checks passed. Named cases include turning away from a blocked forward drag, no camera yaw snap at a wall, and simultaneous movement/look inputs.
 
 Physical iPhone Safari and final release verification remain open.
+
+## Old Town fountain
+
+The approved fountain GLB had no animation tracks. FreeWalk now animates moving highlights on the existing jet arches and 12 expanding/fading ripple rings at the six authored impact points. The basin, its collision and the fallback are unchanged. In 393×852 Chromium, with the avatar stationary, three samples at 240 ms intervals showed different rendered water frames and ripple sizes, a solid basin, and no WebGL shader or page errors. The GIF is those three actual game frames. Evidence is in `qa/approved-city/evidence/freewalk-20261128/`.

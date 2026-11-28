@@ -1042,6 +1042,10 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported:** 2026-11-28, iPhone Safari, Midnight Fairground on the way to Bruno's gym. Left stick shown deflected while stationary. Sustained forward drags can veer. The attached recording shows repeated camera distance changes during walking.
 - **Status:** Fix candidate on `fix/freewalk-touch-camera-20261128`. Focused input and camera tests passed. See `docs/checkpoints/freewalk-touch-camera-20261128.md` for browser and physical-device status.
 
+### Old Town fountain follow-up — water remains still
+- **Reported:** 2026-11-28, iPhone Safari, Old Town fountain near the route to Bruno's gym.
+- **Status:** Animated jets and expanding ripples verified in Chromium on `fix/freewalk-touch-camera-20261128`. Physical Safari remains pending.
+
 ### GOTR-0131 — Free walk: broken pedestrian crossing on the Neon Strip
 - **Reported:** 2026-11-25 (owner, iPhone, the night walk to the Docks, Neon Strip: "Broken cross road" — doubled, stepped zebra stripes).
 - **Status:** FIXED on `claude/ecstatic-clarke-9as2ak` (not released).
