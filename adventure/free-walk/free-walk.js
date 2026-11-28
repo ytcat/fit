@@ -517,8 +517,17 @@
     // Keep the eased orbit even in a corner. Shorten only the checked ray, then ease back out.
     const safe = easy ? best : cameraRay(R.town, x, y, z, yaw, pitch, d, false);
     R.camYaw = yaw; R.camP = pitch;
-    const want = Math.min(d, safe.free);
-    R.camD = easy || R.camD === undefined || want < R.camD ? want : R.camD + (want - R.camD) * (1 - Math.exp(-dt * 7));
+    const limit = Math.min(d, safe.free);
+    let want = limit;
+    if (!easy && Math.hypot(R.camVX || 0, R.camVZ || 0) > .8) {
+      // Ease in before crossing a solid edge rather than waiting for the current ray to hit.
+      for (const ahead of [.14, .28]) {
+        const probe = cameraRay(R.town, x + R.camVX * ahead, y, z + R.camVZ * ahead, yaw, pitch, limit, false);
+        want = Math.min(want, probe.free + ahead * 2);
+      }
+    }
+    const eased = R.camD + (want - R.camD) * (1 - Math.exp(-dt * (want < R.camD ? 13 : 5)));
+    R.camD = easy || R.camD === undefined ? limit : Math.min(limit, eased);
     const D = R.camD, cp = Math.cos(pitch);
     R.camera.position.set(x + Math.sin(yaw) * cp * D, y + Math.sin(pitch) * D, z + Math.cos(yaw) * cp * D);
     const sky = orbitPitch - target, lens = R.skyTilt ?? 0;
@@ -597,8 +606,9 @@
       }
       const oldX = R.s.x, oldZ = R.s.z;
       town.grid.move(R.s, vx, vz, dt, town.blocked, steer);
-      const obstructed = touchHeld && Math.hypot(vx, vz) > .4
-        && Math.hypot(R.s.x - oldX, R.s.z - oldZ) < .12 * Math.hypot(vx, vz) * dt;
+      R.camVX = (R.s.x - oldX) / dt; R.camVZ = (R.s.z - oldZ) / dt;
+      const speed = Math.hypot(vx, vz);
+      const obstructed = touchHeld && speed > .4 && Math.hypot(R.camVX, R.camVZ) < .12 * speed;
       R.blockedTouch = obstructed ? (R.blockedTouch || 0) + dt : 0;
       const blocked = R.blockedTouch > .18;
       if (R.pad && blocked !== R.pad.classList.contains('blocked')) R.pad.classList.toggle('blocked', blocked);
