@@ -36,3 +36,5 @@ Browser pass on `9b7c344` at 393×852 confirmed distinct fountain frames, clear 
 The owner approved the plaza and asked for a more natural landing without uniform circles. The rendered impact now uses a short spreading patch of broken foam, off-axis surface highlights and a fan of moving droplets. The baked circular overlays and rigid splash spikes were removed from the render. The basin, clear water and furniture layout are retained.
 
 In 393×852 Chromium, eight close-up frames of the stationary fountain changed over time. The final browser run at `7bb7589` verified 54 spray points, six filtered jet arcs, absent ring overlays, clear water and jets, a solid basin, open main approaches and no page or shader errors. FreeWalk, crossings and offline-version tests passed. Physical iPhone Safari remains unverified.
+
+**Next release requirement:** Include the owner-approved fountain and plaza as reviewed at `bcd56a51a76a5b4e3bcd072258ce86afc4b1869e`. Check the clear water, irregular splash and plaza furniture in FreeWalk on the final candidate before publishing.

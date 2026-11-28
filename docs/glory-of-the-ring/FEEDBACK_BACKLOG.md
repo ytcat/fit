@@ -1050,6 +1050,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Design follow-up:** Clear basin and jet materials, softer impacts, bronze and ceramic details, two seating bays with bins and four planted tree surrounds. Verified in portrait Chromium on the review branch.
 
 - **Impact follow-up:** The owner approved the plaza and requested a less uniform splash. Broken foam and outward-moving droplets replace the circular overlays and rigid splash spikes. Verified in a close-up portrait Chromium replay.
+- **Owner approval:** 2026-11-28, “Better. approved”. Include the approved water contact at `bcd56a51a76a5b4e3bcd072258ce86afc4b1869e` in the next version and verify it on the final release candidate.
 
 ### GOTR-0131 — Free walk: broken pedestrian crossing on the Neon Strip
 - **Reported:** 2026-11-25 (owner, iPhone, the night walk to the Docks, Neon Strip: "Broken cross road" — doubled, stepped zebra stripes).
