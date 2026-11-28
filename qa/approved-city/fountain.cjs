@@ -16,16 +16,17 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
    FreeWalk.qa.teleport(p.x,p.z);FreeWalk.qa.walk(0,0,.1);
    c.position.copy(pos).add(new THREE.Vector3(6,5,7));c.lookAt(pos.clone().add(new THREE.Vector3(0,1.7,0)));c.updateMatrixWorld(true);
    const frames=[];
-   for(const dt of [0,.24,.24]){
+   for(const dt of [0,.14,.14,.14,.14,.14,.14,.14]){
     t.map.update(dt,c,r);r.render(t.scene,c);
     const m=new THREE.Matrix4();rings.getMatrixAt(0,m);
     frames.push({t:rings.userData.time,scale:m.elements[0],image:r.domElement.toDataURL().split(',')[1]});
    }
-   return {frames,count:rings.count,collision:!t.grid.allowed(pos.x,pos.z),playerWasStationary:!FreeWalk.snapshot().s.walking};
+   return {frames,count:rings.count,spray:t.scene.getObjectByName('Fountain impact spray')?.geometry.attributes.position.count,
+    waterMaterial:pool.getObjectByName(THREE.PropertyBinding.sanitizeNodeName('Upper surface of basin water'))?.material.customProgramCacheKey(),collision:!t.grid.allowed(pos.x,pos.z),playerWasStationary:!FreeWalk.snapshot().s.walking};
   });
-  assert.equal(data.count,12);assert.ok(data.collision&&data.playerWasStationary);
-  assert.equal(new Set(data.frames.map(f=>f.scale)).size,3);
-  assert.equal(new Set(data.frames.map(f=>f.image)).size,3);
+  assert.equal(data.count,12);assert.equal(data.spray,42);assert.equal(data.waterMaterial,'old-town-fountain-water');assert.ok(data.collision&&data.playerWasStationary);
+  assert.equal(new Set(data.frames.map(f=>f.scale)).size,data.frames.length);
+  assert.equal(new Set(data.frames.map(f=>f.image)).size,data.frames.length);
   assert.deepEqual(errors,[]);
   data.frames.forEach((f,i)=>{fs.writeFileSync(process.argv[2]+'/fountain-'+i+'.png',Buffer.from(f.image,'base64'));delete f.image;});
   fs.writeFileSync(process.argv[2]+'/fountain.json',JSON.stringify({...data,errors},null,2));
