@@ -1047,6 +1047,8 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Status:** Animated jets and expanding ripples verified in Chromium on `fix/freewalk-touch-camera-20261128`. Physical Safari remains pending.
 - **Visual follow-up:** Refined water reflections, flowing highlights, and impact spray, with eight matched in-game renders verified on the same branch.
 
+- **Design follow-up:** Clear basin and jet materials, softer impacts, bronze and ceramic details, two seating bays with bins and four planted tree surrounds. Verified in portrait Chromium on the review branch.
+
 ### GOTR-0131 — Free walk: broken pedestrian crossing on the Neon Strip
 - **Reported:** 2026-11-25 (owner, iPhone, the night walk to the Docks, Neon Strip: "Broken cross road" — doubled, stepped zebra stripes).
 - **Status:** FIXED on `claude/ecstatic-clarke-9as2ak` (not released).
