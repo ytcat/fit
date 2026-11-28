@@ -34,15 +34,19 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
    return {frames,plaza,seats,clear,transparent:[lookup('Upper surface of basin water').material.transparent,lookup('Water jets and droplets • visual').material.transparent],trees:t.map.layout.inst.trees.list.filter(o=>o.parkArt).length,count:rings.count,spray:t.scene.getObjectByName('Fountain impact spray')?.geometry.attributes.position.count,
     waterMaterial:pool.getObjectByName(THREE.PropertyBinding.sanitizeNodeName('Upper surface of basin water'))?.material.customProgramCacheKey(),collision:!t.grid.allowed(pos.x,pos.z),playerWasStationary:!FreeWalk.snapshot().s.walking};
   });
-  assert.deepEqual(data.transparent,[true,true]);assert.deepEqual(data.seats,[true,true]);assert.deepEqual(data.clear,[true,true]);assert.equal(data.trees,4);
-  assert.equal(data.count,12);assert.equal(data.spray,42);assert.equal(data.waterMaterial,'old-town-fountain-water');assert.ok(data.collision&&data.playerWasStationary);
-  assert.equal(new Set(data.frames.map(f=>f.scale)).size,data.frames.length);
-  assert.equal(new Set(data.frames.map(f=>f.image)).size,data.frames.length);
-  assert.deepEqual(errors,[]);
+  const distinctImages=new Set(data.frames.map(f=>f.image)).size;
   data.frames.forEach((f,i)=>{fs.writeFileSync(process.argv[2]+'/fountain-'+i+'.png',Buffer.from(f.image,'base64'));delete f.image;});
   data.plaza.forEach((png,i)=>fs.writeFileSync(process.argv[2]+'/plaza-'+i+'.png',Buffer.from(png,'base64')));
   delete data.plaza;
   fs.writeFileSync(process.argv[2]+'/fountain.json',JSON.stringify({...data,errors},null,2));
+  assert.deepEqual(data.transparent,[true,true],'both falling and basin water are translucent');
+  assert.deepEqual(data.seats,[true,true],'both benches block movement');
+  assert.deepEqual(data.clear,[true,true],'both main approaches remain open');
+  assert.equal(data.trees,4);
+  assert.equal(data.count,12);assert.equal(data.spray,42);assert.equal(data.waterMaterial,'old-town-fountain-water');assert.ok(data.collision&&data.playerWasStationary);
+  assert.equal(new Set(data.frames.map(f=>f.scale)).size,data.frames.length);
+  assert.equal(distinctImages,data.frames.length);
+  assert.deepEqual(errors,[]);
   console.log('PASS stationary FreeWalk fountain motion and preserved solid basin');
  }finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

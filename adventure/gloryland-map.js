@@ -1557,6 +1557,7 @@ function furnishFountainSquare(W, square, y, width) {
       piece(P.box,a,.189,.034,.036,.043,.146,iron);
       piece(P.cyl8,a,.231,.12,.020,.016,.020,brass);
     }
+    piece(P.box,0,.127,.005,.62,.028,.191,C('#755034'));
     for (let i=0;i<4;i++) piece(P.box,0,.155,-.07+i*.041,.62,.018,.036,boards[i%3]);
     for (let i=0;i<3;i++) piece(P.box,0,.215+i*.036,-.098-i*.005,.62,.029,.017,boards[(i+1)%3],-.14);
     piece(P.box,0,.304,-.112,.64,.018,.025,iron);
