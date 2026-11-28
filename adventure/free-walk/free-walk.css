@@ -66,3 +66,5 @@
 .fw-entry[hidden]{display:none}
 .fw-entry svg{flex:none}
 @media (max-width:520px){.fw-entry{padding:0 9px}.fw-entry-word{display:none}} /* phones: the walking figure only (its label is the aria-label / title) */
+
+.fw-pad.active.blocked .fw-stick{border-color:#ffcb82}

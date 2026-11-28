@@ -115,14 +115,11 @@
     const b = axis + off * u * u * (3 - 2 * u), gain = Math.min(1, (len - dead) / (radius - dead));
     return [Math.abs(Math.sin(b)) < 1e-8 ? 0 : gain * Math.sin(b), Math.abs(Math.cos(b)) < 1e-8 ? 0 : gain * Math.cos(b)];
   }
-  // Capture the rendered view when a touch direction is first aimed. Collision dodges and an eased
-  // camera must not rotate the same held thumb input. Re-arm on neutral or a deliberate new direction.
+  // One touch direction frame until neutral. Automatic camera avoidance never steers a held stick.
   function aimTouch(R, analog) {
     R.analog = analog;
-    if (!(Math.hypot(...analog) > 0)) { R.touchAim = null; return; }
-    const a = Math.atan2(analog[0], analog[1]);
-    if (!R.touchAim || Math.abs(Math.atan2(Math.sin(a - R.touchAim.a), Math.cos(a - R.touchAim.a))) >= Math.PI / 7)
-      R.touchAim = { a, yaw: R.camYaw ?? R.yaw };
+    if (!Math.hypot(...analog)) R.touchAim = null;
+    else if (!R.touchAim) R.touchAim = { yaw: R.camYaw ?? R.yaw };
   }
   function tiltLook(R, amount) {
     R.pitchTarget = Math.max(PITCH_UP, Math.min(PITCH_DOWN, (R.pitchTarget ?? PITCH) + amount));
@@ -139,10 +136,10 @@
       }
       if (ev && (!move || ev.pointerId !== move.id)) return;
       if (move) { const m = move; move = null; uncapture(m.surface, m.id); }
-      aimTouch(R, [0, 0]); R.full = 0;
+      aimTouch(R, [0, 0]); R.full = R.blockedTouch = 0;
       if (stop) { R.pace = null; R.touchPace = null; }
       thumb.style.transform = 'translate(-50%,-50%)'; glow.style.opacity = '0';
-      stick.style.left = stick.style.top = ''; pad.classList.remove('active');
+      stick.style.left = stick.style.top = ''; pad.classList.remove('active'); pad.classList.remove('blocked');
     }
     function point(ev) {
       if (look?.id === ev.pointerId) {
@@ -162,9 +159,9 @@
       const dx = ev.clientX - move.x, dy = ev.clientY - move.y;
       aimTouch(R, touchInput(dx, dy, move.r));
       if (move.surface !== pad) return;
-      const l = Math.max(1, Math.hypot(dx, dy) / move.r);
-      thumb.style.transform = `translate(calc(-50% + ${dx / l}px),calc(-50% + ${dy / l}px))`;
-      glow.style.opacity = String(Math.hypot(...R.analog)); glow.style.transform = `rotate(${Math.atan2(dx, -dy)}rad)`;
+      const [h, v] = R.analog;
+      thumb.style.transform = `translate(calc(-50% + ${h * move.r}px),calc(-50% - ${v * move.r}px))`;
+      glow.style.opacity = String(Math.hypot(h, v)); glow.style.transform = `rotate(${Math.atan2(h, v)}rad)`;
     }
     function down(ev, surface) {
       // The gameplay regions are siblings of HUD buttons, but also guard future embedded controls.
@@ -201,7 +198,13 @@
       }
       capture(surface, ev.pointerId);
     }
-    for (const surface of [pad, host, lookPad].filter(Boolean)) {
+    const surfaces = [pad, host, lookPad].filter(Boolean);
+    const outsideMove = ev => {
+      if (!surfaces.some(surface => ev.composedPath().includes(surface))) point(ev);
+    };
+    window.addEventListener?.('pointermove', outsideMove, { passive: false });
+    R.unbindMovement = () => window.removeEventListener?.('pointermove', outsideMove);
+    for (const surface of surfaces) {
       surface.addEventListener('pointerdown', ev => down(ev, surface));
       surface.addEventListener('pointermove', point);
       for (const k of ['pointerup', 'pointercancel', 'lostpointercapture']) surface.addEventListener(k, ev => release(ev, k !== 'pointerup'));
@@ -289,9 +292,17 @@
     const release = bindMovement(R, host, pad, stick, thumb, glow, lookPad, lookThumb);
     const blur = () => { R.keys.clear(); release(null, true); };
     window.addEventListener('keydown', down); window.addEventListener('keyup', up); window.addEventListener('blur', blur);
-    const hide = () => { if (document.hidden) { blur(); save(); } };
-    document.addEventListener('visibilitychange', hide); window.addEventListener('pagehide', save);
-    R.unlisten = () => { blur(); window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', blur); document.removeEventListener('visibilitychange', hide); window.removeEventListener('pagehide', save); };
+    const pause = () => { blur(); save(); };
+    const hide = () => { if (document.hidden) pause(); };
+    // Safari may finish a gesture over its own toolbar without a final event on the capture surface.
+    const touchFinished = ev => { if (ev.touches.length === 0) release(null, ev.type === 'touchcancel'); };
+    const pointerFinished = ev => release(ev, ev.type === 'pointercancel');
+    for (const type of ['touchend', 'touchcancel']) window.addEventListener(type, touchFinished, { passive: true });
+    for (const type of ['pointerup', 'pointercancel']) window.addEventListener(type, pointerFinished, true);
+    document.addEventListener('visibilitychange', hide); window.addEventListener('pagehide', pause);
+    R.unlisten = () => { blur(); R.unbindMovement?.(); window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', blur); document.removeEventListener('visibilitychange', hide); window.removeEventListener('pagehide', pause);
+      for (const type of ['touchend', 'touchcancel']) window.removeEventListener(type, touchFinished);
+      for (const type of ['pointerup', 'pointercancel']) window.removeEventListener(type, pointerFinished, true); };
     host.addEventListener('wheel', ev => { ev.preventDefault(); zoomBy(ev.deltaY > 0 ? .1 : -.1); }, { passive: false });
     function zoomBy(a) { R.zoomTarget = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round((R.zoomTarget + a) * 100) / 100)); plus.disabled = R.zoomTarget <= ZOOM_MIN; minus.disabled = R.zoomTarget >= ZOOM_MAX; }
     plus.onclick = () => zoomBy(-.15); minus.onclick = () => zoomBy(.15);
@@ -402,17 +413,27 @@
   function cameraRay(town, x0, y0, z0, yaw, pitch, distance, foliage = true) {
     const g = town.grid, dx = Math.sin(yaw) * Math.cos(pitch), dz = Math.cos(yaw) * Math.cos(pitch), dy = Math.sin(pitch);
     const n = Math.ceil(distance / .38);
-    let leaves = 0;
-    for (let k = 1; k <= n; k++) {
-      const f = distance * k / n, x = x0 + dx * f, y = y0 + dy * f, z = z0 + dz * f;
+    function obstruction(f) {
+      const x = x0 + dx * f, y = y0 + dy * f, z = z0 + dz * f;
       let kind = 0;
       for (const [a, b] of CAMERA_BODY) if (g.top(x + a, z + b) > y - .32) {
-        if (!g.allowed(x + a, z + b)) { kind = 1; break; }
+        if (!g.allowed(x + a, z + b)) return 1;
         kind = 2;
       }
-      // Stay on the visible side of the first hard column, including in an impossible corner.
-      if (kind) return { free: Math.max(.08, f - distance / n), kind, cover: leaves / n, eyeCover: 0 };
-      if (foliage && f >= 1 && town.cameraCover?.(x, y, z)) leaves++;
+      return kind;
+    }
+    let leaves = 0;
+    for (let k = 1; k <= n; k++) {
+      const f = distance * k / n, kind = obstruction(f);
+      if (kind) {
+        let lo = distance * (k - 1) / n, hi = f;
+        for (let j = 0; j < 4; j++) {
+          const middle = (lo + hi) * .5;
+          if (obstruction(middle)) hi = middle; else lo = middle;
+        }
+        return { free: Math.max(.08, lo - .10), kind, cover: leaves / n, eyeCover: 0 };
+      }
+      if (foliage && f >= 1 && town.cameraCover?.(x0 + dx * f, y0 + dy * f, z0 + dz * f)) leaves++;
     }
     const eyeCover = foliage && town.cameraCover?.(x0 + dx * distance, y0 + dy * distance, z0 + dz * distance) ? 1 : 0;
     return { free: distance, kind: 0, cover: leaves / n, eyeCover };
@@ -477,17 +498,24 @@
     // Once the orbit reaches eye level, tilt the lens toward the sky instead of lowering the
     // camera through the street. Leave some foreground and the Fighter visible for orientation.
     const orbitPitch = Math.max(PITCH_ORBIT_MIN, target);
-    const best = cameraView(R.town, x, y, z, R.yaw, d, snap ? 0 : R.camOffset, orbitPitch);
+    const selected = cameraView(R.town, x, y, z, R.yaw, d, snap ? 0 : R.camOffset, orbitPitch);
+    let best = selected;
+    if (!snap && R.camOffset && selected.off !== R.camOffset) {
+      const held = cameraRay(R.town, x, y, z, R.yaw + R.camOffset, orbitPitch, d);
+      const decisive = selected.free > held.free + 1.2 || (held.eyeCover && !selected.eyeCover);
+      const sameChoice = R.camCandidate === selected.off;
+      R.camCandidateTime = sameChoice ? (R.camCandidateTime || 0) + dt : 0;
+      R.camCandidate = selected.off;
+      if (!decisive && R.camCandidateTime < .17) best = { ...held, yaw: R.yaw + R.camOffset, off: R.camOffset, pitch: orbitPitch };
+    } else {
+      R.camCandidate = undefined; R.camCandidateTime = 0;
+    }
     R.camOffset = best.off;
     const easy = snap || R.camYaw === undefined;
-    let yaw = easy ? best.yaw : R.camYaw + angleDelta(best.yaw, R.camYaw) * (1 - Math.exp(-dt * 9));
-    let pitch = easy || R.camP === undefined ? best.pitch : R.camP + (best.pitch - R.camP) * (1 - Math.exp(-dt * 10));
-    let safe = easy ? best : cameraRay(R.town, x, y, z, yaw, pitch, d, false);
-    // Interpolated orbit directions can cut the corner even if the destination is clear.
-    // Only skip forward on a severe solid hit, never for a coarse tree crown or at manual zoom.
-    if (!easy && safe.free < Math.min(2.1, d * .39) && best.free > Math.max(3, safe.free + 1.7)) {
-      yaw = best.yaw; pitch = best.pitch; safe = best;
-    }
+    const yaw = easy ? best.yaw : R.camYaw + angleDelta(best.yaw, R.camYaw) * (1 - Math.exp(-dt * 9));
+    const pitch = easy || R.camP === undefined ? best.pitch : R.camP + (best.pitch - R.camP) * (1 - Math.exp(-dt * 10));
+    // Keep the eased orbit even in a corner. Shorten only the checked ray, then ease back out.
+    const safe = easy ? best : cameraRay(R.town, x, y, z, yaw, pitch, d, false);
     R.camYaw = yaw; R.camP = pitch;
     const want = Math.min(d, safe.free);
     R.camD = easy || R.camD === undefined || want < R.camD ? want : R.camD + (want - R.camD) * (1 - Math.exp(-dt * 7));
@@ -567,7 +595,13 @@
         R.touchPace = null;
         if (window.DreamPose?.pace) [vx, vz] = window.DreamPose.pace(R.pace || (R.pace = {}), vx, vz, R.turn, dt);
       }
+      const oldX = R.s.x, oldZ = R.s.z;
       town.grid.move(R.s, vx, vz, dt, town.blocked, steer);
+      const obstructed = touchHeld && Math.hypot(vx, vz) > .4
+        && Math.hypot(R.s.x - oldX, R.s.z - oldZ) < .12 * Math.hypot(vx, vz) * dt;
+      R.blockedTouch = obstructed ? (R.blockedTouch || 0) + dt : 0;
+      const blocked = R.blockedTouch > .18;
+      if (R.pad && blocked !== R.pad.classList.contains('blocked')) R.pad.classList.toggle('blocked', blocked);
       town.update(dt, R.s, R.camera);
       R.poseT += dt; R.zoom += (R.zoomTarget - R.zoom) * (1 - Math.exp(-dt * 10));
       const floor = town.grid.height(R.s.x, R.s.z), u = 1 - Math.exp(-dt * 12);

@@ -64,9 +64,10 @@ function harness(wall = false) {
   assert.equal(r.touchAim,aim);
   r.camYaw=.7;
   host.event('pointermove',325,255);
-  near(r.touchAim.yaw,.7);
+  near(r.touchAim.yaw,0, .00001); // the same held gesture stays in its original reference frame
   host.event('pointermove',280,300);
   assert.equal(r.touchAim,null,'neutral re-arms');
+  r.camYaw=.7; host.event('pointermove',280,242); near(r.touchAim.yaw,.7);
   host.event('pointercancel',280,300);
   assert.equal(r.touchPace,null);
   assert.equal(host.hasPointerCapture(1),false);
