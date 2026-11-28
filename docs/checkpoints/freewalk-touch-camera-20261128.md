@@ -30,3 +30,9 @@ The next pass keeps the authored stonework and upgrades the water. Two scales of
 The owner asked for transparent water and streams, more natural impact, more fountain detail, and designed seating, trees and bins. The revised basin exposes staggered ceramic mosaic through translucent water, with depth tint and moving light on the tilework. Bronze trim and inset accents dress the basin and upper bowl. Falling streams use a clear blend and the less luminous impact treatment from this pass. The two seating bays use timber slats, iron supports and matching bins, and four existing authored trees have planted stone surrounds. Layout additions apply in FreeWalk.
 
 Browser pass on `9b7c344` at 393×852 confirmed distinct fountain frames, clear surfaces and jets, both solid benches, both main approaches open, and four park trees. No page or shader errors on the final run. Focused FreeWalk, crossings and offline-version tests passed. See `qa/approved-city/evidence/freewalk-20261128/fountain-clear-water.gif`, `fountain-plaza.jpg` and `fountain-plaza.json`. Physical iPhone Safari remains unverified.
+
+### Fountain impact follow-up
+
+The owner approved the plaza and asked for a more natural landing without uniform circles. The rendered impact now uses a short spreading patch of broken foam, off-axis surface highlights and a fan of moving droplets. The baked circular overlays and rigid splash spikes were removed from the render. The basin, clear water and furniture layout are retained.
+
+In 393×852 Chromium, eight close-up frames of the stationary fountain changed over time. The final browser run at `7bb7589` verified 54 spray points, six filtered jet arcs, absent ring overlays, clear water and jets, a solid basin, open main approaches and no page or shader errors. FreeWalk, crossings and offline-version tests passed. Physical iPhone Safari remains unverified.

@@ -1,0 +1,49 @@
+{
+  "frames": [
+    {
+      "t": 0.2833333333333333
+    },
+    {
+      "t": 0.3733333333333333
+    },
+    {
+      "t": 0.46333333333333326
+    },
+    {
+      "t": 0.5533333333333332
+    },
+    {
+      "t": 0.6433333333333332
+    },
+    {
+      "t": 0.7333333333333332
+    },
+    {
+      "t": 0.8233333333333331
+    },
+    {
+      "t": 0.9133333333333331
+    }
+  ],
+  "seats": [
+    true,
+    true
+  ],
+  "clear": [
+    true,
+    true
+  ],
+  "transparent": [
+    true,
+    true
+  ],
+  "trees": 4,
+  "ringOverlay": false,
+  "bakedRipples": false,
+  "arcIndices": 2628,
+  "spray": 54,
+  "waterMaterial": "old-town-fountain-water",
+  "collision": true,
+  "playerWasStationary": true,
+  "errors": []
+}
