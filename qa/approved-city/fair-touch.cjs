@@ -75,10 +75,12 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
   const recovered=recovery.end.s;
   assert.ok(Math.hypot(recovered.x-recovery.begin.s.x,recovered.z-recovery.begin.s.z)>.35);
   await touch('touchEnd');
-  const frames=[...route.frames,...turning.frames,...recovery.frames];
-  const gaps=frames.slice(1).map((f,i)=>({yaw:Math.abs(Math.atan2(Math.sin(f.yaw-frames[i].yaw),Math.cos(f.yaw-frames[i].yaw))),boom:Math.abs(f.d-frames[i].d)}));
-  const stats={frames:frames.length,maxYaw:Math.max(...gaps.map(f=>f.yaw)),maxBoom:Math.max(...gaps.map(f=>f.boom))};
-  assert.ok(stats.maxYaw<1.2,'no hard orbit jump: '+JSON.stringify(stats));
+  const measure=frames=>{
+   const gaps=frames.slice(1).map((f,i)=>({yaw:Math.abs(Math.atan2(Math.sin(f.yaw-frames[i].yaw),Math.cos(f.yaw-frames[i].yaw))),boom:Math.abs(f.d-frames[i].d)}));
+   return {frames:frames.length,maxYaw:Math.max(...gaps.map(f=>f.yaw)),maxBoom:Math.max(...gaps.map(f=>f.boom))};
+  };
+  const stats={straight:measure(route.frames),turn:measure(turning.frames),restart:measure(recovery.frames)};
+  assert.ok(Object.values(stats).every(s=>s.maxYaw<.115),'orbit turn stays within its rate cap');
   assert.deepEqual(errors,[]);
   fs.writeFileSync(process.argv[2],JSON.stringify({viewport:[393,852],start,straight,drift,simultaneous,stopped,recovered,stats,errors},null,2));
   await page.screenshot({path:process.argv[2].replace(/\.json$/,'.jpg'),type:'jpeg',quality:85});

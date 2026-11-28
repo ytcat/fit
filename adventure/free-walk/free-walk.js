@@ -512,17 +512,21 @@
     }
     R.camOffset = best.off;
     const easy = snap || R.camYaw === undefined;
-    const yaw = easy ? best.yaw : R.camYaw + angleDelta(best.yaw, R.camYaw) * (1 - Math.exp(-dt * 9));
+    const yawStep = easy ? 0 : angleDelta(best.yaw, R.camYaw) * (1 - Math.exp(-dt * 9));
+    const yaw = easy ? best.yaw : R.camYaw + Math.max(-3.4 * dt, Math.min(3.4 * dt, yawStep));
     const pitch = easy || R.camP === undefined ? best.pitch : R.camP + (best.pitch - R.camP) * (1 - Math.exp(-dt * 10));
     // Keep the eased orbit even in a corner. Shorten only the checked ray, then ease back out.
     const safe = easy ? best : cameraRay(R.town, x, y, z, yaw, pitch, d, false);
     R.camYaw = yaw; R.camP = pitch;
     const limit = Math.min(d, safe.free);
     let want = limit;
-    if (!easy && Math.hypot(R.camVX || 0, R.camVZ || 0) > .8) {
-      // Ease in before crossing a solid edge rather than waiting for the current ray to hit.
+    const vx = R.camVX || 0, vz = R.camVZ || 0, remainingYaw = angleDelta(best.yaw, yaw);
+    if (!easy && (Math.hypot(vx, vz) > .8 || Math.abs(remainingYaw) > .12)) {
+      // Check where the camera will aim next as well as where the player is walking.
       for (const ahead of [.14, .28]) {
-        const probe = cameraRay(R.town, x + R.camVX * ahead, y, z + R.camVZ * ahead, yaw, pitch, limit, false);
+        const turn = remainingYaw * (1 - Math.exp(-ahead * 9));
+        const predictedYaw = yaw + Math.max(-3.4 * ahead, Math.min(3.4 * ahead, turn));
+        const probe = cameraRay(R.town, x + vx * ahead, y, z + vz * ahead, predictedYaw, pitch, limit, false);
         want = Math.min(want, probe.free + ahead * 2);
       }
     }
