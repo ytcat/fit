@@ -1,0 +1,10 @@
+# FreeWalk touch and camera follow-up
+
+Base `6b77e4a`, live v1.99 release record, on `fix/freewalk-touch-camera-20261128`. The supplied 5.83-second iPhone recording shows the player crossing the Fairground toward Bruno's gym, with abrupt changes in camera distance during a held drag. The accompanying still shows the left stick deflected while the player is stationary. The still alone cannot establish what blocked movement. The original attachment stays outside the repository.
+
+- A held movement gesture keeps one directional reference until it returns to neutral. Switching thumb direction during that gesture still steers immediately. Looking with the right stick remains independent. The drawn thumb reflects the actual dead zone and filtered direction. A held request that makes almost no progress gains an amber border after 180 ms of simulation and clears on movement or release.
+- Pointer release is caught outside the original pad, with touch-end, cancellation, lost capture and page lifecycle cleanup. Moving onto another control does not hand it the active pointer.
+- The chase camera keeps the eased orbit in tight corners. It briefly holds its chosen side rather than switching for a transient obstruction, refines the solid ray, and begins shortening the boom before a nearby obstruction when walking. The current solid ray still constrains the camera.
+- The focused Node touch, camera, portrait, FreeWalk, intersection-yield and offline-version checks passed. Named cases include turning away from a blocked forward drag, no camera yaw snap at a wall, and simultaneous movement/look inputs.
+
+Physical iPhone Safari and final release verification remain open.
