@@ -526,7 +526,7 @@
         want = Math.min(want, probe.free + ahead * 2);
       }
     }
-    const eased = R.camD + (want - R.camD) * (1 - Math.exp(-dt * (want < R.camD ? 13 : 5)));
+    const eased = R.camD + (want - R.camD) * (1 - Math.exp(-dt * (want < R.camD ? 13 : 7)));
     R.camD = easy || R.camD === undefined ? limit : Math.min(limit, eased);
     const D = R.camD, cp = Math.cos(pitch);
     R.camera.position.set(x + Math.sin(yaw) * cp * D, y + Math.sin(pitch) * D, z + Math.cos(yaw) * cp * D);
