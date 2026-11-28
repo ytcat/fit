@@ -8,7 +8,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
  try{
   const source=fs.readFileSync(require('node:path').join(__dirname,'../../adventure/free-walk/free-walk.js'),'utf8');
   const tail=source.lastIndexOf('})();');
-  const probe=`window.fairProbe={state:()=>({s:snapshot().s,analog:run.analog,basis:run.touchAim?.yaw,active:run.pad.classList.contains('active'),yaw:run.camYaw,d:run.camD}),hold(yaw){run.yaw=run.camYaw=yaw;place(true);},tick(n){const frames=[];let ms=performance.now();for(let i=0;i<n;i++){step(1/30,ms+=1000/30,false);frames.push(this.state());}return frames;}};`;
+  const probe=`window.fairProbe={state:()=>({s:snapshot().s,analog:run.analog,basis:run.touchAim?.yaw,active:run.pad.classList.contains('active'),yaw:run.camYaw,d:run.camD}),hold(yaw){run.yaw=run.camYaw=yaw;run.groundY=run.town.grid.height(run.s.x,run.s.z);place(true);return run.camYaw;},tick(n){const frames=[];let ms=performance.now();for(let i=0;i<n;i++){step(1/30,ms+=1000/30,false);frames.push(this.state());}return frames;}};`;
   await page.route('**/free-walk.js?*',route=>route.fulfill({contentType:'text/javascript',body:source.slice(0,tail)+probe+source.slice(tail)}));
   await boot(page,'http://localhost:'+server.address().port,'en','Fairground touch QA');
   await page.evaluate(()=>FreeWalk.open({start:'fair',look:'day'}));
@@ -18,18 +18,28 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
   const pad=page.locator('.fw-pad'),look=page.locator('.fw-look-pad');
   const box=await pad.boundingBox(), x=Math.round(box.x+34), y=Math.round(box.y+box.height*.60);
   const start=await page.evaluate(()=>{
-   const s=FreeWalk.snapshot(),g=FreeWalk.qa.town.grid;
-   let best=null;
-   for(let i=0;i<64;i++){
-    const a=i*Math.PI/32;
+   const t=FreeWalk.qa.town,g=t.grid,{s}=FreeWalk.snapshot();
+   const open=(x,z,yaw)=> {
     let d=0;
-    while(d<18&&g.allowed(s.s.x-Math.sin(a)*(d+.25),s.s.z-Math.cos(a)*(d+.25)))d+=.25;
-    if(!best||d>best.clear)best={yaw:a,clear:d};
+    while(d<12&&g.allowed(x-Math.sin(yaw)*(d+.15),z-Math.cos(yaw)*(d+.15))
+         &&!t.blocked(x-Math.sin(yaw)*(d+.15),z-Math.cos(yaw)*(d+.15)))d+=.15;
+    return d;
+   };
+   // Choose a walkable section of the Fairground path with room in the actual rendered direction.
+   for(const radius of [0,5,10,15,20])for(let side=0;side<(radius?8:1);side++){
+    const p=g.nearest(s.x+radius*Math.sin(side*Math.PI/4),s.z+radius*Math.cos(side*Math.PI/4),2);
+    if(!p||!FreeWalk.qa.teleport(p.x,p.z))continue;
+    for(let i=0;i<24;i++){
+     const requested=i*Math.PI/12;
+     if(open(p.x,p.z,requested)<5)continue;
+     const yaw=window.fairProbe.hold(requested),clear=open(p.x,p.z,yaw);
+     if(clear>=5)return {position:[p.x,p.z],yaw,clear};
+    }
    }
-   window.fairProbe.hold(best.yaw);
-   return {position:s.s,...best};
+   throw Error('No clear Fairground path');
   });
-  assert.ok(start.clear>=3,'fairground path available');
+  assert.ok(start.clear>=5,'fairground path available');
+  console.log('selected path',start);
   const activeTarget=await page.evaluate(([x,y])=>document.elementFromPoint(x,y)?.className,[x,y]);
   assert.equal(activeTarget,'fw-pad');
   await touch('touchStart',[x,y,1]);
