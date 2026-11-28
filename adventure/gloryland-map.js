@@ -1556,17 +1556,93 @@ function animateParkFountain(W, model) {
     shader.fragmentShader = 'varying vec3 fountainJet; uniform float fountainTime;\n' + shader.fragmentShader
       .replace('#include <color_fragment>', `#include <color_fragment>
         float travelled = length(fountainJet.xz);
-        float wave = 0.5 + 0.5 * cos(travelled * 33.0 - fountainTime * 17.0);
-        diffuseColor.rgb *= 0.63 + 0.57 * pow(wave, 3.0);`);
+        float streak = sin(travelled * 58.0 - fountainTime * 32.0)
+                     + 0.47 * sin(travelled * 101.0 - fountainTime * 47.0 + fountainJet.z * 9.0);
+        diffuseColor.rgb *= 0.72 + 0.49 * smoothstep(0.1, 1.4, streak);`);
   };
   flow.customProgramCacheKey = () => 'old-town-fountain-flow';
   jets.material = flow;
 
-  const geo = new THREE.RingGeometry(.82, 1, 24).rotateX(-Math.PI / 2);
-  const mat = new THREE.MeshBasicMaterial({ color: 0x9bdae5, transparent: true, opacity: .78,
+  const water = model.getObjectByName(THREE.PropertyBinding.sanitizeNodeName('Upper surface of basin water'));
+  const cup = model.getObjectByName(THREE.PropertyBinding.sanitizeNodeName('Upper cup water'));
+  if (water?.isMesh && cup?.isMesh) {
+    const surface = water.material.clone();
+    surface.roughness = .23; surface.metalness = .12;
+    const impacts = points.map((p, i) => `slope += impactSlope(p, vec2(${p.x.toFixed(4)}, ${p.z.toFixed(4)}), ${(i * .8).toFixed(2)});`).join('\n');
+    surface.onBeforeCompile = shader => {
+      shader.uniforms.fountainTime = jetTime;
+      shader.vertexShader = 'varying vec3 fountainSurface;\n' + shader.vertexShader
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nfountainSurface = position;');
+      shader.fragmentShader = `varying vec3 fountainSurface;
+        uniform float fountainTime;
+        vec2 impactSlope(vec2 p, vec2 center, float phase) {
+          vec2 delta = p - center; float r = length(delta);
+          float envelope = smoothstep(0.015, 0.07, r) * (1.0 - smoothstep(0.08, 0.30, r));
+          return delta / max(r, 0.01) * cos(r * 49.0 - fountainTime * 13.0 + phase) * envelope * .075;
+        }
+      ` + shader.fragmentShader.replace('#include <normal_fragment_begin>', `#include <normal_fragment_begin>
+        vec2 p = fountainSurface.xz;
+        vec2 slope = vec2(sin(dot(p, vec2(9.0, 13.0)) - fountainTime * 3.2),
+                          sin(dot(p, vec2(14.0, -7.0)) + fountainTime * 2.4)) * .047;
+        if (fountainSurface.y < .5) {
+          ${impacts}
+        }
+        normal = normalize(normal + mat3(viewMatrix) * vec3(slope.x, 0.0, slope.y));
+        float glancing = pow(1.0 - max(0.0, dot(normal, normalize(vViewPosition))), 3.0);
+        diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 0.72 + vec3(.038, .090, .105), glancing * .54);
+      `);
+    };
+    surface.customProgramCacheKey = () => 'old-town-fountain-water';
+    water.material = cup.material = surface;
+    W.disposables.push(surface);
+  }
+
+  const splashGeometry = new THREE.BufferGeometry(), origins = [], flight = [];
+  points.forEach((p, impact) => {
+    for (let i = 0; i < 7; i++) {
+      origins.push(p.x, p.y + .004, p.z);
+      flight.push((i * .618 + impact * .137) % 1, i * 2.399 + impact, .48 + .09 * ((i + impact) % 5));
+    }
+  });
+  splashGeometry.setAttribute('position', new THREE.Float32BufferAttribute(origins, 3));
+  splashGeometry.setAttribute('flight', new THREE.Float32BufferAttribute(flight, 3));
+  const splashMaterial = new THREE.ShaderMaterial({
+    uniforms: { fountainTime: jetTime, focalPixels: { value: 360 } },
+    transparent: true, depthWrite: false,
+    vertexShader: `attribute vec3 flight; uniform float fountainTime; uniform float focalPixels; varying float fade;
+      void main() {
+        float lifetime = .28 + .16 * flight.z;
+        float age = fract(fountainTime / lifetime + flight.x);
+        float elapsed = age * lifetime;
+        vec3 p = position + vec3(cos(flight.y) * elapsed * .23,
+          1.12 * flight.z * age * (1.0 - age), sin(flight.y) * elapsed * .23);
+        vec4 eye = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * eye;
+        gl_PointSize = clamp(focalPixels * .020 / max(1.0, -eye.z), 1.0, 3.4);
+        fade = smoothstep(0.0, .12, age) * (1.0 - smoothstep(.5, 1.0, age));
+      }`,
+    fragmentShader: `varying float fade;
+      void main() {
+        float a = 1.0 - smoothstep(.18, .5, length(gl_PointCoord - .5));
+        gl_FragColor = vec4(.78, .93, .98, a * fade * .62);
+      }`
+  });
+  const splash = new THREE.Points(splashGeometry, splashMaterial);
+  splash.name = 'Fountain impact spray';
+  splashGeometry.computeBoundingSphere(); splashGeometry.boundingSphere.radius += .3;
+  splash.onBeforeRender = renderer => {
+    splashMaterial.uniforms.focalPixels.value = renderer.domElement.height;
+  };
+  model.add(splash);
+  W.disposables.push(splashGeometry, splashMaterial);
+
+  const geo = new THREE.RingGeometry(.86, 1, 24).rotateX(-Math.PI / 2);
+  const mat = new THREE.MeshBasicMaterial({ color: 0x9bdae5, transparent: true, opacity: .44,
     blending: THREE.AdditiveBlending, depthWrite: false });
   const rings = new THREE.InstancedMesh(geo, mat, points.length * 2);
-  rings.name = 'Moving fountain ripples'; rings.frustumCulled = false;
+  rings.name = 'Moving fountain ripples';
+  geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .313, 0), 1.55);
+  rings.frustumCulled = true;
   rings.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   baked.visible = false;
   model.add(rings);
