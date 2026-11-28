@@ -13,9 +13,11 @@ urls+=['./'+str(p.relative_to(root))+'?v=2026111130' for p in sorted((root/'asse
 urls+=['./assets/venues/'+name+'.png?v=2026110905' for name in ['default','neon_strip','harbor_dome','street','boxing_club','underground','docks','regional','championship']]
 # authored character heads (< 1 MB each, unlike the ~19 MB street models): offline play keeps them; same URL as the page requests
 urls+=['./assets/characters/fang/fang-head.glb?v=2026112402','./assets/characters/hazel/hazel-head.glb?v=2026112502']
+# Approved stalls are part of the optional offline pack. Larger city assets stay on-demand.
+urls+=['./'+str(p.relative_to(root)) for p in sorted((root/'assets/street/city-review/market-stalls-v1').glob('*.glb'))]
 urls=list(dict.fromkeys(urls))
 for url in urls:
     if not (root/url.split('?')[0]).is_file():
         raise SystemExit('Missing offline asset: '+url)
-(root/'offline-manifest.json').write_text(json.dumps({'version':'v198-20261125','urls':urls},indent=2)+'\n')
+(root/'offline-manifest.json').write_text(json.dumps({'version':'v199-20261127','urls':urls},indent=2)+'\n')
 print(len(urls),'offline assets',sum((root/x.split('?')[0]).stat().st_size for x in urls),'bytes')

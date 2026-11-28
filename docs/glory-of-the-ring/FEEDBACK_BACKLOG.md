@@ -1039,18 +1039,37 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Owner follow-up on v1.96 (2026-11-25, Hazel's side view): "what is in her neck?"** — READY FOR QA on `fix/hazel-neck` (handoff `docs/checkpoints/hazel-neck-fix.md`). Found: the ragged ring under her jaw was her own body skin (the code jaw starts right above the cardigan and was only partly folded under the model); her model also kept the scarf's holes and flared rim near the collar. Fang had the same skin fault under his jaw (jacket and fight top). Fixed: the skin above the neckline/collar goes into a column inside each model's neck (dress neckline slopes in to meet Hazel's neck); Hazel's model has a clean neck tube in her neck's own colours below the jaw, the scarf rim removed; face, kerchief and drape unchanged. New `tests/head-seams.test.cjs` checks the joins in every tested pose (Fang 11 poses incl. punches and the knockdown; Hazel 93 film/talk/walk poses) and fails on v1.96. Evidence `qa/hazel-trellis/neck-fix-before-after.webp`, `hazel-seams-before-after.webp`, `fang-seams-jacket-before-after.webp`, `fang-seams-fight-before-after.webp`.
 
 ### GOTR-0139 — Coach Bruno's TRELLIS.2 head in the game
-- **Reported:** 2026-11-26 (owner approved the TRELLIS.2 head render with "yes"; fit it like Hazel and Fang).
-- **Status:** IN PROGRESS on `agent/bruno-head`. Not merged.
-- **Owner, 2026-11-26, on the round-4 pictures:** "From your pictures, I don't like his head. Bruno looked terrible". Then: "No, don't keep his old head. I need you to improve the new one. I want him to look much more natural with more face details."
-- **What is done (joins):** the head joins pass the checks up to round 4 (`21b45a2`): neck tube, flat towel, chin and wave-off gestures. Pictures are in `qa/bruno-head/`.
-- **Look pass (now):**
-  - the source's surface detail back as a normal map;
-  - more of the texture for the face;
-  - real eyes;
-  - natural fur colour and a fur silhouette;
-  - a glossy nose, and a mouth that opens when he talks;
-  - his head's size and weight matched to his body.
-- **Approval step:** film close-ups go to the owner before the joins are checked again and before any merge.
+- **Reported:** 2026-11-26. The owner approved the TRELLIS.2 head render with "yes": fit it like Hazel and Fang.
+- **History:**
+  - Round 4: the owner said "Bruno looked terrible".
+  - Then the owner said: "No, don't keep his old head. I need you to improve the new one. I want him to look much more natural with more face details."
+  - After the look pass (rounds 5 to 5c) the owner said: **"Good go"** (2026-11-27). The look is APPROVED.
+- **Status:** READY TO INTEGRATE. Branch `agent/bruno-head`, tip `f0bcbc0`. Not merged, not released. Handoff: `docs/checkpoints/bruno-trellis-head.md` on that branch.
+- **On the branch:**
+  - The head: `assets/characters/bruno/bruno-head.glb`, 25k triangles, 1.43 MB, built by `tools/blender/bruno_head_game.py`. The default run rebuilds the file byte for byte.
+  - Face detail baked from the 98k TRELLIS source as a normal map; the face takes 50% of the atlas at 2048.
+  - Real eyes with blinks, a jaw that opens with his speech, a lip line, a mouth with teeth and tongue, and a glossy nose with nostrils.
+  - Dark chocolate fur, with about 140 alpha-tested fur cards on the outline. They fade where they face the camera.
+  - A neck tube with a taper and fur.
+  - Paws and wrist skin tinted to the head colour (Bruno only, while the model head is on).
+  - A flat towel skinned to the body. The old towel shows only with the code head.
+  - Bruno's own hand-to-chin and referee wave-off gestures.
+  - The code head stays as the fallback while loading or if the file fails.
+- **Tests on the branch:** `bruno-head`, `bruno-head-eyes`, `bruno-head-uv-seams` and `head-seams` (Bruno, 229 poses). They cover:
+  - 0 contacts head vs towel and fur cards vs towel and body, over 97 walking frames;
+  - 0 paws inside the head in all nine films and the referee poses;
+  - an eye-brightness floor;
+  - limits on the colour step across UV seams.
+- **To finish (in order):**
+  1. Merge `origin/main` (v1.99) into the branch. Resolve the `?v=` cache keys (cast-market.js, dream-scenes.js, dream-pose.js, index.html) and regenerate `offline-manifest.json`.
+  2. Redo the join sheets on the FINAL head; the round-4 sheets are out of date. Cover 6 poses (stand, talk, walk, point, count, raise) × 6 views (front, side, back, below, 3/4, back 3/4), plus towel-cord, towel-arm, chin, referee and portrait. Use the tools in `qa/bruno-head/tools/`. Owner rule (AGENTS.md): every join, every view, at rest and in motion.
+  3. Run the 29 related tests one at a time. The list is in the handoff. Then run the full suite: `bash scripts/run-tests.sh -j 2`.
+  4. Send the owner the seam close-ups, then release under the AGENTS.md publishing checklist.
+- **Known limits:**
+  - In close-ups the cream brows show some low-poly facets.
+  - A faint lighter band between the brows (from their shape, not a seam).
+  - The amber eyes are bright in the films.
+  - Not checked on a real phone.
 
 ### GOTR-0138 — Market robbery film: Fang does not read as snatching the bag, fleeing Hazel, and being stopped
 - **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone; reminder of an earlier remark: "I don't like how Fang come and get the bag. Doesn't look he's coming taking the bag by force and then running from Hazel and then the player is stopping him suddenly. It doesn't look like this at all").
@@ -1066,51 +1085,56 @@ User tested the published build. Wording below is the user's request, lightly cl
 - **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "take off the free walk text when you free walk and move the zoom buttons up. Instead of zoom buttons add run button that will make him run. Also add get to destination button somewhere to skip free walk").
 - **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
 - **Wanted:** hide the FREE WALK / district card while walking; a Run button (hold or toggle) in the zoom buttons' place; zoom controls moved higher; a "go to destination" button that skips the walk to the story's next place (EN/HE/RU, LTR).
+- **Check against v1.99 first:** ChatGPT's v1.99 (PR #47) added dual touch controls, a faster sprint, safer traffic and a pedestrian-only Market Row, and may already cover part of this. Test on the live build before working on it.
 
 ### GOTR-0135 — Free walk camera: super zoom into the lion's hair near objects
 - **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "If i get close to object it do super zoom into the lion and i see his hair only and not the street at all, for example it happens a lot in the market").
 - **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
 - **Likely area:** the walk camera's collision pull-in (free-walk.js camera vs stalls/awnings). Expect: the camera keeps a minimum distance / goes up or fades occluders instead of collapsing onto the head.
+- **Check against v1.99 first:** ChatGPT's v1.99 (PR #47) added dual touch controls, a faster sprint, safer traffic and a pedestrian-only Market Row, and may already cover part of this. Test on the live build before working on it.
 
 ### GOTR-0134 — Free walk movement: faster walk, accurate direction arrow, objects block the way
 - **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "The walk in the street has to be faster, and arrows that show direction have to be more accurate, there a lot of objects in the street that holding the walk like after docs fight i barely managed to get out of the hangar" and "Improve how i can walk between objects, when i do between market stands i cannot easily pass").
 - **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
 - **Points:** walk speed up (FreeWalkCore SPEED 2.22 m/s); the guidance arrow should point along the walkable route, not straight-line; collision too tight (Docks hangar exit after the Docks fight, gaps between Market Row stalls): widen passages / slide along obstacles.
+- **Check against v1.99 first:** ChatGPT's v1.99 (PR #47) added dual touch controls, a faster sprint, safer traffic and a pedestrian-only Market Row, and may already cover part of this. Test on the live build before working on it.
 
 ### GOTR-0133 — Free walk joystick sticks and goes the wrong way
 - **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "You have issues with joystick, it stuck a lot and sometimes you move up and it goes right").
 - **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
 - **Points:** the stick sticks (touch end/cancel not releasing, or the floating stick re-anchoring); input direction vs camera yaw mismatch (up moves right). Reproduce with real touch events on a phone-size page.
+- **Check against v1.99 first:** ChatGPT's v1.99 (PR #47) added dual touch controls, a faster sprint, safer traffic and a pedestrian-only Market Row, and may already cover part of this. Test on the live build before working on it.
 
 ### GOTR-0132 — Free walk: cars drive through the market; cars are still boxes
 - **Reported:** 2026-11-25 (owner manual QA on v1.97/v1.98, iPhone: "you shouldnt have cars driving the market. Cars are stil just squares").
 - **Status:** OPEN — owner paused development 2026-11-25 ("stop the development for now ... I will continue in few days"); investigate first, a report is not proof of root cause.
 - **Points:** no traffic on Market Row's pedestrian aisle/market streets (free-walk-town.js car spawning on the map's streets); replace the box cars with real car models (the films' city cars exist in CityAssets).
+- **Check against v1.99 first:** ChatGPT's v1.99 (PR #47) added dual touch controls, a faster sprint, safer traffic and a pedestrian-only Market Row, and may already cover part of this. Test on the live build before working on it.
 
 ### GOTR-0131 — Free walk: broken pedestrian crossing on the Neon Strip
 - **Reported:** 2026-11-25 (owner, iPhone, the night walk to the Docks, Neon Strip: "Broken cross road" — doubled, stepped zebra stripes).
-- **Status:** FIXED on `claude/ecstatic-clarke-9as2ak` (not released).
+- **Status:** FIXED, live in v1.99: the fix code is on `main` (checked 2026-11-28). Not checked on a phone.
 - **Root cause:** the Neon grid's street (z 21 m) and the park grid's street (z 16.5 m) run side by side, both 9 m wide (they overlap into one road). Each grid drew its own 5-stripe crossing at the same junction, 0.3 m apart along the road and interleaved across it: 4 junctions on that street (x 112, 151, 164, 202 m) plus one on Market Row had partly overlapping stripes (9 pairs).
 - **Fix:** `gloryland-map.js` buildTraffic: crossings are collected first; crossings across the same road at the same junction are drawn as one, evenly spaced over their joint width (8 stripes at the Neon/park road). A crossing on its own is drawn exactly as before; every other piece of the town is identical (checked). Applies to the overview map too.
 - **Evidence / test:** `qa/walk-crossings/neon-strip-before-after.webp` (before, after, two views at 393x852); `tests/walk-crossings.test.cjs` (fails on the old code: 9 overlapping pairs; now 0 in the walk and on the map).
 
 ### GOTR-0130 — Free walk at night: strange floating lights
 - **Reported:** 2026-11-25 (owner, iPhone, the night walk to the Docks in Market Row: "Strange lights while you walk in the night" — white and red glowing discs on an empty street).
-- **Status:** FIXED on `claude/ecstatic-clarke-9as2ak` (not released).
+- **Status:** FIXED, live in v1.99: the fix code is on `main` (checked 2026-11-28). Not checked on a phone.
 - **Root cause:** the walk hides the overview map's parked cars (`free-walk-town.js` STREET_LIFE: its own cars drive the streets), but the parked cars' headlight (white) and tail-light (red) glows stayed in the town's glow points: 152 cars, 304 lights floating 2.1 m over the asphalt, drawn as soft additive discs up to 256 px.
 - **Fix:** `gloryland-map.js` car(): in the walk those lights go to the map's sink with the hidden cars (the random sequence and every other piece of the town stay identical: same geometry, glow set = old set minus exactly the 304). The overview map keeps them.
 - **Test:** `tests/walk-night-lights.test.cjs` (fails on the old code: 152 + 152 lights in the walk).
 
 ### GOTR-0128 — End of the street fight with Fang: the ring, the referee and the gloves come back
 - **Reported:** 2026-11-25 (owner, iPhone screenshot on v1.97: "This what I see at the end of the fight with the wolf" — a ring, a rhino referee raising the Fighter's arm, the Fighter in gloves and boxing shorts, in the street).
-- **Status:** FIXED on `claude/ecstatic-clarke-9as2ak` (not released).
+- **Status:** FIXED, live in v1.99: the fix code is on `main` (checked 2026-11-28). Not checked on a phone.
 - **Root cause (reproduced in Chromium at 393x852):** `storyFightDone` (adventure/oldtown.js) handed the gear back (`RinglessVenues.release(engine, true)`) the moment the bout was decided, but the fight stayed on screen until the after-film opened (600 ms timer + the outfit rebuild; seconds on a phone). In that gap the ringless staging was undone: ring, referee, gloves and kit came back while the KO ceremony played. Old code: 2 rendered frames with ring/referee/gloves before the film in SwiftShader; new: 0 (win: 15 frames, loss: 19 frames before the next screen).
 - **Fix:** the gear goes back in the same task that opens the next screen (the film, or the map after a loss); Fang stays the Opponent until then. Also: the Burst button's "Bout over" overlapped "Round-by-round details" at the result (EN 23 px, RU 52 px); the Burst button is hidden once the bout is over.
 - **Test:** `tests/ringless-story-end.test.cjs` (source rule + the real app, win and loss; fails on the old code).
 
 ### GOTR-0129 — Street fight camera behind facades, cars and onlookers (intro orbit and the result)
 - **Reported:** 2026-11-25 (found while checking GOTR-0128 on a phone-size screen).
-- **Status:** OPEN — P1. In the ringless street set the intro orbit and the result camera go to ~10-11 m from the centre on a portrait phone, behind the shopfront line (9.2 m), the diner awning (big red block in the foreground), the cars with headlights (x +-8.3) and the onlookers on the parked cars; a dark vertical post fills part of the frame during the intro. The set declares no camera radius (only the Basement and the club do), and the radius applies to the intro only.
+- **Status:** IN PROGRESS (WIP, untested) on `agent/street-camera` `f876eff`; handoff `docs/checkpoints/street-camera.md` on that branch. `tests/ringless-camera.test.cjs` has never run to completion. Merge `origin/main` first. Earlier: OPEN — P1. In the ringless street set the intro orbit and the result camera go to ~10-11 m from the centre on a portrait phone, behind the shopfront line (9.2 m), the diner awning (big red block in the foreground), the cars with headlights (x +-8.3) and the onlookers on the parked cars; a dark vertical post fills part of the frame during the intro. The set declares no camera radius (only the Basement and the club do), and the radius applies to the intro only.
 
 ### GOTR-0127 — Every character's joins and deformations (hands, neck, legs, armpits, muscles)
 - **Reported:** 2026-11-25 (owner: "all joins, not just head. i saw in other avatars issues on hands, neck, legs, arm pits, muscles. this is not the first time"; rule in AGENTS.md)

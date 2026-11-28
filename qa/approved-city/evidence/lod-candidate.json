@@ -1,0 +1,442 @@
+{
+  "viewport": [
+    402,
+    690
+  ],
+  "renderer": "Chromium SwiftShader",
+  "traversal": [
+    {
+      "position": {
+        "x": -6.75,
+        "z": 112.61,
+        "ry": 3.142,
+        "walking": true
+      },
+      "near": [
+        "HLFU 402918 8"
+      ]
+    },
+    {
+      "position": {
+        "x": -6.75,
+        "z": 108.38,
+        "ry": 3.142,
+        "walking": true
+      },
+      "near": [
+        "HLFU 402918 8"
+      ]
+    },
+    {
+      "position": {
+        "x": -6.75,
+        "z": 104.16,
+        "ry": 3.142,
+        "walking": true
+      },
+      "near": [
+        "HLFU 402918 8"
+      ]
+    },
+    {
+      "position": {
+        "x": -6.75,
+        "z": 100.04,
+        "ry": 3.142,
+        "walking": false
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": -6.75,
+        "z": 100.04,
+        "ry": 3.142,
+        "walking": false
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": -3.48,
+        "z": 100.56,
+        "ry": 1.564,
+        "walking": true
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 0.74,
+        "z": 100.38,
+        "ry": 1.571,
+        "walking": true
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 4.97,
+        "z": 100.4,
+        "ry": 1.564,
+        "walking": true
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 9.2,
+        "z": 100.43,
+        "ry": 1.564,
+        "walking": true
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 9.49,
+        "z": 100.46,
+        "ry": 1.564,
+        "walking": true
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 9.49,
+        "z": 100.03,
+        "ry": 2.746,
+        "walking": false
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 9.49,
+        "z": 100.03,
+        "ry": 2.734,
+        "walking": false
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 9.49,
+        "z": 100.03,
+        "ry": 2.734,
+        "walking": false
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 9.49,
+        "z": 100.03,
+        "ry": 2.734,
+        "walking": false
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 9.49,
+        "z": 100.03,
+        "ry": 2.734,
+        "walking": false
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 10.49,
+        "z": 102.6,
+        "ry": 0.938,
+        "walking": true
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 14.23,
+        "z": 104.53,
+        "ry": 1.214,
+        "walking": true
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 17.99,
+        "z": 106.46,
+        "ry": 1.08,
+        "walking": true
+      },
+      "near": []
+    },
+    {
+      "position": {
+        "x": 21.72,
+        "z": 108.46,
+        "ry": 1.079,
+        "walking": true
+      },
+      "near": [
+        "NQSU 724681 4"
+      ]
+    },
+    {
+      "position": {
+        "x": 25.44,
+        "z": 110.46,
+        "ry": 1.079,
+        "walking": true
+      },
+      "near": [
+        "NQSU 724681 4"
+      ]
+    }
+  ],
+  "data": [
+    {
+      "label": "near",
+      "object": "HARBORLINE / HLFU 402918 8",
+      "anchor": [
+        -3.599999999999999,
+        1.17,
+        123
+      ],
+      "player": {
+        "x": -6.75,
+        "z": 116.25
+      },
+      "visible": true,
+      "calls": 60,
+      "triangles": 488468,
+      "memory": {
+        "geometries": 632,
+        "textures": 101
+      },
+      "times": [
+        1231.8999999985099,
+        871,
+        951.5,
+        843.8999999985099
+      ],
+      "lod": [
+        {
+          "index": 13,
+          "slug": "harborline",
+          "id": "HLFU 402918 8",
+          "x": -3.599999999999999,
+          "z": 123,
+          "near": true
+        },
+        {
+          "index": 53,
+          "slug": "tidemarsh",
+          "id": "TMLU 593207 9",
+          "x": 10.8,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 64,
+          "slug": "nordquay",
+          "id": "NQSU 724681 4",
+          "x": 22.799999999999997,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 86,
+          "slug": "sunspoke",
+          "id": "SSCU 631046 9",
+          "x": 34.80000000000001,
+          "z": 123,
+          "near": false
+        }
+      ]
+    },
+    {
+      "label": "far",
+      "object": "HARBORLINE / HLFU 402918 8",
+      "anchor": [
+        -3.599999999999999,
+        1.17,
+        123
+      ],
+      "player": {
+        "x": -6.75,
+        "z": 100.25
+      },
+      "visible": false,
+      "calls": 108,
+      "triangles": 544775,
+      "memory": {
+        "geometries": 632,
+        "textures": 101
+      },
+      "times": [
+        1391,
+        1087.3999999985099,
+        1034,
+        995.6000000014901
+      ],
+      "lod": [
+        {
+          "index": 13,
+          "slug": "harborline",
+          "id": "HLFU 402918 8",
+          "x": -3.599999999999999,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 53,
+          "slug": "tidemarsh",
+          "id": "TMLU 593207 9",
+          "x": 10.8,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 64,
+          "slug": "nordquay",
+          "id": "NQSU 724681 4",
+          "x": 22.799999999999997,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 86,
+          "slug": "sunspoke",
+          "id": "SSCU 631046 9",
+          "x": 34.80000000000001,
+          "z": 123,
+          "near": false
+        }
+      ]
+    },
+    {
+      "label": "return",
+      "object": "HARBORLINE / HLFU 402918 8",
+      "anchor": [
+        -3.599999999999999,
+        1.17,
+        123
+      ],
+      "player": {
+        "x": -6.75,
+        "z": 116.25
+      },
+      "visible": true,
+      "calls": 57,
+      "triangles": 467700,
+      "memory": {
+        "geometries": 636,
+        "textures": 101
+      },
+      "times": [
+        1036.5999999977648,
+        869.2000000029802,
+        898.7999999970198,
+        897
+      ],
+      "lod": [
+        {
+          "index": 13,
+          "slug": "harborline",
+          "id": "HLFU 402918 8",
+          "x": -3.599999999999999,
+          "z": 123,
+          "near": true
+        },
+        {
+          "index": 53,
+          "slug": "tidemarsh",
+          "id": "TMLU 593207 9",
+          "x": 10.8,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 64,
+          "slug": "nordquay",
+          "id": "NQSU 724681 4",
+          "x": 22.799999999999997,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 86,
+          "slug": "sunspoke",
+          "id": "SSCU 631046 9",
+          "x": 34.80000000000001,
+          "z": 123,
+          "near": false
+        }
+      ]
+    },
+    {
+      "label": "wheel",
+      "object": "Midnight Pier (authored)",
+      "anchor": [
+        282,
+        1.2000000000000002,
+        -39
+      ],
+      "player": {
+        "x": 273.25,
+        "z": -10.75
+      },
+      "visible": true,
+      "calls": 76,
+      "triangles": 490294,
+      "memory": {
+        "geometries": 636,
+        "textures": 101
+      },
+      "times": [
+        1162.199999999255,
+        1019.1000000014901,
+        1112.0999999977648,
+        1055.300000000745
+      ],
+      "lod": [
+        {
+          "index": 13,
+          "slug": "harborline",
+          "id": "HLFU 402918 8",
+          "x": -3.599999999999999,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 53,
+          "slug": "tidemarsh",
+          "id": "TMLU 593207 9",
+          "x": 10.8,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 64,
+          "slug": "nordquay",
+          "id": "NQSU 724681 4",
+          "x": 22.799999999999997,
+          "z": 123,
+          "near": false
+        },
+        {
+          "index": 86,
+          "slug": "sunspoke",
+          "id": "SSCU 631046 9",
+          "x": 34.80000000000001,
+          "z": 123,
+          "near": false
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

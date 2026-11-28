@@ -271,17 +271,90 @@ function paintFacades(night, aniso, scaleOf) { // scaleOf(style) -> texture scal
         const g = c.createLinearGradient(0, oy + CELL - 40, 0, oy + CELL); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(60,50,40,.22)'); c.fillStyle = g; c.fillRect(ox, oy + CELL - 40, CELL, 40);
         if (j % 2 === 0) { rect(6, 14, CELL - 12, 24, '#e6e6e6', false); glassGrad(10, 17, CELL - 20, 18, '#9ab7c8', '#5a7890'); for (let k = 1; k < 4; k++) rect(10 + k * (CELL - 20) / 4, 17, 2, 18, '#e6e6e6', false); lit(10, 17, CELL - 20, 18, 0.35, ['#ffd9a0', '#d8ecff']); }
       } else if (style === 'shop') {
-        rect(0, 0, CELL, CELL, '#ffffff', true);
-        rect(0, 0, CELL, 30, '#c4c4c4', true); rect(0, 28, CELL, 3, '#9a9a9a', true);
-        const door = i % 2 === 1;
-        rect(6, 38, CELL - 12, CELL - 40, '#f0eee8', false);
-        const g = c.createLinearGradient(0, oy + 42, 0, oy + CELL - 4); g.addColorStop(0, '#f2dfb8'); g.addColorStop(.5, '#b99a76'); g.addColorStop(1, '#5d4c3d');
-        c.fillStyle = g; c.fillRect(ox + 10, oy + 42, CELL - 20, CELL - 46); m.fillStyle = '#000'; m.fillRect(ox + 10, oy + 42, CELL - 20, CELL - 46);
-        for (let s = 0; s < 3; s++) rect(10, 62 + s * 18, CELL - 20, 3, '#8a7058', false);
-        for (let s = 0; s < 10; s++) rect(rr(12, CELL - 22), rr(50, 108), rr(4, 9), rr(4, 8), pick2(r, ['#e2574c', '#f2c14e', '#4fa3c7', '#7bc06b', '#ffffff']), false);
-        if (door) { rect(CELL - 44, 44, 30, CELL - 44, '#3c4048', false); rect(CELL - 40, 48, 22, 40, '#7a95aa', false); }
-        rect(CELL / 2 - 1, 42, 2, CELL - 46, '#f0eee8', false);
-        lit(10, 42, CELL - 20, CELL - 46, 0.95, ['#ffe2a8', '#fff0cf', '#ffd38a']);
+        // At street distance these are fully illustrated distinct display rooms, not colored floating
+        // rectangles on boards. Retain the 128 px atlas cell, recess bounds, tint mask and one draw.
+        const q = (i + j * 3) % 8;
+        const mood = [
+          ['#f2dfbd','#8c765e','#524139','#3c5554'], ['#e5cf9f','#9f7d55','#443c36','#664b4c'],
+          ['#d9ddc5','#6a796c','#384843','#465c4e'], ['#e1d3ba','#827f75','#454443','#53546b'],
+          ['#dbd6c3','#938275','#59433b','#705847'], ['#ded5c1','#937560','#51423c','#3e575c'],
+          ['#ddd4bd','#776c64','#413d43','#655464'], ['#e0d2b4','#8a7864','#4c3f3c','#604941']
+        ][q];
+        const [bright, mid, dark, frame] = mood, door = i % 2 === 1;
+        const rx = door ? 87 : 116;
+        rect(0,0,CELL,CELL,'#ffffff',true);
+        rect(0,0,CELL,27,'#cecbc0',true); rect(0,26,CELL,4,'#9f9687',true);
+        rect(4,33,120,94,'#584f44',false); rect(6,36,116,91,frame,false);
+        rect(10,39,108,87,'#c7bda5',false); rect(12,42,104,84,'#3d3834',false);
+        glassGrad(13,44,102,72,dark,mid); rect(13,113,102,13,dark,false);
+        rect(14,44,rx-13,4,bright,false); rect(15,48,rx-15,1,'#8d806c',false);
+        rect(13,46,3,76,'#3d3834',false); rect(rx-2,45,2,78,'#343639',false);
+        // Pale ceiling strip behind the glazing plus round pendants.
+        for (const x of (door ? [28,62] : [31,68,98])) {
+          rect(x,45,1,10,'#544946',false); rect(x-4,54,9,3,bright,false);
+          rect(x-2,58,5,1,'#f7e3b4',false);
+        }
+        const shelf = (x,y,w) => {
+          rect(x,y-1,w,1,'#baa282',false);rect(x,y,w,2,'#5f4d40',false);rect(x,y+2,w,2,'#463c37',false);
+        };
+        const oval = (x,y,xx,yy,col) => {
+          c.fillStyle=col;c.beginPath();c.ellipse(ox+x,oy+y,xx,yy,0,0,Math.PI*2);c.fill();
+        };
+        const pack = (x,y,w,h,a,b) => {
+          rect(x+1,y+2,w,h,'#54483f',false);rect(x,y,w,h,a,false);
+          rect(x,y,w,1,b,false);rect(x+w-1,y,1,h,'#796658',false);
+          if(h>=8)rect(x+1,y+3,Math.max(1,w-2),2,b,false);
+        };
+        if (q===0 || q===4) { // bookshop and record shop: uneven spines and a front display table
+          for(const yy of [79,101]){
+            for(let x=19,s=0;x<rx-7;s++){
+              const w=3+(s*7+q)%5,h=7+(s*5+yy+q)%13;
+              const tones=q===0?['#a86052','#c9a56c','#617c78','#ece0c6','#586070']:['#837080','#c6a25b','#5c7b89','#b16c61','#a29b87'];
+              pack(x,yy-h,w,h,tones[(s+yy)%5],'#d2c8ad');x+=w+1+(s%3===0?1:0);
+            }
+            shelf(17,yy,rx-20);
+          }
+          rect(20,109,rx-27,4,mid,false); rect(20,113,rx-28,11,dark,false);
+        } else if(q===1 || q===5) { // bakery / coffee: counters with individual bread forms, cups, handle and base
+          for(let x=21,k=0;x<rx-8;x+=11,k++){
+            oval(x,89+k%2,4.6,3.0,'#5a4335'); oval(x,87+k%2,4.1,2.6,k%2?'#c99a55':'#a76f42');
+            oval(x-1,86+k%2,2.4,1.0,'#ebc57f');
+            if(q===5){rect(x-3,69+k%2,6,10,'#d7cbb2',false);rect(x+3,70+k%2,2,4,'#b9aa93',false);oval(x,79+k%2,4,1.3,bright);}
+          }
+          shelf(18,94,rx-20);rect(18,98,rx-20,21,frame,false);rect(19,100,rx-22,1,'#aca18a',false);
+          for(let x=23;x<rx-4;x+=9) rect(x,103,1,14,mid,false);
+        } else if(q===2 || q===6) { // florist / produce, enough recognizable form from the sidewalk
+          for(let x=20,k=0;x<rx-8;x+=11,k++){
+            const y=85+k%3*2; rect(x-3,y,7,17,k%2?'#a36e55':'#958468',false);
+            rect(x-4,y,9,3,'#b09172',false);
+            for(let n=0;n<5;n++){
+              const u=x+(n*3%7)-3,v=y-n*2;
+              rect(u,v,1,y-v,'#55704b',false);oval(u,v,2.2,1.7,['#e4ce97','#bc706a','#aa9abe','#d6957c'][(k+n+q)%4]);
+            }
+          }
+          shelf(17,105,rx-20);rect(17,108,rx-20,11,dark,false);
+        } else { // independent clothes shops: garments hanging in a glass bay, lower folded stacks
+          shelf(18,63,rx-20);
+          for(let x=22,k=0;x<rx-9;x+=13,k++){
+            const dy=k%2*3, base=['#8999a0','#956d65','#b4a282','#657779'][k%4];
+            rect(x,64,1,6,'#d6c2a0',false);rect(x-3,68+dy,8,3,base,false);
+            rect(x-4,71+dy,2,10,base,false);rect(x+3,71+dy,2,10,base,false);
+            rect(x-2,71+dy,6,18,base,false);rect(x-1,73+dy,1,10,bright,false);rect(x-2,88+dy,6,1,mid,false);
+            pack(x-4,102,9,5,base,bright);
+          }
+          shelf(18,108,rx-20);
+        }
+        if(door){
+          rect(88,43,26,82,frame,false); rect(91,48,20,58,'#293a45',false);
+          glassGrad(92,49,18,54,'#63777e','#364953'); rect(109,78,2,9,'#d8b97d',false);
+          rect(91,109,20,13,'#5c5147',false); rect(88,49,1,74,'#beb09a',false);
+        } else {
+          rect(63,45,2,79,frame,false); rect(65,45,1,79,'#b4a991',false);
+        }
+        rect(12,123,103,3,'#bfb196',false);rect(9,126,111,2,'#877765',false);
+        // Same random draw count as the previous generic labels: preserve neighboring lit choices.
+        for (let s=0;s<10;s++) { rr(12,CELL-22);rr(50,108);rr(4,9);rr(4,8);r(); }
+        lit(16,48,rx-18,8,.95,['#edc998','#ead6b5','#e5c59b']);
       }
     }
     // alpha := 255 for tinted walls, 128 for own-colour parts
@@ -439,7 +512,7 @@ function build(scene, opts = {}) {
   const group = new THREE.Group(); group.name = 'Gloryland map (' + (NIGHT ? 'night' : 'day') + ')';
   const disposables = [];
   const SCALE = opts.scale > 0 ? opts.scale : 1; // the free walk shows the same town in metres (3 m per map unit)
-  const W = { disposables, scale: SCALE, walk: !!opts.walk,
+  const W = { disposables, scale: SCALE, walk: !!opts.walk, art: opts.walk ? opts.art : null,
     NIGHT, group, debugGrid: !!opts.debugGrid,
     solid: new Batch(), overhead: new Batch(), ground: new Batch(), marks: new Batch(), glowSolid: new Batch(), beams: new Batch(),
     lang: ['he', 'ru'].includes(opts.lang) ? opts.lang : 'en', facade: {}, inst: {}, glow: { p: [], c: [], s: [], ph: [] }, pools: [], signs: [], places: [], blocks: [], roads: [], streets: [], cars: [],
@@ -449,6 +522,8 @@ function build(scene, opts = {}) {
   };
   for (const s of Object.keys(FACADE)) W.facade[s] = new Batch({ uv: true, tint: true });
 
+  W.harbor = opts.harbor?.(group, SCALE, LAND_Y);
+  if (W.harbor) disposables.push(W.harbor);
   layoutWorld(W);
   buildLand(W);
   buildDistricts(W);
@@ -485,7 +560,8 @@ function build(scene, opts = {}) {
   buildInstances(W, add);
   buildSigns(W, add, disposables);
   if (NIGHT) buildNightFx(W, add, disposables);
-  buildWheel(W, solidMat, disposables);
+  buildWheel(W, solidMat, disposables, opts.onArtReady);
+  buildHarborArt(W);
   if (W.clouds && W.clouds.tris) add(new THREE.Mesh(W.clouds.geometry(), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, emissive: new THREE.Color(.16, .17, .19) })), false, false).name = 'clouds';
 
   /* ---- lights and atmosphere */
@@ -533,12 +609,13 @@ function build(scene, opts = {}) {
     return { meshes, instances: inst, triangles: Math.round(tris) };
   }
   buildMovers(W);
-  const halo = buildHalo(W, disposables);
-  const setCurrent = id => { const p = W.places.find(q => q.id === id); halo.set(p || null); };
+  // The overview beacon is a translucent column; at street level the walk has its own ground cue.
+  const halo = W.walk ? null : buildHalo(W, disposables);
+  const setCurrent = id => halo?.set(W.places.find(q => q.id === id) || null);
   setCurrent((W.places.find(q => q.state === 'current') || {}).id);
   return {
     time: TIME, quality: LOW ? 'low' : 'high', setCurrent,
-    group, places: W.places, route: (a, b) => streetRoute(W, a, b), sun, hemi, fogColor, night: NIGHT, focusShadows, update, stats,
+    group, harbor: W.harbor, places: W.places, route: (a, b) => streetRoute(W, a, b), sun, hemi, fogColor, night: NIGHT, focusShadows, update, stats,
     bounds: { x0: -108, x1: 108, z0: -74, z1: 66 },
     // The town plan for street level (adventure/free-walk): blocks, road ribbons, street segments between blocks, the
     // instanced props (trees, lamps, ...: { mesh, list }), the coast and the named landmarks. Map units, y up.
@@ -1340,7 +1417,10 @@ function wake(W, x, z, ry, sc = 1) {
 function lamp(W, x, y, z, ry = 0) {
   addInst(W, 'lamps', { x, y, z, s: 1, ry });
   const fr = frame(x, z, ry), [hx, hz] = fr.p(0, .42);
-  glow(W, hx, y + 1.62, hz, '#ffd38a', 1.6, .9); pool(W, hx, hz, 2.2, '#ffcf8a', .55, y + .01);
+  // The overhead map keeps its distant glow; Walk adds its own occluded ground pools.
+  // Still consume the same RNG for the street fixture so later scenery placement does not change.
+  glow(W.walk ? sinkOf(W) : W, hx, y + 1.62, hz, '#ffd38a', 1.6, .9);
+  if (!W.walk) pool(W, hx, hz, 2.2, '#ffcf8a', .55, y + .01);
 }
 function lifeguard(W, x) {
   const cz = coastZ(x), o = 4.2, y = beachY(o), px = x + cz.nx * o, pz = cz.z + cz.nz * o, fr = frame(px, pz, 0);
@@ -1410,13 +1490,27 @@ function townSquare(W) {
     c.fillStyle = PAL.park; for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const q = fr.p(sx * (b.w / 2 - 1.6), sz * (b.d / 2 - 1.6)); c.beginPath(); c.arc(X(q[0]), Y(q[1]), 1.1 * S, 0, TAU); c.fill(); }
     c.restore();
   });
-  // fountain
-  W.solid.add(P.cyl20, M(b.x, y, b.z, 1.7, .32, 1.7), C('#e4d9c4'));
-  W.solid.add(P.cyl20, M(b.x, y + .32, b.z, 1.45, .02, 1.45), C('#6fd0e0'));
-  W.solid.add(P.cyl12, M(b.x, y, b.z, .35, .9, .35), C('#e4d9c4'));
-  W.solid.add(P.cyl12, M(b.x, y + .9, b.z, .7, .12, .7), C('#e4d9c4'));
-  W.solid.add(P.cone8, M(b.x, y + 1.02, b.z, .3, .6, .3), C('#cdeff5'));
-  for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const [tx, tz] = fr.p(sx * (b.w / 2 - 1.6), sz * (b.d / 2 - 1.6)); addInst(W, 'trees', { x: tx, y, z: tz, s: rnd(.8, .95) }); }
+  // Authored art is optional. Keep the original geometry for the free-walk height field.
+  // color/depth writes are off in normal rendering; the height pass uses its own depth material.
+  const art = W.art?.oldParkFountain?.scene;
+  const fountainSolid = art ? new Batch() : W.solid;
+  fountainSolid.add(P.cyl20, M(b.x, y, b.z, 1.7, .32, 1.7), C('#e4d9c4'));
+  fountainSolid.add(P.cyl20, M(b.x, y + .32, b.z, 1.45, .02, 1.45), C('#6fd0e0'));
+  fountainSolid.add(P.cyl12, M(b.x, y, b.z, .35, .9, .35), C('#e4d9c4'));
+  fountainSolid.add(P.cyl12, M(b.x, y + .9, b.z, .7, .12, .7), C('#e4d9c4'));
+  fountainSolid.add(P.cone8, M(b.x, y + 1.02, b.z, .3, .6, .3), C('#cdeff5'));
+  if (art) {
+    const model = art.clone(true);
+    model.name = 'Old Town park fountain'; model.position.set(b.x, y, b.z); W.group.add(model);
+    const geometry = fountainSolid.geometry(), material = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+    const proxy = new THREE.Mesh(geometry, material); proxy.name = 'Old Town park fountain collision';
+    proxy.userData.fwSolid = true; W.group.add(proxy); W.disposables.push(geometry, material);
+  }
+  for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+    const [tx, tz] = fr.p(sx * (b.w / 2 - 1.6), sz * (b.d / 2 - 1.6));
+    const parkArt = sx === sz ? 'oldParkBroad' : 'oldParkUpright';
+    addInst(W, 'trees', { x: tx, y, z: tz, s: rnd(.8, .95), parkArt });
+  }
   // clock tower on the back corner
   const [cx, cz] = fr.p(-b.w / 2 + 1.4, -b.d / 2 + 1.4), ct = frame(cx, cz, fr.ry);
   W.solid.add(P.box, M(cx, y, cz, 1.7, 7.2, 1.7, fr.ry), C('#efe2c6'), { ao: .25 });
@@ -1519,10 +1613,11 @@ function docks(W) {
       const h = rint(0, 3); for (let k = 0; k < h; k++) addInst(W, 'containers', { x, y: LAND_Y + k * .66, z: z0 + dz, s: 1, ry: Math.PI / 2, color: pick(ccol) });
     }
   }
-  // ship-to-shore cranes
-  for (const cx of [-1, 11]) crane(W, cx);
-  // cargo ship moored at the south quay
-  cargoShip(W, 5, 56.4);
+  // Keep the stock random draws for later landmarks even when the approved quay replaces these batches.
+  const mooring = W.harbor ? { NIGHT: W.NIGHT, solid: new Batch(), glowSolid: new Batch(),
+    glow: { p: [], c: [], s: [], ph: [] }, inst: {} } : W;
+  for (const cx of [-1, 11]) crane(mooring, cx);
+  cargoShip(mooring, 5, 56.4);
   addInst(W, 'tugs', { x: 24, y: 0, z: 59, s: 1, ry: -2.6 }); addInst(W, 'tugs', { x: -16, y: 0, z: 57, s: 1, ry: .4 });
   // bollards and quay lamps
   for (let x = -19; x < 22; x += 2.6) W.solid.add(P.cyl8, M(x, LAND_Y, 52.6, .14, .32, .14), C('#2f3339'));
@@ -2078,7 +2173,22 @@ function fairground(W) {
   W.solid.add(P.box, M(ex, y + 2.75, ez, 5.6, .7, .3), C('#3b2a52'));
   sign(W, { text: 'MIDNIGHT FAIR', x: ex, y: y + 3.42, z: ez + .17, ry: 0, h: .62, style: 'letters', fg: '#ffb347', glow: '#ff8a2a', outline: 'rgba(30,14,40,.95)' });
   // stalls, string lights and the crowd
-  for (let k = 0; k < 9; k++) { const sx = 74.5 + (k % 3) * 2.2 + (k > 5 ? 0 : 0), sz = -14 + Math.floor(k / 3) * 2.4 + 2; const [a, b] = pick(PAL.awning).map(C); W.solid.add(P.box, M(sx + 14, y, sz - 1, 1.5, .9, 1.1), C('#f4efe4')); W.solid.add(P.box, M(sx + 14, y + .9, sz - 1, 1.7, .1, 1.3), k % 2 ? a : b); }
+  const kioskCollision = new Batch(), [ksx, ksy, ksz] = FAIR_KIOSK_SCALE;
+  for (let k = 0; k < 9; k++) {
+    // Retain the RNG consumption and the pivots of the old temporary counters.
+    pick(PAL.awning);
+    const x = 88.5 + (k % 3) * 2.2, z = -13 + Math.floor(k / 3) * 2.4;
+    fairKiosk(W, x, y, z, k);
+    if (W.walk) {
+      // Low stall hardware only; the invisible proxy shares the new scaled base, not the old footprint.
+      kioskCollision.add(P.box, M(x, y, z, 1.50 * ksx, .95 * ksy, 1.10 * ksz), C('#ffffff'));
+    }
+  }
+  if (W.walk) {
+    const geometry = kioskCollision.geometry(), material = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+    const proxy = new THREE.Mesh(geometry, material); proxy.name = 'Fair kiosks collision';
+    proxy.userData.fwSolid = true; W.group.add(proxy); W.disposables.push(geometry, material);
+  }
   for (const [a, b] of [[[74, 2.4], [83, -4]], [[89, 2.4], [96, -6]], [[80, -14], [92, -21]], [[76, -29], [94, -31]]]) {
     let prev = null; const n = 12;
     for (let k = 0; k <= n; k++) { const f = k / n, pt = [lerp(a[0], b[0], f), y + 3.1 - Math.sin(Math.PI * f) * .7, lerp(a[1], b[1], f)]; if (prev) beam(W.solid, prev, pt, .025, C('#3b3b3b')); if (k && k < n) { W.solid.add(P.ico, M(pt[0], pt[1] - .08, pt[2], .08, .08, .08), C(W.NIGHT ? '#fff3c4' : pick(['#f2c14e', '#e8473b', '#8fe3db']))); glow(W, pt[0], pt[1] - .08, pt[2], pick(['#ffcf6a', '#ff6fb5', '#8f7bff', '#7dffdf']), 1.2, .9); } prev = pt; }
@@ -2104,8 +2214,58 @@ function fairground(W) {
   if (W.NIGHT) { for (let k = 0; k < 10; k++) glow(W, bx - 3.2 + k * .71, y + 2.5, bz + 2.4, k % 2 ? '#ffd34a' : '#ff8a2a', .9, .9); pool(W, bx, bz, 4, '#b47bff', .5, y + .1); }
   W.fair = { x: 88, z: -14, top: 20 };
 }
+// Surveyed in Free Walk world metres (map scale 3): ~1.03 m counter, ~2.32 m roof.
+const FAIR_KIOSK_SCALE = [.46, .36, .39];
+function fairKiosk(W, x, y, z, k) {
+  const kind = (k + Math.floor(k / 3)) % 3;
+  const [cloth, linen, wood, accent] = [
+    ['#a63b4c', '#f3e3c5', '#78472f', '#f5b55b'],
+    ['#2d6874', '#e5ddbb', '#6a4b38', '#69c5ca'],
+    ['#65508a', '#e8d5da', '#594135', '#e5bc62'],
+  ][kind].map(C);
+  const [sx, sy, sz] = FAIR_KIOSK_SCALE;
+  const put = (geo, xx, yy, zz, w, h, d, tint, rx = 0) => {
+    const m = M(xx, yy, zz, w, h, d, 0, rx);
+    // Apply nonuniform scaling in the kiosk frame after each local rotation.
+    const e = m.elements;
+    for (let j = 0; j < 16; j += 4) { e[j] *= sx; e[j + 1] *= sy; e[j + 2] *= sz; }
+    e[12] += x; e[13] += y; e[14] += z;
+    W.overhead.add(geo, m, tint);
+  };
+  // Keep every detail within the now pedestrian-scale kiosk footprint. Front opens onto the +Z aisle.
+  put(P.box, 0, 0, 0, 1.50, .12, 1.10, wood);
+  for (const u of [-.69, .69]) for (const v of [-.50, .50]) put(P.box, u, .12, v, .10, 1.94, .10, wood);
+  put(P.box, 0, .12, -.48, 1.36, 1.69, .07, wood);
+  put(P.box, 0, .12, .39, 1.36, .76, .16, wood);
+  for (let i = 0; i < 7; i++) put(P.box, (i - 3) * .188, .18, .480, .175, .62, .035, i % 2 ? wood : accent);
+  put(P.box, 0, .86, .32, 1.56, .09, .56, linen);
+  // Narrow fabric panels trace a peaked roof; stripes are geometric and share the existing solid batch.
+  for (let i = 0; i < 7; i++) {
+    const u = (i - 3) * .238, tint = (i + k) % 2 ? cloth : linen;
+    for (const s of [-1, 1]) put(P.box, u, 2.04, s * .317, .241, .035, .669, tint, s * .236);
+    put(P.box, u, 1.92, .624, .239, .105 + (i % 2 ? .035 : 0), .036, tint);
+  }
+  if (kind === 0) { // Snack stand: popper cabinet and striped cups.
+    put(P.box, -.36, .95, .32, .42, .08, .31, cloth);
+    put(P.box, -.36, 1.03, .32, .34, .33, .25, accent);
+    put(P.box, -.36, 1.36, .32, .42, .09, .30, cloth);
+    for (const u of [.05, .23, .41]) put(P.cyl8, u, .95, .43, .054, .13, .054, linen);
+  } else if (kind === 1) { // Ride tickets: kiosk window and slot, open to the queue.
+    put(P.box, 0, 1.02, -.31, 1.27, .07, .19, accent);
+    put(P.box, .32, .95, .31, .42, .18, .28, cloth);
+    put(P.box, .32, 1.02, .455, .20, .032, .015, linen);
+    put(P.box, -.26, 1.43, -.429, .34, .24, .025, accent);
+    put(P.box, .24, 1.43, -.429, .34, .24, .025, accent);
+  } else { // Ring toss: peg-and-hoop counter, tiered prize shelf.
+    put(P.box, 0, 1.21, -.31, 1.22, .075, .23, accent);
+    for (const u of [-.35, 0, .35]) { put(P.ico, u, 1.30, -.32, .104, .126, .104, linen); put(P.cyl8, u, .95, .37, .035, .14, .035, accent); }
+  }
+}
+
 function ferrisWheel(W, x, z, y0) {
-  const ry = .36, f = frame(x, z, ry), Rw = 7.6, H = 9.4, N = 16, B = W.solid;
+  // Keep the generated support in its own mesh so it can disappear visually
+  // after a late GLB load without changing the already-built walk height field.
+  const ry = .36, f = frame(x, z, ry), Rw = 7.6, H = 9.4, N = 16, B = new Batch();
   const at = (lx, ly, lz) => { const q = f.p(lx, lz); return [q[0], y0 + ly, q[1]]; };
   for (const s of [-1, 1]) { beam(B, at(-3.4, 0, s * 1.4), at(0, H, s * .55), .3, C('#d9dde4')); beam(B, at(3.4, 0, s * 1.4), at(0, H, s * .55), .3, C('#d9dde4')); beam(B, at(-1.7, H / 2, s * .95), at(1.7, H / 2, s * .95), .16, C('#d9dde4')); }
   rod(B, at(0, H, -.8), at(0, H, .8), .32, C('#b9bfc8'));
@@ -2117,7 +2277,7 @@ function ferrisWheel(W, x, z, y0) {
     beam(wb, [Math.cos(a0) * Rw, Math.sin(a0) * Rw, s], [Math.cos(a1) * Rw, Math.sin(a1) * Rw, s], .16, rimA);
   }
   for (let k = 0; k < N; k++) { const a = k / N * TAU; for (const s of [-.45, .45]) beam(wb, [0, 0, s * .4], [Math.cos(a) * Rw, Math.sin(a) * Rw, s], .06, C('#c9ced6')); beam(wb, [Math.cos(a) * Rw, Math.sin(a) * Rw, -.45], [Math.cos(a) * Rw, Math.sin(a) * Rw, .45], .1, rimA); }
-  W.wheel = { geo: wb, x, z, y: y0 + H, ry, R: Rw, N, lightCol };
+  W.wheel = { support: B, geo: wb, x, z, y: y0 + H, floorY: y0, ry, R: Rw, N, lightCol };
 }
 
 /* ---- Neon Strip: hotel signs and neon outlines */
@@ -2267,10 +2427,30 @@ function buildVegetation(W) {
 }
 
 /* ------------------------------------------------------------------ road markings, crossings and cars */
+// The raised Market Row plaza, from entrance to entrance. Use the exact
+// footprint painted in buildDistricts, not the smaller story-set crop.
+function marketRoadClear(mf, a, b, pad = 0, scale = 1) {
+  if (!mf) return true;
+  const local = ([x, z]) => {
+    const dx = x / scale - mf.o[0], dz = z / scale - mf.o[1];
+    return [dx * mf.U[0] + dz * mf.U[1], dx * mf.Wv[0] + dz * mf.Wv[1]];
+  };
+  const p = local(a), q = local(b), lo = [-1.5 - pad, -3.5 - pad], hi = [50.5 + pad, 3.5 + pad];
+  let t0 = 0, t1 = 1;
+  for (let i = 0; i < 2; i++) {
+    const d = q[i] - p[i];
+    if (Math.abs(d) < 1e-8) { if (p[i] < lo[i] || p[i] > hi[i]) return true; continue; }
+    const x = (lo[i] - p[i]) / d, y = (hi[i] - p[i]) / d;
+    t0 = Math.max(t0, Math.min(x, y)); t1 = Math.min(t1, Math.max(x, y));
+    if (t0 > t1) return true;
+  }
+  return false;
+}
 function buildTraffic(W) {
   const lc = C(PAL.line), y0 = LAND_Y + .012;
   const stripe = (cx, cz, dx, dz, len, wd, col = lc, y = y0) => {
     const nx = -dz * wd / 2, nz = dx * wd / 2, hx = dx * len / 2, hz = dz * len / 2;
+    if (!marketRoadClear(W.marketFrame, [cx - hx, cz - hz], [cx + hx, cz + hz], wd / 2)) return;
     W.marks.quadF([cx - hx - nx, y, cz - hz - nz], [cx + hx - nx, y, cz + hz - nz], [cx + hx + nx, y, cz + hz + nz], [cx - hx + nx, y, cz - hz + nz], col, col, [0, 1, 0]);
   };
   const dashes = (a, b, off = 0, col = lc) => {
@@ -2279,7 +2459,7 @@ function buildTraffic(W) {
   };
   // free walk: the parked cars are hidden (street life is its own) and so are their lights (owner: "strange lights while you walk in
   // the night"); they go to the sink, so the random sequence and the rest of the town stay exactly the same
-  const car = (x, z, ry) => { addInst(W, 'cars', { x, y: LAND_Y, z, s: 1, ry, color: pick(PAL.car) }); if (W.NIGHT) { const L = W.walk ? sinkOf(W) : W, f = frame(x, z, ry), h = f.p(0, .62), t = f.p(0, -.6); glow(L, h[0], LAND_Y + .3, h[1], '#fff2c8', .9, .8); glow(L, t[0], LAND_Y + .3, t[1], '#ff3a2a', .6, .8); } };
+  const car = (x, z, ry) => { const clear = marketRoadClear(W.marketFrame, [x, z], [x, z], .8), D = clear ? W : sinkOf(W); addInst(D, 'cars', { x, y: LAND_Y, z, s: 1, ry, color: pick(PAL.car) }); if (W.NIGHT) { const L = W.walk ? sinkOf(W) : D, f = frame(x, z, ry), h = f.p(0, .62), t = f.p(0, -.6); glow(L, h[0], LAND_Y + .3, h[1], '#fff2c8', .9, .8); glow(L, t[0], LAND_Y + .3, t[1], '#ff3a2a', .6, .8); } };
   // grid districts: every street segment between or around blocks
   const zebras = []; // pedestrian crossings, drawn after every grid (see below)
   for (const g of W.grids || []) {
@@ -2288,7 +2468,7 @@ function buildTraffic(W) {
       const a = at(u0, w0), b = at(u1, w1), dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, nx = -uz, nz = ux;
       W.streets.push({ a, b, w: st, district: def.name });
       if (st >= 3.6) dashes([a[0] + ux * 1.2, a[1] + uz * 1.2], [b[0] - ux * 1.2, b[1] - uz * 1.2]);
-      if (st >= 2.9) for (const [e, s] of [[a, 1], [b, -1]]) zebras.push({ cx: e[0] + ux * s * .55, cz: e[1] + uz * s * .55, ux, uz, nx, nz, n: Math.floor((st - .5) / .45) });
+      if (st >= 2.9) for (const [e, s] of [[a, 1], [b, -1]]) zebras.push({ needsCurbs: def.name === 'market' || def.name === 'oldtown', cx: e[0] + ux * s * .55, cz: e[1] + uz * s * .55, ux, uz, nx, nz, n: Math.floor((st - .5) / .45) });
       if (st >= 2.9) { const n = def.name === 'downtown' ? rint(1, 3) : rint(0, 2); for (let k = 0; k < n; k++) { const t = rnd(.2, .8), dir = chance(.5) ? 1 : -1, off = dir * st / 4, x = lerp(a[0], b[0], t) + nx * off, z = lerp(a[1], b[1], t) + nz * off; car(x, z, Math.atan2(ux * dir, uz * dir)); } }
     };
     for (const b of blocks) {
@@ -2307,12 +2487,22 @@ function buildTraffic(W) {
   for (const z of zebras) {
     const half = (z.n - 1) / 2 * .45;
     const d = joined.find(d => { if (Math.abs(d.ux * z.ux + d.uz * z.uz) < .995) return false; const dx = z.cx - d.cx, dz = z.cz - d.cz, along = dx * d.ux + dz * d.uz, side = dx * d.nx + dz * d.nz; return Math.abs(along) < .6 && side - half < d.hi + .3 && side + half > d.lo - .3; });
-    if (!d) { joined.push({ cx: z.cx, cz: z.cz, ux: z.ux, uz: z.uz, nx: z.nx, nz: z.nz, lo: -half, hi: half, along: 0, count: 1 }); continue; }
+    if (!d) { joined.push({ cx: z.cx, cz: z.cz, ux: z.ux, uz: z.uz, nx: z.nx, nz: z.nz, lo: -half, hi: half, along: 0, count: 1, needsCurbs: z.needsCurbs }); continue; }
     const dx = z.cx - d.cx, dz = z.cz - d.cz, side = dx * d.nx + dz * d.nz;
-    d.lo = Math.min(d.lo, side - half); d.hi = Math.max(d.hi, side + half); d.along += dx * d.ux + dz * d.uz; d.count++;
+    d.lo = Math.min(d.lo, side - half); d.hi = Math.max(d.hi, side + half); d.along += dx * d.ux + dz * d.uz; d.count++; d.needsCurbs ||= z.needsCurbs;
   }
+  // Remove orphaned stripes. In the two reviewed districts cross only
+  // where both ends meet raised pavement; retain legacy verge connections
+  // elsewhere, where a walkable shoulder is not always built as a plate.
+  const pavement = (x, z) => W.blocks.some(b => Math.abs(x - b.x) < b.w + b.d && Math.abs(z - b.z) < b.w + b.d && inPoly(x, z, b.pts));
   for (const d of joined) {
     const n = Math.round((d.hi - d.lo) / .45) + 1, step = n > 1 ? (d.hi - d.lo) / (n - 1) : 0, sh = d.along / d.count, cx = d.cx + d.ux * sh, cz = d.cz + d.uz * sh;
+    const crossAt = (o, t = 0) => [cx + d.nx * o + d.ux * t, cz + d.nz * o + d.uz * t];
+    if (!marketRoadClear(W.marketFrame, crossAt(d.lo), crossAt(d.hi), .40)) continue;
+    const landing = (o, side) => [.38, .65, .92].some(gap => [-.35, 0, .35].some(t => pavement(...crossAt(o + side * gap, t))));
+    const left = landing(d.lo, -1), right = landing(d.hi, 1);
+    if ((!left && !right) || (d.needsCurbs && (!left || !right))) continue;
+    if (n < 2 || pavement(...crossAt((d.lo + d.hi) / 2))) continue;
     for (let k = 0; k < n; k++) { const o = d.lo + k * step; stripe(cx + d.nx * o, cz + d.nz * o, d.ux, d.uz, .75, .22); }
   }
   // main roads
@@ -2322,7 +2512,7 @@ function buildTraffic(W) {
       if (r.lanes) for (const o of r.lanes) dashes(a, b, o, o === 0 && r.w > 3.6 ? C(PAL.lineY) : lc);
       if (r.w >= 3) { // these cars drive: out along one lane and back along the other
         const off = r.w > 8 ? 3.6 : r.w / 4, A = [a[0] + ux * 1.5, a[1] + uz * 1.5], Bp = [Math.min(b[0], 114) === b[0] ? b[0] - ux * 1.5 : 114, b[1] - uz * 1.5], Lm = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]);
-        if (Lm > 6) for (let t = rnd(1, 5); t < 2 * Lm; t += rnd(6, 12)) { const mv = { type: 'lane', a: A, b: Bp, off, speed: rnd(2.6, 3.8), s0: t }; addInst(W, 'cars', { x: 0, y: LAND_Y, z: 0, s: 1, ry: 0, color: pick(PAL.car), mv }); if (W.NIGHT) addInst(W, 'carlights', { x: 0, y: LAND_Y, z: 0, s: 1, ry: 0, mv }); }
+        if (Lm > 6) for (let t = rnd(1, 5); t < 2 * Lm; t += rnd(6, 12)) { const mv = { type: 'lane', a: A, b: Bp, off, speed: rnd(2.6, 3.8), s0: t }; const D = marketRoadClear(W.marketFrame, A, Bp, off + .85) ? W : sinkOf(W); addInst(D, 'cars', { x: 0, y: LAND_Y, z: 0, s: 1, ry: 0, color: pick(PAL.car), mv }); if (W.NIGHT) addInst(D, 'carlights', { x: 0, y: LAND_Y, z: 0, s: 1, ry: 0, mv }); }
         if (r.w > 8) for (const s0 of [4, 70]) addInst(W, 'trams', { x: 0, y: LAND_Y, z: 0, s: 1, ry: 0, mv: { type: 'lane', a: [30, a[1]], b: [112, b[1]], off: 1.25, speed: 2.4, s0 } });
       }
     }
@@ -2435,7 +2625,16 @@ function buildInstances(W, add) {
     if (def.map) W.disposables.push(mat.map);
     const mesh = new THREE.InstancedMesh(geo, mat, list.length), col = new THREE.Color();
     list.forEach((o, i) => {
-      mesh.setMatrixAt(i, M(o.x, o.y, o.z, o.s * (o.sx || 1), o.s * (o.sy || 1), o.s * (o.sz || 1), o.ry ?? rnd(0, TAU)));
+      const angle = o.ry ?? rnd(0, TAU);
+      const parkTree = k === 'trees' && o.parkArt ? W.art?.[o.parkArt]?.scene : null;
+      if (parkTree) {
+        const model = parkTree.clone(true);
+        model.name = 'Old Town park tree'; model.position.set(o.x, o.y, o.z);
+        model.rotation.y = angle; model.scale.setScalar(o.s); W.group.add(model);
+      }
+      // Keep the original list and transform RNG for collision/canopy. A zero matrix also
+      // stops the near-tree dressing from creating a second tree at an authored site.
+      mesh.setMatrixAt(i, parkTree ? new THREE.Matrix4().makeScale(0, 0, 0) : M(o.x, o.y, o.z, o.s * (o.sx || 1), o.s * (o.sy || 1), o.s * (o.sz || 1), angle));
       col.copy(C(o.color || (def.colors ? pick(def.colors) : '#ffffff'))); mesh.setColorAt(i, col);
       if (moving) { if (o.mv.type === 'orbit') { o.mv.cx = o.x - Math.cos(o.mv.ph) * o.mv.r; o.mv.cz = o.z - Math.sin(o.mv.ph) * o.mv.r; } W.movers.push({ mesh, i, o }); }
     });
@@ -2609,9 +2808,44 @@ function buildNightFx(W, add, disposables) {
   pts.matrixAutoUpdate = false; W.group.add(pts); disposables.push(geo, mat);
 }
 
+/** Optional visual details for the walk map.
+ * Models are optional assets: cold/offline loads retain all original procedural scenery. */
+function buildHarborArt(W) {
+  const art = W.art;
+  if (!art) return;
+  const place = (gltf, name, x, y, z, scale, ry = 0, solid = false) => {
+    if (!gltf?.scene) return null;
+    const g = gltf.scene.clone(true); g.name = name; g.position.set(x, y, z); g.rotation.y = ry; g.scale.setScalar(scale);
+    g.traverse(o => { if (o.isMesh) { o.castShadow = solid; o.receiveShadow = true; if (solid) o.userData.fwSolid = true; } });
+    W.group.add(g); return g;
+  };
+  const containers = W.instMeshes?.containers;
+  if (art.harborContainer && containers) {
+    // Replace exactly one near-side, non-stacked box. Never duplicate its collision or ID.
+    const { list, mesh } = containers;
+    let best = -1, dist = Infinity;
+    for (let i = 0; i < list.length; i++) {
+      const o = list[i]; if (o.y !== LAND_Y || o.z !== 41 || list.some(q => q.x === o.x && q.z === o.z && q.y > o.y)) continue;
+      const d = Math.abs(o.x + 2.0); if (d < dist) { best = i; dist = d; }
+    }
+    if (best >= 0) {
+      const o = list[best]; const moved = place(art.harborContainer, 'Harborline container', o.x, o.y - .010, o.z, .240, o.ry, true);
+      if (moved) { mesh.setMatrixAt(best, new THREE.Matrix4().makeScale(0, 0, 0)); mesh.instanceMatrix.needsUpdate = true; }
+    }
+  }
+  // Separate flight/glide and quay-side perching locations. Wings on this version are static.
+  const gull = place(art.harborGull, 'Harbor gull — glide', -10, 3, 53, .34);
+  if (gull) W.animated.push(t => { const a = t * .31; gull.position.set(-9 + 5 * Math.cos(a), 3.4 + .4 * Math.sin(a * 2), 54 + 3.3 * Math.sin(a)); gull.rotation.y = Math.atan2(-5 * Math.sin(a), 3.3 * Math.cos(a)); });
+}
+
 /* ------------------------------------------------------------------ the Ferris wheel (rotating) */
-function buildWheel(W, solidMat, disposables) {
+function buildWheel(W, solidMat, disposables, onArtReady) {
   const wh = W.wheel; if (!wh) return;
+  const staticMat = solidMat.clone();
+  const support = new THREE.Mesh(wh.support.geometry(), staticMat);
+  support.name = 'Ferris wheel collision support'; support.userData.fwSolid = true;
+  support.castShadow = support.receiveShadow = true; W.group.add(support);
+  disposables.push(support.geometry, staticMat);
   const pivot = new THREE.Group(); pivot.position.set(wh.x, wh.y, wh.z); pivot.rotation.y = wh.ry; W.group.add(pivot);
   const rim = new THREE.Mesh(wh.geo.geometry(), solidMat); rim.castShadow = true; rim.receiveShadow = true; rim.name = 'ferris wheel'; pivot.add(rim); disposables.push(rim.geometry);
   const gm = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .6 }), gg = gondolaGeo();
@@ -2635,7 +2869,29 @@ function buildWheel(W, solidMat, disposables) {
     for (let k = 0; k < wh.N; k++) { const a = k / wh.N * TAU + rot; m4.makeTranslation(Math.cos(a) * wh.R, Math.sin(a) * wh.R, 0); gond.setMatrixAt(k, m4); }
     gond.instanceMatrix.needsUpdate = true;
   };
-  set(0); W.animated.push(set);
+  let alive = true, authored = null, lastT = 0;
+  const mount = bake => {
+    if (!alive || authored || !bake?.scene || !window.MidnightPier) return;
+    const frame = new THREE.Group(); frame.position.set(wh.x, wh.floorY, wh.z); frame.rotation.y = wh.ry;
+    const next = window.MidnightPier.mount(bake, frame);
+    if (!next) return;
+    // Same fixed solid volume before and after. The device's depth pass substitutes
+    // its own material, whereas the invisible support writes neither color nor depth.
+    frame.traverse(o => { if (o.isMesh) o.userData.fwSolid = false; });
+    authored = next; W.group.add(frame); authored.update(lastT);
+    pivot.visible = false; staticMat.colorWrite = staticMat.depthWrite = false;
+    support.castShadow = false;
+    try { onArtReady?.(); } catch (_) { /* the owning view may already be closed */ }
+  };
+  set(0);
+  W.animated.push(t => { lastT = t; if (authored) authored.update(t); else set(t); });
+  disposables.push({ dispose() { alive = false; if (authored) { const owner = authored.group.parent; authored.dispose(); W.group.remove(owner); } } });
+  // This also runs in the Adventure overhead map, which does not build with W.art.
+  // On a slow connection, upgrade the live view when the GLB resolves past prepare().
+  const city = window.CityAssets;
+  const cached = W.art?.ferrisWheel || city?.get?.('ferrisWheel');
+  if (cached) mount(cached);
+  if (!authored && city?.load && window.MidnightPier) city.load('ferrisWheel').then(mount).catch(() => {});
 }
 function spokeLights(wh) {
   const b = new Batch();
@@ -2644,7 +2900,7 @@ function spokeLights(wh) {
   return b.geometry();
 }
 
-root.GlorylandMap = { GRADES, SIGN_TEXT, gradeForChapter: n => ({ 1: 'morning', 2: 'evening', 3: 'night', 4: 'night', 5: 'night' })[n] || 'day', build, LAND_Y, BLOCK_Y, PAL,
+root.GlorylandMap = { GRADES, SIGN_TEXT, gradeForChapter: n => ({ 1: 'morning', 2: 'evening', 3: 'night', 4: 'night', 5: 'night' })[n] || 'day', build, LAND_Y, BLOCK_Y, PAL, marketRoadClear,
   // Building pieces for small street-scale story sets (adventure/story/story-sets.js). W = { solid: Batch, facade: { style: Batch({ uv, tint }) } }.
   kit: { Batch, M, P, initProtos, FACADE, paintFacades, facadeMaterial, building, awnings, frame, C, seed: s => { R = mulberry(s); } } };
 })(typeof window !== 'undefined' ? window : globalThis);

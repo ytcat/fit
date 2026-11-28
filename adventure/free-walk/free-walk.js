@@ -23,12 +23,13 @@
  * World: metres, x east, z south, y up. */
 (() => {
   'use strict';
-  const MAP_SRC = './adventure/gloryland-map.js?v=20261125gl1';
+  const MAP_SRC = './adventure/gloryland-map.js?v=20261127iphone5';
   const Core = () => window.FreeWalkCore;
   const STORY_IDS = ['bruno', 'market_stall', 'otto', 'docks_quay'];
   const PLACE_IDS = ['oldtown', 'market', 'docks', 'downtown', 'neon', 'dome', 'hill', 'tech', 'fair', 'cove', 'fort'];
   // GOTR-0122 (owner: "It has to be zoom out"): a wide chase view, behind and above the Fighter, showing the street round him
   const PITCH = .6, DIST = 11.5, FOV = 50, YAW0 = .24, ZOOM_MIN = .55, ZOOM_MAX = 1.45;
+  const PITCH_UP = -.22, PITCH_DOWN = 1.02, PITCH_ORBIT_MIN = .018;
   let run = null, loader = null;
 
   const app = () => window.app, engine = () => window.app?.engine, game = () => window.ringfighterGame;
@@ -105,6 +106,127 @@
   }
   const available = () => { const e = engine(); return !!(e?.renderer && e.coach?.root && window.FreeWalkTown && Core() && profileId()); };
 
+  // Small cardinal correction removes thumb jitter without quantizing intended diagonals.
+  function touchInput(dx, dy, radius) {
+    const len = Math.hypot(dx, dy), dead = radius * .13;
+    if (len <= dead) return [0, 0];
+    const a = Math.atan2(dx, -dy), axis = Math.round(a / (Math.PI / 2)) * (Math.PI / 2);
+    const off = a - axis, u = Math.min(1, Math.max(0, (Math.abs(off) - .22) / .22));
+    const b = axis + off * u * u * (3 - 2 * u), gain = Math.min(1, (len - dead) / (radius - dead));
+    return [Math.abs(Math.sin(b)) < 1e-8 ? 0 : gain * Math.sin(b), Math.abs(Math.cos(b)) < 1e-8 ? 0 : gain * Math.cos(b)];
+  }
+  // Capture the rendered view when a touch direction is first aimed. Collision dodges and an eased
+  // camera must not rotate the same held thumb input. Re-arm on neutral or a deliberate new direction.
+  function aimTouch(R, analog) {
+    R.analog = analog;
+    if (!(Math.hypot(...analog) > 0)) { R.touchAim = null; return; }
+    const a = Math.atan2(analog[0], analog[1]);
+    if (!R.touchAim || Math.abs(Math.atan2(Math.sin(a - R.touchAim.a), Math.cos(a - R.touchAim.a))) >= Math.PI / 7)
+      R.touchAim = { a, yaw: R.camYaw ?? R.yaw };
+  }
+  function tiltLook(R, amount) {
+    R.pitchTarget = Math.max(PITCH_UP, Math.min(PITCH_DOWN, (R.pitchTarget ?? PITCH) + amount));
+  }
+  function bindMovement(R, host, pad, stick, thumb, glow, lookPad, lookThumb) {
+    let move = null, orbit = null, look = null;
+    const capture = (surface, id) => { try { surface.setPointerCapture?.(id); } catch { /* contact already ended */ } };
+    const uncapture = (surface, id) => { try { if (surface.hasPointerCapture?.(id)) surface.releasePointerCapture(id); } catch { /* already released */ } };
+    function release(ev, stop = false) {
+      if (orbit && (!ev || ev.pointerId === orbit.id)) { const o = orbit; orbit = null; uncapture(host, o.id); }
+      if (look && (!ev || ev.pointerId === look.id)) {
+        const o = look; look = null; R.lookStick = null; uncapture(lookPad, o.id);
+        lookThumb.style.transform = ''; lookPad.classList.remove('active'); R.dragAt = performance.now();
+      }
+      if (ev && (!move || ev.pointerId !== move.id)) return;
+      if (move) { const m = move; move = null; uncapture(m.surface, m.id); }
+      aimTouch(R, [0, 0]); R.full = 0;
+      if (stop) { R.pace = null; R.touchPace = null; }
+      thumb.style.transform = 'translate(-50%,-50%)'; glow.style.opacity = '0';
+      stick.style.left = stick.style.top = ''; pad.classList.remove('active');
+    }
+    function point(ev) {
+      if (look?.id === ev.pointerId) {
+        ev.preventDefault();
+        const dx = ev.clientX - look.x, dy = ev.clientY - look.y, l = Math.max(1, Math.hypot(dx, dy) / look.r);
+        R.lookStick = touchInput(dx, dy, look.r);
+        lookThumb.style.transform = `translate(calc(-50% + ${dx / l}px),calc(-50% + ${dy / l}px))`;
+        R.dragAt = performance.now(); return;
+      }
+      if (orbit?.id === ev.pointerId) {
+        R.yaw -= (ev.clientX - orbit.x) * .008;
+        if (orbit.finger) tiltLook(R, (ev.clientY - orbit.y) * .007);
+        orbit.x = ev.clientX; orbit.y = ev.clientY; R.dragAt = performance.now(); return;
+      }
+      if (move?.id !== ev.pointerId) return;
+      ev.preventDefault();
+      const dx = ev.clientX - move.x, dy = ev.clientY - move.y;
+      aimTouch(R, touchInput(dx, dy, move.r));
+      if (move.surface !== pad) return;
+      const l = Math.max(1, Math.hypot(dx, dy) / move.r);
+      thumb.style.transform = `translate(calc(-50% + ${dx / l}px),calc(-50% + ${dy / l}px))`;
+      glow.style.opacity = String(Math.hypot(...R.analog)); glow.style.transform = `rotate(${Math.atan2(dx, -dy)}rad)`;
+    }
+    function down(ev, surface) {
+      // The gameplay regions are siblings of HUD buttons, but also guard future embedded controls.
+      if (!R.town || R.busy || R.closed || (ev.button !== undefined && ev.button !== 0)
+          || ev.target?.closest?.('button,a,input,select,textarea,[role="button"],[data-fw-no-drag]')) return;
+      if (surface === lookPad) {
+        if (look || orbit) return;
+        ev.preventDefault();
+        const b = lookPad.getBoundingClientRect();
+        look = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, r: Math.max(22, b.width * .29) };
+        R.lookStick = [0, 0]; R.dragAt = performance.now();
+        lookPad.classList.add('active'); capture(lookPad, ev.pointerId); return;
+      }
+      const finger = ev.pointerType === 'touch' || ev.pointerType === 'pen';
+      const view = surface === host ? host.getBoundingClientRect() : null;
+      if (view && (!finger || ev.clientX >= view.left + view.width * .67)) {
+        if (orbit || look) return;
+        if (finger) ev.preventDefault();
+        orbit = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, finger }; R.dragAt = performance.now();
+        capture(host, ev.pointerId); return;
+      }
+      if (move) return;
+      ev.preventDefault();
+      const b = stick.getBoundingClientRect();
+      move = { id: ev.pointerId, surface, x: ev.clientX, y: ev.clientY, r: b.width > 0 ? Math.min(38, Math.max(30, b.width * .28)) : 34 };
+      if (surface === pad) {
+        const cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+        if (Math.hypot(ev.clientX - cx, ev.clientY - cy) > b.width / 2) {
+          const z = pad.getBoundingClientRect(), h = b.width / 2;
+          const x = Math.min(z.right - h, Math.max(z.left + h, ev.clientX)), y = Math.min(z.bottom - h, Math.max(z.top + h, ev.clientY));
+          stick.style.left = (x - z.left - h) + 'px'; stick.style.top = (y - z.top - h) + 'px';
+        }
+        pad.classList.add('active');
+      }
+      capture(surface, ev.pointerId);
+    }
+    for (const surface of [pad, host, lookPad].filter(Boolean)) {
+      surface.addEventListener('pointerdown', ev => down(ev, surface));
+      surface.addEventListener('pointermove', point);
+      for (const k of ['pointerup', 'pointercancel', 'lostpointercapture']) surface.addEventListener(k, ev => release(ev, k !== 'pointerup'));
+    }
+    return release;
+  }
+  function movementIntent(R, dt) {
+    const K = R.keys, lr = (K.has('ArrowRight') || K.has('KeyD') ? 1 : 0) - (K.has('ArrowLeft') || K.has('KeyA') ? 1 : 0), ud = (K.has('ArrowUp') || K.has('KeyW') ? 1 : 0) - (K.has('ArrowDown') || K.has('KeyS') ? 1 : 0);
+    const keys = !!(lr || ud), h = keys ? lr : R.analog[0], v = keys ? ud : R.analog[1];
+    R.full = Math.hypot(h, v) > .93 ? R.full + dt : 0;
+    const brisk = K.has('ShiftLeft') || K.has('ShiftRight') || R.full > .60;
+    return { h, v, keys, speed: Core().SPEED * (brisk ? 2.42 : 1.53) };
+  }
+
+  // Finger steering responds immediately; only speed eases. The visual body still turns smoothly and
+  // the distance-driven gait plants against real movement, including partial steps at curb/wall contact.
+  function fingerPace(R, vx, vz, active, dt) {
+    const s = R.touchPace || (R.touchPace = { v: 0, x: 0, z: 0, straight: false });
+    const want = active ? Math.hypot(vx, vz) : 0;
+    if (want > 1e-4) { s.x = vx / want; s.z = vz / want; }
+    s.v += Math.max(-26 * dt, Math.min(14 * dt, want - s.v));
+    if (s.v <= 1e-4) { if (!active) R.touchPace = null; return [0, 0]; }
+    return [s.x * s.v, s.z * s.v];
+  }
+
   async function open(opts = {}) {
     if (run) return true;
     const e = engine(), C = Core();
@@ -127,21 +249,26 @@
     arrow.setAttribute('aria-hidden', 'true'); arrow.hidden = true; status.append(arrow, dist); nav.append(goal, status, help); nav.hidden = !goalText;
     setTimeout(() => nav.classList.add('quiet'), 9000); // the how-to line, then only the objective and the distance
     // the stick (GOTR-0122 redesign): a floating stick in the lower-left area, resting at a fixed spot; keys on a computer
-    const pad = el('div', 'fw-pad'), stick = el('div', 'fw-stick'), glow = el('span', 'fw-glow'), ticks = el('span', 'fw-ticks'), thumb = el('i', 'fw-knob');
-    stick.append(ticks, glow, thumb); pad.append(stick); stick.setAttribute('role', 'group'); stick.setAttribute('aria-label', t('stick'));
+    const pad = el('div', 'fw-pad'), stick = el('div', 'fw-stick'), glow = el('span', 'fw-glow'), thumb = el('i', 'fw-knob');
+    stick.append(glow, thumb); pad.append(stick); stick.setAttribute('role', 'group'); stick.setAttribute('aria-label', t('stick'));
     const keysHint = el('p', 'fw-keys', t('keysHint')); const touch = touchDevice(); pad.hidden = !touch; keysHint.hidden = touch; d.dataset.input = touch ? 'touch' : 'keys';
+    const lookPad = el('div', 'fw-look-pad'); lookPad.hidden = !touch;
+    const lookStick = el('div', 'fw-stick'), lookThumb = el('i', 'fw-knob');
+    lookStick.append(lookThumb); lookPad.append(lookStick);
+    lookPad.setAttribute('role','group'); lookPad.setAttribute('aria-label', t('lookStick'));
     const zoomBox = el('aside', 'fw-zoom'), plus = el('button', '', '+'), minus = el('button', '', '−'); plus.type = minus.type = 'button'; plus.setAttribute('aria-label', t('zoomIn')); minus.setAttribute('aria-label', t('zoomOut')); zoomBox.append(plus, minus);
+    const viewTools = el('div', 'fw-view-tools'); viewTools.append(exit, zoomBox);
     const back = el('button', 'fw-story', t('storyReturn')); back.type = 'button'; back.hidden = true; back.onclick = () => close('story');
     const notice = el('p', 'fw-notice', t('loading')); notice.setAttribute('role', 'status');
     const fade = el('div', 'fw-fade active');
-    d.append(host, hud, exit, nav, pad, keysHint, zoomBox, back, fade, notice); document.body.append(d);
+    d.append(host, hud, viewTools, nav, pad, keysHint, lookPad, back, fade, notice); document.body.append(d);
     d.tabIndex = -1; try { d.showModal(); } catch { d.setAttribute('open', ''); } d.focus({ preventScroll: true });
     d.addEventListener('cancel', ev => { ev.preventDefault(); close('map'); });
     Object.assign(R, { d, host, zone, goal, nav, arrow, dist, back, notice, fade, stick, thumb, glow, pad });
     // the player's language can change while walking (or be applied after a resumed walk opened at boot): every line follows it
     R.relabel = () => {
       d.lang = lang(); title.textContent = t('title'); exit.textContent = t('exit'); exit.setAttribute('aria-label', t('exitLabel'));
-      goal.textContent = goalOf(); help.textContent = t(plan.target ? 'walkHelp' : 'help'); keysHint.textContent = t('keysHint'); back.textContent = t('storyReturn');
+      goal.textContent = goalOf(); help.textContent = t(plan.target ? 'walkHelp' : 'help'); keysHint.textContent = t('keysHint'); lookPad.setAttribute('aria-label', t('lookStick')); back.textContent = t('storyReturn');
       stick.setAttribute('aria-label', t('stick')); plus.setAttribute('aria-label', t('zoomIn')); minus.setAttribute('aria-label', t('zoomOut'));
       if (!notice.hidden) notice.textContent = t(R.lost ? 'lost' : 'loading'); R.zone.textContent = ''; R.last.hud = -1; R.last.guide = -1;
     };
@@ -158,41 +285,13 @@
       else if (k === 'KeyQ' || k === 'KeyE') { ev.preventDefault(); R.keys.add(k); }
       else if (k === 'Equal' || k === 'Minus' || k === 'NumpadAdd' || k === 'NumpadSubtract') { ev.preventDefault(); if (!ev.repeat) zoomBy(k === 'Equal' || k === 'NumpadAdd' ? -.15 : .15); }
     };
-    const up = ev => R.keys.delete(ev.code), blur = () => { R.keys.clear(); release(); };
+    const up = ev => R.keys.delete(ev.code);
+    const release = bindMovement(R, host, pad, stick, thumb, glow, lookPad, lookThumb);
+    const blur = () => { R.keys.clear(); release(null, true); };
     window.addEventListener('keydown', down); window.addEventListener('keyup', up); window.addEventListener('blur', blur);
     const hide = () => { if (document.hidden) { blur(); save(); } };
     document.addEventListener('visibilitychange', hide); window.addEventListener('pagehide', save);
-    R.unlisten = () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', blur); document.removeEventListener('visibilitychange', hide); window.removeEventListener('pagehide', save); };
-    // The stick: a touch inside its resting ring drives it from its centre (as before); a touch elsewhere in the lower-left
-    // area moves the stick under the thumb first (a floating stick). It goes back to its resting spot on release.
-    let stickId = null, base = null;
-    function release(ev) {
-      if (ev && ev.pointerId !== stickId) return; stickId = null; base = null; R.analog = [0, 0];
-      thumb.style.transform = 'translate(-50%,-50%)'; glow.style.opacity = '0'; stick.style.left = stick.style.top = ''; pad.classList.remove('active');
-    }
-    function point(ev) {
-      if (ev.pointerId !== stickId || !base) return; const r = base.size * .32, dx = ev.clientX - base.x, dy = ev.clientY - base.y;
-      R.analog = window.StreetWalkPrototype?.stickInput ? window.StreetWalkPrototype.stickInput(dx, dy, r) : (() => { const l = Math.hypot(dx, dy); return l < r * .14 ? [0, 0] : [dx / Math.max(l, r), -dy / Math.max(l, r)]; })();
-      const l = Math.max(1, Math.hypot(dx, dy) / r); thumb.style.transform = `translate(calc(-50% + ${dx / l}px),calc(-50% + ${dy / l}px))`;
-      const m = Math.min(1, Math.hypot(...R.analog)); glow.style.opacity = String(m); glow.style.transform = `rotate(${Math.atan2(dx, -dy)}rad)`;
-    }
-    pad.addEventListener('pointerdown', ev => {
-      if (stickId !== null || !R.town) return; ev.preventDefault(); stickId = ev.pointerId; pad.setPointerCapture?.(ev.pointerId);
-      const b = stick.getBoundingClientRect(), cx = b.left + b.width / 2, cy = b.top + b.height / 2;
-      if (Math.hypot(ev.clientX - cx, ev.clientY - cy) <= b.width / 2) base = { x: cx, y: cy, size: b.width };
-      else { // float: the stick's centre comes under the thumb (kept inside the area)
-        const z = pad.getBoundingClientRect(), h = b.width / 2, x = Math.min(z.right - h, Math.max(z.left + h, ev.clientX)), y = Math.min(z.bottom - h, Math.max(z.top + h, ev.clientY));
-        stick.style.left = (x - z.left - h) + 'px'; stick.style.top = (y - z.top - h) + 'px'; base = { x, y, size: b.width };
-      }
-      pad.classList.add('active'); point(ev);
-    });
-    pad.addEventListener('pointermove', point);
-    for (const k of ['pointerup', 'pointercancel', 'lostpointercapture']) pad.addEventListener(k, release);
-    // drag on the view turns the camera round the Fighter
-    let dragId = null, dragX = 0;
-    host.addEventListener('pointerdown', ev => { if (dragId !== null) return; dragId = ev.pointerId; dragX = ev.clientX; host.setPointerCapture?.(ev.pointerId); });
-    host.addEventListener('pointermove', ev => { if (ev.pointerId !== dragId) return; R.yaw -= (ev.clientX - dragX) * .008; dragX = ev.clientX; R.dragAt = performance.now(); });
-    for (const k of ['pointerup', 'pointercancel', 'lostpointercapture']) host.addEventListener(k, ev => { if (ev.pointerId === dragId) dragId = null; });
+    R.unlisten = () => { blur(); window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', blur); document.removeEventListener('visibilitychange', hide); window.removeEventListener('pagehide', save); };
     host.addEventListener('wheel', ev => { ev.preventDefault(); zoomBy(ev.deltaY > 0 ? .1 : -.1); }, { passive: false });
     function zoomBy(a) { R.zoomTarget = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round((R.zoomTarget + a) * 100) / 100)); plus.disabled = R.zoomTarget <= ZOOM_MIN; minus.disabled = R.zoomTarget >= ZOOM_MAX; }
     plus.onclick = () => zoomBy(-.15); minus.onclick = () => zoomBy(.15);
@@ -294,16 +393,61 @@
     const fallback = town.targets[legacy || R.destination || 'oldtown'] || town.places[0].spawn;
     return C.restore(raw, town.grid, { x: fallback.x, z: fallback.z, ry: Math.PI });
   }
-  /** The camera yaw nearest to `base` (within about 90 degrees) with the most open view of the Fighter at s: a story walk
-   *  that starts at a door begins with the street in view, not the wall behind him. */
-  function openYaw(town, s, base) {
-    const g = town.grid, y = g.height(s.x, s.z) + 1.25, cp = Math.cos(PITCH), sp = Math.sin(PITCH); let best = base, bf = -Infinity;
-    for (let k = -8; k <= 8; k++) {
-      const yaw = base + k * .2; let f = 1;
-      for (; f < DIST; f += .5) { const x = s.x + Math.sin(yaw) * cp * f, z = s.z + Math.cos(yaw) * cp * f, h = y + sp * f - .4; if (g.top(x, z) > h || (town.canopy?.(x, z) ?? -1e9) > h) break; }
-      const score = Math.min(f, DIST) - Math.abs(k) * .25; if (score > bf) { bf = score; best = yaw; }
+  const CAMERA_BODY = [[0, 0], [.54, 0], [-.54, 0], [0, .54], [0, -.54]];
+  const SIDE_VIEWS = [0, .32, -.32, .64, -.64, .96, -.96, 1.28, -1.28, 1.6, -1.6];
+  const angleDelta = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
+
+  // Use the navigable height field for solid obstructions. An approximate tree crown may steer the
+  // camera sideways, but must not physically shorten the boom or drive its pitch over the Fighter.
+  function cameraRay(town, x0, y0, z0, yaw, pitch, distance, foliage = true) {
+    const g = town.grid, dx = Math.sin(yaw) * Math.cos(pitch), dz = Math.cos(yaw) * Math.cos(pitch), dy = Math.sin(pitch);
+    const n = Math.ceil(distance / .38);
+    let leaves = 0;
+    for (let k = 1; k <= n; k++) {
+      const f = distance * k / n, x = x0 + dx * f, y = y0 + dy * f, z = z0 + dz * f;
+      let kind = 0;
+      for (const [a, b] of CAMERA_BODY) if (g.top(x + a, z + b) > y - .32) {
+        if (!g.allowed(x + a, z + b)) { kind = 1; break; }
+        kind = 2;
+      }
+      // Stay on the visible side of the first hard column, including in an impossible corner.
+      if (kind) return { free: Math.max(.08, f - distance / n), kind, cover: leaves / n, eyeCover: 0 };
+      if (foliage && f >= 1 && town.cameraCover?.(x, y, z)) leaves++;
+    }
+    const eyeCover = foliage && town.cameraCover?.(x0 + dx * distance, y0 + dy * distance, z0 + dz * distance) ? 1 : 0;
+    return { free: distance, kind: 0, cover: leaves / n, eyeCover };
+  }
+
+  function cameraView(town, x, y, z, base, d, previous = 0, basePitch = PITCH) {
+    let best = null; const rises = [];
+    const consider = (off, pitch, hit) => {
+      const score = hit.free / d - Math.abs(off) * .13 - (pitch - basePitch) * .65
+        - hit.cover * .30 - hit.eyeCover * .24 + (off === previous && off !== 0 ? .045 : 0);
+      if (!best || score > best.score) best = { yaw: base + off, pitch, off, score, ...hit };
+    };
+    for (const off of SIDE_VIEWS) {
+      const hit = cameraRay(town, x, y, z, base + off, basePitch, d);
+      consider(off, basePitch, hit);
+      if (!off && !hit.kind && !hit.cover && !hit.eyeCover) return best;
+      if (hit.kind === 2) rises.push(off);
+    }
+    // In a tight solid corner there may be no open direction in the rear half of the orbit.
+    if (best.free < d * .45) for (const off of [2.08, -2.08, 2.56, -2.56, Math.PI])
+      consider(off, basePitch, cameraRay(town, x, y, z, base + off, basePitch, d));
+    // Only a real walkable incline can lift the camera. Try level side routes first; trees and
+    // walls never request elevation. Keep the added pitch modest to preserve a readable horizon.
+    if (best.free < d * .88) for (const off of rises) for (const lift of [.12, .24, .36]) {
+      const raised = Math.min(1.18, basePitch + lift);
+      const hit = cameraRay(town, x, y, z, base + off, raised, d);
+      consider(off, raised, hit);
+      if (!hit.kind || hit.kind === 1) break;
     }
     return best;
+  }
+
+  /** Give a door-starting walk the same open-side policy as ordinary walking. */
+  function openYaw(town, s, base) {
+    return cameraView(town, s.x, town.grid.height(s.x, s.z) + 1.25, s.z, base, DIST).yaw;
   }
   /** The heading from a to the street route toward b (about 8 m on), the Fighter's facing at the start of a story walk. */
   function routeHeading(town, a, b) {
@@ -324,34 +468,34 @@
     const m = new THREE.Mesh(new THREE.RingGeometry(1.5, 1.85, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x5ce6d8, transparent: true, opacity: .9, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }));
     m.position.set(at.x, R.town.grid.height(at.x, at.z) + .04, at.z); m.renderOrder = 3; R.ringMesh = m; R.town.scene.add(m);
   }
-  function place(snap) {
+  function place(snap, dt = 1 / 60) {
     const R = run, d = DIST * R.zoom;
     const goal = new THREE.Vector3(R.s.x, R.groundY + 1.25, R.s.z);
-    if (snap) R.center.copy(goal); else R.center.lerp(goal, .18);
-    // Never inside the town: march along the view ray over the height field. Rising ground (a hill, a ramp: walkable) lifts
-    // the camera over it; a building or wall (not walkable) brings it closer to the Fighter.
-    const g = R.town.grid, ox = R.center.x, oy = R.center.y, oz = R.center.z;
-    // the camera body has a size: each sample along the ray checks 0.6 m round it (a thin wall between samples is still seen)
-    // GOTR-0122: 0 free, 1 a wall (not walkable), 2 rising ground (walkable: lift the view), 3 only a tree crown. The sample
-    // that hits decides (before, a wall 0.6 m beside a walkable centre counted as rising ground and tipped the view top-down).
-    const solidAt = (x, y, z) => { let s = 0; for (const [a, b] of [[0, 0], [.6, 0], [-.6, 0], [0, .6], [0, -.6]]) { if (g.top(x + a, z + b) > y) { if (!g.allowed(x + a, z + b)) return 1; s = 2; } else if (!s && (R.town.canopy?.(x + a, z + b) ?? -1e9) > y) s = 3; } return s; };
-    const probe = (yaw, pitch) => { const cp = Math.cos(pitch), sp = Math.sin(pitch); for (let k = 1; k <= 24; k++) { const f = d * k / 24, x = ox + Math.sin(yaw) * cp * f, z = oz + Math.cos(yaw) * cp * f, h = solidAt(x, oy + sp * f - .4, z); if (h) return { k: k * 16 / 24, ground: h >= 2, crown: h === 3 }; } return null; };
-    // the player's own view first; a wall or stall right behind the Fighter swings the camera a little round instead
-    let best = null;
-    for (const off of [0, .35, -.35, .7, -.7, 1.05, -1.05]) {
-      const yaw = R.yaw + off; let pitch = PITCH, hit = probe(yaw, pitch);
-      while (hit && pitch < (hit.crown ? .9 : hit.ground ? 1.25 : .98)) { pitch += .08; hit = probe(yaw, pitch); } // over rising ground; over a wall or a crown only a little higher (then closer)
-      const free = hit ? Math.max(2.2, d * (hit.k - 1.5) / 16) : d, c = { off, pitch, free };
-      if (!best || free > best.free + .5) best = c;
-      if (free >= d * .6) { best = c; break; }
+    if (snap) R.center.copy(goal); else R.center.lerp(goal, 1 - Math.exp(-dt * 12));
+    const x = R.center.x, y = R.center.y, z = R.center.z;
+    const target = R.pitchTarget ?? PITCH;
+    // Once the orbit reaches eye level, tilt the lens toward the sky instead of lowering the
+    // camera through the street. Leave some foreground and the Fighter visible for orientation.
+    const orbitPitch = Math.max(PITCH_ORBIT_MIN, target);
+    const best = cameraView(R.town, x, y, z, R.yaw, d, snap ? 0 : R.camOffset, orbitPitch);
+    R.camOffset = best.off;
+    const easy = snap || R.camYaw === undefined;
+    let yaw = easy ? best.yaw : R.camYaw + angleDelta(best.yaw, R.camYaw) * (1 - Math.exp(-dt * 9));
+    let pitch = easy || R.camP === undefined ? best.pitch : R.camP + (best.pitch - R.camP) * (1 - Math.exp(-dt * 10));
+    let safe = easy ? best : cameraRay(R.town, x, y, z, yaw, pitch, d, false);
+    // Interpolated orbit directions can cut the corner even if the destination is clear.
+    // Only skip forward on a severe solid hit, never for a coarse tree crown or at manual zoom.
+    if (!easy && safe.free < Math.min(2.1, d * .39) && best.free > Math.max(3, safe.free + 1.7)) {
+      yaw = best.yaw; pitch = best.pitch; safe = best;
     }
-    const target = R.yaw + best.off;
-    R.camYaw = snap || R.camYaw === undefined ? target : R.camYaw + Math.atan2(Math.sin(target - R.camYaw), Math.cos(target - R.camYaw)) * .08;
-    R.camP = snap || !R.camP ? best.pitch : R.camP + (best.pitch - R.camP) * .1;
-    R.camD = snap || !R.camD || best.free < R.camD ? best.free : R.camD + (best.free - R.camD) * .06;
-    const D = R.camD, cp = Math.cos(R.camP), sp = Math.sin(R.camP);
-    R.camera.position.set(ox + Math.sin(R.camYaw) * cp * D, oy + sp * D, oz + Math.cos(R.camYaw) * cp * D);
-    R.camera.lookAt(ox, oy + .2, oz);
+    R.camYaw = yaw; R.camP = pitch;
+    const want = Math.min(d, safe.free);
+    R.camD = easy || R.camD === undefined || want < R.camD ? want : R.camD + (want - R.camD) * (1 - Math.exp(-dt * 7));
+    const D = R.camD, cp = Math.cos(pitch);
+    R.camera.position.set(x + Math.sin(yaw) * cp * D, y + Math.sin(pitch) * D, z + Math.cos(yaw) * cp * D);
+    const sky = orbitPitch - target, lens = R.skyTilt ?? 0;
+    R.skyTilt = snap ? sky : lens + (sky - lens) * (1 - Math.exp(-dt * 10));
+    R.camera.lookAt(x, y + .2 + Math.tan(R.skyTilt) * D, z);
   }
   function guide(ms) {
     const R = run, town = R.town, at = R.destination && town.targets[R.destination], C = Core();
@@ -400,18 +544,30 @@
   function step(dt, ms, pose) {
     const R = run, C = Core(), town = R.town;
     {
-      const K = R.keys, lr = (K.has('ArrowRight') || K.has('KeyD') ? 1 : 0) - (K.has('ArrowLeft') || K.has('KeyA') ? 1 : 0), ud = (K.has('ArrowUp') || K.has('KeyW') ? 1 : 0) - (K.has('ArrowDown') || K.has('KeyS') ? 1 : 0);
-      const hIn = lr || ud ? lr : R.analog[0], vIn = lr || ud ? ud : R.analog[1], mag = Math.hypot(hIn, vIn);
-      R.full = mag > .93 ? R.full + dt : 0; // held all the way: a brisk walk after a moment
-      const brisk = K.has('ShiftLeft') || K.has('ShiftRight') || R.full > .8;
+      const K = R.keys;
+      if (R.lookStick) {
+        const [h, v] = R.lookStick;
+        R.yaw -= h * 2.25 * dt; tiltLook(R, -v * 1.45 * dt); R.dragAt = ms;
+      }
       if (K.has('KeyQ')) R.yaw += dt * 1.6; if (K.has('KeyE')) R.yaw -= dt * 1.6;
       if (K.has('KeyQ') || K.has('KeyE')) R.dragAt = ms;
-      // GOTR-0122 chase camera (owner: GTA-style, behind and above): while he walks, the view comes round behind him unless
-      // the player turned it in the last 1.5 s
-      if (R.s.walking && ms - (R.dragAt || -1e9) > 1500) { const d = Math.atan2(Math.sin(R.s.ry + Math.PI - R.yaw), Math.cos(R.s.ry + Math.PI - R.yaw)); R.yaw += d * (1 - Math.exp(-dt * 1.3)) * (R.walkAmt || 0); }
-      let [vx, vz] = C.velocity(hIn, vIn, R.camYaw ?? R.yaw, C.SPEED * (brisk ? 1.55 : 1));
-      if (window.DreamPose?.pace) [vx, vz] = window.DreamPose.pace(R.pace || (R.pace = {}), vx, vz, R.turn, dt); // walk-gait: a heavy man's start, stop and turn (DreamPose.pace)
-      town.grid.move(R.s, vx, vz, dt, town.blocked);
+      const I = movementIntent(R, dt), touchHeld = !!R.touchAim && !I.keys;
+      // Do not turn the camera behind the player during a touch strafe; wall avoidance still works.
+      if (!touchHeld && R.s.walking && ms - (R.dragAt ?? -1e9) > 1500) { const d = Math.atan2(Math.sin(R.s.ry + Math.PI - R.yaw), Math.cos(R.s.ry + Math.PI - R.yaw)); R.yaw += d * (1 - Math.exp(-dt * 1.3)) * (R.walkAmt || 0); }
+      let [vx, vz] = C.velocity(I.h, I.v, touchHeld ? R.touchAim.yaw : (R.camYaw ?? R.yaw), I.speed);
+      // A straight forward or backward drag must not become sideways movement when the world-space X/Z collision grid
+      // rejects one component. Intentional lateral and diagonal moves, and desktop inputs, can still slide along an edge.
+      let steer = '';
+      if (!I.keys && (touchHeld || R.touchPace)) {
+        R.pace = null;
+        [vx, vz] = fingerPace(R, vx, vz, touchHeld, dt);
+        if (touchHeld && R.touchPace) R.touchPace.straight = I.h === 0;
+        if (R.touchPace) steer = R.touchPace.straight ? 'straight' : 'edge';
+      } else {
+        R.touchPace = null;
+        if (window.DreamPose?.pace) [vx, vz] = window.DreamPose.pace(R.pace || (R.pace = {}), vx, vz, R.turn, dt);
+      }
+      town.grid.move(R.s, vx, vz, dt, town.blocked, steer);
       town.update(dt, R.s, R.camera);
       R.poseT += dt; R.zoom += (R.zoomTarget - R.zoom) * (1 - Math.exp(-dt * 10));
       const floor = town.grid.height(R.s.x, R.s.z), u = 1 - Math.exp(-dt * 12);
@@ -419,11 +575,12 @@
       R.turn += Math.atan2(Math.sin(R.s.ry - R.turn), Math.cos(R.s.ry - R.turn)) * (1 - Math.exp(-dt * 10));
       const c = R.rig; c.root.position.set(R.s.x, R.groundY, R.s.z); c.root.rotation.set(0, R.turn, 0);
       R.walkAmt = (R.walkAmt || 0) + ((R.s.walking ? 1 : 0) - (R.walkAmt || 0)) * (1 - Math.exp(-dt * 8));
-      // GOTR-0122 carry: the duffel's strap in his right hand, or his right hand on the heavy bag (market-sets.js reach); walk-gait: plant, walk flag
-      if (pose) { c.root.updateMatrixWorld(true); window.DreamPose?.civil?.(c, { t: R.poseT, dt, plant: true, dist: R.s.dist, walk: R.s.walking ? 1 : 0, ground: (x, z) => town.grid.height(x, z), arms: R.carry === 'duffel' ? { R: 'strap' } : {}, reach: R.props?.reach?.('fighter', 100) || undefined, look: { yaw: 0, pitch: 0 } }); R.props?.frame(100, dt); }
+      // The street duffel is supported by its skinned crossbody strap; both arms use the normal gait.
+      // Otto's heavy bag still uses its explicit grip target and cinematics retain authored hand poses.
+      if (pose) { c.root.updateMatrixWorld(true); window.DreamPose?.civil?.(c, { t: R.poseT, dt, plant: true, dist: R.s.dist, walk: R.s.walking ? 1 : 0, ground: (x, z) => town.grid.height(x, z), reach: R.props?.reach?.('fighter', 100) || undefined, look: { yaw: 0, pitch: 0 } }); R.props?.frame(100, dt); }
       R.blob.position.set(R.s.x, R.groundY + .03, R.s.z);
       if (R.ringMesh) { const k = .5 + .5 * Math.sin(R.poseT * 4); R.ringMesh.material.opacity = .55 + .4 * k; R.ringMesh.scale.setScalar(1 + .08 * k); }
-      place(false);
+      place(false, dt);
       if (ms - R.last.hud > 400) { R.last.hud = ms; const p = C.district(R.s.x, R.s.z, town.places); const name = p ? placeName(p.id) : t('outskirts'); if (R.zone.textContent !== name) R.zone.textContent = name; R.district = p?.id || null; }
       if (ms - R.last.guide > 200) { R.last.guide = ms; guide(ms); }
       if (ms - R.last.save > 1000) { R.last.save = ms; save(); }

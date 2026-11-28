@@ -23,6 +23,19 @@ Before every publish to `main` (the live site https://ytcat.github.io/fit/):
 4. Run the full suite on the merged tree. Immediately before merging, fetch again; if `main` moved, merge and test again.
 5. After publishing, confirm the live `version.js` shows the new number and record it in `docs/glory-of-the-ring/RELEASES.md`.
 
+## Claude ↔ ChatGPT/Codex visibility (owner rule, 2026-11-27)
+
+Owner: "ChatGPT will continue … ChatGPT has to have all the visibility what you are doing all the time." ChatGPT/Codex leads development. Claude works only when the owner asks.
+- **Claude, every task:**
+  - At the start, read [`docs/CLAUDE_HANDOFF.md`](docs/CLAUDE_HANDOFF.md) and the backlog.
+  - At the end of every task (and at every checkpoint), add a work-log line to that file: date, what was done, branch@SHA, the checks run, and the status.
+  - Update the "Open work" table, and update the backlog entry.
+  - Commit and push to GitHub. Nothing of Claude's stays only in its container.
+  - Do not publish over ChatGPT's work: follow the publishing checklist above.
+- **ChatGPT/Codex, at the start of every session:**
+  - Read `docs/CLAUDE_HANDOFF.md` (its open work, parked items and log) and fetch the branches it names.
+  - When you take over or finish an item from it, mark it there (or in the backlog) with your commit or PR.
+
 ## Mandatory continuous user feedback intake (Glory of the Ring)
 
 At the START of every new task/session, open and review [`docs/glory-of-the-ring/FEEDBACK_BACKLOG.md`](docs/glory-of-the-ring/FEEDBACK_BACKLOG.md) before planning or changing code. It is the single source of truth for user-submitted fixes, corrections and feature requests. Check its OPEN, TRIAGE, IN PROGRESS and BLOCKED entries against the current code and the user's current priority. Codex must re-read the latest version before work and update statuses with actual commits/QA evidence when done. Preserve the full backlog and coordinate with other agents; avoid overwrite races or duplicate work. A user report is a request to investigate, not proof of root cause. Consult [Glory of the Ring PRD entry](GLORY_OF_THE_RING_START_HERE.md) for product requirements. Do not claim Codex reads updates automatically outside a launched session.

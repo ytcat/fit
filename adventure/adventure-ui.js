@@ -3,7 +3,7 @@
  * buttons that open the matching existing activity. The map script is loaded and built only when the
  * tab opens, and everything (renderer, GPU memory, listeners) is released when the dialog closes. */
 (() => {
-  const MAP_SRC = './adventure/gloryland-map.js?v=20261125gl1';
+  const MAP_SRC = './adventure/gloryland-map.js?v=20261127iphone5';
   const L = (en, he, ru) => ({ en, he, ru });
   const copy = {
     en: { loading: 'Building Gloryland…', failed: 'The map could not start on this device.', chapter: 'Chapter', side: 'Side zone', place: 'Chapter 4 place', coach: 'Coach', boss: 'Boss', entry: 'entry level', soon: 'Missions are coming next. For now everything is open: train or fight here freely.', sideSoon: 'Side missions come later. You can still fight a free bout.', train: 'Train', fight: 'Fight', day: 'Day', night: 'Night', all: 'Whole city', hint: 'Tap a place to travel there.', close: 'Back to map', more: 'Details', sq: 'Side quest', sqNote: 'Optional bonus zone' },
@@ -205,7 +205,7 @@
       if (!renderer) return;
       if (map) map.dispose();
       const g = game(), A = P(), chNow = g && A ? (A.chapters.findIndex(c => !A.bossWon(g, c.boss)) + 1 || 5) : 1, low = (navigator.deviceMemory && navigator.deviceMemory < 4) || /[?&]gfx=low/.test(location.search); // GOTR-0061 city-gfx hook
-      map = GlorylandMap.build(scene, { time: time === 'night' ? 'night' : ({ 1: 'morning', 2: 'evening' })[chNow] || 'day', renderer, quality: low ? 'low' : 'high', lang }); map.setCurrent?.(CHAPTER_PIN[chNow]); modal.dataset.grade = map.time || time; makePins(); apply();
+      map = GlorylandMap.build(scene, { time: time === 'night' ? 'night' : ({ 1: 'morning', 2: 'evening' })[chNow] || 'day', renderer, quality: low ? 'low' : 'high', lang, onArtReady: () => { dirty = true; } }); map.setCurrent?.(CHAPTER_PIN[chNow]); modal.dataset.grade = map.time || time; makePins(); apply();
     }
     // input: drag to pan, wheel / pinch to zoom
     const ptrs = new Map(); let pinch0 = 0, dist0 = 0, moved = 0;

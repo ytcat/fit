@@ -106,7 +106,7 @@ const HE = /[֐-׿]/, RU = /[Ѐ-ӿ]/;
   for (const f of ['adventure/adventure-ui.js', 'adventure/story/story-sets.js', 'adventure/free-walk/free-walk.js']) assert.ok(src(f).includes(`gloryland-map.js?v=${v}`), `${f}: MAP_SRC ?v=${v}`);
   const man = JSON.parse(src('offline-manifest.json')).urls;
   for (const k of ['free-walk-look.js', 'free-walk-sets.js']) assert.ok(man.some(u => u.includes(k)), k + ' offline');
-  assert.ok(!man.some(u => /assets\/street\//.test(u)), 'street models stay out of the offline pack');
+  assert.ok(!man.some(u => /assets\/street\/[^?]+\.glb(?:\?|$)/.test(u) && !u.startsWith('./assets/street/city-review/market-stalls-v1/')), 'large street models stay on demand; only approved stalls are precached');
   assert.match(src('adventure/free-walk/free-walk.js'), /await window\.FreeWalkTown\.prepare\?\.\(4000, f => say\(f \* \.3\)\)/);
 }
 console.log('walk-town-look: ok');
