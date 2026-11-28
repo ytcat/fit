@@ -54,7 +54,7 @@ for (const m of [.55,1.45]) {
 rig.zoom=1; place(true);
 const wall=(x,z)=>abs(x)<1.8&&z>=.75&&z<=6;
 rig.town=scene(wall);
-for (let j=0;j<40;j++) {
+for (let j=0;j<70;j++) {
  const previous = rig.camYaw;
  place(false,1/60);
  const delta = Math.atan2(Math.sin(rig.camYaw-previous), Math.cos(rig.camYaw-previous));
