@@ -1045,6 +1045,7 @@ User tested the published build. Wording below is the user's request, lightly cl
 ### Old Town fountain follow-up — water remains still
 - **Reported:** 2026-11-28, iPhone Safari, Old Town fountain near the route to Bruno's gym.
 - **Status:** Animated jets and expanding ripples verified in Chromium on `fix/freewalk-touch-camera-20261128`. Physical Safari remains pending.
+- **Visual follow-up:** Refined water reflections, flowing highlights, and impact spray, with eight matched in-game renders verified on the same branch.
 
 ### GOTR-0131 — Free walk: broken pedestrian crossing on the Neon Strip
 - **Reported:** 2026-11-25 (owner, iPhone, the night walk to the Docks, Neon Strip: "Broken cross road" — doubled, stepped zebra stripes).

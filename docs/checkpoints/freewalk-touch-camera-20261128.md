@@ -18,3 +18,9 @@ The approved fountain GLB had no animation tracks. FreeWalk now animates moving 
 The final browser probe dispatched Chromium touchscreen events in 393×852 portrait, then advanced the real FreeWalk simulation in fixed 1/30 s steps on a clear Fairground path selected for the rendered heading. A slight sideways variation during the forward drag remained filtered, and the measured lateral drift was under 2 cm. The right stick rotated the camera while the left kept its movement reference. Touch cancellation cleared movement and a new left gesture walked again. No page errors occurred.
 
 The bounded orbit recorded at most 0.1134 rad per simulation step. A solid edge still shortened the boom by up to 1.68 m in one straight-walk step. The simultaneous look segment changed by at most 0.002 m per step. This is a game-step measurement, with no physical device frame-rate or whole-route smoothness claim. See `qa/approved-city/evidence/freewalk-20261128/controls.json`. Main and the deployed version were not changed.
+
+### Fountain visual refinement
+
+The next pass keeps the authored stonework and upgrades the water. Two scales of animated highlights travel down the original jet arcs. The water uses directional surface waves, six local impact waves, and a stronger reflection at glancing angles. Finer ripple rings and one batch of 42 small ballistic splash droplets mark the landing points. There are no new external assets. The existing basin collision and fallback remain in place.
+
+393×852 Chromium software WebGL passed the stationary-player fountain check. Eight fixed-camera renders showed distinct water frames and ring sizes, 42 splash particles, and zero page or shader errors. The checked source is `b898cb4`. Focused FreeWalk, crossings, and offline-version tests also passed. The evidence folder includes the loop, a matched comparison, and measurements. Physical iPhone Safari rendering and frame rate remain unverified.
