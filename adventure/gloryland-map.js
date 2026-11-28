@@ -1502,6 +1502,7 @@ function townSquare(W) {
   if (art) {
     const model = art.clone(true);
     model.name = 'Old Town park fountain'; model.position.set(b.x, y, b.z); W.group.add(model);
+    detailParkFountain(W, model);
     animateParkFountain(W, model);
     const geometry = fountainSolid.geometry(), material = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
     const proxy = new THREE.Mesh(geometry, material); proxy.name = 'Old Town park fountain collision';
@@ -1511,7 +1512,17 @@ function townSquare(W) {
     const [tx, tz] = fr.p(sx * (b.w / 2 - 1.6), sz * (b.d / 2 - 1.6));
     const parkArt = sx === sz ? 'oldParkBroad' : 'oldParkUpright';
     addInst(W, 'trees', { x: tx, y, z: tz, s: rnd(.8, .95), parkArt });
+    if (W.walk) {
+      W.solid.add(P.cyl20, M(tx, y, tz, .80, .12, .80), C('#9b856a'));
+      W.solid.add(P.cyl20, M(tx, y + .12, tz, .83, .045, .83), C('#d5bf99'));
+      W.solid.add(P.cyl20, M(tx, y + .165, tz, .72, .013, .72), C('#65634a'));
+      for (let i = 0; i < 8; i++) {
+        const a = i * TAU / 8;
+        W.solid.add(P.ico, M(tx + .53 * Math.cos(a), y + .17, tz + .53 * Math.sin(a), .13, .09, .11), C(i % 2 ? '#6b814f' : '#4f693e'));
+      }
+    }
   }
+  if (W.walk) furnishFountainSquare(W, fr, y, b.w);
   // clock tower on the back corner
   const [cx, cz] = fr.p(-b.w / 2 + 1.4, -b.d / 2 + 1.4), ct = frame(cx, cz, fr.ry);
   W.solid.add(P.box, M(cx, y, cz, 1.7, 7.2, 1.7, fr.ry), C('#efe2c6'), { ao: .25 });
@@ -1528,6 +1539,68 @@ function townSquare(W) {
   }
   for (let k = 0; k < 7; k++) { const [px, pz] = fr.p(rnd(-b.w / 2 + 1, b.w / 2 - 1), rnd(-b.d / 2 + 1, b.d / 2 - 1)); if (Math.hypot(px - b.x, pz - b.z) > 2.1) addInst(W, 'people', { x: px, y, z: pz, s: 1, color: pick(PAL.car) }); }
   pool(W, b.x, b.z, 3, '#ffd9a0', .4);
+}
+
+/** Two outward-clear seating bays, with room on all four approaches to the fountain. */
+function furnishFountainSquare(W, square, y, width) {
+  const iron = C('#263d3a'), brass = C('#bb9964'), boards = ['#af7542', '#bd8650', '#935d38'].map(C);
+  for (const side of [-1, 1]) {
+    const [x,z] = square.p(side * Math.max(2.9, width * .27), 0);
+    const f = frame(x, z, square.ry - side * Math.PI / 2);
+    const piece = (proto, lx, h, lz, w, dy, d, color, tilt = 0) => {
+      const [px,pz] = f.p(lx, lz);
+      W.solid.add(proto, M(px,y+h,pz,w,dy,d,f.ry,tilt),color);
+    };
+    for (const a of [-.27,.27]) {
+      piece(P.box,a,0,.04,.037,.145,.145,iron);
+      piece(P.box,a,.025,-.092,.033,.275,.037,iron,-.14);
+      piece(P.box,a,.189,.034,.036,.043,.146,iron);
+      piece(P.cyl8,a,.231,.12,.020,.016,.020,brass);
+    }
+    for (let i=0;i<4;i++) piece(P.box,0,.155,-.07+i*.041,.62,.018,.036,boards[i%3]);
+    for (let i=0;i<3;i++) piece(P.box,0,.215+i*.036,-.098-i*.005,.62,.029,.017,boards[(i+1)%3],-.14);
+    piece(P.box,0,.304,-.112,.64,.018,.025,iron);
+
+    const [bx,bz] = square.p(side * Math.max(2.9, width * .27), .76);
+    W.solid.add(P.cyl12,M(bx,y,bz,.10,.24,.10),iron);
+    for(let i=0;i<12;i++){
+      const a=i*TAU/12;
+      W.solid.add(P.box,M(bx+.096*Math.cos(a),y+.026,bz+.096*Math.sin(a),.023,.200,.012,-a+Math.PI/2),boards[i%3]);
+    }
+    W.solid.add(P.cyl12,M(bx,y+.235,bz,.108,.024,.108),iron);
+    W.solid.add(P.cyl12,M(bx,y+.26,bz,.096,.009,.096),brass);
+    W.solid.add(P.cyl12,M(bx,y+.269,bz,.075,.006,.075),C('#152221'));
+  }
+}
+
+function detailParkFountain(W, model) {
+  const stone = new Batch(), jade = C('#477c78'), pale = C('#c9bca1'), gold = C('#a78452');
+  // The transparent water reveals the ceramic floor, including the slim grout gaps.
+  stone.add(P.cyl20, M(0,.263,0,1.42,.006,1.42), C('#a9aa92'));
+  for (let band=0;band<7;band++) {
+    const inner=.34+band*.15, outer=inner+.144, n=32+band*6;
+    for(let tile=0;tile<n;tile++){
+      const a=(tile+(band%2)*.5)*TAU/n+.005, b=a+TAU/n-.010;
+      const point=(r,h)=>[r*Math.cos(h),.274,r*Math.sin(h)];
+      const accent=band===0||band===6||((tile+3*band)%11<2);
+      const color=(accent?jade:pale).clone().multiplyScalar(.87+.13*((tile*17+band*7)%9)/8);
+      stone.quadF(point(inner,a),point(inner,b),point(outer,b),point(outer,a),color,color,[0,1,0]);
+    }
+  }
+  // A bronze bead and recessed ceramic panels give the rim a readable profile at street level.
+  for (let i=0;i<48;i++){
+    const a=i*TAU/48, radius=1.685;
+    stone.add(P.box,M(radius*Math.cos(a),.202,radius*Math.sin(a),.158,.042,.025,-a+Math.PI/2),i%4===0?gold:jade);
+  }
+  for(const [radius,y,thickness] of [[1.692,.196,.009],[1.692,.249,.009],[.355,.413,.012],[.538,1.043,.009]]){
+    const trim = new THREE.TorusGeometry(radius,thickness,5,64).rotateX(-Math.PI/2).translate(0,y,0);
+    const plain = trim.toNonIndexed();
+    stone.add(plain,M(0,0,0),gold);
+    trim.dispose();plain.dispose();
+  }
+  const geo=stone.geometry(), mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.68});
+  const detail=new THREE.Mesh(geo,mat);detail.name='Fountain ceramic and bronze detail';
+  model.add(detail);W.disposables.push(geo,mat);
 }
 
 /** Flow along the authored jet arcs and expand ripples at their six original impact points. */
@@ -1560,6 +1633,8 @@ function animateParkFountain(W, model) {
                      + 0.47 * sin(travelled * 101.0 - fountainTime * 47.0 + fountainJet.z * 9.0);
         diffuseColor.rgb *= 0.72 + 0.49 * smoothstep(0.1, 1.4, streak);`);
   };
+  flow.transparent = true; flow.opacity = .58; flow.depthWrite = false;
+  jets.renderOrder = 2;
   flow.customProgramCacheKey = () => 'old-town-fountain-flow';
   jets.material = flow;
 
@@ -1567,7 +1642,9 @@ function animateParkFountain(W, model) {
   const cup = model.getObjectByName(THREE.PropertyBinding.sanitizeNodeName('Upper cup water'));
   if (water?.isMesh && cup?.isMesh) {
     const surface = water.material.clone();
-    surface.roughness = .23; surface.metalness = .12;
+    surface.roughness = .23; surface.metalness = .04;
+    surface.transparent = true; surface.depthWrite = false;
+    water.renderOrder = cup.renderOrder = 1;
     const impacts = points.map((p, i) => `slope += impactSlope(p, vec2(${p.x.toFixed(4)}, ${p.z.toFixed(4)}), ${(i * .8).toFixed(2)});`).join('\n');
     surface.onBeforeCompile = shader => {
       shader.uniforms.fountainTime = jetTime;
@@ -1577,6 +1654,7 @@ function animateParkFountain(W, model) {
         uniform float fountainTime;
         vec2 impactSlope(vec2 p, vec2 center, float phase) {
           vec2 delta = p - center; float r = length(delta);
+          if (r >= .30) return vec2(0.0);
           float envelope = smoothstep(0.015, 0.07, r) * (1.0 - smoothstep(0.08, 0.30, r));
           return delta / max(r, 0.01) * cos(r * 49.0 - fountainTime * 13.0 + phase) * envelope * .075;
         }
@@ -1588,8 +1666,9 @@ function animateParkFountain(W, model) {
           ${impacts}
         }
         normal = normalize(normal + mat3(viewMatrix) * vec3(slope.x, 0.0, slope.y));
-        float glancing = pow(1.0 - max(0.0, dot(normal, normalize(vViewPosition))), 3.0);
-        diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 0.72 + vec3(.038, .090, .105), glancing * .54);
+        float glancing = pow(1.0 - clamp(dot(normal, normalize(vViewPosition)), 0.0, 1.0), 3.0);
+        diffuseColor.rgb = mix(vec3(.041, .163, .168), vec3(.22, .43, .48), glancing * .66);
+        diffuseColor.a = .22 + glancing * .44;
       `);
     };
     surface.customProgramCacheKey = () => 'old-town-fountain-water';
@@ -1600,7 +1679,7 @@ function animateParkFountain(W, model) {
   const splashGeometry = new THREE.BufferGeometry(), origins = [], flight = [];
   points.forEach((p, impact) => {
     for (let i = 0; i < 7; i++) {
-      origins.push(p.x, p.y + .004, p.z);
+      origins.push(p.x, p.y + .001, p.z);
       flight.push((i * .618 + impact * .137) % 1, i * 2.399 + impact, .48 + .09 * ((i + impact) % 5));
     }
   });
@@ -1624,11 +1703,11 @@ function animateParkFountain(W, model) {
     fragmentShader: `varying float fade;
       void main() {
         float a = 1.0 - smoothstep(.18, .5, length(gl_PointCoord - .5));
-        gl_FragColor = vec4(.78, .93, .98, a * fade * .62);
+        gl_FragColor = vec4(.78, .93, .98, a * fade * .43);
       }`
   });
   const splash = new THREE.Points(splashGeometry, splashMaterial);
-  splash.name = 'Fountain impact spray';
+  splash.name = 'Fountain impact spray'; splash.renderOrder = 3;
   splashGeometry.computeBoundingSphere(); splashGeometry.boundingSphere.radius += .3;
   splash.onBeforeRender = renderer => {
     splashMaterial.uniforms.focalPixels.value = renderer.domElement.height;
@@ -1637,10 +1716,10 @@ function animateParkFountain(W, model) {
   W.disposables.push(splashGeometry, splashMaterial);
 
   const geo = new THREE.RingGeometry(.86, 1, 24).rotateX(-Math.PI / 2);
-  const mat = new THREE.MeshBasicMaterial({ color: 0x9bdae5, transparent: true, opacity: .44,
+  const mat = new THREE.MeshBasicMaterial({ color: 0xa6d0cc, transparent: true, opacity: .24,
     blending: THREE.AdditiveBlending, depthWrite: false });
   const rings = new THREE.InstancedMesh(geo, mat, points.length * 2);
-  rings.name = 'Moving fountain ripples';
+  rings.name = 'Moving fountain ripples'; rings.renderOrder = 3;
   geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .313, 0), 1.55);
   rings.frustumCulled = true;
   rings.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
