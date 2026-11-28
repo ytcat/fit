@@ -1600,8 +1600,25 @@ function detailParkFountain(W, model) {
     trim.dispose();plain.dispose();
   }
   const geo=stone.geometry(), mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.68});
+  const waterClock = { value: 0 };
+  mat.onBeforeCompile = shader => {
+    shader.uniforms.fountainWaterClock = waterClock;
+    shader.vertexShader = 'varying vec3 fountainTile;\n' + shader.vertexShader
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nfountainTile = position;');
+    shader.fragmentShader = 'varying vec3 fountainTile; uniform float fountainWaterClock;\n' + shader.fragmentShader
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        if (fountainTile.y > .258 && fountainTile.y < .278) {
+          vec2 p = fountainTile.xz;
+          float a = sin(dot(p, vec2(26.0, 19.0)) + sin(p.z * 18.0 - fountainWaterClock * 2.2));
+          float b = sin(dot(p, vec2(-17.0, 33.0)) + sin(p.x * 13.0 + fountainWaterClock * 1.7));
+          float caustic = smoothstep(.79, 1.0, 1.0 - abs(a + .53 * b));
+          diffuseColor.rgb *= .92 + .18 * caustic;
+        }`);
+  };
+  mat.customProgramCacheKey = () => 'old-town-fountain-mosaic';
   const detail=new THREE.Mesh(geo,mat);detail.name='Fountain ceramic and bronze detail';
   model.add(detail);W.disposables.push(geo,mat);
+  W.animated.push(time => { waterClock.value = time; });
 }
 
 /** Flow along the authored jet arcs and expand ripples at their six original impact points. */
@@ -1668,8 +1685,9 @@ function animateParkFountain(W, model) {
         }
         normal = normalize(normal + mat3(viewMatrix) * vec3(slope.x, 0.0, slope.y));
         float glancing = pow(1.0 - clamp(dot(normal, normalize(vViewPosition)), 0.0, 1.0), 3.0);
-        diffuseColor.rgb = mix(vec3(.041, .163, .168), vec3(.22, .43, .48), glancing * .66);
-        diffuseColor.a = .22 + glancing * .44;
+        diffuseColor.rgb = mix(vec3(.033, .18, .177), vec3(.22, .43, .48), glancing * .66);
+        float depth = 1.0 - smoothstep(.70, 1.41, length(p));
+        diffuseColor.a = .22 + depth * .12 + glancing * .44;
       `);
     };
     surface.customProgramCacheKey = () => 'old-town-fountain-water';
