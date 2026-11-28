@@ -1532,8 +1532,8 @@ function townSquare(W) {
 
 /** Flow along the authored jet arcs and expand ripples at their six original impact points. */
 function animateParkFountain(W, model) {
-  const jets = model.getObjectByName('Water jets and droplets • visual');
-  const baked = model.getObjectByName('Contact ripples • visual');
+  const jets = model.getObjectByName(THREE.PropertyBinding.sanitizeNodeName('Water jets and droplets • visual'));
+  const baked = model.getObjectByName(THREE.PropertyBinding.sanitizeNodeName('Contact ripples • visual'));
   if (!jets?.isMesh || !baked?.geometry) return;
   const vertices = baked.geometry.attributes.position, points = [];
   // The approved GLB groups two rings of 48 vertices at each impact, in authored order.
