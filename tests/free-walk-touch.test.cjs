@@ -93,12 +93,23 @@ function harness(wall = false) {
   assert.equal(host.hasPointerCapture(1),false);
 }
 {
-  const {r,host}=harness(true);
-  host.event('pointerdown',230,300);
-  host.event('pointermove',230,240);
+  const {r,pad}=harness(true);
+  r.pad = pad;
+  pad.classList.contains = name => pad.classList.has(name);
+  pad.classList.toggle = (name, force) => force ? pad.classList.add(name) : pad.classList.delete(name);
+  pad.event('pointerdown',230,300);
+  pad.event('pointermove',230,240);
   for(let i=0;i<74;i++)step(.05,2000+i*50,false);
   assert.ok(r.s.z > -1.75 && r.s.z < -1.60, 'brisk gait does not cross blocked grid row');
   near(r.s.x,0);
+  assert.ok(pad.classList.contains('blocked'), 'held movement against a blocker gives visible feedback');
+  pad.event('pointermove',175,300);
+  for(let i=0;i<20;i++)step(.05,5700+i*50,false);
+  assert.ok(r.s.x < -1, 'turning left can immediately leave a blocked forward direction');
+  assert.ok(!pad.classList.contains('blocked'));
+  pad.event('pointercancel',175,300);
+  assert.equal(r.touchPace,null);
+  assert.ok(!pad.classList.contains('active'));
 }
 {
   const { r } = harness();
